@@ -1,0 +1,14 @@
+{
+  "id": "682354ac-78b6-47a1-9b9d-954ade330e46-superpowers:brainstorming",
+  "skill_name": "superpowers:brainstorming",
+  "timestamp": "2026-04-15T10:21:50.893794Z",
+  "duration_ms": 0,
+  "input_summary": "/superpowers:brainstorming ",
+  "output_summary": "",
+  "tool_calls": [],
+  "errors": [],
+  "classification": "failure",
+  "score": 0.2,
+  "reflection": null,
+  "project_path": "/Users/gqadonis/Projects/prometheus/prometheus-skill-pack"
+}

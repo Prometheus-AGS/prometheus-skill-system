@@ -39,7 +39,7 @@ permit(
     context has human_approved &&
     context.human_approved == true &&
     context has test_pass_rate &&
-    context.test_pass_rate >= 0.95
+    context.test_pass_rate >= 95
 };
 
 // --- STAGING: allow generation with validation ---
