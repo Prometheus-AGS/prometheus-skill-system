@@ -12,8 +12,10 @@ default = []
 knowledge = ["dep:pk-core", "dep:pk-librarian", "dep:pk-store"]
 # Enable prompt optimization via dspy-rs (requires LLM API access)
 optimize = ["dep:dspy"]
-# Enable both
-full = ["knowledge", "optimize"]
+# Enable sycophancy detection in trace evaluation
+sycophancy = ["dep:sycophancy-core"]
+# Enable all
+full = ["knowledge", "optimize", "sycophancy"]
 
 [dependencies]
 anyhow.workspace = true
@@ -27,7 +29,8 @@ tracing.workspace = true
 sha2.workspace = true
 
 # Prometheus ecosystem — optional, gated behind feature flags
-pk-core = { git = "https://github.com/Prometheus-AGS/prometheus-knowledge-rs.git", optional = true }
-pk-librarian = { git = "https://github.com/Prometheus-AGS/prometheus-knowledge-rs.git", optional = true }
-pk-store = { git = "https://github.com/Prometheus-AGS/prometheus-knowledge-rs.git", optional = true }
-dspy = { git = "https://github.com/GQAdonis/dspy-rs.git", optional = true }
+pk-core = { workspace = true, optional = true }
+pk-librarian = { workspace = true, optional = true }
+pk-store = { workspace = true, optional = true }
+dspy = { workspace = true, optional = true }
+sycophancy-core = { workspace = true, optional = true }

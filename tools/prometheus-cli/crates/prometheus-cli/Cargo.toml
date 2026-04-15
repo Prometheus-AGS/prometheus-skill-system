@@ -35,3 +35,6 @@ tracing-subscriber.workspace = true
 
 # GitHub API
 octocrab.workspace = true
+
+# Sycophancy detection (for prometheus sycophancy subcommands)
+sycophancy-core.workspace = true

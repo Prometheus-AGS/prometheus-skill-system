@@ -4,3 +4,6 @@
 [submodule "skills/imported/sycophancy-correction"]
 	path = skills/imported/sycophancy-correction
 	url = https://github.com/Know-Me-Tools/sycophancy-correction-skill.git
+[submodule "tools/surreal-memory-server"]
+	path = tools/surreal-memory-server
+	url = https://github.com/Prometheus-AGS/surreal-memory-server.git

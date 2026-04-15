@@ -1,7 +1,9 @@
 //! Execution trace evaluation and classification.
 //!
 //! Scores execution traces using automated metrics and optionally LLM-as-judge.
-//! Failure traces get reflection analysis to identify root causes.
+//! When the `sycophancy` feature is enabled, traces with sycophantic outputs
+//! are excluded from the optimization dataset to prevent the optimizer from
+//! learning sycophantic patterns.
 
 use crate::trace::{ExecutionTrace, TraceClassification};
 
@@ -46,4 +48,48 @@ pub fn evaluate_trace(trace: &mut ExecutionTrace) {
     } else {
         TraceClassification::Failure
     };
+
+    // Apply sycophancy filter when feature is enabled
+    #[cfg(feature = "sycophancy")]
+    sycophancy_filter(trace);
+}
+
+/// Filter traces with sycophantic outputs from the optimization dataset.
+///
+/// Traces with sycophancy_score >= 0.5 are downgraded to Failure classification
+/// and excluded from dspy-rs optimization. This prevents the optimizer from
+/// learning sycophantic patterns (which would compound across iterations).
+#[cfg(feature = "sycophancy")]
+fn sycophancy_filter(trace: &mut ExecutionTrace) {
+    if trace.output_summary.trim().is_empty() {
+        return;
+    }
+
+    let config = sycophancy_core::config::SkillConfig::default();
+    let detector = sycophancy_core::skill::detector::Detector::new(config);
+    let detection = detector.detect(
+        &trace.output_summary,
+        &[],
+        &sycophancy_core::Strictness::Standard,
+    );
+
+    if detection.sycophancy_score >= 0.5 {
+        trace.classification = TraceClassification::Failure;
+        let patterns: Vec<&str> = detection
+            .classifications
+            .iter()
+            .map(|c| c.pattern_id.as_str())
+            .collect();
+        trace.errors.push(format!(
+            "Sycophancy score {:.2} (patterns: {}) — excluded from optimization dataset",
+            detection.sycophancy_score,
+            patterns.join(", ")
+        ));
+        tracing::info!(
+            skill = %trace.skill_name,
+            score = detection.sycophancy_score,
+            patterns = ?patterns,
+            "Trace excluded from optimization: sycophancy detected"
+        );
+    }
 }

@@ -5373,6 +5373,7 @@ dependencies = [
  "serde",
  "serde_json",
  "sha2",
+ "sycophancy-core",
  "tokio 1.52.0",
  "toml",
  "tracing",
@@ -5394,6 +5395,7 @@ dependencies = [
  "serde",
  "serde_json",
  "sha2",
+ "sycophancy-core",
  "thiserror 2.0.18",
  "tokio 1.52.0",
  "tracing",
@@ -7599,6 +7601,24 @@ dependencies = [
  "serde_json",
  "sha2",
  "simple_asn1",
+]
+
+[[package]]
+name = "sycophancy-core"
+version = "1.0.0"
+source = "git+https://github.com/Know-Me-Tools/sycophancy-correction-skill.git#7cbe818e8762eb6491e35e793f18f9e017204f22"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "chrono",
+ "regex",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.18",
+ "tokio 1.52.0",
+ "toml",
+ "tracing",
+ "uuid",
 ]
 
 [[package]]

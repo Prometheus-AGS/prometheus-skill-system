@@ -11,6 +11,7 @@ pub mod optimize;
 pub mod policy;
 pub mod search;
 pub mod status;
+pub mod sycophancy;
 pub mod uninstall;
 pub mod validate;
 pub mod verify;

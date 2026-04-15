@@ -174,6 +174,12 @@ enum Commands {
         #[command(subcommand)]
         action: PolicyAction,
     },
+
+    /// Detect and correct sycophantic patterns
+    Sycophancy {
+        #[command(subcommand)]
+        action: SycophancyAction,
+    },
 }
 
 #[derive(Subcommand)]
@@ -200,6 +206,31 @@ enum PolicyAction {
 }
 
 #[derive(Subcommand)]
+enum SycophancyAction {
+    /// Detect sycophantic patterns in a file
+    Detect {
+        /// File to scan (use "-" for stdin)
+        file: String,
+        /// Strictness level
+        #[arg(short, long, default_value = "standard")]
+        strictness: String,
+    },
+    /// Return numeric sycophancy score only (0.0-1.0)
+    Score {
+        /// File to scan (use "-" for stdin)
+        file: String,
+    },
+    /// Detect patterns and provide correction guidance
+    Correct {
+        /// File to correct (use "-" for stdin)
+        file: String,
+        /// Strictness level
+        #[arg(short, long, default_value = "standard")]
+        strictness: String,
+    },
+}
+
+#[derive(Subcommand)]
 enum MemoryAction {
     /// Check server health
     Ping,
@@ -212,6 +243,12 @@ enum MemoryAction {
         /// Filter by entity type
         #[arg(short, long)]
         r#type: Option<String>,
+    },
+    /// Install surreal-memory server
+    Install {
+        /// Dry run — show what would happen
+        #[arg(long)]
+        dry_run: bool,
     },
 }
 
@@ -266,6 +303,9 @@ async fn main() -> Result<()> {
             MemoryAction::Search { query, r#type } => {
                 commands::memory::search(&query, r#type.as_deref()).await
             }
+            MemoryAction::Install { dry_run } => {
+                commands::memory::install(dry_run).await
+            }
         },
         Commands::Evolve { name, domain, phase } => {
             commands::evolve::run(&name, &domain, phase.as_deref())
@@ -283,5 +323,16 @@ async fn main() -> Result<()> {
         Commands::Optimize { skill, min_traces, dry_run } => {
             commands::optimize::run(&skill, min_traces, dry_run).await
         }
+        Commands::Sycophancy { action } => match action {
+            SycophancyAction::Detect { file, strictness } => {
+                commands::sycophancy::detect(&file, &strictness)
+            }
+            SycophancyAction::Score { file } => {
+                commands::sycophancy::score(&file)
+            }
+            SycophancyAction::Correct { file, strictness } => {
+                commands::sycophancy::correct(&file, &strictness)
+            }
+        },
     }
 }

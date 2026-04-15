@@ -48,6 +48,13 @@ prometheus-cedar = { path = "crates/prometheus-cedar" }
 # Cedar governance
 cedar-policy = "4"
 
+# Prometheus ecosystem (git deps — optional, behind feature flags in consuming crates)
+sycophancy-core = { git = "https://github.com/Know-Me-Tools/sycophancy-correction-skill.git", package = "sycophancy-core" }
+dspy = { git = "https://github.com/GQAdonis/dspy-rs.git" }
+pk-core = { git = "https://github.com/Prometheus-AGS/prometheus-knowledge-rs.git" }
+pk-librarian = { git = "https://github.com/Prometheus-AGS/prometheus-knowledge-rs.git" }
+pk-store = { git = "https://github.com/Prometheus-AGS/prometheus-knowledge-rs.git" }
+
 [profile.release]
 strip = true
 lto = true
