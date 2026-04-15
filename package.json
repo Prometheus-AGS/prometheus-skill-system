@@ -17,7 +17,9 @@
     "install:platforms": "npx tsx scripts/install-platforms.ts",
     "install:platforms:list": "npx tsx scripts/install-platforms.ts --list",
     "install:opencode": "npx tsx scripts/install-platforms.ts --platform opencode",
-    "uninstall:platforms": "npx tsx scripts/install-platforms.ts --uninstall"
+    "uninstall:platforms": "npx tsx scripts/install-platforms.ts --uninstall",
+    "install:skills": "bash scripts/install-skills-flat.sh",
+    "uninstall:skills": "bash scripts/install-skills-flat.sh --uninstall"
   },
   "keywords": [
     "claude-code",
