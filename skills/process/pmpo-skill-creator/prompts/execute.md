@@ -235,6 +235,7 @@ LLM-generated skill instructions tend to over-satisfy specs without surfacing
 constraints, producing prompts that are sycophancy-inducing by design.
 
 Check for:
+
 - **S-01 (Unprompted Affirmation)**: Skill instructions that praise the user
   rather than directing behavior
 - **S-03 (Caveat Collapse)**: Instructions with zero edge cases, failure modes,
@@ -243,6 +244,7 @@ Check for:
   than the task requires — visible effort over analytical value
 
 If the `sycophancy-correction` skill is available, invoke it with:
+
 - `target: prompt`
 - `correction_mode: rewrite`
 - `strictness: standard`

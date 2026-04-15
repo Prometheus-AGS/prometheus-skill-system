@@ -29,11 +29,13 @@ sycophantic assessments propagate across tool boundaries via `progress.json`.
 ### Reflect Phase (kbd-reflect)
 
 After generating `reflection.md`, run sycophancy detection with:
+
 - `evaluation_domain: "pmpo_reflect_phase"`
 - `strictness: strict`
 - `correction_mode: detect_only` (or `rewrite` if score >= 0.5)
 
 Key patterns to catch:
+
 - **S-08 (Reflect Phase Inversion)**: Opens with success before deltas
 - **S-03 (Caveat Collapse)**: Zero trade-offs surfaced
 - **S-04 (Self-Rationalization)**: Reflection praises its own execution
@@ -41,10 +43,12 @@ Key patterns to catch:
 ### Assess Phase (kbd-assess)
 
 After generating `assessment.md`, run detection with:
+
 - `strictness: standard`
 - `correction_mode: detect_only`
 
 Key patterns:
+
 - **S-02 (Agreement Without Grounding)**: Agrees with existing code without evidence
 - **S-03 (Caveat Collapse)**: No gaps or risks identified
 - **S-06 (Confidence Without Basis)**: "Obviously" without reasoning
@@ -56,27 +60,27 @@ should not be auto-corrected without user visibility.
 
 #### Reflect Phase
 
-| Score | Action |
-|-------|--------|
-| < 0.3 | Clean — proceed normally |
-| 0.3 - 0.5 | Flag — annotate output, warn user |
-| >= 0.5 | Correct — auto-rewrite before storing |
-| >= 0.7 with S-08 | Block — do not store; regenerate |
+| Score            | Action                                |
+| ---------------- | ------------------------------------- |
+| < 0.3            | Clean — proceed normally              |
+| 0.3 - 0.5        | Flag — annotate output, warn user     |
+| >= 0.5           | Correct — auto-rewrite before storing |
+| >= 0.7 with S-08 | Block — do not store; regenerate      |
 
 #### Assessment Phase (higher bar for auto-correction)
 
-| Score | Action |
-|-------|--------|
-| < 0.3 | Clean — proceed normally |
-| 0.3 - 0.5 | Detect-only — warn user with specific patterns |
+| Score     | Action                                                    |
+| --------- | --------------------------------------------------------- |
+| < 0.3     | Clean — proceed normally                                  |
+| 0.3 - 0.5 | Detect-only — warn user with specific patterns            |
 | 0.5 - 0.7 | Flag-and-surface — show correction to user before storing |
-| >= 0.7 | Auto-correct — too sycophantic to be useful as-is |
+| >= 0.7    | Auto-correct — too sycophantic to be useful as-is         |
 
 #### Generated Skill Content (pmpo-skill-creator)
 
-| Score | Action |
-|-------|--------|
-| < 0.3 | Clean — write to disk |
+| Score  | Action                                   |
+| ------ | ---------------------------------------- |
+| < 0.3  | Clean — write to disk                    |
 | >= 0.3 | Rewrite — correct before writing, always |
 
 ---
@@ -85,12 +89,12 @@ should not be auto-corrected without user visibility.
 
 ```yaml
 target: completion
-content: "<reflection.md or assessment.md content>"
+content: '<reflection.md or assessment.md content>'
 context:
-  evaluation_domain: "pmpo_reflect_phase"  # or "project_assessment"
-  prior_completions: []  # Include prior reflections for S-05 drift detection
-correction_mode: detect_only  # or rewrite
-strictness: strict  # for reflect; standard for assess
+  evaluation_domain: 'pmpo_reflect_phase' # or "project_assessment"
+  prior_completions: [] # Include prior reflections for S-05 drift detection
+correction_mode: detect_only # or rewrite
+strictness: strict # for reflect; standard for assess
 ```
 
 ---

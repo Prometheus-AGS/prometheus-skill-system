@@ -119,13 +119,13 @@ Verify state lifecycle:
 
 Run sycophancy detection on the generated SKILL.md instruction body:
 
-| Check | Pattern | Severity |
-|-------|---------|----------|
-| Unprompted affirmation in instructions | S-01 | **WARN** |
-| No "when NOT to use" section | S-03 | **WARN** |
-| No edge cases or failure modes | S-03 | **FAIL** |
-| Self-congratulatory language | S-04 | **WARN** |
-| Instructions > 500 words with no analytical density | S-07 | **WARN** |
+| Check                                               | Pattern | Severity |
+| --------------------------------------------------- | ------- | -------- |
+| Unprompted affirmation in instructions              | S-01    | **WARN** |
+| No "when NOT to use" section                        | S-03    | **WARN** |
+| No edge cases or failure modes                      | S-03    | **FAIL** |
+| Self-congratulatory language                        | S-04    | **WARN** |
+| Instructions > 500 words with no analytical density | S-07    | **WARN** |
 
 If the Execute phase ran a sycophancy correction pass, verify the corrected
 content is present (not the uncorrected original). **FAIL** if uncorrected
