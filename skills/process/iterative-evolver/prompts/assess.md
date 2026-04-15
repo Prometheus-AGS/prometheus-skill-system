@@ -144,6 +144,23 @@ Write this to `assessment.json`.
 
 ---
 
+## Sycophancy Self-Check
+
+Before finalizing the assessment, verify it is not sycophantic:
+
+- **S-02**: Do not agree with the project's existing architecture or approach
+  without independently evaluating it against the goals. "The current
+  approach is sound" requires evidence.
+- **S-03**: Surface at least one gap, risk, or area of concern. If the
+  assessment is genuinely clean, state that with specific evidence — but
+  default to critical examination, not approval.
+- **S-06**: Avoid confidence language ("clearly", "obviously") without
+  a derivable reasoning chain that leads to the conclusion.
+
+If the `sycophancy-correction` skill is available, run it with
+`correction_mode: detect_only` and `strictness: standard` on the
+assessment output. Flag scores >= 0.3 for review.
+
 ## Rules
 
 - Be explicit and structured
@@ -152,6 +169,7 @@ Write this to `assessment.json`.
 - Use domain adapter criteria for evaluation
 - If a metric cannot be measured, note it as an unknown
 - If this is not the first iteration, include comparison to prior assessment
+- Apply sycophancy self-check before finalizing (see above)
 
 ## Degree of Freedom
 

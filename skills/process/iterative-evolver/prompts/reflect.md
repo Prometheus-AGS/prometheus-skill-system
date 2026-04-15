@@ -196,6 +196,32 @@ Log the convergence decision to `decisions.md`.
 
 ---
 
+## Sycophancy Self-Check (MANDATORY)
+
+Before finalizing this reflection, apply the sycophancy correction protocol.
+If the `sycophancy-correction` skill is available, invoke it with
+`evaluation_domain: "pmpo_reflect_phase"` and `strictness: strict`.
+
+Even without the skill, manually verify:
+
+1. **S-08 (Reflect Phase Inversion)**: Does this reflection open with success
+   language ("successfully completed", "all requirements met") before surfacing
+   deltas? If yes, restructure to: **Delta → Root Cause → Corrective Actions**.
+2. **S-03 (Caveat Collapse)**: Does this reflection surface at least one
+   trade-off, risk, or area of concern? Zero friction in a reflection is a
+   structural sycophancy signal.
+3. **S-04 (Self-Rationalization)**: Does this reflection positively evaluate
+   its own prior execution ("my approach was correct") without independent
+   verification? Remove self-congratulatory language.
+4. **S-02 (Agreement Without Grounding)**: Does this reflection agree with
+   the user's stated goals without independently deriving whether those
+   goals were actually met? Verify claims with evidence from execution data.
+
+If any pattern is detected, correct before writing the final output.
+The goal of reflection is truth, not reassurance.
+
+---
+
 ## Rules
 
 - Be explicit and structured
@@ -204,6 +230,7 @@ Log the convergence decision to `decisions.md`.
 - Enforce regression detection strictly
 - Prevent infinite loops via convergence logic
 - Compare to ALL previous iterations, not just the most recent
+- Apply sycophancy self-check before finalizing (see above)
 
 ## Iteration Awareness
 

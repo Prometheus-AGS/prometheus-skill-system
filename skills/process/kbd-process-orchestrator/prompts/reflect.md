@@ -142,6 +142,26 @@ Write to `.kbd-orchestrator/phases/<phase-name>/reflection.md`:
 Use this file as prior context for the next `/kbd-assess` invocation.
 ```
 
+## Sycophancy Self-Check (MANDATORY)
+
+Before finalizing this reflection, verify it is not sycophantic:
+
+1. **S-08 (Reflect Phase Inversion)**: Does this reflection open with
+   "successfully completed" or "all requirements met" before surfacing
+   deltas and failures? If yes, restructure: lead with what diverged
+   from the plan, then root causes, then corrective actions.
+2. **S-03 (Caveat Collapse)**: Does the reflection surface at least one
+   area of concern, trade-off, or technical debt item? If the phase was
+   truly clean, state that explicitly with evidence — don't default to
+   success language without verification.
+3. **S-02 (Agreement Without Grounding)**: Does the "Goals" table
+   independently verify goal status from `progress.json` data, or does
+   it echo the plan's expected outcomes without checking execution reality?
+
+If the `sycophancy-correction` skill is available, run it with
+`evaluation_domain: "pmpo_reflect_phase"` and `strictness: strict` on
+the generated reflection before writing.
+
 After writing, advance the waypoint to the next phase:
 
 - Set `.kbd-orchestrator/current-waypoint.json` → `active_phase` = next phase name

@@ -73,6 +73,17 @@ Check for known violations (import patterns, type safety, forbidden APIs, etc.)
 - Are tests present for new features?
 - What percentage of new surface area is covered?
 
+## Sycophancy Self-Check
+
+Before finalizing the assessment, verify it is not sycophantic:
+
+- **S-02**: Do not agree with the codebase's existing patterns without
+  independently evaluating them. "The architecture is correct" must be
+  backed by specific evidence from the code.
+- **S-03**: Surface at least one gap, risk, or area of concern. Zero
+  friction in an assessment is a structural sycophancy signal.
+- **S-06**: Replace "clearly" and "obviously" with reasoned conclusions.
+
 ## Output Format
 
 ```

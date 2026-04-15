@@ -33,7 +33,8 @@
     "./skills/devops/gitops-bootstrap",
     "./skills/devops/gitops-transform",
     "./skills/devops/argocd-multicloud",
-    "./skills/devops/kustomize-overlay"
+    "./skills/devops/kustomize-overlay",
+    "./skills/imported/sycophancy-correction"
   ],
   "agents": "./agents",
   "hooks": "./hooks/hooks.json",
