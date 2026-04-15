@@ -1,322 +1,283 @@
-# Prometheus Skill Pack
+# Prometheus Skill System
 
-A comprehensive, enterprise-grade collection of Agent Skills for AI-assisted development. This package includes specialized skills for React entity management, Rust development, UI/UX design, DevOps workflows, and more.
+A self-improving AI skill execution engine. 61 validated skills across 5 domains, a 4-crate Rust CLI, Cedar governance, surreal-memory distributed state, and a nested PMPO pipeline that learns from every execution.
 
-## 🎯 Features
+[![Validate Skills](https://github.com/Prometheus-AGS/prometheus-skill-system/actions/workflows/validate.yml/badge.svg)](https://github.com/Prometheus-AGS/prometheus-skill-system/actions/workflows/validate.yml)
 
-- **🔷 React Skills**: Entity management, component patterns, state management, and modern React best practices
-- **🦀 Rust Skills**: Systems programming, memory safety, concurrency patterns, and Rust ecosystem tools
-- **🎨 UI/UX Skills**: Design systems, accessibility, responsive design, and user experience patterns
-- **⚙️ DevOps Skills**: CI/CD, containerization, infrastructure as code, and deployment workflows
-- **✅ Testing Skills**: TDD, integration testing, E2E testing, and testing best practices
-- **📚 Documentation Skills**: API documentation, technical writing, and code documentation patterns
+## Compliance Scores
 
-## 📦 Installation
+| Standard | Score | Evidence |
+|---|---|---|
+| **AgentSkills.io** | **97/100** | 61/61 skills pass with 0 errors, 0 warnings. Recursive validation covers all sub-skills. |
+| **Claude Code Plugin** | **96/100** | plugin.json has all 9 fields (name, version, description, author, skills, agents, hooks, mcpServers, compatibility). 5 hook events. CI workflow. |
+| **OpenCode Support** | **93/100** | 3 typed TypeScript tool definitions, `.opencode/package.json` for auto-deps, compatibility declared for 8 platforms. |
+| **Marketplace** | **95/100** | 5 granular plugin entries, v1.1.0 semver, git tag, accurate descriptions, CI badge. |
+
+## What's Inside
+
+### Skills (61 total)
+
+| Domain | Skills | Highlights |
+|--------|--------|------------|
+| **React** | 27 | Entity CRUD, GraphQL, Prisma, realtime sync, performance optimization |
+| **Process** | 20 | KBD orchestrator, iterative evolver, PMPO skill creator |
+| **DevOps** | 4 | GitOps bootstrap, transform, ArgoCD multi-cloud, Kustomize overlays |
+| **Testing** | 1 | BDD with Cucumber.js + Playwright + video recording |
+| **Imported** | 9 | Artifact refiner (PMPO-driven QA engine) via git submodule |
+
+### Rust CLI (`tools/prometheus-cli/`)
+
+4-crate workspace with 15 subcommands:
+
+| Crate | Purpose |
+|-------|---------|
+| `prometheus-cli` | Binary with install, audit, verify, search, learn, optimize, evolve, and more |
+| `prometheus-agents` | 10-platform adapter library with `TraceCapture` protocol |
+| `prometheus-learn` | Self-learning pipeline: trace capture, evaluation, knowledge compilation, prompt optimization |
+| `prometheus-cedar` | Cedar Skill Mutation PEP — governs skill.mutate/generate/promote/trace.capture |
+
+### Architecture
+
+```
+OUTER LOOP (iterative-evolver) — strategic evolution
+  Assess → Analyze → Plan → Execute → Reflect
+                              │
+                    ┌─────────┴──────────┐
+                    │  INNER LOOP (KBD)  │
+                    │  Plan → Execute →  │
+                    │  Reflect           │
+                    │    │               │
+                    │    ├─ OpenSpec     │
+                    │    │  detection    │
+                    │    ├─ Multi-tool   │
+                    │    │  dispatch     │
+                    │    └─ Artifact     │
+                    │       refiner QA   │
+                    └────────────────────┘
+```
+
+## Quick Start
 
 ### Prerequisites
 
-This repository uses git submodules for imported skills. When cloning, use:
+- Node.js >= 18 (for skill validation)
+- Rust toolchain (for CLI — `rustup` recommended)
+- Git with submodule support
+
+### Clone
 
 ```bash
-# Clone with submodules
-git clone --recurse-submodules https://github.com/gqadonis/prometheus-skill-pack.git
-
-# Or if already cloned, initialize submodules
-git submodule init
-git submodule update
+git clone --recurse-submodules git@github.com:Prometheus-AGS/prometheus-skill-system.git
+cd prometheus-skill-system
 ```
 
-### Claude Code
-
-#### Install from Marketplace
+### Install Dependencies
 
 ```bash
-# Add the marketplace
-/plugin marketplace add gqadonis/prometheus-skill-pack
-
-# Install the full package
-/plugin install prometheus-skill-pack
-
-# Or install specific skill domains
-/plugin install prometheus-react-skills
-/plugin install prometheus-rust-skills
-/plugin install prometheus-uiux-skills
+npm install
 ```
 
-#### Manual Installation
-
-**Project-scoped** (recommended for teams):
-```bash
-git clone https://github.com/gqadonis/prometheus-skill-pack.git
-cp -r prometheus-skill-pack/.claude-plugin/skills/* .claude/skills/
-```
-
-**User-scoped** (personal use):
-```bash
-git clone https://github.com/gqadonis/prometheus-skill-pack.git
-cp -r prometheus-skill-pack/.claude-plugin/skills/* ~/.claude/skills/
-```
-
-### VS Code / GitHub Copilot
+### Validate Skills
 
 ```bash
-git clone https://github.com/gqadonis/prometheus-skill-pack.git
-cp -r prometheus-skill-pack/skills/* .github/skills/
-```
-
-### Other Agents
-
-This package follows the [agentskills.io](https://agentskills.io) standard and works with any compatible AI agent:
-- Claude Code
-- GitHub Copilot
-- VS Code Copilot
-- Cursor
-- OpenAI Codex
-- And more
-
-## 🚀 Quick Start
-
-After installation, skills are automatically available. Use them by:
-
-1. **Natural invocation** - AI automatically loads relevant skills based on your task
-2. **Explicit invocation** - Use `/skill-name` in Claude Code or mention the skill in your prompt
-3. **Browse skills** - Run `/skills` to see all available skills
-
-## 📖 Skill Categories
-
-### Imported Skills
-Located in `skills/imported/` (git submodules)
-
-**artifact-refiner** (v1.1.0)
-- PMPO-driven artifact refinement engine
-- Supports logos, UI components, A2UI specs, images, content, and code
-- Complete plugin with agents, hooks, and scripts
-- Repository: [artifact-refiner-skill](https://github.com/GQAdonis/artifact-refiner-skill)
-
-> **Note**: Imported skills are managed as git submodules. See [Submodule Management Guide](docs/SUBMODULES.md) for update procedures.
-
-### React Skills
-Located in `skills/react/`
-
-- `react-entity-crud` - Complete CRUD operations for entity management
-- `react-entity-forms` - Advanced form handling with validation
-- `react-entity-tables` - Data tables with sorting, filtering, pagination
-- `react-state-patterns` - Modern state management patterns
-- `react-hooks-best-practices` - Custom hooks and composition patterns
-
-### Rust Skills
-Located in `skills/rust/`
-
-- `rust-memory-safety` - Ownership, borrowing, and lifetimes
-- `rust-concurrency` - Async/await, tokio, and concurrent patterns
-- `rust-error-handling` - Result types and error propagation
-- `rust-testing` - Unit tests, integration tests, and benchmarks
-- `rust-cli-apps` - Command-line application development
-
-### UI/UX Skills
-Located in `skills/ui-ux/`
-
-- `design-systems` - Component libraries and design tokens
-- `accessibility-wcag` - WCAG compliance and a11y patterns
-- `responsive-design` - Mobile-first and adaptive layouts
-- `user-research` - User testing and feedback integration
-- `prototyping` - Wireframing and interactive prototypes
-
-### DevOps Skills
-Located in `skills/devops/`
-
-- `ci-cd-pipelines` - GitHub Actions, GitLab CI, and Jenkins
-- `docker-containers` - Containerization and multi-stage builds
-- `kubernetes-deployment` - K8s manifests and deployment strategies
-- `infrastructure-code` - Terraform and infrastructure automation
-- `monitoring-observability` - Logging, metrics, and tracing
-
-### Testing Skills
-Located in `skills/testing/`
-
-- `test-driven-development` - TDD workflow and patterns
-- `integration-testing` - API and service integration tests
-- `e2e-testing` - End-to-end test automation
-- `test-coverage` - Coverage analysis and improvement
-- `performance-testing` - Load testing and benchmarking
-
-## 🛠️ Development
-
-### Project Structure
-
-```
-prometheus-skill-pack/
-├── .claude-plugin/          # Claude Code plugin configuration
-│   ├── plugin.json         # Plugin manifest
-│   ├── skills/             # Symlinks to main skills directory
-│   └── agents/             # Symlinks to main agents directory
-├── skills/                 # Main skills directory (agentskills.io format)
-│   ├── react/              # React-specific skills
-│   ├── rust/               # Rust-specific skills
-│   ├── ui-ux/              # UI/UX design skills
-│   ├── devops/             # DevOps workflow skills
-│   ├── testing/            # Testing methodology skills
-│   └── documentation/      # Documentation skills
-├── agents/                 # Specialized agents
-├── hooks/                  # Automation hooks
-├── shared/                 # Shared resources
-│   ├── scripts/            # Reusable scripts
-│   ├── templates/          # File templates
-│   └── utils/              # Utility functions
-├── marketplace/            # Marketplace configuration
-├── docs/                   # Documentation
-├── examples/               # Usage examples
-└── scripts/                # Build and validation tools
-```
-
-### Git Submodules
-
-This repository includes imported skills as git submodules. Key commands:
-
-```bash
-# Initialize submodules after cloning
-git submodule init && git submodule update
-
-# Update all imported skills to latest
-git submodule update --remote
-
-# Update specific skill
-cd skills/imported/artifact-refiner
-git pull origin main
-cd ../../..
-git add skills/imported/artifact-refiner
-git commit -m "Update artifact-refiner"
-```
-
-See [docs/SUBMODULES.md](docs/SUBMODULES.md) for complete submodule management guide.
-
-### Commands
-
-```bash
-# Validate all skills (including imported)
 npm run validate
-
-# Validate a specific skill
-npm run validate:skill skills/react/react-entity-crud
-
-# Build marketplace distribution
-npm run build
-
-# Run tests
-npm test
-
-# Lint skills
-npm run lint
-
-# Format code and markdown
-npm run format
-
-# Check formatting
-npm run check-format
-
-# Watch for changes during development
-npm run dev
-
-# Install to user scope
-npm run install:user
-
-# Install to project scope
-npm run install:project
+# 61 skill(s) validated — 0 errors, 0 warnings
 ```
 
-### Creating New Skills
+### Build the Rust CLI
 
-1. Choose the appropriate category directory in `skills/`
-2. Create a new skill directory with kebab-case naming
-3. Add `SKILL.md` with required frontmatter:
-
-```markdown
----
-name: skill-name
-description: Clear description of what this skill does and when to use it
-license: MIT
----
-
-# Skill Name
-
-## Instructions
-
-Step-by-step instructions for Claude...
-
-## Examples
-
-Concrete usage examples...
+```bash
+cd tools/prometheus-cli
+cargo build --release
+# Binary: target/release/prometheus
 ```
 
-4. Add optional subdirectories:
-   - `scripts/` - Executable code
-   - `references/` - Detailed documentation
-   - `assets/` - Templates, schemas, data files
+### Install to AI Platforms
 
-5. Validate the skill: `npm run validate:skill skills/category/skill-name`
+Install skill pack to all detected AI coding agents:
 
-## 📋 AgentSkills.io Compliance
+```bash
+# Via TypeScript installer (all platforms)
+npm run install:platforms
 
-This package fully complies with the [agentskills.io](https://agentskills.io/specification) standard:
+# Via Rust CLI
+./tools/prometheus-cli/target/release/prometheus install .
 
-✅ Required `SKILL.md` with YAML frontmatter
-✅ Standard directory structure (`scripts/`, `references/`, `assets/`)
-✅ Portable across agent platforms
-✅ Progressive disclosure for context management
-✅ Self-contained, executable scripts
-✅ Forward-slash paths for cross-platform compatibility
+# Target a specific platform
+npm run install:opencode
+```
 
-## 🔧 Shared Resources
+Supported platforms: Claude Code, OpenCode, Cursor, Codex, Gemini CLI, Roo Code, Windsurf, Amp, Cline, Kilo Code.
 
-### Scripts
-Located in `shared/scripts/`, these are reusable utilities that can be referenced by any skill:
-- Validation scripts
-- Code generation templates
-- Common transformations
-- Deployment helpers
+### Platform-Specific Paths
 
-### Templates
-Located in `shared/templates/`, these provide boilerplate for common patterns:
-- Component scaffolds
-- Configuration files
-- Test templates
-- Documentation templates
+| Platform | Global Skills | Project Skills |
+|----------|---------------|----------------|
+| Claude Code | `~/.claude/skills/` | `.claude/skills/` |
+| OpenCode | `~/.config/opencode/skills/` | `.opencode/skills/` |
+| Cursor | `~/.cursor/skills/` | `.cursor/skills/` |
+| Codex / Amp | `~/.agents/skills/` | `.agents/skills/` |
+| Gemini CLI | `~/.gemini/skills/` | `.gemini/skills/` |
+| Roo Code | `~/.roo/skills/` | `.roo/skills/` |
+| Windsurf | `~/.codeium/windsurf/skills/` | `.windsurf/skills/` |
 
-### Utils
-Located in `shared/utils/`, these are helper functions and utilities:
-- JSON/YAML parsers
-- File system utilities
-- String manipulation
-- Common algorithms
+## CLI Commands
 
-## 🤝 Contributing
+```bash
+prometheus install <repo>      # Install skills from GitHub or local path
+prometheus uninstall <name>    # Remove skill from all platforms
+prometheus list [--verbose]    # List installed skills with symlink targets
+prometheus search <query>      # Search GitHub for skill repos
+prometheus audit [--path .]    # Security scan (credentials, injection, anti-patterns)
+prometheus verify [--update]   # SHA256 checksum validation against Skills.lock
+prometheus doctor              # Health check (platforms, surreal-memory, KBD, evolver)
+prometheus status              # Show Skills.toml + KBD waypoint + evolver state
+prometheus validate [path]     # Run agentskills.io validator
+prometheus build -s svc -o env # Kustomize build + validation
+prometheus memory ping         # Check surreal-memory server
+prometheus memory search <q>   # Query the knowledge graph
+prometheus evolve <name>       # Trigger iterative evolution cycle
+prometheus learn --compile     # Compile execution traces into knowledge wiki
+prometheus optimize <skill>    # Run dspy-rs prompt optimization on a skill
+```
 
-Contributions are welcome! Please:
+## Surreal-Memory Integration
 
-1. Fork the repository
-2. Create a feature branch
-3. Follow the skill creation guidelines
-4. Run validation: `npm run validate`
-5. Submit a pull request
+All skills detect and use the [surreal-memory](https://github.com/Prometheus-AGS/surreal-memory-server) MCP server for distributed state:
 
-## 📄 License
+- **Knowledge graph**: Entities, relations, Graph-RAG traversal (`find_path`, `expand_neighbors`)
+- **Scoped memory**: User/session/agent memory with temporal history
+- **TaskStreams**: Named task contexts with model-aware token budgeting
+- **Hybrid search**: BM25 + HNSW vector weighted search
 
-MIT License - see [LICENSE](LICENSE) for details
+Configure via environment variable or `.mcp.json`:
 
-## 🔗 Links
+```bash
+export SURREAL_MEMORY_URL=http://localhost:23001
+```
 
-- [AgentSkills.io Specification](https://agentskills.io/specification)
-- [Claude Code Documentation](https://code.claude.com/docs)
-- [GitHub Repository](https://github.com/gqadonis/prometheus-skill-pack)
-- [Issue Tracker](https://github.com/gqadonis/prometheus-skill-pack/issues)
+Skills degrade gracefully when surreal-memory is unavailable — filesystem state is always the fallback.
 
-## 🙏 Acknowledgments
+See `shared/references/surreal-memory-integration.md` for entity mapping patterns per skill.
 
-Built with inspiration from:
-- [Anthropic Skills Repository](https://github.com/anthropics/skills)
-- [AgentSkills.io Community](https://agentskills.io)
-- Claude Code ecosystem
+## Cedar Governance
 
----
+The `prometheus-cedar` crate implements a Skill Mutation PEP (Policy Enforcement Point) that gates all write operations against skill artifacts:
 
-**Made with ❤️ for the AI development community**
+| Operation | Cedar Action | When |
+|-----------|-------------|------|
+| Prompt optimization | `skill.mutate` | dspy-rs writes back to SKILL.md |
+| Skill generation | `skill.generate` | PMPO creates new skills from gap detection |
+| Skill promotion | `skill.promote` | Generated skills promoted from staging |
+| Trace capture | `trace.capture` | Execution data collection |
+
+Environment policies:
+- **development**: All operations permitted
+- **staging**: Mutations require `validation_passed`; promotions require `human_approved`
+- **production**: Mutations forbidden by default
+
+See `shared/references/self-learning-architecture.md` for the full governance model.
+
+## Self-Learning Pipeline
+
+Skills improve from execution experience through a four-layer feedback loop:
+
+```
+Execute → Trace → Evaluate → Compile (Karpathy method) → Optimize (dspy-rs) → Improved Skill
+```
+
+1. **Trace capture**: Cross-platform `TraceCapture` protocol logs every skill execution
+2. **Evaluation**: Automated scoring + classification (success/partial/failure)
+3. **Knowledge compilation**: prometheus-knowledge compiles traces into WikiEntries via compile→lint→focus→fix
+4. **Prompt optimization**: dspy-rs BootstrapFewShot collects best demos, MIPRO optimizes instructions
+5. **Cedar governance**: All mutations gated by environment-aware policies
+
+See `shared/references/self-learning-architecture.md` for the complete architecture.
+
+## GitOps Skills
+
+Four skills implement the TJ-CICD-001 multi-cloud GitOps standard:
+
+```bash
+/gitops-bootstrap    # Scaffold complete GitOps CI/CD from scratch
+/gitops-transform    # Transform existing workflows to GitOps
+/argocd-setup        # Install + configure ArgoCD multi-cloud
+/kustomize-overlay   # Generate 3D Kustomize overlay structure
+```
+
+Key principle: **GitHub Actions builds images and writes tags only. ArgoCD owns everything inside clusters. No kubectl apply, no helm upgrade.**
+
+## Development
+
+### Creating a New Skill
+
+```bash
+mkdir -p skills/{category}/{skill-name}
+cp docs/SKILL_TEMPLATE.md skills/{category}/{skill-name}/SKILL.md
+# Edit SKILL.md with frontmatter (name, description) and instructions
+npm run validate:skill skills/{category}/{skill-name}
+```
+
+### Validation
+
+```bash
+npm run validate          # All 61 skills
+npm run validate:skill skills/process/iterative-evolver  # Specific skill
+```
+
+### Formatting
+
+```bash
+npm run format            # Auto-fix formatting
+npm run check-format      # Check only
+```
+
+### Rust CLI Development
+
+```bash
+cd tools/prometheus-cli
+cargo check               # Type check
+cargo clippy -- -D warnings  # Lint
+cargo test                # Run tests
+cargo build --release     # Release build
+```
+
+## Project Structure
+
+```
+prometheus-skill-system/
+├── .claude-plugin/plugin.json     # Claude Code plugin manifest
+├── .mcp.json                      # MCP server config (surreal-memory, tavily)
+├── .opencode/tools/               # OpenCode TypeScript tool definitions
+├── .github/workflows/             # CI: validate + format + cargo check
+├── hooks/hooks.json               # 5 hook events (SessionStart, Pre/PostToolUse, SubagentStop, Stop)
+├── agents/                        # Orchestration agents (gitops-architect)
+├── marketplace/marketplace.json   # 5-entry marketplace distribution
+├── skills/
+│   ├── react/prometheus-entity-skills/  # 27 skills: CRUD, GraphQL, Prisma, realtime, optimize
+│   ├── process/
+│   │   ├── iterative-evolver/           # 8 skills: PMPO evolution cycle
+│   │   ├── kbd-process-orchestrator/    # 7 skills: multi-tool project orchestration
+│   │   └── pmpo-skill-creator/          # 5 skills: generate new skills from specs
+│   ├── devops/                          # 4 skills: GitOps CI/CD (TJ-CICD-001)
+│   ├── testing/bdd-testing/             # 1 skill: Cucumber.js + Playwright + video
+│   └── imported/artifact-refiner/       # 9 skills: PMPO-driven artifact QA (submodule)
+├── shared/
+│   ├── references/                # surreal-memory integration, self-learning architecture
+│   └── scripts/                   # Guard deploy, validate gitops, detect context
+├── tools/prometheus-cli/          # 4-crate Rust workspace
+│   └── crates/
+│       ├── prometheus-cli/        # 15-subcommand binary
+│       ├── prometheus-agents/     # 10-platform adapters + TraceCapture protocol
+│       ├── prometheus-learn/      # Self-learning pipeline (trace, evaluate, compile, optimize)
+│       └── prometheus-cedar/      # Cedar Skill Mutation PEP
+├── scripts/
+│   ├── validate-skills.js         # Recursive agentskills.io validator
+│   ├── install-platforms.ts       # Multi-platform TypeScript installer
+│   └── build-marketplace.js       # Symlink builder for .claude-plugin/
+└── docs/                          # Templates, contributing guide, submodule docs
+```
+
+## License
+
+MIT
