@@ -84,61 +84,133 @@ npm run validate
 # 61 skill(s) validated — 0 errors, 0 warnings
 ```
 
-### Build the Rust CLI
+### Build and Install the Rust CLI
 
 ```bash
 cd tools/prometheus-cli
 cargo build --release
-# Binary: target/release/prometheus
+sudo cp target/release/prometheus /usr/local/bin/prometheus
+prometheus --version
 ```
 
-### Install to AI Platforms
+### Install Skills as Slash Commands
 
-Install skill pack to all detected AI coding agents:
+Skills must be installed as **flat symlinks** (one per skill) for slash command
+discovery to work across all platforms:
 
 ```bash
-# Via TypeScript installer (all platforms)
-npm run install:platforms
+# Install 52 skills as slash commands across all 9 platforms
+npm run install:skills
 
-# Via Rust CLI
-./tools/prometheus-cli/target/release/prometheus install .
+# Or use the script directly
+bash scripts/install-skills-flat.sh
 
-# Target a specific platform
-npm run install:opencode
+# Uninstall
+npm run uninstall:skills
 ```
 
-Supported platforms: Claude Code, OpenCode, Cursor, Codex, Gemini CLI, Roo Code, Windsurf, Amp, Cline, Kilo Code.
+This creates symlinks like `~/.claude/skills/evolve/` → the actual skill directory,
+enabling `/evolve`, `/kbd-plan`, `/gitops-bootstrap`, etc. as slash commands.
+
+Since these are symlinks to the live repo, any edits to skill files take effect
+immediately — no reinstall needed.
+
+### Alternative: Repo-Level Install via CLI
+
+```bash
+# Install the entire repo as a single entry (no slash commands, but skills loadable)
+prometheus install .
+
+# Or via npm
+npm run install:platforms
+```
 
 ### Platform-Specific Paths
 
-| Platform | Global Skills | Project Skills |
+| Platform | Global Skills | Slash Commands |
 |----------|---------------|----------------|
-| Claude Code | `~/.claude/skills/` | `.claude/skills/` |
-| OpenCode | `~/.config/opencode/skills/` | `.opencode/skills/` |
-| Cursor | `~/.cursor/skills/` | `.cursor/skills/` |
-| Codex / Amp | `~/.agents/skills/` | `.agents/skills/` |
-| Gemini CLI | `~/.gemini/skills/` | `.gemini/skills/` |
-| Roo Code | `~/.roo/skills/` | `.roo/skills/` |
-| Windsurf | `~/.codeium/windsurf/skills/` | `.windsurf/skills/` |
+| Claude Code | `~/.claude/skills/` | 52 skills |
+| OpenCode | `~/.config/opencode/skills/` | 52 skills |
+| Cursor | `~/.cursor/skills/` | 52 skills |
+| Codex / Amp | `~/.agents/skills/` | 52 skills |
+| Gemini CLI | `~/.gemini/skills/` | 52 skills |
+| Roo Code | `~/.roo/skills/` | 52 skills |
+| Windsurf | `~/.codeium/windsurf/skills/` | 52 skills |
+| Cline | `~/.cline/skills/` | 52 skills |
+
+## Slash Commands
+
+After running `npm run install:skills`, 52 slash commands are available across all platforms:
+
+### Process Orchestration
+| Command | Purpose |
+|---------|---------|
+| `/evolve` | Full iterative evolution cycle (assess → analyze → plan → execute → reflect) |
+| `/evolve-assess` | Assess current state against goals |
+| `/evolve-plan` | Create prioritized improvement plan |
+| `/evolve-execute` | Execute plan (delegates to KBD for software domain) |
+| `/evolve-report` | Generate evolution report with artifact quality metrics |
+| `/kbd-init` | Initialize KBD orchestrator in a project |
+| `/kbd-assess` | Assess codebase against phase goals |
+| `/kbd-plan` | Create ordered change list with OpenSpec detection |
+| `/kbd-execute` | Dispatch to best tool with artifact-refiner QA |
+| `/kbd-reflect` | Phase retrospective with Cedar audit trail |
+| `/create-skill` | Generate a new skill from scratch via PMPO |
+| `/clone-skill` | Adapt an existing skill for a new domain |
+
+### GitOps CI/CD
+| Command | Purpose |
+|---------|---------|
+| `/gitops-bootstrap` | Scaffold complete multi-cloud GitOps from scratch |
+| `/gitops-transform` | Transform existing CI/CD to GitOps standard |
+| `/argocd-multicloud` | Install + configure ArgoCD across GKE/AKS/EKS |
+| `/kustomize-overlay` | Generate 3D Kustomize overlay structure |
+
+### React Entity Management
+| Command | Purpose |
+|---------|---------|
+| `/entity-graph-init` | Initialize entity graph in a project |
+| `/entity-crud-page` | Full CRUD page with list, create, edit, delete |
+| `/entity-gql-setup` | Wire GraphQL with entity descriptors |
+| `/entity-prisma-setup` | Generate entity configs from Prisma schema |
+| `/entity-realtime-setup` | Add realtime sync (WebSocket, Supabase, ElectricSQL) |
+| `/entity-audit` | Architecture compliance audit |
+
+### Testing
+| Command | Purpose |
+|---------|---------|
+| `/bdd-testing` | Generate BDD tests with Cucumber.js + Playwright |
 
 ## CLI Commands
 
 ```bash
-prometheus install <repo>      # Install skills from GitHub or local path
-prometheus uninstall <name>    # Remove skill from all platforms
-prometheus list [--verbose]    # List installed skills with symlink targets
-prometheus search <query>      # Search GitHub for skill repos
-prometheus audit [--path .]    # Security scan (credentials, injection, anti-patterns)
-prometheus verify [--update]   # SHA256 checksum validation against Skills.lock
-prometheus doctor              # Health check (platforms, surreal-memory, KBD, evolver)
-prometheus status              # Show Skills.toml + KBD waypoint + evolver state
-prometheus validate [path]     # Run agentskills.io validator
-prometheus build -s svc -o env # Kustomize build + validation
-prometheus memory ping         # Check surreal-memory server
-prometheus memory search <q>   # Query the knowledge graph
-prometheus evolve <name>       # Trigger iterative evolution cycle
-prometheus learn --compile     # Compile execution traces into knowledge wiki
-prometheus optimize <skill>    # Run dspy-rs prompt optimization on a skill
+# Skill management
+prometheus install <repo>       # Install skills from GitHub or local path
+prometheus uninstall <name>     # Remove skill from all platforms
+prometheus list [--verbose]     # List installed skills with symlink targets
+prometheus search <query>       # Search GitHub for skill repos
+
+# Security & integrity
+prometheus audit [--path .]     # Security scan (credentials, injection, anti-patterns)
+prometheus verify [--update]    # SHA256 checksum validation against Skills.lock
+prometheus doctor               # Health check (platforms, surreal-memory, KBD, evolver)
+prometheus validate [path]      # Run agentskills.io validator
+
+# Self-learning pipeline
+prometheus learn --seed         # Capture traces from Claude Code session history
+prometheus learn --compile      # Compile traces into knowledge wiki (requires --features knowledge)
+prometheus optimize <skill>     # Run dspy-rs prompt optimization (requires --features optimize)
+
+# Cedar governance
+prometheus policy show          # Display loaded Cedar policies
+prometheus policy validate      # Validate Cedar policy syntax
+prometheus policy check -o skill.mutate -s <skill> -e <env>  # Test a policy decision
+
+# Project state
+prometheus status               # Show Skills.toml + KBD waypoint + evolver state
+prometheus evolve <name>        # Trigger iterative evolution cycle
+prometheus memory ping          # Check surreal-memory server
+prometheus build -s svc -o env  # Kustomize build + validation
 ```
 
 ## Surreal-Memory Integration
@@ -271,8 +343,12 @@ prometheus-skill-system/
 │       ├── prometheus-agents/     # 10-platform adapters + TraceCapture protocol
 │       ├── prometheus-learn/      # Self-learning pipeline (trace, evaluate, compile, optimize)
 │       └── prometheus-cedar/      # Cedar Skill Mutation PEP
+├── policies/
+│   ├── skill-mutation.cedar       # Cedar governance policies
+│   └── entities.json              # Agent groups, skill domains, regulated verticals
 ├── scripts/
 │   ├── validate-skills.js         # Recursive agentskills.io validator
+│   ├── install-skills-flat.sh     # Flat symlink installer for slash command discovery
 │   ├── install-platforms.ts       # Multi-platform TypeScript installer
 │   └── build-marketplace.js       # Symlink builder for .claude-plugin/
 └── docs/                          # Templates, contributing guide, submodule docs
