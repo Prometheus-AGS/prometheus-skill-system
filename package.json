@@ -4,6 +4,8 @@
   "description": "Enterprise-grade AI skills for React entity management, GitOps CI/CD, process orchestration, iterative evolution, and BDD testing",
   "type": "module",
   "scripts": {
+    "check-prereqs": "bash scripts/check-prerequisites.sh",
+    "setup": "bash scripts/check-prerequisites.sh --install",
     "validate": "node scripts/validate-skills.js",
     "validate:skill": "node scripts/validate-skills.js",
     "build": "node scripts/build-marketplace.js",

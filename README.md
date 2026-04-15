@@ -163,17 +163,29 @@ flowchart LR
 
 ### Prerequisites
 
-- Node.js >= 18 (for skill validation)
-- Rust toolchain (for CLI + MCP server — `rustup` recommended)
-- Git with submodule support
+- **Node.js >= 18** — for skill validation and formatting
+- **Rust toolchain** — for CLI + MCP servers (`rustup` recommended)
+- **Git** — with submodule support
+- **Docker** (optional) — for surreal-memory server
 
-### Clone
+### Clone and Setup
 
 ```bash
 git clone --recurse-submodules git@github.com:Prometheus-AGS/prometheus-skill-system.git
 cd prometheus-skill-system
-npm install
+
+# Check prerequisites (auto-installs Rust via rustup if missing)
+npm run setup
+# Or check without installing:
+npm run check-prereqs
 ```
+
+The `setup` command detects your environment and installs missing prerequisites:
+
+- Installs Rust via `rustup` if not found
+- Installs npm dependencies
+- Builds all 3 Rust binaries (prometheus CLI, sycophancy MCP, surreal-memory MCP)
+- Installs binaries to `/usr/local/bin/` (or `~/.local/bin/` fallback)
 
 ### Validate Skills
 
