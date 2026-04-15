@@ -1,0 +1,13 @@
+{
+  "name": "prometheus-skill-pack-opencode-tools",
+  "version": "1.1.0",
+  "private": true,
+  "description": "Auto-installed dependencies for prometheus-skill-pack OpenCode tools",
+  "dependencies": {
+    "zod": "^3.23.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.0",
+    "@types/node": "^20.0.0"
+  }
+}

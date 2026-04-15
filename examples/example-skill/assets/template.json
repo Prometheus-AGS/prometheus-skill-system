@@ -1,0 +1,29 @@
+{
+  "name": "example-configuration",
+  "version": "1.0.0",
+  "description": "Example configuration template",
+  "settings": {
+    "enabled": true,
+    "timeout": 5000,
+    "retries": 3,
+    "logLevel": "info"
+  },
+  "features": {
+    "featureA": {
+      "enabled": true,
+      "options": {
+        "option1": "value1",
+        "option2": 42
+      }
+    },
+    "featureB": {
+      "enabled": false,
+      "options": {}
+    }
+  },
+  "metadata": {
+    "author": "your-name",
+    "created": "2026-03-29",
+    "tags": ["example", "template"]
+  }
+}

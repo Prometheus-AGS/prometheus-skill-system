@@ -1,0 +1,50 @@
+{
+  "name": "prometheus-skill-pack",
+  "version": "1.1.0",
+  "description": "Enterprise-grade AI skills for React entity management, GitOps CI/CD, process orchestration, iterative evolution, and BDD testing — with surreal-memory distributed state",
+  "author": {
+    "name": "Travis James",
+    "url": "https://travisjames.ai"
+  },
+  "homepage": "https://github.com/Prometheus-AGS/prometheus-skill-system",
+  "repository": "https://github.com/Prometheus-AGS/prometheus-skill-system",
+  "license": "MIT",
+  "category": "productivity",
+  "keywords": [
+    "react",
+    "entity-management",
+    "process-orchestration",
+    "iterative-evolution",
+    "bdd-testing",
+    "pmpo",
+    "gitops",
+    "devops",
+    "argocd",
+    "kustomize",
+    "surreal-memory"
+  ],
+  "skills": [
+    "./skills/react/prometheus-entity-skills",
+    "./skills/process/iterative-evolver",
+    "./skills/process/kbd-process-orchestrator",
+    "./skills/process/pmpo-skill-creator",
+    "./skills/testing/bdd-testing",
+    "./skills/imported/artifact-refiner",
+    "./skills/devops/gitops-bootstrap",
+    "./skills/devops/gitops-transform",
+    "./skills/devops/argocd-multicloud",
+    "./skills/devops/kustomize-overlay"
+  ],
+  "agents": "./agents",
+  "hooks": "./hooks/hooks.json",
+  "mcpServers": "./.mcp.json",
+  "compatibility": {
+    "platforms": ["claude-code", "cursor", "opencode", "codex", "gemini-cli", "roo-code", "windsurf", "amp"],
+    "node": ">=18.0.0"
+  },
+  "shared": {
+    "scripts": "./shared/scripts/",
+    "templates": "./shared/templates/",
+    "utils": "./shared/utils/"
+  }
+}

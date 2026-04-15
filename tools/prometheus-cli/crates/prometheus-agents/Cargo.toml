@@ -1,0 +1,17 @@
+[package]
+name = "prometheus-agents"
+description = "Multi-platform AI agent adapter library — detects and manages skill installations across Claude Code, OpenCode, Cursor, Codex, and more"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+
+[dependencies]
+anyhow.workspace = true
+thiserror.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+dirs.workspace = true
+walkdir.workspace = true
+tracing.workspace = true
+chrono.workspace = true

@@ -1,0 +1,19 @@
+{
+  "mcpServers": {
+    "surreal-memory": {
+      "url": "${SURREAL_MEMORY_URL:-http://localhost:23001/mcp/sse}",
+      "description": "Global distributed memory state server — knowledge graph, scoped memory, TaskStreams, mindmaps, Graph-RAG traversal, hybrid search"
+    },
+    "tavily": {
+      "command": "npx",
+      "args": ["-y", "@anthropic/tavily-mcp@latest"],
+      "env": {
+        "TAVILY_API_KEY": "${TAVILY_API_KEY}"
+      }
+    },
+    "sequential-thinking": {
+      "command": "npx",
+      "args": ["-y", "@anthropic/sequential-thinking-mcp@latest"]
+    }
+  }
+}

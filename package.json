@@ -1,0 +1,54 @@
+{
+  "name": "prometheus-skill-pack",
+  "version": "1.1.0",
+  "description": "Enterprise-grade AI skills for React entity management, GitOps CI/CD, process orchestration, iterative evolution, and BDD testing",
+  "type": "module",
+  "scripts": {
+    "validate": "node scripts/validate-skills.js",
+    "validate:skill": "node scripts/validate-skills.js",
+    "build": "node scripts/build-marketplace.js",
+    "test": "node scripts/test-skills.js",
+    "lint": "node scripts/lint-skills.js",
+    "format": "prettier --write \"**/*.{md,json,js,ts}\"",
+    "check-format": "prettier --check \"**/*.{md,json,js,ts}\"",
+    "dev": "node scripts/watch-skills.js",
+    "install:user": "node scripts/install.js --scope user",
+    "install:project": "node scripts/install.js --scope project",
+    "install:platforms": "npx tsx scripts/install-platforms.ts",
+    "install:platforms:list": "npx tsx scripts/install-platforms.ts --list",
+    "install:opencode": "npx tsx scripts/install-platforms.ts --platform opencode",
+    "uninstall:platforms": "npx tsx scripts/install-platforms.ts --uninstall"
+  },
+  "keywords": [
+    "claude-code",
+    "agent-skills",
+    "agentskills",
+    "react",
+    "entity-management",
+    "process-orchestration",
+    "pmpo",
+    "bdd-testing",
+    "gitops",
+    "devops",
+    "argocd",
+    "surreal-memory",
+    "skills",
+    "plugins",
+    "ai-development"
+  ],
+  "author": {
+    "name": "Travis James",
+    "url": "https://travisjames.ai"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "prettier": "^3.2.5",
+    "js-yaml": "^4.1.0",
+    "ajv": "^8.12.0",
+    "chokidar": "^3.6.0",
+    "tsx": "^4.7.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

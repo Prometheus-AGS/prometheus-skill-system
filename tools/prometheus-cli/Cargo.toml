@@ -1,0 +1,54 @@
+[workspace]
+resolver = "2"
+members = [
+    "crates/prometheus-cli",
+    "crates/prometheus-agents",
+    "crates/prometheus-learn",
+    "crates/prometheus-cedar",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+authors = ["Travis James <tjames@prometheusags.ai>"]
+license = "MIT"
+repository = "https://github.com/Prometheus-AGS/prometheus-skill-system"
+
+[workspace.dependencies]
+# Core
+anyhow = "1"
+thiserror = "2"
+clap = { version = "4", features = ["derive"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+toml = "0.8"
+tokio = { version = "1", features = ["full"] }
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
+
+# Platform management
+dirs = "5.0"
+walkdir = "2.4"
+sha2 = "0.10"
+chrono = { version = "0.4", features = ["serde"] }
+colored = "2"
+regex = "1"
+
+# GitHub API
+octocrab = "0.45"
+
+# Logging
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+# Local workspace crates
+prometheus-agents = { path = "crates/prometheus-agents" }
+prometheus-learn = { path = "crates/prometheus-learn" }
+prometheus-cedar = { path = "crates/prometheus-cedar" }
+
+# Cedar governance
+cedar-policy = "4"
+
+[profile.release]
+strip = true
+lto = true
+codegen-units = 1

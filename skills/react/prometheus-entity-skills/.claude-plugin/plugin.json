@@ -1,0 +1,32 @@
+{
+  "name": "prometheus-entity-skills",
+  "version": "1.0.0",
+  "description": "Full-stack entity management skill suite for React applications using @prometheus-ags/prometheus-entity-management",
+  "author": {
+    "name": "Prometheus AGS"
+  },
+  "license": "MIT",
+  "skills": [
+    "./entity-graph-setup",
+    "./entity-graph-crud",
+    "./entity-graph-graphql",
+    "./entity-graph-prisma",
+    "./entity-graph-realtime",
+    "./entity-graph-optimize"
+  ],
+  "keywords": [
+    "@prometheus-ags/prometheus-entity-management",
+    "entity-graph",
+    "react",
+    "crud",
+    "graphql",
+    "prisma",
+    "realtime",
+    "zustand"
+  ],
+  "compatibility": {
+    "platforms": ["claude-code", "cursor", "opencode", "codex"],
+    "languages": ["typescript", "javascript"],
+    "frameworks": ["react", "next.js", "vite"]
+  }
+}

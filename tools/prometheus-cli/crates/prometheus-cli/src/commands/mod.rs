@@ -1,0 +1,15 @@
+pub mod audit;
+pub mod build;
+pub mod doctor;
+pub mod evolve;
+pub mod generate;
+pub mod install;
+pub mod learn;
+pub mod list;
+pub mod memory;
+pub mod optimize;
+pub mod search;
+pub mod status;
+pub mod uninstall;
+pub mod validate;
+pub mod verify;

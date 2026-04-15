@@ -1,0 +1,3 @@
+[submodule "skills/imported/artifact-refiner"]
+	path = skills/imported/artifact-refiner
+	url = git@github.com:GQAdonis/artifact-refiner-skill.git

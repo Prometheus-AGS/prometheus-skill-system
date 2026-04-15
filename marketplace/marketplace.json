@@ -1,0 +1,77 @@
+---
+name: prometheus-skill-pack
+description: Enterprise-grade AI skills for React entity management, GitOps CI/CD, process orchestration, iterative evolution, and BDD testing
+author: Travis James
+homepage: https://github.com/Prometheus-AGS/prometheus-skill-system
+---
+
+{
+  "marketplace_version": "1.0.0",
+  "name": "prometheus-skill-pack",
+  "owner": {
+    "name": "Travis James",
+    "url": "https://travisjames.ai"
+  },
+  "plugins": [
+    {
+      "name": "prometheus-skill-pack",
+      "description": "Complete skill package with React entity management, GitOps CI/CD, KBD process orchestration, iterative evolution, and BDD testing — with surreal-memory distributed state",
+      "source": {
+        "type": "git",
+        "url": "https://github.com/Prometheus-AGS/prometheus-skill-system.git",
+        "path": ".claude-plugin"
+      },
+      "version": "1.1.0",
+      "tags": ["react", "entity-management", "gitops", "devops", "process-orchestration", "pmpo", "bdd-testing", "surreal-memory"],
+      "category": "productivity"
+    },
+    {
+      "name": "prometheus-react-skills",
+      "description": "React entity management skill suite: setup, CRUD, GraphQL, Prisma, realtime, and optimization",
+      "source": {
+        "type": "git",
+        "url": "https://github.com/Prometheus-AGS/prometheus-skill-system.git",
+        "path": "skills/react/prometheus-entity-skills"
+      },
+      "version": "1.1.0",
+      "tags": ["react", "entity-management", "crud", "graphql", "prisma", "realtime"],
+      "category": "frontend"
+    },
+    {
+      "name": "prometheus-process-skills",
+      "description": "KBD process orchestration, iterative evolution, and PMPO skill creation with nested PMPO loops",
+      "source": {
+        "type": "git",
+        "url": "https://github.com/Prometheus-AGS/prometheus-skill-system.git",
+        "path": "skills/process"
+      },
+      "version": "1.1.0",
+      "tags": ["process", "orchestration", "pmpo", "kbd", "evolution"],
+      "category": "productivity"
+    },
+    {
+      "name": "prometheus-devops-skills",
+      "description": "Multi-cloud GitOps CI/CD: bootstrap, transform, ArgoCD, Kustomize overlays following TJ-CICD-001",
+      "source": {
+        "type": "git",
+        "url": "https://github.com/Prometheus-AGS/prometheus-skill-system.git",
+        "path": "skills/devops"
+      },
+      "version": "1.1.0",
+      "tags": ["gitops", "devops", "argocd", "kustomize", "github-actions", "multi-cloud"],
+      "category": "devops"
+    },
+    {
+      "name": "prometheus-testing-skills",
+      "description": "BDD integration testing with Cucumber.js, Playwright, and video recording",
+      "source": {
+        "type": "git",
+        "url": "https://github.com/Prometheus-AGS/prometheus-skill-system.git",
+        "path": "skills/testing"
+      },
+      "version": "1.1.0",
+      "tags": ["bdd", "testing", "cucumber", "playwright"],
+      "category": "testing"
+    }
+  ]
+}
