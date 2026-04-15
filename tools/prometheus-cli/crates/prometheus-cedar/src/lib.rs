@@ -213,6 +213,64 @@ impl SkillMutationPep {
     }
 }
 
+impl SkillMutationPep {
+    /// Load from the default policy directory search path.
+    ///
+    /// Search order:
+    /// 1. `$PROMETHEUS_POLICY_DIR` environment variable
+    /// 2. `./policies/` relative to current directory
+    /// 3. `~/.prometheus/policies/`
+    /// 4. Fallback: use compiled-in DEFAULT_POLICIES
+    pub fn from_default_dir() -> anyhow::Result<Self> {
+        if let Some(dir) = Self::find_policy_dir() {
+            let policy_path = dir.join("skill-mutation.cedar");
+            let entities_path = dir.join("entities.json");
+
+            if policy_path.exists() {
+                tracing::info!(dir = %dir.display(), "Loading Cedar policies from directory");
+                return Self::from_files(&policy_path, &entities_path);
+            }
+        }
+
+        tracing::info!("Using compiled-in default Cedar policies");
+        Self::from_policy_text(DEFAULT_POLICIES)
+    }
+
+    fn find_policy_dir() -> Option<std::path::PathBuf> {
+        // 1. Environment variable
+        if let Ok(dir) = std::env::var("PROMETHEUS_POLICY_DIR") {
+            let p = std::path::PathBuf::from(dir);
+            if p.exists() { return Some(p); }
+        }
+
+        // 2. Local ./policies/
+        let local = std::path::PathBuf::from("policies");
+        if local.join("skill-mutation.cedar").exists() {
+            return Some(local);
+        }
+
+        // 3. Home directory
+        if let Some(home) = dirs::home_dir() {
+            let home_dir = home.join(".prometheus").join("policies");
+            if home_dir.join("skill-mutation.cedar").exists() {
+                return Some(home_dir);
+            }
+        }
+
+        None
+    }
+
+    /// Display the currently loaded policies as a formatted string.
+    pub fn display_policies(&self) -> String {
+        format!("{}", self.policies)
+    }
+
+    /// Get the number of policies currently loaded.
+    pub fn policy_count(&self) -> usize {
+        self.policies.policies().count()
+    }
+}
+
 /// Default Cedar policies for the Prometheus skill pack.
 pub const DEFAULT_POLICIES: &str = r#"
 // Allow all operations in development

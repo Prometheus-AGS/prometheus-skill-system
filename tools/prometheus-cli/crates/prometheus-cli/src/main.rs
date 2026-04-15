@@ -140,9 +140,12 @@ enum Commands {
 
     /// Run the self-learning pipeline on execution traces
     Learn {
-        /// Capture current session traces
+        /// Capture current session traces from all detected platforms
         #[arg(long)]
         capture_session: bool,
+        /// Seed traces from Claude Code session history (curated import)
+        #[arg(long)]
+        seed: bool,
         /// Compile traces into knowledge wiki
         #[arg(long)]
         compile: bool,
@@ -164,6 +167,35 @@ enum Commands {
         /// Dry run — show optimization plan without applying
         #[arg(long)]
         dry_run: bool,
+    },
+
+    /// Manage Cedar governance policies
+    Policy {
+        #[command(subcommand)]
+        action: PolicyAction,
+    },
+}
+
+#[derive(Subcommand)]
+enum PolicyAction {
+    /// Display currently loaded Cedar policies
+    Show,
+    /// Validate Cedar policy syntax
+    Validate,
+    /// Check a specific mutation against current policies
+    Check {
+        /// Agent ID
+        #[arg(short, long, default_value = "pmpo-optimizer")]
+        agent: String,
+        /// Operation: skill.mutate, skill.generate, skill.promote, trace.capture
+        #[arg(short, long)]
+        operation: String,
+        /// Skill ID
+        #[arg(short, long)]
+        skill: String,
+        /// Environment: development, staging, production
+        #[arg(short, long, default_value = "development")]
+        environment: String,
     },
 }
 
@@ -238,9 +270,16 @@ async fn main() -> Result<()> {
         Commands::Evolve { name, domain, phase } => {
             commands::evolve::run(&name, &domain, phase.as_deref())
         }
-        Commands::Learn { capture_session, compile, lint, dry_run } => {
-            commands::learn::run(capture_session, compile, lint, dry_run).await
+        Commands::Learn { capture_session, seed, compile, lint, dry_run } => {
+            commands::learn::run(capture_session, seed, compile, lint, dry_run).await
         }
+        Commands::Policy { action } => match action {
+            PolicyAction::Show => commands::policy::show(),
+            PolicyAction::Validate => commands::policy::validate(),
+            PolicyAction::Check { agent, operation, skill, environment } => {
+                commands::policy::check(&agent, &operation, &skill, &environment)
+            }
+        },
         Commands::Optimize { skill, min_traces, dry_run } => {
             commands::optimize::run(&skill, min_traces, dry_run).await
         }

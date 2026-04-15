@@ -1,0 +1,70 @@
+[
+  {
+    "uid": { "type": "AgentGroup", "id": "trusted-optimizers" },
+    "attrs": {},
+    "parents": []
+  },
+  {
+    "uid": { "type": "AgentGroup", "id": "generators" },
+    "attrs": {},
+    "parents": [
+      { "type": "AgentGroup", "id": "trusted-optimizers" }
+    ]
+  },
+  {
+    "uid": { "type": "AgentGroup", "id": "senior-agents" },
+    "attrs": {},
+    "parents": []
+  },
+  {
+    "uid": { "type": "Agent", "id": "pmpo-optimizer" },
+    "attrs": { "role": "optimizer" },
+    "parents": [
+      { "type": "AgentGroup", "id": "trusted-optimizers" }
+    ]
+  },
+  {
+    "uid": { "type": "Agent", "id": "pmpo-generator" },
+    "attrs": { "role": "generator" },
+    "parents": [
+      { "type": "AgentGroup", "id": "generators" }
+    ]
+  },
+  {
+    "uid": { "type": "Agent", "id": "kbd-orchestrator" },
+    "attrs": { "role": "orchestrator" },
+    "parents": [
+      { "type": "AgentGroup", "id": "trusted-optimizers" }
+    ]
+  },
+  {
+    "uid": { "type": "SkillDomain", "id": "react" },
+    "attrs": {},
+    "parents": []
+  },
+  {
+    "uid": { "type": "SkillDomain", "id": "process" },
+    "attrs": {},
+    "parents": []
+  },
+  {
+    "uid": { "type": "SkillDomain", "id": "devops" },
+    "attrs": {},
+    "parents": []
+  },
+  {
+    "uid": { "type": "SkillDomain", "id": "testing" },
+    "attrs": {},
+    "parents": []
+  },
+  {
+    "uid": { "type": "SkillDomain", "id": "banking" },
+    "attrs": { "regulated": true },
+    "parents": []
+  },
+  {
+    "uid": { "type": "SkillDomain", "id": "healthcare" },
+    "attrs": { "regulated": true },
+    "parents": []
+  }
+]

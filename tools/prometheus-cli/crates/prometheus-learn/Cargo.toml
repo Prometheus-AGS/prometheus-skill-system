@@ -6,6 +6,15 @@ edition.workspace = true
 authors.workspace = true
 license.workspace = true
 
+[features]
+default = []
+# Enable knowledge compilation via prometheus-knowledge (requires LLM API access)
+knowledge = ["dep:pk-core", "dep:pk-librarian", "dep:pk-store"]
+# Enable prompt optimization via dspy-rs (requires LLM API access)
+optimize = ["dep:dspy"]
+# Enable both
+full = ["knowledge", "optimize"]
+
 [dependencies]
 anyhow.workspace = true
 thiserror.workspace = true
@@ -16,3 +25,9 @@ tokio.workspace = true
 reqwest.workspace = true
 tracing.workspace = true
 sha2.workspace = true
+
+# Prometheus ecosystem — optional, gated behind feature flags
+pk-core = { git = "https://github.com/Prometheus-AGS/prometheus-knowledge-rs.git", optional = true }
+pk-librarian = { git = "https://github.com/Prometheus-AGS/prometheus-knowledge-rs.git", optional = true }
+pk-store = { git = "https://github.com/Prometheus-AGS/prometheus-knowledge-rs.git", optional = true }
+dspy = { git = "https://github.com/GQAdonis/dspy-rs.git", optional = true }
