@@ -25,6 +25,7 @@ An assessment must exist. If not, suggest running `/evolve-assess` first.
 The user will provide: $ARGUMENTS
 
 Parse for:
+
 - Specific focus areas or constraints
 - Effort/time budget
 - Priority preferences

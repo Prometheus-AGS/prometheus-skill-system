@@ -39,7 +39,16 @@
   "hooks": "./hooks/hooks.json",
   "mcpServers": "./.mcp.json",
   "compatibility": {
-    "platforms": ["claude-code", "cursor", "opencode", "codex", "gemini-cli", "roo-code", "windsurf", "amp"],
+    "platforms": [
+      "claude-code",
+      "cursor",
+      "opencode",
+      "codex",
+      "gemini-cli",
+      "roo-code",
+      "windsurf",
+      "amp"
+    ],
     "node": ">=18.0.0"
   },
   "shared": {

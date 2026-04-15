@@ -7,8 +7,8 @@ Enable video recording when creating a `BrowserContext`:
 ```typescript
 const context = await browser.newContext({
   recordVideo: {
-    dir: 'tests/reports/videos/',           // Output directory
-    size: { width: 1280, height: 720 },     // Video resolution
+    dir: 'tests/reports/videos/', // Output directory
+    size: { width: 1280, height: 720 }, // Video resolution
   },
 });
 const page = await context.newPage();
@@ -64,10 +64,10 @@ browser_subagent(
 
 ### When to Use
 
-| Method | Format | When to Use |
-|--------|--------|-------------|
-| Playwright `recordVideo` | WebM | Automated test runs, CI/CD, batch execution |
-| Antigravity `browser_subagent` | WebP | Interactive debugging, demo recordings, visual verification |
+| Method                         | Format | When to Use                                                 |
+| ------------------------------ | ------ | ----------------------------------------------------------- |
+| Playwright `recordVideo`       | WebM   | Automated test runs, CI/CD, batch execution                 |
+| Antigravity `browser_subagent` | WebP   | Interactive debugging, demo recordings, visual verification |
 
 ### Examples
 

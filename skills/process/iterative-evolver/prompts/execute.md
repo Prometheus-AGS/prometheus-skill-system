@@ -25,9 +25,9 @@ You execute.
 ## Inputs
 
 ```yaml
-plan: object          # From plan.json
-assessment: object    # From assessment.json (for context)
-analysis: object      # From analysis.json (for context)
+plan: object # From plan.json
+assessment: object # From assessment.json (for context)
+analysis: object # From analysis.json (for context)
 evolution_domain: string
 domain_adapter: object
 ```
@@ -50,46 +50,55 @@ domain_adapter: object
 For each execution phase:
 
 #### a. Check gate conditions
+
 If the phase has an approval gate, pause and request human approval.
 
 #### b. Execute each action
+
 For each action in the phase:
 
 1. Log start to `evolution_log.md`
 2. Select appropriate execution method:
 
 **Software domain**:
+
 - Code changes → file editing tools
 - Build verification → terminal commands (`cargo check`, `npm build`, etc.)
 - Test execution → terminal commands (`cargo test`, `pytest`, etc.)
 - Documentation → file creation/editing
 
 **Business domain**:
+
 - Strategy documents → file creation
 - Data analysis → code interpreter
 - Presentations → template population
 
 **Research domain**:
+
 - Literature collection → web search + file writing
 - Data processing → code interpreter
 - Paper drafts → file creation
 
 **Content domain**:
+
 - Content creation → file writing
 - SEO optimization → analysis + editing
 - Media assets → asset generation tools
 
 **Operations domain**:
+
 - Process documentation → file creation
 - Automation scripts → code generation
 - Dashboard creation → code interpreter
 
 **Compliance domain**:
+
 - Policy documents → file creation
 - Evidence collection → file system + web research
 - Audit reports → structured document generation
 
 **Generic domain**:
+
 - Infer appropriate tools from action description
 
 3. Verify the action succeeded using its verification criteria
@@ -106,8 +115,8 @@ For each action, record:
 execution_results:
   - action_id: string
     status: completed | partial | failed | skipped
-    outputs: [string]            # Files created/modified
-    verification_result: string  # Did it pass verification?
+    outputs: [string] # Files created/modified
+    verification_result: string # Did it pass verification?
     duration: optional string
     notes: optional string
     error: optional string
@@ -117,12 +126,12 @@ execution_results:
 
 ### 4. Error Handling
 
-| Error | Action |
-|---|---|
-| Action fails | Retry once → if fail again, mark as `failed`, continue to next |
-| Missing dependency | Skip action, mark as `blocked`, log reason |
-| Tool unavailable | Mark as `skipped`, suggest alternative in notes |
-| Partial success | Mark as `partial`, log what succeeded and what didn't |
+| Error              | Action                                                         |
+| ------------------ | -------------------------------------------------------------- |
+| Action fails       | Retry once → if fail again, mark as `failed`, continue to next |
+| Missing dependency | Skip action, mark as `blocked`, log reason                     |
+| Tool unavailable   | Mark as `skipped`, suggest alternative in notes                |
+| Partial success    | Mark as `partial`, log what succeeded and what didn't          |
 
 ---
 

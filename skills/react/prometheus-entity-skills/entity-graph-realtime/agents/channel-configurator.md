@@ -26,8 +26,8 @@ Design `ChannelConfig[]` passed to `RealtimeManager.register`.
 
 ```ts
 const channels: ChannelConfig[] = [
-  { type: "Task" },
-  { type: "Project", id: workspaceId },
+  { type: 'Task' },
+  { type: 'Project', id: workspaceId },
 ];
 ```
 

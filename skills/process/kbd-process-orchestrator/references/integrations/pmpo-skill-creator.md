@@ -12,12 +12,12 @@ skill variants, or generate new skills discovered during a phase reflection.
 
 ## When KBD Invokes pmpo-skill-creator
 
-| KBD Phase | Creator Role | Entry Point |
-|-----------|-------------|-------------|
-| **Reflect** (meta-improvement) | Reflect surfaces need for new KBD sub-skill or domain adapter | `/create-skill` or `/extend-skill` |
-| **Plan** (tooling gap) | Phase plan requires tooling that doesn't exist as a skill | `/create-skill` |
-| **Post-init** | `/kbd-init` surfaces that a project needs a custom constraint skill | `/clone-skill` |
-| **Any phase** | Validate the kbd-process-orchestrator itself against agentskills.io spec | `/validate-skill` |
+| KBD Phase                      | Creator Role                                                             | Entry Point                        |
+| ------------------------------ | ------------------------------------------------------------------------ | ---------------------------------- |
+| **Reflect** (meta-improvement) | Reflect surfaces need for new KBD sub-skill or domain adapter            | `/create-skill` or `/extend-skill` |
+| **Plan** (tooling gap)         | Phase plan requires tooling that doesn't exist as a skill                | `/create-skill`                    |
+| **Post-init**                  | `/kbd-init` surfaces that a project needs a custom constraint skill      | `/clone-skill`                     |
+| **Any phase**                  | Validate the kbd-process-orchestrator itself against agentskills.io spec | `/validate-skill`                  |
 
 ---
 
@@ -61,6 +61,7 @@ Run periodically to ensure the skill remains spec-compliant as it evolves:
 ## What KBD Reads Back
 
 After skill creation/extension, KBD:
+
 - Verifies the new sub-skill `SKILL.md` exists and passes `/validate-skill`
 - Updates `SKILL.md` Quick Start if a new slash command was added
 - Commits the new skill files: `git add .agent/skills/ && git commit -m "kbd: add <skill-name> sub-skill"`

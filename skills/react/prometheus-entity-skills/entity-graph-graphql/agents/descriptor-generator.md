@@ -28,21 +28,21 @@ Emit TypeScript `EntityDescriptor` definitions consistent with `normalizeGQLResp
 ## Template
 
 ```typescript
-import type { EntityDescriptor } from "@prometheus-ags/prometheus-entity-management";
+import type { EntityDescriptor } from '@prometheus-ags/prometheus-entity-management';
 
 export const postDescriptor: EntityDescriptor<GqlPost, PostEntity> = {
-  type: "Post",
-  path: "post", // or "posts.nodes" depending on operation root
-  extractId: (n) => String(n.id),
-  normalize: (n) => {
+  type: 'Post',
+  path: 'post', // or "posts.nodes" depending on operation root
+  extractId: n => String(n.id),
+  normalize: n => {
     const { __typename, ...rest } = n as Record<string, unknown>;
     return rest as PostEntity;
   },
   relations: [
     {
-      type: "User",
-      path: "author",
-      normalize: (u) => stripTypename(u),
+      type: 'User',
+      path: 'author',
+      normalize: u => stripTypename(u),
     } as EntityDescriptor<unknown, Record<string, unknown>>,
   ],
 };
@@ -59,24 +59,24 @@ When one operation returns two independent roots under `data` (e.g. `post` and `
 
 ```typescript
 export const postDetailDescriptor: EntityDescriptor<unknown, PostEntity> = {
-  type: "Post",
-  path: "post",
-  extractId: (n) => String((n as GqlPost).id),
-  normalize: (n) => stripTypename(n as Record<string, unknown>) as PostEntity,
+  type: 'Post',
+  path: 'post',
+  extractId: n => String((n as GqlPost).id),
+  normalize: n => stripTypename(n as Record<string, unknown>) as PostEntity,
   relations: [
     {
-      type: "User",
-      path: "author",
-      normalize: (u) => stripTypename(u as Record<string, unknown>),
+      type: 'User',
+      path: 'author',
+      normalize: u => stripTypename(u as Record<string, unknown>),
     } as EntityDescriptor<unknown, Record<string, unknown>>,
   ],
 };
 
 export const postSidebarDescriptor: EntityDescriptor<unknown, PostEntity> = {
-  type: "Post",
-  path: "recommendedPosts",
-  extractId: (n) => String((n as GqlPost).id),
-  normalize: (n) => stripTypename(n as Record<string, unknown>) as PostEntity,
+  type: 'Post',
+  path: 'recommendedPosts',
+  extractId: n => String((n as GqlPost).id),
+  normalize: n => stripTypename(n as Record<string, unknown>) as PostEntity,
 };
 
 // useGQLEntity({ ..., descriptor: postDetailDescriptor, sideDescriptors: [postSidebarDescriptor] })
@@ -87,9 +87,9 @@ export const postSidebarDescriptor: EntityDescriptor<unknown, PostEntity> = {
 ```typescript
 export const updatePostDescriptors: EntityDescriptor<unknown, PostEntity>[] = [
   {
-    type: "Post",
-    path: "updatePost.post",
-    normalize: (n) => stripTypename(n as Record<string, unknown>) as PostEntity,
+    type: 'Post',
+    path: 'updatePost.post',
+    normalize: n => stripTypename(n as Record<string, unknown>) as PostEntity,
   },
 ];
 ```

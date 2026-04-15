@@ -38,7 +38,15 @@
     },
     "phase": {
       "type": ["string", "null"],
-      "enum": ["assess", "analyze", "plan", "execute", "reflect", "persist", null],
+      "enum": [
+        "assess",
+        "analyze",
+        "plan",
+        "execute",
+        "reflect",
+        "persist",
+        null
+      ],
       "description": "Current or just-completed PMPO phase"
     },
     "convergence_status": {

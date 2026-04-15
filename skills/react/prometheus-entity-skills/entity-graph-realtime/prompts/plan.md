@@ -21,9 +21,9 @@ Note **how many** `register` calls (usually one per adapter instance).
 
 Table:
 
-| ChannelConfig | EntityType | filter/id | Notes |
-|---------------|------------|-----------|-------|
-| … | … | … | replay on connect? |
+| ChannelConfig | EntityType | filter/id | Notes              |
+| ------------- | ---------- | --------- | ------------------ |
+| …             | …          | …         | replay on connect? |
 
 ## 4. Normalization
 

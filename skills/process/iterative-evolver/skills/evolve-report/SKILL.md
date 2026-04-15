@@ -23,18 +23,22 @@ Generate a comprehensive evolution report from existing state data.
 When the evolution delegated execution to KBD, the report includes:
 
 ### Phase Execution Summary
+
 - Changes planned vs. completed vs. blocked
 - Tool dispatch breakdown (which AI tools executed what)
 - OpenSpec change traceability (if OpenSpec was active)
 
 ### Artifact Quality Metrics
+
 Aggregated from artifact-refiner QA logs:
+
 - First-pass pass rate across all changes
 - Recurring constraint violations with counts
 - Total refinement iterations required
 - Quality trend across the phase (improving/degrading)
 
 ### Cross-Tool Coordination
+
 - How many tools participated in execution
 - Handoff success rate (changes that completed without re-dispatch)
 - Waypoint accuracy (how often the next tool resumed correctly)
@@ -57,6 +61,7 @@ Skip refinement with `--no-refine` or when artifact-refiner is unavailable.
 ## Output
 
 Generate a markdown report to `reports/evolution-report-<timestamp>.md` including:
+
 - Executive summary
 - Goals and current alignment
 - Assessment findings

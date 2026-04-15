@@ -18,11 +18,11 @@ Use this skill when an app **already** uses @prometheus-ags/prometheus-entity-ma
 
 ## Sub-skills
 
-| Command | Purpose |
-|---------|---------|
-| `/entity-audit` | Full checklist against CLAUDE.md + JSDoc + import boundaries |
-| `/entity-perf` | Re-render and subscription patterns; unnecessary `useStore` breadth |
-| `/entity-gc` | Eviction strategies, `removeEntity`, patch cleanup, list invalidation |
+| Command         | Purpose                                                               |
+| --------------- | --------------------------------------------------------------------- |
+| `/entity-audit` | Full checklist against CLAUDE.md + JSDoc + import boundaries          |
+| `/entity-perf`  | Re-render and subscription patterns; unnecessary `useStore` breadth   |
+| `/entity-gc`    | Eviction strategies, `removeEntity`, patch cleanup, list invalidation |
 
 ## PMPO
 

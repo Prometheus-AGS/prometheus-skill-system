@@ -4,13 +4,13 @@ Choose the correct realtime integration path.
 
 ## Decision matrix
 
-| Backend | Adapter factory | Notes |
-|---------|-----------------|-------|
-| Custom WS JSON | `createWebSocketAdapter` | Provide `parseMessage` mapping to `EntityChange[]` |
-| Supabase Postgres changes | `createSupabaseRealtimeAdapter` | Row-level filters, channel per table |
-| Convex reactive backend | `createConvexAdapter` | Map Convex subscription results |
-| GraphQL live queries / subs | `createGraphQLSubscriptionAdapter` | Bridge subscription payloads |
-| Electric + PGlite | `createElectricAdapter` | Local-first; implements `SyncAdapter` |
+| Backend                     | Adapter factory                    | Notes                                              |
+| --------------------------- | ---------------------------------- | -------------------------------------------------- |
+| Custom WS JSON              | `createWebSocketAdapter`           | Provide `parseMessage` mapping to `EntityChange[]` |
+| Supabase Postgres changes   | `createSupabaseRealtimeAdapter`    | Row-level filters, channel per table               |
+| Convex reactive backend     | `createConvexAdapter`              | Map Convex subscription results                    |
+| GraphQL live queries / subs | `createGraphQLSubscriptionAdapter` | Bridge subscription payloads                       |
+| Electric + PGlite           | `createElectricAdapter`            | Local-first; implements `SyncAdapter`              |
 
 ## Questions
 

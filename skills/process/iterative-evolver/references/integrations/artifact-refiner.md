@@ -28,10 +28,12 @@ It reads the results back through the KBD reflection and evolver bridge.
 ### What the Evolver Reads
 
 From `.kbd-orchestrator/phases/<phase>/reflection.md`:
+
 - Artifact Quality Summary section
 - Pass rate, recurring violations, refinement iteration count
 
 From `.refiner/artifacts/<change-id>/refinement_log.md`:
+
 - Per-change pass/fail history
 - Constraint violation details
 
@@ -45,14 +47,14 @@ When artifact-refiner is available, the report can be refined for quality:
 ### Invocation Contract
 
 ```yaml
-artifact_name: "evolution-report-<timestamp>"
+artifact_name: 'evolution-report-<timestamp>'
 artifact_type: content
 content_type: direct:markdown
 constraints:
-  - "Report must have all required sections"
-  - "Numbers must be internally consistent"
-  - "Executive summary must be under 200 words"
-  - "Recommendations must be actionable and specific"
+  - 'Report must have all required sections'
+  - 'Numbers must be internally consistent'
+  - 'Executive summary must be under 200 words'
+  - 'Recommendations must be actionable and specific'
 target_state:
   description: >
     A clear, concise evolution report that accurately summarizes the

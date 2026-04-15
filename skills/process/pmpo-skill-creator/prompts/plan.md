@@ -17,6 +17,7 @@ Receive `skill_spec` from Specify phase.
 Based on complexity tier and mode, determine the full file tree:
 
 #### Simple Tier
+
 ```
 <skill_name>/
 ├── SKILL.md
@@ -25,6 +26,7 @@ Based on complexity tier and mode, determine the full file tree:
 ```
 
 #### Standard Tier
+
 ```
 <skill_name>/
 ├── SKILL.md
@@ -50,6 +52,7 @@ Based on complexity tier and mode, determine the full file tree:
 ```
 
 #### Full Tier
+
 ```
 <skill_name>/
 ├── SKILL.md
@@ -93,6 +96,7 @@ Based on complexity tier and mode, determine the full file tree:
 ### Step 2: Design Domain Adapters
 
 For each planned domain, define:
+
 - Purpose and scope
 - Domain-specific evaluation criteria
 - Key constraints and quality measures
@@ -101,6 +105,7 @@ For each planned domain, define:
 ### Step 3: Design Agent Roles
 
 For each planned agent, define:
+
 - Role name and responsibility
 - Which phases it operates in
 - What tools it needs access to
@@ -109,16 +114,19 @@ For each planned agent, define:
 ### Step 4: Design Schemas
 
 Define JSON schemas for:
+
 - **State schema** — Creation/runtime state manifest
 - **Output schema** — Skill output contract
 
 Reference patterns from exemplar skills:
+
 - `references/schemas/creation-state.schema.json` (this skill's state)
 - Exemplar: `evolution-state.schema.json` (evolver) or `refinement-state.schema.json` (refiner)
 
 ### Step 5: Plan Hooks Configuration
 
 If hooks are required (standard/full tier):
+
 - Per-phase `SubagentStop` hooks for checkpoint + dispatch
 - `Stop` hook for finalization + completion dispatch
 - Map each hook to the correct script path
@@ -127,20 +135,22 @@ If hooks are required (standard/full tier):
 
 For each target platform:
 
-| Platform | Files to Generate |
-|----------|-------------------|
-| agentskills-io | `SKILL.md` (compliant frontmatter) |
-| claude-code | `.claude-plugin/plugin.json`, `skills/`, `agents/`, `hooks/` |
-| opencode | `<tools_directory>/` with tool definitions |
+| Platform       | Files to Generate                                            |
+| -------------- | ------------------------------------------------------------ |
+| agentskills-io | `SKILL.md` (compliant frontmatter)                           |
+| claude-code    | `.claude-plugin/plugin.json`, `skills/`, `agents/`, `hooks/` |
+| opencode       | `<tools_directory>/` with tool definitions                   |
 
 ### Step 7: Clone/Extend Adaptation (if applicable)
 
 For `clone`:
+
 - Map source files → target files (1:1 with name substitution)
 - Identify domain-specific content sections to replace
 - List files that need structural changes vs. name-only changes
 
 For `extend`:
+
 - List new files to add
 - List existing files that need modification
 - Verify non-destructive additions (no renames, no deletions)
@@ -150,10 +160,10 @@ For `extend`:
 ```yaml
 skill_plan:
   file_map:
-    - path: string         # Relative path within skill directory
-      purpose: string      # What this file does
-      template: string     # Which template to use (or "custom")
-      source_file: string  # For clone: source file to adapt from
+    - path: string # Relative path within skill directory
+      purpose: string # What this file does
+      template: string # Which template to use (or "custom")
+      source_file: string # For clone: source file to adapt from
   agents:
     - name: string
       role: string

@@ -29,12 +29,12 @@ You are a landscape research specialist. Your role is to scan the external envir
 
 ## Tool Selection
 
-| Need | Tool |
-|---|---|
-| Web research | `tavily` or `web_search` |
+| Need                   | Tool                                   |
+| ---------------------- | -------------------------------------- |
+| Web research           | `tavily` or `web_search`               |
 | URL content extraction | `tavily` extract or `read_url_content` |
-| Data comparison | `code_interpreter` |
-| File output | `file_system` (Write) |
+| Data comparison        | `code_interpreter`                     |
+| File output            | `file_system` (Write)                  |
 
 ## Research Strategy
 
@@ -55,5 +55,6 @@ You are a landscape research specialist. Your role is to scan the external envir
 ## Output
 
 After analysis, the following must exist:
+
 - Updated `analysis.json` with structured analysis
 - Analysis summary appended to `evolution_log.md`

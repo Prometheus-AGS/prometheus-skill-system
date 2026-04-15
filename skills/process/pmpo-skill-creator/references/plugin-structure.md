@@ -37,6 +37,7 @@ plugin-name/
 ```
 
 Fields:
+
 - `name` — Plugin namespace, becomes prefix for slash commands (`/plugin-name:command`)
 - `description` — Human-readable description
 - `version` — Semver version string
@@ -77,7 +78,7 @@ Skills are automatically discovered when the plugin is installed.
       "event": "Stop",
       "steps": [
         {
-          "type": "command", 
+          "type": "command",
           "command": "bash ${CLAUDE_PLUGIN_ROOT}/scripts/finalize.sh"
         }
       ]
@@ -92,11 +93,11 @@ Use this variable in hook commands and MCP configs to reference files within the
 
 ### Hook Events
 
-| Event | Trigger |
-|-------|---------|
-| `PostToolUse` | After a tool is used |
-| `SubagentStop` | When a subagent completes |
-| `Stop` | When the main session ends |
+| Event          | Trigger                    |
+| -------------- | -------------------------- |
+| `PostToolUse`  | After a tool is used       |
+| `SubagentStop` | When a subagent completes  |
+| `Stop`         | When the main session ends |
 
 ## Marketplace Distribution
 
@@ -132,6 +133,7 @@ Use this variable in hook commands and MCP configs to reference files within the
 Role description and system prompt for the agent.
 
 ## Instructions
+
 - What this agent does
 - Its constraints
 - Its tools

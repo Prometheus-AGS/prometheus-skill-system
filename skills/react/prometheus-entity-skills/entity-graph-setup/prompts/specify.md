@@ -12,14 +12,14 @@ Run before planning or code generation. Capture answers as structured JSON (`set
 
 For each, note **where** it appears (deps, sample files):
 
-| Layer | Present? | Notes |
-|-------|----------|--------|
-| TanStack Query | | Query keys, `useQuery` usage |
-| Apollo Client | | `ApolloProvider`, `useQuery` |
-| Redux / RTK | | Normalized or denormalized entities? |
-| SWR | | Key strategy |
-| Zustand (app) | | Server data or UI-only? |
-| Raw `fetch` in components | | Anti-pattern count |
+| Layer                     | Present? | Notes                                |
+| ------------------------- | -------- | ------------------------------------ |
+| TanStack Query            |          | Query keys, `useQuery` usage         |
+| Apollo Client             |          | `ApolloProvider`, `useQuery`         |
+| Redux / RTK               |          | Normalized or denormalized entities? |
+| SWR                       |          | Key strategy                         |
+| Zustand (app)             |          | Server data or UI-only?              |
+| Raw `fetch` in components |          | Anti-pattern count                   |
 
 ## 3. APIs and auth
 

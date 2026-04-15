@@ -30,6 +30,7 @@ Also reconcile any cross-tool work completed since the last session by reading
 ### 1. Implementation Completeness
 
 For each domain area derived from the project specs:
+
 - What features/entities exist in the codebase?
 - What is fully implemented vs. stubbed vs. missing?
 - What TODOs or placeholder comments remain?
@@ -38,6 +39,7 @@ For each domain area derived from the project specs:
 ### 2. Spec Alignment
 
 For each canonical spec file:
+
 - Does the implementation match what the spec describes?
 - What is specified but not implemented?
 - What is implemented but not specified (unplanned scope creep)?
@@ -45,6 +47,7 @@ For each canonical spec file:
 ### 3. Cross-Tool Progress (New)
 
 Read `progress.json` and report:
+
 - Changes completed by other tools since last assessment
 - Changes currently `IN_PROGRESS` by another tool
 - Any blockers reported by executing tools
@@ -52,6 +55,7 @@ Read `progress.json` and report:
 ### 4. Build Health
 
 Adapt to the project stack:
+
 - **TypeScript/Next.js**: Does `pnpm run build` / `tsc --noEmit` pass?
 - **Rust**: Does `cargo check --workspace` pass?
 - **Python**: Does `mypy` or `ruff check` pass?
@@ -109,6 +113,7 @@ ASSESSMENT COMPLETE
 Write output to `.kbd-orchestrator/phases/<phase-name>/assessment.md`.
 
 After writing, update `.kbd-orchestrator/phases/<phase>/progress.json`:
+
 - Set `assessment_complete: true`
 - Set `last_updated_by` to the executing tool name
 - Set `last_updated` to current ISO timestamp

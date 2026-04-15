@@ -5,6 +5,7 @@ This guide explains how to import external skills into the Prometheus Skill Pack
 ## When to Import as Submodule
 
 Import a skill as a submodule when:
+
 - ✅ The skill is maintained in a separate repository
 - ✅ The skill has its own development lifecycle and versioning
 - ✅ You want to track updates from the original source
@@ -12,6 +13,7 @@ Import a skill as a submodule when:
 - ✅ The skill is complex enough to warrant independent maintenance
 
 **Don't** use submodules for:
+
 - ❌ Skills you're developing specifically for this pack
 - ❌ Simple, single-file skills
 - ❌ Skills that will never be updated independently
@@ -61,6 +63,7 @@ git submodule add git@github.com:USER/REPO.git skills/imported/skill-name
 ```
 
 **Naming conventions**:
+
 - Use the skill's canonical name (usually matches `name` in SKILL.md frontmatter)
 - Use kebab-case: `artifact-refiner`, not `ArtifactRefiner`
 - Be descriptive but concise
@@ -81,6 +84,7 @@ Add entry to `skills/imported/README.md`:
 
 ```markdown
 ### skill-name
+
 - **Repository**: git@github.com:USER/REPO.git
 - **Description**: Brief description of what the skill does
 - **Version**: v1.0.0

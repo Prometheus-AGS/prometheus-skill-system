@@ -9,6 +9,7 @@ This adapter provides domain-agnostic frameworks that work for any subject requi
 ### 1. Goal Clarity Audit
 
 For each goal, evaluate:
+
 - **Specificity**: Is the goal specific enough to measure?
 - **Measurability**: Can progress be quantified?
 - **Achievability**: Is it realistic with available resources?
@@ -18,6 +19,7 @@ For each goal, evaluate:
 ### 2. Asset Inventory
 
 Catalog what exists:
+
 - **Tangible assets**: Files, documents, tools, products, infrastructure
 - **Intangible assets**: Knowledge, relationships, reputation, processes
 - **Human capital**: Skills, expertise, capacity available
@@ -26,6 +28,7 @@ Catalog what exists:
 ### 3. Quality Assessment
 
 For each asset, evaluate:
+
 - **Fitness for purpose**: Does it serve its intended function?
 - **Currency**: Is it up to date?
 - **Completeness**: Is it finished or partial?
@@ -34,6 +37,7 @@ For each asset, evaluate:
 ### 4. Gap Analysis
 
 For each goal:
+
 - What assets support this goal?
 - What assets are missing?
 - What assets are present but inadequate?
@@ -51,6 +55,7 @@ For each goal:
 ### Landscape Scanning
 
 Construct search queries from:
+
 1. `"{subject} best practices {year}"`
 2. `"{subject} trends and developments"`
 3. `"{goal_area} benchmarks and comparisons"`
@@ -66,6 +71,7 @@ Construct search queries from:
 ### Benchmarking
 
 Compare against:
+
 - Industry leaders
 - Published standards
 - Community best practices
@@ -76,39 +82,42 @@ Compare against:
 ### Priority Scoring
 
 Score each potential improvement:
+
 ```
 Priority = (Impact × Urgency) / Effort
 ```
 
 Where:
+
 - Impact: 1-5 (effect on goal achievement)
 - Urgency: 1-5 (time sensitivity)
 - Effort: 1-5 (resources required)
 
 ### Action Categories
 
-| Category | Characteristics | When |
-|---|---|---|
-| Quick Wins | High impact, low effort | Do immediately |
-| Strategic | High impact, high effort | Plan carefully |
-| Fill-Ins | Low impact, low effort | If time allows |
-| Avoid | Low impact, high effort | Skip |
+| Category   | Characteristics          | When           |
+| ---------- | ------------------------ | -------------- |
+| Quick Wins | High impact, low effort  | Do immediately |
+| Strategic  | High impact, high effort | Plan carefully |
+| Fill-Ins   | Low impact, low effort   | If time allows |
+| Avoid      | Low impact, high effort  | Skip           |
 
 ## Health Indicator Framework
 
 Since this is domain-agnostic, use a universal health model:
 
-| Indicator | Healthy | Warning | Critical |
-|---|---|---|---|
-| Goal alignment | >80% | 50-80% | <50% |
-| Asset completeness | >80% | 50-80% | <50% |
-| Risk exposure | Low | Medium | High |
-| Progress velocity | Accelerating | Stable | Decelerating |
-| Resource utilization | Balanced | Strained | Overloaded |
+| Indicator            | Healthy      | Warning  | Critical     |
+| -------------------- | ------------ | -------- | ------------ |
+| Goal alignment       | >80%         | 50-80%   | <50%         |
+| Asset completeness   | >80%         | 50-80%   | <50%         |
+| Risk exposure        | Low          | Medium   | High         |
+| Progress velocity    | Accelerating | Stable   | Decelerating |
+| Resource utilization | Balanced     | Strained | Overloaded   |
 
 ## When to Use This Adapter
 
 Use this adapter when:
+
 - The domain doesn't match any specific adapter
 - The subject crosses multiple domains
 - The evolution goals are novel or unconventional

@@ -27,11 +27,11 @@ If state exists and is active, resume from last checkpoint. If finalized, seed n
 
 Route based on `mode`:
 
-| Mode | Specify Behavior | Execute Behavior |
-|------|-----------------|-----------------|
-| `create` | Full intent clarification, architecture design from scratch |  Generate all files using templates |
-| `clone` | Source skill analysis, domain mapping | Copy structure, replace domain content |
-| `extend` | Gap analysis, non-destructive planning | Add files without modifying existing |
+| Mode     | Specify Behavior                                            | Execute Behavior                       |
+| -------- | ----------------------------------------------------------- | -------------------------------------- |
+| `create` | Full intent clarification, architecture design from scratch | Generate all files using templates     |
+| `clone`  | Source skill analysis, domain mapping                       | Copy structure, replace domain content |
+| `extend` | Gap analysis, non-destructive planning                      | Add files without modifying existing   |
 
 ## PMPO Phase Loop
 
@@ -61,6 +61,7 @@ Execute phases in order. After each phase, run hooks.
 #### Artifact-Refiner Integration (Optional)
 
 If the artifact-refiner skill is available, delegate markdown/prompt content generation to it:
+
 - Content type: `meta:agent-prompt`
 - This produces iteratively refined prompt text via the refiner's PMPO loop
 - If artifact-refiner is NOT available, generate content directly — the creator is self-sufficient
@@ -94,12 +95,12 @@ bash scripts/workflow-dispatch.sh on_phase_complete <phase_name>
 
 After Reflect, evaluate:
 
-| Condition | Action |
-|-----------|--------|
-| All validations pass, spec compliant | **Terminate** — finalize state |
-| Validation failures found | **Loop** — return to Execute with specific fixes |
-| Architecture issues found | **Loop** — return to Plan with updated constraints |
-| Max iterations reached (default: 3) | **Terminate** — output with warnings |
+| Condition                            | Action                                             |
+| ------------------------------------ | -------------------------------------------------- |
+| All validations pass, spec compliant | **Terminate** — finalize state                     |
+| Validation failures found            | **Loop** — return to Execute with specific fixes   |
+| Architecture issues found            | **Loop** — return to Plan with updated constraints |
+| Max iterations reached (default: 3)  | **Terminate** — output with warnings               |
 
 ## Finalization
 
@@ -118,6 +119,7 @@ bash scripts/workflow-dispatch.sh on_creation_complete <skill_name>
 The created skill lives at: `dist/<skill_name>/`
 
 Verify it can be installed:
+
 ```bash
 cowork install --local dist/<skill_name>/
 ```
@@ -125,6 +127,7 @@ cowork install --local dist/<skill_name>/
 ## Error Recovery
 
 If a phase fails:
+
 1. Check last checkpoint: `.creator/skills/<name>/checkpoints/`
 2. Resume from that checkpoint by re-initializing state
 3. The state-init script detects active sessions and resumes automatically

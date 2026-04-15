@@ -5,7 +5,7 @@ license: MIT
 compatibility: Node.js >=18, Claude Code >=1.0.0
 metadata:
   author: your-name
-  version: "1.0.0"
+  version: '1.0.0'
   category: react|rust|ui-ux|devops|testing|documentation
   tags: [tag1, tag2, tag3]
 ---
@@ -17,6 +17,7 @@ Brief overview of what this skill accomplishes.
 ## When to Use
 
 Describe the specific scenarios where this skill should be invoked:
+
 - Scenario 1
 - Scenario 2
 - Scenario 3
@@ -71,6 +72,7 @@ If this skill includes executable scripts:
 - `scripts/another-script.py` - Description of what it does
 
 Usage:
+
 ```bash
 bash scripts/script-name.sh --arg value
 ```
@@ -78,6 +80,7 @@ bash scripts/script-name.sh --arg value
 ## References
 
 For more detailed information, see:
+
 - [references/DETAILED_GUIDE.md](references/DETAILED_GUIDE.md)
 - [references/API_REFERENCE.md](references/API_REFERENCE.md)
 

@@ -5,6 +5,7 @@ This guide explains how to work with git submodules in the Prometheus Skill Pack
 ## What are Git Submodules?
 
 Git submodules allow you to keep a Git repository as a subdirectory of another Git repository. This lets you:
+
 - Track external dependencies at specific commits
 - Maintain separate development histories
 - Share code across multiple projects
@@ -13,6 +14,7 @@ Git submodules allow you to keep a Git repository as a subdirectory of another G
 ## Why Use Submodules for Skills?
 
 In the Prometheus Skill Pack, submodules are used for **imported skills** - skills that:
+
 - Are maintained in separate repositories
 - Have their own development lifecycle
 - May be used across multiple skill packs
@@ -270,6 +272,7 @@ git commit -m "Configure artifact-refiner to track develop branch"
 **Problem**: Cloned repo but `skills/imported/artifact-refiner/` is empty
 
 **Solution**:
+
 ```bash
 git submodule init
 git submodule update
@@ -280,6 +283,7 @@ git submodule update
 **Problem**: `git status` shows submodule as modified, but no actual changes
 
 **Solution**: The submodule pointer is out of sync
+
 ```bash
 cd skills/imported/artifact-refiner
 git checkout <expected-commit>
@@ -292,6 +296,7 @@ git add skills/imported/artifact-refiner
 **Problem**: Submodule is in detached HEAD state
 
 **Solution**:
+
 ```bash
 cd skills/imported/artifact-refiner
 git checkout main  # or appropriate branch
@@ -306,6 +311,7 @@ git commit -m "Update submodule to track main branch"
 **Problem**: Conflicts in `.gitmodules` after merge
 
 **Solution**:
+
 ```bash
 # Resolve conflicts in .gitmodules manually
 vim .gitmodules
@@ -324,6 +330,7 @@ git commit -m "Resolve submodule conflicts"
 **Problem**: Made changes in submodule and committed to main repo
 
 **Solution**:
+
 ```bash
 # Uncommit from main repo
 git reset HEAD^ skills/imported/artifact-refiner
@@ -348,6 +355,7 @@ git commit -m "Update artifact-refiner with recent changes"
 **Problem**: The upstream URL for a submodule changed
 
 **Solution**:
+
 ```bash
 # Update URL in .gitmodules
 vim .gitmodules  # Change the url

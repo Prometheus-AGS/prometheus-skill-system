@@ -5,10 +5,10 @@ the Prometheus self-learning pipeline's write operations against skill artifacts
 
 ## Files
 
-| File | Purpose |
-|------|---------|
+| File                   | Purpose                                                                 |
+| ---------------------- | ----------------------------------------------------------------------- |
 | `skill-mutation.cedar` | Policies for skill.mutate, skill.generate, skill.promote, trace.capture |
-| `entities.json` | Entity hierarchy: agent groups, skill domains, named agents |
+| `entities.json`        | Entity hierarchy: agent groups, skill domains, named agents             |
 
 ## How It Works
 
@@ -20,11 +20,11 @@ at the Skill Mutation PEP (Policy Enforcement Point).
 
 ## Environments
 
-| Environment | Behavior |
-|-------------|----------|
-| `development` | All operations permitted |
-| `staging` | Mutations require `validation_passed`; promotions require `human_approved` + `test_pass_rate >= 0.95` |
-| `production` | All mutations forbidden by default |
+| Environment   | Behavior                                                                                              |
+| ------------- | ----------------------------------------------------------------------------------------------------- |
+| `development` | All operations permitted                                                                              |
+| `staging`     | Mutations require `validation_passed`; promotions require `human_approved` + `test_pass_rate >= 0.95` |
+| `production`  | All mutations forbidden by default                                                                    |
 
 ## Regulated Verticals
 

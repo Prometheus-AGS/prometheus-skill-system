@@ -37,9 +37,18 @@
         "required": ["goal_id"],
         "properties": {
           "goal_id": { "type": "string" },
-          "supporting_assets": { "type": "array", "items": { "type": "string" } },
-          "missing_elements": { "type": "array", "items": { "type": "string" } },
-          "partial_progress": { "type": "array", "items": { "type": "string" } },
+          "supporting_assets": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "missing_elements": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "partial_progress": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
           "blockers": { "type": "array", "items": { "type": "string" } }
         }
       }
@@ -52,7 +61,10 @@
         "properties": {
           "name": { "type": "string" },
           "value": {},
-          "status": { "type": "string", "enum": ["healthy", "warning", "critical"] },
+          "status": {
+            "type": "string",
+            "enum": ["healthy", "warning", "critical"]
+          },
           "details": { "type": "string" }
         }
       }
@@ -61,7 +73,11 @@
       "type": "object",
       "required": ["overall_percentage"],
       "properties": {
-        "overall_percentage": { "type": "number", "minimum": 0, "maximum": 100 },
+        "overall_percentage": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
         "per_goal": {
           "type": "array",
           "items": {

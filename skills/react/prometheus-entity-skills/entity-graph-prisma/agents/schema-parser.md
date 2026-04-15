@@ -38,7 +38,13 @@ models:
       projectId: { type: String, fk: Project }
       title: { type: String }
     relations:
-      project: { kind: belongsTo, model: Project, fields: [projectId], references: [id] }
+      project:
+        {
+          kind: belongsTo,
+          model: Project,
+          fields: [projectId],
+          references: [id],
+        }
 enums:
   TaskStatus: [TODO, DONE]
 ```

@@ -34,6 +34,7 @@ tests/
 ```
 
 Config files at project root:
+
 - `cucumber.js` — Profiles: `default`, `api`, `ui`, `agents`, `video`
 - `tsconfig.cucumber.json` — TypeScript compilation for tests
 
@@ -41,12 +42,12 @@ Config files at project root:
 
 ### Step 1: Identify the Testing Layer
 
-| Tag | Layer | What it tests | Tools used |
-|-----|-------|---------------|------------|
-| `@api` | API | REST endpoints, auth, CRUD | Playwright `request` API |
-| `@ui` | Frontend | Page rendering, forms, navigation | Playwright `page` API |
-| `@agent` | Agent | AI agent orchestration, tool calling | Playwright `request` API |
-| `@video` | Recording | Adds video recording to `@ui` tests | Playwright `recordVideo` |
+| Tag      | Layer     | What it tests                        | Tools used               |
+| -------- | --------- | ------------------------------------ | ------------------------ |
+| `@api`   | API       | REST endpoints, auth, CRUD           | Playwright `request` API |
+| `@ui`    | Frontend  | Page rendering, forms, navigation    | Playwright `page` API    |
+| `@agent` | Agent     | AI agent orchestration, tool calling | Playwright `request` API |
+| `@video` | Recording | Adds video recording to `@ui` tests  | Playwright `recordVideo` |
 
 ### Step 2: Write the Feature File
 
@@ -84,8 +85,9 @@ Feature: [Feature Name]
 ```
 
 **Rules:**
+
 - One feature per file, one behavior per scenario
-- Use **declarative** steps (say *what*, not *how*)
+- Use **declarative** steps (say _what_, not _how_)
 - Use `Background` for shared Given steps
 - Use `Scenario Outline` for data variations
 - Always add appropriate tags: `@api`, `@ui`, `@agent`, `@video`, `@smoke`, `@slow`
@@ -111,19 +113,19 @@ Given(
 When(
   'I click the {string} button',
   async function (this: CustomWorld, buttonText: string) {
-    await this.page.click(`[data-testid="${buttonText.toLowerCase().replace(/\s+/g, '-')}-button"]`);
+    await this.page.click(
+      `[data-testid="${buttonText.toLowerCase().replace(/\s+/g, '-')}-button"]`
+    );
   }
 );
 
-Then(
-  'I should see {string}',
-  async function (this: CustomWorld, text: string) {
-    await expect(this.page.locator(`text=${text}`)).toBeVisible();
-  }
-);
+Then('I should see {string}', async function (this: CustomWorld, text: string) {
+  await expect(this.page.locator(`text=${text}`)).toBeVisible();
+});
 ```
 
 **Patterns:**
+
 - Use `this: CustomWorld` type annotation on every step function
 - Use `async function` (not arrow functions — Cucumber binds `this`)
 - Use Cucumber Expressions (`{string}`, `{int}`) over regex
@@ -136,6 +138,7 @@ Then(
 For `@ui` tests, video recording is automatic via `hooks.ts`. The `@video` tag enables it explicitly.
 
 **Playwright `recordVideo` config** (applied in hooks.ts):
+
 ```typescript
 this.context = await this.browser.newContext({
   recordVideo: {
@@ -148,6 +151,7 @@ this.context = await this.browser.newContext({
 Videos are saved as WebM files in `tests/reports/videos/` after `context.close()`.
 
 **Video lifecycle:**
+
 1. `Before(@ui)` → Creates browser context with `recordVideo`
 2. Test runs → All page interactions are recorded
 3. `After(@ui)` → Saves video path, attaches to report, closes context
@@ -188,6 +192,7 @@ browser_subagent(
 
 The `RecordingName` produces a `.webp` video saved to the artifacts directory, viewable
 directly in the Antigravity conversation. Use this for:
+
 - Visual verification of UI test scenarios
 - Debugging failing UI tests
 - Creating demo recordings of user flows
@@ -196,22 +201,22 @@ directly in the Antigravity conversation. Use this for:
 
 The `CustomWorld` object provides these fields per scenario:
 
-| Field | Type | Layer | Description |
-|-------|------|-------|-------------|
-| `apiContext` | `APIRequestContext` | @api, @agent | Playwright HTTP client |
-| `response` | `any` | @api | Last HTTP response |
-| `responseBody` | `any` | @api | Parsed response body |
-| `authToken` | `string` | @api | JWT auth token |
-| `browser` | `Browser` | @ui | Chromium browser instance |
-| `context` | `BrowserContext` | @ui | Browser context (with video) |
-| `page` | `Page` | @ui | Active page |
-| `agentResponse` | `any` | @agent | Agent chat response |
-| `agentToolCalls` | `any[]` | @agent | Tools invoked by agent |
-| `agentStreamChunks` | `string[]` | @agent | SSE stream chunks |
-| `baseUrl` | `string` | all | `http://localhost:3000` |
-| `testData` | `Record<string,any>` | all | Arbitrary test data |
-| `videoPath` | `string or null` | @ui | Path to recorded video |
-| `tracePath` | `string or null` | @ui | Path to trace file |
+| Field               | Type                 | Layer        | Description                  |
+| ------------------- | -------------------- | ------------ | ---------------------------- |
+| `apiContext`        | `APIRequestContext`  | @api, @agent | Playwright HTTP client       |
+| `response`          | `any`                | @api         | Last HTTP response           |
+| `responseBody`      | `any`                | @api         | Parsed response body         |
+| `authToken`         | `string`             | @api         | JWT auth token               |
+| `browser`           | `Browser`            | @ui          | Chromium browser instance    |
+| `context`           | `BrowserContext`     | @ui          | Browser context (with video) |
+| `page`              | `Page`               | @ui          | Active page                  |
+| `agentResponse`     | `any`                | @agent       | Agent chat response          |
+| `agentToolCalls`    | `any[]`              | @agent       | Tools invoked by agent       |
+| `agentStreamChunks` | `string[]`           | @agent       | SSE stream chunks            |
+| `baseUrl`           | `string`             | all          | `http://localhost:3000`      |
+| `testData`          | `Record<string,any>` | all          | Arbitrary test data          |
+| `videoPath`         | `string or null`     | @ui          | Path to recorded video       |
+| `tracePath`         | `string or null`     | @ui          | Path to trace file           |
 
 ## Best Practices
 

@@ -12,11 +12,11 @@ Inputs: `setup_spec` from **specify**, optional `entity_manifest` from **entity-
 
 Pick one primary pattern (document why):
 
-| Pattern | When |
-|---------|------|
-| **Parallel** | Keep old hooks live; new routes use graph hooks behind `NEXT_PUBLIC_*` / runtime flag. |
-| **Vertical slice** | One entity (e.g. `Project`) fully migrated end-to-end first. |
-| **Read-first** | Migrate reads to graph; writes stay on old layer until fetchers stable. |
+| Pattern            | When                                                                                   |
+| ------------------ | -------------------------------------------------------------------------------------- |
+| **Parallel**       | Keep old hooks live; new routes use graph hooks behind `NEXT_PUBLIC_*` / runtime flag. |
+| **Vertical slice** | One entity (e.g. `Project`) fully migrated end-to-end first.                           |
+| **Read-first**     | Migrate reads to graph; writes stay on old layer until fetchers stable.                |
 
 ## 3. File layout (proposal)
 

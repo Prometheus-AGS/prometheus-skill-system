@@ -33,6 +33,7 @@ Thank you for your interest in contributing! This document provides guidelines f
 ### 1. Choose the Right Category
 
 Place your skill in the appropriate category directory:
+
 - `skills/react/` - React and frontend framework skills
 - `skills/rust/` - Rust programming skills
 - `skills/ui-ux/` - Design and user experience skills
@@ -110,23 +111,27 @@ npm run format
 1. **Create your skill** following the guidelines above
 
 2. **Test locally**:
+
    ```bash
    npm run install:project
    # Then test with Claude Code
    ```
 
 3. **Validate**:
+
    ```bash
    npm run validate:skill skills/category/your-skill
    ```
 
 4. **Commit** with a clear message:
+
    ```bash
    git add skills/category/your-skill
    git commit -m "Add [skill-name]: brief description"
    ```
 
 5. **Push** to your fork:
+
    ```bash
    git push origin feature/my-new-skill
    ```
@@ -142,6 +147,7 @@ npm run format
 ### SKILL.md Content
 
 ✅ **DO**:
+
 - Write clear, actionable instructions
 - Include concrete examples
 - Use third-person voice ("Run the command", not "You should run")
@@ -151,6 +157,7 @@ npm run format
 - Include "when to use" guidance
 
 ❌ **DON'T**:
+
 - Include Windows-style paths: `scripts\run.sh`
 - Make assumptions about available tools
 - Write overly generic instructions
@@ -160,6 +167,7 @@ npm run format
 ### Scripts
 
 ✅ **DO**:
+
 - Make scripts executable: `chmod +x scripts/script.sh`
 - Use structured output (JSON when possible)
 - Include error handling
@@ -167,6 +175,7 @@ npm run format
 - Use package runners for dependencies (`npx`, `uvx`, `bunx`)
 
 ❌ **DON'T**:
+
 - Assume specific versions are installed globally
 - Use global dependencies
 - Write platform-specific scripts without alternatives
@@ -184,10 +193,12 @@ For complex skills:
 ### Frontmatter Fields
 
 Required:
+
 - `name` - Matches directory name
 - `description` - Clear, searchable description
 
 Recommended:
+
 - `license` - Usually MIT
 - `metadata.author` - Your name/username
 - `metadata.version` - Semantic version
@@ -195,6 +206,7 @@ Recommended:
 - `metadata.tags` - Searchable keywords
 
 Optional:
+
 - `compatibility` - System requirements
 - `allowed-tools` - Tool restrictions
 

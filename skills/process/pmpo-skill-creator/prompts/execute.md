@@ -22,6 +22,7 @@ mkdir -p dist/<skill_name>/{prompts,agents,references/schemas,scripts,hooks,skil
 ```
 
 Add platform directories as needed:
+
 ```bash
 # Claude Code plugin
 mkdir -p dist/<skill_name>/.claude-plugin
@@ -33,16 +34,19 @@ mkdir -p dist/<skill_name>/<tools_directory>
 ### Step 2: Generate Core Files
 
 #### SKILL.md
+
 - Use template: `assets/templates/skill-md.template.md`
 - Inject: `{{skill_name}}`, `{{skill_description}}`, `{{allowed_tools}}`
 - Manually complete: inputs/outputs, execution model, quality standards
 - Validate: frontmatter against agentskills.io spec
 
 #### CLAUDE.md
+
 - Generate development guide specific to the new skill
 - Include: architecture overview, key files, development guidelines
 
 #### AGENTS.md
+
 - Generate contributor guide with commit conventions
 
 ### Step 3: Generate Phase Controllers
@@ -55,6 +59,7 @@ For each phase in `skill_plan.file_map` matching `prompts/*.md`:
 - Include output contracts in YAML
 
 #### Meta-Controller Special Case
+
 - Include startup protocol (provider resolution, state init)
 - Include mode routing logic
 - Include phase loop with hooks
@@ -71,10 +76,12 @@ For each agent in `skill_plan.agents`:
 ### Step 5: Generate Reference Materials
 
 For each domain adapter:
+
 - Create `references/<domain>.md` with domain-specific evaluation criteria
 - Include: purpose, quality criteria, example inputs/outputs
 
 For theory/architecture docs:
+
 - Generate `references/pmpo-theory.md` if full tier (use this skill's `references/pmpo-theory.md` as a starting point)
 - Include state management concepts within pmpo-theory.md if state management is required
 
@@ -89,12 +96,14 @@ For each schema in `skill_plan.schemas`:
 ### Step 7: Generate Scripts
 
 For each script:
+
 - Set shebang: `#!/usr/bin/env bash`
 - Set strict mode: `set -euo pipefail`
 - Adapt from exemplar skill scripts (evolver/refiner)
 - Make executable: `chmod +x scripts/*.sh`
 
 State lifecycle scripts (full tier):
+
 - `state-resolve-provider.sh` — 6-tier provider resolution
 - `state-init.sh` — Init/resume named state
 - `state-checkpoint.sh` — Mid-phase snapshot
@@ -102,6 +111,7 @@ State lifecycle scripts (full tier):
 - `workflow-dispatch.sh` — Event-driven triggers
 
 Validation script (all tiers):
+
 - `validate.sh` — Skill-specific validation suite
 
 ### Step 8: Generate Hooks Configuration
@@ -109,6 +119,7 @@ Validation script (all tiers):
 Use template: `assets/templates/hooks-json.template.json`
 
 Generate per-phase hooks:
+
 ```json
 {
   "hooks": [
@@ -116,8 +127,14 @@ Generate per-phase hooks:
       "event": "SubagentStop",
       "match_agent": "<phase>_agent",
       "steps": [
-        { "type": "command", "command": "bash ${CLAUDE_PLUGIN_ROOT}/scripts/state-checkpoint.sh ..." },
-        { "type": "command", "command": "bash ${CLAUDE_PLUGIN_ROOT}/scripts/workflow-dispatch.sh ..." }
+        {
+          "type": "command",
+          "command": "bash ${CLAUDE_PLUGIN_ROOT}/scripts/state-checkpoint.sh ..."
+        },
+        {
+          "type": "command",
+          "command": "bash ${CLAUDE_PLUGIN_ROOT}/scripts/workflow-dispatch.sh ..."
+        }
       ]
     }
   ]
@@ -127,6 +144,7 @@ Generate per-phase hooks:
 ### Step 9: Generate Sub-Skills
 
 For each sub-skill in `skill_plan.file_map` matching `skills/*/SKILL.md`:
+
 - Create SKILL.md with proper frontmatter
 - Include: name, description, instructions, examples
 
@@ -148,14 +166,18 @@ If `tools_directory` is specified, generate tool definitions:
 
 ```typescript
 // <tools_directory>/<tool_name>.ts
-import { tool } from "@opencode/tool";
-import { z } from "zod";
+import { tool } from '@opencode/tool';
+import { z } from 'zod';
 
 export default tool({
-  name: "{{tool_name}}",
-  description: "{{tool_description}}",
-  parameters: z.object({ /* ... */ }),
-  execute: async (args) => { /* ... */ }
+  name: '{{tool_name}}',
+  description: '{{tool_description}}',
+  parameters: z.object({
+    /* ... */
+  }),
+  execute: async args => {
+    /* ... */
+  },
 });
 ```
 

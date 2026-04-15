@@ -14,10 +14,10 @@ description: >
 
 ## APIs to use
 
-| API | Effect |
-|-----|--------|
-| `removeEntity(type, id)` | Removes canonical entity from `entities` |
-| `clearPatch(type, id)` | Removes local patch overlay |
+| API                                           | Effect                                             |
+| --------------------------------------------- | -------------------------------------------------- |
+| `removeEntity(type, id)`                      | Removes canonical entity from `entities`           |
+| `clearPatch(type, id)`                        | Removes local patch overlay                        |
 | `invalidateLists(key)` / store list mutations | Forces refetch; does not delete entities by itself |
 
 ## Strategies

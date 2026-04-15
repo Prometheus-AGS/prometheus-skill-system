@@ -1,6 +1,6 @@
 ---
 name: kbd-process-orchestrator
-version: "2.0.0"
+version: '2.0.0'
 description: >
   The Universal Knowledge-Based Development (KBD) process orchestrator.
   Drives the full iterative PMPO lifecycle for ANY project —
@@ -11,7 +11,7 @@ description: >
   Cursor Agent, Claude Code, Codex, Cline, Kilo Code, Windsurf, OpenCode)
   using .kbd-orchestrator/ as the shared, file-based source of truth.
 authors:
-  - "Prometheus AGS"
+  - 'Prometheus AGS'
 allowed-tools: file_system web_search code_interpreter sequential_thinking memory
 triggers:
   keywords:
@@ -67,15 +67,18 @@ On every invocation, before acting, KBD MUST:
 ## The Three Levels
 
 ### Level 1 — Global Phase (this skill)
+
 Assess → Analyze → Plan → Execute (backend selection + dispatch) → Reflect
 KBD owns canonical phase state and delegates execution to OpenSpec, a native
 planner backend, or a designated AI tool.
 
 ### Level 2 — OpenSpec Change (inner loop)
+
 `/opsx:new` → `/opsx:apply` → `/opsx:verify` → `/opsx:archive`
 Delegates QA to `artifact-refiner` when available.
 
 ### Level 3 — Artifact QA (innermost)
+
 `artifact-refiner` Specify → Plan → Execute → Reflect → Persist
 
 ---
@@ -88,16 +91,16 @@ in the KBD process, regardless of its internal planning mechanism.
 
 ### State Files (Source of Truth)
 
-| File | Written by | Read by | Purpose |
-|------|-----------|---------|---------|
-| `.kbd-orchestrator/current-waypoint.json` | Any orchestrator | All tools | Resume contract — exact next step |
-| `.kbd-orchestrator/current-waypoint.md` | Any orchestrator | All tools | Human-readable waypoint summary |
-| `.kbd-orchestrator/phases/<phase>/assessment.md` | kbd-assess | kbd-plan | Gap analysis output |
-| `.kbd-orchestrator/phases/<phase>/plan.md` | kbd-plan | kbd-execute | Ordered change list |
-| `.kbd-orchestrator/phases/<phase>/execution.md` | kbd-execute | All tools | Backend dispatch contract |
-| `.kbd-orchestrator/phases/<phase>/progress.json` | Any executing tool | kbd-status | Live task progress ledger |
-| `.kbd-orchestrator/phases/<phase>/reflection.md` | kbd-reflect | Next phase | Phase retrospective |
-| `.kbd-orchestrator/project.json` | Initial setup | All tools | Project identity + config |
+| File                                             | Written by         | Read by     | Purpose                           |
+| ------------------------------------------------ | ------------------ | ----------- | --------------------------------- |
+| `.kbd-orchestrator/current-waypoint.json`        | Any orchestrator   | All tools   | Resume contract — exact next step |
+| `.kbd-orchestrator/current-waypoint.md`          | Any orchestrator   | All tools   | Human-readable waypoint summary   |
+| `.kbd-orchestrator/phases/<phase>/assessment.md` | kbd-assess         | kbd-plan    | Gap analysis output               |
+| `.kbd-orchestrator/phases/<phase>/plan.md`       | kbd-plan           | kbd-execute | Ordered change list               |
+| `.kbd-orchestrator/phases/<phase>/execution.md`  | kbd-execute        | All tools   | Backend dispatch contract         |
+| `.kbd-orchestrator/phases/<phase>/progress.json` | Any executing tool | kbd-status  | Live task progress ledger         |
+| `.kbd-orchestrator/phases/<phase>/reflection.md` | kbd-reflect        | Next phase  | Phase retrospective               |
+| `.kbd-orchestrator/project.json`                 | Initial setup      | All tools   | Project identity + config         |
 
 ### progress.json Protocol
 
@@ -129,31 +132,31 @@ boundaries.
 
 KBD recognizes the following execution agents. Each has a recommended usage pattern:
 
-| Tool | Best For | Entry Point |
-|------|----------|-------------|
-| **Antigravity** | Complex multi-file features, planning, browser verification | `SKILL.md` slash commands |
-| **Roo Code (Architect mode)** | Architecture decisions, system-level planning | Roo Architect mode prompt |
-| **Roo Code (Code mode)** | Focused implementation of bounded tasks | Roo Code mode prompt |
-| **Cursor Agent** | Multi-file refactoring, parallel subagent tasks | Cursor Agent mode |
-| **Claude Code** | Large architectural changes, CLI-driven execution | `claude` CLI |
-| **Codex (OpenAI)** | Parallel isolated tasks via git worktrees | OpenAI Codex app or CLI |
-| **Cline** | Terminal-first agentic workflows with Plan/Act mode | Cline VSCode extension |
-| **Kilo Code** | Targeted code edits in VSCode | Kilo Code extension |
-| **Windsurf Cascade** | Autonomous multi-step tasks with shared session | Windsurf Cascade panel |
-| **OpenCode** | Quick targeted edits and file patches | OpenCode CLI/extension |
-| **Human** | Decisions requiring judgment, external tool operations | Manual |
+| Tool                          | Best For                                                    | Entry Point               |
+| ----------------------------- | ----------------------------------------------------------- | ------------------------- |
+| **Antigravity**               | Complex multi-file features, planning, browser verification | `SKILL.md` slash commands |
+| **Roo Code (Architect mode)** | Architecture decisions, system-level planning               | Roo Architect mode prompt |
+| **Roo Code (Code mode)**      | Focused implementation of bounded tasks                     | Roo Code mode prompt      |
+| **Cursor Agent**              | Multi-file refactoring, parallel subagent tasks             | Cursor Agent mode         |
+| **Claude Code**               | Large architectural changes, CLI-driven execution           | `claude` CLI              |
+| **Codex (OpenAI)**            | Parallel isolated tasks via git worktrees                   | OpenAI Codex app or CLI   |
+| **Cline**                     | Terminal-first agentic workflows with Plan/Act mode         | Cline VSCode extension    |
+| **Kilo Code**                 | Targeted code edits in VSCode                               | Kilo Code extension       |
+| **Windsurf Cascade**          | Autonomous multi-step tasks with shared session             | Windsurf Cascade panel    |
+| **OpenCode**                  | Quick targeted edits and file patches                       | OpenCode CLI/extension    |
+| **Human**                     | Decisions requiring judgment, external tool operations      | Manual                    |
 
 ---
 
 ## Knowledge Stack
 
-| Layer | Sources |
-|-------|---------|
+| Layer            | Sources                                                                 |
+| ---------------- | ----------------------------------------------------------------------- |
 | Project Identity | `.kbd-orchestrator/project.json`, `AGENTS.md`, `CLAUDE.md`, `README.md` |
-| Spec Baselines | `openspec/specs/*.md` (if OpenSpec), or project spec directory |
-| Change Specs | `openspec/changes/<id>/*.md` (if OpenSpec), or change directories |
-| Execution State | `.kbd-orchestrator/phases/<phase>/` artifacts |
-| Progress | `.kbd-orchestrator/phases/<phase>/progress.json` |
+| Spec Baselines   | `openspec/specs/*.md` (if OpenSpec), or project spec directory          |
+| Change Specs     | `openspec/changes/<id>/*.md` (if OpenSpec), or change directories       |
+| Execution State  | `.kbd-orchestrator/phases/<phase>/` artifacts                           |
+| Progress         | `.kbd-orchestrator/phases/<phase>/progress.json`                        |
 
 ---
 
@@ -166,16 +169,17 @@ for each skill, ensures updates propagate automatically, and avoids maintenance 
 
 Full integration contracts are defined in `references/integrations/`:
 
-| Global Skill | KBD Phase | Role | Integration Guide |
-|-------------|-----------|------|-------------------|
-| **iterative-evolver** | Assess | Deep codebase + spec gap analysis with cross-session continuity | `references/integrations/iterative-evolver.md` |
-| **artifact-refiner** | Execute (per-change QA) | Constraint-driven code quality gate before archiving each change | `references/integrations/artifact-refiner.md` |
-| **bdd-testing** | Execute (verification) | Behavioral verification gate — BDD scenarios must pass before DONE | `references/integrations/bdd-testing.md` |
-| **pmpo-skill-creator** | Reflect (meta) | KBD self-improvement — extend kbd with new sub-skills discovered during reflection | `references/integrations/pmpo-skill-creator.md` |
+| Global Skill           | KBD Phase               | Role                                                                               | Integration Guide                               |
+| ---------------------- | ----------------------- | ---------------------------------------------------------------------------------- | ----------------------------------------------- |
+| **iterative-evolver**  | Assess                  | Deep codebase + spec gap analysis with cross-session continuity                    | `references/integrations/iterative-evolver.md`  |
+| **artifact-refiner**   | Execute (per-change QA) | Constraint-driven code quality gate before archiving each change                   | `references/integrations/artifact-refiner.md`   |
+| **bdd-testing**        | Execute (verification)  | Behavioral verification gate — BDD scenarios must pass before DONE                 | `references/integrations/bdd-testing.md`        |
+| **pmpo-skill-creator** | Reflect (meta)          | KBD self-improvement — extend kbd with new sub-skills discovered during reflection | `references/integrations/pmpo-skill-creator.md` |
 
 ### Why Global, Not Copies?
 
 Each of these skills has its own:
+
 - **PMPO loop** with independent phase states
 - **Named file-backed state** (`.evolver/`, `.refiner/`, `.creator/`)
 - **Entry commands** that are already registered globally
@@ -228,12 +232,12 @@ existing phases and their status.
 
 A typical phase progression for software projects:
 
-| Phase | Pattern | Status |
-|-------|---------|--------|
-| Phase 0 | Baseline & KBD Setup | Recommend first |
-| Phase 1 | Foundation / Core Architecture | High priority |
-| Phase N | Feature Modules (iterative) | Per roadmap |
-| Phase Final | Production Hardening | Final |
+| Phase       | Pattern                        | Status          |
+| ----------- | ------------------------------ | --------------- |
+| Phase 0     | Baseline & KBD Setup           | Recommend first |
+| Phase 1     | Foundation / Core Architecture | High priority   |
+| Phase N     | Feature Modules (iterative)    | Per roadmap     |
+| Phase Final | Production Hardening           | Final           |
 
 ---
 
@@ -266,11 +270,13 @@ After each phase: checkpoint + dispatch workflow triggers.
 OpenSpec is **optional**. KBD adapts:
 
 ### When OpenSpec IS available (`openspec/` directory exists)
+
 - Use `/opsx:new` to create structured changes with proposal → design → tasks
 - Progress tracked in `openspec/changes/<id>/tasks.md`
 - Archiving via `/opsx:archive` feeds the reflection phase
 
 ### When OpenSpec is NOT available
+
 - Use KBD's built-in change management via `.kbd-orchestrator/changes/<id>/`
 - Create `change.md` (same structure as OpenSpec proposal + tasks combined)
 - Track task status with `[ ]` / `[/]` / `[x]` in `change.md`
@@ -307,16 +313,19 @@ When an AI tool (Roo, Cursor, Cline, Codex, etc.) is dispatched to execute a
 KBD change, it MUST follow this protocol:
 
 ### On Start of a Change
+
 1. Read `.kbd-orchestrator/current-waypoint.json`
 2. Read the change spec (OpenSpec or `.kbd-orchestrator/changes/<id>/change.md`)
 3. Update `progress.json`: set status → `IN_PROGRESS`, `started_by` → `<tool-name>`
 4. Update waypoint: `last_updated_by` → `<tool-name>`
 
 ### During Execution (on each task completion)
+
 1. Update `progress.json`: increment `tasks_done`, update `last_task_completed` and `next_task_pending`
 2. Commit the progress file to git: `git add .kbd-orchestrator && git commit -m "kbd: progress update [<tool>] <change-id> task N/M"`
 
 ### On Change Completion
+
 1. Update `progress.json`: set status → `DONE`, `completed_by` → `<tool-name>`
 2. If OpenSpec: run `/opsx:verify` then `/opsx:archive`
 3. If native KBD: move change to `.kbd-orchestrator/changes/archive/<date>-<id>/`
@@ -325,6 +334,7 @@ KBD change, it MUST follow this protocol:
 6. **Echo the KBD hook**: `echo '[kbd] Change complete — run /kbd-assess or /kbd-reflect as appropriate'`
 
 ### On Blocker
+
 1. Update `progress.json`: set status → `BLOCKED`, add to `blockers` array
 2. Update waypoint: set `fallback_command` to describe the blocker
 3. Commit: `git add .kbd-orchestrator && git commit -m "kbd: blocked [<tool>] <change-id>"`
@@ -344,10 +354,12 @@ The executing tool MUST read these files and apply constraints when verifying wo
 ---
 
 ## Required Tools
+
 - `file_system` — Read/write spec files, phase reports, progress ledger
 - `sequential_thinking` — Multi-step phase planning and gap analysis
 
 ## Optional Tools
+
 - `web_search` / `tavily` — External research during Analyze phase
 - `code_interpreter` — Run build/test commands during QA
 - `surreal-memory` — Cross-session persistence, multi-tool coordination, Graph-RAG queries
@@ -372,6 +384,7 @@ state in `.kbd-orchestrator/` (always works). See
 ## Quick Start Commands
 
 ### First use in a new project
+
 ```
 /kbd-init               # Auto-discover project and generate .kbd-orchestrator/project.json
 /kbd-new-phase <name>   # Start the first phase
@@ -385,6 +398,7 @@ state in `.kbd-orchestrator/` (always works). See
 > Never commit project-specific values into the skill files.
 
 ### Ongoing workflow
+
 - `/kbd-init [--force] [--dry-run]` — Initialize or re-initialize project context
 - `/kbd-assess [phase-name]` — Assess current codebase against active phase goals
 - `/kbd-plan [phase-name]` — Create prioritized change list for current phase

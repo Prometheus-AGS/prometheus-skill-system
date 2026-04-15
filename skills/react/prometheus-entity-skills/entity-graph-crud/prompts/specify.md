@@ -12,14 +12,14 @@ Run this phase before writing code. Capture answers in `entity_spec` (JSON or st
 
 For each field:
 
-| Column | Questions |
-|--------|-----------|
-| Name | Exact key on entity object |
-| Type | string / number / boolean / date / enum / relation id / text |
-| Required on create? | |
-| Editable? | Read-only after create? |
-| PII / secret? | Mask in UI? |
-| Default | For create buffer |
+| Column              | Questions                                                    |
+| ------------------- | ------------------------------------------------------------ |
+| Name                | Exact key on entity object                                   |
+| Type                | string / number / boolean / date / enum / relation id / text |
+| Required on create? |                                                              |
+| Editable?           | Read-only after create?                                      |
+| PII / secret?       | Mask in UI?                                                  |
+| Default             | For create buffer                                            |
 
 ## 3. List vs detail shape
 

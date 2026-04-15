@@ -39,12 +39,12 @@ description: >
 
 ## Deliverables
 
-| Artifact | Role |
-|----------|------|
-| `XxxPage.tsx` (or route file) | Composition only; no store, no fetch |
-| `useXxxCRUD.ts` | `useEntityCRUD` wiring + stable `useRef` callbacks if needed |
-| `xxxApi.ts` (or shared client) | Network + serialization |
-| `xxxColumns.tsx` / `xxxFields.tsx` | Reusable builders |
+| Artifact                           | Role                                                         |
+| ---------------------------------- | ------------------------------------------------------------ |
+| `XxxPage.tsx` (or route file)      | Composition only; no store, no fetch                         |
+| `useXxxCRUD.ts`                    | `useEntityCRUD` wiring + stable `useRef` callbacks if needed |
+| `xxxApi.ts` (or shared client)     | Network + serialization                                      |
+| `xxxColumns.tsx` / `xxxFields.tsx` | Reusable builders                                            |
 
 ## Parent skill
 

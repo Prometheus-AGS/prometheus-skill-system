@@ -16,7 +16,20 @@
     },
     "last_updated_by": {
       "type": "string",
-      "enum": ["antigravity", "roo-code", "roo-architect", "cursor-agent", "claude-code", "codex", "cline", "kilo-code", "windsurf", "opencode", "human", "unknown"],
+      "enum": [
+        "antigravity",
+        "roo-code",
+        "roo-architect",
+        "cursor-agent",
+        "claude-code",
+        "codex",
+        "cline",
+        "kilo-code",
+        "windsurf",
+        "opencode",
+        "human",
+        "unknown"
+      ],
       "description": "The AI tool or human who last wrote this file"
     },
     "assessment_complete": {

@@ -2,9 +2,7 @@
   "name": "<project-name>",
   "description": "<one-line description>",
   "active_phase": "<phase-name>",
-  "spec_paths": [
-    "openspec/specs/*.md"
-  ],
+  "spec_paths": ["openspec/specs/*.md"],
   "openspec_available": true,
   "constraint_file": ".kbd-orchestrator/constraints.md",
   "build_health_command": "<build check command, e.g. pnpm run build OR cargo check --workspace>",

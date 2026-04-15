@@ -6,8 +6,8 @@ Rules and patterns for implementing GraphQL on **@prometheus-ags/prometheus-enti
 
 ```ts
 interface EntityDescriptor<TNode, TEntity extends Record<string, unknown>> {
-  type: EntityType;       // graph bucket, e.g. "Post"
-  path: string;           // dot path from query root, or "." for whole data
+  type: EntityType; // graph bucket, e.g. "Post"
+  path: string; // dot path from query root, or "." for whole data
   extractId?: (node: TNode) => EntityId;
   normalize: (node: TNode) => TEntity;
   relations?: EntityDescriptor<unknown, Record<string, unknown>>[];
@@ -42,9 +42,9 @@ interface EntityDescriptor<TNode, TEntity extends Record<string, unknown>> {
 
 ## GraphQL subscription adapter vs direct normalize
 
-| Approach | Best for |
-|----------|----------|
-| `useGQLSubscription` / `GQLClient.subscribe` | UI-tied streams; immediate `upsertEntity` via descriptors |
+| Approach                                               | Best for                                                                                          |
+| ------------------------------------------------------ | ------------------------------------------------------------------------------------------------- |
+| `useGQLSubscription` / `GQLClient.subscribe`           | UI-tied streams; immediate `upsertEntity` via descriptors                                         |
 | `createGraphQLSubscriptionAdapter` + `RealtimeManager` | Same coalescing (16ms) as other adapters; `getPayload` maps subscription payload → `EntityChange` |
 
 Adapter `getPayload` should return `{ type: "created"|"updated"|"deleted", node?, id? }` per library conventions in `realtime-adapters.ts`.

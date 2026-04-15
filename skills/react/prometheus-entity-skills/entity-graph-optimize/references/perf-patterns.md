@@ -29,7 +29,7 @@ Keep `flushInterval: 16` unless you measure a correctness need for immediate flu
 
 ```typescript
 // Bad: new function identity each render if not useCallback-wrapped inside custom hook
-useStore(store, (s) => compute(s, props.id));
+useStore(store, s => compute(s, props.id));
 ```
 
 Wrap in `useCallback` with deps or use library hooks.
@@ -51,12 +51,12 @@ Request only fields rendered; large nested trees increase normalize time and mem
 When you must select multiple fields as an object, use `useShallow` from `zustand/react/shallow` (or equivalent) so referential equality matches when values are unchanged:
 
 ```typescript
-import { useShallow } from "zustand/react/shallow";
-import { useGraphStore } from "@prometheus-ags/prometheus-entity-management";
+import { useShallow } from 'zustand/react/shallow';
+import { useGraphStore } from '@prometheus-ags/prometheus-entity-management';
 
 // Advanced / non-hook access — prefer library hooks first
 const { ids, isFetching } = useGraphStore(
-  useShallow((s) => ({
+  useShallow(s => ({
     ids: s.lists[key]?.ids ?? [],
     isFetching: s.lists[key]?.isFetching ?? false,
   }))

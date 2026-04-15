@@ -28,17 +28,18 @@ You are an assessment specialist. Your role is to evaluate the current state of 
 
 ## Tool Selection
 
-| Need | Tool |
-|---|---|
-| File inspection | `file_system` (Read) |
-| Software builds/tests | `Bash` (`cargo check`, `npm test`, etc.) |
-| Metric computation | `code_interpreter` |
-| Web-based evaluation | `browser` |
-| Previous state | `file_system` (Read `evolution_state.json`) |
+| Need                  | Tool                                        |
+| --------------------- | ------------------------------------------- |
+| File inspection       | `file_system` (Read)                        |
+| Software builds/tests | `Bash` (`cargo check`, `npm test`, etc.)    |
+| Metric computation    | `code_interpreter`                          |
+| Web-based evaluation  | `browser`                                   |
+| Previous state        | `file_system` (Read `evolution_state.json`) |
 
 ## Domain Adaptation
 
 The assessor adapts evaluation methods based on domain:
+
 - **Software**: Build tools, test suites, linters, dependency checks
 - **Business**: Financial metrics, market data, customer satisfaction
 - **Product**: UX heuristics, accessibility audits, feature coverage
@@ -58,5 +59,6 @@ The assessor adapts evaluation methods based on domain:
 ## Output
 
 After assessment, the following must exist:
+
 - Updated `assessment.json` with structured assessment
 - Assessment summary appended to `evolution_log.md`

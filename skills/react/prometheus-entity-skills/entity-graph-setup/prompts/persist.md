@@ -31,12 +31,12 @@ Emit a short **next_actions** list tailored to which flags are `true`.
 
 Document handoff when appropriate:
 
-| Next skill | When |
-|------------|------|
-| `entity-graph-crud` | Full table + sheets + `useEntityCRUD` |
-| `entity-graph-graphql` | GQL client + `useGQLEntity` / `useGQLList` |
-| `entity-graph-prisma` | Next.js route + Prisma + `toPrismaWhere` |
-| `entity-graph-realtime` | WebSocket / Supabase / Convex adapters |
+| Next skill              | When                                       |
+| ----------------------- | ------------------------------------------ |
+| `entity-graph-crud`     | Full table + sheets + `useEntityCRUD`      |
+| `entity-graph-graphql`  | GQL client + `useGQLEntity` / `useGQLList` |
+| `entity-graph-prisma`   | Next.js route + Prisma + `toPrismaWhere`   |
+| `entity-graph-realtime` | WebSocket / Supabase / Convex adapters     |
 
 ## Output
 

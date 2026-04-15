@@ -12,11 +12,11 @@ code quality, and iteratively refines until all blocking constraints pass.
 
 ## When KBD Invokes artifact-refiner
 
-| KBD Phase | Refiner Role | Entry Point |
-|-----------|-------------|-------------|
-| **Execute** (per-change QA) | Validate and refine a completed change's code artifacts | `/refine-code` |
-| **Execute** (per-change verification) | Validate constraints without refinement | `/refine-validate` |
-| **Reflect** (constraint audit) | Check for remaining violations across all changes | `/refine-validate` |
+| KBD Phase                             | Refiner Role                                            | Entry Point        |
+| ------------------------------------- | ------------------------------------------------------- | ------------------ |
+| **Execute** (per-change QA)           | Validate and refine a completed change's code artifacts | `/refine-code`     |
+| **Execute** (per-change verification) | Validate constraints without refinement                 | `/refine-validate` |
+| **Reflect** (constraint audit)        | Check for remaining violations across all changes       | `/refine-validate` |
 
 KBD invokes refiner **per completed change**, after the executing tool marks
 the change `DONE` in `progress.json` and before `/opsx:verify` or archiving.
@@ -42,7 +42,7 @@ change DONE in progress.json
 
 ```yaml
 # Pass this to /refine-code for a completed KBD change
-artifact_name: "<change-id>"            # e.g. "change-007-complete-team-invitations"
+artifact_name: '<change-id>' # e.g. "change-007-complete-team-invitations"
 artifact_type: code
 content_type: direct:code
 constraints:
@@ -56,7 +56,7 @@ workflow_triggers:
   - event: on_iteration_complete
     action:
       type: command
-      target: "<build_health_command from .kbd-orchestrator/project.json>"
+      target: '<build_health_command from .kbd-orchestrator/project.json>'
   - event: on_refinement_complete
     action:
       type: command
@@ -68,6 +68,7 @@ workflow_triggers:
 ## What KBD Reads Back
 
 After refinement, KBD checks:
+
 - `.refiner/artifacts/<change-id>/refinement_log.md` — pass/fail history
 - Blocking constraint status — all PASS required before archiving
 - If any constraint FAIL remains → mark change `BLOCKED` in `progress.json`

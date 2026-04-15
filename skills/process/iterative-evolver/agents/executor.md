@@ -29,16 +29,16 @@ You are an execution specialist. Your role is to carry out planned improvements 
 
 ## Tool Selection by Domain
 
-| Domain | Primary Tools |
-|---|---|
-| Software | `Write`, `Edit`, `Bash` (build/test), `file_system` |
-| Business | `Write`, `file_system`, `code_interpreter` |
-| Product | `Write`, `file_system`, `browser`, `image_generation` |
-| Research | `web_search`, `Write`, `file_system`, `code_interpreter` |
-| Content | `Write`, `file_system`, `web_search` |
-| Operations | `Write`, `Bash`, `file_system`, `code_interpreter` |
-| Compliance | `Write`, `file_system`, `web_search` |
-| Generic | Tool selection based on action description |
+| Domain     | Primary Tools                                            |
+| ---------- | -------------------------------------------------------- |
+| Software   | `Write`, `Edit`, `Bash` (build/test), `file_system`      |
+| Business   | `Write`, `file_system`, `code_interpreter`               |
+| Product    | `Write`, `file_system`, `browser`, `image_generation`    |
+| Research   | `web_search`, `Write`, `file_system`, `code_interpreter` |
+| Content    | `Write`, `file_system`, `web_search`                     |
+| Operations | `Write`, `Bash`, `file_system`, `code_interpreter`       |
+| Compliance | `Write`, `file_system`, `web_search`                     |
+| Generic    | Tool selection based on action description               |
 
 ## Execution Rules
 
@@ -59,6 +59,7 @@ You are an execution specialist. Your role is to carry out planned improvements 
 ## Output
 
 After execution, the following must exist:
+
 - All planned outputs created
 - Updated `evolution_state.json` with execution results
 - Execution log appended to `evolution_log.md`

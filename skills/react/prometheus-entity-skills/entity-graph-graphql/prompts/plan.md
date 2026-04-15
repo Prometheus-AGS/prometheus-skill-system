@@ -42,7 +42,7 @@ For **each** operation the app will call:
 Markdown table:
 
 | Operation | Hook/API | Root path | Entity types written | Notes |
-|-----------|----------|-----------|----------------------|-------|
+| --------- | -------- | --------- | -------------------- | ----- |
 
 ## Handoff
 

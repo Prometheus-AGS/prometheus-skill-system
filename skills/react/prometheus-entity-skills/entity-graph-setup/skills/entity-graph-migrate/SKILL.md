@@ -1,6 +1,6 @@
 ---
 name: entity-graph-migrate
-description: "Phased migration from TanStack Query, Apollo, Redux, or SWR to @prometheus-ags/prometheus-entity-management—strangler patterns, query-key mapping, SSR hydration, and rollback-aware PR slices."
+description: 'Phased migration from TanStack Query, Apollo, Redux, or SWR to @prometheus-ags/prometheus-entity-management—strangler patterns, query-key mapping, SSR hydration, and rollback-aware PR slices.'
 ---
 
 # entity-graph-migrate
@@ -14,11 +14,11 @@ description: "Phased migration from TanStack Query, Apollo, Redux, or SWR to @pr
 
 ## Supported patterns
 
-| Pattern | Summary |
-|---------|---------|
-| **Parallel** | Feature flag; graph path coexists with legacy hooks. |
-| **Vertical slice** | One `EntityType` end-to-end per PR. |
-| **Read-first** | Graph reads; legacy writes until mutation parity. |
+| Pattern            | Summary                                              |
+| ------------------ | ---------------------------------------------------- |
+| **Parallel**       | Feature flag; graph path coexists with legacy hooks. |
+| **Vertical slice** | One `EntityType` end-to-end per PR.                  |
+| **Read-first**     | Graph reads; legacy writes until mutation parity.    |
 
 Full detail: `prometheus-entity-skills/entity-graph-setup/references/migration-patterns.md`.
 

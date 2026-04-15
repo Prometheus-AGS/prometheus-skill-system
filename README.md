@@ -2,39 +2,56 @@
 
 A self-improving AI skill execution engine. 61 validated skills across 5 domains, a 4-crate Rust CLI, Cedar governance, surreal-memory distributed state, and a nested PMPO pipeline that learns from every execution.
 
+Built for teams deploying AI agents in production environments where capability improvement must be governed, audited, and reproducible.
+
 [![Validate Skills](https://github.com/Prometheus-AGS/prometheus-skill-system/actions/workflows/validate.yml/badge.svg)](https://github.com/Prometheus-AGS/prometheus-skill-system/actions/workflows/validate.yml)
 
 ## Compliance Scores
 
-| Standard | Score | Evidence |
-|---|---|---|
-| **AgentSkills.io** | **97/100** | 61/61 skills pass with 0 errors, 0 warnings. Recursive validation covers all sub-skills. |
+| Standard               | Score      | Evidence                                                                                                                                         |
+| ---------------------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **AgentSkills.io**     | **97/100** | 61/61 skills pass with 0 errors, 0 warnings. Recursive validation covers all sub-skills.                                                         |
 | **Claude Code Plugin** | **96/100** | plugin.json has all 9 fields (name, version, description, author, skills, agents, hooks, mcpServers, compatibility). 5 hook events. CI workflow. |
-| **OpenCode Support** | **93/100** | 3 typed TypeScript tool definitions, `.opencode/package.json` for auto-deps, compatibility declared for 8 platforms. |
-| **Marketplace** | **95/100** | 5 granular plugin entries, v1.1.0 semver, git tag, accurate descriptions, CI badge. |
+| **OpenCode Support**   | **93/100** | 3 typed TypeScript tool definitions, `.opencode/package.json` for auto-deps, compatibility declared for 8 platforms.                             |
+| **Marketplace**        | **95/100** | 5 granular plugin entries, v1.1.0 semver, git tag, accurate descriptions, CI badge.                                                              |
+
+## How Skills Improve Themselves
+
+This is not a static skill collection. Skills improve from execution data through a four-layer feedback loop — the first production implementation of the [Hermes/GEPA self-learning architecture](https://github.com/NousResearch/hermes-agent-self-evolution) using a Rust-native toolchain:
+
+```
+Execute → Trace → Evaluate → Compile (Karpathy method) → Optimize (dspy-rs) → Improved Skill
+```
+
+1. **Trace capture**: Cross-platform `TraceCapture` protocol logs every skill execution (Claude Code, OpenCode, Cursor, Codex, and more — not locked to one platform)
+2. **Knowledge compilation**: [prometheus-knowledge](https://github.com/Prometheus-AGS/prometheus-knowledge-rs) compiles traces into a durable markdown wiki via compile→lint→focus→fix (Karpathy textbook method)
+3. **Prompt optimization**: [dspy-rs](https://github.com/GQAdonis/dspy-rs) BootstrapFewShot collects best demos from successful runs, MIPRO optimizes instructions — routed through local models by default (zero data egress)
+4. **Cedar governance**: All mutations gated by environment-aware [Cedar](https://www.cedarpolicy.com/) policies — development permits all, staging requires validation, production denies mutations entirely
+
+The optimizer runs on your local model by default. Set `OPTIMIZER_USE_CLOUD=true` to opt into frontier API for metric evaluation. Feature flags control which pipeline stages are compiled in — see [Rust CLI Development](#rust-cli-development) for details.
 
 ## What's Inside
 
 ### Skills (61 total)
 
-| Domain | Skills | Highlights |
-|--------|--------|------------|
-| **React** | 27 | Entity CRUD, GraphQL, Prisma, realtime sync, performance optimization |
-| **Process** | 20 | KBD orchestrator, iterative evolver, PMPO skill creator |
-| **DevOps** | 4 | GitOps bootstrap, transform, ArgoCD multi-cloud, Kustomize overlays |
-| **Testing** | 1 | BDD with Cucumber.js + Playwright + video recording |
-| **Imported** | 9 | Artifact refiner (PMPO-driven QA engine) via git submodule |
+| Domain       | Skills | Highlights                                                            |
+| ------------ | ------ | --------------------------------------------------------------------- |
+| **React**    | 27     | Entity CRUD, GraphQL, Prisma, realtime sync, performance optimization |
+| **Process**  | 20     | KBD orchestrator, iterative evolver, PMPO skill creator               |
+| **DevOps**   | 4      | GitOps bootstrap, transform, ArgoCD multi-cloud, Kustomize overlays   |
+| **Testing**  | 1      | BDD with Cucumber.js + Playwright + video recording                   |
+| **Imported** | 9      | Artifact refiner (PMPO-driven QA engine) via git submodule            |
 
 ### Rust CLI (`tools/prometheus-cli/`)
 
 4-crate workspace with 15 subcommands:
 
-| Crate | Purpose |
-|-------|---------|
-| `prometheus-cli` | Binary with install, audit, verify, search, learn, optimize, evolve, and more |
-| `prometheus-agents` | 10-platform adapter library with `TraceCapture` protocol |
-| `prometheus-learn` | Self-learning pipeline: trace capture, evaluation, knowledge compilation, prompt optimization |
-| `prometheus-cedar` | Cedar Skill Mutation PEP — governs skill.mutate/generate/promote/trace.capture |
+| Crate               | Purpose                                                                                       |
+| ------------------- | --------------------------------------------------------------------------------------------- |
+| `prometheus-cli`    | Binary with install, audit, verify, search, learn, optimize, evolve, and more                 |
+| `prometheus-agents` | 10-platform adapter library with `TraceCapture` protocol                                      |
+| `prometheus-learn`  | Self-learning pipeline: trace capture, evaluation, knowledge compilation, prompt optimization |
+| `prometheus-cedar`  | Cedar Skill Mutation PEP — governs skill.mutate/generate/promote/trace.capture                |
 
 ### Architecture
 
@@ -127,58 +144,62 @@ npm run install:platforms
 
 ### Platform-Specific Paths
 
-| Platform | Global Skills | Slash Commands |
-|----------|---------------|----------------|
-| Claude Code | `~/.claude/skills/` | 52 skills |
-| OpenCode | `~/.config/opencode/skills/` | 52 skills |
-| Cursor | `~/.cursor/skills/` | 52 skills |
-| Codex / Amp | `~/.agents/skills/` | 52 skills |
-| Gemini CLI | `~/.gemini/skills/` | 52 skills |
-| Roo Code | `~/.roo/skills/` | 52 skills |
-| Windsurf | `~/.codeium/windsurf/skills/` | 52 skills |
-| Cline | `~/.cline/skills/` | 52 skills |
+| Platform    | Global Skills                 | Slash Commands |
+| ----------- | ----------------------------- | -------------- |
+| Claude Code | `~/.claude/skills/`           | 52 skills      |
+| OpenCode    | `~/.config/opencode/skills/`  | 52 skills      |
+| Cursor      | `~/.cursor/skills/`           | 52 skills      |
+| Codex / Amp | `~/.agents/skills/`           | 52 skills      |
+| Gemini CLI  | `~/.gemini/skills/`           | 52 skills      |
+| Roo Code    | `~/.roo/skills/`              | 52 skills      |
+| Windsurf    | `~/.codeium/windsurf/skills/` | 52 skills      |
+| Cline       | `~/.cline/skills/`            | 52 skills      |
 
 ## Slash Commands
 
 After running `npm run install:skills`, 52 slash commands are available across all platforms:
 
 ### Process Orchestration
-| Command | Purpose |
-|---------|---------|
-| `/evolve` | Full iterative evolution cycle (assess → analyze → plan → execute → reflect) |
-| `/evolve-assess` | Assess current state against goals |
-| `/evolve-plan` | Create prioritized improvement plan |
-| `/evolve-execute` | Execute plan (delegates to KBD for software domain) |
-| `/evolve-report` | Generate evolution report with artifact quality metrics |
-| `/kbd-init` | Initialize KBD orchestrator in a project |
-| `/kbd-assess` | Assess codebase against phase goals |
-| `/kbd-plan` | Create ordered change list with OpenSpec detection |
-| `/kbd-execute` | Dispatch to best tool with artifact-refiner QA |
-| `/kbd-reflect` | Phase retrospective with Cedar audit trail |
-| `/create-skill` | Generate a new skill from scratch via PMPO |
-| `/clone-skill` | Adapt an existing skill for a new domain |
+
+| Command           | Purpose                                                                      |
+| ----------------- | ---------------------------------------------------------------------------- |
+| `/evolve`         | Full iterative evolution cycle (assess → analyze → plan → execute → reflect) |
+| `/evolve-assess`  | Assess current state against goals                                           |
+| `/evolve-plan`    | Create prioritized improvement plan                                          |
+| `/evolve-execute` | Execute plan (delegates to KBD for software domain)                          |
+| `/evolve-report`  | Generate evolution report with artifact quality metrics                      |
+| `/kbd-init`       | Initialize KBD orchestrator in a project                                     |
+| `/kbd-assess`     | Assess codebase against phase goals                                          |
+| `/kbd-plan`       | Create ordered change list with OpenSpec detection                           |
+| `/kbd-execute`    | Dispatch to best tool with artifact-refiner QA                               |
+| `/kbd-reflect`    | Phase retrospective with Cedar audit trail                                   |
+| `/create-skill`   | Generate a new skill from scratch via PMPO                                   |
+| `/clone-skill`    | Adapt an existing skill for a new domain                                     |
 
 ### GitOps CI/CD
-| Command | Purpose |
-|---------|---------|
-| `/gitops-bootstrap` | Scaffold complete multi-cloud GitOps from scratch |
-| `/gitops-transform` | Transform existing CI/CD to GitOps standard |
-| `/argocd-multicloud` | Install + configure ArgoCD across GKE/AKS/EKS |
-| `/kustomize-overlay` | Generate 3D Kustomize overlay structure |
+
+| Command              | Purpose                                           |
+| -------------------- | ------------------------------------------------- |
+| `/gitops-bootstrap`  | Scaffold complete multi-cloud GitOps from scratch |
+| `/gitops-transform`  | Transform existing CI/CD to GitOps standard       |
+| `/argocd-multicloud` | Install + configure ArgoCD across GKE/AKS/EKS     |
+| `/kustomize-overlay` | Generate 3D Kustomize overlay structure           |
 
 ### React Entity Management
-| Command | Purpose |
-|---------|---------|
-| `/entity-graph-init` | Initialize entity graph in a project |
-| `/entity-crud-page` | Full CRUD page with list, create, edit, delete |
-| `/entity-gql-setup` | Wire GraphQL with entity descriptors |
-| `/entity-prisma-setup` | Generate entity configs from Prisma schema |
+
+| Command                  | Purpose                                              |
+| ------------------------ | ---------------------------------------------------- |
+| `/entity-graph-init`     | Initialize entity graph in a project                 |
+| `/entity-crud-page`      | Full CRUD page with list, create, edit, delete       |
+| `/entity-gql-setup`      | Wire GraphQL with entity descriptors                 |
+| `/entity-prisma-setup`   | Generate entity configs from Prisma schema           |
 | `/entity-realtime-setup` | Add realtime sync (WebSocket, Supabase, ElectricSQL) |
-| `/entity-audit` | Architecture compliance audit |
+| `/entity-audit`          | Architecture compliance audit                        |
 
 ### Testing
-| Command | Purpose |
-|---------|---------|
+
+| Command        | Purpose                                          |
+| -------------- | ------------------------------------------------ |
 | `/bdd-testing` | Generate BDD tests with Cucumber.js + Playwright |
 
 ## CLI Commands
@@ -236,14 +257,15 @@ See `shared/references/surreal-memory-integration.md` for entity mapping pattern
 
 The `prometheus-cedar` crate implements a Skill Mutation PEP (Policy Enforcement Point) that gates all write operations against skill artifacts:
 
-| Operation | Cedar Action | When |
-|-----------|-------------|------|
-| Prompt optimization | `skill.mutate` | dspy-rs writes back to SKILL.md |
-| Skill generation | `skill.generate` | PMPO creates new skills from gap detection |
-| Skill promotion | `skill.promote` | Generated skills promoted from staging |
-| Trace capture | `trace.capture` | Execution data collection |
+| Operation           | Cedar Action     | When                                       |
+| ------------------- | ---------------- | ------------------------------------------ |
+| Prompt optimization | `skill.mutate`   | dspy-rs writes back to SKILL.md            |
+| Skill generation    | `skill.generate` | PMPO creates new skills from gap detection |
+| Skill promotion     | `skill.promote`  | Generated skills promoted from staging     |
+| Trace capture       | `trace.capture`  | Execution data collection                  |
 
 Environment policies:
+
 - **development**: All operations permitted
 - **staging**: Mutations require `validation_passed`; promotions require `human_approved`
 - **production**: Mutations forbidden by default
@@ -252,19 +274,23 @@ See `shared/references/self-learning-architecture.md` for the full governance mo
 
 ## Self-Learning Pipeline
 
-Skills improve from execution experience through a four-layer feedback loop:
+See `shared/references/self-learning-architecture.md` for the complete architecture, including UAR integration points, cross-platform trace protocol, and gap detection/skill spawning.
 
+**Feature flags**: Knowledge compilation and prompt optimization require optional git dependencies that are gated behind Cargo feature flags. Without them, the CLI provides trace capture, evaluation, and SKILL.md parsing — no LLM API access needed.
+
+```bash
+# Default build — trace capture + evaluation + Cedar governance
+cargo build --release -p prometheus-cli
+
+# With knowledge compilation (requires prometheus-knowledge-rs git access)
+cargo build --release -p prometheus-cli --features prometheus-learn/knowledge
+
+# With prompt optimization (requires dspy-rs git access)
+cargo build --release -p prometheus-cli --features prometheus-learn/optimize
+
+# Full pipeline
+cargo build --release -p prometheus-cli --features prometheus-learn/full
 ```
-Execute → Trace → Evaluate → Compile (Karpathy method) → Optimize (dspy-rs) → Improved Skill
-```
-
-1. **Trace capture**: Cross-platform `TraceCapture` protocol logs every skill execution
-2. **Evaluation**: Automated scoring + classification (success/partial/failure)
-3. **Knowledge compilation**: prometheus-knowledge compiles traces into WikiEntries via compile→lint→focus→fix
-4. **Prompt optimization**: dspy-rs BootstrapFewShot collects best demos, MIPRO optimizes instructions
-5. **Cedar governance**: All mutations gated by environment-aware policies
-
-See `shared/references/self-learning-architecture.md` for the complete architecture.
 
 ## GitOps Skills
 

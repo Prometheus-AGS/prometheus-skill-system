@@ -66,12 +66,12 @@ contract and constraint wiring.
 
 ## Backend Types
 
-| Backend | When to use |
-|---------|------------|
-| `openspec` | OpenSpec available; spec-backed traceability required |
-| `native-tool` | Tool has explicit planning, inspectable progress |
-| `hybrid` | Native tool for decomposition, OpenSpec for spec execution |
-| `manual` | Human-only operation; no automation possible |
+| Backend       | When to use                                                |
+| ------------- | ---------------------------------------------------------- |
+| `openspec`    | OpenSpec available; spec-backed traceability required      |
+| `native-tool` | Tool has explicit planning, inspectable progress           |
+| `hybrid`      | Native tool for decomposition, OpenSpec for spec execution |
+| `manual`      | Human-only operation; no automation possible               |
 
 ## Examples
 

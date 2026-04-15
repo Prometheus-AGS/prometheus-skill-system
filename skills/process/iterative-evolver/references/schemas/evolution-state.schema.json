@@ -3,7 +3,17 @@
   "title": "Evolution State",
   "description": "Master state manifest for an iterative evolution cycle",
   "type": "object",
-  "required": ["evolution_id", "evolution_name", "domain", "started_at", "updated_at", "current_iteration", "max_iterations", "goals", "convergence_status"],
+  "required": [
+    "evolution_id",
+    "evolution_name",
+    "domain",
+    "started_at",
+    "updated_at",
+    "current_iteration",
+    "max_iterations",
+    "goals",
+    "convergence_status"
+  ],
   "properties": {
     "evolution_id": {
       "type": "string",
@@ -15,7 +25,16 @@
     },
     "domain": {
       "type": "string",
-      "enum": ["software", "business", "product", "research", "content", "operations", "compliance", "generic"],
+      "enum": [
+        "software",
+        "business",
+        "product",
+        "research",
+        "content",
+        "operations",
+        "compliance",
+        "generic"
+      ],
       "description": "Evolution domain"
     },
     "started_at": {

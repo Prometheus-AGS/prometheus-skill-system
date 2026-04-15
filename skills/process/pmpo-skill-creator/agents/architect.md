@@ -17,10 +17,10 @@ Design the structural architecture of skills being created. Operates during Spec
 
 ## Operating Phases
 
-| Phase | Role |
-|-------|------|
-| Specify | Clarify intent, classify mode, analyze source skills |
-| Plan | Design file map, agent roles, domain adapters, schemas |
+| Phase   | Role                                                   |
+| ------- | ------------------------------------------------------ |
+| Specify | Clarify intent, classify mode, analyze source skills   |
+| Plan    | Design file map, agent roles, domain adapters, schemas |
 
 ## Tools
 

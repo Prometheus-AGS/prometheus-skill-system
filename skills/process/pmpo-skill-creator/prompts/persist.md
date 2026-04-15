@@ -48,12 +48,12 @@ Update the master state file with current progress:
 
 ### Step 3: Persist to Provider
 
-| Provider | Action |
-|----------|--------|
+| Provider     | Action                                       |
+| ------------ | -------------------------------------------- |
 | `filesystem` | Write to `.creator/skills/<name>/state.json` |
-| `memory` | Store via memory MCP tool |
-| `mcp` | Store via configured MCP state server |
-| `custom` | Execute custom provider command |
+| `memory`     | Store via memory MCP tool                    |
+| `mcp`        | Store via configured MCP state server        |
+| `custom`     | Execute custom provider command              |
 
 ### Step 4: Update Registry
 
@@ -113,11 +113,11 @@ tar -czf dist/<skill_name>.tar.gz -C dist/ <skill_name>/
 
 All persistence operations follow the same interface regardless of provider:
 
-| Operation | Command |
-|-----------|---------|
-| **Save state** | Write JSON to provider |
-| **Load state** | Read JSON from provider |
-| **List skills** | Query registry |
+| Operation        | Command                 |
+| ---------------- | ----------------------- |
+| **Save state**   | Write JSON to provider  |
+| **Load state**   | Read JSON from provider |
+| **List skills**  | Query registry          |
 | **Check status** | Read convergence_status |
 
 The filesystem provider is always the fallback — if configured providers fail, fall back to local files.

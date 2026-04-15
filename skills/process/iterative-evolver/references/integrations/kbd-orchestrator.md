@@ -38,12 +38,12 @@ KBD owns **how** to implement changes (tool selection, task decomposition, progr
 
 ## When to Delegate to KBD
 
-| Condition | Delegate? |
-|-----------|-----------|
-| `evolution_domain: software` AND `.kbd-orchestrator/` exists | YES |
+| Condition                                                               | Delegate?                  |
+| ----------------------------------------------------------------------- | -------------------------- |
+| `evolution_domain: software` AND `.kbd-orchestrator/` exists            | YES                        |
 | `evolution_domain: software` AND project has `AGENTS.md` or `CLAUDE.md` | YES (KBD auto-initializes) |
-| `evolution_domain: software` AND user passes `--no-kbd` | NO |
-| Non-software domain | NO |
+| `evolution_domain: software` AND user passes `--no-kbd`                 | NO                         |
+| Non-software domain                                                     | NO                         |
 
 ---
 
@@ -57,8 +57,16 @@ The evolver's `plan.json` items become KBD phase goals:
 // plan.json (evolver)
 {
   "items": [
-    { "id": "item-1", "action": "Add input validation to API endpoints", "priority": "high" },
-    { "id": "item-2", "action": "Increase test coverage to 80%", "priority": "medium" }
+    {
+      "id": "item-1",
+      "action": "Add input validation to API endpoints",
+      "priority": "high"
+    },
+    {
+      "id": "item-2",
+      "action": "Increase test coverage to 80%",
+      "priority": "medium"
+    }
   ]
 }
 ```
@@ -95,11 +103,13 @@ The `item_to_change_map` is populated by `/kbd-plan` during change decomposition
 ### 4. Read Results Back
 
 After `/kbd-reflect`, the evolver reads:
+
 - `.kbd-orchestrator/phases/<phase>/reflection.md` — full phase retrospective
 - `.kbd-orchestrator/phases/<phase>/evolver-bridge.json` — item completion map
 - `.refiner/artifacts/*/refinement_log.md` — QA metrics
 
 Update `evolution_state.json`:
+
 ```json
 {
   "execution_results": {
@@ -146,14 +156,14 @@ report under "Artifact Quality Metrics".
 
 ## State File Locations
 
-| File | Owner | Purpose |
-|------|-------|---------|
-| `.evolver/evolutions/<name>/plan.json` | Evolver | Strategic plan items |
-| `.evolver/evolutions/<name>/state.json` | Evolver | Evolution state with execution_results |
-| `.kbd-orchestrator/phases/<phase>/evolver-bridge.json` | KBD (via evolver) | Maps evolver items ↔ KBD changes |
-| `.kbd-orchestrator/phases/<phase>/reflection.md` | KBD | Phase retrospective |
-| `.kbd-orchestrator/phases/<phase>/progress.json` | KBD + tools | Live task progress |
-| `.refiner/artifacts/<change-id>/refinement_log.md` | Artifact-refiner | Per-change QA results |
+| File                                                   | Owner             | Purpose                                |
+| ------------------------------------------------------ | ----------------- | -------------------------------------- |
+| `.evolver/evolutions/<name>/plan.json`                 | Evolver           | Strategic plan items                   |
+| `.evolver/evolutions/<name>/state.json`                | Evolver           | Evolution state with execution_results |
+| `.kbd-orchestrator/phases/<phase>/evolver-bridge.json` | KBD (via evolver) | Maps evolver items ↔ KBD changes       |
+| `.kbd-orchestrator/phases/<phase>/reflection.md`       | KBD               | Phase retrospective                    |
+| `.kbd-orchestrator/phases/<phase>/progress.json`       | KBD + tools       | Live task progress                     |
+| `.refiner/artifacts/<change-id>/refinement_log.md`     | Artifact-refiner  | Per-change QA results                  |
 
 ---
 

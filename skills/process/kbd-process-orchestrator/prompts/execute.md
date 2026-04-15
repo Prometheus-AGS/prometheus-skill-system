@@ -28,45 +28,50 @@ not necessarily execute all tasks yourself.
 
 ### Tool Registry (from SKILL.md)
 
-| Backend ID | Tool | Best For |
-|------------|------|----------|
-| `antigravity` | Antigravity | Complex multi-file features, planning, browser verification |
-| `roo-architect` | Roo Code (Architect) | Architecture decisions, system design |
-| `roo-code` | Roo Code (Code) | Focused bounded implementation |
-| `cursor-agent` | Cursor Agent | Multi-file refactoring, parallel subagent tasks |
-| `claude-code` | Claude Code CLI | Large architectural changes |
-| `codex` | OpenAI Codex | Parallel isolated tasks via git worktrees |
-| `cline` | Cline | Terminal-first agentic workflows |
-| `kilo-code` | Kilo Code | Targeted file edits |
-| `windsurf` | Windsurf Cascade | Autonomous multi-step sessions |
-| `opencode` | OpenCode | Quick targeted edits and patches |
-| `openspec` | OpenSpec | Spec-backed changes with traceability |
-| `hybrid` | Multiple | Combination: native for decomp, OpenSpec for QA |
-| `manual` | Human | Operations requiring judgment or external tools |
+| Backend ID      | Tool                 | Best For                                                    |
+| --------------- | -------------------- | ----------------------------------------------------------- |
+| `antigravity`   | Antigravity          | Complex multi-file features, planning, browser verification |
+| `roo-architect` | Roo Code (Architect) | Architecture decisions, system design                       |
+| `roo-code`      | Roo Code (Code)      | Focused bounded implementation                              |
+| `cursor-agent`  | Cursor Agent         | Multi-file refactoring, parallel subagent tasks             |
+| `claude-code`   | Claude Code CLI      | Large architectural changes                                 |
+| `codex`         | OpenAI Codex         | Parallel isolated tasks via git worktrees                   |
+| `cline`         | Cline                | Terminal-first agentic workflows                            |
+| `kilo-code`     | Kilo Code            | Targeted file edits                                         |
+| `windsurf`      | Windsurf Cascade     | Autonomous multi-step sessions                              |
+| `opencode`      | OpenCode             | Quick targeted edits and patches                            |
+| `openspec`      | OpenSpec             | Spec-backed changes with traceability                       |
+| `hybrid`        | Multiple             | Combination: native for decomp, OpenSpec for QA             |
+| `manual`        | Human                | Operations requiring judgment or external tools             |
 
 ### Selection Rules
 
 **Use `openspec` when:**
+
 - OpenSpec directory exists at project root
 - The phase needs spec-backed traceability
 - Native backend would be too opaque for verification
 
 **Use a specific tool backend when:**
+
 - The change is well-bounded and the tool has explicit progress tracking
 - You are dispatching a specific agent to a specific change (not the whole phase)
 - The task matches the tool's strengths (see registry above)
 
 **Use `hybrid` when:**
+
 - Native tool useful for decomposition; OpenSpec for canonical task execution
 - Multiple tools need to cooperate on different changes within the same phase
 
 **Use `manual` when:**
+
 - Human judgment is required (e.g., business decisions, external account setup)
 - No AI tool can fully automate the operation
 
 ### OpenSpec Fallback Rule
 
 If the selected non-OpenSpec backend:
+
 - Cannot produce inspectable progress
 - Cannot keep scope bounded to the phase
 - Becomes blocked by missing structure
@@ -89,34 +94,43 @@ OpenSpec available: YES | NO
 Source plan: .kbd-orchestrator/phases/<phase-name>/plan.md
 
 EXECUTION SCOPE
+
 - <change-id>: <one-line description>
 
 DISPATCH CONTRACTS
 For each change assigned to a non-self tool:
+
 - <change-id> → <tool>
   Entry: <exact prompt or command to give the tool>
   Progress file: .kbd-orchestrator/phases/<phase>/progress.json
   Handoff: Report completion by updating progress.json and committing
 
 APPROVAL GATES
+
 - <gate or NONE>
 
 FALLBACK CONDITIONS
+
 - <condition that triggers fallback to openspec>
 
 VERIFICATION REQUIREMENTS
+
 - <build/test command specific to this project>
 
 PROGRESS LEDGER
+
 - [PENDING|IN_PROGRESS|DONE|BLOCKED] <change-id> — <tool>
 
 OUTPUTS
+
 - <artifact or NONE>
 
 BLOCKERS
+
 - <blocker or NONE>
 
 REFLECTION HANDOFF
+
 - <what kbd-reflect should consume from this phase>
 
 EXECUTION READY
@@ -126,6 +140,7 @@ Also initialize `.kbd-orchestrator/phases/<phase>/progress.json` if it doesn't
 exist (use the schema in `references/schemas/progress.schema.json`).
 
 Also refresh the KBD waypoint files:
+
 - `.kbd-orchestrator/current-waypoint.md`
 - `.kbd-orchestrator/current-waypoint.json`
 

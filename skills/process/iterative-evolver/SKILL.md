@@ -23,6 +23,7 @@ Every evolution cycle has a user-defined **evolution name** — a human-friendly
 ```
 
 The name is the primary key. State is loaded by name at the start of every session, enabling:
+
 - Cross-session continuity
 - End-state → start-state chaining across cycles
 - Mid-session crash recovery via checkpoints
@@ -31,13 +32,13 @@ The name is the primary key. State is loaded by name at the start of every sessi
 
 State is persisted through a **state provider** abstraction. The skill automatically resolves the best available provider:
 
-| Priority | Provider | When Used |
-|----------|----------|-----------|
-| 1 | User config | `$EVOLVER_PROVIDER_CONFIG` env var or `.evolver-provider.json` |
-| 2 | Surreal-Memory | `surreal-memory` MCP server detected — knowledge graph entities + TaskStreams |
-| 3 | MCP tool | Another dedicated state MCP server is available |
-| 4 | Agent memory | Generic memory MCP server (e.g., `basic-memory`) is available |
-| 5 | Filesystem | Always available — `.evolver/` directory (default) |
+| Priority | Provider       | When Used                                                                     |
+| -------- | -------------- | ----------------------------------------------------------------------------- |
+| 1        | User config    | `$EVOLVER_PROVIDER_CONFIG` env var or `.evolver-provider.json`                |
+| 2        | Surreal-Memory | `surreal-memory` MCP server detected — knowledge graph entities + TaskStreams |
+| 3        | MCP tool       | Another dedicated state MCP server is available                               |
+| 4        | Agent memory   | Generic memory MCP server (e.g., `basic-memory`) is available                 |
+| 5        | Filesystem     | Always available — `.evolver/` directory (default)                            |
 
 When **surreal-memory** is available, the evolver maps state to knowledge graph
 entities and TaskStreams for cross-session persistence, semantic search over
@@ -96,11 +97,13 @@ See `references/workflow-integration.md` for trigger semantics.
 The skill follows the Prometheus Meta-Prompting Orchestration loop adapted for iterative evolution. For full theory, see `references/pmpo-theory.md`.
 
 ### Startup
+
 1. **Resolve provider** — Determine state backend (`scripts/state-resolve-provider.sh`)
 2. **Init/resume state** — Load or create named evolution (`scripts/state-init.sh`)
 3. **Load domain adapter** — Route to `references/domain/{domain}.md`
 
 ### Loop
+
 1. **Assess** (`prompts/assess.md`) — Evaluate current state against goals
 2. **Analyze** (`prompts/analyze.md`) — Scan external landscape, identify opportunities and threats
 3. **Plan** (`prompts/plan.md`) — Create prioritized improvement plan
@@ -174,13 +177,13 @@ workflow_triggers: optional array    # External workflows to fire at lifecycle e
 ## Outputs
 
 ```yaml
-assessment_report: object       # Structured assessment of current state
-analysis_report: object         # Landscape analysis with findings
-improvement_plan: object        # Prioritized action items
-execution_results: object       # What was done, what succeeded/failed
-reflection_report: object       # Delta analysis, goal tracking, lessons
-evolution_state: object         # Full state manifest (validated against schema)
-generated_reports: array        # Written to output directory
+assessment_report: object # Structured assessment of current state
+analysis_report: object # Landscape analysis with findings
+improvement_plan: object # Prioritized action items
+execution_results: object # What was done, what succeeded/failed
+reflection_report: object # Delta analysis, goal tracking, lessons
+evolution_state: object # Full state manifest (validated against schema)
+generated_reports: array # Written to output directory
 ```
 
 ## Persistent State
@@ -223,16 +226,16 @@ On termination, state is **finalized** and archived. Re-running with the same `e
 
 Domain-specific evolution knowledge lives in `references/domain/`:
 
-| Domain | Reference |
-|--------|-----------|
-| Software | `references/domain/software.md` |
-| Business | `references/domain/business.md` |
-| Product | `references/domain/product.md` |
-| Research | `references/domain/research.md` |
-| Content | `references/domain/content.md` |
+| Domain     | Reference                         |
+| ---------- | --------------------------------- |
+| Software   | `references/domain/software.md`   |
+| Business   | `references/domain/business.md`   |
+| Product    | `references/domain/product.md`    |
+| Research   | `references/domain/research.md`   |
+| Content    | `references/domain/content.md`    |
 | Operations | `references/domain/operations.md` |
 | Compliance | `references/domain/compliance.md` |
-| Generic | `references/domain/generic.md` |
+| Generic    | `references/domain/generic.md`    |
 
 ## Quick Start
 

@@ -46,12 +46,12 @@ Rules for adding realtime to `@prometheus-ags/prometheus-entity-management`.
 
 ## Pitfalls
 
-| Pitfall | Outcome |
-|---------|---------|
+| Pitfall                              | Outcome                         |
+| ------------------------------------ | ------------------------------- |
 | Double `register` without unregister | Duplicate writes / memory leaks |
-| Normalizing to wrong `EntityType` | Cross-table corruption in graph |
-| Ignoring `delete` ops | Stale rows remain in lists |
-| `flushInterval: 0` with noisy source | Main-thread churn |
+| Normalizing to wrong `EntityType`    | Cross-table corruption in graph |
+| Ignoring `delete` ops                | Stale rows remain in lists      |
+| `flushInterval: 0` with noisy source | Main-thread churn               |
 
 ## Verification
 

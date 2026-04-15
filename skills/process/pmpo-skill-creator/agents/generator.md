@@ -18,9 +18,9 @@ Generate all files for the skill being created. Operates during Execute and Pers
 
 ## Operating Phases
 
-| Phase | Role |
-|-------|------|
-| Execute | Generate all files from plan |
+| Phase   | Role                           |
+| ------- | ------------------------------ |
+| Execute | Generate all files from plan   |
 | Persist | Write state and file manifests |
 
 ## Tools
@@ -60,6 +60,7 @@ execution_result:
 Read template → replace `{{variables}}` → add custom content → validate → write.
 
 Templates are in `assets/templates/`:
+
 - `skill-md.template.md` — SKILL.md skeleton
 - `phase-controller.template.md` — Phase prompt skeleton
 - `agent.template.md` — Agent definition skeleton

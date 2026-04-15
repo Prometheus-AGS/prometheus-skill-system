@@ -19,20 +19,20 @@ This skill connects **Prisma ORM** (server-side) to the **client entity graph** 
 
 ## Library anchor APIs
 
-| Export | Role |
-|--------|------|
-| `createPrismaEntityConfig` | Builds `entity`, `list`, `crud`, and `schemas()` for Prisma-style JSON query params |
+| Export                              | Role                                                                                     |
+| ----------------------------------- | ---------------------------------------------------------------------------------------- |
+| `createPrismaEntityConfig`          | Builds `entity`, `list`, `crud`, and `schemas()` for Prisma-style JSON query params      |
 | `toPrismaWhere` / `toPrismaOrderBy` | Compile `FilterSpec` / `SortSpec` → Prisma filter objects (`src/view/prisma-compile.ts`) |
-| `registerSchema` | Register relation graph for cascade invalidation (`src/crud/relations.ts`) |
+| `registerSchema`                    | Register relation graph for cascade invalidation (`src/crud/relations.ts`)               |
 
 ## Sub-skills
 
-| Command | Purpose |
-|---------|---------|
-| `/entity-prisma-setup` | End-to-end: parse schema → types → config → register schemas |
-| `/entity-prisma-generator` | Install/configure prisma-entity-graph-generator |
-| `/entity-prisma-api` | Next.js Route Handlers using `PrismaClient` + `where`/`orderBy` from query |
-| `/entity-prisma-migrate` | Refactor manual Prisma usage → `createPrismaEntityConfig` |
+| Command                    | Purpose                                                                    |
+| -------------------------- | -------------------------------------------------------------------------- |
+| `/entity-prisma-setup`     | End-to-end: parse schema → types → config → register schemas               |
+| `/entity-prisma-generator` | Install/configure prisma-entity-graph-generator                            |
+| `/entity-prisma-api`       | Next.js Route Handlers using `PrismaClient` + `where`/`orderBy` from query |
+| `/entity-prisma-migrate`   | Refactor manual Prisma usage → `createPrismaEntityConfig`                  |
 
 ## PMPO
 

@@ -12,12 +12,12 @@ Your job is to ensure all phase outputs are durably written through the **state 
 
 The Persist phase does NOT write directly to files. It writes through the resolved state provider, which may be one of:
 
-| Provider | How State is Written |
-|----------|---------------------|
-| `filesystem` | JSON files in `.evolver/evolutions/{name}/` |
+| Provider       | How State is Written                             |
+| -------------- | ------------------------------------------------ |
+| `filesystem`   | JSON files in `.evolver/evolutions/{name}/`      |
 | `agent_memory` | Memory entities via MCP (e.g., `surreal_memory`) |
-| `mcp_tool` | Dedicated MCP state server tools |
-| `custom` | User-provided script/executable |
+| `mcp_tool`     | Dedicated MCP state server tools                 |
+| `custom`       | User-provided script/executable                  |
 
 The Persist phase is **provider-agnostic**. It calls the same logical operations regardless of backend.
 
@@ -38,15 +38,15 @@ See `references/state-management.md` for provider details.
 
 ## State Files (Logical Structure)
 
-| Key | Purpose | Updated By |
-|---|---|---|
-| `evolution_state` | Master state manifest | This phase |
-| `assessment` | Latest assessment | Assess phase |
-| `analysis` | Latest analysis | Analyze phase |
-| `plan` | Current plan | Plan phase |
-| `evolution_log` | Full iteration history | All phases |
-| `decisions` | Convergence decisions | This phase |
-| `reports` | Generated reports | Reflect phase |
+| Key               | Purpose                | Updated By    |
+| ----------------- | ---------------------- | ------------- |
+| `evolution_state` | Master state manifest  | This phase    |
+| `assessment`      | Latest assessment      | Assess phase  |
+| `analysis`        | Latest analysis        | Analyze phase |
+| `plan`            | Current plan           | Plan phase    |
+| `evolution_log`   | Full iteration history | All phases    |
+| `decisions`       | Convergence decisions  | This phase    |
+| `reports`         | Generated reports      | Reflect phase |
 
 These map to files, memory entities, or tool calls depending on the active provider.
 
@@ -57,6 +57,7 @@ These map to files, memory entities, or tool calls depending on the active provi
 ### 1. Validate Phase Outputs
 
 For each expected output from the current iteration:
+
 - Verify it exists in state
 - Verify it contains the expected top-level keys
 - If any output is missing, log a warning and reconstruct from available data
@@ -67,26 +68,26 @@ Write the master state with all accumulated data:
 
 ```yaml
 evolution_state:
-  evolution_id: string          # Internal UUID
-  evolution_name: string        # User-friendly retrieval key
+  evolution_id: string # Internal UUID
+  evolution_name: string # User-friendly retrieval key
   domain: string
   started_at: string
   updated_at: string
   current_iteration: number
   max_iterations: number
   goals: []
-  phases_completed: []          # Phases that ran this iteration
+  phases_completed: [] # Phases that ran this iteration
   state_provider:
-    provider_type: string       # Active provider type
+    provider_type: string # Active provider type
     resolved_at: string
-  workflow_triggers: []         # Registered triggers
-  checkpoints: []               # Mid-session checkpoint refs
+  workflow_triggers: [] # Registered triggers
+  checkpoints: [] # Mid-session checkpoint refs
   latest_assessment: object
   latest_analysis: object
   latest_plan: object
   latest_execution: object
   latest_reflection: object
-  convergence_status: string    # running | converged | max_iterations | terminated
+  convergence_status: string # running | converged | max_iterations | terminated
   iteration_history:
     - iteration: number
       alignment_before: number
@@ -134,6 +135,7 @@ Append to decisions record:
 ### 6. Dispatch Workflow Triggers
 
 After persisting, dispatch workflow triggers:
+
 - Event: `on_phase_complete` with `phase: persist`
 - If this is the last iteration: also dispatch `on_iteration_complete`
 
@@ -144,6 +146,7 @@ Script: `scripts/workflow-dispatch.sh <evolution_name> phase_complete persist`
 ## Provider-Specific Operations
 
 ### Filesystem Provider
+
 ```bash
 # Save state
 scripts/state-checkpoint.sh "$EVOLUTION_NAME" persist
@@ -151,6 +154,7 @@ scripts/state-checkpoint.sh "$EVOLUTION_NAME" persist
 ```
 
 ### Agent Memory Provider
+
 ```
 # Save as memory entity
 create_entity or add_observations:
@@ -160,12 +164,14 @@ create_entity or add_observations:
 ```
 
 ### MCP Tool Provider
+
 ```
 # Call provider's save tool
 {save_tool}: { evolution_name, state }
 ```
 
 ### Custom Provider
+
 ```bash
 # Call custom script
 {script} save "$EVOLUTION_NAME" < state.json

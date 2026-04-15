@@ -23,6 +23,7 @@ Also determine whether OpenSpec is available and emit the appropriate commands.
 ## OpenSpec Detection
 
 Check if `openspec/` directory exists at the project root.
+
 - **YES** → use OpenSpec changes; emit `/opsx:new <change-id>` commands
 - **NO** → use native KBD changes; emit `mkdir .kbd-orchestrator/changes/<id>` instructions
 
@@ -55,6 +56,7 @@ Check if `openspec/` directory exists at the project root.
 
 Read the project's AGENTS.md or CLAUDE.md for priority guidance. In the absence
 of explicit priorities, apply:
+
 1. Foundation / blocking dependencies first
 2. User-facing features over internal tooling
 3. Security and data integrity over convenience features
@@ -100,6 +102,7 @@ PLAN COMPLETE
 Write output to `.kbd-orchestrator/phases/<phase-name>/plan.md`.
 
 After writing, refresh the waypoint:
+
 - Update `.kbd-orchestrator/current-waypoint.json` → `next_pending_change` = first change ID
 - Set `exact_next_command` to the first `/opsx:new` or change creation command
 - Update `.kbd-orchestrator/current-waypoint.md` with the same data

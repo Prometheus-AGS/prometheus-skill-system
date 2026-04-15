@@ -19,6 +19,7 @@ ordered list of changes to implement this phase. Refreshes the waypoint so
 every tool knows the exact next step.
 
 Output:
+
 - `.kbd-orchestrator/phases/<phase-name>/plan.md` — ordered change list
 - `.kbd-orchestrator/current-waypoint.md` and `current-waypoint.json` — refreshed
 

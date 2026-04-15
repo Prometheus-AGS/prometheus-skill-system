@@ -5,6 +5,7 @@ Quick reference for common operations in the Prometheus Skill Pack repository.
 ## Commands Cheat Sheet
 
 ### Validation
+
 ```bash
 npm run validate                           # Validate all skills
 npm run validate:skill skills/react/name   # Validate specific skill
@@ -13,6 +14,7 @@ npm run format                             # Auto-fix formatting
 ```
 
 ### Build & Distribution
+
 ```bash
 npm run build              # Build marketplace (create symlinks)
 npm run install:user       # Install to ~/.claude/skills/
@@ -20,6 +22,7 @@ npm run install:project    # Install to .claude/skills/
 ```
 
 ### Development
+
 ```bash
 npm test                   # Run tests
 npm run lint               # Lint skills
@@ -54,7 +57,7 @@ description: What it does and when to use it (max 1024 chars)
 license: MIT
 metadata:
   author: your-name
-  version: "1.0.0"
+  version: '1.0.0'
   category: react|rust|ui-ux|devops|testing|documentation
   tags: [tag1, tag2]
 ---
@@ -98,12 +101,12 @@ EOF
 
 ## Validation Errors
 
-| Error | Fix |
-|-------|-----|
-| No YAML frontmatter | Add `---` delimiters and required fields |
-| Name mismatch | Match `name:` field to directory name |
-| Backslashes found | Replace `\` with `/` in all paths |
-| Script not executable | Run `chmod +x scripts/*.sh` |
+| Error                 | Fix                                      |
+| --------------------- | ---------------------------------------- |
+| No YAML frontmatter   | Add `---` delimiters and required fields |
+| Name mismatch         | Match `name:` field to directory name    |
+| Backslashes found     | Replace `\` with `/` in all paths        |
+| Script not executable | Run `chmod +x scripts/*.sh`              |
 
 ## Creating a New Skill
 
@@ -177,15 +180,18 @@ git push origin feature/new-skill
 ## Troubleshooting
 
 **Skills not loading?**
+
 - Restart Claude Code or run `/reload-plugins`
 - Check skill has valid `SKILL.md` in correct location
 
 **Validation fails?**
+
 - Read error message carefully
 - Check frontmatter syntax and required fields
 - Ensure name matches directory exactly
 
 **Scripts fail?**
+
 - Check executable permissions: `ls -la scripts/`
 - Verify script has proper shebang: `#!/bin/bash`
 - Test script independently: `bash scripts/name.sh --help`

@@ -1,6 +1,6 @@
 ---
 name: entity-graph-setup
-description: "Analyze a React/Vite/Next.js codebase and introduce @prometheus-ags/prometheus-entity-management from scratch—detect legacy data layers, infer entity types, emit schema registrations, and produce phased migration plans without breaking architecture rules."
+description: 'Analyze a React/Vite/Next.js codebase and introduce @prometheus-ags/prometheus-entity-management from scratch—detect legacy data layers, infer entity types, emit schema registrations, and produce phased migration plans without breaking architecture rules.'
 ---
 
 # entity-graph-setup
@@ -16,11 +16,11 @@ Analyze a target **React / Vite / Next.js** codebase and set up **@prometheus-ag
 
 ## Sub-skills (invoke explicitly)
 
-| Route | Focus |
-|-------|--------|
-| **`entity-graph-init`** | First-time bootstrap: dependency install, `configureEngine`, provider/bootstrap file, minimal `useEntity` proof. |
-| **`entity-graph-migrate`** | Side-by-side or phased replacement of an existing cache layer; feature flags, strangler patterns. |
-| **`entity-graph-detect`** | Static scan of API routes, types, and hooks to emit `entity_manifest` + suggested `EntitySchema[]`. |
+| Route                      | Focus                                                                                                            |
+| -------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| **`entity-graph-init`**    | First-time bootstrap: dependency install, `configureEngine`, provider/bootstrap file, minimal `useEntity` proof. |
+| **`entity-graph-migrate`** | Side-by-side or phased replacement of an existing cache layer; feature flags, strangler patterns.                |
+| **`entity-graph-detect`**  | Static scan of API routes, types, and hooks to emit `entity_manifest` + suggested `EntitySchema[]`.              |
 
 ## Process (PMPO)
 

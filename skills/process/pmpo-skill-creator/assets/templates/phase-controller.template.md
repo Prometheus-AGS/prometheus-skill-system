@@ -17,7 +17,7 @@ You are the {{phase_name_title}} phase controller. {{phase_objective}}
 ## Output Contract
 
 ```yaml
-{{phase_output_contract}}
+{ { phase_output_contract } }
 ```
 
 ## Rules

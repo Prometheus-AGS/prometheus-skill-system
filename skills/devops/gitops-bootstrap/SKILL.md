@@ -19,7 +19,7 @@ metadata:
   owner: Prometheus AGS
   contact: tjames@prometheusags.ai
   registry-url: https://github.com/prometheusags/prometheus-gitops-skills
-  version: "1.0.0"
+  version: '1.0.0'
 allowed-tools: Bash(git:) Bash(kubectl:) Bash(kustomize:) Bash(argocd:) Bash(jq:) Bash(find:) Bash(mkdir:) Bash(cp:) Read Write
 ---
 
@@ -38,6 +38,7 @@ delivery flows through a Git commit to the GitOps repository.
 ## Invocation
 
 Use this skill when the user says any of:
+
 - "set up GitOps for this project"
 - "create a CI/CD pipeline"
 - "bootstrap ArgoCD deployment"
@@ -56,6 +57,7 @@ scripts/detect-cloud.sh
 ```
 
 The script examines:
+
 - Terraform files (`.tf`) for `google_container_cluster`, `azurerm_kubernetes_cluster`, `aws_eks_cluster`
 - `~/.kube/config` contexts for `gke_`, `aks-`, `eks-` prefixes
 - Environment variables: `GOOGLE_PROJECT`, `AZURE_SUBSCRIPTION_ID`, `AWS_ACCOUNT_ID`
@@ -112,12 +114,14 @@ Use the templates in `assets/templates/` for all generated files.
 ### Step 3 — Base Manifests
 
 Generate cloud-agnostic base manifests for the service. Prompt the user for:
+
 - Service name (kebab-case)
 - Container port
 - Minimum replicas
 - Any environment variables needed (names only — values come from ExternalSecret CRs)
 
 Generate `base/deployment.yaml` with:
+
 - No hardcoded image tag (placeholder for Kustomize `newTag`)
 - `serviceAccountName` referencing the service's SA
 - No cloud-specific annotations
@@ -130,15 +134,18 @@ Generate `base/serviceaccount.yaml` with no annotations (cloud patches add those
 For each detected cloud, generate the cloud overlay. Use templates from `assets/templates/cloud/`.
 
 **GKE overlay** (`cloud/gke/kustomization.yaml`):
+
 - Patches ServiceAccount with `iam.gke.io/gcp-service-account` annotation
 - References Artifact Registry image hostname
 
 **AKS overlay** (`cloud/aks/kustomization.yaml`):
+
 - Patches ServiceAccount with `azure.workload.identity/client-id` annotation
 - Patches Deployment pod template with `azure.workload.identity/use: "true"` label
 - References ACR image hostname
 
 **EKS overlay** (`cloud/eks/kustomization.yaml`):
+
 - Patches ServiceAccount with `eks.amazonaws.com/role-arn` annotation
 - References ECR image hostname
 
@@ -153,6 +160,7 @@ the real SHA tag on every deploy.
 Generate `.github/workflows/deploy.yml` in the **application repository** (not the GitOps repo).
 
 For each detected cloud, generate the appropriate push job:
+
 - **GCP**: `google-github-actions/auth@v2` with Workload Identity Federation
 - **Azure**: `azure/login@v2` with federated credentials (OIDC, no client secret)
 - **AWS**: `aws-actions/configure-aws-credentials@v4` with OIDC role assumption
@@ -186,6 +194,7 @@ If ArgoCD is not yet installed, output the installation command for the user to 
 ### Step 9 — Validation
 
 Run validation checks:
+
 1. `kustomize build` on every overlay — must produce valid manifests
 2. Verify no Kubernetes Secret manifests contain data values (only ExternalSecret CRs)
 3. Verify no workflow file contains `kubectl apply` or `helm upgrade` as deploy mechanism
@@ -196,6 +205,7 @@ Report the validation summary. Flag any failures before completing.
 ## Output Summary
 
 After completion, output:
+
 1. List of all created files with paths
 2. Environment variables the user must add to GitHub repository secrets
 3. DNS records needed per cloud (one A record per Gateway LoadBalancer IP)

@@ -8,6 +8,7 @@ Any tool that starts, continues, or completes a KBD change MUST follow this prot
 ## Why File-Based State?
 
 KBD uses `.kbd-orchestrator/` as a **universal coordination contract** because:
+
 - Every AI tool can read and write files
 - Git provides version history + merge conflict detection
 - No special runtime or message bus required
@@ -39,6 +40,7 @@ cat .kbd-orchestrator/phases/<phase>/progress.json
 ```
 
 Then update `progress.json`:
+
 ```json
 {
   "changes": {
@@ -94,6 +96,7 @@ Commit after every few tasks:
 ```
 
 Then:
+
 - **If OpenSpec**: run `cat openspec/changes/<id>/.openspec.yaml` to find status, then `/opsx:verify` and `/opsx:archive`
 - **If native KBD**: `mv .kbd-orchestrator/changes/<id>/ .kbd-orchestrator/changes/archive/<date>-<id>/`
 
@@ -127,10 +130,12 @@ Commit: `git add .kbd-orchestrator && git commit -m "kbd: blocked [<tool>] <chan
 ## Tool-Specific Entry Points
 
 ### Antigravity
+
 - Reads SKILL.md skills via slash commands
 - Progress updates happen during task execution via write_to_file tool
 
 ### Roo Code (Architect mode)
+
 - Feed the following in the Roo Architect prompt:
   ```
   Read .kbd-orchestrator/current-waypoint.json and openspec/changes/<id>/tasks.md.
@@ -138,31 +143,37 @@ Commit: `git add .kbd-orchestrator && git commit -m "kbd: blocked [<tool>] <chan
   ```
 
 ### Roo Code (Code mode)
+
 - Feed each task individually as a focused Code mode request
 - Update progress.json between tasks
 
 ### Cursor Agent
+
 - Provide the waypoint + change spec in the Cursor Agent context
 - Cursor subagents can work on individual tasks in parallel
 - Each subagent updates progress.json on completion
 
 ### Codex (OpenAI)
+
 - Codex works on isolated git worktrees
 - Each change runs in its own worktree
 - On completion, PR/merge updates the main branch
 - progress.json must be committed in the worktree and merged back
 
 ### Cline (Plan/Act mode)
+
 - Plan mode: read assessment.md + change spec → produce task list
 - Act mode: execute tasks, update progress.json per task
 - Focus Chain: inject `current-waypoint.json` + change spec into context
 
 ### Windsurf Cascade
+
 - Provide waypoint + change spec in the Cascade session
 - Cascade's Flow shared workspace tracks progress within the session
 - Commit progress.json at session checkpoints
 
 ### OpenCode / Kilo Code
+
 - Use for targeted single-file or few-file tasks within a change
 - Update progress.json manually after the targeted edit
 

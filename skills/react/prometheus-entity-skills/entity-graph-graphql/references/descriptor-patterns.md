@@ -7,7 +7,16 @@ Patterns for **@prometheus-ags/prometheus-entity-management** GraphQL integratio
 Query:
 
 ```graphql
-query Posts { posts(first: 20) { edges { node { id title } } } }
+query Posts {
+  posts(first: 20) {
+    edges {
+      node {
+        id
+        title
+      }
+    }
+  }
+}
 ```
 
 **List hook**: `getItems: (d) => d.posts.edges.map(e => e.node)`.
@@ -22,7 +31,17 @@ Cleaner: `path: "posts.edges"`, `extractId: (e) => String(e.node.id)`, `normaliz
 ## 2. Connection with `nodes` shortcut
 
 ```graphql
-query { posts { nodes { id } pageInfo { hasNextPage endCursor } } }
+query {
+  posts {
+    nodes {
+      id
+    }
+    pageInfo {
+      hasNextPage
+      endCursor
+    }
+  }
+}
 ```
 
 - `path: "posts.nodes"` for array walk.
@@ -33,12 +52,12 @@ query { posts { nodes { id } pageInfo { hasNextPage endCursor } } }
 ```typescript
 relations: [
   {
-    type: "User",
-    path: "author",
-    extractId: (u) => String(u.id),
-    normalize: (u) => stripTypename(u as Record<string, unknown>),
+    type: 'User',
+    path: 'author',
+    extractId: u => String(u.id),
+    normalize: u => stripTypename(u as Record<string, unknown>),
   } as EntityDescriptor<unknown, Record<string, unknown>>,
-]
+];
 ```
 
 ## 4. Union / interface
@@ -49,7 +68,17 @@ relations: [
 ## 5. Mutation payload envelope
 
 ```graphql
-mutation { updatePost(input: $in) { post { id title } userErrors { message } } }
+mutation {
+  updatePost(input: $in) {
+    post {
+      id
+      title
+    }
+    userErrors {
+      message
+    }
+  }
+}
 ```
 
 - Descriptor `path: "updatePost.post"` (depends on mutation name).

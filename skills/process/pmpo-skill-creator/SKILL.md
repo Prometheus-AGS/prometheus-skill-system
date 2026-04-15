@@ -31,40 +31,41 @@ Adds new domain adapters, phases, sub-skills, or platform support to an existing
 
 Every generated skill includes:
 
-| Component | Files | Purpose |
-|-----------|-------|---------|
-| Core | `SKILL.md`, `CLAUDE.md`, `AGENTS.md` | Skill manifest, dev guide, contributor guide |
-| Prompts | `prompts/*.md` | PMPO phase controllers (specify, plan, execute, reflect, persist) |
-| Agents | `agents/*.md` | Specialized subagent definitions |
-| References | `references/*.md` | Domain adapters, theory docs, architecture refs |
-| Schemas | `references/schemas/*.json` | JSON schema contracts for state and output |
-| Scripts | `scripts/*.sh` | State lifecycle management (init, checkpoint, finalize, dispatch) |
-| Sub-skills | `skills/*/SKILL.md` | Slash command entry points |
-| Hooks | `hooks/hooks.json` | Lifecycle hooks with checkpoint + dispatch |
-| Plugin | `.claude-plugin/plugin.json` | Claude Code marketplace manifest |
-| Templates | `assets/templates/*` | Output scaffolding for generated artifacts |
+| Component  | Files                                | Purpose                                                           |
+| ---------- | ------------------------------------ | ----------------------------------------------------------------- |
+| Core       | `SKILL.md`, `CLAUDE.md`, `AGENTS.md` | Skill manifest, dev guide, contributor guide                      |
+| Prompts    | `prompts/*.md`                       | PMPO phase controllers (specify, plan, execute, reflect, persist) |
+| Agents     | `agents/*.md`                        | Specialized subagent definitions                                  |
+| References | `references/*.md`                    | Domain adapters, theory docs, architecture refs                   |
+| Schemas    | `references/schemas/*.json`          | JSON schema contracts for state and output                        |
+| Scripts    | `scripts/*.sh`                       | State lifecycle management (init, checkpoint, finalize, dispatch) |
+| Sub-skills | `skills/*/SKILL.md`                  | Slash command entry points                                        |
+| Hooks      | `hooks/hooks.json`                   | Lifecycle hooks with checkpoint + dispatch                        |
+| Plugin     | `.claude-plugin/plugin.json`         | Claude Code marketplace manifest                                  |
+| Templates  | `assets/templates/*`                 | Output scaffolding for generated artifacts                        |
 
 ## Inputs
 
 ```yaml
-skill_name: string       # Required — name for the new skill
-intent: string           # What the skill should do
-mode: string             # create | clone | extend
-source_skill: string     # Required for clone/extend — path to source skill
-target_platforms: array   # Which platforms to support (default: all)
+skill_name: string # Required — name for the new skill
+intent: string # What the skill should do
+mode: string # create | clone | extend
+source_skill: string # Required for clone/extend — path to source skill
+target_platforms:
+  array # Which platforms to support (default: all)
   # Options: agentskills-io, claude-code, opencode, cursor, gemini-cli
-tools_directory: string   # Optional — custom tools output directory (e.g., .opencode/tools/)
-domain: string           # Optional — primary domain for the skill
+tools_directory: string # Optional — custom tools output directory (e.g., .opencode/tools/)
+domain: string # Optional — primary domain for the skill
 ```
 
 ## Outputs
 
 ```yaml
 generated_skill:
-  path: string           # Directory containing the complete skill
-  file_count: integer    # Total files generated
-  platforms: array       # Platforms supported
-  validation: object     # Spec compliance results
+  path: string # Directory containing the complete skill
+  file_count: integer # Total files generated
+  platforms: array # Platforms supported
+  validation: object # Spec compliance results
 ```
 
 ## Artifact-Refiner Integration (Optional)
@@ -106,6 +107,7 @@ After each phase: checkpoint (`state-checkpoint.sh`) + dispatch (`workflow-dispa
 ## Quality Standards
 
 Generated skills MUST:
+
 1. Pass agentskills.io SKILL.md validation (required frontmatter, <500 lines)
 2. Include all JSON schemas referenced in prompts
 3. Have executable scripts with proper shebang lines
@@ -118,10 +120,10 @@ Generated skills MUST:
 
 The creator uses these as structural templates:
 
-| Skill | Location | Files | Domains |
-|-------|----------|-------|---------|
-| iterative-evolver | UAR `.agent/skills/` | 48 | 8 (software, business, product, etc.) |
-| artifact-refiner | standalone repo | 79 | 7 (logo, ui, code, meta-prompt, etc.) |
+| Skill             | Location             | Files | Domains                               |
+| ----------------- | -------------------- | ----- | ------------------------------------- |
+| iterative-evolver | UAR `.agent/skills/` | 48    | 8 (software, business, product, etc.) |
+| artifact-refiner  | standalone repo      | 79    | 7 (logo, ui, code, meta-prompt, etc.) |
 
 Both demonstrate the complete feature set: PMPO loop, named state, providers, hooks, workflow triggers, sub-skills, domain adapters, JSON schemas.
 

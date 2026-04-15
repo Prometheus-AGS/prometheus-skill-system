@@ -39,9 +39,9 @@ User has (or will have) `GQLClient` + descriptors and needs **React hook wrapper
    - `invalidateLists` expects the same string key the list hook uses internally: `serializeKey(queryKey)` from `@prometheus-ags/prometheus-entity-management` (see `src/engine.ts`). Example:
 
 ```typescript
-import { serializeKey } from "@prometheus-ags/prometheus-entity-management";
+import { serializeKey } from '@prometheus-ags/prometheus-entity-management';
 
-const LIST_KEY = ["Post", "list", "dashboard"] as const;
+const LIST_KEY = ['Post', 'list', 'dashboard'] as const;
 
 export function usePostsList() {
   return useGQLList<PostsData, Post>({
@@ -54,7 +54,7 @@ export function useUpdatePost() {
   return useGQLMutation<UpdateData, Post>({
     client: gqlClient,
     document: UPDATE_POST,
-    type: "Post",
+    type: 'Post',
     descriptors: [postDescriptor],
     invalidateLists: [serializeKey([...LIST_KEY])],
   });

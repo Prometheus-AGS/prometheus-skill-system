@@ -1,0 +1,9 @@
+node_modules
+target
+.claude
+.prometheus/traces
+tools/prometheus-cli/target
+tools/prometheus-cli/Cargo.lock
+marketplace/marketplace.json
+*.lock
+*.template.json

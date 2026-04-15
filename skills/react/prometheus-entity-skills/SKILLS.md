@@ -11,13 +11,13 @@ description: >
 license: MIT
 metadata:
   bundle: prometheus-entity-management
-  library: "@prometheus-ags/prometheus-entity-management"
-  spec: "https://agentskills.io/specification"
+  library: '@prometheus-ags/prometheus-entity-management'
+  spec: 'https://agentskills.io/specification'
   progressive_disclosure:
-    - "Tier 1: this file + plugin name — pick a plugin"
-    - "Tier 2: plugin root SKILL.md — workflow and constraints"
-    - "Tier 3: skills/<sub-skill>/SKILL.md — focused playbooks"
-    - "Tier 4: references/, agents/, prompts/ — load on demand"
+    - 'Tier 1: this file + plugin name — pick a plugin'
+    - 'Tier 2: plugin root SKILL.md — workflow and constraints'
+    - 'Tier 3: skills/<sub-skill>/SKILL.md — focused playbooks'
+    - 'Tier 4: references/, agents/, prompts/ — load on demand'
 ---
 
 # Prometheus entity skills (bundle index)
@@ -40,25 +40,25 @@ Plugin sources in the marketplace are paths relative to `prometheus-entity-skill
 
 ## Plugin map
 
-| Plugin directory | `plugin.json` name | Focus |
-| ---------------- | ------------------- | ----- |
-| `entity-graph-setup/` | `prometheus-entity-graph-setup` | Adopt the library in an existing app; detect legacy data layers; migration plans |
-| `entity-graph-crud/` | `prometheus-entity-graph-crud` | CRUD UI, `useEntityCRUD`, tables, forms, relations / `registerSchema` |
-| `entity-graph-graphql/` | `prometheus-entity-graph-graphql` | GQL client, descriptors, hooks, subscriptions |
-| `entity-graph-realtime/` | `prometheus-entity-graph-realtime` | RealtimeManager, adapters, channels, local-first |
-| `entity-graph-prisma/` | `prometheus-entity-graph-prisma` | Prisma mapping, generators, API routes |
-| `entity-graph-optimize/` | `prometheus-entity-graph-optimize` | Audits, performance, GC / eviction |
+| Plugin directory         | `plugin.json` name                 | Focus                                                                            |
+| ------------------------ | ---------------------------------- | -------------------------------------------------------------------------------- |
+| `entity-graph-setup/`    | `prometheus-entity-graph-setup`    | Adopt the library in an existing app; detect legacy data layers; migration plans |
+| `entity-graph-crud/`     | `prometheus-entity-graph-crud`     | CRUD UI, `useEntityCRUD`, tables, forms, relations / `registerSchema`            |
+| `entity-graph-graphql/`  | `prometheus-entity-graph-graphql`  | GQL client, descriptors, hooks, subscriptions                                    |
+| `entity-graph-realtime/` | `prometheus-entity-graph-realtime` | RealtimeManager, adapters, channels, local-first                                 |
+| `entity-graph-prisma/`   | `prometheus-entity-graph-prisma`   | Prisma mapping, generators, API routes                                           |
+| `entity-graph-optimize/` | `prometheus-entity-graph-optimize` | Audits, performance, GC / eviction                                               |
 
 ## Sub-skills (nested `skills/*/SKILL.md`)
 
-| Plugin | Sub-skill folders |
-| ------ | ----------------- |
-| **entity-graph-setup** | `entity-graph-init`, `entity-graph-detect`, `entity-graph-migrate` |
-| **entity-graph-crud** | `entity-crud-page`, `entity-crud-form`, `entity-crud-table`, `entity-crud-relations` |
-| **entity-graph-graphql** | `entity-gql-setup`, `entity-gql-hooks`, `entity-gql-subscription` |
-| **entity-graph-realtime** | `entity-realtime-setup`, `entity-realtime-channel`, `entity-realtime-local-first` |
-| **entity-graph-prisma** | `entity-prisma-setup`, `entity-prisma-generator`, `entity-prisma-api`, `entity-prisma-migrate` |
-| **entity-graph-optimize** | `entity-audit`, `entity-perf`, `entity-gc` |
+| Plugin                    | Sub-skill folders                                                                              |
+| ------------------------- | ---------------------------------------------------------------------------------------------- |
+| **entity-graph-setup**    | `entity-graph-init`, `entity-graph-detect`, `entity-graph-migrate`                             |
+| **entity-graph-crud**     | `entity-crud-page`, `entity-crud-form`, `entity-crud-table`, `entity-crud-relations`           |
+| **entity-graph-graphql**  | `entity-gql-setup`, `entity-gql-hooks`, `entity-gql-subscription`                              |
+| **entity-graph-realtime** | `entity-realtime-setup`, `entity-realtime-channel`, `entity-realtime-local-first`              |
+| **entity-graph-prisma**   | `entity-prisma-setup`, `entity-prisma-generator`, `entity-prisma-api`, `entity-prisma-migrate` |
+| **entity-graph-optimize** | `entity-audit`, `entity-perf`, `entity-gc`                                                     |
 
 Each sub-skill is a normal Agent Skill directory with its own `SKILL.md` and must keep `name` in frontmatter aligned with the folder name per agentskills.io rules.
 
@@ -66,13 +66,13 @@ Each sub-skill is a normal Agent Skill directory with its own `SKILL.md` and mus
 
 All paths below are relative to the **repository root** of `prometheus-entity-management`:
 
-| Path | Role |
-| ---- | ---- |
-| `prometheus-entity-skills/_shared/references/library-exports.json` | Sorted list of **runtime export names** from `dist/index.mjs`; must match `pnpm run verify:skills` |
-| `prometheus-entity-skills/_shared/references/library-api.md` | Human-oriented API notes for agents |
-| `prometheus-entity-skills/_shared/references/architecture-rules.md` | Non-negotiable layering (Components → Hooks → Stores) |
-| `prometheus-entity-skills/_shared/references/branding.md` | Example UI tokens for generated demos |
-| `prometheus-entity-skills/_shared/references/schemas/*.schema.json` | JSON Schemas for manifests and filters |
+| Path                                                                | Role                                                                                               |
+| ------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| `prometheus-entity-skills/_shared/references/library-exports.json`  | Sorted list of **runtime export names** from `dist/index.mjs`; must match `pnpm run verify:skills` |
+| `prometheus-entity-skills/_shared/references/library-api.md`        | Human-oriented API notes for agents                                                                |
+| `prometheus-entity-skills/_shared/references/architecture-rules.md` | Non-negotiable layering (Components → Hooks → Stores)                                              |
+| `prometheus-entity-skills/_shared/references/branding.md`           | Example UI tokens for generated demos                                                              |
+| `prometheus-entity-skills/_shared/references/schemas/*.schema.json` | JSON Schemas for manifests and filters                                                             |
 
 Regenerate the export ledger after changing `src/index.ts` exports:
 

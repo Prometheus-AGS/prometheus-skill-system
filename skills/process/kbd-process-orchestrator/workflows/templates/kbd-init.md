@@ -10,6 +10,7 @@ Read `.agent/skills/kbd-process-orchestrator/skills/kbd-init/SKILL.md` and
 execute the `/kbd-init` workflow.
 
 Run the 7-step discovery algorithm:
+
 1. Project name & description
 2. Technology stack detection
 3. Build / test / lint commands

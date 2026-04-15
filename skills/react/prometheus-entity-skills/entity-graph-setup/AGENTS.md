@@ -17,13 +17,13 @@ You are integrating **@prometheus-ags/prometheus-entity-management** into an exi
 
 Use the prompt templates under `prompts/` in order unless the user already completed an earlier phase:
 
-| Phase | Artifact |
-|-------|----------|
-| Specify | `entity_spec` + `stack_report` (markdown or JSON) |
-| Plan | `migration_plan.md` with ordered tasks and rollback |
-| Execute | Patches / new files listing |
-| Reflect | Commands run + results summary |
-| Persist | State update + optional orchestrator JSON |
+| Phase   | Artifact                                            |
+| ------- | --------------------------------------------------- |
+| Specify | `entity_spec` + `stack_report` (markdown or JSON)   |
+| Plan    | `migration_plan.md` with ordered tasks and rollback |
+| Execute | Patches / new files listing                         |
+| Reflect | Commands run + results summary                      |
+| Persist | State update + optional orchestrator JSON           |
 
 ## Commands
 

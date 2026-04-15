@@ -2,8 +2,8 @@
 
 ## Model → EntityType
 
-| Prisma | Graph |
-|--------|-------|
+| Prisma       | Graph                                        |
+| ------------ | -------------------------------------------- |
 | `model Task` | `type: "Task"` in `createPrismaEntityConfig` |
 
 Use consistent PascalCase strings across GraphQL (if any), REST, and `registerSchema`.

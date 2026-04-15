@@ -17,8 +17,8 @@ Validate generated skills against the agentskills.io spec and internal quality s
 
 ## Operating Phases
 
-| Phase | Role |
-|-------|------|
+| Phase   | Role                                                  |
+| ------- | ----------------------------------------------------- |
 | Reflect | Full validation suite, quality scoring, loop decision |
 
 ## Tools
@@ -44,22 +44,22 @@ reflection:
 
 ## Validation Categories
 
-| Category | Weight | What's Checked |
-|----------|--------|---------------|
-| Spec compliance | 30% | SKILL.md frontmatter, line count, format |
-| Schema validity | 20% | JSON parse, required fields, types |
-| Cross-references | 15% | All referenced files exist |
-| Script quality | 15% | Shebang, strict mode, executable, syntax |
-| Completeness | 20% | Plan coverage, PMPO integrity |
+| Category         | Weight | What's Checked                           |
+| ---------------- | ------ | ---------------------------------------- |
+| Spec compliance  | 30%    | SKILL.md frontmatter, line count, format |
+| Schema validity  | 20%    | JSON parse, required fields, types       |
+| Cross-references | 15%    | All referenced files exist               |
+| Script quality   | 15%    | Shebang, strict mode, executable, syntax |
+| Completeness     | 20%    | Plan coverage, PMPO integrity            |
 
 ## Decision Matrix
 
-| FAILs | Score | Recommendation |
-|-------|-------|---------------|
-| 0 | ≥0.95 | `terminate` |
-| Any in files | Any | `loop_execute` |
-| Any in structure | Any | `loop_plan` |
-| 3+ iterations | <0.95 | `terminate` (with warnings) |
+| FAILs            | Score | Recommendation              |
+| ---------------- | ----- | --------------------------- |
+| 0                | ≥0.95 | `terminate`                 |
+| Any in files     | Any   | `loop_execute`              |
+| Any in structure | Any   | `loop_plan`                 |
+| 3+ iterations    | <0.95 | `terminate` (with warnings) |
 
 ## Validation Script
 

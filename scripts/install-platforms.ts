@@ -11,7 +11,15 @@
  *   npx tsx scripts/install-platforms.ts --list               # show detected platforms
  */
 
-import { existsSync, mkdirSync, symlinkSync, unlinkSync, readdirSync, statSync, readlinkSync } from 'fs';
+import {
+  existsSync,
+  mkdirSync,
+  symlinkSync,
+  unlinkSync,
+  readdirSync,
+  statSync,
+  readlinkSync,
+} from 'fs';
 import { join, resolve, relative, basename } from 'path';
 import { homedir } from 'os';
 
@@ -89,7 +97,7 @@ const PLATFORMS: Platform[] = [
 ];
 
 function detectInstalledPlatforms(): Platform[] {
-  return PLATFORMS.filter((p) => {
+  return PLATFORMS.filter(p => {
     const parentDir = resolve(p.globalSkillsDir, '..');
     return existsSync(parentDir);
   });
@@ -108,7 +116,11 @@ function createSymlink(target: string, linkPath: string): boolean {
     }
   } catch {
     // Not a symlink or doesn't exist — proceed
-    try { unlinkSync(linkPath); } catch { /* noop */ }
+    try {
+      unlinkSync(linkPath);
+    } catch {
+      /* noop */
+    }
   }
 
   mkdirSync(resolve(linkPath, '..'), { recursive: true });
@@ -117,7 +129,8 @@ function createSymlink(target: string, linkPath: string): boolean {
 }
 
 function installPlatform(platform: Platform, scope: 'global' | 'project'): void {
-  const targetDir = scope === 'global' ? platform.globalSkillsDir : join(process.cwd(), platform.projectSkillsDir);
+  const targetDir =
+    scope === 'global' ? platform.globalSkillsDir : join(process.cwd(), platform.projectSkillsDir);
   const linkPath = join(targetDir, SKILL_NAME);
 
   console.log(`\n  Installing to ${platform.name} (${scope})...`);
@@ -131,9 +144,10 @@ function installPlatform(platform: Platform, scope: 'global' | 'project'): void 
   if (platform.name === 'opencode') {
     const toolsSource = join(REPO_ROOT, '.opencode', 'tools');
     if (existsSync(toolsSource)) {
-      const toolsTarget = scope === 'global'
-        ? join(HOME, '.config', 'opencode', 'tools')
-        : join(process.cwd(), '.opencode', 'tools');
+      const toolsTarget =
+        scope === 'global'
+          ? join(HOME, '.config', 'opencode', 'tools')
+          : join(process.cwd(), '.opencode', 'tools');
 
       if (createSymlink(toolsSource, join(toolsTarget, SKILL_NAME))) {
         console.log(`    ✅ OpenCode tools linked`);
@@ -143,7 +157,8 @@ function installPlatform(platform: Platform, scope: 'global' | 'project'): void 
 }
 
 function uninstallPlatform(platform: Platform, scope: 'global' | 'project'): void {
-  const targetDir = scope === 'global' ? platform.globalSkillsDir : join(process.cwd(), platform.projectSkillsDir);
+  const targetDir =
+    scope === 'global' ? platform.globalSkillsDir : join(process.cwd(), platform.projectSkillsDir);
   const linkPath = join(targetDir, SKILL_NAME);
 
   if (existsSync(linkPath)) {
@@ -158,7 +173,9 @@ function uninstallPlatform(platform: Platform, scope: 'global' | 'project'): voi
 
 function main(): void {
   const args = process.argv.slice(2);
-  const scope = args.includes('--scope') ? (args[args.indexOf('--scope') + 1] as 'global' | 'project') : 'global';
+  const scope = args.includes('--scope')
+    ? (args[args.indexOf('--scope') + 1] as 'global' | 'project')
+    : 'global';
   const targetPlatform = args.includes('--platform') ? args[args.indexOf('--platform') + 1] : null;
   const uninstall = args.includes('--uninstall');
   const list = args.includes('--list');
@@ -174,17 +191,15 @@ function main(): void {
       const marker = installed ? '✅' : '  ';
       console.log(`  ${marker} ${p.name.padEnd(15)} ${p.description}`);
     }
-    console.log(`\nAll platforms: ${PLATFORMS.map((p) => p.name).join(', ')}`);
+    console.log(`\nAll platforms: ${PLATFORMS.map(p => p.name).join(', ')}`);
     return;
   }
 
-  const platforms = targetPlatform
-    ? PLATFORMS.filter((p) => p.name === targetPlatform)
-    : PLATFORMS;
+  const platforms = targetPlatform ? PLATFORMS.filter(p => p.name === targetPlatform) : PLATFORMS;
 
   if (platforms.length === 0) {
     console.error(`\n❌ Unknown platform: ${targetPlatform}`);
-    console.log(`   Available: ${PLATFORMS.map((p) => p.name).join(', ')}`);
+    console.log(`   Available: ${PLATFORMS.map(p => p.name).join(', ')}`);
     process.exit(1);
   }
 

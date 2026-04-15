@@ -21,19 +21,21 @@ shared/scripts/
 
 Reference shared scripts from your SKILL.md:
 
-```markdown
+````markdown
 ## Instructions
 
 1. Validate the configuration:
    ```bash
    bash ${CLAUDE_PLUGIN_ROOT}/shared/scripts/validators/validate-config.sh config.json
    ```
+````
 
 2. Generate boilerplate:
    ```bash
    python3 ${CLAUDE_PLUGIN_ROOT}/shared/scripts/generators/generate-component.py --name MyComponent
    ```
-```
+
+````
 
 ## Guidelines
 
@@ -51,15 +53,17 @@ All scripts should be self-contained with minimal dependencies:
 
 import yaml
 # Script logic...
-```
+````
 
 ✅ **Good** - Single-file with no deps:
+
 ```bash
 #!/bin/bash
 # Pure bash script with no external dependencies
 ```
 
 ❌ **Bad** - Assumes global packages:
+
 ```python
 # Requires: pip install pyyaml
 import yaml  # Might not be installed!
@@ -101,6 +105,7 @@ finally:
 Each script should include:
 
 1. **Header comment** describing purpose:
+
    ```bash
    #!/bin/bash
    # validate-config.sh
@@ -109,6 +114,7 @@ Each script should include:
    ```
 
 2. **Help flag**:
+
    ```bash
    if [[ "$1" == "--help" ]]; then
        echo "Usage: $0 <config-file>"
@@ -130,6 +136,7 @@ Each script should include:
 ### Validators
 
 Scripts that check file formats, configurations, or data validity:
+
 - `validate-json.sh` - JSON syntax validation
 - `validate-yaml.sh` - YAML syntax validation
 - `validate-env.sh` - Environment variable validation
@@ -137,6 +144,7 @@ Scripts that check file formats, configurations, or data validity:
 ### Generators
 
 Scripts that create boilerplate code or files:
+
 - `generate-component.py` - React component scaffolding
 - `generate-test.py` - Test file generation
 - `generate-docs.sh` - Documentation generation
@@ -144,6 +152,7 @@ Scripts that create boilerplate code or files:
 ### Formatters
 
 Scripts that format or transform data:
+
 - `format-json.sh` - Pretty-print JSON
 - `format-yaml.sh` - Pretty-print YAML
 - `convert-json-yaml.py` - Format conversion
@@ -151,6 +160,7 @@ Scripts that format or transform data:
 ### Parsers
 
 Scripts that extract information from files:
+
 - `parse-frontmatter.py` - Extract YAML frontmatter
 - `parse-package-json.js` - Extract package.json fields
 - `parse-cargo-toml.py` - Extract Cargo.toml fields
@@ -158,6 +168,7 @@ Scripts that extract information from files:
 ### Common
 
 General-purpose utilities:
+
 - `file-utils.sh` - File system operations
 - `string-utils.sh` - String manipulation
 - `network-utils.sh` - Network operations
@@ -186,6 +197,7 @@ When adding a shared script:
 ## Environment Variables
 
 Scripts can access these Claude Code variables:
+
 - `$CLAUDE_PLUGIN_ROOT` - Root of the plugin directory
 - `$REPO_ROOT` - Root of the current repository
 - `$HOME` - User home directory
@@ -193,6 +205,7 @@ Scripts can access these Claude Code variables:
 ## Security
 
 ⚠️ **Important**:
+
 - Never include API keys or secrets
 - Validate all input parameters
 - Sanitize file paths to prevent injection
@@ -202,6 +215,7 @@ Scripts can access these Claude Code variables:
 ## Examples
 
 See `examples/` directory for:
+
 - Complete working scripts
 - Integration patterns
 - Testing approaches

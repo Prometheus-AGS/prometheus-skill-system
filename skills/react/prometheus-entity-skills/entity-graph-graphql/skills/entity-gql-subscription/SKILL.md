@@ -20,7 +20,11 @@ User needs **live** GraphQL updates integrated with the entity graph.
 type WsClient = {
   subscribe: (
     payload: { query: string; variables?: Record<string, unknown> },
-    sink: { next: (v: { data: T }) => void; error: (e: unknown) => void; complete: () => void }
+    sink: {
+      next: (v: { data: T }) => void;
+      error: (e: unknown) => void;
+      complete: () => void;
+    }
   ) => () => void;
 };
 ```

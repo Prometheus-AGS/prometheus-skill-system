@@ -65,23 +65,23 @@ DISTRIBUTE
 The **Skill Mutation PEP** (prometheus-cedar crate) gates all write operations
 against governed skill artifacts. Default-deny: mutations require explicit permit.
 
-| Operation | When | Cedar Action |
-|-----------|------|--------------|
-| Prompt optimization | dspy-rs writes back to SKILL.md | `skill.mutate` |
-| Skill generation | PMPO creates new skills from gap detection | `skill.generate` |
-| Skill promotion | Staging → active | `skill.promote` |
-| Trace capture | Execution data collection | `trace.capture` |
+| Operation           | When                                       | Cedar Action     |
+| ------------------- | ------------------------------------------ | ---------------- |
+| Prompt optimization | dspy-rs writes back to SKILL.md            | `skill.mutate`   |
+| Skill generation    | PMPO creates new skills from gap detection | `skill.generate` |
+| Skill promotion     | Staging → active                           | `skill.promote`  |
+| Trace capture       | Execution data collection                  | `trace.capture`  |
 
 Policies are Cedar text files in `policies/skill-mutation.cedar`.
 Entities define agent groups and skill domains.
 
 ### Environments
 
-| Environment | Mutation Policy |
-|-------------|----------------|
-| `development` | All operations permitted |
-| `staging` | Mutations require validation_passed; promotions require human_approved |
-| `production` | Mutations forbidden by default; trace capture requires governance_consent |
+| Environment   | Mutation Policy                                                           |
+| ------------- | ------------------------------------------------------------------------- |
+| `development` | All operations permitted                                                  |
+| `staging`     | Mutations require validation_passed; promotions require human_approved    |
+| `production`  | Mutations forbidden by default; trace capture requires governance_consent |
 
 ## UAR Integration
 
@@ -95,6 +95,7 @@ prometheus-cli is a thin wrapper for manual invocation
 ```
 
 Key integration points in UAR:
+
 - `NativeSkillRegistry.mutate_skill()` → gates through Cedar PEP
 - `Orchestrator` tool loop → calls trace capture after skill execution
 - `MemoryService` → surreal-memory graph for trace + lesson storage
@@ -129,20 +130,20 @@ When the knowledge graph reveals recurring failure patterns:
 
 ## Storage Locations
 
-| Data | Location | Format |
-|------|----------|--------|
-| Execution traces | `.prometheus/traces/{skill}/` | JSON |
-| Knowledge wiki | `.prometheus/wiki/` | Markdown with YAML frontmatter |
-| TF-IDF index | `.prometheus/wiki/.index/` | Binary |
-| Cedar policies | `policies/skill-mutation.cedar` | Cedar text |
-| Cedar entities | `policies/entities.json` | Cedar JSON |
-| Skills.lock | `Skills.lock` | TOML-like checksums |
+| Data             | Location                        | Format                         |
+| ---------------- | ------------------------------- | ------------------------------ |
+| Execution traces | `.prometheus/traces/{skill}/`   | JSON                           |
+| Knowledge wiki   | `.prometheus/wiki/`             | Markdown with YAML frontmatter |
+| TF-IDF index     | `.prometheus/wiki/.index/`      | Binary                         |
+| Cedar policies   | `policies/skill-mutation.cedar` | Cedar text                     |
+| Cedar entities   | `policies/entities.json`        | Cedar JSON                     |
+| Skills.lock      | `Skills.lock`                   | TOML-like checksums            |
 
 ## Crate Map
 
-| Crate | Role | Embeds In |
-|-------|------|-----------|
-| `prometheus-agents` | Platform detection, install, trace protocol | CLI + UAR |
-| `prometheus-learn` | Trace capture, grading, knowledge compilation, optimization | UAR (primary), CLI (wrapper) |
-| `prometheus-cedar` | Cedar Skill Mutation PEP | UAR SkillService |
-| `prometheus-cli` | Thin CLI binary — invokes the libraries | Standalone binary |
+| Crate               | Role                                                        | Embeds In                    |
+| ------------------- | ----------------------------------------------------------- | ---------------------------- |
+| `prometheus-agents` | Platform detection, install, trace protocol                 | CLI + UAR                    |
+| `prometheus-learn`  | Trace capture, grading, knowledge compilation, optimization | UAR (primary), CLI (wrapper) |
+| `prometheus-cedar`  | Cedar Skill Mutation PEP                                    | UAR SkillService             |
+| `prometheus-cli`    | Thin CLI binary — invokes the libraries                     | Standalone binary            |

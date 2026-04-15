@@ -26,13 +26,13 @@ You determine convergence or corrective action.
 ## Inputs
 
 ```yaml
-assessment: object          # Pre-execution assessment (assessment.json)
-analysis: object            # From analysis.json
-plan: object                # From plan.json
-execution: object           # Execution results
+assessment: object # Pre-execution assessment (assessment.json)
+analysis: object # From analysis.json
+plan: object # From plan.json
+execution: object # Execution results
 evolution_domain: string
 domain_adapter: object
-prior_reflection: optional object  # From previous iteration
+prior_reflection: optional object # From previous iteration
 ```
 
 ---
@@ -42,6 +42,7 @@ prior_reflection: optional object  # From previous iteration
 ### 1. Post-Execution Assessment
 
 Run a lightweight re-assessment using the same criteria as the Assess phase:
+
 - Re-evaluate health indicators
 - Re-score goal alignment
 - Note new state of gaps
@@ -65,7 +66,7 @@ Compare pre-execution vs. post-execution:
 
 ```yaml
 delta:
-  overall_alignment_change: number  # e.g., +15 (from 65% to 80%)
+  overall_alignment_change: number # e.g., +15 (from 65% to 80%)
   per_goal:
     - goal_id: string
       before: number
@@ -89,7 +90,7 @@ Evaluate how well the plan worked:
 effectiveness:
   actions_completed: number
   actions_total: number
-  completion_rate: number          # percentage
+  completion_rate: number # percentage
   successful_verifications: number
   failed_verifications: number
   unplanned_issues: [string]
@@ -100,6 +101,7 @@ effectiveness:
 ### 4. Regression Detection
 
 Before declaring convergence, verify:
+
 - [ ] No previously satisfied goals are now unsatisfied
 - [ ] No health indicators moved from healthy to warning/critical
 - [ ] No assets that existed before have been removed
@@ -135,12 +137,13 @@ convergence:
     all_high_satisfied: boolean
     all_medium_satisfied: boolean
     blocking_constraints_clear: boolean
-  target_alignment: number  # Overall percentage
+  target_alignment: number # Overall percentage
   regression_detected: boolean
-  recommended_focus: optional string  # If continuing, what to focus on next
+  recommended_focus: optional string # If continuing, what to focus on next
 ```
 
 Decision rules:
+
 - If `all_high_satisfied` AND `target_alignment >= 90%` AND NOT `regression_detected` → **terminate**
 - If `current_iteration >= max_iterations` → **terminate** (forced)
 - Otherwise → **continue**
@@ -153,11 +156,17 @@ Generate a human-readable report and write to `reports/`:
 
 ```markdown
 # Evolution Report — Iteration {N}
+
 ## Summary
+
 ## Goal Movement
+
 ## Delta Analysis
+
 ## Execution Results
+
 ## Lessons Learned
+
 ## Next Steps (if continuing)
 ```
 
@@ -179,7 +188,7 @@ reflection:
   regression_check: string
   lessons: []
   convergence: {}
-  report_path: string  # Path to generated report
+  report_path: string # Path to generated report
 ```
 
 Write this to `evolution_state.json` as `latest_reflection`.
@@ -217,6 +226,6 @@ reflection:
         direction: improved
   convergence:
     decision: continue
-    rationale: "Goal alignment improved to 80% but below 90% threshold. No regressions detected. CI/CD pipeline still missing."
-    recommended_focus: "CI/CD setup and remaining documentation gaps"
+    rationale: 'Goal alignment improved to 80% but below 90% threshold. No regressions detected. CI/CD pipeline still missing.'
+    recommended_focus: 'CI/CD setup and remaining documentation gaps'
 ```

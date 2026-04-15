@@ -46,6 +46,7 @@ evolve-execute (outer loop)
 ### When KBD is NOT available
 
 For non-software domains, or when the user opts out with `--no-kbd`:
+
 - Execute plan items directly using domain-appropriate tools
 - Log actions to `evolution_log.md`
 - Update `evolution_state.json` with results
@@ -66,6 +67,7 @@ A plan must exist. If not, suggest running `/evolve-plan` first.
 The user will provide: $ARGUMENTS
 
 Parse for:
+
 - Specific phases or actions to execute (optional — defaults to all)
 - Whether to skip approval gates
 - `--no-kbd` to bypass KBD delegation

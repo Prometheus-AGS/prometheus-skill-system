@@ -20,7 +20,16 @@ export default {
       },
       domain: {
         type: 'string',
-        enum: ['software', 'business', 'product', 'research', 'content', 'operations', 'compliance', 'generic'],
+        enum: [
+          'software',
+          'business',
+          'product',
+          'research',
+          'content',
+          'operations',
+          'compliance',
+          'generic',
+        ],
         description: 'Evolution domain — determines adapter and execution strategy',
       },
       goals: {
@@ -52,7 +61,9 @@ export default {
     if (hasState) {
       try {
         currentState = JSON.parse(readFileSync(join(stateDir, 'state.json'), 'utf-8'));
-      } catch { /* proceed without state */ }
+      } catch {
+        /* proceed without state */
+      }
     }
 
     // Build the skill invocation instruction

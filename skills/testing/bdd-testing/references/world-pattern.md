@@ -14,24 +14,24 @@ The `CustomWorld` class in `tests/support/world.ts` is the state container for e
 ```typescript
 export interface TestWorld extends World {
   // API testing
-  apiContext: APIRequestContext;  // Playwright HTTP client
-  response: any;                 // Last HTTP response object
-  responseBody: any;             // Parsed JSON body
-  authToken: string;             // JWT token
+  apiContext: APIRequestContext; // Playwright HTTP client
+  response: any; // Last HTTP response object
+  responseBody: any; // Parsed JSON body
+  authToken: string; // JWT token
 
   // UI testing
-  browser: Browser;              // Chromium instance
-  context: BrowserContext;       // Context with video recording
-  page: Page;                    // Active page
+  browser: Browser; // Chromium instance
+  context: BrowserContext; // Context with video recording
+  page: Page; // Active page
 
   // Agent testing
-  agentResponse: any;            // Agent chat response
-  agentToolCalls: any[];         // Tool invocations
-  agentStreamChunks: string[];   // SSE chunks
+  agentResponse: any; // Agent chat response
+  agentToolCalls: any[]; // Tool invocations
+  agentStreamChunks: string[]; // SSE chunks
 
   // Video
-  videoPath: string | null;      // Path to recorded WebM
-  tracePath: string | null;      // Path to trace ZIP
+  videoPath: string | null; // Path to recorded WebM
+  tracePath: string | null; // Path to trace ZIP
 
   // Shared
   baseUrl: string;
@@ -47,7 +47,7 @@ import { CustomWorld } from '../support/world';
 
 Given('I am authenticated', async function (this: CustomWorld) {
   const res = await this.apiContext.post('/api/auth/login', {
-    data: { email: 'test@example.com', password: 'pass' }
+    data: { email: 'test@example.com', password: 'pass' },
   });
   const body = await res.json();
   this.authToken = body.token;

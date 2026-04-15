@@ -48,6 +48,7 @@ example-skill/
 ### Why Bash for Scripts?
 
 The example uses bash because:
+
 - Available on all Unix-like systems (macOS, Linux)
 - No external dependencies required
 - Fast execution for simple operations
@@ -69,6 +70,7 @@ import package_name
 ### Why JSON Output?
 
 Structured JSON output enables:
+
 - Programmatic parsing by AI agents
 - Easy error detection and handling
 - Consistent interface across scripts
@@ -77,11 +79,13 @@ Structured JSON output enables:
 ### Why Forward Slashes?
 
 Forward slashes work on:
+
 - ✅ macOS
 - ✅ Linux
 - ✅ Windows (modern versions)
 
 Backslashes only work on:
+
 - ✅ Windows (legacy)
 - ❌ macOS (interpreted as escape character)
 - ❌ Linux (interpreted as escape character)
@@ -102,6 +106,7 @@ bash scripts/format.sh > output.json
 ### Error Handling
 
 Scripts use standard error codes:
+
 - `0` - Success
 - `1` - General error
 - `2` - Usage error (missing/invalid arguments)
@@ -118,6 +123,7 @@ fi
 ### Environment Variables
 
 Skills can access:
+
 - `$CLAUDE_PLUGIN_ROOT` - Plugin root directory
 - `$REPO_ROOT` - Repository root
 - `$HOME` - User home directory
@@ -166,6 +172,7 @@ For templates or example files:
 ### Script Best Practices
 
 ✅ **DO**:
+
 - Use `set -euo pipefail` in bash
 - Validate all input arguments
 - Output structured JSON
@@ -174,6 +181,7 @@ For templates or example files:
 - Make scripts executable
 
 ❌ **DON'T**:
+
 - Assume global dependencies
 - Use platform-specific commands
 - Output unstructured text
@@ -183,6 +191,7 @@ For templates or example files:
 ### Documentation Best Practices
 
 ✅ **DO**:
+
 - Write in third person
 - Include concrete examples
 - Keep SKILL.md under 500 lines
@@ -190,6 +199,7 @@ For templates or example files:
 - Link to detailed references
 
 ❌ **DON'T**:
+
 - Write overly generic instructions
 - Duplicate information
 - Include obvious statements
@@ -199,11 +209,13 @@ For templates or example files:
 ### Path Best Practices
 
 ✅ **DO**:
+
 - Use forward slashes: `scripts/file.sh`
 - Use relative paths: `./scripts/file.sh`
 - Use environment variables: `${REPO_ROOT}/file.sh`
 
 ❌ **DON'T**:
+
 - Use backslashes: `scripts\file.sh`
 - Use absolute paths: `/Users/name/project/file.sh`
 - Assume working directory

@@ -25,12 +25,12 @@ You define what to do and in what order.
 ## Inputs
 
 ```yaml
-assessment: object  # From assessment.json
-analysis: object    # From analysis.json
+assessment: object # From assessment.json
+analysis: object # From analysis.json
 goals: array
 evolution_domain: string
 domain_adapter: object
-prior_plan: optional object  # From previous iteration
+prior_plan: optional object # From previous iteration
 ```
 
 ---
@@ -56,18 +56,18 @@ For each improvement action:
 actions:
   - id: string
     description: string
-    rationale: string        # Why this action matters
+    rationale: string # Why this action matters
     priority: high | medium | low
     impact: high | medium | low
     effort: high | medium | low
-    related_goals: [string]  # Which goals this serves
-    related_gaps: [string]   # Which gaps this closes
-    related_opportunities: [string]  # Which opportunities this captures
-    dependencies: [string]   # Action IDs that must complete first
+    related_goals: [string] # Which goals this serves
+    related_gaps: [string] # Which gaps this closes
+    related_opportunities: [string] # Which opportunities this captures
+    dependencies: [string] # Action IDs that must complete first
     verification:
-      criteria: string       # How to verify success
-      method: string         # How to check (automated, manual, etc.)
-    resources_needed: [string]  # Tools, data, approvals needed
+      criteria: string # How to verify success
+      method: string # How to check (automated, manual, etc.)
+    resources_needed: [string] # Tools, data, approvals needed
 ```
 
 ---
@@ -76,10 +76,10 @@ actions:
 
 Score actions on a 2×2 matrix:
 
-| | Low Effort | High Effort |
-|---|---|---|
-| **High Impact** | Quick Wins — Do First | Strategic — Plan Carefully |
-| **Low Impact** | Fill-Ins — If Time Allows | Skip — Not Worth It |
+|                 | Low Effort                | High Effort                |
+| --------------- | ------------------------- | -------------------------- |
+| **High Impact** | Quick Wins — Do First     | Strategic — Plan Carefully |
+| **Low Impact**  | Fill-Ins — If Time Allows | Skip — Not Worth It        |
 
 ---
 
@@ -91,9 +91,9 @@ Order actions into phases respecting dependencies:
 execution_phases:
   - phase: 1
     name: string
-    actions: [string]  # Action IDs
+    actions: [string] # Action IDs
     estimated_effort: string
-    gate: optional string  # Human approval needed before next phase?
+    gate: optional string # Human approval needed before next phase?
   - phase: 2
     name: string
     actions: [string]
@@ -124,14 +124,14 @@ The Plan phase MUST output:
 plan:
   timestamp: string
   domain: string
-  summary: string           # One-paragraph plan overview
+  summary: string # One-paragraph plan overview
   total_actions: number
   actions: []
   execution_phases: []
   plan_risks: []
   estimated_total_effort: string
   requires_human_approval: boolean
-  approval_gates: [string]  # Phase boundaries requiring approval
+  approval_gates: [string] # Phase boundaries requiring approval
 ```
 
 Write this to `plan.json`.
@@ -150,12 +150,14 @@ Write this to `plan.json`.
 ## Degree of Freedom
 
 During Plan, the agent has **high latitude** for:
+
 - Prioritization decisions
 - Effort estimates
 - Phase grouping
 - Identifying quick wins
 
 The agent has **no latitude** for:
+
 - Modifying goals
 - Executing changes
 - Adding goals the user didn't define
@@ -166,22 +168,23 @@ The agent has **no latitude** for:
 **Input**: Assessment with 3 gaps + Analysis with 2 opportunities.
 
 **Output plan** (excerpt):
+
 ```yaml
 plan:
-  summary: "3-phase plan targeting documentation completion, CI/CD setup, and competitive differentiation through spec compilation"
+  summary: '3-phase plan targeting documentation completion, CI/CD setup, and competitive differentiation through spec compilation'
   total_actions: 7
   execution_phases:
     - phase: 1
-      name: "Quick Wins"
-      actions: ["a1-fix-warnings", "a2-add-readme"]
-      estimated_effort: "2 hours"
+      name: 'Quick Wins'
+      actions: ['a1-fix-warnings', 'a2-add-readme']
+      estimated_effort: '2 hours'
     - phase: 2
-      name: "Core Improvements"
-      actions: ["a3-docs-coverage", "a4-ci-pipeline"]
-      estimated_effort: "1 day"
-      gate: "Review docs before proceeding"
+      name: 'Core Improvements'
+      actions: ['a3-docs-coverage', 'a4-ci-pipeline']
+      estimated_effort: '1 day'
+      gate: 'Review docs before proceeding'
     - phase: 3
-      name: "Strategic"
-      actions: ["a5-k8s-integration", "a6-sdk-gen", "a7-marketplace"]
-      estimated_effort: "1 week"
+      name: 'Strategic'
+      actions: ['a5-k8s-integration', 'a6-sdk-gen', 'a7-marketplace']
+      estimated_effort: '1 week'
 ```

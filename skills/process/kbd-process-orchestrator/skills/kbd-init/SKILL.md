@@ -30,7 +30,9 @@ The skill directory is read-only from the project's perspective.
 ## Discovery Algorithm
 
 ### Step 1: Project Name & Description
+
 Read in priority order:
+
 1. Explicit argument: `/kbd-init "My Project Name"`
 2. `AGENTS.md` — first H1 or "Project Identity" section
 3. `CLAUDE.md` — first H1 or executive summary first sentence
@@ -41,6 +43,7 @@ Read in priority order:
 8. Repository directory name (last resort)
 
 ### Step 2: Technology Stack Detection
+
 Detect from lock files / config files:
 | File Present | Stack |
 |-------------|-------|
@@ -54,21 +57,27 @@ Detect from lock files / config files:
 | `*.sln` or `*.csproj` | .NET |
 
 ### Step 3: Build / Test / Lint Commands
+
 Derive from package.json `scripts`, Cargo.toml, Makefile, or common conventions:
+
 - Look for `build`, `test`, `lint`, `dev`, `check` script keys
 - For Next.js: detect port from `pnpm run dev` script or default to 3000
 - For Rust: `cargo check --workspace`, `cargo test --workspace`, `cargo clippy`
 - Prepend environment path fixes as needed (e.g., nvm node path from `.nvmrc`)
 
 ### Step 4: Spec Paths
+
 Check in order:
+
 1. `openspec/specs/*.md` — if `openspec/` directory exists
 2. `docs/specs/*.md` — if `docs/specs/` exists
 3. `docs/*.md` — fallback
 4. None — set `openspec_available: false`
 
 ### Step 5: Constraints
+
 Read `AGENTS.md` sections:
+
 - "Never Do" → blocking constraints
 - "Always Do" → derive as warning constraints if they have machine-checkable form
 - "Code Style" → derive as warning constraints
@@ -78,19 +87,21 @@ If no `AGENTS.md`, use generic constraints from the skill's reference template.
 ### Step 6: VSCode Workspace Discovery
 
 Search for a `.code-workspace` file starting from the focus project's parent directory:
+
 1. `<focus_project_path>/../*.code-workspace`
 2. `<focus_project_path>/../../*.code-workspace`
 3. `<focus_project_path>/*.code-workspace`
 
 If found, read all `folders` entries and auto-assign roles:
 
-| Heuristic | Role |
-|-----------|------|
-| Folder IS the focus project (cwd or contains `AGENTS.md`) | `focus` |
-| Folder name contains `MVP`, `legacy`, `spec`, `reference`, `old` | `reference` |
-| Otherwise | Ask user: focus / reference / ignore |
+| Heuristic                                                        | Role                                 |
+| ---------------------------------------------------------------- | ------------------------------------ |
+| Folder IS the focus project (cwd or contains `AGENTS.md`)        | `focus`                              |
+| Folder name contains `MVP`, `legacy`, `spec`, `reference`, `old` | `reference`                          |
+| Otherwise                                                        | Ask user: focus / reference / ignore |
 
 For `reference` folders, detect useful read paths:
+
 - `src/pages/Doc*.jsx`, `src/pages/DocPage*.jsx` — legacy spec files
 - `docs/**/*.md` — documentation
 - Root `*.md` files — readme/specs
@@ -101,6 +112,7 @@ Write the `workspace` block to `project.json`. If not found, set
 See `references/workspace-context.md` for the full specification.
 
 ### Step 7: Agent Preferences
+
 If `AGENTS.md` contains an "Agent-Specific Notes" section referring to specific
 tools, use those to populate `preferred_planning_agent` and
 `preferred_execution_agents`. Otherwise default to `antigravity` for planning
@@ -125,14 +137,18 @@ Generated from `references/schemas/project.template.json` with discovered values
   "dev_command": "<detected dev command or null>",
   "preferred_planning_agent": "<from AGENTS.md or 'antigravity'>",
   "preferred_execution_agents": ["<from AGENTS.md or empty>"],
-  "agents_config": { "..." : "..." },
+  "agents_config": { "...": "..." },
   "workspace": {
     "workspace_file": "<path to .code-workspace or null>",
     "folders": [
       { "path": "<focus>", "role": "focus", "write_access": true },
-      { "path": "<reference>", "role": "reference", "write_access": false,
+      {
+        "path": "<reference>",
+        "role": "reference",
+        "write_access": false,
         "purpose": "<what to read from here>",
-        "read_paths": ["<glob>"] }
+        "read_paths": ["<glob>"]
+      }
     ]
   }
 }
@@ -162,5 +178,6 @@ blocking rules derived from `AGENTS.md` "Never Do" section.
 ## After Init
 
 Run `/kbd-status` to confirm KBD is correctly initialized, then:
+
 - `/kbd-new-phase <name>` to start the first phase, OR
 - `/kbd-assess` if a phase is already defined in `active_phase`

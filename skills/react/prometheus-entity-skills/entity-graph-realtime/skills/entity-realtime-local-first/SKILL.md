@@ -40,11 +40,11 @@ description: >
 
 ## Pitfalls
 
-| Issue | Mitigation |
-|-------|------------|
+| Issue                | Mitigation                                     |
+| -------------------- | ---------------------------------------------- |
 | Shape without PGlite | Adapter needs both; no half-wired demo configs |
-| Wrong `idColumn` | Deletes/upserts target wrong graph id |
-| Missing `normalize` | Column name mismatch vs graph entity shape |
+| Wrong `idColumn`     | Deletes/upserts target wrong graph id          |
+| Missing `normalize`  | Column name mismatch vs graph entity shape     |
 
 ## Parent skill
 

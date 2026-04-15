@@ -20,18 +20,18 @@ const frontmatterSchema = {
     name: {
       type: 'string',
       pattern: '^[a-z0-9]+(-[a-z0-9]+)*$',
-      maxLength: 64
+      maxLength: 64,
     },
     description: {
       type: 'string',
       minLength: 1,
-      maxLength: 1024
+      maxLength: 1024,
     },
     license: { type: 'string' },
     compatibility: { type: 'string', maxLength: 500 },
     metadata: { type: 'object' },
-    'allowed-tools': { type: 'string' }
-  }
+    'allowed-tools': { type: 'string' },
+  },
 };
 
 const validateFrontmatter = ajv.compile(frontmatterSchema);
@@ -105,10 +105,7 @@ class SkillValidator {
       // Check line count
       const lineCount = content.split('\n').length;
       if (lineCount > 800) {
-        this.addWarning(
-          skillName,
-          `SKILL.md exceeds 800-line maximum (${lineCount} lines)`
-        );
+        this.addWarning(skillName, `SKILL.md exceeds 800-line maximum (${lineCount} lines)`);
       } else if (lineCount > 500) {
         this.addWarning(
           skillName,
@@ -146,10 +143,19 @@ class SkillValidator {
       // prometheus-entity-skills where sub-skills are siblings, not under skills/)
       const entries = await fs.readdir(skillPath);
       for (const entry of entries) {
-        if (entry === 'skills' || entry === 'scripts' || entry === 'references' ||
-            entry === 'assets' || entry === 'agents' || entry === 'hooks' ||
-            entry === 'prompts' || entry === 'workflows' || entry === '.claude-plugin' ||
-            entry.startsWith('_') || entry.startsWith('.')) {
+        if (
+          entry === 'skills' ||
+          entry === 'scripts' ||
+          entry === 'references' ||
+          entry === 'assets' ||
+          entry === 'agents' ||
+          entry === 'hooks' ||
+          entry === 'prompts' ||
+          entry === 'workflows' ||
+          entry === '.claude-plugin' ||
+          entry.startsWith('_') ||
+          entry.startsWith('.')
+        ) {
           continue;
         }
         const entryPath = path.join(skillPath, entry);

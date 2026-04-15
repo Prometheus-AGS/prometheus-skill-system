@@ -21,6 +21,7 @@ Run the full PMPO iterative evolution cycle.
 The user will provide: $ARGUMENTS
 
 Parse the arguments for:
+
 - What they want to evolve (the subject)
 - What their goals are
 - What domain this falls into (if stated)

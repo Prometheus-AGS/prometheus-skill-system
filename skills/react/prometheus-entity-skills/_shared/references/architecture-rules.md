@@ -6,11 +6,11 @@ Non-negotiable constraints distilled from `CLAUDE.md` / `AGENTS.md`. Violating t
 
 Data flows **up** into the graph; UI reads **down** through hooks.
 
-| Layer | Location | Responsibility |
-|-------|----------|----------------|
-| **UI** | Components | Render only; call hooks for data and actions. |
-| **Hooks** | `hooks.ts`, `graphql/hooks.ts`, `crud/`, `view/` | Orchestrate reads/writes between components and the graph; **no direct I/O**. |
-| **Graph + engine** | `graph.ts`, `engine.ts`, stores/adapters | Own fetches, mutations, realtime, cache writes. |
+| Layer              | Location                                         | Responsibility                                                                |
+| ------------------ | ------------------------------------------------ | ----------------------------------------------------------------------------- |
+| **UI**             | Components                                       | Render only; call hooks for data and actions.                                 |
+| **Hooks**          | `hooks.ts`, `graphql/hooks.ts`, `crud/`, `view/` | Orchestrate reads/writes between components and the graph; **no direct I/O**. |
+| **Graph + engine** | `graph.ts`, `engine.ts`, stores/adapters         | Own fetches, mutations, realtime, cache writes.                               |
 
 Sideways data flow between components (duplicated caches, prop-drilled copies) is an anti-pattern; the graph is the single source of truth.
 

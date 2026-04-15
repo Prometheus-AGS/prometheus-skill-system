@@ -37,14 +37,15 @@ Include in `reflection.md` under `## Artifact Quality Summary`:
 ```markdown
 ## Artifact Quality Summary
 
-| Metric | Value |
-|--------|-------|
-| Changes with QA | 8/10 |
-| First-pass pass rate | 6/8 (75%) |
-| Changes requiring refinement | 2 |
-| Total refinement iterations | 5 |
+| Metric                       | Value     |
+| ---------------------------- | --------- |
+| Changes with QA              | 8/10      |
+| First-pass pass rate         | 6/8 (75%) |
+| Changes requiring refinement | 2         |
+| Total refinement iterations  | 5         |
 
 ### Recurring Constraint Violations
+
 - `no-any-types`: 3 changes (change-002, change-005, change-007)
 - `test-coverage-80`: 2 changes (change-003, change-008)
 ```
@@ -67,6 +68,7 @@ strategic goals.
 ## Prerequisites
 
 All changes for this phase must be:
+
 - Completed (status `DONE` in `progress.json`)
 - QA gate passed (artifact-refiner, unless skipped)
 - If OpenSpec: verified (`/opsx:verify`) and archived (`/opsx:archive`)

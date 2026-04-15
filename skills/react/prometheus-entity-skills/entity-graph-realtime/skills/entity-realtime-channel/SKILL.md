@@ -15,20 +15,21 @@ description: >
 
 ## `ChannelConfig`
 
-| Field | Role |
-|-------|------|
-| **`type`** | `EntityType` string for graph writes |
-| **`filter`** | Opaque record for adapter-specific subscription narrowing |
-| **`id`** | Optional entity scope |
+| Field            | Role                                                         |
+| ---------------- | ------------------------------------------------------------ |
+| **`type`**       | `EntityType` string for graph writes                         |
+| **`filter`**     | Opaque record for adapter-specific subscription narrowing    |
+| **`id`**         | Optional entity scope                                        |
 | **`operations`** | Optional subset of `insert` / `update` / `delete` / `upsert` |
 
 ## Registration
 
 ```ts
-manager.register(adapter, [
-  { type: "Task", filter: { status: "open" } },
-  { type: "Comment" },
-], normalizeRawEvent);
+manager.register(
+  adapter,
+  [{ type: 'Task', filter: { status: 'open' } }, { type: 'Comment' }],
+  normalizeRawEvent
+);
 ```
 
 - **`normalize`**: `(raw: unknown) => EntityChange | null` — drop heartbeats, unknown tables

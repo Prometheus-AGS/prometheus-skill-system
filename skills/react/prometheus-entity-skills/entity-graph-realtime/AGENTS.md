@@ -22,17 +22,17 @@ Integrate **push-based** updates into the **@prometheus-ags/prometheus-entity-ma
 
 ## Specialist playbooks
 
-| File | When |
-|------|------|
-| **`agents/adapter-selector.md`** | Choosing WS vs Supabase vs Convex vs GraphQL-WS vs Electric |
+| File                                 | When                                                                    |
+| ------------------------------------ | ----------------------------------------------------------------------- |
+| **`agents/adapter-selector.md`**     | Choosing WS vs Supabase vs Convex vs GraphQL-WS vs Electric             |
 | **`agents/channel-configurator.md`** | `ChannelConfig`, filters, `normalize` on `register`, `affectedListKeys` |
 
 ## Sub-skill routing (slash commands)
 
-| Command | Use when |
-|---------|-----------|
-| **`/entity-realtime-setup`** | Greenfield: manager singleton, first adapter, dev logging, teardown |
-| **`/entity-realtime-channel`** | Additional entity table, topic, or subscription slice |
+| Command                            | Use when                                                            |
+| ---------------------------------- | ------------------------------------------------------------------- |
+| **`/entity-realtime-setup`**       | Greenfield: manager singleton, first adapter, dev logging, teardown |
+| **`/entity-realtime-channel`**     | Additional entity table, topic, or subscription slice               |
 | **`/entity-realtime-local-first`** | PGlite + Electric shapes + `SyncAdapter` + optional `useLocalFirst` |
 
 ## Quality gate

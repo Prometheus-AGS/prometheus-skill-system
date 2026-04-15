@@ -7,7 +7,7 @@
 Before:
 
 ```typescript
-const tasks = useStore(useGraphStore, (s) => s.entities.Task);
+const tasks = useStore(useGraphStore, s => s.entities.Task);
 ```
 
 After (example — fetch one id):
@@ -15,7 +15,7 @@ After (example — fetch one id):
 ```typescript
 const task = useStore(
   useGraphStore,
-  useCallback((s) => (id ? s.entities.Task?.[id] : undefined), [id])
+  useCallback(s => (id ? s.entities.Task?.[id] : undefined), [id])
 );
 ```
 
@@ -24,7 +24,7 @@ Prefer library hooks (`useEntity`, `useGQLEntity`) which already encode subscrib
 ### Stable query keys
 
 ```typescript
-const queryKey = useMemo(() => ["Task", "list", filter], [filter]);
+const queryKey = useMemo(() => ['Task', 'list', filter], [filter]);
 ```
 
 Ensure `filter` is serializable/stable.
@@ -41,9 +41,13 @@ new RealtimeManager({ flushInterval: 16 });
 
 ```typescript
 // Example: app hook on unmount of heavy explorer
-useEffect(() => () => {
-  for (const id of transientIds) useGraphStore.getState().removeEntity("PreviewRow", id);
-}, []);
+useEffect(
+  () => () => {
+    for (const id of transientIds)
+      useGraphStore.getState().removeEntity('PreviewRow', id);
+  },
+  []
+);
 ```
 
 (Use only with clear product rules — do not evict shared canonical entities still visible elsewhere.)

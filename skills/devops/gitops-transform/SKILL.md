@@ -19,7 +19,7 @@ metadata:
   standard: TJ-CICD-001 v1.1
   owner: Prometheus AGS
   contact: tjames@prometheusags.ai
-  version: "1.0.0"
+  version: '1.0.0'
 allowed-tools: Bash(find:) Bash(grep:) Bash(git:) Bash(python3:) Bash(jq:) Bash(yq:) Read Write
 ---
 
@@ -32,6 +32,7 @@ The user approves the plan before execution.
 ## Invocation
 
 Use this skill when the user says any of:
+
 - "transform our existing CI pipeline"
 - "upgrade our GitHub Actions to GitOps"
 - "migrate to ArgoCD from our current deploy setup"
@@ -54,6 +55,7 @@ scripts/detect-stack.sh
 **GitHub Actions workflows** (`.github/workflows/*.yml`, `.github/workflows/*.yaml`):
 
 Detect deploy mechanisms — flag each as COMPLIANT, VIOLATION, or UPGRADE-NEEDED:
+
 - `kubectl apply` in workflow → **VIOLATION** (direct deploy bypasses GitOps)
 - `helm upgrade` in workflow → **VIOLATION** (direct deploy bypasses GitOps)
 - `docker push` with no subsequent GitOps commit → **VIOLATION** (image never reaches cluster)
@@ -61,6 +63,7 @@ Detect deploy mechanisms — flag each as COMPLIANT, VIOLATION, or UPGRADE-NEEDE
 - ArgoCD API sync call from CI → **VIOLATION** (sync must be autonomous, not CI-triggered)
 
 Detect authentication patterns — flag each:
+
 - `gcloud auth activate-service-account --key-file` → **VIOLATION** (static key)
 - `GOOGLE_APPLICATION_CREDENTIALS` env var set to JSON → **VIOLATION** (static key)
 - `aws-actions/configure-aws-credentials` with `aws-access-key-id` → **VIOLATION** (static keys)
@@ -70,6 +73,7 @@ Detect authentication patterns — flag each:
 - `azure/login` with `client-id` + `tenant-id` + `subscription-id` → **COMPLIANT** (federated)
 
 Detect registry targets:
+
 - `docker push` to Docker Hub → **NOTE** (should use cloud-native registry)
 - `docker push` to `ghcr.io` → **NOTE** (GHCR acceptable for non-production)
 - `docker push` to `*.pkg.dev` → **GCP** (Artifact Registry)
@@ -77,16 +81,19 @@ Detect registry targets:
 - `docker push` to `*.dkr.ecr.*.amazonaws.com` → **AWS** (ECR)
 
 Detect target clouds from workflow content and repository structure:
+
 - GKE: `gcloud container clusters`, `google-github-actions/`, `gke_` kubeconfig contexts
 - AKS: `azure/aks-set-context`, `azurerm_kubernetes_cluster`, `az aks`
 - EKS: `aws eks`, `eks.amazonaws.com`, `aws_eks_cluster`
 
 **Kubernetes manifests** (any `.yaml` in the repo):
+
 - Kubernetes Secret with `data:` or `stringData:` containing values → **VIOLATION**
 - Deployment image tag of `latest` in a manifest committed to git → **WARNING**
 - Missing `serviceAccount` in Deployment → **WARNING**
 
 **GitOps repository indicators**:
+
 - Presence of Kustomize `kustomization.yaml` files → detect overlay structure
 - Presence of ArgoCD `Application` CRs → detect existing ArgoCD setup
 - Presence of Helm `values.yaml` files → detect Helm-based delivery
@@ -168,6 +175,7 @@ After user approval, execute each action in the plan:
 ### Workflow transformation rules
 
 **Replacing direct kubectl deploy:**
+
 ```yaml
 # REMOVE this pattern:
 - run: kubectl apply -f k8s/
@@ -192,6 +200,7 @@ After user approval, execute each action in the plan:
 ```
 
 **Migrating GCP static key to WIF:**
+
 ```yaml
 # REMOVE:
 - uses: google-github-actions/auth@v2
@@ -206,6 +215,7 @@ After user approval, execute each action in the plan:
 ```
 
 **Migrating AWS static keys to OIDC:**
+
 ```yaml
 # REMOVE:
 - uses: aws-actions/configure-aws-credentials@v4
@@ -238,6 +248,7 @@ pre-populated with the service name and cloud(s) detected in Phase 1.
 ## Phase 4 — Verification
 
 After transformation:
+
 1. `git diff --stat` to show all changed files
 2. `kustomize build` on each overlay — must succeed
 3. YAML lint on all modified workflow files
@@ -252,15 +263,18 @@ Application CRs for any newly created GitOps structure.
 For each removed static credential, output the replacement setup:
 
 **GCP (remove `GCP_SA_KEY`, add):**
+
 - `WIF_PROVIDER` — Workload Identity Pool provider resource name
 - `WIF_SA` — Service account email with Workload Identity User binding
 - `GITOPS_PAT` — Fine-grained GitHub token with write access to GitOps repo only
 
 **AWS (remove `AWS_ACCESS_KEY_ID` + `AWS_SECRET_ACCESS_KEY`, add):**
+
 - `AWS_ROLE_ARN` — IAM role ARN configured with OIDC trust for GitHub Actions
 - `GITOPS_PAT` — Fine-grained GitHub token
 
 **Azure (remove `AZURE_CREDENTIALS` JSON blob, add):**
+
 - `AZURE_CLIENT_ID` — App registration client ID
 - `AZURE_TENANT_ID` — Azure AD tenant ID
 - `AZURE_SUBSCRIPTION_ID` — Subscription ID

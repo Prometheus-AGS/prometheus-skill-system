@@ -23,11 +23,11 @@ generator entityGraph {
 
 ## Outputs (suggested)
 
-| File | Content |
-|------|---------|
-| `models.ts` | string union of entity types |
-| `configs/*.ts` | `createPrismaEntityConfig` per model |
-| `register-all.ts` | single `registerSchemas()` call |
+| File              | Content                              |
+| ----------------- | ------------------------------------ |
+| `models.ts`       | string union of entity types         |
+| `configs/*.ts`    | `createPrismaEntityConfig` per model |
+| `register-all.ts` | single `registerSchemas()` call      |
 
 ## When to use
 

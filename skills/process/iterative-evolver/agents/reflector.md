@@ -44,6 +44,7 @@ ELSE → continue
 ## Regression Checklist
 
 Before declaring convergence:
+
 - [ ] No previously satisfied goals are now unsatisfied
 - [ ] No health indicators moved from healthy → warning/critical
 - [ ] No assets/outputs removed or degraded
@@ -59,6 +60,7 @@ Before declaring convergence:
 ## Output
 
 After reflection, the following must exist:
+
 - Convergence decision logged to `decisions.md`
 - Reflection report in `reports/`
 - Updated `evolution_state.json` with reflection data

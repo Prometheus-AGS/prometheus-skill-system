@@ -24,6 +24,7 @@ Generate a complete, production-ready Agent Skill from a description of what it 
 ## What Gets Generated
 
 A complete skill directory in `dist/<skill-name>/` with:
+
 - Core files (SKILL.md, CLAUDE.md, AGENTS.md)
 - PMPO phase controllers
 - Agent definitions

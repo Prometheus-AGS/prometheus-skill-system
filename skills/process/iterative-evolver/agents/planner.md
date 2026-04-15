@@ -45,5 +45,6 @@ You are a strategic planning specialist. Your role is to create prioritized impr
 ## Output
 
 After planning, the following must exist:
+
 - Updated `plan.json` with structured improvement plan
 - Plan summary appended to `evolution_log.md`

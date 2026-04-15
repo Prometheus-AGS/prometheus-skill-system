@@ -19,19 +19,20 @@ Run the full validation suite against any skill directory. Checks agentskills.io
 
 ## What Gets Checked
 
-| Category | Checks |
-|----------|--------|
-| **Spec compliance** | Frontmatter, name/description fields, line count |
-| **JSON schemas** | Parse validity, required fields, types |
-| **Cross-references** | All referenced files exist |
-| **Scripts** | Executable, shebang, strict mode, syntax |
-| **Hooks** | Valid JSON, correct event types, script paths resolve |
-| **Plugin** | Valid manifest with required fields |
-| **Sub-skills** | Each has valid SKILL.md with frontmatter |
+| Category             | Checks                                                |
+| -------------------- | ----------------------------------------------------- |
+| **Spec compliance**  | Frontmatter, name/description fields, line count      |
+| **JSON schemas**     | Parse validity, required fields, types                |
+| **Cross-references** | All referenced files exist                            |
+| **Scripts**          | Executable, shebang, strict mode, syntax              |
+| **Hooks**            | Valid JSON, correct event types, script paths resolve |
+| **Plugin**           | Valid manifest with required fields                   |
+| **Sub-skills**       | Each has valid SKILL.md with frontmatter              |
 
 ## Output
 
 A validation report with:
+
 - Per-check pass/fail/warn status
 - Overall quality score (0.0 - 1.0)
 - Specific fix instructions for any failures
@@ -45,6 +46,7 @@ A validation report with:
 ```
 
 Or validate an existing installed skill:
+
 ```
 /validate-skill
 > Path: .agent/skills/iterative-evolver/
@@ -53,6 +55,7 @@ Or validate an existing installed skill:
 ## Automated Script
 
 The validation can also be run directly:
+
 ```bash
 bash scripts/validate-skill.sh <skill-directory>
 ```

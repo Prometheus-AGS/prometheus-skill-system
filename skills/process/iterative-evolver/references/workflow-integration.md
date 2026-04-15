@@ -8,14 +8,14 @@ The Iterative Evolver supports **workflow triggers** — external actions that f
 
 Triggers fire at specific points in the evolution lifecycle:
 
-| Event | When | Typical Use |
-|-------|------|-------------|
-| `on_phase_start` | Before a PMPO phase begins | Pre-flight checks, resource allocation |
-| `on_phase_complete` | After a PMPO phase finishes | Checkpoint state, notify stakeholders |
-| `on_iteration_complete` | After Reflect + Persist in one iteration | Progress reports, CI/CD triggers |
-| `on_cycle_complete` | When evolution terminates (converged or max) | Final reports, deployments, notifications |
-| `on_regression` | When Reflect detects a regression | Alerts, rollback triggers |
-| `on_approval_required` | When human approval gate is reached | Notifications to approvers |
+| Event                   | When                                         | Typical Use                               |
+| ----------------------- | -------------------------------------------- | ----------------------------------------- |
+| `on_phase_start`        | Before a PMPO phase begins                   | Pre-flight checks, resource allocation    |
+| `on_phase_complete`     | After a PMPO phase finishes                  | Checkpoint state, notify stakeholders     |
+| `on_iteration_complete` | After Reflect + Persist in one iteration     | Progress reports, CI/CD triggers          |
+| `on_cycle_complete`     | When evolution terminates (converged or max) | Final reports, deployments, notifications |
+| `on_regression`         | When Reflect detects a regression            | Alerts, rollback triggers                 |
+| `on_approval_required`  | When human approval gate is reached          | Notifications to approvers                |
 
 ---
 
@@ -61,6 +61,7 @@ See `references/schemas/workflow-trigger.schema.json` for the full schema.
 ## Action Types
 
 ### `command`
+
 Executes a shell command. The command runs in the evolution's working directory.
 
 ```json
@@ -75,6 +76,7 @@ Executes a shell command. The command runs in the evolution's working directory.
 ```
 
 ### `webhook`
+
 Sends an HTTP POST to a URL. The hook event payload is sent as the body.
 
 ```json
@@ -89,6 +91,7 @@ Sends an HTTP POST to a URL. The hook event payload is sent as the body.
 ```
 
 ### `mcp_tool`
+
 Calls an MCP tool by name. Inputs are passed as tool parameters.
 
 ```json
@@ -105,6 +108,7 @@ Calls an MCP tool by name. Inputs are passed as tool parameters.
 ```
 
 ### `workflow_file`
+
 Executes a workflow definition file (YAML or Markdown with structured steps).
 
 ```json
@@ -125,16 +129,16 @@ Executes a workflow definition file (YAML or Markdown with structured steps).
 
 Trigger inputs support variable substitution using `${variable}` syntax:
 
-| Variable | Value |
-|----------|-------|
-| `${evolution_name}` | The current evolution name |
-| `${evolution_id}` | The internal UUID |
-| `${domain}` | The evolution domain |
-| `${iteration}` | Current iteration number |
-| `${phase}` | Current/just-completed phase |
-| `${alignment}` | Current goal alignment percentage |
-| `${convergence_status}` | Current convergence status |
-| `${timestamp}` | ISO 8601 timestamp |
+| Variable                | Value                             |
+| ----------------------- | --------------------------------- |
+| `${evolution_name}`     | The current evolution name        |
+| `${evolution_id}`       | The internal UUID                 |
+| `${domain}`             | The evolution domain              |
+| `${iteration}`          | Current iteration number          |
+| `${phase}`              | Current/just-completed phase      |
+| `${alignment}`          | Current goal alignment percentage |
+| `${convergence_status}` | Current convergence status        |
+| `${timestamp}`          | ISO 8601 timestamp                |
 
 ---
 
@@ -170,13 +174,13 @@ This allows per-evolution, per-project, and global triggers.
 
 ## Error Handling
 
-| Scenario | Behavior |
-|----------|----------|
-| Trigger times out | Log warning, continue evolution (triggers are non-blocking) |
-| Trigger command fails | Log error with exit code, continue evolution |
-| Webhook returns non-2xx | Log error with status code, continue evolution |
-| MCP tool fails | Log error, continue evolution |
-| Condition parse error | Log warning, skip trigger, continue evolution |
+| Scenario                | Behavior                                                    |
+| ----------------------- | ----------------------------------------------------------- |
+| Trigger times out       | Log warning, continue evolution (triggers are non-blocking) |
+| Trigger command fails   | Log error with exit code, continue evolution                |
+| Webhook returns non-2xx | Log error with status code, continue evolution              |
+| MCP tool fails          | Log error, continue evolution                               |
+| Condition parse error   | Log warning, skip trigger, continue evolution               |
 
 Triggers NEVER block or halt the evolution cycle. They are fire-and-forget with logging.
 

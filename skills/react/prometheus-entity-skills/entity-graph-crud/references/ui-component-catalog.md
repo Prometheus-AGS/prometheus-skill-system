@@ -6,24 +6,24 @@ Public exports from **`@prometheus-ags/prometheus-entity-management`** for CRUD 
 
 ## Sheets (`src/ui/EntitySheets.tsx`)
 
-| Export | Purpose |
-|--------|---------|
-| **`Sheet`** | Base right-side panel: overlay, **Esc** closes, optional `footer`, `width` (default `w-[480px]`) |
+| Export                  | Purpose                                                                                                                                                                 |
+| ----------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **`Sheet`**             | Base right-side panel: overlay, **Esc** closes, optional `footer`, `width` (default `w-[480px]`)                                                                        |
 | **`EntityDetailSheet`** | Read-oriented detail; **`crud: CRUDState<T>`**, **`fields`**, `title`, `description`, optional `children`, `showEditButton`, `showDeleteButton`, `deleteConfirmMessage` |
-| **`EntityFormSheet`** | Create/edit form with dirty tracking; **`mode`**: `"create"` \| `"edit"`**,** **`open`**, **`onClose`**, **`crud`**, **`fields`** |
+| **`EntityFormSheet`**   | Create/edit form with dirty tracking; **`mode`**: `"create"` \| `"edit"`**,** **`open`**, **`onClose`**, **`crud`**, **`fields`**                                       |
 
 ### `FieldDescriptor<TEntity>`
 
-| Member | Role |
-|--------|------|
-| **`field`** | Key on entity (string keyof) |
-| **`label`** | Visible label |
-| **`type`** | `text` \| `textarea` \| `number` \| `email` \| `url` \| `date` \| `boolean` \| `enum` \| `custom` |
-| **`required`**, **`placeholder`**, **`hint`** | UX + validation hints |
-| **`options`** | Enum `{ value, label }[]` |
-| **`render`** | Read-only cell in detail / readonly modes |
-| **`editControl`** | Custom editor `(value, onChange, entity) => ReactNode` |
-| **`hideOnCreate`**, **`hideOnEdit`**, **`readonlyOnEdit`** | Lifecycle flags |
+| Member                                                     | Role                                                                                              |
+| ---------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| **`field`**                                                | Key on entity (string keyof)                                                                      |
+| **`label`**                                                | Visible label                                                                                     |
+| **`type`**                                                 | `text` \| `textarea` \| `number` \| `email` \| `url` \| `date` \| `boolean` \| `enum` \| `custom` |
+| **`required`**, **`placeholder`**, **`hint`**              | UX + validation hints                                                                             |
+| **`options`**                                              | Enum `{ value, label }[]`                                                                         |
+| **`render`**                                               | Read-only cell in detail / readonly modes                                                         |
+| **`editControl`**                                          | Custom editor `(value, onChange, entity) => ReactNode`                                            |
+| **`hideOnCreate`**, **`hideOnEdit`**, **`readonlyOnEdit`** | Lifecycle flags                                                                                   |
 
 ### `CRUDState` (subset for sheets)
 
@@ -39,29 +39,29 @@ Relevant fields from **`useEntityCRUD`**:
 
 ## Table (`src/ui/EntityTable.tsx`)
 
-| Export | Purpose |
-|--------|---------|
-| **`EntityTable`** | Data grid: TanStack Table, toolbar search, sort handoff to **`useEntityView`**, selection, optional inline edit, pagination modes |
-| **`InlineCellEditor`** | Single-field inline editor (Enter commit, Esc cancel) |
+| Export                 | Purpose                                                                                                                           |
+| ---------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| **`EntityTable`**      | Data grid: TanStack Table, toolbar search, sort handoff to **`useEntityView`**, selection, optional inline edit, pagination modes |
+| **`InlineCellEditor`** | Single-field inline editor (Enter commit, Esc cancel)                                                                             |
 
 ### `EntityTableProps<T>` (summary)
 
-| Prop | Type / default | Notes |
-|------|----------------|-------|
-| **`viewResult`** | `UseEntityViewResult<T>` | **Required** — from `crud.list` or `useEntityView` |
-| **`columns`** | `ColumnDef<T>[]` | Use library column builders + `meta.entityMeta` |
-| **`getRowId`** | `(row) => string` | Default `String(row.id)` |
-| **`selectedId`** | `string \| null` | Highlight active row |
-| **`onRowClick`** | `(row) => void` | e.g. open detail |
-| **`onCellEdit`** | `(row, field, value) => void` | Must forward to hook-layer mutation |
-| **`onBulkAction`** | `(rows) => ReactNode` | Toolbar region for selection |
-| **`paginationMode`** | `"none"` \| `"loadMore"` \| `"pages"` | Default `"loadMore"` |
-| **`pageSize`** | number | Default **50** |
-| **`searchPlaceholder`**, **`searchFields`** | string, string[] | Wired to `viewResult.setSearch` |
-| **`toolbarChildren`** | `ReactNode` | Extra controls |
-| **`showToolbar`** | boolean | Default **true** |
-| **`emptyState`** | `ReactNode` | Empty list UX |
-| **`className`** | string | Wrapper |
+| Prop                                        | Type / default                        | Notes                                              |
+| ------------------------------------------- | ------------------------------------- | -------------------------------------------------- |
+| **`viewResult`**                            | `UseEntityViewResult<T>`              | **Required** — from `crud.list` or `useEntityView` |
+| **`columns`**                               | `ColumnDef<T>[]`                      | Use library column builders + `meta.entityMeta`    |
+| **`getRowId`**                              | `(row) => string`                     | Default `String(row.id)`                           |
+| **`selectedId`**                            | `string \| null`                      | Highlight active row                               |
+| **`onRowClick`**                            | `(row) => void`                       | e.g. open detail                                   |
+| **`onCellEdit`**                            | `(row, field, value) => void`         | Must forward to hook-layer mutation                |
+| **`onBulkAction`**                          | `(rows) => ReactNode`                 | Toolbar region for selection                       |
+| **`paginationMode`**                        | `"none"` \| `"loadMore"` \| `"pages"` | Default `"loadMore"`                               |
+| **`pageSize`**                              | number                                | Default **50**                                     |
+| **`searchPlaceholder`**, **`searchFields`** | string, string[]                      | Wired to `viewResult.setSearch`                    |
+| **`toolbarChildren`**                       | `ReactNode`                           | Extra controls                                     |
+| **`showToolbar`**                           | boolean                               | Default **true**                                   |
+| **`emptyState`**                            | `ReactNode`                           | Empty list UX                                      |
+| **`className`**                             | string                                | Wrapper                                            |
 
 **Peer dependency:** `@tanstack/react-table` in the consuming app.
 
@@ -69,16 +69,16 @@ Relevant fields from **`useEntityCRUD`**:
 
 ## Columns (`src/ui/columns.tsx`)
 
-| Helper | Typical use |
-|--------|-------------|
-| **`selectionColumn`** | Row checkboxes |
-| **`textColumn`** | Strings; optional `filterType` override |
-| **`numberColumn`** | Numbers + `format` |
-| **`dateColumn`** | ISO / date strings |
-| **`enumColumn`** | Status columns + **`enumOptions`** for filters |
-| **`booleanColumn`** | Toggles / checkmarks |
-| **`actionsColumn`** | Per-row actions menu |
-| **`SortHeader`** | Shared sort affordance |
+| Helper                | Typical use                                    |
+| --------------------- | ---------------------------------------------- |
+| **`selectionColumn`** | Row checkboxes                                 |
+| **`textColumn`**      | Strings; optional `filterType` override        |
+| **`numberColumn`**    | Numbers + `format`                             |
+| **`dateColumn`**      | ISO / date strings                             |
+| **`enumColumn`**      | Status columns + **`enumOptions`** for filters |
+| **`booleanColumn`**   | Toggles / checkmarks                           |
+| **`actionsColumn`**   | Per-row actions menu                           |
+| **`SortHeader`**      | Shared sort affordance                         |
 
 ### `EntityColumnMeta<TEntity>`
 
@@ -90,13 +90,13 @@ Relevant fields from **`useEntityCRUD`**:
 
 ## Hooks (CRUD and lists)
 
-| API | Role |
-|-----|------|
-| **`useEntityCRUD`** | List + detail + buffers + mutations + `cascadeInvalidation` |
-| **`useEntityView`** | Filtered/sorted list: local / remote / hybrid completeness |
-| **`useEntity`**, **`useEntityList`** | Lower-level single entity or list subscription |
+| API                                                  | Role                                                         |
+| ---------------------------------------------------- | ------------------------------------------------------------ |
+| **`useEntityCRUD`**                                  | List + detail + buffers + mutations + `cascadeInvalidation`  |
+| **`useEntityView`**                                  | Filtered/sorted list: local / remote / hybrid completeness   |
+| **`useEntity`**, **`useEntityList`**                 | Lower-level single entity or list subscription               |
 | **`useSuspenseEntity`**, **`useSuspenseEntityList`** | Suspense variants (when enabled in your React version setup) |
-| **`registerSchema`**, **`readRelations`** | Relation graph + detail joins |
+| **`registerSchema`**, **`readRelations`**            | Relation graph + detail joins                                |
 
 ---
 

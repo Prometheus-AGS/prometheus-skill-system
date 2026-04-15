@@ -1,6 +1,6 @@
 ---
 name: entity-graph-init
-description: "Bootstrap @prometheus-ags/prometheus-entity-management in a React app—install dependency, configureEngine, optional schema registration stubs, and a minimal useEntity/useEntityList proof while enforcing Components → Hooks → Graph layering."
+description: 'Bootstrap @prometheus-ags/prometheus-entity-management in a React app—install dependency, configureEngine, optional schema registration stubs, and a minimal useEntity/useEntityList proof while enforcing Components → Hooks → Graph layering.'
 ---
 
 # entity-graph-init

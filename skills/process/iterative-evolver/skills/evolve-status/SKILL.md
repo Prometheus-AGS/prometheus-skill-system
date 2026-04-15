@@ -17,6 +17,7 @@ Check the current evolution cycle status.
 ## Output
 
 Display a summary including:
+
 - Evolution ID and domain
 - Current iteration / max iterations
 - Goal alignment percentage

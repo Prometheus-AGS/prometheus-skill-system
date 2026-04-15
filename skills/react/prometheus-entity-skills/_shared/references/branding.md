@@ -4,12 +4,12 @@ Source of truth in the Vite example: `examples/vite-app/src/index.css`. Use thes
 
 ## Typography — four fonts and roles
 
-| Token | Font stack | Role |
-|-------|------------|------|
-| **`--font-display`** | Space Grotesk, ui-sans-serif, sans-serif | Marketing-style headings, hero titles, strong display hierarchy. |
-| **`--font-ui`** | Inter, ui-sans-serif, sans-serif | Primary UI: navigation, buttons, labels, tables, dense interfaces. Also exposed as `--font-sans` → `var(--font-ui)`. |
-| **`--font-body`** | Roboto, ui-sans-serif, sans-serif | Long-form body copy where distinct from compact UI chrome. |
-| **`--font-mono`** | JetBrains Mono, ui-monospace, monospace | Code, IDs, JSON, technical snippets. |
+| Token                | Font stack                               | Role                                                                                                                 |
+| -------------------- | ---------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| **`--font-display`** | Space Grotesk, ui-sans-serif, sans-serif | Marketing-style headings, hero titles, strong display hierarchy.                                                     |
+| **`--font-ui`**      | Inter, ui-sans-serif, sans-serif         | Primary UI: navigation, buttons, labels, tables, dense interfaces. Also exposed as `--font-sans` → `var(--font-ui)`. |
+| **`--font-body`**    | Roboto, ui-sans-serif, sans-serif        | Long-form body copy where distinct from compact UI chrome.                                                           |
+| **`--font-mono`**    | JetBrains Mono, ui-monospace, monospace  | Code, IDs, JSON, technical snippets.                                                                                 |
 
 Tailwind v4 `@theme` maps the same names for `font-display`, `font-ui`, `font-body`, `font-mono` utilities.
 

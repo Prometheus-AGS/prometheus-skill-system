@@ -21,6 +21,7 @@ Run only the PMPO Analyze phase. Useful for landscape research and competitive i
 The user will provide: $ARGUMENTS
 
 Parse for:
+
 - Subject/domain to analyze
 - Specific competitors or benchmarks to investigate
 - Goals (if no prior assessment exists)

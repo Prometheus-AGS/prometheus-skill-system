@@ -5,6 +5,7 @@ How to generate skills compatible with different AI agent platforms. All platfor
 ## Universal Base: agentskills.io
 
 Every generated skill MUST include:
+
 ```
 skill-name/
 └── SKILL.md     # Valid frontmatter + instructions
@@ -15,6 +16,7 @@ This is the universal format recognized by all compliant platforms.
 ## Claude Code
 
 ### Additional Files
+
 ```
 skill-name/
 ├── .claude-plugin/
@@ -30,6 +32,7 @@ skill-name/
 ```
 
 ### Key Details
+
 - Plugin namespace: `name` in plugin.json becomes command prefix
 - Hooks use `${CLAUDE_PLUGIN_ROOT}` for script paths
 - Skills auto-discovered from `skills/` directory
@@ -38,6 +41,7 @@ skill-name/
 ## OpenCode
 
 ### Additional Files
+
 ```
 skill-name/
 └── <tools_directory>/     # Default: .opencode/tools/
@@ -45,24 +49,26 @@ skill-name/
 ```
 
 ### Tool Definition Format
+
 ```typescript
-import { tool } from "@opencode/tool";
-import { z } from "zod";
+import { tool } from '@opencode/tool';
+import { z } from 'zod';
 
 export default tool({
-  name: "<tool-name>",
-  description: "<what the tool does>",
+  name: '<tool-name>',
+  description: '<what the tool does>',
   parameters: z.object({
-    input: z.string().describe("Input description"),
+    input: z.string().describe('Input description'),
   }),
-  execute: async (args) => {
+  execute: async args => {
     // Tool logic
-    return { result: "output" };
-  }
+    return { result: 'output' };
+  },
 });
 ```
 
 ### Key Details
+
 - Tools defined in TypeScript using `tool()` helper with Zod schemas
 - Place in `.opencode/tools/` for project-scope or global tools directory
 - OpenCode auto-installs deps via `bun install` if `package.json` present
@@ -71,6 +77,7 @@ export default tool({
 ## Cursor
 
 ### Recognition
+
 - Cursor recognizes standard agentskills.io `SKILL.md` format
 - No additional platform-specific files needed
 - Skills placed in workspace are auto-discovered
@@ -78,17 +85,20 @@ export default tool({
 ## Gemini CLI
 
 ### Extensions Framework
+
 - Gemini CLI supports custom slash commands via `.toml` files
 - Extensions can reference SKILL.md-based skills
 - MCP server integration for tool access
 
 ### Key Details
+
 - Extensions defined in `~/.gemini/extensions/`
 - Can wrap SKILL.md-based skills with Gemini-specific configuration
 
 ## Roo Code
 
 ### Recognition
+
 - Supports custom modes via markdown definitions
 - Can consume SKILL.md-based skills as modes
 - MCP server integration for extensibility
@@ -115,6 +125,7 @@ cowork install user/repo --local
 ```
 
 ### Supported Agents (cowork)
+
 `amp`, `antigravity`, `claude-code`, `clawdbot`, `codex`, `cursor`, `droid`, `gemini-cli`, `github-copilot`, `goose`, `kilo`, `kiro-cli`, `opencode`, `roo`, `trae`, `windsurf`
 
 ## Generation Strategy

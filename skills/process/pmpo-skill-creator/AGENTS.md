@@ -3,6 +3,7 @@
 ## Commit Conventions
 
 Use conventional commits:
+
 - `feat:` — New templates, platform support, modes
 - `fix:` — Template fixes, validation corrections
 - `docs:` — Reference updates, SKILL.md changes

@@ -25,11 +25,11 @@ You define what is happening around us.
 ## Inputs
 
 ```yaml
-assessment: object  # From Assess phase (assessment.json)
+assessment: object # From Assess phase (assessment.json)
 goals: array
 evolution_domain: string
 domain_adapter: object
-prior_analysis: optional object  # From previous iteration
+prior_analysis: optional object # From previous iteration
 ```
 
 ---
@@ -123,10 +123,10 @@ Create a structured comparison:
 
 ```yaml
 positioning:
-  strengths: [string]       # What we do better than benchmarks
-  weaknesses: [string]      # Where benchmarks outperform us
-  unique_advantages: [string]  # What only we have
-  gaps_to_close: [string]   # Critical gaps vs. best-in-class
+  strengths: [string] # What we do better than benchmarks
+  weaknesses: [string] # Where benchmarks outperform us
+  unique_advantages: [string] # What only we have
+  gaps_to_close: [string] # Critical gaps vs. best-in-class
 ```
 
 ---
@@ -145,7 +145,7 @@ analysis:
   opportunities: []
   threats: []
   positioning: {}
-  key_insights: [string]   # Top 3-5 actionable insights
+  key_insights: [string] # Top 3-5 actionable insights
 ```
 
 Write this to `analysis.json`.
@@ -164,11 +164,13 @@ Write this to `analysis.json`.
 ## Degree of Freedom
 
 During Analyze, the agent has **high latitude** for:
+
 - Constructing search queries
 - Selecting which benchmarks to compare against
 - Interpreting trend significance
 
 The agent has **no latitude** for:
+
 - Modifying the assessment
 - Creating improvement plans
 - Executing changes
@@ -178,29 +180,31 @@ The agent has **no latitude** for:
 **Input**: Assessment showing 65% goal alignment for a Rust agent runtime project.
 
 **Output analysis** (excerpt):
+
 ```yaml
 analysis:
   domain: software
   search_queries_used:
-    - "agent runtime frameworks Rust 2026"
-    - "A2A protocol implementations comparison"
-    - "WASM agent sandboxing production"
+    - 'agent runtime frameworks Rust 2026'
+    - 'A2A protocol implementations comparison'
+    - 'WASM agent sandboxing production'
   benchmarks:
-    - name: "Agentgateway"
+    - name: 'Agentgateway'
       type: competitor
       relevance: high
-      key_differentiators: ["Kubernetes-native", "Cedar authorization", "Linux Foundation backing"]
-    - name: "AGNTCY"
+      key_differentiators:
+        ['Kubernetes-native', 'Cedar authorization', 'Linux Foundation backing']
+    - name: 'AGNTCY'
       type: emerging
       relevance: medium
-      key_differentiators: ["Agent directory", "OASF spec", "Cisco backing"]
+      key_differentiators: ['Agent directory', 'OASF spec', 'Cisco backing']
   opportunities:
     - id: o1
-      description: "First-mover advantage in spec-compiled agent runtimes"
+      description: 'First-mover advantage in spec-compiled agent runtimes'
       potential_impact: high
       effort_estimate: low
-      rationale: "No competitor has a compiler pipeline for agent specs"
+      rationale: 'No competitor has a compiler pipeline for agent specs'
   positioning:
-    strengths: ["Spec compiler", "Embedded runtime", "WASM sandboxing"]
-    gaps_to_close: ["Kubernetes integration", "Multi-language SDKs"]
+    strengths: ['Spec compiler', 'Embedded runtime', 'WASM sandboxing']
+    gaps_to_close: ['Kubernetes integration', 'Multi-language SDKs']
 ```

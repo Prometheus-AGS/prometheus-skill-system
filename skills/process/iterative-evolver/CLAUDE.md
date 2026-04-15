@@ -5,6 +5,7 @@ This file provides guidance for AI assistants working **on** this repository (de
 ## Architecture
 
 The skill follows PMPO (Prometheus Meta-Prompting Orchestration) adapted for iterative evolution:
+
 - **Phase controllers** in `prompts/` drive each loop phase
 - **State management** via pluggable providers (see `references/state-management.md`)
 - **Domain adapters** in `references/domain/` provide domain-specific knowledge
@@ -15,22 +16,23 @@ The skill follows PMPO (Prometheus Meta-Prompting Orchestration) adapted for ite
 
 ## Key Files
 
-| File | Role |
-| --- | --- |
-| `SKILL.md` | Canonical skill definition — source of truth for behavior |
-| `prompts/meta-controller.md` | Orchestration entry point — provider resolution, iteration, error handling |
-| `prompts/persist.md` | Phase 6 — provider-agnostic state persistence |
-| `hooks/hooks.json` | Lifecycle hooks — per-phase checkpoints, workflow dispatch, finalization |
-| `references/state-management.md` | State provider architecture and lifecycle |
-| `references/workflow-integration.md` | Workflow trigger semantics and action types |
-| `.claude-plugin/plugin.json` | Plugin manifest — skill/agent/hook/MCP registration |
-| `.mcp.json` | MCP server configuration (Tavily, sequential-thinking) |
+| File                                 | Role                                                                       |
+| ------------------------------------ | -------------------------------------------------------------------------- |
+| `SKILL.md`                           | Canonical skill definition — source of truth for behavior                  |
+| `prompts/meta-controller.md`         | Orchestration entry point — provider resolution, iteration, error handling |
+| `prompts/persist.md`                 | Phase 6 — provider-agnostic state persistence                              |
+| `hooks/hooks.json`                   | Lifecycle hooks — per-phase checkpoints, workflow dispatch, finalization   |
+| `references/state-management.md`     | State provider architecture and lifecycle                                  |
+| `references/workflow-integration.md` | Workflow trigger semantics and action types                                |
+| `.claude-plugin/plugin.json`         | Plugin manifest — skill/agent/hook/MCP registration                        |
+| `.mcp.json`                          | MCP server configuration (Tavily, sequential-thinking)                     |
 
 ## Development Guidelines
 
 ### Modifying Phase Controllers
 
 Each prompt in `prompts/` follows a consistent structure:
+
 1. Role/purpose section
 2. Objectives
 3. Inputs
@@ -83,6 +85,7 @@ When modifying, preserve all sections and update cross-references.
 ### Modifying Hooks
 
 Hooks are defined in `hooks/hooks.json`. Supported events:
+
 - `PostToolUse` — Runs after file write operations (state validation)
 - `SubagentStop` — Runs when a subagent completes (checkpoint + dispatch per phase)
 - `Stop` — Runs when the main session ends (finalize + cycle_complete dispatch)
@@ -91,16 +94,16 @@ Hook scripts live in `scripts/` and must exit 0 (success) or 2 (feedback to agen
 
 ### Key Scripts
 
-| Script | Purpose |
-| --- | --- |
-| `scripts/state-resolve-provider.sh` | 6-tier provider resolution waterfall |
-| `scripts/state-init.sh` | Initialize or resume named evolution |
-| `scripts/state-checkpoint.sh` | Mid-session state snapshot |
-| `scripts/state-finalize.sh` | Archive end-state to history |
-| `scripts/workflow-dispatch.sh` | Match and fire workflow triggers |
-| `scripts/validate-state.sh` | Validate evolution_state.json integrity |
-| `scripts/finalize-session.sh` | Session cleanup |
-| `scripts/log-reflection.sh` | Log reflection output |
+| Script                              | Purpose                                 |
+| ----------------------------------- | --------------------------------------- |
+| `scripts/state-resolve-provider.sh` | 6-tier provider resolution waterfall    |
+| `scripts/state-init.sh`             | Initialize or resume named evolution    |
+| `scripts/state-checkpoint.sh`       | Mid-session state snapshot              |
+| `scripts/state-finalize.sh`         | Archive end-state to history            |
+| `scripts/workflow-dispatch.sh`      | Match and fire workflow triggers        |
+| `scripts/validate-state.sh`         | Validate evolution_state.json integrity |
+| `scripts/finalize-session.sh`       | Session cleanup                         |
+| `scripts/log-reflection.sh`         | Log reflection output                   |
 
 ## Testing
 

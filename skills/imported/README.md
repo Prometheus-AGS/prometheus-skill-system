@@ -5,6 +5,7 @@ This directory contains skills imported as git submodules from external reposito
 ## Why Import as Submodules?
 
 Imported skills via git submodules allow:
+
 - **Independent maintenance** - Skills can be updated in their own repositories
 - **Version control** - Pin specific versions or track latest changes
 - **Shared development** - Multiple skill packs can reference the same skill
@@ -13,6 +14,7 @@ Imported skills via git submodules allow:
 ## Current Imported Skills
 
 ### artifact-refiner
+
 - **Repository**: git@github.com:GQAdonis/artifact-refiner-skill.git
 - **Description**: PMPO-driven artifact refinement engine for logos, UI components, A2UI specs, images, content, and code
 - **Version**: 1.1.0
@@ -174,6 +176,7 @@ npm run install:project
 ### Plugin Format
 
 Some imported skills (like artifact-refiner) are complete plugin packages with:
+
 - Their own `.claude-plugin/` directory
 - Agents, hooks, and MCP servers
 - Independent versioning
@@ -183,6 +186,7 @@ These are treated as nested plugins and their components are discovered automati
 ## Best Practices
 
 ### ✅ DO
+
 - Keep imported skills up to date regularly
 - Pin to specific versions for production use
 - Document the purpose and version of each imported skill
@@ -190,6 +194,7 @@ These are treated as nested plugins and their components are discovered automati
 - Respect the imported skill's license and contribution guidelines
 
 ### ❌ DON'T
+
 - Make changes directly in imported skill directories without proper git workflow
 - Commit unstaged submodule changes
 - Remove `.git` directory from submodules

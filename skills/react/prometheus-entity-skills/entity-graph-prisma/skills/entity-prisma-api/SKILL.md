@@ -29,19 +29,19 @@ description: >
 ### Example: list + count (sketch)
 
 ```typescript
-import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
-import { allowlistedWhere, allowlistedOrderBy } from "@/lib/prisma-query";
+import { NextResponse } from 'next/server';
+import { prisma } from '@/lib/prisma';
+import { allowlistedWhere, allowlistedOrderBy } from '@/lib/prisma-query';
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
-  const whereRaw = searchParams.get("where");
-  const orderRaw = searchParams.get("orderBy");
-  const page = Number(searchParams.get("page") ?? "1");
-  const pageSize = Math.min(Number(searchParams.get("pageSize") ?? "20"), 100);
+  const whereRaw = searchParams.get('where');
+  const orderRaw = searchParams.get('orderBy');
+  const page = Number(searchParams.get('page') ?? '1');
+  const pageSize = Math.min(Number(searchParams.get('pageSize') ?? '20'), 100);
 
-  const where = allowlistedWhere("Task", whereRaw);
-  const orderBy = allowlistedOrderBy("Task", orderRaw);
+  const where = allowlistedWhere('Task', whereRaw);
+  const orderBy = allowlistedOrderBy('Task', orderRaw);
 
   const [items, total] = await Promise.all([
     prisma.task.findMany({

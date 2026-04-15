@@ -11,16 +11,16 @@ Accepts:
 
 ### Clause → Prisma leaf (selected ops)
 
-| Filter op | Prisma shape |
-|-----------|----------------|
-| `eq` | `{ equals: value }` |
-| `neq` | `{ not: value }` |
-| `gt`, `gte`, `lt`, `lte` | `{ gt: ... }` etc. |
-| `contains`, `startsWith`, `endsWith` | string op + `mode: "insensitive"` |
-| `in` / `nin` | `{ in: [...] }` / `{ notIn: [...] }` |
-| `arrayContains` | `{ has: value }` |
-| `isNull` | `null` or `{ not: null }` depending on `value` |
-| `isNotNull` | `{ not: null }` |
+| Filter op                            | Prisma shape                                   |
+| ------------------------------------ | ---------------------------------------------- |
+| `eq`                                 | `{ equals: value }`                            |
+| `neq`                                | `{ not: value }`                               |
+| `gt`, `gte`, `lt`, `lte`             | `{ gt: ... }` etc.                             |
+| `contains`, `startsWith`, `endsWith` | string op + `mode: "insensitive"`              |
+| `in` / `nin`                         | `{ in: [...] }` / `{ notIn: [...] }`           |
+| `arrayContains`                      | `{ has: value }`                               |
+| `isNull`                             | `null` or `{ not: null }` depending on `value` |
+| `isNotNull`                          | `{ not: null }`                                |
 
 **Omitted**: `between`, `arrayOverlaps`, `matches`, `custom` — extend server or pre-process filters.
 

@@ -10,10 +10,10 @@ Use **`useEntityCRUD`** when one screen coordinates list + detail + forms.
 
 ```ts
 const crud = useEntityCRUD<Task>({
-  type: "Task",
-  listQueryKey: ["tasks", "list", viewSignature],
+  type: 'Task',
+  listQueryKey: ['tasks', 'list', viewSignature],
   listFetch,
-  normalize: (raw) => ({ id: String(raw.id), data: raw }),
+  normalize: raw => ({ id: String(raw.id), data: raw }),
   detailFetch: fetchTaskById,
   onCreate: createTaskApi,
   onUpdate: updateTaskApi,
@@ -53,12 +53,12 @@ Ensure child lists are populated by their own hooks elsewhere so `readRelations`
 
 ## Anti-patterns
 
-| Anti-pattern | Why it hurts |
-|--------------|--------------|
-| `useGraphStore` in page component | Breaks layering; hard to test; duplicates subscription logic |
-| Duplicate `useState` entity rows | Breaks global reactivity; stale cells |
-| Manual `invalidateLists` everywhere | Drifts from schema-driven cascade rules |
-| Different `normalize` in list vs detail | Split-brain IDs; graph overwrites |
+| Anti-pattern                            | Why it hurts                                                 |
+| --------------------------------------- | ------------------------------------------------------------ |
+| `useGraphStore` in page component       | Breaks layering; hard to test; duplicates subscription logic |
+| Duplicate `useState` entity rows        | Breaks global reactivity; stale cells                        |
+| Manual `invalidateLists` everywhere     | Drifts from schema-driven cascade rules                      |
+| Different `normalize` in list vs detail | Split-brain IDs; graph overwrites                            |
 
 ## Testing mindset
 

@@ -7,9 +7,7 @@
   {
     "uid": { "type": "AgentGroup", "id": "generators" },
     "attrs": {},
-    "parents": [
-      { "type": "AgentGroup", "id": "trusted-optimizers" }
-    ]
+    "parents": [{ "type": "AgentGroup", "id": "trusted-optimizers" }]
   },
   {
     "uid": { "type": "AgentGroup", "id": "senior-agents" },
@@ -19,23 +17,17 @@
   {
     "uid": { "type": "Agent", "id": "pmpo-optimizer" },
     "attrs": { "role": "optimizer" },
-    "parents": [
-      { "type": "AgentGroup", "id": "trusted-optimizers" }
-    ]
+    "parents": [{ "type": "AgentGroup", "id": "trusted-optimizers" }]
   },
   {
     "uid": { "type": "Agent", "id": "pmpo-generator" },
     "attrs": { "role": "generator" },
-    "parents": [
-      { "type": "AgentGroup", "id": "generators" }
-    ]
+    "parents": [{ "type": "AgentGroup", "id": "generators" }]
   },
   {
     "uid": { "type": "Agent", "id": "kbd-orchestrator" },
     "attrs": { "role": "orchestrator" },
-    "parents": [
-      { "type": "AgentGroup", "id": "trusted-optimizers" }
-    ]
+    "parents": [{ "type": "AgentGroup", "id": "trusted-optimizers" }]
   },
   {
     "uid": { "type": "SkillDomain", "id": "react" },

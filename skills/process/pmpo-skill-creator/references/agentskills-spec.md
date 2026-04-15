@@ -5,12 +5,14 @@ Condensed specification from [agentskills.io](https://agentskills.io/specificati
 ## Directory Structure
 
 Minimum viable skill:
+
 ```
 skill-name/
 └── SKILL.md          # Required
 ```
 
 Full skill with optional directories:
+
 ```
 skill-name/
 ├── SKILL.md          # Required — metadata + instructions
@@ -32,14 +34,14 @@ description: A description of what this skill does and when to use it.
 
 ### Optional Frontmatter Fields
 
-| Field | Constraints | Purpose |
-|-------|------------|---------|
-| `name` | ≤64 chars, lowercase letters + numbers + hyphens, no leading/trailing hyphen | Unique skill identifier |
-| `description` | ≤1024 chars, non-empty | What the skill does and when to use it |
-| `license` | License name or reference | Licensing info |
-| `compatibility` | ≤500 chars | Environment requirements |
-| `metadata` | Key-value mapping | Arbitrary metadata |
-| `allowed-tools` | Space-delimited list | Pre-approved tools (experimental) |
+| Field           | Constraints                                                                  | Purpose                                |
+| --------------- | ---------------------------------------------------------------------------- | -------------------------------------- |
+| `name`          | ≤64 chars, lowercase letters + numbers + hyphens, no leading/trailing hyphen | Unique skill identifier                |
+| `description`   | ≤1024 chars, non-empty                                                       | What the skill does and when to use it |
+| `license`       | License name or reference                                                    | Licensing info                         |
+| `compatibility` | ≤500 chars                                                                   | Environment requirements               |
+| `metadata`      | Key-value mapping                                                            | Arbitrary metadata                     |
+| `allowed-tools` | Space-delimited list                                                         | Pre-approved tools (experimental)      |
 
 ### Body Content
 
@@ -60,6 +62,7 @@ Structure skills for efficient context use:
 ## File References
 
 Use relative paths from skill root:
+
 ```markdown
 See the [reference guide](references/guide.md) for details.
 Run the extraction script: `scripts/extract.py`
@@ -68,6 +71,7 @@ Run the extraction script: `scripts/extract.py`
 ## Validation Rules
 
 A valid skill MUST:
+
 1. Have a `SKILL.md` file at the root
 2. Include YAML frontmatter with `---` delimiters
 3. Have a non-empty `name` field matching constraints
@@ -77,6 +81,7 @@ A valid skill MUST:
 ## Sub-Skills
 
 Skills can be nested as sub-skills within a parent `skills/` directory:
+
 ```
 parent-skill/
 ├── SKILL.md

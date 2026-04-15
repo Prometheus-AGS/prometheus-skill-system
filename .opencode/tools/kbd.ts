@@ -51,7 +51,9 @@ export default {
     if (existsSync(waypointPath)) {
       try {
         waypoint = JSON.parse(readFileSync(waypointPath, 'utf-8'));
-      } catch { /* proceed without waypoint */ }
+      } catch {
+        /* proceed without waypoint */
+      }
     }
 
     const skillPath = 'skills/process/kbd-process-orchestrator/SKILL.md';

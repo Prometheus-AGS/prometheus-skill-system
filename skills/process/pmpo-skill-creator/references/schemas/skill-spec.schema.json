@@ -3,7 +3,15 @@
   "title": "Skill Specification",
   "description": "Output contract for the Specify phase — defines what skill to build and how",
   "type": "object",
-  "required": ["skill_name", "skill_description", "intent", "mode", "complexity_tier", "target_platforms", "pmpo_phases"],
+  "required": [
+    "skill_name",
+    "skill_description",
+    "intent",
+    "mode",
+    "complexity_tier",
+    "target_platforms",
+    "pmpo_phases"
+  ],
   "properties": {
     "skill_name": {
       "type": "string",
@@ -43,7 +51,13 @@
       "type": "array",
       "items": {
         "type": "string",
-        "enum": ["agentskills-io", "claude-code", "opencode", "cursor", "gemini-cli"]
+        "enum": [
+          "agentskills-io",
+          "claude-code",
+          "opencode",
+          "cursor",
+          "gemini-cli"
+        ]
       },
       "minItems": 1,
       "description": "Which platforms to generate for"

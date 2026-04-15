@@ -16,11 +16,11 @@ workspace folder unless explicitly constrained. This creates two risks:
 
 KBD solves this by declaring three roles for workspace folders in `project.json`:
 
-| Role | Access | Description |
-|------|--------|-------------|
-| `focus` | Read + Write | The ONE project being operated on |
-| `reference` | Read-only | Other workspace folders used for spec/context lookup |
-| `ignore` | None | Folders KBD should never touch or read |
+| Role        | Access       | Description                                          |
+| ----------- | ------------ | ---------------------------------------------------- |
+| `focus`     | Read + Write | The ONE project being operated on                    |
+| `reference` | Read-only    | Other workspace folders used for spec/context lookup |
+| `ignore`    | None         | Folders KBD should never touch or read               |
 
 ---
 
@@ -75,16 +75,19 @@ Every AI tool executing a KBD change MUST read `project.json` → `workspace.fol
 and apply these rules:
 
 ### For `focus` folders
+
 - All read and write operations are unrestricted within this folder
 - `.kbd-orchestrator/` state files live here
 - All change implementations target this folder
 
 ### For `reference` folders
+
 - **Read-only** — never write, create, or delete files
 - Use ONLY for spec lookup, understanding existing patterns, or legacy context
 - If instructed to make "the same change" in a reference folder, refuse and note it is read-only
 
 ### For `ignore` folders
+
 - Do not read or reference these folders at all
 
 ---
@@ -92,7 +95,9 @@ and apply these rules:
 ## Tool-Specific Enforcement
 
 ### Roo Code
+
 Include in every Roo prompt preamble:
+
 ```
 WORKSPACE CONTEXT:
 - Focus project (read/write): /Users/gqadonis/Projects/midnight/hotseaters
@@ -102,21 +107,26 @@ WORKSPACE CONTEXT:
 ```
 
 ### Cline (Focus Chain)
+
 Inject the workspace roles into Cline's context file / system prompt:
+
 ```
 Focus: hotseaters/ (implements features)
 Reference: HotSeatersMVP/ (spec only — DocPage*.jsx files — READ ONLY)
 ```
 
 ### Cursor Agent
+
 Configure workspace rules in `.cursorrules` or agent system prompt.
 Reference folders should be added to `files.exclude` or explicitly blocked in the agent context.
 
 ### Codex (git worktrees)
+
 Worktrees operate on the `focus` project only. Do NOT create worktrees for
 reference folders — they contain specs, not the target codebase.
 
 ### Antigravity
+
 Antigravity respects AGENTS.md and the workspace roles are communicated via
 the project context discovery. The focus project path is always used as the
 operational root.
@@ -128,6 +138,7 @@ operational root.
 Reference folders are valuable for KBD phases:
 
 ### During Assess
+
 ```
 Read HotSeatersMVP/src/pages/DocPageClients.jsx
 → Extract: what the Clients page should do (spec)
@@ -136,6 +147,7 @@ Read HotSeatersMVP/src/pages/DocPageClients.jsx
 ```
 
 ### During Plan
+
 ```
 Read HotSeatersMVP/src/pages/DocPageDeals.jsx
 → Extract: Deal Wizard 4-step flow, Kanban/Card/List views
@@ -143,6 +155,7 @@ Read HotSeatersMVP/src/pages/DocPageDeals.jsx
 ```
 
 ### During Execute
+
 ```
 Reference HotSeatersMVP component patterns for UI design guidance
 → Never copy code directly — always re-implement in the new stack
@@ -172,7 +185,9 @@ constraints.md:   .kbd-orchestrator/constraints.md ✓ written
 ## Edge Cases
 
 ### Multiple focus-eligible folders
+
 If two folders both contain `AGENTS.md`, `/kbd-init` asks:
+
 ```
 Multiple workspace roots contain AGENTS.md:
   1. hotseaters/
@@ -181,8 +196,10 @@ Which is the focus project? (enter number)
 ```
 
 ### Workspace file not found
+
 KBD operates without workspace context, treating the cwd as the single focus project.
 A warning is printed: `[kbd-init] No .code-workspace found — running single-project mode.`
 
 ### Nested workspace (workspace within workspace)
+
 Not supported. KBD uses the first `.code-workspace` found in the search path.

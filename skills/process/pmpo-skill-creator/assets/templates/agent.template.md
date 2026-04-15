@@ -13,7 +13,8 @@ Role: **{{agent_role}}**
 ## Operating Phases
 
 | Phase | Role |
-|-------|------|
+| ----- | ---- |
+
 {{agent_phase_table}}
 
 ## Tools
@@ -27,7 +28,7 @@ Role: **{{agent_role}}**
 ## Output
 
 ```yaml
-{{agent_output_contract}}
+{ { agent_output_contract } }
 ```
 
 ## Decision Criteria

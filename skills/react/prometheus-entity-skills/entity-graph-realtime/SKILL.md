@@ -22,10 +22,10 @@ Extend graph-backed apps with **live updates** that land in the same Zustand ent
 
 ## Sub-skills (slash-style routes)
 
-| Route | Focus |
-|-------|--------|
-| **`/entity-realtime-setup`** | `getRealtimeManager`, `ManagerOptions`, register adapter(s), app lifecycle, cleanup |
-| **`/entity-realtime-channel`** | New or updated `ChannelConfig`, `normalize` on `register`, `SubscriptionConfig`, replay semantics |
+| Route                              | Focus                                                                                              |
+| ---------------------------------- | -------------------------------------------------------------------------------------------------- |
+| **`/entity-realtime-setup`**       | `getRealtimeManager`, `ManagerOptions`, register adapter(s), app lifecycle, cleanup                |
+| **`/entity-realtime-channel`**     | New or updated `ChannelConfig`, `normalize` on `register`, `SubscriptionConfig`, replay semantics  |
 | **`/entity-realtime-local-first`** | `createElectricAdapter`, `ElectricTableConfig`, `useLocalFirst`, `usePGliteQuery`, sync boundaries |
 
 Each route maps to `prometheus-entity-skills/entity-graph-realtime/skills/<name>/SKILL.md`.
@@ -46,12 +46,12 @@ bash prometheus-entity-skills/entity-graph-realtime/scripts/detect-orchestrators
 
 ## Core APIs
 
-| Area | Exports |
-|------|---------|
-| Manager | `RealtimeManager`, `getRealtimeManager`, `resetRealtimeManager`, `ManagerOptions`, `forceFlush` |
-| Types | `RealtimeAdapter`, `SyncAdapter`, `ChangeSet`, `EntityChange`, `ChangeOperation`, `ChannelConfig`, `SubscriptionConfig`, `AdapterStatus` |
-| Network adapters | `createWebSocketAdapter`, `createSupabaseRealtimeAdapter`, `createConvexAdapter`, `createGraphQLSubscriptionAdapter` |
-| Local-first | `createElectricAdapter`, `useLocalFirst`, `usePGliteQuery`, `ElectricAdapterOptions`, `ElectricTableConfig` |
+| Area             | Exports                                                                                                                                  |
+| ---------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| Manager          | `RealtimeManager`, `getRealtimeManager`, `resetRealtimeManager`, `ManagerOptions`, `forceFlush`                                          |
+| Types            | `RealtimeAdapter`, `SyncAdapter`, `ChangeSet`, `EntityChange`, `ChangeOperation`, `ChannelConfig`, `SubscriptionConfig`, `AdapterStatus` |
+| Network adapters | `createWebSocketAdapter`, `createSupabaseRealtimeAdapter`, `createConvexAdapter`, `createGraphQLSubscriptionAdapter`                     |
+| Local-first      | `createElectricAdapter`, `useLocalFirst`, `usePGliteQuery`, `ElectricAdapterOptions`, `ElectricTableConfig`                              |
 
 ## References
 

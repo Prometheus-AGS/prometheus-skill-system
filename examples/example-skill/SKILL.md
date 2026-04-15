@@ -4,7 +4,7 @@ description: Example skill demonstrating best practices and agentskills.io compl
 license: MIT
 metadata:
   author: gqadonis
-  version: "1.0.0"
+  version: '1.0.0'
   category: documentation
   tags: [example, template, best-practices]
 ---
@@ -16,6 +16,7 @@ This is an example skill demonstrating the structure and best practices for crea
 ## When to Use
 
 Use this skill when:
+
 - Creating a new skill as a reference
 - Learning the skill structure and format
 - Testing skill validation and installation
@@ -42,16 +43,19 @@ example-skill/
 The YAML frontmatter at the top of this file contains required and optional fields:
 
 **Required**:
+
 - `name`: Matches directory name, kebab-case, max 64 chars
 - `description`: Clear description, 1-1024 chars
 
 **Optional but recommended**:
+
 - `license`: License identifier
 - `metadata`: Additional context (author, version, category, tags)
 
 ### Step 3: Write Clear Instructions
 
 Instructions should be:
+
 - Actionable and specific
 - Written in third person
 - Under 500 lines total (use references/ for details)
@@ -85,6 +89,7 @@ echo "Hello from example skill"
 ```
 
 **Expected Output**:
+
 ```
 Hello from example skill
 ```
@@ -97,6 +102,7 @@ bash scripts/example.sh --name "World"
 ```
 
 **Expected Output**:
+
 ```json
 {
   "status": "success",
@@ -116,6 +122,7 @@ cp assets/template.json ./my-config.json
 - `scripts/example.sh` - Demonstrates script structure with arguments and JSON output
 
 Usage:
+
 ```bash
 bash scripts/example.sh --name <name> [--greeting <greeting>]
 ```

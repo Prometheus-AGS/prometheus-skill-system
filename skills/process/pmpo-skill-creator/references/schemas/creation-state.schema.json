@@ -3,7 +3,16 @@
   "title": "Creation State",
   "description": "Master state manifest for skill creation — tracks progress across sessions",
   "type": "object",
-  "required": ["creation_id", "skill_name", "mode", "current_phase", "started_at", "updated_at", "current_iteration", "convergence_status"],
+  "required": [
+    "creation_id",
+    "skill_name",
+    "mode",
+    "current_phase",
+    "started_at",
+    "updated_at",
+    "current_iteration",
+    "convergence_status"
+  ],
   "properties": {
     "creation_id": {
       "type": "string",

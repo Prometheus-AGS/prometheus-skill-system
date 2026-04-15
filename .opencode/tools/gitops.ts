@@ -41,7 +41,7 @@ export default {
     // Detect existing GitOps state
     const hasGitops = existsSync(join(context.directory, 'gitops'));
     const hasWorkflows = existsSync(join(context.directory, '.github', 'workflows'));
-    const hasTerraform = readdirSync(context.directory).some((f) => f.endsWith('.tf'));
+    const hasTerraform = readdirSync(context.directory).some(f => f.endsWith('.tf'));
     const hasKubeconfig = existsSync(join(process.env.HOME ?? '', '.kube', 'config'));
 
     const skillMap: Record<string, string> = {

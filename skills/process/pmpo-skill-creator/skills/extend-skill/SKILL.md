@@ -21,14 +21,14 @@ Add new domain adapters, phases, sub-skills, schemas, or platform support to an 
 
 ## Extension Types
 
-| Type | What Gets Added |
-|------|----------------|
-| **Domain** | New `references/domain/<name>.md` + reference in SKILL.md |
-| **Sub-skill** | New `skills/<command>/SKILL.md` + reference in SKILL.md |
-| **Schema** | New `references/schemas/<name>.schema.json` |
-| **Platform** | New platform output files (plugin.json, tools/, etc.) |
-| **Agent** | New `agents/<name>.md` + reference in SKILL.md |
-| **Phase** | New `prompts/<phase>.md` + update meta-controller |
+| Type          | What Gets Added                                           |
+| ------------- | --------------------------------------------------------- |
+| **Domain**    | New `references/domain/<name>.md` + reference in SKILL.md |
+| **Sub-skill** | New `skills/<command>/SKILL.md` + reference in SKILL.md   |
+| **Schema**    | New `references/schemas/<name>.schema.json`               |
+| **Platform**  | New platform output files (plugin.json, tools/, etc.)     |
+| **Agent**     | New `agents/<name>.md` + reference in SKILL.md            |
+| **Phase**     | New `prompts/<phase>.md` + update meta-controller         |
 
 ## Rules
 

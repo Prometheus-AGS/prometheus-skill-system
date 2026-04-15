@@ -49,11 +49,11 @@ KBD's `/kbd-reflect` uses it to report per-item completion back to the evolver.
 
 ## Direction 2: KBD Delegates Assess to Evolver
 
-| KBD Phase | Evolver Role | Entry Point |
-|-----------|-------------|-------------|
-| **Assess** | Deep codebase + spec gap analysis with domain context | `/evolve-assess` |
-| **Full phase loop** | Run the complete Assess → Analyze → Plan → Reflect cycle | `/evolve` |
-| **Reflect** | Generate a structured reflection with before/after delta | `/evolve-report` |
+| KBD Phase           | Evolver Role                                             | Entry Point      |
+| ------------------- | -------------------------------------------------------- | ---------------- |
+| **Assess**          | Deep codebase + spec gap analysis with domain context    | `/evolve-assess` |
+| **Full phase loop** | Run the complete Assess → Analyze → Plan → Reflect cycle | `/evolve`        |
+| **Reflect**         | Generate a structured reflection with before/after delta | `/evolve-report` |
 
 > **Note**: KBD's `/kbd-assess` is a lighter, waypoint-aware wrapper.
 > When a phase requires deep multi-dimensional analysis or cross-session
@@ -63,24 +63,24 @@ KBD's `/kbd-reflect` uses it to report per-item completion back to the evolver.
 
 ```yaml
 # Pass this to /evolve when starting a new KBD phase assessment
-evolution_name: "<project-name>-<phase-name>"
+evolution_name: '<project-name>-<phase-name>'
 evolution_domain: software
 goals:
-  - description: "<phase goal 1>"
+  - description: '<phase goal 1>'
     priority: high
-  - description: "<phase goal 2>"
+  - description: '<phase goal 2>'
     priority: medium
 constraints:
   # Import from .kbd-orchestrator/constraints.md blocking constraints
 target_state:
-  description: "<one paragraph describing the completed phase outcome>"
+  description: '<one paragraph describing the completed phase outcome>'
 context:
-  project_path: "<absolute path to project root>"
+  project_path: '<absolute path to project root>'
   documents:
-    - "AGENTS.md"
-    - ".kbd-orchestrator/phases/<phase>/plan.md"
+    - 'AGENTS.md'
+    - '.kbd-orchestrator/phases/<phase>/plan.md'
   prior_assessments:
-    - ".kbd-orchestrator/phases/<prev-phase>/reflection.md"
+    - '.kbd-orchestrator/phases/<prev-phase>/reflection.md'
 workflow_triggers:
   - event: on_cycle_complete
     action:
@@ -91,6 +91,7 @@ workflow_triggers:
 ### What KBD Reads Back
 
 After `/evolve-assess` or `/evolve-report`, KBD reads:
+
 - `.evolver/evolutions/<evolution-name>/state.json` → `assessment.report`
 - `.evolver/evolutions/<evolution-name>/reports/` → latest report file
 
@@ -116,14 +117,14 @@ resumes from the last checkpoint automatically.
 
 ## State File Summary
 
-| File | Owner | Direction |
-|------|-------|-----------|
-| `.evolver/evolutions/<name>/plan.json` | Evolver | Evolver → KBD (plan items) |
-| `.evolver/evolutions/<name>/state.json` | Evolver | KBD → Evolver (execution results) |
-| `.kbd-orchestrator/phases/<phase>/evolver-bridge.json` | KBD | Bidirectional mapping |
-| `.kbd-orchestrator/phases/<phase>/assessment.md` | KBD | Evolver → KBD (deep assessment) |
-| `.kbd-orchestrator/phases/<phase>/reflection.md` | KBD | KBD → Evolver (phase results) |
-| `.refiner/artifacts/<change-id>/refinement_log.md` | Artifact-refiner | KBD → Evolver (QA data) |
+| File                                                   | Owner            | Direction                         |
+| ------------------------------------------------------ | ---------------- | --------------------------------- |
+| `.evolver/evolutions/<name>/plan.json`                 | Evolver          | Evolver → KBD (plan items)        |
+| `.evolver/evolutions/<name>/state.json`                | Evolver          | KBD → Evolver (execution results) |
+| `.kbd-orchestrator/phases/<phase>/evolver-bridge.json` | KBD              | Bidirectional mapping             |
+| `.kbd-orchestrator/phases/<phase>/assessment.md`       | KBD              | Evolver → KBD (deep assessment)   |
+| `.kbd-orchestrator/phases/<phase>/reflection.md`       | KBD              | KBD → Evolver (phase results)     |
+| `.refiner/artifacts/<change-id>/refinement_log.md`     | Artifact-refiner | KBD → Evolver (QA data)           |
 
 ---
 

@@ -15,7 +15,7 @@ metadata:
   standard: TJ-CICD-001 v1.1
   owner: Prometheus AGS
   contact: tjames@prometheusags.ai
-  version: "1.0.0"
+  version: '1.0.0'
 allowed-tools: Bash(kustomize:) Bash(kubectl:) Bash(find:) Bash(mkdir:) Read Write
 ---
 
@@ -26,6 +26,7 @@ Generates, validates, and repairs Kustomize overlay structures for multi-cloud s
 ## Invocation
 
 Use when the user says any of:
+
 - "add Kustomize overlays"
 - "create the Kustomize structure"
 - "scaffold overlays for this service"
@@ -44,6 +45,7 @@ overlays/{cloud}-{env}/  → environment: replicas, resource limits, image tag O
 ```
 
 **The invariant:**
+
 - `base/` has no cloud annotations and no replica counts
 - `cloud/*/` has no replica counts and no resource limits
 - `overlays/*/` has no cloud annotations
@@ -53,90 +55,94 @@ Violating this invariant will cause the manifest review to fail.
 ## Cloud Patch Templates
 
 ### GKE Workload Identity
+
 ```yaml
 # cloud/gke/kustomization.yaml
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
-- ../../base
+  - ../../base
 patches:
-- target:
-    kind: ServiceAccount
-    name: {service}
-  patch: |
-    - op: add
-      path: /metadata/annotations/iam.gke.io~1gcp-service-account
-      value: "{service}@{project}.iam.gserviceaccount.com"
+  - target:
+      kind: ServiceAccount
+      name: { service }
+    patch: |
+      - op: add
+        path: /metadata/annotations/iam.gke.io~1gcp-service-account
+        value: "{service}@{project}.iam.gserviceaccount.com"
 ```
 
 ### Azure Workload Identity
+
 ```yaml
 # cloud/aks/kustomization.yaml
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
-- ../../base
+  - ../../base
 patches:
-- target:
-    kind: ServiceAccount
-    name: {service}
-  patch: |
-    - op: add
-      path: /metadata/annotations/azure.workload.identity~1client-id
-      value: "{MANAGED_IDENTITY_CLIENT_ID}"
-    - op: add
-      path: /metadata/labels/azure.workload.identity~1use
-      value: "true"
-- target:
-    kind: Deployment
-    name: {service}
-  patch: |
-    - op: add
-      path: /spec/template/metadata/labels/azure.workload.identity~1use
-      value: "true"
+  - target:
+      kind: ServiceAccount
+      name: { service }
+    patch: |
+      - op: add
+        path: /metadata/annotations/azure.workload.identity~1client-id
+        value: "{MANAGED_IDENTITY_CLIENT_ID}"
+      - op: add
+        path: /metadata/labels/azure.workload.identity~1use
+        value: "true"
+  - target:
+      kind: Deployment
+      name: { service }
+    patch: |
+      - op: add
+        path: /spec/template/metadata/labels/azure.workload.identity~1use
+        value: "true"
 ```
 
 ### EKS IRSA
+
 ```yaml
 # cloud/eks/kustomization.yaml
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
-- ../../base
+  - ../../base
 patches:
-- target:
-    kind: ServiceAccount
-    name: {service}
-  patch: |
-    - op: add
-      path: /metadata/annotations/eks.amazonaws.com~1role-arn
-      value: "arn:aws:iam::{account}:role/{service}-irsa"
+  - target:
+      kind: ServiceAccount
+      name: { service }
+    patch: |
+      - op: add
+        path: /metadata/annotations/eks.amazonaws.com~1role-arn
+        value: "arn:aws:iam::{account}:role/{service}-irsa"
 ```
 
 ## Environment Overlay Template (prod)
+
 ```yaml
 # overlays/gke-prod/kustomization.yaml
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
-- ../../cloud/gke
+  - ../../cloud/gke
 images:
-- name: {service}
-  newName: us-east5-docker.pkg.dev/{project}/{service}
-  newTag: PLACEHOLDER   # GitHub Actions writes the real SHA here
+  - name: { service }
+    newName: us-east5-docker.pkg.dev/{project}/{service}
+    newTag: PLACEHOLDER # GitHub Actions writes the real SHA here
 patches:
-- target:
-    kind: Deployment
-    name: {service}
-  patch: |
-    - op: replace
-      path: /spec/replicas
-      value: 3
-    - op: add
-      path: /spec/template/spec/containers/0/resources
-      value:
-        requests: {cpu: "100m", memory: "128Mi"}
-        limits: {cpu: "500m", memory: "512Mi"}
+  - target:
+      kind: Deployment
+      name: { service }
+    patch: |
+      - op: replace
+        path: /spec/replicas
+        value: 3
+      - op: add
+        path: /spec/template/spec/containers/0/resources
+        value:
+          requests: {cpu: "100m", memory: "128Mi"}
+          limits: {cpu: "500m", memory: "512Mi"}
 commonLabels:
   environment: prod
   managed-by: argocd
@@ -145,6 +151,7 @@ commonLabels:
 ## Validation
 
 After generating or modifying any overlay, run:
+
 ```bash
 kustomize build overlays/{cloud}-{env}
 ```
@@ -154,6 +161,7 @@ Every overlay must build without error. If it fails, diagnose and fix before rep
 ## Repair Mode
 
 If invoked on an existing service with broken overlays, run:
+
 1. `kustomize build` on each overlay — collect errors
 2. Identify root cause: missing resource, wrong relative path, invalid patch
 3. Propose fixes with diffs

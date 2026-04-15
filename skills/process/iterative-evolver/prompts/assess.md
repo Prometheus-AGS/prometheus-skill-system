@@ -42,6 +42,7 @@ prior_assessment: optional object  # From previous iteration
 ### 1. Goal Inventory
 
 Load or confirm goals. For each goal:
+
 - Validate it is specific and assessable
 - If vague, propose measurable criteria
 - Flag goals that cannot be assessed without user input
@@ -76,6 +77,7 @@ The domain adapter provides specific assessment criteria. Use it.
 ### 3. Gap Analysis
 
 For each goal, identify:
+
 - What exists that supports the goal
 - What is missing
 - What is partially complete
@@ -112,10 +114,10 @@ Calculate overall alignment:
 
 ```yaml
 goal_alignment:
-  overall_percentage: number  # 0-100
+  overall_percentage: number # 0-100
   per_goal:
     - goal_id: string
-      alignment: number  # 0-100
+      alignment: number # 0-100
       rationale: string
 ```
 
@@ -154,11 +156,13 @@ Write this to `assessment.json`.
 ## Degree of Freedom
 
 During Assess, the agent has **high latitude** for:
+
 - Choosing which metrics to evaluate
 - Interpreting qualitative state
 - Proposing measurable criteria for vague goals
 
 The agent has **no latitude** for:
+
 - Modifying goals
 - Executing changes
 - Creating improvement plans
@@ -168,31 +172,32 @@ The agent has **no latitude** for:
 **Input**: "Assess our open-source project against the goal of becoming production-ready"
 
 **Output assessment**:
+
 ```yaml
 assessment:
   domain: software
   goal_inventory:
     - id: g1
-      description: "Production-ready open-source project"
+      description: 'Production-ready open-source project'
       priority: high
-      criteria: "0 build errors, >80% test pass rate, complete docs, CI/CD pipeline"
+      criteria: '0 build errors, >80% test pass rate, complete docs, CI/CD pipeline'
   goal_alignment:
     overall_percentage: 65
     per_goal:
       - goal_id: g1
         alignment: 65
-        rationale: "Build clean, 109/109 tests pass, docs partial, no CI/CD yet"
+        rationale: 'Build clean, 109/109 tests pass, docs partial, no CI/CD yet'
   health_indicators:
-    - name: "Build Status"
-      value: "0 errors"
+    - name: 'Build Status'
+      value: '0 errors'
       status: healthy
-    - name: "Test Pass Rate"
-      value: "100%"
+    - name: 'Test Pass Rate'
+      value: '100%'
       status: healthy
-    - name: "Documentation"
-      value: "60% coverage"
+    - name: 'Documentation'
+      value: '60% coverage'
       status: warning
-    - name: "CI/CD"
-      value: "Not configured"
+    - name: 'CI/CD'
+      value: 'Not configured'
       status: critical
 ```

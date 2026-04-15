@@ -4,12 +4,12 @@ Ordered checklist for scanning a consumer repository before integration.
 
 ## 1. Tooling and boundaries
 
-| Signal | Where to look | Why it matters |
-|--------|---------------|----------------|
-| Package manager | `pnpm-lock.yaml`, `package-lock.json`, `yarn.lock` | Correct install commands |
-| TS strict | `tsconfig.json` | Strictness of generated code |
-| Aliases | `tsconfig` `paths`, Vite `resolve.alias` | Import paths for new modules |
-| ESLint / Biome | config files | Avoid patterns CI will reject |
+| Signal          | Where to look                                      | Why it matters                |
+| --------------- | -------------------------------------------------- | ----------------------------- |
+| Package manager | `pnpm-lock.yaml`, `package-lock.json`, `yarn.lock` | Correct install commands      |
+| TS strict       | `tsconfig.json`                                    | Strictness of generated code  |
+| Aliases         | `tsconfig` `paths`, Vite `resolve.alias`           | Import paths for new modules  |
+| ESLint / Biome  | config files                                       | Avoid patterns CI will reject |
 
 ## 2. Framework-specific
 

@@ -12,12 +12,12 @@ change is functionally complete, not just structurally present.
 
 ## When KBD Invokes bdd-testing
 
-| KBD Phase | BDD Role | Trigger |
-|-----------|----------|---------|
-| **Plan** (per-change) | Generate Gherkin scenarios as acceptance criteria | When creating an OpenSpec change or `change.md` |
-| **Execute** (per-change QA) | Write step definitions + run Cucumber | After change is marked IN_PROGRESS |
-| **Execute** (verification gate) | All BDD scenarios passing = change complete | Before marking DONE in progress.json |
-| **Reflect** | BDD coverage report informs goal completion % | When generating reflection.md |
+| KBD Phase                       | BDD Role                                          | Trigger                                         |
+| ------------------------------- | ------------------------------------------------- | ----------------------------------------------- |
+| **Plan** (per-change)           | Generate Gherkin scenarios as acceptance criteria | When creating an OpenSpec change or `change.md` |
+| **Execute** (per-change QA)     | Write step definitions + run Cucumber             | After change is marked IN_PROGRESS              |
+| **Execute** (verification gate) | All BDD scenarios passing = change complete       | Before marking DONE in progress.json            |
+| **Reflect**                     | BDD coverage report informs goal completion %     | When generating reflection.md                   |
 
 ---
 
@@ -72,6 +72,7 @@ Feature: Complete Team Invitations
 ## What KBD Reads Back
 
 After `pnpm test:bdd`, KBD checks:
+
 - Exit code 0 = scenarios PASS → proceed to archive
 - Exit code non-zero = scenarios FAIL → change stays IN_PROGRESS, add to blockers
 

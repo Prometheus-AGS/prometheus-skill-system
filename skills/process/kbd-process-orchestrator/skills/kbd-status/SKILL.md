@@ -16,6 +16,7 @@ Reads orchestrator state and progress ledger, then produces a complete status
 summary including cross-tool work visibility.
 
 Output includes:
+
 - Project name and active phase
 - OpenSpec changes: active / in-progress / archived (if OpenSpec available)
 - Native KBD changes: status from `progress.json`

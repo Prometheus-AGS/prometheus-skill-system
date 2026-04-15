@@ -7,6 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 This is a comprehensive, enterprise-grade skills package collection for AI-assisted development. The repository manages centralized Agent Skills across multiple domains (React, Rust, UI/UX, DevOps, Testing, Documentation) with full compliance to the [agentskills.io](https://agentskills.io/specification) standard and Claude Code plugin marketplace requirements.
 
 **Key Characteristics**:
+
 - Multi-domain skill collection with unified management
 - Dual-format support: standalone agentskills.io + Claude Code plugin
 - Shared utilities, scripts, and templates across skills
@@ -16,6 +17,7 @@ This is a comprehensive, enterprise-grade skills package collection for AI-assis
 ## Essential Commands
 
 ### Submodule Management
+
 ```bash
 # Initialize submodules (for new clones)
 git submodule init
@@ -32,6 +34,7 @@ git submodule status
 ```
 
 ### Validation
+
 ```bash
 # Validate all skills (including imported) against agentskills.io specification
 npm run validate
@@ -50,6 +53,7 @@ npm run format
 ```
 
 ### Build & Distribution
+
 ```bash
 # Build marketplace distribution (creates symlinks in .claude-plugin/)
 npm run build
@@ -62,6 +66,7 @@ npm run install:project
 ```
 
 ### Testing
+
 ```bash
 # Run skill tests
 npm test
@@ -147,6 +152,7 @@ The repository includes a third category for **imported skills** - skills mainta
 - **Versioning**: Can be pinned to specific versions or track latest
 
 Current imported skills:
+
 - `skills/imported/artifact-refiner/` - PMPO-driven artifact refinement engine (v1.1.0)
 
 See `docs/SUBMODULES.md` for complete submodule management guide.
@@ -157,6 +163,7 @@ Skills can reference shared utilities via environment variables:
 
 ```markdown
 ## In SKILL.md
+
 Run validation:
 \`\`\`bash
 bash ${CLAUDE_PLUGIN_ROOT}/shared/scripts/validators/validate-config.sh config.json
@@ -164,6 +171,7 @@ bash ${CLAUDE_PLUGIN_ROOT}/shared/scripts/validators/validate-config.sh config.j
 ```
 
 Available variables:
+
 - `$CLAUDE_PLUGIN_ROOT` - Root of plugin directory
 - `$REPO_ROOT` - Repository root
 - `$HOME` - User home directory
@@ -175,17 +183,20 @@ Available variables:
 1. **Choose category**: Place in appropriate `skills/{category}/` directory
 
 2. **Create directory** with kebab-case naming:
+
    ```bash
    mkdir -p skills/react/react-entity-crud
    cd skills/react/react-entity-crud
    ```
 
 3. **Create `SKILL.md`** using template:
+
    ```bash
    cp ../../docs/SKILL_TEMPLATE.md SKILL.md
    ```
 
 4. **Edit frontmatter** (required fields):
+
    ```yaml
    ---
    name: react-entity-crud
@@ -193,7 +204,7 @@ Available variables:
    license: MIT
    metadata:
      author: your-name
-     version: "1.0.0"
+     version: '1.0.0'
      category: react
      tags: [react, crud, entity, typescript]
    ---
@@ -207,6 +218,7 @@ Available variables:
    - Use forward slashes for all paths
 
 6. **Add optional directories**:
+
    ```bash
    mkdir -p scripts references assets
    # scripts/    - Executable code
@@ -215,6 +227,7 @@ Available variables:
    ```
 
 7. **Validate**:
+
    ```bash
    npm run validate:skill skills/react/react-entity-crud
    ```
@@ -240,16 +253,19 @@ When updating skills:
 This repository strictly adheres to the [agentskills.io specification](https://agentskills.io/specification):
 
 ### Required Elements
+
 - ✅ `SKILL.md` with YAML frontmatter
 - ✅ `name` field: lowercase, hyphens, max 64 chars, pattern `^[a-z0-9]+(-[a-z0-9]+)*$`
 - ✅ `description` field: 1-1024 characters, searchable
 
 ### Standard Directories
+
 - ✅ `scripts/` - Executable code (optional)
 - ✅ `references/` - Documentation loaded on demand (optional)
 - ✅ `assets/` - Templates, resources (optional)
 
 ### Best Practices Enforced
+
 - ✅ Forward slashes only (never backslashes)
 - ✅ Self-contained scripts with package runners (`npx`, `uvx`, `bunx`)
 - ✅ Progressive disclosure (main file + references)
@@ -259,6 +275,7 @@ This repository strictly adheres to the [agentskills.io specification](https://a
 ### Validation
 
 The validator (`scripts/validate-skills.js`) checks:
+
 - YAML frontmatter syntax and schema
 - Required fields presence and format
 - Name/directory consistency
@@ -269,28 +286,33 @@ The validator (`scripts/validate-skills.js`) checks:
 ## Important Conventions
 
 ### Naming
+
 - **Skills**: `kebab-case` only, e.g., `react-entity-crud`
 - **Files**: Forward slashes in all paths
 - **Scripts**: Executable with `.sh`, `.py`, `.js` extensions
 
 ### Skill Size
+
 - **Main SKILL.md**: Keep under 500 lines
 - **Progressive disclosure**: Split large content to `references/`
 - **Context efficiency**: Skills use lazy-loading architecture
 
 ### Script Requirements
+
 - **Self-contained**: Use inline dependency declarations or package runners
 - **Cross-platform**: Avoid platform-specific commands
 - **Structured output**: JSON when possible for programmatic parsing
 - **Error handling**: Non-zero exit codes on failure
 
 ### Documentation
+
 - **Third person**: "Run the command" not "You should run"
 - **Concrete examples**: Always include working examples
 - **When to use**: Describe triggering scenarios clearly
 - **No assumptions**: Document all prerequisites
 
 ### Shared Resources
+
 - **Location**: `shared/{scripts,templates,utils}/`
 - **Reference**: Use `${CLAUDE_PLUGIN_ROOT}/shared/...`
 - **Documentation**: Maintain README in each shared directory
@@ -308,6 +330,7 @@ The marketplace is configured for Git-based distribution:
 ### Publishing Checklist
 
 Before releasing:
+
 - [ ] All skills validate: `npm run validate`
 - [ ] Marketplace builds: `npm run build`
 - [ ] Version bumped in `package.json` and `plugin.json`
@@ -318,6 +341,7 @@ Before releasing:
 ## Testing Strategy
 
 ### Validation Testing
+
 ```bash
 # Schema validation
 npm run validate
@@ -327,6 +351,7 @@ npm run validate:skill skills/category/name
 ```
 
 ### Integration Testing
+
 ```bash
 # Install to test environment
 npm run install:project
@@ -338,6 +363,7 @@ npm run install:project
 ```
 
 ### Manual Testing Checklist
+
 - [ ] Skill triggers on appropriate prompts
 - [ ] Instructions are clear and actionable
 - [ ] Examples work as documented
@@ -387,6 +413,7 @@ description: Complex workflow with detailed docs
 ## Detailed Documentation
 
 For in-depth information:
+
 - [Conceptual Guide](references/CONCEPTS.md)
 - [API Reference](references/API.md)
 - [Extended Examples](references/EXAMPLES.md)
@@ -415,30 +442,37 @@ description: Skill with validation
 ### Validation Errors
 
 **Error**: "SKILL.md must have YAML frontmatter"
+
 - **Fix**: Add frontmatter with `---` delimiters and required fields
 
 **Error**: "Frontmatter name doesn't match directory"
+
 - **Fix**: Ensure `name:` field matches directory name exactly
 
 **Error**: "Found backslashes in SKILL.md"
+
 - **Fix**: Replace all `\` with `/` in paths
 
 ### Build Issues
 
 **Symlinks not created**:
+
 - **Check**: Permissions on `.claude-plugin/` directory
 - **Fix**: Run `npm run build` to recreate symlinks
 
 **Skills not loading**:
+
 - **Check**: Restart Claude Code or run `/reload-plugins`
 - **Verify**: Skill is in correct location with valid `SKILL.md`
 
 ### Installation Issues
 
 **Permission denied on scripts**:
+
 - **Fix**: Run `chmod +x scripts/*.sh` in skill directory
 
 **Module not found in script**:
+
 - **Fix**: Use package runners (`npx`, `uvx`) or inline dependencies
 
 ## References

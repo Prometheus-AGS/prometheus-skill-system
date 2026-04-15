@@ -11,6 +11,7 @@ Produce a complete `skill_spec` that defines what will be built, which mode to u
 ### Step 1: Clarify Intent
 
 Ask the user (or infer from context):
+
 - What should this skill do?
 - What domain does it operate in?
 - Does it need PMPO orchestration or is it a simpler instructional skill?
@@ -18,11 +19,11 @@ Ask the user (or infer from context):
 
 ### Step 2: Classify Mode
 
-| Signal | Mode |
-|--------|------|
-| No source skill mentioned, novel capability | `create` |
-| "Like X but for Y", existing skill referenced as template | `clone` |
-| "Add Z capability to existing skill" | `extend` |
+| Signal                                                    | Mode     |
+| --------------------------------------------------------- | -------- |
+| No source skill mentioned, novel capability               | `create` |
+| "Like X but for Y", existing skill referenced as template | `clone`  |
+| "Add Z capability to existing skill"                      | `extend` |
 
 ### Step 3: Source Skill Analysis (clone/extend only)
 
@@ -44,23 +45,23 @@ If mode is `clone` or `extend`, read the source skill:
 
 Determine which platform outputs to generate:
 
-| Platform | Output |
-|----------|--------|
-| `agentskills-io` | Standard SKILL.md (always generated) |
-| `claude-code` | `.claude-plugin/plugin.json`, `skills/`, `hooks/` |
-| `opencode` | Tools directory (configurable path, default `.opencode/tools/`) |
-| `cursor` | SKILL.md (same as agentskills-io) |
-| `gemini-cli` | Extensions format |
+| Platform         | Output                                                          |
+| ---------------- | --------------------------------------------------------------- |
+| `agentskills-io` | Standard SKILL.md (always generated)                            |
+| `claude-code`    | `.claude-plugin/plugin.json`, `skills/`, `hooks/`               |
+| `opencode`       | Tools directory (configurable path, default `.opencode/tools/`) |
+| `cursor`         | SKILL.md (same as agentskills-io)                               |
+| `gemini-cli`     | Extensions format                                               |
 
 Default: `agentskills-io` + `claude-code`
 
 ### Step 5: Determine Complexity Tier
 
-| Tier | Characteristics | Approximate Files |
-|------|----------------|-------------------|
-| **Simple** | Instructional only, no scripts, no state | 3-5 |
-| **Standard** | PMPO loop, schemas, some scripts | 15-25 |
-| **Full** | Complete evolver/refiner-class skill | 30-50+ |
+| Tier         | Characteristics                          | Approximate Files |
+| ------------ | ---------------------------------------- | ----------------- |
+| **Simple**   | Instructional only, no scripts, no state | 3-5               |
+| **Standard** | PMPO loop, schemas, some scripts         | 15-25             |
+| **Full**     | Complete evolver/refiner-class skill     | 30-50+            |
 
 ### Step 6: Define Constraints
 
@@ -74,24 +75,24 @@ Default: `agentskills-io` + `claude-code`
 
 ```yaml
 skill_spec:
-  skill_name: string           # kebab-case name
-  skill_description: string    # <1024 chars
-  intent: string               # Full description of purpose
+  skill_name: string # kebab-case name
+  skill_description: string # <1024 chars
+  intent: string # Full description of purpose
   mode: create | clone | extend
-  source_skill: string | null  # Path for clone/extend
-  domain: string               # Primary domain
+  source_skill: string | null # Path for clone/extend
+  domain: string # Primary domain
   complexity_tier: simple | standard | full
   target_platforms:
     - agentskills-io
     - claude-code
-    - opencode            # if specified
-  tools_directory: string | null  # Custom tools output path
-  allowed_tools: string[]     # Tools the skill needs
-  pmpo_phases: string[]       # Which phases to include
-  planned_agents: string[]    # Agent names
-  planned_domains: string[]   # Domain adapter names
+    - opencode # if specified
+  tools_directory: string | null # Custom tools output path
+  allowed_tools: string[] # Tools the skill needs
+  pmpo_phases: string[] # Which phases to include
+  planned_agents: string[] # Agent names
+  planned_domains: string[] # Domain adapter names
   planned_sub_skills: string[] # Sub-skill slash commands
-  planned_schemas: string[]   # Schema file names
+  planned_schemas: string[] # Schema file names
   constraints:
     max_skill_md_lines: 500
     require_frontmatter: true

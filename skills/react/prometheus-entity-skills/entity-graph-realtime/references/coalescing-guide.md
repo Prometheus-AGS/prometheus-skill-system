@@ -49,11 +49,11 @@ Compare counts **before** vs **after** flush in tests by mocking store.
 
 ## Failure modes
 
-| Symptom | Likely cause |
-|---------|--------------|
-| UI lag with low event rate | `flushInterval` too high *and* extra work in render—profile first |
-| Stale rows after burst | Missing `delete` op or wrong `id` |
-| Lists not updating | No `affectedListKeys` + list query not tied to graph ids |
+| Symptom                    | Likely cause                                                      |
+| -------------------------- | ----------------------------------------------------------------- |
+| UI lag with low event rate | `flushInterval` too high _and_ extra work in render—profile first |
+| Stale rows after burst     | Missing `delete` op or wrong `id`                                 |
+| Lists not updating         | No `affectedListKeys` + list query not tied to graph ids          |
 
 ## Recommended defaults
 

@@ -16,30 +16,31 @@ Specify → Plan → Execute → Reflect → Persist
    └────────── Loop (if needed) ←───────┘
 ```
 
-| Phase | Purpose | Agent Type |
-|-------|---------|------------|
-| **Specify** | Transform intent into structured spec | Analyst/Architect |
-| **Plan** | Design approach, map resources, set constraints | Architect/Planner |
-| **Execute** | Carry out the plan, produce output | Generator/Executor |
+| Phase       | Purpose                                               | Agent Type          |
+| ----------- | ----------------------------------------------------- | ------------------- |
+| **Specify** | Transform intent into structured spec                 | Analyst/Architect   |
+| **Plan**    | Design approach, map resources, set constraints       | Architect/Planner   |
+| **Execute** | Carry out the plan, produce output                    | Generator/Executor  |
 | **Reflect** | Validate output, score quality, decide loop/terminate | Validator/Reflector |
-| **Persist** | Durably save state and output | Generator/Persister |
+| **Persist** | Durably save state and output                         | Generator/Persister |
 
 ### Alternative Phase Configurations
 
 Skills may use subsets or variations:
 
-| Configuration | Phases | Use Case |
-|--------------|--------|----------|
-| Full PMPO | S → P → E → R → Persist | Complex creation/evolution |
+| Configuration       | Phases                  | Use Case                            |
+| ------------------- | ----------------------- | ----------------------------------- |
+| Full PMPO           | S → P → E → R → Persist | Complex creation/evolution          |
 | Assess-Plan-Execute | A → P → E → R → Persist | Landscape-aware evolution (evolver) |
-| Specify-Execute | S → E → R → Persist | Simpler refinement |
-| Execute-Reflect | E → R → Persist | Single-shot with validation |
+| Specify-Execute     | S → E → R → Persist     | Simpler refinement                  |
+| Execute-Reflect     | E → R → Persist         | Single-shot with validation         |
 
 ## State Management
 
 ### Named State
 
 Every PMPO session has a named identifier for cross-session persistence:
+
 - **Skill creation**: `creation_id` + `skill_name`
 - **Evolution**: `evolution_id` + `evolution_name`
 - **Refinement**: `refinement_id` + `artifact_name`
@@ -57,6 +58,7 @@ Init → [Phase Loop] → Checkpoint* → Finalize
 ### Provider Abstraction
 
 State can be persisted via:
+
 1. Filesystem (always available as fallback)
 2. Memory MCP tools
 3. Custom MCP servers
@@ -73,17 +75,18 @@ Phase Start → Agent Work → Phase Complete → Checkpoint → Dispatch
 ```
 
 After each phase:
+
 1. **Checkpoint**: Snapshot current state for crash recovery
 2. **Dispatch**: Fire lifecycle events for external integration
 
 ### Event Types
 
-| Event | When | Payload |
-|-------|------|---------|
-| `on_phase_complete` | After any phase | Phase name, iteration |
-| `on_creation_complete` | After successful termination | Full state |
-| `on_regression` | Reflect detects quality drop | Delta details |
-| `on_approval_required` | Human gate needed | Constraint details |
+| Event                  | When                         | Payload               |
+| ---------------------- | ---------------------------- | --------------------- |
+| `on_phase_complete`    | After any phase              | Phase name, iteration |
+| `on_creation_complete` | After successful termination | Full state            |
+| `on_regression`        | Reflect detects quality drop | Delta details         |
+| `on_approval_required` | Human gate needed            | Constraint details    |
 
 ## Loop Control
 
@@ -91,12 +94,12 @@ After each phase:
 
 The Reflect phase evaluates whether to loop or terminate:
 
-| Signal | Action |
-|--------|--------|
-| All checks pass, quality ≥ threshold | **Terminate** |
-| Fixable issues in output | **Loop** → Execute |
-| Structural issues in design | **Loop** → Plan |
-| Max iterations reached | **Terminate** with warnings |
+| Signal                               | Action                      |
+| ------------------------------------ | --------------------------- |
+| All checks pass, quality ≥ threshold | **Terminate**               |
+| Fixable issues in output             | **Loop** → Execute          |
+| Structural issues in design          | **Loop** → Plan             |
+| Max iterations reached               | **Terminate** with warnings |
 
 ### Iteration Limits
 
@@ -105,6 +108,7 @@ Default: 3-5 iterations maximum. Prevents infinite loops while allowing iterativ
 ## Domain Adapters
 
 Domain adapters customize PMPO phases for specific contexts:
+
 - Define domain-specific evaluation criteria
 - Provide domain vocabulary and examples
 - Set quality thresholds for the domain

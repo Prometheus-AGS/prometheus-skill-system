@@ -26,20 +26,20 @@ Skim **`src/crud/useEntityCRUD.ts`** and **`src/ui/EntitySheets.tsx`** in the li
 
 ## Specialist playbooks (`agents/`)
 
-| File | Use when |
-|------|-----------|
-| **`agents/form-builder.md`** | `FieldDescriptor[]`, `EntityFormSheet`, `EntityDetailSheet`, create vs edit flags |
-| **`agents/table-builder.md`** | `ColumnDef`, `meta.entityMeta`, `EntityTable` + `UseEntityViewResult` wiring |
-| **`agents/relation-wirer.md`** | `registerSchema`, `listKeyPrefix`, `invalidateTargetLists`, `globalListKeys` |
+| File                           | Use when                                                                          |
+| ------------------------------ | --------------------------------------------------------------------------------- |
+| **`agents/form-builder.md`**   | `FieldDescriptor[]`, `EntityFormSheet`, `EntityDetailSheet`, create vs edit flags |
+| **`agents/table-builder.md`**  | `ColumnDef`, `meta.entityMeta`, `EntityTable` + `UseEntityViewResult` wiring      |
+| **`agents/relation-wirer.md`** | `registerSchema`, `listKeyPrefix`, `invalidateTargetLists`, `globalListKeys`      |
 
 ## Sub-skill routing (slash commands)
 
-| Command | Use when |
-|---------|-----------|
-| **`/entity-crud-page`** | New full screen: table + sheets + modes + delete |
-| **`/entity-crud-form`** | Only sheets and field descriptors |
-| **`/entity-crud-table`** | Only grid, columns, filters/sort alignment |
-| **`/entity-crud-relations`** | Only schema registry and cascade behavior |
+| Command                      | Use when                                         |
+| ---------------------------- | ------------------------------------------------ |
+| **`/entity-crud-page`**      | New full screen: table + sheets + modes + delete |
+| **`/entity-crud-form`**      | Only sheets and field descriptors                |
+| **`/entity-crud-table`**     | Only grid, columns, filters/sort alignment       |
+| **`/entity-crud-relations`** | Only schema registry and cascade behavior        |
 
 ## Quality gate
 

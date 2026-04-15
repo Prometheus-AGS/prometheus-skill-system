@@ -20,20 +20,20 @@ This skill guides integration of **@prometheus-ags/prometheus-entity-management*
 
 ## Architecture (library facts)
 
-| Layer | Responsibility |
-|--------|----------------|
-| `GQLClient` | `query` / `mutate` with dedupe; calls `normalizeGQLResponse` on success |
-| `normalizeGQLResponse` | Walks descriptor paths, `upsertEntity`, `setEntityFetched` |
-| Hooks | `useGQLEntity`, `useGQLList`, `useGQLMutation`, `useGQLSubscription` — same graph as REST |
-| Realtime | Optional: `createGraphQLSubscriptionAdapter` emits `ChangeSet` for `RealtimeManager` |
+| Layer                  | Responsibility                                                                            |
+| ---------------------- | ----------------------------------------------------------------------------------------- |
+| `GQLClient`            | `query` / `mutate` with dedupe; calls `normalizeGQLResponse` on success                   |
+| `normalizeGQLResponse` | Walks descriptor paths, `upsertEntity`, `setEntityFetched`                                |
+| Hooks                  | `useGQLEntity`, `useGQLList`, `useGQLMutation`, `useGQLSubscription` — same graph as REST |
+| Realtime               | Optional: `createGraphQLSubscriptionAdapter` emits `ChangeSet` for `RealtimeManager`      |
 
 ## Sub-skills (slash commands)
 
-| Command | Purpose |
-|---------|---------|
-| `/entity-gql-setup` | Scaffold `createGQLClient`, auth headers, and descriptor set from schema |
-| `/entity-gql-hooks` | Produce typed hook usage for specific operations (entity, list, mutation) |
-| `/entity-gql-subscription` | Wire WebSocket client + descriptors or adapter + manager |
+| Command                    | Purpose                                                                   |
+| -------------------------- | ------------------------------------------------------------------------- |
+| `/entity-gql-setup`        | Scaffold `createGQLClient`, auth headers, and descriptor set from schema  |
+| `/entity-gql-hooks`        | Produce typed hook usage for specific operations (entity, list, mutation) |
+| `/entity-gql-subscription` | Wire WebSocket client + descriptors or adapter + manager                  |
 
 ## PMPO workflow
 
@@ -61,10 +61,10 @@ This skill guides integration of **@prometheus-ags/prometheus-entity-management*
 
 ## Schema sources
 
-| Source | When to use | Agent |
-|--------|-------------|--------|
-| Committed `.graphql` / `.gql` | Schema-first repos, codegen already in CI | `schema-analyzer` on SDL |
-| Introspection JSON | No SDL in repo; need field-accurate types from a server | Run introspection once (dev/staging), store redacted `schema.json`, then analyzer |
+| Source                        | When to use                                             | Agent                                                                             |
+| ----------------------------- | ------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| Committed `.graphql` / `.gql` | Schema-first repos, codegen already in CI               | `schema-analyzer` on SDL                                                          |
+| Introspection JSON            | No SDL in repo; need field-accurate types from a server | Run introspection once (dev/staging), store redacted `schema.json`, then analyzer |
 
 **Introspection (illustrative)** — adjust headers and URL for your gateway:
 
