@@ -4,6 +4,10 @@
       "url": "${SURREAL_MEMORY_URL:-http://localhost:23001/mcp/sse}",
       "description": "Global distributed memory state server — knowledge graph, scoped memory, TaskStreams, mindmaps, Graph-RAG traversal, hybrid search"
     },
+    "sycophancy-correction": {
+      "command": "sycophancy-correction",
+      "description": "Detect and correct sycophantic patterns (S-01 through S-08) in prompts, completions, agent descriptors, and PMPO reflect outputs"
+    },
     "tavily": {
       "command": "npx",
       "args": ["-y", "@anthropic/tavily-mcp@latest"],

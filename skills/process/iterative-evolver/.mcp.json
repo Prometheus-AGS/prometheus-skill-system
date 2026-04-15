@@ -1,5 +1,9 @@
 {
   "mcpServers": {
+    "sycophancy-correction": {
+      "command": "sycophancy-correction",
+      "description": "Detect and correct sycophantic patterns in reflect and assess outputs"
+    },
     "tavily": {
       "command": "npx",
       "args": ["-y", "@anthropic/tavily-mcp@latest"],
