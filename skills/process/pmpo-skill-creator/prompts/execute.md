@@ -226,6 +226,30 @@ execution_result:
   warnings: string[]
 ```
 
+## Sycophancy Correction Pass (MANDATORY)
+
+Before writing generated SKILL.md content to disk, run a sycophancy
+detection pass on the instruction body (the content below frontmatter).
+
+LLM-generated skill instructions tend to over-satisfy specs without surfacing
+constraints, producing prompts that are sycophancy-inducing by design.
+
+Check for:
+- **S-01 (Unprompted Affirmation)**: Skill instructions that praise the user
+  rather than directing behavior
+- **S-03 (Caveat Collapse)**: Instructions with zero edge cases, failure modes,
+  or "when NOT to use" sections
+- **S-07 (Scope Creep Flattery)**: Generated instructions substantially longer
+  than the task requires — visible effort over analytical value
+
+If the `sycophancy-correction` skill is available, invoke it with:
+- `target: prompt`
+- `correction_mode: rewrite`
+- `strictness: standard`
+
+Write the corrected version. This pass runs BEFORE the Reflect phase validation,
+ensuring the validated artifact is already sycophancy-clean.
+
 ## Rules
 
 1. NEVER generate a file without creating its parent directory first
@@ -234,3 +258,4 @@ execution_result:
 4. SKILL.md frontmatter must include required `name` and `description`
 5. Cross-references must use relative paths from skill root
 6. Template variables (`{{var}}`) must be fully resolved — no unresolved placeholders in output
+7. ALL generated SKILL.md content must pass sycophancy correction before write (see above)

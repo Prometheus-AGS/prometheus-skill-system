@@ -115,7 +115,23 @@ Verify state lifecycle:
 - `state-finalize.sh` — archives and updates registry
 - State directory structure documented in meta-controller
 
-### Step 10: Quality Score
+### Step 10: Sycophancy Check on Generated Content
+
+Run sycophancy detection on the generated SKILL.md instruction body:
+
+| Check | Pattern | Severity |
+|-------|---------|----------|
+| Unprompted affirmation in instructions | S-01 | **WARN** |
+| No "when NOT to use" section | S-03 | **WARN** |
+| No edge cases or failure modes | S-03 | **FAIL** |
+| Self-congratulatory language | S-04 | **WARN** |
+| Instructions > 500 words with no analytical density | S-07 | **WARN** |
+
+If the Execute phase ran a sycophancy correction pass, verify the corrected
+content is present (not the uncorrected original). **FAIL** if uncorrected
+sycophantic content was written to disk.
+
+### Step 11: Quality Score
 
 Aggregate checks into a quality score:
 

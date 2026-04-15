@@ -51,12 +51,33 @@ Key patterns:
 
 ### Scoring Thresholds
 
+Thresholds differ by context. Assessments feed downstream planning and
+should not be auto-corrected without user visibility.
+
+#### Reflect Phase
+
 | Score | Action |
 |-------|--------|
 | < 0.3 | Clean — proceed normally |
-| 0.3 - 0.5 | Flag — warn user, annotate output |
+| 0.3 - 0.5 | Flag — annotate output, warn user |
 | >= 0.5 | Correct — auto-rewrite before storing |
 | >= 0.7 with S-08 | Block — do not store; regenerate |
+
+#### Assessment Phase (higher bar for auto-correction)
+
+| Score | Action |
+|-------|--------|
+| < 0.3 | Clean — proceed normally |
+| 0.3 - 0.5 | Detect-only — warn user with specific patterns |
+| 0.5 - 0.7 | Flag-and-surface — show correction to user before storing |
+| >= 0.7 | Auto-correct — too sycophantic to be useful as-is |
+
+#### Generated Skill Content (pmpo-skill-creator)
+
+| Score | Action |
+|-------|--------|
+| < 0.3 | Clean — write to disk |
+| >= 0.3 | Rewrite — correct before writing, always |
 
 ---
 
