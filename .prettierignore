@@ -1,7 +1,8 @@
 node_modules
 target
 .claude
-.prometheus/traces
+.prometheus
+skills/imported
 tools/prometheus-cli/target
 tools/prometheus-cli/Cargo.lock
 marketplace/marketplace.json
