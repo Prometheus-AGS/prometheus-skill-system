@@ -1,6 +1,6 @@
 # Prometheus Skill System
 
-A self-improving AI skill execution engine. 62 validated skills across 5 domains, a 4-crate Rust CLI, Cedar governance, surreal-memory distributed state, sycophancy correction, and a nested PMPO pipeline that learns from every execution.
+A self-improving AI skill execution engine. 62 skills (382 including sub-skills) across 5 domains, a 4-crate Rust CLI, Cedar governance, surreal-memory distributed state, sycophancy correction, and a nested PMPO pipeline that learns from every execution.
 
 Built for teams deploying AI agents in production environments where capability improvement must be governed, audited, and reproducible.
 
@@ -10,10 +10,10 @@ Built for teams deploying AI agents in production environments where capability 
 
 | Standard               | Score      | Evidence                                                                                 |
 | ---------------------- | ---------- | ---------------------------------------------------------------------------------------- |
-| **AgentSkills.io**     | **97/100** | 62/62 skills pass with 0 errors, 0 warnings. Recursive validation covers all sub-skills. |
-| **Claude Code Plugin** | **96/100** | plugin.json has all 9 fields. 5 hook events. 3 MCP servers. CI workflow.                 |
-| **OpenCode Support**   | **93/100** | 3 typed TypeScript tool definitions, `.opencode/package.json`, 8-platform compatibility. |
-| **Marketplace**        | **95/100** | 5 granular plugin entries, v1.1.0 semver, git tag, CI badge.                             |
+| **AgentSkills.io**     | **97/100** | 382 skills validated (0 errors, 0 warnings). Recursive validation covers all sub-skills. |
+| **Claude Code Plugin** | **96/100** | plugin.json has all 9 fields. 5 hook events. 4 MCP servers. CI green.                    |
+| **OpenCode Support**   | **93/100** | 3 typed TypeScript tool definitions, `.opencode/package.json`, 9-platform compatibility. |
+| **Marketplace**        | **95/100** | 5 granular plugin entries, v1.2.0 semver, git tag, CI badge.                             |
 
 ## How Skills Improve Themselves
 
@@ -179,41 +179,49 @@ npm install
 
 ```bash
 npm run validate
-# 62 skill(s) validated — 0 errors, 0 warnings
+# 382 skill(s) validated (including sub-skills) — 0 errors, 0 warnings
 ```
 
 ### Build and Install
 
+Three Rust binaries to build:
+
 ```bash
-# Build the Rust CLI
+# 1. Build the Rust CLI (skill management, Cedar governance, sycophancy detection)
 cd tools/prometheus-cli && cargo build --release && cd ../..
-sudo cp tools/prometheus-cli/target/release/prometheus /usr/local/bin/
+cp tools/prometheus-cli/target/release/prometheus /usr/local/bin/
 
-# Build the sycophancy MCP server
+# 2. Build the sycophancy MCP server (8-pattern detection + correction)
 cd skills/imported/sycophancy-correction && cargo build --release && cd ../../..
-sudo cp skills/imported/sycophancy-correction/target/release/sycophancy-correction /usr/local/bin/
+cp skills/imported/sycophancy-correction/target/release/sycophancy-correction /usr/local/bin/
 
-# Install all skills as slash commands across 9 platforms
+# 3. Build the surreal-memory MCP server (knowledge graph + distributed state)
+#    Skip if using Docker: docker ps | grep surreal-memory
+cd tools/surreal-memory-server && cargo build --release && cd ../..
+cp tools/surreal-memory-server/target/release/surreal-memory-server /usr/local/bin/
+
+# Install all 54 skills as slash commands across 9 platforms
 npm run install:skills
 
-# Verify
+# Verify everything
 prometheus doctor
-prometheus --version
-sycophancy-correction --help 2>&1 | head -1 || echo "MCP server installed (stdio mode)"
+prometheus --version              # CLI
+sycophancy-correction --version 2>&1 || echo "sycophancy MCP ✅"
+surreal-memory-server --version 2>&1 || echo "surreal-memory MCP ✅"
 ```
 
 ### Platform-Specific Paths
 
 | Platform    | Global Skills                 | Slash Commands |
 | ----------- | ----------------------------- | -------------- |
-| Claude Code | `~/.claude/skills/`           | 53 skills      |
-| OpenCode    | `~/.config/opencode/skills/`  | 53 skills      |
-| Cursor      | `~/.cursor/skills/`           | 53 skills      |
-| Codex / Amp | `~/.agents/skills/`           | 53 skills      |
-| Gemini CLI  | `~/.gemini/skills/`           | 53 skills      |
-| Roo Code    | `~/.roo/skills/`              | 53 skills      |
-| Windsurf    | `~/.codeium/windsurf/skills/` | 53 skills      |
-| Cline       | `~/.cline/skills/`            | 53 skills      |
+| Claude Code | `~/.claude/skills/`           | 54 skills      |
+| OpenCode    | `~/.config/opencode/skills/`  | 54 skills      |
+| Cursor      | `~/.cursor/skills/`           | 54 skills      |
+| Codex / Amp | `~/.agents/skills/`           | 54 skills      |
+| Gemini CLI  | `~/.gemini/skills/`           | 54 skills      |
+| Roo Code    | `~/.roo/skills/`              | 54 skills      |
+| Windsurf    | `~/.codeium/windsurf/skills/` | 54 skills      |
+| Cline       | `~/.cline/skills/`            | 54 skills      |
 
 ## Slash Commands
 
