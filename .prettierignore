@@ -5,6 +5,7 @@ target
 skills/imported
 tools/prometheus-cli/target
 tools/prometheus-cli/Cargo.lock
+tools/surreal-memory-server
 marketplace/marketplace.json
 *.lock
 *.template.json
