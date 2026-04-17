@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+- `skills/process/kbd-process-orchestrator/prompts/reflect.md` — inlined sycophancy-correction invocation contract and scoring thresholds directly into the "Sycophancy Self-Check (MANDATORY)" section.
+- `skills/process/kbd-process-orchestrator/prompts/assess.md` — added invocation subsection mirroring reflect.md with Assess-appropriate thresholds.
+- `skills/process/kbd-process-orchestrator/prompts/plan.md` — added Sycophancy Self-Check section (previously missing).
+- `skills/process/kbd-process-orchestrator/references/integrations/sycophancy-correction.md` — Plan phase promoted from exclusion to first-class checked phase.
+- `scripts/check-prerequisites.sh` — invokes smoke-test.sh after sycophancy-correction binary install to verify functionality.
+- `scripts/validate-skills.js` — hardened against symlink loops and recursive structures (lstat + isSymbolicLink skip, realpath-based visited-set, expanded skip list).
+
+### Submodule bumps
+- `skills/imported/sycophancy-correction` → d973ef370fe238ceeed72c1b462e85ee83144734
+
 ## [1.1.0] - 2026-04-15
 
 ### Added
