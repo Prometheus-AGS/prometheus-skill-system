@@ -43,7 +43,30 @@ class SkillValidator {
     this.skillCount = 0;
   }
 
-  async validateSkill(skillPath, { isSubSkill = false } = {}) {
+  async validateSkill(skillPath, { isSubSkill = false, visited = null } = {}) {
+    // Initialize visited set on the first (top-level) call. Threaded through
+    // recursion so we detect both symlink loops and nested-clone recursion.
+    if (visited === null) {
+      visited = new Set();
+    }
+
+    // Resolve to an absolute, canonical path for comparison. realpath follows
+    // symlinks to their real target, so a symlink loop resolves to a path
+    // already in the set on the second visit.
+    let canonicalPath;
+    try {
+      canonicalPath = await fs.realpath(skillPath);
+    } catch {
+      canonicalPath = path.resolve(skillPath);
+    }
+
+    if (visited.has(canonicalPath)) {
+      // Already validated (or currently validating) this path. Skip to prevent
+      // infinite recursion from symlink loops or nested-clone structures.
+      return;
+    }
+    visited.add(canonicalPath);
+
     const skillName = path.basename(skillPath);
     const prefix = isSubSkill ? '  ' : '';
     const label = isSubSkill ? `sub-skill: ${skillName}` : skillName;
@@ -126,14 +149,17 @@ class SkillValidator {
       // Recursively validate sub-skills in skills/ directory
       const subSkillsDir = path.join(skillPath, 'skills');
       if (await this.fileExists(subSkillsDir)) {
-        const subStats = await fs.stat(subSkillsDir);
+        // lstat to avoid following a skills/ symlink that points back into us.
+        const subStats = await fs.lstat(subSkillsDir);
         if (subStats.isDirectory()) {
           const subDirs = await fs.readdir(subSkillsDir);
           for (const subDir of subDirs) {
             const subPath = path.join(subSkillsDir, subDir);
-            const subDirStats = await fs.stat(subPath);
+            const subDirStats = await fs.lstat(subPath);
+            // Skip symlinks entirely — they're the #1 source of validation loops.
+            if (subDirStats.isSymbolicLink()) continue;
             if (subDirStats.isDirectory()) {
-              await this.validateSkill(subPath, { isSubSkill: true });
+              await this.validateSkill(subPath, { isSubSkill: true, visited });
             }
           }
         }
@@ -153,17 +179,26 @@ class SkillValidator {
           entry === 'prompts' ||
           entry === 'workflows' ||
           entry === '.claude-plugin' ||
+          entry === 'node_modules' ||
+          entry === 'target' ||
+          entry === 'dist' ||
+          entry === 'crates' ||
+          entry === 'examples' ||
+          entry === 'docs' ||
+          entry === skillName ||  // defense against self-named nested dir / recursive clone
           entry.startsWith('_') ||
           entry.startsWith('.')
         ) {
           continue;
         }
         const entryPath = path.join(skillPath, entry);
-        const entryStats = await fs.stat(entryPath);
+        const entryStats = await fs.lstat(entryPath);
+        // Skip symlinks.
+        if (entryStats.isSymbolicLink()) continue;
         if (entryStats.isDirectory()) {
           const hasSkillMd = await this.fileExists(path.join(entryPath, 'SKILL.md'));
           if (hasSkillMd) {
-            await this.validateSkill(entryPath, { isSubSkill: true });
+            await this.validateSkill(entryPath, { isSubSkill: true, visited });
           }
         }
       }
