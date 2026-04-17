@@ -154,6 +154,12 @@ check_binaries() {
                         cp skills/imported/sycophancy-correction/target/release/sycophancy-correction /usr/local/bin/ 2>/dev/null || \
                             (mkdir -p ~/.local/bin && cp skills/imported/sycophancy-correction/target/release/sycophancy-correction ~/.local/bin/)
                         echo "       ✅ Built and installed"
+                        # Verify the binary actually responds
+                        if bash skills/imported/sycophancy-correction/scripts/smoke-test.sh >/dev/null 2>&1; then
+                            echo "       ✅ Smoke test passed"
+                        else
+                            echo "       ⚠️  Binary installed but smoke test failed — run skills/imported/sycophancy-correction/scripts/smoke-test.sh for details"
+                        fi
                         ;;
                     surreal-memory-server)
                         # Check Docker first

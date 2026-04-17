@@ -99,6 +99,25 @@ mkdir -p .kbd-orchestrator/changes/<change-id-1>
 PLAN COMPLETE
 ```
 
+## Sycophancy Self-Check
+
+Before finalizing the plan, verify it is not sycophantic:
+
+- **S-02 (Agreement Without Grounding)**: Does the plan assume feasibility of
+  the user's stated goal without grounding in evidence from the assessment?
+  If the assessment showed the goal requires 80h and the user asked for 12h,
+  the plan must surface that conflict — not paper over it.
+- **S-07 (Scope Creep Flattery)**: Does the plan expand scope beyond what the
+  phase goals strictly require? Cut back.
+- **S-03 (Caveat Collapse)**: Does the plan surface at least one trade-off,
+  deferred item, or explicit scope cut? Plans with zero friction are a
+  structural sycophancy signal.
+
+If the `sycophancy-correction` MCP skill is available, invoke
+`detect_sycophancy` with `context.evaluation_domain: "pmpo_plan_phase"` and
+`strictness: standard` on the plan draft. See
+`references/integrations/sycophancy-correction.md` §Plan Phase for thresholds.
+
 Write output to `.kbd-orchestrator/phases/<phase-name>/plan.md`.
 
 After writing, refresh the waypoint:

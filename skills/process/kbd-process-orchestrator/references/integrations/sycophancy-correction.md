@@ -99,8 +99,30 @@ strictness: strict # for reflect; standard for assess
 
 ---
 
+### Plan Phase (kbd-plan)
+
+After generating `plan.md`, run detection with:
+
+- `evaluation_domain: "pmpo_plan_phase"` (if not supported by the skill yet,
+  fall back to `"project_assessment"`)
+- `strictness: standard`
+- `correction_mode: detect_only`
+
+Key patterns:
+
+- **S-02 (Agreement Without Grounding)**: Plan agrees with user's stated goal
+  without grounding feasibility in evidence
+- **S-07 (Scope Creep Flattery)**: Plan expands scope beyond what the phase
+  goals require to appear more ambitious
+- **S-03 (Caveat Collapse)**: Plan surfaces zero trade-offs or cuts
+
+Thresholds: same as Assessment phase (higher bar than Reflect; plans drive
+downstream execution so auto-correction is not appropriate without user review).
+
+---
+
 ## When NOT to Use
 
-- For Plan phase outputs — plans should be evaluated for feasibility, not sycophancy
+- For Plan phase outputs — use `strictness: standard` with `correction_mode: detect_only` and focus on S-02 (Agreement Without Grounding) and S-07 (Scope Creep Flattery). Feasibility is not a sycophancy check, but 'I will try hard to meet your unrealistic goal' is — and it locks downstream execution into a wrong direction. See §Plan Phase above.
 - For raw progress.json updates — these are structured data, not prose
 - For Execution phase tool calls — sycophancy is a prose analysis concern

@@ -84,6 +84,31 @@ Before finalizing the assessment, verify it is not sycophantic:
   friction in an assessment is a structural sycophancy signal.
 - **S-06**: Replace "clearly" and "obviously" with reasoned conclusions.
 
+### Invoking the sycophancy-correction skill
+
+If the `sycophancy-correction` MCP skill is available, invoke `detect_sycophancy`
+on the generated assessment **before writing the file**.
+
+Invocation:
+
+- Tool: `detect_sycophancy`
+- `content`: the full text of the assessment draft
+- `context.evaluation_domain`: `"project_assessment"`
+- `strictness`: `"standard"` (assessments feed downstream planning; higher bar before auto-correcting)
+- `correction_mode`: `"detect_only"`
+
+Action based on returned `sycophancy_score`:
+
+| Score     | Action                                                                   |
+| --------- | ------------------------------------------------------------------------ |
+| < 0.3     | Proceed — write assessment as-is                                         |
+| 0.3 – 0.5 | Detect-only — append pattern notes as a "Sycophancy Review" section      |
+| 0.5 – 0.7 | Surface corrections to the user before storing; do not silently rewrite  |
+| ≥ 0.7     | Auto-correct via `correct_sycophancy`; too sycophantic to use as-is      |
+
+Save the tool response to
+`.kbd-orchestrator/phases/<phase>/sycophancy/assess-<ISO-timestamp>.json`.
+
 ## Output Format
 
 ```

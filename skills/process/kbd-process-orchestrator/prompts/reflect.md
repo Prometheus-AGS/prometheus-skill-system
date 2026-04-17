@@ -158,9 +158,39 @@ Before finalizing this reflection, verify it is not sycophantic:
    independently verify goal status from `progress.json` data, or does
    it echo the plan's expected outcomes without checking execution reality?
 
-If the `sycophancy-correction` skill is available, run it with
-`evaluation_domain: "pmpo_reflect_phase"` and `strictness: strict` on
-the generated reflection before writing.
+### Invoking the sycophancy-correction skill
+
+If the `sycophancy-correction` MCP skill is available (check for the
+`analyze_reflect_phase` tool in the MCP tool list), invoke it on the generated
+reflection **before writing the file**. Reflect-phase analysis is the skill's
+specialist domain (AC-08 applies — Delta → Root Cause → Corrective Actions
+structure is mandatory at the Reflect gate).
+
+Invocation:
+
+- Tool: `analyze_reflect_phase`
+- `content`: the full text of the reflection draft
+- `context.evaluation_domain`: `"pmpo_reflect_phase"`
+- `strictness`: `"strict"`
+- `correction_mode`: `"detect_only"` on the first pass
+
+Action based on returned `sycophancy_score`:
+
+| Score            | Action                                                           |
+| ---------------- | ---------------------------------------------------------------- |
+| < 0.3            | Proceed — write reflection as-is                                 |
+| 0.3 – 0.5        | Annotate — append pattern notes to the reflection, warn user     |
+| ≥ 0.5            | Re-invoke with `correction_mode: "rewrite"`, use corrected output|
+| ≥ 0.7 with S-08  | Block — do not write; regenerate reflection from scratch         |
+
+Save the full tool response to
+`.kbd-orchestrator/phases/<phase>/sycophancy/reflect-<ISO-timestamp>.json`
+for audit trail.
+
+**Caveat:** The sycophancy-correction skill's `AnthropicClient` is currently
+stubbed — rewrite outputs are placeholder text until that integration lands.
+Until then, treat `correction_mode: rewrite` output as advisory, not final.
+Pattern detection and scoring are fully functional.
 
 After writing, advance the waypoint to the next phase:
 
