@@ -19,8 +19,7 @@ Tier 5: Agent memory probe → memory MCP server
 Tier 6: Filesystem fallback → .evolver/ in CWD
 ```
 
-Script: `scripts/state-resolve-provider.sh`
-Reference: `references/state-management.md`
+Script: `scripts/state-resolve-provider.sh`Reference: `references/state-management.md`
 
 ### 2. Initialize or Resume Named State
 
@@ -48,6 +47,44 @@ Based on `evolution_domain` in the state (or inferred from user intent), load th
 
 ---
 
+## Model Routing
+
+Each phase has a declared model class. Read the policy from `project.json → model_policy` (or `.evolver/<evolution_name>/model_policy.json` for non-software domains). If the policy is absent, treat all phases as `frontier` and log a warning to `.evolver/<evolution_name>/model-routing.log`.
+
+### Phase → Class
+
+| Phase     | Class    | Rationale                                                  |
+|-----------|----------|------------------------------------------------------------|
+| Assess    | frontier | Holistic cross-domain gap analysis                         |
+| Analyze   | frontier | External landscape synthesis against current state         |
+| Plan      | frontier | Decomposition under ambiguity                             |
+| Execute   | tiered   | Score by task complexity (see `references/model-routing.md`) |
+| Reflect   | frontier | Quality judgment, regression detection                     |
+| Persist   | small    | Structured file writes from validated state                |
+| Status    | small    | Read-only reporting from known files                       |
+
+### Execute Phase Tiering
+
+When `/evolve-execute` delegates to the KBD inner loop, routing responsibility transfers to `kbd-process-orchestrator`. The evolver does not override per-change model class — KBD's `references/model-routing.md` applies.
+
+When `/evolve-execute` runs natively (non-software domains), score each task using the same Low / Medium / High rubric in the routing reference.
+
+### Routing Directive
+
+At every phase transition, emit a machine-readable directive immediately before loading the phase controller prompt:
+
+```
+[MODEL_ROUTING] phase=<phase-key> class=<class> model=<concrete-model> env=<environment>
+```
+
+Append to `.evolver/<evolution_name>/model-routing.log`. External orchestrators (prom-lanes, UAR) parse this line to select the inference endpoint before the next phase begins.
+
+If the hosting model does not match a `frontier`-required phase, stop and emit `MODEL MISMATCH` rather than silently degrading.
+
+See `references/model-routing.md` for the full routing contract.
+
+---
+
 ## Orchestration Loop
 
 Execute these phases in order, repeating until convergence or termination:
@@ -64,37 +101,19 @@ After each phase completes:
 2. **Dispatch** workflow triggers for `on_phase_complete` event
 3. Update `phases_completed` in evolution state
 
-Script: `scripts/state-checkpoint.sh <evolution_name> <phase>`
-Script: `scripts/workflow-dispatch.sh <evolution_name> phase_complete <phase>`
+Script: `scripts/state-checkpoint.sh <evolution_name> <phase>`Script: `scripts/workflow-dispatch.sh <evolution_name> phase_complete <phase>`
 
 ## Phase Controllers
 
 Load the corresponding prompt for each phase:
 
-| Phase       | Controller           | Purpose                                               |
-| ----------- | -------------------- | ----------------------------------------------------- |
-| 1. Assess   | `prompts/assess.md`  | Evaluate current state against goals                  |
-| 2. Analyze  | `prompts/analyze.md` | Scan external landscape for opportunities and threats |
-| 3. Plan     | `prompts/plan.md`    | Create prioritized improvement plan                   |
-| 4. Execute  | `prompts/execute.md` | Apply improvements using appropriate tools            |
-| 5. Reflect  | `prompts/reflect.md` | Measure movement, compare before/after                |
-| 6. Persist  | `prompts/persist.md` | Write validated state via state provider              |
-| 7. Decision | (inline below)       | Continue or terminate                                 |
+PhaseControllerPurpose1. Assess`prompts/assess.md`Evaluate current state against goals2. Analyze`prompts/analyze.md`Scan external landscape for opportunities and threats3. Plan`prompts/plan.md`Create prioritized improvement plan4. Execute`prompts/execute.md`Apply improvements using appropriate tools5. Reflect`prompts/reflect.md`Measure movement, compare before/after6. Persist`prompts/persist.md`Write validated state via state provider7. Decision(inline below)Continue or terminate
 
 ## Domain Adapter Routing
 
 Based on `evolution_domain`, load the corresponding domain-specific reference:
 
-| evolution_domain | Domain Reference                  |
-| ---------------- | --------------------------------- |
-| `software`       | `references/domain/software.md`   |
-| `business`       | `references/domain/business.md`   |
-| `product`        | `references/domain/product.md`    |
-| `research`       | `references/domain/research.md`   |
-| `content`        | `references/domain/content.md`    |
-| `operations`     | `references/domain/operations.md` |
-| `compliance`     | `references/domain/compliance.md` |
-| `generic`        | `references/domain/generic.md`    |
+evolution_domainDomain Reference`softwarereferences/domain/software.mdbusinessreferences/domain/business.mdproductreferences/domain/product.mdresearchreferences/domain/research.mdcontentreferences/domain/content.mdoperationsreferences/domain/operations.mdcompliancereferences/domain/compliance.mdgenericreferences/domain/generic.md`
 
 If `evolution_domain` is not specified, infer it from user intent:
 
@@ -143,15 +162,7 @@ All phases read from and write to the state provider. The state provider determi
 
 For the **filesystem** provider, these files are used:
 
-| File                   | Written By       | Read By                |
-| ---------------------- | ---------------- | ---------------------- |
-| `evolution_state.json` | All phases       | All phases             |
-| `assessment.json`      | Assess           | Analyze, Plan, Reflect |
-| `analysis.json`        | Analyze          | Plan, Execute, Reflect |
-| `plan.json`            | Plan             | Execute, Reflect       |
-| `evolution_log.md`     | All phases       | Reflect, Persist       |
-| `decisions.md`         | Reflect, Persist | Meta-Controller        |
-| `reports/`             | Reflect          | Persist                |
+FileWritten ByRead By`evolution_state.json`All phasesAll phases`assessment.json`AssessAnalyze, Plan, Reflect`analysis.json`AnalyzePlan, Execute, Reflect`plan.json`PlanExecute, Reflect`evolution_log.md`All phasesReflect, Persist`decisions.md`Reflect, PersistMeta-Controller`reports/`ReflectPersist
 
 For **agent memory** providers, the same logical structure is stored as memory entities.
 
@@ -159,14 +170,7 @@ For **agent memory** providers, the same logical structure is stored as memory e
 
 ## Error Recovery
 
-| Error                      | Action                                                     |
-| -------------------------- | ---------------------------------------------------------- |
-| State provider unavailable | Fall back to filesystem provider                           |
-| Tool execution fails       | Retry once → if fail again, log error, skip step, continue |
-| Web research fails         | Proceed with cached/prior data, flag gap in analysis       |
-| Assessment incomplete      | Log gaps, request user input at approval gate              |
-| Domain adapter not found   | Fall back to `generic` domain adapter                      |
-| Workflow trigger fails     | Log error, continue (triggers are non-blocking)            |
+ErrorActionState provider unavailableFall back to filesystem providerTool execution failsRetry once → if fail again, log error, skip step, continueWeb research failsProceed with cached/prior data, flag gap in analysisAssessment incompleteLog gaps, request user input at approval gateDomain adapter not foundFall back to `generic` domain adapterWorkflow trigger failsLog error, continue (triggers are non-blocking)
 
 ## Loop/Terminate Decision
 

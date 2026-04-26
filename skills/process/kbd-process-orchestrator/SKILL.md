@@ -2,17 +2,29 @@
 name: kbd-process-orchestrator
 version: '2.0.0'
 description: >
-  The Universal Knowledge-Based Development (KBD) process orchestrator.
-  Drives the full iterative PMPO lifecycle for ANY project —
-  Assess → Analyze → Plan → Execute (backend dispatch) → Reflect — at every
-  granularity level: global phases, OpenSpec changes, and artifact-level QA.
-  Implements the process defined in TJ-KBD-UNIVERSAL-001.
-  Coordinates execution across multiple AI tools (Antigravity, Roo Code,
-  Cursor Agent, Claude Code, Codex, Cline, Kilo Code, Windsurf, OpenCode)
-  using .kbd-orchestrator/ as the shared, file-based source of truth.
+  The Universal Knowledge-Based Development (KBD) process orchestrator. Drives
+  the full iterative PMPO lifecycle for ANY project — Assess → Analyze → Plan →
+  Execute (backend dispatch) → Reflect — at every granularity level: global
+  phases, OpenSpec changes, and artifact-level QA. Implements the process
+  defined in TJ-KBD-UNIVERSAL-001. Coordinates execution across multiple AI
+  tools (Antigravity, Roo Code, Cursor Agent, Claude Code, Codex, Cline, Kilo
+  Code, Windsurf, OpenCode) using .kbd-orchestrator/ as the shared, file-based
+  source of truth.
 authors:
   - 'Prometheus AGS'
 allowed-tools: file_system web_search code_interpreter sequential_thinking memory
+model_routing:
+  policy_source: ".kbd-orchestrator/project.json → model_policy"
+  phases:
+    kbd-assess: frontier
+    kbd-plan: frontier
+    kbd-status: small
+    kbd-reflect: frontier
+    opsx-new: small
+    opsx-apply: tiered
+    opsx-verify: medium
+    opsx-archive: small
+  routing_reference: "references/model-routing.md"
 triggers:
   keywords:
     - kbd
@@ -27,20 +39,16 @@ triggers:
     - kbd-status
     - iterative evolver
   semantic: >
-    Orchestrate a project phase, run the KBD assessment loop,
-    create or manage OpenSpec changes, invoke artifact-refiner QA,
-    or generate a phase reflection report.
+    Orchestrate a project phase, run the KBD assessment loop, create or manage
+    OpenSpec changes, invoke artifact-refiner QA, or generate a phase
+    reflection report.
 ---
 
 # KBD Process Orchestrator
 
-The universal process orchestrator for any software project. Implements the
-Knowledge-Based Development lifecycle defined in **TJ-KBD-UNIVERSAL-001** using
-PMPO orchestration at three nested levels: phase, change, and artifact.
+The universal process orchestrator for any software project. Implements the Knowledge-Based Development lifecycle defined in **TJ-KBD-UNIVERSAL-001** using PMPO orchestration at three nested levels: phase, change, and artifact.
 
-This skill is **project-agnostic**. It derives project identity from context
-(AGENTS.md, CLAUDE.md, README.md, package.json, Cargo.toml, pyproject.toml,
-or explicit prompt arguments). Do not hard-code project names into this skill.
+This skill is **project-agnostic**. It derives project identity from context ([AGENTS.md](http://AGENTS.md), [CLAUDE.md](http://CLAUDE.md), [README.md](http://README.md), package.json, Cargo.toml, pyproject.toml, or explicit prompt arguments). Do not hard-code project names into this skill.
 
 ---
 

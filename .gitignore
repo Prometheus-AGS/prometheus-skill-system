@@ -35,3 +35,8 @@ coverage/
 .env.*.local
 .claude/
 tools/prometheus-cli/target/
+
+# Build output — symlinks created by `npm run build`
+.claude-plugin/agents
+.claude-plugin/hooks
+.claude-plugin/skills

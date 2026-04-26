@@ -1,12 +1,22 @@
 ---
 name: iterative-evolver
 description: >
-  Use this skill for any iterative evolution scenario — assessing current state,
-  analyzing the landscape, planning improvements, executing changes, and reflecting
-  on results. Works across any domain: software, business, product, research,
-  content, operations, compliance, or any area requiring iterative improvement
-  against goals.
+  Use this skill for any iterative evolution scenario — assessing current
+  state, analyzing the landscape, planning improvements, executing changes,
+  and reflecting on results. Works across any domain: software, business,
+  product, research, content, operations, compliance, or any area requiring
+  iterative improvement against goals.
 allowed-tools: file_system web_search code_interpreter browser tavily sequential_thinking memory
+model_routing:
+  policy_source: ".kbd-orchestrator/project.json → model_policy"
+  phases:
+    evolver-assess: frontier
+    evolver-analyze: frontier
+    evolver-plan: frontier
+    evolver-execute: tiered
+    evolver-reflect: frontier
+    evolver-status: small
+  routing_reference: "references/model-routing.md"
 ---
 
 # Iterative Evolver
@@ -32,19 +42,9 @@ The name is the primary key. State is loaded by name at the start of every sessi
 
 State is persisted through a **state provider** abstraction. The skill automatically resolves the best available provider:
 
-| Priority | Provider       | When Used                                                                     |
-| -------- | -------------- | ----------------------------------------------------------------------------- |
-| 1        | User config    | `$EVOLVER_PROVIDER_CONFIG` env var or `.evolver-provider.json`                |
-| 2        | Surreal-Memory | `surreal-memory` MCP server detected — knowledge graph entities + TaskStreams |
-| 3        | MCP tool       | Another dedicated state MCP server is available                               |
-| 4        | Agent memory   | Generic memory MCP server (e.g., `basic-memory`) is available                 |
-| 5        | Filesystem     | Always available — `.evolver/` directory (default)                            |
+PriorityProviderWhen Used1User config`$EVOLVER_PROVIDER_CONFIG` env var or `.evolver-provider.json`2Surreal-Memory`surreal-memory` MCP server detected — knowledge graph entities + TaskStreams3MCP toolAnother dedicated state MCP server is available4Agent memoryGeneric memory MCP server (e.g., `basic-memory`) is available5FilesystemAlways available — `.evolver/` directory (default)
 
-When **surreal-memory** is available, the evolver maps state to knowledge graph
-entities and TaskStreams for cross-session persistence, semantic search over
-prior evolutions, and Graph-RAG traversal. See
-`shared/references/surreal-memory-integration.md` for the entity mapping and
-`references/state-management.md` for the full provider architecture.
+When **surreal-memory** is available, the evolver maps state to knowledge graph entities and TaskStreams for cross-session persistence, semantic search over prior evolutions, and Graph-RAG traversal. See `shared/references/surreal-memory-integration.md` for the entity mapping and `references/state-management.md` for the full provider architecture.
 
 ### Filesystem Provider (Default)
 
@@ -139,8 +139,7 @@ EVOLVER (strategic cycle)
     └─ evolve-report: aggregate + refine via artifact-refiner
 ```
 
-See `references/integrations/kbd-orchestrator.md` and
-`references/integrations/artifact-refiner.md` for full contracts.
+See `references/integrations/kbd-orchestrator.md` and `references/integrations/artifact-refiner.md` for full contracts.
 
 ## Required Tools
 
@@ -226,16 +225,7 @@ On termination, state is **finalized** and archived. Re-running with the same `e
 
 Domain-specific evolution knowledge lives in `references/domain/`:
 
-| Domain     | Reference                         |
-| ---------- | --------------------------------- |
-| Software   | `references/domain/software.md`   |
-| Business   | `references/domain/business.md`   |
-| Product    | `references/domain/product.md`    |
-| Research   | `references/domain/research.md`   |
-| Content    | `references/domain/content.md`    |
-| Operations | `references/domain/operations.md` |
-| Compliance | `references/domain/compliance.md` |
-| Generic    | `references/domain/generic.md`    |
+DomainReferenceSoftware`references/domain/software.md`Business`references/domain/business.md`Product`references/domain/product.md`Research`references/domain/research.md`Content`references/domain/content.md`Operations`references/domain/operations.md`Compliance`references/domain/compliance.md`Generic`references/domain/generic.md`
 
 ## Quick Start
 

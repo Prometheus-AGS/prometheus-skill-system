@@ -10,6 +10,36 @@
   "lint_command": "<lint command, e.g. pnpm run lint OR cargo clippy>",
   "preferred_planning_agent": "antigravity",
   "preferred_execution_agents": ["antigravity", "roo-code"],
+  "model_policy": {
+    "registry": {
+      "small":    { "local": "Qwen3.5-9B-Q8_0",   "t4": "Qwen3.5-9B-Q8_0",     "l4": "Qwen3.5-9B-Q8_0"    },
+      "medium":   { "local": null,                 "t4": "Qwen3.5-27B-Q4",       "l4": "Qwen3.5-35B-A3B-Q4" },
+      "frontier": { "local": "claude-sonnet-4-6",  "t4": "claude-sonnet-4-6",    "l4": "claude-sonnet-4-6"  }
+    },
+    "phases": {
+      "kbd-assess":             "frontier",
+      "kbd-plan":               "frontier",
+      "kbd-status":             "small",
+      "kbd-reflect":            "frontier",
+      "opsx-new":               "small",
+      "opsx-apply-low":         "small",
+      "opsx-apply-medium":      "medium",
+      "opsx-apply-high":        "frontier",
+      "opsx-verify":            "medium",
+      "opsx-archive":           "small",
+      "refiner-iterate":        "small",
+      "refiner-evaluate":       "medium",
+      "evolver-assess":         "frontier",
+      "evolver-analyze":        "frontier",
+      "evolver-plan":           "frontier",
+      "evolver-execute-low":    "small",
+      "evolver-execute-medium": "medium",
+      "evolver-execute-high":   "frontier",
+      "evolver-reflect":        "frontier",
+      "evolver-status":         "small"
+    },
+    "active_environment": "local"
+  },
   "agents_config": {
     "antigravity": {
       "entry": "SKILL.md slash commands",

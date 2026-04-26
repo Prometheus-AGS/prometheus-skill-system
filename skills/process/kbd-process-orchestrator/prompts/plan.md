@@ -2,15 +2,31 @@
 
 You are executing the **Plan** phase of the KBD lifecycle for the **current project**.
 
-> **IMPORTANT**: Do NOT hard-code project names, technology stacks, or
-> domain areas. Derive these from project context files.
+> **IMPORTANT**: Do NOT hard-code project names, technology stacks, or domain areas. Derive these from project context files.
 
 ## Goal
 
-Produce a prioritized, ordered list of changes to implement during this phase.
-Each change must be a discrete, independently implementable, verifiable feature slice.
+Produce a prioritized, ordered list of changes to implement during this phase. Each change must be a discrete, independently implementable, verifiable feature slice.
 
 Also determine whether OpenSpec is available and emit the appropriate commands.
+
+## Model Selection
+
+**Required model class: `frontier`**
+
+Read `project.json → model_policy.phases.kbd-plan`. Plan quality directly determines change scope, which controls how often expensive models are needed in subsequent phases — running plan on a smaller model amplifies cost downstream.
+
+If the hosting model is not frontier-class, stop and emit:
+
+```
+MODEL MISMATCH: kbd-plan requires a frontier model.
+Expected: <model from policy.registry.frontier.<active_environment>>
+Re-invoke via prom-lanes/UAR with the correct model.
+```
+
+Each change in the output below MUST be annotated with a `Complexity score` and `Model class` (see `references/model-routing.md` for scoring rules) so `/opsx:apply` can route to the cheapest viable model without re-scoring.
+
+See `references/model-routing.md` for the full routing contract.
 
 ## Inputs
 
@@ -29,19 +45,16 @@ Check if `openspec/` directory exists at the project root.
 
 ## Planning Rules
 
-1. **One change = one vertical slice** — each change should cover the feature
-   end-to-end (data layer, business logic, API, UI if applicable). Never create
-   purely horizontal changes (e.g., "add types everywhere").
+1. **One change = one vertical slice** — each change should cover the feature end-to-end (data layer, business logic, API, UI if applicable). Never create purely horizontal changes (e.g., "add types everywhere").
 
 2. **Order by dependency** — if change B depends on change A, list A first.
 
-3. **Order by customer value** — prefer changes that unlock visible capability
-   over internal refactors.
+3. **Order by customer value** — prefer changes that unlock visible capability over internal refactors.
 
-4. **Keep changes implementable in one agent session** — if an area is too large,
-   split into multiple changes.
+4. **Keep changes implementable in one agent session** — if an area is too large, split into multiple changes.
 
 5. **Assign an execution agent** — for each change, recommend the best tool:
+
    - Complex multi-file features, UI pages → **Antigravity** or **Claude Code**
    - Architecture decisions → **Roo Code (Architect mode)**
    - Focused implementation → **Roo Code (Code mode)** or **Codex**
@@ -49,13 +62,11 @@ Check if `openspec/` directory exists at the project root.
    - Parallel isolated tasks → **Codex** (via git worktrees) or **Cursor Agent**
    - Human review required → **Manual**
 
-6. **Estimate complexity** — use S (< 1 hour), M (1–4 hours), L (4–8 hours)
-   as a rough guide for a skilled AI agent, not for a human.
+6. **Estimate complexity** — use S (&lt; 1 hour), M (1–4 hours), L (4–8 hours) as a rough guide for a skilled AI agent, not for a human.
 
 ## Priority Rules (project-derived)
 
-Read the project's AGENTS.md or CLAUDE.md for priority guidance. In the absence
-of explicit priorities, apply:
+Read the project's [AGENTS.md](http://AGENTS.md) or [CLAUDE.md](http://CLAUDE.md) for priority guidance. In the absence of explicit priorities, apply:
 
 1. Foundation / blocking dependencies first
 2. User-facing features over internal tooling
@@ -77,6 +88,8 @@ CHANGE LIST (ordered)
    - Depends on: NONE | <change-id>
    - Recommended agent: <tool from registry>
    - Est. complexity: S | M | L
+   - Complexity score: Low | Medium | High   # routing classifier — see references/model-routing.md
+   - Model class: small | medium | frontier  # derived from complexity score
    - Customer value: HIGH | MEDIUM | LOW
    - Details: <2-3 sentences describing what to build>
 
@@ -103,20 +116,11 @@ PLAN COMPLETE
 
 Before finalizing the plan, verify it is not sycophantic:
 
-- **S-02 (Agreement Without Grounding)**: Does the plan assume feasibility of
-  the user's stated goal without grounding in evidence from the assessment?
-  If the assessment showed the goal requires 80h and the user asked for 12h,
-  the plan must surface that conflict — not paper over it.
-- **S-07 (Scope Creep Flattery)**: Does the plan expand scope beyond what the
-  phase goals strictly require? Cut back.
-- **S-03 (Caveat Collapse)**: Does the plan surface at least one trade-off,
-  deferred item, or explicit scope cut? Plans with zero friction are a
-  structural sycophancy signal.
+- **S-02 (Agreement Without Grounding)**: Does the plan assume feasibility of the user's stated goal without grounding in evidence from the assessment? If the assessment showed the goal requires 80h and the user asked for 12h, the plan must surface that conflict — not paper over it.
+- **S-07 (Scope Creep Flattery)**: Does the plan expand scope beyond what the phase goals strictly require? Cut back.
+- **S-03 (Caveat Collapse)**: Does the plan surface at least one trade-off, deferred item, or explicit scope cut? Plans with zero friction are a structural sycophancy signal.
 
-If the `sycophancy-correction` MCP skill is available, invoke
-`detect_sycophancy` with `context.evaluation_domain: "pmpo_plan_phase"` and
-`strictness: standard` on the plan draft. See
-`references/integrations/sycophancy-correction.md` §Plan Phase for thresholds.
+If the `sycophancy-correction` MCP skill is available, invoke `detect_sycophancy` with `context.evaluation_domain: "pmpo_plan_phase"` and `strictness: standard` on the plan draft. See `references/integrations/sycophancy-correction.md` §Plan Phase for thresholds.
 
 Write output to `.kbd-orchestrator/phases/<phase-name>/plan.md`.
 

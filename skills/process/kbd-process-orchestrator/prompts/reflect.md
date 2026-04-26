@@ -2,8 +2,7 @@
 
 You are executing the **Reflect** phase of the KBD lifecycle for the **current project**.
 
-> **IMPORTANT**: Do NOT hard-code project names, tech stacks, or crate structure.
-> Derive all project-specific details from context files.
+> **IMPORTANT**: Do NOT hard-code project names, tech stacks, or crate structure. Derive all project-specific details from context files.
 
 ## Goal
 
@@ -13,6 +12,20 @@ Generate a complete phase reflection report that:
 2. Surfaces technical debt introduced across all executing tools
 3. Captures lessons for the knowledge base
 4. Proposes the focus areas for the next phase
+
+## Model Selection
+
+**Required model class: `frontier`**
+
+Read `project.json → model_policy.phases.kbd-reflect`. Reflection is the quality judgment gate — it feeds `prior_assessments` for the next cycle. A degraded reflection propagates compounding errors. If the hosting model is not frontier-class, stop and emit `MODEL MISMATCH`:
+
+```
+MODEL MISMATCH: kbd-reflect requires a frontier model.
+Expected: <model from policy.registry.frontier.<active_environment>>
+Re-invoke via prom-lanes/UAR with the correct model.
+```
+
+See `references/model-routing.md` for the full routing contract.
 
 ## Inputs
 
@@ -25,7 +38,7 @@ Generate a complete phase reflection report that:
   - If OpenSpec: `openspec/changes/archive/<date>-<id>/` directories
   - If native KBD: `.kbd-orchestrator/changes/archive/<date>-<id>/` directories
 - **Refinement logs** (if artifact-refiner was used): `.refiner/artifacts/`
-- **AGENTS.md** — architectural rules to check integrity against
+- [**AGENTS.md**](http://AGENTS.md) — architectural rules to check integrity against
 
 ## Prerequisites
 
@@ -35,26 +48,21 @@ Before running reflect, verify all changes in this phase are complete:
 - If OpenSpec: all changes show `/opsx:verify` and `/opsx:archive` complete
 - If native KBD: all change directories have been moved to `archive/`
 
-If any changes are `BLOCKED`, note them explicitly and proceed with reflection
-on what was completed.
+If any changes are `BLOCKED`, note them explicitly and proceed with reflection on what was completed.
 
 ## Reflection Dimensions
 
 ### 1. Goal Achievement
 
-For each stated phase goal: **MET | PARTIAL | NOT MET**, with an honest reason.
-Credit completed work regardless of which tool executed it.
-Calculate overall completion percentage.
+For each stated phase goal: **MET | PARTIAL | NOT MET**, with an honest reason. Credit completed work regardless of which tool executed it. Calculate overall completion percentage.
 
 ### 2. What Was Delivered
 
-List all changes that were implemented and archived, noting which tool executed each.
-Format: `- <change-id>` — <description> (by: <tool>)
+List all changes that were implemented and archived, noting which tool executed each. Format: `- <change-id>` — (by: )
 
 ### 3. Technical Debt Introduced
 
-List any shortcuts, stubs, TODOs, or known violations deferred from this phase.
-Be specific — mention file paths where known. Note which tool introduced the debt.
+List any shortcuts, stubs, TODOs, or known violations deferred from this phase. Be specific — mention file paths where known. Note which tool introduced the debt.
 
 ### 4. Architecture Integrity
 
@@ -146,25 +154,13 @@ Use this file as prior context for the next `/kbd-assess` invocation.
 
 Before finalizing this reflection, verify it is not sycophantic:
 
-1. **S-08 (Reflect Phase Inversion)**: Does this reflection open with
-   "successfully completed" or "all requirements met" before surfacing
-   deltas and failures? If yes, restructure: lead with what diverged
-   from the plan, then root causes, then corrective actions.
-2. **S-03 (Caveat Collapse)**: Does the reflection surface at least one
-   area of concern, trade-off, or technical debt item? If the phase was
-   truly clean, state that explicitly with evidence — don't default to
-   success language without verification.
-3. **S-02 (Agreement Without Grounding)**: Does the "Goals" table
-   independently verify goal status from `progress.json` data, or does
-   it echo the plan's expected outcomes without checking execution reality?
+1. **S-08 (Reflect Phase Inversion)**: Does this reflection open with "successfully completed" or "all requirements met" before surfacing deltas and failures? If yes, restructure: lead with what diverged from the plan, then root causes, then corrective actions.
+2. **S-03 (Caveat Collapse)**: Does the reflection surface at least one area of concern, trade-off, or technical debt item? If the phase was truly clean, state that explicitly with evidence — don't default to success language without verification.
+3. **S-02 (Agreement Without Grounding)**: Does the "Goals" table independently verify goal status from `progress.json` data, or does it echo the plan's expected outcomes without checking execution reality?
 
 ### Invoking the sycophancy-correction skill
 
-If the `sycophancy-correction` MCP skill is available (check for the
-`analyze_reflect_phase` tool in the MCP tool list), invoke it on the generated
-reflection **before writing the file**. Reflect-phase analysis is the skill's
-specialist domain (AC-08 applies — Delta → Root Cause → Corrective Actions
-structure is mandatory at the Reflect gate).
+If the `sycophancy-correction` MCP skill is available (check for the `analyze_reflect_phase` tool in the MCP tool list), invoke it on the generated reflection **before writing the file**. Reflect-phase analysis is the skill's specialist domain (AC-08 applies — Delta → Root Cause → Corrective Actions structure is mandatory at the Reflect gate).
 
 Invocation:
 
@@ -176,21 +172,11 @@ Invocation:
 
 Action based on returned `sycophancy_score`:
 
-| Score            | Action                                                           |
-| ---------------- | ---------------------------------------------------------------- |
-| < 0.3            | Proceed — write reflection as-is                                 |
-| 0.3 – 0.5        | Annotate — append pattern notes to the reflection, warn user     |
-| ≥ 0.5            | Re-invoke with `correction_mode: "rewrite"`, use corrected output|
-| ≥ 0.7 with S-08  | Block — do not write; regenerate reflection from scratch         |
+ScoreAction&lt; 0.3Proceed — write reflection as-is0.3 – 0.5Annotate — append pattern notes to the reflection, warn user≥ 0.5Re-invoke with `correction_mode: "rewrite"`, use corrected output≥ 0.7 with S-08Block — do not write; regenerate reflection from scratch
 
-Save the full tool response to
-`.kbd-orchestrator/phases/<phase>/sycophancy/reflect-<ISO-timestamp>.json`
-for audit trail.
+Save the full tool response to `.kbd-orchestrator/phases/<phase>/sycophancy/reflect-<ISO-timestamp>.json`for audit trail.
 
-**Caveat:** The sycophancy-correction skill's `AnthropicClient` is currently
-stubbed — rewrite outputs are placeholder text until that integration lands.
-Until then, treat `correction_mode: rewrite` output as advisory, not final.
-Pattern detection and scoring are fully functional.
+**Caveat:** The sycophancy-correction skill's `AnthropicClient` is currently stubbed — rewrite outputs are placeholder text until that integration lands. Until then, treat `correction_mode: rewrite` output as advisory, not final. Pattern detection and scoring are fully functional.
 
 After writing, advance the waypoint to the next phase:
 

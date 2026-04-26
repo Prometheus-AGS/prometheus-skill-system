@@ -2,24 +2,36 @@
 
 You are executing the **Assess** phase of the KBD lifecycle for the **current project**.
 
-> **IMPORTANT**: Do NOT hard-code a project name. Read the project name from
-> `.kbd-orchestrator/project.json` → `name`, or infer it from `AGENTS.md`,
-> `CLAUDE.md`, `README.md`, or their equivalent.
+> **IMPORTANT**: Do NOT hard-code a project name. Read the project name from `.kbd-orchestrator/project.json` → `name`, or infer it from `AGENTS.md`, `CLAUDE.md`, `README.md`, or their equivalent.
 
 ## Goal
 
-Produce a structured assessment of the current codebase against the active phase
-goals. This is a fact-finding operation — not planning.
+Produce a structured assessment of the current codebase against the active phase goals. This is a fact-finding operation — not planning.
 
-Also reconcile any cross-tool work completed since the last session by reading
-`.kbd-orchestrator/phases/<phase>/progress.json`.
+Also reconcile any cross-tool work completed since the last session by reading `.kbd-orchestrator/phases/<phase>/progress.json`.
+
+## Model Selection
+
+**Required model class: `frontier`**
+
+Read `project.json → model_policy.phases.kbd-assess`. If the hosting model is not frontier-class, stop and emit:
+
+```
+MODEL MISMATCH: kbd-assess requires a frontier model.
+Expected: <model from policy.registry.frontier.<active_environment>>
+Re-invoke via prom-lanes/UAR with the correct model, or open a session
+with that model directly.
+```
+
+If `model_policy` is absent from `project.json`, proceed (default fallback is frontier — see `references/model-routing.md`).
+
+See `references/model-routing.md` for the full routing contract.
 
 ## Inputs Available to You
 
 - **Project identity**: `.kbd-orchestrator/project.json` (or inferred)
 - **Project rules**: `AGENTS.md` and/or `CLAUDE.md`
-- **Canonical specs**: `openspec/specs/*.md` (if OpenSpec), or spec files defined
-  in `.kbd-orchestrator/project.json` → `spec_paths`
+- **Canonical specs**: `openspec/specs/*.md` (if OpenSpec), or spec files defined in `.kbd-orchestrator/project.json` → `spec_paths`
 - **Active changes**: `openspec/changes/` (if OpenSpec), or `.kbd-orchestrator/changes/`
 - **Cross-tool progress**: `.kbd-orchestrator/phases/<phase>/progress.json`
 - **Prior phase context**: `.kbd-orchestrator/phases/<prev-phase>/reflection.md` (if exists)
@@ -65,8 +77,7 @@ Report: **PASS | FAIL | UNKNOWN**
 
 ### 5. Constraint Compliance
 
-Read `AGENTS.md` "Never Do" section and `.kbd-orchestrator/constraints.md` if present.
-Check for known violations (import patterns, type safety, forbidden APIs, etc.)
+Read `AGENTS.md` "Never Do" section and `.kbd-orchestrator/constraints.md` if present. Check for known violations (import patterns, type safety, forbidden APIs, etc.)
 
 ### 6. Test Coverage
 
@@ -77,17 +88,13 @@ Check for known violations (import patterns, type safety, forbidden APIs, etc.)
 
 Before finalizing the assessment, verify it is not sycophantic:
 
-- **S-02**: Do not agree with the codebase's existing patterns without
-  independently evaluating them. "The architecture is correct" must be
-  backed by specific evidence from the code.
-- **S-03**: Surface at least one gap, risk, or area of concern. Zero
-  friction in an assessment is a structural sycophancy signal.
+- **S-02**: Do not agree with the codebase's existing patterns without independently evaluating them. "The architecture is correct" must be backed by specific evidence from the code.
+- **S-03**: Surface at least one gap, risk, or area of concern. Zero friction in an assessment is a structural sycophancy signal.
 - **S-06**: Replace "clearly" and "obviously" with reasoned conclusions.
 
 ### Invoking the sycophancy-correction skill
 
-If the `sycophancy-correction` MCP skill is available, invoke `detect_sycophancy`
-on the generated assessment **before writing the file**.
+If the `sycophancy-correction` MCP skill is available, invoke `detect_sycophancy`on the generated assessment **before writing the file**.
 
 Invocation:
 
@@ -99,15 +106,9 @@ Invocation:
 
 Action based on returned `sycophancy_score`:
 
-| Score     | Action                                                                   |
-| --------- | ------------------------------------------------------------------------ |
-| < 0.3     | Proceed — write assessment as-is                                         |
-| 0.3 – 0.5 | Detect-only — append pattern notes as a "Sycophancy Review" section      |
-| 0.5 – 0.7 | Surface corrections to the user before storing; do not silently rewrite  |
-| ≥ 0.7     | Auto-correct via `correct_sycophancy`; too sycophantic to use as-is      |
+ScoreAction&lt; 0.3Proceed — write assessment as-is0.3 – 0.5Detect-only — append pattern notes as a "Sycophancy Review" section0.5 – 0.7Surface corrections to the user before storing; do not silently rewrite≥ 0.7Auto-correct via `correct_sycophancy`; too sycophantic to use as-is
 
-Save the tool response to
-`.kbd-orchestrator/phases/<phase>/sycophancy/assess-<ISO-timestamp>.json`.
+Save the tool response to `.kbd-orchestrator/phases/<phase>/sycophancy/assess-<ISO-timestamp>.json`.
 
 ## Output Format
 

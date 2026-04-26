@@ -14,6 +14,24 @@ KBD as the single source of truth for execution state.
 This is an orchestration step. You select, delegate, and coordinate — you do
 not necessarily execute all tasks yourself.
 
+## Model Selection
+
+**This phase is model-tiered.** Each change routes independently based on its `Model class` annotation from `plan.md`. If a change lacks the annotation, score it using the rules in `references/model-routing.md` before dispatching.
+
+For each change, resolve the concrete model:
+
+1. Read `Model class` from `plan.md` (`small | medium | frontier`).
+2. If absent, score by complexity rules in `references/model-routing.md`:
+   - **Low** (small): task count ≤ 3, no new abstractions, single layer touched
+   - **Medium** (medium): task count 4–8, one module boundary crossed, no design markers
+   - **High** (frontier): task count > 8, cross-domain, new abstractions, `TODO:` / `DECISION:` markers
+3. Resolve the concrete model: `project.json → model_policy.registry.<class>.<active_environment>`.
+4. Annotate the dispatch contract (see Required Output) with `Model class`, `Concrete model`, and `Model rationale`.
+
+The execute phase prompt itself can run on a small model — it is mechanical orchestration. The cost reduction comes from routing each *dispatched* change to the cheapest viable model.
+
+See `references/model-routing.md` for the full routing contract.
+
 ## Inputs Available to You
 
 - `.kbd-orchestrator/current-waypoint.json` (highest priority re-entry point)
@@ -102,6 +120,9 @@ For each change assigned to a non-self tool:
 
 - <change-id> → <tool>
   Entry: <exact prompt or command to give the tool>
+  Model class: <small | medium | frontier>
+  Concrete model: <resolved from model_policy.registry.<class>.<active_environment>>
+  Model rationale: <one line — why this class for this change>
   Progress file: .kbd-orchestrator/phases/<phase>/progress.json
   Handoff: Report completion by updating progress.json and committing
 
