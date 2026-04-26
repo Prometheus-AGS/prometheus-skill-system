@@ -330,6 +330,164 @@ prometheus memory ping                    # surreal-memory
 sycophancy-correction --help 2>&1 || true # sycophancy (stdio mode)
 ```
 
+## Multi-Model Routing
+
+Not every phase of the pipeline needs a frontier model. Assess, plan, and reflect operate at the boundary of ambiguity and benefit from frontier reasoning. The work in between — scaffolding, mechanical apply, refiner iteration, verify checks, status reports — is structured transformation that smaller or medium models handle reliably.
+
+The system declares a **model class** per stage so external orchestrators can dispatch each phase to the cheapest model that meets the cognitive requirement.
+
+### The Three Classes
+
+| Class      | Cognitive Profile                                              | Typical Models                                                  |
+| ---------- | -------------------------------------------------------------- | --------------------------------------------------------------- |
+| `small`    | Mechanical transformation, structured writes, status reports   | Qwen 2.5 9B (local), Llama 3.3 70B (Groq), Phi, Mistral 7B      |
+| `medium`   | Bounded synthesis, calibrated scoring, single-boundary work    | Mixtral 8x22B, Llama 3.3 70B, Claude Haiku, Command-R+          |
+| `frontier` | Open-ended reasoning under ambiguity, cross-domain synthesis   | Claude Sonnet/Opus, GPT-4o / o1, Gemini 2.0 Pro, Mistral Large  |
+
+### Phase → Class Map
+
+| Stage                     | Class    | Why                                                       |
+| ------------------------- | -------- | --------------------------------------------------------- |
+| `/evolve-assess`          | frontier | Holistic codebase understanding, ambiguity resolution     |
+| `/evolve-plan`            | frontier | Decomposition under ambiguity                             |
+| `/evolve-reflect`         | frontier | Quality judgment, regression detection                    |
+| `/evolve-status`          | small    | Read-only structured reporting                            |
+| `/kbd-assess`             | frontier | Cross-domain gap analysis                                 |
+| `/kbd-plan`               | frontier | Change scope determines downstream cost                   |
+| `/kbd-reflect`            | frontier | Feeds prior_assessments — degrades compound errors        |
+| `/kbd-status`             | small    | Read-only                                                 |
+| `/opsx:new`               | small    | Deterministic scaffolding                                 |
+| `/opsx:apply` (low)       | small    | Mechanical CRUD/plumbing                                  |
+| `/opsx:apply` (medium)    | medium   | Single boundary crossing, no design markers               |
+| `/opsx:apply` (high)      | frontier | New abstraction, cross-domain                             |
+| `/opsx:verify`            | medium   | Structured 3-dim QA against known artifacts               |
+| `/opsx:archive`           | small    | File move + spec delta sync                               |
+| artifact-refiner iterate  | small    | Constraint-diff delta generation                          |
+| artifact-refiner evaluate | medium   | Constraint violation judgment                             |
+
+For a typical KBD phase with 3 changes: **frontier API spend drops from ~20+ calls to ~3** (assess + plan + reflect), with quality preserved where it matters.
+
+### Configuring the Policy
+
+Routing is driven by a `model_policy` block in `.kbd-orchestrator/project.json`. The block has three parts: a `registry` mapping classes to concrete models per environment, a `phases` map assigning each pipeline stage to a class, and an `active_environment` selector.
+
+```json
+{
+  "model_policy": {
+    "registry": {
+      "small":    { "local": "Qwen3.5-9B-Q8_0",     "t4": "Qwen3.5-9B-Q8_0",    "l4": "Qwen3.5-9B-Q8_0"    },
+      "medium":   { "local": null,                  "t4": "Qwen3.5-27B-Q4",     "l4": "Qwen3.5-35B-A3B-Q4" },
+      "frontier": { "local": "claude-sonnet-4-6",   "t4": "claude-sonnet-4-6",  "l4": "claude-sonnet-4-6"  }
+    },
+    "phases": {
+      "kbd-assess": "frontier",
+      "kbd-plan":   "frontier",
+      "opsx-apply-low":    "small",
+      "opsx-apply-medium": "medium",
+      "opsx-apply-high":   "frontier"
+    },
+    "active_environment": "local"
+  }
+}
+```
+
+Switching `active_environment` from `local` → `t4` → `l4` swaps the entire stack to a different hardware tier without touching any other config. See `skills/process/kbd-process-orchestrator/references/schemas/project.template.json` for the full template and `skills/process/kbd-process-orchestrator/references/model-routing.md` for the complete contract including complexity scoring rules.
+
+### How a Phase Honors the Policy
+
+Each phase prompt has a `## Model Selection` section that:
+
+1. Reads its required class from `project.json → model_policy.phases.<phase-key>`.
+2. If the hosting model doesn't match a `frontier`-required phase, **stops and emits `MODEL MISMATCH`** rather than silently degrading.
+3. Emits a machine-readable directive for orchestrators to parse:
+
+   ```
+   [MODEL_ROUTING] phase=kbd-plan class=frontier model=claude-sonnet-4-6 env=local
+   ```
+
+The `/kbd-plan` output annotates each change with `Complexity score` and `Model class` so `/opsx:apply` can route per-change without re-scoring. The `/kbd-execute` dispatch contract carries `Model class`, `Concrete model`, and `Model rationale` per change so the executing tool knows exactly what model to use.
+
+### Three Integration Patterns
+
+**Pattern 1 — Native harness model switching (preferred).** The harness parses `[MODEL_ROUTING]` directives and switches the dispatched subagent to the matching model. Claude Code with per-subagent `--model` flag, prom-lanes, and UAR all support this. No additional infrastructure required.
+
+**Pattern 2 — MCP-mediated routing via liter-llm.** When the harness can't switch models natively, route through the `liter-llm-bridge` skill. liter-llm is a Rust LLM proxy that exposes 22 MCP tools; the bridge skill installs it, detects which providers you have configured, and registers its MCP server with your harness. Phases call its `complete` tool with a class alias (`small` / `medium` / `frontier`) and liter-llm dispatches to the appropriate provider.
+
+**Pattern 3 — Manual.** Read the `[MODEL_ROUTING]` directive yourself and re-invoke the next phase with the right model. Useful for one-off frontier work; impractical for full pipelines.
+
+### Setting Up liter-llm-bridge (Pattern 2)
+
+The bridge ships as a skill in `skills/process/liter-llm-bridge/`. Three slash entries handle the lifecycle:
+
+```bash
+# 1. Build and install liter-llm from the user's Rust fork
+/liter-llm-bridge install
+# Clones https://github.com/GQAdonis/liter-llm.git → ~/.local/share/liter-llm/src
+# Runs `cargo install --path crates/liter-llm-cli --locked --root ~/.local`
+# Verifies `liter-llm --version` and `liter-llm mcp --help` work
+
+# 2. Detect providers, write config, register MCP server with the active harness
+/liter-llm-bridge configure
+# Scans env for ANTHROPIC_API_KEY, OPENAI_API_KEY, GROQ_API_KEY, OLLAMA_HOST,
+# VLLM_BASE_URL, etc. (full list in references/provider-env-vars.md)
+# Writes ~/.config/liter-llm/config.toml with class → provider/model aliases
+# Auto-detects harness (Claude Code / opencode / cursor / codex) and adds
+# liter-llm to its MCP server list
+
+# 3. Document or activate per-phase routing
+/liter-llm-bridge route
+# By default just documents the contract. With --enable-routing-hook installs
+# a harness hook that intercepts dispatched prompts carrying [MODEL_ROUTING]
+# directives and routes them through liter-llm's MCP `complete` tool
+```
+
+### Provider Detection
+
+`scripts/detect-providers.sh` in the bridge skill scans these env vars and reports class coverage:
+
+| Class      | Providers Detected                                                             |
+| ---------- | ------------------------------------------------------------------------------ |
+| `frontier` | Anthropic, OpenAI, Google/Gemini, AWS Bedrock, Mistral (Large), OpenRouter     |
+| `medium`   | Groq, Together, Mistral, Cohere, Fireworks, Anthropic Haiku, OpenAI mini tiers |
+| `small`    | Ollama (local), vLLM (self-hosted), LM Studio, llama.cpp, Groq small models    |
+
+The configure prompt picks the cheapest available provider per class, prioritizing local (Ollama) → fast hosted (Groq) → frontier APIs. You can override the auto-pick by editing `~/.config/liter-llm/config.toml` directly:
+
+```toml
+[aliases]
+small    = "ollama/qwen2.5:7b"
+medium   = "groq/llama-3.3-70b-versatile"
+frontier = "anthropic/claude-sonnet-4-6"
+
+[providers.anthropic]
+api_key_env = "ANTHROPIC_API_KEY"
+
+[providers.ollama]
+base_url = "${OLLAMA_HOST:-http://localhost:11434}"
+```
+
+### Fallback and Safety Rules
+
+- **No `model_policy` in `project.json`** → all phases default to `frontier`. The system never silently downgrades a frontier-required phase.
+- **No provider configured for a `small`/`medium` class** → routing falls through to the host model with a warning. The cost reduction doesn't happen, but the phase still runs.
+- **Non-frontier model attempts a `frontier`-required phase** → stops with `MODEL MISMATCH`. The cheap-runs-frontier-work case is the dangerous silent failure and is never permitted.
+
+### Verifying It Works
+
+```bash
+# Status of the bridge config + which harnesses have it registered
+bash skills/process/liter-llm-bridge/scripts/configure-mcp.sh status
+
+# Provider coverage report (which classes have viable providers right now)
+bash skills/process/liter-llm-bridge/scripts/detect-providers.sh | jq .coverage
+
+# After running a KBD phase, audit dispatch counts by class
+grep -h MODEL_ROUTING .kbd-orchestrator/phases/*/execution.md | \
+  awk -F'class=' '{print $2}' | awk '{print $1}' | sort | uniq -c
+```
+
+If the frontier-class dispatch ratio exceeds ~30% of total dispatches, routing isn't effective — investigate which phases are misclassified and adjust their `Complexity score` annotations or `model_policy.phases` entries.
+
 ## Surreal-Memory Integration
 
 All skills detect and use [surreal-memory](https://github.com/Prometheus-AGS/surreal-memory-server) for distributed state. Skills degrade gracefully when unavailable.
