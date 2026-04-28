@@ -92,9 +92,9 @@ install_to_dir() {
 }
 
 install_to_dir "claude-code" "$HOME/.claude/skills"
-install_to_dir "opencode"    "$HOME/.config/opencode/skills"
+install_to_dir "opencode"    "$HOME/.opencode/skills"
 install_to_dir "cursor"      "$HOME/.cursor/skills"
-install_to_dir "codex"       "$HOME/.agents/skills"
+install_to_dir "codex"       "$HOME/.codex/skills"
 install_to_dir "gemini"      "$HOME/.gemini/skills"
 install_to_dir "roo"         "$HOME/.roo/skills"
 install_to_dir "windsurf"    "$HOME/.codeium/windsurf/skills"

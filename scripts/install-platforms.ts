@@ -47,7 +47,7 @@ const PLATFORMS: Platform[] = [
   },
   {
     name: 'opencode',
-    globalSkillsDir: join(HOME, '.config', 'opencode', 'skills'),
+    globalSkillsDir: join(HOME, '.opencode', 'skills'),
     projectSkillsDir: '.opencode/skills',
     description: 'OpenCode (CLI, VS Code extension)',
     supportsPlugins: false,
@@ -61,9 +61,9 @@ const PLATFORMS: Platform[] = [
   },
   {
     name: 'codex',
-    globalSkillsDir: join(HOME, '.agents', 'skills'),
-    projectSkillsDir: '.agents/skills',
-    description: 'OpenAI Codex / Agents',
+    globalSkillsDir: join(HOME, '.codex', 'skills'),
+    projectSkillsDir: '.codex/skills',
+    description: 'OpenAI Codex CLI',
     supportsPlugins: false,
   },
   {
@@ -146,7 +146,7 @@ function installPlatform(platform: Platform, scope: 'global' | 'project'): void 
     if (existsSync(toolsSource)) {
       const toolsTarget =
         scope === 'global'
-          ? join(HOME, '.config', 'opencode', 'tools')
+          ? join(HOME, '.opencode', 'tools')
           : join(process.cwd(), '.opencode', 'tools');
 
       if (createSymlink(toolsSource, join(toolsTarget, SKILL_NAME))) {
