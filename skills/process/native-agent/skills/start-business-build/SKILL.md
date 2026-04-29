@@ -180,10 +180,10 @@ Estimated wall time: 20m
 - Stage 1 mindmap generation is a stub in v1 — it currently echoes the
   concept text into the next stage. Full ideation lives in
   `phase-ideation-onramp`.
-- Stage 6 packaging requires `forge package-librefang` which is queued as
-  a `tools/forge-rs/.forge/changes/forge-package-librefang/` change. Until
-  that lands, stage 6 falls back to a manual instruction set the orchestrator
-  prints.
+- Stage 6 packaging uses `forge package-librefang <agent-dir>` which is now
+  implemented in `tools/forge-rs/crates/forge-cli/`. Pass `--no-build` if the
+  WASM binary is already compiled; omit it to have forge run
+  `cargo build --release --target wasm32-unknown-unknown` automatically.
 - The orchestrator MUST emit `phase-progress` events on stdout in JSON
   format so the calling tool (Claude Code, OpenCode) can render a live UI.
   Format: `{"stage": 3, "status": "running", "msg": "evolver plan ..."}`.
