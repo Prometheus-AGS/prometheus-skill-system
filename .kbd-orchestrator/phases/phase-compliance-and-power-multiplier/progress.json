@@ -12,7 +12,7 @@
   "change_backend": "native-kbd",
   "execution_backend": "native-tool",
   "changes_total": 8,
-  "changes_completed": 7,
+  "changes_completed": 8,
   "changes_log": [
     {
       "id": "change-001-compliance-quickfixes",
@@ -89,10 +89,21 @@
       "lines_added": 172,
       "qa_gate": "tsc --noEmit (clean) + npm run validate (0 errors); commit beefed3",
       "key_decisions": "tool() Zod wrappers delegate to old execute() fns; old tool files untouched; opencode.json auto-written by installer"
+    },
+    {
+      "id": "change-008-rustbpe-skill",
+      "status": "DONE",
+      "completed": "2026-04-29",
+      "gaps_closed": ["E2"],
+      "files_changed": 5,
+      "lines_added": 755,
+      "qa_gate": "npm run validate:skill skills/rust/karpathy-tokenizer (0 errors, 0 warnings); commit 6a970d2",
+      "key_decisions": "rustbpe 0.1.0 is Python-only (PyO3); skill documents Python training → tiktoken export → Rust runtime pattern; templates are .py.tera + .rs.tera (not .rs.tera only)"
     }
   ],
   "active_change": null,
-  "next_change": "change-008-rustbpe-skill",
+  "next_change": null,
+  "phase_complete": true,
   "p0_completed": 4,
   "p0_status": "ALL P0 COMPLETE — ready for remote verification on 2026-05-05",
   "scope": [
