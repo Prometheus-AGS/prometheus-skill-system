@@ -51,10 +51,11 @@ const frontmatterSchema = {
 const validateFrontmatter = ajv.compile(frontmatterSchema);
 
 class SkillValidator {
-  constructor() {
+  constructor({ strict = false } = {}) {
     this.errors = [];
     this.warnings = [];
     this.skillCount = 0;
+    this.strict = strict;
   }
 
   async validateSkill(skillPath, { isSubSkill = false, visited = null } = {}) {
@@ -123,9 +124,23 @@ class SkillValidator {
         );
       }
 
-      // Warn when license is absent (forward-compat with future strict validation)
-      if (!frontmatter.license) {
-        this.addWarning(skillName, 'Missing recommended frontmatter field: license');
+      // In strict mode: license, version, metadata.tags are required (errors).
+      // In standard mode: warn on missing license only (forward-compat).
+      if (this.strict) {
+        if (!frontmatter.license) {
+          this.addError(skillName, 'Strict: missing required field: license');
+        }
+        if (!frontmatter.version) {
+          this.addError(skillName, 'Strict: missing required field: version');
+        }
+        const tags = frontmatter.metadata?.tags;
+        if (!tags || !Array.isArray(tags) || tags.length === 0) {
+          this.addError(skillName, 'Strict: missing required field: metadata.tags (must be non-empty array)');
+        }
+      } else {
+        if (!frontmatter.license) {
+          this.addWarning(skillName, 'Missing recommended frontmatter field: license');
+        }
       }
 
       // Check body content
@@ -371,17 +386,19 @@ async function findSkills(rootDir) {
 
 async function main() {
   const args = process.argv.slice(2);
+  const strictMode = args.includes('--strict');
+  const filteredArgs = args.filter(a => a !== '--strict');
   const rootDir = process.cwd();
-  const validator = new SkillValidator();
+  const validator = new SkillValidator({ strict: strictMode });
 
   console.log('🚀 Prometheus Skill Pack - Validator');
   console.log('='.repeat(60));
 
   let skillsToValidate;
 
-  if (args.length > 0) {
+  if (filteredArgs.length > 0) {
     // Validate specific skill
-    skillsToValidate = args.map(arg => path.resolve(rootDir, arg));
+    skillsToValidate = filteredArgs.map(arg => path.resolve(rootDir, arg));
   } else {
     // Validate all skills
     skillsToValidate = await findSkills(rootDir);

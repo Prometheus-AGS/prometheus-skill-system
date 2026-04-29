@@ -6,8 +6,12 @@
   "scripts": {
     "check-prereqs": "bash scripts/check-prerequisites.sh",
     "setup": "bash scripts/check-prerequisites.sh --install",
+    "build-tools": "bash scripts/check-prerequisites.sh --build-tools",
+    "doctor": "bash scripts/check-prerequisites.sh --install --build-tools && bash scripts/smoke-test.sh",
+    "smoke-test": "bash scripts/smoke-test.sh",
     "validate": "node scripts/validate-skills.js",
     "validate:skill": "node scripts/validate-skills.js",
+    "validate:strict": "node scripts/validate-skills.js --strict",
     "build": "node scripts/build-marketplace.js",
     "test": "node scripts/test-skills.js",
     "lint": "node scripts/lint-skills.js",
