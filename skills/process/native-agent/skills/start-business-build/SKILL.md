@@ -43,7 +43,7 @@ End-to-end execution through all four pipeline layers.
 ```
 "<concept>"
     │
-    ▼ Stage 1: Ideation Mindmap (stub in v1; full in phase-ideation-onramp)
+    ▼ Stage 1: Ideation Mindmap — /ideation-mindmap $CONCEPT
     │   surreal-memory generate_ideation_mindmap → 6-branch concept tree
     │
     ▼ Stage 2: ZeeSpec Constraint Interrogation (Layer 1)
@@ -167,7 +167,7 @@ Estimated wall time: 20m
 
 - [`scripts/orchestrate.sh`](scripts/orchestrate.sh) — the implementation.
 - Each stage script lives in its parent skill:
-  - Stage 1: `surreal-memory` MCP `generate_ideation_mindmap` tool
+  - Stage 1: `skills/process/ideation-mindmap/` (`/ideation-mindmap`)
   - Stage 2: `skills/process/zeespec-interrogator/`
   - Stage 3: `skills/process/iterative-evolver/`
   - Stage 4: `openspec/` integration in `skills/process/kbd-process-orchestrator/`
@@ -177,9 +177,11 @@ Estimated wall time: 20m
 
 ## Notes for Implementing AI
 
-- Stage 1 mindmap generation is a stub in v1 — it currently echoes the
-  concept text into the next stage. Full ideation lives in
-  `phase-ideation-onramp`.
+- Stage 1 invokes `/ideation-mindmap $CONCEPT` (skill at
+  `skills/process/ideation-mindmap/`). It calls `generate_ideation_mindmap`
+  via surreal-memory and returns a 6-branch tree. If surreal-memory is
+  unavailable the skill falls back to manual brainstorm and marks output
+  `[fallback]`. The orchestrator passes selected branches directly to Stage 2.
 - Stage 6 packaging uses `forge package-librefang <agent-dir>` which is now
   implemented in `tools/forge-rs/crates/forge-cli/`. Pass `--no-build` if the
   WASM binary is already compiled; omit it to have forge run
