@@ -1,0 +1,80 @@
+[workspace]
+members = [
+    "crates/forge-core",
+    "crates/forge-skills",
+    "crates/forge-enricher",
+    "crates/forge-reflect",
+    "crates/forge-mcp",
+    "crates/forge-cli",
+]
+resolver = "2"
+
+[workspace.package]
+version      = "0.1.0"
+edition      = "2021"
+authors      = ["Travis James <travis@prometheusags.ai>"]
+license      = "MIT"
+repository   = "https://github.com/Prometheus-AGS/prometheus-skill-pack"
+description  = "Code-generation enrichment engine — plan → spec → execute → reflect (Karpathy loop)"
+
+[workspace.dependencies]
+# Async runtime
+tokio        = { version = "1", features = ["full"] }
+tokio-stream = { version = "0.1", features = ["sync"] }
+
+# Web framework (MCP server)
+axum         = { version = "0.8", features = ["macros"] }
+axum-extra   = { version = "0.10", features = ["typed-header"] }
+tower        = { version = "0.5" }
+tower-http   = { version = "0.6", features = ["cors", "trace"] }
+
+# Serialization
+serde        = { version = "1", features = ["derive"] }
+serde_json   = "1"
+toml         = "0.8"
+
+# Templating (Tera for skill template rendering)
+tera         = "1"
+
+# Errors
+anyhow       = "1"
+thiserror    = "2"
+
+# HTTP client
+reqwest      = { version = "0.12", features = ["json", "stream"] }
+
+# CLI
+clap         = { version = "4", features = ["derive", "env"] }
+
+# Filesystem
+dirs         = "5"
+walkdir      = "2"
+zip          = "2"
+notify       = { version = "7", features = ["macos_fsevent"] }
+
+# Utilities
+uuid         = { version = "1", features = ["v4", "serde"] }
+chrono       = { version = "0.4", features = ["serde"] }
+tracing      = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
+async-trait  = "0.1"
+
+# Allocator (applied at binary entry points only)
+tikv-jemallocator = { version = "0.6" }
+
+# Prometheus knowledge (Karpathy loop)
+pk-core      = { git = "https://github.com/Prometheus-AGS/prometheus-knowledge-rs.git" }
+pk-librarian = { git = "https://github.com/Prometheus-AGS/prometheus-knowledge-rs.git" }
+pk-store     = { git = "https://github.com/Prometheus-AGS/prometheus-knowledge-rs.git" }
+
+# Internal crates
+forge-core     = { path = "crates/forge-core" }
+forge-skills   = { path = "crates/forge-skills" }
+forge-enricher = { path = "crates/forge-enricher" }
+forge-reflect  = { path = "crates/forge-reflect" }
+forge-mcp      = { path = "crates/forge-mcp" }
+
+[profile.release]
+strip         = true
+lto           = true
+codegen-units = 1

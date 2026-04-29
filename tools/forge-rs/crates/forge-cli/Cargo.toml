@@ -1,0 +1,32 @@
+[package]
+name        = "forge-cli"
+description = "forge — CLI for the forge-rs code enrichment engine"
+
+version.workspace     = true
+edition.workspace     = true
+authors.workspace     = true
+license.workspace     = true
+
+[[bin]]
+name = "forge"
+path = "src/main.rs"
+
+[dependencies]
+forge-core     = { workspace = true }
+forge-enricher = { workspace = true }
+forge-reflect  = { workspace = true }
+forge-skills   = { workspace = true }
+forge-mcp      = { workspace = true }
+clap           = { workspace = true }
+tokio          = { workspace = true }
+serde          = { workspace = true }
+serde_json     = { workspace = true }
+anyhow         = { workspace = true }
+dirs           = { workspace = true }
+toml           = { workspace = true }
+tracing        = { workspace = true }
+tracing-subscriber = { workspace = true }
+zip            = { workspace = true }
+
+[dependencies.tikv-jemallocator]
+workspace = true
