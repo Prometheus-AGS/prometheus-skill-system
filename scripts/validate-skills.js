@@ -17,9 +17,13 @@ const frontmatterSchema = {
   type: 'object',
   required: ['name', 'description'],
   properties: {
+    // Per agentskills.io: 1-64 chars, lowercase a-z, 0-9, hyphens.
+    // Must not start/end with hyphen, must not contain consecutive hyphens.
+    // Pattern below enforces all four constraints in a single regex.
     name: {
       type: 'string',
       pattern: '^[a-z0-9]+(-[a-z0-9]+)*$',
+      minLength: 1,
       maxLength: 64,
     },
     description: {
@@ -31,6 +35,16 @@ const frontmatterSchema = {
     compatibility: { type: 'string', maxLength: 500 },
     metadata: { type: 'object' },
     'allowed-tools': { type: 'string' },
+    version: { type: 'string' },
+    authors: {
+      oneOf: [
+        { type: 'string' },
+        { type: 'array', items: { type: 'string' } },
+      ],
+    },
+    triggers: { type: 'object' },
+    model_routing: { type: 'object' },
+    language: { type: 'string' },
   },
 };
 
@@ -107,6 +121,11 @@ class SkillValidator {
           skillName,
           `Frontmatter name "${frontmatter.name}" doesn't match directory "${skillName}"`
         );
+      }
+
+      // Warn when license is absent (forward-compat with future strict validation)
+      if (!frontmatter.license) {
+        this.addWarning(skillName, 'Missing recommended frontmatter field: license');
       }
 
       // Check body content
