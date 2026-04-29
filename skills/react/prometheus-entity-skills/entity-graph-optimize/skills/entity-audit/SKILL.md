@@ -1,4 +1,5 @@
 ---
+license: MIT
 name: entity-audit
 description: >
   Slash command /entity-audit — run full codebase audit against @prometheus-ags/prometheus-entity-management CLAUDE.md

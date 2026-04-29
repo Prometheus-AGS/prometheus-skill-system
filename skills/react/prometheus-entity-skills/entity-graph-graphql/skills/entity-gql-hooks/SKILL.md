@@ -1,4 +1,5 @@
 ---
+license: MIT
 name: entity-gql-hooks
 description: >
   Slash command /entity-gql-hooks — produce typed useGQLEntity, useGQLList, useGQLMutation wrappers

@@ -1,4 +1,5 @@
 ---
+license: MIT
 name: entity-crud-relations
 description: >
   Register EntitySchema graphs with registerSchema: belongsTo, hasMany, manyToMany, listKeyPrefix alignment,

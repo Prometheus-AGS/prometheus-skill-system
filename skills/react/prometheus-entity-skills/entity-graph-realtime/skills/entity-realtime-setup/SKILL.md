@@ -1,4 +1,5 @@
 ---
+license: MIT
 name: entity-realtime-setup
 description: >
   Greenfield RealtimeManager wiring: getRealtimeManager options (flushInterval, onStatusChange, onChangeReceived),

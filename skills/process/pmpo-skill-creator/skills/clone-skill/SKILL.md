@@ -1,4 +1,5 @@
 ---
+license: MIT
 name: clone-skill
 description: Clone an existing Agent Skill and adapt it for a new domain. Preserves architecture while replacing domain-specific content.
 ---

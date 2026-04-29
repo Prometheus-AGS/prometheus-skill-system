@@ -1,4 +1,5 @@
 ---
+license: MIT
 name: kbd-execute
 description: >
   Select an execution backend for the active KBD phase, write canonical phase

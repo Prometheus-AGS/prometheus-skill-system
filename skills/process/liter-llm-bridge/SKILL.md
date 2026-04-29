@@ -1,4 +1,5 @@
 ---
+license: MIT
 name: liter-llm-bridge
 version: '0.1.0'
 description: >

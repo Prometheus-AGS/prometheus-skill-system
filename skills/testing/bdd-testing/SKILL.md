@@ -1,4 +1,5 @@
 ---
+license: MIT
 name: bdd-testing
 description: >
   Generate BDD integration tests using Cucumber.js with Gherkin syntax, Playwright browser

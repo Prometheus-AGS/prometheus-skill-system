@@ -1,4 +1,5 @@
 ---
+license: MIT
 name: entity-perf
 description: >
   Slash command /entity-perf — analyze re-render patterns, Zustand selector granularity, duplicate

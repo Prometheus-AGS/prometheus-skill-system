@@ -1,4 +1,5 @@
 ---
+license: MIT
 name: extend-skill
 description: Add new capabilities to an existing Agent Skill without breaking current functionality. Non-destructive additions only.
 ---

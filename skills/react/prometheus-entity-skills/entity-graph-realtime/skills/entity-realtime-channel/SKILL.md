@@ -1,4 +1,5 @@
 ---
+license: MIT
 name: entity-realtime-channel
 description: >
   Add or adjust RealtimeManager channel subscriptions: ChannelConfig per EntityType, optional normalize on

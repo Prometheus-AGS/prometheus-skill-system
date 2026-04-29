@@ -1,0 +1,45 @@
+{{- /*
+  skill.toml.tera — LibreFang skill manifest at the project root, emitted only
+  when target ∈ {"librefang-wasm", "both"}. Read by librefang-skills'
+  SkillManifest deserializer when the .lf-skill.zip is uploaded.
+  Variables:
+    agent_name        : kebab-case agent name
+    agent_description : one-line description
+    author            : author string
+*/ -}}
+[skill]
+name        = "{{ agent_name }}"
+version     = "0.1.0"
+description = "{{ agent_description }}"
+author      = "{{ author | default(value="prometheus-ags") }}"
+tags        = ["agent", "wasm", "native-agent"]
+
+[runtime]
+type  = "wasm"
+# Cargo emits <package_name>.wasm with hyphens replaced by underscores.
+entry = "{{ agent_name | replace(from="-", to="_") }}_skill.wasm"
+
+# Tools the skill exposes to the LLM. The kernel validates each tool
+# invocation against input_schema before calling execute(), so invalid
+# input never reaches the WASM module.
+[[tools]]
+name        = "chat"
+description = "Send a chat message to the {{ agent_name }} backend agent and receive its response."
+input_schema = { type = "object", properties = {
+  message = { type = "string" },
+  thread_id = { type = "string" }
+}, required = ["message"] }
+
+[[tools]]
+name        = "ping"
+description = "Liveness probe — returns the agent name and current timestamp."
+input_schema = { type = "object", properties = {} }
+
+[requirements]
+tools = []
+# Minimal capability set for the default chat+ping tool surface. Add more as
+# the agent's WASM tools grow. See:
+#   skills/rust/librefang-wasm-skill/references/capability-model.md
+capabilities = [
+  'AgentMessage("{{ agent_name }}-server")',
+]

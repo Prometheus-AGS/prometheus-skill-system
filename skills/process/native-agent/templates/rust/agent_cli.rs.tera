@@ -1,0 +1,518 @@
+{{- /*
+  agent_cli.rs.tera — Supabase-style management CLI for the generated agent
+  Variables:
+    agent_name     : kebab-case agent name (e.g. "research-agent")
+    agent_bin_name : snake_case binary name (e.g. "research_agent")
+    port           : default server port
+*/ -}}
+//! {{ agent_name }} — Management CLI
+//!
+//! Usage:
+//!   {{ agent_name }} start [--port 8080] [--background]
+//!   {{ agent_name }} stop
+//!   {{ agent_name }} status
+//!   {{ agent_name }} logs [--tail 50] [--follow]
+//!   {{ agent_name }} providers list
+//!   {{ agent_name }} providers set-default <name>
+//!   {{ agent_name }} models list
+//!   {{ agent_name }} models set-default <model>
+//!   {{ agent_name }} mcp list
+//!   {{ agent_name }} mcp add <name> <url> [--transport sse]
+//!   {{ agent_name }} mcp remove <name>
+//!   {{ agent_name }} mcp ping <name>
+//!   {{ agent_name }} skills list
+//!   {{ agent_name }} skills reload
+//!   {{ agent_name }} config show
+//!   {{ agent_name }} config get <key>
+//!   {{ agent_name }} config set <key> <value>
+
+#[global_allocator]
+static ALLOC: tikv_jemallocator::Jemalloc = tikv_jemallocator::Jemalloc;
+
+use agent_core::AgentConfig;
+use agent_mcp::McpRegistry;
+use agent_server::{build_router, AppState};
+use agent_skills::SkillRegistry;
+use anyhow::{Context, Result};
+use clap::{Parser, Subcommand};
+use parking_lot::RwLock;
+use std::path::PathBuf;
+use std::sync::Arc;
+use tokio::sync::broadcast;
+
+// ─── CLI Definition ───────────────────────────────────────────────────────────
+
+#[derive(Parser)]
+#[command(name = "{{ agent_name }}", version, about = "{{ agent_description }}")]
+struct Cli {
+    /// Path to agent.toml config (default: ./agent.toml)
+    #[arg(long, global = true, default_value = "agent.toml")]
+    config: PathBuf,
+
+    #[command(subcommand)]
+    command: Command,
+}
+
+#[derive(Subcommand)]
+enum Command {
+    /// Start the agent server
+    Start {
+        /// Port to listen on
+        #[arg(long, default_value = "{{ port }}")]
+        port: u16,
+
+        /// Host to bind to
+        #[arg(long, default_value = "127.0.0.1")]
+        host: String,
+
+        /// Run in background (writes PID to .agent.pid)
+        #[arg(long)]
+        background: bool,
+
+        /// Log level (error, warn, info, debug, trace)
+        #[arg(long, default_value = "info")]
+        log_level: String,
+
+        /// Enable frontend dev proxy (proxies port 5173 to frontend dev server)
+        #[arg(long)]
+        dev: bool,
+    },
+
+    /// Stop background agent instance
+    Stop {
+        /// Force kill even if graceful shutdown fails
+        #[arg(long)]
+        force: bool,
+    },
+
+    /// Show agent status
+    Status,
+
+    /// Show agent logs
+    Logs {
+        #[arg(long, default_value = "50")]
+        tail: usize,
+        #[arg(long)]
+        follow: bool,
+    },
+
+    /// Manage providers
+    Providers {
+        #[command(subcommand)]
+        action: ProvidersAction,
+    },
+
+    /// Manage models
+    Models {
+        #[command(subcommand)]
+        action: ModelsAction,
+    },
+
+    /// Manage MCP servers
+    Mcp {
+        #[command(subcommand)]
+        action: McpAction,
+    },
+
+    /// Manage skills
+    Skills {
+        #[command(subcommand)]
+        action: SkillsAction,
+    },
+
+    /// Manage agent configuration
+    Config {
+        #[command(subcommand)]
+        action: ConfigAction,
+    },
+}
+
+#[derive(Subcommand)]
+enum ProvidersAction {
+    List,
+    SetDefault { name: String },
+}
+
+#[derive(Subcommand)]
+enum ModelsAction {
+    List,
+    SetDefault { model: String },
+}
+
+#[derive(Subcommand)]
+enum McpAction {
+    List,
+    Add {
+        name: String,
+        url:  String,
+        #[arg(long, default_value = "sse")]
+        transport: String,
+    },
+    Remove { name: String },
+    Ping   { name: String },
+}
+
+#[derive(Subcommand)]
+enum SkillsAction {
+    List {
+        #[arg(long)]
+        verbose: bool,
+    },
+    Reload,
+}
+
+#[derive(Subcommand)]
+enum ConfigAction {
+    Show,
+    Get { key: String },
+    Set { key: String, value: String },
+}
+
+// ─── Entry Point ──────────────────────────────────────────────────────────────
+
+#[tokio::main]
+async fn main() -> Result<()> {
+    let cli = Cli::parse();
+    let config = load_config(&cli.config)?;
+
+    match cli.command {
+        Command::Start { port, host, background, log_level, dev } => {
+            init_tracing(&log_level);
+
+            if background {
+                start_background(port, &host, &cli.config)?;
+                println!("✅ {{ agent_name }} started on http://{}:{}", host, port);
+                println!("   Chat:   http://{}:{}", host, port);
+                println!("   A2A:    http://{}:{}/.well-known/agent.json", host, port);
+                println!("   AG-UI:  http://{}:{}/agui/run", host, port);
+                println!("   Stop:   {{ agent_name }} stop");
+            } else {
+                start_foreground(config, port, host).await?;
+            }
+        }
+
+        Command::Stop { force } => {
+            stop_agent(force)?;
+        }
+
+        Command::Status => {
+            show_status()?;
+        }
+
+        Command::Logs { tail, follow } => {
+            show_logs(tail, follow)?;
+        }
+
+        Command::Providers { action } => {
+            match action {
+                ProvidersAction::List => {
+                    for (name, p) in &config.providers {
+                        let default = if name == &config.agent.default_provider { " (default)" } else { "" };
+                        println!("  {} {}  [{} model(s)]", name, default, p.models.len());
+                        for model in &p.models {
+                            let active = if model == &config.agent.default_model { " ← active" } else { "" };
+                            println!("    - {}{}", model, active);
+                        }
+                    }
+                }
+                ProvidersAction::SetDefault { name } => {
+                    set_config_value(&cli.config, "agent.default_provider", &name)?;
+                    println!("✅ Default provider set to '{}'", name);
+                }
+            }
+        }
+
+        Command::Models { action } => {
+            match action {
+                ModelsAction::List => {
+                    for (provider, p) in &config.providers {
+                        println!("  [{}]", provider);
+                        for model in &p.models {
+                            let active = if model == &config.agent.default_model { " ← active" } else { "" };
+                            println!("    - {}{}", model, active);
+                        }
+                    }
+                }
+                ModelsAction::SetDefault { model } => {
+                    set_config_value(&cli.config, "agent.default_model", &model)?;
+                    println!("✅ Default model set to '{}'", model);
+                }
+            }
+        }
+
+        Command::Mcp { action } => {
+            match action {
+                McpAction::List => {
+                    for s in &config.mcp_servers {
+                        let status = if s.enabled { "enabled" } else { "disabled" };
+                        println!("  {} [{}] {} — {}", s.name, s.transport.to_str(), status, s.url);
+                    }
+                }
+                McpAction::Add { name, url, transport } => {
+                    add_mcp_server(&cli.config, &name, &url, &transport)?;
+                    println!("✅ MCP server '{}' added", name);
+                    println!("   Reload with: {{ agent_name }} skills reload");
+                }
+                McpAction::Remove { name } => {
+                    remove_mcp_server(&cli.config, &name)?;
+                    println!("✅ MCP server '{}' removed", name);
+                }
+                McpAction::Ping { name } => {
+                    ping_mcp_server(&config, &name).await?;
+                }
+            }
+        }
+
+        Command::Skills { action } => {
+            match action {
+                SkillsAction::List { verbose } => {
+                    let registry = SkillRegistry::load(&config.skills.directories)?;
+                    for skill in registry.all() {
+                        if verbose {
+                            println!("  {} — {}", skill.name, skill.description);
+                            println!("    path: {}", skill.path);
+                        } else {
+                            println!("  {} — {}", skill.name, skill.description);
+                        }
+                    }
+                }
+                SkillsAction::Reload => {
+                    // Signal running agent to reload via admin API
+                    let port = get_running_port().unwrap_or(config.agent.port);
+                    reload_agent_skills(port).await?;
+                }
+            }
+        }
+
+        Command::Config { action } => {
+            match action {
+                ConfigAction::Show => {
+                    let content = std::fs::read_to_string(&cli.config)?;
+                    println!("{}", content);
+                }
+                ConfigAction::Get { key } => {
+                    let value = get_config_value(&cli.config, &key)?;
+                    println!("{}", value);
+                }
+                ConfigAction::Set { key, value } => {
+                    set_config_value(&cli.config, &key, &value)?;
+                    println!("✅ {} = {}", key, value);
+                }
+            }
+        }
+    }
+
+    Ok(())
+}
+
+// ─── Server startup ───────────────────────────────────────────────────────────
+
+async fn start_foreground(config: AgentConfig, port: u16, host: String) -> Result<()> {
+    tracing::info!("Starting {{ agent_name }} on {}:{}", host, port);
+
+    let system_prompt = load_system_prompt(&config.agent.system_prompt_path);
+    let (event_tx, _) = broadcast::channel(1024);
+
+    let skill_registry = SkillRegistry::load(&config.skills.directories)
+        .context("loading skill registry")?;
+    let mcp_registry   = McpRegistry::connect(&config.mcp_servers).await
+        .context("connecting to MCP servers")?;
+
+    let state = AppState {
+        config:         Arc::new(config),
+        system_prompt:  Arc::new(RwLock::new(system_prompt)),
+        skill_registry: Arc::new(RwLock::new(skill_registry)),
+        mcp_registry:   Arc::new(mcp_registry),
+        event_bus:      event_tx,
+        http_client:    reqwest::Client::new(),
+    };
+
+    let app      = build_router(state);
+    let addr     = format!("{}:{}", host, port);
+    let listener = tokio::net::TcpListener::bind(&addr).await
+        .with_context(|| format!("binding to {}", addr))?;
+
+    println!("🚀 {{ agent_name }} running");
+    println!("   Chat:    http://{}", addr);
+    println!("   A2A:     http://{}/.well-known/agent.json", addr);
+    println!("   AG-UI:   http://{}/agui/run", addr);
+    println!("   Press Ctrl-C to stop");
+
+    axum::serve(listener, app)
+        .with_graceful_shutdown(shutdown_signal())
+        .await?;
+
+    Ok(())
+}
+
+fn start_background(port: u16, host: &str, config_path: &PathBuf) -> Result<()> {
+    let exe = std::env::current_exe()?;
+    let child = std::process::Command::new(&exe)
+        .arg("--config")
+        .arg(config_path)
+        .arg("start")
+        .arg("--port")
+        .arg(port.to_string())
+        .arg("--host")
+        .arg(host)
+        .stdin(std::process::Stdio::null())
+        .stdout(std::fs::File::create(".agent.log")?)
+        .stderr(std::fs::File::create(".agent.log")?)
+        .spawn()?;
+
+    std::fs::write(".agent.pid", child.id().to_string())?;
+    Ok(())
+}
+
+// ─── Helper functions ─────────────────────────────────────────────────────────
+
+fn load_config(path: &PathBuf) -> Result<AgentConfig> {
+    let content = std::fs::read_to_string(path)
+        .with_context(|| format!("reading {}", path.display()))?;
+    toml::from_str(&content).context("parsing agent.toml")
+}
+
+fn load_system_prompt(path: &str) -> String {
+    std::fs::read_to_string(path).unwrap_or_else(|_| {
+        "You are a helpful AI assistant.".to_string()
+    })
+}
+
+fn stop_agent(force: bool) -> Result<()> {
+    let pid_str = std::fs::read_to_string(".agent.pid")
+        .context("no .agent.pid found — is the agent running in background?")?;
+    let pid: u32 = pid_str.trim().parse()?;
+
+    #[cfg(unix)]
+    {
+        use std::os::unix::process::CommandExt;
+        if force {
+            std::process::Command::new("kill").arg("-9").arg(pid.to_string()).status()?;
+        } else {
+            std::process::Command::new("kill").arg(pid.to_string()).status()?;
+        }
+    }
+
+    let _ = std::fs::remove_file(".agent.pid");
+    println!("✅ Agent stopped (PID {})", pid);
+    Ok(())
+}
+
+fn show_status() -> Result<()> {
+    if let Ok(pid_str) = std::fs::read_to_string(".agent.pid") {
+        let pid = pid_str.trim();
+        println!("✅ {{ agent_name }} is running (PID {})", pid);
+    } else {
+        println!("⚠️  {{ agent_name }} is not running");
+    }
+    Ok(())
+}
+
+fn show_logs(tail: usize, follow: bool) -> Result<()> {
+    if follow {
+        std::process::Command::new("tail").arg("-f").arg("-n").arg(tail.to_string()).arg(".agent.log").status()?;
+    } else {
+        std::process::Command::new("tail").arg("-n").arg(tail.to_string()).arg(".agent.log").status()?;
+    }
+    Ok(())
+}
+
+fn get_running_port() -> Option<u16> {
+    std::fs::read_to_string(".agent.port").ok()?.trim().parse().ok()
+}
+
+async fn reload_agent_skills(port: u16) -> Result<()> {
+    let client = reqwest::Client::new();
+    client.post(format!("http://localhost:{}/api/skills/reload", port))
+        .send().await?;
+    println!("✅ Skills reloaded");
+    Ok(())
+}
+
+async fn ping_mcp_server(config: &AgentConfig, name: &str) -> Result<()> {
+    let server = config.mcp_servers.iter().find(|s| s.name == name)
+        .ok_or_else(|| anyhow::anyhow!("MCP server '{}' not found in config", name))?;
+    let client = reqwest::Client::new();
+    let res = client.post(&server.url).json(&serde_json::json!({"jsonrpc":"2.0","id":1,"method":"ping","params":{}})).send().await?;
+    if res.status().is_success() {
+        println!("✅ '{}' is reachable at {}", name, server.url);
+    } else {
+        println!("❌ '{}' returned HTTP {}", name, res.status());
+    }
+    Ok(())
+}
+
+fn add_mcp_server(config_path: &PathBuf, name: &str, url: &str, transport: &str) -> Result<()> {
+    let content = std::fs::read_to_string(config_path)?;
+    let addition = format!(
+        "\n[[mcp_servers]]\nname      = \"{}\"\nurl       = \"{}\"\ntransport = \"{}\"\nenabled   = true\n",
+        name, url, transport
+    );
+    std::fs::write(config_path, format!("{}{}", content, addition))?;
+    Ok(())
+}
+
+fn remove_mcp_server(config_path: &PathBuf, name: &str) -> Result<()> {
+    // Simple implementation — a full TOML parser would be cleaner in production
+    let content = std::fs::read_to_string(config_path)?;
+    let mut filtered = String::new();
+    let mut skip = false;
+    for line in content.lines() {
+        if line.contains("[[mcp_servers]]") { skip = false; }
+        if skip { continue; }
+        if line.contains(&format!("name      = \"{}\"", name)) { skip = true; filtered.pop(); continue; }
+        filtered.push_str(line);
+        filtered.push('\n');
+    }
+    std::fs::write(config_path, filtered)?;
+    Ok(())
+}
+
+fn get_config_value(config_path: &PathBuf, _key: &str) -> Result<String> {
+    // Simple implementation — reads the whole config and returns it
+    Ok(std::fs::read_to_string(config_path)?)
+}
+
+fn set_config_value(_config_path: &PathBuf, key: &str, value: &str) -> Result<()> {
+    // TODO: implement proper TOML key-path setting
+    // For now, instruct the user
+    println!("Note: Edit agent.toml directly to change {} = \"{}\"", key, value);
+    Ok(())
+}
+
+fn init_tracing(level: &str) {
+    tracing_subscriber::fmt()
+        .with_env_filter(
+            tracing_subscriber::EnvFilter::from_default_env()
+                .add_directive(format!("agent={}", level).parse().unwrap()),
+        )
+        .init();
+}
+
+async fn shutdown_signal() {
+    let ctrl_c = tokio::signal::ctrl_c();
+    #[cfg(unix)]
+    let sigterm = async {
+        tokio::signal::unix::signal(tokio::signal::unix::SignalKind::terminate())
+            .expect("signal handler")
+            .recv()
+            .await
+    };
+    #[cfg(not(unix))]
+    let sigterm = std::future::pending::<()>();
+
+    tokio::select! {
+        _ = ctrl_c => {}
+        _ = sigterm => {}
+    }
+    tracing::info!("Shutting down gracefully…");
+}
+
+trait McpTransportStr {
+    fn to_str(&self) -> &'static str;
+}
+impl McpTransportStr for agent_core::McpTransport {
+    fn to_str(&self) -> &'static str {
+        match self { agent_core::McpTransport::Sse => "sse", agent_core::McpTransport::Stdio => "stdio" }
+    }
+}

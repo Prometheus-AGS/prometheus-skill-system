@@ -1,4 +1,5 @@
 ---
+license: MIT
 name: evolve
 description: >
   Run a full iterative evolution cycle — Assess, Analyze, Plan, Execute, and

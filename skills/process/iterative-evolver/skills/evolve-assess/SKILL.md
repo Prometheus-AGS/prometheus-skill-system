@@ -1,4 +1,5 @@
 ---
+license: MIT
 name: evolve-assess
 description: >
   Run only the Assess phase — evaluate current state against goals.

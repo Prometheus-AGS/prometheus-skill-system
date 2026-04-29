@@ -1,0 +1,41 @@
+{{- /*
+  app_state.rs.tera — AppState struct with Arc wrapping for Axum
+  Variables:
+    services : list of { field_name, type_name } objects for service fields
+*/ -}}
+use std::sync::Arc;
+
+/// Shared application state injected into all Axum handlers via State<Arc<AppState>>.
+///
+/// Rules:
+/// - All fields are `Arc<T>` or cheap-to-clone values.
+/// - Mutation happens through interior mutability (tokio::sync::RwLock, parking_lot::Mutex).
+/// - Never store raw `Mutex<T>` here — always `Arc<Mutex<T>>`.
+#[derive(Clone)]
+pub struct AppState {
+    {% for svc in services -%}
+    pub {{ svc.field_name }}: Arc<{{ svc.type_name }}>,
+    {% endfor %}
+}
+
+impl AppState {
+    pub async fn new() -> anyhow::Result<Self> {
+        Ok(Self {
+            {% for svc in services -%}
+            {{ svc.field_name }}: Arc::new({{ svc.type_name }}::new().await?),
+            {% endfor %}
+        })
+    }
+}
+
+/// Application entry point — build the router with state.
+pub async fn build_app(state: AppState) -> axum::Router {
+    use axum::Router;
+    use tower_http::{cors::CorsLayer, trace::TraceLayer};
+
+    Router::new()
+        // .merge(crate::routes::some_router::router())
+        .layer(TraceLayer::new_for_http())
+        .layer(CorsLayer::permissive()) // Restrict in production via env config
+        .with_state(Arc::new(state))
+}

@@ -1,4 +1,5 @@
 ---
+license: MIT
 name: entity-prisma-migrate
 description: >
   Slash command /entity-prisma-migrate — refactor existing manual Prisma + fetch + useState patterns

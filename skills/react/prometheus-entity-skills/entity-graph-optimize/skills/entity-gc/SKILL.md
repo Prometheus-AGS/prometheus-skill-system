@@ -1,4 +1,5 @@
 ---
+license: MIT
 name: entity-gc
 description: >
   Slash command /entity-gc — design application-level eviction for @prometheus-ags/prometheus-entity-management:

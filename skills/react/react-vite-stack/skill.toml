@@ -1,0 +1,34 @@
+name        = "react-vite-stack"
+language    = "react"
+description = "React 19 + Vite 8 + TanStack Router/Query/Table + Zustand 5 + shadcn/ui + prometheus-entity-management"
+version     = "1.0.0"
+
+[[templates]]
+path               = "page_component.tsx.tera"
+output_description = "Page component composing hooks and UI — no direct store access"
+
+[[templates]]
+path               = "feature_hook.ts.tera"
+output_description = "Custom hook bridging component and store — no API calls"
+
+[[templates]]
+path               = "store.ts.tera"
+output_description = "Zustand store — owns API calls, never imported by components directly"
+
+[[templates]]
+path               = "api_client.ts.tera"
+output_description = "Typed API client — called only from stores or entity hooks"
+
+[[templates]]
+path               = "entity_hook.ts.tera"
+output_description = "useEntity/useEntityView hook for normalized entity graph access"
+
+[[triggers]]
+type     = "AlwaysForLanguage"
+language = "react"
+
+[[triggers]]
+type     = "Keywords"
+keywords = ["react", "component", "page", "hook", "store", "zustand", "tanstack", "entity", "vite"]
+
+depends_on = ["typescript/base-patterns"]

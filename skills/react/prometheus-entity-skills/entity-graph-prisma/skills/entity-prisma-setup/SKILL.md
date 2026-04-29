@@ -1,4 +1,5 @@
 ---
+license: MIT
 name: entity-prisma-setup
 description: >
   Slash command /entity-prisma-setup — analyze schema.prisma, generate TypeScript entity types,

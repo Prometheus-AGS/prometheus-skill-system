@@ -1,0 +1,220 @@
+{{- /*
+  agent_core.rs.tera — Domain types for the generated native agent
+  Variables:
+    agent_name        : kebab-case agent name
+    agent_description : one-line description
+    default_provider  : default provider name
+    default_model     : default model ID
+    port              : default server port
+*/ -}}
+//! agent-core — Domain types for {{ agent_name }}.
+//! No I/O, no framework imports. Pure domain.
+
+use chrono::{DateTime, Utc};
+use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
+use uuid::Uuid;
+
+// ─── Configuration ────────────────────────────────────────────────────────────
+
+/// Loaded from `agent.toml` at startup.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct AgentConfig {
+    pub agent:       AgentSettings,
+    pub providers:   HashMap<String, ProviderConfig>,
+    pub mcp_servers: Vec<McpServerConfig>,
+    pub skills:      SkillsConfig,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct AgentSettings {
+    pub name:             String,
+    pub description:      String,
+    pub version:          String,
+    pub default_provider: String,
+    pub default_model:    String,
+    pub port:             u16,
+    pub host:             String,
+    pub system_prompt_path: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ProviderConfig {
+    pub url:     String,
+    pub key_env: String,
+    pub models:  Vec<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct McpServerConfig {
+    pub name:      String,
+    pub url:       String,
+    pub transport: McpTransport,
+    pub enabled:   bool,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum McpTransport {
+    Sse,
+    Stdio,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct SkillsConfig {
+    pub directories:  Vec<String>,
+    pub auto_inject:  bool,
+    pub top_k:        usize,
+}
+
+impl Default for SkillsConfig {
+    fn default() -> Self {
+        Self { directories: vec![], auto_inject: true, top_k: 3 }
+    }
+}
+
+// ─── Session & Messages ───────────────────────────────────────────────────────
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Session {
+    pub id:             Uuid,
+    pub created_at:     DateTime<Utc>,
+    pub model:          String,
+    pub provider:       String,
+    pub messages:       Vec<ChatMessage>,
+    pub active_skills:  Vec<String>,
+    pub active_tools:   Vec<String>,
+}
+
+impl Session {
+    pub fn new(provider: String, model: String) -> Self {
+        Self {
+            id:            Uuid::new_v4(),
+            created_at:    Utc::now(),
+            model,
+            provider,
+            messages:      vec![],
+            active_skills: vec![],
+            active_tools:  vec![],
+        }
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ChatMessage {
+    pub id:         Uuid,
+    pub role:       Role,
+    pub content:    String,
+    pub created_at: DateTime<Utc>,
+    pub tool_calls: Option<Vec<ToolCall>>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum Role {
+    System,
+    User,
+    Assistant,
+    Tool,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ToolCall {
+    pub id:        String,
+    pub tool_name: String,
+    pub arguments: serde_json::Value,
+    pub result:    Option<serde_json::Value>,
+}
+
+// ─── Skills ───────────────────────────────────────────────────────────────────
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct SkillEntry {
+    pub name:        String,
+    pub description: String,
+    pub path:        String,
+    pub keywords:    Vec<String>,
+    pub content:     String, // SKILL.md content
+}
+
+// ─── A2A Protocol Types ───────────────────────────────────────────────────────
+
+/// A2A agent card — served at `/.well-known/agent.json`
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct AgentCard {
+    pub name:            String,
+    pub description:     String,
+    pub url:             String,
+    pub version:         String,
+    pub capabilities:    AgentCapabilities,
+    pub input_modes:     Vec<String>,
+    pub output_modes:    Vec<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct AgentCapabilities {
+    pub streaming:     bool,
+    pub tools:         bool,
+    pub multi_turn:    bool,
+    pub skills:        Vec<String>,
+}
+
+/// A2A task request
+#[derive(Debug, Clone, Deserialize)]
+pub struct A2ATaskRequest {
+    pub task_id: Option<String>,
+    pub message: String,
+    pub context: Option<serde_json::Value>,
+}
+
+/// A2A task response
+#[derive(Debug, Clone, Serialize)]
+pub struct A2ATaskResponse {
+    pub task_id: String,
+    pub status:  String,
+    pub result:  Option<String>,
+}
+
+// ─── AG-UI Event Types (CopilotKit protocol) ──────────────────────────────────
+
+/// AG-UI SSE event — conforms to CopilotKit agui.* naming
+#[derive(Debug, Clone, Serialize)]
+#[serde(tag = "type", rename_all = "snake_case")]
+pub enum AguiEvent {
+    #[serde(rename = "agui.run.started")]
+    RunStarted { run_id: String },
+
+    #[serde(rename = "agui.text.delta")]
+    TextDelta { run_id: String, delta: String },
+
+    #[serde(rename = "agui.tool.call.started")]
+    ToolCallStarted { run_id: String, tool_name: String, tool_call_id: String },
+
+    #[serde(rename = "agui.tool.call.result")]
+    ToolCallResult { run_id: String, tool_call_id: String, result: serde_json::Value },
+
+    #[serde(rename = "agui.run.complete")]
+    RunComplete { run_id: String },
+
+    #[serde(rename = "agui.run.error")]
+    RunError { run_id: String, message: String },
+
+    #[serde(rename = "agui.skills.active")]
+    SkillsActive { run_id: String, skills: Vec<String> },
+}
+
+// ─── Chat API (OpenAI-compatible) ────────────────────────────────────────────
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct ChatRequest {
+    pub model:    Option<String>,
+    pub provider: Option<String>,
+    pub messages: Vec<OpenAiMessage>,
+    pub stream:   Option<bool>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct OpenAiMessage {
+    pub role:    String,
+    pub content: String,
+}

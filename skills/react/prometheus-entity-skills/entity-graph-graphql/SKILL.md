@@ -1,4 +1,5 @@
 ---
+license: MIT
 name: entity-graph-graphql
 description: >
   Set up the GraphQL layer for @prometheus-ags/prometheus-entity-management: GQLClient, EntityDescriptor trees,

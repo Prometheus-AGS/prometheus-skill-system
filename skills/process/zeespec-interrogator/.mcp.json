@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "sequential-thinking": {
+      "command": "npx",
+      "args": ["-y", "@anthropic/sequential-thinking-mcp@latest"]
+    },
+    "sycophancy-correction": {
+      "command": "sycophancy-correction",
+      "description": "Detect shallow or circular answers during interrogation scoring"
+    }
+  }
+}

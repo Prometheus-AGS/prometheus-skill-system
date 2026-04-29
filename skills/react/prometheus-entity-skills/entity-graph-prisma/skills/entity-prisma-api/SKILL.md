@@ -1,4 +1,5 @@
 ---
+license: MIT
 name: entity-prisma-api
 description: >
   Slash command /entity-prisma-api — scaffold Next.js App Router API routes with Prisma Client

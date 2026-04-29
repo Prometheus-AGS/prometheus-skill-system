@@ -1,4 +1,5 @@
 ---
+license: MIT
 name: entity-graph-prisma
 description: >
   Analyze schema.prisma and integrate Prisma-backed APIs with @prometheus-ags/prometheus-entity-management:

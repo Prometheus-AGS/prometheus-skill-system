@@ -1,4 +1,5 @@
 ---
+license: MIT
 name: entity-gql-subscription
 description: >
   Slash command /entity-gql-subscription — connect GraphQL subscriptions via graphql-ws (or compatible)

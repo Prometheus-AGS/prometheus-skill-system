@@ -1,4 +1,5 @@
 ---
+license: MIT
 name: entity-gql-setup
 description: >
   Slash command /entity-gql-setup — scaffold createGQLClient (GQLClientConfig), authentication headers,

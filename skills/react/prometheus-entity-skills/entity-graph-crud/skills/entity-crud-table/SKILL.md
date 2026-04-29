@@ -1,4 +1,5 @@
 ---
+license: MIT
 name: entity-crud-table
 description: >
   Build EntityTable views with column helpers (textColumn, numberColumn, enumColumn, etc.), SortHeader,

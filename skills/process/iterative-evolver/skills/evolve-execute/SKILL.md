@@ -1,4 +1,5 @@
 ---
+license: MIT
 name: evolve-execute
 description: >
   Run only the Execute phase — carry out a previously created improvement plan.

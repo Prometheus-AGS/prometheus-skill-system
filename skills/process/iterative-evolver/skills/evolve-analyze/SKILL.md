@@ -1,4 +1,5 @@
 ---
+license: MIT
 name: evolve-analyze
 description: >
   Run only the Analyze phase — research the external landscape for competitors,

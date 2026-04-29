@@ -1,4 +1,5 @@
 ---
+license: MIT
 name: validate-skill
 description: Validate any Agent Skill against the agentskills.io specification and quality standards. Reports compliance issues and suggestions.
 ---

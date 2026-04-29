@@ -1,4 +1,5 @@
 ---
+license: MIT
 name: entity-graph-crud
 description: >
   Generate complete CRUD screens for any entity type using @prometheus-ags/prometheus-entity-management hooks and UI components.

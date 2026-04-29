@@ -1,4 +1,5 @@
 ---
+license: MIT
 name: iterative-evolver
 description: >
   Use this skill for any iterative evolution scenario — assessing current

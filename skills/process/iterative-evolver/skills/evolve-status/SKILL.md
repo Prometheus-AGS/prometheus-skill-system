@@ -1,4 +1,5 @@
 ---
+license: MIT
 name: evolve-status
 description: >
   Check the current status of an evolution cycle. Shows iteration count,

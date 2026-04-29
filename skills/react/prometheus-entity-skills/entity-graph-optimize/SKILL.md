@@ -1,4 +1,5 @@
 ---
+license: MIT
 name: entity-graph-optimize
 description: >
   Audit existing @prometheus-ags/prometheus-entity-management integrations for architectural violations (components→hooks→stores),

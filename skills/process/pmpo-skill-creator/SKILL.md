@@ -1,4 +1,5 @@
 ---
+license: MIT
 name: pmpo-skill-creator
 description: >
   Use this skill to create, clone, or extend Agent Skills using PMPO orchestration.

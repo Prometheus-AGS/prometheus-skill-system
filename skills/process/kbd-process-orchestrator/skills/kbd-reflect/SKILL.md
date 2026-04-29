@@ -1,4 +1,5 @@
 ---
+license: MIT
 name: kbd-reflect
 description: >
   Generate the phase reflection report after all changes in the phase are

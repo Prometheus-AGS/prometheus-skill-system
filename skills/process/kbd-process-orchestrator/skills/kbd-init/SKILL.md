@@ -1,4 +1,5 @@
 ---
+license: MIT
 name: kbd-init
 description: >
   Initialize KBD in a project. Auto-discovers project identity, stack, and

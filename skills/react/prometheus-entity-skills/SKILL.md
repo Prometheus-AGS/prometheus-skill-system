@@ -1,4 +1,5 @@
 ---
+license: MIT
 name: prometheus-entity-skills
 description: >
   Full-stack entity management skill suite for React applications using

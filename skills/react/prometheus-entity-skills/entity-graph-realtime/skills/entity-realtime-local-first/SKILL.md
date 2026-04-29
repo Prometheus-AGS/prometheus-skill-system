@@ -1,4 +1,5 @@
 ---
+license: MIT
 name: entity-realtime-local-first
 description: >
   Wire ElectricSQL shape streams and PGlite with createElectricAdapter (SyncAdapter): ElectricTableConfig,

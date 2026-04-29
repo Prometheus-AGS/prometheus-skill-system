@@ -1,4 +1,5 @@
 ---
+license: MIT
 name: entity-graph-realtime
 description: >
   Add realtime synchronization to an existing @prometheus-ags/prometheus-entity-management setup: detect the push source

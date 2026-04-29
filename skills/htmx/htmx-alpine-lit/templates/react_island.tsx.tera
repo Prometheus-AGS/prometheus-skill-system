@@ -1,0 +1,105 @@
+{{- /*
+  react_island.tsx.tera — HtmxIsland React component for embedding HTMX in React 19
+  Variables:
+    island_name      : PascalCase component name (e.g. "ArtifactViewer")
+    feature_name     : camelCase feature (e.g. "artifacts")
+    EntityType       : TypeScript entity type (e.g. "Artifact")
+    htmx_get_path    : Server path for the HTMX fragment (e.g. "/api/artifacts")
+    id_prop          : The ID property name (e.g. "artifactId")
+*/ -}}
+import { useEffect, useRef } from 'react'
+import { useEntity } from '@prometheus-ags/prometheus-entity-management'
+import type { {{ EntityType }} } from '../domain/{{ feature_name }}'
+
+// ─── HtmxIsland primitive ────────────────────────────────────────────────────
+// Re-use this across any HTMX island — it is a general-purpose boundary.
+
+interface HtmxIslandProps {
+  initialHtml: string
+  className?: string
+  onHtmxEvent?: (eventName: string, detail: unknown) => void
+}
+
+function HtmxIsland({ initialHtml, className, onHtmxEvent }: HtmxIslandProps) {
+  const ref = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const el = ref.current
+    if (!el || !window.htmx) return
+
+    el.innerHTML = initialHtml
+    window.htmx.process(el)
+
+    // Forward HTMX events to React if a handler is provided
+    const htmxEvents = ['htmx:afterSwap', 'htmx:responseError', 'htmx:sendError']
+    const listeners = htmxEvents.map((name) => {
+      const handler = (e: Event) => onHtmxEvent?.(name, (e as CustomEvent).detail)
+      el.addEventListener(name, handler)
+      return { name, handler }
+    })
+
+    return () => {
+      listeners.forEach(({ name, handler }) => el.removeEventListener(name, handler))
+      window.htmx?.remove?.(el)
+    }
+  }, [initialHtml, onHtmxEvent])
+
+  return <div ref={ref} className={className} />
+}
+
+// ─── Feature-specific island ──────────────────────────────────────────────────
+// This component:
+//   ✅ Reads entity data via entity hook (never directly from store)
+//   ✅ Composes HtmxIsland with server-provided initial HTML
+//   ✅ HTMX manages subsequent interactions inside the island
+//   ❌ NEVER calls fetch() directly
+//   ❌ NEVER uses useEffect for data fetching
+
+interface {{ island_name }}Props {
+  {{ id_prop }}: string
+  className?: string
+}
+
+export function {{ island_name }}({ {{ id_prop }}, className }: {{ island_name }}Props) {
+  const { data, isLoading } = useEntity<{{ EntityType }}, {{ EntityType }}>({
+    type: '{{ EntityType }}',
+    id: {{ id_prop }},
+    fetch: (id) => fetch(`/api/{{ feature_name }}/${id}`).then((r) => r.json()),
+    normalize: (raw) => raw,
+  })
+
+  if (isLoading) {
+    return <div className={className}>Loading…</div>
+  }
+
+  if (!data) return null
+
+  // The initial HTML bootstraps HTMX — the server handles subsequent fragments
+  const initialHtml = `
+    <div
+      hx-get="{{ htmx_get_path }}/${{{ id_prop }}}/view"
+      hx-trigger="load"
+      hx-swap="outerHTML"
+      hx-indicator="#{{ feature_name }}-spinner"
+    >
+      <div id="{{ feature_name }}-spinner" class="htmx-indicator text-sm text-muted-foreground">
+        Loading view…
+      </div>
+    </div>
+  `
+
+  return (
+    <section className={className}>
+      <header className="mb-4">
+        <h2 className="text-xl font-semibold">{(data as {{ EntityType }} & { title?: string }).title}</h2>
+      </header>
+      <HtmxIsland
+        initialHtml={initialHtml}
+        className="rounded border"
+        onHtmxEvent={(name, detail) => {
+          if (name === 'htmx:responseError') console.error('HTMX error in {{ island_name }}:', detail)
+        }}
+      />
+    </section>
+  )
+}

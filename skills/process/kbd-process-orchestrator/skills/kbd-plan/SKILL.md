@@ -1,4 +1,5 @@
 ---
+license: MIT
 name: kbd-plan
 description: >
   Create a prioritized, ordered change list for the current project phase.

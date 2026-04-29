@@ -1,4 +1,5 @@
 ---
+license: MIT
 name: kbd-assess
 description: >
   Assess the current project codebase against the active phase goals.

@@ -1,4 +1,5 @@
 ---
+license: MIT
 name: kbd-status
 description: >
   Show current KBD process status — active phase, change inventory, goal

@@ -1,4 +1,5 @@
 ---
+license: MIT
 name: evolve-report
 description: >
   Generate an evolution report from current state data. Produces a human-readable

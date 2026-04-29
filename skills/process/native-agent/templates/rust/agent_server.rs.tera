@@ -1,0 +1,378 @@
+{{- /*
+  agent_server.rs.tera — Axum server: A2A, AG-UI, A2UI, Chat API, static frontend
+  Variables:
+    agent_name        : kebab-case agent name
+    agent_description : description for A2A card
+    port              : default port
+*/ -}}
+//! agent-server — Axum HTTP server for {{ agent_name }}.
+//!
+//! Serves:
+//!   GET  /.well-known/agent.json  ← A2A agent card
+//!   POST /a2a/tasks               ← A2A task endpoint
+//!   POST /agui/run                ← AG-UI run (returns SSE stream)
+//!   GET  /agui/events/:run_id     ← AG-UI SSE event stream
+//!   POST /a2ui/session            ← A2UI combined protocol
+//!   POST /api/chat                ← OpenAI-compatible chat API
+//!   GET  /api/config              ← Agent config (providers, models)
+//!   GET  /api/skills              ← Active skills list
+//!   GET  /*                       ← React 19 frontend (static files)
+
+use agent_core::{
+    AgentCapabilities, AgentCard, AgentConfig, AguiEvent, A2ATaskRequest, A2ATaskResponse,
+    ChatRequest, OpenAiMessage, Role, Session,
+};
+use agent_mcp::McpRegistry;
+use agent_skills::SkillRegistry;
+use axum::{
+    extract::{Path as AxumPath, State},
+    http::StatusCode,
+    response::{Html, IntoResponse, Json, Response, Sse},
+    response::sse::{Event, KeepAlive},
+    routing::{get, post},
+    Router,
+};
+use futures::stream::{self, Stream};
+use parking_lot::RwLock;
+use serde_json::{json, Value};
+use std::convert::Infallible;
+use std::sync::Arc;
+use tokio::sync::broadcast;
+use tower_http::{cors::CorsLayer, trace::TraceLayer};
+use uuid::Uuid;
+
+// ─── Application State ────────────────────────────────────────────────────────
+
+#[derive(Clone)]
+pub struct AppState {
+    pub config:       Arc<AgentConfig>,
+    pub system_prompt: Arc<RwLock<String>>,
+    pub skill_registry: Arc<RwLock<SkillRegistry>>,
+    pub mcp_registry:   Arc<McpRegistry>,
+    pub event_bus:      broadcast::Sender<(String, AguiEvent)>, // (run_id, event)
+    pub http_client:    reqwest::Client,
+}
+
+pub fn build_router(state: AppState) -> Router {
+    let static_dir = std::env::current_dir()
+        .unwrap_or_default()
+        .join("frontend/dist");
+
+    Router::new()
+        // A2A protocol
+        .route("/.well-known/agent.json", get(a2a_agent_card))
+        .route("/a2a/tasks",              post(a2a_task))
+
+        // AG-UI protocol (CopilotKit compatible)
+        .route("/agui/run",                  post(agui_run))
+        .route("/agui/events/:run_id",       get(agui_events))
+
+        // A2UI protocol (Prometheus combined)
+        .route("/a2ui/session",          post(a2ui_session))
+
+        // Chat API (OpenAI compatible)
+        .route("/api/chat",              post(chat))
+        .route("/api/config",            get(get_config))
+        .route("/api/skills",            get(get_skills))
+        .route("/api/tools",             get(get_tools))
+        .route("/api/health",            get(health))
+
+        // Serve React 19 frontend from frontend/dist/
+        .nest_service("/", tower_http::services::ServeDir::new(&static_dir)
+            .not_found_service(tower_http::services::ServeFile::new(
+                static_dir.join("index.html")
+            )))
+
+        .layer(CorsLayer::permissive())
+        .layer(TraceLayer::new_for_http())
+        .with_state(Arc::new(state))
+}
+
+// ─── A2A Handlers ─────────────────────────────────────────────────────────────
+
+async fn a2a_agent_card(
+    State(state): State<Arc<AppState>>,
+) -> Json<AgentCard> {
+    let config = &state.config.agent;
+    let skills: Vec<String> = state.skill_registry.read().all()
+        .iter()
+        .map(|s| s.name.clone())
+        .collect();
+    let tools  = state.mcp_registry.tool_names();
+
+    Json(AgentCard {
+        name:        config.name.clone(),
+        description: config.description.clone(),
+        url:         format!("http://{}:{}", config.host, config.port),
+        version:     "1.0.0".into(),
+        capabilities: AgentCapabilities {
+            streaming:  true,
+            tools:      !tools.is_empty(),
+            multi_turn: true,
+            skills,
+        },
+        input_modes:  vec!["text".into()],
+        output_modes: vec!["text".into(), "stream".into()],
+    })
+}
+
+async fn a2a_task(
+    State(state): State<Arc<AppState>>,
+    Json(req): Json<A2ATaskRequest>,
+) -> Json<A2ATaskResponse> {
+    let task_id = req.task_id.unwrap_or_else(|| Uuid::new_v4().to_string());
+    let result = run_inference(&state, &req.message, false).await;
+
+    Json(A2ATaskResponse {
+        task_id,
+        status: if result.is_ok() { "complete".into() } else { "failed".into() },
+        result: result.ok(),
+    })
+}
+
+// ─── AG-UI Handlers ───────────────────────────────────────────────────────────
+
+async fn agui_run(
+    State(state): State<Arc<AppState>>,
+    Json(req): Json<serde_json::Value>,
+) -> Json<serde_json::Value> {
+    let run_id = Uuid::new_v4().to_string();
+    let message = req["messages"].as_array()
+        .and_then(|m| m.last())
+        .and_then(|m| m["content"].as_str())
+        .unwrap_or("")
+        .to_string();
+
+    // Spawn streaming inference — events flow via event_bus
+    let state_clone = state.clone();
+    let run_id_clone = run_id.clone();
+    tokio::spawn(async move {
+        stream_inference(&state_clone, &run_id_clone, &message).await;
+    });
+
+    Json(json!({ "run_id": run_id }))
+}
+
+async fn agui_events(
+    State(state): State<Arc<AppState>>,
+    AxumPath(run_id): AxumPath<String>,
+) -> Sse<impl Stream<Item = Result<Event, Infallible>>> {
+    let mut rx = state.event_bus.subscribe();
+    let run_id_filter = run_id.clone();
+
+    let stream = async_stream::stream! {
+        loop {
+            match rx.recv().await {
+                Ok((rid, event)) if rid == run_id_filter => {
+                    let data = serde_json::to_string(&event).unwrap_or_default();
+                    yield Ok(Event::default().data(data).event(event_type(&event)));
+                    // Stop streaming when run completes
+                    if matches!(event, AguiEvent::RunComplete { .. } | AguiEvent::RunError { .. }) {
+                        break;
+                    }
+                }
+                Ok(_) => {} // Different run_id — skip
+                Err(broadcast::error::RecvError::Lagged(_)) => continue,
+                Err(broadcast::error::RecvError::Closed) => break,
+            }
+        }
+    };
+
+    Sse::new(stream).keep_alive(KeepAlive::default())
+}
+
+// ─── Chat API Handler ─────────────────────────────────────────────────────────
+
+async fn chat(
+    State(state): State<Arc<AppState>>,
+    Json(req): Json<ChatRequest>,
+) -> Result<Json<Value>, (StatusCode, Json<Value>)> {
+    let last_message = req.messages.iter()
+        .filter(|m| m.role == "user")
+        .last()
+        .map(|m| m.content.clone())
+        .unwrap_or_default();
+
+    let result = run_inference(&state, &last_message, false)
+        .await
+        .map_err(|e| (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            Json(json!({ "error": e.to_string() }))
+        ))?;
+
+    Ok(Json(json!({
+        "id":      format!("chatcmpl-{}", Uuid::new_v4()),
+        "object":  "chat.completion",
+        "choices": [{
+            "index":         0,
+            "message":       { "role": "assistant", "content": result },
+            "finish_reason": "stop"
+        }]
+    })))
+}
+
+// ─── Config & Status Handlers ─────────────────────────────────────────────────
+
+async fn get_config(State(state): State<Arc<AppState>>) -> Json<Value> {
+    let config = &state.config;
+    let providers: Vec<Value> = config.providers.iter().map(|(name, p)| json!({
+        "name":   name,
+        "models": p.models,
+    })).collect();
+
+    Json(json!({
+        "default_provider": config.agent.default_provider,
+        "default_model":    config.agent.default_model,
+        "providers":        providers,
+    }))
+}
+
+async fn get_skills(State(state): State<Arc<AppState>>) -> Json<Value> {
+    let registry = state.skill_registry.read();
+    let skills: Vec<Value> = registry.all().iter().map(|s| json!({
+        "name":        s.name,
+        "description": s.description,
+    })).collect();
+    Json(json!({ "skills": skills }))
+}
+
+async fn get_tools(State(state): State<Arc<AppState>>) -> Json<Value> {
+    let tools: Vec<Value> = state.mcp_registry.tools.iter().map(|t| json!({
+        "name":        t.name,
+        "description": t.description,
+        "source":      t.source,
+    })).collect();
+    Json(json!({ "tools": tools }))
+}
+
+async fn health() -> Json<Value> {
+    Json(json!({ "status": "ok" }))
+}
+
+async fn a2ui_session(
+    State(state): State<Arc<AppState>>,
+    Json(req): Json<Value>,
+) -> Json<Value> {
+    let message = req["message"].as_str().unwrap_or("").to_string();
+    let result = run_inference(&state, &message, false).await;
+    Json(json!({
+        "status":  if result.is_ok() { "complete" } else { "error" },
+        "content": result.unwrap_or_else(|e| e.to_string())
+    }))
+}
+
+// ─── Core Inference ───────────────────────────────────────────────────────────
+
+async fn run_inference(state: &AppState, message: &str, stream: bool) -> anyhow::Result<String> {
+    let config     = &state.config.agent;
+    let system_prompt = state.system_prompt.read().clone();
+
+    // Select relevant skills
+    let skills_context = {
+        let registry = state.skill_registry.read();
+        if state.config.skills.auto_inject {
+            let selected = registry.select(message, state.config.skills.top_k);
+            registry.format_for_context(&selected)
+        } else {
+            String::new()
+        }
+    };
+
+    let full_system = format!("{}{}", system_prompt, skills_context);
+    let tools = state.mcp_registry.as_openai_tools();
+
+    // Build OpenAI-compatible request for liter-llm gateway
+    let provider = state.config.providers.get(&config.default_provider)
+        .ok_or_else(|| anyhow::anyhow!("Provider '{}' not configured", config.default_provider))?;
+
+    let api_key = if provider.key_env.is_empty() {
+        String::new()
+    } else {
+        std::env::var(&provider.key_env).unwrap_or_default()
+    };
+
+    let mut messages = vec![json!({ "role": "system", "content": full_system })];
+    messages.push(json!({ "role": "user", "content": message }));
+
+    let mut request_body = json!({
+        "model":    config.default_model,
+        "messages": messages,
+        "stream":   false,
+    });
+
+    if !tools.is_empty() {
+        request_body["tools"] = json!(tools);
+    }
+
+    let chat_url = format!("{}/chat/completions", provider.url.trim_end_matches('/'));
+    let response: Value = state.http_client
+        .post(&chat_url)
+        .bearer_auth(&api_key)
+        .json(&request_body)
+        .send()
+        .await?
+        .json()
+        .await?;
+
+    let content = response["choices"][0]["message"]["content"]
+        .as_str()
+        .unwrap_or("")
+        .to_string();
+
+    // Handle tool calls if present
+    if let Some(tool_calls) = response["choices"][0]["message"]["tool_calls"].as_array() {
+        for call in tool_calls {
+            let tool_name = call["function"]["name"].as_str().unwrap_or("");
+            let args: Value = serde_json::from_str(
+                call["function"]["arguments"].as_str().unwrap_or("{}")
+            ).unwrap_or(json!({}));
+
+            match state.mcp_registry.call_tool(tool_name, args).await {
+                Ok(result) => tracing::debug!("Tool {} returned: {:?}", tool_name, result),
+                Err(e) => tracing::warn!("Tool {} failed: {}", tool_name, e),
+            }
+        }
+    }
+
+    Ok(content)
+}
+
+async fn stream_inference(state: &AppState, run_id: &str, message: &str) {
+    let _ = state.event_bus.send((run_id.to_string(), AguiEvent::RunStarted {
+        run_id: run_id.to_string()
+    }));
+
+    match run_inference(state, message, true).await {
+        Ok(content) => {
+            // Simulate token streaming for now
+            // Replace with real SSE streaming from the provider
+            for chunk in content.split_whitespace() {
+                let _ = state.event_bus.send((run_id.to_string(), AguiEvent::TextDelta {
+                    run_id: run_id.to_string(),
+                    delta:  format!("{} ", chunk),
+                }));
+            }
+            let _ = state.event_bus.send((run_id.to_string(), AguiEvent::RunComplete {
+                run_id: run_id.to_string()
+            }));
+        }
+        Err(e) => {
+            let _ = state.event_bus.send((run_id.to_string(), AguiEvent::RunError {
+                run_id:  run_id.to_string(),
+                message: e.to_string(),
+            }));
+        }
+    }
+}
+
+fn event_type(event: &AguiEvent) -> String {
+    match event {
+        AguiEvent::RunStarted { .. }     => "agui.run.started".into(),
+        AguiEvent::TextDelta { .. }      => "agui.text.delta".into(),
+        AguiEvent::ToolCallStarted { .. }=> "agui.tool.call.started".into(),
+        AguiEvent::ToolCallResult { .. } => "agui.tool.call.result".into(),
+        AguiEvent::RunComplete { .. }    => "agui.run.complete".into(),
+        AguiEvent::RunError { .. }       => "agui.run.error".into(),
+        AguiEvent::SkillsActive { .. }   => "agui.skills.active".into(),
+    }
+}

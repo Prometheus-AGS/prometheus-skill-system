@@ -1,4 +1,5 @@
 ---
+license: MIT
 name: entity-crud-page
 description: >
   Scaffold a full CRUD page (list, create, edit, detail, delete) using useEntityCRUD with EntityTable,

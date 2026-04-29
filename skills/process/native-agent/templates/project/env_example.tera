@@ -1,0 +1,31 @@
+{{- /*
+  env_example.tera — .env.example for the generated agent
+  Variables:
+    agent_name : kebab-case agent name
+    port       : default server port
+*/ -}}
+# {{ agent_name }} environment variables
+# Copy to .env and fill in your values:
+#   cp .env.example .env
+
+# ─── Provider API Keys ─────────────────────────────────────────────────────────
+ANTHROPIC_API_KEY=sk-ant-...
+OPENAI_API_KEY=sk-...
+
+# ─── Agent Server ──────────────────────────────────────────────────────────────
+PORT={{ port }}
+HOST=127.0.0.1
+LOG_LEVEL=info
+
+# ─── prometheus-knowledge (Karpathy wiki) ─────────────────────────────────────
+PK_MCP_URL=http://localhost:8942/mcp
+
+# ─── liter-llm (model routing) ────────────────────────────────────────────────
+LITER_LLM_URL=http://localhost:11434/v1
+LITER_LLM_API_KEY=
+
+# ─── surreal-memory (knowledge graph) ────────────────────────────────────────
+SURREAL_MEMORY_URL=http://localhost:23001
+
+# ─── Rust logging ─────────────────────────────────────────────────────────────
+RUST_LOG=agent=info,tower_http=info

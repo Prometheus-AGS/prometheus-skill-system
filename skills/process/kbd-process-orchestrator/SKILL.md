@@ -1,4 +1,5 @@
 ---
+license: MIT
 name: kbd-process-orchestrator
 version: '2.0.0'
 description: >

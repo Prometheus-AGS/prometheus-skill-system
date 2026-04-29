@@ -1,4 +1,5 @@
 ---
+license: MIT
 name: entity-prisma-generator
 description: >
   Slash command /entity-prisma-generator — add a Prisma generator package (prisma-entity-graph-generator

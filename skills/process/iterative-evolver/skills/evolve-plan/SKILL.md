@@ -1,4 +1,5 @@
 ---
+license: MIT
 name: evolve-plan
 description: >
   Run only the Plan phase — create a prioritized improvement plan. Requires

@@ -1,4 +1,5 @@
 ---
+license: MIT
 name: entity-crud-form
 description: >
   Build EntityFormSheet and EntityDetailSheet configurations from FieldDescriptor arrays: field types,
