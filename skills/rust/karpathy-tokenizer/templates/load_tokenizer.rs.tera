@@ -1,0 +1,144 @@
+//! load_tokenizer.rs — Runtime BPE tokenizer loader for {{ agent_name }}.
+//!
+//! Reads a `.tiktoken` file exported by `train_tokenizer.py` and wraps
+//! `tiktoken-rs` behind a stable API for prompt-budget enforcement.
+//!
+//! Add to Cargo.toml:
+//!   tiktoken-rs = "0.5"
+//!   anyhow      = "1"
+//!   once_cell   = "1"  (or use std::sync::OnceLock on Rust ≥ 1.70)
+
+use std::path::Path;
+use std::sync::OnceLock;
+
+use anyhow::{Context, Result};
+use tiktoken_rs::CoreBPE;
+
+/// Token count returned by `count` / `truncate_to`.
+pub type TokenCount = usize;
+
+/// A loaded BPE tokenizer ready for encode / decode / count.
+pub struct Tokenizer {
+    inner: CoreBPE,
+}
+
+impl Tokenizer {
+    /// Load a tokenizer from a `.tiktoken` file on disk.
+    ///
+    /// The env var `{{ agent_name | upper | replace(from="-", to="_") }}_TOKENIZER`
+    /// overrides the `path` argument when set — useful for testing different
+    /// checkpoints without recompiling.
+    pub fn load(path: impl AsRef<Path>) -> Result<Self> {
+        let path = path.as_ref();
+        let effective = {
+            let env_key = concat!(
+                "{{ agent_name | upper | replace(from='-', to='_') }}",
+                "_TOKENIZER"
+            );
+            if let Ok(env_path) = std::env::var(env_key) {
+                std::path::PathBuf::from(env_path)
+            } else {
+                path.to_path_buf()
+            }
+        };
+
+        let inner = tiktoken_rs::load_tiktoken_bpe(&effective)
+            .with_context(|| format!("Failed to load tokenizer from {}", effective.display()))?;
+
+        Ok(Self { inner })
+    }
+
+    /// Encode text into BPE token IDs (ordinary encoding, no special tokens).
+    pub fn encode(&self, text: &str) -> Vec<usize> {
+        self.inner.encode_ordinary(text)
+    }
+
+    /// Decode token IDs back to a UTF-8 string.
+    pub fn decode(&self, ids: Vec<usize>) -> Result<String> {
+        self.inner.decode(ids).context("Failed to decode token IDs")
+    }
+
+    /// Count tokens without retaining the ID vector — cheaper for hot-path
+    /// budget checks.
+    pub fn count(&self, text: &str) -> TokenCount {
+        self.encode(text).len()
+    }
+
+    /// Truncate `text` so its encoded form fits in `max_tokens`. Keeps a
+    /// prefix (truncates from the tail). Returns (truncated_text, actual_count).
+    pub fn truncate_to(&self, text: &str, max_tokens: TokenCount) -> (String, TokenCount) {
+        let ids = self.encode(text);
+        if ids.len() <= max_tokens {
+            return (text.to_string(), ids.len());
+        }
+        let kept = ids[..max_tokens].to_vec();
+        let count = kept.len();
+        let decoded = self.inner.decode(kept).unwrap_or_default();
+        (decoded, count)
+    }
+}
+
+// ─── Singleton for the default tokenizer ────────────────────────────────────
+
+static DEFAULT_TOKENIZER: OnceLock<Tokenizer> = OnceLock::new();
+
+/// Return a reference to the process-wide default tokenizer.
+///
+/// Loads lazily on first call from the path in the env var
+/// `{{ agent_name | upper | replace(from="-", to="_") }}_TOKENIZER`
+/// or falls back to `"tokenizers/{{ agent_name }}.tiktoken"`.
+pub fn default_tokenizer() -> Result<&'static Tokenizer> {
+    if let Some(t) = DEFAULT_TOKENIZER.get() {
+        return Ok(t);
+    }
+    let fallback = format!("tokenizers/{{ agent_name }}.tiktoken");
+    let tok = Tokenizer::load(&fallback)?;
+    // Best-effort set; another thread may have won the race.
+    let _ = DEFAULT_TOKENIZER.set(tok);
+    Ok(DEFAULT_TOKENIZER.get().expect("just set"))
+}
+
+// ─── Tests ───────────────────────────────────────────────────────────────────
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn make_tokenizer() -> Option<Tokenizer> {
+        // Tests skip gracefully when no tokenizer file is present in CI.
+        let path = std::env::var("{{ agent_name | upper | replace(from='-', to='_') }}_TOKENIZER")
+            .unwrap_or_else(|_| format!("tokenizers/{{ agent_name }}.tiktoken"));
+        Tokenizer::load(&path).ok()
+    }
+
+    #[test]
+    fn encode_decode_round_trip() {
+        let Some(tok) = make_tokenizer() else { return };
+        let text = "Hello, world! The quick brown fox.";
+        let decoded = tok.decode(tok.encode(text)).expect("decode");
+        assert_eq!(decoded, text);
+    }
+
+    #[test]
+    fn count_empty_is_zero() {
+        let Some(tok) = make_tokenizer() else { return };
+        assert_eq!(tok.count(""), 0);
+    }
+
+    #[test]
+    fn truncate_to_respects_budget() {
+        let Some(tok) = make_tokenizer() else { return };
+        let text = "a b c d e f g h i j k l m n o p q r s t u v w x y z";
+        let (_, n) = tok.truncate_to(text, 5);
+        assert!(n <= 5, "truncated to {n} tokens, expected ≤ 5");
+    }
+
+    #[test]
+    fn truncate_no_op_when_within_budget() {
+        let Some(tok) = make_tokenizer() else { return };
+        let text = "short";
+        let (out, n) = tok.truncate_to(text, 1024);
+        assert_eq!(out, text);
+        assert!(n <= 1024);
+    }
+}
