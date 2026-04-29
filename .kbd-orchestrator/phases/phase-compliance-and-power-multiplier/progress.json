@@ -12,7 +12,7 @@
   "change_backend": "native-kbd",
   "execution_backend": "native-tool",
   "changes_total": 8,
-  "changes_completed": 6,
+  "changes_completed": 7,
   "changes_log": [
     {
       "id": "change-001-compliance-quickfixes",
@@ -79,10 +79,20 @@
       "lines_added": 120,
       "qa_gate": "spec-reviewer + code-quality-reviewer (in-session subagents); 2 important fixes applied (portable timeout, correct length-sort)",
       "archive": ".kbd-orchestrator/changes/archive/2026-04-29-change-006-karpathy-loop-hooks/"
+    },
+    {
+      "id": "change-007-opencode-real-plugin",
+      "status": "DONE",
+      "completed": "2026-04-29",
+      "gaps_closed": ["D1", "D2", "D3"],
+      "files_changed": 5,
+      "lines_added": 172,
+      "qa_gate": "tsc --noEmit (clean) + npm run validate (0 errors); commit beefed3",
+      "key_decisions": "tool() Zod wrappers delegate to old execute() fns; old tool files untouched; opencode.json auto-written by installer"
     }
   ],
   "active_change": null,
-  "next_change": "change-007-opencode-real-plugin",
+  "next_change": "change-008-rustbpe-skill",
   "p0_completed": 4,
   "p0_status": "ALL P0 COMPLETE — ready for remote verification on 2026-05-05",
   "scope": [
