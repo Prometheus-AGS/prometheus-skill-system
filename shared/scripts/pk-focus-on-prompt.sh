@@ -18,14 +18,14 @@ if [ -z "$PROMPT_TEXT" ]; then
   exit 0
 fi
 
-# --- Extract top-5 keywords (naive: strip punctuation, take longest unique words) ---
+# --- Extract top-5 keywords (strip punctuation, sort by descending length, take top 5) ---
 KEYWORDS="$(printf '%s' "$PROMPT_TEXT" \
   | tr '[:upper:]' '[:lower:]' \
   | tr -cs 'a-z0-9 ' ' ' \
   | tr ' ' '\n' \
   | awk 'length>4' \
   | sort -u \
-  | sort -rn \
+  | awk '{print length, $0}' | sort -rn | awk '{print $2}' \
   | head -5 \
   | tr '\n' ' ' \
   | sed 's/ $//')"
@@ -34,8 +34,12 @@ if [ -z "$KEYWORDS" ]; then
   exit 0
 fi
 
-# --- Run pk focus with a hard timeout ---
-FOCUS_OUTPUT="$(timeout 2.5 pk focus "$KEYWORDS" --max-articles 3 2>/dev/null || true)"
+# --- Run pk focus (with timeout when available — timeout is not on stock macOS) ---
+if command -v timeout &>/dev/null; then
+  FOCUS_OUTPUT="$(timeout 2.5 pk focus "$KEYWORDS" --max-articles 3 2>/dev/null || true)"
+else
+  FOCUS_OUTPUT="$(pk focus "$KEYWORDS" --max-articles 3 2>/dev/null || true)"
+fi
 
 if [ -n "$FOCUS_OUTPUT" ]; then
   printf '\n\n--- prometheus-knowledge context ---\n%s\n--- end pk context ---\n' "$FOCUS_OUTPUT"
