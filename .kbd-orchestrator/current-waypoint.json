@@ -1,0 +1,45 @@
+{
+  "phase": "phase-compliance-and-power-multiplier",
+  "phase_started": "2026-04-28",
+  "phase_path": ".kbd-orchestrator/phases/phase-compliance-and-power-multiplier",
+  "stage": "executing",
+  "next_action": "/kbd-execute change-007-opencode-real-plugin",
+  "active_change": null,
+  "last_completed": "change-006-karpathy-loop-hooks",
+  "p0_complete": true,
+  "p0_complete_note": "ALL P0 changes (002, 003, 004, 005) shipped. Scheduled remote verification on 2026-05-05 will check against assessment §9.",
+  "p0_target_correction": "wasm32-unknown-unknown (NOT wasm32-wasip2 — LibreFang uses core wasmtime not Component Model)",
+  "change_backend": "native-kbd",
+  "openspec_present": false,
+  "evolver_bridge": null,
+  "changes_total": 8,
+  "changes_completed": 6,
+  "p0_changes": [
+    "change-002-toolchain-bootstrap",
+    "change-003-librefang-wasm-skill",
+    "change-004-native-agent-wasm-target",
+    "change-005-package-and-upload"
+  ],
+  "p1_changes": [
+    "change-001-compliance-quickfixes",
+    "change-006-karpathy-loop-hooks",
+    "change-007-opencode-real-plugin"
+  ],
+  "p2_changes": [
+    "change-008-rustbpe-skill"
+  ],
+  "exit_criteria": [
+    "All P0 gaps closed (verified by remote agent on 2026-05-05)",
+    "npm run validate green",
+    "End-to-end smoke test produces valid <name>.lf-skill.zip with runtime.type=wasm",
+    "Remote agent recommends 'ready for phase-librefang-wasm-onramp'"
+  ],
+  "scheduled_verification": {
+    "routine_id": "trig_01MK1jtQZj3z1mQ7joETevuJ",
+    "fires_at": "2026-05-05T14:00:00Z",
+    "url": "https://claude.ai/code/routines/trig_01MK1jtQZj3z1mQ7joETevuJ"
+  },
+  "tool": "claude-code",
+  "model": "claude-opus-4-7",
+  "updated": "2026-04-29"
+}
