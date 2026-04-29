@@ -19,6 +19,7 @@ import {
   readdirSync,
   statSync,
   readlinkSync,
+  writeFileSync,
 } from 'fs';
 import { join, resolve, relative, basename } from 'path';
 import { homedir } from 'os';
@@ -50,7 +51,8 @@ const PLATFORMS: Platform[] = [
     globalSkillsDir: join(HOME, '.opencode', 'skills'),
     projectSkillsDir: '.opencode/skills',
     description: 'OpenCode (CLI, VS Code extension)',
-    supportsPlugins: false,
+    supportsPlugins: true,
+    pluginDir: join(HOME, '.opencode'),
   },
   {
     name: 'cursor',
@@ -140,7 +142,7 @@ function installPlatform(platform: Platform, scope: 'global' | 'project'): void 
     console.log(`    ✅ Symlink created`);
   }
 
-  // For OpenCode: also create .opencode/tools/ symlink if tools exist
+  // For OpenCode: also create .opencode/tools/ symlink and write opencode.json
   if (platform.name === 'opencode') {
     const toolsSource = join(REPO_ROOT, '.opencode', 'tools');
     if (existsSync(toolsSource)) {
@@ -152,6 +154,19 @@ function installPlatform(platform: Platform, scope: 'global' | 'project'): void 
       if (createSymlink(toolsSource, join(toolsTarget, SKILL_NAME))) {
         console.log(`    ✅ OpenCode tools linked`);
       }
+    }
+
+    // Write opencode.json so opencode picks up the plugin automatically
+    const opencodeJsonPath =
+      scope === 'global'
+        ? join(HOME, '.opencode', 'opencode.json')
+        : join(process.cwd(), 'opencode.json');
+
+    try {
+      writeFileSync(opencodeJsonPath, JSON.stringify({ plugin: ['./.opencode'] }, null, 2) + '\n', 'utf-8');
+      console.log(`    ✅ opencode.json written: ${opencodeJsonPath}`);
+    } catch (e) {
+      console.warn(`    ⚠️  Could not write opencode.json: ${e}`);
     }
   }
 }
