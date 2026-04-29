@@ -26,6 +26,7 @@
     "uninstall:platforms": "npx tsx scripts/install-platforms.ts --uninstall",
     "install:skills": "bash scripts/install-skills-flat.sh",
     "uninstall:skills": "bash scripts/install-skills-flat.sh --uninstall",
+    "generate:commands": "node scripts/generate-commands.js",
     "register:commands": "bash scripts/register-slash-commands.sh",
     "unregister:commands": "bash scripts/register-slash-commands.sh --uninstall"
   },

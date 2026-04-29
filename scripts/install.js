@@ -8,6 +8,7 @@ import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { homedir } from 'os';
+import { execFileSync } from 'child_process';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -51,10 +52,18 @@ async function installSkills(scope) {
     // Copy skills directory
     await copyDirectory(skillsDir, targetDir);
 
-    console.log('✅ Installation complete!');
+    console.log('✅ Skills installed!');
     console.log(`\nSkills installed to: ${targetDir}`);
-    console.log('\nAvailable skill categories:');
 
+    // Install native Claude Code slash commands to ~/.claude/commands/
+    if (scope === 'user') {
+      const commandsDir = path.join(homedir(), '.claude', 'commands');
+      console.log(`\n📋 Generating slash commands → ${commandsDir}`);
+      const generateScript = path.join(rootDir, 'scripts', 'generate-commands.js');
+      execFileSync(process.execPath, [generateScript, '--output', commandsDir], { stdio: 'inherit' });
+    }
+
+    console.log('\nAvailable skill categories:');
     const categories = await fs.readdir(targetDir);
     categories.forEach(cat => console.log(`  - ${cat}`));
 
@@ -67,11 +76,14 @@ async function installSkills(scope) {
 
 async function main() {
   const args = process.argv.slice(2);
-  const scopeArg = args.find(arg => arg.startsWith('--scope='));
+  const scopeIdx = args.indexOf('--scope');
+  const scopeEqArg = args.find(arg => arg.startsWith('--scope='));
 
   let scope;
-  if (scopeArg) {
-    scope = scopeArg.split('=')[1];
+  if (scopeIdx !== -1 && args[scopeIdx + 1]) {
+    scope = args[scopeIdx + 1];
+  } else if (scopeEqArg) {
+    scope = scopeEqArg.split('=')[1];
   } else {
     console.error('Usage: npm run install:user OR npm run install:project');
     process.exit(1);
