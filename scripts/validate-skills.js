@@ -352,7 +352,7 @@ class SkillValidator {
   }
 }
 
-async function findSkills(rootDir) {
+async function findSkills(rootDir, { excludeSubmodules = false } = {}) {
   const skills = [];
   const skillsDir = path.join(rootDir, 'skills');
 
@@ -360,6 +360,8 @@ async function findSkills(rootDir) {
     const categories = await fs.readdir(skillsDir);
 
     for (const category of categories) {
+      if (excludeSubmodules && category === 'imported') continue;
+
       const categoryPath = path.join(skillsDir, category);
       const stats = await fs.stat(categoryPath);
 
@@ -387,7 +389,8 @@ async function findSkills(rootDir) {
 async function main() {
   const args = process.argv.slice(2);
   const strictMode = args.includes('--strict');
-  const filteredArgs = args.filter(a => a !== '--strict');
+  const excludeSubmodules = args.includes('--exclude-submodules');
+  const filteredArgs = args.filter(a => a !== '--strict' && a !== '--exclude-submodules');
   const rootDir = process.cwd();
   const validator = new SkillValidator({ strict: strictMode });
 
@@ -401,7 +404,7 @@ async function main() {
     skillsToValidate = filteredArgs.map(arg => path.resolve(rootDir, arg));
   } else {
     // Validate all skills
-    skillsToValidate = await findSkills(rootDir);
+    skillsToValidate = await findSkills(rootDir, { excludeSubmodules });
   }
 
   if (skillsToValidate.length === 0) {
