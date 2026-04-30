@@ -1,0 +1,35 @@
+{
+  "phase": "phase-corpus-strict-compliance",
+  "started": "2026-04-29",
+  "tool": "claude-code",
+  "model": "claude-sonnet-4-6",
+  "assessment_complete": true,
+  "assessment_path": ".kbd-orchestrator/phases/phase-corpus-strict-compliance/assessment.md",
+  "plan_complete": false,
+  "change_backend": "native-kbd",
+  "execution_backend": "native-tool",
+  "changes_total": 3,
+  "changes_completed": 0,
+  "changes_log": [],
+  "active_change": null,
+  "next_change": null,
+  "scope": [
+    "G1: Backfill version, license, metadata.tags in all 77 native skills",
+    "G2: Fix zeespec-interrogator script permissions",
+    "G3: Promote validate:strict as CI gate, update CLAUDE.md",
+    "G4: Exclude submodule skills from strict validation via --exclude-submodules flag"
+  ],
+  "phase_goals": [
+    "npm run validate:strict exits 0 on the full native corpus",
+    "0 warnings from script permission issues",
+    "validate:strict documented as the CI gate for new skills",
+    "Submodule skills correctly excluded from strict mode"
+  ],
+  "baseline": {
+    "strict_errors": 158,
+    "strict_warnings": 6,
+    "skills_with_violations": 84,
+    "native_skills_with_violations": 77,
+    "submodule_errors": 23
+  }
+}

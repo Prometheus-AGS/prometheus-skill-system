@@ -1,25 +1,26 @@
 {
-  "phase": "phase-developer-ux",
+  "phase": "phase-corpus-strict-compliance",
   "phase_started": "2026-04-29",
-  "phase_path": ".kbd-orchestrator/phases/phase-developer-ux",
-  "stage": "complete",
-  "next_action": "/kbd-new-phase",
-  "assessment_path": ".kbd-orchestrator/phases/phase-developer-ux/assessment.md",
-  "plan_path": ".kbd-orchestrator/phases/phase-developer-ux/plan.md",
+  "phase_path": ".kbd-orchestrator/phases/phase-corpus-strict-compliance",
+  "stage": "assess",
+  "next_action": "/kbd-plan phase-corpus-strict-compliance",
+  "assessment_path": ".kbd-orchestrator/phases/phase-corpus-strict-compliance/assessment.md",
+  "plan_path": null,
   "active_change": null,
-  "last_completed": "change-003-native-commands",
-  "previous_phase": "phase-librefang-wasm-onramp",
+  "last_completed": null,
+  "previous_phase": "phase-developer-ux",
   "change_backend": "native-kbd",
   "openspec_present": false,
   "evolver_bridge": null,
   "changes_total": 3,
-  "changes_completed": 3,
+  "changes_completed": 0,
   "phase_goals": [
-    "Migrate slash-commands to native commands/ directory format recognized by Claude Code and OpenCode",
-    "Create ideation-mindmap skill that generates a 6-branch concept tree via surreal-memory",
-    "Extend the skills validator to enforce version, license, and metadata.tags fields in strict mode"
+    "npm run validate:strict exits 0 on the full native corpus",
+    "0 warnings from script permission issues",
+    "validate:strict documented as the CI gate for new skills",
+    "Submodule skills correctly excluded from strict mode"
   ],
   "tool": "claude-code",
   "model": "claude-sonnet-4-6",
-  "updated": "2026-04-29T23:15:00Z"
+  "updated": "2026-04-29T23:20:00Z"
 }
