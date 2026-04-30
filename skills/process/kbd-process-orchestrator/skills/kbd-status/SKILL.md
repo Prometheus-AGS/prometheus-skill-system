@@ -1,10 +1,13 @@
 ---
 license: MIT
 name: kbd-status
+version: '1.0.0'
 description: >
   Show current KBD process status — active phase, change inventory, goal
   completion, and next recommended action. Reads progress.json to surface
   work completed by all tools (Antigravity, Roo, Cursor, Cline, Codex, etc.)
+metadata:
+  tags: [process, orchestration, automation]
 ---
 
 # /kbd-status

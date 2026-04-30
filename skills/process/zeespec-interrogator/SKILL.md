@@ -38,6 +38,8 @@ triggers:
     Run a ZeeSpec interrogation on a system, change, or idea to surface
     undefined constraints across the What, Where, Who, When, Why, and How
     dimensions before committing to planning or implementation.
+metadata:
+  tags: [process, orchestration, automation]
 ---
 
 # ZeeSpec Interrogator

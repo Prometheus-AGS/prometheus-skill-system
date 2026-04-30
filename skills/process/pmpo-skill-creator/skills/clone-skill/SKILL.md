@@ -1,7 +1,10 @@
 ---
 license: MIT
 name: clone-skill
+version: '1.0.0'
 description: Clone an existing Agent Skill and adapt it for a new domain. Preserves architecture while replacing domain-specific content.
+metadata:
+  tags: [process, orchestration, automation]
 ---
 
 # Clone Skill

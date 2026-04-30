@@ -1,11 +1,14 @@
 ---
 license: MIT
 name: bdd-testing
+version: '1.0.0'
 description: >
   Generate BDD integration tests using Cucumber.js with Gherkin syntax, Playwright browser
   validation, and video recording. Use when asked to create behavior tests, E2E tests,
   integration tests, Gherkin scenarios, or feature files. Supports API, UI, and agent
   workflow testing layers with automatic video capture of test sessions.
+metadata:
+  tags: [testing, bdd, automation]
 ---
 
 # BDD Integration Testing Skill

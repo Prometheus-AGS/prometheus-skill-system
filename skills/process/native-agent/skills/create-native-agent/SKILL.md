@@ -1,11 +1,14 @@
 ---
 license: MIT
 name: create-native-agent
+version: '1.0.0'
 description: >
   Generate a complete native Rust agent application with Supabase-style CLI,
   A2A/AG-UI/A2UI protocol support, React 19 assistant-ui chat frontend, liter-llm
   model routing, MCP client tools, and the Prometheus skills engine. One command
   scaffolds a runnable multi-protocol agent binary.
+metadata:
+  tags: [process, orchestration, automation]
 ---
 
 # /create-native-agent

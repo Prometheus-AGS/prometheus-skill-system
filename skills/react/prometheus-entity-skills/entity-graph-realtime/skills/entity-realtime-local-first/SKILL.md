@@ -1,10 +1,13 @@
 ---
 license: MIT
 name: entity-realtime-local-first
+version: '1.0.0'
 description: >
   Wire ElectricSQL shape streams and PGlite with createElectricAdapter (SyncAdapter): ElectricTableConfig,
   shapeStream subscription, PGlite listen path into ChangeSet, useLocalFirst and usePGliteQuery for reads,
   and sync-complete UX.
+metadata:
+  tags: [react, typescript, entity-management]
 ---
 
 # `/entity-realtime-local-first` — ElectricSQL + PGlite

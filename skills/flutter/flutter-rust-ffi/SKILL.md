@@ -9,6 +9,8 @@ description: >
   safety, and bidirectional embedding patterns (React 19 embedding Flutter, Flutter
   embedding React via WebView). Use when building any Prometheus hybrid mobile app.
 language: flutter
+metadata:
+  tags: [flutter, dart, ffi]
 ---
 
 # Flutter + Rust FFI

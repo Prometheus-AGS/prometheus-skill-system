@@ -1,6 +1,7 @@
 ---
 license: MIT
 name: iterative-evolver
+version: '1.0.0'
 description: >
   Use this skill for any iterative evolution scenario — assessing current
   state, analyzing the landscape, planning improvements, executing changes,
@@ -18,6 +19,8 @@ model_routing:
     evolver-reflect: frontier
     evolver-status: small
   routing_reference: "references/model-routing.md"
+metadata:
+  tags: [process, orchestration, automation]
 ---
 
 # Iterative Evolver

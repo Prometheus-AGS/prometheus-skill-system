@@ -5,6 +5,8 @@ license: MIT
 version: "1.0.0"
 authors: ["prometheus-skill-pack"]
 compatibility: "rustbpe==0.1.0, tiktoken>=0.7, Python>=3.10"
+metadata:
+  tags: [rust, patterns]
 ---
 
 # Karpathy Tokenizer

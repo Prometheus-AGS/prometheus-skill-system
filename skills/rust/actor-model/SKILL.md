@@ -9,6 +9,8 @@ description: >
   pk-librarian event broadcasting, and parking-lot scheduler design. Use when a
   component needs to own state exclusively while serving concurrent callers.
 language: rust
+metadata:
+  tags: [rust, patterns]
 ---
 
 # Actor Model — Rust

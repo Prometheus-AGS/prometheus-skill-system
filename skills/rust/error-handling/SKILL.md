@@ -8,6 +8,8 @@ description: >
   code (ergonomic, context-rich). Includes #[cold] error path annotation, no unwrap/expect
   in non-test code, and structured error propagation via the ? operator.
 language: rust
+metadata:
+  tags: [rust, patterns]
 ---
 
 # Error Handling — Rust

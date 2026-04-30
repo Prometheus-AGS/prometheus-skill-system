@@ -9,6 +9,8 @@ description: >
   use case: generating skill executor code in Python that calls into Rust crates
   (forge-rs, pk-librarian, surreal-memory) for use in Dify and custom skill servers.
 language: python
+metadata:
+  tags: [python, bridge]
 ---
 
 # PyO3 Rust-Python Bridge

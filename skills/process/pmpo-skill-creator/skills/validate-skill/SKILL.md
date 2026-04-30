@@ -1,7 +1,10 @@
 ---
 license: MIT
 name: validate-skill
+version: '1.0.0'
 description: Validate any Agent Skill against the agentskills.io specification and quality standards. Reports compliance issues and suggestions.
+metadata:
+  tags: [process, orchestration, automation]
 ---
 
 # Validate Skill

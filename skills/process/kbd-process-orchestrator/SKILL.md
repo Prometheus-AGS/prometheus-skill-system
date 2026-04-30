@@ -43,6 +43,8 @@ triggers:
     Orchestrate a project phase, run the KBD assessment loop, create or manage
     OpenSpec changes, invoke artifact-refiner QA, or generate a phase
     reflection report.
+metadata:
+  tags: [process, orchestration, automation]
 ---
 
 # KBD Process Orchestrator

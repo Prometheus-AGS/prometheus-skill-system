@@ -1,10 +1,13 @@
 ---
 license: MIT
 name: entity-prisma-setup
+version: '1.0.0'
 description: >
   Slash command /entity-prisma-setup — analyze schema.prisma, generate TypeScript entity types,
   createPrismaEntityConfig modules, registerSchema bootstrap, and align REST list/detail shapes
   with @prometheus-ags/prometheus-entity-management adapters.
+metadata:
+  tags: [react, typescript, entity-management]
 ---
 
 # /entity-prisma-setup

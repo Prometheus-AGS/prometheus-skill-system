@@ -8,6 +8,8 @@ description: >
   logging with slog, module layout (cmd/internal/pkg), table-driven tests, and
   idiomatic Go patterns used across Prometheus infrastructure tooling and MCP servers.
 language: go
+metadata:
+  tags: [go, patterns]
 ---
 
 # Go Base Patterns

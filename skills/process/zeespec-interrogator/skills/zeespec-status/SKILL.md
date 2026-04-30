@@ -1,11 +1,14 @@
 ---
 license: MIT
 name: zeespec-status
+version: '1.0.0'
 description: >
   Show current ZeeSpec interrogation progress for a named subject. Displays
   which dimensions have been completed, current coverage scores if available,
   and the manifest path if the interrogation is complete. Read-only — does
   not modify state.
+metadata:
+  tags: [process, orchestration, automation]
 ---
 
 # /zeespec-status

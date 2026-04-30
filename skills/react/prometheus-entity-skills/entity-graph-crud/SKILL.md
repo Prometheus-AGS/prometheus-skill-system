@@ -1,11 +1,14 @@
 ---
 license: MIT
 name: entity-graph-crud
+version: '1.0.0'
 description: >
   Generate complete CRUD screens for any entity type using @prometheus-ags/prometheus-entity-management hooks and UI components.
   Analyzes entity shape, produces column definitions (TanStack Table + entityMeta), FieldDescriptor-based forms,
   EntityDetailSheet / EntityFormSheet wiring, and registerSchema + cascade invalidation—all strictly following
   Components → Hooks → Stores → APIs data flow.
+metadata:
+  tags: [react, typescript, entity-management]
 ---
 
 # Entity Graph CRUD

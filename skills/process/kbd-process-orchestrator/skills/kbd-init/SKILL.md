@@ -1,12 +1,15 @@
 ---
 license: MIT
 name: kbd-init
+version: '1.0.0'
 description: >
   Initialize KBD in a project. Auto-discovers project identity, stack, and
   constraints from existing context files (AGENTS.md, CLAUDE.md, README.md,
   package.json, Cargo.toml, pyproject.toml, etc.) and generates
   .kbd-orchestrator/project.json and .kbd-orchestrator/constraints.md.
   Run this once per project before any other KBD command.
+metadata:
+  tags: [process, orchestration, automation]
 ---
 
 # /kbd-init

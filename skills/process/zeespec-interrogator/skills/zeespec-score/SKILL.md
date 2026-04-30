@@ -1,11 +1,14 @@
 ---
 license: MIT
 name: zeespec-score
+version: '1.0.0'
 description: >
   Score and report coverage on an existing ZeeSpec interrogation record.
   Reads the recorded answers from state and produces a coverage-score.json
   with per-dimension scores and a GO/CAUTION/NO-GO recommendation without
   re-running the interrogation.
+metadata:
+  tags: [process, orchestration, automation]
 ---
 
 # /zeespec-score

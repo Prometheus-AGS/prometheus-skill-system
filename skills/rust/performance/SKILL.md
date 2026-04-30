@@ -9,6 +9,8 @@ description: >
   Arc placement discipline, parking_lot over std::sync, and SIMD-aware buffer
   patterns. Apply when writing hot paths, server binaries, or inference-adjacent code.
 language: rust
+metadata:
+  tags: [rust, patterns]
 ---
 
 # Performance Primitives — Rust

@@ -1,12 +1,15 @@
 ---
 license: MIT
 name: entity-graph-graphql
+version: '1.0.0'
 description: >
   Set up the GraphQL layer for @prometheus-ags/prometheus-entity-management: GQLClient, EntityDescriptor trees,
   response normalization into the Zustand entity graph, and typed hooks (useGQLEntity, useGQLList,
   useGQLMutation, useGQLSubscription). Supports schema-driven descriptor generation from .graphql
   files or introspection of a running endpoint. Sub-skills cover setup, hook codegen patterns,
   and wiring subscriptions through graphql-ws plus RealtimeManager.
+metadata:
+  tags: [react, typescript, entity-management]
 ---
 
 # Entity Graph — GraphQL

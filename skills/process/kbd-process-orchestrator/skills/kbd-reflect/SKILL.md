@@ -1,11 +1,14 @@
 ---
 license: MIT
 name: kbd-reflect
+version: '1.0.0'
 description: >
   Generate the phase reflection report after all changes in the phase are
   complete. Seeds the next phase's planning inputs. Aggregates artifact-refiner
   QA results and reports back to iterative-evolver when running inside an
   evolution cycle.
+metadata:
+  tags: [process, orchestration, automation]
 ---
 
 # /kbd-reflect

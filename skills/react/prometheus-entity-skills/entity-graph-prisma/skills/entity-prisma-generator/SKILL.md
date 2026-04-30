@@ -1,10 +1,13 @@
 ---
 license: MIT
 name: entity-prisma-generator
+version: '1.0.0'
 description: >
   Slash command /entity-prisma-generator — add a Prisma generator package (prisma-entity-graph-generator
   pattern) to emit entity graph configs and registration from DMMF; configure prisma schema generator
   block, output path, and post-generate typecheck.
+metadata:
+  tags: [react, typescript, entity-management]
 ---
 
 # /entity-prisma-generator

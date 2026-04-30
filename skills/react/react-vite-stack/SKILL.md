@@ -10,6 +10,8 @@ description: >
   entity graph). Always use .tsx for React components. Use when scaffolding or
   extending any Prometheus AGS frontend application.
 language: react
+metadata:
+  tags: [react, typescript, entity-management]
 ---
 
 # React 19 + Vite 8 Stack

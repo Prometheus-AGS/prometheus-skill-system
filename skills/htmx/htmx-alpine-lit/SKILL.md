@@ -10,6 +10,8 @@ description: >
   server-driven dashboards, document viewers, interactive artifact displays, or
   HTMX islands embedded in React applications.
 language: typescript
+metadata:
+  tags: [htmx, alpine, frontend]
 ---
 
 # HTMX 2.0.8 + Alpine.js + Lit

@@ -9,6 +9,8 @@ description: >
   broadcast, and stdio transport for Claude Desktop integration. Use when building
   any new MCP-enabled service in the Prometheus stack.
 language: rust
+metadata:
+  tags: [rust, patterns]
 ---
 
 # MCP Server — Rust

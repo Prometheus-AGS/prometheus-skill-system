@@ -1,11 +1,14 @@
 ---
 license: MIT
 name: evolve-report
+version: '1.0.0'
 description: >
   Generate an evolution report from current state data. Produces a human-readable
   markdown report summarizing the full evolution cycle. Aggregates KBD phase
   results and artifact-refiner QA metrics when available. Optionally refines
   the report through artifact-refiner content refinement.
+metadata:
+  tags: [process, orchestration, automation]
 ---
 
 # Evolve Report

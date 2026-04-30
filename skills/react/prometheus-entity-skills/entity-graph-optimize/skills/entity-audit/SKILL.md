@@ -1,10 +1,13 @@
 ---
 license: MIT
 name: entity-audit
+version: '1.0.0'
 description: >
   Slash command /entity-audit — run full codebase audit against @prometheus-ags/prometheus-entity-management CLAUDE.md
   rules: component/store boundaries, hook I/O, registerSchema coverage, JSDoc on public hooks, and
   realtime/list patterns. Produces a severitized report using references/audit-checklist.md.
+metadata:
+  tags: [react, typescript, entity-management]
 ---
 
 # /entity-audit

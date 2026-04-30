@@ -9,6 +9,8 @@ description: >
   and module organization. Applies to all TypeScript code: React, MCP servers,
   Mastra agents, and Node.js scripts.
 language: typescript
+metadata:
+  tags: [typescript, patterns]
 ---
 
 # TypeScript Base Patterns

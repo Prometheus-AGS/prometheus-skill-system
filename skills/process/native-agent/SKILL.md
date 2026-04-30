@@ -40,6 +40,8 @@ triggers:
   semantic: >
     Scaffold a new native Rust agent application with protocol support, a chat
     frontend, MCP client tools, Docker support, and a management CLI.
+metadata:
+  tags: [process, orchestration, automation]
 ---
 
 # Native Agent Generator

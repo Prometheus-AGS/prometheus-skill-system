@@ -1,5 +1,6 @@
 ---
 name: kustomize-overlay
+version: '1.0.0'
 description: >
   Generates a complete three-dimensional Kustomize overlay structure (base / cloud / environment)
   for a new or existing service following TJ-CICD-001. Creates cloud-specific annotation patches
@@ -12,6 +13,7 @@ compatibility: >
   Requires: kustomize 5+, bash 5+, kubectl (for manifest validation).
   Supported agents: Claude Code, Antigravity, Codex, OpenCode, Gemini CLI, Roo Code, Windsurf.
 metadata:
+  tags: [devops, gitops, kubernetes]
   standard: TJ-CICD-001 v1.1
   owner: Prometheus AGS
   contact: tjames@prometheusags.ai

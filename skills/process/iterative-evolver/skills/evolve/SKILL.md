@@ -1,10 +1,13 @@
 ---
 license: MIT
 name: evolve
+version: '1.0.0'
 description: >
   Run a full iterative evolution cycle — Assess, Analyze, Plan, Execute, and
   Reflect. Auto-detects domain or prompts for it. Use for any subject that
   needs iterative improvement against goals.
+metadata:
+  tags: [process, orchestration, automation]
 ---
 
 # Evolve

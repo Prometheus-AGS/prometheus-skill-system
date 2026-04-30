@@ -1,10 +1,13 @@
 ---
 license: MIT
 name: entity-gql-hooks
+version: '1.0.0'
 description: >
   Slash command /entity-gql-hooks — produce typed useGQLEntity, useGQLList, useGQLMutation wrappers
   for concrete GraphQL documents; wire queryKey, getItems, getPagination, sideDescriptors, and
   invalidateLists for @prometheus-ags/prometheus-entity-management.
+metadata:
+  tags: [react, typescript, entity-management]
 ---
 
 # /entity-gql-hooks

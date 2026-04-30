@@ -8,6 +8,8 @@ description: >
   broadcast channels, graceful shutdown, and structured concurrency. Use whenever
   writing async code in any Prometheus Fabric crate.
 language: rust
+metadata:
+  tags: [rust, patterns]
 ---
 
 # Async Patterns — Rust

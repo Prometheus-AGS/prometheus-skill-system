@@ -1,11 +1,14 @@
 ---
 license: MIT
 name: kbd-execute
+version: '1.0.0'
 description: >
   Select an execution backend for the active KBD phase, write canonical phase
   execution state, dispatch the phase to the appropriate tool or OpenSpec, and
   maintain KBD as the source of truth. Supports multi-tool handoff via
   progress.json protocol. Integrates artifact-refiner QA per completed change.
+metadata:
+  tags: [process, orchestration, automation]
 ---
 
 # /kbd-execute

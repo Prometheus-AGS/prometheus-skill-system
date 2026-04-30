@@ -1,5 +1,6 @@
 ---
 name: argocd-multicloud
+version: '1.0.0'
 description: >
   Installs, configures, and manages ArgoCD as a multi-cloud GitOps control plane on GKE,
   with AKS and EKS registered as remote cluster destinations. Covers: fresh ArgoCD
@@ -15,6 +16,7 @@ compatibility: >
   Network: ArgoCD control plane must have API server reachability to AKS and EKS clusters.
   Supported agents: Claude Code, Antigravity, Codex, OpenCode, Gemini CLI, Roo Code.
 metadata:
+  tags: [devops, gitops, kubernetes]
   standard: TJ-CICD-001 v1.1
   owner: Prometheus AGS
   contact: tjames@prometheusags.ai

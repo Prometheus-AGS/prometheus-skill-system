@@ -8,6 +8,8 @@ description: >
   (*-core / *-store / *-librarian / *-mcp / *-cli), feature flag discipline, and
   release profile settings. Use when scaffolding any new Prometheus Rust workspace.
 language: rust
+metadata:
+  tags: [rust, patterns]
 ---
 
 # Workspace Structure — Rust

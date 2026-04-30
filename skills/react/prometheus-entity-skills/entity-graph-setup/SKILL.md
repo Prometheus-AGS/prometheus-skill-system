@@ -1,7 +1,10 @@
 ---
 license: MIT
 name: entity-graph-setup
+version: '1.0.0'
 description: 'Analyze a React/Vite/Next.js codebase and introduce @prometheus-ags/prometheus-entity-management from scratch—detect legacy data layers, infer entity types, emit schema registrations, and produce phased migration plans without breaking architecture rules.'
+metadata:
+  tags: [react, typescript, entity-management]
 ---
 
 # entity-graph-setup

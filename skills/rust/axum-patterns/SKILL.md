@@ -8,6 +8,8 @@ description: >
   Tower middleware composition, structured error types, and Axum-native SSE for MCP servers.
   Use when building any Axum HTTP service, MCP server, or API gateway in the Prometheus stack.
 language: rust
+metadata:
+  tags: [rust, patterns]
 ---
 
 # Axum Patterns — Rust

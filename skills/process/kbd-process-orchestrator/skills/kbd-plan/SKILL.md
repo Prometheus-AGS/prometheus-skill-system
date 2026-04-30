@@ -1,12 +1,15 @@
 ---
 license: MIT
 name: kbd-plan
+version: '1.0.0'
 description: >
   Create a prioritized, ordered change list for the current project phase.
   Project-agnostic: reads assessment and project constraints to produce
   an ordered change list. Auto-detects OpenSpec availability and emits
   appropriate change formats. Bridges with iterative-evolver plan items
   when running inside an evolution cycle.
+metadata:
+  tags: [process, orchestration, automation]
 ---
 
 # /kbd-plan

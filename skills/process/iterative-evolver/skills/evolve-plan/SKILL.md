@@ -1,9 +1,12 @@
 ---
 license: MIT
 name: evolve-plan
+version: '1.0.0'
 description: >
   Run only the Plan phase — create a prioritized improvement plan. Requires
   an existing assessment and optionally an analysis.
+metadata:
+  tags: [process, orchestration, automation]
 ---
 
 # Evolve Plan

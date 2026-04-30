@@ -1,5 +1,6 @@
 ---
 name: gitops-bootstrap
+version: '1.0.0'
 description: >
   Scaffolds a complete multi-cloud GitOps CI/CD system from scratch following the TJ-CICD-001
   standard. Detects target cloud environments (GKE, AKS, EKS — any combination), creates the
@@ -15,6 +16,7 @@ compatibility: >
   Cursor, Amp, Cline. Discovery paths: .claude/skills/ (Claude Code), .agents/skills/ (Codex,
   OpenCode, Antigravity, Amp), .gemini/ (Gemini CLI), .roo/skills/ (Roo Code).
 metadata:
+  tags: [devops, gitops, kubernetes]
   standard: TJ-CICD-001 v1.1
   owner: Prometheus AGS
   contact: tjames@prometheusags.ai

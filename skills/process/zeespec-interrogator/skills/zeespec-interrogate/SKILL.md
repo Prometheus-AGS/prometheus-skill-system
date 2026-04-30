@@ -1,10 +1,13 @@
 ---
 license: MIT
 name: zeespec-interrogate
+version: '1.0.0'
 description: >
   Run a full ZeeSpec 5W1H interrogation on a named subject. Asks 10 questions
   per dimension (Why, Who, When, What, Where, How), scores coverage, and
   produces a constraint manifest with a GO/CAUTION/NO-GO recommendation.
+metadata:
+  tags: [process, orchestration, automation]
 ---
 
 # /zeespec-interrogate

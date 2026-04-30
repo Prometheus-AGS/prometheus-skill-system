@@ -1,11 +1,14 @@
 ---
 license: MIT
 name: evolve-execute
+version: '1.0.0'
 description: >
   Run only the Execute phase — carry out a previously created improvement plan.
   For software domain evolutions, delegates to kbd-process-orchestrator as the
   inner loop for fine-grained task execution with OpenSpec detection and
   artifact-refiner QA. Requires an existing plan.json.
+metadata:
+  tags: [process, orchestration, automation]
 ---
 
 # Evolve Execute

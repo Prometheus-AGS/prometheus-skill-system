@@ -1,9 +1,12 @@
 ---
 license: MIT
 name: entity-crud-table
+version: '1.0.0'
 description: >
   Build EntityTable views with column helpers (textColumn, numberColumn, enumColumn, etc.), SortHeader,
   selectionColumn, and meta.entityMeta for filters; sync sorting and search with useEntityView via UseEntityViewResult.
+metadata:
+  tags: [react, typescript, entity-management]
 ---
 
 # `/entity-crud-table` — Table and list UI

@@ -1,9 +1,12 @@
 ---
 license: MIT
 name: evolve-analyze
+version: '1.0.0'
 description: >
   Run only the Analyze phase — research the external landscape for competitors,
   trends, opportunities, and threats. Requires an existing assessment or goals.
+metadata:
+  tags: [process, orchestration, automation]
 ---
 
 # Evolve Analyze

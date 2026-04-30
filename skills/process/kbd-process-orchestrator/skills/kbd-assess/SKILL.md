@@ -1,10 +1,13 @@
 ---
 license: MIT
 name: kbd-assess
+version: '1.0.0'
 description: >
   Assess the current project codebase against the active phase goals.
   Project-agnostic: reads AGENTS.md, spec files, and codebase to produce
   a structured assessment. Works for any technology stack or language.
+metadata:
+  tags: [process, orchestration, automation]
 ---
 
 # /kbd-assess

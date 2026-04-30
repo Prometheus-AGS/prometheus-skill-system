@@ -1,9 +1,12 @@
 ---
 license: MIT
 name: evolve-assess
+version: '1.0.0'
 description: >
   Run only the Assess phase — evaluate current state against goals.
   Produces a structured assessment without creating plans or making changes.
+metadata:
+  tags: [process, orchestration, automation]
 ---
 
 # Evolve Assess

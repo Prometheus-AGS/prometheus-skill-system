@@ -9,6 +9,8 @@ description: >
   to Rust crates, Flutter features, React feature slices, and Go packages. Apply
   across all languages to ensure consistent layering and testability.
 language: rust
+metadata:
+  tags: [architecture, clean-architecture, patterns]
 ---
 
 # CLEAN Architecture — Cross-Language Patterns

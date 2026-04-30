@@ -1,10 +1,13 @@
 ---
 license: MIT
 name: entity-prisma-api
+version: '1.0.0'
 description: >
   Slash command /entity-prisma-api — scaffold Next.js App Router API routes with Prisma Client
   for list/detail/create/update/delete, decoding where/orderBy JSON from createPrismaEntityConfig
   list fetchers with allowlisted filters.
+metadata:
+  tags: [react, typescript, entity-management]
 ---
 
 # /entity-prisma-api

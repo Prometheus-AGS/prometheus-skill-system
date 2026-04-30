@@ -1,10 +1,13 @@
 ---
 license: MIT
 name: entity-gql-setup
+version: '1.0.0'
 description: >
   Slash command /entity-gql-setup — scaffold createGQLClient (GQLClientConfig), authentication headers,
   and EntityDescriptor sets from GraphQL SDL or introspection. Aligns paths and extractId with
   normalizeGQLResponse behavior in `@prometheus-ags/prometheus-entity-management`.
+metadata:
+  tags: [react, typescript, entity-management]
 ---
 
 # /entity-gql-setup

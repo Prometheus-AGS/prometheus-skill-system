@@ -32,6 +32,8 @@ triggers:
     Install liter-llm, detect provider API keys, register the liter-llm
     MCP server with the active harness, or document how skills should
     invoke its tools to route per-phase model classes.
+metadata:
+  tags: [process, orchestration, automation]
 ---
 
 # liter-llm-bridge

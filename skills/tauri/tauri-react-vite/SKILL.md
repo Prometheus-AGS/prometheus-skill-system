@@ -9,6 +9,8 @@ description: >
   gen_ui_core Rust crate sharing between Tauri backend and flutter_rust_bridge.
   Use when building any Prometheus desktop application.
 language: tauri
+metadata:
+  tags: [tauri, desktop, rust]
 ---
 
 # Tauri 2 + React 19 + Vite 8

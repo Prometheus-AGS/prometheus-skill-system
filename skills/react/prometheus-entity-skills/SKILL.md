@@ -1,12 +1,15 @@
 ---
 license: MIT
 name: prometheus-entity-skills
+version: '1.0.0'
 description: >
   Full-stack entity management skill suite for React applications using
   @prometheus-ags/prometheus-entity-management. Covers setup, CRUD screens,
   GraphQL integration, Prisma backend, realtime sync, and performance
   optimization. Use when building entity-driven admin UIs, data management
   dashboards, or any React app with relational entity graphs.
+metadata:
+  tags: [react, typescript, entity-management]
 ---
 
 # Prometheus Entity Skills

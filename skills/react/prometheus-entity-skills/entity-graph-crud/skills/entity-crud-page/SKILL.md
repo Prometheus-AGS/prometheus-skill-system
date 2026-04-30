@@ -1,10 +1,13 @@
 ---
 license: MIT
 name: entity-crud-page
+version: '1.0.0'
 description: >
   Scaffold a full CRUD page (list, create, edit, detail, delete) using useEntityCRUD with EntityTable,
   EntityDetailSheet, and EntityFormSheet. Enforces Components → Hooks → Stores: page composes only;
   useXxxCRUD hook wraps library CRUD; API module holds fetch/mutations.
+metadata:
+  tags: [react, typescript, entity-management]
 ---
 
 # `/entity-crud-page` — Full CRUD page

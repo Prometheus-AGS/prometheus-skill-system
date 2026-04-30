@@ -1,7 +1,10 @@
 ---
 license: MIT
 name: create-skill
+version: '1.0.0'
 description: Create a new Agent Skill from scratch using PMPO orchestration. Generates a complete skill package with all required files.
+metadata:
+  tags: [process, orchestration, automation]
 ---
 
 # Create Skill
