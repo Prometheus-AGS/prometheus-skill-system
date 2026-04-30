@@ -35,6 +35,10 @@ coverage/
 .env.*.local
 .claude/
 tools/prometheus-cli/target/
+tools/forge-rs/target/
+tools/surreal-memory-server/target/
+tools/liter-llm/target/
+tools/prometheus-knowledge/target/
 
 # Build output — symlinks created by `npm run build`
 .claude-plugin/agents

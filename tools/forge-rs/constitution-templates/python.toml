@@ -1,0 +1,24 @@
+language = "python"
+
+[standards]
+version          = "3.12"
+pyo3_version     = "0.22"
+package_manager  = "uv"
+linter           = "ruff"
+type_checker     = "mypy"
+testing          = "pytest"
+use_case         = "skill executor code generation and PyO3 Rust-Python bridging"
+
+[[forbidden_patterns]]
+pattern  = "import *"
+reason   = "Explicit imports only."
+severity = "error"
+
+[[forbidden_patterns]]
+pattern  = "except:"
+reason   = "Always specify the exception type."
+severity = "error"
+
+[required_skills]
+always = ["python/pyo3-bridge"]
+when_skill_executor = ["python/skill-executor"]

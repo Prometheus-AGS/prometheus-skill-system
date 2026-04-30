@@ -1,0 +1,59 @@
+language = "rust"
+
+[standards]
+web_framework         = "axum"
+web_framework_version = "0.8"
+async_runtime         = "tokio"
+error_handling        = "thiserror for library errors, anyhow for application errors"
+state_sharing         = "Arc<RwLock<T>> default; parking_lot::Mutex for hot paths"
+allocator             = "tikv-jemallocator in release binary entry points"
+testing               = "tokio::test + rstest for parameterized; proptest for invariants"
+crate_structure       = "workspace with resolver=2; domain types in *-core; no circular deps"
+edition               = "2021"
+
+[framework_versions]
+axum        = "0.8"
+tokio       = "1"
+serde       = "1"
+thiserror   = "2"
+anyhow      = "1"
+clap        = "4"
+reqwest     = "0.12"
+axum-extra  = "0.10"
+tower-http  = "0.6"
+
+[[forbidden_patterns]]
+pattern  = "unwrap()"
+reason   = "Panics in production. Use ? or explicit error handling."
+severity = "error"
+
+[[forbidden_patterns]]
+pattern  = "expect("
+reason   = "Panics in production. Use ? or context()."
+severity = "error"
+
+[[forbidden_patterns]]
+pattern  = "std::sync::Mutex"
+reason   = "Use parking_lot::Mutex for lower overhead and no poisoning."
+severity = "warning"
+
+[[forbidden_patterns]]
+pattern  = "thread::sleep"
+reason   = "Blocking sleep in async context. Use tokio::time::sleep."
+severity = "error"
+
+[[forbidden_patterns]]
+pattern  = "block_on("
+reason   = "Blocking async in sync context. Restructure to use async."
+severity = "error"
+
+[[forbidden_patterns]]
+pattern  = "clone().clone()"
+reason   = "Double clone is almost always a design smell."
+severity = "warning"
+
+[required_skills]
+always = ["rust/performance", "rust/error-handling"]
+when_axum = ["rust/axum-patterns"]
+when_mcp  = ["rust/mcp-server"]
+when_actor = ["rust/actor-model"]

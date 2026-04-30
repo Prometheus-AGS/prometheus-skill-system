@@ -1,0 +1,40 @@
+{{- /*
+  META-TEMPLATE: new_skill_toml.tera
+  Generates a skill.toml manifest for a new forge-rs skill.
+
+  This template is rendered by `forge template new skill <language> <name>`
+  Output location: skills/<language>/<name>/skill.toml
+
+  Variables:
+    name          : kebab-case skill name (e.g. "axum-patterns")
+    language      : language enum value (rust|typescript|react|flutter|go|python|tauri|htmx)
+    description   : one-line description of the skill
+    version       : semantic version (default "1.0.0")
+    templates     : list of { path, output_description } objects
+    trigger_keywords : list of keyword strings that auto-activate this skill
+    depends_on    : list of "language/skill-name" strings
+*/ -}}
+name        = "{{ name }}"
+language    = "{{ language }}"
+description = "{{ description }}"
+version     = "{{ version | default(value="1.0.0") }}"
+
+{% for tmpl in templates -%}
+[[templates]]
+path               = "{{ tmpl.path }}"
+output_description = "{{ tmpl.output_description }}"
+
+{% endfor %}
+[[triggers]]
+type     = "AlwaysForLanguage"
+language = "{{ language }}"
+
+[[triggers]]
+type     = "Keywords"
+keywords = {{ trigger_keywords | json_encode() }}
+
+{% if depends_on -%}
+depends_on = {{ depends_on | json_encode() }}
+{%- else -%}
+depends_on = []
+{%- endif %}

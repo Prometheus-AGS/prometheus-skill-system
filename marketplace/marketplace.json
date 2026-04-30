@@ -72,6 +72,18 @@ homepage: https://github.com/Prometheus-AGS/prometheus-skill-system
       "version": "1.2.0",
       "tags": ["bdd", "testing", "cucumber", "playwright"],
       "category": "testing"
+    },
+    {
+      "name": "prometheus-librefang-skills",
+      "description": "Package native agents as LibreFang/bossfang WASM skills, upload them to a bossfang URL with SSRF-guarded /upload-to-bossfang, and chain ideation→deploy with /start-business-build. Includes the librefang-wasm-skill template, native-agent --target librefang-wasm support, and the headline orchestrator.",
+      "source": {
+        "type": "git",
+        "url": "https://github.com/Prometheus-AGS/prometheus-skill-system.git",
+        "path": "skills/rust/librefang-wasm-skill"
+      },
+      "version": "1.3.0",
+      "tags": ["librefang", "bossfang", "wasm", "wasmtime", "agent-os", "ssrf-guard", "deploy"],
+      "category": "productivity"
     }
   ]
 }

@@ -1,0 +1,57 @@
+language = "typescript"
+
+[standards]
+package_manager     = "pnpm"
+react_version       = "19"
+bundler             = "vite"
+bundler_version     = "8"
+router              = "tanstack-router"
+state               = "zustand"
+state_version       = "5"
+table               = "tanstack-react-table"
+ui                  = "shadcn-ui"
+css                 = "tailwind"
+css_version         = "4"
+query               = "tanstack-query"
+entity_management   = "@prometheus-ags/prometheus-entity-management"
+file_extension      = "tsx for React components, ts for pure logic"
+imports             = "named imports preferred; no default export from hooks"
+
+[framework_versions]
+react             = "19"
+vite              = "8"
+"@tanstack/react-router" = "latest"
+"@tanstack/react-table"  = "latest"
+"@tanstack/react-query"  = "latest"
+zustand           = "5"
+typescript        = "6"
+
+[[forbidden_patterns]]
+pattern  = "any"
+reason   = "Use unknown and narrow with type guards, or explicit types."
+severity = "warning"
+
+[[forbidden_patterns]]
+pattern  = "// @ts-ignore"
+reason   = "Fix the type error; do not suppress."
+severity = "error"
+
+[[forbidden_patterns]]
+pattern  = "useSelector"
+reason   = "Not the Zustand 5 API. Use the store's hook directly."
+severity = "error"
+
+[[forbidden_patterns]]
+pattern  = ".jsx"
+reason   = "Use .tsx for all React components. Never .jsx."
+severity = "error"
+
+[[forbidden_patterns]]
+pattern  = "import React from 'react'"
+reason   = "React 19 does not require explicit React import for JSX."
+severity = "warning"
+
+[required_skills]
+always = ["typescript/base-patterns"]
+when_react = ["react/react-vite-stack", "react/prometheus-entity-skills"]
+when_tanstack = ["react/tanstack-patterns"]

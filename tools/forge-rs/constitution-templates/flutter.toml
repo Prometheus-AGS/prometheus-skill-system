@@ -1,0 +1,39 @@
+language = "flutter"
+
+[standards]
+state_management  = "riverpod"
+riverpod_version  = "2.6"
+navigation        = "go_router"
+ui_library        = "shadcn_flutter"
+ffi_bridge        = "flutter_rust_bridge"
+ffi_version       = "v2"
+dart_version      = "3.4"
+flutter_version   = "3.24"
+architecture      = "feature-based clean architecture"
+embedding_react   = "flutter_web_plugin for web, PlatformView for native"
+
+[framework_versions]
+"flutter_rust_bridge" = "2"
+"riverpod"            = "2.6"
+"go_router"           = "14"
+"shadcn_flutter"      = "latest"
+
+[[forbidden_patterns]]
+pattern  = "setState("
+reason   = "Use Riverpod providers, not raw setState."
+severity = "warning"
+
+[[forbidden_patterns]]
+pattern  = "Provider("
+reason   = "Use Riverpod's @riverpod annotation, not legacy Provider."
+severity = "error"
+
+[[forbidden_patterns]]
+pattern  = "async*"
+reason   = "Prefer Stream-based providers in Riverpod over raw async generators."
+severity = "warning"
+
+[required_skills]
+always      = ["flutter/flutter-rust-ffi", "flutter/clean-architecture"]
+when_web    = ["flutter/react-embedding"]
+when_tauri  = ["tauri/flutter-embedding"]

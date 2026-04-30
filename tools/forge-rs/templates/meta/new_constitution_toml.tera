@@ -1,0 +1,34 @@
+{{- /*
+  META-TEMPLATE: new_constitution_toml.tera
+  Generates a language constitution for .forge/constitution/<language>.toml
+
+  Variables:
+    language         : language enum value (rust|typescript|react|flutter|go|python|tauri|htmx)
+    framework        : primary framework name (e.g. "axum", "react", "flutter")
+    framework_version: primary framework version (e.g. "0.8", "19", "3.24")
+    standards        : list of { key, value } standard entries
+    framework_versions : list of { package, version } version pins
+    forbidden        : list of { pattern, reason, severity } forbidden patterns
+    required_skills  : list of "language/skill-name" always-required skills
+*/ -}}
+language = "{{ language }}"
+
+[standards]
+{% for std in standards -%}
+{{ std.key | pad_end(width=22) }} = "{{ std.value }}"
+{% endfor %}
+
+[framework_versions]
+{% for fv in framework_versions -%}
+"{{ fv.package }}" = "{{ fv.version }}"
+{% endfor %}
+
+{% for fp in forbidden -%}
+[[forbidden_patterns]]
+pattern  = "{{ fp.pattern }}"
+reason   = "{{ fp.reason }}"
+severity = "{{ fp.severity }}"
+
+{% endfor %}
+[required_skills]
+always = {{ required_skills | json_encode() }}

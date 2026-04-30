@@ -1,0 +1,22 @@
+language = "tauri"
+
+[standards]
+tauri_version   = "2"
+frontend        = "react + vite 8"
+rust_backend    = "axum 0.8 via tauri plugin or sidecar"
+flutter_embed   = "via webview for web flutter or platform channel"
+ipc             = "tauri invoke API; no raw eval()"
+
+[[forbidden_patterns]]
+pattern  = "eval("
+reason   = "Never eval in Tauri IPC. Use invoke()."
+severity = "error"
+
+[[forbidden_patterns]]
+pattern  = "__InternalTauri"
+reason   = "Use the public Tauri API only."
+severity = "error"
+
+[required_skills]
+always      = ["tauri/tauri-react-vite", "rust/axum-patterns"]
+when_flutter = ["tauri/flutter-embedding", "flutter/flutter-rust-ffi"]

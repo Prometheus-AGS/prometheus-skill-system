@@ -1,0 +1,33 @@
+{{- /*
+  META-TEMPLATE: new_skill_md.tera
+  Generates a SKILL.md for a new skill.
+
+  Output location: skills/<language>/<name>/SKILL.md
+
+  Variables:
+    name         : kebab-case skill name
+    language     : language enum value
+    description  : multi-line description (may contain newlines)
+    version      : semantic version
+    sections     : list of { heading, content } section objects to pre-populate
+*/ -}}
+---
+name: {{ name }}
+version: '{{ version | default(value="1.0.0") }}'
+description: >
+  {{ description | wordwrap(width=78, break_long_words=false) | indent(prefix="  ") }}
+language: {{ language }}
+---
+
+# {{ name | replace(from="-", to=" ") | title }}
+
+{% for section in sections -%}
+## {{ section.heading }}
+
+{{ section.content }}
+
+{% endfor %}
+## Forbidden Patterns
+
+<!-- Document patterns that must never appear in generated code for this skill -->
+- TODO: add forbidden patterns

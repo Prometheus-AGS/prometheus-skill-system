@@ -1,0 +1,24 @@
+[package]
+name        = "forge-enricher"
+description = "OpenSpec task enrichment — reads task, resolves skills, calls pk focus, writes context doc"
+
+version.workspace     = true
+edition.workspace     = true
+authors.workspace     = true
+license.workspace     = true
+
+[dependencies]
+forge-core     = { workspace = true }
+forge-skills   = { workspace = true }
+serde          = { workspace = true }
+serde_json     = { workspace = true }
+toml           = { workspace = true }
+thiserror      = { workspace = true }
+anyhow         = { workspace = true }
+tokio          = { workspace = true }
+tracing        = { workspace = true }
+uuid           = { workspace = true }
+chrono         = { workspace = true }
+reqwest        = { workspace = true }
+pk-core        = { workspace = true }
+pk-librarian   = { workspace = true }

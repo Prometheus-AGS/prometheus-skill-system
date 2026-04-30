@@ -1,0 +1,21 @@
+language = "go"
+
+[standards]
+version          = "1.22"
+error_handling   = "errors.New / fmt.Errorf with %w wrapping; no panic in library code"
+http_framework   = "net/http stdlib or chi router"
+testing          = "testing package + testify"
+module_structure = "cmd/ for binaries, internal/ for private, pkg/ for public"
+
+[[forbidden_patterns]]
+pattern  = "panic("
+reason   = "No panics in library code. Return errors."
+severity = "error"
+
+[[forbidden_patterns]]
+pattern  = "interface{}"
+reason   = "Use any (Go 1.18+ alias) or concrete types."
+severity = "warning"
+
+[required_skills]
+always = ["go/base-patterns", "go/error-handling"]

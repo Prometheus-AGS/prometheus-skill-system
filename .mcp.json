@@ -8,6 +8,19 @@
       "command": "sycophancy-correction",
       "description": "Detect and correct sycophantic patterns (S-01 through S-08) in prompts, completions, agent descriptors, and PMPO reflect outputs"
     },
+    "forge-rs": {
+      "url": "${FORGE_MCP_URL:-http://localhost:8943/mcp}",
+      "description": "Layer 4 code-enrichment engine — forge_enrich, forge_reflect, forge_drift, forge_validate"
+    },
+    "prometheus-knowledge": {
+      "url": "${PK_MCP_URL:-http://localhost:8942/mcp}",
+      "description": "Karpathy LLM Knowledge Base — knowledge_ingest, knowledge_focus, knowledge_search, knowledge_lint, knowledge_get"
+    },
+    "liter-llm": {
+      "command": "liter-llm",
+      "args": ["mcp", "--transport", "stdio"],
+      "description": "Multi-model routing proxy — 22 MCP tools across 140+ providers with per-phase model class routing"
+    },
     "tavily": {
       "command": "npx",
       "args": ["-y", "@anthropic/tavily-mcp@latest"],
