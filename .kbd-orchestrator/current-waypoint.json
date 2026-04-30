@@ -2,8 +2,8 @@
   "phase": "phase-corpus-strict-compliance",
   "phase_started": "2026-04-29",
   "phase_path": ".kbd-orchestrator/phases/phase-corpus-strict-compliance",
-  "stage": "reflect",
-  "next_action": "/kbd-reflect phase-corpus-strict-compliance",
+  "stage": "complete",
+  "next_action": "/kbd-new-phase",
   "assessment_path": ".kbd-orchestrator/phases/phase-corpus-strict-compliance/assessment.md",
   "plan_path": ".kbd-orchestrator/phases/phase-corpus-strict-compliance/plan.md",
   "active_change": null,
@@ -22,5 +22,5 @@
   ],
   "tool": "claude-code",
   "model": "claude-sonnet-4-6",
-  "updated": "2026-04-29T23:50:00Z"
+  "updated": "2026-04-30T00:00:00Z"
 }
