@@ -19,6 +19,7 @@ import {
   readdirSync,
   statSync,
   readlinkSync,
+  readFileSync,
   writeFileSync,
 } from 'fs';
 import { join, resolve, relative, basename } from 'path';
@@ -156,17 +157,41 @@ function installPlatform(platform: Platform, scope: 'global' | 'project'): void 
       }
     }
 
-    // Write opencode.json so opencode picks up the plugin automatically
+    // Merge prometheus plugin entry into opencode.json without clobbering existing config
     const opencodeJsonPath =
       scope === 'global'
         ? join(HOME, '.opencode', 'opencode.json')
         : join(process.cwd(), 'opencode.json');
 
+    // Global scope: opencode.json resolves paths relative to ~/.opencode/, so we
+    // must register as an absolute path. Project scope: relative ./.opencode is fine.
+    const pluginPath =
+      scope === 'global' ? join(REPO_ROOT, '.opencode') : './.opencode';
+
     try {
-      writeFileSync(opencodeJsonPath, JSON.stringify({ plugin: ['./.opencode'] }, null, 2) + '\n', 'utf-8');
-      console.log(`    ✅ opencode.json written: ${opencodeJsonPath}`);
+      let opencodeConfig: Record<string, unknown> = {};
+      if (existsSync(opencodeJsonPath)) {
+        try {
+          opencodeConfig = JSON.parse(readFileSync(opencodeJsonPath, 'utf-8'));
+        } catch {
+          // Malformed JSON — start fresh rather than clobbering silently
+          console.warn(`    ⚠️  Could not parse existing ${opencodeJsonPath} — will overwrite`);
+        }
+      }
+
+      const existing = Array.isArray(opencodeConfig.plugin)
+        ? (opencodeConfig.plugin as string[])
+        : [];
+
+      if (!existing.includes(pluginPath)) {
+        opencodeConfig.plugin = [...existing, pluginPath];
+        writeFileSync(opencodeJsonPath, JSON.stringify(opencodeConfig, null, 2) + '\n', 'utf-8');
+        console.log(`    ✅ opencode.json updated: ${opencodeJsonPath}`);
+      } else {
+        console.log(`    ✅ opencode.json already contains plugin entry`);
+      }
     } catch (e) {
-      console.warn(`    ⚠️  Could not write opencode.json: ${e}`);
+      console.warn(`    ⚠️  Could not update opencode.json: ${e}`);
     }
   }
 }
