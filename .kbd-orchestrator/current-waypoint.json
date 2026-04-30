@@ -2,18 +2,18 @@
   "phase": "phase-corpus-strict-compliance",
   "phase_started": "2026-04-29",
   "phase_path": ".kbd-orchestrator/phases/phase-corpus-strict-compliance",
-  "stage": "execute",
-  "next_action": "/kbd-execute change-001-perms-and-exclude",
+  "stage": "reflect",
+  "next_action": "/kbd-reflect phase-corpus-strict-compliance",
   "assessment_path": ".kbd-orchestrator/phases/phase-corpus-strict-compliance/assessment.md",
   "plan_path": ".kbd-orchestrator/phases/phase-corpus-strict-compliance/plan.md",
   "active_change": null,
-  "last_completed": null,
+  "last_completed": "change-003-ci-gate",
   "previous_phase": "phase-developer-ux",
   "change_backend": "native-kbd",
   "openspec_present": false,
   "evolver_bridge": null,
   "changes_total": 3,
-  "changes_completed": 0,
+  "changes_completed": 3,
   "phase_goals": [
     "npm run validate:strict exits 0 on the full native corpus",
     "0 warnings from script permission issues",
@@ -22,5 +22,5 @@
   ],
   "tool": "claude-code",
   "model": "claude-sonnet-4-6",
-  "updated": "2026-04-29T23:30:00Z"
+  "updated": "2026-04-29T23:50:00Z"
 }

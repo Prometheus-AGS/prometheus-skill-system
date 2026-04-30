@@ -10,8 +10,39 @@
   "change_backend": "native-kbd",
   "execution_backend": "native-tool",
   "changes_total": 3,
-  "changes_completed": 0,
-  "changes_log": [],
+  "changes_completed": 3,
+  "changes_log": [
+    {
+      "id": "change-001-perms-and-exclude",
+      "status": "DONE",
+      "completed": "2026-04-29",
+      "gaps_closed": ["G2", "G4"],
+      "files_changed": 8,
+      "commit": "b85c12d",
+      "qa_gate": "skipped (below threshold); validate: 0 errors/warnings; strict: submodule errors excluded",
+      "archive": ".kbd-orchestrator/changes/archive/2026-04-29-change-001-perms-and-exclude/"
+    },
+    {
+      "id": "change-002-backfill-strict-fields",
+      "status": "DONE",
+      "completed": "2026-04-29",
+      "gaps_closed": ["G1"],
+      "files_changed": 76,
+      "commit": "b6ddd7a",
+      "qa_gate": "skipped (dry-run verified; validate:strict exits 0; idempotency confirmed)",
+      "archive": ".kbd-orchestrator/changes/archive/2026-04-29-change-002-backfill-strict-fields/"
+    },
+    {
+      "id": "change-003-ci-gate",
+      "status": "DONE",
+      "completed": "2026-04-29",
+      "gaps_closed": ["G3"],
+      "files_changed": 1,
+      "commit": "8c2cf51",
+      "qa_gate": "skipped (docs only)",
+      "archive": ".kbd-orchestrator/changes/archive/2026-04-29-change-003-ci-gate/"
+    }
+  ],
   "active_change": null,
   "next_change": null,
   "scope": [
