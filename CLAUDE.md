@@ -36,13 +36,16 @@ git submodule status
 ### Validation
 
 ```bash
-# Validate all skills (including imported) against agentskills.io specification
+# Validate all native skills (excludes imported/ submodules)
 npm run validate
 
-# Validate a specific skill
-npm run validate:skill skills/react/skill-name
+# Strict validation — required for new skills (enforces version, license, metadata.tags)
+npm run validate:strict
 
-# Validate an imported skill
+# Validate a specific skill (strict mode)
+npm run validate:strict skills/react/skill-name
+
+# Validate a specific skill (lenient mode, includes imported)
 npm run validate:skill skills/imported/artifact-refiner
 
 # Check code formatting
@@ -230,6 +233,9 @@ Available variables:
 
    ```bash
    npm run validate:skill skills/react/react-entity-crud
+
+   # New skills must also pass strict validation
+   npm run validate:strict skills/react/react-entity-crud
    ```
 
 8. **Test locally**:
@@ -257,6 +263,9 @@ This repository strictly adheres to the [agentskills.io specification](https://a
 - ✅ `SKILL.md` with YAML frontmatter
 - ✅ `name` field: lowercase, hyphens, max 64 chars, pattern `^[a-z0-9]+(-[a-z0-9]+)*$`
 - ✅ `description` field: 1-1024 characters, searchable
+- ✅ `version` field: semver string, e.g., `'1.0.0'`
+- ✅ `license` field: SPDX identifier, e.g., `MIT`
+- ✅ `metadata.tags` field: non-empty array of searchable keywords
 
 ### Standard Directories
 
@@ -331,7 +340,7 @@ The marketplace is configured for Git-based distribution:
 
 Before releasing:
 
-- [ ] All skills validate: `npm run validate`
+- [ ] All skills validate strict: `npm run validate:strict`
 - [ ] Marketplace builds: `npm run build`
 - [ ] Version bumped in `package.json` and `plugin.json`
 - [ ] CHANGELOG updated
@@ -343,10 +352,16 @@ Before releasing:
 ### Validation Testing
 
 ```bash
-# Schema validation
+# Standard validation (native skills only, 0 errors required)
 npm run validate
 
-# Specific skill
+# Strict validation — gate for new skills (enforces version, license, metadata.tags)
+npm run validate:strict
+
+# Specific skill — strict mode (required before submitting a new skill)
+npm run validate:strict skills/category/name
+
+# Specific skill — lenient mode (for submodule or legacy skills)
 npm run validate:skill skills/category/name
 ```
 
