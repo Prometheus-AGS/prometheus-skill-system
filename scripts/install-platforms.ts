@@ -97,6 +97,20 @@ const PLATFORMS: Platform[] = [
     description: 'Amp AI Agent',
     supportsPlugins: false,
   },
+  {
+    name: 'zed',
+    globalSkillsDir: join(HOME, '.config', 'zed', 'skills'),
+    projectSkillsDir: '.zed/skills',
+    description: 'Zed Editor',
+    supportsPlugins: false,
+  },
+  {
+    name: 'antigravity',
+    globalSkillsDir: join(HOME, '.zed', 'skills'),
+    projectSkillsDir: '.zed/skills',
+    description: 'Antigravity (Zed fork)',
+    supportsPlugins: false,
+  },
 ];
 
 function detectInstalledPlatforms(): Platform[] {
