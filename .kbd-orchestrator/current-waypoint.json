@@ -1,23 +1,25 @@
 {
-  "phase": "phase-librefang-wasm-onramp",
+  "phase": "phase-developer-ux",
   "phase_started": "2026-04-29",
-  "phase_path": ".kbd-orchestrator/phases/phase-librefang-wasm-onramp",
+  "phase_path": ".kbd-orchestrator/phases/phase-developer-ux",
   "stage": "complete",
-  "next_action": "/kbd-new-phase phase-developer-ux",
+  "next_action": "/kbd-new-phase",
+  "assessment_path": ".kbd-orchestrator/phases/phase-developer-ux/assessment.md",
+  "plan_path": ".kbd-orchestrator/phases/phase-developer-ux/plan.md",
   "active_change": null,
-  "last_completed": "change-002-smoke-test",
-  "previous_phase": "phase-compliance-and-power-multiplier",
+  "last_completed": "change-003-native-commands",
+  "previous_phase": "phase-librefang-wasm-onramp",
   "change_backend": "native-kbd",
   "openspec_present": false,
   "evolver_bridge": null,
-  "changes_total": 2,
-  "changes_completed": 2,
+  "changes_total": 3,
+  "changes_completed": 3,
   "phase_goals": [
-    "Implement forge package-librefang <agent-dir> subcommand in tools/forge-rs",
-    "End-to-end smoke test: agent dir → .lf-skill.zip → librefang install → runtime.type=wasm",
-    "Close assessment §9 criteria 4–7"
+    "Migrate slash-commands to native commands/ directory format recognized by Claude Code and OpenCode",
+    "Create ideation-mindmap skill that generates a 6-branch concept tree via surreal-memory",
+    "Extend the skills validator to enforce version, license, and metadata.tags fields in strict mode"
   ],
   "tool": "claude-code",
   "model": "claude-sonnet-4-6",
-  "updated": "2026-04-29T21:00:00Z"
+  "updated": "2026-04-29T23:15:00Z"
 }
