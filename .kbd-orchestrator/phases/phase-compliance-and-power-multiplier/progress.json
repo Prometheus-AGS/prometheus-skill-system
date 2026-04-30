@@ -88,7 +88,8 @@
       "files_changed": 5,
       "lines_added": 172,
       "qa_gate": "tsc --noEmit (clean) + npm run validate (0 errors); commit beefed3",
-      "key_decisions": "tool() Zod wrappers delegate to old execute() fns; old tool files untouched; opencode.json auto-written by installer"
+      "key_decisions": "tool() Zod wrappers delegate to old execute() fns; old tool files untouched; opencode.json auto-written by installer",
+      "post_correction": "Installer was overwriting ~/.opencode/opencode.json; fixed in commit 83748e3 to merge-into instead. Global scope uses absolute path (resolves relative to ~/.opencode/). Idempotent."
     },
     {
       "id": "change-008-rustbpe-skill",
