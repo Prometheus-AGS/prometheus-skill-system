@@ -85,15 +85,20 @@ await_holding_lock = "deny"
 
 ## Output Formats
 
+Global options (`--format`, `--verbose`, `--config`) come **before** the subcommand:
+
 ```bash
 # Human-readable (default)
-prometheus-rust-auditor audit --format text
+prometheus-rust-auditor --format text audit
 
 # Machine-readable JSON
-prometheus-rust-auditor audit --format json
+prometheus-rust-auditor --format json audit
 
 # SARIF 2.1 (for GitHub Code Scanning)
-prometheus-rust-auditor audit --format sarif
+prometheus-rust-auditor --format sarif audit
+
+# Verbose inventory
+prometheus-rust-auditor --verbose inventory
 ```
 
 ## Exit Codes
