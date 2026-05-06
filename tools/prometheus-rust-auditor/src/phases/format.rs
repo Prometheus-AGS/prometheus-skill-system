@@ -4,10 +4,18 @@ use prometheus_rust_auditor::reporter::{Finding, Report, Severity};
 use std::process::Command;
 
 pub fn run(ctx: &AppContext) -> Result<i32> {
-    let status = Command::new("cargo")
+    // Capture stdout so cargo fmt's diff doesn't corrupt our report output.
+    // Emit it to stderr only in verbose mode.
+    let output = Command::new("cargo")
         .args(["fmt", "--all", "--", "--check"])
         .current_dir(&ctx.config.workspace.path)
-        .status()?;
+        .output()?;
+
+    if ctx.verbose && !output.stdout.is_empty() {
+        eprint!("{}", String::from_utf8_lossy(&output.stdout));
+    }
+
+    let status = output.status;
 
     let findings = if status.success() {
         vec![]
