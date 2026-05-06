@@ -3,6 +3,8 @@ use serde::Deserialize;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
+use crate::config::PartitionDef;
+
 #[derive(Debug, Clone)]
 pub struct CrateInfo {
     pub name: String,
@@ -62,4 +64,20 @@ pub fn match_partition_glob(crate_name: &str, pattern: &str) -> bool {
         return crate_name.starts_with(prefix);
     }
     crate_name == pattern
+}
+
+pub fn assign_partitions<'a>(
+    crates: &'a [CrateInfo],
+    partitions: &[PartitionDef],
+) -> Vec<(String, &'a CrateInfo)> {
+    crates
+        .iter()
+        .map(|krate| {
+            let partition = partitions.iter().find(|p| {
+                p.crates.iter().any(|pattern| match_partition_glob(&krate.name, pattern))
+            });
+            let name = partition.map_or("_unpartitioned", |p| p.name.as_str()).to_owned();
+            (name, krate)
+        })
+        .collect()
 }
