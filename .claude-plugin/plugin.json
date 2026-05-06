@@ -21,7 +21,11 @@
     "devops",
     "argocd",
     "kustomize",
-    "surreal-memory"
+    "surreal-memory",
+    "rust",
+    "auditor",
+    "clippy",
+    "cargo"
   ],
   "skills": [
     "./skills/react/prometheus-entity-skills",
@@ -34,7 +38,8 @@
     "./skills/devops/gitops-transform",
     "./skills/devops/argocd-multicloud",
     "./skills/devops/kustomize-overlay",
-    "./skills/imported/sycophancy-correction"
+    "./skills/imported/sycophancy-correction",
+    "./skills/rust/prometheus-rust-auditor"
   ],
   "agents": "./agents",
   "hooks": "./hooks/hooks.json",
