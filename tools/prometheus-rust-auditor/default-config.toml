@@ -1,0 +1,28 @@
+[workspace]
+path = "."
+partitions = [
+  { name = "actor",       crates = ["*-actor", "*-supervisor"] },
+  { name = "mcp",         crates = ["*-mcp", "*-protocol"] },
+  { name = "wasm",        crates = ["*-wasm", "*-wasmtime"] },
+  { name = "persistence", crates = ["*-store", "*-db"] },
+  { name = "runtime",     crates = ["scheduler", "orchestration"] },
+  { name = "networking",  crates = ["*-sync", "*-webrtc"] },
+]
+
+[invariants]
+actor_no_shared_mutable_state = true
+wasm_unsafe_confined = true
+async_cancellation_safe = true
+zero_copy_preference = true
+no_platform_coupling = true
+
+[clippy]
+workspace_lints = true
+pedantic = "warn"
+nursery  = "warn"
+cargo    = "warn"
+unwrap_used    = "deny"
+expect_used    = "warn"
+panic          = "deny"
+redundant_clone = "deny"
+await_holding_lock = "deny"
