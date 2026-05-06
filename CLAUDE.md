@@ -14,6 +14,71 @@ This is a comprehensive, enterprise-grade skills package collection for AI-assis
 - Automated validation and marketplace distribution
 - Portable across AI platforms (Claude Code, GitHub Copilot, Cursor, VS Code)
 
+## Memory — Check Before You Code, Write After You Ship
+
+**This is mandatory, not optional.**
+
+### 1. Check memory at the start of every session
+
+Before writing any code or making any changes, look up relevant context using the first available tool in this priority order:
+
+1. **surreal-memory MCP** (preferred) — available when `create_entity`, `add_memory`, `search_memories`, or `semantic_search` tools are present in the session
+2. **Cortex MCP** — available when `cortex_recall` / `cortex_remember` tools are present
+3. **File-based memory** — always available at `~/.claude/projects/-Users-gqadonis-Projects-prometheus-prometheus-skill-pack/memory/`
+
+If surreal-memory is listed in `.mcp.json` but tools are absent from the session, use the next available option — never skip memory entirely.
+
+**Lookup queries to run at session start:**
+```
+# surreal-memory
+semantic_search("prometheus-skill-pack recent work")
+search_memories(query="<current task topic>", user_id="prometheus-skill-pack")
+
+# Cortex
+cortex_recall("recent work prometheus-skill-pack")
+cortex_recall("<current task topic>")
+
+# File
+Read ~/.claude/projects/-Users-gqadonis-Projects-prometheus-prometheus-skill-pack/memory/MEMORY.md
+```
+
+### 2. Write memories after every feature or bug fix
+
+After completing any non-trivial task, immediately create memories. Use this distinction:
+
+| Type | When | surreal-memory scope | Cortex flag | File memory `type:` |
+|------|------|---------------------|-------------|---------------------|
+| **Global** | Pattern applies to any Rust/skill project | `user_id="global"` | `global=true` | `type: feedback` with "GLOBAL" in name |
+| **Project** | Specific to this repo's files/crates/phases | `user_id="prometheus-skill-pack"` | `projectId="prometheus-skill-pack"` | `type: project` |
+
+**What to record:**
+- Architecture decisions and why they were made
+- Gotchas, bugs, and their fixes (with file paths for project-specific ones)
+- Patterns that were validated in this codebase
+- Anything that would have saved time if known at the start
+
+### 3. surreal-memory tool reference
+
+When surreal-memory tools are available, use these for structured memory:
+
+```
+# Knowledge graph — for architectural entities and relationships
+create_entity(name, entityType, observations)
+add_observations(entityName, observations)
+create_relation(from, to, relationType)
+search_entities(query)
+semantic_search(query)
+
+# Scoped memory — for session insights and lessons
+add_memory(content, user_id, metadata)
+search_memories(query, user_id)
+hybrid_search_memories(query, user_id)
+
+# Graph traversal
+find_path(from, to)
+expand_neighbors(entityName)
+```
+
 ## Essential Commands
 
 ### Submodule Management
