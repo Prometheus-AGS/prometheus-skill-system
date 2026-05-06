@@ -38,3 +38,7 @@ octocrab.workspace = true
 
 # Sycophancy detection (for prometheus sycophancy subcommands)
 sycophancy-core.workspace = true
+
+[features]
+# Enable knowledge compilation via prometheus-knowledge (requires network at build time)
+knowledge = []

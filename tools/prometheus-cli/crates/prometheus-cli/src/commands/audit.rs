@@ -1,7 +1,6 @@
 use anyhow::Result;
 use colored::Colorize;
 use regex::Regex;
-use std::path::Path;
 use walkdir::WalkDir;
 
 struct Finding {
@@ -12,6 +11,7 @@ struct Finding {
 }
 
 #[derive(Clone, Copy)]
+#[allow(dead_code)] // Low severity reserved for future patterns
 enum Severity {
     Critical,
     High,

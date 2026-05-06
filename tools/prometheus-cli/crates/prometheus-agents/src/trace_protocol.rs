@@ -110,7 +110,7 @@ impl ClaudeCodeTraceCapture {
         let mut tool_calls_total = 0usize;
         let mut project_path: Option<String> = None;
         let mut first_timestamp: Option<String> = None;
-        let mut last_timestamp: Option<String> = None;
+        let mut _last_timestamp: Option<String> = None;
 
         for line in reader.lines() {
             let line = line?;
@@ -128,7 +128,7 @@ impl ClaudeCodeTraceCapture {
                 if first_timestamp.is_none() {
                     first_timestamp = Some(timestamp.to_string());
                 }
-                last_timestamp = Some(timestamp.to_string());
+                _last_timestamp = Some(timestamp.to_string());
             }
 
             // Extract project path from attachment entries

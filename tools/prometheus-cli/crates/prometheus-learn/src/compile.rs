@@ -6,8 +6,6 @@
 //! When the feature is disabled, provides stub implementations that return
 //! informative errors pointing to the feature flag.
 
-use crate::memory::SurrealMemoryClient;
-use crate::trace::ExecutionTrace;
 use std::path::{Path, PathBuf};
 
 /// Result of a knowledge compilation run.

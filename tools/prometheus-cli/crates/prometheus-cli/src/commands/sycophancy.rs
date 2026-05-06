@@ -3,9 +3,8 @@ use colored::Colorize;
 use sycophancy_core::{
     skill::detector::Detector,
     config::SkillConfig,
-    CorrectionMode, Strictness, TargetType,
+    Strictness,
 };
-use std::path::Path;
 
 pub fn detect(file: &str, strictness: &str) -> Result<()> {
     let content = read_content(file)?;

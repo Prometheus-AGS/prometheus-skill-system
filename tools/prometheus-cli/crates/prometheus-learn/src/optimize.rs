@@ -6,7 +6,6 @@
 //! Requires the `optimize` feature flag. Without it, provides SKILL.md parsing
 //! and analysis but not actual optimization.
 
-use crate::trace::ExecutionTrace;
 use serde::{Deserialize, Serialize};
 use std::path::Path;
 
@@ -247,8 +246,6 @@ mod inner {
 
 #[cfg(not(feature = "optimize"))]
 mod inner {
-    use super::*;
-
     pub struct SkillOptimizer;
 
     impl SkillOptimizer {

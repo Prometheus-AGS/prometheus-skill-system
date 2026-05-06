@@ -1,6 +1,6 @@
 use anyhow::Result;
 use colored::Colorize;
-use prometheus_agents::trace_protocol::{build_trace_captures, TraceCapture};
+use prometheus_agents::trace_protocol::build_trace_captures;
 use prometheus_learn::trace::{ExecutionTrace, TraceClassification, TraceStore};
 use prometheus_learn::evaluate::evaluate_trace;
 use std::path::Path;
