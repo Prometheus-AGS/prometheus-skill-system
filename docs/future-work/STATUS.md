@@ -251,9 +251,11 @@ last_updated: 2026-05-09
   priority: P1
   effort: 3-5d
   agent_role: rust-codegraph
-  status: planned
+  status: done
   depends_on: [SP-019]
   unblocks: []
+  completed_at: "2026-05-09T17:30:00Z"
+  notes: dual_store.rs + migrate.rs + schema files + MigrateStores CLI subcommand; commit f8dce14 (prometheus-knowledge)
 
 - id: SP-021
   title: mem0 compress_memories scheduled job

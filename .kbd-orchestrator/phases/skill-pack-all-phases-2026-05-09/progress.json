@@ -3,10 +3,10 @@
   "active_sub_phase": "phase-2-boundary-conditions",
   "assessment_complete": true,
   "plan_complete": true,
-  "last_updated": "2026-05-09T16:00:00Z",
+  "last_updated": "2026-05-09T17:30:00Z",
   "last_updated_by": "claude-code",
   "changes_total": 36,
-  "changes_completed": 9,
+  "changes_completed": 14,
   "phase_2": {
     "name": "Boundary Conditions",
     "changes_total": 7,
@@ -85,7 +85,19 @@
       }
     }
   },
-  "phase_4": { "name": "Selective Execution Payoff", "changes_total": 5, "changes_completed": 0, "status": "pending" },
+  "phase_4": {
+    "name": "Selective Execution Payoff",
+    "changes_total": 5,
+    "changes_completed": 5,
+    "status": "done",
+    "changes": {
+      "change-010-bdd009-runtime-coverage-merge": { "status": "done", "commit": "2673719 (ssr-frontend)" },
+      "change-011-bdd010-impact-set-runner": { "status": "done", "commit": "5b30a2a (ssr-frontend)" },
+      "change-012-bdd011-environment-hash": { "status": "done", "commit": "f3e2a96 (ssr-frontend)" },
+      "change-013-bdd012-two-phase-ci-gates": { "status": "done", "commit": "65f950d (ssr-frontend)" },
+      "change-014-sp020-memory-dual-store-separation": { "status": "done", "commit": "f8dce14 (prometheus-knowledge)" }
+    }
+  },
   "phase_5": { "name": "Loop Closure", "changes_total": 6, "changes_completed": 0, "status": "pending" },
   "phase_6": { "name": "Operational Hardening", "changes_total": 16, "changes_completed": 0, "status": "pending" }
 }
