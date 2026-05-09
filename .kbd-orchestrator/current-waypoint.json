@@ -1,26 +1,32 @@
 {
-  "phase": "phase-corpus-strict-compliance",
-  "phase_started": "2026-04-29",
-  "phase_path": ".kbd-orchestrator/phases/phase-corpus-strict-compliance",
-  "stage": "complete",
-  "next_action": "/kbd-new-phase",
-  "assessment_path": ".kbd-orchestrator/phases/phase-corpus-strict-compliance/assessment.md",
-  "plan_path": ".kbd-orchestrator/phases/phase-corpus-strict-compliance/plan.md",
-  "active_change": null,
-  "last_completed": "change-003-ci-gate",
-  "previous_phase": "phase-developer-ux",
-  "change_backend": "native-kbd",
-  "openspec_present": false,
+  "phase": "phase-a2ui-agui-artifact-refiner",
+  "phase_started": "2026-04-30",
+  "phase_path": ".kbd-orchestrator/phases/phase-a2ui-agui-artifact-refiner",
+  "stage": "executing",
+  "next_action": "Both change-001 (merged PR #1) and change-002 (branch pushed, PR not yet opened) are done. Open PR for change-002 at https://github.com/GQAdonis/artifact-refiner-skill/pull/new/agui-spike-and-domain, then cut tag v1.2.0 on merged main, then run change-003 to bump the submodule pointer.",
+  "assessment_path": ".kbd-orchestrator/phases/phase-a2ui-agui-artifact-refiner/assessment.md",
+  "plan_path": ".kbd-orchestrator/phases/phase-a2ui-agui-artifact-refiner/plan.md",
+  "active_change": "change-003-bump-artifact-refiner-pointer",
+  "last_completed": "change-002-agui-spike-and-domain (branch-pushed)",
+  "previous_phase": "phase-corpus-strict-compliance",
+  "change_backend": "split",
+  "change_backends": {
+    "change-001-finish-a2ui-domain": "openspec",
+    "change-002-agui-spike-and-domain": "openspec",
+    "change-003-bump-artifact-refiner-pointer": "native-kbd"
+  },
+  "openspec_present": true,
+  "openspec_root": "skills/imported/artifact-refiner/openspec",
   "evolver_bridge": null,
   "changes_total": 3,
-  "changes_completed": 3,
+  "changes_completed": 0,
   "phase_goals": [
-    "npm run validate:strict exits 0 on the full native corpus",
-    "0 warnings from script permission issues",
-    "validate:strict documented as the CI gate for new skills",
-    "Submodule skills correctly excluded from strict mode"
+    "Ship A2UI domain completion (schema + render + example) upstream in artifact-refiner",
+    "Decide AG-UI fit via spike; if yes ship the domain, if no document the negative",
+    "Bump skills/imported/artifact-refiner pointer to the new upstream tag",
+    "No coupling to TheBoss / cherry-studio; no new submodule for it"
   ],
   "tool": "claude-code",
   "model": "claude-sonnet-4-6",
-  "updated": "2026-04-30T00:00:00Z"
+  "updated": "2026-05-09T00:00:00Z"
 }

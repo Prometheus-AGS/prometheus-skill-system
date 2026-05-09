@@ -1,59 +1,62 @@
 # Current Waypoint
 
-> **Phase**: `phase-compliance-and-power-multiplier`
-> **Stage**: executing (5/8 changes done — **4/4 P0 COMPLETE** ✨)
->
-> **⚠️ Important correction noted on 2026-04-29**: WASM target is
-> `wasm32-unknown-unknown`, NOT `wasm32-wasip2`. LibreFang's
-> `WasmSandbox` uses `wasmtime::Module` + `Linker` (core wasmtime), not
-> the Component Model. All downstream changes already updated.
-> **Backend**: native KBD (no openspec/, no .evolver/)
-> **Last updated**: 2026-04-28
+**Phase**: `phase-a2ui-agui-artifact-refiner`
+**Stage**: executing — 2 of 3 changes branch-pushed; 1 pending upstream merge + tag
+**Backend**: split (OpenSpec upstream + native-kbd here)
+**Previous phase**: `phase-corpus-strict-compliance` (complete)
+**Last updated**: 2026-05-09
 
-## Where We Are
+## Goal
 
-- ✅ **Assessment**: written to
-  [`.kbd-orchestrator/phases/phase-compliance-and-power-multiplier/assessment.md`](phases/phase-compliance-and-power-multiplier/assessment.md)
-  (437 lines, 27 gaps in 4 priority bands)
-- ✅ **Plan**: written to
-  [`.kbd-orchestrator/phases/phase-compliance-and-power-multiplier/plan.md`](phases/phase-compliance-and-power-multiplier/plan.md)
-  (8 ordered changes)
-- ✅ **Change proposals**: 8 files under
-  [`.kbd-orchestrator/changes/`](changes/) — one per ordered change
-- ✅ **Verification scheduled**: remote agent fires 2026-05-05T14:00Z
-  ([routine](https://claude.ai/code/routines/trig_01MK1jtQZj3z1mQ7joETevuJ))
-- ⏭ **Execute**: not started
+Deliver A2UI domain completion (and AG-UI extension) inside the upstream
+`GQAdonis/artifact-refiner-skill` repo, then bump the submodule pointer in this
+skill pack. No coupling to TheBoss; no new submodule for cherry-studio.
 
-## Next Action
+## Where we are
 
-All P0 changes complete. Remaining work is P1/P2 (parallel-safe):
+- Assessment: [`.kbd-orchestrator/phases/phase-a2ui-agui-artifact-refiner/assessment.md`](phases/phase-a2ui-agui-artifact-refiner/assessment.md)
+- Plan: [`.kbd-orchestrator/phases/phase-a2ui-agui-artifact-refiner/plan.md`](phases/phase-a2ui-agui-artifact-refiner/plan.md)
+- Progress: [`.kbd-orchestrator/phases/phase-a2ui-agui-artifact-refiner/progress.json`](phases/phase-a2ui-agui-artifact-refiner/progress.json)
+- change-003 dossier: [`.kbd-orchestrator/changes/change-003-bump-artifact-refiner-pointer/change.md`](changes/change-003-bump-artifact-refiner-pointer/change.md)
 
+## Change status
+
+| # | Change | Backend | Repo | Status |
+|---|---|---|---|---|
+| 1 | change-001-finish-a2ui-domain | OpenSpec | upstream artifact-refiner | **MERGED** — PR #1, SHA 522d3da |
+| 2 | change-002-agui-spike-and-domain | OpenSpec | upstream artifact-refiner | **BRANCH-PUSHED** — blocked on user authorization to open PR |
+| 3 | change-003-bump-artifact-refiner-pointer | native-kbd | this repo | PENDING — gated on change-002 merge + v1.2.0 tag |
+
+## Next action
+
+**Step 1**: Open PR for change-002:
 ```
-/kbd-execute change-006-karpathy-loop-hooks     # P1 — close the Karpathy loop
-/kbd-execute change-007-opencode-real-plugin    # P1 — real opencode Plugin function
-/kbd-execute change-008-rustbpe-skill           # P2 — karpathy-tokenizer skill
+https://github.com/GQAdonis/artifact-refiner-skill/pull/new/agui-spike-and-domain
 ```
 
-Scheduled remote verification fires **2026-05-05T14:00Z** to check P0
-against assessment §9: [routine](https://claude.ai/code/routines/trig_01MK1jtQZj3z1mQ7joETevuJ).
+**Step 2**: After PR merges, cut tag `v1.2.0` on upstream main (covers both A2UI + AG-UI):
+```
+cd skills/imported/artifact-refiner
+git checkout main && git pull origin main
+git tag v1.2.0 && git push origin v1.2.0
+```
 
-## Ordered Change List
+**Step 3**: Run change-003:
+```
+/kbd-execute change-003-bump-artifact-refiner-pointer
+```
 
-| # | Change | Priority | Effort | Status |
-|---|--------|----------|--------|--------|
-| 1 | [change-001-compliance-quickfixes](changes/archive/2026-04-28-change-001-compliance-quickfixes/change.md) | P1 | XS | ✅ DONE |
-| 2 | [change-002-toolchain-bootstrap](changes/archive/2026-04-28-change-002-toolchain-bootstrap/change.md) | **P0** | S | ✅ DONE |
-| 3 | [change-003-librefang-wasm-skill](changes/archive/2026-04-29-change-003-librefang-wasm-skill/change.md) | **P0** | M | ✅ DONE |
-| 4 | [change-004-native-agent-wasm-target](changes/archive/2026-04-29-change-004-native-agent-wasm-target/change.md) | **P0** | M | ✅ DONE |
-| 5 | [change-005-package-and-upload](changes/archive/2026-04-29-change-005-package-and-upload/change.md) | **P0** | M | ✅ DONE |
-| 6 | [change-006-karpathy-loop-hooks](changes/change-006-karpathy-loop-hooks/change.md) | P1 | S | proposed |
-| 7 | [change-007-opencode-real-plugin](changes/change-007-opencode-real-plugin/change.md) | P1 | S | proposed |
-| 8 | [change-008-rustbpe-skill](changes/change-008-rustbpe-skill/change.md) | P2 | S | proposed |
+## Phase exit criteria
 
-## Phase Exit Criteria
+- A2UI refinement runs end-to-end on a demo spec ✅ (change-001 merged)
+- AG-UI spike delivered a working example ✅ (change-002 branch-pushed)
+- `skills/imported/artifact-refiner` points at v1.2.0 tag ⬜ (change-003 pending)
+- `npm run validate` exits 0 ⬜ (after change-003)
+- `/refine-a2ui` works in Claude Code ⬜ (after change-003)
 
-- All P0 gaps closed (verified by scheduled remote agent on 2026-05-05).
-- `npm run validate` green.
-- End-to-end smoke test produces a valid `<name>.lf-skill.zip` containing
-  `skill.toml` with `runtime.type = "wasm"`.
-- Remote agent's GitHub issue recommends "ready for `phase-librefang-wasm-onramp`".
+## Out of scope (explicit)
+
+- TheBoss / cherry-studio integration — separate ticket in `Know-Me-Tools/the-boss`
+- New `ui-component-pipeline` orchestrator skill
+- Making the refiner emit live AG-UI events
+- Any cherry-studio submodule
