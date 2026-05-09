@@ -28,7 +28,9 @@
     "uninstall:skills": "bash scripts/install-skills-flat.sh --uninstall",
     "generate:commands": "node scripts/generate-commands.js",
     "register:commands": "bash scripts/register-slash-commands.sh",
-    "unregister:commands": "bash scripts/register-slash-commands.sh --uninstall"
+    "unregister:commands": "bash scripts/register-slash-commands.sh --uninstall",
+    "skill-matrix": "node scripts/skill-matrix.js",
+    "skill-matrix:ci": "node scripts/skill-matrix.js --ci"
   },
   "keywords": [
     "claude-code",

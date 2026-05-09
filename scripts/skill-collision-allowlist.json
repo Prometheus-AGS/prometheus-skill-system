@@ -1,0 +1,7 @@
+[
+  {
+    "skills": ["artifact-refiner", "artifact-refiner"],
+    "reason": "Same name appears twice due to the imported submodule structure: skills/imported/artifact-refiner/SKILL.md (parent plugin manifest) and skills/imported/artifact-refiner/skills/artifact-refiner/SKILL.md (the actual skill). Not a collision — same skill at two depth levels. Resolved when the submodule reorganizes or the glob excludes parent manifests.",
+    "added": "2026-05-09"
+  }
+]

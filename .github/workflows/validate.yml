@@ -76,3 +76,22 @@ jobs:
       - name: Cargo clippy
         run: cargo clippy -- -D warnings
         continue-on-error: true
+
+  skill-collision:
+    name: Skill description collision detection
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run skill-matrix collision check
+        run: node scripts/skill-matrix.js --ci
