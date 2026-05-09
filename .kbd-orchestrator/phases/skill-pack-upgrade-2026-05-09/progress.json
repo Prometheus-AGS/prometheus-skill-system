@@ -18,7 +18,11 @@
       "commit": null
     },
     "change-003-bdd001-manifest-dual-key-cleanup": {
-      "status": "ready"
+      "status": "done",
+      "started": "2026-05-09",
+      "completed": "2026-05-09",
+      "qa_gate": "self-checked (4 files modified); docs smoke test deferred to full BDD run",
+      "commit": "b806e2c (ssr-frontend)"
     },
     "change-004-bdd002-flake-quarantine": {
       "status": "ready"
@@ -30,7 +34,7 @@
       "status": "blocked_by_change-005"
     }
   },
-  "changes_completed": 2,
+  "changes_completed": 3,
   "changes_total": 6,
-  "updated": "2026-05-09T02:00:00Z"
+  "updated": "2026-05-09T03:00:00Z"
 }
