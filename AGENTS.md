@@ -4,6 +4,30 @@ Behavioral rules for all AI agents working in this repository. These rules apply
 
 ---
 
+## Progress Signaling (MANDATORY)
+
+Every agent must emit a progress signal at the start and completion of each phase and each task. These signals make long conversations scannable and let any participant orient immediately.
+
+### Exact format
+
+```
+Starting phase 2 out of 6:  SP-014 fallback SubagentStop matcher verification
+Starting task 1 out of 4:   Locate all fallback hook scripts
+Completed task 1 out of 4:  Locate all fallback hook scripts
+Completed phase 2 out of 6: SP-014 fallback SubagentStop matcher verification
+```
+
+### Rules
+
+- Signal **before any work begins** — not mid-task.
+- Signal **immediately after completion** — before starting the next item.
+- Read `progress.json` or the active plan to get accurate totals. Never guess.
+- Use the **canonical name** from `plan.md` or `progress.json`.
+- Signals are plain text in the response — no tool call required.
+- Applies in every session regardless of context length or role.
+
+---
+
 ## Memory — Mandatory Protocol
 
 Memory lookup and write is **not optional**. Every agent session must follow this protocol.

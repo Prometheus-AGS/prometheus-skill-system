@@ -577,6 +577,29 @@ The gate requires the `sycophancy-correction` binary (built via `cargo build --r
 
 `~/.prometheus/reflect-rejections.txt` tracks consecutive rejections per session. It is a runtime artifact and is not committed.
 
+## Progress Signaling (MANDATORY)
+
+All agents — including Claude Code — must emit progress signals at the start and completion of every phase and every task. These signals keep long conversations scannable and provide an immediate sense of position without re-reading the full thread.
+
+### Format
+
+```
+Starting phase 2 out of 6:  SP-014 fallback SubagentStop matcher verification
+Starting task 1 out of 4:   Locate all fallback hook scripts
+Completed task 1 out of 4:  Locate all fallback hook scripts
+...
+Completed phase 2 out of 6: SP-014 fallback SubagentStop matcher verification
+```
+
+### Rules
+
+- **Emit before any work begins** on a phase or task — not after the first file is touched.
+- **Emit immediately after completion** — before moving to the next phase or task.
+- **Total counts must be accurate.** Read `progress.json` or the plan to get the real totals. Never estimate.
+- **Use the canonical name** from `plan.md` or `progress.json`, not a paraphrase.
+- Signals go to **stdout** (normal response text). They do not require a tool call.
+- This rule applies in **every session** regardless of context length.
+
 ## Troubleshooting
 
 ### Validation Errors
