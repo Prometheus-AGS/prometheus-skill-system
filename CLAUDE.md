@@ -531,6 +531,52 @@ This rule is enforced via CLAUDE.md prose in the target project and optionally v
 
 For projects using this skill-pack with BDD suites (e.g. `ssr-frontend`), see the **Immutable Tests Rule** section in that project's `CLAUDE.md`.
 
+## Reflector Sycophancy Gate
+
+The `reflector` SubagentStop hook automatically checks reflection artifacts for sycophantic patterns before they are logged or used to advance the PMPO cycle.
+
+### How it works
+
+1. When the `reflector` subagent stops, `sycophancy-check-reflection.sh` reads the agent output.
+2. It invokes the `sycophancy-correction` MCP server at configurable strictness.
+3. If the reflection scores ≥ 0.4 or contains `high`/`critical` severity patterns, it is **rejected** with actionable feedback explaining what is missing.
+4. A **2-rejection soft cap** prevents infinite loops — after two consecutive rejections the third attempt is accepted with a logged warning.
+5. The consecutive rejection count resets to 0 on a passing reflection.
+
+### Configuring strictness
+
+Set `PROMETHEUS_REFLECT_STRICTNESS` in the environment before invoking Claude Code:
+
+| Value | Behavior |
+|-------|----------|
+| `loose` | Maps to `permissive` — only flags severe patterns |
+| `standard` | Standard detection sensitivity (default when omitted) |
+| `strict` | **Default for the gate** — raises threshold for all patterns |
+| `adversarial` | Also maps to `strict`; reserved for future adversarial mode |
+
+```bash
+# Run a session with permissive reflection checking
+PROMETHEUS_REFLECT_STRICTNESS=permissive claude
+
+# Disable rejection (treat as permissive; gate still logs)
+PROMETHEUS_REFLECT_STRICTNESS=loose claude
+```
+
+### What a good reflection looks like
+
+The gate enforces the PMPO Reflect structure: **Delta → Root Cause → Corrective Actions**. A passing reflection must:
+- Name specific gaps between what was planned and what was delivered (not a success summary)
+- State root causes for each delta
+- Provide concrete corrective actions for the next iteration
+
+### Binary prerequisite
+
+The gate requires the `sycophancy-correction` binary (built via `cargo build --release` in `skills/imported/sycophancy-correction/`). When the binary is absent, the gate logs a warning and exits 0 (graceful degradation — the hook never blocks the Stop chain).
+
+### State file
+
+`~/.prometheus/reflect-rejections.txt` tracks consecutive rejections per session. It is a runtime artifact and is not committed.
+
 ## Troubleshooting
 
 ### Validation Errors
