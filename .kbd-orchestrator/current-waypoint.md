@@ -1,39 +1,34 @@
 # Current Waypoint
 
-**Phase**: `phase-a2ui-agui-artifact-refiner`
-**Stage**: COMPLETE — all 3 changes shipped
+**Phase**: `skill-pack-upgrade-2026-05-09`  
+**Stage**: PLAN — ready to execute  
 **Last updated**: 2026-05-09
 
 ## Summary
 
-All phase goals met. The `GQAdonis/artifact-refiner-skill` upstream now ships
-`direct:a2ui` and `direct:ag-ui` as first-class content types at tag `v1.2.0`,
-and `skills/imported/artifact-refiner` in this repo points at that tag.
+Phase 1 of the skill-pack upgrade has been assessed and planned. Six changes are queued in OpenSpec, derived from the architectural review in `docs/future-work/`. All six source tasks were confirmed as gaps by the assessment.
 
-## Change outcomes
+Change backend: **OpenSpec** (`openspec/changes/`)
 
-| # | Change | Status | Evidence |
-|---|---|---|---|
-| 1 | change-001-finish-a2ui-domain | MERGED | PR #1, SHA 522d3da |
-| 2 | change-002-agui-spike-and-domain | MERGED | PR #2, SHA 191608e, tag v1.2.0 |
-| 3 | change-003-bump-artifact-refiner-pointer | DONE | commit 2d4ccdb, validate 80/0, build ✅ |
+## Change queue
 
-## Phase goals
-
-- ✅ Ship A2UI domain completion upstream in artifact-refiner
-- ✅ Decide AG-UI fit via spike; shipped the domain (PMPO fits)
-- ✅ Bump skills/imported/artifact-refiner pointer to v1.2.0
-- ✅ No coupling to TheBoss / cherry-studio; no new submodule
+| # | Change | Slot | Agent Role | Status |
+|---|--------|------|------------|--------|
+| 1 | change-001-bdd006-immutable-tests-rule | 1 (parallel) | docs-writer | ready |
+| 2 | change-002-sp015-hooks-json-canonical | 1 (parallel) | skill-pack-maintainer | ready |
+| 3 | change-003-bdd001-manifest-dual-key-cleanup | 2 (parallel) | bdd-engineer | ready |
+| 4 | change-004-bdd002-flake-quarantine | 2 (parallel) | bdd-engineer | ready |
+| 5 | change-005-sp006-stop-hook-observability | 3 | hooks-engineer | ready |
+| 6 | change-006-sp013-sycophancy-reflector-hook | 4 (after 5) | hooks-engineer | ready |
 
 ## Next action
 
-```
-/kbd-reflect    # write phase retrospective
-/kbd-assess     # identify next phase
-```
+Run `/kbd-execute change-001-bdd006-immutable-tests-rule` (or dispatch in parallel with change-002) to begin Phase 1 execution.
+
+See `.kbd-orchestrator/phases/skill-pack-upgrade-2026-05-09/plan.md` for full detail.
 
 ## References
 
-- [progress.json](phases/phase-a2ui-agui-artifact-refiner/progress.json)
-- [plan.md](phases/phase-a2ui-agui-artifact-refiner/plan.md)
-- [assessment.md](phases/phase-a2ui-agui-artifact-refiner/assessment.md)
+- [plan.md](phases/skill-pack-upgrade-2026-05-09/plan.md)
+- [assessment.md](phases/assess/skill-pack-upgrade-2026-05-09-assessment.md)
+- [OpenSpec changes](../openspec/changes/)
