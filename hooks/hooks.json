@@ -30,6 +30,11 @@
             "type": "command",
             "command": "bash ${CLAUDE_PLUGIN_ROOT}/shared/scripts/guard-direct-deploy.sh 2>&1",
             "timeout": 5000
+          },
+          {
+            "type": "command",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT}/shared/scripts/pipeline-enforce.sh Bash",
+            "timeout": 8000
           }
         ]
       }
