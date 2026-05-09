@@ -55,9 +55,11 @@ last_updated: 2026-05-09
   priority: P1
   effort: 1d
   agent_role: hooks-engineer
-  status: ready
+  status: done
   depends_on: []
   unblocks: [SP-003, SP-004]
+  completed_at: "2026-05-09T18:30:00Z"
+  notes: sliding-window extraction in pk-librarian/src/keyword_extract.rs; commit 206c5f7 (prometheus-knowledge)
 
 - id: SP-003
   title: pk-focus result caching
@@ -75,9 +77,11 @@ last_updated: 2026-05-09
   priority: P1
   effort: 2d
   agent_role: hooks-engineer
-  status: planned
+  status: done
   depends_on: [SP-002]
   unblocks: [SP-005]
+  completed_at: "2026-05-09T18:45:00Z"
+  notes: extract_query_multi_turn() + pk focus --context-window flag; commit 278b87c (prometheus-knowledge)
 
 - id: SP-005
   title: pk focus --inject-as system-context flag
@@ -141,9 +145,11 @@ last_updated: 2026-05-09
   priority: P1
   effort: 1d
   agent_role: rust-codegraph
-  status: ready
+  status: done
   depends_on: []
   unblocks: []
+  completed_at: "2026-05-09T19:00:00Z"
+  notes: parse.rs with ParseError::{EmptyResponse,InvalidJson,MissingField}; commit e903668 (prometheus-knowledge)
 
 - id: SP-011
   title: Cedar gate at PostToolUse for SKILL.md edits
@@ -407,9 +413,11 @@ last_updated: 2026-05-09
   priority: P1
   effort: 1w
   agent_role: docs-writer
-  status: planned
+  status: done
   depends_on: [BDD-008]
   unblocks: [BDD-014]
+  completed_at: "2026-05-09T17:45:00Z"
+  notes: STORY-FEATURE-CONTRACT.md + validate-change-ids.ts + codegraph change_ids field; commit 0b7bd60 (ssr-frontend)
 
 - id: BDD-014
   title: Feedback aggregation in docs site
@@ -417,9 +425,11 @@ last_updated: 2026-05-09
   priority: P1
   effort: 3-5d
   agent_role: bdd-engineer
-  status: planned
+  status: done
   depends_on: [BDD-013]
   unblocks: []
+  completed_at: "2026-05-09T18:00:00Z"
+  notes: DocsFeedbackRecord type + DocsFeedbackWidget + /api/docs-feedback route; commit 5ac10d8 (ssr-frontend)
 
 - id: BDD-015
   title: Feedback record to draft-scenario emitter
@@ -427,9 +437,11 @@ last_updated: 2026-05-09
   priority: P1
   effort: 3-5d
   agent_role: bdd-engineer
-  status: planned
+  status: done
   depends_on: [BDD-007]
   unblocks: []
+  completed_at: "2026-05-09T18:15:00Z"
+  notes: feedback-to-draft.ts with --threshold and --dry-run flags; commit 2558a4a (ssr-frontend)
 
 # ── 03 CROSS-CUTTING ───────────────────────────────────────────────
 
