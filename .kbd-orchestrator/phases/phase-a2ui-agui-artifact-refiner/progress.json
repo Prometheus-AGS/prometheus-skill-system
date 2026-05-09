@@ -3,10 +3,11 @@
   "assessment_complete": true,
   "plan_complete": true,
   "execution_started": true,
+  "execution_complete": true,
   "execution_md_path": ".kbd-orchestrator/phases/phase-a2ui-agui-artifact-refiner/execution.md",
   "changes_total": 3,
-  "changes_completed": 0,
-  "active_change": "change-003-bump-artifact-refiner-pointer",
+  "changes_completed": 3,
+  "active_change": null,
   "changes": [
     {
       "id": "change-001-finish-a2ui-domain",
@@ -22,38 +23,16 @@
     },
     {
       "id": "change-002-agui-spike-and-domain",
-      "status": "branch-pushed",
+      "status": "merged",
       "remote_branch": "origin/agui-spike-and-domain",
-      "pr_url_template": "https://github.com/GQAdonis/artifact-refiner-skill/pull/new/agui-spike-and-domain",
-      "branch_base": "origin/main (522d3da)",
+      "pr_url": "https://github.com/GQAdonis/artifact-refiner-skill/pull/2",
+      "merge_commit": "191608e",
+      "merged_into": "origin/main",
+      "tag": "v1.2.0",
       "backend": "openspec",
       "repo": "GQAdonis/artifact-refiner-skill",
       "openspec_path": "skills/imported/artifact-refiner/openspec/changes/agui-spike-and-domain",
       "spike_decision": "YES — PMPO fits; ship domain",
-      "commits": [
-        "b382491 feat(ag-ui): add direct:ag-ui content type domain",
-        "aabe5aa docs(openspec): add proposal, tasks, design docs for change-002 agui-spike-and-domain"
-      ],
-      "files_added": [
-        "references/domain/ag-ui-spike.md",
-        "references/domain/ag-ui.md",
-        "references/schemas/ag-ui-spec.schema.json",
-        "scripts/normalize-agui.mjs",
-        "examples/ag-ui-spec-refinement/source.ag-ui.json",
-        "examples/ag-ui-spec-refinement/broken-duplicate.ag-ui.json",
-        "examples/ag-ui-spec-refinement/README.md",
-        "examples/ag-ui-spec-refinement/artifact_manifest.json",
-        "openspec/changes/agui-spike-and-domain/proposal.md",
-        "openspec/changes/agui-spike-and-domain/tasks.md",
-        "openspec/changes/agui-spike-and-domain/design.md"
-      ],
-      "files_modified": [
-        "SKILL.md",
-        "prompts/execute.md",
-        "prompts/meta-controller.md",
-        "prompts/specify.md",
-        "references/schemas/content-type.schema.json"
-      ],
       "verification": {
         "schema_parses": true,
         "positive_path_normalizer_exit_code": 0,
@@ -61,16 +40,23 @@
         "negative_path_violations": ["duplicate_tool_name", "unresolved_tool_ref", "duplicate_emission_rule"],
         "all_json_schemas_valid": true
       },
-      "blocked_on": "user authorization to open PR (branch pushed; PR not yet opened)",
       "depends_on": ["change-001-finish-a2ui-domain"]
     },
     {
       "id": "change-003-bump-artifact-refiner-pointer",
-      "status": "pending",
+      "status": "done",
       "backend": "native-kbd",
       "repo": "prometheus-skill-pack",
       "kbd_path": ".kbd-orchestrator/changes/change-003-bump-artifact-refiner-pointer",
-      "notes": "Gated on change-002 PR merge + v1.2.0 tag cut upstream. Tag covers both A2UI and AG-UI since both PRs merged before any tag was cut.",
+      "commit": "2d4ccdb chore(submodules): bump artifact-refiner to v1.2.0 (A2UI + AG-UI domains)",
+      "submodule_sha": "191608e1f1780774f9adfa98266693c566f8866c",
+      "submodule_tag": "v1.2.0",
+      "verification": {
+        "submodule_status": "191608e1f1780774f9adfa98266693c566f8866c skills/imported/artifact-refiner (v1.2.0)",
+        "npm_validate_exit_code": 0,
+        "npm_validate_result": "80 skills valid, 0 errors",
+        "npm_build_exit_code": 0
+      },
       "depends_on": ["change-002-agui-spike-and-domain"]
     }
   ],

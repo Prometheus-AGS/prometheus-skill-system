@@ -2,12 +2,12 @@
   "phase": "phase-a2ui-agui-artifact-refiner",
   "phase_started": "2026-04-30",
   "phase_path": ".kbd-orchestrator/phases/phase-a2ui-agui-artifact-refiner",
-  "stage": "executing",
-  "next_action": "Both change-001 (merged PR #1) and change-002 (branch pushed, PR not yet opened) are done. Open PR for change-002 at https://github.com/GQAdonis/artifact-refiner-skill/pull/new/agui-spike-and-domain, then cut tag v1.2.0 on merged main, then run change-003 to bump the submodule pointer.",
+  "stage": "complete",
+  "next_action": "Phase complete. All 3 changes shipped. Run /kbd-reflect to write the phase retrospective, then /kbd-assess to identify the next phase.",
   "assessment_path": ".kbd-orchestrator/phases/phase-a2ui-agui-artifact-refiner/assessment.md",
   "plan_path": ".kbd-orchestrator/phases/phase-a2ui-agui-artifact-refiner/plan.md",
-  "active_change": "change-003-bump-artifact-refiner-pointer",
-  "last_completed": "change-002-agui-spike-and-domain (branch-pushed)",
+  "active_change": null,
+  "last_completed": "change-003-bump-artifact-refiner-pointer",
   "previous_phase": "phase-corpus-strict-compliance",
   "change_backend": "split",
   "change_backends": {
@@ -19,8 +19,14 @@
   "openspec_root": "skills/imported/artifact-refiner/openspec",
   "evolver_bridge": null,
   "changes_total": 3,
-  "changes_completed": 0,
+  "changes_completed": 3,
   "phase_goals": [
+    "Ship A2UI domain completion (schema + render + example) upstream in artifact-refiner",
+    "Decide AG-UI fit via spike; if yes ship the domain, if no document the negative",
+    "Bump skills/imported/artifact-refiner pointer to the new upstream tag",
+    "No coupling to TheBoss / cherry-studio; no new submodule for it"
+  ],
+  "phase_goals_met": [
     "Ship A2UI domain completion (schema + render + example) upstream in artifact-refiner",
     "Decide AG-UI fit via spike; if yes ship the domain, if no document the negative",
     "Bump skills/imported/artifact-refiner pointer to the new upstream tag",
