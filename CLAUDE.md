@@ -656,3 +656,36 @@ Completed phase 2 out of 6: SP-014 fallback SubagentStop matcher verification
 - [Claude Code Plugin Documentation](https://code.claude.com/docs/en/plugins)
 - [Contributing Guidelines](docs/CONTRIBUTING.md)
 - [Skill Template](docs/SKILL_TEMPLATE.md)
+
+## Session Scratchpad Pattern (XC-003)
+
+When working on a multi-step task within a session, create a `SCRATCHPAD.md` file at the project root to capture in-flight notes, hypotheses, and intermediate decisions. This file is:
+
+- **Not committed** — it stays local to the working session
+- **Not a plan** — plans live in `.kbd-orchestrator/phases/*/plan.md`; this is for informal notes
+- **Disposable** — delete or clear it at the end of the session
+
+### What goes in SCRATCHPAD.md
+
+- Hypotheses being tested
+- Quick decision log ("tried X, didn't work because Y")
+- Intermediate shell output snippets that inform next steps
+- Short-term reminders ("check if SP-004 is already done before re-implementing")
+
+### What does NOT go in SCRATCHPAD.md
+
+- Final outcomes — those go in `reflection.md` or memory
+- Plans — those go in `plan.md`
+- Architecture decisions — those go in CLAUDE.md or the KB
+
+### Usage
+
+```bash
+# During session — write freely
+echo "Investigating SP-014 duplicate: already done in change-006" >> SCRATCHPAD.md
+
+# End of session — clear it
+rm SCRATCHPAD.md
+```
+
+`SCRATCHPAD.md` is listed in `.gitignore` so it is never accidentally committed.

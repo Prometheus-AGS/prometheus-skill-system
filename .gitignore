@@ -44,3 +44,4 @@ tools/prometheus-knowledge/target/
 .claude-plugin/agents
 .claude-plugin/hooks
 .claude-plugin/skills
+SCRATCHPAD.md
