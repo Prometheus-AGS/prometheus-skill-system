@@ -35,7 +35,7 @@ TOOL_NAME="${1:-unknown}"
 log_info "$(date -u +%Y-%m-%dT%H:%M:%SZ) tool=${TOOL_NAME}"
 
 # Only enforce on bash tool calls that reference kbd-execute or kbd-reflect
-if ! echo "$TOOL_INPUT" | grep -qE '"kbd-execute|kbd-reflect|/kbd-execute|/kbd-reflect'; then
+if ! echo "$TOOL_INPUT" | grep -qE 'kbd-execute|kbd-reflect'; then
   exit 0
 fi
 
@@ -77,7 +77,7 @@ PLAN="${PHASE_DIR}/plan.md"
 PROGRESS="${PHASE_DIR}/progress.json"
 
 # Rule: kbd-execute requires plan.md to exist
-if echo "$TOOL_INPUT" | grep -qE '"kbd-execute|/kbd-execute'; then
+if echo "$TOOL_INPUT" | grep -qE 'kbd-execute'; then
   if [[ ! -f "$PLAN" ]]; then
     log_error "kbd-execute attempted without plan.md for phase '${PHASE}'"
     cat >&2 <<EOF
@@ -116,7 +116,7 @@ EOF
 fi
 
 # Rule: kbd-reflect requires all changes DONE in progress.json
-if echo "$TOOL_INPUT" | grep -qE '"kbd-reflect|/kbd-reflect'; then
+if echo "$TOOL_INPUT" | grep -qE 'kbd-reflect'; then
   if [[ ! -f "$PROGRESS" ]]; then
     log_error "kbd-reflect attempted without progress.json for phase '${PHASE}'"
     cat >&2 <<EOF
