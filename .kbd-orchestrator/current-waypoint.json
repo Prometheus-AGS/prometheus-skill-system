@@ -3,11 +3,11 @@
   "phase_started": "2026-05-09",
   "phase_path": ".kbd-orchestrator/phases/skill-pack-upgrade-2026-05-09",
   "stage": "execute",
-  "next_action": "change-003 done. Execute change-004-bdd002-flake-quarantine (bdd-engineer, ssr-frontend, Slot 2). Run /kbd-execute change-004-bdd002-flake-quarantine.",
+  "next_action": "Slot 3 complete. Begin Slot 4: change-006-sp013-sycophancy-reflector-hook (hooks-engineer, skill-pack). Run /kbd-execute change-006-sp013-sycophancy-reflector-hook.",
   "assessment_path": ".kbd-orchestrator/phases/assess/skill-pack-upgrade-2026-05-09-assessment.md",
   "plan_path": ".kbd-orchestrator/phases/skill-pack-upgrade-2026-05-09/plan.md",
-  "active_change": "change-004-bdd002-flake-quarantine",
-  "last_completed": "change-003-bdd001-manifest-dual-key-cleanup",
+  "active_change": "change-006-sp013-sycophancy-reflector-hook",
+  "last_completed": "change-005-sp006-stop-hook-observability",
   "previous_phase": "phase-a2ui-agui-artifact-refiner",
   "change_backend": "openspec",
   "change_backends": {
@@ -22,7 +22,7 @@
   "openspec_root": "openspec",
   "evolver_bridge": null,
   "changes_total": 6,
-  "changes_completed": 3,
+  "changes_completed": 5,
   "phase_goals": [
     "BDD-006: Add immutable-tests rule to CLAUDE.md files so code-gen agents cannot silently rewrite step definitions",
     "SP-015: Confirm/document canonical hooks.json path and add CI symlink integrity check",
@@ -34,9 +34,11 @@
   "phase_goals_met": [
     "BDD-006: Add immutable-tests rule to CLAUDE.md files so code-gen agents cannot silently rewrite step definitions",
     "SP-015: Confirm/document canonical hooks.json path and add CI symlink integrity check",
-    "BDD-001: Migrate videos-manifest.json from hex keys to slug-only form; add validator rule"
+    "BDD-001: Migrate videos-manifest.json from hex keys to slug-only form; add validator rule",
+    "BDD-002: Add @quarantine tag + retry policy + state machine to run-video-proof.ts",
+    "SP-006: Create hook observability log at ~/.prometheus/hooks.log with JSONL events"
   ],
   "tool": "claude-code",
   "model": "claude-sonnet-4-6",
-  "updated": "2026-05-09T03:00:00Z"
+  "updated": "2026-05-09T05:00:00Z"
 }

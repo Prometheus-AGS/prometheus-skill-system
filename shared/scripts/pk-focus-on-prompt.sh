@@ -4,8 +4,13 @@
 # Must always exit 0.
 set -uo pipefail
 
+HOOK_LOG_LIB="$(cd "$(dirname "$0")" && pwd)/lib/hook-log.sh"
+[ -f "$HOOK_LOG_LIB" ] && source "$HOOK_LOG_LIB"
+hook_log_start "UserPromptSubmit" "pk-focus-on-prompt.sh"
+
 # --- Graceful degradation: pk must be on PATH ---
 if ! command -v pk &>/dev/null; then
+  hook_log_end 0
   exit 0
 fi
 
@@ -15,6 +20,7 @@ PROMPT_TEXT="$(printf '%s' "$PROMPT_JSON" | python3 -c \
   "import sys, json; d=json.load(sys.stdin); print(d.get('prompt',''))" 2>/dev/null || true)"
 
 if [ -z "$PROMPT_TEXT" ]; then
+  hook_log_end 0
   exit 0
 fi
 
@@ -31,18 +37,20 @@ KEYWORDS="$(printf '%s' "$PROMPT_TEXT" \
   | sed 's/ $//')"
 
 if [ -z "$KEYWORDS" ]; then
+  hook_log_end 0
   exit 0
 fi
 
 # --- Run pk focus (with timeout when available — timeout is not on stock macOS) ---
 if command -v timeout &>/dev/null; then
-  FOCUS_OUTPUT="$(timeout 2.5 pk focus "$KEYWORDS" --max-articles 3 2>/dev/null || true)"
+  FOCUS_OUTPUT="$(timeout 2.5 pk focus "$KEYWORDS" --max-articles 3 2>/dev/null || hook_log_error "$LINENO")"
 else
-  FOCUS_OUTPUT="$(pk focus "$KEYWORDS" --max-articles 3 2>/dev/null || true)"
+  FOCUS_OUTPUT="$(pk focus "$KEYWORDS" --max-articles 3 2>/dev/null || hook_log_error "$LINENO")"
 fi
 
-if [ -n "$FOCUS_OUTPUT" ]; then
+if [ -n "${FOCUS_OUTPUT:-}" ]; then
   printf '\n\n--- prometheus-knowledge context ---\n%s\n--- end pk context ---\n' "$FOCUS_OUTPUT"
 fi
 
+hook_log_end 0
 exit 0

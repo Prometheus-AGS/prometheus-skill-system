@@ -25,16 +25,24 @@
       "commit": "b806e2c (ssr-frontend)"
     },
     "change-004-bdd002-flake-quarantine": {
-      "status": "ready"
+      "status": "done",
+      "started": "2026-05-09",
+      "completed": "2026-05-09",
+      "qa_gate": "self-checked (3 files modified); type-check clean",
+      "commit": "e15efa8 (ssr-frontend)"
     },
     "change-005-sp006-stop-hook-observability": {
-      "status": "ready"
+      "status": "done",
+      "started": "2026-05-09",
+      "completed": "2026-05-09",
+      "qa_gate": "self-checked (7 files modified); bash -n clean on all scripts",
+      "commit": null
     },
     "change-006-sp013-sycophancy-reflector-hook": {
-      "status": "blocked_by_change-005"
+      "status": "ready"
     }
   },
-  "changes_completed": 3,
+  "changes_completed": 5,
   "changes_total": 6,
-  "updated": "2026-05-09T03:00:00Z"
+  "updated": "2026-05-09T05:00:00Z"
 }
