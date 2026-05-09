@@ -43,9 +43,11 @@ last_updated: 2026-05-09
   priority: P1
   effort: 1d
   agent_role: skill-pack-maintainer
-  status: ready
+  status: done
   depends_on: []
   unblocks: []
+  completed_at: "2026-05-09"
+  notes: "Documentation hierarchy table added to skill-pack CLAUDE.md (canonical designation). prometheus-knowledge CLAUDE.md gets header pointing to canonical. Both files cover only their own concerns — no duplicate rules found. Commits: 202ad73 (skill-pack), 2594e6f (knowledge)."
 
 - id: SP-002
   title: pk-focus keyword extraction quality
@@ -93,9 +95,11 @@ last_updated: 2026-05-09
   priority: P0
   effort: 1d
   agent_role: hooks-engineer
-  status: ready
+  status: done
   depends_on: []
   unblocks: [SP-014, SP-018]
+  completed_at: "2026-05-09"
+  notes: "hook-log.sh shim + JSONL log at ~/.prometheus/hooks.log. Wired into all 5 Stop-chain scripts. Commit 7cb20dd."
 
 - id: SP-007
   title: Trace capture file existence verification
@@ -103,9 +107,11 @@ last_updated: 2026-05-09
   priority: P1
   effort: 2d
   agent_role: hooks-engineer
-  status: ready
+  status: done
   depends_on: []
   unblocks: [SP-019]
+  completed_at: "2026-05-09"
+  notes: "Traces confirmed written by prometheus-learn Rust crate at .prometheus/traces/<skill-name>/<timestamp>.json. Added PROMETHEUS_TRACE_DIR env var override to TraceStore::default_for_project(). Added shared/scripts/verify-trace-state.sh for state inspection. Commit: abd79c0."
 
 - id: SP-008
   title: Karpathy KB per-project scoping
@@ -113,9 +119,11 @@ last_updated: 2026-05-09
   priority: P0
   effort: 1-2d
   agent_role: rust-codegraph
-  status: ready
+  status: done
   depends_on: []
   unblocks: [SP-019]
+  completed_at: "2026-05-09"
+  notes: "KbScope enum + --scope/--yes flags on ingest + migrate-to-per-project subcommand. project-root detection walks .git/.kbd-orchestrator/Cargo.toml/package.json/pyproject.toml. Commit 84aa366."
 
 - id: SP-009
   title: pk lint --fix scheduled job
@@ -153,7 +161,7 @@ last_updated: 2026-05-09
   priority: P1
   effort: 2-3d
   agent_role: hooks-engineer
-  status: planned
+  status: ready
   depends_on: [SP-006]
   unblocks: [SP-018]
 
@@ -163,10 +171,11 @@ last_updated: 2026-05-09
   priority: P0
   effort: 1-2d
   agent_role: hooks-engineer
-  status: ready
+  status: done
   depends_on: []
   unblocks: []
-  notes: "Highest-leverage fix in the pack. Wires the existing sycophancy-correction skill into the Reflect phase of PMPO so critic agent never sees generation history."
+  completed_at: "2026-05-09"
+  notes: "sycophancy-check-reflection.sh wired as first command in reflector SubagentStop matcher. 2-rejection soft cap. PROMETHEUS_REFLECT_STRICTNESS env var. Commit aa2a5b8."
 
 - id: SP-014
   title: SubagentStop fallback matcher verification
@@ -174,9 +183,11 @@ last_updated: 2026-05-09
   priority: P2
   effort: 0.5d
   agent_role: hooks-engineer
-  status: planned
+  status: done
   depends_on: [SP-006]
   unblocks: []
+  completed_at: "2026-05-09"
+  notes: "shared/scripts/tests/test-subagent-fallback.sh — 10 assertions, 5/5 consecutive passes. Verifies script existence, syntax, exit 0 for all agent types, hook log entry. Commit a374bd5."
 
 - id: SP-015
   title: hooks.json symlink fix
@@ -184,7 +195,9 @@ last_updated: 2026-05-09
   priority: P2
   effort: 0.5d
   agent_role: skill-pack-maintainer
-  status: ready
+  status: done
+  completed_at: "2026-05-09"
+  notes: "Direction was already correct (.claude-plugin/hooks -> ../hooks). CI hooks-integrity job added. CLAUDE.md canonical path documented. Commit c586a77."
   depends_on: []
   unblocks: []
 
@@ -194,9 +207,11 @@ last_updated: 2026-05-09
   priority: P1
   effort: 1d
   agent_role: skill-pack-maintainer
-  status: ready
+  status: done
   depends_on: []
   unblocks: []
+  completed_at: "2026-05-09"
+  notes: "scripts/skill-matrix.js (Jaccard pairwise, --ci mode); skill-collision-allowlist.json (1 known structural collision); CI job in validate.yml. npm run skill-matrix. Commit 6d40af4."
 
 - id: SP-017
   title: Slash command merge strategy
@@ -256,9 +271,11 @@ last_updated: 2026-05-09
   priority: P0
   effort: 0.5d
   agent_role: bdd-engineer
-  status: ready
+  status: done
   depends_on: []
   unblocks: []
+  completed_at: "2026-05-09"
+  notes: "videos-manifest.json normalized 374->345 entries. 29 hex orphans archived. assertNoHexKeysInManifest() added. Commit b806e2c."
 
 - id: BDD-002
   title: Flake quarantine system
@@ -266,9 +283,11 @@ last_updated: 2026-05-09
   priority: P0
   effort: 1d
   agent_role: bdd-engineer
-  status: ready
+  status: done
   depends_on: []
   unblocks: []
+  completed_at: "2026-05-09"
+  notes: "@quarantine retry + state machine in run-video-proof.ts. quarantine-state.json tracks runs. Promote (5 clean) / escalate (10 retry) thresholds. Commit e15efa8."
 
 - id: BDD-003
   title: IPFS pin sweep job
@@ -286,7 +305,7 @@ last_updated: 2026-05-09
   priority: P1
   effort: 3-5d
   agent_role: skill-pack-maintainer
-  status: planned
+  status: ready
   depends_on: [BDD-001, BDD-002]
   unblocks: []
 
@@ -296,9 +315,11 @@ last_updated: 2026-05-09
   priority: P0
   effort: 1d
   agent_role: bdd-engineer
-  status: ready
+  status: done
   depends_on: []
   unblocks: []
+  completed_at: "2026-05-09"
+  notes: "validate-testid-coverage.ts + testid-patterns.json + testid-allowlist.json (52 baseline entries) + CI workflow testid-drift.yml. pnpm validate:testids. Commit bf4176d in ssr-frontend."
 
 - id: BDD-006
   title: Immutable-tests CLAUDE.md rule
@@ -306,10 +327,11 @@ last_updated: 2026-05-09
   priority: P0
   effort: 0.5d
   agent_role: docs-writer
-  status: ready
+  status: done
   depends_on: []
   unblocks: []
-  notes: "This is the reframing of the 'auto-update tests' ask as a category error. Reading the doc before objecting is essential."
+  completed_at: "2026-05-09"
+  notes: "Added to ssr-frontend/CLAUDE.md (commit ba52048) and prometheus-skill-pack/CLAUDE.md (commit 38f83e0). Explicit prose: agents may not edit tests/steps/*.steps.ts."
 
 - id: BDD-007
   title: Candidate test drafts directory
@@ -317,9 +339,11 @@ last_updated: 2026-05-09
   priority: P1
   effort: 1d
   agent_role: bdd-engineer
-  status: ready
+  status: done
   depends_on: []
   unblocks: [BDD-015]
+  completed_at: "2026-05-09"
+  notes: "tests/features/drafts/ created; cucumber.js excludes drafts from default + ui profiles; test:bdd:drafts profile added; promote-draft.ts script; CLAUDE.md Candidate Test Drafts section. Commit f34fc58 in ssr-frontend."
 
 - id: BDD-008
   title: pk-codegraph extraction
@@ -459,10 +483,10 @@ last_updated: 2026-05-09
 
 ```yaml
 counts_by_status:
-  ready: 23
-  planned: 18
+  ready: 20
+  planned: 15
   in-progress: 0
-  done: 0
+  done: 6
   blocked: 0
   abandoned: 0
 
@@ -481,4 +505,4 @@ counts_by_agent_role:
 
 ## Last update
 
-2026-05-09 — Initial generation. All tasks `ready` or `planned`. No work started.
+2026-05-09 — Phase 1 complete. Marked done: SP-006, SP-013, SP-015, BDD-001, BDD-002, BDD-006. Promoted to ready: SP-012, SP-014, BDD-004. Session f265e820.
