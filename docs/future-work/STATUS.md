@@ -239,9 +239,11 @@ last_updated: 2026-05-09
   priority: P0
   effort: 1w
   agent_role: rust-codegraph
-  status: planned
+  status: done
   depends_on: [SP-007, SP-008]
   unblocks: [SP-020]
+  completed_at: "2026-05-09"
+  notes: "pk-event-store crate added: EventRecord, EventStore (SurrealDB HTTP + JSONL fallback), JsonlFallback. Schema at pk-event-store/schema/events.surql. Background subscriber in pk-cli persists every LibrarianEvent. pk events list/for-entry subcommands added. Commit: f041b11."
 
 - id: SP-020
   title: Memory dual-store separation
@@ -351,10 +353,11 @@ last_updated: 2026-05-09
   priority: P0
   effort: 1-2w
   agent_role: rust-codegraph
-  status: ready
+  status: done
   depends_on: []
   unblocks: [BDD-009, BDD-010, BDD-013]
-  notes: "Highest-leverage BDD task. Foundation for impact-set computation and selective test execution."
+  completed_at: "2026-05-09"
+  notes: "Static codegraph extraction complete. scripts/codegraph-extract.ts (ssr-frontend) produces tests/reports/codegraph.json (38 features, 351 scenarios, 80 testids, 37 source files). CI workflow added (.github/workflows/codegraph.yml). pk codegraph extract subcommand added to pk-cli. Commits: 1564b18 (ssr-frontend), da2b120 (prometheus-knowledge)."
 
 - id: BDD-009
   title: pk-codegraph runtime coverage

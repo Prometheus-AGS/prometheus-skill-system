@@ -3,10 +3,10 @@
   "active_sub_phase": "phase-2-boundary-conditions",
   "assessment_complete": true,
   "plan_complete": true,
-  "last_updated": "2026-05-09T14:30:00Z",
+  "last_updated": "2026-05-09T16:00:00Z",
   "last_updated_by": "claude-code",
   "changes_total": 36,
-  "changes_completed": 7,
+  "changes_completed": 9,
   "phase_2": {
     "name": "Boundary Conditions",
     "changes_total": 7,
@@ -63,7 +63,28 @@
       }
     }
   },
-  "phase_3": { "name": "Foundational Architecture", "changes_total": 2, "changes_completed": 0, "status": "pending" },
+  "phase_3": {
+    "name": "Foundational Architecture",
+    "changes_total": 2,
+    "changes_completed": 2,
+    "status": "done",
+    "changes": {
+      "change-008-bdd008-pk-codegraph-extraction": {
+        "status": "done",
+        "started": "2026-05-09T14:35:00Z",
+        "completed": "2026-05-09T15:15:00Z",
+        "qa_gate": "skipped-single-script",
+        "commit": "1564b18 (ssr-frontend), da2b120 (prometheus-knowledge)"
+      },
+      "change-009-sp019-librarian-event-persistence": {
+        "status": "done",
+        "started": "2026-05-09T15:15:00Z",
+        "completed": "2026-05-09T16:00:00Z",
+        "qa_gate": "skipped-new-crate",
+        "commit": "f041b11 (prometheus-knowledge)"
+      }
+    }
+  },
   "phase_4": { "name": "Selective Execution Payoff", "changes_total": 5, "changes_completed": 0, "status": "pending" },
   "phase_5": { "name": "Loop Closure", "changes_total": 6, "changes_completed": 0, "status": "pending" },
   "phase_6": { "name": "Operational Hardening", "changes_total": 16, "changes_completed": 0, "status": "pending" }
