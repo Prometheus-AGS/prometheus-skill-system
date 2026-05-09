@@ -170,6 +170,22 @@ blocking rules derived from `AGENTS.md` "Never Do" section.
 - Using `/kbd-init --force` skips confirmation and overwrites.
 - Running `/kbd-init --dry-run` prints the discovered values without writing files.
 
+## Progress Signals (MANDATORY)
+
+Before any other action, emit:
+
+```
+Starting kbd-init — <project-name or argument>
+```
+
+When all steps are complete, emit:
+
+```
+Completed kbd-init — <project-name or argument>
+```
+
+Use the project name from the argument or the discovered project name. Emit to plain response text — no tool call needed.
+
 ## How to invoke
 
 ```

@@ -55,6 +55,26 @@ This skill is **project-agnostic**. It derives project identity from context ([A
 
 ---
 
+## Progress Signals (MANDATORY)
+
+Every KBD skill emits signals at the start and end of its work. The orchestrator coordinates but does not double-emit — individual skills own their own signals.
+
+**Cross-phase signal rule**: When orchestrating a full phase cycle (Assess → Plan → Execute → Reflect), emit phase-level signals at the orchestrator level:
+
+```
+Starting phase <N> of <total>: <phase-name>
+```
+
+When the phase cycle is complete:
+
+```
+Completed phase <N> of <total>: <phase-name>
+```
+
+Read `changes_total` and the phase list from `progress.json` or `current-waypoint.json` for accurate totals — never guess. Emit to plain response text — no tool call needed. Individual skills (`kbd-assess`, `kbd-plan`, etc.) emit their own skill-level signals independently.
+
+---
+
 ## Project Context Discovery
 
 On every invocation, before acting, KBD MUST:

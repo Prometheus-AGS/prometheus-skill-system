@@ -70,6 +70,22 @@ When this plan is being created as part of an iterative-evolver cycle:
 This enables the Reflect phase to report back to the evolver with precise
 completion status per plan item.
 
+## Progress Signals (MANDATORY)
+
+Before any other action, emit:
+
+```
+Starting kbd-plan — <phase-name or argument>
+```
+
+When all steps are complete, emit:
+
+```
+Completed kbd-plan — <phase-name or argument>
+```
+
+Use the canonical phase name from the argument or `current-waypoint.json`. Never guess. Emit to plain response text — no tool call needed.
+
 ## How to invoke
 
 1. **Discover project identity** — read `.kbd-orchestrator/project.json` or infer

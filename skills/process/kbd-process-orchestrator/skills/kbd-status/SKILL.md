@@ -28,6 +28,16 @@ Output includes:
 - Last tool to update state and when
 - Waypoint-guided next recommended action
 
+## Progress Signals (MANDATORY)
+
+When the status output is ready to display, emit:
+
+```
+Completed kbd-status — <phase-name>
+```
+
+The status output itself serves as the start signal. Emit the completion signal after printing the full status table. Use the canonical phase name from `current-waypoint.json`. Emit to plain response text — no tool call needed.
+
 ## How to invoke
 
 1. **Discover project identity** — read `.kbd-orchestrator/project.json` or infer

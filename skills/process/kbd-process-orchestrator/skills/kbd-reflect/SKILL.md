@@ -78,6 +78,22 @@ All changes for this phase must be:
 - If OpenSpec: verified (`/opsx:verify`) and archived (`/opsx:archive`)
 - If native KBD: moved to `.kbd-orchestrator/changes/archive/<date>-<id>/`
 
+## Progress Signals (MANDATORY)
+
+Before any other action, emit:
+
+```
+Starting kbd-reflect — <phase-name or argument>
+```
+
+When all steps are complete, emit:
+
+```
+Completed kbd-reflect — <phase-name or argument>
+```
+
+Use the canonical phase name from the argument or `current-waypoint.json`. Never guess. Emit to plain response text — no tool call needed.
+
 ## How to invoke
 
 1. **Discover project identity**

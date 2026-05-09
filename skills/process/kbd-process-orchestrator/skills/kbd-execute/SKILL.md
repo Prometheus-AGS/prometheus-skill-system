@@ -54,6 +54,41 @@ contract and constraint wiring.
 - Change is documentation-only
 - User passes `--skip-qa` flag
 
+## Progress Signals (MANDATORY)
+
+Before any other action, emit:
+
+```
+Starting kbd-execute — <phase-name or argument>
+```
+
+When all steps are complete, emit:
+
+```
+Completed kbd-execute — <phase-name or argument>
+```
+
+When executing a named sub-phase within a multi-phase plan, emit the phase-level signal BEFORE the first change signal — even when the orchestrator is not present:
+
+```
+Starting phase <N> out of <total>: <sub-phase-name>
+```
+
+And after the last change in that sub-phase:
+
+```
+Completed phase <N> out of <total>: <sub-phase-name>
+```
+
+Additionally, emit before and after each individual change (read `changes_total` and `changes_completed` from `progress.json` for accurate counts — never guess):
+
+```
+Starting change <N> of <total>: <change-id>
+Completed change <N> of <total>: <change-id>
+```
+
+Use the canonical phase name from the argument or `current-waypoint.json`. Phase and change totals must come from `progress.json` or the plan — never guessed. Emit to plain response text — no tool call needed.
+
 ## How to invoke
 
 1. **Discover project identity** — read `.kbd-orchestrator/project.json` or infer

@@ -23,6 +23,22 @@ active phase's goals. Output written to
 Also reads `progress.json` to incorporate any work completed by other tools
 (Roo, Cursor, Cline, Codex, etc.) since the last session.
 
+## Progress Signals (MANDATORY)
+
+Before any other action, emit:
+
+```
+Starting kbd-assess — <phase-name or argument>
+```
+
+When all steps are complete, emit:
+
+```
+Completed kbd-assess — <phase-name or argument>
+```
+
+Use the canonical phase name from the argument or `current-waypoint.json`. Never guess. Emit to plain response text — no tool call needed.
+
 ## How to invoke
 
 1. **Discover project identity** — read `.kbd-orchestrator/project.json` or infer
