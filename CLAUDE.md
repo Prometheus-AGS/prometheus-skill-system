@@ -2,6 +2,18 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Documentation hierarchy
+
+This file is the **canonical rules source** for the Prometheus engineering stack.
+All sibling repositories defer to it for cross-cutting concerns.
+
+| Repository | CLAUDE.md scope | Canonical source |
+|---|---|---|
+| `prometheus-skill-pack` (this file) | Pack architecture, KBD lifecycle, skill discovery, OpenSpec, BDD rules, progress signaling | **HERE — canonical** |
+| `prometheus-knowledge` | Rust workspace, crate architecture, model routing, librarian patterns | Crate-specific only; defer to this file for project-wide rules |
+
+**Precedence:** when a rule in a sibling CLAUDE.md conflicts with this file, this file wins. Add new project-wide rules here, not in sibling files.
+
 ## Project Overview
 
 This is a comprehensive, enterprise-grade skills package collection for AI-assisted development. The repository manages centralized Agent Skills across multiple domains (React, Rust, UI/UX, DevOps, Testing, Documentation) with full compliance to the [agentskills.io](https://agentskills.io/specification) standard and Claude Code plugin marketplace requirements.
