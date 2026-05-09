@@ -3,11 +3,11 @@
   "phase_started": "2026-05-09",
   "phase_path": ".kbd-orchestrator/phases/skill-pack-upgrade-2026-05-09",
   "stage": "execute",
-  "next_action": "Execute change-002-sp015-hooks-json-canonical (skill-pack-maintainer, Slot 1). change-001 is done. Run /kbd-execute change-002-sp015-hooks-json-canonical.",
+  "next_action": "Slot 1 complete. Begin Slot 2 (parallel): change-003-bdd001-manifest-dual-key-cleanup (bdd-engineer, ssr-frontend) and change-004-bdd002-flake-quarantine (bdd-engineer, ssr-frontend). Run /kbd-execute change-003-bdd001-manifest-dual-key-cleanup.",
   "assessment_path": ".kbd-orchestrator/phases/assess/skill-pack-upgrade-2026-05-09-assessment.md",
   "plan_path": ".kbd-orchestrator/phases/skill-pack-upgrade-2026-05-09/plan.md",
-  "active_change": "change-002-sp015-hooks-json-canonical",
-  "last_completed": "change-001-bdd006-immutable-tests-rule",
+  "active_change": "change-003-bdd001-manifest-dual-key-cleanup",
+  "last_completed": "change-002-sp015-hooks-json-canonical",
   "previous_phase": "phase-a2ui-agui-artifact-refiner",
   "change_backend": "openspec",
   "change_backends": {
@@ -22,7 +22,7 @@
   "openspec_root": "openspec",
   "evolver_bridge": null,
   "changes_total": 6,
-  "changes_completed": 1,
+  "changes_completed": 2,
   "phase_goals": [
     "BDD-006: Add immutable-tests rule to CLAUDE.md files so code-gen agents cannot silently rewrite step definitions",
     "SP-015: Confirm/document canonical hooks.json path and add CI symlink integrity check",
@@ -32,9 +32,10 @@
     "SP-013: Wire sycophancy-correction into SubagentStop(reflector) hook on artifact-only input"
   ],
   "phase_goals_met": [
-    "BDD-006: Add immutable-tests rule to CLAUDE.md files so code-gen agents cannot silently rewrite step definitions"
+    "BDD-006: Add immutable-tests rule to CLAUDE.md files so code-gen agents cannot silently rewrite step definitions",
+    "SP-015: Confirm/document canonical hooks.json path and add CI symlink integrity check"
   ],
   "tool": "claude-code",
   "model": "claude-sonnet-4-6",
-  "updated": "2026-05-09T01:00:00Z"
+  "updated": "2026-05-09T02:00:00Z"
 }
