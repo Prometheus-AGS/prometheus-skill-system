@@ -2,8 +2,8 @@
   "phase": "skill-pack-upgrade-2026-05-09",
   "phase_started": "2026-05-09",
   "phase_path": ".kbd-orchestrator/phases/skill-pack-upgrade-2026-05-09",
-  "stage": "reflect",
-  "next_action": "All 6 changes complete. Phase 1 execution done. Run /kbd-reflect skill-pack-upgrade-2026-05-09 to write the phase reflection and update STATUS.md.",
+  "stage": "done",
+  "next_action": "Phase 1 complete. Reflection written. Begin Phase 2 with /kbd-assess <phase-2-name>. Recommended first task: SP-014 fallback SubagentStop matcher verification.",
   "assessment_path": ".kbd-orchestrator/phases/assess/skill-pack-upgrade-2026-05-09-assessment.md",
   "plan_path": ".kbd-orchestrator/phases/skill-pack-upgrade-2026-05-09/plan.md",
   "active_change": null,
@@ -41,5 +41,5 @@
   ],
   "tool": "claude-code",
   "model": "claude-sonnet-4-6",
-  "updated": "2026-05-09T06:00:00Z"
+  "updated": "2026-05-09T07:00:00Z"
 }
