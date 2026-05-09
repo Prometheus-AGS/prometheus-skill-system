@@ -43,6 +43,18 @@ jobs:
       - name: Check formatting
         run: npm run check-format
 
+  hooks-integrity:
+    name: Check hooks.json symlink integrity
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify .claude-plugin/hooks is a directory symlink to ../hooks
+        run: |
+          test -L .claude-plugin/hooks || (echo "FAIL: .claude-plugin/hooks is not a symlink" && exit 1)
+          test -f hooks/hooks.json || (echo "FAIL: hooks/hooks.json (canonical) does not exist" && exit 1)
+          echo "OK: .claude-plugin/hooks -> ../hooks; hooks/hooks.json is present"
+
   rust-cli:
     name: Check Rust CLI
     runs-on: ubuntu-latest

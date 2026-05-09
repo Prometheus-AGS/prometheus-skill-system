@@ -209,6 +209,8 @@ This repository supports two distribution formats simultaneously:
 
 **Important**: The `skills/` directory is the source of truth. The `.claude-plugin/` directory contains symlinks created by `npm run build`.
 
+**Canonical hooks path**: `hooks/hooks.json` is the physical source of truth for hook definitions. `plugin.json` declares `"hooks": "./hooks/hooks.json"` (relative to `.claude-plugin/`), which resolves through the `.claude-plugin/hooks → ../hooks` directory symlink to the same physical file. Always edit `hooks/hooks.json` directly — never edit through `.claude-plugin/hooks/hooks.json`. CI validates this symlink on every PR (`hooks-integrity` job in `.github/workflows/validate.yml`).
+
 ### Imported Skills (Git Submodules)
 
 The repository includes a third category for **imported skills** - skills maintained in external repositories:
