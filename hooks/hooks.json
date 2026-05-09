@@ -37,6 +37,16 @@
             "timeout": 8000
           }
         ]
+      },
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT}/shared/scripts/cedar-skill-gate.sh",
+            "timeout": 5000
+          }
+        ]
       }
     ],
     "PostToolUse": [
