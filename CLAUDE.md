@@ -517,6 +517,18 @@ description: Skill with validation
    \`\`\`
 ```
 
+## BDD Immutable-Tests Rule
+
+Code-generation agents operating in projects that use Cucumber/BDD step definitions **may not edit existing tests** to make failing tests pass.
+
+- **May not** edit `tests/steps/*.steps.ts`, `tests/support/*.ts`, or `tests/features/*.feature` as part of code changes.
+- **Must** surface failing tests to the user rather than silently updating steps to match new code.
+- **May** add new `.feature` files to `tests/features/drafts/` and matching new step definitions.
+
+This rule is enforced via CLAUDE.md prose in the target project and optionally via a PreToolUse hook (`shared/scripts/protect-tests.sh`). Full rationale and the trio relationship (BDD-005, BDD-006, BDD-007) are documented in `docs/future-work/02-bdd-testing-evolution/BDD-006-immutable-tests-rule.md`.
+
+For projects using this skill-pack with BDD suites (e.g. `ssr-frontend`), see the **Immutable Tests Rule** section in that project's `CLAUDE.md`.
+
 ## Troubleshooting
 
 ### Validation Errors
