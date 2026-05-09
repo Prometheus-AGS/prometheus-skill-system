@@ -106,9 +106,13 @@ impl TraceStore {
         Self { base_dir: base_dir.into() }
     }
 
-    /// Default location: .prometheus/traces/
+    /// Default location: .prometheus/traces/ (override with PROMETHEUS_TRACE_DIR env var)
     pub fn default_for_project(project_root: &Path) -> Self {
-        Self::new(project_root.join(".prometheus").join("traces"))
+        if let Ok(override_dir) = std::env::var("PROMETHEUS_TRACE_DIR") {
+            Self::new(std::path::PathBuf::from(override_dir))
+        } else {
+            Self::new(project_root.join(".prometheus").join("traces"))
+        }
     }
 
     /// Store an execution trace.
