@@ -204,6 +204,50 @@ check_npm() {
     fi
 }
 
+# ── Service reachability helper ──────────────────────────────────────────────
+# Probes whether a service is already running on a local port. Used to avoid
+# rebuilding/reinstalling things that something else has already provisioned
+# (e.g. surreal-memory-server already running via docker compose from another
+# repo).
+#
+# Usage: check_running_service <label> <port> [<path>]
+# Echoes a one-line status when it finds one.
+# Returns: 0 if reachable, 1 if not.
+check_running_service() {
+    local label="$1" port="$2" path="${3:-/}"
+    local url="http://localhost:$port$path"
+    local how=""
+
+    # HEAD probe — terminates cleanly even on SSE/streaming endpoints. A 4xx or
+    # 405 still proves a server is listening; only "000" (no connection) and a
+    # non-zero curl exit count as "not running".
+    if command -v curl >/dev/null 2>&1; then
+        local code rc
+        code=$(curl -sI -o /dev/null -w '%{http_code}' --connect-timeout 1 --max-time 2 "$url" 2>/dev/null)
+        rc=$?
+        if [ "$rc" -eq 0 ] && [ -n "$code" ] && [ "$code" != "000" ]; then
+            how="HTTP $code at $url"
+        fi
+    fi
+
+    if [ -z "$how" ] && command -v nc >/dev/null 2>&1; then
+        if nc -z -w2 localhost "$port" 2>/dev/null; then
+            how="TCP :$port listening"
+        fi
+    fi
+
+    [ -z "$how" ] && return 1
+
+    if command -v docker >/dev/null 2>&1; then
+        local container
+        container=$(docker ps --filter "publish=$port" --format '{{.Names}}' 2>/dev/null | head -1)
+        [ -n "$container" ] && how="$how (docker: $container)"
+    fi
+
+    echo "    ✅ $label already running — $how"
+    return 0
+}
+
 # ── Tool builder helper ──────────────────────────────────────────────────────
 # Builds a Rust workspace and copies a single binary out.
 #
@@ -277,9 +321,15 @@ build_submodule_tools() {
     build_and_install "liter-llm"             "tools/liter-llm"              "liter-llm-cli"         || true
     build_and_install "prometheus"            "tools/prometheus-cli"         ""                      || true
 
-    # surreal-memory-server can run in Docker; only build the binary if Docker is absent.
-    if docker ps --format '{{.Names}}' 2>/dev/null | grep -q "surreal-memory"; then
-        echo "    ℹ️  surreal-memory running in Docker — skipping native build"
+    # surreal-memory-server: prefer existing running instance > docker compose > native build.
+    # Detects services started by ANY tool (this repo, other repos, manual docker run, etc.)
+    # via HTTP/port probe — not just by container name match.
+    if check_running_service "surreal-memory-server" 23001 "/mcp/sse"; then
+        :  # already up — leave it alone
+    elif command -v docker >/dev/null 2>&1 && docker compose version >/dev/null 2>&1; then
+        echo "    ℹ️  Docker available but surreal-memory-server not running — skipping native build."
+        echo "       Start via Docker: (cd $REPO_ROOT/tools/surreal-memory-server && docker compose up -d)"
+        echo "       (requires .env with OPENAI_API_KEY for embeddings)"
     else
         build_and_install "surreal-memory-server" "tools/surreal-memory-server" "" || true
     fi
@@ -294,7 +344,7 @@ build_submodule_tools() {
 check_binaries() {
     echo ""
     echo "  Global Binaries (best-effort under --install):"
-    for bin in prometheus sycophancy-correction surreal-memory-server; do
+    for bin in prometheus sycophancy-correction; do
         if command -v "$bin" >/dev/null 2>&1; then
             echo "    ✅ $bin"
         else
@@ -305,6 +355,38 @@ check_binaries() {
             fi
         fi
     done
+
+    # surreal-memory-server can be satisfied by a running service (any provenance)
+    # OR a native binary. Don't double-count.
+    if check_running_service "surreal-memory-server" 23001 "/mcp/sse"; then
+        :
+    elif command -v surreal-memory-server >/dev/null 2>&1; then
+        echo "    ✅ surreal-memory-server (native binary)"
+    else
+        echo "    ⚠️  surreal-memory-server not found (no running service, no binary)"
+        MISSING=$((MISSING + 1))
+        if $INSTALL && ! $BUILD_TOOLS; then
+            echo "       Build native: $0 --install --build-tools"
+            if command -v docker >/dev/null 2>&1; then
+                echo "       Or via Docker: (cd $REPO_ROOT/tools/surreal-memory-server && docker compose up -d)"
+            fi
+        fi
+    fi
+}
+
+# ── MCP service reachability report (informational) ─────────────────────────
+# Probes the URL-based MCP servers configured in .mcp.json. These services may
+# be started by Docker, native binaries, or external repos — the probe is
+# provenance-agnostic.
+check_mcp_services() {
+    echo ""
+    echo "  Running MCP services (informational):"
+    check_running_service "surreal-memory   (:23001)" 23001 "/mcp/sse" \
+        || echo "    ✗ surreal-memory   not reachable on :23001"
+    check_running_service "forge-rs         (:8943)"  8943  "/mcp" \
+        || echo "    ✗ forge-rs         not reachable on :8943"
+    check_running_service "prometheus-knowledge (:8942)" 8942 "/mcp" \
+        || echo "    ✗ prometheus-knowledge not reachable on :8942"
 }
 
 # ── Run all checks ───────────────────────────────────────────────────────────
@@ -322,6 +404,8 @@ if $BUILD_TOOLS; then
 else
     check_binaries
 fi
+
+check_mcp_services
 
 echo ""
 echo "================================================"
