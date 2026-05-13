@@ -1,6 +1,7 @@
 {
   "mcpServers": {
     "surreal-memory": {
+      "type": "sse",
       "url": "${SURREAL_MEMORY_URL:-http://localhost:23001/mcp/sse}",
       "description": "Global distributed memory state server — knowledge graph, scoped memory, TaskStreams, mindmaps, Graph-RAG traversal, hybrid search"
     },
@@ -9,10 +10,12 @@
       "description": "Detect and correct sycophantic patterns (S-01 through S-08) in prompts, completions, agent descriptors, and PMPO reflect outputs"
     },
     "forge-rs": {
+      "type": "sse",
       "url": "${FORGE_MCP_URL:-http://localhost:8943/mcp}",
       "description": "Layer 4 code-enrichment engine — forge_enrich, forge_reflect, forge_drift, forge_validate"
     },
     "prometheus-knowledge": {
+      "type": "sse",
       "url": "${PK_MCP_URL:-http://localhost:8942/mcp}",
       "description": "Karpathy LLM Knowledge Base — knowledge_ingest, knowledge_focus, knowledge_search, knowledge_lint, knowledge_get"
     },
