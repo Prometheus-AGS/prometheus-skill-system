@@ -10,12 +10,11 @@
 	path = tools/surreal-memory-server
 	url = https://github.com/Prometheus-AGS/surreal-memory-server.git
 
-[submodule "tools/liter-llm"]
-	path = tools/liter-llm
-	url = https://github.com/GQAdonis/liter-llm.git
-	branch = main
-
 [submodule "tools/prometheus-knowledge"]
 	path = tools/prometheus-knowledge
 	url = https://github.com/Prometheus-AGS/prometheus-knowledge-rs.git
+	branch = main
+[submodule "tools/liter-llm"]
+	path = tools/liter-llm
+	url = https://github.com/GQAdonis/liter-llm.git
 	branch = main
