@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Generates Claude Code native slash command files from skills SKILL.md frontmatter.
 // Each output file: description frontmatter + file-reference body + $ARGUMENTS.
-// Usage: node scripts/generate-commands.js --output ~/.claude/commands
+// Usage: node scripts/generate-commands.js [--output ~/.claude/commands] [--uninstall]
 
 import fs from 'fs';
 import path from 'path';
@@ -19,8 +19,7 @@ const outputIdx = args.indexOf('--output');
 const outputDir = outputIdx !== -1
   ? path.resolve(args[outputIdx + 1].replace(/^~/, homedir()))
   : path.join(homedir(), '.claude', 'commands');
-
-fs.mkdirSync(outputDir, { recursive: true });
+const UNINSTALL = args.includes('--uninstall');
 
 function findSkillMds(dir, results = []) {
   let entries;
@@ -41,20 +40,31 @@ function parseFrontmatter(content) {
 }
 
 const skillMds = findSkillMds(SKILLS_DIR);
-let generated = 0;
+let count = 0;
 let skipped = 0;
 
-for (const skillMdPath of skillMds) {
-  const content = fs.readFileSync(skillMdPath, 'utf-8');
-  const fm = parseFrontmatter(content);
-  if (!fm?.name || !fm?.description) { skipped++; continue; }
+if (UNINSTALL) {
+  for (const skillMdPath of skillMds) {
+    const content = fs.readFileSync(skillMdPath, 'utf-8');
+    const fm = parseFrontmatter(content);
+    if (!fm?.name) { skipped++; continue; }
+    const target = path.join(outputDir, `${fm.name}.md`);
+    try { fs.unlinkSync(target); count++; } catch { /* already gone */ }
+  }
+  console.log(`✅ Removed ${count} command file(s) from ${outputDir} (skipped ${skipped})`);
+} else {
+  fs.mkdirSync(outputDir, { recursive: true });
+  for (const skillMdPath of skillMds) {
+    const content = fs.readFileSync(skillMdPath, 'utf-8');
+    const fm = parseFrontmatter(content);
+    if (!fm?.name || !fm?.description) { skipped++; continue; }
 
-  const relPath = path.relative(ROOT, skillMdPath).replace(/\\/g, '/');
-  const desc = fm.description.slice(0, 200).replace(/"/g, '\\"');
-  const cmdContent = `---\ndescription: "${desc}"\n---\n\n{{file:${relPath}}}\n\n$ARGUMENTS\n`;
+    const relPath = path.relative(ROOT, skillMdPath).replace(/\\/g, '/');
+    const desc = fm.description.slice(0, 200).replace(/"/g, '\\"');
+    const cmdContent = `---\ndescription: "${desc}"\n---\n\n{{file:${relPath}}}\n\n$ARGUMENTS\n`;
 
-  fs.writeFileSync(path.join(outputDir, `${fm.name}.md`), cmdContent, 'utf-8');
-  generated++;
+    fs.writeFileSync(path.join(outputDir, `${fm.name}.md`), cmdContent, 'utf-8');
+    count++;
+  }
+  console.log(`✅ Generated ${count} command file(s) → ${outputDir} (skipped ${skipped})`);
 }
-
-console.log(`✅ Generated ${generated} command file(s) → ${outputDir} (skipped ${skipped})`);
