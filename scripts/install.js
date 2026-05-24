@@ -60,7 +60,9 @@ async function installSkills(scope) {
       const commandsDir = path.join(homedir(), '.claude', 'commands');
       console.log(`\n📋 Generating slash commands → ${commandsDir}`);
       const generateScript = path.join(rootDir, 'scripts', 'generate-commands.js');
-      execFileSync(process.execPath, [generateScript, '--output', commandsDir], { stdio: 'inherit' });
+      execFileSync(process.execPath, [generateScript, '--output', commandsDir], {
+        stdio: 'inherit',
+      });
     }
 
     console.log('\nAvailable skill categories:');

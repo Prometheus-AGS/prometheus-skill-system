@@ -1,0 +1,29 @@
+[mcp_servers.surreal-memory]
+type = "sse"
+url = "http://localhost:23001/mcp/sse"
+
+[mcp_servers.liter-llm]
+args = [
+    "mcp",
+    "--transport",
+    "stdio",
+]
+command = "liter-llm"
+
+[mcp_servers.sequential-thinking]
+args = [
+    "-y",
+    "@anthropic/sequential-thinking-mcp@latest",
+]
+command = "npx"
+
+[mcp_servers.sycophancy-correction]
+command = "sycophancy-correction"
+
+[mcp_servers.tavily]
+args = [
+    "-y",
+    "@anthropic/tavily-mcp@latest",
+]
+command = "npx"
+env_vars = ["TAVILY_API_KEY"]

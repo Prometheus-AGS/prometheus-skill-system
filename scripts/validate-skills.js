@@ -37,10 +37,7 @@ const frontmatterSchema = {
     'allowed-tools': { type: 'string' },
     version: { type: 'string' },
     authors: {
-      oneOf: [
-        { type: 'string' },
-        { type: 'array', items: { type: 'string' } },
-      ],
+      oneOf: [{ type: 'string' }, { type: 'array', items: { type: 'string' } }],
     },
     triggers: { type: 'object' },
     model_routing: { type: 'object' },
@@ -135,7 +132,10 @@ class SkillValidator {
         }
         const tags = frontmatter.metadata?.tags;
         if (!tags || !Array.isArray(tags) || tags.length === 0) {
-          this.addError(skillName, 'Strict: missing required field: metadata.tags (must be non-empty array)');
+          this.addError(
+            skillName,
+            'Strict: missing required field: metadata.tags (must be non-empty array)'
+          );
         }
       } else {
         if (!frontmatter.license) {
@@ -219,7 +219,7 @@ class SkillValidator {
           entry === 'crates' ||
           entry === 'examples' ||
           entry === 'docs' ||
-          entry === skillName ||  // defense against self-named nested dir / recursive clone
+          entry === skillName || // defense against self-named nested dir / recursive clone
           entry.startsWith('_') ||
           entry.startsWith('.')
         ) {

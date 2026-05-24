@@ -236,6 +236,28 @@ forge template validate <skill-path>            # check Tera syntax
 
 Tools: `forge_enrich`, `forge_reflect`, `forge_drift`, `forge_validate`
 
+### macOS MCP Services
+
+On macOS, keep the lightweight local MCP services alive as user LaunchAgents for
+the logged-in account. This gives them the right `HOME`, `PATH`, user config, and
+AI-tool credentials without running system daemons.
+
+```bash
+# Build/install all local binaries first, including pk-cherry.
+bash scripts/check-prerequisites.sh --build-tools
+
+# macOS only: render LaunchAgents into ~/Library/LaunchAgents and start them.
+bash scripts/prometheus-services.sh install
+bash scripts/prometheus-services.sh load
+bash scripts/prometheus-services.sh status
+```
+
+The LaunchAgents manage `pk-cherry` on `127.0.0.1:8942` and `forge mcp` on
+`127.0.0.1:8943`. `surreal-memory-server` remains Docker-managed on
+`127.0.0.1:23001`; the service script only reports whether that port is ready.
+On Linux, use systemd user services or cron-style scheduled jobs instead of
+LaunchAgents.
+
 ---
 
 ## Template System
@@ -308,8 +330,11 @@ git clone --recurse-submodules <repo-url>
 cd prometheus-skill-pack
 
 # Build all tools
-cd tools/forge-rs && cargo build --release -p forge-cli && cp target/release/forge /usr/local/bin/ && cd ../..
-cd tools/prometheus-knowledge && cargo build --release -p pk-cli && cp target/release/pk /usr/local/bin/ && cd ../..
+bash scripts/check-prerequisites.sh --build-tools
+
+# macOS service readiness
+bash scripts/prometheus-services.sh install
+bash scripts/prometheus-services.sh load
 
 # Initialize forge in your project
 forge init

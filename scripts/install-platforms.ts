@@ -16,13 +16,13 @@ import {
   mkdirSync,
   symlinkSync,
   unlinkSync,
-  readdirSync,
-  statSync,
+  lstatSync,
   readlinkSync,
   readFileSync,
   writeFileSync,
+  copyFileSync,
 } from 'fs';
-import { join, resolve, relative, basename } from 'path';
+import { dirname, join, resolve } from 'path';
 import { homedir } from 'os';
 
 const REPO_ROOT = resolve(import.meta.dirname, '..');
@@ -120,23 +120,39 @@ function detectInstalledPlatforms(): Platform[] {
   });
 }
 
-function createSymlink(target: string, linkPath: string): boolean {
+function isRepoOwnedSymlink(linkPath: string): boolean {
   try {
-    if (existsSync(linkPath)) {
-      const stats = statSync(linkPath);
-      if (stats.isSymbolicLink?.() || readlinkSync(linkPath)) {
+    const stats = lstatSync(linkPath);
+    if (!stats.isSymbolicLink()) return false;
+    const target = resolve(dirname(linkPath), readlinkSync(linkPath));
+    return target === REPO_ROOT || target.startsWith(`${REPO_ROOT}/`);
+  } catch {
+    return false;
+  }
+}
+
+function pathExistsOrIsSymlink(linkPath: string): boolean {
+  try {
+    lstatSync(linkPath);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function createSymlink(target: string, linkPath: string): boolean {
+  if (pathExistsOrIsSymlink(linkPath)) {
+    try {
+      const stats = lstatSync(linkPath);
+      if (stats.isSymbolicLink() && isRepoOwnedSymlink(linkPath)) {
         unlinkSync(linkPath);
       } else {
-        console.warn(`  [skip] ${linkPath} exists and is not a symlink`);
+        console.warn(`  [skip] ${linkPath} exists and is not a repo-owned symlink`);
         return false;
       }
-    }
-  } catch {
-    // Not a symlink or doesn't exist — proceed
-    try {
-      unlinkSync(linkPath);
     } catch {
-      /* noop */
+      console.warn(`  [skip] could not inspect ${linkPath}`);
+      return false;
     }
   }
 
@@ -179,12 +195,14 @@ function installPlatform(platform: Platform, scope: 'global' | 'project'): void 
 
     // Global scope: opencode.json resolves paths relative to ~/.opencode/, so we
     // must register as an absolute path. Project scope: relative ./.opencode is fine.
-    const pluginPath =
-      scope === 'global' ? join(REPO_ROOT, '.opencode') : './.opencode';
+    const pluginPath = scope === 'global' ? join(REPO_ROOT, '.opencode') : './.opencode';
 
     try {
       let opencodeConfig: Record<string, unknown> = {};
       if (existsSync(opencodeJsonPath)) {
+        const backup = `${opencodeJsonPath}.bak.${new Date().toISOString().replace(/[-:T]/g, '').slice(0, 14)}`;
+        copyFileSync(opencodeJsonPath, backup);
+        console.log(`    ✅ Backed up opencode.json: ${backup}`);
         try {
           opencodeConfig = JSON.parse(readFileSync(opencodeJsonPath, 'utf-8'));
         } catch {
@@ -215,12 +233,23 @@ function uninstallPlatform(platform: Platform, scope: 'global' | 'project'): voi
     scope === 'global' ? platform.globalSkillsDir : join(process.cwd(), platform.projectSkillsDir);
   const linkPath = join(targetDir, SKILL_NAME);
 
-  if (existsSync(linkPath)) {
+  if (pathExistsOrIsSymlink(linkPath) && isRepoOwnedSymlink(linkPath)) {
     try {
       unlinkSync(linkPath);
       console.log(`  ✅ Removed: ${linkPath}`);
     } catch (e) {
       console.warn(`  ⚠️  Could not remove: ${linkPath}`);
+    }
+  }
+
+  if (platform.name === 'opencode') {
+    const toolsLink =
+      scope === 'global'
+        ? join(HOME, '.opencode', 'tools', SKILL_NAME)
+        : join(process.cwd(), '.opencode', 'tools', SKILL_NAME);
+    if (pathExistsOrIsSymlink(toolsLink) && isRepoOwnedSymlink(toolsLink)) {
+      unlinkSync(toolsLink);
+      console.log(`  ✅ Removed: ${toolsLink}`);
     }
   }
 }

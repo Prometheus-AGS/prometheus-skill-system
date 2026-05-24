@@ -9,8 +9,8 @@
 #
 # --install:     Installs Node, Rust, npm deps, and (best-effort) the legacy
 #                three Rust binaries the script always knew about.
-# --build-tools: Builds the four submodule tools (forge, pk, liter-llm,
-#                surreal-memory-server) and the prometheus-cli, copying the
+# --build-tools: Builds submodule tools (forge, pk, pk-cherry, liter-llm,
+#                surreal-memory-server), prometheus-cli, and the rust auditor, copying the
 #                binaries to ~/.local/bin (or /usr/local/bin if writable).
 #                Idempotent — skips builds when the binary is already on PATH.
 
@@ -284,7 +284,11 @@ build_and_install() {
     [ -n "$pkg" ] && cargo_args+=("-p" "$pkg")
 
     if (cd "$REPO_ROOT/$workspace" && cargo "${cargo_args[@]}"); then
-        local built="$REPO_ROOT/$workspace/target/release/$bin"
+        local target_dir built
+        target_dir=$(cd "$REPO_ROOT/$workspace" && cargo metadata --format-version 1 --no-deps 2>/dev/null \
+            | node -e "let s='';process.stdin.on('data',d=>s+=d);process.stdin.on('end',()=>{try{console.log(JSON.parse(s).target_directory)}catch{process.exit(1)}})" 2>/dev/null \
+            || printf '%s/target' "$REPO_ROOT/$workspace")
+        built="$target_dir/release/$bin"
         if [ -f "$built" ]; then
             cp "$built" "$INSTALL_DIR/" && chmod +x "$INSTALL_DIR/$bin"
             echo "    ✅ $label installed → $INSTALL_DIR/$bin"
@@ -318,8 +322,10 @@ build_submodule_tools() {
     # so users see the quick wins first.
     build_and_install "forge"                 "tools/forge-rs"               "forge-cli"             || true
     build_and_install "pk"                    "tools/prometheus-knowledge"   "pk-cli"                || true
+    build_and_install "pk-cherry"             "tools/prometheus-knowledge"   "pk-cherry"             || true
     build_and_install "liter-llm"             "tools/liter-llm"              "liter-llm-cli"         || true
     build_and_install "prometheus"            "tools/prometheus-cli"         ""                      || true
+    build_and_install "prometheus-rust-auditor" "tools/prometheus-rust-auditor" ""                    || true
 
     # surreal-memory-server: prefer existing running instance > docker compose > native build.
     # Detects services started by ANY tool (this repo, other repos, manual docker run, etc.)
@@ -344,7 +350,7 @@ build_submodule_tools() {
 check_binaries() {
     echo ""
     echo "  Global Binaries (best-effort under --install):"
-    for bin in prometheus sycophancy-correction; do
+    for bin in prometheus prometheus-rust-auditor pk-cherry sycophancy-correction; do
         if command -v "$bin" >/dev/null 2>&1; then
             echo "    ✅ $bin"
         else

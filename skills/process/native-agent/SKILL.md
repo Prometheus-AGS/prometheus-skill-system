@@ -82,6 +82,24 @@ The generated project is a permanent artifact — not a prototype.
 
 ## Generated Agent Features
 
+### 0. Prometheus Service Readiness
+
+Before wiring generated agents to local Prometheus MCP services, detect the host OS:
+
+```bash
+uname -s
+```
+
+- On macOS (`Darwin`), prefer the repository service manager:
+  `bash scripts/prometheus-services.sh doctor`, then `install` and `load` if
+  `pk-cherry` (`:8942`) or `forge mcp` (`:8943`) are not running. These are user
+  LaunchAgents for the logged-in user, with explicit `HOME`, `USER`, `PATH`, and
+  service environment.
+- Keep `surreal-memory-server` Docker-managed on `:23001`; the LaunchAgent setup
+  must only report that port, not claim ownership of it.
+- On Linux, keep systemd user service or cron guidance separate. On non-macOS,
+  do not recommend LaunchAgents except to say they are unsupported.
+
 ### 1. Provider & Model Configuration via liter-llm
 
 Uses liter-llm as the model gateway. Providers configured in `agent.toml`.

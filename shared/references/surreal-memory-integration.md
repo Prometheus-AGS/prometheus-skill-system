@@ -5,7 +5,7 @@ server for persistent, cross-session, distributed state management. This
 reference defines the integration contract used by every skill.
 
 **Server**: [Prometheus-AGS/surreal-memory-server](https://github.com/Prometheus-AGS/surreal-memory-server)
-**Transport**: HTTP SSE (`/mcp/sse`) or stdio
+**Transport**: HTTP MCP (`/mcp/sse` for legacy SSE clients; streamable HTTP where supported) or stdio
 **Default URL**: `http://localhost:23001/mcp/sse`
 
 ---

@@ -22,18 +22,18 @@ import globPkg from 'glob';
 const { sync: globSync } = globPkg;
 
 const __filename = fileURLToPath(import.meta.url);
-const __dirname  = dirname(__filename);
+const __dirname = dirname(__filename);
 
 // ---------------------------------------------------------------------------
 // Config
 // ---------------------------------------------------------------------------
 
-const REPO_ROOT   = resolve(__dirname, '..');
+const REPO_ROOT = resolve(__dirname, '..');
 const SKILLS_GLOB = 'skills/**/SKILL.md';
-const ALLOWLIST   = join(__dirname, 'skill-collision-allowlist.json');
+const ALLOWLIST = join(__dirname, 'skill-collision-allowlist.json');
 
-const args      = process.argv.slice(2);
-const CI_MODE   = args.includes('--ci');
+const args = process.argv.slice(2);
+const CI_MODE = args.includes('--ci');
 const THRESHOLD = (() => {
   const idx = args.indexOf('--threshold');
   return idx >= 0 ? parseFloat(args[idx + 1]) : 0.6;
@@ -77,7 +77,11 @@ function parseFrontmatter(content) {
 // ---------------------------------------------------------------------------
 
 function tokenize(str) {
-  return str.toLowerCase().replace(/[^a-z0-9\s]/g, ' ').split(/\s+/).filter(Boolean);
+  return str
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, ' ')
+    .split(/\s+/)
+    .filter(Boolean);
 }
 
 function shingles(tokens, k = 2) {
@@ -92,7 +96,9 @@ function shingles(tokens, k = 2) {
 function jaccard(a, b) {
   if (a.size === 0 && b.size === 0) return 1;
   let inter = 0;
-  for (const item of a) { if (b.has(item)) inter++; }
+  for (const item of a) {
+    if (b.has(item)) inter++;
+  }
   return inter / (a.size + b.size - inter);
 }
 
@@ -166,7 +172,7 @@ if (pairs.length === 0) {
   process.exit(0);
 }
 
-const newPairs  = pairs.filter(p => !isAllowed(p.a, p.b));
+const newPairs = pairs.filter(p => !isAllowed(p.a, p.b));
 const knownPairs = pairs.filter(p => isAllowed(p.a, p.b));
 
 if (knownPairs.length > 0) {

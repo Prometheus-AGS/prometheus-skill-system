@@ -29,12 +29,26 @@ echo ""
 SKILLS=()
 while IFS= read -r -d '' skill_md; do
     skill_dir=$(dirname "$skill_md")
-    skill_name=$(basename "$skill_dir")
+    skill_name=$(node -e "const fs=require('fs'); const s=fs.readFileSync(process.argv[1],'utf8'); const m=s.match(/^---\\n([\\s\\S]*?)\\n---/); const n=m&&m[1].match(/^name:\\s*['\\\"]?([^'\\\"\\n]+)['\\\"]?/m); console.log((n&&n[1].trim())||require('path').basename(require('path').dirname(process.argv[1])));" "$skill_md")
     SKILLS+=("$skill_name|$skill_dir")
 done < <(find "$REPO_ROOT/skills" -name "SKILL.md" -not -path "*/imported/*" -print0)
 
 echo "  Found ${#SKILLS[@]} skills"
 echo ""
+
+resolve_link_target() {
+    local link="$1"
+    python3 - "$link" <<'PY'
+import os
+import sys
+
+link = sys.argv[1]
+target = os.readlink(link)
+if not os.path.isabs(target):
+    target = os.path.join(os.path.dirname(link), target)
+print(os.path.realpath(target))
+PY
+}
 
 install_to_dir() {
     local platform_name="$1"
@@ -56,7 +70,7 @@ install_to_dir() {
         if $UNINSTALL; then
             if [[ -L "$link" ]]; then
                 local target
-                target=$(readlink "$link" 2>/dev/null || true)
+                target=$(resolve_link_target "$link")
                 if [[ "$target" == "$REPO_ROOT"* ]]; then
                     rm "$link"
                     count=$((count + 1))
@@ -66,7 +80,7 @@ install_to_dir() {
             # Remove existing symlink if it points to our repo
             if [[ -L "$link" ]]; then
                 local target
-                target=$(readlink "$link" 2>/dev/null || true)
+                target=$(resolve_link_target "$link")
                 if [[ "$target" == "$REPO_ROOT"* ]]; then
                     rm "$link"
                 fi
@@ -79,13 +93,6 @@ install_to_dir() {
         fi
     done
 
-    # Remove the old repo-level symlink
-    local repo_link="$target_dir/prometheus-skill-pack"
-    if [[ -L "$repo_link" ]] && ! $UNINSTALL; then
-        rm "$repo_link"
-        echo "  🔄 $platform_name: removed old repo-level symlink"
-    fi
-
     local action="installed"
     $UNINSTALL && action="removed"
     echo "  ✅ $platform_name: $count skills $action"
@@ -97,7 +104,11 @@ install_to_dir "cursor"      "$HOME/.cursor/skills"
 install_to_dir "codex"       "$HOME/.codex/skills"
 install_to_dir "gemini"      "$HOME/.gemini/skills"
 install_to_dir "roo"         "$HOME/.roo/skills"
-install_to_dir "windsurf"    "$HOME/.codeium/windsurf/skills"
+install_to_dir "windsurf"    "$HOME/.windsurf/skills"
+install_to_dir "windsurf-legacy" "$HOME/.codeium/windsurf/skills"
+install_to_dir "amp"         "$HOME/.agents/skills"
+install_to_dir "zed"         "$HOME/.config/zed/skills"
+install_to_dir "antigravity" "$HOME/.zed/skills"
 install_to_dir "cline"       "$HOME/.cline/skills"
 
 echo ""

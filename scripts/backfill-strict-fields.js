@@ -32,9 +32,14 @@ let skipped = 0;
 
 function findSkillMds(dir, results = []) {
   let entries;
-  try { entries = fs.readdirSync(dir, { withFileTypes: true }); } catch { return results; }
+  try {
+    entries = fs.readdirSync(dir, { withFileTypes: true });
+  } catch {
+    return results;
+  }
   for (const entry of entries) {
-    if (entry.name === 'imported' || entry.name === 'node_modules' || entry.name.startsWith('.')) continue;
+    if (entry.name === 'imported' || entry.name === 'node_modules' || entry.name.startsWith('.'))
+      continue;
     const full = path.join(dir, entry.name);
     if (entry.isDirectory()) findSkillMds(full, results);
     else if (entry.name === 'SKILL.md') results.push(full);
@@ -56,7 +61,10 @@ function parseFrontmatter(content) {
 function backfill(skillPath) {
   const content = fs.readFileSync(skillPath, 'utf-8');
   const parsed = parseFrontmatter(content);
-  if (!parsed) { skipped++; return; }
+  if (!parsed) {
+    skipped++;
+    return;
+  }
 
   let { fmText, body } = parsed;
   const category = inferCategory(skillPath);
@@ -67,7 +75,10 @@ function backfill(skillPath) {
   const hasTags = /^\s*tags:/m.test(fmText);
   const hasMetadata = /^metadata:/m.test(fmText);
 
-  if (hasLicense && hasVersion && hasTags) { skipped++; return; }
+  if (hasLicense && hasVersion && hasTags) {
+    skipped++;
+    return;
+  }
 
   // Add license before name: line if missing
   if (!hasLicense) {
@@ -94,7 +105,10 @@ function backfill(skillPath) {
     changed = true;
   }
 
-  if (!changed) { skipped++; return; }
+  if (!changed) {
+    skipped++;
+    return;
+  }
 
   const newContent = `---\n${fmText}\n---\n${body}`;
   if (!dryRun) fs.writeFileSync(skillPath, newContent, 'utf-8');
@@ -103,4 +117,6 @@ function backfill(skillPath) {
 }
 
 for (const p of findSkillMds(SKILLS_DIR)) backfill(p);
-console.log(`\nDone: ${modified} modified, ${skipped} unchanged.${dryRun ? ' (dry run — no files written)' : ''}`);
+console.log(
+  `\nDone: ${modified} modified, ${skipped} unchanged.${dryRun ? ' (dry run — no files written)' : ''}`
+);

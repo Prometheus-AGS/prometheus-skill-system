@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>ai.prometheus.surreal-memory-docker</string>
+
+  <key>ProgramArguments</key>
+  <array>
+    <string>__DOCKER_BIN__</string>
+    <string>compose</string>
+    <string>-f</string>
+    <string>__PROMETHEUS_ROOT__/tools/surreal-memory-server/docker-compose.yml</string>
+    <string>up</string>
+    <string>-d</string>
+  </array>
+
+  <key>WorkingDirectory</key>
+  <string>__PROMETHEUS_ROOT__/tools/surreal-memory-server</string>
+
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>HOME</key>
+    <string>__PROMETHEUS_HOME__</string>
+    <key>USER</key>
+    <string>__PROMETHEUS_USER__</string>
+    <key>PATH</key>
+    <string>__PROMETHEUS_PATH__</string>
+  </dict>
+
+  <key>RunAtLoad</key>
+  <false/>
+  <key>KeepAlive</key>
+  <false/>
+
+  <key>StandardOutPath</key>
+  <string>__PROMETHEUS_LOG_DIR__/surreal-memory-docker.stdout.log</string>
+  <key>StandardErrorPath</key>
+  <string>__PROMETHEUS_LOG_DIR__/surreal-memory-docker.stderr.log</string>
+</dict>
+</plist>

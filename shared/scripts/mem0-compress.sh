@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # mem0-compress: scheduled compression of prometheus-skill-pack mem0 memories
 # Invoked by launchd (macOS) or cron (Linux) weekly.
-# Reads: MCP surreal-memory compress_memories tool (via pk-cli bridge or curl)
+# Reads: pk-cli memory bridge, or a best-effort surreal-memory MCP HTTP call.
 # Writes: ~/.prometheus/mem0-compress.log
 
 set -euo pipefail
@@ -24,11 +24,12 @@ if command -v pk &>/dev/null; then
     log "Completed mem0 compress via pk-cli"
     exit 0
   fi
-  log "pk memory compress failed — falling back to MCP HTTP"
+  log "pk memory compress failed — falling back to surreal-memory MCP HTTP"
 fi
 
-# Fallback: direct HTTP call to surreal-memory MCP if running locally
-SURREAL_MCP_URL="${SURREAL_MEMORY_MCP_URL:-http://127.0.0.1:3001}"
+# Fallback: direct JSON-RPC call to the current surreal-memory HTTP MCP endpoint.
+# This is best-effort because some MCP clients require a negotiated session.
+SURREAL_MCP_URL="${SURREAL_MEMORY_URL:-http://localhost:23001/mcp/sse}"
 PAYLOAD=$(printf '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"compress_memories","arguments":{"user_id":"%s"}}}' "${SCOPE}")
 
 HTTP_STATUS=$(curl -s -o /tmp/mem0-compress-response.json -w "%{http_code}" \

@@ -102,6 +102,10 @@ The skill follows the Prometheus Meta-Prompting Orchestration loop adapted for i
 
 ### Startup
 
+0. **Check local service readiness** — If running inside this repository, detect the OS with `uname -s` before setup:
+   - On macOS (`Darwin`), use `bash scripts/prometheus-services.sh doctor` to inspect `surreal-memory` (`:23001`), `prometheus-knowledge` (`:8942`), and `forge-rs` (`:8943`). If `pk-cherry` or `forge-rs` are not loaded, run `bash scripts/prometheus-services.sh install` then `bash scripts/prometheus-services.sh load` as the logged-in user.
+   - On Linux, use systemd user services or cron guidance; do not install LaunchAgents.
+   - On other OSes, treat LaunchAgents as unsupported and continue with manual service probes.
 1. **Resolve provider** — Determine state backend (`scripts/state-resolve-provider.sh`)
 2. **Init/resume state** — Load or create named evolution (`scripts/state-init.sh`)
 3. **Load domain adapter** — Route to `references/domain/{domain}.md`

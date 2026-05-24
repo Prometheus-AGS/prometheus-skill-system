@@ -30,7 +30,8 @@
     "register:commands": "bash scripts/register-slash-commands.sh && node scripts/generate-commands.js",
     "unregister:commands": "bash scripts/register-slash-commands.sh --uninstall && node scripts/generate-commands.js --uninstall",
     "skill-matrix": "node scripts/skill-matrix.js",
-    "skill-matrix:ci": "node scripts/skill-matrix.js --ci"
+    "skill-matrix:ci": "node scripts/skill-matrix.js --ci",
+    "check:opencode": "tsc -p .opencode/tsconfig.json --noEmit"
   },
   "keywords": [
     "claude-code",
@@ -59,7 +60,12 @@
     "js-yaml": "^4.1.0",
     "ajv": "^8.12.0",
     "chokidar": "^3.6.0",
-    "tsx": "^4.7.0"
+    "tsx": "^4.7.0",
+    "typescript": "^5.4.0",
+    "@types/node": "^20.0.0",
+    "@opencode-ai/plugin": "1.14.29",
+    "@opencode-ai/sdk": "^1.14.29",
+    "zod": "^3.23.0"
   },
   "engines": {
     "node": ">=18.0.0"

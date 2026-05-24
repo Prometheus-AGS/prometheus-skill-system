@@ -6,12 +6,26 @@ import kbdToolDef from './tools/kbd.js';
 const evolveTool = tool({
   description: evolveToolDef.description,
   args: {
-    evolution_name: tool.schema.string().describe('Human-friendly name for cross-session retrieval'),
+    evolution_name: tool.schema
+      .string()
+      .describe('Human-friendly name for cross-session retrieval'),
     domain: tool.schema
-      .enum(['software', 'business', 'product', 'research', 'content', 'operations', 'compliance', 'generic'])
+      .enum([
+        'software',
+        'business',
+        'product',
+        'research',
+        'content',
+        'operations',
+        'compliance',
+        'generic',
+      ])
       .optional()
       .describe('Evolution domain'),
-    goals: tool.schema.array(tool.schema.string()).optional().describe('What are we trying to achieve?'),
+    goals: tool.schema
+      .array(tool.schema.string())
+      .optional()
+      .describe('What are we trying to achieve?'),
     phase: tool.schema
       .enum(['assess', 'analyze', 'plan', 'execute', 'reflect', 'full'])
       .optional()
@@ -29,7 +43,10 @@ const gitopsTool = tool({
     command: tool.schema
       .enum(['bootstrap', 'transform', 'argocd', 'kustomize'])
       .describe('GitOps sub-command'),
-    service: tool.schema.string().optional().describe('Service name (kebab-case) for kustomize overlays'),
+    service: tool.schema
+      .string()
+      .optional()
+      .describe('Service name (kebab-case) for kustomize overlays'),
     clouds: tool.schema
       .array(tool.schema.enum(['gke', 'aks', 'eks']))
       .optional()
@@ -47,7 +64,10 @@ const kbdTool = tool({
     command: tool.schema
       .enum(['init', 'assess', 'plan', 'execute', 'reflect', 'status', 'new-phase'])
       .describe('KBD sub-command to run'),
-    phase: tool.schema.string().optional().describe('Phase name (defaults to active waypoint phase)'),
+    phase: tool.schema
+      .string()
+      .optional()
+      .describe('Phase name (defaults to active waypoint phase)'),
     goals: tool.schema
       .array(tool.schema.string())
       .optional()

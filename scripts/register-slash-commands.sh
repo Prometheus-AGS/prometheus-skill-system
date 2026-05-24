@@ -41,26 +41,36 @@ result = subprocess.run(
 )
 
 skills = {}
+collisions = {}
 for path_str in sorted(result.stdout.strip().split("\n")):
     if not path_str:
         continue
     skill_md = Path(path_str)
-    skill_name = skill_md.parent.name
     content = skill_md.read_text()
     if not content.startswith("---"):
         continue
     try:
         end = content.index("---", 3)
         fm = content[3:end]
-        m = re.search(r"description:\s*>?\s*\n?(.*?)(?=\n[a-z]|\Z)", fm, re.DOTALL)
+        name_match = re.search(r"^name:\s*['\"]?([^'\"\n]+)['\"]?\s*$", fm, re.MULTILINE)
+        skill_name = name_match.group(1).strip() if name_match else skill_md.parent.name
+        desc_match = re.search(r"^description:\s*(?:>-\s*\n|>\s*\n|)?(.*?)(?=\n[a-zA-Z_-]+:|\Z)", fm, re.DOTALL | re.MULTILINE)
         desc = ""
-        if m:
-            desc = " ".join(m.group(1).split()).strip("'\"")[:200]
-        skills[skill_name] = desc or f"Prometheus skill: {skill_name}"
+        if desc_match:
+            desc = " ".join(desc_match.group(1).split()).strip("'\"")[:200]
+        if skill_name in skills:
+            collisions.setdefault(skill_name, []).append(str(skill_md.relative_to(REPO_ROOT)))
+            continue
+        skills[skill_name] = {
+            "description": desc or f"Prometheus skill: {skill_name}",
+            "relative_path": skill_md.relative_to(REPO_ROOT).as_posix(),
+        }
     except Exception as e:
         print(f"  WARN: could not parse {skill_md}: {e}", file=sys.stderr)
 
 print(f"  Found {len(skills)} skills")
+for skill_name, paths in sorted(collisions.items()):
+    print(f"  WARN: duplicate skill name skipped: {skill_name} ({', '.join(paths)})", file=sys.stderr)
 
 # ── opencode.json ─────────────────────────────────────────────────────────────
 OPENCODE_JSON = HOME / ".opencode" / "opencode.json"
@@ -93,12 +103,12 @@ if OPENCODE_JSON.exists():
             del cmds["evolve"]
 
         added = skipped = 0
-        for skill_name, desc in sorted(skills.items()):
+        for skill_name, meta in sorted(skills.items()):
             if skill_name in cmds and f"skills/{skill_name}/SKILL.md" in cmds[skill_name].get("template", ""):
                 skipped += 1
                 continue
             cmds[skill_name] = {
-                "description": desc,
+                "description": meta["description"],
                 "template": f"{{file:skills/{skill_name}/SKILL.md}}\n\n\$ARGUMENTS",
             }
             added += 1
@@ -124,11 +134,11 @@ if PROMPTS_DIR.parent.exists():
                 count += 1
         print(f"  codex: removed {count} prompt files")
     else:
-        for skill_name, desc in sorted(skills.items()):
+        for skill_name, meta in sorted(skills.items()):
             pf = PROMPTS_DIR / f"{skill_name}.md"
             skill_path = HOME / ".codex" / "skills" / skill_name / "SKILL.md"
             content = f"""---
-description: {desc}
+description: {meta['description']}
 argument-hint: task description or arguments
 ---
 
@@ -147,6 +157,6 @@ if UNINSTALL:
     print("✨ Slash commands unregistered")
 else:
     print("✨ Slash commands registered")
-    print("   opencode: /kbd-plan, /evolve, /gitops-bootstrap, ... (53 new commands)")
-    print("   codex:    /kbd-plan, /evolve, /gitops-bootstrap, ... (53 new prompts)")
+    print(f"   opencode: registered {len(skills)} command templates")
+    print(f"   codex:    registered {len(skills)} prompt files")
 PYEOF
