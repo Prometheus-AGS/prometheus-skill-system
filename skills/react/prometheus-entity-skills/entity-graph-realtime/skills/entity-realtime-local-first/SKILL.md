@@ -6,6 +6,7 @@ description: >
   Wire ElectricSQL shape streams and PGlite with createElectricAdapter (SyncAdapter): ElectricTableConfig,
   shapeStream subscription, PGlite listen path into ChangeSet, useLocalFirst and usePGliteQuery for reads,
   and sync-complete UX.
+compatibility: Requires @electric-sql/pglite ^0.2 and @electric-sql/client ^0.6 (ElectricSQL shape API)
 metadata:
   tags: [react, typescript, entity-management]
 ---
@@ -19,6 +20,8 @@ metadata:
 - You want graph updates driven from local DB notifications + shape inserts
 
 ## Building blocks (`src/adapters/electricsql.ts`)
+
+> **Tested API surface**: `@electric-sql/pglite ^0.2`, `@electric-sql/client ^0.6`. `ShapeStream.subscribe` signatures and `ShapeMessage` types may differ in future majors — verify against your installed version.
 
 - **`createElectricAdapter({ pglite, tables, onSynced? })`** → **`SyncAdapter`**
 - **`ElectricTableConfig`**: `type`, `table`, optional `where`, `idColumn` (default `"id"`), optional `normalize(row)`, **`shapeStream`**

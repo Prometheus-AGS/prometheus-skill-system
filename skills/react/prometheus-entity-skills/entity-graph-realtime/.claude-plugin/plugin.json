@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Add realtime sync to prometheus-entity-management: RealtimeManager, adapters (WebSocket, Supabase, Convex, GraphQL-WS), and ElectricSQL/PGlite local-first.",
   "author": "Prometheus AGS",
+  "license": "MIT",
   "repository": "prometheus/prometheus-entity-management",
   "skills": [
     "SKILL.md",

@@ -1,34 +1,29 @@
 # Current Waypoint
 
-**Phase**: `skill-pack-all-phases-2026-05-09`
-**Stage**: PLANNED — awaiting user approval before execution
-**Last updated**: 2026-05-09
+**Phase**: `pglite-certification-2026-05-25`  
+**Stage**: `plan_complete`  
+**Last updated**: 2026-05-25
 
 ## Summary
 
-Multi-phase plan written covering Phases 2–6 (36 changes). Phase 1 complete (6/6 goals MET). Awaiting user review and approval before executing any changes.
+3-change plan written to close non-blocking polish gaps from PGLite skills certification assessment. `entity-realtime-local-first` is already CERTIFIED on all 3 standards; these changes add discoverability and dependency freshness improvements.
 
 ## Next action
 
-User reviews `.kbd-orchestrator/phases/skill-pack-all-phases-2026-05-09/plan.md`. Upon approval, run:
-
 ```
-/kbd-execute skill-pack-all-phases-2026-05-09
+/kbd-execute pglite-certification-2026-05-25
 ```
 
-Starting point: Phase 2 pre-execution checklist (update STATUS.md, then run `/opsx:new` for 7 Phase 2 changes).
+## Change Queue (3 total, 0 done)
 
-## Phase 2 first change
-
-**change-001-sp008-per-project-kb-scoping** — P0, unblocks SP-019 + XC-005.
-Run in parallel with:
-- change-002-bdd005-testid-drift-detection
-- change-003-bdd007-candidate-drafts-directory (ssr-frontend)
-- change-004-sp016-skill-description-collision
-- change-005-sp001-claude-md-unification
+| # | Change ID | Status | Gaps |
+|---|-----------|--------|------|
+| 1 | change-pglite-001-skill-compatibility-and-version | **NEXT** | G1, G2 |
+| 2 | change-pglite-002-realtime-plugin-json-license | pending | G3 |
+| 3 | change-pglite-003-top-level-keywords-opencode-bump | pending | G4, G5 |
 
 ## References
 
-- [plan.md](phases/skill-pack-all-phases-2026-05-09/plan.md)
-- [assessment.md](phases/assess/all-phases-future-work-assessment.md)
-- [Phase 1 reflection](phases/skill-pack-upgrade-2026-05-09/reflection.md)
+- [plan.md](phases/pglite-certification-2026-05-25/plan.md)
+- [assessment.md](phases/assess/pglite-certification-assessment-2026-05-25.md)
+- OpenSpec changes: `openspec/changes/change-pglite-00[1-3]-*`

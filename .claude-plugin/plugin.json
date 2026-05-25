@@ -25,7 +25,9 @@
     "rust",
     "auditor",
     "clippy",
-    "cargo"
+    "cargo",
+    "pglite",
+    "electricsql"
   ],
   "skills": [
     "./skills/react/prometheus-entity-skills",

@@ -1,91 +1,35 @@
 {
-  "phase": "skill-pack-all-phases-2026-05-09",
-  "phase_started": "2026-05-09",
-  "phase_path": ".kbd-orchestrator/phases/skill-pack-all-phases-2026-05-09",
-  "stage": "reflect_complete",
-  "next_action": "/kbd-new-phase or review reflection.md and STATUS.md",
-  "assessment_path": ".kbd-orchestrator/phases/assess/all-phases-future-work-assessment.md",
-  "plan_path": ".kbd-orchestrator/phases/skill-pack-all-phases-2026-05-09/plan.md",
+  "phase": "pglite-certification-2026-05-25",
+  "phase_started": "2026-05-25",
+  "phase_path": ".kbd-orchestrator/phases/pglite-certification-2026-05-25",
+  "stage": "execute_complete",
+  "next_action": "/kbd-reflect pglite-certification-2026-05-25",
+  "assessment_path": ".kbd-orchestrator/phases/assess/pglite-certification-assessment-2026-05-25.md",
+  "plan_path": ".kbd-orchestrator/phases/pglite-certification-2026-05-25/plan.md",
   "active_change": null,
-  "last_completed": "Phase 1 complete (skill-pack-upgrade-2026-05-09)",
-  "previous_phase": "skill-pack-upgrade-2026-05-09",
+  "last_completed": "change-pglite-003-top-level-keywords-opencode-bump",
+  "previous_phase": "skill-pack-all-phases-2026-05-09",
   "change_backend": "openspec",
   "openspec_present": true,
   "openspec_root": "openspec",
   "evolver_bridge": null,
-  "changes_total": 36,
-  "changes_completed": 36,
+  "changes_total": 3,
+  "changes_completed": 3,
   "next_pending_change": null,
-  "exact_next_command": "/kbd-reflect skill-pack-all-phases-2026-05-09",
-  "fallback_command": "Read progress.json and proceed to reflect phase",
+  "exact_next_command": "/kbd-reflect pglite-certification-2026-05-25",
+  "fallback_command": "Read progress.json and write reflection.md for phase",
   "phase_structure": {
-    "phase-2-boundary-conditions": {
+    "pglite-certification": {
       "changes": [
-        "change-001-sp008-per-project-kb-scoping",
-        "change-002-bdd005-testid-drift-detection",
-        "change-003-bdd007-candidate-drafts-directory",
-        "change-004-sp016-skill-description-collision",
-        "change-005-sp001-claude-md-unification",
-        "change-006-sp014-subagent-fallback-verification",
-        "change-007-sp007-trace-capture-verification"
+        "change-pglite-001-skill-compatibility-and-version",
+        "change-pglite-002-realtime-plugin-json-license",
+        "change-pglite-003-top-level-keywords-opencode-bump"
       ],
-      "effort": "4-6 days",
-      "status": "pending"
-    },
-    "phase-3-foundational-architecture": {
-      "changes": [
-        "change-008-bdd008-pk-codegraph-extraction",
-        "change-009-sp019-librarian-event-persistence"
-      ],
-      "effort": "2-3 weeks",
-      "status": "pending"
-    },
-    "phase-4-selective-execution-payoff": {
-      "changes": [
-        "change-010-bdd009-runtime-coverage-ingestion",
-        "change-011-bdd010-impact-set-hash-runner",
-        "change-012-bdd011-environment-hash-augmentation",
-        "change-013-bdd012-two-phase-test-gates",
-        "change-014-sp020-memory-dual-store-separation"
-      ],
-      "effort": "2 weeks",
-      "status": "pending"
-    },
-    "phase-5-loop-closure": {
-      "changes": [
-        "change-015-bdd013-story-feature-contract",
-        "change-016-bdd014-feedback-aggregation-docs",
-        "change-017-bdd015-feedback-to-draft-scenario",
-        "change-018-sp002-pk-focus-extraction-quality",
-        "change-019-sp004-pk-focus-context-sensitive",
-        "change-020-sp010-strict-json-parser"
-      ],
-      "effort": "3-4 weeks",
-      "status": "pending"
-    },
-    "phase-6-operational-hardening": {
-      "changes": [
-        "change-021-sp012-pipeline-enforcement-hook",
-        "change-022-sp011-cedar-skill-edit-gate",
-        "change-023-sp018-pipeline-smoke-test",
-        "change-024-xc004-prometheus-doctor-loop-test",
-        "change-025-xc005-prometheus-init-overlay",
-        "change-026-bdd004-video-skill-productization",
-        "change-027-xc002-cross-model-qa-loop",
-        "change-029-sp021-mem0-compress-scheduled",
-        "change-030-sp009-pk-lint-scheduled",
-        "change-031-sp003-pk-focus-caching",
-        "change-032-sp005-pk-focus-inject-as-flag",
-        "change-033-sp017-slash-command-merge",
-        "change-034-bdd003-ipfs-pin-sweep",
-        "change-035-xc001-bug-fix-ledger",
-        "change-036-xc003-session-scratchpad"
-      ],
-      "effort": "2-3 weeks",
-      "status": "pending"
+      "effort": "1-2 hours",
+      "status": "in_progress"
     }
   },
   "tool": "claude-code",
   "model": "claude-sonnet-4-6",
-  "updated": "2026-05-09T23:00:00Z"
+  "updated": "2026-05-25T00:00:00Z"
 }
