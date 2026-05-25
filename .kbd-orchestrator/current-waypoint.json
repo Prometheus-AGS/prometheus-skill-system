@@ -2,8 +2,8 @@
   "phase": "pglite-certification-2026-05-25",
   "phase_started": "2026-05-25",
   "phase_path": ".kbd-orchestrator/phases/pglite-certification-2026-05-25",
-  "stage": "execute_complete",
-  "next_action": "/kbd-reflect pglite-certification-2026-05-25",
+  "stage": "reflect_complete",
+  "next_action": "Create PR for commit 430d67b, then /kbd-execute skill-pack-all-phases-2026-05-09 for Phase 2",
   "assessment_path": ".kbd-orchestrator/phases/assess/pglite-certification-assessment-2026-05-25.md",
   "plan_path": ".kbd-orchestrator/phases/pglite-certification-2026-05-25/plan.md",
   "active_change": null,
@@ -16,8 +16,8 @@
   "changes_total": 3,
   "changes_completed": 3,
   "next_pending_change": null,
-  "exact_next_command": "/kbd-reflect pglite-certification-2026-05-25",
-  "fallback_command": "Read progress.json and write reflection.md for phase",
+  "exact_next_command": "/kbd-execute skill-pack-all-phases-2026-05-09",
+  "fallback_command": "Read .kbd-orchestrator/phases/skill-pack-all-phases-2026-05-09/plan.md and start Phase 2",
   "phase_structure": {
     "pglite-certification": {
       "changes": [
