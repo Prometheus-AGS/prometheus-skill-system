@@ -1,3 +1,7 @@
+---
+description: Generate prioritized OpenSpec change list for current phase — produces plan.md
+---
+
 # /kbd-plan
 
 Generate a prioritized, ordered change list for the current KBD phase.

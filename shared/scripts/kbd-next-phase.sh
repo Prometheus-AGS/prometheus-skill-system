@@ -1,0 +1,291 @@
+#!/usr/bin/env bash
+# kbd-next-phase.sh — Seed and initialize the next KBD phase from reflection
+#
+# Usage: kbd-next-phase.sh [new-phase-name]
+#   If no argument: extracts suggested name from reflection.md "Recommended Next Phase" section.
+#   If argument provided: uses it as the new phase name (normalized to kebab-case).
+#
+# Reads:
+#   .kbd-orchestrator/current-waypoint.json         -> current (completed) phase + stage
+#   .kbd-orchestrator/phases/<phase>/reflection.md  -> next phase seed content
+#   .kbd-orchestrator/project.json                  -> project name
+#
+# Writes:
+#   .kbd-orchestrator/phases/<new-phase>/goals.md          (seeded goals)
+#   .kbd-orchestrator/phases/<new-phase>/progress.json     (skeleton)
+#   .kbd-orchestrator/current-waypoint.json                (updated)
+#   .kbd-orchestrator/current-waypoint.md                  (updated)
+#   .kbd-orchestrator/project.json                         (active_phase updated)
+
+set -euo pipefail
+
+PROPOSED_NAME="${1:-}"
+TIMESTAMP="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+DATE_SLUG="$(date +%Y-%m-%d)"
+
+# ── Locate project root (walk up until .kbd-orchestrator/ found) ───────────
+find_project_root() {
+  local dir="${PWD}"
+  while [[ "$dir" != "/" ]]; do
+    [[ -d "${dir}/.kbd-orchestrator" ]] && { echo "$dir"; return; }
+    dir="$(dirname "$dir")"
+  done
+  echo "${PWD}"
+}
+
+PROJECT_ROOT="$(find_project_root)"
+KBD_DIR="${PROJECT_ROOT}/.kbd-orchestrator"
+WAYPOINT_JSON="${KBD_DIR}/current-waypoint.json"
+WAYPOINT_MD="${KBD_DIR}/current-waypoint.md"
+PROJECT_JSON="${KBD_DIR}/project.json"
+
+# ── Validate waypoint exists ──────────────────────────────────────────────
+if [[ ! -f "$WAYPOINT_JSON" ]]; then
+  echo ""
+  echo "[kbd-next-phase] ERROR: .kbd-orchestrator/current-waypoint.json not found."
+  echo "  Run /kbd-init first to initialize KBD for this project."
+  exit 1
+fi
+
+# ── Read current waypoint ─────────────────────────────────────────────────
+CURRENT_PHASE="$(python3 -c "import json; d=json.load(open('$WAYPOINT_JSON')); print(d.get('phase','unknown'))" 2>/dev/null || echo "unknown")"
+CURRENT_STAGE="$(python3 -c "import json; d=json.load(open('$WAYPOINT_JSON')); print(d.get('stage','unknown'))" 2>/dev/null || echo "unknown")"
+CHANGES_TOTAL="$(python3 -c "import json; d=json.load(open('$WAYPOINT_JSON')); print(d.get('changes_total',0))" 2>/dev/null || echo 0)"
+CHANGES_COMPLETED="$(python3 -c "import json; d=json.load(open('$WAYPOINT_JSON')); print(d.get('changes_completed',0))" 2>/dev/null || echo 0)"
+
+PROJECT_NAME="unknown"
+if [[ -f "$PROJECT_JSON" ]]; then
+  PROJECT_NAME="$(python3 -c "import json; d=json.load(open('$PROJECT_JSON')); print(d.get('name','unknown'))" 2>/dev/null || echo "unknown")"
+fi
+
+# ── Warn if reflection not complete ───────────────────────────────────────
+if [[ "$CURRENT_STAGE" != "reflect_complete" ]]; then
+  echo ""
+  echo "[kbd-next-phase] WARNING: Current stage is '${CURRENT_STAGE}', not 'reflect_complete'."
+  echo "  It is recommended to run /kbd-reflect before continuing to the next phase."
+  echo "  Proceeding anyway -- next phase will be seeded from whatever reflection content exists."
+  echo ""
+fi
+
+# ── Read reflection for seed content ─────────────────────────────────────
+REFLECTION="${KBD_DIR}/phases/${CURRENT_PHASE}/reflection.md"
+SEED_CONTENT=""
+SEED_PHASE_NAME=""
+
+if [[ -f "$REFLECTION" ]]; then
+  # Extract content under "Recommended Next Phase", "Next Phase Seed", or "Next Phase" H2
+  SEED_CONTENT="$(python3 << 'PYEOF'
+import re, sys
+
+reflection_path = "${REFLECTION}"
+
+try:
+    with open(reflection_path) as f:
+        content = f.read()
+except Exception:
+    print("")
+    sys.exit(0)
+
+# Try progressively looser patterns
+patterns = [
+    r'^##\s+Recommended Next Phase(?:\s+Seed)?\s*$',
+    r'^##\s+Next Phase Seed\s*$',
+    r'^##\s+Next Phase\s*$',
+    r'^##.*[Nn]ext.*[Pp]hase',
+    r'^##.*[Rr]ecommended',
+]
+
+match = None
+for pat in patterns:
+    matches = list(re.finditer(pat, content, re.MULTILINE))
+    if matches:
+        match = matches[-1]
+        break
+
+if not match:
+    print("")
+    sys.exit(0)
+
+start = match.end()
+# Find next H2 heading or end of file
+next_h2 = re.search(r'^##\s', content[start:], re.MULTILINE)
+end = start + next_h2.start() if next_h2 else len(content)
+print(content[start:end].strip())
+PYEOF
+)"
+
+  # Try to extract a phase name from the seed content
+  SEED_PHASE_NAME="$(echo "$SEED_CONTENT" | python3 -c "
+import sys, re
+text = sys.stdin.read()
+# Look for backtick or bold phase-name
+m = re.search(r'[\`\*]{1,2}(phase-[a-z0-9][a-z0-9-]*)[\`\*]{0,2}', text, re.IGNORECASE)
+if m:
+    print(m.group(1))
+    sys.exit(0)
+# Look for standalone slug
+m = re.search(r'\b(phase-[a-z0-9][a-z0-9-]*)\b', text)
+if m:
+    print(m.group(1))
+    sys.exit(0)
+print('')
+" 2>/dev/null || echo "")"
+else
+  echo ""
+  echo "[kbd-next-phase] WARNING: No reflection.md found at:"
+  echo "  ${REFLECTION}"
+  echo "  Run /kbd-reflect first to generate a reflection, then re-run /kbd-next-phase."
+  echo "  Continuing with empty seed content."
+  echo ""
+fi
+
+# ── Determine new phase name ───────────────────────────────────────────────
+if [[ -n "$PROPOSED_NAME" ]]; then
+  NEW_PHASE="$PROPOSED_NAME"
+elif [[ -n "$SEED_PHASE_NAME" ]]; then
+  NEW_PHASE="${SEED_PHASE_NAME}-${DATE_SLUG}"
+else
+  NEW_PHASE="phase-next-${DATE_SLUG}"
+fi
+
+# Normalize: lowercase, spaces -> hyphens, strip non-[a-z0-9-] chars
+NEW_PHASE="$(echo "$NEW_PHASE" | tr '[:upper:]' '[:lower:]' | tr ' ' '-' | tr -cd 'a-z0-9-')"
+
+# ── Guard: phase must not already exist ───────────────────────────────────
+NEW_PHASE_DIR="${KBD_DIR}/phases/${NEW_PHASE}"
+if [[ -d "$NEW_PHASE_DIR" ]]; then
+  echo ""
+  echo "[kbd-next-phase] ERROR: Phase '${NEW_PHASE}' already exists:"
+  echo "  ${NEW_PHASE_DIR}"
+  echo "  Choose a different name or resume it with: /kbd-assess ${NEW_PHASE}"
+  exit 1
+fi
+
+# ── Create phase directory and seed files ─────────────────────────────────
+mkdir -p "$NEW_PHASE_DIR"
+
+# goals.md — seeded from reflection
+cat > "${NEW_PHASE_DIR}/goals.md" << GOALS_EOF
+# Goals: ${NEW_PHASE}
+
+Seeded from: \`${CURRENT_PHASE}/reflection.md\`
+Created: ${TIMESTAMP}
+
+## Seeded Goals
+
+${SEED_CONTENT:-"(No seed content found in reflection -- add goals manually before running /kbd-assess)"}
+
+---
+
+## Instructions
+
+Review and refine the goals above before running \`/kbd-assess\`.
+Add, remove, or clarify as needed. When ready:
+
+\`\`\`
+/kbd-assess ${NEW_PHASE}
+\`\`\`
+GOALS_EOF
+
+# Skeleton progress.json
+cat > "${NEW_PHASE_DIR}/progress.json" << PROGRESS_EOF
+{
+  "phase": "${NEW_PHASE}",
+  "started": "${TIMESTAMP}",
+  "last_updated": "${TIMESTAMP}",
+  "last_updated_by": "kbd-next-phase",
+  "assessment_complete": false,
+  "plan_complete": false,
+  "execution_dispatched": false,
+  "reflection_complete": false,
+  "changes_total": 0,
+  "changes_completed": 0,
+  "changes": {}
+}
+PROGRESS_EOF
+
+# ── Update current-waypoint.json ─────────────────────────────────────────
+python3 << PYEOF
+import json
+
+waypoint = json.load(open("${WAYPOINT_JSON}"))
+waypoint.update({
+    "phase": "${NEW_PHASE}",
+    "stage": "assess_pending",
+    "previous_phase": "${CURRENT_PHASE}",
+    "last_updated": "${TIMESTAMP}",
+    "last_updated_by": "kbd-next-phase",
+    "exact_next_command": "/kbd-assess",
+    "fallback_command": "Read .kbd-orchestrator/phases/${NEW_PHASE}/goals.md to review seeded goals",
+    "active_change": None,
+    "next_pending_change": None,
+    "changes_total": 0,
+    "changes_completed": 0,
+})
+json.dump(waypoint, open("${WAYPOINT_JSON}", "w"), indent=2)
+PYEOF
+
+# ── Update project.json active_phase ─────────────────────────────────────
+if [[ -f "$PROJECT_JSON" ]]; then
+  python3 << PYEOF
+import json
+p = json.load(open("${PROJECT_JSON}"))
+p["active_phase"] = "${NEW_PHASE}"
+json.dump(p, open("${PROJECT_JSON}", "w"), indent=2)
+PYEOF
+fi
+
+# ── Update current-waypoint.md ────────────────────────────────────────────
+cat > "$WAYPOINT_MD" << WAYPT_EOF
+# Current Waypoint
+
+**Phase**: \`${NEW_PHASE}\`
+**Stage**: \`assess_pending\`
+**Created**: ${TIMESTAMP}
+**Previous phase**: \`${CURRENT_PHASE}\`
+
+## Summary
+
+New phase seeded from \`${CURRENT_PHASE}/reflection.md\`.
+Goals are pre-loaded in \`.kbd-orchestrator/phases/${NEW_PHASE}/goals.md\`.
+Review the goals, then run \`/kbd-assess\` to begin.
+
+## Next action
+
+\`\`\`
+/kbd-assess ${NEW_PHASE}
+\`\`\`
+
+## References
+
+- [goals.md](phases/${NEW_PHASE}/goals.md)
+- [Previous reflection](phases/${CURRENT_PHASE}/reflection.md)
+WAYPT_EOF
+
+# ── Confirmation banner ───────────────────────────────────────────────────
+PREV_GOALS_MET="${CHANGES_COMPLETED}/${CHANGES_TOTAL}"
+[[ "$CHANGES_TOTAL" -eq 0 ]] && PREV_GOALS_MET="(see reflection)"
+
+echo ""
+echo "=================================================================="
+printf "KBD NEXT PHASE -- %s\n" "$PROJECT_NAME"
+echo ""
+echo "Previous phase:  ${CURRENT_PHASE}"
+echo "  Goals met:     ${PREV_GOALS_MET}"
+echo ""
+echo "New phase:       ${NEW_PHASE}"
+echo "  Goals file:    .kbd-orchestrator/phases/${NEW_PHASE}/goals.md"
+echo "  Seeded from:   ${CURRENT_PHASE}/reflection.md"
+echo ""
+if [[ -n "$SEED_CONTENT" ]]; then
+  echo "Seeded content preview:"
+  echo "$SEED_CONTENT" | head -8 | sed 's/^/  /'
+  echo ""
+fi
+echo "Waypoint:        stage=assess_pending  next=/kbd-assess"
+echo ""
+echo "Run /kbd-assess to start the new phase."
+echo "=================================================================="
+echo ""
+
+exit 0

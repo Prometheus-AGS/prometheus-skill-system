@@ -166,16 +166,21 @@ are invocable on-demand. Team-shareable via git. Wave 8 (2025) added full workfl
 
 ## Command Scope Matrix
 
-| Command           | Antigravity | Claude Code | Cursor | Cline               | OpenCode | Windsurf |
-| ----------------- | ----------- | ----------- | ------ | ------------------- | -------- | -------- |
-| `/kbd-init`       | ✅          | ✅          | ✅     | ✅ (`/kbd-init.md`) | ✅       | ✅       |
-| `/kbd-assess`     | ✅          | ✅          | ✅     | ✅                  | ✅       | ✅       |
-| `/kbd-plan`       | ✅          | ✅          | ✅     | ✅                  | ✅       | ✅       |
-| `/kbd-execute`    | ✅          | ✅          | ✅     | ✅                  | ✅       | ✅       |
-| `/kbd-reflect`    | ✅          | ✅          | ✅     | ✅                  | ✅       | ✅       |
-| `/kbd-status`     | ✅          | ✅          | ✅     | ✅                  | ✅       | ✅       |
-| `/kbd-new-phase`  | ✅          | ✅          | ✅     | ✅                  | ✅       | ✅       |
-| `/kbd-full-phase` | ✅          | ✅          | ✅     | ✅                  | ✅       | ✅       |
+| Command            | Antigravity | Claude Code | Cursor | Cline               | OpenCode | Windsurf | Codex               |
+| ------------------ | ----------- | ----------- | ------ | ------------------- | -------- | -------- | ------------------- |
+| `/kbd-init`        | ✅          | ✅          | ✅     | ✅ (`/kbd-init.md`) | ✅       | ✅       | —                   |
+| `/kbd-assess`      | ✅          | ✅          | ✅     | ✅                  | ✅       | ✅       | —                   |
+| `/kbd-plan`        | ✅          | ✅          | ✅     | ✅                  | ✅       | ✅       | —                   |
+| `/kbd-execute`     | ✅          | ✅          | ✅     | ✅                  | ✅       | ✅       | —                   |
+| `/kbd-reflect`     | ✅          | ✅          | ✅     | ✅                  | ✅       | ✅       | —                   |
+| `/kbd-status`      | ✅          | ✅          | ✅     | ✅                  | ✅       | ✅       | —                   |
+| `/kbd-new-phase`   | ✅          | ✅          | ✅     | ✅                  | ✅       | ✅       | —                   |
+| `/kbd-full-phase`  | ✅          | ✅          | ✅     | ✅                  | ✅       | ✅       | —                   |
+| `/kbd-next-phase`  | ✅          | ✅          | ✅     | ✅                  | ✅       | ✅       | ✅ (SKILL.md)       |
+
+> **Codex note**: Codex does not use flat command `.md` files. KBD commands are registered as
+> skills in `.codex/skills/<name>/SKILL.md`. Currently only `kbd-next-phase` has a Codex skill
+> entry. The other KBD commands can be added as needed following the same pattern.
 
 ---
 

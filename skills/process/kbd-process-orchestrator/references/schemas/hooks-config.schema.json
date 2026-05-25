@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "KBD Hooks Config",
+  "description": "User-configurable hooks fired at begin/end of each KBD phase step (assess, plan, execute, reflect). Place this file at .kbd-orchestrator/hooks-config.json in your project.",
+  "type": "object",
+  "required": ["hooks"],
+  "properties": {
+    "description": {
+      "type": "string",
+      "description": "Optional human-readable description of this config file"
+    },
+    "hooks": {
+      "type": "array",
+      "description": "List of hook entries. Each entry fires when its event pattern matches the current step and event.",
+      "items": {
+        "type": "object",
+        "required": ["id", "event", "action"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier for this hook entry (used in log output)"
+          },
+          "description": {
+            "type": "string",
+            "description": "Human-readable description of what this hook does"
+          },
+          "event": {
+            "type": "string",
+            "description": "Event pattern: '<step>:<event>' where step is assess|plan|execute|reflect|* and event is begin|end|*. Examples: 'assess:begin', '*:end', 'reflect:*', '*:*'"
+          },
+          "enabled": {
+            "type": "boolean",
+            "default": true,
+            "description": "Set false to disable this hook without removing it"
+          },
+          "action": {
+            "type": "object",
+            "required": ["type", "command"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["command"],
+                "description": "Action type. Currently only 'command' (shell) is supported."
+              },
+              "command": {
+                "type": "string",
+                "description": "Shell command to run. Variable substitution is supported for the following env vars: ${PHASE}, ${STEP}, ${EVENT}, ${KBD_PROJECT_NAME}, ${KBD_PROJECT_ROOT}, ${CHANGES_TOTAL}, ${CHANGES_COMPLETED}, ${LAST_UPDATED_BY}, ${TIMESTAMP}. All other environment variables from the shell session are also available."
+              },
+              "timeout": {
+                "type": "integer",
+                "default": 15,
+                "description": "Maximum seconds to wait for the command to complete. Commands that exceed this are killed and reported as timed-out."
+              },
+              "on_failure": {
+                "type": "string",
+                "enum": ["warn", "error", "ignore"],
+                "default": "warn",
+                "description": "warn: print a warning and continue (default) | error: print error and exit with code 1 (blocks the hook script) | ignore: silently continue on non-zero exit"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

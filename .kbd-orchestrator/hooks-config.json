@@ -1,0 +1,66 @@
+{
+  "$schema": "./.claude-plugin/skills/process/kbd-process-orchestrator/references/schemas/hooks-config.schema.json",
+  "description": "User-configurable hooks fired at begin/end of each KBD phase step. Edit to add your own actions. Set enabled=true to activate an entry.",
+  "hooks": [
+    {
+      "id": "example-slack-reflect-end",
+      "description": "Post a Slack message when a phase reflection completes. Set SLACK_WEBHOOK_URL in your environment.",
+      "event": "reflect:end",
+      "enabled": false,
+      "action": {
+        "type": "command",
+        "command": "curl -s -X POST \"${SLACK_WEBHOOK_URL}\" -H 'Content-Type: application/json' -d '{\"text\":\"KBD reflect complete: ${PHASE} -- ${KBD_PROJECT_NAME}\"}'",
+        "timeout": 10,
+        "on_failure": "warn"
+      }
+    },
+    {
+      "id": "example-custom-activity-log",
+      "description": "Append every begin/end event to a custom log file at ~/kbd-activity.log",
+      "event": "*:*",
+      "enabled": false,
+      "action": {
+        "type": "command",
+        "command": "echo \"[${TIMESTAMP}] ${KBD_PROJECT_NAME} | ${PHASE} | kbd-${STEP} | ${EVENT}\" >> ~/kbd-activity.log",
+        "timeout": 5,
+        "on_failure": "warn"
+      }
+    },
+    {
+      "id": "example-git-tag-reflect",
+      "description": "Create a lightweight git tag at the end of each reflect step",
+      "event": "reflect:end",
+      "enabled": false,
+      "action": {
+        "type": "command",
+        "command": "git -C \"${KBD_PROJECT_ROOT}\" tag \"kbd/${PHASE}/reflected\" 2>/dev/null || true",
+        "timeout": 5,
+        "on_failure": "ignore"
+      }
+    },
+    {
+      "id": "example-macos-notification",
+      "description": "macOS notification when any phase step completes (macOS only)",
+      "event": "*:end",
+      "enabled": false,
+      "action": {
+        "type": "command",
+        "command": "osascript -e 'display notification \"kbd-${STEP} complete\" with title \"KBD -- ${KBD_PROJECT_NAME}\"' 2>/dev/null || true",
+        "timeout": 5,
+        "on_failure": "ignore"
+      }
+    },
+    {
+      "id": "example-assess-begin-reminder",
+      "description": "Print a reminder to check the assessment prompt before starting assessment",
+      "event": "assess:begin",
+      "enabled": false,
+      "action": {
+        "type": "command",
+        "command": "echo '[kbd] Reminder: check .kbd-orchestrator/project.json active_phase before assessing'",
+        "timeout": 3,
+        "on_failure": "ignore"
+      }
+    }
+  ]
+}

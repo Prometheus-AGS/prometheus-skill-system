@@ -1,3 +1,7 @@
+---
+description: Generate phase reflection report and seed next phase
+---
+
 # /kbd-reflect
 
 Generate a phase reflection report and seed the next phase.

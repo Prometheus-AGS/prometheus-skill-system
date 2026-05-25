@@ -1,3 +1,7 @@
+---
+description: Assess codebase against active phase goals — produces assessment.md
+---
+
 # /kbd-assess
 
 Assess the codebase against the active phase goals.

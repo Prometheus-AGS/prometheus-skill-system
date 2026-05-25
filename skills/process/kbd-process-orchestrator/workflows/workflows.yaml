@@ -84,3 +84,12 @@ workflows:
         description: "Phase name (default: active_phase)"
     skill: null
     prompt_file: null
+
+  - name: kbd-next-phase
+    description: "Continue to the next KBD phase, seeded automatically from the previous reflection"
+    args:
+      - name: phase_name
+        optional: true
+        description: "New phase name (default: extracted from reflection's 'Recommended Next Phase' section)"
+    skill: skills/kbd-next-phase/SKILL.md
+    prompt_file: null

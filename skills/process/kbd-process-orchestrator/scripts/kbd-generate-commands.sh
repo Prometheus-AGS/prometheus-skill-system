@@ -22,7 +22,17 @@
 set -euo pipefail
 
 SKILL_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-PROJECT_ROOT="$(cd "${SKILL_DIR}/../../../" && pwd)"
+# Resolve project root: walk up from SKILL_DIR until .kbd-orchestrator/ or .git is found
+_find_project_root() {
+  local dir="$1"
+  while [[ "$dir" != "/" ]]; do
+    [[ -d "${dir}/.kbd-orchestrator" || -d "${dir}/.git" ]] && { echo "$dir"; return; }
+    dir="$(dirname "$dir")"
+  done
+  # Final fallback: 3 levels up from SKILL_DIR (original behaviour for .agent/skills/ layout)
+  cd "${SKILL_DIR}/../../../" && pwd
+}
+PROJECT_ROOT="$(_find_project_root "$SKILL_DIR")"
 WORKFLOWS_YAML="${SKILL_DIR}/workflows/workflows.yaml"
 TEMPLATES_DIR="${SKILL_DIR}/workflows/templates"
 DRY_RUN=false
