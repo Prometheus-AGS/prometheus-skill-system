@@ -179,6 +179,19 @@ enum Commands {
         #[command(subcommand)]
         action: SycophancyAction,
     },
+
+    /// Detect machine setup gaps and interactively install missing components
+    Setup {
+        /// Assume yes to all install prompts (CI/automation mode)
+        #[arg(long)]
+        non_interactive: bool,
+        /// Show what would be installed without executing
+        #[arg(long)]
+        dry_run: bool,
+        /// Report status only — no install prompts
+        #[arg(long)]
+        check: bool,
+    },
 }
 
 #[derive(Subcommand)]
@@ -333,5 +346,8 @@ async fn main() -> Result<()> {
                 commands::sycophancy::correct(&file, &strictness)
             }
         },
+        Commands::Setup { non_interactive, dry_run, check } => {
+            commands::setup::run(non_interactive, dry_run, check)
+        }
     }
 }

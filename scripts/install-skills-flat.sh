@@ -110,6 +110,7 @@ install_to_dir "amp"         "$HOME/.agents/skills"
 install_to_dir "zed"         "$HOME/.config/zed/skills"
 install_to_dir "antigravity" "$HOME/.zed/skills"
 install_to_dir "cline"       "$HOME/.cline/skills"
+install_to_dir "zed"         "$HOME/.config/zed/skills"
 
 echo ""
 echo "✨ Done — skills available as slash commands on all platforms"

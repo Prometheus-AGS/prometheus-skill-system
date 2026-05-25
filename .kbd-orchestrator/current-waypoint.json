@@ -1,35 +1,38 @@
 {
-  "phase": "pglite-certification-2026-05-25",
+  "phase": "machine-installation-2026-05-25",
   "phase_started": "2026-05-25",
-  "phase_path": ".kbd-orchestrator/phases/pglite-certification-2026-05-25",
+  "phase_path": ".kbd-orchestrator/phases/machine-installation-2026-05-25",
   "stage": "reflect_complete",
-  "next_action": "Create PR for commit 430d67b, then /kbd-execute skill-pack-all-phases-2026-05-09 for Phase 2",
-  "assessment_path": ".kbd-orchestrator/phases/assess/pglite-certification-assessment-2026-05-25.md",
-  "plan_path": ".kbd-orchestrator/phases/pglite-certification-2026-05-25/plan.md",
+  "next_action": "Commit all changes from this phase, then run /kbd-new-phase to start the next phase",
+  "assessment_path": ".kbd-orchestrator/phases/assess/machine-installation-assessment-2026-05-25.md",
+  "plan_path": ".kbd-orchestrator/phases/machine-installation-2026-05-25/plan.md",
+  "reflection_path": ".kbd-orchestrator/phases/machine-installation-2026-05-25/reflection.md",
   "active_change": null,
-  "last_completed": "change-pglite-003-top-level-keywords-opencode-bump",
-  "previous_phase": "skill-pack-all-phases-2026-05-09",
+  "last_completed": "change-install-005-prometheus-setup-command",
+  "previous_phase": "pglite-certification-2026-05-25",
   "change_backend": "openspec",
   "openspec_present": true,
   "openspec_root": "openspec",
   "evolver_bridge": null,
-  "changes_total": 3,
-  "changes_completed": 3,
+  "changes_total": 5,
+  "changes_completed": 5,
   "next_pending_change": null,
-  "exact_next_command": "/kbd-execute skill-pack-all-phases-2026-05-09",
-  "fallback_command": "Read .kbd-orchestrator/phases/skill-pack-all-phases-2026-05-09/plan.md and start Phase 2",
+  "exact_next_command": "git add -p && git commit (stage and commit all phase changes)",
+  "fallback_command": "Read .kbd-orchestrator/phases/machine-installation-2026-05-25/reflection.md to review what was accomplished",
   "phase_structure": {
-    "pglite-certification": {
+    "machine-installation-2026-05-25": {
       "changes": [
-        "change-pglite-001-skill-compatibility-and-version",
-        "change-pglite-002-realtime-plugin-json-license",
-        "change-pglite-003-top-level-keywords-opencode-bump"
+        "change-install-001-build-and-install-binaries",
+        "change-install-002-launchd-plists-forge-and-pk",
+        "change-install-003-install-skills-all-platforms",
+        "change-install-004-wire-mcp-all-tools",
+        "change-install-005-prometheus-setup-command"
       ],
-      "effort": "1-2 hours",
-      "status": "in_progress"
+      "effort": "3-4 hours",
+      "status": "complete"
     }
   },
   "tool": "claude-code",
   "model": "claude-sonnet-4-6",
-  "updated": "2026-05-25T00:00:00Z"
+  "updated": "2026-05-25T12:00:00Z"
 }

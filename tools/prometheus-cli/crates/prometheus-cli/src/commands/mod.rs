@@ -1,6 +1,7 @@
 pub mod audit;
 pub mod build;
 pub mod doctor;
+pub mod setup;
 pub mod evolve;
 pub mod generate;
 pub mod install;
