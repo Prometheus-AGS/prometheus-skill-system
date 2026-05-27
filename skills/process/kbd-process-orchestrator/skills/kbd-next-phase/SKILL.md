@@ -68,3 +68,21 @@ Emit to plain response text — no tool call needed.
 /kbd-next-phase skill-pack-upgrade-phase-2     # explicit name
 /kbd-next-phase phase-3-realtime-2026-05-26    # explicit name with date slug
 ```
+
+## Hook integration
+
+`/kbd-next-phase` is the canonical phase-bracket transition. It MUST
+fire `phase:before` for the new phase exactly once, after the new phase
+directory is created and `current-waypoint.json` is flipped to it. (The
+*closing* `phase:after` is the responsibility of `/kbd-reflect`, which
+fires it for the previous phase before this skill is invoked.)
+
+```sh
+. "$KBD_ORCHESTRATOR_ROOT/shared/lib/waypoint.sh"
+. "$KBD_ORCHESTRATOR_ROOT/shared/lib/hooks.sh"
+
+# … seed new phase from previous reflection, flip waypoint …
+kbd_hooks_fire phase before "$new_phase_name" 1 1
+```
+
+See orchestrator `SKILL.md` → "Hooks" for taxonomy and payload.

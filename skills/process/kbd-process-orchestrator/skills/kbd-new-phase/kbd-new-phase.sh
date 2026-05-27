@@ -1,0 +1,156 @@
+#!/usr/bin/env bash
+# skills/kbd-new-phase/kbd-new-phase.sh — Manually create a new top-level KBD phase.
+#
+# Usage:
+#   kbd-new-phase.sh <name> [goal-1] [goal-2] …
+#
+# Validates the name, refuses collisions, writes goals.md and progress.json
+# atomically, flips current-waypoint.json + project.json activePhase, fires
+# phase:before via shared/lib/hooks.sh, and prints a confirmation banner.
+#
+# POSIX bash 3.2 compatible (macOS default). Requires jq.
+
+set -euo pipefail
+
+die() { printf 'kbd-new-phase: %s\n' "$*" >&2; exit 1; }
+warn() { printf 'kbd-new-phase: warn: %s\n' "$*" >&2; }
+
+name="${1:-}"
+[[ -n "$name" ]] || die "usage: kbd-new-phase.sh <name> [goal-1] [goal-2] …"
+shift
+goals=("$@")
+
+# ---------- Validation ----------
+case "$name" in
+  *..*) die "invalid name: parent traversal not allowed" ;;
+  */*)  die "invalid name: slashes not allowed" ;;
+  .|..) die "invalid name: '$name'" ;;
+esac
+[[ "$name" =~ ^[a-z0-9][a-z0-9._-]*$ ]] \
+  || die "invalid name '$name': must match ^[a-z0-9][a-z0-9._-]*$"
+
+command -v jq >/dev/null 2>&1 || die "jq is required (already a documented orchestrator dependency)"
+
+wp=".kbd-orchestrator/current-waypoint.json"
+pj=".kbd-orchestrator/project.json"
+phase_dir=".kbd-orchestrator/phases/$name"
+
+# Validate waypoint BEFORE creating any on-disk state (design D7).
+if [[ -f "$wp" ]]; then
+  jq -e . "$wp" >/dev/null 2>&1 \
+    || die "malformed waypoint at $wp — fix by hand before retrying (no files were modified)"
+fi
+
+# Refuse name collisions BEFORE creating any on-disk state.
+[[ -e "$phase_dir" ]] && die "phase already exists: $phase_dir (try /kbd-next-phase or pick another name)"
+
+now="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+
+# ---------- 1. Phase directory + goals.md ----------
+mkdir -p "$phase_dir"
+
+{
+  printf '# Goals\n\n'
+  if [[ ${#goals[@]} -gt 0 ]]; then
+    for g in "${goals[@]}"; do printf -- '- %s\n' "$g"; done
+  else
+    printf -- '<!-- TBD: enumerate goals before /kbd-assess -->\n'
+  fi
+} > "$phase_dir/goals.md.tmp"
+mv -f "$phase_dir/goals.md.tmp" "$phase_dir/goals.md"
+
+# ---------- 2. progress.json ----------
+source_tool=""
+if [[ -f "$wp" ]]; then
+  source_tool="$(jq -r '.sourceTool // ""' "$wp" 2>/dev/null || true)"
+fi
+[[ -n "$source_tool" ]] || source_tool="unknown"
+
+jq -n \
+  --arg phase "$name" --arg src "$source_tool" --arg now "$now" '
+{
+  phase: $phase,
+  parentPhase: null,
+  childPhases: [],
+  childPointer: null,
+  assessment_complete: false,
+  plan_complete: false,
+  execute_complete: false,
+  reflect_complete: false,
+  changes_total: 0,
+  changes_completed: 0,
+  completed_changes: [],
+  active_change: null,
+  blocked_changes: [],
+  sourceTool: $src,
+  createdBy: "kbd-new-phase",
+  updatedAt: $now
+}' > "$phase_dir/progress.json.tmp"
+mv -f "$phase_dir/progress.json.tmp" "$phase_dir/progress.json"
+
+# ---------- 3. Waypoint flip ----------
+mkdir -p "$(dirname "$wp")"
+if [[ -f "$wp" ]]; then
+  prior_phase="$(jq -r '.phase // ""' "$wp" 2>/dev/null || printf '')"
+  jq --arg phase "$name" --arg prev "$prior_phase" --arg now "$now" '
+    .previousPhase    = (if $prev == "" then null else $prev end) |
+    .phase            = $phase |
+    .change           = null |
+    .status           = "assessment_ready" |
+    .currentTask      = ("run kbd-assess for " + $phase) |
+    .nextPendingChange= null |
+    .exactNextCommand = ("/kbd-assess " + $phase) |
+    .parentPhase      = null |
+    .childPhases      = [] |
+    .childPointer     = null |
+    .updatedAt        = $now
+  ' "$wp" > "$wp.tmp"
+else
+  jq -n --arg phase "$name" --arg now "$now" '
+    {
+      phase: $phase,
+      previousPhase: null,
+      change: null,
+      status: "assessment_ready",
+      currentTask: ("run kbd-assess for " + $phase),
+      nextPendingChange: null,
+      sourceTool: "unknown",
+      exactNextCommand: ("/kbd-assess " + $phase),
+      parentPhase: null,
+      childPhases: [],
+      childPointer: null,
+      updatedAt: $now
+    }' > "$wp.tmp"
+fi
+mv -f "$wp.tmp" "$wp"
+
+# ---------- 4. project.json activePhase flip ----------
+if [[ -f "$pj" ]]; then
+  jq --arg phase "$name" --arg now "$now" '.activePhase = $phase | .updatedAt = $now' "$pj" > "$pj.tmp"
+  mv -f "$pj.tmp" "$pj"
+else
+  warn "$pj missing — run /kbd-init to seed it"
+fi
+
+# ---------- 5. Hook fire (best-effort) ----------
+KBD_ORCHESTRATOR_ROOT="${KBD_ORCHESTRATOR_ROOT:-$HOME/.claude/skills/kbd-process-orchestrator}"
+export KBD_ORCHESTRATOR_ROOT
+hooks_lib="$KBD_ORCHESTRATOR_ROOT/shared/lib/hooks.sh"
+waypoint_lib="$KBD_ORCHESTRATOR_ROOT/shared/lib/waypoint.sh"
+if [[ -f "$hooks_lib" && -f "$waypoint_lib" ]]; then
+  # shellcheck source=/dev/null
+  . "$waypoint_lib"
+  # shellcheck source=/dev/null
+  . "$hooks_lib"
+  if ! kbd_hooks_fire phase before "$name" 1 1; then
+    warn "phase:before hook fire failed (phase still created)"
+  fi
+else
+  warn "hooks subsystem unavailable at $KBD_ORCHESTRATOR_ROOT/shared/lib/ (phase still created)"
+fi
+
+# ---------- 6. Banner ----------
+printf '\nCompleted kbd-new-phase — %s ready for /kbd-assess\n' "$name"
+printf '  phase:  %s\n' "$name"
+printf '  goals:  %s\n' "$phase_dir/goals.md"
+printf '  Next:   /kbd-assess %s\n' "$name"

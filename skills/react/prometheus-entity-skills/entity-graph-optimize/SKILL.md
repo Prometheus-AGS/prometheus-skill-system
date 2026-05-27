@@ -39,3 +39,50 @@ The core library **does not yet ship automatic entity garbage collection**. The 
 ## pnpm
 
 Use **pnpm** for any repo scripts during verification.
+
+## Dev-mode entity explorer
+
+A floating-action-button-launched explorer ships in dev mode at
+`@prometheus-ags/prometheus-entity-management/devtools`. Mount once at app root:
+
+```tsx
+import { EntityExplorerFab } from "@prometheus-ags/prometheus-entity-management";
+
+export function App() {
+  return (
+    <>
+      <YourApp />
+      <EntityExplorerFab />  {/* dev-only or ?prometheus-devtools=1 */}
+    </>
+  );
+}
+```
+
+Register every Zustand store that holds entity data so the explorer can enumerate multi-store coverage and flag duplicates:
+
+```ts
+import { registerDevtoolsStore } from "@prometheus-ags/prometheus-entity-management";
+
+registerDevtoolsStore({
+  id: "client-store",
+  label: "Clients module",
+  store: clientStore,
+  describesEntityTypes: ["client", "contact"],
+});
+```
+
+### Panel surface
+
+Five tabs: **Tree** (entities by type with stale/fetching/patched badges + store-coverage indicators), **Inspector** (full entity drilldown + patches + subscribers + event timeline), **Events** (live tail of engine ops + adapter notifications with filters), **Stores** (registered devtools stores + diff against canonical), **Duplicates** (`(type, id)` pairs in ≥2 stores + Promote-to-canonical action).
+
+### Pre-flight UI/UX research
+
+Before writing UI for the explorer or consuming apps' custom views, follow the routing discipline in the host project's `CLAUDE.md` / `AGENTS.md` `<!-- uiux-routing:start v1 -->` region (managed by `/kbd-inject-agent-rules --pack uiux-routing`): memory consult → UI/UX Pro Max → Impeccable → Anthropic frontend-design + ux-designer → Vercel skills + web search → distill → write code. The devtools surface itself documents its consultations in `prometheus-entity-management/docs/devtools-design-notes.md`.
+
+### Realtime data source
+
+Works with the ElectricSQL adapter and the new SurrealDB adapter (see the **entity-realtime-surreal-live** skill). The Events tab tails every `ChangeSet` emitted by any registered adapter.
+
+### Production
+
+`src/devtools/` is tree-shaken from production builds. `EntityExplorerFab` renders `null` in prod; `registerDevtoolsStore` is a no-op.

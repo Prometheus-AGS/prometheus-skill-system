@@ -106,3 +106,19 @@ Use the canonical phase name from the argument or `current-waypoint.json`. Never
 /kbd-plan                                # uses active waypoint phase
 /kbd-plan phase-1-foundation             # explicit phase name
 ```
+
+## Hook integration
+
+Fire `plan:before` before reading the assessment, `plan:after` after
+writing `plan.md`. Existing Progress Signals are unchanged.
+
+```sh
+. "$KBD_ORCHESTRATOR_ROOT/shared/lib/waypoint.sh"
+. "$KBD_ORCHESTRATOR_ROOT/shared/lib/hooks.sh"
+
+kbd_hooks_fire plan before "$phase" 1 1
+# … draft plan.md …
+kbd_hooks_fire plan after  "$phase" 1 1
+```
+
+See orchestrator `SKILL.md` → "Hooks" for taxonomy and payload.

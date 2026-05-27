@@ -1,0 +1,14 @@
+{
+  "phase": "parent-phase",
+  "previousPhase": "phase-0-setup",
+  "change": null,
+  "status": "execute_in_progress",
+  "currentTask": "advance child w1",
+  "nextPendingChange": null,
+  "sourceTool": "claude-code",
+  "exactNextCommand": "/kbd-next-child",
+  "parentPhase": null,
+  "childPhases": ["w0", "w1", "w2"],
+  "childPointer": "w1",
+  "updatedAt": "2026-05-27T00:00:00Z"
+}

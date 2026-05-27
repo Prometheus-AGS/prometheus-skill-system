@@ -114,3 +114,22 @@ Use the canonical phase name from the argument or `current-waypoint.json`. Never
 /kbd-reflect                             # uses active waypoint phase
 /kbd-reflect phase-1-foundation          # explicit phase name
 ```
+
+## Hook integration
+
+`/kbd-reflect` is the canonical *phase-end* boundary. After the
+reflection report is written, fire `reflect:after`, then immediately
+fire `phase:after` for the closing phase. `phase:before` for the *next*
+phase is fired by `/kbd-new-phase` / `/kbd-next-phase`, not here.
+
+```sh
+. "$KBD_ORCHESTRATOR_ROOT/shared/lib/waypoint.sh"
+. "$KBD_ORCHESTRATOR_ROOT/shared/lib/hooks.sh"
+
+kbd_hooks_fire reflect before "$phase" 1 1
+# … write reflection.md …
+kbd_hooks_fire reflect after  "$phase" 1 1
+kbd_hooks_fire phase   after  "$phase" 1 1   # canonical phase-end boundary
+```
+
+See orchestrator `SKILL.md` → "Hooks" for taxonomy and payload.
