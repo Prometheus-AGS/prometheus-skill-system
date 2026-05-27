@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "KBD Hooks Config",
-  "description": "User-configurable hooks fired at begin/end of each KBD phase step (assess, plan, execute, reflect). Place this file at .kbd-orchestrator/hooks-config.json in your project.",
+  "description": "User-configurable hooks fired around KBD lifecycle boundaries (phase, child, plan, execute, reflect, task, assess). Place this file at .kbd-orchestrator/hooks-config.json in your project. See kbd-process-orchestrator/SKILL.md → 'Hooks' for the canonical event taxonomy, payload, and override semantics.",
   "type": "object",
   "required": ["hooks"],
   "properties": {
@@ -26,7 +26,13 @@
           },
           "event": {
             "type": "string",
-            "description": "Event pattern: '<step>:<event>' where step is assess|plan|execute|reflect|* and event is begin|end|*. Examples: 'assess:begin', '*:end', 'reflect:*', '*:*'"
+            "description": "Event pattern in canonical form '<kind>:<edge>' where kind is one of: phase | child | plan | execute | reflect | task | assess | * and edge is one of: before | after | *. Examples: 'phase:before', 'task:after', 'reflect:*', '*:*'. Legacy aliases accepted for backward compatibility: snake_case names (on_phase_complete, on_plan_complete, on_reflection_complete, on_assessment_complete, on_change_complete, on_blocker_detected, on_cross_tool_handoff) and '<kind>:begin' / '<kind>:end' (mapped to 'before'/'after')."
+          },
+          "mode": {
+            "type": "string",
+            "enum": ["augment", "override"],
+            "default": "augment",
+            "description": "augment (default): this hook fires alongside other hooks matching the same event. override: this hook replaces the built-in default reporter for matching dispatch points; at most one override per (kind, edge) resolves — project > user > builtin precedence, last-wins within a layer."
           },
           "enabled": {
             "type": "boolean",

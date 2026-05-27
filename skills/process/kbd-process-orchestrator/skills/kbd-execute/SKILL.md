@@ -120,3 +120,25 @@ Use the canonical phase name from the argument or `current-waypoint.json`. Phase
 /kbd-execute phase-2-sales-module roo   # dispatch to Roo Code specifically
 /kbd-execute --skip-qa                   # skip artifact-refiner QA gate
 ```
+
+## Hook integration
+
+Fire `execute:before` before selecting a backend, `execute:after` after
+writing `execution.md`. **`task:before`/`task:after` are fired per
+OpenSpec task by `/opsx:apply`**, not by `/kbd-execute` itself —
+`/kbd-execute` writes the dispatch contract, the apply skill walks
+tasks. See orchestrator `SKILL.md` → "Hooks" for per-task wiring.
+
+```sh
+. "$KBD_ORCHESTRATOR_ROOT/shared/lib/waypoint.sh"
+. "$KBD_ORCHESTRATOR_ROOT/shared/lib/hooks.sh"
+
+kbd_hooks_fire execute before "$phase" 1 1
+# … select backend, write execution.md …
+kbd_hooks_fire execute after  "$phase" 1 1
+```
+
+Note: the `on_change_complete` legacy alias is fired automatically by
+the dispatcher on the **final** `task:after` of each change (sentinel:
+`KBD_HOOK_INDEX == KBD_HOOK_TOTAL`). Projects relying on
+`on_change_complete` continue to work without changes.

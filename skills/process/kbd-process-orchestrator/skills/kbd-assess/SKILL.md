@@ -60,3 +60,25 @@ Use the canonical phase name from the argument or `current-waypoint.json`. Never
 /kbd-assess phase-1-foundation           # explicit phase name
 /kbd-assess phase-2-sales-module         # for a new project phase
 ```
+
+## Hook integration
+
+Source the hooks library and fire `assess:before` immediately after the
+"Starting kbd-assess —" Progress Signal, and `assess:after` immediately
+before the "Completed kbd-assess —" Progress Signal. The existing
+Progress Signals continue to fire — hooks are complementary, not a
+replacement.
+
+```sh
+. "$KBD_ORCHESTRATOR_ROOT/shared/lib/waypoint.sh"
+. "$KBD_ORCHESTRATOR_ROOT/shared/lib/hooks.sh"
+
+# Starting kbd-assess — <phase>            ← existing Progress Signal
+kbd_hooks_fire assess before "$phase" 1 1   # ← new
+# … write assessment.md …
+kbd_hooks_fire assess after  "$phase" 1 1   # ← new
+# Completed kbd-assess — <phase>           ← existing Progress Signal
+```
+
+See orchestrator `SKILL.md` → "Hooks" for the full event taxonomy,
+override semantics, and `KBD_HOOK_*` payload.

@@ -336,6 +336,131 @@ KBD maintains a resumable return point for the current phase.
 When the waypoint exists, any AI tool should consult it before deriving
 status from broader phase discovery.
 
+### Nested phases
+
+The waypoint supports a *parent → child* relationship between phases via three
+optional fields. They are additive: every existing reader keeps working when
+the fields are absent, and tools that don't recognise them must silently ignore
+them.
+
+- `parentPhase: string | null` — name of the enclosing phase when this row
+  represents a child. Default `null` (top-level phase).
+- `childPhases: string[]` — ordered list of child-phase names owned by this
+  row's phase. Default `[]`. The order is the canonical iteration order used by
+  `/kbd-next-child`.
+- `childPointer: string | null` — name of the currently-active child within
+  `childPhases`, or `null` when no child is active. Default `null`.
+
+**Cross-field invariants** (writer-enforced):
+
+- `childPointer`, when non-null, MUST be a member of `childPhases`.
+- `childPhases` MUST NOT contain duplicates.
+
+Writers (`/kbd-new-child`, `/kbd-next-child`) reject inconsistent waypoints;
+readers (`/kbd-status`) render best-effort and warn on violations.
+
+**Template versioning.** The canonical template at
+`references/schemas/current-waypoint.template.json` carries `__schemaVersion:
+"2"` as **documentation only**. No skill reads `__schemaVersion` at runtime;
+the only contract is the per-field default declared in the template and in
+this section. Writers MAY set the field; readers MUST NOT depend on it.
+
+**Worktree integration.** The companion field `worktreeRoot` in
+`project.json` (default literal string `${HOME}/.claude/worktrees`) is
+consumed by `/kbd-status` to render the active checkout's location and warn
+when the developer is outside the configured root. See
+`skills/kbd-status/SKILL.md`.
+
+---
+
+## Hooks
+
+KBD ships an extensible hook surface fired around every lifecycle boundary.
+Each KBD skill emits a hook event before its work and another after, and any
+project can plug in either *augment* (adds behavior) or *override* (replaces
+the default) entries.
+
+**Canonical event form**: `<kind>:<edge>`, where
+
+- `kind` ∈ `phase` | `child` | `plan` | `execute` | `reflect` | `task` | `assess` | `*`
+- `edge` ∈ `before` | `after` | `*`
+
+**Legacy alias compatibility** (kept working — no migration required):
+
+| Legacy event | Canonical event |
+|---|---|
+| `on_phase_complete` | `phase:after` |
+| `on_plan_complete` | `plan:after` |
+| `on_reflection_complete` | `reflect:after` |
+| `on_assessment_complete` | `assess:after` |
+| `on_change_complete` | last `task:after` of the change (sentinel — fires when `index == total`) |
+| `<kind>:begin` | `<kind>:before` |
+| `<kind>:end` | `<kind>:after` |
+| `on_blocker_detected`, `on_cross_tool_handoff` | unchanged — situational, not lifecycle |
+
+**Discovery order** (highest precedence wins on override conflicts):
+
+1. **builtin** — `~/.claude/skills/kbd-process-orchestrator/hooks/hooks.json`
+2. **user** — `~/.claude/skills/kbd-process-orchestrator/hooks/user.json` (optional)
+3. **project** — `.kbd-orchestrator/hooks-config.json` (optional)
+
+**Mode field** — each entry declares `mode: augment` (default) or `mode: override`. Multiple overrides on the same `(kind, edge)` resolve to the entry from the highest layer; within a layer, last-loaded wins. A single warning names winner and losers; dispatch never aborts.
+
+**Default reporter** — the built-in `report-progress` hook fires on every `*:*` and writes to stderr:
+
+```
+starting <kind> <name> [<index>/<total>]
+ending <kind> <name> [<index>/<total>]
+```
+
+A project can replace this wholesale with a single `mode: "override"` entry covering `"*:*"`.
+
+**Per-fire context** — every hook command receives these environment variables (in addition to existing `${PHASE}`, `${STEP}`, `${EVENT}` substitutions):
+
+| Variable | Meaning |
+|---|---|
+| `KBD_HOOK_KIND` | phase / child / plan / execute / reflect / task / assess |
+| `KBD_HOOK_EDGE` | before / after |
+| `KBD_HOOK_NAME` | active item's canonical name |
+| `KBD_HOOK_INDEX` | 1-based index in the containing loop (default 1) |
+| `KBD_HOOK_TOTAL` | total count in the containing loop (default 1) |
+| `KBD_HOOK_PHASE_PATH` | rendered chain via `chain_separator` |
+| `KBD_HOOK_CHILD_PATH` | active child name, or empty |
+| `KBD_HOOK_SOURCE_TOOL` | sourceTool from waypoint, or `"unknown"` |
+| `KBD_HOOK_STARTED_AT` | ISO-8601 UTC timestamp |
+
+**Hook log** — every fire appends one JSON object to `.kbd-orchestrator/phases/<phase>/hooks.log.jsonl` (or `.kbd-orchestrator/hooks.log.jsonl` when no phase is active yet). Schema:
+
+```json
+{"ts":"…","kind":"task","edge":"after","name":"1.1 …","index":1,"total":7,
+ "phasePath":"parent › child","sourceTool":"claude-code",
+ "hookId":"project/on-task-done","layer":"project","mode":"augment","status":0}
+```
+
+Failure entries include `"stderrSnippet"` truncated to 200 chars.
+
+### Wiring stanza (paste into each KBD skill)
+
+```sh
+. "$KBD_ORCHESTRATOR_ROOT/shared/lib/waypoint.sh"
+. "$KBD_ORCHESTRATOR_ROOT/shared/lib/hooks.sh"
+
+kbd_hooks_fire <kind> before "$item_name" "$index" "$total"
+# … do the work …
+kbd_hooks_fire <kind> after  "$item_name" "$index" "$total"
+```
+
+The existing `Starting/Completed kbd-<skill> — <phase>` Progress Signals
+(documented in each skill's "Progress Signals (MANDATORY)" section)
+**continue to fire** alongside hook events; the two are complementary.
+Progress Signals are agent-facing structured lines; hook output is
+operator-facing observability.
+
+### Debugging
+
+Set `KBD_HOOK_DEBUG=1` in the environment to log every event-name
+normalisation to stderr (`[hooks] normalised <orig> → <canonical>`).
+
 ---
 
 ## Cross-Tool Reporting Protocol
@@ -398,17 +523,36 @@ The executing tool MUST read these files and apply constraints when verifying wo
 
 ## Surreal-Memory Integration
 
-When the `surreal-memory` MCP server is available, KBD uses it for:
+**Default-on when reachable.** When the surreal-memory MCP endpoint is detected by `shared/lib/memory.sh::kbd_memory_available`, KBD mirrors every hook fire into the memory store as a `kbd_lifecycle_event` entity and exposes `/kbd-memory-recall` for retrieving prior similar work as planning input. When the endpoint is unreachable, the memory subsystem cleanly no-ops — no KBD operation is ever blocked by a missing memory service.
 
-- **Cross-tool coordination**: Progress updates stored as entity observations, readable
-  by any AI tool without filesystem polling
-- **Phase context**: TaskStreams with model-aware token budgeting for long-running phases
-- **Dependency tracing**: Graph-RAG `find_path` to trace change dependencies
-- **Constraint tracking**: Entities for project constraints with relation links to violations
+### What the integration provides
 
-Detection: check if `create_entity` tool is available. Fallback: filesystem
-state in `.kbd-orchestrator/` (always works). See
-`shared/references/surreal-memory-integration.md` for entity mapping.
+- **Cross-tool coordination**: hook events stored as entity observations, readable by any AI tool that can query the surreal-memory MCP.
+- **Cross-project learning**: every event entity carries a `belongs-to project:<name>` relation; `/kbd-memory-recall` (with `--cross-project` in future) surfaces patterns from prior projects on similar work.
+- **Phase context**: `/kbd-memory-recall` writes `prior-context.md` for each phase before `/kbd-assess`, automatically via the `auto-memory-recall` hook.
+- **Audit trail**: events flow into the memory store *in addition to* the per-phase JSONL log; the JSONL is the in-flight source of truth, the memory mirror is the queryable index.
+
+### Detection contract
+
+`kbd_memory_available` probes in this order, caches the result for the process lifetime, and returns 0 on success:
+
+1. Calling agent's tool list contains `create_entity` (MCP-mode).
+2. `$UAR_MEMORY_MCP_URL` or `$KBD_MEMORY_MCP_URL` set and `GET <url>/healthz` returns 2xx within 2 s.
+3. `.kbd-orchestrator/memory.config.json` field `mcpEndpoint` reachable.
+
+### Built-in hooks
+
+| id | event | mode | purpose |
+|---|---|---|---|
+| `kbd-memory-log` | `*:*` | augment | Mirror each hook fire into surreal-memory; no-op when unreachable. |
+| `auto-memory-recall` | `assess:before` | augment | Populate `prior-context.md` before each `/kbd-assess`. |
+
+Both ship enabled and can be disabled per-project via `.kbd-orchestrator/hooks-config.json` (set `enabled: false` on a matching `id`).
+
+### Reference
+
+- Event entity schema, retention window, and relevance ordering: [`shared/references/memory-retention.md`](shared/references/memory-retention.md).
+- Recall skill: `skills/kbd-memory-recall/SKILL.md`.
 
 ---
 
@@ -436,7 +580,11 @@ state in `.kbd-orchestrator/` (always works). See
 - `/kbd-execute [phase-name]` — Select execution backend and dispatch phase
 - `/kbd-reflect [phase-name]` — Generate phase reflection report + seed next phase
 - `/kbd-status` — Show current phase, change inventory, and waypoint-guided next action
-- `/kbd-new-phase <name> [goals...]` — Start a new named phase with goals
+- `/kbd-new-phase <name> [goals...]` — Start a new named phase with goals (implemented in `skills/kbd-new-phase/`)
+- `/kbd-new-child <name> [goals...]` — Spawn a child phase inside the active top-level phase (implemented in `skills/kbd-new-child/`)
+- `/kbd-next-child [<name>]` — Advance childPointer (implicit) or jump to a named child (implemented in `skills/kbd-next-child/`)
+- `/kbd-memory-recall [<phase>]` — Populate `prior-context.md` from surreal-memory before assess (implemented in `skills/kbd-memory-recall/`)
+- `/kbd-inject-agent-rules [--target …] [--refresh] [--dry-run]` — Inject Karpathy + Boris Cherny rule sets into CLAUDE.md / AGENTS.md (implemented in `skills/kbd-inject-agent-rules/`)
 - `/kbd-full-phase <name>` — Run full Assess → Plan → Execute → Reflect cycle
 
 See `references/domain/kbd.md` for the generic KBD philosophy reference.
