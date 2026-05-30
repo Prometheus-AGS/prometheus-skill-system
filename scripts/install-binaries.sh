@@ -20,9 +20,10 @@ cp "${REPO_ROOT}/tools/prometheus-cli/target/release/prometheus" "${BIN_DIR}/"
 ok "prometheus → ${BIN_DIR}/prometheus"
 
 # ── 2. forge (forge-rs CLI) ──────────────────────────────────────────────────
+# Upstream renamed the CLI package `forge` → `forge-cli` (still produces the `forge` binary).
 if [ -d "${REPO_ROOT}/tools/forge-rs" ]; then
     info "Building forge..."
-    (cd "${REPO_ROOT}/tools/forge-rs" && cargo build --release -p forge 2>&1 | tail -3)
+    (cd "${REPO_ROOT}/tools/forge-rs" && cargo build --release -p forge-cli 2>&1 | tail -3)
     cp "${REPO_ROOT}/tools/forge-rs/target/release/forge" "${BIN_DIR}/"
     ok "forge → ${BIN_DIR}/forge"
 fi
@@ -36,9 +37,10 @@ if [ -d "${REPO_ROOT}/tools/prometheus-knowledge" ]; then
 fi
 
 # ── 4. liter-llm ─────────────────────────────────────────────────────────────
+# Upstream renamed the CLI package to `liter-llm-cli` (still produces the `liter-llm` binary).
 if [ -d "${REPO_ROOT}/tools/liter-llm" ]; then
     info "Building liter-llm..."
-    (cd "${REPO_ROOT}/tools/liter-llm" && cargo build --release 2>&1 | tail -3)
+    (cd "${REPO_ROOT}/tools/liter-llm" && cargo build --release -p liter-llm-cli 2>&1 | tail -3)
     # liter-llm binary may be in workspace root target or crate target
     LLM_BIN=$(find "${REPO_ROOT}/tools/liter-llm/target/release" -maxdepth 1 -name "liter-llm" -type f 2>/dev/null | head -1)
     if [ -n "${LLM_BIN}" ]; then

@@ -1,15 +1,15 @@
 {
-  "phase": "machine-installation-2026-05-25",
-  "phase_started": "2026-05-25",
-  "phase_path": ".kbd-orchestrator/phases/machine-installation-2026-05-25",
+  "phase": "machine-refresh-2026-05-30",
+  "phase_started": "2026-05-30",
+  "phase_path": ".kbd-orchestrator/phases/machine-refresh-2026-05-30",
   "stage": "reflect_complete",
-  "next_action": "Commit all changes from this phase, then run /kbd-new-phase to start the next phase",
-  "assessment_path": ".kbd-orchestrator/phases/assess/machine-installation-assessment-2026-05-25.md",
-  "plan_path": ".kbd-orchestrator/phases/machine-installation-2026-05-25/plan.md",
-  "reflection_path": ".kbd-orchestrator/phases/machine-installation-2026-05-25/reflection.md",
+  "next_action": "Commit all changes from this phase (install-binaries.sh fix + submodule advances + phase artifacts), then /kbd-new-phase",
+  "assessment_path": ".kbd-orchestrator/phases/assess/machine-refresh-assessment-2026-05-30.md",
+  "plan_path": ".kbd-orchestrator/phases/machine-refresh-2026-05-30/plan.md",
+  "reflection_path": ".kbd-orchestrator/phases/machine-refresh-2026-05-30/reflection.md",
   "active_change": null,
-  "last_completed": "change-install-005-prometheus-setup-command",
-  "previous_phase": "pglite-certification-2026-05-25",
+  "last_completed": null,
+  "previous_phase": "machine-installation-2026-05-25",
   "change_backend": "openspec",
   "openspec_present": true,
   "openspec_root": "openspec",
@@ -18,21 +18,21 @@
   "changes_completed": 5,
   "next_pending_change": null,
   "exact_next_command": "git add -p && git commit (stage and commit all phase changes)",
-  "fallback_command": "Read .kbd-orchestrator/phases/machine-installation-2026-05-25/reflection.md to review what was accomplished",
+  "fallback_command": "Read .kbd-orchestrator/phases/machine-refresh-2026-05-30/reflection.md",
   "phase_structure": {
-    "machine-installation-2026-05-25": {
+    "machine-refresh-2026-05-30": {
       "changes": [
-        "change-install-001-build-and-install-binaries",
-        "change-install-002-launchd-plists-forge-and-pk",
-        "change-install-003-install-skills-all-platforms",
-        "change-install-004-wire-mcp-all-tools",
-        "change-install-005-prometheus-setup-command"
+        "change-refresh-001-pull-repo-and-submodules",
+        "change-refresh-002-rebuild-and-reinstall-binaries",
+        "change-refresh-003-reinstall-skills-all-platforms",
+        "change-refresh-004-wire-claude-desktop-mcp",
+        "change-refresh-005-verify-refresh"
       ],
-      "effort": "3-4 hours",
+      "effort": "1.5-2 hours",
       "status": "complete"
     }
   },
   "tool": "claude-code",
-  "model": "claude-sonnet-4-6",
-  "updated": "2026-05-25T12:00:00Z"
+  "model": "claude-opus-4-8",
+  "updated": "2026-05-30T00:00:00Z"
 }
