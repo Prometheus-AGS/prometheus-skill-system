@@ -191,6 +191,9 @@ enum Commands {
         /// Report status only — no install prompts
         #[arg(long)]
         check: bool,
+        /// Force rebuild of all binary components from source (implies --non-interactive)
+        #[arg(long)]
+        rebuild: bool,
     },
 }
 
@@ -346,8 +349,8 @@ async fn main() -> Result<()> {
                 commands::sycophancy::correct(&file, &strictness)
             }
         },
-        Commands::Setup { non_interactive, dry_run, check } => {
-            commands::setup::run(non_interactive, dry_run, check)
+        Commands::Setup { non_interactive, dry_run, check, rebuild } => {
+            commands::setup::run(non_interactive, dry_run, check, rebuild)
         }
     }
 }

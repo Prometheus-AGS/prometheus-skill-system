@@ -1,7 +1,8 @@
-use anyhow::Result;
+use anyhow::{Context, Result};
 use colored::Colorize;
 use serde::{Deserialize, Serialize};
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
+use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
@@ -12,6 +13,7 @@ pub enum ComponentStatus {
     SkippedLaunchd,
     Installed,
     NotInstalled,
+    Stale,
 }
 
 impl ComponentStatus {
@@ -21,6 +23,7 @@ impl ComponentStatus {
                 "✅".green()
             }
             Self::Missing | Self::NotInstalled => "❌".red(),
+            Self::Stale => "⚠️ ".yellow(),
         }
     }
 
@@ -32,11 +35,12 @@ impl ComponentStatus {
             Self::SkippedLaunchd => "running (launchd)",
             Self::Installed => "installed",
             Self::NotInstalled => "not installed",
+            Self::Stale => "stale (source newer than binary)",
         }
     }
 
     fn needs_action(&self) -> bool {
-        matches!(self, Self::Missing | Self::NotInstalled)
+        matches!(self, Self::Missing | Self::NotInstalled | Self::Stale)
     }
 }
 
@@ -93,6 +97,86 @@ fn detect_binary(name: &str) -> bool {
         .unwrap_or(false)
 }
 
+// ─── Staleness detection ────────────────────────────────────────────────────
+// A binary is "stale" when its source has commits newer than the binary's mtime.
+// Source-of-truth mapping:
+//   prometheus  → path-scoped: git log -1 --format=%ct -- tools/prometheus-cli/
+//   forge       → submodule HEAD time: git -C tools/forge-rs log -1 --format=%ct HEAD
+//   pk-cherry   → submodule HEAD time
+//   liter-llm   → submodule HEAD time
+// If git/source is unavailable, callers fall back to plain `Installed`.
+
+/// Pure comparator — testable without filesystem or git side effects.
+fn is_stale(binary_mtime: SystemTime, source_commit_time: SystemTime) -> bool {
+    source_commit_time > binary_mtime
+}
+
+/// Locate the skill-pack repo root.
+/// Prefers PROMETHEUS_SKILL_PACK_ROOT env; falls back to walking up from the current exe.
+fn repo_root() -> Option<PathBuf> {
+    if let Ok(env_path) = std::env::var("PROMETHEUS_SKILL_PACK_ROOT") {
+        let p = PathBuf::from(env_path);
+        if p.join("skills/imported/artifact-refiner").exists() {
+            return Some(p);
+        }
+    }
+    std::env::current_exe().ok().and_then(|p| {
+        p.ancestors()
+            .find(|a| a.join("skills/imported/artifact-refiner").exists())
+            .map(|p| p.to_path_buf())
+    })
+}
+
+/// Resolve the installed binary's mtime.
+///
+/// `install-binaries.sh` writes the 4 staleness-tracked binaries to `~/.local/bin/`,
+/// so we check that path specifically rather than whatever `which` returns first on PATH
+/// (which may shadow our install with an unrelated leftover in `/usr/local/bin/`).
+fn binary_mtime(name: &str) -> Option<SystemTime> {
+    let bin_dir = dirs::home_dir()?.join(".local/bin");
+    let path = bin_dir.join(name);
+    std::fs::metadata(&path).ok()?.modified().ok()
+}
+
+/// Run `git log -1 --format=%ct <args>` in `cwd` and parse the result as a SystemTime.
+fn git_commit_time(cwd: &Path, args: &[&str]) -> Option<SystemTime> {
+    let out = std::process::Command::new("git")
+        .current_dir(cwd)
+        .arg("log")
+        .arg("-1")
+        .arg("--format=%ct")
+        .args(args)
+        .output()
+        .ok()?;
+    if !out.status.success() {
+        return None;
+    }
+    let secs: u64 = String::from_utf8_lossy(&out.stdout).trim().parse().ok()?;
+    Some(UNIX_EPOCH + Duration::from_secs(secs))
+}
+
+/// Dispatch source-commit-time lookup by binary id.
+/// Returns None when the binary is not staleness-tracked or git/source is unavailable.
+fn source_commit_time_for(binary_id: &str) -> Option<SystemTime> {
+    let root = repo_root()?;
+    match binary_id {
+        "prometheus" => git_commit_time(&root, &["--", "tools/prometheus-cli/"]),
+        "forge" => git_commit_time(&root.join("tools/forge-rs"), &["HEAD"]),
+        "pk-cherry" => git_commit_time(&root.join("tools/prometheus-knowledge"), &["HEAD"]),
+        "liter-llm" => git_commit_time(&root.join("tools/liter-llm"), &["HEAD"]),
+        _ => None,
+    }
+}
+
+/// Best-effort staleness check for a tracked binary id.
+/// Returns true only when both mtime and source-time are available AND source is newer.
+fn binary_is_stale(binary_id: &str) -> bool {
+    match (binary_mtime(binary_id), source_commit_time_for(binary_id)) {
+        (Some(mtime), Some(source)) => is_stale(mtime, source),
+        _ => false,
+    }
+}
+
 fn detect_surreal_memory() -> ComponentStatus {
     if detect_docker_container("surreal-memory") || detect_port(23001) {
         ComponentStatus::SkippedDocker
@@ -126,34 +210,46 @@ fn detect_pk_mcp() -> ComponentStatus {
 }
 
 fn detect_liter_llm() -> ComponentStatus {
-    if detect_binary("liter-llm") {
-        ComponentStatus::Installed
+    if !detect_binary("liter-llm") {
+        return ComponentStatus::NotInstalled;
+    }
+    if binary_is_stale("liter-llm") {
+        ComponentStatus::Stale
     } else {
-        ComponentStatus::NotInstalled
+        ComponentStatus::Installed
     }
 }
 
 fn detect_prometheus_cli() -> ComponentStatus {
-    if detect_binary("prometheus") {
-        ComponentStatus::Installed
+    if !detect_binary("prometheus") {
+        return ComponentStatus::NotInstalled;
+    }
+    if binary_is_stale("prometheus") {
+        ComponentStatus::Stale
     } else {
-        ComponentStatus::NotInstalled
+        ComponentStatus::Installed
     }
 }
 
 fn detect_forge_bin() -> ComponentStatus {
-    if detect_binary("forge") {
-        ComponentStatus::Installed
+    if !detect_binary("forge") {
+        return ComponentStatus::NotInstalled;
+    }
+    if binary_is_stale("forge") {
+        ComponentStatus::Stale
     } else {
-        ComponentStatus::NotInstalled
+        ComponentStatus::Installed
     }
 }
 
 fn detect_pk_cherry() -> ComponentStatus {
-    if detect_binary("pk-cherry") {
-        ComponentStatus::Installed
+    if !detect_binary("pk-cherry") {
+        return ComponentStatus::NotInstalled;
+    }
+    if binary_is_stale("pk-cherry") {
+        ComponentStatus::Stale
     } else {
-        ComponentStatus::NotInstalled
+        ComponentStatus::Installed
     }
 }
 
@@ -242,6 +338,88 @@ fn load_launchd_pk_mcp() -> Result<()> {
     Ok(())
 }
 
+// ─── Binary installers (rebuild + install to ~/.local/bin/) ─────────────────
+// Each fn shells `cargo build --release -p <pkg>` in the source dir, then
+// copies the resulting binary to ~/.local/bin/. Modeled on
+// `install_template_forge_binaries`. Package names track the upstream renames
+// caught in the machine-refresh phase: forge-cli (not forge), liter-llm-cli
+// (not liter-llm).
+
+fn bin_dir() -> PathBuf {
+    dirs::home_dir().unwrap_or_default().join(".local/bin")
+}
+
+/// Shared helper: build a single cargo package in `crate_dir`, then copy the
+/// produced binary `bin_name` from `crate_dir/target/release/` to ~/.local/bin/.
+fn cargo_build_and_install(crate_dir: &Path, pkg: &str, bin_name: &str) -> Result<()> {
+    anyhow::ensure!(
+        crate_dir.exists(),
+        "source dir not found: {} — run: git submodule update --init --recursive",
+        crate_dir.display()
+    );
+    let status = std::process::Command::new("cargo")
+        .args(["build", "--release", "-p", pkg])
+        .current_dir(crate_dir)
+        .status()?;
+    anyhow::ensure!(status.success(), "cargo build failed for {pkg}");
+
+    let src = crate_dir.join("target/release").join(bin_name);
+    let dst_dir = bin_dir();
+    std::fs::create_dir_all(&dst_dir)?;
+    let dst = dst_dir.join(bin_name);
+    std::fs::copy(&src, &dst)
+        .with_context(|| format!("failed to copy {} → {}", src.display(), dst.display()))?;
+    Ok(())
+}
+
+fn install_prometheus_cli() -> Result<()> {
+    let root = repo_root().ok_or_else(|| anyhow::anyhow!("could not locate repo root"))?;
+    cargo_build_and_install(&root.join("tools/prometheus-cli"), "prometheus-cli", "prometheus")
+}
+
+fn install_forge_cli() -> Result<()> {
+    let root = repo_root().ok_or_else(|| anyhow::anyhow!("could not locate repo root"))?;
+    cargo_build_and_install(&root.join("tools/forge-rs"), "forge-cli", "forge")?;
+    kickstart_or_warn("dev.prometheusags.forge-mcp");
+    Ok(())
+}
+
+fn install_pk_cherry() -> Result<()> {
+    let root = repo_root().ok_or_else(|| anyhow::anyhow!("could not locate repo root"))?;
+    cargo_build_and_install(&root.join("tools/prometheus-knowledge"), "pk-cherry", "pk-cherry")?;
+    kickstart_or_warn("dev.prometheusags.pk-mcp");
+    Ok(())
+}
+
+fn install_liter_llm() -> Result<()> {
+    let root = repo_root().ok_or_else(|| anyhow::anyhow!("could not locate repo root"))?;
+    cargo_build_and_install(&root.join("tools/liter-llm"), "liter-llm-cli", "liter-llm")
+}
+
+/// Best-effort `launchctl kickstart -k gui/<uid>/<label>`.
+/// Warns and continues on failure (per locked decision: kickstart is soft).
+fn kickstart_or_warn(label: &str) {
+    let uid_out = std::process::Command::new("id").arg("-u").output();
+    let uid = uid_out
+        .ok()
+        .and_then(|o| String::from_utf8(o.stdout).ok())
+        .map(|s| s.trim().to_string())
+        .unwrap_or_default();
+    if uid.is_empty() {
+        eprintln!("  {} kickstart {}: could not resolve current uid", "⚠".yellow(), label);
+        return;
+    }
+    let target = format!("gui/{uid}/{label}");
+    let status = std::process::Command::new("launchctl")
+        .args(["kickstart", "-k", &target])
+        .status();
+    match status {
+        Ok(s) if s.success() => println!("  {} kickstart {}: ok", "↻".cyan(), label),
+        Ok(s) => eprintln!("  {} kickstart {}: exited {}", "⚠".yellow(), label, s),
+        Err(e) => eprintln!("  {} kickstart {}: spawn failed: {}", "⚠".yellow(), label, e),
+    }
+}
+
 fn components() -> Vec<Component> {
     vec![
         Component {
@@ -272,25 +450,25 @@ fn components() -> Vec<Component> {
             id: "liter-llm",
             description: "liter-llm stdio MCP proxy (~/.local/bin/liter-llm)",
             detect: detect_liter_llm,
-            install: None,
+            install: Some(install_liter_llm),
         },
         Component {
             id: "prometheus",
             description: "prometheus CLI (~/.local/bin/prometheus)",
             detect: detect_prometheus_cli,
-            install: None,
+            install: Some(install_prometheus_cli),
         },
         Component {
             id: "forge",
             description: "forge code enrichment CLI (~/.local/bin/forge)",
             detect: detect_forge_bin,
-            install: None,
+            install: Some(install_forge_cli),
         },
         Component {
             id: "pk-cherry",
             description: "pk-cherry knowledge MCP binary (~/.local/bin/pk-cherry)",
             detect: detect_pk_cherry,
-            install: None,
+            install: Some(install_pk_cherry),
         },
         Component {
             id: "sycophancy-correction",
@@ -350,11 +528,17 @@ fn prompt_yes(label: &str) -> bool {
     matches!(line.trim().to_lowercase().as_str(), "y" | "yes")
 }
 
-pub fn run(non_interactive: bool, dry_run: bool, check: bool) -> Result<()> {
+pub fn run(non_interactive: bool, dry_run: bool, check: bool, rebuild: bool) -> Result<()> {
+    // --rebuild implies --non-interactive (locked decision: rebuild is automation).
+    let non_interactive = non_interactive || rebuild;
+
     println!("{}", "🚀 Prometheus Setup".bold());
 
     if dry_run {
         println!("  {}", "(dry run — no changes will be made)".dimmed());
+    }
+    if rebuild {
+        println!("  {}", "(--rebuild — forcing rebuild of all binary components)".cyan());
     }
     println!();
 
@@ -364,26 +548,33 @@ pub fn run(non_interactive: bool, dry_run: bool, check: bool) -> Result<()> {
 
     // Print status table
     println!("{}", "Component Status".bold().underline());
-    let mut gap_count = 0u32;
+    let mut missing_count = 0u32;
+    let mut stale_count = 0u32;
     for (comp, status) in &statuses {
         println!("  {} {} — {}", status.icon(), comp.description, status.label().dimmed());
-        if status.needs_action() {
-            gap_count += 1;
+        match status {
+            ComponentStatus::Missing | ComponentStatus::NotInstalled => missing_count += 1,
+            ComponentStatus::Stale => stale_count += 1,
+            _ => {}
         }
     }
+    let gap_count = missing_count + stale_count;
     println!();
 
-    if gap_count == 0 {
+    if gap_count == 0 && !rebuild {
         println!("{}", "✨ All components healthy — nothing to do.".green().bold());
-    } else {
+    } else if gap_count > 0 {
         println!(
-            "  {} gap(s) detected.",
-            gap_count.to_string().yellow().bold()
+            "  {} gap(s) detected: {} missing, {} stale.",
+            gap_count.to_string().yellow().bold(),
+            missing_count.to_string().red(),
+            stale_count.to_string().yellow(),
         );
     }
 
-    if check || gap_count == 0 {
-        // Save state and exit
+    // --check exits before installing. --rebuild bypasses the "all healthy" short-circuit
+    // so it can force installs even on a clean system.
+    if check || (gap_count == 0 && !rebuild) {
         let pairs: Vec<_> = statuses.iter().map(|(c, s)| (c.id.to_string(), *s)).collect();
         write_setup_state(&pairs)?;
         return Ok(());
@@ -397,14 +588,28 @@ pub fn run(non_interactive: bool, dry_run: bool, check: bool) -> Result<()> {
         .map(|(c, s)| (c.id.to_string(), *s))
         .collect();
 
+    // --rebuild targets the 4 staleness-tracked binaries that have install fns
+    // wrapping `cargo build`. Components whose install fns merely `launchctl load`
+    // a plist (forge-mcp, pk-mcp) are NOT in this set — they're refreshed indirectly
+    // when their backing binary (forge, pk-cherry) is rebuilt and kickstarted.
+    const REBUILD_TARGETS: &[&str] = &["prometheus", "forge", "pk-cherry", "liter-llm"];
+
     for (i, (comp, status)) in statuses.iter().enumerate() {
-        if !status.needs_action() || comp.install.is_none() {
+        if comp.install.is_none() {
+            continue;
+        }
+        // With --rebuild, force the 4 build-from-source binaries into the install loop
+        // regardless of detected status. Otherwise, only act on gap states.
+        let force_rebuild = rebuild && REBUILD_TARGETS.contains(&comp.id);
+        let must_act = force_rebuild || status.needs_action();
+        if !must_act {
             continue;
         }
         let installer = comp.install.unwrap();
 
         let should_install = if dry_run {
-            println!("  {} would install: {}", "▸".dimmed(), comp.description);
+            let verb = if rebuild { "would rebuild" } else { "would install" };
+            println!("  {} {}: {}", "▸".dimmed(), verb, comp.description);
             false
         } else if non_interactive {
             true
@@ -413,14 +618,15 @@ pub fn run(non_interactive: bool, dry_run: bool, check: bool) -> Result<()> {
         };
 
         if should_install {
-            print!("  Installing {}... ", comp.description);
+            let verb = if rebuild { "Rebuilding" } else { "Installing" };
+            println!("  {} {}...", verb, comp.description);
             match installer() {
                 Ok(()) => {
-                    println!("{}", "done".green());
+                    println!("    {}", "done".green());
                     final_states[i].1 = ComponentStatus::Installed;
                 }
                 Err(e) => {
-                    println!("{} {}", "failed:".red(), e);
+                    println!("    {} {}", "failed:".red(), e);
                 }
             }
         }
@@ -448,10 +654,44 @@ mod tests {
     fn component_status_needs_action_only_for_gap_states() {
         assert!(ComponentStatus::Missing.needs_action());
         assert!(ComponentStatus::NotInstalled.needs_action());
+        assert!(ComponentStatus::Stale.needs_action());
         assert!(!ComponentStatus::Ok.needs_action());
         assert!(!ComponentStatus::SkippedDocker.needs_action());
         assert!(!ComponentStatus::SkippedLaunchd.needs_action());
         assert!(!ComponentStatus::Installed.needs_action());
+    }
+
+    #[test]
+    fn stale_status_serializes_snake_case() {
+        let json = serde_json::to_string(&ComponentStatus::Stale).unwrap();
+        assert_eq!(json, "\"stale\"");
+        let back: ComponentStatus = serde_json::from_str(&json).unwrap();
+        assert_eq!(back, ComponentStatus::Stale);
+    }
+
+    #[test]
+    fn is_stale_returns_true_when_source_newer() {
+        let binary = UNIX_EPOCH + Duration::from_secs(1_000_000);
+        let source = UNIX_EPOCH + Duration::from_secs(2_000_000);
+        assert!(is_stale(binary, source));
+    }
+
+    #[test]
+    fn is_stale_returns_false_when_source_older() {
+        let binary = UNIX_EPOCH + Duration::from_secs(2_000_000);
+        let source = UNIX_EPOCH + Duration::from_secs(1_000_000);
+        assert!(!is_stale(binary, source));
+    }
+
+    #[test]
+    fn is_stale_returns_false_when_equal() {
+        let t = UNIX_EPOCH + Duration::from_secs(1_500_000);
+        assert!(!is_stale(t, t));
+    }
+
+    #[test]
+    fn source_commit_time_for_unknown_binary_returns_none() {
+        assert!(source_commit_time_for("nonexistent-binary-xyz").is_none());
     }
 
     #[test]
@@ -469,6 +709,7 @@ mod tests {
             ComponentStatus::SkippedLaunchd,
             ComponentStatus::Installed,
             ComponentStatus::NotInstalled,
+            ComponentStatus::Stale,
         ];
         for status in statuses {
             assert!(!status.label().is_empty());

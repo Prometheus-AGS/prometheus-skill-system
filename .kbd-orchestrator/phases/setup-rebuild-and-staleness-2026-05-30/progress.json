@@ -1,0 +1,102 @@
+{
+  "phase": "setup-rebuild-and-staleness-2026-05-30",
+  "parentPhase": null,
+  "childPhases": [],
+  "childPointer": null,
+  "stage": "plan_complete",
+  "assessment_complete": true,
+  "assessment_path": ".kbd-orchestrator/phases/setup-rebuild-and-staleness-2026-05-30/assessment.md",
+  "plan_path": ".kbd-orchestrator/phases/setup-rebuild-and-staleness-2026-05-30/plan.md",
+  "plan_complete": true,
+  "decisions": {
+    "prometheus_source_time": "path-scoped: git log -1 --format=%ct -- tools/prometheus-cli/",
+    "rebuild_implies_non_interactive": true,
+    "kickstart_failure": "warn-and-continue, record in setup-state.json",
+    "rebuild_granularity": "all-or-nothing (rebuilds all 4 binaries unconditionally)"
+  },
+  "changes_total_before_plan": false,
+  "execute_complete": false,
+  "reflect_complete": false,
+  "changes_total": 6,
+  "changes_completed": 6,
+  "execute_complete": true,
+  "change_003_result": {
+    "files_changed": ["tools/prometheus-cli/crates/prometheus-cli/src/commands/setup.rs"],
+    "wiring": "All 4 binary detect fns (detect_liter_llm, detect_prometheus_cli, detect_forge_bin, detect_pk_cherry) now check binary_is_stale and return Stale when source newer",
+    "smoke_finding": "Detected real stale on `forge` (binary 06:33 < forge-rs HEAD 06:54 — submodule advanced after build). prometheus/pk-cherry/liter-llm correctly Installed.",
+    "bug_caught": "First smoke incorrectly flagged `prometheus`+`forge` stale because `which` resolved to leftover /usr/local/bin/ binaries (April 30 mtime). Fixed by pinning binary_mtime to ~/.local/bin/<name> directly (matches install-binaries.sh target).",
+    "tests": "8/8 pass",
+    "build": "release build green"
+  },
+  "change_002_result": {
+    "files_changed": ["tools/prometheus-cli/crates/prometheus-cli/src/commands/setup.rs"],
+    "added": "is_stale (pure comparator); repo_root, binary_mtime, git_commit_time, source_commit_time_for, binary_is_stale (IO helpers)",
+    "tests": "8/8 pass (4 original + 4 new: is_stale_returns_true/false/equal, source_commit_time_for_unknown_binary_returns_none)",
+    "build": "cargo test green; cargo clippy --bins -- -D warnings clean",
+    "note": "dead-code warnings on binary_is_stale resolved by change-003 wiring"
+  },
+  "stage": "reflect_complete",
+  "reflect_complete": true,
+  "reflection_path": ".kbd-orchestrator/phases/setup-rebuild-and-staleness-2026-05-30/reflection.md",
+  "change_status": {
+    "change-staleness-001-add-stale-component-status": "DONE",
+    "change-staleness-002-add-staleness-comparator": "DONE",
+    "change-staleness-003-wire-staleness-into-detection": "DONE",
+    "change-staleness-004-add-rebuild-flag-and-installers": "DONE",
+    "change-staleness-005-improve-check-output-grouping": "DONE",
+    "change-staleness-006-verify-and-integration-test": "DONE"
+  },
+  "change_004_result": {
+    "files_changed": [
+      "tools/prometheus-cli/crates/prometheus-cli/src/commands/setup.rs",
+      "tools/prometheus-cli/crates/prometheus-cli/src/main.rs"
+    ],
+    "added": "--rebuild clap flag; pub fn run takes rebuild: bool; 4 install fns (install_prometheus_cli/forge_cli/pk_cherry/liter_llm) via shared cargo_build_and_install helper; kickstart_or_warn helper (warns on failure); REBUILD_TARGETS limits --rebuild to the 4 staleness-tracked binaries",
+    "wiring": "components() now sets install: Some(...) on all 4 binary entries; forge install calls kickstart for forge-mcp; pk-cherry install calls kickstart for pk-mcp",
+    "decisions_honored": "--rebuild implies --non-interactive; kickstart warns-and-continues on failure; --rebuild rebuilds all 4 binaries unconditionally",
+    "end_to_end_test": "Real --rebuild produced fresh mtimes 16:43–16:50; both kickstart events succeeded; forge-mcp returned status:ok post-kickstart",
+    "tests": "8/8 unit tests pass"
+  },
+  "change_005_result": {
+    "note": "Implemented inline during change-004",
+    "output": "Status table now groups: 'X gap(s) detected: Y missing, Z stale.' with red/yellow color separation",
+    "verified_in_smoke": "--check output showed '1 gap(s) detected: 0 missing, 1 stale.' correctly"
+  },
+  "change_006_result": {
+    "synthetic_stale_test": "touch -t 202001010000 ~/.local/bin/liter-llm → --check correctly flagged Stale",
+    "rebuild_restore": "--rebuild refreshed liter-llm, kickstarted services, --check now reports '✨ All components healthy — nothing to do.'",
+    "setup_state": "~/.prometheus/setup-state.json correctly serializes all 11 component statuses including the new Stale variant",
+    "tests": "8/8 unit tests pass; cargo build --release clean",
+    "preexisting_clippy_issues": "prometheus-agents (new_without_default) and prometheus-learn (unnecessary_sort_by) have pre-existing clippy errors (May 6 and May 9 commits) — out of scope for this phase, flagged for tech debt",
+    "leftover_path_hazard": "Discovered /usr/local/bin/{prometheus,forge} stale leftovers from April 30 shadowing ~/.local/bin/. Detector pinned to ~/.local/bin/ to ignore them; user should clean up /usr/local/bin/ separately."
+  },
+  "change_001_result": {
+    "files_changed": ["tools/prometheus-cli/crates/prometheus-cli/src/commands/setup.rs"],
+    "added": "ComponentStatus::Stale variant; icon=⚠️ yellow; label='stale (source newer than binary)'; needs_action=true",
+    "tests": "4 pass (3 original + stale_status_serializes_snake_case); existing tests extended to assert Stale",
+    "build": "cargo test -p prometheus-cli green; no clippy warnings"
+  },
+  "completed_changes": [],
+  "active_change": null,
+  "blocked_changes": [],
+  "sourceTool": "claude-code",
+  "createdBy": "kbd-new-phase",
+  "updatedAt": "2026-05-30T12:00:00Z",
+  "change_backend": "openspec",
+  "openspec_present": true,
+  "gaps": [
+    "G-STALE-1", "G-STALE-2", "G-STALE-3", "G-STALE-4", "G-STALE-5",
+    "G-REBUILD-1", "G-REBUILD-2", "G-REBUILD-3", "G-REBUILD-4", "G-REBUILD-5",
+    "G-CHECK-1", "G-CHECK-2",
+    "G-TEST-1", "G-TEST-2", "G-TEST-3"
+  ],
+  "recommended_changes": [
+    "change-staleness-001-add-stale-component-status",
+    "change-staleness-002-add-staleness-comparator",
+    "change-staleness-003-wire-staleness-into-detection",
+    "change-staleness-004-add-rebuild-flag-and-installers",
+    "change-staleness-005-improve-check-output-grouping",
+    "change-staleness-006-verify-and-integration-test"
+  ],
+  "next_action": "Run /kbd-execute setup-rebuild-and-staleness-2026-05-30 to dispatch change-staleness-001"
+}

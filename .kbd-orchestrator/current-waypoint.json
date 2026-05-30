@@ -1,38 +1,49 @@
 {
-  "phase": "machine-refresh-2026-05-30",
+  "phase": "setup-rebuild-and-staleness-2026-05-30",
   "phase_started": "2026-05-30",
-  "phase_path": ".kbd-orchestrator/phases/machine-refresh-2026-05-30",
+  "phase_path": ".kbd-orchestrator/phases/setup-rebuild-and-staleness-2026-05-30",
   "stage": "reflect_complete",
-  "next_action": "Commit all changes from this phase (install-binaries.sh fix + submodule advances + phase artifacts), then /kbd-new-phase",
-  "assessment_path": ".kbd-orchestrator/phases/assess/machine-refresh-assessment-2026-05-30.md",
-  "plan_path": ".kbd-orchestrator/phases/machine-refresh-2026-05-30/plan.md",
-  "reflection_path": ".kbd-orchestrator/phases/machine-refresh-2026-05-30/reflection.md",
+  "next_action": "Commit source changes (setup.rs, main.rs) then push",
+  "assessment_path": ".kbd-orchestrator/phases/setup-rebuild-and-staleness-2026-05-30/assessment.md",
+  "plan_path": ".kbd-orchestrator/phases/setup-rebuild-and-staleness-2026-05-30/plan.md",
+  "reflection_path": null,
   "active_change": null,
   "last_completed": null,
-  "previous_phase": "machine-installation-2026-05-25",
+  "previous_phase": "machine-refresh-2026-05-30",
   "change_backend": "openspec",
   "openspec_present": true,
   "openspec_root": "openspec",
   "evolver_bridge": null,
-  "changes_total": 5,
-  "changes_completed": 5,
+  "changes_total": 6,
+  "changes_completed": 6,
   "next_pending_change": null,
-  "exact_next_command": "git add -p && git commit (stage and commit all phase changes)",
-  "fallback_command": "Read .kbd-orchestrator/phases/machine-refresh-2026-05-30/reflection.md",
+  "exact_next_command": "git add -p && git commit (stage and commit Rust source changes)",
+  "fallback_command": "Read .kbd-orchestrator/phases/setup-rebuild-and-staleness-2026-05-30/reflection.md",
   "phase_structure": {
-    "machine-refresh-2026-05-30": {
+    "setup-rebuild-and-staleness-2026-05-30": {
       "changes": [
-        "change-refresh-001-pull-repo-and-submodules",
-        "change-refresh-002-rebuild-and-reinstall-binaries",
-        "change-refresh-003-reinstall-skills-all-platforms",
-        "change-refresh-004-wire-claude-desktop-mcp",
-        "change-refresh-005-verify-refresh"
+        "change-staleness-001-add-stale-component-status",
+        "change-staleness-002-add-staleness-comparator",
+        "change-staleness-003-wire-staleness-into-detection",
+        "change-staleness-004-add-rebuild-flag-and-installers",
+        "change-staleness-005-improve-check-output-grouping",
+        "change-staleness-006-verify-and-integration-test"
       ],
-      "effort": "1.5-2 hours",
-      "status": "complete"
+      "effort": "3-4 hours (estimated)",
+      "status": "execute_complete"
     }
   },
   "tool": "claude-code",
   "model": "claude-opus-4-8",
-  "updated": "2026-05-30T00:00:00Z"
+  "updated": "2026-05-30T00:00:00Z",
+  "previousPhase": "machine-refresh-2026-05-30",
+  "change": null,
+  "status": "assessment_ready",
+  "currentTask": "run kbd-assess for setup-rebuild-and-staleness-2026-05-30",
+  "nextPendingChange": null,
+  "exactNextCommand": "/kbd-assess setup-rebuild-and-staleness-2026-05-30",
+  "parentPhase": null,
+  "childPhases": [],
+  "childPointer": null,
+  "updatedAt": "2026-05-30T11:57:15Z"
 }
