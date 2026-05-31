@@ -56,11 +56,46 @@ pub struct SetupState {
     pub components: std::collections::HashMap<String, ComponentState>,
 }
 
+/// Characterises *how* a component is installed.
+///
+/// The variant determines `--rebuild` eligibility:
+/// - `Cargo` components are staleness-tracked binary builds (cargo + cp).
+///   They are always targeted by `--rebuild`.
+/// - `Custom` components have a bespoke install fn (launchd load, submodule build, etc.)
+///   They are only invoked when `status.needs_action()` — never by `--rebuild` alone.
+/// - `None` components have no automated installer.
+#[derive(Clone, Copy)]
+enum ComponentInstaller {
+    /// Build from source via cargo and install to ~/.local/bin/.
+    Cargo(fn() -> Result<()>),
+    /// Any other automated installer (launchctl load, submodule build, etc.).
+    Custom(fn() -> Result<()>),
+    /// No installer — must be set up manually.
+    None,
+}
+
+impl ComponentInstaller {
+    fn is_some(&self) -> bool {
+        !matches!(self, Self::None)
+    }
+
+    fn is_cargo(&self) -> bool {
+        matches!(self, Self::Cargo(_))
+    }
+
+    fn invoke(&self) -> Option<Result<()>> {
+        match self {
+            Self::Cargo(f) | Self::Custom(f) => Some(f()),
+            Self::None => None,
+        }
+    }
+}
+
 struct Component {
     id: &'static str,
     description: &'static str,
     detect: fn() -> ComponentStatus,
-    install: Option<fn() -> Result<()>>,
+    install: ComponentInstaller,
 }
 
 fn detect_port(port: u16) -> bool {
@@ -426,67 +461,67 @@ fn components() -> Vec<Component> {
             id: "surreal-memory-server",
             description: "surreal-memory-server (Docker, port 23001)",
             detect: detect_surreal_memory,
-            install: None,
+            install: ComponentInstaller::None,
         },
         Component {
             id: "openai-proxy",
             description: "openai-proxy (launchd, port 8181)",
             detect: detect_openai_proxy,
-            install: None,
+            install: ComponentInstaller::None,
         },
         Component {
             id: "forge-mcp",
             description: "forge-mcp SSE server (launchd, port 8943)",
             detect: detect_forge_mcp,
-            install: Some(load_launchd_forge_mcp),
+            install: ComponentInstaller::Custom(load_launchd_forge_mcp),
         },
         Component {
             id: "pk-mcp",
             description: "prometheus-knowledge MCP server (launchd, port 8942)",
             detect: detect_pk_mcp,
-            install: Some(load_launchd_pk_mcp),
+            install: ComponentInstaller::Custom(load_launchd_pk_mcp),
         },
         Component {
             id: "liter-llm",
             description: "liter-llm stdio MCP proxy (~/.local/bin/liter-llm)",
             detect: detect_liter_llm,
-            install: Some(install_liter_llm),
+            install: ComponentInstaller::Cargo(install_liter_llm),
         },
         Component {
             id: "prometheus",
             description: "prometheus CLI (~/.local/bin/prometheus)",
             detect: detect_prometheus_cli,
-            install: Some(install_prometheus_cli),
+            install: ComponentInstaller::Cargo(install_prometheus_cli),
         },
         Component {
             id: "forge",
             description: "forge code enrichment CLI (~/.local/bin/forge)",
             detect: detect_forge_bin,
-            install: Some(install_forge_cli),
+            install: ComponentInstaller::Cargo(install_forge_cli),
         },
         Component {
             id: "pk-cherry",
             description: "pk-cherry knowledge MCP binary (~/.local/bin/pk-cherry)",
             detect: detect_pk_cherry,
-            install: Some(install_pk_cherry),
+            install: ComponentInstaller::Cargo(install_pk_cherry),
         },
         Component {
             id: "sycophancy-correction",
             description: "sycophancy-correction binary (/usr/local/bin/)",
             detect: detect_sycophancy_correction,
-            install: None,
+            install: ComponentInstaller::None,
         },
         Component {
             id: "template-forge",
             description: "template-forge artifact renderer (~/.local/bin/template-forge)",
             detect: detect_template_forge,
-            install: Some(install_template_forge_binaries),
+            install: ComponentInstaller::Custom(install_template_forge_binaries),
         },
         Component {
             id: "template-forge-mcp",
             description: "template-forge-mcp stdio MCP server (~/.local/bin/template-forge-mcp)",
             detect: detect_template_forge_mcp,
-            install: None,
+            install: ComponentInstaller::None,
         },
     ]
 }
@@ -588,27 +623,21 @@ pub fn run(non_interactive: bool, dry_run: bool, check: bool, rebuild: bool) -> 
         .map(|(c, s)| (c.id.to_string(), *s))
         .collect();
 
-    // --rebuild targets the 4 staleness-tracked binaries that have install fns
-    // wrapping `cargo build`. Components whose install fns merely `launchctl load`
-    // a plist (forge-mcp, pk-mcp) are NOT in this set — they're refreshed indirectly
-    // when their backing binary (forge, pk-cherry) is rebuilt and kickstarted.
-    const REBUILD_TARGETS: &[&str] = &["prometheus", "forge", "pk-cherry", "liter-llm"];
-
     for (i, (comp, status)) in statuses.iter().enumerate() {
-        if comp.install.is_none() {
+        if !comp.install.is_some() {
             continue;
         }
-        // With --rebuild, force the 4 build-from-source binaries into the install loop
-        // regardless of detected status. Otherwise, only act on gap states.
-        let force_rebuild = rebuild && REBUILD_TARGETS.contains(&comp.id);
+        // --rebuild forces Cargo (build-from-source) components regardless of status.
+        // Custom and None components are only invoked when status.needs_action().
+        // This is self-documenting via the ComponentInstaller variant — no allowlist needed.
+        let force_rebuild = rebuild && comp.install.is_cargo();
         let must_act = force_rebuild || status.needs_action();
         if !must_act {
             continue;
         }
-        let installer = comp.install.unwrap();
 
         let should_install = if dry_run {
-            let verb = if rebuild { "would rebuild" } else { "would install" };
+            let verb = if force_rebuild { "would rebuild" } else { "would install" };
             println!("  {} {}: {}", "▸".dimmed(), verb, comp.description);
             false
         } else if non_interactive {
@@ -618,16 +647,17 @@ pub fn run(non_interactive: bool, dry_run: bool, check: bool, rebuild: bool) -> 
         };
 
         if should_install {
-            let verb = if rebuild { "Rebuilding" } else { "Installing" };
+            let verb = if force_rebuild { "Rebuilding" } else { "Installing" };
             println!("  {} {}...", verb, comp.description);
-            match installer() {
-                Ok(()) => {
+            match comp.install.invoke() {
+                Some(Ok(())) => {
                     println!("    {}", "done".green());
                     final_states[i].1 = ComponentStatus::Installed;
                 }
-                Err(e) => {
+                Some(Err(e)) => {
                     println!("    {} {}", "failed:".red(), e);
                 }
+                None => {} // ComponentInstaller::None — unreachable here (filtered above)
             }
         }
     }
