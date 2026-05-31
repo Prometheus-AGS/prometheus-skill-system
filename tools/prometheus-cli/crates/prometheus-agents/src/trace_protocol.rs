@@ -57,6 +57,12 @@ pub struct ClaudeCodeTraceCapture {
     projects_dir: PathBuf,
 }
 
+impl Default for ClaudeCodeTraceCapture {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl ClaudeCodeTraceCapture {
     pub fn new() -> Self {
         let home = dirs::home_dir().unwrap_or_default();

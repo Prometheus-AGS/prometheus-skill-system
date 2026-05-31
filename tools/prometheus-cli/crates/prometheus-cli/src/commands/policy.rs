@@ -70,9 +70,9 @@ pub fn check(agent: &str, operation: &str, skill: &str, environment: &str) -> Re
     println!();
 
     if decision.allowed {
-        println!("  {} {}", "PERMIT".green().bold(), "— operation allowed by Cedar policy");
+        println!("  {} — operation allowed by Cedar policy", "PERMIT".green().bold());
     } else {
-        println!("  {} {}", "DENY".red().bold(), "— operation blocked by Cedar policy");
+        println!("  {} — operation blocked by Cedar policy", "DENY".red().bold());
     }
 
     if !decision.reasons.is_empty() {

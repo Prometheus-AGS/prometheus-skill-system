@@ -146,7 +146,7 @@ impl TraceStore {
             }
         }
 
-        traces.sort_by(|a, b| b.timestamp.cmp(&a.timestamp));
+        traces.sort_by_key(|t| std::cmp::Reverse(t.timestamp));
         Ok(traces)
     }
 

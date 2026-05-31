@@ -21,7 +21,7 @@ pub async fn run(
             .join("repos");
         std::fs::create_dir_all(&cache_dir)?;
 
-        let repo_name = source.split('/').last().unwrap_or(source);
+        let repo_name = source.split('/').next_back().unwrap_or(source);
         let repo_dir = cache_dir.join(repo_name);
 
         if repo_dir.exists() {

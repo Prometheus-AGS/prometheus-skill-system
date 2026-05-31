@@ -38,23 +38,20 @@ pub fn install_to_agent(agent: &AgentConfig, source: &Path, name: &str) -> Resul
         .with_context(|| format!("Failed to create symlink: {} -> {}", target.display(), source.display()))?;
 
     // Platform-specific extras
-    match agent.kind {
-        AgentKind::OpenCode => {
-            // Also link .opencode/tools/ if present
-            let tools_source = source.join(".opencode").join("tools");
-            if tools_source.exists() {
-                if let Some(tools_dir) = &agent.tools_dir {
-                    let tools_target = tools_dir.join(name);
-                    fs::create_dir_all(tools_dir)?;
-                    if tools_target.exists() || tools_target.symlink_metadata().is_ok() {
-                        let _ = fs::remove_file(&tools_target);
-                    }
-                    #[cfg(unix)]
-                    std::os::unix::fs::symlink(&tools_source, &tools_target)?;
+    if agent.kind == AgentKind::OpenCode {
+        // Also link .opencode/tools/ if present
+        let tools_source = source.join(".opencode").join("tools");
+        if tools_source.exists() {
+            if let Some(tools_dir) = &agent.tools_dir {
+                let tools_target = tools_dir.join(name);
+                fs::create_dir_all(tools_dir)?;
+                if tools_target.exists() || tools_target.symlink_metadata().is_ok() {
+                    let _ = fs::remove_file(&tools_target);
                 }
+                #[cfg(unix)]
+                std::os::unix::fs::symlink(&tools_source, &tools_target)?;
             }
         }
-        _ => {}
     }
 
     Ok(())
