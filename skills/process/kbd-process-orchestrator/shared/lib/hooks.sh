@@ -17,6 +17,19 @@
 #
 # Bash 3.2 compatible. Requires `jq`. Soft-fails when jq is absent.
 
+# Be self-sufficient: hooks.sh uses chain_separator/waypoint_chain/waypoint_load
+# from waypoint.sh. The call sites guard with `declare -F`, but that guard is not
+# reliable across shells (notably zsh), so source waypoint.sh here when its
+# functions are absent. Best-effort: never abort import if it can't be found.
+if ! command -v waypoint_load >/dev/null 2>&1; then
+  _kbd_hooks_self_dir="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" 2>/dev/null && pwd -P)"
+  if [ -n "${_kbd_hooks_self_dir:-}" ] && [ -f "$_kbd_hooks_self_dir/waypoint.sh" ]; then
+    # shellcheck source=/dev/null
+    . "$_kbd_hooks_self_dir/waypoint.sh"
+  fi
+  unset _kbd_hooks_self_dir
+fi
+
 _kbd_hooks_debug() {
   [[ "${KBD_HOOK_DEBUG:-}" == "1" ]] && printf '[hooks] %s\n' "$*" >&2
   :
@@ -113,6 +126,15 @@ _kbd_hooks_resolve_overrides() {
   local entries
   entries="$(cat)"
   [[ -n "$entries" ]] || return 0
+
+  # Defensive: tolerate non-JSON lines on the input stream (e.g. stray xtrace,
+  # an accidental echo from an augment, or a polluted shell). Without this a
+  # single non-JSON line aborts the override jq with a parse error and breaks
+  # all dispatch. `fromjson? // empty` drops anything that isn't valid JSON.
+  if command -v jq >/dev/null 2>&1; then
+    entries="$(printf '%s\n' "$entries" | jq -cR 'fromjson? // empty' 2>/dev/null)"
+    [[ -n "$entries" ]] || return 0
+  fi
 
   # Partition.
   local overrides augments
@@ -221,10 +243,10 @@ _kbd_hooks_run() {
   # Build context env. waypoint.sh is expected to be sourced; chain_separator
   # is optional (fallback to "› " inline).
   local sep="› "
-  if declare -F chain_separator >/dev/null 2>&1; then sep="$(chain_separator)"; fi
+  if command -v chain_separator >/dev/null 2>&1; then sep="$(chain_separator)"; fi
 
   local phase_path child_path source_tool started_at
-  if declare -F waypoint_load >/dev/null 2>&1 && [[ -f .kbd-orchestrator/current-waypoint.json ]]; then
+  if command -v waypoint_load >/dev/null 2>&1 && [[ -f .kbd-orchestrator/current-waypoint.json ]]; then
     local kvs
     kvs="$(waypoint_load .kbd-orchestrator/current-waypoint.json 2>/dev/null || true)"
     local _phase _parent _ptr _src
@@ -233,7 +255,7 @@ _kbd_hooks_run() {
     _ptr="$(printf '%s\n' "$kvs"    | sed -n 's/^childPointer=//p')"
     _src="$(printf '%s\n' "$kvs"    | sed -n 's/^sourceTool=//p')"
 
-    phase_path="$(declare -F waypoint_chain >/dev/null 2>&1 \
+    phase_path="$(command -v waypoint_chain >/dev/null 2>&1 \
       && waypoint_chain "$_parent" "$_phase" "$_ptr" \
       || printf '%s' "$_phase")"
     child_path="${_ptr:-}"

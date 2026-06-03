@@ -105,8 +105,11 @@ planner backend, or a designated AI tool.
 
 ### Level 2 — OpenSpec Change (inner loop)
 
-`/opsx:new` → `/opsx:apply` → `/opsx:verify` → `/opsx:archive`
-Delegates QA to `artifact-refiner` when available.
+`/opsx:new` (change created in **plan**) → **`/kbd-apply`** (drives the spec
+backend task-by-task in **execute**) → `verify` → `archive`.
+`/kbd-apply` wraps the OpenSpec CLI **one task at a time** so KBD hooks fire and
+`progress.json`/the waypoint stay in sync. Never invoke bare `/opsx:apply` — it
+runs outside KBD. Delegates QA to `artifact-refiner` when available.
 
 ### Level 3 — Artifact QA (innermost)
 
@@ -415,6 +418,15 @@ ending <kind> <name> [<index>/<total>]
 
 A project can replace this wholesale with a single `mode: "override"` entry covering `"*:*"`.
 
+> **Guarantee vs. extension (read this).** The stderr reporter is **not** what
+> the user sees each turn — Claude Code does not surface hook stderr into the
+> conversation. The user-facing guarantee is the **plain-text Progress Signals**
+> that every skill emits and that `/kbd-apply` emits per task. The
+> `report-progress` hook is the *extension point* (telemetry, memory mirror,
+> custom reporters). For the full design — including an opt-in `Stop` settings
+> hook that injects the phase chain regardless of which skill is active — see
+> `references/per-turn-position-hook.md`.
+
 **Per-fire context** — every hook command receives these environment variables (in addition to existing `${PHASE}`, `${STEP}`, `${EVENT}` substitutions):
 
 | Variable | Meaning |
@@ -578,6 +590,7 @@ Both ship enabled and can be disabled per-project via `.kbd-orchestrator/hooks-c
 - `/kbd-assess [phase-name]` — Assess current codebase against active phase goals
 - `/kbd-plan [phase-name]` — Create prioritized change list for current phase
 - `/kbd-execute [phase-name]` — Select execution backend and dispatch phase
+- `/kbd-apply <change>` — Drive the spec backend (OpenSpec/Spec Kit) one task at a time, firing per-task hooks + position signals (implemented in `skills/kbd-apply/`). Replaces bare `/opsx:apply`.
 - `/kbd-reflect [phase-name]` — Generate phase reflection report + seed next phase
 - `/kbd-status` — Show current phase, change inventory, and waypoint-guided next action
 - `/kbd-new-phase <name> [goals...]` — Start a new named phase with goals (implemented in `skills/kbd-new-phase/`)

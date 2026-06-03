@@ -124,10 +124,17 @@ Use the canonical phase name from the argument or `current-waypoint.json`. Phase
 ## Hook integration
 
 Fire `execute:before` before selecting a backend, `execute:after` after
-writing `execution.md`. **`task:before`/`task:after` are fired per
-OpenSpec task by `/opsx:apply`**, not by `/kbd-execute` itself —
-`/kbd-execute` writes the dispatch contract, the apply skill walks
-tasks. See orchestrator `SKILL.md` → "Hooks" for per-task wiring.
+writing `execution.md`. **`task:before`/`task:after` are fired per task by
+`/kbd-apply`** — the KBD-owned apply driver — not by `/kbd-execute` and **not**
+by bare `/opsx:apply`. `/kbd-execute` writes the dispatch contract; `/kbd-apply`
+walks the tasks, firing the per-task hooks and emitting the plain-text position
+signal on each boundary. See the `kbd-apply` SKILL for the per-task contract.
+
+> **Corrected (2026-06-03):** earlier versions of this file claimed bare
+> `/opsx:apply` fired the per-task KBD hooks. It does **not** — `/opsx:apply` is
+> unmodified upstream OpenSpec with no KBD awareness (no hooks, no
+> `progress.json`, no waypoint). Driving it directly is the seam that broke
+> plan→execute. Always route task execution through `/kbd-apply`.
 
 ```sh
 . "$KBD_ORCHESTRATOR_ROOT/shared/lib/waypoint.sh"

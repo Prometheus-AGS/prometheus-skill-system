@@ -58,9 +58,15 @@ See `references/model-routing.md` for the full routing contract.
 | `kilo-code`     | Kilo Code            | Targeted file edits                                         |
 | `windsurf`      | Windsurf Cascade     | Autonomous multi-step sessions                              |
 | `opencode`      | OpenCode             | Quick targeted edits and patches                            |
-| `openspec`      | OpenSpec             | Spec-backed changes with traceability                       |
-| `hybrid`        | Multiple             | Combination: native for decomp, OpenSpec for QA             |
+| `openspec`      | OpenSpec (via `/kbd-apply`) | Spec-backed changes with traceability                |
+| `speckit`       | GitHub Spec Kit (via `/kbd-apply`) | `specs/<feature>/tasks.md` checklist execution |
+| `hybrid`        | Multiple             | Combination: native for decomp, spec backend for QA         |
 | `manual`        | Human                | Operations requiring judgment or external tools             |
+
+> Spec backends (`openspec`, `speckit`) are always driven through `/kbd-apply`
+> task-by-task — never via a bare `/opsx:apply` or `/speckit.implement`.
+> `/kbd-apply detect` selects the backend automatically (openspec dir+CLI →
+> `openspec`; `.specify/` or `specs/*/tasks.md` → `speckit`).
 
 ### Selection Rules
 
@@ -181,12 +187,28 @@ HANDOFF NOTE for <tool>:
 6. On blocker: status → BLOCKED, add to blockers array, commit
 ```
 
-### If backend = `openspec` and self-executing
+### If backend = `openspec` (or any spec backend) and self-executing
 
-1. Select or create the relevant OpenSpec change (already created in kbd-plan)
-2. Treat OpenSpec tasks as the working execution surface
-3. Sync progress back into `progress.json` after each task
-4. Refresh the current waypoint so a later session resumes cleanly
+**Route task execution through `/kbd-apply` — never invoke bare `/opsx:apply`.**
+
+Plan/execute boundary (F3): `/kbd-plan` *creates* the change (`/opsx:new`);
+`/kbd-execute` *drives* it via `/kbd-apply`. Do not re-create changes here.
+
+1. Confirm the active change from the waypoint (created in `kbd-plan`).
+2. Hand off to `/kbd-apply`, which owns the per-task loop:
+   - reads the task surface (`kbd-apply list <change>` / `progress <change>`)
+   - for each not-done task: `begin-task` (fires `task:before` + plain-text
+     "Starting task i of n"), implement that **one** task, `end-task` (marks
+     done, syncs `progress.json` + waypoint, fires `task:after` + "Completed
+     task i of n")
+3. On the final task the `on_change_complete` sentinel fires automatically.
+4. Run the artifact-refiner QA gate, then `kbd-apply verify` → `kbd-apply
+   archive` (which call `openspec validate` / `openspec archive`).
+
+> **Why not bare `/opsx:apply`?** It is unmodified upstream OpenSpec: it fires
+> no KBD hooks, writes no `progress.json`, and refreshes no waypoint. Invoking
+> it directly drops the turn out of KBD entirely — the plan→execute seam this
+> design repairs. `/kbd-apply` wraps the same OpenSpec CLI task-by-task instead.
 
 ## Questions the Execute Phase Must Answer
 
