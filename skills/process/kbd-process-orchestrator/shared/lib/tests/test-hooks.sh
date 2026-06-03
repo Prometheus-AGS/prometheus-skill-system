@@ -185,5 +185,37 @@ echo "$out" | grep -q 'override conflict' \
   || fail "test 9 — expected 'override conflict' warning, got: $out"
 pass "multiple overrides on same event emit conflict warning"
 
+cd "$SANDBOX"
+rm -f .kbd-orchestrator/hooks-config.json
+
+# Test 10 (F5 regression): the resolver tolerates non-JSON pollution on its
+# input stream and still resolves without a jq parse error.
+poison="$(printf 'raw=%s\nnot json\ntrue\n{bad' '*:*')"
+poison_out="$(printf '%s\n' "$poison" | _kbd_hooks_resolve_overrides phase before 2>&1)"
+echo "$poison_out" | grep -qi 'parse error' \
+  && fail "test 10 — resolver leaked a jq parse error on polluted input: $poison_out"
+pass "resolver tolerates non-JSON input lines (no jq parse error)"
+
+# Test 11 (F5 regression, end-to-end): firing emits exactly the reporter line
+# and never a 'parse error', with correct index/total.
+out="$(kbd_hooks_fire phase before theta 2 5 2>&1 >/dev/null)"
+echo "$out" | grep -qi 'parse error' \
+  && fail "test 11 — fire emitted a jq parse error: $out"
+echo "$out" | grep -q '^starting phase theta \[2/5\]$' \
+  || fail "test 11 — expected 'starting phase theta [2/5]', got: $out"
+pass "fire is clean (no parse error) and reports correct index/total"
+
+# Test 12 (F7 regression): sourcing hooks.sh ALONE (without waypoint.sh
+# pre-sourced) must not throw 'command not found' for chain_separator /
+# waypoint_chain — hooks.sh now sources waypoint.sh defensively.
+f7_out="$(bash --noprofile --norc -c '
+  export KBD_ORCHESTRATOR_ROOT="'"$SKILL_ROOT"'"
+  . "$KBD_ORCHESTRATOR_ROOT/shared/lib/hooks.sh"
+  kbd_hooks_fire phase before iota 1 1
+' 2>&1 >/dev/null)"
+echo "$f7_out" | grep -qi 'command not found' \
+  && fail "test 12 — hooks.sh alone threw command not found: $f7_out"
+pass "hooks.sh is self-sufficient (sources waypoint.sh; no command not found)"
+
 cd /
 printf '\nall hook smoke tests passed\n'

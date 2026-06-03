@@ -1,0 +1,80 @@
+{
+  "phase": "kbd-execute-spec-wrapping-and-nesting-2026-06-03",
+  "assessment_complete": true,
+  "plan_complete": true,
+  "execute_complete": true,
+  "reflect_complete": true,
+  "backend": "native-kbd",
+  "backend_rationale": "Phase repairs the broken /opsx:apply seam; native KBD avoids dogfooding the broken path.",
+  "changes_total": 8,
+  "changes_completed": 8,
+  "commit_order": [
+    "change-005-hooks-robustness",
+    "change-001-spec-backend-interface",
+    "change-002-kbd-apply-driver",
+    "change-003-rewrite-execute-dispatch",
+    "change-004-per-turn-position-reporter",
+    "change-006-child-loop-wrapping",
+    "change-008-verify-and-integration-test",
+    "change-007-speckit-adapter"
+  ],
+  "changes": [
+    {
+      "id": "change-005-hooks-robustness",
+      "status": "DONE",
+      "model_class": "small",
+      "addresses": "F5,F7",
+      "tasks_done": 0
+    },
+    {
+      "id": "change-001-spec-backend-interface",
+      "status": "DONE",
+      "model_class": "medium",
+      "addresses": "F1,F4",
+      "tasks_done": 0
+    },
+    {
+      "id": "change-002-kbd-apply-driver",
+      "status": "DONE",
+      "model_class": "frontier",
+      "addresses": "F1",
+      "tasks_done": 0
+    },
+    {
+      "id": "change-003-rewrite-execute-dispatch",
+      "status": "DONE",
+      "model_class": "medium",
+      "addresses": "F1,F3",
+      "tasks_done": 0
+    },
+    {
+      "id": "change-004-per-turn-position-reporter",
+      "status": "DONE",
+      "model_class": "medium",
+      "addresses": "F2",
+      "tasks_done": 0
+    },
+    {
+      "id": "change-006-child-loop-wrapping",
+      "status": "DONE",
+      "model_class": "medium",
+      "addresses": "F6",
+      "tasks_done": 0
+    },
+    {
+      "id": "change-008-verify-and-integration-test",
+      "status": "DONE",
+      "model_class": "medium",
+      "addresses": "verification",
+      "tasks_done": 0
+    },
+    {
+      "id": "change-007-speckit-adapter",
+      "status": "DONE",
+      "model_class": "medium",
+      "addresses": "F4",
+      "tasks_done": 0
+    }
+  ],
+  "updated": "2026-06-03"
+}

@@ -25,7 +25,12 @@ fi
 phase="${KBD_HOOK_PHASE_PATH%% *}"
 [[ -n "$phase" ]] || phase="unknown"
 
-entity_id="$project/$phase/${KBD_HOOK_KIND:-?}/${KBD_HOOK_EDGE:-?}/${KBD_HOOK_INDEX:-1}/${KBD_HOOK_STARTED_AT:-}"
+# Coerce index/total to integers — they are fed to jq via --argjson, which
+# aborts with a parse error on empty or non-numeric input.
+idx="${KBD_HOOK_INDEX:-1}"; [[ "$idx" =~ ^[0-9]+$ ]] || idx=1
+tot="${KBD_HOOK_TOTAL:-1}"; [[ "$tot" =~ ^[0-9]+$ ]] || tot=1
+
+entity_id="$project/$phase/${KBD_HOOK_KIND:-?}/${KBD_HOOK_EDGE:-?}/$idx/${KBD_HOOK_STARTED_AT:-}"
 
 payload="$(jq -c -n \
   --arg eid       "$entity_id" \
@@ -34,8 +39,8 @@ payload="$(jq -c -n \
   --arg kind      "${KBD_HOOK_KIND:-}" \
   --arg edge      "${KBD_HOOK_EDGE:-}" \
   --arg name      "${KBD_HOOK_NAME:-}" \
-  --argjson index "${KBD_HOOK_INDEX:-1}" \
-  --argjson total "${KBD_HOOK_TOTAL:-1}" \
+  --argjson index "$idx" \
+  --argjson total "$tot" \
   --arg phasePath "${KBD_HOOK_PHASE_PATH:-}" \
   --arg srcTool   "${KBD_HOOK_SOURCE_TOOL:-unknown}" \
   --arg ts        "${KBD_HOOK_STARTED_AT:-}" '

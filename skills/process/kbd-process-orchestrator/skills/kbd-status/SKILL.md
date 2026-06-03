@@ -119,7 +119,7 @@ Changes:
   PENDING:     change-008-clients-page
   PENDING:     change-009-deals-page
 
-Next action (from waypoint): /opsx:apply change-007-complete-team-invitations
+Next action (from waypoint): /kbd-apply change-007-complete-team-invitations
 ```
 
 ### Example — nested phase, outside worktreeRoot
