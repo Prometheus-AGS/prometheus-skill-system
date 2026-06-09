@@ -2,7 +2,7 @@
   "name": "prometheus-entity-graph-crud",
   "version": "1.0.0",
   "description": "Generate CRUD screens for prometheus-entity-management: useEntityCRUD, EntityTable, EntityFormSheet, registerSchema, and strict Components → Hooks → Stores flow.",
-  "author": "Prometheus AGS",
+  "author": {"name": "Prometheus AGS"},
   "repository": "prometheus/prometheus-entity-management",
   "skills": [
     "SKILL.md",

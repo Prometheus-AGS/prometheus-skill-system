@@ -43,7 +43,7 @@
     "./skills/imported/sycophancy-correction",
     "./skills/rust/prometheus-rust-auditor"
   ],
-  "agents": "./agents",
+  "agents": ["./agents"],
   "hooks": "./hooks/hooks.json",
   "mcpServers": "./.mcp.json",
   "compatibility": {

@@ -2,7 +2,7 @@
   "name": "prometheus-entity-graph-graphql",
   "version": "1.0.0",
   "description": "GraphQL layer for prometheus-entity-management: GQLClient, EntityDescriptor normalization, useGQLEntity/useGQLList/useGQLMutation/useGQLSubscription, and RealtimeManager integration via createGraphQLSubscriptionAdapter.",
-  "author": "Prometheus AGS",
+  "author": {"name": "Prometheus AGS"},
   "repository": "prometheus/prometheus-entity-management",
   "skills": [
     "SKILL.md",

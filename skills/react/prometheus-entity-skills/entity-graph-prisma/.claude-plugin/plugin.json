@@ -2,7 +2,7 @@
   "name": "prometheus-entity-graph-prisma",
   "version": "1.0.0",
   "description": "Prisma + prometheus-entity-management: schema.prisma analysis, createPrismaEntityConfig, toPrismaWhere/toPrismaOrderBy, Next.js App Router CRUD routes, optional prisma-entity-graph-generator, and migration from ad-hoc Prisma usage.",
-  "author": "Prometheus AGS",
+  "author": {"name": "Prometheus AGS"},
   "repository": "prometheus/prometheus-entity-management",
   "skills": [
     "SKILL.md",
