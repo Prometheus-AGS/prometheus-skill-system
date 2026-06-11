@@ -81,6 +81,11 @@
             "type": "command",
             "command": "bash ${CLAUDE_PLUGIN_ROOT}/shared/scripts/scope-record.sh 2>&1 || true",
             "timeout": 5000
+          },
+          {
+            "type": "command",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT}/shared/scripts/sycophancy-check-artifact.sh",
+            "timeout": 35000
           }
         ]
       }

@@ -7,7 +7,7 @@ priority: P2
 effort: M
 agent: claude-code
 evolver_item_id: null
-status: proposed
+status: done
 scope:
   - shared/scripts/lib/sycophancy.sh
   - shared/scripts/sycophancy-check-reflection.sh
@@ -53,10 +53,10 @@ In:
 
 ## Tasks
 
-- [ ] 1. Extract shared/scripts/lib/sycophancy.sh; make check-reflection a thin wrapper
-- [ ] 2. Write sycophancy-check-artifact.sh (flag set/clear)
-- [ ] 3. Extend pipeline-enforce.sh with the reflect_gate rule
-- [ ] 4. Wire into hooks.json; write test; run green
+- [x] 1. Extract shared/scripts/lib/sycophancy.sh; make check-reflection a thin wrapper
+- [x] 2. Write sycophancy-check-artifact.sh (flag set/clear)
+- [x] 3. Extend pipeline-enforce.sh with the reflect_gate rule
+- [x] 4. Wire into hooks.json; write test; run green
 
 ## Verification
 

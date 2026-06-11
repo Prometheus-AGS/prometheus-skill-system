@@ -34,8 +34,8 @@ TOOL_NAME="${1:-unknown}"
 
 log_info "$(date -u +%Y-%m-%dT%H:%M:%SZ) tool=${TOOL_NAME}"
 
-# Only enforce on bash tool calls that reference kbd-execute or kbd-reflect
-if ! echo "$TOOL_INPUT" | grep -qE 'kbd-execute|kbd-reflect'; then
+# Only enforce on bash tool calls that reference a guarded lifecycle command.
+if ! echo "$TOOL_INPUT" | grep -qE 'kbd-execute|kbd-reflect|kbd-new-phase|kbd-next-phase'; then
   exit 0
 fi
 
@@ -157,6 +157,32 @@ PYEOF
 
 EOF
     exit 2
+  fi
+fi
+
+# Rule: advancing to a new/next phase is blocked while the current phase's
+# reflection/assessment was rejected by the sycophancy artifact gate.
+if echo "$TOOL_INPUT" | grep -qE 'kbd-new-phase|kbd-next-phase'; then
+  if [[ -f "$PROGRESS" ]]; then
+    GATE="$(python3 -c "import json,sys; print(json.load(open('${PROGRESS}')).get('reflect_gate',''))" 2>/dev/null || true)"
+    if [[ "$GATE" == "rejected" ]]; then
+      log_error "phase advance blocked — reflect_gate rejected for phase '${PHASE}'"
+      cat >&2 <<EOF
+
+[pipeline-enforce] BLOCKED — reflection/assessment rejected by the sycophancy gate.
+
+  Phase: ${PHASE}
+
+  The current phase's reflection or assessment reads as a success summary rather
+  than analysis (Delta → Root Cause → Corrective Actions). Rewrite it so it
+  passes the gate; that clears progress.json reflect_gate and unblocks
+  /kbd-new-phase and /kbd-next-phase.
+
+  Override: PROMETHEUS_REFLECT_STRICTNESS=permissive
+
+EOF
+      exit 2
+    fi
   fi
 fi
 
