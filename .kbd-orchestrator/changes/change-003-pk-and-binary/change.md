@@ -7,7 +7,7 @@ priority: P2
 effort: M
 agent: claude-code
 evolver_item_id: null
-status: proposed
+status: done
 scope:
   - shared/scripts/pk-health.sh
   - skills/process/kbd-process-orchestrator/hooks/hooks.json
@@ -16,6 +16,7 @@ scope:
   - .github/workflows/validate.yml
   - skills/rust/karpathy-tokenizer/SKILL.md
   - shared/scripts/tests/test-pk-health.sh
+  - shared/scripts/tests/test-sycophancy-gate-e2e.sh # scope expansion: real-binary e2e test required by CA-4
 ---
 
 # change-003 — pk wiring, binary CI, karpathy decision
@@ -53,10 +54,10 @@ In:
 
 ## Tasks
 
-- [ ] 1. Write pk-health.sh; wire SessionStart
-- [ ] 2. Orchestrator reflect:end pk ingest; npm scripts for pk-lint/mem0-compress
-- [ ] 3. CI: build sycophancy binary + 1 real e2e gate test
-- [ ] 4. karpathy-tokenizer reference-only note; write test; run green
+- [x] 1. Write pk-health.sh; wire SessionStart
+- [x] 2. Orchestrator reflect:end pk ingest; npm scripts for pk-lint/mem0-compress
+- [x] 3. CI: build sycophancy binary + 1 real e2e gate test
+- [x] 4. karpathy-tokenizer reference-only note; write test; run green
 
 ## Verification
 

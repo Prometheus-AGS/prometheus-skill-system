@@ -12,6 +12,11 @@
             "type": "command",
             "command": "bash ${CLAUDE_PLUGIN_ROOT}/shared/scripts/memory-outbox-flush.sh 2>&1 || true",
             "timeout": 10000
+          },
+          {
+            "type": "command",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT}/shared/scripts/pk-health.sh 2>&1 || true",
+            "timeout": 8000
           }
         ]
       }

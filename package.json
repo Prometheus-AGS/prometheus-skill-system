@@ -13,6 +13,8 @@
     "validate:skill": "node scripts/validate-skills.js",
     "validate:strict": "node scripts/validate-skills.js --strict --exclude-submodules",
     "validate:signals": "node scripts/validate-progress-signals.js",
+    "lint:pk": "bash shared/scripts/pk-lint.sh",
+    "memory:compress": "bash shared/scripts/mem0-compress.sh",
     "build": "node scripts/build-marketplace.js",
     "test": "node scripts/test-skills.js",
     "lint": "node scripts/lint-skills.js",

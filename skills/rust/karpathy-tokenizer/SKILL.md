@@ -11,6 +11,15 @@ metadata:
 
 # Karpathy Tokenizer
 
+> **Integration status: reference-only — intentionally not hook-wired.**
+> This is an education/reference skill for training BPE tokenizers and wiring
+> them into Rust inference. It has no enforcement surface, so it is deliberately
+> NOT invoked from the KBD/PMPO lifecycle hooks (doing so would add per-turn
+> latency for zero guarantee value). The active Karpathy/`pk` integration lives
+> in the `pk-focus` (UserPromptSubmit), `pk-health` (SessionStart), and
+> `pk ingest` (reflect:end / Stop) hooks. Decision recorded 2026-06-11
+> (memory-and-karpathy phase) so it is not re-litigated.
+
 ## When to Use
 
 - You need to train a custom BPE tokenizer on domain-specific text (code, chat logs, medical records).

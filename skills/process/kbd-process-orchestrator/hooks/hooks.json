@@ -116,6 +116,18 @@
         "timeout": 8,
         "on_failure": "ignore"
       }
+    },
+    {
+      "id": "pk-ingest-on-reflect",
+      "event": "reflect:end",
+      "mode": "augment",
+      "description": "Ingest the reflection into prometheus-knowledge at reflect time so learnings are available within the session, not only at Stop. No-op when pk is absent.",
+      "action": {
+        "type": "command",
+        "command": "command -v pk >/dev/null 2>&1 && pk ingest >/dev/null 2>&1 || true",
+        "timeout": 10,
+        "on_failure": "ignore"
+      }
     }
   ]
 }
