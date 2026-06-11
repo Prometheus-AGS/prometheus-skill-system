@@ -7,7 +7,7 @@ priority: P1
 effort: L
 agent: claude-code
 evolver_item_id: null
-status: proposed
+status: done
 scope:
   - skills/process/kbd-process-orchestrator/skills/kbd-apply/kbd-apply.sh
   - skills/process/kbd-process-orchestrator/references/schemas/change-tasks.schema.json
@@ -58,11 +58,11 @@ Out: position-sync wiring (change-002), spec-creation skill (change-003).
 
 ## Tasks
 
-- [ ] 1. Write change-tasks.schema.json
-- [ ] 2. Add nk_* adapter functions + backend_detect fallback + specBackend honoring
-- [ ] 3. Wire native-kbd into b_* dispatch arms
-- [ ] 4. Write native-backend.md + spec-backend-interface.md row
-- [ ] 5. Write test-kbd-apply-native.sh; run green
+- [x] 1. Write change-tasks.schema.json
+- [x] 2. Add nk_* adapter functions + backend_detect fallback + specBackend honoring
+- [x] 3. Wire native-kbd into b_* dispatch arms
+- [x] 4. Write native-backend.md + spec-backend-interface.md row
+- [x] 5. Write test-kbd-apply-native.sh; run green
 
 ## Verification
 

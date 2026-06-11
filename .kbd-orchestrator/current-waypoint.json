@@ -23,13 +23,13 @@
   "model": "claude-opus-4-8",
   "updated": "2026-06-03T00:00:00Z",
   "previousPhase": "position-and-handoff-guarantee",
-  "change": "change-001-native-kbd-backend",
+  "change": "change-002-position-sync-wiring",
   "status": "execute_ready",
-  "currentTask": "implement change-001 native-kbd backend",
-  "nextPendingChange": "change-001-native-kbd-backend",
-  "exactNextCommand": "/kbd-apply change-001-native-kbd-backend",
+  "currentTask": "wire kbd_position_sync into kbd-apply end-task",
+  "nextPendingChange": "change-002-position-sync-wiring",
+  "exactNextCommand": "/kbd-apply change-002-position-sync-wiring",
   "parentPhase": null,
   "childPhases": [],
   "childPointer": null,
-  "updatedAt": "2026-06-11T22:17:25Z"
+  "updatedAt": "2026-06-11T22:20:34Z"
 }

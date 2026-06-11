@@ -71,6 +71,25 @@ Spec Kit's `/speckit.implement` is the "do everything" command and is therefore
 **not** used as the per-task executor — the driver implements each task itself
 (or delegates a single task), consistent with the hard invariant above.
 
+## Adapter: native-kbd  (PMPO-native backend — the always-available fallback)
+
+The default backend for projects with no OpenSpec/Spec Kit, and the default
+for new `kbd-init` projects. Purpose-built for one-task-per-turn driving with
+no "do everything" command to mis-invoke. Full layout: `native-backend.md`.
+
+| Op | Concrete command | Mapping |
+|---|---|---|
+| `detect` | `project.json.specBackend == native-kbd`, OR (auto) a `.kbd-orchestrator/changes/*/tasks.json` or legacy `change.md` exists | always available as the final fallback |
+| `list_tasks` | read `changes/<c>/tasks.json` → TSV | `tasks.json` is source of truth; legacy `change.md` lazily migrated on first list |
+| `progress` | jq counts over `tasks.json` | `total complete remaining` |
+| `mark_done` | atomic jq set `done=true, doneAt, doneBy` then regenerate `tasks.md` | explicit task ids (not positional); `doneBy` is the cross-tool ledger |
+| `verify` | run per-task `verify:` commands, then structural check (all done + spec.md) | non-zero exit = fail |
+| `archive` | `mv changes/<c> changes/archive/<date>-<c>/` | mirrors the OpenSpec archive layout |
+
+Detection precedence: `project.json.specBackend` (explicit pin) → openspec →
+speckit → native-kbd. `specBackend: auto` (or absent) uses that order; an
+explicit value pins the backend regardless of what is on disk.
+
 ---
 
 ## Driver loop (pseudo-contract, implemented in `kbd-apply.sh` + SKILL.md)

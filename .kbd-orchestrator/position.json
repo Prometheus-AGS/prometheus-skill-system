@@ -1,27 +1,27 @@
 {
   "schemaVersion": "1",
-  "updatedAt": "2026-06-11T22:17:25Z",
+  "updatedAt": "2026-06-11T22:20:34Z",
   "cursor": [
     "canonical-lifecycle",
-    "change-001-native-kbd-backend",
-    "task:0/5"
+    "change-002-position-sync-wiring",
+    "task:0/3"
   ],
   "root": {
     "type": "phase",
     "id": "canonical-lifecycle",
     "status": "execute_ready",
     "progress": {
-      "done": 0,
+      "done": 1,
       "total": 5
     },
     "children": [
       {
         "type": "change",
-        "id": "change-001-native-kbd-backend",
+        "id": "change-002-position-sync-wiring",
         "status": "PENDING",
         "progress": {
           "done": 0,
-          "total": 5
+          "total": 3
         }
       }
     ],
