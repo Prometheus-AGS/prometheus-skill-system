@@ -1,0 +1,11 @@
+{
+  "stage": "assess",
+  "completedAt": "2026-06-11T22:15:41Z",
+  "outputs": [
+    "assessment.md"
+  ],
+  "nextStage": "analyze",
+  "summaryForNext": "Five gaps G1-G5; verified kbd-apply.sh b_* dispatch is cleanly extensible (native-kbd = 3rd arm) and end-task is the position-sync insertion point. GO.",
+  "skipped": false,
+  "skipReason": null
+}

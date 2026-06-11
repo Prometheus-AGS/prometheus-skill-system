@@ -1,18 +1,30 @@
 {
   "schemaVersion": "1",
-  "updatedAt": "2026-06-11T17:27:41Z",
+  "updatedAt": "2026-06-11T22:17:25Z",
   "cursor": [
-    "position-and-handoff-guarantee"
+    "canonical-lifecycle",
+    "change-001-native-kbd-backend",
+    "task:0/5"
   ],
   "root": {
     "type": "phase",
-    "id": "position-and-handoff-guarantee",
-    "status": "phase_complete",
+    "id": "canonical-lifecycle",
+    "status": "execute_ready",
     "progress": {
-      "done": 6,
-      "total": 6
+      "done": 0,
+      "total": 5
     },
-    "children": [],
+    "children": [
+      {
+        "type": "change",
+        "id": "change-001-native-kbd-backend",
+        "status": "PENDING",
+        "progress": {
+          "done": 0,
+          "total": 5
+        }
+      }
+    ],
     "annotations": []
   }
 }

@@ -1,0 +1,11 @@
+{
+  "stage": "spec",
+  "completedAt": "2026-06-11T22:17:25Z",
+  "outputs": [
+    "../../changes/change-001-native-kbd-backend/change.md"
+  ],
+  "nextStage": "plan",
+  "summaryForNext": "5 native change specs authored with tasks + scope; native-kbd backend (change-001) first so later changes dogfood it.",
+  "skipped": false,
+  "skipReason": null
+}
