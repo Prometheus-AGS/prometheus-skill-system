@@ -7,7 +7,7 @@ priority: P2
 effort: M
 agent: claude-code
 evolver_item_id: null
-status: proposed
+status: done
 scope:
   - skills/process/kbd-process-orchestrator/shared/lib/position.sh
   - skills/process/kbd-process-orchestrator/references/schemas/position.schema.json
@@ -48,10 +48,10 @@ In:
 
 ## Tasks
 
-- [ ] 1. Write position.sh + schema
-- [ ] 2. kbd-status rendering edit
-- [ ] 3. waypoint-render position.json preference
-- [ ] 4. Test; run green
+- [x] 1. Write position.sh + schema
+- [x] 2. kbd-status rendering edit
+- [x] 3. waypoint-render position.json preference
+- [x] 4. Test; run green
 
 ## Verification
 

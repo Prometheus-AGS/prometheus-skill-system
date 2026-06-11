@@ -49,6 +49,24 @@ The status output itself serves as the start signal. Emit the completion signal 
 7. **If OpenSpec**: read `openspec/changes/` active + `openspec/changes/archive/`
 8. **Print status table**
 
+## Position model (preferred source)
+
+When `.kbd-orchestrator/position.json` exists and is not older than
+`current-waypoint.json`, render from it FIRST — it is the unified, derived
+position tree (`shared/lib/position.sh` → `kbd_position_sync`; schema
+`references/schemas/position.schema.json`):
+
+- `phase:` line = `cursor` joined with the chain separator
+  (e.g. `phase: parent › child › change-007 › task:4/8`).
+- One indented line per tree level with its `progress.done/total`.
+- `annotations[]` render one line each after the tree:
+  `note (evolver): evolutions: my-evolution` — foreign state surfaced
+  read-only, never modified.
+
+Fall back to waypoint-based rendering below when position.json is absent,
+invalid, or staler than the waypoint. Refresh it any time by sourcing
+`shared/lib/position.sh` and calling `kbd_position_sync`.
+
 ## Phase chain rendering
 
 The active phase is rendered as a chain that reflects the nested-phase fields

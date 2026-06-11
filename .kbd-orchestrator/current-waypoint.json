@@ -23,13 +23,13 @@
   "model": "claude-opus-4-8",
   "updated": "2026-06-03T00:00:00Z",
   "previousPhase": "kbd-execute-spec-wrapping-and-nesting-2026-06-03",
-  "change": "change-005-position-model",
+  "change": "change-006-ci-signal-lint",
   "status": "execute_ready",
-  "currentTask": "implement change-005 unified position model",
-  "nextPendingChange": "change-005-position-model",
-  "exactNextCommand": "/kbd-apply change-005-position-model",
+  "currentTask": "implement change-006 CI progress-signal lint",
+  "nextPendingChange": "change-006-ci-signal-lint",
+  "exactNextCommand": "/kbd-apply change-006-ci-signal-lint",
   "parentPhase": null,
   "childPhases": [],
   "childPointer": null,
-  "updatedAt": "2026-06-11T17:20:31Z"
+  "updatedAt": "2026-06-11T17:23:12Z"
 }

@@ -79,6 +79,16 @@ waypoint_render() {
       crumb="$crumb › tasks ${tasks_done:-0}/${tasks_total}"
   fi
 
+  # Prefer the unified position model's cursor when it is at least as fresh
+  # as the waypoint (position.json is derived; freshness check avoids
+  # rendering a stale tree after a manual waypoint edit).
+  local pos="$root/.kbd-orchestrator/position.json"
+  if [ -f "$pos" ] && [ ! "$pos" -ot "$wp" ] && jq empty "$pos" 2>/dev/null; then
+    local pos_crumb
+    pos_crumb="$(jq -r '.cursor | select(type=="array") | join(" › ")' "$pos" 2>/dev/null)"
+    [ -n "$pos_crumb" ] && crumb="$pos_crumb"
+  fi
+
   printf '<!-- prometheus-position -->\n'
   printf 'Position: %s' "$crumb"
   [ -n "$status" ] && printf ' | status: %s' "$status"

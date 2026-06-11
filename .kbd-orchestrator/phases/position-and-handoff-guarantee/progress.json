@@ -8,13 +8,13 @@
   "execute_complete": false,
   "reflect_complete": false,
   "changes_total": 6,
-  "changes_completed": 4,
+  "changes_completed": 5,
   "completed_changes": [],
-  "active_change": "change-005-position-model",
+  "active_change": "change-006-ci-signal-lint",
   "blocked_changes": [],
   "sourceTool": "claude-code",
   "createdBy": "kbd-new-phase",
-  "updatedAt": "2026-06-11T17:20:31Z",
+  "updatedAt": "2026-06-11T17:23:12Z",
   "backend": "native-kbd",
   "changes": [
     {
@@ -47,9 +47,10 @@
     },
     {
       "id": "change-005-position-model",
-      "status": "PENDING",
+      "status": "DONE",
       "tasks_total": 4,
-      "tasks_done": 0
+      "tasks_done": 4,
+      "completed_by": "claude-code"
     },
     {
       "id": "change-006-ci-signal-lint",
