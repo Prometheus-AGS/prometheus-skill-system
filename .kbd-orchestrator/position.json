@@ -1,13 +1,13 @@
 {
   "schemaVersion": "1",
-  "updatedAt": "2026-06-11T23:27:25Z",
+  "updatedAt": "2026-06-11T23:28:33Z",
   "cursor": [
     "safeguards"
   ],
   "root": {
     "type": "phase",
     "id": "safeguards",
-    "status": "execute_complete",
+    "status": "phase_complete",
     "progress": {
       "done": 3,
       "total": 3
