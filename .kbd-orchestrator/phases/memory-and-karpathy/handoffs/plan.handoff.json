@@ -1,0 +1,11 @@
+{
+  "stage": "plan",
+  "completedAt": "2026-06-11T23:32:03Z",
+  "outputs": [
+    "plan.md"
+  ],
+  "nextStage": "execute",
+  "summaryForNext": "3 ordered changes; bridge lib first, then write-back wiring, then pk/CI/karpathy. First: change-001-memory-bridge.",
+  "skipped": false,
+  "skipReason": null
+}

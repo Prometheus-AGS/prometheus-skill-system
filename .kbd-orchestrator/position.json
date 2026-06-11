@@ -1,18 +1,30 @@
 {
   "schemaVersion": "1",
-  "updatedAt": "2026-06-11T23:28:33Z",
+  "updatedAt": "2026-06-11T23:32:03Z",
   "cursor": [
-    "safeguards"
+    "memory-and-karpathy",
+    "change-001-memory-bridge",
+    "task:0/3"
   ],
   "root": {
     "type": "phase",
-    "id": "safeguards",
-    "status": "phase_complete",
+    "id": "memory-and-karpathy",
+    "status": "execute_ready",
     "progress": {
-      "done": 3,
+      "done": 0,
       "total": 3
     },
-    "children": [],
+    "children": [
+      {
+        "type": "change",
+        "id": "change-001-memory-bridge",
+        "status": "PENDING",
+        "progress": {
+          "done": 0,
+          "total": 3
+        }
+      }
+    ],
     "annotations": []
   }
 }

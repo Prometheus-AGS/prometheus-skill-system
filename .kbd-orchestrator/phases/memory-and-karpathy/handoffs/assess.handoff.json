@@ -1,0 +1,11 @@
+{
+  "stage": "assess",
+  "completedAt": "2026-06-11T23:32:03Z",
+  "outputs": [
+    "assessment.md"
+  ],
+  "nextStage": "analyze",
+  "summaryForNext": "Five gaps M1-M5; verified HTTP bridge pattern, orchestrator builtin event bus, CI rust-cli job all reusable. GO.",
+  "skipped": false,
+  "skipReason": null
+}

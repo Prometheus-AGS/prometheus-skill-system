@@ -1,0 +1,12 @@
+{
+  "stage": "execute",
+  "completedAt": "2026-06-11T23:32:03Z",
+  "outputs": [
+    "execution.md",
+    "progress.json"
+  ],
+  "nextStage": "reflect",
+  "summaryForNext": "Backend native-kbd; change-001 active.",
+  "skipped": false,
+  "skipReason": null
+}
