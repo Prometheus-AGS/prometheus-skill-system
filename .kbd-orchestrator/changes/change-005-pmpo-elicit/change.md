@@ -7,7 +7,7 @@ priority: P2
 effort: M
 agent: claude-code
 evolver_item_id: null
-status: proposed
+status: done
 scope:
   - skills/process/pmpo-elicit/SKILL.md
   - skills/process/pmpo-elicit/references/schemas/elicitation.schema.json
@@ -44,9 +44,9 @@ that change is mechanical when it lands.
 
 ## Tasks
 
-- [ ] 1. Write elicitation.schema.json + integration-contract.md
-- [ ] 2. Write pmpo-elicit/SKILL.md (4 option classes, budget guards, signals)
-- [ ] 3. validate:strict + validate:signals green; npm run build registers it
+- [x] 1. Write elicitation.schema.json + integration-contract.md
+- [x] 2. Write pmpo-elicit/SKILL.md (4 option classes, budget guards, signals)
+- [x] 3. validate:strict + validate:signals green; npm run build registers it
 
 ## Verification
 

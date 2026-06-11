@@ -1,30 +1,18 @@
 {
   "schemaVersion": "1",
-  "updatedAt": "2026-06-11T22:24:41Z",
+  "updatedAt": "2026-06-11T22:26:16Z",
   "cursor": [
-    "canonical-lifecycle",
-    "change-005-pmpo-elicit",
-    "task:0/3"
+    "canonical-lifecycle"
   ],
   "root": {
     "type": "phase",
     "id": "canonical-lifecycle",
-    "status": "execute_ready",
+    "status": "execute_complete",
     "progress": {
-      "done": 4,
+      "done": 5,
       "total": 5
     },
-    "children": [
-      {
-        "type": "change",
-        "id": "change-005-pmpo-elicit",
-        "status": "PENDING",
-        "progress": {
-          "done": 0,
-          "total": 3
-        }
-      }
-    ],
+    "children": [],
     "annotations": []
   }
 }

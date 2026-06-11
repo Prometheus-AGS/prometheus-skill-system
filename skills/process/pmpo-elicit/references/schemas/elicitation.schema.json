@@ -1,0 +1,69 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://prometheus-ags.dev/schemas/pmpo/elicitation.schema.json",
+  "title": "PMPO elicitation request + result",
+  "description": "pmpo-elicit reads a request and writes a result under the caller's state dir (e.g. .kbd-orchestrator/phases/<phase>/elicitations/<id>/). The result records provenance so downstream stages know whether an answer came from the user, a named source, autonomous research, or an explicit implicit decision.",
+  "type": "object",
+  "oneOf": [
+    { "$ref": "#/$defs/request" },
+    { "$ref": "#/$defs/result" }
+  ],
+  "$defs": {
+    "request": {
+      "type": "object",
+      "required": ["kind", "id", "question"],
+      "properties": {
+        "kind": { "const": "request" },
+        "id": { "type": "string" },
+        "question": { "type": "string" },
+        "context": { "type": "string", "description": "Why this is being asked; what depends on it." },
+        "hints": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Minimal seeds the caller has — used to seed the research option even when the user is unsure."
+        },
+        "criticality": { "enum": ["low", "medium", "high", "blocking"] },
+        "caller": { "type": "string", "description": "Stage/skill that raised the request (e.g. kbd-analyze, zeespec-interrogate)." },
+        "write_back_path": { "type": "string", "description": "Where the resolved answer should be written by the caller." }
+      },
+      "additionalProperties": false
+    },
+    "result": {
+      "type": "object",
+      "required": ["kind", "id", "answer", "provenance"],
+      "properties": {
+        "kind": { "const": "result" },
+        "id": { "type": "string" },
+        "answer": { "type": ["string", "null"] },
+        "provenance": {
+          "enum": ["user", "source", "research", "implicit"],
+          "description": "user = direct answer; source = extracted from a user-named URL/file/person; research = autonomous research loop; implicit = explicit 'decide for me' default."
+        },
+        "source_ref": { "type": ["string", "null"], "description": "URL/path/identifier when provenance=source." },
+        "confidence": { "type": ["number", "null"], "minimum": 0, "maximum": 1 },
+        "evidence": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["claim"],
+            "properties": {
+              "source_url": { "type": "string" },
+              "claim": { "type": "string" }
+            },
+            "additionalProperties": false
+          }
+        },
+        "cost": {
+          "type": "object",
+          "properties": {
+            "queries": { "type": "integer", "minimum": 0 },
+            "minutes": { "type": "number", "minimum": 0 }
+          },
+          "additionalProperties": false
+        },
+        "resolved_at": { "type": "string", "format": "date-time" }
+      },
+      "additionalProperties": false
+    }
+  }
+}
