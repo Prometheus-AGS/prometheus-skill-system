@@ -119,6 +119,20 @@ OUT="$(cd "$TMP/repo2" && source "$LIB" && waypoint_render)"
 assert_contains "child breadcrumb" "$OUT" 'Position: parent › kid'
 assert_contains "child progress" "$OUT" 'Progress: changes 1/2'
 
+# 9. position-on-prompt.sh hook: emits block + instruction, exit 0, inside fixture repo
+HOOK="$SCRIPT_DIR/../position-on-prompt.sh"
+OUT="$(cd "$TMP/repo" && echo '{"prompt":"hi"}' | bash "$HOOK")"
+RC=$?
+[ "$RC" -eq 0 ] && PASS=$((PASS + 1)) || { FAIL=$((FAIL + 1)); echo "FAIL: hook rc=$RC" >&2; }
+assert_contains "hook emits block" "$OUT" '<!-- prometheus-position -->'
+assert_contains "hook emits instruction" "$OUT" 'MANDATORY: begin your response with the Position line'
+
+# 10. position-on-prompt.sh hook: silent + exit 0 outside any orchestrator
+OUT="$(cd "$TMP/bare" && echo '{}' | bash "$HOOK")"
+RC=$?
+assert_empty "hook silent without state" "$OUT"
+[ "$RC" -eq 0 ] && PASS=$((PASS + 1)) || { FAIL=$((FAIL + 1)); echo "FAIL: bare hook rc=$RC" >&2; }
+
 echo "---"
 echo "PASS=$PASS FAIL=$FAIL"
 [ "$FAIL" -eq 0 ]

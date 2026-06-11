@@ -18,6 +18,11 @@
             "type": "command",
             "command": "bash ${CLAUDE_PLUGIN_ROOT}/shared/scripts/pk-focus-on-prompt.sh 2>/dev/null",
             "timeout": 3000
+          },
+          {
+            "type": "command",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT}/shared/scripts/position-on-prompt.sh 2>/dev/null",
+            "timeout": 5000
           }
         ]
       }

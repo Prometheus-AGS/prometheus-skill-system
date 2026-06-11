@@ -8,13 +8,13 @@
   "execute_complete": false,
   "reflect_complete": false,
   "changes_total": 6,
-  "changes_completed": 1,
+  "changes_completed": 2,
   "completed_changes": [],
-  "active_change": "change-002-position-prompt-hook",
+  "active_change": "change-003-position-stop-gate",
   "blocked_changes": [],
   "sourceTool": "claude-code",
   "createdBy": "kbd-new-phase",
-  "updatedAt": "2026-06-11T17:13:46Z",
+  "updatedAt": "2026-06-11T17:14:52Z",
   "backend": "native-kbd",
   "changes": [
     {
@@ -26,9 +26,10 @@
     },
     {
       "id": "change-002-position-prompt-hook",
-      "status": "PENDING",
+      "status": "DONE",
       "tasks_total": 3,
-      "tasks_done": 0
+      "tasks_done": 3,
+      "completed_by": "claude-code"
     },
     {
       "id": "change-003-position-stop-gate",

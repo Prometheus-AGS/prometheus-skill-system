@@ -23,13 +23,13 @@
   "model": "claude-opus-4-8",
   "updated": "2026-06-03T00:00:00Z",
   "previousPhase": "kbd-execute-spec-wrapping-and-nesting-2026-06-03",
-  "change": "change-002-position-prompt-hook",
+  "change": "change-003-position-stop-gate",
   "status": "execute_ready",
-  "currentTask": "implement change-002 position-on-prompt hook",
-  "nextPendingChange": "change-002-position-prompt-hook",
-  "exactNextCommand": "/kbd-apply change-002-position-prompt-hook",
+  "currentTask": "implement change-003 stop gate",
+  "nextPendingChange": "change-003-position-stop-gate",
+  "exactNextCommand": "/kbd-apply change-003-position-stop-gate",
   "parentPhase": null,
   "childPhases": [],
   "childPointer": null,
-  "updatedAt": "2026-06-11T17:13:46Z"
+  "updatedAt": "2026-06-11T17:14:52Z"
 }

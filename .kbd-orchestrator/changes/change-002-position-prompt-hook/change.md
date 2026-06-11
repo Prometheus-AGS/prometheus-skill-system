@@ -7,7 +7,7 @@ priority: P1
 effort: S
 agent: claude-code
 evolver_item_id: null
-status: proposed
+status: done
 scope:
   - shared/scripts/position-on-prompt.sh
   - hooks/hooks.json
@@ -42,9 +42,9 @@ Out: Stop-gate enforcement (change-003).
 
 ## Tasks
 
-- [ ] 1. Write `shared/scripts/position-on-prompt.sh` (+x)
-- [ ] 2. Wire into `hooks/hooks.json` UserPromptSubmit
-- [ ] 3. Extend test; run green
+- [x] 1. Write `shared/scripts/position-on-prompt.sh` (+x)
+- [x] 2. Wire into `hooks/hooks.json` UserPromptSubmit
+- [x] 3. Extend test; run green
 
 ## Verification
 
