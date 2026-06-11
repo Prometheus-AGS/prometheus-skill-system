@@ -1,13 +1,13 @@
 {
   "schemaVersion": "1",
-  "updatedAt": "2026-06-11T22:26:16Z",
+  "updatedAt": "2026-06-11T22:27:21Z",
   "cursor": [
     "canonical-lifecycle"
   ],
   "root": {
     "type": "phase",
     "id": "canonical-lifecycle",
-    "status": "execute_complete",
+    "status": "phase_complete",
     "progress": {
       "done": 5,
       "total": 5
