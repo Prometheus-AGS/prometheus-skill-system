@@ -111,4 +111,38 @@ det="$("$APPLY" detect)"
 [ "$det" = "native-kbd" ] || [ "$det" = "openspec" ] || fail "auto detect unexpected: $det"
 pass "specBackend pin overrides auto; auto falls through correctly"
 
+# --- position.json advances as tasks complete via begin/end-task (CF-5) ---
+mkdir -p .kbd-orchestrator/phases/pz
+cat > .kbd-orchestrator/current-waypoint.json <<'JSON'
+{ "phase": "pz", "status": "execute_ready", "change": "change-z", "exactNextCommand": "/kbd-apply change-z" }
+JSON
+cat > .kbd-orchestrator/phases/pz/progress.json <<'JSON'
+{ "changes_total": 1, "changes_completed": 0,
+  "changes": [ { "id": "change-z", "status": "IN_PROGRESS", "tasks_total": 2, "tasks_done": 0 } ] }
+JSON
+mkdir -p .kbd-orchestrator/changes/change-z
+echo "# change-z" > .kbd-orchestrator/changes/change-z/spec.md
+cat > .kbd-orchestrator/changes/change-z/tasks.json <<'JSON'
+{ "changeId": "change-z", "schemaVersion": "1",
+  "tasks": [ { "id": "1", "title": "one", "done": false, "doneAt": null, "doneBy": null },
+             { "id": "2", "title": "two", "done": false, "doneAt": null, "doneBy": null } ] }
+JSON
+# Need project.json absent so detect picks native via tasks.json; remove the pin + openspec dir.
+rm -f .kbd-orchestrator/project.json; rmdir openspec 2>/dev/null || true
+
+"$APPLY" begin-task change-z 1 1 2 one >/dev/null 2>&1
+"$APPLY" end-task   change-z 1 1 2 one >/dev/null 2>&1
+[ -f .kbd-orchestrator/position.json ] || fail "position.json not created by end-task"
+jq -e '.cursor | index("task:1/2") != null' .kbd-orchestrator/position.json >/dev/null \
+  || fail "position cursor should show task:1/2, got $(jq -c .cursor .kbd-orchestrator/position.json)"
+
+"$APPLY" begin-task change-z 2 2 2 two >/dev/null 2>&1
+"$APPLY" end-task   change-z 2 2 2 two >/dev/null 2>&1
+jq -e '.cursor | index("task:2/2") != null' .kbd-orchestrator/position.json >/dev/null \
+  || fail "position cursor should advance to task:2/2, got $(jq -c .cursor .kbd-orchestrator/position.json)"
+# progress.json and position.json agree on the task fraction
+jq -e '.changes[0].tasks_done == 2' .kbd-orchestrator/phases/pz/progress.json >/dev/null \
+  || fail "progress.json tasks_done should be 2"
+pass "position.json advances task fraction in lockstep with progress.json via end-task"
+
 printf 'all native-kbd adapter tests passed\n'

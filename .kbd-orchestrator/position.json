@@ -1,9 +1,9 @@
 {
   "schemaVersion": "1",
-  "updatedAt": "2026-06-11T22:20:34Z",
+  "updatedAt": "2026-06-11T22:21:38Z",
   "cursor": [
     "canonical-lifecycle",
-    "change-002-position-sync-wiring",
+    "change-003-kbd-spec-stage",
     "task:0/3"
   ],
   "root": {
@@ -11,13 +11,13 @@
     "id": "canonical-lifecycle",
     "status": "execute_ready",
     "progress": {
-      "done": 1,
+      "done": 2,
       "total": 5
     },
     "children": [
       {
         "type": "change",
-        "id": "change-002-position-sync-wiring",
+        "id": "change-003-kbd-spec-stage",
         "status": "PENDING",
         "progress": {
           "done": 0,

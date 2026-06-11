@@ -7,7 +7,7 @@ priority: P1
 effort: S
 agent: claude-code
 evolver_item_id: null
-status: proposed
+status: done
 scope:
   - skills/process/kbd-process-orchestrator/skills/kbd-apply/kbd-apply.sh
   - skills/process/kbd-process-orchestrator/shared/lib/tests/test-kbd-apply-native.sh
@@ -36,9 +36,9 @@ Out: deeper waypoint-write-path wiring (documented, not coded, this change).
 
 ## Tasks
 
-- [ ] 1. Source position.sh in kbd-apply; call kbd_position_sync in end-task
-- [ ] 2. Add position-advance assertion to the native test
-- [ ] 3. Run green
+- [x] 1. Source position.sh in kbd-apply; call kbd_position_sync in end-task
+- [x] 2. Add position-advance assertion to the native test
+- [x] 3. Run green
 
 ## Verification
 

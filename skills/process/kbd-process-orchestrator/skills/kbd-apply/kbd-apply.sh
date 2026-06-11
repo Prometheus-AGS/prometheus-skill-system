@@ -41,6 +41,12 @@ if [ -f "$KBD_ORCHESTRATOR_ROOT/shared/lib/hooks.sh" ]; then
   # shellcheck source=/dev/null
   . "$KBD_ORCHESTRATOR_ROOT/shared/lib/hooks.sh" 2>/dev/null || true
 fi
+# Source the position model so the apply loop keeps position.json fresh on every
+# task boundary (Phase 1 carry-forward CF-5). Best-effort.
+if [ -f "$KBD_ORCHESTRATOR_ROOT/shared/lib/position.sh" ]; then
+  # shellcheck source=/dev/null
+  . "$KBD_ORCHESTRATOR_ROOT/shared/lib/position.sh" 2>/dev/null || true
+fi
 
 WP=".kbd-orchestrator/current-waypoint.json"
 
@@ -367,6 +373,9 @@ case "$cmd" in
     # Recompute progress from the backend so the count is authoritative.
     read -r tot comp rem < <(b_progress "$change" 2>/dev/null || echo "$n $i 0")
     sync_progress "$change" "${comp:-$i}" "${tot:-$n}"
+    # Re-derive the unified position model so the breadcrumb tracks task
+    # completion live (CF-5). Best-effort; never aborts the driver.
+    command -v kbd_position_sync >/dev/null 2>&1 && { kbd_position_sync || true; }
     fire task after "$change:$id" "$i" "$n"
     printf 'Completed task %s of %s: %s\n' "$i" "$n" "$title" ;;
 
