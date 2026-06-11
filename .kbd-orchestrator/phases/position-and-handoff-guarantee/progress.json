@@ -8,13 +8,13 @@
   "execute_complete": false,
   "reflect_complete": false,
   "changes_total": 6,
-  "changes_completed": 2,
+  "changes_completed": 3,
   "completed_changes": [],
-  "active_change": "change-003-position-stop-gate",
+  "active_change": "change-004-stage-gates-handoffs",
   "blocked_changes": [],
   "sourceTool": "claude-code",
   "createdBy": "kbd-new-phase",
-  "updatedAt": "2026-06-11T17:14:52Z",
+  "updatedAt": "2026-06-11T17:16:27Z",
   "backend": "native-kbd",
   "changes": [
     {
@@ -33,9 +33,10 @@
     },
     {
       "id": "change-003-position-stop-gate",
-      "status": "PENDING",
+      "status": "DONE",
       "tasks_total": 3,
-      "tasks_done": 0
+      "tasks_done": 3,
+      "completed_by": "claude-code"
     },
     {
       "id": "change-004-stage-gates-handoffs",

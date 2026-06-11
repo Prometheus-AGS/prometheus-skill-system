@@ -163,6 +163,11 @@
         "hooks": [
           {
             "type": "command",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT}/shared/scripts/position-stop-gate.sh",
+            "timeout": 5000
+          },
+          {
+            "type": "command",
             "command": "bash ${CLAUDE_PLUGIN_ROOT}/skills/process/iterative-evolver/scripts/state-finalize.sh \"${EVOLUTION_NAME:-default}\" 2>&1 || true"
           },
           {

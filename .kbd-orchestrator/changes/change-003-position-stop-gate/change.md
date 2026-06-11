@@ -7,7 +7,7 @@ priority: P1
 effort: M
 agent: claude-code
 evolver_item_id: null
-status: proposed
+status: done
 scope:
   - shared/scripts/position-stop-gate.sh
   - hooks/hooks.json
@@ -45,9 +45,9 @@ In:
 
 ## Tasks
 
-- [ ] 1. Write `shared/scripts/position-stop-gate.sh` (+x)
-- [ ] 2. Wire FIRST into hooks.json Stop group
-- [ ] 3. Write test; run green
+- [x] 1. Write `shared/scripts/position-stop-gate.sh` (+x)
+- [x] 2. Wire FIRST into hooks.json Stop group
+- [x] 3. Write test; run green
 
 ## Verification
 
