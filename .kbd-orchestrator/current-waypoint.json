@@ -23,19 +23,21 @@
   "model": "claude-opus-4-8",
   "updated": "2026-06-03T00:00:00Z",
   "previousPhase": "canonical-lifecycle",
-  "change": "change-002-scope-guard",
+  "change": "change-003-sycophancy-artifact-gate",
   "status": "execute_ready",
-  "currentTask": "implement change-002 scope guard",
-  "nextPendingChange": "change-002-scope-guard",
-  "exactNextCommand": "/kbd-apply change-002-scope-guard",
+  "currentTask": "implement change-003 sycophancy artifact gate",
+  "nextPendingChange": "change-003-sycophancy-artifact-gate",
+  "exactNextCommand": "/kbd-apply change-003-sycophancy-artifact-gate",
   "parentPhase": null,
   "childPhases": [],
   "childPointer": null,
-  "updatedAt": "2026-06-11T23:18:14Z",
+  "updatedAt": "2026-06-11T23:22:02Z",
   "scoped_paths": [
-    "shared/scripts/scope-guard.sh",
-    "shared/scripts/scope-record.sh",
+    "shared/scripts/lib/sycophancy.sh",
+    "shared/scripts/sycophancy-check-reflection.sh",
+    "shared/scripts/sycophancy-check-artifact.sh",
+    "shared/scripts/pipeline-enforce.sh",
     "hooks/hooks.json",
-    "shared/scripts/tests/test-scope-guard.sh"
+    "shared/scripts/tests/test-sycophancy-artifact.sh"
   ]
 }

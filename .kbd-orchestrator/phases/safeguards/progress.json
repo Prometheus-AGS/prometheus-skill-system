@@ -8,13 +8,13 @@
   "execute_complete": false,
   "reflect_complete": false,
   "changes_total": 3,
-  "changes_completed": 1,
+  "changes_completed": 2,
   "completed_changes": [],
-  "active_change": "change-002-scope-guard",
+  "active_change": "change-003-sycophancy-artifact-gate",
   "blocked_changes": [],
   "sourceTool": "claude-code",
   "createdBy": "kbd-new-phase",
-  "updatedAt": "2026-06-11T23:18:14Z",
+  "updatedAt": "2026-06-11T23:22:02Z",
   "backend": "native-kbd",
   "changes": [
     {
@@ -26,9 +26,10 @@
     },
     {
       "id": "change-002-scope-guard",
-      "status": "PENDING",
+      "status": "DONE",
       "tasks_total": 3,
-      "tasks_done": 0
+      "tasks_done": 3,
+      "completed_by": "claude-code"
     },
     {
       "id": "change-003-sycophancy-artifact-gate",

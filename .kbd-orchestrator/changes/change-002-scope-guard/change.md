@@ -7,7 +7,7 @@ priority: P2
 effort: M
 agent: claude-code
 evolver_item_id: null
-status: proposed
+status: done
 scope:
   - shared/scripts/scope-guard.sh
   - shared/scripts/scope-record.sh
@@ -50,9 +50,9 @@ In:
 
 ## Tasks
 
-- [ ] 1. Write scope-guard.sh + scope-record.sh (+x)
-- [ ] 2. Wire both into hooks.json
-- [ ] 3. Write test covering off/warn/ask + record; run green
+- [x] 1. Write scope-guard.sh + scope-record.sh (+x)
+- [x] 2. Wire both into hooks.json
+- [x] 3. Write test covering off/warn/ask + record; run green
 
 ## Verification
 
