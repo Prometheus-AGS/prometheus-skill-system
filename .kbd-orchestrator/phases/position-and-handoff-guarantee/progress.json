@@ -1,0 +1,58 @@
+{
+  "phase": "position-and-handoff-guarantee",
+  "parentPhase": null,
+  "childPhases": [],
+  "childPointer": null,
+  "assessment_complete": true,
+  "plan_complete": true,
+  "execute_complete": false,
+  "reflect_complete": false,
+  "changes_total": 6,
+  "changes_completed": 1,
+  "completed_changes": [],
+  "active_change": "change-002-position-prompt-hook",
+  "blocked_changes": [],
+  "sourceTool": "claude-code",
+  "createdBy": "kbd-new-phase",
+  "updatedAt": "2026-06-11T17:13:46Z",
+  "backend": "native-kbd",
+  "changes": [
+    {
+      "id": "change-001-position-render",
+      "status": "DONE",
+      "tasks_total": 3,
+      "tasks_done": 3,
+      "completed_by": "claude-code"
+    },
+    {
+      "id": "change-002-position-prompt-hook",
+      "status": "PENDING",
+      "tasks_total": 3,
+      "tasks_done": 0
+    },
+    {
+      "id": "change-003-position-stop-gate",
+      "status": "PENDING",
+      "tasks_total": 3,
+      "tasks_done": 0
+    },
+    {
+      "id": "change-004-stage-gates-handoffs",
+      "status": "PENDING",
+      "tasks_total": 4,
+      "tasks_done": 0
+    },
+    {
+      "id": "change-005-position-model",
+      "status": "PENDING",
+      "tasks_total": 4,
+      "tasks_done": 0
+    },
+    {
+      "id": "change-006-ci-signal-lint",
+      "status": "PENDING",
+      "tasks_total": 3,
+      "tasks_done": 0
+    }
+  ]
+}
