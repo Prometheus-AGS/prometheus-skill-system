@@ -23,18 +23,19 @@
   "model": "claude-opus-4-8",
   "updated": "2026-06-03T00:00:00Z",
   "previousPhase": "canonical-lifecycle",
-  "change": "change-001-protect-tests",
+  "change": "change-002-scope-guard",
   "status": "execute_ready",
-  "currentTask": "implement change-001 protect-tests.sh",
-  "nextPendingChange": "change-001-protect-tests",
-  "exactNextCommand": "/kbd-apply change-001-protect-tests",
+  "currentTask": "implement change-002 scope guard",
+  "nextPendingChange": "change-002-scope-guard",
+  "exactNextCommand": "/kbd-apply change-002-scope-guard",
   "parentPhase": null,
   "childPhases": [],
   "childPointer": null,
-  "updatedAt": "2026-06-11T23:17:07Z",
+  "updatedAt": "2026-06-11T23:18:14Z",
   "scoped_paths": [
-    "shared/scripts/protect-tests.sh",
+    "shared/scripts/scope-guard.sh",
+    "shared/scripts/scope-record.sh",
     "hooks/hooks.json",
-    "shared/scripts/tests/test-protect-tests.sh"
+    "shared/scripts/tests/test-scope-guard.sh"
   ]
 }

@@ -1,9 +1,9 @@
 {
   "schemaVersion": "1",
-  "updatedAt": "2026-06-11T23:17:07Z",
+  "updatedAt": "2026-06-11T23:18:14Z",
   "cursor": [
     "safeguards",
-    "change-001-protect-tests",
+    "change-002-scope-guard",
     "task:0/3"
   ],
   "root": {
@@ -11,13 +11,13 @@
     "id": "safeguards",
     "status": "execute_ready",
     "progress": {
-      "done": 0,
+      "done": 1,
       "total": 3
     },
     "children": [
       {
         "type": "change",
-        "id": "change-001-protect-tests",
+        "id": "change-002-scope-guard",
         "status": "PENDING",
         "progress": {
           "done": 0,

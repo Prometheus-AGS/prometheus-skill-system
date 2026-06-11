@@ -7,7 +7,7 @@ priority: P1
 effort: S
 agent: claude-code
 evolver_item_id: null
-status: proposed
+status: done
 scope:
   - shared/scripts/protect-tests.sh
   - hooks/hooks.json
@@ -44,9 +44,9 @@ In:
 
 ## Tasks
 
-- [ ] 1. Write protect-tests.sh (+x)
-- [ ] 2. Wire into hooks.json (widen matcher, append)
-- [ ] 3. Write test; run green
+- [x] 1. Write protect-tests.sh (+x)
+- [x] 2. Wire into hooks.json (widen matcher, append)
+- [x] 3. Write test; run green
 
 ## Verification
 
