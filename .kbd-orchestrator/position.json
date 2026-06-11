@@ -1,13 +1,13 @@
 {
   "schemaVersion": "1",
-  "updatedAt": "2026-06-11T23:41:05Z",
+  "updatedAt": "2026-06-11T23:42:13Z",
   "cursor": [
     "memory-and-karpathy"
   ],
   "root": {
     "type": "phase",
     "id": "memory-and-karpathy",
-    "status": "execute_complete",
+    "status": "phase_complete",
     "progress": {
       "done": 3,
       "total": 3
