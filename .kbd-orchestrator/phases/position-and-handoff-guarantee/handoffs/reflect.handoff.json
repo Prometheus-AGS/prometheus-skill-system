@@ -1,0 +1,11 @@
+{
+  "stage": "reflect",
+  "completedAt": "2026-06-11T17:27:41Z",
+  "outputs": [
+    "reflection.md"
+  ],
+  "nextStage": null,
+  "summaryForNext": "5 deltas with root causes; key carry-forwards: verify hooks in fresh session (RELOAD REQUIRED), wire kbd_position_sync into kbd-apply in Phase 2, burn down 23-skill signal baseline. Next phase: canonical-lifecycle.",
+  "skipped": false,
+  "skipReason": null
+}

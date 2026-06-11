@@ -1,13 +1,13 @@
 {
   "schemaVersion": "1",
-  "updatedAt": "2026-06-11T17:26:02Z",
+  "updatedAt": "2026-06-11T17:27:41Z",
   "cursor": [
     "position-and-handoff-guarantee"
   ],
   "root": {
     "type": "phase",
     "id": "position-and-handoff-guarantee",
-    "status": "execute_complete",
+    "status": "phase_complete",
     "progress": {
       "done": 6,
       "total": 6

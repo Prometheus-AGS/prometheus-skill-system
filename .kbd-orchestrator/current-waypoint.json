@@ -24,12 +24,12 @@
   "updated": "2026-06-03T00:00:00Z",
   "previousPhase": "kbd-execute-spec-wrapping-and-nesting-2026-06-03",
   "change": null,
-  "status": "execute_complete",
-  "currentTask": "write phase reflection",
+  "status": "phase_complete",
+  "currentTask": "phase closed; reload plugins to activate position hooks",
   "nextPendingChange": null,
-  "exactNextCommand": "/kbd-reflect position-and-handoff-guarantee",
+  "exactNextCommand": "/kbd-new-phase canonical-lifecycle",
   "parentPhase": null,
   "childPhases": [],
   "childPointer": null,
-  "updatedAt": "2026-06-11T17:26:02Z"
+  "updatedAt": "2026-06-11T17:27:41Z"
 }
