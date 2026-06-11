@@ -1,0 +1,9 @@
+{
+  "stage": "analyze",
+  "completedAt": "2026-06-11T17:20:16Z",
+  "outputs": [],
+  "nextStage": "spec",
+  "summaryForNext": "skipped: research already performed in the approved framework-evolution plan (sycophancy-gated assessment, 2026-06-11)",
+  "skipped": true,
+  "skipReason": "research already performed in the approved framework-evolution plan (sycophancy-gated assessment, 2026-06-11)"
+}

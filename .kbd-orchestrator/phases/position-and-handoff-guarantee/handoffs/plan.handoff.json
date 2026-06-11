@@ -1,0 +1,11 @@
+{
+  "stage": "plan",
+  "completedAt": "2026-06-11T17:20:16Z",
+  "outputs": [
+    "plan.md"
+  ],
+  "nextStage": "execute",
+  "summaryForNext": "Six ordered changes; renderer first so hooks and gate share one implementation; first change: change-001-position-render.",
+  "skipped": false,
+  "skipReason": null
+}

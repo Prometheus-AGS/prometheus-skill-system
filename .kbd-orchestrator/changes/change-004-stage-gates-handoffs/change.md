@@ -7,7 +7,7 @@ priority: P2
 effort: M
 agent: claude-code
 evolver_item_id: null
-status: proposed
+status: done
 scope:
   - skills/process/kbd-process-orchestrator/shared/lib/stage-gate.sh
   - skills/process/kbd-process-orchestrator/references/schemas/handoff.schema.json
@@ -52,10 +52,10 @@ In:
 
 ## Tasks
 
-- [ ] 1. Write stage-gate.sh (gate + handoff writer)
-- [ ] 2. Write handoff.schema.json
-- [ ] 3. Edit 4 stage SKILL.md files (gate call + handoff write instructions)
-- [ ] 4. Test; run green
+- [x] 1. Write stage-gate.sh (gate + handoff writer)
+- [x] 2. Write handoff.schema.json
+- [x] 3. Edit 4 stage SKILL.md files (gate call + handoff write instructions)
+- [x] 4. Test; run green
 
 ## Verification
 

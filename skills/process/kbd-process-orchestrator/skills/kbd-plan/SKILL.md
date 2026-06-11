@@ -122,3 +122,21 @@ kbd_hooks_fire plan after  "$phase" 1 1
 ```
 
 See orchestrator `SKILL.md` → "Hooks" for taxonomy and payload.
+
+## Stage gate & handoff
+
+The plan gate requires the assess handoff (walking back across the optional
+analyze/spec stages when they have no handoff). After writing `plan.md`,
+record the handoff that execute reads first:
+
+```sh
+. "$KBD_ORCHESTRATOR_ROOT/shared/lib/stage-gate.sh"
+
+kbd_stage_gate plan || exit 2
+# … draft plan.md …
+kbd_stage_handoff_write plan "<1–3 sentences: change count, ordering rationale, first change to apply>" plan.md
+```
+
+Phases without a `handoffs/` directory are legacy: the gate warns and passes.
+A deliberate stage skip is recorded with `kbd_stage_handoff_skip <stage>
+"<reason>"`. Schema: `references/schemas/handoff.schema.json`.

@@ -149,3 +149,21 @@ Note: the `on_change_complete` legacy alias is fired automatically by
 the dispatcher on the **final** `task:after` of each change (sentinel:
 `KBD_HOOK_INDEX == KBD_HOOK_TOTAL`). Projects relying on
 `on_change_complete` continue to work without changes.
+
+## Stage gate & handoff
+
+The execute gate requires the plan handoff. After writing `execution.md`
+and initializing `progress.json`, record the handoff that reflect reads
+first:
+
+```sh
+. "$KBD_ORCHESTRATOR_ROOT/shared/lib/stage-gate.sh"
+
+kbd_stage_gate execute || exit 2
+# … select backend, write execution.md, init progress.json …
+kbd_stage_handoff_write execute "<1–3 sentences: backend chosen, dispatch contract, first pending change>" execution.md progress.json
+```
+
+Phases without a `handoffs/` directory are legacy: the gate warns and passes.
+A deliberate stage skip is recorded with `kbd_stage_handoff_skip <stage>
+"<reason>"`. Schema: `references/schemas/handoff.schema.json`.

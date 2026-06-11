@@ -23,13 +23,13 @@
   "model": "claude-opus-4-8",
   "updated": "2026-06-03T00:00:00Z",
   "previousPhase": "kbd-execute-spec-wrapping-and-nesting-2026-06-03",
-  "change": "change-004-stage-gates-handoffs",
+  "change": "change-005-position-model",
   "status": "execute_ready",
-  "currentTask": "implement change-004 stage gates and handoffs",
-  "nextPendingChange": "change-004-stage-gates-handoffs",
-  "exactNextCommand": "/kbd-apply change-004-stage-gates-handoffs",
+  "currentTask": "implement change-005 unified position model",
+  "nextPendingChange": "change-005-position-model",
+  "exactNextCommand": "/kbd-apply change-005-position-model",
   "parentPhase": null,
   "childPhases": [],
   "childPointer": null,
-  "updatedAt": "2026-06-11T17:16:27Z"
+  "updatedAt": "2026-06-11T17:20:31Z"
 }

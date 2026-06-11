@@ -82,3 +82,21 @@ kbd_hooks_fire assess after  "$phase" 1 1   # ← new
 
 See orchestrator `SKILL.md` → "Hooks" for the full event taxonomy,
 override semantics, and `KBD_HOOK_*` payload.
+
+## Stage gate & handoff
+
+Assess is the first stage, so its gate always passes — call it anyway for
+uniformity. After writing `assessment.md`, record the handoff that the next
+stage (analyze, or plan when analyze is skipped) reads first:
+
+```sh
+. "$KBD_ORCHESTRATOR_ROOT/shared/lib/stage-gate.sh"
+
+kbd_stage_gate assess || exit 2
+# … write assessment.md …
+kbd_stage_handoff_write assess "<1–3 sentences: key gaps found, open questions for analyze/plan>" assessment.md
+```
+
+Phases without a `handoffs/` directory are legacy: the gate warns and passes.
+A deliberate stage skip is recorded with `kbd_stage_handoff_skip <stage>
+"<reason>"`. Schema: `references/schemas/handoff.schema.json`.

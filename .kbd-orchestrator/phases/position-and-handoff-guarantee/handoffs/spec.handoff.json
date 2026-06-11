@@ -1,0 +1,9 @@
+{
+  "stage": "spec",
+  "completedAt": "2026-06-11T17:20:16Z",
+  "outputs": [],
+  "nextStage": "plan",
+  "summaryForNext": "skipped: native change.md specs written directly during planning; kbd-spec skill ships in the next phase",
+  "skipped": true,
+  "skipReason": "native change.md specs written directly during planning; kbd-spec skill ships in the next phase"
+}

@@ -1,0 +1,11 @@
+{
+  "stage": "assess",
+  "completedAt": "2026-06-11T17:20:16Z",
+  "outputs": [
+    "assessment.md"
+  ],
+  "nextStage": "analyze",
+  "summaryForNext": "Four gaps F1-F4: unenforced position reporting, no unified position model, no stage handoffs, no signal CI lint. GO verdict.",
+  "skipped": false,
+  "skipReason": null
+}

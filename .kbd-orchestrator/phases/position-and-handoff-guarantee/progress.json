@@ -8,13 +8,13 @@
   "execute_complete": false,
   "reflect_complete": false,
   "changes_total": 6,
-  "changes_completed": 3,
+  "changes_completed": 4,
   "completed_changes": [],
-  "active_change": "change-004-stage-gates-handoffs",
+  "active_change": "change-005-position-model",
   "blocked_changes": [],
   "sourceTool": "claude-code",
   "createdBy": "kbd-new-phase",
-  "updatedAt": "2026-06-11T17:16:27Z",
+  "updatedAt": "2026-06-11T17:20:31Z",
   "backend": "native-kbd",
   "changes": [
     {
@@ -40,9 +40,10 @@
     },
     {
       "id": "change-004-stage-gates-handoffs",
-      "status": "PENDING",
+      "status": "DONE",
       "tasks_total": 4,
-      "tasks_done": 0
+      "tasks_done": 4,
+      "completed_by": "claude-code"
     },
     {
       "id": "change-005-position-model",

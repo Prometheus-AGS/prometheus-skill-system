@@ -133,3 +133,21 @@ kbd_hooks_fire phase   after  "$phase" 1 1   # canonical phase-end boundary
 ```
 
 See orchestrator `SKILL.md` → "Hooks" for taxonomy and payload.
+
+## Stage gate & handoff
+
+The reflect gate requires the execute handoff. After the reflection report
+is written (and passes the sycophancy gate), record the closing handoff —
+`/kbd-next-phase` seeds the next phase from it plus `reflection.md`:
+
+```sh
+. "$KBD_ORCHESTRATOR_ROOT/shared/lib/stage-gate.sh"
+
+kbd_stage_gate reflect || exit 2
+# … write reflection.md …
+kbd_stage_handoff_write reflect "<1–3 sentences: deltas found, corrective actions, recommended next phase>" reflection.md
+```
+
+Phases without a `handoffs/` directory are legacy: the gate warns and passes.
+A deliberate stage skip is recorded with `kbd_stage_handoff_skip <stage>
+"<reason>"`. Schema: `references/schemas/handoff.schema.json`.
