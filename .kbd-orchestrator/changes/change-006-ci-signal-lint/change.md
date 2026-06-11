@@ -7,9 +7,10 @@ priority: P3
 effort: S
 agent: claude-code
 evolver_item_id: null
-status: proposed
+status: done
 scope:
   - scripts/validate-progress-signals.js
+  - scripts/progress-signals-baseline.json # scope expansion: ratchet baseline (23 pre-gate skills), required companion
   - package.json
   - .github/workflows/validate.yml
 ---
@@ -37,9 +38,9 @@ In:
 
 ## Tasks
 
-- [ ] 1. Write the lint script; tune until current process skills pass honestly
-- [ ] 2. npm script + CI wiring
-- [ ] 3. Run `npm run validate:signals` green
+- [x] 1. Write the lint script; tune until current process skills pass honestly
+- [x] 2. npm script + CI wiring
+- [x] 3. Run `npm run validate:signals` green
 
 ## Verification
 

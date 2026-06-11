@@ -25,6 +25,9 @@ jobs:
       - name: Validate all skills
         run: npm run validate
 
+      - name: Lint progress-signal declarations
+        run: npm run validate:signals
+
   lint:
     name: Check Formatting
     runs-on: ubuntu-latest

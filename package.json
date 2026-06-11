@@ -12,6 +12,7 @@
     "validate": "node scripts/validate-skills.js --exclude-submodules",
     "validate:skill": "node scripts/validate-skills.js",
     "validate:strict": "node scripts/validate-skills.js --strict --exclude-submodules",
+    "validate:signals": "node scripts/validate-progress-signals.js",
     "build": "node scripts/build-marketplace.js",
     "test": "node scripts/test-skills.js",
     "lint": "node scripts/lint-skills.js",
