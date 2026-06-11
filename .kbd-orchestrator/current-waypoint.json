@@ -1,5 +1,5 @@
 {
-  "phase": "canonical-lifecycle",
+  "phase": "safeguards",
   "phase_started": "2026-06-03",
   "phase_path": ".kbd-orchestrator/phases/kbd-execute-spec-wrapping-and-nesting-2026-06-03",
   "stage": "reflect_complete",
@@ -22,14 +22,19 @@
   "tool": "claude-code",
   "model": "claude-opus-4-8",
   "updated": "2026-06-03T00:00:00Z",
-  "previousPhase": "position-and-handoff-guarantee",
-  "change": null,
-  "status": "phase_complete",
-  "currentTask": "phase closed (2 of 6); next: safeguards",
-  "nextPendingChange": null,
-  "exactNextCommand": "/kbd-new-phase safeguards",
+  "previousPhase": "canonical-lifecycle",
+  "change": "change-001-protect-tests",
+  "status": "execute_ready",
+  "currentTask": "implement change-001 protect-tests.sh",
+  "nextPendingChange": "change-001-protect-tests",
+  "exactNextCommand": "/kbd-apply change-001-protect-tests",
   "parentPhase": null,
   "childPhases": [],
   "childPointer": null,
-  "updatedAt": "2026-06-11T22:27:21Z"
+  "updatedAt": "2026-06-11T23:17:07Z",
+  "scoped_paths": [
+    "shared/scripts/protect-tests.sh",
+    "hooks/hooks.json",
+    "shared/scripts/tests/test-protect-tests.sh"
+  ]
 }

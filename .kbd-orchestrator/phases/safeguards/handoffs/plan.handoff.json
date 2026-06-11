@@ -1,0 +1,11 @@
+{
+  "stage": "plan",
+  "completedAt": "2026-06-11T23:17:07Z",
+  "outputs": [
+    "plan.md"
+  ],
+  "nextStage": "execute",
+  "summaryForNext": "3 ordered changes; protect-tests first (closes false claim), then scope guard (warn), then sycophancy generalization. First: change-001-protect-tests.",
+  "skipped": false,
+  "skipReason": null
+}

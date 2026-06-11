@@ -1,0 +1,3 @@
+{"ts":"2026-06-11T23:15:30Z","kind":"phase","edge":"before","name":"safeguards","index":1,"total":1,"phasePath":"safeguards","sourceTool":"unknown","hookId":"report-progress","layer":"builtin","mode":"augment","status":0}
+{"ts":"2026-06-11T23:15:30Z","kind":"phase","edge":"before","name":"safeguards","index":1,"total":1,"phasePath":"safeguards","sourceTool":"unknown","hookId":"kbd-memory-log","layer":"builtin","mode":"augment","status":0}
+{"ts":"2026-06-11T23:15:30Z","kind":"phase","edge":"before","name":"safeguards","index":1,"total":1,"phasePath":"safeguards","sourceTool":"unknown","hookId":"example-custom-activity-log","layer":"project","mode":"augment","status":0}

@@ -1,18 +1,30 @@
 {
   "schemaVersion": "1",
-  "updatedAt": "2026-06-11T22:27:21Z",
+  "updatedAt": "2026-06-11T23:17:07Z",
   "cursor": [
-    "canonical-lifecycle"
+    "safeguards",
+    "change-001-protect-tests",
+    "task:0/3"
   ],
   "root": {
     "type": "phase",
-    "id": "canonical-lifecycle",
-    "status": "phase_complete",
+    "id": "safeguards",
+    "status": "execute_ready",
     "progress": {
-      "done": 5,
-      "total": 5
+      "done": 0,
+      "total": 3
     },
-    "children": [],
+    "children": [
+      {
+        "type": "change",
+        "id": "change-001-protect-tests",
+        "status": "PENDING",
+        "progress": {
+          "done": 0,
+          "total": 3
+        }
+      }
+    ],
     "annotations": []
   }
 }

@@ -1,0 +1,9 @@
+{
+  "stage": "spec",
+  "completedAt": "2026-06-11T23:17:06Z",
+  "outputs": [],
+  "nextStage": "plan",
+  "summaryForNext": "skipped: native change specs authored directly during planning",
+  "skipped": true,
+  "skipReason": "native change specs authored directly during planning"
+}

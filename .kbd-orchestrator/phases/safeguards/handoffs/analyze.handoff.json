@@ -1,0 +1,9 @@
+{
+  "stage": "analyze",
+  "completedAt": "2026-06-11T23:17:06Z",
+  "outputs": [],
+  "nextStage": "spec",
+  "summaryForNext": "skipped: no external research needed — all three safeguards extend existing in-repo scripts/hooks",
+  "skipped": true,
+  "skipReason": "no external research needed — all three safeguards extend existing in-repo scripts/hooks"
+}
