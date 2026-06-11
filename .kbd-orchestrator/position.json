@@ -1,9 +1,9 @@
 {
   "schemaVersion": "1",
-  "updatedAt": "2026-06-11T23:33:39Z",
+  "updatedAt": "2026-06-11T23:36:37Z",
   "cursor": [
     "memory-and-karpathy",
-    "change-002-memory-writeback",
+    "change-003-pk-and-binary",
     "task:0/4"
   ],
   "root": {
@@ -11,13 +11,13 @@
     "id": "memory-and-karpathy",
     "status": "execute_ready",
     "progress": {
-      "done": 1,
+      "done": 2,
       "total": 3
     },
     "children": [
       {
         "type": "change",
-        "id": "change-002-memory-writeback",
+        "id": "change-003-pk-and-binary",
         "status": "PENDING",
         "progress": {
           "done": 0,

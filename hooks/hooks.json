@@ -7,6 +7,11 @@
             "type": "command",
             "command": "bash ${CLAUDE_PLUGIN_ROOT}/shared/scripts/detect-project-context.sh 2>&1 || true",
             "timeout": 15000
+          },
+          {
+            "type": "command",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT}/shared/scripts/memory-outbox-flush.sh 2>&1 || true",
+            "timeout": 10000
           }
         ]
       }
@@ -86,6 +91,11 @@
             "type": "command",
             "command": "bash ${CLAUDE_PLUGIN_ROOT}/shared/scripts/sycophancy-check-artifact.sh",
             "timeout": 35000
+          },
+          {
+            "type": "command",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT}/shared/scripts/memory-writeback.sh 2>&1 || true",
+            "timeout": 8000
           }
         ]
       }

@@ -42,10 +42,13 @@ _mem_outbox_write() { # <method> <arguments-json>
   return 0
 }
 
-# Choose the memory scope for a piece of content: [GLOBAL]-prefixed → global.
+# Choose the memory scope for a piece of content. Content that carries a
+# [GLOBAL] marker anywhere (a cross-project learning) is scoped global; the rest
+# is project-scoped. A caller that wants strict line-level routing should split
+# the content and call this per line.
 mem_scope_for() { # <content>
   case "$1" in
-    "[GLOBAL]"*|*$'\n[GLOBAL]'*) printf 'global' ;;
+    *"[GLOBAL]"*) printf 'global' ;;
     *) printf '%s' "$MEM_PROJECT" ;;
   esac
 }

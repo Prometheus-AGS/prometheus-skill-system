@@ -7,7 +7,7 @@ priority: P1
 effort: M
 agent: claude-code
 evolver_item_id: null
-status: proposed
+status: done
 scope:
   - skills/process/kbd-process-orchestrator/hooks/hooks.json
   - shared/scripts/memory-writeback.sh
@@ -52,10 +52,10 @@ In:
 
 ## Tasks
 
-- [ ] 1. Write memory-writeback.sh + memory-outbox-flush.sh
-- [ ] 2. Wire orchestrator builtin entries (execute:before, reflect:end)
-- [ ] 3. Wire PostToolUse + SessionStart into root hooks.json
-- [ ] 4. Write test; run green
+- [x] 1. Write memory-writeback.sh + memory-outbox-flush.sh
+- [x] 2. Wire orchestrator builtin entries (execute:before, reflect:end)
+- [x] 3. Wire PostToolUse + SessionStart into root hooks.json
+- [x] 4. Write test; run green
 
 ## Verification
 

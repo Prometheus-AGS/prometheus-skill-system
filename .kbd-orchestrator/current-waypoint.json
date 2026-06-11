@@ -23,20 +23,22 @@
   "model": "claude-opus-4-8",
   "updated": "2026-06-03T00:00:00Z",
   "previousPhase": "safeguards",
-  "change": "change-002-memory-writeback",
+  "change": "change-003-pk-and-binary",
   "status": "execute_ready",
-  "currentTask": "implement change-002 memory write-back wiring",
-  "nextPendingChange": "change-002-memory-writeback",
-  "exactNextCommand": "/kbd-apply change-002-memory-writeback",
+  "currentTask": "implement change-003 pk health + binary CI + karpathy decision",
+  "nextPendingChange": "change-003-pk-and-binary",
+  "exactNextCommand": "/kbd-apply change-003-pk-and-binary",
   "parentPhase": null,
   "childPhases": [],
   "childPointer": null,
-  "updatedAt": "2026-06-11T23:33:39Z",
+  "updatedAt": "2026-06-11T23:36:37Z",
   "scoped_paths": [
+    "shared/scripts/pk-health.sh",
     "skills/process/kbd-process-orchestrator/hooks/hooks.json",
-    "shared/scripts/memory-writeback.sh",
-    "shared/scripts/memory-outbox-flush.sh",
     "hooks/hooks.json",
-    "shared/scripts/tests/test-memory-writeback.sh"
+    "package.json",
+    ".github/workflows/validate.yml",
+    "skills/rust/karpathy-tokenizer/SKILL.md",
+    "shared/scripts/tests/test-pk-health.sh"
   ]
 }

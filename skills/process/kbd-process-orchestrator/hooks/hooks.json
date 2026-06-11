@@ -92,6 +92,30 @@
         "type": "command",
         "command": "echo '[kbd-orchestrator] Reflection complete — waypoint advanced to next phase, run /kbd-new-phase <name> to begin'"
       }
+    },
+    {
+      "id": "memory-task-stream",
+      "event": "execute:before",
+      "mode": "augment",
+      "description": "Open a surreal-memory task stream for the phase at execute start (best-effort; outbox-buffered when the endpoint is down).",
+      "action": {
+        "type": "command",
+        "command": "src=\"${KBD_ORCHESTRATOR_ROOT:-$HOME/.claude/skills/kbd-process-orchestrator}/../../../shared/scripts/lib/memory-bridge.sh\"; [ -f \"$src\" ] && . \"$src\" && mem_create_task_stream \"kbd:${KBD_PROJECT_NAME:-prometheus-skill-pack}:${KBD_HOOK_NAME}\" || true",
+        "timeout": 6,
+        "on_failure": "ignore"
+      }
+    },
+    {
+      "id": "memory-reflection-writeback",
+      "event": "reflect:end",
+      "mode": "augment",
+      "description": "Persist the accepted phase reflection (Delta + Corrective Actions) to surreal-memory, scoped global vs project. Skips rejected reflections.",
+      "action": {
+        "type": "command",
+        "command": "\"${KBD_ORCHESTRATOR_ROOT:-$HOME/.claude/skills/kbd-process-orchestrator}/../../../shared/scripts/memory-writeback.sh\" </dev/null || true",
+        "timeout": 8,
+        "on_failure": "ignore"
+      }
     }
   ]
 }
