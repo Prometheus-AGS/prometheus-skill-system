@@ -7,7 +7,7 @@ priority: P2
 effort: M
 agent: claude-code
 evolver_item_id: null
-status: proposed
+status: done
 scope:
   - skills/process/kbd-process-orchestrator/skills/kbd-analyze/SKILL.md
   - skills/process/kbd-process-orchestrator/references/research-pipeline.md
@@ -56,10 +56,10 @@ user flag when absent.
 
 ## Tasks
 
-- [ ] 1. Write library-candidates.schema.json + research-pipeline.md
-- [ ] 2. Write kbd-analyze/SKILL.md (pipeline, modes, gate/handoff, signals)
-- [ ] 3. kbd-plan consumes candidates; hooks.sh enum; KBD SKILL.md updates
-- [ ] 4. validate:strict + validate:signals green
+- [x] 1. Write library-candidates.schema.json + research-pipeline.md
+- [x] 2. Write kbd-analyze/SKILL.md (pipeline, modes, gate/handoff, signals)
+- [x] 3. kbd-plan consumes candidates; hooks.sh enum; KBD SKILL.md updates
+- [x] 4. validate:strict + validate:signals green
 
 ## Verification
 

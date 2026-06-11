@@ -8,13 +8,13 @@
   "execute_complete": false,
   "reflect_complete": false,
   "changes_total": 5,
-  "changes_completed": 3,
+  "changes_completed": 4,
   "completed_changes": [],
-  "active_change": "change-004-kbd-analyze-stage",
+  "active_change": "change-005-pmpo-elicit",
   "blocked_changes": [],
   "sourceTool": "claude-code",
   "createdBy": "kbd-new-phase",
-  "updatedAt": "2026-06-11T22:22:42Z",
+  "updatedAt": "2026-06-11T22:24:41Z",
   "backend": "native-kbd",
   "changes": [
     {
@@ -40,9 +40,10 @@
     },
     {
       "id": "change-004-kbd-analyze-stage",
-      "status": "PENDING",
+      "status": "DONE",
       "tasks_total": 4,
-      "tasks_done": 0
+      "tasks_done": 4,
+      "completed_by": "claude-code"
     },
     {
       "id": "change-005-pmpo-elicit",

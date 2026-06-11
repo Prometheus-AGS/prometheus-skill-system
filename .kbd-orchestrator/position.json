@@ -1,27 +1,27 @@
 {
   "schemaVersion": "1",
-  "updatedAt": "2026-06-11T22:22:42Z",
+  "updatedAt": "2026-06-11T22:24:41Z",
   "cursor": [
     "canonical-lifecycle",
-    "change-004-kbd-analyze-stage",
-    "task:0/4"
+    "change-005-pmpo-elicit",
+    "task:0/3"
   ],
   "root": {
     "type": "phase",
     "id": "canonical-lifecycle",
     "status": "execute_ready",
     "progress": {
-      "done": 3,
+      "done": 4,
       "total": 5
     },
     "children": [
       {
         "type": "change",
-        "id": "change-004-kbd-analyze-stage",
+        "id": "change-005-pmpo-elicit",
         "status": "PENDING",
         "progress": {
           "done": 0,
-          "total": 4
+          "total": 3
         }
       }
     ],

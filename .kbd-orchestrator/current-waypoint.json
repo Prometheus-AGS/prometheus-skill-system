@@ -23,13 +23,13 @@
   "model": "claude-opus-4-8",
   "updated": "2026-06-03T00:00:00Z",
   "previousPhase": "position-and-handoff-guarantee",
-  "change": "change-004-kbd-analyze-stage",
+  "change": "change-005-pmpo-elicit",
   "status": "execute_ready",
-  "currentTask": "write kbd-analyze stage skill + research pipeline",
-  "nextPendingChange": "change-004-kbd-analyze-stage",
-  "exactNextCommand": "/kbd-apply change-004-kbd-analyze-stage",
+  "currentTask": "write pmpo-elicit ask-or-research primitive",
+  "nextPendingChange": "change-005-pmpo-elicit",
+  "exactNextCommand": "/kbd-apply change-005-pmpo-elicit",
   "parentPhase": null,
   "childPhases": [],
   "childPointer": null,
-  "updatedAt": "2026-06-11T22:22:42Z"
+  "updatedAt": "2026-06-11T22:24:41Z"
 }

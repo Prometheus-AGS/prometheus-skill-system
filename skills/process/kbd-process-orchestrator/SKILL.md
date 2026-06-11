@@ -129,7 +129,11 @@ in the KBD process, regardless of its internal planning mechanism.
 | ------------------------------------------------ | ------------------ | ----------- | --------------------------------- |
 | `.kbd-orchestrator/current-waypoint.json`        | Any orchestrator   | All tools   | Resume contract — exact next step |
 | `.kbd-orchestrator/current-waypoint.md`          | Any orchestrator   | All tools   | Human-readable waypoint summary   |
-| `.kbd-orchestrator/phases/<phase>/assessment.md` | kbd-assess         | kbd-plan    | Gap analysis output               |
+| `.kbd-orchestrator/phases/<phase>/assessment.md` | kbd-assess         | kbd-analyze/kbd-plan | Gap analysis output      |
+| `.kbd-orchestrator/phases/<phase>/analysis.md`   | kbd-analyze        | kbd-spec/kbd-plan | Engineering-landscape research |
+| `.kbd-orchestrator/phases/<phase>/library-candidates.json` | kbd-analyze | kbd-spec/kbd-plan | Build-vs-adopt candidate set |
+| `.kbd-orchestrator/phases/<phase>/handoffs/*.handoff.json` | each stage | next stage gate | Stage precondition + summary |
+| `.kbd-orchestrator/position.json`                | kbd_position_sync  | kbd-status/renderer | Unified derived position tree |
 | `.kbd-orchestrator/phases/<phase>/plan.md`       | kbd-plan           | kbd-execute | Ordered change list               |
 | `.kbd-orchestrator/phases/<phase>/execution.md`  | kbd-execute        | All tools   | Backend dispatch contract         |
 | `.kbd-orchestrator/phases/<phase>/progress.json` | Any executing tool | kbd-status  | Live task progress ledger         |

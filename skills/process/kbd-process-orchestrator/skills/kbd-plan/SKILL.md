@@ -27,6 +27,21 @@ Output:
 - `.kbd-orchestrator/phases/<phase-name>/plan.md` — ordered change list
 - `.kbd-orchestrator/current-waypoint.md` and `current-waypoint.json` — refreshed
 
+## Analyze inputs (when the Analyze stage ran)
+
+When `.kbd-orchestrator/phases/<phase>/library-candidates.json` exists, read it
+before ordering changes (schema:
+`references/schemas/library-candidates.schema.json`):
+
+- A change addressing a gap whose candidate has verdict `adopt` or `adapt`
+  carries a `library: cand-###` annotation in `plan.md` and, for OpenSpec, the
+  candidate's evidence block in the design doc — the change *reuses* the library
+  rather than rebuilding it.
+- `build_required[]` entries (gaps with no adoptable candidate) become build
+  changes; a `capability_gap_id` (when present) marks a blocked-on dependency.
+
+When no `library-candidates.json` exists (Analyze skipped), plan as before.
+
 ## OpenSpec Detection
 
 Before emitting changes, detect the change management backend:
