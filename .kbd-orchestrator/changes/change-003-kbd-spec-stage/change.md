@@ -7,7 +7,7 @@ priority: P2
 effort: M
 agent: claude-code
 evolver_item_id: null
-status: proposed
+status: done
 scope:
   - skills/process/kbd-process-orchestrator/skills/kbd-spec/SKILL.md
   - skills/process/kbd-process-orchestrator/SKILL.md
@@ -42,9 +42,9 @@ Out: native backend itself (change-001), analyze stage (change-004).
 
 ## Tasks
 
-- [ ] 1. Write kbd-spec/SKILL.md (creation + zeespec gate + stage gate/handoff + signals)
-- [ ] 2. Register in KBD SKILL.md lifecycle + Quick Start
-- [ ] 3. validate:strict + validate:signals green for the new skill
+- [x] 1. Write kbd-spec/SKILL.md (creation + zeespec gate + stage gate/handoff + signals)
+- [x] 2. Register in KBD SKILL.md lifecycle + Quick Start
+- [x] 3. validate:strict + validate:signals green for the new skill
 
 ## Verification
 

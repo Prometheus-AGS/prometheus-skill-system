@@ -236,9 +236,19 @@ ASSESS
  └─ /kbd-assess (lightweight, waypoint-aware)
     └─ if deep analysis needed: /evolve-assess "<project>-<phase>" ← iterative-evolver
 
+ANALYZE (optional; skippable with recorded reason)
+ └─ /kbd-analyze (tiered engineering-landscape research → library-candidates.json)
+    └─ delegates to /evolve-analyze when an evolver bridge is present
+
+SPEC
+ └─ /kbd-spec (turns assessment + analysis into change specs)
+    └─ native-kbd specs (spec.md + tasks.json + verification.md) OR /opsx:new
+    └─ ZeeSpec coverage gate: NO-GO blocks spec→plan until /zeespec-interrogate
+
 PLAN
- └─ /kbd-plan (generates change list)
-    └─ auto-detects OpenSpec (openspec/ directory or project.json config)
+ └─ /kbd-plan (orders the change list)
+    └─ auto-detects backend (openspec/ directory or project.json.specBackend)
+    └─ reads library-candidates.json; annotates adopt/adapt changes
     └─ if evolver bridge: maps evolver plan items ↔ KBD changes
 
 EXECUTE (per change)

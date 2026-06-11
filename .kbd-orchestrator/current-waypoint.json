@@ -23,13 +23,13 @@
   "model": "claude-opus-4-8",
   "updated": "2026-06-03T00:00:00Z",
   "previousPhase": "position-and-handoff-guarantee",
-  "change": "change-003-kbd-spec-stage",
+  "change": "change-004-kbd-analyze-stage",
   "status": "execute_ready",
-  "currentTask": "write kbd-spec stage skill",
-  "nextPendingChange": "change-003-kbd-spec-stage",
-  "exactNextCommand": "/kbd-apply change-003-kbd-spec-stage",
+  "currentTask": "write kbd-analyze stage skill + research pipeline",
+  "nextPendingChange": "change-004-kbd-analyze-stage",
+  "exactNextCommand": "/kbd-apply change-004-kbd-analyze-stage",
   "parentPhase": null,
   "childPhases": [],
   "childPointer": null,
-  "updatedAt": "2026-06-11T22:21:38Z"
+  "updatedAt": "2026-06-11T22:22:42Z"
 }
