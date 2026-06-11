@@ -45,3 +45,6 @@ tools/prometheus-knowledge/target/
 .claude-plugin/hooks
 .claude-plugin/skills
 SCRATCHPAD.md
+
+# surreal-memory write outbox (runtime artifact, never committed)
+.kbd-orchestrator/memory-outbox.jsonl

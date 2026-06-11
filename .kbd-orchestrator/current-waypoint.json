@@ -23,18 +23,20 @@
   "model": "claude-opus-4-8",
   "updated": "2026-06-03T00:00:00Z",
   "previousPhase": "safeguards",
-  "change": "change-001-memory-bridge",
+  "change": "change-002-memory-writeback",
   "status": "execute_ready",
-  "currentTask": "implement change-001 memory-bridge.sh",
-  "nextPendingChange": "change-001-memory-bridge",
-  "exactNextCommand": "/kbd-apply change-001-memory-bridge",
+  "currentTask": "implement change-002 memory write-back wiring",
+  "nextPendingChange": "change-002-memory-writeback",
+  "exactNextCommand": "/kbd-apply change-002-memory-writeback",
   "parentPhase": null,
   "childPhases": [],
   "childPointer": null,
-  "updatedAt": "2026-06-11T23:32:03Z",
+  "updatedAt": "2026-06-11T23:33:39Z",
   "scoped_paths": [
-    "shared/scripts/lib/memory-bridge.sh",
-    ".gitignore",
-    "shared/scripts/tests/test-memory-bridge.sh"
+    "skills/process/kbd-process-orchestrator/hooks/hooks.json",
+    "shared/scripts/memory-writeback.sh",
+    "shared/scripts/memory-outbox-flush.sh",
+    "hooks/hooks.json",
+    "shared/scripts/tests/test-memory-writeback.sh"
   ]
 }

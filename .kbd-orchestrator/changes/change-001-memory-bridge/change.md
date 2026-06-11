@@ -7,7 +7,7 @@ priority: P1
 effort: M
 agent: claude-code
 evolver_item_id: null
-status: proposed
+status: done
 scope:
   - shared/scripts/lib/memory-bridge.sh
   - .gitignore
@@ -48,9 +48,9 @@ In:
 
 ## Tasks
 
-- [ ] 1. Write memory-bridge.sh (functions + outbox fallback + scoping)
-- [ ] 2. .gitignore the outbox
-- [ ] 3. Write test with fake curl; run green
+- [x] 1. Write memory-bridge.sh (functions + outbox fallback + scoping)
+- [x] 2. .gitignore the outbox
+- [x] 3. Write test with fake curl; run green
 
 ## Verification
 

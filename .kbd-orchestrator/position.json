@@ -1,27 +1,27 @@
 {
   "schemaVersion": "1",
-  "updatedAt": "2026-06-11T23:32:03Z",
+  "updatedAt": "2026-06-11T23:33:39Z",
   "cursor": [
     "memory-and-karpathy",
-    "change-001-memory-bridge",
-    "task:0/3"
+    "change-002-memory-writeback",
+    "task:0/4"
   ],
   "root": {
     "type": "phase",
     "id": "memory-and-karpathy",
     "status": "execute_ready",
     "progress": {
-      "done": 0,
+      "done": 1,
       "total": 3
     },
     "children": [
       {
         "type": "change",
-        "id": "change-001-memory-bridge",
+        "id": "change-002-memory-writeback",
         "status": "PENDING",
         "progress": {
           "done": 0,
-          "total": 3
+          "total": 4
         }
       }
     ],

@@ -8,20 +8,21 @@
   "execute_complete": false,
   "reflect_complete": false,
   "changes_total": 3,
-  "changes_completed": 0,
+  "changes_completed": 1,
   "completed_changes": [],
-  "active_change": null,
+  "active_change": "change-002-memory-writeback",
   "blocked_changes": [],
   "sourceTool": "claude-code",
   "createdBy": "kbd-new-phase",
-  "updatedAt": "2026-06-11T23:32:03Z",
+  "updatedAt": "2026-06-11T23:33:39Z",
   "backend": "native-kbd",
   "changes": [
     {
       "id": "change-001-memory-bridge",
-      "status": "PENDING",
+      "status": "DONE",
       "tasks_total": 3,
-      "tasks_done": 0
+      "tasks_done": 3,
+      "completed_by": "claude-code"
     },
     {
       "id": "change-002-memory-writeback",
