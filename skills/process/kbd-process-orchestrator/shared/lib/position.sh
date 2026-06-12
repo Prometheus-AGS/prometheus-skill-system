@@ -103,19 +103,43 @@ kbd_position_sync() {
   ptr="$(jq -r '.childPointer // empty' "$wp")"
 
   local phase_dir="$root/.kbd-orchestrator/phases/$phase"
-  local root_node cursor
 
-  if [ -n "$ptr" ] && [ -d "$phase_dir/children/$ptr" ]; then
-    # Active node is the child; parent wraps it.
-    local child_node parent_node
-    child_node="$(_pos_node "$phase_dir/children/$ptr" "$ptr" "$wp" 1)"
-    parent_node="$(_pos_node "$phase_dir" "$phase" "$wp" 0)"
-    root_node="$(jq -cn --argjson p "$parent_node" --argjson c "$child_node" \
-      '$p | .status = "active-parent" | .children = [$c]')"
-    cursor="$(jq -cn --arg a "$phase" --arg b "$ptr" '[$a, $b]')"
-  else
+  # Resolve the full position chain from path[] (synthesized from v2 when
+  # absent), supporting arbitrary nesting depth.
+  local chain
+  chain="$(jq -r '
+    if (.path | type) == "array" and (.path | length) > 0 then .path | join(" ")
+    else ([ (.phase // empty), (.childPointer // empty) ]
+          | map(select(. != "" and . != null)) | join(" ")) end
+  ' "$wp" 2>/dev/null)"
+  # shellcheck disable=SC2206
+  local toks=($chain)
+  local cdepth="${#toks[@]}"
+
+  local root_node cursor active_node_dir
+  if [ "$cdepth" -le 1 ]; then
     root_node="$(_pos_node "$phase_dir" "$phase" "$wp" 1)"
     cursor="$(jq -cn --arg a "$phase" '[$a]')"
+    active_node_dir="$phase_dir"
+  else
+    # Build the tree from the deepest active node outward; the root node wraps
+    # its descendant chain. Cursor = the full path tokens.
+    local i node_dir="$phase_dir"
+    # Deepest node (active).
+    local deepest="$phase_dir"
+    for ((i=1; i<cdepth; i++)); do deepest="$deepest/children/${toks[$i]}"; done
+    active_node_dir="$deepest"
+    # Innermost node object, then wrap outward as nested children.
+    local acc; acc="$(_pos_node "$deepest" "${toks[$((cdepth-1))]}" "$wp" 1)"
+    local pdir="$deepest"
+    for ((i=cdepth-2; i>=0; i--)); do
+      pdir="$(dirname "$(dirname "$pdir")")"   # strip /children/<name>
+      local wrap; wrap="$(_pos_node "$pdir" "${toks[$i]}" "$wp" 0)"
+      acc="$(jq -cn --argjson p "$wrap" --argjson c "$acc" \
+        '$p | .status = "active-parent" | .children = [$c]')"
+    done
+    root_node="$acc"
+    cursor="$(printf '%s\n' "${toks[@]}" | jq -R . | jq -cs .)"
   fi
 
   # Extend cursor with active change and task position when present.
@@ -123,8 +147,7 @@ kbd_position_sync() {
   change="$(jq -r '.change // .active_change // empty' "$wp")"
   if [ -n "$change" ]; then
     cursor="$(printf '%s' "$cursor" | jq -c --arg c "$change" '. + [$c]')"
-    local node_dir="$phase_dir"
-    [ -n "$ptr" ] && [ -d "$phase_dir/children/$ptr" ] && node_dir="$phase_dir/children/$ptr"
+    local node_dir="$active_node_dir"
     local tdone ttotal
     tdone="$(jq -r --arg id "$change" '.changes[]? | select(.id==$id) | .tasks_done // 0' "$node_dir/progress.json" 2>/dev/null)"
     ttotal="$(jq -r --arg id "$change" '.changes[]? | select(.id==$id) | .tasks_total // 0' "$node_dir/progress.json" 2>/dev/null)"

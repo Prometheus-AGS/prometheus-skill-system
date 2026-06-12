@@ -302,11 +302,16 @@ b_archive()   { case "$BACKEND" in openspec) os_archive "$@";; native-kbd) nk_ar
 # ---- progress.json sync ----------------------------------------------------
 
 _phase_dir() {
-  # Child-aware: when a child loop is active the waypoint keeps `.phase` as the
-  # PARENT and names the active child in `.childPointer`. The child's
-  # progress.json lives under phases/<parent>/children/<child>/. Resolve to the
-  # child dir in that case so /kbd-apply syncs the inner loop, not the parent.
+  # Depth-aware: resolve the active node from the waypoint's path[] (v3), which
+  # supports arbitrary nesting (phase → child → grandchild → …). Falls back to
+  # the v2 phase/childPointer resolution when the resolver lib is unavailable so
+  # the driver still works in a stripped environment.
   [ -f "$WP" ] || return 1
+  if command -v kbd_current_node_dir >/dev/null 2>&1; then
+    local dir; dir="$(kbd_current_node_dir "$WP" 2>/dev/null || true)"
+    [ -n "$dir" ] && { printf '%s' "$dir"; return 0; }
+  fi
+  # Fallback: v2 one-child-level resolution.
   local phase child; phase="$(jq -r '.phase // ""' "$WP" 2>/dev/null)"
   [ -n "$phase" ] || return 1
   child="$(jq -r '.childPointer // ""' "$WP" 2>/dev/null)"

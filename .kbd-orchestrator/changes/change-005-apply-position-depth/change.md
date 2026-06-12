@@ -7,7 +7,7 @@ priority: P2
 effort: S
 agent: claude-code
 evolver_item_id: null
-status: proposed
+status: done
 scope:
   - skills/process/kbd-process-orchestrator/skills/kbd-apply/kbd-apply.sh
   - skills/process/kbd-process-orchestrator/shared/lib/position.sh
@@ -38,9 +38,9 @@ Out: nothing — this closes the depth story for the execution surfaces.
 
 ## Tasks
 
-- [ ] 1. kbd-apply _phase_dir walks path[]
-- [ ] 2. position.sh cursor/tree walks path[]
-- [ ] 3. Add depth-2 apply+position assertion; run green (depth-1 stays green)
+- [x] 1. kbd-apply _phase_dir walks path[]
+- [x] 2. position.sh cursor/tree walks path[]
+- [x] 3. Add depth-2 apply+position assertion; run green (depth-1 stays green)
 
 ## Verification
 

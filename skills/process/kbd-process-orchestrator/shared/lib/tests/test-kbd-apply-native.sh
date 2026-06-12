@@ -145,4 +145,33 @@ jq -e '.changes[0].tasks_done == 2' .kbd-orchestrator/phases/pz/progress.json >/
   || fail "progress.json tasks_done should be 2"
 pass "position.json advances task fraction in lockstep with progress.json via end-task"
 
+# --- depth-2: apply a task inside a grandchild; progress + position resolve to it ---
+rm -f .kbd-orchestrator/project.json; rmdir openspec 2>/dev/null || true
+GC=".kbd-orchestrator/phases/pp/children/cc/children/gg"
+mkdir -p "$GC"
+cat > .kbd-orchestrator/current-waypoint.json <<'JSON'
+{ "phase": "pp", "path": ["pp","cc","gg"], "childPointer": null, "status": "execute_ready", "change": "change-d" }
+JSON
+cat > "$GC/progress.json" <<'JSON'
+{ "phase":"gg", "changes_total":1, "changes_completed":0,
+  "changes":[ {"id":"change-d","status":"IN_PROGRESS","tasks_total":2,"tasks_done":0} ] }
+JSON
+mkdir -p .kbd-orchestrator/changes/change-d
+echo "# change-d" > .kbd-orchestrator/changes/change-d/spec.md
+cat > .kbd-orchestrator/changes/change-d/tasks.json <<'JSON'
+{ "changeId":"change-d","schemaVersion":"1",
+  "tasks":[ {"id":"1","title":"one","done":false,"doneAt":null,"doneBy":null},
+            {"id":"2","title":"two","done":false,"doneAt":null,"doneBy":null} ] }
+JSON
+"$APPLY" begin-task change-d 1 1 2 one >/dev/null 2>&1
+"$APPLY" end-task   change-d 1 1 2 one >/dev/null 2>&1
+# progress.json updated in the GRANDCHILD node (depth-2 _phase_dir resolution)
+jq -e '.changes[0].tasks_done == 1' "$GC/progress.json" >/dev/null \
+  || fail "depth-2: grandchild progress.json not updated by apply"
+# position.json cursor walks the full path + task
+jq -e '.cursor | (index("pp") != null) and (index("cc") != null) and (index("gg") != null) and (index("task:1/2") != null)' \
+  .kbd-orchestrator/position.json >/dev/null \
+  || fail "depth-2: position cursor wrong: $(jq -c .cursor .kbd-orchestrator/position.json)"
+pass "depth-2 apply updates grandchild progress; position cursor walks full path"
+
 printf 'all native-kbd adapter tests passed\n'
