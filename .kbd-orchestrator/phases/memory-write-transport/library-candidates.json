@@ -1,0 +1,75 @@
+{
+  "phase": "memory-write-transport",
+  "generated_at": "2026-06-12T00:00:00Z",
+  "research_budget": { "max_queries_per_tier": 8, "max_minutes": 20, "queries_used": { "tier1_local": 8, "tier4_web": 0 } },
+  "gaps_addressed": ["T1", "T2", "T3"],
+  "candidates": [
+    {
+      "id": "cand-001",
+      "name": "surreal-memory REST API (POST /api/v1/memory)",
+      "kind": "service",
+      "repo_url": "tools/surreal-memory-server (submodule)",
+      "registry": "none",
+      "fit_for_gap": "T1",
+      "verdict": "adopt",
+      "coverage_estimate": 0.7,
+      "license": "see submodule",
+      "maintenance": { "last_release": "running build", "notes": "the same REST API the in-repo prometheus-cli client uses" },
+      "evidence": [
+        { "tier": 1, "source_url": "tools/surreal-memory-server/src/contracts.rs:325", "claim": "route_spec(POST, /api/v1/memory, AddMemoryRequest) declared" },
+        { "tier": 1, "source_url": "live curl", "claim": "POST /api/v1/memory with {content,user_id} → HTTP 201 + embedded record" },
+        { "tier": 1, "source_url": "prometheus-learn/src/memory.rs:62-111", "claim": "SurrealMemoryClient uses /health, /api/v1/entities, /api/v1/search — plain REST, no SSE" }
+      ],
+      "risks": ["REST AddMemoryRequest omits metadata/importance fields the MCP tool accepts — confirm bridge only needs content+user_id"],
+      "decision_rationale": "ADOPT for the primary add_memory write path. A fire-and-forget bash POST works directly — no SSE session. Dissolves the assessment's hard problem; no new code/tool needed beyond re-pointing the bridge."
+    },
+    {
+      "id": "cand-002",
+      "name": "prometheus memory add (new Rust CLI subcommand)",
+      "kind": "pattern",
+      "repo_url": "tools/prometheus-cli/crates/prometheus-cli/src/commands/memory.rs",
+      "registry": "none",
+      "fit_for_gap": "T3",
+      "verdict": "reference",
+      "coverage_estimate": 1.0,
+      "evidence": [
+        { "tier": 1, "source_url": ".gitmodules", "claim": "prometheus-cli is NOT a submodule — editable in this repo" },
+        { "tier": 1, "source_url": "SurrealMemoryClient", "claim": "client already has create_entity/search over REST; an add_memory method is a ~10-line addition" }
+      ],
+      "risks": ["requires a Rust rebuild + re-sign (macOS SIGKILL); heavier than the bash REST fix"],
+      "decision_rationale": "REFERENCE, not adopt-now. A durable shell-side writer (covers task-streams too via the MCP client), but the bash REST fix is sufficient and lighter for the hook use case. Revisit if unattended task-stream writes become needed."
+    },
+    {
+      "id": "cand-003",
+      "name": "bash SSE session handshake in _mem_call",
+      "kind": "pattern",
+      "verdict": "reject",
+      "fit_for_gap": "T1",
+      "evidence": [{ "tier": 1, "source_url": "assessment", "claim": "GET /mcp/sse session + POST /mcp/messages?sessionId — holding an SSE stream open in bash is fragile" }],
+      "risks": ["exactly the fragility the outbox exists to avoid"],
+      "decision_rationale": "REJECT — unnecessary now that a plain REST route exists. Would reintroduce the complexity the outbox was built to dodge."
+    },
+    {
+      "id": "cand-004",
+      "name": "agent-drained outbox",
+      "kind": "pattern",
+      "verdict": "adapt",
+      "fit_for_gap": "T2",
+      "evidence": [{ "tier": 1, "source_url": "mcp__surreal-memory__add_memory round-trip", "claim": "agent MCP tools write successfully" }],
+      "risks": ["only drains when an agent session runs"],
+      "decision_rationale": "ADAPT as the fallback for the MCP-tool-only writes (task-streams) that have no REST route, and as the drain mechanism for any REST-4xx-buffered add_memory lines. Secondary to the REST fix."
+    },
+    {
+      "id": "cand-005",
+      "name": "direct SurrealDB write on :28000",
+      "kind": "service",
+      "verdict": "reject",
+      "fit_for_gap": "T1",
+      "decision_rationale": "REJECT — bypasses the embedding/scoping/dedup the MCP+REST layer provides; would store unembedded rows semantic_search can't find."
+    }
+  ],
+  "build_required": [
+    { "need": "Re-point _mem_call/mem_add_memory at POST /api/v1/memory (REST), accept 2xx", "why_no_candidate": "config/code change, not a library", "capability_gap_id": null },
+    { "need": "Fix memory-outbox-flush.sh to drain via the REST route (add_memory) and handle task-stream lines (no REST route)", "why_no_candidate": "code change", "capability_gap_id": null }
+  ]
+}

@@ -1,16 +1,16 @@
 {
   "schemaVersion": "1",
-  "updatedAt": "2026-06-12T13:55:36Z",
+  "updatedAt": "2026-06-12T14:54:28Z",
   "cursor": [
-    "outer-loop-and-ux"
+    "memory-write-transport"
   ],
   "root": {
     "type": "phase",
-    "id": "outer-loop-and-ux",
-    "status": "phase_complete",
+    "id": "memory-write-transport",
+    "status": "analysis_ready",
     "progress": {
-      "done": 5,
-      "total": 5
+      "done": 0,
+      "total": 0
     },
     "children": [],
     "annotations": []

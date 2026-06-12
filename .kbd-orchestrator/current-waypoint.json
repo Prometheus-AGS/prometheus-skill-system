@@ -1,5 +1,5 @@
 {
-  "phase": "outer-loop-and-ux",
+  "phase": "memory-write-transport",
   "phase_started": "2026-06-03",
   "phase_path": ".kbd-orchestrator/phases/kbd-execute-spec-wrapping-and-nesting-2026-06-03",
   "stage": "reflect_complete",
@@ -22,15 +22,18 @@
   "tool": "claude-code",
   "model": "claude-opus-4-8",
   "updated": "2026-06-03T00:00:00Z",
-  "previousPhase": "child-loops-and-capabilities",
+  "previousPhase": "outer-loop-and-ux",
   "change": null,
-  "status": "phase_complete",
-  "currentTask": "6-phase plan COMPLETE; next: reload + live /loop-tick verification",
+  "status": "analysis_ready",
+  "currentTask": "plan the REST-write fix (re-point _mem_call + fix outbox-flush/mem0-compress)",
   "nextPendingChange": null,
-  "exactNextCommand": "reload Claude Code, then run a live /loop-tick integration test",
+  "exactNextCommand": "/kbd-plan memory-write-transport",
   "parentPhase": null,
   "childPhases": [],
   "childPointer": null,
-  "updatedAt": "2026-06-12T13:55:36Z",
-  "scoped_paths": []
+  "updatedAt": "2026-06-12T14:54:27Z",
+  "scoped_paths": [],
+  "path": [
+    "memory-write-transport"
+  ]
 }
