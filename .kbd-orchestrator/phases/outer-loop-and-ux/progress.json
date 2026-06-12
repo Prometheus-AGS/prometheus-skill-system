@@ -8,13 +8,13 @@
   "execute_complete": false,
   "reflect_complete": false,
   "changes_total": 5,
-  "changes_completed": 3,
+  "changes_completed": 4,
   "completed_changes": [],
-  "active_change": "change-004-outer-loop",
+  "active_change": "change-005-dual-ux",
   "blocked_changes": [],
   "sourceTool": "claude-code",
   "createdBy": "kbd-new-phase",
-  "updatedAt": "2026-06-12T13:39:21Z",
+  "updatedAt": "2026-06-12T13:40:40Z",
   "backend": "native-kbd",
   "changes": [
     {
@@ -40,9 +40,10 @@
     },
     {
       "id": "change-004-outer-loop",
-      "status": "PENDING",
+      "status": "DONE",
       "tasks_total": 3,
-      "tasks_done": 0
+      "tasks_done": 3,
+      "completed_by": "claude-code"
     },
     {
       "id": "change-005-dual-ux",

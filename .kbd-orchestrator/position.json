@@ -1,9 +1,9 @@
 {
   "schemaVersion": "1",
-  "updatedAt": "2026-06-12T13:39:24Z",
+  "updatedAt": "2026-06-12T13:40:40Z",
   "cursor": [
     "outer-loop-and-ux",
-    "change-004-outer-loop",
+    "change-005-dual-ux",
     "task:0/3"
   ],
   "root": {
@@ -11,13 +11,13 @@
     "id": "outer-loop-and-ux",
     "status": "execute_ready",
     "progress": {
-      "done": 3,
+      "done": 4,
       "total": 5
     },
     "children": [
       {
         "type": "change",
-        "id": "change-004-outer-loop",
+        "id": "change-005-dual-ux",
         "status": "PENDING",
         "progress": {
           "done": 0,

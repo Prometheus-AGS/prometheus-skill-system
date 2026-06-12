@@ -7,7 +7,7 @@ priority: P1
 effort: M
 agent: claude-code
 evolver_item_id: null
-status: proposed
+status: done
 scope:
   - skills/process/pmpo-outer-loop/SKILL.md
   - skills/process/pmpo-outer-loop/references/schemas/loop-definition.schema.json
@@ -47,9 +47,9 @@ Out: a running daemon (delegated to platform primitives).
 
 ## Tasks
 
-- [ ] 1. Write loop-definition.schema.json
-- [ ] 2. Write pmpo-outer-loop/SKILL.md (define/tick/report, evolver wrap, signals)
-- [ ] 3. validate:strict + validate:signals green; build registers it
+- [x] 1. Write loop-definition.schema.json
+- [x] 2. Write pmpo-outer-loop/SKILL.md (define/tick/report, evolver wrap, signals)
+- [x] 3. validate:strict + validate:signals green; build registers it
 
 ## Verification
 

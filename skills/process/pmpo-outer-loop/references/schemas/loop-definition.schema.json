@@ -1,0 +1,73 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://prometheus-ags.dev/schemas/pmpo/loop-definition.schema.json",
+  "title": "PMPO outer-loop definition",
+  "description": "Written by /loop-define to .kbd-orchestrator/loops/<name>/loop.json. Defines a standing loop: a goal + feedback sources + termination criteria. /loop-tick runs one cycle (one evolver cycle, which composes zeespec, kbd-analyze, and the KBD execute loop); the human is only consulted at escalation points. The Boris Cherny shape: write the loop once, the framework runs it.",
+  "type": "object",
+  "required": ["name", "goal", "termination", "evolution_name"],
+  "properties": {
+    "name": { "type": "string" },
+    "goal": {
+      "type": "object",
+      "required": ["description", "measurable_criteria"],
+      "properties": {
+        "description": { "type": "string" },
+        "measurable_criteria": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Concrete, checkable conditions that mean the goal is met (e.g. 'all tests pass', 'open bug count == 0')."
+        }
+      },
+      "additionalProperties": false
+    },
+    "feedback_sources": {
+      "type": "array",
+      "description": "What the tick reads between cycles to measure progress.",
+      "items": {
+        "type": "object",
+        "required": ["type"],
+        "properties": {
+          "type": { "enum": ["command", "gh-query", "file", "url"] },
+          "run": { "type": "string", "description": "Command/query to run (command, gh-query)." },
+          "path": { "type": "string", "description": "File to read (file)." },
+          "fetch": { "type": "string", "description": "URL to fetch (url)." },
+          "interpret": { "type": "string", "description": "How to read the result: exit-code | count-delta | jsonpath+direction | described condition." }
+        },
+        "additionalProperties": false
+      }
+    },
+    "termination": {
+      "type": "object",
+      "required": ["max_ticks"],
+      "properties": {
+        "goal_satisfied": { "type": "boolean", "description": "Terminate when measurable_criteria all hold." },
+        "max_ticks": { "type": "integer", "minimum": 1, "description": "Hard ceiling on cycles." },
+        "max_no_progress_ticks": { "type": "integer", "minimum": 1, "description": "Escalate/stop after this many ticks with no measurable improvement (default 2)." },
+        "budget": {
+          "type": "object",
+          "properties": { "max_minutes_per_tick": { "type": "number", "minimum": 0 } },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "escalation_points": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Conditions that pause the loop and ask the human via pmpo-elicit (e.g. 'zeespec NO-GO', 'capability gap FAILED', 'feedback regression', 'termination decision')."
+    },
+    "cadence": {
+      "type": "object",
+      "properties": {
+        "mode": { "enum": ["manual", "background", "cron"] },
+        "schedule": { "type": ["string", "null"], "description": "Cron expression when mode == cron." }
+      },
+      "additionalProperties": false
+    },
+    "evolution_name": {
+      "type": "string",
+      "description": "The backing iterative-evolver evolution key that /loop-tick runs one cycle of."
+    }
+  },
+  "additionalProperties": false
+}

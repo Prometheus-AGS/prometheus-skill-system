@@ -23,17 +23,18 @@
   "model": "claude-opus-4-8",
   "updated": "2026-06-03T00:00:00Z",
   "previousPhase": "child-loops-and-capabilities",
-  "change": "change-004-outer-loop",
+  "change": "change-005-dual-ux",
   "status": "execute_ready",
-  "currentTask": "implement change-004 pmpo-outer-loop runner",
-  "nextPendingChange": "change-004-outer-loop",
-  "exactNextCommand": "/kbd-apply change-004-outer-loop",
+  "currentTask": "implement change-005 dual-audience UX",
+  "nextPendingChange": "change-005-dual-ux",
+  "exactNextCommand": "/kbd-apply change-005-dual-ux",
   "parentPhase": null,
   "childPhases": [],
   "childPointer": null,
-  "updatedAt": "2026-06-12T13:39:21Z",
+  "updatedAt": "2026-06-12T13:40:40Z",
   "scoped_paths": [
-    "skills/process/pmpo-outer-loop/SKILL.md",
-    "skills/process/pmpo-outer-loop/references/schemas/loop-definition.schema.json"
+    "skills/process/kbd-process-orchestrator/references/templates/decision-log.template.md",
+    "skills/process/kbd-process-orchestrator/skills/kbd-status/SKILL.md",
+    "skills/process/kbd-process-orchestrator/references/schemas/project.template.json"
   ]
 }
