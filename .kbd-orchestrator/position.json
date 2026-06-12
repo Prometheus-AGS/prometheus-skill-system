@@ -1,9 +1,9 @@
 {
   "schemaVersion": "1",
-  "updatedAt": "2026-06-12T13:34:13Z",
+  "updatedAt": "2026-06-12T13:39:24Z",
   "cursor": [
     "outer-loop-and-ux",
-    "change-003-nesting-docs",
+    "change-004-outer-loop",
     "task:0/3"
   ],
   "root": {
@@ -11,13 +11,13 @@
     "id": "outer-loop-and-ux",
     "status": "execute_ready",
     "progress": {
-      "done": 2,
+      "done": 3,
       "total": 5
     },
     "children": [
       {
         "type": "change",
-        "id": "change-003-nesting-docs",
+        "id": "change-004-outer-loop",
         "status": "PENDING",
         "progress": {
           "done": 0,

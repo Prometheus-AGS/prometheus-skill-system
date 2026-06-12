@@ -376,17 +376,28 @@ them.
 Writers (`/kbd-new-child`, `/kbd-next-child`) reject inconsistent waypoints;
 readers (`/kbd-status`) render best-effort and warn on violations.
 
+**Arbitrary-depth nesting (v3 `path[]`).** The waypoint also carries `path:
+string[]` — the canonical position chain for *any* nesting depth, synthesized
+additively from the v2 fields when absent. Lifecycle: `/kbd-new-child` →
+`/kbd-next-child` (select) → `/kbd-child-exit --enter` (descend) →
+`/kbd-child-exit` (close + roll up + pop). **Full depth model, node-dir
+resolution, and the critical selected-vs-entered invariant (when
+`/kbd-new-child` nests vs. siblings — read before touching `path[]` directly):
+[`references/nested-phases.md`](references/nested-phases.md).**
+
 **Template versioning.** The canonical template at
 `references/schemas/current-waypoint.template.json` carries `__schemaVersion:
-"2"` as **documentation only**. No skill reads `__schemaVersion` at runtime;
+"3"` as **documentation only**. No skill reads `__schemaVersion` at runtime;
 the only contract is the per-field default declared in the template and in
 this section. Writers MAY set the field; readers MUST NOT depend on it.
 
-**Worktree integration.** The companion field `worktreeRoot` in
-`project.json` (default literal string `${HOME}/.claude/worktrees`) is
-consumed by `/kbd-status` to render the active checkout's location and warn
-when the developer is outside the configured root. See
-`skills/kbd-status/SKILL.md`.
+> **Scope-guard note.** The scope guard and child-scope hook ship in `warn`
+> mode; the flip to `ask` is held until a reload session confirms they fire
+> correctly in live operation.
+
+**Worktree integration.** `project.json`'s `worktreeRoot` (default
+`${HOME}/.claude/worktrees`) is consumed by `/kbd-status` to render the active
+checkout and warn when outside the configured root. See `skills/kbd-status/SKILL.md`.
 
 ---
 
@@ -479,10 +490,9 @@ integration provides, and the entity schema are in
 - `/kbd-new-phase <name> [goals...]` — Start a new named phase with goals (implemented in `skills/kbd-new-phase/`)
 - `/kbd-new-child <name> [goals...]` — Spawn a child phase inside the active top-level phase (implemented in `skills/kbd-new-child/`)
 - `/kbd-next-child [<name>]` — Advance childPointer (implicit) or jump to a named child (implemented in `skills/kbd-next-child/`)
+- `/kbd-child-exit [--enter]` — Exit the active child (handoff-out + roll up + pop path) or, with `--enter`, descend into the selected child so new children nest under it (implemented in `skills/kbd-child-exit/`)
 - `/kbd-memory-recall [<phase>]` — Populate `prior-context.md` from surreal-memory before assess (implemented in `skills/kbd-memory-recall/`)
 - `/kbd-inject-agent-rules [--target …] [--refresh] [--dry-run]` — Inject Karpathy + Boris Cherny rule sets into CLAUDE.md / AGENTS.md (implemented in `skills/kbd-inject-agent-rules/`)
 - `/kbd-full-phase <name>` — Run full Assess → Plan → Execute → Reflect cycle
 
-See `references/domain/kbd.md` for the generic KBD philosophy reference.
-See `references/cross-tool-handoff.md` for the multi-tool coordination protocol.
-See `prompts/` for the detailed phase execution protocols.
+See `references/domain/kbd.md` (KBD philosophy), `references/cross-tool-handoff.md` (multi-tool coordination), and `prompts/` (detailed phase execution protocols).

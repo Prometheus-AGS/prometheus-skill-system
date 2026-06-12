@@ -7,10 +7,11 @@ priority: P2
 effort: S
 agent: claude-code
 evolver_item_id: null
-status: proposed
+status: done
 scope:
   - skills/process/kbd-process-orchestrator/SKILL.md
   - skills/process/kbd-process-orchestrator/references/schemas/current-waypoint.template.json
+  - skills/process/kbd-process-orchestrator/references/nested-phases.md # scope expansion: detail extracted to keep SKILL.md under 500
 ---
 
 # change-003 — Nesting docs
@@ -40,9 +41,9 @@ In:
 
 ## Tasks
 
-- [ ] 1. SKILL.md Nested phases: enter/descend + invariant + Quick Start entry
-- [ ] 2. waypoint template note on the invariant
-- [ ] 3. validate:strict still clean
+- [x] 1. SKILL.md Nested phases: enter/descend + invariant + Quick Start entry
+- [x] 2. waypoint template note on the invariant
+- [x] 3. validate:strict still clean
 
 ## Verification
 
