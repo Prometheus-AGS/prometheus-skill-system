@@ -1,0 +1,11 @@
+{
+  "stage": "assess",
+  "completedAt": "2026-06-12T12:31:32Z",
+  "outputs": [
+    "assessment.md"
+  ],
+  "nextStage": "analyze",
+  "summaryForNext": "Four gaps C1-C4; verified depth-1 die location, child dir structure, waypoint resolver helpers, is_descendant already canonicalizes. Scope: child loops only (capabilities deferred). GO.",
+  "skipped": false,
+  "skipReason": null
+}

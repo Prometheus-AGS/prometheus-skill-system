@@ -1,0 +1,11 @@
+{
+  "stage": "plan",
+  "completedAt": "2026-06-12T12:31:32Z",
+  "outputs": [
+    "plan.md"
+  ],
+  "nextStage": "execute",
+  "summaryForNext": "5 ordered changes; path[] foundation first, then depth-spawn, exit/rollup, scope hook, apply/position depth. First: change-001-waypoint-path.",
+  "skipped": false,
+  "skipReason": null
+}

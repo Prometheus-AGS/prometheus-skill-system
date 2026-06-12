@@ -1,18 +1,30 @@
 {
   "schemaVersion": "1",
-  "updatedAt": "2026-06-11T23:42:13Z",
+  "updatedAt": "2026-06-12T12:31:33Z",
   "cursor": [
-    "memory-and-karpathy"
+    "child-loops-and-capabilities",
+    "change-001-waypoint-path",
+    "task:0/3"
   ],
   "root": {
     "type": "phase",
-    "id": "memory-and-karpathy",
-    "status": "phase_complete",
+    "id": "child-loops-and-capabilities",
+    "status": "execute_ready",
     "progress": {
-      "done": 3,
-      "total": 3
+      "done": 0,
+      "total": 5
     },
-    "children": [],
+    "children": [
+      {
+        "type": "change",
+        "id": "change-001-waypoint-path",
+        "status": "PENDING",
+        "progress": {
+          "done": 0,
+          "total": 3
+        }
+      }
+    ],
     "annotations": []
   }
 }

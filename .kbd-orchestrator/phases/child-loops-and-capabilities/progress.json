@@ -1,0 +1,51 @@
+{
+  "phase": "child-loops-and-capabilities",
+  "parentPhase": null,
+  "childPhases": [],
+  "childPointer": null,
+  "assessment_complete": true,
+  "plan_complete": true,
+  "execute_complete": false,
+  "reflect_complete": false,
+  "changes_total": 5,
+  "changes_completed": 0,
+  "completed_changes": [],
+  "active_change": null,
+  "blocked_changes": [],
+  "sourceTool": "claude-code",
+  "createdBy": "kbd-new-phase",
+  "updatedAt": "2026-06-12T12:31:33Z",
+  "backend": "native-kbd",
+  "changes": [
+    {
+      "id": "change-001-waypoint-path",
+      "status": "PENDING",
+      "tasks_total": 3,
+      "tasks_done": 0
+    },
+    {
+      "id": "change-002-depth-child",
+      "status": "PENDING",
+      "tasks_total": 4,
+      "tasks_done": 0
+    },
+    {
+      "id": "change-003-child-exit-rollup",
+      "status": "PENDING",
+      "tasks_total": 3,
+      "tasks_done": 0
+    },
+    {
+      "id": "change-004-child-scope-hook",
+      "status": "PENDING",
+      "tasks_total": 3,
+      "tasks_done": 0
+    },
+    {
+      "id": "change-005-apply-position-depth",
+      "status": "PENDING",
+      "tasks_total": 3,
+      "tasks_done": 0
+    }
+  ]
+}
