@@ -7,7 +7,7 @@ priority: P2
 effort: M
 agent: claude-code
 evolver_item_id: null
-status: proposed
+status: done
 scope:
   - skills/process/kbd-process-orchestrator/references/templates/decision-log.template.md
   - skills/process/kbd-process-orchestrator/skills/kbd-status/SKILL.md
@@ -38,9 +38,9 @@ In:
 
 ## Tasks
 
-- [ ] 1. Write decision-log.template.md
-- [ ] 2. kbd-status --explain (expand entries + next-and-why narrative)
-- [ ] 3. ux_profile in project.template.json; validate:strict green
+- [x] 1. Write decision-log.template.md
+- [x] 2. kbd-status --explain (expand entries + next-and-why narrative)
+- [x] 3. ux_profile in project.template.json; validate:strict green
 
 ## Verification
 

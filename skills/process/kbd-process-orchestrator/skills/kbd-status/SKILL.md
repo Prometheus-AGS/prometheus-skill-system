@@ -151,9 +151,31 @@ Last updated by: claude-code (2026-05-27T00:00:00Z)
 ...
 ```
 
+## Dual-audience output (`--explain` + ux_profile)
+
+`kbd-status` serves both advanced and beginner readers from one source:
+
+- **Default (dense)** — the status table plus the *header lines* of the active
+  phase's `decision-log.md` (one line per decision: `D-001 · <decision>
+  [stage · date]`). Advanced users scan and move on.
+- **`--explain`** — expands each decision-log header into its full
+  TL;DR / Why / Alternatives / Learn-more block, and appends a "what happens
+  next and why" narrative derived from the waypoint's `exactNextCommand` and
+  the current stage. Beginners see *what* was decided, *why*, and *what to
+  learn*.
+
+The default verbosity is set by `ux_profile` in `project.json`
+(`"beginner"` → `--explain` on by default; `"advanced"` → dense). `ux_profile`
+NEVER gates information — it only changes ordering/expansion; everything is
+always reachable with or without the flag.
+
+Decision-log entries follow `references/templates/decision-log.template.md` and
+are written by kbd-analyze, kbd-plan, pmpo-elicit, and pmpo-outer-loop.
+
 ## Examples
 
 ```
-/kbd-status                   # current project + active phase
+/kbd-status                   # current project + active phase (dense, or per ux_profile)
 /kbd-status phase-1-foundation # status of a specific phase
+/kbd-status --explain          # expand decision-log entries + next-and-why narrative
 ```

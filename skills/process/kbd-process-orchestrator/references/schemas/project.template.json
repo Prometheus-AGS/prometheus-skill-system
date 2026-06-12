@@ -4,6 +4,8 @@
   "active_phase": "<phase-name>",
   "worktreeRoot": "${HOME}/.claude/worktrees",
   "maxChildDepth": 4,
+  "ux_profile": "advanced",
+  "__ux_profile_note": "advanced → kbd-status is dense by default; beginner → kbd-status --explain is on by default (expands decision-log entries + next-and-why narrative). Verbosity only — never gates information.",
   "spec_paths": ["openspec/specs/*.md"],
   "openspec_available": true,
   "constraint_file": ".kbd-orchestrator/constraints.md",
