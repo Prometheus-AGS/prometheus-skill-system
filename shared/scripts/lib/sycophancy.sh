@@ -122,6 +122,86 @@ for line in sys.stdin.read().splitlines():
 ' 2>/dev/null || true
 }
 
+# syco_should_reject <score> <high/critical-patterns> → prints "1" or "0" on
+# line 1, then a human-readable reason on line 2 (empty when accepted).
+#
+# <high/critical-patterns> is the output of syco_critical: space-separated
+# "ID:severity" tokens for every high- and critical-severity classification.
+#
+# Decision rule (replaces the old "reject on score>=0.4 OR ANY critical"):
+#   reject iff  score >= SCORE_THRESHOLD
+#          or   any high/critical pattern present AND score >= CRITICAL_FLOOR
+#          or   an always-reject pattern is present (default: S-08)
+#
+# Rationale:
+#  * The old rule rejected any single critical regardless of score. A structured
+#    reflection that legitimately surfaces no caveat words produced one low-weight
+#    heuristic hit (score ~0.125) and was wrongly rejected. Requiring the score to
+#    clear a small CRITICAL_FLOOR stops those false rejects while still catching
+#    artifacts where patterns compound past the floor.
+#  * S-08 (Reflect Phase Inversion) is the purpose-built "this reflection is a
+#    success summary instead of an analysis" detector. For these reflection /
+#    assessment gates that is precisely the failure mode we exist to catch, so an
+#    S-08 hit rejects on its own even at a modest score. This is what stops a
+#    short, low-scoring "everything went perfectly" summary from sailing through.
+#
+# Tunable via env (all optional):
+#   PROMETHEUS_SYCO_SCORE_THRESHOLD   default 0.4   (hard score gate)
+#   PROMETHEUS_SYCO_CRITICAL_FLOOR    default 0.3   (min score for high/critical reject)
+#   PROMETHEUS_SYCO_ALWAYS_REJECT     default S-08  (comma/space list of pattern ids
+#                                                    that reject regardless of score;
+#                                                    empty string disables)
+#   PROMETHEUS_SYCO_CRITICAL_ALWAYS   default 0     (set 1 to restore legacy
+#                                                    "any high/critical → reject")
+syco_should_reject() {
+  local score="$1" crit="$2"
+  local threshold="${PROMETHEUS_SYCO_SCORE_THRESHOLD:-0.4}"
+  local floor="${PROMETHEUS_SYCO_CRITICAL_FLOOR:-0.3}"
+  local always_reject="${PROMETHEUS_SYCO_ALWAYS_REJECT-S-08}"
+  local crit_always="${PROMETHEUS_SYCO_CRITICAL_ALWAYS:-0}"
+
+  command -v python3 >/dev/null 2>&1 || { printf '0\n\n'; return 0; }
+  SYCO_SCORE="$score" SYCO_CRIT="$crit" SYCO_THRESHOLD="$threshold" \
+  SYCO_FLOOR="$floor" SYCO_ALWAYS="$always_reject" SYCO_CRIT_ALWAYS="$crit_always" python3 -c '
+import os, re
+raw = os.environ.get("SYCO_SCORE", "").strip()
+crit = os.environ.get("SYCO_CRIT", "").strip()
+threshold = float(os.environ.get("SYCO_THRESHOLD", "0.4"))
+floor = float(os.environ.get("SYCO_FLOOR", "0.3"))
+crit_always = os.environ.get("SYCO_CRIT_ALWAYS", "0").strip() == "1"
+always_ids = [t for t in re.split(r"[,\s]+", os.environ.get("SYCO_ALWAYS", "")) if t]
+try:
+    score = float(raw) if raw else None
+except ValueError:
+    score = None
+
+# Pattern ids present in the high/critical token list ("S-08:high" -> "S-08").
+present_ids = {tok.split(":", 1)[0] for tok in crit.split()} if crit else set()
+
+reasons = []
+reject = False
+if score is not None and score >= threshold:
+    reject = True
+    reasons.append(f"sycophancy_score={score:g} (>= threshold {threshold:g})")
+
+hit_always = [i for i in always_ids if i in present_ids]
+if hit_always:
+    reject = True
+    reasons.append(f"always-reject pattern(s) present: {{}}".format(", ".join(hit_always)))
+
+if crit:
+    if crit_always or (score is not None and score >= floor):
+        reject = True
+        why = "any-critical mode" if crit_always else f"score {score:g} >= critical-floor {floor:g}"
+        reasons.append(f"high/critical [{crit}] with {why}")
+    # else: lone high/critical below the floor (and not an always-reject id) is
+    # reported but does NOT reject on its own.
+
+print("1" if reject else "0")
+print("; ".join(reasons))
+' 2>/dev/null || printf '0\n\n'
+}
+
 # Per-artifact rejection counter so reflection and artifact gates do not share
 # one global counter. Key is typically a sha1 of the artifact path.
 syco_counter_path() {

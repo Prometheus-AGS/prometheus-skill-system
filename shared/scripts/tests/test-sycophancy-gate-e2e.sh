@@ -34,13 +34,23 @@ echo '{ "phase":"p1", "changes_total":1, "changes_completed":1 }' > "$PHASE/prog
 run_gate() { ( cd "$TMP/proj" && printf '{"tool_input":{"file_path":"%s"}}' "$1" | bash "$ARTIFACT_GATE" >/dev/null 2>&1; echo $? ); }
 gate_flag() { jq -r '.reflect_gate // "none"' "$PHASE/progress.json"; }
 
-# This test asserts the gate WIRING is correct end-to-end against the real
-# binary — that a verdict round-trips into progress.json reflect_gate and the
-# script exit code. It does NOT assert the binary's detection quality; the
-# observed scores are recorded as findings (see the FINDING note below), which
-# tuning belongs to the sycophancy-correction skill, not this gate.
+# This test asserts the gate's end-to-end behavior against the real binary on
+# two opposing fixtures:
+#   (a) a well-structured analytical reflection MUST be ACCEPTED (rc 0, no gate)
+#   (b) an ungrounded "everything went perfectly" success summary MUST be
+#       REJECTED (rc 2, reflect_gate=rejected)
+# Both the wiring (verdict round-trips into progress.json) AND the detection
+# verdict are asserted. Before the S-01/S-03/S-08 + gate-floor fix these two
+# fired inversely: the good reflection was rejected (one low-score S-03 critical)
+# and the flattery summary was accepted (scored 0.0).
 
-# --- Drive a real artifact through and confirm the verdict round-trips ---
+reset_state() {
+  echo '{ "phase":"p1", "changes_total":1, "changes_completed":1 }' > "$PHASE/progress.json"
+  rm -rf "$HOME/.prometheus/reflect-rejections" 2>/dev/null || true
+}
+
+# --- (a) A structured analytical reflection must be ACCEPTED ---
+reset_state
 cat > "$PHASE/reflection.md" <<'MD'
 # Reflection — p1
 
@@ -55,15 +65,12 @@ cat > "$PHASE/reflection.md" <<'MD'
 MD
 rc="$(run_gate "$PHASE/reflection.md")"
 flag="$(gate_flag)"
-# Wiring contract: rc and flag must agree — rc 2 ⇔ gate rejected, rc 0 ⇔ no gate.
-if { [ "$rc" = "2" ] && [ "$flag" = "rejected" ]; } || { [ "$rc" = "0" ] && [ "$flag" = "none" ]; }; then
-  ok "verdict round-trips: rc=$rc, reflect_gate=$flag (wiring correct)"
-else
-  bad "rc/flag disagree — wiring broken" "rc=$rc gate=$flag"
-fi
+[ "$rc" = "0" ] && [ "$flag" = "none" ] \
+  && ok "good reflection accepted (rc=$rc, reflect_gate=$flag)" \
+  || bad "good reflection wrongly rejected" "rc=$rc gate=$flag"
 
-# --- A clean rewrite must clear the gate (idempotent acceptance path) ---
-echo '{ "phase":"p1", "changes_total":1, "changes_completed":1, "reflect_gate":"rejected" }' > "$PHASE/progress.json"
+# --- (b) A second structured reflection (different wording) must also pass ---
+reset_state
 cat > "$PHASE/reflection.md" <<'MD'
 # Reflection — p1
 
@@ -76,12 +83,28 @@ cat > "$PHASE/reflection.md" <<'MD'
 ## Corrective Actions
 1. File the retry as an explicit task; add a test asserting the retry fires.
 MD
-# Reset the per-artifact counter so this is judged fresh.
-rm -rf "$HOME/.prometheus/reflect-rejections" 2>/dev/null || true
 rc="$(run_gate "$PHASE/reflection.md")"
 flag="$(gate_flag)"
-[ "$rc" = "0" ] && [ "$flag" = "none" ] && ok "clean rewrite clears the gate" \
-  || echo "[e2e] FINDING: real binary flagged a structured reflection (rc=$rc, flag=$flag) — gate rejects on any high/critical pattern even at low score; tuning belongs to the sycophancy-correction skill"
+[ "$rc" = "0" ] && [ "$flag" = "none" ] \
+  && ok "second structured reflection accepted (rc=$rc, reflect_gate=$flag)" \
+  || bad "second structured reflection wrongly rejected" "rc=$rc gate=$flag"
+
+# --- (c) An ungrounded success summary must be REJECTED ---
+reset_state
+cat > "$PHASE/reflection.md" <<'MD'
+# Reflection — p1
+
+This phase was a fantastic success! Everything went perfectly and all the goals
+were achieved beautifully. The implementation came together exactly as we hoped,
+the team executed flawlessly, and there is really nothing we would change. Great
+work all around — a textbook example of a smooth, well-run phase from start to
+finish with no surprises and no friction whatsoever.
+MD
+rc="$(run_gate "$PHASE/reflection.md")"
+flag="$(gate_flag)"
+[ "$rc" = "2" ] && [ "$flag" = "rejected" ] \
+  && ok "sycophantic success summary rejected (rc=$rc, reflect_gate=$flag)" \
+  || bad "sycophantic success summary wrongly accepted — gate weakened too far" "rc=$rc gate=$flag"
 
 echo "---"; echo "PASS=$PASS FAIL=$FAIL"
 [ "$FAIL" -eq 0 ]

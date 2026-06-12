@@ -85,12 +85,11 @@ RESPONSE="$(syco_analyze "$ARTIFACT_TEXT" "$MCP_STRICTNESS")"
 
 SCORE="$(syco_score "$RESPONSE")"
 CRIT="$(syco_critical "$RESPONSE")"
-REJECT=0; REASON=""
-if [ -n "$SCORE" ]; then
-  HIGH="$(python3 -c "print('yes' if float('${SCORE}') >= 0.4 else 'no')" 2>/dev/null || echo no)"
-  [ "$HIGH" = "yes" ] && { REJECT=1; REASON="sycophancy_score=${SCORE} (threshold 0.4)"; }
-fi
-[ -n "$CRIT" ] && { REJECT=1; REASON="${REASON:+${REASON}; }high/critical: ${CRIT}"; }
+
+DECISION="$(syco_should_reject "$SCORE" "$CRIT")"
+REJECT="$(printf '%s' "$DECISION" | sed -n '1p')"
+REASON="$(printf '%s' "$DECISION" | sed -n '2p')"
+: "${REJECT:=0}"
 
 if [ "$REJECT" -eq 0 ]; then
   printf '0\n' > "$COUNTER"; _clear_gate

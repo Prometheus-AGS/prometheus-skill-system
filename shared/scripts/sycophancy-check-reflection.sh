@@ -55,12 +55,11 @@ fi
 SYCO_SCORE="$(syco_score "$RESPONSE")"
 CRITICAL_PATTERNS="$(syco_critical "$RESPONSE")"
 
-SHOULD_REJECT=0; REJECT_REASON=""
-if [ -n "$SYCO_SCORE" ]; then
-  IS_HIGH="$(python3 -c "print('yes' if float('${SYCO_SCORE}') >= 0.4 else 'no')" 2>/dev/null || echo no)"
-  [ "$IS_HIGH" = "yes" ] && { SHOULD_REJECT=1; REJECT_REASON="sycophancy_score=${SYCO_SCORE} (threshold 0.4, strictness ${STRICTNESS})"; }
-fi
-[ -n "$CRITICAL_PATTERNS" ] && { SHOULD_REJECT=1; REJECT_REASON="${REJECT_REASON:+${REJECT_REASON}; }high/critical: ${CRITICAL_PATTERNS}"; }
+DECISION="$(syco_should_reject "$SYCO_SCORE" "$CRITICAL_PATTERNS")"
+SHOULD_REJECT="$(printf '%s' "$DECISION" | sed -n '1p')"
+REJECT_REASON="$(printf '%s' "$DECISION" | sed -n '2p')"
+[ -n "$REJECT_REASON" ] && REJECT_REASON="${REJECT_REASON} (strictness ${STRICTNESS})"
+: "${SHOULD_REJECT:=0}"
 
 if [ "$SHOULD_REJECT" -eq 0 ]; then
   printf '0\n' > "$REJECTION_COUNTER"
