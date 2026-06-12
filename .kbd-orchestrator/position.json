@@ -1,27 +1,27 @@
 {
   "schemaVersion": "1",
-  "updatedAt": "2026-06-12T12:31:33Z",
+  "updatedAt": "2026-06-12T12:33:56Z",
   "cursor": [
     "child-loops-and-capabilities",
-    "change-001-waypoint-path",
-    "task:0/3"
+    "change-002-depth-child",
+    "task:0/4"
   ],
   "root": {
     "type": "phase",
     "id": "child-loops-and-capabilities",
     "status": "execute_ready",
     "progress": {
-      "done": 0,
+      "done": 1,
       "total": 5
     },
     "children": [
       {
         "type": "change",
-        "id": "change-001-waypoint-path",
+        "id": "change-002-depth-child",
         "status": "PENDING",
         "progress": {
           "done": 0,
-          "total": 3
+          "total": 4
         }
       }
     ],

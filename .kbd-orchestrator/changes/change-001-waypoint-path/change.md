@@ -7,7 +7,7 @@ priority: P1
 effort: M
 agent: claude-code
 evolver_item_id: null
-status: proposed
+status: done
 scope:
   - skills/process/kbd-process-orchestrator/shared/lib/waypoint.sh
   - skills/process/kbd-process-orchestrator/references/schemas/current-waypoint.template.json
@@ -46,9 +46,9 @@ Out: spawning grandchildren (change-002), exit (change-003).
 
 ## Tasks
 
-- [ ] 1. Add kbd_node_dir/kbd_current_node_dir/kbd_node_chain to waypoint.sh
-- [ ] 2. waypoint_load emits path[]; synthesize from v2 when absent
-- [ ] 3. Document path[] in the template; write test; run green
+- [x] 1. Add kbd_node_dir/kbd_current_node_dir/kbd_node_chain to waypoint.sh
+- [x] 2. waypoint_load emits path[]; synthesize from v2 when absent
+- [x] 3. Document path[] in the template; write test; run green
 
 ## Verification
 

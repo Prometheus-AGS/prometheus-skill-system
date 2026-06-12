@@ -23,18 +23,19 @@
   "model": "claude-opus-4-8",
   "updated": "2026-06-03T00:00:00Z",
   "previousPhase": "memory-and-karpathy",
-  "change": "change-001-waypoint-path",
+  "change": "change-002-depth-child",
   "status": "execute_ready",
-  "currentTask": "implement change-001 waypoint path[] resolver",
-  "nextPendingChange": "change-001-waypoint-path",
-  "exactNextCommand": "/kbd-apply change-001-waypoint-path",
+  "currentTask": "implement change-002 arbitrary-depth child spawn",
+  "nextPendingChange": "change-002-depth-child",
+  "exactNextCommand": "/kbd-apply change-002-depth-child",
   "parentPhase": null,
   "childPhases": [],
   "childPointer": null,
-  "updatedAt": "2026-06-12T12:31:33Z",
+  "updatedAt": "2026-06-12T12:33:55Z",
   "scoped_paths": [
-    "skills/process/kbd-process-orchestrator/shared/lib/waypoint.sh",
-    "skills/process/kbd-process-orchestrator/references/schemas/current-waypoint.template.json",
-    "skills/process/kbd-process-orchestrator/shared/lib/tests/test-waypoint-path.sh"
+    "skills/process/kbd-process-orchestrator/skills/kbd-new-child/kbd-new-child.sh",
+    "skills/process/kbd-process-orchestrator/skills/kbd-next-child/kbd-next-child.sh",
+    "skills/process/kbd-process-orchestrator/references/schemas/project.template.json",
+    "skills/process/kbd-process-orchestrator/shared/lib/tests/test-kbd-grandchild.sh"
   ]
 }

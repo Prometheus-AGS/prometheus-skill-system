@@ -49,6 +49,11 @@ waypoint_load() {
       "parentPhase="        + (.parentPhase        // ""),
       "childPhases="        + ((.childPhases       // []) | join(",")),
       "childPointer="       + (.childPointer       // ""),
+      "path="               + (
+        if (.path | type) == "array" and (.path | length) > 0 then (.path | join(","))
+        else ([ (.phase // empty), (.childPointer // empty) ]
+              | map(select(. != "" and . != null)) | join(",")) end
+      ),
       "backend="            + (.backend            // ""),
       "wave="               + (.wave               // ""),
       "lastCompletedChange="+ (.lastCompletedChange // ""),
@@ -114,4 +119,71 @@ is_descendant() {
     "$cparent"/*) return 0 ;;
     *)            return 1 ;;
   esac
+}
+
+# --- Waypoint v3: arbitrary-depth position via path[] ----------------------
+#
+# path[] is the canonical position chain: path[0] = top-level phase, each
+# subsequent element a nested child. The on-disk node dir interleaves
+# `children/`:
+#   path = [p0]            → phases/p0
+#   path = [p0, c1]        → phases/p0/children/c1
+#   path = [p0, c1, g2]    → phases/p0/children/c1/children/g2
+#
+# v3 is ADDITIVE: when a waypoint has no .path, it is synthesized from the v2
+# fields ([phase] or [phase, childPointer]). parentPhase/childPointer remain
+# maintained as derived (deepest-frame) fields for one release so existing
+# scripts keep working unchanged.
+
+# kbd_node_dir <p0> [p1] [p2] ...
+# Echo the on-disk node dir (relative to the orchestrator root) for a path.
+kbd_node_dir() {
+  [[ $# -ge 1 ]] || return 1
+  local out=".kbd-orchestrator/phases/$1"; shift
+  local seg
+  for seg in "$@"; do
+    [[ -n "$seg" ]] || continue
+    out="$out/children/$seg"
+  done
+  printf '%s' "$out"
+}
+
+# kbd_node_chain <p0> [p1] ...  — render the N-level breadcrumb.
+kbd_node_chain() {
+  [[ $# -ge 1 ]] || return 1
+  local sep out="$1"; shift
+  sep="$(chain_separator)"
+  local seg
+  for seg in "$@"; do
+    [[ -n "$seg" ]] || continue
+    out="$out$sep$seg"
+  done
+  printf '%s' "$out"
+}
+
+# _kbd_path_from_waypoint <waypoint-file> — echo the path as space-separated
+# tokens, synthesizing from v2 fields when .path is absent.
+_kbd_path_from_waypoint() {
+  local wp="$1"
+  command -v jq >/dev/null 2>&1 || return 1
+  [[ -f "$wp" ]] || return 1
+  jq -r '
+    if (.path | type) == "array" and (.path | length) > 0 then
+      .path | join(" ")
+    else
+      [ (.phase // empty), (.childPointer // empty) ]
+      | map(select(. != "" and . != null)) | join(" ")
+    end
+  ' "$wp" 2>/dev/null
+}
+
+# kbd_current_node_dir [waypoint-file]  — resolve the active node dir from the
+# waypoint's path[] (or synthesized v2 chain).
+kbd_current_node_dir() {
+  local wp="${1:-.kbd-orchestrator/current-waypoint.json}"
+  local chain
+  chain="$(_kbd_path_from_waypoint "$wp")" || return 1
+  [[ -n "$chain" ]] || return 1
+  # shellcheck disable=SC2086
+  kbd_node_dir $chain
 }
