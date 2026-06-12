@@ -1,27 +1,27 @@
 {
   "schemaVersion": "1",
-  "updatedAt": "2026-06-12T12:33:56Z",
+  "updatedAt": "2026-06-12T12:41:37Z",
   "cursor": [
     "child-loops-and-capabilities",
-    "change-002-depth-child",
-    "task:0/4"
+    "change-003-child-exit-rollup",
+    "task:0/3"
   ],
   "root": {
     "type": "phase",
     "id": "child-loops-and-capabilities",
     "status": "execute_ready",
     "progress": {
-      "done": 1,
+      "done": 2,
       "total": 5
     },
     "children": [
       {
         "type": "change",
-        "id": "change-002-depth-child",
+        "id": "change-003-child-exit-rollup",
         "status": "PENDING",
         "progress": {
           "done": 0,
-          "total": 4
+          "total": 3
         }
       }
     ],

@@ -63,10 +63,28 @@ if [[ -n "$prior" ]]; then
   fi
 fi
 
-# Atomic waypoint update
+# Atomic waypoint update. Keep path[] consistent: switching siblings at the
+# active parent re-points the trailing element to the new child. We rebuild
+# path[] as <parent-chain-without-trailing-pointer> + [next].
 now="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-jq --arg ptr "$next" --arg parent "$parent" --arg now "$now" '
+new_path_json="null"
+if [[ "$hooks_avail" == "1" ]]; then
+  full_chain="$(_kbd_path_from_waypoint "$wp" 2>/dev/null || true)"
+  if [[ -n "$full_chain" ]]; then
+    # shellcheck disable=SC2206
+    ft=($full_chain); fd="${#ft[@]}"
+    if [[ "$fd" -gt 1 && "${ft[$((fd-1))]}" == "$prior" ]]; then
+      base=("${ft[@]:0:$((fd-1))}")
+    else
+      base=("${ft[@]}")
+    fi
+    base_chain="$(printf '%s ' "${base[@]}")"; base_chain="${base_chain% }"
+    new_path_json="$(jq -cn --argjson b "$(printf '%s' "$base_chain" | jq -R 'split(" ")')" --arg n "$next" '$b + [$n]')"
+  fi
+fi
+jq --arg ptr "$next" --arg parent "$parent" --arg now "$now" --argjson np "$new_path_json" '
   .childPointer     = $ptr |
+  (if $np != null then .path = $np else . end) |
   .currentTask      = ("run kbd-assess for " + $parent + "/" + $ptr) |
   .exactNextCommand = ("/kbd-assess " + $parent + "/" + $ptr) |
   .updatedAt        = $now

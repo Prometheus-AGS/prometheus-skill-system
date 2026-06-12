@@ -1,6 +1,12 @@
 #!/usr/bin/env bash
 # skills/kbd-new-child/kbd-new-child.sh
-# Create a child phase under the active top-level phase.
+# Create a child phase under the ACTIVE node (arbitrary depth, waypoint v3).
+#
+# The "parent" of the new child is whatever node the waypoint path[] currently
+# points at — a top-level phase, a child, a grandchild, etc. This is what makes
+# arbitrary-depth nesting work. On spawn the child gets its own goals.md,
+# progress.json, plus a parent→child handoff (handoff-in.md) and a
+# context-isolation contract (scope.json).
 
 set -euo pipefail
 die()  { printf 'kbd-new-child: %s\n' "$*" >&2; exit 1; }
@@ -11,7 +17,6 @@ name="${1:-}"
 shift
 goals=("$@")
 
-# Validation
 case "$name" in
   *..*) die "invalid name: parent traversal not allowed" ;;
   */*)  die "invalid name: slashes not allowed" ;;
@@ -26,29 +31,72 @@ wp=".kbd-orchestrator/current-waypoint.json"
 [[ -f "$wp" ]] || die "no current-waypoint.json — run /kbd-new-phase first"
 jq -e . "$wp" >/dev/null 2>&1 || die "malformed waypoint at $wp"
 
-parent="$(jq -r '.phase // ""' "$wp")"
-[[ -n "$parent" ]] || die "no active phase — run /kbd-new-phase first"
+# --- Resolve the active node from path[] (v3) -------------------------------
+KBD_ORCHESTRATOR_ROOT="${KBD_ORCHESTRATOR_ROOT:-$HOME/.claude/skills/kbd-process-orchestrator}"
+export KBD_ORCHESTRATOR_ROOT
+waypoint_lib="$KBD_ORCHESTRATOR_ROOT/shared/lib/waypoint.sh"
+[[ -f "$waypoint_lib" ]] || die "waypoint.sh not found at $waypoint_lib"
+# shellcheck source=/dev/null
+. "$waypoint_lib"
 
-# Single-level nesting only
-this_parent="$(jq -r '.parentPhase // ""' "$wp")"
-[[ -z "$this_parent" ]] \
-  || die "current row is itself a child (parentPhase=$this_parent); only one nesting level supported"
+# The PARENT of the new child is determined by path[] and childPointer together:
+#
+#  - "Selected but not entered" — path[]'s trailing token EQUALS childPointer.
+#    This is the state right after a kbd-new-child / kbd-next-child: the child is
+#    selected for traversal but the active node is still its parent. A new child
+#    here is a SIBLING, so strip the trailing token to get the parent.
+#  - "Entered/descended" — childPointer is cleared (or differs from path's tail).
+#    An outer agent has descended into the node; a new child NESTS under the
+#    deepest path[] node.
+#
+# Descent is therefore: set path[] to the child chain AND clear childPointer.
+full_chain="$(_kbd_path_from_waypoint "$wp")"
+[[ -n "$full_chain" ]] || die "could not resolve current path from waypoint"
+# shellcheck disable=SC2206
+full_tokens=($full_chain)
+full_depth="${#full_tokens[@]}"
+wp_pointer="$(jq -r '.childPointer // ""' "$wp")"
 
-# Duplicate check
-in_list="$(jq -r --arg n "$name" '.childPhases // [] | any(. == $n)' "$wp")"
-[[ "$in_list" != "true" ]] \
-  || die "child '$name' already exists in childPhases — try /kbd-next-child $name"
+if [[ "$full_depth" -gt 1 && -n "$wp_pointer" && "${full_tokens[$((full_depth-1))]}" == "$wp_pointer" ]]; then
+  # Selected-but-not-entered → sibling add: strip the trailing pointer token.
+  cur_tokens=("${full_tokens[@]:0:$((full_depth-1))}")
+else
+  # Entered/descended (pointer cleared) → nest under the deepest node.
+  cur_tokens=("${full_tokens[@]}")
+fi
+cur_depth="${#cur_tokens[@]}"
 
-# On-disk collision check
-child_dir=".kbd-orchestrator/phases/$parent/children/$name"
+# Depth rail (project.json maxChildDepth, default 4; top phase = depth 1).
+max_depth=4
+if [[ -f .kbd-orchestrator/project.json ]]; then
+  md="$(jq -r '.maxChildDepth // empty' .kbd-orchestrator/project.json 2>/dev/null || true)"
+  [[ -n "$md" ]] && max_depth="$md"
+fi
+if [[ "$((cur_depth + 1))" -gt "$max_depth" ]]; then
+  die "maxChildDepth ($max_depth) reached at $(kbd_node_chain "${cur_tokens[@]}") — cannot nest deeper"
+fi
+
+parent_node_dir="$(kbd_node_dir "${cur_tokens[@]}")"
+[[ -n "$parent_node_dir" ]] || die "could not resolve parent node dir"
+parent_label="$(kbd_node_chain "${cur_tokens[@]}")"
+
+# Duplicate check against the parent node's own childPhases.
+parent_progress="$parent_node_dir/progress.json"
+if [[ -f "$parent_progress" ]]; then
+  in_list="$(jq -r --arg n "$name" '.childPhases // [] | any(. == $n)' "$parent_progress" 2>/dev/null || echo false)"
+  [[ "$in_list" != "true" ]] \
+    || die "child '$name' already exists under $parent_label — try /kbd-next-child $name"
+fi
+
+child_dir="$parent_node_dir/children/$name"
 [[ -e "$child_dir" ]] && die "child directory already exists: $child_dir"
 
 now="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 mkdir -p "$child_dir"
 
-# goals.md
+# --- goals.md ---------------------------------------------------------------
 {
-  printf '# Goals — %s/%s\n\n' "$parent" "$name"
+  printf '# Goals — %s%s%s\n\n' "$parent_label" "$(chain_separator)" "$name"
   if [[ ${#goals[@]} -gt 0 ]]; then
     for g in "${goals[@]}"; do printf -- '- %s\n' "$g"; done
   else
@@ -57,12 +105,32 @@ mkdir -p "$child_dir"
 } > "$child_dir/goals.md.tmp"
 mv -f "$child_dir/goals.md.tmp" "$child_dir/goals.md"
 
-# progress.json (child has parentPhase set; no further nesting)
+# --- handoff-in.md (parent → child contract) --------------------------------
+{
+  printf '# Handoff in — %s%s%s\n\n' "$parent_label" "$(chain_separator)" "$name"
+  printf '**Spawned by:** %s\n\n' "$parent_label"
+  printf '## Why this child was spawned\n\n<!-- TBD: the specific sub-goal the parent could not complete inline -->\n\n'
+  printf '## Inputs (paths from the parent node)\n\n- %s/assessment.md\n- %s/plan.md\n\n' "$parent_node_dir" "$parent_node_dir"
+  printf '## Success criteria\n\n<!-- TBD: what "done" means for this child -->\n\n'
+  printf '## Expected deliverables\n\n<!-- TBD: artifacts the parent expects back via handoff-out.md -->\n'
+} > "$child_dir/handoff-in.md.tmp"
+mv -f "$child_dir/handoff-in.md.tmp" "$child_dir/handoff-in.md"
+
+# --- scope.json (context-isolation contract) --------------------------------
+jq -n --arg child "$child_dir" '
+{
+  allowedWritePaths: [ ($child + "/**") ],
+  deniedPaths: [],
+  inheritsConstraints: true,
+  __note: "Edit allowedWritePaths to widen the child loop'\''s write surface. .kbd-orchestrator/** and SCRATCHPAD.md are always allowed. Enforced advisorily by check-child-scope.sh."
+}' > "$child_dir/scope.json.tmp"
+mv -f "$child_dir/scope.json.tmp" "$child_dir/scope.json"
+
+# --- progress.json ----------------------------------------------------------
 source_tool="$(jq -r '.sourceTool // ""' "$wp")"
 [[ -n "$source_tool" ]] || source_tool="unknown"
-
 jq -n \
-  --arg phase "$name" --arg parent "$parent" --arg src "$source_tool" --arg now "$now" '
+  --arg phase "$name" --arg parent "${cur_tokens[$((cur_depth-1))]}" --arg src "$source_tool" --arg now "$now" '
 {
   phase: $phase,
   parentPhase: $parent,
@@ -83,40 +151,66 @@ jq -n \
 }' > "$child_dir/progress.json.tmp"
 mv -f "$child_dir/progress.json.tmp" "$child_dir/progress.json"
 
-# Compute new childPhases + pointer; verify invariants
-new_children="$(jq --arg n "$name" '.childPhases // [] | . + [$n]' "$wp")"
-echo "$new_children" | jq -e 'length == (unique | length)' >/dev/null \
-  || die "internal: would write duplicate childPhases (refusing)"
+# --- Register the child on the PARENT node's progress.json ------------------
+# The parent's childPhases/childPointer always live on its own progress.json.
+# When the parent IS a child node (depth > 1) the parent has a progress.json
+# under its child dir; at the top level the parent's progress.json is the
+# top-level phase's. Compute the appended list once for reuse.
+new_children='["'"$name"'"]'
+if [[ -f "$parent_progress" ]]; then
+  new_children="$(jq -c --arg n "$name" '.childPhases // [] | . + [$n]' "$parent_progress")"
+  echo "$new_children" | jq -e 'length == (unique | length)' >/dev/null \
+    || die "internal: would write duplicate childPhases on parent (refusing)"
+  jq --argjson cp "$new_children" --arg ptr "$name" --arg now "$now" \
+    '.childPhases = $cp | .childPointer = $ptr | .updatedAt = $now' \
+    "$parent_progress" > "$parent_progress.tmp"
+  mv -f "$parent_progress.tmp" "$parent_progress"
+fi
 
-jq --argjson cp "$new_children" --arg ptr "$name" --arg parent "$parent" --arg now "$now" '
-  .childPhases      = $cp |
-  .childPointer     = $ptr |
-  .currentTask      = ("run kbd-assess for " + $parent + "/" + $ptr) |
-  .exactNextCommand = ("/kbd-assess " + $parent + "/" + $ptr) |
-  .updatedAt        = $now
-' "$wp" > "$wp.tmp"
+# --- Update the waypoint ----------------------------------------------------
+# Push the child onto path[] (canonical, all depths). At the TOP LEVEL
+# (cur_depth == 1) ALSO maintain the v2 childPhases/childPointer on the waypoint
+# for backward compatibility (existing tools/tests read them there). For deeper
+# levels, childPhases lives only on the parent node's progress.json + path[].
+parent_chain="$(printf '%s ' "${cur_tokens[@]}")"; parent_chain="${parent_chain% }"
+new_path="$(jq -cn --argjson base "$(printf '%s' "$parent_chain" | jq -R 'split(" ")')" --arg n "$name" '$base + [$n]')"
+child_label="$(kbd_node_chain "${cur_tokens[@]}" "$name")"
+if [[ "$cur_depth" -eq 1 ]]; then
+  jq --argjson path "$new_path" --argjson cp "$new_children" --arg ptr "$name" --arg label "$child_label" --arg now "$now" '
+    .path             = $path |
+    .childPhases      = $cp |
+    .childPointer     = $ptr |
+    .currentTask      = ("run kbd-assess for " + $label) |
+    .exactNextCommand = ("/kbd-assess " + $label) |
+    .updatedAt        = $now
+  ' "$wp" > "$wp.tmp"
+else
+  jq --argjson path "$new_path" --arg ptr "$name" --arg label "$child_label" --arg now "$now" '
+    .path             = $path |
+    .childPointer     = $ptr |
+    .currentTask      = ("run kbd-assess for " + $label) |
+    .exactNextCommand = ("/kbd-assess " + $label) |
+    .updatedAt        = $now
+  ' "$wp" > "$wp.tmp"
+fi
 mv -f "$wp.tmp" "$wp"
 
-# Hook fire
-total="$(echo "$new_children" | jq 'length')"
-index="$total"
-KBD_ORCHESTRATOR_ROOT="${KBD_ORCHESTRATOR_ROOT:-$HOME/.claude/skills/kbd-process-orchestrator}"
-export KBD_ORCHESTRATOR_ROOT
+# --- Hook fire --------------------------------------------------------------
+total="$cur_depth"
+index="$((cur_depth + 1))"
 hooks_lib="$KBD_ORCHESTRATOR_ROOT/shared/lib/hooks.sh"
-waypoint_lib="$KBD_ORCHESTRATOR_ROOT/shared/lib/waypoint.sh"
-if [[ -f "$hooks_lib" && -f "$waypoint_lib" ]]; then
-  # shellcheck source=/dev/null
-  . "$waypoint_lib"
+if [[ -f "$hooks_lib" ]]; then
   # shellcheck source=/dev/null
   . "$hooks_lib"
-  kbd_hooks_fire child before "$name" "$index" "$total" \
+  kbd_hooks_fire child before "$name" "$index" "$max_depth" \
     || warn "child:before hook fire failed (child still created)"
 else
   warn "hooks subsystem unavailable (child still created)"
 fi
 
-printf '\nCompleted kbd-new-child — %s/%s ready for /kbd-assess\n' "$parent" "$name"
-printf '  parent: %s\n' "$parent"
-printf '  child:  %s  [%s/%s]\n' "$name" "$index" "$total"
+printf '\nCompleted kbd-new-child — %s ready for /kbd-assess\n' "$child_label"
+printf '  parent: %s\n' "$parent_label"
+printf '  child:  %s  [depth %s]\n' "$name" "$index"
 printf '  goals:  %s\n' "$child_dir/goals.md"
-printf '  Next:   /kbd-assess %s/%s\n' "$parent" "$name"
+printf '  scope:  %s\n' "$child_dir/scope.json"
+printf '  Next:   /kbd-assess %s\n' "$child_label"

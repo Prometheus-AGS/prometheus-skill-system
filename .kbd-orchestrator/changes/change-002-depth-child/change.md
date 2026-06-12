@@ -7,7 +7,7 @@ priority: P1
 effort: M
 agent: claude-code
 evolver_item_id: null
-status: proposed
+status: done
 scope:
   - skills/process/kbd-process-orchestrator/skills/kbd-new-child/kbd-new-child.sh
   - skills/process/kbd-process-orchestrator/skills/kbd-next-child/kbd-next-child.sh
@@ -47,10 +47,10 @@ Out: exit/rollup (change-003).
 
 ## Tasks
 
-- [ ] 1. Drop depth-1 die; path[]-aware parent resolution + nested dir
-- [ ] 2. Write scope.json + handoff-in.md + maxChildDepth rail
-- [ ] 3. kbd-next-child path[]-aware; project.template.json
-- [ ] 4. Write test; run green (existing depth-1 child tests stay green)
+- [x] 1. Drop depth-1 die; path[]-aware parent resolution + nested dir
+- [x] 2. Write scope.json + handoff-in.md + maxChildDepth rail
+- [x] 3. kbd-next-child path[]-aware; project.template.json
+- [x] 4. Write test; run green (existing depth-1 child tests stay green)
 
 ## Verification
 

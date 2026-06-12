@@ -23,19 +23,20 @@
   "model": "claude-opus-4-8",
   "updated": "2026-06-03T00:00:00Z",
   "previousPhase": "memory-and-karpathy",
-  "change": "change-002-depth-child",
+  "change": "change-003-child-exit-rollup",
   "status": "execute_ready",
-  "currentTask": "implement change-002 arbitrary-depth child spawn",
-  "nextPendingChange": "change-002-depth-child",
-  "exactNextCommand": "/kbd-apply change-002-depth-child",
+  "currentTask": "implement change-003 child exit + rollup",
+  "nextPendingChange": "change-003-child-exit-rollup",
+  "exactNextCommand": "/kbd-apply change-003-child-exit-rollup",
   "parentPhase": null,
   "childPhases": [],
   "childPointer": null,
-  "updatedAt": "2026-06-12T12:33:55Z",
+  "updatedAt": "2026-06-12T12:41:37Z",
   "scoped_paths": [
-    "skills/process/kbd-process-orchestrator/skills/kbd-new-child/kbd-new-child.sh",
-    "skills/process/kbd-process-orchestrator/skills/kbd-next-child/kbd-next-child.sh",
-    "skills/process/kbd-process-orchestrator/references/schemas/project.template.json",
-    "skills/process/kbd-process-orchestrator/shared/lib/tests/test-kbd-grandchild.sh"
+    "skills/process/kbd-process-orchestrator/skills/kbd-child-exit/SKILL.md",
+    "skills/process/kbd-process-orchestrator/skills/kbd-child-exit/kbd-child-exit.sh",
+    "skills/process/kbd-process-orchestrator/shared/lib/rollup.sh",
+    "skills/process/kbd-process-orchestrator/references/schemas/progress.schema.json",
+    "skills/process/kbd-process-orchestrator/shared/lib/tests/test-child-exit.sh"
   ]
 }
