@@ -1,9 +1,9 @@
 {
   "schemaVersion": "1",
-  "updatedAt": "2026-06-12T13:30:17Z",
+  "updatedAt": "2026-06-12T13:34:13Z",
   "cursor": [
     "outer-loop-and-ux",
-    "change-002-skill-extract",
+    "change-003-nesting-docs",
     "task:0/3"
   ],
   "root": {
@@ -11,13 +11,13 @@
     "id": "outer-loop-and-ux",
     "status": "execute_ready",
     "progress": {
-      "done": 1,
+      "done": 2,
       "total": 5
     },
     "children": [
       {
         "type": "change",
-        "id": "change-002-skill-extract",
+        "id": "change-003-nesting-docs",
         "status": "PENDING",
         "progress": {
           "done": 0,

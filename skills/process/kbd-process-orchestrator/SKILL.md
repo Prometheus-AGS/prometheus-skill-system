@@ -392,134 +392,26 @@ when the developer is outside the configured root. See
 
 ## Hooks
 
-KBD ships an extensible hook surface fired around every lifecycle boundary.
-Each KBD skill emits a hook event before its work and another after, and any
-project can plug in either *augment* (adds behavior) or *override* (replaces
-the default) entries.
+KBD ships an extensible hook surface fired around every lifecycle boundary:
+each skill fires `<kind>:<edge>` events (`kind` ∈ phase/child/plan/execute/
+reflect/task/assess/spec/analyze, `edge` ∈ before/after), and any project can
+plug in *augment* or *override* entries via `.kbd-orchestrator/hooks-config.json`.
+The built-in `report-progress` reporter writes `starting/ending <kind> <name>`
+to stderr — telemetry, NOT the user-facing guarantee (that is the plain-text
+Progress Signals every skill emits).
 
-**Canonical event form**: `<kind>:<edge>`, where
-
-- `kind` ∈ `phase` | `child` | `plan` | `execute` | `reflect` | `task` | `assess` | `*`
-- `edge` ∈ `before` | `after` | `*`
-
-**Legacy alias compatibility** (kept working — no migration required):
-
-| Legacy event | Canonical event |
-|---|---|
-| `on_phase_complete` | `phase:after` |
-| `on_plan_complete` | `plan:after` |
-| `on_reflection_complete` | `reflect:after` |
-| `on_assessment_complete` | `assess:after` |
-| `on_change_complete` | last `task:after` of the change (sentinel — fires when `index == total`) |
-| `<kind>:begin` | `<kind>:before` |
-| `<kind>:end` | `<kind>:after` |
-| `on_blocker_detected`, `on_cross_tool_handoff` | unchanged — situational, not lifecycle |
-
-**Discovery order** (highest precedence wins on override conflicts):
-
-1. **builtin** — `~/.claude/skills/kbd-process-orchestrator/hooks/hooks.json`
-2. **user** — `~/.claude/skills/kbd-process-orchestrator/hooks/user.json` (optional)
-3. **project** — `.kbd-orchestrator/hooks-config.json` (optional)
-
-**Mode field** — each entry declares `mode: augment` (default) or `mode: override`. Multiple overrides on the same `(kind, edge)` resolve to the entry from the highest layer; within a layer, last-loaded wins. A single warning names winner and losers; dispatch never aborts.
-
-**Default reporter** — the built-in `report-progress` hook fires on every `*:*` and writes to stderr:
-
-```
-starting <kind> <name> [<index>/<total>]
-ending <kind> <name> [<index>/<total>]
-```
-
-A project can replace this wholesale with a single `mode: "override"` entry covering `"*:*"`.
-
-> **Guarantee vs. extension (read this).** The stderr reporter is **not** what
-> the user sees each turn — Claude Code does not surface hook stderr into the
-> conversation. The user-facing guarantee is the **plain-text Progress Signals**
-> that every skill emits and that `/kbd-apply` emits per task. The
-> `report-progress` hook is the *extension point* (telemetry, memory mirror,
-> custom reporters). For the full design — including an opt-in `Stop` settings
-> hook that injects the phase chain regardless of which skill is active — see
-> `references/per-turn-position-hook.md`.
-
-**Per-fire context** — every hook command receives these environment variables (in addition to existing `${PHASE}`, `${STEP}`, `${EVENT}` substitutions):
-
-| Variable | Meaning |
-|---|---|
-| `KBD_HOOK_KIND` | phase / child / plan / execute / reflect / task / assess |
-| `KBD_HOOK_EDGE` | before / after |
-| `KBD_HOOK_NAME` | active item's canonical name |
-| `KBD_HOOK_INDEX` | 1-based index in the containing loop (default 1) |
-| `KBD_HOOK_TOTAL` | total count in the containing loop (default 1) |
-| `KBD_HOOK_PHASE_PATH` | rendered chain via `chain_separator` |
-| `KBD_HOOK_CHILD_PATH` | active child name, or empty |
-| `KBD_HOOK_SOURCE_TOOL` | sourceTool from waypoint, or `"unknown"` |
-| `KBD_HOOK_STARTED_AT` | ISO-8601 UTC timestamp |
-
-**Hook log** — every fire appends one JSON object to `.kbd-orchestrator/phases/<phase>/hooks.log.jsonl` (or `.kbd-orchestrator/hooks.log.jsonl` when no phase is active yet). Schema:
-
-```json
-{"ts":"…","kind":"task","edge":"after","name":"1.1 …","index":1,"total":7,
- "phasePath":"parent › child","sourceTool":"claude-code",
- "hookId":"project/on-task-done","layer":"project","mode":"augment","status":0}
-```
-
-Failure entries include `"stderrSnippet"` truncated to 200 chars.
-
-### Wiring stanza (paste into each KBD skill)
-
-```sh
-. "$KBD_ORCHESTRATOR_ROOT/shared/lib/waypoint.sh"
-. "$KBD_ORCHESTRATOR_ROOT/shared/lib/hooks.sh"
-
-kbd_hooks_fire <kind> before "$item_name" "$index" "$total"
-# … do the work …
-kbd_hooks_fire <kind> after  "$item_name" "$index" "$total"
-```
-
-The existing `Starting/Completed kbd-<skill> — <phase>` Progress Signals
-(documented in each skill's "Progress Signals (MANDATORY)" section)
-**continue to fire** alongside hook events; the two are complementary.
-Progress Signals are agent-facing structured lines; hook output is
-operator-facing observability.
-
-### Debugging
-
-Set `KBD_HOOK_DEBUG=1` in the environment to log every event-name
-normalisation to stderr (`[hooks] normalised <orig> → <canonical>`).
+**Full reference — event taxonomy, legacy aliases, discovery order, per-fire
+`KBD_HOOK_*` context, the wiring stanza, hook log schema, and debugging — lives
+in [`references/hooks.md`](references/hooks.md).**
 
 ---
 
 ## Cross-Tool Reporting Protocol
 
-When an AI tool (Roo, Cursor, Cline, Codex, etc.) is dispatched to execute a
-KBD change, it MUST follow this protocol:
-
-### On Start of a Change
-
-1. Read `.kbd-orchestrator/current-waypoint.json`
-2. Read the change spec (OpenSpec or `.kbd-orchestrator/changes/<id>/change.md`)
-3. Update `progress.json`: set status → `IN_PROGRESS`, `started_by` → `<tool-name>`
-4. Update waypoint: `last_updated_by` → `<tool-name>`
-
-### During Execution (on each task completion)
-
-1. Update `progress.json`: increment `tasks_done`, update `last_task_completed` and `next_task_pending`
-2. Commit the progress file to git: `git add .kbd-orchestrator && git commit -m "kbd: progress update [<tool>] <change-id> task N/M"`
-
-### On Change Completion
-
-1. Update `progress.json`: set status → `DONE`, `completed_by` → `<tool-name>`
-2. If OpenSpec: run `/opsx:verify` then `/opsx:archive`
-3. If native KBD: move change to `.kbd-orchestrator/changes/archive/<date>-<id>/`
-4. Update waypoint: advance `last_completed_change` and `next_pending_change`
-5. Commit all state: `git add .kbd-orchestrator && git commit -m "kbd: change complete [<tool>] <change-id>"`
-6. **Echo the KBD hook**: `echo '[kbd] Change complete — run /kbd-assess or /kbd-reflect as appropriate'`
-
-### On Blocker
-
-1. Update `progress.json`: set status → `BLOCKED`, add to `blockers` array
-2. Update waypoint: set `fallback_command` to describe the blocker
-3. Commit: `git add .kbd-orchestrator && git commit -m "kbd: blocked [<tool>] <change-id>"`
+When an AI tool (Roo, Cursor, Cline, Codex, etc.) is dispatched to execute a KBD
+change, it MUST follow the start/during/completion/blocker protocol — update
+`progress.json` + the waypoint and commit `.kbd-orchestrator/` on each boundary.
+**Full steps in [`references/cross-tool-protocol.md`](references/cross-tool-protocol.md).**
 
 ---
 
@@ -549,36 +441,13 @@ The executing tool MUST read these files and apply constraints when verifying wo
 
 ## Surreal-Memory Integration
 
-**Default-on when reachable.** When the surreal-memory MCP endpoint is detected by `shared/lib/memory.sh::kbd_memory_available`, KBD mirrors every hook fire into the memory store as a `kbd_lifecycle_event` entity and exposes `/kbd-memory-recall` for retrieving prior similar work as planning input. When the endpoint is unreachable, the memory subsystem cleanly no-ops — no KBD operation is ever blocked by a missing memory service.
-
-### What the integration provides
-
-- **Cross-tool coordination**: hook events stored as entity observations, readable by any AI tool that can query the surreal-memory MCP.
-- **Cross-project learning**: every event entity carries a `belongs-to project:<name>` relation; `/kbd-memory-recall` (with `--cross-project` in future) surfaces patterns from prior projects on similar work.
-- **Phase context**: `/kbd-memory-recall` writes `prior-context.md` for each phase before `/kbd-assess`, automatically via the `auto-memory-recall` hook.
-- **Audit trail**: events flow into the memory store *in addition to* the per-phase JSONL log; the JSONL is the in-flight source of truth, the memory mirror is the queryable index.
-
-### Detection contract
-
-`kbd_memory_available` probes in this order, caches the result for the process lifetime, and returns 0 on success:
-
-1. Calling agent's tool list contains `create_entity` (MCP-mode).
-2. `$UAR_MEMORY_MCP_URL` or `$KBD_MEMORY_MCP_URL` set and `GET <url>/healthz` returns 2xx within 2 s.
-3. `.kbd-orchestrator/memory.config.json` field `mcpEndpoint` reachable.
-
-### Built-in hooks
-
-| id | event | mode | purpose |
-|---|---|---|---|
-| `kbd-memory-log` | `*:*` | augment | Mirror each hook fire into surreal-memory; no-op when unreachable. |
-| `auto-memory-recall` | `assess:before` | augment | Populate `prior-context.md` before each `/kbd-assess`. |
-
-Both ship enabled and can be disabled per-project via `.kbd-orchestrator/hooks-config.json` (set `enabled: false` on a matching `id`).
-
-### Reference
-
-- Event entity schema, retention window, and relevance ordering: [`shared/references/memory-retention.md`](shared/references/memory-retention.md).
-- Recall skill: `skills/kbd-memory-recall/SKILL.md`.
+**Default-on when reachable.** When the surreal-memory MCP endpoint is detected,
+KBD mirrors every hook fire into the store as a `kbd_lifecycle_event` entity and
+exposes `/kbd-memory-recall` for prior-work retrieval; it cleanly no-ops when the
+endpoint is unreachable. Built-in hooks: `kbd-memory-log` (`*:*`) and
+`auto-memory-recall` (`assess:before`). **Detection contract, what the
+integration provides, and the entity schema are in
+[`references/memory-integration.md`](references/memory-integration.md).**
 
 ---
 

@@ -7,10 +7,12 @@ priority: P2
 effort: S
 agent: claude-code
 evolver_item_id: null
-status: proposed
+status: done
 scope:
   - skills/process/kbd-process-orchestrator/SKILL.md
   - skills/process/kbd-process-orchestrator/references/hooks.md
+  - skills/process/kbd-process-orchestrator/references/cross-tool-protocol.md # scope expansion: needed 2 more extractions to clear 500 lines
+  - skills/process/kbd-process-orchestrator/references/memory-integration.md # scope expansion
 ---
 
 # change-002 — SKILL.md extraction
@@ -34,9 +36,9 @@ In:
 
 ## Tasks
 
-- [ ] 1. Create references/hooks.md with the extracted Hooks content
-- [ ] 2. Replace the SKILL.md Hooks section with a pointer
-- [ ] 3. Confirm validate:strict has no line-count warning
+- [x] 1. Create references/hooks.md with the extracted Hooks content
+- [x] 2. Replace the SKILL.md Hooks section with a pointer
+- [x] 3. Confirm validate:strict has no line-count warning
 
 ## Verification
 
