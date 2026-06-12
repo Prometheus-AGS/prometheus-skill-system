@@ -20,6 +20,10 @@ HOOK_LOG_LIB="$(cd "$(dirname "$0")" && pwd)/lib/hook-log.sh"
 [ -f "$HOOK_LOG_LIB" ] && source "$HOOK_LOG_LIB"
 hook_log_start "PreToolUse" "scope-guard.sh"
 
+# Shared path-scope helper (canonicalize + relativize + always-allowed).
+PSCOPE_LIB="$(cd "$(dirname "$0")" && pwd)/lib/path-scope.sh"
+[ -f "$PSCOPE_LIB" ] && source "$PSCOPE_LIB"
+
 MODE="${PROMETHEUS_SCOPE_ENFORCE:-warn}"
 finish() { hook_log_end "${1:-0}"; exit "${1:-0}"; }
 [ "$MODE" = "off" ] && finish 0
@@ -55,44 +59,24 @@ CHANGE="$(jq -r '.change // .active_change // empty' "$WP")"
 SCOPED="$(jq -c '.scoped_paths // []' "$WP")"
 [ "$SCOPED" = "[]" ] && finish 0
 
-# Path relative to root, canonicalizing both sides so macOS /var vs
-# /private/var symlinks don't defeat the prefix match.
-_canon() { ( cd "$1" 2>/dev/null && pwd -P ) || printf '%s' "$1"; }
-ROOT_REAL="$(_canon "$ROOT")"
-case "$FILE_PATH" in
-  /*) FP_REAL="$(_canon "$(dirname "$FILE_PATH")")/$(basename "$FILE_PATH")" ;;
-  *)  FP_REAL="$FILE_PATH" ;;       # already relative
-esac
-REL="$FP_REAL"
-case "$FP_REAL" in
-  "$ROOT_REAL"/*) REL="${FP_REAL#"$ROOT_REAL"/}" ;;
-esac
+# Relativize via the shared helper (macOS symlink-safe).
+REL="$(pscope_relativize "$ROOT" "$FILE_PATH")"
 
 # Always-allowed paths.
-case "$REL" in
-  .kbd-orchestrator/*|SCRATCHPAD.md) finish 0 ;;
-esac
+pscope_always_allowed "$REL" && finish 0
 
-# In-scope or already-overridden check (python fnmatch over globs).
-DECISION="$(REL="$REL" SCOPED="$SCOPED" WP="$WP" python3 -c '
-import json, os, fnmatch
+# Already-approved override → allow.
+OVERRIDDEN="$(REL="$REL" WP="$WP" python3 -c '
+import json, os
 rel = os.environ.get("REL", "")
-scoped = json.loads(os.environ.get("SCOPED", "[]"))
-try:
-    wp = json.load(open(os.environ["WP"]))
-except Exception:
-    print("allow"); raise SystemExit
-overrides = [o.get("path") for o in (wp.get("scope_overrides") or [])]
-if rel in overrides:
-    print("allow"); raise SystemExit
-for g in scoped:
-    if fnmatch.fnmatch(rel, g):
-        print("allow"); raise SystemExit
-print("out")
-' 2>/dev/null || echo "error")"
+try: wp = json.load(open(os.environ["WP"]))
+except Exception: print("no"); raise SystemExit
+print("yes" if rel in [o.get("path") for o in (wp.get("scope_overrides") or [])] else "no")
+' 2>/dev/null || echo "no")"
+[ "$OVERRIDDEN" = "yes" ] && finish 0
 
-[ "$DECISION" = "allow" ] && finish 0
-[ "$DECISION" = "error" ] && finish 0   # fail open
+# In-scope check via the shared matcher.
+[ "$(pscope_match "$REL" "$SCOPED")" = "in" ] && finish 0
 
 # Out of scope.
 if [ "$MODE" = "ask" ]; then

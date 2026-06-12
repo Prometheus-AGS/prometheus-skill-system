@@ -15,6 +15,10 @@ HOOK_LOG_LIB="$(cd "$(dirname "$0")" && pwd)/lib/hook-log.sh"
 [ -f "$HOOK_LOG_LIB" ] && source "$HOOK_LOG_LIB"
 hook_log_start "PreToolUse" "protect-tests.sh"
 
+# Shared path-scope helper (canonicalize + relativize, macOS symlink-safe).
+PSCOPE_LIB="$(cd "$(dirname "$0")" && pwd)/lib/path-scope.sh"
+[ -f "$PSCOPE_LIB" ] && source "$PSCOPE_LIB"
+
 finish() { hook_log_end "${1:-0}"; exit "${1:-0}"; }
 
 # Global override.
@@ -56,11 +60,14 @@ _find_tests_root() {
 }
 ROOT="$(_find_tests_root)" || finish 0   # no BDD suite → not applicable
 
-# Normalize the target to a path relative to ROOT.
-REL="$FILE_PATH"
-case "$FILE_PATH" in
-  "$ROOT"/*) REL="${FILE_PATH#"$ROOT"/}" ;;
-esac
+# Normalize the target to a path relative to ROOT (shared helper when present;
+# fall back to a plain prefix strip in a stripped environment).
+if command -v pscope_relativize >/dev/null 2>&1; then
+  REL="$(pscope_relativize "$ROOT" "$FILE_PATH")"
+else
+  REL="$FILE_PATH"
+  case "$FILE_PATH" in "$ROOT"/*) REL="${FILE_PATH#"$ROOT"/}" ;; esac
+fi
 
 # Drafts and brand-new files are always allowed.
 case "$REL" in

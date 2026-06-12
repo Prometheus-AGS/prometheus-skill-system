@@ -7,7 +7,7 @@ priority: P1
 effort: M
 agent: claude-code
 evolver_item_id: null
-status: proposed
+status: done
 scope:
   - shared/scripts/lib/path-scope.sh
   - shared/scripts/scope-guard.sh
@@ -44,9 +44,9 @@ In:
 
 ## Tasks
 
-- [ ] 1. Write path-scope.sh (relativize + match + always_allowed)
-- [ ] 2. Refactor scope-guard, check-child-scope, protect-tests onto it
-- [ ] 3. Write test-path-scope.sh; run it + all 3 hook tests green
+- [x] 1. Write path-scope.sh (relativize + match + always_allowed)
+- [x] 2. Refactor scope-guard, check-child-scope, protect-tests onto it
+- [x] 3. Write test-path-scope.sh; run it + all 3 hook tests green
 
 ## Verification
 

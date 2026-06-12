@@ -23,20 +23,17 @@
   "model": "claude-opus-4-8",
   "updated": "2026-06-03T00:00:00Z",
   "previousPhase": "child-loops-and-capabilities",
-  "change": "change-001-path-scope-helper",
+  "change": "change-002-skill-extract",
   "status": "execute_ready",
-  "currentTask": "implement change-001 shared path-scope helper",
-  "nextPendingChange": "change-001-path-scope-helper",
-  "exactNextCommand": "/kbd-apply change-001-path-scope-helper",
+  "currentTask": "implement change-002 SKILL.md extraction",
+  "nextPendingChange": "change-002-skill-extract",
+  "exactNextCommand": "/kbd-apply change-002-skill-extract",
   "parentPhase": null,
   "childPhases": [],
   "childPointer": null,
-  "updatedAt": "2026-06-12T13:24:09Z",
+  "updatedAt": "2026-06-12T13:30:17Z",
   "scoped_paths": [
-    "shared/scripts/lib/path-scope.sh",
-    "shared/scripts/scope-guard.sh",
-    "skills/process/kbd-process-orchestrator/shared/lib/check-child-scope.sh",
-    "shared/scripts/protect-tests.sh",
-    "shared/scripts/tests/test-path-scope.sh"
+    "skills/process/kbd-process-orchestrator/SKILL.md",
+    "skills/process/kbd-process-orchestrator/references/hooks.md"
   ]
 }

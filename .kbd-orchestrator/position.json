@@ -1,9 +1,9 @@
 {
   "schemaVersion": "1",
-  "updatedAt": "2026-06-12T13:24:09Z",
+  "updatedAt": "2026-06-12T13:30:17Z",
   "cursor": [
     "outer-loop-and-ux",
-    "change-001-path-scope-helper",
+    "change-002-skill-extract",
     "task:0/3"
   ],
   "root": {
@@ -11,13 +11,13 @@
     "id": "outer-loop-and-ux",
     "status": "execute_ready",
     "progress": {
-      "done": 0,
+      "done": 1,
       "total": 5
     },
     "children": [
       {
         "type": "change",
-        "id": "change-001-path-scope-helper",
+        "id": "change-002-skill-extract",
         "status": "PENDING",
         "progress": {
           "done": 0,
