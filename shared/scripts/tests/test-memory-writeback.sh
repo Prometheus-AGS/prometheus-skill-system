@@ -16,10 +16,10 @@ BIN="$TMP/bin"; mkdir -p "$BIN"
 cat > "$BIN/curl" <<'FAKE'
 #!/usr/bin/env bash
 mode="${FAKE_CURL_MODE:-fail}"
-body=""
-while [ $# -gt 0 ]; do case "$1" in -d) body="$2"; shift 2 ;; *) shift ;; esac; done
+body=""; method="GET"
+while [ $# -gt 0 ]; do case "$1" in -d) body="$2"; shift 2 ;; -X) method="$2"; shift 2 ;; *) shift ;; esac; done
 [ -n "${CURL_BODY_FILE:-}" ] && [ -n "$body" ] && printf '%s\n' "$body" >> "$CURL_BODY_FILE"
-if [ "$mode" = "ok" ]; then printf '200'; else printf '000'; fi
+if [ "$mode" = "ok" ]; then case "$method" in POST|PUT) printf '201' ;; *) printf '200' ;; esac; else printf '000'; fi
 exit 0
 FAKE
 chmod +x "$BIN/curl"
@@ -75,11 +75,29 @@ export FAKE_CURL_MODE=fail
 LINES_AFTER="$(wc -l < "$ROOT/.kbd-orchestrator/memory-outbox.jsonl" 2>/dev/null | tr -d ' ' || echo 0)"
 [ "$LINES_BEFORE" = "$LINES_AFTER" ] && ok || bad "flush must preserve outbox when endpoint down" "$LINES_BEFORE→$LINES_AFTER"
 
-# 6. Outbox flush: endpoint up → outbox drained
+# 6. Outbox flush: endpoint up → REST-drainable add_memory line drains
 export FAKE_CURL_MODE=ok
 ( cd "$ROOT" && bash "$FLUSH" >/dev/null 2>&1 )
 [ ! -f "$ROOT/.kbd-orchestrator/memory-outbox.jsonl" ] || [ ! -s "$ROOT/.kbd-orchestrator/memory-outbox.jsonl" ] \
-  && ok || bad "flush should drain outbox when endpoint up" "$(cat "$ROOT/.kbd-orchestrator/memory-outbox.jsonl" 2>/dev/null)"
+  && ok || bad "flush should drain add_memory outbox when endpoint up" "$(cat "$ROOT/.kbd-orchestrator/memory-outbox.jsonl" 2>/dev/null)"
+
+# 7. MCP-only lines (no REST route) are DROPPED on flush, not retained forever
+OB="$ROOT/.kbd-orchestrator/memory-outbox.jsonl"
+{
+  printf '%s\n' '{"queuedAt":"t","method":"add_memory","arguments":{"content":"keep","user_id":"p"}}'
+  printf '%s\n' '{"queuedAt":"t","method":"create_task_stream","arguments":{"name":"s"}}'
+  printf '%s\n' '{"queuedAt":"t","method":"complete_step","arguments":{"stream":"s","step":"1"}}'
+} > "$OB"
+export FAKE_CURL_MODE=ok
+( cd "$ROOT" && bash "$FLUSH" >/dev/null 2>&1 )
+# add_memory drained (REST), the two MCP-only lines dropped → outbox gone/empty
+[ ! -s "$OB" ] && ok || bad "MCP-only lines must be dropped, add_memory drained" "$(cat "$OB" 2>/dev/null)"
+
+# 8. Endpoint down → ALL lines preserved (including REST-routable add_memory)
+printf '%s\n' '{"queuedAt":"t","method":"add_memory","arguments":{"content":"x","user_id":"p"}}' > "$OB"
+export FAKE_CURL_MODE=fail
+( cd "$ROOT" && bash "$FLUSH" >/dev/null 2>&1 )
+[ "$(wc -l < "$OB" 2>/dev/null | tr -d ' ')" = "1" ] && ok || bad "endpoint down must preserve add_memory line" "$(cat "$OB" 2>/dev/null)"
 
 echo "---"; echo "PASS=$PASS FAIL=$FAIL"
 [ "$FAIL" -eq 0 ]

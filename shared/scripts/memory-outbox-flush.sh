@@ -32,15 +32,26 @@ mem_available || {
   finish
 }
 
+# Methods with a REST route can be drained by this script; the rest are
+# MCP-tool-only (no REST route) — a bash flush can never send them, so retaining
+# them would grow the outbox forever. Those are transient telemetry
+# (task-streams) → DROPPED with a notice. The durable learning is add_memory,
+# which IS REST-drainable. (Keeps `_mem_rest_route` as the single source of truth.)
 REMAIN="$(mktemp)"
-SENT=0; KEPT=0
+SENT=0; KEPT=0; DROPPED=0
 while IFS= read -r line; do
   [ -n "$line" ] || continue
   method="$(printf '%s' "$line" | jq -r '.method // empty' 2>/dev/null)"
   args="$(printf '%s' "$line" | jq -c '.arguments // {}' 2>/dev/null)"
-  if [ -n "$method" ] && _mem_call "$method" "$args"; then
+  [ -n "$method" ] || continue
+  if [ -z "$(_mem_rest_route "$method")" ]; then
+    # No REST route — can't drain via bash; drop (telemetry, not durable).
+    DROPPED=$((DROPPED+1)); continue
+  fi
+  if _mem_call "$method" "$args"; then
     SENT=$((SENT+1))
   else
+    # REST route exists but the call failed (transient) — keep for next session.
     printf '%s\n' "$line" >> "$REMAIN"; KEPT=$((KEPT+1))
   fi
 done < "$OUTBOX"
@@ -51,5 +62,5 @@ else
   mv "$REMAIN" "$OUTBOX"
 fi
 rm -f "$REMAIN" 2>/dev/null || true
-echo "[memory-outbox-flush] sent ${SENT}, kept ${KEPT}" >&2
+echo "[memory-outbox-flush] sent ${SENT}, kept ${KEPT}, dropped ${DROPPED} (MCP-tool-only)" >&2
 finish

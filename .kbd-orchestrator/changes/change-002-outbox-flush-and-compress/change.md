@@ -7,7 +7,7 @@ priority: P1
 effort: S
 agent: claude-code
 evolver_item_id: null
-status: proposed
+status: done
 scope:
   - shared/scripts/memory-outbox-flush.sh
   - shared/scripts/mem0-compress.sh
@@ -48,9 +48,9 @@ In:
 
 ## Tasks
 
-- [ ] 1. Fix memory-outbox-flush.sh: drain add_memory via REST; handle MCP-only lines (keep-with-notice or drop) — document the policy
-- [ ] 2. Fix mem0-compress.sh: stop the broken SSE POST; compress is MCP-only — notice + graceful exit
-- [ ] 3. Extend test-memory-writeback.sh; run green; LIVE-verify outbox drains an add_memory line against the server
+- [x] 1. Fix memory-outbox-flush.sh: drain add_memory via REST; handle MCP-only lines (keep-with-notice or drop) — document the policy
+- [x] 2. Fix mem0-compress.sh: stop the broken SSE POST; compress is MCP-only — notice + graceful exit
+- [x] 3. Extend test-memory-writeback.sh; run green; LIVE-verify outbox drains an add_memory line against the server
 
 ## Verification
 

@@ -27,20 +27,13 @@ if command -v pk &>/dev/null; then
   log "pk memory compress failed — falling back to surreal-memory MCP HTTP"
 fi
 
-# Fallback: direct JSON-RPC call to the current surreal-memory HTTP MCP endpoint.
-# This is best-effort because some MCP clients require a negotiated session.
-SURREAL_MCP_URL="${SURREAL_MEMORY_URL:-http://localhost:23001/mcp/sse}"
-PAYLOAD=$(printf '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"compress_memories","arguments":{"user_id":"%s"}}}' "${SCOPE}")
-
-HTTP_STATUS=$(curl -s -o /tmp/mem0-compress-response.json -w "%{http_code}" \
-  -X POST "${SURREAL_MCP_URL}" \
-  -H "Content-Type: application/json" \
-  -d "${PAYLOAD}" 2>>"$LOG_FILE" || echo "000")
-
-if [[ "${HTTP_STATUS}" == "200" ]]; then
-  RESULT=$(python3 -c "import json,sys; d=json.load(open('/tmp/mem0-compress-response.json')); print(d.get('result',''))" 2>/dev/null || echo "")
-  log "Completed mem0 compress via MCP HTTP. Result: ${RESULT}"
-else
-  log "WARN: mem0 compress MCP call returned HTTP ${HTTP_STATUS}. Surreal-memory may not be running."
-  exit 0  # Non-fatal: memory compression is best-effort
-fi
+# No `pk` (or it failed). `compress_memories` is an MCP TOOL with NO REST route
+# (the server exposes /api/v1/memory|entities|relations|mindmaps as REST, but
+# NOT compress — see tools/surreal-memory-server/src/contracts.rs). A
+# fire-and-forget HTTP call cannot invoke it: POSTing JSON-RPC to the GET-only
+# /mcp/sse stream 405s, and the streamable /mcp/messages route needs a session
+# handshake. So there is no shell path here — compression must run via the
+# agent's mcp__surreal-memory__compress_memories tool (or `pk memory compress`).
+log "NOTE: compress_memories is MCP-tool-only (no REST route) — no shell fallback."
+log "      Run compression via the agent (mcp__surreal-memory__compress_memories) or 'pk memory compress'."
+exit 0  # Non-fatal: memory compression is best-effort and agent-driven.

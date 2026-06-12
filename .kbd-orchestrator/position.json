@@ -1,30 +1,18 @@
 {
   "schemaVersion": "1",
-  "updatedAt": "2026-06-12T16:52:14Z",
+  "updatedAt": "2026-06-12T16:54:51Z",
   "cursor": [
-    "memory-write-transport",
-    "change-002-outbox-flush-and-compress",
-    "task:0/3"
+    "memory-write-transport"
   ],
   "root": {
     "type": "phase",
     "id": "memory-write-transport",
-    "status": "execute_ready",
+    "status": "execute_complete",
     "progress": {
-      "done": 1,
+      "done": 2,
       "total": 2
     },
-    "children": [
-      {
-        "type": "change",
-        "id": "change-002-outbox-flush-and-compress",
-        "status": "IN_PROGRESS",
-        "progress": {
-          "done": 0,
-          "total": 3
-        }
-      }
-    ],
+    "children": [],
     "annotations": []
   }
 }
