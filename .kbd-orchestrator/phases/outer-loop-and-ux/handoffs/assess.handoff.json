@@ -1,0 +1,11 @@
+{
+  "stage": "assess",
+  "completedAt": "2026-06-12T13:24:08Z",
+  "outputs": [
+    "assessment.md"
+  ],
+  "nextStage": "analyze",
+  "summaryForNext": "Five gaps U1-U5; verified 3 path-matchers share identical pattern, SKILL.md Hooks section extractable, evolver wrappable. Carry-forwards first; hold warn mode. GO.",
+  "skipped": false,
+  "skipReason": null
+}

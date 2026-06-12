@@ -1,0 +1,51 @@
+{
+  "phase": "outer-loop-and-ux",
+  "parentPhase": null,
+  "childPhases": [],
+  "childPointer": null,
+  "assessment_complete": true,
+  "plan_complete": true,
+  "execute_complete": false,
+  "reflect_complete": false,
+  "changes_total": 5,
+  "changes_completed": 0,
+  "completed_changes": [],
+  "active_change": null,
+  "blocked_changes": [],
+  "sourceTool": "claude-code",
+  "createdBy": "kbd-new-phase",
+  "updatedAt": "2026-06-12T13:24:09Z",
+  "backend": "native-kbd",
+  "changes": [
+    {
+      "id": "change-001-path-scope-helper",
+      "status": "PENDING",
+      "tasks_total": 3,
+      "tasks_done": 0
+    },
+    {
+      "id": "change-002-skill-extract",
+      "status": "PENDING",
+      "tasks_total": 3,
+      "tasks_done": 0
+    },
+    {
+      "id": "change-003-nesting-docs",
+      "status": "PENDING",
+      "tasks_total": 3,
+      "tasks_done": 0
+    },
+    {
+      "id": "change-004-outer-loop",
+      "status": "PENDING",
+      "tasks_total": 3,
+      "tasks_done": 0
+    },
+    {
+      "id": "change-005-dual-ux",
+      "status": "PENDING",
+      "tasks_total": 3,
+      "tasks_done": 0
+    }
+  ]
+}

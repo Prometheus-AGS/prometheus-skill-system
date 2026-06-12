@@ -1,0 +1,11 @@
+{
+  "stage": "plan",
+  "completedAt": "2026-06-12T13:24:09Z",
+  "outputs": [
+    "plan.md"
+  ],
+  "nextStage": "execute",
+  "summaryForNext": "5 ordered changes; carry-forwards first (path-helper, SKILL extract, nesting docs), then features (outer-loop, dual-UX). HOLD scope flip. First: change-001-path-scope-helper.",
+  "skipped": false,
+  "skipReason": null
+}

@@ -1,5 +1,5 @@
 {
-  "phase": "child-loops-and-capabilities",
+  "phase": "outer-loop-and-ux",
   "phase_started": "2026-06-03",
   "phase_path": ".kbd-orchestrator/phases/kbd-execute-spec-wrapping-and-nesting-2026-06-03",
   "stage": "reflect_complete",
@@ -22,15 +22,21 @@
   "tool": "claude-code",
   "model": "claude-opus-4-8",
   "updated": "2026-06-03T00:00:00Z",
-  "previousPhase": "memory-and-karpathy",
-  "change": null,
-  "status": "phase_complete",
-  "currentTask": "phase closed (5 of 6); next: outer-loop-and-ux",
-  "nextPendingChange": null,
-  "exactNextCommand": "/kbd-new-phase outer-loop-and-ux",
+  "previousPhase": "child-loops-and-capabilities",
+  "change": "change-001-path-scope-helper",
+  "status": "execute_ready",
+  "currentTask": "implement change-001 shared path-scope helper",
+  "nextPendingChange": "change-001-path-scope-helper",
+  "exactNextCommand": "/kbd-apply change-001-path-scope-helper",
   "parentPhase": null,
   "childPhases": [],
   "childPointer": null,
-  "updatedAt": "2026-06-12T12:51:32Z",
-  "scoped_paths": []
+  "updatedAt": "2026-06-12T13:24:09Z",
+  "scoped_paths": [
+    "shared/scripts/lib/path-scope.sh",
+    "shared/scripts/scope-guard.sh",
+    "skills/process/kbd-process-orchestrator/shared/lib/check-child-scope.sh",
+    "shared/scripts/protect-tests.sh",
+    "shared/scripts/tests/test-path-scope.sh"
+  ]
 }

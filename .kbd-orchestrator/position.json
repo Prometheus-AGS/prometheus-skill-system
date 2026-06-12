@@ -1,18 +1,30 @@
 {
   "schemaVersion": "1",
-  "updatedAt": "2026-06-12T12:51:32Z",
+  "updatedAt": "2026-06-12T13:24:09Z",
   "cursor": [
-    "child-loops-and-capabilities"
+    "outer-loop-and-ux",
+    "change-001-path-scope-helper",
+    "task:0/3"
   ],
   "root": {
     "type": "phase",
-    "id": "child-loops-and-capabilities",
-    "status": "phase_complete",
+    "id": "outer-loop-and-ux",
+    "status": "execute_ready",
     "progress": {
-      "done": 5,
+      "done": 0,
       "total": 5
     },
-    "children": [],
+    "children": [
+      {
+        "type": "change",
+        "id": "change-001-path-scope-helper",
+        "status": "PENDING",
+        "progress": {
+          "done": 0,
+          "total": 3
+        }
+      }
+    ],
     "annotations": []
   }
 }
