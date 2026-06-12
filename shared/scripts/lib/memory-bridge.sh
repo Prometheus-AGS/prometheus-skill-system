@@ -11,6 +11,18 @@
 # Memory writes must never block the caller — the endpoint was observed timing
 # out during this project's own assessment.
 #
+# TRANSPORT NOTE (verified 2026-06-12): the default surreal-memory server speaks
+# the two-connection SSE MCP transport — GET /mcp/sse opens a stream that emits a
+# sessionId, and tool calls go to POST /mcp/messages?sessionId=<id>. A
+# fire-and-forget bash POST to /mcp/sse therefore returns 405 and falls to the
+# outbox. This is BY DESIGN for hooks: the bash bridge buffers, and the AGENT
+# (Claude Code et al.) — which holds the real mcp__surreal-memory__* tools and a
+# live session — is the path that actually writes to the server (and can drain
+# the outbox). `mem_available` correctly reports server health via /health; a
+# `true` there means the agent's MCP tools can reach it, not that this bash
+# POST can. A future enhancement could implement the SSE session handshake here
+# (see sycophancy.sh's FIFO initialize→notify→call pattern for a stdio analog).
+#
 # Endpoint: $SURREAL_MEMORY_URL (default http://localhost:23001/mcp/sse).
 # Project scope: $KBD_PROJECT_NAME (default prometheus-skill-pack).
 
@@ -54,9 +66,18 @@ mem_scope_for() { # <content>
 }
 
 # Probe the endpoint. Returns 0 when reachable.
+#
+# The server serves its health endpoint at the HOST ROOT (/health), not under
+# the MCP path. MEM_URL is the MCP SSE URL (e.g. http://localhost:23001/mcp/sse),
+# so derive scheme://host:port and probe /health there. A HEAD probe accepting
+# any non-000 response is the same detect-first semantics the repo's
+# check_running_service helper uses — a listening server proves availability.
 mem_available() {
   command -v curl >/dev/null 2>&1 || return 1
-  curl -fsS --max-time 2 "${MEM_URL%/}/healthz" >/dev/null 2>&1 && return 0
+  # Strip any path component to get scheme://host:port.
+  local base="$MEM_URL"
+  base="$(printf '%s' "$base" | sed -E 's#^(https?://[^/]+).*#\1#')"
+  curl -fsS --max-time 2 "${base}/health" >/dev/null 2>&1 && return 0
   return 1
 }
 

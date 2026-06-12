@@ -38,9 +38,12 @@ kbd_memory_available() {
     url="$(jq -r '.mcpEndpoint // empty' .kbd-orchestrator/memory.config.json 2>/dev/null || true)"
   fi
 
-  # 4. Probe.
+  # 4. Probe. The server serves /health at the HOST ROOT (not /healthz, and not
+  # under the MCP path), so derive scheme://host:port from $url and probe there.
   if [[ -n "$url" ]] && command -v curl >/dev/null 2>&1; then
-    if curl -fsS --max-time 2 "$url/healthz" >/dev/null 2>&1; then
+    local probe_base
+    probe_base="$(printf '%s' "$url" | sed -E 's#^(https?://[^/]+).*#\1#')"
+    if curl -fsS --max-time 2 "${probe_base}/health" >/dev/null 2>&1; then
       _KBD_MEMORY_OK=0
       _KBD_MEMORY_URL="$url"
       return 0

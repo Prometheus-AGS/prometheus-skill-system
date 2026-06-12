@@ -7,10 +7,12 @@ description: >-
   Rust, or CLI. Covers installation, extraction (sync/async), configuration
   (OCR, chunking, output format), batch processing, error handling, and plugins.
 license: Elastic-2.0
+version: '1.0.0'
 metadata:
   author: kreuzberg-dev
   version: "1.0"
   repository: https://github.com/kreuzberg-dev/kreuzberg
+  tags: [document-extraction, pdf, ocr, text-extraction]
 ---
 
 # Kreuzberg Document Extraction

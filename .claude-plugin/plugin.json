@@ -34,6 +34,8 @@
     "./skills/process/iterative-evolver",
     "./skills/process/kbd-process-orchestrator",
     "./skills/process/pmpo-skill-creator",
+    "./skills/process/pmpo-elicit",
+    "./skills/process/pmpo-outer-loop",
     "./skills/testing/bdd-testing",
     "./skills/imported/artifact-refiner",
     "./skills/devops/gitops-bootstrap",
