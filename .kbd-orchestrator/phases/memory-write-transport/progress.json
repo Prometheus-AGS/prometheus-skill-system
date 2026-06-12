@@ -1,13 +1,29 @@
 {
   "phase": "memory-write-transport",
   "assessment_complete": true,
-  "plan_complete": false,
+  "plan_complete": true,
   "execute_complete": false,
   "reflect_complete": false,
-  "changes_total": 0,
+  "changes_total": 2,
   "changes_completed": 0,
-  "changes": [],
+  "changes": [
+    {
+      "id": "change-001-rest-write-path",
+      "status": "PENDING",
+      "tasks_total": 3,
+      "tasks_done": 0,
+      "addresses": "T1"
+    },
+    {
+      "id": "change-002-outbox-flush-and-compress",
+      "status": "PENDING",
+      "tasks_total": 3,
+      "tasks_done": 0,
+      "addresses": "T2"
+    }
+  ],
   "sourceTool": "claude-code",
   "analysis_complete": true,
-  "updatedAt": "2026-06-12T14:54:27Z"
+  "updatedAt": "2026-06-12T14:58:52Z",
+  "backend": "native-kbd"
 }

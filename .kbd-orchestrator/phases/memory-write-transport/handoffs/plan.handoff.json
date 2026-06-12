@@ -1,0 +1,11 @@
+{
+  "stage": "plan",
+  "completedAt": "2026-06-12T14:58:51Z",
+  "outputs": [
+    "plan.md"
+  ],
+  "nextStage": "execute",
+  "summaryForNext": "2 native changes; REST fix to _mem_call first (change-001, library:cand-001), then outbox-flush+mem0-compress correction (change-002). Backend native-kbd. First: change-001-rest-write-path.",
+  "skipped": false,
+  "skipReason": null
+}
