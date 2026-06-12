@@ -8,13 +8,13 @@
   "execute_complete": false,
   "reflect_complete": false,
   "changes_total": 5,
-  "changes_completed": 3,
+  "changes_completed": 4,
   "completed_changes": [],
-  "active_change": "change-004-child-scope-hook",
+  "active_change": "change-005-apply-position-depth",
   "blocked_changes": [],
   "sourceTool": "claude-code",
   "createdBy": "kbd-new-phase",
-  "updatedAt": "2026-06-12T12:44:24Z",
+  "updatedAt": "2026-06-12T12:46:56Z",
   "backend": "native-kbd",
   "changes": [
     {
@@ -40,9 +40,10 @@
     },
     {
       "id": "change-004-child-scope-hook",
-      "status": "PENDING",
+      "status": "DONE",
       "tasks_total": 3,
-      "tasks_done": 0
+      "tasks_done": 3,
+      "completed_by": "claude-code"
     },
     {
       "id": "change-005-apply-position-depth",

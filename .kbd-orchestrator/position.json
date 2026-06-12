@@ -1,9 +1,9 @@
 {
   "schemaVersion": "1",
-  "updatedAt": "2026-06-12T12:44:24Z",
+  "updatedAt": "2026-06-12T12:46:56Z",
   "cursor": [
     "child-loops-and-capabilities",
-    "change-004-child-scope-hook",
+    "change-005-apply-position-depth",
     "task:0/3"
   ],
   "root": {
@@ -11,13 +11,13 @@
     "id": "child-loops-and-capabilities",
     "status": "execute_ready",
     "progress": {
-      "done": 3,
+      "done": 4,
       "total": 5
     },
     "children": [
       {
         "type": "change",
-        "id": "change-004-child-scope-hook",
+        "id": "change-005-apply-position-depth",
         "status": "PENDING",
         "progress": {
           "done": 0,

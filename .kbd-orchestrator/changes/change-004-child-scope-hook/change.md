@@ -7,7 +7,7 @@ priority: P2
 effort: M
 agent: claude-code
 evolver_item_id: null
-status: proposed
+status: done
 scope:
   - skills/process/kbd-process-orchestrator/shared/lib/check-child-scope.sh
   - hooks/hooks.json
@@ -44,9 +44,9 @@ In:
 
 ## Tasks
 
-- [ ] 1. Write check-child-scope.sh (path[] depth check, scope.json match, modes)
-- [ ] 2. Wire into hooks.json
-- [ ] 3. Write test; run green
+- [x] 1. Write check-child-scope.sh (path[] depth check, scope.json match, modes)
+- [x] 2. Wire into hooks.json
+- [x] 3. Write test; run green
 
 ## Verification
 
