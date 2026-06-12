@@ -1,13 +1,13 @@
 {
   "schemaVersion": "1",
-  "updatedAt": "2026-06-12T12:50:16Z",
+  "updatedAt": "2026-06-12T12:51:32Z",
   "cursor": [
     "child-loops-and-capabilities"
   ],
   "root": {
     "type": "phase",
     "id": "child-loops-and-capabilities",
-    "status": "execute_complete",
+    "status": "phase_complete",
     "progress": {
       "done": 5,
       "total": 5
