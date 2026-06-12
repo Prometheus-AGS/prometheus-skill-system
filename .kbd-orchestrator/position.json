@@ -1,9 +1,9 @@
 {
   "schemaVersion": "1",
-  "updatedAt": "2026-06-12T12:41:37Z",
+  "updatedAt": "2026-06-12T12:44:24Z",
   "cursor": [
     "child-loops-and-capabilities",
-    "change-003-child-exit-rollup",
+    "change-004-child-scope-hook",
     "task:0/3"
   ],
   "root": {
@@ -11,13 +11,13 @@
     "id": "child-loops-and-capabilities",
     "status": "execute_ready",
     "progress": {
-      "done": 2,
+      "done": 3,
       "total": 5
     },
     "children": [
       {
         "type": "change",
-        "id": "change-003-child-exit-rollup",
+        "id": "change-004-child-scope-hook",
         "status": "PENDING",
         "progress": {
           "done": 0,

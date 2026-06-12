@@ -23,20 +23,18 @@
   "model": "claude-opus-4-8",
   "updated": "2026-06-03T00:00:00Z",
   "previousPhase": "memory-and-karpathy",
-  "change": "change-003-child-exit-rollup",
+  "change": "change-004-child-scope-hook",
   "status": "execute_ready",
-  "currentTask": "implement change-003 child exit + rollup",
-  "nextPendingChange": "change-003-child-exit-rollup",
-  "exactNextCommand": "/kbd-apply change-003-child-exit-rollup",
+  "currentTask": "implement change-004 child scope hook",
+  "nextPendingChange": "change-004-child-scope-hook",
+  "exactNextCommand": "/kbd-apply change-004-child-scope-hook",
   "parentPhase": null,
   "childPhases": [],
   "childPointer": null,
-  "updatedAt": "2026-06-12T12:41:37Z",
+  "updatedAt": "2026-06-12T12:44:24Z",
   "scoped_paths": [
-    "skills/process/kbd-process-orchestrator/skills/kbd-child-exit/SKILL.md",
-    "skills/process/kbd-process-orchestrator/skills/kbd-child-exit/kbd-child-exit.sh",
-    "skills/process/kbd-process-orchestrator/shared/lib/rollup.sh",
-    "skills/process/kbd-process-orchestrator/references/schemas/progress.schema.json",
-    "skills/process/kbd-process-orchestrator/shared/lib/tests/test-child-exit.sh"
+    "skills/process/kbd-process-orchestrator/shared/lib/check-child-scope.sh",
+    "hooks/hooks.json",
+    "shared/scripts/tests/test-child-scope.sh"
   ]
 }

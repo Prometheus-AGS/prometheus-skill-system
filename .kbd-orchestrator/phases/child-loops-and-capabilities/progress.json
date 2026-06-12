@@ -8,13 +8,13 @@
   "execute_complete": false,
   "reflect_complete": false,
   "changes_total": 5,
-  "changes_completed": 2,
+  "changes_completed": 3,
   "completed_changes": [],
-  "active_change": "change-003-child-exit-rollup",
+  "active_change": "change-004-child-scope-hook",
   "blocked_changes": [],
   "sourceTool": "claude-code",
   "createdBy": "kbd-new-phase",
-  "updatedAt": "2026-06-12T12:41:37Z",
+  "updatedAt": "2026-06-12T12:44:24Z",
   "backend": "native-kbd",
   "changes": [
     {
@@ -33,9 +33,10 @@
     },
     {
       "id": "change-003-child-exit-rollup",
-      "status": "PENDING",
+      "status": "DONE",
       "tasks_total": 3,
-      "tasks_done": 0
+      "tasks_done": 3,
+      "completed_by": "claude-code"
     },
     {
       "id": "change-004-child-scope-hook",

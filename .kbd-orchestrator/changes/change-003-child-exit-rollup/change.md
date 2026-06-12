@@ -7,7 +7,7 @@ priority: P1
 effort: M
 agent: claude-code
 evolver_item_id: null
-status: proposed
+status: done
 scope:
   - skills/process/kbd-process-orchestrator/skills/kbd-child-exit/SKILL.md
   - skills/process/kbd-process-orchestrator/skills/kbd-child-exit/kbd-child-exit.sh
@@ -48,9 +48,9 @@ In:
 
 ## Tasks
 
-- [ ] 1. Write rollup.sh + progress.schema.json children block
-- [ ] 2. Write kbd-child-exit SKILL.md + .sh (handoff-out, rollup, pop, signals)
-- [ ] 3. Write test; run green
+- [x] 1. Write rollup.sh + progress.schema.json children block
+- [x] 2. Write kbd-child-exit SKILL.md + .sh (handoff-out, rollup, pop, signals)
+- [x] 3. Write test; run green
 
 ## Verification
 
