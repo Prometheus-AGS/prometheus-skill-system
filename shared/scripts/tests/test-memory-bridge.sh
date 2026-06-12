@@ -22,17 +22,22 @@ OUTBOX="$ROOT/.kbd-orchestrator/memory-outbox.jsonl"
 cat > "$BIN/curl" <<'FAKE'
 #!/usr/bin/env bash
 mode="${FAKE_CURL_MODE:-fail}"
-body=""
+body=""; url=""; method="GET"
 while [ $# -gt 0 ]; do
   case "$1" in
     -d) body="$2"; shift 2 ;;
+    -X) method="$2"; shift 2 ;;
+    http://*|https://*) url="$1"; shift ;;
     *) shift ;;
   esac
 done
 [ -n "${CURL_BODY_FILE:-}" ] && [ -n "$body" ] && printf '%s' "$body" >> "$CURL_BODY_FILE"
+# Record the request line (METHOD URL) for REST-route assertions.
+[ -n "${CURL_REQ_FILE:-}" ] && printf '%s %s\n' "$method" "$url" >> "$CURL_REQ_FILE"
 if [ "$mode" = "ok" ]; then
-  # healthz probe and -w status both expect "200" on stdout
-  printf '200'
+  # health probe (GET) and REST writes both succeed; emit 201 for writes (the
+  # bridge accepts 200|201), 200 for the GET /health probe.
+  case "$method" in POST|PUT) printf '201' ;; *) printf '200' ;; esac
   exit 0
 else
   printf '000'
@@ -73,20 +78,32 @@ mem_complete_step "kbd:test:phase" "change-001" >/dev/null
 n_after="$(wc -l < "$OUTBOX" | tr -d ' ')"
 [ "$((n_after - n_before))" = "3" ] && ok || bad "stream/step funcs append on failure" "$n_before→$n_after"
 
-# 5. Success path: add_memory POST body carries correct user_id, no new outbox line
+# 5. Success path: add_memory POSTs the REST body {content,user_id}, no outbox line
 : > "$OUTBOX"
 export FAKE_CURL_MODE=ok
 export CURL_BODY_FILE="$TMP/body.txt"; : > "$CURL_BODY_FILE"
+export CURL_REQ_FILE="$TMP/req.txt"; : > "$CURL_REQ_FILE"
 mem_add_memory "another note" >/dev/null
 [ "$(wc -l < "$OUTBOX" | tr -d ' ')" = "0" ] && ok || bad "success path writes no outbox line" "$(cat "$OUTBOX")"
-grep -q '"user_id": "test-project"' "$CURL_BODY_FILE" && ok || bad "POST body has project user_id" "$(cat "$CURL_BODY_FILE")"
-grep -q '"name": "add_memory"' "$CURL_BODY_FILE" && ok || bad "POST body calls add_memory tool" "$(cat "$CURL_BODY_FILE")"
+grep -q '"user_id": "test-project"' "$CURL_BODY_FILE" && ok || bad "REST body has project user_id" "$(cat "$CURL_BODY_FILE")"
+grep -q '"content": "another note"' "$CURL_BODY_FILE" && ok || bad "REST body has content (no JSON-RPC wrapper)" "$(cat "$CURL_BODY_FILE")"
+# The body must NOT be the old JSON-RPC shape.
+grep -q 'jsonrpc\|tools/call' "$CURL_BODY_FILE" && bad "body must not be JSON-RPC" "$(cat "$CURL_BODY_FILE")" || ok
 
-# 6. mem_available reflects the fake curl mode
+# 5b. add_memory hits the REST route POST /api/v1/memory (not /mcp/sse)
+grep -q 'POST .*/api/v1/memory' "$CURL_REQ_FILE" && ok || bad "add_memory must POST /api/v1/memory" "$(cat "$CURL_REQ_FILE")"
+grep -q '/mcp/sse' "$CURL_REQ_FILE" && bad "must NOT post to /mcp/sse" "$(cat "$CURL_REQ_FILE")" || ok
+
+# 5c. A task-stream tool has NO REST route → outboxes even when the server is up
+: > "$OUTBOX"
+mem_create_task_stream "kbd:test:phase" >/dev/null
+[ "$(wc -l < "$OUTBOX" | tr -d ' ')" = "1" ] && ok || bad "task-stream (no REST route) must outbox even on ok" "$(cat "$OUTBOX")"
+tail -1 "$OUTBOX" | jq -e '.method == "create_task_stream"' >/dev/null \
+  && ok || bad "outboxed task-stream records its method" "$(tail -1 "$OUTBOX")"
+
+# 6. mem_available reflects the fake curl mode (GET /health → 200)
 export FAKE_CURL_MODE=ok
-mem_available && ok || bad "mem_available true when curl returns 200"
-# (fail mode: curl exits 0 with 000 body, but -fsS would fail on a real non-200;
-#  our fake always exits 0, so we only assert the ok-mode positive here.)
+mem_available && ok || bad "mem_available true when server /health returns 200"
 
 echo "---"; echo "PASS=$PASS FAIL=$FAIL"
 [ "$FAIL" -eq 0 ]

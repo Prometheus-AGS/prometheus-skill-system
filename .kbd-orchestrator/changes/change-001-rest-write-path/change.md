@@ -8,7 +8,7 @@ priority: P1
 effort: M
 agent: claude-code
 evolver_item_id: null
-status: proposed
+status: done
 scope:
   - shared/scripts/lib/memory-bridge.sh
   - shared/scripts/tests/test-memory-bridge.sh
@@ -50,9 +50,9 @@ In:
 
 ## Tasks
 
-- [ ] 1. Rewrite `_mem_call` to dispatch by tool name to REST routes (200/201 = ok); non-routed tools return non-zero
-- [ ] 2. Extend test-memory-bridge.sh (REST add_memory success + task-stream outbox)
-- [ ] 3. Run the test green; LIVE-verify a real add_memory POST → 201 + search_memories round-trip, then delete the probe record
+- [x] 1. Rewrite `_mem_call` to dispatch by tool name to REST routes (200/201 = ok); non-routed tools return non-zero
+- [x] 2. Extend test-memory-bridge.sh (REST add_memory success + task-stream outbox)
+- [x] 3. Run the test green; LIVE-verify a real add_memory POST → 201 + search_memories round-trip, then delete the probe record
 
 ## Verification
 

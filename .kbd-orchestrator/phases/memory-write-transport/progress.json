@@ -5,18 +5,19 @@
   "execute_complete": false,
   "reflect_complete": false,
   "changes_total": 2,
-  "changes_completed": 0,
+  "changes_completed": 1,
   "changes": [
     {
       "id": "change-001-rest-write-path",
-      "status": "PENDING",
+      "status": "DONE",
       "tasks_total": 3,
-      "tasks_done": 0,
-      "addresses": "T1"
+      "tasks_done": 3,
+      "addresses": "T1",
+      "completed_by": "claude-code"
     },
     {
       "id": "change-002-outbox-flush-and-compress",
-      "status": "PENDING",
+      "status": "IN_PROGRESS",
       "tasks_total": 3,
       "tasks_done": 0,
       "addresses": "T2"
@@ -24,6 +25,7 @@
   ],
   "sourceTool": "claude-code",
   "analysis_complete": true,
-  "updatedAt": "2026-06-12T14:58:52Z",
-  "backend": "native-kbd"
+  "updatedAt": "2026-06-12T16:52:14Z",
+  "backend": "native-kbd",
+  "active_change": "change-002-outbox-flush-and-compress"
 }

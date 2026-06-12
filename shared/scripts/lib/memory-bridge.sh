@@ -81,21 +81,40 @@ mem_available() {
   return 1
 }
 
-# Low-level JSON-RPC tools/call. Echoes nothing; returns 0 on HTTP 200, else 1.
+# Derive scheme://host:port from MEM_URL (which is the MCP SSE URL). The REST
+# API lives at <base>/api/v1/... on the same host:port.
+_mem_base() {
+  printf '%s' "$MEM_URL" | sed -E 's#^(https?://[^/]+).*#\1#'
+}
+
+# Map an MCP tool name to its REST route, or empty when the tool has no REST
+# route (task-streams, compress, etc. are MCP-tool-only — callers must outbox
+# those). The server exposes only a subset of its 10 MCP tools as REST routes
+# (see tools/surreal-memory-server/src/contracts.rs).
+_mem_rest_route() { # <tool-name> → "<METHOD> <path>" or empty
+  case "$1" in
+    add_memory)      printf 'POST /api/v1/memory' ;;
+    create_entity)   printf 'POST /api/v1/entities' ;;
+    create_relation) printf 'POST /api/v1/entities/relations' ;;
+    *)               printf '' ;;   # no REST route → caller outboxes
+  esac
+}
+
+# Low-level write. Dispatches by tool name to the REST API. The request body is
+# the tool's arguments JSON as-is (the REST structs match the MCP tool args for
+# the routed tools). Echoes nothing; returns 0 on HTTP 200/201, else 1. Returns
+# 1 for any tool with no REST route so the caller outboxes it.
 _mem_call() { # <tool-name> <arguments-json>
   command -v curl >/dev/null 2>&1 || return 1
-  command -v python3 >/dev/null 2>&1 || return 1
-  local name="$1" args="$2" payload status
-  payload="$(python3 -c '
-import sys, json
-name, args = sys.argv[1], json.loads(sys.argv[2])
-print(json.dumps({"jsonrpc":"2.0","id":1,"method":"tools/call",
-                  "params":{"name":name,"arguments":args}}))
-' "$name" "$args" 2>/dev/null)" || return 1
-  [ -n "$payload" ] || return 1
+  local name="$1" args="$2"
+  local route; route="$(_mem_rest_route "$name")"
+  [ -n "$route" ] || return 1            # MCP-tool-only → outbox
+  local method="${route%% *}" path="${route#* }"
+  local url; url="$(_mem_base)$path"
+  local status
   status="$(curl -s -o /dev/null -w '%{http_code}' --max-time 5 \
-    -X POST "$MEM_URL" -H 'Content-Type: application/json' -d "$payload" 2>/dev/null || echo 000)"
-  [ "$status" = "200" ]
+    -X "$method" "$url" -H 'Content-Type: application/json' -d "$args" 2>/dev/null || echo 000)"
+  case "$status" in 200|201) return 0 ;; *) return 1 ;; esac
 }
 
 # mem_add_memory <content> [user_id]

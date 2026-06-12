@@ -1,0 +1,12 @@
+{
+  "stage": "execute",
+  "completedAt": "2026-06-12T16:50:01Z",
+  "outputs": [
+    "execution.md",
+    "progress.json"
+  ],
+  "nextStage": "reflect",
+  "summaryForNext": "Backend native-kbd; claude-code drives both changes one task/turn. change-001 active (REST _mem_call). Live round-trip is the verification gate.",
+  "skipped": false,
+  "skipReason": null
+}

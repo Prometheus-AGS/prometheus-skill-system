@@ -1,24 +1,24 @@
 {
   "schemaVersion": "1",
-  "updatedAt": "2026-06-12T14:58:52Z",
+  "updatedAt": "2026-06-12T16:52:14Z",
   "cursor": [
     "memory-write-transport",
-    "change-001-rest-write-path",
+    "change-002-outbox-flush-and-compress",
     "task:0/3"
   ],
   "root": {
     "type": "phase",
     "id": "memory-write-transport",
-    "status": "plan_ready",
+    "status": "execute_ready",
     "progress": {
-      "done": 0,
+      "done": 1,
       "total": 2
     },
     "children": [
       {
         "type": "change",
-        "id": "change-001-rest-write-path",
-        "status": "PENDING",
+        "id": "change-002-outbox-flush-and-compress",
+        "status": "IN_PROGRESS",
         "progress": {
           "done": 0,
           "total": 3
