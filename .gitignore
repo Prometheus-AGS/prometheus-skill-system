@@ -48,3 +48,6 @@ SCRATCHPAD.md
 
 # surreal-memory write outbox (runtime artifact, never committed)
 .kbd-orchestrator/memory-outbox.jsonl
+
+# Git worktrees
+.worktrees/
