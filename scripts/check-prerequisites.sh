@@ -405,6 +405,20 @@ echo "  Optional:"
 check_docker
 check_npm
 
+  # AI CLI platforms
+  echo ""
+  echo "  AI CLI Platforms (optional — needed for cross-platform skill installation):"
+  if command -v kimi >/dev/null 2>&1; then
+      echo "  ✅ kimi $(kimi --version 2>/dev/null || echo '(version unknown)')"
+  else
+      echo "  ℹ️  kimi not found — install from https://moonshotai.github.io/kimi-code/"
+  fi
+  if command -v mmx >/dev/null 2>&1; then
+      echo "  ✅ mmx (MiniMax CLI) found"
+  else
+      echo "  ℹ️  mmx not found — install via: npm install -g @minimax-ai/cli"
+  fi
+
 if $BUILD_TOOLS; then
     build_submodule_tools
 else

@@ -323,6 +323,32 @@ Lit encapsulates complex interactive elements. React hosts HTMX islands via `Htm
 
 ---
 
+## Platform Compatibility
+
+| Platform | Skills | MCP Servers | Plugin Manifest |
+|----------|--------|-------------|-----------------|
+| **Claude Code** (CLI/Desktop) | ✅ | ✅ `.mcp.json` | ✅ `.claude-plugin/plugin.json` |
+| **Kimi Code CLI** | ✅ | ✅ `~/.kimi-code/config.toml` | — |
+| **MiniMax / Mavis** | ✅ `_meta.json` | ✅ `~/.minimax/mcp/mcp.json` | — |
+| **OpenCode** | ✅ | ✅ `opencode.json` plugin | ✅ `.opencode/plugin.ts` |
+| **Codex CLI** | ✅ | ✅ `.codex/config.toml` | — |
+| **Cursor** | ✅ | — | — |
+| **Windsurf** | ✅ | — | — |
+| **Gemini CLI** | ✅ | — | — |
+| **Roo Code** | ✅ | — | — |
+| **Amp** | ✅ | — | — |
+
+```bash
+# Install to all detected platforms in one command
+bash scripts/install-skills-flat.sh
+
+# Check toolchain + service status (works on any platform)
+bash shared/scripts/detect-toolchain.sh
+
+# Platform-specific installer with MCP config
+npm run install:platforms
+```
+
 ## Getting Started
 
 ```bash
@@ -331,6 +357,9 @@ cd prometheus-skill-pack
 
 # Build all tools
 bash scripts/check-prerequisites.sh --build-tools
+
+# Install skills to all platforms + configure MCP servers
+bash scripts/install-skills-flat.sh
 
 # macOS service readiness
 bash scripts/prometheus-services.sh install

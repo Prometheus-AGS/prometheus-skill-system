@@ -98,19 +98,168 @@ install_to_dir() {
     echo "  ✅ $platform_name: $count skills $action"
 }
 
-install_to_dir "claude-code" "$HOME/.claude/skills"
-install_to_dir "opencode"    "$HOME/.opencode/skills"
-install_to_dir "cursor"      "$HOME/.cursor/skills"
-install_to_dir "codex"       "$HOME/.codex/skills"
-install_to_dir "gemini"      "$HOME/.gemini/skills"
-install_to_dir "roo"         "$HOME/.roo/skills"
-install_to_dir "windsurf"    "$HOME/.windsurf/skills"
+# MiniMax requires real directories (not symlinks) plus a _meta.json alongside SKILL.md.
+# This function copies SKILL.md and writes _meta.json rather than symlinking.
+# NOTE: minimax installs do not auto-update when skills change — re-run this script.
+install_to_minimax() {
+    local platform_name="minimax"
+    local target_dir="$HOME/.minimax/skills"
+
+    if [[ ! -d "$(dirname "$target_dir")" ]]; then
+        echo "  — $platform_name: parent dir missing (~/.minimax not found), skipping"
+        return
+    fi
+
+    mkdir -p "$target_dir"
+    local count=0
+
+    for entry in "${SKILLS[@]}"; do
+        local skill_name="${entry%%|*}"
+        local skill_dir="${entry#*|}"
+        local dest="$target_dir/$skill_name"
+
+        if $UNINSTALL; then
+            # Only remove if it has our marker in _meta.json
+            if [[ -d "$dest" ]] && [[ -f "$dest/_meta.json" ]]; then
+                if grep -q '"platform": "minimax"' "$dest/_meta.json" 2>/dev/null; then
+                    rm -rf "$dest"
+                    count=$((count + 1))
+                fi
+            fi
+        else
+            mkdir -p "$dest"
+            cp "$skill_dir/SKILL.md" "$dest/SKILL.md"
+            # Derive a deterministic numeric id from a CRC32-like hash of skill name
+            local skill_id
+            skill_id=$(printf '%d' "0x$(echo -n "$skill_name" | md5sum | cut -c1-8)" 2>/dev/null || echo "0")
+            local version
+            version=$(node -e "const fs=require('fs'); const s=fs.readFileSync(process.argv[1],'utf8'); const m=s.match(/^---\\n([\\s\\S]*?)\\n---/); const v=m&&m[1].match(/^version:\\s*['\\\"]?([^'\\\"\\n]+)['\\\"]?/m); console.log((v&&v[1].trim())||'1.0.0');" "$skill_dir/SKILL.md" 2>/dev/null || echo "1.0.0")
+            local ts
+            ts=$(date +%s)000
+            cat > "$dest/_meta.json" <<META
+{
+  "id": $skill_id,
+  "version": "$version",
+  "name": "$skill_name",
+  "updated_at": $ts,
+  "platform": "minimax"
+}
+META
+            count=$((count + 1))
+        fi
+    done
+
+    local action="installed"
+    $UNINSTALL && action="removed"
+    echo "  ✅ $platform_name: $count skills $action (copies + _meta.json)"
+}
+
+install_to_dir "claude-code"     "$HOME/.claude/skills"
+install_to_dir "opencode"        "$HOME/.opencode/skills"
+install_to_dir "kimi-code"       "$HOME/.kimi-code/skills"
+install_to_minimax
+install_to_dir "cursor"          "$HOME/.cursor/skills"
+install_to_dir "codex"           "$HOME/.codex/skills"
+install_to_dir "gemini"          "$HOME/.gemini/skills"
+install_to_dir "roo"             "$HOME/.roo/skills"
+install_to_dir "windsurf"        "$HOME/.windsurf/skills"
 install_to_dir "windsurf-legacy" "$HOME/.codeium/windsurf/skills"
-install_to_dir "amp"         "$HOME/.agents/skills"
-install_to_dir "zed"         "$HOME/.config/zed/skills"
-install_to_dir "antigravity" "$HOME/.zed/skills"
-install_to_dir "cline"       "$HOME/.cline/skills"
-install_to_dir "zed"         "$HOME/.config/zed/skills"
+install_to_dir "amp"             "$HOME/.agents/skills"
+install_to_dir "zed"             "$HOME/.config/zed/skills"
+install_to_dir "antigravity"     "$HOME/.zed/skills"
+install_to_dir "cline"           "$HOME/.cline/skills"
+
+# Post-install: configure Kimi Code MCP servers if config.toml is absent
+configure_kimi_mcp() {
+    local kimi_dir="$HOME/.kimi-code"
+    local config_file="$kimi_dir/config.toml"
+
+    if [[ ! -d "$kimi_dir" ]]; then
+        return
+    fi
+
+    local needs_write=false
+    local existing=""
+    [[ -f "$config_file" ]] && existing=$(cat "$config_file")
+
+    local new_entries=""
+
+    if ! grep -q "\[mcp_servers.surreal-memory\]" "$config_file" 2>/dev/null; then
+        new_entries+=$'\n'"[mcp_servers.surreal-memory]"$'\n'"type = \"sse\""$'\n'"url = \"http://localhost:23001/mcp/sse\""
+        needs_write=true
+    fi
+    if ! grep -q "\[mcp_servers.sycophancy-correction\]" "$config_file" 2>/dev/null; then
+        new_entries+=$'\n\n'"[mcp_servers.sycophancy-correction]"$'\n'"command = \"sycophancy-correction\""
+        needs_write=true
+    fi
+    if ! grep -q "\[mcp_servers.liter-llm\]" "$config_file" 2>/dev/null; then
+        new_entries+=$'\n\n'"[mcp_servers.liter-llm]"$'\n'"command = \"liter-llm\""$'\n'"args = [\"mcp\", \"--transport\", \"stdio\"]"
+        needs_write=true
+    fi
+
+    if $needs_write && ! $UNINSTALL; then
+        [[ -f "$config_file" ]] && cp "$config_file" "${config_file}.bak.$(date +%Y%m%d%H%M%S)"
+        printf '%s%s\n' "$existing" "$new_entries" > "$config_file"
+        echo "  ✅ kimi-code: config.toml updated with MCP server entries"
+    fi
+}
+
+configure_kimi_mcp
+
+# Post-install: register surreal-memory in MiniMax MCP config
+configure_minimax_mcp() {
+    local mcp_file="$HOME/.minimax/mcp/mcp.json"
+
+    if [[ ! -f "$mcp_file" ]]; then
+        return
+    fi
+
+    if $UNINSTALL; then
+        return
+    fi
+
+    # Merge our MCP entries using node (already required for skill name extraction)
+    # When using 'node - <file>', argv[0]=node, argv[1]='-', argv[2]=the file
+    node - "$mcp_file" <<'JS'
+const fs = require('fs');
+const path = process.argv[2];
+
+let config = {};
+try { config = JSON.parse(fs.readFileSync(path, 'utf8')); } catch(e) { config = {}; }
+if (!config.mcpServers) config.mcpServers = {};
+
+let changed = false;
+if (!config.mcpServers['surreal-memory']) {
+    config.mcpServers['surreal-memory'] = {
+        type: 'sse',
+        url: 'http://localhost:23001/mcp/sse',
+        enabled: true,
+        configured: true,
+        description: 'Surreal-memory distributed knowledge graph and task tracking'
+    };
+    changed = true;
+}
+if (!config.mcpServers['sycophancy-correction']) {
+    config.mcpServers['sycophancy-correction'] = {
+        command: 'sycophancy-correction',
+        enabled: true,
+        configured: true
+    };
+    changed = true;
+}
+
+if (changed) {
+    const backup = path + '.bak.' + new Date().toISOString().replace(/[-:T]/g,'').slice(0,14);
+    fs.copyFileSync(path, backup);
+    fs.writeFileSync(path, JSON.stringify(config, null, 2) + '\n', 'utf8');
+    console.log('  ✅ minimax: mcp.json updated with surreal-memory + sycophancy-correction');
+} else {
+    console.log('  ✅ minimax: mcp.json already contains required entries');
+}
+JS
+}
+
+configure_minimax_mcp
 
 echo ""
 echo "✨ Done — skills available as slash commands on all platforms"

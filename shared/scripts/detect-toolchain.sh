@@ -1,0 +1,183 @@
+#!/usr/bin/env bash
+# detect-toolchain.sh — Platform-agnostic toolchain and service detection.
+# Works on Claude Code, Kimi Code, MiniMax, OpenCode, Codex, and any CLI platform.
+# Prints a status summary and exits 0 even when items are missing.
+#
+# Usage:
+#   bash shared/scripts/detect-toolchain.sh
+#   bash shared/scripts/detect-toolchain.sh --json      # machine-readable output
+#   bash shared/scripts/detect-toolchain.sh --required  # exit 1 if any REQUIRED item missing
+
+set -euo pipefail
+
+JSON_MODE=false
+REQUIRED_MODE=false
+MISSING=0
+
+for arg in "$@"; do
+    case "$arg" in
+        --json)     JSON_MODE=true ;;
+        --required) REQUIRED_MODE=true ;;
+    esac
+done
+
+declare -A STATUS
+declare -A VERSION
+
+check() {
+    local key="$1"
+    local cmd="$2"
+    local version_cmd="${3:-}"
+    local required="${4:-false}"
+
+    if command -v "$cmd" >/dev/null 2>&1; then
+        STATUS[$key]="ok"
+        if [[ -n "$version_cmd" ]]; then
+            VERSION[$key]=$(eval "$version_cmd" 2>/dev/null | head -1 | tr -d '\n' || echo "?")
+        else
+            VERSION[$key]="present"
+        fi
+    else
+        STATUS[$key]="missing"
+        VERSION[$key]=""
+        if [[ "$required" == "true" ]]; then
+            MISSING=$((MISSING + 1))
+        fi
+    fi
+}
+
+check_http() {
+    local key="$1"
+    local url="$2"
+
+    if curl -sf --max-time 2 "$url" >/dev/null 2>&1; then
+        STATUS[$key]="ok"
+        VERSION[$key]="reachable"
+    else
+        STATUS[$key]="missing"
+        VERSION[$key]="unreachable"
+    fi
+}
+
+# ── Core tools ────────────────────────────────────────────────────────────────
+check "node"   "node"   "node --version" "true"
+check "npm"    "npm"    "npm --version"
+check "git"    "git"    "git --version | awk '{print \$3}'" "true"
+
+# ── Rust toolchain ────────────────────────────────────────────────────────────
+check "rustc"  "rustc"  "rustc --version | awk '{print \$2}'"
+check "cargo"  "cargo"  "cargo --version | awk '{print \$2}'"
+check "rustup" "rustup" "rustup --version 2>/dev/null | awk '{print \$2}'"
+
+# ── Go toolchain ──────────────────────────────────────────────────────────────
+check "go" "go" "go version | awk '{print \$3}'"
+
+# ── Container runtime ─────────────────────────────────────────────────────────
+check "docker" "docker" "docker --version | awk '{print \$3}' | tr -d ','"
+
+# ── AI platform CLIs ─────────────────────────────────────────────────────────
+check "kimi"   "kimi"   "kimi --version 2>/dev/null || echo ''"
+check "mmx"    "mmx"    ""
+check "claude" "claude" "claude --version 2>/dev/null | head -1 || echo ''"
+
+# ── Prometheus binaries ───────────────────────────────────────────────────────
+check "forge"                    "forge"                    "forge --version 2>/dev/null | head -1"
+check "pk"                       "pk"                       "pk --version 2>/dev/null | head -1"
+check "liter-llm"                "liter-llm"                "liter-llm --version 2>/dev/null | head -1"
+check "prometheus"               "prometheus"               "prometheus --version 2>/dev/null | head -1"
+check "prometheus-rust-auditor"  "prometheus-rust-auditor"  "prometheus-rust-auditor --version 2>/dev/null | head -1"
+check "sycophancy-correction"    "sycophancy-correction"    "sycophancy-correction --version 2>/dev/null | head -1"
+
+# ── MCP services (HTTP reachability) ─────────────────────────────────────────
+check_http "surreal-memory"          "http://localhost:23001/health"
+check_http "forge-rs"                "http://localhost:8943/mcp"
+check_http "prometheus-knowledge"    "http://localhost:8942/mcp"
+
+# ── WASM target ───────────────────────────────────────────────────────────────
+if command -v rustup >/dev/null 2>&1; then
+    if rustup target list --installed 2>/dev/null | grep -q "wasm32-unknown-unknown"; then
+        STATUS["wasm32"]="ok"
+        VERSION["wasm32"]="installed"
+    else
+        STATUS["wasm32"]="missing"
+        VERSION["wasm32"]=""
+    fi
+else
+    STATUS["wasm32"]="missing"
+    VERSION["wasm32"]=""
+fi
+
+# ── Output ────────────────────────────────────────────────────────────────────
+
+if $JSON_MODE; then
+    echo "{"
+    first=true
+    for key in node npm git rustc cargo rustup go docker kimi mmx claude forge pk liter-llm prometheus prometheus-rust-auditor sycophancy-correction surreal-memory forge-rs prometheus-knowledge wasm32; do
+        [[ -n "${STATUS[$key]:-}" ]] || continue
+        $first || echo ","
+        first=false
+        printf '  "%s": {"status": "%s", "version": "%s"}' \
+            "$key" "${STATUS[$key]}" "${VERSION[$key]}"
+    done
+    echo ""
+    echo "}"
+else
+    echo "═══ Prometheus Toolchain Status ═══════════════════════════"
+
+    section() { echo ""; echo "  $1"; }
+    item() {
+        local key="$1"
+        local label="${2:-$1}"
+        local hint="${3:-}"
+        if [[ "${STATUS[$key]:-missing}" == "ok" ]]; then
+            printf "  ✅ %-28s %s\n" "$label" "${VERSION[$key]:-}"
+        else
+            printf "  ℹ️  %-28s missing%s\n" "$label" "${hint:+ — $hint}"
+        fi
+    }
+
+    section "Core"
+    item "node"  "Node.js"
+    item "npm"   "npm"
+    item "git"   "Git"
+
+    section "Rust Toolchain"
+    item "rustc"   "rustc"
+    item "cargo"   "cargo"
+    item "rustup"  "rustup"
+    item "wasm32"  "wasm32-unknown-unknown target" "run: rustup target add wasm32-unknown-unknown"
+
+    section "Go Toolchain"
+    item "go" "Go"
+
+    section "Container Runtime"
+    item "docker" "Docker"
+
+    section "AI Platform CLIs"
+    item "kimi"   "Kimi Code CLI"   "https://moonshotai.github.io/kimi-code/"
+    item "mmx"    "MiniMax CLI"     "npm install -g @minimax-ai/cli"
+    item "claude" "Claude Code CLI" "https://claude.ai/code"
+
+    section "Prometheus Binaries"
+    item "forge"                   "forge"
+    item "pk"                      "pk (prometheus-knowledge)"
+    item "liter-llm"               "liter-llm"
+    item "prometheus"              "prometheus CLI"
+    item "prometheus-rust-auditor" "prometheus-rust-auditor"
+    item "sycophancy-correction"   "sycophancy-correction"
+
+    section "MCP Services (HTTP)"
+    item "surreal-memory"       "surreal-memory (:23001)" "start: cd tools/surreal-memory-server && docker compose up -d"
+    item "forge-rs"             "forge-rs (:8943)"
+    item "prometheus-knowledge" "prometheus-knowledge (:8942)"
+
+    echo ""
+    echo "═══════════════════════════════════════════════════════════"
+
+    if [[ $MISSING -gt 0 ]]; then
+        echo "⚠️  $MISSING required tool(s) missing. Run: bash scripts/check-prerequisites.sh --install"
+        $REQUIRED_MODE && exit 1
+    else
+        echo "✨ All required tools present"
+    fi
+fi

@@ -56,6 +56,20 @@ const PLATFORMS: Platform[] = [
     pluginDir: join(HOME, '.opencode'),
   },
   {
+    name: 'kimi-code',
+    globalSkillsDir: join(HOME, '.kimi-code', 'skills'),
+    projectSkillsDir: '.kimi-code/skills',
+    description: 'Kimi Code CLI (Moonshot AI)',
+    supportsPlugins: false,
+  },
+  {
+    name: 'minimax',
+    globalSkillsDir: join(HOME, '.minimax', 'skills'),
+    projectSkillsDir: '.minimax/skills',
+    description: 'MiniMax Desktop / Mavis CLI',
+    supportsPlugins: false,
+  },
+  {
     name: 'cursor',
     globalSkillsDir: join(HOME, '.cursor', 'skills'),
     projectSkillsDir: '.cursor/skills',
@@ -224,6 +238,103 @@ function installPlatform(platform: Platform, scope: 'global' | 'project'): void 
       }
     } catch (e) {
       console.warn(`    ⚠️  Could not update opencode.json: ${e}`);
+    }
+  }
+
+  // For Kimi Code: create ~/.kimi-code/config.toml with MCP server entries
+  if (platform.name === 'kimi-code' && scope === 'global') {
+    const kimiConfigDir = join(HOME, '.kimi-code');
+    const kimiConfigPath = join(kimiConfigDir, 'config.toml');
+
+    try {
+      mkdirSync(kimiConfigDir, { recursive: true });
+
+      let existingConfig = '';
+      if (existsSync(kimiConfigPath)) {
+        existingConfig = readFileSync(kimiConfigPath, 'utf-8');
+        const backup = `${kimiConfigPath}.bak.${new Date().toISOString().replace(/[-:T]/g, '').slice(0, 14)}`;
+        writeFileSync(backup, existingConfig, 'utf-8');
+        console.log(`    ✅ Backed up config.toml: ${backup}`);
+      }
+
+      const mcpEntriesToAdd: string[] = [];
+
+      if (!existingConfig.includes('[mcp_servers.surreal-memory]')) {
+        mcpEntriesToAdd.push(
+          '[mcp_servers.surreal-memory]\ntype = "sse"\nurl = "http://localhost:23001/mcp/sse"',
+        );
+      }
+      if (!existingConfig.includes('[mcp_servers.sycophancy-correction]')) {
+        mcpEntriesToAdd.push('[mcp_servers.sycophancy-correction]\ncommand = "sycophancy-correction"');
+      }
+      if (!existingConfig.includes('[mcp_servers.liter-llm]')) {
+        mcpEntriesToAdd.push(
+          '[mcp_servers.liter-llm]\ncommand = "liter-llm"\nargs = [\n    "mcp",\n    "--transport",\n    "stdio",\n]',
+        );
+      }
+
+      if (mcpEntriesToAdd.length > 0) {
+        const newConfig =
+          (existingConfig ? existingConfig.trimEnd() + '\n\n' : '') + mcpEntriesToAdd.join('\n\n') + '\n';
+        writeFileSync(kimiConfigPath, newConfig, 'utf-8');
+        console.log(`    ✅ config.toml updated: ${kimiConfigPath} (${mcpEntriesToAdd.length} MCP entries added)`);
+      } else {
+        console.log(`    ✅ config.toml already contains all required MCP entries`);
+      }
+    } catch (e) {
+      console.warn(`    ⚠️  Could not update Kimi config.toml: ${e}`);
+    }
+  }
+
+  // For MiniMax: merge surreal-memory entry into ~/.minimax/mcp/mcp.json
+  if (platform.name === 'minimax' && scope === 'global') {
+    const minimaxMcpPath = join(HOME, '.minimax', 'mcp', 'mcp.json');
+    if (existsSync(minimaxMcpPath)) {
+      try {
+        const backup = `${minimaxMcpPath}.bak.${new Date().toISOString().replace(/[-:T]/g, '').slice(0, 14)}`;
+        copyFileSync(minimaxMcpPath, backup);
+
+        let mcpConfig: Record<string, unknown> = {};
+        try {
+          mcpConfig = JSON.parse(readFileSync(minimaxMcpPath, 'utf-8'));
+        } catch {
+          console.warn(`    ⚠️  Could not parse ${minimaxMcpPath} — skipping MCP merge`);
+        }
+
+        const servers = (mcpConfig.mcpServers as Record<string, unknown>) ?? {};
+        let changed = false;
+
+        if (!servers['surreal-memory']) {
+          servers['surreal-memory'] = {
+            type: 'sse',
+            url: 'http://localhost:23001/mcp/sse',
+            enabled: true,
+            configured: true,
+            description: 'Surreal-memory distributed knowledge graph and task tracking',
+          };
+          changed = true;
+        }
+        if (!servers['sycophancy-correction']) {
+          servers['sycophancy-correction'] = {
+            command: 'sycophancy-correction',
+            enabled: true,
+            configured: true,
+          };
+          changed = true;
+        }
+
+        if (changed) {
+          mcpConfig.mcpServers = servers;
+          writeFileSync(minimaxMcpPath, JSON.stringify(mcpConfig, null, 2) + '\n', 'utf-8');
+          console.log(`    ✅ MiniMax mcp.json updated: ${minimaxMcpPath}`);
+        } else {
+          console.log(`    ✅ MiniMax mcp.json already contains required MCP entries`);
+        }
+      } catch (e) {
+        console.warn(`    ⚠️  Could not update MiniMax mcp.json: ${e}`);
+      }
+    } else {
+      console.log(`    ℹ️  MiniMax mcp.json not found at ${minimaxMcpPath} — skipping MCP config`);
     }
   }
 }

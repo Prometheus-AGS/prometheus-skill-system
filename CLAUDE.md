@@ -24,7 +24,7 @@ This is a comprehensive, enterprise-grade skills package collection for AI-assis
 - Dual-format support: standalone agentskills.io + Claude Code plugin
 - Shared utilities, scripts, and templates across skills
 - Automated validation and marketplace distribution
-- Portable across AI platforms (Claude Code, GitHub Copilot, Cursor, VS Code)
+- Portable across AI platforms (Claude Code, Kimi Code, MiniMax/Mavis, OpenCode, Codex, Cursor, Windsurf, Gemini CLI, and more)
 
 ## Memory — Check Before You Code, Write After You Ship
 
@@ -92,6 +92,34 @@ expand_neighbors(entityName)
 ```
 
 ## Essential Commands
+
+### Cross-Platform Installation
+
+```bash
+# Install skills to ALL detected platforms (Claude Code, Kimi, MiniMax, OpenCode, Codex, Cursor, etc.)
+# Also configures MCP servers (surreal-memory, sycophancy-correction) in platform configs
+bash scripts/install-skills-flat.sh
+
+# Uninstall from all platforms
+bash scripts/install-skills-flat.sh --uninstall
+
+# Install to specific platforms with full plugin support (OpenCode, Kimi config.toml)
+npm run install:platforms
+
+# Check toolchain + service status on any platform
+bash shared/scripts/detect-toolchain.sh
+
+# Machine-readable toolchain status
+bash shared/scripts/detect-toolchain.sh --json
+```
+
+**Platform skill directories:**
+- Claude Code: `~/.claude/skills/`
+- Kimi Code: `~/.kimi-code/skills/` + MCP config at `~/.kimi-code/config.toml`
+- MiniMax: `~/.minimax/skills/` + MCP config at `~/.minimax/mcp/mcp.json`
+- OpenCode: `~/.opencode/skills/`
+- Codex: `~/.codex/skills/`
+- Cursor: `~/.cursor/skills/`
 
 ### Submodule Management
 

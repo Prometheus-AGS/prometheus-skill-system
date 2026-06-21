@@ -162,6 +162,64 @@ test_forge_package_librefang() {
 
 test_forge_package_librefang
 
+# ── Platform installation checks ─────────────────────────────────────────────
+test_platform_installs() {
+    echo ""
+    echo "  Platform skill installation:"
+
+    # Claude Code
+    if [[ -d "$HOME/.claude/skills" ]]; then
+        PASS=$((PASS + 1))
+        echo "    ✅ claude-code: ~/.claude/skills exists"
+    else
+        SKIP=$((SKIP + 1))
+        echo "    ⚠️  claude-code: ~/.claude/skills not found — run: bash scripts/install-skills-flat.sh"
+    fi
+
+    # Kimi Code — skills dir
+    if [[ -d "$HOME/.kimi-code/skills" ]]; then
+        PASS=$((PASS + 1))
+        echo "    ✅ kimi-code: ~/.kimi-code/skills exists"
+    else
+        SKIP=$((SKIP + 1))
+        echo "    ⚠️  kimi-code: ~/.kimi-code/skills not found — run: bash scripts/install-skills-flat.sh"
+    fi
+
+    # Kimi Code — MCP config
+    if grep -q "surreal-memory" "$HOME/.kimi-code/config.toml" 2>/dev/null; then
+        PASS=$((PASS + 1))
+        echo "    ✅ kimi-code: config.toml has surreal-memory MCP entry"
+    else
+        SKIP=$((SKIP + 1))
+        echo "    ⚠️  kimi-code: config.toml missing surreal-memory — run: bash scripts/install-skills-flat.sh"
+    fi
+
+    # MiniMax — skills dir
+    if [[ -d "$HOME/.minimax/skills" ]]; then
+        PASS=$((PASS + 1))
+        echo "    ✅ minimax: ~/.minimax/skills exists"
+    else
+        SKIP=$((SKIP + 1))
+        echo "    ⚠️  minimax: ~/.minimax/skills not found — run: bash scripts/install-skills-flat.sh"
+    fi
+
+    # MiniMax — MCP config
+    if [[ -f "$HOME/.minimax/mcp/mcp.json" ]]; then
+        if node -e "const c=JSON.parse(require('fs').readFileSync(process.argv[1],'utf8')); process.exit(c.mcpServers&&c.mcpServers['surreal-memory']?0:1);" "$HOME/.minimax/mcp/mcp.json" 2>/dev/null; then
+            PASS=$((PASS + 1))
+            echo "    ✅ minimax: mcp.json has surreal-memory entry"
+        else
+            SKIP=$((SKIP + 1))
+            echo "    ⚠️  minimax: mcp.json missing surreal-memory — run: bash scripts/install-skills-flat.sh"
+        fi
+    else
+        SKIP=$((SKIP + 1))
+        echo "    ⚠️  minimax: mcp.json not found (MiniMax may not be installed)"
+    fi
+}
+
+test_platform_installs
+
 echo ""
 echo "========================================"
 echo "  Pass: $PASS  Fail: $FAIL  Skip: $SKIP"

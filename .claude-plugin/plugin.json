@@ -51,8 +51,10 @@
   "compatibility": {
     "platforms": [
       "claude-code",
-      "cursor",
+      "kimi-code",
       "opencode",
+      "minimax",
+      "cursor",
       "codex",
       "gemini-cli",
       "roo-code",
