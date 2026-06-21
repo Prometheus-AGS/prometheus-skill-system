@@ -1,18 +1,26 @@
 {
   "schemaVersion": "1",
-  "updatedAt": "2026-06-12T16:56:02Z",
+  "updatedAt": "2026-06-21T00:00:00Z",
   "cursor": [
-    "memory-write-transport"
+    "platform-evolution-and-kbd-evolve"
   ],
   "root": {
     "type": "phase",
-    "id": "memory-write-transport",
-    "status": "phase_complete",
+    "id": "platform-evolution-and-kbd-evolve",
+    "status": "in_progress",
     "progress": {
-      "done": 2,
-      "total": 2
+      "done": 0,
+      "total": 5
     },
-    "children": [],
-    "annotations": []
+    "children": [
+      { "id": "change-001-kbd-evolve-skill", "status": "pending" },
+      { "id": "change-002-auto-update", "status": "pending" },
+      { "id": "change-003-opencode-kimi-mmx-native", "status": "pending" },
+      { "id": "change-004-entity-skills-import", "status": "pending" },
+      { "id": "change-005-flint-skills-import", "status": "pending" }
+    ],
+    "annotations": [
+      "Previous phase: memory-write-transport (phase_complete 2026-06-12)"
+    ]
   }
 }

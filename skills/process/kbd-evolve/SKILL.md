@@ -1,0 +1,162 @@
+---
+name: kbd-evolve
+description: >
+  Domain-landscape-first evolution for KBD projects. Unlike /kbd-next-phase (which advances
+  the next planned phase), /kbd-evolve surveys the external landscape of the project's problem
+  domain, identifies the highest-impact improvement opportunities against configurable criteria,
+  and produces a ranked evolution brief that /kbd-new-phase or /kbd-process-orchestrator can
+  consume as the seed for the next phase.
+version: '1.0.0'
+license: MIT
+metadata:
+  author: Prometheus AGS
+  version: '1.0.0'
+  category: process
+  tags: [process, orchestration, evolution, research, landscape, kbd, pmpo]
+---
+
+# kbd-evolve
+
+**Domain-landscape-first evolution** for KBD-orchestrated projects.
+
+## When to use vs `/kbd-next-phase`
+
+| Command | Trigger | What it does |
+|---------|---------|-------------|
+| `/kbd-next-phase` | Planned roadmap has a clear next step | Advances to the next phase in the existing plan |
+| `/kbd-evolve` | Unclear what to build next; want external validation | Surveys the domain landscape, scores opportunities, produces a fresh brief |
+
+Use `/kbd-evolve` when the KBD roadmap is empty, exhausted, or you want to recalibrate against external reality rather than follow internal plans.
+
+## Inputs
+
+```
+/kbd-evolve [evolution-name] [--criteria CRITERIA_PROFILE] [--depth DEPTH]
+```
+
+| Input | Default | Description |
+|-------|---------|-------------|
+| `evolution-name` | derived from project + date | Human-readable identifier for cross-session retrieval |
+| `--criteria` | `effort-impact` | Criteria profile: `effort-impact`, `strategic`, `risk-adjusted`, `custom` |
+| `--depth` | `standard` | Research depth: `quick` (2-3 sources), `standard` (5-8 sources), `deep` (10+ sources) |
+
+## Process (5 stages)
+
+### Stage 1 — Assess current state
+
+Read the current KBD phase state from `.kbd-orchestrator/`:
+- Current phase, completed phases, open items
+- Project identity (from CLAUDE.md, README.md, package.json, Cargo.toml)
+- Known gaps and carry-forwards from the last reflection
+
+Output: a structured **current-state snapshot** (scope, maturity level, open gaps, last 3 reflections).
+
+### Stage 2 — Research landscape
+
+Survey the external domain:
+
+1. **Problem domain taxonomy** — What category is this project in? (realtime fabric, skill orchestration, entity management, etc.)
+2. **Competitive/complementary landscape** — What tools, frameworks, and projects exist in this space? What are their strengths?
+3. **Emerging patterns** — What trends, new primitives, or architectural patterns are appearing in the ecosystem?
+4. **Community signals** — GitHub stars, recent releases, blog posts, RFCs — what is gaining traction?
+
+Research uses: web search, Tavily, firecrawl_research, GitHub search, documentation lookups.  
+Research depth scales with `--depth` parameter.  
+See `references/landscape-research.md` for the full search strategy and source weighting.
+
+### Stage 3 — Analyze gaps
+
+Compare current state against the landscape:
+- What capabilities does the project lack that peers have?
+- What emerging patterns could the project adopt to increase impact?
+- What parts of the project are solving solved problems (reinvention risk)?
+- What user/developer workflows are underserved?
+
+Output: **gap matrix** — a table of capability gaps with current state, landscape benchmark, and gap severity.
+
+### Stage 4 — Determine evolution
+
+Apply the selected **criteria profile** to rank opportunities.
+
+See `references/criteria.md` for scoring formulas.
+
+Default profile (`effort-impact`):
+
+| Criterion | Weight | Description |
+|-----------|--------|-------------|
+| User impact | 40% | How many users/workflows does this unblock? |
+| Implementation effort | 25% | Estimated complexity (1=trivial, 5=months) — inverted |
+| Alignment | 20% | Fits project vision and existing architecture |
+| Feasibility | 15% | Dependencies available, team capable, no blockers |
+
+Score = (impact × 0.40) + ((6 - effort) × 0.25) + (alignment × 0.20) + (feasibility × 0.15)
+
+Output: **ranked evolution candidates** — top 3-5 opportunities with scores and rationale.
+
+### Stage 5 — Generate evolution brief
+
+Write the evolution brief to `.kbd-orchestrator/evolution-briefs/<evolution-name>.md`.
+
+Brief format:
+```markdown
+# Evolution Brief: <name>
+
+**Generated:** <date>
+**Project:** <project identity>
+**Criteria profile:** <profile used>
+
+## Selected evolution: <winner title>
+
+### Why this, why now
+<2-3 sentences of rationale>
+
+### Scope
+<What's in, what's out>
+
+### Success criteria
+- [ ] <measurable outcome 1>
+- [ ] <measurable outcome 2>
+
+### Landscape context
+<Key findings from the survey that support this choice>
+
+### Runners-up
+| # | Title | Score | Why not selected |
+|---|-------|-------|-----------------|
+
+### Recommended next command
+/kbd-new-phase <phase-name> --seed .kbd-orchestrator/evolution-briefs/<evolution-name>.md
+```
+
+## Example invocations
+
+```
+# Standard: research the landscape and pick the best next evolution
+/kbd-evolve
+
+# Named, with strategic criteria profile
+/kbd-evolve "q3-capability-gap" --criteria strategic
+
+# Quick scan (good for weekly cadence)
+/kbd-evolve --depth quick
+```
+
+## State persistence
+
+The evolution brief is saved to `.kbd-orchestrator/evolution-briefs/<name>.md`.  
+If surreal-memory is available, the evolution cycle is also recorded as an entity in the knowledge graph under `type: KbdEvolution`.
+
+## Integration with /kbd-new-phase
+
+After `/kbd-evolve` completes:
+```
+/kbd-new-phase <suggested-name> --seed .kbd-orchestrator/evolution-briefs/<name>.md
+```
+
+The `--seed` flag tells kbd-process-orchestrator to use the evolution brief as the assessment input, skipping the assess stage.
+
+## Related skills
+
+- `kbd-process-orchestrator` — Runs the standard KBD lifecycle (assess → plan → execute → reflect)
+- `iterative-evolver` — Domain-agnostic iterative evolution engine (kbd-evolve composes it for the KBD project context)
+- `pmpo-outer-loop` — Outer loop that drives iterative evolution cycles

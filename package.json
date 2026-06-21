@@ -34,7 +34,9 @@
     "unregister:commands": "bash scripts/register-slash-commands.sh --uninstall && node scripts/generate-commands.js --uninstall",
     "skill-matrix": "node scripts/skill-matrix.js",
     "skill-matrix:ci": "node scripts/skill-matrix.js --ci",
-    "check:opencode": "tsc -p .opencode/tsconfig.json --noEmit"
+    "check:opencode": "tsc -p .opencode/tsconfig.json --noEmit",
+    "update": "bash scripts/update-skill-pack.sh",
+    "update:force": "bash scripts/update-skill-pack.sh --force"
   },
   "keywords": [
     "claude-code",

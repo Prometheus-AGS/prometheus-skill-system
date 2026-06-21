@@ -18,3 +18,6 @@
 	path = tools/liter-llm
 	url = https://github.com/GQAdonis/liter-llm.git
 	branch = main
+[submodule "skills/imported/prometheus-entity-management"]
+	path = skills/imported/prometheus-entity-management
+	url = git@github.com:Prometheus-AGS/prometheus-entity-management.git
