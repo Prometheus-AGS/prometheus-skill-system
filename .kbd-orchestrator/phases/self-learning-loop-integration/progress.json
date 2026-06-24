@@ -1,0 +1,23 @@
+{
+  "phase": "self-learning-loop-integration",
+  "phase_started": "2026-06-23",
+  "stage": "complete",
+  "assessment_complete": true,
+  "analyze_complete": true,
+  "plan_complete": true,
+  "changes_total": 10,
+  "changes_completed": 10,
+  "changes": [
+    {"id": "change-slli-008", "title": "Progress signaling fix", "status": "done", "priority": 1},
+    {"id": "change-slli-002", "title": "MCP launchd services installer", "status": "done", "priority": 2},
+    {"id": "change-slli-003", "title": "Cross-tool MCP config", "status": "done", "priority": 3},
+    {"id": "change-slli-001", "title": "L3 outer loop skill", "status": "done", "priority": 4},
+    {"id": "change-slli-004", "title": "Wire continuous-learning-v2", "status": "done", "priority": 5},
+    {"id": "change-slli-005", "title": "pk semantic focus upgrade", "status": "done", "priority": 6},
+    {"id": "change-slli-006", "title": "Forge-independent reflect path", "status": "done", "priority": 7},
+    {"id": "change-slli-007", "title": "Evolver bridge integration", "status": "done", "priority": 8},
+    {"id": "change-slli-009", "title": "Periodic nudge script", "status": "done", "priority": 9, "note": "delivered as part of change-slli-002"},
+    {"id": "change-slli-010", "title": "pmpo-skill-creator --update mode", "status": "done", "priority": 10}
+  ],
+  "updated": "2026-06-24T08:00:00Z"
+}

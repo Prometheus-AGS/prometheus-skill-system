@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>ai.prometheus.surreal-memory-docker</string>
+
+  <!-- docker start -a reattaches to the named container and blocks until it exits.
+       launchd KeepAlive will restart this job (and thus the container) if it exits. -->
+  <key>ProgramArguments</key>
+  <array>
+    <string>__DOCKER_BIN__</string>
+    <string>start</string>
+    <string>--attach</string>
+    <string>surreal-memory-server</string>
+  </array>
+
+  <key>WorkingDirectory</key>
+  <string>__PROMETHEUS_HOME__</string>
+
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>HOME</key>
+    <string>__PROMETHEUS_HOME__</string>
+    <key>USER</key>
+    <string>__PROMETHEUS_USER__</string>
+    <key>PATH</key>
+    <string>__PROMETHEUS_PATH__</string>
+  </dict>
+
+  <key>RunAtLoad</key>
+  <true/>
+  <key>KeepAlive</key>
+  <true/>
+  <key>ProcessType</key>
+  <string>Background</string>
+
+  <!-- Throttle restart to avoid hammering Docker on crash loops -->
+  <key>ThrottleInterval</key>
+  <integer>10</integer>
+
+  <key>StandardOutPath</key>
+  <string>__PROMETHEUS_LOG_DIR__/surreal-memory-docker.stdout.log</string>
+  <key>StandardErrorPath</key>
+  <string>__PROMETHEUS_LOG_DIR__/surreal-memory-docker.stderr.log</string>
+</dict>
+</plist>

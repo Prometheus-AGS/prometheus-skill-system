@@ -14,9 +14,11 @@
 #     (explain appends a "Why:" line sourced from waypoint next_action).
 
 # Walk up from $PWD to the filesystem root looking for .kbd-orchestrator/.
+# Also checks REPO_ROOT, CLAUDE_PLUGIN_ROOT, and common project paths.
 # Prints the directory that CONTAINS .kbd-orchestrator and returns 0, else 1.
 _wr_find_root() {
   local dir="$PWD"
+  # Walk up from CWD
   while [ -n "$dir" ] && [ "$dir" != "/" ]; do
     if [ -d "$dir/.kbd-orchestrator" ]; then
       printf '%s' "$dir"
@@ -25,6 +27,15 @@ _wr_find_root() {
     dir="$(dirname "$dir")"
   done
   [ -d "/.kbd-orchestrator" ] && { printf '/'; return 0; }
+  # Explicit env var fallbacks (for hooks that run from non-project CWD)
+  for candidate in "${REPO_ROOT:-}" "${CLAUDE_PLUGIN_ROOT:-}"; do
+    [ -n "$candidate" ] || continue
+    if [ -d "$candidate/.kbd-orchestrator" ]; then
+      printf '%s' "$candidate"
+      printf '[wr] resolved via %s\n' "$([ "$candidate" = "${REPO_ROOT:-}" ] && echo "REPO_ROOT" || echo "CLAUDE_PLUGIN_ROOT")" >&2
+      return 0
+    fi
+  done
   return 1
 }
 

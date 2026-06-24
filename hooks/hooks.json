@@ -99,6 +99,11 @@
           },
           {
             "type": "command",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT}/shared/scripts/write-position-reminder.sh 2>&1 || true",
+            "timeout": 5000
+          },
+          {
+            "type": "command",
             "command": "bash ${CLAUDE_PLUGIN_ROOT}/shared/scripts/sycophancy-check-artifact.sh",
             "timeout": 35000
           },
@@ -163,6 +168,11 @@
           },
           {
             "type": "command",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT}/shared/scripts/evaluate-session.sh 2>&1 || true",
+            "timeout": 30000
+          },
+          {
+            "type": "command",
             "command": "bash ${CLAUDE_PLUGIN_ROOT}/skills/process/iterative-evolver/scripts/workflow-dispatch.sh \"${EVOLUTION_NAME:-default}\" phase_complete execute 2>&1 || true"
           }
         ]
@@ -201,6 +211,11 @@
     "Stop": [
       {
         "hooks": [
+          {
+            "type": "command",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT}/shared/scripts/write-session-summary.sh 2>&1 || true",
+            "timeout": 5000
+          },
           {
             "type": "command",
             "command": "bash ${CLAUDE_PLUGIN_ROOT}/shared/scripts/position-stop-gate.sh",

@@ -261,5 +261,12 @@ JS
 
 configure_minimax_mcp
 
+# Post-install: configure all Prometheus MCP servers across all AI tools
+if [[ -f "$REPO_ROOT/scripts/configure-mcp-all-tools.sh" ]] && ! $UNINSTALL; then
+    echo ""
+    echo "Configuring Prometheus MCP servers across all AI tools..."
+    bash "$REPO_ROOT/scripts/configure-mcp-all-tools.sh" 2>/dev/null || true
+fi
+
 echo ""
 echo "✨ Done — skills available as slash commands on all platforms"

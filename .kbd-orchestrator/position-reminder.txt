@@ -1,0 +1,7 @@
+POSITION REMINDER — read this as your FIRST tool call every turn
+Phase: self-learning-loop-integration
+Stage: COMPLETE (reflection written)
+All 10 of 10 changes completed. Reflection written.
+Next command: /kbd-new-phase mcp-service-activation
+  OR: /kbd-new-phase pmpo-elicit-skill
+Updated: 2026-06-24T08:30:00Z

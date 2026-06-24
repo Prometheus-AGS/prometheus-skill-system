@@ -621,7 +621,26 @@ The gate requires the `sycophancy-correction` binary (built via `cargo build --r
 
 All agents — including Claude Code — must emit progress signals at the start and completion of every phase and every task. These signals keep long conversations scannable and provide an immediate sense of position without re-reading the full thread.
 
+### FIRST ACTION every kbd-* turn
+
+Before emitting any signal or making any tool call, read:
+
+1. `.kbd-orchestrator/position-reminder.txt` — has current phase, step N of T, stage, next command
+2. If absent: `.kbd-orchestrator/current-waypoint.json`
+3. `.kbd-orchestrator/phases/<phase>/progress.json` — for accurate N and T
+
 ### Format
+
+For KBD lifecycle commands (`/kbd-assess`, `/kbd-analyze`, `/kbd-plan`, `/kbd-execute`, `/kbd-reflect`, `/kbd-evolve`):
+
+```
+Starting kbd-execute — self-learning-loop-integration (step 3 of 10)
+Starting change 3 of 10: change-slli-003
+Completed change 3 of 10: change-slli-003
+Completed kbd-execute — self-learning-loop-integration (step 3 of 10)
+```
+
+For general phases and tasks:
 
 ```
 Starting phase 2 out of 6:  SP-014 fallback SubagentStop matcher verification
@@ -637,6 +656,7 @@ Completed phase 2 out of 6: SP-014 fallback SubagentStop matcher verification
 - **Emit immediately after completion** — before moving to the next phase or task.
 - **Total counts must be accurate.** Read `progress.json` or the plan to get the real totals. Never estimate.
 - **Use the canonical name** from `plan.md` or `progress.json`, not a paraphrase.
+- **The `(step N of T)` suffix is required** on all kbd-* skill signals — N and T from `progress.json`.
 - Signals go to **stdout** (normal response text). They do not require a tool call.
 - This rule applies in **every session** regardless of context length.
 

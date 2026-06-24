@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>ai.prometheus.prometheus-nudge</string>
+
+  <key>ProgramArguments</key>
+  <array>
+    <string>/bin/bash</string>
+    <string>__PROMETHEUS_ROOT__/scripts/scheduled/periodic-nudge.sh</string>
+  </array>
+
+  <key>WorkingDirectory</key>
+  <string>__PROMETHEUS_ROOT__</string>
+
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>HOME</key>
+    <string>__PROMETHEUS_HOME__</string>
+    <key>USER</key>
+    <string>__PROMETHEUS_USER__</string>
+    <key>PATH</key>
+    <string>__PROMETHEUS_PATH__</string>
+    <key>PROMETHEUS_SKILL_PACK_ROOT</key>
+    <string>__PROMETHEUS_ROOT__</string>
+    <key>SURREAL_MEMORY_URL</key>
+    <string>http://localhost:23001</string>
+    <key>PK_MCP_URL</key>
+    <string>http://localhost:8942/mcp</string>
+  </dict>
+
+  <!-- Every 4 hours -->
+  <key>StartInterval</key>
+  <integer>14400</integer>
+
+  <key>RunAtLoad</key>
+  <false/>
+
+  <key>StandardOutPath</key>
+  <string>__PROMETHEUS_LOG_DIR__/prometheus-nudge.stdout.log</string>
+  <key>StandardErrorPath</key>
+  <string>__PROMETHEUS_LOG_DIR__/prometheus-nudge.stderr.log</string>
+</dict>
+</plist>

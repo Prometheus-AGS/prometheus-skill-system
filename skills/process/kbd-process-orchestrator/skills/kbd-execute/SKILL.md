@@ -56,17 +56,23 @@ contract and constraint wiring.
 
 ## Progress Signals (MANDATORY)
 
-Before any other action, emit:
+**FIRST tool call of every turn:** Read `.kbd-orchestrator/position-reminder.txt` (if it exists) to get the current phase, step N of T, and next command. If that file is absent, read `.kbd-orchestrator/current-waypoint.json`.
+
+Before any other action, emit to plain response text (BEFORE any tool call):
 
 ```
-Starting kbd-execute — <phase-name or argument>
+Starting kbd-execute — <phase-name> (step N of T)
 ```
 
 When all steps are complete, emit:
 
 ```
-Completed kbd-execute — <phase-name or argument>
+Completed kbd-execute — <phase-name> (step N of T)
 ```
+
+**How to get N and T (MANDATORY — never estimate):**
+- Read `.kbd-orchestrator/phases/<phase>/progress.json` → `changes_completed` = N, `changes_total` = T
+- If `progress.json` is absent, read `current-waypoint.json` → `changes_completed` / `changes_total`
 
 When executing a named sub-phase within a multi-phase plan, emit the phase-level signal BEFORE the first change signal — even when the orchestrator is not present:
 

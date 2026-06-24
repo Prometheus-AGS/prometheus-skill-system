@@ -65,7 +65,9 @@ primitive you wire to it.
 
 ## Progress Signals (MANDATORY)
 
-Before any other action, emit:
+**FIRST tool call of every turn:** Read `.kbd-orchestrator/position-reminder.txt` (if it exists). If absent, read `.kbd-orchestrator/current-waypoint.json`.
+
+Before any other action, emit to plain response text (BEFORE any tool call):
 
 ```
 Starting pmpo-outer-loop — <name> tick <N>
@@ -78,6 +80,19 @@ Completed pmpo-outer-loop — <name> tick <N> (<continue|escalate|terminate>)
 ```
 
 Emit to plain response text — no tool call needed.
+
+## Loop Definition Reference
+
+Full schema: [`references/schemas/loop-definition.schema.json`](references/schemas/loop-definition.schema.json)
+
+Human-readable guide: [`references/loop-schema.md`](references/loop-schema.md)
+
+## Operational Script
+
+[`scripts/loop-tick.sh`](scripts/loop-tick.sh) — bash implementation of a tick:
+- reads `loop.json`, evaluates feedback sources
+- increments `current_tick`, appends `journal.md`
+- exits 0=continue, 1=escalate, 2=terminate
 
 ## Termination & escalation guards
 

@@ -29,8 +29,8 @@ while [ "$#" -gt 0 ]; do
     esac
 done
 
-LABELS=("ai.prometheus.pk-cherry" "ai.prometheus.forge-mcp")
-TEMPLATES=("ai.prometheus.pk-cherry.plist" "ai.prometheus.forge-mcp.plist")
+LABELS=("ai.prometheus.surreal-memory-docker" "ai.prometheus.pk-cherry" "ai.prometheus.forge-mcp" "ai.prometheus.prometheus-nudge")
+TEMPLATES=("ai.prometheus.surreal-memory-docker.plist" "ai.prometheus.pk-cherry.plist" "ai.prometheus.forge-mcp.plist" "ai.prometheus.prometheus-nudge.plist")
 
 usage() {
     cat <<'EOF'
@@ -44,7 +44,17 @@ Commands:
   doctor    Report OS, user, binaries, Docker, plist, launchctl, and MCP readiness
   logs      Tail recent service logs
 
-surreal-memory-server remains Docker-managed on localhost:23001.
+Managed LaunchAgents:
+  ai.prometheus.surreal-memory-docker  Docker keepalive for surreal-memory-server (port 23001)
+  ai.prometheus.pk-cherry              pk-cherry HTTP MCP for Karpathy KB (port 8942)
+  ai.prometheus.forge-mcp              Forge code-enrichment MCP (port 8943)
+  ai.prometheus.prometheus-nudge       Periodic self-learning nudge (every 4h, cron-style)
+
+Stdio-only services (managed by AI client, not launchd):
+  sycophancy-correction, liter-llm, sequential-thinking, tavily
+
+For a full health table: bash scripts/check-mcp-health.sh
+For idempotent full install: bash scripts/install-mcp-services.sh
 EOF
 }
 
@@ -178,7 +188,10 @@ load_services() {
         launchctl bootout "$GUI_DOMAIN/$label" >/dev/null 2>&1 || true
         launchctl bootstrap "$GUI_DOMAIN" "$plist"
         launchctl enable "$GUI_DOMAIN/$label"
-        launchctl kickstart -k "$GUI_DOMAIN/$label"
+        # Nudge is cron-style (RunAtLoad=false) — don't kickstart it immediately
+        if [ "$label" != "ai.prometheus.prometheus-nudge" ]; then
+            launchctl kickstart -k "$GUI_DOMAIN/$label"
+        fi
         echo "Loaded $label"
     done
 }
@@ -221,9 +234,14 @@ status_services() {
         print_launchctl_summary "$label"
     done
     echo ""
-    probe "surreal-memory" "http://localhost:23001/mcp/sse"
+    probe "surreal-memory"       "http://localhost:23001/health"
     probe "prometheus-knowledge" "http://localhost:8942/mcp"
-    probe "forge-rs" "http://localhost:8943/mcp"
+    probe "forge-rs"             "http://localhost:8943/mcp"
+    # stdio-only services — no HTTP probe
+    printf '%-28s %s\n' "sycophancy-correction" "stdio-only"
+    printf '%-28s %s\n' "liter-llm"             "stdio-only"
+    printf '%-28s %s\n' "sequential-thinking"   "stdio-only"
+    printf '%-28s %s\n' "tavily"                "stdio-only"
 }
 
 doctor_services() {

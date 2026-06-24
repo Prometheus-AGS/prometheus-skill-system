@@ -67,20 +67,25 @@ writes a skip handoff so the Spec gate passes deliberately rather than by drift.
 
 ## Progress Signals (MANDATORY)
 
-Before any other action, emit:
+**FIRST tool call of every turn:** Read `.kbd-orchestrator/position-reminder.txt` (if it exists) to get the current phase, step N of T, and next command. If that file is absent, read `.kbd-orchestrator/current-waypoint.json`.
+
+Before any other action, emit to plain response text (BEFORE any tool call):
 
 ```
-Starting kbd-analyze — <phase-name or argument>
+Starting kbd-analyze — <phase-name> (step N of T)
 ```
 
 When the candidate set is written (or the stage is skipped), emit:
 
 ```
-Completed kbd-analyze — <phase-name or argument>
+Completed kbd-analyze — <phase-name> (step N of T)
 ```
 
-Use the canonical phase name from the argument or `current-waypoint.json`.
-Never guess. Emit to plain response text — no tool call needed.
+**How to get N and T (MANDATORY — never estimate):**
+- Read `.kbd-orchestrator/phases/<phase>/progress.json` → `changes_completed` = N, `changes_total` = T
+- If `progress.json` is absent, read `current-waypoint.json` → `changes_completed` / `changes_total`
+
+Use the canonical phase name from the argument or `current-waypoint.json`. Emit to plain response text — no tool call needed.
 
 ## How to invoke
 

@@ -31,6 +31,33 @@ Copies the structure of an existing skill (like iterative-evolver or artifact-re
 
 Adds new domain adapters, phases, sub-skills, or platform support to an existing skill without breaking current functionality.
 
+### `update` — In-place skill refinement from learning patterns
+
+Improves an existing installed skill using accumulated learning patterns from the continuous-learning pipeline. Requires explicit user approval before any file is modified.
+
+**Invocation:**
+```
+/pmpo-skill-creator --update <skill-name>
+```
+
+**Flow:**
+1. Read `~/.claude/skills/<skill-name>/SKILL.md` — current installed skill content
+2. Search `~/.prometheus/learning-log/*.jsonl` for entries whose `scoped_paths` or `phase` field matches the skill's domain
+3. Search surreal-memory for patterns related to `<skill-name>` (when `SURREAL_MEMORY_URL` is set and reachable)
+4. Identify targeted additions: new examples, corrected instructions, updated references — no structural rewrites
+5. Generate a unified diff (`unified_diff`) of proposed changes
+6. Write proposed diff to `~/.prometheus/skill-updates/<skill-name>-<date>.diff`
+7. Present the full diff to the user — do NOT apply automatically
+8. Prompt: "Apply this update? (y/N)" — call `/pmpo-elicit` if available, otherwise prompt inline
+9. Only on explicit `y`: apply the diff and re-validate with `npm run validate:strict` from the skill-pack root
+
+**Rules:**
+- Never modify the installed skill file without an explicit `y` from the user.
+- On `n`, timeout, or any non-`y` response: skill file is unchanged; diff file is preserved for future reference.
+- The diff must be minimal and surgical — it must not rewrite sections unrelated to the learning entries found.
+- If zero learning entries match the skill, exit 0 with message: "No learning patterns found for `<skill-name>` — skill is up to date."
+- `propose-skill-update.sh` (called by `evaluate-session.sh`) only logs candidates; it never invokes `--update` automatically. The `--update` invocation is always human-triggered.
+
 ## What Gets Generated
 
 Every generated skill includes:
@@ -136,4 +163,5 @@ Both demonstrate the complete feature set: PMPO loop, named state, providers, ho
 - `/create-skill` — Create a new skill from scratch
 - `/clone-skill` — Clone an existing skill for a new domain
 - `/extend-skill` — Add capabilities to an existing skill
+- `/pmpo-skill-creator --update <skill-name>` — Refine an installed skill from learning patterns (human-gated)
 - `/validate-skill` — Validate a skill against the agentskills.io spec

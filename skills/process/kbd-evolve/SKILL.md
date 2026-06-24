@@ -40,6 +40,28 @@ Use `/kbd-evolve` when the KBD roadmap is empty, exhausted, or you want to recal
 | `--criteria` | `effort-impact` | Criteria profile: `effort-impact`, `strategic`, `risk-adjusted`, `custom` |
 | `--depth` | `standard` | Research depth: `quick` (2-3 sources), `standard` (5-8 sources), `deep` (10+ sources) |
 
+## Progress Signals (MANDATORY)
+
+**FIRST tool call of every turn:** Read `.kbd-orchestrator/position-reminder.txt` (if it exists) to get the current phase, step N of T, and next command. If that file is absent, read `.kbd-orchestrator/current-waypoint.json`.
+
+Before any other action, emit to plain response text (BEFORE any tool call):
+
+```
+Starting kbd-evolve — <evolution-name or phase> (step N of T)
+```
+
+When the evolution brief is written, emit:
+
+```
+Completed kbd-evolve — <evolution-name or phase> (step N of T)
+```
+
+**How to get N and T (MANDATORY — never estimate):**
+- Read `.kbd-orchestrator/phases/<phase>/progress.json` → `changes_completed` = N, `changes_total` = T
+- If `progress.json` is absent, read `current-waypoint.json` → `changes_completed` / `changes_total`
+
+Emit to plain response text — no tool call needed.
+
 ## Process (5 stages)
 
 ### Stage 1 — Assess current state

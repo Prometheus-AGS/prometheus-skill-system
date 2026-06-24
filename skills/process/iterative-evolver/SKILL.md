@@ -235,6 +235,34 @@ Domain-specific evolution knowledge lives in `references/domain/`:
 
 DomainReferenceSoftware`references/domain/software.md`Business`references/domain/business.md`Product`references/domain/product.md`Research`references/domain/research.md`Content`references/domain/content.md`Operations`references/domain/operations.md`Compliance`references/domain/compliance.md`Generic`references/domain/generic.md`
 
+## Evolver Bridge — Write-back
+
+When `.kbd-orchestrator/phases/<current>/evolver-bridge.json` exists, the
+evolver's Execute phase must propagate per-change results back through the
+bridge so the outer Reflect phase can compute accurate per-item completion.
+
+**After each change completes**, append to `execution_results[]` in `evolver-bridge.json`:
+
+```json
+{
+  "change_id": "change-slli-XXX",
+  "evolver_item_id": "evolver-item-N",
+  "status": "completed | skipped | failed",
+  "completed_at": "ISO8601"
+}
+```
+
+The `evolver_item_id` comes from `item_to_change_map` in the same bridge file
+(key = evolver item id, value = array of change ids it maps to).
+
+**Bridge file location**: `.kbd-orchestrator/phases/<phase>/evolver-bridge.json`
+
+**Bridge file schema**: see `references/schemas/evolver-bridge.schema.json` (canonical)
+and `openspec/changes/change-slli-007-evolver-bridge-integration/bridge-schema.md`
+(human-readable narrative).
+
+When no bridge file exists: execute as normal — no write-back required.
+
 ## Quick Start
 
 Use domain-specific slash commands or the universal entry point:

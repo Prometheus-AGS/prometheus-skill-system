@@ -496,3 +496,52 @@ integration provides, and the entity schema are in
 - `/kbd-full-phase <name>` — Run full Assess → Plan → Execute → Reflect cycle
 
 See `references/domain/kbd.md` (KBD philosophy), `references/cross-tool-handoff.md` (multi-tool coordination), and `prompts/` (detailed phase execution protocols).
+
+---
+
+## Evolver Bridge — Reflect Read-back
+
+When `/kbd-reflect` runs and `.kbd-orchestrator/phases/<phase>/evolver-bridge.json`
+exists, the reflect phase must propagate KBD results back to the evolver's
+outer state so `/evolve-status` shows accurate per-item completion.
+
+### Protocol
+
+1. **Read bridge** — load `item_to_change_map` and `execution_results` from
+   `evolver-bridge.json`.
+
+2. **Compute per-item status** — for each evolver item in `item_to_change_map`:
+   - All mapped changes `completed` → item status = `completed`
+   - Any mapped change `failed` → item status = `failed`
+   - Any mapped change still `pending`/`in_progress` → item status = `in_progress`
+   - No mapped changes in `execution_results` yet → item status = `pending`
+
+3. **Write status to evolver state** — update
+   `.evolver/evolutions/<evolution_name>/state.json` by merging
+   `kbd_results` under `current_iteration`:
+
+   ```json
+   {
+     "kbd_results": {
+       "phase": "<phase-name>",
+       "reflected_at": "ISO8601",
+       "items": {
+         "evolver-item-1": "completed",
+         "evolver-item-2": "in_progress"
+       }
+     }
+   }
+   ```
+
+4. **Signal outer loop readiness** — if ALL evolver items are `completed`:
+   set `current_iteration.status` to `ready_for_reflect` in evolver state,
+   which allows `/evolve-reflect` to proceed without waiting for another
+   executor run.
+
+5. **No bridge → no-op** — when `evolver-bridge.json` is absent, `/kbd-reflect`
+   runs as normal with no evolver state writes.
+
+### Bridge file schema
+
+See `openspec/changes/change-slli-007-evolver-bridge-integration/bridge-schema.md`
+for the full schema narrative and field definitions.
