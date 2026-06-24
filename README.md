@@ -376,4 +376,4 @@ forge init
 
 ## License
 
-[MIT](LICENSE) © 2026 Prometheus AGS
+[MIT](LICENSE) © 2026 Travis James
