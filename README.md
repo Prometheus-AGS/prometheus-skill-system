@@ -12,6 +12,28 @@ governed, audited, and reproducible.
 
 ---
 
+## 📚 Documentation
+
+The complete, official product documentation lives in **[`docs/guide/`](docs/guide/README.md)** — 24 linked
+pages covering every skill, tool, CLI, MCP server, hook, and script individually and collectively, with
+flow, sequence, and C4 diagrams throughout. This README is the quick tour; the guide is the manual.
+
+| If you want to… | Read |
+|---|---|
+| Understand the whole system | [Guide index](docs/guide/README.md) · [Introduction](docs/guide/01-introduction.md) |
+| Learn the methodology | [Metaprompting, PMPO & KBD](docs/guide/02-metaprompting-pmpo-kbd.md) |
+| Understand the loops | [Loop Architecture](docs/guide/03-loop-architecture.md) · [Four-Layer Pipeline](docs/guide/04-four-layer-pipeline.md) |
+| Know the substrate | [MCP Servers](docs/guide/05-mcp-substrate.md) · [Memory & Learning](docs/guide/06-memory-and-learning.md) · [Sycophancy Correction](docs/guide/07-sycophancy-correction.md) |
+| Browse every skill | [Skills Overview](docs/guide/08-skills-overview.md) · [Process Skills](docs/guide/09-process-skills.md) · [Language Skills](docs/guide/10-language-skills.md) · [Artifact Refiner](docs/guide/11-artifact-refiner.md) · [Native Agent Generator](docs/guide/12-native-agent-generator.md) |
+| Reference the engine room | [Tools](docs/guide/13-tools-reference.md) · [Rust Toolchain](docs/guide/14-rust-toolchain.md) · [Hooks & Lifecycle](docs/guide/15-hooks-and-lifecycle.md) · [CLI & Scripts](docs/guide/16-cli-and-scripts.md) |
+| Install, run, contribute | [Platform Support](docs/guide/17-platform-support.md) · [Plugins & Marketplace](docs/guide/18-plugins-and-marketplace.md) · [Installation](docs/guide/19-installation.md) · [Updating](docs/guide/20-updating.md) · [Contributing](docs/guide/21-contributing.md) |
+| See why it matters | [Advantages & Impact](docs/guide/22-advantages-and-impact.md) · [Glossary & Sources](docs/guide/23-glossary.md) |
+
+The design posture behind it all — *stop prompting, start designing loops* — is laid out in the companion
+essay [docs/articles/autonomous-loops-prometheus-skill-pack.md](docs/articles/autonomous-loops-prometheus-skill-pack.md).
+
+---
+
 ## The 4-Layer Pipeline
 
 Every piece of work flows through four layers. Each layer feeds the next.
@@ -127,9 +149,12 @@ prometheus-skill-pack/
 │   ├── devops/                  ← GitOps CI/CD skills
 │   ├── ui-ux/                   ← UI/UX skills
 │   ├── documentation/           ← Documentation skills
+│   ├── flint/                   ← Flint Realtime Fabric SDK skills (6 languages)
+│   ├── document-extraction/     ← Kreuzberg multi-format extraction
 │   └── imported/                ← Git submodule skills
 │       ├── artifact-refiner/        ← PMPO artifact refinement (submodule)
-│       └── sycophancy-correction/   ← 8-pattern detection (submodule)
+│       ├── sycophancy-correction/   ← 8-pattern detection, Rust MCP server (submodule)
+│       └── prometheus-entity-management/ ← Entity graph library + skills (submodule)
 │
 ├── tools/                       ← Rust workspaces and submodule tools
 │   ├── forge-rs/                ← Layer 4: code enrichment engine
@@ -143,7 +168,7 @@ prometheus-skill-pack/
 │
 ├── shared/references/           ← Cross-skill architecture references
 ├── agents/                      ← Orchestration agent definitions
-├── hooks/hooks.json             ← Lifecycle hooks (5 hook events)
+├── hooks/hooks.json             ← Lifecycle hooks (6 events: SessionStart, UserPromptSubmit, Pre/PostToolUse, SubagentStop, Stop)
 ├── policies/                    ← Cedar governance policies
 └── .gitmodules                  ← Submodule registry
 ```
@@ -159,9 +184,16 @@ prometheus-skill-pack/
 | `native-agent` | Generator | `/create-native-agent` — scaffolds complete Rust agent workspaces |
 | `zeespec-interrogator` | 1 | 60-question Zachman 5W1H constraint interrogation, GO/NO-GO manifests |
 | `iterative-evolver` | 2 | Strategic PMPO loop: Assess→Analyze→Plan→Execute→Reflect |
-| `kbd-process-orchestrator` | 2 | Tactical KBD loop: change management, multi-tool dispatch |
-| `pmpo-skill-creator` | Meta | Generates new skills via PMPO |
+| `kbd-process-orchestrator` | 1 | Tactical KBD loop (16 child skills): change management, multi-tool dispatch |
+| `pmpo-outer-loop` | 3 | Standing loop: `/loop-define`, `/loop-tick`, `/loop-report` — one tick = one evolver cycle |
+| `pmpo-elicit` | Gate | Ask / source / research / decide elicitation primitive with provenance |
+| `pmpo-skill-creator` | Meta | Generates and updates skills via PMPO (human-gated `--update`) |
 | `liter-llm-bridge` | Meta | Per-phase model class routing via liter-llm |
+| `ideation-mindmap` | Onramp | Concept → 6-branch tree via surreal-memory, feeds ZeeSpec |
+| `kbd-evolve` | Seed | Landscape survey → ranked evolution brief seeding `/kbd-new-phase` |
+
+Full detail on every process skill — commands, state files, child skills, composition — is in
+[docs/guide/09-process-skills.md](docs/guide/09-process-skills.md).
 
 ### Language Skills
 
@@ -315,11 +347,41 @@ Lit encapsulates complex interactive elements. React hosts HTMX islands via `Htm
 
 | Tool | Source | Role |
 |---|---|---|
-| `tools/forge-rs` | This repo | Layer 4 code enrichment engine |
-| `tools/prometheus-knowledge` | Git submodule | Karpathy learning wiki (`pk focus`/`pk ingest`) |
-| `tools/liter-llm` | Git submodule | Multi-model routing proxy (22 MCP tools) |
-| `tools/surreal-memory-server` | Git submodule | Knowledge graph + distributed state |
-| `tools/prometheus-cli` | This repo | Skill management CLI + Cedar governance |
+| `tools/forge-rs` | This repo | Layer 4 code enrichment engine (`forge` binary + MCP :8943) |
+| `tools/prometheus-knowledge` | Git submodule | Karpathy learning wiki (`pk` / `pk-cherry` MCP :8942) |
+| `tools/liter-llm` | Git submodule | Multi-provider LLM gateway (140+ providers, 22 MCP tools) |
+| `tools/surreal-memory-server` | Git submodule | Knowledge graph + scoped memory + MCP :23001 |
+| `tools/prometheus-cli` | This repo | Skill management, self-learning, Cedar governance (`prometheus` binary) |
+| `tools/prometheus-rust-auditor` | This repo | Staged Rust code-quality remediation pipeline |
+
+Full CLI surfaces, crates, ports, and endpoints for every tool are in
+[docs/guide/13-tools-reference.md](docs/guide/13-tools-reference.md).
+
+---
+
+## MCP Server Substrate
+
+Eight MCP servers form the shared substrate that makes loops compound across sessions and tools.
+The canonical port table is `scripts/mcp-port-table.json`; full detail is in
+[docs/guide/05-mcp-substrate.md](docs/guide/05-mcp-substrate.md).
+
+| Server | Transport | Port | Role |
+|---|---|---|---|
+| surreal-memory | sse/http | 23001 | Semantic knowledge graph — the memory substrate |
+| prometheus-knowledge | sse/http | 8942 | Karpathy flat-file KB — context priming via `pk focus` |
+| forge-rs | sse/http | 8943 | Code enrichment — `forge reflect` / `pk ingest` |
+| sycophancy-correction | stdio | — | Structural anti-sycophancy gate on reflection output |
+| liter-llm | stdio | — | Multi-provider LLM gateway / per-phase routing |
+| sequential-thinking | stdio | — | Structured reasoning for multi-step planning |
+| tavily | stdio | — | Search-first web access (discovery) |
+| firecrawl | stdio | — | Extraction-first web access, self-hostable |
+
+```bash
+# Bring up the HTTP MCP services (macOS launchd) and configure all tools
+bash scripts/install-mcp-services.sh
+bash scripts/configure-mcp-all-tools.sh
+bash scripts/check-mcp-health.sh
+```
 
 ---
 
@@ -372,8 +434,22 @@ forge init
 /create-native-agent
 ```
 
+For the full prerequisite, install, verification, and first-loop walkthrough, see
+[docs/guide/19-installation.md](docs/guide/19-installation.md); for keeping everything current, see
+[docs/guide/20-updating.md](docs/guide/20-updating.md).
+
+---
+
+## Contributing
+
+Contributions are welcome. The workflow, validation gates (`npm run validate:strict`), submodule
+management, and skill-import process are documented in
+[docs/guide/21-contributing.md](docs/guide/21-contributing.md) and [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md).
+
 ---
 
 ## License
 
 [MIT](LICENSE) © 2026 Travis James
+
+Full documentation: **[docs/guide/](docs/guide/README.md)**
