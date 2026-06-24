@@ -616,12 +616,14 @@ That's not a feature differential. It's an architectural choice about what the l
 
 *[Travis James ← AI — instructions, AI-drafted, Travis-reviewed for accuracy]*
 
+**Repository:** [https://github.com/Prometheus-AGS/prometheus-skill-system](https://github.com/Prometheus-AGS/prometheus-skill-system)
+
 The prometheus-skill-pack install sequence is documented in the repository. The short version:
 
 ```bash
 # Clone and install to all detected platforms
-git clone https://github.com/Prometheus-AGS/prometheus-skill-pack
-cd prometheus-skill-pack
+git clone https://github.com/Prometheus-AGS/prometheus-skill-system
+cd prometheus-skill-system
 
 # Install skills to all supported AI tools
 bash scripts/install-skills-flat.sh
@@ -739,6 +741,7 @@ The agents are ready. The substrate is the question. The prometheus-skill-pack i
 ---
 
 **Sources:**
+- [prometheus-skill-system — GitHub (Prometheus AGS)](https://github.com/Prometheus-AGS/prometheus-skill-system)
 - [Key takeaways from Boris Cherny on building Claude Code — WorkOS](https://workos.com/blog/boris-cherny-claude-code-acquired-interview-takeaways)
 - [Boris Cherny: Claude Code & the Future of Engineering — Acquired Unplugged (YouTube)](https://www.youtube.com/watch?v=RkQQ7WEor7w)
 - [Anthropic's Boris Cherny — manages tens of thousands of AI agents at once — Fortune](https://fortune.com/2026/06/08/anthropics-boris-cherny-creator-of-claude-code-says-there-are-days-he-manages-tens-of-thousands-of-ai-agents-at-once/)
