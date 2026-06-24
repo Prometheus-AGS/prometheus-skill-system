@@ -59,16 +59,18 @@ run() {
     fi
 }
 
-# All service labels in dependency order (pk-cherry before forge, surreal before forge)
+# All service labels in dependency order (surrealdb before surreal-memory, pk-cherry before forge)
 declare -a ALL_LABELS=(
-    "ai.prometheus.surreal-memory-docker"
+    "ai.prometheus.surrealdb-native"
+    "ai.prometheus.surreal-memory-native"
     "ai.prometheus.pk-cherry"
     "ai.prometheus.forge-mcp"
     "ai.prometheus.prometheus-nudge"
 )
 
 declare -a ALL_TEMPLATES=(
-    "ai.prometheus.surreal-memory-docker.plist"
+    "ai.prometheus.surrealdb-native.plist"
+    "ai.prometheus.surreal-memory-native.plist"
     "ai.prometheus.pk-cherry.plist"
     "ai.prometheus.forge-mcp.plist"
     "ai.prometheus.prometheus-nudge.plist"
@@ -81,10 +83,12 @@ render_plist() {
 
     [ -f "$src" ] || { echo "Template not found: $src" >&2; return 1; }
 
-    local pk_cherry_bin forge_bin docker_bin
-    pk_cherry_bin="$(resolve_bin pk-cherry)";   [ -n "$pk_cherry_bin" ] || pk_cherry_bin="/Users/gqadonis/.local/bin/pk-cherry"
-    forge_bin="$(resolve_bin forge)";           [ -n "$forge_bin" ]     || forge_bin="/Users/gqadonis/.local/bin/forge"
-    docker_bin="$(resolve_bin docker)";         [ -n "$docker_bin" ]    || docker_bin="/usr/local/bin/docker"
+    local pk_cherry_bin forge_bin docker_bin surreal_bin surreal_memory_bin
+    pk_cherry_bin="$(resolve_bin pk-cherry)";       [ -n "$pk_cherry_bin" ]     || pk_cherry_bin="/Users/gqadonis/.local/bin/pk-cherry"
+    forge_bin="$(resolve_bin forge)";               [ -n "$forge_bin" ]         || forge_bin="/Users/gqadonis/.local/bin/forge"
+    docker_bin="$(resolve_bin docker)";             [ -n "$docker_bin" ]        || docker_bin="/usr/local/bin/docker"
+    surreal_bin="$(resolve_bin surreal)";           [ -n "$surreal_bin" ]       || surreal_bin="/opt/homebrew/bin/surreal"
+    surreal_memory_bin="$PROMETHEUS_HOME/Projects/prometheus/surreal-memory-server/target/release/surreal-memory-server"
 
     python3 - "$src" "$output" <<PY
 import pathlib, sys
@@ -99,6 +103,8 @@ for k, v in {
     "__PK_CHERRY_BIN__":      "$pk_cherry_bin",
     "__FORGE_BIN__":          "$forge_bin",
     "__DOCKER_BIN__":         "$docker_bin",
+    "__SURREAL_BIN__":        "$surreal_bin",
+    "__SURREAL_MEMORY_BIN__": "$surreal_memory_bin",
 }.items():
     text = text.replace(k, v)
 dst.write_text(text)

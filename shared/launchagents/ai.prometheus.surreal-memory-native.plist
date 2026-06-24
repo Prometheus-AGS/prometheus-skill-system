@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>ai.prometheus.surreal-memory-native</string>
+
+  <!-- Runs the surreal-memory-server Rust binary natively.
+       Connects to native SurrealDB at ws://127.0.0.1:28000.
+       MCP SSE exposed on port 23001 (API_PORT=23001) to match prior Docker mapping 23001:3001.
+       No MCP client config changes required. -->
+  <key>ProgramArguments</key>
+  <array>
+    <string>__SURREAL_MEMORY_BIN__</string>
+  </array>
+
+  <key>WorkingDirectory</key>
+  <string>__PROMETHEUS_HOME__</string>
+
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>HOME</key>
+    <string>__PROMETHEUS_HOME__</string>
+    <key>USER</key>
+    <string>__PROMETHEUS_USER__</string>
+    <key>PATH</key>
+    <string>__PROMETHEUS_PATH__</string>
+
+    <!-- Database connection -->
+    <key>SURREAL_MODE</key>
+    <string>server</string>
+    <key>SURREAL_ENDPOINT</key>
+    <string>ws://127.0.0.1:28000</string>
+    <key>SURREAL_USERNAME</key>
+    <string>root</string>
+    <key>SURREAL_PASSWORD</key>
+    <string>root</string>
+    <key>SURREAL_NAMESPACE</key>
+    <string>memory</string>
+    <key>SURREAL_DATABASE</key>
+    <string>main_local_384</string>
+
+    <!-- HTTP server — bind on 23001 to preserve existing MCP client configs -->
+    <key>API_PORT</key>
+    <string>23001</string>
+    <key>MCP_STDIO</key>
+    <string>false</string>
+
+    <!-- Local embeddings (BAAI/bge-small-en-v1.5, 384-dim) -->
+    <key>EMBEDDING_PROVIDER</key>
+    <string>local</string>
+    <key>LOCAL_EMBEDDING_MODEL</key>
+    <string>BAAI/bge-small-en-v1.5</string>
+    <key>MODEL_CACHE_DIR</key>
+    <string>__PROMETHEUS_HOME__/.cache/huggingface</string>
+
+    <!-- Retry / reconnection config -->
+    <key>SURREAL_MAX_CONNECT_RETRIES</key>
+    <string>10</string>
+    <key>SURREAL_MAX_OPERATION_RETRIES</key>
+    <string>3</string>
+    <key>SURREAL_BASE_RETRY_DELAY_MS</key>
+    <string>100</string>
+    <key>SURREAL_MAX_RETRY_DELAY_MS</key>
+    <string>5000</string>
+    <key>SURREAL_RETRY_JITTER_FACTOR</key>
+    <string>0.25</string>
+
+    <key>RUST_LOG</key>
+    <string>info</string>
+  </dict>
+
+  <key>RunAtLoad</key>
+  <true/>
+  <key>KeepAlive</key>
+  <true/>
+  <key>ProcessType</key>
+  <string>Background</string>
+
+  <!-- Throttle restart to avoid hammering on crash loops -->
+  <key>ThrottleInterval</key>
+  <integer>10</integer>
+
+  <key>StandardOutPath</key>
+  <string>__PROMETHEUS_LOG_DIR__/surreal-memory-native.stdout.log</string>
+  <key>StandardErrorPath</key>
+  <string>__PROMETHEUS_LOG_DIR__/surreal-memory-native.stderr.log</string>
+</dict>
+</plist>

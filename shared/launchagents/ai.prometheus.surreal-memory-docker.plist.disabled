@@ -6,18 +6,18 @@
   <key>Label</key>
   <string>ai.prometheus.surreal-memory-docker</string>
 
+  <!-- docker start -a reattaches to the named container and blocks until it exits.
+       launchd KeepAlive will restart this job (and thus the container) if it exits. -->
   <key>ProgramArguments</key>
   <array>
     <string>__DOCKER_BIN__</string>
-    <string>compose</string>
-    <string>-f</string>
-    <string>__PROMETHEUS_ROOT__/tools/surreal-memory-server/docker-compose.yml</string>
-    <string>up</string>
-    <string>-d</string>
+    <string>start</string>
+    <string>--attach</string>
+    <string>surreal-memory-server</string>
   </array>
 
   <key>WorkingDirectory</key>
-  <string>__PROMETHEUS_ROOT__/tools/surreal-memory-server</string>
+  <string>__PROMETHEUS_HOME__</string>
 
   <key>EnvironmentVariables</key>
   <dict>
@@ -30,9 +30,15 @@
   </dict>
 
   <key>RunAtLoad</key>
-  <false/>
+  <true/>
   <key>KeepAlive</key>
-  <false/>
+  <true/>
+  <key>ProcessType</key>
+  <string>Background</string>
+
+  <!-- Throttle restart to avoid hammering Docker on crash loops -->
+  <key>ThrottleInterval</key>
+  <integer>10</integer>
 
   <key>StandardOutPath</key>
   <string>__PROMETHEUS_LOG_DIR__/surreal-memory-docker.stdout.log</string>
