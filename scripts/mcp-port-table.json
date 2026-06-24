@@ -59,11 +59,11 @@
       "command": "npx",
       "args": ["-y", "firecrawl-mcp"],
       "env": {
-        "FIRECRAWL_API_URL": "${FIRECRAWL_API_URL:-http://localhost:3002}",
-        "FIRECRAWL_API_KEY": "${FIRECRAWL_API_KEY:-}"
+        "FIRECRAWL_API_URL": "https://api.firecrawl.dev",
+        "FIRECRAWL_API_KEY": "${FIRECRAWL_API_KEY}"
       },
       "transport": "stdio",
-      "description": "Firecrawl web data pipeline MCP — 13 tools: scrape, crawl, map, extract, search, interact. Self-hosted at Prometheus AGS (AGPL-3.0). Extraction-first; use for full page content, PDFs, dynamic UIs. Use tavily for search-first discovery."
+      "description": "Firecrawl web data pipeline MCP — 13 tools: scrape, crawl, map, extract, search, interact. Uses hosted api.firecrawl.dev (key from FIRECRAWL_API_KEY env). Extraction-first; use for full page content, PDFs, dynamic UIs. Use tavily for search-first discovery."
     }
   }
 }

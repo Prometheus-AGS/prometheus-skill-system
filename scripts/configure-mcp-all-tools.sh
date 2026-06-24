@@ -23,7 +23,7 @@ PORT_TABLE="$REPO_ROOT/scripts/mcp-port-table.json"
 DRY_RUN=false
 ONLY_TOOL=""
 TAVILY_API_KEY="${TAVILY_API_KEY:-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}"
-FIRECRAWL_API_URL="${FIRECRAWL_API_URL:-http://localhost:3002}"
+FIRECRAWL_API_URL="${FIRECRAWL_API_URL:-https://api.firecrawl.dev}"
 FIRECRAWL_API_KEY="${FIRECRAWL_API_KEY:-}"
 
 while [ "$#" -gt 0 ]; do
@@ -67,9 +67,9 @@ merge_json_mcp() {
     cp "$config_file" "$backup"
 
     local node_out
-    node_out="$(node - "$config_file" "$mcp_key" "$PORT_TABLE" "$TAVILY_API_KEY" <<'JS'
+    node_out="$(node - "$config_file" "$mcp_key" "$PORT_TABLE" "$TAVILY_API_KEY" "$FIRECRAWL_API_KEY" <<'JS'
 const fs = require('fs');
-const [configPath, mcpKey, tablePath, tavilyKey] = process.argv.slice(2);
+const [configPath, mcpKey, tablePath, tavilyKey, firecrawlKey] = process.argv.slice(2);
 
 let config = {};
 try { config = JSON.parse(fs.readFileSync(configPath, 'utf8')); } catch(e) {}
@@ -89,7 +89,10 @@ for (const [name, svc] of Object.entries(table)) {
         if (svc.env) {
             entry.env = {};
             for (const [k, v] of Object.entries(svc.env)) {
-                entry.env[k] = v.replace('${TAVILY_API_KEY}', tavilyKey);
+                let resolved = v
+                    .replace('${TAVILY_API_KEY}', tavilyKey)
+                    .replace('${FIRECRAWL_API_KEY}', firecrawlKey);
+                entry.env[k] = resolved;
             }
         }
         config[mcpKey][name] = entry;
@@ -205,9 +208,24 @@ command = "npx"
 args = ["-y", "@anthropic/tavily-mcp@latest"]
 
 [mcp_servers.tavily.env]
-TAVILY_API_KEY = "${TAVILY_API_KEY:-$TAVILY_API_KEY}"
+TAVILY_API_KEY = "$TAVILY_API_KEY"
 TOML
         added+=("tavily")
+    fi
+
+    # firecrawl (stdio)
+    if ! grep -q "\[mcp_servers.firecrawl\]" "$config_file" 2>/dev/null; then
+        cat >> "$config_file" <<TOML
+
+[mcp_servers.firecrawl]
+command = "npx"
+args = ["-y", "firecrawl-mcp"]
+
+[mcp_servers.firecrawl.env]
+FIRECRAWL_API_URL = "https://api.firecrawl.dev"
+FIRECRAWL_API_KEY = "$FIRECRAWL_API_KEY"
+TOML
+        added+=("firecrawl")
     fi
 
     if [ "${#added[@]}" -gt 0 ]; then
