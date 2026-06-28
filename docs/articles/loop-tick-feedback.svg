@@ -1,0 +1,91 @@
+<svg viewBox="0 0 1080 624" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Flowchart: a loop-tick fires, then Read feedback sources fans out to four source types — command sources that run and evaluate an exit code, file sources that read and parse, URL sources that fetch and check, and gh-query sources that check GitHub state. These converge on an All-green decision: yes exits 2 to terminate successfully, no within threshold exits 0 to continue the loop, and no with threshold exceeded exits 1 to escalate to the operator">
+  <style>
+    :root {
+      --diagram-canvas:#0E151D;
+      --text:#E8EEF4;
+      --text-faint:#9DB0C2;
+      --node-bg:#1A2632;
+      --node-bg-2:#213140;
+      --decision-bg:#25384A;
+      --edge:#5E768C;
+      --accent:#E96A12;
+      --accent-2:#F49E12;
+      --good:#4FB477;
+      --cyan-node:#134852;
+      --node-accent-text:#0B0F14;
+    }
+    @media (prefers-color-scheme: light) { :root {
+      --diagram-canvas:#ECEFF2;
+      --text:#1A2129;
+      --text-faint:#5A6B7A;
+      --node-bg:#E1E7ED;
+      --node-bg-2:#D5DDE5;
+      --decision-bg:#DBE3EB;
+      --edge:#8295A6;
+      --accent:#CE3012;
+      --accent-2:#B5740A;
+      --good:#2E8B57;
+      --cyan-node:#CFE7EC;
+      --node-accent-text:#FFFFFF;
+    } }
+
+  .dg-node{fill:var(--node-bg);} .dg-node2{fill:var(--node-bg-2);}
+  .dg-accent{fill:var(--accent);} .dg-accent2{fill:var(--accent-2);}
+  .dg-good{fill:var(--good);} .dg-cyan{fill:var(--cyan-node);} .dg-decision{fill:var(--decision-bg);}
+  .dg-text-sm{fill:var(--text);font-family:'Space Grotesk',system-ui,sans-serif;font-size:12.5px;font-weight:600;}
+  .dg-text-xs{fill:var(--text-faint);font-family:'JetBrains Mono',monospace;font-size:10.5px;}
+  .dg-text-accent{fill:var(--node-accent-text);font-family:'Space Grotesk',sans-serif;font-size:12.5px;font-weight:700;}
+  .dg-elabel{fill:var(--text-faint);font-family:'JetBrains Mono',monospace;font-size:11px;}
+  .dg-edge{fill:none;stroke:var(--edge);stroke-width:1.8;}
+  </style>
+  <defs>
+    <marker id="lp" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 Z" style="fill:var(--edge)"/></marker>
+  </defs>
+  <rect x="440" y="20" width="200" height="52" rx="11" class="dg-accent2"/>
+  <text x="540" y="51" text-anchor="middle" class="dg-text-accent">loop-tick fires</text>
+  <path d="M540,72 L540,112" class="dg-edge" marker-end="url(#lp)"/>
+  <polygon points="540,110 644,150 540,190 436,150" class="dg-decision"/>
+  <text x="540" y="147" text-anchor="middle" class="dg-text-sm">Read feedback</text>
+  <text x="540" y="164" text-anchor="middle" class="dg-text-sm">sources</text>
+  <path d="M540,190 L540,230" class="dg-edge"/>
+  <path d="M150,230 L930,230" class="dg-edge"/>
+  <path d="M150,230 L150,261" class="dg-edge" marker-end="url(#lp)"/>
+  <path d="M410,230 L410,261" class="dg-edge" marker-end="url(#lp)"/>
+  <path d="M670,230 L670,261" class="dg-edge" marker-end="url(#lp)"/>
+  <path d="M930,230 L930,261" class="dg-edge" marker-end="url(#lp)"/>
+  <rect x="38" y="261" width="224" height="58" rx="11" class="dg-node"/>
+  <text x="150" y="287" text-anchor="middle" class="dg-text-sm">Command sources:</text>
+  <text x="150" y="304" text-anchor="middle" class="dg-text-xs">run, evaluate exit code</text>
+  <rect x="298" y="261" width="224" height="58" rx="11" class="dg-node"/>
+  <text x="410" y="287" text-anchor="middle" class="dg-text-sm">File sources:</text>
+  <text x="410" y="304" text-anchor="middle" class="dg-text-xs">read and parse</text>
+  <rect x="558" y="261" width="224" height="58" rx="11" class="dg-node"/>
+  <text x="670" y="287" text-anchor="middle" class="dg-text-sm">URL sources:</text>
+  <text x="670" y="304" text-anchor="middle" class="dg-text-xs">fetch and check</text>
+  <rect x="818" y="261" width="224" height="58" rx="11" class="dg-node"/>
+  <text x="930" y="287" text-anchor="middle" class="dg-text-sm">gh-query sources:</text>
+  <text x="930" y="304" text-anchor="middle" class="dg-text-xs">check GitHub state</text>
+  <path d="M150,319 L150,360" class="dg-edge"/>
+  <path d="M410,319 L410,360" class="dg-edge"/>
+  <path d="M670,319 L670,360" class="dg-edge"/>
+  <path d="M930,319 L930,360" class="dg-edge"/>
+  <path d="M150,360 L930,360" class="dg-edge"/>
+  <path d="M540,360 L540,392" class="dg-edge" marker-end="url(#lp)"/>
+  <polygon points="540,390 644,430 540,470 436,430" class="dg-decision"/>
+  <text x="540" y="435" text-anchor="middle" class="dg-text-sm">All green?</text>
+  <path d="M436,430 L240,430 L240,551" class="dg-edge" marker-end="url(#lp)"/>
+  <text x="300" y="422" text-anchor="middle" class="dg-elabel">Yes</text>
+  <path d="M644,430 L840,430 L840,551" class="dg-edge" marker-end="url(#lp)"/>
+  <text x="742" y="422" text-anchor="middle" class="dg-elabel">No · threshold exceeded</text>
+  <path d="M540,470 L540,551" class="dg-edge" marker-end="url(#lp)"/>
+  <text x="552" y="512" text-anchor="start" class="dg-elabel">No · within threshold</text>
+  <rect x="128" y="551" width="224" height="58" rx="11" class="dg-good"/>
+  <text x="240" y="577" text-anchor="middle" class="dg-text-accent">Exit 2 —</text>
+  <text x="240" y="594" text-anchor="middle" class="dg-text-accent" style="font-weight:500">terminate successfully</text>
+  <rect x="428" y="551" width="224" height="58" rx="11" class="dg-cyan"/>
+  <text x="540" y="577" text-anchor="middle" class="dg-text-sm">Exit 0 —</text>
+  <text x="540" y="594" text-anchor="middle" class="dg-text-xs">continue loop</text>
+  <rect x="728" y="551" width="224" height="58" rx="11" class="dg-accent"/>
+  <text x="840" y="577" text-anchor="middle" class="dg-text-accent">Exit 1 —</text>
+  <text x="840" y="594" text-anchor="middle" class="dg-text-accent" style="font-weight:500">escalate to operator</text>
+</svg>

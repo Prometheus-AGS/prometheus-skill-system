@@ -1,0 +1,172 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "pmpo-evolver.schema.json",
+  "title": "PmpoEvolverState",
+  "description": "Strategy router state for the pmpo-evolver skill — tracks perspective selection, competitor data, learning signals, and evolver lessons across sessions",
+  "type": "object",
+  "required": ["evolution_name", "perspective"],
+  "properties": {
+    "evolution_name": {
+      "type": "string",
+      "description": "Name of the evolution run; must match the iterative-evolver evolution_name for cross-referencing"
+    },
+    "perspective": {
+      "type": "string",
+      "enum": ["competitive", "trend", "unique-product", "idea-validation", "self-learning", "combined", "auto"],
+      "description": "Which evolution perspective the router selected or was configured for"
+    },
+    "perspective_cursor": {
+      "type": "object",
+      "description": "Tracks progress through multiple perspectives when mode=combined",
+      "properties": {
+        "current": { "type": "string" },
+        "completed": { "type": "array", "items": { "type": "string" } },
+        "pending": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "competitor_tracking": {
+      "type": "object",
+      "description": "State for the competitive perspective",
+      "properties": {
+        "registry_path": {
+          "type": "string",
+          "description": "Path to competitor-registry.json (default: .evolver/{name}/competitor-registry.json)"
+        },
+        "last_scanned": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When the competitor registry was last scanned"
+        },
+        "parity_matrix_path": {
+          "type": "string",
+          "description": "Path to parity-matrix.json"
+        }
+      }
+    },
+    "learning_signals": {
+      "type": "array",
+      "description": "Normalized feedback signals collected from all configured sources",
+      "items": {
+        "type": "object",
+        "required": ["source_type", "signal", "severity"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier for this signal (UUID recommended)"
+          },
+          "source_type": {
+            "type": "string",
+            "enum": [
+              "gh-issues",
+              "commit-history",
+              "sentiment-feed",
+              "usage-trace",
+              "telemetry-url",
+              "competitor-scan",
+              "changelog",
+              "research-query"
+            ]
+          },
+          "source_ref": {
+            "type": "string",
+            "description": "Repository, URL, or file path the signal was collected from"
+          },
+          "collected_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "signal": {
+            "type": "string",
+            "description": "Human-readable 1-2 sentence summary of what the signal means"
+          },
+          "severity": {
+            "type": "string",
+            "enum": ["high", "medium", "low"]
+          },
+          "count": {
+            "type": "integer",
+            "description": "Number of occurrences (e.g., open issues matching label)"
+          },
+          "examples": {
+            "type": "array",
+            "items": { "type": "string" },
+            "maxItems": 5,
+            "description": "Up to 5 concrete examples from the source"
+          },
+          "model_used": {
+            "type": "string",
+            "description": "liter-llm class (small|medium|frontier) or 'none' used to classify this signal"
+          }
+        }
+      }
+    },
+    "idea_origin": {
+      "type": "object",
+      "description": "How the current evolution idea was originated",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["competitive", "trend", "operator", "self-learning", "continuation"]
+        },
+        "rationale": {
+          "type": "string",
+          "description": "Why this idea was selected for the current cycle"
+        },
+        "first_seen": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "evolver_lessons": {
+      "type": "array",
+      "description": "Strategic direction lessons accumulated from post-cycle dreaming",
+      "items": {
+        "type": "object",
+        "required": ["lesson", "confidence", "category"],
+        "properties": {
+          "lesson": {
+            "type": "string",
+            "description": "What we learned about product direction in 1-2 sentences"
+          },
+          "origin_cycle": {
+            "type": "integer",
+            "description": "Which iterative-evolver cycle produced this lesson"
+          },
+          "confidence": {
+            "type": "string",
+            "enum": ["high", "medium", "low"]
+          },
+          "category": {
+            "type": "string",
+            "enum": ["direction", "threat", "opportunity", "falsified-hypothesis"]
+          },
+          "evidence": {
+            "type": "string",
+            "description": "What in the cycle journal or reflection supports this lesson"
+          },
+          "impact_on_next_cycle": {
+            "type": "string",
+            "description": "How this lesson should change what we plan in the next cycle"
+          }
+        }
+      }
+    },
+    "model_routing": {
+      "type": "object",
+      "description": "liter-llm model routing configuration for this evolver run",
+      "properties": {
+        "policy": {
+          "type": "string",
+          "enum": ["liter-llm", "harness-native", "frontier-all"],
+          "description": "Which model routing policy to apply. 'liter-llm' = use class-based routing; 'harness-native' = use the session model for all tasks; 'frontier-all' = route everything to frontier regardless of cost"
+        },
+        "class_map": {
+          "type": "object",
+          "additionalProperties": { "type": "string" },
+          "description": "Override map from phase-key to model alias. E.g. {'evolver-competitive-scan': 'frontier', 'evolver-carry-forward': 'small'}"
+        }
+      }
+    }
+  }
+}

@@ -49,7 +49,8 @@ Every piece of work flows through four layers. Each layer feeds the next.
                           ▼
 ┌─────────────────────────────────────────────────────────────────┐
 │  LAYER 2: PMPO Orchestration                                    │
-│  iterative-evolver (strategic) + kbd-process-orchestrator       │
+│  pmpo-evolver (strategy router) + iterative-evolver (strategic) │
+│  + kbd-process-orchestrator (tactical KBD loop)                 │
 │  Assess → Analyze → Plan → Execute → Reflect                    │
 │  Named cross-session state · surreal-memory · Cedar governance  │
 └─────────────────────────┬───────────────────────────────────────┘
@@ -133,9 +134,15 @@ prometheus-skill-pack/
 │   │   ├── native-agent/            ← Native agent generator (/create-native-agent)
 │   │   ├── zeespec-interrogator/    ← Layer 1: constraint interrogation
 │   │   ├── iterative-evolver/       ← Layer 2: strategic PMPO loop
+│   │   ├── pmpo-evolver/            ← Layer 2: strategy router (5 perspectives + Darwin idea gate)
+│   │   │   └── skills/validate-idea/   ← Three-gate idea validation sub-skill
 │   │   ├── kbd-process-orchestrator/ ← Layer 2: tactical KBD loop
+│   │   ├── pmpo-outer-loop/         ← Layer 3: standing loop (perspective-aware loop-tick)
+│   │   ├── pmpo-elicit/             ← Elicitation primitive with provenance
 │   │   ├── pmpo-skill-creator/      ← Skill generation via PMPO
-│   │   └── liter-llm-bridge/        ← Multi-model routing bridge
+│   │   ├── kbd-goal/                ← Goal definition with success criteria + cross-tool parity
+│   │   ├── kbd-goal-check/          ← Goal progress check and milestone verification
+│   │   └── liter-llm-bridge/        ← Multi-model routing bridge + model-discovery reference
 │   ├── rust/                    ← Rust language skills + Tera templates
 │   ├── react/                   ← React 19 skills + entity-management
 │   ├── flutter/                 ← Flutter + Rust FFI skills
@@ -184,13 +191,16 @@ prometheus-skill-pack/
 | `native-agent` | Generator | `/create-native-agent` — scaffolds complete Rust agent workspaces |
 | `zeespec-interrogator` | 1 | 60-question Zachman 5W1H constraint interrogation, GO/NO-GO manifests |
 | `iterative-evolver` | 2 | Strategic PMPO loop: Assess→Analyze→Plan→Execute→Reflect |
+| `pmpo-evolver` | 2 | Strategy router for 5 evolution perspectives: competitive, trend, unique-product, idea-validation, self-learning; liter-llm model routing; Darwin three-gate idea validation |
 | `kbd-process-orchestrator` | 1 | Tactical KBD loop (16 child skills): change management, multi-tool dispatch |
-| `pmpo-outer-loop` | 3 | Standing loop: `/loop-define`, `/loop-tick`, `/loop-report` — one tick = one evolver cycle |
+| `pmpo-outer-loop` | 3 | Standing loop: `/loop-define`, `/loop-tick`, `/loop-report` — perspective-aware; one tick = one evolver cycle |
 | `pmpo-elicit` | Gate | Ask / source / research / decide elicitation primitive with provenance |
 | `pmpo-skill-creator` | Meta | Generates and updates skills via PMPO (human-gated `--update`) |
 | `liter-llm-bridge` | Meta | Per-phase model class routing via liter-llm |
 | `ideation-mindmap` | Onramp | Concept → 6-branch tree via surreal-memory, feeds ZeeSpec |
 | `kbd-evolve` | Seed | Landscape survey → ranked evolution brief seeding `/kbd-new-phase` |
+| `kbd-goal` | Goal | Structured goal definition with success criteria, timeboxes, and cross-tool parity |
+| `kbd-goal-check` | Goal | Goal progress check and milestone verification against `goals.md` |
 
 Full detail on every process skill — commands, state files, child skills, composition — is in
 [docs/guide/09-process-skills.md](docs/guide/09-process-skills.md).

@@ -1,0 +1,82 @@
+{
+  "phase": "goal-loop-support",
+  "analyzed": "2026-06-27",
+  "candidates": [
+    {
+      "id": "opencode-goal-plugin",
+      "name": "@prevalentware/opencode-goal-plugin",
+      "verdict": "ADOPT",
+      "platform": "opencode",
+      "source": "https://github.com/prevalentWare/opencode-goal-plugin",
+      "npm": "@prevalentware/opencode-goal-plugin",
+      "reason": "Mature plugin providing full /goal for OpenCode with persistent state, auto_continue, no_progress detection, session.idle event integration. KBD auto-installs and configures.",
+      "install_command": "npx @prevalentware/opencode-goal-plugin install",
+      "config_keys": ["auto_continue", "max_auto_turns", "no_progress_token_threshold", "max_no_progress_turns", "default_token_budget"]
+    },
+    {
+      "id": "codex-goal-native",
+      "name": "codex /goal (native, Ralph loop)",
+      "verdict": "ADOPT",
+      "platform": "codex",
+      "source": "https://developers.openai.com/codex/use-cases/follow-goals",
+      "version_required": ">=0.128.0",
+      "reason": "Built-in, stable since v0.128.0. Continuation driven by goals/continuation.md and goals/budget_limit.md prompt files. KBD provides these templates and AGENTS.md context prefix.",
+      "config_keys": ["goals.enabled in ~/.codex/config.toml"],
+      "files_to_ship": ["goals/continuation.md", "goals/budget_limit.md"]
+    },
+    {
+      "id": "claude-code-goal-native",
+      "name": "claude /goal (native)",
+      "verdict": "ADOPT",
+      "platform": "claude-code",
+      "source": "https://code.claude.com/docs/en/goal",
+      "version_required": ">=2.1.139",
+      "reason": "Reference implementation. KBD augments (adds multi-phase), does not replace. Single-phase Creation tasks delegate directly to native /goal.",
+      "flags": ["--tokens", "--worktree"]
+    },
+    {
+      "id": "kbd-goal-evaluator-agent",
+      "name": "kbd-goal-evaluator (build)",
+      "verdict": "BUILD",
+      "platform": "all",
+      "path": "agents/kbd-goal-evaluator.md",
+      "reason": "No platform except Claude Code and Codex has a separated evaluator. sycophancy-correction MCP grades prose quality, not goal conditions — wrong abstraction. Build a dedicated subagent: system prompt grades stopping condition against transcript/STATE.md, returns PASS/FAIL + reason. Small fast model (Haiku or equivalent).",
+      "model_hint": "claude-haiku-4-5-20251001"
+    },
+    {
+      "id": "kbd-goal-skill",
+      "name": "kbd-goal SKILL.md (build)",
+      "verdict": "BUILD",
+      "platform": "all",
+      "path": "skills/process/kbd-goal/SKILL.md",
+      "reason": "Unified entry point. Detects active tool from project.json, routes to correct platform strategy, creates goal.json + child phases, drives the outer loop. No existing skill covers this.",
+      "installs_to": ["~/.claude/skills/", "~/.kimi-code/skills/", "~/.opencode/skills/", "~/.zed/skills/"]
+    },
+    {
+      "id": "kbd-goal-check-skill",
+      "name": "kbd-goal-check SKILL.md for Kimi (build)",
+      "verdict": "BUILD",
+      "platform": "kimi",
+      "path": "skills/process/kbd-goal-check/SKILL.md",
+      "reason": "Kimi's /goal next is queue-based, not condition-based. This skill is auto-discovered by Kimi and invoked by the agent after each turn to evaluate stopping condition. Returns PASS (with evidence) or CONTINUE (with next action hint)."
+    },
+    {
+      "id": "goal-json-schema",
+      "name": "goal.json schema (build)",
+      "verdict": "BUILD",
+      "platform": "all",
+      "path": "skills/process/kbd-goal/references/schemas/goal.schema.json",
+      "reason": "New schema extending loop.json with phases[] array, per-phase stopping_condition, IDEAS.md/SPEC.md/TASKS.md paths, and human_gate settings. Backward compatible with existing loop.json."
+    }
+  ],
+  "rejected": [
+    {
+      "id": "sycophancy-correction-as-evaluator",
+      "reason": "Grades prose sycophancy, not goal completion conditions. Wrong abstraction."
+    },
+    {
+      "id": "watzon-opencode-goal",
+      "reason": "Less maintained than prevalentWare version; prevalentWare has more config options and active PRD (issue #27339)."
+    }
+  ]
+}

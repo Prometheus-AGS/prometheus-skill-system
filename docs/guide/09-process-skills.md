@@ -5,6 +5,7 @@ The process skills are the engine. The language skills know *how to write good R
 ```mermaid
 graph TD
     OUTER["pmpo-outer-loop (L3)<br/>/loop-define · /loop-tick · /loop-report"]
+    PMPOEV["pmpo-evolver (L2 strategy router)<br/>competitive · trend · unique-product<br/>idea-validation · self-learning"]
     EVOLVER["iterative-evolver (L2)<br/>/evolve · assess→analyze→plan→execute→reflect"]
     KBD["kbd-process-orchestrator (L1)<br/>/kbd-* · 16 child skills"]
     ZEE["zeespec-interrogator<br/>constraint manifests"]
@@ -14,8 +15,10 @@ graph TD
     CREATE["pmpo-skill-creator<br/>create/clone/extend/update skills"]
     NATIVE["native-agent<br/>/create-native-agent"]
     LITER["liter-llm-bridge<br/>per-phase model routing"]
+    VIDEA["validate-idea<br/>three-gate Darwin pipeline"]
+    GOAL["kbd-goal / kbd-goal-check<br/>goal definition + progress check"]
 
-    OUTER --> EVOLVER --> KBD
+    OUTER --> PMPOEV --> EVOLVER --> KBD
     ZEE -.gates.-> EVOLVER
     ZEE -.gates.-> KBD
     ELICIT -.unknowns.-> OUTER
@@ -23,8 +26,11 @@ graph TD
     EVOLVE -.seeds.-> KBD
     IDEA -.onramp.-> ZEE
     KBD -.reflect self-improves via.-> CREATE
+    LITER -.routes models for.-> PMPOEV
     LITER -.routes models for.-> EVOLVER
     LITER -.routes models for.-> KBD
+    PMPOEV -.gates ideas via.-> VIDEA
+    GOAL -.anchors.-> KBD
 ```
 
 ---
@@ -168,9 +174,61 @@ graph LR
 
 ---
 
+## pmpo-evolver
+
+**Purpose.** A strategy router for five distinct evolution perspectives, designed for projects that have reached a stable release and need principled, research-backed direction for what to do next. It is the L2 peer to `iterative-evolver` — `iterative-evolver` runs the generic PMPO cycle; `pmpo-evolver` decides *which dimension of the problem space to evolve* before the cycle begins.
+
+**The five perspectives.**
+
+| Perspective | What it does |
+|---|---|
+| `competitive` | Competitor registry init + changelog ingestion → feature-parity and improvement delta |
+| `trend` | Domain taxonomy scan (6 clusters) → anticipated innovations and standards from web research |
+| `unique-product` | Unique-product research → next logical evolution step; anchors on carry-forwards from prior KBD reflect |
+| `idea-validation` | Darwin three-gate idea pipeline: Gate 1 (small/plausibility) → Gate 2 (medium/domain-research) → Gate 3 (frontier/spec+human-gate) |
+| `self-learning` | Commit history analysis + gh issues digest + feedback-source ingestion → learning signals |
+
+**Invocation.** `/pmpo-evolver [project-name] [--perspective <value>]` (default `auto` — router picks the perspective with the most stale data). `/pmpo-evolver-status` prints the current perspective cursor, last-run timestamps per perspective, and pending learning signals.
+
+**Model routing.** All model calls carry `[MODEL_ROUTING] phase=evolver-<key> class=<small|medium|frontier>` directives; `liter-llm` routes to the cheapest viable model. Gate 1 of idea validation: small. Gate 2: medium. Gate 3 and strategic dreaming: frontier. Carry-forward aggregation: pure bash (no model needed).
+
+**Post-cycle strategic dreaming.** After each KBD reflect, `post-cycle-dream.sh` invokes the frontier model to ask "what did we learn about product direction?" and appends structured `evolver_lessons[]` to `state.json`. This is distinct from PMPO Reflect (execution quality) — dreaming asks about *where the product should go next*.
+
+**Inner-loop bridge.** `evolver-seed-phase.sh` takes an approved idea from the Archive of Stepping Stones and creates a ready-to-assess KBD phase: `goals.md`, `progress.json`, `evolver-bridge.json`. This is the handoff from L2 strategic decision to L1 tactical execution.
+
+**State.** `.evolver/evolutions/<name>/state.json` (extended with `learning_signals[]`, `perspective`, `perspective_cursor`, `evolver_lessons[]`), `.evolver/<name>/archive/<idea-id>/manifest.json` (Archive of Stepping Stones), and per-perspective data under `.evolver/<name>/competitors/`, `.evolver/<name>/signals/`.
+
+**Sub-skill: validate-idea.** A discrete three-gate idea validation pipeline callable as `/validate-idea "<idea text>" [--evolution-name <name>] [--auto-gate]`. Gate 1 runs `idea-gate-1.sh` (keyword scan vs. `skills/`, backlog check, liter-llm binary classification) in ~30 s. Gate 2 runs domain research + feasibility scoring (0–100) + prior art + competitive check in ~5 min. Gate 3 produces a `SPEC.md`, runs a verifiability check, and escalates via `/pmpo-elicit` for the human gate. Each idea is archived to the Archive of Stepping Stones with a `revisit_weight`: 1.0 (approved), 0.5 (approved but not yet executed), 0.3 (Gate 2 reject), 0.1 (Gate 1 reject), 0.0 (hard reject).
+
+**Outer-loop integration.** `loop.json` accepts a `perspective` field (`competitive|trend|unique-product|idea-validation|self-learning|auto`). When set, each `/loop-tick` passes `--perspective <value>` to the evolver. This means a standing outer loop can be locked to a single perspective for a sprint, then switched.
+
+**Key scripts.** `competitor-registry-init.sh`, `changelog-fetch.sh`, `commit-history-analyze.sh`, `feedback-digest.sh`, `carry-forward-aggregate.sh`, `post-cycle-dream.sh`, `evolver-seed-phase.sh`, `idea-gate-1.sh`.
+
+**References.** `competitive-analysis.md`, `learning-signals.md`, `strategic-dreaming.md`, `domain-taxonomy.md`, `context-management.md`, `model-routing.md`, `liter-llm-bridge/references/model-discovery.md`.
+
+---
+
+## kbd-goal
+
+**Purpose.** Structured goal definition for a KBD phase. Produces a `goals.md` with named goals, acceptance criteria, success metrics, timebox, and a cross-tool compatibility note so any AI harness (Claude Code, Codex, OpenCode, Kimi, Zed) can interpret the goal contract identically.
+
+**Invocation.** `/kbd-goal [phase-name]`. Reads any existing `goals.md`; prompts for goals, success criteria, and timebox when not supplied; writes the canonical `goals.md` and updates `current-waypoint.json`.
+
+**Cross-tool parity.** Goal files are plain Markdown and are designed to be interpretable by any harness — the format is intentionally harness-agnostic. Goal text and acceptance criteria use no platform-specific syntax.
+
+---
+
+## kbd-goal-check
+
+**Purpose.** Goal progress check and milestone verification. Reads the active phase's `goals.md` and `progress.json`, runs a goal-backward analysis against the delivered changes, and emits a structured verification report.
+
+**Invocation.** `/kbd-goal-check [phase-name]`. Designed to be called at any point during execute (mid-phase check) or at reflect (final verification). Produces a table of goals with MET / PARTIAL / NOT MET status and concrete evidence from completed changes.
+
+---
+
 ## How they compose
 
-The composition is strictly hierarchical, and that is what keeps it debuggable. The outer loop ticks the evolver; the evolver, in the software domain, delegates execute to the KBD orchestrator; the orchestrator runs phases and, at each gate, calls ZeeSpec (when under-constrained), `pmpo-elicit` (for unknowns), `artifact-refiner` and `bdd-testing` (for QA), and `pmpo-skill-creator` (for self-improvement). `kbd-evolve` and `ideation-mindmap` seed new work; `liter-llm-bridge` supplies the model routing underneath all of it; `native-agent` is the one that produces standalone, deployable artifacts. Every one of these is a discrete skill with a discrete responsibility — which is precisely why the system compounds instead of tangling.
+The composition is strictly hierarchical, and that is what keeps it debuggable. The outer loop (L3, `pmpo-outer-loop`) ticks the strategy router (`pmpo-evolver`), which decides *which dimension of the problem space to evolve* — competitive, trend, unique-product, idea-validation, or self-learning — and then hands off to `iterative-evolver` (the generic L2 PMPO cycle). The evolver, in the software domain, delegates execute to the KBD orchestrator (L1); the orchestrator runs phases and, at each gate, calls ZeeSpec (when under-constrained), `pmpo-elicit` (for unknowns), `artifact-refiner` and `bdd-testing` (for QA), and `pmpo-skill-creator` (for self-improvement). When the evolver approves an idea, `evolver-seed-phase.sh` seeds a new KBD phase from the Archive of Stepping Stones. `kbd-goal` and `kbd-goal-check` anchor goals at phase boundaries. `kbd-evolve` and `ideation-mindmap` seed new work; `liter-llm-bridge` supplies the model routing underneath all of it; `native-agent` is the one that produces standalone, deployable artifacts. Every one of these is a discrete skill with a discrete responsibility — which is precisely why the system compounds instead of tangling.
 
 ---
 

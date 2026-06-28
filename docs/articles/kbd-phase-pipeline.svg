@@ -1,0 +1,66 @@
+<svg viewBox="0 0 1060 380" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Flowchart of the KBD phase pipeline: kbd-assess, kbd-analyze, kbd-plan, kbd-execute, and kbd-reflect run in sequence. After kbd-reflect, a Next-phase loop returns to kbd-assess to run the next phase, or on Phase complete it writes to surreal-memory and then updates the prometheus-knowledge knowledge base">
+  <style>
+    :root {
+      --diagram-canvas:#0E151D;
+      --text:#E8EEF4;
+      --text-faint:#9DB0C2;
+      --node-bg:#1A2632;
+      --node-bg-2:#213140;
+      --edge:#5E768C;
+      --accent:#E96A12;
+      --accent-2:#F49E12;
+      --node-accent-text:#0B0F14;
+    }
+    @media (prefers-color-scheme: light) { :root {
+      --diagram-canvas:#ECEFF2;
+      --text:#1A2129;
+      --text-faint:#5A6B7A;
+      --node-bg:#E1E7ED;
+      --node-bg-2:#D5DDE5;
+      --edge:#8295A6;
+      --accent:#CE3012;
+      --accent-2:#B5740A;
+      --node-accent-text:#FFFFFF;
+    } }
+
+  .dg-node{fill:var(--node-bg);} .dg-node2{fill:var(--node-bg-2);}
+  .dg-accent{fill:var(--accent);} .dg-accent2{fill:var(--accent-2);}
+  .dg-text-sm{fill:var(--text);font-family:'Space Grotesk',system-ui,sans-serif;font-size:12.5px;font-weight:600;}
+  .dg-text-xs{fill:var(--text-faint);font-family:'JetBrains Mono',monospace;font-size:10.5px;}
+  .dg-text-accent{fill:var(--node-accent-text);font-family:'Space Grotesk',sans-serif;font-size:12.5px;font-weight:700;}
+  .dg-mono{fill:var(--text);font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:500;}
+  .dg-mono-accent{fill:var(--node-accent-text);font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;}
+  .dg-elabel{fill:var(--text-faint);font-family:'JetBrains Mono',monospace;font-size:11px;}
+  .dg-edge{fill:none;stroke:var(--edge);stroke-width:1.8;}
+  .dg-edge-accent{fill:none;stroke:var(--accent);stroke-width:2;}
+  </style>
+  <defs>
+    <marker id="kp" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 Z" style="fill:var(--edge)"/></marker>
+    <marker id="kpA" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 Z" style="fill:var(--accent)"/></marker>
+  </defs>
+  <polygon points="49,122 199,122 171,178 21,178" class="dg-accent"/>
+  <text x="110" y="155" text-anchor="middle" class="dg-mono-accent">/kbd-assess/</text>
+  <polygon points="239,122 389,122 361,178 211,178" class="dg-node"/>
+  <text x="300" y="155" text-anchor="middle" class="dg-mono">/kbd-analyze/</text>
+  <polygon points="429,122 579,122 551,178 401,178" class="dg-node"/>
+  <text x="490" y="155" text-anchor="middle" class="dg-mono">/kbd-plan/</text>
+  <polygon points="619,122 769,122 741,178 591,178" class="dg-node"/>
+  <text x="680" y="155" text-anchor="middle" class="dg-mono">/kbd-execute/</text>
+  <polygon points="809,122 959,122 931,178 781,178" class="dg-node"/>
+  <text x="870" y="155" text-anchor="middle" class="dg-mono">/kbd-reflect/</text>
+  <rect x="759" y="228" width="222" height="56" rx="11" class="dg-node2"/>
+  <text x="870" y="253" text-anchor="middle" class="dg-text-sm">Write to</text>
+  <text x="870" y="269" text-anchor="middle" class="dg-text-xs">surreal-memory</text>
+  <rect x="759" y="302" width="222" height="56" rx="11" class="dg-accent2"/>
+  <text x="870" y="327" text-anchor="middle" class="dg-text-accent">Update prometheus-</text>
+  <text x="870" y="344" text-anchor="middle" class="dg-text-accent" style="font-weight:500">knowledge KB</text>
+  <path d="M185,150 L225,150" class="dg-edge" marker-end="url(#kp)"/>
+  <path d="M375,150 L415,150" class="dg-edge" marker-end="url(#kp)"/>
+  <path d="M565,150 L605,150" class="dg-edge" marker-end="url(#kp)"/>
+  <path d="M755,150 L795,150" class="dg-edge" marker-end="url(#kp)"/>
+  <path d="M870,122 L870,64 L110,64 L110,122" class="dg-edge-accent" stroke-dasharray="6 4" marker-end="url(#kpA)"/>
+  <text x="490" y="57" text-anchor="middle" class="dg-elabel" style="fill:var(--accent)">Next phase</text>
+  <path d="M870,178 L870,228" class="dg-edge" marker-end="url(#kp)"/>
+  <text x="884" y="207" class="dg-elabel">Phase complete</text>
+  <path d="M870,284 L870,302" class="dg-edge" marker-end="url(#kp)"/>
+</svg>

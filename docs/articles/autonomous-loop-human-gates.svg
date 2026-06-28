@@ -1,0 +1,107 @@
+<svg viewBox="0 0 1120 880" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Flowchart of an autonomous loop with human gates. The operator writes loop.json, then an autonomous chain runs: loop execution, KBD phase execution, context priming via pk-focus, evaluate-session write-back, and a sycophancy gate on reflection. An escalation-threshold decision loops back to loop execution if no, or routes to a HUMAN GATE operator review if yes; that review asks continue, adjust, or abandon — continue loops back to execution, adjust restarts at loop.json. Separately, evaluate-session also proposes a skill-update candidate, which goes to a HUMAN GATE pmpo-skill-creator review: approve updates the skill in place, reject archives the candidate">
+  <style>
+    :root {
+      --diagram-canvas:#0E151D;
+      --text:#E8EEF4;
+      --text-faint:#9DB0C2;
+      --node-bg:#1A2632;
+      --node-bg-2:#213140;
+      --decision-bg:#25384A;
+      --edge:#5E768C;
+      --accent:#E96A12;
+      --accent-2:#F49E12;
+      --good:#4FB477;
+      --node-accent-text:#0B0F14;
+      --tag-accent:#0B0F14;
+    }
+    @media (prefers-color-scheme: light) { :root {
+      --diagram-canvas:#ECEFF2;
+      --text:#1A2129;
+      --text-faint:#5A6B7A;
+      --node-bg:#E1E7ED;
+      --node-bg-2:#D5DDE5;
+      --decision-bg:#DBE3EB;
+      --edge:#8295A6;
+      --accent:#CE3012;
+      --accent-2:#B5740A;
+      --good:#2E8B57;
+      --node-accent-text:#FFFFFF;
+      --tag-accent:#FFFFFF;
+    } }
+
+  .dg-node{fill:var(--node-bg);} .dg-node2{fill:var(--node-bg-2);}
+  .dg-accent{fill:var(--accent);} .dg-accent2{fill:var(--accent-2);} .dg-good{fill:var(--good);} .dg-decision{fill:var(--decision-bg);}
+  .dg-text-sm{fill:var(--text);font-family:'Space Grotesk',system-ui,sans-serif;font-size:12.5px;font-weight:600;}
+  .dg-text-accent{fill:var(--node-accent-text);font-family:'Space Grotesk',sans-serif;font-size:12.5px;font-weight:700;}
+  .dg-tag{fill:var(--text-faint);font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;}
+  .dg-tag-accent{fill:var(--tag-accent);font-family:'JetBrains Mono',monospace;font-size:9.5px;font-weight:600;letter-spacing:.1em;}
+  .dg-elabel{fill:var(--text-faint);font-family:'JetBrains Mono',monospace;font-size:11px;}
+  .dg-edge{fill:none;stroke:var(--edge);stroke-width:1.8;}
+  .dg-edge-accent{fill:none;stroke:var(--accent);stroke-width:1.9;}
+  </style>
+  <defs>
+    <marker id="fl" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 Z" style="fill:var(--edge)"/></marker>
+    <marker id="flA" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 Z" style="fill:var(--accent)"/></marker>
+  </defs>
+  <rect x="208" y="17" width="304" height="58" rx="11" class="dg-accent2"/>
+  <text x="360" y="43" text-anchor="middle" class="dg-text-accent">write loop.json</text>
+  <text x="360" y="61" text-anchor="middle" class="dg-tag-accent">OPERATOR</text>
+  <rect x="208" y="107" width="304" height="58" rx="11" class="dg-node"/>
+  <text x="360" y="133" text-anchor="middle" class="dg-text-sm">loop execution</text>
+  <text x="360" y="151" text-anchor="middle" class="dg-tag">autonomous</text>
+  <rect x="208" y="197" width="304" height="58" rx="11" class="dg-node"/>
+  <text x="360" y="223" text-anchor="middle" class="dg-text-sm">KBD phase execution</text>
+  <text x="360" y="241" text-anchor="middle" class="dg-tag">autonomous</text>
+  <rect x="208" y="287" width="304" height="58" rx="11" class="dg-node"/>
+  <text x="360" y="313" text-anchor="middle" class="dg-text-sm">context priming · pk-focus</text>
+  <text x="360" y="331" text-anchor="middle" class="dg-tag">autonomous</text>
+  <rect x="208" y="377" width="304" height="58" rx="11" class="dg-node"/>
+  <text x="360" y="403" text-anchor="middle" class="dg-text-sm">evaluate-session write-back</text>
+  <text x="360" y="421" text-anchor="middle" class="dg-tag">autonomous</text>
+  <rect x="208" y="467" width="304" height="58" rx="11" class="dg-node"/>
+  <text x="360" y="493" text-anchor="middle" class="dg-text-sm">sycophancy gate · reflection</text>
+  <text x="360" y="511" text-anchor="middle" class="dg-tag">autonomous</text>
+  <polygon points="360,556 442,598 360,640 278,598" class="dg-decision"/>
+  <text x="360" y="595" text-anchor="middle" class="dg-text-sm">Escalation</text>
+  <text x="360" y="612" text-anchor="middle" class="dg-text-sm">threshold?</text>
+  <rect x="208" y="665" width="304" height="58" rx="11" class="dg-accent"/>
+  <text x="360" y="691" text-anchor="middle" class="dg-text-accent">operator review</text>
+  <text x="360" y="709" text-anchor="middle" class="dg-tag-accent">HUMAN GATE</text>
+  <polygon points="360,748 456,792 360,836 264,792" class="dg-decision"/>
+  <text x="360" y="789" text-anchor="middle" class="dg-text-sm">Continue / adjust</text>
+  <text x="360" y="806" text-anchor="middle" class="dg-text-sm">/ abandon?</text>
+  <rect x="682" y="377" width="276" height="58" rx="11" class="dg-node"/>
+  <text x="820" y="403" text-anchor="middle" class="dg-text-sm">propose-skill-update</text>
+  <text x="820" y="421" text-anchor="middle" class="dg-tag">autonomous</text>
+  <rect x="682" y="491" width="276" height="58" rx="11" class="dg-accent"/>
+  <text x="820" y="517" text-anchor="middle" class="dg-text-accent">pmpo-skill-creator --update</text>
+  <text x="820" y="535" text-anchor="middle" class="dg-tag-accent">HUMAN GATE</text>
+  <rect x="594" y="612" width="212" height="56" rx="11" class="dg-good"/>
+  <text x="700" y="645" text-anchor="middle" class="dg-text-accent">Skill updated in place</text>
+  <rect x="846" y="612" width="196" height="56" rx="11" class="dg-node2"/>
+  <text x="944" y="645" text-anchor="middle" class="dg-text-sm">Candidate archived</text>
+  <path d="M360,75 L360,107" class="dg-edge" marker-end="url(#fl)"/>
+  <path d="M360,165 L360,197" class="dg-edge" marker-end="url(#fl)"/>
+  <path d="M360,255 L360,287" class="dg-edge" marker-end="url(#fl)"/>
+  <path d="M360,345 L360,377" class="dg-edge" marker-end="url(#fl)"/>
+  <path d="M360,435 L360,467" class="dg-edge" marker-end="url(#fl)"/>
+  <path d="M360,525 L360,556" class="dg-edge" marker-end="url(#fl)"/>
+  <path d="M360,640 L360,665" class="dg-edge" marker-end="url(#fl)"/>
+  <text x="374" y="658" text-anchor="start" class="dg-elabel">Yes</text>
+  <path d="M360,723 L360,748" class="dg-edge" marker-end="url(#fl)"/>
+  <path d="M512,406 L682,406" class="dg-edge" marker-end="url(#fl)"/>
+  <text x="597" y="398" text-anchor="middle" class="dg-elabel">propose</text>
+  <path d="M820,435 L820,491" class="dg-edge" marker-end="url(#fl)"/>
+  <path d="M820,549 L820,584" class="dg-edge"/>
+  <path d="M700,584 L940,584" class="dg-edge"/>
+  <path d="M700,584 L700,612" class="dg-edge" marker-end="url(#fl)"/>
+  <path d="M940,584 L940,612" class="dg-edge" marker-end="url(#fl)"/>
+  <text x="760" y="576" text-anchor="middle" class="dg-elabel">Approve</text>
+  <text x="884" y="576" text-anchor="middle" class="dg-elabel">Reject</text>
+  <path d="M278,598 L180,598 L180,122 L208,122" class="dg-edge-accent" stroke-dasharray="6 4" marker-end="url(#flA)"/>
+  <text x="244" y="590" text-anchor="middle" class="dg-elabel" style="fill:var(--accent)">No</text>
+  <path d="M264,792 L128,792 L128,150 L208,150" class="dg-edge-accent" stroke-dasharray="6 4" marker-end="url(#flA)"/>
+  <text x="258" y="786" text-anchor="end" class="dg-elabel" style="fill:var(--accent)">Continue</text>
+  <path d="M360,836 L78,836 L78,46 L208,46" class="dg-edge-accent" stroke-dasharray="6 4" marker-end="url(#flA)"/>
+  <text x="300" y="856" text-anchor="start" class="dg-elabel" style="fill:var(--accent)">Adjust</text>
+</svg>

@@ -45,6 +45,25 @@ caller protocol and consumers.
   read-only scoped child loop returning `result.json`. Callers see the identical
   contract; only isolation differs.
 
+## Platform Mode
+
+On **Claude Code**, the `AskUserQuestion` built-in tool presents options synchronously —
+no checkpoint file is needed. Result is available immediately.
+
+On **all other platforms** (Codex, OpenCode, Kimi, Zed, Cursor, Windsurf), elicitation
+uses the file-based async contract:
+
+1. The calling stage invokes `scripts/pmpo-elicit-checkpoint.sh <elicit-dir> "<question>" <criticality> <caller> [hints...]`.
+2. The script writes `request.json`, `checkpoint.json`, and `request-prompt.txt` under
+   `<elicit-dir>/`, then exits 2 (BLOCKED — loop must pause).
+3. The operator reads `request-prompt.txt` (human-readable) and writes `result.json` with
+   their answer (`{kind:"result", id, answer, provenance}`).
+4. The calling stage invokes `scripts/pmpo-elicit-resume.sh <elicit-dir>` to read the
+   result and continue.
+
+See `references/checkpoint-contract.md` for the full caller integration protocol and
+`references/escalation-points.md` for the platform routing table and stage trigger map.
+
 ## Progress Signals (MANDATORY)
 
 Before any other action, emit:

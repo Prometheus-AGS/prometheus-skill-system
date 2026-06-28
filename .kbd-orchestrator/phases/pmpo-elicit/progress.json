@@ -1,0 +1,20 @@
+{
+  "phase": "pmpo-elicit",
+  "stage": "reflect_ready",
+  "changes_total": 6,
+  "changes_completed": 6,
+  "active_change": null,
+  "next_pending_change": null,
+  "assessment_complete": true,
+  "plan_complete": true,
+  "changes": [
+    { "id": "change-elicit-001", "title": "Async checkpoint/resume infrastructure", "status": "done" },
+    { "id": "change-elicit-002", "title": "Escalation-points guide + platform routing table", "status": "done" },
+    { "id": "change-elicit-003", "title": "Install pmpo-elicit to all platforms + SKILL.md platform section", "status": "done" },
+    { "id": "change-elicit-004", "title": "kbd-analyze operative contested-stack escalation protocol", "status": "done" },
+    { "id": "change-elicit-005", "title": "kbd-goal human-gate wiring via pmpo-elicit", "status": "done" },
+    { "id": "change-elicit-006", "title": "pmpo-outer-loop stall escalation protocol + SKILLS.md description update", "status": "done" }
+  ],
+  "started": "2026-06-28",
+  "updated": "2026-06-28T00:00:00Z"
+}

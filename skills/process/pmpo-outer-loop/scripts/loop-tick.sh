@@ -7,7 +7,16 @@ set -euo pipefail
 
 LOOP_NAME="${1:-}"
 DRY_RUN=false
-[[ "${2:-}" == "--dry-run" ]] && DRY_RUN=true
+PERSPECTIVE_OVERRIDE=""
+
+shift 1 || true
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --dry-run) DRY_RUN=true; shift ;;
+    --perspective) PERSPECTIVE_OVERRIDE="${2:-}"; shift 2 ;;
+    *) shift ;;
+  esac
+done
 
 if [[ -z "$LOOP_NAME" ]]; then
   echo "Usage: $0 <loop-name> [--dry-run]" >&2
@@ -31,6 +40,18 @@ max_ticks=$(jq -r '.termination.max_ticks // 20' "$LOOP_FILE")
 max_no_progress=$(jq -r '.termination.max_no_progress_ticks // 2' "$LOOP_FILE")
 status=$(jq -r '.status // "active"' "$LOOP_FILE")
 evolution_name=$(jq -r '.evolution_name' "$LOOP_FILE")
+
+# Extract perspective from loop.json (default: auto)
+loop_perspective=$(jq -r '.perspective // "auto"' "$LOOP_FILE")
+# CLI flag overrides loop.json
+if [[ -n "${PERSPECTIVE_OVERRIDE}" ]]; then
+  effective_perspective="${PERSPECTIVE_OVERRIDE}"
+else
+  effective_perspective="${loop_perspective}"
+fi
+if [[ "${effective_perspective}" != "auto" ]]; then
+  echo "  Perspective: ${effective_perspective}"
+fi
 
 # Guard: already terminal
 if [[ "$status" == "completed" || "$status" == "escalated" ]]; then
@@ -153,6 +174,7 @@ if [[ "$DRY_RUN" == "false" ]]; then
     echo "**Outcome:** ${outcome} (${reason})"
     echo "**Feedback:** ${passed:-0} passed / ${failed:-0} failed"
     echo "**Evolution:** ${evolution_name}"
+    echo "**Perspective:** ${effective_perspective}"
     echo ""
   } >> "$JOURNAL"
 

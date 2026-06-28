@@ -193,7 +193,7 @@ This checks: Node, Rust/Cargo, Go, Docker, surreal-memory, and all Prometheus bi
 | `kbd-process-orchestrator` | KBD (Knowledge-Based Development) lifecycle orchestrator with 18 child skills |
 | `liter-llm-bridge` | LiterLLM multi-model routing bridge for cost-aware LLM pipelines |
 | `native-agent` | Generate, compile, and install native agent binaries, CLIs, and MCP servers |
-| `pmpo-elicit` | PMPO artifact elicitation: draw out requirements, constraints, and goals |
+| `pmpo-elicit` | Ask-or-research human escalation primitive: present a decision with four option classes (direct answer / named source / autonomous research / explicit implicit), collect a structured answer with provenance, support async pause/resume across all platforms |
 | `pmpo-outer-loop` | PMPO outer loop orchestrator for cross-session evolution management |
 | `pmpo-skill-creator` | Create, clone, extend, and validate skills (4 child skills) |
 | `zeespec-interrogator` | ZeeSpec specification interrogation and requirement extraction |

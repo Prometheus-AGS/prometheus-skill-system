@@ -1,0 +1,161 @@
+<svg viewBox="0 0 916 797" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Comparison table of Claude Code /loop alone versus /loop with prometheus-skill-pack across fifteen capabilities. Both support repeating agent execution, goal-conditioned termination, worktree isolation, and a fleet dashboard. Only /loop with the skill-pack adds cross-session memory, context priming, an anti-sycophancy reflection gate, cross-tool support across seven tools, self-hosted Firecrawl web extraction, human-gated self-updating skills, structured KBD phase discipline, periodic background KB enrichment, a learning-log to skill-candidate pipeline, nested loops, and cross-context progress signals.">
+  <style>
+    :root {
+      --rhead:#16212C;
+      --ra:#0F1820;
+      --rb:#131E28;
+      --text:#E8EEF4;
+      --dim:#C4D2DE;
+      --cap:#E8EEF4;
+      --code:#F49E12;
+      --head:#E8EEF4;
+      --good:#4FB477;
+      --check:#0B1116;
+      --no:#6E8398;
+    }
+    @media (prefers-color-scheme: light) { :root {
+      --rhead:#E6E2DC;
+      --ra:#F1EEE9;
+      --rb:#E9E5DF;
+      --text:#1A2129;
+      --dim:#3E4A57;
+      --cap:#1A2129;
+      --code:#B5740A;
+      --head:#1A2129;
+      --good:#2E8B57;
+      --check:#FFFFFF;
+      --no:#93A2AF;
+    } }
+
+  .r-head{fill:var(--rhead);} .r-a{fill:var(--ra);} .r-b{fill:var(--rb);}
+  .t-head{fill:var(--head);font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:600;}
+  .t-head-code{fill:var(--code);font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:500;}
+  .t-cap{fill:var(--cap);font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:600;}
+  .t-body{fill:var(--dim);font-family:'Inter',sans-serif;font-size:13px;}
+  .t-code{fill:var(--code);font-family:'JetBrains Mono',monospace;font-size:12px;}
+  .m-yes{fill:var(--good);}
+  .m-check{fill:none;stroke:var(--check);stroke-width:2.1;stroke-linecap:round;stroke-linejoin:round;}
+  .m-no{fill:none;stroke:var(--no);stroke-width:2.2;stroke-linecap:round;}
+  </style>
+  <defs><clipPath id="rnd"><rect x="0" y="0" width="916" height="797" rx="14"/></clipPath></defs>
+  <g clip-path="url(#rnd)">
+    <rect x="0" y="0" width="916" height="37" class="r-head"/>
+    <rect x="0" y="37" width="916" height="46" class="r-a"/>
+    <rect x="0" y="83" width="916" height="46" class="r-b"/>
+    <rect x="0" y="129" width="916" height="46" class="r-a"/>
+    <rect x="0" y="175" width="916" height="46" class="r-b"/>
+    <rect x="0" y="221" width="916" height="46" class="r-a"/>
+    <rect x="0" y="267" width="916" height="46" class="r-b"/>
+    <rect x="0" y="313" width="916" height="56" class="r-a"/>
+    <rect x="0" y="369" width="916" height="56" class="r-b"/>
+    <rect x="0" y="425" width="916" height="56" class="r-a"/>
+    <rect x="0" y="481" width="916" height="46" class="r-b"/>
+    <rect x="0" y="527" width="916" height="46" class="r-a"/>
+    <rect x="0" y="573" width="916" height="56" class="r-b"/>
+    <rect x="0" y="629" width="916" height="56" class="r-a"/>
+    <rect x="0" y="685" width="916" height="56" class="r-b"/>
+    <rect x="0" y="741" width="916" height="56" class="r-a"/>
+  </g>
+  <text x="22" y="26"><tspan class="t-head">Capability</tspan></text>
+  <text x="276" y="26"><tspan class="t-head">Claude</tspan><tspan class="t-head"> </tspan><tspan class="t-head">Code</tspan><tspan class="t-head"> </tspan><tspan class="t-head-code">/loop</tspan><tspan class="t-head"> </tspan><tspan class="t-head">alone</tspan></text>
+  <text x="490" y="26"><tspan class="t-head-code">/loop</tspan><tspan class="t-head"> </tspan><tspan class="t-head">+</tspan><tspan class="t-head"> </tspan><tspan class="t-head">prometheus-skill-pack</tspan></text>
+  <text x="22" y="63" class="t-cap">Repeating agent execution</text>
+  <rect x="276" y="50" width="16" height="16" rx="4" class="m-yes"/>
+  <path d="M279.5,58 L282.6,61.4 L288.6,54" class="m-check"/>
+  <rect x="490" y="50" width="16" height="16" rx="4" class="m-yes"/>
+  <path d="M493.5,58 L496.6,61.4 L502.6,54" class="m-check"/>
+  <text x="22" y="109" class="t-cap">Goal-conditioned termination</text>
+  <rect x="276" y="96" width="16" height="16" rx="4" class="m-yes"/>
+  <path d="M279.5,104 L282.6,107.4 L288.6,100" class="m-check"/>
+  <text x="300" y="109"><tspan class="t-code">/goal</tspan></text>
+  <rect x="490" y="96" width="16" height="16" rx="4" class="m-yes"/>
+  <path d="M493.5,104 L496.6,107.4 L502.6,100" class="m-check"/>
+  <text x="514" y="109"><tspan class="t-body">+</tspan><tspan class="t-body"> </tspan><tspan class="t-code">loop-tick.sh</tspan><tspan class="t-body"> </tspan><tspan class="t-body">feedback</tspan><tspan class="t-body"> </tspan><tspan class="t-body">sources</tspan></text>
+  <text x="22" y="155" class="t-cap">Worktree isolation</text>
+  <rect x="276" y="142" width="16" height="16" rx="4" class="m-yes"/>
+  <path d="M279.5,150 L282.6,153.4 L288.6,146" class="m-check"/>
+  <rect x="490" y="142" width="16" height="16" rx="4" class="m-yes"/>
+  <path d="M493.5,150 L496.6,153.4 L502.6,146" class="m-check"/>
+  <text x="514" y="155"><tspan class="t-body">+</tspan><tspan class="t-body"> </tspan><tspan class="t-body">portable</tspan><tspan class="t-body"> </tspan><tspan class="t-body">across</tspan><tspan class="t-body"> </tspan><tspan class="t-body">tools</tspan></text>
+  <text x="22" y="201" class="t-cap">Fleet dashboard</text>
+  <rect x="276" y="188" width="16" height="16" rx="4" class="m-yes"/>
+  <path d="M279.5,196 L282.6,199.4 L288.6,192" class="m-check"/>
+  <text x="300" y="201"><tspan class="t-body">Agent</tspan><tspan class="t-body"> </tspan><tspan class="t-body">View</tspan></text>
+  <rect x="490" y="188" width="16" height="16" rx="4" class="m-yes"/>
+  <path d="M493.5,196 L496.6,199.4 L502.6,192" class="m-check"/>
+  <text x="22" y="247" class="t-cap">Cross-session memory</text>
+  <path d="M279,236 L289,246" class="m-no"/>
+  <path d="M289,236 L279,246" class="m-no"/>
+  <rect x="490" y="234" width="16" height="16" rx="4" class="m-yes"/>
+  <path d="M493.5,242 L496.6,245.4 L502.6,238" class="m-check"/>
+  <text x="514" y="247"><tspan class="t-body">surreal-memory</tspan><tspan class="t-body"> </tspan><tspan class="t-body">+</tspan><tspan class="t-body"> </tspan><tspan class="t-body">prometheus-knowledge</tspan></text>
+  <text x="22" y="293" class="t-cap">Context priming at loop start</text>
+  <path d="M279,282 L289,292" class="m-no"/>
+  <path d="M289,282 L279,292" class="m-no"/>
+  <rect x="490" y="280" width="16" height="16" rx="4" class="m-yes"/>
+  <path d="M493.5,288 L496.6,291.4 L502.6,284" class="m-check"/>
+  <text x="514" y="293"><tspan class="t-code">pk-focus-on-prompt.sh</tspan></text>
+  <text x="22" y="339" class="t-cap">Anti-sycophancy gate on</text>
+  <text x="22" y="358" class="t-cap">reflection</text>
+  <path d="M279,328 L289,338" class="m-no"/>
+  <path d="M289,328 L279,338" class="m-no"/>
+  <rect x="490" y="326" width="16" height="16" rx="4" class="m-yes"/>
+  <path d="M493.5,334 L496.6,337.4 L502.6,330" class="m-check"/>
+  <text x="514" y="339"><tspan class="t-body">sycophancy-correction</tspan><tspan class="t-body"> </tspan><tspan class="t-body">MCP</tspan></text>
+  <text x="22" y="395" class="t-cap">Cross-tool support</text>
+  <path d="M279,384 L289,394" class="m-no"/>
+  <path d="M289,384 L279,394" class="m-no"/>
+  <text x="300" y="395"><tspan class="t-body">Claude</tspan><tspan class="t-body"> </tspan><tspan class="t-body">Code</tspan><tspan class="t-body"> </tspan><tspan class="t-body">only</tspan></text>
+  <rect x="490" y="382" width="16" height="16" rx="4" class="m-yes"/>
+  <path d="M493.5,390 L496.6,393.4 L502.6,386" class="m-check"/>
+  <text x="514" y="395"><tspan class="t-body">7</tspan><tspan class="t-body"> </tspan><tspan class="t-body">tools:</tspan><tspan class="t-body"> </tspan><tspan class="t-body">Claude</tspan><tspan class="t-body"> </tspan><tspan class="t-body">Code,</tspan><tspan class="t-body"> </tspan><tspan class="t-body">OpenCode,</tspan><tspan class="t-body"> </tspan><tspan class="t-body">Codex,</tspan><tspan class="t-body"> </tspan><tspan class="t-body">Kimi</tspan><tspan class="t-body"> </tspan><tspan class="t-body">Code,</tspan><tspan class="t-body"> </tspan><tspan class="t-body">MiniMax,</tspan></text>
+  <text x="514" y="414"><tspan class="t-body">Cursor,</tspan><tspan class="t-body"> </tspan><tspan class="t-body">Windsurf</tspan></text>
+  <text x="22" y="451" class="t-cap">Web extraction (Firecrawl,</text>
+  <text x="22" y="470" class="t-cap">self-hosted)</text>
+  <path d="M279,440 L289,450" class="m-no"/>
+  <path d="M289,440 L279,450" class="m-no"/>
+  <rect x="490" y="438" width="16" height="16" rx="4" class="m-yes"/>
+  <path d="M493.5,446 L496.6,449.4 L502.6,442" class="m-check"/>
+  <text x="514" y="451"><tspan class="t-body">firecrawl</tspan><tspan class="t-body"> </tspan><tspan class="t-body">MCP</tspan><tspan class="t-body"> </tspan><tspan class="t-body">at</tspan><tspan class="t-body"> </tspan><tspan class="t-code">:8948</tspan><tspan class="t-body"> </tspan><tspan class="t-body">—</tspan><tspan class="t-body"> </tspan><tspan class="t-body">full</tspan><tspan class="t-body"> </tspan><tspan class="t-body">scrape/crawl/extract/interact,</tspan><tspan class="t-body"> </tspan><tspan class="t-body">no</tspan></text>
+  <text x="514" y="470"><tspan class="t-body">cloud</tspan><tspan class="t-body"> </tspan><tspan class="t-body">dependency</tspan></text>
+  <text x="22" y="507" class="t-cap">Self-updating skills (human-gated)</text>
+  <path d="M279,496 L289,506" class="m-no"/>
+  <path d="M289,496 L279,506" class="m-no"/>
+  <rect x="490" y="494" width="16" height="16" rx="4" class="m-yes"/>
+  <path d="M493.5,502 L496.6,505.4 L502.6,498" class="m-check"/>
+  <text x="514" y="507"><tspan class="t-body">pmpo-skill-creator</tspan><tspan class="t-body"> </tspan><tspan class="t-body">--update</tspan></text>
+  <text x="22" y="553" class="t-cap">Structured phase discipline (KBD)</text>
+  <path d="M279,542 L289,552" class="m-no"/>
+  <path d="M289,542 L279,552" class="m-no"/>
+  <rect x="490" y="540" width="16" height="16" rx="4" class="m-yes"/>
+  <path d="M493.5,548 L496.6,551.4 L502.6,544" class="m-check"/>
+  <text x="514" y="553"><tspan class="t-body">assess</tspan><tspan class="t-body"> </tspan><tspan class="t-body">→</tspan><tspan class="t-body"> </tspan><tspan class="t-body">analyze</tspan><tspan class="t-body"> </tspan><tspan class="t-body">→</tspan><tspan class="t-body"> </tspan><tspan class="t-body">plan</tspan><tspan class="t-body"> </tspan><tspan class="t-body">→</tspan><tspan class="t-body"> </tspan><tspan class="t-body">execute</tspan><tspan class="t-body"> </tspan><tspan class="t-body">→</tspan><tspan class="t-body"> </tspan><tspan class="t-body">reflect</tspan></text>
+  <text x="22" y="599" class="t-cap">Periodic KB enrichment</text>
+  <text x="22" y="618" class="t-cap">(background)</text>
+  <path d="M279,588 L289,598" class="m-no"/>
+  <path d="M289,588 L279,598" class="m-no"/>
+  <rect x="490" y="586" width="16" height="16" rx="4" class="m-yes"/>
+  <path d="M493.5,594 L496.6,597.4 L502.6,590" class="m-check"/>
+  <text x="514" y="599"><tspan class="t-body">prometheus-nudge</tspan><tspan class="t-body"> </tspan><tspan class="t-body">every</tspan><tspan class="t-body"> </tspan><tspan class="t-body">4h</tspan></text>
+  <text x="22" y="655" class="t-cap">Learning log → skill candidate</text>
+  <text x="22" y="674" class="t-cap">pipeline</text>
+  <path d="M279,644 L289,654" class="m-no"/>
+  <path d="M289,644 L279,654" class="m-no"/>
+  <rect x="490" y="642" width="16" height="16" rx="4" class="m-yes"/>
+  <path d="M493.5,650 L496.6,653.4 L502.6,646" class="m-check"/>
+  <text x="514" y="655"><tspan class="t-body">evaluate-session</tspan><tspan class="t-body"> </tspan><tspan class="t-body">→</tspan><tspan class="t-body"> </tspan><tspan class="t-body">propose-skill-update</tspan></text>
+  <text x="22" y="711" class="t-cap">Nested loops (parent phase → child</text>
+  <text x="22" y="730" class="t-cap">change)</text>
+  <path d="M279,700 L289,710" class="m-no"/>
+  <path d="M289,700 L279,710" class="m-no"/>
+  <rect x="490" y="698" width="16" height="16" rx="4" class="m-yes"/>
+  <path d="M493.5,706 L496.6,709.4 L502.6,702" class="m-check"/>
+  <text x="514" y="711"><tspan class="t-body">KBD</tspan><tspan class="t-body"> </tspan><tspan class="t-body">inner</tspan><tspan class="t-body"> </tspan><tspan class="t-body">+</tspan><tspan class="t-body"> </tspan><tspan class="t-body">pmpo-outer-loop</tspan></text>
+  <text x="22" y="767" class="t-cap">Progress signals across context</text>
+  <text x="22" y="786" class="t-cap">windows</text>
+  <path d="M279,756 L289,766" class="m-no"/>
+  <path d="M289,756 L279,766" class="m-no"/>
+  <rect x="490" y="754" width="16" height="16" rx="4" class="m-yes"/>
+  <path d="M493.5,762 L496.6,765.4 L502.6,758" class="m-check"/>
+  <text x="514" y="767"><tspan class="t-code">position-reminder.txt</tspan><tspan class="t-body"> </tspan><tspan class="t-body">protocol</tspan></text>
+</svg>

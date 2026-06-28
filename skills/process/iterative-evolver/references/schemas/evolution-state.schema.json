@@ -142,6 +142,33 @@
           "convergence_decision": { "type": "string" }
         }
       }
+    },
+    "learning_signals": {
+      "type": "array",
+      "description": "Normalized feedback signals from pmpo-evolver self-learning perspective. See pmpo-evolver.schema.json#/properties/learning_signals for item shape.",
+      "items": {
+        "type": "object",
+        "required": ["source_type", "signal", "severity"],
+        "properties": {
+          "id": { "type": "string" },
+          "source_type": {
+            "type": "string",
+            "enum": ["gh-issues", "commit-history", "sentiment-feed", "usage-trace", "telemetry-url", "competitor-scan", "changelog", "research-query"]
+          },
+          "source_ref": { "type": "string" },
+          "collected_at": { "type": "string", "format": "date-time" },
+          "signal": { "type": "string" },
+          "severity": { "type": "string", "enum": ["high", "medium", "low"] },
+          "count": { "type": "integer" },
+          "examples": { "type": "array", "items": { "type": "string" }, "maxItems": 5 },
+          "model_used": { "type": "string" }
+        }
+      }
+    },
+    "perspective": {
+      "type": "string",
+      "description": "Which pmpo-evolver perspective drove this evolution cycle",
+      "enum": ["competitive", "trend", "unique-product", "idea-validation", "self-learning", "combined", "auto"]
     }
   }
 }

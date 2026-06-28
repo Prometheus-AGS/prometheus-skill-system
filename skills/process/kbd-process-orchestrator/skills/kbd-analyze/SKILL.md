@@ -55,6 +55,41 @@ completeness.
   available; otherwise flag it for the user in `analysis.md` and the decision
   log — never silently pick a contested stack.
 
+### Contested stack escalation — operative protocol
+
+When the top two stack options are within 15% of each other:
+
+1. Construct the elicitation request:
+   - `question`: "Two stacks are equally matched: `<A>` (<scoreA>%) vs `<B>` (<scoreB>%). Which should we use?"
+   - `hints`: [`<A> key advantage`, `<B> key advantage`, `primary tradeoff`]
+   - `criticality`: high
+   - `caller`: kbd-analyze
+
+2. **On Claude Code** — use `AskUserQuestion` with the two stack names as options plus
+   "Research further" and "Accept highest-ranked (implicit)". Record the answer in
+   `decision-log.md` with `provenance` and `elicitation_id`.
+
+3. **On all other platforms** — call `pmpo-elicit-checkpoint.sh`:
+   ```
+   bash "${CLAUDE_PLUGIN_ROOT}/skills/process/pmpo-elicit/scripts/pmpo-elicit-checkpoint.sh" \
+     ".kbd-orchestrator/phases/${PHASE}/elicitations/kbd-analyze-$(date +%s)" \
+     "Two stacks are equally matched: <A> vs <B>. Which?" \
+     "high" "kbd-analyze" \
+     "<A> advantage" "<B> advantage"
+   ```
+   Pause analysis (exit 2 signal). On resume, call `pmpo-elicit-resume.sh` and apply result.
+
+4. **If pmpo-elicit is unavailable** — flag the contest in `analysis.md` under "Open
+   Questions", note both options with scores, and ask the user inline before continuing.
+
+Record in `decision-log.md` on resolution:
+```
+### <timestamp> — Contested stack choice
+Options: <A> vs <B> | Score gap: <N>%
+Decision: <chosen> | Provenance: <user|research|implicit>
+Elicitation ID: <id>
+```
+
 ## Skipping
 
 For phases that need no external research:

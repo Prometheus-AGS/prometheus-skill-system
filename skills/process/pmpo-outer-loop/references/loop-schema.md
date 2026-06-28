@@ -98,6 +98,52 @@ Conditions that pause the loop and consult the human via `/pmpo-elicit`:
 The backing iterative-evolver key. `/loop-tick` runs one `/evolve "<name>"` cycle.
 Must match an entry in `.evolver/evolutions/`.
 
+### `phases` (array, optional) — multi-phase goal extension
+
+When present, overrides the single-goal model. Used by `/kbd-goal` to wire
+a multi-phase pipeline (Ideation → Specification → Creation) through the
+outer loop. Each phase is a distinct KBD child phase with its own stopping
+condition and optional human gate.
+
+```json
+"phases": [
+  {
+    "name": "ideation",
+    "type": "ideation",
+    "stopping_condition": "3 candidates in IDEAS.md score ≥7.0 aggregate",
+    "human_gate": true,
+    "status": "complete"
+  },
+  {
+    "name": "spec",
+    "type": "spec",
+    "stopping_condition": "SPEC.md reviewer returns PASS",
+    "human_gate": true,
+    "status": "running"
+  },
+  {
+    "name": "creation",
+    "type": "creation",
+    "stopping_condition": "all tasks in TASKS.md are [x] and all tests pass",
+    "human_gate": false,
+    "token_budget": 200000,
+    "status": "pending"
+  }
+]
+```
+
+**Backward compatible:** existing `loop.json` files without `phases[]` continue
+to work exactly as before. The `phases` field is purely additive.
+
+**Cross-reference:** see [`kbd-goal.schema.json`](../../kbd-goal/references/schemas/goal.schema.json)
+for the canonical `goal.json` format that parallels this.
+
+### `goal_slug` (string, optional)
+
+When this loop was created by `/kbd-goal`, this links back to
+`.kbd-orchestrator/goals/<slug>/goal.json`. `/loop-tick` reads and updates
+goal state using this slug. Not present on loops created by `/loop-define`.
+
 ### Runtime fields (written by `/loop-tick`, not `/loop-define`)
 | Field | Type | Purpose |
 |-------|------|---------|

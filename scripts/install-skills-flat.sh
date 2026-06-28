@@ -206,6 +206,57 @@ configure_kimi_mcp() {
 
 configure_kimi_mcp
 
+# Post-install: install OpenCode goal plugin and write KBD-tuned config
+configure_opencode_goal_plugin() {
+    if $UNINSTALL; then
+        return
+    fi
+
+    if ! command -v opencode &>/dev/null; then
+        return
+    fi
+
+    # Check if goal plugin is installed
+    local plugin_installed=false
+    if opencode plugins list 2>/dev/null | grep -q "goal-plugin"; then
+        plugin_installed=true
+    fi
+
+    if ! $plugin_installed; then
+        echo "  ⚙️  opencode: installing @prevalentware/opencode-goal-plugin..."
+        if command -v npx &>/dev/null; then
+            npx @prevalentware/opencode-goal-plugin install 2>/dev/null || \
+              echo "  ⚠️  opencode: goal plugin install failed; run manually: npx @prevalentware/opencode-goal-plugin install"
+        else
+            echo "  ⚠️  opencode: npx not found; install Node.js then: npx @prevalentware/opencode-goal-plugin install"
+        fi
+    fi
+
+    # Write KBD-tuned goal plugin config to ~/.opencode/config.toml
+    local opencode_dir="$HOME/.opencode"
+    local config_file="$opencode_dir/config.toml"
+
+    if [[ -d "$opencode_dir" ]]; then
+        if ! grep -q "\[goal_plugin\]" "$config_file" 2>/dev/null; then
+            [[ -f "$config_file" ]] && cp "$config_file" "${config_file}.bak.$(date +%Y%m%d%H%M%S)"
+            cat >> "$config_file" << 'TOML'
+
+[goal_plugin]
+auto_continue                 = true
+max_auto_turns                = 20
+no_progress_token_threshold   = 5000
+max_no_progress_turns         = 3
+default_token_budget          = 200000
+TOML
+            echo "  ✅ opencode: goal_plugin config written to $config_file"
+        else
+            echo "  ✅ opencode: goal_plugin config already present"
+        fi
+    fi
+}
+
+configure_opencode_goal_plugin
+
 # Post-install: register surreal-memory in MiniMax MCP config
 configure_minimax_mcp() {
     local mcp_file="$HOME/.minimax/mcp/mcp.json"

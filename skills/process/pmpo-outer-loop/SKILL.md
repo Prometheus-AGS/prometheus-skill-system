@@ -34,6 +34,14 @@ feedback_sources (command / gh-query / file / url), termination (max_ticks,
 max_no_progress_ticks, budget), escalation_points, cadence, and the backing
 `evolution_name`.
 
+**Perspective field:** `loop.json` accepts an optional `perspective` field
+(`competitive | trend | unique-product | idea-validation | self-learning | auto`,
+default `"auto"`). When set, each `/loop-tick` passes `--perspective <value>` to
+the pmpo-evolver, pinning that tick's evolution to the named perspective rather
+than letting the strategy router decide. Use `"auto"` for normal multi-perspective
+cycling; set an explicit perspective when the loop is purpose-built for a specific
+research direction (e.g., `"competitive"` for a release-tracking loop).
+
 ### `/loop-tick <name>`
 
 Run **exactly one** cycle:
@@ -44,6 +52,7 @@ Run **exactly one** cycle:
    - **satisfied** → terminate, write a final `/loop-report`.
    - **regression or `max_no_progress_ticks` reached** → escalate via
      `/pmpo-elicit` (continue / re-plan / stop) — a declared decision point.
+     See **Stall/regression escalation** below.
    - **otherwise** → run one `/evolve "<evolution_name>"` cycle.
 4. Append a `journal.md` entry + a `decision-log.md` entry (dual format).
 5. If `cadence.mode == cron`, the scheduled agent re-invokes; if `background`,
@@ -100,6 +109,47 @@ The loop never runs unbounded: `max_ticks` is a hard ceiling,
 `max_no_progress_ticks` (default 2) escalates on a stall, and `budget`
 bounds per-tick wall time. Every escalation routes through `/pmpo-elicit`, so
 the human is consulted with a concrete decision, never left guessing.
+
+See `skills/process/pmpo-elicit/references/escalation-points.md` for the
+platform routing table and async checkpoint contract.
+
+### Stall/regression escalation — operative protocol
+
+When `max_no_progress_ticks` is reached or a regression is detected:
+
+1. Construct the elicitation:
+   - `question`: "Loop `<name>` stalled after `<N>` ticks with no progress. How should we proceed?"
+   - `options`: ["Continue — run another tick", "Re-plan — revise the evolution goal", "Stop — terminate loop and write final report"]
+   - `context`: "Last tick delta vs measurable_criteria: `<diff>`"
+   - `criticality`: blocking
+   - `caller`: pmpo-outer-loop/loop-tick
+
+2. **On Claude Code** — use `AskUserQuestion` with the three options. Record choice
+   in `loops/<name>/journal.md` latest entry as `escalation_result`.
+
+3. **On other platforms** — call `pmpo-elicit-checkpoint.sh`:
+   ```
+   bash "${CLAUDE_PLUGIN_ROOT}/skills/process/pmpo-elicit/scripts/pmpo-elicit-checkpoint.sh" \
+     ".kbd-orchestrator/loops/<name>/elicitations/pmpo-outer-loop-$(date +%s)" \
+     "Loop '<name>' stalled after <N> ticks. How to proceed?" \
+     "blocking" "pmpo-outer-loop/loop-tick" \
+     "continue" "replan" "stop"
+   ```
+   Set `loop.json → status = "paused-escalation"`. On resume, call `pmpo-elicit-resume.sh`.
+
+4. Outcome logic:
+   - "Continue": reset `no_progress_ticks` to 0, run next tick.
+   - "Re-plan": invoke `/pmpo-elicit` again for the new goal text, update `loop.json → goal`,
+     reset counters, continue.
+   - "Stop": write final `/loop-report`, set `loop.json → status = "terminated-by-operator"`.
+
+Record in `decision-log.md`:
+```
+### <timestamp> — Loop stall escalation
+Loop: <name> | Ticks stalled: <N>
+Decision: <continue|replan|stop> | Provenance: <user|implicit>
+Elicitation ID: <id>
+```
 
 ## Examples
 

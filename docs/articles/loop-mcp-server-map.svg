@@ -1,0 +1,79 @@
+<svg viewBox="0 0 936 505" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Table mapping eight Prometheus loop MCP servers to ports and roles: surreal-memory 23001 memory substrate; pk-mcp / prometheus-knowledge 8942 flat-file knowledge base for context priming; forge-mcp 8943 forge integration and reflection write-back; sycophancy-correction 8944 structural quality gate; liter-llm 8945 142+ provider LLM gateway; sequential-thinking 8946 structured reasoning; tavily 8947 web search; firecrawl 8948 self-hosted web data pipeline">
+  <style>
+    :root {
+      --rhead:#16212C;
+      --ra:#0F1820;
+      --rb:#131E28;
+      --text:#E8EEF4;
+      --dim:#C4D2DE;
+      --port:#34CFE6;
+      --code:#F49E12;
+      --head:#E8EEF4;
+    }
+    @media (prefers-color-scheme: light) { :root {
+      --rhead:#E6E2DC;
+      --ra:#F1EEE9;
+      --rb:#E9E5DF;
+      --text:#1A2129;
+      --dim:#3E4A57;
+      --port:#0A7C8B;
+      --code:#B5740A;
+      --head:#1A2129;
+    } }
+
+  .r-head{fill:var(--rhead);} .r-a{fill:var(--ra);} .r-b{fill:var(--rb);}
+  .t-head{fill:var(--head);font-family:'Space Grotesk',sans-serif;font-size:13.5px;font-weight:600;}
+  .t-server{fill:var(--text);font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:600;}
+  .t-port{fill:var(--port);font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:500;}
+  .t-body{fill:var(--dim);font-family:'Inter',sans-serif;font-size:13px;}
+  .t-code{fill:var(--code);font-family:'JetBrains Mono',monospace;font-size:12px;}
+  </style>
+  <defs><clipPath id="rnd"><rect x="0" y="0" width="936" height="505" rx="14"/></clipPath></defs>
+  <g clip-path="url(#rnd)">
+    <rect x="0" y="0" width="936" height="46" class="r-head"/>
+    <rect x="0" y="46" width="936" height="56" class="r-a"/>
+    <rect x="0" y="102" width="936" height="56" class="r-b"/>
+    <rect x="0" y="158" width="936" height="56" class="r-a"/>
+    <rect x="0" y="214" width="936" height="75" class="r-b"/>
+    <rect x="0" y="289" width="936" height="56" class="r-a"/>
+    <rect x="0" y="345" width="936" height="56" class="r-b"/>
+    <rect x="0" y="401" width="936" height="48" class="r-a"/>
+    <rect x="0" y="449" width="936" height="56" class="r-b"/>
+  </g>
+  <text x="24" y="29" class="t-head">Server</text>
+  <text x="276" y="29" text-anchor="middle" class="t-head">Port</text>
+  <text x="332" y="29" class="t-head">Role in the loop</text>
+  <text x="24" y="73" class="t-server">surreal-memory</text>
+  <text x="276" y="73" text-anchor="middle" class="t-port">23001</text>
+  <text x="332" y="73"><tspan class="t-body">Semantic</tspan><tspan class="t-body"> </tspan><tspan class="t-body">knowledge</tspan><tspan class="t-body"> </tspan><tspan class="t-body">graph.</tspan><tspan class="t-body"> </tspan><tspan class="t-body">Session</tspan><tspan class="t-body"> </tspan><tspan class="t-body">learning</tspan><tspan class="t-body"> </tspan><tspan class="t-body">writes</tspan><tspan class="t-body"> </tspan><tspan class="t-body">here.</tspan><tspan class="t-body"> </tspan><tspan class="t-body">Loop</tspan><tspan class="t-body"> </tspan><tspan class="t-body">start</tspan><tspan class="t-body"> </tspan><tspan class="t-body">reads</tspan><tspan class="t-body"> </tspan><tspan class="t-body">here.</tspan><tspan class="t-body"> </tspan><tspan class="t-body">The</tspan><tspan class="t-body"> </tspan><tspan class="t-body">memory</tspan></text>
+  <text x="332" y="92"><tspan class="t-body">substrate.</tspan></text>
+  <text x="24" y="129" class="t-server">pk-mcp /</text>
+  <text x="24" y="148" class="t-server">prometheus-knowledge</text>
+  <text x="276" y="129" text-anchor="middle" class="t-port">8942</text>
+  <text x="332" y="129"><tspan class="t-body">Karpathy-pattern</tspan><tspan class="t-body"> </tspan><tspan class="t-body">flat-file</tspan><tspan class="t-body"> </tspan><tspan class="t-body">knowledge</tspan><tspan class="t-body"> </tspan><tspan class="t-body">base.</tspan><tspan class="t-body"> </tspan><tspan class="t-code">pk-focus-on-prompt.sh</tspan><tspan class="t-body"> </tspan><tspan class="t-body">queries</tspan><tspan class="t-body"> </tspan><tspan class="t-body">this</tspan><tspan class="t-body"> </tspan><tspan class="t-body">to</tspan><tspan class="t-body"> </tspan><tspan class="t-body">prime</tspan><tspan class="t-body"> </tspan><tspan class="t-body">the</tspan></text>
+  <text x="332" y="148"><tspan class="t-body">loop</tspan><tspan class="t-body"> </tspan><tspan class="t-body">with</tspan><tspan class="t-body"> </tspan><tspan class="t-body">relevant</tspan><tspan class="t-body"> </tspan><tspan class="t-body">context</tspan><tspan class="t-body"> </tspan><tspan class="t-body">before</tspan><tspan class="t-body"> </tspan><tspan class="t-body">execution</tspan><tspan class="t-body"> </tspan><tspan class="t-body">starts.</tspan></text>
+  <text x="24" y="185" class="t-server">forge-mcp</text>
+  <text x="276" y="185" text-anchor="middle" class="t-port">8943</text>
+  <text x="332" y="185"><tspan class="t-body">Forge</tspan><tspan class="t-body"> </tspan><tspan class="t-body">integration.</tspan><tspan class="t-body"> </tspan><tspan class="t-code">forge-reflect-on-stop.sh</tspan><tspan class="t-body"> </tspan><tspan class="t-body">writes</tspan><tspan class="t-body"> </tspan><tspan class="t-body">reflection</tspan><tspan class="t-body"> </tspan><tspan class="t-body">output</tspan><tspan class="t-body"> </tspan><tspan class="t-body">here;</tspan><tspan class="t-body"> </tspan><tspan class="t-code">pk</tspan><tspan class="t-body"> </tspan><tspan class="t-code">ingest</tspan><tspan class="t-body"> </tspan><tspan class="t-body">writes</tspan></text>
+  <text x="332" y="204"><tspan class="t-body">session</tspan><tspan class="t-body"> </tspan><tspan class="t-body">summaries</tspan><tspan class="t-body"> </tspan><tspan class="t-body">back</tspan><tspan class="t-body"> </tspan><tspan class="t-body">to</tspan><tspan class="t-body"> </tspan><tspan class="t-body">the</tspan><tspan class="t-body"> </tspan><tspan class="t-body">KB.</tspan></text>
+  <text x="24" y="241" class="t-server">sycophancy-correction</text>
+  <text x="276" y="241" text-anchor="middle" class="t-port">8944</text>
+  <text x="332" y="241"><tspan class="t-body">Structural</tspan><tspan class="t-body"> </tspan><tspan class="t-body">quality</tspan><tspan class="t-body"> </tspan><tspan class="t-body">gate.</tspan><tspan class="t-body"> </tspan><tspan class="t-body">The</tspan><tspan class="t-body"> </tspan><tspan class="t-body">reflector</tspan><tspan class="t-body"> </tspan><tspan class="t-body">SubagentStop</tspan><tspan class="t-body"> </tspan><tspan class="t-body">hook</tspan><tspan class="t-body"> </tspan><tspan class="t-body">calls</tspan><tspan class="t-body"> </tspan><tspan class="t-body">this</tspan><tspan class="t-body"> </tspan><tspan class="t-body">before</tspan><tspan class="t-body"> </tspan><tspan class="t-body">any</tspan><tspan class="t-body"> </tspan><tspan class="t-body">reflection</tspan><tspan class="t-body"> </tspan><tspan class="t-body">is</tspan></text>
+  <text x="332" y="260"><tspan class="t-body">logged.</tspan><tspan class="t-body"> </tspan><tspan class="t-body">Reflection</tspan><tspan class="t-body"> </tspan><tspan class="t-body">scoring</tspan><tspan class="t-body"> </tspan><tspan class="t-body">≥</tspan><tspan class="t-body"> </tspan><tspan class="t-body">0.4</tspan><tspan class="t-body"> </tspan><tspan class="t-body">or</tspan><tspan class="t-body"> </tspan><tspan class="t-body">any</tspan><tspan class="t-body"> </tspan><tspan class="t-code">high</tspan><tspan class="t-body">/</tspan><tspan class="t-code">critical</tspan><tspan class="t-body"> </tspan><tspan class="t-body">pattern</tspan><tspan class="t-body"> </tspan><tspan class="t-body">triggers</tspan><tspan class="t-body"> </tspan><tspan class="t-body">rejection</tspan><tspan class="t-body"> </tspan><tspan class="t-body">with</tspan><tspan class="t-body"> </tspan><tspan class="t-body">diagnostic</tspan></text>
+  <text x="332" y="279"><tspan class="t-body">feedback.</tspan></text>
+  <text x="24" y="316" class="t-server">liter-llm</text>
+  <text x="276" y="316" text-anchor="middle" class="t-port">8945</text>
+  <text x="332" y="316"><tspan class="t-body">142+</tspan><tspan class="t-body"> </tspan><tspan class="t-body">provider</tspan><tspan class="t-body"> </tspan><tspan class="t-body">LLM</tspan><tspan class="t-body"> </tspan><tspan class="t-body">gateway.</tspan><tspan class="t-body"> </tspan><tspan class="t-body">Multi-model</tspan><tspan class="t-body"> </tspan><tspan class="t-body">routing</tspan><tspan class="t-body"> </tspan><tspan class="t-body">inside</tspan><tspan class="t-body"> </tspan><tspan class="t-body">loops</tspan><tspan class="t-body"> </tspan><tspan class="t-body">without</tspan><tspan class="t-body"> </tspan><tspan class="t-body">per-loop</tspan><tspan class="t-body"> </tspan><tspan class="t-body">API</tspan><tspan class="t-body"> </tspan><tspan class="t-body">key</tspan></text>
+  <text x="332" y="335"><tspan class="t-body">management.</tspan></text>
+  <text x="24" y="372" class="t-server">sequential-thinking</text>
+  <text x="276" y="372" text-anchor="middle" class="t-port">8946</text>
+  <text x="332" y="372"><tspan class="t-body">Structured</tspan><tspan class="t-body"> </tspan><tspan class="t-body">reasoning</tspan><tspan class="t-body"> </tspan><tspan class="t-body">for</tspan><tspan class="t-body"> </tspan><tspan class="t-body">multi-step</tspan><tspan class="t-body"> </tspan><tspan class="t-body">loop</tspan><tspan class="t-body"> </tspan><tspan class="t-body">planning.</tspan><tspan class="t-body"> </tspan><tspan class="t-body">Used</tspan><tspan class="t-body"> </tspan><tspan class="t-body">during</tspan><tspan class="t-body"> </tspan><tspan class="t-code">/kbd-plan</tspan><tspan class="t-body"> </tspan><tspan class="t-body">to</tspan><tspan class="t-body"> </tspan><tspan class="t-body">reason</tspan><tspan class="t-body"> </tspan><tspan class="t-body">through</tspan></text>
+  <text x="332" y="391"><tspan class="t-body">change</tspan><tspan class="t-body"> </tspan><tspan class="t-body">ordering</tspan><tspan class="t-body"> </tspan><tspan class="t-body">without</tspan><tspan class="t-body"> </tspan><tspan class="t-body">collapsing</tspan><tspan class="t-body"> </tspan><tspan class="t-body">into</tspan><tspan class="t-body"> </tspan><tspan class="t-body">single-pass</tspan><tspan class="t-body"> </tspan><tspan class="t-body">execution.</tspan></text>
+  <text x="24" y="428" class="t-server">tavily</text>
+  <text x="276" y="428" text-anchor="middle" class="t-port">8947</text>
+  <text x="332" y="428"><tspan class="t-body">Web</tspan><tspan class="t-body"> </tspan><tspan class="t-body">search</tspan><tspan class="t-body"> </tspan><tspan class="t-body">inside</tspan><tspan class="t-body"> </tspan><tspan class="t-body">loops.</tspan><tspan class="t-body"> </tspan><tspan class="t-body">Real-time</tspan><tspan class="t-body"> </tspan><tspan class="t-body">search</tspan><tspan class="t-body"> </tspan><tspan class="t-body">with</tspan><tspan class="t-body"> </tspan><tspan class="t-body">structured</tspan><tspan class="t-body"> </tspan><tspan class="t-body">result</tspan><tspan class="t-body"> </tspan><tspan class="t-body">aggregation.</tspan></text>
+  <text x="24" y="476" class="t-server">firecrawl</text>
+  <text x="276" y="476" text-anchor="middle" class="t-port">8948</text>
+  <text x="332" y="476"><tspan class="t-body">Web</tspan><tspan class="t-body"> </tspan><tspan class="t-body">data</tspan><tspan class="t-body"> </tspan><tspan class="t-body">pipeline:</tspan><tspan class="t-body"> </tspan><tspan class="t-body">scrape,</tspan><tspan class="t-body"> </tspan><tspan class="t-body">crawl,</tspan><tspan class="t-body"> </tspan><tspan class="t-body">extract,</tspan><tspan class="t-body"> </tspan><tspan class="t-body">map,</tspan><tspan class="t-body"> </tspan><tspan class="t-body">and</tspan><tspan class="t-body"> </tspan><tspan class="t-body">interact.</tspan><tspan class="t-body"> </tspan><tspan class="t-body">13</tspan><tspan class="t-body"> </tspan><tspan class="t-body">MCP</tspan><tspan class="t-body"> </tspan><tspan class="t-body">tools.</tspan><tspan class="t-body"> </tspan><tspan class="t-body">Full-page</tspan><tspan class="t-body"> </tspan><tspan class="t-body">content</tspan></text>
+  <text x="332" y="495"><tspan class="t-body">extraction</tspan><tspan class="t-body"> </tspan><tspan class="t-body">where</tspan><tspan class="t-body"> </tspan><tspan class="t-body">Tavily</tspan><tspan class="t-body"> </tspan><tspan class="t-body">returns</tspan><tspan class="t-body"> </tspan><tspan class="t-body">summaries.</tspan><tspan class="t-body"> </tspan><tspan class="t-body">Self-hosted</tspan><tspan class="t-body"> </tspan><tspan class="t-body">at</tspan><tspan class="t-body"> </tspan><tspan class="t-body">Prometheus</tspan><tspan class="t-body"> </tspan><tspan class="t-body">AGS.</tspan></text>
+</svg>

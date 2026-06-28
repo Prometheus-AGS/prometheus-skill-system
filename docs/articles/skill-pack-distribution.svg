@@ -1,0 +1,95 @@
+<svg viewBox="0 0 1200 644" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Dependency graph: the prometheus-skill-pack is installed across seven coding agents — Claude Code, OpenCode, OpenAI Codex, Kimi Code, MiniMax, Cursor, and Windsurf. All seven connect to surreal-memory on port 23001, which links to a shared KB memory substrate on port 23001 and a self-hosted Firecrawl on port 8948. The shared KB substrate feeds loop context priming and session learning write-back">
+  <style>
+    :root {
+      --diagram-canvas:#0E151D;
+      --text:#E8EEF4;
+      --text-faint:#9DB0C2;
+      --node-bg:#1A2632;
+      --node-bg-2:#213140;
+      --edge:#5E768C;
+      --accent:#E96A12;
+      --accent-2:#F49E12;
+      --cyan-node:#134852;
+      --node-accent-text:#0B0F14;
+    }
+    @media (prefers-color-scheme: light) { :root {
+      --diagram-canvas:#ECEFF2;
+      --text:#1A2129;
+      --text-faint:#5A6B7A;
+      --node-bg:#E1E7ED;
+      --node-bg-2:#D5DDE5;
+      --edge:#8295A6;
+      --accent:#CE3012;
+      --accent-2:#B5740A;
+      --cyan-node:#CFE7EC;
+      --node-accent-text:#FFFFFF;
+    } }
+
+  .dg-node{fill:var(--node-bg);} .dg-node2{fill:var(--node-bg-2);}
+  .dg-accent{fill:var(--accent);} .dg-accent2{fill:var(--accent-2);} .dg-cyan{fill:var(--cyan-node);}
+  .dg-text-sm{fill:var(--text);font-family:'Space Grotesk',system-ui,sans-serif;font-size:12.5px;font-weight:600;}
+  .dg-text-xs{fill:var(--text-faint);font-family:'JetBrains Mono',monospace;font-size:10.5px;}
+  .dg-text-accent{fill:var(--node-accent-text);font-family:'Space Grotesk',sans-serif;font-size:12.5px;font-weight:700;}
+  .dg-mono-accent{fill:var(--node-accent-text);font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;}
+  .dg-edge{fill:none;stroke:var(--edge);stroke-width:1.8;}
+  </style>
+  <defs>
+    <marker id="sk" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 Z" style="fill:var(--edge)"/></marker>
+  </defs>
+  <rect x="484" y="18" width="232" height="52" rx="11" class="dg-accent"/>
+  <text x="600" y="49" text-anchor="middle" class="dg-mono-accent">prometheus-skill-pack</text>
+  <path d="M600,70 L600,120" class="dg-edge"/>
+  <path d="M99,120 L1101,120" class="dg-edge"/>
+  <path d="M99,120 L99,145" class="dg-edge" marker-end="url(#sk)"/>
+  <rect x="25" y="145" width="148" height="50" rx="11" class="dg-node"/>
+  <text x="99" y="175" text-anchor="middle" class="dg-text-sm">Claude Code</text>
+  <path d="M266,120 L266,145" class="dg-edge" marker-end="url(#sk)"/>
+  <rect x="192" y="145" width="148" height="50" rx="11" class="dg-node"/>
+  <text x="266" y="175" text-anchor="middle" class="dg-text-sm">OpenCode</text>
+  <path d="M433,120 L433,145" class="dg-edge" marker-end="url(#sk)"/>
+  <rect x="359" y="145" width="148" height="50" rx="11" class="dg-node"/>
+  <text x="433" y="175" text-anchor="middle" class="dg-text-sm">OpenAI Codex</text>
+  <path d="M600,120 L600,145" class="dg-edge" marker-end="url(#sk)"/>
+  <rect x="526" y="145" width="148" height="50" rx="11" class="dg-node"/>
+  <text x="600" y="175" text-anchor="middle" class="dg-text-sm">Kimi Code</text>
+  <path d="M767,120 L767,145" class="dg-edge" marker-end="url(#sk)"/>
+  <rect x="693" y="145" width="148" height="50" rx="11" class="dg-node"/>
+  <text x="767" y="175" text-anchor="middle" class="dg-text-sm">MiniMax</text>
+  <path d="M934,120 L934,145" class="dg-edge" marker-end="url(#sk)"/>
+  <rect x="860" y="145" width="148" height="50" rx="11" class="dg-node"/>
+  <text x="934" y="175" text-anchor="middle" class="dg-text-sm">Cursor</text>
+  <path d="M1101,120 L1101,145" class="dg-edge" marker-end="url(#sk)"/>
+  <rect x="1027" y="145" width="148" height="50" rx="11" class="dg-node"/>
+  <text x="1101" y="175" text-anchor="middle" class="dg-text-sm">Windsurf</text>
+  <path d="M99,195 L99,250" class="dg-edge"/>
+  <path d="M266,195 L266,250" class="dg-edge"/>
+  <path d="M433,195 L433,250" class="dg-edge"/>
+  <path d="M600,195 L600,250" class="dg-edge"/>
+  <path d="M767,195 L767,250" class="dg-edge"/>
+  <path d="M934,195 L934,250" class="dg-edge"/>
+  <path d="M1101,195 L1101,250" class="dg-edge"/>
+  <path d="M99,250 L1101,250" class="dg-edge"/>
+  <path d="M600,250 L600,273" class="dg-edge" marker-end="url(#sk)"/>
+  <rect x="478" y="272" width="244" height="56" rx="11" class="dg-cyan"/>
+  <text x="600" y="297" text-anchor="middle" class="dg-text-sm">surreal-memory</text>
+  <text x="600" y="314" text-anchor="middle" class="dg-text-xs">:23001</text>
+  <path d="M600,328 L600,370" class="dg-edge"/>
+  <path d="M440,370 L820,370" class="dg-edge"/>
+  <path d="M440,370 L440,401" class="dg-edge" marker-end="url(#sk)"/>
+  <path d="M820,370 L820,401" class="dg-edge" marker-end="url(#sk)"/>
+  <rect x="298" y="401" width="284" height="58" rx="11" class="dg-cyan"/>
+  <text x="440" y="427" text-anchor="middle" class="dg-text-sm">Shared KB substrate</text>
+  <text x="440" y="444" text-anchor="middle" class="dg-text-xs">:23001</text>
+  <rect x="689" y="401" width="262" height="58" rx="11" class="dg-node2"/>
+  <text x="820" y="427" text-anchor="middle" class="dg-text-sm">Firecrawl</text>
+  <text x="820" y="444" text-anchor="middle" class="dg-text-xs">self-hosted :8948</text>
+  <path d="M440,459 L440,500" class="dg-edge"/>
+  <path d="M300,500 L580,500" class="dg-edge"/>
+  <path d="M300,500 L300,553" class="dg-edge" marker-end="url(#sk)"/>
+  <path d="M580,500 L580,553" class="dg-edge" marker-end="url(#sk)"/>
+  <rect x="178" y="553" width="244" height="54" rx="11" class="dg-node2"/>
+  <text x="300" y="585" text-anchor="middle" class="dg-text-sm">Loop context priming</text>
+  <rect x="449" y="553" width="262" height="54" rx="11" class="dg-node2"/>
+  <text x="580" y="577" text-anchor="middle" class="dg-text-sm">Session learning</text>
+  <text x="580" y="594" text-anchor="middle" class="dg-text-xs">write-back</text>
+</svg>

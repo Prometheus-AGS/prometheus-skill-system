@@ -1,0 +1,24 @@
+{
+  "phase": "pmpo-evolver",
+  "stage": "reflect_ready",
+  "changes_total": 10,
+  "changes_completed": 10,
+  "active_change": null,
+  "next_pending_change": null,
+  "assessment_complete": true,
+  "plan_complete": true,
+  "changes": [
+    {"id": "change-evolver-001", "status": "done", "title": "Schema: pmpo-evolver.schema.json + evolution-state extensions"},
+    {"id": "change-evolver-002", "status": "done", "title": "Feedback source taxonomy extension (loop-definition schema)"},
+    {"id": "change-evolver-003", "status": "done", "title": "skills/process/pmpo-evolver/SKILL.md + model routing table"},
+    {"id": "change-evolver-004", "status": "done", "title": "Competitor tracking: registry + parity matrix + changelog ingestion"},
+    {"id": "change-evolver-005", "status": "done", "title": "Learning signals persistence + commit-history analysis"},
+    {"id": "change-evolver-006", "status": "done", "title": "Staged idea validation sub-skill (validate-idea)"},
+    {"id": "change-evolver-007", "status": "done", "title": "Carry-forward aggregation + domain taxonomy reference"},
+    {"id": "change-evolver-008", "status": "done", "title": "Strategic dreaming (post-cycle-dream)"},
+    {"id": "change-evolver-009", "status": "done", "title": "Outer-loop perspective handoff (pmpo-outer-loop wiring)"},
+    {"id": "change-evolver-010", "status": "done", "title": "Phase-seeding protocol + liter-llm context management reference"}
+  ],
+  "started": "2026-06-28",
+  "updated": "2026-06-28T00:00:00Z"
+}
