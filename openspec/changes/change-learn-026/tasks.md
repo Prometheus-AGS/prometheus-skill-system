@@ -1,0 +1,7 @@
+# Tasks — change-learn-026
+
+- [ ] Write `docs/guide/10-learn-skills.md` domain overview section: explain the Feynman technique loop, the three surface tiers (Tier 0 text / Tier 1 AskUserQuestion / Tier 2 A2UI), the substrate layer (learner-model, storage-provider, surface-bridge, content-grounding), and the full skill list with one-line descriptions
+- [ ] Add per-skill sections to `docs/guide/10-learn-skills.md`: for each learn-domain skill document purpose, entry command with flag examples, primary inputs and outputs (artifact filenames and key JSON fields), and cross-harness behaviour notes
+- [ ] Add KB adapter guide subsection: explain the three adapter types (local files, Dify KB, URL scrape), show `learn-kb add` command examples for each, document how KB entries influence `learn-grade`, and note privacy considerations (no data leaves the local palace store without operator action)
+- [ ] Add meta-learning guide subsection: describe the KBD adoption path (learn-about-system → learn-goal → survey → feynman → grade → retain → practice → certify), explain the self-teaching loop concept, and provide a worked example of using the skill pack to learn the KBD lifecycle itself
+- [ ] Update `docs/guide/00-index.md`: add an entry for chapter 10 (`10-learn-skills.md`) in the table of contents with a one-line description

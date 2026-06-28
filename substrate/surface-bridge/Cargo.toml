@@ -1,0 +1,17 @@
+[package]
+name = "surface-bridge"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "surface-bridge"
+path = "src/main.rs"
+
+[dependencies]
+axum = { version = "0.7", features = ["json"] }
+tokio = { version = "1", features = ["full"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+thiserror = "1"
+tower = "0.4"
+tower-http = { version = "0.5", features = ["cors"] }

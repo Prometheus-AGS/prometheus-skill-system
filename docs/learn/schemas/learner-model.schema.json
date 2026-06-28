@@ -1,0 +1,269 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "learner-model.schema.json",
+  "title": "LearnerModel",
+  "description": "Schema for the learner-model CRDT document and cold-start seed format.",
+  "type": "object",
+  "required": ["learner_id", "schema_version", "concepts", "gaps", "sessions"],
+  "properties": {
+    "learner_id": {
+      "type": "string",
+      "description": "DID (did:plc:...) identifying the learner. Also the automerge document actor ID."
+    },
+    "schema_version": {
+      "type": "string",
+      "const": "1.0.0"
+    },
+    "concepts": {
+      "type": "object",
+      "description": "Map of concept_id → ConceptState. concept_id is kebab-case from surreal-memory entity name.",
+      "additionalProperties": {
+        "$ref": "#/definitions/ConceptState"
+      }
+    },
+    "gaps": {
+      "type": "object",
+      "description": "Map of gap_id → GapRecord. gap_id is UUID generated at detection time.",
+      "additionalProperties": {
+        "$ref": "#/definitions/GapRecord"
+      }
+    },
+    "sessions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/SessionRecord"
+      }
+    }
+  },
+  "definitions": {
+    "ConceptState": {
+      "type": "object",
+      "required": ["mastery", "observations", "fsrs_card"],
+      "properties": {
+        "mastery": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "description": "Current mastery estimate [0,1]. Updated by PFA rule after ≥5 observations; LLM-seeded prior before that."
+        },
+        "observations": {
+          "type": "array",
+          "description": "Append-only log of mastery observations.",
+          "items": {
+            "$ref": "#/definitions/Observation"
+          }
+        },
+        "fsrs_card": {
+          "$ref": "#/definitions/FSRSCard"
+        }
+      }
+    },
+    "Observation": {
+      "type": "object",
+      "required": ["timestamp", "score", "source_skill", "vector_clock"],
+      "properties": {
+        "timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO 8601 UTC timestamp of observation."
+        },
+        "score": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "description": "Performance score on graded activity."
+        },
+        "source_skill": {
+          "type": "string",
+          "enum": ["learn-grade", "learn-practice", "learn-certify", "learn-retain", "learn-survey"],
+          "description": "Which skill produced this observation."
+        },
+        "vector_clock": {
+          "type": "object",
+          "description": "Vector clock for LWW merge. Key = device DID, value = logical timestamp.",
+          "additionalProperties": {
+            "type": "integer"
+          }
+        }
+      }
+    },
+    "FSRSCard": {
+      "type": "object",
+      "required": ["stability", "difficulty", "due", "state", "reps", "lapses"],
+      "description": "FSRS-6 scheduling card state. Persisted per concept in the automerge document.",
+      "properties": {
+        "stability": {
+          "type": "number",
+          "description": "FSRS stability (days). CRDT merge: take max(local, remote)."
+        },
+        "difficulty": {
+          "type": "number",
+          "description": "FSRS difficulty [1,10]. CRDT merge: LWW (latest timestamp wins)."
+        },
+        "due": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Next scheduled review date. CRDT merge: take min(local, remote) — prefer earlier review."
+        },
+        "state": {
+          "type": "string",
+          "enum": ["New", "Learning", "Review", "Relearning"],
+          "description": "FSRS card state. CRDT merge: LWW (latest timestamp wins)."
+        },
+        "reps": {
+          "type": "integer",
+          "description": "Total review repetitions. CRDT merge: take max(local, remote)."
+        },
+        "lapses": {
+          "type": "integer",
+          "description": "Total lapses (forgot). CRDT merge: take max(local, remote)."
+        },
+        "last_review": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Timestamp of last review. Used for LWW merge decisions."
+        }
+      }
+    },
+    "GapRecord": {
+      "type": "object",
+      "required": ["gap_id", "concept_id", "description", "detected_at", "source_skill"],
+      "description": "A knowledge gap detected by learn-grade. Append-only; never deleted by CRDT merge.",
+      "properties": {
+        "gap_id": {
+          "type": "string",
+          "description": "UUID v4."
+        },
+        "concept_id": {
+          "type": "string",
+          "description": "The concept where this gap was detected."
+        },
+        "description": {
+          "type": "string",
+          "description": "Human-readable gap description from learn-grade."
+        },
+        "severity": {
+          "type": "string",
+          "enum": ["minor", "major", "misconception"]
+        },
+        "detected_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "resolved_at": {
+          "type": ["string", "null"],
+          "format": "date-time",
+          "description": "Set when a subsequent learn-grade pass finds this gap closed. Null if still open."
+        },
+        "source_skill": {
+          "type": "string"
+        },
+        "source_evidence": {
+          "type": "string",
+          "description": "Source reference from grounding corpus that identifies this gap."
+        }
+      }
+    },
+    "SessionRecord": {
+      "type": "object",
+      "required": ["session_id", "started_at", "skills_called"],
+      "properties": {
+        "session_id": {
+          "type": "string",
+          "description": "UUID v4."
+        },
+        "started_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "ended_at": {
+          "type": ["string", "null"],
+          "format": "date-time"
+        },
+        "skills_called": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "concepts_touched": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "LearnerModelSeed": {
+      "title": "LearnerModelSeed",
+      "description": "Output of learn-survey; consumed by learner-model seed_from_survey(). This is the cold-start prior format.",
+      "type": "object",
+      "required": ["schema_version", "learner_id", "subject", "surveyed_at", "mastery_priors"],
+      "properties": {
+        "schema_version": {
+          "type": "string",
+          "const": "1.0.0"
+        },
+        "learner_id": {
+          "type": "string"
+        },
+        "subject": {
+          "type": "string"
+        },
+        "surveyed_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "mastery_priors": {
+          "type": "array",
+          "description": "LLM-seeded Bayesian priors per concept. Used as initial mastery estimates before any observations.",
+          "items": {
+            "type": "object",
+            "required": ["concept_id", "estimated_mastery_prior", "confidence", "basis"],
+            "properties": {
+              "concept_id": {
+                "type": "string"
+              },
+              "estimated_mastery_prior": {
+                "type": "number",
+                "minimum": 0.0,
+                "maximum": 1.0,
+                "description": "Initial mastery estimate [0,1]. Not a performance score — a prior probability."
+              },
+              "confidence": {
+                "type": "number",
+                "minimum": 0.0,
+                "maximum": 1.0,
+                "description": "Confidence in the prior estimate. Low confidence = wide prior distribution."
+              },
+              "basis": {
+                "type": "string",
+                "enum": ["survey_response", "self_report_adjusted", "diagnostic_item", "default_prior"],
+                "description": "How this prior was derived."
+              }
+            }
+          }
+        },
+        "recursion_floor": {
+          "type": "array",
+          "description": "Concept IDs the learner demonstrably owns. feynman-loop never recurses into these.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "misconceptions_detected": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["concept_id", "wrong_model", "source_evidence"],
+            "properties": {
+              "concept_id": { "type": "string" },
+              "wrong_model": { "type": "string" },
+              "source_evidence": { "type": "string" }
+            }
+          }
+        }
+      }
+    }
+  }
+}

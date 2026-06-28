@@ -158,6 +158,7 @@ prometheus-skill-pack/
 │   ├── documentation/           ← Documentation skills
 │   ├── flint/                   ← Flint Realtime Fabric SDK skills (6 languages)
 │   ├── document-extraction/     ← Kreuzberg multi-format extraction
+│   ├── learn/                   ← Feynman-Spine learning skills (goal, survey, plan, loop, grade, retain, practice, certify, KB, meta)
 │   └── imported/                ← Git submodule skills
 │       ├── artifact-refiner/        ← PMPO artifact refinement (submodule)
 │       ├── sycophancy-correction/   ← 8-pattern detection, Rust MCP server (submodule)
@@ -237,6 +238,25 @@ Full detail on every process skill — commands, state files, child skills, comp
 | Skill | Templates | Purpose |
 |---|---|---|
 | `htmx-alpine-lit` | `page.html`, `lit_component.ts`, `react_island.tsx`, `axum_fragment_handler.rs` | HTMX 2.0.8 + Alpine.js + Lit + HTMX-in-React embedding |
+
+#### Learn (`skills/learn/`)
+
+Feynman-Spine learning: goal, survey, plan, loop, grade, retain, practice, certify, KB management, meta-learning.
+
+| Skill | Purpose |
+|---|---|
+| `ui-surface` | Cross-harness UI rendering layer |
+| `learn-goal` | Entry point: goal declaration + feasibility gate |
+| `learn-survey` | Diagnostic placement + learner model seeding |
+| `learn-plan` | Adaptive curriculum planner |
+| `feynman-loop` | Core Feynman explain/grade/gap/relearn cycle |
+| `learn-grade` | External sycophancy-corrected grader |
+| `learn-retain` | FSRS spaced repetition reviews |
+| `learn-practice` | Deliberate practice (derivation/implementation/transfer) |
+| `learn-certify` | OB 3.0 / W3C VC credential issuance |
+| `learn-kb` | Custom knowledge base management |
+| `learn-about-system` | Meta-learning adoption entry point |
+| `learn-harness` | Per-harness capability orientation |
 
 #### Other Languages
 

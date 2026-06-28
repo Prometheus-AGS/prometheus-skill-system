@@ -1,6 +1,6 @@
 POSITION REMINDER — read this as your FIRST tool call every turn
-Phase: pmpo-evolver
-Stage: completed
-Changes: 10 of 10 (all complete; reflection written)
-Next command: /pmpo-evolver prometheus-skill-pack --perspective competitive
-Summary: Phase complete 2026-06-28. All 10 changes shipped and reflected. Recommended next: run first live evolver cycle with /pmpo-evolver prometheus-skill-pack --perspective competitive. Or address carry-forwards: mcp-tool runtime dispatch, feedback-digest.sh handlers for 4 source types, Gate 2/3 scripts for validate-idea.
+Phase: phase-learn-feynman
+Stage: reflecting
+Changes: 28 of 28 — ALL DONE
+Next command: /kbd-reflect phase-learn-feynman
+Summary: All 28 changes complete. Phase is ready for reflect. Run /kbd-reflect phase-learn-feynman.

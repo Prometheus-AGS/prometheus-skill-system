@@ -87,11 +87,13 @@ check "liter-llm"                "liter-llm"                "liter-llm --version
 check "prometheus"               "prometheus"               "prometheus --version 2>/dev/null | head -1"
 check "prometheus-rust-auditor"  "prometheus-rust-auditor"  "prometheus-rust-auditor --version 2>/dev/null | head -1"
 check "sycophancy-correction"    "sycophancy-correction"    "sycophancy-correction --version 2>/dev/null | head -1"
+check "learner-model"            "learner-model"            "learner-model --version 2>/dev/null | head -1"
 
 # ── MCP services (HTTP reachability) ─────────────────────────────────────────
 check_http "surreal-memory"          "http://localhost:23001/health"
 check_http "forge-rs"                "http://localhost:8943/mcp"
 check_http "prometheus-knowledge"    "http://localhost:8942/mcp"
+check_http "surface-bridge"          "http://127.0.0.1:7890/health"
 
 # ── WASM target ───────────────────────────────────────────────────────────────
 if command -v rustup >/dev/null 2>&1; then
@@ -112,7 +114,7 @@ fi
 if $JSON_MODE; then
     echo "{"
     first=true
-    for key in node npm git rustc cargo rustup go docker kimi mmx claude forge pk liter-llm prometheus prometheus-rust-auditor sycophancy-correction surreal-memory forge-rs prometheus-knowledge wasm32; do
+    for key in node npm git rustc cargo rustup go docker kimi mmx claude forge pk liter-llm prometheus prometheus-rust-auditor sycophancy-correction learner-model surreal-memory forge-rs prometheus-knowledge surface-bridge wasm32; do
         [[ -n "${STATUS[$key]:-}" ]] || continue
         $first || echo ","
         first=false
@@ -165,11 +167,13 @@ else
     item "prometheus"              "prometheus CLI"
     item "prometheus-rust-auditor" "prometheus-rust-auditor"
     item "sycophancy-correction"   "sycophancy-correction"
+    item "learner-model"  "learner-model (learn substrate)"  "cd substrate/learner-model && cargo build --release"
 
     section "MCP Services (HTTP)"
     item "surreal-memory"       "surreal-memory (:23001)" "start: cd tools/surreal-memory-server && docker compose up -d"
     item "forge-rs"             "forge-rs (:8943)"
     item "prometheus-knowledge" "prometheus-knowledge (:8942)"
+    item "surface-bridge"  "surface-bridge (:7890)" "install: bash scripts/install-skills-flat.sh"
 
     echo ""
     echo "═══════════════════════════════════════════════════════════"

@@ -207,7 +207,25 @@ prometheus-skill-pack/
 │   ├── ui-ux/              # UI/UX domain skills
 │   ├── devops/             # DevOps domain skills
 │   ├── testing/            # Testing domain skills
-│   └── documentation/      # Documentation domain skills
+│   ├── documentation/      # Documentation domain skills
+│   └── learn/              # Learn domain skills (v1.4.0)
+│       ├── ui-surface/     # Cross-harness UI rendering primitive
+│       ├── learn-goal/     # Learning desire + feasibility gate
+│       ├── learn-survey/   # Diagnostic placement + recursion floor
+│       ├── learn-plan/     # Concept DAG + curriculum builder
+│       ├── feynman-loop/   # Core Feynman PMPO loop
+│       ├── learn-grade/    # Sycophancy-corrected external grader
+│       ├── learn-retain/   # FSRS-6 spaced retrieval
+│       ├── learn-practice/ # Deliberate practice track
+│       ├── learn-certify/  # OB 3.0 / W3C VC certification
+│       ├── learn-kb/       # KB registry + adapter management
+│       ├── learn-about-system/ # Prometheus stack meta-learning
+│       └── learn-harness/  # Harness detection + capability map
+│
+├── substrate/              # Rust crates for learn domain
+│   ├── storage-provider/   # StorageProvider + CrdtEngine traits
+│   ├── learner-model/      # CRDT learner model + FSRS-6 scheduler
+│   └── surface-bridge/     # Axum MCP App server (Tier 2 UI)
 │
 ├── shared/                 # Shared resources across all skills
 │   ├── scripts/            # Reusable scripts
@@ -290,7 +308,7 @@ Available variables:
 
 ### Creating a New Skill
 
-1. **Choose category**: Place in appropriate `skills/{category}/` directory
+1. **Choose category**: Place in appropriate `skills/{category}/` directory (react, rust, ui-ux, devops, testing, documentation, process, learn, or a new category)
 
 2. **Create directory** with kebab-case naming:
 
@@ -570,6 +588,95 @@ Code-generation agents operating in projects that use Cucumber/BDD step definiti
 This rule is enforced via CLAUDE.md prose in the target project and optionally via a PreToolUse hook (`shared/scripts/protect-tests.sh`). Full rationale and the trio relationship (BDD-005, BDD-006, BDD-007) are documented in `docs/future-work/02-bdd-testing-evolution/BDD-006-immutable-tests-rule.md`.
 
 For projects using this skill-pack with BDD suites (e.g. `ssr-frontend`), see the **Immutable Tests Rule** section in that project's `CLAUDE.md`.
+
+## Learn Domain
+
+The learn domain adds a Feynman-Spine learning and education capability to the skill pack. It is architected in four layers so that skills remain portable across all harnesses while substrate crates handle persistence and UI rendering.
+
+### Four-Layer Architecture
+
+| Layer | Location | Purpose |
+|---|---|---|
+| **A — Substrate** | `substrate/` | Rust crates: storage-provider, learner-model, surface-bridge |
+| **B — UI primitive** | `skills/learn/ui-surface` | Cross-harness rendering via surface tier detection |
+| **C — Learning skills** | `skills/learn/` | 12 skills composing the full learning arc |
+| **D — KB adapters** | `shared/scripts/content-grounding-kb.sh` | Privacy-safe custom knowledge base integration |
+
+### Substrate Crates
+
+- **`storage-provider`** — `StorageProvider` and `CrdtEngine` traits; `LocalDirAdapter` (default); `AutomergeEngine` for CRDT merges; `IrohDocsAdapter` stub for future P2P sync
+- **`learner-model`** — automerge-backed CRDT learner model (mastery per concept, FSRS cards, gap records); simplified FSRS-6 scheduler; JSON-RPC `stdin`/`stdout` interface; PFA mastery update (`mastery_new = mastery_old + 0.3 × (score - mastery_old)` at ≥5 observations)
+- **`surface-bridge`** — Axum HTTP server on `127.0.0.1:7890`; routes: `/health`, `/mcp/detect-surface-tier`, `/mcp/render-ui-intent`, `/mcp/collect-response`; installed as a macOS launchd service via `install-skills-flat.sh`
+
+### Surface Tier Degradation Contract
+
+All learn skills present through `ui-surface`, which resolves one of three tiers:
+
+| Tier | Harness | Mechanism |
+|---|---|---|
+| 0 | Universal | Plain text / markdown (always works) |
+| 1 | Claude Code | `AskUserQuestion`; elsewhere: file-pair (`__ui_intent__.json` / `__ui_response__.json`) |
+| 2 | Any with surface-bridge | MCP App iframe via `http://127.0.0.1:7890` |
+
+Skills MUST NOT render directly — they emit a `UiIntent` to `ui-surface`, which resolves the tier.
+
+### KB Adapter Pattern
+
+Four adapter prefixes for `learn-kb add` and `learn-goal --kb`:
+
+| Prefix | Backend | Privacy |
+|---|---|---|
+| `dify:<kb-name>` | Dify knowledge base MCP | Dify server, requires DIFY_API_KEY |
+| `palace:<collection>` | surreal-memory palace RAG | Fully local, no external calls |
+| `local:<path>` | Filesystem markdown | Stays on machine |
+| `web:<url>` | Firecrawl live fetch | Internet required |
+
+`content-grounding-kb.sh` NEVER forwards KB content to external APIs. It warns if external API env vars (FIRECRAWL_API_KEY, etc.) are set and skips those sources in KB mode.
+
+### Essential Learn Commands
+
+```bash
+# Start a learning session
+/learn-goal "I want to master X"
+
+# Check current harness capability
+/learn-harness
+
+# Learn about the Prometheus stack itself
+/learn-about-system --area kbd
+/learn-about-system --area skills
+/learn-about-system --area harness
+
+# Manage custom knowledge bases
+/learn-kb add dify:my-legal-kb
+/learn-kb add local:/path/to/clinical-protocols
+
+# Build and install substrate (Rust + launchd)
+bash scripts/install-skills-flat.sh
+
+# Check substrate status
+bash shared/scripts/detect-toolchain.sh
+```
+
+### Mastery Criterion
+
+All three conditions are required to close a Feynman loop on a concept:
+
+1. `learn-grade` passes: overall score ≥ 0.7 AND `misconceptions_absent == 1.0`
+2. Two novel transfer problems solved at ≥ 0.7
+3. Retention check via `learn-retain` at ≥ 24 h interval
+
+Self-reported fluency NEVER closes a loop. Pedagogical sycophancy (making the learner feel good at the cost of accurate feedback) is blocked architecturally by routing `learn-grade` through sycophancy-correction S-02.
+
+### Anti-Sycophancy in Learning
+
+The sycophancy-correction skill is on the critical path of the core loop:
+
+1. `learn-grade` drafts a grade
+2. Grade is routed through sycophancy-correction S-02 check
+3. A grade that says "no gaps" when gaps are present is **rewritten before delivery**
+
+This is enforced architecturally, not as optional guidance. Pedagogical sycophancy produces worse learning outcomes.
 
 ## Reflector Sycophancy Gate
 

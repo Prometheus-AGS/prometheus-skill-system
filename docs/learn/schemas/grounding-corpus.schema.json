@@ -1,0 +1,93 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://prometheus.local/schemas/grounding-corpus/1.0.0",
+  "title": "Grounding Corpus",
+  "description": "Output schema for content-grounding.sh — a teaching corpus assembled from a prioritized source chain.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "corpus_id",
+    "subject",
+    "target_level",
+    "schema_version",
+    "built_at",
+    "sources"
+  ],
+  "properties": {
+    "corpus_id": {
+      "type": "string",
+      "description": "Unique identifier for this corpus: <subject-slug>-<level>.",
+      "minLength": 1,
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+    },
+    "subject": {
+      "type": "string",
+      "description": "The original human-readable subject string passed to content-grounding.sh.",
+      "minLength": 1
+    },
+    "target_level": {
+      "type": "string",
+      "description": "Intended audience level, e.g. 'practitioner', 'beginner', 'expert'.",
+      "minLength": 1
+    },
+    "schema_version": {
+      "type": "string",
+      "description": "Semver version of this schema.",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "built_at": {
+      "type": "string",
+      "description": "ISO-8601 UTC timestamp when the corpus was built.",
+      "format": "date-time"
+    },
+    "sources": {
+      "type": "array",
+      "description": "Ordered list of source entries that make up the teaching corpus.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "source_ref",
+          "source_type",
+          "confidence",
+          "is_misconception",
+          "content_summary"
+        ],
+        "properties": {
+          "source_ref": {
+            "type": "string",
+            "description": "A stable identifier for the source: URL, file path, KB document ID, palace memory ID, etc.",
+            "minLength": 1
+          },
+          "source_type": {
+            "type": "string",
+            "description": "Category of the source, corresponding to the tier that produced it.",
+            "enum": [
+              "primary_doc",
+              "known_misconception",
+              "web_search",
+              "dify_kb",
+              "palace_rag",
+              "mcp_filesystem"
+            ]
+          },
+          "confidence": {
+            "type": "number",
+            "description": "Retrieval confidence score in the range [0, 1].",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "is_misconception": {
+            "type": "boolean",
+            "description": "True when this source documents a known-wrong belief about the subject."
+          },
+          "content_summary": {
+            "type": "string",
+            "description": "A brief summary of the source content (at least 10 characters).",
+            "minLength": 10
+          }
+        }
+      }
+    }
+  }
+}

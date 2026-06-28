@@ -7,16 +7,82 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.4.0] - 2026-06-28
+
+### Added
+
+**Learn Domain — Feynman-Spine Learning & Education Capability (12 skills)**
+
+- `skills/learn/ui-surface` — Cross-harness UI rendering primitive; Tier 0 (text), Tier 1 (AskUserQuestion / file-pair), Tier 2 (surface-bridge MCP App)
+- `skills/learn/learn-goal` — Learning desire intake with deep research scoping, honest feasibility gate (GREEN/YELLOW/RED), KB adapter integration (`--kb` flag)
+- `skills/learn/learn-survey` — Diagnostic placement; 11 items (5 conceptual, 3 procedural, 3 misconception probes); sets recursion floor; seeds learner model
+- `skills/learn/learn-plan` — Concept dependency DAG in surreal-memory; topological sort; time-budgeted curriculum with `--replan` support
+- `skills/learn/feynman-loop` — Core PMPO learning loop (Spec=concept+depth, Plan=explanation structure, Execute=plain-language+analogies+skeptic, Reflect=grade+gaps); vertical recursion with floor guard (max depth 3); horizontal escalation (novice→peer→skeptic)
+- `skills/learn/learn-grade` — External, source-grounded, sycophancy-corrected grader (S-02 pattern); pass = score ≥ 0.7 AND misconceptions_absent
+- `skills/learn/learn-retain` — FSRS-6 spaced retrieval; reads due queue; four-tier rating mapping (Easy/Good/Hard/Again by score)
+- `skills/learn/learn-practice` — Derivation/implementation/transfer modes; mastery-gated access; interleaved schedule
+- `skills/learn/learn-certify` — OB 3.0 / W3C VC JSON-LD credential; integrity guardrail (Δmastery > 0.4 → integrityNote); self-issued via did-plc
+- `skills/learn/learn-kb` — KB registry management; four adapter types (dify:, palace:, local:, web:); privacy guarantee — never forwards KB content to external APIs
+- `skills/learn/learn-about-system` — Zero-friction adoption entry for the Prometheus stack; uses meta-corpus files for KBD and skill-pack self-teaching
+- `skills/learn/learn-harness` — Harness auto-detection; 13-row capability map table (5 harnesses); per-harness orientation; `--map-only` flag
+
+**Substrate Crates (Layer A)**
+
+- `substrate/storage-provider` — `StorageProvider` + `CrdtEngine` async traits; `LocalDirAdapter` (default); `AutomergeEngine` (automerge 0.5); `IrohDocsAdapter` stub
+- `substrate/learner-model` — automerge-backed CRDT learner model; simplified FSRS-6 scheduler with Rating enum; JSON-RPC stdin/stdout shell interface; PFA mastery update at ≥5 observations; binary + lib crate
+- `substrate/surface-bridge` — Axum 0.7 MCP App server on `127.0.0.1:7890`; `/health`, `/mcp/detect-surface-tier`, `/mcp/render-ui-intent`, `/mcp/collect-response`; macOS launchd plist included
+
+**Schemas & Corpora**
+
+- `docs/learn/schemas/learner-model.schema.json` — JSON Schema Draft-07 for LearnerModel, ConceptState, FSRSCard, GapRecord, LearnerModelSeed
+- `docs/learn/schemas/grounding-corpus.schema.json` — JSON Schema for content-grounding output; six source_type values
+- `docs/learn/schemas/kb-corpus.schema.json` — Extends grounding-corpus; adds `kb_source` and `privacy_mode` required fields
+- `docs/learn/crdt-conflict-semantics.md` — Field-level CRDT merge rules; mastery=LWW+vc, observations=union-append, fsrs_card.due=min, fsrs_card.stability=max
+- `docs/learn/surface-tier-detection.md` — Tier 0/1/2 detection signals per harness
+- `docs/learn/kb-adapter-guide.md` — Privacy-safe KB adapter usage reference (195 lines)
+- `docs/learn/meta-corpus/kbd-lifecycle-corpus.json` — 18 source entries + 8 misconceptions for KBD self-teaching
+- `docs/learn/meta-corpus/skill-pack-corpus.json` — 15 source entries + 9 misconceptions for skill-pack self-teaching
+
+**Shared Scripts**
+
+- `shared/scripts/content-grounding.sh` — 4-tier source chain (Dify KB → palace RAG → MCP filesystem → Firecrawl web); `--include-misconceptions` flag
+- `shared/scripts/content-grounding-kb.sh` — Privacy-safe KB adapter; NEVER forwards KB content to external APIs; warns on external API env vars
+- `shared/scripts/detect-surface-tier.sh` — `default`/`--print`/`--json` modes; reads env vars + surface-bridge.pid check
+
+**Integration Tests**
+
+- `tests/learn/integration-basic-flow.sh` — write-goal → write-survey → write-artifact → write-grade pipeline
+- `tests/learn/integration-full-loop.sh` — FSRS card mutation, practice-result fields, VC JSON-LD structure, integrity guardrail
+- `tests/learn/integration-kb.sh` — local adapter, privacy guardrail, corpus schema validation, KB registry
+- `tests/learn/integration-meta.sh` — KBD corpus, skill-pack corpus, detect-surface-tier, learn-about-system, learn-harness, all 12 skills validate
+
+**Documentation**
+
+- `docs/guide/10-learn-skills.md` — Operator guide chapter for the learn domain (274 lines)
+- `CLAUDE.md` — New `## Learn Domain` section: four-layer architecture, substrate crates, surface tier degradation contract, KB adapter pattern, mastery criterion, anti-sycophancy mandate
+
+**Infrastructure**
+
+- `scripts/install-skills-flat.sh` — `install_learn_substrate` function: builds storage-provider, learner-model, surface-bridge Rust crates; installs learner-model binary to `~/.local/bin`; installs surface-bridge as macOS launchd service
+- `shared/scripts/detect-toolchain.sh` — Added `learner-model` binary check and `surface-bridge` HTTP reachability check
+- `.claude-plugin/plugin.json` — Added all 12 `./skills/learn/<skill>` paths
+- `marketplace/marketplace.json` — Added `learn` domain entry with 12 skills
+
 ### Changed
+
 - `skills/process/kbd-process-orchestrator/prompts/reflect.md` — inlined sycophancy-correction invocation contract and scoring thresholds directly into the "Sycophancy Self-Check (MANDATORY)" section.
 - `skills/process/kbd-process-orchestrator/prompts/assess.md` — added invocation subsection mirroring reflect.md with Assess-appropriate thresholds.
 - `skills/process/kbd-process-orchestrator/prompts/plan.md` — added Sycophancy Self-Check section (previously missing).
 - `skills/process/kbd-process-orchestrator/references/integrations/sycophancy-correction.md` — Plan phase promoted from exclusion to first-class checked phase.
 - `scripts/check-prerequisites.sh` — invokes smoke-test.sh after sycophancy-correction binary install to verify functionality.
 - `scripts/validate-skills.js` — hardened against symlink loops and recursive structures (lstat + isSymbolicLink skip, realpath-based visited-set, expanded skip list).
+- `CLAUDE.md` — directory structure diagram updated with `skills/learn/` subtree and `substrate/` crates; `## Learn Domain` section added
+- `README.md` — learn domain added to directory structure and skills section
 
 ### Submodule bumps
 - `skills/imported/sycophancy-correction` → d973ef370fe238ceeed72c1b462e85ee83144734
+
+[1.4.0]: https://github.com/Prometheus-AGS/prometheus-skill-system/releases/tag/v1.4.0
 
 ## [1.1.0] - 2026-04-15
 

@@ -39,6 +39,7 @@ The guide is built in layers. Read it top to bottom the first time; use it as a 
 |---|------|----------------|
 | 08 | [Skills Overview](08-skills-overview.md) | The skills model, discovery, the AgentSkills.io standard, and the full category index |
 | 09 | [Process & Orchestration Skills](09-process-skills.md) | ZeeSpec, iterative-evolver, the KBD orchestrator and its child skills, pmpo-elicit, pmpo-outer-loop, pmpo-skill-creator, native-agent, liter-llm-bridge, ideation-mindmap, kbd-evolve |
+| 10 | [Learn Domain Skills](10-learn-skills.md) | The 12 learn skills (ui-surface, learn-goal, learn-survey, learn-plan, feynman-loop, learn-grade, learn-retain, learn-practice, learn-certify, learn-kb, learn-about-system, learn-harness), FSRS-6 spaced retrieval, KB adapters, and meta-learning for the Prometheus stack |
 | 10 | [Language & Domain Skills](10-language-skills.md) | Rust, React, Flutter, Tauri, HTMX, TypeScript, Go, Python, architecture, testing, DevOps, document extraction, and the Flint SDK skills |
 | 11 | [The Artifact Refiner](11-artifact-refiner.md) | The artifact-centric refinement engine and all fifteen of its commands |
 | 12 | [The Native Agent Generator](12-native-agent-generator.md) | Generating complete Rust agents, the A2A/AG-UI/A2UI protocols, and agent networks |

@@ -1,0 +1,37 @@
+{
+  "corpus_id": "linear-algebra-test",
+  "subject": "linear algebra basics",
+  "target_level": "novice",
+  "schema_version": "1.0.0",
+  "built_at": "2026-06-28T00:00:00Z",
+  "sources": [
+    {
+      "source_ref": "tests/learn/fixtures/sample-kb/linear-algebra-basics.md — Vectors",
+      "source_type": "mcp_filesystem",
+      "confidence": 0.95,
+      "is_misconception": false,
+      "content_summary": "A vector is an ordered list of numbers representing direction and magnitude in space."
+    },
+    {
+      "source_ref": "tests/learn/fixtures/sample-kb/linear-algebra-basics.md — Matrices",
+      "source_type": "mcp_filesystem",
+      "confidence": 0.95,
+      "is_misconception": false,
+      "content_summary": "A matrix is a rectangular array of numbers. Matrix multiplication is not commutative."
+    },
+    {
+      "source_ref": "MISCONCEPTION: vectors are just points",
+      "source_type": "known_misconception",
+      "confidence": 0.99,
+      "is_misconception": true,
+      "content_summary": "Vectors are NOT just points. Vectors have both magnitude and direction; points have only position."
+    },
+    {
+      "source_ref": "MISCONCEPTION: matrix multiplication is commutative",
+      "source_type": "known_misconception",
+      "confidence": 0.99,
+      "is_misconception": true,
+      "content_summary": "Matrix multiplication is NOT commutative. In general, AB ≠ BA."
+    }
+  ]
+}

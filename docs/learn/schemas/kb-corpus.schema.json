@@ -1,0 +1,105 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://prometheus.local/schemas/kb-corpus/1.0.0",
+  "title": "KB Corpus",
+  "description": "Output schema for content-grounding-kb.sh — a privacy-safe teaching corpus assembled from a custom knowledge base (Dify, surreal-memory palace, or local files). Extends the grounding-corpus schema with kb_source and privacy_mode fields.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "corpus_id",
+    "subject",
+    "target_level",
+    "schema_version",
+    "built_at",
+    "kb_source",
+    "privacy_mode",
+    "sources"
+  ],
+  "properties": {
+    "corpus_id": {
+      "type": "string",
+      "description": "Unique identifier for this corpus: <kb-slug>-<subject-slug>.",
+      "minLength": 1,
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+    },
+    "subject": {
+      "type": "string",
+      "description": "The original human-readable subject string passed to content-grounding-kb.sh.",
+      "minLength": 1
+    },
+    "target_level": {
+      "type": "string",
+      "description": "Intended audience level, e.g. 'practitioner', 'beginner', 'expert'.",
+      "minLength": 1
+    },
+    "schema_version": {
+      "type": "string",
+      "description": "Semver version of this schema.",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "built_at": {
+      "type": "string",
+      "description": "ISO-8601 UTC timestamp when the corpus was built.",
+      "format": "date-time"
+    },
+    "kb_source": {
+      "type": "string",
+      "description": "The --kb flag value that produced this corpus, e.g. 'dify:legal-kb', 'palace:my-palace-id', 'local:/data/docs'.",
+      "minLength": 1
+    },
+    "privacy_mode": {
+      "type": "boolean",
+      "description": "Must be true. Indicates that no KB content was forwarded to external APIs during corpus assembly.",
+      "enum": [true]
+    },
+    "sources": {
+      "type": "array",
+      "description": "Ordered list of source entries that make up the teaching corpus.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "source_ref",
+          "source_type",
+          "confidence",
+          "is_misconception",
+          "content_summary"
+        ],
+        "properties": {
+          "source_ref": {
+            "type": "string",
+            "description": "A stable identifier for the source: URL, file path, KB document ID, palace memory ID, etc.",
+            "minLength": 1
+          },
+          "source_type": {
+            "type": "string",
+            "description": "Category of the source, corresponding to the adapter that produced it.",
+            "enum": [
+              "primary_doc",
+              "known_misconception",
+              "web_search",
+              "dify_kb",
+              "palace_rag",
+              "mcp_filesystem"
+            ]
+          },
+          "confidence": {
+            "type": "number",
+            "description": "Retrieval confidence score in the range [0, 1].",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "is_misconception": {
+            "type": "boolean",
+            "description": "True when this source documents a known-wrong belief about the subject."
+          },
+          "content_summary": {
+            "type": "string",
+            "description": "A brief summary of the source content (at least 10 characters).",
+            "minLength": 10
+          }
+        }
+      }
+    }
+  }
+}

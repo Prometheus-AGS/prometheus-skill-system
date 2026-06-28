@@ -312,6 +312,70 @@ JS
 
 configure_minimax_mcp
 
+# Build and install learn-domain substrate crates
+install_learn_substrate() {
+    if $UNINSTALL; then
+        return
+    fi
+
+    if ! command -v cargo &>/dev/null; then
+        echo "  — learn-substrate: cargo not found, skipping Rust substrate builds"
+        return
+    fi
+
+    local substrate_dir="$REPO_ROOT/substrate"
+
+    # Build storage-provider (library only, no binary)
+    echo ""
+    echo "  Building substrate/storage-provider..."
+    if cargo build --release --manifest-path "$substrate_dir/storage-provider/Cargo.toml" 2>/dev/null; then
+        echo "  ✅ learn-substrate: storage-provider built"
+    else
+        echo "  ⚠️  learn-substrate: storage-provider build failed (non-fatal)"
+    fi
+
+    # Build learner-model (binary + lib)
+    echo "  Building substrate/learner-model..."
+    if cargo build --release --manifest-path "$substrate_dir/learner-model/Cargo.toml" 2>/dev/null; then
+        echo "  ✅ learn-substrate: learner-model built"
+        # Install binary to ~/.local/bin
+        local bin_dir="$HOME/.local/bin"
+        mkdir -p "$bin_dir"
+        cp "$substrate_dir/learner-model/target/release/learner-model" "$bin_dir/learner-model" 2>/dev/null && \
+            echo "  ✅ learn-substrate: learner-model installed to $bin_dir/learner-model" || true
+    else
+        echo "  ⚠️  learn-substrate: learner-model build failed (non-fatal)"
+    fi
+
+    # Build surface-bridge (Axum MCP App server)
+    echo "  Building substrate/surface-bridge..."
+    if cargo build --release --manifest-path "$substrate_dir/surface-bridge/Cargo.toml" 2>/dev/null; then
+        echo "  ✅ learn-substrate: surface-bridge built"
+        local bin_dir="$HOME/.local/bin"
+        mkdir -p "$bin_dir"
+        cp "$substrate_dir/surface-bridge/target/release/surface-bridge" "$bin_dir/surface-bridge" 2>/dev/null || true
+    else
+        echo "  ⚠️  learn-substrate: surface-bridge build failed (non-fatal)"
+    fi
+
+    # Install launchd service on macOS
+    if [[ "$(uname -s)" == "Darwin" ]]; then
+        local plist_src="$substrate_dir/surface-bridge/com.prometheusags.surface-bridge.plist"
+        local plist_dst="$HOME/Library/LaunchAgents/com.prometheusags.surface-bridge.plist"
+        if [[ -f "$plist_src" ]]; then
+            # Update the program path to the installed binary
+            sed "s|/usr/local/bin/surface-bridge|$HOME/.local/bin/surface-bridge|g" "$plist_src" > "$plist_dst"
+            launchctl load -w "$plist_dst" 2>/dev/null && \
+                echo "  ✅ learn-substrate: surface-bridge launchd service installed" || \
+                echo "  ⚠️  learn-substrate: launchd load failed (may already be loaded)"
+        fi
+    else
+        echo "  ℹ️  learn-substrate: launchd install skipped (not macOS)"
+    fi
+}
+
+install_learn_substrate
+
 # Post-install: configure all Prometheus MCP servers across all AI tools
 if [[ -f "$REPO_ROOT/scripts/configure-mcp-all-tools.sh" ]] && ! $UNINSTALL; then
     echo ""
