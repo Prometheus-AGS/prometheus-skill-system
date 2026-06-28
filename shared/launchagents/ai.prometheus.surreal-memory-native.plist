@@ -38,8 +38,11 @@
     <string>root</string>
     <key>SURREAL_NAMESPACE</key>
     <string>memory</string>
+    <!-- DB holding the live memory/knowledge data (memories, skills, settings,
+         knowledge_bases/chunks/documents, agents). The former default
+         'main_local_384' was an empty schema-only DB. -->
     <key>SURREAL_DATABASE</key>
-    <string>main_local_384</string>
+    <string>mcp</string>
 
     <!-- HTTP server — bind on 23001 to preserve existing MCP client configs -->
     <key>API_PORT</key>
