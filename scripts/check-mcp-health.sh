@@ -75,7 +75,7 @@ if ! $JSON_MODE; then
 fi
 
 # HTTP-reachable services
-print_row "surreal-memory"         "ai.prometheus.surreal-memory-docker"  "http://localhost:23001/health"  "Knowledge graph + scoped memory (Docker)"
+print_row "surreal-memory"         "ai.prometheus.surreal-memory-native"  "http://localhost:23001/health"  "Knowledge graph + scoped memory (native)"
 print_row "prometheus-knowledge"   "ai.prometheus.pk-cherry"              "http://localhost:8942/mcp"      "pk-cherry HTTP MCP (Karpathy KB)"
 print_row "forge-rs"               "ai.prometheus.forge-mcp"              "http://localhost:8943/mcp"      "Forge code-enrichment MCP"
 
