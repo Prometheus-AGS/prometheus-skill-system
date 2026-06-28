@@ -88,7 +88,9 @@ render_plist() {
     forge_bin="$(resolve_bin forge)";               [ -n "$forge_bin" ]         || forge_bin="/Users/gqadonis/.local/bin/forge"
     docker_bin="$(resolve_bin docker)";             [ -n "$docker_bin" ]        || docker_bin="/usr/local/bin/docker"
     surreal_bin="$(resolve_bin surreal)";           [ -n "$surreal_bin" ]       || surreal_bin="/opt/homebrew/bin/surreal"
-    surreal_memory_bin="$PROMETHEUS_HOME/Projects/prometheus/surreal-memory-server/target/release/surreal-memory-server"
+    surreal_memory_bin="$(resolve_bin surreal-memory-server)"
+    [ -n "$surreal_memory_bin" ]  || surreal_memory_bin="$REPO_ROOT/tools/surreal-memory-server/target/release/surreal-memory-server"
+    [ -f "$surreal_memory_bin" ]  || surreal_memory_bin="$PROMETHEUS_HOME/.local/bin/surreal-memory-server"
 
     python3 - "$src" "$output" <<PY
 import pathlib, sys
