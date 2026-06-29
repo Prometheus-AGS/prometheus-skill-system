@@ -1,0 +1,24 @@
+# systemd --user unit — Prometheus pk-cherry knowledge MCP (native).
+# Mirrors shared/launchagents/ai.prometheus.pk-cherry.plist. Binds :8942.
+[Unit]
+Description=Prometheus pk-cherry knowledge MCP (native, :8942)
+Documentation=https://github.com/Prometheus-AGS/prometheus-skill-system
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=__PROMETHEUS_ROOT__
+Environment=HOME=__PROMETHEUS_HOME__
+Environment=USER=__PROMETHEUS_USER__
+Environment=PATH=__PROMETHEUS_PATH__
+Environment=PK_BIND=127.0.0.1:8942
+Environment=PK_KB_DIR=__PROMETHEUS_HOME__/.prometheus/knowledge
+ExecStartPre=/bin/mkdir -p __PROMETHEUS_HOME__/.prometheus/knowledge
+ExecStart=__PK_CHERRY_BIN__
+Restart=on-failure
+RestartSec=10
+StandardOutput=append:__PROMETHEUS_LOG_DIR__/pk-cherry.stdout.log
+StandardError=append:__PROMETHEUS_LOG_DIR__/pk-cherry.stderr.log
+
+[Install]
+WantedBy=default.target

@@ -30,7 +30,7 @@ bash shared/scripts/detect-toolchain.sh --json   # machine-readable
 graph TD
     A[git clone --recurse-submodules] --> B[check-prerequisites.sh --build-tools]
     B --> C[install-skills-flat.sh — skills to all platforms]
-    C --> D[install-mcp-services.sh — launchd agents]
+    C --> D[install-mcp-services.sh — launchd / systemd --user]
     D --> E[configure-mcp-all-tools.sh — per-tool MCP config]
     E --> F[prometheus-services.sh load]
     F --> G[check-mcp-health.sh — verify]
@@ -92,7 +92,7 @@ cd tools/surreal-memory-server && docker compose up -d
 curl -s http://localhost:23001/health | jq .
 ```
 
-On Linux, use systemd user services or cron-style scheduled jobs in place of LaunchAgents — the binaries and ports are identical; only the service manager differs.
+On Linux the same `bash scripts/install-mcp-services.sh` renders `systemd --user` units into `~/.config/systemd/user/`, enables lingering, and `systemctl --user enable --now`s each daemon — the binaries and ports are identical; only the service manager differs, and the installer picks it automatically. The bundled SurrealDB runs on `127.0.0.1:28000` (separate from any external instance on `:8000`), and already-running services are detected and reused rather than double-started.
 
 ### Step 5 — verify
 
