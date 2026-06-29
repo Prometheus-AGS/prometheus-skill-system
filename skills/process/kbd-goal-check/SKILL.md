@@ -31,6 +31,22 @@ Evaluate whether the active KBD goal phase's stopping condition is met.
 Invoke this after each execution turn — before deciding whether to continue
 the loop or advance to the next phase.
 
+## Progress Signals (MANDATORY)
+
+Before any other action, emit:
+
+```
+Starting kbd-goal-check — <goal slug>
+```
+
+When the stopping-condition assessment is complete, emit:
+
+```
+Completed kbd-goal-check — <goal slug> (status: <met|not-met>)
+```
+
+Emit to plain response text — no tool call needed.
+
 ## When to Use
 
 - After each Kimi Code execution turn within a `/kbd-goal` phase

@@ -40,9 +40,11 @@ tools/surreal-memory-server/target/
 tools/liter-llm/target/
 tools/prometheus-knowledge/target/
 
-# Build output — symlinks created by `npm run build`
+# Build output — symlinks created by `npm run build`.
+# NOTE: .claude-plugin/hooks is intentionally tracked (committed symlink) so the
+# hooks-integrity CI check and plugin.json's "./hooks/hooks.json" resolve in a
+# fresh checkout without running the build. See CLAUDE.md "Canonical hooks path".
 .claude-plugin/agents
-.claude-plugin/hooks
 .claude-plugin/skills
 SCRATCHPAD.md
 

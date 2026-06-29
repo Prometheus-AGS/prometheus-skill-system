@@ -20,4 +20,4 @@
 	branch = main
 [submodule "skills/imported/prometheus-entity-management"]
 	path = skills/imported/prometheus-entity-management
-	url = git@github.com:Prometheus-AGS/prometheus-entity-management.git
+	url = https://github.com/Prometheus-AGS/prometheus-entity-management.git

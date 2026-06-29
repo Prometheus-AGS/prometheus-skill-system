@@ -13,6 +13,22 @@ metadata:
 
 Staged idea validation sub-skill for the `idea-validation` evolution perspective. Takes an operator-supplied idea through three gates before committing to a KBD phase.
 
+## Progress Signals (MANDATORY)
+
+Before any other action, emit:
+
+```
+Starting validate-idea — <idea title>
+```
+
+When the three-gate pipeline finishes, emit:
+
+```
+Completed validate-idea — <idea title> (verdict: <pass|fail>, gate: <1|2|3>)
+```
+
+Emit to plain response text — no tool call needed.
+
 ## Entry
 
 ```
