@@ -36,7 +36,7 @@ The **prometheus-entity-skills** bundle is a progressive-disclosure catalog of i
 6. **entity-graph-optimize** — audit integrations for architecture violations, selector/subscription churn, missing cascade registration, memory growth. *(entity-audit, -perf, -gc)*
 7. **entity-realtime-surreal-live** *(standalone)* — wire SurrealDB LIVE SELECT into the graph via `createSurrealLiveAdapter`, with select-then-live seeding and exponential-backoff reconnect.
 
-The underlying library (`@prometheus-ags/prometheus-entity-management`, the imported `prometheus-entity-management` submodule) is a normalized, globally-reactive entity graph store for React on Zustand + immer — one application-wide graph that replaces TanStack Query's per-view cache. Its core hook is `useEntity({type, id, fetch, normalize})`.
+The underlying library (`@prometheus-ags/prometheus-entity-management`) is a normalized, globally-reactive entity graph store for React on Zustand + immer — one application-wide graph that replaces TanStack Query's per-view cache. Its core hook is `useEntity({type, id, fetch, normalize})`.
 
 ## Flutter, Tauri, HTMX
 
