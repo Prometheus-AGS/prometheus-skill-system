@@ -77,24 +77,33 @@ if (!config[mcpKey]) config[mcpKey] = {};
 
 const table = JSON.parse(fs.readFileSync(tablePath, 'utf8')).services;
 
+// OpenCode uses its own MCP schema (key "mcp"): { type: "remote"|"local", enabled, ... }
+// rather than the Claude-style sse/http/stdio used by every other JSON tool.
+const isOpencode = mcpKey === 'mcp';
+const resolveEnv = (env) => {
+    const out = {};
+    for (const [k, v] of Object.entries(env)) {
+        out[k] = v.replace('${TAVILY_API_KEY}', tavilyKey).replace('${FIRECRAWL_API_KEY}', firecrawlKey);
+    }
+    return out;
+};
+
 const added = [];
 for (const [name, svc] of Object.entries(table)) {
     if (config[mcpKey][name]) continue;
 
-    if (svc.transport === 'http') {
-        config[mcpKey][name] = { type: 'sse', url: svc.url };
+    if (svc.type === 'sse' || svc.type === 'http') {
+        config[mcpKey][name] = isOpencode
+            ? { type: 'remote', url: svc.url, enabled: true }
+            : { type: svc.type, url: svc.url }; // sse = SSE, http = Streamable HTTP
+    } else if (isOpencode) {
+        const entry = { type: 'local', command: [svc.command, ...(svc.args || [])], enabled: true };
+        if (svc.env) entry.environment = resolveEnv(svc.env);
+        config[mcpKey][name] = entry;
     } else {
         const entry = { type: 'stdio', command: svc.command };
         if (svc.args && svc.args.length > 0) entry.args = svc.args;
-        if (svc.env) {
-            entry.env = {};
-            for (const [k, v] of Object.entries(svc.env)) {
-                let resolved = v
-                    .replace('${TAVILY_API_KEY}', tavilyKey)
-                    .replace('${FIRECRAWL_API_KEY}', firecrawlKey);
-                entry.env[k] = resolved;
-            }
-        }
+        if (svc.env) entry.env = resolveEnv(svc.env);
         config[mcpKey][name] = entry;
     }
     added.push(name);
@@ -145,23 +154,23 @@ TOML
         added+=("surreal-memory")
     fi
 
-    # prometheus-knowledge (SSE)
+    # prometheus-knowledge (Streamable HTTP)
     if ! grep -q "\[mcp_servers.prometheus-knowledge\]" "$config_file" 2>/dev/null; then
         cat >> "$config_file" <<'TOML'
 
 [mcp_servers.prometheus-knowledge]
-type = "sse"
+type = "http"
 url = "http://localhost:8942/mcp"
 TOML
         added+=("prometheus-knowledge")
     fi
 
-    # forge-rs (SSE)
+    # forge-rs (Streamable HTTP)
     if ! grep -q "\[mcp_servers.forge-rs\]" "$config_file" 2>/dev/null; then
         cat >> "$config_file" <<'TOML'
 
 [mcp_servers.forge-rs]
-type = "sse"
+type = "http"
 url = "http://localhost:8943/mcp"
 TOML
         added+=("forge-rs")
@@ -182,7 +191,7 @@ TOML
         cat >> "$config_file" <<TOML
 
 [mcp_servers.liter-llm]
-command = "/Users/gqadonis/.local/bin/liter-llm"
+command = "liter-llm"
 args = ["mcp", "--transport", "stdio"]
 TOML
         added+=("liter-llm")
@@ -205,7 +214,7 @@ TOML
 
 [mcp_servers.tavily]
 command = "npx"
-args = ["-y", "@anthropic/tavily-mcp@latest"]
+args = ["-y", "tavily-mcp"]
 
 [mcp_servers.tavily.env]
 TAVILY_API_KEY = "$TAVILY_API_KEY"

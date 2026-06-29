@@ -6,11 +6,11 @@
       "url": "http://localhost:23001/mcp/sse",
       "port": 23001,
       "path": "/mcp/sse",
-      "transport": "http",
+      "transport": "sse",
       "description": "Surreal-memory distributed knowledge graph, scoped memory, TaskStreams, Graph-RAG"
     },
     "prometheus-knowledge": {
-      "type": "sse",
+      "type": "http",
       "url": "http://localhost:8942/mcp",
       "port": 8942,
       "path": "/mcp",
@@ -18,7 +18,7 @@
       "description": "pk-cherry HTTP MCP — Karpathy LLM Knowledge Base (knowledge_ingest, knowledge_focus, knowledge_search)"
     },
     "forge-rs": {
-      "type": "sse",
+      "type": "http",
       "url": "http://localhost:8943/mcp",
       "port": 8943,
       "path": "/mcp",
@@ -34,7 +34,7 @@
     },
     "liter-llm": {
       "type": "stdio",
-      "command": "/Users/gqadonis/.local/bin/liter-llm",
+      "command": "liter-llm",
       "args": ["mcp", "--transport", "stdio"],
       "transport": "stdio",
       "description": "Multi-model routing proxy — 22 MCP tools across 140+ providers"
@@ -49,8 +49,10 @@
     "tavily": {
       "type": "stdio",
       "command": "npx",
-      "args": ["-y", "@anthropic/tavily-mcp@latest"],
-      "env": { "TAVILY_API_KEY": "${TAVILY_API_KEY}" },
+      "args": ["-y", "tavily-mcp"],
+      "env": {
+        "TAVILY_API_KEY": "${TAVILY_API_KEY}"
+      },
       "transport": "stdio",
       "description": "Tavily web search MCP (tavily_search, tavily_extract, tavily_research) — search-first, ranked result aggregation"
     },
