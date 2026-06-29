@@ -352,66 +352,11 @@ check_npm() {
     fi
 }
 
-# ── Quiet reachability probe ─────────────────────────────────────────────────
-# Returns 0 if something answers on localhost:<port><path>, 1 otherwise. Prints
-# nothing — used for silent capability checks (e.g. "is SurrealDB already up?").
-probe_port() {
-    local port="$1" path="${2:-/}"
-    if command -v curl >/dev/null 2>&1; then
-        local code rc
-        code=$(curl -sI -o /dev/null -w '%{http_code}' --connect-timeout 1 --max-time 2 "http://localhost:$port$path" 2>/dev/null)
-        rc=$?
-        [ "$rc" -eq 0 ] && [ -n "$code" ] && [ "$code" != "000" ] && return 0
-    fi
-    if command -v nc >/dev/null 2>&1; then
-        nc -z -w2 localhost "$port" 2>/dev/null && return 0
-    fi
-    return 1
-}
-
-# ── Service reachability helper ──────────────────────────────────────────────
-# Probes whether a service is already running on a local port. Used to avoid
-# rebuilding/reinstalling things that something else has already provisioned
-# (e.g. surreal-memory-server already running via docker compose from another
-# repo).
-#
-# Usage: check_running_service <label> <port> [<path>]
-# Echoes a one-line status when it finds one.
-# Returns: 0 if reachable, 1 if not.
-check_running_service() {
-    local label="$1" port="$2" path="${3:-/}"
-    local url="http://localhost:$port$path"
-    local how=""
-
-    # HEAD probe — terminates cleanly even on SSE/streaming endpoints. A 4xx or
-    # 405 still proves a server is listening; only "000" (no connection) and a
-    # non-zero curl exit count as "not running".
-    if command -v curl >/dev/null 2>&1; then
-        local code rc
-        code=$(curl -sI -o /dev/null -w '%{http_code}' --connect-timeout 1 --max-time 2 "$url" 2>/dev/null)
-        rc=$?
-        if [ "$rc" -eq 0 ] && [ -n "$code" ] && [ "$code" != "000" ]; then
-            how="HTTP $code at $url"
-        fi
-    fi
-
-    if [ -z "$how" ] && command -v nc >/dev/null 2>&1; then
-        if nc -z -w2 localhost "$port" 2>/dev/null; then
-            how="TCP :$port listening"
-        fi
-    fi
-
-    [ -z "$how" ] && return 1
-
-    if command -v docker >/dev/null 2>&1; then
-        local container
-        container=$(docker ps --filter "publish=$port" --format '{{.Names}}' 2>/dev/null | head -1)
-        [ -n "$container" ] && how="$how (docker: $container)"
-    fi
-
-    echo "    ✅ $label already running — $how"
-    return 0
-}
+# ── Reachability probes ──────────────────────────────────────────────────────
+# probe_port / check_running_service live in the shared lib so this script and
+# scripts/install-mcp-services.sh detect "already running" the same way.
+# shellcheck source=../shared/scripts/service-probe.sh
+. "$REPO_ROOT/shared/scripts/service-probe.sh"
 
 # ── Tool builder helper ──────────────────────────────────────────────────────
 # Builds a Rust workspace and copies a single binary out.

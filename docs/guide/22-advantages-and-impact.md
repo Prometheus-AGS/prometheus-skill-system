@@ -42,7 +42,7 @@ An advantages page that lists no costs is not analysis. These are real.
 
 **Rust as a build dependency.** The toolchain is Rust, which buys predictable latency and single-binary deployment but requires `rustup` and compile time on first install. For a team with no Rust in its stack, that is a new dependency to own.
 
-**macOS-first service tooling.** The service layer ships as `launchd` LaunchAgents. Linux is supported via systemd user services or cron, but that path is a documented substitution rather than a turnkey one. Other operating systems require adapting the service layer.
+**Service tooling targets macOS and Linux.** The service layer ships as `launchd` LaunchAgents on macOS and `systemd --user` units on Linux; `install-mcp-services.sh` detects the OS and renders/loads the right ones from a single set of templates, so both are turnkey. Other operating systems require adapting the service layer.
 
 **Honest internal inconsistencies.** The repository carries some drift this guide has flagged where it appears: the artifact-refiner's version differs across its own manifests (1.1.0 / 1.2.0 / 1.3.0); surreal-memory's canonical port here (23001) differs from upstream's default (3000); the two MCP config sources (`.mcp.json` and `mcp-port-table.json`) are not byte-identical; and the sycophancy server's Anthropic client is stubbed in the current release. None of these break the system, but they are the kind of detail that costs a new operator time, and they are named rather than hidden.
 
