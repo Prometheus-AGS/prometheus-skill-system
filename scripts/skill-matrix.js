@@ -30,6 +30,12 @@ const __dirname = dirname(__filename);
 
 const REPO_ROOT = resolve(__dirname, '..');
 const SKILLS_GLOB = 'skills/**/SKILL.md';
+// Imported submodules carry their own (often duplicated) skill trees with
+// independent lifecycles. Collision detection targets THIS repo's native skills
+// only — consistent with `npm run validate` and `.prettierignore`, which both
+// exclude skills/imported. Scanning them produces false self-collisions when a
+// skill is vendored both natively and inside a submodule.
+const SKILLS_IGNORE = ['skills/imported/**'];
 const ALLOWLIST = join(__dirname, 'skill-collision-allowlist.json');
 
 const args = process.argv.slice(2);
@@ -106,7 +112,7 @@ function jaccard(a, b) {
 // Load skills
 // ---------------------------------------------------------------------------
 
-const skillFiles = globSync(SKILLS_GLOB, { cwd: REPO_ROOT, absolute: true });
+const skillFiles = globSync(SKILLS_GLOB, { cwd: REPO_ROOT, absolute: true, ignore: SKILLS_IGNORE });
 
 const skills = [];
 for (const f of skillFiles) {

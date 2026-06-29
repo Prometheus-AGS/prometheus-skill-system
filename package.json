@@ -61,15 +61,16 @@
   },
   "license": "MIT",
   "devDependencies": {
-    "prettier": "^3.2.5",
-    "js-yaml": "^4.1.0",
-    "ajv": "^8.12.0",
-    "chokidar": "^5.0.0",
-    "tsx": "^4.22.3",
-    "typescript": "^6.0.3",
-    "@types/node": "^25.9.1",
     "@opencode-ai/plugin": "1.15.12",
     "@opencode-ai/sdk": "^1.15.12",
+    "@types/node": "^25.9.1",
+    "ajv": "^8.12.0",
+    "chokidar": "^5.0.0",
+    "glob": "^8.1.0",
+    "js-yaml": "^4.1.0",
+    "prettier": "^3.2.5",
+    "tsx": "^4.22.3",
+    "typescript": "^6.0.3",
     "zod": "^4.4.3"
   },
   "engines": {

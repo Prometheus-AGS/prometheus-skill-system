@@ -94,9 +94,7 @@ async function main() {
   if (errors.length > 0) {
     console.error(`✗ progress-signal lint failed (${errors.length} problem(s)):\n`);
     for (const err of errors) console.error(`  - ${err}`);
-    console.error(
-      `\nChecked ${checked} process skills (${exempt} baselined/exempt).`
-    );
+    console.error(`\nChecked ${checked} process skills (${exempt} baselined/exempt).`);
     process.exit(1);
   }
   console.log(
@@ -104,7 +102,7 @@ async function main() {
   );
 }
 
-main().catch((err) => {
+main().catch(err => {
   console.error('validate-progress-signals failed:', err);
   process.exit(1);
 });
