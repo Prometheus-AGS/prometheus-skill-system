@@ -91,7 +91,7 @@ cd skills/imported/<name> && git checkout vX.Y.Z && cd -
 git add skills/imported/<name> && git commit -m "chore: pin <name> to vX.Y.Z"
 ```
 
-The current submodules are `artifact-refiner`, `sycophancy-correction`, and `prometheus-entity-management` (skills), plus `surreal-memory-server`, `prometheus-knowledge`, and `liter-llm` (tools). Full detail is in `docs/SUBMODULES.md`.
+The current submodules are `artifact-refiner` and `sycophancy-correction` (skills), plus `surreal-memory-server`, `prometheus-knowledge`, and `liter-llm` (tools). Full detail is in `docs/SUBMODULES.md`.
 
 ## Importing an external skill
 

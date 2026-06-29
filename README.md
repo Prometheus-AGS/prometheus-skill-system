@@ -160,8 +160,7 @@ prometheus-skill-pack/
 │   ├── document-extraction/     ← Kreuzberg multi-format extraction
 │   └── imported/                ← Git submodule skills
 │       ├── artifact-refiner/        ← PMPO artifact refinement (submodule)
-│       ├── sycophancy-correction/   ← 8-pattern detection, Rust MCP server (submodule)
-│       └── prometheus-entity-management/ ← Entity graph library + skills (submodule)
+│       └── sycophancy-correction/   ← 8-pattern detection, Rust MCP server (submodule)
 │
 ├── tools/                       ← Rust workspaces and submodule tools
 │   ├── forge-rs/                ← Layer 4: code enrichment engine

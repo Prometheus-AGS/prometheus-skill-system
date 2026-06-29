@@ -71,7 +71,7 @@ Every native skill conforms strictly to the [AgentSkills.io specification](https
 | **DevOps** | 4 | argocd-multicloud, gitops-bootstrap, gitops-transform, kustomize-overlay | [10](10-language-skills.md) |
 | **Document extraction** | 1 | kreuzberg | [10](10-language-skills.md) |
 | **Flint** | 6 | flint-sdk-csharp, -dart, -go, -kotlin, -swift, -ts | [10](10-language-skills.md) |
-| **Imported (submodules)** | 3 | artifact-refiner, sycophancy-correction, prometheus-entity-management | [11](11-artifact-refiner.md), [07](07-sycophancy-correction.md) |
+| **Imported (submodules)** | 2 | artifact-refiner, sycophancy-correction | [11](11-artifact-refiner.md), [07](07-sycophancy-correction.md) |
 
 ## Native, imported, and forge-rs skills
 
@@ -79,7 +79,7 @@ There are three kinds of skill in the repository, and the distinction matters fo
 
 **Native skills** live directly under `skills/<category>/` and are maintained in this repository. Most are uniform `v1.0.0`, MIT-licensed, with `metadata.tags`. (One exception worth knowing: `kreuzberg` is Elastic-2.0 licensed, not MIT.)
 
-**Imported skills** live under `skills/imported/` as git submodules, because they have independent development lifecycles. The three current imports are `artifact-refiner`, `sycophancy-correction`, and `prometheus-entity-management`. You never edit an imported skill in place — you update its submodule pointer. (See [Contributing](21-contributing.md).)
+**Imported skills** live under `skills/imported/` as git submodules, because they have independent development lifecycles. The two current imports are `artifact-refiner` and `sycophancy-correction`. You never edit an imported skill in place — you update its submodule pointer. (See [Contributing](21-contributing.md).)
 
 **forge-rs skills** carry `.tera` templates under `templates/`. forge-rs scans `skills/<language>/<skill-name>/templates/*.tera`, and each skill's `skill.toml` declares which templates it ships. The four template variables (`task_description`, `task_id`, `constitution_summary`, `karpathy_focus`) are filled at enrichment time. This is how a skill contributes not just guidance but actual code scaffolding — covered on the [Rust Toolchain](14-rust-toolchain.md) page.
 
