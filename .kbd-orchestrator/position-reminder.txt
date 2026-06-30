@@ -1,4 +1,6 @@
 POSITION REMINDER — read this as your FIRST tool call every turn
-Phase: phase-sovereign-sync-hardening
-Next command: /kbd-reflect phase-sovereign-sync-hardening
-Nudge: Periodic nudge at 2026-06-30T14:08:22Z — cross-session continuity check recommended.
+Phase: phase-external-validation
+Stage: reflect (4 of 4 changes done)
+Previous phase: phase-credibility-90 (92% readiness, reflect_complete)
+Next command: /kbd-reflect phase-external-validation
+Notes: All 4 deliverables complete — QUICK_START.md, sycophancy-corpus (6 fixtures), SOVEREIGN_SYNC_TESTING.md, GitHub Issue #14 + production-readiness-report updated. No code changes. Score stays at 92% until G1/G2 have external evidence.

@@ -216,3 +216,51 @@ All changes are in commit `e0e720b` on `main`:
 | P4 | Add GitHub issue templates | `.github/ISSUE_TEMPLATE/` |
 | P4 | Add deployment-modes.md | `docs/deployment-modes.md` |
 | Security | Add gitleaks CI scan + allowlist | `.github/workflows/validate.yml`, `.gitleaks.toml` |
+
+---
+
+## Phase: External Validation
+
+**Phase opened:** 2026-06-30  
+**Purpose:** Close the P5 structural gap (8% remaining) through external validation.
+
+The 92% score is accurate for what code can attest. Moving beyond 92% requires evidence
+that is not producible by the maintainer — external user deployments, independent loop
+validation, and third-party sycophancy gate verification.
+
+### What this phase produced
+
+| Artifact | Location | Purpose |
+|---|---|---|
+| Quick Start guide | `docs/QUICK_START.md` | Reduces onboarding friction for external users (BG-1) |
+| Sycophancy gate test corpus | `tests/sycophancy-corpus/` | Enables independent G4 validation (BG-4) |
+| Sovereign sync two-node guide | `docs/SOVEREIGN_SYNC_TESTING.md` | Setup guide for G3 P2P validation (BG-3) |
+| GitHub community discussion | See link below | Opens community channel for G1/G2 feedback (BG-2 mitigation) |
+
+### External validation outcomes (G1–G4)
+
+| Goal | Description | Status | Evidence |
+|---|---|---|---|
+| G1 | First external user runs Feynman loop end-to-end | PENDING | — |
+| G2 | External user validates self-improving loop (forge enrich→reflect→enrich) | PENDING | — |
+| G3 | Two-node P2P sovereign-sync across distinct machines | PENDING | — |
+| G4 | Third party runs sycophancy corpus and confirms gate verdicts | PENDING | — |
+| G5 | Public evidence artifact capturing G1–G4 outcomes | PENDING | This section |
+
+### How to contribute validation evidence
+
+Run the [Quick Start](QUICK_START.md) and report your outcome in a GitHub issue or
+discussion. For sycophancy gate validation, follow the instructions in
+[`tests/sycophancy-corpus/README.md`](../tests/sycophancy-corpus/README.md). For
+P2P sync validation, follow [`docs/SOVEREIGN_SYNC_TESTING.md`](SOVEREIGN_SYNC_TESTING.md).
+
+Report outcomes in [GitHub Issue #14 — External validation call](https://github.com/Prometheus-AGS/prometheus-skill-system/issues/14).
+When evidence is received, the PENDING rows above will be updated and a sycophancy-corrected
+readiness claim above 92% will be issued with the external evidence cited.
+
+### Sycophancy-corrected statement on current P5 state
+
+The 92% score is unchanged. Authoring documentation does not constitute external
+validation — it removes barriers to it. The P5 gap will not close until at least G1
+and G2 have reported outcomes from people who are not the maintainer.
+

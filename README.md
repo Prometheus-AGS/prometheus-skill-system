@@ -447,6 +447,8 @@ npm run install:platforms
 
 ## Getting Started
 
+**New here?** The [5-step Quick Start](docs/QUICK_START.md) gets you to `/learn-goal` working in under 10 minutes.
+
 ```bash
 git clone --recurse-submodules <repo-url>
 cd prometheus-skill-pack
