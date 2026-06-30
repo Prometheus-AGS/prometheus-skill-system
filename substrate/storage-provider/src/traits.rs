@@ -27,7 +27,7 @@ pub trait StorageProvider: Send + Sync {
     fn backend_name(&self) -> &'static str;
 }
 
-/// Abstraction over a CRDT engine (currently automerge-rs; could be Loro).
+/// Abstraction over a CRDT engine (Loro 1.13.x).
 pub trait CrdtEngine: Send + Sync {
     /// Create a new empty document.
     fn new_doc(&self) -> Vec<u8>;

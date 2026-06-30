@@ -1,6 +1,6 @@
 {
   "phase": "phase-learn-feynman",
-  "stage": "reflecting",
+  "stage": "complete",
   "changes_total": 28,
   "changes_completed": 28,
   "active_change": null,
@@ -39,5 +39,6 @@
     {"id": "change-learn-028", "title": "v1.4.0 release bump + changelog", "status": "DONE", "type": "release"}
   ],
   "started": "2026-06-28",
+  "reflection_complete": true,
   "updated": "2026-06-28T00:00:00Z"
 }

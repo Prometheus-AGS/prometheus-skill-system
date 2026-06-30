@@ -358,7 +358,7 @@ install_learn_substrate() {
         echo "  ⚠️  learn-substrate: surface-bridge build failed (non-fatal)"
     fi
 
-    # Install launchd service on macOS
+    # Install launchd service on macOS (surface-bridge)
     if [[ "$(uname -s)" == "Darwin" ]]; then
         local plist_src="$substrate_dir/surface-bridge/com.prometheusags.surface-bridge.plist"
         local plist_dst="$HOME/Library/LaunchAgents/com.prometheusags.surface-bridge.plist"
@@ -371,6 +371,56 @@ install_learn_substrate() {
         fi
     else
         echo "  ℹ️  learn-substrate: launchd install skipped (not macOS)"
+    fi
+
+    # Build sovereign-sync (P2P CRDT daemon + MCP server)
+    echo "  Building substrate/sovereign-sync..."
+    if cargo build --release --manifest-path "$substrate_dir/sovereign-sync/Cargo.toml" 2>/dev/null; then
+        echo "  ✅ learn-substrate: sovereign-sync built"
+        local bin_dir="$HOME/.local/bin"
+        mkdir -p "$bin_dir"
+        cp "$substrate_dir/sovereign-sync/target/release/sovereign-sync" "$bin_dir/sovereign-sync" 2>/dev/null && \
+            echo "  ✅ learn-substrate: sovereign-sync installed to $bin_dir/sovereign-sync" || true
+    else
+        echo "  ⚠️  learn-substrate: sovereign-sync build failed (non-fatal)"
+    fi
+
+    # Install sovereign-sync launchd service on macOS
+    if [[ "$(uname -s)" == "Darwin" ]]; then
+        local ss_plist_src="$substrate_dir/sovereign-sync/com.prometheusags.sovereign-sync.plist"
+        local ss_plist_dst="$HOME/Library/LaunchAgents/com.prometheusags.sovereign-sync.plist"
+        if [[ -f "$ss_plist_src" ]]; then
+            sed "s|/usr/local/bin/sovereign-sync|$HOME/.local/bin/sovereign-sync|g" \
+                "$ss_plist_src" > "$ss_plist_dst"
+            launchctl load -w "$ss_plist_dst" 2>/dev/null && \
+                echo "  ✅ learn-substrate: sovereign-sync launchd service installed (port 7892)" || \
+                echo "  ⚠️  learn-substrate: sovereign-sync launchd load failed (may already be loaded)"
+        fi
+    fi
+
+    # Register sovereign-sync as MCP server in Claude Code config
+    local claude_mcp="$HOME/.claude/mcp-servers.json"
+    if [[ -f "$claude_mcp" ]]; then
+        node - "$claude_mcp" <<'JS'
+const fs = require('fs');
+const path = process.argv[1];
+const config = JSON.parse(fs.readFileSync(path, 'utf8'));
+const entry = {
+    command: process.env.HOME + '/.local/bin/sovereign-sync',
+    args: ['--mode', 'mcp'],
+    env: { RUST_LOG: 'sovereign_sync=warn' }
+};
+let changed = false;
+if (!config['sovereign-sync']) { config['sovereign-sync'] = entry; changed = true; }
+if (changed) {
+    const bak = path + '.bak.' + Date.now();
+    fs.copyFileSync(path, bak);
+    fs.writeFileSync(path, JSON.stringify(config, null, 2) + '\n', 'utf8');
+    console.log('  ✅ claude: mcp-servers.json updated with sovereign-sync');
+} else {
+    console.log('  ✅ claude: sovereign-sync already in mcp-servers.json');
+}
+JS
     fi
 }
 

@@ -1,6 +1,6 @@
 {
   "name": "prometheus-skill-pack",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "description": "Enterprise-grade AI skills for React entity management, GitOps CI/CD, process orchestration, strategic evolution (5-perspective pmpo-evolver + Darwin idea validation), goal tracking, and BDD testing — with surreal-memory distributed state",
   "author": {
     "name": "Travis James",

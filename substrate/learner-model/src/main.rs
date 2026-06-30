@@ -24,7 +24,7 @@ use learner_model::{
     survey::seed_from_survey,
     types::LearnerModelSeed,
 };
-use storage_provider::{AutomergeEngine, LocalDirAdapter};
+use storage_provider::{LocalDirAdapter, LoroAdapter};
 use serde_json::{json, Value};
 use std::io::{self, BufRead};
 
@@ -40,7 +40,7 @@ async fn main() {
     let data_dir = shellexpand::tilde(data_dir).to_string();
 
     let storage = LocalDirAdapter::new(&data_dir);
-    let crdt = AutomergeEngine;
+    let crdt = LoroAdapter;
     let store = LearnerModelStore::new(storage, crdt);
 
     let stdin = io::stdin();
@@ -63,7 +63,7 @@ async fn main() {
 }
 
 async fn handle_command(
-    store: &LearnerModelStore<LocalDirAdapter, AutomergeEngine>,
+    store: &LearnerModelStore<LocalDirAdapter, LoroAdapter>,
     line: &str,
 ) -> String {
     let cmd: Value = match serde_json::from_str(line) {

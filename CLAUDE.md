@@ -208,7 +208,7 @@ prometheus-skill-pack/
 │   ├── devops/             # DevOps domain skills
 │   ├── testing/            # Testing domain skills
 │   ├── documentation/      # Documentation domain skills
-│   └── learn/              # Learn domain skills (v1.4.0)
+│   └── learn/              # Learn domain skills (v1.5.0)
 │       ├── ui-surface/     # Cross-harness UI rendering primitive
 │       ├── learn-goal/     # Learning desire + feasibility gate
 │       ├── learn-survey/   # Diagnostic placement + recursion floor
@@ -220,12 +220,17 @@ prometheus-skill-pack/
 │       ├── learn-certify/  # OB 3.0 / W3C VC certification
 │       ├── learn-kb/       # KB registry + adapter management
 │       ├── learn-about-system/ # Prometheus stack meta-learning
-│       └── learn-harness/  # Harness detection + capability map
+│       ├── learn-harness/  # Harness detection + capability map
+│       ├── sync-status/    # P2P sync node status
+│       ├── sync-peers/     # P2P peer management
+│       └── sync-push/      # Push CRDT domain to peers
 │
 ├── substrate/              # Rust crates for learn domain
-│   ├── storage-provider/   # StorageProvider + CrdtEngine traits
+│   ├── storage-provider/   # StorageProvider + CrdtEngine traits + SyncManifest
 │   ├── learner-model/      # CRDT learner model + FSRS-6 scheduler
-│   └── surface-bridge/     # Axum MCP App server (Tier 2 UI)
+│   ├── surface-bridge/     # Axum MCP App server (Tier 2 UI)
+│   ├── sovereign-sync/     # P2P CRDT daemon + MCP server + REST API (v1.5.0)
+│   └── sovereign-client/   # Rust SDK for sovereign-sync REST + SSE
 │
 ├── shared/                 # Shared resources across all skills
 │   ├── scripts/            # Reusable scripts
@@ -597,16 +602,18 @@ The learn domain adds a Feynman-Spine learning and education capability to the s
 
 | Layer | Location | Purpose |
 |---|---|---|
-| **A — Substrate** | `substrate/` | Rust crates: storage-provider, learner-model, surface-bridge |
+| **A — Substrate** | `substrate/` | Rust crates: storage-provider, learner-model, surface-bridge, sovereign-sync, sovereign-client |
 | **B — UI primitive** | `skills/learn/ui-surface` | Cross-harness rendering via surface tier detection |
 | **C — Learning skills** | `skills/learn/` | 12 skills composing the full learning arc |
 | **D — KB adapters** | `shared/scripts/content-grounding-kb.sh` | Privacy-safe custom knowledge base integration |
 
 ### Substrate Crates
 
-- **`storage-provider`** — `StorageProvider` and `CrdtEngine` traits; `LocalDirAdapter` (default); `AutomergeEngine` for CRDT merges; `IrohDocsAdapter` stub for future P2P sync
-- **`learner-model`** — automerge-backed CRDT learner model (mastery per concept, FSRS cards, gap records); simplified FSRS-6 scheduler; JSON-RPC `stdin`/`stdout` interface; PFA mastery update (`mastery_new = mastery_old + 0.3 × (score - mastery_old)` at ≥5 observations)
+- **`storage-provider`** — `StorageProvider` and `CrdtEngine` traits; `LocalDirAdapter` (default); `SyncManifest` + `SyncDomain` + `PrivacyClass` (structural KB-content privacy enforcement); `IrohDocsAdapter` for P2P-backed storage
+- **`learner-model`** — Loro 1.13 CRDT learner model (mastery per concept, FSRS-6 cards, gap records); simplified FSRS-6 scheduler; JSON-RPC `stdin`/`stdout` interface; PFA mastery update (`mastery_new = mastery_old + 0.3 × (score - mastery_old)` at ≥5 observations)
 - **`surface-bridge`** — Axum HTTP server on `127.0.0.1:7890`; routes: `/health`, `/mcp/detect-surface-tier`, `/mcp/render-ui-intent`, `/mcp/collect-response`; installed as a macOS launchd service via `install-skills-flat.sh`
+- **`sovereign-sync`** — P2P CRDT sync daemon, MCP server, and REST API on `127.0.0.1:7892`; iroh 1.0 + iroh-gossip 0.101 for QUIC P2P transport; Loro 1.13 for CRDT merge; rmcp 1.8 for MCP server (stdio); redb 2 for persistence; AG-UI SSE endpoint for Tauri/web clients; modes: `--mode mcp|daemon|server`; launchd service via `install-skills-flat.sh`
+- **`sovereign-client`** — Rust SDK for `sovereign-sync` REST API + AG-UI SSE; reqwest 0.12 + eventsource-stream 0.2; `SovereignClient::new(base_url)` entry point
 
 ### Surface Tier Degradation Contract
 
@@ -656,6 +663,22 @@ bash scripts/install-skills-flat.sh
 
 # Check substrate status
 bash shared/scripts/detect-toolchain.sh
+
+# Check sovereign-sync P2P status
+/sync-status
+
+# Manage P2P peers
+/sync-peers
+
+# Push a sync domain to peers
+/sync-push skill-index
+/sync-push learner-model
+
+# Start sovereign-sync daemon manually (port 7892)
+sovereign-sync --mode daemon
+
+# Check daemon health
+curl -s http://127.0.0.1:7892/health | jq .
 ```
 
 ### Mastery Criterion

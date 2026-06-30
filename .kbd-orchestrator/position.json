@@ -1,26 +1,48 @@
 {
   "schemaVersion": "1",
-  "updatedAt": "2026-06-21T00:00:00Z",
+  "updatedAt": "2026-06-29T16:25:59Z",
   "cursor": [
-    "platform-evolution-and-kbd-evolve"
+    "phase-learn-feynman",
+    "phase-learn-sovereign-sync",
+    "phase-sovereign-sync-hardening"
   ],
   "root": {
     "type": "phase",
-    "id": "platform-evolution-and-kbd-evolve",
-    "status": "in_progress",
+    "id": "phase-learn-feynman",
+    "status": "active-parent",
     "progress": {
-      "done": 0,
+      "done": 4,
       "total": 5
     },
     "children": [
-      { "id": "change-001-kbd-evolve-skill", "status": "pending" },
-      { "id": "change-002-auto-update", "status": "pending" },
-      { "id": "change-003-opencode-kimi-mmx-native", "status": "pending" },
-      { "id": "change-004-entity-skills-import", "status": "pending" },
-      { "id": "change-005-flint-skills-import", "status": "pending" }
+      {
+        "type": "phase",
+        "id": "phase-learn-sovereign-sync",
+        "status": "active-parent",
+        "progress": {
+          "done": 0,
+          "total": 0
+        },
+        "children": [
+          {
+            "type": "phase",
+            "id": "phase-sovereign-sync-hardening",
+            "status": "execute_ready",
+            "progress": {
+              "done": 0,
+              "total": 0
+            },
+            "children": []
+          }
+        ]
+      }
     ],
     "annotations": [
-      "Previous phase: memory-write-transport (phase_complete 2026-06-12)"
+      {
+        "source": "evolver",
+        "ref": ".evolver/",
+        "summary": "evolutions: none"
+      }
     ]
   }
 }

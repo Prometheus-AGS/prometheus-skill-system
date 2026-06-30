@@ -1,6 +1,7 @@
 # Dependencies
 node_modules/
 package-lock.json
+!site/package-lock.json
 yarn.lock
 pnpm-lock.yaml
 
@@ -39,6 +40,7 @@ tools/forge-rs/target/
 tools/surreal-memory-server/target/
 tools/liter-llm/target/
 tools/prometheus-knowledge/target/
+substrate/*/target/
 
 # Build output — symlinks created by `npm run build`
 .claude-plugin/agents

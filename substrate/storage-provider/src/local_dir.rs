@@ -30,15 +30,13 @@ impl LocalDirAdapter {
 impl StorageProvider for LocalDirAdapter {
     async fn read(&self, key: &str) -> Result<Option<Vec<u8>>> {
         let path = self.key_to_path(key);
-        let result = tokio::task::spawn_blocking(move || {
-            match std::fs::read(&path) {
-                Ok(bytes) => Ok(Some(bytes)),
-                Err(e) if e.kind() == std::io::ErrorKind::NotFound => Ok(None),
-                Err(e) => Err(StorageError::Io(e)),
-            }
+        let result = tokio::task::spawn_blocking(move || match std::fs::read(&path) {
+            Ok(bytes) => Ok(Some(bytes)),
+            Err(e) if e.kind() == std::io::ErrorKind::NotFound => Ok(None),
+            Err(e) => Err(StorageError::Io(e)),
         })
         .await
-        .map_err(|e| StorageError::Io(std::io::Error::new(std::io::ErrorKind::Other, e)))?;
+        .map_err(|e| StorageError::Io(std::io::Error::other(e)))?;
         result
     }
 
@@ -52,20 +50,18 @@ impl StorageProvider for LocalDirAdapter {
             Ok(())
         })
         .await
-        .map_err(|e| StorageError::Io(std::io::Error::new(std::io::ErrorKind::Other, e)))?
+        .map_err(|e| StorageError::Io(std::io::Error::other(e)))?
     }
 
     async fn delete(&self, key: &str) -> Result<()> {
         let path = self.key_to_path(key);
-        tokio::task::spawn_blocking(move || {
-            match std::fs::remove_file(&path) {
-                Ok(()) => Ok(()),
-                Err(e) if e.kind() == std::io::ErrorKind::NotFound => Ok(()),
-                Err(e) => Err(StorageError::Io(e)),
-            }
+        tokio::task::spawn_blocking(move || match std::fs::remove_file(&path) {
+            Ok(()) => Ok(()),
+            Err(e) if e.kind() == std::io::ErrorKind::NotFound => Ok(()),
+            Err(e) => Err(StorageError::Io(e)),
         })
         .await
-        .map_err(|e| StorageError::Io(std::io::Error::new(std::io::ErrorKind::Other, e)))?
+        .map_err(|e| StorageError::Io(std::io::Error::other(e)))?
     }
 
     async fn list_keys(&self, prefix: &str) -> Result<Vec<String>> {
@@ -77,7 +73,7 @@ impl StorageProvider for LocalDirAdapter {
             Ok(keys)
         })
         .await
-        .map_err(|e| StorageError::Io(std::io::Error::new(std::io::ErrorKind::Other, e)))?
+        .map_err(|e| StorageError::Io(std::io::Error::other(e)))?
     }
 
     fn backend_name(&self) -> &'static str {

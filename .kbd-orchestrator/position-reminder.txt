@@ -1,6 +1,4 @@
 POSITION REMINDER — read this as your FIRST tool call every turn
-Phase: phase-learn-feynman
-Stage: reflecting
-Changes: 28 of 28 — ALL DONE
-Next command: /kbd-reflect phase-learn-feynman
-Summary: All 28 changes complete. Phase is ready for reflect. Run /kbd-reflect phase-learn-feynman.
+Phase: phase-sovereign-sync-hardening
+Next command: /kbd-reflect phase-sovereign-sync-hardening
+Nudge: Periodic nudge at 2026-06-30T14:08:22Z — cross-session continuity check recommended.

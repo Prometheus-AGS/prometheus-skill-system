@@ -59,6 +59,58 @@ check_http() {
     fi
 }
 
+port_open() {
+    local host="$1"
+    local port="$2"
+
+    (exec 3<>"/dev/tcp/$host/$port") >/dev/null 2>&1
+}
+
+check_sovereign_sync_daemon() {
+    local key="sovereign-sync-daemon"
+    local output=""
+    local code=0
+
+    if command -v sovereign-sync >/dev/null 2>&1; then
+        set +e
+        output=$(sovereign-sync --mode status --format json 2>/dev/null)
+        code=$?
+        set -e
+
+        case "$code" in
+            0)
+                STATUS[$key]="ok"
+                VERSION[$key]="healthy on :7892"
+                ;;
+            1)
+                STATUS[$key]="missing"
+                VERSION[$key]="not listening on :7892"
+                ;;
+            2)
+                STATUS[$key]="occupied"
+                VERSION[$key]="port :7892 is occupied by a different service"
+                ;;
+            *)
+                STATUS[$key]="missing"
+                VERSION[$key]="status command failed"
+                ;;
+        esac
+        return
+    fi
+
+    if curl -sf --max-time 2 "http://127.0.0.1:7892/health" 2>/dev/null \
+        | grep -q '"service"[[:space:]]*:[[:space:]]*"sovereign-sync"'; then
+        STATUS[$key]="ok"
+        VERSION[$key]="healthy on :7892"
+    elif port_open "127.0.0.1" "7892"; then
+        STATUS[$key]="occupied"
+        VERSION[$key]="port :7892 is occupied by a different service"
+    else
+        STATUS[$key]="missing"
+        VERSION[$key]="not listening on :7892"
+    fi
+}
+
 # ── Core tools ────────────────────────────────────────────────────────────────
 check "node"   "node"   "node --version" "true"
 check "npm"    "npm"    "npm --version"
@@ -94,6 +146,7 @@ check_http "surreal-memory"          "http://localhost:23001/health"
 check_http "forge-rs"                "http://localhost:8943/mcp"
 check_http "prometheus-knowledge"    "http://localhost:8942/mcp"
 check_http "surface-bridge"          "http://127.0.0.1:7890/health"
+check_sovereign_sync_daemon
 
 # ── WASM target ───────────────────────────────────────────────────────────────
 if command -v rustup >/dev/null 2>&1; then
@@ -114,7 +167,7 @@ fi
 if $JSON_MODE; then
     echo "{"
     first=true
-    for key in node npm git rustc cargo rustup go docker kimi mmx claude forge pk liter-llm prometheus prometheus-rust-auditor sycophancy-correction learner-model surreal-memory forge-rs prometheus-knowledge surface-bridge wasm32; do
+    for key in node npm git rustc cargo rustup go docker kimi mmx claude forge pk liter-llm prometheus prometheus-rust-auditor sycophancy-correction learner-model surreal-memory forge-rs prometheus-knowledge surface-bridge sovereign-sync-daemon wasm32; do
         [[ -n "${STATUS[$key]:-}" ]] || continue
         $first || echo ","
         first=false
@@ -131,11 +184,17 @@ else
         local key="$1"
         local label="${2:-$1}"
         local hint="${3:-}"
-        if [[ "${STATUS[$key]:-missing}" == "ok" ]]; then
-            printf "  ✅ %-28s %s\n" "$label" "${VERSION[$key]:-}"
-        else
-            printf "  ℹ️  %-28s missing%s\n" "$label" "${hint:+ — $hint}"
-        fi
+        case "${STATUS[$key]:-missing}" in
+            ok)
+                printf "  ✅ %-28s %s\n" "$label" "${VERSION[$key]:-}"
+                ;;
+            occupied)
+                printf "  ⚠️  %-28s %s\n" "$label" "${VERSION[$key]:-occupied}"
+                ;;
+            *)
+                printf "  ℹ️  %-28s missing%s\n" "$label" "${hint:+ — $hint}"
+                ;;
+        esac
     }
 
     section "Core"
@@ -174,6 +233,7 @@ else
     item "forge-rs"             "forge-rs (:8943)"
     item "prometheus-knowledge" "prometheus-knowledge (:8942)"
     item "surface-bridge"  "surface-bridge (:7890)" "install: bash scripts/install-skills-flat.sh"
+    item "sovereign-sync-daemon" "sovereign-sync daemon (:7892)" "run: sovereign-sync --mode daemon"
 
     echo ""
     echo "═══════════════════════════════════════════════════════════"

@@ -1,47 +1,40 @@
 # Current Waypoint
 
-**Phase:** self-learning-loop-integration
-**Stage:** reflect
-**Progress:** 10 of 10 changes completed
+**Phase:** phase-sovereign-sync-hardening
+**Stage:** reflect_ready
+**Progress:** 5 of 5 changes completed
 
 ## Position
 
 ```
-Completed kbd-execute — self-learning-loop-integration (step 10 of 10)
+Completed kbd-apply — phase-sovereign-sync-hardening (step 5 of 5)
 ```
 
 ## Next Action
 
 ```
-/kbd-reflect
+/kbd-reflect phase-sovereign-sync-hardening
 ```
 
-Fallback: Read `.kbd-orchestrator/phases/self-learning-loop-integration/plan.md`
+Fallback: Read `.kbd-orchestrator/phases/phase-sovereign-sync-hardening/execution.md` and `progress.json`
 
-## Completed Changes
+## Pending Changes
 
 | # | Change ID | Title | Status |
 |---|-----------|-------|--------|
-| 1 | change-slli-008 | Progress signaling fix (ALL kbd-* skills) | DONE |
-| 2 | change-slli-002 | MCP launchd services installer (7 servers) | DONE |
-| 3 | change-slli-003 | Cross-tool MCP config (7 tools × 7 servers) | DONE |
-| 4 | change-slli-001 | L3 outer loop skill (/loop-define, /loop-tick, /loop-report) | DONE |
-| 5 | change-slli-004 | Wire continuous-learning-v2 into SubagentStop[executor] | DONE |
-| 6 | change-slli-005 | pk-focus-on-prompt.sh semantic upgrade | DONE |
-| 7 | change-slli-006 | Forge-independent reflect path (direct pk ingest) | DONE |
-| 8 | change-slli-007 | Evolver-bridge.json integration | DONE |
-| 9 | change-slli-009 | Periodic nudge script (every 4h launchd) | DONE |
-| 10 | change-slli-010 | pmpo-skill-creator --update mode | DONE |
+| 1 | change-hardening-001-iroh-docs-share-import | Iroh docs share/import sync regression | DONE |
+| 2 | change-hardening-002-sovereign-sync-ci | Sovereign-sync Rust CI | DONE |
+| 3 | change-hardening-003-mcp-client-pool-e2e | McpClientPool end-to-end forwarding test | DONE |
+| 4 | change-hardening-004-docusaurus-brand-and-lock | Docusaurus KnowMe brand tokens and package lock | DONE |
+| 5 | change-hardening-005-daemon-health-detect-toolchain | Sovereign-sync daemon health detection | DONE |
 
-## Key MCP Services (all running as launchd launch agents)
+## Notes
 
-| Service | Port | Purpose |
-|---------|------|---------|
-| surreal-memory | 23001 | Knowledge graph + scoped memory |
-| prometheus-knowledge (pk) | 8942 | Karpathy KB — HTTP MCP mode |
-| forge-mcp | 8943 | Reflection engine — HTTP MCP mode |
-| sycophancy-correction | 8944 | Anti-sycophancy gate |
-| liter-llm | 8945 | Multi-model routing proxy |
-| sequential-thinking | 8946 | Chain-of-thought scaffolding |
-| tavily | 8947 | Web search |
-| periodic-nudge | cron | Background KB enrichment every 4h |
+- Formal assessment handoff was missing for this new phase; the plan was derived from the previous phase reflection, previous assessment, current progress state, and repository memory.
+- TD-01 from the previous reflection, the real `IrohDocsAdapter`, was completed before this plan and is not counted as pending work.
+- Execution backend is OpenSpec through `/kbd-apply`; do not use bare `/opsx:apply`.
+- `change-hardening-001-iroh-docs-share-import` passed `cargo test`, OpenSpec validation, and archive.
+- `change-hardening-002-sovereign-sync-ci` added a dedicated GitHub Actions workflow and passed local fmt, clippy, and tests for the three CI crates.
+- `change-hardening-003-mcp-client-pool-e2e` added stdio `tools/call` forwarding plus deterministic child-process tests.
+- `change-hardening-004-docusaurus-brand-and-lock` applied KnowMe Ember branding, pinned the Docusaurus package manifest, generated `site/package-lock.json`, passed the docs build, and archived the OpenSpec change.
+- `change-hardening-005-daemon-health-detect-toolchain` added `sovereign-sync --mode status`, detect-toolchain daemon diagnostics, healthy/missing/occupied fixtures, and archived the OpenSpec change.
