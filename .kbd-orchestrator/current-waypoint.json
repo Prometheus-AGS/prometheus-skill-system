@@ -1,11 +1,11 @@
 {
-  "phase": "phase-external-validation",
-  "previousPhase": "phase-credibility-90",
-  "status": "reflect_complete",
-  "stage": "complete",
+  "phase": "phase-first-user-onboarding",
+  "previousPhase": "phase-external-validation",
+  "status": "assessment_ready",
+  "stage": "assess",
   "changes_completed": 0,
   "changes_total": 0,
   "last_updated": "2026-06-30",
-  "previous_phase_readiness": "92%",
-  "next_command": "/kbd-new-phase phase-first-user-onboarding"
+  "previous_phase_readiness": "92% (unchanged)",
+  "next_command": "/kbd-assess phase-first-user-onboarding"
 }

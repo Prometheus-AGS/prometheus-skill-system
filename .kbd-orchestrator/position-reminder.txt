@@ -1,7 +1,6 @@
 POSITION REMINDER — read this as your FIRST tool call every turn
-Phase: phase-external-validation — COMPLETE (reflect_complete)
-Readiness: 92% (unchanged — no external evidence received)
-Goals: 0 MET, 1 PARTIAL (G5), 4 NOT MET (G1-G4)
-Sycophancy gate: 0.0 strict — reflection passes clean
-Next command: /kbd-new-phase phase-first-user-onboarding
-Notes: Path A (find a collaborator) is primary recommendation. Path B (forge-hardening) if no collaborator. Issue #14 is the open community call. Score moves above 92% when G1 or G2 receives external evidence.
+Phase: phase-first-user-onboarding
+Stage: assessment_ready (0 of 0 changes done)
+Previous phase: phase-external-validation (92% readiness, reflect_complete — 0/5 goals MET)
+Next command: /kbd-assess phase-first-user-onboarding
+Notes: Binding constraint is BG-2 — no identified external collaborator. This phase cannot close without a second human participating. Goals: G1 identify+confirm collaborator, G2 Quick Start completed, G3 Feynman loop completed, G4 evidence captured in report. No code changes unless blocking bug found.

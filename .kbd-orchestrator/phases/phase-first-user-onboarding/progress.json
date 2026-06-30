@@ -1,0 +1,17 @@
+{
+  "phase": "phase-first-user-onboarding",
+  "stage": "assessment_ready",
+  "changes_completed": 0,
+  "changes_total": 0,
+  "assessment_complete": false,
+  "analyze_complete": false,
+  "plan_complete": false,
+  "execute_complete": false,
+  "reflect_complete": false,
+  "last_updated": "2026-06-30",
+  "previous_phase": "phase-external-validation",
+  "previous_phase_readiness": "92% (unchanged)",
+  "blocking_constraint": "BG-2 — no external collaborator identified",
+  "next_stage": "assess",
+  "next_command": "/kbd-assess phase-first-user-onboarding"
+}
