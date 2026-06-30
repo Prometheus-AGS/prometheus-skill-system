@@ -73,10 +73,16 @@ enum Commands {
         /// Port to listen on
         #[arg(long, default_value = "8943")]
         port: u16,
+        /// Address to bind to (default: 127.0.0.1; use 0.0.0.0 with caution)
+        #[arg(long, default_value = "127.0.0.1")]
+        bind: String,
     },
 
     /// Scaffold .forge/ in the current project
     Init,
+
+    /// Show forge configuration and service status
+    Status,
 
     /// Manage forge skills
     Skill {
@@ -208,32 +214,102 @@ async fn main() -> Result<()> {
         }
 
         Commands::Validate { file, language } => {
-            let content = std::fs::read_to_string(&file)?;
-            println!(
-                "Validating {} ({} chars) against {} constitution...",
-                file.display(),
-                content.len(),
-                language
-            );
-            println!("✅ Validation complete (constitution checks applied).");
+            use std::str::FromStr as _;
+            let lang = forge_core::Language::from_str(&language)
+                .with_context(|| format!("invalid language '{}'", language))?;
+            let content = std::fs::read_to_string(&file)
+                .with_context(|| format!("reading {}", file.display()))?;
+            let constitution_dir = cli.project_root.join(".forge").join("constitution");
+            let constitutions = forge_enricher::load_constitutions(&constitution_dir)?;
+
+            match constitutions.get(&lang) {
+                None => {
+                    println!(
+                        "No constitution found for {} at {}. Run `forge init` to scaffold one.",
+                        language,
+                        constitution_dir.display()
+                    );
+                }
+                Some(constitution) => {
+                    let warnings = forge_enricher::check_constitution(constitution, &content);
+                    if warnings.is_empty() {
+                        println!("✅ {} passed {} constitution (no violations).", file.display(), language);
+                    } else {
+                        let errors: Vec<_> = warnings
+                            .iter()
+                            .filter(|w| matches!(w.severity, forge_core::Severity::Error))
+                            .collect();
+                        for w in &warnings {
+                            let level = format!("{:?}", w.severity).to_uppercase();
+                            println!("[{}] {} — {}", level, w.rule, w.violation);
+                        }
+                        println!("\n{} violation(s) found.", warnings.len());
+                        if !errors.is_empty() {
+                            std::process::exit(1);
+                        }
+                    }
+                }
+            }
         }
 
-        Commands::Mcp { port } => {
-            let server = forge_mcp::ForgeServer::new(
+        Commands::Mcp { port, bind } => {
+            let server = forge_mcp::ForgeServer::with_bind_addr(
                 port,
+                &bind,
                 &skills_root,
                 &cli.project_root,
                 cli.pk_mcp_url,
             );
-            println!("🔥 forge-mcp starting on port {}...", port);
-            println!("   MCP endpoint: http://localhost:{}/mcp", port);
-            println!("   Health:       http://localhost:{}/health", port);
+            println!("forge-mcp starting on {}:{}...", bind, port);
+            println!("   MCP endpoint: http://{}:{}/mcp", bind, port);
+            println!("   Health:       http://{}:{}/health", bind, port);
             server.run().await?;
         }
 
         Commands::Init => {
             scaffold_forge_dir(&cli.project_root)?;
             println!("✅ Initialized .forge/ in {}", cli.project_root.display());
+        }
+
+        Commands::Status => {
+            let forge_dir = cli.project_root.join(".forge");
+
+            println!("forge status\n");
+
+            let constitution_dir = forge_dir.join("constitution");
+            let constitution_count = if constitution_dir.exists() {
+                std::fs::read_dir(&constitution_dir)
+                    .map(|d| d.flatten().count())
+                    .unwrap_or(0)
+            } else {
+                0
+            };
+            println!("Constitutions:  {} file(s) in {}", constitution_count, constitution_dir.display());
+
+            let drift_dir = forge_dir.join("memory").join("drift");
+            let drift_count = if drift_dir.exists() {
+                std::fs::read_dir(&drift_dir)
+                    .map(|d| d.flatten().count())
+                    .unwrap_or(0)
+            } else {
+                0
+            };
+            println!("Drift reports:  {} file(s)", drift_count);
+
+            match &cli.pk_mcp_url {
+                Some(url) => println!("PK MCP URL:     {} [configured]", url),
+                None => println!("PK MCP URL:     [not configured] — optimise/generate/evolve gated"),
+            }
+
+            println!("\nActive features:");
+            println!("  enrich      YES — forge enrich <task>");
+            println!("  reflect     YES — forge reflect <iteration-id>");
+            println!("  validate    YES — forge validate <file> --language <lang>");
+            println!("  drift       YES — forge drift");
+            println!("  mcp         YES — forge mcp [--port 8943]");
+            println!("  [EXPERIMENTAL] optimize  — requires --pk-mcp-url");
+            println!("  [EXPERIMENTAL] generate  — requires --pk-mcp-url");
+            println!("  [EXPERIMENTAL] evolve    — requires --pk-mcp-url");
         }
 
         Commands::Skill { action } => match action {

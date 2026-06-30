@@ -1,6 +1,6 @@
 # Dependencies
 node_modules/
-package-lock.json
+!package-lock.json
 !site/package-lock.json
 yarn.lock
 pnpm-lock.yaml
@@ -55,3 +55,11 @@ SCRATCHPAD.md
 
 # Git worktrees
 .worktrees/
+
+# Machine-local runtime state
+.prometheus/
+.kbd-orchestrator/**/project.json
+
+# Local env overrides
+.envrc
+*.local.env

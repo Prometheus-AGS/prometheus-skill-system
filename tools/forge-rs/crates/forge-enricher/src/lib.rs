@@ -6,14 +6,14 @@
 //! enriched context document to `.forge/enriched/<task-id>.context.md`.
 //!
 //! Architecture:
-//! ```
+//! ```text
 //! OpenSpec task dir
-//!   → TaskReader (parse task description, language detection)
-//!   → SkillRegistry.resolve(language, description, path)
-//!   → ConstitutionChecker.check(task, constitution)
-//!   → KarpathyFocus.focus(description) → pk focus output
-//!   → SkillRegistry.render_templates(skills, context)
-//!   → ContextWriter.write(enrichment_context) → .forge/enriched/*.context.md
+//!   -> TaskReader (parse task description, language detection)
+//!   -> SkillRegistry.resolve(language, description, path)
+//!   -> ConstitutionChecker.check(task, constitution)
+//!   -> KarpathyFocus.focus(description) -> pk focus output
+//!   -> SkillRegistry.render_templates(skills, context)
+//!   -> ContextWriter.write(enrichment_context) -> .forge/enriched/*.context.md
 //! ```
 
 use anyhow::{Context, Result};
@@ -22,7 +22,7 @@ use forge_core::{
     Constitution, ConstitutionWarning, EnrichmentContext, Language, Severity, SkillManifest,
 };
 use forge_skills::SkillRegistry;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::path::{Path, PathBuf};
 use tracing::{info, warn};
 use uuid::Uuid;
@@ -73,7 +73,21 @@ impl Enricher {
             language
         );
 
-        // 2. Resolve applicable skills
+        // 2. Check drift data before resolving skills (Phase A: log stale skills)
+        let stale_skills = load_stale_skills(&self.forge_dir, &language);
+        if !stale_skills.is_empty() {
+            let mut sorted: Vec<_> = stale_skills.iter().cloned().collect();
+            sorted.sort();
+            warn!(
+                stale_count = stale_skills.len(),
+                "Drift data: {} skill(s) have acceptance_rate < 0.5 and may need updating: {}. \
+                 Run `forge evolve` to refresh stale skills.",
+                stale_skills.len(),
+                sorted.join(", ")
+            );
+        }
+
+        // Resolve applicable skills
         let skills = self
             .skill_registry
             .resolve(&language, &task.description, task.path_str());
@@ -282,7 +296,7 @@ fn detect_language(task_path: &Path, description: &str) -> Result<Language> {
 
 // ─── Constitution helpers ─────────────────────────────────────────────────────
 
-fn load_constitutions(constitution_dir: &Path) -> Result<HashMap<Language, Constitution>> {
+pub fn load_constitutions(constitution_dir: &Path) -> Result<HashMap<Language, Constitution>> {
     let mut map = HashMap::new();
     if !constitution_dir.exists() {
         return Ok(map);
@@ -314,7 +328,7 @@ fn summarize_constitution(c: &Constitution) -> String {
     lines.join("\n")
 }
 
-fn check_constitution(c: &Constitution, description: &str) -> Vec<ConstitutionWarning> {
+pub fn check_constitution(c: &Constitution, description: &str) -> Vec<ConstitutionWarning> {
     let desc_lower = description.to_lowercase();
     c.forbidden_patterns
         .iter()
@@ -325,6 +339,47 @@ fn check_constitution(c: &Constitution, description: &str) -> Vec<ConstitutionWa
             severity: f.severity.clone(),
         })
         .collect()
+}
+
+// ─── Drift read-back ─────────────────────────────────────────────────────────
+
+/// Read drift files for `language` from `.forge/memory/drift/` and return
+/// the set of skill names whose `acceptance_rate` is below the stale threshold (0.5).
+/// Returns an empty set when the drift directory is absent or unreadable.
+pub fn load_stale_skills(forge_dir: &Path, language: &Language) -> HashSet<String> {
+    let drift_dir = forge_dir.join("memory").join("drift");
+    let lang_prefix = language.as_str();
+    let mut stale = HashSet::new();
+
+    let entries = match std::fs::read_dir(&drift_dir) {
+        Ok(e) => e,
+        Err(_) => return stale,
+    };
+
+    for entry in entries.flatten() {
+        let file_name = entry.file_name();
+        let name = file_name.to_string_lossy();
+        if !name.starts_with(lang_prefix) || !name.ends_with(".json") {
+            continue;
+        }
+        let Ok(content) = std::fs::read_to_string(entry.path()) else {
+            continue;
+        };
+        let Ok(report) = serde_json::from_str::<serde_json::Value>(&content) else {
+            continue;
+        };
+        if let Some(skills) = report["skills"].as_array() {
+            for skill in skills {
+                let rate = skill["acceptance_rate"].as_f64().unwrap_or(1.0);
+                if rate < 0.5 {
+                    if let Some(skill_name) = skill["skill_name"].as_str() {
+                        stale.insert(skill_name.to_string());
+                    }
+                }
+            }
+        }
+    }
+    stale
 }
 
 // ─── pk focus integration ─────────────────────────────────────────────────────
@@ -406,4 +461,147 @@ fn render_context_document(ctx: &EnrichmentContext) -> String {
     }
 
     doc
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use forge_core::{ForbiddenPattern, Language, Severity};
+    use std::collections::HashMap;
+    use std::path::PathBuf;
+
+    fn make_constitution(patterns: Vec<(&str, &str, Severity)>) -> Constitution {
+        Constitution {
+            language: Language::Rust,
+            standards: HashMap::new(),
+            forbidden_patterns: patterns
+                .into_iter()
+                .map(|(p, r, s)| ForbiddenPattern {
+                    pattern: p.to_string(),
+                    reason: r.to_string(),
+                    severity: s,
+                })
+                .collect(),
+            required_skills: vec![],
+            framework_versions: HashMap::new(),
+        }
+    }
+
+    // ─── check_constitution ──────────────────────────────────────────────────
+
+    #[test]
+    fn constitution_no_violations_on_empty_content() {
+        let c = make_constitution(vec![("unwrap", "avoid panics", Severity::Error)]);
+        assert!(check_constitution(&c, "").is_empty());
+    }
+
+    #[test]
+    fn constitution_returns_warning_for_known_pattern() {
+        let c = make_constitution(vec![("unwrap", "avoid panics", Severity::Error)]);
+        let warnings = check_constitution(&c, "let x = foo().unwrap();");
+        assert_eq!(warnings.len(), 1);
+        assert_eq!(warnings[0].rule, "unwrap");
+        assert_eq!(warnings[0].severity, Severity::Error);
+    }
+
+    #[test]
+    fn constitution_check_is_case_insensitive() {
+        let c = make_constitution(vec![("unwrap", "avoid panics", Severity::Warning)]);
+        let warnings = check_constitution(&c, "foo.UNWRAP()");
+        assert_eq!(warnings.len(), 1);
+    }
+
+    #[test]
+    fn constitution_multiple_patterns_all_matched() {
+        let c = make_constitution(vec![
+            ("unwrap", "avoid panics", Severity::Error),
+            ("expect", "avoid panics", Severity::Warning),
+        ]);
+        let warnings = check_constitution(&c, "a.unwrap(); b.expect(\"msg\");");
+        assert_eq!(warnings.len(), 2);
+    }
+
+    #[test]
+    fn constitution_no_match_returns_empty() {
+        let c = make_constitution(vec![("unsafe", "avoid unsafe", Severity::Error)]);
+        let warnings = check_constitution(&c, "let x = 1 + 1;");
+        assert!(warnings.is_empty());
+    }
+
+    // ─── load_stale_skills ───────────────────────────────────────────────────
+
+    fn tmp_dir(suffix: &str) -> PathBuf {
+        let dir = std::env::temp_dir().join(format!("forge-test-{}", suffix));
+        let _ = std::fs::remove_dir_all(&dir);
+        std::fs::create_dir_all(&dir).unwrap();
+        dir
+    }
+
+    #[test]
+    fn load_stale_skills_empty_when_no_drift_dir() {
+        let tmp = tmp_dir("no-drift");
+        let stale = load_stale_skills(&tmp, &Language::Rust);
+        assert!(stale.is_empty());
+    }
+
+    #[test]
+    fn load_stale_skills_empty_when_all_rates_above_threshold() {
+        let tmp = tmp_dir("drift-high");
+        let drift_dir = tmp.join("memory").join("drift");
+        std::fs::create_dir_all(&drift_dir).unwrap();
+        let report = serde_json::json!({
+            "skills": [
+                { "skill_name": "axum-patterns", "acceptance_rate": 0.8 }
+            ]
+        });
+        std::fs::write(drift_dir.join("rust-2026-01-01.json"), report.to_string()).unwrap();
+        let stale = load_stale_skills(&tmp, &Language::Rust);
+        assert!(stale.is_empty());
+    }
+
+    #[test]
+    fn load_stale_skills_returns_low_rate_skill() {
+        let tmp = tmp_dir("drift-low");
+        let drift_dir = tmp.join("memory").join("drift");
+        std::fs::create_dir_all(&drift_dir).unwrap();
+        let report = serde_json::json!({
+            "skills": [
+                { "skill_name": "axum-patterns", "acceptance_rate": 0.3 }
+            ]
+        });
+        std::fs::write(drift_dir.join("rust-2026-01-01.json"), report.to_string()).unwrap();
+        let stale = load_stale_skills(&tmp, &Language::Rust);
+        assert!(stale.contains("axum-patterns"), "expected axum-patterns in stale set");
+    }
+
+    #[test]
+    fn load_stale_skills_ignores_other_language_files() {
+        let tmp = tmp_dir("drift-wrong-lang");
+        let drift_dir = tmp.join("memory").join("drift");
+        std::fs::create_dir_all(&drift_dir).unwrap();
+        let report = serde_json::json!({
+            "skills": [
+                { "skill_name": "react-hooks", "acceptance_rate": 0.1 }
+            ]
+        });
+        std::fs::write(drift_dir.join("react-2026-01-01.json"), report.to_string()).unwrap();
+        let stale = load_stale_skills(&tmp, &Language::Rust);
+        assert!(stale.is_empty(), "rust filter should exclude react drift files");
+    }
+
+    // ─── detect_language (path hints) ───────────────────────────────────────
+
+    #[test]
+    fn detect_language_rust_from_path() {
+        let path = PathBuf::from("/project/crates/rust/my_crate");
+        let lang = detect_language(&path, "some task").unwrap();
+        assert_eq!(lang, Language::Rust);
+    }
+
+    #[test]
+    fn detect_language_flutter_from_description() {
+        let path = PathBuf::from("/project/feature");
+        let lang = detect_language(&path, "implement riverpod provider for user state").unwrap();
+        assert_eq!(lang, Language::Flutter);
+    }
 }

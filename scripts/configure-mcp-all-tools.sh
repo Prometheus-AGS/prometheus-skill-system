@@ -22,7 +22,12 @@ REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 PORT_TABLE="$REPO_ROOT/scripts/mcp-port-table.json"
 DRY_RUN=false
 ONLY_TOOL=""
-TAVILY_API_KEY="${TAVILY_API_KEY:-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}"
+if [ -z "${TAVILY_API_KEY:-}" ]; then
+  echo "Error: TAVILY_API_KEY environment variable is required." >&2
+  echo "  Set it before running: TAVILY_API_KEY=<your-key> bash scripts/configure-mcp-all-tools.sh" >&2
+  echo "  Obtain a key at: https://tavily.com" >&2
+  exit 1
+fi
 FIRECRAWL_API_URL="${FIRECRAWL_API_URL:-https://api.firecrawl.dev}"
 FIRECRAWL_API_KEY="${FIRECRAWL_API_KEY:-}"
 

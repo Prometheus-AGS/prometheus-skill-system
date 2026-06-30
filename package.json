@@ -39,7 +39,8 @@
     "skill-matrix:ci": "node scripts/skill-matrix.js --ci",
     "check:opencode": "tsc -p .opencode/tsconfig.json --noEmit",
     "update": "bash scripts/update-skill-pack.sh",
-    "update:force": "bash scripts/update-skill-pack.sh --force"
+    "update:force": "bash scripts/update-skill-pack.sh --force",
+    "cucumber": "cucumber-js tests/features/**/*.feature --import tests/steps/**/*.ts --require-module ts-node/register"
   },
   "keywords": [
     "claude-code",
@@ -64,6 +65,7 @@
   },
   "license": "MIT",
   "devDependencies": {
+    "@cucumber/cucumber": "^11.0.0",
     "@opencode-ai/plugin": "1.15.12",
     "@opencode-ai/sdk": "^1.15.12",
     "@types/node": "^25.9.1",

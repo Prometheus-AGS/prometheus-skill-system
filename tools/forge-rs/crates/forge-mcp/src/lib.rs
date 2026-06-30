@@ -20,9 +20,11 @@ use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 use std::sync::Arc;
 use tokio::sync::broadcast;
+use tower_http::validate_request::ValidateRequestHeaderLayer;
 
 pub struct ForgeServer {
     port: u16,
+    bind_addr: String,
     skills_root: std::path::PathBuf,
     project_root: std::path::PathBuf,
     pk_mcp_url: Option<String>,
@@ -35,8 +37,27 @@ impl ForgeServer {
         project_root: impl Into<std::path::PathBuf>,
         pk_mcp_url: Option<String>,
     ) -> Self {
+        Self::with_bind_addr(port, "127.0.0.1", skills_root, project_root, pk_mcp_url)
+    }
+
+    pub fn with_bind_addr(
+        port: u16,
+        bind_addr: impl Into<String>,
+        skills_root: impl Into<std::path::PathBuf>,
+        project_root: impl Into<std::path::PathBuf>,
+        pk_mcp_url: Option<String>,
+    ) -> Self {
+        let bind_addr = bind_addr.into();
+        if bind_addr == "0.0.0.0" {
+            eprintln!(
+                "WARNING: forge-mcp is binding to 0.0.0.0 which exposes the MCP endpoint on \
+                 all network interfaces. This is not recommended for local development. \
+                 Use 127.0.0.1 (the default) to restrict to localhost only."
+            );
+        }
         Self {
             port,
+            bind_addr,
             skills_root: skills_root.into(),
             project_root: project_root.into(),
             pk_mcp_url,
@@ -44,6 +65,18 @@ impl ForgeServer {
     }
 
     pub async fn run(self) -> anyhow::Result<()> {
+        let token = std::env::var("FORGE_MCP_TOKEN").unwrap_or_else(|_| {
+            let generated = uuid::Uuid::new_v4().to_string();
+            eprintln!(
+                "FORGE_MCP_TOKEN not set — generated token for this session: {}",
+                generated
+            );
+            eprintln!(
+                "Set FORGE_MCP_TOKEN in your environment to use a stable token."
+            );
+            generated
+        });
+
         let state = Arc::new(ServerState {
             skills_root: self.skills_root,
             project_root: self.project_root,
@@ -51,11 +84,14 @@ impl ForgeServer {
         });
 
         let app = Router::new()
-            .route("/mcp", post(handle_mcp))
+            .route(
+                "/mcp",
+                post(handle_mcp).layer(ValidateRequestHeaderLayer::bearer(&token)),
+            )
             .route("/health", get(health))
             .with_state(state);
 
-        let addr = format!("0.0.0.0:{}", self.port);
+        let addr = format!("{}:{}", self.bind_addr, self.port);
         tracing::info!("forge-mcp listening on {}", addr);
 
         let listener = tokio::net::TcpListener::bind(&addr).await?;
@@ -169,9 +205,25 @@ async fn dispatch_method(
 
             match tool_name {
                 "forge_enrich" => {
-                    let task_path = args
+                    let task_path_str = args
                         .and_then(|a| a["task_path"].as_str())
                         .ok_or_else(|| anyhow::anyhow!("task_path required"))?;
+
+                    // Path confinement: prevent traversal outside project root.
+                    let raw_path = std::path::Path::new(task_path_str);
+                    let canonical = raw_path.canonicalize().map_err(|e| {
+                        anyhow::anyhow!("invalid task_path '{}': {}", task_path_str, e)
+                    })?;
+                    let project_root_canonical = state.project_root.canonicalize().map_err(|e| {
+                        anyhow::anyhow!("cannot canonicalize project root: {}", e)
+                    })?;
+                    if !canonical.starts_with(&project_root_canonical) {
+                        return Err(anyhow::anyhow!(
+                            "task_path '{}' is outside the project root '{}' — access denied",
+                            task_path_str,
+                            state.project_root.display()
+                        ));
+                    }
 
                     let enricher = forge_enricher::Enricher::new(
                         &state.skills_root,
@@ -180,7 +232,7 @@ async fn dispatch_method(
                     )?;
 
                     let ctx = enricher
-                        .enrich(std::path::Path::new(task_path))
+                        .enrich(&canonical)
                         .await?;
 
                     let context_path = state
@@ -235,13 +287,38 @@ async fn dispatch_method(
                 }
 
                 "forge_validate" => {
-                    let content = args.and_then(|a| a["content"].as_str()).unwrap_or("");
-                    Ok(json!({
-                        "content": [{
-                            "type": "text",
-                            "text": format!("Validation complete for {} chars.", content.len())
-                        }]
-                    }))
+                    use std::str::FromStr as _;
+                    let content = args
+                        .and_then(|a| a["content"].as_str())
+                        .ok_or_else(|| anyhow::anyhow!("content required"))?;
+                    let lang_str = args
+                        .and_then(|a| a["language"].as_str())
+                        .ok_or_else(|| anyhow::anyhow!("language required"))?;
+                    let lang = forge_core::Language::from_str(lang_str)
+                        .map_err(|e| anyhow::anyhow!("{}", e))?;
+                    let constitution_dir = state.project_root.join(".forge").join("constitution");
+                    let constitutions = forge_enricher::load_constitutions(&constitution_dir)?;
+
+                    let text = match constitutions.get(&lang) {
+                        None => format!(
+                            "No constitution found for {} at {}. Run `forge init` to scaffold one.",
+                            lang_str,
+                            constitution_dir.display()
+                        ),
+                        Some(constitution) => {
+                            let warnings = forge_enricher::check_constitution(constitution, content);
+                            if warnings.is_empty() {
+                                format!("✅ No violations found for {} ({} chars).", lang_str, content.len())
+                            } else {
+                                let lines: Vec<String> = warnings.iter().map(|w| {
+                                    format!("[{:?}] {} — {}", w.severity, w.rule, w.violation)
+                                }).collect();
+                                format!("{} violation(s) found:\n{}", warnings.len(), lines.join("\n"))
+                            }
+                        }
+                    };
+
+                    Ok(json!({ "content": [{ "type": "text", "text": text }] }))
                 }
 
                 _ => Err(anyhow::anyhow!("Unknown tool: {}", tool_name)),

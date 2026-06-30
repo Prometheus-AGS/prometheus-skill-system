@@ -37,6 +37,23 @@ impl Language {
     }
 }
 
+impl std::str::FromStr for Language {
+    type Err = anyhow::Error;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s.to_lowercase().as_str() {
+            "rust"       => Ok(Language::Rust),
+            "typescript" | "ts" => Ok(Language::TypeScript),
+            "react"      => Ok(Language::React),
+            "flutter"    => Ok(Language::Flutter),
+            "go" | "golang" => Ok(Language::Go),
+            "python"     => Ok(Language::Python),
+            "tauri"      => Ok(Language::Tauri),
+            other => Err(anyhow::anyhow!("unknown language: '{}' (expected: rust, typescript, react, flutter, go, python, tauri)", other)),
+        }
+    }
+}
+
 // ─── Constitution ─────────────────────────────────────────────────────────────
 
 /// Per-language coding standards loaded from `.forge/constitution/<lang>.toml`.
@@ -197,4 +214,100 @@ pub struct SkillDriftSummary {
     pub acceptance_rate: f32,
     /// If acceptance_rate < 0.5, this skill may be stale.
     pub stale_candidate: bool,
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::str::FromStr;
+
+    // ─── Language::from_str ─────────────────────────────────────────────────
+
+    #[test]
+    fn language_from_str_rust() {
+        assert_eq!(Language::from_str("rust").unwrap(), Language::Rust);
+    }
+
+    #[test]
+    fn language_from_str_typescript_alias() {
+        assert_eq!(Language::from_str("ts").unwrap(), Language::TypeScript);
+    }
+
+    #[test]
+    fn language_from_str_case_insensitive() {
+        assert_eq!(Language::from_str("RUST").unwrap(), Language::Rust);
+        assert_eq!(Language::from_str("Go").unwrap(), Language::Go);
+    }
+
+    #[test]
+    fn language_from_str_unknown_returns_err() {
+        assert!(Language::from_str("cobol").is_err());
+    }
+
+    #[test]
+    fn language_from_str_golang_alias() {
+        assert_eq!(Language::from_str("golang").unwrap(), Language::Go);
+    }
+
+    // ─── Language::as_str ───────────────────────────────────────────────────
+
+    #[test]
+    fn language_as_str_roundtrip() {
+        for lang in [
+            Language::Rust,
+            Language::TypeScript,
+            Language::React,
+            Language::Flutter,
+            Language::Go,
+            Language::Python,
+            Language::Tauri,
+        ] {
+            let s = lang.as_str();
+            let parsed = Language::from_str(s).expect("as_str produced invalid slug");
+            assert_eq!(lang, parsed, "roundtrip failed for {s}");
+        }
+    }
+
+    // ─── Severity ordering / equality ───────────────────────────────────────
+
+    #[test]
+    fn severity_variants_are_distinct() {
+        assert_ne!(Severity::Error, Severity::Warning);
+        assert_ne!(Severity::Warning, Severity::Info);
+        assert_ne!(Severity::Error, Severity::Info);
+    }
+
+    // ─── SkillDriftSummary stale threshold ──────────────────────────────────
+
+    #[test]
+    fn drift_summary_stale_candidate_below_threshold() {
+        let s = SkillDriftSummary {
+            skill_name: "axum-patterns".into(),
+            total_applications: 10,
+            accepted_count: 3,
+            modified_count: 5,
+            replaced_count: 2,
+            deleted_count: 0,
+            acceptance_rate: 0.3,
+            stale_candidate: true,
+        };
+        assert!(s.stale_candidate);
+        assert!(s.acceptance_rate < 0.5);
+    }
+
+    #[test]
+    fn drift_summary_not_stale_above_threshold() {
+        let s = SkillDriftSummary {
+            skill_name: "error-handling".into(),
+            total_applications: 20,
+            accepted_count: 18,
+            modified_count: 2,
+            replaced_count: 0,
+            deleted_count: 0,
+            acceptance_rate: 0.9,
+            stale_candidate: false,
+        };
+        assert!(!s.stale_candidate);
+        assert!(s.acceptance_rate >= 0.5);
+    }
 }

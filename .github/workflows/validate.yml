@@ -20,7 +20,7 @@ jobs:
           node-version: '22'
 
       - name: Install dependencies
-        run: npm ci --ignore-scripts || npm install
+        run: npm ci --ignore-scripts
 
       - name: Validate all skills
         run: npm run validate
@@ -41,7 +41,7 @@ jobs:
           node-version: '22'
 
       - name: Install dependencies
-        run: npm ci --ignore-scripts || npm install
+        run: npm ci --ignore-scripts
 
       - name: Check formatting
         run: npm run check-format
@@ -108,6 +108,90 @@ jobs:
         if: steps.build.outcome != 'success'
         run: echo "::warning::sycophancy-correction submodule not built (likely not checked out) — real gate e2e skipped"
 
+  forge-rs-test:
+    name: forge-rs (fmt + clippy + test)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: tools/forge-rs
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            tools/forge-rs/target/
+          key: forge-rs-${{ runner.os }}-cargo-${{ hashFiles('tools/forge-rs/Cargo.lock') }}
+          restore-keys: forge-rs-${{ runner.os }}-cargo-
+
+      - name: fmt
+        run: cargo fmt --check --all
+
+      - name: clippy
+        run: cargo clippy --all --all-features -- -D warnings
+
+      - name: test
+        run: cargo test --all
+
+  bdd-test:
+    name: BDD tests (forge validate + enrich)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            tools/forge-rs/target/
+          key: forge-rs-bdd-${{ runner.os }}-cargo-${{ hashFiles('tools/forge-rs/Cargo.lock') }}
+          restore-keys: forge-rs-bdd-${{ runner.os }}-cargo-
+
+      - name: Build forge binary
+        run: cargo build --manifest-path tools/forge-rs/Cargo.toml
+
+      - name: Install Node dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Run BDD scenarios
+        run: npm run cucumber
+        env:
+          FORGE_BIN: tools/forge-rs/target/debug/forge
+
+  secret-scan:
+    name: Secret scanning (gitleaks)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
   skill-collision:
     name: Skill description collision detection
     runs-on: ubuntu-latest
@@ -119,12 +203,10 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-          # No `cache: npm` — this repo does not commit package-lock.json, and
-          # setup-node's npm cache hard-fails when no lock file is present. The
-          # other jobs install without caching for the same reason.
+          cache: 'npm'
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci --ignore-scripts
 
       - name: Run skill-matrix collision check
         run: node scripts/skill-matrix.js --ci

@@ -1,0 +1,14 @@
+# gitleaks configuration for prometheus-skill-pack
+# See: https://github.com/gitleaks/gitleaks/blob/master/config/gitleaks.toml
+
+[allowlist]
+  description = "Allowlist for documentation and planning files that reference the rotated Tavily key as evidence"
+  regexTarget = "match"
+  paths = [
+    # KBD orchestrator planning artifacts — key referenced as evidence, not live credential
+    '''.kbd-orchestrator/''',
+    # OpenSpec change proposals that quote the finding
+    '''openspec/changes/change-credibility-001-remove-hardcoded-api-key/''',
+    # Position reminder file (human-readable context file, not source code)
+    '''.kbd-orchestrator/position-reminder.txt''',
+  ]
