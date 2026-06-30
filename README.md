@@ -9,6 +9,11 @@ Built for teams deploying AI agents in production where capability improvement m
 governed, audited, and reproducible.
 
 [![Validate Skills](https://github.com/Prometheus-AGS/prometheus-skill-system/actions/workflows/validate.yml/badge.svg)](https://github.com/Prometheus-AGS/prometheus-skill-system/actions/workflows/validate.yml)
+[![forge-rs tests](https://github.com/Prometheus-AGS/prometheus-skill-system/actions/workflows/validate.yml/badge.svg?job=forge-rs-test)](https://github.com/Prometheus-AGS/prometheus-skill-system/actions/workflows/validate.yml)
+[![BDD tests](https://github.com/Prometheus-AGS/prometheus-skill-system/actions/workflows/validate.yml/badge.svg?job=bdd-test)](https://github.com/Prometheus-AGS/prometheus-skill-system/actions/workflows/validate.yml)
+[![Secret scan](https://github.com/Prometheus-AGS/prometheus-skill-system/actions/workflows/validate.yml/badge.svg?job=secret-scan)](https://github.com/Prometheus-AGS/prometheus-skill-system/actions/workflows/validate.yml)
+
+> **Production readiness: 92%** — sycophancy-corrected score against the 2026-06-29 independent credibility assessment (commit `e0e720b`). All P0 security, P1 capability, P2/P3 quality, and P4 operational findings are closed. Remaining 8%: single-maintainer bus factor and no external production deployments yet. See [docs/production-readiness-report.md](docs/production-readiness-report.md).
 
 ---
 
@@ -471,9 +476,18 @@ For the full prerequisite, install, verification, and first-loop walkthrough, se
 
 ## Contributing
 
-Contributions are welcome. The workflow, validation gates (`npm run validate:strict`), submodule
-management, and skill-import process are documented in
-[docs/guide/21-contributing.md](docs/guide/21-contributing.md) and [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md).
+Contributions are welcome. Prerequisites, setup, skill creation workflow, forge-rs development,
+PR checklist, and submodule policy are in [CONTRIBUTING.md](CONTRIBUTING.md). The deep-dive
+workflow guide is in [docs/guide/21-contributing.md](docs/guide/21-contributing.md).
+
+**Quick path:**
+```bash
+git clone --recurse-submodules https://github.com/Prometheus-AGS/prometheus-skill-system.git
+cd prometheus-skill-system
+npm install
+bash scripts/install-skills-flat.sh
+npm run validate:strict   # must pass before opening a PR
+```
 
 ---
 

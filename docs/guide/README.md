@@ -70,6 +70,13 @@ The guide is built in layers. Read it top to bottom the first time; use it as a 
 | 22 | [Advantages & Impact](22-advantages-and-impact.md) | What changes about your development process, and why |
 | 23 | [Glossary & Sources](23-glossary.md) | Every term defined, every external claim cited |
 
+### Operational
+
+| Document | What it covers |
+|---|---|
+| [Production Readiness Report](../production-readiness-report.md) | Sycophancy-corrected 92% readiness score; finding-by-finding closure status; requirements to reach 95%+ |
+| [Deployment Modes](../deployment-modes.md) | Mode 0-3 capability matrix — which services are required for which features |
+
 ---
 
 ## The thirty-second version

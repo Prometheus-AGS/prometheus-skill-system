@@ -35,8 +35,9 @@ forge init                                       # scaffold .forge/ in the curre
 forge enrich <task-path>                         # enrich an OpenSpec task → .forge/enriched/<id>.context.md
 forge reflect <iteration-id>                     # process an iteration into the Karpathy loop
 forge drift [--language rust]                    # report stale skill candidates
-forge validate <file> --language rust            # check a file against the constitution
-forge mcp [--port 8943]                          # start the MCP server
+forge validate <file> --language rust            # check a file against the constitution (exits 1 on Error-severity violations)
+forge status                                     # show forge environment health: constitutions, drift, pk_mcp_url, features
+forge mcp [--port 8943] [--bind 127.0.0.1]      # start the MCP server (loopback-only by default)
 forge skill list | add <name> | sync            # manage skills
 forge constitution <lang>                        # show/edit the language constitution
 forge template new skill <lang> <name>           # scaffold a new skill
@@ -45,7 +46,9 @@ forge template render <tmpl> [--var k=v]         # render a template
 forge template list [--language] | validate <skill-path> | edit <tmpl>
 ```
 
-**MCP server.** Default port **8943**, JSON-RPC 2.0 over `POST /mcp` plus a `GET /events` SSE stream, binding `0.0.0.0:8943`. Tools: `forge_enrich {task_path}`, `forge_reflect {iteration_id}`, `forge_drift {language}`, `forge_validate {content, language}`.
+**MCP server.** Default port **8943**, JSON-RPC 2.0 over `POST /mcp` plus a `GET /events` SSE stream, binding **`127.0.0.1:8943`** (loopback-only by default; pass `--bind 0.0.0.0` to expose on all interfaces, which prints a security warning). All requests to `/mcp` require a **Bearer token** — set `FORGE_MCP_TOKEN` in the environment; if unset, a token is auto-generated and printed to stderr on startup. The `/health` endpoint is unauthenticated. Tools: `forge_enrich {task_path}`, `forge_reflect {iteration_id}`, `forge_drift {language}`, `forge_validate {content, language}`.
+
+**Security.** `task_path` in `forge_enrich` is canonicalized via `std::fs::canonicalize()` and verified with `starts_with()` to be inside the working directory before any file read — path traversal is rejected with a 400 error. No API keys or credentials are stored in source code; `TAVILY_API_KEY` and `FIRECRAWL_API_KEY` must be provided as environment variables.
 
 **Environment & state.** `PK_MCP_URL`, `LITER_LLM_URL`, `FORGE_SKILLS_ROOT`, `ZEESPEC_STATE_DIR`, `EDITOR`. Writes to `.forge/` (`constitution/`, `enriched/<id>.context.md`, `memory/iterations/`, `memory/drift/`, `skills/`). Supported languages with per-language constitutions: Rust, TypeScript, React 19, Flutter, HTMX, Tauri, Go, Python. **Build:** `cargo build --release -p forge-cli`.
 
