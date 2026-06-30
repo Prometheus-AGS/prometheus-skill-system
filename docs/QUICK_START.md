@@ -66,6 +66,9 @@ claude .
 Claude Code loads the skills automatically. You do not need to run any install command
 inside Claude Code.
 
+> **Don't have Claude Code yet?** Sign up at https://claude.ai/code — a free plan
+> is available for getting started.
+
 ---
 
 ## Step 5 — Run your first learning session
@@ -108,11 +111,16 @@ echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc
 ls ~/.claude/skills/ | grep learn
 ```
 
-**MCP services not running** — surface-bridge (port 7890) and sovereign-sync (port 7892)
-are launchd services on macOS. Start them with:
+**MCP services not running** — On macOS, surface-bridge (port 7890) and sovereign-sync
+(port 7892) are launchd services. Start them with:
 ```bash
 bash scripts/prometheus-services.sh load
 bash scripts/prometheus-services.sh status
+```
+On Linux, use systemd:
+```bash
+systemctl --user start prometheus-surface-bridge prometheus-sovereign-sync
+systemctl --user status prometheus-surface-bridge prometheus-sovereign-sync
 ```
 
 ---

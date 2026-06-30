@@ -1,17 +1,34 @@
 {
   "phase": "phase-first-user-onboarding",
-  "stage": "assessment_ready",
-  "changes_completed": 0,
-  "changes_total": 0,
-  "assessment_complete": false,
+  "stage": "execute_complete",
+  "changes_completed": 2,
+  "changes_total": 2,
+  "assessment_complete": true,
   "analyze_complete": false,
-  "plan_complete": false,
-  "execute_complete": false,
+  "plan_complete": true,
+  "execute_complete": true,
   "reflect_complete": false,
   "last_updated": "2026-06-30",
   "previous_phase": "phase-external-validation",
   "previous_phase_readiness": "92% (unchanged)",
   "blocking_constraint": "BG-2 — no external collaborator identified",
-  "next_stage": "assess",
-  "next_command": "/kbd-assess phase-first-user-onboarding"
+  "quick_start_gaps_found": ["missing Claude Code prerequisite note", "missing Linux/systemd note"],
+  "changes": [
+    {
+      "id": "change-onboard-001-claude-code-prereq",
+      "title": "Add Claude Code prerequisite note to QUICK_START.md",
+      "status": "DONE",
+      "file": "docs/QUICK_START.md",
+      "qa_gate": "skipped (documentation-only)"
+    },
+    {
+      "id": "change-onboard-002-linux-systemd-note",
+      "title": "Add Linux/systemd note to QUICK_START.md troubleshooting",
+      "status": "DONE",
+      "file": "docs/QUICK_START.md",
+      "qa_gate": "skipped (documentation-only)"
+    }
+  ],
+  "next_stage": "reflect",
+  "next_command": "/kbd-reflect phase-first-user-onboarding"
 }
