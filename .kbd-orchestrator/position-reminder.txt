@@ -1,6 +1,7 @@
 POSITION REMINDER — read this as your FIRST tool call every turn
-Phase: phase-external-validation
-Stage: reflect (4 of 4 changes done)
-Previous phase: phase-credibility-90 (92% readiness, reflect_complete)
-Next command: /kbd-reflect phase-external-validation
-Notes: All 4 deliverables complete — QUICK_START.md, sycophancy-corpus (6 fixtures), SOVEREIGN_SYNC_TESTING.md, GitHub Issue #14 + production-readiness-report updated. No code changes. Score stays at 92% until G1/G2 have external evidence.
+Phase: phase-external-validation — COMPLETE (reflect_complete)
+Readiness: 92% (unchanged — no external evidence received)
+Goals: 0 MET, 1 PARTIAL (G5), 4 NOT MET (G1-G4)
+Sycophancy gate: 0.0 strict — reflection passes clean
+Next command: /kbd-new-phase phase-first-user-onboarding
+Notes: Path A (find a collaborator) is primary recommendation. Path B (forge-hardening) if no collaborator. Issue #14 is the open community call. Score moves above 92% when G1 or G2 receives external evidence.
