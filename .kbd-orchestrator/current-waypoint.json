@@ -1,11 +1,13 @@
 {
   "phase": "phase-first-user-onboarding",
   "previousPhase": "phase-external-validation",
-  "status": "assessment_ready",
-  "stage": "assess",
-  "changes_completed": 0,
-  "changes_total": 0,
+  "status": "reflect_complete",
+  "stage": "closed",
+  "changes_completed": 2,
+  "changes_total": 2,
   "last_updated": "2026-06-30",
-  "previous_phase_readiness": "92% (unchanged)",
-  "next_command": "/kbd-assess phase-first-user-onboarding"
+  "final_readiness": "92% (unchanged)",
+  "goals_met": 0,
+  "goals_total": 4,
+  "next_command": "/kbd-new-phase phase-sovereign-sync-ci-test OR wait for maintainer outreach confirmation then /kbd-new-phase phase-first-user-onboarding-v2"
 }

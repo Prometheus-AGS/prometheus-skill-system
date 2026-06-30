@@ -1,6 +1,18 @@
 POSITION REMINDER — read this as your FIRST tool call every turn
-Phase: phase-first-user-onboarding
-Stage: assessment_ready (0 of 0 changes done)
-Previous phase: phase-external-validation (92% readiness, reflect_complete — 0/5 goals MET)
-Next command: /kbd-assess phase-first-user-onboarding
-Notes: Binding constraint is BG-2 — no identified external collaborator. This phase cannot close without a second human participating. Goals: G1 identify+confirm collaborator, G2 Quick Start completed, G3 Feynman loop completed, G4 evidence captured in report. No code changes unless blocking bug found.
+Phase: phase-first-user-onboarding — CLOSED (reflect_complete)
+Goals: 0 of 4 MET (root cause: maintainer outreach not initiated)
+Production readiness: 92% (unchanged — two consecutive phases)
+Sycophancy gate: 0.0 strict (reflection passes clean)
+
+Two independent next paths:
+  Path A (human-gated): /kbd-new-phase phase-first-user-onboarding-v2
+    — ONLY after maintainer sends direct outreach to a named individual.
+    — Do NOT open this phase in a coding session without G1 confirmation.
+  Path B (engineering, unblocked): /kbd-new-phase phase-sovereign-sync-ci-test
+    — Two-node iroh QUIC integration test in CI
+    — ~1 day of engineering, unblocked, raises score to ~95%
+    — Last open technical gap in the test pyramid
+
+Lesson to act on before next external-validation phase: send 2 direct messages
+to named individuals with a link to docs/QUICK_START.md. Recording the lesson
+is not the same as acting on it (L2 from this reflection).
