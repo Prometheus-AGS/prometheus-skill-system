@@ -7,6 +7,7 @@ target
 .kbd-orchestrator
 .opencode/commands
 .opencode/skills
+.opencode/opencode-loop
 .windsurf
 .prometheus
 AGENTS.md

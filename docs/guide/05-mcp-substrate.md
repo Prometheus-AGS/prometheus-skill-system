@@ -1,6 +1,6 @@
 # 05 · The MCP Server Substrate
 
-The eight MCP servers installed by the prometheus-skill-pack are not tools bolted onto the loop. They are the connective tissue that makes the loop coherent across sessions, across tools, and across time. Each runs as a service — the HTTP-based ones as macOS `launchd` agents, the stdio-based ones on-demand through the MCP client — and all are addressable by any AI tool configured to reach them.
+The eight MCP servers installed by the prometheus-skill-pack are not tools bolted onto the loop. They are the connective tissue that makes the loop coherent across sessions, across tools, and across time. Each runs as a service — the HTTP-based ones as `launchd` agents (macOS) or `systemd --user` units (Linux), the stdio-based ones on-demand through the MCP client — and all are addressable by any AI tool configured to reach them.
 
 This shared addressability is the whole reason the architecture is cross-tool. When OpenCode or Codex runs the loop instead of Claude Code, it connects to the *same* surreal-memory server, reads the *same* knowledge-base context, and writes the *same* session summaries. The substrate is shared even when the agent client changes.
 
@@ -95,7 +95,7 @@ bash scripts/configure-mcp-all-tools.sh
 bash scripts/check-mcp-health.sh
 ```
 
-On macOS the `launchd` agents manage `pk-cherry` on `127.0.0.1:8942` and `forge mcp` on `127.0.0.1:8943`; surreal-memory remains Docker-managed on `127.0.0.1:23001` and the service script reports only whether that port is ready. On Linux, use systemd user services or cron-style scheduled jobs in place of LaunchAgents. Full installation detail is on the [Installation](19-installation.md) page.
+On macOS the `launchd` agents manage `pk-cherry` on `127.0.0.1:8942` and `forge mcp` on `127.0.0.1:8943`; on Linux the same installer manages them as `systemd --user` units. surreal-memory runs natively on `127.0.0.1:23001` against a dedicated SurrealDB on `127.0.0.1:28000` (or stays Docker-managed if you choose that runtime). Full installation detail is on the [Installation](19-installation.md) page.
 
 Graceful degradation is built in everywhere. Every script that depends on one of these servers checks for it first and continues without it if it is absent — memory features no-op when surreal-memory is unreachable, the sycophancy gate passes through when its binary is missing, and `pk focus` silently does nothing when `pk` is not installed. The loop never blocks on infrastructure it cannot reach.
 

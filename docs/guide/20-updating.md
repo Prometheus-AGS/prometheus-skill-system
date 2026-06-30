@@ -31,7 +31,7 @@ graph TD
 
 ## Updating the git submodules
 
-The imported skills (`artifact-refiner`, `sycophancy-correction`, `prometheus-entity-management`) and three of the tools (`surreal-memory-server`, `prometheus-knowledge`, `liter-llm`) are submodules with independent lifecycles. They update separately from the main repo.
+The imported skills (`artifact-refiner`, `sycophancy-correction`) and three of the tools (`surreal-memory-server`, `prometheus-knowledge`, `liter-llm`) are submodules with independent lifecycles. They update separately from the main repo.
 
 ```bash
 # Update every submodule to its tracked branch's latest

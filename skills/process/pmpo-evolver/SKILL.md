@@ -13,6 +13,22 @@ metadata:
 
 Strategy router for evolving released products across five evidence-based perspectives. Sits above `iterative-evolver`, `kbd-evolve`, and `pmpo-outer-loop` as the entry point for product evolution work.
 
+## Progress Signals (MANDATORY)
+
+Before any other action, emit:
+
+```
+Starting pmpo-evolver — <evolution-name> (perspective 1 of 5)
+```
+
+When all selected perspectives are synthesized, emit:
+
+```
+Completed pmpo-evolver — <evolution-name> (perspectives: <list>)
+```
+
+Emit to plain response text — no tool call needed.
+
 ## Entry commands
 
 ```

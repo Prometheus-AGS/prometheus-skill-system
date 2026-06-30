@@ -32,6 +32,22 @@ triggers:
 Drive a complete goal from statement to implementation using KBD's iterative
 loop engine — platform-agnostic, multi-phase, with bias-resistant evaluation.
 
+## Progress Signals (MANDATORY)
+
+Before any other action, emit:
+
+```
+Starting kbd-goal — <goal slug>
+```
+
+When the goal waypoint is written and the loop is configured, emit:
+
+```
+Completed kbd-goal — <goal slug> (phases: <list>)
+```
+
+Emit to plain response text — no tool call needed.
+
 ## Quick Start
 
 ```

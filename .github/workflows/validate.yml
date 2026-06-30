@@ -119,7 +119,9 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-          cache: 'npm'
+          # No `cache: npm` — this repo does not commit package-lock.json, and
+          # setup-node's npm cache hard-fails when no lock file is present. The
+          # other jobs install without caching for the same reason.
 
       - name: Install dependencies
         run: npm install

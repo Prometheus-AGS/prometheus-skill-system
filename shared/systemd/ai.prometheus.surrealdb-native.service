@@ -1,0 +1,25 @@
+# systemd --user unit — Prometheus native SurrealDB engine.
+# Mirrors shared/launchagents/ai.prometheus.surrealdb-native.plist.
+# Binds 127.0.0.1:28000 (distinct from any external SurrealDB on :8000).
+# Data lives at ~/.prometheus/data/surrealdb/database.db (RocksDB directory).
+# __PLACEHOLDER__ tokens are substituted by scripts/install-mcp-services.sh.
+[Unit]
+Description=Prometheus SurrealDB (native, :28000)
+Documentation=https://github.com/Prometheus-AGS/prometheus-skill-system
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=__PROMETHEUS_HOME__
+Environment=HOME=__PROMETHEUS_HOME__
+Environment=USER=__PROMETHEUS_USER__
+Environment=PATH=__PROMETHEUS_PATH__
+ExecStartPre=/bin/mkdir -p __PROMETHEUS_HOME__/.prometheus/data/surrealdb
+ExecStart=__SURREAL_BIN__ start --log=info --user=root --pass=root --bind=127.0.0.1:28000 rocksdb:__PROMETHEUS_HOME__/.prometheus/data/surrealdb/database.db
+Restart=on-failure
+RestartSec=10
+StandardOutput=append:__PROMETHEUS_LOG_DIR__/surrealdb-native.stdout.log
+StandardError=append:__PROMETHEUS_LOG_DIR__/surrealdb-native.stderr.log
+
+[Install]
+WantedBy=default.target

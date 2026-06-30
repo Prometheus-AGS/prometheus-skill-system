@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 # check-mcp-health.sh — health table for all Prometheus MCP services.
 #
-# Prints launchctl state + HTTP probe for each HTTP-reachable service.
-# Stdio-only services (sycophancy-correction, liter-llm, sequential-thinking, tavily)
-# are listed as "stdio — no HTTP probe".
+# Cross-platform: shows the service-manager state (launchd on macOS, systemd --user
+# on Linux) plus an HTTP probe for each HTTP-reachable daemon. Stdio-only servers
+# (sycophancy-correction, liter-llm, sequential-thinking, tavily) are managed by the
+# AI client and listed as "stdio — no HTTP probe".
 #
 # Usage: bash scripts/check-mcp-health.sh [--json]
 
@@ -13,46 +14,60 @@ JSON_MODE=false
 [ "${1:-}" = "--json" ] && JSON_MODE=true
 
 PROMETHEUS_USER="${PROMETHEUS_USER:-$(id -un)}"
-PROMETHEUS_UID="$(id -u "$PROMETHEUS_USER" 2>/dev/null)"
+PROMETHEUS_UID="$(id -u "$PROMETHEUS_USER" 2>/dev/null || id -u)"
 GUI_DOMAIN="gui/$PROMETHEUS_UID"
 
-launchctl_state() {
+case "$(uname -s 2>/dev/null)" in
+    Darwin*) OS="macos" ;;
+    Linux*)  OS="linux"; export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-/run/user/$PROMETHEUS_UID}" ;;
+    *)       OS="other" ;;
+esac
+
+# Reports the service-manager state for a label ("n/a" if the label is n/a).
+service_state() {
     local label="$1"
-    if launchctl print "$GUI_DOMAIN/$label" >/dev/null 2>&1; then
-        local state pid
-        state=$(launchctl print "$GUI_DOMAIN/$label" 2>/dev/null \
-            | awk -F'= ' '/[[:space:]]state =/{print $2; exit}')
-        pid=$(launchctl print "$GUI_DOMAIN/$label" 2>/dev/null \
-            | awk -F'= ' '/[[:space:]]pid =/{print $2; exit}')
-        printf '%s (pid %s)' "${state:-unknown}" "${pid:-n/a}"
+    [ "$label" = "n/a" ] && { printf 'n/a'; return; }
+    if [ "$OS" = "macos" ]; then
+        if launchctl print "$GUI_DOMAIN/$label" >/dev/null 2>&1; then
+            local state pid
+            state=$(launchctl print "$GUI_DOMAIN/$label" 2>/dev/null | awk -F'= ' '/[[:space:]]state =/{print $2; exit}')
+            pid=$(launchctl print "$GUI_DOMAIN/$label" 2>/dev/null | awk -F'= ' '/[[:space:]]pid =/{print $2; exit}')
+            printf '%s (pid %s)' "${state:-unknown}" "${pid:-n/a}"
+        else
+            printf 'not loaded'
+        fi
+    elif [ "$OS" = "linux" ]; then
+        local unit="$label.service"; case "$label" in *.timer) unit="$label" ;; esac
+        if systemctl --user cat "$unit" >/dev/null 2>&1; then
+            local active pid
+            active=$(systemctl --user is-active "$unit" 2>/dev/null || echo "inactive")
+            pid=$(systemctl --user show "$unit" -p MainPID --value 2>/dev/null || echo 0)
+            [ "${pid:-0}" = "0" ] && printf '%s' "$active" || printf '%s (pid %s)' "$active" "$pid"
+        else
+            printf 'not installed'
+        fi
     else
-        printf 'not loaded'
+        printf 'n/a'
     fi
 }
 
 http_probe() {
-    local url="$1"
-    local code
-    # Use -s without -f so curl doesn't exit non-zero on 4xx/5xx
-    code=$(curl -s -o /dev/null -w '%{http_code}' \
-        --connect-timeout 2 --max-time 4 "$url" 2>/dev/null) || code="000"
+    local url="$1" code
+    code=$(curl -s -o /dev/null -w '%{http_code}' --connect-timeout 2 --max-time 4 "$url" 2>/dev/null) || code="000"
     [ -n "$code" ] || code="000"
     printf '%s' "$code"
 }
 
 print_row() {
     local name="$1" label="$2" url="$3" desc="$4"
-    local lstate code status
-
-    lstate="$(launchctl_state "$label" 2>/dev/null || echo 'n/a')"
+    local svc code status
+    svc="$(service_state "$label" 2>/dev/null || echo 'n/a')"
 
     if [ "$url" = "stdio" ]; then
-        status="stdio — no HTTP probe"
-        code="n/a"
+        status="stdio — no HTTP probe"; code="n/a"
     else
         code="$(http_probe "$url")"
         if [ "$code" = "200" ] || [ "$code" = "201" ] || [ "$code" = "404" ] || [ "$code" = "405" ]; then
-            # 405 = MCP endpoint alive but requires specific method/content-type
             status="OK ($code)"
         elif [ "$code" = "000" ]; then
             status="UNREACHABLE"
@@ -62,38 +77,38 @@ print_row() {
     fi
 
     if $JSON_MODE; then
-        printf '{"name":"%s","label":"%s","launchctl":"%s","url":"%s","status":"%s"}\n' \
-            "$name" "$label" "$lstate" "$url" "$status"
+        printf '{"name":"%s","label":"%s","service":"%s","url":"%s","status":"%s"}\n' \
+            "$name" "$label" "$svc" "$url" "$status"
     else
-        printf '%-30s  %-32s  %-20s  %s\n' "$name" "$lstate" "$status" "$desc"
+        printf '%-30s  %-32s  %-20s  %s\n' "$name" "$svc" "$status" "$desc"
     fi
 }
 
 if ! $JSON_MODE; then
-    printf '\n%-30s  %-32s  %-20s  %s\n' "SERVICE" "LAUNCHCTL STATE" "HTTP STATUS" "DESCRIPTION"
+    printf '\n  Platform: %s   Service manager: %s\n' "$OS" "$([ "$OS" = macos ] && echo launchd || echo 'systemd --user')"
+    printf '%-30s  %-32s  %-20s  %s\n' "SERVICE" "SERVICE STATE" "HTTP STATUS" "DESCRIPTION"
     printf '%s\n' "$(printf '%.0s-' {1..110})"
 fi
 
-# HTTP-reachable services
-print_row "surreal-memory"         "ai.prometheus.surreal-memory-docker"  "http://localhost:23001/health"  "Knowledge graph + scoped memory (Docker)"
+# HTTP-reachable daemons
+print_row "surrealdb"              "ai.prometheus.surrealdb-native"       "http://localhost:28000/health"  "SurrealDB engine (native, :28000)"
+print_row "surreal-memory"         "ai.prometheus.surreal-memory-native"  "http://localhost:23001/health"  "Knowledge graph + scoped memory (native)"
 print_row "prometheus-knowledge"   "ai.prometheus.pk-cherry"              "http://localhost:8942/mcp"      "pk-cherry HTTP MCP (Karpathy KB)"
 print_row "forge-rs"               "ai.prometheus.forge-mcp"              "http://localhost:8943/mcp"      "Forge code-enrichment MCP"
 
-# Stdio-only services — managed by the AI client, not launchd
-print_row "sycophancy-correction"  "n/a"                                  "stdio"  "Sycophancy gate (/usr/local/bin/sycophancy-correction)"
-print_row "liter-llm"              "n/a"                                  "stdio"  "Multi-model routing proxy (/usr/local/bin/liter-llm)"
-print_row "sequential-thinking"    "n/a"                                  "stdio"  "Sequential thinking (npx @modelcontextprotocol/server-sequential-thinking)"
-print_row "tavily"                 "n/a"                                  "stdio"  "Web search (npx mcp-remote tavily)"
+# Stdio-only services — managed by the AI client, not the service manager
+print_row "sycophancy-correction"  "n/a"  "stdio"  "Sycophancy gate (sycophancy-correction)"
+print_row "liter-llm"              "n/a"  "stdio"  "Multi-model routing proxy (liter-llm)"
+print_row "sequential-thinking"    "n/a"  "stdio"  "Sequential thinking (npx)"
+print_row "tavily"                 "n/a"  "stdio"  "Web search (npx)"
 
-# Cron service
-print_row "prometheus-nudge"       "ai.prometheus.prometheus-nudge"       "stdio"  "Periodic nudge every 4h (scripts/scheduled/periodic-nudge.sh)"
+# Periodic timer
+print_row "prometheus-nudge"       "ai.prometheus.prometheus-nudge.timer" "stdio"  "Periodic nudge every 4h"
 
 if ! $JSON_MODE; then
     printf '\n'
-    # Quick Docker status for surreal-memory
     if command -v docker >/dev/null 2>&1; then
-        echo "Docker containers:"
-        docker ps --format '  {{.Names}}  {{.Status}}  {{.Ports}}' 2>/dev/null \
-            | grep -E 'surreal|surrealdb' || echo "  (none matching surreal*)"
+        echo "Docker containers (surreal*):"
+        docker ps --format '  {{.Names}}  {{.Status}}  {{.Ports}}' 2>/dev/null | grep -E 'surreal' || echo "  (none)"
     fi
 fi

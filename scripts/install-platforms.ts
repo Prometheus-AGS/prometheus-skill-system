@@ -261,23 +261,29 @@ function installPlatform(platform: Platform, scope: 'global' | 'project'): void 
 
       if (!existingConfig.includes('[mcp_servers.surreal-memory]')) {
         mcpEntriesToAdd.push(
-          '[mcp_servers.surreal-memory]\ntype = "sse"\nurl = "http://localhost:23001/mcp/sse"',
+          '[mcp_servers.surreal-memory]\ntype = "sse"\nurl = "http://localhost:23001/mcp/sse"'
         );
       }
       if (!existingConfig.includes('[mcp_servers.sycophancy-correction]')) {
-        mcpEntriesToAdd.push('[mcp_servers.sycophancy-correction]\ncommand = "sycophancy-correction"');
+        mcpEntriesToAdd.push(
+          '[mcp_servers.sycophancy-correction]\ncommand = "sycophancy-correction"'
+        );
       }
       if (!existingConfig.includes('[mcp_servers.liter-llm]')) {
         mcpEntriesToAdd.push(
-          '[mcp_servers.liter-llm]\ncommand = "liter-llm"\nargs = [\n    "mcp",\n    "--transport",\n    "stdio",\n]',
+          '[mcp_servers.liter-llm]\ncommand = "liter-llm"\nargs = [\n    "mcp",\n    "--transport",\n    "stdio",\n]'
         );
       }
 
       if (mcpEntriesToAdd.length > 0) {
         const newConfig =
-          (existingConfig ? existingConfig.trimEnd() + '\n\n' : '') + mcpEntriesToAdd.join('\n\n') + '\n';
+          (existingConfig ? existingConfig.trimEnd() + '\n\n' : '') +
+          mcpEntriesToAdd.join('\n\n') +
+          '\n';
         writeFileSync(kimiConfigPath, newConfig, 'utf-8');
-        console.log(`    ✅ config.toml updated: ${kimiConfigPath} (${mcpEntriesToAdd.length} MCP entries added)`);
+        console.log(
+          `    ✅ config.toml updated: ${kimiConfigPath} (${mcpEntriesToAdd.length} MCP entries added)`
+        );
       } else {
         console.log(`    ✅ config.toml already contains all required MCP entries`);
       }

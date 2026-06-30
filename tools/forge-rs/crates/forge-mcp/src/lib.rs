@@ -81,7 +81,13 @@ struct McpRequest {
 async fn handle_mcp(
     State(state): State<Arc<ServerState>>,
     Json(req): Json<McpRequest>,
-) -> impl IntoResponse {
+) -> axum::response::Response {
+    // JSON-RPC notifications (no `id`, e.g. notifications/initialized) expect no
+    // response body — acknowledge with 202 so the client proceeds.
+    if req.id.is_none() {
+        return StatusCode::ACCEPTED.into_response();
+    }
+
     let result = dispatch_method(&state, &req.method, req.params.as_ref()).await;
 
     let response = match result {
@@ -97,7 +103,7 @@ async fn handle_mcp(
         }),
     };
 
-    Json(response)
+    Json(response).into_response()
 }
 
 async fn dispatch_method(
@@ -241,6 +247,15 @@ async fn dispatch_method(
                 _ => Err(anyhow::anyhow!("Unknown tool: {}", tool_name)),
             }
         }
+
+        // MCP lifecycle — required so spec-compliant clients (Claude Code, etc.)
+        // complete the Streamable HTTP handshake before listing/calling tools.
+        "initialize" => Ok(json!({
+            "protocolVersion": "2024-11-05",
+            "capabilities": { "tools": {} },
+            "serverInfo": { "name": "forge-mcp", "version": env!("CARGO_PKG_VERSION") }
+        })),
+        "ping" => Ok(json!({})),
 
         _ => Err(anyhow::anyhow!("Unknown method: {}", method)),
     }

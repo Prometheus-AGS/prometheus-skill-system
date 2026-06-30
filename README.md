@@ -161,8 +161,7 @@ prometheus-skill-pack/
 │   ├── learn/                   ← Feynman-Spine learning skills (goal, survey, plan, loop, grade, retain, practice, certify, KB, meta)
 │   └── imported/                ← Git submodule skills
 │       ├── artifact-refiner/        ← PMPO artifact refinement (submodule)
-│       ├── sycophancy-correction/   ← 8-pattern detection, Rust MCP server (submodule)
-│       └── prometheus-entity-management/ ← Entity graph library + skills (submodule)
+│       └── sycophancy-correction/   ← 8-pattern detection, Rust MCP server (submodule)
 │
 ├── tools/                       ← Rust workspaces and submodule tools
 │   ├── forge-rs/                ← Layer 4: code enrichment engine
