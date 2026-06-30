@@ -73,24 +73,13 @@ impl Enricher {
             language
         );
 
-        // 2. Check drift data before resolving skills (Phase A: log stale skills)
+        // 2. Load drift data; pass stale set into resolve() so it can deprioritize them
         let stale_skills = load_stale_skills(&self.forge_dir, &language);
-        if !stale_skills.is_empty() {
-            let mut sorted: Vec<_> = stale_skills.iter().cloned().collect();
-            sorted.sort();
-            warn!(
-                stale_count = stale_skills.len(),
-                "Drift data: {} skill(s) have acceptance_rate < 0.5 and may need updating: {}. \
-                 Run `forge evolve` to refresh stale skills.",
-                stale_skills.len(),
-                sorted.join(", ")
-            );
-        }
 
-        // Resolve applicable skills
+        // Resolve applicable skills — stale skills sorted to end, never silently dropped
         let skills = self
             .skill_registry
-            .resolve(&language, &task.description, task.path_str());
+            .resolve(&language, &task.description, task.path_str(), &stale_skills);
 
         info!("Resolved {} skill(s)", skills.len());
 

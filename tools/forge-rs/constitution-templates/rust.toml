@@ -52,8 +52,4 @@ pattern  = "clone().clone()"
 reason   = "Double clone is almost always a design smell."
 severity = "warning"
 
-[required_skills]
-always = ["rust/performance", "rust/error-handling"]
-when_axum = ["rust/axum-patterns"]
-when_mcp  = ["rust/mcp-server"]
-when_actor = ["rust/actor-model"]
+required_skills = ["rust/performance", "rust/error-handling", "rust/axum-patterns", "rust/mcp-server", "rust/actor-model"]

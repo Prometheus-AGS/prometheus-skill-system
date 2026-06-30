@@ -1,14 +1,25 @@
 # gitleaks configuration for prometheus-skill-pack
 # See: https://github.com/gitleaks/gitleaks/blob/master/config/gitleaks.toml
+#
+# Allowlist scope: ONLY the specific files that quote the rotated Tavily key
+# (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) as documentary evidence of a
+# resolved finding. Real secrets in any other location WILL be flagged.
 
 [allowlist]
-  description = "Allowlist for documentation and planning files that reference the rotated Tavily key as evidence"
+  description = "Specific planning files that quote the rotated Tavily key as evidence of resolved finding OQ-01"
   regexTarget = "match"
   paths = [
-    # KBD orchestrator planning artifacts — key referenced as evidence, not live credential
-    '''.kbd-orchestrator/''',
-    # OpenSpec change proposals that quote the finding
-    '''openspec/changes/change-credibility-001-remove-hardcoded-api-key/''',
-    # Position reminder file (human-readable context file, not source code)
-    '''.kbd-orchestrator/position-reminder.txt''',
+    # OpenSpec change proposal that documents the removal of the hardcoded key
+    '''openspec/changes/change-credibility-001-remove-hardcoded-api-key/proposal\.md$''',
+    '''openspec/changes/change-credibility-001-remove-hardcoded-api-key/tasks\.md$''',
+    # KBD phase planning docs that reference the key as a resolved audit finding
+    '''.kbd-orchestrator/phases/phase-credibility-closure/plan\.md$''',
+    '''.kbd-orchestrator/phases/phase-credibility-closure/analysis\.md$''',
+    '''.kbd-orchestrator/phases/phase-credibility-closure/reflection\.md$''',
+    '''.kbd-orchestrator/phases/phase-credibility-closure/library-candidates\.json$''',
+    '''.kbd-orchestrator/phases/phase-credibility-closure/handoffs/reflect\.json$''',
+    '''.kbd-orchestrator/phases/phase-credibility-closure/handoffs/plan\.handoff\.json$''',
+    '''.kbd-orchestrator/phases/phase-sovereign-sync-hardening/reflection\.md$''',
+    '''.kbd-orchestrator/phases/phase-sovereign-sync-hardening/assessment-credibility-report-response\.md$''',
+    '''.kbd-orchestrator/phases/phase-credibility-90/goals\.md$''',
   ]

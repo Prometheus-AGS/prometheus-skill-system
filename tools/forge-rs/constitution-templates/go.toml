@@ -17,5 +17,4 @@ pattern  = "interface{}"
 reason   = "Use any (Go 1.18+ alias) or concrete types."
 severity = "warning"
 
-[required_skills]
-always = ["go/base-patterns", "go/error-handling"]
+required_skills = ["go/base-patterns", "go/error-handling"]

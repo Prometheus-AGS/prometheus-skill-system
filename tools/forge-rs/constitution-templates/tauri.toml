@@ -17,6 +17,4 @@ pattern  = "__InternalTauri"
 reason   = "Use the public Tauri API only."
 severity = "error"
 
-[required_skills]
-always      = ["tauri/tauri-react-vite", "rust/axum-patterns"]
-when_flutter = ["tauri/flutter-embedding", "flutter/flutter-rust-ffi"]
+required_skills = ["tauri/tauri-react-vite", "rust/axum-patterns", "tauri/flutter-embedding", "flutter/flutter-rust-ffi"]

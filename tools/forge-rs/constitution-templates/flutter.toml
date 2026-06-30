@@ -33,7 +33,4 @@ pattern  = "async*"
 reason   = "Prefer Stream-based providers in Riverpod over raw async generators."
 severity = "warning"
 
-[required_skills]
-always      = ["flutter/flutter-rust-ffi", "flutter/clean-architecture"]
-when_web    = ["flutter/react-embedding"]
-when_tauri  = ["tauri/flutter-embedding"]
+required_skills = ["flutter/flutter-rust-ffi", "flutter/clean-architecture", "flutter/react-embedding", "tauri/flutter-embedding"]

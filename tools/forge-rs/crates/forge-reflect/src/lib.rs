@@ -235,3 +235,156 @@ async fn ingest_to_pk_cli(content: &str, source: &str) -> Result<()> {
     }
     Ok(())
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use forge_core::{DriftType, IterationRecord, Language, SkillDrift};
+    use uuid::Uuid;
+
+    fn make_record(drift: Vec<SkillDrift>) -> IterationRecord {
+        IterationRecord {
+            id: Uuid::new_v4(),
+            task_id: "test-task".to_string(),
+            language: Language::Rust,
+            applied_skills: vec!["rust/error-handling".to_string()],
+            agent_produced: String::new(),
+            user_accepted: None,
+            diff_summary: None,
+            skill_drift: drift,
+            constitution_violations: vec![],
+            completed_at: Utc::now(),
+        }
+    }
+
+    fn skill_drift(name: &str, dtype: DriftType) -> SkillDrift {
+        SkillDrift {
+            skill_name: name.to_string(),
+            override_description: String::new(),
+            drift_type: dtype,
+        }
+    }
+
+    // ─── compute_drift ────────────────────────────────────────────────────────
+
+    #[test]
+    fn compute_drift_empty_record_produces_empty_report() {
+        let record = make_record(vec![]);
+        let report = compute_drift(&record);
+        assert!(report.skills.is_empty());
+        assert_eq!(report.language, Language::Rust);
+    }
+
+    #[test]
+    fn compute_drift_accepted_only_gives_acceptance_rate_one() {
+        let record = make_record(vec![
+            skill_drift("axum-patterns", DriftType::Accepted),
+            skill_drift("axum-patterns", DriftType::Accepted),
+        ]);
+        let report = compute_drift(&record);
+        assert_eq!(report.skills.len(), 1);
+        let summary = &report.skills[0];
+        assert_eq!(summary.skill_name, "axum-patterns");
+        assert_eq!(summary.accepted_count, 2);
+        assert_eq!(summary.total_applications, 2);
+        assert!((summary.acceptance_rate - 1.0).abs() < f32::EPSILON);
+        assert!(!summary.stale_candidate, "all-accepted skill must not be stale");
+    }
+
+    #[test]
+    fn compute_drift_below_half_acceptance_marks_stale() {
+        let record = make_record(vec![
+            skill_drift("axum-patterns", DriftType::Accepted),
+            skill_drift("axum-patterns", DriftType::Modified),
+            skill_drift("axum-patterns", DriftType::Replaced),
+        ]);
+        let report = compute_drift(&record);
+        let summary = &report.skills[0];
+        assert_eq!(summary.accepted_count, 1);
+        assert_eq!(summary.total_applications, 3);
+        assert!(
+            summary.stale_candidate,
+            "acceptance_rate = 1/3 < 0.5, so stale_candidate must be true"
+        );
+    }
+
+    #[test]
+    fn compute_drift_exactly_half_acceptance_is_not_stale() {
+        let record = make_record(vec![
+            skill_drift("s", DriftType::Accepted),
+            skill_drift("s", DriftType::Deleted),
+        ]);
+        let report = compute_drift(&record);
+        let summary = &report.skills[0];
+        // acceptance_rate = 0.5 — NOT < 0.5, so not stale
+        assert!(!summary.stale_candidate);
+    }
+
+    #[test]
+    fn compute_drift_multiple_skills_aggregated_independently() {
+        let record = make_record(vec![
+            skill_drift("a", DriftType::Accepted),
+            skill_drift("b", DriftType::Modified),
+            skill_drift("a", DriftType::Replaced),
+        ]);
+        let report = compute_drift(&record);
+        assert_eq!(report.skills.len(), 2);
+
+        let a = report.skills.iter().find(|s| s.skill_name == "a").unwrap();
+        assert_eq!(a.total_applications, 2);
+        assert_eq!(a.accepted_count, 1);
+
+        let b = report.skills.iter().find(|s| s.skill_name == "b").unwrap();
+        assert_eq!(b.total_applications, 1);
+        assert_eq!(b.accepted_count, 0);
+    }
+
+    // ─── format_ingestion_summary ─────────────────────────────────────────────
+
+    #[test]
+    fn format_ingestion_summary_contains_task_id() {
+        let record = make_record(vec![]);
+        let drift = compute_drift(&record);
+        let summary = format_ingestion_summary(&record, &drift);
+        assert!(
+            summary.contains("test-task"),
+            "summary must contain the task ID"
+        );
+    }
+
+    #[test]
+    fn format_ingestion_summary_lists_stale_skills() {
+        let record = make_record(vec![
+            skill_drift("slow-skill", DriftType::Modified),
+            skill_drift("slow-skill", DriftType::Modified),
+        ]);
+        let drift = compute_drift(&record);
+        let summary = format_ingestion_summary(&record, &drift);
+        assert!(
+            summary.contains("Stale Skill Candidates"),
+            "summary must mention stale skills when acceptance < 50%"
+        );
+        assert!(summary.contains("slow-skill"));
+    }
+
+    #[test]
+    fn format_ingestion_summary_omits_stale_section_when_all_fresh() {
+        let record = make_record(vec![
+            skill_drift("good-skill", DriftType::Accepted),
+        ]);
+        let drift = compute_drift(&record);
+        let summary = format_ingestion_summary(&record, &drift);
+        assert!(
+            !summary.contains("Stale Skill Candidates"),
+            "summary must not have stale section when all skills are accepted"
+        );
+    }
+
+    // ─── Reflector::new ───────────────────────────────────────────────────────
+
+    #[test]
+    fn reflector_new_sets_forge_dir() {
+        let r = Reflector::new(std::path::Path::new("/tmp/my-project"));
+        assert_eq!(r.forge_dir, std::path::PathBuf::from("/tmp/my-project/.forge"));
+    }
+}

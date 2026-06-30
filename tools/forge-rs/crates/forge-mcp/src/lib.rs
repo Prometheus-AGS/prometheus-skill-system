@@ -341,3 +341,120 @@ async fn dispatch_method(
 async fn health() -> impl IntoResponse {
     Json(json!({ "status": "ok", "service": "forge-mcp" }))
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::path::PathBuf;
+
+    fn make_state(project_root: impl Into<PathBuf>) -> ServerState {
+        ServerState {
+            skills_root: PathBuf::from("/nonexistent/skills"),
+            project_root: project_root.into(),
+            pk_mcp_url: None,
+        }
+    }
+
+    // ─── dispatch_method: initialize ────────────────────────────────────────
+
+    #[tokio::test]
+    async fn initialize_returns_protocol_version() {
+        let state = make_state("/tmp/forge-test-mcp-init");
+        let result = dispatch_method(&state, "initialize", None).await.unwrap();
+        assert_eq!(result["protocolVersion"], "2024-11-05");
+        assert_eq!(result["serverInfo"]["name"], "forge-mcp");
+    }
+
+    // ─── dispatch_method: ping ───────────────────────────────────────────────
+
+    #[tokio::test]
+    async fn ping_returns_empty_object() {
+        let state = make_state("/tmp/forge-test-mcp-ping");
+        let result = dispatch_method(&state, "ping", None).await.unwrap();
+        assert!(result.as_object().map_or(false, |o| o.is_empty()));
+    }
+
+    // ─── dispatch_method: unknown method ────────────────────────────────────
+
+    #[tokio::test]
+    async fn unknown_method_returns_error() {
+        let state = make_state("/tmp/forge-test-mcp-unknown");
+        let err = dispatch_method(&state, "tools/nonexistent", None).await;
+        assert!(err.is_err());
+        assert!(err.unwrap_err().to_string().contains("Unknown method"));
+    }
+
+    // ─── dispatch_method: tools/list ────────────────────────────────────────
+
+    #[tokio::test]
+    async fn tools_list_returns_four_tools() {
+        let state = make_state("/tmp/forge-test-mcp-list");
+        let result = dispatch_method(&state, "tools/list", None).await.unwrap();
+        let tools = result["tools"].as_array().expect("tools must be an array");
+        assert_eq!(tools.len(), 4, "expected forge_enrich, forge_reflect, forge_drift, forge_validate");
+
+        let names: Vec<&str> = tools.iter()
+            .filter_map(|t| t["name"].as_str())
+            .collect();
+        assert!(names.contains(&"forge_enrich"));
+        assert!(names.contains(&"forge_reflect"));
+        assert!(names.contains(&"forge_drift"));
+        assert!(names.contains(&"forge_validate"));
+    }
+
+    // ─── dispatch_method: tools/call — unknown tool ──────────────────────────
+
+    #[tokio::test]
+    async fn tools_call_unknown_tool_returns_error() {
+        let state = make_state("/tmp/forge-test-mcp-call-unknown");
+        let params = json!({ "name": "no_such_tool", "arguments": {} });
+        let err = dispatch_method(&state, "tools/call", Some(&params)).await;
+        assert!(err.is_err());
+    }
+
+    // ─── dispatch_method: tools/call — forge_drift (no drift dir) ───────────
+
+    #[tokio::test]
+    async fn forge_drift_returns_text_when_no_drift_data() {
+        let state = make_state("/tmp/forge-test-mcp-drift-nodata");
+        let params = json!({ "name": "forge_drift", "arguments": {} });
+        let result = dispatch_method(&state, "tools/call", Some(&params)).await.unwrap();
+        let text = result["content"][0]["text"].as_str().unwrap_or("");
+        assert!(
+            text.contains("No drift data") || text.contains("Drift reports"),
+            "unexpected drift response: {}",
+            text
+        );
+    }
+
+    // ─── dispatch_method: tools/call — forge_enrich path confinement ────────
+
+    #[tokio::test]
+    async fn forge_enrich_rejects_path_outside_project_root() {
+        let state = make_state("/tmp/forge-test-mcp-path-confinement");
+        let params = json!({
+            "name": "forge_enrich",
+            "arguments": { "task_path": "/etc/passwd" }
+        });
+        let err = dispatch_method(&state, "tools/call", Some(&params)).await;
+        assert!(
+            err.is_err(),
+            "path traversal outside project root must be rejected"
+        );
+    }
+
+    // ─── ForgeServer::new — bind_addr default ────────────────────────────────
+
+    #[test]
+    fn forge_server_new_defaults_to_loopback() {
+        let server = ForgeServer::new(8943, "/tmp/skills", "/tmp/project", None);
+        assert_eq!(server.bind_addr, "127.0.0.1");
+        assert_eq!(server.port, 8943);
+    }
+
+    #[test]
+    fn forge_server_with_bind_addr_stores_address() {
+        let server = ForgeServer::with_bind_addr(8943, "127.0.0.1", "/tmp/s", "/tmp/p", None);
+        assert_eq!(server.bind_addr, "127.0.0.1");
+    }
+}

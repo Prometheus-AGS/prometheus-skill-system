@@ -19,6 +19,4 @@ pattern  = "except:"
 reason   = "Always specify the exception type."
 severity = "error"
 
-[required_skills]
-always = ["python/pyo3-bridge"]
-when_skill_executor = ["python/skill-executor"]
+required_skills = ["python/pyo3-bridge", "python/skill-executor"]
