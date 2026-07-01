@@ -1,0 +1,25 @@
+{
+  "name": "learn",
+  "description": "Feynman-Spine learning and education capability",
+  "version": "1.5.0",
+  "author": {
+    "name": "Travis James",
+    "url": "https://travisjames.ai"
+  },
+  "license": "MIT",
+  "skills": [
+    "./ui-surface",
+    "./learn-goal",
+    "./learn-survey",
+    "./learn-plan",
+    "./feynman-loop",
+    "./learn-grade",
+    "./learn-retain",
+    "./learn-practice",
+    "./learn-certify",
+    "./learn-kb",
+    "./learn-about-system",
+    "./learn-harness"
+  ],
+  "keywords": ["learning", "feynman", "spaced-repetition", "fsrs", "education", "credential", "w3c-vc"]
+}

@@ -18,7 +18,5 @@
     "./skills/evolve-status",
     "./skills/evolve-report"
   ],
-  "agents": ["./agents"],
-  "hooks": "./hooks/hooks.json",
   "mcpServers": "./.mcp.json"
 }

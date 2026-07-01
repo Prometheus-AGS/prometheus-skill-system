@@ -369,7 +369,9 @@ async function findSkills(rootDir, { excludeSubmodules = false } = {}) {
         const skillDirs = await fs.readdir(categoryPath);
 
         for (const skillDir of skillDirs) {
-          // Skip README files and non-directories
+          // Skip README files, dotfiles/dotdirs (e.g. .claude-plugin), and non-directories
+          if (skillDir.startsWith('.') || skillDir.startsWith('_')) continue;
+
           const skillPath = path.join(categoryPath, skillDir);
           const skillStats = await fs.stat(skillPath);
 

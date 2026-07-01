@@ -170,7 +170,7 @@ git push origin feature/new-skill
 
 ```bash
 # Users install with:
-/plugin marketplace add gqadonis/prometheus-skill-pack
+/plugin marketplace add Prometheus-AGS/prometheus-skill-system
 /plugin install prometheus-skill-pack
 
 # Or specific domain:

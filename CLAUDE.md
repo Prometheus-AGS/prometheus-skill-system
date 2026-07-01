@@ -272,7 +272,7 @@ This repository supports two distribution formats simultaneously:
 
 **Important**: The `skills/` directory is the source of truth. The `.claude-plugin/` directory contains symlinks created by `npm run build`.
 
-**Canonical hooks path**: `hooks/hooks.json` is the physical source of truth for hook definitions. `plugin.json` declares `"hooks": "./hooks/hooks.json"` (relative to `.claude-plugin/`), which resolves through the `.claude-plugin/hooks → ../hooks` directory symlink to the same physical file. Always edit `hooks/hooks.json` directly — never edit through `.claude-plugin/hooks/hooks.json`. CI validates this symlink on every PR (`hooks-integrity` job in `.github/workflows/validate.yml`).
+**Canonical hooks path**: `hooks/hooks.json` is the physical source of truth for hook definitions. Claude Code auto-loads `hooks/hooks.json` from the plugin root by default, so `plugin.json` must NOT also declare `"hooks": "./hooks/hooks.json"` — that duplicates the default path and fails plugin load with "Duplicate hooks file detected". `.claude-plugin/hooks → ../hooks` is a directory symlink kept only so `.claude-plugin/` mirrors the full plugin layout on disk; it plays no role in hook loading. Always edit `hooks/hooks.json` directly — never edit through `.claude-plugin/hooks/hooks.json`. CI validates the symlink on every PR (`hooks-integrity` job in `.github/workflows/validate.yml`).
 
 ### Imported Skills (Git Submodules)
 
@@ -464,7 +464,7 @@ The marketplace is configured for Git-based distribution:
 1. **Source**: `marketplace/marketplace.json` with frontmatter
 2. **Plugins**: Defined as Git repository references
 3. **Granularity**: Full package or individual domain packages
-4. **Installation**: Users run `/plugin marketplace add gqadonis/prometheus-skill-pack`
+4. **Installation**: Users run `/plugin marketplace add Prometheus-AGS/prometheus-skill-system`
 
 ### Publishing Checklist
 
@@ -472,7 +472,7 @@ Before releasing:
 
 - [ ] All skills validate strict: `npm run validate:strict`
 - [ ] Marketplace builds: `npm run build`
-- [ ] Version bumped in `package.json` and `plugin.json`
+- [ ] Version bumped in `package.json`, `plugin.json`, and every plugin entry in `marketplace/marketplace.json`
 - [ ] CHANGELOG updated
 - [ ] README reflects new skills
 - [ ] Git tag created: `git tag v1.x.x`

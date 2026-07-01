@@ -9,7 +9,6 @@
   "homepage": "https://github.com/Prometheus-AGS/prometheus-skill-system",
   "repository": "https://github.com/Prometheus-AGS/prometheus-skill-system",
   "license": "MIT",
-  "category": "productivity",
   "keywords": [
     "react",
     "entity-management",
@@ -66,8 +65,6 @@
     "./skills/learn/learn-about-system",
     "./skills/learn/learn-harness"
   ],
-  "agents": ["./agents"],
-  "hooks": "./hooks/hooks.json",
   "mcpServers": "./.mcp.json",
   "compatibility": {
     "platforms": [
