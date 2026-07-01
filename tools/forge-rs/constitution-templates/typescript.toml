@@ -51,4 +51,4 @@ pattern  = "import React from 'react'"
 reason   = "React 19 does not require explicit React import for JSX."
 severity = "warning"
 
-required_skills = ["typescript/base-patterns", "react/react-vite-stack", "react/prometheus-entity-skills", "react/tanstack-patterns"]
+required_skills = ["typescript/typescript-base-patterns", "react/react-vite-stack", "react/prometheus-entity-skills", "react/tanstack-patterns"]

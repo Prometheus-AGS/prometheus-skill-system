@@ -1,0 +1,21 @@
+# systemd --user unit — Prometheus surface-bridge Tier-2 UI MCP App server.
+# Mirrors shared/launchagents/ai.prometheus.surface-bridge.plist. Binds :7890.
+# No dependency on the other daemons — surface-bridge only renders UI intents.
+[Unit]
+Description=Prometheus surface-bridge Tier-2 UI MCP App server (native, :7890)
+
+[Service]
+Type=simple
+WorkingDirectory=__PROMETHEUS_ROOT__
+Environment=HOME=__PROMETHEUS_HOME__
+Environment=USER=__PROMETHEUS_USER__
+Environment=PATH=__PROMETHEUS_PATH__
+Environment=RUST_LOG=info
+ExecStart=__SURFACE_BRIDGE_BIN__
+Restart=on-failure
+RestartSec=10
+StandardOutput=append:__PROMETHEUS_LOG_DIR__/surface-bridge.stdout.log
+StandardError=append:__PROMETHEUS_LOG_DIR__/surface-bridge.stderr.log
+
+[Install]
+WantedBy=default.target

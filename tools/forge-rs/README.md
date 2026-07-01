@@ -239,12 +239,12 @@ forge template render skills/rust/my-axum-extension/ws_handler.rs.tera \
 | Language | Constitution | Skills | Templates |
 |---|---|---|---|
 | Rust | `rust.toml` | `axum-patterns`, `error-handling`, `async-patterns`, `workspace-structure`, `mcp-server`, `actor-model`, `performance` | router, app_error, app_state, middleware, handler |
-| TypeScript | `typescript.toml` | `base-patterns` | — |
+| TypeScript | `typescript.toml` | `typescript-base-patterns` | — |
 | React 19 | `typescript.toml` | `react-vite-stack`, `prometheus-entity-skills` | page_component, feature_hook, store, api_client, entity_hook |
 | Flutter | `flutter.toml` | `flutter-rust-ffi` | riverpod_notifier, feature_repository, go_router_config |
 | HTMX | — | `htmx-alpine-lit` | page, lit_component, react_island, axum_fragment_handler |
 | Tauri | `tauri.toml` | `tauri-react-vite` | — |
-| Go | `go.toml` | `base-patterns` | — |
+| Go | `go.toml` | `go-base-patterns` | — |
 | Python | `python.toml` | `pyo3-bridge` | — |
 
 ---

@@ -1,6 +1,6 @@
 ---
 license: MIT
-name: base-patterns
+name: go-base-patterns
 version: '1.0.0'
 description: >
   Canonical Go 1.22 patterns for Prometheus AGS projects. Covers error handling with

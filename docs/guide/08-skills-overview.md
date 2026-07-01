@@ -63,8 +63,8 @@ Every native skill conforms strictly to the [AgentSkills.io specification](https
 | **Flutter** | 1 | flutter-rust-ffi | [10](10-language-skills.md) |
 | **Tauri** | 1 | tauri-react-vite | [10](10-language-skills.md) |
 | **HTMX** | 1 | htmx-alpine-lit | [10](10-language-skills.md) |
-| **TypeScript** | 1 | base-patterns | [10](10-language-skills.md) |
-| **Go** | 1 | base-patterns | [10](10-language-skills.md) |
+| **TypeScript** | 1 | typescript-base-patterns | [10](10-language-skills.md) |
+| **Go** | 1 | go-base-patterns | [10](10-language-skills.md) |
 | **Python** | 1 | pyo3-bridge | [10](10-language-skills.md) |
 | **Architecture** | 1 | clean-architecture | [10](10-language-skills.md) |
 | **Testing** | 2 | bdd-testing, bdd-video-proof | [10](10-language-skills.md) |

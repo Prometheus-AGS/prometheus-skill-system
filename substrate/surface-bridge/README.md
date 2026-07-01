@@ -17,18 +17,16 @@ cargo build --release
 # Listens on 127.0.0.1:7890
 ```
 
-## macOS launchd install
+## Service install (macOS launchd / Linux systemd --user)
 
 ```bash
-cp com.prometheusags.surface-bridge.plist ~/Library/LaunchAgents/
-launchctl load ~/Library/LaunchAgents/com.prometheusags.surface-bridge.plist
+npm run install:daemons     # installs/starts all Prometheus daemons, including surface-bridge
+npm run uninstall:daemons   # stops them
 ```
 
-To unload:
-
-```bash
-launchctl unload ~/Library/LaunchAgents/com.prometheusags.surface-bridge.plist
-```
+Templates: `shared/launchagents/ai.prometheus.surface-bridge.plist` (macOS),
+`shared/systemd/ai.prometheus.surface-bridge.service` (Linux). Both are
+rendered and installed by `scripts/install-mcp-services.sh`.
 
 ## Endpoints
 

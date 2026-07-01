@@ -267,8 +267,8 @@ Feynman-Spine learning: goal, survey, plan, loop, grade, retain, practice, certi
 | Directory | Skill | Purpose |
 |---|---|---|
 | `tauri/` | `tauri-react-vite` | Tauri 2 + React 19 + gen_ui_core sharing |
-| `typescript/` | `base-patterns` | TypeScript 6 strict mode, discriminated unions, Result types, zod |
-| `go/` | `base-patterns` | Go 1.22 errors, context, slog, module layout |
+| `typescript/` | `typescript-base-patterns` | TypeScript 6 strict mode, discriminated unions, Result types, zod |
+| `go/` | `go-base-patterns` | Go 1.22 errors, context, slog, module layout |
 | `python/` | `pyo3-bridge` | PyO3 0.22 Rust-Python bridge, maturin, skill executor generation |
 | `architecture/` | `clean-architecture` | 4-layer CLEAN model across all languages |
 

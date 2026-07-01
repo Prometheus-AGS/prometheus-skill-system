@@ -187,7 +187,7 @@ This checks: Node, Rust/Cargo, Go, Docker, surreal-memory, and all Prometheus bi
 
 | Skill           | Description                                                                  |
 | --------------- | ---------------------------------------------------------------------------- |
-| `base-patterns` | Idiomatic Go patterns: errors, interfaces, goroutines, and project structure |
+| `go-base-patterns` | Idiomatic Go patterns: errors, interfaces, goroutines, and project structure |
 
 ### HTMX (1 skill)
 
@@ -254,7 +254,7 @@ This checks: Node, Rust/Cargo, Go, Docker, surreal-memory, and all Prometheus bi
 
 | Skill           | Description                                                                    |
 | --------------- | ------------------------------------------------------------------------------ |
-| `base-patterns` | TypeScript/JavaScript base patterns: types, async, error handling, React hooks |
+| `typescript-base-patterns` | TypeScript/JavaScript base patterns: types, async, error handling, React hooks |
 
 ## Imported Skills (Git Submodules)
 

@@ -354,23 +354,9 @@ install_learn_substrate() {
         local bin_dir="$HOME/.local/bin"
         mkdir -p "$bin_dir"
         cp "$substrate_dir/surface-bridge/target/release/surface-bridge" "$bin_dir/surface-bridge" 2>/dev/null || true
+        echo "  ℹ️  learn-substrate: run 'npm run install:daemons' to install/start the surface-bridge service (macOS + Linux)"
     else
         echo "  ⚠️  learn-substrate: surface-bridge build failed (non-fatal)"
-    fi
-
-    # Install launchd service on macOS (surface-bridge)
-    if [[ "$(uname -s)" == "Darwin" ]]; then
-        local plist_src="$substrate_dir/surface-bridge/com.prometheusags.surface-bridge.plist"
-        local plist_dst="$HOME/Library/LaunchAgents/com.prometheusags.surface-bridge.plist"
-        if [[ -f "$plist_src" ]]; then
-            # Update the program path to the installed binary
-            sed "s|/usr/local/bin/surface-bridge|$HOME/.local/bin/surface-bridge|g" "$plist_src" > "$plist_dst"
-            launchctl load -w "$plist_dst" 2>/dev/null && \
-                echo "  ✅ learn-substrate: surface-bridge launchd service installed" || \
-                echo "  ⚠️  learn-substrate: launchd load failed (may already be loaded)"
-        fi
-    else
-        echo "  ℹ️  learn-substrate: launchd install skipped (not macOS)"
     fi
 
     # Build sovereign-sync (P2P CRDT daemon + MCP server)

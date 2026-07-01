@@ -52,8 +52,8 @@ The architecture principle is consistent across these: **the server drives, the 
 
 | Skill | What it encodes |
 |---|---|
-| **typescript/base-patterns** | TypeScript 6: no `any`, no `@ts-ignore`, discriminated unions, Result types, branded ID types, zod runtime validation. |
-| **go/base-patterns** | Go 1.22: `%w` error wrapping, context propagation, interface-based dependency injection, slog structured logging, cmd/internal/pkg layout, table-driven tests. |
+| **typescript/typescript-base-patterns** | TypeScript 6: no `any`, no `@ts-ignore`, discriminated unions, Result types, branded ID types, zod runtime validation. |
+| **go/go-base-patterns** | Go 1.22: `%w` error wrapping, context propagation, interface-based dependency injection, slog structured logging, cmd/internal/pkg layout, table-driven tests. |
 | **python/pyo3-bridge** | PyO3 0.22 Rust→Python bridging: `#[pyfunction]`/`#[pyclass]`, maturin builds, GIL management, async via pyo3-asyncio. Primary use is the skill-executor calling Rust crates (forge-rs, pk-librarian, surreal-memory) from Python skill servers. |
 | **architecture/clean-architecture** | The CLEAN four-layer model (Domain → Application → Infrastructure → Interface), dependency inversion, and trait/interface boundaries mapped onto Rust crates, Flutter features, React feature slices, and Go packages. |
 

@@ -1,6 +1,6 @@
 ---
 license: MIT
-name: base-patterns
+name: typescript-base-patterns
 version: '1.0.0'
 description: >
   Canonical TypeScript 6 patterns for Prometheus AGS projects. Covers strict type

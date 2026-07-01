@@ -95,6 +95,7 @@ print_row "surrealdb"              "ai.prometheus.surrealdb-native"       "http:
 print_row "surreal-memory"         "ai.prometheus.surreal-memory-native"  "http://localhost:23001/health"  "Knowledge graph + scoped memory (native)"
 print_row "prometheus-knowledge"   "ai.prometheus.pk-cherry"              "http://localhost:8942/mcp"      "pk-cherry HTTP MCP (Karpathy KB)"
 print_row "forge-rs"               "ai.prometheus.forge-mcp"              "http://localhost:8943/mcp"      "Forge code-enrichment MCP"
+print_row "surface-bridge"         "ai.prometheus.surface-bridge"         "http://localhost:7890/health"   "Tier 2 UI MCP App server (native, :7890)"
 
 # Stdio-only services — managed by the AI client, not the service manager
 print_row "sycophancy-correction"  "n/a"  "stdio"  "Sycophancy gate (sycophancy-correction)"

@@ -28,7 +28,7 @@ rustup show
 cargo --version
 ```
 
-Go and Node are detected and, where possible, installed by the prerequisite script; the Go toolchain backs the `go/base-patterns` skill and the Flint Go SDK, and Node backs the React/TypeScript/HTMX skills and the JS-based installers. The full prerequisite and install flow is on the [Installation](19-installation.md) page. The single command that builds and installs all six tool binaries is:
+Go and Node are detected and, where possible, installed by the prerequisite script; the Go toolchain backs the `go/go-base-patterns` skill and the Flint Go SDK, and Node backs the React/TypeScript/HTMX skills and the JS-based installers. The full prerequisite and install flow is on the [Installation](19-installation.md) page. The single command that builds and installs all six tool binaries is:
 
 ```bash
 bash scripts/install-binaries.sh

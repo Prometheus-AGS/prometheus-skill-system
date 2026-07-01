@@ -16,7 +16,7 @@ rustup target add wasm32-unknown-unknown   # for librefang-wasm and the native-a
 rustup show
 ```
 
-**For Go skills:** a Go 1.22+ toolchain (backs `go/base-patterns` and the Flint Go SDK). **For graph memory:** Docker (the recommended way to run surreal-memory). The prerequisite script detects all of these and reports what is missing.
+**For Go skills:** a Go 1.22+ toolchain (backs `go/go-base-patterns` and the Flint Go SDK). **For graph memory:** Docker (the recommended way to run surreal-memory). The prerequisite script detects all of these and reports what is missing.
 
 ```bash
 # Check everything at once — toolchains, services, Prometheus binaries
