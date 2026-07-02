@@ -1,0 +1,76 @@
+{
+  "changeId": "change-install-001-build-and-install-binaries",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Inspect Cargo.toml workspace members to confirm package names (`pk-mcp`, `forge-mcp`, `liter-llm`)",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "2",
+      "title": "`cargo build --release -p pk-mcp` in `tools/prometheus-knowledge/`",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "3",
+      "title": "`cargo build --release -p forge-mcp` in `tools/forge-rs/`",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "4",
+      "title": "`cargo build --release` in `tools/liter-llm/`",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "5",
+      "title": "`cp tools/prometheus-knowledge/target/release/pk-mcp ~/.local/bin/pk-mcp`",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "6",
+      "title": "`cp tools/liter-llm/target/release/liter-llm ~/.local/bin/liter-llm`",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "7",
+      "title": "`cp tools/forge-rs/target/release/forge-mcp ~/.local/bin/forge-mcp`",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "8",
+      "title": "`cp tools/prometheus-cli/target/release/prometheus ~/.local/bin/prometheus`",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "9",
+      "title": "`cp tools/forge-rs/target/release/forge ~/.local/bin/forge`",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "10",
+      "title": "Verify all 5 binaries are in PATH with `which`",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    }
+  ]
+}

@@ -1,0 +1,90 @@
+{
+  "changeId": "change-goal-013",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Write `skill-discovery.md`: mapping table of keywords → skills + MCPs:",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "2",
+      "title": "Go / Golang → golang-patterns, golang-testing + context7",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "3",
+      "title": "Rust → rust-patterns, rust-testing, prometheus-rust-auditor + context7",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "4",
+      "title": "React / TypeScript → react-vite-stack, typescript-reviewer + context7",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "5",
+      "title": "Python → python-patterns, python-testing + context7",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "6",
+      "title": "API / REST → api-design, backend-patterns",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "7",
+      "title": "Database / SQL → database-migrations, postgres-patterns",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "8",
+      "title": "Docker / K8s → docker-patterns, deployment-patterns + kubernetes MCP",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "9",
+      "title": "Testing → tdd-workflow, bdd-testing",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "10",
+      "title": "Write `kbd-goal-discover.sh`: grep goal description against keyword table; output JSON with `recommended_skills[]`, `recommended_mcps[]`, `rationale`",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "11",
+      "title": "Integrate into `kbd-goal-start.sh`: call discover at start, print advisory block to user (non-blocking)",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "12",
+      "title": "Update `kbd-goal/SKILL.md` Start section with discovery advisory documentation",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    }
+  ]
+}

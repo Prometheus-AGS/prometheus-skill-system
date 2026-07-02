@@ -1,0 +1,55 @@
+{
+  "changeId": "change-goal-009",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Add to `install-skills-flat.sh` OpenCode section:",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "2",
+      "title": "`command -v opencode` check",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "3",
+      "title": "`opencode plugins list | grep -q opencode-goal-plugin` check",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "4",
+      "title": "If missing: `npx @prevalentware/opencode-goal-plugin install`",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "5",
+      "title": "Write config to `.opencode/config.toml` or `~/.opencode/config.toml`: `auto_continue=true`, `max_auto_turns=20`, `no_progress_token_threshold=5000`, `max_no_progress_turns=3`, `default_token_budget=200000`",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "6",
+      "title": "Document in `opencode.md`: KBD uses `create_goal` agent tool to set goal state; `update_goal` for phase transitions; `session.idle` events drive continuation",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "7",
+      "title": "Update `kbd-goal/SKILL.md` OpenCode section",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    }
+  ]
+}

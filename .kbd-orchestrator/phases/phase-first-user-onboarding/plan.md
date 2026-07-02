@@ -114,8 +114,7 @@ phase remains open after both changes are applied.
 
 ---
 
-## OpenSpec change stubs
+## Change records
 
-To be created as part of execute:
-- `openspec/changes/change-onboard-001-claude-code-prereq/proposal.md`
-- `openspec/changes/change-onboard-002-linux-systemd-note/proposal.md`
+- `.kbd-orchestrator/changes/change-onboard-001-claude-code-prereq/change.md` (migrated from OpenSpec 2026-07-02)
+- `.kbd-orchestrator/changes/change-onboard-002-linux-systemd-note/change.md` (migrated from OpenSpec 2026-07-02)

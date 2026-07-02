@@ -1,0 +1,48 @@
+{
+  "changeId": "change-goal-012",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Write `kbd-goal-promote.sh`: read STATE.md; find tasks with `fail_count >= 3` or `NEEDS_CHILD_PHASE: true`; for each: call `kbd-new-child <task-slug>`, write `handoff-in.md` with task description + last 3 failure reasons + SPEC.md acceptance criteria",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "2",
+      "title": "Update parent `TASKS.md`: mark promoted task as `[~] task-NNN: promoted to child: <task-slug>`",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "3",
+      "title": "Update `STATE.md`: add `promotions[]` entry with `{task_id, child_phase, promoted_at}`",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "4",
+      "title": "Integrate into Creation loop tick: after each task attempt, check promotion condition before deciding continue/stop",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "5",
+      "title": "Update `creation-phase.md` template with promotion section",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "6",
+      "title": "Document: agent can also set `NEEDS_CHILD_PHASE: true` in STATE.md to force early promotion",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    }
+  ]
+}

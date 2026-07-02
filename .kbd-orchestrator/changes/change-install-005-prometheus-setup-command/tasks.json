@@ -1,0 +1,97 @@
+{
+  "changeId": "change-install-005-prometheus-setup-command",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Read existing prometheus-cli command structure (main.rs, commands/mod.rs, commands/doctor.rs for pattern)",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "2",
+      "title": "Design component registry: list of all components with type (docker/launchd/binary/port) and detection logic",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "3",
+      "title": "Create `commands/setup.rs` with `SetupArgs` struct (non_interactive, dry_run, check flags)",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "4",
+      "title": "Implement `detect_component_status()` — probe Docker, launchd, PATH, port for each component",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "5",
+      "title": "Implement `print_status_table()` — colored output showing ✅/⚠️/❌ per component",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "6",
+      "title": "Implement `prompt_and_install()` — interactive loop with y/N/s per gap",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "7",
+      "title": "Implement `install_component()` — dispatch to correct installer per component type",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "8",
+      "title": "Implement `write_setup_state()` — serialize state to `~/.prometheus/setup-state.json`",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "9",
+      "title": "Register `Setup` in `commands/mod.rs`",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "10",
+      "title": "Add `Setup` variant and dispatch in `main.rs`",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "11",
+      "title": "`cargo build --release -p prometheus-cli` succeeds",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "12",
+      "title": "`cargo test -p prometheus-cli` passes",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "13",
+      "title": "Run `prometheus setup --check` and verify output",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    }
+  ]
+}

@@ -1,0 +1,55 @@
+{
+  "changeId": "change-goal-008",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Write `continuation.md` template: re-read STATE.md, take next unchecked TASKS.md item, implement, run tests",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "2",
+      "title": "Write `budget_limit.md` template: write progress wrap-up to STATE.md → budget_summary and stop gracefully",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "3",
+      "title": "Write `kbd-goal-codex-setup.sh`: copies templates to `~/.codex/goals/`; sets `goals.enabled = true` in `~/.codex/config.toml`",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "4",
+      "title": "Write `.codex-kbd-context.md` generator function in setup script: writes phase context file with goal slug, active phase, TASKS.md path, stopping condition",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "5",
+      "title": "Document user instruction: add `@include .codex-kbd-context.md` to project AGENTS.md",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "6",
+      "title": "Write `codex.md` platform reference with full routing + setup procedure",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "7",
+      "title": "Update `kbd-goal/SKILL.md` Codex section",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "changeId": "change-onboard-001-claude-code-prereq",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "The note appears under Step 4 in the rendered Quick Start",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "2",
+      "title": "The link points to `https://claude.ai/code`",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "3",
+      "title": "No other content in the file is modified",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    }
+  ]
+}

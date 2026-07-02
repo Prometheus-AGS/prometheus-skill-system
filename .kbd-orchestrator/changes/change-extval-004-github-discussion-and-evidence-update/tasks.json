@@ -1,0 +1,48 @@
+{
+  "changeId": "change-extval-004-github-discussion-and-evidence-update",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Draft discussion title and body (links to QUICK_START, SOVEREIGN_SYNC_TESTING, sycophancy corpus)",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "2",
+      "title": "Create discussion via `gh api` or `gh discussion create` with `help wanted` label",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "3",
+      "title": "Add `## External Validation Phase` section to production-readiness-report.md",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "4",
+      "title": "Add placeholder table for G1–G4 outcomes (Status: PENDING for each)",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "5",
+      "title": "Add link to the GitHub Discussion from the report",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "6",
+      "title": "Commit updated report to main",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    }
+  ]
+}

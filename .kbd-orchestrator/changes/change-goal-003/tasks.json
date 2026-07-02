@@ -1,0 +1,41 @@
+{
+  "changeId": "change-goal-003",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Write `goal.schema.json` with required fields: `name`, `slug`, `description`, `phases[]`, `active_phase`, `status`, `tool`, `token_budget`, `max_turns_per_phase`, `max_no_progress_turns`, `created`, `updated`",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "2",
+      "title": "`phases[]` items: `{name, type: ideation|spec|creation|deployment, stopping_condition, human_gate: boolean}`",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "3",
+      "title": "Verify backward compatibility: existing `loop.json` files validate without `phases[]`",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "4",
+      "title": "Write `goal-directory-layout.md` documenting `.kbd-orchestrator/goals/<slug>/` contents",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "5",
+      "title": "Update `kbd-goal-start.sh` to validate generated `goal.json` with `jq -e` against schema",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    }
+  ]
+}
