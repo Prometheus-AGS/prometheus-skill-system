@@ -89,19 +89,21 @@ mod inner {
                 .map(|v| v == "true" || v == "1")
                 .unwrap_or(false);
 
+            // Both branches default to the local openai-proxy (:8181, bridges Codex CLI
+            // auth) rather than a hosted API or an absent LM Studio instance.
             let base_url = if use_cloud {
                 std::env::var("CLOUD_LLM_URL")
-                    .unwrap_or_else(|_| "https://api.anthropic.com/v1".into())
+                    .unwrap_or_else(|_| "http://localhost:8181/v1".into())
             } else {
                 std::env::var("OPTIMIZER_LLM_URL")
-                    .unwrap_or_else(|_| "http://localhost:1234/v1".into())
+                    .unwrap_or_else(|_| "http://localhost:8181/v1".into())
             };
 
             let model_name = std::env::var("OPTIMIZER_LLM_MODEL")
                 .unwrap_or_else(|_| if use_cloud {
-                    "claude-sonnet-4-6".into()
+                    "gpt-5.5".into()
                 } else {
-                    "qwen2.5-14b-instruct-q4_k_m".into()
+                    "gpt-5.4-mini".into()
                 });
 
             let api_key = if use_cloud {
