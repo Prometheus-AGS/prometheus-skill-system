@@ -1,0 +1,34 @@
+{
+  "changeId": "change-evolver-002",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "`loop-definition.schema.json` validates via `python3 -m json.tool` after changes",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "2",
+      "title": "New source types are additive — existing `command`, `gh-query`, `file`, `url` entries unchanged",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "3",
+      "title": "`skills/process/pmpo-evolver/references/feedback-sources.md` exists with one example per new type",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "4",
+      "title": "Staleness TTL defaults documented in the reference",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    }
+  ]
+}

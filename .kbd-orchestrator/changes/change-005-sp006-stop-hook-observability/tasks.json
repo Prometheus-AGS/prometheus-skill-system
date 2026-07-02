@@ -1,0 +1,55 @@
+{
+  "changeId": "change-005-sp006-stop-hook-observability",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "`~/.prometheus/hooks.log` written in JSONL on hook execution (runtime-created, not committed)",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "2",
+      "title": "`hook_log_start`, `hook_log_end`, `hook_log_error` implemented with correct signatures",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "3",
+      "title": "`flock` serialization for concurrent write safety; graceful fallback when absent",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "4",
+      "title": "Every Stop-chain script sources the shim and calls start/end/error",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "5",
+      "title": "`guard-direct-deploy.sh` records exit code 2 on block events",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "6",
+      "title": "`shared/config/logrotate.d/prometheus-hooks` present with 30-day rotation",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "7",
+      "title": "No existing hook behavior changed (all scripts still exit 0 on clean path, exit 2 on guard violation)",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    }
+  ]
+}

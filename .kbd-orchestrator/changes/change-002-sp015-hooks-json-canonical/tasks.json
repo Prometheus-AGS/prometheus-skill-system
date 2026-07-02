@@ -1,0 +1,20 @@
+{
+  "changeId": "change-002-sp015-hooks-json-canonical",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Modify `.github/workflows/validate.yml` per execution record",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "2",
+      "title": "Modify `CLAUDE.md` per execution record",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    }
+  ]
+}

@@ -1,0 +1,76 @@
+{
+  "changeId": "change-006-sp013-sycophancy-reflector-hook",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "`shared/scripts/sycophancy-check-reflection.sh` exists and is executable",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "2",
+      "title": "Sources `lib/hook-log.sh` shim (depends on SP-006 / change-005)",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "3",
+      "title": "Reads artifact from SubagentStop hook event (not conversation history)",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "4",
+      "title": "Invokes `sycophancy-correction` via JSON-RPC stdio protocol",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "5",
+      "title": "Configurable strictness via `PROMETHEUS_REFLECT_STRICTNESS` env var (default: strict)",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "6",
+      "title": "Rejection exit code 2 with actionable stderr block",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "7",
+      "title": "2-rejection soft cap implemented via `~/.prometheus/reflect-rejections.txt`",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "8",
+      "title": "Wired as first command in `reflector` SubagentStop matcher in `hooks/hooks.json`",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "9",
+      "title": "`CLAUDE.md` documents the gate, strictness levels, and binary prerequisite",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "10",
+      "title": "Graceful degradation: binary absent → exit 0 (never blocks Stop chain)",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    }
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "changeId": "change-evolver-001",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "`pmpo-evolver.schema.json` exists and validates via `python3 -m json.tool`",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "2",
+      "title": "`evolution-state.schema.json` validates via `python3 -m json.tool` after changes",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "3",
+      "title": "The `learning_signals[].source_type` enum matches the types defined in change-evolver-002",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "4",
+      "title": "The `perspective` enum matches the modes defined in change-evolver-003's SKILL.md",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    }
+  ]
+}

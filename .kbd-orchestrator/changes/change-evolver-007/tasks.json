@@ -1,0 +1,48 @@
+{
+  "changeId": "change-evolver-007",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "`skills/process/pmpo-evolver/references/domain-taxonomy.md` exists with at minimum: AI tooling, Rust, LLM infrastructure, and developer tooling domain clusters",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "2",
+      "title": "Domain taxonomy includes general domain detection queries for unknown domains",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "3",
+      "title": "`scripts/carry-forward-aggregate.sh` is executable",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "4",
+      "title": "`bash scripts/carry-forward-aggregate.sh .kbd-orchestrator/phases default` exits 0 and outputs valid JSON",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "5",
+      "title": "Script finds at least one carry-forward from `pmpo-elicit/reflection.md` (which has a Carry-Forwards section)",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "6",
+      "title": "Model routing comment present: `[MODEL_ROUTING] phase=evolver-carry-forward class=small`",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    }
+  ]
+}

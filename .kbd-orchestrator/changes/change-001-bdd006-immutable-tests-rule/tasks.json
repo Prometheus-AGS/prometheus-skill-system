@@ -1,0 +1,20 @@
+{
+  "changeId": "change-001-bdd006-immutable-tests-rule",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Modify `/Users/gqadonis/Projects/sansaba/ssr-frontend/CLAUDE.md` per execution record",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "2",
+      "title": "Modify `/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/CLAUDE.md` per execution record",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    }
+  ]
+}

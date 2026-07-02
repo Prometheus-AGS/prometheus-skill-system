@@ -1,0 +1,48 @@
+{
+  "changeId": "change-evolver-003",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "`skills/process/pmpo-evolver/SKILL.md` exists with valid YAML frontmatter",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "2",
+      "title": "`npm run validate:strict skills/process/pmpo-evolver` passes",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "3",
+      "title": "SKILL.md is under 500 lines",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "4",
+      "title": "`skills/process/pmpo-evolver/references/model-routing.md` exists",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "5",
+      "title": "Model routing table in SKILL.md has all 13 phase entries",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "6",
+      "title": "liter-llm fallback chain documented in both SKILL.md and model-routing.md",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    }
+  ]
+}

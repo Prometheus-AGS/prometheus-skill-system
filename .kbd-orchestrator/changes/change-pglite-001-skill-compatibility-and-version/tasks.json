@@ -1,0 +1,34 @@
+{
+  "changeId": "change-pglite-001-skill-compatibility-and-version",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "`compatibility` field present in frontmatter, ≤500 chars",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "2",
+      "title": "Version note visible in building blocks section",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "3",
+      "title": "`npm run validate:strict` → 0 errors, 0 warnings",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "4",
+      "title": "No change to skill behavior or instructions",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    }
+  ]
+}
