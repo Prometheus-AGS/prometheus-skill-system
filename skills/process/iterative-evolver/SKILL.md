@@ -258,7 +258,7 @@ The `evolver_item_id` comes from `item_to_change_map` in the same bridge file
 **Bridge file location**: `.kbd-orchestrator/phases/<phase>/evolver-bridge.json`
 
 **Bridge file schema**: see `references/schemas/evolver-bridge.schema.json` (canonical)
-and `openspec/changes/change-slli-007-evolver-bridge-integration/bridge-schema.md`
+and `.kbd-orchestrator/changes/change-slli-007-evolver-bridge-integration/bridge-schema.md`
 (human-readable narrative).
 
 When no bridge file exists: execute as normal — no write-back required.

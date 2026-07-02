@@ -3,7 +3,7 @@
 **Phase:** self-learning-loop-integration
 **Date:** 2026-06-23
 **Total changes:** 10
-**Backend:** OpenSpec (openspec/changes/change-slli-*/proposal.md)
+**Backend:** native-kbd (.kbd-orchestrator/changes/change-slli-*/change.md) — migrated from OpenSpec 2026-07-02
 
 ---
 
@@ -201,7 +201,7 @@ Close the gap between the current skill-pack and a full, self-learning, cross-pl
 **Deliverables:**
 - `skills/process/iterative-evolver/SKILL.md` updated: when `evolver-bridge.json` exists at `phases/<current>/evolver-bridge.json`, write `execution_results` back to bridge after each change completes
 - `skills/process/kbd-process-orchestrator/SKILL.md` updated: `/kbd-reflect` reads `evolver-bridge.json` if present, reports per-evolver-item status (completed/skipped/failed) to the evolver's `state.json`
-- `openspec/changes/change-slli-007/bridge-schema.md` — canonical schema reference (creates the missing schema documentation identified in analysis)
+- `.kbd-orchestrator/changes/change-slli-007-evolver-bridge-integration/bridge-schema.md` — canonical schema reference (creates the missing schema documentation identified in analysis)
 
 **Acceptance:**
 - After `/kbd-reflect`, if `evolver-bridge.json` exists, the evolver's `state.json` shows updated `execution_results`
@@ -275,9 +275,9 @@ Close the gap between the current skill-pack and a full, self-learning, cross-pl
 
 ---
 
-## OpenSpec Change References
+## Change References
 
-All changes tracked as OpenSpec proposals under `openspec/changes/change-slli-*/proposal.md`.
+All changes tracked as native-kbd changes under `.kbd-orchestrator/changes/change-slli-*/change.md` (migrated from OpenSpec 2026-07-02).
 
 ---
 

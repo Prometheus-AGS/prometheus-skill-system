@@ -1,9 +1,18 @@
-# change-slli-006-forge-independent-reflect
+---
+id: change-slli-006-forge-independent-reflect
+title: Forge-independent reflect fallback (pk ingest without forge)
+phase: self-learning-loop-integration
+gaps: [REFLECT-1, REFLECT-2]
+priority: 7 of 10
+agent: claude-code
+status: done
+scope:
+  - shared/scripts/forge-reflect-on-stop.sh
+  - hooks/hooks.json
+  - shared/scripts/write-session-summary.sh
+---
 
-**Phase**: self-learning-loop-integration
-**Status**: DONE
-**Priority**: 7 of 10
-**Gaps closed**: REFLECT-1, REFLECT-2
+# change-slli-006-forge-independent-reflect — Forge-independent reflect fallback (pk ingest without forge)
 
 ## Summary
 
@@ -55,3 +64,10 @@ EOF
 - On a machine with forge: `forge reflect` runs as before, followed by `pk ingest`
 - `~/.prometheus/last-session-summary.txt` always exists after a session Stop
 - Neither script blocks the Stop chain on failure
+
+## Tasks
+
+- [x] 1. On a machine without forge: Stop hook calls `pk ingest` with session summary content
+- [x] 2. On a machine with forge: `forge reflect` runs as before, followed by `pk ingest`
+- [x] 3. `~/.prometheus/last-session-summary.txt` always exists after a session Stop
+- [x] 4. Neither script blocks the Stop chain on failure

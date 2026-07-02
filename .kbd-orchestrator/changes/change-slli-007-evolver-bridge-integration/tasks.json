@@ -1,0 +1,34 @@
+{
+  "changeId": "change-slli-007-evolver-bridge-integration",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "After `/kbd-execute` with an evolver bridge present, `execution_results` array in bridge has an entry for each completed change",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "2",
+      "title": "After `/kbd-reflect`, the evolver's `state.json` shows `kbd_results` updated",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "3",
+      "title": "`/evolve status <name>` shows accurate per-item completion derived from KBD phase",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "4",
+      "title": "When no bridge file exists, all existing behavior is unchanged",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    }
+  ]
+}

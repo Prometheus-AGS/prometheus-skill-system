@@ -1,0 +1,41 @@
+{
+  "changeId": "change-slli-001-l3-outer-loop-skill",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "`ls ~/.claude/skills/pmpo-outer-loop/SKILL.md` → exists (after install)",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "2",
+      "title": "`/loop-define test-loop` creates `.kbd-orchestrator/loops/test-loop/loop.json` with all 6 required parameter groups",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "3",
+      "title": "`/loop-tick test-loop` increments `current_tick` and writes feedback snapshot",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "4",
+      "title": "`/loop-report test-loop` renders readable progress table in plain text",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "5",
+      "title": "Validation rejects `loop.json` missing any of the 6 required parameter groups",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    }
+  ]
+}

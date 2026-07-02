@@ -1,9 +1,26 @@
-# change-slli-002-mcp-launchd-services
+---
+id: change-slli-002-mcp-launchd-services
+title: MCP servers as launchd services
+phase: self-learning-loop-integration
+gaps: [MCP-SVC-1 through MCP-SVC-7]
+priority: 2 of 10
+agent: claude-code
+status: done
+scope:
+  - launchd/dev.prometheusags.surreal-memory.plist
+  - launchd/dev.prometheusags.pk-mcp.plist
+  - launchd/dev.prometheusags.forge-mcp.plist
+  - launchd/dev.prometheusags.sycophancy-correction.plist
+  - launchd/dev.prometheusags.liter-llm.plist
+  - launchd/dev.prometheusags.sequential-thinking.plist
+  - launchd/dev.prometheusags.tavily.plist
+  - launchd/dev.prometheusags.prometheus-nudge.plist
+  - scripts/install-mcp-services.sh
+  - scripts/check-mcp-health.sh
+  - scripts/prometheus-services.sh
+---
 
-**Phase**: self-learning-loop-integration
-**Status**: DONE
-**Priority**: 2 of 10
-**Gaps closed**: MCP-SVC-1 through MCP-SVC-7
+# change-slli-002-mcp-launchd-services — MCP servers as launchd services
 
 ## Summary
 
@@ -72,3 +89,11 @@ API keys (TAVILY_API_KEY, etc.) are read from `~/.prometheus/.env` by a wrapper 
 - All services survive `sudo launchctl reboot` (macOS)
 - Log files exist at `~/.prometheus/logs/`
 - Script is idempotent: running `install-mcp-services.sh` twice leaves same state
+
+## Tasks
+
+- [x] 1. `launchctl list | grep prometheusags` shows all 8 labels (7 servers + nudge)
+- [x] 2. `scripts/check-mcp-health.sh` reports GREEN for all 7 MCP server ports
+- [x] 3. All services survive `sudo launchctl reboot` (macOS)
+- [x] 4. Log files exist at `~/.prometheus/logs/`
+- [x] 5. Script is idempotent: running `install-mcp-services.sh` twice leaves same state

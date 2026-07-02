@@ -1,10 +1,18 @@
-# change-slli-010-pmpo-skill-creator-update-mode
+---
+id: change-slli-010-pmpo-skill-creator-update-mode
+title: pmpo-skill-creator --update mode
+phase: self-learning-loop-integration
+gaps: [SKILL-UPDATE-1]
+priority: 10 of 10
+agent: claude-code
+depends_on: [change-slli-004]
+status: done
+scope:
+  - skills/process/pmpo-skill-creator/SKILL.md
+  - shared/scripts/propose-skill-update.sh
+---
 
-**Phase**: self-learning-loop-integration
-**Status**: DONE
-**Priority**: 10 of 10
-**Depends on**: change-slli-004
-**Gaps closed**: SKILL-UPDATE-1
+# change-slli-010-pmpo-skill-creator-update-mode — pmpo-skill-creator --update mode
 
 ## Summary
 
@@ -70,3 +78,11 @@ echo "Run: /pmpo-skill-creator --update $SKILL_NAME to review and apply" \
 - After `y`: updated skill passes `npm run validate:strict`
 - After `n` or no response: skill file is unchanged
 - `propose-skill-update.sh` exits 0 when no learning entries match the skill
+
+## Tasks
+
+- [x] 1. `/pmpo-skill-creator --update kbd-plan` produces a diff file at `~/.prometheus/skill-updates/`
+- [x] 2. Diff is NOT applied without explicit `y` response from user
+- [x] 3. After `y`: updated skill passes `npm run validate:strict`
+- [x] 4. After `n` or no response: skill file is unchanged
+- [x] 5. `propose-skill-update.sh` exits 0 when no learning entries match the skill

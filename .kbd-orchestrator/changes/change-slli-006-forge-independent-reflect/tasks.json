@@ -1,0 +1,34 @@
+{
+  "changeId": "change-slli-006-forge-independent-reflect",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "On a machine without forge: Stop hook calls `pk ingest` with session summary content",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "2",
+      "title": "On a machine with forge: `forge reflect` runs as before, followed by `pk ingest`",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "3",
+      "title": "`~/.prometheus/last-session-summary.txt` always exists after a session Stop",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "4",
+      "title": "Neither script blocks the Stop chain on failure",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    }
+  ]
+}

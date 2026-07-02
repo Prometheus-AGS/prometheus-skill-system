@@ -1,0 +1,34 @@
+{
+  "changeId": "change-slli-003-cross-tool-mcp-config",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Each of the 7 tool configs contains all 7 MCP server entries",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "2",
+      "title": "No existing entries deleted or corrupted",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "3",
+      "title": "`configure-mcp-all-tools.sh` is idempotent (run twice = same result)",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "4",
+      "title": "Script detects missing tool installs gracefully (skips if config dir does not exist)",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    }
+  ]
+}

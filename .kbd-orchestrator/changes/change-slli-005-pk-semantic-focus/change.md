@@ -1,9 +1,16 @@
-# change-slli-005-pk-semantic-focus
+---
+id: change-slli-005-pk-semantic-focus
+title: Semantic fallback for pk-focus-on-prompt.sh
+phase: self-learning-loop-integration
+gaps: [PK-FOCUS-1]
+priority: 6 of 10
+agent: claude-code
+status: done
+scope:
+  - shared/scripts/pk-focus-on-prompt.sh
+---
 
-**Phase**: self-learning-loop-integration
-**Status**: DONE
-**Priority**: 6 of 10
-**Gaps closed**: PK-FOCUS-1
+# change-slli-005-pk-semantic-focus — Semantic fallback for pk-focus-on-prompt.sh
 
 ## Summary
 
@@ -41,3 +48,11 @@ fi
 - Total script runtime stays under 3s regardless of path
 - `PROMETHEUS_FOCUS_SEMANTIC=0` disables semantic call
 - No regression in current lexical behavior
+
+## Tasks
+
+- [x] 1. When surreal-memory is running, `pk-focus-on-prompt.sh` calls the REST endpoint
+- [x] 2. When surreal-memory is down, falls back to lexical-only without error output
+- [x] 3. Total script runtime stays under 3s regardless of path
+- [x] 4. `PROMETHEUS_FOCUS_SEMANTIC=0` disables semantic call
+- [x] 5. No regression in current lexical behavior

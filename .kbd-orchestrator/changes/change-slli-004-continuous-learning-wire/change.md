@@ -1,9 +1,17 @@
-# change-slli-004-continuous-learning-wire
+---
+id: change-slli-004-continuous-learning-wire
+title: "Wire continuous-learning-v2 into SubagentStop[executor]"
+phase: self-learning-loop-integration
+gaps: [LEARN-1, LEARN-2]
+priority: 5 of 10
+agent: claude-code
+status: done
+scope:
+  - hooks/hooks.json
+  - shared/scripts/evaluate-session.sh
+---
 
-**Phase**: self-learning-loop-integration
-**Status**: DONE
-**Priority**: 5 of 10
-**Gaps closed**: LEARN-1, LEARN-2
+# change-slli-004-continuous-learning-wire — Wire continuous-learning-v2 into SubagentStop[executor]
 
 ## Summary
 
@@ -73,3 +81,10 @@ rm -f "$PATTERNS_FILE"
 - `pk search <topic>` returns richer results after a related executor run
 - If `pk` is not in PATH, `evaluate-session.sh` exits 0 (graceful degradation)
 - Hook does not add more than 30s to SubagentStop total runtime
+
+## Tasks
+
+- [x] 1. After any `/kbd-execute` completes, `~/.prometheus/learning-log/YYYY-MM-DD.jsonl` has a new entry
+- [x] 2. `pk search <topic>` returns richer results after a related executor run
+- [x] 3. If `pk` is not in PATH, `evaluate-session.sh` exits 0 (graceful degradation)
+- [x] 4. Hook does not add more than 30s to SubagentStop total runtime

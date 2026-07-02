@@ -1,0 +1,41 @@
+{
+  "changeId": "change-slli-009-periodic-nudge",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "`launchctl list | grep prometheus-nudge` shows the agent (non-zero PID)",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "2",
+      "title": "`~/.prometheus/nudge-log/` gains an entry within 4 hours of first install",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "3",
+      "title": "`pk search <topic>` returns richer results after nudge has run against recent commits",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "4",
+      "title": "Stall detection writes to `~/.prometheus/stall-alert.txt` when `no_progress_ticks >= max_no_progress_ticks`",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "5",
+      "title": "Script exits 0 even when no recent git commits exist",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    }
+  ]
+}

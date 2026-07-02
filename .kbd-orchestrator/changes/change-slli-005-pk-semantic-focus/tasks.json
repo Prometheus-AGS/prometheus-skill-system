@@ -1,0 +1,41 @@
+{
+  "changeId": "change-slli-005-pk-semantic-focus",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "When surreal-memory is running, `pk-focus-on-prompt.sh` calls the REST endpoint",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "2",
+      "title": "When surreal-memory is down, falls back to lexical-only without error output",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "3",
+      "title": "Total script runtime stays under 3s regardless of path",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "4",
+      "title": "`PROMETHEUS_FOCUS_SEMANTIC=0` disables semantic call",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "5",
+      "title": "No regression in current lexical behavior",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    }
+  ]
+}

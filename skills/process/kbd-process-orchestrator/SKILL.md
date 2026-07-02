@@ -543,5 +543,5 @@ outer state so `/evolve-status` shows accurate per-item completion.
 
 ### Bridge file schema
 
-See `openspec/changes/change-slli-007-evolver-bridge-integration/bridge-schema.md`
+See `.kbd-orchestrator/changes/change-slli-007-evolver-bridge-integration/bridge-schema.md`
 for the full schema narrative and field definitions.
