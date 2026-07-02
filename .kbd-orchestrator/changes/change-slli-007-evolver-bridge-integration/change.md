@@ -1,9 +1,18 @@
-# change-slli-007-evolver-bridge-integration
+---
+id: change-slli-007-evolver-bridge-integration
+title: Evolver bridge bidirectional handoff integration
+phase: self-learning-loop-integration
+gaps: [BRIDGE-1, BRIDGE-2]
+priority: 8 of 10
+agent: claude-code
+status: done
+scope:
+  - skills/process/iterative-evolver/SKILL.md
+  - skills/process/kbd-process-orchestrator/SKILL.md
+  - .kbd-orchestrator/changes/change-slli-007-evolver-bridge-integration/bridge-schema.md
+---
 
-**Phase**: self-learning-loop-integration
-**Status**: DONE
-**Priority**: 8 of 10
-**Gaps closed**: BRIDGE-1, BRIDGE-2
+# change-slli-007-evolver-bridge-integration — Evolver bridge bidirectional handoff integration
 
 ## Summary
 
@@ -38,7 +47,7 @@ When `/kbd-reflect` runs and `evolver-bridge.json` exists:
 
 ## Files Created
 
-### `openspec/changes/change-slli-007-evolver-bridge-integration/bridge-schema.md`
+### `.kbd-orchestrator/changes/change-slli-007-evolver-bridge-integration/bridge-schema.md`
 
 Canonical documentation of the `evolver-bridge.json` schema (was previously only described in code comments).
 
@@ -48,3 +57,10 @@ Canonical documentation of the `evolver-bridge.json` schema (was previously only
 - After `/kbd-reflect`, the evolver's `state.json` shows `kbd_results` updated
 - `/evolve status <name>` shows accurate per-item completion derived from KBD phase
 - When no bridge file exists, all existing behavior is unchanged
+
+## Tasks
+
+- [x] 1. After `/kbd-execute` with an evolver bridge present, `execution_results` array in bridge has an entry for each completed change
+- [x] 2. After `/kbd-reflect`, the evolver's `state.json` shows `kbd_results` updated
+- [x] 3. `/evolve status <name>` shows accurate per-item completion derived from KBD phase
+- [x] 4. When no bridge file exists, all existing behavior is unchanged

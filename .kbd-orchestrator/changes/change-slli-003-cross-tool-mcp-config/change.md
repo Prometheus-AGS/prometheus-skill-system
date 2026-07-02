@@ -1,10 +1,18 @@
-# change-slli-003-cross-tool-mcp-config
+---
+id: change-slli-003-cross-tool-mcp-config
+title: Cross-tool MCP config wiring (7 tools x 7 servers)
+phase: self-learning-loop-integration
+gaps: [MCP-CFG-1 through MCP-CFG-7]
+priority: 3 of 10
+agent: claude-code
+depends_on: [change-slli-002]
+status: done
+scope:
+  - scripts/configure-mcp-all-tools.sh
+  - scripts/mcp-port-table.json
+---
 
-**Phase**: self-learning-loop-integration
-**Status**: DONE
-**Priority**: 3 of 10
-**Depends on**: change-slli-002
-**Gaps closed**: MCP-CFG-1 through MCP-CFG-7
+# change-slli-003-cross-tool-mcp-config — Cross-tool MCP config wiring (7 tools x 7 servers)
 
 ## Summary
 
@@ -119,3 +127,10 @@ Same structure as MiniMax.
 - No existing entries deleted or corrupted
 - `configure-mcp-all-tools.sh` is idempotent (run twice = same result)
 - Script detects missing tool installs gracefully (skips if config dir does not exist)
+
+## Tasks
+
+- [x] 1. Each of the 7 tool configs contains all 7 MCP server entries
+- [x] 2. No existing entries deleted or corrupted
+- [x] 3. `configure-mcp-all-tools.sh` is idempotent (run twice = same result)
+- [x] 4. Script detects missing tool installs gracefully (skips if config dir does not exist)

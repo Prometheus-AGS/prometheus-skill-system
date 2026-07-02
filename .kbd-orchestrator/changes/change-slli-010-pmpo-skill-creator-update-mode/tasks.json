@@ -1,0 +1,41 @@
+{
+  "changeId": "change-slli-010-pmpo-skill-creator-update-mode",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "`/pmpo-skill-creator --update kbd-plan` produces a diff file at `~/.prometheus/skill-updates/`",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "2",
+      "title": "Diff is NOT applied without explicit `y` response from user",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "3",
+      "title": "After `y`: updated skill passes `npm run validate:strict`",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "4",
+      "title": "After `n` or no response: skill file is unchanged",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "5",
+      "title": "`propose-skill-update.sh` exits 0 when no learning entries match the skill",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    }
+  ]
+}

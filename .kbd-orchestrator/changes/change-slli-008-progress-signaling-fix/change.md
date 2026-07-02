@@ -1,8 +1,19 @@
-# change-slli-008-progress-signaling-fix
+---
+id: change-slli-008-progress-signaling-fix
+title: Fix per-turn progress signaling (6 root causes)
+phase: self-learning-loop-integration
+priority: 1 of 10 — FIRST CHANGE TO EXECUTE
+agent: claude-code
+status: done
+scope:
+  - shared/scripts/lib/waypoint-render.sh
+  - hooks/hooks.json
+  - shared/scripts/write-position-reminder.sh
+  - shared/scripts/check-progress-signal.sh
+  - .kbd-orchestrator/position-reminder.txt
+---
 
-**Phase**: self-learning-loop-integration
-**Status**: DONE
-**Priority**: 1 of 10 — FIRST CHANGE TO EXECUTE
+# change-slli-008-progress-signaling-fix — Fix per-turn progress signaling (6 root causes)
 
 ## Summary
 
@@ -81,3 +92,11 @@ Called by PreToolUse hook — checks `$KBD_TURN_HAS_STARTING_SIGNAL` env var (se
 - `.kbd-orchestrator/position-reminder.txt` always matches `current-waypoint.json` values
 - N and T are always read from files, never estimated
 - `waypoint-render.sh` resolves correctly even when CWD is a subdirectory
+
+## Tasks
+
+- [x] 1. Every kbd-* skill invocation emits `Starting … (step N of T)` as plain text BEFORE any tool call
+- [x] 2. Every kbd-* skill invocation emits `Completed … (step N of T)` as plain text AFTER all work
+- [x] 3. `.kbd-orchestrator/position-reminder.txt` always matches `current-waypoint.json` values
+- [x] 4. N and T are always read from files, never estimated
+- [x] 5. `waypoint-render.sh` resolves correctly even when CWD is a subdirectory

@@ -1,10 +1,18 @@
-# change-slli-009-periodic-nudge
+---
+id: change-slli-009-periodic-nudge
+title: Periodic nudge script (KB enrichment + stall detection)
+phase: self-learning-loop-integration
+gaps: [NUDGE-1]
+priority: 9 of 10
+agent: claude-code
+depends_on: [change-slli-002, change-slli-004]
+status: done
+scope:
+  - scripts/scheduled/periodic-nudge.sh
+  - launchd/dev.prometheusags.prometheus-nudge.plist
+---
 
-**Phase**: self-learning-loop-integration
-**Status**: DONE — delivered as part of change-slli-002
-**Priority**: 9 of 10
-**Depends on**: change-slli-002, change-slli-004
-**Gaps closed**: NUDGE-1
+# change-slli-009-periodic-nudge — Periodic nudge script (KB enrichment + stall detection)
 
 ## Summary
 
@@ -73,3 +81,11 @@ Runs `scripts/scheduled/periodic-nudge.sh` every 4 hours via `StartInterval: 144
 - `pk search <topic>` returns richer results after nudge has run against recent commits
 - Stall detection writes to `~/.prometheus/stall-alert.txt` when `no_progress_ticks >= max_no_progress_ticks`
 - Script exits 0 even when no recent git commits exist
+
+## Tasks
+
+- [x] 1. `launchctl list | grep prometheus-nudge` shows the agent (non-zero PID)
+- [x] 2. `~/.prometheus/nudge-log/` gains an entry within 4 hours of first install
+- [x] 3. `pk search <topic>` returns richer results after nudge has run against recent commits
+- [x] 4. Stall detection writes to `~/.prometheus/stall-alert.txt` when `no_progress_ticks >= max_no_progress_ticks`
+- [x] 5. Script exits 0 even when no recent git commits exist

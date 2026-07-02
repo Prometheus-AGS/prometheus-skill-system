@@ -1,9 +1,19 @@
-# change-slli-001-l3-outer-loop-skill
+---
+id: change-slli-001-l3-outer-loop-skill
+title: L3 outer-loop skill (pmpo-outer-loop)
+phase: self-learning-loop-integration
+gaps: [L3-LOOP-1, L3-LOOP-2, L3-LOOP-3]
+priority: 4 of 10
+agent: claude-code
+status: done
+scope:
+  - skills/process/pmpo-outer-loop/SKILL.md
+  - skills/process/pmpo-outer-loop/references/loop-schema.md
+  - skills/process/pmpo-outer-loop/scripts/loop-tick.sh
+  - .kbd-orchestrator/loops/test-loop/loop.json
+---
 
-**Phase**: self-learning-loop-integration
-**Status**: DONE
-**Priority**: 4 of 10
-**Gaps closed**: L3-LOOP-1, L3-LOOP-2, L3-LOOP-3
+# change-slli-001-l3-outer-loop-skill — L3 outer-loop skill (pmpo-outer-loop)
 
 ## Summary
 
@@ -46,3 +56,11 @@ Create `skills/process/pmpo-outer-loop/` with three commands (`/loop-define`, `/
 - `/loop-tick test-loop` increments `current_tick` and writes feedback snapshot
 - `/loop-report test-loop` renders readable progress table in plain text
 - Validation rejects `loop.json` missing any of the 6 required parameter groups
+
+## Tasks
+
+- [x] 1. `ls ~/.claude/skills/pmpo-outer-loop/SKILL.md` → exists (after install)
+- [x] 2. `/loop-define test-loop` creates `.kbd-orchestrator/loops/test-loop/loop.json` with all 6 required parameter groups
+- [x] 3. `/loop-tick test-loop` increments `current_tick` and writes feedback snapshot
+- [x] 4. `/loop-report test-loop` renders readable progress table in plain text
+- [x] 5. Validation rejects `loop.json` missing any of the 6 required parameter groups

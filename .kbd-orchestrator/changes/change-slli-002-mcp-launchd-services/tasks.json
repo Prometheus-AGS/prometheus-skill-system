@@ -1,0 +1,41 @@
+{
+  "changeId": "change-slli-002-mcp-launchd-services",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "`launchctl list | grep prometheusags` shows all 8 labels (7 servers + nudge)",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "2",
+      "title": "`scripts/check-mcp-health.sh` reports GREEN for all 7 MCP server ports",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "3",
+      "title": "All services survive `sudo launchctl reboot` (macOS)",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "4",
+      "title": "Log files exist at `~/.prometheus/logs/`",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "5",
+      "title": "Script is idempotent: running `install-mcp-services.sh` twice leaves same state",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    }
+  ]
+}

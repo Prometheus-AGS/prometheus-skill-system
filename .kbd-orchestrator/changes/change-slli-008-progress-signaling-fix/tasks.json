@@ -1,0 +1,41 @@
+{
+  "changeId": "change-slli-008-progress-signaling-fix",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Every kbd-* skill invocation emits `Starting … (step N of T)` as plain text BEFORE any tool call",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "2",
+      "title": "Every kbd-* skill invocation emits `Completed … (step N of T)` as plain text AFTER all work",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "3",
+      "title": "`.kbd-orchestrator/position-reminder.txt` always matches `current-waypoint.json` values",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "4",
+      "title": "N and T are always read from files, never estimated",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "5",
+      "title": "`waypoint-render.sh` resolves correctly even when CWD is a subdirectory",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    }
+  ]
+}
