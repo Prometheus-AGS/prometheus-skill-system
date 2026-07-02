@@ -49,19 +49,11 @@ else
     log "WARN nudge write got HTTP $HTTP_CODE"
 fi
 
-# Check waypoint — if a KBD phase is active, append reminder to position-reminder.txt
-WAYPOINT="${SKILL_PACK_ROOT}/.kbd-orchestrator/current-waypoint.json"
-REMINDER="${SKILL_PACK_ROOT}/.kbd-orchestrator/position-reminder.txt"
-if [ -f "$WAYPOINT" ] && command -v jq >/dev/null 2>&1; then
-    PHASE="$(jq -r '.phase // empty' "$WAYPOINT" 2>/dev/null)"
-    NEXT_CMD="$(jq -r '.exactNextCommand // .exact_next_command // empty' "$WAYPOINT" 2>/dev/null)"
-    if [ -n "$PHASE" ] && [ -n "$NEXT_CMD" ]; then
-        cat > "$REMINDER" <<REMINDER
-POSITION REMINDER — read this as your FIRST tool call every turn
-Phase: ${PHASE}
-Next command: ${NEXT_CMD}
-Nudge: Periodic nudge at ${TIMESTAMP} — cross-session continuity check recommended.
-REMINDER
-        log "Updated position-reminder.txt for phase=${PHASE} next=${NEXT_CMD}"
-    fi
-fi
+# NOTE: this script used to also overwrite .kbd-orchestrator/position-reminder.txt
+# with its own (sparser, Step/Stage-less) template on every 4-hour tick, with no
+# gating at all. That was an independent clobber source — on a timer, unrelated
+# to any real state change — competing with write-position-reminder.sh, which is
+# the canonical regenerator (gated to fire only on actual waypoint/progress
+# writes; see shared/scripts/write-position-reminder.sh). Removed rather than
+# gated: this script has no file-path signal to gate on, and duplicating that
+# file's canonical writer here is the actual bug, not something to preserve.
