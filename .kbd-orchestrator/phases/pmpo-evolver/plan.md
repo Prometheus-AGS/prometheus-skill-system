@@ -2,7 +2,7 @@
 
 **Phase:** pmpo-evolver
 **Planned:** 2026-06-28
-**Backend:** OpenSpec (`openspec/changes/change-evolver-NNN/`)
+**Backend:** native-kbd (`.kbd-orchestrator/changes/change-evolver-NNN/`) — migrated from OpenSpec 2026-07-02
 **Changes:** 10
 **Operator addendum:** All phases must incorporate liter-llm model routing — choosing the most capable and cost-efficient model for each task using the liter-llm-bridge MCP tools and the system's configured providers.
 
@@ -633,4 +633,4 @@ Context management: feedback collection, changelog ingestion, and carry-forward 
 
 **change-evolver-001** — `skills/process/pmpo-evolver/references/schemas/pmpo-evolver.schema.json` + `evolution-state.schema.json` extension.
 
-See `openspec/changes/change-evolver-001/proposal.md` for full specification.
+See `.kbd-orchestrator/changes/change-evolver-001/change.md` for full specification.

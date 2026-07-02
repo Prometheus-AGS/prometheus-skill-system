@@ -1,0 +1,55 @@
+{
+  "changeId": "change-evolver-008",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "`skills/process/pmpo-evolver/references/strategic-dreaming.md` exists with protocol, output format, and dreaming prompt",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "2",
+      "title": "`scripts/post-cycle-dream.sh` is executable",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "3",
+      "title": "Script exits 0 when no journal.md exists (graceful skip)",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "4",
+      "title": "Script exits 0 when liter-llm is not available (graceful fallback with placeholder lesson)",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "5",
+      "title": "`[MODEL_ROUTING] phase=evolver-strategic-dream class=frontier` comment present in script",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "6",
+      "title": "`strategic-dreaming.md` clearly distinguishes strategic dreaming from PMPO Reflect and KBD Reflect",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "7",
+      "title": "Context management note present: dreaming runs isolated to avoid main session context overhead",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    }
+  ]
+}

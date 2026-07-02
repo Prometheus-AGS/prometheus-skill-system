@@ -1,0 +1,48 @@
+{
+  "changeId": "change-evolver-005",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "`skills/process/pmpo-evolver/references/learning-signals.md` exists with all source type protocols",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "2",
+      "title": "`scripts/commit-history-analyze.sh` is executable",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "3",
+      "title": "`bash scripts/commit-history-analyze.sh . --since 2026-06-01` exits 0 and outputs valid JSON",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "4",
+      "title": "`scripts/feedback-digest.sh` is executable",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "5",
+      "title": "Model routing comments (`[MODEL_ROUTING]`) are present in both scripts",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "6",
+      "title": "`learning-signals.md` documents the LearningSignal normalization format",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    }
+  ]
+}

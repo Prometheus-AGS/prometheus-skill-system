@@ -1,0 +1,48 @@
+{
+  "changeId": "change-evolver-009",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "`loop-definition.schema.json` has `perspective` field with the 7-value enum",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "2",
+      "title": "Schema validates via `python3 -m json.tool`",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "3",
+      "title": "`loop-tick.sh` passes `--perspective <value>` when loop.json `perspective != \"auto\"`",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "4",
+      "title": "`loop-tick.sh` does NOT change behavior when `perspective == \"auto\"` or field absent (backward-compatible)",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "5",
+      "title": "`pmpo-outer-loop/SKILL.md` has the perspective paragraph under `/loop-define`",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "6",
+      "title": "`npm run validate:strict skills/process/pmpo-outer-loop` passes (if skill has validation)",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    }
+  ]
+}

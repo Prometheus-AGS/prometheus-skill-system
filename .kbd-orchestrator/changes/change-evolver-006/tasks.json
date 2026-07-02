@@ -1,0 +1,62 @@
+{
+  "changeId": "change-evolver-006",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "`skills/process/pmpo-evolver/skills/validate-idea/SKILL.md` exists with valid frontmatter",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "2",
+      "title": "`npm run validate:strict skills/process/pmpo-evolver/skills/validate-idea` passes",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "3",
+      "title": "`scripts/idea-gate-1.sh` is executable",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "4",
+      "title": "Gate 1 script: exits 1 when a matching skill exists, exits 0 when it doesn't",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "5",
+      "title": "`bash scripts/idea-gate-1.sh \"add rust skills\" default` exits 1 (rust skills exist in this repo)",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "6",
+      "title": "`bash scripts/idea-gate-1.sh \"add quantum entanglement router\" default` exits 0",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "7",
+      "title": "Archive manifest format documented in validate-idea SKILL.md",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "8",
+      "title": "All three gates have `[MODEL_ROUTING]` directives with correct class assignments",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    }
+  ]
+}

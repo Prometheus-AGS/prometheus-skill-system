@@ -1,0 +1,55 @@
+{
+  "changeId": "change-evolver-010",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "`scripts/evolver-seed-phase.sh` is executable",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "2",
+      "title": "`bash scripts/evolver-seed-phase.sh nonexistent default` exits 1 with clear error",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "3",
+      "title": "Script creates goals.md, progress.json, and evolver-bridge.json stub when state.json has the item",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "4",
+      "title": "`skills/process/pmpo-evolver/references/context-management.md` exists with all 7 rules",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "5",
+      "title": "Context management table has cost estimates for all 7 task types",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "6",
+      "title": "`skills/process/liter-llm-bridge/references/model-discovery.md` exists",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "7",
+      "title": "model-discovery.md covers: config file, list_models, health check, decision protocol, provider reference, cost tracking",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    }
+  ]
+}

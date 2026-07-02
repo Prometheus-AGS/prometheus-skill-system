@@ -1,0 +1,48 @@
+{
+  "changeId": "change-pglite-003-top-level-keywords-opencode-bump",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "`\"pglite\"` present in top-level `plugin.json` keywords",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "2",
+      "title": "`\"electricsql\"` present in top-level `plugin.json` keywords",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "3",
+      "title": "`@opencode-ai/plugin` version is `^1.15.0` or higher in `.opencode/package.json`",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "4",
+      "title": "`@opencode-ai/sdk` version updated to match",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "5",
+      "title": "JSON valid in both files",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "6",
+      "title": "`npm run validate:strict` → 0 errors",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    }
+  ]
+}

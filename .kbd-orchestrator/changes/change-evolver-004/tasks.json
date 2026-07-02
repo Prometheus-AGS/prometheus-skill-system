@@ -1,0 +1,41 @@
+{
+  "changeId": "change-evolver-004",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "`skills/process/pmpo-evolver/references/competitive-analysis.md` exists with registry and parity matrix formats",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "2",
+      "title": "`scripts/competitor-registry-init.sh` is executable and creates a valid stub JSON",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "3",
+      "title": "`scripts/changelog-fetch.sh` is executable",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "4",
+      "title": "`bash scripts/changelog-fetch.sh anthropics/anthropic-sdk-python --evolution-name test` exits 0 and produces valid JSON (or graceful error when liter-llm absent)",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "5",
+      "title": "Model routing directives are present in the scripts as comments",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    }
+  ]
+}

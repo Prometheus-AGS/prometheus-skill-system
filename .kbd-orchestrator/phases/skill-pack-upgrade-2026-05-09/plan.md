@@ -28,7 +28,7 @@ Changes are ordered by the slot allocation from the assessment's Phase 1 executi
 ### change-001-bdd006-immutable-tests-rule (Slot 1)
 **Agent:** docs-writer  
 **Source task:** `docs/future-work/02-bdd-testing-evolution/BDD-006-immutable-tests-rule.md`  
-**Proposal:** `openspec/changes/change-001-bdd006-immutable-tests-rule/proposal.md`
+**Proposal:** `.kbd-orchestrator/changes/change-001-bdd006-immutable-tests-rule/change.md` (migrated from OpenSpec 2026-07-02)
 
 Add the immutable-tests behavioral rule to both CLAUDE.md files. Code-gen agents may not edit `tests/steps/*.steps.ts`, `tests/support/*.ts`, or `tests/features/*.feature` to make existing tests pass. Optional: add `shared/scripts/protect-tests.sh` PreToolUse guard (warn mode).
 
@@ -44,7 +44,7 @@ Add the immutable-tests behavioral rule to both CLAUDE.md files. Code-gen agents
 ### change-002-sp015-hooks-json-canonical (Slot 1)
 **Agent:** skill-pack-maintainer  
 **Source task:** `docs/future-work/01-skill-pack-fixes/SP-015-hooks-json-symlink.md`  
-**Proposal:** `openspec/changes/change-002-sp015-hooks-json-canonical/proposal.md`
+**Proposal:** `.kbd-orchestrator/changes/change-002-sp015-hooks-json-canonical/change.md` (migrated from OpenSpec 2026-07-02)
 
 **Assessment surprise:** The task doc direction is inverted. `.claude-plugin/hooks` is already a directory symlink → `../hooks`. Executor must read `plugin.json` first to confirm which path is authoritative for the Claude Code runtime, then either document the existing setup or swap canonicity as needed. Add CI check regardless.
 
@@ -90,7 +90,7 @@ Add `@quarantine` tag + retry policy (up to 3 retries) + state machine (`quarant
 ### change-005-sp006-stop-hook-observability (Slot 3)
 **Agent:** hooks-engineer  
 **Source task:** `docs/future-work/01-skill-pack-fixes/SP-006-stop-hook-observability.md`  
-**Proposal:** `openspec/changes/change-005-sp006-stop-hook-observability/proposal.md`
+**Proposal:** `.kbd-orchestrator/changes/change-005-sp006-stop-hook-observability/change.md` (migrated from OpenSpec 2026-07-02)
 
 Create `shared/scripts/lib/hook-log.sh` with `hook_log_start`, `hook_log_end`, `hook_log_error` functions using `flock`-serialized JSONL writes to `~/.prometheus/hooks.log`. Wire all hook scripts. Add logrotate config.
 
@@ -110,7 +110,7 @@ Create `shared/scripts/lib/hook-log.sh` with `hook_log_start`, `hook_log_end`, `
 ### change-006-sp013-sycophancy-reflector-hook (Slot 4)
 **Agent:** hooks-engineer  
 **Source task:** `docs/future-work/01-skill-pack-fixes/SP-013-sycophancy-reflector-hook.md`  
-**Proposal:** `openspec/changes/change-006-sp013-sycophancy-reflector-hook/proposal.md`
+**Proposal:** `.kbd-orchestrator/changes/change-006-sp013-sycophancy-reflector-hook/change.md` (migrated from OpenSpec 2026-07-02)
 
 Write `shared/scripts/sycophancy-check-reflection.sh` that reads the reflection artifact only (never the generation history), invokes `sycophancy-correction` at configurable strictness, and rejects sycophantic reflections with actionable feedback. Wire into the `reflector` SubagentStop matcher. 2-rejection soft cap prevents rejection loops.
 
