@@ -1,0 +1,41 @@
+{
+  "changeId": "change-learn-011",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Write `skills/learn/learn-plan/SKILL.md` with invocation contract, inputs (survey-result.json, goal), and output schema",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "2",
+      "title": "Query concept DAG from surreal-memory (`expand_neighbors`, `find_path`) to identify prerequisites for target concept",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "3",
+      "title": "Produce `curriculum.json`: ordered phases with prerequisite gates, estimated sessions, target mastery per phase",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "4",
+      "title": "Implement `--replan` mode: triggered when live mastery diverges > 0.2 from planned mastery; re-runs DAG query and reorders remaining phases",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "5",
+      "title": "Render curriculum via ui-surface: Tier 0 ordered list, Tier 2 mindmap (when available); never block on Tier 2",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    }
+  ]
+}

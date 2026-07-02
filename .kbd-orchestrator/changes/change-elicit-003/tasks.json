@@ -1,0 +1,27 @@
+{
+  "changeId": "change-elicit-003",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Add `pmpo-elicit` to the process skills install list in `install-skills-flat.sh`",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "2",
+      "title": "Add `## Platform Mode` section to `SKILL.md`",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "3",
+      "title": "`npm run validate:strict skills/process/pmpo-elicit` passes clean",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    }
+  ]
+}

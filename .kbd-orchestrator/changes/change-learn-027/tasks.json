@@ -1,0 +1,41 @@
+{
+  "changeId": "change-learn-027",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Add `## Learn Domain` section to `CLAUDE.md`: introduce the domain purpose (Feynman-technique learning loop for operators), describe the four layers (Layer A: substrate crates, Layer B: ui-surface MCP, Layer C: learn-domain skills, Layer D: KB adapters), and list each crate/skill per layer",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "2",
+      "title": "Document Layer A substrate crates in the new section: `surface-bridge` (Tier 2 Axum MCP server), `storage-provider` (FSRS card store + palace bridge), `learner-model` (FSRS scheduling binary), `content-grounding` (corpus validation)",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "3",
+      "title": "Document Layer B (`ui-surface`) and list all Layer C skills with their entry commands and artifact contracts (input → output file names)",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "4",
+      "title": "Document the KB adapter pattern: explain `palace_ingest`, Dify KB ID, and URL scrape paths; note that all KB data is local-first and the `source_type: operator_kb` tag is the federation boundary",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "5",
+      "title": "Document the Tier 0/1/2 degradation contract: define each tier, state which substrate crates are required per tier, describe the fallback order (Tier 2 → Tier 1 → Tier 0), and update the `skills/` directory structure diagram to show `skills/learn/` with its skill subdirectories",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    }
+  ]
+}

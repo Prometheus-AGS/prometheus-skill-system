@@ -1,0 +1,41 @@
+{
+  "changeId": "change-learn-004",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Implement `--kb` flag in `content-grounding-kb.sh` with adapter dispatch logic",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "2",
+      "title": "Add Dify KB adapter using `dify_search` and `dify_list_documents` MCP tools",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "3",
+      "title": "Add local file adapter that ingests via `palace_ingest` into surreal-memory",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "4",
+      "title": "Add surreal-memory palace adapter using `palace_search` and `palace_recall`",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "5",
+      "title": "Document privacy model: KB content stays local, never forwarded to external APIs or LLM grounding calls",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    }
+  ]
+}

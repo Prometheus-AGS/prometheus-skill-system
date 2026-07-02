@@ -53,6 +53,15 @@ WP=".kbd-orchestrator/current-waypoint.json"
 # ---- backend detection -----------------------------------------------------
 
 backend_detect() {
+  # Optional $1: the change id being driven. When given, resolution is
+  # scoped to that change's own directory shape instead of a repo-wide
+  # guess — a repo can carry more than one backend's change directories at
+  # once (e.g. legacy openspec/changes/ alongside native-kbd
+  # .kbd-orchestrator/changes/), and the mere presence of an openspec/ dir
+  # elsewhere in the repo must not shadow a change that actually lives
+  # under a different backend.
+  local change="${1:-}"
+
   # Explicit override wins: project.json.specBackend pins the backend.
   local pinned=""
   if [ -f .kbd-orchestrator/project.json ]; then
@@ -62,6 +71,25 @@ backend_detect() {
     openspec|native-kbd|speckit) printf '%s' "$pinned"; return 0 ;;
     auto|""|*) : ;;  # fall through to auto-detection
   esac
+
+  if [ -n "$change" ]; then
+    # native-kbd checked first: it's the KBD-owned change store and the
+    # most specific match, so it can't be shadowed by an unrelated
+    # openspec/ directory sitting elsewhere in the repo.
+    if [ -f ".kbd-orchestrator/changes/$change/tasks.json" ] \
+       || [ -f ".kbd-orchestrator/changes/$change/change.md" ]; then
+      printf 'native-kbd'; return 0
+    fi
+    if { [ -f "openspec/changes/$change/proposal.md" ] || [ -f "openspec/changes/$change/tasks.md" ]; } \
+       && command -v openspec >/dev/null 2>&1; then
+      printf 'openspec'; return 0
+    fi
+    if [ -f "specs/$change/tasks.md" ]; then
+      printf 'speckit'; return 0
+    fi
+    # Change id didn't match a known shape under any backend — fall through
+    # to the repo-wide heuristic below rather than failing outright.
+  fi
 
   if [ -d openspec ] && command -v openspec >/dev/null 2>&1; then
     printf 'openspec'; return 0
@@ -291,13 +319,18 @@ sk_mark_done() {
 
 # ---- backend dispatch ------------------------------------------------------
 
+# BACKEND is the repo-wide guess, used only for the bare `detect` diagnostic
+# subcommand (no change id to scope by). Every other subcommand resolves its
+# own backend from the change id it was given (see backend_detect), so a
+# change is routed to the backend that actually owns it rather than whatever
+# backend_detect() would guess for the repo as a whole.
 BACKEND="$(backend_detect)"
 
-b_list()      { case "$BACKEND" in openspec) os_list "$@";; speckit) sk_list "$@";; native-kbd) nk_list "$@";; *) die "no spec backend detected (cwd=$(pwd))";; esac; }
-b_progress()  { case "$BACKEND" in openspec) os_progress "$@";; speckit) sk_progress "$@";; native-kbd) nk_progress "$@";; *) die "no spec backend detected";; esac; }
-b_mark_done() { case "$BACKEND" in openspec) os_mark_done "$@";; speckit) sk_mark_done "$@";; native-kbd) nk_mark_done "$@";; *) die "no spec backend detected";; esac; }
-b_verify()    { case "$BACKEND" in openspec) os_verify "$@";; native-kbd) nk_verify "$@";; *) return 0;; esac; }   # speckit: /speckit.analyze is model-driven, no CLI gate
-b_archive()   { case "$BACKEND" in openspec) os_archive "$@";; native-kbd) nk_archive "$@";; *) return 0;; esac; }  # speckit: no archive step
+b_list()      { local be; be="$(backend_detect "${1:-}")"; case "$be" in openspec) os_list "$@";; speckit) sk_list "$@";; native-kbd) nk_list "$@";; *) die "no spec backend detected (cwd=$(pwd))";; esac; }
+b_progress()  { local be; be="$(backend_detect "${1:-}")"; case "$be" in openspec) os_progress "$@";; speckit) sk_progress "$@";; native-kbd) nk_progress "$@";; *) die "no spec backend detected";; esac; }
+b_mark_done() { local be; be="$(backend_detect "${1:-}")"; case "$be" in openspec) os_mark_done "$@";; speckit) sk_mark_done "$@";; native-kbd) nk_mark_done "$@";; *) die "no spec backend detected";; esac; }
+b_verify()    { local be; be="$(backend_detect "${1:-}")"; case "$be" in openspec) os_verify "$@";; native-kbd) nk_verify "$@";; *) return 0;; esac; }   # speckit: /speckit.analyze is model-driven, no CLI gate
+b_archive()   { local be; be="$(backend_detect "${1:-}")"; case "$be" in openspec) os_archive "$@";; native-kbd) nk_archive "$@";; *) return 0;; esac; }  # speckit: no archive step
 
 # ---- progress.json sync ----------------------------------------------------
 

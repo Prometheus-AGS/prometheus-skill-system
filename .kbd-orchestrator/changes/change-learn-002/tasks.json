@@ -1,0 +1,34 @@
+{
+  "changeId": "change-learn-002",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Document surface tier signals per harness (Claude Code, OpenCode, Codex, Kimi, Zed) — env vars, file markers, API availability",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "2",
+      "title": "Write `shared/scripts/detect-surface-tier.sh` that probes signals and exits with `SURFACE_TIER=0|1|2`",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "3",
+      "title": "Test probe script on each supported harness and record actual outputs",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "4",
+      "title": "Document `SURFACE_TIER` env var convention and expected consumer behavior at each tier",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    }
+  ]
+}

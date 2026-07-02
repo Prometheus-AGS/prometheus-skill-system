@@ -1,7 +1,0 @@
-# Tasks — change-learn-025
-
-- [ ] Add `skills/learn/` to the platform skill installation sweep in `scripts/install-skills-flat.sh`: include it in the directory glob alongside existing domain directories, ensure all detected platforms receive learn-domain skills
-- [ ] Add `substrate/learner-model/` Rust crate to the build-and-install step: run `cargo build --release -p learner-model` and copy the resulting binary to `~/.prometheus/bin/learner-model`
-- [ ] Add `substrate/storage-provider/` Rust crate to the build-and-install step: run `cargo build --release -p storage-provider` and copy binary to `~/.prometheus/bin/storage-provider`
-- [ ] Add `substrate/surface-bridge/` launchd service install to `install-skills-flat.sh` (macOS only): build `surface-bridge`, copy to `~/.prometheus/bin/surface-bridge`, copy the plist to `~/Library/LaunchAgents/`, run `launchctl load`; on non-macOS, print a warning (`[SKIP] surface-bridge launchd install requires macOS`) and continue with exit 0
-- [ ] Update `shared/scripts/detect-toolchain.sh` to report: (1) whether `~/.prometheus/bin/learner-model` exists and is executable; (2) whether `com.prometheus.surface-bridge` is loaded in launchctl (macOS) or `N/A` on other platforms; include both in the `--json` output

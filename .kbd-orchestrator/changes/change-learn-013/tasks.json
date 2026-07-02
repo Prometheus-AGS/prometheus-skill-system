@@ -1,0 +1,41 @@
+{
+  "changeId": "change-learn-013",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Write `skills/learn/learn-practice/SKILL.md` with `--type derivation|implementation|transfer` flag, session protocol, and output contract",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "2",
+      "title": "Implement difficulty gating: mastery ≤ 0.6 serves foundational problems; mastery > 0.6 unlocks harder variants",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "3",
+      "title": "Implement interleaved problem type rotation: do not serve the same type twice in a row within a session",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "4",
+      "title": "Grade each response via `learn-grade` skill; surface feedback via ui-surface",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "5",
+      "title": "Produce `practice-result.json` (problems attempted, scores, types used) and update learner-model concept states",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    }
+  ]
+}

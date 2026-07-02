@@ -1,0 +1,41 @@
+{
+  "changeId": "change-learn-014",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Write `skills/learn/learn-certify/SKILL.md` with `--checkpoint` and `--final` modes, prerequisite gate spec, and credential output schema",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "2",
+      "title": "Implement prerequisite gates for `--final` mode: N feynman-artifacts on record, M practice-result files, capstone problem passed via learn-grade",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "3",
+      "title": "Emit OB 3.0 / W3C VC as self-issued JSON-LD signed with did-plc; document key generation and storage convention",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "4",
+      "title": "Implement integrity guardrails: flag credentials where mastery trajectory shows a step-change inconsistent with session history",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "5",
+      "title": "Implement `--issuer` parameter for forwarding to a 1EdTech-compatible endpoint (documented interface, not hardcoded URL)",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    }
+  ]
+}

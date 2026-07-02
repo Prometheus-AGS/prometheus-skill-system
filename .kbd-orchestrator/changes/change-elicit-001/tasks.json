@@ -1,0 +1,34 @@
+{
+  "changeId": "change-elicit-001",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Write `scripts/pmpo-elicit-checkpoint.sh` with executable permission",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "2",
+      "title": "Write `scripts/pmpo-elicit-resume.sh` with executable permission",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "3",
+      "title": "Write `references/checkpoint-contract.md`",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "4",
+      "title": "`npm run validate:strict skills/process/pmpo-elicit` passes clean",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    }
+  ]
+}

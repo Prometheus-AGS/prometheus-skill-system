@@ -1,0 +1,41 @@
+{
+  "changeId": "change-learn-003",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Write `shared/scripts/content-grounding.sh` with `--subject`, `--level`, `--budget-sources`, and `--budget-minutes` flags",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "2",
+      "title": "Implement source priority chain: primary literature > textbooks > reference implementations > surveys > secondary > LLM fill",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "3",
+      "title": "Add `--include-misconceptions` flag that retrieves known-wrong-model sources alongside correct ones",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "4",
+      "title": "Define `grounding-corpus.schema.json` specifying output envelope (sources[], misconceptions[], metadata)",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "5",
+      "title": "Test script with a sample subject and verify priority chain ordering and schema conformance",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    }
+  ]
+}

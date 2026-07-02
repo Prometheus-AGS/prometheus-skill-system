@@ -1,0 +1,34 @@
+{
+  "changeId": "change-elicit-006",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Add stall/regression operative protocol subsection to `pmpo-outer-loop/SKILL.md`",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "2",
+      "title": "Add cross-reference to `escalation-points.md` in pmpo-outer-loop bounds paragraph",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "3",
+      "title": "Update `SKILLS.md` pmpo-elicit description line 196",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "4",
+      "title": "`npm run validate:strict skills/process/pmpo-outer-loop` passes clean",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    }
+  ]
+}

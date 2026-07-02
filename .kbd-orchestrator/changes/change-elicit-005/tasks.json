@@ -1,0 +1,41 @@
+{
+  "changeId": "change-elicit-005",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Replace \"Human Gates Between Phases\" section in `kbd-goal/SKILL.md` with operative protocol",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "2",
+      "title": "Add STATE.md escalations[] write protocol section in `kbd-goal/SKILL.md`",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "3",
+      "title": "Add \"Human gates\" subsection to `references/platforms/claude-code.md`",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "4",
+      "title": "Add \"Human gates\" subsection to `references/platforms/kimi.md`",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "5",
+      "title": "`npm run validate:strict skills/process/kbd-goal` passes clean",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    }
+  ]
+}

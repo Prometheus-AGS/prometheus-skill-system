@@ -1,0 +1,41 @@
+{
+  "changeId": "change-learn-009",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Write `skills/learn/learn-grade/SKILL.md` with invocation contract (concept, explanation, corpus reference) and output schema",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "2",
+      "title": "Implement corpus retrieval for the target concept via semantic search (surreal-memory palace or content-grounding)",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "3",
+      "title": "Implement grader checks: completeness (all key ideas present), accuracy (no factual errors), misconceptions (known-wrong-model patterns flagged)",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "4",
+      "title": "Run grader output through `sycophancy-correction` S-02 check before returning grade to caller",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "5",
+      "title": "Generate novel transfer problems from corpus sources — explicitly not derived from the user's explanation — to test transfer",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    }
+  ]
+}
