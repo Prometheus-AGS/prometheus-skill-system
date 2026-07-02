@@ -2,7 +2,7 @@
 
 **Phase:** goal-loop-support
 **Planned:** 2026-06-27
-**Backend:** OpenSpec (`openspec/changes/`)
+**Backend:** native-kbd (`.kbd-orchestrator/changes/`) — migrated from OpenSpec 2026-07-02
 **Changes total:** 14 (sub-phase A: 6 core, sub-phase B: 8 integration)
 
 ---

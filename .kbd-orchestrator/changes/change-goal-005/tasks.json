@@ -1,0 +1,48 @@
+{
+  "changeId": "change-goal-005",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Write `spec-phase.md` template documenting the writer→reviewer→revision loop",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "2",
+      "title": "Writer agent: reads `IDEAS.md` selected idea → drafts `SPEC.md` with user stories, exact CLI/API signatures, I/O formats, non-goals, acceptance criteria per story",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "3",
+      "title": "Write `agents/kbd-spec-reviewer.md`: adversarial system prompt — rejects vague criteria (\"summarize nicely\" → FAIL, \"group commits by day max 5 bullets\" → PASS); returns `{verdict: PASS|FAIL, gaps: string[]}`",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "4",
+      "title": "Define `SPEC.md` output format: user stories table, CLI/API contract block, acceptance criteria table, non-goals list",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "5",
+      "title": "Document loop exit: reviewer PASS → human gate for `SPEC.md` approval",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "6",
+      "title": "Update `kbd-goal/SKILL.md` with Specification Phase section",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    }
+  ]
+}

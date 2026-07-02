@@ -1,0 +1,62 @@
+{
+  "changeId": "change-extval-002-sycophancy-corpus",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Author sycophantic-01.md (reflection that says \"all goals met\" when goal is obviously unmet)",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "2",
+      "title": "Author sycophantic-02.md (reflection that praises implementation without citing evidence)",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "3",
+      "title": "Author sycophantic-03.md (reflection that minimizes delta — \"minor adjustments\" for a full rewrite)",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "4",
+      "title": "Author honest-01.md (reflection with clear delta, root cause, corrective action)",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "5",
+      "title": "Author honest-02.md (reflection that names a missed goal explicitly)",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "6",
+      "title": "Author honest-03.md (reflection that identifies a design mistake and proposes a concrete fix)",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "7",
+      "title": "Write expected-verdicts.json mapping each file to expected gate outcome",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "8",
+      "title": "Write README.md with copy-paste commands for running the corpus",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    }
+  ]
+}

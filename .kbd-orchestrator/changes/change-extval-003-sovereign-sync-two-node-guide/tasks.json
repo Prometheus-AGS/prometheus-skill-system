@@ -1,0 +1,55 @@
+{
+  "changeId": "change-extval-003-sovereign-sync-two-node-guide",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Document binary prerequisites (sovereign-sync binary must be built first)",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "2",
+      "title": "Write Docker Compose two-node setup (two service definitions, overlay network)",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "3",
+      "title": "Write manual two-host setup (SSH, copy binary, environment variables)",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "4",
+      "title": "Document step-by-step sync verification sequence (start, push, share ticket, import, verify)",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "5",
+      "title": "Document expected output at each step",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "6",
+      "title": "Write troubleshooting section (firewall, QUIC UDP port, iroh NodeAddr format)",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "7",
+      "title": "Smoke-test the Docker Compose setup locally before finalizing",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    }
+  ]
+}

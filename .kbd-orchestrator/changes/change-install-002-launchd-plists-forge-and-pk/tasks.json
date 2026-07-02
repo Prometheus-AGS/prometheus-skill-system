@@ -1,0 +1,69 @@
+{
+  "changeId": "change-install-002-launchd-plists-forge-and-pk",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Read `~/Library/LaunchAgents/dev.prometheusags.openai-proxy.plist` as template",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "2",
+      "title": "Write `~/Library/LaunchAgents/dev.prometheusags.forge-mcp.plist` (label, binary path, port 8943, RUST_LOG=info)",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "3",
+      "title": "Write `~/Library/LaunchAgents/dev.prometheusags.pk-mcp.plist` (label, binary path, port 8942, RUST_LOG=info)",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "4",
+      "title": "`launchctl load ~/Library/LaunchAgents/dev.prometheusags.forge-mcp.plist`",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "5",
+      "title": "`launchctl load ~/Library/LaunchAgents/dev.prometheusags.pk-mcp.plist`",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "6",
+      "title": "Verify `launchctl list | grep forge-mcp` shows non-zero PID",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "7",
+      "title": "Verify `launchctl list | grep pk-mcp` shows non-zero PID",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "8",
+      "title": "Probe port 8943 is accepting connections",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "9",
+      "title": "Probe port 8942 is accepting connections",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    }
+  ]
+}

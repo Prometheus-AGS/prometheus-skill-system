@@ -2,7 +2,7 @@
 
 **Date:** 2026-06-30  
 **Stage:** plan  
-**Backend:** OpenSpec (detected `openspec/` at project root)  
+**Backend:** native-kbd (migrated from OpenSpec 2026-07-02)  
 **Changes:** 4  
 **No code changes.** All changes are documentation, test corpora, or community artifacts.
 

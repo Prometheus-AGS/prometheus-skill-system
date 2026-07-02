@@ -1,0 +1,41 @@
+{
+  "changeId": "change-goal-007",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Write `claude-code.md` platform reference with routing decision table",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "2",
+      "title": "Document `claude /goal --tokens <budget> \"<stopping_condition>\"` invocation for single-phase",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "3",
+      "title": "Document `claude /goal --worktree \"<phase-stopping-condition>\"` for per-phase Creation in multi-phase",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "4",
+      "title": "Update `kbd-goal/SKILL.md` Claude Code section with routing logic",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "5",
+      "title": "Add detection: check for `CLAUDE_CODE` env var or `claude` binary in PATH",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    }
+  ]
+}

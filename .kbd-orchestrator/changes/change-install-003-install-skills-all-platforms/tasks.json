@@ -1,0 +1,62 @@
+{
+  "changeId": "change-install-003-install-skills-all-platforms",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Check if `~/.config/zed/skills/` or `~/.config/zed/` exists to confirm zed config dir",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "2",
+      "title": "Edit `scripts/install-skills-flat.sh` — add `install_to_dir \"zed\" \"$HOME/.config/zed/skills\"` after the cline line",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "3",
+      "title": "Run `bash scripts/install-skills-flat.sh` from project root",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "4",
+      "title": "Verify `ls ~/.config/zed/skills/ | wc -l` → > 0",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "5",
+      "title": "Verify `ls ~/.opencode/skills/ | wc -l` → > 0",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "6",
+      "title": "Verify `ls ~/.cursor/skills/ | wc -l` → > 0",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "7",
+      "title": "Verify `ls ~/.codex/skills/ | wc -l` → > 0",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "8",
+      "title": "Verify `ls ~/.claude/skills/ | wc -l` → >= 394",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    }
+  ]
+}

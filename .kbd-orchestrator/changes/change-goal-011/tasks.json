@@ -1,0 +1,48 @@
+{
+  "changeId": "change-goal-011",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Write `kbd-goal-zed-detect.sh`: check `$ZED_ACP_AGENT` env var → output agent name; fallback to `~/.zed/acp-agents.json`; if neither → output `standalone`",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "2",
+      "title": "Document Track 1 (ACP-connected): detect Claude Code → use goal-007 bridge; detect Codex → use goal-008 bridge",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "3",
+      "title": "Document Track 2 (standalone): after each turn, `kbd-goal` skill invokes `kbd-goal-evaluator` subagent; if FAIL, inject continuation as next Zed `session/prompt` message",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "4",
+      "title": "Write `zed.md` platform reference with both tracks, setup steps, and ACP configuration guide",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "5",
+      "title": "Add install entry for `~/.zed/skills/` in `install-skills-flat.sh` (already present for kbd-goal; verify)",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "6",
+      "title": "Note: `disable-model-invocation: false` on `kbd-goal-evaluator.md` allows Zed agent to invoke it as a skill tool",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    }
+  ]
+}

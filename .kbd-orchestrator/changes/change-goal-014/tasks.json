@@ -1,0 +1,48 @@
+{
+  "changeId": "change-goal-014",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Add optional `phases[]` to `loop-definition.schema.json`: array of `{name, type, stopping_condition, human_gate}`",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "2",
+      "title": "Add optional `goal_slug` field: link to `.kbd-orchestrator/goals/<slug>/goal.json`",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "3",
+      "title": "Verify backward compatibility: existing `loop.json` files without new fields still validate",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "4",
+      "title": "Update `loop-schema.md`: document new fields, add examples, cross-reference `goal.schema.json`",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "5",
+      "title": "Update `kbd-goal-start.sh` (goal-002): write `loop.json` to `.kbd-orchestrator/loops/<slug>/` alongside `goal.json`, so `/loop-tick` can drive goal advancement",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "6",
+      "title": "Test: run `jq -e` schema validation on existing loop.json files to confirm no regressions",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    }
+  ]
+}

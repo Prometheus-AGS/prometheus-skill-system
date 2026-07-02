@@ -1,0 +1,48 @@
+{
+  "changeId": "change-extval-001-quick-start-guide",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Write prerequisites section (Node ≥ 18, Git, Rust — three lines)",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "2",
+      "title": "Write clone step (with `--recurse-submodules` flag)",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "3",
+      "title": "Write install step (`bash scripts/install-skills-flat.sh`)",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "4",
+      "title": "Write smoke test step (`bash shared/scripts/detect-toolchain.sh`)",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "5",
+      "title": "Write first invocation step (`/learn-goal \"explain recursion to a 10-year-old\"`)",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "6",
+      "title": "Add link from README.md \"Quick Start\" section to QUICK_START.md",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    }
+  ]
+}

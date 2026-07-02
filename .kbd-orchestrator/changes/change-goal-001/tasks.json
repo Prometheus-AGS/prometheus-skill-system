@@ -1,0 +1,48 @@
+{
+  "changeId": "change-goal-001",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Write `agents/kbd-goal-evaluator.md` with valid YAML frontmatter",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "2",
+      "title": "System prompt: strict condition grader, no write access, JSON output `{verdict: \"PASS\"|\"FAIL\", reason: string}`",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "3",
+      "title": "Set `model: claude-haiku-4-5-20251001` in frontmatter",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "4",
+      "title": "Set `disable-model-invocation: false` (orchestrator may auto-invoke)",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "5",
+      "title": "Manual test: FAIL case (failing tests → STATE.md) returns FAIL",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "6",
+      "title": "Manual test: PASS case (all green) returns PASS",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    }
+  ]
+}

@@ -1,0 +1,55 @@
+{
+  "changeId": "change-goal-010",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Write `skills/process/kbd-goal-check/SKILL.md` with valid frontmatter",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "2",
+      "title": "Skill body: read `goal.json → phases[active_phase].stopping_condition`; read STATE.md; evaluate; return PASS (evidence quote) or CONTINUE (next TASKS.md action)",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "3",
+      "title": "On PASS: instruct agent to mark Kimi goal complete and queue next phase with `/goal next <next-phase-condition>`",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "4",
+      "title": "Validate: `npm run validate:strict skills/process/kbd-goal-check`",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "5",
+      "title": "Write `kimi.md` platform reference documenting `/goal next` queue pattern + evaluator skill integration",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "6",
+      "title": "Add install entry for `~/.kimi-code/skills/` in `install-skills-flat.sh`",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "7",
+      "title": "Update `kbd-goal/SKILL.md` Kimi section",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    }
+  ]
+}

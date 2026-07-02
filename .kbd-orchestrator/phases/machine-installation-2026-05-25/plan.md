@@ -1,7 +1,7 @@
 # Plan: machine-installation-2026-05-25
 **Date**: 2026-05-25  
 **Phase**: machine-installation-2026-05-25  
-**Backend**: openspec  
+**Backend**: native-kbd (migrated from OpenSpec 2026-07-02)  
 **Assessment**: `.kbd-orchestrator/phases/assess/machine-installation-assessment-2026-05-25.md`
 
 ---

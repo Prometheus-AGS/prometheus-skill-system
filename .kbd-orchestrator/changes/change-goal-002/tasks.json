@@ -1,0 +1,48 @@
+{
+  "changeId": "change-goal-002",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Write `SKILL.md` with valid agentskills frontmatter (name, version, license, tags)",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "2",
+      "title": "Document three invocation modes: single-phase, multi-phase (`--phases`), explicit stop (`--stop`)",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "3",
+      "title": "Document platform detection logic (env var `$TOOL` → waypoint `tool` field → default `claude-code`)",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "4",
+      "title": "Write `kbd-goal-start.sh`: parse args, create `goal.json`, call `kbd-new-child` per phase",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "5",
+      "title": "Add install entries for `~/.claude/skills/`, `~/.kimi-code/skills/`, `~/.opencode/skills/`, `~/.zed/skills/` in `install-skills-flat.sh`",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "6",
+      "title": "Validate SKILL.md: `npm run validate:strict skills/process/kbd-goal`",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    }
+  ]
+}

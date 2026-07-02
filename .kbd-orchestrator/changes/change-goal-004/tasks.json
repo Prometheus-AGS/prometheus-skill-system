@@ -1,0 +1,48 @@
+{
+  "changeId": "change-goal-004",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Write `ideation-phase.md` template documenting the 4-step convergence loop",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "2",
+      "title": "Define rubric dimensions: feasibility (0–10), pain_addressed (0–10), stack_fit (0–10), buildability (0–10); aggregate = mean",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "3",
+      "title": "Write `agents/kbd-idea-critic.md`: Sonnet model, scoring rubric in system prompt, JSON output schema",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "4",
+      "title": "Define `IDEAS.md` format: scored markdown table + rationale per candidate + survivor section",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "5",
+      "title": "Document stopping condition: `≥3 candidates with aggregate ≥ 7.0` → human gate",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "6",
+      "title": "Update `kbd-goal/SKILL.md` with Ideation Phase section",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    }
+  ]
+}

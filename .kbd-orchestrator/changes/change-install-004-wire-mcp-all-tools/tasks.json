@@ -1,0 +1,76 @@
+{
+  "changeId": "change-install-004-wire-mcp-all-tools",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Read `.mcp.json` at repo root to confirm server names and configs",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "2",
+      "title": "Probe `~/.config/opencode/` — find config file (config.json, opencode.json, config.toml)",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "3",
+      "title": "Read existing opencode config and merge `mcpServers` block without removing existing entries",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "4",
+      "title": "Probe `~/.codex/` — find config file (config.yaml, config.json)",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "5",
+      "title": "Read existing codex config and add `mcpServers` block",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "6",
+      "title": "Probe `~/.config/zed/settings.json` — confirm format",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "7",
+      "title": "Read existing zed settings and merge `context_servers` block",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "8",
+      "title": "Verify opencode config contains `surreal-memory` entry",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "9",
+      "title": "Verify codex config contains `surreal-memory` entry",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "10",
+      "title": "Verify zed settings contain MCP entries",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    }
+  ]
+}

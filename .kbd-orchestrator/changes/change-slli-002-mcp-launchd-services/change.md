@@ -26,7 +26,7 @@ scope:
 
 Install all 7 MCP servers as macOS launchd launch agents so they are always running, addressable by known URLs/ports, and survive reboot. This is a prerequisite for configuring all AI tools to point at them (change-slli-003).
 
-Builds on `openspec/changes/change-install-002-launchd-plists-forge-and-pk` (which covers only forge and pk) and extends it to the full service set.
+Builds on `.kbd-orchestrator/changes/change-install-002-launchd-plists-forge-and-pk` (which covers only forge and pk) and extends it to the full service set.
 
 ## Files Created
 

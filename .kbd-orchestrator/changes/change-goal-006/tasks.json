@@ -1,0 +1,62 @@
+{
+  "changeId": "change-goal-006",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Write `creation-phase.md` template documenting the 5-step build loop",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "2",
+      "title": "Define `TASKS.md` format: `[ ] task-NNN: <description> [acceptance criteria]`",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "3",
+      "title": "Define `STATE.md` format: `{completed: N, total: N, active_task, tasks: [{id, status, fail_count}], escalations[], promotions[], budget_summary}`",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "4",
+      "title": "Write `agents/kbd-task-verifier.md`: reads SPEC.md criteria + task description + test/lint output → PASS or FAIL + failure reason",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "5",
+      "title": "Document worktree isolation: when `tool == claude-code`, use `--worktree` per task; document fallback for other platforms",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "6",
+      "title": "Document auto-escalation: `fail_count >= 3` → write to `STATE.md → escalations[]`, pause loop for human",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "7",
+      "title": "Document auto-promotion trigger: sets up for change-goal-012",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "8",
+      "title": "Update `kbd-goal/SKILL.md` with Creation Phase section",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    }
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "changeId": "change-onboard-002-linux-systemd-note",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "The macOS launchd instructions are preserved unchanged",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "2",
+      "title": "The Linux systemd commands appear immediately after the macOS section",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "3",
+      "title": "Port numbers (7890, 7892) are consistent with the rest of the documentation",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "4",
+      "title": "No other content in the file is modified",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    }
+  ]
+}
