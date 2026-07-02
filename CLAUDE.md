@@ -701,6 +701,42 @@ The sycophancy-correction skill is on the critical path of the core loop:
 
 This is enforced architecturally, not as optional guidance. Pedagogical sycophancy produces worse learning outcomes.
 
+## Karpathy LLM Wiki (pk) — Open Knowledge Format Adoption
+
+The "Karpathy LLM wiki" pattern — an LLM-maintained, persistent, interlinked
+markdown knowledge base sitting between raw sources and the agent — is
+implemented by the `pk` CLI, shipped from the separate
+**prometheus-knowledge-rs** repository
+(`github.com/Prometheus-AGS/prometheus-knowledge-rs`). This repo does not vendor
+that source; it consumes the built `pk` binary via hooks
+(`shared/scripts/pk-focus-on-prompt.sh`, `pk-health.sh`, `pk-lint.sh`, and
+`pk ingest` at session Stop) and, from `phase-okf-llm-wiki-adoption` onward,
+via a first-class `llm-wiki` skill.
+
+**Ownership split (decided 2026-07-01, phase-okf-llm-wiki-adoption):**
+
+| Concern | Canonical repo |
+|---|---|
+| Wiki entry frontmatter format, parser, writer | `prometheus-knowledge-rs` (`pk-store`, `pk-core`) |
+| `index.md` / `log.md` maintenance, body cross-links, Citations | `prometheus-knowledge-rs` (`pk-librarian`) |
+| OKF conformance rules in `pk lint` | `prometheus-knowledge-rs` |
+| `llm-wiki` skill, wiki schema doc, hook wiring | `prometheus-skill-system` (this repo) |
+
+**Format decision:** the pk wiki adopts the **Open Knowledge Format (OKF) v0.1**
+— vendored at [`shared/references/okf-v0.1.md`](shared/references/okf-v0.1.md)
+— for wiki entry frontmatter/body conventions. OKF requires only a non-empty
+`type` frontmatter key and mandates permissive consumption (unknown types,
+missing optional fields, and broken links are never grounds to reject a
+document). The Karpathy LLM Wiki operational pattern itself (ingest / query /
+lint, the two reserved files `index.md` + `log.md`, the three-layer
+raw-sources/wiki/schema architecture) is vendored at
+[`shared/references/llm-wiki-pattern.md`](shared/references/llm-wiki-pattern.md).
+
+At the time of adoption, both the project-local and shared `pk` knowledge
+bases were empty (0 entries), so the format change carried no migration cost.
+That window closes once real ingestion starts — a future format change would
+need an explicit migration path.
+
 ## Reflector Sycophancy Gate
 
 The `reflector` SubagentStop hook automatically checks reflection artifacts for sycophantic patterns before they are logged or used to advance the PMPO cycle.

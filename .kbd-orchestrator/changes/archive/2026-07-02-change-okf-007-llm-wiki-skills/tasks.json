@@ -1,0 +1,41 @@
+{
+  "changeId": "change-okf-007-llm-wiki-skills",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "skills/documentation/llm-wiki/SKILL.md: three operations — ingest",
+      "done": true,
+      "doneAt": "2026-07-02T06:16:45Z",
+      "doneBy": "claude-code"
+    },
+    {
+      "id": "2",
+      "title": "references/wiki-schema.md: the layer-3 schema doc — directory structure,",
+      "done": true,
+      "doneAt": "2026-07-02T06:17:39Z",
+      "doneBy": "claude-code"
+    },
+    {
+      "id": "3",
+      "title": "references/okf-conformance.md: producer checklist distilled from §9",
+      "done": true,
+      "doneAt": "2026-07-02T06:18:41Z",
+      "doneBy": "claude-code"
+    },
+    {
+      "id": "4",
+      "title": "Frontmatter: version, license, metadata.tags — npm run validate:strict passes",
+      "done": true,
+      "doneAt": "2026-07-02T06:20:02Z",
+      "doneBy": "claude-code"
+    },
+    {
+      "id": "5",
+      "title": "Final examples verified against change-okf-004 output format",
+      "done": true,
+      "doneAt": "2026-07-02T13:01:20Z",
+      "doneBy": "claude-code"
+    }
+  ]
+}

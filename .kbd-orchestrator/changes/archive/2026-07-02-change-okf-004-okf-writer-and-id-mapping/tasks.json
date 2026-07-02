@@ -1,0 +1,41 @@
+{
+  "changeId": "change-okf-004-okf-writer-and-id-mapping",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Emit OKF frontmatter: type (required), title, description, tags,",
+      "done": true,
+      "doneAt": "2026-07-02T05:26:24Z",
+      "doneBy": "claude-code"
+    },
+    {
+      "id": "2",
+      "title": "ArticleId ↔ concept-ID mapping: path-based, subdirectory-safe",
+      "done": true,
+      "doneAt": "2026-07-02T05:28:29Z",
+      "doneBy": "claude-code"
+    },
+    {
+      "id": "3",
+      "title": "article_path/store write path handles nested concept paths",
+      "done": true,
+      "doneAt": "2026-07-02T06:09:36Z",
+      "doneBy": "claude-code"
+    },
+    {
+      "id": "4",
+      "title": "Librarian assigns a `type` on entry creation (default: Reference)",
+      "done": true,
+      "doneAt": "2026-07-02T06:11:07Z",
+      "doneBy": "claude-code"
+    },
+    {
+      "id": "5",
+      "title": "Verify: round-trip write→parse identity; OKF §9 conformance of emitted",
+      "done": true,
+      "doneAt": "2026-07-02T06:34:24Z",
+      "doneBy": "claude-code"
+    }
+  ]
+}

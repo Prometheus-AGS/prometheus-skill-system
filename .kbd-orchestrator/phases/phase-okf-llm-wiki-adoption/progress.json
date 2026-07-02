@@ -1,0 +1,30 @@
+{
+  "phase": "phase-okf-llm-wiki-adoption",
+  "parentPhase": null,
+  "childPhases": [],
+  "childPointer": null,
+  "assessment_complete": true,
+  "plan_complete": true,
+  "execute_complete": true,
+  "reflect_complete": true,
+  "changes_total": 8,
+  "changes_completed": 8,
+  "completed_changes": [
+    "change-okf-001-vendor-specs",
+    "change-okf-002-pk-workspace-baseline",
+    "change-okf-003-permissive-okf-parser",
+    "change-okf-004-okf-writer-and-id-mapping",
+    "change-okf-005-index-log-and-body-links",
+    "change-okf-006-okf-lint",
+    "change-okf-007-llm-wiki-skills",
+    "change-okf-008-integration-verification"
+  ],
+  "active_change": null,
+  "blocked_changes": [],
+  "sourceTool": "unknown",
+  "createdBy": "kbd-new-phase",
+  "updatedAt": "2026-07-02T17:16:00Z",
+  "last_updated_by": "claude-code",
+  "last_updated": "2026-07-02T17:16:00Z",
+  "notes": "change-okf-007 completed by a parallel session (archived, skills/documentation/llm-wiki/ created); verified here: passes npm run validate:strict, references match the real pk/knowledge_* commands and the OKF format implemented in changes 003-005. Reconciled into count 2026-07-02."
+}

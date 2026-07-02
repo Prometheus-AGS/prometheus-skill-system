@@ -1,0 +1,9 @@
+{
+  "stage": "spec",
+  "completedAt": "2026-07-02T04:28:39Z",
+  "outputs": [],
+  "nextStage": "plan",
+  "summaryForNext": "skipped: native KBD backend; change.md files carry per-change specs",
+  "skipped": true,
+  "skipReason": "native KBD backend; change.md files carry per-change specs"
+}

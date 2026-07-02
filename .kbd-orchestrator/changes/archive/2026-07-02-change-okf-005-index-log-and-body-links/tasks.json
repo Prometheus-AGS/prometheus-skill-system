@@ -1,0 +1,48 @@
+{
+  "changeId": "change-okf-005-index-log-and-body-links",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Ingest updates wiki-root index.md: catalog grouped by category, entries",
+      "done": true,
+      "doneAt": "2026-07-02T13:34:36Z",
+      "doneBy": "claude-code"
+    },
+    {
+      "id": "2",
+      "title": "Ingest appends to log.md: `## YYYY-MM-DD` groups, newest first, entry",
+      "done": true,
+      "doneAt": "2026-07-02T13:34:36Z",
+      "doneBy": "claude-code"
+    },
+    {
+      "id": "3",
+      "title": "Librarian prompts: write bundle-relative markdown body links",
+      "done": true,
+      "doneAt": "2026-07-02T13:34:37Z",
+      "doneBy": "claude-code"
+    },
+    {
+      "id": "4",
+      "title": "Librarian prompts: emit `# Citations` section mapped from sources",
+      "done": true,
+      "doneAt": "2026-07-02T13:34:38Z",
+      "doneBy": "claude-code"
+    },
+    {
+      "id": "5",
+      "title": "Link graph (search/focus) derives edges from body links; frontmatter",
+      "done": true,
+      "doneAt": "2026-07-02T13:34:39Z",
+      "doneBy": "claude-code"
+    },
+    {
+      "id": "6",
+      "title": "Verify: ingest twice → index.md lists both, log.md has dated entries,",
+      "done": true,
+      "doneAt": "2026-07-02T13:43:05Z",
+      "doneBy": "claude-code"
+    }
+  ]
+}

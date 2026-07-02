@@ -1,48 +1,29 @@
 {
   "schemaVersion": "1",
-  "updatedAt": "2026-06-29T16:25:59Z",
+  "updatedAt": "2026-07-02T17:09:42Z",
   "cursor": [
-    "phase-learn-feynman",
-    "phase-learn-sovereign-sync",
-    "phase-sovereign-sync-hardening"
+    "phase-okf-llm-wiki-adoption",
+    "change-okf-008-integration-verification"
   ],
   "root": {
     "type": "phase",
-    "id": "phase-learn-feynman",
-    "status": "active-parent",
+    "id": "phase-okf-llm-wiki-adoption",
+    "status": "execute_ready",
     "progress": {
-      "done": 4,
-      "total": 5
+      "done": 7,
+      "total": 8
     },
     "children": [
       {
-        "type": "phase",
-        "id": "phase-learn-sovereign-sync",
-        "status": "active-parent",
+        "type": "change",
+        "id": "change-okf-008-integration-verification",
+        "status": "PENDING",
         "progress": {
           "done": 0,
           "total": 0
-        },
-        "children": [
-          {
-            "type": "phase",
-            "id": "phase-sovereign-sync-hardening",
-            "status": "execute_ready",
-            "progress": {
-              "done": 0,
-              "total": 0
-            },
-            "children": []
-          }
-        ]
+        }
       }
     ],
-    "annotations": [
-      {
-        "source": "evolver",
-        "ref": ".evolver/",
-        "summary": "evolutions: none"
-      }
-    ]
+    "annotations": []
   }
 }

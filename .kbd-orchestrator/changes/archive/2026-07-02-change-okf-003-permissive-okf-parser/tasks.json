@@ -1,0 +1,48 @@
+{
+  "changeId": "change-okf-003-permissive-okf-parser",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Parse frontmatter into a permissive doc struct: only `type` required",
+      "done": true,
+      "doneAt": "2026-07-02T05:17:46Z",
+      "doneBy": "claude-code"
+    },
+    {
+      "id": "2",
+      "title": "Preserve unknown frontmatter keys on round-trip (serde_yaml Value map)",
+      "done": true,
+      "doneAt": "2026-07-02T05:18:01Z",
+      "doneBy": "claude-code"
+    },
+    {
+      "id": "3",
+      "title": "Derive missing pk fields: id from wiki-relative path, timestamps",
+      "done": true,
+      "doneAt": "2026-07-02T05:18:33Z",
+      "doneBy": "claude-code"
+    },
+    {
+      "id": "4",
+      "title": "Skip reserved filenames index.md and log.md in store load",
+      "done": true,
+      "doneAt": "2026-07-02T05:20:16Z",
+      "doneBy": "claude-code"
+    },
+    {
+      "id": "5",
+      "title": "Back-compat: legacy pk frontmatter (id/title/tags/links/...) still parses",
+      "done": true,
+      "doneAt": "2026-07-02T05:20:26Z",
+      "doneBy": "claude-code"
+    },
+    {
+      "id": "6",
+      "title": "Verify: unit tests — OKF minimal doc parses; legacy doc parses; unknown",
+      "done": true,
+      "doneAt": "2026-07-02T05:20:56Z",
+      "doneBy": "claude-code"
+    }
+  ]
+}

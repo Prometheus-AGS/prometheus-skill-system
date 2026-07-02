@@ -1,0 +1,34 @@
+{
+  "changeId": "change-okf-001-vendor-specs",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Copy inputs/okf-v0.1.md → shared/references/okf-v0.1.md",
+      "done": true,
+      "doneAt": "2026-07-02T04:42:33Z",
+      "doneBy": "claude-code"
+    },
+    {
+      "id": "2",
+      "title": "Copy inputs/llm-wiki-karpathy.md → shared/references/llm-wiki-pattern.md",
+      "done": true,
+      "doneAt": "2026-07-02T04:42:54Z",
+      "doneBy": "claude-code"
+    },
+    {
+      "id": "3",
+      "title": "Add CLAUDE.md section: OKF v0.1 adoption decision + cross-repo ownership",
+      "done": true,
+      "doneAt": "2026-07-02T04:43:49Z",
+      "doneBy": "claude-code"
+    },
+    {
+      "id": "4",
+      "title": "Verify: npm run validate passes; both reference files render clean",
+      "done": true,
+      "doneAt": "2026-07-02T04:44:22Z",
+      "doneBy": "claude-code"
+    }
+  ]
+}

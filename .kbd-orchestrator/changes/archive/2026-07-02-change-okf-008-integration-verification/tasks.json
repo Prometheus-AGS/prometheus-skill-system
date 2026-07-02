@@ -1,0 +1,42 @@
+{
+  "changeId": "change-okf-008-integration-verification",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Verify pk-focus/pk-health/pk-lint hooks against OKF-format KB output",
+      "done": true,
+      "doneAt": "2026-07-02T16:40:33Z",
+      "doneBy": "claude-code"
+    },
+    {
+      "id": "2",
+      "title": "Verify knowledge_search/knowledge_get/knowledge_ingest MCP tools (:8942)",
+      "done": true,
+      "doneAt": "2026-07-02T17:05:37Z",
+      "doneBy": "claude-code",
+      "notes": "MCP e2e verified end-to-end: rebuilt+installed pk-cherry (7.5MB->29MB OKF binary) at /usr/local/bin, added missing LLM env (CLOUD_LLM_URL/LOCAL_LLM_URL->127.0.0.1:8181 + PK_*_MODEL) to ~/Library/LaunchAgents/ai.prometheus.pk-cherry.plist (was absent since Jun28 — pre-existing deploy gap, plist backed up), reloaded service. knowledge_ingest via MCP produced a conformant OKF entry with body links + Citations + index.md/log.md maintenance. Old pk + plist backed up in ~/.prometheus/backups/."
+    },
+    {
+      "id": "3",
+      "title": "E2E: pk ingest a real source → index.md + log.md updated → pk focus/query",
+      "done": true,
+      "doneAt": "2026-07-02T17:05:37Z",
+      "doneBy": "claude-code"
+    },
+    {
+      "id": "4",
+      "title": "Draft BDD feature under tests/features/drafts/ covering ingest round-trip",
+      "done": true,
+      "doneAt": "2026-07-02T17:09:00Z",
+      "doneBy": "claude-code"
+    },
+    {
+      "id": "5",
+      "title": "Verify: all 5 phase goals re-checked against goals.md; results recorded",
+      "done": true,
+      "doneAt": "2026-07-02T17:09:42Z",
+      "doneBy": "claude-code"
+    }
+  ]
+}

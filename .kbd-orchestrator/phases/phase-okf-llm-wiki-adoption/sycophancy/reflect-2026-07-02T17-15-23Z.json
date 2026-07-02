@@ -1,0 +1,12 @@
+{
+  "tool": "detect_sycophancy (fallback)",
+  "note": "analyze_reflect_phase LLM backend returned 401 (its own env gap); used pattern-based detect_sycophancy at strict per the graceful-degradation contract",
+  "target": "completion",
+  "strictness": "strict",
+  "evaluation_domain": "pmpo_reflect_phase",
+  "sycophancy_score": 0.0,
+  "correction_mandatory": false,
+  "classifications": [],
+  "s08_detected": false,
+  "executed_at": "2026-07-02T17:15:23.920638Z"
+}

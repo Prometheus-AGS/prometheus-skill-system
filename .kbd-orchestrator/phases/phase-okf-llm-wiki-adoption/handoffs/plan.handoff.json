@@ -1,0 +1,11 @@
+{
+  "stage": "plan",
+  "completedAt": "2026-07-02T04:28:39Z",
+  "outputs": [
+    "plan.md"
+  ],
+  "nextStage": "execute",
+  "summaryForNext": "8 changes, dependency-ordered in 5 rounds; parser-before-writer is the load-bearing ordering (003 before 004); first change change-okf-001-vendor-specs (Round 1 parallel with 002 pk-workspace clone). Cross-repo: 003-006 land in prometheus-knowledge-rs.",
+  "skipped": false,
+  "skipReason": null
+}

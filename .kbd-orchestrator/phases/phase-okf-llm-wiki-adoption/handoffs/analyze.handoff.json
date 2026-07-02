@@ -1,0 +1,9 @@
+{
+  "stage": "analyze",
+  "completedAt": "2026-07-02T04:28:39Z",
+  "outputs": [],
+  "nextStage": "spec",
+  "summaryForNext": "skipped: no library-adoption question in scope: OKF format work is bespoke to pk; no candidates to evaluate",
+  "skipped": true,
+  "skipReason": "no library-adoption question in scope: OKF format work is bespoke to pk; no candidates to evaluate"
+}

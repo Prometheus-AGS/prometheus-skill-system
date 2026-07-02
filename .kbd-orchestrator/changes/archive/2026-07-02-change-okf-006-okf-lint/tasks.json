@@ -1,0 +1,41 @@
+{
+  "changeId": "change-okf-006-okf-lint",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Error: unparseable frontmatter; empty/missing type on non-reserved .md",
+      "done": true,
+      "doneAt": "2026-07-02T14:26:58Z",
+      "doneBy": "claude-code"
+    },
+    {
+      "id": "2",
+      "title": "Warning: missing recommended fields; broken cross-links; orphan pages;",
+      "done": true,
+      "doneAt": "2026-07-02T14:26:59Z",
+      "doneBy": "claude-code"
+    },
+    {
+      "id": "3",
+      "title": "Reserved-file structure checks (index.md no frontmatter except bundle",
+      "done": true,
+      "doneAt": "2026-07-02T14:27:00Z",
+      "doneBy": "claude-code"
+    },
+    {
+      "id": "4",
+      "title": "Auto-fixables wired into pk lint --fix (e.g. derive title from filename)",
+      "done": true,
+      "doneAt": "2026-07-02T14:27:00Z",
+      "doneBy": "claude-code"
+    },
+    {
+      "id": "5",
+      "title": "Verify: lint fixture bundle — conformant passes clean; violations",
+      "done": true,
+      "doneAt": "2026-07-02T15:06:47Z",
+      "doneBy": "claude-code"
+    }
+  ]
+}

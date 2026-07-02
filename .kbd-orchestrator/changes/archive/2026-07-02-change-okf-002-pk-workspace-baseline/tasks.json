@@ -1,0 +1,35 @@
+{
+  "changeId": "change-okf-002-pk-workspace-baseline",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "git clone https://github.com/Prometheus-AGS/prometheus-knowledge-rs.git",
+      "done": true,
+      "doneAt": "2026-07-02T04:46:37Z",
+      "doneBy": "claude-code"
+    },
+    {
+      "id": "2",
+      "title": "cargo build --workspace and cargo test --workspace baseline; record results",
+      "done": true,
+      "doneAt": "2026-07-02T05:03:03Z",
+      "doneBy": "claude-code"
+    },
+    {
+      "id": "3",
+      "title": "Diagnose pk ingest LLM parse failure (timeboxed ~2h): fix if shallow,",
+      "done": true,
+      "doneAt": "2026-07-02T05:11:52Z",
+      "doneBy": "claude-code",
+      "notes": "DIAGNOSED, NOT FIXED: intermittent (~1/15 runs) failure, not deterministic, not tied to stdin vs file ingestion. Root cause: local openai-proxy (127.0.0.1:8181, sibling repo ~/Projects/prometheus/openai-proxy) occasionally returns HTTP 200 with a body that does not deserialize into ChatResponse{choices:[...]}. Fresh HEAD build of prometheus-knowledge-rs and the previously-installed pk binary both succeed the large majority of the time with byte-identical input, ruling out a pk-store/pk-librarian code defect as the primary cause. Follow-up spawned (task_cd8745ba) against openai-proxy. Implication for change-okf-008: treat isolated pk ingest failures as expected background flakiness, retry once before treating as a blocker."
+    },
+    {
+      "id": "4",
+      "title": "Verify: pk --version from locally built binary; baseline test results recorded",
+      "done": true,
+      "doneAt": "2026-07-02T05:12:18Z",
+      "doneBy": "claude-code"
+    }
+  ]
+}

@@ -1,10 +1,15 @@
 POSITION REMINDER — read this as your FIRST tool call every turn
-Phase: phase-first-user-onboarding
-Step: 2 of 2
-Stage: closed
-Next command: unknown
+Phase: phase-okf-llm-wiki-adoption — CLOSED (reflect_complete)
+Stage: reflect
+Goals: 5 of 5 MET (baseline 0/5)
+Changes: 8 of 8 done + archived
 
-Required signal format (emit BEFORE any tool call):
-  Starting <kbd-skill> — phase-first-user-onboarding (step 2 of 2)
-  [do work]
-  Completed <kbd-skill> — phase-first-user-onboarding (step 2 of 2)
+The OKF v0.1 adoption phase is complete and deployed:
+- Format layer pushed to prometheus-knowledge-rs origin/main (91aee74..231a5be)
+- Skill layer: skills/documentation/llm-wiki/ (this repo)
+- pk + pk-cherry installed; MCP server (ai.prometheus.pk-cherry) redeployed with
+  the OKF engine + LLM env fix in its launchd plist.
+
+Reflection: phases/phase-okf-llm-wiki-adoption/reflection.md (gate 0.0, no S-08).
+Recommended next phase: phase-okf-push-and-harden (BDD step defs + CI, proxy
+flake resolution, KB delete/GC). Start with: /kbd-assess <next-phase>.

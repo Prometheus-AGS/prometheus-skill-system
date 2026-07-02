@@ -1,0 +1,10 @@
+{
+  "tool": "detect_sycophancy",
+  "target": "completion",
+  "strictness": "standard",
+  "evaluation_domain": "pmpo_plan_phase",
+  "sycophancy_score": 0.0,
+  "correction_mandatory": false,
+  "classifications": [],
+  "executed_at": "2026-07-02T04:26:30.877948Z"
+}
