@@ -1,0 +1,41 @@
+{
+  "changeId": "change-learn-004b",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Define `StorageProvider` trait with `read`, `write`, `merge`, `list`, and `watch` methods",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "2",
+      "title": "Define `CrdtEngine` trait with `apply`, `merge_docs`, and `export_state` methods",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "3",
+      "title": "Implement `LocalDirAdapter` (read/write JSON files from a configurable base path)",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "4",
+      "title": "Implement `automerge-rs` `CrdtEngine` backed by the schema from change-learn-001",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "5",
+      "title": "Add `IrohDocsAdapter` stub with `unimplemented!()` bodies and a TODO comment linking the Iroh Docs RFC",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    }
+  ]
+}

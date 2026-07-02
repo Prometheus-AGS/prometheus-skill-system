@@ -1,0 +1,41 @@
+{
+  "changeId": "change-learn-007",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Write `skills/learn/learn-goal/SKILL.md` with `/learn-goal` entry command, argument spec, and output contract",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "2",
+      "title": "Implement corpus assembly sub-step: invoke `content-grounding.sh` with subject and budget from user input",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "3",
+      "title": "Implement `--kb` flag routing to `content-grounding-kb.sh` when a custom knowledge base is specified",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "4",
+      "title": "Implement feasibility gate with RED (goal unachievable), YELLOW (partially achievable), GREEN (achievable) thresholds and criteria",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "5",
+      "title": "Route feasibility assessment through `sycophancy-correction` (S-01 check) before presenting result to user",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    }
+  ]
+}

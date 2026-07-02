@@ -1,0 +1,41 @@
+{
+  "changeId": "change-learn-008",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Write `skills/learn/learn-survey/SKILL.md` with invocation contract, input (corpus from learn-goal), and output spec",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "2",
+      "title": "Generate diagnostic items from corpus: conceptual questions, procedural tasks, and misconception probe prompts",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "3",
+      "title": "Render items via ui-surface at Tier 1 (preferred); degrade to Tier 0 if unavailable",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "4",
+      "title": "Produce `survey-result.json` with `recursion_floor` (minimum Feynman depth), `mastery_priors` per concept, and confidence intervals",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "5",
+      "title": "Write `learner_model_seed` to the learner-model crate via the JSON RPC shell interface from change-learn-005",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    }
+  ]
+}

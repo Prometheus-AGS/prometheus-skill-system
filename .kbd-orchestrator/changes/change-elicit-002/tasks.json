@@ -1,0 +1,20 @@
+{
+  "changeId": "change-elicit-002",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Write `references/escalation-points.md` with all four sections",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "2",
+      "title": "`npm run validate:strict skills/process/pmpo-elicit` passes clean",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    }
+  ]
+}

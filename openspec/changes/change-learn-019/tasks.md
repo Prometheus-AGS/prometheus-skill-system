@@ -1,7 +1,0 @@
-# Tasks — change-learn-019
-
-- [ ] Write `substrate/surface-bridge/` Rust crate scaffold: `Cargo.toml` (axum, tokio, serde, serde_json, mcp-sdk or rmcp dependencies), `src/main.rs` with Axum router setup and graceful shutdown
-- [ ] Implement `detect_surface_tier` MCP tool: probe the environment for Tier 2 capability (check if HTML rendering is available), return a tier string (`"tier0"` | `"tier1"` | `"tier2"`) as JSON
-- [ ] Implement `render_ui_intent` MCP tool: accept an intent descriptor (JSON), render an A2UI HTML shell to a temp file or embedded HTTP route, return the URL the operator should open
-- [ ] Implement `collect_response` MCP tool: accept a session ID, poll an in-memory store for the operator's submitted response (written by the HTML shell via a POST endpoint), return the response JSON when available or a timeout sentinel
-- [ ] Write `substrate/surface-bridge/launchd/com.prometheus.surface-bridge.plist` for macOS service installation, referencing the release binary path `~/.prometheus/bin/surface-bridge`

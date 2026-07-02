@@ -1,0 +1,41 @@
+{
+  "changeId": "change-learn-020",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Create `skills/learn/` directory and write `skills/learn/README.md` with domain overview, skill list table (name, purpose, entry command), and a skill dependency diagram (text-based or Mermaid) showing the learn loop flow",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "2",
+      "title": "Add `learn` domain entry to `marketplace/marketplace.json` (domain name, description, skill count placeholder, tags: `[\"learning\", \"feynman\", \"spaced-repetition\", \"knowledge-base\"]`)",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "3",
+      "title": "Add `learn` to the skill category list in `.claude-plugin/plugin.json` so the plugin marketplace surfaces learn-domain skills",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "4",
+      "title": "Update `scripts/validate-skills.js` (or the npm validate script config) to include `skills/learn/` in the `validate:strict` sweep — confirm `npm run validate:strict` exits 0 on the empty domain directory",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "5",
+      "title": "Add `learn` row to the skills table in the top-level `README.md` (columns: domain, description, example skills, install path)",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    }
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "changeId": "change-learn-001",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Define `learner_model_seed` JSON schema covering all fields (concept_states, fsrs_cards, gap_records, mastery_priors, metadata)",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "2",
+      "title": "Document CRDT field-level merge strategy for every field (LWW, max, set-union, or custom)",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "3",
+      "title": "Write 3 worked conflict resolution examples showing before/after merge for realistic divergent states",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "4",
+      "title": "Define PFA update rule triggered at ≥ 5 observations (formula, inputs, output fields)",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "5",
+      "title": "Review schema doc against conflict semantics doc for consistency and flag any gaps",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    }
+  ]
+}

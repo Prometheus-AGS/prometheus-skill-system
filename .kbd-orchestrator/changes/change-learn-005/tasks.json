@@ -1,0 +1,41 @@
+{
+  "changeId": "change-learn-005",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Define `LearnerModel`, `ConceptState`, `FSRSCard`, and `GapRecord` types matching the schema from change-learn-001",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "2",
+      "title": "Implement automerge document backend using the `CrdtEngine` trait from change-learn-004b",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "3",
+      "title": "Implement `seed_from_survey()` — cold-start from LLM-derived mastery priors when no prior data exists",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "4",
+      "title": "Integrate `fsrs-rs` for card scheduling (due-date calculation, `next_states()`, stability/difficulty tracking)",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "5",
+      "title": "Expose MCP-callable JSON RPC shell interface (`learner-model-cli`) for read/write/query from skill scripts",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    }
+  ]
+}

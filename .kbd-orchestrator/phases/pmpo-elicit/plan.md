@@ -2,7 +2,7 @@
 
 **Phase:** pmpo-elicit
 **Planned:** 2026-06-28
-**Backend:** OpenSpec (`openspec/changes/change-elicit-NNN/`)
+**Backend:** native-kbd (`.kbd-orchestrator/changes/change-elicit-NNN/`) — migrated from OpenSpec 2026-07-02
 **Changes:** 6
 
 ---
@@ -289,4 +289,4 @@ Changes 004, 005, 006 can be parallelized after 003 completes.
 
 **change-elicit-001** — `scripts/pmpo-elicit-checkpoint.sh` + `scripts/pmpo-elicit-resume.sh` + `references/checkpoint-contract.md`
 
-See `openspec/changes/change-elicit-001/proposal.md` for full specification.
+See `.kbd-orchestrator/changes/change-elicit-001/change.md` for full specification.

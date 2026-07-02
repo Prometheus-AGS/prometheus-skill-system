@@ -1,0 +1,41 @@
+{
+  "changeId": "change-learn-017",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Write `skills/learn/learn-about-system/SKILL.md` with frontmatter, overview, `--area` flag documentation (`kbd` | `skills` | `harness`), and interactive mode description",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "2",
+      "title": "Implement interactive discovery mode (no args): use `AskUserQuestion` to elicit the operator's interest area, then branch to the appropriate `--area` path",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "3",
+      "title": "Implement `--area kbd` path: load `kbd-lifecycle-corpus.json` as the active KB, invoke `learn-goal` with that corpus, and emit a session start message explaining the self-teaching loop",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "4",
+      "title": "Implement `--area skills` path: survey skill domains by reading `skills/` directory structure, surface the five most relevant skills for the operator's stated goal using a brief elicitation exchange",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "5",
+      "title": "Document the self-teaching loop pattern in `skills/learn/learn-about-system/references/self-teaching-loop.md` (how the skill pack teaches itself using its own learning infrastructure, entry → goal → survey → feynman → grade → retain cycle)",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    }
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "changeId": "change-001-native-kbd-backend",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Write change-tasks.schema.json",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "2",
+      "title": "Add nk_* adapter functions + backend_detect fallback + specBackend honoring",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "3",
+      "title": "Wire native-kbd into b_* dispatch arms",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "4",
+      "title": "Write native-backend.md + spec-backend-interface.md row",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    },
+    {
+      "id": "5",
+      "title": "Write test-kbd-apply-native.sh; run green",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null
+    }
+  ]
+}
