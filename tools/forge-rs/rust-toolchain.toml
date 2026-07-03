@@ -1,0 +1,7 @@
+# Pin the forge-rs workspace to stable, matching CI (dtolnay/rust-toolchain@stable
+# in .github/workflows/validate.yml). Without this, contributors on a nightly
+# default toolchain get fmt/clippy results that diverge from CI (nightly lint sets
+# and rustfmt rules differ), producing "green locally, red in CI" surprises.
+[toolchain]
+channel = "stable"
+components = ["rustfmt", "clippy"]
