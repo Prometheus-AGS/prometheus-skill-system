@@ -1,15 +1,13 @@
 POSITION REMINDER — read this as your FIRST tool call every turn
-Phase: phase-okf-llm-wiki-adoption — CLOSED (reflect_complete)
-Stage: reflect
-Goals: 5 of 5 MET (baseline 0/5)
-Changes: 8 of 8 done + archived
+Phase: phase-ci-all-green — CLOSED (reflect_complete)
+Stage: reflect · Goals: 1 of 1 MET · Changes: 5 of 5 done
+Reflection gate: 0.0 (strict, no S-08).
 
-The OKF v0.1 adoption phase is complete and deployed:
-- Format layer pushed to prometheus-knowledge-rs origin/main (91aee74..231a5be)
-- Skill layer: skills/documentation/llm-wiki/ (this repo)
-- pk + pk-cherry installed; MCP server (ai.prometheus.pk-cherry) redeployed with
-  the OKF engine + LLM env fix in its launchd plist.
+OUTCOME (verified): validate.yml all-green on main (57ec9ef) → all 4
+"Validate Skills" README badges are GREEN.
 
-Reflection: phases/phase-okf-llm-wiki-adoption/reflection.md (gate 0.0, no S-08).
-Recommended next phase: phase-okf-push-and-harden (BDD step defs + CI, proxy
-flake resolution, KB delete/GC). Start with: /kbd-assess <next-phase>.
+Carry-forward (NOT done): cross-model-qa.yml still red (unbadged);
+forge-mcp bearer auth constant-time TODO; local stable toolchain pin.
+
+Recommended next phase: phase-ci-cross-model-qa-and-hardening.
+Next: /kbd-assess phase-ci-cross-model-qa-and-hardening

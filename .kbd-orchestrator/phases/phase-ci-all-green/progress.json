@@ -1,0 +1,60 @@
+{
+  "phase": "phase-ci-all-green",
+  "stage": "reflect",
+  "assessment_complete": true,
+  "analyze_complete": false,
+  "plan_complete": true,
+  "changes_total": 5,
+  "changes_completed": 5,
+  "goals_total": 1,
+  "goals_met": 1,
+  "goals": [
+    "All README status badges / validate.yml CI jobs are GREEN on main"
+  ],
+  "changes": [
+    {
+      "id": "change-green-001",
+      "title": "Check Formatting \u2192 green (prettier ignore site/ + write ~17)",
+      "job": "Check Formatting",
+      "gap": "GAP-3",
+      "risk": "low",
+      "status": "done"
+    },
+    {
+      "id": "change-green-002",
+      "title": "forge-rs cargo fmt",
+      "job": "forge-rs-test",
+      "gap": "GAP-2a",
+      "risk": "low",
+      "status": "done"
+    },
+    {
+      "id": "change-green-003",
+      "title": "forge-rs clippy + tests green",
+      "job": "forge-rs-test",
+      "gap": "GAP-2b",
+      "risk": "medium",
+      "status": "done"
+    },
+    {
+      "id": "change-green-004",
+      "title": "BDD tsx loader + exclude drafts",
+      "job": "bdd-test",
+      "gap": "GAP-1a",
+      "risk": "low-medium",
+      "status": "done"
+    },
+    {
+      "id": "change-green-005",
+      "title": "forge validate/enrich behavior \u2192 BDD passes (exit codes)",
+      "job": "bdd-test",
+      "gap": "GAP-1b",
+      "risk": "high",
+      "status": "done"
+    }
+  ],
+  "last_updated": "2026-07-03",
+  "reflect_complete": true,
+  "sycophancy_gate": 0.0,
+  "status": "reflect_complete"
+}
