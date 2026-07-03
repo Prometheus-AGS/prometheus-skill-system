@@ -12,7 +12,19 @@
       "description": "Complete skill package with React entity management, GitOps CI/CD, KBD process orchestration, strategic evolution (pmpo-evolver + Darwin idea gate), goal tracking, and BDD testing — with surreal-memory distributed state",
       "source": ".",
       "version": "1.5.0",
-      "tags": ["react", "entity-management", "gitops", "devops", "process-orchestration", "pmpo", "pmpo-evolver", "strategic-evolution", "darwin-idea-gate", "bdd-testing", "surreal-memory"],
+      "tags": [
+        "react",
+        "entity-management",
+        "gitops",
+        "devops",
+        "process-orchestration",
+        "pmpo",
+        "pmpo-evolver",
+        "strategic-evolution",
+        "darwin-idea-gate",
+        "bdd-testing",
+        "surreal-memory"
+      ],
       "category": "productivity"
     },
     {
@@ -20,7 +32,14 @@
       "description": "React entity management skill suite: setup, CRUD, GraphQL, Prisma, realtime, and optimization",
       "source": "./skills/react/prometheus-entity-skills",
       "version": "1.5.0",
-      "tags": ["react", "entity-management", "crud", "graphql", "prisma", "realtime"],
+      "tags": [
+        "react",
+        "entity-management",
+        "crud",
+        "graphql",
+        "prisma",
+        "realtime"
+      ],
       "category": "frontend"
     },
     {
@@ -28,7 +47,17 @@
       "description": "KBD process orchestration, strategic evolution (pmpo-evolver: 5 perspectives + Darwin idea validation), goal tracking (kbd-goal/kbd-goal-check), outer loop, elicit, and PMPO skill creation",
       "source": "./skills/process",
       "version": "1.5.0",
-      "tags": ["process", "orchestration", "pmpo", "kbd", "evolution", "pmpo-evolver", "competitive-analysis", "idea-validation", "goal-tracking"],
+      "tags": [
+        "process",
+        "orchestration",
+        "pmpo",
+        "kbd",
+        "evolution",
+        "pmpo-evolver",
+        "competitive-analysis",
+        "idea-validation",
+        "goal-tracking"
+      ],
       "category": "productivity"
     },
     {
@@ -36,7 +65,14 @@
       "description": "Multi-cloud GitOps CI/CD: bootstrap, transform, ArgoCD, Kustomize overlays following TJ-CICD-001",
       "source": "./skills/devops",
       "version": "1.5.0",
-      "tags": ["gitops", "devops", "argocd", "kustomize", "github-actions", "multi-cloud"],
+      "tags": [
+        "gitops",
+        "devops",
+        "argocd",
+        "kustomize",
+        "github-actions",
+        "multi-cloud"
+      ],
       "category": "devops"
     },
     {
@@ -52,7 +88,15 @@
       "description": "Feynman-Spine learning and education capability",
       "source": "./skills/learn",
       "version": "1.5.0",
-      "tags": ["learning", "feynman", "spaced-repetition", "fsrs", "education", "credential", "w3c-vc"],
+      "tags": [
+        "learning",
+        "feynman",
+        "spaced-repetition",
+        "fsrs",
+        "education",
+        "credential",
+        "w3c-vc"
+      ],
       "category": "productivity"
     },
     {
@@ -60,7 +104,15 @@
       "description": "Package native agents as LibreFang/bossfang WASM skills, upload them to a bossfang URL with SSRF-guarded /upload-to-bossfang, and chain ideation→deploy with /start-business-build. Includes the librefang-wasm-skill template, native-agent --target librefang-wasm support, and the headline orchestrator.",
       "source": "./skills/rust/librefang-wasm-skill",
       "version": "1.5.0",
-      "tags": ["librefang", "bossfang", "wasm", "wasmtime", "agent-os", "ssrf-guard", "deploy"],
+      "tags": [
+        "librefang",
+        "bossfang",
+        "wasm",
+        "wasmtime",
+        "agent-os",
+        "ssrf-guard",
+        "deploy"
+      ],
       "category": "productivity"
     }
   ]

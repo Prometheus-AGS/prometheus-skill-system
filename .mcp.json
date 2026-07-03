@@ -21,7 +21,13 @@
     },
     "liter-llm": {
       "command": "liter-llm",
-      "args": ["mcp", "--transport", "stdio", "--config", "${LITER_LLM_CONFIG:-${HOME}/.config/liter-llm/liter-llm-proxy.toml}"],
+      "args": [
+        "mcp",
+        "--transport",
+        "stdio",
+        "--config",
+        "${LITER_LLM_CONFIG:-${HOME}/.config/liter-llm/liter-llm-proxy.toml}"
+      ],
       "description": "Multi-model routing proxy — 22 MCP tools across 140+ providers with per-phase model class routing (default config routes through the local openai-proxy at :8181)"
     },
     "tavily": {

@@ -28,5 +28,12 @@ tools/prometheus-cli/target
 tools/prometheus-cli/Cargo.lock
 tools/surreal-memory-server
 marketplace/marketplace.json
+# Generated Docusaurus output — build artifacts, never hand-edited.
+site/.docusaurus
+site/build
+# BDD step definitions are immutable (see CLAUDE.md BDD rule) and test
+# fixtures/corpus are content-sensitive — formatting them could alter data
+# that tests assert against. Exclude the whole tests/ tree from prettier.
+tests
 *.lock
 *.template.json
