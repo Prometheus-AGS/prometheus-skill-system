@@ -84,8 +84,6 @@ const kbdTool = tool({
   },
 });
 
-
-
 const kbdCloseTool = tool({
   description: kbdCloseToolDef.description,
   args: {

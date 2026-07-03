@@ -38,15 +38,11 @@ export default {
       },
       summary_text: {
         type: 'string',
-        description:
-          'Inline summary text. If provided, takes precedence over file/stdin.',
+        description: 'Inline summary text. If provided, takes precedence over file/stdin.',
       },
     },
   },
-  execute: async (
-    args: Record<string, unknown>,
-    context: { directory: string }
-  ) => {
+  execute: async (args: Record<string, unknown>, context: { directory: string }) => {
     const { summary_file, source_tag, summary_text } = args as {
       summary_file?: string;
       source_tag?: string;
@@ -67,7 +63,7 @@ export default {
     }
 
     // Spawn the wrapper; it always exits 0 and logs to ~/.prometheus/logs/kbd-close.log
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       const child = spawn(WRAPPER, summary_file ? [summary_file] : [], {
         env: {
           ...process.env,
@@ -83,9 +79,9 @@ export default {
       }
       let stdout = '';
       let stderr = '';
-      child.stdout.on('data', (d) => (stdout += d.toString()));
-      child.stderr.on('data', (d) => (stderr += d.toString()));
-      child.on('close', (code) => {
+      child.stdout.on('data', d => (stdout += d.toString()));
+      child.stderr.on('data', d => (stderr += d.toString()));
+      child.on('close', code => {
         resolve({
           action: 'kbd-close',
           wrapper: WRAPPER,
