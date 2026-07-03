@@ -18,9 +18,7 @@
 
 use anyhow::{Context, Result};
 use chrono::Utc;
-use forge_core::{
-    Constitution, ConstitutionWarning, EnrichmentContext, Language, Severity, SkillManifest,
-};
+use forge_core::{Constitution, ConstitutionWarning, EnrichmentContext, Language};
 use forge_skills::SkillRegistry;
 use std::collections::{HashMap, HashSet};
 use std::path::{Path, PathBuf};
@@ -81,9 +79,7 @@ impl Enricher {
 
         // 3. Check constitution
         let constitution = self.constitutions.get(&language);
-        let constitution_summary = constitution
-            .map(|c| summarize_constitution(c))
-            .unwrap_or_default();
+        let constitution_summary = constitution.map(summarize_constitution).unwrap_or_default();
         let constitution_warnings = constitution
             .map(|c| check_constitution(c, &task.description))
             .unwrap_or_default();
@@ -291,7 +287,7 @@ pub fn load_constitutions(constitution_dir: &Path) -> Result<HashMap<Language, C
     }
     for entry in std::fs::read_dir(constitution_dir)? {
         let path = entry?.path();
-        if path.extension().map_or(false, |e| e == "toml") {
+        if path.extension().is_some_and(|e| e == "toml") {
             let raw = std::fs::read_to_string(&path)?;
             let constitution: Constitution = toml::from_str(&raw)
                 .with_context(|| format!("parsing constitution {}", path.display()))?;

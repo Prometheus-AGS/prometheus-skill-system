@@ -17,7 +17,7 @@ static ALLOC: tikv_jemallocator::Jemalloc = tikv_jemallocator::Jemalloc;
 
 use anyhow::{Context as _, Result};
 use clap::{Parser, Subcommand};
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 #[derive(Parser)]
 #[command(
@@ -198,7 +198,7 @@ async fn main() -> Result<()> {
             println!("   Ingested to prometheus-knowledge ✅");
         }
 
-        Commands::Drift { language } => {
+        Commands::Drift { language: _ } => {
             let drift_dir = cli.project_root.join(".forge").join("memory").join("drift");
             if !drift_dir.exists() {
                 println!("No drift data yet. Run `forge reflect` after completing iterations.");
@@ -483,7 +483,7 @@ fn package_librefang(agent_dir: &PathBuf, no_build: bool, output: Option<PathBuf
     Ok(())
 }
 
-fn scaffold_forge_dir(project_root: &PathBuf) -> Result<()> {
+fn scaffold_forge_dir(project_root: &Path) -> Result<()> {
     let dirs = [
         ".forge/constitution",
         ".forge/enriched",

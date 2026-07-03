@@ -16,10 +16,9 @@ use axum::{
     routing::{get, post},
     Router,
 };
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
 use serde_json::{json, Value};
 use std::sync::Arc;
-use tokio::sync::broadcast;
 use tower_http::validate_request::ValidateRequestHeaderLayer;
 
 pub struct ForgeServer {
@@ -81,11 +80,17 @@ impl ForgeServer {
             pk_mcp_url: self.pk_mcp_url,
         });
 
+        // TODO(security): ValidateRequestHeaderLayer::bearer is deprecated in
+        // tower-http 0.6 ("too basic for real applications"). It still performs a
+        // correct exact-match check, but the comparison is not constant-time.
+        // Replace with a custom ValidateRequest impl using subtle::ConstantTimeEq
+        // over the bearer token — matters most if this server is ever bound to
+        // 0.0.0.0 rather than the 127.0.0.1 default.
+        #[allow(deprecated)]
+        let auth_layer = ValidateRequestHeaderLayer::bearer(&token);
+
         let app = Router::new()
-            .route(
-                "/mcp",
-                post(handle_mcp).layer(ValidateRequestHeaderLayer::bearer(&token)),
-            )
+            .route("/mcp", post(handle_mcp).layer(auth_layer))
             .route("/health", get(health))
             .with_state(state);
 
@@ -106,6 +111,9 @@ struct ServerState {
 
 #[derive(Deserialize)]
 struct McpRequest {
+    /// JSON-RPC 2.0 version tag ("2.0"). Deserialized to document the wire
+    /// contract (and reject payloads missing it); not used in dispatch logic.
+    #[allow(dead_code)]
     jsonrpc: String,
     id: Option<Value>,
     method: String,

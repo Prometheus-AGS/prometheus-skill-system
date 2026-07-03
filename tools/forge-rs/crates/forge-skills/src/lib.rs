@@ -6,7 +6,7 @@
 //! given task, and renders Tera templates with task context.
 
 use anyhow::{Context, Result};
-use forge_core::{EnrichmentContext, Language, RenderedTemplate, SkillManifest, SkillTrigger};
+use forge_core::{Language, RenderedTemplate, SkillManifest, SkillTrigger};
 use std::collections::{HashMap, HashSet};
 use std::path::{Path, PathBuf};
 use tera::Tera;
@@ -113,7 +113,7 @@ impl SkillRegistry {
         let mut rendered = Vec::new();
 
         for manifest in skills {
-            let (_, template_dir) = match self.skills.get(&manifest.name) {
+            let (_, _template_dir) = match self.skills.get(&manifest.name) {
                 Some(entry) => entry,
                 None => {
                     warn!(
@@ -125,7 +125,6 @@ impl SkillRegistry {
             };
 
             for template_ref in &manifest.templates {
-                let template_path = template_dir.join(&template_ref.path);
                 let template_name = format!("{}/{}", manifest.name, template_ref.path);
 
                 match self.tera.render(
@@ -179,7 +178,7 @@ fn load_from_dir(
                 WalkDir::new(&templates_dir)
                     .into_iter()
                     .filter_map(|e| e.ok())
-                    .filter(|e| e.path().extension().map_or(false, |ext| ext == "tera"))
+                    .filter(|e| e.path().extension().is_some_and(|ext| ext == "tera"))
                     .map(|e| {
                         let path = e.path().to_owned();
                         let name = format!(
@@ -226,7 +225,7 @@ fn skill_applies(
 
 fn topological_sort<'a>(
     mut skills: Vec<&'a SkillManifest>,
-    registry: &HashMap<String, (SkillManifest, PathBuf)>,
+    _registry: &HashMap<String, (SkillManifest, PathBuf)>,
 ) -> Vec<&'a SkillManifest> {
     let mut result: Vec<&SkillManifest> = Vec::new();
     let mut placed: HashSet<String> = HashSet::new();
@@ -257,7 +256,7 @@ fn topological_sort<'a>(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use forge_core::{Language, SkillManifest, SkillTrigger, TemplateRef};
+    use forge_core::{Language, SkillManifest, SkillTrigger};
     use std::collections::{HashMap, HashSet};
     use std::path::PathBuf;
 

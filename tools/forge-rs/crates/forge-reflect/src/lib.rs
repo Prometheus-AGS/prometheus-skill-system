@@ -6,9 +6,7 @@
 
 use anyhow::{Context, Result};
 use chrono::Utc;
-use forge_core::{
-    DriftReport, DriftType, IterationRecord, Language, SkillDrift, SkillDriftSummary,
-};
+use forge_core::{DriftReport, DriftType, IterationRecord, Language, SkillDriftSummary};
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 use tracing::info;
@@ -64,7 +62,10 @@ impl Reflector {
             .join("enriched")
             .join(format!("{}.context.md", iteration_id));
 
-        let task_description = if context_path.exists() {
+        // NOTE: computed but not yet threaded into IterationRecord (no field for
+        // it today). Prefixed to satisfy clippy -D warnings without changing the
+        // stub's current behavior; wire it into the record when the field lands.
+        let _task_description = if context_path.exists() {
             std::fs::read_to_string(&context_path)?
         } else {
             format!("Iteration {}", iteration_id)
