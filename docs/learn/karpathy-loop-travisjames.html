@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Karpathy Loop — travisjames.ai</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&family=Roboto:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root.dark, .dark {
+  --background: 11 15 20;
+  --foreground: 232 237 243;
+  --card: 15 22 32;
+  --card-foreground: 232 237 243;
+  --muted: 20 28 38;
+  --muted-foreground: 167 176 188;
+  --border: 35 48 65;
+  --primary: 255 106 61;
+  --primary-foreground: 11 15 20;
+  --secondary: 26 36 50;
+  --secondary-foreground: 232 237 243;
+  --accent: 42 27 23;
+  --accent-foreground: 255 177 153;
+  --info: 96 165 250;
+  --success: 34 197 94;
+  --warning: 245 158 11;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: rgb(var(--background));
+  color: rgb(var(--foreground));
+  font-family: 'Roboto', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+::selection { background: rgba(var(--primary), .28); color: rgb(var(--foreground)); }
+
+h1, h2, h3, h4 { font-family: 'Space Grotesk', sans-serif; font-weight: 700; letter-spacing: -0.02em; margin: 0; }
+.eyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase;
+  color: rgb(var(--primary)); margin-bottom: .75rem; display: block;
+}
+code, .mono { font-family: 'JetBrains Mono', monospace; }
+
+/* ── NAV ── */
+.nav {
+  position: sticky; top: 0; z-index: 50;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1rem 2.5rem;
+  background: rgba(11,15,20,.86); backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgb(var(--border));
+}
+.nav-brand { display: flex; align-items: center; gap: .6rem; text-decoration: none; }
+.nav-mark {
+  width: 30px; height: 30px; border-radius: 7px;
+  background: linear-gradient(135deg, #E04E28, #FF6A3D);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 12px; color: #0B0F14;
+}
+.nav-wordmark { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 15px; color: rgb(var(--foreground)); letter-spacing: -0.02em; }
+.nav-wordmark em { font-style: normal; color: rgb(var(--primary)); }
+.nav-links { display: flex; gap: 1.5rem; font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 600; }
+.nav-links a { color: rgb(var(--muted-foreground)); text-decoration: none; transition: color .15s; }
+.nav-links a:hover { color: rgb(var(--primary)); }
+
+/* ── HERO ── */
+.hero {
+  max-width: 760px; margin: 0 auto;
+  padding: 4.5rem 1.5rem 2.5rem;
+}
+.hero-title {
+  font-size: clamp(2.1rem, 5vw, 3.1rem);
+  line-height: 1.06;
+  margin-bottom: 1.25rem;
+}
+.hero-title em { font-style: normal; color: rgb(var(--primary)); }
+.hero-dek {
+  font-family: 'Roboto', sans-serif; font-weight: 300; font-size: 1.18rem; line-height: 1.65;
+  color: rgb(var(--muted-foreground)); max-width: 65ch;
+}
+.byline { display: flex; align-items: center; gap: .8rem; margin-top: 2rem; }
+.byline-avatar {
+  width: 40px; height: 40px; border-radius: 10px;
+  background: rgb(var(--secondary)); display: flex; align-items: center; justify-content: center;
+  font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 13px; color: rgb(var(--primary));
+  border: 1px solid rgb(var(--border));
+}
+.byline-name { font-family: 'Inter', sans-serif; font-weight: 600; font-size: 14px; }
+.byline-role { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: rgb(var(--muted-foreground)); margin-top: 2px; }
+
+.divider { height: 1px; background: rgb(var(--border)); max-width: 760px; margin: 0 auto; }
+
+/* ── ARTICLE ── */
+.article { max-width: 760px; margin: 0 auto; padding: 3rem 1.5rem 6rem; }
+.article p {
+  font-size: 16px; line-height: 1.75; color: rgb(var(--foreground)); margin: 0 0 1.3em;
+}
+.article p.lead {
+  font-size: 1.15rem; font-weight: 300; line-height: 1.65; color: rgb(var(--foreground));
+}
+.article strong { color: rgb(var(--foreground)); font-weight: 600; }
+.article em { color: rgb(var(--primary)); font-style: normal; }
+.article a { color: rgb(var(--primary)); text-decoration: none; border-bottom: 1px solid rgba(var(--primary), .35); }
+.article a:hover { border-bottom-color: rgb(var(--primary)); }
+
+section.block { margin: 3.25rem 0; }
+.section-eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: rgb(var(--muted-foreground)); margin-bottom: .6rem; }
+h2.section-title { font-size: 1.7rem; line-height: 1.15; margin-bottom: 1.1rem; }
+h3.sub-title { font-size: 1.18rem; line-height: 1.2; margin: 1.8rem 0 .8rem; color: rgb(var(--foreground)); }
+
+/* pull quote */
+.pull {
+  margin: 2.2rem 0; padding: 0 0 0 1.25rem; border-left: 2px solid rgb(var(--primary));
+  font-family: 'Space Grotesk', sans-serif; font-weight: 500; font-size: 1.2rem; line-height: 1.45;
+  color: rgb(var(--foreground));
+}
+
+/* code blocks */
+pre {
+  background: rgb(var(--muted)); border: 1px solid rgb(var(--border)); border-radius: 10px;
+  padding: 1.1rem 1.25rem; overflow-x: auto; margin: 1.4rem 0;
+}
+pre code {
+  font-family: 'JetBrains Mono', monospace; font-size: 12.5px; line-height: 1.7;
+  color: rgb(var(--foreground)); white-space: pre;
+}
+code.inline {
+  font-family: 'JetBrains Mono', monospace; font-size: 13px; background: rgb(var(--muted));
+  padding: .12rem .38rem; border-radius: 4px; color: rgb(var(--accent-foreground));
+}
+
+/* diagram card */
+.diagram-card {
+  background: rgb(var(--card)); border: 1px solid rgb(var(--border)); border-radius: 14px;
+  padding: 1.75rem 1.5rem 1.25rem; margin: 1.8rem 0;
+}
+.diagram-caption {
+  font-family: 'JetBrains Mono', monospace; font-size: 11px; color: rgb(var(--muted-foreground));
+  text-align: center; margin-top: 1rem; letter-spacing: .03em;
+}
+.diagram-card svg { width: 100%; height: auto; display: block; }
+
+/* callouts */
+.callout {
+  border-radius: 12px; padding: 1.15rem 1.3rem; margin: 1.6rem 0;
+  border: 1px solid rgb(var(--border)); background: rgb(var(--card));
+}
+.callout.ember { border-color: rgba(var(--primary), .35); background: rgb(var(--accent)); }
+.callout.ember p { color: rgb(var(--accent-foreground)); }
+.callout-label { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: rgb(var(--primary)); margin-bottom: .5rem; display: block; }
+.callout p:last-child { margin-bottom: 0; }
+
+/* tables */
+.tbl-wrap { overflow-x: auto; margin: 1.6rem 0; border: 1px solid rgb(var(--border)); border-radius: 12px; }
+table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+th { text-align: left; font-family: 'Inter', sans-serif; font-weight: 600; font-size: 11.5px; letter-spacing: .04em; text-transform: uppercase; color: rgb(var(--muted-foreground)); padding: .75rem 1rem; background: rgb(var(--muted)); border-bottom: 1px solid rgb(var(--border)); }
+td { padding: .7rem 1rem; border-bottom: 1px solid rgb(var(--border)); color: rgb(var(--foreground)); vertical-align: top; }
+tr:last-child td { border-bottom: none; }
+tr:nth-child(even) td { background: rgba(255,255,255,.012); }
+
+/* worked example timeline */
+.timeline { display: flex; flex-direction: column; gap: 0; margin: 1.6rem 0; }
+.tl-step { display: flex; gap: 1rem; padding: 1.1rem 0; border-bottom: 1px solid rgb(var(--border)); }
+.tl-step:last-child { border-bottom: none; }
+.tl-num {
+  flex-shrink: 0; width: 30px; height: 30px; border-radius: 8px;
+  background: rgb(var(--secondary)); border: 1px solid rgb(var(--border));
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 600; color: rgb(var(--primary));
+}
+.tl-body h4 { font-family: 'Inter', sans-serif; font-weight: 600; font-size: 14.5px; margin-bottom: .3rem; }
+.tl-body p { font-size: 14.5px; margin: 0; color: rgb(var(--muted-foreground)); line-height: 1.65; }
+
+/* footer */
+.list-plain { margin: 0; padding: 0 0 0 1.1rem; }
+.list-plain li { font-size: 15.5px; line-height: 1.7; color: rgb(var(--foreground)); margin-bottom: .4em; }
+.list-plain li strong { color: rgb(var(--primary)); }
+
+.site-footer {
+  border-top: 1px solid rgb(var(--border)); padding: 2.5rem 1.5rem;
+  max-width: 760px; margin: 0 auto;
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem;
+}
+.sf-brand { font-family: 'Space Grotesk', sans-serif; font-size: .9rem; font-weight: 700; }
+.sf-brand em { font-style: normal; color: rgb(var(--primary)); }
+.sf-meta { font-family: 'JetBrains Mono', monospace; font-size: .65rem; color: rgb(var(--muted-foreground)); letter-spacing: .06em; text-transform: uppercase; }
+
+@keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+.hero { animation: fadeUp .55s ease both; }
+.article { animation: fadeUp .55s .08s ease both; }
+
+@media (max-width: 620px) {
+  .hero-title { font-size: 1.85rem; }
+  .nav { padding: .85rem 1.25rem; }
+  .nav-links { display: none; }
+  .article, .hero, .site-footer { padding-left: 1.25rem; padding-right: 1.25rem; }
+  h2.section-title { font-size: 1.4rem; }
+  .pull { font-size: 1.05rem; }
+}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a class="nav-brand" href="#top">
+    <div class="nav-mark">TJ</div>
+    <span class="nav-wordmark">travis<em>james</em>.ai</span>
+  </a>
+  <div class="nav-links">
+    <a href="#the-pattern">The Pattern</a>
+    <a href="#five-minutes">5-Minute Proof</a>
+    <a href="#the-grader">The Grader</a>
+    <a href="#the-shape">The Shape</a>
+  </div>
+</nav>
+
+<header class="hero" id="top">
+  <span class="eyebrow">Systems &amp; Architecture · Sovereign AI · June 2026</span>
+  <h1 class="hero-title">Your agent doesn't remember yesterday.<br>Here's the architecture that fixes it.</h1>
+  <p class="hero-dek">
+    Most teams patch this with a bigger vector store and call it memory. That's not what's missing.
+    What's missing is a substrate a human can read, a critic that isn't the same model that did the work,
+    and a policy gate between "the agent found a better way" and "the agent rewrote its own instructions."
+    This is how I built that — and the receipts to prove it runs.
+  </p>
+  <div class="byline">
+    <div class="byline-avatar">TJ</div>
+    <div>
+      <div class="byline-name">Travis James</div>
+      <div class="byline-role">Founder &amp; CTO, Prometheus AGS · travisjames.ai</div>
+    </div>
+  </div>
+</header>
+
+<div class="divider"></div>
+
+<main class="article">
+
+<p class="lead">Open your coding agent this morning. Ask it to fix a flaky test. It does — cleanly,
+with a clear explanation of the root cause. Close the laptop. Open it tomorrow. Same agent, same repo,
+a different but related failure. It has no idea what happened yesterday.</p>
+
+<p>It doesn't know yesterday's failure was a missing Redis-client mock. It doesn't know you spent twenty
+minutes teaching it how <code class="inline">clap 4</code> handles global flags. It doesn't know the prompt
+you spent an hour crafting last month — the one that finally got it writing idiomatic Tokio — was
+load-bearing for exactly that task and nothing else. Every session starts from near-zero. CLAUDE.md,
+AGENTS.md if you wrote one, your git history, and whatever vector store you've bolted on: that's the
+entire universe of "memory" available to a 2026-era coding agent.</p>
+
+<p>RAG helps a little. Embeddings retrieve text that <em>looks</em> similar to your query. But embeddings
+are a black box. You can't read them, diff them, or tell me with a citation what the agent knew when it
+made a decision last Tuesday. For a system you're willing to put in front of a regulated client, that
+opacity isn't a rough edge — it's disqualifying.</p>
+
+<p>There's a better pattern. Andrej Karpathy sketched the shape of it; the open-source agent ecosystem has
+spent the last year quietly filling it in. What follows is how the <strong>prometheus-skill-pack</strong>
+turns that sketch into a running system — and the engineering it takes to close the loop without losing
+the plot.</p>
+
+<section class="block" id="the-pattern">
+<div class="section-eyebrow">01 · The Pattern</div>
+<h2 class="section-title">A wiki a human can read, compiled by the model that uses it</h2>
+
+<p>The idea is simple enough to be misleading. The <code class="inline">prometheus-knowledge</code> crate
+implements it like this:</p>
+
+<pre><code>~/.prometheus/knowledge/
+├── raw/          ← inbox (watched by FSEvents / inotify)
+│   └── *.md      ← drop files here
+└── wiki/         ← compiled articles
+    ├── universal-agent-runtime.md
+    ├── mempalace-rs.md
+    └── ...</code></pre>
+
+<p>Every wiki article is a single markdown file with YAML frontmatter — an id, tags, links to related
+entries, the session it came from, a revision number. There's no vector database. Search is TF-IDF. Every
+fact in the system traces to a file you can <code class="inline">cat</code>, <code class="inline">diff</code>,
+and <code class="inline">git blame</code>.</p>
+
+<p>The inversion that matters is <em>who</em> maintains the knowledge base. In a normal RAG setup, you
+curate the corpus. In this pattern, <strong>the AI builds and maintains it for you.</strong> A librarian
+watches the inbox, calls an LLM to compile raw notes into structured entries, writes the result to the
+wiki. The LLM is the compiler. The human owns the substrate. The substrate is plain text.</p>
+
+<p>That's the entire insight. Everything past this point is engineering.</p>
+</section>
+
+<section class="block">
+<div class="section-eyebrow">02 · The Engine</div>
+<h2 class="section-title">Three storage tiers, four learning layers, one policy gate</h2>
+
+<p>The loop runs <strong>execute → evaluate → compile → optimize → distribute</strong>. Four layers,
+each doing a distinct job, each feeding the one above it.</p>
+
+<div class="diagram-card">
+<svg viewBox="0 0 700 360" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <marker id="arrow" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto">
+      <path d="M0,0 L8,4 L0,8 Z" fill="rgb(167,176,188)"/>
+    </marker>
+    <marker id="arrowEmber" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto">
+      <path d="M0,0 L8,4 L0,8 Z" fill="rgb(255,106,61)"/>
+    </marker>
+  </defs>
+
+  <!-- L1 -->
+  <rect x="20" y="30" width="150" height="100" rx="12" fill="rgb(15,22,32)" stroke="rgb(35,48,65)"/>
+  <text x="95" y="56" text-anchor="middle" fill="rgb(255,106,61)" font-family="JetBrains Mono, monospace" font-size="11" font-weight="600">L1 · MEMORY</text>
+  <text x="95" y="78" text-anchor="middle" fill="rgb(232,237,243)" font-family="Space Grotesk, sans-serif" font-size="13" font-weight="600">surreal-memory</text>
+  <text x="95" y="98" text-anchor="middle" fill="rgb(167,176,188)" font-family="Inter, sans-serif" font-size="10.5">Graph-RAG ·</text>
+  <text x="95" y="113" text-anchor="middle" fill="rgb(167,176,188)" font-family="Inter, sans-serif" font-size="10.5">TaskStreams · history</text>
+
+  <!-- L2 -->
+  <rect x="195" y="30" width="150" height="100" rx="12" fill="rgb(15,22,32)" stroke="rgb(35,48,65)"/>
+  <text x="270" y="56" text-anchor="middle" fill="rgb(255,106,61)" font-family="JetBrains Mono, monospace" font-size="11" font-weight="600">L2 · KNOWLEDGE</text>
+  <text x="270" y="78" text-anchor="middle" fill="rgb(232,237,243)" font-family="Space Grotesk, sans-serif" font-size="13" font-weight="600">prometheus-knowledge</text>
+  <text x="270" y="98" text-anchor="middle" fill="rgb(167,176,188)" font-family="Inter, sans-serif" font-size="10.5">raw → compile →</text>
+  <text x="270" y="113" text-anchor="middle" fill="rgb(167,176,188)" font-family="Inter, sans-serif" font-size="10.5">wiki entry (TF-IDF)</text>
+
+  <!-- L3 -->
+  <rect x="370" y="30" width="150" height="100" rx="12" fill="rgb(15,22,32)" stroke="rgb(35,48,65)"/>
+  <text x="445" y="56" text-anchor="middle" fill="rgb(255,106,61)" font-family="JetBrains Mono, monospace" font-size="11" font-weight="600">L3 · OPTIMIZE</text>
+  <text x="445" y="78" text-anchor="middle" fill="rgb(232,237,243)" font-family="Space Grotesk, sans-serif" font-size="13" font-weight="600">dspy-rs</text>
+  <text x="445" y="98" text-anchor="middle" fill="rgb(167,176,188)" font-family="Inter, sans-serif" font-size="10.5">traces → dataset →</text>
+  <text x="445" y="113" text-anchor="middle" fill="rgb(167,176,188)" font-family="Inter, sans-serif" font-size="10.5">candidate (never applied)</text>
+
+  <!-- L4 -->
+  <rect x="545" y="30" width="150" height="100" rx="12" fill="rgb(15,22,32)" stroke="rgb(35,48,65)"/>
+  <text x="620" y="56" text-anchor="middle" fill="rgb(255,106,61)" font-family="JetBrains Mono, monospace" font-size="11" font-weight="600">L4 · DISTRIBUTE</text>
+  <text x="620" y="78" text-anchor="middle" fill="rgb(232,237,243)" font-family="Space Grotesk, sans-serif" font-size="13" font-weight="600">prometheus-cli</text>
+  <text x="620" y="98" text-anchor="middle" fill="rgb(167,176,188)" font-family="Inter, sans-serif" font-size="10.5">10 platforms ·</text>
+  <text x="620" y="113" text-anchor="middle" fill="rgb(167,176,188)" font-family="Inter, sans-serif" font-size="10.5">Skills.lock + Cedar</text>
+
+  <!-- forward arrows -->
+  <line x1="170" y1="80" x2="193" y2="80" stroke="rgb(167,176,188)" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="345" y1="80" x2="368" y2="80" stroke="rgb(167,176,188)" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="520" y1="80" x2="543" y2="80" stroke="rgb(167,176,188)" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- feedback loop -->
+  <path d="M620,132 C620,200 95,200 95,132" fill="none" stroke="rgb(255,106,61)" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#arrowEmber)"/>
+  <text x="357" y="190" text-anchor="middle" fill="rgb(255,106,61)" font-family="JetBrains Mono, monospace" font-size="10.5" letter-spacing="0.03em">distribution feeds memory — the loop closes on itself</text>
+
+  <!-- Cedar gate annotation -->
+  <rect x="370" y="235" width="325" height="100" rx="12" fill="rgb(42,27,23)" stroke="rgba(255,106,61,0.35)"/>
+  <text x="395" y="262" fill="rgb(255,106,61)" font-family="JetBrains Mono, monospace" font-size="10.5" font-weight="600" letter-spacing="0.06em">CEDAR SKILL-MUTATION PEP</text>
+  <text x="395" y="284" fill="rgb(255,177,153)" font-family="Inter, sans-serif" font-size="11.5">Default-deny on skill.mutate, skill.generate,</text>
+  <text x="395" y="302" fill="rgb(255,177,153)" font-family="Inter, sans-serif" font-size="11.5">skill.promote, trace.capture. Optimization is</text>
+  <text x="395" y="320" fill="rgb(255,177,153)" font-family="Inter, sans-serif" font-size="11.5">always a tool's output — never its input.</text>
+
+  <line x1="445" y1="132" x2="445" y2="233" stroke="rgb(255,106,61)" stroke-width="1.5" stroke-dasharray="2 3" marker-end="url(#arrowEmber)"/>
+</svg>
+</div>
+<div class="diagram-caption">EXECUTE → EVALUATE → COMPILE → OPTIMIZE → DISTRIBUTE, gated at L3→L4 by policy, not vibes</div>
+</div>
+
+<h3 class="sub-title">L1 — Memory: the hot tier</h3>
+<p>SurrealDB with HNSW vector indexes, dual transport over MCP and HTTP, 40-plus tools: knowledge graph
+traversal, mem0-compatible scoped memory, TaskStreams with model-aware token budgeting, mindmaps. What
+lives here is working memory — session state, recent relationships between concepts. What doesn't live
+here is durable, human-readable engineering knowledge. That's L2's job.</p>
+
+<h3 class="sub-title">L2 — Knowledge: the Karpathy tier</h3>
+<p>The cold tier. Flat files, TF-IDF, git-trackable. This is the layer that compounds, because it's
+cheap to write — an LLM call plus flat-file IO — cheap to read — TF-IDF scales without an embedding
+server — and expensive to lose, because it lives in your dotfiles, in git, on every machine you own.</p>
+
+<h3 class="sub-title">L3 — Optimization: the layer most teams skip</h3>
+<p>Every skill is treated as a DSPy signature. Captured traces become a dataset. BootstrapFewShot or
+MIPRO runs against it and produces a candidate — never an applied change. This is the load-bearing claim
+of the whole architecture:</p>
+
+<div class="pull">The system can learn, but it cannot rewrite its own skills in production without
+passing policy.</div>
+
+<p>If you're building an agentic system and you don't have an explicit policy layer between "the agent
+discovered a better way" and "the agent updated its own prompt," stop and build that layer first.
+Everything else is decoration.</p>
+
+<h3 class="sub-title">L4 — Distribution: the install path</h3>
+<p>Skills install across ten platforms — Claude Code, OpenCode, Codex, Kimi Code, MiniMax, Zed, Cursor,
+Windsurf, Roo, Cline, Gemini CLI. <code class="inline">Skills.toml</code> declares what a project wants;
+<code class="inline">Skills.lock</code> records what resolved. The portability is the point. The
+abstraction that makes the learning portable is the skill, not the model.</p>
+</section>
+
+<section class="block" id="five-minutes">
+<div class="section-eyebrow">03 · Proof, Not a Demo Reel</div>
+<h2 class="section-title">See it close in five minutes</h2>
+
+<p>Theory is cheap. Here's how you watch the loop close yourself, in any tool that's already on your
+machine — Claude Code, Codex, OpenCode, Kimi Code, or a plain chat surface. Two phases. Teach it
+something specific, then prove a session that's never seen this conversation already knows it.</p>
+
+<h3 class="sub-title">Phase 1 — teach it something only you know</h3>
+<p>Pick a fact you'd otherwise re-explain every session. For this walkthrough, the fact is concrete: a
+launchd-managed agent returning <code class="inline">401</code> recovers with
+<code class="inline">launchctl kickstart -k gui/$(id -u)/&lt;label&gt;</code>. Save it:</p>
+
+<pre><code>cat > /tmp/respawn-trick.md <<'EOF'
+When a launchd-managed agent starts returning 401, 405, 500, or gets
+stuck in `state=spawn scheduled`, the correct recovery command is:
+
+    launchctl kickstart -k gui/$(id -u)/&lt;label&gt;
+
+The -k flag kills the existing process first; kickstart then asks
+launchd to spawn a fresh one. Discovered 2026-06-30 — the openai-proxy
+on :8181 returned 401 "token_expired" after 5 days of uptime. The
+kickstart command cleared it in 3 seconds.
+EOF
+
+kbd-close /tmp/respawn-trick.md</code></pre>
+
+<p>Wait for the receipt: <code class="inline">✓ compiled → Launchd respawn trick for transient agent
+failures</code>. That's your proof the knowledge is in the wiki.</p>
+
+<h3 class="sub-title">Phase 2 — prove a fresh session already knows it</h3>
+<p>Restart the tool. Open a session with no history of Phase 1. Ask:</p>
+<div class="pull">"My openai-proxy just started returning 401. What do I do?"</div>
+<p>If the agent reaches for the wiki and hands back the exact <code class="inline">launchctl
+kickstart</code> command without you pasting a thing — that's the loop. Not a stronger model. Not
+coincidence. The system remembered, and the new session had no other way to know it.</p>
+
+<div class="callout">
+<span class="callout-label">If it doesn't work</span>
+<p>Check three things in order: did the entry land (<code class="inline">pk list | grep respawn</code>),
+did the session-start hook fire (<code class="inline">cat ~/.prometheus/last-open-snapshot.txt</code>),
+and is the compile proxy actually up (<code class="inline">curl localhost:8181/v1/models</code>). If all
+three check out, you just ran a clean demo.</p>
+</div>
+</section>
+
+<section class="block">
+<div class="section-eyebrow">04 · The Honesty Gate</div>
+<h2 class="section-title">The Feynman loop, and why self-graded fluency doesn't count</h2>
+
+<p>A wiki you can't verify is a wiki you can't trust. The system's answer to "did the agent actually
+learn this?" maps Feynman's explain-grade-gap-relearn cycle onto the same Spec → Plan → Execute → Reflect
+shape that governs everything else here. Mastery closure requires three things, not one:</p>
+
+<ol class="list-plain">
+<li><strong>The grade passes</strong> — overall score ≥ 0.7 and misconceptions are fully absent</li>
+<li><strong>Transfer holds</strong> — two novel problems solved at 0.7 or better, each</li>
+<li><strong>Retention is scheduled</strong> — a spaced-repetition check at 24 hours or more</li>
+</ol>
+
+<p>Self-reported fluency never closes a loop. You cannot write a learner model that says "I think I
+understand this" and have the system accept it. The gate is external, source-grounded, corpus-anchored —
+and it's structured to lead with errors, not compliments. A real grade looks like this:</p>
+
+<pre><code>{
+  "scores": { "completeness": 0.85, "accuracy": 0.50, "clarity": 0.90, "misconceptions_absent": 0.0 },
+  "overall_score": 0.56,
+  "gaps": [{
+    "dimension": "accuracy",
+    "description": "Claimed tokio::spawn requires 'static. It requires Send +
+      'static on the future, not the closure. The bound is misattributed.",
+    "corpus_ref": "src:tokio-docs::spawn"
+  }],
+  "passed": false
+}</code></pre>
+
+<p>An anti-sycophancy check runs before any grade is written. Hedging language — "minor issue," "just a
+small point" — gets rewritten to direct language: "factual error," "missing coverage of X." The grade is
+for the learner's benefit, not the author's comfort. That's not a feature bolted on top. It's a structural
+property the rest of the system depends on.</p>
+</section>
+
+<section class="block">
+<div class="section-eyebrow">05 · Write-Back</div>
+<h2 class="section-title">How the loop survives the gap between sessions</h2>
+
+<p>The single most important sequence in the system runs at the end of every session. The order isn't
+a style preference — it's a correctness constraint. Each step consumes the output of the one before it.</p>
+
+<div class="diagram-card">
+<svg viewBox="0 0 700 230" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <marker id="arrowDown" markerWidth="9" markerHeight="9" refX="4" refY="7" orient="auto">
+      <path d="M0,0 L8,0 L4,8 Z" fill="rgb(255,106,61)"/>
+    </marker>
+  </defs>
+  <!-- step boxes -->
+  <g>
+    <rect x="15" y="20" width="155" height="80" rx="10" fill="rgb(15,22,32)" stroke="rgb(35,48,65)"/>
+    <text x="92" y="40" text-anchor="middle" fill="rgb(255,106,61)" font-family="JetBrains Mono, monospace" font-size="10" font-weight="600">STEP 1</text>
+    <text x="92" y="60" text-anchor="middle" fill="rgb(232,237,243)" font-family="Inter, sans-serif" font-size="11" font-weight="600">write-session-</text>
+    <text x="92" y="74" text-anchor="middle" fill="rgb(232,237,243)" font-family="Inter, sans-serif" font-size="11" font-weight="600">summary.sh</text>
+    <text x="92" y="92" text-anchor="middle" fill="rgb(167,176,188)" font-family="Inter, sans-serif" font-size="9.5">everything downstream reads it</text>
+  </g>
+  <g>
+    <rect x="195" y="20" width="155" height="80" rx="10" fill="rgb(15,22,32)" stroke="rgb(35,48,65)"/>
+    <text x="272" y="40" text-anchor="middle" fill="rgb(255,106,61)" font-family="JetBrains Mono, monospace" font-size="10" font-weight="600">STEP 2</text>
+    <text x="272" y="60" text-anchor="middle" fill="rgb(232,237,243)" font-family="Inter, sans-serif" font-size="11" font-weight="600">forge-reflect-</text>
+    <text x="272" y="74" text-anchor="middle" fill="rgb(232,237,243)" font-family="Inter, sans-serif" font-size="11" font-weight="600">on-stop.sh</text>
+    <text x="272" y="92" text-anchor="middle" fill="rgb(167,176,188)" font-family="Inter, sans-serif" font-size="9.5">reflects, ingests to KB</text>
+  </g>
+  <g>
+    <rect x="375" y="20" width="155" height="80" rx="10" fill="rgb(15,22,32)" stroke="rgb(35,48,65)"/>
+    <text x="452" y="40" text-anchor="middle" fill="rgb(255,106,61)" font-family="JetBrains Mono, monospace" font-size="10" font-weight="600">STEP 3</text>
+    <text x="452" y="60" text-anchor="middle" fill="rgb(232,237,243)" font-family="Inter, sans-serif" font-size="11" font-weight="600">evaluate-</text>
+    <text x="452" y="74" text-anchor="middle" fill="rgb(232,237,243)" font-family="Inter, sans-serif" font-size="11" font-weight="600">session.sh</text>
+    <text x="452" y="92" text-anchor="middle" fill="rgb(167,176,188)" font-family="Inter, sans-serif" font-size="9.5">writes structured learning</text>
+  </g>
+  <g>
+    <rect x="530" y="20" width="155" height="80" rx="10" fill="rgb(42,27,23)" stroke="rgba(255,106,61,0.4)"/>
+    <text x="607" y="40" text-anchor="middle" fill="rgb(255,106,61)" font-family="JetBrains Mono, monospace" font-size="10" font-weight="600">STEP 4</text>
+    <text x="607" y="60" text-anchor="middle" fill="rgb(255,177,153)" font-family="Inter, sans-serif" font-size="11" font-weight="600">propose-skill-</text>
+    <text x="607" y="74" text-anchor="middle" fill="rgb(255,177,153)" font-family="Inter, sans-serif" font-size="11" font-weight="600">update.sh</text>
+    <text x="607" y="92" text-anchor="middle" fill="rgb(255,177,153)" font-family="Inter, sans-serif" font-size="9.5">candidate only — never applied</text>
+  </g>
+
+  <line x1="170" y1="60" x2="193" y2="60" stroke="rgb(167,176,188)" stroke-width="1.5" marker-end="url(#arrowDown)" transform="rotate(0)"/>
+  <path d="M170,60 L193,60" stroke="rgb(167,176,188)" stroke-width="1.5"/>
+  <polygon points="193,56 201,60 193,64" fill="rgb(167,176,188)"/>
+  <path d="M350,60 L373,60" stroke="rgb(167,176,188)" stroke-width="1.5"/>
+  <polygon points="373,56 381,60 373,64" fill="rgb(167,176,188)"/>
+  <path d="M530,60 L508,60" stroke="rgb(255,106,61)" stroke-width="0" />
+  <path d="M530,60 L508,60" stroke="rgb(167,176,188)" stroke-width="0"/>
+  <path d="M508,60 L530,60" stroke="rgb(167,176,188)" stroke-width="1.5"/>
+  <polygon points="530,56 538,60 530,64" fill="rgb(167,176,188)"/>
+
+  <text x="350" y="150" text-anchor="middle" fill="rgb(167,176,188)" font-family="JetBrains Mono, monospace" font-size="10.5">order is structural — step 3 needs step 2's KB write; step 4 needs step 3's structured signal</text>
+
+  <line x1="350" y1="165" x2="350" y2="195" stroke="rgb(35,48,65)" stroke-width="1"/>
+  <text x="350" y="215" text-anchor="middle" fill="rgb(255,106,61)" font-family="JetBrains Mono, monospace" font-size="10.5" font-weight="600">a periodic heartbeat (every 4h) keeps the wiki warm even when no one is at the keyboard</text>
+</svg>
+</div>
+<div class="diagram-caption">the four-step stop hook, in the order it has to run</div>
+</div>
+
+<p>What this buys you: the loop doesn't require anyone to remember to run it. It fires at the natural
+boundaries — session start, session end, a periodic nudge — and every boundary writes to the same store.
+The agent that wakes up tomorrow morning is not the same agent that went to sleep. It's a strictly
+stronger agent, with a strict superset of memory and an updated skill catalog.</p>
+
+<h3 class="sub-title">What compounding looks like, traced across three sessions</h3>
+
+<div class="timeline">
+<div class="tl-step">
+  <div class="tl-num">N</div>
+  <div class="tl-body">
+    <h4>The failure happens once</h4>
+    <p>Auth tests fail. The agent fixes them. The session summary records the actual cause: a missing
+    Redis-client mock in <code class="inline">tests/auth/setup.rs</code> — any test hitting Redis got
+    <code class="inline">connection refused</code> instead of the fixture value.</p>
+  </div>
+</div>
+<div class="tl-step">
+  <div class="tl-num">→</div>
+  <div class="tl-body">
+    <h4>The stop hook fires</h4>
+    <p>The pattern matches the <code class="inline">testing</code> skill's known failure modes. A candidate
+    file lands in <code class="inline">~/.prometheus/skill-updates/</code>. Nothing is applied yet — it's
+    a proposal, not a change.</p>
+  </div>
+</div>
+<div class="tl-step">
+  <div class="tl-num">N+1</div>
+  <div class="tl-body">
+    <h4>A different service, same monorepo</h4>
+    <p>Context priming retrieves the Redis-mock learning before you ask. The agent doesn't reproduce the
+    failure. The <code class="inline">testing</code> skill's coverage expands because the failure never
+    happened a second time.</p>
+  </div>
+</div>
+<div class="tl-step">
+  <div class="tl-num">✓</div>
+  <div class="tl-body">
+    <h4>You review and approve</h4>
+    <p><code class="inline">pmpo-skill-creator --update testing</code> proposes an in-place patch: Redis
+    mock setup becomes a first-class step in the test-fixture lifecycle. You approve it. The skill is now
+    strictly stronger than it was an hour ago.</p>
+  </div>
+</div>
+<div class="tl-step">
+  <div class="tl-num">N+2</div>
+  <div class="tl-body">
+    <h4>Someone who never saw any of this</h4>
+    <p>A different operator, a different repository, a fresh install of the skill pack. The
+    <code class="inline">testing</code> skill already includes the Redis-mock step. The failure doesn't
+    happen there either — and they never read a line of the original session.</p>
+  </div>
+</div>
+</div>
+
+<p>That's cross-session compounding at the structural level. Not emergent, not magic — engineered, and
+at the one step that rewrites the system's own instructions, explicitly gated by a human.</p>
+</section>
+
+<section class="block">
+<div class="section-eyebrow">06 · Skills That Propose Updates to Themselves</div>
+<h2 class="section-title">The meta-loop, and the line it doesn't cross</h2>
+
+<p>If compounding stopped at "the wiki gets bigger," you'd have a documentation system, not a learning
+system. What makes it a learning system is <code class="inline">pmpo-skill-creator</code>'s update mode —
+a skill that reads its own learning log and proposes a patch to another skill's manifest.</p>
+
+<div class="callout ember">
+<span class="callout-label">From the skill's own manifest</span>
+<p><strong>update</strong> — in-place skill refinement from learning patterns. Improves an existing
+installed skill using accumulated patterns from the continuous-learning pipeline.
+<strong>Requires explicit user approval before any file is modified.</strong></p>
+</div>
+
+<p>The system's ability to change itself is conditional on a human saying yes. That's the Cedar
+Skill-Mutation policy, enforced at the workflow layer instead of the runtime layer. Five evolution
+perspectives feed into it — competitive parity, domain trend-watching, the next logical product step,
+a three-gate idea-validation pipeline, and a self-learning perspective that consumes the same JSONL the
+write-back sequence produces. That fifth one is what this article is about. The loop closes on itself.</p>
+</section>
+
+<section class="block" id="the-grader">
+<div class="section-eyebrow">07 · The Critic</div>
+<h2 class="section-title">Why the grader can't be the same model that did the work</h2>
+
+<p>Self-evaluation only works if the critic is separate from the producer. Grade your own work and you
+will pass — humans and LLMs both do this, even when the work is wrong. The fix is structural: a different
+model, a different process, a different context.</p>
+
+<div class="diagram-card">
+<svg viewBox="0 0 700 200" xmlns="http://www.w3.org/2000/svg">
+  <rect x="40" y="40" width="240" height="120" rx="14" fill="rgb(15,22,32)" stroke="rgb(35,48,65)"/>
+  <text x="160" y="70" text-anchor="middle" fill="rgb(167,176,188)" font-family="JetBrains Mono, monospace" font-size="10.5" letter-spacing="0.06em">THE PRODUCER</text>
+  <text x="160" y="98" text-anchor="middle" fill="rgb(232,237,243)" font-family="Space Grotesk, sans-serif" font-size="16" font-weight="700">gpt-5.4-mini</text>
+  <text x="160" y="122" text-anchor="middle" fill="rgb(167,176,188)" font-family="Inter, sans-serif" font-size="11">writes the explanation,</text>
+  <text x="160" y="138" text-anchor="middle" fill="rgb(167,176,188)" font-family="Inter, sans-serif" font-size="11">compiles, curates — cheap, fast</text>
+
+  <rect x="420" y="40" width="240" height="120" rx="14" fill="rgb(42,27,23)" stroke="rgba(255,106,61,0.4)"/>
+  <text x="540" y="70" text-anchor="middle" fill="rgb(255,106,61)" font-family="JetBrains Mono, monospace" font-size="10.5" letter-spacing="0.06em">THE CRITIC</text>
+  <text x="540" y="98" text-anchor="middle" fill="rgb(255,177,153)" font-family="Space Grotesk, sans-serif" font-size="16" font-weight="700">gpt-5.5</text>
+  <text x="540" y="122" text-anchor="middle" fill="rgb(255,177,153)" font-family="Inter, sans-serif" font-size="11">judges the explanation —</text>
+  <text x="540" y="138" text-anchor="middle" fill="rgb(255,177,153)" font-family="Inter, sans-serif" font-size="11">strongest available, no exceptions</text>
+
+  <line x1="282" y1="100" x2="418" y2="100" stroke="rgb(255,106,61)" stroke-width="1.5" stroke-dasharray="5 4"/>
+  <text x="350" y="92" text-anchor="middle" fill="rgb(255,106,61)" font-family="JetBrains Mono, monospace" font-size="9.5">never the</text>
+  <text x="350" y="113" text-anchor="middle" fill="rgb(255,106,61)" font-family="JetBrains Mono, monospace" font-size="9.5">same model</text>
+
+  <text x="350" y="190" text-anchor="middle" fill="rgb(167,176,188)" font-family="Inter, sans-serif" font-size="11">both calls route through the same local openai-proxy on :8181 — no per-call spend</text>
+</svg>
+</div>
+<div class="diagram-caption">producer / critic separation — the load-bearing decision in the whole grading pipeline</div>
+</div>
+
+<p>The model choice is the decision that carries the most weight. Use the strongest available model as
+the grader — not the same model as the producer, not something smaller and cheaper. The producer's blind
+spots are usually exactly what the learner needs feedback on; a grader with the same blind spots just
+reinforces them. A grade costs one round-trip. A failed mastery gate costs the next Feynman recursion. The
+economics favor paying for the better grader.</p>
+
+<p>Verified live against a real explanation that <em>looked</em> correct, the grader caught four things a
+self-grade would have missed entirely: an invented mechanism ("the respawn trick clears cached auth
+state" — it doesn't), a misattributed signal ("kickstart sends SIGTERM" — the corpus never claims that),
+a boundary error (recommending the respawn trick for server-side auth failures it can't fix), and a
+hard-coded assumption that didn't match the corpus's actual path convention. None of those are obvious.
+None would survive a self-grade. All four were caught in a single round-trip.</p>
+
+<p class="lead" style="font-size:1.05rem; color:rgb(var(--muted-foreground));">If you take one idea from
+this whole piece, take this one: the loop does not work if the producer and the critic are the same
+model.</p>
+</section>
+
+<section class="block">
+<div class="section-eyebrow">08 · The Honest Accounting</div>
+<h2 class="section-title">What this doesn't solve yet</h2>
+
+<p>The system's own documentation puts production readiness at 92% — a sycophancy-corrected score
+against an independent credibility assessment. The remaining 8% is real, and worth naming plainly
+rather than burying in a footnote:</p>
+
+<div class="tbl-wrap">
+<table>
+<tr><th>Gap</th><th>What it means in practice</th></tr>
+<tr><td>Single-maintainer bus factor</td><td>The architecture is sound; the cognitive load of holding it in one head is visible. Plan for the day that's not sustainable.</td></tr>
+<tr><td>No external production deployments</td><td>Runs in development and staging today. It hasn't been audited inside a regulated production environment.</td></tr>
+<tr><td>Optimization layer is human-gated by design</td><td>Correct tradeoff, but it means most teams won't actually exercise the dspy-rs layer day to day. The primary learning signal in practice is the wiki write-back, not optimization.</td></tr>
+<tr><td>Cedar policy is necessary and tedious</td><td>The defaults are sane. Tuning the bundle for your environment is real work you should budget for, not skip.</td></tr>
+</table>
+</div>
+
+<p>None of that is a reason to skip the pattern. It's a reason to budget honestly for the work of
+adopting it.</p>
+</section>
+
+<section class="block">
+<div class="section-eyebrow">09 · The Morning After</div>
+<h2 class="section-title">A private pulse, not a feed</h2>
+
+<p>OpenAI shipped ChatGPT Pulse in late 2025 — an async overnight pass over your chat history that
+surfaces five to ten cards each morning. Gated to the highest tier, hosted by OpenAI, silent on whether
+your data trains future models. The loop described above gives you durable memory. It doesn't give you a
+morning briefing. So I built one — a single bash script, five subcommands, zero dependencies beyond bash,
+python3, and curl.</p>
+
+<p>The system prompt that curates the cards is explicit about what not to do:</p>
+
+<div class="callout">
+<p>Ground every card in something concrete from the user's actual activity. Don't invent URLs. Skip
+generic "AI is changing the world" filler — the user is already in the work. Five to ten cards total; if
+the activity is thin, three honest cards beat eight padded ones.</p>
+</div>
+
+<p>The most valuable card type isn't a release announcement — it's a flag the system raises on its own,
+grounded in something written weeks ago that would otherwise have been forgotten. A gap between local
+test confidence and CI enforcement. A symlink that turned out to be a real symlink and not a copied
+directory. Small, specific, true. That's the bar.</p>
+
+<p>It is not a notification stream, and it isn't trying to be. ChatGPT Pulse ends each day with "that's
+all for today." This one ends each run by writing a file that the next session-open will surface. The
+cost is one cheap LLM call and, optionally, a few web searches. It is not a replacement for the wiki —
+the wiki is durable, the pulse is ephemeral by design. A feed wants you back tomorrow. A pulse wants to
+be useful once and let you get back to work.</p>
+</section>
+
+<section class="block" id="the-shape">
+<div class="section-eyebrow">10 · Closing</div>
+<h2 class="section-title">The shape of the system, if you're building one</h2>
+
+<p>None of the individual pieces here are novel. The value is in the integration, and in refusing to
+skip the parts that are tedious. If you're building a production agentic system and you want it to
+actually improve across sessions, this is the shape to converge on:</p>
+
+<ol class="list-plain">
+<li><strong>A flat-file knowledge base</strong> as the epistemic substrate. Plain markdown, git-trackable. No vector DB for the durable tier.</li>
+<li><strong>A semantic graph store</strong> for working memory during a session — SurrealDB, Postgres with pgvector, whatever you already run.</li>
+<li><strong>A write-back hook chain</strong> that fires in a strict order at every session boundary. The order is the correctness guarantee.</li>
+<li><strong>An external grader</strong> for any self-evaluation. The model that produced the artifact cannot be the model that grades it.</li>
+<li><strong>A policy layer</strong> between "the agent found an improvement" and "the agent changed its own instructions." Cedar, OPA, whatever you trust. Default deny.</li>
+<li><strong>Skill portability across harnesses.</strong> The same description works in Claude Code, OpenCode, Codex, Kimi Code. The harness isn't the abstraction — the skill is.</li>
+<li><strong>A heartbeat between sessions.</strong> The system writes to memory even when no one's at the keyboard. The loop runs in the gaps, not just at the boundaries.</li>
+</ol>
+
+<p>Build that, and tomorrow's session is strictly stronger than today's — not by a percentage point, by
+a structural property. Yesterday's wiki is already in context. Yesterday's learning log is already in
+memory. Yesterday's <em>approved</em> skill updates are already in the catalog.</p>
+
+<div class="pull">The system you're running next year will be a different system than the one you
+started with — and it'll be that way because you engineered the loop, not because the model
+spontaneously got better.</div>
+
+<p>That's the whole posture. Not a feature. A way of building.</p>
+</section>
+
+</main>
+
+<footer class="site-footer">
+  <div>
+    <div class="sf-brand">travis<em>james</em>.ai</div>
+    <div class="sf-meta" style="margin-top:.3rem;">Prometheus Fabric · prometheus-skill-system</div>
+  </div>
+  <div class="sf-meta">Sovereign AI · Rust-Native · Built to Last</div>
+</footer>
+
+</body>
+</html>
