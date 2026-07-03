@@ -57,12 +57,21 @@ impl std::str::FromStr for Language {
 // ─── Constitution ─────────────────────────────────────────────────────────────
 
 /// Per-language coding standards loaded from `.forge/constitution/<lang>.toml`.
+///
+/// Only `language` is required. The collection fields default to empty when
+/// absent so a partial or minimally-populated constitution still parses — a
+/// config parser should not hard-fail on a missing optional section (and TOML
+/// key ordering can legitimately leave a top-level array unset).
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Constitution {
     pub language: Language,
+    #[serde(default)]
     pub standards: HashMap<String, String>,
+    #[serde(default)]
     pub forbidden_patterns: Vec<ForbiddenPattern>,
+    #[serde(default)]
     pub required_skills: Vec<String>,
+    #[serde(default)]
     pub framework_versions: HashMap<String, String>,
 }
 
