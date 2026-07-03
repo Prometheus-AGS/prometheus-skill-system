@@ -1,0 +1,27 @@
+{
+  "stage": "plan",
+  "phase": "phase-credibility-closure",
+  "timestamp": "2026-06-30",
+  "summary": "16 changes ordered in 4 waves: Wave 1 (C01-C04 security, serial, P0 blocking), Wave 2 (C05-C07 capability, serial), Wave 3 (C08-C15 quality, parallel), Wave 4 (C16 sycophancy gate, serial). All OpenSpec change directories created with proposal.md + tasks.md. First change to apply: change-credibility-001-remove-hardcoded-api-key — but ONLY after user rotates Tavily key at tavily.com.",
+  "artifact": "plan.md",
+  "supporting_artifacts": [
+    "analysis.md",
+    "library-candidates.json",
+    "decision-log.md"
+  ],
+  "change_count": 16,
+  "wave_structure": {
+    "wave_1_security": ["change-credibility-001", "change-credibility-002", "change-credibility-003", "change-credibility-004"],
+    "wave_2_capability": ["change-credibility-005", "change-credibility-006", "change-credibility-007"],
+    "wave_3_quality_parallel": ["change-credibility-008", "change-credibility-009", "change-credibility-010", "change-credibility-011", "change-credibility-012", "change-credibility-013", "change-credibility-014", "change-credibility-015"],
+    "wave_4_gate": ["change-credibility-016"]
+  },
+  "open_questions": {
+    "OQ-01": {
+      "question": "Has the Tavily API key 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 been rotated at tavily.com?",
+      "blocking_for": "change-credibility-001",
+      "action": "USER must rotate key before pushing C01"
+    }
+  },
+  "next_command": "/kbd-apply change-credibility-001-remove-hardcoded-api-key"
+}

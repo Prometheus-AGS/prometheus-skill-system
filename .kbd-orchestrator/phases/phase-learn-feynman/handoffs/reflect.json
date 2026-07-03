@@ -1,0 +1,16 @@
+{
+  "stage": "reflect",
+  "phase": "phase-learn-feynman",
+  "written_at": "2026-06-28T00:00:00Z",
+  "summary": "28/28 changes DONE; all 16 goals MET; v1.4.0 shipped at b0cf755. Highest-severity open risk is grader fidelity (60-70% confidence at assess time, unvalidated empirically). Three high-value follow-ons: IrohDocsAdapter for sovereign sync (phase-learn-sovereign-sync), full fsrs-rs integration (replacing simplified stub), and grader evaluation dataset (phase-learn-grader-validation). Recommended next phase: phase-learn-sovereign-sync.",
+  "artifacts": [
+    ".kbd-orchestrator/phases/phase-learn-feynman/reflection.md"
+  ],
+  "corrective_actions": [
+    "Write goals.md at assess time, not new-phase time",
+    "Wire artifact-refiner constraints.md before execute for future phases",
+    "Replace simplified FSRS stub with full fsrs-rs integration",
+    "Build grader evaluation dataset as a first-class deliverable in next learn phase"
+  ],
+  "recommended_next_phase": "phase-learn-sovereign-sync"
+}

@@ -1,0 +1,68 @@
+name: Sovereign Sync Rust
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/sovereign-sync.yml"
+      - "substrate/storage-provider/**"
+      - "substrate/sovereign-sync/**"
+      - "substrate/sovereign-client/**"
+  pull_request:
+    branches: [main]
+    paths:
+      - ".github/workflows/sovereign-sync.yml"
+      - "substrate/storage-provider/**"
+      - "substrate/sovereign-sync/**"
+      - "substrate/sovereign-client/**"
+
+jobs:
+  rust:
+    name: ${{ matrix.name }} / ${{ matrix.command }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: storage-provider
+            crate: substrate/storage-provider
+          - name: sovereign-sync
+            crate: substrate/sovereign-sync
+          - name: sovereign-client
+            crate: substrate/sovereign-client
+        command:
+          - fmt
+          - clippy
+          - test
+    defaults:
+      run:
+        working-directory: ${{ matrix.crate }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      - name: Cache cargo registry and build outputs
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            ${{ matrix.crate }}/target
+          key: sovereign-sync-${{ runner.os }}-${{ matrix.name }}-${{ matrix.command }}-${{ hashFiles('substrate/storage-provider/Cargo.lock', 'substrate/sovereign-sync/Cargo.lock', 'substrate/sovereign-client/Cargo.lock') }}
+          restore-keys: |
+            sovereign-sync-${{ runner.os }}-${{ matrix.name }}-
+
+      - name: cargo fmt --check
+        if: matrix.command == 'fmt'
+        run: cargo fmt --check
+
+      - name: cargo clippy
+        if: matrix.command == 'clippy'
+        run: cargo clippy --all-targets --all-features
+
+      - name: cargo test
+        if: matrix.command == 'test'
+        run: cargo test --all-targets --all-features

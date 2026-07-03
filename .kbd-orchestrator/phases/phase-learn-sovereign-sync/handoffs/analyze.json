@@ -1,0 +1,36 @@
+{
+  "stage": "analyze",
+  "phase": "phase-learn-sovereign-sync",
+  "timestamp": "2026-06-28T02:00:00Z",
+  "summary": "15 library candidates: 13 adopt, 2 adapt, 5 reject. Key adopt verdicts: loro 1.13.x (CRDT), iroh 1.0.0 + iroh-gossip (P2P), rmcp 1.8.0 (MCP client/server), redb 4.1.0 (persistence), burn 0.16 + usearch 3.x (skill embedding), @number0/iroh + loro-crdt@1.13.6 + @modelcontextprotocol/sdk@1.29.0 (TypeScript SDK), liter-llm (TypeScript, 140+ providers). Build-required: IrohDocsAdapter, LoroAdapter, sovereign-sync binary, MCP client pool, LLM intent classification, skill activation result struct, AG-UI + A2UI + task schema endpoints, sovereign-client Rust SDK. Operator decisions OQ-1 (phase split) and OQ-4 (delete AutomergeEngine) both RECOMMENDED YES — proceed to plan.",
+  "artifacts": ["analysis.md", "library-candidates.json"],
+  "candidate_count": 15,
+  "adopt_count": 13,
+  "adapt_count": 2,
+  "reject_count": 5,
+  "open_questions": [
+    "OQ-1: Accept Phase A/B split? [RECOMMEND YES — 18 changes confirmed]",
+    "OQ-4: Delete AutomergeEngine? [RECOMMEND DELETE — confirmed YAGNI]"
+  ],
+  "key_adopt_verdicts": [
+    "loro 1.13.x (cand-001)",
+    "iroh 1.0.0 (cand-002)",
+    "iroh-gossip 0.32.x (cand-003)",
+    "rmcp 1.8.0 (cand-004)",
+    "redb 4.1.0 (cand-005)",
+    "burn 0.16 + usearch 3.x (cand-007, cand-008)",
+    "@number0/iroh ~1.0.x (cand-010)",
+    "loro-crdt 1.13.6 (cand-011)",
+    "@modelcontextprotocol/sdk 1.29.0 (cand-012)",
+    "liter-llm NAPI (cand-013)",
+    "AG-UI types from flint-gate (cand-014, adapt)",
+    "A2UI types from flint-gate (cand-015, adapt)"
+  ],
+  "activation_methods_confirmed": [
+    "keyword_match (UAR pattern, adopt as-is)",
+    "similarity_score (Burn MiniLM + USearch)",
+    "hybrid (keyword + similarity merge)",
+    "intent_classification (LLM call via liter-llm or direct API)"
+  ],
+  "tauri_sdk_architecture": "sovereign-sync binary as Tauri externalBin sidecar; web frontend via TypeScript SDK; localhost:7892 IPC; Phase B adds npm package + Tauri app shell"
+}

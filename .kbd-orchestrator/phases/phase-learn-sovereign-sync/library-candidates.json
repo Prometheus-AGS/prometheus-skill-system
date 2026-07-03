@@ -1,0 +1,264 @@
+{
+  "$schema": "https://raw.githubusercontent.com/kbd-orchestrator/schema/main/library-candidates.schema.json",
+  "phase": "phase-learn-sovereign-sync",
+  "produced_at": "2026-06-28",
+  "candidates": [
+    {
+      "id": "cand-001",
+      "name": "loro",
+      "version": "1.13.x",
+      "ecosystem": "rust",
+      "gap_ids": ["G-11"],
+      "verdict": "adopt",
+      "confidence": 0.99,
+      "rationale": "ADR-001 final decision. frf-crdt already uses loro 1.13.x. storage-provider crate must drop automerge 0.5 and adopt loro.",
+      "license": "MIT",
+      "url": "https://crates.io/crates/loro"
+    },
+    {
+      "id": "cand-002",
+      "name": "iroh",
+      "version": "1.0.0",
+      "ecosystem": "rust",
+      "gap_ids": ["G-10", "G-02"],
+      "verdict": "adopt",
+      "confidence": 0.99,
+      "rationale": "Stable QUIC P2P release June 15 2026. IrohDocsAdapter stub exists in substrate/storage-provider. API renames: iroh-net merged, NodeAddr→EndpointAddr, NodeId→EndpointId, discovery→address_lookup.",
+      "license": "MIT/Apache-2.0",
+      "url": "https://crates.io/crates/iroh"
+    },
+    {
+      "id": "cand-003",
+      "name": "iroh-gossip",
+      "version": "0.32.x",
+      "ecosystem": "rust",
+      "gap_ids": ["G-02"],
+      "verdict": "adopt",
+      "confidence": 0.97,
+      "rationale": "Epidemic peer discovery via BLAKE3(operator_pubkey || 'sovereign-sync-v1') TopicId. Three-layer discovery: pkarr bootstrap → iroh-gossip → mDNS LAN shortcut.",
+      "license": "MIT/Apache-2.0",
+      "url": "https://crates.io/crates/iroh-gossip"
+    },
+    {
+      "id": "cand-004",
+      "name": "rmcp",
+      "version": "1.8.0",
+      "ecosystem": "rust",
+      "gap_ids": ["G-03", "G-NEW-1"],
+      "verdict": "adopt",
+      "confidence": 0.98,
+      "rationale": "Official Rust MCP SDK (modelcontextprotocol/rust-sdk), released 2026-06-23. Both MCP server and client. stdio + streamable HTTP. tools/resources/prompts. OAuth 2.0. elicitation. proc-macros.",
+      "license": "MIT",
+      "url": "https://crates.io/crates/rmcp"
+    },
+    {
+      "id": "cand-005",
+      "name": "redb",
+      "version": "4.1.0",
+      "ecosystem": "rust",
+      "gap_ids": ["G-02"],
+      "verdict": "adopt",
+      "confidence": 0.95,
+      "rationale": "Embedded crash-safe persistence. Used in place of Temporal.io for sync-service durable state. Simpler than SQLite for binary KV storage (CRDT metadata, peer table, session state).",
+      "license": "MIT/Apache-2.0",
+      "url": "https://crates.io/crates/redb"
+    },
+    {
+      "id": "cand-006",
+      "name": "statig",
+      "version": "0.4.x",
+      "ecosystem": "rust",
+      "gap_ids": ["G-02"],
+      "verdict": "adopt",
+      "confidence": 0.90,
+      "rationale": "Hierarchical state machine for subsystem lifecycle FSMs (connecting, syncing, idle, error). Alternatives: plain enums (simpler but no hierarchy), s-machine (unmaintained).",
+      "license": "MIT",
+      "url": "https://crates.io/crates/statig"
+    },
+    {
+      "id": "cand-007",
+      "name": "burn",
+      "version": "0.16.x",
+      "ecosystem": "rust",
+      "gap_ids": ["G-NEW-3"],
+      "verdict": "adopt",
+      "confidence": 0.88,
+      "rationale": "On-device embedding inference without ONNX runtime. NDArray backend. UAR uses this for VectorMatcher (skill embedding). MiniLM-L6-v2 model. 22M params, 80ms on M1.",
+      "license": "MIT/Apache-2.0",
+      "url": "https://crates.io/crates/burn"
+    },
+    {
+      "id": "cand-008",
+      "name": "usearch",
+      "version": "3.x",
+      "ecosystem": "rust",
+      "gap_ids": ["G-NEW-3"],
+      "verdict": "adopt",
+      "confidence": 0.88,
+      "rationale": "ANNS vector index, in-process, ARM64-native. UAR uses this for VectorMatcher. Fast approximate nearest neighbor search for skill embedding similarity.",
+      "license": "Apache-2.0",
+      "url": "https://crates.io/crates/usearch"
+    },
+    {
+      "id": "cand-009",
+      "name": "axum",
+      "version": "0.8.8",
+      "ecosystem": "rust",
+      "gap_ids": ["G-02", "G-03", "G-NEW-4"],
+      "verdict": "adopt",
+      "confidence": 0.99,
+      "rationale": "Already used in flint-gate. SSE support via axum::response::Sse. AG-UI and A2UI endpoints port directly from flint-gate patterns.",
+      "license": "MIT",
+      "url": "https://crates.io/crates/axum"
+    },
+    {
+      "id": "cand-010",
+      "name": "@number0/iroh",
+      "version": "~1.0.x",
+      "ecosystem": "typescript",
+      "gap_ids": ["G-07", "G-NEW-4"],
+      "verdict": "adopt",
+      "confidence": 0.97,
+      "rationale": "Correct NAPI npm package for iroh (Node.js only). NOT iroh-js (that is RPC client for iroh.network cloud). Released post-June 15 2026 alongside iroh 1.0.0 stable.",
+      "license": "MIT/Apache-2.0",
+      "url": "https://www.npmjs.com/package/@number0/iroh"
+    },
+    {
+      "id": "cand-011",
+      "name": "loro-crdt",
+      "version": "1.13.6",
+      "ecosystem": "typescript",
+      "gap_ids": ["G-07"],
+      "verdict": "adopt",
+      "confidence": 0.97,
+      "rationale": "Correct npm WASM package for Loro (ships 4 targets: bundler, nodejs, web, base64). NOT loro-wasm (old unmaintained). Current version 1.13.6.",
+      "license": "MIT",
+      "url": "https://www.npmjs.com/package/loro-crdt"
+    },
+    {
+      "id": "cand-012",
+      "name": "@modelcontextprotocol/sdk",
+      "version": "1.29.0",
+      "ecosystem": "typescript",
+      "gap_ids": ["G-NEW-1"],
+      "verdict": "adopt",
+      "confidence": 0.99,
+      "rationale": "Official TypeScript MCP SDK. Stable (v2 alpha deferred Q3 2026). Used in cherry-studio MCP server factory pattern.",
+      "license": "MIT",
+      "url": "https://www.npmjs.com/package/@modelcontextprotocol/sdk"
+    },
+    {
+      "id": "cand-013",
+      "name": "liter-llm (TypeScript NAPI)",
+      "version": "vendored",
+      "ecosystem": "typescript",
+      "gap_ids": ["G-NEW-2"],
+      "verdict": "adopt",
+      "confidence": 0.95,
+      "rationale": "NAPI-RS Node.js bindings for 140+ provider LLM access. Provider auto-detected from model name prefix. Already in vendor/universal-agent-runtime. For TypeScript SDK only — Rust binary uses direct API clients in Phase A.",
+      "license": "Internal",
+      "url": "vendor/universal-agent-runtime/crates/prometheus-skill-system/tools/liter-llm/"
+    },
+    {
+      "id": "cand-014",
+      "name": "AG-UI types (port from flint-gate)",
+      "version": "ported",
+      "ecosystem": "rust",
+      "gap_ids": ["G-NEW-4"],
+      "verdict": "adapt",
+      "confidence": 0.99,
+      "rationale": "flint-gate/src/stream/ag_ui.rs contains production-ready AG-UI event types (15 event types, parse + serialize + inject_metadata). Port directly into sovereign-orchestrator. No upstream Rust AG-UI SDK exists.",
+      "license": "Internal",
+      "url": "flint-gate/src/stream/ag_ui.rs"
+    },
+    {
+      "id": "cand-015",
+      "name": "A2UI types (port from flint-gate)",
+      "version": "ported",
+      "ecosystem": "rust",
+      "gap_ids": ["G-NEW-4"],
+      "verdict": "adapt",
+      "confidence": 0.99,
+      "rationale": "flint-gate/src/stream/a2ui.rs contains production-ready A2UI intent types (7 intents, scope mapping, A2UiProcessor). Port directly. Required scopes: a2ui:render, a2ui:state, a2ui:navigate, a2ui:modal, a2ui:toast, a2ui:input, a2ui:stream.",
+      "license": "Internal",
+      "url": "flint-gate/src/stream/a2ui.rs"
+    }
+  ],
+  "build_required": [
+    {
+      "gap_id": "G-10",
+      "capability": "IrohDocsAdapter implementation",
+      "description": "Implement the currently-stubbed IrohDocsAdapter in substrate/storage-provider/src/iroh_docs.rs using iroh 1.0.0 stable API. Key API renames must be applied.",
+      "complexity": "medium"
+    },
+    {
+      "gap_id": "G-11",
+      "capability": "LoroAdapter (replace AutomergeEngine)",
+      "description": "Delete AutomergeEngine. Implement LoroAdapter using loro 1.13.x. Patterns from frf-crdt (LoroDeltaApplier, apply_delta, InMemoryCrdtStore) are the reference.",
+      "complexity": "medium"
+    },
+    {
+      "gap_id": "G-02",
+      "capability": "sovereign-sync binary",
+      "description": "New Axum binary crate aggregating: iroh P2P, iroh-gossip discovery, Loro CRDT, redb persistence, rmcp client pool, skill matching engine (Burn+USearch), AG-UI + A2UI endpoints.",
+      "complexity": "high"
+    },
+    {
+      "gap_id": "G-NEW-1",
+      "capability": "MCP client pool in orchestrator",
+      "description": "Pool of rmcp 1.8.0 clients loaded from mcp-servers.json config. Unified tool registry. Tool aggregation → LLM context. Skill invocation via MCP tool call.",
+      "complexity": "medium"
+    },
+    {
+      "gap_id": "G-NEW-2",
+      "capability": "LLM intent classification (Llm algorithm)",
+      "description": "Implement UAR stub: prompt LLM with skill catalog + user query → JSON match list. Use liter-llm HTTP proxy (TypeScript) or direct Anthropic/OpenAI client (Rust).",
+      "complexity": "medium"
+    },
+    {
+      "gap_id": "G-NEW-3",
+      "capability": "SkillActivationResult + SkillMatchingAlgorithm",
+      "description": "Port UAR SkillMatchingAlgorithm (5 variants) + SkillService.match_skills logic. Add SkillActivationResult with activation_method, similarity_score, trigger_tokens, matched_keywords for SSE payload.",
+      "complexity": "medium"
+    },
+    {
+      "gap_id": "G-NEW-4",
+      "capability": "AG-UI endpoint + task schema + A2UI streaming + inter-node proxy",
+      "description": "GET /sovereign/tasks/schema, POST /sovereign/tasks/{id}/run (AG-UI SSE), GET /sovereign/tasks/{id}/status. Task schema JSON for Tauri UI binding. Inter-node proxy via iroh QUIC.",
+      "complexity": "high"
+    },
+    {
+      "gap_id": "G-07",
+      "capability": "sovereign-client Rust SDK",
+      "description": "Thin reqwest-based SDK: SovereignClient struct, connect(), invoke_task(), stream_task() (SSE consumer). Used for server-to-server calls.",
+      "complexity": "low"
+    }
+  ],
+  "rejected": [
+    {
+      "name": "Signal Protocol / libsignal",
+      "reason": "REJECTED (assessment ADR-002): iroh QUIC TLS 1.3 + Ed25519 node keys are sufficient. Double Ratchet + X3DH adds 50k lines of complexity with no threat model justification.",
+      "gap_ids": []
+    },
+    {
+      "name": "Temporal.io (Rust SDK)",
+      "reason": "REJECTED (assessment ADR-03): Rust SDK is Public Preview (prerelease). Requires server cluster. redb 4.1.0 handles durable state for P2P node. Temporal deferred to cloud substrate if ever needed.",
+      "gap_ids": []
+    },
+    {
+      "name": "loro-go / iroh Go FFI",
+      "reason": "REJECTED (assessment ADR-05): loro-go referenced in README but no public repo exists. iroh has no Go bindings. Go SDK uses HTTP REST over Axum — no FFI required.",
+      "gap_ids": ["G-08"]
+    },
+    {
+      "name": "AutomergeEngine",
+      "reason": "DELETE: YAGNI. Never shipped to production. Replaced by LoroAdapter.",
+      "gap_ids": ["G-11"]
+    },
+    {
+      "name": "iroh-js (npm)",
+      "reason": "REJECTED: RPC client for iroh.network cloud only. Use @number0/iroh (NAPI) instead.",
+      "gap_ids": []
+    }
+  ]
+}
