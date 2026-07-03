@@ -19,7 +19,7 @@ Research on Google's Open Knowledge Format (OKF) v0.1, released 2026-06-12, and 
 
 ## Full Report
 
-[Read the complete research report](/Users/gqadonis/Projects/prometheus/research/google-okf-llm-wiki-standards-report.md)
+[Read the complete research report](/docs/deep-research/research/google-okf-llm-wiki-standards-report.md)
 
 **Date:** 2026-07-03  
 **Researcher:** Prometheus Research Agent  

@@ -16,7 +16,7 @@ Foundational research on knowledge storage architectures for deep research: know
 
 ## Full Report
 
-[Read the complete research report](/Users/gqadonis/Projects/prometheus/research/knowledge-assets-architecture-report.md)
+[Read the complete research report](/docs/deep-research/research/knowledge-assets-architecture-report.md)
 
 **Date:** 2026-07-03  
 **Researcher:** Prometheus Research Agent  

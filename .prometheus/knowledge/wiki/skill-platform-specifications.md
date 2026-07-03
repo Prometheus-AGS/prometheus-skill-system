@@ -19,7 +19,7 @@ Cross-platform analysis of skill/agent platforms: agentskills.io, Claude Code, C
 
 ## Full Report
 
-[Read the complete research report](/Users/gqadonis/Projects/prometheus/research/skill-platform-specifications-report.md)
+[Read the complete research report](/docs/deep-research/research/skill-platform-specifications-report.md)
 
 **Date:** 2026-07-03  
 **Researcher:** Prometheus Research Agent  

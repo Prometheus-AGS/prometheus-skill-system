@@ -12,14 +12,14 @@ This document is the master specification for the **Prometheus Deep Research Ski
 
 - **Full Specification:** [`/docs/deep-research/index.md`](/docs/deep-research/index.md) — 1,685 lines, 22 sections, 96 sub-sections
 - **Research Reports:**
-  - [Deep Research Skill Landscape](/deep-research-skill-landscape-report.md) — GPT Researcher, LangGraph, MiroThinker, etc.
-  - [Skill Platform Specifications](/skill-platform-specifications-report.md) — agentskills.io, Claude, Codex, OpenCode, Cursor, Kimi, MiniMax
-  - [AG-UI / A2UI / MCP App UI Frameworks](/ag-ui-a2ui-mcp-app-ui-frameworks-research.md) — Agent-User interaction protocols
-  - [Knowledge Assets & Architecture](/knowledge-assets-architecture-report.md) — Knowledge graph, vector DB, embedding strategies
-  - [Deep Research + Feynman Integration](/deep-research-feynman-integration-patterns.md) — Learning loop integration patterns
-  - [Google OKF LLM Wiki Standards](/google-okf-llm-wiki-standards-report.md) — Open Knowledge Format v0.1
-  - [Threaded/Concurrent Research](/threaded-concurrent-research-per-thread-context.md) — Per-thread context isolation
-  - [Long-Running Research Process Management](/long-running-research-process-management-report.md) — Checkpointing, drift detection
+  - [Deep Research Skill Landscape](/docs/deep-research/research/deep-research-skill-landscape-report.md) — GPT Researcher, LangGraph, MiroThinker, etc.
+  - [Skill Platform Specifications](/docs/deep-research/research/skill-platform-specifications-report.md) — agentskills.io, Claude, Codex, OpenCode, Cursor, Kimi, MiniMax
+  - [AG-UI / A2UI / MCP App UI Frameworks](/docs/deep-research/research/ag-ui-a2ui-mcp-app-ui-frameworks-research.md) — Agent-User interaction protocols
+  - [Knowledge Assets & Architecture](/docs/deep-research/research/knowledge-assets-architecture-report.md) — Knowledge graph, vector DB, embedding strategies
+  - [Deep Research + Feynman Integration](/docs/deep-research/research/deep-research-feynman-integration-patterns.md) — Learning loop integration patterns
+  - [Google OKF LLM Wiki Standards](/docs/deep-research/research/google-okf-llm-wiki-standards-report.md) — Open Knowledge Format v0.1
+  - [Threaded/Concurrent Research](/docs/deep-research/research/threaded-concurrent-research-per-thread-context.md) — Per-thread context isolation
+  - [Long-Running Research Process Management](/docs/deep-research/research/long-running-research-process-management-report.md) — Checkpointing, drift detection
 
 ## Architecture at a Glance
 

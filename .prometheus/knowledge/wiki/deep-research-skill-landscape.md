@@ -14,7 +14,7 @@ Comprehensive survey of existing deep research agents and skills, including GPT 
 
 ## Full Report
 
-[Read the complete research report](/Users/gqadonis/Projects/prometheus/research/deep-research-skill-landscape-report.md)
+[Read the complete research report](/docs/deep-research/research/deep-research-skill-landscape-report.md)
 
 **Date:** 2026-07-03  
 **Researcher:** Prometheus Research Agent  

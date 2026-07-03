@@ -16,7 +16,7 @@ Research on implementing threaded and concurrent research with isolated per-thre
 
 ## Full Report
 
-[Read the complete research report](/Users/gqadonis/Projects/prometheus/research/threaded_concurrent_research_per_thread_context.md)
+[Read the complete research report](/docs/deep-research/research/threaded_concurrent_research_per_thread_context.md)
 
 **Date:** 2026-07-03  
 **Researcher:** Prometheus Research Agent  

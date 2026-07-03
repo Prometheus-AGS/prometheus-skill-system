@@ -19,7 +19,7 @@ Research on managing long-running research processes: checkpointing, drift detec
 
 ## Full Report
 
-[Read the complete research report](/Users/gqadonis/Projects/prometheus/research/long-running-research-process-management-report.md)
+[Read the complete research report](/docs/deep-research/research/long-running-research-process-management-report.md)
 
 **Date:** 2026-07-03  
 **Researcher:** Prometheus Research Agent  

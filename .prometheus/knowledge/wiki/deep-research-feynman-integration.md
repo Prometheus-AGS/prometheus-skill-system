@@ -16,7 +16,7 @@ Research into how deep research combines with Feynman learning skills, Karpathy 
 
 ## Full Report
 
-[Read the complete research report](/Users/gqadonis/Projects/prometheus/research/deep-research-feynman-integration-patterns.md)
+[Read the complete research report](/docs/deep-research/research/deep-research-feynman-integration-patterns.md)
 
 **Date:** 2026-07-03  
 **Researcher:** Prometheus Research Agent  

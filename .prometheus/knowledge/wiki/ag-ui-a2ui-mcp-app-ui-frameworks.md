@@ -17,7 +17,7 @@ Research into Agent-User interaction protocols, generative UI specifications, an
 
 ## Full Report
 
-[Read the complete research report](/Users/gqadonis/Projects/prometheus/research/ag-ui-a2ui-mcp-app-ui-frameworks-research.md)
+[Read the complete research report](/docs/deep-research/research/ag-ui-a2ui-mcp-app-ui-frameworks-research.md)
 
 **Date:** 2026-07-03  
 **Researcher:** Prometheus Research Agent  
