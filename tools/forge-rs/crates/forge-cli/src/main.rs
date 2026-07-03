@@ -20,7 +20,11 @@ use clap::{Parser, Subcommand};
 use std::path::PathBuf;
 
 #[derive(Parser)]
-#[command(name = "forge", version, about = "forge-rs: code enrichment for Prometheus AGS")]
+#[command(
+    name = "forge",
+    version,
+    about = "forge-rs: code enrichment for Prometheus AGS"
+)]
 struct Cli {
     /// Project root (default: current directory)
     #[arg(long, global = true, default_value = ".")]
@@ -152,8 +156,7 @@ fn resolve_skills_root(provided: Option<PathBuf>) -> PathBuf {
 async fn main() -> Result<()> {
     tracing_subscriber::fmt()
         .with_env_filter(
-            tracing_subscriber::EnvFilter::from_default_env()
-                .add_directive("forge=info".parse()?),
+            tracing_subscriber::EnvFilter::from_default_env().add_directive("forge=info".parse()?),
         )
         .init();
 
@@ -162,11 +165,8 @@ async fn main() -> Result<()> {
 
     match cli.command {
         Commands::Enrich { task_path } => {
-            let enricher = forge_enricher::Enricher::new(
-                &skills_root,
-                &cli.project_root,
-                cli.pk_mcp_url,
-            )?;
+            let enricher =
+                forge_enricher::Enricher::new(&skills_root, &cli.project_root, cli.pk_mcp_url)?;
             let ctx = enricher.enrich(&task_path).await?;
 
             println!("✅ Enriched: {}", ctx.task_description);
@@ -233,7 +233,11 @@ async fn main() -> Result<()> {
                 Some(constitution) => {
                     let warnings = forge_enricher::check_constitution(constitution, &content);
                     if warnings.is_empty() {
-                        println!("✅ {} passed {} constitution (no violations).", file.display(), language);
+                        println!(
+                            "✅ {} passed {} constitution (no violations).",
+                            file.display(),
+                            language
+                        );
                     } else {
                         let errors: Vec<_> = warnings
                             .iter()
@@ -284,7 +288,11 @@ async fn main() -> Result<()> {
             } else {
                 0
             };
-            println!("Constitutions:  {} file(s) in {}", constitution_count, constitution_dir.display());
+            println!(
+                "Constitutions:  {} file(s) in {}",
+                constitution_count,
+                constitution_dir.display()
+            );
 
             let drift_dir = forge_dir.join("memory").join("drift");
             let drift_count = if drift_dir.exists() {
@@ -298,7 +306,9 @@ async fn main() -> Result<()> {
 
             match &cli.pk_mcp_url {
                 Some(url) => println!("PK MCP URL:     {} [configured]", url),
-                None => println!("PK MCP URL:     [not configured] — optimise/generate/evolve gated"),
+                None => {
+                    println!("PK MCP URL:     [not configured] — optimise/generate/evolve gated")
+                }
             }
 
             println!("\nActive features:");
@@ -312,40 +322,52 @@ async fn main() -> Result<()> {
             println!("  [EXPERIMENTAL] evolve    — requires --pk-mcp-url");
         }
 
-        Commands::Skill { action } => match action {
-            SkillAction::List { language } => {
-                println!("Skills in {}:", skills_root.display());
-                for entry in std::fs::read_dir(&skills_root)? {
-                    let path = entry?.path();
-                    if path.is_dir() {
-                        let lang = path.file_name().unwrap().to_string_lossy().to_string();
-                        if let Some(ref filter) = language {
-                            if &lang != filter {
-                                continue;
+        Commands::Skill { action } => {
+            match action {
+                SkillAction::List { language } => {
+                    println!("Skills in {}:", skills_root.display());
+                    for entry in std::fs::read_dir(&skills_root)? {
+                        let path = entry?.path();
+                        if path.is_dir() {
+                            let lang = path.file_name().unwrap().to_string_lossy().to_string();
+                            if let Some(ref filter) = language {
+                                if &lang != filter {
+                                    continue;
+                                }
                             }
-                        }
-                        println!("  {}:", lang);
-                        for skill in std::fs::read_dir(&path)? {
-                            let skill_path = skill?.path();
-                            if skill_path.is_dir() {
-                                println!(
-                                    "    - {}",
-                                    skill_path.file_name().unwrap().to_string_lossy()
-                                );
+                            println!("  {}:", lang);
+                            for skill in std::fs::read_dir(&path)? {
+                                let skill_path = skill?.path();
+                                if skill_path.is_dir() {
+                                    println!(
+                                        "    - {}",
+                                        skill_path.file_name().unwrap().to_string_lossy()
+                                    );
+                                }
                             }
                         }
                     }
                 }
+                SkillAction::Add { name } => {
+                    println!(
+                        "Add skill '{}' — skill registry pull not yet implemented.",
+                        name
+                    );
+                    println!(
+                        "Manually copy skill to {}/<language>/{}/",
+                        skills_root.display(),
+                        name
+                    );
+                }
+                SkillAction::Sync => {
+                    println!(
+                        "Syncing skills from skill pack at {}...",
+                        skills_root.display()
+                    );
+                    println!("✅ Skills are loaded from the skill pack root on every `forge enrich` call.");
+                }
             }
-            SkillAction::Add { name } => {
-                println!("Add skill '{}' — skill registry pull not yet implemented.", name);
-                println!("Manually copy skill to {}/<language>/{}/", skills_root.display(), name);
-            }
-            SkillAction::Sync => {
-                println!("Syncing skills from skill pack at {}...", skills_root.display());
-                println!("✅ Skills are loaded from the skill pack root on every `forge enrich` call.");
-            }
-        },
+        }
 
         Commands::Constitution { language } => {
             let constitution_path = cli
@@ -365,7 +387,11 @@ async fn main() -> Result<()> {
                 .status()?;
         }
 
-        Commands::PackageLibrefang { agent_dir, no_build, output } => {
+        Commands::PackageLibrefang {
+            agent_dir,
+            no_build,
+            output,
+        } => {
             package_librefang(&agent_dir, no_build, output)?;
         }
     }
@@ -373,11 +399,7 @@ async fn main() -> Result<()> {
     Ok(())
 }
 
-fn package_librefang(
-    agent_dir: &PathBuf,
-    no_build: bool,
-    output: Option<PathBuf>,
-) -> Result<()> {
+fn package_librefang(agent_dir: &PathBuf, no_build: bool, output: Option<PathBuf>) -> Result<()> {
     use std::io::Write as _;
 
     // 1. Read and parse skill.toml
@@ -435,9 +457,8 @@ fn package_librefang(
         .with_context(|| format!("Cannot read {}", wasm_path.display()))?;
 
     // 4. Write the zip
-    let zip_path = output.unwrap_or_else(|| {
-        PathBuf::from(format!("{name}-{version}.lf-skill.zip"))
-    });
+    let zip_path =
+        output.unwrap_or_else(|| PathBuf::from(format!("{name}-{version}.lf-skill.zip")));
     let zip_file = std::fs::File::create(&zip_path)
         .with_context(|| format!("Cannot create {}", zip_path.display()))?;
     let mut zip = zip::ZipWriter::new(zip_file);
@@ -455,7 +476,10 @@ fn package_librefang(
     println!("✅ Packaged: {}", zip_path.display());
     println!("   Skill:    {} v{}", name, version);
     println!("   WASM:     {} ({} KB)", entry, wasm_bytes.len() / 1024);
-    println!("   Install:  librefang skill install {}", zip_path.display());
+    println!(
+        "   Install:  librefang skill install {}",
+        zip_path.display()
+    );
     Ok(())
 }
 

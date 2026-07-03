@@ -32,7 +32,7 @@ use uuid::Uuid;
 pub struct Enricher {
     skill_registry: SkillRegistry,
     constitutions: HashMap<Language, Constitution>,
-    forge_dir: PathBuf,        // `.forge/` in the project
+    forge_dir: PathBuf,         // `.forge/` in the project
     pk_mcp_url: Option<String>, // Optional prometheus-knowledge MCP endpoint
 }
 
@@ -46,10 +46,7 @@ impl Enricher {
         let project_skills = forge_dir.join("skills");
         let constitution_dir = forge_dir.join("constitution");
 
-        let skill_registry = SkillRegistry::load(
-            skills_root,
-            Some(&project_skills),
-        )?;
+        let skill_registry = SkillRegistry::load(skills_root, Some(&project_skills))?;
 
         let constitutions = load_constitutions(&constitution_dir)?;
 
@@ -67,19 +64,18 @@ impl Enricher {
         let task = read_task(task_path)?;
         let language = detect_language(task_path, &task.description)?;
 
-        info!(
-            "Enriching task: {} (language: {:?})",
-            task.id,
-            language
-        );
+        info!("Enriching task: {} (language: {:?})", task.id, language);
 
         // 2. Load drift data; pass stale set into resolve() so it can deprioritize them
         let stale_skills = load_stale_skills(&self.forge_dir, &language);
 
         // Resolve applicable skills — stale skills sorted to end, never silently dropped
-        let skills = self
-            .skill_registry
-            .resolve(&language, &task.description, task.path_str(), &stale_skills);
+        let skills = self.skill_registry.resolve(
+            &language,
+            &task.description,
+            task.path_str(),
+            &stale_skills,
+        );
 
         info!("Resolved {} skill(s)", skills.len());
 
@@ -263,7 +259,10 @@ fn detect_language(task_path: &Path, description: &str) -> Result<Language> {
     if desc_lower.contains("react") || desc_lower.contains("vite") || desc_lower.contains("tsx") {
         return Ok(Language::React);
     }
-    if desc_lower.contains("flutter") || desc_lower.contains("dart") || desc_lower.contains("riverpod") {
+    if desc_lower.contains("flutter")
+        || desc_lower.contains("dart")
+        || desc_lower.contains("riverpod")
+    {
         return Ok(Language::Flutter);
     }
     if desc_lower.contains("tauri") {
@@ -312,7 +311,10 @@ fn summarize_constitution(c: &Constitution) -> String {
     }
     lines.push("## Forbidden Patterns".to_string());
     for f in &c.forbidden_patterns {
-        lines.push(format!("- `{}` — {} ({:?})", f.pattern, f.reason, f.severity));
+        lines.push(format!(
+            "- `{}` — {} ({:?})",
+            f.pattern, f.reason, f.severity
+        ));
     }
     lines.join("\n")
 }
@@ -324,7 +326,10 @@ pub fn check_constitution(c: &Constitution, description: &str) -> Vec<Constituti
         .filter(|f| desc_lower.contains(&f.pattern.to_lowercase()))
         .map(|f| ConstitutionWarning {
             rule: f.pattern.clone(),
-            violation: format!("Task description references forbidden pattern: {}", f.pattern),
+            violation: format!(
+                "Task description references forbidden pattern: {}",
+                f.pattern
+            ),
             severity: f.severity.clone(),
         })
         .collect()
@@ -384,13 +389,7 @@ async fn call_pk_focus_mcp(url: &str, description: &str) -> Result<String> {
             "arguments": { "topic": description }
         }
     });
-    let resp: serde_json::Value = client
-        .post(url)
-        .json(&payload)
-        .send()
-        .await?
-        .json()
-        .await?;
+    let resp: serde_json::Value = client.post(url).json(&payload).send().await?.json().await?;
 
     Ok(resp["result"]["content"][0]["text"]
         .as_str()
@@ -432,7 +431,10 @@ fn render_context_document(ctx: &EnrichmentContext) -> String {
     if !ctx.constitution_warnings.is_empty() {
         doc.push_str("## ⚠️ Constitution Warnings\n\n");
         for w in &ctx.constitution_warnings {
-            doc.push_str(&format!("- **{}**: {} ({:?})\n", w.rule, w.violation, w.severity));
+            doc.push_str(&format!(
+                "- **{}**: {} ({:?})\n",
+                w.rule, w.violation, w.severity
+            ));
         }
         doc.push('\n');
     }
@@ -444,7 +446,10 @@ fn render_context_document(ctx: &EnrichmentContext) -> String {
     }
 
     for template in &ctx.rendered_templates {
-        doc.push_str(&format!("## Skill: {} — {}\n\n", template.skill_name, template.template_path));
+        doc.push_str(&format!(
+            "## Skill: {} — {}\n\n",
+            template.skill_name, template.template_path
+        ));
         doc.push_str(&template.content);
         doc.push_str("\n\n");
     }
@@ -560,7 +565,10 @@ mod tests {
         });
         std::fs::write(drift_dir.join("rust-2026-01-01.json"), report.to_string()).unwrap();
         let stale = load_stale_skills(&tmp, &Language::Rust);
-        assert!(stale.contains("axum-patterns"), "expected axum-patterns in stale set");
+        assert!(
+            stale.contains("axum-patterns"),
+            "expected axum-patterns in stale set"
+        );
     }
 
     #[test]
@@ -575,7 +583,10 @@ mod tests {
         });
         std::fs::write(drift_dir.join("react-2026-01-01.json"), report.to_string()).unwrap();
         let stale = load_stale_skills(&tmp, &Language::Rust);
-        assert!(stale.is_empty(), "rust filter should exclude react drift files");
+        assert!(
+            stale.is_empty(),
+            "rust filter should exclude react drift files"
+        );
     }
 
     // ─── detect_language (path hints) ───────────────────────────────────────

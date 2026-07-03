@@ -74,7 +74,10 @@ impl SkillRegistry {
 
         // Within each bucket: always-for-language skills first, then keyword/path-triggered
         let priority_key = |m: &&SkillManifest| -> u8 {
-            if m.triggers.iter().any(|t| matches!(t, SkillTrigger::AlwaysForLanguage { .. })) {
+            if m.triggers
+                .iter()
+                .any(|t| matches!(t, SkillTrigger::AlwaysForLanguage { .. }))
+            {
                 0
             } else {
                 1
@@ -113,7 +116,10 @@ impl SkillRegistry {
             let (_, template_dir) = match self.skills.get(&manifest.name) {
                 Some(entry) => entry,
                 None => {
-                    warn!("Skill {} not found in registry for rendering", manifest.name);
+                    warn!(
+                        "Skill {} not found in registry for rendering",
+                        manifest.name
+                    );
                     continue;
                 }
             };
@@ -122,7 +128,10 @@ impl SkillRegistry {
                 let template_path = template_dir.join(&template_ref.path);
                 let template_name = format!("{}/{}", manifest.name, template_ref.path);
 
-                match self.tera.render(&template_name, &tera::Context::from_serialize(task_context)?) {
+                match self.tera.render(
+                    &template_name,
+                    &tera::Context::from_serialize(task_context)?,
+                ) {
                     Ok(content) => {
                         rendered.push(RenderedTemplate {
                             skill_name: manifest.name.clone(),
@@ -160,8 +169,8 @@ fn load_from_dir(
 
         let raw = std::fs::read_to_string(manifest_path)
             .with_context(|| format!("reading {}", manifest_path.display()))?;
-        let manifest: SkillManifest = toml::from_str(&raw)
-            .with_context(|| format!("parsing {}", manifest_path.display()))?;
+        let manifest: SkillManifest =
+            toml::from_str(&raw).with_context(|| format!("parsing {}", manifest_path.display()))?;
 
         // Register Tera templates
         let templates_dir = skill_dir.join("templates");
@@ -203,7 +212,9 @@ fn skill_applies(
         SkillTrigger::AlwaysForLanguage { language: l } => l == language,
         SkillTrigger::Keywords { keywords } => {
             let desc_lower = task_description.to_lowercase();
-            keywords.iter().any(|k| desc_lower.contains(&k.to_lowercase()))
+            keywords
+                .iter()
+                .any(|k| desc_lower.contains(&k.to_lowercase()))
         }
         SkillTrigger::PathGlob { glob } => {
             // Simple glob: just check if the path contains the pattern
@@ -344,7 +355,10 @@ mod tests {
         let registry = make_registry(vec![react_skill]);
 
         let resolved = registry.resolve(&Language::Rust, "task", "", &HashSet::new());
-        assert!(resolved.is_empty(), "React skill must not resolve for Rust task");
+        assert!(
+            resolved.is_empty(),
+            "React skill must not resolve for Rust task"
+        );
     }
 
     // ─── topological_sort ────────────────────────────────────────────────────

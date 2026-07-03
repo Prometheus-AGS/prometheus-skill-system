@@ -6,7 +6,9 @@
 
 use anyhow::{Context, Result};
 use chrono::Utc;
-use forge_core::{DriftReport, DriftType, IterationRecord, Language, SkillDrift, SkillDriftSummary};
+use forge_core::{
+    DriftReport, DriftType, IterationRecord, Language, SkillDrift, SkillDriftSummary,
+};
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 use tracing::info;
@@ -128,11 +130,27 @@ fn compute_drift(record: &IterationRecord) -> DriftReport {
         .into_iter()
         .map(|(name, types)| {
             let total = types.len() as u32;
-            let accepted = types.iter().filter(|t| matches!(t, DriftType::Accepted)).count() as u32;
-            let modified = types.iter().filter(|t| matches!(t, DriftType::Modified)).count() as u32;
-            let replaced = types.iter().filter(|t| matches!(t, DriftType::Replaced)).count() as u32;
-            let deleted  = types.iter().filter(|t| matches!(t, DriftType::Deleted)).count()  as u32;
-            let acceptance_rate = if total > 0 { accepted as f32 / total as f32 } else { 1.0 };
+            let accepted = types
+                .iter()
+                .filter(|t| matches!(t, DriftType::Accepted))
+                .count() as u32;
+            let modified = types
+                .iter()
+                .filter(|t| matches!(t, DriftType::Modified))
+                .count() as u32;
+            let replaced = types
+                .iter()
+                .filter(|t| matches!(t, DriftType::Replaced))
+                .count() as u32;
+            let deleted = types
+                .iter()
+                .filter(|t| matches!(t, DriftType::Deleted))
+                .count() as u32;
+            let acceptance_rate = if total > 0 {
+                accepted as f32 / total as f32
+            } else {
+                1.0
+            };
 
             SkillDriftSummary {
                 skill_name: name,
@@ -160,7 +178,10 @@ fn format_ingestion_summary(record: &IterationRecord, drift: &DriftReport) -> St
     let mut lines = vec![
         format!("# Forge Reflect: {}", record.task_id),
         format!("Language: {:?}", record.language),
-        format!("Completed: {}", record.completed_at.format("%Y-%m-%d %H:%M UTC")),
+        format!(
+            "Completed: {}",
+            record.completed_at.format("%Y-%m-%d %H:%M UTC")
+        ),
         String::new(),
         "## Applied Skills".to_string(),
     ];
@@ -176,11 +197,8 @@ fn format_ingestion_summary(record: &IterationRecord, drift: &DriftReport) -> St
     }
 
     // Stale skills
-    let stale: Vec<&SkillDriftSummary> = drift
-        .skills
-        .iter()
-        .filter(|s| s.stale_candidate)
-        .collect();
+    let stale: Vec<&SkillDriftSummary> =
+        drift.skills.iter().filter(|s| s.stale_candidate).collect();
 
     if !stale.is_empty() {
         lines.push(String::new());
@@ -200,7 +218,10 @@ fn format_ingestion_summary(record: &IterationRecord, drift: &DriftReport) -> St
         lines.push(String::new());
         lines.push("## Recurring Constitution Violations".to_string());
         for v in &record.constitution_violations {
-            lines.push(format!("- `{}`: {} (recurrence: {})", v.rule, v.occurrence, v.recurrence_count));
+            lines.push(format!(
+                "- `{}`: {} (recurrence: {})",
+                v.rule, v.occurrence, v.recurrence_count
+            ));
         }
     }
 
@@ -231,7 +252,10 @@ async fn ingest_to_pk_cli(content: &str, source: &str) -> Result<()> {
     if !status.success() {
         tracing::warn!("pk ingest exited with status: {}", status);
     } else {
-        info!("Ingested reflection to prometheus-knowledge (source: {})", source);
+        info!(
+            "Ingested reflection to prometheus-knowledge (source: {})",
+            source
+        );
     }
     Ok(())
 }
@@ -288,7 +312,10 @@ mod tests {
         assert_eq!(summary.accepted_count, 2);
         assert_eq!(summary.total_applications, 2);
         assert!((summary.acceptance_rate - 1.0).abs() < f32::EPSILON);
-        assert!(!summary.stale_candidate, "all-accepted skill must not be stale");
+        assert!(
+            !summary.stale_candidate,
+            "all-accepted skill must not be stale"
+        );
     }
 
     #[test]
@@ -369,9 +396,7 @@ mod tests {
 
     #[test]
     fn format_ingestion_summary_omits_stale_section_when_all_fresh() {
-        let record = make_record(vec![
-            skill_drift("good-skill", DriftType::Accepted),
-        ]);
+        let record = make_record(vec![skill_drift("good-skill", DriftType::Accepted)]);
         let drift = compute_drift(&record);
         let summary = format_ingestion_summary(&record, &drift);
         assert!(
@@ -385,6 +410,9 @@ mod tests {
     #[test]
     fn reflector_new_sets_forge_dir() {
         let r = Reflector::new(std::path::Path::new("/tmp/my-project"));
-        assert_eq!(r.forge_dir, std::path::PathBuf::from("/tmp/my-project/.forge"));
+        assert_eq!(
+            r.forge_dir,
+            std::path::PathBuf::from("/tmp/my-project/.forge")
+        );
     }
 }
