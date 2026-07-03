@@ -73,6 +73,10 @@ SCRATCHPAD.md
 
 # Machine-local runtime state
 .prometheus/
+!.prometheus/knowledge/wiki/
+!.prometheus/knowledge/wiki/*.md
+!.prometheus/knowledge/wiki/index.md
+!.prometheus/knowledge/wiki/log.md
 .kbd-orchestrator/**/project.json
 
 # Local env overrides
