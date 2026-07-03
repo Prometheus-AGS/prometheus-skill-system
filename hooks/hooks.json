@@ -2,6 +2,18 @@
   "hooks": {
     "SessionStart": [
       {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ~/.local/bin/kbd-open 2>&1 || true",
+            "timeout": 30000
+          }
+        ],
+        "description": "kbd-open \u2014 prime session with KBD phase context + focused wiki + pending skill-updates",
+        "id": "sessionstart:kbd-open"
+      },
+      {
         "hooks": [
           {
             "type": "command",
@@ -236,8 +248,32 @@
           {
             "type": "command",
             "command": "bash ${CLAUDE_PLUGIN_ROOT}/shared/scripts/forge-reflect-on-stop.sh 2>&1 || true"
+          },
+          {
+            "type": "command",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT}/shared/scripts/propose-skill-update.sh 2>&1 || true",
+            "timeout": 30000
+          },
+          {
+            "type": "command",
+            "command": "bash ~/.local/bin/kbd-close 2>&1 || true",
+            "timeout": 60000
           }
         ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ~/.local/bin/kbd-close 2>&1 || true",
+            "timeout": 60000
+          }
+        ],
+        "description": "kbd-close \u2014 capture session context before compaction into wiki",
+        "id": "precompact:kbd-close"
       }
     ]
   }

@@ -2,6 +2,7 @@ import { tool, type Plugin, type PluginModule, type Hooks } from '@opencode-ai/p
 import evolveToolDef from './tools/evolve.js';
 import gitopsToolDef from './tools/gitops.js';
 import kbdToolDef from './tools/kbd.js';
+import kbdCloseToolDef from './tools/kbd-close.js';
 
 const evolveTool = tool({
   description: evolveToolDef.description,
@@ -83,11 +84,41 @@ const kbdTool = tool({
   },
 });
 
+const kbdCloseTool = tool({
+  description: kbdCloseToolDef.description,
+  args: {
+    summary_file: tool.schema
+      .string()
+      .optional()
+      .describe(
+        'Path to a markdown / text file containing the session summary. ' +
+          'If omitted, reads from stdin; if stdin is empty, falls back to ' +
+          '~/.prometheus/last-session-summary.txt.'
+      ),
+    source_tag: tool.schema
+      .string()
+      .optional()
+      .describe(
+        'Tag for the wiki entry source (e.g. "opencode-kbd-phase-3"). ' +
+          'Defaults to "opencode-kbd-close".'
+      ),
+    summary_text: tool.schema
+      .string()
+      .optional()
+      .describe('Inline summary text. If provided, takes precedence over file/stdin.'),
+  },
+  async execute(args, context) {
+    const result = await kbdCloseToolDef.execute(args as Record<string, unknown>, context);
+    return JSON.stringify(result, null, 2);
+  },
+});
+
 const hooks: Hooks = {
   tool: {
     evolve: evolveTool,
     gitops: gitopsTool,
     kbd: kbdTool,
+    'kbd-close': kbdCloseTool,
   },
 
   'shell.env': async (_input, output) => {
