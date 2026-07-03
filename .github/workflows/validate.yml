@@ -178,7 +178,10 @@ jobs:
       - name: Run BDD scenarios
         run: npm run cucumber
         env:
-          FORGE_BIN: tools/forge-rs/target/debug/forge
+          # Absolute path: the cucumber steps spawn forge with cwd set to a temp
+          # workdir, so a relative FORGE_BIN would resolve against that temp dir
+          # (ENOENT → spawnSync status null). Must be absolute.
+          FORGE_BIN: ${{ github.workspace }}/tools/forge-rs/target/debug/forge
 
   secret-scan:
     name: Secret scanning (gitleaks)
