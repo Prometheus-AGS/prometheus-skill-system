@@ -40,7 +40,7 @@
     "check:opencode": "tsc -p .opencode/tsconfig.json --noEmit",
     "update": "bash scripts/update-skill-pack.sh",
     "update:force": "bash scripts/update-skill-pack.sh --force",
-    "cucumber": "cucumber-js tests/features/**/*.feature --import tests/steps/**/*.ts --require-module ts-node/register"
+    "cucumber": "NODE_OPTIONS=\"--import tsx\" cucumber-js"
   },
   "keywords": [
     "claude-code",
