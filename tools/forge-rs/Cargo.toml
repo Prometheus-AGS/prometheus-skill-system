@@ -28,6 +28,9 @@ axum-extra   = { version = "0.10", features = ["typed-header"] }
 tower        = { version = "0.5" }
 tower-http   = { version = "0.6", features = ["cors", "trace", "auth"] }
 
+# Constant-time comparison for bearer-token auth (timing-attack resistant)
+subtle       = "2"
+
 # Serialization
 serde        = { version = "1", features = ["derive"] }
 serde_json   = "1"
