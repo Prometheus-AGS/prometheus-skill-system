@@ -183,14 +183,41 @@ jobs:
   secret-scan:
     name: Secret scanning (gitleaks)
     runs-on: ubuntu-latest
+    # Runs the MIT-licensed gitleaks CLI directly instead of
+    # gitleaks/gitleaks-action@v2, which requires a paid GITLEAKS_LICENSE
+    # secret for organization-owned repos. The CLI needs no license and
+    # scans the full commit history the same way.
+    env:
+      GITLEAKS_VERSION: 8.30.1
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - uses: gitleaks/gitleaks-action@v2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Install gitleaks
+        run: |
+          set -euo pipefail
+          url="https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+          curl -sSfL "$url" -o /tmp/gitleaks.tar.gz
+          tar -xzf /tmp/gitleaks.tar.gz -C /tmp gitleaks
+          sudo install -m 0755 /tmp/gitleaks /usr/local/bin/gitleaks
+          gitleaks version
+
+      - name: Scan git history for secrets
+        run: |
+          # --redact: never print secret values in logs.
+          # Exits non-zero only on a real finding; the repo history is
+          # currently clean, so this passes until a secret is introduced.
+          gitleaks git . --redact --verbose \
+            --report-format sarif --report-path gitleaks.sarif
+
+      - name: Upload gitleaks SARIF report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gitleaks-sarif
+          path: gitleaks.sarif
+          if-no-files-found: ignore
 
   skill-collision:
     name: Skill description collision detection
