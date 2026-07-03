@@ -9,6 +9,9 @@
 //! Transport: JSON-RPC 2.0 over HTTP POST /mcp (+ GET /events SSE stream)
 //! Default port: 8943
 
+use axum::body::Body;
+use axum::http::Request;
+use axum::response::Response;
 use axum::{
     extract::State,
     http::StatusCode,
@@ -19,7 +22,8 @@ use axum::{
 use serde::Deserialize;
 use serde_json::{json, Value};
 use std::sync::Arc;
-use tower_http::validate_request::ValidateRequestHeaderLayer;
+use subtle::ConstantTimeEq;
+use tower_http::validate_request::{ValidateRequest, ValidateRequestHeaderLayer};
 
 pub struct ForgeServer {
     port: u16,
@@ -64,15 +68,24 @@ impl ForgeServer {
     }
 
     pub async fn run(self) -> anyhow::Result<()> {
-        let token = std::env::var("FORGE_MCP_TOKEN").unwrap_or_else(|_| {
-            let generated = uuid::Uuid::new_v4().to_string();
-            eprintln!(
-                "FORGE_MCP_TOKEN not set — generated token for this session: {}",
+        // An empty or whitespace-only FORGE_MCP_TOKEN would otherwise yield the
+        // near-guessable secret `Bearer ` (env var set-but-empty does NOT hit
+        // the unset fallback), so treat blank as absent and mint a random token.
+        let token = std::env::var("FORGE_MCP_TOKEN")
+            .ok()
+            .filter(|t| !t.trim().is_empty())
+            .unwrap_or_else(|| {
+                let generated = uuid::Uuid::new_v4().to_string();
+                eprintln!(
+                    "FORGE_MCP_TOKEN not set — generated a random dev token for this session: {}",
+                    generated
+                );
+                eprintln!(
+                    "This value is written to stderr for convenience; set FORGE_MCP_TOKEN in your \
+                     environment (non-empty) to use a stable token and avoid logging it."
+                );
                 generated
-            );
-            eprintln!("Set FORGE_MCP_TOKEN in your environment to use a stable token.");
-            generated
-        });
+            });
 
         let state = Arc::new(ServerState {
             skills_root: self.skills_root,
@@ -80,14 +93,10 @@ impl ForgeServer {
             pk_mcp_url: self.pk_mcp_url,
         });
 
-        // TODO(security): ValidateRequestHeaderLayer::bearer is deprecated in
-        // tower-http 0.6 ("too basic for real applications"). It still performs a
-        // correct exact-match check, but the comparison is not constant-time.
-        // Replace with a custom ValidateRequest impl using subtle::ConstantTimeEq
-        // over the bearer token — matters most if this server is ever bound to
-        // 0.0.0.0 rather than the 127.0.0.1 default.
-        #[allow(deprecated)]
-        let auth_layer = ValidateRequestHeaderLayer::bearer(&token);
+        // Bearer auth with a constant-time token comparison (replaces the
+        // deprecated ValidateRequestHeaderLayer::bearer, whose check is not
+        // constant-time — a timing side channel on the token).
+        let auth_layer = ValidateRequestHeaderLayer::custom(BearerAuth::new(&token));
 
         let app = Router::new()
             .route("/mcp", post(handle_mcp).layer(auth_layer))
@@ -107,6 +116,63 @@ struct ServerState {
     skills_root: std::path::PathBuf,
     project_root: std::path::PathBuf,
     pk_mcp_url: Option<String>,
+}
+
+/// Bearer-token request validator with a constant-time comparison.
+///
+/// Rejects any request whose `Authorization` header is missing, is not a
+/// `Bearer <token>`, or whose token does not match — returning `401
+/// Unauthorized`. The token comparison uses `subtle::ConstantTimeEq` so the
+/// time taken does not depend on how many leading bytes match, closing the
+/// timing side channel that `ValidateRequestHeaderLayer::bearer` (a plain `==`)
+/// left open.
+#[derive(Clone)]
+struct BearerAuth {
+    // The full expected header value ("Bearer <token>") as bytes, so the whole
+    // comparison is constant-time in one shot.
+    expected: Arc<[u8]>,
+}
+
+impl BearerAuth {
+    fn new(token: &str) -> Self {
+        Self {
+            expected: Arc::from(format!("Bearer {token}").into_bytes().into_boxed_slice()),
+        }
+    }
+
+    fn unauthorized() -> Response<Body> {
+        // Infallible construction (no `expect`): all inputs are constants.
+        let mut resp = Response::new(Body::empty());
+        *resp.status_mut() = StatusCode::UNAUTHORIZED;
+        resp
+    }
+}
+
+impl<B> ValidateRequest<B> for BearerAuth {
+    type ResponseBody = Body;
+
+    fn validate(&mut self, request: &mut Request<B>) -> Result<(), Response<Self::ResponseBody>> {
+        // Only the first Authorization header is read (`HeaderMap::get`), which
+        // is safe here: the server is loopback-bound by default, so there is no
+        // trusted fronting proxy that could smuggle a second header.
+        let header = request
+            .headers()
+            .get(axum::http::header::AUTHORIZATION)
+            .and_then(|v| v.to_str().ok());
+
+        match header {
+            // Compare the full "Bearer <token>" header against the expected
+            // bytes with subtle::ct_eq. Among equal-length inputs this is
+            // constant-time, closing the per-byte short-circuit that a plain
+            // `==` (the old deprecated bearer layer) leaked. subtle DOES return
+            // early on a length mismatch, so the only thing that can leak by
+            // timing is the total header length = 7 ("Bearer ") + token length;
+            // the token length is not secret-bearing here, so that is
+            // acceptable. Non-Bearer schemes / wrong tokens fail closed (401).
+            Some(value) if value.as_bytes().ct_eq(&self.expected).into() => Ok(()),
+            _ => Err(Self::unauthorized()),
+        }
+    }
 }
 
 #[derive(Deserialize)]
@@ -480,5 +546,68 @@ mod tests {
     fn forge_server_with_bind_addr_stores_address() {
         let server = ForgeServer::with_bind_addr(8943, "127.0.0.1", "/tmp/s", "/tmp/p", None);
         assert_eq!(server.bind_addr, "127.0.0.1");
+    }
+
+    // ─── BearerAuth: constant-time bearer-token validation ──────────────────
+
+    /// Build a bare request with an optional Authorization header value.
+    fn req_with_auth(auth: Option<&str>) -> Request<Body> {
+        let mut builder = Request::builder().uri("/mcp");
+        if let Some(v) = auth {
+            builder = builder.header(axum::http::header::AUTHORIZATION, v);
+        }
+        builder.body(Body::empty()).unwrap()
+    }
+
+    #[test]
+    fn bearer_auth_accepts_matching_token() {
+        let mut auth = BearerAuth::new("s3cr3t-token");
+        let mut req = req_with_auth(Some("Bearer s3cr3t-token"));
+        assert!(auth.validate(&mut req).is_ok());
+    }
+
+    #[test]
+    fn bearer_auth_rejects_wrong_token() {
+        let mut auth = BearerAuth::new("s3cr3t-token");
+        let mut req = req_with_auth(Some("Bearer wrong-token"));
+        let err = auth.validate(&mut req).unwrap_err();
+        assert_eq!(err.status(), StatusCode::UNAUTHORIZED);
+    }
+
+    #[test]
+    fn bearer_auth_rejects_missing_header() {
+        let mut auth = BearerAuth::new("s3cr3t-token");
+        let mut req = req_with_auth(None);
+        let err = auth.validate(&mut req).unwrap_err();
+        assert_eq!(err.status(), StatusCode::UNAUTHORIZED);
+    }
+
+    #[test]
+    fn bearer_auth_rejects_non_bearer_scheme() {
+        let mut auth = BearerAuth::new("s3cr3t-token");
+        // Correct token, wrong scheme — must still be rejected.
+        let mut req = req_with_auth(Some("Basic s3cr3t-token"));
+        let err = auth.validate(&mut req).unwrap_err();
+        assert_eq!(err.status(), StatusCode::UNAUTHORIZED);
+    }
+
+    #[test]
+    fn bearer_auth_rejects_token_prefix() {
+        // A token that is a prefix of the real one must not pass (length differs).
+        let mut auth = BearerAuth::new("s3cr3t-token");
+        let mut req = req_with_auth(Some("Bearer s3cr3t"));
+        let err = auth.validate(&mut req).unwrap_err();
+        assert_eq!(err.status(), StatusCode::UNAUTHORIZED);
+    }
+
+    #[test]
+    fn bearer_auth_rejects_empty_bearer_against_real_token() {
+        // A real token is configured; a client sending `Bearer ` (empty token)
+        // must be rejected. (The run() path separately refuses to build a
+        // BearerAuth from an empty/blank FORGE_MCP_TOKEN.)
+        let mut auth = BearerAuth::new("s3cr3t-token");
+        let mut req = req_with_auth(Some("Bearer "));
+        let err = auth.validate(&mut req).unwrap_err();
+        assert_eq!(err.status(), StatusCode::UNAUTHORIZED);
     }
 }
