@@ -4,12 +4,12 @@ Thank you for contributing to the Prometheus Skill Pack — a production-grade c
 
 ## Prerequisites
 
-| Tool | Minimum version |
-|------|----------------|
-| Node.js | 20 |
-| npm | 10 |
-| Rust | stable (latest) |
-| Git | 2.36+ |
+| Tool    | Minimum version |
+| ------- | --------------- |
+| Node.js | 20              |
+| npm     | 10              |
+| Rust    | stable (latest) |
+| Git     | 2.36+           |
 
 ## Setup
 
@@ -33,12 +33,14 @@ bash shared/scripts/detect-toolchain.sh
 1. **Choose a domain**: `skills/{react,rust,ui-ux,devops,testing,documentation,learn,...}`
 
 2. **Create the skill directory**:
+
    ```bash
    mkdir -p skills/<domain>/<skill-name>
    cp docs/SKILL_TEMPLATE.md skills/<domain>/<skill-name>/SKILL.md
    ```
 
 3. **Edit the frontmatter** — required fields:
+
    ```yaml
    ---
    name: my-skill-name
@@ -55,6 +57,7 @@ bash shared/scripts/detect-toolchain.sh
 4. **Write skill instructions** — keep the main file under 500 lines; move detail to `references/`.
 
 5. **Validate**:
+
    ```bash
    npm run validate:strict skills/<domain>/<skill-name>
    ```

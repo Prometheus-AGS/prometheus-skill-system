@@ -6,7 +6,7 @@
 //! given task, and renders Tera templates with task context.
 
 use anyhow::{Context, Result};
-use forge_core::{EnrichmentContext, Language, RenderedTemplate, SkillManifest, SkillTrigger};
+use forge_core::{Language, RenderedTemplate, SkillManifest, SkillTrigger};
 use std::collections::{HashMap, HashSet};
 use std::path::{Path, PathBuf};
 use tera::Tera;
@@ -74,7 +74,10 @@ impl SkillRegistry {
 
         // Within each bucket: always-for-language skills first, then keyword/path-triggered
         let priority_key = |m: &&SkillManifest| -> u8 {
-            if m.triggers.iter().any(|t| matches!(t, SkillTrigger::AlwaysForLanguage { .. })) {
+            if m.triggers
+                .iter()
+                .any(|t| matches!(t, SkillTrigger::AlwaysForLanguage { .. }))
+            {
                 0
             } else {
                 1
@@ -110,19 +113,24 @@ impl SkillRegistry {
         let mut rendered = Vec::new();
 
         for manifest in skills {
-            let (_, template_dir) = match self.skills.get(&manifest.name) {
+            let (_, _template_dir) = match self.skills.get(&manifest.name) {
                 Some(entry) => entry,
                 None => {
-                    warn!("Skill {} not found in registry for rendering", manifest.name);
+                    warn!(
+                        "Skill {} not found in registry for rendering",
+                        manifest.name
+                    );
                     continue;
                 }
             };
 
             for template_ref in &manifest.templates {
-                let template_path = template_dir.join(&template_ref.path);
                 let template_name = format!("{}/{}", manifest.name, template_ref.path);
 
-                match self.tera.render(&template_name, &tera::Context::from_serialize(task_context)?) {
+                match self.tera.render(
+                    &template_name,
+                    &tera::Context::from_serialize(task_context)?,
+                ) {
                     Ok(content) => {
                         rendered.push(RenderedTemplate {
                             skill_name: manifest.name.clone(),
@@ -160,8 +168,8 @@ fn load_from_dir(
 
         let raw = std::fs::read_to_string(manifest_path)
             .with_context(|| format!("reading {}", manifest_path.display()))?;
-        let manifest: SkillManifest = toml::from_str(&raw)
-            .with_context(|| format!("parsing {}", manifest_path.display()))?;
+        let manifest: SkillManifest =
+            toml::from_str(&raw).with_context(|| format!("parsing {}", manifest_path.display()))?;
 
         // Register Tera templates
         let templates_dir = skill_dir.join("templates");
@@ -170,7 +178,7 @@ fn load_from_dir(
                 WalkDir::new(&templates_dir)
                     .into_iter()
                     .filter_map(|e| e.ok())
-                    .filter(|e| e.path().extension().map_or(false, |ext| ext == "tera"))
+                    .filter(|e| e.path().extension().is_some_and(|ext| ext == "tera"))
                     .map(|e| {
                         let path = e.path().to_owned();
                         let name = format!(
@@ -203,7 +211,9 @@ fn skill_applies(
         SkillTrigger::AlwaysForLanguage { language: l } => l == language,
         SkillTrigger::Keywords { keywords } => {
             let desc_lower = task_description.to_lowercase();
-            keywords.iter().any(|k| desc_lower.contains(&k.to_lowercase()))
+            keywords
+                .iter()
+                .any(|k| desc_lower.contains(&k.to_lowercase()))
         }
         SkillTrigger::PathGlob { glob } => {
             // Simple glob: just check if the path contains the pattern
@@ -215,7 +225,7 @@ fn skill_applies(
 
 fn topological_sort<'a>(
     mut skills: Vec<&'a SkillManifest>,
-    registry: &HashMap<String, (SkillManifest, PathBuf)>,
+    _registry: &HashMap<String, (SkillManifest, PathBuf)>,
 ) -> Vec<&'a SkillManifest> {
     let mut result: Vec<&SkillManifest> = Vec::new();
     let mut placed: HashSet<String> = HashSet::new();
@@ -246,7 +256,7 @@ fn topological_sort<'a>(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use forge_core::{Language, SkillManifest, SkillTrigger, TemplateRef};
+    use forge_core::{Language, SkillManifest, SkillTrigger};
     use std::collections::{HashMap, HashSet};
     use std::path::PathBuf;
 
@@ -344,7 +354,10 @@ mod tests {
         let registry = make_registry(vec![react_skill]);
 
         let resolved = registry.resolve(&Language::Rust, "task", "", &HashSet::new());
-        assert!(resolved.is_empty(), "React skill must not resolve for Rust task");
+        assert!(
+            resolved.is_empty(),
+            "React skill must not resolve for Rust task"
+        );
     }
 
     // ─── topological_sort ────────────────────────────────────────────────────

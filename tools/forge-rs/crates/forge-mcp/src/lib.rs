@@ -16,10 +16,9 @@ use axum::{
     routing::{get, post},
     Router,
 };
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
 use serde_json::{json, Value};
 use std::sync::Arc;
-use tokio::sync::broadcast;
 use tower_http::validate_request::ValidateRequestHeaderLayer;
 
 pub struct ForgeServer {
@@ -71,9 +70,7 @@ impl ForgeServer {
                 "FORGE_MCP_TOKEN not set — generated token for this session: {}",
                 generated
             );
-            eprintln!(
-                "Set FORGE_MCP_TOKEN in your environment to use a stable token."
-            );
+            eprintln!("Set FORGE_MCP_TOKEN in your environment to use a stable token.");
             generated
         });
 
@@ -83,11 +80,17 @@ impl ForgeServer {
             pk_mcp_url: self.pk_mcp_url,
         });
 
+        // TODO(security): ValidateRequestHeaderLayer::bearer is deprecated in
+        // tower-http 0.6 ("too basic for real applications"). It still performs a
+        // correct exact-match check, but the comparison is not constant-time.
+        // Replace with a custom ValidateRequest impl using subtle::ConstantTimeEq
+        // over the bearer token — matters most if this server is ever bound to
+        // 0.0.0.0 rather than the 127.0.0.1 default.
+        #[allow(deprecated)]
+        let auth_layer = ValidateRequestHeaderLayer::bearer(&token);
+
         let app = Router::new()
-            .route(
-                "/mcp",
-                post(handle_mcp).layer(ValidateRequestHeaderLayer::bearer(&token)),
-            )
+            .route("/mcp", post(handle_mcp).layer(auth_layer))
             .route("/health", get(health))
             .with_state(state);
 
@@ -108,6 +111,9 @@ struct ServerState {
 
 #[derive(Deserialize)]
 struct McpRequest {
+    /// JSON-RPC 2.0 version tag ("2.0"). Deserialized to document the wire
+    /// contract (and reject payloads missing it); not used in dispatch logic.
+    #[allow(dead_code)]
     jsonrpc: String,
     id: Option<Value>,
     method: String,
@@ -198,9 +204,7 @@ async fn dispatch_method(
         })),
 
         "tools/call" => {
-            let tool_name = params
-                .and_then(|p| p["name"].as_str())
-                .unwrap_or("");
+            let tool_name = params.and_then(|p| p["name"].as_str()).unwrap_or("");
             let args = params.and_then(|p| p.get("arguments"));
 
             match tool_name {
@@ -214,9 +218,10 @@ async fn dispatch_method(
                     let canonical = raw_path.canonicalize().map_err(|e| {
                         anyhow::anyhow!("invalid task_path '{}': {}", task_path_str, e)
                     })?;
-                    let project_root_canonical = state.project_root.canonicalize().map_err(|e| {
-                        anyhow::anyhow!("cannot canonicalize project root: {}", e)
-                    })?;
+                    let project_root_canonical = state
+                        .project_root
+                        .canonicalize()
+                        .map_err(|e| anyhow::anyhow!("cannot canonicalize project root: {}", e))?;
                     if !canonical.starts_with(&project_root_canonical) {
                         return Err(anyhow::anyhow!(
                             "task_path '{}' is outside the project root '{}' — access denied",
@@ -231,9 +236,7 @@ async fn dispatch_method(
                         state.pk_mcp_url.clone(),
                     )?;
 
-                    let ctx = enricher
-                        .enrich(&canonical)
-                        .await?;
+                    let ctx = enricher.enrich(&canonical).await?;
 
                     let context_path = state
                         .project_root
@@ -277,11 +280,16 @@ async fn dispatch_method(
                 }
 
                 "forge_drift" => {
-                    let drift_dir = state.project_root.join(".forge").join("memory").join("drift");
+                    let drift_dir = state
+                        .project_root
+                        .join(".forge")
+                        .join("memory")
+                        .join("drift");
                     let summary = if drift_dir.exists() {
                         format!("Drift reports available at: {}", drift_dir.display())
                     } else {
-                        "No drift data yet. Run forge reflect after completing iterations.".to_string()
+                        "No drift data yet. Run forge reflect after completing iterations."
+                            .to_string()
                     };
                     Ok(json!({ "content": [{ "type": "text", "text": summary }] }))
                 }
@@ -306,14 +314,26 @@ async fn dispatch_method(
                             constitution_dir.display()
                         ),
                         Some(constitution) => {
-                            let warnings = forge_enricher::check_constitution(constitution, content);
+                            let warnings =
+                                forge_enricher::check_constitution(constitution, content);
                             if warnings.is_empty() {
-                                format!("✅ No violations found for {} ({} chars).", lang_str, content.len())
+                                format!(
+                                    "✅ No violations found for {} ({} chars).",
+                                    lang_str,
+                                    content.len()
+                                )
                             } else {
-                                let lines: Vec<String> = warnings.iter().map(|w| {
-                                    format!("[{:?}] {} — {}", w.severity, w.rule, w.violation)
-                                }).collect();
-                                format!("{} violation(s) found:\n{}", warnings.len(), lines.join("\n"))
+                                let lines: Vec<String> = warnings
+                                    .iter()
+                                    .map(|w| {
+                                        format!("[{:?}] {} — {}", w.severity, w.rule, w.violation)
+                                    })
+                                    .collect();
+                                format!(
+                                    "{} violation(s) found:\n{}",
+                                    warnings.len(),
+                                    lines.join("\n")
+                                )
                             }
                         }
                     };
@@ -391,11 +411,13 @@ mod tests {
         let state = make_state("/tmp/forge-test-mcp-list");
         let result = dispatch_method(&state, "tools/list", None).await.unwrap();
         let tools = result["tools"].as_array().expect("tools must be an array");
-        assert_eq!(tools.len(), 4, "expected forge_enrich, forge_reflect, forge_drift, forge_validate");
+        assert_eq!(
+            tools.len(),
+            4,
+            "expected forge_enrich, forge_reflect, forge_drift, forge_validate"
+        );
 
-        let names: Vec<&str> = tools.iter()
-            .filter_map(|t| t["name"].as_str())
-            .collect();
+        let names: Vec<&str> = tools.iter().filter_map(|t| t["name"].as_str()).collect();
         assert!(names.contains(&"forge_enrich"));
         assert!(names.contains(&"forge_reflect"));
         assert!(names.contains(&"forge_drift"));
@@ -418,7 +440,9 @@ mod tests {
     async fn forge_drift_returns_text_when_no_drift_data() {
         let state = make_state("/tmp/forge-test-mcp-drift-nodata");
         let params = json!({ "name": "forge_drift", "arguments": {} });
-        let result = dispatch_method(&state, "tools/call", Some(&params)).await.unwrap();
+        let result = dispatch_method(&state, "tools/call", Some(&params))
+            .await
+            .unwrap();
         let text = result["content"][0]["text"].as_str().unwrap_or("");
         assert!(
             text.contains("No drift data") || text.contains("Drift reports"),

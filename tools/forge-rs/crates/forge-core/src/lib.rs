@@ -26,13 +26,13 @@ pub enum Language {
 impl Language {
     pub fn as_str(&self) -> &'static str {
         match self {
-            Language::Rust       => "rust",
+            Language::Rust => "rust",
             Language::TypeScript => "typescript",
-            Language::React      => "react",
-            Language::Flutter    => "flutter",
-            Language::Go         => "go",
-            Language::Python     => "python",
-            Language::Tauri      => "tauri",
+            Language::React => "react",
+            Language::Flutter => "flutter",
+            Language::Go => "go",
+            Language::Python => "python",
+            Language::Tauri => "tauri",
         }
     }
 }
@@ -128,7 +128,7 @@ pub struct EnrichmentContext {
     pub language: Language,
     pub applied_skills: Vec<String>,
     pub constitution_summary: String,
-    pub karpathy_focus: Option<String>,  // Output of `pk focus` for this task
+    pub karpathy_focus: Option<String>, // Output of `pk focus` for this task
     pub rendered_templates: Vec<RenderedTemplate>,
     pub constitution_warnings: Vec<ConstitutionWarning>,
     pub created_at: DateTime<Utc>,
@@ -157,10 +157,10 @@ pub struct IterationRecord {
     pub task_id: String,
     pub language: Language,
     pub applied_skills: Vec<String>,
-    pub agent_produced: String,          // What the agent wrote
-    pub user_accepted: Option<String>,   // What the user kept (if they changed it)
-    pub diff_summary: Option<String>,    // Summary of what changed between produced and accepted
-    pub skill_drift: Vec<SkillDrift>,    // Which skills were overridden and how
+    pub agent_produced: String,        // What the agent wrote
+    pub user_accepted: Option<String>, // What the user kept (if they changed it)
+    pub diff_summary: Option<String>,  // Summary of what changed between produced and accepted
+    pub skill_drift: Vec<SkillDrift>,  // Which skills were overridden and how
     pub constitution_violations: Vec<ConstitutionViolation>,
     pub completed_at: DateTime<Utc>,
 }
@@ -168,7 +168,7 @@ pub struct IterationRecord {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SkillDrift {
     pub skill_name: String,
-    pub override_description: String,  // What the user changed that diverged from the skill
+    pub override_description: String, // What the user changed that diverged from the skill
     pub drift_type: DriftType,
 }
 
@@ -189,7 +189,7 @@ pub enum DriftType {
 pub struct ConstitutionViolation {
     pub rule: String,
     pub occurrence: String,
-    pub recurrence_count: u32,  // How many times this violation has appeared across iterations
+    pub recurrence_count: u32, // How many times this violation has appeared across iterations
 }
 
 // ─── Drift Report ────────────────────────────────────────────────────────────
