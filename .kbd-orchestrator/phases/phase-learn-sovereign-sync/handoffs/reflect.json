@@ -1,0 +1,7 @@
+{
+  "stage": "reflect",
+  "written_at": "2026-06-29T00:00:00Z",
+  "summary": "8 of 12 goals MET; 2 PARTIAL (IrohDocsAdapter stubs remain, MCP forwarding untested end-to-end); 2 NOT MET (Tauri plugin, WASM — both explicitly out of scope). 20/20 changes done. Docusaurus site builds successfully. Recommended next phase: phase-sovereign-sync-hardening (IrohDocsAdapter real implementation + CI + KnowMe brand tokens).",
+  "artifacts": ["reflection.md"],
+  "phase": "phase-learn-sovereign-sync"
+}

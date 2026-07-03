@@ -1,0 +1,256 @@
+{
+  "$schema": "../../../openspec/schemas/library-candidates.schema.json",
+  "phase": "phase-credibility-closure",
+  "generated": "2026-06-30",
+  "analyzer": "kbd-analyze",
+  "candidates": [
+    {
+      "gap_id": "P0-A",
+      "gap_label": "Committed API key in git history",
+      "verdict": "BUILD+ADOPT",
+      "adopt": {
+        "name": "gitleaks",
+        "version": "v8",
+        "registry": "github.com/gitleaks/gitleaks",
+        "license": "MIT",
+        "stars": 17000,
+        "purpose": "Pre-commit + CI secret scanning hook",
+        "confidence": 0.95,
+        "notes": "Only added to CI; no new runtime dependency. Code change (remove hardcoded default) is BUILD."
+      },
+      "build_notes": "Remove hardcoded default from configure-mcp-all-tools.sh:25; replace with empty string + error message. History scrub via git-filter-repo --replace-text (user action after key rotation).",
+      "risk": "LOW"
+    },
+    {
+      "gap_id": "P0-B",
+      "gap_label": "forge-mcp binds 0.0.0.0",
+      "verdict": "BUILD",
+      "adopt": null,
+      "build_notes": "One-line change: tools/forge-rs/crates/forge-mcp/src/lib.rs:58. Change format!(\"0.0.0.0:{}\", port) to format!(\"127.0.0.1:{}\", port). Add optional --bind flag to forge-cli for explicit opt-in to network binding.",
+      "risk": "LOW"
+    },
+    {
+      "gap_id": "P0-C",
+      "gap_label": "No authentication on MCP endpoint",
+      "verdict": "ADOPT",
+      "adopt": {
+        "name": "tower-http",
+        "feature": "validate-request",
+        "version": "0.6",
+        "registry": "crates.io",
+        "license": "MIT",
+        "already_in_workspace": true,
+        "purpose": "ValidateRequestHeaderLayer::bearer() for /mcp route layer",
+        "confidence": 0.97,
+        "notes": "Already a workspace dependency. Only feature flag addition needed. Token auto-generated UUID at startup, override via FORGE_MCP_TOKEN env var."
+      },
+      "build_notes": "Add validate-request feature to tower-http in forge-mcp/Cargo.toml. Wrap /mcp route with ValidateRequestHeaderLayer. Health endpoint stays unauthenticated.",
+      "risk": "LOW"
+    },
+    {
+      "gap_id": "P0-D",
+      "gap_label": "Uncanonicalized task_path (path traversal)",
+      "verdict": "BUILD",
+      "adopt": null,
+      "build_notes": "Pure stdlib fix. Path::canonicalize() + starts_with(project_root_canonical) prefix check in forge_enrich handler before passing to enricher. No new crates.",
+      "risk": "LOW"
+    },
+    {
+      "gap_id": "P1-A",
+      "gap_label": "forge validate does not validate",
+      "verdict": "BUILD",
+      "adopt": null,
+      "build_notes": "Make forge_enricher::load_constitutions and check_constitution pub. Wire into Validate command arm in forge-cli/src/main.rs:210-219. Exit code 1 on Error-severity violations.",
+      "risk": "LOW"
+    },
+    {
+      "gap_id": "P1-B",
+      "gap_label": "Self-improving loop does not close",
+      "verdict": "BUILD",
+      "adopt": null,
+      "build_notes": "Phase A: read .forge/memory/drift/<lang>-*.json in Enricher::enrich() before resolve(), log stale skills as warnings. Phase B (follow-on): pass stale set to resolve() as deprioritize hint. Phase A ships in this kbd phase.",
+      "risk": "MEDIUM"
+    },
+    {
+      "gap_id": "P1-C",
+      "gap_label": "ML features default-off without visibility",
+      "verdict": "BUILD",
+      "adopt": null,
+      "build_notes": "Add forge status subcommand printing: active constitutions, skill count, drift report count, pk_mcp_url connection, which capabilities are available vs gated. Stub commands get [EXPERIMENTAL] prefix.",
+      "risk": "LOW"
+    },
+    {
+      "gap_id": "P2-A",
+      "gap_label": "Unicode doctest break",
+      "verdict": "BUILD",
+      "adopt": null,
+      "build_notes": "Change → to -> in //! doc comments in tools/forge-rs/crates/forge-enricher/src/lib.rs:16. One-line fix.",
+      "risk": "LOW"
+    },
+    {
+      "gap_id": "P2-B",
+      "gap_label": "Core unit tests at ~0",
+      "verdict": "BUILD",
+      "adopt": null,
+      "build_notes": "Add >=15 unit tests: detect_language (5 cases), check_constitution (3 cases), SkillRegistry::resolve (2 cases), forge_validate MCP tool (1 integration test), path traversal guard (1 negative test). Target: cargo test --workspace green.",
+      "risk": "LOW"
+    },
+    {
+      "gap_id": "P2-C",
+      "gap_label": "Rust tests not in CI",
+      "verdict": "BUILD",
+      "adopt": null,
+      "build_notes": "Add forge-rs-test job to .github/workflows/validate.yml. Uses dtolnay/rust-toolchain@stable + cargo test --workspace in tools/forge-rs/.",
+      "risk": "LOW"
+    },
+    {
+      "gap_id": "P2-D",
+      "gap_label": "Zero BDD feature files",
+      "verdict": "BUILD+ADOPT",
+      "adopt": {
+        "name": "@cucumber/cucumber",
+        "version": "11.x",
+        "registry": "npm",
+        "license": "MIT",
+        "purpose": "BDD feature files and step definitions",
+        "confidence": 0.80,
+        "notes": "Standard tooling already referenced by shipped bdd-testing skill. Offline fixture approach for step definitions to avoid requiring a running forge-mcp in CI."
+      },
+      "build_notes": "Add tests/features/forge-validate.feature, tests/features/forge-enrich.feature, tests/steps/forge-steps.ts. Add npm run test:bdd to package.json.",
+      "risk": "MEDIUM"
+    },
+    {
+      "gap_id": "P3-A",
+      "gap_label": "SSH submodule URL blocks fresh clone",
+      "verdict": "BUILD",
+      "adopt": null,
+      "build_notes": "Change .gitmodules url for artifact-refiner-skill from SSH to HTTPS. Run git submodule sync after. Optionally migrate submodule to Prometheus-AGS org (separate PR).",
+      "risk": "LOW"
+    },
+    {
+      "gap_id": "P3-B",
+      "gap_label": "Author machine state committed",
+      "verdict": "BUILD",
+      "adopt": null,
+      "build_notes": "git rm --cached .claude/settings.local.json and .prometheus/traces/** already-tracked entries. Add .prometheus/ and .kbd-orchestrator/**/project.json exclusion patterns to .gitignore.",
+      "risk": "LOW"
+    },
+    {
+      "gap_id": "P3-C",
+      "gap_label": "sycophancy-correction submodule unanchored",
+      "verdict": "BUILD",
+      "adopt": null,
+      "build_notes": "Pin skills/imported/sycophancy-correction to current commit SHA (detach HEAD, commit submodule pointer).",
+      "risk": "LOW"
+    },
+    {
+      "gap_id": "P4-A",
+      "gap_label": "package-lock.json not committed",
+      "verdict": "BUILD",
+      "adopt": null,
+      "build_notes": "Add !package-lock.json exception to .gitignore. Run npm install --package-lock-only. Commit lock file. Update CI to npm ci (drop || npm install fallback).",
+      "risk": "LOW"
+    },
+    {
+      "gap_id": "P4-B",
+      "gap_label": "4-service mesh complexity undocumented",
+      "verdict": "BUILD",
+      "adopt": null,
+      "build_notes": "Add docs/deployment-modes.md with Mode 0/1/2/3 matrix. Update README to reference it.",
+      "risk": "LOW"
+    },
+    {
+      "gap_id": "P5-A",
+      "gap_label": "Bus factor (single maintainer)",
+      "verdict": "BUILD",
+      "adopt": null,
+      "build_notes": "Write CONTRIBUTING.md with contribution guide, build/test instructions, PR template. Add GitHub issue templates: Bug Report, Feature Request, Skill Proposal. Label 3-5 issues good-first-issue.",
+      "risk": "LOW"
+    },
+    {
+      "gap_id": "P5-B",
+      "gap_label": "No adoption evidence",
+      "verdict": "DEFER",
+      "adopt": null,
+      "build_notes": "Marketing and community problem. Out of scope for this phase. Revisit after credibility closure is complete.",
+      "risk": "N/A"
+    }
+  ],
+  "change_waves": [
+    {
+      "wave": 1,
+      "label": "Security (P0)",
+      "blocking": true,
+      "changes": ["C01-rotate-tavily-key", "C02-bind-loopback", "C03-bearer-auth", "C04-path-confinement"],
+      "parallelizable": false,
+      "notes": "C01 requires user to rotate Tavily key before pushing. C02 and C03 can run in parallel. C04 depends on forge-mcp bind change being in place."
+    },
+    {
+      "wave": 2,
+      "label": "Capability truthfulness (P1)",
+      "blocking": false,
+      "changes": ["C05-forge-validate-real", "C06-drift-readback", "C07-status-command"],
+      "parallelizable": true
+    },
+    {
+      "wave": 3,
+      "label": "Testing + hygiene (P2/P3/P4)",
+      "blocking": false,
+      "changes": ["C08-doctest-fix-unit-tests", "C09-ci-cargo-test", "C10-bdd-features", "C11-submodule-https", "C12-machine-state-gitignore", "C13-pin-sycophancy-submodule", "C14-package-lock", "C15-docs-contributing"],
+      "parallelizable": true,
+      "notes": "All Wave 3 changes are independent. Can be executed in parallel during kbd-execute."
+    },
+    {
+      "wave": 4,
+      "label": "Final sycophancy gate",
+      "blocking": true,
+      "changes": ["C16-sycophancy-claim-audit"],
+      "parallelizable": false,
+      "notes": "Serial. Runs detect_sycophancy on the final production readiness claim after all other changes are complete."
+    }
+  ],
+  "contested_decisions": [],
+  "deferred": ["P5-B"],
+  "open_questions": [
+    {
+      "id": "OQ-01",
+      "question": "Has the Tavily API key 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 been rotated at tavily.com?",
+      "blocking_for": "C01",
+      "action": "User must confirm key rotation before C01 can be pushed"
+    },
+    {
+      "id": "OQ-02",
+      "question": "Should git history be scrubbed for the API key after rotation?",
+      "blocking_for": "none",
+      "action": "User decision. Key is already inert after rotation. Scrub is recommended but optional."
+    },
+    {
+      "id": "OQ-03",
+      "question": "Should artifact-refiner submodule be migrated to Prometheus-AGS org?",
+      "blocking_for": "none",
+      "action": "C11 fixes SSH→HTTPS regardless. Org migration is a separate user decision."
+    }
+  ],
+  "production_readiness_claim": {
+    "sycophancy_corrected": true,
+    "claim": "As of phase-credibility-closure completion, every MUST FIX item identified in the 2026-06-29 independent credibility assessment has been closed with verifiable evidence. Every CAUTION item has been addressed with documented mitigations. The system has no known security vulnerabilities in its default configuration, cargo test passes across all Rust workspaces, and BDD feature tests are present and green. Single-maintainer bus factor and early adoption stage are acknowledged risks that have been mitigated (CONTRIBUTING.md, issue templates) but not eliminated. The claim of production readiness is scoped to: the default-mode configuration (forge-mcp on loopback with auth), the skill library, and the substrate layer — not the full optional 4-service mesh in all deployment scenarios.",
+    "evidence_checklist": [
+      "cargo test --workspace green in tools/forge-rs/ (C08, C09)",
+      "CI badge: forge-rs-test job green (C09)",
+      "No hardcoded secrets in configure-mcp-all-tools.sh (C01)",
+      "forge-mcp binds 127.0.0.1 in lib.rs:58 (C02)",
+      "Bearer auth on /mcp route, health endpoint open (C03)",
+      "task_path canonicalized and prefix-checked (C04)",
+      "forge validate exits 1 on constitution violations (C05)",
+      "Drift data loaded in Enricher::enrich() before resolve() (C06)",
+      "forge status command lists active/gated capabilities (C07)",
+      "BDD feature files present and npm run test:bdd green (C10)",
+      "artifact-refiner uses HTTPS submodule URL (C11)",
+      "No /Users/ paths in tracked files (C12)",
+      "sycophancy-correction submodule pinned to SHA (C13)",
+      "package-lock.json committed, CI uses npm ci (C14)",
+      "CONTRIBUTING.md and issue templates present (C15)",
+      "detect_sycophancy score < 0.15 on production readiness claim (C16)"
+    ]
+  }
+}

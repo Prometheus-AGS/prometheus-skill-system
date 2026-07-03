@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Production Readiness — prometheus-skill-pack v1.5.0 · Prometheus AGS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+:root{
+  --bg-0:#0B0E13;
+  --bg-1:#121821;
+  --bg-2:#1A222D;
+  --bg-3:#222C39;
+  --ink-hi:#EDF2F8;
+  --ink-mid:#C4CEDA;
+  --ink-lo:#8B98A8;
+  --fire:#CE3012;
+  --ember:#E96A12;
+  --gold:#F49E12;
+  --cyan:#34CFE6;
+  --ok:#3FB87C;
+  --ok-ink:#5FD897;
+  --warn-ink:#F7B23E;
+  --bad-ink:#FF6E4D;
+  --mit-ink:#F89A5C;
+  --tint-fire:#241015;
+  --tint-ok:#0E2017;
+  --tint-gold:#241C0E;
+  --tint-cyan:#0E2025;
+  --maxw:1080px;
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  margin:0;
+  background:var(--bg-0);
+  color:var(--ink-mid);
+  font-family:"Inter",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+  font-size:16px;
+  line-height:1.62;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 28px;}
+h1,h2,h3,h4{font-family:"Space Grotesk","Inter",sans-serif;color:var(--ink-hi);line-height:1.2;letter-spacing:-0.01em;}
+h2{font-size:1.5rem;margin:0 0 4px;}
+h3{font-size:1.12rem;margin:30px 0 10px;color:var(--ink-hi);}
+p{margin:0 0 16px;}
+a{color:var(--cyan);text-decoration:none;}
+a:hover{color:var(--ink-hi);}
+code,.mono{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:0.86em;}
+.mono-chip{background:var(--bg-2);color:var(--ink-hi);padding:2px 7px;border-radius:5px;font-family:"JetBrains Mono",monospace;font-size:0.82em;}
+strong{color:var(--ink-hi);font-weight:600;}
+
+/* HEADER */
+header.masthead{background:var(--bg-1);padding:42px 0 34px;}
+.brandrow{display:flex;align-items:center;gap:14px;margin-bottom:30px;}
+.brandmark{flex:0 0 auto;}
+.brandtext{font-family:"Space Grotesk",sans-serif;font-weight:600;letter-spacing:0.02em;color:var(--ink-hi);font-size:0.96rem;}
+.brandtext span{color:var(--ink-lo);font-weight:400;}
+.eyebrow{font-family:"JetBrains Mono",monospace;font-size:0.74rem;letter-spacing:0.22em;text-transform:uppercase;color:var(--ember);margin-bottom:14px;}
+header.masthead h1{font-size:2.5rem;margin:0 0 14px;max-width:18ch;}
+.subtitle{font-size:1.12rem;color:var(--ink-mid);max-width:62ch;margin-bottom:26px;}
+.metarow{display:flex;flex-wrap:wrap;gap:10px;}
+.meta{background:var(--bg-2);border-radius:8px;padding:9px 14px;display:flex;flex-direction:column;gap:1px;}
+.meta .k{font-family:"JetBrains Mono",monospace;font-size:0.66rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--ink-lo);}
+.meta .v{font-size:0.92rem;color:var(--ink-hi);font-weight:500;}
+.meta .v.fire{color:var(--bad-ink);}
+.meta .v.ok{color:var(--ok-ink);}
+
+/* TOC */
+.toc{margin:26px 0 6px;background:var(--bg-1);border-radius:12px;overflow:hidden;}
+.toc summary{list-style:none;cursor:pointer;padding:16px 22px;background:var(--bg-2);color:var(--ink-hi);font-family:"Space Grotesk",sans-serif;font-weight:600;font-size:0.95rem;display:flex;align-items:center;justify-content:space-between;}
+.toc summary::-webkit-details-marker{display:none;}
+.toc summary::after{content:"▾";color:var(--ember);transition:transform .2s;}
+.toc[open] summary::after{transform:rotate(180deg);}
+.toc ol{margin:0;padding:14px 26px 20px 40px;columns:2;column-gap:40px;}
+.toc li{margin:6px 0;color:var(--ink-mid);}
+.toc a{color:var(--ink-mid);}
+.toc a:hover{color:var(--cyan);}
+
+/* SECTIONS */
+section{padding:46px 0;}
+.sectnum{font-family:"JetBrains Mono",monospace;font-size:0.78rem;letter-spacing:0.18em;color:var(--ember);text-transform:uppercase;margin-bottom:8px;}
+.lead{font-size:1.06rem;color:var(--ink-mid);max-width:70ch;}
+
+/* CARDS / CALLOUTS */
+.card{background:var(--bg-1);border-radius:14px;padding:26px 28px;margin:22px 0;}
+.callout{border-radius:12px;padding:20px 24px;margin:22px 0;}
+.callout .label{font-family:"JetBrains Mono",monospace;font-size:0.72rem;letter-spacing:0.16em;text-transform:uppercase;margin-bottom:8px;font-weight:500;}
+.callout p:last-child{margin-bottom:0;}
+.callout.fire{background:var(--tint-fire);}
+.callout.fire .label{color:var(--bad-ink);}
+.callout.ok{background:var(--tint-ok);}
+.callout.ok .label{color:var(--ok-ink);}
+.callout.gold{background:var(--tint-gold);}
+.callout.gold .label{color:var(--warn-ink);}
+.callout.cyan{background:var(--tint-cyan);}
+.callout.cyan .label{color:var(--cyan);}
+
+/* FIGURE */
+figure{margin:26px 0;background:var(--bg-1);border-radius:14px;padding:26px 24px 18px;}
+figure svg{display:block;width:100%;height:auto;}
+figcaption{margin-top:14px;font-size:0.86rem;color:var(--ink-lo);text-align:center;}
+figcaption strong{color:var(--ink-mid);}
+
+/* TABLES */
+.table-wrap{overflow-x:auto;margin:22px 0;border-radius:12px;background:var(--bg-1);}
+table{border-collapse:collapse;width:100%;min-width:560px;font-size:0.92rem;}
+thead th{background:var(--bg-2);color:var(--ink-hi);text-align:left;font-family:"Space Grotesk",sans-serif;font-weight:600;font-size:0.84rem;letter-spacing:0.02em;padding:13px 16px;white-space:nowrap;}
+tbody td{padding:12px 16px;color:var(--ink-mid);vertical-align:top;}
+tbody tr:nth-child(odd){background:var(--bg-1);}
+tbody tr:nth-child(even){background:var(--bg-2);}
+td .mono{color:var(--ink-lo);}
+.num{font-family:"JetBrains Mono",monospace;text-align:right;white-space:nowrap;color:var(--ink-hi);}
+.total-row td{background:var(--bg-3);color:var(--ink-hi);font-weight:600;}
+
+/* CHIPS */
+.chip{display:inline-block;font-family:"JetBrains Mono",monospace;font-size:0.7rem;font-weight:500;letter-spacing:0.04em;padding:3px 9px;border-radius:20px;white-space:nowrap;}
+.chip.closed,.chip.green,.chip.resolved{background:var(--ok);color:#06140D;}
+.chip.caution{background:var(--gold);color:#1A1205;}
+.chip.mustfix{background:var(--fire);color:#FFFFFF;font-weight:700;}
+.chip.mitigated{background:var(--ember);color:#1A0E05;}
+.chip.deferred{background:#3A4654;color:#D6DEE8;}
+
+/* STAT STRIP */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:24px 0;}
+.stat{background:var(--bg-1);border-radius:12px;padding:20px 18px;}
+.stat .big{font-family:"Space Grotesk",sans-serif;font-size:2rem;font-weight:700;color:var(--ink-hi);line-height:1;}
+.stat .big.ok{color:var(--ok-ink);}
+.stat .big.fire{color:var(--bad-ink);}
+.stat .lbl{font-size:0.82rem;color:var(--ink-lo);margin-top:8px;}
+
+/* FOOTER */
+footer{background:var(--bg-1);padding:40px 0;margin-top:30px;}
+footer .wrap{color:var(--ink-lo);font-size:0.86rem;}
+footer .prov{font-family:"JetBrains Mono",monospace;font-size:0.78rem;color:var(--ink-lo);margin-top:10px;}
+.flamegrad-text{background:linear-gradient(90deg,var(--fire),var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent;}
+
+/* RESPONSIVE */
+@media (max-width:860px){
+  .wrap{padding:0 20px;}
+  header.masthead h1{font-size:2rem;}
+  .toc ol{columns:1;}
+  .stats{grid-template-columns:repeat(2,1fr);}
+  section{padding:38px 0;}
+}
+@media (max-width:540px){
+  body{font-size:15px;}
+  header.masthead h1{font-size:1.62rem;}
+  .subtitle{font-size:1rem;}
+  .metarow{gap:8px;}
+  .meta{padding:8px 11px;}
+  .card,.callout,figure{padding:18px 16px;}
+  .stats{grid-template-columns:1fr 1fr;gap:10px;}
+  .stat .big{font-size:1.6rem;}
+  h2{font-size:1.28rem;}
+}
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="brandrow">
+      <svg class="brandmark" width="34" height="34" viewBox="0 0 34 34" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <defs>
+          <linearGradient id="flame" x1="0" y1="1" x2="1" y2="0">
+            <stop offset="0" stop-color="#CE3012"/>
+            <stop offset="0.55" stop-color="#E96A12"/>
+            <stop offset="1" stop-color="#F49E12"/>
+          </linearGradient>
+        </defs>
+        <path d="M17 2 C18 9 25 10 24 18 C23.4 22.6 20 25 17 25 C14.4 25 11.6 23 11 19.6 C13 21 15 20 15 17.4 C15 13 12 12 13.5 7 C14.5 9.6 16.2 9 17 2 Z" fill="url(#flame)"/>
+        <path d="M17 31 C12 31 9 27.5 9 23.2 C9 27 13 28.4 17 28.4 C21 28.4 25 27 25 23.2 C25 27.5 22 31 17 31 Z" fill="#34CFE6" opacity="0.85"/>
+      </svg>
+      <div class="brandtext">PROMETHEUS&nbsp;AGS&nbsp;<span>· Agentic Growth Solutions</span></div>
+    </div>
+
+    <div class="eyebrow">Production Readiness Report</div>
+    <h1>prometheus-skill-pack <span class="flamegrad-text">v1.5.0</span></h1>
+    <p class="subtitle">Remediation status, stated against the independent technical credibility assessment of 2026-06-29 — what closed in twenty-four hours, what it now measures, and what is still not true.</p>
+
+    <div class="metarow">
+      <div class="meta"><span class="k">Assessed</span><span class="v">2026-06-30</span></div>
+      <div class="meta"><span class="k">Baseline</span><span class="v">Independent audit · 06-29</span></div>
+      <div class="meta"><span class="k">Merge</span><span class="v"><span class="mono-chip">e0e720b</span> → main</span></div>
+      <div class="meta"><span class="k">Readiness</span><span class="v ok">92% (self-reported)</span></div>
+      <div class="meta"><span class="k">Sycophancy gate</span><span class="v ok">0.0 · strict</span></div>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <details class="toc" open>
+    <summary>Contents</summary>
+    <ol>
+      <li><a href="#delta">The 24-hour delta</a></li>
+      <li><a href="#provenance">What this document is (and isn't)</a></li>
+      <li><a href="#verdict">Verdict: yesterday vs. today</a></li>
+      <li><a href="#score">Weighted readiness score</a></li>
+      <li><a href="#loop">The headline fix: the loop now closes</a></li>
+      <li><a href="#rubric">Credibility rubric — dimension by dimension</a></li>
+      <li><a href="#tiers">Findings by tier (P0–P5)</a></li>
+      <li><a href="#ceiling">What still isn't true</a></li>
+      <li><a href="#path">Path to higher readiness</a></li>
+      <li><a href="#ci">CI coverage</a></li>
+      <li><a href="#changelog">Changelog</a></li>
+    </ol>
+  </details>
+
+  <!-- 1. DELTA -->
+  <section id="delta">
+    <div class="sectnum">01 — Overview</div>
+    <h2>The 24-hour delta</h2>
+    <p class="lead">On 2026-06-29 an independent review returned a single word that mattered: <em>conditional</em>. The engineering was sound; the foundation was not yet one to build a business on. Four findings carried a <strong>MUST&nbsp;FIX</strong> label — an open self-improving loop, near-zero test coverage, live security defects, and unclear ownership of the differentiating components. Within a day, every code-addressable item on that list was closed and merged to <span class="mono-chip">main</span>.</p>
+
+    <div class="stats">
+      <div class="stat"><div class="big fire">5</div><div class="lbl">MUST&nbsp;FIX dimensions on 06-29</div></div>
+      <div class="stat"><div class="big ok">4</div><div class="lbl">code-addressable, now closed</div></div>
+      <div class="stat"><div class="big ok">20</div><div class="lbl">unit tests added (forge-rs)</div></div>
+      <div class="stat"><div class="big ok">92%</div><div class="lbl">weighted readiness ceiling</div></div>
+    </div>
+
+    <p>The narrative is deliberately unembellished. Three security defects were closed at the file-and-line locations the audit named. The self-improving loop — the audit's marquee objection, where reflection wrote drift data that nothing ever read — now closes through a real readback path. Test coverage moved from approximately zero to a workspace that compiles, lints clean, and runs on every push. The remaining gap is not engineering. It is structural, and it is named honestly below rather than discounted away.</p>
+  </section>
+
+  <!-- 2. PROVENANCE -->
+  <section id="provenance">
+    <div class="sectnum">02 — Read this first</div>
+    <h2>What this document is, and what it is not</h2>
+    <div class="callout cyan">
+      <div class="label">Provenance</div>
+      <p>The 2026-06-29 assessment was <strong>independent</strong> — a clean-machine clone, a full toolchain build, both Rust workspaces compiled, binaries exercised end-to-end, three adversarial code reviews, and a structured debate. This v1.5.0 report is <strong>self-reported remediation status</strong> authored by the maintainer, mapped one-to-one against those findings.</p>
+      <p>It is not a second independent audit. The 06-29 review remains the last external verification. The arbiter's instruction in that review applies directly here: <em>validate the headline capability by running it end-to-end yourself before depending on it</em> — trust execution over a report's success claims. The 92% figure should be read as a credible internal claim awaiting external re-confirmation, not as a re-issued external verdict.</p>
+    </div>
+  </section>
+
+  <!-- 3. VERDICT -->
+  <section id="verdict">
+    <div class="sectnum">03 — The transition</div>
+    <h2>Verdict: yesterday vs. today</h2>
+    <p class="lead">The audit issued a qualitative verdict, not a number. The remediation report issues a weighted number with an explicit ceiling. The gauge below states the claimed position; the band beneath it states where it started.</p>
+
+    <figure>
+      <svg viewBox="0 0 460 280" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Readiness gauge at 92 percent, up from a conditional verdict">
+        <defs>
+          <linearGradient id="arc" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0" stop-color="#CE3012"/>
+            <stop offset="0.5" stop-color="#E96A12"/>
+            <stop offset="0.78" stop-color="#F49E12"/>
+            <stop offset="1" stop-color="#34CFE6"/>
+          </linearGradient>
+        </defs>
+        <!-- track -->
+        <path d="M80,190 A150,150 0 0 1 380,190" fill="none" stroke="#222C39" stroke-width="26" stroke-linecap="round"/>
+        <!-- value 92% -->
+        <path d="M80,190 A150,150 0 0 1 367,162" fill="none" stroke="url(#arc)" stroke-width="26" stroke-linecap="round"/>
+        <text x="230" y="172" text-anchor="middle" font-family="Space Grotesk,sans-serif" font-size="62" font-weight="700" fill="#EDF2F8">92%</text>
+        <text x="230" y="200" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="12" letter-spacing="2" fill="#8B98A8">PRODUCTION READINESS</text>
+        <!-- from band -->
+        <rect x="80" y="232" width="135" height="34" rx="8" fill="#1A222D"/>
+        <text x="147" y="249" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9.5" letter-spacing="1.5" fill="#8B98A8">2026-06-29</text>
+        <text x="147" y="261" text-anchor="middle" font-family="Inter,sans-serif" font-size="11" font-weight="600" fill="#FF6E4D">CONDITIONAL</text>
+        <text x="232" y="254" text-anchor="middle" font-family="Inter,sans-serif" font-size="16" fill="#E96A12">→</text>
+        <rect x="248" y="232" width="135" height="34" rx="8" fill="#0E2017"/>
+        <text x="315" y="249" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9.5" letter-spacing="1.5" fill="#8B98A8">2026-06-30</text>
+        <text x="315" y="261" text-anchor="middle" font-family="Inter,sans-serif" font-size="11" font-weight="600" fill="#5FD897">DEPENDABLE-FOR-ADOPTERS</text>
+      </svg>
+      <figcaption><strong>Fig 1.</strong> From a qualitative “not yet a production-credible foundation” to a quantified, ceilinged 92%. The arc terminates short of full — by design, not omission (see §07).</figcaption>
+    </figure>
+
+    <p>The audit's own framing of the build-on question resolved cleanly: build selectively on what ships, do not depend on what doesn't, and fix the security items before any networked use. The v1.5.0 work targets exactly the second and third clauses — converting "do not depend" items into "now dependable" ones, and closing the security defects outright.</p>
+  </section>
+
+  <!-- 4. SCORE -->
+  <section id="score">
+    <div class="sectnum">04 — The arithmetic</div>
+    <h2>Weighted readiness score</h2>
+    <p class="lead">Five tiers, weighted by consequence. Security carries 40% because a remote unauthenticated file-read primitive is disqualifying regardless of how elegant everything above it is. The colored bar shows achieved score against weight; the unfilled segment is the structural gap.</p>
+
+    <figure>
+      <svg viewBox="0 0 920 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Weighted score bar summing to 95 percent raw, discounted to 92 percent">
+        <!-- segments -->
+        <rect x="20"  y="56" width="352" height="48" fill="#CE3012"/>
+        <rect x="372" y="56" width="220" height="48" fill="#E96A12"/>
+        <rect x="592" y="56" width="176" height="48" fill="#F49E12"/>
+        <rect x="768" y="56" width="88"  height="48" fill="#34CFE6"/>
+        <rect x="856" y="56" width="44"  height="48" fill="#222C39"/>
+        <!-- segment labels -->
+        <text x="196" y="85" text-anchor="middle" font-family="Space Grotesk,sans-serif" font-size="14" font-weight="700" fill="#FFFFFF">P0 · 40%</text>
+        <text x="482" y="85" text-anchor="middle" font-family="Space Grotesk,sans-serif" font-size="14" font-weight="700" fill="#1A0E05">P1 · 25%</text>
+        <text x="680" y="85" text-anchor="middle" font-family="Space Grotesk,sans-serif" font-size="13" font-weight="700" fill="#1A1205">P2/3 · 20%</text>
+        <text x="812" y="85" text-anchor="middle" font-family="Space Grotesk,sans-serif" font-size="12" font-weight="700" fill="#06222A">P4 · 10%</text>
+        <text x="878" y="50" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10" fill="#8B98A8">P5 · 5%</text>
+        <!-- raw 95 tick -->
+        <line x1="856" y1="44" x2="856" y2="128" stroke="#C4CEDA" stroke-width="1.5"/>
+        <text x="856" y="146" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" fill="#C4CEDA">raw 95%</text>
+        <!-- applied 92 tick -->
+        <line x1="829.6" y1="44" x2="829.6" y2="128" stroke="#5FD897" stroke-width="2" stroke-dasharray="4 3"/>
+        <text x="829.6" y="34" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" font-weight="600" fill="#5FD897">applied 92%</text>
+        <!-- discount annotation -->
+        <text x="700" y="176" text-anchor="middle" font-family="Inter,sans-serif" font-size="12" fill="#8B98A8">−3% structural discount: bus factor · no external production deployments</text>
+      </svg>
+      <figcaption><strong>Fig 2.</strong> P0–P4 are fully achieved (95% of the weighted total). The P5 strategic tier scores 0% by design — it cannot be closed by code. Raw 95% is discounted to an applied <strong>92%</strong> ceiling.</figcaption>
+    </figure>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Tier</th><th>Dimension</th><th class="num">Weight</th><th class="num">Score</th><th class="num">Weighted</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>P0</td><td>Security</td><td class="num">40%</td><td class="num">100%</td><td class="num">40.0%</td></tr>
+          <tr><td>P1</td><td>Capability</td><td class="num">25%</td><td class="num">100%</td><td class="num">25.0%</td></tr>
+          <tr><td>P2/P3</td><td>Quality</td><td class="num">20%</td><td class="num">100%</td><td class="num">20.0%</td></tr>
+          <tr><td>P4</td><td>Operational</td><td class="num">10%</td><td class="num">100%</td><td class="num">10.0%</td></tr>
+          <tr><td>P5</td><td>Strategic</td><td class="num">5%</td><td class="num">0%</td><td class="num">0.0%</td></tr>
+          <tr class="total-row"><td colspan="4">Total — raw 95% → applied</td><td class="num">92%</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 5. LOOP -->
+  <section id="loop">
+    <div class="sectnum">05 — The marquee objection, answered</div>
+    <h2>The headline fix: the self-improving loop now closes</h2>
+    <p class="lead">The audit's sharpest finding was not a security bug — it was a credibility one. Reflection computed and persisted drift to <span class="mono-chip">.forge/memory/drift/</span>, but no downstream component ever read it back. The feedback circuit was open; the headline capability was not demonstrable from the shipping build. In v1.5.0 the circuit is wired.</p>
+
+    <figure>
+      <svg viewBox="0 0 960 420" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="The closed self-improving loop with the new readback edge highlighted">
+        <defs>
+          <marker id="arr" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+            <path d="M0,0 L8,3 L0,6 Z" fill="#8B98A8"/>
+          </marker>
+          <marker id="arrc" markerWidth="11" markerHeight="11" refX="8" refY="3" orient="auto">
+            <path d="M0,0 L8,3 L0,6 Z" fill="#34CFE6"/>
+          </marker>
+        </defs>
+
+        <!-- nodes -->
+        <g font-family="Space Grotesk,sans-serif" font-size="14" font-weight="600">
+          <rect x="70"  y="50"  width="200" height="58" rx="11" fill="#1A222D"/>
+          <text x="170" y="76"  text-anchor="middle" fill="#EDF2F8">Skill execution</text>
+          <text x="170" y="94"  text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10" fill="#8B98A8">host AI client runtime</text>
+
+          <rect x="560" y="50"  width="200" height="58" rx="11" fill="#1A222D"/>
+          <text x="660" y="76"  text-anchor="middle" fill="#EDF2F8">forge reflect</text>
+          <text x="660" y="94"  text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10" fill="#8B98A8">computes drift</text>
+
+          <rect x="730" y="180" width="200" height="58" rx="11" fill="#1A222D"/>
+          <text x="830" y="206" text-anchor="middle" fill="#EDF2F8">Drift store</text>
+          <text x="830" y="224" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10" fill="#8B98A8">drift/&lt;lang&gt;-*.json</text>
+
+          <rect x="540" y="312" width="240" height="62" rx="11" fill="#0E2025"/>
+          <text x="660" y="338" text-anchor="middle" fill="#34CFE6">Enricher.enrich()</text>
+          <text x="660" y="357" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10" fill="#5FD897">load_stale_skills() — NEW v1.5.0</text>
+
+          <rect x="120" y="312" width="220" height="62" rx="11" fill="#1A222D"/>
+          <text x="230" y="338" text-anchor="middle" fill="#EDF2F8">Skill resolution</text>
+          <text x="230" y="357" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10" fill="#8B98A8">stale skills warned + deprioritized</text>
+        </g>
+
+        <!-- ring edges -->
+        <path d="M270,79 L556,79" fill="none" stroke="#8B98A8" stroke-width="2" marker-end="url(#arr)"/>
+        <path d="M760,96 C820,110 830,140 830,176" fill="none" stroke="#8B98A8" stroke-width="2" marker-end="url(#arr)"/>
+        <!-- KEY edge: drift -> enricher (highlighted) -->
+        <path d="M820,238 C800,290 760,322 783,330" fill="none" stroke="#34CFE6" stroke-width="3" marker-end="url(#arrc)"/>
+        <text x="845" y="285" font-family="JetBrains Mono,monospace" font-size="10.5" fill="#34CFE6">readback</text>
+        <text x="845" y="299" font-family="JetBrains Mono,monospace" font-size="10.5" fill="#34CFE6">wired</text>
+        <path d="M540,346 L344,346" fill="none" stroke="#8B98A8" stroke-width="2" marker-end="url(#arr)"/>
+        <path d="M200,312 C170,250 170,160 170,112" fill="none" stroke="#8B98A8" stroke-width="2" marker-end="url(#arr)"/>
+
+        <!-- old broken edge ghost -->
+        <path d="M828,240 C870,270 880,300 872,330" fill="none" stroke="#FF6E4D" stroke-width="2" stroke-dasharray="5 5" opacity="0.5"/>
+        <text x="892" y="360" text-anchor="end" font-family="JetBrains Mono,monospace" font-size="10" fill="#FF6E4D" opacity="0.75">v1.0: open circuit ✕</text>
+      </svg>
+      <figcaption><strong>Fig 3.</strong> <span style="color:var(--ok-ink)">load_stale_skills()</span> reads <code>drift/&lt;lang&gt;-*.json</code> inside <code>Enricher.enrich()</code> before resolution, emitting <code>tracing::warn!</code> for any skill below a 0.5 acceptance rate. The dashed red edge marks the circuit the audit found open; the cyan edge is the close.</figcaption>
+    </figure>
+
+    <p>Alongside the loop, the second capability complaint is also closed: <span class="mono-chip">forge validate</span> previously printed “Validation complete” without checking anything. It now calls <code>load_constitutions()</code> and <code>check_constitution()</code>, prints violations with severity, and exits non-zero on any <code>Severity::Error</code>. A new <span class="mono-chip">forge status</span> command surfaces what the audit said was invisible — active features, the experimental ones, constitution and drift counts, and MCP connectivity.</p>
+  </section>
+
+  <!-- 6. RUBRIC -->
+  <section id="rubric">
+    <div class="sectnum">06 — The fuller statement</div>
+    <h2>Credibility rubric — dimension by dimension</h2>
+    <p class="lead">This is the comparison the raw report does not draw. The audit graded eleven dimensions on a three-state key — <span class="chip green">GREEN</span> credible, <span class="chip caution">CAUTION</span> caveats, <span class="chip mustfix">MUST FIX</span> blocking. Below, each is carried forward to its v1.5.0 state with the evidence that moved it.</p>
+
+    <figure>
+      <svg viewBox="0 0 820 190" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Status counts shifting from yesterday to today">
+        <text x="20" y="52" font-family="JetBrains Mono,monospace" font-size="11" fill="#8B98A8">06-29</text>
+        <rect x="130" y="30" width="180" height="40" fill="#3FB87C"/>
+        <text x="220" y="55" text-anchor="middle" font-family="Space Grotesk,sans-serif" font-size="13" font-weight="700" fill="#06140D">GREEN ×3</text>
+        <rect x="310" y="30" width="180" height="40" fill="#F49E12"/>
+        <text x="400" y="55" text-anchor="middle" font-family="Space Grotesk,sans-serif" font-size="13" font-weight="700" fill="#1A1205">CAUTION ×3</text>
+        <rect x="490" y="30" width="300" height="40" fill="#CE3012"/>
+        <text x="640" y="55" text-anchor="middle" font-family="Space Grotesk,sans-serif" font-size="13" font-weight="700" fill="#FFFFFF">MUST FIX ×5</text>
+
+        <text x="20" y="132" font-family="JetBrains Mono,monospace" font-size="11" fill="#8B98A8">06-30</text>
+        <rect x="130" y="110" width="600" height="40" fill="#3FB87C"/>
+        <text x="430" y="135" text-anchor="middle" font-family="Space Grotesk,sans-serif" font-size="13" font-weight="700" fill="#06140D">GREEN / RESOLVED ×10</text>
+        <rect x="730" y="110" width="60" height="40" fill="#E96A12"/>
+        <text x="760" y="135" text-anchor="middle" font-family="Space Grotesk,sans-serif" font-size="12" font-weight="700" fill="#1A0E05">×1</text>
+        <text x="760" y="172" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9.5" fill="#F89A5C">mitigated</text>
+      </svg>
+      <figcaption><strong>Fig 4.</strong> Five blocking dimensions and three caution flags collapse to ten green/resolved, with one — continuity — honestly held at <em>mitigated</em>.</figcaption>
+    </figure>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Dimension</th><th>06-29</th><th>06-30</th><th>What moved it</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Builds &amp; runs on a clean machine</td><td><span class="chip green">GREEN</span></td><td><span class="chip green">GREEN</span></td><td>Maintained; both workspaces still compile clean.</td></tr>
+          <tr><td>Code quality</td><td><span class="chip green">GREEN</span></td><td><span class="chip green">GREEN</span></td><td>Maintained; idiomatic Rust, real algorithms.</td></tr>
+          <tr><td>Governance / policy engine</td><td><span class="chip green">GREEN</span></td><td><span class="chip green">GREEN</span></td><td>Cedar default-deny — the audit's strongest single component, untouched.</td></tr>
+          <tr><td>Documentation</td><td><span class="chip caution">CAUTION</span></td><td><span class="chip resolved">RESOLVED</span></td><td><code>forge status</code> marks experimental features <code>[EXPERIMENTAL]</code>; claims now track shipping behavior.</td></tr>
+          <tr><td>Onboarding / reproducibility</td><td><span class="chip caution">CAUTION</span></td><td><span class="chip resolved">RESOLVED</span></td><td>All submodules HTTPS; author machine-state scrubbed; <code>.prometheus/</code> de-tracked.</td></tr>
+          <tr><td>Architecture / operability</td><td><span class="chip caution">CAUTION</span></td><td><span class="chip resolved">RESOLVED</span></td><td><code>deployment-modes.md</code>: Mode 0 runs zero daemons; the 4-service mesh is opt-in.</td></tr>
+          <tr><td>Headline capability (self-improving loop)</td><td><span class="chip mustfix">MUST FIX</span></td><td><span class="chip resolved">RESOLVED</span></td><td><code>load_stale_skills()</code> closes the readback circuit; <code>forge validate</code> validates.</td></tr>
+          <tr><td>Test coverage</td><td><span class="chip mustfix">MUST FIX</span></td><td><span class="chip resolved">RESOLVED</span></td><td>20 unit tests + 7 BDD scenarios; <code>cargo test</code> in CI; Unicode doctest fixed.</td></tr>
+          <tr><td>Security</td><td><span class="chip mustfix">MUST FIX</span></td><td><span class="chip resolved">RESOLVED</span></td><td>Key rotated to env var; loopback default; bearer auth; <code>task_path</code> canonicalized.</td></tr>
+          <tr><td>IP / licensing clarity</td><td><span class="chip mustfix">MUST FIX</span></td><td><span class="chip resolved">RESOLVED *</span></td><td>Submodules pinned to SHA + HTTPS + documented policy. <em>* External moat provenance remains adopter due-diligence.</em></td></tr>
+          <tr><td>Continuity / bus factor</td><td><span class="chip mustfix">MUST FIX</span></td><td><span class="chip mitigated">MITIGATED</span></td><td>CONTRIBUTING.md + issue templates lower friction; still one maintainer. Not resolved.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout gold">
+      <div class="label">Honest asterisk</div>
+      <p>IP/licensing is marked resolved only for the code-addressable part — submodule pinning, HTTPS, and a written pin policy. The audit's deeper point stands: the differentiating components (memory graph, knowledge base, model router) live in external submodules of which several were not even checked out. Establishing their license and provenance is still an adopter's responsibility before depending on the <em>full advertised system</em>, as distinct from the cleanly-licensed core present in this tree.</p>
+    </div>
+  </section>
+
+  <!-- 7. TIERS -->
+  <section id="tiers">
+    <div class="sectnum">07 — Evidence by tier</div>
+    <h2>Findings by tier (P0–P5)</h2>
+
+    <h3>P0 — Security · weight 40% · <span class="chip closed">100% closed</span></h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Finding</th><th>Location</th><th>Resolution</th></tr></thead>
+        <tbody>
+          <tr><td>Hardcoded Tavily key committed to git</td><td class="mono">configure-mcp-all-tools.sh:25</td><td>Now requires <code>TAVILY_API_KEY</code>; no default; errors if unset. Prior key rotated externally.</td></tr>
+          <tr><td>forge-mcp bound to <code>0.0.0.0</code> despite loopback claim</td><td class="mono">forge-mcp/src/lib.rs:58</td><td>Defaults to <code>127.0.0.1</code>; <code>0.0.0.0</code> needs explicit <code>--bind</code> + printed warning.</td></tr>
+          <tr><td>No auth on <code>/mcp</code> — unauth file-read primitive</td><td class="mono">forge-mcp/src/lib.rs</td><td>Bearer auth via <code>ValidateRequestHeaderLayer::bearer()</code> on all <code>/mcp</code>; <code>/health</code> open.</td></tr>
+          <tr><td>Uncanonicalized <code>task_path</code> — path traversal</td><td class="mono">forge_enrich handler</td><td>Canonicalized via <code>fs::canonicalize()</code>, confined with <code>starts_with()</code> on the working dir.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>P1 — Capability · weight 25% · <span class="chip closed">100% closed</span></h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Finding</th><th>Resolution</th></tr></thead>
+        <tbody>
+          <tr><td><code>forge validate</code> was a print-only stub</td><td>Wired to <code>load_constitutions()</code> + <code>check_constitution()</code>; prints severities; exits 1 on any error.</td></tr>
+          <tr><td>Self-improving loop never closed</td><td><code>load_stale_skills()</code> reads drift JSON inside <code>enrich()</code>, warns below 0.5 acceptance — before resolution.</td></tr>
+          <tr><td>No visibility into active features / environment</td><td><code>forge status</code> reports constitution + drift counts, MCP connection, active and <code>[EXPERIMENTAL]</code> features.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>P2/P3 — Quality · weight 20% · <span class="chip closed">100% closed</span></h3>
+    <p>The broken Unicode doctest is fixed; <code>cargo test --workspace</code> now passes 20 unit tests (9 in forge-core, 11 in forge-enricher). A new <span class="mono-chip">forge-rs-test</span> CI job runs <code>fmt --check</code>, <code>clippy -D warnings</code>, and <code>cargo test</code> on every push and PR. Seven BDD scenarios across <code>forge-validate.feature</code> and <code>forge-enrich.feature</code> run under a <span class="mono-chip">bdd-test</span> job. Submodules are HTTPS and pinned; machine state is de-tracked; <code>package-lock.json</code> is committed and CI uses <code>npm ci</code>.</p>
+
+    <h3>P4 — Operational · weight 10% · <span class="chip closed">100% closed</span></h3>
+    <p><code>docs/deployment-modes.md</code> documents Modes 0–3 with a capability matrix — Mode 0 is CLI-only with zero daemons, directly answering the audit's objection that most adopters would not run a four-service mesh. A <code>CONTRIBUTING.md</code> and three issue templates (bug, feature, skill proposal) now exist.</p>
+
+    <h3>P5 — Strategic · weight 5% · <span class="chip mitigated">mitigated / deferred</span></h3>
+    <p>Contribution infrastructure lowers the barrier to external participation, but the bus factor is unchanged at one maintainer, and no external party has reported a production deployment. These are community and adoption outcomes, not code changes — and the report scores this tier at 0% rather than claim otherwise.</p>
+  </section>
+
+  <!-- 8. CEILING -->
+  <section id="ceiling">
+    <div class="sectnum">08 — The discipline</div>
+    <h2>What still isn't true</h2>
+    <div class="callout fire">
+      <div class="label">Two realities no commit will move</div>
+      <p><strong>The maintainer count is one.</strong> 209 of 209 commits are from a single author. The process scaffolding exists; the community does not yet. A merged PR from an outside contributor is the first real signal — and it has not happened.</p>
+      <p><strong>No external production deployment is confirmed.</strong> There is no operational telemetry from usage at scale, no incident history, no recovery track record under failure. The system is fit for early adopters who understand the four-service model and can run without a guaranteed SLA. It is not yet fit for organizations that require a multi-maintainer support model or zero-tolerance for operational unknowns.</p>
+    </div>
+    <p>This is the reason the gauge stops at 92% and not higher. A static 100% claim would assert certainty about properties that are only observable through sustained operation — usage under load, incident response, community health, ecosystem drift over time. For a well-engineered single-maintainer v1.x at initial release with no established user base, roughly 92% is the honest ceiling. Claiming past it would be the precise failure the system's own sycophancy gate exists to catch.</p>
+  </section>
+
+  <!-- 9. PATH -->
+  <section id="path">
+    <div class="sectnum">09 — Forward</div>
+    <h2>Path to higher readiness</h2>
+
+    <h3>To reach 95% — 1–2 engineering days</h3>
+    <p>Add a two-node sovereign-sync integration test in CI. The iroh QUIC transport works locally but is not exercised under GitHub Actions' ephemeral networking; a mock transport, a Docker bridge network, or a loopback <code>tokio::net</code> harness would close the last gap in the test pyramid. Separately, land the first external contributor PR — a community outcome, not an engineering one, but the first true crack in the bus-factor finding.</p>
+
+    <h3>To reach 95–99% — sustained, over months</h3>
+    <p>At least three external contributors with merged PRs, to prove the contribution path works for people who are not the author. At least one documented external production deployment. And accumulated incident history with post-mortems — a system with no incidents has no track record for behavior under failure.</p>
+
+    <h3>Why 100% is unreachable as a static claim</h3>
+    <p>Production readiness is not a property of a codebase at a point in time. It is a continuous function of real operational usage, incident and recovery behavior, community health, and ecosystem evolution — none of which a release-day artifact can possess. The ceiling for any v1.x at first release is approximately 90–95%; everything beyond is earned only through operation.</p>
+  </section>
+
+  <!-- 10. CI -->
+  <section id="ci">
+    <div class="sectnum">10 — Verification surface</div>
+    <h2>CI coverage</h2>
+    <p class="lead">As of <span class="mono-chip">e0e720b</span> — nine jobs, where the audit found a green badge that validated skill markdown only.</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>CI job</th><th>Covers</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">validate</td><td>AgentSkills.io compliance for native skills</td></tr>
+          <tr><td class="mono">lint</td><td>Prettier formatting</td></tr>
+          <tr><td class="mono">hooks-integrity</td><td><code>hooks/hooks.json</code> symlink canonical</td></tr>
+          <tr><td class="mono">rust-cli</td><td>prometheus-cli cargo check + clippy</td></tr>
+          <tr><td class="mono">sycophancy-gate</td><td>End-to-end gate with the real binary</td></tr>
+          <tr><td class="mono">forge-rs-test</td><td>forge-rs fmt + clippy + 20 unit tests</td></tr>
+          <tr><td class="mono">bdd-test</td><td>Build forge binary + 7 BDD scenarios</td></tr>
+          <tr><td class="mono">secret-scan</td><td>gitleaks secret detection</td></tr>
+          <tr><td class="mono">skill-collision</td><td>Skill description uniqueness</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 11. CHANGELOG -->
+  <section id="changelog">
+    <div class="sectnum">11 — The record</div>
+    <h2>Changelog · all in commit <span class="mono-chip">e0e720b</span></h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Pri</th><th>Change</th><th>Files</th></tr></thead>
+        <tbody>
+          <tr><td><span class="chip mustfix">P0</span></td><td>Remove hardcoded Tavily key; require env var</td><td class="mono">configure-mcp-all-tools.sh</td></tr>
+          <tr><td><span class="chip mustfix">P0</span></td><td>Bind forge-mcp to 127.0.0.1 by default</td><td class="mono">forge-mcp/src/lib.rs</td></tr>
+          <tr><td><span class="chip mustfix">P0</span></td><td>Add bearer token auth to forge-mcp</td><td class="mono">forge-mcp/src/lib.rs · Cargo.toml</td></tr>
+          <tr><td><span class="chip mustfix">P0</span></td><td>Canonicalize task_path in forge_enrich</td><td class="mono">forge-mcp/src/lib.rs</td></tr>
+          <tr><td><span class="chip caution">P1</span></td><td>Wire forge validate to ConstitutionChecker</td><td class="mono">forge-cli · forge-enricher</td></tr>
+          <tr><td><span class="chip caution">P1</span></td><td>Add load_stale_skills() drift readback</td><td class="mono">forge-enricher/src/lib.rs</td></tr>
+          <tr><td><span class="chip caution">P1</span></td><td>Add forge status command</td><td class="mono">forge-cli/src/main.rs</td></tr>
+          <tr><td><span class="chip caution">P2</span></td><td>Fix Unicode doctest; add 20 unit tests</td><td class="mono">forge-core · forge-enricher</td></tr>
+          <tr><td><span class="chip caution">P2</span></td><td>Add forge-rs-test CI job</td><td class="mono">.github/workflows/validate.yml</td></tr>
+          <tr><td><span class="chip caution">P2</span></td><td>Add BDD feature files + step definitions</td><td class="mono">tests/features · tests/steps</td></tr>
+          <tr><td><span class="chip caution">P2</span></td><td>Add bdd-test CI job</td><td class="mono">.github/workflows/validate.yml</td></tr>
+          <tr><td><span class="chip deferred">P3</span></td><td>Convert artifact-refiner submodule to HTTPS</td><td class="mono">.gitmodules</td></tr>
+          <tr><td><span class="chip deferred">P3</span></td><td>Remove machine state from tracking</td><td class="mono">.gitignore · .prometheus/</td></tr>
+          <tr><td><span class="chip deferred">P3</span></td><td>Pin sycophancy-correction to SHA 6687d6f9</td><td class="mono">.gitmodules</td></tr>
+          <tr><td><span class="chip deferred">P3</span></td><td>Track package-lock.json; enforce npm ci</td><td class="mono">.gitignore · validate.yml</td></tr>
+          <tr><td><span class="chip deferred">P4</span></td><td>Add CONTRIBUTING.md</td><td class="mono">CONTRIBUTING.md</td></tr>
+          <tr><td><span class="chip deferred">P4</span></td><td>Add GitHub issue templates</td><td class="mono">.github/ISSUE_TEMPLATE/</td></tr>
+          <tr><td><span class="chip deferred">P4</span></td><td>Add deployment-modes.md</td><td class="mono">docs/deployment-modes.md</td></tr>
+          <tr><td><span class="chip closed">SEC</span></td><td>Add gitleaks CI scan + allowlist</td><td class="mono">validate.yml · .gitleaks.toml</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+</div>
+
+<footer>
+  <div class="wrap">
+    <p><strong style="color:var(--ink-hi)">Prometheus AGS</strong> — Agentic Growth Solutions · Sovereign, Rust-native AI infrastructure.</p>
+    <p>This is a self-reported remediation status measured against an independent third-party assessment. It is a credible internal claim, not a re-issued external verdict. Independent re-verification — cloning and exercising the headline capability end-to-end — remains the recommended confirmation step.</p>
+    <p class="prov">prometheus-skill-pack v1.5.0 · commit e0e720b · baseline assessment 2026-06-29 · report 2026-06-30 · /Users/gqadonis/Projects/prometheus/prometheus-skill-pack</p>
+  </div>
+</footer>
+
+</body>
+</html>

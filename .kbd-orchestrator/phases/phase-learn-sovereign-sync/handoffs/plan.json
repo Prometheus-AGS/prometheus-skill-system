@@ -1,0 +1,27 @@
+{
+  "stage": "plan",
+  "phase": "phase-learn-sovereign-sync",
+  "timestamp": "2026-06-28T04:00:00Z",
+  "summary": "18-change plan in 4 tiers: Tier 0 (Loro migration + SyncManifest schema), Tier 1 (sovereign-sync crate scaffold + IrohDocsAdapter + iroh P2P + Loro merge + redb), Tier 2 (MCP server + AG-UI/A2UI + REST API + MCP client pool), Tier 3 (Rust SDK + 3 sync skills), Tier 4 (install + tests + docs). First change to apply: change-sync-001 (delete AutomergeEngine, implement LoroAdapter). Sycophancy gate returned PARTIAL — UAR SkillService port removed in favor of 50-line SkillIndex loader; embedding deferred to Phase B; BossFang integration via MCP stdio with sovereign: prefix.",
+  "artifacts": ["plan.md"],
+  "change_count": 18,
+  "first_change": "change-sync-001",
+  "tiers": [
+    {"tier": 0, "changes": ["change-sync-001", "change-sync-002"], "note": "Foundation — must complete first"},
+    {"tier": 1, "changes": ["change-sync-003", "change-sync-004", "change-sync-005", "change-sync-006", "change-sync-007"], "note": "sync-service core — after Tier 0; 004-007 can parallelize"},
+    {"tier": 2, "changes": ["change-sync-008", "change-sync-009", "change-sync-010", "change-sync-011"], "note": "Interfaces — after Tier 1; can parallelize within tier"},
+    {"tier": 3, "changes": ["change-sync-012", "change-sync-013", "change-sync-014", "change-sync-015"], "note": "SDK + Skills — after Tier 2"},
+    {"tier": 4, "changes": ["change-sync-016", "change-sync-017", "change-sync-018"], "note": "Install + Tests + Docs — last"}
+  ],
+  "sycophancy_gate_verdict": "PARTIAL",
+  "gate_corrections": [
+    "UAR SkillService port removed — SkillIndex loader (~50 lines) instead",
+    "Embedding matching (Burn+USearch) deferred to Phase B",
+    "LLM-intent classification removed from roadmap",
+    "BossFang integration = MCP stdio with sovereign: prefix (not native plugin)",
+    "Binary needed only for non-SKILL.md harnesses"
+  ],
+  "uar_integration": "SKILL.md files loaded by UAR SkillStorageProvider natively; sovereign binary runs as external MCP sidecar with sovereign: prefix; UAR_SKILL_SERVICE_URL env var triggers passthrough mode",
+  "harness_coverage": ["Claude Code", "Claude Desktop", "Kimi Desktop", "Codex Desktop", "OpenCode Desktop", "BossFang/LibreFang", "Custom Tauri", "Axum server", "CLI", "UAR (cherry-studio)"],
+  "phase_b_deferred": ["TypeScript SDK", "Go SDK", "Tauri plugin", "Docusaurus site", "Embedding matching", "Cloud Axum node", "WASM module"]
+}

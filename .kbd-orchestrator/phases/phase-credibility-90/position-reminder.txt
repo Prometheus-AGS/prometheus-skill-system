@@ -1,0 +1,6 @@
+Phase: phase-credibility-90
+Stage: assess (in progress)
+Changes: 0 of TBD
+Goal: reach ≥90% sycophancy-corrected production readiness
+OQ-01: RESOLVED (Tavily key rotated externally)
+Next: /kbd-assess phase-credibility-90

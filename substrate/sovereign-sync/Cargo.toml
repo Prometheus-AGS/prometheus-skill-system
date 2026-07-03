@@ -1,0 +1,65 @@
+[package]
+name = "sovereign-sync"
+version = "0.1.0"
+edition = "2021"
+description = "P2P CRDT sync daemon, MCP server, and REST API for prometheus-skill-pack"
+
+[[bin]]
+name = "sovereign-sync"
+path = "src/main.rs"
+
+[lib]
+name = "sovereign_sync"
+path = "src/lib.rs"
+
+[dependencies]
+# CLI
+clap = { version = "4", features = ["derive"] }
+
+# Config
+toml = "0.8"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# Async runtime
+tokio = { version = "1", features = ["full"] }
+tokio-stream = "0.1"
+bytes = "1"
+futures = "0.3"
+
+# HTTP server
+axum = { version = "0.8", features = ["json"] }
+tower = "0.5"
+tower-http = { version = "0.6", features = ["cors"] }
+
+# CRDT
+loro = "1.13"
+
+# P2P (iroh 1.0.0 stable — released June 15, 2026)
+iroh = "1.0"
+iroh-gossip = "0.101"
+blake3 = "1"
+
+# MCP server (rmcp 1.8 — official modelcontextprotocol/rust-sdk)
+rmcp = { version = "1.8", features = ["server", "client", "transport-io", "transport-child-process", "macros"] }
+schemars = "1.0"
+
+# Persistence
+redb = "2"
+
+# Error handling
+thiserror = "1"
+anyhow = "1"
+
+# Dirs
+dirs-next = "2"
+
+# Tracing
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+# Storage provider (local crate)
+storage-provider = { path = "../storage-provider" }
+
+[dev-dependencies]
+tokio = { version = "1", features = ["full"] }

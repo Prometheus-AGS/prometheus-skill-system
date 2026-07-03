@@ -1,0 +1,7 @@
+{
+  "stage": "reflect",
+  "written_at": "2026-06-30",
+  "summary": "16/16 changes done; sycophancy-corrected readiness 78%; two carry-forwards (C01 push blocked on external Tavily key rotation, BDD not wired to CI); next phase should open with those two items as first changes.",
+  "artifacts": ["reflection.md"],
+  "blocking": "OQ-01: Tavily key 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 must be rotated at tavily.com before C01 can be pushed"
+}

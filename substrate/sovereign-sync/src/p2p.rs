@@ -1,0 +1,255 @@
+use anyhow::Result;
+use bytes::Bytes;
+use iroh::{endpoint::presets, Endpoint, EndpointId};
+use iroh_gossip::{
+    api::{Event, GossipSender},
+    net::Gossip,
+    proto::TopicId,
+};
+use std::sync::Arc;
+use tokio::sync::{mpsc, RwLock};
+use tokio_stream::StreamExt;
+use tracing::{debug, info, warn};
+
+use crate::config::PeersConfig;
+use crate::error::SyncError;
+
+/// FSM states for the P2P node.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum NodeState {
+    Disconnected,
+    Bootstrapping,
+    Connected,
+    Syncing,
+    Idle,
+}
+
+/// A message received from a peer over gossip.
+#[derive(Debug, Clone)]
+pub struct PeerMessage {
+    pub from: EndpointId,
+    pub payload: Bytes,
+}
+
+pub struct P2PNode {
+    state: Arc<RwLock<NodeState>>,
+    endpoint: Endpoint,
+    gossip: Gossip,
+    topic: TopicId,
+    message_tx: mpsc::Sender<PeerMessage>,
+    /// Sender half of the gossip topic — held for lifetime of node.
+    sender: Arc<tokio::sync::Mutex<Option<GossipSender>>>,
+}
+
+impl P2PNode {
+    /// Create a new P2P node.
+    ///
+    /// `operator_id` derives the gossip topic: all nodes sharing the same
+    /// operator_id subscribe to the same gossip channel and form a sync group.
+    pub async fn new(
+        operator_id: &[u8; 32],
+        _peers_config: &PeersConfig,
+    ) -> Result<(Self, mpsc::Receiver<PeerMessage>)> {
+        let topic = Self::derive_topic(operator_id);
+
+        // N0 preset: pkarr DNS discovery + relay mode, with bundled crypto provider.
+        let endpoint = Endpoint::builder(presets::N0).bind().await?;
+
+        let node_id = endpoint.id();
+        info!("P2P endpoint started — node_id={}", node_id);
+
+        // spawn() is synchronous — no .await needed.
+        let gossip = Gossip::builder().spawn(endpoint.clone());
+
+        let (message_tx, message_rx) = mpsc::channel(256);
+
+        Ok((
+            Self {
+                state: Arc::new(RwLock::new(NodeState::Disconnected)),
+                endpoint,
+                gossip,
+                topic,
+                message_tx,
+                sender: Arc::new(tokio::sync::Mutex::new(None)),
+            },
+            message_rx,
+        ))
+    }
+
+    /// Derive a deterministic TopicId from the operator_id.
+    /// All nodes with the same operator_id join the same gossip topic.
+    pub fn derive_topic(operator_id: &[u8; 32]) -> TopicId {
+        let mut input = operator_id.to_vec();
+        input.extend_from_slice(b"sovereign-sync-v1");
+        let hash = *blake3::hash(&input).as_bytes();
+        TopicId::from_bytes(hash)
+    }
+
+    /// Bootstrap, join the gossip topic, and enter Idle state.
+    /// After this returns, `broadcast()` and `add_peers()` are available.
+    pub async fn start(&self, bootstrap_peers: Vec<EndpointId>) -> Result<()> {
+        {
+            let mut state = self.state.write().await;
+            *state = NodeState::Bootstrapping;
+        }
+        info!(
+            "P2P bootstrapping with {} known peers",
+            bootstrap_peers.len()
+        );
+
+        let topic = self
+            .gossip
+            .subscribe_and_join(self.topic, bootstrap_peers)
+            .await
+            .map_err(|e| anyhow::anyhow!("gossip join failed: {e}"))?;
+
+        let (sender, mut receiver) = topic.split();
+
+        // Store sender so broadcast() can use it without re-subscribing.
+        {
+            let mut guard = self.sender.lock().await;
+            *guard = Some(sender);
+        }
+
+        {
+            let mut state = self.state.write().await;
+            *state = NodeState::Connected;
+        }
+        info!(
+            "P2P connected — topic={}",
+            blake3::Hash::from_bytes(*self.topic.as_bytes())
+        );
+
+        // Spawn receiver loop.
+        let state_clone = self.state.clone();
+        let tx = self.message_tx.clone();
+
+        tokio::spawn(async move {
+            while let Some(event_result) = receiver.next().await {
+                match event_result {
+                    Ok(event) => match event {
+                        Event::Received(msg) => {
+                            let peer_msg = PeerMessage {
+                                from: msg.delivered_from,
+                                payload: msg.content,
+                            };
+                            if tx.send(peer_msg).await.is_err() {
+                                break;
+                            }
+                        }
+                        Event::NeighborUp(peer) => {
+                            debug!("Neighbor up: {}", peer);
+                            let mut s = state_clone.write().await;
+                            if *s == NodeState::Connected {
+                                *s = NodeState::Idle;
+                            }
+                        }
+                        Event::NeighborDown(peer) => {
+                            debug!("Neighbor down: {}", peer);
+                        }
+                        Event::Lagged => {
+                            warn!("Gossip receiver lagged — some messages dropped");
+                        }
+                    },
+                    Err(e) => {
+                        warn!("Gossip receiver error: {e}");
+                        break;
+                    }
+                }
+            }
+        });
+
+        // If no neighbors have connected yet, transition directly to Idle.
+        {
+            let mut state = self.state.write().await;
+            if *state == NodeState::Connected {
+                *state = NodeState::Idle;
+            }
+        }
+
+        Ok(())
+    }
+
+    /// Broadcast a delta to all subscribed peers.
+    ///
+    /// Privacy gate is enforced upstream in `crdt.rs` — bytes reaching here
+    /// have already passed the `PrivacyClass::LocalOnly` check.
+    pub async fn broadcast(&self, payload: Bytes) -> Result<(), SyncError> {
+        {
+            let mut state = self.state.write().await;
+            *state = NodeState::Syncing;
+        }
+
+        let guard = self.sender.lock().await;
+        match guard.as_ref() {
+            Some(sender) => {
+                sender
+                    .broadcast(payload)
+                    .await
+                    .map_err(|e| SyncError::Network(e.to_string()))?;
+            }
+            None => {
+                return Err(SyncError::Network(
+                    "P2P node not started — call start() first".into(),
+                ));
+            }
+        }
+
+        {
+            let mut state = self.state.write().await;
+            *state = NodeState::Idle;
+        }
+
+        Ok(())
+    }
+
+    /// Add new peers discovered out-of-band (e.g., from config or mDNS).
+    pub async fn add_peers(&self, peers: Vec<EndpointId>) -> Result<(), SyncError> {
+        let guard = self.sender.lock().await;
+        match guard.as_ref() {
+            Some(sender) => sender
+                .join_peers(peers)
+                .await
+                .map_err(|e| SyncError::Network(e.to_string())),
+            None => Err(SyncError::Network(
+                "P2P node not started — call start() first".into(),
+            )),
+        }
+    }
+
+    /// Return the stable NodeId (Ed25519 public key) for this node.
+    pub fn node_id(&self) -> EndpointId {
+        self.endpoint.id()
+    }
+
+    /// Return the current FSM state.
+    pub async fn state(&self) -> NodeState {
+        self.state.read().await.clone()
+    }
+
+    /// Gracefully shut down the endpoint.
+    pub async fn shutdown(self) -> Result<()> {
+        self.endpoint.close().await;
+        Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn topic_is_deterministic() {
+        let op_id = [1u8; 32];
+        let t1 = P2PNode::derive_topic(&op_id);
+        let t2 = P2PNode::derive_topic(&op_id);
+        assert_eq!(t1.as_bytes(), t2.as_bytes());
+    }
+
+    #[test]
+    fn different_operators_get_different_topics() {
+        let t1 = P2PNode::derive_topic(&[1u8; 32]);
+        let t2 = P2PNode::derive_topic(&[2u8; 32]);
+        assert_ne!(t1.as_bytes(), t2.as_bytes());
+    }
+}

@@ -1,0 +1,136 @@
+{
+  "phase": "phase-learn-sovereign-sync",
+  "stage": "execute_ready",
+  "changes_total": 20,
+  "changes_completed": 20,
+  "active_change": null,
+  "next_pending_change": null,
+  "assessment_complete": true,
+  "analysis_complete": true,
+  "plan_complete": true,
+  "changes": [
+    {
+      "id": "change-sync-001",
+      "status": "done",
+      "tier": 0,
+      "title": "Delete AutomergeEngine; implement LoroAdapter"
+    },
+    {
+      "id": "change-sync-002",
+      "status": "done",
+      "tier": 0,
+      "title": "SyncManifest schema + SyncDomain + PrivacyClass"
+    },
+    {
+      "id": "change-sync-003",
+      "status": "done",
+      "tier": 1,
+      "title": "sovereign-sync crate scaffold"
+    },
+    {
+      "id": "change-sync-004",
+      "status": "done",
+      "tier": 1,
+      "title": "IrohDocsAdapter implementation"
+    },
+    {
+      "id": "change-sync-005",
+      "status": "done",
+      "tier": 1,
+      "title": "iroh P2P endpoint + iroh-gossip peer discovery"
+    },
+    {
+      "id": "change-sync-006",
+      "status": "done",
+      "tier": 1,
+      "title": "Loro merge engine in sovereign-sync"
+    },
+    {
+      "id": "change-sync-007",
+      "status": "done",
+      "tier": 1,
+      "title": "redb persistence for sync state"
+    },
+    {
+      "id": "change-sync-008",
+      "status": "done",
+      "tier": 2,
+      "title": "rmcp MCP server (stdio mode)"
+    },
+    {
+      "id": "change-sync-009",
+      "status": "done",
+      "tier": 2,
+      "title": "AG-UI + A2UI streaming endpoint"
+    },
+    {
+      "id": "change-sync-010",
+      "status": "done",
+      "tier": 2,
+      "title": "REST API (Axum routes, daemon/server modes)"
+    },
+    {
+      "id": "change-sync-011",
+      "status": "done",
+      "tier": 2,
+      "title": "MCP client pool (rmcp, mcp-servers.json)"
+    },
+    {
+      "id": "change-sync-012",
+      "status": "done",
+      "tier": 3,
+      "title": "sovereign-client Rust SDK"
+    },
+    {
+      "id": "change-sync-013",
+      "status": "done",
+      "tier": 3,
+      "title": "/sync-status skill"
+    },
+    {
+      "id": "change-sync-014",
+      "status": "done",
+      "tier": 3,
+      "title": "/sync-peers skill"
+    },
+    {
+      "id": "change-sync-015",
+      "status": "done",
+      "tier": 3,
+      "title": "/sync-push skill"
+    },
+    {
+      "id": "change-sync-016",
+      "status": "done",
+      "tier": 4,
+      "title": "install-skills-flat.sh extension"
+    },
+    {
+      "id": "change-sync-017",
+      "status": "done",
+      "tier": 4,
+      "title": "Integration tests"
+    },
+    {
+      "id": "change-sync-018",
+      "status": "done",
+      "tier": 4,
+      "title": "Workspace Cargo.toml + version bump + CLAUDE.md"
+    },
+    {
+      "id": "change-sync-019",
+      "status": "done",
+      "tier": 4,
+      "title": "Docusaurus site scaffold + sovereign-sync docs"
+    },
+    {
+      "id": "change-sync-020",
+      "status": "done",
+      "tier": 4,
+      "title": "Cross-link all existing docs into the site"
+    }
+  ],
+  "started": "2026-06-28",
+  "reflection_complete": true,
+  "updated": "2026-06-28T04:00:00Z"
+}

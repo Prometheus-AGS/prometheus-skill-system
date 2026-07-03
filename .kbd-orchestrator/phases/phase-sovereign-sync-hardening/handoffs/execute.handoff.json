@@ -1,0 +1,12 @@
+{
+  "stage": "execute",
+  "completedAt": "2026-06-29T12:33:41Z",
+  "outputs": [
+    ".kbd-orchestrator/phases/phase-sovereign-sync-hardening/execution.md",
+    ".kbd-orchestrator/phases/phase-sovereign-sync-hardening/progress.json"
+  ],
+  "nextStage": "reflect",
+  "summaryForNext": "OpenSpec selected as backend and /kbd-apply selected as the KBD-owned driver; first pending change is change-hardening-001-iroh-docs-share-import; bare /opsx:apply is disallowed for this phase.",
+  "skipped": false,
+  "skipReason": null
+}
