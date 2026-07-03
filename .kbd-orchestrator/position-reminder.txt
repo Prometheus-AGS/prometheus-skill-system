@@ -1,13 +1,13 @@
 POSITION REMINDER — read this as your FIRST tool call every turn
-Phase: phase-ci-all-green — CLOSED (reflect_complete)
-Stage: reflect · Goals: 1 of 1 MET · Changes: 5 of 5 done
-Reflection gate: 0.0 (strict, no S-08).
+Phase: phase-ci-cross-model-qa-and-hardening — CLOSED (reflect_complete)
+Stage: reflect · Goals: 3 of 3 MET · Changes: 3 of 3 · Gate: 0.0 (no S-08)
 
-OUTCOME (verified): validate.yml all-green on main (57ec9ef) → all 4
-"Validate Skills" README badges are GREEN.
+OUTCOME (verified on main, PRs #26+#27 merged):
+- cross-model-qa.yml loads clean (actionlint 0); no push startup_failure.
+- forge-mcp bearer auth is constant-time (subtle); security-reviewed + e2e.
+- forge-rs pinned to stable. validate.yml all-green on main.
 
-Carry-forward (NOT done): cross-model-qa.yml still red (unbadged);
-forge-mcp bearer auth constant-time TODO; local stable toolchain pin.
+CARRY-FORWARD (low urgency): provision ANTHROPIC_API_KEY (cross-model-qa loads
+but a real dispatch needs it); extend stable pin to prometheus-cli + surreal-memory.
 
-Recommended next phase: phase-ci-cross-model-qa-and-hardening.
-Next: /kbd-assess phase-ci-cross-model-qa-and-hardening
+Next: phase complete. /kbd-new-phase for follow-ups, or return to product work.
