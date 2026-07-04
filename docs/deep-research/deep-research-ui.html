@@ -3,18 +3,32 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Prometheus Deep Research</title>
-  <meta name="description" content="Deep research powered by the Prometheus Skill System">
+  <title>travisjames.ai — Deep Research</title>
+  <meta name="description" content="Deep research powered by the travisjames.ai Skill System">
   <meta name="theme-color" content="#E04E28">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Prometheus Research">
+  <meta name="apple-mobile-web-app-title" content="travisjames.ai">
   <meta name="format-detection" content="telephone=no">
   
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="travisjames.ai">
+  <meta property="og:title" content="travisjames.ai — Deep Research">
+  <meta property="og:description" content="Deep research powered by the travisjames.ai Skill System">
+  <meta property="og:image" content="https://ipfs.prometheusags.ai/ipfs/QmVQ2gme8x5Z5wfXaus1mEEmpMaCG1LHA2VYgkPtTmSs5g?filename=prince-i-love-u-demo.png">
+  <meta property="og:image:alt" content="travisjames.ai Deep Research — agent-rendered media card preview">
+  
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="travisjames.ai — Deep Research">
+  <meta name="twitter:description" content="Deep research powered by the travisjames.ai Skill System">
+  <meta name="twitter:image" content="https://ipfs.prometheusags.ai/ipfs/QmVQ2gme8x5Z5wfXaus1mEEmpMaCG1LHA2VYgkPtTmSs5g?filename=prince-i-love-u-demo.png">
+  
   <link rel="manifest" href="manifest.json">
-  <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' rx='40' fill='%23E04E28'/%3E%3Ctext x='90' y='118' font-family='system-ui,sans-serif' font-size='90' font-weight='700' text-anchor='middle' fill='white'%3EP%3C/text%3E%3C/svg%3E">
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23E04E28'/%3E%3Ctext x='16' y='23' font-family='system-ui,sans-serif' font-size='18' font-weight='700' text-anchor='middle' fill='white'%3EP%3C/text%3E%3C/svg%3E">
+  <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Cdefs%3E%3ClinearGradient id='tj' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0%25' stop-color='%23E04E28'/%3E%3Cstop offset='100%25' stop-color='%23FF6A3D'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='180' height='180' rx='38' fill='url(%23tj)'/%3E%3Ctext x='90' y='116' font-family='system-ui,sans-serif' font-size='68' font-weight='700' letter-spacing='-2' text-anchor='middle' fill='white'%3ETJ%3C/text%3E%3C/svg%3E">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='tj2' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0%25' stop-color='%23E04E28'/%3E%3Cstop offset='100%25' stop-color='%23FF6A3D'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='6' fill='url(%23tj2)'/%3E%3Ctext x='16' y='21' font-family='system-ui,sans-serif' font-size='12' font-weight='700' text-anchor='middle' fill='white'%3ETJ%3C/text%3E%3C/svg%3E">
   
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -26,6 +40,9 @@
   
   <!-- Alpine.js 3.14.3 -->
   <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.3/dist/cdn.min.js"></script>
+  
+  <!-- hls.js (for playing .m3u8 HLS streams in the A2UI media card) -->
+  <script defer src="https://cdn.jsdelivr.net/npm/hls.js@1/dist/hls.min.js"></script>
   
   <style>
     /* ---- RESET & BASE ---- */
@@ -95,19 +112,17 @@
     }
     
     /* ---- APP SHELL ---- */
+    /* NOTE: .sidebar is position:fixed (out of normal flow) and .main is
+       offset with margin-left, so app-shell must NOT be a grid/flex
+       container — a grid here causes .main (the only in-flow child) to be
+       auto-placed into the first 280px track instead of filling the
+       remaining width, squeezing the entire page into a sliver next to
+       the sidebar. Plain block flow is correct for this fixed-sidebar
+       pattern. */
     .app-shell {
-      display: grid;
-      grid-template-columns: 280px 1fr;
+      display: block;
       min-height: 100vh;
       min-height: 100dvh;
-    }
-    
-    @media (max-width: 1023px) {
-      .app-shell { grid-template-columns: 240px 1fr; }
-    }
-    
-    @media (max-width: 639px) {
-      .app-shell { grid-template-columns: 1fr; }
     }
     
     /* ---- SIDEBAR ---- */
@@ -173,17 +188,20 @@
     
     .sidebar-brand .logo-icon {
       width: 28px; height: 28px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, var(--primary), #FF6A3D);
+      border-radius: 6px;
+      background: linear-gradient(140deg, var(--primary), #FF6A3D);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: .7rem;
+      font-size: .68rem;
+      font-weight: 700;
+      letter-spacing: -.02em;
       color: white;
       flex-shrink: 0;
     }
     
     .sidebar-brand span { color: var(--primary); }
+    .sidebar-brand em { font-style: normal; color: var(--primary); }
     
     .sidebar-version {
       font-family: var(--font-mono);
@@ -460,6 +478,89 @@
     }
     
     /* ---- RESEARCH QUERY ---- */
+    .demo-guide {
+      background: var(--accent);
+      border: 1px solid var(--primary);
+      border-radius: var(--radius);
+      padding: 1.1rem 1.25rem;
+      margin-bottom: 1.25rem;
+    }
+    
+    @media (max-width: 639px) {
+      .demo-guide { padding: .9rem 1rem; margin-bottom: 1rem; }
+    }
+    
+    .demo-guide-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: .75rem;
+    }
+    
+    .demo-guide-title {
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      font-family: var(--font-display);
+      font-size: .85rem;
+      font-weight: 700;
+      letter-spacing: -.01em;
+      color: var(--accent-fg);
+    }
+    
+    .demo-guide-title svg { width: 16px; height: 16px; flex-shrink: 0; }
+    
+    .demo-guide-close {
+      background: none;
+      border: none;
+      color: var(--accent-fg);
+      opacity: .6;
+      cursor: pointer;
+      padding: .3rem;
+      min-width: 32px;
+      min-height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: calc(var(--radius) - 4px);
+      transition: opacity .15s, background .15s;
+    }
+    
+    .demo-guide-close:hover { opacity: 1; background: rgba(0,0,0,.06); }
+    .dark .demo-guide-close:hover { background: rgba(255,255,255,.08); }
+    
+    .demo-guide-steps {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: .55rem;
+    }
+    
+    .demo-guide-steps li {
+      display: flex;
+      align-items: flex-start;
+      gap: .65rem;
+      font-family: var(--font-ui);
+      font-size: .8rem;
+      line-height: 1.55;
+      color: var(--accent-fg);
+    }
+    
+    .demo-guide-num {
+      flex-shrink: 0;
+      width: 20px; height: 20px;
+      border-radius: 50%;
+      background: var(--primary);
+      color: var(--primary-fg);
+      font-family: var(--font-mono);
+      font-size: .68rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: .05rem;
+    }
+    
     .query-section {
       background: var(--card);
       border: 1px solid var(--border);
@@ -713,7 +814,21 @@
       background: var(--muted);
     }
     
-    .stage-icon { font-size: 1.1rem; }
+    .stage-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .stage-icon svg {
+      width: 18px; height: 18px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      flex-shrink: 0;
+    }
     
     /* ---- DASHBOARD GRID ---- */
     .dashboard-grid {
@@ -1582,12 +1697,186 @@
     /* ---- FOUC GUARD ---- */
     .no-fouc { visibility: hidden; }
     .fouc-ready { visibility: visible; }
+    
+    /* ---- A2UI GENERATIVE MEDIA CARD ---- */
+    .a2ui-panel {
+      background: var(--card);
+      border: 1px solid var(--primary);
+      border-radius: var(--radius);
+      margin-bottom: 1.5rem;
+      overflow: hidden;
+      box-shadow: 0 8px 28px rgba(224,78,40,.14);
+    }
+    
+    .dark .a2ui-panel { box-shadow: 0 8px 28px rgba(255,106,61,.12); }
+    
+    .a2ui-panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: .75rem;
+      padding: .85rem 1.25rem;
+      background: linear-gradient(90deg, var(--primary), #FF6A3D);
+      flex-wrap: wrap;
+    }
+    
+    .a2ui-panel-title {
+      font-family: var(--font-display);
+      font-size: .9rem;
+      font-weight: 700;
+      color: white;
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      letter-spacing: -.01em;
+    }
+    
+    .a2ui-protocol-badge {
+      font-family: var(--font-mono);
+      font-size: .62rem;
+      font-weight: 600;
+      letter-spacing: .06em;
+      color: rgba(255,255,255,.92);
+      background: rgba(0,0,0,.2);
+      padding: .25rem .55rem;
+      border-radius: 999px;
+    }
+    
+    .a2ui-body {
+      padding: 1.25rem;
+      display: flex;
+      gap: 1.25rem;
+      flex-wrap: wrap;
+    }
+    
+    .a2ui-art {
+      width: 96px; height: 96px;
+      border-radius: calc(var(--radius) - 2px);
+      background: linear-gradient(150deg, #1A0830 0%, #9C1012 40%, #E96A12 72%, #F7CA35 100%);
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .a2ui-art svg { width: 40px; height: 40px; stroke: rgba(255,255,255,.92); fill: none; stroke-width: 1.5; }
+    
+    .a2ui-art::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(circle at 30% 20%, rgba(255,255,255,.25), transparent 55%);
+    }
+    
+    .a2ui-meta { flex: 1; min-width: 220px; }
+    
+    .a2ui-track-title {
+      font-family: var(--font-display);
+      font-size: 1.05rem;
+      font-weight: 700;
+      letter-spacing: -.02em;
+      margin-bottom: .15rem;
+    }
+    
+    .a2ui-track-sub {
+      font-family: var(--font-ui);
+      font-size: .8rem;
+      color: var(--muted-fg);
+      margin-bottom: .6rem;
+    }
+    
+    .a2ui-confidence {
+      display: inline-flex;
+      align-items: center;
+      gap: .35rem;
+      font-family: var(--font-mono);
+      font-size: .65rem;
+      font-weight: 600;
+      letter-spacing: .04em;
+      padding: .25rem .6rem;
+      border-radius: 999px;
+      background: var(--warning);
+      color: white;
+      margin-bottom: .85rem;
+    }
+    
+    .a2ui-audio { width: 100%; height: 36px; margin-bottom: .5rem; }
+    
+    .a2ui-play-status {
+      font-family: var(--font-mono);
+      font-size: .7rem;
+      color: var(--muted-fg);
+      margin-bottom: .4rem;
+    }
+    
+    .a2ui-play-status.is-error { color: var(--destructive); }
+    
+    .a2ui-fallback-link {
+      font-family: var(--font-mono);
+      font-size: .7rem;
+      color: var(--primary);
+      text-decoration: none;
+    }
+    
+    .a2ui-fallback-link:hover { text-decoration: underline; }
+    
+    .a2ui-disclaimer {
+      font-family: var(--font-ui);
+      font-size: .72rem;
+      color: var(--muted-fg);
+      line-height: 1.5;
+      margin-top: .6rem;
+      padding-top: .6rem;
+      border-top: 1px solid var(--border);
+    }
+    
+    /* ---- AG-UI EVENT TRACE ---- */
+    .agui-trace-wrap {
+      border-top: 1px solid var(--border);
+      background: var(--muted);
+    }
+    
+    .agui-trace-label {
+      font-family: var(--font-mono);
+      font-size: .62rem;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--muted-fg);
+      padding: .6rem 1.25rem .3rem;
+    }
+    
+    .agui-trace-log {
+      max-height: 140px;
+      overflow-y: auto;
+      padding: 0 1.25rem .75rem;
+      font-family: var(--font-mono);
+      font-size: .7rem;
+      line-height: 1.65;
+    }
+    
+    .agui-trace-line { display: flex; gap: .5rem; }
+    
+    .agui-trace-ts { color: var(--muted-fg); flex-shrink: 0; }
+    
+    .agui-trace-role {
+      flex-shrink: 0;
+      font-weight: 700;
+      min-width: 82px;
+    }
+    
+    .agui-trace-role.role-tool_call { color: var(--info); }
+    .agui-trace-role.role-tool_result { color: var(--success); }
+    .agui-trace-role.role-agent { color: var(--primary); }
+    
+    .agui-trace-msg { color: var(--fg); word-break: break-word; }
   </style>
   
   <script>
     // FOUC guard: pre-apply theme before first paint
     (function() {
-      const theme = localStorage.getItem('prometheus-theme') || 'light';
+      const theme = localStorage.getItem('tj-research-theme') || 'light';
       if (theme === 'dark') {
         document.documentElement.classList.add('dark');
       }
@@ -1654,13 +1943,13 @@
       </div>
       <div style="font-family:var(--font-body);font-size:.88rem;line-height:1.7; color:var(--fg);" x-text="selectedSource ? (selectedSource.summary || 'No summary available for this source.') : ''"></div>
       <div style="margin-top:1rem; display:flex; gap:.5rem; flex-wrap:wrap;">
-        <span style="font-family:var(--font-mono);font-size:.65rem;padding:.25rem .5rem;border-radius:4px;background:var(--muted);color:var(--muted-fg);" x-show="selectedSource && selectedSource.author" x-text="'Author: ' + selectedSource.author"></span>
-        <span style="font-family:var(--font-mono);font-size:.65rem;padding:.25rem .5rem;border-radius:4px;background:var(--muted);color:var(--muted-fg);" x-show="selectedSource && selectedSource.wordCount" x-text="selectedSource.wordCount + ' words'"></span>
+        <span style="font-family:var(--font-mono);font-size:.65rem;padding:.25rem .5rem;border-radius:4px;background:var(--muted);color:var(--muted-fg);" x-show="selectedSource && selectedSource.author" x-text="selectedSource && selectedSource.author ? ('Author: ' + selectedSource.author) : ''"></span>
+        <span style="font-family:var(--font-mono);font-size:.65rem;padding:.25rem .5rem;border-radius:4px;background:var(--muted);color:var(--muted-fg);" x-show="selectedSource && selectedSource.wordCount" x-text="selectedSource && selectedSource.wordCount ? (selectedSource.wordCount + ' words') : ''"></span>
       </div>
     </div>
     <div class="modal-footer">
       <button class="btn btn-outline" @click="sourceModalOpen = false">Close</button>
-      <button class="btn btn-primary" x-show="selectedSource && selectedSource.url" @click="window.open(selectedSource.url, '_blank')">Open Source</button>
+      <button class="btn btn-primary" x-show="selectedSource && selectedSource.url" @click="if (selectedSource && selectedSource.url) window.open(selectedSource.url, '_blank')">Open Source</button>
     </div>
   </div>
 </div>
@@ -1670,10 +1959,10 @@
   <aside class="sidebar" :class="sidebarOpen ? 'drawer-open' : ''" @click.away="sidebarOpen = false">
     <div class="sidebar-header">
       <div class="sidebar-brand">
-        <div class="logo-icon">P</div>
-        <div>Prometheus<span>Research</span></div>
+        <div class="logo-icon">TJ</div>
+        <div>travis<em>james</em>.ai</div>
       </div>
-      <div class="sidebar-version">v1.0.0</div>
+      <div class="sidebar-version">Deep Research &middot; v1.0.0</div>
     </div>
     
     <nav class="sidebar-nav">
@@ -1800,6 +2089,23 @@
     <div class="content" @touchstart="handleTouchStart" @touchend="handleTouchEnd">
       <!-- NEW RESEARCH VIEW -->
       <div x-show="currentView === 'new'" x-cloak class="view-container" x-transition:enter="view-enter" x-transition:enter-start="view-enter" x-transition:enter-end="view-enter-active" x-transition:leave="view-exit" x-transition:leave-start="view-exit" x-transition:leave-end="view-exit-active">
+        <div class="demo-guide" x-show="showDemoGuide" x-cloak>
+          <div class="demo-guide-header">
+            <span class="demo-guide-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+              How to run the demo
+            </span>
+            <button class="demo-guide-close" @click="dismissDemoGuide()" aria-label="Dismiss">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+          </div>
+          <ol class="demo-guide-steps">
+            <li><span class="demo-guide-num">1</span><span>Click <strong>Example</strong> to load the sample query &mdash; a live recording of Prince's &ldquo;I Love U In Me.&rdquo;</span></li>
+            <li><span class="demo-guide-num">2</span><span>Click <strong>Start Research</strong> and watch the report, sources, knowledge graph, and contradictions stream in live on the Dashboard.</span></li>
+            <li><span class="demo-guide-num">3</span><span>When it finishes, press <strong>Play</strong> on the Agent-Rendered Media Card to hear the recovered fragment &mdash; streamed in place via HLS.</span></li>
+          </ol>
+        </div>
+        
         <div class="query-section">
           <div class="query-header">
             <span class="query-title">What would you like to research?</span>
@@ -1899,10 +2205,61 @@
           <div class="stages-grid">
             <template x-for="stage in stages" :key="stage.id">
               <div class="stage-item" :class="stage.status">
-                <span class="stage-icon" x-text="stage.icon"></span>
+                <span class="stage-icon" x-html="stageIconSvg(stage.id)"></span>
                 <span x-text="stage.name"></span>
               </div>
             </template>
+          </div>
+        </div>
+        
+        <!-- A2UI Generative Media Card (simulated AG-UI/A2UI protocol render) -->
+        <div class="a2ui-panel" x-show="songCardVisible" x-cloak x-transition:enter="view-enter" x-transition:enter-start="view-enter" x-transition:enter-end="view-enter-active">
+          <div class="a2ui-panel-header">
+            <span class="a2ui-panel-title">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+              Agent-Rendered Media Card
+            </span>
+            <span class="a2ui-protocol-badge">A2UI · rendered via AG-UI stream</span>
+          </div>
+          <div class="a2ui-body" x-show="songCard">
+            <div class="a2ui-art">
+              <svg viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+            </div>
+            <div class="a2ui-meta">
+              <div class="a2ui-track-title" x-text="songCard ? songCard.title : ''"></div>
+              <div class="a2ui-track-sub" x-text="songCard ? (songCard.performer + ' \u00B7 ' + songCard.subtitle) : ''"></div>
+              <div class="a2ui-confidence">
+                <span>&#9888;</span>
+                <span x-text="songCard ? songCard.confidenceLabel + ' (' + songCard.confidence + ')' : ''"></span>
+              </div>
+              <audio class="a2ui-audio" controls crossorigin="anonymous" x-ref="songAudio"
+                @playing="songPlayState = 'playing'; songPlayError = ''"
+                @pause="songPlayState = 'paused'"
+                @waiting="songPlayState = 'buffering'"
+                @error="onSongAudioError()"></audio>
+              <div class="a2ui-play-status" x-show="songPlayState === 'loading'" x-cloak>Loading stream&hellip;</div>
+              <div class="a2ui-play-status" x-show="songPlayState === 'buffering'" x-cloak>Buffering&hellip;</div>
+              <div class="a2ui-play-status is-error" x-show="songPlayError" x-cloak x-text="songPlayError"></div>
+              <div x-show="songPlayError" x-cloak style="margin-top:.35rem;">
+                <button class="btn btn-outline btn-sm" @click="attachSongAudio()" type="button">Retry playback</button>
+              </div>
+              <div>
+                <a class="a2ui-fallback-link" :href="songCard ? songCard.streamUrl : '#'" target="_blank" rel="noopener">Open raw HLS stream &#8599;</a>
+              </div>
+              <div class="a2ui-disclaimer">Provenance unverified &mdash; recovered fragment surfaced by the research pipeline, not a confirmed archival release. Playback served over IPFS via <span style="font-family: var(--font-mono);">prometheusags.ai</span>.</div>
+            </div>
+          </div>
+          <div class="agui-trace-wrap" x-show="agUiTrace.length > 0">
+            <div class="agui-trace-label">AG-UI Event Trace</div>
+            <div class="agui-trace-log" x-ref="traceLog" x-effect="agUiTrace.length && $nextTick(() => { if ($refs.traceLog) $refs.traceLog.scrollTop = $refs.traceLog.scrollHeight })">
+              <template x-for="(t, i) in agUiTrace" :key="i">
+                <div class="agui-trace-line">
+                  <span class="agui-trace-ts" x-text="t.ts"></span>
+                  <span class="agui-trace-role" :class="'role-' + t.role" x-text="t.role"></span>
+                  <span class="agui-trace-msg" x-text="t.msg"></span>
+                </div>
+              </template>
+            </div>
           </div>
         </div>
         
@@ -2210,7 +2567,7 @@
           <div class="panel-header">
             <span class="panel-title">
               <svg viewBox="0 0 24 24"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.1a2 2 0 0 1-1-1.72v-.51a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
-              Prometheus Skill Pack
+              Skill Pack
             </span>
           </div>
           <div class="panel-body">
@@ -2341,16 +2698,16 @@ function deepResearchApp() {
     touchEndX: 0,
     
     stages: [
-      { id: 'plan', name: 'Plan', icon: '&#9704;', status: 'pending' },
-      { id: 'search', name: 'Search', icon: '&#8981;', status: 'pending' },
-      { id: 'retrieve', name: 'Retrieve', icon: '&#8595;', status: 'pending' },
-      { id: 'collect', name: 'Collect', icon: '&#9673;', status: 'pending' },
-      { id: 'verify', name: 'Verify', icon: '&#10003;', status: 'pending' },
-      { id: 'resolve', name: 'Resolve', icon: '&#8644;', status: 'pending' },
-      { id: 'graph', name: 'Graph', icon: '&#9673;', status: 'pending' },
-      { id: 'cite', name: 'Cite', icon: '&#182;', status: 'pending' },
-      { id: 'report', name: 'Report', icon: '&#9648;', status: 'pending' },
-      { id: 'export', name: 'Export', icon: '&#8595;', status: 'pending' }
+      { id: 'plan', name: 'Plan', status: 'pending' },
+      { id: 'search', name: 'Search', status: 'pending' },
+      { id: 'retrieve', name: 'Retrieve', status: 'pending' },
+      { id: 'collect', name: 'Collect', status: 'pending' },
+      { id: 'verify', name: 'Verify', status: 'pending' },
+      { id: 'resolve', name: 'Resolve', status: 'pending' },
+      { id: 'graph', name: 'Graph', status: 'pending' },
+      { id: 'cite', name: 'Cite', status: 'pending' },
+      { id: 'report', name: 'Report', status: 'pending' },
+      { id: 'export', name: 'Export', status: 'pending' }
     ],
     
     sources: [],
@@ -2359,6 +2716,14 @@ function deepResearchApp() {
     threads: [],
     reportContent: null,
     researchHistory: [],
+    
+    songCardVisible: false,
+    songCard: null,
+    agUiTrace: [],
+    songPlayState: 'idle',
+    songPlayError: '',
+    showDemoGuide: true,
+    _hls: null,
     
     get pageTitle() {
       const titles = {
@@ -2407,8 +2772,10 @@ function deepResearchApp() {
     },
     
     init() {
-      const theme = localStorage.getItem('prometheus-theme');
+      const theme = localStorage.getItem('tj-research-theme');
       if (theme === 'dark') this.darkMode = true;
+      
+      this.showDemoGuide = localStorage.getItem('tj-demo-guide-dismissed') !== '1';
       
       // Detect mobile
       this.checkMobile();
@@ -2509,7 +2876,7 @@ function deepResearchApp() {
       
       // Show welcome toast
       setTimeout(() => {
-        this.showToast('Welcome to Prometheus Deep Research', 'info');
+        this.showToast('Welcome to travisjames.ai Deep Research', 'info');
       }, 500);
     },
     
@@ -2525,8 +2892,13 @@ function deepResearchApp() {
     
     toggleTheme() {
       this.darkMode = !this.darkMode;
-      localStorage.setItem('prometheus-theme', this.darkMode ? 'dark' : 'light');
+      localStorage.setItem('tj-research-theme', this.darkMode ? 'dark' : 'light');
       this.showToast(this.darkMode ? 'Dark mode enabled' : 'Light mode enabled', 'info');
+    },
+    
+    dismissDemoGuide() {
+      this.showDemoGuide = false;
+      localStorage.setItem('tj-demo-guide-dismissed', '1');
     },
     
     toggleSkill(skill) {
@@ -2536,7 +2908,7 @@ function deepResearchApp() {
     },
     
     loadExample() {
-      this.query = 'Compare multi-agent research architectures: GPT-Researcher vs LangGraph ODR vs MiroThinker. Focus on verification mechanisms, knowledge graph construction, and cross-source contradiction detection.';
+      this.query = "Find me a live recording of Prince's song, 'I Love U In Me' that nobody can find anywhere...";
       this.showToast('Example loaded. Press Start Research to begin.', 'info');
     },
     
@@ -2550,7 +2922,22 @@ function deepResearchApp() {
       this.researchStatus = 'running';
       this.progressPercent = 0;
       this.stages.forEach(s => s.status = 'pending');
-      this.simulateProgress();
+      this.songCardVisible = false;
+      this.songCard = null;
+      this.agUiTrace = [];
+      
+      const isSongQuery = /i love u in me/i.test(this.query);
+      if (isSongQuery) {
+        this.sources = [];
+        this.sourceCount = 0;
+        this.contradictions = [];
+        this.contradictionCount = 0;
+        this.graphNodes = [];
+        this.reportContent = '';
+        this.simulateSongResearch();
+      } else {
+        this.simulateProgress();
+      }
       this.showToast('Research started!', 'success');
       
       // Add to history
@@ -2581,6 +2968,239 @@ function deepResearchApp() {
         this.progressPercent = Math.round((stage / this.stages.length) * 100);
         stage++;
       }, 1500);
+    },
+    
+    /* ---- SONG RESEARCH DEMO (Prince — "I Love U In Me") ----
+       A scripted, illustrative research run used to demo the streaming
+       report renderer, contradiction/graph population, and the
+       A2UI-generative-media-card pattern end to end. The song facts
+       (session date, releases, Prince Vault's blank Live Appearances
+       field) are real; the "recovered bootleg" is a dramatized frame
+       for the demo and is labeled unverified throughout. */
+    advanceStagesTo(n) {
+      this.stages.forEach((s, idx) => {
+        if (idx < n) s.status = 'completed';
+        else if (idx === n) s.status = 'active';
+        else s.status = 'pending';
+      });
+      this.progressPercent = Math.round((n / this.stages.length) * 100);
+    },
+    
+    pushAgUiTrace(role, msg) {
+      const ts = new Date().toLocaleTimeString('en-US', { hour12: false });
+      this.agUiTrace.push({ ts, role, msg });
+    },
+    
+    stageIconSvg(id) {
+      const attrs = 'viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"';
+      const icons = {
+        plan: `<svg ${attrs}><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/></svg>`,
+        search: `<svg ${attrs}><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>`,
+        retrieve: `<svg ${attrs}><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>`,
+        collect: `<svg ${attrs}><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>`,
+        verify: `<svg ${attrs}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>`,
+        resolve: `<svg ${attrs}><circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><path d="M6 21V9a9 9 0 0 0 9 9"/></svg>`,
+        graph: `<svg ${attrs}><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.12" y1="13.53" x2="15.88" y2="17.47"/><line x1="15.88" y1="6.53" x2="8.12" y2="10.47"/></svg>`,
+        cite: `<svg ${attrs}><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>`,
+        report: `<svg ${attrs}><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>`,
+        export: `<svg ${attrs}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>`
+      };
+      return icons[id] || '';
+    },
+    
+    streamHTML(html, onDone) {
+      const tokens = html.split(/(\s+)/);
+      let i = 0;
+      const timer = setInterval(() => {
+        if (i >= tokens.length) {
+          clearInterval(timer);
+          if (onDone) onDone();
+          return;
+        }
+        let chunk = '';
+        for (let k = 0; k < 8 && i < tokens.length; k++, i++) chunk += tokens[i];
+        this.reportContent = (this.reportContent || '') + chunk;
+      }, 16);
+    },
+    
+    onSongAudioError() {
+      const audio = this.$refs.songAudio;
+      const code = audio && audio.error ? audio.error.code : null;
+      // MediaError codes: 1 ABORTED, 2 NETWORK, 3 DECODE, 4 SRC_NOT_SUPPORTED
+      if (code === 4) {
+        this.songPlayError = "This browser can't decode the stream directly. Try \u201COpen raw HLS stream\u201D instead.";
+      } else {
+        this.songPlayError = 'Playback error \u2014 the stream may be blocking cross-origin requests (CORS). Try "Open raw HLS stream" instead.';
+      }
+      this.songPlayState = 'error';
+    },
+    
+    attachSongAudio() {
+      const audio = this.$refs.songAudio;
+      if (!audio || !this.songCard) return;
+      const url = this.songCard.streamUrl;
+      this.songPlayError = '';
+      this.songPlayState = 'loading';
+      audio.crossOrigin = 'anonymous';
+      
+      if (this._hls) { try { this._hls.destroy(); } catch (e) {} this._hls = null; }
+      
+      // Native HLS support (Safari / iOS) — just point the element at the manifest.
+      if (audio.canPlayType('application/vnd.apple.mpegurl')) {
+        audio.src = url;
+        audio.load();
+        return;
+      }
+      
+      if (window.Hls && window.Hls.isSupported()) {
+        this._hls = new window.Hls({
+          xhrSetup: (xhr) => { xhr.withCredentials = false; }
+        });
+        
+        this._hls.on(window.Hls.Events.MANIFEST_PARSED, () => {
+          this.songPlayState = 'ready';
+        });
+        
+        this._hls.on(window.Hls.Events.ERROR, (_evt, data) => {
+          if (!data || !data.fatal) return;
+          switch (data.type) {
+            case window.Hls.ErrorTypes.NETWORK_ERROR:
+              this.songPlayError = 'Network error loading the stream \u2014 often a CORS restriction on the source server. Try "Open raw HLS stream" instead.';
+              this.songPlayState = 'error';
+              try { this._hls.startLoad(); } catch (e) {}
+              break;
+            case window.Hls.ErrorTypes.MEDIA_ERROR:
+              this.songPlayError = 'Playback error \u2014 attempting recovery.';
+              this.songPlayState = 'error';
+              try { this._hls.recoverMediaError(); } catch (e) {}
+              break;
+            default:
+              this.songPlayError = 'Unable to play this stream in-browser. Try "Open raw HLS stream" instead.';
+              this.songPlayState = 'error';
+              try { this._hls.destroy(); } catch (e) {}
+              this._hls = null;
+              break;
+          }
+        });
+        
+        this._hls.loadSource(url);
+        this._hls.attachMedia(audio);
+      } else {
+        this.songPlayError = "This browser can't play HLS streams inline. Use \u201COpen raw HLS stream\u201D instead.";
+        this.songPlayState = 'error';
+      }
+    },
+    
+    simulateSongResearch() {
+      const sections = [
+        {
+          stage: 1,
+          html: `<h2>Deep Research: Locating a Live Recording of &ldquo;I Love U In Me&rdquo;</h2>
+<p>Query received: a live performance recording of Prince's <em>I Love U In Me</em>, described as something &ldquo;nobody can find anywhere.&rdquo; Beginning multi-source retrieval across discography archives, session databases, and collector-network indices.</p>`,
+          onDone: () => {
+            this.pushAgUiTrace('tool_call', 'web_search(query="I Love U In Me Prince live recording")');
+            this.pushAgUiTrace('tool_result', '5 candidate sources retrieved');
+            this.sources.push(
+              { id: 1, title: 'I Love U In Me \u2014 Prince Vault entry', domain: 'princevault.com', date: '1989', type: 'Archive', favicon: '\u{1F4C0}', score: '96', scoreClass: 'high', summary: 'Definitive session and release record for the track, maintained by the most exhaustive Prince discography project.', author: 'Prince Vault Editors', wordCount: 640, url: 'https://princevault.com/index.php/I_Love_U_In_Me' },
+              { id: 2, title: 'The Arms Of Orion \u2014 single credits', domain: 'discogs.com', date: '1989', type: 'Discography', favicon: '\u{1F4BF}', score: '89', scoreClass: 'high', summary: 'B-side pressing details for the Batman-era single that first carried the track to the public.', author: 'Discogs contributors', wordCount: 310, url: 'https://www.discogs.com' }
+            );
+            this.sourceCount = this.sources.length;
+          }
+        },
+        {
+          stage: 3,
+          html: `<h3>Studio Origin</h3>
+<p><em>I Love U In Me</em> was tracked in a single session on 1 August 1989 at Paisley Park Studios, Chanhassen, MN &mdash; Prince performing every vocal and instrumental part himself. It surfaced publicly as the b-side to <em>The Arms Of Orion</em> (1989), was reused as the b-side to <em>Insatiable</em> (1991), and was later collected on <em>The Hits / The B-Sides</em> (1993). In 2015, Andy Allo re-recorded it as an acoustic duet with Prince on guitar for her album <em>Oui Can Luv</em>.</p>`,
+          onDone: () => {
+            this.pushAgUiTrace('tool_call', 'princevault.fetch(entry="I_Love_U_In_Me")');
+            this.pushAgUiTrace('tool_result', 'session + release history confirmed');
+            this.graphNodes.push(
+              { id: 'prince', label: 'Prince' },
+              { id: 'paisley', label: 'Paisley Park' },
+              { id: 'orion', label: 'Arms Of Orion' },
+              { id: 'allo', label: 'Andy Allo' },
+              { id: 'ouican', label: 'Oui Can Luv' }
+            );
+          }
+        },
+        {
+          stage: 5,
+          html: `<h3>The Gap in the Record</h3>
+<p>Prince Vault &mdash; the most exhaustively cross-referenced live-performance archive for his catalog &mdash; lists no first, last, or occasional live appearance for this song. Across three decades of documented tours, soundchecks, and aftershows, <em>I Love U In Me</em> has no official live footprint. That absence is exactly why a live tape would be nearly impossible to verify: there is no canonical performance to check it against.</p>`,
+          onDone: () => {
+            this.pushAgUiTrace('tool_call', 'cross_reference(field="live_appearances")');
+            this.pushAgUiTrace('tool_result', 'field empty across all indexed sources');
+            this.sources.push(
+              { id: 3, title: '\u201CThat tape doesn\u2019t exist\u201D \u2014 collector thread', domain: 'forum.housequake.com', date: '2009\u20132021', type: 'Forum', favicon: '\u{1F5C2}\uFE0F', score: '54', scoreClass: 'medium', summary: 'A 12-year fan-forum thread cataloguing rumors of a lone soundboard reel; no two posters agree on the source or date.', author: 'Housequake community', wordCount: 2100 },
+              { id: 4, title: 'Paisley Park vault inventory leak (unverified)', domain: 'reddit.com/r/prince', date: '2017', type: 'Forum', favicon: '\u{1F5C4}\uFE0F', score: '38', scoreClass: 'low', summary: 'A partial, never-confirmed vault manifest listing an untitled 1989 4-track reel; widely suspected to be fabricated.', wordCount: 540 }
+            );
+            this.sourceCount = this.sources.length;
+            this.contradictions.push({
+              id: 1,
+              text: "Prince Vault's Live Appearances field is blank for this song, yet a long-running collector thread insists a soundboard tape exists.",
+              sources: ['princevault.com', 'forum.housequake.com']
+            });
+            this.contradictionCount = this.contradictions.length;
+          }
+        },
+        {
+          stage: 7,
+          html: `<h3>Collector Lore</h3>
+<p>A recurring thread on tape-trading forums since the late 2000s references an unlabeled reel said to have circulated briefly among a small circle of collectors &mdash; never digitized in full, never authenticated, and never named consistently across the retellings. No two accounts agree on the date or the room. Treat this as folklore layered on top of a real, well-documented studio recording &mdash; not as an established fact.</p>
+<blockquote>Absence of an official record isn't evidence a tape exists. It's just the reason one would be so hard to find.</blockquote>`,
+          onDone: () => {
+            this.pushAgUiTrace('agent', 'confidence_model(fragments=13) \u2192 score 0.41');
+          }
+        },
+        {
+          stage: 8,
+          html: `<h3>Recovery</h3>
+<p>Fingerprinting the fragments in circulation against the verified 1989 studio master surfaces one candidate &mdash; a low-fidelity, soundboard-style capture with vocal cadence and chord voicing consistent with Prince's original arrangement, and room tone suggesting a live setting. Authenticity remains unverified. What follows is a recovered fragment, not a confirmed archival performance.</p>`,
+          onDone: () => {
+            this.pushAgUiTrace('tool_call', 'audio_fingerprint.compare(candidate, master)');
+            this.pushAgUiTrace('tool_result', 'partial match \u2014 41% confidence, unverified provenance');
+          }
+        },
+        {
+          stage: 9,
+          html: `<h3>Result</h3>
+<p>Streaming the recovered fragment below over a decentralized IPFS relay. Because provenance can't be confirmed, this result ships with a confidence badge instead of a citation &mdash; an honest signal, not a guarantee.</p>`,
+          onDone: () => {
+            this.pushAgUiTrace('agent', 'render_component(type="a2ui.media_card") \u2192 dispatched to client');
+          }
+        }
+      ];
+      
+      let i = 0;
+      const runNext = () => {
+        if (i >= sections.length) {
+          this.advanceStagesTo(10);
+          this.researchStatus = 'completed';
+          this.songCard = {
+            title: 'I Love U In Me',
+            performer: 'Prince',
+            subtitle: 'Live \u2014 Unverified Field Recovery',
+            confidence: '41%',
+            confidenceLabel: 'Low confidence',
+            streamUrl: 'https://ipfs.prometheusags.ai/ipfs/bafybeifncjyv62sz5jueuqzlhmow72t6ldctdeih2cplwqi4g4sdjvk46i/manifest.m3u8'
+          };
+          this.songCardVisible = true;
+          this.$nextTick(() => this.attachSongAudio());
+          this.showToast('Recovered fragment surfaced \u2014 playback ready', 'success');
+          if (this.researchHistory[0]) this.researchHistory[0].status = 'completed';
+          return;
+        }
+        const section = sections[i];
+        this.advanceStagesTo(section.stage);
+        this.streamHTML(section.html, () => {
+          if (section.onDone) section.onDone();
+          i++;
+          setTimeout(runNext, 450);
+        });
+      };
+      
+      this.pushAgUiTrace('agent', 'plan(query) \u2192 10-stage pipeline, deep mode');
+      runNext();
     },
     
     refreshStatus() {
@@ -2690,7 +3310,7 @@ function deepResearchApp() {
     navigator.serviceWorker.register('data:text/javascript;base64,' + btoa(`
       self.addEventListener('install', e => {
         e.waitUntil(
-          caches.open('prometheus-research-v1').then(cache =>
+          caches.open('tj-research-v1').then(cache =>
             cache.addAll(['/', '/manifest.json'])
           )
         );
