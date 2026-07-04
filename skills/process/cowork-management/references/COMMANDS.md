@@ -334,6 +334,27 @@ when the submodule is present) or falls back to Path B (download from
 GitHub Releases). After it completes, `cowork --version` should report
 the expected version.
 
+The same Path A / Path B logic applies to the `dsg` binary
+(`disk-space-guardian`). Path B downloads from:
+
+```
+https://github.com/GQAdonis/disk-space-guardian/releases/latest/download/dsg-<target>
+```
+
+where `<target>` is one of:
+
+| Platform | Artifact name |
+|----------|--------------|
+| macOS Apple Silicon | `dsg-aarch64-apple-darwin` |
+| macOS Intel | `dsg-x86_64-apple-darwin` |
+| Linux (musl) | `dsg-x86_64-unknown-linux-musl` |
+| Windows | `dsg-x86_64-pc-windows-msvc.exe` |
+
+Path B requires a published GitHub Release with these artifacts. The first
+release (`v0.1.0`) was pushed on 2026-07-04; allow a few minutes for the
+GitHub Actions build matrix to complete before Path B downloads succeed on
+a machine without Rust installed.
+
 ---
 
 ## Environment variables
