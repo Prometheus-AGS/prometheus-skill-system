@@ -1,17 +1,17 @@
 {
   "phase": "phase-cowork-push-and-release",
   "previousPhase": "cowork-integration",
-  "status": "assessment_ready",
-  "stage": "assess",
+  "status": "assess_complete",
+  "stage": "plan",
   "changes_completed": 0,
-  "changes_total": 0,
+  "changes_total": 3,
   "goals_met": 0,
   "goals_total": 4,
   "sycophancy_gate": null,
-  "next_command": "/kbd-assess phase-cowork-push-and-release",
-  "exactNextCommand": "/kbd-assess phase-cowork-push-and-release",
+  "next_command": "/kbd-plan phase-cowork-push-and-release",
+  "exactNextCommand": "/kbd-plan phase-cowork-push-and-release",
   "parallelStart": null,
   "recommendedNextPhase": "phase-dsg-cli-foundation",
-  "currentTask": "New phase created. Carry-forward from cowork-integration: push 10 cowork-skills commits, tag v0.2.0, advance submodule pointer.",
-  "updatedAt": "2026-07-04T20:30:00Z"
+  "currentTask": "Assessment complete. 3 gaps: (1) version bump 0.1.5→0.2.0 + push 10 commits to origin; (2) advance submodule pointer; (3) document two-step full-update flow. OQ-03: verify release CI secrets.",
+  "updatedAt": "2026-07-04T21:00:00Z"
 }
