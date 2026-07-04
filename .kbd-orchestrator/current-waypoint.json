@@ -1,17 +1,17 @@
 {
   "phase": "cowork-integration",
   "previousPhase": "phase-ci-cross-model-qa-and-hardening",
-  "status": "execute_ready",
-  "stage": "execute",
-  "changes_completed": 23,
+  "status": "execute_complete",
+  "stage": "reflect",
+  "changes_completed": 24,
   "changes_total": 24,
   "goals_met": 0,
   "goals_total": 5,
   "sycophancy_gate": null,
-  "next_command": "/kbd-apply change-int-007",
-  "exactNextCommand": "/kbd-apply change-int-007",
+  "next_command": "/kbd-reflect cowork-integration",
+  "exactNextCommand": "/kbd-reflect cowork-integration",
   "parallelStart": null,
   "recommendedNextPhase": null,
-  "currentTask": "change-int-006 DONE (tools/cowork-skills submodule registered at 53e6b31 v0.1.5; .gitmodules HTTPS URL; SUBMODULES.md already had entry). Next: change-int-007 (final validate + CI update).",
-  "updatedAt": "2026-07-04T19:00:00Z"
+  "currentTask": "change-int-007 DONE (validate:strict 124 skills pass, CI updated with tool-submodules job, npm build clean). All 24/24 changes complete. Execute stage CLOSED.",
+  "updatedAt": "2026-07-04T20:00:00Z"
 }

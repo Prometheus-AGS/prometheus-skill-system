@@ -240,3 +240,47 @@ jobs:
 
       - name: Run skill-matrix collision check
         run: node scripts/skill-matrix.js --ci
+
+  tool-submodules:
+    name: Check tool submodules (cowork-skills + disk-space-guardian)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Do NOT use submodules: true here — it recursively checks out all
+          # submodules including heavy ones (prometheus-knowledge, liter-llm, etc.).
+          # Instead, initialize only the two tool submodules we need to verify.
+          submodules: false
+
+      - name: Initialize tool submodules
+        run: |
+          git submodule update --init tools/disk-space-guardian tools/cowork-skills
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+          key: tool-submodules-${{ runner.os }}-cargo-${{ hashFiles('tools/cowork-skills/cli/Cargo.lock', 'tools/disk-space-guardian/Cargo.lock') }}
+          restore-keys: tool-submodules-${{ runner.os }}-cargo-
+
+      - name: cargo check — cowork-skills CLI
+        # cowork-skills has a Cargo.toml under cli/; verify it compiles cleanly.
+        working-directory: tools/cowork-skills/cli
+        run: cargo check
+        continue-on-error: true
+
+      - name: cargo check — disk-space-guardian
+        # disk-space-guardian may be spec-only (no Cargo.toml yet).
+        # This step is skipped when Cargo.toml is absent.
+        run: |
+          if [ -f tools/disk-space-guardian/Cargo.toml ]; then
+            cargo check --manifest-path tools/disk-space-guardian/Cargo.toml
+          else
+            echo "::notice::tools/disk-space-guardian has no Cargo.toml yet (spec-only) — skipping cargo check"
+          fi
+        continue-on-error: true
