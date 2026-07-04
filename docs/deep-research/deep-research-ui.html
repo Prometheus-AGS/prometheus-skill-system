@@ -2634,6 +2634,13 @@
             <span class="wizard-step-num">1</span>
             <span>Query &amp; Mode</span>
           </div>
+          <div class="query-header">
+            <span class="query-title">What would you like to research?</span>
+            <div class="query-actions">
+              <button class="btn btn-outline btn-sm" @click="loadExample()">Example</button>
+              <button class="btn btn-outline btn-sm" @click="clearQuery()">Clear</button>
+            </div>
+          </div>
           <div class="query-input-wrap">
             <textarea class="query-input" rows="3" placeholder="Enter your research question, topic, or hypothesis..." x-model="newQuery" x-ref="queryInput"></textarea>
             <span class="query-input-icon">&#8981;</span>
