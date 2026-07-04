@@ -1,0 +1,20 @@
+{
+  "version": 2,
+  "routes": [
+    {
+      "src": "/deep-research-ui.html",
+      "dest": "/deep-research-ui.html",
+      "status": 200
+    },
+    {
+      "src": "/manifest.json",
+      "dest": "/manifest.json",
+      "status": 200
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/deep-research-ui.html",
+      "status": 200
+    }
+  ]
+}

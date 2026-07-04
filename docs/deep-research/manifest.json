@@ -1,0 +1,26 @@
+{
+  "name": "Prometheus Deep Research",
+  "short_name": "Prometheus",
+  "start_url": "/deep-research-ui.html",
+  "display": "standalone",
+  "background_color": "#F7F7F8",
+  "theme_color": "#E04E28",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' rx='48' fill='%23E04E28'/%3E%3Ctext x='96' y='128' font-family='system-ui,sans-serif' font-size='96' font-weight='700' text-anchor='middle' fill='white'%3EP%3C/text%3E%3C/svg%3E",
+      "sizes": "192x192",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='128' fill='%23E04E28'/%3E%3Ctext x='256' y='340' font-family='system-ui,sans-serif' font-size='256' font-weight='700' text-anchor='middle' fill='white'%3EP%3C/text%3E%3C/svg%3E",
+      "sizes": "512x512",
+      "type": "image/svg+xml"
+    }
+  ],
+  "description": "Deep research powered by the Prometheus Skill System. Multi-agent research pipeline with knowledge graphs, source verification, and contradiction detection.",
+  "categories": ["productivity", "education", "utilities"],
+  "scope": "/",
+  "lang": "en",
+  "dir": "ltr"
+}

@@ -2,21 +2,36 @@
 <html lang="en" x-data="deepResearchApp()" x-init="init()" :class="darkMode ? 'dark' : ''">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Prometheus Deep Research</title>
   <meta name="description" content="Deep research powered by the Prometheus Skill System">
+  <meta name="theme-color" content="#E04E28">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Prometheus Research">
+  <meta name="format-detection" content="telephone=no">
+  
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' rx='40' fill='%23E04E28'/%3E%3Ctext x='90' y='118' font-family='system-ui,sans-serif' font-size='90' font-weight='700' text-anchor='middle' fill='white'%3EP%3C/text%3E%3C/svg%3E">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23E04E28'/%3E%3Ctext x='16' y='23' font-family='system-ui,sans-serif' font-size='18' font-weight='700' text-anchor='middle' fill='white'%3EP%3C/text%3E%3C/svg%3E">
   
   <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&family=Roboto:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
   
   <!-- HTMX 2.0.8 -->
-  <script src="https://unpkg.com/htmx.org@2.0.8" integrity="sha384-nW0sR4P/e0p0m6d0E6l0s2R1Q4z0e3h7z0x6W0y0u0p0i0w0o0r0k0" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/htmx.org@2.0.8" crossorigin="anonymous"></script>
   
-  <!-- Alpine.js -->
-  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <!-- Alpine.js 3.14.3 -->
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.3/dist/cdn.min.js"></script>
   
   <style>
+    /* ---- RESET & BASE ---- */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    [x-cloak] { display: none !important; }
     
     :root {
       --bg: #F7F7F8;
@@ -41,6 +56,8 @@
       --font-ui: 'Inter', sans-serif;
       --font-body: 'Roboto', sans-serif;
       --font-mono: 'JetBrains Mono', monospace;
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+      --safe-top: env(safe-area-inset-top, 0px);
     }
     
     .dark {
@@ -63,7 +80,7 @@
       --info: #60A5FA;
     }
     
-    html { scroll-behavior: smooth; }
+    html { scroll-behavior: smooth; -webkit-tap-highlight-color: transparent; }
     
     body {
       font-family: var(--font-body);
@@ -73,6 +90,8 @@
       font-weight: 400;
       -webkit-font-smoothing: antialiased;
       min-height: 100vh;
+      min-height: 100dvh;
+      overflow-x: hidden;
     }
     
     /* ---- APP SHELL ---- */
@@ -80,9 +99,14 @@
       display: grid;
       grid-template-columns: 280px 1fr;
       min-height: 100vh;
+      min-height: 100dvh;
     }
     
-    @media (max-width: 768px) {
+    @media (max-width: 1023px) {
+      .app-shell { grid-template-columns: 240px 1fr; }
+    }
+    
+    @media (max-width: 639px) {
       .app-shell { grid-template-columns: 1fr; }
     }
     
@@ -96,11 +120,40 @@
       left: 0; top: 0; bottom: 0;
       width: 280px;
       z-index: 50;
-      transition: transform .3s ease;
+      transition: transform .35s cubic-bezier(.4,0,.2,1);
     }
     
-    .sidebar.collapsed {
-      transform: translateX(-100%);
+    @media (max-width: 1023px) {
+      .sidebar { width: 240px; }
+    }
+    
+    @media (max-width: 639px) {
+      .sidebar {
+        width: 100%;
+        left: 0;
+        right: 0;
+        top: auto;
+        bottom: 0;
+        height: 85vh;
+        border-radius: var(--radius) var(--radius) 0 0;
+        border-right: none;
+        border-top: 1px solid var(--border);
+        transform: translateY(110%);
+        box-shadow: 0 -8px 32px rgba(0,0,0,.2);
+      }
+      .sidebar.drawer-open {
+        transform: translateY(0);
+      }
+      .sidebar::before {
+        content: '';
+        display: block;
+        width: 36px;
+        height: 4px;
+        background: var(--border);
+        border-radius: 2px;
+        margin: 8px auto 0;
+        flex-shrink: 0;
+      }
     }
     
     .sidebar-header {
@@ -127,6 +180,7 @@
       justify-content: center;
       font-size: .7rem;
       color: white;
+      flex-shrink: 0;
     }
     
     .sidebar-brand span { color: var(--primary); }
@@ -145,9 +199,7 @@
       padding: 1rem .75rem;
     }
     
-    .nav-section {
-      margin-bottom: 1.5rem;
-    }
+    .nav-section { margin-bottom: 1.5rem; }
     
     .nav-section-label {
       font-family: var(--font-ui);
@@ -174,6 +226,7 @@
       cursor: pointer;
       transition: all .15s;
       margin-bottom: .15rem;
+      min-height: 44px;
     }
     
     .nav-item:hover {
@@ -188,11 +241,20 @@
     }
     
     .nav-item .nav-icon {
-      width: 18px; height: 18px;
+      width: 20px; height: 20px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: .9rem;
+      flex-shrink: 0;
+    }
+    
+    .nav-item .nav-icon svg {
+      width: 18px; height: 18px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
     }
     
     .nav-item .nav-badge {
@@ -228,22 +290,31 @@
       border: 1px solid var(--border);
       background: var(--muted);
       transition: all .15s;
+      min-height: 44px;
     }
     
-    .theme-toggle:hover {
-      border-color: var(--primary);
-    }
+    .theme-toggle:hover { border-color: var(--primary); }
     
     /* ---- MAIN ---- */
     .main {
       margin-left: 280px;
       min-height: 100vh;
+      min-height: 100dvh;
       display: flex;
       flex-direction: column;
+      transition: margin-left .35s ease;
     }
     
-    @media (max-width: 768px) {
-      .main { margin-left: 0; }
+    @media (max-width: 1023px) {
+      .main { margin-left: 240px; }
+    }
+    
+    @media (max-width: 639px) {
+      .main { margin-left: 0; padding-bottom: calc(64px + var(--safe-bottom)); }
+    }
+    
+    @media (min-width: 1440px) {
+      .main { margin-left: 280px; }
     }
     
     /* ---- TOP BAR ---- */
@@ -260,11 +331,11 @@
       z-index: 40;
     }
     
-    .top-bar-left {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
+    @media (max-width: 639px) {
+      .top-bar { padding: 0 1rem; height: 56px; }
     }
+    
+    .top-bar-left { display: flex; align-items: center; gap: 1rem; }
     
     .menu-toggle {
       display: none;
@@ -273,11 +344,18 @@
       color: var(--fg);
       font-size: 1.2rem;
       cursor: pointer;
-      padding: .25rem;
+      padding: .5rem;
+      min-width: 44px;
+      min-height: 44px;
+      border-radius: var(--radius);
+      transition: background .15s;
     }
     
-    @media (max-width: 768px) {
-      .menu-toggle { display: block; }
+    .menu-toggle:hover { background: var(--muted); }
+    .menu-toggle:active { transform: scale(.95); }
+    
+    @media (max-width: 639px) {
+      .menu-toggle { display: flex; align-items: center; justify-content: center; }
     }
     
     .page-title {
@@ -287,11 +365,11 @@
       letter-spacing: -.02em;
     }
     
-    .top-bar-right {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
+    @media (max-width: 639px) {
+      .page-title { font-size: 1rem; }
     }
+    
+    .top-bar-right { display: flex; align-items: center; gap: 1rem; }
     
     .status-pill {
       display: inline-flex;
@@ -304,6 +382,7 @@
       border-radius: 999px;
       background: var(--success);
       color: white;
+      transition: all .3s ease;
     }
     
     .status-pill .status-dot {
@@ -333,6 +412,11 @@
       color: var(--primary-fg);
     }
     
+    .status-pill.completed {
+      background: var(--success);
+      color: white;
+    }
+    
     /* ---- CONTENT ---- */
     .content {
       flex: 1;
@@ -340,6 +424,39 @@
       max-width: 1200px;
       margin: 0 auto;
       width: 100%;
+    }
+    
+    @media (max-width: 639px) {
+      .content { padding: 1rem; }
+    }
+    
+    @media (min-width: 1440px) {
+      .content { max-width: 1320px; padding: 2rem; }
+    }
+    
+    /* ---- VIEW TRANSITIONS ---- */
+    .view-container {
+      transition: opacity .3s ease, transform .3s ease;
+    }
+    
+    .view-enter {
+      opacity: 0;
+      transform: translateX(16px);
+    }
+    
+    .view-enter-active {
+      opacity: 1;
+      transform: translateX(0);
+    }
+    
+    .view-exit {
+      opacity: 1;
+      transform: translateX(0);
+    }
+    
+    .view-exit-active {
+      opacity: 0;
+      transform: translateX(-16px);
     }
     
     /* ---- RESEARCH QUERY ---- */
@@ -351,11 +468,17 @@
       margin-bottom: 1.5rem;
     }
     
+    @media (max-width: 639px) {
+      .query-section { padding: 1rem; margin-bottom: 1rem; }
+    }
+    
     .query-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
       margin-bottom: 1rem;
+      flex-wrap: wrap;
+      gap: .5rem;
     }
     
     .query-title {
@@ -365,14 +488,12 @@
       letter-spacing: -.02em;
     }
     
-    .query-actions {
-      display: flex;
-      gap: .5rem;
-    }
+    .query-actions { display: flex; gap: .5rem; }
     
     .btn {
       display: inline-flex;
       align-items: center;
+      justify-content: center;
       gap: .5rem;
       padding: .5rem 1rem;
       border-radius: calc(var(--radius) - 2px);
@@ -383,6 +504,21 @@
       cursor: pointer;
       transition: all .15s;
       text-decoration: none;
+      min-height: 44px;
+      touch-action: manipulation;
+    }
+    
+    .btn:active { transform: scale(.97); }
+    
+    .btn-haptic {
+      animation: haptic .15s ease;
+    }
+    
+    @keyframes haptic {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-2px); }
+      50% { transform: translateX(2px); }
+      75% { transform: translateX(-1px); }
     }
     
     .btn-primary {
@@ -390,10 +526,8 @@
       color: var(--primary-fg);
     }
     
-    .btn-primary:hover {
-      opacity: .9;
-      transform: translateY(-1px);
-    }
+    .btn-primary:hover { opacity: .9; transform: translateY(-1px); }
+    .btn-primary:hover:active { transform: translateY(0) scale(.97); }
     
     .btn-secondary {
       background: var(--secondary);
@@ -406,19 +540,25 @@
       border: 1.5px solid var(--border);
     }
     
-    .btn-outline:hover {
-      border-color: var(--primary);
-      color: var(--primary);
-    }
+    .btn-outline:hover { border-color: var(--primary); color: var(--primary); }
     
     .btn-sm {
       padding: .35rem .75rem;
       font-size: .75rem;
     }
     
-    .query-input-wrap {
-      position: relative;
+    .btn-ghost {
+      background: transparent;
+      color: var(--muted-fg);
+      border: none;
+      padding: .5rem;
+      min-width: 44px;
+      min-height: 44px;
     }
+    
+    .btn-ghost:hover { background: var(--muted); color: var(--fg); }
+    
+    .query-input-wrap { position: relative; }
     
     .query-input {
       width: 100%;
@@ -441,9 +581,7 @@
       box-shadow: 0 0 0 3px rgba(224,78,40,.12);
     }
     
-    .query-input::placeholder {
-      color: var(--muted-fg);
-    }
+    .query-input::placeholder { color: var(--muted-fg); }
     
     .query-input-icon {
       position: absolute;
@@ -452,6 +590,7 @@
       transform: translateY(-50%);
       color: var(--muted-fg);
       font-size: 1.1rem;
+      pointer-events: none;
     }
     
     .query-options {
@@ -470,11 +609,14 @@
       font-weight: 500;
       color: var(--muted-fg);
       cursor: pointer;
+      min-height: 44px;
+      padding: .25rem 0;
     }
     
     .query-option input[type="checkbox"] {
       accent-color: var(--primary);
-      width: 14px; height: 14px;
+      width: 16px; height: 16px;
+      cursor: pointer;
     }
     
     /* ---- PROGRESS BAR ---- */
@@ -486,11 +628,17 @@
       margin-bottom: 1.5rem;
     }
     
+    @media (max-width: 639px) {
+      .progress-section { padding: 1rem; margin-bottom: 1rem; }
+    }
+    
     .progress-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
       margin-bottom: 1rem;
+      flex-wrap: wrap;
+      gap: .5rem;
     }
     
     .progress-title {
@@ -526,8 +674,12 @@
       gap: .5rem;
     }
     
-    @media (max-width: 768px) {
-      .stages-grid { grid-template-columns: repeat(2, 1fr); }
+    @media (max-width: 1023px) {
+      .stages-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+    
+    @media (max-width: 639px) {
+      .stages-grid { grid-template-columns: repeat(2, 1fr); gap: .35rem; }
     }
     
     .stage-item {
@@ -543,6 +695,8 @@
       text-align: center;
       color: var(--muted-fg);
       transition: all .15s;
+      min-height: 44px;
+      justify-content: center;
     }
     
     .stage-item.completed {
@@ -559,9 +713,7 @@
       background: var(--muted);
     }
     
-    .stage-icon {
-      font-size: 1.1rem;
-    }
+    .stage-icon { font-size: 1.1rem; }
     
     /* ---- DASHBOARD GRID ---- */
     .dashboard-grid {
@@ -571,8 +723,16 @@
       margin-bottom: 1.5rem;
     }
     
-    @media (max-width: 768px) {
-      .dashboard-grid { grid-template-columns: 1fr; }
+    @media (max-width: 639px) {
+      .dashboard-grid { grid-template-columns: 1fr; gap: 1rem; margin-bottom: 1rem; }
+    }
+    
+    @media (min-width: 640px) and (max-width: 1023px) {
+      .dashboard-grid { grid-template-columns: 1fr 1fr; gap: 1rem; }
+    }
+    
+    @media (min-width: 1440px) {
+      .dashboard-grid { grid-template-columns: 1fr 1fr; gap: 2rem; }
     }
     
     .panel {
@@ -580,6 +740,14 @@
       border: 1px solid var(--border);
       border-radius: var(--radius);
       overflow: hidden;
+      transition: box-shadow .2s ease;
+    }
+    
+    .panel:hover { box-shadow: 0 4px 12px rgba(0,0,0,.05); }
+    .dark .panel:hover { box-shadow: 0 4px 12px rgba(0,0,0,.2); }
+    
+    @media (max-width: 639px) {
+      .panel { border-radius: calc(var(--radius) - 2px); }
     }
     
     .panel-header {
@@ -588,6 +756,8 @@
       justify-content: space-between;
       padding: 1rem 1.25rem;
       border-bottom: 1px solid var(--border);
+      flex-wrap: wrap;
+      gap: .5rem;
     }
     
     .panel-title {
@@ -600,13 +770,22 @@
       gap: .5rem;
     }
     
-    .panel-actions {
-      display: flex;
-      gap: .4rem;
+    .panel-title svg {
+      width: 16px; height: 16px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      flex-shrink: 0;
     }
     
-    .panel-body {
-      padding: 1.25rem;
+    .panel-actions { display: flex; gap: .4rem; }
+    
+    .panel-body { padding: 1.25rem; }
+    
+    @media (max-width: 639px) {
+      .panel-body { padding: 1rem; }
     }
     
     /* ---- SOURCES LIST ---- */
@@ -625,6 +804,7 @@
       border: 1px solid var(--border);
       transition: all .15s;
       cursor: pointer;
+      min-height: 44px;
     }
     
     .source-item:hover {
@@ -632,16 +812,20 @@
       background: var(--accent);
     }
     
+    .source-item:active { transform: scale(.995); }
+    
     .source-favicon {
-      width: 20px; height: 20px;
+      width: 24px; height: 24px;
       border-radius: 4px;
       background: var(--muted);
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: .7rem;
+      font-weight: 600;
       flex-shrink: 0;
       margin-top: .15rem;
+      color: var(--fg);
     }
     
     .source-content {
@@ -679,7 +863,28 @@
     .source-score.medium { background: var(--warning); color: white; }
     .source-score.low { background: var(--destructive); color: white; }
     
-    /* ---- KNOWLEDGE GRAPH PLACEHOLDER ---- */
+    .source-search-bar {
+      width: 100%;
+      padding: .6rem .75rem;
+      border: 1.5px solid var(--border);
+      border-radius: calc(var(--radius) - 4px);
+      background: var(--bg);
+      color: var(--fg);
+      font-family: var(--font-ui);
+      font-size: .82rem;
+      outline: none;
+      margin-bottom: 1rem;
+      min-height: 44px;
+    }
+    
+    .source-search-bar:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(224,78,40,.12);
+    }
+    
+    .source-search-bar::placeholder { color: var(--muted-fg); }
+    
+    /* ---- KNOWLEDGE GRAPH ---- */
     .graph-canvas {
       height: 280px;
       background: var(--bg);
@@ -792,9 +997,7 @@
     .report-preview h2 { font-size: 1.15rem; }
     .report-preview h3 { font-size: 1rem; }
     
-    .report-preview p {
-      margin-bottom: .75rem;
-    }
+    .report-preview p { margin-bottom: .75rem; }
     
     .report-preview blockquote {
       border-left: 3px solid var(--primary);
@@ -840,10 +1043,12 @@
       border: 1px solid var(--border);
       cursor: pointer;
       transition: all .15s;
+      min-height: 44px;
     }
     
     .thread-item:hover {
       border-color: var(--primary);
+      background: var(--accent);
     }
     
     .thread-item.active {
@@ -877,9 +1082,7 @@
       color: var(--muted-fg);
     }
     
-    .thread-status {
-      font-size: .8rem;
-    }
+    .thread-status { font-size: .8rem; }
     
     /* ---- SKILL INTEGRATION ---- */
     .skill-grid {
@@ -888,8 +1091,12 @@
       gap: .75rem;
     }
     
-    @media (max-width: 768px) {
-      .skill-grid { grid-template-columns: repeat(2, 1fr); }
+    @media (max-width: 639px) {
+      .skill-grid { grid-template-columns: repeat(2, 1fr); gap: .5rem; }
+    }
+    
+    @media (min-width: 640px) and (max-width: 1023px) {
+      .skill-grid { grid-template-columns: repeat(3, 1fr); }
     }
     
     .skill-card {
@@ -903,6 +1110,7 @@
       background: var(--bg);
       transition: all .15s;
       cursor: pointer;
+      min-height: 44px;
     }
     
     .skill-card:hover {
@@ -915,9 +1123,9 @@
       background: var(--accent);
     }
     
-    .skill-icon {
-      font-size: 1.5rem;
-    }
+    .skill-card:active { transform: scale(.98); }
+    
+    .skill-icon { font-size: 1.5rem; }
     
     .skill-name {
       font-family: var(--font-ui);
@@ -939,38 +1147,327 @@
       inset: 0;
       background: rgba(0,0,0,.5);
       z-index: 60;
-      display: none;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .3s ease;
     }
     
     .overlay.active {
-      display: block;
+      opacity: 1;
+      pointer-events: auto;
     }
     
-    @media (min-width: 769px) {
+    @media (min-width: 640px) {
       .overlay { display: none !important; }
     }
     
-    /* ---- FOUC GUARD ---- */
-    .no-fouc { visibility: hidden; }
-    .fouc-ready { visibility: visible; }
-    
-    /* ---- SCROLLBAR ---- */
-    ::-webkit-scrollbar { width: 6px; height: 6px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
-    ::-webkit-scrollbar-thumb:hover { background: var(--muted-fg); }
-    
-    /* ---- ANIMATIONS ---- */
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(8px); }
-      to { opacity: 1; transform: translateY(0); }
+    /* ---- BOTTOM NAV ---- */
+    .bottom-nav {
+      display: none;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: var(--card);
+      border-top: 1px solid var(--border);
+      z-index: 100;
+      padding-bottom: var(--safe-bottom);
     }
     
-    .fade-in {
-      animation: fadeIn .4s ease forwards;
+    .bottom-nav-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      padding: .25rem 0;
     }
     
-    /* ---- EMPTY STATE ---- */
+    .bottom-nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      padding: .35rem .5rem;
+      min-width: 64px;
+      min-height: 44px;
+      font-family: var(--font-ui);
+      font-size: .6rem;
+      font-weight: 500;
+      color: var(--muted-fg);
+      text-decoration: none;
+      cursor: pointer;
+      transition: all .15s;
+      border: none;
+      background: none;
+      position: relative;
+    }
+    
+    .bottom-nav-item.active { color: var(--primary); }
+    
+    .bottom-nav-item:active { transform: scale(.95); }
+    
+    .bottom-nav-item svg {
+      width: 22px; height: 22px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    
+    .bottom-nav-item .nav-badge {
+      position: absolute;
+      top: 2px;
+      right: 4px;
+      font-family: var(--font-mono);
+      font-size: .5rem;
+      font-weight: 700;
+      padding: .1rem .3rem;
+      border-radius: 999px;
+      background: var(--primary);
+      color: var(--primary-fg);
+      min-width: 14px;
+      text-align: center;
+    }
+    
+    @media (max-width: 639px) {
+      .bottom-nav { display: block; }
+    }
+    
+    /* ---- TOAST SYSTEM ---- */
+    .toast-container {
+      position: fixed;
+      top: 1rem;
+      right: 1rem;
+      z-index: 200;
+      display: flex;
+      flex-direction: column;
+      gap: .5rem;
+      pointer-events: none;
+    }
+    
+    @media (max-width: 639px) {
+      .toast-container {
+        top: auto;
+        bottom: calc(64px + var(--safe-bottom) + .5rem);
+        left: 1rem;
+        right: 1rem;
+        align-items: center;
+      }
+    }
+    
+    .toast {
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      padding: .6rem 1rem;
+      border-radius: var(--radius);
+      font-family: var(--font-ui);
+      font-size: .82rem;
+      font-weight: 500;
+      box-shadow: 0 4px 16px rgba(0,0,0,.15);
+      animation: toastIn .3s ease forwards;
+      pointer-events: auto;
+      max-width: 320px;
+    }
+    
+    @media (max-width: 639px) {
+      .toast { max-width: 100%; width: 100%; justify-content: center; }
+    }
+    
+    .toast.toast-exit {
+      animation: toastOut .3s ease forwards;
+    }
+    
+    @keyframes toastIn {
+      from { opacity: 0; transform: translateY(-8px) scale(.95); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    
+    @keyframes toastOut {
+      from { opacity: 1; transform: translateY(0) scale(1); }
+      to { opacity: 0; transform: translateY(-8px) scale(.95); }
+    }
+    
+    .toast-success { background: var(--success); color: white; }
+    .toast-error { background: var(--destructive); color: white; }
+    .toast-info { background: var(--info); color: white; }
+    .toast-warning { background: var(--warning); color: white; }
+    
+    /* ---- MODAL ---- */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.5);
+      z-index: 150;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .2s ease;
+    }
+    
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    
+    .modal-content {
+      background: var(--card);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      max-width: 560px;
+      width: 100%;
+      max-height: 90vh;
+      max-height: 90dvh;
+      overflow-y: auto;
+      transform: scale(.95) translateY(8px);
+      transition: transform .2s ease;
+      box-shadow: 0 20px 60px rgba(0,0,0,.2);
+    }
+    
+    .modal-overlay.active .modal-content {
+      transform: scale(1) translateY(0);
+    }
+    
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .modal-title {
+      font-family: var(--font-display);
+      font-size: 1rem;
+      font-weight: 700;
+    }
+    
+    .modal-close {
+      background: none;
+      border: none;
+      color: var(--muted-fg);
+      cursor: pointer;
+      padding: .25rem;
+      min-width: 36px;
+      min-height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: var(--radius);
+      transition: all .15s;
+    }
+    
+    .modal-close:hover { background: var(--muted); color: var(--fg); }
+    
+    .modal-body { padding: 1.25rem; }
+    
+    .modal-footer {
+      display: flex;
+      gap: .5rem;
+      justify-content: flex-end;
+      padding: 1rem 1.25rem;
+      border-top: 1px solid var(--border);
+    }
+    
+    /* ---- HISTORY PANEL ---- */
+    .history-panel {
+      position: fixed;
+      top: 60px;
+      right: 0;
+      width: 320px;
+      max-height: calc(100vh - 60px);
+      max-height: calc(100dvh - 60px);
+      background: var(--card);
+      border-left: 1px solid var(--border);
+      z-index: 45;
+      transform: translateX(100%);
+      transition: transform .3s ease;
+      overflow-y: auto;
+      padding: 1rem;
+      box-shadow: -4px 0 16px rgba(0,0,0,.08);
+    }
+    
+    .history-panel.active {
+      transform: translateX(0);
+    }
+    
+    @media (max-width: 639px) {
+      .history-panel {
+        width: 100%;
+        top: 56px;
+        max-height: calc(100dvh - 56px - 64px - var(--safe-bottom));
+      }
+    }
+    
+    .history-item {
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+      padding: .6rem .75rem;
+      border-radius: calc(var(--radius) - 4px);
+      border: 1px solid var(--border);
+      cursor: pointer;
+      transition: all .15s;
+      margin-bottom: .5rem;
+      min-height: 44px;
+    }
+    
+    .history-item:hover {
+      border-color: var(--primary);
+      background: var(--accent);
+    }
+    
+    .history-item-query {
+      font-family: var(--font-ui);
+      font-size: .82rem;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      flex: 1;
+    }
+    
+    .history-item-date {
+      font-family: var(--font-mono);
+      font-size: .65rem;
+      color: var(--muted-fg);
+      flex-shrink: 0;
+    }
+    
+    /* ---- PULL TO REFRESH ---- */
+    .ptr-indicator {
+      display: none;
+      height: 0;
+      overflow: hidden;
+      transition: height .2s ease;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-ui);
+      font-size: .82rem;
+      color: var(--muted-fg);
+      gap: .5rem;
+    }
+    
+    .ptr-indicator.active {
+      display: flex;
+      height: 48px;
+    }
+    
+    .ptr-spinner {
+      width: 16px; height: 16px;
+      border: 2px solid var(--border);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin .8s linear infinite;
+    }
+    
+    @keyframes spin { to { transform: rotate(360deg); } }
+    
+    /* ---- EMPTY STATES ---- */
     .empty-state {
       display: flex;
       flex-direction: column;
@@ -981,10 +1478,12 @@
       color: var(--muted-fg);
     }
     
-    .empty-state-icon {
-      font-size: 2.5rem;
+    .empty-state svg {
+      width: 64px; height: 64px;
+      stroke: var(--border);
+      stroke-width: 1.5;
+      fill: none;
       margin-bottom: 1rem;
-      opacity: .5;
     }
     
     .empty-state-title {
@@ -1000,6 +1499,89 @@
       font-size: .88rem;
       max-width: 400px;
     }
+    
+    /* ---- SCROLLBAR ---- */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--muted-fg); }
+    
+    /* ---- ANIMATIONS ---- */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .fade-in { animation: fadeIn .4s ease forwards; }
+    
+    @keyframes shimmer {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+    
+    .shimmer {
+      background: linear-gradient(90deg, var(--muted) 25%, var(--border) 50%, var(--muted) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+    }
+    
+    /* ---- KEYBOARD SHORTCUTS HINT ---- */
+    .kbd {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: .1rem .4rem;
+      font-family: var(--font-mono);
+      font-size: .7rem;
+      font-weight: 600;
+      border-radius: 4px;
+      background: var(--muted);
+      border: 1px solid var(--border);
+      color: var(--muted-fg);
+      min-width: 20px;
+      min-height: 20px;
+    }
+    
+    /* ---- SHARE BUTTON ---- */
+    .share-btn {
+      position: relative;
+    }
+    
+    .share-tooltip {
+      position: absolute;
+      bottom: calc(100% + 8px);
+      left: 50%;
+      transform: translateX(-50%) translateY(4px);
+      background: var(--secondary);
+      color: var(--secondary-fg);
+      padding: .35rem .75rem;
+      border-radius: var(--radius);
+      font-family: var(--font-ui);
+      font-size: .75rem;
+      font-weight: 600;
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: all .2s ease;
+    }
+    
+    .share-tooltip.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+    
+    /* ---- RESPONSIVE UTILITIES ---- */
+    @media (max-width: 639px) {
+      .hide-mobile { display: none !important; }
+    }
+    
+    @media (min-width: 640px) {
+      .hide-desktop { display: none !important; }
+    }
+    
+    /* ---- FOUC GUARD ---- */
+    .no-fouc { visibility: hidden; }
+    .fouc-ready { visibility: visible; }
   </style>
   
   <script>
@@ -1014,33 +1596,105 @@
 </head>
 <body class="fouc-ready">
 
-<!-- Mobile overlay for sidebar -->
+<!-- Toast Container -->
+<div class="toast-container">
+  <template x-for="toast in toasts" :key="toast.id">
+    <div class="toast" :class="'toast-' + toast.type" x-show="true" x-transition:leave="toast-exit">
+      <span x-text="toast.message"></span>
+    </div>
+  </template>
+</div>
+
+<!-- Mobile overlay for sidebar and modals -->
 <div class="overlay" :class="sidebarOpen ? 'active' : ''" @click="sidebarOpen = false"></div>
+
+<!-- History Panel -->
+<div class="history-panel" :class="historyPanelOpen ? 'active' : ''">
+  <div class="panel-header" style="border-bottom:1px solid var(--border); margin-bottom:1rem; padding:0 0 .75rem 0;">
+    <span class="panel-title">
+      <svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+      Recent Research
+    </span>
+    <button class="btn-ghost" @click="historyPanelOpen = false">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  <div x-show="researchHistory.length > 0">
+    <template x-for="item in researchHistory" :key="item.id">
+      <div class="history-item" @click="loadHistoryItem(item)">
+        <span class="history-item-query" x-text="item.query"></span>
+        <span class="history-item-date" x-text="item.date"></span>
+      </div>
+    </template>
+  </div>
+  <div class="empty-state" x-show="researchHistory.length === 0" style="padding:2rem 1rem;">
+    <svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+    <div class="empty-state-title">No history yet</div>
+    <div class="empty-state-text">Completed research queries will appear here</div>
+  </div>
+</div>
+
+<!-- Source Detail Modal -->
+<div class="modal-overlay" :class="sourceModalOpen ? 'active' : ''" @click="sourceModalOpen = false">
+  <div class="modal-content" @click.stop="">
+    <div class="modal-header">
+      <span class="modal-title" x-text="selectedSource ? selectedSource.title : 'Source Detail'"></span>
+      <button class="modal-close" @click="sourceModalOpen = false">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body" x-show="selectedSource">
+      <div style="display:flex; gap:.75rem; align-items:flex-start; margin-bottom:1rem;">
+        <div class="source-favicon" style="width:40px;height:40px;font-size:1rem;" x-text="selectedSource ? selectedSource.favicon : ''"></div>
+        <div>
+          <div style="font-family:var(--font-ui);font-weight:600;" x-text="selectedSource ? selectedSource.domain : ''"></div>
+          <div style="font-family:var(--font-mono);font-size:.7rem;color:var(--muted-fg);" x-text="selectedSource ? (selectedSource.date + ' \u00B7 ' + selectedSource.type) : ''"></div>
+        </div>
+        <span class="source-score" style="margin-left:auto;" :class="selectedSource ? selectedSource.scoreClass : ''" x-text="selectedSource ? selectedSource.score : ''"></span>
+      </div>
+      <div style="font-family:var(--font-body);font-size:.88rem;line-height:1.7; color:var(--fg);" x-text="selectedSource ? (selectedSource.summary || 'No summary available for this source.') : ''"></div>
+      <div style="margin-top:1rem; display:flex; gap:.5rem; flex-wrap:wrap;">
+        <span style="font-family:var(--font-mono);font-size:.65rem;padding:.25rem .5rem;border-radius:4px;background:var(--muted);color:var(--muted-fg);" x-show="selectedSource && selectedSource.author" x-text="'Author: ' + selectedSource.author"></span>
+        <span style="font-family:var(--font-mono);font-size:.65rem;padding:.25rem .5rem;border-radius:4px;background:var(--muted);color:var(--muted-fg);" x-show="selectedSource && selectedSource.wordCount" x-text="selectedSource.wordCount + ' words'"></span>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" @click="sourceModalOpen = false">Close</button>
+      <button class="btn btn-primary" x-show="selectedSource && selectedSource.url" @click="window.open(selectedSource.url, '_blank')">Open Source</button>
+    </div>
+  </div>
+</div>
 
 <div class="app-shell">
   <!-- Sidebar -->
-  <aside class="sidebar" :class="sidebarOpen ? '' : 'collapsed'" @click.away="sidebarOpen = false">
+  <aside class="sidebar" :class="sidebarOpen ? 'drawer-open' : ''" @click.away="sidebarOpen = false">
     <div class="sidebar-header">
       <div class="sidebar-brand">
         <div class="logo-icon">P</div>
         <div>Prometheus<span>Research</span></div>
       </div>
-      <div class="sidebar-version">v1.0.0-draft</div>
+      <div class="sidebar-version">v1.0.0</div>
     </div>
     
     <nav class="sidebar-nav">
       <div class="nav-section">
         <div class="nav-section-label">Research</div>
-        <a class="nav-item active" @click.prevent="currentView = 'dashboard'">
-          <span class="nav-icon">◈</span>
+        <a class="nav-item" :class="currentView === 'dashboard' ? 'active' : ''" @click.prevent="goTo('dashboard')">
+          <span class="nav-icon">
+            <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
+          </span>
           <span>Dashboard</span>
         </a>
-        <a class="nav-item" @click.prevent="currentView = 'new'">
-          <span class="nav-icon">+</span>
+        <a class="nav-item" :class="currentView === 'new' ? 'active' : ''" @click.prevent="goTo('new')">
+          <span class="nav-icon">
+            <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </span>
           <span>New Research</span>
         </a>
-        <a class="nav-item" @click.prevent="currentView = 'history'">
-          <span class="nav-icon">◫</span>
+        <a class="nav-item" :class="currentView === 'history' ? 'active' : ''" @click.prevent="goTo('history')">
+          <span class="nav-icon">
+            <svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+          </span>
           <span>History</span>
           <span class="nav-badge" x-show="historyCount > 0" x-text="historyCount"></span>
         </a>
@@ -1048,17 +1702,23 @@
       
       <div class="nav-section">
         <div class="nav-section-label">Analysis</div>
-        <a class="nav-item" @click.prevent="currentView = 'sources'">
-          <span class="nav-icon">◎</span>
+        <a class="nav-item" :class="currentView === 'sources' ? 'active' : ''" @click.prevent="goTo('sources')">
+          <span class="nav-icon">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
+          </span>
           <span>Sources</span>
           <span class="nav-badge" x-show="sourceCount > 0" x-text="sourceCount"></span>
         </a>
-        <a class="nav-item" @click.prevent="currentView = 'graph'">
-          <span class="nav-icon">◉</span>
+        <a class="nav-item" :class="currentView === 'graph' ? 'active' : ''" @click.prevent="goTo('graph')">
+          <span class="nav-icon">
+            <svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.12" y1="13.53" x2="15.88" y2="17.47"/><line x1="15.88" y1="6.53" x2="8.12" y2="10.47"/></svg>
+          </span>
           <span>Knowledge Graph</span>
         </a>
-        <a class="nav-item" @click.prevent="currentView = 'contradictions'">
-          <span class="nav-icon">!</span>
+        <a class="nav-item" :class="currentView === 'contradictions' ? 'active' : ''" @click.prevent="goTo('contradictions')">
+          <span class="nav-icon">
+            <svg viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          </span>
           <span>Contradictions</span>
           <span class="nav-badge" x-show="contradictionCount > 0" x-text="contradictionCount" style="background: var(--destructive);"></span>
         </a>
@@ -1066,20 +1726,26 @@
       
       <div class="nav-section">
         <div class="nav-section-label">Output</div>
-        <a class="nav-item" @click.prevent="currentView = 'report'">
-          <span class="nav-icon">¶</span>
+        <a class="nav-item" :class="currentView === 'report' ? 'active' : ''" @click.prevent="goTo('report')">
+          <span class="nav-icon">
+            <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>
+          </span>
           <span>Report</span>
         </a>
-        <a class="nav-item" @click.prevent="currentView = 'export'">
-          <span class="nav-icon">↓</span>
+        <a class="nav-item" :class="currentView === 'export' ? 'active' : ''" @click.prevent="goTo('export')">
+          <span class="nav-icon">
+            <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          </span>
           <span>Export</span>
         </a>
       </div>
       
       <div class="nav-section">
         <div class="nav-section-label">Skills</div>
-        <a class="nav-item" @click.prevent="currentView = 'skills'">
-          <span class="nav-icon">◇</span>
+        <a class="nav-item" :class="currentView === 'skills' ? 'active' : ''" @click.prevent="goTo('skills')">
+          <span class="nav-icon">
+            <svg viewBox="0 0 24 24"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.1a2 2 0 0 1-1-1.72v-.51a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+          </span>
           <span>Skill Pack</span>
         </a>
       </div>
@@ -1087,21 +1753,42 @@
     
     <div class="sidebar-footer">
       <button class="theme-toggle" @click="toggleTheme()">
-        <span x-text="darkMode ? '☀' : '☾'"></span>
+        <svg x-show="!darkMode" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        <svg x-show="darkMode" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
         <span x-text="darkMode ? 'Light' : 'Dark'"></span>
+      </button>
+      <button class="btn-ghost" @click="historyPanelOpen = !historyPanelOpen" title="Recent history">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
       </button>
     </div>
   </aside>
   
   <!-- Main -->
-  <main class="main">
+  <main class="main" @touchstart="handleTouchStart" @touchend="handleTouchEnd">
+    <!-- Pull to refresh indicator -->
+    <div class="ptr-indicator" :class="ptrActive ? 'active' : ''">
+      <div class="ptr-spinner"></div>
+      <span>Refreshing...</span>
+    </div>
+    
     <!-- Top Bar -->
     <header class="top-bar">
       <div class="top-bar-left">
-        <button class="menu-toggle" @click="sidebarOpen = !sidebarOpen">☰</button>
+        <button class="menu-toggle" @click="sidebarOpen = !sidebarOpen" aria-label="Toggle menu">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
         <span class="page-title" x-text="pageTitle"></span>
       </div>
       <div class="top-bar-right">
+        <button class="btn-ghost hide-desktop" @click="historyPanelOpen = !historyPanelOpen" title="Recent history" aria-label="History">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+        </button>
+        <div class="share-btn">
+          <button class="btn-ghost" @click="shareResearch()" title="Share research" aria-label="Share">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.12" y1="13.53" x2="15.88" y2="17.47"/><line x1="15.88" y1="6.53" x2="8.12" y2="10.47"/></svg>
+          </button>
+          <div class="share-tooltip" :class="shareTooltipShown ? 'show' : ''" x-text="shareTooltipText"></div>
+        </div>
         <span class="status-pill" :class="researchStatus">
           <span class="status-dot"></span>
           <span x-text="statusText"></span>
@@ -1110,9 +1797,9 @@
     </header>
     
     <!-- Content -->
-    <div class="content">
+    <div class="content" @touchstart="handleTouchStart" @touchend="handleTouchEnd">
       <!-- NEW RESEARCH VIEW -->
-      <div x-show="currentView === 'new'" class="fade-in">
+      <div x-show="currentView === 'new'" x-cloak class="view-container" x-transition:enter="view-enter" x-transition:enter-start="view-enter" x-transition:enter-end="view-enter-active" x-transition:leave="view-exit" x-transition:leave-start="view-exit" x-transition:leave-end="view-exit-active">
         <div class="query-section">
           <div class="query-header">
             <span class="query-title">What would you like to research?</span>
@@ -1127,8 +1814,9 @@
               rows="3" 
               placeholder="Enter your research question, topic, or hypothesis..."
               x-model="query"
+              x-ref="queryInput"
             ></textarea>
-            <span class="query-input-icon">⌕</span>
+            <span class="query-input-icon">&#8981;</span>
           </div>
           <div class="query-options">
             <label class="query-option">
@@ -1150,57 +1838,57 @@
           </div>
         </div>
         
-        <div class="query-section" x-show="query.length > 0">
+        <div class="query-section" x-show="query.length > 0" x-cloak>
           <div class="query-header">
             <span class="query-title">Skills to activate</span>
           </div>
           <div class="skill-grid">
             <div class="skill-card" :class="activeSkills.includes('tavily') ? 'active' : ''" @click="toggleSkill('tavily')">
-              <span class="skill-icon">◈</span>
+              <span class="skill-icon">&#9704;</span>
               <span class="skill-name">Tavily Search</span>
-              <span class="skill-desc">Web search & retrieval</span>
+              <span class="skill-desc">Web search &amp; retrieval</span>
             </div>
             <div class="skill-card" :class="activeSkills.includes('sequential') ? 'active' : ''" @click="toggleSkill('sequential')">
-              <span class="skill-icon">◉</span>
+              <span class="skill-icon">&#9673;</span>
               <span class="skill-name">Sequential Thinking</span>
-              <span class="skill-desc">Reasoning & analysis</span>
+              <span class="skill-desc">Reasoning &amp; analysis</span>
             </div>
             <div class="skill-card" :class="activeSkills.includes('liter') ? 'active' : ''" @click="toggleSkill('liter')">
-              <span class="skill-icon">◊</span>
+              <span class="skill-icon">&#9670;</span>
               <span class="skill-name">Liter LLM</span>
               <span class="skill-desc">Literature review</span>
             </div>
             <div class="skill-card" :class="activeSkills.includes('surreal') ? 'active' : ''" @click="toggleSkill('surreal')">
-              <span class="skill-icon">◎</span>
+              <span class="skill-icon">&#9678;</span>
               <span class="skill-name">Surreal Memory</span>
               <span class="skill-desc">Knowledge storage</span>
             </div>
             <div class="skill-card" :class="activeSkills.includes('forge') ? 'active' : ''" @click="toggleSkill('forge')">
-              <span class="skill-icon">◆</span>
+              <span class="skill-icon">&#9670;</span>
               <span class="skill-name">Forge</span>
-              <span class="skill-desc">Build & compile</span>
+              <span class="skill-desc">Build &amp; compile</span>
             </div>
             <div class="skill-card" :class="activeSkills.includes('feynman') ? 'active' : ''" @click="toggleSkill('feynman')">
-              <span class="skill-icon">◇</span>
+              <span class="skill-icon">&#9671;</span>
               <span class="skill-name">Feynman Loop</span>
               <span class="skill-desc">Learning quality gate</span>
             </div>
           </div>
         </div>
         
-        <div style="display: flex; gap: .75rem; justify-content: flex-end; margin-top: 1rem;">
-          <button class="btn btn-outline" @click="currentView = 'dashboard'">Cancel</button>
+        <div style="display: flex; gap: .75rem; justify-content: flex-end; margin-top: 1rem; flex-wrap: wrap;">
+          <button class="btn btn-outline" @click="goTo('dashboard')">Cancel</button>
           <button class="btn btn-primary" @click="startResearch()" :disabled="!query.trim()">
             <span>Start Research</span>
-            <span>→</span>
+            <span>&#8594;</span>
           </button>
         </div>
       </div>
       
       <!-- DASHBOARD VIEW -->
-      <div x-show="currentView === 'dashboard'" class="fade-in">
+      <div x-show="currentView === 'dashboard'" x-cloak class="view-container" x-transition:enter="view-enter" x-transition:enter-start="view-enter" x-transition:enter-end="view-enter-active" x-transition:leave="view-exit" x-transition:leave-start="view-exit" x-transition:leave-end="view-exit-active">
         <!-- Progress Panel -->
-        <div class="progress-section" x-show="researchStatus !== 'idle'">
+        <div class="progress-section" x-show="researchStatus !== 'idle'" x-cloak>
           <div class="progress-header">
             <span class="progress-title" x-text="currentStageName"></span>
             <span class="progress-meta" x-text="progressPercent + '% complete'"></span>
@@ -1224,28 +1912,28 @@
           <div class="panel">
             <div class="panel-header">
               <span class="panel-title">
-                <span>◎</span>
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
                 Sources Found
               </span>
               <div class="panel-actions">
-                <button class="btn btn-outline btn-sm" @click="currentView = 'sources'">View All</button>
+                <button class="btn btn-outline btn-sm" @click="goTo('sources')">View All</button>
               </div>
             </div>
             <div class="panel-body">
-              <div class="source-list" x-show="sources.length > 0">
+              <div class="source-list" x-show="sources.length > 0" x-cloak>
                 <template x-for="source in sources.slice(0, 5)" :key="source.id">
-                  <div class="source-item">
+                  <div class="source-item" @click="openSourceModal(source)">
                     <div class="source-favicon" x-text="source.favicon"></div>
                     <div class="source-content">
                       <div class="source-title" x-text="source.title"></div>
-                      <div class="source-meta" x-text="source.domain + ' · ' + source.date"></div>
+                      <div class="source-meta" x-text="source.domain + ' \u00B7 ' + source.date"></div>
                     </div>
                     <span class="source-score" :class="source.scoreClass" x-text="source.score"></span>
                   </div>
                 </template>
               </div>
-              <div class="empty-state" x-show="sources.length === 0">
-                <div class="empty-state-icon">◎</div>
+              <div class="empty-state" x-show="sources.length === 0" x-cloak>
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
                 <div class="empty-state-title">No sources yet</div>
                 <div class="empty-state-text">Start a research query to discover sources</div>
               </div>
@@ -1256,15 +1944,15 @@
           <div class="panel">
             <div class="panel-header">
               <span class="panel-title">
-                <span>◉</span>
+                <svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.12" y1="13.53" x2="15.88" y2="17.47"/><line x1="15.88" y1="6.53" x2="8.12" y2="10.47"/></svg>
                 Knowledge Graph
               </span>
               <div class="panel-actions">
-                <button class="btn btn-outline btn-sm" @click="currentView = 'graph'">Explore</button>
+                <button class="btn btn-outline btn-sm" @click="goTo('graph')">Explore</button>
               </div>
             </div>
             <div class="panel-body">
-              <div class="graph-canvas" x-show="graphNodes.length > 0">
+              <div class="graph-canvas" x-show="graphNodes.length > 0" x-cloak>
                 <div class="graph-placeholder">
                   <div>Knowledge Graph Visualization</div>
                   <div class="graph-nodes">
@@ -1274,8 +1962,8 @@
                   </div>
                 </div>
               </div>
-              <div class="empty-state" x-show="graphNodes.length === 0">
-                <div class="empty-state-icon">◉</div>
+              <div class="empty-state" x-show="graphNodes.length === 0" x-cloak>
+                <svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.12" y1="13.53" x2="15.88" y2="17.47"/><line x1="15.88" y1="6.53" x2="8.12" y2="10.47"/></svg>
                 <div class="empty-state-title">Graph empty</div>
                 <div class="empty-state-text">Build a knowledge graph during research</div>
               </div>
@@ -1288,15 +1976,15 @@
           <div class="panel">
             <div class="panel-header">
               <span class="panel-title">
-                <span>!</span>
+                <svg viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
                 Contradictions
               </span>
               <div class="panel-actions">
-                <button class="btn btn-outline btn-sm" @click="currentView = 'contradictions'">Review</button>
+                <button class="btn btn-outline btn-sm" @click="goTo('contradictions')">Review</button>
               </div>
             </div>
             <div class="panel-body">
-              <div x-show="contradictions.length > 0">
+              <div x-show="contradictions.length > 0" x-cloak>
                 <template x-for="c in contradictions.slice(0, 3)" :key="c.id">
                   <div class="contradiction-item">
                     <span class="contradiction-icon">!</span>
@@ -1307,8 +1995,8 @@
                   </div>
                 </template>
               </div>
-              <div class="empty-state" x-show="contradictions.length === 0">
-                <div class="empty-state-icon">!</div>
+              <div class="empty-state" x-show="contradictions.length === 0" x-cloak>
+                <svg viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
                 <div class="empty-state-title">No contradictions</div>
                 <div class="empty-state-text">Conflicting evidence will appear here</div>
               </div>
@@ -1318,17 +2006,17 @@
           <div class="panel">
             <div class="panel-header">
               <span class="panel-title">
-                <span>¶</span>
+                <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>
                 Report Preview
               </span>
               <div class="panel-actions">
-                <button class="btn btn-outline btn-sm" @click="currentView = 'report'">Full Report</button>
+                <button class="btn btn-outline btn-sm" @click="goTo('report')">Full Report</button>
               </div>
             </div>
             <div class="panel-body">
-              <div class="report-preview" x-show="reportContent" x-html="reportContent"></div>
-              <div class="empty-state" x-show="!reportContent">
-                <div class="empty-state-icon">¶</div>
+              <div class="report-preview" x-show="reportContent" x-html="reportContent" x-cloak></div>
+              <div class="empty-state" x-show="!reportContent" x-cloak>
+                <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>
                 <div class="empty-state-title">No report yet</div>
                 <div class="empty-state-text">Complete research to generate a report</div>
               </div>
@@ -1337,10 +2025,10 @@
         </div>
         
         <!-- Active Threads -->
-        <div class="panel" x-show="threads.length > 0">
+        <div class="panel" x-show="threads.length > 0" x-cloak>
           <div class="panel-header">
             <span class="panel-title">
-              <span>◫</span>
+              <svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
               Active Threads
             </span>
           </div>
@@ -1351,9 +2039,9 @@
                   <span class="thread-color" :style="'background: ' + thread.color"></span>
                   <div class="thread-info">
                     <div class="thread-name" x-text="thread.name"></div>
-                    <div class="thread-meta" x-text="thread.type + ' · ' + thread.status"></div>
+                    <div class="thread-meta" x-text="thread.type + ' \u00B7 ' + thread.status"></div>
                   </div>
-                  <span class="thread-status" x-text="thread.status === 'running' ? '◈' : '◉'"></span>
+                  <span class="thread-status" x-text="thread.status === 'running' ? '&#9704;' : '&#9673;'"></span>
                 </div>
               </template>
             </div>
@@ -1361,43 +2049,61 @@
         </div>
       </div>
       
-      <!-- OTHER VIEWS (simplified) -->
-      <div x-show="currentView === 'sources'" class="fade-in">
+      <!-- SOURCES VIEW -->
+      <div x-show="currentView === 'sources'" x-cloak class="view-container" x-transition:enter="view-enter" x-transition:enter-start="view-enter" x-transition:enter-end="view-enter-active" x-transition:leave="view-exit" x-transition:leave-start="view-exit" x-transition:leave-end="view-exit-active">
         <div class="panel">
           <div class="panel-header">
-            <span class="panel-title">◎ All Sources</span>
+            <span class="panel-title">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
+              All Sources
+            </span>
+            <div class="panel-actions">
+              <button class="btn btn-outline btn-sm" @click="filterSourceType = ''" :class="filterSourceType === '' ? 'active' : ''">All</button>
+              <button class="btn btn-outline btn-sm" @click="filterSourceType = 'Paper'" :class="filterSourceType === 'Paper' ? 'active' : ''">Papers</button>
+              <button class="btn btn-outline btn-sm" @click="filterSourceType = 'Blog'" :class="filterSourceType === 'Blog' ? 'active' : ''">Blogs</button>
+            </div>
           </div>
           <div class="panel-body">
-            <div class="source-list">
-              <template x-for="source in sources" :key="source.id">
-                <div class="source-item">
+            <input 
+              type="text" 
+              class="source-search-bar" 
+              placeholder="Search sources by title, domain, or type..."
+              x-model="sourceSearch"
+            >
+            <div class="source-list" x-show="filteredSources.length > 0" x-cloak>
+              <template x-for="source in filteredSources" :key="source.id">
+                <div class="source-item" @click="openSourceModal(source)">
                   <div class="source-favicon" x-text="source.favicon"></div>
                   <div class="source-content">
                     <div class="source-title" x-text="source.title"></div>
-                    <div class="source-meta" x-text="source.domain + ' · ' + source.date + ' · ' + source.type"></div>
+                    <div class="source-meta" x-text="source.domain + ' \u00B7 ' + source.date + ' \u00B7 ' + source.type"></div>
                   </div>
                   <span class="source-score" :class="source.scoreClass" x-text="source.score"></span>
                 </div>
               </template>
             </div>
-            <div class="empty-state" x-show="sources.length === 0">
-              <div class="empty-state-icon">◎</div>
-              <div class="empty-state-title">No sources</div>
-              <div class="empty-state-text">Start research to collect sources</div>
+            <div class="empty-state" x-show="filteredSources.length === 0" x-cloak>
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
+              <div class="empty-state-title">No sources match</div>
+              <div class="empty-state-text">Try a different search or filter</div>
             </div>
           </div>
         </div>
       </div>
       
-      <div x-show="currentView === 'graph'" class="fade-in">
+      <!-- GRAPH VIEW -->
+      <div x-show="currentView === 'graph'" x-cloak class="view-container" x-transition:enter="view-enter" x-transition:enter-start="view-enter" x-transition:enter-end="view-enter-active" x-transition:leave="view-exit" x-transition:leave-start="view-exit" x-transition:leave-end="view-exit-active">
         <div class="panel">
           <div class="panel-header">
-            <span class="panel-title">◉ Knowledge Graph</span>
+            <span class="panel-title">
+              <svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.12" y1="13.53" x2="15.88" y2="17.47"/><line x1="15.88" y1="6.53" x2="8.12" y2="10.47"/></svg>
+              Knowledge Graph
+            </span>
           </div>
           <div class="panel-body">
             <div class="graph-canvas" style="height: 500px;">
               <div class="graph-placeholder">
-                <div style="font-size: 1.2rem; margin-bottom: 1rem;">Knowledge Graph Explorer</div>
+                <div style="font-size: 1.2rem; margin-bottom: 1rem; font-weight: 600; color: var(--fg);">Knowledge Graph Explorer</div>
                 <div>Interactive graph visualization powered by surreal-memory</div>
                 <div class="graph-nodes" style="margin-top: 2rem;">
                   <div class="graph-node" style="width: 60px; height: 60px; font-size: 1rem;">A</div>
@@ -1412,13 +2118,17 @@
         </div>
       </div>
       
-      <div x-show="currentView === 'contradictions'" class="fade-in">
+      <!-- CONTRADICTIONS VIEW -->
+      <div x-show="currentView === 'contradictions'" x-cloak class="view-container" x-transition:enter="view-enter" x-transition:enter-start="view-enter" x-transition:enter-end="view-enter-active" x-transition:leave="view-exit" x-transition:leave-start="view-exit" x-transition:leave-end="view-exit-active">
         <div class="panel">
           <div class="panel-header">
-            <span class="panel-title">! Contradictions</span>
+            <span class="panel-title">
+              <svg viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+              Contradictions
+            </span>
           </div>
           <div class="panel-body">
-            <div x-show="contradictions.length > 0">
+            <div x-show="contradictions.length > 0" x-cloak>
               <template x-for="c in contradictions" :key="c.id">
                 <div class="contradiction-item">
                   <span class="contradiction-icon">!</span>
@@ -1429,8 +2139,8 @@
                 </div>
               </template>
             </div>
-            <div class="empty-state" x-show="contradictions.length === 0">
-              <div class="empty-state-icon">!</div>
+            <div class="empty-state" x-show="contradictions.length === 0" x-cloak>
+              <svg viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
               <div class="empty-state-title">No contradictions found</div>
               <div class="empty-state-text">Research findings are consistent so far</div>
             </div>
@@ -1438,19 +2148,23 @@
         </div>
       </div>
       
-      <div x-show="currentView === 'report'" class="fade-in">
+      <!-- REPORT VIEW -->
+      <div x-show="currentView === 'report'" x-cloak class="view-container" x-transition:enter="view-enter" x-transition:enter-start="view-enter" x-transition:enter-end="view-enter-active" x-transition:leave="view-exit" x-transition:leave-start="view-exit" x-transition:leave-end="view-exit-active">
         <div class="panel">
           <div class="panel-header">
-            <span class="panel-title">¶ Research Report</span>
+            <span class="panel-title">
+              <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>
+              Research Report
+            </span>
             <div class="panel-actions">
-              <button class="btn btn-outline btn-sm">Copy</button>
-              <button class="btn btn-outline btn-sm">Download</button>
+              <button class="btn btn-outline btn-sm" @click="copyReport()">Copy</button>
+              <button class="btn btn-outline btn-sm" @click="downloadReport()">Download</button>
             </div>
           </div>
           <div class="panel-body">
-            <div class="report-preview" x-show="reportContent" x-html="reportContent"></div>
-            <div class="empty-state" x-show="!reportContent">
-              <div class="empty-state-icon">¶</div>
+            <div class="report-preview" x-show="reportContent" x-html="reportContent" x-cloak></div>
+            <div class="empty-state" x-show="!reportContent" x-cloak>
+              <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>
               <div class="empty-state-title">Report not generated</div>
               <div class="empty-state-text">Complete the research pipeline to generate a report</div>
             </div>
@@ -1458,27 +2172,31 @@
         </div>
       </div>
       
-      <div x-show="currentView === 'export'" class="fade-in">
+      <!-- EXPORT VIEW -->
+      <div x-show="currentView === 'export'" x-cloak class="view-container" x-transition:enter="view-enter" x-transition:enter-start="view-enter" x-transition:enter-end="view-enter-active" x-transition:leave="view-exit" x-transition:leave-start="view-exit" x-transition:leave-end="view-exit-active">
         <div class="panel">
           <div class="panel-header">
-            <span class="panel-title">↓ Export Research</span>
+            <span class="panel-title">
+              <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Export Research
+            </span>
           </div>
           <div class="panel-body">
             <div style="display: grid; gap: .75rem; max-width: 400px;">
-              <button class="btn btn-secondary" style="justify-content: center;">
-                <span>📄</span>
+              <button class="btn btn-secondary" style="justify-content: center;" @click="exportPackage()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
                 <span>Export as .research package (OKF)</span>
               </button>
-              <button class="btn btn-outline" style="justify-content: center;">
-                <span>📝</span>
+              <button class="btn btn-outline" style="justify-content: center;" @click="exportMarkdown()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>
                 <span>Export as Markdown</span>
               </button>
-              <button class="btn btn-outline" style="justify-content: center;">
-                <span>📊</span>
+              <button class="btn btn-outline" style="justify-content: center;" @click="exportPDF()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>
                 <span>Export as PDF</span>
               </button>
-              <button class="btn btn-outline" style="justify-content: center;">
-                <span>🌐</span>
+              <button class="btn btn-outline" style="justify-content: center;" @click="exportHTML()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
                 <span>Export as HTML</span>
               </button>
             </div>
@@ -1486,40 +2204,44 @@
         </div>
       </div>
       
-      <div x-show="currentView === 'skills'" class="fade-in">
+      <!-- SKILLS VIEW -->
+      <div x-show="currentView === 'skills'" x-cloak class="view-container" x-transition:enter="view-enter" x-transition:enter-start="view-enter" x-transition:enter-end="view-enter-active" x-transition:leave="view-exit" x-transition:leave-start="view-exit" x-transition:leave-end="view-exit-active">
         <div class="panel">
           <div class="panel-header">
-            <span class="panel-title">◇ Prometheus Skill Pack</span>
+            <span class="panel-title">
+              <svg viewBox="0 0 24 24"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.1a2 2 0 0 1-1-1.72v-.51a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+              Prometheus Skill Pack
+            </span>
           </div>
           <div class="panel-body">
             <div class="skill-grid" style="grid-template-columns: repeat(2, 1fr);">
               <div class="skill-card" style="align-items: flex-start; text-align: left; gap: .35rem;">
-                <span class="skill-icon">◈</span>
+                <span class="skill-icon">&#9704;</span>
                 <span class="skill-name">Deep Research</span>
                 <span class="skill-desc">10-stage research pipeline with verification</span>
               </div>
               <div class="skill-card" style="align-items: flex-start; text-align: left; gap: .35rem;">
-                <span class="skill-icon">◇</span>
+                <span class="skill-icon">&#9671;</span>
                 <span class="skill-name">Feynman Learning</span>
                 <span class="skill-desc">Explain-grade-gap-recurse learning loop</span>
               </div>
               <div class="skill-card" style="align-items: flex-start; text-align: left; gap: .35rem;">
-                <span class="skill-icon">◉</span>
+                <span class="skill-icon">&#9673;</span>
                 <span class="skill-name">Sequential Thinking</span>
                 <span class="skill-desc">Chain-of-thought reasoning with checkpoints</span>
               </div>
               <div class="skill-card" style="align-items: flex-start; text-align: left; gap: .35rem;">
-                <span class="skill-icon">◎</span>
+                <span class="skill-icon">&#9678;</span>
                 <span class="skill-name">Surreal Memory</span>
                 <span class="skill-desc">Multi-model graph + vector + document store</span>
               </div>
               <div class="skill-card" style="align-items: flex-start; text-align: left; gap: .35rem;">
-                <span class="skill-icon">◊</span>
+                <span class="skill-icon">&#9670;</span>
                 <span class="skill-name">Liter LLM</span>
                 <span class="skill-desc">Literature review and citation management</span>
               </div>
               <div class="skill-card" style="align-items: flex-start; text-align: left; gap: .35rem;">
-                <span class="skill-icon">◆</span>
+                <span class="skill-icon">&#9670;</span>
                 <span class="skill-name">Forge</span>
                 <span class="skill-desc">Build and compilation orchestration</span>
               </div>
@@ -1528,14 +2250,26 @@
         </div>
       </div>
       
-      <div x-show="currentView === 'history'" class="fade-in">
+      <!-- HISTORY VIEW -->
+      <div x-show="currentView === 'history'" x-cloak class="view-container" x-transition:enter="view-enter" x-transition:enter-start="view-enter" x-transition:enter-end="view-enter-active" x-transition:leave="view-exit" x-transition:leave-start="view-exit" x-transition:leave-end="view-exit-active">
         <div class="panel">
           <div class="panel-header">
-            <span class="panel-title">◫ Research History</span>
+            <span class="panel-title">
+              <svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+              Research History
+            </span>
           </div>
           <div class="panel-body">
-            <div class="empty-state">
-              <div class="empty-state-icon">◫</div>
+            <div x-show="researchHistory.length > 0" x-cloak>
+              <template x-for="item in researchHistory" :key="item.id">
+                <div class="history-item" @click="loadHistoryItem(item)">
+                  <span class="history-item-query" x-text="item.query"></span>
+                  <span class="history-item-date" x-text="item.date"></span>
+                </div>
+              </template>
+            </div>
+            <div class="empty-state" x-show="researchHistory.length === 0" x-cloak>
+              <svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
               <div class="empty-state-title">No history</div>
               <div class="empty-state-text">Completed research sessions will appear here</div>
             </div>
@@ -1546,11 +2280,41 @@
   </main>
 </div>
 
+<!-- Bottom Navigation (mobile only) -->
+<nav class="bottom-nav" x-show="isMobile" x-cloak>
+  <div class="bottom-nav-inner">
+    <button class="bottom-nav-item" :class="currentView === 'new' ? 'active' : ''" @click="goTo('new')">
+      <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      <span>Research</span>
+    </button>
+    <button class="bottom-nav-item" :class="currentView === 'dashboard' ? 'active' : ''" @click="goTo('dashboard')">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
+      <span>Dashboard</span>
+    </button>
+    <button class="bottom-nav-item" :class="currentView === 'sources' ? 'active' : ''" @click="goTo('sources')">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
+      <span>Sources</span>
+      <span class="nav-badge" x-show="sourceCount > 0" x-text="sourceCount"></span>
+    </button>
+    <button class="bottom-nav-item" :class="currentView === 'report' ? 'active' : ''" @click="goTo('report')">
+      <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>
+      <span>Report</span>
+    </button>
+    <button class="bottom-nav-item" @click="sidebarOpen = !sidebarOpen">
+      <svg viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      <span>More</span>
+    </button>
+  </div>
+</nav>
+
 <script>
 function deepResearchApp() {
   return {
     darkMode: false,
     sidebarOpen: false,
+    historyPanelOpen: false,
+    sourceModalOpen: false,
+    selectedSource: null,
     currentView: 'new',
     query: '',
     deepMode: true,
@@ -1564,18 +2328,29 @@ function deepResearchApp() {
     historyCount: 0,
     sourceCount: 0,
     contradictionCount: 0,
+    sourceSearch: '',
+    filterSourceType: '',
+    isMobile: false,
+    ptrActive: false,
+    shareTooltipShown: false,
+    shareTooltipText: 'Link copied!',
+    toasts: [],
+    toastId: 0,
+    
+    touchStartX: 0,
+    touchEndX: 0,
     
     stages: [
-      { id: 'plan', name: 'Plan', icon: '◈', status: 'pending' },
-      { id: 'search', name: 'Search', icon: '⌕', status: 'pending' },
-      { id: 'retrieve', name: 'Retrieve', icon: '↓', status: 'pending' },
-      { id: 'collect', name: 'Collect', icon: '◉', status: 'pending' },
-      { id: 'verify', name: 'Verify', icon: '✓', status: 'pending' },
-      { id: 'resolve', name: 'Resolve', icon: '⇄', status: 'pending' },
-      { id: 'graph', name: 'Graph', icon: '◉', status: 'pending' },
-      { id: 'cite', name: 'Cite', icon: '¶', status: 'pending' },
-      { id: 'report', name: 'Report', icon: '▤', status: 'pending' },
-      { id: 'export', name: 'Export', icon: '↓', status: 'pending' }
+      { id: 'plan', name: 'Plan', icon: '&#9704;', status: 'pending' },
+      { id: 'search', name: 'Search', icon: '&#8981;', status: 'pending' },
+      { id: 'retrieve', name: 'Retrieve', icon: '&#8595;', status: 'pending' },
+      { id: 'collect', name: 'Collect', icon: '&#9673;', status: 'pending' },
+      { id: 'verify', name: 'Verify', icon: '&#10003;', status: 'pending' },
+      { id: 'resolve', name: 'Resolve', icon: '&#8644;', status: 'pending' },
+      { id: 'graph', name: 'Graph', icon: '&#9673;', status: 'pending' },
+      { id: 'cite', name: 'Cite', icon: '&#182;', status: 'pending' },
+      { id: 'report', name: 'Report', icon: '&#9648;', status: 'pending' },
+      { id: 'export', name: 'Export', icon: '&#8595;', status: 'pending' }
     ],
     
     sources: [],
@@ -1583,6 +2358,7 @@ function deepResearchApp() {
     contradictions: [],
     threads: [],
     reportContent: null,
+    researchHistory: [],
     
     get pageTitle() {
       const titles = {
@@ -1614,17 +2390,67 @@ function deepResearchApp() {
       return active ? active.name : 'Processing...';
     },
     
+    get filteredSources() {
+      let result = this.sources;
+      if (this.sourceSearch.trim()) {
+        const q = this.sourceSearch.toLowerCase();
+        result = result.filter(s => 
+          s.title.toLowerCase().includes(q) ||
+          s.domain.toLowerCase().includes(q) ||
+          s.type.toLowerCase().includes(q)
+        );
+      }
+      if (this.filterSourceType) {
+        result = result.filter(s => s.type === this.filterSourceType);
+      }
+      return result;
+    },
+    
     init() {
       const theme = localStorage.getItem('prometheus-theme');
       if (theme === 'dark') this.darkMode = true;
       
+      // Detect mobile
+      this.checkMobile();
+      window.addEventListener('resize', () => this.checkMobile());
+      
+      // Page visibility handler
+      document.addEventListener('visibilitychange', () => {
+        if (!document.hidden && this.researchStatus === 'running') {
+          this.refreshStatus();
+        }
+      });
+      
+      // Keyboard shortcuts
+      document.addEventListener('keydown', (e) => {
+        // / to focus search
+        if (e.key === '/' && document.activeElement.tagName !== 'TEXTAREA' && document.activeElement.tagName !== 'INPUT') {
+          e.preventDefault();
+          if (this.currentView === 'new' && this.$refs.queryInput) {
+            this.$refs.queryInput.focus();
+          }
+        }
+        // Esc to close sidebar
+        if (e.key === 'Escape') {
+          this.sidebarOpen = false;
+          this.historyPanelOpen = false;
+          this.sourceModalOpen = false;
+        }
+        // n for new research
+        if (e.key === 'n' && document.activeElement.tagName !== 'TEXTAREA' && document.activeElement.tagName !== 'INPUT') {
+          this.goTo('new');
+        }
+      });
+      
       // Demo data for preview
       this.sources = [
-        { id: 1, title: 'GPT Researcher: Autonomous AI Research Agent', domain: 'arxiv.org', date: '2024-03-15', type: 'Paper', favicon: 'A', score: '94', scoreClass: 'high' },
-        { id: 2, title: 'LangGraph: Building Stateful Agent Applications', domain: 'python.langchain.com', date: '2024-06-20', type: 'Docs', favicon: 'L', score: '91', scoreClass: 'high' },
-        { id: 3, title: 'Open Knowledge Format (OKF) v0.1 Specification', domain: 'github.com', date: '2026-06-12', type: 'Spec', favicon: 'G', score: '88', scoreClass: 'high' },
-        { id: 4, title: 'The Karpathy LLM Wiki Pattern', domain: 'karpathy.ai', date: '2025-11-03', type: 'Blog', favicon: 'K', score: '85', scoreClass: 'medium' },
-        { id: 5, title: 'AG-UI: Agent-User Interface Protocol', domain: 'ag-ui.dev', date: '2026-01-18', type: 'Spec', favicon: 'A', score: '82', scoreClass: 'medium' }
+        { id: 1, title: 'GPT Researcher: Autonomous AI Research Agent', domain: 'arxiv.org', date: '2024-03-15', type: 'Paper', favicon: 'A', score: '94', scoreClass: 'high', summary: 'A comprehensive review of autonomous AI research agents, focusing on GPT-Researcher architecture and its planner-reviewer-executor pattern.', author: 'A. Azulay', wordCount: 12400, url: 'https://arxiv.org/abs/2403.12345' },
+        { id: 2, title: 'LangGraph: Building Stateful Agent Applications', domain: 'python.langchain.com', date: '2024-06-20', type: 'Docs', favicon: 'L', score: '91', scoreClass: 'high', summary: 'Official documentation for LangGraph, a library for building stateful, multi-actor applications with LLMs using graph-based state machines.', author: 'LangChain', wordCount: 8500, url: 'https://python.langchain.com/docs/langgraph' },
+        { id: 3, title: 'Open Knowledge Format (OKF) v0.1 Specification', domain: 'github.com', date: '2026-06-12', type: 'Spec', favicon: 'G', score: '88', scoreClass: 'high', summary: 'The OKF specification defines a portable format for packaging research artifacts, including sources, knowledge graphs, and generated reports.', author: 'OKF Working Group', wordCount: 4200, url: 'https://github.com/okf/spec' },
+        { id: 4, title: 'The Karpathy LLM Wiki Pattern', domain: 'karpathy.ai', date: '2025-11-03', type: 'Blog', favicon: 'K', score: '85', scoreClass: 'medium', summary: 'Andrej Karpathy discusses the emerging pattern of LLM-powered wiki systems and their implications for knowledge management.', author: 'A. Karpathy', wordCount: 3200, url: 'https://karpathy.ai/blog/llm-wiki' },
+        { id: 5, title: 'AG-UI: Agent-User Interface Protocol', domain: 'ag-ui.dev', date: '2026-01-18', type: 'Spec', favicon: 'A', score: '82', scoreClass: 'medium', summary: 'AG-UI defines a protocol for streaming agent interactions to user interfaces, enabling real-time research progress visualization.', author: 'AG-UI Consortium', wordCount: 5600, url: 'https://ag-ui.dev/spec' },
+        { id: 6, title: 'Multi-Agent Orchestration Patterns', domain: 'blog.langchain.dev', date: '2024-09-10', type: 'Blog', favicon: 'L', score: '79', scoreClass: 'medium', summary: 'An exploration of common patterns for orchestrating multiple AI agents in research and reasoning workflows.', author: 'LangChain Team', wordCount: 4100, url: 'https://blog.langchain.dev/multi-agent' },
+        { id: 7, title: 'Feynman Technique for LLM Evaluation', domain: 'arxiv.org', date: '2025-04-22', type: 'Paper', favicon: 'A', score: '87', scoreClass: 'high', summary: 'Applies the Feynman learning technique to evaluate LLM reasoning quality through explanation, grading, and gap identification.', author: 'R. Feynman et al.', wordCount: 9800, url: 'https://arxiv.org/abs/2504.56789' }
       ];
       this.sourceCount = this.sources.length;
       
@@ -1672,11 +2498,35 @@ function deepResearchApp() {
       this.stages[7].status = 'pending';
       this.stages[8].status = 'pending';
       this.stages[9].status = 'pending';
+      
+      // Demo history
+      this.researchHistory = [
+        { id: 'h1', query: 'Compare multi-agent research architectures', date: '2026-06-15', status: 'completed' },
+        { id: 'h2', query: 'Feynman technique for LLM evaluation', date: '2026-06-14', status: 'completed' },
+        { id: 'h3', query: 'Open Knowledge Format specification review', date: '2026-06-13', status: 'completed' }
+      ];
+      this.historyCount = this.researchHistory.length;
+      
+      // Show welcome toast
+      setTimeout(() => {
+        this.showToast('Welcome to Prometheus Deep Research', 'info');
+      }, 500);
+    },
+    
+    checkMobile() {
+      this.isMobile = window.innerWidth < 640;
+    },
+    
+    goTo(view) {
+      this.currentView = view;
+      this.sidebarOpen = false;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     },
     
     toggleTheme() {
       this.darkMode = !this.darkMode;
       localStorage.setItem('prometheus-theme', this.darkMode ? 'dark' : 'light');
+      this.showToast(this.darkMode ? 'Dark mode enabled' : 'Light mode enabled', 'info');
     },
     
     toggleSkill(skill) {
@@ -1687,6 +2537,7 @@ function deepResearchApp() {
     
     loadExample() {
       this.query = 'Compare multi-agent research architectures: GPT-Researcher vs LangGraph ODR vs MiroThinker. Focus on verification mechanisms, knowledge graph construction, and cross-source contradiction detection.';
+      this.showToast('Example loaded. Press Start Research to begin.', 'info');
     },
     
     clearQuery() {
@@ -1694,11 +2545,23 @@ function deepResearchApp() {
     },
     
     startResearch() {
+      if (!this.query.trim()) return;
       this.currentView = 'dashboard';
       this.researchStatus = 'running';
       this.progressPercent = 0;
       this.stages.forEach(s => s.status = 'pending');
       this.simulateProgress();
+      this.showToast('Research started!', 'success');
+      
+      // Add to history
+      const newItem = {
+        id: 'h' + Date.now(),
+        query: this.query,
+        date: new Date().toISOString().split('T')[0],
+        status: 'running'
+      };
+      this.researchHistory.unshift(newItem);
+      this.historyCount = this.researchHistory.length;
     },
     
     simulateProgress() {
@@ -1708,6 +2571,9 @@ function deepResearchApp() {
           clearInterval(interval);
           this.researchStatus = 'completed';
           this.progressPercent = 100;
+          this.showToast('Research completed!', 'success');
+          // Update history item status
+          if (this.researchHistory[0]) this.researchHistory[0].status = 'completed';
           return;
         }
         if (stage > 0) this.stages[stage - 1].status = 'completed';
@@ -1715,9 +2581,141 @@ function deepResearchApp() {
         this.progressPercent = Math.round((stage / this.stages.length) * 100);
         stage++;
       }, 1500);
+    },
+    
+    refreshStatus() {
+      this.showToast('Research status refreshed', 'info');
+    },
+    
+    openSourceModal(source) {
+      this.selectedSource = source;
+      this.sourceModalOpen = true;
+    },
+    
+    loadHistoryItem(item) {
+      this.query = item.query;
+      this.goTo('new');
+      this.historyPanelOpen = false;
+      this.showToast('Loaded: ' + item.query.substring(0, 40) + '...', 'info');
+    },
+    
+    shareResearch() {
+      const link = window.location.href + '?q=' + encodeURIComponent(this.query || 'research');
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(link).then(() => {
+          this.shareTooltipText = 'Link copied!';
+          this.shareTooltipShown = true;
+          setTimeout(() => this.shareTooltipShown = false, 2000);
+          this.showToast('Deep link copied to clipboard', 'success');
+        }).catch(() => {
+          this.shareFallback(link);
+        });
+      } else {
+        this.shareFallback(link);
+      }
+    },
+    
+    shareFallback(link) {
+      const ta = document.createElement('textarea');
+      ta.value = link;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+      this.shareTooltipText = 'Link copied!';
+      this.shareTooltipShown = true;
+      setTimeout(() => this.shareTooltipShown = false, 2000);
+      this.showToast('Deep link copied to clipboard', 'success');
+    },
+    
+    showToast(message, type = 'info') {
+      const id = ++this.toastId;
+      this.toasts.push({ id, message, type });
+      setTimeout(() => {
+        const idx = this.toasts.findIndex(t => t.id === id);
+        if (idx > -1) this.toasts.splice(idx, 1);
+      }, 3000);
+    },
+    
+    copyReport() {
+      if (!this.reportContent) return;
+      const text = this.reportContent.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(text).then(() => this.showToast('Report copied', 'success'));
+      } else {
+        this.showToast('Report copied', 'success');
+      }
+    },
+    
+    downloadReport() {
+      this.showToast('Download started', 'info');
+    },
+    
+    exportPackage() { this.showToast('Exporting .research package...', 'info'); },
+    exportMarkdown() { this.showToast('Exporting Markdown...', 'info'); },
+    exportPDF() { this.showToast('Exporting PDF...', 'info'); },
+    exportHTML() { this.showToast('Exporting HTML...', 'info'); },
+    
+    handleTouchStart(e) {
+      this.touchStartX = e.changedTouches[0].screenX;
+    },
+    
+    handleTouchEnd(e) {
+      this.touchEndX = e.changedTouches[0].screenX;
+      this.handleSwipe();
+    },
+    
+    handleSwipe() {
+      const diff = this.touchEndX - this.touchStartX;
+      const threshold = 80;
+      const views = ['dashboard', 'sources', 'graph', 'contradictions', 'report'];
+      const idx = views.indexOf(this.currentView);
+      if (idx === -1) return;
+      
+      if (diff < -threshold && idx < views.length - 1) {
+        // Swipe left -> next view
+        this.goTo(views[idx + 1]);
+      } else if (diff > threshold && idx > 0) {
+        // Swipe right -> previous view
+        this.goTo(views[idx - 1]);
+      }
     }
   };
 }
+</script>
+
+<!-- Service Worker Registration -->
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('data:text/javascript;base64,' + btoa(`
+      self.addEventListener('install', e => {
+        e.waitUntil(
+          caches.open('prometheus-research-v1').then(cache =>
+            cache.addAll(['/', '/manifest.json'])
+          )
+        );
+        self.skipWaiting();
+      });
+      self.addEventListener('activate', e => {
+        e.waitUntil(self.clients.claim());
+      });
+      self.addEventListener('fetch', e => {
+        e.respondWith(
+          caches.match(e.request).then(r => r || fetch(e.request).catch(() => caches.match('/')))
+        );
+      });
+    `)).catch(() => {
+      // Fallback: inline service worker via blob
+      const swCode = `
+        self.addEventListener('install', e => { self.skipWaiting(); });
+        self.addEventListener('activate', e => { e.waitUntil(self.clients.claim()); });
+        self.addEventListener('fetch', e => { e.respondWith(fetch(e.request).catch(() => new Response('Offline'))); });
+      `;
+      const blob = new Blob([swCode], { type: 'application/javascript' });
+      const url = URL.createObjectURL(blob);
+      navigator.serviceWorker.register(url).catch(() => {});
+    });
+  }
 </script>
 
 </body>
