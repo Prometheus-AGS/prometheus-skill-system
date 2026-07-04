@@ -131,6 +131,84 @@ else
     fail "template-forge-rs not found — run: git submodule update --init --recursive"
 fi
 
+# ── 8. cowork + co (cowork-skills CLI — skill management utility) ────────────
+# Two-path install:
+#   Path A (preferred): source build from tools/cowork-skills submodule
+#   Path B (fallback):  download pre-built binary from GitHub Releases
+install_cowork() {
+    local cowork_dir="${REPO_ROOT}/tools/cowork-skills"
+    local cli_dir="${cowork_dir}/cli"
+
+    if [ -d "${cli_dir}" ]; then
+        # Path A — source build
+        info "Building cowork from source (tools/cowork-skills)..."
+        (cd "${cli_dir}" && cargo build --release 2>&1 | tail -3)
+        install_bin "${cli_dir}/target/release/cowork" "${BIN_DIR}/cowork"
+        install_bin "${cli_dir}/target/release/co"     "${BIN_DIR}/co"
+        ok "cowork → ${BIN_DIR}/cowork"
+        ok "co     → ${BIN_DIR}/co"
+        return
+    fi
+
+    # Path B — download from GitHub Releases
+    info "cowork-skills submodule not present; downloading from GitHub Releases..."
+    local os arch target archive_ext
+    os="$(uname -s)"
+    arch="$(uname -m)"
+
+    case "${os}-${arch}" in
+        Darwin-arm64)   target="aarch64-apple-darwin";        archive_ext="tar.gz" ;;
+        Darwin-x86_64)  target="x86_64-apple-darwin";         archive_ext="tar.gz" ;;
+        Linux-x86_64)   target="x86_64-unknown-linux-musl";   archive_ext="tar.gz" ;;
+        MINGW*|MSYS*|Windows*) target="x86_64-pc-windows-msvc"; archive_ext="zip" ;;
+        *)
+            fail "Unsupported platform ${os}-${arch} for cowork download; run: cd tools/cowork-skills/cli && cargo build --release"
+            return
+            ;;
+    esac
+
+    # Resolve latest release tag via GitHub API redirect
+    local latest_url="https://github.com/GQAdonis/cowork-skills/releases/latest/download"
+    local version
+    version="$(curl -fsL -o /dev/null -w '%{url_effective}' \
+        "https://github.com/GQAdonis/cowork-skills/releases/latest" \
+        | sed 's|.*/tag/v||')" || version="latest"
+
+    local archive="cowork-${version}-${target}.${archive_ext}"
+    local download_url="${latest_url}/${archive}"
+    local tmp_dir
+    tmp_dir="$(mktemp -d)"
+
+    info "Downloading ${archive} from GitHub Releases..."
+    if ! curl -fsL "${download_url}" -o "${tmp_dir}/${archive}"; then
+        fail "Failed to download ${download_url}; run: git submodule update --init tools/cowork-skills"
+        rm -rf "${tmp_dir}"
+        return
+    fi
+
+    # Extract
+    if [ "${archive_ext}" = "tar.gz" ]; then
+        tar -C "${tmp_dir}" -xzf "${tmp_dir}/${archive}"
+        local bin_dir="${tmp_dir}/cowork-${version}-${target}"
+        install_bin "${bin_dir}/cowork" "${BIN_DIR}/cowork"
+        # Create co symlink/copy
+        cp "${BIN_DIR}/cowork" "${BIN_DIR}/co"
+        if [ "$(uname -s)" = "Darwin" ]; then
+            codesign --force --sign - "${BIN_DIR}/co" >/dev/null 2>&1 || true
+        fi
+    else
+        fail "zip extraction on Windows: run scripts/install-binaries.ps1 instead"
+        rm -rf "${tmp_dir}"
+        return
+    fi
+
+    rm -rf "${tmp_dir}"
+    ok "cowork → ${BIN_DIR}/cowork (downloaded)"
+    ok "co     → ${BIN_DIR}/co (downloaded)"
+}
+
+install_cowork
+
 echo ""
 echo "✨ All binaries installed to ${BIN_DIR}"
 echo "   Next: bash scripts/install-mcp-services.sh   # (re)install + start launchd/systemd daemons"

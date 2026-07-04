@@ -22,3 +22,7 @@
 [submodule "skills/imported/prometheus-entity-management"]
 	path = skills/imported/prometheus-entity-management
 	url = https://github.com/Prometheus-AGS/prometheus-entity-management.git
+[submodule "tools/cowork-skills"]
+	path = tools/cowork-skills
+	url = https://github.com/GQAdonis/cowork-skills.git
+	branch = main

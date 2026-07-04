@@ -1,0 +1,118 @@
+{
+  "phase": "cowork-integration",
+  "generated_at": "2026-07-03T21:07:22Z",
+  "schema_version": "1.0",
+  "decisions": [
+    {
+      "id": "D-01",
+      "question": "How to extend cowork to support new platforms?",
+      "verdict": "ADOPT",
+      "choice": "Fork-and-extend GQAdonis/cowork-skills",
+      "confidence": 0.95,
+      "rationale": "Clean Rust codebase, agents.rs extensible, no competing tool with equivalent breadth"
+    },
+    {
+      "id": "D-02",
+      "question": "How to distribute the cowork binary?",
+      "verdict": "ADOPT",
+      "choice": "GitHub Releases (pre-built) with cargo build fallback",
+      "confidence": 0.90,
+      "rationale": "crates.io naming conflict with upstream; matches gitleaks precedent; avoids 2-3 GB disk cost"
+    },
+    {
+      "id": "D-03",
+      "question": "How to register OpenCode plugin?",
+      "verdict": "BUILD",
+      "choice": "Direct JSON write to ~/.opencode/opencode.json plugin[] array",
+      "confidence": 0.85,
+      "rationale": "Stable JSON schema; avoids fragile npx network dependency; 15 lines of code"
+    },
+    {
+      "id": "D-04",
+      "question": "How to wire Codex MCP config?",
+      "verdict": "BUILD",
+      "choice": "Idempotent TOML writer for ~/.codex/config.toml",
+      "confidence": 0.90,
+      "rationale": "Same pattern as Kimi configure_kimi_mcp(); portable; no network dependency"
+    },
+    {
+      "id": "D-05",
+      "question": "How to implement prometheus-pack awareness in cowork?",
+      "verdict": "BUILD",
+      "choice": "cowork pack subcommand shelling out to install-skills-flat.sh",
+      "confidence": 0.88,
+      "rationale": "Bash script is authoritative; avoid reimplementing 400-line install logic in Rust"
+    },
+    {
+      "id": "D-06",
+      "question": "How to integrate disk-space-guardian?",
+      "verdict": "BUILD",
+      "choice": "cowork disk stub that delegates to dsg binary (graceful degradation)",
+      "confidence": 0.95,
+      "rationale": "dsg does not exist yet; stub with clear install instructions is the only safe approach"
+    }
+  ],
+  "platform_map": {
+    "zed": {
+      "install_path": "~/.config/zed/skills/",
+      "fallback_path": "~/.zed/skills/",
+      "install_method": "symlink",
+      "mcp_config": null,
+      "detection": "parent dir existence (~/.config/zed/ or ~/.zed/)",
+      "format": "SKILL.md only, no manifest",
+      "status": "ADD_TO_AGENTS_RS"
+    },
+    "kimi-code": {
+      "install_path": "~/.kimi-code/skills/",
+      "install_method": "symlink",
+      "mcp_config": "~/.kimi-code/config.toml",
+      "mcp_format": "TOML [mcp_servers.*]",
+      "detection": "~/.kimi-code/ dir existence",
+      "status": "ADD_TO_AGENTS_RS"
+    },
+    "kimi-desktop": {
+      "install_path": "~/Library/Application Support/kimi-desktop/daimon-share/daimon/skills/",
+      "install_method": "symlink (absolute path required)",
+      "mcp_config": "~/Library/Application Support/kimi-desktop/daimon-share/daimon/runtime/kimi-code/config.toml",
+      "detection": "~/Library/Application Support/kimi-desktop/ dir existence",
+      "os_guard": "macOS only",
+      "status": "ADD_TO_AGENTS_RS"
+    },
+    "minimax-code": {
+      "install_path": "~/.minimax/skills/",
+      "install_method": "copy + _meta.json",
+      "mcp_config": "~/.minimax/mcp/mcp.json",
+      "detection": "~/.minimax/ OR ~/Library/Application Support/MiniMax Agent/",
+      "status": "UPDATE_DETECTION_ONLY"
+    },
+    "minimax-desktop": {
+      "install_path": "~/.minimax/skills/",
+      "install_method": "shared with minimax-code",
+      "detection": "~/Library/Application Support/MiniMax Agent/",
+      "status": "COVERED_BY_MINIMAX_ENTRY"
+    },
+    "mmx-cli": {
+      "status": "OUT_OF_SCOPE",
+      "reason": "mmx binary is a media-generation tool with no skill/plugin system"
+    }
+  },
+  "rust_dependencies": {
+    "new_deps_needed": false,
+    "existing_deps_sufficient": ["toml@0.8", "serde_json@1", "walkdir@2", "sha2@0.10", "dirs (via std::env::home_dir)"],
+    "ci_new_tools": ["cargo-dist (release workflow)", "cross (Linux cross-compilation)"]
+  },
+  "changes": [
+    {"id": "change-001", "wave": 1, "title": "Clone fork + Zed agent entry", "parallel": false},
+    {"id": "change-002", "wave": 1, "title": "Kimi Code CLI + Kimi Desktop agents", "parallel": false},
+    {"id": "change-003", "wave": 1, "title": "MiniMax detection update + MMX scope doc", "parallel": false},
+    {"id": "change-004", "wave": 2, "title": "Claude Code plugins install from git URL", "parallel": true},
+    {"id": "change-005", "wave": 2, "title": "Codex TOML config writer + templates", "parallel": true},
+    {"id": "change-006", "wave": 2, "title": "OpenCode JSON plugin registration", "parallel": true},
+    {"id": "change-007", "wave": 3, "title": "cowork pack subcommand", "parallel": false},
+    {"id": "change-008", "wave": 3, "title": "cowork toolchain subcommand", "parallel": false},
+    {"id": "change-009", "wave": 3, "title": "cowork disk stub subcommand", "parallel": false},
+    {"id": "change-010", "wave": 4, "title": "GitHub Releases CI/CD workflow", "parallel": true},
+    {"id": "change-011", "wave": 4, "title": "install_cowork() in install-binaries.sh", "parallel": true},
+    {"id": "change-012", "wave": 4, "title": "SKILL.md + CLAUDE.md documentation", "parallel": true}
+  ]
+}

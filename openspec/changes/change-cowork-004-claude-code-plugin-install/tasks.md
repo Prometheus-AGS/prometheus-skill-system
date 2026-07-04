@@ -1,0 +1,21 @@
+# Tasks: change-cowork-004-claude-code-plugin-install
+
+- [x] Add `PluginManifest` struct (name, version, skills, license) to plugins.rs
+- [x] Implement `validate_plugin_manifest(path) -> Result<PluginManifest>` in plugins.rs
+- [x] Implement `execute_install_plugin(git_url, scope) -> Result<()>` in plugins.rs
+  - [x] git clone to temp dir via std::process::Command
+  - [x] discover .claude-plugin/plugin.json; fall back to plugin.json at repo root
+  - [x] validate manifest (required fields: name, version, skills, license)
+  - [x] copy plugin to ~/.claude/<plugin-name>/ (or .claude/<name>/ for project scope)
+  - [x] get HEAD commit sha via `git rev-parse HEAD`
+  - [x] register in installed_plugins.json (idempotent: update if sha differs)
+  - [x] add to settings.json enabledPlugins (idempotent)
+  - [x] print installed skill paths
+- [x] Add `Install` variant to `PluginsAction` enum in main.rs
+- [x] Add dispatch arm `PluginsAction::Install` → `execute_install_plugin` in main.rs
+- [x] Add unit tests for `validate_plugin_manifest` (valid + missing-field cases)
+- [x] Add unit tests for idempotent JSON merge in installed_plugins
+- [x] Run `cargo build --release` from `cli/` — must exit 0
+- [x] Run `cargo test` from `cli/` — all tests must pass (15/15)
+- [x] Commit to cowork-skills fork
+- [x] Mark proposal status: done
