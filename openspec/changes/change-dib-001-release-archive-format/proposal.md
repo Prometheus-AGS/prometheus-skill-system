@@ -1,6 +1,6 @@
 # change-dib-001-release-archive-format
 
-**Status**: pending
+**Status**: done
 
 ## Summary
 

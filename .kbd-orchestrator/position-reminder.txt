@@ -1,10 +1,10 @@
 POSITION REMINDER — read this as your FIRST tool call every turn
 Phase: phase-dsg-install-binaries-fix
-Step: 0 of 2
+Step: 1 of 2
 Stage: execute
-Next command: /kbd-apply change-dib-001-release-archive-format
+Next command: /kbd-apply change-dib-002-e2e-verify
 
 Required signal format (emit BEFORE any tool call):
-  Starting <kbd-skill> — phase-dsg-install-binaries-fix (step 0 of 2)
+  Starting <kbd-skill> — phase-dsg-install-binaries-fix (step 1 of 2)
   [do work]
-  Completed <kbd-skill> — phase-dsg-install-binaries-fix (step 0 of 2)
+  Completed <kbd-skill> — phase-dsg-install-binaries-fix (step 1 of 2)
