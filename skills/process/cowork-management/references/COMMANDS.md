@@ -242,6 +242,100 @@ cowork opencode-config
 
 ---
 
+## Updating the Skill Pack
+
+There are three update scenarios depending on what changed.
+
+### Skills-only update (skill content, no binary change)
+
+Use this when a new commit only modifies skill files — no Rust code changed.
+
+```bash
+cowork pack update
+```
+
+Equivalent to:
+```bash
+git -C "$(cowork pack status --root)" pull --recurse-submodules
+bash "$(cowork pack status --root)/scripts/install-skills-flat.sh"
+```
+
+This re-installs skill symlinks and MCP configs to all detected platforms.
+It does **not** rebuild the `cowork` binary.
+
+### Full update (binary + skills)
+
+Use this after a new tagged release (e.g. `v0.2.0`) that includes Rust changes.
+This is the two-step sequence required to pick up a new `cowork` binary:
+
+```bash
+# Step 1: pull latest code + submodule pointers
+git -C ~/Projects/prometheus/prometheus-skill-pack pull --recurse-submodules
+
+# Step 2a: rebuild and install the cowork binary (and dsg if present)
+bash scripts/install-binaries.sh
+
+# Step 2b: re-install skill symlinks + MCP configs
+bash scripts/install-skills-flat.sh
+```
+
+Or via cowork itself (after a binary update is already installed):
+```bash
+cowork pack repair     # re-link skills; does not rebuild binary
+```
+
+**Why two steps?** `cowork pack update` shells to `install-skills-flat.sh`,
+which handles symlinks but does not rebuild Rust binaries. A new tagged
+release always requires running `install-binaries.sh` explicitly.
+
+### Smoke test after a full update
+
+After installing a new binary, verify the three commands:
+
+```
+$ cowork --version
+cowork 0.2.0
+
+$ cowork pack status
+Prometheus Skill-Pack Status
+  Root:    /Users/…/prometheus-skill-pack
+  Version: 1.5.0
+
+Installed skills per platform:
+  Platform       Skills directory         Count
+  claude-code    .claude/skills           299
+  kimi           .kimi-code/skills        125
+  minimax        .minimax/skills          153
+  opencode       .opencode                19
+  codex          .codex                   28
+  cursor         .cursor/skills           171
+
+$ cowork toolchain status
+Prometheus Toolchain Status
+  … (Core Tools / Rust Toolchain / AI Platform CLIs / Prometheus Binaries / MCP Services)
+```
+
+If `cowork pack status` shows 0 skills on any platform, run
+`cowork pack repair` to re-create symlinks.
+If `cowork --version` still reports the old version, verify that
+`~/.local/bin` precedes `/usr/local/bin` in your PATH (or wherever
+the old binary was installed).
+
+### Binary-only reinstall (repair a broken cowork install)
+
+Use this when the `cowork` binary is missing or corrupted but skills are fine.
+
+```bash
+bash scripts/install-binaries.sh
+```
+
+`install-binaries.sh` uses Path A (build from `tools/cowork-skills/cli/`
+when the submodule is present) or falls back to Path B (download from
+GitHub Releases). After it completes, `cowork --version` should report
+the expected version.
+
+---
+
 ## Environment variables
 
 | Variable | Effect |
