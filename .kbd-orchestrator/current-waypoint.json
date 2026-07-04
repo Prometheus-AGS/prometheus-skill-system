@@ -3,15 +3,15 @@
   "previousPhase": "phase-ci-cross-model-qa-and-hardening",
   "status": "execute_ready",
   "stage": "execute",
-  "changes_completed": 19,
+  "changes_completed": 20,
   "changes_total": 24,
   "goals_met": 0,
   "goals_total": 5,
   "sycophancy_gate": null,
-  "next_command": "/kbd-apply change-int-003",
-  "exactNextCommand": "/kbd-apply change-int-003",
+  "next_command": "/kbd-apply change-int-004",
+  "exactNextCommand": "/kbd-apply change-int-004",
   "parallelStart": null,
   "recommendedNextPhase": null,
-  "currentTask": "change-int-002 DONE (tools/disk-space-guardian/.claude-plugin/plugin.json created, dsg entry added to .claude-plugin/marketplace.json). Next: change-int-003 (dsg agentskills.io SKILL.md).",
-  "updatedAt": "2026-07-04T15:00:00Z"
+  "currentTask": "change-int-003 DONE (skills/devops/disk-space-guardian/SKILL.md + references/SAFETY.md + references/ECOSYSTEMS.md created, validate:strict passed). Next: change-int-004 (dsg OpenCode + Codex plugin artifacts).",
+  "updatedAt": "2026-07-04T16:00:00Z"
 }
