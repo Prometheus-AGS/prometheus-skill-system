@@ -1,17 +1,17 @@
 {
   "phase": "phase-dsg-install-binaries-fix",
   "previousPhase": "phase-dsg-cli-foundation",
-  "status": "assessment_ready",
-  "stage": "assess",
+  "status": "assess_complete",
+  "stage": "plan",
   "changes_completed": 0,
-  "changes_total": 0,
-  "goals_met": 0,
+  "changes_total": 2,
+  "goals_met": 2,
   "goals_total": 4,
   "sycophancy_gate": null,
-  "next_command": "/kbd-assess phase-dsg-install-binaries-fix",
-  "exactNextCommand": "/kbd-assess phase-dsg-install-binaries-fix",
+  "next_command": "/kbd-plan phase-dsg-install-binaries-fix",
+  "exactNextCommand": "/kbd-plan phase-dsg-install-binaries-fix",
   "parallelStart": null,
   "recommendedNextPhase": null,
-  "currentTask": "New phase created. Assess install-binaries.sh install_dsg() Path A target path and confirm v0.1.0 release CI matrix.",
-  "updatedAt": "2026-07-04T00:55:00Z"
+  "currentTask": "G-01/G-02 pre-done (Path A correct). Real gap: Path B archive naming mismatch — release.yml uploads bare binaries but install script expects versioned tar.gz. 2 changes needed.",
+  "updatedAt": "2026-07-04T01:10:00Z"
 }
