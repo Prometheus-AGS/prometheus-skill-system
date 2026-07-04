@@ -1,0 +1,15 @@
+{
+  "phase": "phase-dsg-install-binaries-fix",
+  "status": "assessment_ready",
+  "stage": "assess",
+  "goals_total": 4,
+  "goals_met": 0,
+  "changes_total": 0,
+  "changes_completed": 0,
+  "assessment_complete": false,
+  "analysis_complete": false,
+  "plan_complete": false,
+  "sycophancy_gate": null,
+  "createdAt": "2026-07-04T00:55:00Z",
+  "updatedAt": "2026-07-04T00:55:00Z"
+}

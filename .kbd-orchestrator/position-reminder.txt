@@ -1,10 +1,10 @@
 POSITION REMINDER — read this as your FIRST tool call every turn
-Phase: phase-dsg-cli-foundation
-Step: 0 of 3
-Stage: execute
-Next command: /kbd-apply change-dsg-002-push-tag
+Phase: phase-dsg-install-binaries-fix
+Step: 0 of 0
+Stage: assess
+Next command: /kbd-assess phase-dsg-install-binaries-fix
 
 Required signal format (emit BEFORE any tool call):
-  Starting <kbd-skill> — phase-dsg-cli-foundation (step 0 of 3)
+  Starting <kbd-skill> — phase-dsg-install-binaries-fix (step 0 of 0)
   [do work]
-  Completed <kbd-skill> — phase-dsg-cli-foundation (step 0 of 3)
+  Completed <kbd-skill> — phase-dsg-install-binaries-fix (step 0 of 0)
