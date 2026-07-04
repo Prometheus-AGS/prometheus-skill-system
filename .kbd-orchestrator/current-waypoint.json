@@ -3,15 +3,15 @@
   "previousPhase": "cowork-integration",
   "status": "in_progress",
   "stage": "execute",
-  "changes_completed": 1,
+  "changes_completed": 2,
   "changes_total": 3,
   "goals_met": 0,
   "goals_total": 4,
   "sycophancy_gate": null,
-  "next_command": "/kbd-apply change-push-002-submodule-pointer",
-  "exactNextCommand": "/kbd-apply change-push-002-submodule-pointer",
+  "next_command": "/kbd-apply change-push-003-docs-smoke-test",
+  "exactNextCommand": "/kbd-apply change-push-003-docs-smoke-test",
   "parallelStart": null,
   "recommendedNextPhase": "phase-dsg-cli-foundation",
-  "currentTask": "change-push-001 DONE (v0.2.0 tagged + pushed). Execute change-push-002: advance tools/cowork-skills submodule pointer to v0.2.0",
-  "updatedAt": "2026-07-04T22:30:00Z"
+  "currentTask": "change-push-002 DONE (submodule pointer 53e6b31→77edcf8). Execute change-push-003: doc smooth update flow + smoke test cowork v0.2.0",
+  "updatedAt": "2026-07-04T22:45:00Z"
 }

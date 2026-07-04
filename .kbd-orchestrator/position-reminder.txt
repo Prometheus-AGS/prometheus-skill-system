@@ -1,10 +1,10 @@
 POSITION REMINDER — read this as your FIRST tool call every turn
 Phase: phase-cowork-push-and-release
-Step: 1 of 3
+Step: 2 of 3
 Stage: execute
-Next command: /kbd-apply change-push-002-submodule-pointer
+Next command: /kbd-apply change-push-003-docs-smoke-test
 
 Required signal format (emit BEFORE any tool call):
-  Starting <kbd-skill> — phase-cowork-push-and-release (step 1 of 3)
+  Starting <kbd-skill> — phase-cowork-push-and-release (step 2 of 3)
   [do work]
-  Completed <kbd-skill> — phase-cowork-push-and-release (step 1 of 3)
+  Completed <kbd-skill> — phase-cowork-push-and-release (step 2 of 3)
