@@ -1,6 +1,6 @@
 # change-dsg-004-submodule-install
 
-**Status**: pending
+**Status**: done
 
 ## Summary
 
