@@ -6,7 +6,7 @@ priority: P1
 effort: M
 wave: 4
 agent: general-purpose
-status: in_progress
+status: done
 gap_id: G-05-cowork
 verdict: BUILD
 scope:

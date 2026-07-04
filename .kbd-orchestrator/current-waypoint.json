@@ -3,15 +3,15 @@
   "previousPhase": "phase-ci-cross-model-qa-and-hardening",
   "status": "execute_ready",
   "stage": "execute",
-  "changes_completed": 15,
+  "changes_completed": 17,
   "changes_total": 24,
   "goals_met": 0,
   "goals_total": 5,
   "sycophancy_gate": null,
-  "next_command": "/kbd-apply change-cowork-011",
-  "exactNextCommand": "/kbd-apply change-cowork-011",
+  "next_command": "/kbd-apply change-int-001",
+  "exactNextCommand": "/kbd-apply change-int-001",
   "parallelStart": null,
   "recommendedNextPhase": null,
-  "currentTask": "change-cowork-010 DONE (ci.yml + release.yml: 4-target cross-platform, commit f0f695a). Next: change-cowork-011 (install_cowork() in install-binaries.sh).",
-  "updatedAt": "2026-07-04T12:30:00Z"
+  "currentTask": "change-cowork-012 DONE (skills/process/cowork-management/SKILL.md + references/COMMANDS.md, marketplace.json entry, CLAUDE.md Essential Commands update). Next: change-int-001 (dsg git submodule + .gitmodules).",
+  "updatedAt": "2026-07-04T14:00:00Z"
 }

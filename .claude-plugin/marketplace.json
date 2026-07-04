@@ -114,6 +114,26 @@
         "deploy"
       ],
       "category": "productivity"
+    },
+    {
+      "name": "cowork-management",
+      "description": "Install, update, and manage AI coding agent skills across 20+ platforms using the cowork CLI. Covers Claude Code, Codex, OpenCode, Kimi Code, Zed, Cursor, Windsurf, GitHub Copilot, and more. Manages prometheus-skill-pack updates, toolchain health, and disk-space reclamation via dsg.",
+      "source": "./skills/process/cowork-management",
+      "version": "1.0.0",
+      "tags": [
+        "cli",
+        "skill-management",
+        "cowork",
+        "install",
+        "platform",
+        "toolchain",
+        "prometheus",
+        "codex",
+        "opencode",
+        "kimi",
+        "zed"
+      ],
+      "category": "productivity"
     }
   ]
 }

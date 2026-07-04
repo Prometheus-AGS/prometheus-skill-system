@@ -93,7 +93,45 @@ expand_neighbors(entityName)
 
 ## Essential Commands
 
-### Cross-Platform Installation
+### Skill-Pack Management (cowork CLI — preferred)
+
+The `cowork` CLI (alias: `co`) is the primary utility for installing, updating,
+and repairing the prometheus-skill-pack across all platforms. It is installed by
+`scripts/install-binaries.sh` to `~/.local/bin/cowork`.
+
+```bash
+# Install pack to all detected platforms on a new machine
+cowork install --source .
+
+# Check skill-pack status (git HEAD, platform links, symlink health)
+cowork pack status
+
+# Pull latest commits + re-install to all platforms
+cowork pack update
+
+# Repair broken symlinks / stale platform configs
+cowork pack repair
+
+# Check toolchain health (Rust, Node, git, cargo-dist)
+cowork toolchain status
+
+# Scan for reclaimable build artifacts (delegates to dsg)
+cowork disk scan
+
+# Clean stale artifacts (PREVIEW only — use --force to actually trash)
+cowork disk clean --dry-run
+cowork disk clean --force   # moves to system Trash
+
+# Full health check + auto-fix suggestions
+cowork doctor
+```
+
+See [`skills/process/cowork-management/SKILL.md`](skills/process/cowork-management/SKILL.md) for the full cowork guide
+and [`skills/process/cowork-management/references/COMMANDS.md`](skills/process/cowork-management/references/COMMANDS.md) for the complete command reference.
+
+---
+
+### Cross-Platform Installation (shell scripts — lower-level)
 
 ```bash
 # Install skills to ALL detected platforms (Claude Code, Kimi, MiniMax, OpenCode, Codex, Cursor, etc.)
