@@ -29,7 +29,7 @@ NEXT_PENDING="none"
 
 if [[ -n "$WAYPOINT" && -f "$WAYPOINT" ]]; then
   PHASE=$(jq -r '.phase // "unknown"' "$WAYPOINT" 2>/dev/null) || PHASE="unknown"
-  STAGE=$(jq -r '.stage // "unknown"' "$WAYPOINT" 2>/dev/null) || STAGE="unknown"
+  STAGE=$(jq -r '.stage // .status // "unknown"' "$WAYPOINT" 2>/dev/null) || STAGE="unknown"
   LAST_COMPLETED=$(jq -r '.last_completed // "none"' "$WAYPOINT" 2>/dev/null) || LAST_COMPLETED="none"
   CHANGES_DONE=$(jq -r '.changes_completed // 0' "$WAYPOINT" 2>/dev/null) || CHANGES_DONE="0"
   CHANGES_TOTAL=$(jq -r '.changes_total // 0' "$WAYPOINT" 2>/dev/null) || CHANGES_TOTAL="0"

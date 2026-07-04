@@ -58,7 +58,7 @@ if [[ -n "$INPUT" ]] && command -v jq >/dev/null 2>&1; then
 fi
 
 PHASE=$(jq -r '.phase // "unknown"' "$WAYPOINT" 2>/dev/null) || PHASE="unknown"
-STAGE=$(jq -r '.stage // "unknown"' "$WAYPOINT" 2>/dev/null) || STAGE="unknown"
+STAGE=$(jq -r '.stage // .status // "unknown"' "$WAYPOINT" 2>/dev/null) || STAGE="unknown"
 NEXT_CMD=$(jq -r '.exact_next_command // .exactNextCommand // "unknown"' "$WAYPOINT" 2>/dev/null) || NEXT_CMD="unknown"
 CHANGES_COMPLETED=$(jq -r '.changes_completed // 0' "$WAYPOINT" 2>/dev/null) || CHANGES_COMPLETED=0
 CHANGES_TOTAL=$(jq -r '.changes_total // 0' "$WAYPOINT" 2>/dev/null) || CHANGES_TOTAL=0
