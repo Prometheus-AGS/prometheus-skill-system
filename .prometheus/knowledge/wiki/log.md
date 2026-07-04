@@ -1,6 +1,8 @@
 # Update Log
 
 ## 2026-07-03
+* **Creation**: [HTMX Layout: Grid + Fixed Position Trap](/htmx-layout-grid-fixed-position-trap.md)
+* **Creation**: [Orchestrator Lessons: Read Before Build](/orchestrator-lessons-read-before-build.md)
 * **Creation**: [Prometheus Deep Research Skill — Master Specification](/prometheus-deep-research-skill-master-spec.md)
 * **Creation**: [Deep Research Skill Landscape](/deep-research-skill-landscape.md)
 * **Creation**: [Skill Platform Specifications](/skill-platform-specifications.md)

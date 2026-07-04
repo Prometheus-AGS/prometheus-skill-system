@@ -1,5 +1,8 @@
 # Wiki Index
 
+* [HTMX Layout: Grid + Fixed Position Trap](/htmx-layout-grid-fixed-position-trap.md)
+* [Orchestrator Lessons: Read Before Build](/orchestrator-lessons-read-before-build.md)
+
 ## Reference
 
 * [Prometheus Deep Research Skill — Master Specification](/prometheus-deep-research-skill-master-spec.md)
