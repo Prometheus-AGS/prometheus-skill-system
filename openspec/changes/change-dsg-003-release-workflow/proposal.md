@@ -1,6 +1,6 @@
 # change-dsg-003-release-workflow
 
-**Status**: pending
+**Status**: done
 
 ## Summary
 

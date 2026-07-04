@@ -3,15 +3,15 @@
   "previousPhase": "phase-cowork-push-and-release",
   "status": "plan_complete",
   "stage": "execute",
-  "changes_completed": 1,
+  "changes_completed": 2,
   "changes_total": 3,
   "goals_met": 0,
   "goals_total": 5,
   "sycophancy_gate": null,
-  "next_command": "/kbd-apply change-dsg-003-release-workflow",
-  "exactNextCommand": "/kbd-apply change-dsg-003-release-workflow",
+  "next_command": "/kbd-apply change-dsg-004-submodule-install",
+  "exactNextCommand": "/kbd-apply change-dsg-004-submodule-install",
   "parallelStart": null,
   "recommendedNextPhase": null,
-  "currentTask": "change-dsg-002-push-tag DONE: release.yml committed, 6 commits pushed to origin/main, v0.1.0 tag at 8fd28d4.",
-  "updatedAt": "2026-07-04T00:20:00Z"
+  "currentTask": "change-dsg-003-release-workflow DONE: CI run 28714222694 queued (workflow ID 307200347), COMMANDS.md updated with Path B artifact URLs.",
+  "updatedAt": "2026-07-04T00:30:00Z"
 }
