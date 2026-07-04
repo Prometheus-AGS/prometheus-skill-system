@@ -3,15 +3,15 @@
   "previousPhase": "phase-ci-cross-model-qa-and-hardening",
   "status": "execute_ready",
   "stage": "execute",
-  "changes_completed": 21,
+  "changes_completed": 22,
   "changes_total": 24,
   "goals_met": 0,
   "goals_total": 5,
   "sycophancy_gate": null,
-  "next_command": "/kbd-apply change-int-005",
-  "exactNextCommand": "/kbd-apply change-int-005",
+  "next_command": "/kbd-apply change-int-006",
+  "exactNextCommand": "/kbd-apply change-int-006",
   "parallelStart": null,
   "recommendedNextPhase": null,
-  "currentTask": "change-int-004 DONE (.opencode/package.json + .codex/config.toml added to dsg submodule at 852ab4c; submodule pointer updated in skill-pack). Next: change-int-005 (install_dsg + CLAUDE.md).",
-  "updatedAt": "2026-07-04T17:00:00Z"
+  "currentTask": "change-int-005 DONE (install_dsg() added to install-binaries.sh; dsg direct commands added to CLAUDE.md; cowork+dsg added to detect-toolchain.sh). Next: change-int-006 (cowork submodule add + cross-platform config).",
+  "updatedAt": "2026-07-04T18:00:00Z"
 }

@@ -129,6 +129,34 @@ cowork doctor
 See [`skills/process/cowork-management/SKILL.md`](skills/process/cowork-management/SKILL.md) for the full cowork guide
 and [`skills/process/cowork-management/references/COMMANDS.md`](skills/process/cowork-management/references/COMMANDS.md) for the complete command reference.
 
+#### Direct dsg commands (disk-space-guardian CLI)
+
+```bash
+# Show disk space summary (reclaimable by ecosystem)
+dsg status
+
+# Scan all ecosystems for stale artifacts
+dsg scan
+
+# Deep scan — recurse into all home subdirectories
+dsg scan --deep
+
+# Preview what would be cleaned (dry-run, never deletes)
+dsg clean --dry-run
+
+# Actually clean (moves to system Trash — recoverable)
+dsg clean --force
+
+# Clean one ecosystem only
+dsg clean --force --ecosystem rust
+dsg clean --force --ecosystem node
+
+# JSON output — pipe to pk ingest or log aggregator
+dsg scan --json
+```
+
+See [`skills/devops/disk-space-guardian/SKILL.md`](skills/devops/disk-space-guardian/SKILL.md) for full documentation and safety rules.
+
 ---
 
 ### Cross-Platform Installation (shell scripts — lower-level)

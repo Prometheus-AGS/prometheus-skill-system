@@ -209,6 +209,81 @@ install_cowork() {
 
 install_cowork
 
+# ── 9. dsg (disk-space-guardian — safe build cache cleanup) ──────────────────
+# Two-path install:
+#   Path A (preferred): source build from tools/disk-space-guardian submodule
+#   Path B (fallback):  download pre-built binary from GitHub Releases
+install_dsg() {
+    local dsg_dir="${REPO_ROOT}/tools/disk-space-guardian"
+
+    if [ -f "${dsg_dir}/Cargo.toml" ]; then
+        # Path A — source build
+        info "Building dsg from source (tools/disk-space-guardian)..."
+        (cd "${dsg_dir}" && cargo build --release 2>&1 | tail -3)
+        local dsg_bin
+        dsg_bin="$(find "${dsg_dir}/target/release" -maxdepth 1 -name "dsg" -type f 2>/dev/null | head -1)"
+        if [ -n "${dsg_bin}" ]; then
+            install_bin "${dsg_bin}" "${BIN_DIR}/dsg"
+            ok "dsg → ${BIN_DIR}/dsg"
+            return
+        else
+            fail "dsg binary not found after source build; falling through to download"
+        fi
+    fi
+
+    # Path B — download from GitHub Releases
+    info "dsg source not present or build failed; downloading from GitHub Releases..."
+    local os arch target archive_ext
+    os="$(uname -s)"
+    arch="$(uname -m)"
+
+    case "${os}-${arch}" in
+        Darwin-arm64)   target="aarch64-apple-darwin";        archive_ext="tar.gz" ;;
+        Darwin-x86_64)  target="x86_64-apple-darwin";         archive_ext="tar.gz" ;;
+        Linux-x86_64)   target="x86_64-unknown-linux-musl";   archive_ext="tar.gz" ;;
+        MINGW*|MSYS*|Windows*) target="x86_64-pc-windows-msvc"; archive_ext="zip" ;;
+        *)
+            fail "Unsupported platform ${os}-${arch} for dsg download; run: cd tools/disk-space-guardian && cargo build --release"
+            return
+            ;;
+    esac
+
+    local version
+    version="$(curl -fsL -o /dev/null -w '%{url_effective}' \
+        "https://github.com/GQAdonis/disk-space-guardian/releases/latest" \
+        | sed 's|.*/tag/v||')" || version="latest"
+
+    local archive="dsg-${version}-${target}.${archive_ext}"
+    local download_url="https://github.com/GQAdonis/disk-space-guardian/releases/latest/download/${archive}"
+    local tmp_dir
+    tmp_dir="$(mktemp -d)"
+
+    info "Downloading ${archive} from GitHub Releases..."
+    if ! curl -fsL "${download_url}" -o "${tmp_dir}/${archive}"; then
+        fail "Failed to download ${download_url}; run: git submodule update --init tools/disk-space-guardian && cd tools/disk-space-guardian && cargo build --release"
+        rm -rf "${tmp_dir}"
+        return
+    fi
+
+    if [ "${archive_ext}" = "tar.gz" ]; then
+        tar -C "${tmp_dir}" -xzf "${tmp_dir}/${archive}"
+        local extracted_bin
+        extracted_bin="$(find "${tmp_dir}" -name "dsg" -type f | head -1)"
+        if [ -n "${extracted_bin}" ]; then
+            install_bin "${extracted_bin}" "${BIN_DIR}/dsg"
+            ok "dsg → ${BIN_DIR}/dsg (downloaded)"
+        else
+            fail "dsg binary not found in archive"
+        fi
+    else
+        fail "zip extraction on Windows: run scripts/install-binaries.ps1 instead"
+    fi
+
+    rm -rf "${tmp_dir}"
+}
+
+install_dsg
+
 echo ""
 echo "✨ All binaries installed to ${BIN_DIR}"
 echo "   Next: bash scripts/install-mcp-services.sh   # (re)install + start launchd/systemd daemons"

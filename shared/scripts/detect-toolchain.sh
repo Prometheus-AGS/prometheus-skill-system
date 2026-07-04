@@ -140,6 +140,8 @@ check "prometheus"               "prometheus"               "prometheus --versio
 check "prometheus-rust-auditor"  "prometheus-rust-auditor"  "prometheus-rust-auditor --version 2>/dev/null | head -1"
 check "sycophancy-correction"    "sycophancy-correction"    "sycophancy-correction --version 2>/dev/null | head -1"
 check "learner-model"            "learner-model"            "learner-model --version 2>/dev/null | head -1"
+check "cowork"                   "cowork"                   "cowork --version 2>/dev/null | head -1"
+check "dsg"                      "dsg"                      "dsg --version 2>/dev/null | head -1"
 
 # ── MCP services (HTTP reachability) ─────────────────────────────────────────
 check_http "surreal-memory"          "http://localhost:23001/health"
@@ -167,7 +169,7 @@ fi
 if $JSON_MODE; then
     echo "{"
     first=true
-    for key in node npm git rustc cargo rustup go docker kimi mmx claude forge pk liter-llm prometheus prometheus-rust-auditor sycophancy-correction learner-model surreal-memory forge-rs prometheus-knowledge surface-bridge sovereign-sync-daemon wasm32; do
+    for key in node npm git rustc cargo rustup go docker kimi mmx claude forge pk liter-llm prometheus prometheus-rust-auditor sycophancy-correction learner-model cowork dsg surreal-memory forge-rs prometheus-knowledge surface-bridge sovereign-sync-daemon wasm32; do
         [[ -n "${STATUS[$key]:-}" ]] || continue
         $first || echo ","
         first=false
@@ -227,6 +229,8 @@ else
     item "prometheus-rust-auditor" "prometheus-rust-auditor"
     item "sycophancy-correction"   "sycophancy-correction"
     item "learner-model"  "learner-model (learn substrate)"  "cd substrate/learner-model && cargo build --release"
+    item "cowork"         "cowork (skill manager)"           "bash scripts/install-binaries.sh"
+    item "dsg"            "dsg (disk-space-guardian)"        "bash scripts/install-binaries.sh"
 
     section "MCP Services (HTTP)"
     item "surreal-memory"       "surreal-memory (:23001)" "start: cd tools/surreal-memory-server && docker compose up -d"
