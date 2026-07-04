@@ -1,17 +1,17 @@
 {
   "phase": "cowork-integration",
   "previousPhase": "phase-ci-cross-model-qa-and-hardening",
-  "status": "execute_complete",
-  "stage": "reflect",
+  "status": "reflect_complete",
+  "stage": "complete",
   "changes_completed": 24,
   "changes_total": 24,
-  "goals_met": 0,
+  "goals_met": 4,
   "goals_total": 5,
-  "sycophancy_gate": null,
-  "next_command": "/kbd-reflect cowork-integration",
-  "exactNextCommand": "/kbd-reflect cowork-integration",
+  "sycophancy_gate": "passed",
+  "next_command": "/kbd-new-phase phase-cowork-push-and-release",
+  "exactNextCommand": "/kbd-new-phase phase-cowork-push-and-release",
   "parallelStart": null,
-  "recommendedNextPhase": null,
-  "currentTask": "change-int-007 DONE (validate:strict 124 skills pass, CI updated with tool-submodules job, npm build clean). All 24/24 changes complete. Execute stage CLOSED.",
-  "updatedAt": "2026-07-04T20:00:00Z"
+  "recommendedNextPhase": "phase-cowork-push-and-release",
+  "currentTask": "REFLECT COMPLETE. 4/5 goals MET. G-05 PARTIAL: cowork-skills 10 commits unpushed. Next: push commits, advance submodule pointer, then phase-dsg-cli-foundation.",
+  "updatedAt": "2026-07-04T20:30:00Z"
 }

@@ -1,8 +1,8 @@
 POSITION REMINDER — read this as your FIRST tool call every turn
 Phase: cowork-integration
 Step: 24 of 24
-Stage: reflect
-Next command: /kbd-reflect cowork-integration
+Stage: complete
+Next command: /kbd-new-phase phase-cowork-push-and-release
 
 Required signal format (emit BEFORE any tool call):
   Starting <kbd-skill> — cowork-integration (step 24 of 24)
