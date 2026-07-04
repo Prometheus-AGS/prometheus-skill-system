@@ -3,6 +3,8 @@
 * [HTMX Layout: Grid + Fixed Position Trap](/htmx-layout-grid-fixed-position-trap.md)
 * [Orchestrator Lessons: Read Before Build](/orchestrator-lessons-read-before-build.md)
 
+* [UI Architecture: Single-View vs Two-Zone Navigation](/ui-architecture-single-vs-two-zone.md)
+
 ## Reference
 
 * [Prometheus Deep Research Skill — Master Specification](/prometheus-deep-research-skill-master-spec.md)

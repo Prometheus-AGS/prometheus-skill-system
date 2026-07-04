@@ -56,3 +56,7 @@
 * **Creation**: [Flint Gate Agent Authorization Control Plane Execution Plan](/flint-gate-agent-authorization-control-plane-execution-plan.md)
 * **Creation**: [OKF LLM Wiki Adoption Executor Session Completion](/okf-llm-wiki-adoption-executor-session-completion.md)
 * **Creation**: [OKF LLM Wiki Adoption Phase Completion Status](/okf-llm-wiki-adoption-phase-completion-status.md)
+
+## 2026-07-04
+* **Creation**: [UI Architecture: Single-View vs Two-Zone Navigation](/ui-architecture-single-vs-two-zone.md)
+* **Analysis**: [Fable 5 UI Comparison](/fable5-comparison.md) — detailed comparison of Anthropic Fable 5's multi-tenancy redesign vs my approach
