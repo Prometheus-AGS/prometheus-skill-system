@@ -134,6 +134,23 @@
         "zed"
       ],
       "category": "productivity"
+    },
+    {
+      "name": "disk-space-guardian",
+      "description": "dsg CLI: safe, intelligent build-cache cleanup for Rust, Node, Python, Go, Docker, Xcode, and Homebrew. Defaults to dry-run; moves artifacts to system Trash rather than rm. Detects 7 ecosystems, verifies activity with lsof/fuser before any clean.",
+      "source": "./tools/disk-space-guardian",
+      "version": "1.0.0",
+      "tags": [
+        "disk",
+        "cache",
+        "cleanup",
+        "rust",
+        "devtools",
+        "devops",
+        "dsg",
+        "build-cache"
+      ],
+      "category": "devops"
     }
   ]
 }
