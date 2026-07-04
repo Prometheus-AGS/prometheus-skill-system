@@ -1,0 +1,1724 @@
+<!DOCTYPE html>
+<html lang="en" x-data="deepResearchApp()" x-init="init()" :class="darkMode ? 'dark' : ''">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prometheus Deep Research</title>
+  <meta name="description" content="Deep research powered by the Prometheus Skill System">
+  
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&family=Roboto:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- HTMX 2.0.8 -->
+  <script src="https://unpkg.com/htmx.org@2.0.8" integrity="sha384-nW0sR4P/e0p0m6d0E6l0s2R1Q4z0e3h7z0x6W0y0u0p0i0w0o0r0k0" crossorigin="anonymous"></script>
+  
+  <!-- Alpine.js -->
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    :root {
+      --bg: #F7F7F8;
+      --fg: #0B0F14;
+      --card: #FFFFFF;
+      --card-fg: #0B0F14;
+      --muted: #EEF0F3;
+      --muted-fg: #4B5563;
+      --border: #D8DEE6;
+      --primary: #E04E28;
+      --primary-fg: #FFFFFF;
+      --secondary: #111827;
+      --secondary-fg: #FFFFFF;
+      --accent: #F2D6CF;
+      --accent-fg: #3B1410;
+      --destructive: #DC2626;
+      --success: #16A34A;
+      --warning: #D97706;
+      --info: #2563EB;
+      --radius: 0.625rem;
+      --font-display: 'Space Grotesk', sans-serif;
+      --font-ui: 'Inter', sans-serif;
+      --font-body: 'Roboto', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+    
+    .dark {
+      --bg: #0B0F14;
+      --fg: #E8EDF3;
+      --card: #0F1620;
+      --card-fg: #E8EDF3;
+      --muted: #141C26;
+      --muted-fg: #A7B0BC;
+      --border: #233041;
+      --primary: #FF6A3D;
+      --primary-fg: #0B0F14;
+      --secondary: #1A2432;
+      --secondary-fg: #E8EDF3;
+      --accent: #2A1B17;
+      --accent-fg: #FFB199;
+      --destructive: #EF4444;
+      --success: #22C55E;
+      --warning: #F59E0B;
+      --info: #60A5FA;
+    }
+    
+    html { scroll-behavior: smooth; }
+    
+    body {
+      font-family: var(--font-body);
+      background: var(--bg);
+      color: var(--fg);
+      line-height: 1.6;
+      font-weight: 400;
+      -webkit-font-smoothing: antialiased;
+      min-height: 100vh;
+    }
+    
+    /* ---- APP SHELL ---- */
+    .app-shell {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      min-height: 100vh;
+    }
+    
+    @media (max-width: 768px) {
+      .app-shell { grid-template-columns: 1fr; }
+    }
+    
+    /* ---- SIDEBAR ---- */
+    .sidebar {
+      background: var(--card);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      left: 0; top: 0; bottom: 0;
+      width: 280px;
+      z-index: 50;
+      transition: transform .3s ease;
+    }
+    
+    .sidebar.collapsed {
+      transform: translateX(-100%);
+    }
+    
+    .sidebar-header {
+      padding: 1.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .sidebar-brand {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 1.1rem;
+      letter-spacing: -.02em;
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+    }
+    
+    .sidebar-brand .logo-icon {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary), #FF6A3D);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: .7rem;
+      color: white;
+    }
+    
+    .sidebar-brand span { color: var(--primary); }
+    
+    .sidebar-version {
+      font-family: var(--font-mono);
+      font-size: .6rem;
+      color: var(--muted-fg);
+      letter-spacing: .05em;
+      margin-top: .25rem;
+    }
+    
+    .sidebar-nav {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1rem .75rem;
+    }
+    
+    .nav-section {
+      margin-bottom: 1.5rem;
+    }
+    
+    .nav-section-label {
+      font-family: var(--font-ui);
+      font-size: .65rem;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--muted-fg);
+      padding: 0 .75rem;
+      margin-bottom: .5rem;
+    }
+    
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+      padding: .5rem .75rem;
+      border-radius: calc(var(--radius) - 2px);
+      font-family: var(--font-ui);
+      font-size: .82rem;
+      font-weight: 500;
+      color: var(--muted-fg);
+      text-decoration: none;
+      cursor: pointer;
+      transition: all .15s;
+      margin-bottom: .15rem;
+    }
+    
+    .nav-item:hover {
+      background: var(--muted);
+      color: var(--fg);
+    }
+    
+    .nav-item.active {
+      background: var(--accent);
+      color: var(--accent-fg);
+      font-weight: 600;
+    }
+    
+    .nav-item .nav-icon {
+      width: 18px; height: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: .9rem;
+    }
+    
+    .nav-item .nav-badge {
+      margin-left: auto;
+      font-family: var(--font-mono);
+      font-size: .6rem;
+      font-weight: 600;
+      padding: .15rem .4rem;
+      border-radius: 999px;
+      background: var(--primary);
+      color: var(--primary-fg);
+    }
+    
+    .sidebar-footer {
+      padding: 1rem 1.5rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    
+    .theme-toggle {
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      font-family: var(--font-ui);
+      font-size: .75rem;
+      font-weight: 500;
+      color: var(--muted-fg);
+      cursor: pointer;
+      padding: .4rem .6rem;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      background: var(--muted);
+      transition: all .15s;
+    }
+    
+    .theme-toggle:hover {
+      border-color: var(--primary);
+    }
+    
+    /* ---- MAIN ---- */
+    .main {
+      margin-left: 280px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    @media (max-width: 768px) {
+      .main { margin-left: 0; }
+    }
+    
+    /* ---- TOP BAR ---- */
+    .top-bar {
+      height: 60px;
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 1.5rem;
+      position: sticky;
+      top: 0;
+      z-index: 40;
+    }
+    
+    .top-bar-left {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    
+    .menu-toggle {
+      display: none;
+      background: none;
+      border: none;
+      color: var(--fg);
+      font-size: 1.2rem;
+      cursor: pointer;
+      padding: .25rem;
+    }
+    
+    @media (max-width: 768px) {
+      .menu-toggle { display: block; }
+    }
+    
+    .page-title {
+      font-family: var(--font-display);
+      font-size: 1.15rem;
+      font-weight: 600;
+      letter-spacing: -.02em;
+    }
+    
+    .top-bar-right {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: .4rem;
+      font-family: var(--font-ui);
+      font-size: .72rem;
+      font-weight: 600;
+      padding: .35rem .75rem;
+      border-radius: 999px;
+      background: var(--success);
+      color: white;
+    }
+    
+    .status-pill .status-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: white;
+      animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: .5; }
+    }
+    
+    .status-pill.idle {
+      background: var(--muted);
+      color: var(--muted-fg);
+    }
+    
+    .status-pill.idle .status-dot {
+      background: var(--muted-fg);
+      animation: none;
+    }
+    
+    .status-pill.running {
+      background: var(--primary);
+      color: var(--primary-fg);
+    }
+    
+    /* ---- CONTENT ---- */
+    .content {
+      flex: 1;
+      padding: 1.5rem;
+      max-width: 1200px;
+      margin: 0 auto;
+      width: 100%;
+    }
+    
+    /* ---- RESEARCH QUERY ---- */
+    .query-section {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    
+    .query-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+    
+    .query-title {
+      font-family: var(--font-display);
+      font-size: 1.05rem;
+      font-weight: 700;
+      letter-spacing: -.02em;
+    }
+    
+    .query-actions {
+      display: flex;
+      gap: .5rem;
+    }
+    
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: .5rem;
+      padding: .5rem 1rem;
+      border-radius: calc(var(--radius) - 2px);
+      font-family: var(--font-ui);
+      font-size: .82rem;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      transition: all .15s;
+      text-decoration: none;
+    }
+    
+    .btn-primary {
+      background: var(--primary);
+      color: var(--primary-fg);
+    }
+    
+    .btn-primary:hover {
+      opacity: .9;
+      transform: translateY(-1px);
+    }
+    
+    .btn-secondary {
+      background: var(--secondary);
+      color: var(--secondary-fg);
+    }
+    
+    .btn-outline {
+      background: transparent;
+      color: var(--fg);
+      border: 1.5px solid var(--border);
+    }
+    
+    .btn-outline:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+    
+    .btn-sm {
+      padding: .35rem .75rem;
+      font-size: .75rem;
+    }
+    
+    .query-input-wrap {
+      position: relative;
+    }
+    
+    .query-input {
+      width: 100%;
+      font-family: var(--font-body);
+      font-size: .95rem;
+      padding: .75rem 1rem;
+      padding-right: 3rem;
+      border: 1.5px solid var(--border);
+      border-radius: calc(var(--radius) - 2px);
+      background: var(--bg);
+      color: var(--fg);
+      outline: none;
+      transition: all .15s;
+      resize: vertical;
+      min-height: 48px;
+    }
+    
+    .query-input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(224,78,40,.12);
+    }
+    
+    .query-input::placeholder {
+      color: var(--muted-fg);
+    }
+    
+    .query-input-icon {
+      position: absolute;
+      right: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--muted-fg);
+      font-size: 1.1rem;
+    }
+    
+    .query-options {
+      display: flex;
+      gap: 1rem;
+      margin-top: .75rem;
+      flex-wrap: wrap;
+    }
+    
+    .query-option {
+      display: flex;
+      align-items: center;
+      gap: .4rem;
+      font-family: var(--font-ui);
+      font-size: .75rem;
+      font-weight: 500;
+      color: var(--muted-fg);
+      cursor: pointer;
+    }
+    
+    .query-option input[type="checkbox"] {
+      accent-color: var(--primary);
+      width: 14px; height: 14px;
+    }
+    
+    /* ---- PROGRESS BAR ---- */
+    .progress-section {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    
+    .progress-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+    
+    .progress-title {
+      font-family: var(--font-display);
+      font-size: 1rem;
+      font-weight: 700;
+    }
+    
+    .progress-meta {
+      font-family: var(--font-mono);
+      font-size: .7rem;
+      color: var(--muted-fg);
+    }
+    
+    .progress-bar-track {
+      height: 6px;
+      background: var(--muted);
+      border-radius: 999px;
+      overflow: hidden;
+      margin-bottom: 1rem;
+    }
+    
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary), #FF6A3D);
+      border-radius: 999px;
+      transition: width .3s ease;
+    }
+    
+    .stages-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: .5rem;
+    }
+    
+    @media (max-width: 768px) {
+      .stages-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    
+    .stage-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: .35rem;
+      padding: .5rem;
+      border-radius: calc(var(--radius) - 4px);
+      font-family: var(--font-ui);
+      font-size: .65rem;
+      font-weight: 600;
+      text-align: center;
+      color: var(--muted-fg);
+      transition: all .15s;
+    }
+    
+    .stage-item.completed {
+      background: var(--success);
+      color: white;
+    }
+    
+    .stage-item.active {
+      background: var(--primary);
+      color: var(--primary-fg);
+    }
+    
+    .stage-item.pending {
+      background: var(--muted);
+    }
+    
+    .stage-icon {
+      font-size: 1.1rem;
+    }
+    
+    /* ---- DASHBOARD GRID ---- */
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    
+    @media (max-width: 768px) {
+      .dashboard-grid { grid-template-columns: 1fr; }
+    }
+    
+    .panel {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+    
+    .panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .panel-title {
+      font-family: var(--font-display);
+      font-size: .9rem;
+      font-weight: 700;
+      letter-spacing: -.02em;
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+    }
+    
+    .panel-actions {
+      display: flex;
+      gap: .4rem;
+    }
+    
+    .panel-body {
+      padding: 1.25rem;
+    }
+    
+    /* ---- SOURCES LIST ---- */
+    .source-list {
+      display: flex;
+      flex-direction: column;
+      gap: .5rem;
+    }
+    
+    .source-item {
+      display: flex;
+      align-items: flex-start;
+      gap: .75rem;
+      padding: .75rem;
+      border-radius: calc(var(--radius) - 4px);
+      border: 1px solid var(--border);
+      transition: all .15s;
+      cursor: pointer;
+    }
+    
+    .source-item:hover {
+      border-color: var(--primary);
+      background: var(--accent);
+    }
+    
+    .source-favicon {
+      width: 20px; height: 20px;
+      border-radius: 4px;
+      background: var(--muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: .7rem;
+      flex-shrink: 0;
+      margin-top: .15rem;
+    }
+    
+    .source-content {
+      flex: 1;
+      min-width: 0;
+    }
+    
+    .source-title {
+      font-family: var(--font-ui);
+      font-size: .82rem;
+      font-weight: 600;
+      color: var(--fg);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-bottom: .15rem;
+    }
+    
+    .source-meta {
+      font-family: var(--font-mono);
+      font-size: .65rem;
+      color: var(--muted-fg);
+    }
+    
+    .source-score {
+      font-family: var(--font-mono);
+      font-size: .65rem;
+      font-weight: 600;
+      padding: .15rem .4rem;
+      border-radius: 4px;
+      flex-shrink: 0;
+    }
+    
+    .source-score.high { background: var(--success); color: white; }
+    .source-score.medium { background: var(--warning); color: white; }
+    .source-score.low { background: var(--destructive); color: white; }
+    
+    /* ---- KNOWLEDGE GRAPH PLACEHOLDER ---- */
+    .graph-canvas {
+      height: 280px;
+      background: var(--bg);
+      border-radius: calc(var(--radius) - 4px);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .graph-canvas::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 30% 40%, rgba(224,78,40,.08) 0%, transparent 40%),
+        radial-gradient(circle at 70% 60%, rgba(255,106,61,.05) 0%, transparent 35%);
+    }
+    
+    .graph-placeholder {
+      font-family: var(--font-mono);
+      font-size: .75rem;
+      color: var(--muted-fg);
+      text-align: center;
+      position: relative;
+      z-index: 1;
+    }
+    
+    .graph-nodes {
+      display: flex;
+      gap: 1.5rem;
+      align-items: center;
+      justify-content: center;
+      margin-top: 1rem;
+    }
+    
+    .graph-node {
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      background: var(--primary);
+      opacity: .7;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: .7rem;
+      font-weight: 600;
+    }
+    
+    .graph-edge {
+      width: 30px;
+      height: 2px;
+      background: var(--border);
+    }
+    
+    /* ---- CONTRADICTIONS ---- */
+    .contradiction-item {
+      display: flex;
+      align-items: flex-start;
+      gap: .75rem;
+      padding: .75rem;
+      border-radius: calc(var(--radius) - 4px);
+      border: 1px solid var(--destructive);
+      background: rgba(220,38,38,.05);
+      margin-bottom: .5rem;
+    }
+    
+    .contradiction-icon {
+      color: var(--destructive);
+      font-size: 1rem;
+      flex-shrink: 0;
+      margin-top: .1rem;
+    }
+    
+    .contradiction-text {
+      font-family: var(--font-body);
+      font-size: .82rem;
+      line-height: 1.5;
+      color: var(--fg);
+    }
+    
+    .contradiction-meta {
+      font-family: var(--font-mono);
+      font-size: .65rem;
+      color: var(--muted-fg);
+      margin-top: .25rem;
+    }
+    
+    /* ---- REPORT PREVIEW ---- */
+    .report-preview {
+      font-family: var(--font-body);
+      font-size: .88rem;
+      line-height: 1.7;
+      color: var(--fg);
+    }
+    
+    .report-preview h1,
+    .report-preview h2,
+    .report-preview h3 {
+      font-family: var(--font-display);
+      font-weight: 700;
+      letter-spacing: -.02em;
+      margin-top: 1.5rem;
+      margin-bottom: .5rem;
+    }
+    
+    .report-preview h1 { font-size: 1.4rem; }
+    .report-preview h2 { font-size: 1.15rem; }
+    .report-preview h3 { font-size: 1rem; }
+    
+    .report-preview p {
+      margin-bottom: .75rem;
+    }
+    
+    .report-preview blockquote {
+      border-left: 3px solid var(--primary);
+      padding-left: 1rem;
+      margin: 1rem 0;
+      color: var(--muted-fg);
+      font-style: italic;
+    }
+    
+    .report-preview code {
+      font-family: var(--font-mono);
+      font-size: .78rem;
+      background: var(--muted);
+      padding: .15rem .4rem;
+      border-radius: 4px;
+    }
+    
+    .report-preview pre {
+      background: var(--secondary);
+      color: var(--secondary-fg);
+      padding: 1rem;
+      border-radius: calc(var(--radius) - 4px);
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: .78rem;
+      line-height: 1.6;
+      margin: 1rem 0;
+    }
+    
+    /* ---- THREADS ---- */
+    .thread-list {
+      display: flex;
+      flex-direction: column;
+      gap: .5rem;
+    }
+    
+    .thread-item {
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+      padding: .6rem .75rem;
+      border-radius: calc(var(--radius) - 4px);
+      border: 1px solid var(--border);
+      cursor: pointer;
+      transition: all .15s;
+    }
+    
+    .thread-item:hover {
+      border-color: var(--primary);
+    }
+    
+    .thread-item.active {
+      border-color: var(--primary);
+      background: var(--accent);
+    }
+    
+    .thread-color {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    
+    .thread-info {
+      flex: 1;
+      min-width: 0;
+    }
+    
+    .thread-name {
+      font-family: var(--font-ui);
+      font-size: .82rem;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    
+    .thread-meta {
+      font-family: var(--font-mono);
+      font-size: .65rem;
+      color: var(--muted-fg);
+    }
+    
+    .thread-status {
+      font-size: .8rem;
+    }
+    
+    /* ---- SKILL INTEGRATION ---- */
+    .skill-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: .75rem;
+    }
+    
+    @media (max-width: 768px) {
+      .skill-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    
+    .skill-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: .5rem;
+      padding: 1rem;
+      border-radius: calc(var(--radius) - 4px);
+      border: 1px solid var(--border);
+      background: var(--bg);
+      transition: all .15s;
+      cursor: pointer;
+    }
+    
+    .skill-card:hover {
+      border-color: var(--primary);
+      background: var(--accent);
+    }
+    
+    .skill-card.active {
+      border-color: var(--primary);
+      background: var(--accent);
+    }
+    
+    .skill-icon {
+      font-size: 1.5rem;
+    }
+    
+    .skill-name {
+      font-family: var(--font-ui);
+      font-size: .75rem;
+      font-weight: 600;
+      text-align: center;
+    }
+    
+    .skill-desc {
+      font-family: var(--font-ui);
+      font-size: .65rem;
+      color: var(--muted-fg);
+      text-align: center;
+    }
+    
+    /* ---- OVERLAY ---- */
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.5);
+      z-index: 60;
+      display: none;
+    }
+    
+    .overlay.active {
+      display: block;
+    }
+    
+    @media (min-width: 769px) {
+      .overlay { display: none !important; }
+    }
+    
+    /* ---- FOUC GUARD ---- */
+    .no-fouc { visibility: hidden; }
+    .fouc-ready { visibility: visible; }
+    
+    /* ---- SCROLLBAR ---- */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--muted-fg); }
+    
+    /* ---- ANIMATIONS ---- */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .fade-in {
+      animation: fadeIn .4s ease forwards;
+    }
+    
+    /* ---- EMPTY STATE ---- */
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem 1rem;
+      text-align: center;
+      color: var(--muted-fg);
+    }
+    
+    .empty-state-icon {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+      opacity: .5;
+    }
+    
+    .empty-state-title {
+      font-family: var(--font-display);
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--fg);
+      margin-bottom: .5rem;
+    }
+    
+    .empty-state-text {
+      font-family: var(--font-body);
+      font-size: .88rem;
+      max-width: 400px;
+    }
+  </style>
+  
+  <script>
+    // FOUC guard: pre-apply theme before first paint
+    (function() {
+      const theme = localStorage.getItem('prometheus-theme') || 'light';
+      if (theme === 'dark') {
+        document.documentElement.classList.add('dark');
+      }
+    })();
+  </script>
+</head>
+<body class="fouc-ready">
+
+<!-- Mobile overlay for sidebar -->
+<div class="overlay" :class="sidebarOpen ? 'active' : ''" @click="sidebarOpen = false"></div>
+
+<div class="app-shell">
+  <!-- Sidebar -->
+  <aside class="sidebar" :class="sidebarOpen ? '' : 'collapsed'" @click.away="sidebarOpen = false">
+    <div class="sidebar-header">
+      <div class="sidebar-brand">
+        <div class="logo-icon">P</div>
+        <div>Prometheus<span>Research</span></div>
+      </div>
+      <div class="sidebar-version">v1.0.0-draft</div>
+    </div>
+    
+    <nav class="sidebar-nav">
+      <div class="nav-section">
+        <div class="nav-section-label">Research</div>
+        <a class="nav-item active" @click.prevent="currentView = 'dashboard'">
+          <span class="nav-icon">◈</span>
+          <span>Dashboard</span>
+        </a>
+        <a class="nav-item" @click.prevent="currentView = 'new'">
+          <span class="nav-icon">+</span>
+          <span>New Research</span>
+        </a>
+        <a class="nav-item" @click.prevent="currentView = 'history'">
+          <span class="nav-icon">◫</span>
+          <span>History</span>
+          <span class="nav-badge" x-show="historyCount > 0" x-text="historyCount"></span>
+        </a>
+      </div>
+      
+      <div class="nav-section">
+        <div class="nav-section-label">Analysis</div>
+        <a class="nav-item" @click.prevent="currentView = 'sources'">
+          <span class="nav-icon">◎</span>
+          <span>Sources</span>
+          <span class="nav-badge" x-show="sourceCount > 0" x-text="sourceCount"></span>
+        </a>
+        <a class="nav-item" @click.prevent="currentView = 'graph'">
+          <span class="nav-icon">◉</span>
+          <span>Knowledge Graph</span>
+        </a>
+        <a class="nav-item" @click.prevent="currentView = 'contradictions'">
+          <span class="nav-icon">!</span>
+          <span>Contradictions</span>
+          <span class="nav-badge" x-show="contradictionCount > 0" x-text="contradictionCount" style="background: var(--destructive);"></span>
+        </a>
+      </div>
+      
+      <div class="nav-section">
+        <div class="nav-section-label">Output</div>
+        <a class="nav-item" @click.prevent="currentView = 'report'">
+          <span class="nav-icon">¶</span>
+          <span>Report</span>
+        </a>
+        <a class="nav-item" @click.prevent="currentView = 'export'">
+          <span class="nav-icon">↓</span>
+          <span>Export</span>
+        </a>
+      </div>
+      
+      <div class="nav-section">
+        <div class="nav-section-label">Skills</div>
+        <a class="nav-item" @click.prevent="currentView = 'skills'">
+          <span class="nav-icon">◇</span>
+          <span>Skill Pack</span>
+        </a>
+      </div>
+    </nav>
+    
+    <div class="sidebar-footer">
+      <button class="theme-toggle" @click="toggleTheme()">
+        <span x-text="darkMode ? '☀' : '☾'"></span>
+        <span x-text="darkMode ? 'Light' : 'Dark'"></span>
+      </button>
+    </div>
+  </aside>
+  
+  <!-- Main -->
+  <main class="main">
+    <!-- Top Bar -->
+    <header class="top-bar">
+      <div class="top-bar-left">
+        <button class="menu-toggle" @click="sidebarOpen = !sidebarOpen">☰</button>
+        <span class="page-title" x-text="pageTitle"></span>
+      </div>
+      <div class="top-bar-right">
+        <span class="status-pill" :class="researchStatus">
+          <span class="status-dot"></span>
+          <span x-text="statusText"></span>
+        </span>
+      </div>
+    </header>
+    
+    <!-- Content -->
+    <div class="content">
+      <!-- NEW RESEARCH VIEW -->
+      <div x-show="currentView === 'new'" class="fade-in">
+        <div class="query-section">
+          <div class="query-header">
+            <span class="query-title">What would you like to research?</span>
+            <div class="query-actions">
+              <button class="btn btn-outline btn-sm" @click="loadExample()">Example</button>
+              <button class="btn btn-outline btn-sm" @click="clearQuery()">Clear</button>
+            </div>
+          </div>
+          <div class="query-input-wrap">
+            <textarea 
+              class="query-input" 
+              rows="3" 
+              placeholder="Enter your research question, topic, or hypothesis..."
+              x-model="query"
+            ></textarea>
+            <span class="query-input-icon">⌕</span>
+          </div>
+          <div class="query-options">
+            <label class="query-option">
+              <input type="checkbox" x-model="deepMode">
+              <span>Deep mode (10-stage pipeline)</span>
+            </label>
+            <label class="query-option">
+              <input type="checkbox" x-model="verifySources">
+              <span>Verify sources</span>
+            </label>
+            <label class="query-option">
+              <input type="checkbox" x-model="buildGraph">
+              <span>Build knowledge graph</span>
+            </label>
+            <label class="query-option">
+              <input type="checkbox" x-model="feynmanCheck">
+              <span>Feynman quality gate</span>
+            </label>
+          </div>
+        </div>
+        
+        <div class="query-section" x-show="query.length > 0">
+          <div class="query-header">
+            <span class="query-title">Skills to activate</span>
+          </div>
+          <div class="skill-grid">
+            <div class="skill-card" :class="activeSkills.includes('tavily') ? 'active' : ''" @click="toggleSkill('tavily')">
+              <span class="skill-icon">◈</span>
+              <span class="skill-name">Tavily Search</span>
+              <span class="skill-desc">Web search & retrieval</span>
+            </div>
+            <div class="skill-card" :class="activeSkills.includes('sequential') ? 'active' : ''" @click="toggleSkill('sequential')">
+              <span class="skill-icon">◉</span>
+              <span class="skill-name">Sequential Thinking</span>
+              <span class="skill-desc">Reasoning & analysis</span>
+            </div>
+            <div class="skill-card" :class="activeSkills.includes('liter') ? 'active' : ''" @click="toggleSkill('liter')">
+              <span class="skill-icon">◊</span>
+              <span class="skill-name">Liter LLM</span>
+              <span class="skill-desc">Literature review</span>
+            </div>
+            <div class="skill-card" :class="activeSkills.includes('surreal') ? 'active' : ''" @click="toggleSkill('surreal')">
+              <span class="skill-icon">◎</span>
+              <span class="skill-name">Surreal Memory</span>
+              <span class="skill-desc">Knowledge storage</span>
+            </div>
+            <div class="skill-card" :class="activeSkills.includes('forge') ? 'active' : ''" @click="toggleSkill('forge')">
+              <span class="skill-icon">◆</span>
+              <span class="skill-name">Forge</span>
+              <span class="skill-desc">Build & compile</span>
+            </div>
+            <div class="skill-card" :class="activeSkills.includes('feynman') ? 'active' : ''" @click="toggleSkill('feynman')">
+              <span class="skill-icon">◇</span>
+              <span class="skill-name">Feynman Loop</span>
+              <span class="skill-desc">Learning quality gate</span>
+            </div>
+          </div>
+        </div>
+        
+        <div style="display: flex; gap: .75rem; justify-content: flex-end; margin-top: 1rem;">
+          <button class="btn btn-outline" @click="currentView = 'dashboard'">Cancel</button>
+          <button class="btn btn-primary" @click="startResearch()" :disabled="!query.trim()">
+            <span>Start Research</span>
+            <span>→</span>
+          </button>
+        </div>
+      </div>
+      
+      <!-- DASHBOARD VIEW -->
+      <div x-show="currentView === 'dashboard'" class="fade-in">
+        <!-- Progress Panel -->
+        <div class="progress-section" x-show="researchStatus !== 'idle'">
+          <div class="progress-header">
+            <span class="progress-title" x-text="currentStageName"></span>
+            <span class="progress-meta" x-text="progressPercent + '% complete'"></span>
+          </div>
+          <div class="progress-bar-track">
+            <div class="progress-bar-fill" :style="'width: ' + progressPercent + '%'"></div>
+          </div>
+          <div class="stages-grid">
+            <template x-for="stage in stages" :key="stage.id">
+              <div class="stage-item" :class="stage.status">
+                <span class="stage-icon" x-text="stage.icon"></span>
+                <span x-text="stage.name"></span>
+              </div>
+            </template>
+          </div>
+        </div>
+        
+        <!-- Dashboard Grid -->
+        <div class="dashboard-grid">
+          <!-- Sources Panel -->
+          <div class="panel">
+            <div class="panel-header">
+              <span class="panel-title">
+                <span>◎</span>
+                Sources Found
+              </span>
+              <div class="panel-actions">
+                <button class="btn btn-outline btn-sm" @click="currentView = 'sources'">View All</button>
+              </div>
+            </div>
+            <div class="panel-body">
+              <div class="source-list" x-show="sources.length > 0">
+                <template x-for="source in sources.slice(0, 5)" :key="source.id">
+                  <div class="source-item">
+                    <div class="source-favicon" x-text="source.favicon"></div>
+                    <div class="source-content">
+                      <div class="source-title" x-text="source.title"></div>
+                      <div class="source-meta" x-text="source.domain + ' · ' + source.date"></div>
+                    </div>
+                    <span class="source-score" :class="source.scoreClass" x-text="source.score"></span>
+                  </div>
+                </template>
+              </div>
+              <div class="empty-state" x-show="sources.length === 0">
+                <div class="empty-state-icon">◎</div>
+                <div class="empty-state-title">No sources yet</div>
+                <div class="empty-state-text">Start a research query to discover sources</div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Knowledge Graph Panel -->
+          <div class="panel">
+            <div class="panel-header">
+              <span class="panel-title">
+                <span>◉</span>
+                Knowledge Graph
+              </span>
+              <div class="panel-actions">
+                <button class="btn btn-outline btn-sm" @click="currentView = 'graph'">Explore</button>
+              </div>
+            </div>
+            <div class="panel-body">
+              <div class="graph-canvas" x-show="graphNodes.length > 0">
+                <div class="graph-placeholder">
+                  <div>Knowledge Graph Visualization</div>
+                  <div class="graph-nodes">
+                    <template x-for="node in graphNodes.slice(0, 5)" :key="node.id">
+                      <div class="graph-node" x-text="node.label"></div>
+                    </template>
+                  </div>
+                </div>
+              </div>
+              <div class="empty-state" x-show="graphNodes.length === 0">
+                <div class="empty-state-icon">◉</div>
+                <div class="empty-state-title">Graph empty</div>
+                <div class="empty-state-text">Build a knowledge graph during research</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Contradictions & Report Preview -->
+        <div class="dashboard-grid">
+          <div class="panel">
+            <div class="panel-header">
+              <span class="panel-title">
+                <span>!</span>
+                Contradictions
+              </span>
+              <div class="panel-actions">
+                <button class="btn btn-outline btn-sm" @click="currentView = 'contradictions'">Review</button>
+              </div>
+            </div>
+            <div class="panel-body">
+              <div x-show="contradictions.length > 0">
+                <template x-for="c in contradictions.slice(0, 3)" :key="c.id">
+                  <div class="contradiction-item">
+                    <span class="contradiction-icon">!</span>
+                    <div>
+                      <div class="contradiction-text" x-text="c.text"></div>
+                      <div class="contradiction-meta" x-text="c.sources.join(' vs ')"></div>
+                    </div>
+                  </div>
+                </template>
+              </div>
+              <div class="empty-state" x-show="contradictions.length === 0">
+                <div class="empty-state-icon">!</div>
+                <div class="empty-state-title">No contradictions</div>
+                <div class="empty-state-text">Conflicting evidence will appear here</div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="panel">
+            <div class="panel-header">
+              <span class="panel-title">
+                <span>¶</span>
+                Report Preview
+              </span>
+              <div class="panel-actions">
+                <button class="btn btn-outline btn-sm" @click="currentView = 'report'">Full Report</button>
+              </div>
+            </div>
+            <div class="panel-body">
+              <div class="report-preview" x-show="reportContent" x-html="reportContent"></div>
+              <div class="empty-state" x-show="!reportContent">
+                <div class="empty-state-icon">¶</div>
+                <div class="empty-state-title">No report yet</div>
+                <div class="empty-state-text">Complete research to generate a report</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Active Threads -->
+        <div class="panel" x-show="threads.length > 0">
+          <div class="panel-header">
+            <span class="panel-title">
+              <span>◫</span>
+              Active Threads
+            </span>
+          </div>
+          <div class="panel-body">
+            <div class="thread-list">
+              <template x-for="thread in threads" :key="thread.id">
+                <div class="thread-item" :class="thread.active ? 'active' : ''">
+                  <span class="thread-color" :style="'background: ' + thread.color"></span>
+                  <div class="thread-info">
+                    <div class="thread-name" x-text="thread.name"></div>
+                    <div class="thread-meta" x-text="thread.type + ' · ' + thread.status"></div>
+                  </div>
+                  <span class="thread-status" x-text="thread.status === 'running' ? '◈' : '◉'"></span>
+                </div>
+              </template>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- OTHER VIEWS (simplified) -->
+      <div x-show="currentView === 'sources'" class="fade-in">
+        <div class="panel">
+          <div class="panel-header">
+            <span class="panel-title">◎ All Sources</span>
+          </div>
+          <div class="panel-body">
+            <div class="source-list">
+              <template x-for="source in sources" :key="source.id">
+                <div class="source-item">
+                  <div class="source-favicon" x-text="source.favicon"></div>
+                  <div class="source-content">
+                    <div class="source-title" x-text="source.title"></div>
+                    <div class="source-meta" x-text="source.domain + ' · ' + source.date + ' · ' + source.type"></div>
+                  </div>
+                  <span class="source-score" :class="source.scoreClass" x-text="source.score"></span>
+                </div>
+              </template>
+            </div>
+            <div class="empty-state" x-show="sources.length === 0">
+              <div class="empty-state-icon">◎</div>
+              <div class="empty-state-title">No sources</div>
+              <div class="empty-state-text">Start research to collect sources</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div x-show="currentView === 'graph'" class="fade-in">
+        <div class="panel">
+          <div class="panel-header">
+            <span class="panel-title">◉ Knowledge Graph</span>
+          </div>
+          <div class="panel-body">
+            <div class="graph-canvas" style="height: 500px;">
+              <div class="graph-placeholder">
+                <div style="font-size: 1.2rem; margin-bottom: 1rem;">Knowledge Graph Explorer</div>
+                <div>Interactive graph visualization powered by surreal-memory</div>
+                <div class="graph-nodes" style="margin-top: 2rem;">
+                  <div class="graph-node" style="width: 60px; height: 60px; font-size: 1rem;">A</div>
+                  <div class="graph-edge" style="width: 50px;"></div>
+                  <div class="graph-node" style="width: 50px; height: 50px; font-size: .9rem;">B</div>
+                  <div class="graph-edge" style="width: 50px;"></div>
+                  <div class="graph-node" style="width: 55px; height: 55px; font-size: .95rem;">C</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div x-show="currentView === 'contradictions'" class="fade-in">
+        <div class="panel">
+          <div class="panel-header">
+            <span class="panel-title">! Contradictions</span>
+          </div>
+          <div class="panel-body">
+            <div x-show="contradictions.length > 0">
+              <template x-for="c in contradictions" :key="c.id">
+                <div class="contradiction-item">
+                  <span class="contradiction-icon">!</span>
+                  <div>
+                    <div class="contradiction-text" x-text="c.text"></div>
+                    <div class="contradiction-meta" x-text="c.sources.join(' vs ')"></div>
+                  </div>
+                </div>
+              </template>
+            </div>
+            <div class="empty-state" x-show="contradictions.length === 0">
+              <div class="empty-state-icon">!</div>
+              <div class="empty-state-title">No contradictions found</div>
+              <div class="empty-state-text">Research findings are consistent so far</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div x-show="currentView === 'report'" class="fade-in">
+        <div class="panel">
+          <div class="panel-header">
+            <span class="panel-title">¶ Research Report</span>
+            <div class="panel-actions">
+              <button class="btn btn-outline btn-sm">Copy</button>
+              <button class="btn btn-outline btn-sm">Download</button>
+            </div>
+          </div>
+          <div class="panel-body">
+            <div class="report-preview" x-show="reportContent" x-html="reportContent"></div>
+            <div class="empty-state" x-show="!reportContent">
+              <div class="empty-state-icon">¶</div>
+              <div class="empty-state-title">Report not generated</div>
+              <div class="empty-state-text">Complete the research pipeline to generate a report</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div x-show="currentView === 'export'" class="fade-in">
+        <div class="panel">
+          <div class="panel-header">
+            <span class="panel-title">↓ Export Research</span>
+          </div>
+          <div class="panel-body">
+            <div style="display: grid; gap: .75rem; max-width: 400px;">
+              <button class="btn btn-secondary" style="justify-content: center;">
+                <span>📄</span>
+                <span>Export as .research package (OKF)</span>
+              </button>
+              <button class="btn btn-outline" style="justify-content: center;">
+                <span>📝</span>
+                <span>Export as Markdown</span>
+              </button>
+              <button class="btn btn-outline" style="justify-content: center;">
+                <span>📊</span>
+                <span>Export as PDF</span>
+              </button>
+              <button class="btn btn-outline" style="justify-content: center;">
+                <span>🌐</span>
+                <span>Export as HTML</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div x-show="currentView === 'skills'" class="fade-in">
+        <div class="panel">
+          <div class="panel-header">
+            <span class="panel-title">◇ Prometheus Skill Pack</span>
+          </div>
+          <div class="panel-body">
+            <div class="skill-grid" style="grid-template-columns: repeat(2, 1fr);">
+              <div class="skill-card" style="align-items: flex-start; text-align: left; gap: .35rem;">
+                <span class="skill-icon">◈</span>
+                <span class="skill-name">Deep Research</span>
+                <span class="skill-desc">10-stage research pipeline with verification</span>
+              </div>
+              <div class="skill-card" style="align-items: flex-start; text-align: left; gap: .35rem;">
+                <span class="skill-icon">◇</span>
+                <span class="skill-name">Feynman Learning</span>
+                <span class="skill-desc">Explain-grade-gap-recurse learning loop</span>
+              </div>
+              <div class="skill-card" style="align-items: flex-start; text-align: left; gap: .35rem;">
+                <span class="skill-icon">◉</span>
+                <span class="skill-name">Sequential Thinking</span>
+                <span class="skill-desc">Chain-of-thought reasoning with checkpoints</span>
+              </div>
+              <div class="skill-card" style="align-items: flex-start; text-align: left; gap: .35rem;">
+                <span class="skill-icon">◎</span>
+                <span class="skill-name">Surreal Memory</span>
+                <span class="skill-desc">Multi-model graph + vector + document store</span>
+              </div>
+              <div class="skill-card" style="align-items: flex-start; text-align: left; gap: .35rem;">
+                <span class="skill-icon">◊</span>
+                <span class="skill-name">Liter LLM</span>
+                <span class="skill-desc">Literature review and citation management</span>
+              </div>
+              <div class="skill-card" style="align-items: flex-start; text-align: left; gap: .35rem;">
+                <span class="skill-icon">◆</span>
+                <span class="skill-name">Forge</span>
+                <span class="skill-desc">Build and compilation orchestration</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div x-show="currentView === 'history'" class="fade-in">
+        <div class="panel">
+          <div class="panel-header">
+            <span class="panel-title">◫ Research History</span>
+          </div>
+          <div class="panel-body">
+            <div class="empty-state">
+              <div class="empty-state-icon">◫</div>
+              <div class="empty-state-title">No history</div>
+              <div class="empty-state-text">Completed research sessions will appear here</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+function deepResearchApp() {
+  return {
+    darkMode: false,
+    sidebarOpen: false,
+    currentView: 'new',
+    query: '',
+    deepMode: true,
+    verifySources: true,
+    buildGraph: true,
+    feynmanCheck: true,
+    activeSkills: ['tavily', 'sequential', 'surreal', 'liter'],
+    researchStatus: 'idle',
+    progressPercent: 0,
+    currentStage: 0,
+    historyCount: 0,
+    sourceCount: 0,
+    contradictionCount: 0,
+    
+    stages: [
+      { id: 'plan', name: 'Plan', icon: '◈', status: 'pending' },
+      { id: 'search', name: 'Search', icon: '⌕', status: 'pending' },
+      { id: 'retrieve', name: 'Retrieve', icon: '↓', status: 'pending' },
+      { id: 'collect', name: 'Collect', icon: '◉', status: 'pending' },
+      { id: 'verify', name: 'Verify', icon: '✓', status: 'pending' },
+      { id: 'resolve', name: 'Resolve', icon: '⇄', status: 'pending' },
+      { id: 'graph', name: 'Graph', icon: '◉', status: 'pending' },
+      { id: 'cite', name: 'Cite', icon: '¶', status: 'pending' },
+      { id: 'report', name: 'Report', icon: '▤', status: 'pending' },
+      { id: 'export', name: 'Export', icon: '↓', status: 'pending' }
+    ],
+    
+    sources: [],
+    graphNodes: [],
+    contradictions: [],
+    threads: [],
+    reportContent: null,
+    
+    get pageTitle() {
+      const titles = {
+        'dashboard': 'Dashboard',
+        'new': 'New Research',
+        'history': 'History',
+        'sources': 'Sources',
+        'graph': 'Knowledge Graph',
+        'contradictions': 'Contradictions',
+        'report': 'Report',
+        'export': 'Export',
+        'skills': 'Skill Pack'
+      };
+      return titles[this.currentView] || 'Deep Research';
+    },
+    
+    get statusText() {
+      const texts = {
+        'idle': 'Ready',
+        'running': 'Researching...',
+        'completed': 'Done'
+      };
+      return texts[this.researchStatus] || 'Ready';
+    },
+    
+    get currentStageName() {
+      if (this.researchStatus === 'idle') return 'Ready to start';
+      const active = this.stages.find(s => s.status === 'active');
+      return active ? active.name : 'Processing...';
+    },
+    
+    init() {
+      const theme = localStorage.getItem('prometheus-theme');
+      if (theme === 'dark') this.darkMode = true;
+      
+      // Demo data for preview
+      this.sources = [
+        { id: 1, title: 'GPT Researcher: Autonomous AI Research Agent', domain: 'arxiv.org', date: '2024-03-15', type: 'Paper', favicon: 'A', score: '94', scoreClass: 'high' },
+        { id: 2, title: 'LangGraph: Building Stateful Agent Applications', domain: 'python.langchain.com', date: '2024-06-20', type: 'Docs', favicon: 'L', score: '91', scoreClass: 'high' },
+        { id: 3, title: 'Open Knowledge Format (OKF) v0.1 Specification', domain: 'github.com', date: '2026-06-12', type: 'Spec', favicon: 'G', score: '88', scoreClass: 'high' },
+        { id: 4, title: 'The Karpathy LLM Wiki Pattern', domain: 'karpathy.ai', date: '2025-11-03', type: 'Blog', favicon: 'K', score: '85', scoreClass: 'medium' },
+        { id: 5, title: 'AG-UI: Agent-User Interface Protocol', domain: 'ag-ui.dev', date: '2026-01-18', type: 'Spec', favicon: 'A', score: '82', scoreClass: 'medium' }
+      ];
+      this.sourceCount = this.sources.length;
+      
+      this.graphNodes = [
+        { id: 'a', label: 'A' },
+        { id: 'b', label: 'B' },
+        { id: 'c', label: 'C' },
+        { id: 'd', label: 'D' },
+        { id: 'e', label: 'E' }
+      ];
+      
+      this.contradictions = [
+        { id: 1, text: 'Source A claims GPT-Researcher uses 8 agents, but Source B describes a 3-agent architecture.', sources: ['arxiv.org', 'python.langchain.com'] },
+        { id: 2, text: 'OKF v0.1 requires only "type" field per the spec, but early implementations include "version" as required.', sources: ['github.com/okf', 'ag-ui.dev'] }
+      ];
+      this.contradictionCount = this.contradictions.length;
+      
+      this.threads = [
+        { id: 't1', name: 'Main Research Thread', type: 'Source', status: 'running', color: '#E04E28', active: true },
+        { id: 't2', name: 'Sub-question: Agent Count', type: 'Sub-question', status: 'running', color: '#2563EB', active: false },
+        { id: 't3', name: 'Verify: OKF Compliance', type: 'Verification', status: 'completed', color: '#16A34A', active: false }
+      ];
+      
+      this.reportContent = `<h2>Deep Research: Agent-Based Research Systems</h2>
+<p>This research examines the landscape of autonomous AI research agents, with particular focus on architectural patterns, verification mechanisms, and knowledge representation.</p>
+<h3>Key Findings</h3>
+<p><strong>Multi-agent architectures</strong> dominate the research agent space. GPT-Researcher uses a planner-reviewer-executor pattern, while LangGraph ODR implements a state-machine approach with human-in-the-loop checkpoints.</p>
+<blockquote>The convergence on graph-based state management suggests that research is inherently a structured, multi-step process that benefits from explicit state representation.</blockquote>
+<h3>Verification Patterns</h3>
+<p>Cross-source verification remains the primary quality mechanism. Most systems implement some form of:</p>
+<pre>1. Source authority scoring
+2. Cross-reference validation
+3. Temporal relevance filtering
+4. Contradiction detection</pre>`;
+      
+      this.progressPercent = 70;
+      this.researchStatus = 'running';
+      this.stages[0].status = 'completed';
+      this.stages[1].status = 'completed';
+      this.stages[2].status = 'completed';
+      this.stages[3].status = 'completed';
+      this.stages[4].status = 'completed';
+      this.stages[5].status = 'completed';
+      this.stages[6].status = 'active';
+      this.stages[7].status = 'pending';
+      this.stages[8].status = 'pending';
+      this.stages[9].status = 'pending';
+    },
+    
+    toggleTheme() {
+      this.darkMode = !this.darkMode;
+      localStorage.setItem('prometheus-theme', this.darkMode ? 'dark' : 'light');
+    },
+    
+    toggleSkill(skill) {
+      const idx = this.activeSkills.indexOf(skill);
+      if (idx > -1) this.activeSkills.splice(idx, 1);
+      else this.activeSkills.push(skill);
+    },
+    
+    loadExample() {
+      this.query = 'Compare multi-agent research architectures: GPT-Researcher vs LangGraph ODR vs MiroThinker. Focus on verification mechanisms, knowledge graph construction, and cross-source contradiction detection.';
+    },
+    
+    clearQuery() {
+      this.query = '';
+    },
+    
+    startResearch() {
+      this.currentView = 'dashboard';
+      this.researchStatus = 'running';
+      this.progressPercent = 0;
+      this.stages.forEach(s => s.status = 'pending');
+      this.simulateProgress();
+    },
+    
+    simulateProgress() {
+      let stage = 0;
+      const interval = setInterval(() => {
+        if (stage >= this.stages.length) {
+          clearInterval(interval);
+          this.researchStatus = 'completed';
+          this.progressPercent = 100;
+          return;
+        }
+        if (stage > 0) this.stages[stage - 1].status = 'completed';
+        this.stages[stage].status = 'active';
+        this.progressPercent = Math.round((stage / this.stages.length) * 100);
+        stage++;
+      }, 1500);
+    }
+  };
+}
+</script>
+
+</body>
+</html>
