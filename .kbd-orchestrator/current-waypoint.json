@@ -1,17 +1,17 @@
 {
   "phase": "phase-cowork-push-and-release",
   "previousPhase": "cowork-integration",
-  "status": "assess_complete",
-  "stage": "plan",
+  "status": "plan_complete",
+  "stage": "execute",
   "changes_completed": 0,
   "changes_total": 3,
   "goals_met": 0,
   "goals_total": 4,
   "sycophancy_gate": null,
-  "next_command": "/kbd-plan phase-cowork-push-and-release",
-  "exactNextCommand": "/kbd-plan phase-cowork-push-and-release",
+  "next_command": "/kbd-apply change-push-001-version-bump-push-tag",
+  "exactNextCommand": "/kbd-apply change-push-001-version-bump-push-tag",
   "parallelStart": null,
   "recommendedNextPhase": "phase-dsg-cli-foundation",
-  "currentTask": "Assessment complete. 3 gaps: (1) version bump 0.1.5→0.2.0 + push 10 commits to origin; (2) advance submodule pointer; (3) document two-step full-update flow. OQ-03: verify release CI secrets.",
-  "updatedAt": "2026-07-04T21:00:00Z"
+  "currentTask": "Execute change-push-001: bump Cargo.toml 0.1.5→0.2.0, push 10+1 commits, tag v0.2.0",
+  "updatedAt": "2026-07-04T22:00:00Z"
 }

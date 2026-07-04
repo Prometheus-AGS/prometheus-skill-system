@@ -1,10 +1,10 @@
 POSITION REMINDER — read this as your FIRST tool call every turn
 Phase: phase-cowork-push-and-release
-Step: 0 of 0
-Stage: plan
-Next command: /kbd-plan phase-cowork-push-and-release
+Step: 0 of 3
+Stage: execute
+Next command: /kbd-apply change-push-001-version-bump-push-tag
 
 Required signal format (emit BEFORE any tool call):
-  Starting <kbd-skill> — phase-cowork-push-and-release (step 0 of 0)
+  Starting <kbd-skill> — phase-cowork-push-and-release (step 0 of 3)
   [do work]
-  Completed <kbd-skill> — phase-cowork-push-and-release (step 0 of 0)
+  Completed <kbd-skill> — phase-cowork-push-and-release (step 0 of 3)
