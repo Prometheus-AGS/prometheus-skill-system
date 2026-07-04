@@ -1,17 +1,17 @@
 {
   "phase": "phase-dsg-cli-foundation",
   "previousPhase": "phase-cowork-push-and-release",
-  "status": "execute_complete",
-  "stage": "reflect",
+  "status": "reflect_complete",
+  "stage": "close",
   "changes_completed": 3,
   "changes_total": 3,
   "goals_met": 5,
   "goals_total": 5,
   "sycophancy_gate": null,
-  "next_command": "/kbd-reflect phase-dsg-cli-foundation",
-  "exactNextCommand": "/kbd-reflect phase-dsg-cli-foundation",
+  "next_command": "/kbd-new-phase <next-phase-name>",
+  "exactNextCommand": "/kbd-new-phase <next-phase-name>",
   "parallelStart": null,
-  "recommendedNextPhase": null,
-  "currentTask": "All 3 changes complete. dsg 0.1.0 on PATH, submodule at v0.1.0, release CI triggered. Ready to reflect.",
-  "updatedAt": "2026-07-04T00:45:00Z"
+  "recommendedNextPhase": "phase-dsg-install-binaries-fix",
+  "currentTask": "phase-dsg-cli-foundation CLOSED. 5/5 goals MET. Recommended next: verify install-binaries.sh Path A target path OR implement dsg caches commands.",
+  "updatedAt": "2026-07-04T00:50:00Z"
 }
