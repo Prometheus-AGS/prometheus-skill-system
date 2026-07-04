@@ -1,17 +1,17 @@
 {
   "phase": "phase-dsg-cli-foundation",
   "previousPhase": "phase-cowork-push-and-release",
-  "status": "assessment_ready",
-  "stage": "assess",
+  "status": "assess_complete",
+  "stage": "plan",
   "changes_completed": 0,
-  "changes_total": 0,
+  "changes_total": 3,
   "goals_met": 0,
   "goals_total": 5,
   "sycophancy_gate": null,
-  "next_command": "/kbd-assess phase-dsg-cli-foundation",
-  "exactNextCommand": "/kbd-assess phase-dsg-cli-foundation",
+  "next_command": "/kbd-plan phase-dsg-cli-foundation",
+  "exactNextCommand": "/kbd-plan phase-dsg-cli-foundation",
   "parallelStart": null,
   "recommendedNextPhase": null,
-  "currentTask": "Phase opened. dsg is ~1635 lines of Rust, builds and runs. Gaps: PATH install, install-binaries.sh wiring, --json flag, CI, submodule pointer.",
-  "updatedAt": "2026-07-04T23:45:00Z"
+  "currentTask": "Assessment complete. G-02 and G-03 already done. 3 real gaps: push+tag v0.1.0, add release.yml, advance submodule pointer + install to PATH. OQ-01: verify GQAdonis/disk-space-guardian repo exists before push.",
+  "updatedAt": "2026-07-04T23:50:00Z"
 }
