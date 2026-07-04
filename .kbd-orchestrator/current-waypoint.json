@@ -1,17 +1,17 @@
 {
   "phase": "phase-cowork-push-and-release",
   "previousPhase": "cowork-integration",
-  "status": "execute_complete",
-  "stage": "reflect",
+  "status": "reflect_complete",
+  "stage": "closed",
   "changes_completed": 3,
   "changes_total": 3,
   "goals_met": 4,
   "goals_total": 4,
   "sycophancy_gate": null,
-  "next_command": "/kbd-reflect phase-cowork-push-and-release",
-  "exactNextCommand": "/kbd-reflect phase-cowork-push-and-release",
+  "next_command": "/kbd-new-phase phase-dsg-cli-foundation",
+  "exactNextCommand": "/kbd-new-phase phase-dsg-cli-foundation",
   "parallelStart": null,
   "recommendedNextPhase": "phase-dsg-cli-foundation",
-  "currentTask": "All 3 changes complete. G-01/G-02/G-03/G-04 all MET. Ready for reflection.",
-  "updatedAt": "2026-07-04T23:15:00Z"
+  "currentTask": "Phase complete. 4/4 goals MET. cowork v0.2.0 live. Next: phase-dsg-cli-foundation.",
+  "updatedAt": "2026-07-04T23:30:00Z"
 }

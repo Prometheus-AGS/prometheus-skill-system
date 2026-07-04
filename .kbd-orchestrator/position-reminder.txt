@@ -1,8 +1,8 @@
 POSITION REMINDER — read this as your FIRST tool call every turn
 Phase: phase-cowork-push-and-release
 Step: 3 of 3
-Stage: reflect
-Next command: /kbd-reflect phase-cowork-push-and-release
+Stage: closed
+Next command: /kbd-new-phase phase-dsg-cli-foundation
 
 Required signal format (emit BEFORE any tool call):
   Starting <kbd-skill> — phase-cowork-push-and-release (step 3 of 3)
