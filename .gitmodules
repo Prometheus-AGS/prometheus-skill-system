@@ -26,3 +26,7 @@
 	path = tools/cowork-skills
 	url = https://github.com/GQAdonis/cowork-skills.git
 	branch = main
+[submodule "tools/disk-space-guardian"]
+	path = tools/disk-space-guardian
+	url = https://github.com/GQAdonis/disk-space-guardian.git
+	branch = main

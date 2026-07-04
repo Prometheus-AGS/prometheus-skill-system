@@ -1,10 +1,10 @@
 POSITION REMINDER — read this as your FIRST tool call every turn
 Phase: cowork-integration
-Step: 17 of 24
+Step: 18 of 24
 Stage: execute
-Next command: /kbd-apply change-int-001
+Next command: /kbd-apply change-int-002
 
 Required signal format (emit BEFORE any tool call):
-  Starting <kbd-skill> — cowork-integration (step 17 of 24)
+  Starting <kbd-skill> — cowork-integration (step 18 of 24)
   [do work]
-  Completed <kbd-skill> — cowork-integration (step 17 of 24)
+  Completed <kbd-skill> — cowork-integration (step 18 of 24)

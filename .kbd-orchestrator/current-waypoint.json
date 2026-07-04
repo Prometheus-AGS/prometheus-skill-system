@@ -3,15 +3,15 @@
   "previousPhase": "phase-ci-cross-model-qa-and-hardening",
   "status": "execute_ready",
   "stage": "execute",
-  "changes_completed": 17,
+  "changes_completed": 18,
   "changes_total": 24,
   "goals_met": 0,
   "goals_total": 5,
   "sycophancy_gate": null,
-  "next_command": "/kbd-apply change-int-001",
-  "exactNextCommand": "/kbd-apply change-int-001",
+  "next_command": "/kbd-apply change-int-002",
+  "exactNextCommand": "/kbd-apply change-int-002",
   "parallelStart": null,
   "recommendedNextPhase": null,
-  "currentTask": "change-cowork-012 DONE (skills/process/cowork-management/SKILL.md + references/COMMANDS.md, marketplace.json entry, CLAUDE.md Essential Commands update). Next: change-int-001 (dsg git submodule + .gitmodules).",
-  "updatedAt": "2026-07-04T14:00:00Z"
+  "currentTask": "change-int-001 DONE (tools/disk-space-guardian submodule added at 17a2987, docs/SUBMODULES.md updated with tool submodule sections). Next: change-int-002 (dsg plugin.json + marketplace listing).",
+  "updatedAt": "2026-07-04T14:30:00Z"
 }

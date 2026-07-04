@@ -24,13 +24,73 @@ In the Prometheus Skill Pack, submodules are used for **imported skills** - skil
 
 ```
 skills/
-├── imported/              # Git submodule skills
-│   ├── artifact-refiner/ # Submodule: external skill
-│   └── README.md         # Imported skills documentation
-├── react/                # Native skills (not submodules)
-├── rust/                 # Native skills
-└── ui-ux/                # Native skills
+├── imported/                          # Git submodule skills
+│   ├── artifact-refiner/             # Submodule: PMPO artifact refinement
+│   ├── sycophancy-correction/        # Submodule: sycophancy gate
+│   └── README.md
+├── react/                            # Native skills (not submodules)
+├── rust/                             # Native skills
+└── ui-ux/                            # Native skills
+tools/
+├── cowork-skills/                    # Submodule: cowork CLI (skill-pack manager)
+├── disk-space-guardian/              # Submodule: dsg CLI (build cache cleaner)
+├── prometheus-knowledge/             # Submodule: pk knowledge base
+├── surreal-memory-server/            # Submodule: surreal-memory MCP server
+└── liter-llm/                        # Submodule: liter-llm model router
 ```
+
+## Registered Tool Submodules
+
+Tool submodules live under `tools/` and provide binary utilities that
+`scripts/install-binaries.sh` builds and installs to `~/.local/bin/`.
+
+### cowork-skills — `tools/cowork-skills`
+
+| Property | Value |
+|----------|-------|
+| **Repo** | `https://github.com/GQAdonis/cowork-skills.git` |
+| **Branch** | `main` |
+| **Purpose** | `cowork` + `co` CLI — install, update, and manage skills across 20+ AI coding platforms |
+| **Install** | `scripts/install-binaries.sh` builds from `tools/cowork-skills/cli/` |
+| **Pin policy** | Advance SHA only after CI passes on the target platform matrix |
+| **Docs** | `skills/process/cowork-management/SKILL.md` |
+
+```bash
+# Update to latest cowork-skills
+git submodule update --remote tools/cowork-skills
+git add tools/cowork-skills
+git commit -m "chore: update cowork-skills submodule"
+
+# Rebuild cowork binary after update
+cd tools/cowork-skills/cli && cargo build --release
+install ~/.local/bin/cowork target/release/cowork
+```
+
+### disk-space-guardian (dsg) — `tools/disk-space-guardian`
+
+| Property | Value |
+|----------|-------|
+| **Repo** | `https://github.com/GQAdonis/disk-space-guardian.git` |
+| **Branch** | `main` |
+| **Purpose** | `dsg` CLI — safe, intelligent build-cache cleanup for Rust, Node, Python, Go, Docker, Xcode, Homebrew |
+| **Install** | `scripts/install-binaries.sh` builds from `tools/disk-space-guardian/` |
+| **Pin policy** | Advance SHA only after `cargo test` passes locally; never advance during a freeze |
+| **Docs** | Skills: `cowork disk scan/clean` (delegates to dsg) |
+
+```bash
+# Update to latest dsg
+git submodule update --remote tools/disk-space-guardian
+git add tools/disk-space-guardian
+git commit -m "chore: update disk-space-guardian submodule"
+
+# Rebuild dsg binary after update
+cd tools/disk-space-guardian && cargo build --release
+install ~/.local/bin/dsg target/release/dsg
+```
+
+**Safety**: dsg defaults to dry-run. Only `dsg clean --force` moves artifacts
+to Trash. `std::fs::remove_*` is never called — all deletes use the system
+Trash API. Verified by `verify_activity()` (lsof/fuser) before any clean.
 
 ## Common Operations
 
