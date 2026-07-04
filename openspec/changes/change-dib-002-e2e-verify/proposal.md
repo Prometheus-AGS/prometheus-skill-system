@@ -1,6 +1,6 @@
 # change-dib-002-e2e-verify
 
-**Status**: pending
+**Status**: done
 
 ## Summary
 
