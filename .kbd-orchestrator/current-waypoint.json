@@ -1,17 +1,17 @@
 {
   "phase": "phase-dsg-cli-foundation",
   "previousPhase": "phase-cowork-push-and-release",
-  "status": "assess_complete",
-  "stage": "plan",
+  "status": "plan_complete",
+  "stage": "execute",
   "changes_completed": 0,
   "changes_total": 3,
   "goals_met": 0,
   "goals_total": 5,
   "sycophancy_gate": null,
-  "next_command": "/kbd-plan phase-dsg-cli-foundation",
-  "exactNextCommand": "/kbd-plan phase-dsg-cli-foundation",
+  "next_command": "/kbd-apply change-dsg-002-push-tag",
+  "exactNextCommand": "/kbd-apply change-dsg-002-push-tag",
   "parallelStart": null,
   "recommendedNextPhase": null,
-  "currentTask": "Assessment complete. G-02 and G-03 already done. 3 real gaps: push+tag v0.1.0, add release.yml, advance submodule pointer + install to PATH. OQ-01: verify GQAdonis/disk-space-guardian repo exists before push.",
-  "updatedAt": "2026-07-04T23:50:00Z"
+  "currentTask": "Plan complete. 3 sequential changes: (1) add release.yml + push + tag v0.1.0, (2) verify CI triggered, (3) advance submodule pointer + install dsg to ~/.local/bin.",
+  "updatedAt": "2026-07-04T00:05:00Z"
 }

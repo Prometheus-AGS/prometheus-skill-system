@@ -1,10 +1,10 @@
 POSITION REMINDER — read this as your FIRST tool call every turn
 Phase: phase-dsg-cli-foundation
-Step: 0 of 0
-Stage: plan
-Next command: /kbd-plan phase-dsg-cli-foundation
+Step: 0 of 3
+Stage: execute
+Next command: /kbd-apply change-dsg-002-push-tag
 
 Required signal format (emit BEFORE any tool call):
-  Starting <kbd-skill> — phase-dsg-cli-foundation (step 0 of 0)
+  Starting <kbd-skill> — phase-dsg-cli-foundation (step 0 of 3)
   [do work]
-  Completed <kbd-skill> — phase-dsg-cli-foundation (step 0 of 0)
+  Completed <kbd-skill> — phase-dsg-cli-foundation (step 0 of 3)
