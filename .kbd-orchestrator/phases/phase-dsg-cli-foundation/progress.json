@@ -5,11 +5,11 @@
   "goals_total": 5,
   "goals_met": 0,
   "changes_total": 3,
-  "changes_completed": 0,
+  "changes_completed": 1,
   "assessment_complete": true,
   "analysis_complete": false,
   "plan_complete": true,
   "sycophancy_gate": null,
   "createdAt": "2026-07-04T23:45:00Z",
-  "updatedAt": "2026-07-04T00:05:00Z"
+  "updatedAt": "2026-07-04T00:20:00Z"
 }

@@ -1,6 +1,6 @@
 # change-dsg-002-push-tag
 
-**Status**: pending
+**Status**: done
 
 ## Summary
 

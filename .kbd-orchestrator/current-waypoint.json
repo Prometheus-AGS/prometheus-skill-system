@@ -3,15 +3,15 @@
   "previousPhase": "phase-cowork-push-and-release",
   "status": "plan_complete",
   "stage": "execute",
-  "changes_completed": 0,
+  "changes_completed": 1,
   "changes_total": 3,
   "goals_met": 0,
   "goals_total": 5,
   "sycophancy_gate": null,
-  "next_command": "/kbd-apply change-dsg-002-push-tag",
-  "exactNextCommand": "/kbd-apply change-dsg-002-push-tag",
+  "next_command": "/kbd-apply change-dsg-003-release-workflow",
+  "exactNextCommand": "/kbd-apply change-dsg-003-release-workflow",
   "parallelStart": null,
   "recommendedNextPhase": null,
-  "currentTask": "Plan complete. 3 sequential changes: (1) add release.yml + push + tag v0.1.0, (2) verify CI triggered, (3) advance submodule pointer + install dsg to ~/.local/bin.",
-  "updatedAt": "2026-07-04T00:05:00Z"
+  "currentTask": "change-dsg-002-push-tag DONE: release.yml committed, 6 commits pushed to origin/main, v0.1.0 tag at 8fd28d4.",
+  "updatedAt": "2026-07-04T00:20:00Z"
 }
