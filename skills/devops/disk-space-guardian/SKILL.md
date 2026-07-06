@@ -200,7 +200,7 @@ Example JSON output:
 ### `dsg` not found
 
 ```bash
-# Install via prometheus-skill-pack install script
+# Install via prometheus-skill-pack install script (recommended, installs v0.1.4+)
 bash /path/to/prometheus-skill-pack/scripts/install-binaries.sh
 
 # Or build from source (submodule must be initialized)
