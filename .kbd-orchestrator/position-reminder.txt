@@ -1,10 +1,10 @@
 POSITION REMINDER — read this as your FIRST tool call every turn
-Phase: phase-dsg-install-binaries-fix
-Step: 1 of 2
-Stage: execute
-Next command: /kbd-apply change-dib-002-e2e-verify
+Phase: phase-dsg-hardening
+Step: 2 of 2
+Stage: reflect_complete
+Next command: /kbd-new-phase
 
 Required signal format (emit BEFORE any tool call):
-  Starting <kbd-skill> — phase-dsg-install-binaries-fix (step 1 of 2)
+  Starting <kbd-skill> — phase-dsg-hardening (step 2 of 2)
   [do work]
-  Completed <kbd-skill> — phase-dsg-install-binaries-fix (step 1 of 2)
+  Completed <kbd-skill> — phase-dsg-hardening (step 2 of 2)

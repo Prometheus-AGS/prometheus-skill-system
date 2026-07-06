@@ -71,9 +71,9 @@ When a CI workflow has a bug, each fix requires a new tag push (CI only runs on 
 
 ## Carry-Forwards
 
-- **CF-01**: macOS 13 v0.1.2 artifact pending — monitor `gh run view 28715710720` until complete, or push `v0.1.3` to trigger a fresh run.
+- **CF-01**: ~~macOS 13 artifact pending~~ — **RESOLVED 2026-07-05**: v0.1.4 tag switched `macos-13` → `macos-latest`; all 4 jobs green (run 28750019906); all 4 artifacts uploaded. Path B fully functional.
 - **CF-02**: `install-binaries.sh` submodule guard fix (task `task_9c404fde` spawned).
-- **CF-03**: v0.1.0 and v0.1.1 releases have broken/unusable Path B assets — consider deleting them or adding release notes clarifying users should use v0.1.2+.
+- **CF-03**: v0.1.0 and v0.1.1 releases have broken/unusable Path B assets — consider deleting them or adding release notes clarifying users should use v0.1.4+.
 
 ## Recommended Next Phase
 
