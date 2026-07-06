@@ -17,6 +17,11 @@
 3. **Surgical Changes** — Touch only what the request requires.
 4. **Goal-Driven Execution** — Operate against concrete success
    criteria, not step-by-step micro-instructions.
+5. **Implementation-First, Test-at-Checkpoints** — Implement an entire
+   multi-change plan first, no gaps, before verifying it. Wait for
+   test/build results a maximum of 3 times per epoch (e.g. early, mid,
+   end); prefer full end-to-end tests over per-connection checks, built
+   after implementation is done and compiling.
 
 ### Workflow principles (Claude Code, Boris Cherny)
 

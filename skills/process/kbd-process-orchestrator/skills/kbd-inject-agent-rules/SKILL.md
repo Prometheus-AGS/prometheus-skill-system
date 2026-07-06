@@ -3,7 +3,7 @@ license: MIT
 name: kbd-inject-agent-rules
 version: '1.0.0'
 description: >
-  Idempotently inject a fenced "Agent rules" block (Karpathy's 4 think-first
+  Idempotently inject a fenced "Agent rules" block (Karpathy's 5 think-first
   principles + Boris Cherny's 4 Claude Code workflow principles) into the
   target project's CLAUDE.md and/or AGENTS.md. Re-runnable — overwrites only
   the fenced region; everything else is byte-preserved. Supports --refresh

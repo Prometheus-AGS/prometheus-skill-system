@@ -1,21 +1,6 @@
 # Wiki Index
 
-* [HTMX Layout: Grid + Fixed Position Trap](/htmx-layout-grid-fixed-position-trap.md)
-* [Orchestrator Lessons: Read Before Build](/orchestrator-lessons-read-before-build.md)
-
-* [UI Architecture: Single-View vs Two-Zone Navigation](/ui-architecture-single-vs-two-zone.md)
-
 ## Reference
-
-* [Prometheus Deep Research Skill — Master Specification](/prometheus-deep-research-skill-master-spec.md)
-* [Deep Research Skill Landscape](/deep-research-skill-landscape.md)
-* [Skill Platform Specifications](/skill-platform-specifications.md)
-* [AG-UI / A2UI / MCP App UI Frameworks](/ag-ui-a2ui-mcp-app-ui-frameworks.md)
-* [Knowledge Assets & Architecture](/knowledge-assets-architecture.md)
-* [Deep Research + Feynman Integration](/deep-research-feynman-integration.md)
-* [Google OKF LLM Wiki Standards](/google-okf-llm-wiki-standards.md)
-* [Threaded/Concurrent Research](/threaded-concurrent-research.md)
-* [Long-Running Research Process Management](/long-running-research-process-management.md)
 
 * [.gitignore Audit for CI Cross-Model QA Hardening Phase](/gitignore-audit-for-ci-cross-model-qa-hardening-phase.md)
 * [CI All Green Executor Completion Record](/ci-all-green-executor-completion-record.md)
@@ -25,6 +10,7 @@
 * [CI All-Green Phase Executor Completion Status](/ci-all-green-phase-executor-completion-status.md)
 * [CI Cross-Model QA and Hardening Executor Completion](/ci-cross-model-qa-and-hardening-executor-completion.md)
 * [CI Cross-Model QA and Hardening Phase Closeout](/ci-cross-model-qa-and-hardening-phase-closeout.md)
+* [CI Cross-Model QA Hardening Executor Completion Record](/ci-cross-model-qa-hardening-executor-completion-record.md)
 * [CI Cross-Model QA Hardening Executor Completion Status](/ci-cross-model-qa-hardening-executor-completion-status.md)
 * [CI Cross-Model QA Hardening Executor Session Complete](/ci-cross-model-qa-hardening-executor-session-complete.md)
 * [CI Cross-Model QA Hardening Phase Completion Record](/ci-cross-model-qa-hardening-phase-completion-record.md)
@@ -47,10 +33,17 @@
 * [Gitleaks CI License Gate Fixed in PR 22](/gitleaks-ci-license-gate-fixed-in-pr-22.md)
 * [OKF LLM Wiki Adoption Executor Completion Status](/okf-llm-wiki-adoption-executor-completion-status.md)
 * [OKF LLM Wiki Adoption Executor Session Completion](/okf-llm-wiki-adoption-executor-session-completion.md)
+* [OKF LLM Wiki Adoption Executor Session Reached Phase OK](/okf-llm-wiki-adoption-executor-session-reached-phase-ok.md)
+* [OKF LLM Wiki Adoption Phase Completion](/okf-llm-wiki-adoption-phase-completion.md)
 * [OKF LLM Wiki Adoption Phase Completion Status](/okf-llm-wiki-adoption-phase-completion-status.md)
+* [OKF LLM Wiki Adoption Reflect Session Completion](/okf-llm-wiki-adoption-reflect-session-completion.md)
+* [OKF LLM Wiki Adoption Reflect Session Final Completion](/okf-llm-wiki-adoption-reflect-session-final-completion.md)
+* [OKF LLM Wiki Adoption Reflection Completed](/okf-llm-wiki-adoption-reflection-completed.md)
 * [OKF Wiki Adoption PR 21 CI Triage and Merge Readiness](/okf-wiki-adoption-pr-21-ci-triage-and-merge-readiness.md)
 * [Phase CI All Green Assessment for OKF Wiki Adoption](/phase-ci-all-green-assessment-for-okf-wiki-adoption.md)
 * [Plan for CI Cross-Model QA YAML Fix and Forge MCP Auth Hardening](/plan-for-ci-cross-model-qa-yaml-fix-and-forge-mcp-auth-hardening.md)
+* [Prometheus Skill System Maintenance on 2026-07-02](/prometheus-skill-system-maintenance-on-2026-07-02.md)
 * [Surreal Memory Wakeup Verification After Toolchain Sync](/surreal-memory-wakeup-verification-after-toolchain-sync.md)
 * [surreal-memory-server Latest Binary Stabilization](/surreal-memory-server-latest-binary-stabilization.md)
 * [Toolchain Binary Sync and OKF Wiki Adoption Session Completion](/toolchain-binary-sync-and-okf-wiki-adoption-session-completion.md)
+* [Unknown Phase Session Ended With No Recorded Progress](/unknown-phase-session-ended-with-no-recorded-progress.md)

@@ -23,11 +23,32 @@ Last fetched: 2026-05-27
    criteria, not step-by-step micro-instructions. LLMs loop well toward
    goals.
 
+5. **Implementation-First, Test-at-Checkpoints** — For a multi-change
+   epoch/plan, implement the ENTIRE plan first — every logical connection
+   made, no gaps, no unimplemented important pieces — before verifying it.
+   Plan items have no meaning in isolation: small unit tests passing while
+   the whole system doesn't fit together proves nothing. Wait for
+   test/build results a MAXIMUM of 3 times during an entire epoch — use
+   those checkpoints deliberately (e.g. early, mid, and end), not after
+   every change. When a checkpoint does happen, prefer full end-to-end /
+   integration tests over the connections between sections of the system,
+   constructed AFTER the implementation is done and proven to compile —
+   shape tests around code that exists, not the other way around, since the
+   final shape isn't known until the end. This changes the PACING of
+   verification; it does not relax principles 1-4 above (still think first,
+   still state assumptions, still architecture-before-code).
+
 Sources (URL + anchor keyword for `--refresh` validation):
 
 - https://github.com/forrestchang/andrej-karpathy-skills — anchor: `Think Before Coding`
 - https://www.aibuilderclub.com/blog/karpathy-claude-md-rules — anchor: `Karpathy`
 - https://lucaberton.com/blog/karpathy-claude-md-llm-coding-principles-2026/ — anchor: `CLAUDE.md`
+
+Principle 5 is an operator directive (Travis, 2026-07-02/03,
+universal-agent-runtime), not from the external Karpathy sources above —
+kept in this section because it's philosophically continuous with 1-4
+(goal-driven, trust-the-process execution). `--refresh` should not expect
+an anchor keyword for it in the URLs above.
 
 ## Boris Cherny — Claude Code workflow principles
 
