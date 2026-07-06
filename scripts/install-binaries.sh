@@ -26,18 +26,24 @@ install_bin() {
 }
 
 # ── 1. prometheus-cli ───────────────────────────────────────────────────────
-info "Building prometheus-cli..."
-(cd "${REPO_ROOT}/tools/prometheus-cli" && cargo build --release -p prometheus-cli 2>&1 | tail -3)
-install_bin "${REPO_ROOT}/tools/prometheus-cli/target/release/prometheus" "${BIN_DIR}/prometheus"
-ok "prometheus → ${BIN_DIR}/prometheus"
+if [ -f "${REPO_ROOT}/tools/prometheus-cli/Cargo.toml" ]; then
+    info "Building prometheus-cli..."
+    (cd "${REPO_ROOT}/tools/prometheus-cli" && cargo build --release -p prometheus-cli 2>&1 | tail -3)
+    install_bin "${REPO_ROOT}/tools/prometheus-cli/target/release/prometheus" "${BIN_DIR}/prometheus"
+    ok "prometheus → ${BIN_DIR}/prometheus"
+else
+    info "skip prometheus-cli (submodule not initialized)"
+fi
 
 # ── 2. forge (forge-rs CLI) ──────────────────────────────────────────────────
 # Upstream renamed the CLI package `forge` → `forge-cli` (still produces the `forge` binary).
-if [ -d "${REPO_ROOT}/tools/forge-rs" ]; then
+if [ -f "${REPO_ROOT}/tools/forge-rs/Cargo.toml" ]; then
     info "Building forge..."
     (cd "${REPO_ROOT}/tools/forge-rs" && cargo build --release -p forge-cli 2>&1 | tail -3)
     install_bin "${REPO_ROOT}/tools/forge-rs/target/release/forge" "${BIN_DIR}/forge"
     ok "forge → ${BIN_DIR}/forge"
+else
+    info "skip forge-rs (submodule not initialized)"
 fi
 
 # ── 3. pk + pk-cherry (prometheus-knowledge CLI + MCP server) ────────────────
@@ -51,6 +57,8 @@ if [ -f "${REPO_ROOT}/tools/prometheus-knowledge/Cargo.toml" ]; then
     install_bin "${REPO_ROOT}/tools/prometheus-knowledge/target/release/pk-cherry" "${BIN_DIR}/pk-cherry"
     ok "pk        → ${BIN_DIR}/pk"
     ok "pk-cherry → ${BIN_DIR}/pk-cherry"
+else
+    info "skip prometheus-knowledge (submodule not initialized)"
 fi
 
 # ── 4. liter-llm ─────────────────────────────────────────────────────────────
@@ -66,6 +74,8 @@ if [ -f "${REPO_ROOT}/tools/liter-llm/Cargo.toml" ]; then
     else
         fail "liter-llm binary not found after build"
     fi
+else
+    info "skip liter-llm (submodule not initialized)"
 fi
 
 # ── 5. surreal-memory-server (memory MCP daemon on :23001) ───────────────────
@@ -92,6 +102,8 @@ if [ -f "${REPO_ROOT}/tools/surreal-memory-server/Cargo.toml" ]; then
     else
         fail "surreal-memory-server binary not found after build"
     fi
+else
+    info "skip surreal-memory-server (submodule not initialized)"
 fi
 
 # ── 6. sycophancy-correction (S-01..S-08 MCP server + reflector gate) ─────────
@@ -115,6 +127,8 @@ if [ -f "${SYCO_DIR}/Cargo.toml" ]; then
     else
         fail "sycophancy-correction binary not found after build"
     fi
+else
+    info "skip sycophancy-correction (submodule not initialized)"
 fi
 
 # ── 7. template-forge + template-forge-mcp (artifact-refiner submodule) ──────
