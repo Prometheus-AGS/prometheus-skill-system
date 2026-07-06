@@ -44,7 +44,7 @@ fi
 # pk-cherry serves the knowledge MCP on :8942; pk is the CLI that the hooks
 # (pk-focus-on-prompt.sh, pk-health.sh, Stop ingest) invoke. pk-mcp is a
 # library, not a bin — do not try to build it as a binary target.
-if [ -d "${REPO_ROOT}/tools/prometheus-knowledge" ]; then
+if [ -f "${REPO_ROOT}/tools/prometheus-knowledge/Cargo.toml" ]; then
     info "Building pk + pk-cherry..."
     (cd "${REPO_ROOT}/tools/prometheus-knowledge" && cargo build --release -p pk-cli -p pk-cherry 2>&1 | tail -3)
     install_bin "${REPO_ROOT}/tools/prometheus-knowledge/target/release/pk"        "${BIN_DIR}/pk"
@@ -55,7 +55,7 @@ fi
 
 # ── 4. liter-llm ─────────────────────────────────────────────────────────────
 # Upstream renamed the CLI package to `liter-llm-cli` (still produces the `liter-llm` binary).
-if [ -d "${REPO_ROOT}/tools/liter-llm" ]; then
+if [ -f "${REPO_ROOT}/tools/liter-llm/Cargo.toml" ]; then
     info "Building liter-llm..."
     (cd "${REPO_ROOT}/tools/liter-llm" && cargo build --release -p liter-llm-cli 2>&1 | tail -3)
     # liter-llm binary may be in workspace root target or crate target
@@ -74,7 +74,7 @@ fi
 # stale copy there would shadow the fresh ~/.local/bin build.
 # build.sh runs cargo clean + a server-dependent quality gate before building;
 # call cargo directly with the same feature flags to avoid that gate.
-if [ -d "${REPO_ROOT}/tools/surreal-memory-server" ]; then
+if [ -f "${REPO_ROOT}/tools/surreal-memory-server/Cargo.toml" ]; then
     info "Building surreal-memory-server..."
     (cd "${REPO_ROOT}/tools/surreal-memory-server" && \
         RUSTFLAGS="-Dwarnings" cargo build --release --no-default-features \
@@ -99,7 +99,7 @@ fi
 # command; /usr/local/bin is the canonical location the reflector gate and
 # every tool's MCP config resolve.
 SYCO_DIR="${REPO_ROOT}/skills/imported/sycophancy-correction"
-if [ -d "${SYCO_DIR}" ]; then
+if [ -f "${SYCO_DIR}/Cargo.toml" ]; then
     info "Building sycophancy-correction..."
     (cd "${SYCO_DIR}" && cargo build --release 2>&1 | tail -3)
     SYCO_BIN="${SYCO_DIR}/target/release/sycophancy-correction"
@@ -119,7 +119,7 @@ fi
 
 # ── 7. template-forge + template-forge-mcp (artifact-refiner submodule) ──────
 TEMPLATE_FORGE_DIR="${REPO_ROOT}/skills/imported/artifact-refiner/tools/template-forge-rs"
-if [ -d "${TEMPLATE_FORGE_DIR}" ]; then
+if [ -f "${TEMPLATE_FORGE_DIR}/Cargo.toml" ]; then
     info "Building template-forge and template-forge-mcp..."
     # rust-toolchain.toml in this submodule is comment-only — override via env
     (cd "${TEMPLATE_FORGE_DIR}" && RUSTUP_TOOLCHAIN=stable cargo build --release 2>&1 | tail -3)
