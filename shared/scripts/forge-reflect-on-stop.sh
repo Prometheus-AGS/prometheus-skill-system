@@ -23,12 +23,16 @@ else
     pk ingest < "$SUMMARY_FILE" 2>/dev/null || hook_log_error "$LINENO"
   fi
 
-  # Also push to surreal-memory REST if reachable
+  # Also push to surreal-memory REST if reachable.
+  # Bound both curls: without --connect-timeout/--max-time, a port that is OPEN but
+  # unresponsive (surreal-memory mid-startup / hung) makes curl wait the OS default
+  # (~2min), which stalls the Stop hook and the whole turn. Refused connections already
+  # fail fast; these caps also bound the degraded-service case.
   SM_URL="${SURREAL_MEMORY_URL:-http://localhost:23001}"
-  if [ -f "$SUMMARY_FILE" ] && curl -sf "${SM_URL}/health" -o /dev/null 2>/dev/null; then
+  if [ -f "$SUMMARY_FILE" ] && curl -sf --connect-timeout 2 --max-time 4 "${SM_URL}/health" -o /dev/null 2>/dev/null; then
     CONTENT=$(python3 -c "import sys, json; print(json.dumps(open('${SUMMARY_FILE}').read()))" 2>/dev/null) || CONTENT=""
     if [ -n "$CONTENT" ]; then
-      curl -s -X POST "${SM_URL}/api/v1/memory" \
+      curl -s --connect-timeout 2 --max-time 5 -X POST "${SM_URL}/api/v1/memory" \
         -H "Content-Type: application/json" \
         -d "{\"content\": ${CONTENT}, \"user_id\": \"prometheus-skill-pack\", \"metadata\": {\"source\": \"forge-reflect-on-stop\"}}" \
         -o /dev/null 2>/dev/null || hook_log_error "$LINENO"
