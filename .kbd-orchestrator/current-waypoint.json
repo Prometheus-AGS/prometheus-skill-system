@@ -1,17 +1,17 @@
 {
   "phase": "phase-prometheus-research-ui",
   "previousPhase": "phase-prometheus-research-binary",
-  "status": "plan_complete",
+  "status": "executing",
   "stage": "execute",
-  "changes_completed": 0,
+  "changes_completed": 1,
   "changes_total": 5,
   "goals_met": 0,
   "goals_total": 5,
   "sycophancy_gate": null,
-  "next_command": "/kbd-apply change-prui-004-ci-workflow",
-  "exactNextCommand": "/kbd-apply change-prui-004-ci-workflow",
+  "next_command": "/kbd-apply change-prui-003-surface-bridge-wiring",
+  "exactNextCommand": "/kbd-apply change-prui-003-surface-bridge-wiring",
   "parallelStart": null,
   "recommendedNextPhase": null,
-  "currentTask": "Plan complete (revised with design standards). Execution order: CI (004) → surface-bridge fix (003) → SKILL.md (001) → UI SSE (002) → smoke test (005). Design: Anthropic OKLCH warm-dark + htmx-alpine-lit + animate + delight + polish skills applied.",
-  "updatedAt": "2026-07-08T20:30:00Z"
+  "currentTask": "change-prui-004-ci-workflow DONE (commit e4ed65d). Next: fix emit.rs UiIntent schema mismatch (HIGH risk, G-03 prerequisite for G-02 Tier 2).",
+  "updatedAt": "2026-07-08T21:00:00Z"
 }
