@@ -1,10 +1,10 @@
 POSITION REMINDER — read this as your FIRST tool call every turn
-Phase: phase-prometheus-research-binary
-Step: 8 of 8
-Stage: closed
-Next command: /kbd-new-phase phase-prometheus-research-ui
+Phase: phase-prometheus-research-ui
+Step: 0 of 0
+Stage: assess
+Next command: /kbd-assess phase-prometheus-research-ui
 
 Required signal format (emit BEFORE any tool call):
-  Starting <kbd-skill> — phase-prometheus-research-binary (step 8 of 8)
+  Starting <kbd-skill> — phase-prometheus-research-ui (step 0 of 0)
   [do work]
-  Completed <kbd-skill> — phase-prometheus-research-binary (step 8 of 8)
+  Completed <kbd-skill> — phase-prometheus-research-ui (step 0 of 0)
