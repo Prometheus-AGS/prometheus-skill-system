@@ -1,10 +1,10 @@
 POSITION REMINDER — read this as your FIRST tool call every turn
-Phase: phase-deep-research-skill
-Step: 8 of 9
-Stage: execute
-Next command: /kbd-apply change-drs-009-commit-push
+Phase: phase-prometheus-research-binary
+Step: 0 of 0
+Stage: assess
+Next command: /kbd-assess phase-prometheus-research-binary
 
 Required signal format (emit BEFORE any tool call):
-  Starting <kbd-skill> — phase-deep-research-skill (step 8 of 9)
+  Starting <kbd-skill> — phase-prometheus-research-binary (step 0 of 0)
   [do work]
-  Completed <kbd-skill> — phase-deep-research-skill (step 8 of 9)
+  Completed <kbd-skill> — phase-prometheus-research-binary (step 0 of 0)
