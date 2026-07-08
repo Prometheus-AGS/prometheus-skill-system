@@ -1,0 +1,20 @@
+# Tasks: change-drs-005-references-hooks-agents
+
+- [x] Write references/pipeline-architecture.md (mermaid DAG, stage descriptions, token budget, retry policy)
+- [x] Write references/okf-research-format.md (OKF v0.1 + Prometheus extensions table)
+- [x] Write references/model-routing.md (tier mapping, env vars, fallback behavior)
+- [x] Write references/surreal-memory-integration.md (entity types, relation types, tool call examples)
+- [x] Write references/sycophancy-correction-integration.md (Stage 5 integration, thresholds)
+- [x] Write references/feynman-quality-gate.md (Stage 9 grade threshold, fallback)
+- [x] Write references/contradiction-resolution-guide.md (4 resolution strategies in order)
+- [x] Write references/citation-formats.md (APA/MLA/Chicago/IEEE/Vancouver, env var switch)
+- [x] Write references/research-package-spec.md (directory layout + file schemas)
+- [x] Write hooks/pre-research.sh (validate QUERY, DEPTH, tool availability)
+- [x] Write hooks/post-stage.sh (log stage completion, STAGE_NUM arg)
+- [x] Write hooks/on-contradiction.sh (log + optional pmpo-elicit escalation)
+- [x] Write hooks/post-export.sh (log export path + optional palace ingest)
+- [x] chmod +x all 4 hook scripts
+- [x] Write agents/research-planner.md (frontier subagent descriptor for Stage 1)
+- [x] Write agents/source-verifier.md (frontier subagent descriptor for Stage 5)
+- [x] Write agents/contradiction-resolver.md (frontier subagent descriptor for Stage 6)
+- [x] Write agents/report-synthesizer.md (frontier subagent descriptor for Stage 9)

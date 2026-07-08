@@ -262,6 +262,18 @@ Feynman-Spine learning: goal, survey, plan, loop, grade, retain, practice, certi
 | `learn-about-system` | Meta-learning adoption entry point |
 | `learn-harness` | Per-harness capability orientation |
 
+#### Research (`skills/research/`)
+
+| Skill | Stages | Purpose |
+|---|---|---|
+| `deep-research` | 10-stage pipeline | Long-form deep research with source verification, contradiction resolution, knowledge graph, Feynman quality gate, and `.research` package export |
+
+**Pipeline stages:** Stage 01 Planner → Stage 02 Search → Stage 03 Retrieve → Stage 04 Collect → Stage 05 Verify → Stage 06 Resolve → Stage 07 Graph → Stage 08 Cite → Stage 09 Report → Stage 10 Export
+
+**Key integrations:** surreal-memory (graph persistence), sycophancy-correction (bias detection), liter-llm-bridge (model routing), learn-grade (Feynman quality gate), pmpo-elicit (contradiction escalation)
+
+**Invocation:** `/deep-research "What are the trade-offs of vector databases for production RAG?"`
+
 #### Other Languages
 
 | Directory | Skill | Purpose |

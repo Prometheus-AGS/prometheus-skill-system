@@ -1,10 +1,10 @@
 POSITION REMINDER — read this as your FIRST tool call every turn
-Phase: phase-dsg-hardening
-Step: 2 of 2
-Stage: reflect_complete
-Next command: /kbd-new-phase
+Phase: phase-deep-research-skill
+Step: 8 of 9
+Stage: execute
+Next command: /kbd-apply change-drs-009-commit-push
 
 Required signal format (emit BEFORE any tool call):
-  Starting <kbd-skill> — phase-dsg-hardening (step 2 of 2)
+  Starting <kbd-skill> — phase-deep-research-skill (step 8 of 9)
   [do work]
-  Completed <kbd-skill> — phase-dsg-hardening (step 2 of 2)
+  Completed <kbd-skill> — phase-deep-research-skill (step 8 of 9)

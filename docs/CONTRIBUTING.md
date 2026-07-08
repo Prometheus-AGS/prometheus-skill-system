@@ -40,8 +40,21 @@ Place your skill in the appropriate category directory:
 - `skills/devops/` - Infrastructure and deployment skills
 - `skills/testing/` - Testing methodology skills
 - `skills/documentation/` - Documentation and technical writing skills
+- `skills/research/` - Research and information synthesis skills
 
 If none fit, propose a new category in your PR.
+
+#### Research Skills (`skills/research/`)
+
+Research skills follow the **10-stage pipeline pattern** defined in `docs/deep-research-skill-playbook.md`. When adding a new research skill:
+
+- **Use sub-skills for pipeline stages** — each stage is a separate `skills/` subdirectory within the parent skill directory (e.g., `skills/research/my-research-skill/skills/stage-01-planner/SKILL.md`).
+- **Sub-skill names must match their directory** — `name: stage-01-planner` must live in `skills/stage-01-planner/`.
+- **Integrate sycophancy-correction in the verification stage** — the bias gate is mandatory for any claim-verification stage.
+- **Route through the Feynman quality gate in the synthesis stage** — use `learn-grade` with `overall_score ≥ 0.7` and `misconceptions_absent == 1.0`.
+- **Write hooks for lifecycle events** — `hooks/pre-research.sh`, `hooks/post-stage.sh`, `hooks/on-contradiction.sh`, `hooks/post-export.sh`.
+- **Export as `.research` package** — follow the spec in `skills/research/deep-research/references/research-package-spec.md`.
+- **Validate with strict mode** — `npm run validate:strict skills/research/your-skill` must exit 0 before submitting.
 
 ### 2. Naming Conventions
 

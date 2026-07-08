@@ -151,6 +151,25 @@
         "build-cache"
       ],
       "category": "devops"
+    },
+    {
+      "name": "prometheus-research-skills",
+      "description": "10-stage deep research pipeline with source verification, contradiction resolution, knowledge graph, Feynman quality gate, and .research package export. Integrates surreal-memory, sycophancy-correction, liter-llm model routing, and pmpo-elicit escalation.",
+      "source": "./skills/research",
+      "version": "1.0.0",
+      "tags": [
+        "research",
+        "deep-research",
+        "source-verification",
+        "knowledge-graph",
+        "contradiction-resolution",
+        "feynman",
+        "sycophancy-correction",
+        "surreal-memory",
+        "citations",
+        "report-synthesis"
+      ],
+      "category": "productivity"
     }
   ]
 }
