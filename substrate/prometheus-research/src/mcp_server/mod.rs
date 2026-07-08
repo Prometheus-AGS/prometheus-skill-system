@@ -196,7 +196,13 @@ fn chrono_now() -> String {
             let secs = d.as_secs();
             let days = secs / 86400;
             let year = 1970 + days / 365;
-            format!("{}-07-08T{:02}:{:02}:{:02}Z", year, (secs % 3600) / 60, (secs % 3600) % 60, secs % 60)
+            format!(
+                "{}-07-08T{:02}:{:02}:{:02}Z",
+                year,
+                (secs % 3600) / 60,
+                (secs % 3600) % 60,
+                secs % 60
+            )
         })
         .unwrap_or_else(|_| "unknown".to_string())
 }

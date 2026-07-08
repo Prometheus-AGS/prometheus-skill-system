@@ -119,8 +119,7 @@ async fn main() -> anyhow::Result<()> {
                 println!("{job_id}");
             }
             Some(Command::Status { job_id }) => {
-                let checkpoint =
-                    prometheus_research::job::checkpoint::read(&job_id)?;
+                let checkpoint = prometheus_research::job::checkpoint::read(&job_id)?;
                 println!("{}", serde_json::to_string_pretty(&checkpoint)?);
             }
             Some(Command::Cancel { job_id }) => {

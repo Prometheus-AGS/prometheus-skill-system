@@ -2,8 +2,7 @@ use crate::job::checkpoint;
 use anyhow::Context as _;
 
 pub fn cancel_job(job_id: &str) -> anyhow::Result<()> {
-    let cp = checkpoint::read(job_id)
-        .with_context(|| format!("job {job_id} not found"))?;
+    let cp = checkpoint::read(job_id).with_context(|| format!("job {job_id} not found"))?;
 
     #[cfg(unix)]
     if let Some(pid) = cp.pid {

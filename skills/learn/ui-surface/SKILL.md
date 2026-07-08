@@ -118,14 +118,52 @@ else
 fi
 ```
 
-### Tier 2 — MCP App iframe (STUBBED)
+### Tier 2 — MCP App iframe (surface-bridge)
 
-Not yet implemented. The surface-bridge Axum server has not shipped.
+Tier 2 uses the `surface-bridge` Axum server (`http://127.0.0.1:7890`) to render
+a UiIntent as an MCP App iframe embedded in the Claude Code artifact panel.
 
-When `tier = tier2_mcp_app`, ui-surface logs a notice and falls back to Tier 1:
+**Prerequisites:** surface-bridge must be running. The launchd service
+`com.prometheus.surface-bridge` is installed by `scripts/install-skills-flat.sh`.
+Check with `curl -s http://127.0.0.1:7890/health`.
+
+**4-step render flow:**
+
+1. `render.sh` POSTs the UiIntent JSON to `/mcp/render-ui-intent`:
+
+   ```bash
+   curl -s -X POST http://127.0.0.1:7890/mcp/render-ui-intent \
+     -H "Content-Type: application/json" \
+     -d '{"intent_type":"question","title":"...","body":"...","options":null,"multiselect":false,"request_id":"<uuid>"}'
+   ```
+
+   surface-bridge returns `{"request_id":"<uuid>","status":"rendered","message":null}`.
+
+2. surface-bridge serves an iframe fragment from its embedded HTTP server. Claude
+   Code's MCP App panel renders this as an inline artifact.
+
+3. The user interacts with the rendered component. Their response is POST-ed by the
+   iframe back to `/mcp/collect-response`.
+
+4. `render.sh` polls `/mcp/collect-response` with the `request_id` (up to 30 s)
+   and returns the JSON response to the calling learn-* skill.
+
+**UiIntent → surface-bridge field mapping (from `prometheus-research` events):**
+
+| AguiEvent type   | `intent_type` | `title`                       | `body`              |
+|------------------|---------------|-------------------------------|---------------------|
+| `agent.status`   | `progress`    | `"Stage N: <stage_name>"`     | `"<status> (N%)"`   |
+| `agent.message`  | `feedback`    | `<level>`                     | `<message>`         |
+| `agent.error`    | `feedback`    | `"Error at stage N"`          | `<message>`         |
+| `a2ui.component` | `prompt`      | `<component>`                 | `<props JSON>`      |
+
+`request_id` is always the job ID. `options` is `null`. `multiselect` is `false`.
+
+When `tier = tier2_mcp_app` and surface-bridge is unreachable, `render.sh` logs
+a warning and falls back to Tier 1 automatically:
 
 ```
-[ui-surface] Tier 2 not yet available — falling back to Tier 1
+[ui-surface] surface-bridge unreachable — falling back to Tier 1
 ```
 
 ## How learn-* skills use ui-surface

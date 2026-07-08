@@ -13,12 +13,15 @@ pub fn spawn_job(
             .duration_since(std::time::UNIX_EPOCH)
             .unwrap_or_default()
             .as_secs(),
-        uuid::Uuid::new_v4().to_string().split('-').next().unwrap_or("0000")
+        uuid::Uuid::new_v4()
+            .to_string()
+            .split('-')
+            .next()
+            .unwrap_or("0000")
     );
 
     let dir = checkpoint::job_dir(&job_id);
-    std::fs::create_dir_all(&dir)
-        .with_context(|| format!("failed to create job dir {dir:?}"))?;
+    std::fs::create_dir_all(&dir).with_context(|| format!("failed to create job dir {dir:?}"))?;
 
     let cp = JobCheckpoint {
         job_id: job_id.clone(),

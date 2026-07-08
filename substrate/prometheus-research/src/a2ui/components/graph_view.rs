@@ -3,11 +3,19 @@ use serde_json::Value;
 pub fn render(props: Value) -> String {
     let topics: Vec<String> = props["topics"]
         .as_array()
-        .map(|a| a.iter().filter_map(|v| v.as_str().map(|s| s.to_string())).collect())
+        .map(|a| {
+            a.iter()
+                .filter_map(|v| v.as_str().map(|s| s.to_string()))
+                .collect()
+        })
         .unwrap_or_default();
     let claims: Vec<String> = props["claims"]
         .as_array()
-        .map(|a| a.iter().filter_map(|v| v.as_str().map(|s| s.to_string())).collect())
+        .map(|a| {
+            a.iter()
+                .filter_map(|v| v.as_str().map(|s| s.to_string()))
+                .collect()
+        })
         .unwrap_or_default();
 
     let node_count = topics.len() + claims.len();

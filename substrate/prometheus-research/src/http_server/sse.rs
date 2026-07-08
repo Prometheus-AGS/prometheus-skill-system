@@ -10,8 +10,8 @@ use std::convert::Infallible;
 use tokio::sync::broadcast;
 use tokio_stream::wrappers::BroadcastStream;
 
-use crate::agui::AguiEvent;
 use super::rest::AppState;
+use crate::agui::AguiEvent;
 
 pub type EventBroadcast = broadcast::Sender<AguiEvent>;
 

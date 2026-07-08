@@ -201,7 +201,12 @@ fn now_iso() -> String {
         .duration_since(std::time::UNIX_EPOCH)
         .map(|d| {
             let s = d.as_secs();
-            format!("1970-01-01T{:02}:{:02}:{:02}Z", s / 3600 % 24, s / 60 % 60, s % 60)
+            format!(
+                "1970-01-01T{:02}:{:02}:{:02}Z",
+                s / 3600 % 24,
+                s / 60 % 60,
+                s % 60
+            )
         })
         .unwrap_or_else(|_| "unknown".into())
 }
