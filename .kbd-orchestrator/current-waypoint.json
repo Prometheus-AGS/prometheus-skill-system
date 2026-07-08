@@ -8,10 +8,10 @@
   "goals_met": 0,
   "goals_total": 5,
   "sycophancy_gate": null,
-  "next_command": "/kbd-apply change-prui-001-skill-md-update",
-  "exactNextCommand": "/kbd-apply change-prui-001-skill-md-update",
+  "next_command": "/kbd-apply change-prui-004-ci-workflow",
+  "exactNextCommand": "/kbd-apply change-prui-004-ci-workflow",
   "parallelStart": null,
   "recommendedNextPhase": null,
-  "currentTask": "Plan complete. 5 changes: prui-001 (SKILL.md), prui-002 (UI SSE), prui-003 (surface-bridge fix), prui-004 (CI), prui-005 (smoke test). First: /kbd-apply change-prui-001-skill-md-update",
-  "updatedAt": "2026-07-08T20:00:00Z"
+  "currentTask": "Plan complete (revised with design standards). Execution order: CI (004) → surface-bridge fix (003) → SKILL.md (001) → UI SSE (002) → smoke test (005). Design: Anthropic OKLCH warm-dark + htmx-alpine-lit + animate + delight + polish skills applied.",
+  "updatedAt": "2026-07-08T20:30:00Z"
 }
