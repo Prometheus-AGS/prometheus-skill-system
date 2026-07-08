@@ -1,10 +1,10 @@
 POSITION REMINDER — read this as your FIRST tool call every turn
 Phase: phase-prometheus-research-ui
-Step: 0 of 0
-Stage: assess
-Next command: /kbd-assess phase-prometheus-research-ui
+Step: 0 of 5
+Stage: execute
+Next command: /kbd-apply change-prui-001-skill-md-update
 
 Required signal format (emit BEFORE any tool call):
-  Starting <kbd-skill> — phase-prometheus-research-ui (step 0 of 0)
+  Starting kbd-apply — change-prui-001-skill-md-update (step 1 of 5)
   [do work]
-  Completed <kbd-skill> — phase-prometheus-research-ui (step 0 of 0)
+  Completed kbd-apply — change-prui-001-skill-md-update (step 1 of 5)

@@ -1,17 +1,17 @@
 {
   "phase": "phase-prometheus-research-ui",
   "previousPhase": "phase-prometheus-research-binary",
-  "status": "assess_complete",
-  "stage": "plan",
+  "status": "plan_complete",
+  "stage": "execute",
   "changes_completed": 0,
-  "changes_total": 0,
+  "changes_total": 5,
   "goals_met": 0,
   "goals_total": 5,
   "sycophancy_gate": null,
-  "next_command": "/kbd-plan phase-prometheus-research-ui",
-  "exactNextCommand": "/kbd-plan phase-prometheus-research-ui",
+  "next_command": "/kbd-apply change-prui-001-skill-md-update",
+  "exactNextCommand": "/kbd-apply change-prui-001-skill-md-update",
   "parallelStart": null,
   "recommendedNextPhase": null,
-  "currentTask": "Assessment complete. 5 gaps: SKILL.md (G-01), simulation UI→real SSE (G-02), surface-bridge protocol mismatch HIGH (G-03), CI (G-04), smoke test (G-05). Next: /kbd-plan",
-  "updatedAt": "2026-07-08T19:30:00Z"
+  "currentTask": "Plan complete. 5 changes: prui-001 (SKILL.md), prui-002 (UI SSE), prui-003 (surface-bridge fix), prui-004 (CI), prui-005 (smoke test). First: /kbd-apply change-prui-001-skill-md-update",
+  "updatedAt": "2026-07-08T20:00:00Z"
 }
