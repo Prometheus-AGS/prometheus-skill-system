@@ -298,6 +298,33 @@ install_dsg() {
 
 install_dsg
 
+# ── 10. prometheus-research (HTTP + MCP research server on :7891) ────────────
+if [ -f "${REPO_ROOT}/substrate/prometheus-research/Cargo.toml" ]; then
+    info "Building prometheus-research..."
+    (cd "${REPO_ROOT}/substrate/prometheus-research" && cargo build --release 2>&1 | tail -3)
+    PR_BIN="${REPO_ROOT}/substrate/prometheus-research/target/release/prometheus-research"
+    if [ -f "${PR_BIN}" ]; then
+        install_bin "${PR_BIN}" "${BIN_DIR}/prometheus-research"
+        ok "prometheus-research → ${BIN_DIR}/prometheus-research"
+
+        if [ "$(uname -s)" = "Darwin" ]; then
+            PLIST_SRC="${REPO_ROOT}/substrate/prometheus-research/com.prometheus.research.plist"
+            PLIST_DST="${HOME}/Library/LaunchAgents/com.prometheus.research.plist"
+            mkdir -p "${HOME}/Library/LaunchAgents"
+            sed "s|__HOME__|${HOME}|g" "${PLIST_SRC}" > "${PLIST_DST}"
+            launchctl bootout "gui/$(id -u)" "${PLIST_DST}" 2>/dev/null || true
+            launchctl bootstrap "gui/$(id -u)" "${PLIST_DST}"
+            ok "prometheus-research launchd service registered"
+        else
+            info "skip launchd (not macOS) — start manually: prometheus-research --mode mcp"
+        fi
+    else
+        fail "prometheus-research binary not found after build"
+    fi
+else
+    info "skip prometheus-research (substrate/prometheus-research not found)"
+fi
+
 echo ""
 echo "✨ All binaries installed to ${BIN_DIR}"
 echo "   Next: bash scripts/install-mcp-services.sh   # (re)install + start launchd/systemd daemons"

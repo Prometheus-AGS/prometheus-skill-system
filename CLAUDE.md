@@ -291,12 +291,13 @@ prometheus-skill-pack/
 │       ├── sync-peers/     # P2P peer management
 │       └── sync-push/      # Push CRDT domain to peers
 │
-├── substrate/              # Rust crates for learn domain
+├── substrate/              # Rust crates for learn domain and research
 │   ├── storage-provider/   # StorageProvider + CrdtEngine traits + SyncManifest
 │   ├── learner-model/      # CRDT learner model + FSRS-6 scheduler
 │   ├── surface-bridge/     # Axum MCP App server (Tier 2 UI)
 │   ├── sovereign-sync/     # P2P CRDT daemon + MCP server + REST API (v1.5.0)
-│   └── sovereign-client/   # Rust SDK for sovereign-sync REST + SSE
+│   ├── sovereign-client/   # Rust SDK for sovereign-sync REST + SSE
+│   └── prometheus-research/ # HTTP+MCP research server on :7891 with AG-UI SSE (v1.6.0)
 │
 ├── shared/                 # Shared resources across all skills
 │   ├── scripts/            # Reusable scripts
@@ -668,7 +669,7 @@ The learn domain adds a Feynman-Spine learning and education capability to the s
 
 | Layer | Location | Purpose |
 |---|---|---|
-| **A — Substrate** | `substrate/` | Rust crates: storage-provider, learner-model, surface-bridge, sovereign-sync, sovereign-client |
+| **A — Substrate** | `substrate/` | Rust crates: storage-provider, learner-model, surface-bridge, sovereign-sync, sovereign-client, prometheus-research |
 | **B — UI primitive** | `skills/learn/ui-surface` | Cross-harness rendering via surface tier detection |
 | **C — Learning skills** | `skills/learn/` | 12 skills composing the full learning arc |
 | **D — KB adapters** | `shared/scripts/content-grounding-kb.sh` | Privacy-safe custom knowledge base integration |
@@ -680,6 +681,7 @@ The learn domain adds a Feynman-Spine learning and education capability to the s
 - **`surface-bridge`** — Axum HTTP server on `127.0.0.1:7890`; routes: `/health`, `/mcp/detect-surface-tier`, `/mcp/render-ui-intent`, `/mcp/collect-response`; installed as a macOS launchd service via `install-skills-flat.sh`
 - **`sovereign-sync`** — P2P CRDT sync daemon, MCP server, and REST API on `127.0.0.1:7892`; iroh 1.0 + iroh-gossip 0.101 for QUIC P2P transport; Loro 1.13 for CRDT merge; rmcp 1.8 for MCP server (stdio); redb 2 for persistence; AG-UI SSE endpoint for Tauri/web clients; modes: `--mode mcp|daemon|server`; launchd service via `install-skills-flat.sh`
 - **`sovereign-client`** — Rust SDK for `sovereign-sync` REST API + AG-UI SSE; reqwest 0.12 + eventsource-stream 0.2; `SovereignClient::new(base_url)` entry point
+- **`prometheus-research`** — Background deep-research daemon (v1.6.0); HTTP server on `127.0.0.1:7891`; 5 MCP tools (research_start/status/cancel/export, render_component); AG-UI SSE event stream; A2UI component registry with 8 server-rendered HTMX fragments; HTMX 2.0.8 + htmx-ext-sse 2.2.2 + Alpine.js 3.14.8 vendored; launchd auto-start via `com.prometheus.research.plist`; installed by `scripts/install-binaries.sh`
 
 ### Surface Tier Degradation Contract
 

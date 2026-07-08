@@ -1,10 +1,10 @@
 POSITION REMINDER — read this as your FIRST tool call every turn
 Phase: phase-prometheus-research-binary
-Step: 0 of 0
-Stage: assess
-Next command: /kbd-assess phase-prometheus-research-binary
+Step: 7 of 8
+Stage: execute
+Next command: /kbd-apply change-prb-008-tag-v160
 
 Required signal format (emit BEFORE any tool call):
-  Starting <kbd-skill> — phase-prometheus-research-binary (step 0 of 0)
+  Starting <kbd-skill> — phase-prometheus-research-binary (step 7 of 8)
   [do work]
-  Completed <kbd-skill> — phase-prometheus-research-binary (step 0 of 0)
+  Completed <kbd-skill> — phase-prometheus-research-binary (step 7 of 8)

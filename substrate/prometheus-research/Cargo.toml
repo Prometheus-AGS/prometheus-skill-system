@@ -1,0 +1,64 @@
+[package]
+name = "prometheus-research"
+version = "0.1.0"
+edition = "2021"
+description = "Background research daemon with HTTP/MCP server and AG-UI streaming for prometheus-skill-pack"
+
+[[bin]]
+name = "prometheus-research"
+path = "src/main.rs"
+
+[lib]
+name = "prometheus_research"
+path = "src/lib.rs"
+
+[dependencies]
+# CLI
+clap = { version = "4", features = ["derive"] }
+
+# Config
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+toml = "0.8"
+
+# Async runtime
+tokio = { version = "1", features = ["full"] }
+tokio-stream = { version = "0.1", features = ["sync"] }
+futures = "0.3"
+bytes = "1"
+
+# HTTP server
+axum = { version = "0.8", features = ["json"] }
+tower = "0.5"
+tower-http = { version = "0.6", features = ["cors"] }
+
+# MCP server (rmcp 1.8)
+rmcp = { version = "1.8", features = ["server", "transport-io", "macros"] }
+schemars = "1.0"
+
+# HTTP client (for surface-bridge emit)
+reqwest = { version = "0.12", features = ["json"], default-features = false }
+
+# Markdown rendering
+pulldown-cmark = "0.11"
+
+# Error handling
+thiserror = "1"
+anyhow = "1"
+
+# Dirs
+dirs-next = "2"
+
+# Tracing
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+# Random ID generation
+uuid = { version = "1", features = ["v4"] }
+
+[target.'cfg(unix)'.dependencies]
+nix = { version = "0.29", features = ["signal", "process"] }
+
+[dev-dependencies]
+tokio = { version = "1", features = ["full"] }
+reqwest = { version = "0.12", features = ["json", "stream"], default-features = false }
