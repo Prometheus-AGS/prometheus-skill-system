@@ -77,6 +77,32 @@ T5="$TMP/t5.jsonl"; mk_transcript "$T5" "no footer"
 OUT="$(cd "$TMP/done" && printf '{"stop_hook_active":false,"transcript_path":"%s","session_id":"s5"}' "$T5" | bash "$GATE")"
 [ -z "$OUT" ] && ok || bad "terminal status silent" "$OUT"
 
+# 5b. Terminal status "reflected" (reflect stage vocabulary) → silent.
+# Regression: this string was NOT in the old phase_complete|reflect_complete
+# set, so a reflected phase re-nagged /kbd-execute forever.
+mkdir -p "$TMP/reflected/.kbd-orchestrator"
+cat > "$TMP/reflected/.kbd-orchestrator/current-waypoint.json" <<'EOF'
+{ "phase": "phase-x", "status": "reflected", "exactNextCommand": "/kbd-new-phase" }
+EOF
+T5B="$TMP/t5b.jsonl"; mk_transcript "$T5B" "no footer, phase is reflected"
+OUT="$(cd "$TMP/reflected" && printf '{"stop_hook_active":false,"transcript_path":"%s","session_id":"s5b"}' "$T5B" | bash "$GATE")"
+[ -z "$OUT" ] && ok || bad "reflected status silent" "$OUT"
+
+# 5c. Terminal status "reflect_complete" (canonical) → silent
+mkdir -p "$TMP/rc/.kbd-orchestrator"
+cat > "$TMP/rc/.kbd-orchestrator/current-waypoint.json" <<'EOF'
+{ "phase": "phase-x", "status": "reflect_complete", "exactNextCommand": "/kbd-new-phase" }
+EOF
+T5C="$TMP/t5c.jsonl"; mk_transcript "$T5C" "no footer"
+OUT="$(cd "$TMP/rc" && printf '{"stop_hook_active":false,"transcript_path":"%s","session_id":"s5c"}' "$T5C" | bash "$GATE")"
+[ -z "$OUT" ] && ok || bad "reflect_complete status silent" "$OUT"
+
+# 5d. Non-terminal status ("done"-adjacent but active) still gates.
+# Guards against the terminal set going so broad it swallows active work.
+T5D="$TMP/t5d.jsonl"; mk_transcript "$T5D" "no footer, still executing"
+OUT="$(cd "$TMP/repo" && printf '{"stop_hook_active":false,"transcript_path":"%s","session_id":"s5d"}' "$T5D" | bash "$GATE")"
+printf '%s' "$OUT" | jq -e '.decision == "block"' >/dev/null 2>&1 && ok || bad "active status still gates" "$OUT"
+
 # 6. No orchestrator → silent
 mkdir -p "$TMP/bare"
 OUT="$(cd "$TMP/bare" && printf '{"stop_hook_active":false,"transcript_path":"%s","session_id":"s6"}' "$T5" | bash "$GATE")"

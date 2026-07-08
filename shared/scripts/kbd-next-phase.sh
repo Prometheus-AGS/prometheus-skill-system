@@ -49,7 +49,12 @@ fi
 
 # ── Read current waypoint ─────────────────────────────────────────────────
 CURRENT_PHASE="$(python3 -c "import json; d=json.load(open('$WAYPOINT_JSON')); print(d.get('phase','unknown'))" 2>/dev/null || echo "unknown")"
-CURRENT_STAGE="$(python3 -c "import json; d=json.load(open('$WAYPOINT_JSON')); print(d.get('stage','unknown'))" 2>/dev/null || echo "unknown")"
+# Read the terminal marker from `stage` OR `status` OR `project.json` — the
+# waypoint carries the same concept under different keys across generations,
+# and reflect writes the terminal state to project.json (status: reflected)
+# while the waypoint may lag. Checking all three avoids a spurious "not
+# reflect_complete" warning on a genuinely reflected phase.
+CURRENT_STAGE="$(python3 -c "import json; d=json.load(open('$WAYPOINT_JSON')); print(d.get('stage') or d.get('status') or 'unknown')" 2>/dev/null || echo "unknown")"
 CHANGES_TOTAL="$(python3 -c "import json; d=json.load(open('$WAYPOINT_JSON')); print(d.get('changes_total',0))" 2>/dev/null || echo 0)"
 CHANGES_COMPLETED="$(python3 -c "import json; d=json.load(open('$WAYPOINT_JSON')); print(d.get('changes_completed',0))" 2>/dev/null || echo 0)"
 
@@ -59,13 +64,22 @@ if [[ -f "$PROJECT_JSON" ]]; then
 fi
 
 # ── Warn if reflection not complete ───────────────────────────────────────
-if [[ "$CURRENT_STAGE" != "reflect_complete" ]]; then
-  echo ""
-  echo "[kbd-next-phase] WARNING: Current stage is '${CURRENT_STAGE}', not 'reflect_complete'."
-  echo "  It is recommended to run /kbd-reflect before continuing to the next phase."
-  echo "  Proceeding anyway -- next phase will be seeded from whatever reflection content exists."
-  echo ""
+# Accept any recognized "reflection done" vocabulary; project.json is the
+# authoritative fallback when the waypoint status lags behind reflect.
+PROJECT_STATUS=""
+if [[ -f "$PROJECT_JSON" ]]; then
+  PROJECT_STATUS="$(python3 -c "import json; d=json.load(open('$PROJECT_JSON')); print(d.get('status') or '')" 2>/dev/null || echo "")"
 fi
+case "${CURRENT_STAGE}:${PROJECT_STATUS}" in
+  reflect_complete:*|reflected:*|phase_complete:*|*:reflect_complete|*:reflected|*:phase_complete) : ;;
+  *)
+    echo ""
+    echo "[kbd-next-phase] WARNING: Current stage is '${CURRENT_STAGE}' (project status '${PROJECT_STATUS:-none}'), not a recognized reflection-complete state."
+    echo "  It is recommended to run /kbd-reflect before continuing to the next phase."
+    echo "  Proceeding anyway -- next phase will be seeded from whatever reflection content exists."
+    echo ""
+    ;;
+esac
 
 # ── Read reflection for seed content ─────────────────────────────────────
 REFLECTION="${KBD_DIR}/phases/${CURRENT_PHASE}/reflection.md"

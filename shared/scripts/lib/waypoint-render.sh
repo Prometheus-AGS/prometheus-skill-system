@@ -45,6 +45,27 @@ _wr_get() {
   jq -r --arg c "$2" --arg s "$3" '.[$c] // .[$s] // empty' "$1" 2>/dev/null || true
 }
 
+# _wr_is_terminal_status <status>
+# Returns 0 when the given waypoint status/stage means "this phase is finished"
+# and no further work should be steered — so hooks stop nagging and next-phase
+# gates pass. Broad by design: the KBD toolchain has accumulated several
+# vocabularies for "done" across skills, scripts, and hand-authored project
+# state (e.g. reflect writes "reflected" in project.json while older scripts
+# expect "reflect_complete"). Matching only one string is the seam that made a
+# completed phase re-nag /kbd-execute forever. An empty status is treated as
+# terminal too: a waypoint with no status carries no active step to enforce.
+# Case-insensitive; tolerates hyphen/space variants.
+_wr_is_terminal_status() {
+  local s
+  s="$(printf '%s' "${1:-}" | tr '[:upper:] -' '[:lower:]__')"
+  case "$s" in
+    ""|reflected|reflect_complete|phase_complete|complete|completed|done|archived|closed|reflect_done|phase_done)
+      return 0 ;;
+    *)
+      return 1 ;;
+  esac
+}
+
 waypoint_render() {
   command -v jq >/dev/null 2>&1 || return 0
 

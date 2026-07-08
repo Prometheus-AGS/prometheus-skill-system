@@ -133,6 +133,17 @@ RC=$?
 assert_empty "hook silent without state" "$OUT"
 [ "$RC" -eq 0 ] && PASS=$((PASS + 1)) || { FAIL=$((FAIL + 1)); echo "FAIL: bare hook rc=$RC" >&2; }
 
+# 11. _wr_is_terminal_status classifies the "done" vocabulary correctly
+source "$LIB"
+for s in reflected reflect_complete phase_complete complete completed done archived closed "" REFLECTED "reflect-complete"; do
+  if _wr_is_terminal_status "$s"; then PASS=$((PASS + 1)); else
+    FAIL=$((FAIL + 1)); echo "FAIL: '$s' should be terminal" >&2; fi
+done
+for s in execute_ready planned executing assessment_ready plan_ready in_progress blocked; do
+  if _wr_is_terminal_status "$s"; then
+    FAIL=$((FAIL + 1)); echo "FAIL: '$s' should NOT be terminal" >&2; else PASS=$((PASS + 1)); fi
+done
+
 echo "---"
 echo "PASS=$PASS FAIL=$FAIL"
 [ "$FAIL" -eq 0 ]

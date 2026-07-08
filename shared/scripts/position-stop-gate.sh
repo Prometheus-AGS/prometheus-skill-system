@@ -35,9 +35,10 @@ ROOT="$(_wr_find_root)" || finish
 WP="$ROOT/.kbd-orchestrator/current-waypoint.json"
 [ -f "$WP" ] || finish
 STATUS="$(jq -r '.status // .stage // empty' "$WP" 2>/dev/null || true)"
-case "$STATUS" in
-  phase_complete|reflect_complete|"") finish ;;
-esac
+# Stop gating once the phase is terminal (any "done" vocabulary — see
+# _wr_is_terminal_status in waypoint-render.sh). Gating a completed phase is
+# what turned a stale waypoint into a perpetual /kbd-execute nag.
+_wr_is_terminal_status "$STATUS" && finish
 
 # --- Soft cap: never block the same stop twice (belt-and-suspenders beyond
 # stop_hook_active, keyed on session + transcript fingerprint) ---
