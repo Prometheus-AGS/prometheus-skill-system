@@ -1,0 +1,57 @@
+name: Prometheus Research Rust
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/prometheus-research.yml"
+      - "substrate/prometheus-research/**"
+  pull_request:
+    branches: [main]
+    paths:
+      - ".github/workflows/prometheus-research.yml"
+      - "substrate/prometheus-research/**"
+
+jobs:
+  rust:
+    name: prometheus-research / ${{ matrix.command }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        command:
+          - fmt
+          - clippy
+          - test
+    defaults:
+      run:
+        working-directory: substrate/prometheus-research
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      - name: Cache cargo registry and build outputs
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            substrate/prometheus-research/target
+          key: prometheus-research-${{ runner.os }}-${{ matrix.command }}-${{ hashFiles('substrate/prometheus-research/Cargo.lock') }}
+          restore-keys: |
+            prometheus-research-${{ runner.os }}-
+
+      - name: cargo fmt --check
+        if: matrix.command == 'fmt'
+        run: cargo fmt --check
+
+      - name: cargo clippy
+        if: matrix.command == 'clippy'
+        run: cargo clippy --all-targets --all-features -- -D warnings
+
+      - name: cargo test
+        if: matrix.command == 'test'
+        run: cargo test --all-targets --all-features
