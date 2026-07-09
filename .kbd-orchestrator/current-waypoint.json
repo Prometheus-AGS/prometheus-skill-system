@@ -3,12 +3,12 @@
   "previousPhase": "phase-prui-polish",
   "status": "plan_complete",
   "stage": "execute",
-  "changes_completed": 1,
+  "changes_completed": 2,
   "changes_total": 8,
   "goals_met": 0,
   "goals_total": 7,
   "sycophancy_gate": null,
-  "next_command": "/kbd-apply change-bdd-002-cucumber-js-examples",
+  "next_command": "/kbd-apply change-bdd-003-cucumber-rs-skill",
   "exactNextCommand": "/kbd-assess phase-prui-polish",
   "parallelStart": null,
   "recommendedNextPhase": null,
@@ -18,5 +18,5 @@
   "assessment_complete": true,
   "analysis_complete": true,
   "plan_complete": true,
-  "last_change": "change-bdd-001-fork-cucumber-js"
+  "last_change": "change-bdd-002-cucumber-js-examples"
 }
