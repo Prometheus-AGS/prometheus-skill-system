@@ -1,0 +1,36 @@
+# docker-compose.yml — one-command "just run the daemon"
+#
+# From this directory:
+#   docker compose up            # foreground
+#   docker compose up -d         # detached
+#   docker compose down          # stop and remove
+#
+# Compatible with Colima and Docker Desktop. The build context is the repo
+# root (two levels up) so the daemon crate can access both its own source
+# under substrate/ and the embedded HTML under docs/deep-research/.
+#
+# Port 7891 must be free on the host — if the native launchd service is
+# running, either stop it or edit the ports mapping below.
+
+services:
+  prometheus-research:
+    build:
+      context: ../../
+      dockerfile: docs/deep-research/Dockerfile
+    image: prometheus-research:local
+    container_name: prometheus-research
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:7891:7891"
+    # Bind to loopback only — the daemon is a personal tool, not a public
+    # service.
+    environment:
+      RUST_LOG: "prometheus_research=info,tower_http=info"
+    healthcheck:
+      # Use the daemon's own --mode status check — avoids needing curl/wget in
+      # the debian:bookworm-slim runtime image.
+      test: ["CMD", "/usr/local/bin/prometheus-research", "--mode", "status"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 5s

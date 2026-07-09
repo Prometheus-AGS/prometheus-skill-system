@@ -28,6 +28,8 @@ pub async fn run_server(port: u16, cfg: ResearchConfig) -> anyhow::Result<()> {
         .allow_headers(Any);
 
     let app = Router::new()
+        .route("/", get(rest::index_handler))
+        .route("/manifest.json", get(rest::manifest_handler))
         .route("/health", get(health::health_handler))
         .route("/api/v1/jobs", post(rest::create_job))
         .route("/api/v1/jobs/{id}", get(rest::get_job))
@@ -35,6 +37,7 @@ pub async fn run_server(port: u16, cfg: ResearchConfig) -> anyhow::Result<()> {
         .route("/api/v1/jobs/{id}/events", get(sse::sse_handler))
         .route("/components/{name}", get(rest::get_component))
         .route("/static/{*path}", get(rest::static_handler))
+        .route("/brand/{*path}", get(rest::brand_handler))
         .layer(cors)
         .with_state(state);
 

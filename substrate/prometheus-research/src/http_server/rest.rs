@@ -176,6 +176,89 @@ pub async fn static_handler(Path(path): Path<String>) -> impl IntoResponse {
             include_bytes!("../static/alpine.min.js"),
             "application/javascript",
         ),
+        "hls.min.js" => serve_bytes(
+            include_bytes!("../static/hls.min.js"),
+            "application/javascript",
+        ),
+        _ => Response::builder()
+            .status(StatusCode::NOT_FOUND)
+            .body(Body::from("not found"))
+            .unwrap(),
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Index — serve the deep-research UI shell at GET /
+// ---------------------------------------------------------------------------
+
+const INDEX_HTML: &[u8] = include_bytes!("../../../../docs/deep-research/deep-research-ui.html");
+const MANIFEST_JSON: &[u8] = include_bytes!("../../../../docs/deep-research/manifest.json");
+
+pub async fn index_handler() -> impl IntoResponse {
+    Response::builder()
+        .status(StatusCode::OK)
+        .header(header::CONTENT_TYPE, "text/html; charset=utf-8")
+        .header(header::CACHE_CONTROL, "no-cache")
+        .body(Body::from(INDEX_HTML))
+        .unwrap()
+}
+
+pub async fn manifest_handler() -> impl IntoResponse {
+    Response::builder()
+        .status(StatusCode::OK)
+        .header(header::CONTENT_TYPE, "application/manifest+json")
+        .header(header::CACHE_CONTROL, "public, max-age=3600")
+        .body(Body::from(MANIFEST_JSON))
+        .unwrap()
+}
+
+// ---------------------------------------------------------------------------
+// Brand assets — KnowMe logo (SVG + PNG) + tokens.css, embedded at build time
+// ---------------------------------------------------------------------------
+
+pub async fn brand_handler(Path(path): Path<String>) -> impl IntoResponse {
+    match path.as_str() {
+        "tokens.css" => serve_bytes(include_bytes!("../static/brand/tokens.css"), "text/css"),
+        "primary-light.svg" => serve_bytes(
+            include_bytes!("../static/brand/primary-light.svg"),
+            "image/svg+xml",
+        ),
+        "primary-dark.svg" => serve_bytes(
+            include_bytes!("../static/brand/primary-dark.svg"),
+            "image/svg+xml",
+        ),
+        "primary-light-16.png" => serve_bytes(
+            include_bytes!("../static/brand/primary-light-16.png"),
+            "image/png",
+        ),
+        "primary-light-32.png" => serve_bytes(
+            include_bytes!("../static/brand/primary-light-32.png"),
+            "image/png",
+        ),
+        "primary-light-180.png" => serve_bytes(
+            include_bytes!("../static/brand/primary-light-180.png"),
+            "image/png",
+        ),
+        "primary-light-512.png" => serve_bytes(
+            include_bytes!("../static/brand/primary-light-512.png"),
+            "image/png",
+        ),
+        "primary-dark-16.png" => serve_bytes(
+            include_bytes!("../static/brand/primary-dark-16.png"),
+            "image/png",
+        ),
+        "primary-dark-32.png" => serve_bytes(
+            include_bytes!("../static/brand/primary-dark-32.png"),
+            "image/png",
+        ),
+        "primary-dark-180.png" => serve_bytes(
+            include_bytes!("../static/brand/primary-dark-180.png"),
+            "image/png",
+        ),
+        "primary-dark-512.png" => serve_bytes(
+            include_bytes!("../static/brand/primary-dark-512.png"),
+            "image/png",
+        ),
         _ => Response::builder()
             .status(StatusCode::NOT_FOUND)
             .body(Body::from("not found"))

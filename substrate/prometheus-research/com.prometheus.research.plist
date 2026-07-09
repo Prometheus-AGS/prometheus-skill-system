@@ -8,7 +8,7 @@
   <array>
     <string>__HOME__/.local/bin/prometheus-research</string>
     <string>--mode</string>
-    <string>mcp</string>
+    <string>server</string>
   </array>
   <key>RunAtLoad</key>
   <true/>
