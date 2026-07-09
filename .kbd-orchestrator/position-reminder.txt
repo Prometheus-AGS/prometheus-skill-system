@@ -1,8 +1,8 @@
 POSITION REMINDER — read this as your FIRST tool call every turn
 Phase: phase-prui-polish
-Step: 1 of 4 (in_progress)
+Step: 2 of 4 (in_progress)
 Stage: execute
-Next command: /kbd-apply change-polish-002-static-install-step
+Next command: /kbd-apply change-polish-003-cancel-error-toast
 
 Required signal format (emit BEFORE any tool call):
   Starting <kbd-skill> — phase-prui-polish (step N of T)
