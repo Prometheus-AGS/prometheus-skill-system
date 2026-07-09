@@ -1,8 +1,8 @@
 POSITION REMINDER — read this as your FIRST tool call every turn
 Phase: phase-bdd-video-proof
-Step: 5 of 8 (execute in progress)
+Step: 6 of 8 (execute in progress)
 Stage: execute
-Next command: /kbd-apply change-bdd-006-video-cert-bundle
+Next command: /kbd-apply change-bdd-007-cross-references
 
 Required signal format (emit BEFORE any tool call):
   Starting <kbd-skill> — phase-bdd-video-proof (step N of T)
