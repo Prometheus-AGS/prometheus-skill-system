@@ -1,0 +1,8 @@
+{
+  "stage": "assess",
+  "phase": "phase-prui-polish",
+  "written_at": "2026-07-09T11:05:00Z",
+  "artifact": "assessment.md",
+  "summary": "4 gaps confirmed: hls.min.js is a 125-byte stub (G-01), docs/deep-research/static is a git symlink with no install copy step (G-02), cancelJob() catch block is best-effort with no user feedback (G-03), SSE onerror sets no reconnect indicator (G-04). No open questions; all changes are independently deliverable. Next: /kbd-plan phase-prui-polish.",
+  "skipped": false
+}

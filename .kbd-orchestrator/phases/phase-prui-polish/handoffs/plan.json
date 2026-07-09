@@ -1,0 +1,8 @@
+{
+  "stage": "plan",
+  "phase": "phase-prui-polish",
+  "written_at": "2026-07-09T11:15:00Z",
+  "artifact": "plan.md",
+  "summary": "4 changes, OpenSpec backend. change-polish-001 vendors real HLS.js (3 tasks), change-polish-002 replaces symlink with real static files + install step (6 tasks), change-polish-003 adds cancel error toast (4 tasks), change-polish-004 adds SSE reconnect overlay (8 tasks). First change to apply: /kbd-apply change-polish-001-vendor-hlsjs.",
+  "skipped": false
+}
