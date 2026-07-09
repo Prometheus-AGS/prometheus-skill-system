@@ -1,8 +1,8 @@
 POSITION REMINDER — read this as your FIRST tool call every turn
 Phase: phase-bdd-video-proof
-Step: 7 of 8 (execute in progress)
-Stage: execute
-Next command: /kbd-apply change-bdd-008-validate-smoke-tests
+Step: 8 of 8 (execute_complete)
+Stage: reflect
+Next command: /kbd-reflect phase-bdd-video-proof
 
 Required signal format (emit BEFORE any tool call):
   Starting <kbd-skill> — phase-bdd-video-proof (step N of T)
