@@ -2208,6 +2208,32 @@
       100% { box-shadow: 0 0 0 0   color-mix(in oklch, var(--success) 0%,  transparent); }
     }
 
+    /* ── SSE Reconnect overlay ───────────────────────────────────────── */
+    .reconnect-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: oklch(0.14 0.01 70 / 0.82);
+      border-radius: inherit;
+      backdrop-filter: blur(3px);
+      z-index: 10;
+      pointer-events: none;
+    }
+    .reconnect-label {
+      color: var(--accent);
+      font-size: 0.7rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+    @media (prefers-reduced-motion: no-preference) {
+      .reconnect-label {
+        animation: sse-glow-pulse 1.4s ease-in-out infinite;
+      }
+    }
+
     /* ================================================================
        POLISH SKILL — all 5 interaction states + focus rings + spacing
        ================================================================ */
@@ -3136,7 +3162,7 @@ apps:
 
         <!-- OVERVIEW TAB -->
         <div x-show="jobTab === 'overview'" x-cloak>
-          <div class="progress-section" x-show="aj.status !== 'queued'">
+          <div class="progress-section" x-show="aj.status !== 'queued'" style="position:relative;">
             <div class="progress-header">
               <span class="progress-title" x-text="currentStageName"></span>
               <span class="progress-meta" x-text="aj.progress + '% complete'"></span>
@@ -3151,6 +3177,9 @@ apps:
                   <span x-text="stage.name"></span>
                 </div>
               </template>
+            </div>
+            <div class="reconnect-overlay" x-show="aj.sseReconnecting" x-cloak>
+              <span class="reconnect-label">Reconnecting&hellip;</span>
             </div>
           </div>
 
@@ -4033,6 +4062,7 @@ function deepResearchApp() {
         stages: freshStages(-1, -1),
         serverJobId: null,
         sseSource: null,
+        sseReconnecting: false,
         config: {
           agent: this.settings.agents.defaultAgent,
           topology: this.wizard.topology,
@@ -4105,8 +4135,9 @@ function deepResearchApp() {
       const es = new EventSource(url);
       rjob.sseSource = es;
 
-      // Mark the SSE dot connected on open.
+      // Mark the SSE dot connected on open; clear reconnect overlay.
       es.onopen = () => {
+        rjob.sseReconnecting = false;
         this.$nextTick(() => {
           const dot = document.querySelector('.sse-dot');
           if (dot) dot.classList.add('connected');
@@ -4144,6 +4175,7 @@ function deepResearchApp() {
           const serverStatus = msg.status || '';
           if (serverStatus === 'completed') {
             rjob.status = 'completed';
+            rjob.sseReconnecting = false;
             rjob.progress = 100;
             rjob.stages.forEach(s => { s.status = 'completed'; });
             es.close();
@@ -4157,6 +4189,7 @@ function deepResearchApp() {
             this.showToast('Research completed.', 'success');
           } else if (serverStatus === 'failed') {
             rjob.status = 'error';
+            rjob.sseReconnecting = false;
             es.close();
             this.showToast('Research failed \u2014 see trace for details.', 'error');
           } else {
@@ -4182,7 +4215,8 @@ function deepResearchApp() {
       };
 
       es.onerror = () => {
-        // Reconnect is handled automatically by EventSource; just update the dot.
+        // Reconnect is handled automatically by EventSource; update dot + reconnect state.
+        rjob.sseReconnecting = true;
         this.$nextTick(() => {
           const dot = document.querySelector('.sse-dot');
           if (dot) dot.classList.remove('connected');
@@ -4196,6 +4230,7 @@ function deepResearchApp() {
       // Close SSE stream first.
       if (job.sseSource) { job.sseSource.close(); job.sseSource = null; }
       job.status = 'cancelled';
+      job.sseReconnecting = false;
       // Fire DELETE to server if we have a real server job id.
       if (job.serverJobId) {
         try {
