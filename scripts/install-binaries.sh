@@ -307,6 +307,14 @@ if [ -f "${REPO_ROOT}/substrate/prometheus-research/Cargo.toml" ]; then
         install_bin "${PR_BIN}" "${BIN_DIR}/prometheus-research"
         ok "prometheus-research → ${BIN_DIR}/prometheus-research"
 
+        STATIC_SRC="${REPO_ROOT}/substrate/prometheus-research/src/static"
+        STATIC_DST="${REPO_ROOT}/docs/deep-research/static"
+        if [ -d "${STATIC_SRC}" ]; then
+            mkdir -p "${STATIC_DST}"
+            cp -r "${STATIC_SRC}/." "${STATIC_DST}/"
+            ok "prometheus-research static assets → docs/deep-research/static/"
+        fi
+
         if [ "$(uname -s)" = "Darwin" ]; then
             PLIST_SRC="${REPO_ROOT}/substrate/prometheus-research/com.prometheus.research.plist"
             PLIST_DST="${HOME}/Library/LaunchAgents/com.prometheus.research.plist"
