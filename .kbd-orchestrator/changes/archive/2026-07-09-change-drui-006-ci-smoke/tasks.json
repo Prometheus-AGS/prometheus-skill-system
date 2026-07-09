@@ -1,0 +1,52 @@
+{
+  "changeId": "change-drui-006-ci-smoke",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Locally verify prometheus-research --mode server boots cleanly and /health, /, /static/htmx.min.js, /brand/primary-light.svg all return 200 with non-empty bodies",
+      "done": true,
+      "doneAt": "2026-07-09T16:33:55Z",
+      "doneBy": "claude-code",
+      "files": [],
+      "verify": null,
+      "notes": null
+    },
+    {
+      "id": "2",
+      "title": "Add a ci-smoke job to .github/workflows/prometheus-research.yml: build release binary, start --mode server in background, poll /health with a timeout",
+      "done": true,
+      "doneAt": "2026-07-09T16:34:58Z",
+      "doneBy": "claude-code",
+      "files": [
+        ".github/workflows/prometheus-research.yml"
+      ],
+      "verify": null,
+      "notes": null
+    },
+    {
+      "id": "3",
+      "title": "In the ci-smoke job, curl /, /static/htmx.min.js, /brand/primary-light.svg asserting HTTP 200 + non-empty body for each, then tear down the server process",
+      "done": true,
+      "doneAt": "2026-07-09T16:35:35Z",
+      "doneBy": "claude-code",
+      "files": [
+        ".github/workflows/prometheus-research.yml"
+      ],
+      "verify": null,
+      "notes": null
+    },
+    {
+      "id": "4",
+      "title": "Validate the updated workflow YAML (yamllint or python yaml.safe_load) and confirm the new job doesn't disturb the existing fmt/clippy/test matrix",
+      "done": true,
+      "doneAt": "2026-07-09T16:37:09Z",
+      "doneBy": "claude-code",
+      "files": [
+        ".github/workflows/prometheus-research.yml"
+      ],
+      "verify": "python3 -c \"import yaml; yaml.safe_load(open('.github/workflows/prometheus-research.yml'))\"",
+      "notes": null
+    }
+  ]
+}

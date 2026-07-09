@@ -1,0 +1,9 @@
+{
+  "stage": "reflect",
+  "completedAt": "2026-07-09T16:48:25Z",
+  "outputs": [],
+  "nextStage": null,
+  "summaryForNext": "skipped: Legacy phase (no handoffs/ dir was ever created); reflection.md written directly.",
+  "skipped": true,
+  "skipReason": "Legacy phase (no handoffs/ dir was ever created); reflection.md written directly."
+}

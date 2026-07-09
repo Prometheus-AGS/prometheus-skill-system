@@ -1,10 +1,10 @@
 POSITION REMINDER — read this as your FIRST tool call every turn
 Phase: phase-drui-standalone-hosting
-Step: 5 of 6 (execute in progress)
-Stage: execute
-Next command: /kbd-apply change-drui-006-ci-smoke
+Step: 6 of 6
+Stage: reflect
+Next command: /kbd-new-phase <next-phase-name>
 
 Required signal format (emit BEFORE any tool call):
-  Starting <kbd-skill> — phase-drui-standalone-hosting (step N of T)
+  Starting <kbd-skill> — phase-drui-standalone-hosting (step 6 of 6)
   [do work]
-  Completed <kbd-skill> — phase-drui-standalone-hosting (step N of T)
+  Completed <kbd-skill> — phase-drui-standalone-hosting (step 6 of 6)

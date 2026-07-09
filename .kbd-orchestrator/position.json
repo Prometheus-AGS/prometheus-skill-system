@@ -1,29 +1,18 @@
 {
   "schemaVersion": "1",
-  "updatedAt": "2026-07-02T17:09:42Z",
+  "updatedAt": "2026-07-09T16:42:53Z",
   "cursor": [
-    "phase-okf-llm-wiki-adoption",
-    "change-okf-008-integration-verification"
+    "phase-drui-standalone-hosting"
   ],
   "root": {
     "type": "phase",
-    "id": "phase-okf-llm-wiki-adoption",
-    "status": "execute_ready",
+    "id": "phase-drui-standalone-hosting",
+    "status": "execute_complete",
     "progress": {
-      "done": 7,
-      "total": 8
+      "done": 6,
+      "total": 6
     },
-    "children": [
-      {
-        "type": "change",
-        "id": "change-okf-008-integration-verification",
-        "status": "PENDING",
-        "progress": {
-          "done": 0,
-          "total": 0
-        }
-      }
-    ],
+    "children": [],
     "annotations": []
   }
 }
