@@ -1,8 +1,8 @@
 POSITION REMINDER — read this as your FIRST tool call every turn
 Phase: phase-bdd-video-proof
-Step: 4 of 8 (execute in progress)
+Step: 5 of 8 (execute in progress)
 Stage: execute
-Next command: /kbd-apply change-bdd-005-lifecycle-loop-skill
+Next command: /kbd-apply change-bdd-006-video-cert-bundle
 
 Required signal format (emit BEFORE any tool call):
   Starting <kbd-skill> — phase-bdd-video-proof (step N of T)
