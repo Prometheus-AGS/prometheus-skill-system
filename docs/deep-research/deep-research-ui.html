@@ -3,35 +3,43 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>travisjames.ai — Deep Research</title>
+  <title>KnowMe — Deep Research</title>
   <!-- Version: 3.0.0 — Single-view architecture with dynamic sidebar sections,
        horizontal job tabs, real dashboard, and ambient simulation.
-       Based on Fable 5's multi-tenancy redesign (see docs/deep-research/fable5-comparison.md). -->
-  <meta name="description" content="Deep research powered by the travisjames.ai Skill System">
-  <meta name="theme-color" content="#E04E28">
+       Based on Fable 5's multi-tenancy redesign (see docs/deep-research/fable5-comparison.md).
+       Brand system: KnowMe (Conviction logomark + ember accent). Tokens vendored at /brand/tokens.css. -->
+  <meta name="description" content="Deep research powered by the KnowMe skill system">
+  <meta name="theme-color" content="#FF6A3D">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="travisjames.ai">
+  <meta name="apple-mobile-web-app-title" content="KnowMe">
   <meta name="format-detection" content="telephone=no">
   
   <!-- Open Graph -->
   <meta property="og:type" content="website">
-  <meta property="og:site_name" content="travisjames.ai">
-  <meta property="og:title" content="travisjames.ai — Deep Research">
-  <meta property="og:description" content="Deep research powered by the travisjames.ai Skill System">
-  <meta property="og:image" content="https://ipfs.prometheusags.ai/ipfs/QmVQ2gme8x5Z5wfXaus1mEEmpMaCG1LHA2VYgkPtTmSs5g?filename=prince-i-love-u-demo.png">
-  <meta property="og:image:alt" content="travisjames.ai Deep Research — agent-rendered media card preview">
-  
+  <meta property="og:site_name" content="KnowMe">
+  <meta property="og:title" content="KnowMe — Deep Research">
+  <meta property="og:description" content="Deep research powered by the KnowMe skill system">
+  <meta property="og:image" content="./brand/primary-dark-512.png">
+  <meta property="og:image:alt" content="KnowMe Conviction logomark">
+
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="travisjames.ai — Deep Research">
-  <meta name="twitter:description" content="Deep research powered by the travisjames.ai Skill System">
-  <meta name="twitter:image" content="https://ipfs.prometheusags.ai/ipfs/QmVQ2gme8x5Z5wfXaus1mEEmpMaCG1LHA2VYgkPtTmSs5g?filename=prince-i-love-u-demo.png">
+  <meta name="twitter:title" content="KnowMe — Deep Research">
+  <meta name="twitter:description" content="Deep research powered by the KnowMe skill system">
+  <meta name="twitter:image" content="./brand/primary-dark-512.png">
   
   <link rel="manifest" href="manifest.json">
-  <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Cdefs%3E%3ClinearGradient id='tj' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0%25' stop-color='%23E04E28'/%3E%3Cstop offset='100%25' stop-color='%23FF6A3D'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='180' height='180' rx='38' fill='url(%23tj)'/%3E%3Ctext x='90' y='116' font-family='system-ui,sans-serif' font-size='68' font-weight='700' letter-spacing='-2' text-anchor='middle' fill='white'%3ETJ%3C/text%3E%3C/svg%3E">
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='tj2' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0%25' stop-color='%23E04E28'/%3E%3Cstop offset='100%25' stop-color='%23FF6A3D'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='6' fill='url(%23tj2)'/%3E%3Ctext x='16' y='21' font-family='system-ui,sans-serif' font-size='12' font-weight='700' text-anchor='middle' fill='white'%3ETJ%3C/text%3E%3C/svg%3E">
+  <!-- KnowMe brand tokens (vendored under /brand/) — provides shared
+       :root custom properties for anything embedding this UI. -->
+  <link rel="stylesheet" href="./brand/tokens.css">
+  <!-- Favicon: dark-body mark on light UAs, light-body mark on dark UAs -->
+  <link rel="icon" type="image/svg+xml" href="./brand/primary-light.svg" media="(prefers-color-scheme: light)">
+  <link rel="icon" type="image/svg+xml" href="./brand/primary-dark.svg" media="(prefers-color-scheme: dark)">
+  <link rel="icon" type="image/png" sizes="32x32" href="./brand/primary-dark-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="./brand/primary-dark-16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="./brand/primary-dark-180.png">
   
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -54,39 +62,45 @@
     [x-cloak] { display: none !important; }
     
     :root {
-      /* Anthropic warm-dark OKLCH palette — mandatory, no hex overrides */
-      --bg:      oklch(0.14 0.01 70);
-      --surface: oklch(0.18 0.01 70);
-      --fg:      oklch(0.95 0.02 70);
-      --fg-muted: oklch(0.62 0.02 70);
-      --accent:  oklch(0.70 0.14 45);   /* terracotta/copper — Anthropic brand */
-      --success: oklch(0.72 0.16 145);  /* sage green */
-      --error:   oklch(0.65 0.20 30);   /* warm red */
-      --warning: oklch(0.78 0.16 80);   /* amber */
-      --info:    oklch(0.68 0.15 240);  /* slate blue */
-      --border:  oklch(0.28 0.01 70);
-      --border-subtle: oklch(0.22 0.01 70);
+      /* KnowMe brand system — dark mode. Tokens sourced from
+         ~/Projects/know-me/branding/knowme-brand-template.html; also
+         vendored as /brand/tokens.css. Ember (#FF6A3D) is the single
+         accent; use it sparingly (one per view hierarchy). */
+      --bg:      #0B0F14;   /* Deep Charcoal — page background */
+      --surface: #0F1620;   /* Raised surface, cards */
+      --fg:      #E8EDF3;   /* Off-White — primary text */
+      --fg-muted: #A7B0BC;  /* Muted text */
+      --accent:  #FF6A3D;   /* Ember (dark) — KnowMe brand accent */
+      --success: oklch(0.72 0.16 145);
+      --error:   oklch(0.65 0.20 30);
+      --warning: oklch(0.78 0.16 80);
+      --info:    oklch(0.68 0.15 240);
+      --border:  #1E2D3D;
+      --border-subtle: #162030;
 
-      /* Legacy aliases — referenced in legacy markup; map to new tokens */
+      /* Legacy aliases — referenced in existing CSS; map to KnowMe tokens */
       --card:         var(--surface);
       --card-fg:      var(--fg);
-      --muted:        var(--surface);
+      --muted:        #141C26;                /* bg-surface (KnowMe) */
       --muted-fg:     var(--fg-muted);
       --primary:      var(--accent);
       --primary-fg:   var(--bg);
-      --secondary:    oklch(0.22 0.01 70);
+      --secondary:    #141C26;
       --secondary-fg: var(--fg);
       --accent-fg:    var(--bg);
       --destructive:  var(--error);
 
-      /* Typography — Space Grotesk + JetBrains Mono; NO Inter/Roboto/system-ui */
+      /* Ember-soft — hover/selected states (KnowMe dark) */
+      --accent-soft: #2A1510;
+
+      /* Typography — KnowMe primary display + mono */
       --font-display: 'Space Grotesk', sans-serif;
-      --font-ui:      'Space Grotesk', sans-serif;
-      --font-body:    'Space Grotesk', sans-serif;
+      --font-ui:      'Inter', sans-serif;
+      --font-body:    'Roboto', sans-serif;
       --font-mono:    'JetBrains Mono', monospace;
 
       /* Geometry */
-      --radius: 6px;   /* ≤6px in dense UI per Anthropic rule */
+      --radius: 6px;
 
       /* Motion — ease-out-expo everywhere; prefers-reduced-motion gate below */
       --ease-expo:       cubic-bezier(0.16, 1, 0.3, 1);
@@ -201,16 +215,9 @@
     }
     
     .sidebar-brand .logo-icon {
-      width: 28px; height: 28px;
-      border-radius: 6px;
-      background: linear-gradient(140deg, var(--primary), #FF6A3D);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: .68rem;
-      font-weight: 700;
-      letter-spacing: -.02em;
-      color: white;
+      width: 32px;
+      height: 32px;
+      display: block;
       flex-shrink: 0;
     }
     
@@ -2363,10 +2370,10 @@
   <aside class="sidebar" :class="sidebarOpen ? 'drawer-open' : ''" @click.away="sidebarOpen = false">
     <div class="sidebar-header">
       <div class="sidebar-brand">
-        <div class="logo-icon">TJ</div>
-        <div>travis<em>james</em>.ai</div>
+        <img class="logo-icon" src="./brand/primary-dark.svg" width="32" height="32" alt="KnowMe">
+        <div>Know<em>Me</em></div>
       </div>
-      <div class="sidebar-version">Deep Research &middot; v2.0.0</div>
+      <div class="sidebar-version">Deep Research &middot; v3.0.0</div>
     </div>
 
     <button class="sidebar-new-btn" @click="goTo('new')">

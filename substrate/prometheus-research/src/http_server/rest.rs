@@ -192,6 +192,7 @@ pub async fn static_handler(Path(path): Path<String>) -> impl IntoResponse {
 // ---------------------------------------------------------------------------
 
 const INDEX_HTML: &[u8] = include_bytes!("../../../../docs/deep-research/deep-research-ui.html");
+const MANIFEST_JSON: &[u8] = include_bytes!("../../../../docs/deep-research/manifest.json");
 
 pub async fn index_handler() -> impl IntoResponse {
     Response::builder()
@@ -199,6 +200,15 @@ pub async fn index_handler() -> impl IntoResponse {
         .header(header::CONTENT_TYPE, "text/html; charset=utf-8")
         .header(header::CACHE_CONTROL, "no-cache")
         .body(Body::from(INDEX_HTML))
+        .unwrap()
+}
+
+pub async fn manifest_handler() -> impl IntoResponse {
+    Response::builder()
+        .status(StatusCode::OK)
+        .header(header::CONTENT_TYPE, "application/manifest+json")
+        .header(header::CACHE_CONTROL, "public, max-age=3600")
+        .body(Body::from(MANIFEST_JSON))
         .unwrap()
 }
 

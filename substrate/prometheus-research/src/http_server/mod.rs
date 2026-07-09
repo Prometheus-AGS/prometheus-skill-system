@@ -29,6 +29,7 @@ pub async fn run_server(port: u16, cfg: ResearchConfig) -> anyhow::Result<()> {
 
     let app = Router::new()
         .route("/", get(rest::index_handler))
+        .route("/manifest.json", get(rest::manifest_handler))
         .route("/health", get(health::health_handler))
         .route("/api/v1/jobs", post(rest::create_job))
         .route("/api/v1/jobs/{id}", get(rest::get_job))
