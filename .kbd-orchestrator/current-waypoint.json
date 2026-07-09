@@ -1,14 +1,14 @@
 {
   "phase": "phase-bdd-video-proof",
   "previousPhase": "phase-prui-polish",
-  "status": "assessment_complete",
-  "stage": "analyze",
+  "status": "analysis_complete",
+  "stage": "plan",
   "changes_completed": 0,
   "changes_total": 0,
   "goals_met": 0,
   "goals_total": 7,
   "sycophancy_gate": null,
-  "next_command": "/kbd-analyze phase-bdd-video-proof",
+  "next_command": "/kbd-plan phase-bdd-video-proof",
   "exactNextCommand": "/kbd-assess phase-prui-polish",
   "parallelStart": null,
   "recommendedNextPhase": null,
@@ -16,7 +16,7 @@
   "updatedAt": "2026-07-09T06:45:00Z",
   "reflect_complete": false,
   "assessment_complete": true,
-  "analysis_complete": false,
+  "analysis_complete": true,
   "plan_complete": false,
   "last_change": null
 }

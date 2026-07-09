@@ -1,0 +1,153 @@
+{
+  "phase": "phase-bdd-video-proof",
+  "generated_at": "2026-07-09T13:15:00Z",
+  "mode": "stack-specified",
+  "stacks": ["typescript+cucumber-js", "rust+cucumber-rs"],
+  "candidates": [
+    {
+      "id": "cand-001",
+      "gap": "G-01",
+      "name": "@cucumber/cucumber",
+      "version": "13.0.0",
+      "registry": "npm",
+      "verdict": "adopt",
+      "confidence": "high",
+      "evidence": {
+        "released": "2026-06-02",
+        "weekly_downloads": 2200000,
+        "current_local": "^11.0.0",
+        "note": "Two majors ahead of local; direct upgrade"
+      }
+    },
+    {
+      "id": "cand-002",
+      "gap": "G-01",
+      "name": "playwright-bdd",
+      "version": "9.2.0",
+      "registry": "npm",
+      "verdict": "adopt",
+      "confidence": "high",
+      "evidence": {
+        "author": "vitalets",
+        "released": "2026-06-18",
+        "weekly_downloads": 410000,
+        "repo": "github.com/vitalets/playwright-bdd",
+        "note": "Converts BDD scenarios into native Playwright tests; canonical cucumber-js + Playwright bridge in 2026"
+      }
+    },
+    {
+      "id": "cand-003",
+      "gap": "G-01",
+      "name": "tsx",
+      "version": "latest",
+      "registry": "npm",
+      "verdict": "adopt",
+      "confidence": "high",
+      "evidence": {
+        "note": "cucumber-js docs/transpiling.md now recommends tsx over ts-node/esm"
+      }
+    },
+    {
+      "id": "cand-004",
+      "gap": "G-02",
+      "name": "cucumber",
+      "version": "0.23.0",
+      "registry": "crates.io",
+      "verdict": "adopt",
+      "confidence": "high",
+      "evidence": {
+        "released": "2026-04-23",
+        "monthly_downloads": 230000,
+        "msrv": "1.88",
+        "breaking_from_0_20": "0.21 removed #[async_trait] on World/Writer traits; migrated to native async fn in traits"
+      }
+    },
+    {
+      "id": "cand-005",
+      "gap": "G-02",
+      "name": "thirtyfour",
+      "version": "0.37.2",
+      "registry": "crates.io",
+      "verdict": "adopt",
+      "confidence": "medium",
+      "evidence": {
+        "released": "2026-07-05",
+        "downloads_total": 1510000,
+        "downloads_90d": 282000,
+        "github_stars": 1429,
+        "api": "WebDriver-based, modern typed async API",
+        "role": "primary browser driver for cucumber-rs; multi-browser"
+      }
+    },
+    {
+      "id": "cand-006",
+      "gap": "G-02",
+      "name": "fantoccini",
+      "version": "0.22.1",
+      "registry": "crates.io",
+      "verdict": "document-as-alternative",
+      "confidence": "medium",
+      "evidence": {
+        "released": "2026-02-28",
+        "downloads_total": 3450000,
+        "github_stars": 2011,
+        "note": "More stars/downloads but older; mention as alternative"
+      }
+    },
+    {
+      "id": "cand-007",
+      "gap": "G-02",
+      "name": "headless_chrome",
+      "version": "1.0.22",
+      "registry": "crates.io",
+      "verdict": "document-as-alternative",
+      "confidence": "medium",
+      "evidence": {
+        "released": "2026-06-11",
+        "downloads_90d": 934000,
+        "github_stars": 2923,
+        "api": "Chrome DevTools Protocol; Puppeteer-equivalent",
+        "note": "Use when CDP features (screencast, network intercept) needed; Chrome-only"
+      }
+    },
+    {
+      "id": "cand-008",
+      "gap": "G-04",
+      "name": "ffmpeg",
+      "version": "system",
+      "registry": "system",
+      "verdict": "adopt",
+      "confidence": "high",
+      "evidence": {
+        "note": "Required sidecar for MP4 remux: `ffmpeg -i in.webm -c copy out.mp4` — lossless stream copy from Playwright WebM to MP4"
+      }
+    }
+  ],
+  "build_required": [
+    {
+      "gap": "G-03",
+      "id": "build-lifecycle-loop",
+      "reason": "No OSS project codifies the full create → run → triage → maintain loop with immutable-tests enforcement. Adopt cucumber-js --retry-tag-filter primitive + Trunk flake-budget pattern, build the rest."
+    },
+    {
+      "gap": "G-04",
+      "id": "build-cert-bundle-format",
+      "reason": "No OSS prior art for local cucumber test attestation bundles (JSON + video + screenshot manifest + SHA)."
+    },
+    {
+      "gap": "G-05",
+      "id": "build-examples",
+      "reason": "Reference feature files for HTTP-only vs browser-driven scenarios per skill."
+    },
+    {
+      "gap": "G-06",
+      "id": "build-cross-references",
+      "reason": "Documentation-only integration with BDD-005/006/007 future-work docs."
+    },
+    {
+      "gap": "G-07",
+      "id": "build-smoke-tests",
+      "reason": "One smoke-test.sh per skill to prove the instructions actually work end-to-end."
+    }
+  ]
+}

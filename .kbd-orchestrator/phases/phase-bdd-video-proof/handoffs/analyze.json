@@ -1,0 +1,13 @@
+{
+  "stage": "analyze",
+  "phase": "phase-bdd-video-proof",
+  "timestamp": "2026-07-09T13:15:00Z",
+  "summary": "8 library candidates evaluated across two stacks (TS + Rust). Key adopts: @cucumber/cucumber 13, playwright-bdd 9, tsx (TS); cucumber 0.23 + thirtyfour 0.37 (Rust); ffmpeg sidecar for MP4 remux. 5 build-required items (lifecycle loop, cert-bundle format, examples, cross-refs, smoke tests). No contested stacks. G-01 is refactor/fork of existing bdd-testing skill; G-02..G-07 are net-new work.",
+  "artifacts": ["analysis.md", "library-candidates.json", "decision-log.md"],
+  "open_questions": [
+    "Fork bdd-testing into bdd-cucumber-js (recommended) vs refactor in place — decide in /kbd-plan",
+    "GPG/Sigstore signing of cert bundles deferred to a follow-up phase",
+    "cucumber-rs 0.20 → 0.23 migration guide ships as references/migration-from-0.20.md"
+  ],
+  "skipped": false
+}
