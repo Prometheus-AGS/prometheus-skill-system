@@ -1,0 +1,16 @@
+{
+  "phase": "phase-bdd-video-proof",
+  "status": "assessment_ready",
+  "stage": "assess",
+  "changes_completed": 0,
+  "changes_total": 0,
+  "goals_met": 0,
+  "goals_total": 7,
+  "assessment_complete": false,
+  "analysis_complete": false,
+  "plan_complete": false,
+  "reflect_complete": false,
+  "last_change": null,
+  "changes": [],
+  "updatedAt": "2026-07-09T12:45:00Z"
+}
