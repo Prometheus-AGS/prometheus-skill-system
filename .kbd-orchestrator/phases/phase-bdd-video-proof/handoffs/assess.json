@@ -1,0 +1,13 @@
+{
+  "stage": "assess",
+  "phase": "phase-bdd-video-proof",
+  "timestamp": "2026-07-09T12:55:00Z",
+  "summary": "Two prior BDD skills exist (bdd-testing, bdd-video-proof) but are cucumber-js only, project-narrow, and don't cover Rust or the lifecycle loop. 15 BDD-* future-work docs describe the target. Gap: G-02 (cucumber-rs), G-03 (lifecycle loop), G-04 local certification bundle, G-05 examples, G-06 cross-refs, G-07 smoke tests. G-01 is refactor, not new-build.",
+  "artifact": "assessment.md",
+  "open_questions": [
+    "Fork vs refactor bdd-testing?",
+    "Certification bundle signing method (git SHA vs GPG vs Sigstore)?",
+    "cucumber-rs 0.21 pin — document 0.20 migration?"
+  ],
+  "skipped": false
+}
