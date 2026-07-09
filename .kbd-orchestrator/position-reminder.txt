@@ -1,13 +1,10 @@
 POSITION REMINDER — read this as your FIRST tool call every turn
 Phase: phase-prometheus-research-ui
-Step: 1 of 5
+Step: 3 of 5
 Stage: execute
-Next command: /kbd-apply change-prui-003-surface-bridge-wiring
+Next command: /kbd-apply change-prui-002-htmx-ui-real-sse
 
 Required signal format (emit BEFORE any tool call):
-  Starting kbd-apply — change-prui-003-surface-bridge-wiring (step 2 of 5)
+  Starting <kbd-skill> — phase-prometheus-research-ui (step 3 of 5)
   [do work]
-  Completed kbd-apply — change-prui-003-surface-bridge-wiring (step 2 of 5)
-
-Execution order: 004 ✓ → 003 (surface-bridge Rust fix) → 001 (SKILL.md) → 002 (UI SSE + design system) → 005 (smoke test)
-Design mandate: Anthropic OKLCH warm-dark palette + htmx-alpine-lit + animate + delight + polish skills
+  Completed <kbd-skill> — phase-prometheus-research-ui (step 3 of 5)

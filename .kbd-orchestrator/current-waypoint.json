@@ -3,15 +3,15 @@
   "previousPhase": "phase-prometheus-research-binary",
   "status": "executing",
   "stage": "execute",
-  "changes_completed": 1,
+  "changes_completed": 3,
   "changes_total": 5,
-  "goals_met": 0,
+  "goals_met": 1,
   "goals_total": 5,
   "sycophancy_gate": null,
-  "next_command": "/kbd-apply change-prui-003-surface-bridge-wiring",
-  "exactNextCommand": "/kbd-apply change-prui-003-surface-bridge-wiring",
+  "next_command": "/kbd-apply change-prui-002-htmx-ui-real-sse",
+  "exactNextCommand": "/kbd-apply change-prui-002-htmx-ui-real-sse",
   "parallelStart": null,
   "recommendedNextPhase": null,
-  "currentTask": "change-prui-004-ci-workflow DONE (commit e4ed65d). Next: fix emit.rs UiIntent schema mismatch (HIGH risk, G-03 prerequisite for G-02 Tier 2).",
-  "updatedAt": "2026-07-08T21:00:00Z"
+  "currentTask": "change-prui-001-skill-md-update DONE (commit 72a328a). Next: ship deep-research-ui.html with real SSE + Anthropic design system.",
+  "updatedAt": "2026-07-09T00:00:00Z"
 }

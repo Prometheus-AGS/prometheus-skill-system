@@ -38,14 +38,14 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&family=Roboto:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
   
-  <!-- HTMX 2.0.8 -->
-  <script src="https://unpkg.com/htmx.org@2.0.8" crossorigin="anonymous"></script>
-  
-  <!-- Alpine.js 3.14.3 -->
-  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.3/dist/cdn.min.js"></script>
-  
-  <!-- hls.js (for playing .m3u8 HLS streams in the A2UI media card) -->
-  <script defer src="https://cdn.jsdelivr.net/npm/hls.js@1/dist/hls.min.js"></script>
+  <!-- HTMX 2.0.8 — vendored, no CDN -->
+  <script src="/static/htmx.min.js"></script>
+
+  <!-- Alpine.js 3.14.8 — vendored, no CDN -->
+  <script defer src="/static/alpine.min.js"></script>
+
+  <!-- hls.js — vendored, no CDN -->
+  <script defer src="/static/hls.min.js"></script>
   
   <style>
     /* ---- RESET & BASE ---- */
@@ -54,50 +54,61 @@
     [x-cloak] { display: none !important; }
     
     :root {
-      --bg: #F7F7F8;
-      --fg: #0B0F14;
-      --card: #FFFFFF;
-      --card-fg: #0B0F14;
-      --muted: #EEF0F3;
-      --muted-fg: #4B5563;
-      --border: #D8DEE6;
-      --primary: #E04E28;
-      --primary-fg: #FFFFFF;
-      --secondary: #111827;
-      --secondary-fg: #FFFFFF;
-      --accent: #F2D6CF;
-      --accent-fg: #3B1410;
-      --destructive: #DC2626;
-      --success: #16A34A;
-      --warning: #D97706;
-      --info: #2563EB;
-      --radius: 0.625rem;
+      /* Anthropic warm-dark OKLCH palette — mandatory, no hex overrides */
+      --bg:      oklch(0.14 0.01 70);
+      --surface: oklch(0.18 0.01 70);
+      --fg:      oklch(0.95 0.02 70);
+      --fg-muted: oklch(0.62 0.02 70);
+      --accent:  oklch(0.70 0.14 45);   /* terracotta/copper — Anthropic brand */
+      --success: oklch(0.72 0.16 145);  /* sage green */
+      --error:   oklch(0.65 0.20 30);   /* warm red */
+      --warning: oklch(0.78 0.16 80);   /* amber */
+      --info:    oklch(0.68 0.15 240);  /* slate blue */
+      --border:  oklch(0.28 0.01 70);
+      --border-subtle: oklch(0.22 0.01 70);
+
+      /* Legacy aliases — referenced in legacy markup; map to new tokens */
+      --card:         var(--surface);
+      --card-fg:      var(--fg);
+      --muted:        var(--surface);
+      --muted-fg:     var(--fg-muted);
+      --primary:      var(--accent);
+      --primary-fg:   var(--bg);
+      --secondary:    oklch(0.22 0.01 70);
+      --secondary-fg: var(--fg);
+      --accent-fg:    var(--bg);
+      --destructive:  var(--error);
+
+      /* Typography — Space Grotesk + JetBrains Mono; NO Inter/Roboto/system-ui */
       --font-display: 'Space Grotesk', sans-serif;
-      --font-ui: 'Inter', sans-serif;
-      --font-body: 'Roboto', sans-serif;
-      --font-mono: 'JetBrains Mono', monospace;
+      --font-ui:      'Space Grotesk', sans-serif;
+      --font-body:    'Space Grotesk', sans-serif;
+      --font-mono:    'JetBrains Mono', monospace;
+
+      /* Geometry */
+      --radius: 6px;   /* ≤6px in dense UI per Anthropic rule */
+
+      /* Motion — ease-out-expo everywhere; prefers-reduced-motion gate below */
+      --ease-expo:       cubic-bezier(0.16, 1, 0.3, 1);
+      --duration-fast:   150ms;
+      --duration-normal: 300ms;
+
       --safe-bottom: env(safe-area-inset-bottom, 0px);
-      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-top:    env(safe-area-inset-top, 0px);
     }
-    
-    .dark {
-      --bg: #0B0F14;
-      --fg: #E8EDF3;
-      --card: #0F1620;
-      --card-fg: #E8EDF3;
-      --muted: #141C26;
-      --muted-fg: #A7B0BC;
-      --border: #233041;
-      --primary: #FF6A3D;
-      --primary-fg: #0B0F14;
-      --secondary: #1A2432;
-      --secondary-fg: #E8EDF3;
-      --accent: #2A1B17;
-      --accent-fg: #FFB199;
-      --destructive: #EF4444;
-      --success: #22C55E;
-      --warning: #F59E0B;
-      --info: #60A5FA;
+
+    /* Always dark — Anthropic warm-dark visual direction; light mode not used */
+    .dark,
+    :root {
+      color-scheme: dark;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
     }
     
     html { scroll-behavior: smooth; -webkit-tap-highlight-color: transparent; }
@@ -2086,6 +2097,158 @@
 
     .status-pill.queued { background: var(--muted); color: var(--warning); }
     .status-pill.queued .status-dot { background: var(--warning); }
+
+    /* ================================================================
+       ANIMATE SKILL — compositor-friendly motion (ease-out-expo only)
+       ================================================================ */
+
+    /* Progress ring — stroke-dashoffset transition; no layout repaints */
+    .progress-ring-circle {
+      transition: stroke-dashoffset var(--duration-normal) var(--ease-expo);
+      transform-origin: center;
+      transform: rotate(-90deg);
+    }
+
+    /* Stage timeline items: slide in from left as they become active */
+    .stage-item {
+      transform: translateX(0);
+      opacity: 1;
+    }
+    .stage-item.pending {
+      opacity: 0.45;
+    }
+    .stage-item.active {
+      animation: stage-activate var(--duration-normal) var(--ease-expo) forwards;
+    }
+    @keyframes stage-activate {
+      from { transform: translateX(-8px); opacity: 0.45; }
+      to   { transform: translateX(0);    opacity: 1;    }
+    }
+
+    /* Entrance choreography — staggered fade + translate-y on page load */
+    .entrance-item {
+      opacity: 0;
+      transform: translateY(12px);
+      animation: entrance-in var(--duration-normal) var(--ease-expo) forwards;
+    }
+    .entrance-item:nth-child(1)  { animation-delay: 60ms;  }
+    .entrance-item:nth-child(2)  { animation-delay: 120ms; }
+    .entrance-item:nth-child(3)  { animation-delay: 180ms; }
+    .entrance-item:nth-child(4)  { animation-delay: 240ms; }
+    .entrance-item:nth-child(5)  { animation-delay: 300ms; }
+    .entrance-item:nth-child(6)  { animation-delay: 360ms; }
+    @keyframes entrance-in {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ================================================================
+       DELIGHT SKILL — intentional micromoments
+       ================================================================ */
+
+    /* 1. Research start — 400ms pulse on progress ring border */
+    @keyframes ring-start-pulse {
+      0%   { box-shadow: 0 0 0 0   color-mix(in oklch, var(--accent) 60%, transparent); }
+      50%  { box-shadow: 0 0 0 8px color-mix(in oklch, var(--accent) 0%,  transparent); }
+      100% { box-shadow: 0 0 0 0   color-mix(in oklch, var(--accent) 0%,  transparent); }
+    }
+    .ring-start-pulse {
+      animation: ring-start-pulse 400ms var(--ease-expo) forwards;
+    }
+
+    /* 2. Stage completion — scale flash on stage badge */
+    @keyframes stage-done-flash {
+      0%   { transform: scale(1);    }
+      40%  { transform: scale(1.05); }
+      70%  { transform: scale(0.98); }
+      100% { transform: scale(1);    }
+    }
+    .stage-done-flash {
+      animation: stage-done-flash 200ms var(--ease-expo) forwards;
+    }
+
+    /* 3. Job complete — SVG checkmark draw in progress ring center */
+    .checkmark-path {
+      stroke-dasharray: 40;
+      stroke-dashoffset: 40;
+      transition: stroke-dashoffset 500ms var(--ease-expo) 100ms;
+    }
+    .checkmark-path.drawn {
+      stroke-dashoffset: 0;
+    }
+
+    /* 4. Error state — shake on error badge */
+    @keyframes error-shake {
+      0%, 100% { transform: translateX(0); }
+      20%       { transform: translateX(-5px); }
+      40%       { transform: translateX(5px);  }
+      60%       { transform: translateX(-4px); }
+      80%       { transform: translateX(3px);  }
+    }
+    .error-shake {
+      animation: error-shake 350ms var(--ease-expo) forwards;
+    }
+
+    /* 5. SSE connect dot — amber → green with glow pulse */
+    .sse-dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: oklch(0.78 0.16 80); /* amber */
+      transition: background var(--duration-normal) var(--ease-expo),
+                  box-shadow  var(--duration-normal) var(--ease-expo);
+    }
+    .sse-dot.connected {
+      background: var(--success);
+      animation: sse-glow-pulse 300ms var(--ease-expo) forwards;
+    }
+    @keyframes sse-glow-pulse {
+      0%   { box-shadow: 0 0 0 0   color-mix(in oklch, var(--success) 80%, transparent); }
+      50%  { box-shadow: 0 0 0 6px color-mix(in oklch, var(--success) 0%,  transparent); }
+      100% { box-shadow: 0 0 0 0   color-mix(in oklch, var(--success) 0%,  transparent); }
+    }
+
+    /* ================================================================
+       POLISH SKILL — all 5 interaction states + focus rings + spacing
+       ================================================================ */
+
+    /* Focus rings — 2px offset, var(--accent), never hidden */
+    :focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+    :focus:not(:focus-visible) { outline: none; }
+
+    /* All 5 button states */
+    .btn {
+      transition: background var(--duration-fast) var(--ease-expo),
+                  color       var(--duration-fast) var(--ease-expo),
+                  border-color var(--duration-fast) var(--ease-expo),
+                  transform    var(--duration-fast) var(--ease-expo),
+                  opacity      var(--duration-fast) var(--ease-expo);
+    }
+    .btn:hover    { opacity: 0.88; transform: translateY(-1px); }
+    .btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+    .btn:active   { transform: translateY(0) scale(0.97); opacity: 1; }
+    .btn:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
+
+    /* Input states */
+    input, textarea, select {
+      transition: border-color var(--duration-fast) var(--ease-expo),
+                  box-shadow   var(--duration-fast) var(--ease-expo);
+    }
+    input:hover, textarea:hover, select:hover {
+      border-color: var(--fg-muted);
+    }
+    input:focus, textarea:focus, select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px color-mix(in oklch, var(--accent) 25%, transparent);
+      outline: none;
+    }
+    input:disabled, textarea:disabled, select:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
   </style>
   
   <script>
@@ -2422,7 +2585,7 @@
         </div>
 
         <div style="display: flex; gap: .75rem; justify-content: flex-end; margin-top: 1rem; flex-wrap: wrap;">
-          <button class="btn btn-outline" @click="goTo('dashboard')">Cancel</button>
+          <button class="btn btn-outline" @click="activeJob ? cancelJob(activeJob.id) : goTo('dashboard')">Cancel</button>
           <button class="btn btn-primary" @click="startResearch()" :disabled="!wizard.query.trim()">
             <span>Launch Research Job</span>
             <span>&#8594;</span>
@@ -3851,12 +4014,13 @@ function deepResearchApp() {
       this.showToast('MCP server registered \u2014 tool discovery runs on next job launch.', 'success');
     },
 
-    startResearch() {
+    async startResearch() {
       if (!this.wizard.query.trim()) return;
       const slotsFull = this.runningJobs.length >= this.settings.agents.maxConcurrentJobs;
       const now = new Date();
       const stamp = now.toISOString().split('T')[0] + ' ' + now.toTimeString().slice(0, 5);
       const isSongQuery = /i love u in me/i.test(this.wizard.query);
+      const isDemo = new URLSearchParams(location.search).has('demo');
 
       const job = {
         id: 'job-' + Date.now(),
@@ -3867,6 +4031,8 @@ function deepResearchApp() {
         progress: 0, tokens: 0, cost: 0,
         startedAt: (slotsFull ? 'queued ' : '') + stamp,
         stages: freshStages(-1, -1),
+        serverJobId: null,
+        sseSource: null,
         config: {
           agent: this.settings.agents.defaultAgent,
           topology: this.wizard.topology,
@@ -3880,8 +4046,7 @@ function deepResearchApp() {
       };
 
       this.jobs.unshift(job);
-      // Re-fetch through the reactive proxy: mutations on the raw object
-      // (closures in the simulators) would not trigger Alpine bindings.
+      // Re-fetch through the reactive proxy so Alpine reactivity fires on mutations.
       const rjob = this.jobs[0];
       this.openJob(rjob.id);
 
@@ -3890,15 +4055,155 @@ function deepResearchApp() {
         return;
       }
 
-      if (isSongQuery) {
-        this.songCardVisible = false;
-        this.songCard = null;
-        this.songJobId = rjob.id;
-        this.simulateSongResearch(rjob);
-      } else {
-        this.simulateProgress(rjob);
+      // Demo mode: run the local simulation instead of hitting the server.
+      if (isDemo) {
+        if (isSongQuery) {
+          this.songCardVisible = false;
+          this.songCard = null;
+          this.songJobId = rjob.id;
+          this.simulateSongResearch(rjob);
+        } else {
+          this.simulateProgress(rjob);
+        }
+        this.showToast('Research job launched (demo mode).', 'success');
+        return;
       }
-      this.showToast('Research job launched.', 'success');
+
+      // Real mode: POST to prometheus-research on :7891 and open the SSE stream.
+      // Pulse the progress ring at launch.
+      this.$nextTick(() => {
+        const ring = document.querySelector('.progress-ring-circle');
+        if (ring) { ring.classList.add('ring-start-pulse'); setTimeout(() => ring.classList.remove('ring-start-pulse'), 450); }
+        const dot = document.querySelector('.sse-dot');
+        if (dot) { dot.classList.remove('connected'); }
+      });
+
+      try {
+        const res = await fetch('http://127.0.0.1:7891/api/v1/jobs', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query: rjob.query, depth: this.wizard.budget })
+        });
+        if (!res.ok) throw new Error('Server returned ' + res.status);
+        const data = await res.json();
+        rjob.serverJobId = data.job_id;
+        this.showToast('Research job launched.', 'success');
+        this.openSseStream(rjob);
+      } catch (err) {
+        rjob.status = 'error';
+        this.showToast('prometheus-research unreachable \u2014 start it with: prometheus-research --mode server', 'error');
+        this.$nextTick(() => {
+          const badge = document.querySelector('[data-job-id="' + rjob.id + '"] .status-pill');
+          if (badge) { badge.classList.add('error-shake'); setTimeout(() => badge.classList.remove('error-shake'), 400); }
+        });
+      }
+    },
+
+    openSseStream(rjob) {
+      if (!rjob.serverJobId) return;
+      const url = 'http://127.0.0.1:7891/api/v1/jobs/' + rjob.serverJobId + '/events';
+      const es = new EventSource(url);
+      rjob.sseSource = es;
+
+      // Mark the SSE dot connected on open.
+      es.onopen = () => {
+        this.$nextTick(() => {
+          const dot = document.querySelector('.sse-dot');
+          if (dot) dot.classList.add('connected');
+        });
+      };
+
+      es.onmessage = (event) => {
+        let msg;
+        try { msg = JSON.parse(event.data); } catch { return; }
+        const type = msg.type || msg.event_type || '';
+
+        if (type === 'agent.status') {
+          // Map server stage (1-based) to Alpine stages array (0-based).
+          const si = (msg.stage || 1) - 1;
+          if (si >= 0 && si < rjob.stages.length) {
+            rjob.stages.forEach((s, idx) => {
+              if (idx < si) {
+                if (s.status !== 'completed') {
+                  s.status = 'completed';
+                  this.$nextTick(() => {
+                    const el = document.querySelectorAll('.stage-item')[idx];
+                    if (el) { el.classList.add('stage-done-flash'); setTimeout(() => el.classList.remove('stage-done-flash'), 250); }
+                  });
+                }
+              } else if (idx === si) {
+                s.status = 'active';
+                s.name = msg.stage_name || s.name;
+              } else {
+                s.status = 'pending';
+              }
+            });
+          }
+          rjob.progress = msg.progress || 0;
+          rjob.tokens = msg.tokens || rjob.tokens;
+          const serverStatus = msg.status || '';
+          if (serverStatus === 'completed') {
+            rjob.status = 'completed';
+            rjob.progress = 100;
+            rjob.stages.forEach(s => { s.status = 'completed'; });
+            es.close();
+            // Draw the job-done checkmark.
+            this.$nextTick(() => {
+              const path = document.querySelector('.checkmark-path');
+              if (path) { path.classList.add('drawn'); }
+              const dot = document.querySelector('.sse-dot');
+              if (dot) dot.classList.remove('connected');
+            });
+            this.showToast('Research completed.', 'success');
+          } else if (serverStatus === 'failed') {
+            rjob.status = 'error';
+            es.close();
+            this.showToast('Research failed \u2014 see trace for details.', 'error');
+          } else {
+            rjob.status = 'running';
+          }
+        } else if (type === 'agent.message') {
+          this.pushTrace(rjob, msg.level === 'tool' ? 'tool_call' : 'agent', msg.message || '');
+        } else if (type === 'agent.error') {
+          this.pushTrace(rjob, 'agent', '[error stage ' + (msg.stage || '?') + '] ' + (msg.message || ''));
+          this.$nextTick(() => {
+            const badge = document.querySelector('[data-job-id="' + rjob.id + '"] .status-pill');
+            if (badge) { badge.classList.add('error-shake'); setTimeout(() => badge.classList.remove('error-shake'), 400); }
+          });
+        } else if (type === 'a2ui.component') {
+          // Inject the rendered HTMX fragment via hx-swap-oob.
+          const component = msg.component || '';
+          const propsQuery = new URLSearchParams({ job_id: rjob.serverJobId }).toString();
+          fetch('http://127.0.0.1:7891/components/' + component + '?' + propsQuery)
+            .then(r => r.text())
+            .then(html => { document.body.insertAdjacentHTML('beforeend', html); htmx.process(document.body); })
+            .catch(() => {});
+        }
+      };
+
+      es.onerror = () => {
+        // Reconnect is handled automatically by EventSource; just update the dot.
+        this.$nextTick(() => {
+          const dot = document.querySelector('.sse-dot');
+          if (dot) dot.classList.remove('connected');
+        });
+      };
+    },
+
+    async cancelJob(jobId) {
+      const job = this.jobs.find(j => j.id === jobId);
+      if (!job) return;
+      // Close SSE stream first.
+      if (job.sseSource) { job.sseSource.close(); job.sseSource = null; }
+      job.status = 'cancelled';
+      // Fire DELETE to server if we have a real server job id.
+      if (job.serverJobId) {
+        try {
+          await fetch('http://127.0.0.1:7891/api/v1/jobs/' + job.serverJobId, { method: 'DELETE' });
+        } catch { /* best-effort */ }
+      }
+      this.showToast('Job cancelled.', 'info');
+      this.goTo('dashboard');
     },
 
     cloneJob() {
