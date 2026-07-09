@@ -1,8 +1,8 @@
 POSITION REMINDER — read this as your FIRST tool call every turn
 Phase: phase-drui-standalone-hosting
-Step: 3 of 6 (execute in progress)
+Step: 4 of 6 (execute in progress)
 Stage: execute
-Next command: /kbd-apply change-drui-004-docker-compose
+Next command: /kbd-apply change-drui-005-restyle-ui-knowme
 
 Required signal format (emit BEFORE any tool call):
   Starting <kbd-skill> — phase-drui-standalone-hosting (step N of T)
