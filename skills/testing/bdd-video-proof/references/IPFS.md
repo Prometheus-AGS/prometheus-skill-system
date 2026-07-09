@@ -1,5 +1,12 @@
 # IPFS Pinning Workflow
 
+> **v2.0 note:** IPFS pinning is now **Mode B** — an optional post-step
+> layered on top of a local certification bundle
+> (`docs/certifications/<module>/<sha>/`). Mode A (local bundle only)
+> is the default and needs no IPFS node. Reach for IPFS when videos are
+> too large to ship in-repo or when immutability guarantees beyond git
+> are required.
+
 ## Why IPFS?
 
 Each scenario video is content-addressed. The CID (Content Identifier) is a cryptographic hash of the video content. Once pinned, the evidence is:
