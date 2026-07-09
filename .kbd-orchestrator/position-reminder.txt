@@ -1,8 +1,8 @@
 POSITION REMINDER — read this as your FIRST tool call every turn
 Phase: phase-bdd-video-proof
-Step: 0 of 0 (analysis_complete)
-Stage: plan
-Next command: /kbd-plan phase-bdd-video-proof
+Step: 0 of 8 (plan_complete)
+Stage: execute
+Next command: /kbd-apply change-bdd-001-fork-cucumber-js
 
 Required signal format (emit BEFORE any tool call):
   Starting <kbd-skill> — phase-bdd-video-proof (step N of T)

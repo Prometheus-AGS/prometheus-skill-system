@@ -1,0 +1,9 @@
+{
+  "stage": "plan",
+  "phase": "phase-bdd-video-proof",
+  "timestamp": "2026-07-09T13:30:00Z",
+  "summary": "8 OpenSpec changes ordered to build cucumber-js first (fork existing), then cucumber-rs, then lifecycle-loop, then video-cert-bundle, then cross-refs, then smoke tests. 52 tasks total. All 7 goals covered.",
+  "artifact": "plan.md",
+  "first_change": "change-bdd-001-fork-cucumber-js",
+  "skipped": false
+}
