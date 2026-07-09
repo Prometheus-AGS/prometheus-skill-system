@@ -341,7 +341,7 @@ install_learn_substrate() {
         # Install binary to ~/.local/bin
         local bin_dir="$HOME/.local/bin"
         mkdir -p "$bin_dir"
-        cp "$substrate_dir/learner-model/target/release/learner-model" "$bin_dir/learner-model" 2>/dev/null && \
+        cp -f "$substrate_dir/learner-model/target/release/learner-model" "$bin_dir/learner-model" 2>/dev/null && \
             echo "  ✅ learn-substrate: learner-model installed to $bin_dir/learner-model" || true
     else
         echo "  ⚠️  learn-substrate: learner-model build failed (non-fatal)"
@@ -353,7 +353,10 @@ install_learn_substrate() {
         echo "  ✅ learn-substrate: surface-bridge built"
         local bin_dir="$HOME/.local/bin"
         mkdir -p "$bin_dir"
-        cp "$substrate_dir/surface-bridge/target/release/surface-bridge" "$bin_dir/surface-bridge" 2>/dev/null || true
+        # -f: if the destination is a currently-running binary (e.g. the
+        # live surface-bridge daemon), a plain cp fails with "Text file
+        # busy"; -f unlinks and recreates instead of writing in place.
+        cp -f "$substrate_dir/surface-bridge/target/release/surface-bridge" "$bin_dir/surface-bridge" 2>/dev/null || true
         echo "  ℹ️  learn-substrate: run 'npm run install:daemons' to install/start the surface-bridge service (macOS + Linux)"
     else
         echo "  ⚠️  learn-substrate: surface-bridge build failed (non-fatal)"
@@ -365,7 +368,7 @@ install_learn_substrate() {
         echo "  ✅ learn-substrate: sovereign-sync built"
         local bin_dir="$HOME/.local/bin"
         mkdir -p "$bin_dir"
-        cp "$substrate_dir/sovereign-sync/target/release/sovereign-sync" "$bin_dir/sovereign-sync" 2>/dev/null && \
+        cp -f "$substrate_dir/sovereign-sync/target/release/sovereign-sync" "$bin_dir/sovereign-sync" 2>/dev/null && \
             echo "  ✅ learn-substrate: sovereign-sync installed to $bin_dir/sovereign-sync" || true
     else
         echo "  ⚠️  learn-substrate: sovereign-sync build failed (non-fatal)"

@@ -19,7 +19,10 @@ fail()  { echo "  ❌ $*" >&2; }
 # restores a valid ad-hoc signature. No-op on non-Darwin.
 install_bin() {
     local src="$1" dst="$2"
-    cp "${src}" "${dst}"
+    # -f: if dst exists and can't be opened for write (e.g. owned by another
+    # user, as happens when a prior install ran under sudo), unlink and retry
+    # instead of failing outright.
+    cp -f "${src}" "${dst}"
     if [ "$(uname -s)" = "Darwin" ]; then
         codesign --force --sign - "${dst}" >/dev/null 2>&1 || true
     fi
@@ -84,11 +87,20 @@ fi
 # stale copy there would shadow the fresh ~/.local/bin build.
 # build.sh runs cargo clean + a server-dependent quality gate before building;
 # call cargo directly with the same feature flags to avoid that gate.
+# GPU feature is platform-dependent: `metal` is Apple-only (pulls in objc2,
+# which hard-fails compile_error! on any non-Apple target); `cuda` requires an
+# NVIDIA GPU. Select the right accelerator instead of hardcoding `metal`.
 if [ -f "${REPO_ROOT}/tools/surreal-memory-server/Cargo.toml" ]; then
     info "Building surreal-memory-server..."
+    SM_FEATURES="embedded,local-embeddings"
+    if [ "$(uname -s)" = "Darwin" ]; then
+        SM_FEATURES="embedded,metal,local-embeddings"
+    elif command -v nvidia-smi >/dev/null 2>&1; then
+        SM_FEATURES="embedded,cuda,local-embeddings"
+    fi
     (cd "${REPO_ROOT}/tools/surreal-memory-server" && \
         RUSTFLAGS="-Dwarnings" cargo build --release --no-default-features \
-            --features "embedded,metal,local-embeddings" 2>&1 | tail -3)
+            --features "${SM_FEATURES}" 2>&1 | tail -3)
     SM_BIN="${REPO_ROOT}/tools/surreal-memory-server/target/release/surreal-memory-server"
     if [ -f "${SM_BIN}" ]; then
         install_bin "${SM_BIN}" "${BIN_DIR}/surreal-memory-server"
