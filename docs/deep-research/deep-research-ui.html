@@ -4200,7 +4200,9 @@ function deepResearchApp() {
       if (job.serverJobId) {
         try {
           await fetch('http://127.0.0.1:7891/api/v1/jobs/' + job.serverJobId, { method: 'DELETE' });
-        } catch { /* best-effort */ }
+        } catch (err) {
+          this.showToast('Cancel failed — job may have already completed.', 'error');
+        }
       }
       this.showToast('Job cancelled.', 'info');
       this.goTo('dashboard');
