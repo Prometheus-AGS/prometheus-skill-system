@@ -143,6 +143,45 @@ jobs:
       - name: test
         run: cargo test --all
 
+  bdd-skill-smoke:
+    name: BDD skill smoke tests (bdd-cucumber-{js,rs} / lifecycle-loop / video-proof)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: false
+
+      - name: Ensure jq is installed
+        run: |
+          if ! command -v jq >/dev/null 2>&1; then
+            sudo apt-get update -qq
+            sudo apt-get install -y jq
+          fi
+
+      - name: Run smoke tests for all four BDD skills
+        run: |
+          set -e
+          for skill in bdd-cucumber-js bdd-cucumber-rs bdd-lifecycle-loop bdd-video-proof; do
+            echo "=== $skill ==="
+            bash "skills/testing/$skill/scripts/smoke-test.sh"
+          done
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install skill-pack dependencies (for validate:strict)
+        run: npm ci --ignore-scripts
+
+      - name: Strict validate all four BDD skills
+        run: |
+          set -e
+          for skill in bdd-cucumber-js bdd-cucumber-rs bdd-lifecycle-loop bdd-video-proof; do
+            echo "=== strict: $skill ==="
+            npm run validate:strict "skills/testing/$skill"
+          done
+
   bdd-test:
     name: BDD tests (forge validate + enrich)
     runs-on: ubuntu-latest
