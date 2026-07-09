@@ -3,12 +3,12 @@
   "previousPhase": "phase-prui-polish",
   "status": "plan_complete",
   "stage": "execute",
-  "changes_completed": 6,
+  "changes_completed": 7,
   "changes_total": 8,
   "goals_met": 0,
   "goals_total": 7,
   "sycophancy_gate": null,
-  "next_command": "/kbd-apply change-bdd-007-cross-references",
+  "next_command": "/kbd-apply change-bdd-008-validate-smoke-tests",
   "exactNextCommand": "/kbd-assess phase-prui-polish",
   "parallelStart": null,
   "recommendedNextPhase": null,
@@ -18,5 +18,5 @@
   "assessment_complete": true,
   "analysis_complete": true,
   "plan_complete": true,
-  "last_change": "change-bdd-006-video-cert-bundle"
+  "last_change": "change-bdd-007-cross-references"
 }
