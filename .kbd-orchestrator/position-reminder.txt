@@ -1,8 +1,8 @@
 POSITION REMINDER — read this as your FIRST tool call every turn
 Phase: phase-prui-polish
-Step: 3 of 4 (in_progress)
-Stage: execute
-Next command: /kbd-apply change-polish-004-sse-reconnect-overlay
+Step: 4 of 4 (execute_complete)
+Stage: reflect
+Next command: /kbd-reflect phase-prui-polish
 
 Required signal format (emit BEFORE any tool call):
   Starting <kbd-skill> — phase-prui-polish (step N of T)
