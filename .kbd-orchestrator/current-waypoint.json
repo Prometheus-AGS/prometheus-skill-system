@@ -1,17 +1,18 @@
 {
   "phase": "phase-prui-polish",
   "previousPhase": "phase-prometheus-research-ui",
-  "status": "execute_complete",
-  "stage": "execute",
+  "status": "reflect_complete",
+  "stage": "reflect",
   "changes_completed": 4,
   "changes_total": 4,
   "goals_met": 0,
   "goals_total": 4,
   "sycophancy_gate": null,
-  "next_command": "/kbd-reflect phase-prui-polish",
+  "next_command": "/kbd-new-phase <next-phase-name>",
   "exactNextCommand": "/kbd-assess phase-prui-polish",
   "parallelStart": null,
   "recommendedNextPhase": null,
   "currentTask": "Phase opened. Ready for /kbd-assess.",
-  "updatedAt": "2026-07-09T06:45:00Z"
+  "updatedAt": "2026-07-09T06:45:00Z",
+  "reflect_complete": true
 }

@@ -1,10 +1,12 @@
 POSITION REMINDER — read this as your FIRST tool call every turn
 Phase: phase-prui-polish
-Step: 4 of 4 (execute_complete)
-Stage: reflect
-Next command: /kbd-reflect phase-prui-polish
+Step: 4 of 4 (reflect_complete)
+Stage: CLOSED
+
+Phase phase-prui-polish is CLOSED. All 4 goals MET, 21/21 tasks done.
+Next command: /kbd-new-phase <next-phase-name>
 
 Required signal format (emit BEFORE any tool call):
-  Starting <kbd-skill> — phase-prui-polish (step N of T)
+  Starting <kbd-skill> — <next-phase> (step N of T)
   [do work]
-  Completed <kbd-skill> — phase-prui-polish (step N of T)
+  Completed <kbd-skill> — <next-phase> (step N of T)
