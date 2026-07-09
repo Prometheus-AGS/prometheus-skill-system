@@ -102,6 +102,103 @@ Do NOT use for:
 - `deep` (default) — All 10 stages, ~50 sources, ~60 min
 - `exhaustive` — All 10 stages with extended search, ~100+ sources, ~2 hr
 
+## Background Execution (prometheus-research)
+
+`prometheus-research` is a Rust binary (v1.6.0) that runs the deep-research
+pipeline as a persistent background server with real-time progress streaming.
+It ships with `prometheus-skill-pack` and is installed by
+`scripts/install-binaries.sh`.
+
+### Starting the server
+
+```bash
+# Start HTTP server on :7891 (launchd auto-starts this on macOS)
+prometheus-research --mode server
+
+# Check it is up
+curl -s http://127.0.0.1:7891/health | jq .
+# {"status":"ok","version":"0.1.0","pid":12345}
+```
+
+The launchd service `com.prometheus.research` starts automatically when the
+skill pack is installed. Restart manually with:
+
+```bash
+launchctl kickstart -k gui/$(id -u)/com.prometheus.research
+```
+
+### MCP tools (5)
+
+Use these from within a research session once the server is running:
+
+| Tool | Description |
+|------|-------------|
+| `research_start` | Start a new research job; returns `job_id` |
+| `research_status` | Poll job status and stage progress |
+| `research_cancel` | Cancel a running job |
+| `research_export` | Export the finished `.research` package |
+| `render_component` | Render an A2UI component via surface-bridge |
+
+**Example flow:**
+
+```
+research_start(query="State of Rust async runtimes", depth="deep")
+  → {"job_id": "job_abc123", "status": "started"}
+
+research_status(job_id="job_abc123")
+  → {"job_id": "...", "stage": 3, "stage_name": "Retrieve", "progress": 40, "status": "running"}
+
+research_export(job_id="job_abc123")
+  → {"path": "~/.prometheus/research/job_abc123/"}
+```
+
+### AG-UI SSE stream
+
+The server emits structured events on a per-job SSE stream. Connect from any
+`EventSource`-capable client:
+
+```
+GET http://127.0.0.1:7891/api/v1/jobs/{job_id}/events
+```
+
+**Event types:**
+
+| `type` field     | When emitted | Key fields |
+|------------------|-------------|------------|
+| `agent.status`   | Each stage start/progress | `stage`, `stage_name`, `progress`, `status`, `tokens` |
+| `agent.message`  | Log messages from stages | `message`, `level` |
+| `agent.error`    | Stage failure | `message`, `stage` |
+| `a2ui.component` | UI component ready to render | `component`, `props` |
+
+All events include `job_id` and `timestamp`.
+
+**Minimal EventSource listener (browser / HTMX):**
+
+```js
+const es = new EventSource('http://127.0.0.1:7891/api/v1/jobs/job_abc123/events');
+es.onmessage = (e) => console.log(JSON.parse(e.data));
+```
+
+### A2UI component endpoints
+
+Eight pre-built HTMX fragments are served at `/components/{name}`:
+
+| Component | Purpose |
+|-----------|---------|
+| `progress-bar` | Stage progress ring |
+| `source-card` | Individual source with credibility score |
+| `citation-list` | Formatted citation list |
+| `graph-view` | Knowledge graph minimap |
+| `contradiction-panel` | Contradiction log with resolution status |
+| `stage-timeline` | 10-stage execution timeline |
+| `confidence-meter` | Overall confidence score gauge |
+| `export-card` | Download / copy `.research` package |
+
+Each endpoint accepts `?job_id=<id>` and returns a self-contained HTMX fragment
+for `hx-swap-oob` injection. See
+[`skills/research/deep-research/references/a2ui-components.md`](references/a2ui-components.md)
+for full prop schemas.
+
 ## 10-Stage Pipeline
 
 Stages execute sequentially. Each stage's output is the next stage's input.
