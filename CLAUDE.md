@@ -657,9 +657,19 @@ Code-generation agents operating in projects that use Cucumber/BDD step definiti
 - **Must** surface failing tests to the user rather than silently updating steps to match new code.
 - **May** add new `.feature` files to `tests/features/drafts/` and matching new step definitions.
 
-This rule is enforced via CLAUDE.md prose in the target project and optionally via a PreToolUse hook (`shared/scripts/protect-tests.sh`). Full rationale and the trio relationship (BDD-005, BDD-006, BDD-007) are documented in `docs/future-work/02-bdd-testing-evolution/BDD-006-immutable-tests-rule.md`.
+This rule is enforced two ways:
 
-For projects using this skill-pack with BDD suites (e.g. `ssr-frontend`), see the **Immutable Tests Rule** section in that project's `CLAUDE.md`.
+1. **PreToolUse hook** (agent-time) — `shared/scripts/protect-tests.sh` blocks `Edit`/`Write` on protected paths.
+2. **CI gate** (PR-time) — `skills/testing/bdd-lifecycle-loop/scripts/test-file-diff-guard.sh` fails PRs touching protected paths without a `test-change-approved` label.
+
+**Canonical guidance now lives in the operative skill** — see [`skills/testing/bdd-lifecycle-loop/references/immutable-tests.md`](skills/testing/bdd-lifecycle-loop/references/immutable-tests.md) rather than repeating the rationale here. That skill also documents the four-phase BDD loop (author → run → triage → maintain), the flake-budget enforcement, and the visual-baseline refresh workflow.
+
+Related future-work docs (background reading):
+- [`BDD-005 testid-drift-detection`](docs/future-work/02-bdd-testing-evolution/BDD-005-testid-drift-detection.md)
+- [`BDD-006 immutable-tests-rule`](docs/future-work/02-bdd-testing-evolution/BDD-006-immutable-tests-rule.md)
+- [`BDD-007 candidate-test-drafts`](docs/future-work/02-bdd-testing-evolution/BDD-007-candidate-test-drafts.md)
+
+For downstream projects using this skill-pack with BDD suites (e.g. `ssr-frontend`), see the **Immutable Tests Rule** section in that project's `CLAUDE.md`.
 
 ## Learn Domain
 

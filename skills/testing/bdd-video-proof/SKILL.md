@@ -182,3 +182,7 @@ commit tree.
 - [references/SETUP.md](references/SETUP.md) — installation and prereqs
 - [references/IPFS.md](references/IPFS.md) — Mode B pinning workflow
 - `docs/future-work/02-bdd-testing-evolution/BDD-004-video-skill-productization.md`
+- `docs/future-work/02-bdd-testing-evolution/BDD-005-testid-drift-detection.md`
+- `docs/future-work/02-bdd-testing-evolution/BDD-006-immutable-tests-rule.md`
+- `docs/future-work/02-bdd-testing-evolution/BDD-007-candidate-test-drafts.md`
+- [`STATUS.md`](../../../docs/future-work/02-bdd-testing-evolution/STATUS.md) — BDD-* implementation matrix

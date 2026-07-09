@@ -262,3 +262,5 @@ For CDP-based video (Chrome only) see `references/browser-drivers.md`.
 - [references/migration-from-0.20.md](references/migration-from-0.20.md) — upgrading from cucumber 0.20
 - `docs/future-work/02-bdd-testing-evolution/BDD-005-testid-drift-detection.md`
 - `docs/future-work/02-bdd-testing-evolution/BDD-006-immutable-tests-rule.md`
+- `docs/future-work/02-bdd-testing-evolution/BDD-007-candidate-test-drafts.md`
+- [`STATUS.md`](../../../docs/future-work/02-bdd-testing-evolution/STATUS.md) — BDD-* implementation matrix

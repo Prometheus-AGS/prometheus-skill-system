@@ -183,5 +183,8 @@ for the branch-and-review workflow.
 - [references/immutable-tests.md](references/immutable-tests.md)
 - [references/visual-baseline-refresh.md](references/visual-baseline-refresh.md)
 - `docs/future-work/02-bdd-testing-evolution/BDD-002-flake-quarantine.md`
+- `docs/future-work/02-bdd-testing-evolution/BDD-005-testid-drift-detection.md`
 - `docs/future-work/02-bdd-testing-evolution/BDD-006-immutable-tests-rule.md`
+- `docs/future-work/02-bdd-testing-evolution/BDD-007-candidate-test-drafts.md`
+- [`STATUS.md`](../../../docs/future-work/02-bdd-testing-evolution/STATUS.md) — BDD-* implementation matrix
 - `shared/scripts/protect-tests.sh` — PreToolUse hook reference implementation
