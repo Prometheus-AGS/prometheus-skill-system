@@ -3,12 +3,12 @@
   "previousPhase": "phase-bdd-video-proof",
   "status": "plan_complete",
   "stage": "execute",
-  "changes_completed": 4,
+  "changes_completed": 5,
   "changes_total": 6,
   "goals_met": 0,
   "goals_total": 6,
   "sycophancy_gate": null,
-  "next_command": "/kbd-apply change-drui-005-restyle-ui-knowme",
+  "next_command": "/kbd-apply change-drui-006-ci-smoke",
   "exactNextCommand": "/kbd-assess phase-prui-polish",
   "parallelStart": null,
   "recommendedNextPhase": null,
@@ -18,5 +18,5 @@
   "assessment_complete": true,
   "analysis_complete": true,
   "plan_complete": true,
-  "last_change": "change-drui-004-docker-compose"
+  "last_change": "change-drui-005-restyle-ui-knowme"
 }
