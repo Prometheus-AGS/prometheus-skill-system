@@ -1,0 +1,23 @@
+{
+  "phase": "phase-drui-standalone-hosting",
+  "status": "plan_complete",
+  "stage": "execute",
+  "changes_completed": 0,
+  "changes_total": 6,
+  "goals_met": 0,
+  "goals_total": 6,
+  "assessment_complete": true,
+  "analysis_complete": true,
+  "plan_complete": true,
+  "reflect_complete": false,
+  "last_change": null,
+  "changes": [
+    "change-drui-001-brand-tokens-and-assets",
+    "change-drui-002-serve-ui-shell",
+    "change-drui-003-relative-paths-and-readme",
+    "change-drui-004-docker-compose",
+    "change-drui-005-restyle-ui-knowme",
+    "change-drui-006-ci-smoke"
+  ],
+  "updatedAt": "2026-07-09T17:00:00Z"
+}

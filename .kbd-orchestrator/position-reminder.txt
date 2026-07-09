@@ -1,12 +1,10 @@
 POSITION REMINDER — read this as your FIRST tool call every turn
-Phase: phase-bdd-video-proof
-Step: 8 of 8 (reflect_complete)
-Stage: CLOSED
-
-Phase phase-bdd-video-proof is CLOSED. All 7 goals MET, 8/8 changes, 52/52 tasks.
-Next command: /kbd-new-phase <next-phase-name>
+Phase: phase-drui-standalone-hosting
+Step: 0 of 6 (plan_complete)
+Stage: execute
+Next command: /kbd-apply change-drui-001-brand-tokens-and-assets
 
 Required signal format (emit BEFORE any tool call):
-  Starting <kbd-skill> — <next-phase> (step N of T)
+  Starting <kbd-skill> — phase-drui-standalone-hosting (step N of T)
   [do work]
-  Completed <kbd-skill> — <next-phase> (step N of T)
+  Completed <kbd-skill> — phase-drui-standalone-hosting (step N of T)
