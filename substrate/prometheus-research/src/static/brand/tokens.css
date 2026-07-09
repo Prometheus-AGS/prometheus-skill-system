@@ -1,0 +1,83 @@
+/*
+ * KnowMe Brand Tokens — v1.0
+ * Vendored from ~/Projects/know-me/branding/knowme-brand-template.html
+ * Do NOT edit here; sync upstream and re-vendor when the brand system moves.
+ */
+
+:root {
+  /* Backgrounds */
+  --bg:              #F7F7F8;   /* Page background          */
+  --bg-raised:       #FFFFFF;   /* Cards, panels            */
+  --bg-surface:      #EEEEF1;   /* Subtle surface           */
+
+  /* Foreground */
+  --fg:              #0B0F14;   /* Primary text             */
+  --fg-muted:        #4B5563;   /* Secondary, captions      */
+  --fg-subtle:       #8894A0;   /* Metadata, placeholders   */
+
+  /* Borders */
+  --border:          #D8DEE6;
+  --border-soft:     #E8ECF0;
+
+  /* Brand */
+  --ember:           #E04E28;   /* Primary CTA, focus ring  */
+  --ember-soft:      #F2D6CF;   /* Hover, selected state    */
+  --ember-bright:    #FF6A3D;   /* Gradient tip             */
+
+  /* Functional */
+  --code-bg:         #F0F2F5;
+  --swatch-ring:     #C8CDD5;
+  --success:         #16A34A;
+  --warning:         #D97706;
+  --danger:          #DC2626;
+
+  /* Radius */
+  --radius-sm:       4px;
+  --radius:          6px;
+  --radius-md:       10px;
+  --radius-lg:       14px;
+  --radius-xl:       24px;
+  --radius-full:     9999px;
+
+  /* Shadows (light only) */
+  --shadow-sm:       0 1px 3px rgba(11,15,20,.06), 0 1px 2px rgba(11,15,20,.04);
+  --shadow:          0 4px 12px rgba(11,15,20,.08), 0 2px 4px rgba(11,15,20,.05);
+
+  /* Font families */
+  --font-display:    'Space Grotesk', sans-serif;
+  --font-body:       'Roboto', sans-serif;
+  --font-ui:         'Inter', sans-serif;
+  --font-mono:       'JetBrains Mono', monospace;
+}
+
+.dark, :root.dark, [data-theme="dark"] {
+  --bg:              #0B0F14;
+  --bg-raised:       #0F1620;
+  --bg-surface:      #141C26;
+
+  --fg:              #E8EDF3;
+  --fg-muted:        #A7B0BC;
+  --fg-subtle:       #5C6B7A;
+
+  --border:          #1E2D3D;
+  --border-soft:     #162030;
+
+  --ember:           #FF6A3D;
+  --ember-soft:      #2A1510;
+  --ember-bright:    #FF8559;
+
+  --code-bg:         #0A1220;
+  --swatch-ring:     #2A3848;
+
+  --shadow-sm:       none;
+  --shadow:          none;
+}
+
+/* Selection */
+::selection { background: var(--ember-soft); color: var(--ember); }
+
+/* Scrollbar polish */
+::-webkit-scrollbar       { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--fg-subtle); }
