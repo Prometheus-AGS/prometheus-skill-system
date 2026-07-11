@@ -18,9 +18,11 @@
 * [Cowork CLI Integration Planning Phase Goals](/cowork-cli-integration-planning-phase-goals.md)
 * [Deep Research + Feynman Learning Integration](/deep-research-feynman-integration.md) - Research into how deep research combines with Feynman learning skills, Karpathy LLM wiki patterns, and learning loop integration.
 * [Deep Research Skill Landscape](/deep-research-skill-landscape.md) - Comprehensive survey of existing deep research agents and skills, including GPT Researcher, LangGraph ODR, MiroThinker, and other implementations in the ecosystem.
+* [DRUI Standalone Hosting Executor Completion Log](/drui-standalone-hosting-executor-completion-log.md)
 * [DRUI Standalone Hosting Executor Completion Record](/drui-standalone-hosting-executor-completion-record.md)
 * [DRUI Standalone Hosting Executor Completion Status](/drui-standalone-hosting-executor-completion-status.md)
 * [DRUI Standalone Hosting Executor Completion Update](/drui-standalone-hosting-executor-completion-update.md)
+* [DRUI Standalone Hosting Latest Phase Completion Status](/drui-standalone-hosting-latest-phase-completion-status.md)
 * [DRUI Standalone Hosting Phase Completion Status](/drui-standalone-hosting-phase-completion-status.md)
 * [DRUI Standalone Hosting Phase Final Completion Status](/drui-standalone-hosting-phase-final-completion-status.md)
 * [Flint Forge G4 GraphQL Subscription Wiring Scope Decision](/flint-forge-g4-graphql-subscription-wiring-scope-decision.md)
@@ -56,6 +58,7 @@
 * [surreal-memory-server Latest Binary Stabilization](/surreal-memory-server-latest-binary-stabilization.md)
 * [Threaded/Concurrent Research with Per-Thread Context](/threaded-concurrent-research.md) - Research on implementing threaded and concurrent research with isolated per-thread context, leveraging surreal-memory for thread-safe storage.
 * [Toolchain Binary Sync and OKF Wiki Adoption Session Completion](/toolchain-binary-sync-and-okf-wiki-adoption-session-completion.md)
+* [UAR Final Production Hardening Latest Zero-Change Status](/uar-final-production-hardening-latest-zero-change-status.md)
 * [UAR Final Production Hardening Session Final Status](/uar-final-production-hardening-session-final-status.md)
 * [UAR Final Production Hardening Session Status](/uar-final-production-hardening-session-status.md)
 * [UI Architecture — Single-View vs Two-Zone Navigation](/ui-architecture-single-vs-two-zone.md) - When evolving a single-item UI (one research job) into a multi-item UI (many concurrent research jobs), the natural temptation is to create **two zones of navigation**: a "workspace" zone for global actions and a "job context" zone for per-job actions. The sidebar switches betwee
