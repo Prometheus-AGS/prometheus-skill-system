@@ -1,0 +1,33 @@
+# liter-llm proxy / MCP config — default template.
+#
+# Installed to ~/.config/liter-llm/liter-llm-proxy.toml by scripts/install-binaries.sh
+# (only when the user has no config there). `liter-llm mcp` REQUIRES a config
+# file — without it the stdio MCP server exits and Claude Code fails to load it.
+#
+# Routes model traffic through the local OpenAI-compatible proxy at :8181 (the
+# same openai-proxy pk-cherry uses for chat/completions). Embeddings stay local.
+# Env interpolation supports only ${VAR} (no ${VAR:-default}); unknown -> "".
+
+[general]
+default_timeout_secs = 120
+max_retries = 3
+enable_cost_tracking = false
+enable_tracing = false
+
+# Named default model routed to the local proxy.
+[[models]]
+name = "gpt-5.4"
+provider_model = "openai/gpt-5.4"
+api_key = "sk-proxy-local"
+base_url = "http://localhost:8181/v1"
+
+# Catch-all: any openai/* model reference goes through the local proxy.
+[[aliases]]
+pattern = "openai/*"
+api_key = "sk-proxy-local"
+base_url = "http://localhost:8181/v1"
+
+# stdio MCP runs as a fully-trusted local process (Claude Code spawns it locally),
+# so it is granted master-key access rather than binding to a specific virtual key.
+[mcp]
+stdio_trust_local = true

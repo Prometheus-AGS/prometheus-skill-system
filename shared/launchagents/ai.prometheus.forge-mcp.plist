@@ -33,6 +33,13 @@
     <string>__PROMETHEUS_PATH__</string>
     <key>PK_MCP_URL</key>
     <string>http://localhost:8942/mcp</string>
+    <!-- Stable bearer token for the forge MCP server. forge REQUIRES a token
+         (no --no-auth flag); without this it mints a random one each boot and
+         clients 401. This is a localhost-only (127.0.0.1:8943) dev token,
+         committed like the surrealdb root/root creds; the identical value is
+         set in .mcp.json as `Authorization: Bearer`. -->
+    <key>FORGE_MCP_TOKEN</key>
+    <string>forge-mcp-local-dev-30dfefcc32263a0813ffdbd2</string>
   </dict>
 
   <key>RunAtLoad</key>

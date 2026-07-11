@@ -77,6 +77,16 @@ if [ -f "${REPO_ROOT}/tools/liter-llm/Cargo.toml" ]; then
     else
         fail "liter-llm binary not found after build"
     fi
+    # `liter-llm mcp` REQUIRES a config file — without it the stdio server exits
+    # and Claude Code fails to load it. Install the default proxy/MCP config
+    # (routes via the local :8181 openai-proxy) unless the user already has one.
+    LLM_CFG_DIR="${HOME}/.config/liter-llm"
+    LLM_CFG="${LLM_CFG_DIR}/liter-llm-proxy.toml"
+    if [ ! -f "${LLM_CFG}" ] && [ -f "${REPO_ROOT}/shared/config/liter-llm-proxy.toml" ]; then
+        mkdir -p "${LLM_CFG_DIR}"
+        cp "${REPO_ROOT}/shared/config/liter-llm-proxy.toml" "${LLM_CFG}"
+        ok "liter-llm config → ${LLM_CFG}"
+    fi
 else
     info "skip liter-llm (submodule not initialized)"
 fi

@@ -12,6 +12,9 @@
     "forge-rs": {
       "type": "http",
       "url": "${FORGE_MCP_URL:-http://localhost:8943/mcp}",
+      "headers": {
+        "Authorization": "Bearer ${FORGE_MCP_TOKEN:-forge-mcp-local-dev-30dfefcc32263a0813ffdbd2}"
+      },
       "description": "Layer 4 code-enrichment engine — forge_enrich, forge_reflect, forge_drift, forge_validate"
     },
     "prometheus-knowledge": {
