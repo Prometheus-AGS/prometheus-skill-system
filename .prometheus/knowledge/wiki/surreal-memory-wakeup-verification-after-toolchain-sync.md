@@ -2,6 +2,7 @@
 type: Reference
 id: surreal-memory-wakeup-verification-after-toolchain-sync
 title: Surreal Memory Wakeup Verification After Toolchain Sync
+description: "During `phase-okf-llm-wiki-adoption`, a scheduled wakeup fired as a safety fallback after the actual remediation work had already completed. Live verification confirmed there was nothing left to redo for `surreal-memory-server`."
 tags:
 - surreal-memory-server
 - toolchain-sync

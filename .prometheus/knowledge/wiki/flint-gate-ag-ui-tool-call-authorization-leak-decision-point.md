@@ -2,6 +2,7 @@
 type: Reference
 id: flint-gate-ag-ui-tool-call-authorization-leak-decision-point
 title: Flint Gate AG-UI Tool-Call Authorization Leak Decision Point
+description: "Project:** `flint-gate` - **Phase:** `agent-authz-control-plane` - **KBD root:** `/Users/gqadonis/Projects/prometheus/flint-gate` - **Captured:** `2026-07-03T20:45:06Z` - **Source phase record:** `manual:flint-gate/agent-authz-control-plane` - **Status:** `execution_ready` - **Pr"
 tags:
 - flint-gate
 - agent-authorization

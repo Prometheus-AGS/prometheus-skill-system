@@ -2,6 +2,7 @@
 type: Reference
 id: flint-forge-p3-c019-postgrest-query-engine-foundation
 title: Flint Forge p3-c019 PostgREST Query Engine Foundation
+description: "Project:** Flint Forge - **Phase:** `p3-auth-rls-keto` - **KBD root:** `/Users/gqadonis/Projects/prometheus/flint-forge` - **Captured:** `2026-07-03T15:37:15Z` - **Status:** `in_progress` - **Progress:** changes `7/9` - **Branch:** `feat/p3-c019-postgrest-query-engine` - **Relate"
 tags:
 - flint-forge
 - postgrest

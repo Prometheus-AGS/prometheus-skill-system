@@ -2,6 +2,7 @@
 type: Reference
 id: okf-llm-wiki-adoption-executor-completion-status
 title: OKF LLM Wiki Adoption Executor Completion Status
+description: "An executor session completed successfully for the OKF LLM wiki adoption phase."
 tags:
 - okf
 - llm-wiki

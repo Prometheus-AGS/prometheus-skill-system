@@ -2,6 +2,7 @@
 type: Reference
 id: ci-all-green-formatting-gate-fixed-in-change-green-001
 title: CI All Green Formatting Gate Fixed in change-green-001
+description: "`kbd-apply` completed `change-green-001` for `phase-ci-all-green` in `/Users/gqadonis/Projects/prometheus/prometheus-skill-pack`."
 tags:
 - ci
 - prettier

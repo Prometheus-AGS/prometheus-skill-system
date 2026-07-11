@@ -2,6 +2,7 @@
 type: Reference
 id: flint-gate-mcp-resource-server-completion-and-security-fixes
 title: Flint Gate MCP Resource Server Completion and Security Fixes
+description: "Project:** `flint-gate` - **Phase:** `agent-authz-control-plane` - **KBD root:** `/Users/gqadonis/Projects/prometheus/flint-gate` - **Captured:** `2026-07-03T16:57:23Z` - **Status:** `execution_ready` - **Progress:** phase changes `2/8` - **Completed change:** `add-mcp-resource-s"
 tags:
 - flint-gate
 - mcp

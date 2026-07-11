@@ -2,6 +2,7 @@
 type: Reference
 id: flint-forge-p3-auth-rls-keto-goals-and-p3-c020-relaunch
 title: Flint Forge p3 Auth/RLS/Keto Goals and p3-c020 Relaunch
+description: "Project:** Flint Forge - **Phase:** `p3-auth-rls-keto` - **KBD root:** `/Users/gqadonis/Projects/prometheus/flint-forge` - **Captured:** `2026-07-03T17:55:07Z` - **Position:** `p3-auth-rls-keto | status: in_progress` - **Progress:** changes `7/9` - **Related status:** [Flint Forg"
 tags:
 - flint-forge
 - auth-rls

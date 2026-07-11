@@ -2,6 +2,7 @@
 type: Reference
 id: flint-forge-p3-c020-listen-change-source-pr-6-status
 title: 'Flint Forge p3-c020 LISTEN Change Source PR #6 Status'
+description: "Project:** Flint Forge - **Phase:** `p3-auth-rls-keto` - **KBD root:** `/Users/gqadonis/Projects/prometheus/flint-forge` - **Captured:** `2026-07-03T18:18:01Z` - **Position:** `p3-auth-rls-keto | status: in_progress` - **Progress:** changes `7/9` - **PR:** #6 \u2014 `https://github.co"
 tags:
 - flint-forge
 - auth-rls

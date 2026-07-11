@@ -2,6 +2,7 @@
 type: Reference
 id: flint-gate-agent-authz-budget-rate-limiting-progress
 title: Flint Gate Agent Authz Budget Rate Limiting Progress
+description: "Project:** `flint-gate` - **Phase:** `agent-authz-control-plane` - **KBD root:** `/Users/gqadonis/Projects/prometheus/flint-gate` - **Captured:** `2026-07-03T14:41:04Z` - **Source phase record:** `manual:flint-gate/agent-authz-control-plane` - **Branch:** `feat/agent-authz-budget"
 tags:
 - flint-gate
 - agent-authorization

@@ -2,6 +2,7 @@
 type: Reference
 id: flint-forge-p3-c019-postgrest-engine-read-write-progress
 title: Flint Forge p3-c019 PostgREST Engine Read/Write Progress
+description: "Project:** Flint Forge - **Phase:** `p3-auth-rls-keto` - **KBD root:** `/Users/gqadonis/Projects/prometheus/flint-forge` - **Captured:** `2026-07-03T15:47:56Z` - **Source phase record:** `manual:Flint Forge/p3-auth-rls-keto` - **Status:** `in_progress` - **Progress:** changes `7/"
 tags:
 - flint-forge
 - postgrest

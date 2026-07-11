@@ -2,6 +2,7 @@
 type: Reference
 id: ci-cross-model-qa-hardening-executor-session-complete
 title: CI Cross-Model QA Hardening Executor Session Complete
+description: "An executor session completed for the CI cross-model QA and hardening phase."
 tags:
 - ci
 - executor-session

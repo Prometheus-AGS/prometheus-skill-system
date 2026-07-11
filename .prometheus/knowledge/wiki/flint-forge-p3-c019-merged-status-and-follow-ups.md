@@ -2,6 +2,7 @@
 type: Reference
 id: flint-forge-p3-c019-merged-status-and-follow-ups
 title: Flint Forge p3-c019 Merged Status and Follow-ups
+description: "Project:** Flint Forge - **Phase:** `p3-auth-rls-keto` - **KBD root:** `/Users/gqadonis/Projects/prometheus/flint-forge` - **Captured:** `2026-07-03T17:30:32Z` - **Position:** `p3-auth-rls-keto | status: in_progress` - **Displayed progress:** changes `7/9` - **Related phase recor"
 tags:
 - flint-forge
 - auth-rls

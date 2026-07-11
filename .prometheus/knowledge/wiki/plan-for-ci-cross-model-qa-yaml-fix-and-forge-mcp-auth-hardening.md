@@ -2,6 +2,7 @@
 type: Reference
 id: plan-for-ci-cross-model-qa-yaml-fix-and-forge-mcp-auth-hardening
 title: Plan for CI Cross-Model QA YAML Fix and Forge MCP Auth Hardening
+description: "`kbd-plan` completed for `phase-ci-cross-model-qa-and-hardening` at step `0/3` in `/Users/gqadonis/Projects/prometheus/prometheus-skill-pack`."
 tags:
 - ci
 - cross-model-qa

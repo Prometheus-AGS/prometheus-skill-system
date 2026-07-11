@@ -2,6 +2,7 @@
 type: Reference
 id: cowork-cli-integration-planning-phase-goals
 title: Cowork CLI Integration Planning Phase Goals
+description: "Phase:** `cowork-integration` - **Project:** unspecified - **KBD root:** `/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.claude/worktrees/charming-diffie-309eef` - **Captured:** `2026-07-03T21:15:09Z` - **Source context:** `manual:cowork-integration`"
 tags:
 - cowork-cli
 - skill-pack

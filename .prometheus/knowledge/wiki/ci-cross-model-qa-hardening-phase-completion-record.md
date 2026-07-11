@@ -2,6 +2,7 @@
 type: Reference
 id: ci-cross-model-qa-hardening-phase-completion-record
 title: CI Cross-Model QA Hardening Phase Completion Record
+description: "An executor session completed for the CI cross-model QA and hardening phase."
 tags:
 - ci
 - executor-session

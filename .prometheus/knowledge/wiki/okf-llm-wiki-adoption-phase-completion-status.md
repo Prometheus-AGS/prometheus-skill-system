@@ -2,6 +2,7 @@
 type: Reference
 id: okf-llm-wiki-adoption-phase-completion-status
 title: OKF LLM Wiki Adoption Phase Completion Status
+description: "`session_ended`: `2026-07-03T13:05:37Z` - `phase`: `phase-okf-llm-wiki-adoption` - `stage`: `reflect` - `last_completed`: `none` - `progress`: `8 of 8 changes done` - `next_pending`: `none`"
 tags:
 - okf
 - llm-wiki

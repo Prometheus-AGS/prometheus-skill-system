@@ -2,6 +2,7 @@
 type: Reference
 id: ci-all-green-phase-executor-completion-status
 title: CI All-Green Phase Executor Completion Status
+description: "An executor session completed for the CI all-green phase."
 tags:
 - ci
 - executor-session

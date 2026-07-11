@@ -2,6 +2,7 @@
 type: Reference
 id: flint-gate-agent-authorization-control-plane-execution-plan
 title: Flint Gate Agent Authorization Control Plane Execution Plan
+description: "Phase `agent-authz-control-plane` for project `flint-gate` is ready for execution."
 tags:
 - flint-gate
 - agent-authorization

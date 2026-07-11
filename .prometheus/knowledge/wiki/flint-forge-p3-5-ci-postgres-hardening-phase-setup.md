@@ -2,6 +2,7 @@
 type: Reference
 id: flint-forge-p3-5-ci-postgres-hardening-phase-setup
 title: Flint Forge p3.5 CI Postgres Hardening Phase Setup
+description: "Project:** Flint Forge - **Phase:** `p3.5-ci-postgres-hardening` - **KBD root:** `/Users/gqadonis/Projects/prometheus/flint-forge` - **Captured:** `2026-07-03T20:08:28Z` - **Status:** `assessment_ready` - **Commit:** `8366033` - **Previous phase:** `p3-auth-rls-keto` - **Next act"
 tags:
 - flint-forge
 - ci-postgres

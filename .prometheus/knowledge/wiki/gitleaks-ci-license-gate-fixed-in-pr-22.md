@@ -2,6 +2,7 @@
 type: Reference
 id: gitleaks-ci-license-gate-fixed-in-pr-22
 title: Gitleaks CI License Gate Fixed in PR 22
+description: "During `phase-okf-llm-wiki-adoption` for KBD root `/Users/gqadonis/Projects/prometheus/prometheus-skill-pack`, the OKF wiki adoption work had already been triaged in [OKF Wiki Adoption PR 21 CI Triage and Merge Readiness](/okf-wiki-adoption-pr-21-ci-triage-and-merge-readiness.md)"
 tags:
 - gitleaks
 - ci

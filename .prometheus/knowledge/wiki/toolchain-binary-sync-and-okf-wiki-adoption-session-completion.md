@@ -2,6 +2,7 @@
 type: Reference
 id: toolchain-binary-sync-and-okf-wiki-adoption-session-completion
 title: Toolchain Binary Sync and OKF Wiki Adoption Session Completion
+description: "Phase `phase-okf-llm-wiki-adoption` completed for KBD root:"
 tags:
 - okf
 - llm-wiki

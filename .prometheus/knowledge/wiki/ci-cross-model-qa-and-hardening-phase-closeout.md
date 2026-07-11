@@ -2,6 +2,7 @@
 type: Reference
 id: ci-cross-model-qa-and-hardening-phase-closeout
 title: CI Cross-Model QA and Hardening Phase Closeout
+description: "Phase:** `phase-ci-cross-model-qa-and-hardening` - **Project:** unspecified - **KBD root:** `/Users/gqadonis/Projects/prometheus/prometheus-skill-pack` - **Captured:** `2026-07-03T20:14:05Z` - **Final status:** `reflect_complete (CLOSED)` - **Goals:** 3/3 met - **Gate:** `0.0` - "
 tags:
 - ci
 - cross-model-qa

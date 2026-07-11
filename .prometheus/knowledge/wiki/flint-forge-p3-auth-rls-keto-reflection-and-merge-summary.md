@@ -2,6 +2,7 @@
 type: Reference
 id: flint-forge-p3-auth-rls-keto-reflection-and-merge-summary
 title: Flint Forge p3 Auth/RLS/Keto Reflection and Merge Summary
+description: "Project:** Flint Forge - **Phase:** `p3-auth-rls-keto` - **KBD root:** `/Users/gqadonis/Projects/prometheus/flint-forge` - **Captured:** `2026-07-03T18:43:45Z` - **Position:** `p3-auth-rls-keto | status: in_progress` - **Progress marker:** changes `7/9` - **Related phase record:*"
 tags:
 - flint-forge
 - auth-rls

@@ -2,6 +2,7 @@
 type: Reference
 id: flint-forge-g4-graphql-subscription-wiring-scope-decision
 title: Flint Forge G4 GraphQL Subscription Wiring Scope Decision
+description: "Project:** Flint Forge - **Phase:** `p3-auth-rls-keto` - **KBD root:** `/Users/gqadonis/Projects/prometheus/flint-forge` - **Captured:** `2026-07-03T14:27:30Z` - **Status:** `in_progress` - **Progress:** changes `7/9` - **Related phase status:** [Flint Forge p3 Auth RLS Keto Phas"
 tags:
 - flint-forge
 - graphql-subscriptions

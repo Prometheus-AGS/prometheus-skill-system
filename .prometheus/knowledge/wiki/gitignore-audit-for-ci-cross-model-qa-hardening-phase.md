@@ -2,6 +2,7 @@
 type: Reference
 id: gitignore-audit-for-ci-cross-model-qa-hardening-phase
 title: .gitignore Audit for CI Cross-Model QA Hardening Phase
+description: "The `.gitignore` audit for `phase-ci-cross-model-qa-and-hardening` was completed, committed, and merged to `main`."
 tags:
 - gitignore
 - ci

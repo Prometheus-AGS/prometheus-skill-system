@@ -2,6 +2,7 @@
 type: Reference
 id: phase-ci-all-green-assessment-for-okf-wiki-adoption
 title: Phase CI All Green Assessment for OKF Wiki Adoption
+description: "A `kbd-assess` run completed for `phase-ci-all-green` under the OKF LLM wiki adoption effort. This follows the PR/CI readiness work tracked in [OKF Wiki Adoption PR 21 CI Triage and Merge Readiness](/okf-wiki-adoption-pr-21-ci-triage-and-merge-readiness.md) and the broader comple"
 tags:
 - okf
 - llm-wiki
