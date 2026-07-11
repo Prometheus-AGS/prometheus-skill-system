@@ -1,0 +1,11 @@
+{
+  "stage": "plan",
+  "completedAt": "2026-07-11T15:24:54Z",
+  "outputs": [
+    "plan.md"
+  ],
+  "nextStage": "execute",
+  "summaryForNext": "8 native-KBD changes; P0 spike (001) front-loaded to resolve plugin-hook firing + .mcp.json env before 004/005 commit scope; then manifest→marketplace/mcp/hooks/skills→build tooling→docs+UAR verify. Apply change-cpi-001-runtime-spike first.",
+  "skipped": false,
+  "skipReason": null
+}
