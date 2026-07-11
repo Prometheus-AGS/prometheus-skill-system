@@ -15,17 +15,26 @@
 * [CI Cross-Model QA Hardening Executor Session Complete](/ci-cross-model-qa-hardening-executor-session-complete.md) - An executor session completed for the CI cross-model QA and hardening phase.
 * [CI Cross-Model QA Hardening Phase Completion Record](/ci-cross-model-qa-hardening-phase-completion-record.md) - An executor session completed for the CI cross-model QA and hardening phase.
 * [CI Cross-Model QA Hardening Session Completion](/ci-cross-model-qa-hardening-session-completion.md) - An executor session completed for the CI cross-model QA and hardening phase.
+* [Codex Plugin Implementation Executor Completion Record](/codex-plugin-implementation-executor-completion-record.md)
+* [Codex Plugin Implementation Executor Completion Status](/codex-plugin-implementation-executor-completion-status.md)
+* [Codex Plugin Implementation Executor Session Complete](/codex-plugin-implementation-executor-session-complete.md)
+* [Codex Plugin Implementation Executor Session Completion](/codex-plugin-implementation-executor-session-completion.md)
+* [Codex Plugin Implementation Executor Session Status](/codex-plugin-implementation-executor-session-status.md)
+* [Codex Plugin Implementation Phase Completion Status](/codex-plugin-implementation-phase-completion-status.md)
+* [Codex Plugin Implementation Phase Executor Completion](/codex-plugin-implementation-phase-executor-completion.md)
 * [Cowork CLI Integration Planning Phase Goals](/cowork-cli-integration-planning-phase-goals.md) - Phase:** `cowork-integration` - **Project:** unspecified - **KBD root:** `/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.claude/worktrees/charming-diffie-309eef` - **Captured:** `2026-07-03T21:15:09Z` - **Source context:** `manual:cowork-integration`
 * [Deep Research + Feynman Learning Integration](/deep-research-feynman-integration.md) - Research into how deep research combines with Feynman learning skills, Karpathy LLM wiki patterns, and learning loop integration.
 * [Deep Research Skill Landscape](/deep-research-skill-landscape.md) - Comprehensive survey of existing deep research agents and skills, including GPT Researcher, LangGraph ODR, MiroThinker, and other implementations in the ecosystem.
 * [DRUI Standalone Hosting Executor Completion Log](/drui-standalone-hosting-executor-completion-log.md)
 * [DRUI Standalone Hosting Executor Completion Record](/drui-standalone-hosting-executor-completion-record.md) - An executor session completed for the DRUI standalone hosting phase.
 * [DRUI Standalone Hosting Executor Completion Status](/drui-standalone-hosting-executor-completion-status.md) - An executor session completed for the DRUI standalone hosting phase.
-* [DRUI Standalone Hosting Executor Completion Update](/drui-standalone-hosting-executor-completion-update.md) - An executor session completed for the DRUI standalone hosting phase.
+* [DRUI Standalone Hosting Executor Completion Update](/drui-standalone-hosting-executor-completion-update.md)
 * [DRUI Standalone Hosting Executor Session Completion](/drui-standalone-hosting-executor-session-completion.md)
 * [DRUI Standalone Hosting Final Reflection Status 2026-07-11](/drui-standalone-hosting-final-reflection-status-2026-07-11.md)
 * [DRUI Standalone Hosting Latest Phase Completion Status](/drui-standalone-hosting-latest-phase-completion-status.md) - The `phase-drui-standalone-hosting` phase reached reflection with all planned changes completed.
+* [DRUI Standalone Hosting Phase Completion Log](/drui-standalone-hosting-phase-completion-log.md)
 * [DRUI Standalone Hosting Phase Completion Status](/drui-standalone-hosting-phase-completion-status.md) - The `phase-drui-standalone-hosting` phase reached reflection with all planned changes completed.
+* [DRUI Standalone Hosting Phase Executor Completion](/drui-standalone-hosting-phase-executor-completion.md)
 * [DRUI Standalone Hosting Phase Final Completion Status](/drui-standalone-hosting-phase-final-completion-status.md) - The `phase-drui-standalone-hosting` phase reached reflection with all planned changes completed.
 * [DRUI Standalone Hosting Reflection Status 2026-07-11 04:29](/drui-standalone-hosting-reflection-status-2026-07-11-04-29.md)
 * [Flint Forge G4 GraphQL Subscription Wiring Scope Decision](/flint-forge-g4-graphql-subscription-wiring-scope-decision.md) - Project:** Flint Forge - **Phase:** `p3-auth-rls-keto` - **KBD root:** `/Users/gqadonis/Projects/prometheus/flint-forge` - **Captured:** `2026-07-03T14:27:30Z` - **Status:** `in_progress` - **Progress:** changes `7/9` - **Related phase status:** [Flint Forge p3 Auth RLS Keto Phas
@@ -64,7 +73,17 @@
 * [UAR Final Production Hardening 01:15 Zero-Change Status](/uar-final-production-hardening-01-15-zero-change-status.md)
 * [UAR Final Production Hardening 04:29 Zero-Change Status](/uar-final-production-hardening-04-29-zero-change-status.md)
 * [UAR Final Production Hardening 04:51 Zero-Change Status](/uar-final-production-hardening-04-51-zero-change-status.md)
+* [UAR Final Production Hardening 05:39 Partial Progress Status](/uar-final-production-hardening-05-39-partial-progress-status.md)
+* [UAR Final Production Hardening 13:31 Partial Progress Status](/uar-final-production-hardening-13-31-partial-progress-status.md)
 * [UAR Final Production Hardening Latest Zero-Change Status](/uar-final-production-hardening-latest-zero-change-status.md) - `session_ended`: `2026-07-11T00:39:05Z` - `phase`: `uar-final-production-hardening-2026-07` - `stage`: `executing` - `last_completed`: `none` - `progress`: `0 of 0 changes done` - `next_pending`: `none`
 * [UAR Final Production Hardening Session Final Status](/uar-final-production-hardening-session-final-status.md) - `session_ended`: `2026-07-11T00:27:29Z` - `phase`: `uar-final-production-hardening-2026-07` - `stage`: `executing` - `last_completed`: `none` - `progress`: `0 of 0 changes done` - `next_pending`: `none`
 * [UAR Final Production Hardening Session Status](/uar-final-production-hardening-session-status.md) - `session_ended`: `2026-07-11T00:13:30Z` - `phase`: `uar-final-production-hardening-2026-07` - `stage`: `executing` - `last_completed`: `none` - `progress`: `0 of 0 changes done` - `next_pending`: `none`
 * [UI Architecture — Single-View vs Two-Zone Navigation](/ui-architecture-single-vs-two-zone.md) - When evolving a single-item UI (one research job) into a multi-item UI (many concurrent research jobs), the natural temptation is to create **two zones of navigation**: a "workspace" zone for global actions and a "job context" zone for per-job actions. The sidebar switches betwee
+* [Unknown Phase Zero-Change Session Status 2026-07-11 14:31](/unknown-phase-zero-change-session-status-2026-07-11-14-31.md)
+* [Unknown Phase Zero-Change Session Status 2026-07-11 14:57](/unknown-phase-zero-change-session-status-2026-07-11-14-57.md)
+* [Unknown Phase Zero-Change Session Status 2026-07-11 15:02](/unknown-phase-zero-change-session-status-2026-07-11-15-02.md)
+* [Unknown Phase Zero-Change Session Status 2026-07-11 15:13](/unknown-phase-zero-change-session-status-2026-07-11-15-13.md)
+* [Unknown Phase Zero-Change Session Status 2026-07-11 15:25](/unknown-phase-zero-change-session-status-2026-07-11-15-25.md)
+* [Unknown Phase Zero-Change Session Status 2026-07-11 15:37](/unknown-phase-zero-change-session-status-2026-07-11-15-37.md)
+* [Unknown Phase Zero-Change Session Status 2026-07-11 15:43](/unknown-phase-zero-change-session-status-2026-07-11-15-43.md)
+* [Unknown Phase Zero-Change Session Status 2026-07-11 22:27](/unknown-phase-zero-change-session-status-2026-07-11-22-27.md)
