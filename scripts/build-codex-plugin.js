@@ -26,6 +26,16 @@ const CHECK = process.argv.includes('--check');
 
 const read = (p) => JSON.parse(fs.readFileSync(path.join(ROOT, p), 'utf8'));
 const rel = (s) => (s === '.' ? './' : s.startsWith('./') ? s : './' + s.replace(/^\/+/, ''));
+
+// Marketplace source type — `local` (default, in-repo dogfood) keeps output
+// byte-stable. `git-subdir`/`git` emit publishable sources (needs a pushed commit).
+const MP_SOURCE = process.env.CODEX_MARKETPLACE_SOURCE || 'local'; // local | git-subdir | git
+const MP_REF = process.env.CODEX_MARKETPLACE_REF || 'main';
+const marketplaceSource = (pluginSource, repoUrl) => {
+  if (MP_SOURCE === 'git-subdir') return { source: 'git-subdir', url: repoUrl, ref: MP_REF, path: rel(pluginSource) };
+  if (MP_SOURCE === 'git') return { source: 'git', url: repoUrl, ref: MP_REF };
+  return { source: 'local', path: rel(pluginSource) };
+};
 const insideRoot = (p) => typeof p === 'string' && p.startsWith('./') && !p.split('/').includes('..');
 
 const drift = [];
@@ -76,6 +86,7 @@ function buildPluginManifest() {
 // ---- .agents/plugins/marketplace.json (G-03) --------------------------------
 function buildMarketplace() {
   const m = read('.claude-plugin/marketplace.json');
+  const repoUrl = read('.claude-plugin/plugin.json').repository;
   return emit('.agents/plugins/marketplace.json', {
     name: m.name,
     version: m.version,
@@ -85,7 +96,7 @@ function buildMarketplace() {
     plugins: m.plugins.map((p) => ({
       name: p.name,
       description: p.description,
-      source: { source: 'local', path: rel(p.source) },
+      source: marketplaceSource(p.source, repoUrl),
       version: p.version,
       tags: p.tags,
       category: p.category,

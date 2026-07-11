@@ -28,6 +28,9 @@ jobs:
       - name: Lint progress-signal declarations
         run: npm run validate:signals
 
+      - name: Validate Codex plugin artifacts are in sync
+        run: npm run validate:codex
+
   lint:
     name: Check Formatting
     runs-on: ubuntu-latest

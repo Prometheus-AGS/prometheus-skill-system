@@ -24,6 +24,7 @@ import {
 } from 'fs';
 import { dirname, join, resolve } from 'path';
 import { homedir } from 'os';
+import { execSync } from 'child_process';
 
 const REPO_ROOT = resolve(import.meta.dirname, '..');
 const SKILL_NAME = 'prometheus-skill-pack';
@@ -341,6 +342,18 @@ function installPlatform(platform: Platform, scope: 'global' | 'project'): void 
       }
     } else {
       console.log(`    ℹ️  MiniMax mcp.json not found at ${minimaxMcpPath} — skipping MCP config`);
+    }
+  }
+
+  // For Codex: regenerate the plugin + marketplace artifacts (idempotent) so
+  // `codex plugin marketplace add .` sees current output. Skills sync separately
+  // via codex-sync-skills.sh (real dirs — Codex ignores symlinked skill dirs).
+  if (platform.name === 'codex') {
+    try {
+      execSync('npm run build:codex', { cwd: REPO_ROOT, stdio: 'inherit' });
+      console.log(`    ✅ Codex plugin artifacts regenerated (.codex-plugin/, .agents/plugins/)`);
+    } catch (e) {
+      console.warn(`    ⚠️  Could not run build:codex: ${e}`);
     }
   }
 }

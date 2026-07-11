@@ -19,8 +19,22 @@ npm run validate:codex    # CI guard: fails if artifacts are stale or invalid (n
 ```
 
 `build:codex` is idempotent (byte-stable). `validate:codex` (`--check`) detects
-drift and validates required fields + `./`-in-root paths — wire it into CI next
-to `npm run validate`.
+drift and validates required fields + `./`-in-root paths. It runs in CI
+(`.github/workflows/validate.yml`) so stale/invalid committed artifacts fail the
+build, and `npx tsx scripts/install-platforms.ts` regenerates the artifacts as
+part of installing the `codex` platform.
+
+### Distribution & env
+
+- **External publish:** `CODEX_MARKETPLACE_SOURCE=git-subdir CODEX_MARKETPLACE_REF=main npm run build:codex`
+  emits `source.{source:"git-subdir",url,ref,path}` per plugin (needs a pushed
+  commit). Default is `local` (in-repo dogfood, byte-stable).
+- **MCP env provisioning:** `bash scripts/codex-provision-mcp-env.sh` writes
+  `[shell_environment_policy] inherit = "all"` to `~/.codex/config.toml` so Codex
+  forwards your shell env (keys/tokens) to the plugin's MCP servers. It persists
+  **no secret values**. Fallback for a stubborn server: an inline
+  `[mcp_servers.<name>] env = { KEY = "…" }` block in `~/.codex/config.toml`
+  (0600, user-local) — as done for `tavily_web` this cycle.
 
 ## Install (verified against codex-cli 0.144.1)
 
