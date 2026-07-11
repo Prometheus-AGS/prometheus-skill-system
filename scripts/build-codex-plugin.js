@@ -1,0 +1,126 @@
+#!/usr/bin/env node
+/**
+ * build-codex-plugin.js — generate + validate Codex plugin + marketplace artifacts
+ * from the canonical Claude-Code sources. GENERATED OUTPUT — do not hand-edit targets.
+ *
+ * Source of truth:
+ *   .claude-plugin/plugin.json       → .codex-plugin/plugin.json
+ *   .claude-plugin/marketplace.json  → .agents/plugins/marketplace.json
+ *   .mcp.json / hooks/hooks.json      (referenced by pointer from the manifest)
+ *
+ * Usage:
+ *   node scripts/build-codex-plugin.js            # generate + validate
+ *   node scripts/build-codex-plugin.js --check    # CI: fail if artifacts are stale/invalid (no write)
+ *
+ * Idempotent: re-running produces byte-identical output. Verified against
+ * codex-cli 0.144.1 (marketplace add → 11 plugins resolve → 7 MCP servers register).
+ * Spec: .kbd-orchestrator/phases/phase-codex-plugin-implementation/references/codex-plugin-spec-digest.md
+ */
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const ROOT = path.resolve(__dirname, '..');
+const CHECK = process.argv.includes('--check');
+
+const read = (p) => JSON.parse(fs.readFileSync(path.join(ROOT, p), 'utf8'));
+const rel = (s) => (s === '.' ? './' : s.startsWith('./') ? s : './' + s.replace(/^\/+/, ''));
+const insideRoot = (p) => typeof p === 'string' && p.startsWith('./') && !p.split('/').includes('..');
+
+const drift = [];
+const errors = [];
+const fail = (m) => errors.push(m);
+
+function emit(p, obj) {
+  const abs = path.join(ROOT, p);
+  const next = JSON.stringify(obj, null, 2) + '\n';
+  if (CHECK) {
+    const cur = fs.existsSync(abs) ? fs.readFileSync(abs, 'utf8') : null;
+    if (cur !== next) drift.push(p);
+  } else {
+    fs.mkdirSync(path.dirname(abs), { recursive: true });
+    fs.writeFileSync(abs, next);
+  }
+  return { path: p, obj };
+}
+
+// ---- .codex-plugin/plugin.json (G-02) ---------------------------------------
+function buildPluginManifest() {
+  const c = read('.claude-plugin/plugin.json');
+  return emit('.codex-plugin/plugin.json', {
+    name: c.name,
+    version: c.version,
+    description: c.description,
+    author: c.author,
+    homepage: c.homepage,
+    repository: c.repository,
+    license: c.license,
+    keywords: c.keywords,
+    skills: c.skills, // curated array — parity with Claude; budget curated via config/codex-catalog.txt
+    mcpServers: './.mcp.json', // Codex accepts the mcpServers-wrapper .mcp.json (verified 0.144.1)
+    hooks: './hooks/hooks.json', // PascalCase schema shared with Claude; non-managed (interactive trust)
+    interface: {
+      displayName: 'Prometheus Skill Pack',
+      shortDescription:
+        'React entity mgmt, GitOps, KBD orchestration, strategic evolution, BDD, deep-research — with surreal-memory.',
+      longDescription: c.description,
+      developerName: (c.author && c.author.name) || 'Prometheus AGS',
+      category: 'productivity',
+      capabilities: ['skills', 'mcp'],
+      website: c.homepage,
+    },
+  });
+}
+
+// ---- .agents/plugins/marketplace.json (G-03) --------------------------------
+function buildMarketplace() {
+  const m = read('.claude-plugin/marketplace.json');
+  return emit('.agents/plugins/marketplace.json', {
+    name: m.name,
+    version: m.version,
+    description: m.description,
+    owner: m.owner,
+    interface: { displayName: 'Prometheus Skill Pack' },
+    plugins: m.plugins.map((p) => ({
+      name: p.name,
+      description: p.description,
+      source: { source: 'local', path: rel(p.source) },
+      version: p.version,
+      tags: p.tags,
+      category: p.category,
+      policy: {
+        installation: p.source === '.' ? 'INSTALLED_BY_DEFAULT' : 'AVAILABLE',
+        authentication: 'ON_INSTALL',
+      },
+    })),
+  });
+}
+
+// ---- Validation --------------------------------------------------------------
+function validate(pluginObj, marketObj) {
+  for (const f of ['name', 'version', 'description']) if (!pluginObj[f]) fail(`plugin.json missing required field: ${f}`);
+  for (const ptr of ['mcpServers', 'hooks']) if (pluginObj[ptr] && !insideRoot(pluginObj[ptr])) fail(`plugin.json ${ptr} not ./-inside-root: ${pluginObj[ptr]}`);
+  (pluginObj.skills || []).forEach((s) => { if (!insideRoot(s)) fail(`plugin.json skill path not ./-inside-root: ${s}`); });
+  if (!marketObj.name) fail('marketplace.json missing name');
+  if (!marketObj.interface || !marketObj.interface.displayName) fail('marketplace.json missing interface.displayName');
+  (marketObj.plugins || []).forEach((p) => {
+    if (!p.name) fail('marketplace plugin missing name');
+    if (!p.source || !insideRoot(p.source.path)) fail(`marketplace plugin ${p.name}: source.path not ./-inside-root`);
+    if (!p.policy || !p.policy.installation) fail(`marketplace plugin ${p.name}: missing policy.installation`);
+  });
+}
+
+const { obj: pluginObj } = buildPluginManifest();
+const { obj: marketObj } = buildMarketplace();
+validate(pluginObj, marketObj);
+
+if (errors.length) { console.error('Codex artifact validation FAILED:'); errors.forEach((e) => console.error('  ✗ ' + e)); process.exit(1); }
+if (CHECK) {
+  if (drift.length) { console.error('Codex artifacts are STALE (run `npm run build:codex`):'); drift.forEach((d) => console.error('  ✗ ' + d)); process.exit(1); }
+  console.log('✓ Codex artifacts up to date and valid.');
+} else {
+  console.log('Generated + validated Codex artifacts:');
+  console.log('  ✓ .codex-plugin/plugin.json');
+  console.log('  ✓ .agents/plugins/marketplace.json');
+}

@@ -98,6 +98,39 @@ install_to_dir() {
     echo "  ✅ $platform_name: $count skills $action"
 }
 
+# Codex CLI (0.144.x) does not traverse symlinked skill directories — a symlink in
+# ~/.codex/skills contributes zero skills to the catalog, silently. Codex also budgets
+# the whole catalog, so the set it gets is curated in config/codex-catalog.txt.
+# Delegated to codex-sync-skills.sh, which is also run on codex session_start.
+install_to_codex() {
+    local args=()
+    $UNINSTALL && args+=(--uninstall)
+    bash "$REPO_ROOT/scripts/codex-sync-skills.sh" "${args[@]}"
+
+    # Because Codex gets copies rather than symlinks, they go stale when a skill is
+    # edited. A WatchPaths LaunchAgent re-syncs on any change under skills/.
+    [[ "$(uname -s)" == "Darwin" ]] || return 0
+    local label="ai.prometheus.codex-skills-sync"
+    local dst="$HOME/Library/LaunchAgents/$label.plist"
+
+    if $UNINSTALL; then
+        launchctl unload "$dst" 2>/dev/null || true
+        rm -f "$dst"
+        echo "  ✅ codex: skills-sync agent removed"
+        return 0
+    fi
+
+    mkdir -p "$HOME/Library/LaunchAgents" "$HOME/.prometheus/logs"
+    sed -e "s|__REPO_ROOT__|$REPO_ROOT|g" -e "s|__HOME__|$HOME|g" \
+        "$REPO_ROOT/shared/launchagents/$label.plist" > "$dst"
+    launchctl unload "$dst" 2>/dev/null || true
+    if launchctl load -w "$dst" 2>/dev/null; then
+        echo "  ✅ codex: skills-sync agent loaded (re-syncs on skill edits)"
+    else
+        echo "  ⚠️  codex: skills-sync agent failed to load — run 'bash scripts/codex-sync-skills.sh' manually after editing skills"
+    fi
+}
+
 # MiniMax requires real directories (not symlinks) plus a _meta.json alongside SKILL.md.
 # This function copies SKILL.md and writes _meta.json rather than symlinking.
 # NOTE: minimax installs do not auto-update when skills change — re-run this script.
@@ -159,7 +192,7 @@ install_to_dir "opencode"        "$HOME/.opencode/skills"
 install_to_dir "kimi-code"       "$HOME/.kimi-code/skills"
 install_to_minimax
 install_to_dir "cursor"          "$HOME/.cursor/skills"
-install_to_dir "codex"           "$HOME/.codex/skills"
+install_to_codex
 install_to_dir "gemini"          "$HOME/.gemini/skills"
 install_to_dir "roo"             "$HOME/.roo/skills"
 install_to_dir "windsurf"        "$HOME/.windsurf/skills"

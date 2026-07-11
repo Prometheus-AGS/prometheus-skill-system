@@ -779,6 +779,94 @@ The sycophancy-correction skill is on the critical path of the core loop:
 
 This is enforced architecturally, not as optional guidance. Pedagogical sycophancy produces worse learning outcomes.
 
+## Codex CLI Integration
+
+Codex CLI (OpenAI) discovers skills differently from every other platform in this pack.
+Two of its behaviours are load-bearing and non-obvious — both were verified empirically
+against codex-cli 0.144.1.
+
+### Codex plugin & marketplace (generated — parity with the Claude plugin)
+
+The pack ships a Codex plugin in parity with `.claude-plugin/`. Artifacts are
+**generated**, never hand-edited: `npm run build:codex` emits
+`.codex-plugin/plugin.json` and `.agents/plugins/marketplace.json` from the
+canonical `.claude-plugin/*` sources; `npm run validate:codex` (`--check`) is the
+CI drift/validity guard. Codex reads the existing `mcpServers`-wrapper `.mcp.json`
+and the PascalCase `hooks/hooks.json` **as-is** (verified: `codex plugin
+marketplace add .` resolves all 11 plugins; the 7 MCP servers register). Full
+guide: [`docs/codex-plugin.md`](docs/codex-plugin.md). Codex verbs are `codex
+plugin marketplace add` / `codex plugin add|remove|list` (not `install`/`details`
+— those are *Claude* plugin verbs). Codex also reads the legacy
+`.claude-plugin/marketplace.json`.
+
+### Codex does not follow symlinked skill directories
+
+`install-skills-flat.sh` symlinks skills into every platform's skill dir. **Codex silently
+ignores symlinked skill directories** — they contribute zero skills, with no error, no
+warning, and no entry in `codex doctor`. Before this was found, all 138 pack skills were
+present in `~/.codex/skills` as symlinks and Codex loaded **none** of them.
+
+Codex therefore gets **real directories**, synced by
+[`scripts/codex-sync-skills.sh`](scripts/codex-sync-skills.sh), not symlinks.
+`install_to_codex()` in `install-skills-flat.sh` delegates to it. Never add Codex back
+into the `install_to_dir` (symlinking) list.
+
+Because copies go stale when a skill is edited, `ai.prometheus.codex-skills-sync`
+(launchd, `shared/launchagents/`) re-runs the sync on an interval and whenever a skill
+dir is added or removed. Note that launchd `WatchPaths` on a *directory* fires only on
+structural changes — it does **not** fire when a nested file such as
+`skills/<domain>/<skill>/SKILL.md` is edited — which is why `StartInterval` is the
+primary trigger, not `WatchPaths`.
+
+### The skill catalog has a fixed budget — every skill steals description text
+
+Codex renders all discoverable skills into one `## Skills` section with a fixed size
+budget. Names and paths are mandatory; **descriptions get whatever budget is left**, so
+each additional skill shortens the description of every other skill:
+
+| Catalog entries | Avg description | Effect |
+|---|---|---|
+| ~130 | ~166 chars | full — model auto-triggers reliably |
+| ~200 | ~66 chars | usable |
+| ~360 | ~10 chars | broken — model cannot tell skills apart |
+
+Codex also **recurses** into skill directories, so a bundle (a skill whose dir contains
+nested sub-skills, e.g. `deep-research/skills/stage-*`) registers its parent *and* every
+child as separate catalog entries.
+
+Which skills enter the catalog is curated in
+[`config/codex-catalog.txt`](config/codex-catalog.txt). Measure the live cost with:
+
+```bash
+bash scripts/codex-sync-skills.sh --report
+codex debug prompt-input | python3 scripts/codex-catalog-stat.py
+```
+
+**Excluding a skill from the catalog does not make it unavailable.**
+`register-slash-commands.sh` writes a prompt file to `~/.codex/prompts/<skill>.md` for
+every skill in the pack, pointing at the `SKILL.md` **in this repo**. Prompts live
+outside the catalog budget (verified: they add nothing to `codex debug prompt-input`), so
+an excluded skill is still invokable as `/<skill-name>` — it just won't be auto-suggested.
+
+### Scripts that run under launchd must be bash 3.2 compatible
+
+macOS `/bin/bash` is 3.2. `mapfile` and `declare -A` do not exist there and fail with
+exit 127 under launchd even though they work in an interactive bash 5 shell. Test any
+launchd-invoked script with `/bin/bash script.sh`, not just `bash script.sh`.
+
+### Codex hooks — two paths, one works
+
+The `config.toml [hooks]` **snake_case** path (`pre_tool_use`, `session_start`, …)
+parsed cleanly (`config.toml parse ok`) yet **never fired** — reverted, do not use.
+
+The **plugin** path works differently and is the supported one: the Codex plugin
+bundles the pack's PascalCase `hooks/hooks.json` unchanged (Codex plugin hooks
+share Claude's event schema). These are **non-managed hooks** — Codex skips them
+until the user reviews and **trusts** them in an interactive session, so
+end-to-end firing is **interactive-verify only** (not assertable in headless/CI).
+Wired via `.codex-plugin/plugin.json → hooks`; see
+[`docs/codex-plugin.md`](docs/codex-plugin.md).
+
 ## Karpathy LLM Wiki (pk) — Open Knowledge Format Adoption
 
 The "Karpathy LLM wiki" pattern — an LLM-maintained, persistent, interlinked

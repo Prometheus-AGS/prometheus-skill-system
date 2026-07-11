@@ -1,0 +1,280 @@
+{
+  "name": "prometheus-skill-pack",
+  "version": "1.6.0",
+  "description": "Enterprise-grade AI skills for React entity management, GitOps CI/CD, process orchestration, strategic evolution (5-perspective pmpo-evolver + Darwin idea validation), goal tracking, BDD testing, and deep-research with prometheus-research binary",
+  "owner": {
+    "name": "Travis James",
+    "url": "https://travisjames.ai"
+  },
+  "interface": {
+    "displayName": "Prometheus Skill Pack"
+  },
+  "plugins": [
+    {
+      "name": "prometheus-skill-pack",
+      "description": "Complete skill package with React entity management, GitOps CI/CD, KBD process orchestration, strategic evolution (pmpo-evolver + Darwin idea gate), goal tracking, and BDD testing — with surreal-memory distributed state",
+      "source": {
+        "source": "local",
+        "path": "./"
+      },
+      "version": "1.5.0",
+      "tags": [
+        "react",
+        "entity-management",
+        "gitops",
+        "devops",
+        "process-orchestration",
+        "pmpo",
+        "pmpo-evolver",
+        "strategic-evolution",
+        "darwin-idea-gate",
+        "bdd-testing",
+        "surreal-memory"
+      ],
+      "category": "productivity",
+      "policy": {
+        "installation": "INSTALLED_BY_DEFAULT",
+        "authentication": "ON_INSTALL"
+      }
+    },
+    {
+      "name": "prometheus-react-skills",
+      "description": "React entity management skill suite: setup, CRUD, GraphQL, Prisma, realtime, and optimization",
+      "source": {
+        "source": "local",
+        "path": "./skills/react/prometheus-entity-skills"
+      },
+      "version": "1.5.0",
+      "tags": [
+        "react",
+        "entity-management",
+        "crud",
+        "graphql",
+        "prisma",
+        "realtime"
+      ],
+      "category": "frontend",
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      }
+    },
+    {
+      "name": "prometheus-process-skills",
+      "description": "KBD process orchestration, strategic evolution (pmpo-evolver: 5 perspectives + Darwin idea validation), goal tracking (kbd-goal/kbd-goal-check), outer loop, elicit, and PMPO skill creation",
+      "source": {
+        "source": "local",
+        "path": "./skills/process"
+      },
+      "version": "1.5.0",
+      "tags": [
+        "process",
+        "orchestration",
+        "pmpo",
+        "kbd",
+        "evolution",
+        "pmpo-evolver",
+        "competitive-analysis",
+        "idea-validation",
+        "goal-tracking"
+      ],
+      "category": "productivity",
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      }
+    },
+    {
+      "name": "prometheus-devops-skills",
+      "description": "Multi-cloud GitOps CI/CD: bootstrap, transform, ArgoCD, Kustomize overlays following TJ-CICD-001",
+      "source": {
+        "source": "local",
+        "path": "./skills/devops"
+      },
+      "version": "1.5.0",
+      "tags": [
+        "gitops",
+        "devops",
+        "argocd",
+        "kustomize",
+        "github-actions",
+        "multi-cloud"
+      ],
+      "category": "devops",
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      }
+    },
+    {
+      "name": "prometheus-testing-skills",
+      "description": "BDD integration testing with Cucumber.js, Playwright, and video recording",
+      "source": {
+        "source": "local",
+        "path": "./skills/testing"
+      },
+      "version": "1.5.0",
+      "tags": [
+        "bdd",
+        "testing",
+        "cucumber",
+        "playwright"
+      ],
+      "category": "testing",
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      }
+    },
+    {
+      "name": "learn",
+      "description": "Feynman-Spine learning and education capability",
+      "source": {
+        "source": "local",
+        "path": "./skills/learn"
+      },
+      "version": "1.5.0",
+      "tags": [
+        "learning",
+        "feynman",
+        "spaced-repetition",
+        "fsrs",
+        "education",
+        "credential",
+        "w3c-vc"
+      ],
+      "category": "productivity",
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      }
+    },
+    {
+      "name": "prometheus-librefang-skills",
+      "description": "Package native agents as LibreFang/bossfang WASM skills, upload them to a bossfang URL with SSRF-guarded /upload-to-bossfang, and chain ideation→deploy with /start-business-build. Includes the librefang-wasm-skill template, native-agent --target librefang-wasm support, and the headline orchestrator.",
+      "source": {
+        "source": "local",
+        "path": "./skills/rust/librefang-wasm-skill"
+      },
+      "version": "1.5.0",
+      "tags": [
+        "librefang",
+        "bossfang",
+        "wasm",
+        "wasmtime",
+        "agent-os",
+        "ssrf-guard",
+        "deploy"
+      ],
+      "category": "productivity",
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      }
+    },
+    {
+      "name": "cowork-management",
+      "description": "Install, update, and manage AI coding agent skills across 20+ platforms using the cowork CLI. Covers Claude Code, Codex, OpenCode, Kimi Code, Zed, Cursor, Windsurf, GitHub Copilot, and more. Manages prometheus-skill-pack updates, toolchain health, and disk-space reclamation via dsg.",
+      "source": {
+        "source": "local",
+        "path": "./skills/process/cowork-management"
+      },
+      "version": "1.0.0",
+      "tags": [
+        "cli",
+        "skill-management",
+        "cowork",
+        "install",
+        "platform",
+        "toolchain",
+        "prometheus",
+        "codex",
+        "opencode",
+        "kimi",
+        "zed"
+      ],
+      "category": "productivity",
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      }
+    },
+    {
+      "name": "disk-space-guardian",
+      "description": "dsg CLI: safe, intelligent build-cache cleanup for Rust, Node, Python, Go, Docker, Xcode, and Homebrew. Defaults to dry-run; moves artifacts to system Trash rather than rm. Detects 7 ecosystems, verifies activity with lsof/fuser before any clean.",
+      "source": {
+        "source": "local",
+        "path": "./tools/disk-space-guardian"
+      },
+      "version": "1.0.0",
+      "tags": [
+        "disk",
+        "cache",
+        "cleanup",
+        "rust",
+        "devtools",
+        "devops",
+        "dsg",
+        "build-cache"
+      ],
+      "category": "devops",
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      }
+    },
+    {
+      "name": "prometheus-research-skills",
+      "description": "10-stage deep research pipeline with source verification, contradiction resolution, knowledge graph, Feynman quality gate, and .research package export. Integrates surreal-memory, sycophancy-correction, liter-llm model routing, and pmpo-elicit escalation.",
+      "source": {
+        "source": "local",
+        "path": "./skills/research"
+      },
+      "version": "1.0.0",
+      "tags": [
+        "research",
+        "deep-research",
+        "source-verification",
+        "knowledge-graph",
+        "contradiction-resolution",
+        "feynman",
+        "sycophancy-correction",
+        "surreal-memory",
+        "citations",
+        "report-synthesis"
+      ],
+      "category": "productivity",
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      }
+    },
+    {
+      "name": "prometheus-research-server",
+      "description": "Rust background research daemon exposing HTTP/MCP server on :7891 with AG-UI SSE streaming, A2UI component registry (8 HTMX fragments), HTMX 2.0.8 + Alpine.js, and 5 MCP tools (research_start/status/cancel/export, render_component). Auto-starts via launchd.",
+      "source": {
+        "source": "local",
+        "path": "./substrate/prometheus-research"
+      },
+      "version": "1.6.0",
+      "tags": [
+        "research",
+        "deep-research",
+        "rust",
+        "mcp",
+        "ag-ui",
+        "sse",
+        "htmx",
+        "a2ui",
+        "background-job",
+        "launchd",
+        "streaming"
+      ],
+      "category": "productivity",
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      }
+    }
+  ]
+}

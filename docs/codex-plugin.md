@@ -1,0 +1,95 @@
+# Codex Plugin & Marketplace
+
+The skill-pack ships a **Codex CLI/desktop plugin** in parity with its Claude-Code
+plugin. All Codex artifacts are **generated** from the canonical Claude sources —
+never hand-edit them.
+
+| Generated artifact | From | Emitted by |
+|---|---|---|
+| `.codex-plugin/plugin.json` | `.claude-plugin/plugin.json` (+ `interface` block) | `scripts/build-codex-plugin.js` |
+| `.agents/plugins/marketplace.json` | `.claude-plugin/marketplace.json` (source→`{source,path}`, +`policy`) | `scripts/build-codex-plugin.js` |
+| MCP servers | `.mcp.json` (referenced by pointer — Codex reads the `mcpServers`-wrapper form as-is) | — |
+| Hooks | `hooks/hooks.json` (PascalCase; shared with Claude) | — |
+
+## Build / validate
+
+```bash
+npm run build:codex       # regenerate .codex-plugin/plugin.json + .agents/plugins/marketplace.json
+npm run validate:codex    # CI guard: fails if artifacts are stale or invalid (no write)
+```
+
+`build:codex` is idempotent (byte-stable). `validate:codex` (`--check`) detects
+drift and validates required fields + `./`-in-root paths — wire it into CI next
+to `npm run validate`.
+
+## Install (verified against codex-cli 0.144.1)
+
+```bash
+# repo-local dogfood (reads .agents/plugins/marketplace.json)
+codex plugin marketplace add .
+codex plugin add prometheus-skill-pack@prometheus-skill-pack   # umbrella (INSTALLED_BY_DEFAULT)
+# or a domain pack, e.g.:
+codex plugin add learn@prometheus-skill-pack
+
+codex plugin list          # 11 plugins resolve to their subdirs
+codex mcp list             # the 7 MCP servers register from the plugin's .mcp.json
+codex doctor               # health
+```
+
+Capabilities become available **on a new Codex session** after install. Personal
+scope: `~/.agents/plugins/marketplace.json`. Codex also reads the legacy
+`.claude-plugin/marketplace.json`, so the pack was already partially Codex-visible.
+
+## Hooks — interactive, non-managed trust (change-005)
+
+`plugin.json.hooks → ./hooks/hooks.json`. Codex plugin hooks use the **same
+PascalCase event schema as Claude** (`SessionStart`, `PreToolUse`, …) — no
+translation. Hook commands receive `${PLUGIN_ROOT}` (installed package) and
+`${PLUGIN_DATA}` (writable, created lazily on first session).
+
+**Trust is independent of install.** Plugin-bundled hooks are *non-managed*:
+Codex **skips them until the user reviews and trusts** the current hook
+definition in an interactive session. Consequences:
+
+- Installing/enabling the plugin does **not** run its hooks.
+- End-to-end hook firing is **verified interactively only** — it cannot be
+  asserted in headless/CI (the spike confirmed the hooks bundle + schema is
+  accepted, but no trust field is written at install time).
+- This is distinct from the earlier `config.toml [hooks]` snake_case attempt
+  (which silently never fired — see CLAUDE.md "Not yet ported to Codex"). The
+  plugin `hooks.json` path is the spec-supported one.
+
+## MCP servers — env provisioning (change-004)
+
+The 7 servers register from the shared `.mcp.json` (which already carries this
+repo's `${VAR:-default}` fallbacks and the forge bearer-token / liter-llm proxy
+config / tavily fixes). `codex doctor` warns when a server's env var is unset;
+provide keys via the environment or `~/.codex/config.toml` — **never commit
+secrets**. (See the tavily name-collision note in CLAUDE.md for a Codex MCP gotcha.)
+
+## Parity checklist vs the Claude-Code plugin
+
+| Component | Claude | Codex | Status |
+|---|---|---|---|
+| Plugin manifest | `.claude-plugin/plugin.json` | `.codex-plugin/plugin.json` (+`interface`) | ✅ generated |
+| Marketplace | `.claude-plugin/marketplace.json` (`source:"."`) | `.agents/plugins/marketplace.json` (`source.{source,path}`+`policy`) | ✅ generated, 11 plugins |
+| Skills | 30 curated (array) | same 30 (array); budget curated via `config/codex-catalog.txt`; real dirs via `codex-sync-skills.sh` (Codex ignores symlinks) | ✅ |
+| MCP | `.mcp.json` (7) | same `.mcp.json` via pointer | ✅ 7 register |
+| Hooks | `hooks/hooks.json` (managed) | same file (non-managed, interactive trust) | ✅ wired / ⚠ interactive-verify |
+| Apps (`.app.json`) | — | — | n/a (no connectors yet) |
+
+## Publishing checklist
+
+1. Bump `version` in `.claude-plugin/plugin.json` (source of truth).
+2. `npm run build:codex` — regenerate; `npm run validate:codex` — assert clean.
+3. `codex plugin marketplace add .` + `codex plugin add …` smoke test; `codex doctor`.
+4. Commit `.codex-plugin/`, `.agents/plugins/`, `scripts/build-codex-plugin.js`.
+5. For external distribution, switch a plugin's marketplace `source` to `git-subdir`/`git`.
+
+## UAR compatibility (change-008)
+
+UAR consumes this repo as a git submodule and ingests the `skills/<domain>/<name>/SKILL.md`
+tree directly (`$UAR_BUILTIN_SKILLS_DIR`). The Codex artifacts live at repo root
+(`.codex-plugin/`, `.agents/`) and **do not touch `skills/`** — verified: this
+phase produced zero changes under `skills/` and did not regenerate `.codex/`.
+UAR submodule ingestion is therefore unaffected.

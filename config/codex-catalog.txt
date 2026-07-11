@@ -1,0 +1,49 @@
+# Codex skill catalog manifest
+#
+# Codex (0.144.x) renders every discoverable skill into a single "## Skills"
+# section with a FIXED size budget. Names and paths are mandatory; descriptions
+# get whatever budget is left over. So each extra skill steals description text
+# from every other skill:
+#
+#   ~130 skills  -> ~166 char descriptions  (full, model triggers reliably)
+#   ~200 skills  ->  ~66 char descriptions  (usable)
+#   ~360 skills  ->  ~10 char descriptions  (useless -- model cannot tell skills apart)
+#
+# This file selects which skills are copied into ~/.codex/skills, i.e. which
+# ones Codex can AUTO-TRIGGER from their description.
+#
+# Excluding a skill here does NOT make it unavailable: scripts/register-slash-commands.sh
+# registers a slash command for EVERY skill in the repo, pointing at the SKILL.md in
+# this repo. Slash-command prompts live outside the catalog budget, so an excluded
+# skill is still invokable as /<skill-name> -- it just won't be auto-suggested.
+#
+# Syntax: one glob per line, matched against the repo-relative skill directory.
+#   include <glob>    (default when no verb is given)
+#   exclude <glob>
+# Later rules win. Comments start with '#'.
+#
+# Verify the effect after editing:
+#   bash scripts/codex-sync-skills.sh --report
+
+# ---------------------------------------------------------------------------
+# Default: every non-imported skill is a catalog candidate.
+# ---------------------------------------------------------------------------
+include skills/**
+
+# ---------------------------------------------------------------------------
+# Bundles: a bundle is a skill whose directory contains nested sub-skills.
+# Codex recurses, so copying a bundle registers its parent AND every child.
+# We keep the bundles the workflow actually depends on and drop the rest from
+# the catalog (they stay reachable as slash commands).
+# ---------------------------------------------------------------------------
+
+# React entity-management bundle: 28 catalog entries for a niche domain.
+# Reach it with /prometheus-entity-skills or /entity-graph-crud etc.
+exclude skills/react/prometheus-entity-skills
+
+# PMPO evolution bundle: 8 entries; the /evolve-* singletons already cover it.
+exclude skills/process/iterative-evolver
+
+# Kept on purpose (bundle cost is worth it):
+#   skills/process/kbd-process-orchestrator  (17 entries) -- core KBD lifecycle
+#   skills/research/deep-research            (11 entries) -- core research pipeline
