@@ -1,3 +1,20 @@
+---
+type: Reference
+id: deep-research-feynman-integration
+title: "Deep Research + Feynman Learning Integration"
+description: "Research into how deep research combines with Feynman learning skills, Karpathy LLM wiki patterns, and learning loop integration."
+tags:
+- deep-research
+- feynman
+- learning
+- integration
+sources:
+- manual-backfill
+timestamp: 2026-07-10T19:49:34.764823+00:00
+created_at: 2026-07-10T19:49:34.764823+00:00
+updated_at: 2026-07-10T19:49:34.764823+00:00
+revision: 0
+---
 # Deep Research + Feynman Learning Integration
 
 ## Summary

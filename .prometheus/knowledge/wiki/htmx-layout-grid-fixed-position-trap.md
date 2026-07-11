@@ -1,3 +1,21 @@
+---
+type: Reference
+id: htmx-layout-grid-fixed-position-trap
+title: "HTMX Layout: The CSS Grid + Fixed Position Sidebar Trap"
+description: "When building a sidebar + main content layout with HTMX/Alpine.js, a common mistake is to use `display: grid` on a container that has a `position: fixed` sidebar inside it."
+tags:
+- htmx
+- css-grid
+- layout
+- fixed-position
+- gotcha
+sources:
+- manual-backfill
+timestamp: 2026-07-10T19:49:34.767928+00:00
+created_at: 2026-07-10T19:49:34.767928+00:00
+updated_at: 2026-07-10T19:49:34.767928+00:00
+revision: 0
+---
 # HTMX Layout: The CSS Grid + Fixed Position Sidebar Trap
 
 ## Problem

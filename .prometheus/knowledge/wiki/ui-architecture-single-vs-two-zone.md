@@ -1,3 +1,20 @@
+---
+type: Reference
+id: ui-architecture-single-vs-two-zone
+title: "UI Architecture \u2014 Single-View vs Two-Zone Navigation"
+description: "When evolving a single-item UI (one research job) into a multi-item UI (many concurrent research jobs), the natural temptation is to create **two zones of navigation**: a \"workspace\" zone for global actions and a \"job context\" zone for per-job actions. The sidebar switches betwee"
+tags:
+- ui-architecture
+- navigation
+- layout
+- design
+sources:
+- manual-backfill
+timestamp: 2026-07-10T19:49:34.770466+00:00
+created_at: 2026-07-10T19:49:34.770466+00:00
+updated_at: 2026-07-10T19:49:34.770466+00:00
+revision: 0
+---
 # UI Architecture — Single-View vs Two-Zone Navigation
 
 ## Date

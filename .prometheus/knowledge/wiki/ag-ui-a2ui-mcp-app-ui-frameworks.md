@@ -1,3 +1,21 @@
+---
+type: Reference
+id: ag-ui-a2ui-mcp-app-ui-frameworks
+title: "AG-UI / A2UI / MCP App UI Frameworks"
+description: "Research into Agent-User interaction protocols, generative UI specifications, and MCP App design patterns for the Prometheus Deep-Research Skill."
+tags:
+- ag-ui
+- a2ui
+- mcp-app
+- ui-frameworks
+- htmx
+sources:
+- manual-backfill
+timestamp: 2026-07-10T19:49:34.763192+00:00
+created_at: 2026-07-10T19:49:34.763192+00:00
+updated_at: 2026-07-10T19:49:34.763192+00:00
+revision: 0
+---
 # AG-UI / A2UI / MCP App UI Frameworks
 
 ## Summary

@@ -1,3 +1,21 @@
+---
+type: Reference
+id: knowledge-assets-architecture
+title: "Knowledge Assets & Architecture Patterns"
+description: "Foundational research on knowledge storage architectures for deep research: knowledge graphs, vector databases, embedding strategies, and retrieval patterns."
+tags:
+- knowledge-graph
+- vector-db
+- embeddings
+- architecture
+- retrieval
+sources:
+- manual-backfill
+timestamp: 2026-07-10T19:49:34.768223+00:00
+created_at: 2026-07-10T19:49:34.768223+00:00
+updated_at: 2026-07-10T19:49:34.768223+00:00
+revision: 0
+---
 # Knowledge Assets & Architecture Patterns
 
 ## Summary

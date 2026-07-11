@@ -1,3 +1,20 @@
+---
+type: Reference
+id: prometheus-deep-research-skill-master-spec
+title: "Prometheus Deep Research Skill \u2014 Master Specification"
+description: "This document is the master specification for the **Prometheus Deep Research Skill** \u2014 a universal, cross-platform deep-research capability designed for the Prometheus Skill Pack. It synthesizes findings from 8 parallel research investigations into a unified architectural bluepri"
+tags:
+- deep-research
+- spec
+- prometheus
+- skill
+sources:
+- manual-backfill
+timestamp: 2026-07-10T19:49:34.769653+00:00
+created_at: 2026-07-10T19:49:34.769653+00:00
+updated_at: 2026-07-10T19:49:34.769653+00:00
+revision: 0
+---
 # Prometheus Deep Research Skill — Master Specification
 
 ## Overview

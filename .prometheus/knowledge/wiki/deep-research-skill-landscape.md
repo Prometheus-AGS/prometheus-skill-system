@@ -1,3 +1,19 @@
+---
+type: Reference
+id: deep-research-skill-landscape
+title: "Deep Research Skill Landscape"
+description: "Comprehensive survey of existing deep research agents and skills, including GPT Researcher, LangGraph ODR, MiroThinker, and other implementations in the ecosystem."
+tags:
+- deep-research
+- skill-landscape
+- research
+sources:
+- manual-backfill
+timestamp: 2026-07-10T19:49:34.764950+00:00
+created_at: 2026-07-10T19:49:34.764950+00:00
+updated_at: 2026-07-10T19:49:34.764950+00:00
+revision: 0
+---
 # Deep Research Skill Landscape
 
 ## Summary

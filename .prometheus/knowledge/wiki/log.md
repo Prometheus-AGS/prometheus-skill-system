@@ -1,5 +1,17 @@
 # Update Log
 
+## 2026-07-11
+* **Creation**: [UAR Final Production Hardening Session Final Status](/uar-final-production-hardening-session-final-status.md)
+* **Creation**: [DRUI Standalone Hosting Phase Final Completion Status](/drui-standalone-hosting-phase-final-completion-status.md)
+* **Creation**: [DRUI Standalone Hosting Executor Completion Update](/drui-standalone-hosting-executor-completion-update.md)
+* **Creation**: [UAR Final Production Hardening Session Status](/uar-final-production-hardening-session-status.md)
+
+## 2026-07-10
+* **Creation**: [DRUI Standalone Hosting Executor Completion Record](/drui-standalone-hosting-executor-completion-record.md)
+* **Creation**: [DRUI Standalone Hosting Phase Completion Status](/drui-standalone-hosting-phase-completion-status.md)
+* **Creation**: [DRUI Standalone Hosting Executor Completion Status](/drui-standalone-hosting-executor-completion-status.md)
+* **Creation**: [Karpathy Tools OpenAI Proxy Routing via localhost:8181](/karpathy-tools-openai-proxy-routing-via-localhost-8181.md)
+
 ## 2026-07-06
 * **Creation**: [CI Cross-Model QA Hardening Executor Completion Record](/ci-cross-model-qa-hardening-executor-completion-record.md)
 * **Creation**: [Unknown Phase Session Ended With No Recorded Progress](/unknown-phase-session-ended-with-no-recorded-progress.md)

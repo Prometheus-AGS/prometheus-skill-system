@@ -1,3 +1,20 @@
+---
+type: Reference
+id: long-running-research-process-management
+title: "Long-Running Research Process Management"
+description: "Research on managing long-running research processes: checkpointing, drift detection, progressive summarization, and the Karpathy Loop for iterative refinement."
+tags:
+- research
+- process-management
+- background-job
+- daemon
+sources:
+- manual-backfill
+timestamp: 2026-07-10T19:49:34.768544+00:00
+created_at: 2026-07-10T19:49:34.768544+00:00
+updated_at: 2026-07-10T19:49:34.768544+00:00
+revision: 0
+---
 # Long-Running Research Process Management
 
 ## Summary

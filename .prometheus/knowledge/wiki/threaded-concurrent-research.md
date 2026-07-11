@@ -1,3 +1,20 @@
+---
+type: Reference
+id: threaded-concurrent-research
+title: "Threaded/Concurrent Research with Per-Thread Context"
+description: "Research on implementing threaded and concurrent research with isolated per-thread context, leveraging surreal-memory for thread-safe storage."
+tags:
+- research
+- concurrency
+- threading
+- context
+sources:
+- manual-backfill
+timestamp: 2026-07-10T19:49:34.770158+00:00
+created_at: 2026-07-10T19:49:34.770158+00:00
+updated_at: 2026-07-10T19:49:34.770158+00:00
+revision: 0
+---
 # Threaded/Concurrent Research with Per-Thread Context
 
 ## Summary

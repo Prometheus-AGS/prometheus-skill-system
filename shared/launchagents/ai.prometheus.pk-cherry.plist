@@ -25,7 +25,10 @@
     <key>PK_BIND</key>
     <string>127.0.0.1:8942</string>
     <key>PK_KB_DIR</key>
-    <string>__PROMETHEUS_HOME__/.prometheus/knowledge</string>
+    <!-- Serve the PROJECT KB (repo-scoped), matching WorkingDirectory above, so the
+         HTTP/MCP daemon reflects the same KB the pk CLI hooks (pk-ingest-on-reflect,
+         forge-reflect-on-stop, pk-focus-on-prompt) read and write. -->
+    <string>__PROMETHEUS_ROOT__/.prometheus/knowledge</string>
   </dict>
 
   <key>RunAtLoad</key>

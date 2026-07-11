@@ -1,3 +1,20 @@
+---
+type: Reference
+id: orchestrator-lessons-read-before-build
+title: "Orchestrator Lessons: Read Before Build"
+description: "When a user provides an existing file (HTML, CSS, code, config) and asks for improvements, **read it first** before building anything new."
+tags:
+- orchestrator
+- kbd
+- lessons
+- read-before-build
+sources:
+- manual-backfill
+timestamp: 2026-07-10T19:49:34.769168+00:00
+created_at: 2026-07-10T19:49:34.769168+00:00
+updated_at: 2026-07-10T19:49:34.769168+00:00
+revision: 0
+---
 # Orchestrator Lessons: Read Before Build
 
 ## The Pattern

@@ -1,3 +1,21 @@
+---
+type: Reference
+id: google-okf-llm-wiki-standards
+title: "Google OKF LLM Wiki Standards"
+description: "Research on Google's Open Knowledge Format (OKF) v0.1, released 2026-06-12, and the emerging landscape of AI-native document standards."
+tags:
+- okf
+- llm-wiki
+- standards
+- google
+- knowledge-format
+sources:
+- manual-backfill
+timestamp: 2026-07-10T19:49:34.767799+00:00
+created_at: 2026-07-10T19:49:34.767799+00:00
+updated_at: 2026-07-10T19:49:34.767799+00:00
+revision: 0
+---
 # Google OKF LLM Wiki Standards
 
 ## Summary

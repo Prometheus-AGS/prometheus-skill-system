@@ -1,3 +1,20 @@
+---
+type: Reference
+id: skill-platform-specifications
+title: "Skill Platform Specifications"
+description: "Cross-platform analysis of skill/agent platforms: agentskills.io, Claude Code, Codex, OpenCode, Cursor, Windsurf, Kimi, MiniMax, and their skill packaging formats."
+tags:
+- skills
+- platforms
+- agentskills
+- packaging
+sources:
+- manual-backfill
+timestamp: 2026-07-10T19:49:34.769779+00:00
+created_at: 2026-07-10T19:49:34.769779+00:00
+updated_at: 2026-07-10T19:49:34.769779+00:00
+revision: 0
+---
 # Skill Platform Specifications
 
 ## Summary

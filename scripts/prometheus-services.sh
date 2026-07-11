@@ -29,8 +29,8 @@ while [ "$#" -gt 0 ]; do
     esac
 done
 
-LABELS=("ai.prometheus.surreal-memory-docker" "ai.prometheus.pk-cherry" "ai.prometheus.forge-mcp" "ai.prometheus.prometheus-nudge")
-TEMPLATES=("ai.prometheus.surreal-memory-docker.plist" "ai.prometheus.pk-cherry.plist" "ai.prometheus.forge-mcp.plist" "ai.prometheus.prometheus-nudge.plist")
+LABELS=("ai.prometheus.surrealdb-native" "ai.prometheus.surreal-memory-native" "ai.prometheus.pk-cherry" "ai.prometheus.forge-mcp" "ai.prometheus.prometheus-nudge")
+TEMPLATES=("ai.prometheus.surrealdb-native.plist" "ai.prometheus.surreal-memory-native.plist" "ai.prometheus.pk-cherry.plist" "ai.prometheus.forge-mcp.plist" "ai.prometheus.prometheus-nudge.plist")
 
 usage() {
     cat <<'EOF'
@@ -45,7 +45,8 @@ Commands:
   logs      Tail recent service logs
 
 Managed LaunchAgents:
-  ai.prometheus.surreal-memory-docker  Docker keepalive for surreal-memory-server (port 23001)
+  ai.prometheus.surrealdb-native       SurrealDB 3.2.0 native binary on 127.0.0.1:28000
+  ai.prometheus.surreal-memory-native  Native surreal-memory-server -> SurrealDB 3.2.0 (port 23001)
   ai.prometheus.pk-cherry              pk-cherry HTTP MCP for Karpathy KB (port 8942)
   ai.prometheus.forge-mcp              Forge code-enrichment MCP (port 8943)
   ai.prometheus.prometheus-nudge       Periodic self-learning nudge (every 4h, cron-style)
@@ -115,15 +116,19 @@ ensure_dirs() {
 render_template() {
     local template="$1"
     local output="$2"
-    local pk_cherry_bin forge_bin docker_bin
+    local pk_cherry_bin forge_bin docker_bin surreal_bin surreal_memory_bin
 
     pk_cherry_bin="$(resolve_bin pk-cherry)"
     forge_bin="$(resolve_bin forge)"
     docker_bin="$(resolve_bin docker)"
+    surreal_bin="$(resolve_bin surreal)"
+    surreal_memory_bin="$(resolve_bin surreal-memory-server)"
 
     [ -n "$pk_cherry_bin" ] || pk_cherry_bin="/usr/local/bin/pk-cherry"
     [ -n "$forge_bin" ] || forge_bin="/usr/local/bin/forge"
     [ -n "$docker_bin" ] || docker_bin="/usr/local/bin/docker"
+    [ -n "$surreal_bin" ] || surreal_bin="/usr/local/bin/surreal"
+    [ -n "$surreal_memory_bin" ] || surreal_memory_bin="/usr/local/bin/surreal-memory-server"
 
     python3 - "$REPO_ROOT/shared/launchagents/$template" "$output" <<PY
 import pathlib
@@ -141,6 +146,8 @@ replacements = {
     "__PK_CHERRY_BIN__": "$pk_cherry_bin",
     "__FORGE_BIN__": "$forge_bin",
     "__DOCKER_BIN__": "$docker_bin",
+    "__SURREAL_BIN__": "$surreal_bin",
+    "__SURREAL_MEMORY_BIN__": "$surreal_memory_bin",
 }
 for key, value in replacements.items():
     text = text.replace(key, value)
@@ -234,6 +241,7 @@ status_services() {
         print_launchctl_summary "$label"
     done
     echo ""
+    probe "surrealdb"            "http://127.0.0.1:28000/health"
     probe "surreal-memory"       "http://localhost:23001/health"
     probe "prometheus-knowledge" "http://localhost:8942/mcp"
     probe "forge-rs"             "http://localhost:8943/mcp"
@@ -255,7 +263,7 @@ doctor_services() {
     echo "PATH: $PROMETHEUS_PATH"
     echo ""
 
-    for bin in pk-cherry forge docker curl plutil launchctl; do
+    for bin in surreal pk-cherry forge docker curl plutil launchctl; do
         local found
         found="$(resolve_bin "$bin")"
         printf '%-14s %s\n' "$bin" "${found:-missing}"
