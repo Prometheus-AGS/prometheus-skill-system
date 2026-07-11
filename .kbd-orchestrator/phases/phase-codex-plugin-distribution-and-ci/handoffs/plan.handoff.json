@@ -1,0 +1,11 @@
+{
+  "stage": "plan",
+  "completedAt": "2026-07-11T22:55:08Z",
+  "outputs": [
+    "plan.md"
+  ],
+  "nextStage": "execute",
+  "summaryForNext": "6 native-KBD changes closing the prior phase's caveats. constraints.md first (QA enable), then CI validate:codex, install-platforms build:codex, generator git sources, env helper; 006 hook-trust is MANUAL/interactive. Apply change-cpd-001-constraints first.",
+  "skipped": false,
+  "skipReason": null
+}

@@ -1,0 +1,11 @@
+{
+  "stage": "assess",
+  "completedAt": "2026-07-11T22:40:13Z",
+  "outputs": [
+    "assessment.md"
+  ],
+  "nextStage": "analyze",
+  "summaryForNext": "6 low-risk closeout gaps: install-platforms has codex(skills-only) not build:codex; CI lacks validate:codex; no constraints.md; generator local-source-only; env helper partial (configure-mcp-all-tools.sh); G-03 hook-trust is manual/non-CI. ~5 code changes + 1 manual evidence change. Do constraints.md first.",
+  "skipped": false,
+  "skipReason": null
+}

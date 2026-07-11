@@ -1,0 +1,12 @@
+{
+  "stage": "execute",
+  "completedAt": "2026-07-11T23:12:08Z",
+  "outputs": [
+    "execution.md",
+    "progress.json"
+  ],
+  "nextStage": "reflect",
+  "summaryForNext": "5 of 6 DONE (constraints, CI validate step, install-platforms regen, generator git-sources, env helper). change-cpd-006 hook-trust is BLOCKED — manual/interactive, needs a human Codex session. The next stage is correctly gated until 006 is DONE.",
+  "skipped": false,
+  "skipReason": null
+}
