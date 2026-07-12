@@ -1,0 +1,11 @@
+{
+  "stage": "reflect",
+  "completedAt": "2026-07-12T13:19:55Z",
+  "outputs": [
+    "reflection.md"
+  ],
+  "nextStage": null,
+  "summaryForNext": "6/6 MET (3 caveated: validate:codex not yet run in Actions, env round-trip unconfirmed, git-subdir untested remotely). Headline: 006 was not manual — hooks fire headlessly via codex exec --dangerously-bypass-hook-trust; fixed the CLAUDE_PLUGIN_ROOT portability defect. Recommended next: phase-codex-plugin-verify-and-publish.",
+  "skipped": false,
+  "skipReason": null
+}
