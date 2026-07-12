@@ -7,7 +7,7 @@ priority: P2
 effort: M
 agent: claude-code
 evolver_item_id: null
-status: pending
+status: DONE
 model_class: frontier
 depends_on: [change-cpv-003-ci-green-verify]
 scope:
@@ -20,7 +20,7 @@ scope:
 
 ## Tasks
 
-- [ ] CONFIRM with the user before publishing externally; if declined, record a deliberate stage skip with reason
-- [ ] Generate a git-subdir marketplace (CODEX_MARKETPLACE_SOURCE=git-subdir) to a publish location / branch and push
-- [ ] codex plugin marketplace add <git-url> ; confirm the 11 plugins resolve from git-subdir sources
-- [ ] Record evidence; decide whether git-subdir becomes the published default
+- [x] CONFIRM with the user before publishing externally; if declined, record a deliberate stage skip with reason
+- [x] Generate a git-subdir marketplace (CODEX_MARKETPLACE_SOURCE=git-subdir) to a publish location / branch and push
+- [x] codex plugin marketplace add <git-url> ; confirm the 11 plugins resolve from git-subdir sources
+- [x] Record evidence; decide whether git-subdir becomes the published default

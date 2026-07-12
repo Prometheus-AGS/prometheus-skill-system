@@ -5,22 +5,23 @@
   "childPointer": null,
   "assessment_complete": true,
   "plan_complete": true,
-  "execute_complete": false,
+  "execute_complete": true,
   "reflect_complete": false,
   "changes_total": 6,
-  "changes_completed": 5,
+  "changes_completed": 6,
   "completed_changes": [
     "change-cpv-001-cowork-progress-signals",
     "change-cpv-002-format-fix",
     "change-cpv-003-ci-green-verify",
     "change-cpv-004-real-hooks-codex",
-    "change-cpv-005-env-roundtrip"
+    "change-cpv-005-env-roundtrip",
+    "change-cpv-006-git-subdir-publish"
   ],
-  "active_change": "change-cpv-006-git-subdir-publish",
+  "active_change": null,
   "blocked_changes": [],
   "sourceTool": "unknown",
   "createdBy": "kbd-new-phase",
-  "updatedAt": "2026-07-12T14:11:11Z",
+  "updatedAt": "2026-07-12T14:13:27Z",
   "changes": [
     "change-cpv-001-cowork-progress-signals",
     "change-cpv-002-format-fix",
