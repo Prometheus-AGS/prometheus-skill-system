@@ -7,7 +7,7 @@ priority: P1
 effort: S
 agent: claude-code
 evolver_item_id: null
-status: pending
+status: DONE
 model_class: frontier
 depends_on: []
 scope:
@@ -20,7 +20,7 @@ scope:
 
 ## Tasks
 
-- [ ] build:codex + install plugin; DO NOT replace hooks.json this time (use the real hooks)
-- [ ] codex exec --dangerously-bypass-approvals-and-sandbox --dangerously-bypass-hook-trust with a trivial prompt
-- [ ] Confirm the real SessionStart hooks execute without empty-path errors (${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT} resolves to PLUGIN_ROOT); check ~/.prometheus/hooks.log / stderr
-- [ ] Record references/real-hooks-codex.md; clean up ~/.codex (remove plugin+marketplace)
+- [x] build:codex + install plugin; DO NOT replace hooks.json this time (use the real hooks)
+- [x] codex exec --dangerously-bypass-approvals-and-sandbox --dangerously-bypass-hook-trust with a trivial prompt
+- [x] Confirm the real SessionStart hooks execute without empty-path errors (${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT} resolves to PLUGIN_ROOT); check ~/.prometheus/hooks.log / stderr
+- [x] Record references/real-hooks-codex.md; clean up ~/.codex (remove plugin+marketplace)

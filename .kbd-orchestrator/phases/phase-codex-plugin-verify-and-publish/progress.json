@@ -8,16 +8,19 @@
   "execute_complete": false,
   "reflect_complete": false,
   "changes_total": 6,
-  "changes_completed": 2,
+  "changes_completed": 5,
   "completed_changes": [
     "change-cpv-001-cowork-progress-signals",
-    "change-cpv-002-format-fix"
+    "change-cpv-002-format-fix",
+    "change-cpv-003-ci-green-verify",
+    "change-cpv-004-real-hooks-codex",
+    "change-cpv-005-env-roundtrip"
   ],
-  "active_change": "change-cpv-003-ci-green-verify",
+  "active_change": "change-cpv-006-git-subdir-publish",
   "blocked_changes": [],
   "sourceTool": "unknown",
   "createdBy": "kbd-new-phase",
-  "updatedAt": "2026-07-12T14:03:40Z",
+  "updatedAt": "2026-07-12T14:11:11Z",
   "changes": [
     "change-cpv-001-cowork-progress-signals",
     "change-cpv-002-format-fix",

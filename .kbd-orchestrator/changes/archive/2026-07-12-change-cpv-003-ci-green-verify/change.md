@@ -7,7 +7,7 @@ priority: P1
 effort: S
 agent: claude-code
 evolver_item_id: null
-status: pending
+status: DONE
 model_class: frontier
 depends_on: [change-cpv-001-cowork-progress-signals, change-cpv-002-format-fix]
 scope:
@@ -20,6 +20,6 @@ scope:
 
 ## Tasks
 
-- [ ] Push 001+002; watch the Validate Skills workflow via `gh run view`
-- [ ] Confirm the 'Validate Codex plugin artifacts are in sync' step shows ✓ (not `-`/skipped)
-- [ ] Confirm the whole workflow is green (all jobs pass)
+- [x] Push 001+002; watch the Validate Skills workflow via `gh run view`
+- [x] Confirm the 'Validate Codex plugin artifacts are in sync' step shows ✓ (not `-`/skipped)
+- [x] Confirm the whole workflow is green (all jobs pass)
