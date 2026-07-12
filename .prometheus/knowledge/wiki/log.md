@@ -1,6 +1,18 @@
 # Update Log
 
 ## 2026-07-12
+* **Creation**: [Codex Plugin Verify and Publish Execute Completion Status](/codex-plugin-verify-and-publish-execute-completion-status.md)
+* **Creation**: [Codex Plugin Verify and Publish Plan-Stage Zero-Progress Status](/codex-plugin-verify-and-publish-plan-stage-zero-progress-status.md)
+* **Creation**: [Phase 17 Plane Completion and Release Audit Status](/phase-17-plane-completion-and-release-audit-status.md)
+* **Creation**: [Codex Plugin Verify and Publish Reflect Status 2026-07-12 13:49](/codex-plugin-verify-and-publish-reflect-status-2026-07-12-13-49.md)
+* **Creation**: [Codex Plugin Verify-and-Publish Phase Completion](/codex-plugin-verify-and-publish-phase-completion.md)
+* **Creation**: [Codex Plugin Verify-and-Publish Executor Completion Status](/codex-plugin-verify-and-publish-executor-completion-status.md)
+* **Creation**: [Codex Plugin Verify and Publish Reflect Status 2026-07-12 13:49](/codex-plugin-verify-and-publish-reflect-status-2026-07-12-13-49.md)
+* **Creation**: [Codex Plugin Verify and Publish Final Reflect Status](/codex-plugin-verify-and-publish-final-reflect-status.md)
+* **Creation**: [Codex Plugin Verify and Publish Executor Completion](/codex-plugin-verify-and-publish-executor-completion.md)
+* **Creation**: [Codex Plugin Verify and Publish Phase Completion Status](/codex-plugin-verify-and-publish-phase-completion-status.md)
+* **Creation**: [Codex Plugin Distribution and CI Executor Session Status](/codex-plugin-distribution-and-ci-executor-session-status.md)
+* **Creation**: [Codex Plugin Distribution and CI Final Reflect Status](/codex-plugin-distribution-and-ci-final-reflect-status.md)
 * **Creation**: [Codex Plugin Distribution and CI Phase Completion Status](/codex-plugin-distribution-and-ci-phase-completion-status.md)
 * **Creation**: [Codex Plugin Distribution CI Execute-Stage Completion Status](/codex-plugin-distribution-ci-execute-stage-completion-status.md)
 * **Creation**: [Codex Plugin Distribution and CI Executor Session Complete](/codex-plugin-distribution-and-ci-executor-session-complete.md)

@@ -18,7 +18,9 @@
 * [Codex Plugin Distribution and CI Executor Completion](/codex-plugin-distribution-and-ci-executor-completion.md)
 * [Codex Plugin Distribution and CI Executor Completion Record](/codex-plugin-distribution-and-ci-executor-completion-record.md)
 * [Codex Plugin Distribution and CI Executor Session Complete](/codex-plugin-distribution-and-ci-executor-session-complete.md)
+* [Codex Plugin Distribution and CI Executor Session Status](/codex-plugin-distribution-and-ci-executor-session-status.md)
 * [Codex Plugin Distribution and CI Executor Status](/codex-plugin-distribution-and-ci-executor-status.md)
+* [Codex Plugin Distribution and CI Final Reflect Status](/codex-plugin-distribution-and-ci-final-reflect-status.md)
 * [Codex Plugin Distribution and CI Phase Completion Status](/codex-plugin-distribution-and-ci-phase-completion-status.md)
 * [Codex Plugin Distribution and CI Session Complete](/codex-plugin-distribution-and-ci-session-complete.md)
 * [Codex Plugin Distribution and CI Session Completion Status](/codex-plugin-distribution-and-ci-session-completion-status.md)
@@ -38,6 +40,14 @@
 * [Codex Plugin Implementation Executor Session Status](/codex-plugin-implementation-executor-session-status.md)
 * [Codex Plugin Implementation Phase Completion Status](/codex-plugin-implementation-phase-completion-status.md)
 * [Codex Plugin Implementation Phase Executor Completion](/codex-plugin-implementation-phase-executor-completion.md)
+* [Codex Plugin Verify and Publish Execute Completion Status](/codex-plugin-verify-and-publish-execute-completion-status.md)
+* [Codex Plugin Verify and Publish Executor Completion](/codex-plugin-verify-and-publish-executor-completion.md)
+* [Codex Plugin Verify and Publish Final Reflect Status](/codex-plugin-verify-and-publish-final-reflect-status.md)
+* [Codex Plugin Verify and Publish Phase Completion Status](/codex-plugin-verify-and-publish-phase-completion-status.md)
+* [Codex Plugin Verify and Publish Plan-Stage Zero-Progress Status](/codex-plugin-verify-and-publish-plan-stage-zero-progress-status.md)
+* [Codex Plugin Verify and Publish Reflect Status 2026-07-12 13:49](/codex-plugin-verify-and-publish-reflect-status-2026-07-12-13-49.md)
+* [Codex Plugin Verify-and-Publish Executor Completion Status](/codex-plugin-verify-and-publish-executor-completion-status.md)
+* [Codex Plugin Verify-and-Publish Phase Completion](/codex-plugin-verify-and-publish-phase-completion.md)
 * [Cowork CLI Integration Planning Phase Goals](/cowork-cli-integration-planning-phase-goals.md) - Phase:** `cowork-integration` - **Project:** unspecified - **KBD root:** `/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.claude/worktrees/charming-diffie-309eef` - **Captured:** `2026-07-03T21:15:09Z` - **Source context:** `manual:cowork-integration`
 * [Deep Research + Feynman Learning Integration](/deep-research-feynman-integration.md) - Research into how deep research combines with Feynman learning skills, Karpathy LLM wiki patterns, and learning loop integration.
 * [Deep Research Skill Landscape](/deep-research-skill-landscape.md) - Comprehensive survey of existing deep research agents and skills, including GPT Researcher, LangGraph ODR, MiroThinker, and other implementations in the ecosystem.
@@ -78,6 +88,7 @@
 * [OKF LLM Wiki Adoption Phase Completion Status](/okf-llm-wiki-adoption-phase-completion-status.md) - `session_ended`: `2026-07-03T13:05:37Z` - `phase`: `phase-okf-llm-wiki-adoption` - `stage`: `reflect` - `last_completed`: `none` - `progress`: `8 of 8 changes done` - `next_pending`: `none`
 * [OKF Wiki Adoption PR 21 CI Triage and Merge Readiness](/okf-wiki-adoption-pr-21-ci-triage-and-merge-readiness.md) - Phase `phase-okf-llm-wiki-adoption` for KBD root `/Users/gqadonis/Projects/prometheus/prometheus-skill-pack` completed with changes committed, pushed, and a PR opened. This continues the operational closeout recorded in [Toolchain Binary Sync and OKF Wiki Adoption Session Complet
 * [Orchestrator Lessons: Read Before Build](/orchestrator-lessons-read-before-build.md) - When a user provides an existing file (HTML, CSS, code, config) and asks for improvements, **read it first** before building anything new.
+* [Phase 17 Plane Completion and Release Audit Status](/phase-17-plane-completion-and-release-audit-status.md)
 * [Phase CI All Green Assessment for OKF Wiki Adoption](/phase-ci-all-green-assessment-for-okf-wiki-adoption.md) - A `kbd-assess` run completed for `phase-ci-all-green` under the OKF LLM wiki adoption effort. This follows the PR/CI readiness work tracked in [OKF Wiki Adoption PR 21 CI Triage and Merge Readiness](/okf-wiki-adoption-pr-21-ci-triage-and-merge-readiness.md) and the broader comple
 * [Plan for CI Cross-Model QA YAML Fix and Forge MCP Auth Hardening](/plan-for-ci-cross-model-qa-yaml-fix-and-forge-mcp-auth-hardening.md) - `kbd-plan` completed for `phase-ci-cross-model-qa-and-hardening` at step `0/3` in `/Users/gqadonis/Projects/prometheus/prometheus-skill-pack`.
 * [Prometheus Deep Research Skill — Master Specification](/prometheus-deep-research-skill-master-spec.md) - This document is the master specification for the **Prometheus Deep Research Skill** — a universal, cross-platform deep-research capability designed for the Prometheus Skill Pack. It synthesizes findings from 8 parallel research investigations into a unified architectural bluepri
