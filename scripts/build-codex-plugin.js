@@ -24,23 +24,24 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..');
 const CHECK = process.argv.includes('--check');
 
-const read = (p) => JSON.parse(fs.readFileSync(path.join(ROOT, p), 'utf8'));
-const rel = (s) => (s === '.' ? './' : s.startsWith('./') ? s : './' + s.replace(/^\/+/, ''));
+const read = p => JSON.parse(fs.readFileSync(path.join(ROOT, p), 'utf8'));
+const rel = s => (s === '.' ? './' : s.startsWith('./') ? s : './' + s.replace(/^\/+/, ''));
 
 // Marketplace source type — `local` (default, in-repo dogfood) keeps output
 // byte-stable. `git-subdir`/`git` emit publishable sources (needs a pushed commit).
 const MP_SOURCE = process.env.CODEX_MARKETPLACE_SOURCE || 'local'; // local | git-subdir | git
 const MP_REF = process.env.CODEX_MARKETPLACE_REF || 'main';
 const marketplaceSource = (pluginSource, repoUrl) => {
-  if (MP_SOURCE === 'git-subdir') return { source: 'git-subdir', url: repoUrl, ref: MP_REF, path: rel(pluginSource) };
+  if (MP_SOURCE === 'git-subdir')
+    return { source: 'git-subdir', url: repoUrl, ref: MP_REF, path: rel(pluginSource) };
   if (MP_SOURCE === 'git') return { source: 'git', url: repoUrl, ref: MP_REF };
   return { source: 'local', path: rel(pluginSource) };
 };
-const insideRoot = (p) => typeof p === 'string' && p.startsWith('./') && !p.split('/').includes('..');
+const insideRoot = p => typeof p === 'string' && p.startsWith('./') && !p.split('/').includes('..');
 
 const drift = [];
 const errors = [];
-const fail = (m) => errors.push(m);
+const fail = m => errors.push(m);
 
 function emit(p, obj) {
   const abs = path.join(ROOT, p);
@@ -93,7 +94,7 @@ function buildMarketplace() {
     description: m.description,
     owner: m.owner,
     interface: { displayName: 'Prometheus Skill Pack' },
-    plugins: m.plugins.map((p) => ({
+    plugins: m.plugins.map(p => ({
       name: p.name,
       description: p.description,
       source: marketplaceSource(p.source, repoUrl),
@@ -110,15 +111,23 @@ function buildMarketplace() {
 
 // ---- Validation --------------------------------------------------------------
 function validate(pluginObj, marketObj) {
-  for (const f of ['name', 'version', 'description']) if (!pluginObj[f]) fail(`plugin.json missing required field: ${f}`);
-  for (const ptr of ['mcpServers', 'hooks']) if (pluginObj[ptr] && !insideRoot(pluginObj[ptr])) fail(`plugin.json ${ptr} not ./-inside-root: ${pluginObj[ptr]}`);
-  (pluginObj.skills || []).forEach((s) => { if (!insideRoot(s)) fail(`plugin.json skill path not ./-inside-root: ${s}`); });
+  for (const f of ['name', 'version', 'description'])
+    if (!pluginObj[f]) fail(`plugin.json missing required field: ${f}`);
+  for (const ptr of ['mcpServers', 'hooks'])
+    if (pluginObj[ptr] && !insideRoot(pluginObj[ptr]))
+      fail(`plugin.json ${ptr} not ./-inside-root: ${pluginObj[ptr]}`);
+  (pluginObj.skills || []).forEach(s => {
+    if (!insideRoot(s)) fail(`plugin.json skill path not ./-inside-root: ${s}`);
+  });
   if (!marketObj.name) fail('marketplace.json missing name');
-  if (!marketObj.interface || !marketObj.interface.displayName) fail('marketplace.json missing interface.displayName');
-  (marketObj.plugins || []).forEach((p) => {
+  if (!marketObj.interface || !marketObj.interface.displayName)
+    fail('marketplace.json missing interface.displayName');
+  (marketObj.plugins || []).forEach(p => {
     if (!p.name) fail('marketplace plugin missing name');
-    if (!p.source || !insideRoot(p.source.path)) fail(`marketplace plugin ${p.name}: source.path not ./-inside-root`);
-    if (!p.policy || !p.policy.installation) fail(`marketplace plugin ${p.name}: missing policy.installation`);
+    if (!p.source || !insideRoot(p.source.path))
+      fail(`marketplace plugin ${p.name}: source.path not ./-inside-root`);
+    if (!p.policy || !p.policy.installation)
+      fail(`marketplace plugin ${p.name}: missing policy.installation`);
   });
 }
 
@@ -126,9 +135,17 @@ const { obj: pluginObj } = buildPluginManifest();
 const { obj: marketObj } = buildMarketplace();
 validate(pluginObj, marketObj);
 
-if (errors.length) { console.error('Codex artifact validation FAILED:'); errors.forEach((e) => console.error('  ✗ ' + e)); process.exit(1); }
+if (errors.length) {
+  console.error('Codex artifact validation FAILED:');
+  errors.forEach(e => console.error('  ✗ ' + e));
+  process.exit(1);
+}
 if (CHECK) {
-  if (drift.length) { console.error('Codex artifacts are STALE (run `npm run build:codex`):'); drift.forEach((d) => console.error('  ✗ ' + d)); process.exit(1); }
+  if (drift.length) {
+    console.error('Codex artifacts are STALE (run `npm run build:codex`):');
+    drift.forEach(d => console.error('  ✗ ' + d));
+    process.exit(1);
+  }
   console.log('✓ Codex artifacts up to date and valid.');
 } else {
   console.log('Generated + validated Codex artifacts:');

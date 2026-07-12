@@ -27,7 +27,16 @@ tools/prometheus-knowledge
 tools/prometheus-cli/target
 tools/prometheus-cli/Cargo.lock
 tools/surreal-memory-server
+# Independently-managed submodules — formatted in their own repos, not here.
+tools/cowork-skills
+tools/disk-space-guardian
 marketplace/marketplace.json
+# Generated Codex plugin artifacts (like marketplace/marketplace.json above).
+.codex-plugin
+.agents
+# Vendored third-party front-end assets (HTMX / Alpine / hls, incl. minified).
+**/*.min.js
+substrate/prometheus-research/src/static
 # Generated Docusaurus output — build artifacts, never hand-edited.
 site/.docusaurus
 site/build

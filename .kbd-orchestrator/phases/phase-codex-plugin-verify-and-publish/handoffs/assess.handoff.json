@@ -1,0 +1,11 @@
+{
+  "stage": "assess",
+  "completedAt": "2026-07-12T13:46:49Z",
+  "outputs": [
+    "assessment.md"
+  ],
+  "nextStage": "analyze",
+  "summaryForNext": "CI on main is RED (pre-existing): validate:signals fails (cowork-management SKILL.md missing Progress Signals) + Check Formatting fails (32 prettier files) — both block my validate:codex step from ever running. G-01 = make CI green (fix those 2), then G-03 (headless real-hook run) + G-02 (env round-trip) are quick; G-04 (git-subdir publish) needs a user go-ahead.",
+  "skipped": false,
+  "skipReason": null
+}

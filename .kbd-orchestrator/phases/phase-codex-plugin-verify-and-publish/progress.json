@@ -1,0 +1,30 @@
+{
+  "phase": "phase-codex-plugin-verify-and-publish",
+  "parentPhase": null,
+  "childPhases": [],
+  "childPointer": null,
+  "assessment_complete": true,
+  "plan_complete": true,
+  "execute_complete": false,
+  "reflect_complete": false,
+  "changes_total": 6,
+  "changes_completed": 2,
+  "completed_changes": [
+    "change-cpv-001-cowork-progress-signals",
+    "change-cpv-002-format-fix"
+  ],
+  "active_change": "change-cpv-003-ci-green-verify",
+  "blocked_changes": [],
+  "sourceTool": "unknown",
+  "createdBy": "kbd-new-phase",
+  "updatedAt": "2026-07-12T14:03:40Z",
+  "changes": [
+    "change-cpv-001-cowork-progress-signals",
+    "change-cpv-002-format-fix",
+    "change-cpv-003-ci-green-verify",
+    "change-cpv-004-real-hooks-codex",
+    "change-cpv-005-env-roundtrip",
+    "change-cpv-006-git-subdir-publish"
+  ],
+  "execute_started": true
+}

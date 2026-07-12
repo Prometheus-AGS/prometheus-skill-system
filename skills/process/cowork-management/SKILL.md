@@ -175,6 +175,20 @@ install_bin target/release/cowork ~/.local/bin/cowork
 cowork pack update
 ```
 
+## Progress Signals
+
+Emit a plain-text signal at the start and end of each cowork operation so long
+sessions stay scannable:
+
+```
+Starting cowork-management — <operation> (e.g. install, pack update, doctor)
+Completed cowork-management — <operation>
+```
+
+For multi-platform installs, signal per platform: `Starting install 2 of 6:
+codex` / `Completed install 2 of 6: codex`. Counts come from the detected-platform
+list, never estimated. Signals go to normal response text — no tool call needed.
+
 ## Detailed reference
 
 - [Full command reference](references/COMMANDS.md)

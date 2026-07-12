@@ -1,0 +1,11 @@
+{
+  "stage": "plan",
+  "completedAt": "2026-07-12T13:55:49Z",
+  "outputs": [
+    "plan.md"
+  ],
+  "nextStage": "execute",
+  "summaryForNext": "6 native changes; CI-unblock first (001 cowork Progress Signals + 002 prettier) so validate:codex finally runs (003 verifies green), then 004 real-hooks headless + 005 env round-trip; 006 git-subdir publish GATED on user go-ahead. Apply change-cpv-001 first.",
+  "skipped": false,
+  "skipReason": null
+}
