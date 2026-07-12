@@ -1,6 +1,8 @@
 # Update Log
 
 ## 2026-07-12
+* **Creation**: [Codex Plugin Verify-and-Publish Session Completion Record](/codex-plugin-verify-and-publish-session-completion-record.md)
+* **Creation**: [Codex Plugin Verify and Publish Execute Completion Status](/codex-plugin-verify-and-publish-execute-completion-status.md)
 * **Creation**: [Codex Plugin Verify and Publish Execute Completion Status](/codex-plugin-verify-and-publish-execute-completion-status.md)
 * **Creation**: [Codex Plugin Verify and Publish Plan-Stage Zero-Progress Status](/codex-plugin-verify-and-publish-plan-stage-zero-progress-status.md)
 * **Creation**: [Phase 17 Plane Completion and Release Audit Status](/phase-17-plane-completion-and-release-audit-status.md)

@@ -48,6 +48,7 @@
 * [Codex Plugin Verify and Publish Reflect Status 2026-07-12 13:49](/codex-plugin-verify-and-publish-reflect-status-2026-07-12-13-49.md)
 * [Codex Plugin Verify-and-Publish Executor Completion Status](/codex-plugin-verify-and-publish-executor-completion-status.md)
 * [Codex Plugin Verify-and-Publish Phase Completion](/codex-plugin-verify-and-publish-phase-completion.md)
+* [Codex Plugin Verify-and-Publish Session Completion Record](/codex-plugin-verify-and-publish-session-completion-record.md)
 * [Cowork CLI Integration Planning Phase Goals](/cowork-cli-integration-planning-phase-goals.md) - Phase:** `cowork-integration` - **Project:** unspecified - **KBD root:** `/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.claude/worktrees/charming-diffie-309eef` - **Captured:** `2026-07-03T21:15:09Z` - **Source context:** `manual:cowork-integration`
 * [Deep Research + Feynman Learning Integration](/deep-research-feynman-integration.md) - Research into how deep research combines with Feynman learning skills, Karpathy LLM wiki patterns, and learning loop integration.
 * [Deep Research Skill Landscape](/deep-research-skill-landscape.md) - Comprehensive survey of existing deep research agents and skills, including GPT Researcher, LangGraph ODR, MiroThinker, and other implementations in the ecosystem.
