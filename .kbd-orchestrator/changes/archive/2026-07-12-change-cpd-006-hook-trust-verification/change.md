@@ -7,7 +7,7 @@ priority: P2
 effort: S
 agent: claude-code
 evolver_item_id: null
-status: BLOCKED
+status: DONE
 model_class: frontier
 depends_on: []
 scope:
@@ -22,7 +22,7 @@ scope:
 
 ## Tasks
 
-- [ ] MANUAL: install the plugin, start an interactive codex session, review + trust the plugin hooks
-- [ ] Confirm a SessionStart hook writes to ${PLUGIN_DATA}; capture the evidence (or record that it does not fire)
-- [ ] Write references/hook-trust-verification.md with the verdict + steps
-- [ ] Update docs/codex-plugin.md + CLAUDE.md with the verified behavior. If no interactive session is available in-run, mark BLOCKED (needs human) rather than faking a pass
+- [x] MANUAL: install the plugin, start an interactive codex session, review + trust the plugin hooks
+- [x] Confirm a SessionStart hook writes to ${PLUGIN_DATA}; capture the evidence (or record that it does not fire)
+- [x] Write references/hook-trust-verification.md with the verdict + steps
+- [x] Update docs/codex-plugin.md + CLAUDE.md with the verified behavior. If no interactive session is available in-run, mark BLOCKED (needs human) rather than faking a pass

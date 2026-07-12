@@ -17,17 +17,17 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash ${CLAUDE_PLUGIN_ROOT}/shared/scripts/detect-project-context.sh 2>&1 || true",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/shared/scripts/detect-project-context.sh 2>&1 || true",
             "timeout": 15000
           },
           {
             "type": "command",
-            "command": "bash ${CLAUDE_PLUGIN_ROOT}/shared/scripts/memory-outbox-flush.sh 2>&1 || true",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/shared/scripts/memory-outbox-flush.sh 2>&1 || true",
             "timeout": 10000
           },
           {
             "type": "command",
-            "command": "bash ${CLAUDE_PLUGIN_ROOT}/shared/scripts/pk-health.sh 2>&1 || true",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/shared/scripts/pk-health.sh 2>&1 || true",
             "timeout": 8000
           }
         ]
@@ -38,12 +38,12 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash ${CLAUDE_PLUGIN_ROOT}/shared/scripts/pk-focus-on-prompt.sh 2>/dev/null",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/shared/scripts/pk-focus-on-prompt.sh 2>/dev/null",
             "timeout": 3000
           },
           {
             "type": "command",
-            "command": "bash ${CLAUDE_PLUGIN_ROOT}/shared/scripts/position-on-prompt.sh 2>/dev/null",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/shared/scripts/position-on-prompt.sh 2>/dev/null",
             "timeout": 5000
           }
         ]
@@ -55,12 +55,12 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash ${CLAUDE_PLUGIN_ROOT}/shared/scripts/guard-direct-deploy.sh 2>&1",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/shared/scripts/guard-direct-deploy.sh 2>&1",
             "timeout": 5000
           },
           {
             "type": "command",
-            "command": "bash ${CLAUDE_PLUGIN_ROOT}/shared/scripts/pipeline-enforce.sh Bash",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/shared/scripts/pipeline-enforce.sh Bash",
             "timeout": 8000
           }
         ]
@@ -70,22 +70,22 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash ${CLAUDE_PLUGIN_ROOT}/shared/scripts/cedar-skill-gate.sh",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/shared/scripts/cedar-skill-gate.sh",
             "timeout": 5000
           },
           {
             "type": "command",
-            "command": "bash ${CLAUDE_PLUGIN_ROOT}/shared/scripts/protect-tests.sh",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/shared/scripts/protect-tests.sh",
             "timeout": 5000
           },
           {
             "type": "command",
-            "command": "bash ${CLAUDE_PLUGIN_ROOT}/shared/scripts/scope-guard.sh",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/shared/scripts/scope-guard.sh",
             "timeout": 5000
           },
           {
             "type": "command",
-            "command": "bash ${CLAUDE_PLUGIN_ROOT}/skills/process/kbd-process-orchestrator/shared/lib/check-child-scope.sh",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/skills/process/kbd-process-orchestrator/shared/lib/check-child-scope.sh",
             "timeout": 5000
           }
         ]
@@ -97,31 +97,31 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash ${CLAUDE_PLUGIN_ROOT}/skills/process/iterative-evolver/scripts/validate-state.sh 2>&1 || true"
+            "command": "bash ${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/skills/process/iterative-evolver/scripts/validate-state.sh 2>&1 || true"
           },
           {
             "type": "command",
-            "command": "bash ${CLAUDE_PLUGIN_ROOT}/shared/scripts/validate-gitops-write.sh 2>&1 || true",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/shared/scripts/validate-gitops-write.sh 2>&1 || true",
             "timeout": 10000
           },
           {
             "type": "command",
-            "command": "bash ${CLAUDE_PLUGIN_ROOT}/shared/scripts/scope-record.sh 2>&1 || true",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/shared/scripts/scope-record.sh 2>&1 || true",
             "timeout": 5000
           },
           {
             "type": "command",
-            "command": "bash ${CLAUDE_PLUGIN_ROOT}/shared/scripts/write-position-reminder.sh 2>&1 || true",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/shared/scripts/write-position-reminder.sh 2>&1 || true",
             "timeout": 5000
           },
           {
             "type": "command",
-            "command": "bash ${CLAUDE_PLUGIN_ROOT}/shared/scripts/sycophancy-check-artifact.sh",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/shared/scripts/sycophancy-check-artifact.sh",
             "timeout": 35000
           },
           {
             "type": "command",
-            "command": "bash ${CLAUDE_PLUGIN_ROOT}/shared/scripts/memory-writeback.sh 2>&1 || true",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/shared/scripts/memory-writeback.sh 2>&1 || true",
             "timeout": 8000
           }
         ]
@@ -133,11 +133,11 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash ${CLAUDE_PLUGIN_ROOT}/skills/process/iterative-evolver/scripts/state-checkpoint.sh \"${EVOLUTION_NAME:-default}\" assess phase_complete 2>&1 || true"
+            "command": "bash ${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/skills/process/iterative-evolver/scripts/state-checkpoint.sh \"${EVOLUTION_NAME:-default}\" assess phase_complete 2>&1 || true"
           },
           {
             "type": "command",
-            "command": "bash ${CLAUDE_PLUGIN_ROOT}/skills/process/iterative-evolver/scripts/workflow-dispatch.sh \"${EVOLUTION_NAME:-default}\" phase_complete assess 2>&1 || true"
+            "command": "bash ${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/skills/process/iterative-evolver/scripts/workflow-dispatch.sh \"${EVOLUTION_NAME:-default}\" phase_complete assess 2>&1 || true"
           }
         ]
       },
@@ -146,11 +146,11 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash ${CLAUDE_PLUGIN_ROOT}/skills/process/iterative-evolver/scripts/state-checkpoint.sh \"${EVOLUTION_NAME:-default}\" analyze phase_complete 2>&1 || true"
+            "command": "bash ${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/skills/process/iterative-evolver/scripts/state-checkpoint.sh \"${EVOLUTION_NAME:-default}\" analyze phase_complete 2>&1 || true"
           },
           {
             "type": "command",
-            "command": "bash ${CLAUDE_PLUGIN_ROOT}/skills/process/iterative-evolver/scripts/workflow-dispatch.sh \"${EVOLUTION_NAME:-default}\" phase_complete analyze 2>&1 || true"
+            "command": "bash ${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/skills/process/iterative-evolver/scripts/workflow-dispatch.sh \"${EVOLUTION_NAME:-default}\" phase_complete analyze 2>&1 || true"
           }
         ]
       },
@@ -159,11 +159,11 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash ${CLAUDE_PLUGIN_ROOT}/skills/process/iterative-evolver/scripts/state-checkpoint.sh \"${EVOLUTION_NAME:-default}\" plan phase_complete 2>&1 || true"
+            "command": "bash ${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/skills/process/iterative-evolver/scripts/state-checkpoint.sh \"${EVOLUTION_NAME:-default}\" plan phase_complete 2>&1 || true"
           },
           {
             "type": "command",
-            "command": "bash ${CLAUDE_PLUGIN_ROOT}/skills/process/iterative-evolver/scripts/workflow-dispatch.sh \"${EVOLUTION_NAME:-default}\" phase_complete plan 2>&1 || true"
+            "command": "bash ${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/skills/process/iterative-evolver/scripts/workflow-dispatch.sh \"${EVOLUTION_NAME:-default}\" phase_complete plan 2>&1 || true"
           }
         ]
       },
@@ -172,20 +172,20 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash ${CLAUDE_PLUGIN_ROOT}/skills/process/iterative-evolver/scripts/validate-state.sh 2>&1 || true"
+            "command": "bash ${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/skills/process/iterative-evolver/scripts/validate-state.sh 2>&1 || true"
           },
           {
             "type": "command",
-            "command": "bash ${CLAUDE_PLUGIN_ROOT}/skills/process/iterative-evolver/scripts/state-checkpoint.sh \"${EVOLUTION_NAME:-default}\" execute phase_complete 2>&1 || true"
+            "command": "bash ${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/skills/process/iterative-evolver/scripts/state-checkpoint.sh \"${EVOLUTION_NAME:-default}\" execute phase_complete 2>&1 || true"
           },
           {
             "type": "command",
-            "command": "bash ${CLAUDE_PLUGIN_ROOT}/shared/scripts/evaluate-session.sh 2>&1 || true",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/shared/scripts/evaluate-session.sh 2>&1 || true",
             "timeout": 30000
           },
           {
             "type": "command",
-            "command": "bash ${CLAUDE_PLUGIN_ROOT}/skills/process/iterative-evolver/scripts/workflow-dispatch.sh \"${EVOLUTION_NAME:-default}\" phase_complete execute 2>&1 || true"
+            "command": "bash ${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/skills/process/iterative-evolver/scripts/workflow-dispatch.sh \"${EVOLUTION_NAME:-default}\" phase_complete execute 2>&1 || true"
           }
         ]
       },
@@ -194,20 +194,20 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash ${CLAUDE_PLUGIN_ROOT}/shared/scripts/sycophancy-check-reflection.sh 2>&1",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/shared/scripts/sycophancy-check-reflection.sh 2>&1",
             "timeout": 35000
           },
           {
             "type": "command",
-            "command": "bash ${CLAUDE_PLUGIN_ROOT}/skills/process/iterative-evolver/scripts/log-reflection.sh 2>&1 || true"
+            "command": "bash ${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/skills/process/iterative-evolver/scripts/log-reflection.sh 2>&1 || true"
           },
           {
             "type": "command",
-            "command": "bash ${CLAUDE_PLUGIN_ROOT}/skills/process/iterative-evolver/scripts/state-checkpoint.sh \"${EVOLUTION_NAME:-default}\" reflect phase_complete 2>&1 || true"
+            "command": "bash ${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/skills/process/iterative-evolver/scripts/state-checkpoint.sh \"${EVOLUTION_NAME:-default}\" reflect phase_complete 2>&1 || true"
           },
           {
             "type": "command",
-            "command": "bash ${CLAUDE_PLUGIN_ROOT}/skills/process/iterative-evolver/scripts/workflow-dispatch.sh \"${EVOLUTION_NAME:-default}\" phase_complete reflect 2>&1 || true"
+            "command": "bash ${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/skills/process/iterative-evolver/scripts/workflow-dispatch.sh \"${EVOLUTION_NAME:-default}\" phase_complete reflect 2>&1 || true"
           }
         ]
       },
@@ -215,7 +215,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash ${CLAUDE_PLUGIN_ROOT}/shared/scripts/subagent-checkpoint-fallback.sh 2>&1 || true"
+            "command": "bash ${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/shared/scripts/subagent-checkpoint-fallback.sh 2>&1 || true"
           }
         ]
       }
@@ -225,37 +225,37 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash ${CLAUDE_PLUGIN_ROOT}/shared/scripts/write-session-summary.sh 2>&1 || true",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/shared/scripts/write-session-summary.sh 2>&1 || true",
             "timeout": 5000
           },
           {
             "type": "command",
-            "command": "bash ${CLAUDE_PLUGIN_ROOT}/shared/scripts/position-stop-gate.sh",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/shared/scripts/position-stop-gate.sh",
             "timeout": 5000
           },
           {
             "type": "command",
-            "command": "bash ${CLAUDE_PLUGIN_ROOT}/skills/process/iterative-evolver/scripts/state-finalize.sh \"${EVOLUTION_NAME:-default}\" 2>&1 || true",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/skills/process/iterative-evolver/scripts/state-finalize.sh \"${EVOLUTION_NAME:-default}\" 2>&1 || true",
             "timeout": 8000
           },
           {
             "type": "command",
-            "command": "bash ${CLAUDE_PLUGIN_ROOT}/skills/process/iterative-evolver/scripts/workflow-dispatch.sh \"${EVOLUTION_NAME:-default}\" cycle_complete 2>&1 || true",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/skills/process/iterative-evolver/scripts/workflow-dispatch.sh \"${EVOLUTION_NAME:-default}\" cycle_complete 2>&1 || true",
             "timeout": 8000
           },
           {
             "type": "command",
-            "command": "bash ${CLAUDE_PLUGIN_ROOT}/skills/process/iterative-evolver/scripts/finalize-session.sh 2>&1 || true",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/skills/process/iterative-evolver/scripts/finalize-session.sh 2>&1 || true",
             "timeout": 8000
           },
           {
             "type": "command",
-            "command": "bash ${CLAUDE_PLUGIN_ROOT}/shared/scripts/forge-reflect-on-stop.sh 2>&1 || true",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/shared/scripts/forge-reflect-on-stop.sh 2>&1 || true",
             "timeout": 8000
           },
           {
             "type": "command",
-            "command": "bash ${CLAUDE_PLUGIN_ROOT}/shared/scripts/propose-skill-update.sh 2>&1 || true",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/shared/scripts/propose-skill-update.sh 2>&1 || true",
             "timeout": 30000
           },
           {

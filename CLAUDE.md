@@ -859,13 +859,17 @@ launchd-invoked script with `/bin/bash script.sh`, not just `bash script.sh`.
 The `config.toml [hooks]` **snake_case** path (`pre_tool_use`, `session_start`, …)
 parsed cleanly (`config.toml parse ok`) yet **never fired** — reverted, do not use.
 
-The **plugin** path works differently and is the supported one: the Codex plugin
-bundles the pack's PascalCase `hooks/hooks.json` unchanged (Codex plugin hooks
-share Claude's event schema). These are **non-managed hooks** — Codex skips them
-until the user reviews and **trusts** them in an interactive session, so
-end-to-end firing is **interactive-verify only** (not assertable in headless/CI).
-Wired via `.codex-plugin/plugin.json → hooks`; see
-[`docs/codex-plugin.md`](docs/codex-plugin.md).
+The **plugin** path works and is the supported one: the Codex plugin bundles the
+pack's PascalCase `hooks/hooks.json` (Codex plugin hooks share Claude's event
+schema). These are **non-managed hooks** — an interactive `codex` session shows a
+one-time trust prompt before running them. **Firing is verified** (codex-cli
+0.144.1): a `SessionStart` hook fires and writes to `${PLUGIN_DATA}`, and it can be
+exercised **headlessly** with `codex exec --dangerously-bypass-hook-trust` (for
+vetted automation) — so it is NOT interactive-only. The hooks use
+`${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}` to resolve under both harnesses (Codex sets
+`PLUGIN_ROOT`/`PLUGIN_DATA`, not `CLAUDE_PLUGIN_ROOT`). Wired via
+`.codex-plugin/plugin.json → hooks`; see [`docs/codex-plugin.md`](docs/codex-plugin.md)
+and the change-cpd-006 hook-trust-verification evidence.
 
 ## Karpathy LLM Wiki (pk) — Open Knowledge Format Adoption
 

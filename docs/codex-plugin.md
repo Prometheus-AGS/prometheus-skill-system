@@ -62,16 +62,20 @@ translation. Hook commands receive `${PLUGIN_ROOT}` (installed package) and
 `${PLUGIN_DATA}` (writable, created lazily on first session).
 
 **Trust is independent of install.** Plugin-bundled hooks are *non-managed*:
-Codex **skips them until the user reviews and trusts** the current hook
-definition in an interactive session. Consequences:
+an interactive `codex` session shows a one-time trust prompt before running them.
+Consequences:
 
-- Installing/enabling the plugin does **not** run its hooks.
-- End-to-end hook firing is **verified interactively only** — it cannot be
-  asserted in headless/CI (the spike confirmed the hooks bundle + schema is
-  accepted, but no trust field is written at install time).
-- This is distinct from the earlier `config.toml [hooks]` snake_case attempt
-  (which silently never fired — see CLAUDE.md "Not yet ported to Codex"). The
-  plugin `hooks.json` path is the spec-supported one.
+- Installing/enabling the plugin does **not** run its hooks until trusted.
+- **Firing is verified** (change-cpd-006, codex-cli 0.144.1): a `SessionStart`
+  hook fires and writes to `${PLUGIN_DATA}`. It can be exercised **headlessly**
+  via `codex exec --dangerously-bypass-hook-trust` (built for vetted automation) —
+  it is *not* interactive-only. Evidence:
+  `.kbd-orchestrator/phases/phase-codex-plugin-distribution-and-ci/references/hook-trust-verification.md`.
+- **Portability:** the hooks use `${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}` so they
+  resolve under both Claude (`CLAUDE_PLUGIN_ROOT`) and Codex (`PLUGIN_ROOT`).
+  Codex provides `PLUGIN_ROOT` / `PLUGIN_DATA`, not `CLAUDE_PLUGIN_ROOT`.
+- Distinct from the earlier `config.toml [hooks]` snake_case attempt (which
+  silently never fired). The plugin `hooks.json` path is the working one.
 
 ## MCP servers — env provisioning (change-004)
 
