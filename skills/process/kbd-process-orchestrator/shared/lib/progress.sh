@@ -47,11 +47,18 @@ kbd_progress_validate() {
     return 1
   }
 
+  # `changes` may be an array of objects (canonical), an array of strings
+  # (string-list ledgers — phase-level counter is the source of truth), or a
+  # map keyed by change id. Any of the three passes the canonical counter
+  # check; the per-change `implementation_status` invariant only applies when
+  # the array actually carries object rows.
   jq -e '
     def changes_list:
       if (.changes | type) == "array" then .changes
       elif (.changes | type) == "object" then [.changes[]]
       else [] end;
+    def object_rows:
+      [changes_list[] | select(type == "object")];
     def impl_done:
       .completion.implementation.completed
       // .implementation_completed
@@ -81,9 +88,9 @@ kbd_progress_validate() {
        (if has("implementation_completed") then .implementation_completed == impl_done else true end) and
        (if has("implementation_total") then .implementation_total == impl_total else true end)
      else true end) and
-    (if ([changes_list[] | has("implementation_status")] | any) then
-       ([changes_list[] | has("implementation_status")] | all) and
-       ([changes_list[] | select(.implementation_status == "COMPLETE")] | length) == impl_done
+    (if (object_rows | length) > 0 and ([object_rows[] | has("implementation_status")] | any) then
+       ([object_rows[] | has("implementation_status")] | all) and
+       ([object_rows[] | select(.implementation_status == "COMPLETE")] | length) == impl_done
      else true end)
   ' "$file" >/dev/null || {
     printf 'kbd-progress: completion invariant failed: %s\n' "$file" >&2
@@ -94,6 +101,14 @@ kbd_progress_validate() {
 # Mark one change's code/integration contract complete and atomically derive
 # the implementation counter. Evidence/certification/publication fields are
 # deliberately untouched.
+#
+# `changes` may be an array of objects (canonical), an array of strings
+# (string-list ledgers), or a map keyed by change id. For string-list ledgers
+# there is no per-change `implementation_status` to update — the phase-level
+# counter is the source of truth — so the per-change update is a no-op and
+# the mark-completion reduces to deriving the counter from `changes_completed`
+# (caller is expected to have already advanced it). For object arrays we look
+# up by `.id`; for maps we look up by key.
 kbd_progress_mark_implementation_complete() {
   local file="$1" change_id="$2" tmp
   tmp="$(mktemp "${file}.XXXXXX")" || return 1
@@ -102,33 +117,61 @@ kbd_progress_mark_implementation_complete() {
       if (.changes | type) == "array" then .changes
       elif (.changes | type) == "object" then [.changes[]]
       else [] end;
+    def object_rows:
+      [changes_list[] | select(type == "object")];
     def mark_change:
       if (.changes | type) == "array" then
-        .changes |= map(if .id == $id then .implementation_status = "COMPLETE" else . end)
+        .changes |= map(
+          if (type == "object") and (.id == $id) then
+            .implementation_status = "COMPLETE"
+          else
+            .
+          end
+        )
       elif (.changes | type) == "object" and (.changes | has($id)) then
         .changes[$id].implementation_status = "COMPLETE"
-      else error("unknown change id: " + $id) end;
-    mark_change |
+      else
+        .
+      end;
+    def known_change:
+      if (.changes | type) == "array" then
+        (.changes | map(select((type == "object") and (.id == $id))) | length) > 0
+          or (.changes | map(select(type == "string" and . == $id)) | length) > 0
+      elif (.changes | type) == "object" then
+        (.changes | has($id))
+      else
+        false
+      end;
     (changes_list | length) as $change_count |
-    ([changes_list[] |
-      select((.implementation_status //
-              (if .status == "DONE" then "COMPLETE" else "PENDING" end)) == "COMPLETE")]
-      | length) as $done |
+    (object_rows | length) as $object_count |
+    (if $object_count > 0 then
+       ([object_rows[] |
+         select((.implementation_status //
+                 (if .status == "DONE" then "COMPLETE" else "PENDING" end)) == "COMPLETE")]
+        | length)
+     else
+       (.changes_completed // .implementation_completed // 0)
+     end) as $done |
     (.implementation_total // .changes_total // $change_count) as $total |
-    .completion = (.completion // {}) |
-    .completion.primaryCounter = "implementation" |
-    .completion.implementation = {
-      completed: $done,
-      total: $total,
-      status: (if $done >= $total then "COMPLETE" else "IN_PROGRESS" end)
-    } |
-    .completion.evidence = (.completion.evidence // {status:"NOT_TRACKED", summary:null, blockers:[]}) |
-    .completion.certification = (.completion.certification // {status:"NOT_TRACKED", summary:null, blockers:[]}) |
-    .completion.publication = (.completion.publication // {status:"NOT_TRACKED", summary:null, blockers:[]}) |
-    .implementation_completed = $done |
-    .implementation_total = $total |
-    .changes_completed = $done |
-    .changes_total = $total
+    if (known_change | not) then
+      error("unknown change id: " + $id)
+    else
+      mark_change |
+      .completion = (.completion // {}) |
+      .completion.primaryCounter = "implementation" |
+      .completion.implementation = {
+        completed: $done,
+        total: $total,
+        status: (if $done >= $total then "COMPLETE" else "IN_PROGRESS" end)
+      } |
+      .completion.evidence = (.completion.evidence // {status:"NOT_TRACKED", summary:null, blockers:[]}) |
+      .completion.certification = (.completion.certification // {status:"NOT_TRACKED", summary:null, blockers:[]}) |
+      .completion.publication = (.completion.publication // {status:"NOT_TRACKED", summary:null, blockers:[]}) |
+      .implementation_completed = $done |
+      .implementation_total = $total |
+      .changes_completed = $done |
+      .changes_total = $total
+    end
   ' "$file" > "$tmp"; then
     rm -f "$tmp"
     return 1

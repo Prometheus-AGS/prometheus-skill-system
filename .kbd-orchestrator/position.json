@@ -1,13 +1,13 @@
 {
   "schemaVersion": "1",
-  "updatedAt": "2026-07-09T16:42:53Z",
+  "updatedAt": "2026-07-13T18:18:11Z",
   "cursor": [
-    "phase-drui-standalone-hosting"
+    "phase-codex-plugin-verify-and-publish"
   ],
   "root": {
     "type": "phase",
-    "id": "phase-drui-standalone-hosting",
-    "status": "execute_complete",
+    "id": "phase-codex-plugin-verify-and-publish",
+    "status": "reflect_complete",
     "progress": {
       "done": 6,
       "total": 6
