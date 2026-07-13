@@ -27,7 +27,13 @@ mk_sandbox() {
   [[ -f ".kbd-orchestrator/phases/first-phase/goals.md" ]]       || fail "1: goals.md missing"
   grep -q '# Goals'                  .kbd-orchestrator/phases/first-phase/goals.md || fail "1: goals.md missing heading"
   grep -q 'TBD: enumerate goals'      .kbd-orchestrator/phases/first-phase/goals.md || fail "1: TBD stub missing"
-  jq -e '.phase == "first-phase" and .parentPhase == null and .childPhases == [] and .childPointer == null' \
+  jq -e '
+    .phase == "first-phase" and .parentPhase == null and
+    .childPhases == [] and .childPointer == null and
+    .completion.primaryCounter == "implementation" and
+    .completion.implementation == {completed:0,total:0,status:"PENDING"} and
+    .completion.certification.status == "NOT_TRACKED"
+  ' \
      .kbd-orchestrator/phases/first-phase/progress.json >/dev/null || fail "1: progress.json fields wrong"
 ) && pass "happy path, no goals — phase dir + goals.md (TBD) + progress.json"
 

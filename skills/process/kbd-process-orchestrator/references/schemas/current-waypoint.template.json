@@ -1,6 +1,6 @@
 {
-  "__schemaVersion": "3",
-  "__description": "Active KBD waypoint. All fields documented in kbd-process-orchestrator/SKILL.md (see 'Wayfinding State' and 'Nested phases'). This template is a reference only — readers MUST NOT depend on __schemaVersion at runtime; every field declared here has a documented default and is optional unless its description says otherwise. v3 adds 'path' (the canonical arbitrary-depth position chain) additively: when absent it is synthesized from [phase] or [phase, childPointer]; parentPhase/childPointer remain maintained as derived deepest-frame fields for one release.",
+  "__schemaVersion": "4",
+  "__description": "Active KBD waypoint. All fields documented in kbd-process-orchestrator/SKILL.md (see 'Wayfinding State' and 'Nested phases'). This template is a reference only — readers MUST NOT depend on __schemaVersion at runtime; every field declared here has a documented default and is optional unless its description says otherwise. v4 adds independent implementation, certification, and publication state. changesCompleted/changesTotal remain legacy aliases of implementationCompleted/implementationTotal and MUST NOT include evidence gates.",
 
   "path": [],
   "__path_note": "Canonical arbitrary-depth position chain. SELECTED-VS-ENTERED INVARIANT: when path[]'s trailing token equals childPointer the child is SELECTED (not entered) and /kbd-new-child adds a SIBLING; when childPointer is null/cleared the deepest path[] node is ENTERED and /kbd-new-child NESTS under it. Descent = set path[] + clear childPointer (/kbd-child-exit --enter). See SKILL.md 'Nested phases'.",
@@ -21,6 +21,11 @@
   "backend": null,
   "wave": null,
   "lastCompletedChange": null,
+  "completionMetric": "implementation",
+  "implementationCompleted": 0,
+  "implementationTotal": 0,
+  "certificationStatus": "NOT_TRACKED",
+  "publicationStatus": "NOT_TRACKED",
   "changesCompleted": 0,
   "changesTotal": 0,
 

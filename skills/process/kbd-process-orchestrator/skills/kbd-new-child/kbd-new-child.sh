@@ -140,8 +140,17 @@ jq -n \
   plan_complete: false,
   execute_complete: false,
   reflect_complete: false,
+  implementation_total: 0,
+  implementation_completed: 0,
   changes_total: 0,
   changes_completed: 0,
+  completion: {
+    primaryCounter: "implementation",
+    implementation: { completed: 0, total: 0, status: "PENDING" },
+    evidence: { status: "NOT_TRACKED", summary: null, blockers: [] },
+    certification: { status: "NOT_TRACKED", summary: null, blockers: [] },
+    publication: { status: "NOT_TRACKED", summary: null, blockers: [] }
+  },
   completed_changes: [],
   active_change: null,
   blocked_changes: [],

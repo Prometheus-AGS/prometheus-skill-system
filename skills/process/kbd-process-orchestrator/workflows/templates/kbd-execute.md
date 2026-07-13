@@ -18,7 +18,13 @@ Select the execution backend and dispatch the current phase change list.
    a. Implement the change in `focus_project_path`.
    b. Run bdd-testing (`/bdd-testing` for feature file + steps).
    c. Run artifact-refiner QA gate (`/refine-validate <change-id>`).
-   d. Update progress.json: status=DONE, completed_by=<tool>, tasks_done=tasks_total.
+   d. When code/integration is complete, set
+      `implementation_status=COMPLETE` and update
+      `completion.implementation` even if evidence tasks remain. Update legacy
+      `changes_completed/changes_total` as exact implementation aliases.
+      Evidence/certification/publication statuses advance independently.
+      Prefer the atomic helper:
+      `scripts/kbd-validate-progress.sh --mark-implementation-complete <progress.json> <change-id>`.
    e. Commit: `git add -A && git commit -m "feat: <change-id>"`.
 7. After all changes: update waypoint to `kbd-reflect`.
 

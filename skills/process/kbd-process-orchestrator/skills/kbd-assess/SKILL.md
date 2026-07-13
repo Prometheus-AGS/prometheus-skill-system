@@ -40,8 +40,11 @@ Completed kbd-assess — <phase-name> (step N of T)
 ```
 
 **How to get N and T (MANDATORY — never estimate):**
-- Read `.kbd-orchestrator/phases/<phase>/progress.json` → `changes_completed` = N, `changes_total` = T
-- If `progress.json` is absent, read `current-waypoint.json` → `changes_completed` / `changes_total`
+- Read `.kbd-orchestrator/phases/<phase>/progress.json` →
+  `completion.implementation.completed` = N and `.total` = T; fall back to
+  legacy `changes_completed` / `changes_total` only when canonical fields are absent.
+- If `progress.json` is absent, read `current-waypoint.json` →
+  `implementationCompleted` / `implementationTotal`, then legacy aliases.
 
 Use the canonical phase name from the argument or `current-waypoint.json`. Emit to plain response text — no tool call needed.
 

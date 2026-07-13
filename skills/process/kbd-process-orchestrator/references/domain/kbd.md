@@ -125,6 +125,8 @@ Quick reference:
 
 1. Any tool starting work → update `progress.json` status = IN_PROGRESS, commit
 2. Any tool completing a task → update `tasks_done`, commit
-3. Any tool completing a change → status = DONE, archive, advance waypoint, commit
+3. Any tool completing code → `implementation_status = COMPLETE`, derive the
+   implementation counter, then track evidence/certification/archive state
+   independently before advancing the lifecycle waypoint
 4. Any tool hitting a blocker → status = BLOCKED, update `fallback_command`, commit
 5. Next session starts → read `current-waypoint.json` first, then `progress.json`

@@ -27,6 +27,21 @@ Output includes:
 - Goal completion: MET | PARTIAL | NOT MET per goal
 - Last tool to update state and when
 - Waypoint-guided next recommended action
+- Separate implementation, evidence, certification, and publication state
+
+## Completion semantics (mandatory)
+
+Render `completion.implementation.completed/total` as the KBD `N/N` counter.
+Fall back to legacy `changes_completed/changes_total` only when the canonical
+object is absent. Never derive implementation completion from `tasks_done`,
+unchecked OpenSpec boxes, evidence availability, elapsed time, authorization,
+certification, or publication.
+
+Render evidence, certification, and publication on separate lines. A phase can
+therefore be `24/24 implementation complete` while certification or publication
+is still pending. In that state, do not describe any implemented change as a
+code gap and do not recommend implementation work unless a concrete source
+defect is identified.
 
 ## Progress Signals (MANDATORY)
 
@@ -124,6 +139,11 @@ KBD STATUS — <Project Name>
 phase: phase-2-sales-module
 worktree: /Users/jane/.claude/worktrees/phase-2-sales-module
 Last updated by: roo-code (2026-03-12T04:30:00Z)
+
+Implementation: 4/4 COMPLETE
+Evidence:       IN_PROGRESS
+Certification: PENDING
+Publication:   NOT_TRACKED
 
 Goals:
   [✅] Sidebar user profile wired to real data

@@ -8,7 +8,9 @@ Generate a phase reflection report and seed the next phase.
 2. Read `.kbd-orchestrator/phases/<active_phase>/progress.json`.
 3. Read `.kbd-orchestrator/phases/<active_phase>/plan.md`.
 4. Read the full reflect prompt: `.agent/skills/kbd-process-orchestrator/prompts/reflect.md`.
-5. Calculate goal completion % from progress.json (tasks_done / tasks_total across all changes).
+5. Calculate implementation completion from
+   `completion.implementation.completed/total`. Report task/evidence completion
+   separately; never use `tasks_done/tasks_total` to reduce implementation.
 6. Assess cross-tool coordination effectiveness from progress.json `started_by`/`completed_by`.
 7. Check if pmpo-skill-creator should be invoked for structural KBD improvements identified.
 8. Write `reflection.md` to `.kbd-orchestrator/phases/<active_phase>/reflection.md`.

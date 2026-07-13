@@ -25,6 +25,11 @@ echo "$out" | grep -q '^phase=phase-1-foundation$'    || fail "pre-schema: phase
 echo "$out" | grep -q '^parentPhase=$'                || fail "pre-schema: parentPhase defaults empty"
 echo "$out" | grep -q '^childPhases=$'                || fail "pre-schema: childPhases defaults empty"
 echo "$out" | grep -q '^childPointer=$'               || fail "pre-schema: childPointer defaults empty"
+echo "$out" | grep -q '^completionMetric=implementation$' || fail "pre-schema: completionMetric default"
+echo "$out" | grep -q '^implementationCompleted=0$'   || fail "pre-schema: implementationCompleted default"
+echo "$out" | grep -q '^implementationTotal=0$'       || fail "pre-schema: implementationTotal default"
+echo "$out" | grep -q '^certificationStatus=NOT_TRACKED$' || fail "pre-schema: certificationStatus default"
+echo "$out" | grep -q '^publicationStatus=NOT_TRACKED$' || fail "pre-schema: publicationStatus default"
 pass "pre-schema fixture loads with documented defaults"
 
 # ---- 2. parent-with-children fixture ----
@@ -70,5 +75,9 @@ else fail "is_descendant should match child of parent"; fi
 if is_descendant "$tmp_parent" "$tmp_parent"; then fail "is_descendant should reject same path"
 else pass "is_descendant: same path is NOT a descendant"; fi
 rm -rf "$tmp_parent"
+
+# ---- 7. progress completion semantics regression ----
+"$ROOT/shared/lib/tests/test-progress-semantics.sh"
+pass "progress completion semantics fixtures"
 
 printf '\nall waypoint fixture tests passed\n'

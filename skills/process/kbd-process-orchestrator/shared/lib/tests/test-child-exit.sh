@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # shared/lib/tests/test-child-exit.sh — kbd-child-exit (enter + exit) + rollup.
-set -uo pipefail
+set -euo pipefail
 cd "$(dirname "$0")"
 SKILL_ROOT="$(cd ../../.. && pwd -P)"
 NEW_PHASE="$SKILL_ROOT/skills/kbd-new-phase/kbd-new-phase.sh"
@@ -27,7 +27,11 @@ WP=".kbd-orchestrator/current-waypoint.json"
 
   # Give alpha some progress + a reflection so exit is allowed
   adir=.kbd-orchestrator/phases/parent-x/children/alpha
-  jq '.changes_total=3 | .changes_completed=3 | .reflect_complete=true' "$adir/progress.json" > "$adir/p.tmp" && mv "$adir/p.tmp" "$adir/progress.json"
+  jq '
+    .completion.implementation = {completed:3,total:3,status:"COMPLETE"} |
+    .implementation_total=3 | .implementation_completed=3 |
+    .changes_total=3 | .changes_completed=3 | .reflect_complete=true
+  ' "$adir/progress.json" > "$adir/p.tmp" && mv "$adir/p.tmp" "$adir/progress.json"
   echo "# Reflection — alpha" > "$adir/reflection.md"
 
   # exit: handoff-out written, rolled up into parent, path popped
@@ -66,7 +70,11 @@ WP=".kbd-orchestrator/current-waypoint.json"
   "$NEW_CHILD" b >/dev/null 2>&1 || fail "create grandchild b"
   "$EXIT" --enter >/dev/null 2>&1 || fail "enter b"
   bdir=.kbd-orchestrator/phases/p/children/a/children/b
-  jq '.changes_total=2 | .changes_completed=2 | .reflect_complete=true' "$bdir/progress.json" > "$bdir/p.tmp" && mv "$bdir/p.tmp" "$bdir/progress.json"
+  jq '
+    .completion.implementation = {completed:2,total:2,status:"COMPLETE"} |
+    .implementation_total=2 | .implementation_completed=2 |
+    .changes_total=2 | .changes_completed=2 | .reflect_complete=true
+  ' "$bdir/progress.json" > "$bdir/p.tmp" && mv "$bdir/p.tmp" "$bdir/progress.json"
   echo "# Reflection — b" > "$bdir/reflection.md"
   "$EXIT" >/dev/null 2>&1 || fail "exit b"
   # a now has a children.b block; path is [p, a]

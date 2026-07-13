@@ -25,7 +25,8 @@ Close the active child loop and return to the parent — the counterpart to
    status, unresolved items, recommendations to the parent.
 3. Rolls the child's progress up the ancestor chain via `shared/lib/rollup.sh`:
    each parent node's `progress.json` gains a `children{}` block
-   ({status, changes_completed, changes_total, handoff, completed_at}).
+   (`status`, canonical implementation counters, legacy counter aliases,
+   certification status, handoff, and completion timestamp).
 4. Pops the last element of `path[]`, clears `childPointer`, and restores the
    parent's cursor — the parent loop resumes with the child's result visible.
 5. Fires `child:after`.

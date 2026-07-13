@@ -57,6 +57,11 @@ waypoint_load() {
       "backend="            + (.backend            // ""),
       "wave="               + (.wave               // ""),
       "lastCompletedChange="+ (.lastCompletedChange // ""),
+      "completionMetric="   + (.completionMetric   // "implementation"),
+      "implementationCompleted=" + ((.implementationCompleted // .changesCompleted // 0) | tostring),
+      "implementationTotal="     + ((.implementationTotal // .changesTotal // 0) | tostring),
+      "certificationStatus="     + (.certificationStatus // "NOT_TRACKED"),
+      "publicationStatus="       + (.publicationStatus // "NOT_TRACKED"),
       "updatedAt="          + (.updatedAt          // "")
     ] | .[]
   ' "$path"
@@ -73,8 +78,9 @@ waypoint_chain() {
   local parent="$1" phase="$2" pointer="$3"
   local sep
   sep="$(chain_separator)"
-  # Trim trailing space so we can join cleanly.
-  local sep_trim="${sep% }"
+  # waypoint_chain supplies its own surrounding spaces; normalize separators
+  # such as the POSIX fallback (` > `) to avoid doubled whitespace.
+  local sep_trim="${sep// /}"
 
   local out=""
   if [[ -n "$parent" ]]; then
@@ -121,7 +127,7 @@ is_descendant() {
   esac
 }
 
-# --- Waypoint v3: arbitrary-depth position via path[] ----------------------
+# --- Waypoint v3+: arbitrary-depth position via path[] ---------------------
 #
 # path[] is the canonical position chain: path[0] = top-level phase, each
 # subsequent element a nested child. The on-disk node dir interleaves

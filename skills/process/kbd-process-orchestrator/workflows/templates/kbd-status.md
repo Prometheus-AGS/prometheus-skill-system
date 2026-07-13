@@ -6,11 +6,15 @@ Show the current KBD process state.
 
 1. Read `.kbd-orchestrator/project.json` → project name, active_phase, focus_project_path.
 2. Read `.kbd-orchestrator/current-waypoint.json` → next recommended action.
-3. Read `.kbd-orchestrator/phases/<active_phase>/progress.json` → change statuses,
+3. Read `completion.implementation` as the only KBD N/N counter; legacy
+   `changes_completed` is a compatibility fallback only.
+4. Render evidence, certification, and publication independently. Never reduce
+   implementation completion because those dimensions are pending.
+5. Read `.kbd-orchestrator/phases/<active_phase>/progress.json` → change statuses,
    cross-tool activity (started_by, completed_by), blockers.
-4. Read `.kbd-orchestrator/phases/<active_phase>/plan.md` → total change list.
-5. If progress.json doesn't exist yet: show "Not started — run /kbd-assess first."
-6. Display a formatted status report:
+6. Read `.kbd-orchestrator/phases/<active_phase>/plan.md` → total change list.
+7. If progress.json doesn't exist yet: show "Not started — run /kbd-assess first."
+8. Display a formatted status report:
    - Project name and focus path
    - Active phase
    - Change inventory: PENDING / IN_PROGRESS / DONE / BLOCKED counts
@@ -18,4 +22,4 @@ Show the current KBD process state.
    - Cross-tool activity (which tool is working on what)
    - Any blockers with fallback_command
    - Next recommended action from current-waypoint.json
-7. No files are written — status is read-only.
+9. No files are written — status is read-only.

@@ -15,6 +15,10 @@
 # Foreign state (.evolver/, .zeespec/) is ingested READ-ONLY as annotations —
 # this lib never writes outside .kbd-orchestrator/position.json.
 
+_progress_lib="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)/progress.sh"
+# shellcheck source=/dev/null
+[ -f "$_progress_lib" ] && . "$_progress_lib"
+
 _pos_root() {
   local dir="$PWD"
   while [ -n "$dir" ] && [ "$dir" != "/" ]; do
@@ -31,8 +35,8 @@ _pos_node() {
   local prog="$node_dir/progress.json"
   local done=0 total=0 status="unknown"
   if [ -f "$prog" ] && jq empty "$prog" 2>/dev/null; then
-    done="$(jq -r '.changes_completed // 0' "$prog")"
-    total="$(jq -r '.changes_total // 0' "$prog")"
+    done="$(kbd_progress_implementation_completed "$prog")"
+    total="$(kbd_progress_implementation_total "$prog")"
   fi
   if [ "$is_active" = "1" ]; then
     status="$(jq -r '.status // .stage // "unknown"' "$wp" 2>/dev/null)"

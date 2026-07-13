@@ -77,8 +77,17 @@ jq -n \
   plan_complete: false,
   execute_complete: false,
   reflect_complete: false,
+  implementation_total: 0,
+  implementation_completed: 0,
   changes_total: 0,
   changes_completed: 0,
+  completion: {
+    primaryCounter: "implementation",
+    implementation: { completed: 0, total: 0, status: "PENDING" },
+    evidence: { status: "NOT_TRACKED", summary: null, blockers: [] },
+    certification: { status: "NOT_TRACKED", summary: null, blockers: [] },
+    publication: { status: "NOT_TRACKED", summary: null, blockers: [] }
+  },
   completed_changes: [],
   active_change: null,
   blocked_changes: [],
@@ -103,6 +112,13 @@ if [[ -f "$wp" ]]; then
     .parentPhase      = null |
     .childPhases      = [] |
     .childPointer     = null |
+    .completionMetric = "implementation" |
+    .implementationCompleted = 0 |
+    .implementationTotal = 0 |
+    .certificationStatus = "NOT_TRACKED" |
+    .publicationStatus = "NOT_TRACKED" |
+    .changesCompleted = 0 |
+    .changesTotal = 0 |
     .updatedAt        = $now
   ' "$wp" > "$wp.tmp"
 else
@@ -119,6 +135,13 @@ else
       parentPhase: null,
       childPhases: [],
       childPointer: null,
+      completionMetric: "implementation",
+      implementationCompleted: 0,
+      implementationTotal: 0,
+      certificationStatus: "NOT_TRACKED",
+      publicationStatus: "NOT_TRACKED",
+      changesCompleted: 0,
+      changesTotal: 0,
       updatedAt: $now
     }' > "$wp.tmp"
 fi

@@ -48,6 +48,39 @@
       "type": "boolean",
       "description": "True once /kbd-reflect has written the reflection"
     },
+    "changes_total": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Legacy alias of completion.implementation.total. It MUST NOT include evidence, certification, or publication gates."
+    },
+    "changes_completed": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Legacy alias of completion.implementation.completed. It MUST NOT be reduced by incomplete evidence, certification, or publication gates."
+    },
+    "implementation_total": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Flat compatibility alias of completion.implementation.total."
+    },
+    "implementation_completed": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Flat compatibility alias of completion.implementation.completed."
+    },
+    "completion": {
+      "type": "object",
+      "required": ["primaryCounter", "implementation"],
+      "description": "Independent completion dimensions. Only implementation contributes to the KBD N/N change counter.",
+      "properties": {
+        "primaryCounter": { "const": "implementation" },
+        "implementation": { "$ref": "#/$defs/countDimension" },
+        "evidence": { "$ref": "#/$defs/statusDimension" },
+        "certification": { "$ref": "#/$defs/statusDimension" },
+        "publication": { "$ref": "#/$defs/statusDimension" }
+      },
+      "additionalProperties": false
+    },
     "changes": {
       "type": "object",
       "description": "Map of change-id to per-change progress",
@@ -58,6 +91,23 @@
           "status": {
             "type": "string",
             "enum": ["PENDING", "IN_PROGRESS", "DONE", "BLOCKED", "SKIPPED"]
+          },
+          "implementation_status": {
+            "type": "string",
+            "enum": ["PENDING", "IN_PROGRESS", "COMPLETE", "BLOCKED", "SKIPPED"],
+            "description": "Canonical code/integration state. COMPLETE contributes to completion.implementation; evidence state never does."
+          },
+          "evidence_status": {
+            "$ref": "#/$defs/dimensionStatus",
+            "description": "Evidence-generation state, independent from implementation_status."
+          },
+          "certification_status": {
+            "$ref": "#/$defs/dimensionStatus",
+            "description": "Certification state, independent from implementation_status."
+          },
+          "publication_status": {
+            "$ref": "#/$defs/dimensionStatus",
+            "description": "Publication state, independent from implementation_status."
           },
           "tasks_total": {
             "type": "integer",
@@ -112,10 +162,39 @@
           "status": { "enum": ["PENDING", "IN_PROGRESS", "DONE"] },
           "changes_completed": { "type": "integer", "minimum": 0 },
           "changes_total": { "type": "integer", "minimum": 0 },
+          "implementation_completed": { "type": "integer", "minimum": 0 },
+          "implementation_total": { "type": "integer", "minimum": 0 },
+          "certification_status": { "$ref": "#/$defs/dimensionStatus" },
           "handoff": { "type": ["string", "null"], "description": "Path to the child's handoff-out.md when it exited." },
           "completed_at": { "type": ["string", "null"], "format": "date-time" }
         }
       }
+    }
+  },
+  "$defs": {
+    "dimensionStatus": {
+      "type": "string",
+      "enum": ["NOT_TRACKED", "NOT_REQUIRED", "PENDING", "IN_PROGRESS", "COMPLETE", "BLOCKED"]
+    },
+    "statusDimension": {
+      "type": "object",
+      "required": ["status"],
+      "properties": {
+        "status": { "$ref": "#/$defs/dimensionStatus" },
+        "summary": { "type": ["string", "null"] },
+        "blockers": { "type": "array", "items": { "type": "string" } }
+      },
+      "additionalProperties": false
+    },
+    "countDimension": {
+      "type": "object",
+      "required": ["completed", "total", "status"],
+      "properties": {
+        "completed": { "type": "integer", "minimum": 0 },
+        "total": { "type": "integer", "minimum": 0 },
+        "status": { "$ref": "#/$defs/dimensionStatus" }
+      },
+      "additionalProperties": false
     }
   }
 }

@@ -136,7 +136,7 @@ in the KBD process, regardless of its internal planning mechanism.
 | `.kbd-orchestrator/position.json`                | kbd_position_sync  | kbd-status/renderer | Unified derived position tree |
 | `.kbd-orchestrator/phases/<phase>/plan.md`       | kbd-plan           | kbd-execute | Ordered change list               |
 | `.kbd-orchestrator/phases/<phase>/execution.md`  | kbd-execute        | All tools   | Backend dispatch contract         |
-| `.kbd-orchestrator/phases/<phase>/progress.json` | Any executing tool | kbd-status  | Live task progress ledger         |
+| `.kbd-orchestrator/phases/<phase>/progress.json` | Any executing tool | kbd-status  | Independent implementation/evidence/certification/publication ledger |
 | `.kbd-orchestrator/phases/<phase>/reflection.md` | kbd-reflect        | Next phase  | Phase retrospective               |
 | `.kbd-orchestrator/project.json`                 | Initial setup      | All tools   | Project identity + config         |
 
@@ -151,9 +151,24 @@ boundaries.
   "phase": "<phase-name>",
   "last_updated": "<ISO 8601 timestamp>",
   "last_updated_by": "<tool-name: antigravity|roo|cursor|codex|cline|opencode|windsurf|human>",
+  "implementation_total": 0,
+  "implementation_completed": 0,
+  "changes_total": 0,
+  "changes_completed": 0,
+  "completion": {
+    "primaryCounter": "implementation",
+    "implementation": { "completed": 0, "total": 0, "status": "PENDING" },
+    "evidence": { "status": "NOT_TRACKED", "summary": null, "blockers": [] },
+    "certification": { "status": "NOT_TRACKED", "summary": null, "blockers": [] },
+    "publication": { "status": "NOT_TRACKED", "summary": null, "blockers": [] }
+  },
   "changes": {
     "<change-id>": {
       "status": "PENDING|IN_PROGRESS|DONE|BLOCKED|SKIPPED",
+      "implementation_status": "PENDING|IN_PROGRESS|COMPLETE|BLOCKED|SKIPPED",
+      "evidence_status": "NOT_TRACKED|NOT_REQUIRED|PENDING|IN_PROGRESS|COMPLETE|BLOCKED",
+      "certification_status": "NOT_TRACKED|NOT_REQUIRED|PENDING|IN_PROGRESS|COMPLETE|BLOCKED",
+      "publication_status": "NOT_TRACKED|NOT_REQUIRED|PENDING|IN_PROGRESS|COMPLETE|BLOCKED",
       "tasks_total": 0,
       "tasks_done": 0,
       "last_task_completed": "<task description or null>",
@@ -165,6 +180,18 @@ boundaries.
   }
 }
 ```
+
+The ledger's canonical counter is `completion.implementation`. Legacy
+`changes_completed` and `changes_total` remain compatibility aliases of that
+counter only. They MUST NOT count evidence, certification, authorization,
+elapsed-time, external-adopter, or publication gates.
+
+**Completion invariant:** once a change's code and integration contract is
+implemented, set `implementation_status: COMPLETE` even when its evidence or
+publication status remains pending. Unchecked OpenSpec tasks marked
+`EVIDENCE`, `TIME_BOUND`, `AUTHORIZATION`, or `EXTERNAL` never reopen
+implementation. Run `scripts/kbd-validate-progress.sh <progress.json>` after
+every counter update; contradictory canonical/legacy counters are invalid.
 
 ### Tool Registry
 

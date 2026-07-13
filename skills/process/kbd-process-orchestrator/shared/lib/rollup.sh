@@ -9,9 +9,16 @@
 #   kbd_rollup_chain <p0> [p1] ...      # roll up every ancestor along a path
 #
 # Each parent node's progress.json gains a `children` object keyed by child name:
-#   { "<child>": { status, changes_completed, changes_total, handoff, completed_at } }
+#   { "<child>": { status, implementation_completed, implementation_total,
+#                    certification_status, handoff, completed_at } }
+# Legacy changes_completed/changes_total aliases are emitted from the same
+# implementation values for backward compatibility.
 # computed from each child dir's own progress.json. Non-destructive: only the
 # `children` key is rewritten.
+
+_progress_lib="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)/progress.sh"
+# shellcheck source=/dev/null
+[ -f "$_progress_lib" ] && . "$_progress_lib"
 
 # kbd_rollup_children <node-dir>
 kbd_rollup_children() {
@@ -30,14 +37,24 @@ kbd_rollup_children() {
       [ -f "$cp" ] && jq empty "$cp" 2>/dev/null || continue
       local handoff="null"
       [ -f "$child/handoff-out.md" ] && handoff="\"children/$cname/handoff-out.md\""
+      local impl_done impl_total cert_status
+      impl_done="$(kbd_progress_implementation_completed "$cp")"
+      impl_total="$(kbd_progress_implementation_total "$cp")"
+      cert_status="$(kbd_progress_dimension_status "$cp" certification)"
       agg="$(jq -c \
         --arg name "$cname" \
         --argjson handoff "$handoff" \
+        --argjson impl_done "$impl_done" \
+        --argjson impl_total "$impl_total" \
+        --arg cert_status "$cert_status" \
         --slurpfile c "$cp" \
         '.[$name] = {
           status: ($c[0].reflect_complete == true | if . then "DONE" else ($c[0].active_change // null | if . then "IN_PROGRESS" else "PENDING" end) end),
-          changes_completed: ($c[0].changes_completed // 0),
-          changes_total: ($c[0].changes_total // 0),
+          implementation_completed: $impl_done,
+          implementation_total: $impl_total,
+          changes_completed: $impl_done,
+          changes_total: $impl_total,
+          certification_status: $cert_status,
           handoff: $handoff,
           completed_at: ($c[0].updatedAt // null)
         }' <<<"$agg")"

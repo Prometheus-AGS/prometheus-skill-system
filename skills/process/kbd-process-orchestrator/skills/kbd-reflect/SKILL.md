@@ -73,10 +73,14 @@ strategic goals.
 
 All changes for this phase must be:
 
-- Completed (status `DONE` in `progress.json`)
+- Implemented (`implementation_status: COMPLETE` in `progress.json`)
 - QA gate passed (artifact-refiner, unless skipped)
 - If OpenSpec: verified (`/opsx:verify`) and archived (`/opsx:archive`)
 - If native KBD: moved to `.kbd-orchestrator/changes/archive/<date>-<id>/`
+
+These are separate prerequisites: implementation completion drives the N/N
+counter, while QA, verification, and archival drive evidence, certification,
+and publication/lifecycle fields.
 
 ## Progress Signals (MANDATORY)
 
@@ -95,8 +99,11 @@ Completed kbd-reflect — <phase-name> (step N of T)
 ```
 
 **How to get N and T (MANDATORY — never estimate):**
-- Read `.kbd-orchestrator/phases/<phase>/progress.json` → `changes_completed` = N, `changes_total` = T
-- If `progress.json` is absent, read `current-waypoint.json` → `changes_completed` / `changes_total`
+- Read `.kbd-orchestrator/phases/<phase>/progress.json` →
+  `completion.implementation.completed` = N and `.total` = T; fall back to
+  legacy `changes_completed` / `changes_total` only when canonical fields are absent.
+- If `progress.json` is absent, read `current-waypoint.json` →
+  `implementationCompleted` / `implementationTotal`, then legacy aliases.
 
 Use the canonical phase name from the argument or `current-waypoint.json`. Emit to plain response text — no tool call needed.
 

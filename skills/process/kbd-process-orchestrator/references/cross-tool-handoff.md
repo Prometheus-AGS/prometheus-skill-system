@@ -3,6 +3,14 @@
 This guide defines how to properly hand off a KBD change between AI tools.
 Any tool that starts, continues, or completes a KBD change MUST follow this protocol.
 
+## Completion invariant
+
+Handoffs MUST carry implementation and post-implementation state separately.
+The KBD N/N counter comes only from `completion.implementation`; legacy
+`changes_completed` is its alias. Pending evidence, certification, external
+gates, or publication must be reported without reducing implementation or
+describing completed code as unfinished.
+
 ---
 
 ## Why File-Based State?
@@ -54,6 +62,10 @@ Then update `progress.json`:
 }
 ```
 
+`status` is the legacy lifecycle cursor. Starting a change also sets
+`implementation_status` to `IN_PROGRESS`; neither field represents evidence or
+certification completion.
+
 Commit: `git add .kbd-orchestrator && git commit -m "kbd: start [<tool>] <change-id>"`
 
 ---
@@ -79,6 +91,16 @@ Commit after every few tasks:
 
 ## On Change Completion
 
+First mark the code/integration contract complete atomically:
+
+```bash
+scripts/kbd-validate-progress.sh --mark-implementation-complete \
+  .kbd-orchestrator/phases/<phase>/progress.json <change-id>
+```
+
+Then record lifecycle and post-implementation state without changing the
+derived implementation counter:
+
 ```json
 {
   "last_updated_by": "<tool>",
@@ -86,6 +108,9 @@ Commit after every few tasks:
   "changes": {
     "<change-id>": {
       "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "evidence_status": "COMPLETE",
+      "certification_status": "COMPLETE",
       "tasks_done": N,
       "tasks_total": N,
       "completed_by": "<tool>",
@@ -184,10 +209,13 @@ Commit: `git add .kbd-orchestrator && git commit -m "kbd: blocked [<tool>] <chan
 If two tools update `progress.json` concurrently and create a merge conflict:
 
 1. **Never auto-resolve to "ours" or "theirs"** — always merge manually
-2. Take the **latest `tasks_done` count** (higher number wins)
-3. Take the **most recent `last_task_completed`** (by `last_updated` timestamp)
-4. Merge `blockers` arrays (union, no deduplication required)
-5. Status priority: `BLOCKED` > `IN_PROGRESS` > `DONE` > `PENDING`
+2. Preserve canonical `completion.implementation`; recompute it from per-change
+   `implementation_status` and reject contradictory legacy aliases
+3. Take the **latest `tasks_done` count** (higher number wins)
+4. Take the **most recent `last_task_completed`** (by `last_updated` timestamp)
+5. Merge `blockers` arrays (union, no deduplication required)
+6. Resolve lifecycle and each completion dimension independently; a blocked
+   certification does not reduce completed implementation
 
 ---
 

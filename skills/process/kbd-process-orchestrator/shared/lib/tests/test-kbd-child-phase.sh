@@ -24,7 +24,12 @@ setup() {
   "$NEW_CHILD" alpha "g1" >/dev/null 2>&1 || fail "1: kbd-new-child failed"
   [[ -d .kbd-orchestrator/phases/parent-x/children/alpha ]] || fail "1: child dir missing"
   [[ -f .kbd-orchestrator/phases/parent-x/children/alpha/goals.md ]] || fail "1: goals.md missing"
-  jq -e '.phase == "alpha" and .parentPhase == "parent-x"' \
+  jq -e '
+    .phase == "alpha" and .parentPhase == "parent-x" and
+    .completion.primaryCounter == "implementation" and
+    .completion.implementation == {completed:0,total:0,status:"PENDING"} and
+    .completion.evidence.status == "NOT_TRACKED"
+  ' \
     .kbd-orchestrator/phases/parent-x/children/alpha/progress.json >/dev/null \
     || fail "1: progress.json fields wrong"
   jq -e '.childPhases == ["alpha"] and .childPointer == "alpha"' .kbd-orchestrator/current-waypoint.json \

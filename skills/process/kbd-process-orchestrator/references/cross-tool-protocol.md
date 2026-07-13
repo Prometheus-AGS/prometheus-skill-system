@@ -2,6 +2,18 @@
 
 > Extracted from the orchestrator SKILL.md. The contract any dispatched AI tool (Roo, Cursor, Cline, Codex, etc.) follows when executing a KBD change.
 
+## Completion dimensions
+
+All tools MUST treat `completion.implementation` as the KBD N/N counter.
+`changes_completed/changes_total` are exact legacy aliases of that dimension.
+Evidence, certification, authorization, external/time-bound gates, and
+publication are recorded independently and never reopen implemented code.
+
+Before handing work to another tool, run
+`scripts/kbd-validate-progress.sh <progress.json>`. A receiving tool must not
+infer a code gap from unchecked evidence tasks when
+`implementation_status: COMPLETE`.
+
 When an AI tool (Roo, Cursor, Cline, Codex, etc.) is dispatched to execute a
 KBD change, it MUST follow this protocol:
 
@@ -19,7 +31,10 @@ KBD change, it MUST follow this protocol:
 
 ### On Change Completion
 
-1. Update `progress.json`: set status → `DONE`, `completed_by` → `<tool-name>`
+1. Atomically mark implementation complete with
+   `scripts/kbd-validate-progress.sh --mark-implementation-complete <progress.json> <change-id>`.
+   Set legacy `status → DONE` only when the overall change lifecycle is also
+   complete; pending evidence remains in its independent dimension.
 2. If OpenSpec: run `/opsx:verify` then `/opsx:archive`
 3. If native KBD: move change to `.kbd-orchestrator/changes/archive/<date>-<id>/`
 4. Update waypoint: advance `last_completed_change` and `next_pending_change`

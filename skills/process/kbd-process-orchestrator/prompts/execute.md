@@ -183,7 +183,10 @@ HANDOFF NOTE for <tool>:
 2. Read the change spec: [openspec path | .kbd-orchestrator/changes/<id>/change.md]
 3. On start: update progress.json status → IN_PROGRESS, started_by → <tool>
 4. On each task done: increment tasks_done, commit progress.json to git
-5. On completion: status → DONE, completed_by → <tool>; run /opsx:verify + /opsx:archive if OpenSpec
+5. On implementation completion: set `implementation_status → COMPLETE`,
+   increment `completion.implementation.completed`, and keep legacy
+   `changes_completed` identical. Evidence/certification/publication tasks do
+   not delay or decrement this transition. Run /opsx:verify + /opsx:archive if OpenSpec.
 6. On blocker: status → BLOCKED, add to blockers array, commit
 ```
 

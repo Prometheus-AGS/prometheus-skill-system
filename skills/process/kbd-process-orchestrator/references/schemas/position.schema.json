@@ -19,6 +19,7 @@
     "progress": {
       "type": "object",
       "required": ["done", "total"],
+      "description": "Implementation completion only. Evidence, certification, and publication never alter these values.",
       "properties": {
         "done": { "type": "integer", "minimum": 0 },
         "total": { "type": "integer", "minimum": 0 }

@@ -26,11 +26,12 @@ resume cleanly.
 
 ## Per-Change QA Gate (artifact-refiner)
 
-After each change reaches `DONE` in `progress.json`, invoke artifact-refiner
-as a quality gate before archiving:
+After each change reaches `implementation_status: COMPLETE` in `progress.json`,
+invoke artifact-refiner as a quality gate before archiving. The QA result is
+evidence/certification state; it must not reopen the implementation counter:
 
 ```
-change status → DONE in progress.json
+implementation_status → COMPLETE in progress.json
   │
   ├─ /refine-validate "<change-id>"
   │   ├─ reads constraints from .kbd-orchestrator/constraints.md
@@ -41,7 +42,7 @@ change status → DONE in progress.json
   │   ├─ if OpenSpec: /opsx:verify → /opsx:archive
   │   └─ if native: move to .kbd-orchestrator/changes/archive/<date>-<id>/
   │
-  └─ ANY FAIL → mark change BLOCKED in progress.json
+  └─ ANY FAIL → mark certification BLOCKED in progress.json
       └─ /refine-code "<change-id>" for iterative refinement
 ```
 
@@ -71,8 +72,11 @@ Completed kbd-execute — <phase-name> (step N of T)
 ```
 
 **How to get N and T (MANDATORY — never estimate):**
-- Read `.kbd-orchestrator/phases/<phase>/progress.json` → `changes_completed` = N, `changes_total` = T
-- If `progress.json` is absent, read `current-waypoint.json` → `changes_completed` / `changes_total`
+- Read `.kbd-orchestrator/phases/<phase>/progress.json` →
+  `completion.implementation.completed` = N and `.total` = T; fall back to
+  legacy `changes_completed` / `changes_total` only when canonical fields are absent.
+- If `progress.json` is absent, read `current-waypoint.json` →
+  `implementationCompleted` / `implementationTotal`, then legacy aliases.
 
 When executing a named sub-phase within a multi-phase plan, emit the phase-level signal BEFORE the first change signal — even when the orchestrator is not present:
 
@@ -86,12 +90,25 @@ And after the last change in that sub-phase:
 Completed phase <N> out of <total>: <sub-phase-name>
 ```
 
-Additionally, emit before and after each individual change (read `changes_total` and `changes_completed` from `progress.json` for accurate counts — never guess):
+Additionally, emit before and after each individual change (read canonical
+`completion.implementation` from `progress.json`; legacy counters are fallback
+aliases only — never guess and never use evidence-task completion):
 
 ```
 Starting change <N> of <total>: <change-id>
 Completed change <N> of <total>: <change-id>
 ```
+
+When the code/integration contract for a change is complete, update the ledger
+atomically with:
+
+```bash
+scripts/kbd-validate-progress.sh --mark-implementation-complete \
+  .kbd-orchestrator/phases/<phase>/progress.json <change-id>
+```
+
+This transition does not mark evidence, certification, or publication complete.
+Never postpone it merely because those independent dimensions are pending.
 
 Use the canonical phase name from the argument or `current-waypoint.json`. Phase and change totals must come from `progress.json` or the plan — never guessed. Emit to plain response text — no tool call needed.
 
