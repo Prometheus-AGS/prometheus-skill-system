@@ -1,0 +1,9 @@
+{
+  "stage": "plan",
+  "phase": "phase-learn-grader-validation",
+  "timestamp": "2026-07-16T19:50:00Z",
+  "summary": "7 OpenSpec changes ordered: dataset construction (001-003), grading harness (004), metrics (005), tuning (006), regression test + docs (007). Reused 2 of 3 eval domains from existing docs/learn/meta-corpus/ (kbd-lifecycle 18 sources/6 misconceptions, skill-pack 16 sources/7 misconceptions) — only change-001 builds fresh content for a third domain.",
+  "artifact": "plan.md",
+  "first_change": "change-lgv-001-third-domain-corpus",
+  "skipped": false
+}
