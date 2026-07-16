@@ -1,0 +1,92 @@
+{
+  "domain": "kbd-lifecycle",
+  "corpus_path": "docs/learn/meta-corpus/kbd-lifecycle-corpus.json",
+  "items": [
+    {
+      "item_id": "kbd-001-strong-full-cycle",
+      "quality_tier": "strong",
+      "explanation_text": "The KBD lifecycle moves through six stages in order: kbd-new-phase creates the phase directory and goals, kbd-assess inspects the codebase and writes assessment.md only — no code or plans — kbd-analyze is optional and researches libraries when needed, kbd-plan reads the assessment and writes plan.md plus OpenSpec change proposals but never touches actual skill files or code, kbd-execute (via kbd-apply) drives one task at a time through the chosen backend and updates progress.json explicitly after every change since nothing updates it automatically, and finally kbd-reflect writes the closing reflection but only once every single change shows status DONE in progress.json. On every turn of every kbd-* skill, the very first action is reading position-reminder.txt so the position signal stays accurate.",
+      "ground_truth": {
+        "scores": {"completeness": 0.95, "accuracy": 1.0, "clarity": 0.9, "misconceptions_absent": 1.0},
+        "misconceptions_present": []
+      },
+      "review_status": "draft"
+    },
+    {
+      "item_id": "kbd-002-strong-assess-plan-boundary",
+      "quality_tier": "strong",
+      "explanation_text": "kbd-assess and kbd-plan have a hard boundary between them. kbd-assess only produces assessment.md — a gap report — and explicitly does not write plan.md or any skill/implementation files. It stops at that boundary for review. kbd-plan is the one that reads the assessment and produces the ordered change list (plan.md) plus OpenSpec proposals, but even kbd-plan doesn't write actual code — that's kbd-execute's job, driven task-by-task via kbd-apply.",
+      "ground_truth": {
+        "scores": {"completeness": 0.85, "accuracy": 1.0, "clarity": 0.92, "misconceptions_absent": 1.0},
+        "misconceptions_present": []
+      },
+      "review_status": "draft"
+    },
+    {
+      "item_id": "kbd-003-incomplete-missing-openspec",
+      "quality_tier": "incomplete",
+      "explanation_text": "kbd-plan looks at the assessment and figures out what changes need to happen, then writes them down in plan.md in order. Then kbd-execute goes through and does each change one at a time, updating the waypoint as it goes.",
+      "ground_truth": {
+        "scores": {"completeness": 0.4, "accuracy": 0.85, "clarity": 0.7, "misconceptions_absent": 1.0},
+        "misconceptions_present": [],
+        "notes": "Missing OpenSpec detection/proposal emission entirely, doesn't mention kbd-apply as the actual task driver, doesn't mention progress.json explicit-update requirement or position-reminder.txt mandate."
+      },
+      "review_status": "draft"
+    },
+    {
+      "item_id": "kbd-004-incomplete-vague-reflect",
+      "quality_tier": "incomplete",
+      "explanation_text": "kbd-new-phase starts things off with a goals file. Then you assess, plan, and execute the changes. At the end you reflect on how it went and figure out what to do next.",
+      "ground_truth": {
+        "scores": {"completeness": 0.25, "accuracy": 0.8, "clarity": 0.6, "misconceptions_absent": 1.0},
+        "misconceptions_present": [],
+        "notes": "Extremely vague — no mention of assessment.md-only output, OpenSpec, progress.json mechanics, the DONE-gate for reflect, or position-reminder.txt. Passes accuracy loosely but fails completeness badly."
+      },
+      "review_status": "draft"
+    },
+    {
+      "item_id": "kbd-005-flawed-progress-json",
+      "quality_tier": "factually-flawed",
+      "explanation_text": "The KBD lifecycle is assess, plan, execute, reflect. As each change in the plan gets implemented, the system automatically detects the completed files and updates progress.json in the background, so the agent doesn't need to touch it directly. Once all changes are marked done this way, kbd-reflect runs and closes out the phase.",
+      "ground_truth": {
+        "scores": {"completeness": 0.6, "accuracy": 0.35, "clarity": 0.75, "misconceptions_absent": 0.0},
+        "misconceptions_present": ["MISCONCEPTION: progress.json is updated automatically"],
+        "notes": "Directly asserts the auto-update misconception verbatim from the corpus. Core lifecycle order is right, but this specific claim is a flagged misconception and must score misconceptions_absent = 0.0."
+      },
+      "review_status": "draft"
+    },
+    {
+      "item_id": "kbd-006-flawed-openspec-optional",
+      "quality_tier": "factually-flawed",
+      "explanation_text": "OpenSpec is one option among several for tracking changes in a KBD phase — you can use it if you like the structured proposal format, or just skip it and use plain native KBD change files, it's really up to the developer's preference on a given project regardless of what's already in the repo.",
+      "ground_truth": {
+        "scores": {"completeness": 0.5, "accuracy": 0.2, "clarity": 0.8, "misconceptions_absent": 0.0},
+        "misconceptions_present": ["MISCONCEPTION: OpenSpec is optional"],
+        "notes": "Directly contradicts the corpus: when openspec/ exists at project root, it IS the backend, detected automatically, not a preference choice."
+      },
+      "review_status": "draft"
+    },
+    {
+      "item_id": "kbd-007-flawed-assess-writes-plan",
+      "quality_tier": "factually-flawed",
+      "explanation_text": "When you run kbd-assess, it looks at the codebase, figures out the gaps, and then goes ahead and writes out the ordered plan of changes needed to close those gaps — that becomes plan.md, ready for kbd-execute to pick up.",
+      "ground_truth": {
+        "scores": {"completeness": 0.5, "accuracy": 0.15, "clarity": 0.85, "misconceptions_absent": 0.0},
+        "misconceptions_present": ["MISCONCEPTION: kbd-assess writes the plan"],
+        "notes": "Directly asserts kbd-assess writes plan.md, which the corpus explicitly refutes — kbd-assess produces assessment.md only and halts at the assess->plan boundary."
+      },
+      "review_status": "draft"
+    },
+    {
+      "item_id": "kbd-008-flawed-reflect-early",
+      "quality_tier": "factually-flawed",
+      "explanation_text": "You can run kbd-reflect any time you want a snapshot of how the phase is going so far — it's a good habit to reflect partway through a long phase, even with several changes still pending, so you can course-correct early instead of waiting until everything is done.",
+      "ground_truth": {
+        "scores": {"completeness": 0.45, "accuracy": 0.1, "clarity": 0.82, "misconceptions_absent": 0.0},
+        "misconceptions_present": ["MISCONCEPTION: /kbd-reflect can run before all changes are DONE"],
+        "notes": "Directly contradicts the requirement that ALL changes must show DONE status before kbd-reflect runs."
+      },
+      "review_status": "draft"
+    }
+  ]
+}

@@ -1,0 +1,92 @@
+{
+  "domain": "skill-pack",
+  "corpus_path": "docs/learn/meta-corpus/skill-pack-corpus.json",
+  "items": [
+    {
+      "item_id": "sp-001-strong-portability",
+      "quality_tier": "strong",
+      "explanation_text": "Skills in this pack follow the agentskills.io spec, which makes them portable across every supported platform — Claude Code, OpenCode, Codex, Kimi, Zed, Cursor, and MiniMax — not just Claude Code. The pack's core skills run entirely offline; the only pieces needing internet are the two local MCP servers, surreal-memory and sycophancy-correction, and even those only reach out when a skill's instructions explicitly call for external search. skills/ is the single source of truth on disk — .claude-plugin/ only holds symlinks into it, so you always edit under skills/, never through the plugin directory.",
+      "ground_truth": {
+        "scores": {"completeness": 0.9, "accuracy": 1.0, "clarity": 0.88, "misconceptions_absent": 1.0},
+        "misconceptions_present": []
+      },
+      "review_status": "draft"
+    },
+    {
+      "item_id": "sp-002-strong-hooks-and-validate",
+      "quality_tier": "strong",
+      "explanation_text": "hooks/hooks.json at the project root is the canonical, physical source for hook definitions — .claude-plugin/hooks is only a directory symlink pointing at ../hooks, so editing it directly is a no-op trap; always edit hooks/hooks.json instead. For validation, plain npm run validate is lenient and skips the imported/ submodule directory, but any newly authored skill must pass the stricter npm run validate:strict, which enforces version, license, and metadata.tags fields before it's considered ready.",
+      "ground_truth": {
+        "scores": {"completeness": 0.82, "accuracy": 1.0, "clarity": 0.85, "misconceptions_absent": 1.0},
+        "misconceptions_present": []
+      },
+      "review_status": "draft"
+    },
+    {
+      "item_id": "sp-003-incomplete-vague-mcp",
+      "quality_tier": "incomplete",
+      "explanation_text": "The skill pack has some MCP servers that help with memory and things. There's surreal-memory for one purpose and Cortex for something similar. You install everything with a script and then the skills show up.",
+      "ground_truth": {
+        "scores": {"completeness": 0.2, "accuracy": 0.55, "clarity": 0.5, "misconceptions_absent": 1.0},
+        "misconceptions_present": [],
+        "notes": "Vague, doesn't clarify that surreal-memory and Cortex are distinct systems (graph vs different scoped memory), doesn't name the install script or reload mechanism, doesn't mention offline capability."
+      },
+      "review_status": "draft"
+    },
+    {
+      "item_id": "sp-004-incomplete-missing-reload",
+      "quality_tier": "incomplete",
+      "explanation_text": "Skills are files under skills/ organized by category. Each has a SKILL.md with instructions. The pack can be installed to different AI tools and each one picks up the skills from its own directory.",
+      "ground_truth": {
+        "scores": {"completeness": 0.35, "accuracy": 0.75, "clarity": 0.7, "misconceptions_absent": 1.0},
+        "misconceptions_present": [],
+        "notes": "Missing the reload mechanism entirely (Claude Code needs /reload-plugins; other platforms pick up new skills immediately), missing the agentskills.io spec name, missing symlink/source-of-truth details."
+      },
+      "review_status": "draft"
+    },
+    {
+      "item_id": "sp-005-flawed-claude-only",
+      "quality_tier": "factually-flawed",
+      "explanation_text": "These skills are built specifically for Claude Code's plugin system, so they only really function there — other AI coding tools like Codex or Cursor would need their own separately-written skill files even if the underlying logic is the same, since the format itself is Claude-specific.",
+      "ground_truth": {
+        "scores": {"completeness": 0.4, "accuracy": 0.15, "clarity": 0.85, "misconceptions_absent": 0.0},
+        "misconceptions_present": ["MISCONCEPTION: skills only work on Claude Code"],
+        "notes": "Directly contradicts the corpus: skills are portable across all supported platforms via the agentskills.io format, which is explicitly platform-agnostic."
+      },
+      "review_status": "draft"
+    },
+    {
+      "item_id": "sp-006-flawed-internet-required",
+      "quality_tier": "factually-flawed",
+      "explanation_text": "Since the pack relies on MCP servers and the underlying model calls, you basically need an internet connection at all times for any of the core skills to function properly — there's no meaningful offline mode.",
+      "ground_truth": {
+        "scores": {"completeness": 0.3, "accuracy": 0.1, "clarity": 0.8, "misconceptions_absent": 0.0},
+        "misconceptions_present": ["MISCONCEPTION: the pack requires internet to function"],
+        "notes": "Contradicts the corpus directly — core skills work offline; MCP servers (surreal-memory, sycophancy-correction) are local services; internet is only needed for specific external-search-driven skill instructions."
+      },
+      "review_status": "draft"
+    },
+    {
+      "item_id": "sp-007-flawed-restart-required",
+      "quality_tier": "factually-flawed",
+      "explanation_text": "After you drop a new skill into the directory, you have to fully quit and restart Claude Code before it will show up and be usable — there's no lighter-weight way to refresh the skill list.",
+      "ground_truth": {
+        "scores": {"completeness": 0.35, "accuracy": 0.1, "clarity": 0.85, "misconceptions_absent": 0.0},
+        "misconceptions_present": ["MISCONCEPTION: you have to restart Claude to use new skills"],
+        "notes": "Contradicts the corpus: /reload-plugins picks up new skills in Claude Code without a restart; other platforms pick them up immediately."
+      },
+      "review_status": "draft"
+    },
+    {
+      "item_id": "sp-008-flawed-claude-plugin-source",
+      "quality_tier": "factually-flawed",
+      "explanation_text": "If you need to update a skill's hooks or its symlinked structure, the right place to make that edit is directly inside .claude-plugin/ — that's the canonical plugin layout Claude Code actually reads from at runtime, and skills/ is more of a staging area.",
+      "ground_truth": {
+        "scores": {"completeness": 0.3, "accuracy": 0.1, "clarity": 0.78, "misconceptions_absent": 0.0},
+        "misconceptions_present": ["MISCONCEPTION: .claude-plugin/ is the source of truth"],
+        "notes": "Directly inverts the corpus fact: skills/ is the source of truth; .claude-plugin/ contains only symlinks."
+      },
+      "review_status": "draft"
+    }
+  ]
+}
