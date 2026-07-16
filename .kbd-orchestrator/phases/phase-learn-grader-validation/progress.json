@@ -2,7 +2,7 @@
   "phase": "phase-learn-grader-validation",
   "status": "plan_complete",
   "stage": "execute",
-  "changes_completed": 3,
+  "changes_completed": 4,
   "changes_total": 7,
   "goals_met": 1,
   "goals_total": 6,
@@ -10,7 +10,7 @@
   "analysis_complete": false,
   "plan_complete": true,
   "reflect_complete": false,
-  "last_change": "change-lgv-003-dataset-schema-and-index",
+  "last_change": "change-lgv-004-grading-harness",
   "changes": [
     "change-lgv-001-third-domain-corpus",
     "change-lgv-002-eval-explanations",
@@ -20,5 +20,5 @@
     "change-lgv-006-tune-grader",
     "change-lgv-007-regression-test-and-docs"
   ],
-  "updatedAt": "2026-07-16T20:35:00Z"
+  "updatedAt": "2026-07-16T20:45:00Z"
 }
