@@ -1,8 +1,8 @@
 POSITION REMINDER — read this as your FIRST tool call every turn
 Phase: phase-learn-grader-validation
-Step: 0 of 7 (plan_complete)
+Step: 1 of 7 (execute in progress)
 Stage: execute
-Next command: /kbd-apply change-lgv-001-third-domain-corpus
+Next command: /kbd-apply change-lgv-002-eval-explanations
 
 Required signal format (emit BEFORE any tool call):
   Starting <kbd-skill> — phase-learn-grader-validation (step N of T)
