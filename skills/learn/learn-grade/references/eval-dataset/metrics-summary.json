@@ -29,40 +29,28 @@
   },
   "continuous_dimension_correlations": {
     "completeness": {
-      "pearson_r": 0.8917,
+      "pearson_r": 0.9079,
       "pearson_p": 0.0,
-      "spearman_r": 0.7854,
+      "spearman_r": 0.738,
       "spearman_p": 0.0,
-      "mean_absolute_error": 0.155
+      "mean_absolute_error": 0.1571
     },
     "accuracy": {
-      "pearson_r": 0.9303,
+      "pearson_r": 0.9377,
       "pearson_p": 0.0,
-      "spearman_r": 0.8961,
+      "spearman_r": 0.935,
       "spearman_p": 0.0,
-      "mean_absolute_error": 0.0896
+      "mean_absolute_error": 0.0771
     },
     "clarity": {
-      "pearson_r": 0.4045,
-      "pearson_p": 0.0499,
-      "spearman_r": 0.3789,
-      "spearman_p": 0.0678,
-      "mean_absolute_error": 0.16
+      "pearson_r": 0.6093,
+      "pearson_p": 0.0016,
+      "spearman_r": 0.6245,
+      "spearman_p": 0.0011,
+      "mean_absolute_error": 0.0879
     }
   },
   "worst_5_items_by_mean_absolute_error": [
-    {
-      "item_id": "kbd-001-strong-full-cycle",
-      "quality_tier": "strong",
-      "domain": "kbd-lifecycle",
-      "mean_abs_error": 0.2833333333333333,
-      "errors": {
-        "completeness": 0.35,
-        "accuracy": 0.15000000000000002,
-        "clarity": 0.35,
-        "misconceptions_absent": 0.0
-      }
-    },
     {
       "item_id": "sp-001-strong-portability",
       "quality_tier": "strong",
@@ -72,6 +60,18 @@
         "completeness": 0.30000000000000004,
         "accuracy": 0.5,
         "clarity": 0.020000000000000018,
+        "misconceptions_absent": 0.0
+      }
+    },
+    {
+      "item_id": "kbd-001-strong-full-cycle",
+      "quality_tier": "strong",
+      "domain": "kbd-lifecycle",
+      "mean_abs_error": 0.2333333333333333,
+      "errors": {
+        "completeness": 0.19999999999999996,
+        "accuracy": 0.050000000000000044,
+        "clarity": 0.45,
         "misconceptions_absent": 0.0
       }
     },
@@ -88,27 +88,27 @@
       }
     },
     {
-      "item_id": "cr-007-flawed-glycolysis-location",
+      "item_id": "cr-008-flawed-plants-no-respiration",
       "quality_tier": "factually-flawed",
       "domain": "cellular-respiration",
-      "mean_abs_error": 0.21666666666666665,
+      "mean_abs_error": 0.1666666666666667,
       "errors": {
-        "completeness": 0.3,
-        "accuracy": 0.05000000000000002,
-        "clarity": 0.29999999999999993,
+        "completeness": 0.30000000000000004,
+        "accuracy": 0.0,
+        "clarity": 0.20000000000000007,
         "misconceptions_absent": 0.0
       }
     },
     {
-      "item_id": "cr-006-flawed-breathing-conflation",
-      "quality_tier": "factually-flawed",
-      "domain": "cellular-respiration",
-      "mean_abs_error": 0.19999999999999998,
+      "item_id": "sp-003-incomplete-vague-mcp",
+      "quality_tier": "incomplete",
+      "domain": "skill-pack",
+      "mean_abs_error": 0.15000000000000002,
       "errors": {
-        "completeness": 0.3,
-        "accuracy": 0.04999999999999999,
-        "clarity": 0.25,
-        "misconceptions_absent": 0.0
+        "completeness": 0.05000000000000002,
+        "accuracy": 0.25000000000000006,
+        "clarity": 0.15000000000000002,
+        "misconceptions_absent": 1.0
       }
     }
   ]

@@ -3,10 +3,10 @@
   "goal_id": "eval",
   "concept_id": "cellular-respiration",
   "learner_id": "eval-harness",
-  "graded_at": "2026-07-16T20:06:02Z",
+  "graded_at": "2026-07-16T20:39:10Z",
   "explanation_excerpt": "Cellular respiration is basically just another word for breathing — when you inhale, that's respiration bringing oxygen into your body, and cellular respiration is the same process happening at a s",
-  "scores": {"completeness": 0.05, "accuracy": 0.1, "clarity": 0.6, "misconceptions_absent": 0.0},
-  "overall_score": 0.19,
+  "scores": {"completeness": 0.1, "accuracy": 0.1, "clarity": 0.75, "misconceptions_absent": 0.0},
+  "overall_score": 0.2375,
   "gaps": [
     {"dimension": "misconception", "description": "The explanation directly restates the known misconception that cellular respiration and breathing are the same process at different scales. Breathing (pulmonary respiration) is an organ-system-level gas exchange; cellular respiration is a distinct biochemical process converting glucose and oxygen into ATP.", "corpus_ref": "Common misconception: 'cellular respiration is the opposite of breathing'"},
     {"dimension": "accuracy", "description": "Factual error: claims inhaling oxygen 'is' respiration and cellular respiration is that same process 'at a smaller scale.' Cellular respiration is a chemical transformation, not gas exchange at any scale.", "corpus_ref": "OpenStax Biology 2e, Ch. 7 — Overview of Cellular Respiration"},

@@ -5,17 +5,16 @@
   "learner_id": "eval-harness",
   "graded_at": "2026-07-16T00:00:00Z",
   "explanation_excerpt": "After you drop a new skill into the directory, you have to fully quit and restart Claude Code before it will show up and be usable — there's no lighter-weight way to refresh the s",
-  "scores": {"completeness": 0.2, "accuracy": 0.15, "clarity": 0.6, "misconceptions_absent": 0.0},
-  "overall_score": 0.24,
+  "scores": {"completeness": 0.15, "accuracy": 0.1, "clarity": 0.85, "misconceptions_absent": 0.0},
+  "overall_score": 0.275,
   "gaps": [
-    {"dimension": "misconception", "description": "Claims a full quit-and-restart of Claude Code is required before a newly added skill becomes usable. In Claude Code, running /reload-plugins picks up new skills without restarting; on other platforms, new skills are available immediately on next session start.", "corpus_ref": "MISCONCEPTION: you have to restart Claude to use new skills"},
-    {"dimension": "accuracy", "description": "States as fact that there is 'no lighter-weight way to refresh the skill list,' which is factually wrong — /reload-plugins is exactly that lighter-weight mechanism.", "corpus_ref": "MISCONCEPTION: you have to restart Claude to use new skills"},
-    {"dimension": "completeness", "description": "Does not mention /reload-plugins, does not distinguish Claude Code's refresh behavior from other platforms' next-session-start behavior, and omits install-skills-flat.sh's role.", "corpus_ref": "CLAUDE.md — Cross-Platform Installation"},
-    {"dimension": "completeness", "description": "Gives no account of how skill discovery/loading actually works across the different supported platforms, each of which has its own refresh behavior.", "corpus_ref": "MISCONCEPTION: skills only work on Claude Code"}
+    {"dimension": "misconception", "description": "States a full restart is mandatory with no lighter-weight refresh path. In Claude Code, /reload-plugins picks up new skills without restarting; on other platforms new skills are available on next session start.", "corpus_ref": "MISCONCEPTION: you have to restart Claude to use new skills"},
+    {"dimension": "accuracy", "description": "Claims there is no lighter-weight way to refresh the skill list, contradicting the documented /reload-plugins command.", "corpus_ref": "MISCONCEPTION: you have to restart Claude to use new skills"},
+    {"dimension": "completeness", "description": "Does not mention /reload-plugins, does not distinguish Claude Code from other platforms' behavior, and omits install-skills-flat.sh's role.", "corpus_ref": "MISCONCEPTION: you have to restart Claude to use new skills"}
   ],
   "transfer_problems": [
-    "You just ran install-skills-flat.sh to add a brand-new skill directory under skills/react/. A teammate is using Claude Code and wants to use it right away without restarting their session — what command should they run, and why does that work without a full restart?",
-    "A teammate on OpenCode adds a new skill folder mid-session and expects it to appear immediately the way /reload-plugins works in Claude Code, but it does not show up. Explain what they should actually expect and do to pick up the new skill."
+    "A teammate drops a new skill directory into skills/ on a machine running Claude Code and asks how to make it available without quitting the app. What command should they run, and why does it work without a full restart?",
+    "A different teammate is using OpenCode and adds a new skill directory. What does that teammate need to do differently compared to the Claude Code /reload-plugins path?"
   ],
   "passed": false,
   "pass_threshold": 0.7

@@ -3,18 +3,19 @@
   "goal_id": "eval",
   "concept_id": "kbd-lifecycle",
   "learner_id": "eval-harness",
-  "graded_at": "2026-07-16T00:00:00Z",
-  "explanation_excerpt": "When you run kbd-assess, it looks at the codebase, figures out the gaps, and then goes ahead and writes out the ordered plan of changes needed to close those gaps — that becomes plan.md, ready for kb",
-  "scores": {"completeness": 0.4, "accuracy": 0.2, "clarity": 0.6, "misconceptions_absent": 0.0},
-  "overall_score": 0.3,
+  "graded_at": "2026-07-16T20:38:55Z",
+  "explanation_excerpt": "When you run kbd-assess, it looks at the codebase, figures out the gaps, and then goes ahead and writes out the ordered plan of changes needed to close those gaps — that becomes plan.md, ready for kbd-e",
+  "scores": {"completeness": 0.3, "accuracy": 0.15, "clarity": 0.85, "misconceptions_absent": 0.0},
+  "overall_score": 0.325,
   "gaps": [
-    {"dimension": "accuracy", "description": "Claims the assess stage writes the ordered plan of changes and that this becomes plan.md. The assess stage produces assessment.md only.", "corpus_ref": "skills/process/kbd-assess/SKILL.md"},
-    {"dimension": "misconception", "description": "Contains the known misconception about the assess stage writing the plan. plan.md is produced by the plan stage, a separate stage.", "corpus_ref": "MISCONCEPTION: kbd-assess writes the plan"},
-    {"dimension": "completeness", "description": "Omits that the assess stage halts at the assess-to-plan boundary for explicit user approval before the plan stage runs.", "corpus_ref": "skills/process/kbd-assess/SKILL.md"}
+    {"dimension": "accuracy", "description": "The assess stage does not write plan.md or an ordered change list. It produces assessment.md only and halts at the assess-to-plan boundary for explicit approval; the ordered change list is produced by the plan stage.", "corpus_ref": "skills/process/kbd-assess/SKILL.md"},
+    {"dimension": "misconception", "description": "Restates the known misconception about the assess stage writing the plan near-verbatim: asserts the assess stage writes the ordered plan that 'becomes plan.md.'", "corpus_ref": "MISCONCEPTION: kbd-assess writes the plan"},
+    {"dimension": "completeness", "description": "Omits the mandatory approval gate between assess and plan and omits that plan.md is produced by a distinct stage that also detects OpenSpec.", "corpus_ref": "CLAUDE.md — KBD Lifecycle section"},
+    {"dimension": "completeness", "description": "Does not mention that the assess stage reads the active phase's goals as input, nor that it explicitly does NOT write skill files or plan content.", "corpus_ref": "skills/process/kbd-assess/SKILL.md"}
   ],
   "transfer_problems": [
-    "A phase has an assessment.md on disk but no plan.md yet, and current-waypoint.json still points to the plan stage as the next command. A teammate says 'let's just go straight to execute.' Explain what is wrong with this reasoning.",
-    "During the plan stage, the agent detects an openspec/ directory. Explain what format the plan stage must emit the ordered change list in, and why treating OpenSpec as optional would break traceability."
+    "A team runs the assess stage and the resulting assessment.md lists three gaps. Before anyone runs the plan stage, one engineer says 'assessment.md IS the plan, we can hand it straight to execute.' Explain what is missing from that claim.",
+    "A project has an openspec/ directory at its root. Walk through what changes at the plan stage because of that, and identify which downstream stage is responsible for actually applying those OpenSpec changes."
   ],
   "passed": false,
   "pass_threshold": 0.7

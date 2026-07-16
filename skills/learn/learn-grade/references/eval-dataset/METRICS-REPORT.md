@@ -20,16 +20,16 @@ _Generated: 2026-07-16T21:00:00Z_
 
 | Dimension | Pearson r | Spearman r | MAE |
 |---|---|---|---|
-| completeness | 0.8917 | 0.7854 | 0.155 |
-| accuracy | 0.9303 | 0.8961 | 0.0896 |
-| clarity | 0.4045 | 0.3789 | 0.16 |
+| completeness | 0.9079 | 0.738 | 0.1571 |
+| accuracy | 0.9377 | 0.935 | 0.0771 |
+| clarity | 0.6093 | 0.6245 | 0.0879 |
 
 ## Worst 5 Items by Mean Absolute Error
 
 | Item | Domain | Tier | Mean Abs Error |
 |---|---|---|---|
-| kbd-001-strong-full-cycle | kbd-lifecycle | strong | 0.2833 |
 | sp-001-strong-portability | skill-pack | strong | 0.2733 |
+| kbd-001-strong-full-cycle | kbd-lifecycle | strong | 0.2333 |
 | sp-002-strong-hooks-and-validate | skill-pack | strong | 0.2233 |
-| cr-007-flawed-glycolysis-location | cellular-respiration | factually-flawed | 0.2167 |
-| cr-006-flawed-breathing-conflation | cellular-respiration | factually-flawed | 0.2 |
+| cr-008-flawed-plants-no-respiration | cellular-respiration | factually-flawed | 0.1667 |
+| sp-003-incomplete-vague-mcp | skill-pack | incomplete | 0.15 |

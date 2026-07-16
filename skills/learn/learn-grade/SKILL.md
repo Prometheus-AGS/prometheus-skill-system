@@ -84,7 +84,7 @@ Score the explanation on a 0–1 scale for each dimension:
 |---|---|---|
 | Completeness | `completeness` | Does the explanation cover all key aspects present in the corpus? |
 | Accuracy | `accuracy` | Is the explanation factually correct vs the corpus? Flag specific errors. |
-| Clarity | `clarity` | Is it understandable to the stated target level? |
+| Clarity | `clarity` | Is the **prose** readable and well-structured at the stated target level — sentence structure, organization, terminology use? Score prose quality independent of whether the content is factually correct; factual correctness is `accuracy`'s job, not `clarity`'s. A grammatically clear sentence that states something false still scores high on clarity and low on accuracy — do not let a factual error pull clarity down. |
 | Misconceptions absent | `misconceptions_absent` | Does it contain any known misconceptions from the corpus? Score 1.0 means none detected. |
 
 For **accuracy**: identify each factual discrepancy against corpus key points. A single
