@@ -1,0 +1,14 @@
+{
+  "stage": "assess",
+  "phase": "phase-learn-grader-validation",
+  "timestamp": "2026-07-16T19:30:00Z",
+  "summary": "learn-grade is prose-executed (agent-invoked), not a deterministic script — only write-grade.sh is real code. The 4 'integration test' changes from phase-learn-feynman (change-learn-021..024) have NO artifacts on disk anywhere in the repo despite being marked DONE — G-05 must build a new test harness, not extend an existing suite. Rubric confirmed: misconceptions_absent is binary (precision/recall fits), the other 3 dimensions are continuous (correlation metric fits). 4 open questions flagged: ground-truth authorship, live-agent vs snapshot regression testing, eval domain selection, cost of 20+ agent invocations for G-02.",
+  "artifact": "assessment.md",
+  "open_questions": [
+    "Who authors expert ground-truth annotations — human review needed, not fully automatable",
+    "G-05 regression test: snapshot-compare (CI-safe) vs live-agent re-grade (expensive, non-deterministic) — recommend snapshot as default",
+    "Domain selection for 3+ eval domains — check meta-grounding corpus (change-learn-016) for reuse",
+    "G-02 agent-invocation cost/batching — recommend Agent/Workflow fan-out over sequential manual turns"
+  ],
+  "skipped": false
+}

@@ -1,16 +1,16 @@
 {
   "phase": "phase-learn-grader-validation",
-  "status": "assessment_ready",
-  "stage": "assess",
+  "status": "assessment_complete",
+  "stage": "plan",
   "changes_completed": 0,
   "changes_total": 0,
   "goals_met": 0,
   "goals_total": 6,
-  "assessment_complete": false,
+  "assessment_complete": true,
   "analysis_complete": false,
   "plan_complete": false,
   "reflect_complete": false,
   "last_change": null,
   "changes": [],
-  "updatedAt": "2026-07-16T19:00:00Z"
+  "updatedAt": "2026-07-16T19:30:00Z"
 }
