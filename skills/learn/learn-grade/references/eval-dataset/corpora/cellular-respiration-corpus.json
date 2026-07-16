@@ -1,0 +1,129 @@
+{
+  "concept_id": "cellular-respiration",
+  "subject": "Cellular Respiration — how eukaryotic cells convert glucose and oxygen into usable chemical energy (ATP)",
+  "target_level": "introductory-biology",
+  "schema_version": "1.0.0",
+  "built_at": "2026-07-16",
+  "maintainer": "phase-learn-grader-validation eval dataset (human-reviewed before use as ground truth)",
+  "sources": [
+    {
+      "source_ref": "OpenStax Biology 2e, Ch. 7 — Overview of Cellular Respiration",
+      "source_type": "primary_doc",
+      "confidence": 0.97,
+      "is_misconception": false,
+      "content_summary": "Cellular respiration is the set of metabolic reactions that convert the chemical energy in glucose into ATP, the cell's usable energy currency. The overall equation is C6H12O6 + 6O2 -> 6CO2 + 6H2O + energy (as ATP). It occurs in four stages: glycolysis, pyruvate oxidation, the citric acid cycle (Krebs cycle), and oxidative phosphorylation.",
+      "key_points": [
+        "Overall reaction: glucose + oxygen -> carbon dioxide + water + ATP",
+        "Four stages: glycolysis, pyruvate oxidation, citric acid cycle, oxidative phosphorylation",
+        "Aerobic respiration requires oxygen as the final electron acceptor"
+      ]
+    },
+    {
+      "source_ref": "OpenStax Biology 2e, Ch. 7.1 — Glycolysis",
+      "source_type": "primary_doc",
+      "confidence": 0.97,
+      "is_misconception": false,
+      "content_summary": "Glycolysis occurs in the cytoplasm (cytosol), not inside the mitochondria. It splits one 6-carbon glucose molecule into two 3-carbon pyruvate molecules, producing a net gain of 2 ATP (via substrate-level phosphorylation) and 2 NADH per glucose. Glycolysis does not require oxygen and occurs in both aerobic and anaerobic conditions.",
+      "key_points": [
+        "Glycolysis occurs in the cytosol, not the mitochondria",
+        "Net yield: 2 ATP and 2 NADH per glucose molecule",
+        "Glycolysis does not require oxygen"
+      ]
+    },
+    {
+      "source_ref": "OpenStax Biology 2e, Ch. 7.3 — Citric Acid Cycle",
+      "source_type": "primary_doc",
+      "confidence": 0.96,
+      "is_misconception": false,
+      "content_summary": "The citric acid cycle (Krebs cycle) takes place in the mitochondrial matrix. Each turn of the cycle processes one acetyl-CoA molecule (derived from pyruvate), producing 3 NADH, 1 FADH2, and 1 ATP (or GTP) directly, plus releasing 2 CO2. Since each glucose yields 2 pyruvate (and thus 2 acetyl-CoA), the cycle runs twice per glucose molecule.",
+      "key_points": [
+        "Citric acid cycle occurs in the mitochondrial matrix",
+        "Each acetyl-CoA yields 3 NADH, 1 FADH2, 1 ATP/GTP, and 2 CO2",
+        "The cycle runs twice per glucose molecule (two pyruvate/acetyl-CoA per glucose)"
+      ]
+    },
+    {
+      "source_ref": "OpenStax Biology 2e, Ch. 7.4 — Oxidative Phosphorylation",
+      "source_type": "primary_doc",
+      "confidence": 0.97,
+      "is_misconception": false,
+      "content_summary": "Oxidative phosphorylation occurs across the inner mitochondrial membrane. Electrons from NADH and FADH2 pass through the electron transport chain (ETC), pumping protons into the intermembrane space and creating a proton gradient. ATP synthase uses this gradient (chemiosmosis) to synthesize ATP as protons flow back into the matrix. Oxygen is the final electron acceptor in the chain, combining with electrons and protons to form water.",
+      "key_points": [
+        "Electron transport chain is located in the inner mitochondrial membrane",
+        "Chemiosmosis: proton gradient drives ATP synthase to produce ATP",
+        "Oxygen is the final electron acceptor, forming water as a byproduct"
+      ]
+    },
+    {
+      "source_ref": "OpenStax Biology 2e, Ch. 7.5 — ATP Yield Accounting",
+      "source_type": "primary_doc",
+      "confidence": 0.93,
+      "is_misconception": false,
+      "content_summary": "Total ATP yield per glucose molecule is commonly cited as approximately 30-32 ATP under the revised accounting (older textbooks cite 36-38 ATP; the lower figure accounts for the cost of shuttling NADH electrons across the mitochondrial membrane and other inefficiencies). The exact number varies by cell type and shuttle mechanism used (glycerol-3-phosphate shuttle vs. malate-aspartate shuttle).",
+      "key_points": [
+        "Modern estimate: ~30-32 ATP per glucose (older estimate: 36-38 ATP)",
+        "Exact yield varies by shuttle mechanism and cell type",
+        "NADH transport across the mitochondrial membrane has an energy cost"
+      ]
+    },
+    {
+      "source_ref": "OpenStax Biology 2e, Ch. 7.6 — Anaerobic Respiration and Fermentation",
+      "source_type": "primary_doc",
+      "confidence": 0.96,
+      "is_misconception": false,
+      "content_summary": "When oxygen is unavailable, cells rely on fermentation to regenerate NAD+ from NADH so glycolysis can continue. Lactic acid fermentation (in animal muscle cells and some bacteria) converts pyruvate to lactate. Alcoholic fermentation (in yeast) converts pyruvate to ethanol and CO2. Fermentation itself produces no additional ATP beyond the 2 ATP from glycolysis — its sole purpose is regenerating NAD+.",
+      "key_points": [
+        "Fermentation regenerates NAD+ so glycolysis can continue without oxygen",
+        "Lactic acid fermentation occurs in muscle cells; alcoholic fermentation occurs in yeast",
+        "Fermentation produces no additional ATP beyond glycolysis's 2 ATP"
+      ]
+    },
+    {
+      "source_ref": "Alberts et al., Molecular Biology of the Cell, 6th ed., Ch. 14",
+      "source_type": "primary_doc",
+      "confidence": 0.95,
+      "is_misconception": false,
+      "content_summary": "Mitochondria have two membranes: a smooth outer membrane and a highly folded inner membrane (forming cristae) that dramatically increases surface area for the electron transport chain. The mitochondrial matrix, enclosed by the inner membrane, contains the enzymes for the citric acid cycle, mitochondrial DNA, and ribosomes. This double-membrane structure is a legacy of mitochondria's endosymbiotic origin.",
+      "key_points": [
+        "Mitochondria have two membranes: smooth outer, folded inner (cristae)",
+        "Cristae increase surface area for the electron transport chain",
+        "Matrix contains citric acid cycle enzymes, mitochondrial DNA, and ribosomes"
+      ]
+    },
+    {
+      "source_ref": "Common misconception: 'mitochondria make energy from scratch'",
+      "source_type": "misconception_reference",
+      "confidence": 0.9,
+      "is_misconception": true,
+      "content_summary": "A common misconception is that mitochondria 'create' or 'generate' energy, as if from nothing. In reality, mitochondria do not create energy — they convert the chemical potential energy already stored in glucose's covalent bonds into a different, more immediately usable form (ATP). Energy is conserved throughout; none is created or destroyed, per the first law of thermodynamics."
+    },
+    {
+      "source_ref": "Common misconception: 'cellular respiration is the opposite of breathing'",
+      "source_type": "misconception_reference",
+      "confidence": 0.9,
+      "is_misconception": true,
+      "content_summary": "Students often conflate cellular respiration (a biochemical process inside cells that produces ATP) with breathing/pulmonary respiration (the physical act of inhaling oxygen and exhaling CO2 at the organism level). Breathing supplies the oxygen that cellular respiration uses and removes the CO2 it produces, but breathing itself is not cellular respiration — it is a separate, organ-system-level process that supports it."
+    },
+    {
+      "source_ref": "Common misconception: 'glycolysis happens in the mitochondria'",
+      "source_type": "misconception_reference",
+      "confidence": 0.92,
+      "is_misconception": true,
+      "content_summary": "A frequent error is placing glycolysis inside the mitochondria along with the other stages of respiration. Glycolysis actually occurs in the cytoplasm/cytosol, outside the mitochondria entirely. Only pyruvate oxidation, the citric acid cycle, and oxidative phosphorylation take place inside the mitochondrion (matrix and inner membrane respectively)."
+    },
+    {
+      "source_ref": "Common misconception: 'plants only do photosynthesis, not cellular respiration'",
+      "source_type": "misconception_reference",
+      "confidence": 0.91,
+      "is_misconception": true,
+      "content_summary": "A widespread misconception is that plants perform photosynthesis instead of cellular respiration. In fact, plant cells perform BOTH processes: photosynthesis (in chloroplasts, using light energy to build glucose) AND cellular respiration (in mitochondria, breaking down glucose for ATP, just like animal cells). Plants need cellular respiration around the clock to power their own cellular activities; photosynthesis only occurs in light and only in photosynthetic tissue."
+    },
+    {
+      "source_ref": "Common misconception: 'fermentation is a completely separate process from respiration, unrelated to glycolysis'",
+      "source_type": "misconception_reference",
+      "confidence": 0.88,
+      "is_misconception": true,
+      "content_summary": "Some learners believe fermentation is an entirely distinct metabolic pathway disconnected from aerobic respiration. In reality, fermentation is directly downstream of glycolysis — it uses the same pyruvate glycolysis produces, and its sole biochemical purpose is regenerating the NAD+ that glycolysis consumes, allowing glycolysis (and thus some ATP production) to continue when oxygen is absent."
+    }
+  ]
+}
