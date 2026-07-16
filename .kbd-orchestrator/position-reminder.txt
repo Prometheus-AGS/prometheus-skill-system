@@ -1,8 +1,8 @@
 POSITION REMINDER — read this as your FIRST tool call every turn
 Phase: phase-learn-grader-validation
 Step: 7 of 7
-Stage: execute
-Next command: /kbd-reflect phase-learn-grader-validation
+Stage: reflect
+Next command: /kbd-new-phase
 
 Required signal format (emit BEFORE any tool call):
   Starting <kbd-skill> — phase-learn-grader-validation (step 7 of 7)
