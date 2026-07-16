@@ -1,8 +1,8 @@
 POSITION REMINDER — read this as your FIRST tool call every turn
 Phase: phase-learn-grader-validation
-Step: 4 of 7 (execute in progress)
+Step: 5 of 7 (execute in progress)
 Stage: execute
-Next command: /kbd-apply change-lgv-005-compute-metrics
+Next command: /kbd-apply change-lgv-006-tune-grader
 
 Required signal format (emit BEFORE any tool call):
   Starting <kbd-skill> — phase-learn-grader-validation (step N of T)
