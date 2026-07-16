@@ -1,0 +1,21 @@
+{
+  "grade_id": "eval-kbd-008-flawed-reflect-early",
+  "goal_id": "eval",
+  "concept_id": "kbd-lifecycle",
+  "learner_id": "eval-harness",
+  "graded_at": "2026-07-16T00:00:00Z",
+  "explanation_excerpt": "You can run kbd-reflect any time you want a snapshot of how the phase is going so far — it's a good habit to reflect partway through a long phase, even with several changes still pending, so you c",
+  "scores": {"completeness": 0.3, "accuracy": 0.2, "clarity": 0.6, "misconceptions_absent": 0.0},
+  "overall_score": 0.275,
+  "gaps": [
+    {"dimension": "accuracy", "description": "Claims the closing/reflection stage can run 'any time,' even with pending changes. It requires ALL changes to have status DONE in progress.json before running.", "corpus_ref": "MISCONCEPTION: /kbd-reflect can run before all changes are DONE"},
+    {"dimension": "misconception", "description": "Reproduces the known misconception that the closing stage is a mid-phase status snapshot tool usable with pending changes.", "corpus_ref": "MISCONCEPTION: /kbd-reflect can run before all changes are DONE"},
+    {"dimension": "completeness", "description": "Missing coverage of what the closing stage actually produces: a reflection document, per-goal MET/PARTIAL/NOT MET status, technical debt/lessons, recommended next phase, and the sycophancy-correction reflector gate.", "corpus_ref": "skills/process/kbd-reflect/SKILL.md"}
+  ],
+  "transfer_problems": [
+    "A phase has 5 changes in progress.json: 3 marked DONE and 2 marked IN_PROGRESS. The operator runs the closing/reflection stage anyway. What happens, and why does the corpus say this produces a misleading outcome?",
+    "Using the lifecycle sequence new-phase -> assess -> (analyze) -> plan -> execute -> reflect -> (evolve), explain what precondition must hold in progress.json before the reflect stage gate will allow it to run."
+  ],
+  "passed": false,
+  "pass_threshold": 0.7
+}

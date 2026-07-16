@@ -1,0 +1,21 @@
+{
+  "grade_id": "eval-sp-006-flawed-internet-required",
+  "goal_id": "eval",
+  "concept_id": "skill-pack",
+  "learner_id": "eval-harness",
+  "graded_at": "2026-07-16T20:12:18Z",
+  "explanation_excerpt": "Since the pack relies on MCP servers and the underlying model calls, you basically need an internet connection at all times for any of the core skills to function properly — there's no meaningful of",
+  "scores": {"completeness": 0.1, "accuracy": 0.1, "clarity": 0.5, "misconceptions_absent": 0.0},
+  "overall_score": 0.175,
+  "gaps": [
+    {"dimension": "misconception", "description": "States the pack requires internet at all times with no meaningful offline mode. The core skills work offline; MCP servers such as surreal-memory and sycophancy-correction are local services, not remote calls.", "corpus_ref": "MISCONCEPTION: the pack requires internet to function"},
+    {"dimension": "accuracy", "description": "Conflates 'relies on MCP servers' with 'requires internet' — MCP servers in this pack are local processes, not network/cloud dependencies.", "corpus_ref": "CLAUDE.md — MCP Servers"},
+    {"dimension": "completeness", "description": "Omits the dual-format distribution model, the local-first architecture of the installed MCP servers, and the specific set of skills that do require internet (web-research skills only).", "corpus_ref": "README.md — Overview"}
+  ],
+  "transfer_problems": [
+    "A learner is on a flight with no wifi and wants to run a Tier 0 learning skill using a pre-built corpus. Will it work, and why or why not, given how surreal-memory and sycophancy-correction are deployed?",
+    "Explain why running pmpo-elicit or learn-goal's corpus assembly step would fail offline, while invoking the sycophancy-correction MCP server to check a draft grade would not, referencing where each service actually runs."
+  ],
+  "passed": false,
+  "pass_threshold": 0.7
+}

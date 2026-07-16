@@ -1,0 +1,23 @@
+{
+  "grade_id": "eval-cr-007-flawed-glycolysis-location",
+  "goal_id": "eval",
+  "concept_id": "cellular-respiration",
+  "learner_id": "eval-harness",
+  "graded_at": "2026-07-16T00:00:00Z",
+  "explanation_excerpt": "The first stage of cellular respiration, glycolysis, takes place inside the mitochondria alongside the Krebs cycle, where the glucose molecule is split and starts getting oxidized before moving on ",
+  "scores": {"completeness": 0.2, "accuracy": 0.15, "clarity": 0.55, "misconceptions_absent": 0.0},
+  "overall_score": 0.225,
+  "gaps": [
+    {"dimension": "misconception", "description": "States glycolysis takes place inside the mitochondria alongside the Krebs cycle. Glycolysis occurs in the cytoplasm/cytosol, entirely outside the mitochondria.", "corpus_ref": "Common misconception: 'glycolysis happens in the mitochondria'"},
+    {"dimension": "accuracy", "description": "Factual error: glycolysis is placed in the mitochondria and described as occurring 'alongside' the Krebs cycle.", "corpus_ref": "OpenStax Biology 2e, Ch. 7.1 — Glycolysis"},
+    {"dimension": "completeness", "description": "Missing glycolysis's net yield (2 ATP, 2 NADH per glucose), that it does not require oxygen, the intermediate pyruvate oxidation step, the citric acid cycle's own products, chemiosmosis mechanism, oxygen's role as final electron acceptor, and overall ATP yield.", "corpus_ref": "OpenStax Biology 2e, Ch. 7.1 — Glycolysis"},
+    {"dimension": "completeness", "description": "No mention of the citric acid cycle occurring in the mitochondrial matrix or its per-cycle products, despite the explanation naming the Krebs cycle.", "corpus_ref": "OpenStax Biology 2e, Ch. 7.3 — Citric Acid Cycle"},
+    {"dimension": "clarity", "description": "The spatial claim conflating glycolysis, the Krebs cycle, and the inner membrane into one continuous location obscures the compartmentalized structure of respiration.", "corpus_ref": "Alberts et al., Molecular Biology of the Cell, 6th ed., Ch. 14"}
+  ],
+  "transfer_problems": [
+    "A researcher treats muscle cells with a drug that selectively destroys mitochondria but leaves the cytosol intact. Predict which stage(s) of cellular respiration would still be able to run, and explain why, referencing where each stage takes place.",
+    "A yeast cell is placed in an oxygen-free environment. Using what you know about where glycolysis occurs and its requirement for oxygen, explain whether the cell can still produce any ATP, and identify what happens to the pyruvate it generates."
+  ],
+  "passed": false,
+  "pass_threshold": 0.7
+}

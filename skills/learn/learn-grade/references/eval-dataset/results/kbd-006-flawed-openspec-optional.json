@@ -1,0 +1,21 @@
+{
+  "grade_id": "eval-kbd-006-flawed-openspec-optional",
+  "goal_id": "eval",
+  "concept_id": "kbd-lifecycle",
+  "learner_id": "eval-harness",
+  "graded_at": "2026-07-16T00:00:00Z",
+  "explanation_excerpt": "OpenSpec is one option among several for tracking changes in a KBD phase — you can use it if you like the structured proposal format, or just skip it and use plain native KBD change files, it's",
+  "scores": {"completeness": 0.3, "accuracy": 0.2, "clarity": 0.6, "misconceptions_absent": 0.0},
+  "overall_score": 0.275,
+  "gaps": [
+    {"dimension": "misconception", "description": "States OpenSpec is optional and purely developer preference. When an openspec/ directory is present, OpenSpec IS the change management backend, not optional.", "corpus_ref": "MISCONCEPTION: OpenSpec is optional"},
+    {"dimension": "accuracy", "description": "Contradicts how OpenSpec is selected: detection is automatic and conditional on repo state, not a subjective preference.", "corpus_ref": "CLAUDE.md — OpenSpec section"},
+    {"dimension": "completeness", "description": "Omits the actual mechanics of OpenSpec: proposal.md/tasks.md, the PROPOSED -> IN_PROGRESS -> DONE -> ARCHIVED status lifecycle.", "corpus_ref": "CLAUDE.md — OpenSpec section"}
+  ],
+  "transfer_problems": [
+    "A project has an existing openspec/ directory with several archived changes. A developer runs the plan stage and decides to write plain native KBD change files instead because they find OpenSpec cumbersome. What breaks as a result?",
+    "During the execute stage, a completed change needs to move from IN_PROGRESS to ARCHIVED under the OpenSpec backend. What two commands does this require, in what order?"
+  ],
+  "passed": false,
+  "pass_threshold": 0.7
+}

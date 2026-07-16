@@ -1,0 +1,22 @@
+{
+  "grade_id": "eval-cr-005-flawed-mitochondria-create-energy",
+  "goal_id": "eval",
+  "concept_id": "cellular-respiration",
+  "learner_id": "eval-harness",
+  "graded_at": "2026-07-16T20:06:00Z",
+  "explanation_excerpt": "Mitochondria are the powerhouse of the cell because they generate the energy the cell needs from scratch — they take in glucose and oxygen and essentially manufacture new energy inside the mitochondrial ",
+  "scores": {"completeness": 0.2, "accuracy": 0.15, "clarity": 0.5, "misconceptions_absent": 0.0},
+  "overall_score": 0.2125,
+  "gaps": [
+    {"dimension": "misconception", "description": "States mitochondria 'generate energy from scratch' / 'manufacture new energy' — this is the textbook misconception that mitochondria create energy out of nothing. Mitochondria only convert chemical potential energy already stored in glucose's covalent bonds into ATP; energy is conserved, never created.", "corpus_ref": "Common misconception: 'mitochondria make energy from scratch'"},
+    {"dimension": "accuracy", "description": "Places glucose intake and the start of processing 'inside the mitochondrial matrix.' Glycolysis, the step that first processes glucose, occurs in the cytosol, not the mitochondria.", "corpus_ref": "Common misconception: 'glycolysis happens in the mitochondria'"},
+    {"dimension": "completeness", "description": "Omits the four-stage structure of respiration, the cytosolic location of glycolysis, the electron transport chain and chemiosmosis mechanism, and ATP yield accounting.", "corpus_ref": "OpenStax Biology 2e, Ch. 7 — Overview of Cellular Respiration"},
+    {"dimension": "clarity", "description": "The phrase 'manufacture new energy... packaged as ATP' blurs the distinction between energy transformation and energy creation.", "corpus_ref": "OpenStax Biology 2e, Ch. 7.4 — Oxidative Phosphorylation"}
+  ],
+  "transfer_problems": [
+    "A muscle cell is working hard and running low on oxygen. Explain what happens to the NADH produced by glycolysis in this cell, why lactic acid fermentation becomes necessary, and why this process does not yield any additional ATP beyond what glycolysis already produced.",
+    "A researcher measures ATP yield per glucose molecule in two different cell types and gets 30 ATP in one and 32 ATP in the other, using the same overall reaction. Using the concepts of NADH shuttle mechanisms and the mitochondrial inner membrane, explain why the ATP yield per glucose is not a fixed, exact number across all cells."
+  ],
+  "passed": false,
+  "pass_threshold": 0.7
+}

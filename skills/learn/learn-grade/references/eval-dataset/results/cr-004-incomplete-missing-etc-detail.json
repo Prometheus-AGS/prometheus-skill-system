@@ -1,0 +1,21 @@
+{
+  "grade_id": "eval-cr-004-incomplete-missing-etc-detail",
+  "goal_id": "eval",
+  "concept_id": "cellular-respiration",
+  "learner_id": "eval-harness",
+  "graded_at": "2026-07-16T00:00:00Z",
+  "explanation_excerpt": "Glucose goes through glycolysis, then the Krebs cycle, then the electron transport chain, and you end up with a bunch of ATP. Oxygen is needed somewhere near the end of the process.",
+  "scores": {"completeness": 0.3, "accuracy": 0.55, "clarity": 0.75, "misconceptions_absent": 1.0},
+  "overall_score": 0.65,
+  "gaps": [
+    {"dimension": "completeness", "description": "Omits pyruvate oxidation as a distinct stage between glycolysis and the citric acid cycle; the corpus lists four stages (glycolysis, pyruvate oxidation, citric acid cycle, oxidative phosphorylation), and only three are named here.", "corpus_ref": "OpenStax Biology 2e, Ch. 7 — Overview of Cellular Respiration"},
+    {"dimension": "completeness", "description": "No mention of where each stage occurs (glycolysis in the cytosol; citric acid cycle in the mitochondrial matrix; oxidative phosphorylation across the inner mitochondrial membrane) or of specific ATP/NADH/FADH2 yields per stage.", "corpus_ref": "OpenStax Biology 2e, Ch. 7.1 — Glycolysis"},
+    {"dimension": "accuracy", "description": "States oxygen is needed \"somewhere near the end of the process\" without identifying its specific role: oxygen is the final electron acceptor in the electron transport chain, combining with electrons and protons to form water. This vagueness misrepresents a precise mechanistic fact as an approximate one.", "corpus_ref": "OpenStax Biology 2e, Ch. 7.4 — Oxidative Phosphorylation"}
+  ],
+  "transfer_problems": [
+    "A skeletal muscle cell is working hard during a sprint and its local oxygen supply drops sharply, yet glycolysis keeps running for a while. Explain, in terms of NAD+ regeneration, how lactic acid fermentation allows glycolysis to continue without oxygen, and state how much additional ATP fermentation itself contributes beyond the ATP already produced by glycolysis.",
+    "Two textbooks disagree: one states cellular respiration yields about 36-38 ATP per glucose, another states about 30-32 ATP per glucose. Using the concept of NADH shuttle mechanisms across the mitochondrial membrane, explain why the revised, lower estimate is now considered more accurate, and why the exact ATP yield can vary by cell type."
+  ],
+  "passed": false,
+  "pass_threshold": 0.7
+}

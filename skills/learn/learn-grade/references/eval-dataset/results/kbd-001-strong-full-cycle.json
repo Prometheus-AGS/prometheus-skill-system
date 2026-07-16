@@ -1,0 +1,23 @@
+{
+  "grade_id": "eval-kbd-001-strong-full-cycle",
+  "goal_id": "eval",
+  "concept_id": "kbd-lifecycle",
+  "learner_id": "eval-harness",
+  "graded_at": "2026-07-16T00:00:00Z",
+  "explanation_excerpt": "The KBD lifecycle moves through six stages in order: kbd-new-phase creates the phase directory and goals, kbd-assess inspects the codebase and writes assessment.md only — no code or plans — kbd-anal",
+  "scores": {"completeness": 0.6, "accuracy": 0.85, "clarity": 0.55, "misconceptions_absent": 1.0},
+  "overall_score": 0.75,
+  "gaps": [
+    {"dimension": "completeness", "description": "Missing the explicit-approval halts between stages: kbd-assess halts at the assess->plan boundary for explicit approval, and kbd-plan requires explicit user approval before execute proceeds.", "corpus_ref": "skills/process/kbd-assess/SKILL.md"},
+    {"dimension": "completeness", "description": "No mention of the OpenSpec change-management backend status lifecycle or artifact-refiner QA gates.", "corpus_ref": "CLAUDE.md — OpenSpec section"},
+    {"dimension": "completeness", "description": "Omits the waypoint file pair: current-waypoint.json as the machine-readable position record distinct from position-reminder.txt.", "corpus_ref": "CLAUDE.md — Waypoint Files section"},
+    {"dimension": "completeness", "description": "No mention of the lifecycle hooks or that the reflector sycophancy gate runs as a SubagentStop hook.", "corpus_ref": "CLAUDE.md — Reflector Sycophancy Gate"},
+    {"dimension": "clarity", "description": "The entire six-stage lifecycle is compressed into one run-on sentence with stacked em-dash clauses, obscuring stage boundaries.", "corpus_ref": "CLAUDE.md — KBD Lifecycle section"}
+  ],
+  "transfer_problems": [
+    "A contributor runs kbd-execute, completes a change, and moves on to the next task without touching progress.json, assuming the system tracks it for them. Using only the corpus's description of progress.json and waypoint files, explain precisely what state becomes stale and what breaks on session resume.",
+    "A project has an openspec/ directory at its root, but the team decides to skip generating proposal.md and tasks.md for a change because 'it's a small fix.' Using the corpus's description of the OpenSpec backend and kbd-plan's detection behavior, explain what kbd-plan actually does when openspec/ is present and why skipping OpenSpec format breaks traceability."
+  ],
+  "passed": true,
+  "pass_threshold": 0.7
+}
