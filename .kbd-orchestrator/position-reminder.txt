@@ -1,10 +1,10 @@
 POSITION REMINDER — read this as your FIRST tool call every turn
-Phase: phase-codex-plugin-verify-and-publish
-Step: 6 of 6
-Stage: reflect
-Next command: /kbd-new-phase <next-phase-name>
+Phase: phase-learn-grader-validation
+Step: 0 of 0 (assessment_ready)
+Stage: assess
+Next command: /kbd-assess phase-learn-grader-validation
 
 Required signal format (emit BEFORE any tool call):
-  Starting <kbd-skill> — phase-codex-plugin-verify-and-publish (step 6 of 6)
+  Starting <kbd-skill> — phase-learn-grader-validation (step N of T)
   [do work]
-  Completed <kbd-skill> — phase-codex-plugin-verify-and-publish (step 6 of 6)
+  Completed <kbd-skill> — phase-learn-grader-validation (step N of T)
