@@ -10,6 +10,20 @@ hook_log_start "Stop" "forge-reflect-on-stop.sh"
 
 SUMMARY_FILE="${HOME}/.prometheus/last-session-summary.txt"
 
+# An "empty session" carried no KBD progress: no phase, no completed/pending
+# changes, zero of zero changes. Ingesting these produces noise wiki entries
+# ("Empty Session Termination Metadata …") that dilute real knowledge, so the
+# fallback ingest paths below skip them. Returns 0 (empty) / 1 (has content).
+is_empty_session() {
+  local f="$1"
+  [ -f "$f" ] || return 0
+  grep -qE '^phase:[[:space:]]*unknown$'        "$f" || return 1
+  grep -qE '^last_completed:[[:space:]]*none$'  "$f" || return 1
+  grep -qE '^next_pending:[[:space:]]*none$'    "$f" || return 1
+  grep -qE '^progress:[[:space:]]*0 of 0 '      "$f" || return 1
+  return 0
+}
+
 if command -v forge &>/dev/null && [ -d ".forge/iterations" ]; then
   # --- Forge path: run reflect then ingest ---
   forge reflect 2>&1 || hook_log_error "$LINENO"
@@ -17,6 +31,9 @@ if command -v forge &>/dev/null && [ -d ".forge/iterations" ]; then
   if command -v pk &>/dev/null; then
     pk ingest 2>&1 || hook_log_error "$LINENO"
   fi
+elif is_empty_session "$SUMMARY_FILE"; then
+  # --- Empty session: skip all ingest to avoid noise wiki entries ---
+  :
 else
   # --- Fallback path: ingest session summary directly into pk ---
   if command -v pk &>/dev/null && [ -f "$SUMMARY_FILE" ]; then
