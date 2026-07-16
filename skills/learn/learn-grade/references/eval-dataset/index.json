@@ -1,0 +1,203 @@
+{
+  "generated_at": "2026-07-16T20:30:00Z",
+  "total_items": 24,
+  "domains": [
+    "cellular-respiration",
+    "kbd-lifecycle",
+    "skill-pack"
+  ],
+  "items": [
+    {
+      "item_id": "cr-001-strong-full-pathway",
+      "domain": "cellular-respiration",
+      "quality_tier": "strong",
+      "corpus_path": "skills/learn/learn-grade/references/eval-dataset/corpora/cellular-respiration-corpus.json",
+      "explanation_source": "skills/learn/learn-grade/references/eval-dataset/explanations/cellular-respiration-items.json",
+      "review_status": "draft"
+    },
+    {
+      "item_id": "cr-002-strong-fermentation",
+      "domain": "cellular-respiration",
+      "quality_tier": "strong",
+      "corpus_path": "skills/learn/learn-grade/references/eval-dataset/corpora/cellular-respiration-corpus.json",
+      "explanation_source": "skills/learn/learn-grade/references/eval-dataset/explanations/cellular-respiration-items.json",
+      "review_status": "draft"
+    },
+    {
+      "item_id": "cr-003-incomplete-vague-overview",
+      "domain": "cellular-respiration",
+      "quality_tier": "incomplete",
+      "corpus_path": "skills/learn/learn-grade/references/eval-dataset/corpora/cellular-respiration-corpus.json",
+      "explanation_source": "skills/learn/learn-grade/references/eval-dataset/explanations/cellular-respiration-items.json",
+      "review_status": "draft"
+    },
+    {
+      "item_id": "cr-004-incomplete-missing-etc-detail",
+      "domain": "cellular-respiration",
+      "quality_tier": "incomplete",
+      "corpus_path": "skills/learn/learn-grade/references/eval-dataset/corpora/cellular-respiration-corpus.json",
+      "explanation_source": "skills/learn/learn-grade/references/eval-dataset/explanations/cellular-respiration-items.json",
+      "review_status": "draft"
+    },
+    {
+      "item_id": "cr-005-flawed-mitochondria-create-energy",
+      "domain": "cellular-respiration",
+      "quality_tier": "factually-flawed",
+      "corpus_path": "skills/learn/learn-grade/references/eval-dataset/corpora/cellular-respiration-corpus.json",
+      "explanation_source": "skills/learn/learn-grade/references/eval-dataset/explanations/cellular-respiration-items.json",
+      "review_status": "draft"
+    },
+    {
+      "item_id": "cr-006-flawed-breathing-conflation",
+      "domain": "cellular-respiration",
+      "quality_tier": "factually-flawed",
+      "corpus_path": "skills/learn/learn-grade/references/eval-dataset/corpora/cellular-respiration-corpus.json",
+      "explanation_source": "skills/learn/learn-grade/references/eval-dataset/explanations/cellular-respiration-items.json",
+      "review_status": "draft"
+    },
+    {
+      "item_id": "cr-007-flawed-glycolysis-location",
+      "domain": "cellular-respiration",
+      "quality_tier": "factually-flawed",
+      "corpus_path": "skills/learn/learn-grade/references/eval-dataset/corpora/cellular-respiration-corpus.json",
+      "explanation_source": "skills/learn/learn-grade/references/eval-dataset/explanations/cellular-respiration-items.json",
+      "review_status": "draft"
+    },
+    {
+      "item_id": "cr-008-flawed-plants-no-respiration",
+      "domain": "cellular-respiration",
+      "quality_tier": "factually-flawed",
+      "corpus_path": "skills/learn/learn-grade/references/eval-dataset/corpora/cellular-respiration-corpus.json",
+      "explanation_source": "skills/learn/learn-grade/references/eval-dataset/explanations/cellular-respiration-items.json",
+      "review_status": "draft"
+    },
+    {
+      "item_id": "kbd-001-strong-full-cycle",
+      "domain": "kbd-lifecycle",
+      "quality_tier": "strong",
+      "corpus_path": "docs/learn/meta-corpus/kbd-lifecycle-corpus.json",
+      "explanation_source": "skills/learn/learn-grade/references/eval-dataset/explanations/kbd-lifecycle-items.json",
+      "review_status": "draft"
+    },
+    {
+      "item_id": "kbd-002-strong-assess-plan-boundary",
+      "domain": "kbd-lifecycle",
+      "quality_tier": "strong",
+      "corpus_path": "docs/learn/meta-corpus/kbd-lifecycle-corpus.json",
+      "explanation_source": "skills/learn/learn-grade/references/eval-dataset/explanations/kbd-lifecycle-items.json",
+      "review_status": "draft"
+    },
+    {
+      "item_id": "kbd-003-incomplete-missing-openspec",
+      "domain": "kbd-lifecycle",
+      "quality_tier": "incomplete",
+      "corpus_path": "docs/learn/meta-corpus/kbd-lifecycle-corpus.json",
+      "explanation_source": "skills/learn/learn-grade/references/eval-dataset/explanations/kbd-lifecycle-items.json",
+      "review_status": "draft"
+    },
+    {
+      "item_id": "kbd-004-incomplete-vague-reflect",
+      "domain": "kbd-lifecycle",
+      "quality_tier": "incomplete",
+      "corpus_path": "docs/learn/meta-corpus/kbd-lifecycle-corpus.json",
+      "explanation_source": "skills/learn/learn-grade/references/eval-dataset/explanations/kbd-lifecycle-items.json",
+      "review_status": "draft"
+    },
+    {
+      "item_id": "kbd-005-flawed-progress-json",
+      "domain": "kbd-lifecycle",
+      "quality_tier": "factually-flawed",
+      "corpus_path": "docs/learn/meta-corpus/kbd-lifecycle-corpus.json",
+      "explanation_source": "skills/learn/learn-grade/references/eval-dataset/explanations/kbd-lifecycle-items.json",
+      "review_status": "draft"
+    },
+    {
+      "item_id": "kbd-006-flawed-openspec-optional",
+      "domain": "kbd-lifecycle",
+      "quality_tier": "factually-flawed",
+      "corpus_path": "docs/learn/meta-corpus/kbd-lifecycle-corpus.json",
+      "explanation_source": "skills/learn/learn-grade/references/eval-dataset/explanations/kbd-lifecycle-items.json",
+      "review_status": "draft"
+    },
+    {
+      "item_id": "kbd-007-flawed-assess-writes-plan",
+      "domain": "kbd-lifecycle",
+      "quality_tier": "factually-flawed",
+      "corpus_path": "docs/learn/meta-corpus/kbd-lifecycle-corpus.json",
+      "explanation_source": "skills/learn/learn-grade/references/eval-dataset/explanations/kbd-lifecycle-items.json",
+      "review_status": "draft"
+    },
+    {
+      "item_id": "kbd-008-flawed-reflect-early",
+      "domain": "kbd-lifecycle",
+      "quality_tier": "factually-flawed",
+      "corpus_path": "docs/learn/meta-corpus/kbd-lifecycle-corpus.json",
+      "explanation_source": "skills/learn/learn-grade/references/eval-dataset/explanations/kbd-lifecycle-items.json",
+      "review_status": "draft"
+    },
+    {
+      "item_id": "sp-001-strong-portability",
+      "domain": "skill-pack",
+      "quality_tier": "strong",
+      "corpus_path": "docs/learn/meta-corpus/skill-pack-corpus.json",
+      "explanation_source": "skills/learn/learn-grade/references/eval-dataset/explanations/skill-pack-items.json",
+      "review_status": "draft"
+    },
+    {
+      "item_id": "sp-002-strong-hooks-and-validate",
+      "domain": "skill-pack",
+      "quality_tier": "strong",
+      "corpus_path": "docs/learn/meta-corpus/skill-pack-corpus.json",
+      "explanation_source": "skills/learn/learn-grade/references/eval-dataset/explanations/skill-pack-items.json",
+      "review_status": "draft"
+    },
+    {
+      "item_id": "sp-003-incomplete-vague-mcp",
+      "domain": "skill-pack",
+      "quality_tier": "incomplete",
+      "corpus_path": "docs/learn/meta-corpus/skill-pack-corpus.json",
+      "explanation_source": "skills/learn/learn-grade/references/eval-dataset/explanations/skill-pack-items.json",
+      "review_status": "draft"
+    },
+    {
+      "item_id": "sp-004-incomplete-missing-reload",
+      "domain": "skill-pack",
+      "quality_tier": "incomplete",
+      "corpus_path": "docs/learn/meta-corpus/skill-pack-corpus.json",
+      "explanation_source": "skills/learn/learn-grade/references/eval-dataset/explanations/skill-pack-items.json",
+      "review_status": "draft"
+    },
+    {
+      "item_id": "sp-005-flawed-claude-only",
+      "domain": "skill-pack",
+      "quality_tier": "factually-flawed",
+      "corpus_path": "docs/learn/meta-corpus/skill-pack-corpus.json",
+      "explanation_source": "skills/learn/learn-grade/references/eval-dataset/explanations/skill-pack-items.json",
+      "review_status": "draft"
+    },
+    {
+      "item_id": "sp-006-flawed-internet-required",
+      "domain": "skill-pack",
+      "quality_tier": "factually-flawed",
+      "corpus_path": "docs/learn/meta-corpus/skill-pack-corpus.json",
+      "explanation_source": "skills/learn/learn-grade/references/eval-dataset/explanations/skill-pack-items.json",
+      "review_status": "draft"
+    },
+    {
+      "item_id": "sp-007-flawed-restart-required",
+      "domain": "skill-pack",
+      "quality_tier": "factually-flawed",
+      "corpus_path": "docs/learn/meta-corpus/skill-pack-corpus.json",
+      "explanation_source": "skills/learn/learn-grade/references/eval-dataset/explanations/skill-pack-items.json",
+      "review_status": "draft"
+    },
+    {
+      "item_id": "sp-008-flawed-claude-plugin-source",
+      "domain": "skill-pack",
+      "quality_tier": "factually-flawed",
+      "corpus_path": "docs/learn/meta-corpus/skill-pack-corpus.json",
+      "explanation_source": "skills/learn/learn-grade/references/eval-dataset/explanations/skill-pack-items.json",
+      "review_status": "draft"
+    }
+  ]
+}
