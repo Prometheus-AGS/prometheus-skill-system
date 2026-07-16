@@ -1,0 +1,149 @@
+{
+  "generated_at": "2026-07-16T22:00:00Z",
+  "items": {
+    "cr-001-strong-full-pathway": {
+      "passed": true,
+      "overall_score": 0.925,
+      "misconceptions_absent": 1.0,
+      "required_fields_present": true
+    },
+    "cr-002-strong-fermentation": {
+      "passed": true,
+      "overall_score": 0.95,
+      "misconceptions_absent": 1.0,
+      "required_fields_present": true
+    },
+    "cr-003-incomplete-vague-overview": {
+      "passed": false,
+      "overall_score": 0.5625,
+      "misconceptions_absent": 1.0,
+      "required_fields_present": true
+    },
+    "cr-004-incomplete-missing-etc-detail": {
+      "passed": false,
+      "overall_score": 0.65,
+      "misconceptions_absent": 1.0,
+      "required_fields_present": true
+    },
+    "cr-005-flawed-mitochondria-create-energy": {
+      "passed": false,
+      "overall_score": 0.29,
+      "misconceptions_absent": 0.0,
+      "required_fields_present": true
+    },
+    "cr-006-flawed-breathing-conflation": {
+      "passed": false,
+      "overall_score": 0.2375,
+      "misconceptions_absent": 0.0,
+      "required_fields_present": true
+    },
+    "cr-007-flawed-glycolysis-location": {
+      "passed": false,
+      "overall_score": 0.325,
+      "misconceptions_absent": 0.0,
+      "required_fields_present": true
+    },
+    "cr-008-flawed-plants-no-respiration": {
+      "passed": false,
+      "overall_score": 0.2,
+      "misconceptions_absent": 0.0,
+      "required_fields_present": true
+    },
+    "kbd-001-strong-full-cycle": {
+      "passed": true,
+      "overall_score": 0.79,
+      "misconceptions_absent": 1.0,
+      "required_fields_present": true
+    },
+    "kbd-002-strong-assess-plan-boundary": {
+      "passed": true,
+      "overall_score": 0.95,
+      "misconceptions_absent": 1.0,
+      "required_fields_present": true
+    },
+    "kbd-003-incomplete-missing-openspec": {
+      "passed": true,
+      "overall_score": 0.71,
+      "misconceptions_absent": 1.0,
+      "required_fields_present": true
+    },
+    "kbd-004-incomplete-vague-reflect": {
+      "passed": false,
+      "overall_score": 0.675,
+      "misconceptions_absent": 1.0,
+      "required_fields_present": true
+    },
+    "kbd-005-flawed-progress-json": {
+      "passed": false,
+      "overall_score": 0.34,
+      "misconceptions_absent": 0.0,
+      "required_fields_present": true
+    },
+    "kbd-006-flawed-openspec-optional": {
+      "passed": false,
+      "overall_score": 0.29,
+      "misconceptions_absent": 0.0,
+      "required_fields_present": true
+    },
+    "kbd-007-flawed-assess-writes-plan": {
+      "passed": false,
+      "overall_score": 0.325,
+      "misconceptions_absent": 0.0,
+      "required_fields_present": true
+    },
+    "kbd-008-flawed-reflect-early": {
+      "passed": false,
+      "overall_score": 0.2875,
+      "misconceptions_absent": 0.0,
+      "required_fields_present": true
+    },
+    "sp-001-strong-portability": {
+      "passed": true,
+      "overall_score": 0.75,
+      "misconceptions_absent": 1.0,
+      "required_fields_present": true
+    },
+    "sp-002-strong-hooks-and-validate": {
+      "passed": true,
+      "overall_score": 0.775,
+      "misconceptions_absent": 1.0,
+      "required_fields_present": true
+    },
+    "sp-003-incomplete-vague-mcp": {
+      "passed": false,
+      "overall_score": 0.2,
+      "misconceptions_absent": 0.0,
+      "required_fields_present": true
+    },
+    "sp-004-incomplete-missing-reload": {
+      "passed": true,
+      "overall_score": 0.7375,
+      "misconceptions_absent": 1.0,
+      "required_fields_present": true
+    },
+    "sp-005-flawed-claude-only": {
+      "passed": false,
+      "overall_score": 0.2625,
+      "misconceptions_absent": 0.0,
+      "required_fields_present": true
+    },
+    "sp-006-flawed-internet-required": {
+      "passed": false,
+      "overall_score": 0.275,
+      "misconceptions_absent": 0.0,
+      "required_fields_present": true
+    },
+    "sp-007-flawed-restart-required": {
+      "passed": false,
+      "overall_score": 0.275,
+      "misconceptions_absent": 0.0,
+      "required_fields_present": true
+    },
+    "sp-008-flawed-claude-plugin-source": {
+      "passed": false,
+      "overall_score": 0.2,
+      "misconceptions_absent": 0.0,
+      "required_fields_present": true
+    }
+  }
+}

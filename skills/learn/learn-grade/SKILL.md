@@ -22,6 +22,13 @@ the learner's own words.
 The grader is called as a sub-step by feynman-loop, learn-practice, learn-retain, and
 learn-certify. It is not typically invoked directly by the user — though it may be.
 
+**Empirical accuracy** (measured in `phase-learn-grader-validation`, superseding the
+original 60–70% assessed-confidence estimate): misconception detection F1 0.96
+(recall 1.0), accuracy-dimension correlation r=0.94, completeness-dimension
+correlation r=0.91, clarity-dimension correlation r=0.61. See
+[`references/eval-dataset/EVAL-RESULTS.md`](references/eval-dataset/EVAL-RESULTS.md)
+for the full methodology, numbers, and known limitations.
+
 ## When to invoke
 
 - **Internally** — called by feynman-loop, learn-practice, learn-retain, learn-certify

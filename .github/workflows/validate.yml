@@ -283,6 +283,32 @@ jobs:
       - name: Run skill-matrix collision check
         run: node scripts/skill-matrix.js --ci
 
+  learn-grade-regression:
+    name: learn-grade eval snapshot regression guard
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: false
+
+      - name: Check for python3
+        run: python3 --version
+
+      - name: Run grader regression test (schema + pass/fail snapshot compare)
+        run: |
+          bash skills/learn/learn-grade/references/eval-dataset/grader-regression-test.sh
+
+      # NOTE: this job intentionally does NOT re-invoke the LLM grader.
+      # learn-grade is prose-executed (an agent following SKILL.md), not a
+      # deterministic script — live re-grading in CI would be expensive and
+      # non-deterministic (a pass today could fail tomorrow from model
+      # sampling variance alone). This job only diffs the *shape* and
+      # *pass/fail status* of results/ against baseline-snapshot.json,
+      # catching harness/schema regressions and coarse behavior flips.
+      # Periodic live re-validation (actually re-running the 24-item eval
+      # suite through the grader) is a manual, human-reviewed step — see
+      # skills/learn/learn-grade/references/eval-dataset/EVAL-RESULTS.md.
+
   tool-submodules:
     name: Check tool submodules (cowork-skills + disk-space-guardian)
     runs-on: ubuntu-latest
