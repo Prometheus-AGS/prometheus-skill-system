@@ -1,10 +1,10 @@
 POSITION REMINDER — read this as your FIRST tool call every turn
 Phase: phase-learn-grader-validation
-Step: 6 of 7 (execute in progress)
+Step: 7 of 7
 Stage: execute
-Next command: /kbd-apply change-lgv-007-regression-test-and-docs
+Next command: /kbd-reflect phase-learn-grader-validation
 
 Required signal format (emit BEFORE any tool call):
-  Starting <kbd-skill> — phase-learn-grader-validation (step N of T)
+  Starting <kbd-skill> — phase-learn-grader-validation (step 7 of 7)
   [do work]
-  Completed <kbd-skill> — phase-learn-grader-validation (step N of T)
+  Completed <kbd-skill> — phase-learn-grader-validation (step 7 of 7)
