@@ -233,15 +233,19 @@ os_mark_done() {
   local change="$1" id="$2"
   local tasks_file="openspec/changes/$change/tasks.md"
   [ -f "$tasks_file" ] || { warn "no tasks.md at $tasks_file"; return 1; }
-  # OpenSpec (spec-driven schema) task ids are POSITIONAL: "1" = the first
-  # checkbox, "2" = the second, etc. Flip the Nth checkbox line by ordinal.
+  # OpenSpec (spec-driven schema) task ids are POSITIONAL and match the
+  # `openspec instructions apply --json` ordinal that os_list surfaces: "1" =
+  # the first TOP-LEVEL checkbox, "2" = the second, etc. The JSON API does not
+  # count indented sub-bullets (e.g. sub-rules nested under a parent task) as
+  # separate tasks, so this awk must only count non-indented checkbox lines
+  # too — otherwise ordinals drift the moment any task has nested children.
   # If the id is non-numeric, fall back to a text match on the description.
   local tmp; tmp="$(mktemp)"
   if printf '%s' "$id" | grep -qE '^[0-9]+$'; then
     awk -v id="$id" '
       BEGIN { n=0 }
       {
-        if ($0 ~ /^[[:space:]]*-[[:space:]]*\[[ xX]\]/) {
+        if ($0 ~ /^-[[:space:]]*\[[ xX]\]/) {
           n++
           if (n == id) sub(/\[[ xX]\]/, "[x]")
         }
@@ -252,7 +256,7 @@ os_mark_done() {
     awk -v id="$id" '
       BEGIN { done=0 }
       {
-        if (!done && $0 ~ /^[[:space:]]*-[[:space:]]*\[[[:space:]]\]/ && index($0, id)>0) {
+        if (!done && $0 ~ /^-[[:space:]]*\[[[:space:]]\]/ && index($0, id)>0) {
           sub(/\[[[:space:]]\]/, "[x]"); done=1
         }
         print
