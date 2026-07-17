@@ -1,5 +1,8 @@
 # Update Log
 
+## 2026-07-17
+* **Creation**: [Global Skill Repair Learning Gate](/global-skill-repair-learning-gate.md)
+
 ## 2026-07-16
 * **Creation**: [Learn Grader Validation Phase Completion Status](/learn-grader-validation-phase-completion-status.md)
 * **Creation**: [Learn Grader Validation Phase Closure](/learn-grader-validation-phase-closure.md)
