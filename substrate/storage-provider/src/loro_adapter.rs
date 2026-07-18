@@ -30,8 +30,7 @@ impl CrdtEngine for LoroAdapter {
         let doc = LoroDoc::new();
         // An empty snapshot still carries Loro's container schema, so callers
         // get back valid, importable bytes rather than a zero-length blob.
-        doc.export(ExportMode::Snapshot)
-            .unwrap_or_default()
+        doc.export(ExportMode::Snapshot).unwrap_or_default()
     }
 
     fn merge(&self, local: &[u8], remote_delta: &[u8]) -> Result<Vec<u8>> {
@@ -95,18 +94,23 @@ fn write_json_value_into_map(map: &LoroMap, key: &str, v: &serde_json::Value) ->
             if let Some(i) = n.as_i64() {
                 map.insert(key, i).map_err(crdt_err)?;
             } else {
-                map.insert(key, n.as_f64().unwrap_or(0.0)).map_err(crdt_err)?;
+                map.insert(key, n.as_f64().unwrap_or(0.0))
+                    .map_err(crdt_err)?;
             }
         }
         serde_json::Value::String(s) => map.insert(key, s.as_str()).map_err(crdt_err)?,
         serde_json::Value::Array(arr) => {
-            let list = map.insert_container(key, LoroList::new()).map_err(crdt_err)?;
+            let list = map
+                .insert_container(key, LoroList::new())
+                .map_err(crdt_err)?;
             for item in arr {
                 write_json_value_into_list(&list, item)?;
             }
         }
         serde_json::Value::Object(_) => {
-            let child = map.insert_container(key, LoroMap::new()).map_err(crdt_err)?;
+            let child = map
+                .insert_container(key, LoroMap::new())
+                .map_err(crdt_err)?;
             write_json_object(&child, v)?;
         }
     }
@@ -123,7 +127,8 @@ fn write_json_value_into_list(list: &LoroList, v: &serde_json::Value) -> Result<
             if let Some(i) = n.as_i64() {
                 list.insert(pos, i).map_err(crdt_err)?;
             } else {
-                list.insert(pos, n.as_f64().unwrap_or(0.0)).map_err(crdt_err)?;
+                list.insert(pos, n.as_f64().unwrap_or(0.0))
+                    .map_err(crdt_err)?;
             }
         }
         serde_json::Value::String(s) => list.insert(pos, s.as_str()).map_err(crdt_err)?,
@@ -177,14 +182,12 @@ mod tests {
         let adapter = LoroAdapter;
         let base = adapter.new_doc();
 
-        let (doc_a, delta_a) = adapter
-            .apply_json(&base, json!({"a": 1}))
-            .expect("apply a");
-        let (_doc_b, _delta_b) = adapter
-            .apply_json(&base, json!({"b": 2}))
-            .expect("apply b");
+        let (doc_a, delta_a) = adapter.apply_json(&base, json!({"a": 1})).expect("apply a");
+        let (_doc_b, _delta_b) = adapter.apply_json(&base, json!({"b": 2})).expect("apply b");
 
-        let merged = adapter.merge(&doc_a, &delta_a).expect("merge self-delta is a no-op");
+        let merged = adapter
+            .merge(&doc_a, &delta_a)
+            .expect("merge self-delta is a no-op");
         let value = adapter.to_json(&merged).expect("to_json");
         assert_eq!(value["a"], json!(1));
     }

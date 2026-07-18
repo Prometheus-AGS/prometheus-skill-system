@@ -140,6 +140,37 @@ The formerly broken `npm test` entrypoint now runs the deterministic repository
 suite instead of referencing a nonexistent file. CI also runs the cross-tool
 payload regression and learner-model runtime contract.
 
+## GitHub Actions parity and runner status
+
+Every command represented by `.github/workflows/validate.yml` and
+`.github/workflows/sovereign-sync.yml` was replayed locally. Rust jobs used the
+stable toolchain (`rustc 1.97.0`), matching the workflows. This parity pass found
+and corrected one mechanical `rustfmt` drift in
+`substrate/storage-provider/src/loro_adapter.rs`; the complete rerun then passed.
+
+| Workflow surface | Local result |
+|---|---|
+| AgentSkills validation, signals, Codex artifacts, packaging regressions | PASS |
+| Formatting and hooks symlink integrity | PASS |
+| Prometheus CLI check and warning-denied clippy | PASS |
+| Sycophancy release build and real artifact-gate E2E | 3 passed, 0 failed |
+| forge-rs fmt, warning-denied clippy, and all tests | PASS |
+| BDD smoke/strict validation and Cucumber scenarios | 7 scenarios, 42 steps passed |
+| Gitleaks full-history scan | 419 commits, no leaks |
+| Skill collision and learn-grade regression guards | PASS |
+| Learner-model runtime contract | PASS |
+| cowork-skills and disk-space-guardian cargo checks | PASS |
+| storage-provider stable fmt/clippy/test | 28 tests passed |
+| sovereign-sync stable fmt/clippy/test | 12 unit + 8 integration tests passed |
+| sovereign-client stable fmt/clippy/test | 3 tests passed |
+
+GitHub-hosted jobs remained queued without runner steps because the
+`Prometheus-AGS` organization Actions budget is configured as `$0` with
+`prevent_further_usage=true`, and the organization has no self-hosted runners.
+Repository Actions permissions are enabled. This is an external runner-capacity
+constraint rather than an untested source path; changing the paid-usage budget
+requires organization-owner authorization.
+
 ## Installation notes
 
 - OpenCode's goal plugin is installed through the supported command
