@@ -5,10 +5,10 @@
       "id": "report-progress",
       "event": "*:*",
       "mode": "augment",
-      "description": "Default reporter — emits 'starting/ending <kind> <name> [<i>/<n>]' to stderr on every dispatch.",
+      "description": "Default reporter — emits the canonical KBD long-run progress signal for phases and tasks, and a compact fallback line for other hook kinds.",
       "action": {
         "type": "command",
-        "command": "if [ \"$KBD_HOOK_EDGE\" = \"before\" ]; then verb=starting; else verb=ending; fi; printf '%s %s %s [%s/%s]\\n' \"$verb\" \"$KBD_HOOK_KIND\" \"$KBD_HOOK_NAME\" \"$KBD_HOOK_INDEX\" \"$KBD_HOOK_TOTAL\" >&2",
+        "command": "if [ \"$KBD_HOOK_EDGE\" = \"before\" ]; then verb=Starting; else verb=Completed; fi; if [ \"$KBD_HOOK_KIND\" = \"phase\" ]; then printf '%s phase %s out of %s:  %s\\n' \"$verb\" \"$KBD_HOOK_INDEX\" \"$KBD_HOOK_TOTAL\" \"$KBD_HOOK_NAME\" >&2; elif [ \"$KBD_HOOK_KIND\" = \"task\" ]; then printf '%s task %s out of %s:   %s\\n' \"$verb\" \"$KBD_HOOK_INDEX\" \"$KBD_HOOK_TOTAL\" \"$KBD_HOOK_NAME\" >&2; else printf '%s %s %s out of %s: %s\\n' \"$verb\" \"$KBD_HOOK_KIND\" \"$KBD_HOOK_INDEX\" \"$KBD_HOOK_TOTAL\" \"$KBD_HOOK_NAME\" >&2; fi",
         "timeout": 5,
         "on_failure": "ignore"
       }

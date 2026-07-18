@@ -20,18 +20,18 @@ fail() { printf 'FAIL: %s\n' "$*" >&2; exit 1; }
 SANDBOX="$(mktemp -d)"
 trap 'rm -rf "$SANDBOX"' EXIT
 
-# Test 1: default reporter on *:before
+# Test 1: default reporter on phase:before
 cd "$SANDBOX"
 out="$(kbd_hooks_fire phase before alpha 1 1 2>&1 >/dev/null)"
-echo "$out" | grep -q '^starting phase alpha \[1/1\]$' \
-  || fail "test 1 — expected default 'starting phase alpha [1/1]' line, got: $out"
-pass "default reporter emits 'starting' on *:before"
+echo "$out" | grep -q '^Starting phase 1 out of 1:  alpha$' \
+  || fail "test 1 — expected canonical phase start line, got: $out"
+pass "default reporter emits canonical phase start line"
 
-# Test 2: default reporter on *:after
+# Test 2: default reporter on phase:after
 out="$(kbd_hooks_fire phase after alpha 1 1 2>&1 >/dev/null)"
-echo "$out" | grep -q '^ending phase alpha \[1/1\]$' \
-  || fail "test 2 — expected 'ending phase alpha [1/1]', got: $out"
-pass "default reporter emits 'ending' on *:after"
+echo "$out" | grep -q '^Completed phase 1 out of 1:  alpha$' \
+  || fail "test 2 — expected canonical phase completion line, got: $out"
+pass "default reporter emits canonical phase completion line"
 
 # Test 3: project-layer override suppresses default reporter
 mkdir -p .kbd-orchestrator
@@ -126,15 +126,21 @@ pass "<step>:begin alias maps to <step>:before"
 
 # Test 7: JSONL log written with full key set
 rm -f .kbd-orchestrator/hooks.log.jsonl
+rm -f .kbd-orchestrator/hooks-status.json
 kbd_hooks_fire phase before epsilon 1 1 >/dev/null 2>&1
 [[ -f .kbd-orchestrator/hooks.log.jsonl ]] \
   || fail "test 7a — hooks.log.jsonl should be created at fallback path"
+[[ -f .kbd-orchestrator/hooks-status.json ]] \
+  || fail "test 7a2 — hooks-status.json should be created at fallback path"
 last="$(tail -n 1 .kbd-orchestrator/hooks.log.jsonl)"
 for k in ts kind edge name index total phasePath sourceTool hookId layer mode status; do
   echo "$last" | jq -e ".$k" >/dev/null \
     || fail "test 7b — log entry missing key: $k (line: $last)"
 done
-pass "JSONL log entry contains all required keys"
+jq -e '.totalRuns >= 1 and .failedRuns == 0 and .lastRun.status == 0' \
+  .kbd-orchestrator/hooks-status.json >/dev/null \
+  || fail "test 7c — hooks-status.json missing success counters"
+pass "JSONL log entry and hook status file contain required success fields"
 
 # Test 8: invalid event in config — warning + skip, no abort
 cat > .kbd-orchestrator/hooks-config.json <<'CONFIG'
@@ -196,14 +202,35 @@ echo "$poison_out" | grep -qi 'parse error' \
   && fail "test 10 — resolver leaked a jq parse error on polluted input: $poison_out"
 pass "resolver tolerates non-JSON input lines (no jq parse error)"
 
-# Test 11 (F5 regression, end-to-end): firing emits exactly the reporter line
+# Test 11 (F5 regression, end-to-end): firing emits exactly the canonical reporter line
 # and never a 'parse error', with correct index/total.
 out="$(kbd_hooks_fire phase before theta 2 5 2>&1 >/dev/null)"
 echo "$out" | grep -qi 'parse error' \
   && fail "test 11 — fire emitted a jq parse error: $out"
-echo "$out" | grep -q '^starting phase theta \[2/5\]$' \
-  || fail "test 11 — expected 'starting phase theta [2/5]', got: $out"
-pass "fire is clean (no parse error) and reports correct index/total"
+echo "$out" | grep -q '^Starting phase 2 out of 5:  theta$' \
+  || fail "test 11 — expected canonical phase start line, got: $out"
+pass "fire is clean (no parse error) and reports canonical index/total"
+
+# Test 11b: failed hook updates hooks-status.json with a diagnosable lastFailure
+cat > .kbd-orchestrator/hooks-config.json <<'CONFIG'
+{
+  "hooks": [
+    {
+      "id": "failing-hook",
+      "event": "phase:before",
+      "action": { "type": "command", "command": "printf 'boom\\n' >&2; exit 7" }
+    }
+  ]
+}
+CONFIG
+rm -f .kbd-orchestrator/hooks.log.jsonl .kbd-orchestrator/hooks-status.json
+out="$(kbd_hooks_fire phase before lambda 1 1 2>&1 >/dev/null)"
+echo "$out" | grep -q 'status=.kbd-orchestrator/hooks-status.json' \
+  || fail "test 11b — failure warning should point to hooks-status.json, got: $out"
+jq -e '.failedRuns == 1 and .lastFailure.hookId == "failing-hook" and .lastFailure.status == 7' \
+  .kbd-orchestrator/hooks-status.json >/dev/null \
+  || fail "test 11b — hooks-status.json missing lastFailure details"
+pass "failed hook updates hooks-status.json and prints a diagnosable warning"
 
 # Test 12 (F7 regression): sourcing hooks.sh ALONE (without waypoint.sh
 # pre-sourced) must not throw 'command not found' for chain_separator /

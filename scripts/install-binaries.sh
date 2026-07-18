@@ -2,12 +2,31 @@
 # install-binaries.sh — build and install all project binaries to ~/.local/bin/
 # Run this after cloning or pulling to keep binaries in sync.
 # Safe to re-run: only reinstalls if build succeeds.
+#
+# Usage:
+#   bash scripts/install-binaries.sh
+#   bash scripts/install-binaries.sh --dry-run
 
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 BIN_DIR="${HOME}/.local/bin"
 mkdir -p "${BIN_DIR}"
+DRY_RUN=false
+
+while [ "$#" -gt 0 ]; do
+    case "$1" in
+        --dry-run) DRY_RUN=true; shift ;;
+        --help|-h)
+            sed -n '1,12p' "$0" | sed 's/^# \{0,1\}//'
+            exit 0
+            ;;
+        *)
+            echo "Unknown argument: $1" >&2
+            exit 2
+            ;;
+    esac
+done
 
 info()  { echo "  → $*"; }
 ok()    { echo "  ✅ $*"; }
@@ -19,6 +38,10 @@ fail()  { echo "  ❌ $*" >&2; }
 # restores a valid ad-hoc signature. No-op on non-Darwin.
 install_bin() {
     local src="$1" dst="$2"
+    if $DRY_RUN; then
+        info "[dry-run] would install ${src} -> ${dst}"
+        return 0
+    fi
     # -f: if dst exists and can't be opened for write (e.g. owned by another
     # user, as happens when a prior install ran under sudo), unlink and retry
     # instead of failing outright.
@@ -31,7 +54,11 @@ install_bin() {
 # ── 1. prometheus-cli ───────────────────────────────────────────────────────
 if [ -f "${REPO_ROOT}/tools/prometheus-cli/Cargo.toml" ]; then
     info "Building prometheus-cli..."
-    (cd "${REPO_ROOT}/tools/prometheus-cli" && cargo build --release -p prometheus-cli 2>&1 | tail -3)
+    if ! $DRY_RUN; then
+        (cd "${REPO_ROOT}/tools/prometheus-cli" && cargo build --release -p prometheus-cli 2>&1 | tail -3)
+    else
+        info "[dry-run] would run cargo build --release -p prometheus-cli"
+    fi
     install_bin "${REPO_ROOT}/tools/prometheus-cli/target/release/prometheus" "${BIN_DIR}/prometheus"
     ok "prometheus → ${BIN_DIR}/prometheus"
 else
@@ -42,7 +69,11 @@ fi
 # Upstream renamed the CLI package `forge` → `forge-cli` (still produces the `forge` binary).
 if [ -f "${REPO_ROOT}/tools/forge-rs/Cargo.toml" ]; then
     info "Building forge..."
-    (cd "${REPO_ROOT}/tools/forge-rs" && cargo build --release -p forge-cli 2>&1 | tail -3)
+    if ! $DRY_RUN; then
+        (cd "${REPO_ROOT}/tools/forge-rs" && cargo build --release -p forge-cli 2>&1 | tail -3)
+    else
+        info "[dry-run] would run cargo build --release -p forge-cli"
+    fi
     install_bin "${REPO_ROOT}/tools/forge-rs/target/release/forge" "${BIN_DIR}/forge"
     ok "forge → ${BIN_DIR}/forge"
 else
@@ -55,7 +86,11 @@ fi
 # library, not a bin — do not try to build it as a binary target.
 if [ -f "${REPO_ROOT}/tools/prometheus-knowledge/Cargo.toml" ]; then
     info "Building pk + pk-cherry..."
-    (cd "${REPO_ROOT}/tools/prometheus-knowledge" && cargo build --release -p pk-cli -p pk-cherry 2>&1 | tail -3)
+    if ! $DRY_RUN; then
+        (cd "${REPO_ROOT}/tools/prometheus-knowledge" && cargo build --release -p pk-cli -p pk-cherry 2>&1 | tail -3)
+    else
+        info "[dry-run] would run cargo build --release -p pk-cli -p pk-cherry"
+    fi
     install_bin "${REPO_ROOT}/tools/prometheus-knowledge/target/release/pk"        "${BIN_DIR}/pk"
     install_bin "${REPO_ROOT}/tools/prometheus-knowledge/target/release/pk-cherry" "${BIN_DIR}/pk-cherry"
     ok "pk        → ${BIN_DIR}/pk"
@@ -68,7 +103,11 @@ fi
 # Upstream renamed the CLI package to `liter-llm-cli` (still produces the `liter-llm` binary).
 if [ -f "${REPO_ROOT}/tools/liter-llm/Cargo.toml" ]; then
     info "Building liter-llm..."
-    (cd "${REPO_ROOT}/tools/liter-llm" && cargo build --release -p liter-llm-cli 2>&1 | tail -3)
+    if ! $DRY_RUN; then
+        (cd "${REPO_ROOT}/tools/liter-llm" && cargo build --release -p liter-llm-cli 2>&1 | tail -3)
+    else
+        info "[dry-run] would run cargo build --release -p liter-llm-cli"
+    fi
     # liter-llm binary may be in workspace root target or crate target
     LLM_BIN=$(find "${REPO_ROOT}/tools/liter-llm/target/release" -maxdepth 1 -name "liter-llm" -type f 2>/dev/null | head -1)
     if [ -n "${LLM_BIN}" ]; then
@@ -84,7 +123,11 @@ if [ -f "${REPO_ROOT}/tools/liter-llm/Cargo.toml" ]; then
     LLM_CFG="${LLM_CFG_DIR}/liter-llm-proxy.toml"
     if [ ! -f "${LLM_CFG}" ] && [ -f "${REPO_ROOT}/shared/config/liter-llm-proxy.toml" ]; then
         mkdir -p "${LLM_CFG_DIR}"
-        cp "${REPO_ROOT}/shared/config/liter-llm-proxy.toml" "${LLM_CFG}"
+        if $DRY_RUN; then
+            info "[dry-run] would install liter-llm config at ${LLM_CFG}"
+        else
+            cp "${REPO_ROOT}/shared/config/liter-llm-proxy.toml" "${LLM_CFG}"
+        fi
         ok "liter-llm config → ${LLM_CFG}"
     fi
 else
@@ -108,9 +151,13 @@ if [ -f "${REPO_ROOT}/tools/surreal-memory-server/Cargo.toml" ]; then
     elif command -v nvidia-smi >/dev/null 2>&1; then
         SM_FEATURES="embedded,cuda,local-embeddings"
     fi
-    (cd "${REPO_ROOT}/tools/surreal-memory-server" && \
-        RUSTFLAGS="-Dwarnings" cargo build --release --no-default-features \
-            --features "${SM_FEATURES}" 2>&1 | tail -3)
+    if ! $DRY_RUN; then
+        (cd "${REPO_ROOT}/tools/surreal-memory-server" && \
+            RUSTFLAGS="-Dwarnings" cargo build --release --no-default-features \
+                --features "${SM_FEATURES}" 2>&1 | tail -3)
+    else
+        info "[dry-run] would run cargo build for surreal-memory-server with features ${SM_FEATURES}"
+    fi
     SM_BIN="${REPO_ROOT}/tools/surreal-memory-server/target/release/surreal-memory-server"
     if [ -f "${SM_BIN}" ]; then
         install_bin "${SM_BIN}" "${BIN_DIR}/surreal-memory-server"
@@ -135,7 +182,11 @@ fi
 SYCO_DIR="${REPO_ROOT}/skills/imported/sycophancy-correction"
 if [ -f "${SYCO_DIR}/Cargo.toml" ]; then
     info "Building sycophancy-correction..."
-    (cd "${SYCO_DIR}" && cargo build --release 2>&1 | tail -3)
+    if ! $DRY_RUN; then
+        (cd "${SYCO_DIR}" && cargo build --release 2>&1 | tail -3)
+    else
+        info "[dry-run] would run cargo build --release for sycophancy-correction"
+    fi
     SYCO_BIN="${SYCO_DIR}/target/release/sycophancy-correction"
     if [ -f "${SYCO_BIN}" ]; then
         install_bin "${SYCO_BIN}" "${BIN_DIR}/sycophancy-correction"
@@ -158,7 +209,11 @@ TEMPLATE_FORGE_DIR="${REPO_ROOT}/skills/imported/artifact-refiner/tools/template
 if [ -f "${TEMPLATE_FORGE_DIR}/Cargo.toml" ]; then
     info "Building template-forge and template-forge-mcp..."
     # rust-toolchain.toml in this submodule is comment-only — override via env
-    (cd "${TEMPLATE_FORGE_DIR}" && RUSTUP_TOOLCHAIN=stable cargo build --release 2>&1 | tail -3)
+    if ! $DRY_RUN; then
+        (cd "${TEMPLATE_FORGE_DIR}" && RUSTUP_TOOLCHAIN=stable cargo build --release 2>&1 | tail -3)
+    else
+        info "[dry-run] would run RUSTUP_TOOLCHAIN=stable cargo build --release for template-forge-rs"
+    fi
     install_bin "${TEMPLATE_FORGE_DIR}/target/release/template-forge"     "${BIN_DIR}/template-forge"
     install_bin "${TEMPLATE_FORGE_DIR}/target/release/template-forge-mcp" "${BIN_DIR}/template-forge-mcp"
     ok "template-forge     → ${BIN_DIR}/template-forge"
@@ -178,7 +233,11 @@ install_cowork() {
     if [ -d "${cli_dir}" ]; then
         # Path A — source build
         info "Building cowork from source (tools/cowork-skills)..."
-        (cd "${cli_dir}" && cargo build --release 2>&1 | tail -3)
+        if ! $DRY_RUN; then
+            (cd "${cli_dir}" && cargo build --release 2>&1 | tail -3)
+        else
+            info "[dry-run] would run cargo build --release in ${cli_dir}"
+        fi
         install_bin "${cli_dir}/target/release/cowork" "${BIN_DIR}/cowork"
         install_bin "${cli_dir}/target/release/co"     "${BIN_DIR}/co"
         ok "cowork → ${BIN_DIR}/cowork"

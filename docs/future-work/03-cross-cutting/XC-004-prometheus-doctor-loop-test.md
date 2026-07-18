@@ -57,7 +57,7 @@ A `prometheus doctor` CLI command (in `pk-cli` or a new `prometheus-cli` crate) 
 - [ ] STATUS.md and surreal-memory agree (no `done` task in one missing in the other).
 - [ ] BUG_FIX_LEDGER.md exists at expected paths.
 
-**Output.** A summary table with red/yellow/green per check. Non-zero exit if any red. JSON output mode (`--json`) for machine consumption (CI gate).
+**Output.** A summary table with red/yellow/green per check. Non-zero exit if any red. JSON output mode (`--json`) for machine consumption (CI gate). Dry-run repair surfaces (`--fix --dry-run`, `--refresh --dry-run`) must be non-mutating.
 
 ## Trade-offs and risks
 
@@ -67,10 +67,10 @@ A `prometheus doctor` CLI command (in `pk-cli` or a new `prometheus-cli` crate) 
 
 ## Acceptance criteria
 
-- [ ] `prometheus doctor` command exists and runs in <30 seconds.
+- [x] `prometheus doctor` command exists and runs in <30 seconds.
 - [ ] All checks above implemented and produce a clear pass/fail status.
-- [ ] `--json` output mode for CI.
-- [ ] Non-zero exit if any check fails.
+- [x] `--json` output mode for CI.
+- [x] Non-zero exit if any check fails.
 - [ ] CI workflow runs `prometheus doctor --json` on schedule (e.g. nightly) and surfaces in a dashboard.
 - [ ] Documentation: each check is listed with "what to do if this fails."
 

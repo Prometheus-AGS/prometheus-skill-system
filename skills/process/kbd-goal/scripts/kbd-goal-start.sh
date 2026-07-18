@@ -4,8 +4,8 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REPO_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
-KBD_ROOT="$REPO_ROOT/.kbd-orchestrator"
+REPO_ROOT="${KBD_GOAL_REPO_ROOT:-$(cd "$SCRIPT_DIR/../../.." && pwd)}"
+KBD_ROOT="${KBD_GOAL_ROOT:-$REPO_ROOT/.kbd-orchestrator}"
 
 # ── Parse arguments ──────────────────────────────────────────────────────────
 DESCRIPTION=""
@@ -50,6 +50,39 @@ if [[ -z "$TOOL" ]]; then
     TOOL="claude-code"
   fi
 fi
+
+# ── Persist loop-controller contract explicitly ──────────────────────────────
+LOOP_OWNER="kbd"
+LOOP_MODE="kbd-managed"
+NATIVE_GOAL_SUPPORTED=false
+EVALUATOR_MODE="kbd-goal-evaluator"
+STOP_GUARD="position-stop-gate"
+
+case "$TOOL" in
+  claude-code)
+    LOOP_MODE="native-goal-supervised"
+    NATIVE_GOAL_SUPPORTED=true
+    EVALUATOR_MODE="native-goal+position-stop-gate"
+    ;;
+  codex)
+    LOOP_MODE="native-goal-supervised"
+    NATIVE_GOAL_SUPPORTED=true
+    EVALUATOR_MODE="native-goal+continuation-prompt"
+    ;;
+  kimi)
+    LOOP_MODE="queue-goal-supervised"
+    EVALUATOR_MODE="kbd-goal-check"
+    ;;
+  opencode)
+    LOOP_MODE="plugin-goal-supervised"
+    NATIVE_GOAL_SUPPORTED=true
+    EVALUATOR_MODE="plugin-goal+state-checkpoint"
+    ;;
+  zed)
+    LOOP_MODE="bridge-supervised"
+    EVALUATOR_MODE="bridge-goal+state-checkpoint"
+    ;;
+esac
 
 # ── Generate slug ─────────────────────────────────────────────────────────────
 if [[ -z "$SLUG" ]]; then
@@ -136,6 +169,15 @@ cat > "$GOAL_JSON_TMP" << GOALJSON
   "max_turns_per_phase": $MAX_TURNS,
   "max_no_progress_turns": 3,
   "auto_gates": $AUTO_GATES,
+  "loop_controller": {
+    "owner": "$LOOP_OWNER",
+    "tool": "$TOOL",
+    "mode": "$LOOP_MODE",
+    "native_goal_supported": $NATIVE_GOAL_SUPPORTED,
+    "evaluator_mode": "$EVALUATOR_MODE",
+    "stop_guard": "$STOP_GUARD",
+    "checkpoint_files": ["STATE.md", "TASKS.md", "SPEC.md"]
+  },
   "created": "$NOW",
   "updated": "$NOW"
 }
@@ -174,6 +216,33 @@ _None_
 
 _None_
 STATEMD
+
+cat > "$GOAL_DIR/CONTROL.md" << CONTROLMD
+# Goal Control — $DESCRIPTION
+
+- owner: $LOOP_OWNER
+- tool: $TOOL
+- mode: $LOOP_MODE
+- native_goal_supported: $NATIVE_GOAL_SUPPORTED
+- evaluator_mode: $EVALUATOR_MODE
+- stop_guard: $STOP_GUARD
+
+## Invariants
+
+1. KBD owns the durable state in \`.kbd-orchestrator/goals/$SLUG/\`.
+2. A host-native loop may execute work, but completion is not trusted unless
+   \`STATE.md\`, \`TASKS.md\`, and the phase stopping condition agree.
+3. Non-terminal KBD waypoints must continue through the KBD next command, not a
+   bare backend handoff.
+4. If the host loop loses context, resume from \`goal.json\` + \`STATE.md\`, not
+   from conversational memory.
+
+## Resume
+
+- resume command: \`/kbd-goal --resume $SLUG\`
+- state file: \`.kbd-orchestrator/goals/$SLUG/STATE.md\`
+- stopping condition source: \`goal.json\`
+CONTROLMD
 
 # ── Write corresponding loop.json ─────────────────────────────────────────────
 LOOPS_DIR="$KBD_ROOT/loops/$SLUG"

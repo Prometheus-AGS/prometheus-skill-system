@@ -18,6 +18,9 @@
 _progress_lib="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)/progress.sh"
 # shellcheck source=/dev/null
 [ -f "$_progress_lib" ] && . "$_progress_lib"
+_waypoint_lib="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)/waypoint.sh"
+# shellcheck source=/dev/null
+[ -f "$_waypoint_lib" ] && . "$_waypoint_lib"
 
 _pos_root() {
   local dir="$PWD"
@@ -111,11 +114,16 @@ kbd_position_sync() {
   # Resolve the full position chain from path[] (synthesized from v2 when
   # absent), supporting arbitrary nesting depth.
   local chain
-  chain="$(jq -r '
-    if (.path | type) == "array" and (.path | length) > 0 then .path | join(" ")
-    else ([ (.phase // empty), (.childPointer // empty) ]
-          | map(select(. != "" and . != null)) | join(" ")) end
-  ' "$wp" 2>/dev/null)"
+  if command -v kbd_existing_path_tokens >/dev/null 2>&1; then
+    chain="$(kbd_existing_path_tokens "$wp" 2>/dev/null || true)"
+  else
+    chain="$(jq -r '
+      if (.path | type) == "array" and (.path | length) > 0 then .path | join(" ")
+      else ([ (.phase // empty), (.childPointer // empty) ]
+            | map(select(. != "" and . != null)) | join(" ")) end
+    ' "$wp" 2>/dev/null)"
+  fi
+  [ -n "$chain" ] || chain="$phase"
   # shellcheck disable=SC2206
   local toks=($chain)
   local cdepth="${#toks[@]}"

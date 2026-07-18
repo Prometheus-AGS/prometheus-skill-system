@@ -5,6 +5,7 @@
 #
 # Env knobs:
 #   PROMETHEUS_FOCUS_SEMANTIC=0   disable the surreal-memory semantic path
+#   PROMETHEUS_FOCUS_TIMEOUT=5    max seconds for pk focus before degrading silently
 #   SURREAL_MEMORY_URL            override SM base URL (default: http://localhost:23001)
 set -uo pipefail
 
@@ -48,7 +49,7 @@ if [[ "${PROMETHEUS_FOCUS_SEMANTIC:-1}" == "1" ]]; then
 
   if [[ -n "$PROMPT_JSON_STR" ]]; then
     SM_RESPONSE="$(curl -sf --max-time 3 \
-      -X POST "${SM_URL}/api/v1/memory/search" \
+      -X POST "${SM_URL}/api/v1/search" \
       -H "Content-Type: application/json" \
       -d "{\"query\": ${PROMPT_JSON_STR}, \"user_id\": \"prometheus-skill-pack\", \"limit\": 3}" \
       2>/dev/null)" || SM_RESPONSE=""
@@ -86,10 +87,11 @@ if [ -z "$ALL_WORDS" ]; then
 fi
 
 # --- Run pk focus (with timeout when available — timeout is not on stock macOS) ---
+FOCUS_TIMEOUT_SECONDS="${PROMETHEUS_FOCUS_TIMEOUT:-5}"
 if command -v timeout &>/dev/null; then
-  FOCUS_OUTPUT="$(timeout 2.5 pk focus "$ALL_WORDS" --max-articles 3 2>/dev/null || hook_log_error "$LINENO")"
+  FOCUS_OUTPUT="$(timeout "$FOCUS_TIMEOUT_SECONDS" pk focus "$ALL_WORDS" --k 3 2>/dev/null || hook_log_error "$LINENO")"
 else
-  FOCUS_OUTPUT="$(pk focus "$ALL_WORDS" --max-articles 3 2>/dev/null || hook_log_error "$LINENO")"
+  FOCUS_OUTPUT="$(pk focus "$ALL_WORDS" --k 3 2>/dev/null || hook_log_error "$LINENO")"
 fi
 
 if [ -n "${FOCUS_OUTPUT:-}" ]; then

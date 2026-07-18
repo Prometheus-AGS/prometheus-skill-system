@@ -34,6 +34,9 @@ cat > "$PHASE/reflection.md" <<'MD'
 ## Delta
 1. Something was missed.
 
+## Root Cause
+1. The active store path was assumed instead of inspected.
+
 ## Corrective Actions
 1. [GLOBAL] A universal rule to apply everywhere.
 MD
@@ -49,6 +52,7 @@ writeback_post "$PHASE/reflection.md"
 [ -s "$CURL_BODY_FILE" ] && ok || bad "accepted reflection should POST to memory"
 grep -q '"user_id": "global"' "$CURL_BODY_FILE" && ok || bad "[GLOBAL] corrective action → global scope" "$(cat "$CURL_BODY_FILE")"
 grep -q 'Deltas:' "$CURL_BODY_FILE" && ok || bad "payload includes Delta section"
+grep -q 'Root causes:' "$CURL_BODY_FILE" && ok || bad "payload includes Root Cause section"
 
 # 2. Rejected reflection → NOT persisted
 echo '{ "phase":"p1", "reflect_gate":"rejected" }' > "$PHASE/progress.json"

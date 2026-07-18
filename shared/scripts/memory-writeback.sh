@@ -8,8 +8,8 @@
 #      when the written file is a reflection.md whose phase progress.json has no
 #      reflect_gate=rejected, so a rejected reflection is never persisted.
 #
-# Extracts the Delta + Corrective Actions sections (the durable learning) and
-# routes [GLOBAL]-marked lines to user_id=global. Always exits 0.
+# Extracts the Delta + Root Cause + Corrective Actions sections (the durable
+# learning) and routes [GLOBAL]-marked lines to user_id=global. Always exits 0.
 set -uo pipefail
 
 HERE="$(cd "$(dirname "$0")" && pwd)"
@@ -73,7 +73,8 @@ if [ -f "$PROGRESS" ]; then
   }
 fi
 
-# Extract the Delta + Corrective Actions sections as the learning payload.
+# Extract the Delta + Root Cause + Corrective Actions sections as the learning
+# payload.
 PAYLOAD="$(python3 - "$REFLECTION" <<'PY' 2>/dev/null || true
 import sys, re
 text = open(sys.argv[1], encoding="utf-8", errors="replace").read()
@@ -81,6 +82,7 @@ def section(name):
     m = re.search(r'(?ims)^##\s+' + re.escape(name) + r'\s*$(.*?)(?=^##\s|\Z)', text)
     return (m.group(1).strip() if m else "")
 delta = section("Delta")
+root_cause = section("Root Cause")
 ca = section("Corrective Actions")
 phase = ""
 m = re.search(r'(?im)^#\s+Reflection\s+[—-]\s+(.+)$', text)
@@ -88,6 +90,7 @@ if m: phase = m.group(1).strip()
 out = []
 if phase: out.append(f"Phase {phase} reflection learnings:")
 if delta: out.append("Deltas:\n" + delta)
+if root_cause: out.append("Root causes:\n" + root_cause)
 if ca: out.append("Corrective actions:\n" + ca)
 print("\n\n".join(out))
 PY

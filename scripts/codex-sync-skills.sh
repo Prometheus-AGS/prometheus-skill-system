@@ -10,6 +10,7 @@
 #
 # Usage:
 #   bash scripts/codex-sync-skills.sh              # sync catalog skills
+#   bash scripts/codex-sync-skills.sh --dry-run    # show sync/prune plan only
 #   bash scripts/codex-sync-skills.sh --report     # sync, then print catalog cost
 #   bash scripts/codex-sync-skills.sh --uninstall  # remove pack skills from codex
 #   bash scripts/codex-sync-skills.sh --quiet      # no output unless something changed
@@ -24,11 +25,13 @@ MARKER=".prometheus-pack"
 UNINSTALL=false
 REPORT=false
 QUIET=false
+DRY_RUN=false
 for arg in "$@"; do
     case "$arg" in
         --uninstall) UNINSTALL=true ;;
         --report)    REPORT=true ;;
         --quiet)     QUIET=true ;;
+        --dry-run)   DRY_RUN=true ;;
     esac
 done
 
@@ -101,17 +104,29 @@ if $UNINSTALL; then
     removed=0
     for dest in "$CODEX_SKILLS"/*; do
         [[ -d "$dest" && -f "$dest/$MARKER" ]] || continue
-        rm -rf "$dest"
+        if $DRY_RUN; then
+            say "  [dry-run] would remove $dest"
+        else
+            rm -rf "$dest"
+        fi
         removed=$((removed + 1))
     done
     # Legacy: the old installer left symlinks pointing into this repo.
     for link in "$CODEX_SKILLS"/*; do
         if [[ -L "$link" ]] && [[ "$(readlink "$link")" == "$REPO_ROOT"* ]]; then
-            rm -f "$link"
+            if $DRY_RUN; then
+                say "  [dry-run] would remove legacy symlink $link"
+            else
+                rm -f "$link"
+            fi
             removed=$((removed + 1))
         fi
     done
-    say "  ✅ codex: $removed skills removed"
+    if $DRY_RUN; then
+        say "  ✅ codex: dry-run planned removal of $removed skills"
+    else
+        say "  ✅ codex: $removed skills removed"
+    fi
     exit 0
 fi
 
@@ -134,7 +149,11 @@ fi
 legacy=0
 for link in "$CODEX_SKILLS"/*; do
     if [[ -L "$link" ]] && [[ "$(readlink "$link")" == "$REPO_ROOT"* ]]; then
-        rm -f "$link"
+        if $DRY_RUN; then
+            say "  [dry-run] would remove dead symlink $link"
+        else
+            rm -f "$link"
+        fi
         legacy=$((legacy + 1))
     fi
 done
@@ -155,16 +174,20 @@ for rel in "${CATALOG[@]}"; do
         continue
     fi
 
-    if command -v rsync >/dev/null 2>&1; then
+    if $DRY_RUN; then
+        say "  [dry-run] would sync $src -> $dest"
+    elif command -v rsync >/dev/null 2>&1; then
         rsync -a --delete \
-              --exclude '.git' --exclude 'node_modules' --exclude "$MARKER" \
-              "$src/" "$dest/"
+            --exclude '.git' --exclude 'node_modules' --exclude "$MARKER" \
+            "$src/" "$dest/"
     else
         rm -rf "$dest"
         mkdir -p "$dest"
         cp -R "$src/." "$dest/"
     fi
-    printf 'source=%s\n' "$rel" > "$dest/$MARKER"
+    if ! $DRY_RUN; then
+        printf 'source=%s\n' "$rel" > "$dest/$MARKER"
+    fi
     synced=$((synced + 1))
 done
 
@@ -174,12 +197,20 @@ for dest in "$CODEX_SKILLS"/*; do
     [[ -d "$dest" && -f "$dest/$MARKER" ]] || continue
     name="$(basename "$dest")"
     if ! printf '%s' "$WANTED" | grep -qx "$name"; then
-        rm -rf "$dest"
+        if $DRY_RUN; then
+            say "  [dry-run] would prune $dest"
+        else
+            rm -rf "$dest"
+        fi
         pruned=$((pruned + 1))
     fi
 done
 
-say "  ✅ codex: $synced skills synced as real directories$([[ $pruned -gt 0 ]] && echo ", $pruned pruned")"
+if $DRY_RUN; then
+    say "  ✅ codex: dry-run planned sync of $synced skills$([[ $pruned -gt 0 ]] && echo ", $pruned pruned")"
+else
+    say "  ✅ codex: $synced skills synced as real directories$([[ $pruned -gt 0 ]] && echo ", $pruned pruned")"
+fi
 
 # ---------------------------------------------------------------------------
 # Report: what the catalog actually costs the model.

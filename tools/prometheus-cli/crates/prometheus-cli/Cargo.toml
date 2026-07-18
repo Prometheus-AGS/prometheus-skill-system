@@ -42,3 +42,6 @@ sycophancy-core.workspace = true
 [features]
 # Enable knowledge compilation via prometheus-knowledge (requires network at build time)
 knowledge = []
+
+[dev-dependencies]
+serde_json.workspace = true

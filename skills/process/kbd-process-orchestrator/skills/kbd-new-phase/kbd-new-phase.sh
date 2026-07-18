@@ -152,7 +152,22 @@ if [[ -f "$pj" ]]; then
   jq --arg phase "$name" --arg now "$now" '.activePhase = $phase | .updatedAt = $now' "$pj" > "$pj.tmp"
   mv -f "$pj.tmp" "$pj"
 else
-  warn "$pj missing — run /kbd-init to seed it"
+  warn "$pj missing — writing a minimal project identity so KBD can keep project state isolated"
+  root_pwd="$(pwd -P)"
+  project_name="$(basename "$root_pwd")"
+  jq -n \
+    --arg name "$project_name" \
+    --arg phase "$name" \
+    --arg root "$root_pwd" \
+    --arg now "$now" \
+    '{
+      name: $name,
+      activePhase: $phase,
+      focus_project_path: $root,
+      updatedAt: $now,
+      bootstrappedBy: "kbd-new-phase"
+    }' > "$pj.tmp"
+  mv -f "$pj.tmp" "$pj"
 fi
 
 # ---------- 5. Hook fire (best-effort) ----------

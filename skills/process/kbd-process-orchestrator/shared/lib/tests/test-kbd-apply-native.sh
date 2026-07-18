@@ -130,14 +130,26 @@ JSON
 # Need project.json absent so detect picks native via tasks.json; remove the pin + openspec dir.
 rm -f .kbd-orchestrator/project.json; rmdir openspec 2>/dev/null || true
 
-"$APPLY" begin-task change-z 1 1 2 one >/dev/null 2>&1
-"$APPLY" end-task   change-z 1 1 2 one >/dev/null 2>&1
+begin_out="$("$APPLY" begin-task change-z 1 1 2 one 2>&1)"
+echo "$begin_out" | grep -q '^Starting task 1 out of 2:   one$' \
+  || fail "begin-task should emit canonical task start line, got: $begin_out"
+end_out="$("$APPLY" end-task change-z 1 1 2 one 2>&1)"
+echo "$end_out" | grep -q '^Completed task 1 out of 2:   one$' \
+  || fail "end-task should emit canonical task completion line, got: $end_out"
+echo "$end_out" | grep -q '^Remaining tasks after task 1: 1 out of 2 — two$' \
+  || fail "end-task should emit remaining task queue, got: $end_out"
 [ -f .kbd-orchestrator/position.json ] || fail "position.json not created by end-task"
 jq -e '.cursor | index("task:1/2") != null' .kbd-orchestrator/position.json >/dev/null \
   || fail "position cursor should show task:1/2, got $(jq -c .cursor .kbd-orchestrator/position.json)"
 
-"$APPLY" begin-task change-z 2 2 2 two >/dev/null 2>&1
-"$APPLY" end-task   change-z 2 2 2 two >/dev/null 2>&1
+begin_out="$("$APPLY" begin-task change-z 2 2 2 two 2>&1)"
+echo "$begin_out" | grep -q '^Starting task 2 out of 2:   two$' \
+  || fail "final begin-task should emit canonical task start line, got: $begin_out"
+end_out="$("$APPLY" end-task change-z 2 2 2 two 2>&1)"
+echo "$end_out" | grep -q '^Completed task 2 out of 2:   two$' \
+  || fail "final end-task should emit canonical task completion line, got: $end_out"
+echo "$end_out" | grep -q '^Remaining tasks after task 2: 0 out of 2 — none$' \
+  || fail "final end-task should report an empty queue, got: $end_out"
 jq -e '.cursor | index("task:2/2") != null' .kbd-orchestrator/position.json >/dev/null \
   || fail "position cursor should advance to task:2/2, got $(jq -c .cursor .kbd-orchestrator/position.json)"
 # progress.json and position.json agree on the task fraction

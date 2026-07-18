@@ -1,6 +1,8 @@
 # Update Log
 
 ## 2026-07-17
+* **Creation**: [Karpathy MCP Gate 2026-07-17 Repair-Gate Ingestion Check](/karpathy-mcp-gate-2026-07-17-repair-gate-ingestion-check.md)
+* **Creation**: [MCP Ingestion Required for Running pk-cherry Store Visibility](/mcp-ingestion-required-for-running-pk-cherry-store-visibility.md)
 * **Creation**: [Global Skill Repair Learning Gate](/global-skill-repair-learning-gate.md)
 
 ## 2026-07-16

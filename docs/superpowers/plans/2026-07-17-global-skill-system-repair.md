@@ -123,7 +123,7 @@ This is the first operational repair after the security/rollback snapshot. Do no
 
 Record installed paths, versions, hashes, LaunchAgent labels, listening ports, and current health for `pk`, `pk-cherry`, `forge`, `surreal-memory-server`, and `sycophancy-correction`. Preserve all output under the Task 1 backup directory. Do not report green merely because a command exists; every required command must complete a real read/write/read-back probe.
 
-- [ ] **Step 2: Prove the LLM wiki CLI and MCP path**
+- [x] **Step 2: Prove the LLM wiki CLI and MCP path**
 
 Create a uniquely tagged disposable note and run:
 
@@ -143,11 +143,11 @@ pk lint
 
 Then initialize the pk-cherry MCP endpoint, call `tools/list`, and execute one read-only knowledge query. Expected: the unique tag is retrievable through both CLI and MCP, and `pk lint` does not expose a blocking integrity error.
 
-- [ ] **Step 3: Prove memory and writeback semantics**
+- [x] **Step 3: Prove memory and writeback semantics**
 
 Write and retrieve one project-scoped and one global-scoped disposable memory through `shared/scripts/lib/memory-bridge.sh` or the first available backend. Verify project/global isolation and confirm the stop/writeback path stores a structured Delta → Root Cause → Corrective Actions note.
 
-- [ ] **Step 4: Prove prompt, stop, Forge, and sycophancy hooks**
+- [x] **Step 4: Prove prompt, stop, Forge, and sycophancy hooks**
 
 Invoke the installed prompt and stop hooks with disposable payloads and unique session IDs. Verify:
 
@@ -157,7 +157,7 @@ Invoke the installed prompt and stop hooks with disposable payloads and unique s
 - `sycophancy-correction` initializes and processes the reflector path;
 - missing optional services degrade explicitly without masking required failures.
 
-- [ ] **Step 5: Run the existing learning-loop regression suite**
+- [x] **Step 5: Run the existing learning-loop regression suite**
 
 Run:
 
@@ -171,11 +171,11 @@ bash shared/scripts/tests/test-pipeline-smoke.sh
 
 Expected: all five tests pass. A skipped required probe is not a pass.
 
-- [ ] **Step 6: Apply only minimal bootstrap repairs if the gate fails**
+- [x] **Step 6: Apply only minimal bootstrap repairs if the gate fails**
 
 If an installed learning binary is stale or missing, build and install only the required pinned source for `tools/prometheus-knowledge`, `tools/forge-rs`, `tools/surreal-memory-server`, and sycophancy support, serially. Restart only their directly owned LaunchAgents, rerun Steps 2–5, and record every change in the rollback snapshot. Do not yet reconcile unrelated MCP servers, skill catalogs, BrowserClaw, template-forge, or other LaunchAgents.
 
-- [ ] **Step 7: Write and enforce the readiness artifact**
+- [x] **Step 7: Write and enforce the readiness artifact**
 
 Create `~/.prometheus/repair/karpathy-ready.json` with the exact source SHAs, installed hashes, test results, endpoint health, timestamp, and unique wiki/memory probe IDs. The artifact must set `ready: true` only when all required probes pass. Every later task must verify this artifact and run `pk focus` before work; if the substrate regresses, return to this task before proceeding.
 
@@ -188,7 +188,7 @@ Create `~/.prometheus/repair/karpathy-ready.json` with the exact source SHAs, in
 - Read: all submodule worktrees under `tools/` and `skills/imported/`
 - Preserve: `tools/surreal-memory-server/.prometheus/`
 
-- [ ] **Step 1: Fast-forward the parent repository only**
+- [x] **Step 1: Fast-forward the parent repository only**
 
 Run:
 
@@ -199,7 +199,7 @@ git status --short --branch
 
 Expected: `main` matches `origin/main`; any local or untracked changes are still visible and untouched.
 
-- [ ] **Step 2: Synchronize URLs and initialize pinned commits**
+- [x] **Step 2: Synchronize URLs and initialize pinned commits**
 
 Run:
 
@@ -211,7 +211,7 @@ git submodule status --recursive
 
 Expected: `tools/cowork-skills` and `tools/disk-space-guardian` no longer have a leading `-`; no submodule is advanced beyond the SHA pinned by the parent repository.
 
-- [ ] **Step 3: Verify source worktrees before editing**
+- [x] **Step 3: Verify source worktrees before editing**
 
 Run:
 
@@ -242,7 +242,7 @@ Expected: only previously known local state is dirty. Stop and review if synchro
 
 Discovery found no existing `kbd-doctor` skill. The `prometheus doctor` CLI subcommand already exists, so this task must update that command rather than add a second implementation. The current command is read-only and can print `Surreal-memory... unreachable` followed by `All checks passed`; that false-green behavior is a required regression case.
 
-- [ ] **Step 1: Add failing doctor behavior and output-contract tests**
+- [x] **Step 1: Add failing doctor behavior and output-contract tests**
 
 Add deterministic tests for:
 
@@ -255,7 +255,7 @@ Add deterministic tests for:
 
 Run the narrow CLI tests first and verify the current false-green case fails before implementation.
 
-- [ ] **Step 2: Refactor doctor around a check and repair registry**
+- [x] **Step 2: Refactor doctor around a check and repair registry**
 
 Introduce typed equivalents of `Check`, `CheckResult`, `Severity`, and `RepairAction` so one registry drives human output, JSON output, repair planning, and post-repair verification. Use stable check IDs grouped at least by `learning`, `skills`, `binaries`, `services`, `mcp`, `hooks`, and `state`. Red must exit nonzero; yellow may exit zero only when the condition is explicitly optional or degraded by policy.
 
@@ -1093,4 +1093,3 @@ Pause execution and request user review if any of these occur:
 - the template-forge submodule fix needs an upstream commit/push;
 - a canonical service cannot take ownership after legacy labels are booted out;
 - tests expose unrelated repository failures that predate this repair.
-

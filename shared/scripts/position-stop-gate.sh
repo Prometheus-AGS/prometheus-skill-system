@@ -80,7 +80,29 @@ PY
 )"
 [ -n "$LAST_TEXT" ] || finish
 
+HAS_FOOTER=false
 if printf '%s' "$LAST_TEXT" | grep -qE 'prometheus-position|^Position:' ; then
+  HAS_FOOTER=true
+fi
+
+if [ "$HAS_FOOTER" = "true" ]; then
+  NEXT_CMD="$(jq -r '.exactNextCommand // .exact_next_command // empty' "$WP" 2>/dev/null || true)"
+  CLAIMS_COMPLETE=false
+  if printf '%s' "$LAST_TEXT" | grep -Eiq '\b(all done|done|finished|complete|completed|wrap(?:ped)? up|stopping here)\b'; then
+    CLAIMS_COMPLETE=true
+  fi
+  if [ "$CLAIMS_COMPLETE" = "true" ] && [ -n "$NEXT_CMD" ] && ! _wr_is_terminal_status "$STATUS"; then
+    mkdir -p "$(dirname "$CAP_FILE")" 2>/dev/null || finish
+    printf '%s\n' "$CAP_KEY" >> "$CAP_FILE" 2>/dev/null || true
+    REASON="The response claims completion, but the active KBD waypoint is still non-terminal (status=$STATUS).
+
+Continue the loop instead of stopping. Resume from the exact next command:
+
+$NEXT_CMD"
+    jq -cn --arg reason "$REASON" '{"decision":"block","reason":$reason}'
+    hook_log_end 0
+    exit 0
+  fi
   finish
 fi
 

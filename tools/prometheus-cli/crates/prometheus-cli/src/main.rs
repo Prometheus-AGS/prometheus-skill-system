@@ -82,7 +82,26 @@ enum Commands {
     },
 
     /// Health check — verify directories, platforms, connectivity
-    Doctor,
+    Doctor {
+        /// Emit machine-readable JSON output
+        #[arg(long)]
+        json: bool,
+        /// Restrict output to a specific check id or group
+        #[arg(long)]
+        check: Option<String>,
+        /// Plan or apply safe repairs
+        #[arg(long, conflicts_with = "refresh")]
+        fix: bool,
+        /// Refresh managed binaries, services, and catalogs from pinned source
+        #[arg(long)]
+        refresh: bool,
+        /// Show the repair or refresh plan without mutating
+        #[arg(long)]
+        dry_run: bool,
+        /// Suppress prompts for safe reversible actions
+        #[arg(long)]
+        yes: bool,
+    },
 
     /// Show current status: Skills.toml, KBD waypoint, evolver state
     Status {
@@ -297,8 +316,16 @@ async fn main() -> Result<()> {
         Commands::Verify { update } => {
             commands::verify::run(update)
         }
-        Commands::Doctor => {
-            commands::doctor::run().await
+        Commands::Doctor { json, check, fix, refresh, dry_run, yes } => {
+            commands::doctor::run(commands::doctor::DoctorOptions {
+                json,
+                check,
+                fix,
+                refresh,
+                dry_run,
+                yes,
+            })
+            .await
         }
         Commands::Status { path } => {
             commands::status::run(&path)

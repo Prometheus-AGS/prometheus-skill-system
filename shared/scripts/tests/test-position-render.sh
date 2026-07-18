@@ -144,6 +144,30 @@ for s in execute_ready planned executing assessment_ready plan_ready in_progress
     FAIL=$((FAIL + 1)); echo "FAIL: '$s' should NOT be terminal" >&2; else PASS=$((PASS + 1)); fi
 done
 
+# 12. Bare OpenSpec and Spec Kit next commands are normalized back to /kbd-apply
+mkdir -p "$TMP/repo3/.kbd-orchestrator/phases/p3"
+cat > "$TMP/repo3/.kbd-orchestrator/current-waypoint.json" <<'EOF'
+{
+  "phase": "p3",
+  "status": "execute_ready",
+  "change": "change-123-demo",
+  "exactNextCommand": "/opsx:apply"
+}
+EOF
+OUT="$(cd "$TMP/repo3" && source "$LIB" && waypoint_render)"
+assert_contains "bare openspec normalized" "$OUT" 'Next: /kbd-apply change-123-demo'
+
+cat > "$TMP/repo3/.kbd-orchestrator/current-waypoint.json" <<'EOF'
+{
+  "phase": "p3",
+  "status": "execute_ready",
+  "change": "change-123-demo",
+  "exactNextCommand": "/speckit.implement feature-x"
+}
+EOF
+OUT="$(cd "$TMP/repo3" && source "$LIB" && waypoint_render)"
+assert_contains "speckit normalized" "$OUT" 'Next: /kbd-apply feature-x'
+
 echo "---"
 echo "PASS=$PASS FAIL=$FAIL"
 [ "$FAIL" -eq 0 ]

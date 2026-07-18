@@ -55,8 +55,12 @@ git submodule init && git submodule update
 # Check/install prerequisites and build all six tool binaries to ~/.local/bin/
 bash scripts/check-prerequisites.sh --install --build-tools
 
-# This is what `npm run doctor` wraps, and it ends by running the smoke test.
+# Read-only doctor surface from the compiled CLI
 npm run doctor
+
+# Optional dry-run repair planning surfaces
+npm run doctor:fix
+npm run doctor:refresh
 ```
 
 After this, `~/.local/bin/` holds `prometheus`, `forge`, `pk`, `pk-cherry`, `liter-llm`, `surreal-memory-server`, and `prometheus-rust-auditor`. Make sure `~/.local/bin` is on your `PATH`.
@@ -97,10 +101,12 @@ On Linux the same `bash scripts/install-mcp-services.sh` renders `systemd --user
 ### Step 5 — verify
 
 ```bash
-npm run doctor                 # full system health
+npm run doctor                      # compiled CLI, read-only diagnosis
+npm run doctor:fix                  # dry-run safe repair planning
+npm run doctor:refresh              # dry-run pinned-source refresh planning
 bash scripts/check-mcp-health.sh   # launchctl + HTTP probe per service
-pk doctor --json               # KB / hooks / sycophancy binary / scoping
-prometheus doctor              # CLI-side health
+prometheus doctor --json           # machine-readable CLI health
+prometheus doctor --check learning # scoped CLI health
 ```
 
 ## First run

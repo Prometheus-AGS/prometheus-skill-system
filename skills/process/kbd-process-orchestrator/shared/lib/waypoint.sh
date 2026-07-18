@@ -183,12 +183,41 @@ _kbd_path_from_waypoint() {
   ' "$wp" 2>/dev/null
 }
 
+# kbd_existing_path_tokens [waypoint-file]
+# Echo the longest existing prefix of the waypoint path as space-separated
+# tokens. This trims stale child pointers instead of propagating non-existent
+# nodes into derived state.
+kbd_existing_path_tokens() {
+  local wp="${1:-.kbd-orchestrator/current-waypoint.json}"
+  local chain
+  chain="$(_kbd_path_from_waypoint "$wp")" || return 1
+  [[ -n "$chain" ]] || return 1
+  # shellcheck disable=SC2206
+  local toks=($chain)
+  local i current valid=()
+
+  current=".kbd-orchestrator/phases/${toks[0]}"
+  [[ -d "$current" ]] || return 1
+  valid+=("${toks[0]}")
+
+  for ((i=1; i<${#toks[@]}; i++)); do
+    if [[ -d "$current/children/${toks[$i]}" ]]; then
+      current="$current/children/${toks[$i]}"
+      valid+=("${toks[$i]}")
+    else
+      break
+    fi
+  done
+
+  printf '%s' "${valid[*]}"
+}
+
 # kbd_current_node_dir [waypoint-file]  — resolve the active node dir from the
 # waypoint's path[] (or synthesized v2 chain).
 kbd_current_node_dir() {
   local wp="${1:-.kbd-orchestrator/current-waypoint.json}"
   local chain
-  chain="$(_kbd_path_from_waypoint "$wp")" || return 1
+  chain="$(kbd_existing_path_tokens "$wp")" || return 1
   [[ -n "$chain" ]] || return 1
   # shellcheck disable=SC2086
   kbd_node_dir $chain

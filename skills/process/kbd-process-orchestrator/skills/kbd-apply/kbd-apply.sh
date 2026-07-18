@@ -15,10 +15,10 @@
 #   list <change>                  → prints tasks as TSV: <id>\t<done 0|1>\t<title>
 #   progress <change>              → prints "total complete remaining"
 #   begin-task <change> <id> <i> <n> <title>
-#                                  → fires task:before + emits "Starting task i of n: title"
+#                                  → fires task:before + emits "Starting task i out of n:   title"
 #   end-task   <change> <id> <i> <n> <title>
 #                                  → mark_done + sync progress.json + fires task:after
-#                                    + emits "Completed task i of n: title"
+#                                    + emits "Completed task i out of n:   title"
 #   mark-done  <change> <id>       → flip one task to done in the backend
 #   verify     <change>            → backend verify (non-zero = fail)
 #   archive    <change>            → backend archive
@@ -336,6 +336,11 @@ b_mark_done() { local be; be="$(backend_detect "${1:-}")"; case "$be" in openspe
 b_verify()    { local be; be="$(backend_detect "${1:-}")"; case "$be" in openspec) os_verify "$@";; native-kbd) nk_verify "$@";; *) return 0;; esac; }   # speckit: /speckit.analyze is model-driven, no CLI gate
 b_archive()   { local be; be="$(backend_detect "${1:-}")"; case "$be" in openspec) os_archive "$@";; native-kbd) nk_archive "$@";; *) return 0;; esac; }  # speckit: no archive step
 
+b_remaining_titles() {
+  local change="$1"
+  b_list "$change" 2>/dev/null | awk -F '\t' '$2=="0"{print $3}' | head -5
+}
+
 # ---- progress.json sync ----------------------------------------------------
 
 _phase_dir() {
@@ -406,7 +411,7 @@ case "$cmd" in
     change="${1:-}"; id="${2:-}"; i="${3:-1}"; n="${4:-1}"; shift 4 || true; title="$*"
     [ -n "$change" ] && [ -n "$id" ] || die "usage: begin-task <change> <id> <i> <n> <title>"
     fire task before "$change:$id" "$i" "$n"
-    printf 'Starting task %s of %s: %s\n' "$i" "$n" "$title" ;;
+    printf 'Starting task %s out of %s:   %s\n' "$i" "$n" "$title" ;;
 
   end-task)
     change="${1:-}"; id="${2:-}"; i="${3:-1}"; n="${4:-1}"; shift 4 || true; title="$*"
@@ -419,7 +424,15 @@ case "$cmd" in
     # completion live (CF-5). Best-effort; never aborts the driver.
     command -v kbd_position_sync >/dev/null 2>&1 && { kbd_position_sync || true; }
     fire task after "$change:$id" "$i" "$n"
-    printf 'Completed task %s of %s: %s\n' "$i" "$n" "$title" ;;
+    printf 'Completed task %s out of %s:   %s\n' "$i" "$n" "$title"
+    if [ "${rem:-0}" -gt 0 ]; then
+      local pending_titles pending_preview
+      pending_titles="$(b_remaining_titles "$change" | paste -sd ' | ' -)"
+      pending_preview="${pending_titles:-unknown}"
+      printf 'Remaining tasks after task %s: %s out of %s — %s\n' "$i" "${rem:-0}" "${tot:-$n}" "$pending_preview"
+    else
+      printf 'Remaining tasks after task %s: 0 out of %s — none\n' "$i" "${tot:-$n}"
+    fi ;;
 
   mark-done)
     [ -n "${1:-}" ] && [ -n "${2:-}" ] || die "usage: mark-done <change> <id>"

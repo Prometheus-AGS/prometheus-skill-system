@@ -200,6 +200,17 @@ _kbd_hooks_log_path() {
   fi
 }
 
+_kbd_hooks_status_path() {
+  local phase_dir
+  phase_dir="$(_kbd_hooks_active_phase_dir)"
+  if [[ -n "$phase_dir" ]]; then
+    printf '%s/hooks-status.json' "$phase_dir"
+  else
+    mkdir -p .kbd-orchestrator 2>/dev/null || true
+    printf '.kbd-orchestrator/hooks-status.json'
+  fi
+}
+
 # Append a single JSON object to the hook log, with locking. Best-effort.
 _kbd_hooks_log_append() {
   local line="$1"
@@ -224,6 +235,50 @@ _kbd_hooks_log_append() {
   done
   printf '%s\n' "$line" >> "$log"
   rmdir "$lockdir" 2>/dev/null || true
+}
+
+_kbd_hooks_status_update() {
+  local line="$1"
+  command -v jq >/dev/null 2>&1 || return 0
+  local status_file tmp
+  status_file="$(_kbd_hooks_status_path)"
+  mkdir -p "$(dirname "$status_file")" 2>/dev/null || true
+  tmp="$(mktemp "${status_file}.XXXX")" || return 0
+
+  if [[ ! -f "$status_file" ]]; then
+    printf '%s\n' '{"totalRuns":0,"failedRuns":0,"lastRun":null,"lastFailure":null}' > "$status_file"
+  fi
+
+  jq -c --argjson event "$line" '
+    .totalRuns = ((.totalRuns // 0) + 1)
+    | .lastRun = {
+        ts: $event.ts,
+        kind: $event.kind,
+        edge: $event.edge,
+        name: $event.name,
+        hookId: $event.hookId,
+        layer: $event.layer,
+        mode: $event.mode,
+        status: $event.status
+      }
+    | if (($event.status // 0) != 0) then
+        .failedRuns = ((.failedRuns // 0) + 1)
+        | .lastFailure = {
+            ts: $event.ts,
+            kind: $event.kind,
+            edge: $event.edge,
+            name: $event.name,
+            hookId: $event.hookId,
+            layer: $event.layer,
+            mode: $event.mode,
+            status: $event.status,
+            stderrSnippet: ($event.stderrSnippet // ""),
+            logPath: ($event.logPath // "")
+          }
+      else
+        .
+      end
+  ' "$status_file" > "$tmp" 2>/dev/null && mv "$tmp" "$status_file" || rm -f "$tmp"
 }
 
 # Run a single resolved entry.
@@ -271,17 +326,16 @@ _kbd_hooks_run() {
   local rc stderr_snippet stderr_file
   stderr_file="$(mktemp -t kbdhook.XXXX)"
   # The hook command's stderr is the canonical output channel (the default
-  # reporter writes there). We tee it: visible to the parent process AND
-  # captured to a temp file so we can include a snippet in the JSONL log
-  # entry on failure. Process substitution requires bash, which we already
-  # depend on.
+  # reporter writes there). Capture it to a temp file, then replay it to the
+  # parent stderr after the hook returns. This avoids bash process-substitution
+  # paths like /dev/fd/*, which are intermittently denied in sandboxed runs.
   if command -v timeout >/dev/null 2>&1; then
     KBD_HOOK_KIND="$kind" KBD_HOOK_EDGE="$edge" KBD_HOOK_NAME="$name" \
     KBD_HOOK_INDEX="$index" KBD_HOOK_TOTAL="$total" \
     KBD_HOOK_PHASE_PATH="$phase_path" KBD_HOOK_CHILD_PATH="$child_path" \
     KBD_HOOK_SOURCE_TOOL="$source_tool" KBD_HOOK_STARTED_AT="$started_at" \
     PHASE="$phase_path" STEP="$kind" EVENT="$edge" TIMESTAMP="$started_at" \
-      timeout "$timeout" bash -c "$command" 2> >(tee "$stderr_file" >&2)
+      timeout "$timeout" bash -c "$command" 2>"$stderr_file"
     rc=$?
   else
     KBD_HOOK_KIND="$kind" KBD_HOOK_EDGE="$edge" KBD_HOOK_NAME="$name" \
@@ -289,10 +343,10 @@ _kbd_hooks_run() {
     KBD_HOOK_PHASE_PATH="$phase_path" KBD_HOOK_CHILD_PATH="$child_path" \
     KBD_HOOK_SOURCE_TOOL="$source_tool" KBD_HOOK_STARTED_AT="$started_at" \
     PHASE="$phase_path" STEP="$kind" EVENT="$edge" TIMESTAMP="$started_at" \
-      bash -c "$command" 2> >(tee "$stderr_file" >&2)
+      bash -c "$command" 2>"$stderr_file"
     rc=$?
   fi
-  wait 2>/dev/null || true   # let the tee subshell flush before we read
+  cat "$stderr_file" >&2 2>/dev/null || true
   stderr_snippet="$(head -c 200 "$stderr_file" 2>/dev/null | tr '\n' ' ')"
   rm -f "$stderr_file"
 
@@ -302,21 +356,23 @@ _kbd_hooks_run() {
     --arg ts "$started_at" --arg kind "$kind" --arg edge "$edge" --arg name "$name" \
     --argjson index "${index:-1}" --argjson total "${total:-1}" \
     --arg phasePath "$phase_path" --arg sourceTool "$source_tool" \
+    --arg logPath "$(_kbd_hooks_log_path)" \
     --arg hookId "$id" --arg layer "$layer" --arg mode "$mode" \
     --argjson status "$rc" --arg stderrSnippet "$stderr_snippet" '
       {ts:$ts, kind:$kind, edge:$edge, name:$name, index:$index, total:$total,
        phasePath:$phasePath, sourceTool:$sourceTool, hookId:$hookId,
-       layer:$layer, mode:$mode, status:$status,
+       layer:$layer, mode:$mode, status:$status, logPath:$logPath,
        stderrSnippet: (if $status == 0 then null else $stderrSnippet end)}
       | with_entries(select(.value != null))
     ')"
   _kbd_hooks_log_append "$entry_log"
+  _kbd_hooks_status_update "$entry_log"
 
   if [[ "$rc" -ne 0 ]]; then
     case "$on_failure" in
-      error)  _kbd_hooks_warn "hook $id failed (exit $rc); on_failure=error"; return "$rc" ;;
+      error)  _kbd_hooks_warn "hook $id failed (exit $rc); on_failure=error; log=$(_kbd_hooks_log_path); status=$(_kbd_hooks_status_path)"; return "$rc" ;;
       ignore) : ;;
-      *)      _kbd_hooks_warn "hook $id failed (exit $rc): $stderr_snippet" ;;
+      *)      _kbd_hooks_warn "hook $id failed (exit $rc): $stderr_snippet [log=$(_kbd_hooks_log_path) status=$(_kbd_hooks_status_path)]" ;;
     esac
   fi
 }

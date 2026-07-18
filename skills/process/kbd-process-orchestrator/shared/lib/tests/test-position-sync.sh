@@ -84,6 +84,20 @@ jq -e '.root.annotations[] | select(.source=="evolver") | .summary | contains("m
   "$POS" >/dev/null || fail "test 5 — evolver summary missing evolution name"
 pass "foreign state annotated, not migrated"
 
+# Test 5b: stale child pointers are trimmed to the longest existing path
+cat > "$SANDBOX/repo/.kbd-orchestrator/current-waypoint.json" <<'EOF'
+{
+  "phase": "p1",
+  "path": ["p1", "ghost-child"],
+  "status": "execute_ready",
+  "change": "change-002-demo"
+}
+EOF
+( cd "$SANDBOX/repo" && . "$SKILL_ROOT/shared/lib/position.sh" && kbd_position_sync )
+jq -e '.cursor == ["p1", "change-002-demo", "task:1/4"]' "$POS" >/dev/null \
+  || fail "test 5b — stale child pointer should trim to existing phase, got: $(jq -c '.cursor' "$POS")"
+pass "stale child pointers are trimmed from the derived cursor"
+
 # Test 6: no orchestrator → silent no-op
 ( cd "$SANDBOX" && . "$SKILL_ROOT/shared/lib/position.sh" && kbd_position_sync ) \
   || fail "test 6 — must return 0 without orchestrator"
@@ -94,7 +108,7 @@ pass "no orchestrator → no-op"
 RENDER_LIB="$SKILL_ROOT/../../../shared/scripts/lib/waypoint-render.sh"
 [ -f "$RENDER_LIB" ] || fail "test 7 — renderer lib not found at $RENDER_LIB"
 out="$(cd "$SANDBOX/repo" && source "$RENDER_LIB" && waypoint_render)"
-echo "$out" | grep -qF 'Position: p1 › kid › change-002-demo › task:0/3' \
+echo "$out" | grep -qF 'Position: p1 › change-002-demo › task:1/4' \
   || fail "test 7 — renderer did not use position cursor, got: $out"
 pass "waypoint-render prefers fresh position.json cursor"
 

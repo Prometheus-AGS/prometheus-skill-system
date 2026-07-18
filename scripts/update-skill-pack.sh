@@ -4,6 +4,7 @@
 # Usage:
 #   ./scripts/update-skill-pack.sh          # pull + delta install
 #   ./scripts/update-skill-pack.sh --force  # reinstall all (ignore delta)
+#   ./scripts/update-skill-pack.sh --doctor-refresh  # after a clean update, run prometheus doctor --refresh --yes
 #
 # Stores the last-installed git SHA at ~/.prometheus/skill-pack-install-ref
 # so only skills changed since that commit are re-installed.
@@ -13,10 +14,18 @@ set -euo pipefail
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 INSTALL_REF_FILE="${HOME}/.prometheus/skill-pack-install-ref"
 FORCE=false
+RUN_DOCTOR_REFRESH=false
 
-if [[ "${1:-}" == "--force" ]]; then
-    FORCE=true
-fi
+for arg in "$@"; do
+    case "$arg" in
+        --force) FORCE=true ;;
+        --doctor-refresh) RUN_DOCTOR_REFRESH=true ;;
+        *)
+            echo "Unknown argument: $arg" >&2
+            exit 2
+            ;;
+    esac
+done
 
 echo "Prometheus Skill Pack — Update"
 echo "==============================="
@@ -180,3 +189,32 @@ echo "Done."
 echo "  Skills updated: $CHANGED_COUNT"
 echo "  Platforms refreshed: ${#PLATFORMS_UPDATED[@]} (${PLATFORMS_UPDATED[*]:-none})"
 echo "  Install ref: $CURRENT_SHA"
+
+echo ""
+echo "Step 4: Doctor refresh handoff..."
+if ! command -v prometheus >/dev/null 2>&1; then
+    echo "  ○ prometheus CLI not found on PATH — run 'bash scripts/install-binaries.sh' first."
+    exit 0
+fi
+
+if [[ -n "$(git -C "$REPO_ROOT" status --short --untracked-files=no)" ]]; then
+    echo "  ○ Skipping doctor refresh because the checkout is dirty."
+    echo "    Offer: after reviewing local changes, run:"
+    echo "      prometheus doctor --refresh --yes"
+    exit 0
+fi
+
+if $RUN_DOCTOR_REFRESH; then
+    echo "  → Running prometheus doctor --refresh --yes"
+    if prometheus doctor --refresh --yes; then
+        echo "  ✅ doctor refresh completed"
+        echo "  → Rescanning with prometheus doctor --json"
+        prometheus doctor --json >/dev/null
+        echo "  ✅ doctor rescan completed"
+    else
+        echo "  ❌ doctor refresh reported unresolved issues"
+        exit 1
+    fi
+else
+    echo "  ○ Offer: run 'prometheus doctor --refresh --yes' to rebuild managed components and rescan health."
+fi

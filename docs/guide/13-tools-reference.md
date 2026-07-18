@@ -69,7 +69,10 @@ prometheus list [--all --global --project --verbose]
 prometheus search <query> [--limit N]
 prometheus audit [path]                          # Rust workspace audit
 prometheus verify [--update]
-prometheus doctor                                # full system health
+prometheus doctor                                # read-only diagnosis
+prometheus doctor --json                         # machine-readable report
+prometheus doctor --fix --dry-run                # safe repair planning
+prometheus doctor --refresh --dry-run            # pinned-source refresh planning
 prometheus status [path]
 prometheus generate <path> [--language]          # forge-style generation
 prometheus validate [path]

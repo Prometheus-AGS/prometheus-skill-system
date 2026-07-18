@@ -24,9 +24,19 @@ _find_root() {
     [[ -d "$dir/.kbd-orchestrator" ]] && echo "$dir" && return 0
     dir="$(dirname "$dir")"
   done
-  # Fallbacks
-  for candidate in "${REPO_ROOT:-}" "${CLAUDE_PLUGIN_ROOT:-}" "${HOME}/Projects/prometheus/prometheus-skill-pack"; do
-    [[ -d "${candidate}/.kbd-orchestrator" ]] && echo "$candidate" && return 0
+  # Fallbacks must point at the active focus project, not the skill-pack repo.
+  local candidate focus
+  for candidate in "${KBD_FOCUS_PROJECT_PATH:-}" "${REPO_ROOT:-}"; do
+    [[ -n "$candidate" ]] || continue
+    [[ -d "${candidate}/.kbd-orchestrator" ]] || continue
+    if [[ -f "${candidate}/.kbd-orchestrator/project.json" ]] && command -v jq >/dev/null 2>&1; then
+      focus="$(jq -r '.focus_project_path // empty' "${candidate}/.kbd-orchestrator/project.json" 2>/dev/null || true)"
+      if [[ -n "$focus" && "$focus" != "$candidate" ]]; then
+        continue
+      fi
+    fi
+    echo "$candidate"
+    return 0
   done
   return 1
 }
@@ -37,6 +47,27 @@ WAYPOINT="$ROOT/.kbd-orchestrator/current-waypoint.json"
 REMINDER="$ROOT/.kbd-orchestrator/position-reminder.txt"
 
 [[ -f "$WAYPOINT" ]] || { echo "[write-position-reminder] no waypoint found" >&2; exit 0; }
+
+normalize_next_command() {
+  local next="${1:-}" change="${2:-}" remainder=""
+  case "$next" in
+    "/opsx:apply")
+      [[ -n "$change" ]] && { printf '/kbd-apply %s' "$change"; return 0; }
+      ;;
+    "/opsx:apply "*)
+      remainder="${next#"/opsx:apply "}"
+      [[ -n "$remainder" ]] && { printf '/kbd-apply %s' "$remainder"; return 0; }
+      ;;
+    "/speckit.implement")
+      [[ -n "$change" ]] && { printf '/kbd-apply %s' "$change"; return 0; }
+      ;;
+    "/speckit.implement "*)
+      remainder="${next#"/speckit.implement "}"
+      [[ -n "$remainder" ]] && { printf '/kbd-apply %s' "$remainder"; return 0; }
+      ;;
+  esac
+  printf '%s' "$next"
+}
 
 # Gate on the PostToolUse payload (if any): only regenerate when the file the
 # tool just wrote is the waypoint or the active phase's progress.json.
@@ -60,6 +91,8 @@ fi
 PHASE=$(jq -r '.phase // "unknown"' "$WAYPOINT" 2>/dev/null) || PHASE="unknown"
 STAGE=$(jq -r '.stage // .status // "unknown"' "$WAYPOINT" 2>/dev/null) || STAGE="unknown"
 NEXT_CMD=$(jq -r '.exact_next_command // .exactNextCommand // "unknown"' "$WAYPOINT" 2>/dev/null) || NEXT_CMD="unknown"
+CHANGE_ID=$(jq -r '.change // .active_change // empty' "$WAYPOINT" 2>/dev/null) || CHANGE_ID=""
+NEXT_CMD="$(normalize_next_command "$NEXT_CMD" "$CHANGE_ID")"
 CHANGES_COMPLETED=$(jq -r '.changes_completed // 0' "$WAYPOINT" 2>/dev/null) || CHANGES_COMPLETED=0
 CHANGES_TOTAL=$(jq -r '.changes_total // 0' "$WAYPOINT" 2>/dev/null) || CHANGES_TOTAL=0
 

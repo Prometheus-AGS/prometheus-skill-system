@@ -95,12 +95,23 @@ mk_sandbox() {
   grep -q 'not json at all' .kbd-orchestrator/current-waypoint.json || fail "8d: waypoint should be untouched"
 ) && pass "malformed waypoint → abort, no on-disk state changed"
 
-# --- Test 9: absent project.json → warn but continue ---
+# --- Test 9: absent project.json → bootstrap minimal identity and continue ---
 ( mk_sandbox
   out="$("$SCRIPT" no-project-json 2>&1)" || fail "9: should exit zero"
   echo "$out" | grep -qi 'project.json missing' || fail "9: expected project.json warning, got: $out"
   [[ -d .kbd-orchestrator/phases/no-project-json ]] || fail "9: phase still must be created"
-) && pass "absent project.json → warn, phase still created"
+  [[ -f .kbd-orchestrator/project.json ]] || fail "9: project.json should be bootstrapped"
+  root_pwd="$(pwd -P)"
+  sandbox_name="$(basename "$root_pwd")"
+  jq -e \
+    --arg root "$root_pwd" \
+    --arg sandbox_name "$sandbox_name" \
+    '.name == $sandbox_name and
+     .activePhase == "no-project-json" and
+     .focus_project_path == $root and
+     .bootstrappedBy == "kbd-new-phase"' \
+    .kbd-orchestrator/project.json >/dev/null || fail "9: bootstrapped project.json fields wrong"
+) && pass "absent project.json → bootstrap minimal identity and phase"
 
 # --- Test 10: hook fire produces a JSONL entry ---
 ( mk_sandbox

@@ -58,10 +58,16 @@ printf '%s' "$OUT" | jq -r '.reason' 2>/dev/null | grep -q 'Position: phase-x' &
 OUT2="$(cd "$TMP/repo" && printf '{"stop_hook_active":false,"transcript_path":"%s","session_id":"s1"}' "$T1" | bash "$GATE")"
 [ -z "$OUT2" ] && ok || bad "soft cap second call silent" "$OUT2"
 
-# 3. Footer present → silent
-T3="$TMP/t3.jsonl"; mk_transcript "$T3" $'Work done.\n<!-- prometheus-position -->\nPosition: phase-x | status: execute_ready\n<!-- /prometheus-position -->'
+# 3. Footer present without false completion language → silent
+T3="$TMP/t3.jsonl"; mk_transcript "$T3" $'Progress note.\n<!-- prometheus-position -->\nPosition: phase-x | status: execute_ready\n<!-- /prometheus-position -->'
 OUT="$(cd "$TMP/repo" && printf '{"stop_hook_active":false,"transcript_path":"%s","session_id":"s3"}' "$T3" | bash "$GATE")"
 [ -z "$OUT" ] && ok || bad "footer present silent" "$OUT"
+
+# 3b. Footer present but falsely claims completion while waypoint is active → block once
+T3B="$TMP/t3b.jsonl"; mk_transcript "$T3B" $'All done here.\n<!-- prometheus-position -->\nPosition: phase-x | status: execute_ready\nNext: /kbd-apply change-001-demo\n<!-- /prometheus-position -->'
+OUT="$(cd "$TMP/repo" && printf '{"stop_hook_active":false,"transcript_path":"%s","session_id":"s3b"}' "$T3B" | bash "$GATE")"
+printf '%s' "$OUT" | jq -e '.decision == "block"' >/dev/null 2>&1 && ok || bad "false completion blocks" "$OUT"
+printf '%s' "$OUT" | jq -r '.reason' 2>/dev/null | grep -q '/kbd-apply change-001-demo' && ok || bad "false completion reason carries next command" "$OUT"
 
 # 4. stop_hook_active true → silent (loop protection)
 T4="$TMP/t4.jsonl"; mk_transcript "$T4" "no footer here"
