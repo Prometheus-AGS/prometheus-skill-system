@@ -102,7 +102,6 @@ declare -A PLATFORM_DIRS=(
     ["opencode"]="$HOME/.opencode/skills"
     ["kimi-code"]="$HOME/.kimi-code/skills"
     ["cursor"]="$HOME/.cursor/skills"
-    ["codex"]="$HOME/.codex/skills"
     ["gemini"]="$HOME/.gemini/skills"
     ["roo"]="$HOME/.roo/skills"
     ["windsurf"]="$HOME/.windsurf/skills"
@@ -179,6 +178,15 @@ EOF
         fi
     fi
 done
+
+# Codex ignores symlinked skill dirs (verified against codex-cli 0.144.1), so it
+# can't join the symlink loop above — resync via the copy-based installer instead.
+if command -v codex >/dev/null 2>&1 || [[ -d "$HOME/.codex" ]]; then
+    bash "$REPO_ROOT/scripts/codex-sync-skills.sh" --quiet || true
+    if [[ ! " ${PLATFORMS_UPDATED[*]:-} " =~ " codex " ]]; then
+        PLATFORMS_UPDATED+=("codex")
+    fi
+fi
 
 # 4. Update install reference
 mkdir -p "$(dirname "$INSTALL_REF_FILE")"
