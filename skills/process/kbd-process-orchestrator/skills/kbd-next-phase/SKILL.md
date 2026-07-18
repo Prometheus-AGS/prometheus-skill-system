@@ -57,7 +57,10 @@ Emit to plain response text — no tool call needed.
 
 1. **Read current waypoint** — confirm current phase name and stage
 2. **Warn if stage is not reflect_complete** — recommend running `/kbd-reflect` first
-3. **Run `kbd-next-phase.sh`** — pass `$ARGUMENTS` as the optional phase name
+3. **Run the bundled `scripts/kbd-next-phase.sh`** — resolve it relative to this
+   `SKILL.md` and pass `$ARGUMENTS` as the optional phase name. Do not look for
+   the helper under a repository-level `shared/scripts/` directory; installed
+   skill packages are self-contained.
 4. **Display goals.md** — show the user what was seeded so they can review/edit
 5. **Confirm next step** — remind user to run `/kbd-assess`
 

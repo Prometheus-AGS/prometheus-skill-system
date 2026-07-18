@@ -20,10 +20,11 @@ Continue to the next KBD phase, automatically seeded from the previous phase's r
 2. Check that `.kbd-orchestrator/phases/<current-phase>/reflection.md` exists.
    If not, stop and instruct the user to run `/kbd-reflect` first.
 
-3. Run the next-phase seed script:
+3. Resolve the directory containing this `SKILL.md`, then run its bundled
+   next-phase seed script:
 
    ```bash
-   bash "$(git rev-parse --show-toplevel)/.claude-plugin/shared/scripts/kbd-next-phase.sh" $ARGUMENTS
+   bash "<kbd-next-phase-skill-dir>/scripts/kbd-next-phase.sh" $ARGUMENTS
    ```
 
    - If arguments were provided, use them as the new phase name.
