@@ -46,14 +46,17 @@ impl SurrealMemoryClient {
     pub fn new(base_url: impl Into<String>) -> Self {
         Self {
             base_url: base_url.into(),
-            client: reqwest::Client::new(),
+            client: reqwest::Client::builder()
+                .no_proxy()
+                .build()
+                .expect("build surreal-memory client"),
         }
     }
 
     /// Create from environment or default URL.
     pub fn from_env() -> Option<Self> {
         let url = std::env::var("SURREAL_MEMORY_URL")
-            .unwrap_or_else(|_| "http://localhost:23001".to_string());
+            .unwrap_or_else(|_| "http://127.0.0.1:23001".to_string());
 
         Some(Self::new(url))
     }
@@ -123,5 +126,23 @@ impl SurrealMemoryClient {
 
     pub fn base_url(&self) -> &str {
         &self.base_url
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::SurrealMemoryClient;
+
+    #[test]
+    fn from_env_defaults_to_ipv4_loopback() {
+        let previous = std::env::var("SURREAL_MEMORY_URL").ok();
+        std::env::remove_var("SURREAL_MEMORY_URL");
+
+        let client = SurrealMemoryClient::from_env().expect("default client");
+        assert_eq!(client.base_url(), "http://127.0.0.1:23001");
+
+        if let Some(value) = previous {
+            std::env::set_var("SURREAL_MEMORY_URL", value);
+        }
     }
 }
