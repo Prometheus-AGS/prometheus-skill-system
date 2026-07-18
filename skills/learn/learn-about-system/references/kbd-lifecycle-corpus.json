@@ -1,0 +1,136 @@
+{
+  "corpus_id": "kbd-lifecycle",
+  "subject": "KBD Lifecycle — the Prometheus skill pack's development process (kbd-assess, kbd-analyze, kbd-plan, kbd-execute, kbd-reflect, kbd-evolve)",
+  "target_level": "practitioner",
+  "schema_version": "1.0.0",
+  "built_at": "2026-06-28",
+  "maintainer": "doc-updater (rebuild on each pack release)",
+  "sources": [
+    {
+      "source_ref": "CLAUDE.md — Progress Signaling section",
+      "source_type": "primary_doc",
+      "confidence": 0.98,
+      "is_misconception": false,
+      "content_summary": "Progress signaling is mandatory. First action every kbd-* turn: read position-reminder.txt. Emit 'Starting kbd-X — <phase> (step N of T)' before any tool call. N and T come from progress.json — never estimate. Emit 'Completed' signal after last action."
+    },
+    {
+      "source_ref": "CLAUDE.md — KBD Lifecycle section",
+      "source_type": "primary_doc",
+      "confidence": 0.98,
+      "is_misconception": false,
+      "content_summary": "KBD lifecycle: kbd-new-phase → kbd-assess → (kbd-analyze) → kbd-plan → kbd-execute → kbd-reflect → (kbd-evolve). Each stage gates on the previous stage's handoff. The assess stage cannot be skipped. The analyze stage is optional. Reflect requires all changes DONE."
+    },
+    {
+      "source_ref": "skills/process/kbd-assess/SKILL.md",
+      "source_type": "primary_doc",
+      "confidence": 0.97,
+      "is_misconception": false,
+      "content_summary": "kbd-assess produces assessment.md. It reads the active phase's goals, inspects the codebase, and writes a gap report. It does NOT write skill files or plan content. It halts at the assess→plan boundary for explicit approval."
+    },
+    {
+      "source_ref": "skills/process/kbd-plan/SKILL.md",
+      "source_type": "primary_doc",
+      "confidence": 0.97,
+      "is_misconception": false,
+      "content_summary": "kbd-plan reads assessment.md and produces plan.md with an ordered change list. It detects OpenSpec (openspec/ directory) and emits changes in OpenSpec format. After plan.md is written, it writes the execute handoff. It does NOT execute any changes."
+    },
+    {
+      "source_ref": "skills/process/kbd-execute/SKILL.md",
+      "source_type": "primary_doc",
+      "confidence": 0.97,
+      "is_misconception": false,
+      "content_summary": "kbd-execute reads plan.md, writes execution.md, and applies changes in order. Per completed change: run artifact-refiner QA gate (if ≥3 files modified, not docs-only). Archive via /opsx:verify → /opsx:archive for OpenSpec changes. Updates progress.json after each change."
+    },
+    {
+      "source_ref": "skills/process/kbd-reflect/SKILL.md",
+      "source_type": "primary_doc",
+      "confidence": 0.97,
+      "is_misconception": false,
+      "content_summary": "kbd-reflect produces reflection.md. It requires all changes DONE in progress.json. It reports goal achievement (MET/PARTIAL/NOT MET per goal), technical debt, lessons, and a recommended next phase. It passes through sycophancy-correction (the reflector sycophancy gate)."
+    },
+    {
+      "source_ref": "skills/process/kbd-new-phase/SKILL.md",
+      "source_type": "primary_doc",
+      "confidence": 0.97,
+      "is_misconception": false,
+      "content_summary": "kbd-new-phase creates a new phase directory with goals.md and progress.json. It flips current-waypoint.json to the new phase. It fires phase:before hook. It does NOT run assess — the operator must run /kbd-assess after."
+    },
+    {
+      "source_ref": "CLAUDE.md — OpenSpec section",
+      "source_type": "primary_doc",
+      "confidence": 0.95,
+      "is_misconception": false,
+      "content_summary": "OpenSpec (openspec/ directory) is the change management backend. Changes are tracked as openspec/changes/<change-id>/proposal.md and tasks.md. Status values: PROPOSED → IN_PROGRESS → DONE → ARCHIVED. kbd-plan emits /opsx:new commands to create changes. kbd-execute uses /opsx:apply via /kbd-apply."
+    },
+    {
+      "source_ref": "CLAUDE.md — Waypoint Files section",
+      "source_type": "primary_doc",
+      "confidence": 0.95,
+      "is_misconception": false,
+      "content_summary": "current-waypoint.json is the position record. It contains: phase, stage, changes_total, changes_completed, next_pending_change, exact_next_command. position-reminder.txt is a human-readable summary read as the FIRST tool call every turn. Both must be updated after every change completes."
+    },
+    {
+      "source_ref": "CLAUDE.md — Hooks section",
+      "source_type": "primary_doc",
+      "confidence": 0.92,
+      "is_misconception": false,
+      "content_summary": "Hooks fire at lifecycle boundaries: phase:before, phase:after, assess:before, assess:after, plan:before, plan:after, execute:before, execute:after, reflect:before, reflect:after. Hooks are sourced from shared/lib/hooks.sh. The reflector sycophancy gate is a SubagentStop hook."
+    },
+    {
+      "source_ref": "CLAUDE.md — Reflector Sycophancy Gate",
+      "source_type": "primary_doc",
+      "confidence": 0.95,
+      "is_misconception": false,
+      "content_summary": "The reflector gate runs sycophancy-correction on reflection.md before it is logged. A reflection that scores ≥0.4 sycophancy or has high/critical severity patterns is REJECTED. After 2 consecutive rejections, the third attempt is accepted with a logged warning. A passing reflection resets the counter."
+    },
+    {
+      "source_ref": "CLAUDE.md — BDD Immutable-Tests Rule",
+      "source_type": "primary_doc",
+      "confidence": 0.93,
+      "is_misconception": false,
+      "content_summary": "Code-generation agents may not edit existing tests/steps/*.steps.ts, tests/support/*.ts, or tests/features/*.feature files to make failing tests pass. They must surface failing tests to the user. New .feature files may be added to tests/features/drafts/."
+    },
+    {
+      "source_ref": "MISCONCEPTION: kbd-plan writes code",
+      "source_type": "known_misconception",
+      "confidence": 0.99,
+      "is_misconception": true,
+      "content_summary": "kbd-plan does NOT write skill files, code, or substrate. It only produces plan.md and emits OpenSpec change proposals (proposal.md + tasks.md). All code and skill files are written during kbd-execute."
+    },
+    {
+      "source_ref": "MISCONCEPTION: OpenSpec is optional",
+      "source_type": "known_misconception",
+      "confidence": 0.99,
+      "is_misconception": true,
+      "content_summary": "When an openspec/ directory is present at the project root, OpenSpec IS the change management backend. It is not optional — kbd-plan detects it automatically and emits all changes in OpenSpec format. Ignoring OpenSpec breaks traceability."
+    },
+    {
+      "source_ref": "MISCONCEPTION: progress.json is updated automatically",
+      "source_type": "known_misconception",
+      "confidence": 0.99,
+      "is_misconception": true,
+      "content_summary": "progress.json is NOT updated automatically. It must be explicitly updated by the executing agent after each change completes (changes_completed++, active_change updated, next_pending_change advanced). Failure to update leaves the waypoint stale and breaks resume."
+    },
+    {
+      "source_ref": "MISCONCEPTION: /kbd-reflect can run before all changes are DONE",
+      "source_type": "known_misconception",
+      "confidence": 0.99,
+      "is_misconception": true,
+      "content_summary": "kbd-reflect requires ALL changes to have status DONE in progress.json. Running it before completion produces a reflection that misrepresents the phase outcomes. The stage gate (kbd_stage_gate reflect) will reject early execution."
+    },
+    {
+      "source_ref": "MISCONCEPTION: position-reminder.txt is optional",
+      "source_type": "known_misconception",
+      "confidence": 0.99,
+      "is_misconception": true,
+      "content_summary": "Reading position-reminder.txt is the FIRST tool call of every turn on any kbd-* skill. It is mandatory. Skipping it causes progress signals to be inaccurate (wrong N of T). N and T must come from progress.json, not from memory."
+    },
+    {
+      "source_ref": "MISCONCEPTION: kbd-assess writes the plan",
+      "source_type": "known_misconception",
+      "confidence": 0.99,
+      "is_misconception": true,
+      "content_summary": "kbd-assess produces assessment.md ONLY — it does not write plan.md, skill files, or any implementation artifacts. It halts at the assess→plan boundary and requires explicit user approval before /kbd-plan is run."
+    }
+  ]
+}

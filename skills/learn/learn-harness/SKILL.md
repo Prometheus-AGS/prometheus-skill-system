@@ -33,7 +33,8 @@ Feynman loop for a 30–60 minute guided orientation.
 ## Auto-detection
 
 ```bash
-TIER_JSON=$(bash ${CLAUDE_PLUGIN_ROOT}/shared/scripts/detect-surface-tier.sh --json)
+UI_SURFACE_DIR="<directory containing the installed ui-surface/SKILL.md>"
+TIER_JSON=$(bash "${UI_SURFACE_DIR}/scripts/detect-surface-tier.sh" --json)
 HARNESS=$(echo "$TIER_JSON" | jq -r '.harness')
 TIER=$(echo "$TIER_JSON" | jq -r '.tier')
 ```
@@ -162,5 +163,5 @@ Full parity details: skills/learn/learn-harness/references/harness-parity.md
 ## Reference
 
 - Detailed cross-harness parity: [harness-parity.md](references/harness-parity.md)
-- Surface tier detection: `shared/scripts/detect-surface-tier.sh`
+- Surface tier detection: `ui-surface/scripts/detect-surface-tier.sh`
 - UI rendering: `skills/learn/ui-surface/scripts/render.sh`

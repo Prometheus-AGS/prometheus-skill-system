@@ -11,7 +11,7 @@ use tower::ServiceExt;
 use sovereign_sync::crdt::{apply_incoming_delta, current_version, export_outgoing_delta};
 use sovereign_sync::p2p::P2PNode;
 use sovereign_sync::rest_api::{build_router, AppState};
-use storage_provider::{SyncDomain, SyncManifest};
+use storage_provider::{DomainConfig, PrivacyClass, SyncDomain, SyncManifest};
 
 // ---------------------------------------------------------------------------
 // Helper
@@ -24,7 +24,16 @@ fn test_router() -> axum::Router {
 }
 
 fn default_manifest() -> SyncManifest {
-    SyncManifest::default_for([0u8; 32])
+    let mut manifest = SyncManifest::new();
+    manifest.register(
+        SyncDomain::new("learner-model"),
+        DomainConfig::new(PrivacyClass::Trusted, "learner/"),
+    );
+    manifest.register(
+        SyncDomain::new("surreal-memory"),
+        DomainConfig::new(PrivacyClass::Local, "memory/"),
+    );
+    manifest
 }
 
 // ---------------------------------------------------------------------------
@@ -137,7 +146,7 @@ async fn sync_push_queues_domain() {
 #[test]
 fn crdt_export_snapshot_and_apply_roundtrip() {
     let manifest = default_manifest();
-    let domain = SyncDomain::LearnerModel;
+    let domain = SyncDomain::new("learner-model");
 
     let mut docs: HashMap<SyncDomain, loro::LoroDoc> = HashMap::new();
 
@@ -172,7 +181,7 @@ fn crdt_export_snapshot_and_apply_roundtrip() {
 #[test]
 fn crdt_rejects_local_only_domain() {
     let manifest = default_manifest();
-    let local_domain = SyncDomain::SurrealMemory;
+    let local_domain = SyncDomain::new("surreal-memory");
     let dummy_bytes = vec![0u8; 16];
     let mut docs = HashMap::new();
 

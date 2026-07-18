@@ -30,6 +30,12 @@ pub struct CollectRequest {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+pub struct SubmitResponseRequest {
+    pub request_id: String,
+    pub response: serde_json::Value,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
 pub struct CollectResponse {
     pub request_id: String,
     pub status: String, // "ready" | "pending" | "timeout"

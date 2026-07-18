@@ -17,7 +17,7 @@ Continue to the next KBD phase, automatically seeded from the previous phase's r
 3. Run the next-phase seed script:
 
    ```bash
-   bash "${CLAUDE_PLUGIN_ROOT:-$(git -C "$(pwd)" rev-parse --show-toplevel 2>/dev/null)/.claude-plugin}/shared/scripts/kbd-next-phase.sh" $ARGUMENTS
+   bash "${CLAUDE_PLUGIN_ROOT:-$(git -C "$(pwd)" rev-parse --show-toplevel 2>/dev/null)}/skills/process/kbd-process-orchestrator/skills/kbd-next-phase/scripts/kbd-next-phase.sh" $ARGUMENTS
    ```
 
    - If `$ARGUMENTS` is provided, it is used as the new phase name.

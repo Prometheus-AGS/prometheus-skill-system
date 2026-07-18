@@ -81,7 +81,11 @@ mod tests {
 
     #[test]
     fn seeds_one_concept_per_prior() {
-        let seed = make_seed(vec![("ownership", 0.3), ("lifetimes", 0.6), ("traits", 0.9)]);
+        let seed = make_seed(vec![
+            ("ownership", 0.3),
+            ("lifetimes", 0.6),
+            ("traits", 0.9),
+        ]);
         let model = seed_from_survey(&seed);
 
         assert_eq!(model.schema_version, "1.0.0");

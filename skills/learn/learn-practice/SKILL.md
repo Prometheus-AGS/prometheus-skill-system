@@ -165,16 +165,20 @@ Understanding is shown through doing. Here is the problem — please work throug
 
 ## Learner model update
 
-After each problem, call `add_observation` on the concept node:
+After each problem, call `add_observation` on the concept node through the
+learner-model JSON-RPC binary:
 
-```json
-{
-  "concept_id": "<id>",
-  "source_skill": "learn-practice",
-  "problem_type": "derivation|implementation|transfer",
-  "score": 0.85,
-  "passed": true
-}
+```bash
+jq -nc \
+  --arg learner_id "$GOAL_ID" \
+  --arg concept_id "$CONCEPT_ID" \
+  --argjson score "$SCORE" \
+  '{method:"add_observation",params:{
+    learner_id:$learner_id,
+    concept_id:$concept_id,
+    score:$score,
+    source_skill:"learn-practice"
+  }}' | learner-model
 ```
 
 The learner model aggregates these observations to update the mastery estimate.

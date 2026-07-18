@@ -182,19 +182,54 @@ case "$TIER" in
     ;;
 
   tier2_mcp_app)
-    echo "[ui-surface] Tier 2 not yet available — falling back to Tier 1" >&2
-    HARNESS=$(_detect_harness)
-    case "$HARNESS" in
-      claude-code)
-        _render_tier1_claude_code
-        ;;
-      opencode|codex|kimi)
-        _render_tier1_file_pair
-        ;;
-      *)
+    SURFACE_URL="${SURFACE_BRIDGE_URL:-http://127.0.0.1:7890}"
+    if ! curl -fsS --connect-timeout 1 --max-time 2 "$SURFACE_URL/health" >/dev/null 2>&1; then
+      echo "[ui-surface] surface-bridge unreachable — falling back to Tier 1" >&2
+      HARNESS=$(_detect_harness)
+      case "$HARNESS" in
+        claude-code) _render_tier1_claude_code ;;
+        opencode|codex|kimi) _render_tier1_file_pair ;;
+        *) _render_tier0 ;;
+      esac
+      exit 0
+    fi
+
+    REQUEST_ID=$(echo "$INTENT_JSON" | jq -r '.request_id // empty')
+    if [ -z "$REQUEST_ID" ]; then
+      REQUEST_ID="ui-$(date -u +%s)-$$"
+    fi
+    RENDER_INTENT=$(echo "$INTENT_JSON" | jq -c \
+      --arg request_id "$REQUEST_ID" \
+      '.request_id=$request_id | .options=(.options // null) | .multiselect=(.multiselect // false)')
+    RENDER_RESPONSE=$(curl -fsS --connect-timeout 1 --max-time 5 \
+      -X POST "$SURFACE_URL/mcp/render-ui-intent" \
+      -H 'Content-Type: application/json' \
+      -d "$RENDER_INTENT") || {
+        echo "[ui-surface] surface-bridge render failed — falling back to Tier 0" >&2
         _render_tier0
-        ;;
-    esac
+        exit 0
+      }
+
+    if [ "$INTENT_TYPE" != "question" ]; then
+      echo "$RENDER_RESPONSE"
+      exit 0
+    fi
+
+    WAIT_SECONDS="${UI_SURFACE_TIMEOUT:-30}"
+    elapsed=0
+    while [ "$elapsed" -lt "$WAIT_SECONDS" ]; do
+      COLLECT_RESPONSE=$(curl -fsS --connect-timeout 1 --max-time 3 \
+        -X POST "$SURFACE_URL/mcp/collect-response" \
+        -H 'Content-Type: application/json' \
+        -d "{\"request_id\":\"$REQUEST_ID\",\"timeout_secs\":1}") || COLLECT_RESPONSE=''
+      if [ -n "$COLLECT_RESPONSE" ] && [ "$(echo "$COLLECT_RESPONSE" | jq -r '.status // empty')" = "ready" ]; then
+        echo "$COLLECT_RESPONSE"
+        exit 0
+      fi
+      sleep 1
+      elapsed=$((elapsed + 1))
+    done
+    echo "{\"request_id\":\"$REQUEST_ID\",\"status\":\"timeout\",\"response\":null}"
     ;;
 
   *)

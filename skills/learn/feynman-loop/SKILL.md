@@ -50,9 +50,13 @@ The Feynman loop is a PMPO cycle instantiation:
 
 ### Phase 1 — Spec
 
-1. Load the concept state from the learner model:
+1. Load the concept state from the learner-model JSON-RPC binary:
    ```bash
-   curl -s "${LEARNER_MODEL_URL:-http://localhost:7740}/api/v1/concepts/${CONCEPT_ID}"
+   jq -nc \
+     --arg learner_id "${LEARNER_ID:-$GOAL_ID}" \
+     --arg concept_id "$CONCEPT_ID" \
+     '{method:"get_concept",params:{learner_id:$learner_id,concept_id:$concept_id}}' \
+     | learner-model
    ```
 2. Read `recursion_floor` from `~/.prometheus/learn/goals/<goal-id>/survey-result.json`
 3. Set audience level from `--audience` (default: `novice` on the first iteration)
@@ -70,10 +74,13 @@ Produce an explanation outline before writing the full explanation:
 - **Anticipated challenges**: for `peer` and `skeptic` audiences, list 2–3 things
   a knowledgeable reader would push back on
 
-Present the outline to the user via `ui-surface` for early steering:
+Present the outline to the user via `ui-surface` for early steering. Resolve
+`UI_SURFACE_DIR` as the directory containing the installed `ui-surface/SKILL.md`
+and wrap the outline as a valid UiIntent object:
 ```bash
-bash "${CLAUDE_PLUGIN_ROOT}/skills/learn/ui-surface/scripts/render.sh" \
-  --type outline --content "${OUTLINE_JSON}"
+bash "${UI_SURFACE_DIR}/scripts/render.sh" \
+  --tier "${SURFACE_TIER:-tier0_text}" \
+  --intent-json "${OUTLINE_INTENT_JSON}"
 ```
 
 ### Phase 3 — Execute
@@ -88,8 +95,9 @@ Write the full explanation in plain language. The explanation must:
 
 Present the completed explanation to the user via `ui-surface`:
 ```bash
-bash "${CLAUDE_PLUGIN_ROOT}/skills/learn/ui-surface/scripts/render.sh" \
-  --type explanation --content "${EXPLANATION_JSON}"
+bash "${UI_SURFACE_DIR}/scripts/render.sh" \
+  --tier "${SURFACE_TIER:-tier0_text}" \
+  --intent-json "${EXPLANATION_INTENT_JSON}"
 ```
 
 Wait for the user to confirm, correct, or extend the explanation before grading.
@@ -188,10 +196,11 @@ The actual retention check is deferred to `/learn-retain`.
 
 ## Feynman artifact
 
-After a loop closes, write the artifact using `scripts/write-artifact.sh`:
+After a loop closes, resolve `FEYNMAN_LOOP_DIR` as the directory containing this
+`SKILL.md`, then write the artifact using its bundled script:
 
 ```bash
-bash "${CLAUDE_PLUGIN_ROOT}/skills/learn/feynman-loop/scripts/write-artifact.sh" \
+bash "${FEYNMAN_LOOP_DIR}/scripts/write-artifact.sh" \
   --goal-id "${GOAL_ID}" \
   --artifact-json "${ARTIFACT_JSON}"
 ```
@@ -236,7 +245,7 @@ curriculum or invoke `/learn-certify` to close the goal.
 
 | Condition | Behavior |
 |---|---|
-| Learner model unreachable | Log warning, continue; use empty concept state |
+| `learner-model` missing or returns an error | Log warning, continue; use empty concept state |
 | Corpus path missing | Abort with error: `corpus not found at <path>` |
 | `survey-result.json` missing | Treat recursion floor as empty; log warning |
 | `ui-surface` unavailable | Print explanation directly to stdout |

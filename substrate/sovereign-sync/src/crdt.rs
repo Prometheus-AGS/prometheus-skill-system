@@ -16,7 +16,7 @@ pub fn apply_incoming_delta(
     if !manifest.is_syncable(domain) {
         return Err(SyncError::PrivacyViolation(domain.to_string()));
     }
-    let doc = docs.entry(domain.clone()).or_insert_with(LoroDoc::new);
+    let doc = docs.entry(domain.clone()).or_default();
     doc.import(delta)
         .map_err(|e| SyncError::Crdt(format!("Failed to apply delta for {domain}: {e}")))?;
     Ok(())

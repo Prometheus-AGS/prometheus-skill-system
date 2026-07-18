@@ -21,7 +21,7 @@ pub struct ServerConfig {
     pub port: u16,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct SovereignConfig {
     #[serde(default)]
     pub node: NodeConfig,
@@ -44,16 +44,6 @@ impl Default for ServerConfig {
     fn default() -> Self {
         Self {
             port: default_port(),
-        }
-    }
-}
-
-impl Default for SovereignConfig {
-    fn default() -> Self {
-        Self {
-            node: NodeConfig::default(),
-            peers: PeersConfig::default(),
-            server: ServerConfig::default(),
         }
     }
 }

@@ -31,6 +31,12 @@ jobs:
       - name: Validate Codex plugin artifacts are in sync
         run: npm run validate:codex
 
+      - name: Test kbd-next-phase installed packaging
+        run: bash shared/scripts/tests/test-kbd-next-phase-packaging.sh
+
+      - name: Test complete cross-tool skill payload copies
+        run: bash shared/scripts/tests/test-cross-tool-skill-payloads.sh
+
   lint:
     name: Check Formatting
     runs-on: ubuntu-latest
@@ -308,6 +314,20 @@ jobs:
       # Periodic live re-validation (actually re-running the 24-item eval
       # suite through the grader) is a manual, human-reviewed step — see
       # skills/learn/learn-grade/references/eval-dataset/EVAL-RESULTS.md.
+
+  learner-model-runtime:
+    name: learner-model JSON-RPC and FSRS runtime
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - name: Test learner-model crate
+        run: cargo test --manifest-path substrate/learner-model/Cargo.toml
+
+      - name: Test real learner-model skill contract
+        run: bash tests/learn/integration-learner-runtime.sh
 
   tool-submodules:
     name: Check tool submodules (cowork-skills + disk-space-guardian)

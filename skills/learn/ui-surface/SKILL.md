@@ -123,8 +123,8 @@ fi
 Tier 2 uses the `surface-bridge` Axum server (`http://127.0.0.1:7890`) to render
 a UiIntent as an MCP App iframe embedded in the Claude Code artifact panel.
 
-**Prerequisites:** surface-bridge must be running. The launchd service
-`com.prometheus.surface-bridge` is installed by `scripts/install-skills-flat.sh`.
+**Prerequisites:** surface-bridge must be running. The canonical launchd service
+`ai.prometheus.surface-bridge` is installed by `scripts/install-mcp-services.sh`.
 Check with `curl -s http://127.0.0.1:7890/health`.
 
 **4-step render flow:**
@@ -142,8 +142,8 @@ Check with `curl -s http://127.0.0.1:7890/health`.
 2. surface-bridge serves an iframe fragment from its embedded HTTP server. Claude
    Code's MCP App panel renders this as an inline artifact.
 
-3. The user interacts with the rendered component. Their response is POST-ed by the
-   iframe back to `/mcp/collect-response`.
+3. The user interacts with the rendered component. Its adapter POSTs the response
+   to `/mcp/submit-response` with the same `request_id`.
 
 4. `render.sh` polls `/mcp/collect-response` with the `request_id` (up to 30 s)
    and returns the JSON response to the calling learn-* skill.
@@ -172,11 +172,12 @@ Every learn-* skill that needs to surface UI to the user follows this pattern:
 
 ```bash
 # 1. Detect tier
-TIER_JSON=$(bash "${CLAUDE_PLUGIN_ROOT}/shared/scripts/detect-surface-tier.sh" --json)
+UI_SURFACE_DIR="<directory containing this SKILL.md>"
+TIER_JSON=$(bash "${UI_SURFACE_DIR}/scripts/detect-surface-tier.sh" --json)
 TIER=$(echo "$TIER_JSON" | jq -r '.tier')
 
 # 2. Invoke ui-surface render
-RESPONSE=$(bash "${CLAUDE_PLUGIN_ROOT}/skills/learn/ui-surface/scripts/render.sh" \
+RESPONSE=$(bash "${UI_SURFACE_DIR}/scripts/render.sh" \
   --tier "$TIER" \
   --intent-json '{"intent_type":"question","title":"Which topic next?","body":"Choose the area to explore.","options":["Ownership","Traits","Async"],"multiselect":false,"metadata":{}}')
 

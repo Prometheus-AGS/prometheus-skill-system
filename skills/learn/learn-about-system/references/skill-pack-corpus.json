@@ -1,0 +1,122 @@
+{
+  "corpus_id": "skill-pack",
+  "subject": "Prometheus Skill Pack — capabilities, installation, platform parity, MCP servers, skill domains, and the agentskills.io standard",
+  "target_level": "practitioner",
+  "schema_version": "1.0.0",
+  "built_at": "2026-06-28",
+  "maintainer": "doc-updater (rebuild on each pack release)",
+  "sources": [
+    {
+      "source_ref": "README.md — Overview",
+      "source_type": "primary_doc",
+      "confidence": 0.98,
+      "is_misconception": false,
+      "content_summary": "The Prometheus Skill Pack is a multi-domain skill collection for AI-assisted development. It supports dual-format distribution: agentskills.io standard (portable across all AI platforms) and Claude Code plugin (.claude-plugin/ with hooks, agents, MCP servers). Skills live in skills/ directory organized by domain."
+    },
+    {
+      "source_ref": "CLAUDE.md — Architecture section",
+      "source_type": "primary_doc",
+      "confidence": 0.97,
+      "is_misconception": false,
+      "content_summary": "Directory organization: skills/ (main agentskills.io skills), .claude-plugin/ (symlinks to skills/ + agents/ + hooks/), shared/ (utilities), agents/ (specialized subagents), hooks/ (automation hooks), marketplace/ (distribution config). The skills/ directory is the source of truth; .claude-plugin/ contains symlinks via npm run build."
+    },
+    {
+      "source_ref": "CLAUDE.md — Cross-Platform Installation",
+      "source_type": "primary_doc",
+      "confidence": 0.97,
+      "is_misconception": false,
+      "content_summary": "Install to all platforms: bash scripts/install-skills-flat.sh. Uninstall: --uninstall flag. Platform skill directories: Claude Code (~/.claude/skills/), Kimi Code (~/.kimi-code/skills/), MiniMax (~/.minimax/skills/), OpenCode (~/.opencode/skills/), Codex (~/.codex/skills/), Cursor (~/.cursor/skills/). MiniMax needs file copies, not symlinks."
+    },
+    {
+      "source_ref": "CLAUDE.md — Skill Domains",
+      "source_type": "primary_doc",
+      "confidence": 0.97,
+      "is_misconception": false,
+      "content_summary": "Skill domains: react, rust, typescript, python, go, flutter, devops, testing, documentation, architecture, htmx, tauri, process, learn (new in v1.4.0). Each domain has its own directory under skills/. The process domain contains KBD lifecycle skills (kbd-assess, kbd-plan, kbd-execute, kbd-reflect, kbd-evolve, pmpo-evolver, pmpo-elicit, validate-idea, kbd-goal, kbd-goal-check)."
+    },
+    {
+      "source_ref": "CLAUDE.md — AgentSkills.io Compliance",
+      "source_type": "primary_doc",
+      "confidence": 0.97,
+      "is_misconception": false,
+      "content_summary": "Required SKILL.md frontmatter: name (kebab-case, max 64 chars), description (1-1024 chars), version (semver string), license (SPDX), metadata.tags (non-empty array). Standard directories: scripts/ (executable code), references/ (lazy-loaded docs), assets/ (templates). Forward slashes only — no backslashes. Run npm run validate:strict for new skills."
+    },
+    {
+      "source_ref": "CLAUDE.md — MCP Servers",
+      "source_type": "primary_doc",
+      "confidence": 0.96,
+      "is_misconception": false,
+      "content_summary": "Installed MCP servers: surreal-memory (knowledge graph + scoped memory + task streams + mindmaps + palace RAG), sycophancy-correction (detects and corrects sycophantic patterns), Cortex (project memory), Dify KB (knowledge base management). surreal-memory is the primary memory system. sycophancy-correction is on the critical path of the reflector gate."
+    },
+    {
+      "source_ref": "CLAUDE.md — Imported Skills (Submodules)",
+      "source_type": "primary_doc",
+      "confidence": 0.95,
+      "is_misconception": false,
+      "content_summary": "Imported skills live in skills/imported/ as Git submodules. Currently: artifact-refiner (PMPO-driven artifact refinement engine, v1.1.0) and sycophancy-correction. Submodule updates: git submodule update --remote. Validation: npm run validate:skill (lenient mode) for imported skills."
+    },
+    {
+      "source_ref": "CLAUDE.md — Session Scratchpad Pattern",
+      "source_type": "primary_doc",
+      "confidence": 0.93,
+      "is_misconception": false,
+      "content_summary": "SCRATCHPAD.md at project root captures in-flight session notes. It is .gitignore-listed and never committed. It is NOT a plan (plans live in .kbd-orchestrator/phases/*/plan.md) and NOT architecture decisions (those go in CLAUDE.md). Deleted at session end."
+    },
+    {
+      "source_ref": "docs/guide/ — skill pack user guide",
+      "source_type": "primary_doc",
+      "confidence": 0.95,
+      "is_misconception": false,
+      "content_summary": "The docs/guide/ directory contains the canonical user guide. Sections: 00-index (overview), 01-08 (skill domains), 09-process-skills (KBD + PMPO), 10-learn-skills (learn domain, v1.4.0). The guide is the primary operator reference for skill usage and capability discovery."
+    },
+    {
+      "source_ref": "MISCONCEPTION: skills only work on Claude Code",
+      "source_type": "known_misconception",
+      "confidence": 0.99,
+      "is_misconception": true,
+      "content_summary": "Skills are portable across all supported AI platforms (Claude Code, OpenCode, Codex, Kimi, Zed, Cursor, MiniMax). The agentskills.io format is platform-agnostic. install-skills-flat.sh installs to all detected platforms. Some features (AskUserQuestion, MCP servers) degrade gracefully on platforms that don't support them."
+    },
+    {
+      "source_ref": "MISCONCEPTION: the pack requires internet to function",
+      "source_type": "known_misconception",
+      "confidence": 0.99,
+      "is_misconception": true,
+      "content_summary": "The skill pack's core skills work offline. MCP servers (surreal-memory, sycophancy-correction) are local services. Internet is only required for skills that explicitly perform web research (pmpo-elicit, learn-goal corpus assembly, content-grounding). Tier 0 learning skills work fully offline with pre-built corpora."
+    },
+    {
+      "source_ref": "MISCONCEPTION: you have to restart Claude to use new skills",
+      "source_type": "known_misconception",
+      "confidence": 0.99,
+      "is_misconception": true,
+      "content_summary": "In Claude Code, run /reload-plugins to pick up new skills without restarting. On other platforms, new skills in the skill directory are available immediately on next session start. The install-skills-flat.sh script installs skills to all platform directories — no restart needed on most platforms."
+    },
+    {
+      "source_ref": "MISCONCEPTION: .claude-plugin/ is the source of truth",
+      "source_type": "known_misconception",
+      "confidence": 0.99,
+      "is_misconception": true,
+      "content_summary": ".claude-plugin/ contains SYMLINKS to skills/, agents/, and hooks/. The source of truth is always the skills/ directory. Editing files in .claude-plugin/ edits the originals through the symlinks. Run npm run build to recreate symlinks if they are broken."
+    },
+    {
+      "source_ref": "MISCONCEPTION: npm run validate passes for all skills including new ones",
+      "source_type": "known_misconception",
+      "confidence": 0.99,
+      "is_misconception": true,
+      "content_summary": "npm run validate (standard) excludes the imported/ submodule directory and uses lenient mode. npm run validate:strict is required for NEW skills and enforces version, license, and metadata.tags fields. A new skill must pass validate:strict before submission."
+    },
+    {
+      "source_ref": "MISCONCEPTION: surreal-memory and Cortex are the same system",
+      "source_type": "known_misconception",
+      "confidence": 0.98,
+      "is_misconception": true,
+      "content_summary": "surreal-memory and Cortex are distinct MCP servers. surreal-memory provides a knowledge graph (entities, relations, graph traversal), scoped memory (mem0-compatible), TaskStreams, Mindmaps, and palace RAG. Cortex is a simpler project-scoped key-value memory (cortex_recall, cortex_remember). The CLAUDE.md memory protocol checks surreal-memory first, then Cortex, then file-based memory."
+    },
+    {
+      "source_ref": "MISCONCEPTION: hooks/hooks.json is edited via .claude-plugin/hooks/hooks.json",
+      "source_type": "known_misconception",
+      "confidence": 0.99,
+      "is_misconception": true,
+      "content_summary": "The canonical hooks source is hooks/hooks.json (physical file at project root). .claude-plugin/hooks is a directory symlink to ../hooks. plugin.json declares 'hooks': './hooks/hooks.json' which resolves through the symlink. Always edit hooks/hooks.json directly. CI validates the symlink integrity on every PR."
+    }
+  ]
+}

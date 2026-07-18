@@ -81,7 +81,8 @@ Loads the pre-built KBD lifecycle corpus and routes directly to `learn-goal`,
 bypassing corpus assembly (corpus is already built).
 
 ```bash
-CORPUS_PATH="${CLAUDE_PLUGIN_ROOT}/docs/learn/meta-corpus/kbd-lifecycle-corpus.json"
+LEARN_ABOUT_SYSTEM_DIR="<directory containing this SKILL.md>"
+CORPUS_PATH="${LEARN_ABOUT_SYSTEM_DIR}/references/kbd-lifecycle-corpus.json"
 SUBJECT="KBD Lifecycle — Prometheus Skill Pack development process"
 TARGET_LEVEL="practitioner"
 ```
@@ -100,7 +101,8 @@ Steps:
 Loads the pre-built skill pack corpus and follows the same flow.
 
 ```bash
-CORPUS_PATH="${CLAUDE_PLUGIN_ROOT}/docs/learn/meta-corpus/skill-pack-corpus.json"
+LEARN_ABOUT_SYSTEM_DIR="<directory containing this SKILL.md>"
+CORPUS_PATH="${LEARN_ABOUT_SYSTEM_DIR}/references/skill-pack-corpus.json"
 SUBJECT="Prometheus Skill Pack capabilities and architecture"
 TARGET_LEVEL="practitioner"
 ```
@@ -194,10 +196,11 @@ context. They do not re-prompt the operator for fields captured here.
 All prompts in this skill pass through ui-surface:
 
 ```bash
-TIER_JSON=$(bash "${CLAUDE_PLUGIN_ROOT}/shared/scripts/detect-surface-tier.sh" --json)
+UI_SURFACE_DIR="<directory containing the installed ui-surface/SKILL.md>"
+TIER_JSON=$(bash "${UI_SURFACE_DIR}/scripts/detect-surface-tier.sh" --json)
 TIER=$(echo "$TIER_JSON" | jq -r '.tier')
 
-RESPONSE=$(bash "${CLAUDE_PLUGIN_ROOT}/skills/learn/ui-surface/scripts/render.sh" \
+RESPONSE=$(bash "${UI_SURFACE_DIR}/scripts/render.sh" \
   --tier "$TIER" \
   --intent-json "$INTENT_JSON")
 ```

@@ -7,9 +7,8 @@
 /// Returns: text/event-stream (Server-Sent Events)
 use axum::{
     extract::State,
-    http::StatusCode,
     response::sse::{Event, KeepAlive},
-    response::{IntoResponse, Response, Sse},
+    response::Sse,
     Json,
 };
 use futures::stream::{self, Stream, StreamExt};
@@ -18,7 +17,7 @@ use std::time::Duration;
 use std::{convert::Infallible, sync::Arc};
 use tokio::sync::mpsc;
 use tokio_stream::wrappers::ReceiverStream;
-use tracing::{debug, info};
+use tracing::info;
 
 // ---------------------------------------------------------------------------
 // A2UI task schemas
@@ -77,7 +76,7 @@ pub enum AgUiEvent {
 // ---------------------------------------------------------------------------
 
 /// SSE stream state shared between Axum handlers.
-#[derive(Clone)]
+#[derive(Clone, Default)]
 pub struct AgUiState {
     _placeholder: Arc<()>,
 }
