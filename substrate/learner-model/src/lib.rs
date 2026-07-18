@@ -33,10 +33,10 @@ pub mod survey;
 pub mod types;
 
 // Re-export the most-used public API so callers can write `learner_model::LearnerModel`.
+pub use fsrs::{next_review, Rating};
+pub use store::{LearnerModelStore, StoreError};
+pub use survey::seed_from_survey;
 pub use types::{
     CardState, ConceptState, FSRSCard, GapRecord, GapSeverity, LearnerModel, LearnerModelSeed,
     MasteryBasis, MasteryPrior, MisconceptionRecord, ObservationRecord, SessionRecord,
 };
-pub use store::{LearnerModelStore, StoreError};
-pub use survey::seed_from_survey;
-pub use fsrs::{next_review, Rating};

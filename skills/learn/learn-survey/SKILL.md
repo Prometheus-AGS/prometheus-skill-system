@@ -125,12 +125,30 @@ The script writes to `~/.prometheus/learn/goals/<goal-id>/survey-result.json`.
 
 ### 9. Seed learner model
 
-After writing the survey result, seed the learner model crate:
+After writing the survey result, convert it to the learner-model seed schema and
+send the `seed_from_survey` JSON-RPC method. `GOAL_PATH` points to the matching
+`goal.json` and supplies the subject when it is not repeated in the survey:
 
 ```bash
-learner-model seed_from_survey \
-  --goal-id "<goal-id>" \
-  --survey-result ~/.prometheus/learn/goals/<goal-id>/survey-result.json
+SEED_JSON=$(jq --slurpfile goal "$GOAL_PATH" '{
+  schema_version: "1.0.0",
+  learner_id: (.learner_id // .goal_id),
+  subject: (.subject // $goal[0].subject),
+  surveyed_at: .surveyed_at,
+  mastery_priors: .mastery_priors,
+  recursion_floor: (.recursion_floor // []),
+  misconceptions_detected: [
+    .misconceptions_detected[]? |
+    if type == "object" then . else {
+      concept_id: .,
+      wrong_model: "Detected during learn-survey",
+      source_evidence: "survey-result.json"
+    } end
+  ]
+}' "$SURVEY_PATH")
+
+jq -nc --argjson seed "$SEED_JSON" \
+  '{method:"seed_from_survey",params:{seed:$seed}}' | learner-model
 ```
 
 If the `learner-model` binary is not on PATH, emit a warning and skip this

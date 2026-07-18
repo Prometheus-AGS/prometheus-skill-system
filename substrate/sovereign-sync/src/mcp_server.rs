@@ -3,15 +3,13 @@ use rmcp::{
     model::{Implementation, ServerCapabilities, ServerInfo},
     serve_server, tool, tool_handler, tool_router,
     transport::io::stdio,
-    ServerHandler, ServiceExt,
+    ServerHandler,
 };
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use tracing::info;
-
-use crate::error::SyncError;
 
 // ---------------------------------------------------------------------------
 // SkillIndex — keyword-only loader (no embeddings, no external calls)
@@ -126,7 +124,7 @@ impl SkillIndex {
                 }
             })
             .collect();
-        results.sort_by(|a, b| b.1.cmp(&a.1));
+        results.sort_by_key(|entry| std::cmp::Reverse(entry.1));
         results.into_iter().map(|(e, _)| e).collect()
     }
 }
@@ -169,8 +167,8 @@ pub struct SyncPushParams {
 pub struct SovereignMcpServer {
     tool_router: ToolRouter<Self>,
     skill_index: Arc<SkillIndex>,
-    prefix_tools: bool,
-    uar_passthrough: bool,
+    _prefix_tools: bool,
+    _uar_passthrough: bool,
 }
 
 impl SovereignMcpServer {
@@ -179,8 +177,8 @@ impl SovereignMcpServer {
         Self {
             tool_router: Self::tool_router(),
             skill_index,
-            prefix_tools,
-            uar_passthrough,
+            _prefix_tools: prefix_tools,
+            _uar_passthrough: uar_passthrough,
         }
     }
 

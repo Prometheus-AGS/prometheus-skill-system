@@ -81,18 +81,24 @@ Map the numeric grade to an FSRS `Rating` enum value:
 
 **f. Update FSRSCard**
 
-Send a JSON-RPC command to the learner-model binary:
+Send the scored review to the learner-model binary. The `review` method records
+the observation and advances the persisted FSRS card atomically:
 
-```json
-{
-  "method": "add_observation",
-  "params": {
-    "learner_id": "<goal-id>",
-    "concept_id": "<concept-id>",
-    "rating": "<Rating variant>",
-    "timestamp": "<ISO-8601 now>"
-  }
-}
+```bash
+jq -nc \
+  --arg learner_id "$GOAL_ID" \
+  --arg concept_id "$CONCEPT_ID" \
+  --arg rating "$RATING" \
+  --arg timestamp "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+  --argjson score "$RETENTION_SCORE" \
+  '{method:"review",params:{
+    learner_id:$learner_id,
+    concept_id:$concept_id,
+    score:$score,
+    rating:$rating,
+    timestamp:$timestamp,
+    source_skill:"learn-retain"
+  }}' | learner-model
 ```
 
 The learner-model `fsrs.rs` stub's `next_review()` function consumes the

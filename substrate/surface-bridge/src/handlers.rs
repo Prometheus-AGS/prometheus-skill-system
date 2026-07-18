@@ -1,5 +1,5 @@
-use axum::{http::StatusCode, Json};
 use crate::types::*;
+use axum::{http::StatusCode, Json};
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 
@@ -23,20 +23,17 @@ pub async fn health() -> Json<HealthResponse> {
 pub async fn detect_surface_tier() -> Json<SurfaceTierResponse> {
     // Read SURFACE_TIER env var (set by detect-surface-tier.sh)
     // If surface-bridge is running, by definition we are at Tier 2
-    let tier = std::env::var("SURFACE_TIER")
-        .unwrap_or_else(|_| "tier2_mcp_app".to_string());
-    let harness = std::env::var("CLAUDE_HARNESS")
-        .unwrap_or_else(|_| "unknown".to_string());
+    let tier = std::env::var("SURFACE_TIER").unwrap_or_else(|_| "tier2_mcp_app".to_string());
+    let harness = std::env::var("CLAUDE_HARNESS").unwrap_or_else(|_| "unknown".to_string());
 
     Json(SurfaceTierResponse { tier, harness })
 }
 
-pub async fn render_ui_intent(
-    Json(intent): Json<UiIntent>,
-) -> (StatusCode, Json<RenderResponse>) {
-    // In Tier 2: serve an HTML shell via MCP App iframe
-    // For now: store the intent and return "rendered" — a real implementation
-    // would push the intent to a WebSocket / SSE stream consumed by the iframe
+pub async fn render_ui_intent(Json(intent): Json<UiIntent>) -> (StatusCode, Json<RenderResponse>) {
+    // Clear a stale response if a caller deliberately reuses a request ID.
+    if let Ok(mut store) = pending_store().lock() {
+        store.remove(&intent.request_id);
+    }
     eprintln!(
         "[surface-bridge] render_ui_intent: {} ({})",
         intent.title, intent.request_id
@@ -47,11 +44,20 @@ pub async fn render_ui_intent(
         Json(RenderResponse {
             request_id: intent.request_id,
             status: "rendered".to_string(),
-            message: Some(
-                "Intent queued for display (stub implementation)".to_string(),
-            ),
+            message: Some("Intent queued for display".to_string()),
         }),
     )
+}
+
+pub async fn submit_response(Json(req): Json<SubmitResponseRequest>) -> Json<CollectResponse> {
+    if let Ok(mut store) = pending_store().lock() {
+        store.insert(req.request_id.clone(), req.response.clone());
+    }
+    Json(CollectResponse {
+        request_id: req.request_id,
+        status: "ready".to_string(),
+        response: Some(req.response),
+    })
 }
 
 pub async fn collect_response(Json(req): Json<CollectRequest>) -> Json<CollectResponse> {
@@ -60,7 +66,7 @@ pub async fn collect_response(Json(req): Json<CollectRequest>) -> Json<CollectRe
     let response = store
         .lock()
         .ok()
-        .and_then(|m| m.get(&req.request_id).cloned());
+        .and_then(|mut m| m.remove(&req.request_id));
 
     match response {
         Some(r) => Json(CollectResponse {

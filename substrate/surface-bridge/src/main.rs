@@ -14,6 +14,7 @@ async fn main() {
             post(handlers::detect_surface_tier),
         )
         .route("/mcp/render-ui-intent", post(handlers::render_ui_intent))
+        .route("/mcp/submit-response", post(handlers::submit_response))
         .route("/mcp/collect-response", post(handlers::collect_response))
         .layer(CorsLayer::permissive());
 

@@ -46,13 +46,17 @@ git -C "$REPO_ROOT" submodule update --remote --merge 2>&1 | grep -v "^$" || tru
 # 2. Determine delta
 CURRENT_SHA=$(git -C "$REPO_ROOT" rev-parse HEAD)
 
+collect_all_skills() {
+    while IFS= read -r -d '' skill_md; do
+        CHANGED_SKILLS+=("$(dirname "$skill_md")")
+    done < <(find "$REPO_ROOT/skills" -name "SKILL.md" -not -path "*/imported/*" -print0)
+}
+
 if $FORCE; then
     echo ""
     echo "Step 2: Force mode — reinstalling all skills"
     CHANGED_SKILLS=()
-    while IFS= read -r -d '' skill_md; do
-        CHANGED_SKILLS+=("$(dirname "$skill_md")")
-    done < <(find "$REPO_ROOT/skills" -name "SKILL.md" -not -path "*/imported/*" -print0)
+    collect_all_skills
 else
     if [[ -f "$INSTALL_REF_FILE" ]]; then
         PREV_SHA=$(cat "$INSTALL_REF_FILE")
@@ -60,24 +64,34 @@ else
         echo "Step 2: Computing delta since $PREV_SHA..."
         CHANGED_FILES=$(git -C "$REPO_ROOT" diff --name-only "$PREV_SHA" "$CURRENT_SHA" 2>/dev/null || echo "")
         CHANGED_SKILLS=()
-        while IFS= read -r changed_file; do
-            # If any file under a skill dir changed, re-install that skill
-            skill_dir=$(echo "$changed_file" | grep -oE "^skills/[^/]+/[^/]+" || true)
-            if [[ -n "$skill_dir" && -f "$REPO_ROOT/$skill_dir/SKILL.md" ]]; then
-                # avoid duplicates
-                if [[ ! " ${CHANGED_SKILLS[*]:-} " =~ " $REPO_ROOT/$skill_dir " ]]; then
-                    CHANGED_SKILLS+=("$REPO_ROOT/$skill_dir")
-                fi
-            fi
-        done <<< "$CHANGED_FILES"
+
+        # Installer/catalog changes affect distribution semantics globally.
+        # Reinstall every skill so copied platforms cannot retain stale payloads.
+        if grep -qE '^(scripts/(install-skills-flat\.sh|install-minimax-skills\.js|install-platforms\.ts|codex-sync-skills\.sh)|config/codex-catalog\.txt)$' <<< "$CHANGED_FILES"; then
+            echo "  Installation infrastructure changed — promoting to full skill refresh"
+            FORCE=true
+            collect_all_skills
+        else
+            while IFS= read -r changed_file; do
+                [[ "$changed_file" == skills/* ]] || continue
+                candidate="$REPO_ROOT/$(dirname "$changed_file")"
+
+                # A nested skill is installed both as its own flat command and as
+                # part of every ancestor bundle. Refresh all skill ancestors.
+                while [[ "$candidate" == "$REPO_ROOT/skills/"* ]]; do
+                    if [[ -f "$candidate/SKILL.md" ]] && [[ ! " ${CHANGED_SKILLS[*]:-} " =~ " $candidate " ]]; then
+                        CHANGED_SKILLS+=("$candidate")
+                    fi
+                    candidate=$(dirname "$candidate")
+                done
+            done <<< "$CHANGED_FILES"
+        fi
     else
         echo ""
         echo "Step 2: No previous install reference found — performing full install"
         FORCE=true
         CHANGED_SKILLS=()
-        while IFS= read -r -d '' skill_md; do
-            CHANGED_SKILLS+=("$(dirname "$skill_md")")
-        done < <(find "$REPO_ROOT/skills" -name "SKILL.md" -not -path "*/imported/*" -print0)
+        collect_all_skills
     fi
 fi
 
@@ -102,13 +116,13 @@ declare -A PLATFORM_DIRS=(
     ["opencode"]="$HOME/.opencode/skills"
     ["kimi-code"]="$HOME/.kimi-code/skills"
     ["cursor"]="$HOME/.cursor/skills"
-    ["codex"]="$HOME/.codex/skills"
     ["gemini"]="$HOME/.gemini/skills"
     ["roo"]="$HOME/.roo/skills"
     ["windsurf"]="$HOME/.windsurf/skills"
     ["windsurf-legacy"]="$HOME/.codeium/windsurf/skills"
     ["amp"]="$HOME/.agents/skills"
     ["zed"]="$HOME/.config/zed/skills"
+    ["antigravity"]="$HOME/.zed/skills"
     ["cline"]="$HOME/.cline/skills"
 )
 
@@ -143,42 +157,59 @@ for skill_dir in "${CHANGED_SKILLS[@]}"; do
             continue
         fi
         link="$target_dir/$skill_name"
-        rm -f "$link"
+        if [[ -L "$link" ]]; then
+            target=$(readlink "$link")
+            if [[ "$target" == "$REPO_ROOT"* ]]; then
+                rm -f "$link"
+            else
+                fallback="$target_dir/prometheus-$skill_name"
+                if [[ -L "$fallback" ]] && [[ "$(readlink "$fallback")" == "$REPO_ROOT"* ]]; then
+                    rm -f "$fallback"
+                fi
+                if [[ ! -e "$fallback" ]]; then
+                    ln -s "$skill_dir" "$fallback"
+                fi
+                echo "    ⚠️  $platform: preserved $link; refreshed namespaced pack fallback"
+                if [[ ! " ${PLATFORMS_UPDATED[*]:-} " =~ " $platform " ]]; then
+                    PLATFORMS_UPDATED+=("$platform")
+                fi
+                continue
+            fi
+        elif [[ -e "$link" ]]; then
+            fallback="$target_dir/prometheus-$skill_name"
+            if [[ -L "$fallback" ]] && [[ "$(readlink "$fallback")" == "$REPO_ROOT"* ]]; then
+                rm -f "$fallback"
+            fi
+            if [[ ! -e "$fallback" ]]; then
+                ln -s "$skill_dir" "$fallback"
+            fi
+            echo "    ⚠️  $platform: preserved $link; refreshed namespaced pack fallback"
+            if [[ ! " ${PLATFORMS_UPDATED[*]:-} " =~ " $platform " ]]; then
+                PLATFORMS_UPDATED+=("$platform")
+            fi
+            continue
+        fi
         ln -s "$skill_dir" "$link"
         if [[ ! " ${PLATFORMS_UPDATED[*]:-} " =~ " $platform " ]]; then
             PLATFORMS_UPDATED+=("$platform")
         fi
     done
 
-    # MiniMax: copy (not symlink)
-    if [[ -d "$MINIMAX_DIR" ]]; then
-        minimax_skill_dir="$MINIMAX_DIR/$skill_name"
-        rm -rf "$minimax_skill_dir"
-        cp -r "$skill_dir" "$minimax_skill_dir"
-        # Regenerate _meta.json
-        updated_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)
-        skill_id=$(echo "$skill_name" | md5 | cut -c1-8 2>/dev/null || echo "$skill_name" | md5sum | cut -c1-8)
-        version=$(node -e "
-            const fs=require('fs');
-            const s=fs.readFileSync(process.argv[1],'utf8');
-            const m=s.match(/^---\\n([\\s\\S]*?)\\n---/);
-            const n=m&&m[1].match(/^version:\\s*['\"]?([^'\"\\n]+)['\"]?/m);
-            console.log((n&&n[1].trim())||'1.0.0');
-        " "$skill_md")
-        cat > "$minimax_skill_dir/_meta.json" <<EOF
-{
-  "id": "$skill_id",
-  "version": "$version",
-  "name": "$skill_name",
-  "updated_at": "$updated_at",
-  "platform": "minimax"
-}
-EOF
-        if [[ ! " ${PLATFORMS_UPDATED[*]:-} " =~ " minimax " ]]; then
-            PLATFORMS_UPDATED+=("minimax")
-        fi
-    fi
 done
+
+# Copy-based platforms are refreshed through their canonical installers so
+# nested resources, executable bits, stale-file pruning, and catalog policy are
+# applied consistently.
+if [[ -d "$MINIMAX_DIR" ]]; then
+    node "$REPO_ROOT/scripts/install-minimax-skills.js" \
+        --repo-root "$REPO_ROOT" --target-dir "$MINIMAX_DIR"
+    PLATFORMS_UPDATED+=("minimax")
+fi
+
+if [[ -d "$HOME/.codex" ]]; then
+    bash "$REPO_ROOT/scripts/codex-sync-skills.sh" --quiet
+    PLATFORMS_UPDATED+=("codex")
+fi
 
 # 4. Update install reference
 mkdir -p "$(dirname "$INSTALL_REF_FILE")"

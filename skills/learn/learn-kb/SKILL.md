@@ -136,7 +136,7 @@ returned corpus JSON. Default `--top-k` is 5.
 Under the hood:
 
 ```bash
-bash "${CLAUDE_PLUGIN_ROOT}/shared/scripts/content-grounding-kb.sh" \
+bash "<directory-containing-this-SKILL.md>/scripts/content-grounding-kb.sh" \
   --kb "<type>:<id>" \
   --subject "<query text>" \
   --level practitioner \

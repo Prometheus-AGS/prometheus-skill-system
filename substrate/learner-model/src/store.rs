@@ -1,8 +1,11 @@
-use crate::types::{CardState, ConceptState, FSRSCard, LearnerModel, ObservationRecord};
-use storage_provider::{CrdtEngine, StorageError, StorageProvider};
-use chrono::Utc;
+use crate::{
+    fsrs::{next_review, Rating},
+    types::{FSRSCard, LearnerModel, ObservationRecord},
+};
+use chrono::{DateTime, Utc};
 use serde_json;
 use std::collections::HashMap;
+use storage_provider::{CrdtEngine, StorageError, StorageProvider};
 use thiserror::Error;
 
 #[derive(Error, Debug)]
@@ -13,6 +16,11 @@ pub enum StoreError {
     Serde(#[from] serde_json::Error),
     #[error("Model not found for learner: {0}")]
     NotFound(String),
+    #[error("Concept not found for learner {learner_id}: {concept_id}")]
+    ConceptNotFound {
+        learner_id: String,
+        concept_id: String,
+    },
 }
 
 /// Typed facade over `StorageProvider` + `CrdtEngine` for learner model documents.
@@ -88,36 +96,80 @@ impl<S: StorageProvider, C: CrdtEngine> LearnerModelStore<S, C> {
         let mut model = self.load(learner_id).await?;
         let now = Utc::now();
 
-        if let Some(concept) = model.concepts.get_mut(concept_id) {
-            concept.observations.push(ObservationRecord {
-                timestamp: now,
-                score,
-                source_skill: source_skill.to_string(),
-                vector_clock: HashMap::new(),
-            });
+        let concept =
+            model
+                .concepts
+                .get_mut(concept_id)
+                .ok_or_else(|| StoreError::ConceptNotFound {
+                    learner_id: learner_id.to_string(),
+                    concept_id: concept_id.to_string(),
+                })?;
+        concept.observations.push(ObservationRecord {
+            timestamp: now,
+            score,
+            source_skill: source_skill.to_string(),
+            vector_clock: HashMap::new(),
+        });
 
-            // Apply PFA rule only once concept has accumulated enough signal.
-            if concept.observations.len() >= 5 {
-                let mastery_old = concept.mastery;
-                concept.mastery = (mastery_old + 0.3 * (score - mastery_old)).clamp(0.0, 1.0);
-            }
+        // Apply PFA rule only once concept has accumulated enough signal.
+        if concept.observations.len() >= 5 {
+            let mastery_old = concept.mastery;
+            concept.mastery = (mastery_old + 0.3 * (score - mastery_old)).clamp(0.0, 1.0);
         }
 
         model.updated_at = now;
         self.save(&model).await
+    }
+
+    /// Record a scored retention review and advance the concept's FSRS card.
+    pub async fn review_concept(
+        &self,
+        learner_id: &str,
+        concept_id: &str,
+        score: f64,
+        rating: Rating,
+        source_skill: &str,
+        reviewed_at: DateTime<Utc>,
+    ) -> Result<FSRSCard, StoreError> {
+        let mut model = self.load(learner_id).await?;
+        let concept =
+            model
+                .concepts
+                .get_mut(concept_id)
+                .ok_or_else(|| StoreError::ConceptNotFound {
+                    learner_id: learner_id.to_string(),
+                    concept_id: concept_id.to_string(),
+                })?;
+
+        concept.observations.push(ObservationRecord {
+            timestamp: reviewed_at,
+            score,
+            source_skill: source_skill.to_string(),
+            vector_clock: HashMap::new(),
+        });
+        if concept.observations.len() >= 5 {
+            let mastery_old = concept.mastery;
+            concept.mastery = (mastery_old + 0.3 * (score - mastery_old)).clamp(0.0, 1.0);
+        }
+        concept.fsrs_card = next_review(&concept.fsrs_card, rating, reviewed_at);
+        let updated_card = concept.fsrs_card.clone();
+        model.updated_at = reviewed_at;
+        self.save(&model).await?;
+        Ok(updated_card)
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::types::{CardState, ConceptState};
 
     // Minimal in-memory implementations for unit tests.
 
-    use storage_provider::{CrdtEngine, StorageProvider, StorageError};
     use async_trait::async_trait;
     use std::collections::HashMap as StdMap;
     use std::sync::Mutex;
+    use storage_provider::{CrdtEngine, StorageError, StorageProvider};
 
     type StorageResult<T> = std::result::Result<T, StorageError>;
 
@@ -144,27 +196,41 @@ mod tests {
         }
         async fn list_keys(&self, prefix: &str) -> StorageResult<Vec<String>> {
             let guard = self.0.lock().unwrap();
-            Ok(guard.keys().filter(|k| k.starts_with(prefix)).cloned().collect())
+            Ok(guard
+                .keys()
+                .filter(|k| k.starts_with(prefix))
+                .cloned()
+                .collect())
         }
-        fn backend_name(&self) -> &'static str { "mem" }
+        fn backend_name(&self) -> &'static str {
+            "mem"
+        }
     }
 
     /// CRDT engine stub: stores raw JSON bytes; no real CRDT merging.
     struct JsonEngine;
 
     impl CrdtEngine for JsonEngine {
-        fn new_doc(&self) -> Vec<u8> { b"{}".to_vec() }
+        fn new_doc(&self) -> Vec<u8> {
+            b"{}".to_vec()
+        }
         fn merge(&self, _local: &[u8], remote: &[u8]) -> StorageResult<Vec<u8>> {
             Ok(remote.to_vec())
         }
-        fn apply_json(&self, _doc: &[u8], patch: serde_json::Value) -> StorageResult<(Vec<u8>, Vec<u8>)> {
+        fn apply_json(
+            &self,
+            _doc: &[u8],
+            patch: serde_json::Value,
+        ) -> StorageResult<(Vec<u8>, Vec<u8>)> {
             let bytes = serde_json::to_vec(&patch)?;
             Ok((bytes.clone(), bytes))
         }
         fn to_json(&self, doc: &[u8]) -> StorageResult<serde_json::Value> {
             Ok(serde_json::from_slice(doc)?)
         }
-        fn engine_name(&self) -> &'static str { "json-stub" }
+        fn engine_name(&self) -> &'static str {
+            "json-stub"
+        }
     }
 
     fn make_store() -> LearnerModelStore<MemStorage, JsonEngine> {
@@ -281,5 +347,46 @@ mod tests {
 
         let updated = store.load("did:plc:learner3").await.expect("load");
         assert!(updated.concepts["closures"].mastery <= 1.0);
+    }
+
+    #[tokio::test]
+    async fn missing_concept_returns_error() {
+        let store = make_store();
+        store
+            .save(&seed_model("did:plc:missing-concept"))
+            .await
+            .expect("save");
+        let err = store
+            .add_observation("did:plc:missing-concept", "not-present", 0.8, "learn-grade")
+            .await
+            .unwrap_err();
+        assert!(matches!(err, StoreError::ConceptNotFound { .. }));
+    }
+
+    #[tokio::test]
+    async fn review_records_observation_and_advances_fsrs() {
+        let store = make_store();
+        let learner_id = "did:plc:reviewer";
+        store.save(&seed_model(learner_id)).await.expect("save");
+        let reviewed_at = Utc::now();
+
+        let card = store
+            .review_concept(
+                learner_id,
+                "closures",
+                0.85,
+                Rating::Easy,
+                "learn-retain",
+                reviewed_at,
+            )
+            .await
+            .expect("review");
+
+        assert_eq!(card.reps, 1);
+        assert_eq!(card.last_review, Some(reviewed_at));
+        assert!(card.due > reviewed_at);
+        let updated = store.load(learner_id).await.expect("load");
+        assert_eq!(updated.concepts["closures"].observations.len(), 1);
+        assert_eq!(updated.concepts["closures"].fsrs_card.reps, 1);
     }
 }

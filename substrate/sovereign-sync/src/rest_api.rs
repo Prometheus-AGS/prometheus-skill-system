@@ -10,12 +10,11 @@
 ///   GET  /api/v1/stream/ping   (AG-UI SSE ping)
 use axum::{
     extract::{Query, State},
-    http::StatusCode,
     response::IntoResponse,
     routing::{get, post},
     Json, Router,
 };
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
 use std::{net::SocketAddr, path::Path, sync::Arc};
 use tower_http::cors::{Any, CorsLayer};
 use tracing::info;

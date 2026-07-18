@@ -18,10 +18,11 @@ PROMETHEUS_UID="$(id -u "$PROMETHEUS_USER" 2>/dev/null || id -u)"
 GUI_DOMAIN="gui/$PROMETHEUS_UID"
 
 case "$(uname -s 2>/dev/null)" in
-    Darwin*) OS="macos" ;;
-    Linux*)  OS="linux"; export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-/run/user/$PROMETHEUS_UID}" ;;
+    Darwin*) OS="macos"; NUDGE_HEALTH_LABEL="ai.prometheus.prometheus-nudge" ;;
+    Linux*)  OS="linux"; NUDGE_HEALTH_LABEL="ai.prometheus.prometheus-nudge.timer"; export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-/run/user/$PROMETHEUS_UID}" ;;
     *)       OS="other" ;;
 esac
+NUDGE_HEALTH_LABEL="${NUDGE_HEALTH_LABEL:-n/a}"
 
 # Reports the service-manager state for a label ("n/a" if the label is n/a).
 service_state() {
@@ -58,6 +59,26 @@ http_probe() {
     printf '%s' "$code"
 }
 
+mcp_probe() {
+    local url="$1" reply code body
+    reply=$(curl -sS --connect-timeout 2 --max-time 5 \
+        -H 'Content-Type: application/json' \
+        --data '{"method":"initialize","params":{},"id":"prometheus-health"}' \
+        -w $'\n%{http_code}' "$url" 2>/dev/null) || reply=$'\n000'
+    code="${reply##*$'\n'}"
+    body="${reply%$'\n'*}"
+    if [ "$code" = "200" ] && printf '%s' "$body" | grep -q '"jsonrpc":"2.0"' \
+        && printf '%s' "$body" | grep -q '"result"'; then
+        printf 'MCP OK (200)'
+    elif [ "$code" = "401" ] || [ "$code" = "403" ]; then
+        printf 'AUTH REQUIRED (%s)' "$code"
+    elif [ "$code" = "000" ]; then
+        printf 'UNREACHABLE'
+    else
+        printf 'MCP ERROR (%s)' "$code"
+    fi
+}
+
 print_row() {
     local name="$1" label="$2" url="$3" desc="$4"
     local svc code status
@@ -65,6 +86,10 @@ print_row() {
 
     if [ "$url" = "stdio" ]; then
         status="stdio — no HTTP probe"; code="n/a"
+    elif [[ "$url" == */mcp ]]; then
+        status="$(mcp_probe "$url")"
+        code="${status##*\(}"
+        code="${code%\)}"
     else
         code="$(http_probe "$url")"
         if [ "$code" = "200" ] || [ "$code" = "201" ] || [ "$code" = "404" ] || [ "$code" = "405" ]; then
@@ -96,6 +121,7 @@ print_row "surreal-memory"         "ai.prometheus.surreal-memory-native"  "http:
 print_row "prometheus-knowledge"   "ai.prometheus.pk-cherry"              "http://localhost:8942/mcp"      "pk-cherry HTTP MCP (Karpathy KB)"
 print_row "forge-rs"               "ai.prometheus.forge-mcp"              "http://localhost:8943/mcp"      "Forge code-enrichment MCP"
 print_row "surface-bridge"         "ai.prometheus.surface-bridge"         "http://localhost:7890/health"   "Tier 2 UI MCP App server (native, :7890)"
+print_row "sovereign-sync"         "ai.prometheus.sovereign-sync"         "http://localhost:7892/health"   "P2P CRDT sync + MCP server (native, :7892)"
 
 # Stdio-only services — managed by the AI client, not the service manager
 print_row "sycophancy-correction"  "n/a"  "stdio"  "Sycophancy gate (sycophancy-correction)"
@@ -104,7 +130,7 @@ print_row "sequential-thinking"    "n/a"  "stdio"  "Sequential thinking (npx)"
 print_row "tavily"                 "n/a"  "stdio"  "Web search (npx)"
 
 # Periodic timer
-print_row "prometheus-nudge"       "ai.prometheus.prometheus-nudge.timer" "stdio"  "Periodic nudge every 4h"
+print_row "prometheus-nudge"       "$NUDGE_HEALTH_LABEL" "stdio"  "Periodic nudge every 4h"
 
 if ! $JSON_MODE; then
     printf '\n'

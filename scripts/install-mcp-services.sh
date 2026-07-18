@@ -11,7 +11,8 @@
 #   Linux → shared/systemd/*.service     → ~/.config/systemd/user/     → systemctl --user
 #
 # Daemons (dependency order): surrealdb-native(:28000) → surreal-memory-native(:23001)
-#                             → pk-cherry(:8942) → forge-mcp(:8943) → surface-bridge(:7890);
+#                             → pk-cherry(:8942) → forge-mcp(:8943) → surface-bridge(:7890)
+#                             → sovereign-sync(:7892);
 #                             plus a nudge timer.
 # The bundled SurrealDB binds :28000 and never touches an external instance on :8000.
 #
@@ -91,6 +92,7 @@ declare -a DAEMON_LABELS=(
     "ai.prometheus.pk-cherry"
     "ai.prometheus.forge-mcp"
     "ai.prometheus.surface-bridge"
+    "ai.prometheus.sovereign-sync"
 )
 declare -A DAEMON_PORT=(
     [ai.prometheus.surrealdb-native]=28000
@@ -98,6 +100,7 @@ declare -A DAEMON_PORT=(
     [ai.prometheus.pk-cherry]=8942
     [ai.prometheus.forge-mcp]=8943
     [ai.prometheus.surface-bridge]=7890
+    [ai.prometheus.sovereign-sync]=7892
 )
 declare -A DAEMON_PATH=(
     [ai.prometheus.surrealdb-native]=/health
@@ -105,6 +108,7 @@ declare -A DAEMON_PATH=(
     [ai.prometheus.pk-cherry]=/mcp
     [ai.prometheus.forge-mcp]=/mcp
     [ai.prometheus.surface-bridge]=/health
+    [ai.prometheus.sovereign-sync]=/health
 )
 NUDGE_LABEL="ai.prometheus.prometheus-nudge"
 
@@ -113,7 +117,7 @@ render_template() {
     local src="$1" output="$2"
     [ -f "$src" ] || { echo "Template not found: $src" >&2; return 1; }
 
-    local pk_cherry_bin forge_bin docker_bin surreal_bin surreal_memory_bin surface_bridge_bin
+    local pk_cherry_bin forge_bin docker_bin surreal_bin surreal_memory_bin surface_bridge_bin sovereign_sync_bin
     pk_cherry_bin="$(resolve_bin pk-cherry)";  [ -n "$pk_cherry_bin" ] || pk_cherry_bin="$BIN_FALLBACK_DIR/pk-cherry"
     forge_bin="$(resolve_bin forge)";          [ -n "$forge_bin" ]     || forge_bin="$BIN_FALLBACK_DIR/forge"
     docker_bin="$(resolve_bin docker)";        [ -n "$docker_bin" ]    || docker_bin="/usr/local/bin/docker"
@@ -122,11 +126,13 @@ render_template() {
     [ -n "$surreal_memory_bin" ] || surreal_memory_bin="$REPO_ROOT/tools/surreal-memory-server/target/release/surreal-memory-server"
     [ -f "$surreal_memory_bin" ] || surreal_memory_bin="$BIN_FALLBACK_DIR/surreal-memory-server"
     surface_bridge_bin="$(resolve_bin surface-bridge)"; [ -n "$surface_bridge_bin" ] || surface_bridge_bin="$BIN_FALLBACK_DIR/surface-bridge"
+    sovereign_sync_bin="$(resolve_bin sovereign-sync)"; [ -n "$sovereign_sync_bin" ] || sovereign_sync_bin="$BIN_FALLBACK_DIR/sovereign-sync"
 
     PROMETHEUS_USER="$PROMETHEUS_USER" PROMETHEUS_HOME="$PROMETHEUS_HOME" \
     PROMETHEUS_ROOT="$REPO_ROOT" PROMETHEUS_LOG_DIR="$LOG_DIR" PROMETHEUS_PATH="$PROMETHEUS_PATH" \
     PK_CHERRY_BIN="$pk_cherry_bin" FORGE_BIN="$forge_bin" DOCKER_BIN="$docker_bin" \
     SURREAL_BIN="$surreal_bin" SURREAL_MEMORY_BIN="$surreal_memory_bin" SURFACE_BRIDGE_BIN="$surface_bridge_bin" \
+    SOVEREIGN_SYNC_BIN="$sovereign_sync_bin" \
     python3 - "$src" "$output" <<'PY'
 import os, pathlib, sys
 src, dst = pathlib.Path(sys.argv[1]), pathlib.Path(sys.argv[2])
@@ -143,6 +149,7 @@ for k, env in {
     "__SURREAL_BIN__":        "SURREAL_BIN",
     "__SURREAL_MEMORY_BIN__": "SURREAL_MEMORY_BIN",
     "__SURFACE_BRIDGE_BIN__": "SURFACE_BRIDGE_BIN",
+    "__SOVEREIGN_SYNC_BIN__": "SOVEREIGN_SYNC_BIN",
 }.items():
     text = text.replace(k, os.environ[env])
 dst.write_text(text)
@@ -154,6 +161,23 @@ PY
 # ════════════════════════════════════════════════════════════════════════════
 macos_install() {
     $DRY_RUN || mkdir -p "$LAUNCH_AGENTS_DIR" "$LOG_DIR" "$KNOWLEDGE_DIR"
+    # Older installers registered these daemons under com.prometheusags.*.
+    # Remove them before probing ports; otherwise a healthy legacy process can
+    # permanently prevent its canonical ai.prometheus.* replacement starting.
+    local legacy_label legacy_plist archived_plist
+    for legacy_label in com.prometheusags.surface-bridge com.prometheusags.sovereign-sync; do
+        legacy_plist="$LAUNCH_AGENTS_DIR/$legacy_label.plist"
+        if $DRY_RUN; then
+            echo "[dry-run] migrate legacy service $legacy_label"
+            continue
+        fi
+        launchctl bootout "$GUI_DOMAIN/$legacy_label" >/dev/null 2>&1 || true
+        if [ -f "$legacy_plist" ]; then
+            archived_plist="$legacy_plist.deprecated.$(date -u +%Y%m%dT%H%M%SZ)"
+            mv "$legacy_plist" "$archived_plist"
+            echo "→ archived legacy service: $archived_plist"
+        fi
+    done
     local all=("${DAEMON_LABELS[@]}" "$NUDGE_LABEL")
     for label in "${all[@]}"; do
         local src="$REPO_ROOT/shared/launchagents/$label.plist"

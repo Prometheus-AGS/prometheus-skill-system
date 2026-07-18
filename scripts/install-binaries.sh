@@ -99,7 +99,26 @@ else
     info "skip prometheus-knowledge (submodule not initialized)"
 fi
 
-# ── 4. liter-llm ─────────────────────────────────────────────────────────────
+# ── 4. Learning substrate binaries ───────────────────────────────────────────
+for substrate_bin in learner-model surface-bridge sovereign-sync; do
+    substrate_manifest="${REPO_ROOT}/substrate/${substrate_bin}/Cargo.toml"
+    if [ ! -f "$substrate_manifest" ]; then
+        info "skip ${substrate_bin} (manifest not found)"
+        continue
+    fi
+    info "Building ${substrate_bin}..."
+    if ! $DRY_RUN; then
+        cargo build --release --manifest-path "$substrate_manifest" 2>&1 | tail -3
+    else
+        info "[dry-run] would build ${substrate_bin}"
+    fi
+    install_bin \
+        "${REPO_ROOT}/substrate/${substrate_bin}/target/release/${substrate_bin}" \
+        "${BIN_DIR}/${substrate_bin}"
+    ok "${substrate_bin} → ${BIN_DIR}/${substrate_bin}"
+done
+
+# ── 5. liter-llm ─────────────────────────────────────────────────────────────
 # Upstream renamed the CLI package to `liter-llm-cli` (still produces the `liter-llm` binary).
 if [ -f "${REPO_ROOT}/tools/liter-llm/Cargo.toml" ]; then
     info "Building liter-llm..."

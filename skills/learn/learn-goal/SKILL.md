@@ -42,10 +42,11 @@ Do not proceed to corpus assembly until all required fields are present.
 
 ### Step 2 — Assemble corpus
 
-Run `content-grounding.sh` with the subject and level:
+Resolve `LEARN_GOAL_DIR` as the directory containing this `SKILL.md`, then run
+the bundled `content-grounding.sh` with the subject and level:
 
 ```bash
-bash "${CLAUDE_PLUGIN_ROOT}/shared/scripts/content-grounding.sh" \
+bash "${LEARN_GOAL_DIR}/scripts/content-grounding.sh" \
   --subject "$SUBJECT" \
   --level "$TARGET_LEVEL" \
   --budget-sources 10 \
@@ -56,7 +57,7 @@ If `--kb` was provided, also run `content-grounding-kb.sh` and merge the
 `sources` arrays. KB sources go first — higher authority for the custom domain:
 
 ```bash
-bash "${CLAUDE_PLUGIN_ROOT}/shared/scripts/content-grounding-kb.sh" \
+bash "${LEARN_GOAL_DIR}/scripts/content-grounding-kb.sh" \
   --kb "$KB_ID" \
   --subject "$SUBJECT" \
   --level "$TARGET_LEVEL" \

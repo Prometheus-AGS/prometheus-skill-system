@@ -24,7 +24,7 @@ import {
 } from 'fs';
 import { dirname, join, resolve } from 'path';
 import { homedir } from 'os';
-import { execSync } from 'child_process';
+import { execFileSync, execSync } from 'child_process';
 
 const REPO_ROOT = resolve(import.meta.dirname, '..');
 const SKILL_NAME = 'prometheus-skill-pack';
@@ -176,6 +176,36 @@ function createSymlink(target: string, linkPath: string): boolean {
   return true;
 }
 
+function removeLegacyBundleLink(targetDir: string): void {
+  const linkPath = join(targetDir, SKILL_NAME);
+  if (pathExistsOrIsSymlink(linkPath) && isRepoOwnedSymlink(linkPath)) {
+    unlinkSync(linkPath);
+    console.log(`    ✅ Removed legacy bundle symlink: ${linkPath}`);
+  }
+}
+
+function installMinimaxPayloads(targetDir: string, uninstall = false): void {
+  const args = [
+    join(REPO_ROOT, 'scripts', 'install-minimax-skills.js'),
+    '--repo-root',
+    REPO_ROOT,
+    '--target-dir',
+    targetDir,
+  ];
+  if (uninstall) args.push('--uninstall');
+  execFileSync(process.execPath, args, { stdio: 'inherit' });
+}
+
+function syncCodexSkills(targetDir: string, uninstall = false): void {
+  removeLegacyBundleLink(targetDir);
+  const args = [join(REPO_ROOT, 'scripts', 'codex-sync-skills.sh')];
+  if (uninstall) args.push('--uninstall');
+  execFileSync('bash', args, {
+    stdio: 'inherit',
+    env: { ...process.env, CODEX_HOME: dirname(targetDir) },
+  });
+}
+
 function installPlatform(platform: Platform, scope: 'global' | 'project'): void {
   const targetDir =
     scope === 'global' ? platform.globalSkillsDir : join(process.cwd(), platform.projectSkillsDir);
@@ -184,7 +214,11 @@ function installPlatform(platform: Platform, scope: 'global' | 'project'): void 
   console.log(`\n  Installing to ${platform.name} (${scope})...`);
   console.log(`    Target: ${linkPath}`);
 
-  if (createSymlink(REPO_ROOT, linkPath)) {
+  if (platform.name === 'minimax') {
+    installMinimaxPayloads(targetDir);
+  } else if (platform.name === 'codex') {
+    syncCodexSkills(targetDir);
+  } else if (createSymlink(REPO_ROOT, linkPath)) {
     console.log(`    ✅ Symlink created`);
   }
 
@@ -362,6 +396,16 @@ function uninstallPlatform(platform: Platform, scope: 'global' | 'project'): voi
   const targetDir =
     scope === 'global' ? platform.globalSkillsDir : join(process.cwd(), platform.projectSkillsDir);
   const linkPath = join(targetDir, SKILL_NAME);
+
+  if (platform.name === 'minimax') {
+    installMinimaxPayloads(targetDir, true);
+    return;
+  }
+
+  if (platform.name === 'codex') {
+    syncCodexSkills(targetDir, true);
+    return;
+  }
 
   if (pathExistsOrIsSymlink(linkPath) && isRepoOwnedSymlink(linkPath)) {
     try {

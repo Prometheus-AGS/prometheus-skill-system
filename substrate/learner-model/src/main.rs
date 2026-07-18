@@ -17,16 +17,17 @@
 //! |--------|--------|-------------|
 //! | `load` | `{"learner_id": "..."}` | Load a learner model |
 //! | `seed_from_survey` | `{"seed": {...}}` | Seed model from survey output |
+//! | `get_concept` | `{"learner_id", "concept_id"}` | Load one concept state |
 //! | `add_observation` | `{"learner_id", "concept_id", "score", "source_skill"}` | Record observation |
+//! | `review` | `{"learner_id", "concept_id", "score", "rating", "source_skill"}` | Record retention review and advance FSRS |
 
+use chrono::{DateTime, Utc};
 use learner_model::{
-    store::LearnerModelStore,
-    survey::seed_from_survey,
-    types::LearnerModelSeed,
+    fsrs::Rating, store::LearnerModelStore, survey::seed_from_survey, types::LearnerModelSeed,
 };
-use storage_provider::{LocalDirAdapter, LoroAdapter};
 use serde_json::{json, Value};
 use std::io::{self, BufRead};
+use storage_provider::{LocalDirAdapter, LoroAdapter};
 
 #[tokio::main]
 async fn main() {
@@ -99,6 +100,22 @@ async fn handle_command(
             }
         }
 
+        "get_concept" => {
+            let learner_id = params["learner_id"].as_str().unwrap_or("");
+            let concept_id = params["concept_id"].as_str().unwrap_or("");
+            if learner_id.is_empty() || concept_id.is_empty() {
+                return json!({"error": "missing params.learner_id or params.concept_id"})
+                    .to_string();
+            }
+            match store.load(learner_id).await {
+                Ok(model) => match model.concepts.get(concept_id) {
+                    Some(concept) => serde_json::to_value(concept).unwrap_or(json!(null)),
+                    None => json!({"error": format!("concept not found: {}", concept_id)}),
+                },
+                Err(e) => json!({"error": e.to_string()}),
+            }
+        }
+
         "add_observation" => {
             let learner_id = params["learner_id"].as_str().unwrap_or("");
             let concept_id = params["concept_id"].as_str().unwrap_or("");
@@ -115,6 +132,56 @@ async fn handle_command(
                 .await
             {
                 Ok(()) => json!({"ok": true}),
+                Err(e) => json!({"error": e.to_string()}),
+            }
+        }
+
+        "review" => {
+            let learner_id = params["learner_id"].as_str().unwrap_or("");
+            let concept_id = params["concept_id"].as_str().unwrap_or("");
+            let score = params["score"].as_f64().unwrap_or(0.0).clamp(0.0, 1.0);
+            let source_skill = params["source_skill"].as_str().unwrap_or("learn-retain");
+            let rating = match params["rating"]
+                .as_str()
+                .unwrap_or("")
+                .to_ascii_lowercase()
+                .as_str()
+            {
+                "again" => Rating::Again,
+                "hard" => Rating::Hard,
+                "good" => Rating::Good,
+                "easy" => Rating::Easy,
+                _ => {
+                    return json!({"error": "invalid params.rating; expected again|hard|good|easy"})
+                        .to_string()
+                }
+            };
+            if learner_id.is_empty() || concept_id.is_empty() {
+                return json!({"error": "missing params.learner_id or params.concept_id"})
+                    .to_string();
+            }
+            let reviewed_at = match params["timestamp"].as_str() {
+                Some(value) => match DateTime::parse_from_rfc3339(value) {
+                    Ok(value) => value.with_timezone(&Utc),
+                    Err(_) => {
+                        return json!({"error": "invalid params.timestamp; expected RFC3339"})
+                            .to_string()
+                    }
+                },
+                None => Utc::now(),
+            };
+            match store
+                .review_concept(
+                    learner_id,
+                    concept_id,
+                    score,
+                    rating,
+                    source_skill,
+                    reviewed_at,
+                )
+                .await
+            {
+                Ok(card) => json!({"ok": true, "fsrs_card": card}),
                 Err(e) => json!({"error": e.to_string()}),
             }
         }

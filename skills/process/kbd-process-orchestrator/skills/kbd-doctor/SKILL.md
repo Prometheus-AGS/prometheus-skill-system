@@ -18,6 +18,24 @@ Run the Prometheus substrate doctor through the canonical CLI surface.
 Always use `prometheus doctor` as the diagnostic authority. Do not reimplement
 checks in the skill.
 
+## Progress Signals (MANDATORY)
+
+Before running diagnostics or repairs, emit:
+
+```
+Starting kbd-doctor — <diagnosis|fix|refresh>
+```
+
+When the requested doctor run is complete, emit:
+
+```
+Completed kbd-doctor — <diagnosis|fix|refresh>
+```
+
+Choose the label from the requested mode and emit both signals as plain response
+text. A blocked or denied repair still completes the doctor run once its findings
+and required next action have been reported.
+
 ## Before broad repair work
 
 Before any broad `--fix` or `--refresh` action:

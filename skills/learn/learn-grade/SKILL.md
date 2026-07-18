@@ -60,7 +60,7 @@ for the full methodology, numbers, and known limitations.
 ### Step 1 — Load corpus
 
 Read the corpus JSON from `--corpus-path`. The expected shape matches the output of
-`shared/scripts/content-grounding.sh`:
+the bundled `learn-goal/scripts/content-grounding.sh`:
 
 ```json
 {
@@ -152,30 +152,30 @@ Rules:
 
 ### Step 8 — Update learner model
 
-Call the learner-model substrate's `add_observation` endpoint:
+Call the learner-model substrate's `add_observation` JSON-RPC method:
 
 ```bash
-curl -s -X POST "${LEARNER_MODEL_URL}/api/v1/observations" \
-  -H "Content-Type: application/json" \
-  -d "{
-    \"learner_id\": \"${LEARNER_ID}\",
-    \"concept_id\": \"${CONCEPT_ID}\",
-    \"score\": ${OVERALL_SCORE},
-    \"source_skill\": \"learn-grade\",
-    \"observed_at\": \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"
-  }"
+jq -nc \
+  --arg learner_id "$LEARNER_ID" \
+  --arg concept_id "$CONCEPT_ID" \
+  --argjson score "$OVERALL_SCORE" \
+  '{method:"add_observation",params:{
+    learner_id:$learner_id,
+    concept_id:$concept_id,
+    score:$score,
+    source_skill:"learn-grade"
+  }}' | learner-model
 ```
 
-`LEARNER_MODEL_URL` defaults to `http://localhost:7740` (the substrate/learner-model
-default port). When the learner-model substrate is unavailable, log a warning and
-continue — the grade file is the primary output.
+When the `learner-model` binary is unavailable or returns an `error` field, log a
+warning and continue — the grade file is the primary output.
 
 ### Step 9 — Emit grade result
 
 Write the grade JSON using `scripts/write-grade.sh`:
 
 ```bash
-bash "${CLAUDE_PLUGIN_ROOT}/skills/learn/learn-grade/scripts/write-grade.sh" \
+bash "<directory-containing-this-SKILL.md>/scripts/write-grade.sh" \
   --goal-id "${GOAL_ID}" \
   --grade-json "${GRADE_JSON}"
 ```
