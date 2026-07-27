@@ -80,3 +80,6 @@ When running as `--mode mcp`, sovereign-sync exposes 4 tools:
 
 Tool names are optionally prefixed with `sovereign:` via `--prefix-tools` to avoid collision
 when multiple MCP servers are active in UAR or BossFang contexts.
+
+---
+*Canonical source: [`substrate/sovereign-sync`](https://github.com/Prometheus-AGS/prometheus-skill-system/tree/main/substrate/sovereign-sync).*

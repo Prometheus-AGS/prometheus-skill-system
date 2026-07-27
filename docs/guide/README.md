@@ -74,8 +74,8 @@ The guide is built in layers. Read it top to bottom the first time; use it as a 
 
 | Document | What it covers |
 |---|---|
-| [Production Readiness Report](../production-readiness-report.md) | Sycophancy-corrected 92% readiness score; finding-by-finding closure status; requirements to reach 95%+ |
-| [Deployment Modes](../deployment-modes.md) | Mode 0-3 capability matrix — which services are required for which features |
+| [Production Readiness Report](https://github.com/Prometheus-AGS/prometheus-skill-system/blob/main/docs/production-readiness-report.md) | Sycophancy-corrected 92% readiness score; finding-by-finding closure status; requirements to reach 95%+ |
+| [Deployment Modes](https://github.com/Prometheus-AGS/prometheus-skill-system/blob/main/docs/deployment-modes.md) | Mode 0-3 capability matrix — which services are required for which features |
 
 ---
 

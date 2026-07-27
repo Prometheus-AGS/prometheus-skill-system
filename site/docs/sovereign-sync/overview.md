@@ -71,3 +71,6 @@ curl -s http://127.0.0.1:7892/health | jq .
 structurally in Rust — any attempt to export or apply a delta for a `LocalOnly` domain returns a
 `PrivacyViolation` error at the CRDT layer, not just a policy check. KB content (palace RAG, Dify
 knowledge bases, local markdown) never enters a sync payload.
+
+---
+*Canonical source: [`substrate/sovereign-sync`](https://github.com/Prometheus-AGS/prometheus-skill-system/tree/main/substrate/sovereign-sync) — the crate and its doc comments are the source of truth.*

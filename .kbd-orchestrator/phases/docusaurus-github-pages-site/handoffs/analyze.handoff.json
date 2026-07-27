@@ -1,0 +1,12 @@
+{
+  "stage": "analyze",
+  "completedAt": "2026-07-27T09:44:59Z",
+  "outputs": [
+    "analysis.md",
+    "library-candidates.json"
+  ],
+  "nextStage": "spec",
+  "summaryForNext": "7 candidates: adopt Docusaurus 3.10.1/search-local/theme-mermaid(+exact-version pin)/multi-instance ../docs plugins; adapt donor docs-pages.yml (vendor YAML+SHAs in-repo) and in-house catalog generator; brand --km-* held out-of-goal for operator. Adversarial vet (harness-native, PASS): 5 WARNINGs applied as analysis corrections (KBD-lifecycle + learn-linking calls added, workflow inventory cited, version constraint noted, donor evidence portability noted). Open: brand scope answer from operator.",
+  "skipped": false,
+  "skipReason": null
+}

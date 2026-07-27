@@ -1,0 +1,5 @@
+site/scripts/generate-skills-catalog.mjs
+site/docusaurus.config.js
+site/sidebars-catalog.js
+site/package.json
+.gitignore

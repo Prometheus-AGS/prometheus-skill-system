@@ -1,0 +1,43 @@
+{
+  "mode": "artifact",
+  "verdict": "PASS",
+  "judge_model": "harness-subagent (claude, parent-session family)",
+  "isolation_mode": "harness-native",
+  "findings": [
+    {
+      "severity": "WARNING",
+      "file": "assessment.md",
+      "claim": "Workflow inventory in .github/workflows asserted but unverifiable from packet (file_tree omits .github)",
+      "evidence": "file_tree contains no ./.github entry while listing other dot-dirs; artifact asserts four workflow names",
+      "suggested_fix": "Cite actual .github/workflows listing; fix packet builder tree pruning"
+    },
+    {
+      "severity": "WARNING",
+      "file": "assessment.md",
+      "claim": "Goal 3 requires README and CLAUDE.md-derived guides to be mapped, but the gap analysis never assesses them",
+      "evidence": "goals.md lists 'docs/, README, CLAUDE.md-derived guides'; artifact's unmapped list omits README.md and CLAUDE.md entirely",
+      "suggested_fix": "Add a gap item covering README/CLAUDE.md-derived content"
+    },
+    {
+      "severity": "WARNING",
+      "file": "assessment.md",
+      "claim": "Brand-contract (--km-*) work is counted as a Goal 1 gap though no goal mentions branding \u2014 scope imported from the reference repo",
+      "evidence": "Goals list catalog/KBD/learn/substrate + deploy + dedupe only; Verdict counts 'brand contract (G1)' and estimates a 'brand CSS port' change",
+      "suggested_fix": "Reclassify brand work as an explicit out-of-goal proposal or amend goals"
+    },
+    {
+      "severity": "WARNING",
+      "file": "assessment.md",
+      "claim": "Duplication verdict verified only for guide/; learn/ and sovereign-sync/ provenance is hedged and sovereign-sync has no root-docs counterpart in the tree",
+      "evidence": "Artifact says sections 'appear to be copies'; file_tree has ./docs/learn but no ./docs/sovereign-sync",
+      "suggested_fix": "Diff site/docs/learn vs docs/learn; identify or declare absent the sovereign-sync canonical source"
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "assessment.md",
+      "claim": "Goal 2 config-correction facts (org/repo/url/baseUrl) asserted without quoted config excerpts or cited remote",
+      "evidence": "Config values and true org/repo names appear nowhere else in the packet",
+      "suggested_fix": "Quote site/docusaurus.config.js lines and cite git remote in the plan-stage change"
+    }
+  ]
+}

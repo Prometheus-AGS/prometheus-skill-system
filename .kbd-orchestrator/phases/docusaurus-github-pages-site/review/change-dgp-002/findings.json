@@ -1,0 +1,54 @@
+{
+  "mode": "diff",
+  "verdict": "PASS",
+  "judge_model": "harness-subagent (claude, parent-session family)",
+  "isolation_mode": "harness-native",
+  "rounds": 2,
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": ".github/workflows/docs-pages.yml",
+      "line": 28,
+      "claim": "ROUND 1 (fixed): unguarded configure-pages fails PR builds until Pages is enabled",
+      "evidence": "no if-guard; acceptance requires PR green pre-enablement",
+      "suggested_fix": "guard to main deploy path",
+      "resolution": "applied"
+    },
+    {
+      "severity": "WARNING",
+      "file": ".github/workflows/docs-pages.yml",
+      "line": 43,
+      "claim": "ROUND 1 (fixed): workflow_dispatch from any branch could deploy to production Pages",
+      "evidence": "deploy gate only excluded pull_request",
+      "suggested_fix": "ref-gate deploy+upload to refs/heads/main",
+      "resolution": "applied"
+    },
+    {
+      "severity": "WARNING",
+      "file": ".github/workflows/docs-pages.yml",
+      "line": 19,
+      "claim": "ROUND 2 (fixed): shared 'pages' group made concurrent PR pending runs cancel each other",
+      "evidence": "one pending run per group; two PRs touching site/** collide",
+      "suggested_fix": "per-ref PR groups, serialized pages-deploy group",
+      "resolution": "applied"
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": ".github/workflows/docs-pages.yml",
+      "line": 19,
+      "claim": "ROUND 1: per-ref concurrency did not serialize cross-ref deploys",
+      "evidence": "push-main and dispatch deploys could race",
+      "suggested_fix": "single deploy group",
+      "resolution": "applied (pages-deploy)"
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": ".github/workflows/docs-pages.yml",
+      "line": 31,
+      "claim": "ROUND 2: main runs red during pre-enablement window if operator sequence violated",
+      "evidence": "configure-pages errors until Pages enabled; plan already orders enablement before merge",
+      "suggested_fix": "noted in verification.md; enablement is a plan-mandated pre-merge manual task",
+      "resolution": "documented"
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "mode": "artifact",
+  "verdict": "PASS",
+  "judge_model": "harness-subagent (claude, parent-session family)",
+  "isolation_mode": "harness-native",
+  "findings": [
+    {
+      "severity": "WARNING",
+      "file": "analysis.md",
+      "claim": "G1 KBD-lifecycle docs unaddressed by any gap/candidate",
+      "evidence": "goals name KBD lifecycle; gaps_addressed lacked it",
+      "suggested_fix": "Add G1-kbd-lifecycle call"
+    },
+    {
+      "severity": "WARNING",
+      "file": "library-candidates.json",
+      "claim": "theme-mermaid 3.10.2 vs core 3.10.1 violates Docusaurus exact-version rule",
+      "evidence": "cand-001 pins 3.10.1; cand-005 cites 3.10.2",
+      "suggested_fix": "Pin theme-mermaid@3.10.1 or bump core"
+    },
+    {
+      "severity": "WARNING",
+      "file": "analysis.md",
+      "claim": "Workflow inventory still uncited from assess vet",
+      "evidence": "file tree showed only the dir; no enumeration",
+      "suggested_fix": "List workflows, confirm no Pages deploy"
+    },
+    {
+      "severity": "WARNING",
+      "file": "analysis.md",
+      "claim": "learn/ linking strategy asserted but never produced",
+      "evidence": "no G3-learn call or open question",
+      "suggested_fix": "Name canonical home for overlapping learn topics"
+    },
+    {
+      "severity": "WARNING",
+      "file": "library-candidates.json",
+      "claim": "Donor evidence cites local file:// paths \u2014 unreproducible in CI",
+      "evidence": "cand-002/cand-007 repo_url are file:///Users/...",
+      "suggested_fix": "Vendor adapted content into phase artifacts"
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "library-candidates.json",
+      "claim": "brand-contract listed in gaps_addressed while declared out-of-goal",
+      "evidence": "gaps_addressed vs cand-007 fit_for_gap text",
+      "suggested_fix": "Move to deferred field"
+    }
+  ]
+}

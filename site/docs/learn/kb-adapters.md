@@ -18,22 +18,13 @@ allow you to ground learning in your own proprietary content.
 /learn-kb add web:https://my-docs.example.com
 ```
 
-## Adapter types
+## Adapter types and privacy guarantee
 
-| Prefix | Backend | Privacy |
-|--------|---------|---------|
-| `dify:<kb-name>` | Dify knowledge base MCP | Dify server, requires `DIFY_API_KEY` |
-| `palace:<collection>` | surreal-memory palace RAG | Fully local, no external calls |
-| `local:<path>` | Filesystem markdown | Stays on machine |
-| `web:<url>` | Firecrawl live fetch | Internet required |
-
-## Privacy guarantee
-
-`content-grounding-kb.sh` **NEVER** forwards KB content to external APIs.
-
-- If external API env vars (FIRECRAWL_API_KEY, etc.) are set and a `local:` or
-  `palace:` KB is being queried, those sources skip external calls entirely.
-- The privacy guarantee is enforced in code, not convention.
+The four adapter prefixes (`dify:` / `palace:` / `local:` / `web:`), their
+backends, and the `content-grounding-kb.sh` privacy enforcement are documented
+once, canonically, in the
+[KB Adapter Guide](/docs/learn-internals/kb-adapter-guide) — this page stays
+the narrative entry point and does not duplicate that reference.
 
 ## Using a KB in a learning session
 

@@ -1,5 +1,7 @@
 # Prometheus Skill Pack
 
+> 📚 **Full documentation:** <https://prometheus-ags.github.io/prometheus-skill-system/> (Docusaurus site — guide, learn domain, sovereign sync)
+
 A self-improving AI skill execution engine. Production-grade skills across 8 language
 domains, a 4-layer PMPO orchestration pipeline, a Karpathy knowledge learning loop,
 a code-generation enrichment engine (forge-rs), a native agent generator, and

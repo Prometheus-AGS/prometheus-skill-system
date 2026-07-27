@@ -2,30 +2,8 @@
 
 /** @type {import('@docusaurus/plugin-content-docs').SidebarsConfig} */
 const sidebars = {
-  guideSidebar: [
-    {
-      type: 'category',
-      label: 'Getting Started',
-      items: ['guide/introduction', 'guide/installation', 'guide/quick-start'],
-    },
-    {
-      type: 'category',
-      label: 'Architecture',
-      items: [
-        'guide/metaprompting-pmpo-kbd',
-        'guide/loop-architecture',
-        'guide/four-layer-pipeline',
-        'guide/mcp-substrate',
-        'guide/memory-and-learning',
-        'guide/sycophancy-correction',
-      ],
-    },
-    {
-      type: 'category',
-      label: 'Skills Reference',
-      items: ['guide/skills-overview', 'guide/process-skills', 'guide/language-skills'],
-    },
-  ],
+  // guideSidebar moved to sidebars-guide.js — the guide is served from the
+  // canonical ../docs/guide via a separate plugin instance (id: 'guide').
 
   learnSidebar: [
     {
@@ -53,6 +31,29 @@ const sidebars = {
         'learn/skills/learn-kb',
         'learn/skills/learn-harness',
         'learn/skills/learn-about-system',
+      ],
+    },
+  ],
+
+  kbdSidebar: [
+    {
+      type: 'category',
+      label: 'KBD Lifecycle',
+      items: ['kbd/overview', 'kbd/stages', 'kbd/hooks-and-waypoints', 'kbd/quality-gates'],
+    },
+  ],
+
+  substrateSidebar: [
+    {
+      type: 'category',
+      label: 'Substrate Crates',
+      items: [
+        'substrate/index',
+        'substrate/storage-provider',
+        'substrate/learner-model',
+        'substrate/surface-bridge',
+        'substrate/sovereign-client',
+        'substrate/prometheus-research',
       ],
     },
   ],

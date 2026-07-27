@@ -1,0 +1,57 @@
+{
+  "mode": "diff",
+  "verdict": "PASS",
+  "judge_model": "harness-subagent (claude, parent-session family)",
+  "isolation_mode": "harness-native",
+  "rounds": 1,
+  "findings": [
+    {
+      "severity": "WARNING",
+      "file": "site/scripts/generate-skills-catalog.mjs",
+      "line": 40,
+      "claim": "LF-only frontmatter regex silently degrades CRLF/BOM SKILL.md entries",
+      "evidence": "regex requires literal \\n; null return masked by dir-name fallback",
+      "suggested_fix": "tolerant regex + warning"
+    },
+    {
+      "severity": "WARNING",
+      "file": "site/scripts/generate-skills-catalog.mjs",
+      "line": 27,
+      "claim": "statSync unguarded and follows symlinks: dangling link crashes prebuild; dir-symlink cycle unbounded",
+      "evidence": "repo manages symlink farms per file tree",
+      "suggested_fix": "lstatSync, skip symlinks, log+continue"
+    },
+    {
+      "severity": "WARNING",
+      "file": "site/scripts/generate-skills-catalog.mjs",
+      "line": 47,
+      "claim": "count-parity evidenced against raw find, not validator output",
+      "evidence": "evidence cites filesystem count",
+      "suggested_fix": "document contract as every-SKILL.md-file"
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "site/scripts/generate-skills-catalog.mjs",
+      "line": 54,
+      "claim": "category from path, not metadata.category frontmatter",
+      "evidence": "fm.metadata.category never read",
+      "suggested_fix": "document path-based grouping"
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "site/scripts/generate-skills-catalog.mjs",
+      "line": 78,
+      "claim": "locale-dependent sort weakens idempotency across machines",
+      "evidence": "localeCompare without locale",
+      "suggested_fix": "pin 'en'"
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "site/package.json",
+      "line": 49,
+      "claim": "trailing newline dropped, causes npm diff churn",
+      "evidence": "No newline at end of file marker",
+      "suggested_fix": "restore newline"
+    }
+  ]
+}

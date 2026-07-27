@@ -1,0 +1,64 @@
+name: Docs site (GitHub Pages)
+
+# Adapted from the KnowMe hybrid-mobile-architecture-skill docs-pages.yml
+# (donor pattern): PR = build-only verification; push to main = build + deploy.
+# Action SHAs are vendored/pinned deliberately — bump them explicitly.
+
+on:
+  pull_request:
+    paths: ["site/**", "docs/**", ".github/workflows/docs-pages.yml"]
+  push:
+    branches: [main]
+    paths: ["site/**", "docs/**", ".github/workflows/docs-pages.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  # PR runs get per-ref groups (no mutual cancellation between PRs);
+  # all deploy-path runs share one serialized 'pages-deploy' group.
+  group: ${{ github.event_name == 'pull_request' && format('docs-pr-{0}', github.ref) || 'pages-deploy' }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      # configure-pages errors when Pages isn't enabled yet; PR builds don't
+      # consume its output, so keep it off the PR path entirely.
+      - uses: actions/configure-pages@983d7736d9b0ae728b81ab479565c72886d7745b # v5
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: site/package-lock.json
+      - run: npm ci
+        working-directory: site
+      - run: npm run build
+        working-directory: site
+      - uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa # v3
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+        with:
+          path: site/build
+
+  deploy:
+    # ref-gated too: a workflow_dispatch from a feature branch must never
+    # deploy that branch's content to the production Pages site.
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    permissions:
+      pages: write
+      id-token: write
+    steps:
+      - name: Deploy Pages
+        id: deployment
+        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4

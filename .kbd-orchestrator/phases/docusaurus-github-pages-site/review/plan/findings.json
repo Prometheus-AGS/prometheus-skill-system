@@ -1,0 +1,73 @@
+{
+  "mode": "artifact",
+  "verdict": "PASS",
+  "judge_model": "harness-subagent (claude, parent-session family)",
+  "isolation_mode": "harness-native",
+  "rounds": 2,
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": "plan.md",
+      "claim": "ROUND 1 (resolved): README/CLAUDE.md-derived guides in Goal 3 had no covering change",
+      "evidence": "goals list them; changes dgp-001..009 omitted them",
+      "suggested_fix": "Extended dgp-003 with README + CLAUDE.md mapping tables",
+      "resolution": "applied in round-1 revision"
+    },
+    {
+      "severity": "WARNING",
+      "file": "plan.md",
+      "claim": "dgp-005 acceptance depended on dgp-006 output (ordering)",
+      "evidence": "search-for-skill-name before catalog exists",
+      "suggested_fix": "Reworded; catalog search coverage moved to dgp-006",
+      "resolution": "applied"
+    },
+    {
+      "severity": "WARNING",
+      "file": "plan.md",
+      "claim": "dgp-007/008 hand-authored copies risked re-creating G3 duplication",
+      "evidence": "no non-duplication acceptance",
+      "suggested_fix": "Non-duplication criteria added (links + no verbatim >3 paras)",
+      "resolution": "applied"
+    },
+    {
+      "severity": "WARNING",
+      "file": "plan.md",
+      "claim": "dgp-006 lacked the search route-base extension its acceptance required",
+      "evidence": "scope omitted search config update",
+      "suggested_fix": "Added to dgp-006 scope",
+      "resolution": "applied (round 2)"
+    },
+    {
+      "severity": "WARNING",
+      "file": "plan.md",
+      "claim": "Existing sovereign-sync pages escaped the non-duplication audit",
+      "evidence": "dgp-007 covered only new pages",
+      "suggested_fix": "Audit extended to existing pages",
+      "resolution": "applied (round 2)"
+    },
+    {
+      "severity": "WARNING",
+      "file": "plan.md",
+      "claim": "CLAUDE.md 'already mirrored' claim was asserted, not audited",
+      "evidence": "only README got a mapping table",
+      "suggested_fix": "CLAUDE.md mapping table added to dgp-003 acceptance",
+      "resolution": "applied (round 2)"
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "plan.md",
+      "claim": "dgp-002 (deploy workflow) was QA-exempt via <3-files heuristic",
+      "evidence": "security-sensitive CI change",
+      "suggested_fix": "QA + adversarial review FORCED for dgp-002",
+      "resolution": "applied"
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "plan.md",
+      "claim": "Optional dgp-009 sat in the ordered executable list",
+      "evidence": "executor walking the list could start it",
+      "suggested_fix": "Moved to 'Deferred pending operator decision' section",
+      "resolution": "applied (round 2)"
+    }
+  ]
+}

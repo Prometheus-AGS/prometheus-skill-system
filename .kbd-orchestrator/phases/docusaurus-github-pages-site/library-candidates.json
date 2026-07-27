@@ -1,0 +1,96 @@
+{
+  "phase": "docusaurus-github-pages-site",
+  "generated_at": "2026-07-27T10:05:00Z",
+  "research_budget": {
+    "max_queries_per_tier": 8,
+    "max_minutes": 20,
+    "queries_used": {
+      "tier1": 0,
+      "tier2": 0,
+      "tier3": 3,
+      "tier4": 0
+    }
+  },
+  "gaps_addressed": [
+    "G1-catalog",
+    "G1-search",
+    "G1-diagrams",
+    "G1-substrate",
+    "G2-workflow",
+    "G2-config",
+    "G3-canonical-serving",
+    "G3-guide-reconciliation",
+    "G1-kbd-lifecycle",
+    "G3-learn-linking"
+  ],
+  "candidates": [
+    {
+      "id": "cand-001",
+      "name": "Docusaurus 3.10.1 (existing site/)",
+      "kind": "framework",
+      "registry": "npm",
+      "fit_for_gap": "G1 \u2014 site framework; already scaffolded in-repo, keep",
+      "verdict": "adopt",
+      "evidence": "site/ tracked with 48 files, builds on classic preset; donor repo proves the same major version end-to-end"
+    },
+    {
+      "id": "cand-002",
+      "name": "donor docs-pages.yml (knowme hybrid-mobile-architecture-skill)",
+      "kind": "skeleton",
+      "registry": "none",
+      "repo_url": "file:///Users/gqadonis/Projects/know-me/hybrid-mobile-architecture-skill/.github/workflows/docs-pages.yml",
+      "fit_for_gap": "G2 \u2014 GitHub Pages CI: pinned-SHA actions, Node 24 npm cache, quality gate, upload-pages-artifact + deploy-pages@v4, PR build-only, SITE_URL/BASE_URL env",
+      "verdict": "adapt",
+      "evidence": "workflow read in full this phase; proven live on the donor's Pages deployment"
+    },
+    {
+      "id": "cand-003",
+      "name": "multi-instance @docusaurus/plugin-content-docs reading ../docs",
+      "kind": "pattern",
+      "registry": "npm",
+      "fit_for_gap": "G3 \u2014 serve canonical root docs/ without copying into site/ (donor's prompting plugin reads path '../docs/prompting')",
+      "verdict": "adopt",
+      "evidence": "donor docusaurus.config.mjs lines: plugin-content-docs {id: 'prompting', path: '../docs/prompting'}"
+    },
+    {
+      "id": "cand-004",
+      "name": "@easyops-cn/docusaurus-search-local",
+      "kind": "library",
+      "registry": "npm",
+      "fit_for_gap": "G1 \u2014 client-side search across ~140 skill pages; no server needed on Pages",
+      "verdict": "adopt",
+      "evidence": "npm view: 0.55.2, modified 2026-05-31 (active); donor uses 0.55.2 in production"
+    },
+    {
+      "id": "cand-005",
+      "name": "@docusaurus/theme-mermaid",
+      "kind": "library",
+      "registry": "npm",
+      "fit_for_gap": "G1 \u2014 architecture diagrams in guide/substrate pages",
+      "verdict": "adopt",
+      "evidence": "npm view: 3.10.2 matches core 3.10.x; donor enables markdown.mermaid + theme"
+    },
+    {
+      "id": "cand-006",
+      "name": "frontmatter-driven skills-catalog generator (in-house, \u00e0 la scripts/validate-skills.js parser)",
+      "kind": "pattern",
+      "registry": "none",
+      "fit_for_gap": "G1 \u2014 generate catalog MDX from skills/*/*/SKILL.md frontmatter (name/description/tags/category); keeps 140 skills honest at build time",
+      "verdict": "adapt",
+      "evidence": "npm search shows no existing docusaurus skills-catalog plugin; repo already parses the same frontmatter in scripts/validate-skills.js"
+    },
+    {
+      "id": "cand-007",
+      "name": "knowme --km-* style contract + validate-style-contract.mjs (donor)",
+      "kind": "pattern",
+      "registry": "none",
+      "repo_url": "file:///Users/gqadonis/Projects/know-me/hybrid-mobile-architecture-skill/site/src/css/custom.css",
+      "fit_for_gap": "brand-contract \u2014 OUT OF PHASE GOALS; held for operator decision (flagged by assess adversarial vet as imported scope)",
+      "verdict": "reference",
+      "evidence": "donor custom.css defines --km-* token system (ember #a93618/#ff8a63, canvas/chrome/surface/raised) with a style-contract validator script"
+    }
+  ],
+  "deferred_out_of_scope": [
+    "brand-contract"
+  ]
+}

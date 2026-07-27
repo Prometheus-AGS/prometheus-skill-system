@@ -83,3 +83,4 @@ SCRATCHPAD.md
 # Local env overrides
 .envrc
 *.local.env
+site/docs-catalog/

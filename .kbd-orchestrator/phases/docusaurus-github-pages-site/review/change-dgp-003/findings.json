@@ -1,0 +1,74 @@
+{
+  "mode": "diff",
+  "verdict": "PASS",
+  "judge_model": "harness-subagent (claude, parent-session family)",
+  "isolation_mode": "harness-native",
+  "rounds": 2,
+  "round_cap_note": "2-round cap reached; residual R2 CRITICALs resolved as packet-visibility artifacts with local on-disk evidence (ls, mapping.md present), content bugs fixed and build re-verified green",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": "docs/guide/00-quick-start.md",
+      "claim": "R2 (fixed): clone prometheus-skill-system followed by cd prometheus-skill-pack breaks install for every user",
+      "evidence": "clone/cd mismatch in new-file hunk",
+      "suggested_fix": "cd prometheus-skill-system",
+      "resolution": "applied; build green"
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "site/docs/guide/quick-start.md",
+      "claim": "R2 (packet artifact): rename source not in diff \u2014 files.txt lost the 'R old -> new' source path",
+      "evidence": "git status porcelain rename parsing; on-disk ls confirms site/docs/guide fully removed",
+      "suggested_fix": "files.txt generation expands rename pairs (fixed)",
+      "resolution": "verified locally; no route collision possible"
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "openspec/changes/change-dgp-003/mapping.md",
+      "claim": "R1+R2 (packet artifact): README+CLAUDE.md mapping tables exist in the change dir but were outside files.txt",
+      "evidence": "mapping.md committed in change dir with both tables",
+      "suggested_fix": "included in files.txt",
+      "resolution": "verified present"
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "docs/guide",
+      "claim": "R1 (resolved): reconciliation direction unevidenced",
+      "evidence": "containment audit run; site pages were derivative condensations; audit recorded in verification.md",
+      "suggested_fix": "\u2014",
+      "resolution": "audited"
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "docs/guide/00-quick-start.md",
+      "claim": "R1 (fixed): moved page hardcoded old org/repo URLs",
+      "evidence": "prometheusags/prometheus-skill-pack in clone + docs links",
+      "suggested_fix": "URLs corrected",
+      "resolution": "applied"
+    },
+    {
+      "severity": "WARNING",
+      "file": "site/docusaurus.config.js",
+      "claim": "R1 (fixed): guide instance editUrl base malformed",
+      "evidence": "base lacked docs/guide suffix",
+      "suggested_fix": "editUrl .../edit/main/docs/guide/",
+      "resolution": "applied"
+    },
+    {
+      "severity": "WARNING",
+      "file": "site/docusaurus.config.js",
+      "claim": "R1 (resolved): throw-flip link audit",
+      "evidence": "green build over full 25-page tree IS the audit; 2 off-site links converted to GitHub URLs",
+      "suggested_fix": "\u2014",
+      "resolution": "evidenced"
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "docs/guide/00-quick-start.md",
+      "claim": "R2 (fixed): stale 23-chapter count + off-site guide link",
+      "evidence": "text predates move",
+      "suggested_fix": "relative link to guide index",
+      "resolution": "applied"
+    }
+  ]
+}

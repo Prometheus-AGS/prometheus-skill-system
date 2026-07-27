@@ -1,0 +1,33 @@
+{
+  "mode": "diff",
+  "verdict": "PASS",
+  "judge_model": "harness-subagent (claude, parent-session family)",
+  "isolation_mode": "harness-native",
+  "rounds": 1,
+  "findings": [
+    {
+      "severity": "WARNING",
+      "file": "site/docs/learn/kb-adapters.md",
+      "claim": "Merge was performed as deletion + pointer; the diff contains no hunk adding content to docs/learn/kb-adapter-guide.md",
+      "evidence": "kb-adapters.md hunk removes the adapter table and privacy bullets; no kb-adapter-guide.md hunk exists",
+      "suggested_fix": "Fold any site-only details into the canonical page",
+      "resolution": "kb-adapter-guide.md L27-42 already lists: env-var ignore set incl. FIRECRAWL_API_KEY, stderr warning on detected external vars, privacy_mode output field. Each deleted site bullet maps to one of these lines. One site phrase (enforced in code, not convention) has no counterpart; its referent (the enforcement mechanism) is described at L29-38."
+    },
+    {
+      "severity": "WARNING",
+      "file": "site/docusaurus.config.js",
+      "claim": "Packet cannot show whether the build passes with throw over the full ../docs/learn tree",
+      "evidence": "task checkbox for build unchecked in packet",
+      "suggested_fix": "Run the build and attach the result",
+      "resolution": "npm run build exit 0 after the change; build/docs/learn-internals/kb-adapter-guide/index.html present. Output recorded in verification.md."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "site/docs/learn/kb-adapters.md",
+      "claim": "Hard-coded composed route couples this page to routeBasePath and the target slug",
+      "evidence": "literal /docs/learn-internals/kb-adapter-guide link; slug not pinned in this diff",
+      "suggested_fix": "Pin a slug on kb-adapter-guide.md or document the coupling",
+      "resolution": "Not pinned. Coupling stands; a rename will fail the build via onBrokenLinks throw rather than silently 404."
+    }
+  ]
+}
