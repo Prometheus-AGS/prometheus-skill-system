@@ -38,22 +38,42 @@ implementation_status → COMPLETE in progress.json
   │   ├─ validates all produced artifacts
   │   └─ writes .refiner/artifacts/<change-id>/refinement_log.md
   │
-  ├─ ALL PASS → proceed to archive
-  │   ├─ if OpenSpec: /opsx:verify → /opsx:archive
-  │   └─ if native: move to .kbd-orchestrator/changes/archive/<date>-<id>/
+  ├─ ALL PASS → /adversarial-review --mode diff "<change-id>"
+  │   ├─ cross-model fresh-context judge (cheap checklist first, judgment second)
+  │   ├─ writes .kbd-orchestrator/phases/<phase>/review/<change-id>/findings.json
+  │   │
+  │   ├─ verdict PASS → proceed to archive
+  │   │   ├─ if OpenSpec: /opsx:verify → /opsx:archive
+  │   │   └─ if native: move to .kbd-orchestrator/changes/archive/<date>-<id>/
+  │   │   (WARNING findings: logged in the review dir, archive proceeds;
+  │   │    SUGGESTION: informational)
+  │   │
+  │   └─ verdict BLOCK (any CRITICAL) → mark certification BLOCKED in progress.json
+  │       └─ fix, then re-run refine-validate AND adversarial-review
   │
   └─ ANY FAIL → mark certification BLOCKED in progress.json
       └─ /refine-code "<change-id>" for iterative refinement
 ```
 
-See `references/integrations/artifact-refiner.md` for the full invocation
-contract and constraint wiring.
+See `references/integrations/artifact-refiner.md` for the QA invocation
+contract and constraint wiring, and
+`references/integrations/adversarial-review.md` for the adversarial-review
+contract (packet assembly, judge dispatch, fallback chain).
 
 ### When to skip QA
 
 - Change has fewer than 3 files modified
 - Change is documentation-only
 - User passes `--skip-qa` flag
+
+### When to skip adversarial review
+
+Same heuristics, independent flag — `--skip-qa` does **not** skip
+adversarial review, and `--skip-adversarial-review` does not skip QA:
+
+- Change has fewer than 3 files modified
+- Change is documentation-only
+- User passes `--skip-adversarial-review` flag
 
 ## Progress Signals (MANDATORY)
 
@@ -124,7 +144,8 @@ Use the canonical phase name from the argument or `current-waypoint.json`. Phase
 8. **Initialize `progress.json`** for the phase if it doesn't exist
 9. **Dispatch** to selected backend or mark phase execution-ready
 10. **Per completed change**: run artifact-refiner QA gate (see above)
-11. **Archive** changes that pass QA
+11. **Per completed change**: run adversarial-review diff-mode gate after QA passes (see above)
+12. **Archive** changes that pass both gates
 
 ## Backend Types
 
@@ -142,6 +163,7 @@ Use the canonical phase name from the argument or `current-waypoint.json`. Phase
 /kbd-execute phase-2-sales-module        # explicit phase name
 /kbd-execute phase-2-sales-module roo   # dispatch to Roo Code specifically
 /kbd-execute --skip-qa                   # skip artifact-refiner QA gate
+/kbd-execute --skip-adversarial-review   # skip cross-model adversarial review gate
 ```
 
 ## Hook integration

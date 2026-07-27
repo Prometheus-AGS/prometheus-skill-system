@@ -136,7 +136,13 @@ Use the canonical phase name from the argument or `current-waypoint.json`. Emit 
 5. **Run the tiered pipeline** per `references/research-pipeline.md`.
 6. **Write artifacts** — `analysis.md`, `library-candidates.json`,
    `stack-recommendation.md` (discovery mode), `decision-log.md`.
-7. **Write handoff** — `kbd_stage_handoff_write analyze "<candidate count, key adopt verdicts, open questions>" analysis.md library-candidates.json`.
+7. **Adversarial vet** — unless `--skip-adversarial-review` is passed, run
+   `/adversarial-review --mode artifact analyze` on `analysis.md` +
+   `library-candidates.json` (see orchestrator
+   `references/integrations/adversarial-review.md`). CRITICAL findings →
+   revise and re-vet (max 2 rounds, then accept with an "Unresolved review
+   findings" section appended). WARNING findings → carry into the handoff.
+8. **Write handoff** — `kbd_stage_handoff_write analyze "<candidate count, key adopt verdicts, open questions; include any WARNING findings from adversarial review>" analysis.md library-candidates.json`.
 
 ```sh
 . "$KBD_ORCHESTRATOR_ROOT/shared/lib/hooks.sh"
@@ -145,6 +151,7 @@ Use the canonical phase name from the argument or `current-waypoint.json`. Emit 
 kbd_stage_gate analyze || exit 2
 kbd_hooks_fire analyze before "$phase" 1 1
 # … run pipeline, write artifacts …
+# … adversarial vet (step 7) runs here, before the handoff …
 kbd_hooks_fire analyze after  "$phase" 1 1
 kbd_stage_handoff_write analyze "<summary>" analysis.md library-candidates.json
 ```

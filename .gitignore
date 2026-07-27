@@ -62,6 +62,7 @@ SCRATCHPAD.md
 
 # surreal-memory write outbox (runtime artifact, never committed)
 .kbd-orchestrator/memory-outbox.jsonl
+.kbd-orchestrator/model-preflight.json
 
 # Hook-log lock files (runtime; the .log itself is covered by *.log above, but
 # the sidecar *.jsonl.lock / *.log.lock advisory locks are not).

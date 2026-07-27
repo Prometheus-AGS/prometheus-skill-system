@@ -50,6 +50,15 @@ Use the canonical phase name from the argument or `current-waypoint.json`. Emit 
 
 ## How to invoke
 
+0. **Model preflight** — assess is the KBD entry stage, so run the
+   adversarial-review multi-model preflight up front (cached 24 h at
+   `.kbd-orchestrator/model-preflight.json`):
+   `bash ${CLAUDE_PLUGIN_ROOT}/skills/process/adversarial-review/scripts/preflight-models.sh`.
+   Act on `status`: `unavailable` → offer `/liter-llm-bridge install`;
+   `needs_configure` → run `/liter-llm-bridge configure`; `no_providers` →
+   ask the user which providers to configure and name the env var per
+   provider (never collect key values); `degraded` → warn that judge may
+   equal producer. Never block the stage on preflight status.
 1. **Discover project identity** — read `.kbd-orchestrator/project.json` or infer
    from `AGENTS.md`, `CLAUDE.md`, `README.md`, `package.json`, `Cargo.toml`, etc.
 2. **Confirm the active phase** — from argument or `.kbd-orchestrator/current-waypoint.json`
@@ -60,7 +69,13 @@ Use the canonical phase name from the argument or `current-waypoint.json`. Emit 
 5. **Inspect the codebase** — scan feature directories, components, routes, etc.
 6. **Follow the assess protocol** in `../prompts/assess.md`
 7. **Write assessment file** to `.kbd-orchestrator/phases/<phase>/assessment.md`
-8. **Update progress.json** with `assessment_complete: true`
+8. **Adversarial vet** — unless `--skip-adversarial-review` is passed, run
+   `/adversarial-review --mode artifact assess` on the written assessment
+   (see orchestrator `references/integrations/adversarial-review.md`).
+   CRITICAL findings → revise `assessment.md` and re-vet (max 2 rounds, then
+   accept with an "Unresolved review findings" section appended). WARNING
+   findings → carry into the stage handoff summary.
+9. **Update progress.json** with `assessment_complete: true`
 
 ## Examples
 
@@ -103,7 +118,8 @@ stage (analyze, or plan when analyze is skipped) reads first:
 
 kbd_stage_gate assess || exit 2
 # … write assessment.md …
-kbd_stage_handoff_write assess "<1–3 sentences: key gaps found, open questions for analyze/plan>" assessment.md
+# … adversarial vet (step 8) runs here, before the handoff …
+kbd_stage_handoff_write assess "<1–3 sentences: key gaps found, open questions for analyze/plan; include any WARNING findings from adversarial review>" assessment.md
 ```
 
 Phases without a `handoffs/` directory are legacy: the gate warns and passes.

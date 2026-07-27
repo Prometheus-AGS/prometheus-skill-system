@@ -39,7 +39,9 @@ permit(
     context has human_approved &&
     context.human_approved == true &&
     context has test_pass_rate &&
-    context.test_pass_rate >= 95
+    context.test_pass_rate >= 95 &&
+    context has adversarial_review_passed &&
+    context.adversarial_review_passed == true
 };
 
 // --- STAGING: allow generation with validation ---
@@ -82,6 +84,16 @@ forbid(
 ) when {
     context.environment == "production"
 };
+
+// --- ADVERSARIAL REVIEW: read-only analysis, permitted everywhere ---
+// The review itself never mutates skill artifacts; its verdict feeds the
+// adversarial_review_passed context attribute consumed by skill.promote.
+
+permit(
+    principal,
+    action == Action::"review.adversarial",
+    resource
+);
 
 // --- HEALTHCARE VERTICAL: require audit trail ---
 

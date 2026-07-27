@@ -120,9 +120,17 @@ Use the canonical phase name from the argument or `current-waypoint.json`. Emit 
 6. **Check for evolver bridge** — is this phase driven by an evolution cycle?
 7. **Follow the plan protocol** in `../prompts/plan.md`
 8. **Write plan.md** with ordered change list and recommended agent per change
-9. **Emit change structures** via OpenSpec or native KBD
-10. **Write evolver-bridge.json** if evolver plan exists
-11. **Refresh waypoint** files (`current-waypoint.md` and `current-waypoint.json`)
+9. **Adversarial vet** — unless `--skip-adversarial-review` is passed, run
+   `/adversarial-review --mode artifact plan` on the written plan (see
+   orchestrator `references/integrations/adversarial-review.md`). CRITICAL
+   findings (ordering errors, missing dependencies, untestable criteria) →
+   revise `plan.md` and re-vet (max 2 rounds, then accept with an
+   "Unresolved review findings" section appended). WARNING findings → carry
+   into the stage handoff summary. Vet **before** emitting change
+   structures, so a corrected plan never leaves stale changes behind.
+10. **Emit change structures** via OpenSpec or native KBD
+11. **Write evolver-bridge.json** if evolver plan exists
+12. **Refresh waypoint** files (`current-waypoint.md` and `current-waypoint.json`)
 
 ## Examples
 
@@ -158,7 +166,8 @@ record the handoff that execute reads first:
 
 kbd_stage_gate plan || exit 2
 # … draft plan.md …
-kbd_stage_handoff_write plan "<1–3 sentences: change count, ordering rationale, first change to apply>" plan.md
+# … adversarial vet (step 9) runs here, before the handoff …
+kbd_stage_handoff_write plan "<1–3 sentences: change count, ordering rationale, first change to apply; include any WARNING findings from adversarial review>" plan.md
 ```
 
 Phases without a `handoffs/` directory are legacy: the gate warns and passes.

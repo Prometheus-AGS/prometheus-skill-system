@@ -1,0 +1,68 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://prometheus-ags.dev/schemas/adversarial-review/findings.schema.json",
+  "title": "Adversarial Review Findings",
+  "type": "object",
+  "required": ["mode", "verdict", "judge_model", "isolation_mode", "findings"],
+  "additionalProperties": false,
+  "properties": {
+    "mode": {
+      "type": "string",
+      "enum": ["diff", "artifact"]
+    },
+    "verdict": {
+      "type": "string",
+      "enum": ["PASS", "BLOCK"],
+      "description": "BLOCK iff at least one CRITICAL finding exists"
+    },
+    "judge_model": {
+      "type": "string",
+      "description": "Resolved model that produced this review (provider/model-id or class name)"
+    },
+    "isolation_mode": {
+      "type": "string",
+      "enum": ["liter-llm", "harness-native"],
+      "description": "liter-llm = fresh-context cross-model API call; harness-native = fresh-context subagent fallback (weaker guarantee)"
+    },
+    "checked_classes": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "description": "REQUIRED (non-empty) when findings is empty: the failure classes the judge checked and why each does not apply. A zero-finding report without this is rejected as theater."
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["severity", "claim", "evidence"],
+        "additionalProperties": true,
+        "properties": {
+          "severity": {
+            "type": "string",
+            "enum": ["CRITICAL", "WARNING", "SUGGESTION"]
+          },
+          "file": {
+            "type": "string",
+            "description": "Repo-relative path or artifact filename the finding anchors to"
+          },
+          "line": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "claim": {
+            "type": "string",
+            "minLength": 1,
+            "description": "One-sentence statement of the defect"
+          },
+          "evidence": {
+            "type": "string",
+            "minLength": 1,
+            "description": "The hunk/criterion/quote/contradiction that proves the claim"
+          },
+          "suggested_fix": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}
