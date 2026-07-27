@@ -89,9 +89,14 @@ lines = [
     "Finding count: %d" % len(d.get("findings") or []),
 ]
 for f in d.get("findings") or []:
-    lines.append("%s %s:%s — %s. Evidence: %s" % (
+    line = "%s %s:%s — %s. Evidence: %s" % (
         f.get("severity"), f.get("file", "?"), f.get("line", "?"),
-        f.get("claim", ""), f.get("evidence", "")))
+        f.get("claim", ""), f.get("evidence", ""))
+    if f.get("suggested_fix"):
+        line += " Suggested fix: %s" % f["suggested_fix"]
+    if f.get("resolution"):
+        line += " Resolution: %s" % f["resolution"]
+    lines.append(line)
 if not d.get("findings"):
     lines.append("No findings were reported. Checked classes: %s"
                  % "; ".join(d.get("checked_classes") or []))
@@ -107,12 +112,40 @@ RESPONSE="$(syco_analyze "$REPORT_TEXT" "$MCP_STRICTNESS" 2>/dev/null || true)"
 SCORE="$(syco_score "$RESPONSE")"
 CRITICAL="$(syco_critical "$RESPONSE")"
 
+# S-03 (Caveat Collapse) exemption for substantive reports: S-03 flags text
+# that lacks caveat/engagement vocabulary, a heuristic tuned for prose
+# reflections. A report that enumerates >=1 concrete finding is structurally
+# the opposite of caveat collapse — every finding IS surfaced friction — yet
+# terse technical claims often miss the word lists (observed: warning-only
+# reports rejected S-03:high while scoring ~0.08). Drop S-03 from the
+# high/critical set when findings are present; the score gate and every other
+# pattern still apply, and zero-finding reports keep full S-03 scrutiny.
+N_FINDINGS="$(python3 - "$FINDINGS" <<'PY' 2>/dev/null || echo 0
+import json, sys
+print(len(json.load(open(sys.argv[1])).get("findings") or []))
+PY
+)"
+case "$N_FINDINGS" in ''|*[!0-9]*) N_FINDINGS=0 ;; esac
+if [ "$N_FINDINGS" -ge 1 ] && [ -n "$CRITICAL" ]; then
+  # shellcheck disable=SC2086
+  CRITICAL="$(printf '%s\n' $CRITICAL | grep -v '^S-03:' | tr '\n' ' ' | sed 's/ *$//')"
+fi
+
+# Shared decision rule (score threshold + critical floor + S-08 always-reject)
+# instead of the legacy "any high/critical rejects" — see syco_should_reject
+# in shared/scripts/lib/sycophancy.sh for the rationale. Zero-finding reports
+# keep the legacy any-critical mode: with no substance on the table, a lone
+# high/critical language hit (e.g. S-03 on a flattery-only checked_classes
+# trail) is exactly the theater this gate exists to catch.
+if [ "$N_FINDINGS" -eq 0 ]; then
+  DECISION="$(PROMETHEUS_SYCO_CRITICAL_ALWAYS=1 syco_should_reject "${SCORE:-}" "${CRITICAL:-}")"
+else
+  DECISION="$(syco_should_reject "${SCORE:-}" "${CRITICAL:-}")"
+fi
 REJECT=""
-if [ -n "$CRITICAL" ]; then
-  REJECT="high/critical sycophancy patterns detected: $CRITICAL"
-elif [ -n "$SCORE" ]; then
-  OVER="$(python3 -c "print(1 if float('$SCORE') >= 0.4 else 0)" 2>/dev/null || echo 0)"
-  [ "$OVER" = "1" ] && REJECT="sycophancy_score=$SCORE >= 0.4"
+if [ "$(printf '%s\n' "$DECISION" | sed -n 1p)" = "1" ]; then
+  REJECT="$(printf '%s\n' "$DECISION" | sed -n 2p)"
+  [ -n "$REJECT" ] || REJECT="sycophancy gate rejected (score=${SCORE:-?}, patterns=${CRITICAL:-none})"
 fi
 
 if [ -n "$REJECT" ]; then
