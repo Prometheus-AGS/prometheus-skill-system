@@ -174,7 +174,10 @@ const config = {
           {
             title: 'More',
             items: [
-              { label: 'GitHub', href: 'https://github.com/Prometheus-AGS/prometheus-skill-system' },
+              {
+                label: 'GitHub',
+                href: 'https://github.com/Prometheus-AGS/prometheus-skill-system',
+              },
             ],
           },
         ],

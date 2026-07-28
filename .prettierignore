@@ -40,6 +40,9 @@ substrate/prometheus-research/src/static
 # Generated Docusaurus output — build artifacts, never hand-edited.
 site/.docusaurus
 site/build
+# Skills catalog emitted by site/scripts/generate-skills-catalog.mjs at
+# prebuild. Gitignored, but CI regenerates it before formatting runs.
+site/docs-catalog
 # BDD step definitions are immutable (see CLAUDE.md BDD rule) and test
 # fixtures/corpus are content-sensitive — formatting them could alter data
 # that tests assert against. Exclude the whole tests/ tree from prettier.
