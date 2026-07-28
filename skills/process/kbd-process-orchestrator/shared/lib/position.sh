@@ -103,6 +103,11 @@ kbd_position_sync() {
   root="$(_pos_root)" || return 0
   local wp="$root/.kbd-orchestrator/current-waypoint.json"
   [ -f "$wp" ] && jq empty "$wp" 2>/dev/null || return 0
+  if [ "$(jq -r '.generatedBy // empty' "$wp" 2>/dev/null)" = "kbd-runtime" ]; then
+    # Runtime-authority mode renders position atomically from event replay.
+    # A shell-side rebuild would create a second writer and is forbidden.
+    return 0
+  fi
 
   local phase ptr
   phase="$(jq -r '.phase // empty' "$wp")"
@@ -168,15 +173,19 @@ kbd_position_sync() {
     fi
   fi
 
-  local annotations tmp out="$root/.kbd-orchestrator/position.json"
+  local annotations revision tmp out="$root/.kbd-orchestrator/position.json"
   annotations="$(_pos_annotations "$root")"
+  revision="$(jq -r '.revision // 0' "$wp")"
   tmp="$(mktemp "$root/.kbd-orchestrator/.position.XXXXXX")" || return 0
   jq -n \
     --argjson cursor "$cursor" \
     --argjson rootNode "$root_node" \
     --argjson annotations "$annotations" \
+    --argjson sourceRevision "$revision" \
     '{
       schemaVersion: "1",
+      generatedBy: "legacy-position-projection",
+      sourceRevision: $sourceRevision,
       updatedAt: (now | todate),
       cursor: $cursor,
       root: ($rootNode + { annotations: $annotations })

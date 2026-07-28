@@ -1,0 +1,38 @@
+{
+  "schemaVersion": "1",
+  "harness": "kimi",
+  "hooks": {
+    "SessionStart": {
+      "command": "bash ${PROMETHEUS_SKILL_PACK_ROOT}/shared/scripts/kbd-harness-adapter.sh session_start kimi",
+      "timeoutMs": 1000
+    },
+    "PreCompact": {
+      "command": "bash ${PROMETHEUS_SKILL_PACK_ROOT}/shared/scripts/kbd-harness-adapter.sh pre_compact kimi",
+      "timeoutMs": 1000
+    },
+    "PostCompact": {
+      "command": "bash ${PROMETHEUS_SKILL_PACK_ROOT}/shared/scripts/kbd-harness-adapter.sh post_compact kimi",
+      "timeoutMs": 1000
+    },
+    "UserPromptSubmit": {
+      "command": "bash ${PROMETHEUS_SKILL_PACK_ROOT}/shared/scripts/kbd-harness-adapter.sh prompt kimi",
+      "timeoutMs": 1000
+    },
+    "Stop": {
+      "command": "bash ${PROMETHEUS_SKILL_PACK_ROOT}/shared/scripts/kbd-harness-adapter.sh stop kimi",
+      "timeoutMs": 1000
+    },
+    "Interrupt": {
+      "command": "bash ${PROMETHEUS_SKILL_PACK_ROOT}/shared/scripts/kbd-harness-adapter.sh interrupt kimi",
+      "timeoutMs": 1000
+    },
+    "PreToolUse": {
+      "command": "bash ${PROMETHEUS_SKILL_PACK_ROOT}/shared/scripts/kbd-harness-adapter.sh pre_mutation kimi",
+      "timeoutMs": 250
+    },
+    "PostToolUse": {
+      "command": "bash ${PROMETHEUS_SKILL_PACK_ROOT}/shared/scripts/kbd-harness-adapter.sh post_mutation kimi",
+      "timeoutMs": 1000
+    }
+  }
+}

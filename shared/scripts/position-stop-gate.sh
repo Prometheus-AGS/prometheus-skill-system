@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
-# position-stop-gate.sh — Stop hook: if the final assistant message lacks the
-# position footer, block the stop ONCE and hand the model the rendered footer
-# to append. Honest ceiling: one enforced retry, never a loop.
-# Contract: reads Stop JSON from stdin. Emits {"decision":"block",...} to
-# stdout to block; otherwise prints nothing. Every failure path exits 0 so the
-# Stop chain is never broken by this gate.
+# position-stop-gate.sh — Stop hook: record a missing position footer as an
+# advisory without ever overriding an operator's request to stop.
+# Contract: reads Stop JSON from stdin and always permits the stop. Missing
+# footers are written to a user-local advisory log at most once per
+# session/state revision. Every failure path exits 0 and prints nothing.
 set -uo pipefail
 
 HOOK_LOG_LIB="$(cd "$(dirname "$0")" && pwd)/lib/hook-log.sh"
+# shellcheck source=/dev/null
 [ -f "$HOOK_LOG_LIB" ] && source "$HOOK_LOG_LIB"
 hook_log_start "Stop" "position-stop-gate.sh"
 
@@ -29,9 +29,14 @@ SESSION="$(printf '%s' "$INPUT" | jq -r '.session_id // empty' 2>/dev/null || ec
 # --- Only gate inside an orchestrator project with a non-terminal waypoint ---
 RENDER_LIB="$(cd "$(dirname "$0")" && pwd)/lib/waypoint-render.sh"
 [ -f "$RENDER_LIB" ] || finish
+# shellcheck source=/dev/null
 source "$RENDER_LIB"
 
 ROOT="$(_wr_find_root)" || finish
+# Emergency operator authority is unconditional. This check intentionally
+# happens before parsing any waypoint so it still works with malformed state.
+[ -e "$ROOT/.kbd-orchestrator/PAUSE" ] && finish
+
 WP="$ROOT/.kbd-orchestrator/current-waypoint.json"
 [ -f "$WP" ] || finish
 STATUS="$(jq -r '.status // .stage // empty' "$WP" 2>/dev/null || true)"
@@ -39,12 +44,23 @@ STATUS="$(jq -r '.status // .stage // empty' "$WP" 2>/dev/null || true)"
 # _wr_is_terminal_status in waypoint-render.sh). Gating a completed phase is
 # what turned a stale waypoint into a perpetual /kbd-execute nag.
 _wr_is_terminal_status "$STATUS" && finish
+_wr_is_suspended_status "$STATUS" && finish
 
-# --- Soft cap: never block the same stop twice (belt-and-suspenders beyond
-# stop_hook_active, keyed on session + transcript fingerprint) ---
-CAP_FILE="${HOME}/.prometheus/position-stop-block.txt"
-FPRINT="$(wc -c < "$TRANSCRIPT" 2>/dev/null | tr -d ' ')"
-CAP_KEY="${SESSION}:${FPRINT}"
+# --- Stable advisory cap. Transcript size is deliberately excluded because it
+# grows after each response and therefore cannot bound retries. Prefer an
+# explicit runtime revision; legacy waypoints fall back to a digest of the
+# fields that define the active cursor. ---
+CAP_FILE="${HOME}/.prometheus/position-stop-advisories.txt"
+ADVISORY_LOG="${HOME}/.prometheus/position-stop-advisories.log"
+STATE_REVISION="$(jq -r '
+  .revision // .stateRevision // .state_revision //
+  ([.phase // "", .status // .stage // "", .change // .active_change // "",
+    .exactNextCommand // .exact_next_command // ""] | @tsv)
+' "$WP" 2>/dev/null || true)"
+[ -n "$STATE_REVISION" ] || finish
+STATE_FPRINT="$(printf '%s' "$STATE_REVISION" | cksum 2>/dev/null | awk '{print $1}')"
+[ -n "$STATE_FPRINT" ] || finish
+CAP_KEY="${SESSION}:${STATE_FPRINT}:position-footer"
 if [ -f "$CAP_FILE" ] && grep -qF "$CAP_KEY" "$CAP_FILE" 2>/dev/null; then
   finish
 fi
@@ -86,23 +102,6 @@ if printf '%s' "$LAST_TEXT" | grep -qE 'prometheus-position|^Position:' ; then
 fi
 
 if [ "$HAS_FOOTER" = "true" ]; then
-  NEXT_CMD="$(jq -r '.exactNextCommand // .exact_next_command // empty' "$WP" 2>/dev/null || true)"
-  CLAIMS_COMPLETE=false
-  if printf '%s' "$LAST_TEXT" | grep -Eiq '\b(all done|done|finished|complete|completed|wrap(?:ped)? up|stopping here)\b'; then
-    CLAIMS_COMPLETE=true
-  fi
-  if [ "$CLAIMS_COMPLETE" = "true" ] && [ -n "$NEXT_CMD" ] && ! _wr_is_terminal_status "$STATUS"; then
-    mkdir -p "$(dirname "$CAP_FILE")" 2>/dev/null || finish
-    printf '%s\n' "$CAP_KEY" >> "$CAP_FILE" 2>/dev/null || true
-    REASON="The response claims completion, but the active KBD waypoint is still non-terminal (status=$STATUS).
-
-Continue the loop instead of stopping. Resume from the exact next command:
-
-$NEXT_CMD"
-    jq -cn --arg reason "$REASON" '{"decision":"block","reason":$reason}'
-    hook_log_end 0
-    exit 0
-  fi
   finish
 fi
 
@@ -111,11 +110,8 @@ FOOTER="$(waypoint_render 2>/dev/null || true)"
 
 mkdir -p "$(dirname "$CAP_FILE")" 2>/dev/null || finish
 printf '%s\n' "$CAP_KEY" >> "$CAP_FILE" 2>/dev/null || true
-
-REASON="Final response is missing the mandatory position footer. Append the current position block exactly, updated for any state changed this turn:
-
-$FOOTER"
-
-jq -cn --arg reason "$REASON" '{"decision":"block","reason":$reason}'
-hook_log_end 0
-exit 0
+{
+  printf 'session=%s state=%s status=%s\n' "$SESSION" "$STATE_FPRINT" "$STATUS"
+  printf '%s\n' "$FOOTER"
+} >> "$ADVISORY_LOG" 2>/dev/null || true
+finish

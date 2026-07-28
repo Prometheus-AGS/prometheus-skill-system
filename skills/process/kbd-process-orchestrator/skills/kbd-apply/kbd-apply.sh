@@ -47,6 +47,10 @@ if [ -f "$KBD_ORCHESTRATOR_ROOT/shared/lib/position.sh" ]; then
   # shellcheck source=/dev/null
   . "$KBD_ORCHESTRATOR_ROOT/shared/lib/position.sh" 2>/dev/null || true
 fi
+if [ -f "$KBD_ORCHESTRATOR_ROOT/shared/lib/runtime-authority.sh" ]; then
+  # shellcheck source=/dev/null
+  . "$KBD_ORCHESTRATOR_ROOT/shared/lib/runtime-authority.sh" 2>/dev/null || true
+fi
 
 WP=".kbd-orchestrator/current-waypoint.json"
 
@@ -367,6 +371,12 @@ _phase_dir() {
 sync_progress() {
   # sync_progress <change> <complete> <total>
   local change="$1" complete="$2" total="$3" pdir pj tmp
+  # KbdStateV2 derives change/task counters from committed task events. The
+  # compatibility ledger is a projection and must not be edited in place.
+  if command -v kbd_runtime_authoritative >/dev/null 2>&1 \
+     && kbd_runtime_authoritative "."; then
+    return 0
+  fi
   pdir="$(_phase_dir)" || return 0
   pj="$pdir/progress.json"
   [ -f "$pj" ] || return 0
@@ -375,6 +385,65 @@ sync_progress() {
     (.changes[]? | select(.id==$c) | .tasks_done) = $done
     | (.changes[]? | select(.id==$c) | .tasks_total) = $tot
   ' "$pj" > "$tmp" 2>/dev/null && mv "$tmp" "$pj" || rm -f "$tmp"
+}
+
+runtime_task_transition() {
+  # runtime_task_transition <change> <task-id> <title> <sequence> <status>
+  local change="$1" task_id="$2" title="$3" sequence="$4" status="$5"
+  command -v kbd_runtime_authoritative >/dev/null 2>&1 || return 0
+  kbd_runtime_authoritative "." || return 0
+
+  local state phase command_id mutation revision lease_id fencing_token
+  state="$(kbd_runtime_status_json ".")" || return 1
+  phase="$(printf '%s' "$state" | jq -r '.activePath.phaseId // empty')"
+  [ -n "$phase" ] || {
+    warn "canonical runtime has no active phase"
+    return 1
+  }
+
+  # Register missing change/task definitions before transitioning them. Each
+  # operation refreshes revision and lease metadata so optimistic concurrency
+  # remains exact.
+  if ! printf '%s' "$state" | jq -e \
+      --arg phase "$phase" --arg change "$change" \
+      '.phases[$phase].changes[$change]' >/dev/null 2>&1; then
+    command_id="apply:change-register:${phase}:${change}"
+    mutation="$(kbd_runtime_mutation_args "." "$command_id")" || return 1
+    revision="$(printf '%s\n' "$mutation" | sed -n '1p')"
+    lease_id="$(printf '%s\n' "$mutation" | sed -n '3p')"
+    fencing_token="$(printf '%s\n' "$mutation" | sed -n '4p')"
+    prometheus kbd --path . change register \
+      --expected-revision "$revision" --command-id "$command_id" \
+      --lease-id "$lease_id" --fencing-token "$fencing_token" \
+      --phase "$phase" --id "$change" --title "$change" >/dev/null || return 1
+    state="$(kbd_runtime_status_json ".")" || return 1
+  fi
+
+  if ! printf '%s' "$state" | jq -e \
+      --arg phase "$phase" --arg change "$change" --arg task "$task_id" \
+      '.phases[$phase].changes[$change].tasks[$task]' >/dev/null 2>&1; then
+    command_id="apply:task-register:${phase}:${change}:${task_id}"
+    mutation="$(kbd_runtime_mutation_args "." "$command_id")" || return 1
+    revision="$(printf '%s\n' "$mutation" | sed -n '1p')"
+    lease_id="$(printf '%s\n' "$mutation" | sed -n '3p')"
+    fencing_token="$(printf '%s\n' "$mutation" | sed -n '4p')"
+    prometheus kbd --path . task register \
+      --expected-revision "$revision" --command-id "$command_id" \
+      --lease-id "$lease_id" --fencing-token "$fencing_token" \
+      --phase "$phase" --change "$change" --id "$task_id" \
+      --title "$title" --sequence "$sequence" >/dev/null || return 1
+  fi
+
+  command_id="apply:task-${status}:${phase}:${change}:${task_id}"
+  mutation="$(kbd_runtime_mutation_args "." "$command_id")" || return 1
+  revision="$(printf '%s\n' "$mutation" | sed -n '1p')"
+  lease_id="$(printf '%s\n' "$mutation" | sed -n '3p')"
+  fencing_token="$(printf '%s\n' "$mutation" | sed -n '4p')"
+  prometheus kbd --path . task transition \
+    --expected-revision "$revision" --command-id "$command_id" \
+    --lease-id "$lease_id" --fencing-token "$fencing_token" \
+    --phase "$phase" --change "$change" --id "$task_id" \
+    --status "$status" --summary "$title" >/dev/null
 }
 
 # Fire a hook. Do NOT swallow its stderr — that is where the default reporter
@@ -410,6 +479,8 @@ case "$cmd" in
     # begin-task <change> <id> <i> <n> <title...>
     change="${1:-}"; id="${2:-}"; i="${3:-1}"; n="${4:-1}"; shift 4 || true; title="$*"
     [ -n "$change" ] && [ -n "$id" ] || die "usage: begin-task <change> <id> <i> <n> <title>"
+    runtime_task_transition "$change" "$id" "$title" "$i" "in-progress" \
+      || die "failed to commit canonical task start"
     fire task before "$change:$id" "$i" "$n"
     printf 'Starting task %s out of %s:   %s\n' "$i" "$n" "$title" ;;
 
@@ -417,6 +488,8 @@ case "$cmd" in
     change="${1:-}"; id="${2:-}"; i="${3:-1}"; n="${4:-1}"; shift 4 || true; title="$*"
     [ -n "$change" ] && [ -n "$id" ] || die "usage: end-task <change> <id> <i> <n> <title>"
     b_mark_done "$change" "$id"
+    runtime_task_transition "$change" "$id" "$title" "$i" "complete" \
+      || die "failed to commit canonical task completion"
     # Recompute progress from the backend so the count is authoritative.
     read -r tot comp rem < <(b_progress "$change" 2>/dev/null || echo "$n $i 0")
     sync_progress "$change" "${comp:-$i}" "${tot:-$n}"

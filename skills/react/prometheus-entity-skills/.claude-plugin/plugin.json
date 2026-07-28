@@ -1,5 +1,5 @@
 {
-  "name": "prometheus-entity-skills",
+  "name": "prometheus-react-skills",
   "version": "1.5.0",
   "description": "Full-stack entity management skill suite for React applications using @prometheus-ags/prometheus-entity-management",
   "author": {

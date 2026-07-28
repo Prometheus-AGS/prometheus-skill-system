@@ -1,0 +1,12 @@
+{
+  "name": "cowork-management",
+  "version": "1.0.0",
+  "description": "Install, update, and manage AI coding-agent skills and toolchains across supported platforms.",
+  "author": {
+    "name": "Prometheus AGS"
+  },
+  "license": "MIT",
+  "skills": [
+    "./"
+  ]
+}

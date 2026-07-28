@@ -90,8 +90,11 @@ import sys
 
 waypoint = json.load(open(sys.argv[1]))
 assert waypoint["phase"] == "phase-two"
-assert waypoint["stage"] == "assess_pending"
-assert waypoint["exact_next_command"] == "/kbd-assess"
+assert waypoint["schemaVersion"] == "5"
+assert waypoint["status"] == "assessment_ready"
+assert waypoint["exactNextCommand"] == "/kbd-assess phase-two"
+assert "stage" not in waypoint
+assert "exact_next_command" not in waypoint
 PY
 pass "bundled helper runs successfully from an isolated installed-plugin layout"
 

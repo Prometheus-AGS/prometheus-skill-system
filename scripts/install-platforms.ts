@@ -236,43 +236,47 @@ function installPlatform(platform: Platform, scope: 'global' | 'project'): void 
       }
     }
 
-    // Merge prometheus plugin entry into opencode.json without clobbering existing config
-    const opencodeJsonPath =
-      scope === 'global'
-        ? join(HOME, '.opencode', 'opencode.json')
-        : join(process.cwd(), 'opencode.json');
-
     // Global scope: opencode.json resolves paths relative to ~/.opencode/, so we
     // must register as an absolute path. Project scope: relative ./.opencode is fine.
     const pluginPath = scope === 'global' ? join(REPO_ROOT, '.opencode') : './.opencode';
+    const opencodeJsonPaths =
+      scope === 'global'
+        ? [
+            join(HOME, '.opencode', 'opencode.json'),
+            join(HOME, '.config', 'opencode', 'opencode.json'),
+            join(HOME, '.config', 'opencode', 'tui.json'),
+          ]
+        : [join(process.cwd(), 'opencode.json')];
 
-    try {
-      let opencodeConfig: Record<string, unknown> = {};
-      if (existsSync(opencodeJsonPath)) {
-        const backup = `${opencodeJsonPath}.bak.${new Date().toISOString().replace(/[-:T]/g, '').slice(0, 14)}`;
-        copyFileSync(opencodeJsonPath, backup);
-        console.log(`    ✅ Backed up opencode.json: ${backup}`);
-        try {
-          opencodeConfig = JSON.parse(readFileSync(opencodeJsonPath, 'utf-8'));
-        } catch {
-          // Malformed JSON — start fresh rather than clobbering silently
-          console.warn(`    ⚠️  Could not parse existing ${opencodeJsonPath} — will overwrite`);
+    for (const opencodeJsonPath of opencodeJsonPaths) {
+      try {
+        let opencodeConfig: Record<string, unknown> = {};
+        mkdirSync(dirname(opencodeJsonPath), { recursive: true });
+        if (existsSync(opencodeJsonPath)) {
+          const backup = `${opencodeJsonPath}.bak.${new Date().toISOString().replace(/[-:T]/g, '').slice(0, 14)}`;
+          copyFileSync(opencodeJsonPath, backup);
+          console.log(`    ✅ Backed up opencode.json: ${backup}`);
+          try {
+            opencodeConfig = JSON.parse(readFileSync(opencodeJsonPath, 'utf-8'));
+          } catch {
+            console.warn(`    ⚠️  Could not parse existing ${opencodeJsonPath} — will overwrite`);
+          }
         }
-      }
 
-      const existing = Array.isArray(opencodeConfig.plugin)
-        ? (opencodeConfig.plugin as string[])
-        : [];
+        const existing = Array.isArray(opencodeConfig.plugin)
+          ? (opencodeConfig.plugin as string[])
+          : [];
 
-      if (!existing.includes(pluginPath)) {
-        opencodeConfig.plugin = [...existing, pluginPath];
-        writeFileSync(opencodeJsonPath, JSON.stringify(opencodeConfig, null, 2) + '\n', 'utf-8');
-        console.log(`    ✅ opencode.json updated: ${opencodeJsonPath}`);
-      } else {
-        console.log(`    ✅ opencode.json already contains plugin entry`);
+        if (!existing.includes(pluginPath)) {
+          opencodeConfig.plugin = [...existing, pluginPath];
+          writeFileSync(opencodeJsonPath, JSON.stringify(opencodeConfig, null, 2) + '\n', 'utf-8');
+          console.log(`    ✅ opencode.json updated: ${opencodeJsonPath}`);
+        } else {
+          console.log(`    ✅ ${opencodeJsonPath} already contains plugin entry`);
+        }
+      } catch (e) {
+        console.warn(`    ⚠️  Could not update ${opencodeJsonPath}: ${e}`);
       }
-    } catch (e) {
-      console.warn(`    ⚠️  Could not update opencode.json: ${e}`);
     }
   }
 

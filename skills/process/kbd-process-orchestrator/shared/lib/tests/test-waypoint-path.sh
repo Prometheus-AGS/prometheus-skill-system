@@ -31,7 +31,7 @@ chain="$(LC_ALL=C kbd_node_chain p0 c1 g2)"
 pass "kbd_node_chain renders N-level breadcrumb"
 
 # 4. Synthesis from a v2 waypoint (no .path): top-level only
-mkdir -p .kbd-orchestrator
+mkdir -p .kbd-orchestrator/phases/p0/children/c1/children/g2
 echo '{ "phase": "p0" }' > .kbd-orchestrator/current-waypoint.json
 [ "$(_kbd_path_from_waypoint .kbd-orchestrator/current-waypoint.json)" = "p0" ] || fail "v2 synth depth 1"
 [ "$(kbd_current_node_dir)" = ".kbd-orchestrator/phases/p0" ] || fail "current_node_dir v2 depth 1"

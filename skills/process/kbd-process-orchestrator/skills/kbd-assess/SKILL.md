@@ -75,7 +75,8 @@ Use the canonical phase name from the argument or `current-waypoint.json`. Emit 
    CRITICAL findings → revise `assessment.md` and re-vet (max 2 rounds, then
    accept with an "Unresolved review findings" section appended). WARNING
    findings → carry into the stage handoff summary.
-9. **Update progress.json** with `assessment_complete: true`
+9. **Enter/complete the assessment stage** with a typed `prometheus kbd stage`
+   command; never edit `progress.json`
 
 ## Examples
 

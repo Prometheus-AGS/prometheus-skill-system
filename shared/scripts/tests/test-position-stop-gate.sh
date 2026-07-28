@@ -46,28 +46,31 @@ with open(path, "w") as f:
 PY
 }
 
-# 1. Missing footer → block JSON with rendered footer in reason
+# 1. Missing footer → stop remains allowed and an advisory is recorded
 T1="$TMP/t1.jsonl"; mk_transcript "$T1" "All done. I finished the task."
 OUT="$(cd "$TMP/repo" && printf '{"stop_hook_active":false,"transcript_path":"%s","session_id":"s1"}' "$T1" | bash "$GATE")"
 RC=$?
-[ "$RC" -eq 0 ] && ok || bad "block path rc" "rc=$RC"
-printf '%s' "$OUT" | jq -e '.decision == "block"' >/dev/null 2>&1 && ok || bad "block decision" "$OUT"
-printf '%s' "$OUT" | jq -r '.reason' 2>/dev/null | grep -q 'Position: phase-x' && ok || bad "reason carries footer" "$OUT"
+[ "$RC" -eq 0 ] && ok || bad "advisory path rc" "rc=$RC"
+[ -z "$OUT" ] && ok || bad "operator stop is never blocked" "$OUT"
+grep -q 'Position: phase-x' "$HOME/.prometheus/position-stop-advisories.log" 2>/dev/null && ok || bad "advisory carries footer"
 
-# 2. Soft cap: identical stop (same session + transcript) → silent second time
+# 2. Stable cap: a growing transcript at the same state does not create a
+# second advisory.
+printf '%s\n' '{"type":"user","message":{"content":"another turn"}}' >> "$T1"
+printf '%s\n' '{"type":"assistant","message":{"content":[{"type":"text","text":"still no footer"}]}}' >> "$T1"
 OUT2="$(cd "$TMP/repo" && printf '{"stop_hook_active":false,"transcript_path":"%s","session_id":"s1"}' "$T1" | bash "$GATE")"
 [ -z "$OUT2" ] && ok || bad "soft cap second call silent" "$OUT2"
+[ "$(wc -l < "$HOME/.prometheus/position-stop-advisories.txt" | tr -d ' ')" = "1" ] && ok || bad "growing transcript keeps one advisory"
 
 # 3. Footer present without false completion language → silent
 T3="$TMP/t3.jsonl"; mk_transcript "$T3" $'Progress note.\n<!-- prometheus-position -->\nPosition: phase-x | status: execute_ready\n<!-- /prometheus-position -->'
 OUT="$(cd "$TMP/repo" && printf '{"stop_hook_active":false,"transcript_path":"%s","session_id":"s3"}' "$T3" | bash "$GATE")"
 [ -z "$OUT" ] && ok || bad "footer present silent" "$OUT"
 
-# 3b. Footer present but falsely claims completion while waypoint is active → block once
+# 3b. Ordinary completion prose is never interpreted as control state
 T3B="$TMP/t3b.jsonl"; mk_transcript "$T3B" $'All done here.\n<!-- prometheus-position -->\nPosition: phase-x | status: execute_ready\nNext: /kbd-apply change-001-demo\n<!-- /prometheus-position -->'
 OUT="$(cd "$TMP/repo" && printf '{"stop_hook_active":false,"transcript_path":"%s","session_id":"s3b"}' "$T3B" | bash "$GATE")"
-printf '%s' "$OUT" | jq -e '.decision == "block"' >/dev/null 2>&1 && ok || bad "false completion blocks" "$OUT"
-printf '%s' "$OUT" | jq -r '.reason' 2>/dev/null | grep -q '/kbd-apply change-001-demo' && ok || bad "false completion reason carries next command" "$OUT"
+[ -z "$OUT" ] && ok || bad "completion prose does not block" "$OUT"
 
 # 4. stop_hook_active true → silent (loop protection)
 T4="$TMP/t4.jsonl"; mk_transcript "$T4" "no footer here"
@@ -103,11 +106,25 @@ T5C="$TMP/t5c.jsonl"; mk_transcript "$T5C" "no footer"
 OUT="$(cd "$TMP/rc" && printf '{"stop_hook_active":false,"transcript_path":"%s","session_id":"s5c"}' "$T5C" | bash "$GATE")"
 [ -z "$OUT" ] && ok || bad "reflect_complete status silent" "$OUT"
 
-# 5d. Non-terminal status ("done"-adjacent but active) still gates.
-# Guards against the terminal set going so broad it swallows active work.
+# 5d. Non-terminal status records an advisory but still permits stop.
 T5D="$TMP/t5d.jsonl"; mk_transcript "$T5D" "no footer, still executing"
 OUT="$(cd "$TMP/repo" && printf '{"stop_hook_active":false,"transcript_path":"%s","session_id":"s5d"}' "$T5D" | bash "$GATE")"
-printf '%s' "$OUT" | jq -e '.decision == "block"' >/dev/null 2>&1 && ok || bad "active status still gates" "$OUT"
+[ -z "$OUT" ] && ok || bad "active status does not block" "$OUT"
+
+# 5e. Suspended lifecycle states never steer.
+for state in pause_requested paused blocked suspended; do
+  mkdir -p "$TMP/$state/.kbd-orchestrator"
+  printf '{"phase":"phase-x","status":"%s"}\n' "$state" > "$TMP/$state/.kbd-orchestrator/current-waypoint.json"
+  OUT="$(cd "$TMP/$state" && printf '{"stop_hook_active":false,"transcript_path":"%s","session_id":"s-%s"}' "$T5D" "$state" | bash "$GATE")"
+  [ -z "$OUT" ] && ok || bad "$state status silent" "$OUT"
+done
+
+# 5f. Emergency PAUSE wins even when waypoint JSON is malformed.
+mkdir -p "$TMP/emergency/.kbd-orchestrator"
+printf '{broken\n' > "$TMP/emergency/.kbd-orchestrator/current-waypoint.json"
+: > "$TMP/emergency/.kbd-orchestrator/PAUSE"
+OUT="$(cd "$TMP/emergency" && printf '{"stop_hook_active":false,"transcript_path":"%s","session_id":"s-emergency"}' "$T5D" | bash "$GATE")"
+[ -z "$OUT" ] && ok || bad "emergency pause with malformed state silent" "$OUT"
 
 # 6. No orchestrator → silent
 mkdir -p "$TMP/bare"

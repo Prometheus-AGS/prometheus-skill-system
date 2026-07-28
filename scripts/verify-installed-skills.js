@@ -99,13 +99,6 @@ function comparePayload(source, installed) {
   return issues;
 }
 
-function codexPromptAvailable(skill) {
-  const prompt = join(home, '.codex', 'prompts', `${skill.name}.md`);
-  if (!existsSync(prompt)) return false;
-  const content = readFileSync(prompt, 'utf8');
-  return content.includes(relative(repoRoot, join(skill.dir, 'SKILL.md')));
-}
-
 const skills = collectSkills();
 const results = [];
 for (const [name, root] of platforms) {
@@ -119,10 +112,6 @@ for (const [name, root] of platforms) {
   for (const skill of skills) {
     const installedCandidates = locateInstalled(root, skill);
     if (!installedCandidates.length) {
-      if (name === 'codex' && codexPromptAvailable(skill)) {
-        commandFallbacks += 1;
-        continue;
-      }
       failures.push({ skill: skill.name, issues: ['missing:skill-directory'] });
       continue;
     }

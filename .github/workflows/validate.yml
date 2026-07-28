@@ -67,6 +67,63 @@ jobs:
           test -f hooks/hooks.json || (echo "FAIL: hooks/hooks.json (canonical) does not exist" && exit 1)
           echo "OK: .claude-plugin/hooks -> ../hooks; hooks/hooks.json is present"
 
+  kbd-control-plane:
+    name: KBD control plane (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-14]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Ensure jq and shellcheck are installed
+        run: |
+          if [[ "$RUNNER_OS" == "Linux" ]]; then
+            sudo apt-get update -qq
+            sudo apt-get install -y jq shellcheck
+          else
+            command -v jq >/dev/null 2>&1 || brew install jq
+            command -v shellcheck >/dev/null 2>&1 || brew install shellcheck
+          fi
+
+      - name: Run state, hook, lifecycle, migration, eval, and clean-install contracts
+        env:
+          BASH_BIN: /bin/bash
+        run: /bin/bash scripts/test-kbd-control-plane.sh
+
+      - name: Shellcheck control-plane scripts
+        run: |
+          shellcheck \
+            scripts/test-kbd-control-plane.sh \
+            scripts/install-skills-flat.sh \
+            shared/scripts/kbd-harness-adapter.sh \
+            shared/scripts/position-stop-gate.sh \
+            shared/scripts/tests/test-clean-install-parity.sh
+
+      - name: Test canonical KBD runtime
+        run: cargo test --manifest-path substrate/kbd-runtime/Cargo.toml
+
+      - name: Test durable Raft control plane
+        run: cargo test --manifest-path substrate/sovereign-sync/Cargo.toml --lib
+
+      - name: Check Prometheus CLI control surfaces
+        run: cargo check --manifest-path tools/prometheus-cli/Cargo.toml -p prometheus-cli
+
   rust-cli:
     name: Check Rust CLI
     runs-on: ubuntu-latest

@@ -50,7 +50,7 @@
       "event": "on_change_complete",
       "action": {
         "type": "command",
-        "command": "echo '[kbd-orchestrator] Change complete — update progress.json, then run /opsx:verify + /opsx:archive (if OpenSpec) or move to .kbd-orchestrator/changes/archive/ (if native KBD)'"
+        "command": "echo '[kbd-orchestrator] Change complete — record it with prometheus kbd change transition --status complete, then run /opsx:verify + /opsx:archive (if OpenSpec)'"
       }
     },
     {
@@ -82,7 +82,7 @@
       "event": "on_blocker_detected",
       "action": {
         "type": "command",
-        "command": "echo '[kbd-orchestrator] Blocker detected — update progress.json status=BLOCKED, update waypoint fallback_command, commit .kbd-orchestrator/'"
+        "command": "echo '[kbd-orchestrator] Blocker detected — record it with prometheus kbd blocker record; compatibility projections refresh from the runtime'"
       }
     },
     {

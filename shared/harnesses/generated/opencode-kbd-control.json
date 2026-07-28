@@ -1,0 +1,16 @@
+{
+  "schemaVersion": "1",
+  "harness": "opencode",
+  "adapter": "${PROMETHEUS_SKILL_PACK_ROOT}/shared/scripts/kbd-harness-adapter.sh",
+  "events": {
+    "sessionStart": "session.created",
+    "preCompact": "session.compacting",
+    "postCompact": "session.compacted",
+    "prompt": "chat.message",
+    "stop": "session.idle",
+    "interrupt": "session.status:cancelled",
+    "preMutation": "tool.execute.before",
+    "postMutation": "tool.execute.after"
+  },
+  "timeoutMs": 250
+}

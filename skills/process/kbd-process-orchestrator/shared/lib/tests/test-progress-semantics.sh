@@ -58,4 +58,28 @@ jq -e '
 ' "$mutable" >/dev/null || fail "implementation mutator changed evidence or derived the wrong counter"
 pass "implementation mutator is atomic and leaves evidence state untouched"
 
+canonical="$(mktemp)"
+trap 'rm -f "$legacy" "$mutable" "$canonical"' EXIT
+cat > "$canonical" <<'JSON'
+{
+  "schemaVersion": "2",
+  "phase": "phase-x",
+  "last_updated": "2026-07-28T12:00:00Z",
+  "last_updated_by": "codex",
+  "changes_total": 2,
+  "changes_completed": 1,
+  "changes": [
+    {"id":"code-a","status":"DONE","implementation_status":"COMPLETE"},
+    {"id":"code-b","status":"PENDING","implementation_status":"PENDING"}
+  ]
+}
+JSON
+kbd_progress_validate "$canonical" || fail "canonical schema v2 ledger rejected"
+jq '.changes[1].id = "code-a"' "$canonical" > "$canonical.duplicate"
+if kbd_progress_validate "$canonical.duplicate" >/dev/null 2>&1; then
+  fail "schema v2 accepted duplicate change IDs"
+fi
+rm -f "$canonical.duplicate"
+pass "schema v2 requires ordered object rows with unique IDs"
+
 printf 'all completion-semantics tests passed\n'

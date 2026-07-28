@@ -1,11 +1,17 @@
 use anyhow::Result;
 use colored::Colorize;
 use prometheus_agents::trace_protocol::build_trace_captures;
-use prometheus_learn::trace::{ExecutionTrace, TraceClassification, TraceStore};
 use prometheus_learn::evaluate::evaluate_trace;
+use prometheus_learn::trace::{ExecutionTrace, TraceClassification, TraceStore};
 use std::path::Path;
 
-pub async fn run(capture_session: bool, seed: bool, compile: bool, lint: bool, dry_run: bool) -> Result<()> {
+pub async fn run(
+    capture_session: bool,
+    seed: bool,
+    compile: bool,
+    lint: bool,
+    dry_run: bool,
+) -> Result<()> {
     println!("{}", "🧠 Self-Learning Pipeline".bold());
 
     if dry_run {
@@ -17,7 +23,10 @@ pub async fn run(capture_session: bool, seed: bool, compile: bool, lint: bool, d
 
     // ─── Capture session traces from all platforms ───────────────────
     if capture_session || seed {
-        println!("\n  {} Capturing traces from detected platforms...", "→".cyan());
+        println!(
+            "\n  {} Capturing traces from detected platforms...",
+            "→".cyan()
+        );
 
         let captures = build_trace_captures();
         let mut total_captured = 0usize;
@@ -47,17 +56,22 @@ pub async fn run(capture_session: bool, seed: bool, compile: bool, lint: bool, d
                             skill_name: invocation.skill_name.clone(),
                             timestamp: chrono::Utc::now(),
                             duration_ms: 0,
-                            input_summary: format!("/{} {}", invocation.skill_name, invocation.args),
+                            input_summary: format!(
+                                "/{} {}",
+                                invocation.skill_name, invocation.args
+                            ),
                             output_summary: String::new(), // would need tool_result correlation
-                            tool_calls: invocation.tool_calls.iter().map(|tc| {
-                                prometheus_learn::trace::ToolCall {
+                            tool_calls: invocation
+                                .tool_calls
+                                .iter()
+                                .map(|tc| prometheus_learn::trace::ToolCall {
                                     tool_name: tc.tool_name.clone(),
                                     input_summary: String::new(),
                                     output_summary: String::new(),
                                     success: tc.success,
                                     duration_ms: 0,
-                                }
-                            }).collect(),
+                                })
+                                .collect(),
                             errors: vec![],
                             classification: TraceClassification::Success,
                             score: None,
@@ -97,8 +111,12 @@ pub async fn run(capture_session: bool, seed: bool, compile: bool, lint: bool, d
                         total_captured += 1;
                     }
 
-                    println!("{} ({} invocations, {} tool calls)",
-                        "✅".green(), invocations, tool_calls);
+                    println!(
+                        "{} ({} invocations, {} tool calls)",
+                        "✅".green(),
+                        invocations,
+                        tool_calls
+                    );
                 }
                 Ok(None) => {
                     println!("{}", "no data".dimmed());
@@ -109,17 +127,26 @@ pub async fn run(capture_session: bool, seed: bool, compile: bool, lint: bool, d
             }
         }
 
-        println!("\n  Total traces captured: {}", total_captured.to_string().cyan());
+        println!(
+            "\n  Total traces captured: {}",
+            total_captured.to_string().cyan()
+        );
     }
 
     // ─── Compile traces into knowledge ──────────────────────────────
     if compile || (!capture_session && !seed && !lint) {
         println!("\n  {} Compiling traces into knowledge...", "→".cyan());
         let trace_count = store.count_all().unwrap_or(0);
-        println!("  Total traces available: {}", trace_count.to_string().cyan());
+        println!(
+            "  Total traces available: {}",
+            trace_count.to_string().cyan()
+        );
 
         if trace_count == 0 {
-            println!("  {} No traces found. Run with --capture-session or --seed first.", "⚠️".yellow());
+            println!(
+                "  {} No traces found. Run with --capture-session or --seed first.",
+                "⚠️".yellow()
+            );
             return Ok(());
         }
 
@@ -133,7 +160,10 @@ pub async fn run(capture_session: bool, seed: bool, compile: bool, lint: bool, d
 
         #[cfg(not(feature = "knowledge"))]
         {
-            println!("  {} Knowledge compilation requires the `knowledge` feature", "ℹ️".dimmed());
+            println!(
+                "  {} Knowledge compilation requires the `knowledge` feature",
+                "ℹ️".dimmed()
+            );
             println!("  {} Rebuild with: cargo build -p prometheus-cli --features prometheus-learn/knowledge", "ℹ️".dimmed());
         }
     }
@@ -149,7 +179,10 @@ pub async fn run(capture_session: bool, seed: bool, compile: bool, lint: bool, d
                 .count();
             println!("  Wiki entries: {}", count.to_string().cyan());
         } else {
-            println!("  {} No wiki entries found. Run --compile first.", "⚠️".yellow());
+            println!(
+                "  {} No wiki entries found. Run --compile first.",
+                "⚠️".yellow()
+            );
         }
     }
 

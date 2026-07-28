@@ -1,13 +1,10 @@
 {
+  "schemaVersion": "5",
   "phase": "docusaurus-github-pages-site",
   "previousPhase": "phase-learn-grader-validation",
   "status": "reflect_complete",
-  "stage": "reflect",
-  "changes_completed": 8,
-  "changes_total": 8,
   "goals_total": 3,
   "sycophancy_gate": null,
-  "next_command": "/kbd-next-phase",
   "exactNextCommand": "/kbd-next-phase",
   "parallelStart": null,
   "recommendedNextPhase": "phase-docs-site-hardening",
@@ -28,8 +25,7 @@
   "implementationTotal": 8,
   "certificationStatus": "COMPLETE",
   "publicationStatus": "COMPLETE",
-  "changesCompleted": 0,
-  "changesTotal": 0,
-  "nextCommand": "/kbd-next-phase",
-  "goals_met": 3
+  "goals_met": 3,
+  "planRevision": 1,
+  "revision": 0
 }

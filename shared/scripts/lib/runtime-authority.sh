@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+# shellcheck shell=bash
+#
+# Compatibility-write boundary for KBD shell integrations. Once a project is
+# migrated, JSON under .kbd-orchestrator is a read-only projection of the
+# canonical event journal. Legacy shadow mode remains readable and writable
+# only until `prometheus kbd migrate --apply` establishes runtime authority.
+
+kbd_runtime_authoritative() {
+  local root="${1:-.}" waypoint="$root/.kbd-orchestrator/current-waypoint.json"
+  [ -f "$waypoint" ] || return 1
+  command -v jq >/dev/null 2>&1 || return 1
+  [ "$(jq -r '.generatedBy // empty' "$waypoint" 2>/dev/null)" = "kbd-runtime" ]
+}
+
+kbd_projection_write_guard() {
+  local root="${1:-.}" target="${2:-.kbd-orchestrator projection}"
+  if kbd_runtime_authoritative "$root"; then
+    printf 'kbd-runtime: direct write rejected for %s; use prometheus kbd typed commands\n' \
+      "$target" >&2
+    return 1
+  fi
+  return 0
+}
+
+kbd_runtime_status_json() {
+  local root="${1:-.}"
+  command -v prometheus >/dev/null 2>&1 || {
+    printf 'kbd-runtime: prometheus CLI is required\n' >&2
+    return 1
+  }
+  prometheus kbd --path "$root" status --json
+}
+
+kbd_runtime_mutation_args() {
+  local root="${1:-.}" command_id="$2" state revision lease_id fencing_token
+  state="$(kbd_runtime_status_json "$root")" || return 1
+  revision="$(printf '%s' "$state" | jq -r '.revision // empty')"
+  lease_id="$(printf '%s' "$state" | jq -r '.lease.leaseId // empty')"
+  fencing_token="$(printf '%s' "$state" | jq -r '.lease.fencingToken // empty')"
+  [ -n "$revision" ] && [ -n "$lease_id" ] && [ -n "$fencing_token" ] || {
+    printf 'kbd-runtime: a current writer lease is required\n' >&2
+    return 1
+  }
+  printf '%s\n%s\n%s\n%s\n' "$revision" "$command_id" "$lease_id" "$fencing_token"
+}

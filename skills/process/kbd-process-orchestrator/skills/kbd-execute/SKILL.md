@@ -140,8 +140,8 @@ Use the canonical phase name from the argument or `current-waypoint.json`. Phase
 4. **Load assessment and plan** for the phase
 5. **Follow the execute protocol** in `../prompts/execute.md`
 6. **Write `execution.md`** with selected backend + dispatch contract
-7. **Refresh waypoint** files
-8. **Initialize `progress.json`** for the phase if it doesn't exist
+7. **Record the active path** with a typed KBD command; projections refresh automatically
+8. **Register planned changes and tasks** with `prometheus kbd change|task`
 9. **Dispatch** to selected backend or mark phase execution-ready
 10. **Per completed change**: run artifact-refiner QA gate (see above)
 11. **Per completed change**: run adversarial-review diff-mode gate after QA passes (see above)
@@ -198,14 +198,14 @@ the dispatcher on the **final** `task:after` of each change (sentinel:
 ## Stage gate & handoff
 
 The execute gate requires the plan handoff. After writing `execution.md`
-and initializing `progress.json`, record the handoff that reflect reads
+and registering canonical changes/tasks, record the handoff that reflect reads
 first:
 
 ```sh
 . "$KBD_ORCHESTRATOR_ROOT/shared/lib/stage-gate.sh"
 
 kbd_stage_gate execute || exit 2
-# … select backend, write execution.md, init progress.json …
+# … select backend, write execution.md, register canonical work items …
 kbd_stage_handoff_write execute "<1–3 sentences: backend chosen, dispatch contract, first pending change>" execution.md progress.json
 ```
 

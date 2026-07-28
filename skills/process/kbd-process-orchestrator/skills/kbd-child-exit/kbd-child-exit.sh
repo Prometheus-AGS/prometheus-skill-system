@@ -30,10 +30,20 @@ export KBD_ORCHESTRATOR_ROOT
 [[ -f "$KBD_ORCHESTRATOR_ROOT/shared/lib/rollup.sh" ]] && . "$KBD_ORCHESTRATOR_ROOT/shared/lib/rollup.sh"
 hooks_avail=0
 [[ -f "$KBD_ORCHESTRATOR_ROOT/shared/lib/hooks.sh" ]] && { . "$KBD_ORCHESTRATOR_ROOT/shared/lib/hooks.sh"; hooks_avail=1; }
+runtime_avail=0
+if [[ -f "$KBD_ORCHESTRATOR_ROOT/shared/lib/runtime-authority.sh" ]]; then
+  . "$KBD_ORCHESTRATOR_ROOT/shared/lib/runtime-authority.sh"
+  kbd_runtime_authoritative "." && runtime_avail=1
+fi
 
 now="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 
 if [[ "$mode" == "enter" ]]; then
+  if [[ "$runtime_avail" == "1" ]]; then
+    label="$(jq -r '.path | join(" › ")' "$wp" 2>/dev/null)"
+    printf '\nEntered child — runtime active path is %s\n' "$label"
+    exit 0
+  fi
   # Descend into the selected childPointer: path becomes <current-node>/<pointer>,
   # childPointer cleared so /kbd-new-child nests under it.
   ptr="$(jq -r '.childPointer // ""' "$wp")"
@@ -91,6 +101,36 @@ fi
   printf '## Recommendations to the parent (%s)\n\n<!-- TBD: what the parent should do with this result -->\n' "$parent_label"
 } > "$child_dir/handoff-out.md.tmp"
 mv -f "$child_dir/handoff-out.md.tmp" "$child_dir/handoff-out.md"
+
+if [[ "$runtime_avail" == "1" ]]; then
+  runtime_state="$(kbd_runtime_status_json ".")" || die "runtime status unavailable"
+  path_count="$(printf '%s' "$runtime_state" | jq -r '.activePath.phasePath | length')"
+  [[ "$path_count" -gt 1 ]] || die "runtime is not inside a child phase"
+  parent_id="$(printf '%s' "$runtime_state" | jq -r '.activePath.phasePath[-2]')"
+  ancestor_args=()
+  while IFS= read -r ancestor; do
+    [[ -n "$ancestor" ]] || continue
+    ancestor_args+=(--ancestor "$ancestor")
+  done < <(printf '%s' "$runtime_state" | jq -r '.activePath.phasePath[0:-2][]?')
+  mutation="$(kbd_runtime_mutation_args "." "phase-exit:${child_name}")" || die "writer lease required"
+  revision="$(printf '%s\n' "$mutation" | sed -n '1p')"
+  lease_id="$(printf '%s\n' "$mutation" | sed -n '3p')"
+  fencing_token="$(printf '%s\n' "$mutation" | sed -n '4p')"
+  prometheus kbd --path . phase activate \
+    --expected-revision "$revision" --command-id "phase-exit:${child_name}" \
+    --lease-id "$lease_id" --fencing-token "$fencing_token" \
+    --id "$parent_id" "${ancestor_args[@]}" \
+    --exact-next-work "/kbd-status" >/dev/null
+  [[ "$hooks_avail" == "1" ]] &&
+    kbd_hooks_fire child after "$child_name" "$depth" "$depth" ||
+    warn "child:after hook fire failed"
+  printf '\nCompleted kbd-child-exit — exited %s\n' "$(kbd_node_chain "${toks[@]}")"
+  printf '  status:   %s\n' "$status"
+  printf '  handoff:  %s\n' "$child_dir/handoff-out.md"
+  printf '  resumed:  %s\n' "$parent_label"
+  printf '  Next:     /kbd-status\n'
+  exit 0
+fi
 
 # --- roll progress up the ancestor chain ------------------------------------
 if command -v kbd_rollup_chain >/dev/null 2>&1; then

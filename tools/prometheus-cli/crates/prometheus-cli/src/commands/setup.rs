@@ -19,9 +19,7 @@ pub enum ComponentStatus {
 impl ComponentStatus {
     fn icon(&self) -> colored::ColoredString {
         match self {
-            Self::Ok | Self::SkippedDocker | Self::SkippedLaunchd | Self::Installed => {
-                "✅".green()
-            }
+            Self::Ok | Self::SkippedDocker | Self::SkippedLaunchd | Self::Installed => "✅".green(),
             Self::Missing | Self::NotInstalled => "❌".red(),
             Self::Stale => "⚠️ ".yellow(),
         }
@@ -108,7 +106,13 @@ fn detect_port(port: u16) -> bool {
 
 fn detect_docker_container(name: &str) -> bool {
     std::process::Command::new("docker")
-        .args(["ps", "--filter", &format!("name={name}"), "--format", "{{.Names}}"])
+        .args([
+            "ps",
+            "--filter",
+            &format!("name={name}"),
+            "--format",
+            "{{.Names}}",
+        ])
         .output()
         .map(|o| String::from_utf8_lossy(&o.stdout).contains(name))
         .unwrap_or(false)
@@ -328,8 +332,7 @@ fn install_template_forge_binaries() -> Result<()> {
                 .unwrap_or_default()
         });
 
-    let forge_dir =
-        repo_root.join("skills/imported/artifact-refiner/tools/template-forge-rs");
+    let forge_dir = repo_root.join("skills/imported/artifact-refiner/tools/template-forge-rs");
     anyhow::ensure!(
         forge_dir.exists(),
         "template-forge-rs not found at {}; run: git submodule update --init --recursive",
@@ -346,7 +349,10 @@ fn install_template_forge_binaries() -> Result<()> {
     let bin_dir = dirs::home_dir().unwrap_or_default().join(".local/bin");
     std::fs::create_dir_all(&bin_dir)?;
     for name in &["template-forge", "template-forge-mcp"] {
-        std::fs::copy(forge_dir.join("target/release").join(name), bin_dir.join(name))?;
+        std::fs::copy(
+            forge_dir.join("target/release").join(name),
+            bin_dir.join(name),
+        )?;
     }
     Ok(())
 }
@@ -409,7 +415,11 @@ fn cargo_build_and_install(crate_dir: &Path, pkg: &str, bin_name: &str) -> Resul
 
 fn install_prometheus_cli() -> Result<()> {
     let root = repo_root().ok_or_else(|| anyhow::anyhow!("could not locate repo root"))?;
-    cargo_build_and_install(&root.join("tools/prometheus-cli"), "prometheus-cli", "prometheus")
+    cargo_build_and_install(
+        &root.join("tools/prometheus-cli"),
+        "prometheus-cli",
+        "prometheus",
+    )
 }
 
 fn install_forge_cli() -> Result<()> {
@@ -421,7 +431,11 @@ fn install_forge_cli() -> Result<()> {
 
 fn install_pk_cherry() -> Result<()> {
     let root = repo_root().ok_or_else(|| anyhow::anyhow!("could not locate repo root"))?;
-    cargo_build_and_install(&root.join("tools/prometheus-knowledge"), "pk-cherry", "pk-cherry")?;
+    cargo_build_and_install(
+        &root.join("tools/prometheus-knowledge"),
+        "pk-cherry",
+        "pk-cherry",
+    )?;
     kickstart_or_warn("dev.prometheusags.pk-mcp");
     Ok(())
 }
@@ -441,7 +455,11 @@ fn kickstart_or_warn(label: &str) {
         .map(|s| s.trim().to_string())
         .unwrap_or_default();
     if uid.is_empty() {
-        eprintln!("  {} kickstart {}: could not resolve current uid", "⚠".yellow(), label);
+        eprintln!(
+            "  {} kickstart {}: could not resolve current uid",
+            "⚠".yellow(),
+            label
+        );
         return;
     }
     let target = format!("gui/{uid}/{label}");
@@ -451,7 +469,12 @@ fn kickstart_or_warn(label: &str) {
     match status {
         Ok(s) if s.success() => println!("  {} kickstart {}: ok", "↻".cyan(), label),
         Ok(s) => eprintln!("  {} kickstart {}: exited {}", "⚠".yellow(), label, s),
-        Err(e) => eprintln!("  {} kickstart {}: spawn failed: {}", "⚠".yellow(), label, e),
+        Err(e) => eprintln!(
+            "  {} kickstart {}: spawn failed: {}",
+            "⚠".yellow(),
+            label,
+            e
+        ),
     }
 }
 
@@ -545,11 +568,17 @@ fn write_setup_state(states: &[(String, ComponentStatus)]) -> Result<()> {
     for (id, status) in states {
         map.insert(
             id.clone(),
-            ComponentState { status: *status, last_checked: now_rfc3339() },
+            ComponentState {
+                status: *status,
+                last_checked: now_rfc3339(),
+            },
         );
     }
 
-    let state = SetupState { last_run: now_rfc3339(), components: map };
+    let state = SetupState {
+        last_run: now_rfc3339(),
+        components: map,
+    };
     std::fs::write(&path, serde_json::to_string_pretty(&state)?)?;
     Ok(())
 }
@@ -573,7 +602,10 @@ pub fn run(non_interactive: bool, dry_run: bool, check: bool, rebuild: bool) -> 
         println!("  {}", "(dry run — no changes will be made)".dimmed());
     }
     if rebuild {
-        println!("  {}", "(--rebuild — forcing rebuild of all binary components)".cyan());
+        println!(
+            "  {}",
+            "(--rebuild — forcing rebuild of all binary components)".cyan()
+        );
     }
     println!();
 
@@ -586,7 +618,12 @@ pub fn run(non_interactive: bool, dry_run: bool, check: bool, rebuild: bool) -> 
     let mut missing_count = 0u32;
     let mut stale_count = 0u32;
     for (comp, status) in &statuses {
-        println!("  {} {} — {}", status.icon(), comp.description, status.label().dimmed());
+        println!(
+            "  {} {} — {}",
+            status.icon(),
+            comp.description,
+            status.label().dimmed()
+        );
         match status {
             ComponentStatus::Missing | ComponentStatus::NotInstalled => missing_count += 1,
             ComponentStatus::Stale => stale_count += 1,
@@ -597,7 +634,10 @@ pub fn run(non_interactive: bool, dry_run: bool, check: bool, rebuild: bool) -> 
     println!();
 
     if gap_count == 0 && !rebuild {
-        println!("{}", "✨ All components healthy — nothing to do.".green().bold());
+        println!(
+            "{}",
+            "✨ All components healthy — nothing to do.".green().bold()
+        );
     } else if gap_count > 0 {
         println!(
             "  {} gap(s) detected: {} missing, {} stale.",
@@ -610,7 +650,10 @@ pub fn run(non_interactive: bool, dry_run: bool, check: bool, rebuild: bool) -> 
     // --check exits before installing. --rebuild bypasses the "all healthy" short-circuit
     // so it can force installs even on a clean system.
     if check || (gap_count == 0 && !rebuild) {
-        let pairs: Vec<_> = statuses.iter().map(|(c, s)| (c.id.to_string(), *s)).collect();
+        let pairs: Vec<_> = statuses
+            .iter()
+            .map(|(c, s)| (c.id.to_string(), *s))
+            .collect();
         write_setup_state(&pairs)?;
         return Ok(());
     }
@@ -637,7 +680,11 @@ pub fn run(non_interactive: bool, dry_run: bool, check: bool, rebuild: bool) -> 
         }
 
         let should_install = if dry_run {
-            let verb = if force_rebuild { "would rebuild" } else { "would install" };
+            let verb = if force_rebuild {
+                "would rebuild"
+            } else {
+                "would install"
+            };
             println!("  {} {}: {}", "▸".dimmed(), verb, comp.description);
             false
         } else if non_interactive {
@@ -647,7 +694,11 @@ pub fn run(non_interactive: bool, dry_run: bool, check: bool, rebuild: bool) -> 
         };
 
         if should_install {
-            let verb = if force_rebuild { "Rebuilding" } else { "Installing" };
+            let verb = if force_rebuild {
+                "Rebuilding"
+            } else {
+                "Installing"
+            };
             println!("  {} {}...", verb, comp.description);
             match comp.install.invoke() {
                 Some(Ok(())) => {
@@ -727,7 +778,10 @@ mod tests {
     #[test]
     fn setup_state_path_ends_with_expected_filename() {
         let path = setup_state_path();
-        assert_eq!(path.file_name().unwrap().to_str().unwrap(), "setup-state.json");
+        assert_eq!(
+            path.file_name().unwrap().to_str().unwrap(),
+            "setup-state.json"
+        );
     }
 
     #[test]

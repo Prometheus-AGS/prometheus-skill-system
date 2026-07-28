@@ -1,0 +1,12 @@
+{
+  "name": "disk-space-guardian",
+  "version": "1.0.0",
+  "description": "Safely inspect and reclaim stale development build caches with the dsg CLI.",
+  "author": {
+    "name": "Prometheus AGS"
+  },
+  "license": "MIT",
+  "skills": [
+    "./"
+  ]
+}

@@ -26,6 +26,10 @@ kbd_rollup_children() {
   command -v jq >/dev/null 2>&1 || return 0
   local prog="$node_dir/progress.json"
   [ -f "$prog" ] || return 0
+  if [ "$(jq -r '.generatedBy // empty' "$prog" 2>/dev/null)" = "kbd-runtime" ]; then
+    # Child summaries are reducer-derived in runtime-authority mode.
+    return 0
+  fi
   local children_root="$node_dir/children"
   local agg='{}'
   if [ -d "$children_root" ]; then

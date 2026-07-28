@@ -17,7 +17,7 @@
         "source": "local",
         "path": "./"
       },
-      "version": "1.5.0",
+      "version": "1.6.0",
       "tags": [
         "react",
         "entity-management",
@@ -204,7 +204,7 @@
       "description": "dsg CLI: safe, intelligent build-cache cleanup for Rust, Node, Python, Go, Docker, Xcode, and Homebrew. Defaults to dry-run; moves artifacts to system Trash rather than rm. Detects 7 ecosystems, verifies activity with lsof/fuser before any clean.",
       "source": {
         "source": "local",
-        "path": "./tools/disk-space-guardian"
+        "path": "./skills/devops/disk-space-guardian"
       },
       "version": "1.0.0",
       "tags": [

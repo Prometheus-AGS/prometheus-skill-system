@@ -1,3 +1,4 @@
+use kbd_runtime::{Actor, ActorKind, Checkpoint, CommandEnvelope, CommandKind, KbdStateV2};
 use rmcp::{
     handler::server::{router::tool::ToolRouter, wrapper::Parameters},
     model::{Implementation, ServerCapabilities, ServerInfo},
@@ -10,6 +11,10 @@ use serde::{Deserialize, Serialize};
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use tracing::info;
+use uuid::Uuid;
+
+use crate::kbd_control::KbdControlPlane;
+use crate::kbd_raft::QuorumPolicy;
 
 // ---------------------------------------------------------------------------
 // SkillIndex — keyword-only loader (no embeddings, no external calls)
@@ -159,6 +164,40 @@ pub struct SyncPushParams {
     pub domain: String,
 }
 
+#[derive(Debug, Serialize, Deserialize, JsonSchema)]
+pub struct KbdReasonParams {
+    pub reason: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema)]
+pub struct KbdResumeParams {
+    pub plan_revision: Option<u64>,
+}
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema)]
+pub struct KbdReviseParams {
+    pub reason: String,
+    pub exact_next_work: Option<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema)]
+pub struct KbdClaimParams {
+    #[serde(default)]
+    pub scope: String,
+    #[serde(default)]
+    pub force: bool,
+}
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema)]
+pub struct KbdHandoffParams {
+    pub to: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema)]
+pub struct KbdEventsParams {
+    pub since_revision: Option<u64>,
+}
+
 // ---------------------------------------------------------------------------
 // SovereignMcpServer
 // ---------------------------------------------------------------------------
@@ -167,16 +206,34 @@ pub struct SyncPushParams {
 pub struct SovereignMcpServer {
     tool_router: ToolRouter<Self>,
     skill_index: Arc<SkillIndex>,
+    kbd_control: Arc<KbdControlPlane>,
     _prefix_tools: bool,
     _uar_passthrough: bool,
 }
 
 impl SovereignMcpServer {
-    pub fn new(skills_dir: &Path, prefix_tools: bool, uar_passthrough: bool) -> Self {
+    pub async fn new(skills_dir: &Path, prefix_tools: bool, uar_passthrough: bool) -> Self {
         let skill_index = Arc::new(SkillIndex::load_from_dir(skills_dir));
+        let project_root = std::env::var("KBD_FOCUS_PROJECT_PATH")
+            .map(PathBuf::from)
+            .unwrap_or_else(|_| {
+                std::env::current_dir()
+                    .ok()
+                    .and_then(|cwd| {
+                        cwd.ancestors()
+                            .find(|candidate| candidate.join(".kbd-orchestrator").is_dir())
+                            .map(Path::to_path_buf)
+                    })
+                    .unwrap_or_else(|| skills_dir.parent().unwrap_or(skills_dir).to_path_buf())
+            });
+        let quorum = QuorumPolicy::new(1, [1]).expect("valid standalone quorum");
+        let kbd_control = KbdControlPlane::open(&project_root, quorum)
+            .await
+            .expect("cannot open authoritative KBD control plane");
         Self {
             tool_router: Self::tool_router(),
             skill_index,
+            kbd_control: Arc::new(kbd_control),
             _prefix_tools: prefix_tools,
             _uar_passthrough: uar_passthrough,
         }
@@ -188,6 +245,40 @@ impl SovereignMcpServer {
         let running = serve_server(self, transport).await?;
         running.waiting().await?;
         Ok(())
+    }
+
+    async fn submit_fresh(
+        &self,
+        state: KbdStateV2,
+        actor_kind: ActorKind,
+        command: CommandKind,
+        lease_required: bool,
+    ) -> String {
+        let (lease_id, fencing_token) = if lease_required {
+            match state.lease.as_ref() {
+                Some(lease) => (Some(lease.lease_id.clone()), Some(lease.fencing_token)),
+                None => return "KBD control error: mutation lease is required".into(),
+            }
+        } else {
+            (None, None)
+        };
+        let envelope = CommandEnvelope {
+            schema_version: "1".into(),
+            project_id: state.project_id.clone(),
+            run_id: state.run_id.clone(),
+            command_id: Uuid::new_v4().to_string(),
+            expected_revision: state.revision,
+            actor: mcp_actor(actor_kind),
+            lease_id,
+            fencing_token,
+            command,
+        };
+        match self.kbd_control.submit(envelope).await {
+            Ok(committed) => {
+                serde_json::to_string_pretty(&committed).unwrap_or_else(|error| error.to_string())
+            }
+            Err(error) => format!("KBD control error: {error}"),
+        }
     }
 }
 
@@ -251,6 +342,214 @@ impl SovereignMcpServer {
         // Full implementation in change-sync-014.
         "No peers connected yet. Start the daemon with --mode daemon to enable P2P.".into()
     }
+
+    #[tool(
+        name = "kbd_status",
+        description = "Read canonical KBD lifecycle, revision, checkpoint, and lease state."
+    )]
+    pub async fn kbd_status(&self) -> String {
+        match self.kbd_control.status() {
+            Ok(state) => {
+                serde_json::to_string_pretty(&state).unwrap_or_else(|error| error.to_string())
+            }
+            Err(error) => format!("KBD status error: {error}"),
+        }
+    }
+
+    #[tool(
+        name = "kbd_pause",
+        description = "Checkpoint and pause the KBD run. Operator pause overrides writer steering."
+    )]
+    pub async fn kbd_pause(&self, params: Parameters<KbdReasonParams>) -> String {
+        match self.kbd_control.status() {
+            Ok(state) => {
+                let command = CommandKind::Pause {
+                    checkpoint: Checkpoint {
+                        reason: params.0.reason,
+                        previous_state: state.lifecycle.clone(),
+                        last_completed: None,
+                        exact_next_work: state.exact_next_work.clone(),
+                        decisions: Vec::new(),
+                        blockers: Vec::new(),
+                        dirty_work_summary: None,
+                        plan_revision: state.plan_revision,
+                    },
+                };
+                self.submit_fresh(state, ActorKind::Operator, command, false)
+                    .await
+            }
+            Err(error) => format!("KBD status error: {error}"),
+        }
+    }
+
+    #[tool(
+        name = "kbd_revise",
+        description = "Create an immutable N+1 plan revision that supersedes the previous next work."
+    )]
+    pub async fn kbd_revise(&self, params: Parameters<KbdReviseParams>) -> String {
+        match self.kbd_control.status() {
+            Ok(state) => {
+                self.submit_fresh(
+                    state,
+                    ActorKind::Harness,
+                    CommandKind::PlanRevise {
+                        reason: params.0.reason,
+                        exact_next_work: params.0.exact_next_work,
+                    },
+                    true,
+                )
+                .await
+            }
+            Err(error) => format!("KBD status error: {error}"),
+        }
+    }
+
+    #[tool(
+        name = "kbd_resume",
+        description = "Resume a paused KBD run at the validated plan revision and lease."
+    )]
+    pub async fn kbd_resume(&self, params: Parameters<KbdResumeParams>) -> String {
+        match self.kbd_control.status() {
+            Ok(state) => {
+                let plan_revision = params.0.plan_revision.unwrap_or(state.plan_revision);
+                self.submit_fresh(
+                    state,
+                    ActorKind::Operator,
+                    CommandKind::Resume { plan_revision },
+                    true,
+                )
+                .await
+            }
+            Err(error) => format!("KBD status error: {error}"),
+        }
+    }
+
+    #[tool(
+        name = "kbd_cancel",
+        description = "Gracefully cancel the KBD run while preserving its audit history."
+    )]
+    pub async fn kbd_cancel(&self, params: Parameters<KbdReasonParams>) -> String {
+        match self.kbd_control.status() {
+            Ok(state) => {
+                self.submit_fresh(
+                    state,
+                    ActorKind::Operator,
+                    CommandKind::Cancel {
+                        reason: params.0.reason,
+                    },
+                    false,
+                )
+                .await
+            }
+            Err(error) => format!("KBD status error: {error}"),
+        }
+    }
+
+    #[tool(name = "kbd_claim", description = "Claim the KBD single-writer lease.")]
+    pub async fn kbd_claim(&self, params: Parameters<KbdClaimParams>) -> String {
+        match self.kbd_control.status() {
+            Ok(state) => {
+                let scope = if params.0.scope.is_empty() {
+                    "project/phase".into()
+                } else {
+                    params.0.scope
+                };
+                self.submit_fresh(
+                    state,
+                    if params.0.force {
+                        ActorKind::Operator
+                    } else {
+                        ActorKind::Harness
+                    },
+                    CommandKind::Claim {
+                        scope,
+                        force: params.0.force,
+                    },
+                    false,
+                )
+                .await
+            }
+            Err(error) => format!("KBD status error: {error}"),
+        }
+    }
+
+    #[tool(
+        name = "kbd_heartbeat",
+        description = "Renew the active KBD writer lease for another 90 seconds."
+    )]
+    pub async fn kbd_heartbeat(&self) -> String {
+        match self.kbd_control.status() {
+            Ok(state) => {
+                self.submit_fresh(state, ActorKind::Harness, CommandKind::LeaseHeartbeat, true)
+                    .await
+            }
+            Err(error) => format!("KBD status error: {error}"),
+        }
+    }
+
+    #[tool(
+        name = "kbd_release",
+        description = "Release the current KBD writer lease."
+    )]
+    pub async fn kbd_release(&self) -> String {
+        match self.kbd_control.status() {
+            Ok(state) => {
+                self.submit_fresh(
+                    state,
+                    ActorKind::Harness,
+                    CommandKind::LeaseRelease {
+                        reason: "MCP release".into(),
+                    },
+                    true,
+                )
+                .await
+            }
+            Err(error) => format!("KBD status error: {error}"),
+        }
+    }
+
+    #[tool(
+        name = "kbd_handoff",
+        description = "Atomically hand the KBD lease to another harness and increment its fence."
+    )]
+    pub async fn kbd_handoff(&self, params: Parameters<KbdHandoffParams>) -> String {
+        match self.kbd_control.status() {
+            Ok(state) => {
+                self.submit_fresh(
+                    state,
+                    ActorKind::Harness,
+                    CommandKind::LeaseHandoff {
+                        target: Actor::handoff_target(params.0.to),
+                    },
+                    true,
+                )
+                .await
+            }
+            Err(error) => format!("KBD status error: {error}"),
+        }
+    }
+
+    #[tool(
+        name = "kbd_events",
+        description = "Read immutable KBD events from an optional starting revision."
+    )]
+    pub async fn kbd_events(&self, params: Parameters<KbdEventsParams>) -> String {
+        match self
+            .kbd_control
+            .events(params.0.since_revision.unwrap_or(1))
+        {
+            Ok(events) => {
+                serde_json::to_string_pretty(&events).unwrap_or_else(|error| error.to_string())
+            }
+            Err(error) => format!("KBD events error: {error}"),
+        }
+    }
+}
+
+fn mcp_actor(kind: ActorKind) -> Actor {
+    let mut actor = Actor::operator("sovereign-sync", "mcp");
+    actor.kind = kind;
+    actor
 }
 
 #[tool_handler(router = self.tool_router)]

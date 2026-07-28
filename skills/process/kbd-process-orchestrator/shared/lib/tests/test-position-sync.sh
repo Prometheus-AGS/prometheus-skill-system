@@ -18,6 +18,7 @@ trap 'rm -rf "$SANDBOX"' EXIT
 mkdir -p "$SANDBOX/repo/.kbd-orchestrator/phases/p1"
 cat > "$SANDBOX/repo/.kbd-orchestrator/current-waypoint.json" <<'EOF'
 {
+  "revision": 0,
   "phase": "p1",
   "status": "execute_ready",
   "change": "change-002-demo",
@@ -87,6 +88,7 @@ pass "foreign state annotated, not migrated"
 # Test 5b: stale child pointers are trimmed to the longest existing path
 cat > "$SANDBOX/repo/.kbd-orchestrator/current-waypoint.json" <<'EOF'
 {
+  "revision": 0,
   "phase": "p1",
   "path": ["p1", "ghost-child"],
   "status": "execute_ready",
@@ -104,12 +106,21 @@ pass "stale child pointers are trimmed from the derived cursor"
 [ ! -f "$SANDBOX/.kbd-orchestrator/position.json" ] || fail "test 6 — wrote where it shouldn't"
 pass "no orchestrator → no-op"
 
-# Test 7: waypoint-render prefers fresh position.json cursor
+# Test 7: waypoint-render prefers a revision-matched position cursor
 RENDER_LIB="$SKILL_ROOT/../../../shared/scripts/lib/waypoint-render.sh"
 [ -f "$RENDER_LIB" ] || fail "test 7 — renderer lib not found at $RENDER_LIB"
 out="$(cd "$SANDBOX/repo" && source "$RENDER_LIB" && waypoint_render)"
 echo "$out" | grep -qF 'Position: p1 › change-002-demo › task:1/4' \
   || fail "test 7 — renderer did not use position cursor, got: $out"
-pass "waypoint-render prefers fresh position.json cursor"
+pass "waypoint-render prefers revision-matched position.json cursor"
+
+# Test 8: a newer mtime cannot make a mismatched projection authoritative
+jq '.sourceRevision = 99' "$POS" > "$SANDBOX/pos.tmp" &&
+  mv "$SANDBOX/pos.tmp" "$POS"
+touch "$POS"
+out="$(cd "$SANDBOX/repo" && source "$RENDER_LIB" && waypoint_render)"
+echo "$out" | grep -qF 'Position: p1 › change-002-demo › tasks 1/4' \
+  || fail "test 8 — mismatched revision should fall back to waypoint, got: $out"
+pass "revision mismatch outranks filesystem mtime"
 
 printf 'all position-sync tests passed\n'

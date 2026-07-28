@@ -1,5 +1,16 @@
 # Update Log
 
+## 2026-07-28
+* **Creation**: [Docusaurus GitHub Pages Site Session Completion Status](/docusaurus-github-pages-site-session-completion-status.md)
+* **Creation**: [Docusaurus GitHub Pages Executor Session Completion](/docusaurus-github-pages-executor-session-completion.md)
+* **Creation**: [KBD Waypoint execution_complete Status Drift in Docusaurus Phase](/kbd-waypoint-execution-complete-status-drift-in-docusaurus-phase.md)
+* **Creation**: [Docusaurus GitHub Pages Site Executor Completion](/docusaurus-github-pages-site-executor-completion.md)
+* **Creation**: [KBD Stop-Gate Suspension State Defect During Docusaurus Phase](/kbd-stop-gate-suspension-state-defect-during-docusaurus-phase.md)
+* **Creation**: [Docusaurus GitHub Pages Site Reflect Completion at 2026-07-28](/docusaurus-github-pages-site-reflect-completion-at-2026-07-28.md)
+* **Creation**: [Docusaurus GitHub Pages Site Executor Completion](/docusaurus-github-pages-site-executor-completion.md)
+* **Creation**: [Docusaurus GitHub Pages Site Phase Pull Summary](/docusaurus-github-pages-site-phase-pull-summary.md)
+* **Creation**: [Sansaba Web Scaffold and C-29 Gate Phase Status](/sansaba-web-scaffold-and-c-29-gate-phase-status.md)
+
 ## 2026-07-17
 * **Creation**: [Karpathy MCP Gate 2026-07-17 Repair-Gate Ingestion Check](/karpathy-mcp-gate-2026-07-17-repair-gate-ingestion-check.md)
 * **Creation**: [MCP Ingestion Required for Running pk-cherry Store Visibility](/mcp-ingestion-required-for-running-pk-cherry-store-visibility.md)

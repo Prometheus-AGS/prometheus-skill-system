@@ -21,11 +21,27 @@ if [ ! -f "$RENDER_LIB" ]; then
 fi
 source "$RENDER_LIB"
 
+ROOT="$(_wr_find_root 2>/dev/null || true)"
+STATUS=""
+SUSPENDED=false
+if [ -n "$ROOT" ]; then
+  if [ -e "$ROOT/.kbd-orchestrator/PAUSE" ]; then
+    SUSPENDED=true
+  elif [ -f "$ROOT/.kbd-orchestrator/current-waypoint.json" ] && command -v jq >/dev/null 2>&1; then
+    STATUS="$(jq -r '.status // .stage // empty' "$ROOT/.kbd-orchestrator/current-waypoint.json" 2>/dev/null || true)"
+    _wr_is_suspended_status "$STATUS" && SUSPENDED=true
+  fi
+fi
+
 BLOCK="$(waypoint_render 2>/dev/null || true)"
 
 if [ -n "$BLOCK" ]; then
   printf '\n%s\n' "$BLOCK"
-  printf 'MANDATORY: begin your response with the Position line above (updated to reflect any state you change this turn) and end with a Next: line stating the next step and remaining work.\n'
+  if [ "$SUSPENDED" = "true" ]; then
+    printf 'CONTROL: KBD execution is suspended. Audit and discuss freely, but do not execute or steer to Next until the operator explicitly resumes.\n'
+  else
+    printf 'POSITION ADVISORY: report meaningful state changes and the remaining next step, but never override an operator request to stop, pause, audit, or change course.\n'
+  fi
 fi
 
 hook_log_end 0

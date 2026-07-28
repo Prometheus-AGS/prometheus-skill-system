@@ -26,6 +26,10 @@
     <string>__PROMETHEUS_PATH__</string>
     <key>RUST_LOG</key>
     <string>sovereign_sync=info</string>
+    <key>PROMETHEUS_HEADLESS_VOTER</key>
+    <string>1</string>
+    <key>PROMETHEUS_DEVICE_KEY_FILE</key>
+    <string>__PROMETHEUS_DEVICE_KEY_FILE__</string>
   </dict>
 
   <key>RunAtLoad</key>

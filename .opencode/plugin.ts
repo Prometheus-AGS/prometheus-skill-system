@@ -1,8 +1,38 @@
 import { tool, type Plugin, type PluginModule, type Hooks } from '@opencode-ai/plugin';
+import { execFile } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
+import { dirname, resolve } from 'node:path';
+import { promisify } from 'node:util';
 import evolveToolDef from './tools/evolve.js';
 import gitopsToolDef from './tools/gitops.js';
 import kbdToolDef from './tools/kbd.js';
 import kbdCloseToolDef from './tools/kbd-close.js';
+
+const execFileAsync = promisify(execFile);
+const skillPackRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+
+async function kbdControl(event: string): Promise<void> {
+  try {
+    await execFileAsync(
+      'bash',
+      [resolve(skillPackRoot, 'shared/scripts/kbd-harness-adapter.sh'), event, 'opencode'],
+      {
+        cwd: process.cwd(),
+        timeout: event === 'pre_mutation' ? 225 : 1000,
+        env: {
+          ...process.env,
+          PROMETHEUS_HARNESS: 'opencode',
+          PROMETHEUS_SKILL_PACK_ROOT: skillPackRoot,
+        },
+      }
+    );
+  } catch (error) {
+    if (event === 'pre_mutation') {
+      const detail = error instanceof Error ? error.message : String(error);
+      throw new Error(`KBD mutation guard denied the tool call: ${detail}`);
+    }
+  }
+}
 
 const evolveTool = tool({
   description: evolveToolDef.description,
@@ -126,11 +156,11 @@ const hooks: Hooks = {
   },
 
   'tool.execute.before': async (_input, _output) => {
-    // Reserved for pre-execution guards (e.g. write-protection checks)
+    await kbdControl('pre_mutation');
   },
 
   'tool.execute.after': async (_input, _output) => {
-    // Reserved for post-execution telemetry or reflection hooks
+    await kbdControl('post_mutation');
   },
 };
 

@@ -107,6 +107,20 @@ _wr_is_terminal_status() {
   esac
 }
 
+# _wr_is_suspended_status <status>
+# Returns 0 when operator or external input has deliberately suspended work.
+# Steering and Stop hooks must not turn these states back into execution.
+_wr_is_suspended_status() {
+  local s
+  s="$(printf '%s' "${1:-}" | tr '[:upper:] -' '[:lower:]__')"
+  case "$s" in
+    pause_requested|paused|blocked|suspended)
+      return 0 ;;
+    *)
+      return 1 ;;
+  esac
+}
+
 waypoint_render() {
   command -v jq >/dev/null 2>&1 || return 0
 
@@ -128,13 +142,24 @@ waypoint_render() {
   next="$(_wr_normalize_next_command "$next" "$change")"
   why="$(_wr_get "$wp" nextAction next_action)"
 
-  # Progress: prefer the phase's live progress.json ledger, fall back to the
-  # waypoint's own counters.
+  # Runtime projections are revision-bound views, never independent ledgers.
+  # Use a phase projection only when it was generated from the same canonical
+  # revision as the waypoint. Legacy shadow mode retains the old fallback.
   local node_dir="$root/.kbd-orchestrator/phases/$phase"
   [ -n "$child" ] && [ -d "$node_dir/children/$child" ] && node_dir="$node_dir/children/$child"
   local prog="$node_dir/progress.json"
-  local done total stage_line="" tasks_done tasks_total
-  if [ -f "$prog" ] && jq empty "$prog" 2>/dev/null; then
+  local done total stage_line="" tasks_done tasks_total generated_by waypoint_revision progress_revision progress_generated
+  generated_by="$(jq -r '.generatedBy // empty' "$wp" 2>/dev/null)"
+  waypoint_revision="$(jq -r '.sourceRevision // .revision // empty' "$wp" 2>/dev/null)"
+  progress_revision=""
+  progress_generated=""
+  [ -f "$prog" ] && progress_revision="$(jq -r '.sourceRevision // empty' "$prog" 2>/dev/null || true)"
+  [ -f "$prog" ] && progress_generated="$(jq -r '.generatedBy // empty' "$prog" 2>/dev/null || true)"
+  if [ -f "$prog" ] && jq empty "$prog" 2>/dev/null && {
+    [ "$generated_by" != "kbd-runtime" ] ||
+      { [ "$progress_generated" = "kbd-runtime" ] && [ -n "$waypoint_revision" ] &&
+        [ "$progress_revision" = "$waypoint_revision" ]; }
+  }; then
     done="$(jq -r '.changes_completed // empty' "$prog" 2>/dev/null)"
     total="$(jq -r '.changes_total // empty' "$prog" 2>/dev/null)"
     if [ -n "$change" ]; then
@@ -142,7 +167,9 @@ waypoint_render() {
       tasks_total="$(jq -r --arg id "$change" '.changes[]? | select(.id == $id) | .tasks_total // empty' "$prog" 2>/dev/null)"
     fi
   fi
+  [ -n "${done:-}" ] || done="$(_wr_get "$wp" implementationCompleted implementation_completed)"
   [ -n "${done:-}" ] || done="$(_wr_get "$wp" changesCompleted changes_completed)"
+  [ -n "${total:-}" ] || total="$(_wr_get "$wp" implementationTotal implementation_total)"
   [ -n "${total:-}" ] || total="$(_wr_get "$wp" changesTotal changes_total)"
 
   local crumb="$phase"
@@ -153,14 +180,18 @@ waypoint_render() {
       crumb="$crumb › tasks ${tasks_done:-0}/${tasks_total}"
   fi
 
-  # Prefer the unified position model's cursor when it is at least as fresh
-  # as the waypoint (position.json is derived; freshness check avoids
-  # rendering a stale tree after a manual waypoint edit).
+  # Prefer the derived position cursor only when it identifies the exact
+  # canonical runtime revision used to generate the waypoint. Filesystem mtimes
+  # are not causal clocks and can move backwards across machines.
   local pos="$root/.kbd-orchestrator/position.json"
-  if [ -f "$pos" ] && [ ! "$pos" -ot "$wp" ] && jq empty "$pos" 2>/dev/null; then
-    local pos_crumb
-    pos_crumb="$(jq -r '.cursor | select(type=="array") | join(" › ")' "$pos" 2>/dev/null)"
-    [ -n "$pos_crumb" ] && crumb="$pos_crumb"
+  if [ -f "$pos" ] && jq empty "$pos" 2>/dev/null; then
+    local pos_crumb pos_revision position_waypoint_revision
+    pos_revision="$(jq -r '.sourceRevision // empty' "$pos" 2>/dev/null)"
+    position_waypoint_revision="$(jq -r '.sourceRevision // .revision // empty' "$wp" 2>/dev/null)"
+    if [ -n "$pos_revision" ] && [ "$pos_revision" = "$position_waypoint_revision" ]; then
+      pos_crumb="$(jq -r '.cursor | select(type=="array") | join(" › ")' "$pos" 2>/dev/null)"
+      [ -n "$pos_crumb" ] && crumb="$pos_crumb"
+    fi
   fi
 
   printf '<!-- prometheus-position -->\n'

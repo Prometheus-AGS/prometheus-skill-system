@@ -6,11 +6,23 @@
         "hooks": [
           {
             "type": "command",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/shared/scripts/kbd-harness-adapter.sh session_start claude-code",
+            "timeout": 1000
+          }
+        ],
+        "description": "Bounded canonical KBD session adapter",
+        "id": "sessionstart:kbd-control"
+      },
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
             "command": "bash ~/.local/bin/kbd-open 2>&1 || true",
             "timeout": 30000
           }
         ],
-        "description": "kbd-open \u2014 prime session with KBD phase context + focused wiki + pending skill-updates",
+        "description": "kbd-open — prime session with KBD phase context + focused wiki + pending skill-updates",
         "id": "sessionstart:kbd-open"
       },
       {
@@ -38,13 +50,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash ${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/shared/scripts/pk-focus-on-prompt.sh 2>/dev/null",
-            "timeout": 3000
-          },
-          {
-            "type": "command",
-            "command": "bash ${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/shared/scripts/position-on-prompt.sh 2>/dev/null",
-            "timeout": 5000
+            "command": "bash ${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/shared/scripts/kbd-harness-adapter.sh prompt claude-code",
+            "timeout": 250
           }
         ]
       }
@@ -53,6 +60,11 @@
       {
         "matcher": "Bash",
         "hooks": [
+          {
+            "type": "command",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/shared/scripts/kbd-harness-adapter.sh pre_mutation claude-code",
+            "timeout": 250
+          },
           {
             "type": "command",
             "command": "bash ${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/shared/scripts/guard-direct-deploy.sh 2>&1",
@@ -68,6 +80,11 @@
       {
         "matcher": "Write|Edit|MultiEdit",
         "hooks": [
+          {
+            "type": "command",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/shared/scripts/kbd-harness-adapter.sh pre_mutation claude-code",
+            "timeout": 250
+          },
           {
             "type": "command",
             "command": "bash ${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/shared/scripts/cedar-skill-gate.sh",
@@ -225,43 +242,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash ${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/shared/scripts/write-session-summary.sh 2>&1 || true",
-            "timeout": 5000
-          },
-          {
-            "type": "command",
-            "command": "bash ${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/shared/scripts/position-stop-gate.sh",
-            "timeout": 5000
-          },
-          {
-            "type": "command",
-            "command": "bash ${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/skills/process/iterative-evolver/scripts/state-finalize.sh \"${EVOLUTION_NAME:-default}\" 2>&1 || true",
-            "timeout": 8000
-          },
-          {
-            "type": "command",
-            "command": "bash ${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/skills/process/iterative-evolver/scripts/workflow-dispatch.sh \"${EVOLUTION_NAME:-default}\" cycle_complete 2>&1 || true",
-            "timeout": 8000
-          },
-          {
-            "type": "command",
-            "command": "bash ${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/skills/process/iterative-evolver/scripts/finalize-session.sh 2>&1 || true",
-            "timeout": 8000
-          },
-          {
-            "type": "command",
-            "command": "bash ${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/shared/scripts/forge-reflect-on-stop.sh 2>&1 || true",
-            "timeout": 8000
-          },
-          {
-            "type": "command",
-            "command": "bash ${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/shared/scripts/propose-skill-update.sh 2>&1 || true",
-            "timeout": 30000
-          },
-          {
-            "type": "command",
-            "command": "bash ~/.local/bin/kbd-close 2>&1 || true",
-            "timeout": 60000
+            "command": "bash ${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/shared/scripts/kbd-harness-adapter.sh stop claude-code",
+            "timeout": 250
           }
         ]
       }
@@ -272,12 +254,12 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash ~/.local/bin/kbd-close 2>&1 || true",
-            "timeout": 60000
+            "command": "bash ${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/shared/scripts/kbd-harness-adapter.sh pre_compact claude-code",
+            "timeout": 1000
           }
         ],
-        "description": "kbd-close \u2014 capture session context before compaction into wiki",
-        "id": "precompact:kbd-close"
+        "description": "Bounded canonical KBD pre-compaction checkpoint",
+        "id": "precompact:kbd-control"
       }
     ]
   }

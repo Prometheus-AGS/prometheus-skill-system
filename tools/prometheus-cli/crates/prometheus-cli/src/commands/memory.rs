@@ -41,7 +41,12 @@ pub async fn search(query: &str, entity_type: Option<&str>) -> Result<()> {
     println!("  Found {} result(s):\n", results.len());
 
     for entity in &results {
-        println!("  {} [{}] {}", "▸".cyan(), entity.entity_type.dimmed(), entity.name.bold());
+        println!(
+            "  {} [{}] {}",
+            "▸".cyan(),
+            entity.entity_type.dimmed(),
+            entity.name.bold()
+        );
         for obs in entity.observations.iter().take(3) {
             println!("    {}", obs.dimmed());
         }
@@ -70,31 +75,52 @@ pub async fn install(dry_run: bool) -> Result<()> {
     };
 
     if server_running {
-        let url = client.as_ref().map(|c| c.base_url().to_string()).unwrap_or_default();
+        let url = client
+            .as_ref()
+            .map(|c| c.base_url().to_string())
+            .unwrap_or_default();
         println!("  {} Server already running at {}", "✅".green(), url);
 
         // Detect if it's running in Docker
         let docker_container = detect_docker_container("surreal-memory");
         if let Some(container_name) = &docker_container {
-            println!("  {} Running in Docker container: {}", "🐳".cyan(), container_name);
+            println!(
+                "  {} Running in Docker container: {}",
+                "🐳".cyan(),
+                container_name
+            );
         }
 
-        println!("\n{}", "✨ surreal-memory is ready — no installation needed".green().bold());
+        println!(
+            "\n{}",
+            "✨ surreal-memory is ready — no installation needed"
+                .green()
+                .bold()
+        );
         return Ok(());
     }
 
     // Check if Docker containers exist but are stopped
     let docker_container = detect_docker_container("surreal-memory");
     if let Some(container_name) = &docker_container {
-        println!("  {} Docker container found (stopped): {}", "🐳".yellow(), container_name);
+        println!(
+            "  {} Docker container found (stopped): {}",
+            "🐳".yellow(),
+            container_name
+        );
         if !dry_run {
             println!("  Starting container...");
-            let _ = Command::new("docker").args(["start", container_name]).output();
+            let _ = Command::new("docker")
+                .args(["start", container_name])
+                .output();
             // Also start the surrealdb container if it exists
             if let Some(db_name) = &detect_docker_container("surrealdb") {
                 let _ = Command::new("docker").args(["start", db_name]).output();
             }
-            println!("  {} Containers started. Verify with: prometheus memory ping", "✅".green());
+            println!(
+                "  {} Containers started. Verify with: prometheus memory ping",
+                "✅".green()
+            );
         } else {
             println!("  Would run: docker start {}", container_name);
         }
@@ -104,15 +130,22 @@ pub async fn install(dry_run: bool) -> Result<()> {
     // Check if binary exists on PATH
     let binary_installed = which_binary("surreal-memory-server");
     if binary_installed {
-        println!("  {} Binary found at: {}", "✅".green(),
-            Command::new("which").arg("surreal-memory-server").output()
+        println!(
+            "  {} Binary found at: {}",
+            "✅".green(),
+            Command::new("which")
+                .arg("surreal-memory-server")
+                .output()
                 .map(|o| String::from_utf8_lossy(&o.stdout).trim().to_string())
                 .unwrap_or_default()
         );
     }
 
     if binary_installed && !server_running {
-        println!("  {} Binary installed but server not running", "ℹ️".yellow());
+        println!(
+            "  {} Binary installed but server not running",
+            "ℹ️".yellow()
+        );
         println!("  Start with: surreal-memory-server");
         if !dry_run {
             println!("\n  Would you like to start it now? Run:");
@@ -128,18 +161,38 @@ pub async fn install(dry_run: bool) -> Result<()> {
     let has_rust = Command::new("cargo").arg("--version").output().is_ok();
     let submodule_path = find_submodule_path();
 
-    println!("  Docker: {}", if has_docker { "✅ available".green() } else { "❌ not found".red() });
-    println!("  Rust:   {}", if has_rust { "✅ available".green() } else { "❌ not found".red() });
-    println!("  Source: {}", if submodule_path.is_some() {
-        "✅ submodule found".green()
-    } else {
-        "⚠️ submodule not found".yellow()
-    });
+    println!(
+        "  Docker: {}",
+        if has_docker {
+            "✅ available".green()
+        } else {
+            "❌ not found".red()
+        }
+    );
+    println!(
+        "  Rust:   {}",
+        if has_rust {
+            "✅ available".green()
+        } else {
+            "❌ not found".red()
+        }
+    );
+    println!(
+        "  Source: {}",
+        if submodule_path.is_some() {
+            "✅ submodule found".green()
+        } else {
+            "⚠️ submodule not found".yellow()
+        }
+    );
 
     // ── Step 3: Select and execute installation method ──────────────────
     if let Some(source_path) = &submodule_path {
         if has_rust {
-            println!("\n  {} Recommended: Build from source (embedded SurrealDB)", "→".cyan());
+            println!(
+                "\n  {} Recommended: Build from source (embedded SurrealDB)",
+                "→".cyan()
+            );
             println!("  This creates a single binary with embedded RocksDB — no external database needed.");
 
             if dry_run {
@@ -149,7 +202,10 @@ pub async fn install(dry_run: bool) -> Result<()> {
                 return Ok(());
             }
 
-            println!("\n  {} Building from source (this may take a few minutes)...", "🔨".yellow());
+            println!(
+                "\n  {} Building from source (this may take a few minutes)...",
+                "🔨".yellow()
+            );
 
             let build_output = Command::new("cargo")
                 .args(["build", "--release"])
@@ -191,7 +247,10 @@ pub async fn install(dry_run: bool) -> Result<()> {
 
     if has_docker {
         if let Some(source_path) = &submodule_path {
-            println!("\n  {} Alternative: Docker Compose (production mode)", "→".cyan());
+            println!(
+                "\n  {} Alternative: Docker Compose (production mode)",
+                "→".cyan()
+            );
             println!("  Runs SurrealDB + memory server as containers.");
 
             if dry_run {
@@ -210,7 +269,11 @@ pub async fn install(dry_run: bool) -> Result<()> {
                 println!("  {} Docker containers started", "✅".green());
             } else {
                 let stderr = String::from_utf8_lossy(&compose_output.stderr);
-                println!("  {} Docker compose failed: {}", "❌".red(), stderr.lines().next().unwrap_or("unknown error"));
+                println!(
+                    "  {} Docker compose failed: {}",
+                    "❌".red(),
+                    stderr.lines().next().unwrap_or("unknown error")
+                );
             }
 
             println!("\n{}", "✨ Installation complete".green().bold());

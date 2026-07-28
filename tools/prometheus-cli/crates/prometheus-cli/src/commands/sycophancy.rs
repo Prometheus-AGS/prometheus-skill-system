@@ -1,10 +1,6 @@
 use anyhow::Result;
 use colored::Colorize;
-use sycophancy_core::{
-    skill::detector::Detector,
-    config::SkillConfig,
-    Strictness,
-};
+use sycophancy_core::{config::SkillConfig, skill::detector::Detector, Strictness};
 
 pub fn detect(file: &str, strictness: &str) -> Result<()> {
     let content = read_content(file)?;
@@ -18,8 +14,22 @@ pub fn detect(file: &str, strictness: &str) -> Result<()> {
     println!("  File: {}", file.cyan());
     println!("  Score: {}", format_score(result.sycophancy_score));
     println!("  Patterns: {}", result.classifications.len());
-    println!("  Critical: {}", if result.has_critical { "YES".red().bold() } else { "no".green() });
-    println!("  Correction needed: {}", if result.correction_mandatory { "YES".yellow().bold() } else { "no".green() });
+    println!(
+        "  Critical: {}",
+        if result.has_critical {
+            "YES".red().bold()
+        } else {
+            "no".green()
+        }
+    );
+    println!(
+        "  Correction needed: {}",
+        if result.correction_mandatory {
+            "YES".yellow().bold()
+        } else {
+            "no".green()
+        }
+    );
 
     if !result.classifications.is_empty() {
         println!("\n  {}", "Detected Patterns:".bold());
@@ -30,7 +40,8 @@ pub fn detect(file: &str, strictness: &str) -> Result<()> {
                 "medium" => class.severity.as_str().yellow(),
                 _ => class.severity.as_str().dimmed(),
             };
-            println!("  {} [{}] {} — {}",
+            println!(
+                "  {} [{}] {} — {}",
                 severity_color,
                 class.pattern_id.cyan(),
                 class.location.as_deref().unwrap_or(""),
@@ -72,13 +83,21 @@ pub fn correct(file: &str, strictness: &str) -> Result<()> {
     println!("  Score: {}", format_score(result.sycophancy_score));
 
     if result.classifications.is_empty() {
-        println!("  {} No sycophancy patterns detected — no correction needed", "✅".green());
+        println!(
+            "  {} No sycophancy patterns detected — no correction needed",
+            "✅".green()
+        );
         return Ok(());
     }
 
     println!("  Patterns found: {}", result.classifications.len());
     for class in &result.classifications {
-        println!("    [{}] {} — {}", class.pattern_id, class.severity.as_str(), class.rationale);
+        println!(
+            "    [{}] {} — {}",
+            class.pattern_id,
+            class.severity.as_str(),
+            class.rationale
+        );
     }
 
     // Note: Full correction requires an LLM client (PmpoExecutor).
@@ -108,8 +127,7 @@ fn read_content(file: &str) -> Result<String> {
         std::io::stdin().read_to_string(&mut content)?;
         Ok(content)
     } else {
-        std::fs::read_to_string(file)
-            .map_err(|e| anyhow::anyhow!("Failed to read {}: {}", file, e))
+        std::fs::read_to_string(file).map_err(|e| anyhow::anyhow!("Failed to read {}: {}", file, e))
     }
 }
 

@@ -128,6 +128,32 @@ function validate(pluginObj, marketObj) {
       fail(`marketplace plugin ${p.name}: source.path not ./-inside-root`);
     if (!p.policy || !p.policy.installation)
       fail(`marketplace plugin ${p.name}: missing policy.installation`);
+    if (p.source?.source === 'local' && insideRoot(p.source.path)) {
+      const sourceRoot = path.join(ROOT, p.source.path);
+      const candidates =
+        p.source.path === './'
+          ? [path.join(ROOT, '.codex-plugin/plugin.json')]
+          : [
+              path.join(sourceRoot, '.codex-plugin/plugin.json'),
+              path.join(sourceRoot, '.claude-plugin/plugin.json'),
+            ];
+      const manifestPath = candidates.find(candidate => fs.existsSync(candidate));
+      if (!manifestPath) {
+        fail(`marketplace plugin ${p.name}: source has no plugin.json`);
+      } else {
+        const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+        if (manifest.name !== p.name) {
+          fail(
+            `marketplace plugin ${p.name}: source manifest name is ${manifest.name || '(missing)'}`
+          );
+        }
+        if (manifest.version && p.version && manifest.version !== p.version) {
+          fail(
+            `marketplace plugin ${p.name}: source version ${manifest.version} does not match ${p.version}`
+          );
+        }
+      }
+    }
   });
 }
 

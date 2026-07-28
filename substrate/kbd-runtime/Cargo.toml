@@ -1,0 +1,36 @@
+[package]
+name = "kbd-runtime"
+version = "0.1.0"
+edition = "2021"
+description = "Canonical event-sourced control plane for Prometheus KBD runs"
+license = "MIT"
+
+[lib]
+name = "kbd_runtime"
+path = "src/lib.rs"
+
+[dependencies]
+base64 = "0.22"
+chrono = { version = "0.4", features = ["serde"] }
+dirs-next = "2"
+ed25519-dalek = { version = "2", features = ["rand_core"] }
+fs2 = "0.4"
+rand_core = { version = "0.6", features = ["getrandom"] }
+serde = { version = "1", features = ["derive"] }
+serde_jcs = "0.1"
+serde_json = "1"
+sha2 = "0.10"
+thiserror = "2"
+uuid = { version = "1", features = ["v4", "serde"] }
+
+[target.'cfg(target_os = "macos")'.dependencies]
+keyring = { version = "=3.6.3", default-features = false, features = ["apple-native"] }
+
+[target.'cfg(target_os = "linux")'.dependencies]
+keyring = { version = "=3.6.3", default-features = false, features = ["sync-secret-service", "crypto-rust"] }
+
+[target.'cfg(target_os = "windows")'.dependencies]
+keyring = { version = "=3.6.3", default-features = false, features = ["windows-native"] }
+
+[dev-dependencies]
+tempfile = "3"

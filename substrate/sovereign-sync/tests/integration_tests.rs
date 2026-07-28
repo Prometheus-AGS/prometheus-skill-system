@@ -6,6 +6,7 @@ use axum::body::Body;
 use axum::http::{Request, StatusCode};
 use std::collections::HashMap;
 use std::path::PathBuf;
+use tempfile::TempDir;
 use tower::ServiceExt;
 
 use sovereign_sync::crdt::{apply_incoming_delta, current_version, export_outgoing_delta};
@@ -17,10 +18,17 @@ use storage_provider::{DomainConfig, PrivacyClass, SyncDomain, SyncManifest};
 // Helper
 // ---------------------------------------------------------------------------
 
-fn test_router() -> axum::Router {
+async fn test_router() -> (axum::Router, String, TempDir) {
     let skills_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../skills");
-    let state = AppState::new(&skills_dir);
-    build_router(state)
+    let fixture = tempfile::tempdir().unwrap();
+    let project_root = fixture.path().join("project");
+    let data_root = fixture.path().join("data");
+    std::fs::create_dir_all(&project_root).unwrap();
+    let state = AppState::try_new_at(&skills_dir, &project_root, &data_root)
+        .await
+        .unwrap();
+    let token = state.bearer_token().to_string();
+    (build_router(state), token, fixture)
 }
 
 fn default_manifest() -> SyncManifest {
@@ -42,7 +50,7 @@ fn default_manifest() -> SyncManifest {
 
 #[tokio::test]
 async fn health_endpoint_returns_200() {
-    let app = test_router();
+    let (app, _, _fixture) = test_router().await;
     let req = Request::builder()
         .method("GET")
         .uri("/health")
@@ -62,10 +70,11 @@ async fn health_endpoint_returns_200() {
 
 #[tokio::test]
 async fn sync_status_returns_idle() {
-    let app = test_router();
+    let (app, token, _fixture) = test_router().await;
     let req = Request::builder()
         .method("GET")
         .uri("/api/v1/sync/status")
+        .header("Authorization", format!("Bearer {token}"))
         .body(Body::empty())
         .unwrap();
     let resp = app.oneshot(req).await.unwrap();
@@ -85,10 +94,11 @@ async fn sync_status_returns_idle() {
 
 #[tokio::test]
 async fn sync_peers_returns_empty_list() {
-    let app = test_router();
+    let (app, token, _fixture) = test_router().await;
     let req = Request::builder()
         .method("GET")
         .uri("/api/v1/sync/peers")
+        .header("Authorization", format!("Bearer {token}"))
         .body(Body::empty())
         .unwrap();
     let resp = app.oneshot(req).await.unwrap();
@@ -104,10 +114,11 @@ async fn sync_peers_returns_empty_list() {
 
 #[tokio::test]
 async fn skills_search_returns_results_array() {
-    let app = test_router();
+    let (app, token, _fixture) = test_router().await;
     let req = Request::builder()
         .method("GET")
         .uri("/api/v1/skills/search?q=learn")
+        .header("Authorization", format!("Bearer {token}"))
         .body(Body::empty())
         .unwrap();
     let resp = app.oneshot(req).await.unwrap();
@@ -124,11 +135,12 @@ async fn skills_search_returns_results_array() {
 
 #[tokio::test]
 async fn sync_push_queues_domain() {
-    let app = test_router();
+    let (app, token, _fixture) = test_router().await;
     let req = Request::builder()
         .method("POST")
         .uri("/api/v1/sync/push")
         .header("Content-Type", "application/json")
+        .header("Authorization", format!("Bearer {token}"))
         .body(Body::from(r#"{"domain":"learner-model"}"#))
         .unwrap();
     let resp = app.oneshot(req).await.unwrap();
@@ -137,6 +149,18 @@ async fn sync_push_queues_domain() {
     let json: serde_json::Value = serde_json::from_slice(&body).unwrap();
     assert_eq!(json["status"], "queued");
     assert_eq!(json["domain"], "learner-model");
+}
+
+#[tokio::test]
+async fn api_rejects_missing_bearer_token() {
+    let (app, _, _fixture) = test_router().await;
+    let req = Request::builder()
+        .method("GET")
+        .uri("/api/v1/sync/status")
+        .body(Body::empty())
+        .unwrap();
+    let resp = app.oneshot(req).await.unwrap();
+    assert_eq!(resp.status(), StatusCode::UNAUTHORIZED);
 }
 
 // ---------------------------------------------------------------------------

@@ -121,9 +121,11 @@ install_to_dir() {
 # the whole catalog, so the set it gets is curated in config/codex-catalog.txt.
 # Delegated to codex-sync-skills.sh, which is also run on codex session_start.
 install_to_codex() {
-    local args=()
-    $UNINSTALL && args+=(--uninstall)
-    bash "$REPO_ROOT/scripts/codex-sync-skills.sh" "${args[@]}"
+    if $UNINSTALL; then
+        bash "$REPO_ROOT/scripts/codex-sync-skills.sh" --uninstall
+    else
+        bash "$REPO_ROOT/scripts/codex-sync-skills.sh"
+    fi
 
     # Because Codex gets copies rather than symlinks, they go stale when a skill is
     # edited. A WatchPaths LaunchAgent re-syncs on any change under skills/.
@@ -218,6 +220,12 @@ configure_kimi_mcp() {
 }
 
 configure_kimi_mcp
+
+if [[ "${PROMETHEUS_INSTALL_SKILLS_ONLY:-0}" == "1" ]]; then
+    echo ""
+    echo "✨ Done — skills-only installation completed"
+    exit 0
+fi
 
 # Post-install: install OpenCode goal plugin and write KBD-tuned config
 configure_opencode_goal_plugin() {

@@ -50,6 +50,18 @@ syco_find_bin >/dev/null 2>&1 || {
 # Locate the phase progress.json (sibling of the artifact).
 PHASE_DIR="$(dirname "$FILE_PATH")"
 PROGRESS="$PHASE_DIR/progress.json"
+RUNTIME_AUTHORITY=0
+PROJECT_ROOT="${FILE_PATH%%/.kbd-orchestrator/*}"
+[ "$PROJECT_ROOT" = "$FILE_PATH" ] && PROJECT_ROOT="."
+RUNTIME_LIB="$HERE/lib/runtime-authority.sh"
+if [ -f "$RUNTIME_LIB" ]; then
+  # shellcheck source=/dev/null
+  . "$RUNTIME_LIB"
+fi
+if command -v kbd_runtime_authoritative >/dev/null 2>&1 &&
+   kbd_runtime_authoritative "$PROJECT_ROOT"; then
+  RUNTIME_AUTHORITY=1
+fi
 
 # Per-artifact rejection counter.
 KEY="$(printf '%s' "$FILE_PATH" | (command -v shasum >/dev/null 2>&1 && shasum | cut -c1-16 || cksum | tr -d ' '))"
@@ -63,11 +75,38 @@ MCP_STRICTNESS="$(syco_map_strictness "$STRICTNESS")"
 
 _clear_gate() {
   [ -f "$PROGRESS" ] || return 0
+  if [ "$RUNTIME_AUTHORITY" = "1" ]; then
+    local state mutation revision lease_id fencing_token blocker_id="sycophancy:${KEY}"
+    state="$(kbd_runtime_status_json "$PROJECT_ROOT")" || return 0
+    printf '%s' "$state" | jq -e --arg id "$blocker_id" \
+      '.blockers[$id] | select(.resolved == false)' >/dev/null 2>&1 || return 0
+    mutation="$(kbd_runtime_mutation_args "$PROJECT_ROOT" "blocker-clear:${blocker_id}")" || return 1
+    revision="$(printf '%s\n' "$mutation" | sed -n '1p')"
+    lease_id="$(printf '%s\n' "$mutation" | sed -n '3p')"
+    fencing_token="$(printf '%s\n' "$mutation" | sed -n '4p')"
+    prometheus kbd --path "$PROJECT_ROOT" blocker clear \
+      --expected-revision "$revision" --command-id "blocker-clear:${blocker_id}" \
+      --lease-id "$lease_id" --fencing-token "$fencing_token" \
+      --id "$blocker_id" --resolution "artifact passed sycophancy review" >/dev/null
+    return $?
+  fi
   local tmp; tmp="$(mktemp)"
   jq 'del(.reflect_gate)' "$PROGRESS" > "$tmp" 2>/dev/null && mv "$tmp" "$PROGRESS" || rm -f "$tmp"
 }
 _set_gate() {
   [ -f "$PROGRESS" ] || return 0
+  if [ "$RUNTIME_AUTHORITY" = "1" ]; then
+    local mutation revision lease_id fencing_token blocker_id="sycophancy:${KEY}"
+    mutation="$(kbd_runtime_mutation_args "$PROJECT_ROOT" "blocker-record:${blocker_id}")" || return 1
+    revision="$(printf '%s\n' "$mutation" | sed -n '1p')"
+    lease_id="$(printf '%s\n' "$mutation" | sed -n '3p')"
+    fencing_token="$(printf '%s\n' "$mutation" | sed -n '4p')"
+    prometheus kbd --path "$PROJECT_ROOT" blocker record \
+      --expected-revision "$revision" --command-id "blocker-record:${blocker_id}" \
+      --lease-id "$lease_id" --fencing-token "$fencing_token" \
+      --id "$blocker_id" --summary "artifact rejected by sycophancy gate" >/dev/null
+    return $?
+  fi
   local tmp; tmp="$(mktemp)"
   jq '.reflect_gate = "rejected"' "$PROGRESS" > "$tmp" 2>/dev/null && mv "$tmp" "$PROGRESS" || rm -f "$tmp"
 }

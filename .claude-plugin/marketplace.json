@@ -11,7 +11,7 @@
       "name": "prometheus-skill-pack",
       "description": "Complete skill package with React entity management, GitOps CI/CD, KBD process orchestration, strategic evolution (pmpo-evolver + Darwin idea gate), goal tracking, and BDD testing — with surreal-memory distributed state",
       "source": ".",
-      "version": "1.5.0",
+      "version": "1.6.0",
       "tags": [
         "react",
         "entity-management",
@@ -138,7 +138,7 @@
     {
       "name": "disk-space-guardian",
       "description": "dsg CLI: safe, intelligent build-cache cleanup for Rust, Node, Python, Go, Docker, Xcode, and Homebrew. Defaults to dry-run; moves artifacts to system Trash rather than rm. Detects 7 ecosystems, verifies activity with lsof/fuser before any clean.",
-      "source": "./tools/disk-space-guardian",
+      "source": "./skills/devops/disk-space-guardian",
       "version": "1.0.0",
       "tags": [
         "disk",

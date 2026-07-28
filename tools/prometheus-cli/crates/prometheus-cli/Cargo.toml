@@ -15,6 +15,7 @@ path = "src/main.rs"
 prometheus-agents.workspace = true
 prometheus-learn.workspace = true
 prometheus-cedar.workspace = true
+kbd-runtime.workspace = true
 
 # Core
 anyhow.workspace = true
@@ -26,6 +27,7 @@ tokio.workspace = true
 reqwest.workspace = true
 colored.workspace = true
 chrono.workspace = true
+uuid.workspace = true
 dirs.workspace = true
 walkdir.workspace = true
 sha2.workspace = true

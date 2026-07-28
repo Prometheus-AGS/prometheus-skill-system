@@ -6,7 +6,10 @@ pub fn show() -> Result<()> {
     println!("{}", "📜 Cedar Policies".bold());
 
     let pep = SkillMutationPep::from_default_dir()?;
-    println!("  Policies loaded: {}", pep.policy_count().to_string().cyan());
+    println!(
+        "  Policies loaded: {}",
+        pep.policy_count().to_string().cyan()
+    );
     println!("\n{}", pep.display_policies());
 
     Ok(())
@@ -17,7 +20,11 @@ pub fn validate() -> Result<()> {
 
     match SkillMutationPep::from_default_dir() {
         Ok(pep) => {
-            println!("  {} {} policies loaded and valid", "✅".green(), pep.policy_count());
+            println!(
+                "  {} {} policies loaded and valid",
+                "✅".green(),
+                pep.policy_count()
+            );
         }
         Err(e) => {
             println!("  {} Policy validation failed: {}", "❌".red(), e);
@@ -70,9 +77,15 @@ pub fn check(agent: &str, operation: &str, skill: &str, environment: &str) -> Re
     println!();
 
     if decision.allowed {
-        println!("  {} — operation allowed by Cedar policy", "PERMIT".green().bold());
+        println!(
+            "  {} — operation allowed by Cedar policy",
+            "PERMIT".green().bold()
+        );
     } else {
-        println!("  {} — operation blocked by Cedar policy", "DENY".red().bold());
+        println!(
+            "  {} — operation blocked by Cedar policy",
+            "DENY".red().bold()
+        );
     }
 
     if !decision.reasons.is_empty() {

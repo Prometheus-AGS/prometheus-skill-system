@@ -30,6 +30,7 @@ dirs = "5.0"
 walkdir = "2.4"
 sha2 = "0.10"
 chrono = { version = "0.4", features = ["serde"] }
+uuid = { version = "1", features = ["v4"] }
 colored = "2"
 regex = "1"
 
@@ -44,6 +45,7 @@ tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 prometheus-agents = { path = "crates/prometheus-agents" }
 prometheus-learn = { path = "crates/prometheus-learn" }
 prometheus-cedar = { path = "crates/prometheus-cedar" }
+kbd-runtime = { path = "../../substrate/kbd-runtime" }
 
 # Cedar governance
 cedar-policy = "4"

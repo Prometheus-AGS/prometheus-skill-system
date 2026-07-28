@@ -1,0 +1,5 @@
+# Generated from shared/harnesses/capabilities.json.
+[hooks.kbd_control]
+command = ["bash", "${PROMETHEUS_SKILL_PACK_ROOT}/shared/scripts/kbd-harness-adapter.sh"]
+events = ["session_start", "pre_compact", "post_compact", "user_prompt_submit", "stop", "turn_cancelled", "pre_tool", "post_tool"]
+timeout_ms = 250

@@ -8,9 +8,8 @@ description: >
   Execute (backend dispatch) → Reflect — at every granularity level: global
   phases, OpenSpec changes, and artifact-level QA. Implements the process
   defined in TJ-KBD-UNIVERSAL-001. Coordinates execution across multiple AI
-  tools (Antigravity, Roo Code, Cursor Agent, Claude Code, Codex, Cline, Kilo
-  Code, Windsurf, OpenCode) using .kbd-orchestrator/ as the shared, file-based
-  source of truth.
+  tools (Claude Code, Codex, OpenCode, Kimi, and compatible adapters) using the
+  append-only KBD runtime as the shared control plane.
 authors:
   - 'Prometheus AGS'
 allowed-tools: file_system web_search code_interpreter sequential_thinking memory
@@ -20,6 +19,11 @@ model_routing:
     kbd-assess: frontier
     kbd-plan: frontier
     kbd-status: small
+    kbd-pause: small
+    kbd-resume: small
+    kbd-cancel: small
+    kbd-audit: small
+    kbd-handoff: small
     kbd-reflect: frontier
     opsx-new: small
     opsx-apply: tiered
@@ -119,35 +123,40 @@ runs outside KBD. Delegates QA to `artifact-refiner` when available.
 
 ## Multi-Tool Coordination Architecture
 
-KBD uses **file-based state** in `.kbd-orchestrator/` as the universal
-coordination contract. Any AI tool that can read and write files can participate
-in the KBD process, regardless of its internal planning mechanism.
+KBD uses the append-only event journal in
+`.kbd-orchestrator/runtime/events.jsonl` as its universal coordination
+contract. Harnesses mutate it through the CLI, REST, or MCP contract while one
+writer holds the fenced lease. Compatibility JSON is generated from replay and
+is never an independent authority.
 
-### State Files (Source of Truth)
+### Runtime and compatibility files
 
 | File                                             | Written by         | Read by     | Purpose                           |
 | ------------------------------------------------ | ------------------ | ----------- | --------------------------------- |
-| `.kbd-orchestrator/current-waypoint.json`        | Any orchestrator   | All tools   | Resume contract — exact next step |
+| `.kbd-orchestrator/runtime/events.jsonl`         | kbd-runtime        | All adapters | Canonical append-only journal |
+| `.kbd-orchestrator/current-waypoint.json`        | projection writer  | All tools   | Derived resume view |
 | `.kbd-orchestrator/current-waypoint.md`          | Any orchestrator   | All tools   | Human-readable waypoint summary   |
 | `.kbd-orchestrator/phases/<phase>/assessment.md` | kbd-assess         | kbd-analyze/kbd-plan | Gap analysis output      |
 | `.kbd-orchestrator/phases/<phase>/analysis.md`   | kbd-analyze        | kbd-spec/kbd-plan | Engineering-landscape research |
 | `.kbd-orchestrator/phases/<phase>/library-candidates.json` | kbd-analyze | kbd-spec/kbd-plan | Build-vs-adopt candidate set |
 | `.kbd-orchestrator/phases/<phase>/handoffs/*.handoff.json` | each stage | next stage gate | Stage precondition + summary |
-| `.kbd-orchestrator/position.json`                | kbd_position_sync  | kbd-status/renderer | Unified derived position tree |
+| `.kbd-orchestrator/position.json`                | projection writer  | kbd-status/renderer | Revision-bound derived position tree |
 | `.kbd-orchestrator/phases/<phase>/plan.md`       | kbd-plan           | kbd-execute | Ordered change list               |
 | `.kbd-orchestrator/phases/<phase>/execution.md`  | kbd-execute        | All tools   | Backend dispatch contract         |
-| `.kbd-orchestrator/phases/<phase>/progress.json` | Any executing tool | kbd-status  | Independent implementation/evidence/certification/publication ledger |
+| `.kbd-orchestrator/phases/<phase>/progress.json` | projection writer  | kbd-status  | Derived implementation/evidence/certification/publication ledger |
 | `.kbd-orchestrator/phases/<phase>/reflection.md` | kbd-reflect        | Next phase  | Phase retrospective               |
 | `.kbd-orchestrator/project.json`                 | Initial setup      | All tools   | Project identity + config         |
 
 ### progress.json Protocol
 
-Every AI tool that executes a KBD change MUST update `progress.json` on start
-and on completion of each task. This is how KBD stays synchronized across tool
-boundaries.
+All workflow mutations MUST use `prometheus kbd` typed commands (or equivalent
+MCP/REST commands). `progress.json` is read-only when `generatedBy` is
+`kbd-runtime`; `sourceRevision` identifies the exact canonical revision.
+Legacy shadow-mode writers are migration inputs only and must stop at cutover.
 
 ```json
 {
+  "schemaVersion": "2",
   "phase": "<phase-name>",
   "last_updated": "<ISO 8601 timestamp>",
   "last_updated_by": "<tool-name: antigravity|roo|cursor|codex|cline|opencode|windsurf|human>",
@@ -162,8 +171,9 @@ boundaries.
     "certification": { "status": "NOT_TRACKED", "summary": null, "blockers": [] },
     "publication": { "status": "NOT_TRACKED", "summary": null, "blockers": [] }
   },
-  "changes": {
-    "<change-id>": {
+  "changes": [
+    {
+      "id": "<change-id>",
       "status": "PENDING|IN_PROGRESS|DONE|BLOCKED|SKIPPED",
       "implementation_status": "PENDING|IN_PROGRESS|COMPLETE|BLOCKED|SKIPPED",
       "evidence_status": "NOT_TRACKED|NOT_REQUIRED|PENDING|IN_PROGRESS|COMPLETE|BLOCKED",
@@ -177,7 +187,7 @@ boundaries.
       "completed_by": "<tool-name or null>",
       "blockers": []
     }
-  }
+  ]
 }
 ```
 
@@ -187,11 +197,11 @@ counter only. They MUST NOT count evidence, certification, authorization,
 elapsed-time, external-adopter, or publication gates.
 
 **Completion invariant:** once a change's code and integration contract is
-implemented, set `implementation_status: COMPLETE` even when its evidence or
-publication status remains pending. Unchecked OpenSpec tasks marked
+implemented, run `prometheus kbd change transition ... --status complete`;
+the projection then shows `implementation_status: COMPLETE` even when evidence
+or publication remains pending. Unchecked OpenSpec tasks marked
 `EVIDENCE`, `TIME_BOUND`, `AUTHORIZATION`, or `EXTERNAL` never reopen
-implementation. Run `scripts/kbd-validate-progress.sh <progress.json>` after
-every counter update; contradictory canonical/legacy counters are invalid.
+implementation. Never edit counters in the projection.
 
 ### Tool Registry
 
@@ -211,7 +221,8 @@ every counter update; contradictory canonical/legacy counters are invalid.
    preferred resume contract before inferring the next action
 3. **Load phase context** — identify active phase, load existing phase artifacts
 4. **Load domain knowledge** — read `AGENTS.md`, spec files
-5. **Check progress.json** — reconcile what any other tool has done since last session
+5. **Check runtime status** — use `prometheus kbd status --json`; use
+   `progress.json` only as a revision-matched human-readable projection
 
 ### Loop
 
@@ -400,6 +411,11 @@ integration provides, and the entity schema are in
 - `/kbd-apply <change>` — Drive the spec backend (OpenSpec/Spec Kit) one task at a time, firing per-task hooks + position signals (implemented in `skills/kbd-apply/`). Replaces bare `/opsx:apply`.
 - `/kbd-reflect [phase-name]` — Generate phase reflection report + seed next phase
 - `/kbd-status` — Show current phase, change inventory, and waypoint-guided next action
+- `/kbd-pause` — Checkpoint and suspend the active run
+- `/kbd-resume` — Resume a paused run at a validated plan revision
+- `/kbd-cancel` — Gracefully terminate the active run
+- `/kbd-audit` — Inspect causal history, ownership, and drift
+- `/kbd-handoff` — Transfer the single-writer lease to another harness
 - `/kbd-new-phase <name> [goals...]` — Start a new named phase with goals (implemented in `skills/kbd-new-phase/`)
 - `/kbd-new-child <name> [goals...]` — Spawn a child phase inside the active top-level phase (implemented in `skills/kbd-new-child/`)
 - `/kbd-next-child [<name>]` — Advance childPointer (implicit) or jump to a named child (implemented in `skills/kbd-next-child/`)

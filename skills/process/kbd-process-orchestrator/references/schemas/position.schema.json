@@ -2,11 +2,16 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://prometheus-ags.dev/schemas/kbd/position.schema.json",
   "title": "KBD unified position model",
-  "description": "Single machine-readable position tree at .kbd-orchestrator/position.json. DERIVED by shared/lib/position.sh kbd_position_sync from the waypoint + per-node progress.json on every sync — never accumulated, so it can be stale by at most one write but cannot diverge. Renderers (kbd-status, waypoint-render.sh) read cursor for the breadcrumb and root for the tree.",
+  "description": "Compatibility projection at .kbd-orchestrator/position.json. It is usable only when sourceRevision equals the canonical waypoint/runtime revision; filesystem timestamps are not causal authority.",
   "type": "object",
-  "required": ["schemaVersion", "updatedAt", "cursor", "root"],
+  "required": ["schemaVersion", "sourceRevision", "updatedAt", "cursor", "root"],
   "properties": {
     "schemaVersion": { "const": "1" },
+    "generatedBy": {
+      "type": "string",
+      "description": "Projection writer identity. kbd-runtime is the only authoritative writer."
+    },
+    "sourceRevision": { "type": "integer", "minimum": 0 },
     "updatedAt": { "type": "string", "format": "date-time" },
     "cursor": {
       "type": "array",
@@ -32,6 +37,7 @@
       "properties": {
         "type": { "const": "phase" },
         "id": { "type": "string" },
+        "canonicalId": { "type": "string" },
         "status": {
           "type": "string",
           "description": "Waypoint status for the active node; 'inactive' or 'active-parent' for others."

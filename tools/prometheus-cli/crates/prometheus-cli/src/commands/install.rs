@@ -62,12 +62,19 @@ pub async fn run(
     };
 
     if agents.is_empty() {
-        println!("  {} No AI coding agents detected on this system", "⚠️".yellow());
+        println!(
+            "  {} No AI coding agents detected on this system",
+            "⚠️".yellow()
+        );
         return Ok(());
     }
 
     let scope = if local { "project" } else { "global" };
-    println!("  Installing to {} agent(s) (scope: {})\n", agents.len(), scope);
+    println!(
+        "  Installing to {} agent(s) (scope: {})\n",
+        agents.len(),
+        scope
+    );
 
     for agent in &agents {
         print!("  {} {}... ", "→".dimmed(), agent.kind.display_name());

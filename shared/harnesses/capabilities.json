@@ -1,0 +1,62 @@
+{
+  "schemaVersion": "1",
+  "contractVersion": "kbd-harness-v1",
+  "harnesses": {
+    "claude-code": {
+      "events": {
+        "sessionStart": "SessionStart",
+        "preCompact": "PreCompact",
+        "postCompact": "SessionStart:compact",
+        "prompt": "UserPromptSubmit",
+        "stop": "Stop",
+        "interrupt": null,
+        "preMutation": "PreToolUse",
+        "postMutation": "PostToolUse"
+      },
+      "nativeMutationGuard": true,
+      "writerRole": true
+    },
+    "codex": {
+      "events": {
+        "sessionStart": "session_start",
+        "preCompact": "pre_compact",
+        "postCompact": "post_compact",
+        "prompt": "user_prompt_submit",
+        "stop": "stop",
+        "interrupt": "turn_cancelled",
+        "preMutation": "pre_tool",
+        "postMutation": "post_tool"
+      },
+      "nativeMutationGuard": true,
+      "writerRole": true
+    },
+    "opencode": {
+      "events": {
+        "sessionStart": "session.created",
+        "preCompact": "session.compacting",
+        "postCompact": "session.compacted",
+        "prompt": "chat.message",
+        "stop": "session.idle",
+        "interrupt": "session.status:cancelled",
+        "preMutation": "tool.execute.before",
+        "postMutation": "tool.execute.after"
+      },
+      "nativeMutationGuard": true,
+      "writerRole": true
+    },
+    "kimi": {
+      "events": {
+        "sessionStart": "SessionStart",
+        "preCompact": "PreCompact",
+        "postCompact": "PostCompact",
+        "prompt": "UserPromptSubmit",
+        "stop": "Stop",
+        "interrupt": "Interrupt",
+        "preMutation": "PreToolUse",
+        "postMutation": "PostToolUse"
+      },
+      "nativeMutationGuard": true,
+      "writerRole": true
+    }
+  }
+}

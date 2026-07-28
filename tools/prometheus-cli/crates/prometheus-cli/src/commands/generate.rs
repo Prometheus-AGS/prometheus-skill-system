@@ -15,14 +15,28 @@ pub fn run(path: &str, language: Option<&str>) -> Result<()> {
     }
 
     let mut detected = Vec::new();
-    if source.join("Cargo.toml").exists() { detected.push("Rust"); }
-    if source.join("package.json").exists() { detected.push("TypeScript/JavaScript"); }
-    if source.join("pyproject.toml").exists() || source.join("setup.py").exists() { detected.push("Python"); }
-    if source.join("go.mod").exists() { detected.push("Go"); }
+    if source.join("Cargo.toml").exists() {
+        detected.push("Rust");
+    }
+    if source.join("package.json").exists() {
+        detected.push("TypeScript/JavaScript");
+    }
+    if source.join("pyproject.toml").exists() || source.join("setup.py").exists() {
+        detected.push("Python");
+    }
+    if source.join("go.mod").exists() {
+        detected.push("Go");
+    }
 
     println!("  Detected: {}", detected.join(", ").green());
-    println!("\n  {} Skill generation from source creates SKILL.md files from code documentation", "ℹ️".dimmed());
-    println!("  {} Full implementation generates llms.txt and module-level skills", "ℹ️".dimmed());
+    println!(
+        "\n  {} Skill generation from source creates SKILL.md files from code documentation",
+        "ℹ️".dimmed()
+    );
+    println!(
+        "  {} Full implementation generates llms.txt and module-level skills",
+        "ℹ️".dimmed()
+    );
 
     Ok(())
 }

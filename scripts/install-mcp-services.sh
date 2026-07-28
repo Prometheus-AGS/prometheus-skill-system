@@ -17,10 +17,11 @@
 # The bundled SurrealDB binds :28000 and never touches an external instance on :8000.
 #
 # Usage:
-#   bash scripts/install-mcp-services.sh [--unload] [--user <username>] [--dry-run]
+#   bash scripts/install-mcp-services.sh [--unload] [--restart] [--user <username>] [--dry-run]
 #
 # Flags:
 #   --unload      Stop/boot out all managed services (does not delete unit files)
+#   --restart     Reload managed definitions and restart services even when healthy
 #   --user <u>    Target a different user (requires matching uid / privileges)
 #   --dry-run     Print actions without executing them
 #   --help        Show this message
@@ -31,10 +32,12 @@ REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 ACTION="install"
 PROMETHEUS_USER="${PROMETHEUS_USER:-$(id -un)}"
 DRY_RUN=false
+FORCE_RESTART=false
 
 while [ "$#" -gt 0 ]; do
     case "$1" in
         --unload)   ACTION="unload"; shift ;;
+        --restart)  FORCE_RESTART=true; shift ;;
         --dry-run)  DRY_RUN=true; shift ;;
         --user)     PROMETHEUS_USER="${2:?missing value for --user}"; shift 2 ;;
         --help|-h)  grep '^#' "$0" | sed 's/^# \?//'; exit 0 ;;
@@ -43,6 +46,7 @@ while [ "$#" -gt 0 ]; do
 done
 
 # Shared provenance-agnostic reachability helpers (probe_port, check_running_service).
+# shellcheck source-path=SCRIPTDIR
 # shellcheck source=../shared/scripts/service-probe.sh
 . "$REPO_ROOT/shared/scripts/service-probe.sh"
 
@@ -84,6 +88,52 @@ resolve_bin() {
 }
 
 run() { if $DRY_RUN; then echo "[dry-run] $*"; else "$@"; fi; }
+
+ensure_sovereign_config() {
+    local config_path="$PROMETHEUS_HOME/.config/sovereign-sync/config.toml"
+    local device_key_path="$PROMETHEUS_HOME/.config/sovereign-sync/device-key.json"
+    if $DRY_RUN; then
+        echo "[dry-run] ensure sovereign-sync operator namespace in $config_path"
+        return
+    fi
+    python3 - "$config_path" <<'PY'
+import os
+import pathlib
+import re
+import secrets
+import sys
+
+path = pathlib.Path(sys.argv[1])
+path.parent.mkdir(parents=True, exist_ok=True)
+text = path.read_text() if path.exists() else ""
+operator = secrets.token_hex(32)
+assignment = f'operator_id = "{operator}"'
+
+match = re.search(r'(?m)^operator_id\s*=\s*"([^"]*)"\s*$', text)
+if match and match.group(1).strip():
+    os.chmod(path, 0o600)
+    raise SystemExit(0)
+if match:
+    text = text[:match.start()] + assignment + text[match.end():]
+elif re.search(r'(?m)^\[node\]\s*$', text):
+    text = re.sub(r'(?m)^(\[node\]\s*)$', rf'\1\n{assignment}', text, count=1)
+else:
+    prefix = f"[node]\n{assignment}\n"
+    text = prefix + ("\n" + text if text else "")
+
+temporary = path.with_name(path.name + ".tmp")
+temporary.write_text(text.rstrip() + "\n")
+os.chmod(temporary, 0o600)
+os.replace(temporary, path)
+PY
+    local sovereign_sync_bin
+    sovereign_sync_bin="$(resolve_bin sovereign-sync)"
+    [ -n "$sovereign_sync_bin" ] || sovereign_sync_bin="$BIN_FALLBACK_DIR/sovereign-sync"
+    "$sovereign_sync_bin" --mode init --config "$config_path" >/dev/null
+    chmod 600 "$device_key_path"
+    echo "  ✓ sovereign-sync operator namespace configured"
+    echo "  ✓ sovereign-sync headless device key configured"
+}
 
 # ── Daemons in dependency order: label | probe-port | probe-path ─────────────
 declare -a DAEMON_LABELS=(
@@ -128,6 +178,8 @@ render_template() {
     surface_bridge_bin="$(resolve_bin surface-bridge)"; [ -n "$surface_bridge_bin" ] || surface_bridge_bin="$BIN_FALLBACK_DIR/surface-bridge"
     sovereign_sync_bin="$(resolve_bin sovereign-sync)"; [ -n "$sovereign_sync_bin" ] || sovereign_sync_bin="$BIN_FALLBACK_DIR/sovereign-sync"
 
+    local device_key_file="$PROMETHEUS_HOME/.config/sovereign-sync/device-key.json"
+    PROMETHEUS_DEVICE_KEY_FILE="$device_key_file" \
     PROMETHEUS_USER="$PROMETHEUS_USER" PROMETHEUS_HOME="$PROMETHEUS_HOME" \
     PROMETHEUS_ROOT="$REPO_ROOT" PROMETHEUS_LOG_DIR="$LOG_DIR" PROMETHEUS_PATH="$PROMETHEUS_PATH" \
     PK_CHERRY_BIN="$pk_cherry_bin" FORGE_BIN="$forge_bin" DOCKER_BIN="$docker_bin" \
@@ -150,6 +202,7 @@ for k, env in {
     "__SURREAL_MEMORY_BIN__": "SURREAL_MEMORY_BIN",
     "__SURFACE_BRIDGE_BIN__": "SURFACE_BRIDGE_BIN",
     "__SOVEREIGN_SYNC_BIN__": "SOVEREIGN_SYNC_BIN",
+    "__PROMETHEUS_DEVICE_KEY_FILE__": "PROMETHEUS_DEVICE_KEY_FILE",
 }.items():
     text = text.replace(k, os.environ[env])
 dst.write_text(text)
@@ -159,6 +212,25 @@ PY
 # ════════════════════════════════════════════════════════════════════════════
 # macOS (launchd)
 # ════════════════════════════════════════════════════════════════════════════
+reload_launch_agent() {
+    local label="$1" plist="$2"
+    launchctl bootout "$GUI_DOMAIN/$label" >/dev/null 2>&1 || true
+    for _ in 1 2 3 4 5 6 7 8 9 10; do
+        if ! launchctl print "$GUI_DOMAIN/$label" >/dev/null 2>&1; then
+            break
+        fi
+        sleep 0.1
+    done
+    if ! launchctl bootstrap "$GUI_DOMAIN" "$plist"; then
+        # launchd may need a short interval after bootout before the label can
+        # be registered again, even after it disappears from `print`.
+        sleep 1
+        launchctl bootstrap "$GUI_DOMAIN" "$plist"
+    fi
+    launchctl enable "$GUI_DOMAIN/$label"
+    launchctl kickstart -k "$GUI_DOMAIN/$label"
+}
+
 macos_install() {
     $DRY_RUN || mkdir -p "$LAUNCH_AGENTS_DIR" "$LOG_DIR" "$KNOWLEDGE_DIR"
     # Older installers registered these daemons under com.prometheusags.*.
@@ -189,20 +261,18 @@ macos_install() {
         fi
         if [ "$label" = "$NUDGE_LABEL" ]; then
             echo "  ↳ nudge: registered (fires every 4h, not at load)"
-            $DRY_RUN || { launchctl bootout "$GUI_DOMAIN/$label" >/dev/null 2>&1 || true; launchctl bootstrap "$GUI_DOMAIN" "$out" 2>/dev/null || true; }
+            $DRY_RUN || reload_launch_agent "$label" "$out"
             continue
         fi
-        # Reuse if already serving on its port (any provenance).
-        if check_running_service "$label" "${DAEMON_PORT[$label]}" "${DAEMON_PATH[$label]}"; then
+        # Reuse if already serving on its port (any provenance), unless the
+        # caller explicitly requested a definition reload after a rebuild.
+        if ! $FORCE_RESTART && check_running_service "$label" "${DAEMON_PORT[$label]}" "${DAEMON_PATH[$label]}"; then
             echo "  ↳ reusing running instance — skipping bootstrap"
             continue
         fi
         echo "  ↳ bootstrapping $label"
         if ! $DRY_RUN; then
-            launchctl bootout "$GUI_DOMAIN/$label" >/dev/null 2>&1 || true
-            launchctl bootstrap "$GUI_DOMAIN" "$out"
-            launchctl enable "$GUI_DOMAIN/$label"
-            launchctl kickstart -k "$GUI_DOMAIN/$label"
+            reload_launch_agent "$label" "$out"
         fi
         echo "  ✓ $label loaded"
     done
@@ -235,14 +305,21 @@ linux_install() {
     done
     run systemctl --user daemon-reload
 
-    # Daemons in dependency order, reusing anything already on its port.
+    # Daemons in dependency order, reusing anything already on its port unless
+    # a rebuilt component requires a definition reload.
     for label in "${DAEMON_LABELS[@]}"; do
-        if check_running_service "$label" "${DAEMON_PORT[$label]}" "${DAEMON_PATH[$label]}"; then
+        if ! $FORCE_RESTART && check_running_service "$label" "${DAEMON_PORT[$label]}" "${DAEMON_PATH[$label]}"; then
             echo "  ↳ reusing running instance — skipping enable/start"
             continue
         fi
-        echo "  ↳ enabling + starting $label.service"
-        run systemctl --user enable --now "$label.service"
+        if $FORCE_RESTART; then
+            echo "  ↳ enabling + restarting $label.service"
+            run systemctl --user enable "$label.service"
+            run systemctl --user restart "$label.service"
+        else
+            echo "  ↳ enabling + starting $label.service"
+            run systemctl --user enable --now "$label.service"
+        fi
         echo "  ✓ $label started"
     done
 
@@ -263,8 +340,8 @@ linux_unload() {
 }
 
 case "$OS/$ACTION" in
-    macos/install) macos_install ;;
+    macos/install) ensure_sovereign_config; macos_install ;;
     macos/unload)  macos_unload ;;
-    linux/install) linux_install ;;
+    linux/install) ensure_sovereign_config; linux_install ;;
     linux/unload)  linux_unload ;;
 esac

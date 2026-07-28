@@ -31,19 +31,10 @@
 include skills/**
 
 # ---------------------------------------------------------------------------
-# Bundles: a bundle is a skill whose directory contains nested sub-skills.
-# Codex recurses, so copying a bundle registers its parent AND every child.
-# We keep the bundles the workflow actually depends on and drop the rest from
-# the catalog (they stay reachable as slash commands).
+# Bundles: Codex recurses into copied bundles. Cross-harness continuity
+# requires the complete payload, not machine-specific prompt fallbacks, so no
+# non-imported bundle is excluded. The current complete catalog remains below
+# the documented ~200-entry usable-description threshold.
 # ---------------------------------------------------------------------------
 
-# React entity-management bundle: 28 catalog entries for a niche domain.
-# Reach it with /prometheus-entity-skills or /entity-graph-crud etc.
-exclude skills/react/prometheus-entity-skills
-
-# PMPO evolution bundle: 8 entries; the /evolve-* singletons already cover it.
-exclude skills/process/iterative-evolver
-
-# Kept on purpose (bundle cost is worth it):
-#   skills/process/kbd-process-orchestrator  (17 entries) -- core KBD lifecycle
-#   skills/research/deep-research            (11 entries) -- core research pipeline
+# All non-imported skills are copied as relocatable payloads.

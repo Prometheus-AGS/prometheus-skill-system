@@ -1,10 +1,23 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "KBD Phase Progress",
-  "description": "Cross-tool progress ledger for a KBD phase. Every AI tool executing a KBD change MUST read and write this file.",
+  "description": "Read-only compatibility projection for a KBD phase. Mutations go through the canonical KBD command interface.",
   "type": "object",
-  "required": ["phase", "last_updated", "last_updated_by", "changes"],
+  "required": ["schemaVersion", "phase", "last_updated", "last_updated_by", "changes"],
   "properties": {
+    "schemaVersion": {
+      "const": "2",
+      "description": "Canonical array-based KBD progress schema."
+    },
+    "generatedBy": {
+      "type": "string",
+      "description": "kbd-runtime for replay-derived projections; absent only for legacy-read-only input."
+    },
+    "sourceRevision": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Canonical event revision used to render this projection."
+    },
     "phase": {
       "type": "string",
       "description": "Active phase name, e.g. 'phase-2-sales-module'"
@@ -16,20 +29,7 @@
     },
     "last_updated_by": {
       "type": "string",
-      "enum": [
-        "antigravity",
-        "roo-code",
-        "roo-architect",
-        "cursor-agent",
-        "claude-code",
-        "codex",
-        "cline",
-        "kilo-code",
-        "windsurf",
-        "opencode",
-        "human",
-        "unknown"
-      ],
+      "minLength": 1,
       "description": "The AI tool or human who last wrote this file"
     },
     "assessment_complete": {
@@ -82,12 +82,16 @@
       "additionalProperties": false
     },
     "changes": {
-      "type": "object",
-      "description": "Map of change-id to per-change progress",
-      "additionalProperties": {
+      "type": "array",
+      "description": "Ordered array of per-change progress rows. IDs are unique and order is execution order.",
+      "items": {
         "type": "object",
-        "required": ["status"],
+        "required": ["id", "status", "implementation_status"],
         "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
           "status": {
             "type": "string",
             "enum": ["PENDING", "IN_PROGRESS", "DONE", "BLOCKED", "SKIPPED"]
@@ -150,7 +154,8 @@
             "type": ["string", "null"],
             "description": "Optional notes from the executing tool"
           }
-        }
+        },
+        "additionalProperties": true
       }
     },
     "children": {
@@ -196,5 +201,6 @@
       },
       "additionalProperties": false
     }
-  }
+  },
+  "additionalProperties": true
 }

@@ -6,6 +6,7 @@ on:
     paths:
       - ".github/workflows/sovereign-sync.yml"
       - "substrate/storage-provider/**"
+      - "substrate/kbd-runtime/**"
       - "substrate/sovereign-sync/**"
       - "substrate/sovereign-client/**"
   pull_request:
@@ -13,6 +14,7 @@ on:
     paths:
       - ".github/workflows/sovereign-sync.yml"
       - "substrate/storage-provider/**"
+      - "substrate/kbd-runtime/**"
       - "substrate/sovereign-sync/**"
       - "substrate/sovereign-client/**"
 
@@ -26,6 +28,8 @@ jobs:
         include:
           - name: storage-provider
             crate: substrate/storage-provider
+          - name: kbd-runtime
+            crate: substrate/kbd-runtime
           - name: sovereign-sync
             crate: substrate/sovereign-sync
           - name: sovereign-client
@@ -51,7 +55,7 @@ jobs:
             ~/.cargo/registry
             ~/.cargo/git
             ${{ matrix.crate }}/target
-          key: sovereign-sync-${{ runner.os }}-${{ matrix.name }}-${{ matrix.command }}-${{ hashFiles('substrate/storage-provider/Cargo.lock', 'substrate/sovereign-sync/Cargo.lock', 'substrate/sovereign-client/Cargo.lock') }}
+          key: sovereign-sync-${{ runner.os }}-${{ matrix.name }}-${{ matrix.command }}-${{ hashFiles('substrate/storage-provider/Cargo.lock', 'substrate/kbd-runtime/Cargo.lock', 'substrate/sovereign-sync/Cargo.lock', 'substrate/sovereign-client/Cargo.lock') }}
           restore-keys: |
             sovereign-sync-${{ runner.os }}-${{ matrix.name }}-
 

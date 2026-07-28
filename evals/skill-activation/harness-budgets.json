@@ -1,0 +1,35 @@
+{
+  "schemaVersion": "1",
+  "inventorySkills": 145,
+  "inventoryChars": 44882,
+  "harnesses": {
+    "claude-code": {
+      "measured": false,
+      "budgetChars": null,
+      "inventoryChars": 44882,
+      "sourceTrace": null,
+      "measuredAt": null
+    },
+    "codex": {
+      "measured": false,
+      "budgetChars": null,
+      "inventoryChars": 44882,
+      "sourceTrace": null,
+      "measuredAt": null
+    },
+    "opencode": {
+      "measured": false,
+      "budgetChars": null,
+      "inventoryChars": 44882,
+      "sourceTrace": null,
+      "measuredAt": null
+    },
+    "kimi": {
+      "measured": false,
+      "budgetChars": null,
+      "inventoryChars": 44882,
+      "sourceTrace": null,
+      "measuredAt": null
+    }
+  }
+}

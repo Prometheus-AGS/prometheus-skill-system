@@ -93,8 +93,8 @@ STAGE=$(jq -r '.stage // .status // "unknown"' "$WAYPOINT" 2>/dev/null) || STAGE
 NEXT_CMD=$(jq -r '.exact_next_command // .exactNextCommand // "unknown"' "$WAYPOINT" 2>/dev/null) || NEXT_CMD="unknown"
 CHANGE_ID=$(jq -r '.change // .active_change // empty' "$WAYPOINT" 2>/dev/null) || CHANGE_ID=""
 NEXT_CMD="$(normalize_next_command "$NEXT_CMD" "$CHANGE_ID")"
-CHANGES_COMPLETED=$(jq -r '.changes_completed // 0' "$WAYPOINT" 2>/dev/null) || CHANGES_COMPLETED=0
-CHANGES_TOTAL=$(jq -r '.changes_total // 0' "$WAYPOINT" 2>/dev/null) || CHANGES_TOTAL=0
+CHANGES_COMPLETED=$(jq -r '.implementationCompleted // .implementation_completed // .changesCompleted // .changes_completed // 0' "$WAYPOINT" 2>/dev/null) || CHANGES_COMPLETED=0
+CHANGES_TOTAL=$(jq -r '.implementationTotal // .implementation_total // .changesTotal // .changes_total // 0' "$WAYPOINT" 2>/dev/null) || CHANGES_TOTAL=0
 
 # Try progress.json for more accurate counts
 PROGRESS="$ROOT/.kbd-orchestrator/phases/$PHASE/progress.json"
@@ -103,6 +103,27 @@ if [[ -f "$PROGRESS" ]]; then
   PT=$(jq -r '.changes_total // empty' "$PROGRESS" 2>/dev/null)
   [[ -n "$PC" ]] && CHANGES_COMPLETED="$PC"
   [[ -n "$PT" ]] && CHANGES_TOTAL="$PT"
+fi
+
+SUSPENDED=false
+case "$(printf '%s' "$STAGE" | tr '[:upper:] -' '[:lower:]__')" in
+  pause_requested|paused|blocked|suspended) SUSPENDED=true ;;
+esac
+[[ -e "$ROOT/.kbd-orchestrator/PAUSE" ]] && SUSPENDED=true
+
+if [[ "$SUSPENDED" == "true" ]]; then
+cat > "$REMINDER" <<EOF
+POSITION REMINDER — execution suspended by operator control
+Phase: $PHASE
+Step: $CHANGES_COMPLETED of $CHANGES_TOTAL
+Stage: $STAGE
+Recorded next command: $NEXT_CMD
+
+Do not execute or steer to the recorded next command.
+Allowed actions: audit, explain, revise the plan, cancel, or explicitly resume.
+EOF
+echo "[write-position-reminder] wrote suspended reminder $REMINDER" >&2
+exit 0
 fi
 
 cat > "$REMINDER" <<EOF

@@ -8,6 +8,8 @@ Environment=HOME=__PROMETHEUS_HOME__
 Environment=USER=__PROMETHEUS_USER__
 Environment=PATH=__PROMETHEUS_PATH__
 Environment=RUST_LOG=sovereign_sync=info
+Environment=PROMETHEUS_HEADLESS_VOTER=1
+Environment=PROMETHEUS_DEVICE_KEY_FILE=__PROMETHEUS_DEVICE_KEY_FILE__
 ExecStart=__SOVEREIGN_SYNC_BIN__ --mode daemon
 Restart=on-failure
 RestartSec=10

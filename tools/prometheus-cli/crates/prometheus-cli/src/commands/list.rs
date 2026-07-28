@@ -13,7 +13,8 @@ pub fn run(_all: bool, _global: bool, _project: bool, verbose: bool) -> Result<(
 
     for agent in &agents {
         let skills = platforms::list_skills(agent)?;
-        println!("\n  {} {} ({} skill{})",
+        println!(
+            "\n  {} {} ({} skill{})",
             "▸".cyan(),
             agent.kind.display_name().bold(),
             skills.len(),
@@ -24,7 +25,9 @@ pub fn run(_all: bool, _global: bool, _project: bool, verbose: bool) -> Result<(
             if verbose {
                 let link_target = std::fs::read_link(agent.global_skills_dir.join(skill));
                 match link_target {
-                    Ok(target) => println!("    {} → {}", skill, target.display().to_string().dimmed()),
+                    Ok(target) => {
+                        println!("    {} → {}", skill, target.display().to_string().dimmed())
+                    }
                     Err(_) => println!("    {} (copied)", skill),
                 }
             } else {

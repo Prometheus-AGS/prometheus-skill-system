@@ -75,7 +75,10 @@ fn update_checksums(lock_path: &Path) -> Result<()> {
 
 fn verify_checksums(lock_path: &Path) -> Result<()> {
     if !lock_path.exists() {
-        println!("  {} Skills.lock not found. Run with --update to create.", "⚠️".yellow());
+        println!(
+            "  {} Skills.lock not found. Run with --update to create.",
+            "⚠️".yellow()
+        );
         return Ok(());
     }
 
@@ -105,7 +108,11 @@ fn verify_checksums(lock_path: &Path) -> Result<()> {
     }
 
     if mismatches > 0 {
-        println!("\n  {} {} integrity check(s) failed", "❌".red(), mismatches);
+        println!(
+            "\n  {} {} integrity check(s) failed",
+            "❌".red(),
+            mismatches
+        );
         std::process::exit(1);
     } else {
         println!("\n  {} All checksums verified", "✅".green());

@@ -64,6 +64,51 @@ workflows:
     skill: skills/kbd-status/SKILL.md
     prompt_file: null
 
+  - name: kbd-pause
+    description: "Pause the active KBD run and write a durable checkpoint"
+    args:
+      - name: reason
+        optional: false
+        description: "Why execution is being paused"
+    skill: skills/kbd-pause/SKILL.md
+    prompt_file: null
+
+  - name: kbd-resume
+    description: "Resume a paused KBD run at an explicit plan revision"
+    args:
+      - name: plan_revision
+        optional: true
+        description: "Expected plan revision"
+    skill: skills/kbd-resume/SKILL.md
+    prompt_file: null
+
+  - name: kbd-cancel
+    description: "Gracefully cancel the active KBD run"
+    args:
+      - name: reason
+        optional: false
+        description: "Why the run is being cancelled"
+    skill: skills/kbd-cancel/SKILL.md
+    prompt_file: null
+
+  - name: kbd-audit
+    description: "Show the causal KBD audit trail and current ownership"
+    args:
+      - name: since
+        optional: true
+        description: "Starting revision or event ID"
+    skill: skills/kbd-audit/SKILL.md
+    prompt_file: null
+
+  - name: kbd-handoff
+    description: "Transfer the KBD mutation lease to another harness"
+    args:
+      - name: harness
+        optional: false
+        description: "Target harness identity"
+    skill: skills/kbd-handoff/SKILL.md
+    prompt_file: null
+
   - name: kbd-new-phase
     description: "Start a new named KBD phase and initialize its directory structure"
     args:

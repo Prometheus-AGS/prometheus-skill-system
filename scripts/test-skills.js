@@ -15,6 +15,7 @@ const tests = [
   ['progress-signal validation', 'node', ['scripts/validate-progress-signals.js']],
   ['Codex artifact consistency', 'node', ['scripts/build-codex-plugin.js', '--check']],
   ['skill collision matrix', 'node', ['scripts/skill-matrix.js', '--ci']],
+  ['KBD control-plane fixtures', 'bash', ['scripts/test-kbd-control-plane.sh']],
   ['kbd-next-phase packaging', 'bash', ['shared/scripts/tests/test-kbd-next-phase-packaging.sh']],
   [
     'cross-tool payload packaging',

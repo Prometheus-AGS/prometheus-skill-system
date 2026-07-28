@@ -13,6 +13,65 @@ wp=".kbd-orchestrator/current-waypoint.json"
 [[ -f "$wp" ]] || die "no current-waypoint.json — run /kbd-new-phase first"
 jq -e . "$wp" >/dev/null 2>&1 || die "malformed waypoint at $wp"
 
+# Runtime-authority mode selects siblings through the canonical phase graph.
+KBD_ORCHESTRATOR_ROOT="${KBD_ORCHESTRATOR_ROOT:-$HOME/.claude/skills/kbd-process-orchestrator}"
+export KBD_ORCHESTRATOR_ROOT
+if [[ -f "$KBD_ORCHESTRATOR_ROOT/shared/lib/runtime-authority.sh" ]]; then
+  . "$KBD_ORCHESTRATOR_ROOT/shared/lib/runtime-authority.sh"
+fi
+if command -v kbd_runtime_authoritative >/dev/null 2>&1 && kbd_runtime_authoritative "."; then
+  runtime_state="$(kbd_runtime_status_json ".")" || die "runtime status unavailable"
+  active_id="$(printf '%s' "$runtime_state" | jq -r '.activePath.phaseId // empty')"
+  [[ -n "$active_id" ]] || die "runtime has no active phase"
+  parent_id="$(printf '%s' "$runtime_state" | jq -r --arg id "$active_id" '.phases[$id].parentPhaseId // empty')"
+  prior=""
+  if [[ -n "$parent_id" ]]; then
+    prior="$(printf '%s' "$runtime_state" | jq -r --arg id "$active_id" '.phases[$id].slug')"
+    parent_path="$(printf '%s' "$runtime_state" | jq -c '.activePath.phasePath[0:-1]')"
+  else
+    parent_id="$active_id"
+    parent_path="$(printf '%s' "$runtime_state" | jq -c '.activePath.phasePath')"
+  fi
+  children="$(printf '%s' "$runtime_state" | jq -r --arg parent "$parent_id" '
+    .phases | to_entries[] |
+    select(.value.parentPhaseId == $parent) |
+    [.key, .value.slug] | @tsv
+  ')"
+  [[ -n "$children" ]] || die "no children defined — run /kbd-new-child first"
+  if [[ -n "$target" ]]; then
+    next_row="$(printf '%s\n' "$children" | awk -F '\t' -v target="$target" '$2==target{print;exit}')"
+    [[ -n "$next_row" ]] || die "no such child: $target"
+  elif [[ -z "$prior" ]]; then
+    next_row="$(printf '%s\n' "$children" | head -n 1)"
+  else
+    next_row="$(printf '%s\n' "$children" | awk -F '\t' -v prior="$prior" 'seen{print;exit} $2==prior{seen=1}')"
+    [[ -n "$next_row" ]] || die "already on last child '$prior'"
+  fi
+  next_id="${next_row%%	*}"
+  next="${next_row#*	}"
+  mutation="$(kbd_runtime_mutation_args "." "phase-next-child:${parent_id}:${next_id}")" ||
+    die "writer lease required"
+  revision="$(printf '%s\n' "$mutation" | sed -n '1p')"
+  lease_id="$(printf '%s\n' "$mutation" | sed -n '3p')"
+  fencing_token="$(printf '%s\n' "$mutation" | sed -n '4p')"
+  ancestor_args=()
+  while IFS= read -r ancestor; do
+    [[ -n "$ancestor" ]] || continue
+    ancestor_args+=(--ancestor "$ancestor")
+  done < <(printf '%s' "$parent_path" | jq -r '.[]')
+  prometheus kbd --path . phase activate \
+    --expected-revision "$revision" \
+    --command-id "phase-next-child:${parent_id}:${next_id}" \
+    --lease-id "$lease_id" --fencing-token "$fencing_token" \
+    --id "$next_id" "${ancestor_args[@]}" \
+    --exact-next-work "/kbd-assess ${next}" >/dev/null
+  printf '\nCompleted kbd-next-child — now on %s\n' "$next"
+  printf '  from: %s\n' "${prior:-none}"
+  printf '  to:   %s\n' "$next"
+  printf '  Next: /kbd-assess %s\n' "$next"
+  exit 0
+fi
+
 parent="$(jq -r '.phase // ""' "$wp")"
 [[ -n "$parent" ]] || die "no active phase"
 
@@ -40,8 +99,6 @@ else
 fi
 
 # Hook subsystem
-KBD_ORCHESTRATOR_ROOT="${KBD_ORCHESTRATOR_ROOT:-$HOME/.claude/skills/kbd-process-orchestrator}"
-export KBD_ORCHESTRATOR_ROOT
 hooks_avail=0
 if [[ -f "$KBD_ORCHESTRATOR_ROOT/shared/lib/hooks.sh" && -f "$KBD_ORCHESTRATOR_ROOT/shared/lib/waypoint.sh" ]]; then
   # shellcheck source=/dev/null

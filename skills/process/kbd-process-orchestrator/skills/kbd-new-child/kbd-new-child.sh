@@ -126,12 +126,63 @@ jq -n --arg child "$child_dir" '
 }' > "$child_dir/scope.json.tmp"
 mv -f "$child_dir/scope.json.tmp" "$child_dir/scope.json"
 
+# Runtime-authority mode persists the child relationship and active hierarchy
+# as typed events; progress and waypoint files remain generated projections.
+runtime_lib="$KBD_ORCHESTRATOR_ROOT/shared/lib/runtime-authority.sh"
+if [[ -f "$runtime_lib" ]]; then
+  # shellcheck source=/dev/null
+  . "$runtime_lib"
+fi
+if command -v kbd_runtime_authoritative >/dev/null 2>&1 && kbd_runtime_authoritative "."; then
+  runtime_state="$(kbd_runtime_status_json ".")" || die "runtime status unavailable"
+  parent_id="$(printf '%s' "$runtime_state" | jq -r '.activePath.phaseId // empty')"
+  [[ -n "$parent_id" ]] || die "runtime has no active parent phase"
+  child_runtime_id="${parent_id}::${name}"
+  mutation="$(kbd_runtime_mutation_args "." "phase-create:${child_runtime_id}")" || die "writer lease required"
+  revision="$(printf '%s\n' "$mutation" | sed -n '1p')"
+  lease_id="$(printf '%s\n' "$mutation" | sed -n '3p')"
+  fencing_token="$(printf '%s\n' "$mutation" | sed -n '4p')"
+  prometheus kbd --path . phase create \
+    --expected-revision "$revision" --command-id "phase-create:${child_runtime_id}" \
+    --lease-id "$lease_id" --fencing-token "$fencing_token" \
+    --id "$child_runtime_id" --slug "$name" --title "$name" --parent "$parent_id" >/dev/null
+  mutation="$(kbd_runtime_mutation_args "." "phase-activate:${child_runtime_id}")" || die "writer lease required"
+  revision="$(printf '%s\n' "$mutation" | sed -n '1p')"
+  lease_id="$(printf '%s\n' "$mutation" | sed -n '3p')"
+  fencing_token="$(printf '%s\n' "$mutation" | sed -n '4p')"
+  ancestor_args=()
+  while IFS= read -r ancestor; do
+    [[ -n "$ancestor" ]] || continue
+    ancestor_args+=(--ancestor "$ancestor")
+  done < <(printf '%s' "$runtime_state" | jq -r '.activePath.phasePath[]?')
+  prometheus kbd --path . phase activate \
+    --expected-revision "$revision" --command-id "phase-activate:${child_runtime_id}" \
+    --lease-id "$lease_id" --fencing-token "$fencing_token" \
+    --id "$child_runtime_id" "${ancestor_args[@]}" \
+    --exact-next-work "/kbd-assess ${child_label}" >/dev/null
+  hooks_lib="$KBD_ORCHESTRATOR_ROOT/shared/lib/hooks.sh"
+  if [[ -f "$hooks_lib" ]]; then
+    # shellcheck source=/dev/null
+    . "$hooks_lib"
+    kbd_hooks_fire child before "$name" "$((cur_depth + 1))" "$max_depth" \
+      || warn "child:before hook fire failed (child still created)"
+  fi
+  printf '\nCompleted kbd-new-child — %s ready for /kbd-assess\n' "$child_label"
+  printf '  parent: %s\n' "$parent_label"
+  printf '  child:  %s  [depth %s]\n' "$name" "$((cur_depth + 1))"
+  printf '  goals:  %s\n' "$child_dir/goals.md"
+  printf '  scope:  %s\n' "$child_dir/scope.json"
+  printf '  Next:   /kbd-assess %s\n' "$child_label"
+  exit 0
+fi
+
 # --- progress.json ----------------------------------------------------------
 source_tool="$(jq -r '.sourceTool // ""' "$wp")"
 [[ -n "$source_tool" ]] || source_tool="unknown"
 jq -n \
   --arg phase "$name" --arg parent "${cur_tokens[$((cur_depth-1))]}" --arg src "$source_tool" --arg now "$now" '
 {
+  schemaVersion: "2",
   phase: $phase,
   parentPhase: $parent,
   childPhases: [],
@@ -154,6 +205,9 @@ jq -n \
   completed_changes: [],
   active_change: null,
   blocked_changes: [],
+  changes: [],
+  last_updated: $now,
+  last_updated_by: "kbd-new-child",
   sourceTool: $src,
   createdBy: "kbd-new-child",
   updatedAt: $now

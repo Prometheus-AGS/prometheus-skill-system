@@ -66,9 +66,10 @@ The status output itself serves as the start signal. Emit the completion signal 
 
 ## Position model (preferred source)
 
-When `.kbd-orchestrator/position.json` exists and is not older than
-`current-waypoint.json`, render from it FIRST — it is the unified, derived
-position tree (`shared/lib/position.sh` → `kbd_position_sync`; schema
+When `.kbd-orchestrator/position.json` has a `sourceRevision` equal to the
+canonical `current-waypoint.json` revision, render from it FIRST — it is the
+unified, derived position tree (`shared/lib/position.sh` →
+`kbd_position_sync`; schema
 `references/schemas/position.schema.json`):
 
 - `phase:` line = `cursor` joined with the chain separator
@@ -79,7 +80,8 @@ position tree (`shared/lib/position.sh` → `kbd_position_sync`; schema
   read-only, never modified.
 
 Fall back to waypoint-based rendering below when position.json is absent,
-invalid, or staler than the waypoint. Refresh it any time by sourcing
+invalid, or revision-mismatched. Filesystem mtimes are never used as causal
+authority. Refresh it any time by sourcing
 `shared/lib/position.sh` and calling `kbd_position_sync`.
 
 ## Phase chain rendering

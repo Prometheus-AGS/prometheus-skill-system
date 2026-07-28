@@ -58,6 +58,22 @@ if ! KBD_DIR="$(find_kbd_dir)"; then
   exit 0
 fi
 
+# An emergency operator pause prevents lifecycle execution even if the
+# waypoint is unreadable. Audit/status commands are not in the guarded command
+# set above and remain available.
+if [[ -e "${KBD_DIR}/PAUSE" ]]; then
+  log_error "KBD execution is paused by ${KBD_DIR}/PAUSE"
+  cat >&2 <<EOF
+
+[pipeline-enforce] BLOCKED — operator pause is active.
+
+Audit or revise the plan, then run /kbd-resume explicitly before executing a
+KBD lifecycle command.
+
+EOF
+  exit 2
+fi
+
 # Find the active phase from current-waypoint.json
 WAYPOINT="${KBD_DIR}/current-waypoint.json"
 if [[ ! -f "$WAYPOINT" ]]; then
@@ -70,6 +86,21 @@ if [[ -z "$PHASE" ]]; then
   log_info "could not read phase from waypoint; skipping"
   exit 0
 fi
+
+STATUS="$(python3 -c "import json; d=json.load(open('${WAYPOINT}')); print(d.get('status', d.get('stage', '')))" 2>/dev/null || true)"
+case "$(printf '%s' "$STATUS" | tr '[:upper:] -' '[:lower:]__')" in
+  pause_requested|paused|blocked|suspended)
+    log_error "KBD execution is suspended (status=${STATUS})"
+    cat >&2 <<EOF
+
+[pipeline-enforce] BLOCKED — KBD lifecycle state is ${STATUS}.
+
+Audit or revise the plan, then run /kbd-resume explicitly.
+
+EOF
+    exit 2
+    ;;
+esac
 
 PHASE_DIR="${KBD_DIR}/phases/${PHASE}"
 ASSESSMENT="${PHASE_DIR}/assessment.md"
@@ -163,6 +194,17 @@ fi
 # Rule: advancing to a new/next phase is blocked while the current phase's
 # reflection/assessment was rejected by the sycophancy artifact gate.
 if echo "$TOOL_INPUT" | grep -qE 'kbd-new-phase|kbd-next-phase'; then
+  if [[ "$(jq -r '.generatedBy // empty' "$WAYPOINT" 2>/dev/null || true)" == "kbd-runtime" ]] &&
+     command -v prometheus >/dev/null 2>&1; then
+    PROJECT_ROOT="${KBD_DIR%/.kbd-orchestrator}"
+    if prometheus kbd --path "$PROJECT_ROOT" status --json 2>/dev/null |
+       jq -e '.blockers | to_entries[] |
+         select(.key | startswith("sycophancy:")) |
+         select(.value.resolved == false)' >/dev/null 2>&1; then
+      log_error "phase advance blocked — unresolved canonical sycophancy blocker"
+      exit 2
+    fi
+  fi
   if [[ -f "$PROGRESS" ]]; then
     GATE="$(python3 -c "import json,sys; print(json.load(open('${PROGRESS}')).get('reflect_gate',''))" 2>/dev/null || true)"
     if [[ "$GATE" == "rejected" ]]; then

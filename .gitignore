@@ -63,6 +63,11 @@ SCRATCHPAD.md
 # surreal-memory write outbox (runtime artifact, never committed)
 .kbd-orchestrator/memory-outbox.jsonl
 .kbd-orchestrator/model-preflight.json
+.kbd-orchestrator/runtime/
+.kbd-orchestrator/PAUSE
+.kbd-orchestrator/position-reminder.txt
+.kbd-orchestrator/**/hooks-status.json
+.kbd-orchestrator/**/hooks.log.jsonl
 
 # Hook-log lock files (runtime; the .log itself is covered by *.log above, but
 # the sidecar *.jsonl.lock / *.log.lock advisory locks are not).
@@ -72,8 +77,10 @@ SCRATCHPAD.md
 # Git worktrees
 .worktrees/
 
-# Machine-local runtime state
-.prometheus/
+# Machine-local runtime state. The project identity and deliberate knowledge
+# exports are tracked; every other path below .prometheus remains local.
+.prometheus/*
+!.prometheus/project.json
 !.prometheus/knowledge/wiki/
 !.prometheus/knowledge/wiki/*.md
 !.prometheus/knowledge/wiki/index.md

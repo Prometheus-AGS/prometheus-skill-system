@@ -90,6 +90,6 @@ await client.publish({
 
 ## SDK source
 
-Source code lives at: `/Users/gqadonis/Projects/prometheus/flint-realtime-fabric/sdks/ts/`
+Source code lives at: `<flint-realtime-fabric>/sdks/ts/`. Resolve the repository root from the current workspace or `FLINT_REPO_ROOT`; never assume a machine-specific path.
 
 Generated proto types are in `src/gen/flint/v1/` — regenerate with `pnpm gen:proto` in the flint repo.

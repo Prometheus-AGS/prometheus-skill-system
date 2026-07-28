@@ -181,7 +181,8 @@ Produce a **Tool Handoff Note** embedded in `execution.md` under each change:
 HANDOFF NOTE for <tool>:
 1. Read .kbd-orchestrator/current-waypoint.json
 2. Read the change spec: [openspec path | .kbd-orchestrator/changes/<id>/change.md]
-3. On start: update progress.json status → IN_PROGRESS, started_by → <tool>
+3. On start: run the typed KBD change/task transition to `in-progress`; do not
+   edit the progress projection
 4. On each task done: increment tasks_done, commit progress.json to git
 5. On implementation completion: set `implementation_status → COMPLETE`,
    increment `completion.implementation.completed`, and keep legacy

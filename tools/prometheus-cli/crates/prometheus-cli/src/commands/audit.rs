@@ -32,20 +32,60 @@ impl Severity {
 
 static PATTERNS: &[(&str, &str, Severity)] = &[
     // Dangerous commands
-    (r"rm\s+-rf\s+/", "Dangerous rm -rf with root path", Severity::Critical),
-    (r"format\s+[cC]:", "Format drive command", Severity::Critical),
+    (
+        r"rm\s+-rf\s+/",
+        "Dangerous rm -rf with root path",
+        Severity::Critical,
+    ),
+    (
+        r"format\s+[cC]:",
+        "Format drive command",
+        Severity::Critical,
+    ),
     // Credential leaks
-    (r#"(?i)(api[_-]?key|secret|password|token)\s*[:=]\s*['"][^'"]{8,}"#, "Hardcoded credential", Severity::Critical),
-    (r"-----BEGIN\s+(RSA\s+)?PRIVATE\s+KEY", "Private key in source", Severity::Critical),
+    (
+        r#"(?i)(api[_-]?key|secret|password|token)\s*[:=]\s*['"][^'"]{8,}"#,
+        "Hardcoded credential",
+        Severity::Critical,
+    ),
+    (
+        r"-----BEGIN\s+(RSA\s+)?PRIVATE\s+KEY",
+        "Private key in source",
+        Severity::Critical,
+    ),
     // Code injection
-    (r"\beval\s*\(", "eval() usage — potential code injection", Severity::High),
-    (r"\bexec\s*\(", "exec() usage — potential code injection", Severity::High),
+    (
+        r"\beval\s*\(",
+        "eval() usage — potential code injection",
+        Severity::High,
+    ),
+    (
+        r"\bexec\s*\(",
+        "exec() usage — potential code injection",
+        Severity::High,
+    ),
     // Prompt injection
-    (r"(?i)ignore\s+(all\s+)?previous\s+instructions", "Prompt injection pattern", Severity::High),
-    (r"(?i)you\s+are\s+now\s+in\s+", "Role manipulation pattern", Severity::Medium),
+    (
+        r"(?i)ignore\s+(all\s+)?previous\s+instructions",
+        "Prompt injection pattern",
+        Severity::High,
+    ),
+    (
+        r"(?i)you\s+are\s+now\s+in\s+",
+        "Role manipulation pattern",
+        Severity::Medium,
+    ),
     // Direct deployment (TJ-CICD-001 violation)
-    (r"kubectl\s+apply", "Direct kubectl apply — use GitOps", Severity::Medium),
-    (r"helm\s+(upgrade|install)", "Direct helm command — use GitOps", Severity::Medium),
+    (
+        r"kubectl\s+apply",
+        "Direct kubectl apply — use GitOps",
+        Severity::Medium,
+    ),
+    (
+        r"helm\s+(upgrade|install)",
+        "Direct helm command — use GitOps",
+        Severity::Medium,
+    ),
 ];
 
 pub fn run(path: Option<&str>) -> Result<()> {
@@ -56,9 +96,7 @@ pub fn run(path: Option<&str>) -> Result<()> {
 
     let compiled: Vec<(Regex, &str, Severity)> = PATTERNS
         .iter()
-        .filter_map(|(pat, desc, sev)| {
-            Regex::new(pat).ok().map(|r| (r, *desc, *sev))
-        })
+        .filter_map(|(pat, desc, sev)| Regex::new(pat).ok().map(|r| (r, *desc, *sev)))
         .collect();
 
     for entry in WalkDir::new(scan_dir)
@@ -75,7 +113,10 @@ pub fn run(path: Option<&str>) -> Result<()> {
 
         let path = entry.path();
         let ext = path.extension().and_then(|e| e.to_str()).unwrap_or("");
-        if !matches!(ext, "md" | "sh" | "yaml" | "yml" | "json" | "ts" | "js" | "py" | "rs" | "toml") {
+        if !matches!(
+            ext,
+            "md" | "sh" | "yaml" | "yml" | "json" | "ts" | "js" | "py" | "rs" | "toml"
+        ) {
             continue;
         }
 
@@ -109,12 +150,25 @@ pub fn run(path: Option<&str>) -> Result<()> {
 
     println!("\n  Found {} finding(s):\n", findings.len());
     for f in &findings {
-        println!("  {} {}:{} — {}", f.severity.label(), f.file, f.line, f.pattern);
+        println!(
+            "  {} {}:{} — {}",
+            f.severity.label(),
+            f.file,
+            f.line,
+            f.pattern
+        );
     }
 
-    let critical = findings.iter().filter(|f| matches!(f.severity, Severity::Critical)).count();
+    let critical = findings
+        .iter()
+        .filter(|f| matches!(f.severity, Severity::Critical))
+        .count();
     if critical > 0 {
-        println!("\n  {} {} critical finding(s) require immediate attention", "❌".red(), critical);
+        println!(
+            "\n  {} {} critical finding(s) require immediate attention",
+            "❌".red(),
+            critical
+        );
         std::process::exit(2);
     }
 

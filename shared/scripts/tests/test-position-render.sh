@@ -125,7 +125,12 @@ OUT="$(cd "$TMP/repo" && echo '{"prompt":"hi"}' | bash "$HOOK")"
 RC=$?
 [ "$RC" -eq 0 ] && PASS=$((PASS + 1)) || { FAIL=$((FAIL + 1)); echo "FAIL: hook rc=$RC" >&2; }
 assert_contains "hook emits block" "$OUT" '<!-- prometheus-position -->'
-assert_contains "hook emits instruction" "$OUT" 'MANDATORY: begin your response with the Position line'
+assert_contains "hook emits non-blocking advisory" "$OUT" 'POSITION ADVISORY:'
+if printf '%s' "$OUT" | grep -q 'MANDATORY:'; then
+  FAIL=$((FAIL + 1)); echo "FAIL: prompt hook must not mandate continuation" >&2
+else
+  PASS=$((PASS + 1))
+fi
 
 # 10. position-on-prompt.sh hook: silent + exit 0 outside any orchestrator
 OUT="$(cd "$TMP/bare" && echo '{}' | bash "$HOOK")"

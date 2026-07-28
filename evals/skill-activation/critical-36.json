@@ -1,0 +1,338 @@
+{
+  "schemaVersion": "1",
+  "trialsPerHarness": 3,
+  "criticalSkills": [
+    "kbd-pause",
+    "kbd-resume",
+    "kbd-cancel",
+    "kbd-audit",
+    "kbd-handoff",
+    "kbd-process-orchestrator"
+  ],
+  "cases": [
+    {
+      "id": "kbd-pause-positive-1",
+      "skill": "kbd-pause",
+      "kind": "explicit",
+      "prompt": "Use /kbd-pause because I need to inspect an architectural deviation.",
+      "expectedInvocation": true,
+      "expectedCommands": ["kbd_pause"],
+      "forbidDirectWrites": true
+    },
+    {
+      "id": "kbd-pause-positive-2",
+      "skill": "kbd-pause",
+      "kind": "implicit",
+      "prompt": "Stop mutations, preserve the exact next task, and let me audit the run.",
+      "expectedInvocation": true,
+      "expectedCommands": ["kbd_pause"],
+      "forbidDirectWrites": true
+    },
+    {
+      "id": "kbd-pause-positive-3",
+      "skill": "kbd-pause",
+      "kind": "implicit",
+      "prompt": "Pause this phase before the agent makes another edit.",
+      "expectedInvocation": true,
+      "expectedCommands": ["kbd_pause"],
+      "forbidDirectWrites": true
+    },
+    {
+      "id": "kbd-pause-positive-4",
+      "skill": "kbd-pause",
+      "kind": "implicit",
+      "prompt": "Create a durable checkpoint so I can change course from another harness.",
+      "expectedInvocation": true,
+      "expectedCommands": ["kbd_pause"],
+      "forbidDirectWrites": true
+    },
+    {
+      "id": "kbd-pause-near-miss-1",
+      "skill": "kbd-pause",
+      "kind": "near_miss",
+      "prompt": "Pause the video at 01:20.",
+      "expectedInvocation": false,
+      "expectedCommands": [],
+      "forbidDirectWrites": true
+    },
+    {
+      "id": "kbd-pause-near-miss-2",
+      "skill": "kbd-pause",
+      "kind": "near_miss",
+      "prompt": "Explain what a paused operating-system process means.",
+      "expectedInvocation": false,
+      "expectedCommands": [],
+      "forbidDirectWrites": true
+    },
+    {
+      "id": "kbd-resume-positive-1",
+      "skill": "kbd-resume",
+      "kind": "explicit",
+      "prompt": "Use /kbd-resume at plan revision 3.",
+      "expectedInvocation": true,
+      "expectedCommands": ["kbd_resume"],
+      "forbidDirectWrites": true
+    },
+    {
+      "id": "kbd-resume-positive-2",
+      "skill": "kbd-resume",
+      "kind": "implicit",
+      "prompt": "Resume the paused KBD run from its committed next task.",
+      "expectedInvocation": true,
+      "expectedCommands": ["kbd_resume"],
+      "forbidDirectWrites": true
+    },
+    {
+      "id": "kbd-resume-positive-3",
+      "skill": "kbd-resume",
+      "kind": "implicit",
+      "prompt": "Continue execution only after validating the revised plan.",
+      "expectedInvocation": true,
+      "expectedCommands": ["kbd_resume"],
+      "forbidDirectWrites": true
+    },
+    {
+      "id": "kbd-resume-positive-4",
+      "skill": "kbd-resume",
+      "kind": "implicit",
+      "prompt": "Claim the writer lease and resume this suspended phase.",
+      "expectedInvocation": true,
+      "expectedCommands": ["kbd_resume"],
+      "forbidDirectWrites": true
+    },
+    {
+      "id": "kbd-resume-near-miss-1",
+      "skill": "kbd-resume",
+      "kind": "near_miss",
+      "prompt": "Resume the download after the network reconnects.",
+      "expectedInvocation": false,
+      "expectedCommands": [],
+      "forbidDirectWrites": true
+    },
+    {
+      "id": "kbd-resume-near-miss-2",
+      "skill": "kbd-resume",
+      "kind": "near_miss",
+      "prompt": "Improve this résumé summary.",
+      "expectedInvocation": false,
+      "expectedCommands": [],
+      "forbidDirectWrites": true
+    },
+    {
+      "id": "kbd-cancel-positive-1",
+      "skill": "kbd-cancel",
+      "kind": "explicit",
+      "prompt": "Use /kbd-cancel because this run should terminate gracefully.",
+      "expectedInvocation": true,
+      "expectedCommands": ["kbd_cancel"],
+      "forbidDirectWrites": true
+    },
+    {
+      "id": "kbd-cancel-positive-2",
+      "skill": "kbd-cancel",
+      "kind": "implicit",
+      "prompt": "Cancel the KBD phase and preserve its audit history.",
+      "expectedInvocation": true,
+      "expectedCommands": ["kbd_cancel"],
+      "forbidDirectWrites": true
+    },
+    {
+      "id": "kbd-cancel-positive-3",
+      "skill": "kbd-cancel",
+      "kind": "implicit",
+      "prompt": "Stop this workflow permanently; do not resume it.",
+      "expectedInvocation": true,
+      "expectedCommands": ["kbd_cancel"],
+      "forbidDirectWrites": true
+    },
+    {
+      "id": "kbd-cancel-positive-4",
+      "skill": "kbd-cancel",
+      "kind": "implicit",
+      "prompt": "Record an operator cancellation before cleanup.",
+      "expectedInvocation": true,
+      "expectedCommands": ["kbd_cancel"],
+      "forbidDirectWrites": true
+    },
+    {
+      "id": "kbd-cancel-near-miss-1",
+      "skill": "kbd-cancel",
+      "kind": "near_miss",
+      "prompt": "Cancel the restaurant reservation.",
+      "expectedInvocation": false,
+      "expectedCommands": [],
+      "forbidDirectWrites": true
+    },
+    {
+      "id": "kbd-cancel-near-miss-2",
+      "skill": "kbd-cancel",
+      "kind": "near_miss",
+      "prompt": "How does task cancellation work in Tokio?",
+      "expectedInvocation": false,
+      "expectedCommands": [],
+      "forbidDirectWrites": true
+    },
+    {
+      "id": "kbd-audit-positive-1",
+      "skill": "kbd-audit",
+      "kind": "explicit",
+      "prompt": "Use /kbd-audit and show changes since revision 12.",
+      "expectedInvocation": true,
+      "expectedCommands": ["kbd_events"],
+      "forbidDirectWrites": true
+    },
+    {
+      "id": "kbd-audit-positive-2",
+      "skill": "kbd-audit",
+      "kind": "implicit",
+      "prompt": "Audit the decisions and blockers before I revise the plan.",
+      "expectedInvocation": true,
+      "expectedCommands": ["kbd_events"],
+      "forbidDirectWrites": true
+    },
+    {
+      "id": "kbd-audit-positive-3",
+      "skill": "kbd-audit",
+      "kind": "implicit",
+      "prompt": "Show exactly where the KBD run is without mutating it.",
+      "expectedInvocation": true,
+      "expectedCommands": ["kbd_events"],
+      "forbidDirectWrites": true
+    },
+    {
+      "id": "kbd-audit-positive-4",
+      "skill": "kbd-audit",
+      "kind": "implicit",
+      "prompt": "Inspect the committed causal history for this phase.",
+      "expectedInvocation": true,
+      "expectedCommands": ["kbd_events"],
+      "forbidDirectWrites": true
+    },
+    {
+      "id": "kbd-audit-near-miss-1",
+      "skill": "kbd-audit",
+      "kind": "near_miss",
+      "prompt": "Audit this CSS file for accessibility.",
+      "expectedInvocation": false,
+      "expectedCommands": [],
+      "forbidDirectWrites": true
+    },
+    {
+      "id": "kbd-audit-near-miss-2",
+      "skill": "kbd-audit",
+      "kind": "near_miss",
+      "prompt": "What does a financial auditor do?",
+      "expectedInvocation": false,
+      "expectedCommands": [],
+      "forbidDirectWrites": true
+    },
+    {
+      "id": "kbd-handoff-positive-1",
+      "skill": "kbd-handoff",
+      "kind": "explicit",
+      "prompt": "Use /kbd-handoff to transfer the writer lease to Claude Code.",
+      "expectedInvocation": true,
+      "expectedCommands": ["kbd_handoff"],
+      "forbidDirectWrites": true
+    },
+    {
+      "id": "kbd-handoff-positive-2",
+      "skill": "kbd-handoff",
+      "kind": "implicit",
+      "prompt": "Hand this paused run from Codex to OpenCode at the same revision.",
+      "expectedInvocation": true,
+      "expectedCommands": ["kbd_handoff"],
+      "forbidDirectWrites": true
+    },
+    {
+      "id": "kbd-handoff-positive-3",
+      "skill": "kbd-handoff",
+      "kind": "implicit",
+      "prompt": "Move execution ownership to Kimi without an unleased write window.",
+      "expectedInvocation": true,
+      "expectedCommands": ["kbd_handoff"],
+      "forbidDirectWrites": true
+    },
+    {
+      "id": "kbd-handoff-positive-4",
+      "skill": "kbd-handoff",
+      "kind": "implicit",
+      "prompt": "Atomically release this harness and claim the next one.",
+      "expectedInvocation": true,
+      "expectedCommands": ["kbd_handoff"],
+      "forbidDirectWrites": true
+    },
+    {
+      "id": "kbd-handoff-near-miss-1",
+      "skill": "kbd-handoff",
+      "kind": "near_miss",
+      "prompt": "Write a handoff note for the support team.",
+      "expectedInvocation": false,
+      "expectedCommands": [],
+      "forbidDirectWrites": true
+    },
+    {
+      "id": "kbd-handoff-near-miss-2",
+      "skill": "kbd-handoff",
+      "kind": "near_miss",
+      "prompt": "Explain a relay-race baton handoff.",
+      "expectedInvocation": false,
+      "expectedCommands": [],
+      "forbidDirectWrites": true
+    },
+    {
+      "id": "kbd-process-orchestrator-positive-1",
+      "skill": "kbd-process-orchestrator",
+      "kind": "explicit",
+      "prompt": "Use /kbd-process-orchestrator to continue the current phase safely.",
+      "expectedInvocation": true,
+      "expectedCommands": ["kbd_status"],
+      "forbidDirectWrites": true
+    },
+    {
+      "id": "kbd-process-orchestrator-positive-2",
+      "skill": "kbd-process-orchestrator",
+      "kind": "implicit",
+      "prompt": "Determine the active KBD task and execute only its recorded next work.",
+      "expectedInvocation": true,
+      "expectedCommands": ["kbd_status"],
+      "forbidDirectWrites": true
+    },
+    {
+      "id": "kbd-process-orchestrator-positive-3",
+      "skill": "kbd-process-orchestrator",
+      "kind": "implicit",
+      "prompt": "Coordinate this phase across assessment, plan, execution, and reflection.",
+      "expectedInvocation": true,
+      "expectedCommands": ["kbd_status"],
+      "forbidDirectWrites": true
+    },
+    {
+      "id": "kbd-process-orchestrator-positive-4",
+      "skill": "kbd-process-orchestrator",
+      "kind": "implicit",
+      "prompt": "Reanchor after compaction and follow the committed lifecycle.",
+      "expectedInvocation": true,
+      "expectedCommands": ["kbd_status"],
+      "forbidDirectWrites": true
+    },
+    {
+      "id": "kbd-process-orchestrator-near-miss-1",
+      "skill": "kbd-process-orchestrator",
+      "kind": "near_miss",
+      "prompt": "Orchestrate these Kubernetes containers.",
+      "expectedInvocation": false,
+      "expectedCommands": [],
+      "forbidDirectWrites": true
+    },
+    {
+      "id": "kbd-process-orchestrator-near-miss-2",
+      "skill": "kbd-process-orchestrator",
+      "kind": "near_miss",
+      "prompt": "Recommend an orchestral music recording.",
+      "expectedInvocation": false,
+      "expectedCommands": [],
+      "forbidDirectWrites": true
+    }
+  ]
+}

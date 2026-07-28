@@ -67,5 +67,5 @@ try await client.publish(channel: "my-channel", payload: Data("hello".utf8))
 
 ## SDK source
 
-Source code: `/Users/gqadonis/Projects/prometheus/flint-realtime-fabric/sdks/swift/`  
+Source code: `<flint-realtime-fabric>/sdks/swift/`. Resolve the repository root from the current workspace or `FLINT_REPO_ROOT`.
 Package name: `FrfClient`

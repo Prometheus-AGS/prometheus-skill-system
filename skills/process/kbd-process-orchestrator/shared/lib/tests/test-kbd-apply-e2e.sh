@@ -57,9 +57,9 @@ pass "progress reports total=2 complete=0"
 
 # 3. begin-task emits the plain-text guarantee with correct i/n.
 out="$("$APPLY" begin-task "$CH" 1 1 2 "First throwaway task" 2>/dev/null)"
-[ "$out" = "Starting task 1 of 2: First throwaway task" ] \
+[ "$out" = "Starting task 1 out of 2:   First throwaway task" ] \
   || fail "begin-task signal wrong: '$out'"
-pass "begin-task emits 'Starting task 1 of 2: ...'"
+pass "begin-task emits canonical 'Starting task 1 out of 2: ...'"
 
 # 4. end-task marks task 1 (positional) done; tasks.md first box flips, not 2nd.
 "$APPLY" end-task "$CH" 1 1 2 "First throwaway task" >/dev/null 2>&1

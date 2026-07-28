@@ -1,13 +1,14 @@
 use anyhow::{bail, Result};
 use colored::Colorize;
+use kbd_runtime::{rollout::RolloutTracker, Runtime};
 use prometheus_agents::detect_installed_agents;
 use prometheus_learn::memory::SurrealMemoryClient;
 use serde::Serialize;
 use sha2::{Digest, Sha256};
 use std::collections::BTreeSet;
 use std::fs;
-use std::path::PathBuf;
 use std::path::Path;
+use std::path::PathBuf;
 use std::process::Command;
 use std::time::{SystemTime, UNIX_EPOCH};
 
@@ -170,7 +171,11 @@ async fn build_report(options: &DoctorOptions) -> DoctorReport {
         check_managed_services(),
         check_managed_mcp(),
         check_managed_hooks(),
+        check_kbd_control_plane().await,
         check_kbd_state(),
+        check_kbd_rollout(),
+        check_harness_adapter_parity(),
+        check_instruction_budgets(),
         check_evolver_state(),
         check_trace_store(),
     ];
@@ -229,7 +234,15 @@ fn render_human(report: &DoctorReport, options: &DoctorOptions) {
         let preview = if options.dry_run { "dry-run " } else { "" };
         println!(
             "{}",
-            format!("  Mode: {preview}{mode}{}", if options.yes { " (non-interactive)" } else { "" }).cyan()
+            format!(
+                "  Mode: {preview}{mode}{}",
+                if options.yes {
+                    " (non-interactive)"
+                } else {
+                    ""
+                }
+            )
+            .cyan()
         );
     }
 
@@ -278,7 +291,8 @@ fn render_human(report: &DoctorReport, options: &DoctorOptions) {
         if (options.fix || options.refresh) && !options.dry_run && !options.yes {
             println!(
                 "  {}",
-                "Confirmation required: rerun with --yes or use --dry-run for a non-mutating plan.".yellow()
+                "Confirmation required: rerun with --yes or use --dry-run for a non-mutating plan."
+                    .yellow()
             );
         }
     }
@@ -287,14 +301,19 @@ fn render_human(report: &DoctorReport, options: &DoctorOptions) {
     if report.summary.failed > 0 {
         println!(
             "{}",
-            format!("❌ {} failing required check(s)", report.summary.failed).red().bold()
+            format!("❌ {} failing required check(s)", report.summary.failed)
+                .red()
+                .bold()
         );
     } else if report.summary.warned > 0 {
         println!(
             "{}",
-            format!("⚠️  {} warning(s), no required failures", report.summary.warned)
-                .yellow()
-                .bold()
+            format!(
+                "⚠️  {} warning(s), no required failures",
+                report.summary.warned
+            )
+            .yellow()
+            .bold()
         );
     } else {
         println!("{}", "✨ All required checks passed".green().bold());
@@ -324,7 +343,8 @@ fn build_repair_plan(options: &DoctorOptions, checks: &[CheckResult]) -> Option<
     let note = if options.dry_run {
         "dry-run only: no filesystem, service, or config changes were made".to_string()
     } else if !options.yes {
-        "mutating execution is blocked until --yes is provided for safe, reversible actions".to_string()
+        "mutating execution is blocked until --yes is provided for safe, reversible actions"
+            .to_string()
     } else if safe_actions.is_empty() {
         "no safe automated actions are available for the current findings".to_string()
     } else {
@@ -402,7 +422,10 @@ struct HashedPath {
     sha256: String,
 }
 
-fn execute_safe_actions(options: &DoctorOptions, report: &DoctorReport) -> Result<ExecutionOutcome> {
+fn execute_safe_actions(
+    options: &DoctorOptions,
+    report: &DoctorReport,
+) -> Result<ExecutionOutcome> {
     let Some(plan) = &report.repair_plan else {
         bail!("repair plan missing for mutating doctor mode");
     };
@@ -485,7 +508,11 @@ fn write_refresh_manifest(
     let manifest = RefreshManifest {
         schema_version: 1,
         generated_at: timestamp.clone(),
-        status: if success { "ok".into() } else { "degraded".into() },
+        status: if success {
+            "ok".into()
+        } else {
+            "degraded".into()
+        },
         last_successful_refresh: if options.refresh && success {
             Some(timestamp)
         } else {
@@ -532,7 +559,10 @@ fn collect_submodule_heads() -> Vec<ManifestEntry> {
         .filter_map(|line| {
             let trimmed = line.trim();
             let mut parts = trimmed.split_whitespace();
-            let sha = parts.next()?.trim_start_matches(['-', '+', 'U', ' ']).to_string();
+            let sha = parts
+                .next()?
+                .trim_start_matches(['-', '+', 'U', ' '])
+                .to_string();
             let name = parts.next()?.to_string();
             Some(ManifestEntry { name, value: sha })
         })
@@ -540,7 +570,8 @@ fn collect_submodule_heads() -> Vec<ManifestEntry> {
 }
 
 fn collect_hashed_paths(paths: &[&str]) -> Vec<HashedPath> {
-    paths.iter()
+    paths
+        .iter()
         .filter_map(|path| {
             hash_file(path).map(|sha256| HashedPath {
                 path: (*path).to_string(),
@@ -551,7 +582,8 @@ fn collect_hashed_paths(paths: &[&str]) -> Vec<HashedPath> {
 }
 
 fn collect_hashed_paths_from_paths(paths: &[PathBuf]) -> Vec<HashedPath> {
-    paths.iter()
+    paths
+        .iter()
         .filter_map(|path| {
             hash_path(path).map(|sha256| HashedPath {
                 path: path.display().to_string(),
@@ -608,7 +640,8 @@ fn check_skills_directory() -> CheckResult {
             optional: false,
             actions: vec![RepairAction {
                 id: "manual.restore-checkout".into(),
-                description: "Restore the checked-out skills catalog before any automated repair run.".into(),
+                description:
+                    "Restore the checked-out skills catalog before any automated repair run.".into(),
                 safe: false,
                 reversible: false,
                 dry_run_only: false,
@@ -632,11 +665,15 @@ fn check_installed_agents() -> CheckResult {
             severity: Severity::Yellow,
             status: CheckStatus::Warn,
             summary: "No supported agent homes detected".into(),
-            details: vec!["At least one agent home should exist before broad sync or repair work.".into()],
+            details: vec![
+                "At least one agent home should exist before broad sync or repair work.".into(),
+            ],
             optional: true,
             actions: vec![RepairAction {
                 id: "manual.install-agent-home".into(),
-                description: "Install or initialize the target agent home before syncing runtime skills.".into(),
+                description:
+                    "Install or initialize the target agent home before syncing runtime skills."
+                        .into(),
                 safe: false,
                 reversible: false,
                 dry_run_only: false,
@@ -661,7 +698,9 @@ fn check_installed_agents() -> CheckResult {
             optional: false,
             actions: vec![RepairAction {
                 id: "skills.sync-codex-skills".into(),
-                description: "Resync the managed Codex skill catalog into the installed Codex runtime.".into(),
+                description:
+                    "Resync the managed Codex skill catalog into the installed Codex runtime."
+                        .into(),
                 safe: true,
                 reversible: true,
                 dry_run_only: false,
@@ -685,7 +724,9 @@ async fn check_surreal_memory() -> CheckResult {
             optional: false,
             actions: vec![RepairAction {
                 id: "services.install-mcp-services".into(),
-                description: "Re-render and reload the managed MCP service stack for the configured user.".into(),
+                description:
+                    "Re-render and reload the managed MCP service stack for the configured user."
+                        .into(),
                 safe: true,
                 reversible: true,
                 dry_run_only: false,
@@ -715,12 +756,14 @@ async fn check_surreal_memory() -> CheckResult {
             status: CheckStatus::Fail,
             summary: format!("Surreal-memory is unreachable at {}", client.base_url()),
             details: vec![
-                "Required memory substrate must be healthy before learning-loop work proceeds.".into(),
+                "Required memory substrate must be healthy before learning-loop work proceeds."
+                    .into(),
             ],
             optional: false,
             actions: vec![RepairAction {
                 id: "services.install-mcp-services".into(),
-                description: "Re-render and reload the managed MCP service stack, then rescan health.".into(),
+                description:
+                    "Re-render and reload the managed MCP service stack, then rescan health.".into(),
                 safe: true,
                 reversible: true,
                 dry_run_only: false,
@@ -731,21 +774,170 @@ async fn check_surreal_memory() -> CheckResult {
     }
 }
 
-fn check_kbd_state() -> CheckResult {
-    if Path::new(".kbd-orchestrator").exists() {
-        CheckResult {
-            id: "state.kbd-orchestrator".into(),
-            group: "state".into(),
-            label: "KBD orchestrator".into(),
-            severity: Severity::Green,
-            status: CheckStatus::Pass,
-            summary: ".kbd-orchestrator is initialized".into(),
-            details: vec![],
+async fn check_kbd_control_plane() -> CheckResult {
+    if !Path::new(".prometheus/project.json").exists() {
+        return CheckResult {
+            id: "control.kbd-runtime".into(),
+            group: "control".into(),
+            label: "KBD quorum control plane".into(),
+            severity: Severity::Yellow,
+            status: CheckStatus::Skip,
+            summary: "project identity is not initialized".into(),
+            details: vec!["Run `prometheus kbd migrate --check` from a KBD project.".into()],
+            optional: true,
+            actions: vec![],
+        };
+    }
+    let runtime = Runtime::open(".");
+    let project_id = runtime
+        .replay()
+        .ok()
+        .filter(|state| state.revision > 0)
+        .map(|state| state.project_id)
+        .or_else(|| {
+            runtime
+                .project_manifest(false)
+                .ok()
+                .flatten()
+                .map(|manifest| manifest.project_id)
+        });
+    let result = async {
+        let project_id = project_id.ok_or_else(|| anyhow::anyhow!("missing project id"))?;
+        let token = runtime.control_token()?;
+        let endpoint = std::env::var("PROMETHEUS_CONTROL_ENDPOINT")
+            .unwrap_or_else(|_| "http://127.0.0.1:7892".into());
+        let response = reqwest::Client::builder()
+            .timeout(std::time::Duration::from_secs(2))
+            .build()?
+            .get(format!(
+                "{}/api/v1/kbd/projects/{project_id}/diagnostics",
+                endpoint.trim_end_matches('/')
+            ))
+            .bearer_auth(token)
+            .send()
+            .await?;
+        let status = response.status();
+        let body = response.text().await?;
+        if !status.is_success() {
+            anyhow::bail!("{status}: {body}");
+        }
+        Ok::<serde_json::Value, anyhow::Error>(serde_json::from_str(&body)?)
+    }
+    .await;
+
+    match result {
+        Ok(diagnostics) => {
+            let writable = diagnostics["quorum"]["writable"].as_bool().unwrap_or(false);
+            let leader = diagnostics["raft"]["leaderId"].as_u64();
+            let lag = diagnostics["raft"]["commitApplyLag"]
+                .as_u64()
+                .unwrap_or(u64::MAX);
+            let projection_matches = diagnostics["projection"]["matchesRuntime"]
+                .as_bool()
+                .unwrap_or(false);
+            let signatures = diagnostics["integrity"]["signatureChainValid"]
+                .as_bool()
+                .unwrap_or(false);
+            let healthy =
+                writable && leader.is_some() && lag == 0 && projection_matches && signatures;
+            CheckResult {
+                id: "control.kbd-runtime".into(),
+                group: "control".into(),
+                label: "KBD quorum control plane".into(),
+                severity: if healthy {
+                    Severity::Green
+                } else {
+                    Severity::Red
+                },
+                status: if healthy {
+                    CheckStatus::Pass
+                } else {
+                    CheckStatus::Fail
+                },
+                summary: format!(
+                    "leader {}, lag {}, projection {}, signatures {}",
+                    leader
+                        .map(|value| value.to_string())
+                        .unwrap_or_else(|| "none".into()),
+                    lag,
+                    if projection_matches {
+                        "current"
+                    } else {
+                        "stale"
+                    },
+                    if signatures { "valid" } else { "invalid" }
+                ),
+                details: vec![
+                    format!(
+                        "quorum: {}",
+                        diagnostics["quorum"]["reason"]
+                            .as_str()
+                            .unwrap_or("unknown")
+                    ),
+                    format!(
+                        "Raft term/state/transport: {}/{}/{}",
+                        diagnostics["raft"]["term"].as_u64().unwrap_or(0),
+                        diagnostics["raft"]["state"].as_str().unwrap_or("unknown"),
+                        diagnostics["raft"]["transport"]
+                            .as_str()
+                            .unwrap_or("unknown")
+                    ),
+                    format!(
+                        "log/applied/snapshot: {}/{}/{}",
+                        diagnostics["raft"]["lastLogIndex"]
+                            .as_u64()
+                            .map(|value| value.to_string())
+                            .unwrap_or_else(|| "none".into()),
+                        diagnostics["raft"]["lastAppliedIndex"]
+                            .as_u64()
+                            .map(|value| value.to_string())
+                            .unwrap_or_else(|| "none".into()),
+                        diagnostics["raft"]["snapshotIndex"]
+                            .as_u64()
+                            .map(|value| value.to_string())
+                            .unwrap_or_else(|| "none".into())
+                    ),
+                    format!(
+                        "trusted devices active/revoked: {}/{}",
+                        diagnostics["trust"]["activeDevices"].as_u64().unwrap_or(0),
+                        diagnostics["trust"]["revokedDevices"].as_u64().unwrap_or(0)
+                    ),
+                    format!(
+                        "lease/fencing token: {}/{}",
+                        diagnostics["runtime"]["lease"]["leaseId"]
+                            .as_str()
+                            .unwrap_or("unclaimed"),
+                        diagnostics["runtime"]["fencingToken"].as_u64().unwrap_or(0),
+                    ),
+                    format!(
+                        "signed events: {}",
+                        diagnostics["integrity"]["eventCount"].as_u64().unwrap_or(0)
+                    ),
+                ],
+                optional: false,
+                actions: vec![],
+            }
+        }
+        Err(error) => CheckResult {
+            id: "control.kbd-runtime".into(),
+            group: "control".into(),
+            label: "KBD quorum control plane".into(),
+            severity: Severity::Yellow,
+            status: CheckStatus::Warn,
+            summary: "KBD daemon diagnostics are unreachable".into(),
+            details: vec![
+                error.to_string(),
+                "No direct compatibility-file fallback was used.".into(),
+            ],
             optional: false,
             actions: vec![],
-        }
-    } else {
-        CheckResult {
+        },
+    }
+}
+
+fn check_kbd_state() -> CheckResult {
+    if !Path::new(".kbd-orchestrator").exists() {
+        return CheckResult {
             id: "state.kbd-orchestrator".into(),
             group: "state".into(),
             label: "KBD orchestrator".into(),
@@ -755,7 +947,315 @@ fn check_kbd_state() -> CheckResult {
             details: vec!["KBD state is absent in this working directory.".into()],
             optional: true,
             actions: vec![],
+        };
+    }
+
+    let waypoint = fs::read(".kbd-orchestrator/current-waypoint.json")
+        .ok()
+        .and_then(|bytes| serde_json::from_slice::<serde_json::Value>(&bytes).ok());
+    let position = fs::read(".kbd-orchestrator/position.json")
+        .ok()
+        .and_then(|bytes| serde_json::from_slice::<serde_json::Value>(&bytes).ok());
+    match (waypoint, position) {
+        (Some(waypoint), Some(position)) => {
+            let waypoint_revision = waypoint["sourceRevision"]
+                .as_u64()
+                .or_else(|| waypoint["revision"].as_u64());
+            let position_revision = position["sourceRevision"].as_u64();
+            let generated = waypoint["generatedBy"] == "kbd-runtime"
+                && position["generatedBy"] == "kbd-runtime";
+            let healthy =
+                generated && waypoint_revision.is_some() && waypoint_revision == position_revision;
+            CheckResult {
+                id: "state.kbd-orchestrator".into(),
+                group: "state".into(),
+                label: "KBD compatibility projections".into(),
+                severity: if healthy {
+                    Severity::Green
+                } else {
+                    Severity::Yellow
+                },
+                status: if healthy {
+                    CheckStatus::Pass
+                } else {
+                    CheckStatus::Warn
+                },
+                summary: format!(
+                    "revision {}, projections {}",
+                    waypoint_revision
+                        .map(|revision| revision.to_string())
+                        .unwrap_or_else(|| "unknown".into()),
+                    if healthy { "consistent" } else { "mismatched" }
+                ),
+                details: vec![
+                    "Compatibility JSON is projection-only; control.kbd-runtime checks authority."
+                        .into(),
+                ],
+                optional: false,
+                actions: vec![],
+            }
         }
+        (None, None) => CheckResult {
+            id: "state.kbd-orchestrator".into(),
+            group: "state".into(),
+            label: "KBD compatibility projections".into(),
+            severity: Severity::Yellow,
+            status: CheckStatus::Warn,
+            summary: "compatibility projections have not been generated".into(),
+            details: vec!["The canonical runtime may still be available via the daemon.".into()],
+            optional: false,
+            actions: vec![],
+        },
+        _ => CheckResult {
+            id: "state.kbd-orchestrator".into(),
+            group: "state".into(),
+            label: "KBD compatibility projections".into(),
+            severity: Severity::Yellow,
+            status: CheckStatus::Warn,
+            summary: "only one compatibility projection is readable".into(),
+            details: vec!["Regenerate projections from committed runtime state.".into()],
+            optional: false,
+            actions: vec![],
+        },
+    }
+}
+
+fn check_kbd_rollout() -> CheckResult {
+    if !Path::new(".prometheus/project.json").exists() {
+        return CheckResult {
+            id: "control.kbd-rollout".into(),
+            group: "control".into(),
+            label: "KBD production rollout gate".into(),
+            severity: Severity::Yellow,
+            status: CheckStatus::Skip,
+            summary: "rollout evidence is not applicable before project initialization".into(),
+            details: vec![],
+            optional: true,
+            actions: vec![],
+        };
+    }
+    let runtime = Runtime::open(".");
+    let path = runtime.runtime_root().join("rollout-evidence.json");
+    if !path.exists() {
+        return CheckResult {
+            id: "control.kbd-rollout".into(),
+            group: "control".into(),
+            label: "KBD production rollout gate".into(),
+            severity: Severity::Yellow,
+            status: CheckStatus::Warn,
+            summary: "shadow evidence collection has not started".into(),
+            details: vec![
+                "Production remains blocked; run `prometheus kbd rollout observe` from a live control plane.".into(),
+            ],
+            optional: false,
+            actions: vec![],
+        };
+    }
+    match RolloutTracker::open(runtime.runtime_root()).load() {
+        Ok(evidence) => {
+            let gate = evidence.gate();
+            let production = evidence.stage == kbd_runtime::rollout::RolloutStage::Production;
+            CheckResult {
+                id: "control.kbd-rollout".into(),
+                group: "control".into(),
+                label: "KBD production rollout gate".into(),
+                severity: if production {
+                    Severity::Green
+                } else {
+                    Severity::Yellow
+                },
+                status: if production {
+                    CheckStatus::Pass
+                } else {
+                    CheckStatus::Warn
+                },
+                summary: if production {
+                    "all staged rollout gates are complete".into()
+                } else {
+                    format!(
+                        "{:?} is active; next promotion {}",
+                        evidence.stage,
+                        if gate.passed {
+                            "is eligible"
+                        } else {
+                            "is blocked"
+                        }
+                    )
+                },
+                details: vec![
+                    format!(
+                        "successful days: {}; real/synthetic mutations: {}/{}",
+                        gate.consecutive_successful_days,
+                        gate.real_mutations,
+                        gate.synthetic_replay_mutations
+                    ),
+                    format!(
+                        "projection mismatches: {}; harnesses/devices/voters: {}/{}/{}",
+                        gate.unexplained_projection_mismatches,
+                        gate.harnesses.len(),
+                        gate.devices.len(),
+                        gate.max_voters
+                    ),
+                    if gate.failures.is_empty() {
+                        "no outstanding gate failures".into()
+                    } else {
+                        gate.failures.join("; ")
+                    },
+                ],
+                optional: false,
+                actions: vec![],
+            }
+        }
+        Err(error) => CheckResult {
+            id: "control.kbd-rollout".into(),
+            group: "control".into(),
+            label: "KBD production rollout gate".into(),
+            severity: Severity::Red,
+            status: CheckStatus::Fail,
+            summary: "rollout evidence is unreadable".into(),
+            details: vec![error.to_string()],
+            optional: false,
+            actions: vec![],
+        },
+    }
+}
+
+fn check_harness_adapter_parity() -> CheckResult {
+    let manifest = Path::new("shared/harnesses/capabilities.json");
+    let generated = Path::new("shared/harnesses/generated");
+    let expected = [
+        ("claude-code", "claude-hooks.json"),
+        ("codex", "codex-hooks.toml"),
+        ("opencode", "opencode-kbd-control.json"),
+        ("kimi", "kimi-hooks.json"),
+    ];
+    let parsed = fs::read(manifest)
+        .ok()
+        .and_then(|bytes| serde_json::from_slice::<serde_json::Value>(&bytes).ok());
+    let mut failures = Vec::new();
+    for (harness, file) in expected {
+        if parsed
+            .as_ref()
+            .and_then(|value| value["harnesses"].get(harness))
+            .is_none()
+        {
+            failures.push(format!("{harness} is absent from the capability manifest"));
+        }
+        let target = generated.join(file);
+        match fs::read_to_string(&target) {
+            Ok(content) if content.contains("kbd-harness-adapter.sh") => {}
+            Ok(_) => failures.push(format!(
+                "{} bypasses the canonical adapter",
+                target.display()
+            )),
+            Err(_) => failures.push(format!("{} is missing", target.display())),
+        }
+    }
+    if let Some(harnesses) = parsed
+        .as_ref()
+        .and_then(|value| value["harnesses"].as_object())
+    {
+        for (name, capability) in harnesses {
+            if capability["writerRole"] == true && capability["nativeMutationGuard"] != true {
+                failures.push(format!(
+                    "{name} has writerRole without a native mutation guard"
+                ));
+            }
+        }
+    }
+    CheckResult {
+        id: "hooks.harness-adapters".into(),
+        group: "hooks".into(),
+        label: "Cross-harness mutation adapters".into(),
+        severity: if failures.is_empty() {
+            Severity::Green
+        } else {
+            Severity::Red
+        },
+        status: if failures.is_empty() {
+            CheckStatus::Pass
+        } else {
+            CheckStatus::Fail
+        },
+        summary: if failures.is_empty() {
+            "4/4 harnesses derive from one capability contract".into()
+        } else {
+            format!("{} adapter parity defect(s)", failures.len())
+        },
+        details: if failures.is_empty() {
+            vec![
+                "Writer-role adapters all declare native pre-mutation fence guards.".into(),
+                "Installed-target parity is enforced separately by clean-install CI.".into(),
+            ]
+        } else {
+            failures
+        },
+        optional: false,
+        actions: vec![],
+    }
+}
+
+fn check_instruction_budgets() -> CheckResult {
+    let inventory = super::skill::inventory(Path::new("skills"));
+    let baseline_path = Path::new("evals/skill-activation/harness-budgets.json");
+    let baseline = fs::read(baseline_path)
+        .ok()
+        .and_then(|bytes| serde_json::from_slice::<serde_json::Value>(&bytes).ok());
+    let mut failures = Vec::new();
+    let (skills, characters) = match inventory {
+        Ok(inventory) => inventory,
+        Err(error) => {
+            failures.push(error.to_string());
+            (0, 0)
+        }
+    };
+    let mut measured = 0;
+    for harness in ["claude-code", "codex", "opencode", "kimi"] {
+        let entry = baseline
+            .as_ref()
+            .and_then(|value| value["harnesses"].get(harness));
+        match entry {
+            Some(entry)
+                if entry["measured"] == true
+                    && entry["budgetChars"].as_u64().is_some()
+                    && entry["sourceTrace"].as_str().is_some() =>
+            {
+                measured += 1;
+                if entry["inventoryChars"].as_u64() != Some(characters as u64) {
+                    failures.push(format!(
+                        "{harness} baseline was measured against a different inventory"
+                    ));
+                }
+            }
+            Some(_) => failures.push(format!("{harness} discovery budget is not measured")),
+            None => failures.push(format!("{harness} discovery baseline is missing")),
+        }
+    }
+    let healthy = failures.is_empty() && skills == 145;
+    CheckResult {
+        id: "skills.discovery-budget".into(),
+        group: "skills".into(),
+        label: "Harness instruction discovery budgets".into(),
+        severity: if healthy {
+            Severity::Green
+        } else {
+            Severity::Yellow
+        },
+        status: if healthy {
+            CheckStatus::Pass
+        } else {
+            CheckStatus::Warn
+        },
+        summary: format!(
+            "{skills} skills, {characters} discovery characters, {measured}/4 measured harnesses"
+        ),
+        details: if failures.is_empty() {
+            vec!["Every budget is trace-backed and matches the current inventory.".into()]
+        } else {
+            failures
+        },
+        optional: false,
+        actions: vec![],
     }
 }
 
@@ -780,7 +1280,9 @@ fn check_evolver_state() -> CheckResult {
             severity: Severity::Yellow,
             status: CheckStatus::Skip,
             summary: ".evolver is not initialized".into(),
-            details: vec!["Evolution state is optional until an evolution cycle is started.".into()],
+            details: vec![
+                "Evolution state is optional until an evolution cycle is started.".into(),
+            ],
             optional: true,
             actions: vec![],
         }

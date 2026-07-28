@@ -122,6 +122,24 @@ $([ -n "$SPEC_CRITERIA" ] && echo "$SPEC_CRITERIA" || echo "(Read parent SPEC.md
 4. When complete, the parent loop will resume with the remaining tasks.
 HANDOFF_EOF
 
+# Runtime-authority projects register the promoted phase through the typed
+# command interface. The generated progress projection is never written here.
+RUNTIME_LIB="$REPO_ROOT/shared/scripts/lib/runtime-authority.sh"
+if [[ -f "$RUNTIME_LIB" ]]; then
+  # shellcheck source=/dev/null
+  . "$RUNTIME_LIB"
+fi
+if command -v kbd_runtime_authoritative >/dev/null 2>&1 &&
+   kbd_runtime_authoritative "$REPO_ROOT"; then
+  mutation="$(kbd_runtime_mutation_args "$REPO_ROOT" "phase-create:${CHILD_PHASE_NAME}")"
+  revision="$(printf '%s\n' "$mutation" | sed -n '1p')"
+  lease_id="$(printf '%s\n' "$mutation" | sed -n '3p')"
+  fencing_token="$(printf '%s\n' "$mutation" | sed -n '4p')"
+  prometheus kbd --path "$REPO_ROOT" phase create \
+    --expected-revision "$revision" --command-id "phase-create:${CHILD_PHASE_NAME}" \
+    --lease-id "$lease_id" --fencing-token "$fencing_token" \
+    --id "$CHILD_PHASE_NAME" --title "$CHILD_PHASE_NAME" >/dev/null
+else
 # Write progress.json for the child phase
 cat > "$CHILD_PHASE_DIR/progress.json" << PROGRESS_EOF
 {
@@ -137,6 +155,7 @@ cat > "$CHILD_PHASE_DIR/progress.json" << PROGRESS_EOF
   "parent_task": "$TASK_ID"
 }
 PROGRESS_EOF
+fi
 
 # ── Update parent TASKS.md — mark task as promoted ────────────────────────────
 # Replace [ ] or [/] with [~] for this task, append child phase reference

@@ -72,5 +72,5 @@ await client.PublishAsync("my-channel", payload: "hello"u8.ToArray(), ct);
 
 ## SDK source
 
-Source code: `/Users/gqadonis/Projects/prometheus/flint-realtime-fabric/sdks/csharp/`  
+Source code: `<flint-realtime-fabric>/sdks/csharp/`. Resolve the repository root from the current workspace or `FLINT_REPO_ROOT`.
 Solution: `FlintSdk.slnx`

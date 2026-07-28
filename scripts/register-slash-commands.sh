@@ -73,8 +73,17 @@ for skill_name, paths in sorted(collisions.items()):
     print(f"  WARN: duplicate skill name skipped: {skill_name} ({', '.join(paths)})", file=sys.stderr)
 
 # ── opencode.json ─────────────────────────────────────────────────────────────
-OPENCODE_JSON = HOME / ".opencode" / "opencode.json"
-if OPENCODE_JSON.exists():
+OPENCODE_JSONS = [
+    HOME / ".opencode" / "opencode.json",
+    HOME / ".config" / "opencode" / "opencode.json",
+    HOME / ".config" / "opencode" / "tui.json",
+]
+
+for OPENCODE_JSON in OPENCODE_JSONS:
+    if not OPENCODE_JSON.exists():
+        print(f"  SKIP opencode: {OPENCODE_JSON} not found")
+        continue
+
     backup = str(OPENCODE_JSON) + ".bak." + datetime.now().strftime("%Y%m%d-%H%M%S")
     shutil.copy(OPENCODE_JSON, backup)
 
@@ -86,40 +95,44 @@ if OPENCODE_JSON.exists():
     if UNINSTALL:
         removed = 0
         for skill_name in list(skills.keys()):
-            if skill_name in cmds and f"skills/{skill_name}/SKILL.md" in cmds[skill_name].get("template", ""):
+            template = cmds.get(skill_name, {}).get("template", "")
+            if skill_name in cmds and ".opencode/skills/" in template:
                 del cmds[skill_name]
                 removed += 1
-        # restore evolve-instincts → evolve if present
         if "evolve-instincts" in cmds and "evolve" not in cmds:
             cmds["evolve"] = {k: v for k, v in cmds["evolve-instincts"].items() if k != "description"}
             cmds["evolve"]["description"] = "Cluster ECC instincts into skills"
             del cmds["evolve-instincts"]
-        print(f"  opencode: removed {removed} commands")
+        print(f"  opencode ({OPENCODE_JSON}): removed {removed} commands")
     else:
-        # rename existing ECC evolve to avoid collision
-        if "evolve" in cmds and f"skills/evolve/SKILL.md" not in cmds["evolve"].get("template", ""):
+        if "evolve" in cmds and ".opencode/skills/evolve/SKILL.md" not in cmds["evolve"].get("template", ""):
             if "evolve-instincts" not in cmds:
                 cmds["evolve-instincts"] = {**cmds["evolve"], "description": "Cluster ECC instincts into skills (evolve-instincts)"}
             del cmds["evolve"]
 
         added = skipped = 0
         for skill_name, meta in sorted(skills.items()):
-            if skill_name in cmds and f"skills/{skill_name}/SKILL.md" in cmds[skill_name].get("template", ""):
+            primary = HOME / ".opencode" / "skills" / skill_name / "SKILL.md"
+            fallback = HOME / ".opencode" / "skills" / f"prometheus-{skill_name}" / "SKILL.md"
+            skill_file = primary if primary.exists() else fallback
+            wanted_template = f"{{file:{skill_file}}}\n\n\$ARGUMENTS"
+            if skill_name in cmds and cmds[skill_name].get("template") == wanted_template:
                 skipped += 1
                 continue
             cmds[skill_name] = {
                 "description": meta["description"],
-                "template": f"{{file:skills/{skill_name}/SKILL.md}}\n\n\$ARGUMENTS",
+                "template": wanted_template,
             }
             added += 1
-        print(f"  opencode: added {added}, skipped {skipped} (total {len(cmds)} commands)")
+        print(
+            f"  opencode ({OPENCODE_JSON}): added {added}, "
+            f"skipped {skipped} (total {len(cmds)} commands)"
+        )
 
     config["command"] = cmds
     with open(OPENCODE_JSON, "w") as f:
         json.dump(config, f, indent=2)
         f.write("\n")
-else:
-    print("  SKIP opencode: ~/.opencode/opencode.json not found")
 
 # ── codex prompts ─────────────────────────────────────────────────────────────
 # A prompt points at the SKILL.md in THIS REPO, not at a copy under ~/.codex/skills.

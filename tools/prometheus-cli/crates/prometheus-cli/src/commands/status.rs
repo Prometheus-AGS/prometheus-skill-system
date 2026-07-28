@@ -22,8 +22,14 @@ pub fn run(path: &str) -> Result<()> {
         let content = std::fs::read_to_string(&waypoint)?;
         let wp: serde_json::Value = serde_json::from_str(&content)?;
         println!("\n  {} KBD Waypoint", "▸".cyan());
-        println!("    Phase: {}", wp["active_phase"].as_str().unwrap_or("—").bold());
-        println!("    Next:  {}", wp["exact_next_command"].as_str().unwrap_or("—").green());
+        println!(
+            "    Phase: {}",
+            wp["active_phase"].as_str().unwrap_or("—").bold()
+        );
+        println!(
+            "    Next:  {}",
+            wp["exact_next_command"].as_str().unwrap_or("—").green()
+        );
     }
 
     // Evolver state

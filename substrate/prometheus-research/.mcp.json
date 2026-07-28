@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "prometheus-research": {
+      "command": "prometheus-research",
+      "args": ["--mode", "mcp"]
+    }
+  }
+}

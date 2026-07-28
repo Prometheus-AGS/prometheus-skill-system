@@ -69,5 +69,5 @@ client.publish("my-channel", payload = "hello".encodeToByteArray())
 
 ## SDK source
 
-Source code: `/Users/gqadonis/Projects/prometheus/flint-realtime-fabric/sdks/kotlin/`  
+Source code: `<flint-realtime-fabric>/sdks/kotlin/`. Resolve the repository root from the current workspace or `FLINT_REPO_ROOT`.
 Root project: `frf-kotlin`

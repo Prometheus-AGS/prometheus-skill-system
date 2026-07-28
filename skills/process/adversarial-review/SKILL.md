@@ -43,6 +43,22 @@ Run an **isolated, cross-model, mandate-to-find-problems review** of either a
 change diff (post-implementation) or a KBD planning artifact
 (pre-implementation).
 
+## Progress Signals (MANDATORY)
+
+Before building the review packet, emit:
+
+```text
+Starting adversarial-review — <mode> <target>
+```
+
+After the normalized findings are written, emit:
+
+```text
+Completed adversarial-review — <verdict> (<critical>/<warning>/<suggestion>)
+```
+
+Use the target and counts from the packet/findings files. Never guess them.
+
 This is a different job from the existing gates:
 
 - `refine-validate` is a **deterministic checklist** — it catches what was
@@ -144,7 +160,8 @@ degrade, never block the pipeline:
    `"isolation_mode": "harness-native"` — a weaker guarantee (same model
    family), stated, not hidden.
 3. **Skip with warning** (exit 4) — no judge available at all. Record
-   `adversarial_review: SKIPPED (<reason>)` in the phase `progress.json`.
+   `adversarial_review: SKIPPED (<reason>)` as a canonical KBD decision; never
+   edit the phase progress projection.
    Never fail the phase because review infrastructure is missing.
 
 ## Output contract
@@ -174,7 +191,7 @@ Severity semantics (matches the OpenSpec reporting convention):
 
 | Severity | Diff mode | Artifact mode |
 |---|---|---|
-| `CRITICAL` | `certification: BLOCKED` in progress.json; fix, then re-run refine-validate **and** adversarial-review | revise artifact and re-vet (max 2 rounds, then accept with an "Unresolved review findings" section appended so the next stage sees them) |
+| `CRITICAL` | record a KBD blocker and set certification `blocked`; fix, then re-run refine-validate **and** adversarial-review | revise artifact and re-vet (max 2 rounds, then accept with an "Unresolved review findings" section appended so the next stage sees them) |
 | `WARNING` | logged in the change's review dir; proceed to archive | appended to the stage handoff summary |
 | `SUGGESTION` | informational | informational |
 

@@ -71,6 +71,6 @@ await client.publish(
 
 ## SDK source
 
-Source code: `/Users/gqadonis/Projects/prometheus/flint-realtime-fabric/sdks/dart/`  
+Source code: `<flint-realtime-fabric>/sdks/dart/`. Resolve the repository root from the current workspace or `FLINT_REPO_ROOT`.
 Package name: `frf_dart`  
 Generated types: `lib/` (from `build_dart.sh` — regenerate if proto schema changes)

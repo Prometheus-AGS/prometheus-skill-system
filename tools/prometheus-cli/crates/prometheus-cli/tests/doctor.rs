@@ -171,7 +171,10 @@ fn doctor_dry_run_refresh_is_non_mutating() {
     );
 
     let after = collect_paths(&project_root);
-    assert_eq!(before, after, "dry-run refresh must not mutate the filesystem");
+    assert_eq!(
+        before, after,
+        "dry-run refresh must not mutate the filesystem"
+    );
 }
 
 #[test]
@@ -201,19 +204,14 @@ fn doctor_refresh_json_emits_scoped_repair_plan() {
 
     assert!(
         safe_actions.iter().any(|action| {
-            action
-                .get("id")
-                .and_then(|value| value.as_str())
+            action.get("id").and_then(|value| value.as_str())
                 == Some("services.install-mcp-services")
         }),
         "refresh plan should surface the managed services repair action; payload: {payload}"
     );
     assert!(
         manual_actions.iter().any(|action| {
-            action
-                .get("id")
-                .and_then(|value| value.as_str())
-                == Some("manual.review-hooks")
+            action.get("id").and_then(|value| value.as_str()) == Some("manual.review-hooks")
         }),
         "refresh plan should preserve manual-only boundaries; payload: {payload}"
     );
@@ -240,5 +238,8 @@ fn doctor_refresh_requires_yes_or_dry_run_for_mutation() {
     );
 
     let after = collect_paths(&project_root);
-    assert_eq!(before, after, "refresh without --yes must not mutate the filesystem");
+    assert_eq!(
+        before, after,
+        "refresh without --yes must not mutate the filesystem"
+    );
 }

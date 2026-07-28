@@ -81,8 +81,37 @@ GOALS_FILE="${PHASE_DIR}/goals.md"
   fi
 } > "${GOALS_FILE}"
 
+RUNTIME_AUTHORITY=0
+REPO_ROOT="$(pwd -P)"
+RUNTIME_LIB="$REPO_ROOT/shared/scripts/lib/runtime-authority.sh"
+if [ -f "$RUNTIME_LIB" ]; then
+  # shellcheck source=/dev/null
+  . "$RUNTIME_LIB"
+fi
+if command -v kbd_runtime_authoritative >/dev/null 2>&1 &&
+   kbd_runtime_authoritative "$REPO_ROOT"; then
+  RUNTIME_AUTHORITY=1
+  mutation="$(kbd_runtime_mutation_args "$REPO_ROOT" "phase-create:${PHASE_NAME}")"
+  revision="$(printf '%s\n' "$mutation" | sed -n '1p')"
+  lease_id="$(printf '%s\n' "$mutation" | sed -n '3p')"
+  fencing_token="$(printf '%s\n' "$mutation" | sed -n '4p')"
+  prometheus kbd --path "$REPO_ROOT" phase create \
+    --expected-revision "$revision" --command-id "phase-create:${PHASE_NAME}" \
+    --lease-id "$lease_id" --fencing-token "$fencing_token" \
+    --id "$PHASE_NAME" --title "$PHASE_NAME" >/dev/null
+  mutation="$(kbd_runtime_mutation_args "$REPO_ROOT" "phase-activate:${PHASE_NAME}")"
+  revision="$(printf '%s\n' "$mutation" | sed -n '1p')"
+  lease_id="$(printf '%s\n' "$mutation" | sed -n '3p')"
+  fencing_token="$(printf '%s\n' "$mutation" | sed -n '4p')"
+  prometheus kbd --path "$REPO_ROOT" phase activate \
+    --expected-revision "$revision" --command-id "phase-activate:${PHASE_NAME}" \
+    --lease-id "$lease_id" --fencing-token "$fencing_token" \
+    --id "$PHASE_NAME" --exact-next-work "/kbd-assess ${PHASE_NAME}" >/dev/null
+fi
+
 # Write progress.json
 PROGRESS_FILE="${PHASE_DIR}/progress.json"
+if [ "$RUNTIME_AUTHORITY" = "0" ]; then
 python3 -c "
 import json
 data = {
@@ -103,6 +132,7 @@ data = {
 }
 print(json.dumps(data, indent=2))
 " > "${PROGRESS_FILE}"
+fi
 
 # Write evolver-bridge.json
 BRIDGE_FILE="${PHASE_DIR}/evolver-bridge.json"
@@ -120,7 +150,7 @@ print(json.dumps(data, indent=2))
 
 # Update current-waypoint.json
 WAYPOINT_FILE=".kbd-orchestrator/current-waypoint.json"
-if [ -f "${WAYPOINT_FILE}" ]; then
+if [ "$RUNTIME_AUTHORITY" = "0" ] && [ -f "${WAYPOINT_FILE}" ]; then
   if python3 -c "import json; json.load(open('${WAYPOINT_FILE}'))" 2>/dev/null; then
     PREV_PHASE=$(python3 -c "import json; d=json.load(open('${WAYPOINT_FILE}')); print(d.get('phase',''))")
     python3 -c "

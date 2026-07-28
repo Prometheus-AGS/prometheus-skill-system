@@ -1,16 +1,17 @@
 {
   "schemaVersion": "1",
-  "updatedAt": "2026-07-13T18:18:11Z",
+  "sourceRevision": 0,
+  "updatedAt": "2026-07-28T15:33:03Z",
   "cursor": [
-    "phase-codex-plugin-verify-and-publish"
+    "docusaurus-github-pages-site"
   ],
   "root": {
     "type": "phase",
-    "id": "phase-codex-plugin-verify-and-publish",
+    "id": "docusaurus-github-pages-site",
     "status": "reflect_complete",
     "progress": {
-      "done": 6,
-      "total": 6
+      "done": 8,
+      "total": 8
     },
     "children": [],
     "annotations": []

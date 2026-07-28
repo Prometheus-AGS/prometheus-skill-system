@@ -1,11 +1,14 @@
 use anyhow::Result;
 use clap::{Parser, Subcommand};
+use std::collections::BTreeMap;
 
 mod commands;
 
 #[derive(Parser)]
 #[command(name = "prometheus")]
-#[command(about = "Self-improving skill execution engine — manage, optimize, and learn from AI skills")]
+#[command(
+    about = "Self-improving skill execution engine — manage, optimize, and learn from AI skills"
+)]
 #[command(version)]
 #[command(propagate_version = true)]
 struct Cli {
@@ -108,6 +111,24 @@ enum Commands {
         /// Project path
         #[arg(short, long, default_value = ".")]
         path: String,
+    },
+
+    /// Control and audit the canonical KBD runtime
+    Kbd {
+        /// Project path (walks upward to find .kbd-orchestrator)
+        #[arg(short, long, default_value = ".")]
+        path: String,
+        #[command(subcommand)]
+        action: KbdAction,
+    },
+
+    /// Evaluate and budget the portable skill instruction plane
+    Skill {
+        /// Skill tree to inspect
+        #[arg(long, default_value = "skills")]
+        path: String,
+        #[command(subcommand)]
+        action: SkillAction,
     },
 
     /// Generate skills from source code repositories
@@ -265,6 +286,391 @@ enum SycophancyAction {
 }
 
 #[derive(Subcommand)]
+enum SkillAction {
+    /// Validate Agent Skills frontmatter, limits, duplicate names, and collisions
+    Lint {
+        #[arg(long)]
+        json: bool,
+    },
+    /// Measure discovery inventory against a captured harness character budget
+    Budget {
+        #[arg(long)]
+        harness: String,
+        #[arg(long)]
+        budget_chars: Option<usize>,
+        #[arg(long)]
+        json: bool,
+    },
+    /// Validate or grade the critical-skill activation corpus
+    Eval {
+        #[arg(long)]
+        harness: String,
+        #[arg(long, default_value = "evals/skill-activation/critical-36.json")]
+        corpus: String,
+        #[arg(long)]
+        trace: Option<String>,
+        #[arg(long)]
+        json: bool,
+    },
+}
+
+#[derive(Subcommand)]
+enum KbdAction {
+    /// Show lifecycle, revision, plan, checkpoint, and lease state
+    Status {
+        #[arg(long)]
+        json: bool,
+    },
+    /// Gracefully checkpoint and pause the run
+    Pause {
+        #[arg(long)]
+        reason: String,
+    },
+    /// Record a course correction as a new immutable plan revision
+    Revise {
+        #[arg(long)]
+        reason: String,
+        #[arg(long)]
+        exact_next_work: Option<String>,
+    },
+    /// Resume a paused run after claiming or validating its lease
+    Resume {
+        #[arg(long)]
+        plan_revision: Option<u64>,
+    },
+    /// Gracefully terminate the run
+    Cancel {
+        #[arg(long)]
+        reason: String,
+    },
+    /// Claim the single-writer lease
+    Claim {
+        #[arg(long, default_value = "project/phase")]
+        scope: String,
+        #[arg(long)]
+        force: bool,
+    },
+    /// Renew the active writer lease (normally every 30 seconds)
+    Heartbeat,
+    /// Release the current writer lease
+    Release,
+    /// Atomically transfer ownership to another harness
+    Handoff {
+        #[arg(long)]
+        to: String,
+    },
+    /// Show immutable events
+    Audit {
+        #[arg(long)]
+        since: Option<String>,
+        #[arg(long)]
+        json: bool,
+    },
+    /// Follow new events until interrupted
+    Watch,
+    /// Inventory or apply legacy-state migration
+    Migrate {
+        #[arg(long, conflicts_with = "apply")]
+        check: bool,
+        #[arg(long)]
+        apply: bool,
+    },
+    /// Record shadow/canary evidence and enforce promotion thresholds
+    Rollout {
+        #[command(subcommand)]
+        action: KbdRolloutAction,
+    },
+    /// Create, activate, or transition a canonical phase
+    Phase {
+        #[command(subcommand)]
+        action: KbdPhaseAction,
+    },
+    /// Enter or transition a canonical stage
+    Stage {
+        #[command(subcommand)]
+        action: KbdStageAction,
+    },
+    /// Register or transition a canonical change
+    Change {
+        #[command(subcommand)]
+        action: KbdChangeAction,
+    },
+    /// Register or transition a canonical task
+    Task {
+        #[command(subcommand)]
+        action: KbdTaskAction,
+    },
+    /// Set an independent completion dimension
+    Completion {
+        #[command(subcommand)]
+        action: KbdCompletionAction,
+    },
+    /// Record an immutable architectural or plan decision
+    Decision {
+        #[command(subcommand)]
+        action: KbdDecisionAction,
+    },
+    /// Record or clear a blocker
+    Blocker {
+        #[command(subcommand)]
+        action: KbdBlockerAction,
+    },
+}
+
+#[derive(Subcommand)]
+enum KbdRolloutAction {
+    /// Show the current rollout stage and next promotion gate
+    Status,
+    /// Add one idempotent, non-authoritative observation
+    Observe {
+        #[arg(long)]
+        observation_id: String,
+        #[arg(long)]
+        observed_at: Option<String>,
+        #[arg(long, default_value_t = 0)]
+        real_mutations: u64,
+        #[arg(long, default_value_t = 0)]
+        synthetic_replay_mutations: u64,
+        #[arg(long, default_value_t = 0)]
+        unexplained_projection_mismatches: u64,
+        #[arg(long)]
+        harness: Option<String>,
+        #[arg(long)]
+        device: Option<String>,
+        #[arg(long, default_value_t = 1)]
+        voters: u64,
+        #[arg(long)]
+        failed: bool,
+    },
+    /// Advance only when every acceptance threshold for the current stage passes
+    Promote,
+}
+
+#[derive(clap::Args, Clone)]
+struct KbdMutationArgs {
+    #[arg(long)]
+    expected_revision: u64,
+    #[arg(long)]
+    command_id: String,
+    #[arg(long)]
+    lease_id: String,
+    #[arg(long)]
+    fencing_token: u64,
+}
+
+#[derive(Clone, clap::ValueEnum)]
+enum KbdWorkStatus {
+    Pending,
+    InProgress,
+    Blocked,
+    Complete,
+    Cancelled,
+}
+
+impl From<KbdWorkStatus> for kbd_runtime::WorkStatus {
+    fn from(value: KbdWorkStatus) -> Self {
+        match value {
+            KbdWorkStatus::Pending => Self::Pending,
+            KbdWorkStatus::InProgress => Self::InProgress,
+            KbdWorkStatus::Blocked => Self::Blocked,
+            KbdWorkStatus::Complete => Self::Complete,
+            KbdWorkStatus::Cancelled => Self::Cancelled,
+        }
+    }
+}
+
+#[derive(Clone, clap::ValueEnum)]
+enum KbdCompletionDimension {
+    Implementation,
+    Evidence,
+    Certification,
+    Publication,
+}
+
+impl From<KbdCompletionDimension> for kbd_runtime::CompletionDimension {
+    fn from(value: KbdCompletionDimension) -> Self {
+        match value {
+            KbdCompletionDimension::Implementation => Self::Implementation,
+            KbdCompletionDimension::Evidence => Self::Evidence,
+            KbdCompletionDimension::Certification => Self::Certification,
+            KbdCompletionDimension::Publication => Self::Publication,
+        }
+    }
+}
+
+#[derive(Subcommand)]
+enum KbdPhaseAction {
+    Create {
+        #[command(flatten)]
+        mutation: KbdMutationArgs,
+        #[arg(long)]
+        id: String,
+        #[arg(long)]
+        slug: Option<String>,
+        #[arg(long)]
+        title: String,
+        #[arg(long)]
+        parent: Option<String>,
+    },
+    Activate {
+        #[command(flatten)]
+        mutation: KbdMutationArgs,
+        #[arg(long)]
+        id: String,
+        #[arg(long = "ancestor")]
+        ancestors: Vec<String>,
+        #[arg(long)]
+        exact_next_work: Option<String>,
+    },
+    Transition {
+        #[command(flatten)]
+        mutation: KbdMutationArgs,
+        #[arg(long)]
+        id: String,
+        #[arg(long, value_enum)]
+        status: KbdWorkStatus,
+    },
+}
+
+#[derive(Subcommand)]
+enum KbdStageAction {
+    Enter {
+        #[command(flatten)]
+        mutation: KbdMutationArgs,
+        #[arg(long)]
+        phase: String,
+        #[arg(long)]
+        id: String,
+        #[arg(long)]
+        title: String,
+        #[arg(long, default_value_t = 0)]
+        sequence: u64,
+    },
+    Transition {
+        #[command(flatten)]
+        mutation: KbdMutationArgs,
+        #[arg(long)]
+        phase: String,
+        #[arg(long)]
+        id: String,
+        #[arg(long, value_enum)]
+        status: KbdWorkStatus,
+    },
+}
+
+#[derive(Subcommand)]
+enum KbdChangeAction {
+    Register {
+        #[command(flatten)]
+        mutation: KbdMutationArgs,
+        #[arg(long)]
+        phase: String,
+        #[arg(long)]
+        id: String,
+        #[arg(long)]
+        title: String,
+        #[arg(long, default_value_t = 0)]
+        sequence: u64,
+    },
+    Transition {
+        #[command(flatten)]
+        mutation: KbdMutationArgs,
+        #[arg(long)]
+        phase: String,
+        #[arg(long)]
+        id: String,
+        #[arg(long, value_enum)]
+        status: KbdWorkStatus,
+    },
+}
+
+#[derive(Subcommand)]
+enum KbdTaskAction {
+    Register {
+        #[command(flatten)]
+        mutation: KbdMutationArgs,
+        #[arg(long)]
+        phase: String,
+        #[arg(long)]
+        change: String,
+        #[arg(long)]
+        id: String,
+        #[arg(long)]
+        title: String,
+        #[arg(long, default_value_t = 0)]
+        sequence: u64,
+    },
+    Transition {
+        #[command(flatten)]
+        mutation: KbdMutationArgs,
+        #[arg(long)]
+        phase: String,
+        #[arg(long)]
+        change: String,
+        #[arg(long)]
+        id: String,
+        #[arg(long, value_enum)]
+        status: KbdWorkStatus,
+        #[arg(long)]
+        summary: Option<String>,
+    },
+}
+
+#[derive(Subcommand)]
+enum KbdCompletionAction {
+    Set {
+        #[command(flatten)]
+        mutation: KbdMutationArgs,
+        #[arg(long, value_enum)]
+        dimension: KbdCompletionDimension,
+        #[arg(long)]
+        completed: u64,
+        #[arg(long)]
+        total: u64,
+        #[arg(long, value_enum)]
+        status: KbdWorkStatus,
+        #[arg(long)]
+        summary: Option<String>,
+        #[arg(long)]
+        blocker: Vec<String>,
+    },
+}
+
+#[derive(Subcommand)]
+enum KbdDecisionAction {
+    Record {
+        #[command(flatten)]
+        mutation: KbdMutationArgs,
+        #[arg(long)]
+        id: String,
+        #[arg(long)]
+        summary: String,
+        #[arg(long)]
+        supersedes: Option<String>,
+    },
+}
+
+#[derive(Subcommand)]
+enum KbdBlockerAction {
+    Record {
+        #[command(flatten)]
+        mutation: KbdMutationArgs,
+        #[arg(long)]
+        id: String,
+        #[arg(long)]
+        summary: String,
+    },
+    Clear {
+        #[command(flatten)]
+        mutation: KbdMutationArgs,
+        #[arg(long)]
+        id: String,
+        #[arg(long)]
+        resolution: String,
+    },
+}
+
+#[derive(Subcommand)]
 enum MemoryAction {
     /// Check server health
     Ping,
@@ -290,33 +696,38 @@ enum MemoryAction {
 async fn main() -> Result<()> {
     tracing_subscriber::fmt()
         .with_env_filter(
-            tracing_subscriber::EnvFilter::try_from_default_env()
-                .unwrap_or_else(|_| "warn".into()),
+            tracing_subscriber::EnvFilter::try_from_default_env().unwrap_or_else(|_| "warn".into()),
         )
         .init();
 
     let cli = Cli::parse();
 
     match cli.command {
-        Commands::Install { source, agent, local, no_symlink, plugin } => {
-            commands::install::run(&source, agent.as_deref(), local, no_symlink, plugin).await
-        }
-        Commands::Uninstall { name, agent } => {
-            commands::uninstall::run(&name, agent.as_deref())
-        }
-        Commands::List { all, global, project, verbose } => {
-            commands::list::run(all, global, project, verbose)
-        }
-        Commands::Search { query, limit } => {
-            commands::search::run(&query, limit).await
-        }
-        Commands::Audit { path } => {
-            commands::audit::run(path.as_deref())
-        }
-        Commands::Verify { update } => {
-            commands::verify::run(update)
-        }
-        Commands::Doctor { json, check, fix, refresh, dry_run, yes } => {
+        Commands::Install {
+            source,
+            agent,
+            local,
+            no_symlink,
+            plugin,
+        } => commands::install::run(&source, agent.as_deref(), local, no_symlink, plugin).await,
+        Commands::Uninstall { name, agent } => commands::uninstall::run(&name, agent.as_deref()),
+        Commands::List {
+            all,
+            global,
+            project,
+            verbose,
+        } => commands::list::run(all, global, project, verbose),
+        Commands::Search { query, limit } => commands::search::run(&query, limit).await,
+        Commands::Audit { path } => commands::audit::run(path.as_deref()),
+        Commands::Verify { update } => commands::verify::run(update),
+        Commands::Doctor {
+            json,
+            check,
+            fix,
+            refresh,
+            dry_run,
+            yes,
+        } => {
             commands::doctor::run(commands::doctor::DoctorOptions {
                 json,
                 check,
@@ -327,57 +738,375 @@ async fn main() -> Result<()> {
             })
             .await
         }
-        Commands::Status { path } => {
-            commands::status::run(&path)
+        Commands::Status { path } => commands::status::run(&path),
+        Commands::Kbd { path, action } => {
+            let typed_command = |mutation: KbdMutationArgs, command: kbd_runtime::CommandKind| {
+                commands::kbd::Action::Command {
+                    expected_revision: mutation.expected_revision,
+                    command_id: mutation.command_id,
+                    lease_id: mutation.lease_id,
+                    fencing_token: mutation.fencing_token,
+                    command,
+                }
+            };
+            let action = match action {
+                KbdAction::Status { json } => commands::kbd::Action::Status { json },
+                KbdAction::Pause { reason } => commands::kbd::Action::Pause { reason },
+                KbdAction::Revise {
+                    reason,
+                    exact_next_work,
+                } => commands::kbd::Action::Revise {
+                    reason,
+                    exact_next_work,
+                },
+                KbdAction::Resume { plan_revision } => {
+                    commands::kbd::Action::Resume { plan_revision }
+                }
+                KbdAction::Cancel { reason } => commands::kbd::Action::Cancel { reason },
+                KbdAction::Claim { scope, force } => commands::kbd::Action::Claim { scope, force },
+                KbdAction::Heartbeat => commands::kbd::Action::Heartbeat,
+                KbdAction::Release => commands::kbd::Action::Release,
+                KbdAction::Handoff { to } => commands::kbd::Action::Handoff { to },
+                KbdAction::Audit { since, json } => commands::kbd::Action::Audit { since, json },
+                KbdAction::Watch => commands::kbd::Action::Watch,
+                KbdAction::Migrate { check, apply } => {
+                    commands::kbd::Action::Migrate { check, apply }
+                }
+                KbdAction::Rollout { action } => match action {
+                    KbdRolloutAction::Status => commands::kbd::Action::RolloutStatus,
+                    KbdRolloutAction::Observe {
+                        observation_id,
+                        observed_at,
+                        real_mutations,
+                        synthetic_replay_mutations,
+                        unexplained_projection_mismatches,
+                        harness,
+                        device,
+                        voters,
+                        failed,
+                    } => commands::kbd::Action::RolloutObserve {
+                        observation_id,
+                        observed_at,
+                        real_mutations,
+                        synthetic_replay_mutations,
+                        unexplained_projection_mismatches,
+                        harness,
+                        device,
+                        voters,
+                        successful: !failed,
+                    },
+                    KbdRolloutAction::Promote => commands::kbd::Action::RolloutPromote,
+                },
+                KbdAction::Phase { action } => match action {
+                    KbdPhaseAction::Create {
+                        mutation,
+                        id,
+                        slug,
+                        title,
+                        parent,
+                    } => typed_command(
+                        mutation,
+                        kbd_runtime::CommandKind::PhaseDefine {
+                            phase: kbd_runtime::Phase {
+                                slug: slug.unwrap_or_else(|| id.clone()),
+                                id,
+                                title,
+                                parent_phase_id: parent,
+                                status: kbd_runtime::WorkStatus::Pending,
+                                stages: BTreeMap::new(),
+                                changes: BTreeMap::new(),
+                                legacy_read_only: false,
+                            },
+                        },
+                    ),
+                    KbdPhaseAction::Activate {
+                        mutation,
+                        id,
+                        mut ancestors,
+                        exact_next_work,
+                    } => {
+                        ancestors.push(id.clone());
+                        typed_command(
+                            mutation,
+                            kbd_runtime::CommandKind::ActivePathSet {
+                                active_path: kbd_runtime::ActivePath {
+                                    phase_path: ancestors,
+                                    phase_id: Some(id),
+                                    ..Default::default()
+                                },
+                                exact_next_work,
+                            },
+                        )
+                    }
+                    KbdPhaseAction::Transition {
+                        mutation,
+                        id,
+                        status,
+                    } => typed_command(
+                        mutation,
+                        kbd_runtime::CommandKind::PhaseTransition {
+                            phase_id: id,
+                            to: status.into(),
+                        },
+                    ),
+                },
+                KbdAction::Stage { action } => match action {
+                    KbdStageAction::Enter {
+                        mutation,
+                        phase,
+                        id,
+                        title,
+                        sequence,
+                    } => typed_command(
+                        mutation,
+                        kbd_runtime::CommandKind::StageEnter {
+                            phase_id: phase,
+                            stage: kbd_runtime::Stage {
+                                id,
+                                title,
+                                sequence,
+                                status: kbd_runtime::WorkStatus::InProgress,
+                            },
+                        },
+                    ),
+                    KbdStageAction::Transition {
+                        mutation,
+                        phase,
+                        id,
+                        status,
+                    } => typed_command(
+                        mutation,
+                        kbd_runtime::CommandKind::StageTransition {
+                            phase_id: phase,
+                            stage_id: id,
+                            to: status.into(),
+                        },
+                    ),
+                },
+                KbdAction::Change { action } => match action {
+                    KbdChangeAction::Register {
+                        mutation,
+                        phase,
+                        id,
+                        title,
+                        sequence,
+                    } => typed_command(
+                        mutation,
+                        kbd_runtime::CommandKind::ChangeRegister {
+                            phase_id: phase,
+                            change: kbd_runtime::Change {
+                                id,
+                                title,
+                                sequence,
+                                status: kbd_runtime::WorkStatus::Pending,
+                                implementation_status: kbd_runtime::WorkStatus::Pending,
+                                tasks: BTreeMap::new(),
+                            },
+                        },
+                    ),
+                    KbdChangeAction::Transition {
+                        mutation,
+                        phase,
+                        id,
+                        status,
+                    } => typed_command(
+                        mutation,
+                        kbd_runtime::CommandKind::ChangeTransition {
+                            phase_id: phase,
+                            change_id: id,
+                            to: status.into(),
+                        },
+                    ),
+                },
+                KbdAction::Task { action } => match action {
+                    KbdTaskAction::Register {
+                        mutation,
+                        phase,
+                        change,
+                        id,
+                        title,
+                        sequence,
+                    } => typed_command(
+                        mutation,
+                        kbd_runtime::CommandKind::TaskRegister {
+                            phase_id: phase,
+                            change_id: change,
+                            task: kbd_runtime::Task {
+                                id,
+                                title,
+                                sequence,
+                                status: kbd_runtime::WorkStatus::Pending,
+                                summary: None,
+                            },
+                        },
+                    ),
+                    KbdTaskAction::Transition {
+                        mutation,
+                        phase,
+                        change,
+                        id,
+                        status,
+                        summary,
+                    } => typed_command(
+                        mutation,
+                        kbd_runtime::CommandKind::TaskTransition {
+                            phase_id: phase,
+                            change_id: change,
+                            task_id: id,
+                            to: status.into(),
+                            summary,
+                        },
+                    ),
+                },
+                KbdAction::Completion { action } => match action {
+                    KbdCompletionAction::Set {
+                        mutation,
+                        dimension,
+                        completed,
+                        total,
+                        status,
+                        summary,
+                        blocker,
+                    } => typed_command(
+                        mutation,
+                        kbd_runtime::CommandKind::CompletionSet {
+                            dimension: dimension.into(),
+                            completion: kbd_runtime::Completion {
+                                completed,
+                                total,
+                                status: status.into(),
+                                summary,
+                                blockers: blocker,
+                            },
+                        },
+                    ),
+                },
+                KbdAction::Decision { action } => match action {
+                    KbdDecisionAction::Record {
+                        mutation,
+                        id,
+                        summary,
+                        supersedes,
+                    } => typed_command(
+                        mutation,
+                        kbd_runtime::CommandKind::DecisionRecord {
+                            decision: kbd_runtime::Decision {
+                                id,
+                                summary,
+                                plan_revision: 0,
+                                supersedes,
+                            },
+                        },
+                    ),
+                },
+                KbdAction::Blocker { action } => match action {
+                    KbdBlockerAction::Record {
+                        mutation,
+                        id,
+                        summary,
+                    } => typed_command(
+                        mutation,
+                        kbd_runtime::CommandKind::BlockerRecord {
+                            blocker: kbd_runtime::Blocker {
+                                id,
+                                summary,
+                                resolved: false,
+                                resolution: None,
+                            },
+                        },
+                    ),
+                    KbdBlockerAction::Clear {
+                        mutation,
+                        id,
+                        resolution,
+                    } => typed_command(
+                        mutation,
+                        kbd_runtime::CommandKind::BlockerClear {
+                            blocker_id: id,
+                            resolution,
+                        },
+                    ),
+                },
+            };
+            commands::kbd::run(&path, action).await
         }
+        Commands::Skill { path, action } => match action {
+            SkillAction::Lint { json } => commands::skill::lint(std::path::Path::new(&path), json),
+            SkillAction::Budget {
+                harness,
+                budget_chars,
+                json,
+            } => commands::skill::budget(std::path::Path::new(&path), &harness, budget_chars, json),
+            SkillAction::Eval {
+                harness,
+                corpus,
+                trace,
+                json,
+            } => commands::skill::eval(
+                std::path::Path::new(&corpus),
+                &harness,
+                trace.as_deref().map(std::path::Path::new),
+                json,
+            ),
+        },
         Commands::Generate { path, language } => {
             commands::generate::run(&path, language.as_deref())
         }
-        Commands::Validate { path } => {
-            commands::validate::run(path.as_deref())
-        }
-        Commands::Build { service, overlay, gitops_path } => {
-            commands::build::run(&gitops_path, &service, &overlay)
-        }
+        Commands::Validate { path } => commands::validate::run(path.as_deref()),
+        Commands::Build {
+            service,
+            overlay,
+            gitops_path,
+        } => commands::build::run(&gitops_path, &service, &overlay),
         Commands::Memory { action } => match action {
             MemoryAction::Ping => commands::memory::ping().await,
             MemoryAction::Stats => commands::memory::stats().await,
             MemoryAction::Search { query, r#type } => {
                 commands::memory::search(&query, r#type.as_deref()).await
             }
-            MemoryAction::Install { dry_run } => {
-                commands::memory::install(dry_run).await
-            }
+            MemoryAction::Install { dry_run } => commands::memory::install(dry_run).await,
         },
-        Commands::Evolve { name, domain, phase } => {
-            commands::evolve::run(&name, &domain, phase.as_deref())
-        }
-        Commands::Learn { capture_session, seed, compile, lint, dry_run } => {
-            commands::learn::run(capture_session, seed, compile, lint, dry_run).await
-        }
+        Commands::Evolve {
+            name,
+            domain,
+            phase,
+        } => commands::evolve::run(&name, &domain, phase.as_deref()),
+        Commands::Learn {
+            capture_session,
+            seed,
+            compile,
+            lint,
+            dry_run,
+        } => commands::learn::run(capture_session, seed, compile, lint, dry_run).await,
         Commands::Policy { action } => match action {
             PolicyAction::Show => commands::policy::show(),
             PolicyAction::Validate => commands::policy::validate(),
-            PolicyAction::Check { agent, operation, skill, environment } => {
-                commands::policy::check(&agent, &operation, &skill, &environment)
-            }
+            PolicyAction::Check {
+                agent,
+                operation,
+                skill,
+                environment,
+            } => commands::policy::check(&agent, &operation, &skill, &environment),
         },
-        Commands::Optimize { skill, min_traces, dry_run } => {
-            commands::optimize::run(&skill, min_traces, dry_run).await
-        }
+        Commands::Optimize {
+            skill,
+            min_traces,
+            dry_run,
+        } => commands::optimize::run(&skill, min_traces, dry_run).await,
         Commands::Sycophancy { action } => match action {
             SycophancyAction::Detect { file, strictness } => {
                 commands::sycophancy::detect(&file, &strictness)
             }
-            SycophancyAction::Score { file } => {
-                commands::sycophancy::score(&file)
-            }
+            SycophancyAction::Score { file } => commands::sycophancy::score(&file),
             SycophancyAction::Correct { file, strictness } => {
                 commands::sycophancy::correct(&file, &strictness)
             }
         },
-        Commands::Setup { non_interactive, dry_run, check, rebuild } => {
-            commands::setup::run(non_interactive, dry_run, check, rebuild)
-        }
+        Commands::Setup {
+            non_interactive,
+            dry_run,
+            check,
+            rebuild,
+        } => commands::setup::run(non_interactive, dry_run, check, rebuild),
     }
 }

@@ -1,0 +1,10 @@
+{
+  "name": "prometheus-research-server",
+  "version": "1.6.0",
+  "description": "Prometheus background research server with MCP, HTTP, AG-UI SSE, and A2UI rendering.",
+  "author": {
+    "name": "Prometheus AGS"
+  },
+  "license": "MIT",
+  "mcpServers": "./.mcp.json"
+}

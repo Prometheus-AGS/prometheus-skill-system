@@ -47,11 +47,8 @@ kbd_progress_validate() {
     return 1
   }
 
-  # `changes` may be an array of objects (canonical), an array of strings
-  # (string-list ledgers — phase-level counter is the source of truth), or a
-  # map keyed by change id. Any of the three passes the canonical counter
-  # check; the per-change `implementation_status` invariant only applies when
-  # the array actually carries object rows.
+  # Schema v2 is strict and array-only. Legacy readers remain intentionally
+  # tolerant until `prometheus kbd migrate --apply` upgrades old ledgers.
   jq -e '
     def changes_list:
       if (.changes | type) == "array" then .changes
@@ -88,6 +85,16 @@ kbd_progress_validate() {
        (if has("implementation_completed") then .implementation_completed == impl_done else true end) and
        (if has("implementation_total") then .implementation_total == impl_total else true end)
      else true end) and
+    (if .schemaVersion? == "2" then
+       (.phase | type == "string" and length > 0) and
+       (.last_updated | type == "string" and length > 0) and
+       (.last_updated_by | type == "string" and length > 0) and
+       (.changes | type == "array") and
+       ([.changes[] | type == "object" and
+                      (.id | type == "string" and length > 0) and
+                      has("status") and has("implementation_status")] | all) and
+       ([.changes[].id] | length == (unique | length))
+     else true end) and
     (if (object_rows | length) > 0 and ([object_rows[] | has("implementation_status")] | any) then
        ([object_rows[] | has("implementation_status")] | all) and
        ([object_rows[] | select(.implementation_status == "COMPLETE")] | length) == impl_done
@@ -111,6 +118,36 @@ kbd_progress_validate() {
 # up by `.id`; for maps we look up by key.
 kbd_progress_mark_implementation_complete() {
   local file="$1" change_id="$2" tmp
+  if [ "$(jq -r '.generatedBy // empty' "$file" 2>/dev/null)" = "kbd-runtime" ]; then
+    command -v prometheus >/dev/null 2>&1 || {
+      printf 'kbd-progress: prometheus CLI is required in runtime-authority mode\n' >&2
+      return 1
+    }
+    local root phase state revision lease_id fencing_token
+    case "$file" in
+      */.kbd-orchestrator/*) root="${file%%/.kbd-orchestrator/*}" ;;
+      .kbd-orchestrator/*) root="." ;;
+      *) printf 'kbd-progress: cannot resolve project root from %s\n' "$file" >&2; return 1 ;;
+    esac
+    phase="$(jq -r '.phase // empty' "$file" 2>/dev/null)"
+    state="$(prometheus kbd --path "$root" status --json)" || return 1
+    revision="$(printf '%s' "$state" | jq -r '.revision')"
+    lease_id="$(printf '%s' "$state" | jq -r '.lease.leaseId // empty')"
+    fencing_token="$(printf '%s' "$state" | jq -r '.lease.fencingToken // empty')"
+    [ -n "$phase" ] && [ -n "$lease_id" ] && [ -n "$fencing_token" ] || {
+      printf 'kbd-progress: active phase and writer lease are required\n' >&2
+      return 1
+    }
+    prometheus kbd --path "$root" change transition \
+      --expected-revision "$revision" \
+      --command-id "implementation-complete:${phase}:${change_id}" \
+      --lease-id "$lease_id" \
+      --fencing-token "$fencing_token" \
+      --phase "$phase" \
+      --id "$change_id" \
+      --status complete >/dev/null
+    return $?
+  fi
   tmp="$(mktemp "${file}.XXXXXX")" || return 1
   if ! jq --arg id "$change_id" '
     def changes_list:
@@ -142,21 +179,21 @@ kbd_progress_mark_implementation_complete() {
       else
         false
       end;
-    (changes_list | length) as $change_count |
-    (object_rows | length) as $object_count |
-    (if $object_count > 0 then
-       ([object_rows[] |
-         select((.implementation_status //
-                 (if .status == "DONE" then "COMPLETE" else "PENDING" end)) == "COMPLETE")]
-        | length)
-     else
-       (.changes_completed // .implementation_completed // 0)
-     end) as $done |
-    (.implementation_total // .changes_total // $change_count) as $total |
     if (known_change | not) then
       error("unknown change id: " + $id)
     else
       mark_change |
+      (changes_list | length) as $change_count |
+      (object_rows | length) as $object_count |
+      (if $object_count > 0 then
+         ([object_rows[] |
+           select((.implementation_status //
+                   (if .status == "DONE" then "COMPLETE" else "PENDING" end)) == "COMPLETE")]
+          | length)
+       else
+         (.changes_completed // .implementation_completed // 0)
+       end) as $done |
+      (.implementation_total // .changes_total // $change_count) as $total |
       .completion = (.completion // {}) |
       .completion.primaryCounter = "implementation" |
       .completion.implementation = {

@@ -20,7 +20,10 @@ pub async fn run(skill: &str, min_traces: usize, dry_run: bool) -> Result<()> {
     let signature = parse_skill_to_signature(skill_path)?;
     println!("\n  Skill: {}", signature.name.cyan().bold());
     println!("  Description: {}", signature.description.dimmed());
-    println!("  Instruction length: {} chars", signature.instruction.len());
+    println!(
+        "  Instruction length: {} chars",
+        signature.instruction.len()
+    );
 
     // Load traces
     let store = TraceStore::default_for_project(Path::new("."));
@@ -37,12 +40,11 @@ pub async fn run(skill: &str, min_traces: usize, dry_run: bool) -> Result<()> {
         return Ok(());
     }
 
-    let successful = traces.iter().filter(|t| t.score.unwrap_or(0.0) >= 0.7).count();
-    let avg_score = traces
+    let successful = traces
         .iter()
-        .filter_map(|t| t.score)
-        .sum::<f64>()
-        / traces.len().max(1) as f64;
+        .filter(|t| t.score.unwrap_or(0.0) >= 0.7)
+        .count();
+    let avg_score = traces.iter().filter_map(|t| t.score).sum::<f64>() / traces.len().max(1) as f64;
 
     println!("  Successful traces: {}", successful.to_string().green());
     println!("  Average score: {:.2}", avg_score);
@@ -54,11 +56,20 @@ pub async fn run(skill: &str, min_traces: usize, dry_run: bool) -> Result<()> {
     println!("    4. Run MIPRO to optimize instruction");
     println!("    5. Write optimized prompt back to SKILL.md");
 
-    println!("\n  {} Full optimization requires dspy crate dependency", "ℹ️".dimmed());
-    println!("  {} Add git dependency to enable: dspy from GQAdonis/dspy-rs", "ℹ️".dimmed());
+    println!(
+        "\n  {} Full optimization requires dspy crate dependency",
+        "ℹ️".dimmed()
+    );
+    println!(
+        "  {} Add git dependency to enable: dspy from GQAdonis/dspy-rs",
+        "ℹ️".dimmed()
+    );
 
     if !dry_run {
-        println!("\n  {} Would write optimized SKILL.md (skipped — deps not yet linked)", "⏭️".dimmed());
+        println!(
+            "\n  {} Would write optimized SKILL.md (skipped — deps not yet linked)",
+            "⏭️".dimmed()
+        );
     }
 
     println!("\n{}", "✨ Optimization analysis complete".green().bold());

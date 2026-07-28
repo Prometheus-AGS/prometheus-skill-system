@@ -21,7 +21,10 @@ pub fn run(name: &str, domain: &str, phase: Option<&str>) -> Result<()> {
         .join(name);
 
     if state_dir.exists() {
-        println!("\n  {} Existing state found — will resume from last checkpoint", "📎".yellow());
+        println!(
+            "\n  {} Existing state found — will resume from last checkpoint",
+            "📎".yellow()
+        );
     } else {
         println!("\n  {} New evolution — will start fresh", "🆕".green());
     }

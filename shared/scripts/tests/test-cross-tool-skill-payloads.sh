@@ -9,7 +9,8 @@ trap 'rm -rf "$TMP_ROOT"' EXIT
 
 verify_payloads() {
   local target="$1"
-  python3 - "$REPO_ROOT" "$target" <<'PY'
+  local expected="$2"
+  python3 - "$REPO_ROOT" "$target" "$expected" <<'PY'
 import json
 import os
 import pathlib
@@ -18,6 +19,7 @@ import sys
 
 repo = pathlib.Path(sys.argv[1])
 target = pathlib.Path(sys.argv[2])
+expected = int(sys.argv[3])
 skills_root = repo / "skills"
 count = 0
 
@@ -48,7 +50,7 @@ for skill_md in skills_root.rglob("SKILL.md"):
         assert source_exec == installed_exec, f"{name}: executable mode mismatch {relative_file}"
     count += 1
 
-assert count == 139, f"expected 139 skills, verified {count}"
+assert count == expected, f"expected {expected} skills, verified {count}"
 print(f"verified={count}")
 PY
 }
@@ -56,10 +58,11 @@ PY
 MINIMAX_TARGET="$TMP_ROOT/direct-minimax"
 SUMMARY=$(node "$REPO_ROOT/scripts/install-minimax-skills.js" \
   --repo-root "$REPO_ROOT" --target-dir "$MINIMAX_TARGET" --json)
-[[ "$(jq -r '.installed' <<< "$SUMMARY")" == "139" ]]
+EXPECTED="$(jq -r '.discovered' <<< "$SUMMARY")"
+[[ "$(jq -r '.installed' <<< "$SUMMARY")" == "$EXPECTED" ]]
 [[ "$(jq -r '.skipped' <<< "$SUMMARY")" == "0" ]]
-verify_payloads "$MINIMAX_TARGET"
-echo "[PASS] canonical MiniMax installer preserves all 139 complete payloads"
+verify_payloads "$MINIMAX_TARGET" "$EXPECTED"
+echo "[PASS] canonical MiniMax installer preserves all $EXPECTED complete payloads"
 
 PROJECT_ROOT="$TMP_ROOT/project"
 mkdir -p "$PROJECT_ROOT"
@@ -68,7 +71,7 @@ mkdir -p "$PROJECT_ROOT"
   "$REPO_ROOT/node_modules/.bin/tsx" "$REPO_ROOT/scripts/install-platforms.ts" \
     --platform minimax --scope project >/dev/null
 )
-verify_payloads "$PROJECT_ROOT/.minimax/skills"
+verify_payloads "$PROJECT_ROOT/.minimax/skills" "$EXPECTED"
 echo "[PASS] TypeScript installer delegates to complete-copy MiniMax semantics"
 
 COLLISION_TARGET="$TMP_ROOT/collision-minimax"

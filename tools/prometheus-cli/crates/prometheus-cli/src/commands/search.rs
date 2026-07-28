@@ -24,9 +24,19 @@ pub async fn run(query: &str, limit: usize) -> Result<()> {
         let desc = repo.description.as_deref().unwrap_or("No description");
         let stars = repo.stargazers_count.unwrap_or(0);
         let has_skills = name.contains("skill");
-        let tag = if has_skills { "[skills]".green() } else { "[source]".yellow() };
+        let tag = if has_skills {
+            "[skills]".green()
+        } else {
+            "[source]".yellow()
+        };
 
-        println!("  {} {} {} {}", tag, name.bold(), format!("⭐{}", stars).dimmed(), desc);
+        println!(
+            "  {} {} {} {}",
+            tag,
+            name.bold(),
+            format!("⭐{}", stars).dimmed(),
+            desc
+        );
     }
 
     Ok(())

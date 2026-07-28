@@ -86,4 +86,4 @@ func main() {
 
 ## SDK source
 
-Source code lives at: `/Users/gqadonis/Projects/prometheus/flint-realtime-fabric/sdks/go/`
+Source code lives at: `<flint-realtime-fabric>/sdks/go/`. Resolve the repository root from the current workspace or `FLINT_REPO_ROOT`; never assume a machine-specific path.

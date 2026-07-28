@@ -59,6 +59,38 @@ mkdir -p "$phase_dir"
 } > "$phase_dir/goals.md.tmp"
 mv -f "$phase_dir/goals.md.tmp" "$phase_dir/goals.md"
 
+# Runtime-authority mode records phase creation and activation as typed events.
+# Compatibility JSON is rendered by kbd-runtime and must never be edited here.
+KBD_ORCHESTRATOR_ROOT="${KBD_ORCHESTRATOR_ROOT:-$HOME/.claude/skills/kbd-process-orchestrator}"
+runtime_lib="$KBD_ORCHESTRATOR_ROOT/shared/lib/runtime-authority.sh"
+if [[ -f "$runtime_lib" ]]; then
+  # shellcheck source=/dev/null
+  . "$runtime_lib"
+fi
+if command -v kbd_runtime_authoritative >/dev/null 2>&1 && kbd_runtime_authoritative "."; then
+  mutation="$(kbd_runtime_mutation_args "." "phase-create:${name}")" || die "writer lease required"
+  revision="$(printf '%s\n' "$mutation" | sed -n '1p')"
+  lease_id="$(printf '%s\n' "$mutation" | sed -n '3p')"
+  fencing_token="$(printf '%s\n' "$mutation" | sed -n '4p')"
+  prometheus kbd --path . phase create \
+    --expected-revision "$revision" --command-id "phase-create:${name}" \
+    --lease-id "$lease_id" --fencing-token "$fencing_token" \
+    --id "$name" --title "$name" >/dev/null
+  mutation="$(kbd_runtime_mutation_args "." "phase-activate:${name}")" || die "writer lease required"
+  revision="$(printf '%s\n' "$mutation" | sed -n '1p')"
+  lease_id="$(printf '%s\n' "$mutation" | sed -n '3p')"
+  fencing_token="$(printf '%s\n' "$mutation" | sed -n '4p')"
+  prometheus kbd --path . phase activate \
+    --expected-revision "$revision" --command-id "phase-activate:${name}" \
+    --lease-id "$lease_id" --fencing-token "$fencing_token" \
+    --id "$name" --exact-next-work "/kbd-assess $name" >/dev/null
+  printf '\nCompleted kbd-new-phase — %s ready for /kbd-assess\n' "$name"
+  printf '  phase:  %s\n' "$name"
+  printf '  goals:  %s\n' "$phase_dir/goals.md"
+  printf '  Next:   /kbd-assess %s\n' "$name"
+  exit 0
+fi
+
 # ---------- 2. progress.json ----------
 source_tool=""
 if [[ -f "$wp" ]]; then
@@ -69,6 +101,7 @@ fi
 jq -n \
   --arg phase "$name" --arg src "$source_tool" --arg now "$now" '
 {
+  schemaVersion: "2",
   phase: $phase,
   parentPhase: null,
   childPhases: [],
@@ -91,6 +124,9 @@ jq -n \
   completed_changes: [],
   active_change: null,
   blocked_changes: [],
+  changes: [],
+  last_updated: $now,
+  last_updated_by: "kbd-new-phase",
   sourceTool: $src,
   createdBy: "kbd-new-phase",
   updatedAt: $now
@@ -102,6 +138,13 @@ mkdir -p "$(dirname "$wp")"
 if [[ -f "$wp" ]]; then
   prior_phase="$(jq -r '.phase // ""' "$wp" 2>/dev/null || printf '')"
   jq --arg phase "$name" --arg prev "$prior_phase" --arg now "$now" '
+    del(
+      .stage, .previous_phase, .last_updated, .last_updated_by,
+      .exact_next_command, .fallback_command, .active_change,
+      .next_pending_change, .changes_total, .changes_completed,
+      .changesCompleted, .changesTotal
+    ) |
+    .schemaVersion   = "5" |
     .previousPhase    = (if $prev == "" then null else $prev end) |
     .phase            = $phase |
     .change           = null |
@@ -117,13 +160,14 @@ if [[ -f "$wp" ]]; then
     .implementationTotal = 0 |
     .certificationStatus = "NOT_TRACKED" |
     .publicationStatus = "NOT_TRACKED" |
-    .changesCompleted = 0 |
-    .changesTotal = 0 |
+    .planRevision    = 1 |
+    .revision        = ((.revision // 0) + 1) |
     .updatedAt        = $now
   ' "$wp" > "$wp.tmp"
 else
   jq -n --arg phase "$name" --arg now "$now" '
     {
+      schemaVersion: "5",
       phase: $phase,
       previousPhase: null,
       change: null,
@@ -140,8 +184,8 @@ else
       implementationTotal: 0,
       certificationStatus: "NOT_TRACKED",
       publicationStatus: "NOT_TRACKED",
-      changesCompleted: 0,
-      changesTotal: 0,
+      planRevision: 1,
+      revision: 0,
       updatedAt: $now
     }' > "$wp.tmp"
 fi
@@ -171,7 +215,6 @@ else
 fi
 
 # ---------- 5. Hook fire (best-effort) ----------
-KBD_ORCHESTRATOR_ROOT="${KBD_ORCHESTRATOR_ROOT:-$HOME/.claude/skills/kbd-process-orchestrator}"
 export KBD_ORCHESTRATOR_ROOT
 hooks_lib="$KBD_ORCHESTRATOR_ROOT/shared/lib/hooks.sh"
 waypoint_lib="$KBD_ORCHESTRATOR_ROOT/shared/lib/waypoint.sh"

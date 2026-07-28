@@ -55,8 +55,8 @@ CURRENT_PHASE="$(python3 -c "import json; d=json.load(open('$WAYPOINT_JSON')); p
 # while the waypoint may lag. Checking all three avoids a spurious "not
 # reflect_complete" warning on a genuinely reflected phase.
 CURRENT_STAGE="$(python3 -c "import json; d=json.load(open('$WAYPOINT_JSON')); print(d.get('stage') or d.get('status') or 'unknown')" 2>/dev/null || echo "unknown")"
-CHANGES_TOTAL="$(python3 -c "import json; d=json.load(open('$WAYPOINT_JSON')); print(d.get('changes_total',0))" 2>/dev/null || echo 0)"
-CHANGES_COMPLETED="$(python3 -c "import json; d=json.load(open('$WAYPOINT_JSON')); print(d.get('changes_completed',0))" 2>/dev/null || echo 0)"
+CHANGES_TOTAL="$(jq -r '.implementationTotal // .changesTotal // .changes_total // 0' "$WAYPOINT_JSON" 2>/dev/null || echo 0)"
+CHANGES_COMPLETED="$(jq -r '.implementationCompleted // .changesCompleted // .changes_completed // 0' "$WAYPOINT_JSON" 2>/dev/null || echo 0)"
 
 PROJECT_NAME="unknown"
 if [[ -f "$PROJECT_JSON" ]]; then
@@ -201,9 +201,43 @@ Add, remove, or clarify as needed. When ready:
 \`\`\`
 GOALS_EOF
 
+# In runtime-authority mode the phase and active path are typed journal
+# mutations. The compatibility JSON and waypoint markdown are projections.
+SKILL_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd -P)"
+runtime_lib="$SKILL_ROOT/shared/lib/runtime-authority.sh"
+if [[ -f "$runtime_lib" ]]; then
+  # shellcheck source=/dev/null
+  . "$runtime_lib"
+fi
+if command -v kbd_runtime_authoritative >/dev/null 2>&1 &&
+   kbd_runtime_authoritative "$PROJECT_ROOT"; then
+  mutation="$(kbd_runtime_mutation_args "$PROJECT_ROOT" "phase-create:${NEW_PHASE}")"
+  revision="$(printf '%s\n' "$mutation" | sed -n '1p')"
+  lease_id="$(printf '%s\n' "$mutation" | sed -n '3p')"
+  fencing_token="$(printf '%s\n' "$mutation" | sed -n '4p')"
+  prometheus kbd --path "$PROJECT_ROOT" phase create \
+    --expected-revision "$revision" --command-id "phase-create:${NEW_PHASE}" \
+    --lease-id "$lease_id" --fencing-token "$fencing_token" \
+    --id "$NEW_PHASE" --title "$NEW_PHASE" >/dev/null
+  mutation="$(kbd_runtime_mutation_args "$PROJECT_ROOT" "phase-activate:${NEW_PHASE}")"
+  revision="$(printf '%s\n' "$mutation" | sed -n '1p')"
+  lease_id="$(printf '%s\n' "$mutation" | sed -n '3p')"
+  fencing_token="$(printf '%s\n' "$mutation" | sed -n '4p')"
+  prometheus kbd --path "$PROJECT_ROOT" phase activate \
+    --expected-revision "$revision" --command-id "phase-activate:${NEW_PHASE}" \
+    --lease-id "$lease_id" --fencing-token "$fencing_token" \
+    --id "$NEW_PHASE" --exact-next-work "/kbd-assess ${NEW_PHASE}" >/dev/null
+  printf '\nCompleted kbd-next-phase — %s ready for /kbd-assess\n' "$NEW_PHASE"
+  printf '  phase: %s\n' "$NEW_PHASE"
+  printf '  goals: %s\n' "$NEW_PHASE_DIR/goals.md"
+  printf '  Next:  /kbd-assess %s\n' "$NEW_PHASE"
+  exit 0
+fi
+
 # Skeleton progress.json
 cat > "${NEW_PHASE_DIR}/progress.json" << PROGRESS_EOF
 {
+  "schemaVersion": "2",
   "phase": "${NEW_PHASE}",
   "started": "${TIMESTAMP}",
   "last_updated": "${TIMESTAMP}",
@@ -214,39 +248,58 @@ cat > "${NEW_PHASE_DIR}/progress.json" << PROGRESS_EOF
   "reflection_complete": false,
   "changes_total": 0,
   "changes_completed": 0,
-  "changes": {}
+  "implementation_total": 0,
+  "implementation_completed": 0,
+  "completion": {
+    "primaryCounter": "implementation",
+    "implementation": {"completed": 0, "total": 0, "status": "PENDING"},
+    "evidence": {"status": "NOT_TRACKED", "summary": null, "blockers": []},
+    "certification": {"status": "NOT_TRACKED", "summary": null, "blockers": []},
+    "publication": {"status": "NOT_TRACKED", "summary": null, "blockers": []}
+  },
+  "changes": []
 }
 PROGRESS_EOF
 
 # ── Update current-waypoint.json ─────────────────────────────────────────
-python3 << PYEOF
-import json
-
-waypoint = json.load(open("${WAYPOINT_JSON}"))
-waypoint.update({
-    "phase": "${NEW_PHASE}",
-    "stage": "assess_pending",
-    "previous_phase": "${CURRENT_PHASE}",
-    "last_updated": "${TIMESTAMP}",
-    "last_updated_by": "kbd-next-phase",
-    "exact_next_command": "/kbd-assess",
-    "fallback_command": "Read .kbd-orchestrator/phases/${NEW_PHASE}/goals.md to review seeded goals",
-    "active_change": None,
-    "next_pending_change": None,
-    "changes_total": 0,
-    "changes_completed": 0,
-})
-json.dump(waypoint, open("${WAYPOINT_JSON}", "w"), indent=2)
-PYEOF
+jq \
+  --arg phase "$NEW_PHASE" \
+  --arg previous "$CURRENT_PHASE" \
+  --arg now "$TIMESTAMP" '
+  del(
+    .stage, .previous_phase, .last_updated, .last_updated_by,
+    .exact_next_command, .fallback_command, .active_change,
+    .next_pending_change, .changes_total, .changes_completed,
+    .changesCompleted, .changesTotal
+  ) |
+  .schemaVersion = "5" |
+  .phase = $phase |
+  .previousPhase = $previous |
+  .status = "assessment_ready" |
+  .currentTask = ("run kbd-assess for " + $phase) |
+  .sourceTool = "kbd-next-phase" |
+  .exactNextCommand = ("/kbd-assess " + $phase) |
+  .change = null |
+  .nextPendingChange = null |
+  .completionMetric = "implementation" |
+  .implementationCompleted = 0 |
+  .implementationTotal = 0 |
+  .certificationStatus = "NOT_TRACKED" |
+  .publicationStatus = "NOT_TRACKED" |
+  .planRevision = 1 |
+  .revision = ((.revision // 0) + 1) |
+  .updatedAt = $now
+' "$WAYPOINT_JSON" > "$WAYPOINT_JSON.tmp"
+mv -f "$WAYPOINT_JSON.tmp" "$WAYPOINT_JSON"
 
 # ── Update project.json active_phase ─────────────────────────────────────
 if [[ -f "$PROJECT_JSON" ]]; then
-  python3 << PYEOF
-import json
-p = json.load(open("${PROJECT_JSON}"))
-p["active_phase"] = "${NEW_PHASE}"
-json.dump(p, open("${PROJECT_JSON}", "w"), indent=2)
-PYEOF
+  jq --arg phase "$NEW_PHASE" --arg now "$TIMESTAMP" '
+    del(.active_phase) |
+    .activePhase = $phase |
+    .updatedAt = $now
+  ' "$PROJECT_JSON" > "$PROJECT_JSON.tmp"
+  mv -f "$PROJECT_JSON.tmp" "$PROJECT_JSON"
 fi
 
 # ── Update current-waypoint.md ────────────────────────────────────────────
