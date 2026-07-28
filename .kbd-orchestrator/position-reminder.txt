@@ -1,10 +1,10 @@
 POSITION REMINDER — read this as your FIRST tool call every turn
-Phase: phase-learn-grader-validation
-Step: 7 of 7
-Stage: reflect
-Next command: /kbd-new-phase
+Phase: docusaurus-github-pages-site
+Step: 8 of 8
+Stage: reflect (COMPLETE — phase closed)
+Next command: /kbd-next-phase
 
 Required signal format (emit BEFORE any tool call):
-  Starting <kbd-skill> — phase-learn-grader-validation (step 7 of 7)
+  Starting <kbd-skill> — docusaurus-github-pages-site (step 8 of 8)
   [do work]
-  Completed <kbd-skill> — phase-learn-grader-validation (step 7 of 7)
+  Completed <kbd-skill> — docusaurus-github-pages-site (step 8 of 8)
