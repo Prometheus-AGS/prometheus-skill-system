@@ -491,7 +491,6 @@ case "$cmd" in
     fire task after "$change:$id" "$i" "$n"
     printf 'Completed task %s out of %s:   %s\n' "$i" "$n" "$title"
     if [ "${rem:-0}" -gt 0 ]; then
-      local pending_titles pending_preview
       pending_titles="$(b_remaining_titles "$change" | paste -sd ' | ' -)"
       pending_preview="${pending_titles:-unknown}"
       printf 'Remaining tasks after task %s: %s out of %s — %s\n' "$i" "${rem:-0}" "${tot:-$n}" "$pending_preview"
