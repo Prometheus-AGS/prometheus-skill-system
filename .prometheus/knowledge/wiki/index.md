@@ -45,9 +45,22 @@
 * [Deep Research + Feynman Learning Integration](/deep-research-feynman-integration.md) - Research into how deep research combines with Feynman learning skills, Karpathy LLM wiki patterns, and learning loop integration.
 * [Deep Research Skill Landscape](/deep-research-skill-landscape.md) - Comprehensive survey of existing deep research agents and skills, including GPT Researcher, LangGraph ODR, MiroThinker, and other implementations in the ecosystem.
 * [Docusaurus GitHub Pages Executor Session Completion](/docusaurus-github-pages-executor-session-completion.md)
+* [Docusaurus GitHub Pages Phase Completion Record](/docusaurus-github-pages-phase-completion-record.md)
+* [Docusaurus GitHub Pages Phase Completion Status](/docusaurus-github-pages-phase-completion-status.md)
+* [Docusaurus GitHub Pages Phase Session Completion](/docusaurus-github-pages-phase-session-completion.md)
+* [Docusaurus GitHub Pages Session Completion Record](/docusaurus-github-pages-session-completion-record.md)
 * [Docusaurus GitHub Pages Site Executor Completion](/docusaurus-github-pages-site-executor-completion.md)
+* [Docusaurus GitHub Pages Site Executor Session Complete](/docusaurus-github-pages-site-executor-session-complete.md)
+* [Docusaurus GitHub Pages Site Executor Session Completion](/docusaurus-github-pages-site-executor-session-completion.md)
+* [Docusaurus GitHub Pages Site Executor Session Completion Record](/docusaurus-github-pages-site-executor-session-completion-record.md)
+* [Docusaurus GitHub Pages Site Executor Session Status](/docusaurus-github-pages-site-executor-session-status.md)
+* [Docusaurus GitHub Pages Site Phase Completion](/docusaurus-github-pages-site-phase-completion.md)
+* [Docusaurus GitHub Pages Site Phase Completion Record](/docusaurus-github-pages-site-phase-completion-record.md)
 * [Docusaurus GitHub Pages Site Phase Pull Summary](/docusaurus-github-pages-site-phase-pull-summary.md)
 * [Docusaurus GitHub Pages Site Reflect Completion at 2026-07-28](/docusaurus-github-pages-site-reflect-completion-at-2026-07-28.md)
+* [Docusaurus GitHub Pages Site Session Complete](/docusaurus-github-pages-site-session-complete.md)
+* [Docusaurus GitHub Pages Site Session Complete Record](/docusaurus-github-pages-site-session-complete-record.md)
+* [Docusaurus GitHub Pages Site Session Completion](/docusaurus-github-pages-site-session-completion.md)
 * [Docusaurus GitHub Pages Site Session Completion Status](/docusaurus-github-pages-site-session-completion-status.md)
 * [Flint Forge G4 GraphQL Subscription Wiring Scope Decision](/flint-forge-g4-graphql-subscription-wiring-scope-decision.md) - Project:** Flint Forge - **Phase:** `p3-auth-rls-keto` - **KBD root:** `/Users/gqadonis/Projects/prometheus/flint-forge` - **Captured:** `2026-07-03T14:27:30Z` - **Status:** `in_progress` - **Progress:** changes `7/9` - **Related phase status:** [Flint Forge p3 Auth RLS Keto Phas
 * [Flint Forge p15 Mandatory SubStreamFactory Enforcement](/flint-forge-p15-mandatory-substreamfactory-enforcement.md)
@@ -111,6 +124,7 @@
 * [Prometheus Entity Sync v4 Scaffold and Phase Goals](/prometheus-entity-sync-v4-scaffold-and-phase-goals.md)
 * [Sansaba Web Scaffold and C-29 Gate Phase Status](/sansaba-web-scaffold-and-c-29-gate-phase-status.md)
 * [Skill Platform Specifications](/skill-platform-specifications.md) - Cross-platform analysis of skill/agent platforms: agentskills.io, Claude Code, Codex, OpenCode, Cursor, Windsurf, Kimi, MiniMax, and their skill packaging formats.
+* [Sovereign Sync Domain Adapters Executor Completion](/sovereign-sync-domain-adapters-executor-completion.md)
 * [Surreal Memory Wakeup Verification After Toolchain Sync](/surreal-memory-wakeup-verification-after-toolchain-sync.md) - During `phase-okf-llm-wiki-adoption`, a scheduled wakeup fired as a safety fallback after the actual remediation work had already completed. Live verification confirmed there was nothing left to redo for `surreal-memory-server`.
 * [surreal-memory-server Latest Binary Stabilization](/surreal-memory-server-latest-binary-stabilization.md) - During phase `phase-okf-llm-wiki-adoption`, `surreal-memory-server` was verified and stabilized so it no longer blocks remaining repository rebuilds. The phase goals align with [OKF LLM Wiki Adoption Phase Completion Status](/okf-llm-wiki-adoption-phase-completion-status.md): OKF
 * [Threaded/Concurrent Research with Per-Thread Context](/threaded-concurrent-research.md) - Research on implementing threaded and concurrent research with isolated per-thread context, leveraging surreal-memory for thread-safe storage.

@@ -77,14 +77,19 @@ SCRATCHPAD.md
 # Git worktrees
 .worktrees/
 
-# Machine-local runtime state. The project identity and deliberate knowledge
-# exports are tracked; every other path below .prometheus remains local.
+# Machine-local runtime state. The project identity and the Karpathy/OKF
+# knowledge wiki are tracked; every other path below .prometheus stays local
+# (events.jsonl and traces/ are per-machine and churn on every session).
+#
+# Each level is re-included explicitly before its contents are excluded: git
+# never descends into an excluded directory, so a bare `.prometheus/*` would
+# make every `!.prometheus/knowledge/wiki/...` negation below unreachable.
 .prometheus/*
 !.prometheus/project.json
+!.prometheus/knowledge/
+.prometheus/knowledge/*
 !.prometheus/knowledge/wiki/
-!.prometheus/knowledge/wiki/*.md
-!.prometheus/knowledge/wiki/index.md
-!.prometheus/knowledge/wiki/log.md
+!.prometheus/knowledge/wiki/**
 .kbd-orchestrator/**/project.json
 
 # Local env overrides
