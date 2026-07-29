@@ -63,12 +63,12 @@
   "generatedBy": "kbd-runtime",
   "implementation_completed": 3,
   "implementation_total": 3,
-  "last_updated": "2026-07-29T14:51:07.187361Z",
+  "last_updated": "2026-07-29T15:00:36.078504Z",
   "last_updated_by": "kbd-runtime",
   "migrationStatus": null,
   "parentPhase": null,
   "phase": "phase-ci-cross-model-qa-and-hardening",
   "phaseId": "phase-ci-cross-model-qa-and-hardening",
   "schemaVersion": "2",
-  "sourceRevision": 9
+  "sourceRevision": 11
 }
