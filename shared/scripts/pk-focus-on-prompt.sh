@@ -5,8 +5,14 @@
 #
 # Env knobs:
 #   PROMETHEUS_FOCUS_SEMANTIC=0   disable the surreal-memory semantic path
-#   PROMETHEUS_FOCUS_TIMEOUT=5    max seconds for pk focus before degrading silently
+#   PROMETHEUS_FOCUS_TIMEOUT=30   max seconds for pk focus before degrading silently
 #   SURREAL_MEMORY_URL            override SM base URL (default: http://localhost:23001)
+#
+# Timeout budget: `pk focus --k 3` performs LLM synthesis over the whole KB and
+# measured 22-24s at ~132 entries. The former 5s default expired mid-call on
+# ~6.6% of invocations (345/5260 recorded fires), so the hook injected nothing
+# while still exiting 0 — a silent context loss that looked healthy in the log.
+# 30s covers the measured range with headroom; raise it as the KB grows.
 set -uo pipefail
 
 HOOK_LOG_LIB="$(cd "$(dirname "$0")" && pwd)/lib/hook-log.sh"
@@ -87,11 +93,29 @@ if [ -z "$ALL_WORDS" ]; then
 fi
 
 # --- Run pk focus (with timeout when available — timeout is not on stock macOS) ---
-FOCUS_TIMEOUT_SECONDS="${PROMETHEUS_FOCUS_TIMEOUT:-5}"
+FOCUS_TIMEOUT_SECONDS="${PROMETHEUS_FOCUS_TIMEOUT:-30}"
 if command -v timeout &>/dev/null; then
-  FOCUS_OUTPUT="$(timeout "$FOCUS_TIMEOUT_SECONDS" pk focus "$ALL_WORDS" --k 3 2>/dev/null || hook_log_error "$LINENO")"
+  FOCUS_OUTPUT="$(timeout "$FOCUS_TIMEOUT_SECONDS" pk focus "$ALL_WORDS" --k 3 2>/dev/null)"
+  FOCUS_RC=$?
 else
-  FOCUS_OUTPUT="$(pk focus "$ALL_WORDS" --k 3 2>/dev/null || hook_log_error "$LINENO")"
+  FOCUS_OUTPUT="$(pk focus "$ALL_WORDS" --k 3 2>/dev/null)"
+  FOCUS_RC=$?
+fi
+
+# Distinguish "budget expired" (124 from timeout) from a genuine pk failure, so
+# a too-small budget is diagnosable instead of looking healthy in the log.
+#
+# hook_log_error interpolates its argument as a bare JSON number, so it must be
+# given a line number and nothing else — a message string there emits invalid
+# JSON and corrupts the log. The human-readable hint goes to stderr, which the
+# harness captures without it counting as hook output.
+if [ "$FOCUS_RC" -ne 0 ]; then
+  hook_log_error "$LINENO"
+  if [ "$FOCUS_RC" -eq 124 ]; then
+    printf 'pk-focus-on-prompt: pk focus exceeded %ss budget; raise PROMETHEUS_FOCUS_TIMEOUT\n' \
+      "$FOCUS_TIMEOUT_SECONDS" >&2
+  fi
+  FOCUS_OUTPUT=""
 fi
 
 if [ -n "${FOCUS_OUTPUT:-}" ]; then
