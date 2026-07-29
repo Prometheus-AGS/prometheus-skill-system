@@ -112,13 +112,10 @@ if [[ "$runtime_avail" == "1" ]]; then
     [[ -n "$ancestor" ]] || continue
     ancestor_args+=(--ancestor "$ancestor")
   done < <(printf '%s' "$runtime_state" | jq -r '.activePath.phasePath[0:-2][]?')
-  mutation="$(kbd_runtime_mutation_args "." "phase-exit:${child_name}")" || die "writer lease required"
+  mutation="$(kbd_runtime_mutation_args "." "phase-exit:${child_name}")" || die "failed to resolve current revision"
   revision="$(printf '%s\n' "$mutation" | sed -n '1p')"
-  lease_id="$(printf '%s\n' "$mutation" | sed -n '3p')"
-  fencing_token="$(printf '%s\n' "$mutation" | sed -n '4p')"
   prometheus kbd --path . phase activate \
     --expected-revision "$revision" --command-id "phase-exit:${child_name}" \
-    --lease-id "$lease_id" --fencing-token "$fencing_token" \
     --id "$parent_id" "${ancestor_args[@]}" \
     --exact-next-work "/kbd-status" >/dev/null
   [[ "$hooks_avail" == "1" ]] &&

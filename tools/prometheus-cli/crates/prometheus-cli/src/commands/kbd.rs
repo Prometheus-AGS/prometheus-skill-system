@@ -60,8 +60,6 @@ pub enum Action {
     Command {
         expected_revision: u64,
         command_id: String,
-        lease_id: String,
-        fencing_token: u64,
         command: CommandKind,
     },
 }
@@ -329,8 +327,6 @@ pub async fn run(path: &str, action: Action) -> Result<()> {
         Action::Command {
             expected_revision,
             command_id,
-            lease_id,
-            fencing_token,
             command,
         } => {
             let state = client.status().await?;
@@ -342,8 +338,13 @@ pub async fn run(path: &str, action: Action) -> Result<()> {
                     command_id,
                     expected_revision,
                     actor: current_actor(ActorKind::Harness),
-                    lease_id: Some(lease_id),
-                    fencing_token: Some(fencing_token),
+                    // Work-item commands (phase/stage/change/task/completion/
+                    // decision/blocker) never consult lease_id/fencing_token
+                    // in prepare_command_event — only LeaseHeartbeat/
+                    // LeaseRelease/LeaseHandoff do, and those go through their
+                    // own dedicated Action variants, not this generic path.
+                    lease_id: None,
+                    fencing_token: None,
                     command,
                 })
                 .await?;

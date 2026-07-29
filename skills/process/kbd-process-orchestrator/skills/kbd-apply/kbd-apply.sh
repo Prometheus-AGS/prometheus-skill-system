@@ -393,7 +393,7 @@ runtime_task_transition() {
   command -v kbd_runtime_authoritative >/dev/null 2>&1 || return 0
   kbd_runtime_authoritative "." || return 0
 
-  local state phase command_id mutation revision lease_id fencing_token
+  local state phase command_id mutation revision
   state="$(kbd_runtime_status_json ".")" || return 1
   phase="$(printf '%s' "$state" | jq -r '.activePath.phaseId // empty')"
   [ -n "$phase" ] || {
@@ -402,19 +402,17 @@ runtime_task_transition() {
   }
 
   # Register missing change/task definitions before transitioning them. Each
-  # operation refreshes revision and lease metadata so optimistic concurrency
-  # remains exact.
+  # operation refreshes revision so optimistic concurrency remains exact.
+  # No writer lease is involved — phase/change/task commands never consult
+  # lease_id/fencing_token server-side.
   if ! printf '%s' "$state" | jq -e \
       --arg phase "$phase" --arg change "$change" \
       '.phases[$phase].changes[$change]' >/dev/null 2>&1; then
     command_id="apply:change-register:${phase}:${change}"
     mutation="$(kbd_runtime_mutation_args "." "$command_id")" || return 1
     revision="$(printf '%s\n' "$mutation" | sed -n '1p')"
-    lease_id="$(printf '%s\n' "$mutation" | sed -n '3p')"
-    fencing_token="$(printf '%s\n' "$mutation" | sed -n '4p')"
     prometheus kbd --path . change register \
       --expected-revision "$revision" --command-id "$command_id" \
-      --lease-id "$lease_id" --fencing-token "$fencing_token" \
       --phase "$phase" --id "$change" --title "$change" >/dev/null || return 1
     state="$(kbd_runtime_status_json ".")" || return 1
   fi
@@ -425,11 +423,8 @@ runtime_task_transition() {
     command_id="apply:task-register:${phase}:${change}:${task_id}"
     mutation="$(kbd_runtime_mutation_args "." "$command_id")" || return 1
     revision="$(printf '%s\n' "$mutation" | sed -n '1p')"
-    lease_id="$(printf '%s\n' "$mutation" | sed -n '3p')"
-    fencing_token="$(printf '%s\n' "$mutation" | sed -n '4p')"
     prometheus kbd --path . task register \
       --expected-revision "$revision" --command-id "$command_id" \
-      --lease-id "$lease_id" --fencing-token "$fencing_token" \
       --phase "$phase" --change "$change" --id "$task_id" \
       --title "$title" --sequence "$sequence" >/dev/null || return 1
   fi
@@ -437,11 +432,8 @@ runtime_task_transition() {
   command_id="apply:task-${status}:${phase}:${change}:${task_id}"
   mutation="$(kbd_runtime_mutation_args "." "$command_id")" || return 1
   revision="$(printf '%s\n' "$mutation" | sed -n '1p')"
-  lease_id="$(printf '%s\n' "$mutation" | sed -n '3p')"
-  fencing_token="$(printf '%s\n' "$mutation" | sed -n '4p')"
   prometheus kbd --path . task transition \
     --expected-revision "$revision" --command-id "$command_id" \
-    --lease-id "$lease_id" --fencing-token "$fencing_token" \
     --phase "$phase" --change "$change" --id "$task_id" \
     --status "$status" --summary "$title" >/dev/null
 }

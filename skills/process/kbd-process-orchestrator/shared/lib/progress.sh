@@ -123,7 +123,7 @@ kbd_progress_mark_implementation_complete() {
       printf 'kbd-progress: prometheus CLI is required in runtime-authority mode\n' >&2
       return 1
     }
-    local root phase state revision lease_id fencing_token
+    local root phase state revision
     case "$file" in
       */.kbd-orchestrator/*) root="${file%%/.kbd-orchestrator/*}" ;;
       .kbd-orchestrator/*) root="." ;;
@@ -132,17 +132,13 @@ kbd_progress_mark_implementation_complete() {
     phase="$(jq -r '.phase // empty' "$file" 2>/dev/null)"
     state="$(prometheus kbd --path "$root" status --json)" || return 1
     revision="$(printf '%s' "$state" | jq -r '.revision')"
-    lease_id="$(printf '%s' "$state" | jq -r '.lease.leaseId // empty')"
-    fencing_token="$(printf '%s' "$state" | jq -r '.lease.fencingToken // empty')"
-    [ -n "$phase" ] && [ -n "$lease_id" ] && [ -n "$fencing_token" ] || {
-      printf 'kbd-progress: active phase and writer lease are required\n' >&2
+    [ -n "$phase" ] || {
+      printf 'kbd-progress: active phase is required\n' >&2
       return 1
     }
     prometheus kbd --path "$root" change transition \
       --expected-revision "$revision" \
       --command-id "implementation-complete:${phase}:${change_id}" \
-      --lease-id "$lease_id" \
-      --fencing-token "$fencing_token" \
       --phase "$phase" \
       --id "$change_id" \
       --status complete >/dev/null

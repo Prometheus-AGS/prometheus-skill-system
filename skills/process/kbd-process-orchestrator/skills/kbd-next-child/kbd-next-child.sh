@@ -50,10 +50,8 @@ if command -v kbd_runtime_authoritative >/dev/null 2>&1 && kbd_runtime_authorita
   next_id="${next_row%%	*}"
   next="${next_row#*	}"
   mutation="$(kbd_runtime_mutation_args "." "phase-next-child:${parent_id}:${next_id}")" ||
-    die "writer lease required"
+    die "failed to resolve current revision"
   revision="$(printf '%s\n' "$mutation" | sed -n '1p')"
-  lease_id="$(printf '%s\n' "$mutation" | sed -n '3p')"
-  fencing_token="$(printf '%s\n' "$mutation" | sed -n '4p')"
   ancestor_args=()
   while IFS= read -r ancestor; do
     [[ -n "$ancestor" ]] || continue
@@ -62,7 +60,6 @@ if command -v kbd_runtime_authoritative >/dev/null 2>&1 && kbd_runtime_authorita
   prometheus kbd --path . phase activate \
     --expected-revision "$revision" \
     --command-id "phase-next-child:${parent_id}:${next_id}" \
-    --lease-id "$lease_id" --fencing-token "$fencing_token" \
     --id "$next_id" "${ancestor_args[@]}" \
     --exact-next-work "/kbd-assess ${next}" >/dev/null
   printf '\nCompleted kbd-next-child — now on %s\n' "$next"

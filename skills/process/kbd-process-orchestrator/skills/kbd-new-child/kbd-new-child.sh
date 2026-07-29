@@ -138,18 +138,13 @@ if command -v kbd_runtime_authoritative >/dev/null 2>&1 && kbd_runtime_authorita
   parent_id="$(printf '%s' "$runtime_state" | jq -r '.activePath.phaseId // empty')"
   [[ -n "$parent_id" ]] || die "runtime has no active parent phase"
   child_runtime_id="${parent_id}::${name}"
-  mutation="$(kbd_runtime_mutation_args "." "phase-create:${child_runtime_id}")" || die "writer lease required"
+  mutation="$(kbd_runtime_mutation_args "." "phase-create:${child_runtime_id}")" || die "failed to resolve current revision"
   revision="$(printf '%s\n' "$mutation" | sed -n '1p')"
-  lease_id="$(printf '%s\n' "$mutation" | sed -n '3p')"
-  fencing_token="$(printf '%s\n' "$mutation" | sed -n '4p')"
   prometheus kbd --path . phase create \
     --expected-revision "$revision" --command-id "phase-create:${child_runtime_id}" \
-    --lease-id "$lease_id" --fencing-token "$fencing_token" \
     --id "$child_runtime_id" --slug "$name" --title "$name" --parent "$parent_id" >/dev/null
-  mutation="$(kbd_runtime_mutation_args "." "phase-activate:${child_runtime_id}")" || die "writer lease required"
+  mutation="$(kbd_runtime_mutation_args "." "phase-activate:${child_runtime_id}")" || die "failed to resolve current revision"
   revision="$(printf '%s\n' "$mutation" | sed -n '1p')"
-  lease_id="$(printf '%s\n' "$mutation" | sed -n '3p')"
-  fencing_token="$(printf '%s\n' "$mutation" | sed -n '4p')"
   ancestor_args=()
   while IFS= read -r ancestor; do
     [[ -n "$ancestor" ]] || continue
@@ -157,7 +152,6 @@ if command -v kbd_runtime_authoritative >/dev/null 2>&1 && kbd_runtime_authorita
   done < <(printf '%s' "$runtime_state" | jq -r '.activePath.phasePath[]?')
   prometheus kbd --path . phase activate \
     --expected-revision "$revision" --command-id "phase-activate:${child_runtime_id}" \
-    --lease-id "$lease_id" --fencing-token "$fencing_token" \
     --id "$child_runtime_id" "${ancestor_args[@]}" \
     --exact-next-work "/kbd-assess ${child_label}" >/dev/null
   hooks_lib="$KBD_ORCHESTRATOR_ROOT/shared/lib/hooks.sh"

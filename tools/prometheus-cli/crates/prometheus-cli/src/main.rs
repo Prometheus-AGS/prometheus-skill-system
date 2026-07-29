@@ -452,10 +452,6 @@ struct KbdMutationArgs {
     expected_revision: u64,
     #[arg(long)]
     command_id: String,
-    #[arg(long)]
-    lease_id: String,
-    #[arg(long)]
-    fencing_token: u64,
 }
 
 #[derive(Clone, clap::ValueEnum)]
@@ -744,8 +740,6 @@ async fn main() -> Result<()> {
                 commands::kbd::Action::Command {
                     expected_revision: mutation.expected_revision,
                     command_id: mutation.command_id,
-                    lease_id: mutation.lease_id,
-                    fencing_token: mutation.fencing_token,
                     command,
                 }
             };
