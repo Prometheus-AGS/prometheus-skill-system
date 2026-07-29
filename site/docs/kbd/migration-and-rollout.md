@@ -1,0 +1,90 @@
+---
+id: migration-and-rollout
+title: Migration & Rollout
+sidebar_label: Migration & Rollout
+---
+
+# Migration and Rollout
+
+The canonical runtime can inventory and import legacy KBD ledgers while
+preserving a recoverable copy. Rollout evidence is stored separately from the
+authoritative event journal so measurements can block promotion but cannot
+grant write authority.
+
+## Inventory legacy state
+
+```bash
+prometheus kbd --path "/path/to/project" migrate --check | jq .
+```
+
+The report includes:
+
+- discovered and migrated progress files;
+- uncertain legacy rows;
+- invalid files;
+- alias conflicts;
+- phases marked `legacy-read-only`;
+- stale compatibility projections;
+- unreplayable history;
+- backup paths when applying.
+
+## Apply migration
+
+```bash
+prometheus kbd --path "/path/to/project" migrate --apply | jq .
+```
+
+Apply:
+
+1. establishes `.prometheus/project.json` if needed;
+2. creates a checksummed backup of legacy inputs;
+3. initializes the canonical run with the immutable project UUID;
+4. imports recoverable state;
+5. labels uncertain rows instead of inventing certainty;
+6. writes atomic compatibility projections.
+
+Never change a copied project manifest to “make migration fit.” A mismatched
+project identity is rejected.
+
+## Verify migration
+
+```bash
+prometheus kbd --path "/path/to/project" status --json | jq .
+prometheus kbd --path "/path/to/project" audit --json | jq 'length'
+prometheus kbd --path "/path/to/project" migrate --check | jq .
+```
+
+The final check should report no unexplained stale projections or unreplayable
+history.
+
+## Shadow and canary evidence
+
+```bash
+prometheus kbd --path "/path/to/project" rollout status | jq .
+```
+
+Record an idempotent observation:
+
+```bash
+prometheus kbd --path "/path/to/project" rollout observe \
+  --observation-id "shadow-2026-07-28T120000Z" \
+  --real-mutations 12 \
+  --synthetic-replay-mutations 1500 \
+  --unexplained-projection-mismatches 0 \
+  --harness claude-code \
+  --device workstation \
+  --voters 1
+```
+
+Mark a failed observation with `--failed`. Advance only when all thresholds
+for the current stage pass:
+
+```bash
+prometheus kbd --path "/path/to/project" rollout promote
+```
+
+The current production-convergence gates require seven shadow days, at least
+100 real mutations, at least 10,000 synthetic replay mutations, and zero
+unexplained projection mismatches before staged canaries. Embedded quorum tests
+do not substitute for cross-process, real-device partition and stale-writer
+acceptance.

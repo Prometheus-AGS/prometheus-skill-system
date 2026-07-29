@@ -95,7 +95,10 @@ jobs:
         run: |
           if [[ "$RUNNER_OS" == "Linux" ]]; then
             sudo apt-get update -qq
-            sudo apt-get install -y jq shellcheck
+            # libdbus-1-dev: kbd-runtime's keyring dependency uses the Secret
+            # Service backend on Linux and links libdbus. macOS uses its native
+            # keychain, so this is Linux-only.
+            sudo apt-get install -y jq shellcheck libdbus-1-dev pkg-config
           else
             command -v jq >/dev/null 2>&1 || brew install jq
             command -v shellcheck >/dev/null 2>&1 || brew install shellcheck
@@ -135,6 +138,16 @@ jobs:
 
       - uses: dtolnay/rust-toolchain@stable
 
+      # kbd-runtime depends on keyring, which on Linux uses the Secret Service
+      # backend and links against libdbus. Without the -dev package the
+      # libdbus-sys build script fails at pkg_config before any of our code
+      # compiles. macOS and Windows use their native keychains and need nothing.
+      - name: Install Linux keyring build dependencies
+        working-directory: .
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y libdbus-1-dev pkg-config
+
       - name: Cargo check (default features only)
         run: cargo check
         env:
@@ -155,6 +168,12 @@ jobs:
           submodules: true
 
       - uses: dtolnay/rust-toolchain@stable
+
+      # See the note in check-rust-cli: the Linux keyring backend links libdbus.
+      - name: Install Linux keyring build dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y libdbus-1-dev pkg-config
 
       - name: Build sycophancy-correction binary
         id: build

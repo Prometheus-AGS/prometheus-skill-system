@@ -16,9 +16,13 @@ const config = {
   projectName: 'prometheus-skill-system',
 
   onBrokenLinks: 'throw',
-  onBrokenMarkdownLinks: 'throw',
 
-  markdown: { mermaid: true },
+  markdown: {
+    mermaid: true,
+    hooks: {
+      onBrokenMarkdownLinks: 'throw',
+    },
+  },
 
   themes: [
     '@docusaurus/theme-mermaid',
