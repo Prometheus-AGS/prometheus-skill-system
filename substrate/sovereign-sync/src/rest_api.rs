@@ -36,9 +36,10 @@ use tokio::sync::RwLock as AsyncRwLock;
 use tracing::info;
 
 use crate::ag_ui::{ag_ui_ping, ag_ui_stream, AgUiState};
-use crate::domains::{self, DomainAdapter, KbdPresenceAdapter, LearnerModelAdapter, SkillIndexAdapter, SyncEnvelope};
+use crate::domains::{self, DomainAdapter, LearnerModelAdapter, SkillIndexAdapter, SyncEnvelope};
 use crate::kbd_control::KbdControlPlane;
 use crate::kbd_raft::QuorumPolicy;
+use crate::kbd_sync::KbdPresenceDocument;
 use crate::mcp_server::SkillIndex;
 use crate::p2p::P2PNode;
 
@@ -64,6 +65,10 @@ pub struct AppState {
     /// Present in daemon mode (real P2P gossip); absent in plain server mode.
     p2p: Option<Arc<P2PNode>>,
     adapters: Arc<HashMap<String, Box<dyn DomainAdapter>>>,
+    /// `kbd-control` presence — handled directly here, not through
+    /// `adapters`/`docs` (see `domains.rs`'s module comment on why it isn't
+    /// a `DomainAdapter`).
+    presence: Arc<KbdPresenceDocument>,
 }
 
 impl AppState {
@@ -105,6 +110,15 @@ impl AppState {
     ) -> anyhow::Result<Self> {
         let bearer_token: Arc<str> = kbd_control.runtime().control_token()?.into();
         let skill_index = Arc::new(SkillIndex::load_from_dir(skills_dir));
+        // Best-effort: an uninitialized runtime has no project_id yet. The
+        // presence domain is scoped by this at import time via SyncEnvelope's
+        // `identity` field, same as before — an empty scope just means no
+        // legitimate push will ever match it until the runtime initializes.
+        let project_id = kbd_control
+            .status()
+            .map(|status| status.project_id)
+            .unwrap_or_default();
+        let presence = Arc::new(KbdPresenceDocument::new(project_id));
 
         let mut adapters: HashMap<String, Box<dyn DomainAdapter>> = HashMap::new();
         adapters.insert(
@@ -114,10 +128,6 @@ impl AppState {
         adapters.insert(
             "learner-model".to_string(),
             Box::new(LearnerModelAdapter::new(learner_model_dir, default_learner_id())),
-        );
-        adapters.insert(
-            "kbd-control".to_string(),
-            Box::new(KbdPresenceAdapter::new(kbd_control.clone(), device_identity())),
         );
 
         Ok(Self {
@@ -129,6 +139,7 @@ impl AppState {
             docs: Arc::new(StdMutex::new(HashMap::new())),
             p2p,
             adapters: Arc::new(adapters),
+            presence,
         })
     }
 
@@ -139,6 +150,11 @@ impl AppState {
     /// Inspection accessor for tests — not part of the wire API.
     pub fn skill_index(&self) -> &SkillIndex {
         &self.skill_index
+    }
+
+    /// Inspection accessor for tests — not part of the wire API.
+    pub fn presence(&self) -> &KbdPresenceDocument {
+        &self.presence
     }
 }
 
@@ -348,6 +364,11 @@ pub async fn build_push_envelope(
     }
 
     let family = domains::domain_family(&domain).to_string();
+
+    if family == "kbd-control" {
+        return build_presence_push_envelope(state, domain_name).await;
+    }
+
     let adapter = state.adapters.get(&family).ok_or_else(|| {
         (
             StatusCode::NOT_FOUND,
@@ -385,10 +406,10 @@ pub async fn build_push_envelope(
 
     // Must match handle_incoming_message's per-family `local_identity` check
     // exactly, or every push for that family is silently dropped as a false
-    // identity mismatch on the receiving side (kbd-control scopes by
-    // project_id; learner-model scopes by learner_id, not project_id).
+    // identity mismatch on the receiving side (learner-model scopes by
+    // learner_id, not project_id; kbd-control has its own dedicated path,
+    // see build_presence_push_envelope).
     let identity = match family.as_str() {
-        "kbd-control" => state.kbd_control.status().ok().map(|status| status.project_id),
         "learner-model" => Some(default_learner_id()),
         _ => None,
     };
@@ -398,8 +419,75 @@ pub async fn build_push_envelope(
             domain: domain_name.to_string(),
             identity,
             payload: delta,
+            signer_key_id: None,
+            signature: None,
         },
         snapshot_bytes: new_snapshot.len(),
+    })
+}
+
+/// `kbd-control` push: refresh this node's own presence entry in the
+/// dedicated `KbdPresenceDocument`, export a full snapshot (Loro merges a
+/// snapshot into an existing doc correctly, so no incremental-delta
+/// tracking is needed for a small, infrequent presence heartbeat), sign it
+/// with this node's device identity, and broadcast. Bypasses the generic
+/// DomainAdapter/docs pipeline entirely — see domains.rs's module comment.
+async fn build_presence_push_envelope(
+    state: &AppState,
+    domain_name: &str,
+) -> Result<PushOutcome, (StatusCode, serde_json::Value)> {
+    let status = state.kbd_control.status().map_err(|error| {
+        (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            serde_json::json!({"error": error.to_string()}),
+        )
+    })?;
+    let presence = crate::kbd_sync::KbdPresence {
+        device: device_identity(),
+        harness: "sovereign-sync".to_string(),
+        session: "daemon".to_string(),
+        observed_revision: status.revision,
+        leader_term: None,
+        lease_healthy: status.lease.is_some(),
+    };
+    state.presence.update(&presence).map_err(|error| {
+        (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            serde_json::json!({"error": error.to_string()}),
+        )
+    })?;
+    let snapshot = state.presence.export_snapshot().map_err(|error| {
+        (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            serde_json::json!({"error": error.to_string()}),
+        )
+    })?;
+
+    if state.p2p.is_none() {
+        return Ok(PushOutcome::LocalOnly {
+            snapshot_bytes: snapshot.len(),
+        });
+    }
+
+    let signer = state.kbd_control.runtime().device_signer().map_err(|error| {
+        (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            serde_json::json!({"error": error.to_string()}),
+        )
+    })?;
+    let mut envelope = SyncEnvelope {
+        schema_version: "1".into(),
+        domain: domain_name.to_string(),
+        identity: Some(status.project_id),
+        payload: snapshot,
+        signer_key_id: None,
+        signature: None,
+    };
+    envelope.sign(&signer);
+    let snapshot_bytes = envelope.payload.len();
+    Ok(PushOutcome::Broadcast {
+        envelope,
+        snapshot_bytes,
     })
 }
 
@@ -677,12 +765,16 @@ pub async fn handle_incoming_message(state: &AppState, payload: &[u8]) {
     }
 
     let family = domains::domain_family(&domain).to_string();
+
+    if family == "kbd-control" {
+        return import_presence_message(state, &envelope).await;
+    }
+
     // Public domains (skill-index) carry no meaningful identity scope.
     // Trusted domains must match this node's own identity for that family,
     // rejecting cross-project/learner payloads per data-scope.md.
     if family != "skill-index" {
         let local_identity = match family.as_str() {
-            "kbd-control" => state.kbd_control.status().ok().map(|s| s.project_id),
             "learner-model" => Some(default_learner_id()),
             _ => None,
         };
@@ -734,6 +826,56 @@ pub async fn handle_incoming_message(state: &AppState, payload: &[u8]) {
     }
 }
 
+/// `kbd-control` receive: project-identity check first (cheap, coarse), then
+/// real peer authentication — the envelope's claimed `signer_key_id` must
+/// resolve to an `Active` device in this node's own (already-replicated)
+/// `KbdStateV2.devices`, and the signature must verify against that device's
+/// public key. `peer_authorized` is only true when both hold; `import_authenticated`
+/// enforces it again independently (defense in depth), so a bug here fails
+/// closed rather than open.
+async fn import_presence_message(state: &AppState, envelope: &SyncEnvelope) {
+    let Ok(status) = state.kbd_control.status() else {
+        tracing::warn!("dropping kbd-control message — local runtime status unavailable");
+        return;
+    };
+    let local_identity = Some(status.project_id);
+    if envelope.identity != local_identity {
+        tracing::warn!(
+            "dropping kbd-control message — project identity mismatch (local={:?}, remote={:?})",
+            local_identity,
+            envelope.identity
+        );
+        return;
+    }
+
+    let peer_authorized = presence_peer_is_authorized(&status.devices, envelope);
+
+    if let Err(error) = state
+        .presence
+        .import_authenticated(&envelope.payload, peer_authorized)
+    {
+        tracing::warn!("dropping kbd-control presence message: {error}");
+    }
+}
+
+/// The actual authorization decision, factored out as a pure function so it
+/// can be unit-tested directly against hand-built `DeviceRecord`/`SyncEnvelope`
+/// fixtures without standing up a live `AppState`/daemon. True only when the
+/// envelope's claimed signer resolves to an `Active` enrolled device AND the
+/// signature verifies against that device's own public key — an unknown
+/// signer, a revoked device, or a tampered/forged signature all fail closed.
+fn presence_peer_is_authorized(
+    devices: &std::collections::BTreeMap<String, kbd_runtime::DeviceRecord>,
+    envelope: &SyncEnvelope,
+) -> bool {
+    envelope
+        .signer_key_id
+        .as_deref()
+        .and_then(|signer_key_id| devices.get(signer_key_id))
+        .filter(|device| device.status == kbd_runtime::DeviceStatus::Active)
+        .is_some_and(|device| envelope.verify(&device.public_key))
+}
+
 // ---------------------------------------------------------------------------
 // Server entry point
 // ---------------------------------------------------------------------------
@@ -755,4 +897,113 @@ pub async fn serve_with_state(port: u16, state: AppState) -> anyhow::Result<()> 
     let listener = tokio::net::TcpListener::bind(addr).await?;
     axum::serve(listener, app).await?;
     Ok(())
+}
+
+#[cfg(test)]
+mod presence_auth_tests {
+    use super::{presence_peer_is_authorized, SyncEnvelope};
+    use kbd_runtime::{DeviceRecord, DeviceSigner, DeviceStatus};
+    use std::collections::BTreeMap;
+
+    fn envelope() -> SyncEnvelope {
+        SyncEnvelope {
+            schema_version: "1".into(),
+            domain: "kbd-control:project-a".into(),
+            identity: Some("project-a".into()),
+            payload: b"presence snapshot bytes".to_vec(),
+            signer_key_id: None,
+            signature: None,
+        }
+    }
+
+    fn enrolled(signer: &DeviceSigner, status: DeviceStatus) -> BTreeMap<String, DeviceRecord> {
+        let mut devices = BTreeMap::new();
+        devices.insert(
+            signer.key_id().to_string(),
+            DeviceRecord {
+                device_id: "device-a".into(),
+                key_id: signer.key_id().to_string(),
+                public_key: signer.public_key().to_string(),
+                status,
+                enrolled_at_revision: 1,
+                revoked_at_revision: None,
+            },
+        );
+        devices
+    }
+
+    #[test]
+    fn signed_envelope_verifies_against_the_signers_own_public_key() {
+        let signer = DeviceSigner::generate();
+        let mut env = envelope();
+        env.sign(&signer);
+        assert!(env.verify(signer.public_key()));
+    }
+
+    #[test]
+    fn verify_fails_for_a_tampered_payload() {
+        let signer = DeviceSigner::generate();
+        let mut env = envelope();
+        env.sign(&signer);
+        env.payload = b"different bytes than what was signed".to_vec();
+        assert!(!env.verify(signer.public_key()));
+    }
+
+    #[test]
+    fn verify_fails_for_the_wrong_public_key() {
+        let signer = DeviceSigner::generate();
+        let other = DeviceSigner::generate();
+        let mut env = envelope();
+        env.sign(&signer);
+        assert!(!env.verify(other.public_key()));
+    }
+
+    #[test]
+    fn peer_is_authorized_for_an_active_enrolled_device_with_a_valid_signature() {
+        let signer = DeviceSigner::generate();
+        let devices = enrolled(&signer, DeviceStatus::Active);
+        let mut env = envelope();
+        env.sign(&signer);
+        assert!(presence_peer_is_authorized(&devices, &env));
+    }
+
+    #[test]
+    fn peer_is_not_authorized_when_unsigned() {
+        let signer = DeviceSigner::generate();
+        let devices = enrolled(&signer, DeviceStatus::Active);
+        let env = envelope();
+        assert!(!presence_peer_is_authorized(&devices, &env));
+    }
+
+    #[test]
+    fn peer_is_not_authorized_for_an_unknown_signer() {
+        let signer = DeviceSigner::generate();
+        let devices = BTreeMap::new(); // signer never enrolled on this node
+        let mut env = envelope();
+        env.sign(&signer);
+        assert!(!presence_peer_is_authorized(&devices, &env));
+    }
+
+    #[test]
+    fn peer_is_not_authorized_for_a_revoked_device() {
+        let signer = DeviceSigner::generate();
+        let devices = enrolled(&signer, DeviceStatus::Revoked);
+        let mut env = envelope();
+        env.sign(&signer);
+        assert!(!presence_peer_is_authorized(&devices, &env));
+    }
+
+    #[test]
+    fn peer_is_not_authorized_when_the_signature_does_not_match_the_claimed_signer() {
+        let signer = DeviceSigner::generate();
+        let impostor = DeviceSigner::generate();
+        // devices map has the real signer enrolled and active...
+        let devices = enrolled(&signer, DeviceStatus::Active);
+        // ...but the envelope claims to be from that signer while actually
+        // being signed by a different key (forged signer_key_id).
+        let mut env = envelope();
+        env.sign(&impostor);
+        env.signer_key_id = Some(signer.key_id().to_string());
+        assert!(!presence_peer_is_authorized(&devices, &env));
+    }
 }

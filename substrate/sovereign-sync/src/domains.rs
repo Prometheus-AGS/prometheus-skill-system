@@ -19,7 +19,6 @@ use serde_json::json;
 use storage_provider::{DomainConfig, PrivacyClass, SyncDomain, SyncManifest};
 
 use crate::error::SyncError;
-use crate::kbd_control::KbdControlPlane;
 use crate::mcp_server::{SkillEntry, SkillIndex};
 
 /// Split a parametrized domain string (e.g. `"learner-model:did:plc:abc"`)
@@ -73,6 +72,64 @@ pub struct SyncEnvelope {
     /// CRDT delta or snapshot bytes, produced by `CrdtEngine::apply_json`'s
     /// delta output or by `CrdtEngine::merge`'s remote-delta input.
     pub payload: Vec<u8>,
+    /// Ed25519 signer for `kbd-control` presence pushes — the enrolled
+    /// device's `key_id` (see `kbd_runtime::DeviceRecord`). `None` for
+    /// families that don't require peer authentication (`skill-index`,
+    /// `learner-model`).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub signer_key_id: Option<String>,
+    /// Base64 Ed25519 signature over `signable_bytes()`, from the signer's
+    /// `DeviceSigner::sign_base64`. Verified against the signer's public key
+    /// in the receiver's own (already-replicated) `KbdStateV2.devices` —
+    /// self-authenticating, no transport-level peer identity required.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub signature: Option<String>,
+}
+
+impl SyncEnvelope {
+    /// Deterministic bytes to sign/verify — every field except the signature
+    /// itself (`signer_key_id` IS covered, so a signature can't be replayed
+    /// under a different claimed signer). Plain length-prefix-free
+    /// concatenation with NUL separators is sufficient here: every field is
+    /// either a fixed-format string with no embedded NULs in practice
+    /// (schema_version, domain, key_id) or the final field (payload), so
+    /// there's no ambiguity to exploit.
+    pub fn signable_bytes(&self) -> Vec<u8> {
+        let mut bytes = Vec::with_capacity(
+            self.schema_version.len() + self.domain.len() + self.payload.len() + 8,
+        );
+        bytes.extend_from_slice(self.schema_version.as_bytes());
+        bytes.push(0);
+        bytes.extend_from_slice(self.domain.as_bytes());
+        bytes.push(0);
+        if let Some(identity) = &self.identity {
+            bytes.extend_from_slice(identity.as_bytes());
+        }
+        bytes.push(0);
+        if let Some(signer_key_id) = &self.signer_key_id {
+            bytes.extend_from_slice(signer_key_id.as_bytes());
+        }
+        bytes.push(0);
+        bytes.extend_from_slice(&self.payload);
+        bytes
+    }
+
+    /// Sign this envelope with the given device identity, setting
+    /// `signer_key_id`/`signature`.
+    pub fn sign(&mut self, signer: &kbd_runtime::DeviceSigner) {
+        self.signer_key_id = Some(signer.key_id().to_string());
+        self.signature = Some(signer.sign_base64(&self.signable_bytes()));
+    }
+
+    /// Verify this envelope's signature against a candidate public key —
+    /// the caller is responsible for resolving `signer_key_id` to a public
+    /// key (and confirming the device is Active) before calling this.
+    pub fn verify(&self, public_key_base64: &str) -> bool {
+        let Some(signature) = &self.signature else {
+            return false;
+        };
+        kbd_runtime::verify_ed25519_signature(public_key_base64, &self.signable_bytes(), signature)
+    }
 }
 
 /// Bridges a syncable domain's real local data to/from plain JSON.
@@ -199,56 +256,22 @@ impl DomainAdapter for LearnerModelAdapter {
 // kbd-control:<project-id> — Trusted, ephemeral, non-authoritative
 // ---------------------------------------------------------------------------
 //
-// Reuses `kbd_sync::KbdPresence`'s existing, tested schema rather than
-// inventing a second shape. Note: `kbd_sync::KbdPresenceDocument` gates
-// import on `peer_authorized: bool`, tying presence merge to authenticated
-// peer transport — that authentication is not yet wired into the gossip
-// layer (see data-scope.md: "no P2P presence wiring"). This adapter is a
-// first pass that exports real presence and merges it as any other Trusted
-// domain via `handle_incoming_message`'s existing identity check
-// (project-id match); real peer authentication is follow-up work before
-// this should be considered a hardened transport.
-
-pub struct KbdPresenceAdapter {
-    kbd_control: Arc<KbdControlPlane>,
-    device_id: String,
-}
-
-impl KbdPresenceAdapter {
-    pub fn new(kbd_control: Arc<KbdControlPlane>, device_id: impl Into<String>) -> Self {
-        Self {
-            kbd_control,
-            device_id: device_id.into(),
-        }
-    }
-}
-
-#[async_trait]
-impl DomainAdapter for KbdPresenceAdapter {
-    async fn export_json(&self) -> Result<serde_json::Value, SyncError> {
-        let status = self
-            .kbd_control
-            .status()
-            .map_err(|e| SyncError::Storage(e.to_string()))?;
-        let presence = crate::kbd_sync::KbdPresence {
-            device: self.device_id.clone(),
-            harness: "sovereign-sync".to_string(),
-            session: "daemon".to_string(),
-            observed_revision: status.revision,
-            leader_term: None,
-            lease_healthy: status.lease.is_some(),
-        };
-        serde_json::to_value(&presence).map_err(|e| SyncError::Crdt(e.to_string()))
-    }
-
-    async fn import_json(&self, _value: serde_json::Value) -> Result<(), SyncError> {
-        // Presence is purely the CRDT document itself — the merged state
-        // lives only in the in-memory `docs` map. Nothing is ever written
-        // back to any authoritative KBD file; the Raft/event-journal
-        // authority must never be CRDT-merged (see data-scope.md).
-        Ok(())
-    }
-}
+// Deliberately NOT a `DomainAdapter`: `kbd_sync::KbdPresenceDocument` owns
+// its own Loro document with a fixed wire shape (a `"presence"` map keyed by
+// `device:harness:session`), gated on import by `peer_authorized: bool` —
+// incompatible with the generic JSON-object-in/JSON-object-out shape every
+// other `DomainAdapter` uses via `storage_provider::LoroAdapter`. `AppState`
+// holds a `KbdPresenceDocument` directly; `rest_api::build_push_envelope`
+// and `rest_api::handle_incoming_message` special-case the `kbd-control`
+// family before reaching the generic adapter lookup.
+//
+// Peer authentication is real: each push is signed with the sending node's
+// own `kbd_runtime::DeviceSigner` (`SyncEnvelope::sign`), and the receiver
+// verifies the signature against the claimed signer's public key in its own
+// `KbdStateV2.devices` (`SyncEnvelope::verify`), requiring `DeviceStatus::Active`.
+// This reuses the same Ed25519 device identity `Event` signing already
+// relies on — no new pairing ceremony, and no dependency on Raft membership
+// (which only ever reflects consensus voters, not P2P gossip peers).
 
 #[cfg(test)]
 mod tests {
