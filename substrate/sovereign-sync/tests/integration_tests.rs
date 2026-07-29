@@ -164,6 +164,152 @@ async fn api_rejects_missing_bearer_token() {
 }
 
 // ---------------------------------------------------------------------------
+// KBD project routes
+//
+// `/api/v1/kbd/projects/{project_id}/...` had no coverage at all before these
+// tests, so the 404 branches and the command envelope/path check were free to
+// regress silently. They are also the regression net for making the control
+// plane multi-project: today one `AppState` serves exactly one project, and
+// `kbd_status` compares the path id against that single runtime rather than
+// using it as a lookup key.
+// ---------------------------------------------------------------------------
+
+/// Build a router over its own project + data root, returning the project id
+/// the runtime minted for it. Two calls yield two independent projects.
+async fn test_project() -> (axum::Router, String, String, TempDir) {
+    let skills_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../skills");
+    let fixture = tempfile::tempdir().unwrap();
+    let project_root = fixture.path().join("project");
+    let data_root = fixture.path().join("data");
+    std::fs::create_dir_all(&project_root).unwrap();
+    let state = AppState::try_new_at(&skills_dir, &project_root, &data_root)
+        .await
+        .unwrap();
+    let token = state.bearer_token().to_string();
+    let manifest = kbd_runtime::Runtime::open_canonical_at(&project_root, &data_root)
+        .unwrap()
+        .project_manifest(false)
+        .unwrap()
+        .expect("try_new_at establishes the project manifest");
+    (build_router(state), token, manifest.project_id, fixture)
+}
+
+fn kbd_status_request(project_id: &str, token: &str) -> Request<Body> {
+    Request::builder()
+        .method("GET")
+        .uri(format!("/api/v1/kbd/projects/{project_id}/status"))
+        .header("authorization", format!("Bearer {token}"))
+        .body(Body::empty())
+        .unwrap()
+}
+
+#[tokio::test]
+async fn kbd_status_rejects_a_missing_bearer_token() {
+    let (app, _token, project_id, _fixture) = test_project().await;
+    let req = Request::builder()
+        .method("GET")
+        .uri(format!("/api/v1/kbd/projects/{project_id}/status"))
+        .body(Body::empty())
+        .unwrap();
+    let resp = app.oneshot(req).await.unwrap();
+    assert_eq!(resp.status(), StatusCode::UNAUTHORIZED);
+}
+
+#[tokio::test]
+async fn kbd_status_reports_uninitialized_runtime_distinctly() {
+    // A fresh project authenticates but has no committed events. This must stay
+    // distinguishable from "unknown project" — collapsing the two is what made
+    // an empty runtime look like an unreachable daemon.
+    let (app, token, project_id, _fixture) = test_project().await;
+    let resp = app
+        .oneshot(kbd_status_request(&project_id, &token))
+        .await
+        .unwrap();
+    assert_eq!(resp.status(), StatusCode::NOT_FOUND);
+    let body = axum::body::to_bytes(resp.into_body(), 8192).await.unwrap();
+    let json: serde_json::Value = serde_json::from_slice(&body).unwrap();
+    assert_eq!(json["error"], "kbd runtime is not initialized");
+}
+
+#[tokio::test]
+async fn kbd_status_rejects_an_unrelated_project_id() {
+    let (app, token, _project_id, _fixture) = test_project().await;
+    let unrelated = "00000000-0000-4000-8000-000000000000";
+    let resp = app
+        .oneshot(kbd_status_request(unrelated, &token))
+        .await
+        .unwrap();
+    assert_eq!(resp.status(), StatusCode::NOT_FOUND);
+}
+
+#[tokio::test]
+async fn two_projects_mint_distinct_identities_and_tokens() {
+    let (_app_a, token_a, project_a, _fixture_a) = test_project().await;
+    let (_app_b, token_b, project_b, _fixture_b) = test_project().await;
+
+    assert_ne!(
+        project_a, project_b,
+        "each project root must receive its own immutable UUID"
+    );
+    assert_ne!(
+        token_a, token_b,
+        "each project runtime must derive its own control token"
+    );
+}
+
+#[tokio::test]
+async fn one_projects_token_is_rejected_by_another_project() {
+    // The security property behind per-project auth: project A's token must not
+    // be able to address project B. `require_bearer` compares against a single
+    // global token today, so this passes only because each router serves one
+    // project; it must keep passing once one process serves many.
+    let (_app_a, token_a, _project_a, _fixture_a) = test_project().await;
+    let (app_b, token_b, project_b, _fixture_b) = test_project().await;
+
+    assert_ne!(token_a, token_b);
+    let resp = app_b
+        .oneshot(kbd_status_request(&project_b, &token_a))
+        .await
+        .unwrap();
+    assert_eq!(
+        resp.status(),
+        StatusCode::UNAUTHORIZED,
+        "a foreign project's token must never authenticate against this project"
+    );
+}
+
+#[tokio::test]
+async fn kbd_command_rejects_an_envelope_whose_project_disagrees_with_the_path() {
+    // Guards rest_api.rs's envelope/path equality check. Without it a caller
+    // could commit a signed event into a project other than the one addressed.
+    let (app, token, project_id, _fixture) = test_project().await;
+    let envelope = serde_json::json!({
+        "schemaVersion": "1",
+        "projectId": "00000000-0000-4000-8000-000000000000",
+        "runId": "run-mismatch",
+        "commandId": "11111111-2222-4333-8444-555555555555",
+        "expectedRevision": 0,
+        "actor": {
+            "kind": "harness",
+            "id": "operator",
+            "device": "test-device",
+            "harness": "claude-code",
+            "session": "test-session"
+        },
+        "command": { "type": "lease_heartbeat" }
+    });
+    let req = Request::builder()
+        .method("POST")
+        .uri(format!("/api/v1/kbd/projects/{project_id}/commands"))
+        .header("authorization", format!("Bearer {token}"))
+        .header("content-type", "application/json")
+        .body(Body::from(envelope.to_string()))
+        .unwrap();
+    let resp = app.oneshot(req).await.unwrap();
+    assert_eq!(resp.status(), StatusCode::BAD_REQUEST);
+}
+
+// ---------------------------------------------------------------------------
 // 6. CRDT: export snapshot then apply delta roundtrip
 // ---------------------------------------------------------------------------
 

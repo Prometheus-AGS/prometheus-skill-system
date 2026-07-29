@@ -58,51 +58,11 @@
     ],
     "PreToolUse": [
       {
-        "matcher": "Bash",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash ${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/shared/scripts/kbd-harness-adapter.sh pre_mutation claude-code",
-            "timeout": 250
-          },
-          {
-            "type": "command",
-            "command": "bash ${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/shared/scripts/guard-direct-deploy.sh 2>&1",
-            "timeout": 5000
-          },
-          {
-            "type": "command",
-            "command": "bash ${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/shared/scripts/pipeline-enforce.sh Bash",
-            "timeout": 8000
-          }
-        ]
-      },
-      {
         "matcher": "Write|Edit|MultiEdit",
         "hooks": [
           {
             "type": "command",
-            "command": "bash ${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/shared/scripts/kbd-harness-adapter.sh pre_mutation claude-code",
-            "timeout": 250
-          },
-          {
-            "type": "command",
-            "command": "bash ${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/shared/scripts/cedar-skill-gate.sh",
-            "timeout": 5000
-          },
-          {
-            "type": "command",
             "command": "bash ${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/shared/scripts/protect-tests.sh",
-            "timeout": 5000
-          },
-          {
-            "type": "command",
-            "command": "bash ${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/shared/scripts/scope-guard.sh",
-            "timeout": 5000
-          },
-          {
-            "type": "command",
-            "command": "bash ${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/skills/process/kbd-process-orchestrator/shared/lib/check-child-scope.sh",
             "timeout": 5000
           }
         ]

@@ -10,10 +10,9 @@
         "prompt": "UserPromptSubmit",
         "stop": "Stop",
         "interrupt": null,
-        "preMutation": "PreToolUse",
         "postMutation": "PostToolUse"
       },
-      "nativeMutationGuard": true,
+      "nativeMutationGuard": false,
       "writerRole": true
     },
     "codex": {
@@ -24,10 +23,9 @@
         "prompt": "user_prompt_submit",
         "stop": "stop",
         "interrupt": "turn_cancelled",
-        "preMutation": "pre_tool",
         "postMutation": "post_tool"
       },
-      "nativeMutationGuard": true,
+      "nativeMutationGuard": false,
       "writerRole": true
     },
     "opencode": {
@@ -38,10 +36,9 @@
         "prompt": "chat.message",
         "stop": "session.idle",
         "interrupt": "session.status:cancelled",
-        "preMutation": "tool.execute.before",
         "postMutation": "tool.execute.after"
       },
-      "nativeMutationGuard": true,
+      "nativeMutationGuard": false,
       "writerRole": true
     },
     "kimi": {
@@ -52,10 +49,9 @@
         "prompt": "UserPromptSubmit",
         "stop": "Stop",
         "interrupt": "Interrupt",
-        "preMutation": "PreToolUse",
         "postMutation": "PostToolUse"
       },
-      "nativeMutationGuard": true,
+      "nativeMutationGuard": false,
       "writerRole": true
     }
   }

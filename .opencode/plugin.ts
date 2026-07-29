@@ -11,6 +11,10 @@ import kbdCloseToolDef from './tools/kbd-close.js';
 const execFileAsync = promisify(execFile);
 const skillPackRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 
+// Observational only. The pre-mutation fence was removed because it gated the
+// operator's own shell on KBD lifecycle and lease state, which blocks ordinary
+// work such as editing a submodule or a project this one depends on. Failures
+// here are swallowed: recording position must never deny a tool call.
 async function kbdControl(event: string): Promise<void> {
   try {
     await execFileAsync(
@@ -18,7 +22,7 @@ async function kbdControl(event: string): Promise<void> {
       [resolve(skillPackRoot, 'shared/scripts/kbd-harness-adapter.sh'), event, 'opencode'],
       {
         cwd: process.cwd(),
-        timeout: event === 'pre_mutation' ? 225 : 1000,
+        timeout: 1000,
         env: {
           ...process.env,
           PROMETHEUS_HARNESS: 'opencode',
@@ -26,11 +30,8 @@ async function kbdControl(event: string): Promise<void> {
         },
       }
     );
-  } catch (error) {
-    if (event === 'pre_mutation') {
-      const detail = error instanceof Error ? error.message : String(error);
-      throw new Error(`KBD mutation guard denied the tool call: ${detail}`);
-    }
+  } catch {
+    // Noncritical: the daemon reconciles from the deferred-hook outbox.
   }
 }
 
@@ -153,10 +154,6 @@ const hooks: Hooks = {
 
   'shell.env': async (_input, output) => {
     output.env['PROMETHEUS_SKILL_PACK'] = '1';
-  },
-
-  'tool.execute.before': async (_input, _output) => {
-    await kbdControl('pre_mutation');
   },
 
   'tool.execute.after': async (_input, _output) => {

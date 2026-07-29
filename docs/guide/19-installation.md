@@ -89,6 +89,18 @@ bash scripts/prometheus-services.sh status
 bash scripts/check-mcp-health.sh
 ```
 
+The Sovereign Sync installer also creates:
+
+- `$HOME/.config/sovereign-sync/config.toml` with a random P2P `operator_id`;
+- `$HOME/.config/sovereign-sync/device-key.json` with mode `0600`;
+- `ai.prometheus.sovereign-sync` on loopback port `7892`.
+
+The KBD REST bearer token is separate. It is generated per project in the
+platform data directory when the canonical runtime first opens. Do not use
+`operator_id` or the Ed25519 device key as the bearer token. The detailed path,
+format, rotation, and verification procedure is in
+[Tokens and authentication](/docs/kbd/tokens-and-authentication).
+
 On macOS the `launchd` agents manage `pk-cherry` on `127.0.0.1:8942` and `forge mcp` on `127.0.0.1:8943`. surreal-memory is Docker-managed on `127.0.0.1:23001`:
 
 ```bash
@@ -108,6 +120,20 @@ bash scripts/check-mcp-health.sh   # launchctl + HTTP probe per service
 prometheus doctor --json           # machine-readable CLI health
 prometheus doctor --check learning # scoped CLI health
 ```
+
+For a controlled project, also verify identity and canonical runtime:
+
+```bash
+PROJECT_ROOT="/path/to/project"
+
+prometheus kbd --path "$PROJECT_ROOT" migrate --check
+prometheus kbd --path "$PROJECT_ROOT" migrate --apply
+prometheus kbd --path "$PROJECT_ROOT" status --json | jq .
+```
+
+When the daemon must control a repository other than its service working
+directory, configure `KBD_FOCUS_PROJECT_PATH` and fully reload the service.
+Changing only the token does not retarget Sovereign Sync.
 
 ## First run
 
@@ -140,7 +166,16 @@ EOF
 /loop-tick quality-gate
 ```
 
-For structured development work, `/create-native-agent` scaffolds a complete agent and the KBD orchestrator handles the full lifecycle. The nested-loop pattern is automatic: the outer loop coordinates phase transitions, the inner loop executes changes, and the child skills handle individual technical tasks.
+For structured development work, `/create-native-agent` scaffolds a complete agent and the KBD orchestrator handles the full lifecycle. Claim the writer lease for the active harness before mutations:
+
+```bash
+PROMETHEUS_HARNESS=claude-code \
+  prometheus kbd --path "$PROJECT_ROOT" claim
+```
+
+Claude Code/Claude Desktop uses `claude-code`; other stable IDs are `codex`,
+`opencode`, and `kimi`. A valid token does not override a paused, blocked, or
+terminal lifecycle.
 
 ## Platform-specific quick starts
 
@@ -155,7 +190,11 @@ For structured development work, `/create-native-agent` scaffolds a complete age
 
 ## When a service is missing
 
-Nothing here is fragile. Every component degrades gracefully: memory features no-op when surreal-memory is unreachable, `pk focus` does nothing when `pk` is absent, the sycophancy gate passes through when its binary is missing. You can run the loop with no services at all and add them incrementally — the difference is that without the substrate the loop runs at constant capability instead of compounding. The smoke test treats `forge`, `pk`, `liter-llm`, and `prometheus` as required and the rest as presence-only optional, which is a fair description of what the loop actually needs to function versus what makes it better.
+Learning and memory features degrade gracefully: memory features queue or
+no-op when surreal-memory is unreachable, and `pk focus` does nothing when
+`pk` is absent. The KBD adapter is observational: when it cannot reach the
+control plane it queues the event and exits successfully rather than blocking a
+tool call. See [KBD troubleshooting](/docs/kbd/troubleshooting).
 
 ---
 

@@ -409,7 +409,7 @@ A loop you "primarily use from now on" must be bounded and honest, or it will bu
 2. **Stall detection:** `max_no_progress_ticks` (default 2). On a stall the loop escalates via `/pmpo-elicit` — continue / replan / stop — rather than spinning.
 3. **Reflection honesty gate:** the sycophancy gate rejects "everything went great" reflections; a passing reflection must name the delta between planned and delivered, state root causes, and give corrective actions. 2‑rejection soft cap prevents the gate itself from looping forever.
 4. **Immutable tests:** code‑gen loops may add `tests/features/drafts/*.feature` + new steps, but may not edit existing tests to pass. Tests are the termination predicate; a loop that can edit them has no predicate.
-5. **Scope guard:** `shared/scripts/scope-guard.sh` / `scope-record.sh` keep a tick from wandering outside the declared change scope.
+5. **Scope recording (advisory):** `shared/scripts/scope-record.sh` records which paths a tick touched. The blocking counterpart, `scope-guard.sh`, was unwired: a change that spans a submodule or a dependency is ordinary work, and prompting on every such write cost more than the drift it caught.
 6. **Memory discipline:** check memory at session start (surreal‑memory → Cortex → file), write memories after every feature/bug fix (global vs project scope). The loop's cross‑session continuity depends on this, not on context.
 7. **Escalation points are first‑class:** declare them in `loop.json`. The loop should ping you *only* at these — that is the whole value proposition.
 

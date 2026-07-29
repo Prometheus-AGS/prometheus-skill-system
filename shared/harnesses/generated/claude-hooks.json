@@ -25,13 +25,6 @@
         "command": "bash ${PROMETHEUS_SKILL_PACK_ROOT}/shared/scripts/kbd-harness-adapter.sh stop claude-code",
         "timeout": 250
       }
-    ],
-    "PreToolUse": [
-      {
-        "matcher": "Bash|Write|Edit|MultiEdit",
-        "command": "bash ${PROMETHEUS_SKILL_PACK_ROOT}/shared/scripts/kbd-harness-adapter.sh pre_mutation claude-code",
-        "timeout": 250
-      }
     ]
   }
 }

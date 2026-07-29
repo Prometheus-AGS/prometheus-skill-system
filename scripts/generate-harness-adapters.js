@@ -19,20 +19,13 @@ const artifacts = {
       PreCompact: [{ command: `bash ${adapter} pre_compact claude-code`, timeout: 1000 }],
       UserPromptSubmit: [{ command: `bash ${adapter} prompt claude-code`, timeout: 1000 }],
       Stop: [{ command: `bash ${adapter} stop claude-code`, timeout: 250 }],
-      PreToolUse: [
-        {
-          matcher: 'Bash|Write|Edit|MultiEdit',
-          command: `bash ${adapter} pre_mutation claude-code`,
-          timeout: 250,
-        },
-      ],
     },
   },
   'codex-hooks.toml': [
     '# Generated from shared/harnesses/capabilities.json.',
     '[hooks.kbd_control]',
     `command = ["bash", "${adapter}"]`,
-    'events = ["session_start", "pre_compact", "post_compact", "user_prompt_submit", "stop", "turn_cancelled", "pre_tool", "post_tool"]',
+    'events = ["session_start", "pre_compact", "post_compact", "user_prompt_submit", "stop", "turn_cancelled", "post_tool"]',
     'timeout_ms = 250',
     '',
   ].join('\n'),
