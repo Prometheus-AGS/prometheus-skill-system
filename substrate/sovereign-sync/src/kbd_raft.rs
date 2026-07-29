@@ -382,6 +382,7 @@ impl RedbRaftStore {
             committed_revision: state.runtime.revision,
             duplicate: false,
             state: state.runtime.clone(),
+            apply_error: None,
         };
         state.command_results.insert(command_id, response.clone());
 
@@ -785,14 +786,39 @@ impl RaftStorage<KbdRaftConfig> for Arc<RedbRaftStore> {
                         responses.push(duplicate);
                         continue;
                     }
-                    apply_committed_event(&mut state.runtime, event).map_err(|error| {
-                        StorageIOError::apply(entry.log_id, &io::Error::other(error.to_string()))
-                    })?;
-                    let response = CommandResult {
-                        command_id: command_id.to_string(),
-                        committed_revision: state.runtime.revision,
-                        duplicate: false,
-                        state: state.runtime.clone(),
+                    // A business-logic apply failure (e.g. an invalid work-item
+                    // transition) must NOT abort the whole batch via `?`: that
+                    // would skip `persist_state_machine` below, which means
+                    // `last_applied_log` never advances past this entry — on
+                    // every subsequent write (and on replay after a restart)
+                    // the same permanently-invalid entry gets retried and
+                    // fails again, forever, blocking all later commands too.
+                    // `KbdStateV2::apply` never mutates state before an early
+                    // `Err` return, so `state.runtime` is safe to reuse as-is
+                    // for the rest of this loop and any later entries.
+                    let response = match apply_committed_event(&mut state.runtime, event) {
+                        Ok(()) => CommandResult {
+                            command_id: command_id.to_string(),
+                            committed_revision: state.runtime.revision,
+                            duplicate: false,
+                            state: state.runtime.clone(),
+                            apply_error: None,
+                        },
+                        Err(error) => {
+                            tracing::warn!(
+                                command_id,
+                                log_index = entry.log_id.index,
+                                error = %error,
+                                "command failed business-logic validation — recorded as failed, log position still advances"
+                            );
+                            CommandResult {
+                                command_id: command_id.to_string(),
+                                committed_revision: state.runtime.revision,
+                                duplicate: false,
+                                state: state.runtime.clone(),
+                                apply_error: Some(error.to_string()),
+                            }
+                        }
                     };
                     state
                         .command_results
@@ -874,6 +900,7 @@ fn noop_result(state: &KbdStateV2, log_id: LogId<KbdNodeId>) -> CommandResult {
         committed_revision: state.revision,
         duplicate: false,
         state: state.clone(),
+        apply_error: None,
     }
 }
 
@@ -1061,6 +1088,136 @@ mod tests {
         let reopened = RedbRaftStore::open(&directory.path().join("raft.redb")).unwrap();
         assert_eq!(reopened.runtime_state().unwrap().revision, 1);
         assert!(reopened.command_result(&command_id).unwrap().is_some());
+    }
+
+    /// Regression test for a real production incident: a committed entry
+    /// that fails `KbdStateV2::apply` (e.g. an invalid work-item or
+    /// lifecycle transition — durable log commit and business-logic
+    /// validation are separate Raft concerns) must not permanently wedge
+    /// the state machine. Before this fix, `apply_to_state_machine` used
+    /// `?` on the per-entry apply error, which skipped `persist_state_machine`
+    /// entirely — so `last_applied_log` never advanced past the bad entry,
+    /// and every later write (plus a fresh replay on daemon restart) kept
+    /// retrying and re-failing on that same entry forever.
+    #[tokio::test]
+    async fn a_failed_apply_does_not_block_later_entries_or_restart_replay() {
+        let directory = tempdir().unwrap();
+        let runtime = Runtime::open(directory.path().join("event-source"));
+        runtime
+            .initialize("project-a", "run-a", Actor::operator("device-a", "test"))
+            .unwrap();
+        let genesis = runtime.events().unwrap().remove(0);
+        let after_genesis =
+            kbd_runtime::replay_events(std::slice::from_ref(&genesis)).unwrap();
+
+        // Ready -> Ready is not a valid lifecycle transition (see
+        // `valid_transition`) — a signed, well-formed event that will fail
+        // `KbdStateV2::apply` at the semantic-validation step, exactly like
+        // a real invalid work-item transition would.
+        let invalid_event = runtime
+            .prepare_signed_command(
+                &after_genesis,
+                kbd_runtime::CommandEnvelope {
+                    schema_version: "1".into(),
+                    project_id: after_genesis.project_id.clone(),
+                    run_id: after_genesis.run_id.clone(),
+                    command_id: "invalid-transition".into(),
+                    expected_revision: after_genesis.revision,
+                    actor: Actor::operator("device-a", "test"),
+                    lease_id: None,
+                    fencing_token: None,
+                    command: kbd_runtime::CommandKind::LifecycleTransition {
+                        to: kbd_runtime::LifecycleState::Ready,
+                        reason: "deliberately invalid for this test".into(),
+                    },
+                },
+            )
+            .unwrap();
+
+        // A genuinely valid follow-up event, prepared from the SAME
+        // pre-invalid-entry state (Ready) — exactly what state.runtime looks
+        // like when apply_to_state_machine reaches this entry, since a
+        // failed apply never mutates state.
+        let valid_event = runtime
+            .prepare_signed_command(
+                &after_genesis,
+                kbd_runtime::CommandEnvelope {
+                    schema_version: "1".into(),
+                    project_id: after_genesis.project_id.clone(),
+                    run_id: after_genesis.run_id.clone(),
+                    command_id: "valid-run".into(),
+                    expected_revision: after_genesis.revision,
+                    actor: Actor::operator("device-a", "test"),
+                    lease_id: None,
+                    fencing_token: None,
+                    command: kbd_runtime::CommandKind::LifecycleTransition {
+                        to: kbd_runtime::LifecycleState::Running,
+                        reason: "valid transition after the poisoned entry".into(),
+                    },
+                },
+            )
+            .unwrap();
+
+        let store = RedbRaftStore::open(&directory.path().join("raft.redb")).unwrap();
+        let mut adapted = store.clone();
+
+        let genesis_entry = Entry {
+            log_id: LogId::new(CommittedLeaderId::new(1, 1), 1),
+            payload: EntryPayload::Normal(genesis),
+        };
+        adapted
+            .apply_to_state_machine(std::slice::from_ref(&genesis_entry))
+            .await
+            .unwrap();
+
+        // The invalid entry is applied ALONE, mirroring a single live write
+        // whose command fails validation.
+        let invalid_entry = Entry {
+            log_id: LogId::new(CommittedLeaderId::new(1, 1), 2),
+            payload: EntryPayload::Normal(invalid_event),
+        };
+        let invalid_responses = adapted
+            .apply_to_state_machine(std::slice::from_ref(&invalid_entry))
+            .await
+            .expect("a per-entry apply failure must not fail the whole batch call");
+        assert!(
+            invalid_responses[0].apply_error.is_some(),
+            "the invalid transition must be recorded as a failure"
+        );
+        assert_eq!(
+            invalid_responses[0].committed_revision, 1,
+            "a failed apply must not advance the runtime revision"
+        );
+
+        // Simulate a daemon restart: reopen the store fresh and confirm the
+        // log position already advanced past the poisoned entry, so a cold
+        // replay never has to re-attempt (and re-fail on) it again.
+        drop(adapted);
+        drop(store);
+        let reopened = RedbRaftStore::open(&directory.path().join("raft.redb")).unwrap();
+        let reopened_state = reopened.state_machine().unwrap();
+        assert_eq!(
+            reopened_state.last_applied_log.unwrap().index,
+            2,
+            "log position must advance past a failed entry, not get stuck behind it"
+        );
+        assert_eq!(reopened_state.runtime.revision, 1);
+
+        // A later, genuinely valid entry — applied in its own separate call
+        // by the freshly-reopened store, exactly as a real live write after
+        // a restart would be — must still succeed.
+        let mut reopened_adapter = reopened.clone();
+        let valid_entry = Entry {
+            log_id: LogId::new(CommittedLeaderId::new(1, 1), 3),
+            payload: EntryPayload::Normal(valid_event),
+        };
+        let valid_responses = reopened_adapter
+            .apply_to_state_machine(std::slice::from_ref(&valid_entry))
+            .await
+            .unwrap();
+        assert!(valid_responses[0].apply_error.is_none());
+        assert_eq!(valid_responses[0].committed_revision, 2);
+        assert_eq!(reopened.projection_revision().unwrap(), 2);
     }
 
     #[tokio::test]

@@ -941,6 +941,17 @@ pub struct CommandResult {
     pub committed_revision: u64,
     pub duplicate: bool,
     pub state: KbdStateV2,
+    /// Set when this specific command failed business-logic validation in
+    /// `KbdStateV2::apply` (e.g. an invalid work-item transition). `state`
+    /// and `committed_revision` reflect the runtime UNCHANGED by this
+    /// command in that case — the failure must never block the log
+    /// position from advancing past this entry, or every later command
+    /// (and a fresh replay on restart) gets stuck retrying the same
+    /// permanently-invalid entry forever. `#[serde(default)]` keeps
+    /// already-persisted `CommandResult`s (written before this field
+    /// existed) deserializable.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub apply_error: Option<String>,
 }
 
 impl Default for KbdStateV2 {
@@ -2198,6 +2209,7 @@ impl Runtime {
                 committed_revision: *committed_revision,
                 duplicate: true,
                 state: committed,
+                apply_error: None,
             });
         }
         if state.revision != envelope.expected_revision {
@@ -2226,6 +2238,7 @@ impl Runtime {
             committed_revision: next.revision,
             duplicate: false,
             state: next,
+            apply_error: None,
         })
     }
 

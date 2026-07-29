@@ -225,6 +225,13 @@ impl KbdControlPlane {
 
     pub async fn submit(&self, envelope: CommandEnvelope) -> io::Result<CommittedCommand> {
         if let Some(original) = self.store.command_result(&envelope.command_id)? {
+            // A cached failure (apply_error set) must still surface as an
+            // error on retry — otherwise a client that retries an
+            // already-attempted, already-invalid command_id would see a
+            // false success.
+            if let Some(error) = original.apply_error.clone() {
+                return Err(io::Error::other(error));
+            }
             let mut duplicate = original;
             duplicate.duplicate = true;
             return Ok(CommittedCommand {
@@ -248,6 +255,14 @@ impl KbdControlPlane {
             .await
             .map_err(|error| io::Error::other(error.to_string()))?
             .data;
+        // The command committed durably to the log (and the log position
+        // advances past it either way — see apply_to_state_machine), but it
+        // may still have failed business-logic validation. Surface that to
+        // the caller as an error, exactly as a hard client_write failure
+        // would have been reported before, instead of a false success.
+        if let Some(error) = result.apply_error.clone() {
+            return Err(io::Error::other(error));
+        }
         let projection_error = self
             .runtime
             .write_compatibility_projections_from_state(&result.state, timestamp)
