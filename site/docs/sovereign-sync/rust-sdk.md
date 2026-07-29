@@ -6,16 +6,36 @@ sidebar_label: Rust SDK
 
 # Sovereign Client — Rust SDK
 
-`sovereign-client` is the official Rust SDK for connecting to a `sovereign-sync` node.
+`sovereign-client` provides typed models and convenience methods for the
+Sovereign Sync REST and AG-UI surfaces.
 
-## Add to your project
+## Current authentication limitation
+
+The server now requires a bearer token on every route except `/health`.
+`SovereignClient::new(base_url)` currently has no token parameter and does not
+attach an `Authorization` header.
+
+Therefore, against the current daemon:
+
+| Method | Current result |
+|---|---|
+| `health()` | Works |
+| `search_skills()` | HTTP `401` |
+| `sync_status()` | HTTP `401` |
+| `sync_push()` | HTTP `401` |
+| `stream_task()` | HTTP `401` |
+
+This is a documented SDK gap, not a server configuration problem. Do not
+disable server authentication to make the old client examples pass.
+
+## Add to a workspace
 
 ```toml
 [dependencies]
 sovereign-client = { path = "../substrate/sovereign-client" }
 ```
 
-## Usage
+## Health-only use
 
 ```rust
 use sovereign_client::SovereignClient;
@@ -23,100 +43,64 @@ use sovereign_client::SovereignClient;
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     let client = SovereignClient::new("http://127.0.0.1:7892")?;
-
-    // Health check
     let health = client.health().await?;
     println!("Service: {}", health["service"]);
-
-    // Search skills
-    let results = client.search_skills("feynman", 5).await?;
-    for r in &results {
-        println!("{}: {}", r.name, r.description);
-    }
-
-    // Get sync status
-    let status = client.sync_status().await?;
-    println!("State: {}", status.node_state);
-    println!("Peers: {}", status.peers.len());
-
-    // Push a domain
-    let resp = client.sync_push("learner-model").await?;
-    println!("Push status: {}", resp["status"]);
-
     Ok(())
 }
 ```
 
-## AG-UI SSE streaming
+## Authenticated workaround with reqwest
+
+Keep token loading in a trusted backend:
 
 ```rust
-use futures::StreamExt;
-use serde_json::json;
-use sovereign_client::{AgUiEvent, SovereignClient};
+use reqwest::Client;
 
-#[tokio::main]
-async fn main() -> anyhow::Result<()> {
-    let client = SovereignClient::new("http://127.0.0.1:7892")?;
+async fn sync_status(
+    base_url: &str,
+    token: &str,
+) -> anyhow::Result<serde_json::Value> {
+    let response = Client::new()
+        .get(format!("{base_url}/api/v1/sync/status"))
+        .bearer_auth(token)
+        .send()
+        .await?
+        .error_for_status()?;
 
-    let task = json!({ "kind": "SyncPush", "domain": "skill-index" });
-    let mut stream = client.stream_task(task).await?;
-
-    while let Some(event) = stream.next().await {
-        match event? {
-            AgUiEvent::TaskAccepted { task_id } => println!("Task accepted: {task_id}"),
-            AgUiEvent::Progress { task_id, message, percent } => {
-                println!("[{percent}%] {message}");
-            }
-            AgUiEvent::Done { task_id, result } => {
-                println!("Done: {result}");
-                break;
-            }
-            AgUiEvent::Error { task_id, error } => {
-                eprintln!("Error: {error}");
-                break;
-            }
-            AgUiEvent::Ping => {}
-        }
-    }
-
-    Ok(())
+    Ok(response.json().await?)
 }
 ```
 
-## API reference
+Read the token from the project-specific mode-`0600` file described in
+[Tokens and authentication](/docs/kbd/tokens-and-authentication). Never embed
+it in frontend JavaScript or a compiled web asset.
 
-### `SovereignClient::new(base_url: &str) -> Result<Self, ClientError>`
+## Existing API surface
 
-Create a client. Parses the base URL; returns `ClientError::Url` on invalid URL.
+```text
+SovereignClient::new(base_url)
+health()
+search_skills(query, limit)
+sync_status()
+sync_push(domain)
+stream_task(task)
+```
 
-### `health() -> Result<serde_json::Value, ClientError>`
-
-GET `/health` — returns the raw JSON response.
-
-### `search_skills(query: &str, limit: usize) -> Result<Vec<SkillResult>, ClientError>`
-
-GET `/api/v1/skills/search` — returns a list of matching skills.
-
-### `sync_status() -> Result<SyncStatus, ClientError>`
-
-GET `/api/v1/sync/status` — returns node state and peer list.
-
-### `sync_push(domain: &str) -> Result<serde_json::Value, ClientError>`
-
-POST `/api/v1/sync/push` — queues a domain for broadcast.
-
-### `stream_task(task: Value) -> Result<impl Stream<Item = Result<AgUiEvent, ClientError>>, ClientError>`
-
-POST `/api/v1/stream` — returns an async stream of AG-UI SSE events.
+The next compatible SDK revision needs a constructor or builder that accepts a
+secret bearer token and applies it to REST and SSE requests without exposing
+the value through `Debug` or logs.
 
 ## Error types
 
 ```rust
 pub enum ClientError {
-    Http(reqwest::Error),    // HTTP request failed
-    Json(serde_json::Error), // Deserialization failed
-    Stream(String),          // SSE stream error
-    Url(url::ParseError),    // Invalid base URL
-    Api(String),             // Server returned error body
+    Http(reqwest::Error),
+    Json(serde_json::Error),
+    Stream(String),
+    Url(url::ParseError),
+    Api(String),
 }
 ```
+
+At present, `error_for_status()` reports authenticated-route `401` responses
+through `ClientError::Http`.

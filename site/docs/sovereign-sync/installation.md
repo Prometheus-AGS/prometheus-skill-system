@@ -29,6 +29,12 @@ What the installer does for sovereign-sync:
 `operator_id`, the device key, and the KBD control bearer token are three
 different values. See [Tokens and authentication](/docs/kbd/tokens-and-authentication).
 
+Each independent installation generates its own `operator_id`. That is the
+safe single-machine default, but two machines will not share a gossip topic
+until you deliberately choose one operator namespace and place that same value
+in both configs. Do not copy the device key or bearer token with it. Follow
+[Pair two machines](./pair-two-machines) after both installations are healthy.
+
 ## Verify installation
 
 ```bash
@@ -87,7 +93,12 @@ Example:
 ```toml
 [node]
 skills_dir = "/path/to/installed/skills"
-operator_id = "64-random-hex-characters"
+operator_id = "recommended-64-random-hex-characters"
+
+[peers]
+bootstrap = [
+  "iroh-endpoint-id-from-an-already-running-trusted-peer"
+]
 
 [server]
 port = 7892
@@ -102,6 +113,13 @@ witness = false
 ```
 
 The installer creates `operator_id`; do not use it as an HTTP bearer token.
+`peers.bootstrap` accepts iroh endpoint IDs, not IP addresses, HTTP URLs,
+device-key IDs, project IDs, or relay tickets. In `0.1.0` the endpoint ID is
+logged at daemon startup and changes after that daemon restarts.
+
+The config parser accepts any non-empty operator ID, but a value generated with
+`openssl rand -hex 32` is the recommended format. Preserve each machine’s own
+`skills_dir` and copy only the shared operator value during pairing.
 
 ## Focus a managed daemon on another repository
 
@@ -203,4 +221,9 @@ of operating on the local P2P network directly.
 - Port 7892 available (daemon/server modes)
 - `config.toml` with non-empty `node.operator_id` in daemon mode
 - mode-`0600` Ed25519 device key when `PROMETHEUS_HEADLESS_VOTER=1`
-- No additional cloud infrastructure required
+- Outbound access to the N0 discovery/relay infrastructure for the current P2P
+  preset, even when the two peers are on the same LAN
+
+The current binary does not expose custom relay or discovery configuration.
+See [Network configuration](./p2p-network) before using a corporate,
+restricted, offline, or production network.

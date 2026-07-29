@@ -6,7 +6,8 @@ sidebar_label: /sync-push
 
 # /sync-push
 
-Push the current state of a sync domain to all connected peers.
+Request a push for a named sync domain. The current implementation acknowledges
+the request but does not transmit domain state.
 
 ## Trigger phrases
 
@@ -15,33 +16,43 @@ Push the current state of a sync domain to all connected peers.
 - "sync learning progress"
 - "push sync"
 
-## Supported domains
+## Requested domain names
 
 | Domain | Privacy |
 |--------|---------|
-| `skill-index` | Shareable |
-| `learner-model` | Shareable |
-| `surreal-memory` | **LocalOnly — never synced** |
+| `skill-index` | Recommended `Public` metadata |
+| `learner-model` | Recommended `Trusted` |
+| `kbd-control:<project-id>` | Presence may be `Trusted`; authority requires Raft |
+| `open-spec:<project-id>` | Future project adapter |
+| `surreal-memory` | `Local` — must remain ineligible |
+
+These names describe the intended domain model. The `0.1.0` daemon does not
+maintain a live manifest registry for the REST handler.
 
 ## Quick push
+
+For raw REST calls, derive `AUTH_HEADER` using the
+[REST authentication helper](./rest-api#authentication-helper).
 
 ```bash
 # Push skill index
 curl -s -X POST http://127.0.0.1:7892/api/v1/sync/push \
+  -H "$AUTH_HEADER" \
   -H 'Content-Type: application/json' \
   -d '{"domain": "skill-index"}'
 
 # Push learner model
 curl -s -X POST http://127.0.0.1:7892/api/v1/sync/push \
+  -H "$AUTH_HEADER" \
   -H 'Content-Type: application/json' \
   -d '{"domain": "learner-model"}'
 ```
 
-## Privacy guarantee
-
-Requesting `surreal-memory` domain is rejected at the REST layer with HTTP 400.
-This is enforced in code — not configuration.
+The current REST handler acknowledges a queued domain request. The structural
+`Local` privacy invariant is enforced in the storage/CRDT library; the queue
+acknowledgement itself is not export, peer delivery, import, or apply
+confirmation. See [Exactly what syncs](./data-scope).
 
 ## Source
 
-[`skills/learn/sync-push/SKILL.md`](https://github.com/prometheusags/prometheus-skill-pack/blob/main/skills/learn/sync-push/SKILL.md)
+[`skills/learn/sync-push/SKILL.md`](https://github.com/Prometheus-AGS/prometheus-skill-system/blob/main/skills/learn/sync-push/SKILL.md)

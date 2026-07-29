@@ -87,12 +87,21 @@ const sidebars = {
   sovereignSidebar: [
     {
       type: 'category',
-      label: 'Sovereign Sync',
+      label: 'Understand Sync',
       items: [
         'sovereign-sync/overview',
         'sovereign-sync/architecture',
-        'sovereign-sync/installation',
+        'sovereign-sync/data-scope',
         'sovereign-sync/privacy-model',
+        'sovereign-sync/use-cases',
+      ],
+    },
+    {
+      type: 'category',
+      label: 'Configure and Operate',
+      items: [
+        'sovereign-sync/installation',
+        'sovereign-sync/pair-two-machines',
         'sovereign-sync/p2p-network',
       ],
     },

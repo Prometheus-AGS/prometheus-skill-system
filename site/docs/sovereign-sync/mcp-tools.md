@@ -52,7 +52,8 @@ Input:
 ```
 
 `domain` is optional. The current MCP response is a bounded local status
-summary and points clients to REST for detailed state.
+summary and points clients to REST. Neither MCP nor REST reads live
+`P2PNode` state in `0.1.0`.
 
 ### `sync-push`
 
@@ -62,13 +63,15 @@ Input:
 {"domain":"learner-model"}
 ```
 
-Acknowledges a queued push request. It is not delivery confirmation.
+Acknowledges a queued push request. It does not call the CRDT exporter or P2P
+broadcaster and is not delivery confirmation.
 
 ### `sync-peers`
 
 Input: none.
 
-Returns the current peer summary.
+Returns a fixed no-peers summary. The tool is not connected to the daemon’s
+live gossip neighbors. See [Pair two machines](./pair-two-machines).
 
 ## KBD read and operator tools
 

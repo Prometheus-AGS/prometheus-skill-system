@@ -6,18 +6,19 @@ sidebar_label: AG-UI SSE
 
 # AG-UI SSE Endpoint
 
-The AG-UI endpoint (`POST /api/v1/stream`) implements the Agent-to-UI (A2UI) streaming
-protocol. It enables Tauri desktop apps, web clients, and other frontends to receive
-real-time progress updates for sync operations.
+The AG-UI endpoint (`POST /api/v1/stream`) exposes an Agent-to-UI task/event
+schema over Server-Sent Events. In `0.1.0`, the executor emits synthetic
+accept/progress/done events for the request shape; it is not connected to the
+live P2P node, skill index, or domain replication pipeline.
 
 ## Task kinds
 
 | Kind | Description |
 |------|-------------|
-| `SyncPush` | Push a CRDT domain to peers |
-| `PeerStatus` | Poll peer connection state |
-| `SkillSearch` | Search skills with streaming results |
-| `NodeRelay` | Relay a message to another node |
+| `sync_push` | Acknowledge a domain push request |
+| `peer_status` | Return the scaffold empty-peer state |
+| `skill_search` | Return the scaffold empty search result |
+| `node_relay` | Return a scaffold relay acknowledgement |
 
 ## Event types
 
@@ -31,75 +32,67 @@ real-time progress updates for sync operations.
 
 ## Example: Push with progress stream
 
+Derive `AUTH_HEADER` as shown in the [REST authentication
+helper](./rest-api#authentication-helper), then:
+
 ```bash
 curl -s -X POST http://127.0.0.1:7892/api/v1/stream \
+  -H "$AUTH_HEADER" \
   -H 'Content-Type: application/json' \
-  -d '{"kind": "SyncPush", "domain": "skill-index"}' \
+  -d '{
+    "task_id": "example-sync-push-1",
+    "kind": "sync_push",
+    "payload": {"domain": "skill-index"}
+  }' \
   --no-buffer
 ```
 
 **SSE output:**
 
 ```
-data: {"type":"task_accepted","task_id":"a1b2-..."}
+data: {"type":"task_accepted","task_id":"example-sync-push-1"}
 
-data: {"type":"progress","task_id":"a1b2-...","message":"Serializing skill index","percent":25}
+data: {"type":"progress","task_id":"example-sync-push-1","message":"Queuing sync-push for domain: skill-index","percent":50}
 
-data: {"type":"progress","task_id":"a1b2-...","message":"Broadcasting to 2 peers","percent":75}
-
-data: {"type":"done","task_id":"a1b2-...","result":{"bytes":4096,"peers_reached":2}}
+data: {"type":"done","task_id":"example-sync-push-1","result":{"status":"queued","domain":"skill-index"}}
 
 ```
+
+The final event confirms only that the stub executor completed. It is not
+domain export, broadcast, peer receipt, or apply confirmation.
 
 ## Ping endpoint
 
 A GET endpoint is available for SSE health checks:
 
 ```bash
-curl -s http://127.0.0.1:7892/api/v1/stream/ping
+curl -s -H "$AUTH_HEADER" http://127.0.0.1:7892/api/v1/stream/ping
 ```
 
 Returns a single `ping` event and closes the stream.
 
-## Using with the Rust SDK
+## Rust and Tauri clients
 
-```rust
-use futures::StreamExt;
-use sovereign_client::{AgUiEvent, SovereignClient};
-
-let client = SovereignClient::new("http://127.0.0.1:7892")?;
-let mut stream = client.stream_task(serde_json::json!({
-    "kind": "SyncPush",
-    "domain": "skill-index"
-})).await?;
-
-while let Some(event) = stream.next().await {
-    match event? {
-        AgUiEvent::Progress { message, percent, .. } => {
-            println!("[{percent}%] {message}");
-        }
-        AgUiEvent::Done { .. } => break,
-        _ => {}
-    }
-}
-```
+The current `sovereign-client` crate predates mandatory bearer authentication:
+`health()` still works, but its authenticated REST/SSE methods receive `401`
+against the current daemon. Until the crate gains a bearer-token constructor,
+use `reqwest::Client::bearer_auth` directly or place authenticated calls in a
+trusted Tauri backend.
 
 ## Tauri integration
 
-The AG-UI SSE endpoint is designed to be consumed by a Tauri frontend via
-`eventsource` or `EventSource` in the webview:
+Do not put the bearer token in browser JavaScript. Standard browser
+`EventSource` also cannot set the required `Authorization` header. A Tauri
+backend or same-origin trusted proxy should make the authenticated request and
+forward sanitized progress events to the webview:
 
 ```typescript
-const source = new EventSource('http://127.0.0.1:7892/api/v1/stream', {
-  method: 'POST',
-  body: JSON.stringify({ kind: 'SyncPush', domain: 'skill-index' }),
-  headers: { 'Content-Type': 'application/json' }
-});
+import {listen} from '@tauri-apps/api/event';
 
-source.onmessage = (e) => {
-  const event = JSON.parse(e.data);
-  if (event.type === 'done') source.close();
-};
+await listen('sovereign-progress', ({payload}) => {
+  console.log(payload);
+});
 ```
 
-The `sovereign-client` Rust crate can also be embedded in the Tauri backend sidecar.
+The backend owns the token file and sends `Authorization: Bearer …`; the
+webview receives only progress payloads.

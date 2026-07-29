@@ -6,23 +6,29 @@ sidebar_label: Privacy Model
 
 # Privacy Model
 
-Sovereign Sync's privacy guarantee is architectural, not conventional. It is enforced in the Rust
-type system and cannot be bypassed by configuration.
+Sovereign Sync uses an explicit, default-deny domain manifest. A file’s
+existence does not make it syncable, and there is no recursive “sync my
+`.prometheus` directory” mode.
 
 ## Core invariant
 
-> **KB content is NEVER forwarded to external APIs or transmitted over the P2P network.**
+> A domain absent from the manifest, or registered as `Local`, must not be
+> exported to or imported from the P2P transport.
 
-`surreal-memory` has `PrivacyClass::LocalOnly`. The `crdt` module rejects any attempt to export
-or apply a delta for a `LocalOnly` domain with a `SyncError::PrivacyViolation` error.
+The CRDT export and import functions both call `manifest.is_syncable()`.
+Unit/integration tests register `surreal-memory` as `Local` and verify that
+both directions return `SyncError::PrivacyViolation`.
 
 ## Privacy classes
 
 | Class | Transmission | Examples |
-|-------|-------------|---------|
-| `LocalOnly` | Never leaves the device | `surreal-memory`, palace RAG indexes |
-| `SyncEncryptedOnly` | Encrypted via QUIC TLS 1.3 + Ed25519 | `learner-model`, `kbd-orchestrator`, `open-spec` |
-| `SyncPlaintext` | Unencrypted (public metadata) | Future: public skill registries |
+|---|---|---|
+| `Local` | Structurally ineligible for CRDT export/import | `surreal-memory`, private RAG indexes, credentials |
+| `Trusted` | Eligible only for explicitly trusted peers | learner model, approved project knowledge, KBD presence |
+| `Public` | Eligible for any paired peer | public skill-index metadata |
+
+All three classes are content classifications. `Public` is still encrypted in
+transit; it does not enable plaintext transport.
 
 ## Enforcement code
 
@@ -36,33 +42,60 @@ pub fn apply_incoming_delta(
     if !manifest.is_syncable(domain) {
         return Err(SyncError::PrivacyViolation(domain.to_string()));
     }
-    // ...
+    // Import only after the gate passes.
 }
 ```
 
-The same check exists in `export_outgoing_delta`. Neither function is behind a feature flag or
-configuration toggle.
+The same check exists in `export_outgoing_delta`. An unregistered domain also
+returns false from `is_syncable()`.
 
-## What is transmitted
+:::caution Integration responsibility
 
-When a `sync-push learner-model` is invoked:
+`SyncManifest` is a library contract. The transport caller must consult it
+before placing bytes on the wire. The current daemon does not yet transmit
+domain payloads, so the gate is exercised in library tests rather than an
+end-to-end daemon path. Future adapters must preserve that call order.
 
-- Mastery levels per concept (numeric values)
-- FSRS card schedules (due dates, stability, difficulty)
-- Gap records (which concepts have identified gaps)
+:::
 
-What is **not** transmitted:
+## Secrets and local-only data
 
-- Raw KB content (documents, segments, embeddings)
-- Conversation history
-- Personal notes or annotations stored in `surreal-memory`
-- Passwords, API keys, or credentials
+These values must never be domain payloads:
 
-## iroh transport security
+| Data | Why it stays local |
+|---|---|
+| `device-key.json` and platform signing keys | Copying a private key destroys per-device identity |
+| KBD `control-token` | It authorizes the loopback API; it is not a peer credential |
+| Sovereign Sync `operator_id` outside the pairing channel | It is a shared topic namespace and should not be published |
+| API keys, SSH keys, cloud credentials, cookies | Credentials are never workflow state |
+| raw prompts, conversations, and harness transcripts | Not part of any declared sync domain |
+| `surreal-memory` graph, Memory Palace, embeddings, and private RAG content | Default recommended classification is `Local` |
+| service logs and crash dumps | They can contain paths, environment details, or errors |
 
-The P2P transport uses iroh 1.0 with `presets::N0`:
+Project Karpathy wiki entries are **not automatically local-only by type**, but
+they are not automatically syncable either. An operator must define a separate
+approved-knowledge domain, filter or normalize its contents, classify it, and
+connect an adapter. The current daemon has no such adapter.
 
-- **QUIC + TLS 1.3** for all peer connections
-- **Ed25519 node keys** for peer authentication
-- **DNS discovery + relay** via the n0 relay network (no IP address exposure required)
-- Relay traffic is encrypted end-to-end — the relay node cannot read payload content
+## Transport security and metadata
+
+The P2P layer uses iroh with `presets::N0`:
+
+- endpoint-to-endpoint QUIC traffic is encrypted;
+- endpoint IDs are Ed25519 public identities;
+- n0 discovery resolves endpoint IDs to current direct/relay addresses;
+- relay payloads remain encrypted end-to-end.
+
+Encryption does not hide all metadata. Public relay/discovery infrastructure
+can observe connection addresses, timing, and traffic volume. The current
+binary uses public n0 infrastructure and does not expose custom relay,
+discovery, or peer-hook configuration. See
+[Network configuration](./p2p-network).
+
+## Current bytes-on-wire statement
+
+In `0.1.0`, no learner model, loop directory, Karpathy wiki, OpenSpec tree,
+project file, or global state is placed on the P2P wire by the daemon. It may
+publish endpoint reachability metadata to n0 discovery and establish encrypted
+gossip connectivity. That narrow statement is the current operational truth;
+the broader domain classifications describe the intended replication contract.

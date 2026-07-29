@@ -6,7 +6,8 @@ sidebar_label: /sync-peers
 
 # /sync-peers
 
-Manage peers in the sovereign-sync P2P gossip network.
+Inspect the bounded peer summary and learn how Sovereign Sync pairing is
+configured.
 
 ## Trigger phrases
 
@@ -17,18 +18,25 @@ Manage peers in the sovereign-sync P2P gossip network.
 
 ## What it does
 
-- Lists connected peer node IDs and addresses
-- Explains how to find your own node ID to share
-- Describes automatic discovery via operator key grouping
+- Describes the configured bootstrap-peer model
+- Explains how to find the current endpoint ID in startup logs
+- Separates the shared operator ID from distinct endpoint IDs
+- Points to network and pairing limitations
 
-## Finding your node ID
+## Current behavior
 
-```bash
-curl -s http://127.0.0.1:7892/health | jq .node_id
-```
+`/health` reports service status and version; it does not expose a node ID.
+The current `sync-peers` MCP tool and authenticated
+`GET /api/v1/sync/peers` route return the known peer summary. Bootstrap peer
+tickets/addresses are configured in `config.toml`, not added through the
+health route.
 
-Share this with other devices — they can add it as a bootstrap peer.
+In `0.1.0`, the MCP and REST peer summaries are not connected to
+`P2PNode` and return no live neighbors. Add/remove operations are not
+implemented. Use the log-driven
+[two-machine pairing procedure](./pair-two-machines) for connectivity
+development.
 
 ## Source
 
-[`skills/learn/sync-peers/SKILL.md`](https://github.com/prometheusags/prometheus-skill-pack/blob/main/skills/learn/sync-peers/SKILL.md)
+[`skills/learn/sync-peers/SKILL.md`](https://github.com/Prometheus-AGS/prometheus-skill-system/blob/main/skills/learn/sync-peers/SKILL.md)

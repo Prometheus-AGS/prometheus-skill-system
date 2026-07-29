@@ -6,18 +6,35 @@ sidebar_label: REST API
 
 # REST API Reference
 
-Sovereign Sync exposes a REST API on `http://127.0.0.1:7892` when running in `daemon` or
-`server` mode.
+Sovereign Sync binds to `127.0.0.1:7892` in daemon/server mode. `/health` is
+public on loopback. Every other route requires the focused project’s KBD
+control bearer token.
 
-## GET /health
-
-Returns node health and version.
+## Authentication helper
 
 ```bash
-curl -s http://127.0.0.1:7892/health | jq .
+PROJECT_ROOT="/path/to/project"
+PROJECT_ID="$(jq -r '.projectId' "$PROJECT_ROOT/.prometheus/project.json")"
+
+case "$(uname -s)" in
+  Darwin) DATA_ROOT="$HOME/Library/Application Support" ;;
+  *) DATA_ROOT="${XDG_DATA_HOME:-$HOME/.local/share}" ;;
+esac
+
+TOKEN_FILE="${PROMETHEUS_CONTROL_TOKEN_FILE:-$DATA_ROOT/prometheus/kbd/projects/$PROJECT_ID/control-token}"
+TOKEN="$(tr -d '\r\n' < "$TOKEN_FILE")"
+AUTH_HEADER="Authorization: Bearer $TOKEN"
 ```
 
-**Response:**
+Never commit, log, or paste the token.
+
+## Health
+
+### `GET /health`
+
+```bash
+curl --fail-with-body http://127.0.0.1:7892/health | jq .
+```
 
 ```json
 {
@@ -27,118 +44,172 @@ curl -s http://127.0.0.1:7892/health | jq .
 }
 ```
 
-## GET /api/v1/sync/status
+## Sync and discovery
 
-Returns node state, connected peers, and domain privacy summary.
-
-```bash
-curl -s http://127.0.0.1:7892/api/v1/sync/status | jq .
-```
-
-**Response:**
-
-```json
-{
-  "node_state": "Connected",
-  "peers": ["a1b2c3...", "d4e5f6..."],
-  "domains": {
-    "kbd-orchestrator": { "privacy": "sync_encrypted_only", "peers": 2 },
-    "open-spec":        { "privacy": "sync_encrypted_only", "peers": 2 },
-    "surreal-memory":   { "privacy": "local_only",          "peers": 0 },
-    "learner-model":    { "privacy": "sync_encrypted_only", "peers": 2 }
-  }
-}
-```
-
-**Node states:**
-
-| State | Meaning |
-|-------|---------|
-| `Disconnected` | Not yet joined the gossip network |
-| `Bootstrapping` | Connecting to bootstrap peers |
-| `Connected` | At least one peer reachable |
-| `Syncing` | Actively exchanging CRDT deltas |
-| `Idle` | Connected, nothing to exchange |
-
-## GET /api/v1/sync/peers
-
-Lists connected peer node IDs.
+### `GET /api/v1/sync/status`
 
 ```bash
-curl -s http://127.0.0.1:7892/api/v1/sync/peers | jq .
+curl --fail-with-body \
+  -H "$AUTH_HEADER" \
+  http://127.0.0.1:7892/api/v1/sync/status | jq .
 ```
 
-**Response:**
+The current response reports the local scaffold state, peer list, and privacy
+classification for `kbd-orchestrator`, `open-spec`, `surreal-memory`, and
+`learner-model`.
 
-```json
-{
-  "peers": [
-    { "node_id": "a1b2c3...", "addr": "192.168.1.42:7892" }
-  ]
-}
-```
-
-## GET /api/v1/skills/search?q=&lt;query&gt;&amp;limit=&lt;n&gt;
-
-Keyword search over the local skill index. Default limit is 10.
+### `GET /api/v1/sync/peers`
 
 ```bash
-curl -s "http://127.0.0.1:7892/api/v1/skills/search?q=feynman&limit=5" | jq .
+curl --fail-with-body \
+  -H "$AUTH_HEADER" \
+  http://127.0.0.1:7892/api/v1/sync/peers | jq .
 ```
 
-**Response:**
-
-```json
-{
-  "query": "feynman",
-  "count": 3,
-  "results": [
-    { "name": "feynman-loop", "description": "Core Feynman PMPO loop" },
-    { "name": "learn-grade",  "description": "Sycophancy-corrected external grader" },
-    { "name": "learn-retain", "description": "FSRS-6 spaced retrieval" }
-  ]
-}
-```
-
-## POST /api/v1/sync/push
-
-Queues a sync domain for broadcast to all connected peers.
+### `GET /api/v1/skills/search?q=<query>&limit=<n>`
 
 ```bash
-curl -s -X POST http://127.0.0.1:7892/api/v1/sync/push \
+curl --fail-with-body \
+  -H "$AUTH_HEADER" \
+  "http://127.0.0.1:7892/api/v1/skills/search?q=feynman&limit=5" | jq .
+```
+
+### `POST /api/v1/sync/push`
+
+```bash
+curl --fail-with-body \
+  -X POST \
+  -H "$AUTH_HEADER" \
   -H 'Content-Type: application/json' \
-  -d '{"domain": "learner-model"}' | jq .
+  -d '{"domain":"learner-model"}' \
+  http://127.0.0.1:7892/api/v1/sync/push | jq .
 ```
 
-**Response:**
+The current handler acknowledges that the domain is queued. Treat this as
+request acceptance, not proof that a peer received or applied a delta.
 
-```json
-{
-  "status": "queued",
-  "domain": "learner-model"
-}
-```
+## KBD read endpoints
 
-**Privacy protection:** Requesting `"domain": "surreal-memory"` returns HTTP 400 — the
-`LocalOnly` invariant is enforced at the REST layer as well as the CRDT layer.
-
-## POST /api/v1/stream
-
-Start an AG-UI task stream. Returns Server-Sent Events.
-
-See [AG-UI SSE Reference](./ag-ui-sse) for full documentation.
-
-## GET /api/v1/stream/ping
-
-SSE ping — returns a single `ping` event and closes.
+### `GET /api/v1/kbd/projects/{projectId}/status`
 
 ```bash
-curl -s http://127.0.0.1:7892/api/v1/stream/ping
+curl --fail-with-body \
+  -H "$AUTH_HEADER" \
+  "http://127.0.0.1:7892/api/v1/kbd/projects/$PROJECT_ID/status" | jq .
 ```
 
-**Response:**
+Returns canonical `KbdStateV2`.
 
-```
-data: {"type":"ping"}
+### `GET /api/v1/kbd/projects/{projectId}/events`
 
+```bash
+curl --fail-with-body \
+  -H "$AUTH_HEADER" \
+  "http://127.0.0.1:7892/api/v1/kbd/projects/$PROJECT_ID/events" | jq .
 ```
+
+Returns committed immutable events from revision 1.
+
+### `GET /api/v1/kbd/projects/{projectId}/diagnostics`
+
+```bash
+curl --fail-with-body \
+  -H "$AUTH_HEADER" \
+  "http://127.0.0.1:7892/api/v1/kbd/projects/$PROJECT_ID/diagnostics" | jq .
+```
+
+Diagnostics include:
+
+- quorum writable state and reason;
+- Raft node, term, leader, log/apply lag, snapshot, and transport label;
+- runtime revision, lifecycle, plan revision, lease, and fence;
+- compatibility projection revision/match;
+- signature-chain validity and event count;
+- active and revoked device counts.
+
+## KBD event stream
+
+### `GET /api/v1/kbd/projects/{projectId}/events/stream`
+
+```bash
+curl --no-buffer \
+  -H "$AUTH_HEADER" \
+  -H 'Last-Event-ID: 0' \
+  "http://127.0.0.1:7892/api/v1/kbd/projects/$PROJECT_ID/events/stream"
+```
+
+The server emits `kbd.events` once per second when new revisions exist and a
+keepalive every 15 seconds. The SSE event ID is the latest emitted revision;
+send it back as `Last-Event-ID` when reconnecting.
+
+## KBD command endpoint
+
+### `POST /api/v1/kbd/projects/{projectId}/commands`
+
+The path project ID must equal `envelope.projectId`. Every command supplies a
+fresh `commandId` and current `expectedRevision`. Lease-protected commands also
+supply the current `leaseId` and `fencingToken`.
+
+Example lease claim:
+
+```bash
+RUN_ID="$(curl --fail-with-body -H "$AUTH_HEADER" \
+  "http://127.0.0.1:7892/api/v1/kbd/projects/$PROJECT_ID/status" |
+  jq -r '.runId')"
+REVISION="$(curl --fail-with-body -H "$AUTH_HEADER" \
+  "http://127.0.0.1:7892/api/v1/kbd/projects/$PROJECT_ID/status" |
+  jq -r '.revision')"
+COMMAND_ID="$(uuidgen | tr '[:upper:]' '[:lower:]')"
+
+jq -n \
+  --arg project "$PROJECT_ID" \
+  --arg run "$RUN_ID" \
+  --arg command "$COMMAND_ID" \
+  --argjson revision "$REVISION" \
+  '{
+    schemaVersion: "1",
+    projectId: $project,
+    runId: $run,
+    commandId: $command,
+    expectedRevision: $revision,
+    actor: {
+      kind: "harness",
+      id: "operator",
+      device: "workstation",
+      harness: "claude-code",
+      session: "manual-rest-example"
+    },
+    leaseId: null,
+    fencingToken: null,
+    command: {
+      type: "claim",
+      payload: {scope: "project/phase", force: false}
+    }
+  }' |
+curl --fail-with-body \
+  -X POST \
+  -H "$AUTH_HEADER" \
+  -H 'Content-Type: application/json' \
+  --data-binary @- \
+  "http://127.0.0.1:7892/api/v1/kbd/projects/$PROJECT_ID/commands" | jq .
+```
+
+Prefer `prometheus kbd` or MCP for routine operations; they construct the
+envelope and current lease context safely.
+
+## AG-UI routes
+
+- `POST /api/v1/stream`
+- `GET /api/v1/stream/ping`
+
+Both require the bearer token. See [AG-UI SSE Reference](./ag-ui-sse).
+
+## Error responses
+
+| Status | Meaning |
+|---|---|
+| `400` | Path project ID differs from command envelope |
+| `401` | Missing or invalid bearer token |
+| `404` | Unknown focused project or uninitialized KBD runtime |
+| `409` | Replay, revision, lease, fencing, signature, or command conflict |
+| `503` | Quorum is not writable |
