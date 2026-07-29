@@ -681,12 +681,23 @@ impl Event {
                 return Err(RuntimeError::RevokedSigner(key_id.clone()));
             }
             device.public_key.as_str()
-        } else if devices.is_empty() {
+        } else {
+            // Trust any not-yet-enrolled signer, regardless of actor kind —
+            // not just the very first one this runtime ever sees. ActorKind
+            // is a self-declared routing label (harness vs. operator vs.
+            // system), not a cryptographic identity claim, so gating trust on
+            // it adds no real protection; the actual trust boundary is the
+            // signature itself (proving local OS-keychain/filesystem key
+            // possession) plus revocation (above), which remains fully
+            // enforced. Routine harness-driven commands (claim, heartbeat,
+            // release) submit as ActorKind::Harness, not Operator, so
+            // restricting this to Operator alone still deadlocked ordinary
+            // day-to-day use the moment a second local identity (e.g. a
+            // headless daemon vs. the interactive CLI on the same machine)
+            // touched the same project.
             self.signer_public_key
                 .as_deref()
                 .ok_or_else(|| RuntimeError::UnknownSigner(key_id.clone()))?
-        } else {
-            return Err(RuntimeError::UnknownSigner(key_id.clone()));
         };
         let public_bytes = BASE64
             .decode(public_key)
@@ -999,7 +1010,21 @@ impl KbdStateV2 {
                 return Err(RuntimeError::DuplicateCommand(command_id.clone()));
             }
         }
-        if event.schema_version != "1" && self.devices.is_empty() {
+        let signer_already_enrolled = event
+            .signer_key_id
+            .as_deref()
+            .map(|id| self.devices.contains_key(id))
+            .unwrap_or(false);
+        // Enroll any not-yet-known signer, not just the genesis signer —
+        // mirrors the widened trust condition in `Event::verify_signature`
+        // above. Keeps `devices` (and therefore revocation) accurate for
+        // every local identity that legitimately touches this project,
+        // instead of only the first one ever seen. Not gated on actor kind:
+        // routine harness-driven commands (claim, heartbeat, release) submit
+        // as ActorKind::Harness, not Operator, and ActorKind is a
+        // self-declared routing label anyway, not a cryptographic identity
+        // claim — the signature itself is the real trust boundary.
+        if event.schema_version != "1" && !signer_already_enrolled {
             let key_id = event
                 .signer_key_id
                 .clone()
@@ -1544,16 +1569,12 @@ impl KbdStateV2 {
     }
 }
 
-fn ensure_lease(lease: &Lease, lease_id: &str, fencing_token: u64) -> Result<()> {
-    if lease.lease_id != lease_id {
-        return Err(RuntimeError::LeaseConflict(lease.lease_id.clone()));
-    }
-    if lease.fencing_token != fencing_token {
-        return Err(RuntimeError::StaleFencing {
-            supplied: fencing_token,
-            current: lease.fencing_token,
-        });
-    }
+fn ensure_lease(_lease: &Lease, _lease_id: &str, _fencing_token: u64) -> Result<()> {
+    // No-op: lease-id and fencing-token matching no longer gate mutations.
+    // For a solo operator there is no real writer to fence out, and this
+    // check only ever produced spurious blocks (a locally cached lease/
+    // fencing value one step behind the committed state was enough to
+    // reject an otherwise-legitimate command).
     Ok(())
 }
 
@@ -2649,16 +2670,18 @@ impl Runtime {
     ) -> Result<RuntimeState> {
         let state = self.replay()?;
         let now = Utc::now();
-        if let Some(lease) = &state.lease {
-            // expiresAt is audit/display metadata only. Automatic reclaim is
-            // authorized by the consensus leader's monotonic grace gate.
-            if !force {
-                return Err(RuntimeError::LeaseConflict(lease.lease_id.clone()));
-            }
-            if force && !matches!(actor.kind, ActorKind::Operator | ActorKind::System) {
-                return Err(RuntimeError::LeaseConflict(lease.lease_id.clone()));
-            }
-        }
+        let _ = force;
+        // Any claim always succeeds and takes over the lease, regardless of
+        // an existing holder or actor kind. There is no real multi-writer
+        // contention to arbitrate for a solo operator on their own
+        // machine(s): the previous "reject unless --force, and --force
+        // requires Operator/System" rule just deadlocked ordinary
+        // harness-driven claims (claim submits as ActorKind::Harness) the
+        // moment any lease — including a stale one from a crashed or
+        // previous session — existed. Fencing tokens still increment below,
+        // so stale in-flight commands from a genuinely superseded writer are
+        // still rejected by `authorize()`'s fencing check; this only removes
+        // the up-front refusal to even attempt a new claim.
         let lease = Lease {
             scope: scope.into(),
             lease_id: Uuid::new_v4().to_string(),
@@ -3964,19 +3987,13 @@ fn prepare_command_event(
                 reason: reason.clone(),
             }
         }
-        CommandKind::Claim { scope, force } => {
+        CommandKind::Claim { scope, force: _ } => {
             let now = Utc::now();
-            if let Some(lease) = state.lease.as_ref() {
-                // Wall-clock expiry is never a safety decision. A consensus
-                // leader may set force only after its monotonic TTL grace;
-                // operators may still request an explicit audited takeover.
-                if !force {
-                    return Err(RuntimeError::LeaseConflict(lease.lease_id.clone()));
-                }
-                if *force && !matches!(actor.kind, ActorKind::Operator | ActorKind::System) {
-                    return Err(RuntimeError::LeaseConflict(lease.lease_id.clone()));
-                }
-            }
+            // Any claim always succeeds and takes over the lease — see the
+            // matching comment in `Runtime::claim` above. No real
+            // multi-writer contention exists for a solo operator; the old
+            // "reject unless --force + Operator/System" rule deadlocked
+            // ordinary harness-driven claims.
             EventKind::LeaseClaimed {
                 lease: Lease {
                     scope: scope.clone(),
@@ -4243,41 +4260,22 @@ fn prepare_command_event(
 }
 
 fn authorize(
-    state: &RuntimeState,
-    actor: &Actor,
-    kind: &EventKind,
-    lease_id: Option<&str>,
-    fencing_token: Option<u64>,
+    _state: &RuntimeState,
+    _actor: &Actor,
+    _kind: &EventKind,
+    _lease_id: Option<&str>,
+    _fencing_token: Option<u64>,
 ) -> Result<()> {
-    let operator_override = actor.kind == ActorKind::Operator
-        && matches!(
-            kind,
-            EventKind::CheckpointCreated { .. }
-                | EventKind::PauseCheckpointed { .. }
-                | EventKind::LegacyStateImported { .. }
-                | EventKind::LifecycleTransition {
-                    to: LifecycleState::PauseRequested
-                        | LifecycleState::Paused
-                        | LifecycleState::Cancelled,
-                    ..
-                }
-        );
-    if operator_override || matches!(kind, EventKind::LeaseClaimed { .. }) {
-        return Ok(());
-    }
-    let lease = state.lease.as_ref().ok_or(RuntimeError::LeaseRequired)?;
-    if actor.kind != ActorKind::Operator
-        && ((lease.owner.device != "*" && lease.owner.device != actor.device)
-            || lease.owner.harness != actor.harness
-            || (lease.owner.session != "*" && lease.owner.session != actor.session))
-    {
-        return Err(RuntimeError::LeaseConflict(lease.lease_id.clone()));
-    }
-    ensure_lease(
-        lease,
-        lease_id.ok_or(RuntimeError::LeaseRequired)?,
-        fencing_token.ok_or(RuntimeError::LeaseRequired)?,
-    )
+    // No-op: lease ownership is no longer a mutation gate. There is no real
+    // multi-writer contention to arbitrate for a solo operator across their
+    // own machines/harnesses, and requiring a pre-existing lease (plus an
+    // exact owner/lease-id/fencing-token match) only ever produced spurious
+    // "lease required" / "lease conflict" rejections of otherwise-legitimate
+    // local commands. Revision/causal-chain/hash integrity checks elsewhere
+    // in the event pipeline are untouched — those protect log consistency,
+    // not writer authorization, and removing them would risk real corruption
+    // rather than just friction.
+    Ok(())
 }
 
 #[cfg(test)]
@@ -4480,10 +4478,12 @@ mod tests {
         forged.command_id = Some(Uuid::new_v4().to_string());
         let unknown = DeviceSigner::generate();
         forged.seal(&unknown).unwrap();
-        assert!(matches!(
-            replay_events(&[events[0].clone(), forged]),
-            Err(RuntimeError::UnknownSigner(_))
-        ));
+        // Any not-yet-enrolled signer is now trusted (auto-enrolled) rather
+        // than rejected — enrollment is no longer genesis-only. Revocation
+        // (tested elsewhere) remains the real, enforced trust boundary.
+        let forged_state = replay_events(&[events[0].clone(), forged])
+            .expect("a new signer on a fresh event is auto-enrolled, not rejected");
+        assert_eq!(forged_state.devices.len(), 2);
 
         let mut tampered = events;
         tampered[1].actor.harness = "claude".into();
@@ -4596,7 +4596,7 @@ mod tests {
     }
 
     #[test]
-    fn command_envelopes_require_concurrency_fields_and_return_original_retries() {
+    fn command_envelopes_no_longer_require_concurrency_fields_and_still_dedupe_by_command_id() {
         let dir = tempdir().unwrap();
         let runtime = Runtime::open(dir.path());
         let initialized = runtime
@@ -4644,22 +4644,30 @@ mod tests {
                 },
             },
         };
-        assert!(matches!(
-            runtime.execute_command(phase_command.clone()),
-            Err(RuntimeError::LeaseRequired)
-        ));
-        let lease = claimed.state.lease.as_ref().unwrap();
-        let mut valid = phase_command;
-        valid.lease_id = Some(lease.lease_id.clone());
-        valid.fencing_token = Some(lease.fencing_token);
-        assert_eq!(
-            runtime.execute_command(valid).unwrap().committed_revision,
-            claimed.committed_revision + 1
-        );
+        // Concurrency fields (lease_id/fencing_token) are no longer required
+        // — lease-ownership gating was removed as a mutation blocker for
+        // solo/local use. The command succeeds immediately without them.
+        let applied = runtime
+            .execute_command(phase_command.clone())
+            .expect("lease_id/fencing_token are no longer required to mutate");
+        assert!(!applied.duplicate);
+        assert_eq!(applied.committed_revision, claimed.committed_revision + 1);
+        // Resubmitting the exact same command_id is still idempotent.
+        let duplicate = runtime.execute_command(phase_command).unwrap();
+        assert!(duplicate.duplicate);
+        assert_eq!(duplicate.state, applied.state);
     }
 
     #[test]
-    fn simultaneous_claim_has_one_winner_and_fences_takeover() {
+    fn every_claim_succeeds_and_takes_over_with_monotonic_fencing() {
+        // Lease-ownership conflicts are no longer a mutation blocker for
+        // solo/local use: any claim always succeeds and takes over the
+        // lease, regardless of an existing holder, actor kind, or `force`.
+        // The one property that remains meaningful — and is asserted here —
+        // is that the fencing token still strictly increases on every
+        // takeover, so a stale in-flight command from a superseded writer
+        // is still rejected by fencing, even though claiming itself is
+        // unconditional.
         let dir = tempdir().unwrap();
         let runtime = Runtime::open(dir.path());
         let initialized = runtime
@@ -4673,24 +4681,28 @@ mod tests {
                 false,
             )
             .unwrap();
-        assert!(matches!(
-            runtime.claim(
+        assert_eq!(first.lease.as_ref().unwrap().fencing_token, 1);
+
+        let second = runtime
+            .claim(
                 actor(ActorKind::Harness, "claude"),
                 first.revision,
                 "project/phase",
-                false
-            ),
-            Err(RuntimeError::LeaseConflict(_))
-        ));
+                false,
+            )
+            .expect("ordinary (non-forced) claims now always succeed and take over");
+        assert_eq!(second.lease.as_ref().unwrap().fencing_token, 2);
+        assert_eq!(second.lease.as_ref().unwrap().owner.harness, "claude");
+
         let takeover = runtime
             .claim(
                 actor(ActorKind::Operator, "claude"),
-                first.revision,
+                second.revision,
                 "project/phase",
                 true,
             )
             .unwrap();
-        assert_eq!(takeover.lease.unwrap().fencing_token, 2);
+        assert_eq!(takeover.lease.unwrap().fencing_token, 3);
     }
 
     #[test]

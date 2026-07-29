@@ -2,6 +2,7 @@
 pub mod ag_ui;
 pub mod config;
 pub mod crdt;
+pub mod domains;
 pub mod error;
 pub mod health_check;
 pub mod kbd_control;

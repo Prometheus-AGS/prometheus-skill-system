@@ -6,6 +6,7 @@ use iroh_gossip::{
     net::Gossip,
     proto::TopicId,
 };
+use std::collections::HashSet;
 use std::sync::Arc;
 use tokio::sync::{mpsc, RwLock};
 use tokio_stream::StreamExt;
@@ -39,6 +40,10 @@ pub struct P2PNode {
     message_tx: mpsc::Sender<PeerMessage>,
     /// Sender half of the gossip topic — held for lifetime of node.
     sender: Arc<tokio::sync::Mutex<Option<GossipSender>>>,
+    /// Current gossip neighbors, tracked from `Event::NeighborUp`/`Down`.
+    /// iroh-gossip has no "list current neighbors" getter, so this is the
+    /// only way to answer `GET /api/v1/sync/peers` with real data.
+    neighbors: Arc<RwLock<HashSet<EndpointId>>>,
 }
 
 impl P2PNode {
@@ -71,6 +76,7 @@ impl P2PNode {
                 topic,
                 message_tx,
                 sender: Arc::new(tokio::sync::Mutex::new(None)),
+                neighbors: Arc::new(RwLock::new(HashSet::new())),
             },
             message_rx,
         ))
@@ -123,6 +129,7 @@ impl P2PNode {
         // Spawn receiver loop.
         let state_clone = self.state.clone();
         let tx = self.message_tx.clone();
+        let neighbors_clone = self.neighbors.clone();
 
         tokio::spawn(async move {
             while let Some(event_result) = receiver.next().await {
@@ -139,6 +146,7 @@ impl P2PNode {
                         }
                         Event::NeighborUp(peer) => {
                             debug!("Neighbor up: {}", peer);
+                            neighbors_clone.write().await.insert(peer);
                             let mut s = state_clone.write().await;
                             if *s == NodeState::Connected {
                                 *s = NodeState::Idle;
@@ -146,6 +154,7 @@ impl P2PNode {
                         }
                         Event::NeighborDown(peer) => {
                             debug!("Neighbor down: {}", peer);
+                            neighbors_clone.write().await.remove(&peer);
                         }
                         Event::Lagged => {
                             warn!("Gossip receiver lagged — some messages dropped");
@@ -183,12 +192,24 @@ impl P2PNode {
         let guard = self.sender.lock().await;
         match guard.as_ref() {
             Some(sender) => {
-                sender
-                    .broadcast(payload)
-                    .await
-                    .map_err(|e| SyncError::Network(e.to_string()))?;
+                if let Err(e) = sender.broadcast(payload).await {
+                    // Reset state before returning — otherwise a failed
+                    // broadcast leaves the node stuck reporting "Syncing"
+                    // forever, since the only other reset is a few lines
+                    // below this branch.
+                    let mut state = self.state.write().await;
+                    *state = NodeState::Idle;
+                    return Err(SyncError::Network(e.to_string()));
+                }
             }
             None => {
+                // Same reset requirement: this is the exact race a fresh
+                // daemon hits if a push arrives before the background
+                // `start()` task has finished subscribing — the node was
+                // never `Syncing` to begin with, so leaving it there would
+                // be actively misleading to `GET /api/v1/sync/status`.
+                let mut state = self.state.write().await;
+                *state = NodeState::Disconnected;
                 return Err(SyncError::Network(
                     "P2P node not started — call start() first".into(),
                 ));
@@ -225,6 +246,12 @@ impl P2PNode {
     /// Return the current FSM state.
     pub async fn state(&self) -> NodeState {
         self.state.read().await.clone()
+    }
+
+    /// Return the current set of gossip neighbors (peers with an active
+    /// `NeighborUp` that haven't since gone `NeighborDown`).
+    pub async fn neighbors(&self) -> Vec<EndpointId> {
+        self.neighbors.read().await.iter().copied().collect()
     }
 
     /// Gracefully shut down the endpoint.

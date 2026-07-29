@@ -127,7 +127,7 @@ async fn main() -> anyhow::Result<()> {
                 );
             }
             let operator_key = *blake3::hash(cfg.node.operator_id.as_bytes()).as_bytes();
-            let (node, _incoming) = p2p::P2PNode::new(&operator_key, &cfg.peers).await?;
+            let (node, mut incoming) = p2p::P2PNode::new(&operator_key, &cfg.peers).await?;
             let peers = cfg
                 .peers
                 .bootstrap
@@ -149,7 +149,6 @@ async fn main() -> anyhow::Result<()> {
                     );
                 }
             });
-            let _node = node;
             let project_root = std::env::var("KBD_FOCUS_PROJECT_PATH")
                 .map(PathBuf::from)
                 .unwrap_or(std::env::current_dir()?);
@@ -164,7 +163,17 @@ async fn main() -> anyhow::Result<()> {
                 Ok(_) => warn!("KBD runtime is not initialized; P2P journal replication is idle"),
                 Err(error) => warn!("KBD runtime replay failed; replication disabled: {error}"),
             }
-            rest_api::serve(port, skills_path).await?;
+
+            let state = rest_api::AppState::try_new(skills_path, Some(node.clone())).await?;
+            // Consume incoming domain-sync gossip messages — previously
+            // discarded entirely, so no push from a peer ever did anything.
+            let consumer_state = state.clone();
+            tokio::spawn(async move {
+                while let Some(message) = incoming.recv().await {
+                    rest_api::handle_incoming_message(&consumer_state, &message.payload).await;
+                }
+            });
+            rest_api::serve_with_state(port, state).await?;
         }
         Mode::Server => {
             info!("Starting sovereign-sync HTTP server on port {port}");

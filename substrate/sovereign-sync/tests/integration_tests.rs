@@ -24,7 +24,7 @@ async fn test_router() -> (axum::Router, String, TempDir) {
     let project_root = fixture.path().join("project");
     let data_root = fixture.path().join("data");
     std::fs::create_dir_all(&project_root).unwrap();
-    let state = AppState::try_new_at(&skills_dir, &project_root, &data_root)
+    let state = AppState::try_new_at(&skills_dir, &project_root, &data_root, None)
         .await
         .unwrap();
     let token = state.bearer_token().to_string();
@@ -81,7 +81,10 @@ async fn sync_status_returns_idle() {
     assert_eq!(resp.status(), StatusCode::OK);
     let body = axum::body::to_bytes(resp.into_body(), 8192).await.unwrap();
     let json: serde_json::Value = serde_json::from_slice(&body).unwrap();
-    assert_eq!(json["node_state"], "idle");
+    // This test fixture builds an `AppState` with no P2P node (server-mode
+    // style), so `node_state` honestly reports that rather than a fake
+    // "idle" — real domain-adapter wiring replaced the old hardcoded stub.
+    assert_eq!(json["node_state"], "no-p2p");
     assert!(
         json["domains"].is_object(),
         "domains object should be present"
@@ -147,8 +150,12 @@ async fn sync_push_queues_domain() {
     assert_eq!(resp.status(), StatusCode::OK);
     let body = axum::body::to_bytes(resp.into_body(), 8192).await.unwrap();
     let json: serde_json::Value = serde_json::from_slice(&body).unwrap();
-    assert_eq!(json["status"], "queued");
+    // Real push pipeline now runs (domain registration, adapter export, CRDT
+    // merge) instead of the old hardcoded "queued" stub. No P2P node in this
+    // test fixture, so it merges locally rather than broadcasting.
+    assert_eq!(json["status"], "applied-locally-only");
     assert_eq!(json["domain"], "learner-model");
+    assert!(json["snapshotBytes"].as_u64().unwrap_or(0) > 0);
 }
 
 #[tokio::test]
@@ -182,7 +189,7 @@ async fn test_project() -> (axum::Router, String, String, TempDir) {
     let project_root = fixture.path().join("project");
     let data_root = fixture.path().join("data");
     std::fs::create_dir_all(&project_root).unwrap();
-    let state = AppState::try_new_at(&skills_dir, &project_root, &data_root)
+    let state = AppState::try_new_at(&skills_dir, &project_root, &data_root, None)
         .await
         .unwrap();
     let token = state.bearer_token().to_string();

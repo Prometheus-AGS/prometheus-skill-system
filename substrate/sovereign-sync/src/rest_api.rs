@@ -19,22 +19,28 @@ use axum::{
     routing::{get, post},
     Json, Router,
 };
+use bytes::Bytes;
 use futures::stream;
 use kbd_runtime::CommandEnvelope;
 use serde::Deserialize;
 use std::{
+    collections::HashMap,
     convert::Infallible,
     net::SocketAddr,
     path::{Path, PathBuf},
-    sync::Arc,
+    sync::{Arc, Mutex as StdMutex},
     time::Duration,
 };
+use storage_provider::{CrdtEngine, LoroAdapter, SyncDomain, SyncManifest};
+use tokio::sync::RwLock as AsyncRwLock;
 use tracing::info;
 
 use crate::ag_ui::{ag_ui_ping, ag_ui_stream, AgUiState};
+use crate::domains::{self, DomainAdapter, KbdPresenceAdapter, LearnerModelAdapter, SkillIndexAdapter, SyncEnvelope};
 use crate::kbd_control::KbdControlPlane;
 use crate::kbd_raft::QuorumPolicy;
 use crate::mcp_server::SkillIndex;
+use crate::p2p::P2PNode;
 
 // ---------------------------------------------------------------------------
 // Shared state
@@ -46,49 +52,109 @@ pub struct AppState {
     ag_ui: AgUiState,
     kbd_control: Arc<KbdControlPlane>,
     bearer_token: Arc<str>,
+    /// Domain sync policy (privacy class + storage prefix), populated
+    /// lazily on first use of a concrete domain instance.
+    manifest: Arc<AsyncRwLock<SyncManifest>>,
+    /// CRDT snapshot bytes per domain, keyed by the full parametrized
+    /// domain string. Stored as bytes (not a live `LoroDoc`) so `AppState`
+    /// stays trivially `Send + Sync` for axum's `State` extractor — a
+    /// `LoroDoc` is reconstructed transiently within a synchronous block
+    /// wherever it's needed and never held across an `.await`.
+    docs: Arc<StdMutex<HashMap<SyncDomain, Vec<u8>>>>,
+    /// Present in daemon mode (real P2P gossip); absent in plain server mode.
+    p2p: Option<Arc<P2PNode>>,
+    adapters: Arc<HashMap<String, Box<dyn DomainAdapter>>>,
 }
 
 impl AppState {
     pub async fn new(skills_dir: &Path) -> Self {
-        Self::try_new(skills_dir)
+        Self::try_new(skills_dir, None)
             .await
             .expect("cannot open KBD control plane")
     }
 
-    pub async fn try_new(skills_dir: &Path) -> anyhow::Result<Self> {
+    pub async fn try_new(skills_dir: &Path, p2p: Option<Arc<P2PNode>>) -> anyhow::Result<Self> {
         let project_root = discover_project_root(skills_dir);
         let quorum = QuorumPolicy::new(1, [1])?;
         let kbd_control = Arc::new(KbdControlPlane::open(&project_root, quorum).await?);
-        Self::from_control_plane(skills_dir, kbd_control)
+        Self::from_control_plane(skills_dir, kbd_control, p2p)
     }
 
     pub async fn try_new_at(
         skills_dir: &Path,
         project_root: &Path,
         data_root: &Path,
+        p2p: Option<Arc<P2PNode>>,
     ) -> anyhow::Result<Self> {
         let quorum = QuorumPolicy::new(1, [1])?;
         let kbd_control =
             Arc::new(KbdControlPlane::open_at(project_root, data_root, quorum).await?);
-        Self::from_control_plane(skills_dir, kbd_control)
+        Self::from_control_plane(skills_dir, kbd_control, p2p)
     }
 
     fn from_control_plane(
         skills_dir: &Path,
         kbd_control: Arc<KbdControlPlane>,
+        p2p: Option<Arc<P2PNode>>,
     ) -> anyhow::Result<Self> {
         let bearer_token: Arc<str> = kbd_control.runtime().control_token()?.into();
+        let skill_index = Arc::new(SkillIndex::load_from_dir(skills_dir));
+
+        let mut adapters: HashMap<String, Box<dyn DomainAdapter>> = HashMap::new();
+        adapters.insert(
+            "skill-index".to_string(),
+            Box::new(SkillIndexAdapter::new(skill_index.clone())),
+        );
+        let learner_dir = dirs_next::home_dir()
+            .unwrap_or_else(|| PathBuf::from("."))
+            .join(".prometheus")
+            .join("learn")
+            .join("learner-model");
+        adapters.insert(
+            "learner-model".to_string(),
+            Box::new(LearnerModelAdapter::new(learner_dir, default_learner_id())),
+        );
+        adapters.insert(
+            "kbd-control".to_string(),
+            Box::new(KbdPresenceAdapter::new(kbd_control.clone(), device_identity())),
+        );
+
         Ok(Self {
-            skill_index: Arc::new(SkillIndex::load_from_dir(skills_dir)),
+            skill_index,
             ag_ui: AgUiState::new(),
             kbd_control,
             bearer_token,
+            manifest: Arc::new(AsyncRwLock::new(SyncManifest::new())),
+            docs: Arc::new(StdMutex::new(HashMap::new())),
+            p2p,
+            adapters: Arc::new(adapters),
         })
     }
 
     pub fn bearer_token(&self) -> &str {
         &self.bearer_token
     }
+
+    /// Inspection accessor for tests — not part of the wire API.
+    pub fn skill_index(&self) -> &SkillIndex {
+        &self.skill_index
+    }
+}
+
+/// Best-effort default learner identity for the `learner-model` domain when
+/// no per-learner scoping has been configured — the local OS user.
+fn default_learner_id() -> String {
+    std::env::var("USER")
+        .or_else(|_| std::env::var("USERNAME"))
+        .unwrap_or_else(|_| "local-learner".into())
+}
+
+/// Best-effort device identity for the `kbd-control` presence domain — derived from
+/// the local home directory name, not a security identity.
+fn device_identity() -> String {
+    dirs_next::home_dir()
+        .and_then(|h| h.file_name().map(|n| n.to_string_lossy().into_owned()))
+        .unwrap_or_else(|| "unknown-device".into())
 }
 
 fn discover_project_root(skills_dir: &Path) -> PathBuf {
@@ -176,24 +242,42 @@ async fn skills_search(
 }
 
 /// GET /api/v1/sync/status
-async fn sync_status() -> impl IntoResponse {
+async fn sync_status(State(state): State<AppState>) -> impl IntoResponse {
+    let (node_state, peers) = match &state.p2p {
+        Some(p2p) => (
+            format!("{:?}", p2p.state().await),
+            p2p.neighbors()
+                .await
+                .into_iter()
+                .map(|id| id.to_string())
+                .collect::<Vec<_>>(),
+        ),
+        None => ("no-p2p".to_string(), Vec::new()),
+    };
     Json(serde_json::json!({
-        "node_state": "idle",
-        "peers": [],
+        "node_state": node_state,
+        "peers": peers,
         "domains": {
-            "kbd-orchestrator": { "privacy": "sync_encrypted_only", "peers": 0 },
-            "open-spec":        { "privacy": "sync_encrypted_only", "peers": 0 },
-            "surreal-memory":   { "privacy": "local_only",          "peers": 0 },
-            "learner-model":    { "privacy": "sync_encrypted_only", "peers": 0 }
+            "skill-index":    { "privacy": "public",      "adapter": "wired" },
+            "learner-model":  { "privacy": "trusted",      "adapter": "wired" },
+            "kbd-control":   { "privacy": "trusted",      "adapter": "wired" },
+            "surreal-memory": { "privacy": "local_only",   "adapter": "never-synced" }
         }
     }))
 }
 
 /// GET /api/v1/sync/peers
-async fn sync_peers() -> impl IntoResponse {
-    Json(serde_json::json!({
-        "peers": []
-    }))
+async fn sync_peers(State(state): State<AppState>) -> impl IntoResponse {
+    let peers = match &state.p2p {
+        Some(p2p) => p2p
+            .neighbors()
+            .await
+            .into_iter()
+            .map(|id| id.to_string())
+            .collect::<Vec<_>>(),
+        None => Vec::new(),
+    };
+    Json(serde_json::json!({ "peers": peers }))
 }
 
 #[derive(Debug, Deserialize)]
@@ -202,12 +286,159 @@ struct SyncPushBody {
 }
 
 /// POST /api/v1/sync/push { "domain": "<name>" }
-async fn sync_push(Json(body): Json<SyncPushBody>) -> impl IntoResponse {
-    // Full CRDT push wired in change-sync-015.
-    Json(serde_json::json!({
-        "status": "queued",
-        "domain": body.domain
-    }))
+///
+/// 1. registers the concrete domain instance (idempotent) and checks it's
+///    syncable at all (rejects unregistered families and `PrivacyClass::Local`
+///    outright — `surreal-memory` never leaves this device);
+/// 2. asks the domain's adapter for its current local state as JSON;
+/// 3. merges that JSON into the domain's CRDT snapshot (`CrdtEngine::apply_json`,
+///    synchronous — no `.await` while touching CRDT bytes);
+/// 4. broadcasts the resulting delta, wrapped in a [`SyncEnvelope`], over the
+///    P2P gossip layer (if this node has one; server mode does not).
+/// Result of preparing a domain push, before any network broadcast happens.
+/// Split out from the HTTP handler so tests (and any future non-HTTP caller)
+/// can exercise the real registration/adapter/CRDT-merge pipeline directly,
+/// without needing a live P2P transport.
+pub enum PushOutcome {
+    /// This node has no P2P transport (server mode) — merged locally only.
+    LocalOnly { snapshot_bytes: usize },
+    /// Ready to broadcast; the envelope carries the CRDT delta to send.
+    Broadcast {
+        envelope: SyncEnvelope,
+        snapshot_bytes: usize,
+    },
+}
+
+/// Register the domain (idempotent), reject it if not syncable, ask its
+/// adapter for current local state, and merge that into the domain's CRDT
+/// snapshot — everything `sync_push` does except the actual network send.
+/// Returns `Err((status, body))` for the same failure cases the HTTP handler
+/// reports.
+pub async fn build_push_envelope(
+    state: &AppState,
+    domain_name: &str,
+) -> Result<PushOutcome, (StatusCode, serde_json::Value)> {
+    let domain = SyncDomain::new(domain_name.to_string());
+    let syncable = {
+        let mut manifest = state.manifest.write().await;
+        domains::ensure_registered(&mut manifest, &domain);
+        manifest.is_syncable(&domain)
+    };
+    if !syncable {
+        return Err((
+            StatusCode::FORBIDDEN,
+            serde_json::json!({
+                "error": "domain is not syncable (unregistered family or PrivacyClass::Local)",
+                "domain": domain_name
+            }),
+        ));
+    }
+
+    let family = domains::domain_family(&domain).to_string();
+    let adapter = state.adapters.get(&family).ok_or_else(|| {
+        (
+            StatusCode::NOT_FOUND,
+            serde_json::json!({
+                "error": "no adapter registered for this domain family",
+                "family": family
+            }),
+        )
+    })?;
+
+    let local_json = adapter
+        .export_json()
+        .await
+        .map_err(|error| (StatusCode::INTERNAL_SERVER_ERROR, serde_json::json!({"error": error.to_string()})))?;
+
+    let crdt = LoroAdapter;
+    let (new_snapshot, delta) = {
+        let mut docs = state.docs.lock().expect("docs mutex poisoned");
+        let existing = docs.get(&domain).cloned().unwrap_or_else(|| crdt.new_doc());
+        let (new_snapshot, delta) = crdt.apply_json(&existing, local_json).map_err(|error| {
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                serde_json::json!({"error": error.to_string()}),
+            )
+        })?;
+        docs.insert(domain.clone(), new_snapshot.clone());
+        (new_snapshot, delta)
+    };
+
+    if state.p2p.is_none() {
+        return Ok(PushOutcome::LocalOnly {
+            snapshot_bytes: new_snapshot.len(),
+        });
+    }
+
+    let identity = state
+        .kbd_control
+        .status()
+        .ok()
+        .map(|status| status.project_id);
+    Ok(PushOutcome::Broadcast {
+        envelope: SyncEnvelope {
+            schema_version: "1".into(),
+            domain: domain_name.to_string(),
+            identity,
+            payload: delta,
+        },
+        snapshot_bytes: new_snapshot.len(),
+    })
+}
+
+/// POST /api/v1/sync/push { "domain": "<name>" }
+async fn sync_push(
+    State(state): State<AppState>,
+    Json(body): Json<SyncPushBody>,
+) -> impl IntoResponse {
+    match build_push_envelope(&state, &body.domain).await {
+        Err((status, error_body)) => (status, Json(error_body)).into_response(),
+        Ok(PushOutcome::LocalOnly { snapshot_bytes }) => (
+            StatusCode::OK,
+            Json(serde_json::json!({
+                "status": "applied-locally-only",
+                "domain": body.domain,
+                "reason": "no P2P node in this mode (server mode has no gossip transport)",
+                "snapshotBytes": snapshot_bytes
+            })),
+        )
+            .into_response(),
+        Ok(PushOutcome::Broadcast {
+            envelope,
+            snapshot_bytes,
+        }) => {
+            let envelope_bytes = match serde_json::to_vec(&envelope) {
+                Ok(bytes) => bytes,
+                Err(error) => {
+                    return (
+                        StatusCode::INTERNAL_SERVER_ERROR,
+                        Json(serde_json::json!({"error": error.to_string()})),
+                    )
+                        .into_response()
+                }
+            };
+            let bytes_transmitted = envelope_bytes.len();
+            // `Broadcast` is only returned when `state.p2p.is_some()`.
+            let p2p = state.p2p.as_ref().expect("Broadcast implies a P2P node");
+            if let Err(error) = p2p.broadcast(Bytes::from(envelope_bytes)).await {
+                return (
+                    StatusCode::BAD_GATEWAY,
+                    Json(serde_json::json!({"error": error.to_string()})),
+                )
+                    .into_response();
+            }
+            (
+                StatusCode::OK,
+                Json(serde_json::json!({
+                    "status": "broadcast",
+                    "domain": body.domain,
+                    "bytesTransmitted": bytes_transmitted,
+                    "snapshotBytes": snapshot_bytes
+                })),
+            )
+                .into_response()
+        }
+    }
 }
 
 async fn kbd_status(
@@ -398,11 +629,107 @@ pub fn build_router(state: AppState) -> Router {
 }
 
 // ---------------------------------------------------------------------------
+// Incoming P2P sync messages
+// ---------------------------------------------------------------------------
+
+/// Handle one incoming P2P gossip message: decode as a [`SyncEnvelope`],
+/// reject anything not syncable or with a mismatched identity, merge the
+/// delta into the domain's CRDT snapshot, and persist the merged view via
+/// the domain's adapter. `main.rs` spawns a loop calling this for every
+/// message from the P2P node's receiver channel.
+pub async fn handle_incoming_message(state: &AppState, payload: &[u8]) {
+    let envelope: SyncEnvelope = match serde_json::from_slice(payload) {
+        Ok(envelope) => envelope,
+        Err(error) => {
+            tracing::warn!("dropping unparseable P2P sync message: {error}");
+            return;
+        }
+    };
+    let domain = SyncDomain::new(envelope.domain.clone());
+    let syncable = {
+        let mut manifest = state.manifest.write().await;
+        domains::ensure_registered(&mut manifest, &domain);
+        manifest.is_syncable(&domain)
+    };
+    if !syncable {
+        tracing::warn!(
+            "dropping sync message for non-syncable domain {}",
+            envelope.domain
+        );
+        return;
+    }
+
+    let family = domains::domain_family(&domain).to_string();
+    // Public domains (skill-index) carry no meaningful identity scope.
+    // Trusted domains must match this node's own identity for that family,
+    // rejecting cross-project/learner payloads per data-scope.md.
+    if family != "skill-index" {
+        let local_identity = match family.as_str() {
+            "kbd-control" => state.kbd_control.status().ok().map(|s| s.project_id),
+            "learner-model" => Some(default_learner_id()),
+            _ => None,
+        };
+        if local_identity.is_none() || envelope.identity != local_identity {
+            tracing::warn!(
+                "dropping sync message for {} — identity mismatch (local={:?}, remote={:?})",
+                envelope.domain,
+                local_identity,
+                envelope.identity
+            );
+            return;
+        }
+    }
+
+    let Some(adapter) = state.adapters.get(&family) else {
+        tracing::warn!("dropping sync message — no adapter for family {family}");
+        return;
+    };
+
+    let crdt = LoroAdapter;
+    let merged_json = {
+        let mut docs = state.docs.lock().expect("docs mutex poisoned");
+        let existing = docs.get(&domain).cloned().unwrap_or_else(|| crdt.new_doc());
+        let merged = match crdt.merge(&existing, &envelope.payload) {
+            Ok(bytes) => bytes,
+            Err(error) => {
+                tracing::warn!(
+                    "failed to merge incoming delta for {}: {error}",
+                    envelope.domain
+                );
+                return;
+            }
+        };
+        docs.insert(domain.clone(), merged.clone());
+        match crdt.to_json(&merged) {
+            Ok(json) => json,
+            Err(error) => {
+                tracing::warn!(
+                    "failed to decode merged doc for {}: {error}",
+                    envelope.domain
+                );
+                return;
+            }
+        }
+    };
+
+    if let Err(error) = adapter.import_json(merged_json).await {
+        tracing::warn!("failed to persist synced {}: {error}", envelope.domain);
+    }
+}
+
+// ---------------------------------------------------------------------------
 // Server entry point
 // ---------------------------------------------------------------------------
 
 pub async fn serve(port: u16, skills_dir: &Path) -> anyhow::Result<()> {
-    let state = AppState::try_new(skills_dir).await?;
+    let state = AppState::try_new(skills_dir, None).await?;
+    serve_with_state(port, state).await
+}
+
+/// Serve using a caller-constructed `AppState` — lets `main.rs` hold a clone
+/// of the same state (e.g. to spawn the incoming-P2P-message consumer with
+/// access to the same `docs`/`manifest`/`adapters`) before the server starts.
+pub async fn serve_with_state(port: u16, state: AppState) -> anyhow::Result<()> {
     let app = build_router(state);
 
     let addr = SocketAddr::from(([127, 0, 0, 1], port));

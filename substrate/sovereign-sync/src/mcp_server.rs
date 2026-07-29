@@ -31,6 +31,10 @@ pub struct SkillEntry {
 #[derive(Debug)]
 pub struct SkillIndex {
     entries: Vec<SkillEntry>,
+    /// Entries merged in from a synced peer's skill-index domain (see
+    /// `domains::SkillIndexAdapter`). Kept separate from `entries` so a
+    /// local reload never clobbers synced state and vice versa.
+    remote: std::sync::RwLock<Vec<SkillEntry>>,
 }
 
 impl SkillIndex {
@@ -57,7 +61,23 @@ impl SkillIndex {
             entries.len(),
             skills_dir
         );
-        Self { entries }
+        Self {
+            entries,
+            remote: std::sync::RwLock::new(Vec::new()),
+        }
+    }
+
+    /// Local (non-synced) entries, for the skill-index sync adapter's export path.
+    pub fn local_entries(&self) -> &[SkillEntry] {
+        &self.entries
+    }
+
+    /// Replace the full set of remote (synced-from-peer) entries, for the
+    /// skill-index sync adapter's import path.
+    pub fn replace_remote(&self, remote: Vec<SkillEntry>) {
+        if let Ok(mut guard) = self.remote.write() {
+            *guard = remote;
+        }
     }
 
     fn parse_skill_md(path: &Path) -> Option<(String, String, Vec<String>)> {
@@ -108,11 +128,17 @@ impl SkillIndex {
         Some((name, description, keywords))
     }
 
-    pub fn search(&self, query: &str) -> Vec<&SkillEntry> {
+    pub fn search(&self, query: &str) -> Vec<SkillEntry> {
         let tokens: Vec<String> = query.split_whitespace().map(|t| t.to_lowercase()).collect();
-        let mut results: Vec<(&SkillEntry, usize)> = self
+        let remote_guard = self.remote.read().ok();
+        let remote_entries: &[SkillEntry] = remote_guard
+            .as_deref()
+            .map(|v| v.as_slice())
+            .unwrap_or(&[]);
+        let mut results: Vec<(SkillEntry, usize)> = self
             .entries
             .iter()
+            .chain(remote_entries.iter())
             .filter_map(|e| {
                 let score = tokens
                     .iter()
@@ -123,7 +149,7 @@ impl SkillIndex {
                     })
                     .count();
                 if score > 0 {
-                    Some((e, score))
+                    Some((e.clone(), score))
                 } else {
                     None
                 }

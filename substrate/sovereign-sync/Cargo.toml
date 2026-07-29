@@ -65,6 +65,8 @@ tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 # Storage provider (local crate)
 storage-provider = { path = "../storage-provider" }
 kbd-runtime = { path = "../kbd-runtime" }
+learner-model = { path = "../learner-model" }
+async-trait = "0.1"
 
 [dev-dependencies]
 tokio = { version = "1", features = ["full"] }
