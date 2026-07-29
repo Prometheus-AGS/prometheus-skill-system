@@ -36,11 +36,32 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 [ -n "$MANDATE" ] || MANDATE="$SCRIPT_DIR/../assets/reviewer-mandate-$MODE.md"
 [ -f "$MANDATE" ] || { echo "[judge] ERROR: mandate not found: $MANDATE" >&2; exit 4; }
 
-# --- liter-llm availability ---------------------------------------------------
-if ! command -v liter-llm >/dev/null 2>&1; then
-  echo "[judge] WARN: liter-llm not on PATH — fall back to a harness-native" >&2
-  echo "[judge]       fresh-context subagent (prompt = mandate + packet, nothing" >&2
-  echo "[judge]       else) and record isolation_mode=harness-native" >&2
+# --- judge transport ----------------------------------------------------------
+# The judge talks to an OpenAI-compatible /v1/chat/completions endpoint. That is
+# the stable contract: `liter-llm` ships `api` and `mcp` subcommands (it is a
+# proxy SERVER), so the previous `liter-llm complete` call could never succeed —
+# and because the guard only checked that the BINARY existed, the failure was
+# reported as "liter-llm unavailable" rather than as the CLI-contract mismatch
+# it actually was. Probing the endpoint keeps the diagnosis honest.
+#
+# LITER_LLM_BASE_URL overrides; otherwise try the local openai-proxy, then a
+# liter-llm `api` server on its default port.
+probe_endpoint() {
+  curl -s -o /dev/null --max-time 5 "$1/models" 2>/dev/null
+}
+
+JUDGE_BASE_URL="${LITER_LLM_BASE_URL:-}"
+if [ -z "$JUDGE_BASE_URL" ]; then
+  for cand in "http://localhost:8181/v1" "http://localhost:4000/v1"; do
+    if probe_endpoint "$cand"; then JUDGE_BASE_URL="$cand"; break; fi
+  done
+fi
+
+if [ -z "$JUDGE_BASE_URL" ]; then
+  echo "[judge] WARN: no OpenAI-compatible endpoint reachable (set" >&2
+  echo "[judge]       LITER_LLM_BASE_URL, or start one) — fall back to a" >&2
+  echo "[judge]       harness-native fresh-context subagent (prompt = mandate +" >&2
+  echo "[judge]       packet, nothing else) and record isolation_mode=harness-native" >&2
   exit 3
 fi
 
@@ -108,9 +129,53 @@ fi
 USER_PROMPT="$(cat "$PACKET")"
 
 # --- dispatch (fresh context: the judge sees ONLY mandate + packet) -----------
-RAW="$(liter-llm complete --model "$JUDGE_MODEL" \
-        --system "$SYSTEM_PROMPT" --user "$USER_PROMPT" 2>/dev/null)" || {
-  echo "[judge] WARN: liter-llm complete failed — treat as unavailable (exit 3)" >&2
+# The request body is assembled by python3, not by shell interpolation: the
+# packet contains arbitrary source text (quotes, backslashes, newlines) and any
+# string-built JSON would corrupt on the first awkward diff.
+REQ_BODY="$(JUDGE_MODEL="$JUDGE_MODEL" SYS="$SYSTEM_PROMPT" USR="$USER_PROMPT" python3 <<'PY'
+import json, os
+print(json.dumps({
+    "model": os.environ["JUDGE_MODEL"],
+    "messages": [
+        {"role": "system", "content": os.environ.get("SYS", "")},
+        {"role": "user", "content": os.environ.get("USR", "")},
+    ],
+    "temperature": 0,
+}))
+PY
+)" || { echo "[judge] ERROR: failed to build request body" >&2; exit 4; }
+
+AUTH_HEADER="Authorization: Bearer ${OPENAI_API_KEY:-${LITER_LLM_MASTER_KEY:-sk-local}}"
+
+RESPONSE="$(curl -s --max-time "${ADV_JUDGE_TIMEOUT:-300}" \
+  "$JUDGE_BASE_URL/chat/completions" \
+  -H 'content-type: application/json' -H "$AUTH_HEADER" \
+  --data-binary "$REQ_BODY" 2>/dev/null)" || {
+  echo "[judge] WARN: judge request to $JUDGE_BASE_URL failed — unavailable (exit 3)" >&2
+  exit 3
+}
+
+# Surface the endpoint's own error text. A silent empty completion here reads as
+# "the judge found nothing", which is the most dangerous possible failure mode
+# for a review gate — it turns an outage into a false all-clear.
+RAW="$(RESPONSE="$RESPONSE" python3 <<'PY'
+import json, os, sys
+try:
+    data = json.loads(os.environ.get("RESPONSE", ""))
+except Exception:
+    sys.exit(1)
+if isinstance(data, dict) and data.get("error"):
+    err = data["error"]
+    msg = err.get("message") if isinstance(err, dict) else str(err)
+    print(f"[judge-endpoint-error] {msg}", file=sys.stderr)
+    sys.exit(1)
+try:
+    print(data["choices"][0]["message"]["content"])
+except Exception:
+    sys.exit(1)
+PY
+)" || {
+  echo "[judge] WARN: judge returned no usable completion — unavailable (exit 3)" >&2
   exit 3
 }
 
