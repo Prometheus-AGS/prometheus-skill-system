@@ -270,7 +270,16 @@ os_mark_done() {
 }
 
 os_verify()  { openspec validate "$1" >/dev/null 2>&1; }
-os_archive() { openspec archive "$1" >/dev/null 2>&1; }
+# `--yes` is REQUIRED, not cosmetic: without it `openspec archive` waits on an
+# interactive confirmation. Driven from a script there is no stdin to answer it,
+# so the command fails — and because the old form also swallowed stderr, the
+# function still returned 0. The result was a silent no-op reported as success:
+# the change stayed in openspec/changes/, its spec was never promoted, and the
+# only way to notice was to list the directory afterwards.
+#
+# stderr is deliberately NOT swallowed now, so a real archive failure is visible
+# rather than inferred.
+os_archive() { openspec archive "$1" --yes >/dev/null; }
 
 # ---- Spec Kit (GitHub) adapter --------------------------------------------
 # A "change" for Spec Kit is a feature dir name under specs/. tasks.md uses a
