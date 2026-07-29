@@ -2376,10 +2376,10 @@
           {
             "id": "change-kbd-presence-peer-auth",
             "progress": {
-              "done": 1,
+              "done": 5,
               "total": 5
             },
-            "status": "PENDING",
+            "status": "COMPLETE",
             "type": "change"
           },
           {
@@ -2403,7 +2403,7 @@
         ],
         "id": "sovereign-sync-domain-adapters",
         "progress": {
-          "done": 1,
+          "done": 2,
           "total": 3
         },
         "status": "PENDING",
@@ -2412,13 +2412,13 @@
     ],
     "id": "6ac090a4-3656-4d83-8eb6-2891508196d5",
     "progress": {
-      "done": 143,
+      "done": 144,
       "total": 197
     },
     "status": "completed",
     "type": "phase"
   },
   "schemaVersion": "1",
-  "sourceRevision": 36,
-  "updatedAt": "2026-07-29T16:38:10.166728Z"
+  "sourceRevision": 45,
+  "updatedAt": "2026-07-29T18:49:31.001941Z"
 }

@@ -3,11 +3,11 @@
     {
       "blockers": [],
       "id": "change-kbd-presence-peer-auth",
-      "implementation_status": "PENDING",
-      "last_task_completed": "Decide the authentication source",
-      "next_task_pending": "Thread a real peer_authorized bool from handle_incoming_message into the kbd-control domain merge path",
-      "status": "PENDING",
-      "tasks_done": 1,
+      "implementation_status": "COMPLETE",
+      "last_task_completed": "cargo test -p sovereign-sync green",
+      "next_task_pending": null,
+      "status": "DONE",
+      "tasks_done": 5,
       "tasks_total": 5,
       "title": "Wire real peer authentication into kbd-control presence sync"
     },
@@ -34,7 +34,7 @@
       "title": "Verify real P2P transport on real hardware"
     }
   ],
-  "changes_completed": 1,
+  "changes_completed": 2,
   "changes_total": 3,
   "children": {},
   "completion": {
@@ -49,7 +49,7 @@
       "summary": null
     },
     "implementation": {
-      "completed": 1,
+      "completed": 2,
       "status": "IN_PROGRESS",
       "total": 3
     },
@@ -61,14 +61,14 @@
     }
   },
   "generatedBy": "kbd-runtime",
-  "implementation_completed": 1,
+  "implementation_completed": 2,
   "implementation_total": 3,
-  "last_updated": "2026-07-29T16:38:10.166728Z",
+  "last_updated": "2026-07-29T18:49:31.001941Z",
   "last_updated_by": "kbd-runtime",
   "migrationStatus": null,
   "parentPhase": null,
   "phase": "sovereign-sync-domain-adapters",
   "phaseId": "sovereign-sync-domain-adapters",
   "schemaVersion": "2",
-  "sourceRevision": 36
+  "sourceRevision": 45
 }
