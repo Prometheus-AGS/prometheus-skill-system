@@ -38,8 +38,33 @@ const sidebars = {
   kbdSidebar: [
     {
       type: 'category',
-      label: 'KBD Lifecycle',
-      items: ['kbd/overview', 'kbd/stages', 'kbd/hooks-and-waypoints', 'kbd/quality-gates'],
+      label: 'Lifecycle',
+      items: ['kbd/overview', 'kbd/stages'],
+    },
+    {
+      type: 'category',
+      label: 'Control Plane',
+      items: [
+        'kbd/control-plane',
+        'kbd/tokens-and-authentication',
+        'kbd/bash-mutation-guard',
+        'kbd/leases-and-handoffs',
+      ],
+    },
+    {
+      type: 'category',
+      label: 'Operations',
+      items: [
+        'kbd/operator-controls',
+        'kbd/migration-and-rollout',
+        'kbd/hooks-and-waypoints',
+        'kbd/troubleshooting',
+      ],
+    },
+    {
+      type: 'category',
+      label: 'Quality',
+      items: ['kbd/quality-gates'],
     },
   ],
 
@@ -49,6 +74,7 @@ const sidebars = {
       label: 'Substrate Crates',
       items: [
         'substrate/index',
+        'substrate/kbd-runtime',
         'substrate/storage-provider',
         'substrate/learner-model',
         'substrate/surface-bridge',

@@ -9,15 +9,19 @@ mkdir -p "$TEST_ROOT/.prometheus" "$TEST_ROOT/.kbd-orchestrator"
 printf '{"schemaVersion":"1","projectId":"00000000-0000-4000-8000-000000000001","repositoryFingerprint":"sha256:test"}\n' \
   >"$TEST_ROOT/.prometheus/project.json"
 
+# The adapter no longer intercepts tool calls: the pre-mutation fence was
+# removed because it gated the operator's own shell on KBD lifecycle and lease
+# state. An emergency PAUSE must still be *observable* — session_start and
+# post_compact announce it — but it must never deny a tool call, and no event
+# may exit nonzero.
 printf 'paused\n' >"$TEST_ROOT/.kbd-orchestrator/PAUSE"
-set +e
-OUTPUT="$(cd "$TEST_ROOT" && bash "$ADAPTER" pre_mutation claude-code 2>&1)"
-STATUS=$?
-set -e
-[[ "$STATUS" -eq 2 ]]
+OUTPUT="$(cd "$TEST_ROOT" && bash "$ADAPTER" session_start claude-code 2>&1)"
 [[ "$OUTPUT" == *"emergency PAUSE"* ]]
 
-(cd "$TEST_ROOT" && bash "$ADAPTER" stop claude-code)
+for event in session_start post_compact prompt stop; do
+  (cd "$TEST_ROOT" && bash "$ADAPTER" "$event" claude-code >/dev/null 2>&1) ||
+    { printf 'FAIL: %s exited nonzero while paused\n' "$event" >&2; exit 1; }
+done
 
 rm "$TEST_ROOT/.kbd-orchestrator/PAUSE"
 PATH="/usr/bin:/bin" \

@@ -118,6 +118,13 @@ fn doctor_json_mode_emits_versioned_schema() {
         payload.get("schema_version").is_some(),
         "doctor --json must include a versioned schema root; payload: {payload}"
     );
+    assert_eq!(
+        payload
+            .get("contractVersion")
+            .and_then(|value| value.as_str()),
+        Some("2.0.0"),
+        "doctor --json must expose the stable control-plane contract"
+    );
     assert!(
         payload.get("summary").is_some(),
         "doctor --json must include a summary object; payload: {payload}"

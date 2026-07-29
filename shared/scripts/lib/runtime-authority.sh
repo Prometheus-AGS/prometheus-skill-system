@@ -7,7 +7,11 @@
 # only until `prometheus kbd migrate --apply` establishes runtime authority.
 
 kbd_runtime_authoritative() {
-  local root="${1:-.}" waypoint="$root/.kbd-orchestrator/current-waypoint.json"
+  # `root` must be assigned in its own statement: under `set -u`, bash expands
+  # the whole `local` list before binding any of its names, so referencing
+  # "$root" in the same statement aborts with "root: unbound variable".
+  local root="${1:-.}"
+  local waypoint="$root/.kbd-orchestrator/current-waypoint.json"
   [ -f "$waypoint" ] || return 1
   command -v jq >/dev/null 2>&1 || return 1
   [ "$(jq -r '.generatedBy // empty' "$waypoint" 2>/dev/null)" = "kbd-runtime" ]

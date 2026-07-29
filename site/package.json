@@ -12,8 +12,9 @@
     "write-translations": "docusaurus write-translations",
     "write-heading-ids": "docusaurus write-heading-ids",
     "generate:catalog": "node scripts/generate-skills-catalog.mjs",
-    "prebuild": "node scripts/generate-skills-catalog.mjs",
-    "prestart": "node scripts/generate-skills-catalog.mjs"
+    "check:public-docs": "node scripts/check-public-docs.mjs",
+    "prebuild": "node scripts/check-public-docs.mjs && node scripts/generate-skills-catalog.mjs",
+    "prestart": "node scripts/check-public-docs.mjs && node scripts/generate-skills-catalog.mjs"
   },
   "dependencies": {
     "@docusaurus/core": "3.10.1",

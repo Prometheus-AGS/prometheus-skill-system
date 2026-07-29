@@ -211,7 +211,7 @@ Learn skills retrieve grounding content through `content-grounding-kb.sh`. The s
 
 ```bash
 /learn-kb add palace:prometheus-concepts
-/learn-kb add local:/Users/me/notes/physics
+/learn-kb add "local:$HOME/notes/physics"
 /learn-kb add dify:team-knowledge-base
 /learn-kb add web:https://docs.example.com
 ```

@@ -24,7 +24,9 @@ STOP_ACTIVE="$(printf '%s' "$INPUT" | jq -r '.stop_hook_active // false' 2>/dev/
 
 TRANSCRIPT="$(printf '%s' "$INPUT" | jq -r '.transcript_path // empty' 2>/dev/null || true)"
 SESSION="$(printf '%s' "$INPUT" | jq -r '.session_id // empty' 2>/dev/null || echo unknown)"
-[ -n "$TRANSCRIPT" ] && [ -f "$TRANSCRIPT" ] || finish
+if [ -z "$TRANSCRIPT" ] || [ ! -f "$TRANSCRIPT" ]; then
+  finish
+fi
 
 # --- Only gate inside an orchestrator project with a non-terminal waypoint ---
 RENDER_LIB="$(cd "$(dirname "$0")" && pwd)/lib/waypoint-render.sh"

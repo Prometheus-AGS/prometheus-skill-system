@@ -234,7 +234,7 @@ pub async fn run(path: &str, action: Action) -> Result<()> {
                 .await?;
             print_state(&next, false)
         }
-        Action::Audit { since, json } => audit(&client, since.as_deref(), json).await,
+        Action::Audit { since, json } => audit(&runtime, &client, since.as_deref(), json).await,
         Action::Watch => watch(&client).await,
         Action::Migrate { check, apply } => {
             let report = runtime.migrate_legacy_ledgers(false)?;
@@ -575,8 +575,22 @@ async fn decode_response<T: serde::de::DeserializeOwned>(response: reqwest::Resp
     serde_json::from_str(&body).context("invalid control-plane JSON response")
 }
 
-async fn audit(client: &ControlClient, since: Option<&str>, json_output: bool) -> Result<()> {
-    let events = client.events().await?;
+async fn audit(
+    runtime: &Runtime,
+    client: &ControlClient,
+    since: Option<&str>,
+    json_output: bool,
+) -> Result<()> {
+    let events = match client.events().await {
+        Ok(events) => events,
+        Err(_) => {
+            // A freshly migrated standalone project may have a valid local
+            // canonical journal before the daemon has registered the project.
+            // Audit must remain available for operator recovery in that state.
+            runtime.replay()?;
+            runtime.events()?
+        }
+    };
     let filtered: Vec<&Event> = match since {
         Some(value) => match value.parse::<u64>() {
             Ok(revision) => events
