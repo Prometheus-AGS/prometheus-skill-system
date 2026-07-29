@@ -1,50 +1,40 @@
 {
-  "phase": "phase-librefang-wasm-onramp",
-  "started": "2026-04-29",
-  "tool": "claude-code",
-  "model": "claude-sonnet-4-6",
-  "assessment_complete": true,
-  "assessment_path": ".kbd-orchestrator/phases/phase-librefang-wasm-onramp/assessment.md",
-  "plan_complete": true,
-  "plan_path": ".kbd-orchestrator/phases/phase-librefang-wasm-onramp/plan.md",
-  "execution_started": true,
-  "change_backend": "native-kbd",
-  "execution_backend": "native-tool",
-  "changes_total": 2,
-  "changes_completed": 2,
-  "changes_log": [
-    {
-      "id": "change-001-forge-package-librefang",
-      "status": "DONE",
-      "completed": "2026-04-29",
-      "gaps_closed": ["G1", "G4"],
-      "files_changed": 3,
-      "commit": "4c2063b",
-      "qa_gate": "skipped (3 files — at threshold; all acceptance criteria verified by manual spot check)",
-      "archive": ".kbd-orchestrator/changes/archive/2026-04-29-change-001-forge-package-librefang/"
+  "changes": [],
+  "changes_completed": 0,
+  "changes_total": 0,
+  "children": {},
+  "completion": {
+    "certification": {
+      "blockers": [],
+      "status": "PENDING",
+      "summary": null
     },
-    {
-      "id": "change-002-smoke-test",
-      "status": "DONE",
-      "completed": "2026-04-29",
-      "gaps_closed": ["G2", "G3"],
-      "files_changed": 2,
-      "commit": "99cfa6e",
-      "qa_gate": "skipped (2 files — documentation + script; bash -n + live run + npm run validate as QA)",
-      "archive": ".kbd-orchestrator/changes/archive/2026-04-29-change-002-smoke-test/"
+    "evidence": {
+      "blockers": [],
+      "status": "PENDING",
+      "summary": null
+    },
+    "implementation": {
+      "completed": 0,
+      "status": "PENDING",
+      "total": 0
+    },
+    "primaryCounter": "implementation",
+    "publication": {
+      "blockers": [],
+      "status": "PENDING",
+      "summary": null
     }
-  ],
-  "active_change": null,
-  "next_change": null,
-  "phase_complete": true,
-  "scope": [
-    "forge package-librefang Rust subcommand (forge-cli)",
-    "End-to-end smoke test: agent dir → .lf-skill.zip → librefang install → verify runtime.type=wasm",
-    "Assessment §9 verification criteria 4–7 closure"
-  ],
-  "phase_goals": [
-    "Implement forge package-librefang <agent-dir> in tools/forge-rs/crates/forge-cli/",
-    "End-to-end smoke test: produce a valid .lf-skill.zip that installs into a local librefang instance with runtime.type=wasm",
-    "Close assessment §9 verification criteria 4–7 without waiting for remote agent"
-  ]
+  },
+  "generatedBy": "kbd-runtime",
+  "implementation_completed": 0,
+  "implementation_total": 0,
+  "last_updated": "2026-07-29T13:49:44.086428Z",
+  "last_updated_by": "kbd-runtime",
+  "migrationStatus": "legacy-read-only",
+  "parentPhase": null,
+  "phase": "phase-librefang-wasm-onramp",
+  "phaseId": "phase-librefang-wasm-onramp",
+  "schemaVersion": "2",
+  "sourceRevision": 7
 }

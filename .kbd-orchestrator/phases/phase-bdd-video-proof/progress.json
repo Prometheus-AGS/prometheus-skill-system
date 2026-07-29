@@ -1,25 +1,129 @@
 {
-  "phase": "phase-bdd-video-proof",
-  "status": "reflect_complete",
-  "stage": "reflect",
-  "changes_completed": 8,
-  "changes_total": 8,
-  "goals_met": 7,
-  "goals_total": 7,
-  "assessment_complete": true,
-  "analysis_complete": true,
-  "plan_complete": true,
-  "reflect_complete": true,
-  "last_change": "change-bdd-008-validate-smoke-tests",
   "changes": [
-    "change-bdd-001-fork-cucumber-js",
-    "change-bdd-002-cucumber-js-examples",
-    "change-bdd-003-cucumber-rs-skill",
-    "change-bdd-004-cucumber-rs-examples",
-    "change-bdd-005-lifecycle-loop-skill",
-    "change-bdd-006-video-cert-bundle",
-    "change-bdd-007-cross-references",
-    "change-bdd-008-validate-smoke-tests"
+    {
+      "blockers": [],
+      "id": "change-bdd-001-fork-cucumber-js",
+      "implementation_status": "PENDING",
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "status": "PENDING",
+      "tasks_done": 0,
+      "tasks_total": 0,
+      "title": "change-bdd-001-fork-cucumber-js"
+    },
+    {
+      "blockers": [],
+      "id": "change-bdd-002-cucumber-js-examples",
+      "implementation_status": "PENDING",
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "status": "PENDING",
+      "tasks_done": 0,
+      "tasks_total": 0,
+      "title": "change-bdd-002-cucumber-js-examples"
+    },
+    {
+      "blockers": [],
+      "id": "change-bdd-003-cucumber-rs-skill",
+      "implementation_status": "PENDING",
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "status": "PENDING",
+      "tasks_done": 0,
+      "tasks_total": 0,
+      "title": "change-bdd-003-cucumber-rs-skill"
+    },
+    {
+      "blockers": [],
+      "id": "change-bdd-004-cucumber-rs-examples",
+      "implementation_status": "PENDING",
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "status": "PENDING",
+      "tasks_done": 0,
+      "tasks_total": 0,
+      "title": "change-bdd-004-cucumber-rs-examples"
+    },
+    {
+      "blockers": [],
+      "id": "change-bdd-005-lifecycle-loop-skill",
+      "implementation_status": "PENDING",
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "status": "PENDING",
+      "tasks_done": 0,
+      "tasks_total": 0,
+      "title": "change-bdd-005-lifecycle-loop-skill"
+    },
+    {
+      "blockers": [],
+      "id": "change-bdd-006-video-cert-bundle",
+      "implementation_status": "PENDING",
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "status": "PENDING",
+      "tasks_done": 0,
+      "tasks_total": 0,
+      "title": "change-bdd-006-video-cert-bundle"
+    },
+    {
+      "blockers": [],
+      "id": "change-bdd-007-cross-references",
+      "implementation_status": "PENDING",
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "status": "PENDING",
+      "tasks_done": 0,
+      "tasks_total": 0,
+      "title": "change-bdd-007-cross-references"
+    },
+    {
+      "blockers": [],
+      "id": "change-bdd-008-validate-smoke-tests",
+      "implementation_status": "PENDING",
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "status": "PENDING",
+      "tasks_done": 0,
+      "tasks_total": 0,
+      "title": "change-bdd-008-validate-smoke-tests"
+    }
   ],
-  "updatedAt": "2026-07-09T16:15:00Z"
+  "changes_completed": 0,
+  "changes_total": 8,
+  "children": {},
+  "completion": {
+    "certification": {
+      "blockers": [],
+      "status": "PENDING",
+      "summary": null
+    },
+    "evidence": {
+      "blockers": [],
+      "status": "PENDING",
+      "summary": null
+    },
+    "implementation": {
+      "completed": 0,
+      "status": "PENDING",
+      "total": 8
+    },
+    "primaryCounter": "implementation",
+    "publication": {
+      "blockers": [],
+      "status": "PENDING",
+      "summary": null
+    }
+  },
+  "generatedBy": "kbd-runtime",
+  "implementation_completed": 0,
+  "implementation_total": 8,
+  "last_updated": "2026-07-29T13:49:44.086428Z",
+  "last_updated_by": "kbd-runtime",
+  "migrationStatus": "legacy-read-only",
+  "parentPhase": null,
+  "phase": "phase-bdd-video-proof",
+  "phaseId": "phase-bdd-video-proof",
+  "schemaVersion": "2",
+  "sourceRevision": 7
 }

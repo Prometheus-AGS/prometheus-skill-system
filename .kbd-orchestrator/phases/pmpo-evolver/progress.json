@@ -1,24 +1,151 @@
 {
-  "phase": "pmpo-evolver",
-  "stage": "reflect_ready",
-  "changes_total": 10,
-  "changes_completed": 10,
-  "active_change": null,
-  "next_pending_change": null,
-  "assessment_complete": true,
-  "plan_complete": true,
   "changes": [
-    {"id": "change-evolver-001", "status": "done", "title": "Schema: pmpo-evolver.schema.json + evolution-state extensions"},
-    {"id": "change-evolver-002", "status": "done", "title": "Feedback source taxonomy extension (loop-definition schema)"},
-    {"id": "change-evolver-003", "status": "done", "title": "skills/process/pmpo-evolver/SKILL.md + model routing table"},
-    {"id": "change-evolver-004", "status": "done", "title": "Competitor tracking: registry + parity matrix + changelog ingestion"},
-    {"id": "change-evolver-005", "status": "done", "title": "Learning signals persistence + commit-history analysis"},
-    {"id": "change-evolver-006", "status": "done", "title": "Staged idea validation sub-skill (validate-idea)"},
-    {"id": "change-evolver-007", "status": "done", "title": "Carry-forward aggregation + domain taxonomy reference"},
-    {"id": "change-evolver-008", "status": "done", "title": "Strategic dreaming (post-cycle-dream)"},
-    {"id": "change-evolver-009", "status": "done", "title": "Outer-loop perspective handoff (pmpo-outer-loop wiring)"},
-    {"id": "change-evolver-010", "status": "done", "title": "Phase-seeding protocol + liter-llm context management reference"}
+    {
+      "blockers": [],
+      "id": "change-evolver-001",
+      "implementation_status": "COMPLETE",
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "status": "DONE",
+      "tasks_done": 0,
+      "tasks_total": 0,
+      "title": "Schema: pmpo-evolver.schema.json + evolution-state extensions"
+    },
+    {
+      "blockers": [],
+      "id": "change-evolver-002",
+      "implementation_status": "COMPLETE",
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "status": "DONE",
+      "tasks_done": 0,
+      "tasks_total": 0,
+      "title": "Feedback source taxonomy extension (loop-definition schema)"
+    },
+    {
+      "blockers": [],
+      "id": "change-evolver-003",
+      "implementation_status": "COMPLETE",
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "status": "DONE",
+      "tasks_done": 0,
+      "tasks_total": 0,
+      "title": "skills/process/pmpo-evolver/SKILL.md + model routing table"
+    },
+    {
+      "blockers": [],
+      "id": "change-evolver-004",
+      "implementation_status": "COMPLETE",
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "status": "DONE",
+      "tasks_done": 0,
+      "tasks_total": 0,
+      "title": "Competitor tracking: registry + parity matrix + changelog ingestion"
+    },
+    {
+      "blockers": [],
+      "id": "change-evolver-005",
+      "implementation_status": "COMPLETE",
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "status": "DONE",
+      "tasks_done": 0,
+      "tasks_total": 0,
+      "title": "Learning signals persistence + commit-history analysis"
+    },
+    {
+      "blockers": [],
+      "id": "change-evolver-006",
+      "implementation_status": "COMPLETE",
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "status": "DONE",
+      "tasks_done": 0,
+      "tasks_total": 0,
+      "title": "Staged idea validation sub-skill (validate-idea)"
+    },
+    {
+      "blockers": [],
+      "id": "change-evolver-007",
+      "implementation_status": "COMPLETE",
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "status": "DONE",
+      "tasks_done": 0,
+      "tasks_total": 0,
+      "title": "Carry-forward aggregation + domain taxonomy reference"
+    },
+    {
+      "blockers": [],
+      "id": "change-evolver-008",
+      "implementation_status": "COMPLETE",
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "status": "DONE",
+      "tasks_done": 0,
+      "tasks_total": 0,
+      "title": "Strategic dreaming (post-cycle-dream)"
+    },
+    {
+      "blockers": [],
+      "id": "change-evolver-009",
+      "implementation_status": "COMPLETE",
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "status": "DONE",
+      "tasks_done": 0,
+      "tasks_total": 0,
+      "title": "Outer-loop perspective handoff (pmpo-outer-loop wiring)"
+    },
+    {
+      "blockers": [],
+      "id": "change-evolver-010",
+      "implementation_status": "COMPLETE",
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "status": "DONE",
+      "tasks_done": 0,
+      "tasks_total": 0,
+      "title": "Phase-seeding protocol + liter-llm context management reference"
+    }
   ],
-  "started": "2026-06-28",
-  "updated": "2026-06-28T00:00:00Z"
+  "changes_completed": 10,
+  "changes_total": 10,
+  "children": {},
+  "completion": {
+    "certification": {
+      "blockers": [],
+      "status": "PENDING",
+      "summary": null
+    },
+    "evidence": {
+      "blockers": [],
+      "status": "PENDING",
+      "summary": null
+    },
+    "implementation": {
+      "completed": 10,
+      "status": "COMPLETE",
+      "total": 10
+    },
+    "primaryCounter": "implementation",
+    "publication": {
+      "blockers": [],
+      "status": "PENDING",
+      "summary": null
+    }
+  },
+  "generatedBy": "kbd-runtime",
+  "implementation_completed": 10,
+  "implementation_total": 10,
+  "last_updated": "2026-07-29T13:49:44.086428Z",
+  "last_updated_by": "kbd-runtime",
+  "migrationStatus": null,
+  "parentPhase": null,
+  "phase": "pmpo-evolver",
+  "phaseId": "pmpo-evolver",
+  "schemaVersion": "2",
+  "sourceRevision": 7
 }

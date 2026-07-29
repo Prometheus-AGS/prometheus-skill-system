@@ -1,15 +1,40 @@
 {
+  "changes": [],
+  "changes_completed": 0,
+  "changes_total": 0,
+  "children": {},
+  "completion": {
+    "certification": {
+      "blockers": [],
+      "status": "PENDING",
+      "summary": null
+    },
+    "evidence": {
+      "blockers": [],
+      "status": "PENDING",
+      "summary": null
+    },
+    "implementation": {
+      "completed": 0,
+      "status": "PENDING",
+      "total": 0
+    },
+    "primaryCounter": "implementation",
+    "publication": {
+      "blockers": [],
+      "status": "PENDING",
+      "summary": null
+    }
+  },
+  "generatedBy": "kbd-runtime",
+  "implementation_completed": 0,
+  "implementation_total": 0,
+  "last_updated": "2026-07-29T13:49:44.086428Z",
+  "last_updated_by": "kbd-runtime",
+  "migrationStatus": "legacy-read-only",
+  "parentPhase": null,
   "phase": "phase-dsg-hardening",
-  "status": "reflect_complete",
-  "stage": "reflect",
-  "goals_total": 4,
-  "goals_met": 4,
-  "changes_total": 2,
-  "changes_completed": 2,
-  "assessment_complete": true,
-  "analysis_complete": false,
-  "plan_complete": true,
-  "sycophancy_gate": null,
-  "createdAt": "2026-07-05T18:10:00Z",
-  "updatedAt": "2026-07-05T18:10:00Z"
+  "phaseId": "phase-dsg-hardening",
+  "schemaVersion": "2",
+  "sourceRevision": 7
 }

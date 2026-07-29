@@ -1,80 +1,129 @@
 {
-  "phase": "kbd-execute-spec-wrapping-and-nesting-2026-06-03",
-  "assessment_complete": true,
-  "plan_complete": true,
-  "execute_complete": true,
-  "reflect_complete": true,
-  "backend": "native-kbd",
-  "backend_rationale": "Phase repairs the broken /opsx:apply seam; native KBD avoids dogfooding the broken path.",
-  "changes_total": 8,
-  "changes_completed": 8,
-  "commit_order": [
-    "change-005-hooks-robustness",
-    "change-001-spec-backend-interface",
-    "change-002-kbd-apply-driver",
-    "change-003-rewrite-execute-dispatch",
-    "change-004-per-turn-position-reporter",
-    "change-006-child-loop-wrapping",
-    "change-008-verify-and-integration-test",
-    "change-007-speckit-adapter"
-  ],
   "changes": [
     {
+      "blockers": [],
       "id": "change-005-hooks-robustness",
+      "implementation_status": "COMPLETE",
+      "last_task_completed": null,
+      "next_task_pending": null,
       "status": "DONE",
-      "model_class": "small",
-      "addresses": "F5,F7",
-      "tasks_done": 0
+      "tasks_done": 0,
+      "tasks_total": 0,
+      "title": "change-005-hooks-robustness"
     },
     {
+      "blockers": [],
       "id": "change-001-spec-backend-interface",
+      "implementation_status": "COMPLETE",
+      "last_task_completed": null,
+      "next_task_pending": null,
       "status": "DONE",
-      "model_class": "medium",
-      "addresses": "F1,F4",
-      "tasks_done": 0
+      "tasks_done": 0,
+      "tasks_total": 0,
+      "title": "change-001-spec-backend-interface"
     },
     {
+      "blockers": [],
       "id": "change-002-kbd-apply-driver",
+      "implementation_status": "COMPLETE",
+      "last_task_completed": null,
+      "next_task_pending": null,
       "status": "DONE",
-      "model_class": "frontier",
-      "addresses": "F1",
-      "tasks_done": 0
+      "tasks_done": 0,
+      "tasks_total": 0,
+      "title": "change-002-kbd-apply-driver"
     },
     {
+      "blockers": [],
       "id": "change-003-rewrite-execute-dispatch",
+      "implementation_status": "COMPLETE",
+      "last_task_completed": null,
+      "next_task_pending": null,
       "status": "DONE",
-      "model_class": "medium",
-      "addresses": "F1,F3",
-      "tasks_done": 0
+      "tasks_done": 0,
+      "tasks_total": 0,
+      "title": "change-003-rewrite-execute-dispatch"
     },
     {
+      "blockers": [],
       "id": "change-004-per-turn-position-reporter",
+      "implementation_status": "COMPLETE",
+      "last_task_completed": null,
+      "next_task_pending": null,
       "status": "DONE",
-      "model_class": "medium",
-      "addresses": "F2",
-      "tasks_done": 0
+      "tasks_done": 0,
+      "tasks_total": 0,
+      "title": "change-004-per-turn-position-reporter"
     },
     {
+      "blockers": [],
       "id": "change-006-child-loop-wrapping",
+      "implementation_status": "COMPLETE",
+      "last_task_completed": null,
+      "next_task_pending": null,
       "status": "DONE",
-      "model_class": "medium",
-      "addresses": "F6",
-      "tasks_done": 0
+      "tasks_done": 0,
+      "tasks_total": 0,
+      "title": "change-006-child-loop-wrapping"
     },
     {
+      "blockers": [],
       "id": "change-008-verify-and-integration-test",
+      "implementation_status": "COMPLETE",
+      "last_task_completed": null,
+      "next_task_pending": null,
       "status": "DONE",
-      "model_class": "medium",
-      "addresses": "verification",
-      "tasks_done": 0
+      "tasks_done": 0,
+      "tasks_total": 0,
+      "title": "change-008-verify-and-integration-test"
     },
     {
+      "blockers": [],
       "id": "change-007-speckit-adapter",
+      "implementation_status": "COMPLETE",
+      "last_task_completed": null,
+      "next_task_pending": null,
       "status": "DONE",
-      "model_class": "medium",
-      "addresses": "F4",
-      "tasks_done": 0
+      "tasks_done": 0,
+      "tasks_total": 0,
+      "title": "change-007-speckit-adapter"
     }
   ],
-  "updated": "2026-06-03"
+  "changes_completed": 8,
+  "changes_total": 8,
+  "children": {},
+  "completion": {
+    "certification": {
+      "blockers": [],
+      "status": "PENDING",
+      "summary": null
+    },
+    "evidence": {
+      "blockers": [],
+      "status": "PENDING",
+      "summary": null
+    },
+    "implementation": {
+      "completed": 8,
+      "status": "COMPLETE",
+      "total": 8
+    },
+    "primaryCounter": "implementation",
+    "publication": {
+      "blockers": [],
+      "status": "PENDING",
+      "summary": null
+    }
+  },
+  "generatedBy": "kbd-runtime",
+  "implementation_completed": 8,
+  "implementation_total": 8,
+  "last_updated": "2026-07-29T13:49:44.086428Z",
+  "last_updated_by": "kbd-runtime",
+  "migrationStatus": null,
+  "parentPhase": null,
+  "phase": "kbd-execute-spec-wrapping-and-nesting-2026-06-03",
+  "phaseId": "kbd-execute-spec-wrapping-and-nesting-2026-06-03",
+  "schemaVersion": "2",
+  "sourceRevision": 7
 }

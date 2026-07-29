@@ -1,42 +1,74 @@
 {
-  "phase": "memory-and-karpathy",
-  "parentPhase": null,
-  "childPhases": [],
-  "childPointer": null,
-  "assessment_complete": true,
-  "plan_complete": true,
-  "execute_complete": true,
-  "reflect_complete": true,
-  "changes_total": 3,
-  "changes_completed": 3,
-  "completed_changes": [],
-  "active_change": null,
-  "blocked_changes": [],
-  "sourceTool": "claude-code",
-  "createdBy": "kbd-new-phase",
-  "updatedAt": "2026-06-11T23:42:13Z",
-  "backend": "native-kbd",
   "changes": [
     {
+      "blockers": [],
       "id": "change-001-memory-bridge",
+      "implementation_status": "COMPLETE",
+      "last_task_completed": null,
+      "next_task_pending": null,
       "status": "DONE",
-      "tasks_total": 3,
-      "tasks_done": 3,
-      "completed_by": "claude-code"
+      "tasks_done": 0,
+      "tasks_total": 0,
+      "title": "change-001-memory-bridge"
     },
     {
+      "blockers": [],
       "id": "change-002-memory-writeback",
+      "implementation_status": "COMPLETE",
+      "last_task_completed": null,
+      "next_task_pending": null,
       "status": "DONE",
-      "tasks_total": 4,
-      "tasks_done": 4,
-      "completed_by": "claude-code"
+      "tasks_done": 0,
+      "tasks_total": 0,
+      "title": "change-002-memory-writeback"
     },
     {
+      "blockers": [],
       "id": "change-003-pk-and-binary",
+      "implementation_status": "COMPLETE",
+      "last_task_completed": null,
+      "next_task_pending": null,
       "status": "DONE",
-      "tasks_total": 4,
-      "tasks_done": 4,
-      "completed_by": "claude-code"
+      "tasks_done": 0,
+      "tasks_total": 0,
+      "title": "change-003-pk-and-binary"
     }
-  ]
+  ],
+  "changes_completed": 3,
+  "changes_total": 3,
+  "children": {},
+  "completion": {
+    "certification": {
+      "blockers": [],
+      "status": "PENDING",
+      "summary": null
+    },
+    "evidence": {
+      "blockers": [],
+      "status": "PENDING",
+      "summary": null
+    },
+    "implementation": {
+      "completed": 3,
+      "status": "COMPLETE",
+      "total": 3
+    },
+    "primaryCounter": "implementation",
+    "publication": {
+      "blockers": [],
+      "status": "PENDING",
+      "summary": null
+    }
+  },
+  "generatedBy": "kbd-runtime",
+  "implementation_completed": 3,
+  "implementation_total": 3,
+  "last_updated": "2026-07-29T13:49:44.086428Z",
+  "last_updated_by": "kbd-runtime",
+  "migrationStatus": null,
+  "parentPhase": null,
+  "phase": "memory-and-karpathy",
+  "phaseId": "memory-and-karpathy",
+  "schemaVersion": "2",
+  "sourceRevision": 7
 }

@@ -1,13 +1,40 @@
 {
+  "changes": [],
+  "changes_completed": 0,
+  "changes_total": 0,
+  "children": {},
+  "completion": {
+    "certification": {
+      "blockers": [],
+      "status": "PENDING",
+      "summary": null
+    },
+    "evidence": {
+      "blockers": [],
+      "status": "PENDING",
+      "summary": null
+    },
+    "implementation": {
+      "completed": 0,
+      "status": "PENDING",
+      "total": 0
+    },
+    "primaryCounter": "implementation",
+    "publication": {
+      "blockers": [],
+      "status": "PENDING",
+      "summary": null
+    }
+  },
+  "generatedBy": "kbd-runtime",
+  "implementation_completed": 0,
+  "implementation_total": 0,
+  "last_updated": "2026-07-29T13:49:44.086428Z",
+  "last_updated_by": "kbd-runtime",
+  "migrationStatus": "legacy-read-only",
+  "parentPhase": null,
   "phase": "phase-credibility-closure",
-  "stage": "execute",
-  "changes_completed": 16,
-  "changes_total": 16,
-  "assessment_complete": true,
-  "analyze_complete": true,
-  "plan_complete": true,
-  "last_updated": "2026-06-30",
-  "next_stage": "reflect",
-  "next_command": "/kbd-reflect phase-credibility-closure",
-  "blocking": "OQ-01: User must rotate Tavily API key at tavily.com before C01 can be pushed"
+  "phaseId": "phase-credibility-closure",
+  "schemaVersion": "2",
+  "sourceRevision": 7
 }

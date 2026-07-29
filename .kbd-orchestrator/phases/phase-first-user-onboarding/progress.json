@@ -1,42 +1,63 @@
 {
-  "phase": "phase-first-user-onboarding",
-  "stage": "reflect_complete",
-  "changes_completed": 2,
-  "changes_total": 2,
-  "assessment_complete": true,
-  "analyze_complete": false,
-  "plan_complete": true,
-  "execute_complete": true,
-  "reflect_complete": true,
-  "last_updated": "2026-06-30",
-  "previous_phase": "phase-external-validation",
-  "previous_phase_readiness": "92% (unchanged)",
-  "final_readiness": "92% (unchanged)",
-  "goals_met": 0,
-  "goals_total": 4,
-  "sycophancy_gate_score": 0.0,
-  "blocking_constraint": "BG-2 — no external collaborator identified (root cause: maintainer outreach not initiated)",
-  "lessons": [
-    "L1: phases with external-validation goals need a named human before opening",
-    "L2: recording a lesson is not acting on it — lesson must produce behavior change",
-    "L3: two consecutive phases with 0/N goals MET on the same root cause signals stopping this direction until root cause is addressed outside KBD"
-  ],
   "changes": [
     {
+      "blockers": [],
       "id": "change-onboard-001-claude-code-prereq",
-      "title": "Add Claude Code prerequisite note to QUICK_START.md",
+      "implementation_status": "COMPLETE",
+      "last_task_completed": null,
+      "next_task_pending": null,
       "status": "DONE",
-      "file": "docs/QUICK_START.md",
-      "qa_gate": "skipped (documentation-only)"
+      "tasks_done": 0,
+      "tasks_total": 0,
+      "title": "Add Claude Code prerequisite note to QUICK_START.md"
     },
     {
+      "blockers": [],
       "id": "change-onboard-002-linux-systemd-note",
-      "title": "Add Linux/systemd note to QUICK_START.md troubleshooting",
+      "implementation_status": "COMPLETE",
+      "last_task_completed": null,
+      "next_task_pending": null,
       "status": "DONE",
-      "file": "docs/QUICK_START.md",
-      "qa_gate": "skipped (documentation-only)"
+      "tasks_done": 0,
+      "tasks_total": 0,
+      "title": "Add Linux/systemd note to QUICK_START.md troubleshooting"
     }
   ],
-  "recommended_next_phase_A": "phase-first-user-onboarding-v2 (only after maintainer confirms a named collaborator)",
-  "recommended_next_phase_B": "phase-sovereign-sync-ci-test (two-node integration test, unblocked, ~1 day, raises score to ~95%)"
+  "changes_completed": 2,
+  "changes_total": 2,
+  "children": {},
+  "completion": {
+    "certification": {
+      "blockers": [],
+      "status": "PENDING",
+      "summary": null
+    },
+    "evidence": {
+      "blockers": [],
+      "status": "PENDING",
+      "summary": null
+    },
+    "implementation": {
+      "completed": 2,
+      "status": "COMPLETE",
+      "total": 2
+    },
+    "primaryCounter": "implementation",
+    "publication": {
+      "blockers": [],
+      "status": "PENDING",
+      "summary": null
+    }
+  },
+  "generatedBy": "kbd-runtime",
+  "implementation_completed": 2,
+  "implementation_total": 2,
+  "last_updated": "2026-07-29T13:49:44.086428Z",
+  "last_updated_by": "kbd-runtime",
+  "migrationStatus": null,
+  "parentPhase": null,
+  "phase": "phase-first-user-onboarding",
+  "phaseId": "phase-first-user-onboarding",
+  "schemaVersion": "2",
+  "sourceRevision": 7
 }

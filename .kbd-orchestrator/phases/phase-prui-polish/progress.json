@@ -1,22 +1,85 @@
 {
-  "phase": "phase-prui-polish",
-  "status": "reflect_complete",
-  "stage": "reflect",
-  "changes_completed": 4,
-  "changes_total": 4,
-  "goals_met": 4,
-  "goals_total": 4,
-  "assessment_complete": true,
-  "analysis_complete": false,
-  "plan_complete": true,
-  "reflect_complete": true,
-  "last_change": "change-polish-004-sse-reconnect-overlay",
   "changes": [
-    "change-polish-001-vendor-hlsjs",
-    "change-polish-002-static-install-step",
-    "change-polish-003-cancel-error-toast",
-    "change-polish-004-sse-reconnect-overlay"
+    {
+      "blockers": [],
+      "id": "change-polish-001-vendor-hlsjs",
+      "implementation_status": "PENDING",
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "status": "PENDING",
+      "tasks_done": 0,
+      "tasks_total": 0,
+      "title": "change-polish-001-vendor-hlsjs"
+    },
+    {
+      "blockers": [],
+      "id": "change-polish-002-static-install-step",
+      "implementation_status": "PENDING",
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "status": "PENDING",
+      "tasks_done": 0,
+      "tasks_total": 0,
+      "title": "change-polish-002-static-install-step"
+    },
+    {
+      "blockers": [],
+      "id": "change-polish-003-cancel-error-toast",
+      "implementation_status": "PENDING",
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "status": "PENDING",
+      "tasks_done": 0,
+      "tasks_total": 0,
+      "title": "change-polish-003-cancel-error-toast"
+    },
+    {
+      "blockers": [],
+      "id": "change-polish-004-sse-reconnect-overlay",
+      "implementation_status": "PENDING",
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "status": "PENDING",
+      "tasks_done": 0,
+      "tasks_total": 0,
+      "title": "change-polish-004-sse-reconnect-overlay"
+    }
   ],
-  "currentTask": "Re-assessed post-close: all 4 goals re-verified MET, zero drift. Phase remains CLOSED.",
-  "updatedAt": "2026-07-09T16:21:09Z"
+  "changes_completed": 0,
+  "changes_total": 4,
+  "children": {},
+  "completion": {
+    "certification": {
+      "blockers": [],
+      "status": "PENDING",
+      "summary": null
+    },
+    "evidence": {
+      "blockers": [],
+      "status": "PENDING",
+      "summary": null
+    },
+    "implementation": {
+      "completed": 0,
+      "status": "PENDING",
+      "total": 4
+    },
+    "primaryCounter": "implementation",
+    "publication": {
+      "blockers": [],
+      "status": "PENDING",
+      "summary": null
+    }
+  },
+  "generatedBy": "kbd-runtime",
+  "implementation_completed": 0,
+  "implementation_total": 4,
+  "last_updated": "2026-07-29T13:49:44.086428Z",
+  "last_updated_by": "kbd-runtime",
+  "migrationStatus": "legacy-read-only",
+  "parentPhase": null,
+  "phase": "phase-prui-polish",
+  "phaseId": "phase-prui-polish",
+  "schemaVersion": "2",
+  "sourceRevision": 7
 }

@@ -1,40 +1,129 @@
 {
-  "phase": "phase-codex-plugin-implementation",
-  "parentPhase": null,
-  "childPhases": [],
-  "childPointer": null,
-  "assessment_complete": true,
-  "plan_complete": true,
-  "execute_complete": true,
-  "reflect_complete": true,
-  "changes_total": 8,
-  "changes_completed": 8,
-  "completed_changes": [
-    "change-cpi-001-runtime-spike",
-    "change-cpi-002-plugin-manifest",
-    "change-cpi-003-codex-marketplace",
-    "change-cpi-004-plugin-mcp",
-    "change-cpi-005-hooks-wiring",
-    "change-cpi-006-skills-bundle",
-    "change-cpi-007-build-tooling",
-    "change-cpi-008-parity-docs-uar"
-  ],
-  "active_change": null,
-  "blocked_changes": [],
-  "sourceTool": "unknown",
-  "createdBy": "kbd-new-phase",
-  "updatedAt": "2026-07-11T22:32:17Z",
   "changes": [
-    "change-cpi-001-runtime-spike",
-    "change-cpi-002-plugin-manifest",
-    "change-cpi-003-codex-marketplace",
-    "change-cpi-004-plugin-mcp",
-    "change-cpi-005-hooks-wiring",
-    "change-cpi-006-skills-bundle",
-    "change-cpi-007-build-tooling",
-    "change-cpi-008-parity-docs-uar"
+    {
+      "blockers": [],
+      "id": "change-cpi-001-runtime-spike",
+      "implementation_status": "PENDING",
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "status": "PENDING",
+      "tasks_done": 0,
+      "tasks_total": 0,
+      "title": "change-cpi-001-runtime-spike"
+    },
+    {
+      "blockers": [],
+      "id": "change-cpi-002-plugin-manifest",
+      "implementation_status": "PENDING",
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "status": "PENDING",
+      "tasks_done": 0,
+      "tasks_total": 0,
+      "title": "change-cpi-002-plugin-manifest"
+    },
+    {
+      "blockers": [],
+      "id": "change-cpi-003-codex-marketplace",
+      "implementation_status": "PENDING",
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "status": "PENDING",
+      "tasks_done": 0,
+      "tasks_total": 0,
+      "title": "change-cpi-003-codex-marketplace"
+    },
+    {
+      "blockers": [],
+      "id": "change-cpi-004-plugin-mcp",
+      "implementation_status": "PENDING",
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "status": "PENDING",
+      "tasks_done": 0,
+      "tasks_total": 0,
+      "title": "change-cpi-004-plugin-mcp"
+    },
+    {
+      "blockers": [],
+      "id": "change-cpi-005-hooks-wiring",
+      "implementation_status": "PENDING",
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "status": "PENDING",
+      "tasks_done": 0,
+      "tasks_total": 0,
+      "title": "change-cpi-005-hooks-wiring"
+    },
+    {
+      "blockers": [],
+      "id": "change-cpi-006-skills-bundle",
+      "implementation_status": "PENDING",
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "status": "PENDING",
+      "tasks_done": 0,
+      "tasks_total": 0,
+      "title": "change-cpi-006-skills-bundle"
+    },
+    {
+      "blockers": [],
+      "id": "change-cpi-007-build-tooling",
+      "implementation_status": "PENDING",
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "status": "PENDING",
+      "tasks_done": 0,
+      "tasks_total": 0,
+      "title": "change-cpi-007-build-tooling"
+    },
+    {
+      "blockers": [],
+      "id": "change-cpi-008-parity-docs-uar",
+      "implementation_status": "PENDING",
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "status": "PENDING",
+      "tasks_done": 0,
+      "tasks_total": 0,
+      "title": "change-cpi-008-parity-docs-uar"
+    }
   ],
-  "execute_started": true,
-  "goals_met": 9,
-  "goals_total": 9
+  "changes_completed": 0,
+  "changes_total": 8,
+  "children": {},
+  "completion": {
+    "certification": {
+      "blockers": [],
+      "status": "PENDING",
+      "summary": null
+    },
+    "evidence": {
+      "blockers": [],
+      "status": "PENDING",
+      "summary": null
+    },
+    "implementation": {
+      "completed": 0,
+      "status": "PENDING",
+      "total": 8
+    },
+    "primaryCounter": "implementation",
+    "publication": {
+      "blockers": [],
+      "status": "PENDING",
+      "summary": null
+    }
+  },
+  "generatedBy": "kbd-runtime",
+  "implementation_completed": 0,
+  "implementation_total": 8,
+  "last_updated": "2026-07-29T13:49:44.086428Z",
+  "last_updated_by": "kbd-runtime",
+  "migrationStatus": "legacy-read-only",
+  "parentPhase": null,
+  "phase": "phase-codex-plugin-implementation",
+  "phaseId": "phase-codex-plugin-implementation",
+  "schemaVersion": "2",
+  "sourceRevision": 7
 }

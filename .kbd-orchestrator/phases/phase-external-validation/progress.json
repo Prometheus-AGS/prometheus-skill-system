@@ -1,37 +1,40 @@
 {
-  "phase": "phase-external-validation",
-  "stage": "assess",
-  "changes_completed": 4,
-  "changes_total": 4,
-  "assessment_complete": true,
-  "analyze_complete": false,
-  "plan_complete": true,
-  "execute_complete": true,
-  "reflect_complete": true,
-  "last_updated": "2026-06-30",
-  "previous_phase": "phase-credibility-90",
-  "previous_phase_readiness": "92%",
-  "planned_changes": [
-    "quick-start guide (QUICK_START.md)",
-    "two-node sovereign-sync setup guide",
-    "sycophancy gate test corpus",
-    "GitHub discussion + updated evidence artifact"
-  ],
-  "blocking_gaps": ["BG-1 no quick-start", "BG-2 no external collaborator", "BG-3 no two-node setup guide", "BG-4 no sycophancy test corpus"],
-  "github_issue": "https://github.com/Prometheus-AGS/prometheus-skill-system/issues/14",
-  "deliverables": {
-    "change-extval-001": "docs/QUICK_START.md",
-    "change-extval-002": "tests/sycophancy-corpus/",
-    "change-extval-003": "docs/SOVEREIGN_SYNC_TESTING.md",
-    "change-extval-004": "GitHub Issue #14 + production-readiness-report.md updated"
+  "changes": [],
+  "changes_completed": 0,
+  "changes_total": 0,
+  "children": {},
+  "completion": {
+    "certification": {
+      "blockers": [],
+      "status": "PENDING",
+      "summary": null
+    },
+    "evidence": {
+      "blockers": [],
+      "status": "PENDING",
+      "summary": null
+    },
+    "implementation": {
+      "completed": 0,
+      "status": "PENDING",
+      "total": 0
+    },
+    "primaryCounter": "implementation",
+    "publication": {
+      "blockers": [],
+      "status": "PENDING",
+      "summary": null
+    }
   },
-  "sycophancy_score": 0.0,
-  "sycophancy_strictness": "strict",
-  "final_readiness": "92% (unchanged — no external evidence received)",
-  "goals_met": 0,
-  "goals_partial": 1,
-  "goals_not_met": 4,
-  "recommended_next_phase": "phase-first-user-onboarding (Path A) OR phase-forge-hardening (Path B)",
-  "next_stage": "complete",
-  "next_command": "/kbd-new-phase phase-first-user-onboarding"
+  "generatedBy": "kbd-runtime",
+  "implementation_completed": 0,
+  "implementation_total": 0,
+  "last_updated": "2026-07-29T13:49:44.086428Z",
+  "last_updated_by": "kbd-runtime",
+  "migrationStatus": "legacy-read-only",
+  "parentPhase": null,
+  "phase": "phase-external-validation",
+  "phaseId": "phase-external-validation",
+  "schemaVersion": "2",
+  "sourceRevision": 7
 }

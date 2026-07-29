@@ -1,22 +1,96 @@
 {
-  "phase": "phase-prometheus-research-ui",
-  "status": "complete",
-  "stage": "reflect",
-  "changes_completed": 5,
-  "changes_total": 5,
-  "goals_met": 5,
-  "goals_total": 5,
-  "assessment_complete": true,
-  "analysis_complete": false,
-  "plan_complete": true,
-  "reflect_complete": true,
-  "last_change": "change-prui-005-smoke-test",
   "changes": [
-    "change-prui-004-ci-workflow",
-    "change-prui-003-surface-bridge-wiring",
-    "change-prui-001-skill-md-update",
-    "change-prui-002-htmx-ui-real-sse",
-    "change-prui-005-smoke-test"
+    {
+      "blockers": [],
+      "id": "change-prui-004-ci-workflow",
+      "implementation_status": "PENDING",
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "status": "PENDING",
+      "tasks_done": 0,
+      "tasks_total": 0,
+      "title": "change-prui-004-ci-workflow"
+    },
+    {
+      "blockers": [],
+      "id": "change-prui-003-surface-bridge-wiring",
+      "implementation_status": "PENDING",
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "status": "PENDING",
+      "tasks_done": 0,
+      "tasks_total": 0,
+      "title": "change-prui-003-surface-bridge-wiring"
+    },
+    {
+      "blockers": [],
+      "id": "change-prui-001-skill-md-update",
+      "implementation_status": "PENDING",
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "status": "PENDING",
+      "tasks_done": 0,
+      "tasks_total": 0,
+      "title": "change-prui-001-skill-md-update"
+    },
+    {
+      "blockers": [],
+      "id": "change-prui-002-htmx-ui-real-sse",
+      "implementation_status": "PENDING",
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "status": "PENDING",
+      "tasks_done": 0,
+      "tasks_total": 0,
+      "title": "change-prui-002-htmx-ui-real-sse"
+    },
+    {
+      "blockers": [],
+      "id": "change-prui-005-smoke-test",
+      "implementation_status": "PENDING",
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "status": "PENDING",
+      "tasks_done": 0,
+      "tasks_total": 0,
+      "title": "change-prui-005-smoke-test"
+    }
   ],
-  "updatedAt": "2026-07-09T06:30:00Z"
+  "changes_completed": 0,
+  "changes_total": 5,
+  "children": {},
+  "completion": {
+    "certification": {
+      "blockers": [],
+      "status": "PENDING",
+      "summary": null
+    },
+    "evidence": {
+      "blockers": [],
+      "status": "PENDING",
+      "summary": null
+    },
+    "implementation": {
+      "completed": 0,
+      "status": "PENDING",
+      "total": 5
+    },
+    "primaryCounter": "implementation",
+    "publication": {
+      "blockers": [],
+      "status": "PENDING",
+      "summary": null
+    }
+  },
+  "generatedBy": "kbd-runtime",
+  "implementation_completed": 0,
+  "implementation_total": 5,
+  "last_updated": "2026-07-29T13:49:44.086428Z",
+  "last_updated_by": "kbd-runtime",
+  "migrationStatus": "legacy-read-only",
+  "parentPhase": null,
+  "phase": "phase-prometheus-research-ui",
+  "phaseId": "phase-prometheus-research-ui",
+  "schemaVersion": "2",
+  "sourceRevision": 7
 }

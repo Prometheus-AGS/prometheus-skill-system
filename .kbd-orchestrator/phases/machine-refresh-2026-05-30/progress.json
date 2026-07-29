@@ -1,81 +1,40 @@
 {
+  "changes": [],
+  "changes_completed": 0,
+  "changes_total": 0,
+  "children": {},
+  "completion": {
+    "certification": {
+      "blockers": [],
+      "status": "PENDING",
+      "summary": null
+    },
+    "evidence": {
+      "blockers": [],
+      "status": "PENDING",
+      "summary": null
+    },
+    "implementation": {
+      "completed": 0,
+      "status": "PENDING",
+      "total": 0
+    },
+    "primaryCounter": "implementation",
+    "publication": {
+      "blockers": [],
+      "status": "PENDING",
+      "summary": null
+    }
+  },
+  "generatedBy": "kbd-runtime",
+  "implementation_completed": 0,
+  "implementation_total": 0,
+  "last_updated": "2026-07-29T13:49:44.086428Z",
+  "last_updated_by": "kbd-runtime",
+  "migrationStatus": "legacy-read-only",
+  "parentPhase": null,
   "phase": "machine-refresh-2026-05-30",
-  "assessment_complete": true,
-  "plan_complete": true,
-  "assessment_path": ".kbd-orchestrator/phases/assess/machine-refresh-assessment-2026-05-30.md",
-  "plan_path": ".kbd-orchestrator/phases/machine-refresh-2026-05-30/plan.md",
-  "previous_phase": "machine-installation-2026-05-25",
-  "decisions": {
-    "pk_submodule": "keep-pinned-ee611fc",
-    "install_driver": "scripts/install-binaries.sh + prometheus setup --check as verify gate",
-    "claude_desktop_servers": ["forge-rs", "prometheus-knowledge", "liter-llm"]
-  },
-  "change_backend": "openspec",
-  "openspec_present": true,
-  "tool": "claude-code",
-  "model": "claude-opus-4-8",
-  "stage": "executing",
-  "changes_total": 5,
-  "changes_completed": 5,
-  "stage": "reflect_complete",
-  "reflection_path": ".kbd-orchestrator/phases/machine-refresh-2026-05-30/reflection.md",
-  "change_status": {
-    "change-refresh-001-pull-repo-and-submodules": "DONE",
-    "change-refresh-002-rebuild-and-reinstall-binaries": "DONE",
-    "change-refresh-003-reinstall-skills-all-platforms": "DONE",
-    "change-refresh-004-wire-claude-desktop-mcp": "DONE",
-    "change-refresh-005-verify-refresh": "DONE"
-  },
-  "change_005_result": {
-    "setup_check": "11/11 components healthy",
-    "doctor": "all checks passed; 9 agents detected; surreal-memory + KBD + trace store green",
-    "ports": {"8942": "ok", "8943": "ok", "8181": "ok"},
-    "binaries_fresh": {"prometheus": "06:27", "forge": "06:33", "pk-cherry": "06:34", "liter-llm": "06:38"},
-    "claude_desktop_servers": 16,
-    "submodules": {"liter-llm": "6e51609 (advanced)", "surreal-memory": "7072370 (advanced)", "prometheus-knowledge": "ee611fc (pinned)"}
-  },
-  "change_004_result": {
-    "backup": "claude_desktop_config.json.bak-2026-05-30",
-    "servers": "13 -> 16 (added forge-rs, prometheus-knowledge, liter-llm)",
-    "originals_intact": true,
-    "top_keys_preserved": ["mcpServers", "coworkUserFilesPath", "preferences"],
-    "wiring": "liter-llm=native stdio; forge-rs+prometheus-knowledge=npx mcp-remote SSE bridges",
-    "caveat": "Requires Claude Desktop app restart to load. Claude Desktop uses a restricted launch PATH — if it cannot find `npx` (under fnm) or `liter-llm` (~/.local/bin), those 3 servers may fail to start. Verify after restart; if so, use absolute paths in the command field."
-  },
-  "change_001_result": {
-    "repo_head": "eb3134b",
-    "liter_llm": "94601d1 -> 6e51609 (v1.1.1-561 -> v1.1.1-710)",
-    "surreal_memory": "95a83b6 -> 7072370",
-    "prometheus_knowledge": "ee611fc (pinned, unchanged)",
-    "note": "git submodule update --init --recursive reverted --remote updates; re-applied with --remote --init --recursive per submodule"
-  },
-  "change_002_result": {
-    "fix": "Upstream renamed cargo packages: forge->forge-cli, liter-llm->liter-llm-cli. Updated scripts/install-binaries.sh -p specs.",
-    "binaries_rebuilt": ["prometheus", "forge", "pk-cherry", "liter-llm", "template-forge", "template-forge-mcp"],
-    "liter_llm_version": "v1.4.0-rc.41",
-    "services_kickstarted": ["dev.prometheusags.forge-mcp (8943)", "dev.prometheusags.pk-mcp (8942)"],
-    "health": {"8943": "ok", "8942": "ok"},
-    "note": "forge-mcp needed ~8s to bind port after kickstart; forge mcp subcommand still accepts --port/--skills-root/--pk-mcp-url. liter-llm now uses api/mcp subcommands (matches .mcp.json 'mcp' wiring)."
-  },
-  "change_003_result": {
-    "installer_found": 88,
-    "platforms_installed": ["claude-code","opencode","cursor","codex","gemini","roo","windsurf","windsurf-legacy","amp","zed","antigravity","cline"],
-    "note": "88 prometheus skills now identical across all 13 targets. Raw dir counts still differ (codex 335 etc.) because installer is additive and those dirs hold skills from other sources; the 88-skill pack subset is converged."
-  },
-  "gaps": [
-    "G-PULL-1", "G-PULL-2", "G-PULL-3", "G-PULL-4",
-    "G-BUILD-1", "G-BUILD-2", "G-BUILD-3", "G-BUILD-4", "G-BUILD-5",
-    "G-SKILL-1", "G-SKILL-2",
-    "G-DESKTOP-1", "G-DESKTOP-2", "G-DESKTOP-3", "G-DESKTOP-4",
-    "G-VERIFY-1"
-  ],
-  "recommended_changes": [
-    "change-refresh-001-pull-repo-and-submodules",
-    "change-refresh-002-rebuild-and-reinstall-binaries",
-    "change-refresh-003-reinstall-skills-all-platforms",
-    "change-refresh-004-wire-claude-desktop-mcp",
-    "change-refresh-005-verify-refresh"
-  ],
-  "next_action": "Run /kbd-execute machine-refresh-2026-05-30 to dispatch change-refresh-001",
-  "updated": "2026-05-30T00:00:00Z"
+  "phaseId": "machine-refresh-2026-05-30",
+  "schemaVersion": "2",
+  "sourceRevision": 7
 }

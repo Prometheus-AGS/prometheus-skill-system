@@ -1,67 +1,74 @@
 {
-  "phase": "phase-a2ui-agui-artifact-refiner",
-  "assessment_complete": true,
-  "plan_complete": true,
-  "execution_started": true,
-  "execution_complete": true,
-  "execution_md_path": ".kbd-orchestrator/phases/phase-a2ui-agui-artifact-refiner/execution.md",
-  "changes_total": 3,
-  "changes_completed": 3,
-  "active_change": null,
   "changes": [
     {
+      "blockers": [],
       "id": "change-001-finish-a2ui-domain",
-      "status": "merged",
-      "remote_branch": "origin/finish-a2ui-domain",
-      "pr_url": "https://github.com/GQAdonis/artifact-refiner-skill/pull/1",
-      "merge_commit": "522d3da",
-      "merged_into": "origin/main",
-      "backend": "openspec",
-      "repo": "GQAdonis/artifact-refiner-skill",
-      "openspec_path": "skills/imported/artifact-refiner/openspec/changes/finish-a2ui-domain",
-      "depends_on": []
+      "implementation_status": "PENDING",
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "status": "PENDING",
+      "tasks_done": 0,
+      "tasks_total": 0,
+      "title": "change-001-finish-a2ui-domain"
     },
     {
+      "blockers": [],
       "id": "change-002-agui-spike-and-domain",
-      "status": "merged",
-      "remote_branch": "origin/agui-spike-and-domain",
-      "pr_url": "https://github.com/GQAdonis/artifact-refiner-skill/pull/2",
-      "merge_commit": "191608e",
-      "merged_into": "origin/main",
-      "tag": "v1.2.0",
-      "backend": "openspec",
-      "repo": "GQAdonis/artifact-refiner-skill",
-      "openspec_path": "skills/imported/artifact-refiner/openspec/changes/agui-spike-and-domain",
-      "spike_decision": "YES — PMPO fits; ship domain",
-      "verification": {
-        "schema_parses": true,
-        "positive_path_normalizer_exit_code": 0,
-        "negative_path_normalizer_exit_code": 1,
-        "negative_path_violations": ["duplicate_tool_name", "unresolved_tool_ref", "duplicate_emission_rule"],
-        "all_json_schemas_valid": true
-      },
-      "depends_on": ["change-001-finish-a2ui-domain"]
+      "implementation_status": "PENDING",
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "status": "PENDING",
+      "tasks_done": 0,
+      "tasks_total": 0,
+      "title": "change-002-agui-spike-and-domain"
     },
     {
+      "blockers": [],
       "id": "change-003-bump-artifact-refiner-pointer",
-      "status": "done",
-      "backend": "native-kbd",
-      "repo": "prometheus-skill-pack",
-      "kbd_path": ".kbd-orchestrator/changes/change-003-bump-artifact-refiner-pointer",
-      "commit": "2d4ccdb chore(submodules): bump artifact-refiner to v1.2.0 (A2UI + AG-UI domains)",
-      "submodule_sha": "191608e1f1780774f9adfa98266693c566f8866c",
-      "submodule_tag": "v1.2.0",
-      "verification": {
-        "submodule_status": "191608e1f1780774f9adfa98266693c566f8866c skills/imported/artifact-refiner (v1.2.0)",
-        "npm_validate_exit_code": 0,
-        "npm_validate_result": "80 skills valid, 0 errors",
-        "npm_build_exit_code": 0
-      },
-      "depends_on": ["change-002-agui-spike-and-domain"]
+      "implementation_status": "COMPLETE",
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "status": "DONE",
+      "tasks_done": 0,
+      "tasks_total": 0,
+      "title": "change-003-bump-artifact-refiner-pointer"
     }
   ],
-  "evolver_bridge": null,
-  "tool": "claude-code",
-  "model": "claude-sonnet-4-6",
-  "updated": "2026-05-09T00:00:00Z"
+  "changes_completed": 1,
+  "changes_total": 3,
+  "children": {},
+  "completion": {
+    "certification": {
+      "blockers": [],
+      "status": "PENDING",
+      "summary": null
+    },
+    "evidence": {
+      "blockers": [],
+      "status": "PENDING",
+      "summary": null
+    },
+    "implementation": {
+      "completed": 1,
+      "status": "IN_PROGRESS",
+      "total": 3
+    },
+    "primaryCounter": "implementation",
+    "publication": {
+      "blockers": [],
+      "status": "PENDING",
+      "summary": null
+    }
+  },
+  "generatedBy": "kbd-runtime",
+  "implementation_completed": 1,
+  "implementation_total": 3,
+  "last_updated": "2026-07-29T13:49:44.086428Z",
+  "last_updated_by": "kbd-runtime",
+  "migrationStatus": null,
+  "parentPhase": null,
+  "phase": "phase-a2ui-agui-artifact-refiner",
+  "phaseId": "phase-a2ui-agui-artifact-refiner",
+  "schemaVersion": "2",
+  "sourceRevision": 7
 }

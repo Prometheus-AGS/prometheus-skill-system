@@ -1,56 +1,96 @@
 {
-  "phase": "child-loops-and-capabilities",
-  "parentPhase": null,
-  "childPhases": [],
-  "childPointer": null,
-  "assessment_complete": true,
-  "plan_complete": true,
-  "execute_complete": true,
-  "reflect_complete": true,
-  "changes_total": 5,
-  "changes_completed": 5,
-  "completed_changes": [],
-  "active_change": null,
-  "blocked_changes": [],
-  "sourceTool": "claude-code",
-  "createdBy": "kbd-new-phase",
-  "updatedAt": "2026-06-12T12:51:32Z",
-  "backend": "native-kbd",
   "changes": [
     {
+      "blockers": [],
       "id": "change-001-waypoint-path",
+      "implementation_status": "COMPLETE",
+      "last_task_completed": null,
+      "next_task_pending": null,
       "status": "DONE",
-      "tasks_total": 3,
-      "tasks_done": 3,
-      "completed_by": "claude-code"
+      "tasks_done": 0,
+      "tasks_total": 0,
+      "title": "change-001-waypoint-path"
     },
     {
+      "blockers": [],
       "id": "change-002-depth-child",
+      "implementation_status": "COMPLETE",
+      "last_task_completed": null,
+      "next_task_pending": null,
       "status": "DONE",
-      "tasks_total": 4,
-      "tasks_done": 4,
-      "completed_by": "claude-code"
+      "tasks_done": 0,
+      "tasks_total": 0,
+      "title": "change-002-depth-child"
     },
     {
+      "blockers": [],
       "id": "change-003-child-exit-rollup",
+      "implementation_status": "COMPLETE",
+      "last_task_completed": null,
+      "next_task_pending": null,
       "status": "DONE",
-      "tasks_total": 3,
-      "tasks_done": 3,
-      "completed_by": "claude-code"
+      "tasks_done": 0,
+      "tasks_total": 0,
+      "title": "change-003-child-exit-rollup"
     },
     {
+      "blockers": [],
       "id": "change-004-child-scope-hook",
+      "implementation_status": "COMPLETE",
+      "last_task_completed": null,
+      "next_task_pending": null,
       "status": "DONE",
-      "tasks_total": 3,
-      "tasks_done": 3,
-      "completed_by": "claude-code"
+      "tasks_done": 0,
+      "tasks_total": 0,
+      "title": "change-004-child-scope-hook"
     },
     {
+      "blockers": [],
       "id": "change-005-apply-position-depth",
+      "implementation_status": "COMPLETE",
+      "last_task_completed": null,
+      "next_task_pending": null,
       "status": "DONE",
-      "tasks_total": 3,
-      "tasks_done": 3,
-      "completed_by": "claude-code"
+      "tasks_done": 0,
+      "tasks_total": 0,
+      "title": "change-005-apply-position-depth"
     }
-  ]
+  ],
+  "changes_completed": 5,
+  "changes_total": 5,
+  "children": {},
+  "completion": {
+    "certification": {
+      "blockers": [],
+      "status": "PENDING",
+      "summary": null
+    },
+    "evidence": {
+      "blockers": [],
+      "status": "PENDING",
+      "summary": null
+    },
+    "implementation": {
+      "completed": 5,
+      "status": "COMPLETE",
+      "total": 5
+    },
+    "primaryCounter": "implementation",
+    "publication": {
+      "blockers": [],
+      "status": "PENDING",
+      "summary": null
+    }
+  },
+  "generatedBy": "kbd-runtime",
+  "implementation_completed": 5,
+  "implementation_total": 5,
+  "last_updated": "2026-07-29T13:49:44.086428Z",
+  "last_updated_by": "kbd-runtime",
+  "migrationStatus": null,
+  "parentPhase": null,
+  "phase": "child-loops-and-capabilities",
+  "phaseId": "child-loops-and-capabilities",
+  "schemaVersion": "2",
+  "sourceRevision": 7
 }

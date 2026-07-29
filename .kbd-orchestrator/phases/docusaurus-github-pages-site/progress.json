@@ -1,140 +1,129 @@
 {
-  "phase": "docusaurus-github-pages-site",
-  "parentPhase": null,
-  "childPhases": [],
-  "childPointer": null,
-  "assessment_complete": true,
-  "plan_complete": true,
-  "execute_complete": true,
-  "reflect_complete": true,
-  "implementation_total": 8,
-  "implementation_completed": 8,
-  "changes_total": 8,
-  "changes_completed": 8,
-  "completion": {
-    "primaryCounter": "implementation",
-    "implementation": {
-      "completed": 8,
-      "total": 8,
-      "status": "COMPLETE"
-    },
-    "evidence": {
-      "status": "COMPLETE",
-      "summary": "per-change verification.md files + consolidated clean rebuild (140-skill catalog, 9-route sweep, search index)",
-      "blockers": []
-    },
-    "certification": {
-      "status": "COMPLETE",
-      "summary": "dgp-002/003/004/006 gate-certified; remaining 4 auto-skipped by policy (<3 files / docs-only). Pages deploy verified live 2026-07-28 (run 30277418174 success).",
-      "blockers": [],
-      "resolvedAtReflect": [
-        "operator: enable GitHub Pages (Source: GitHub Actions) \u2014 VERIFIED enabled, build_type=workflow",
-        "operator: brand decision for deferred dgp-009 \u2014 RECLASSIFIED: out-of-scope deferral, not a certification blocker (see reflection D-2)"
-      ],
-      "openItems": [
-        "dgp-004 manual review flagged at anti-theater soft cap was never performed (reflection D-5)"
-      ]
-    },
-    "publication": {
-      "status": "COMPLETE",
-      "summary": "Live at https://prometheus-ags.github.io/prometheus-skill-system/ \u2014 deploy run 30277418174 (build+deploy green) on commit d0143c2",
-      "blockers": []
-    }
-  },
-  "completed_changes": [],
-  "active_change": null,
-  "blocked_changes": [],
-  "sourceTool": "claude-code",
-  "createdBy": "kbd-new-phase",
-  "updatedAt": "2026-07-28T13:30:00Z",
-  "adversarial_review_assess": {
-    "verdict": "PASS",
-    "isolation_mode": "harness-native",
-    "findings": {
-      "CRITICAL": 0,
-      "WARNING": 4,
-      "SUGGESTION": 1
-    }
-  },
-  "adversarial_review_plan": {
-    "verdict": "PASS",
-    "rounds": 2,
-    "isolation_mode": "harness-native",
-    "findings": {
-      "CRITICAL": 1,
-      "WARNING": 5,
-      "SUGGESTION": 2
-    },
-    "all_applied": true
-  },
   "changes": [
     {
+      "blockers": [],
       "id": "change-dgp-001",
-      "implementation_status": "COMPLETE"
+      "implementation_status": "COMPLETE",
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "status": "DONE",
+      "tasks_done": 0,
+      "tasks_total": 0,
+      "title": "change-dgp-001"
     },
     {
+      "blockers": [],
       "id": "change-dgp-002",
-      "implementation_status": "COMPLETE"
+      "implementation_status": "COMPLETE",
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "status": "DONE",
+      "tasks_done": 0,
+      "tasks_total": 0,
+      "title": "change-dgp-002"
     },
     {
+      "blockers": [],
       "id": "change-dgp-003",
-      "implementation_status": "COMPLETE"
+      "implementation_status": "COMPLETE",
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "status": "DONE",
+      "tasks_done": 0,
+      "tasks_total": 0,
+      "title": "change-dgp-003"
     },
     {
+      "blockers": [],
       "id": "change-dgp-004",
-      "implementation_status": "COMPLETE"
+      "implementation_status": "COMPLETE",
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "status": "DONE",
+      "tasks_done": 0,
+      "tasks_total": 0,
+      "title": "change-dgp-004"
     },
     {
+      "blockers": [],
       "id": "change-dgp-005",
-      "implementation_status": "COMPLETE"
+      "implementation_status": "COMPLETE",
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "status": "DONE",
+      "tasks_done": 0,
+      "tasks_total": 0,
+      "title": "change-dgp-005"
     },
     {
+      "blockers": [],
       "id": "change-dgp-006",
-      "implementation_status": "COMPLETE"
+      "implementation_status": "COMPLETE",
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "status": "DONE",
+      "tasks_done": 0,
+      "tasks_total": 0,
+      "title": "change-dgp-006"
     },
     {
+      "blockers": [],
       "id": "change-dgp-007",
-      "implementation_status": "COMPLETE"
+      "implementation_status": "COMPLETE",
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "status": "DONE",
+      "tasks_done": 0,
+      "tasks_total": 0,
+      "title": "change-dgp-007"
     },
     {
+      "blockers": [],
       "id": "change-dgp-008",
-      "implementation_status": "COMPLETE"
+      "implementation_status": "COMPLETE",
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "status": "DONE",
+      "tasks_done": 0,
+      "tasks_total": 0,
+      "title": "change-dgp-008"
     }
   ],
-  "change_certifications": {
-    "change-dgp-002": {
-      "refine_validate": "PASS (checklist: yaml, pinned SHAs, least-privilege)",
-      "adversarial_review": "PASS (2 rounds, 1 CRITICAL fixed)",
-      "isolation_mode": "harness-native"
+  "changes_completed": 8,
+  "changes_total": 8,
+  "children": {},
+  "completion": {
+    "certification": {
+      "blockers": [],
+      "status": "PENDING",
+      "summary": null
     },
-    "change-dgp-003": {
-      "refine_validate": "PASS (build green under throw; routes verified; zero site/docs/guide files)",
-      "adversarial_review": "PASS (2 rounds at cap; 3 content bugs fixed incl. broken cd; 2 packet artifacts evidenced locally)",
-      "isolation_mode": "harness-native"
+    "evidence": {
+      "blockers": [],
+      "status": "PENDING",
+      "summary": null
     },
-    "change-dgp-004": {
-      "refine_validate": "PASS (build exit 0; internals route in build output)",
-      "adversarial_review": "PASS (1 judge round, 3 findings; anti-theater gate accepted at 2-rejection soft cap \u2014 S-03 fires on inline resolution annotations; flagged for manual review)",
-      "isolation_mode": "harness-native"
+    "implementation": {
+      "completed": 8,
+      "status": "COMPLETE",
+      "total": 8
     },
-    "change-dgp-006": {
-      "refine_validate": "PASS (140=140, idempotent, search-indexed, build exit 0)",
-      "adversarial_review": "PASS (1 round, 6 findings, all fixes applied; resolutions kept in verification.md per dgp-004 lesson)",
-      "isolation_mode": "harness-native"
+    "primaryCounter": "implementation",
+    "publication": {
+      "blockers": [],
+      "status": "PENDING",
+      "summary": null
     }
   },
-  "adversarial_review_assess_post": {
-    "verdict": "PASS",
-    "rounds": 1,
-    "isolation_mode": "harness-native",
-    "findings": {
-      "CRITICAL": 0,
-      "WARNING": 2,
-      "SUGGESTION": 1
-    },
-    "anti_theater_gate": "PASS (score=0.0, strictness=strict)",
-    "warnings_applied_to_artifact": true
-  },
-  "goals_total": 3,
-  "goals_met": 3
+  "generatedBy": "kbd-runtime",
+  "implementation_completed": 8,
+  "implementation_total": 8,
+  "last_updated": "2026-07-29T13:49:44.086428Z",
+  "last_updated_by": "kbd-runtime",
+  "migrationStatus": null,
+  "parentPhase": null,
+  "phase": "docusaurus-github-pages-site",
+  "phaseId": "docusaurus-github-pages-site",
+  "schemaVersion": "2",
+  "sourceRevision": 7
 }

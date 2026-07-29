@@ -1,56 +1,96 @@
 {
-  "phase": "outer-loop-and-ux",
-  "parentPhase": null,
-  "childPhases": [],
-  "childPointer": null,
-  "assessment_complete": true,
-  "plan_complete": true,
-  "execute_complete": true,
-  "reflect_complete": true,
-  "changes_total": 5,
-  "changes_completed": 5,
-  "completed_changes": [],
-  "active_change": null,
-  "blocked_changes": [],
-  "sourceTool": "claude-code",
-  "createdBy": "kbd-new-phase",
-  "updatedAt": "2026-06-12T13:55:36Z",
-  "backend": "native-kbd",
   "changes": [
     {
+      "blockers": [],
       "id": "change-001-path-scope-helper",
+      "implementation_status": "COMPLETE",
+      "last_task_completed": null,
+      "next_task_pending": null,
       "status": "DONE",
-      "tasks_total": 3,
-      "tasks_done": 3,
-      "completed_by": "claude-code"
+      "tasks_done": 0,
+      "tasks_total": 0,
+      "title": "change-001-path-scope-helper"
     },
     {
+      "blockers": [],
       "id": "change-002-skill-extract",
+      "implementation_status": "COMPLETE",
+      "last_task_completed": null,
+      "next_task_pending": null,
       "status": "DONE",
-      "tasks_total": 3,
-      "tasks_done": 3,
-      "completed_by": "claude-code"
+      "tasks_done": 0,
+      "tasks_total": 0,
+      "title": "change-002-skill-extract"
     },
     {
+      "blockers": [],
       "id": "change-003-nesting-docs",
+      "implementation_status": "COMPLETE",
+      "last_task_completed": null,
+      "next_task_pending": null,
       "status": "DONE",
-      "tasks_total": 3,
-      "tasks_done": 3,
-      "completed_by": "claude-code"
+      "tasks_done": 0,
+      "tasks_total": 0,
+      "title": "change-003-nesting-docs"
     },
     {
+      "blockers": [],
       "id": "change-004-outer-loop",
+      "implementation_status": "COMPLETE",
+      "last_task_completed": null,
+      "next_task_pending": null,
       "status": "DONE",
-      "tasks_total": 3,
-      "tasks_done": 3,
-      "completed_by": "claude-code"
+      "tasks_done": 0,
+      "tasks_total": 0,
+      "title": "change-004-outer-loop"
     },
     {
+      "blockers": [],
       "id": "change-005-dual-ux",
+      "implementation_status": "COMPLETE",
+      "last_task_completed": null,
+      "next_task_pending": null,
       "status": "DONE",
-      "tasks_total": 3,
-      "tasks_done": 3,
-      "completed_by": "claude-code"
+      "tasks_done": 0,
+      "tasks_total": 0,
+      "title": "change-005-dual-ux"
     }
-  ]
+  ],
+  "changes_completed": 5,
+  "changes_total": 5,
+  "children": {},
+  "completion": {
+    "certification": {
+      "blockers": [],
+      "status": "PENDING",
+      "summary": null
+    },
+    "evidence": {
+      "blockers": [],
+      "status": "PENDING",
+      "summary": null
+    },
+    "implementation": {
+      "completed": 5,
+      "status": "COMPLETE",
+      "total": 5
+    },
+    "primaryCounter": "implementation",
+    "publication": {
+      "blockers": [],
+      "status": "PENDING",
+      "summary": null
+    }
+  },
+  "generatedBy": "kbd-runtime",
+  "implementation_completed": 5,
+  "implementation_total": 5,
+  "last_updated": "2026-07-29T13:49:44.086428Z",
+  "last_updated_by": "kbd-runtime",
+  "migrationStatus": null,
+  "parentPhase": null,
+  "phase": "outer-loop-and-ux",
+  "phaseId": "outer-loop-and-ux",
+  "schemaVersion": "2",
+  "sourceRevision": 7
 }

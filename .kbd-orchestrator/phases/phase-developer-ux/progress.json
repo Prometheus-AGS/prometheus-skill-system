@@ -1,59 +1,40 @@
 {
-  "phase": "phase-developer-ux",
-  "started": "2026-04-29",
-  "tool": "claude-code",
-  "model": "claude-sonnet-4-6",
-  "assessment_complete": true,
-  "assessment_path": ".kbd-orchestrator/phases/phase-developer-ux/assessment.md",
-  "plan_complete": true,
-  "plan_path": ".kbd-orchestrator/phases/phase-developer-ux/plan.md",
-  "execution_started": true,
-  "change_backend": "native-kbd",
-  "execution_backend": "native-tool",
-  "changes_total": 3,
-  "changes_completed": 3,
-  "changes_log": [
-    {
-      "id": "change-001-strict-validator",
-      "status": "DONE",
-      "completed": "2026-04-29",
-      "gaps_closed": ["G3-A2"],
-      "files_changed": 2,
-      "commit": "6f34a64",
-      "qa_gate": "skipped (2 files — below threshold; all 3 acceptance criteria verified by live npm run)",
-      "archive": ".kbd-orchestrator/changes/archive/2026-04-29-change-001-strict-validator/"
+  "changes": [],
+  "changes_completed": 0,
+  "changes_total": 0,
+  "children": {},
+  "completion": {
+    "certification": {
+      "blockers": [],
+      "status": "PENDING",
+      "summary": null
     },
-    {
-      "id": "change-002-ideation-mindmap",
-      "status": "DONE",
-      "completed": "2026-04-29",
-      "gaps_closed": ["G2-H1"],
-      "files_changed": 2,
-      "commit": "a545923",
-      "qa_gate": "skipped (2 files — below threshold; all 4 acceptance criteria verified by live npm run)",
-      "archive": ".kbd-orchestrator/changes/archive/2026-04-29-change-002-ideation-mindmap/"
+    "evidence": {
+      "blockers": [],
+      "status": "PENDING",
+      "summary": null
     },
-    {
-      "id": "change-003-native-commands",
-      "status": "DONE",
-      "completed": "2026-04-29",
-      "gaps_closed": ["G1-B2"],
-      "files_changed": 3,
-      "commit": "c912728",
-      "qa_gate": "skipped (3 files — below threshold; end-to-end verified: npm run install:user generated 79 commands to ~/.claude/commands/)",
-      "archive": ".kbd-orchestrator/changes/archive/2026-04-29-change-003-native-commands/"
+    "implementation": {
+      "completed": 0,
+      "status": "PENDING",
+      "total": 0
+    },
+    "primaryCounter": "implementation",
+    "publication": {
+      "blockers": [],
+      "status": "PENDING",
+      "summary": null
     }
-  ],
-  "active_change": null,
-  "next_change": null,
-  "scope": [
-    "B2: Native commands/ directory for slash-commands (eliminate register-slash-commands.sh install step)",
-    "H1: ideation-mindmap skill — stage-zero onramp for /start-business-build",
-    "A2: Enforce version/license/metadata.tags in validator (strict mode forward-compat)"
-  ],
-  "phase_goals": [
-    "Migrate slash-commands to native commands/ directory format recognized by Claude Code and OpenCode",
-    "Create ideation-mindmap skill that generates a 6-branch concept tree via surreal-memory",
-    "Extend the skills validator to enforce version, license, and metadata.tags fields in strict mode"
-  ]
+  },
+  "generatedBy": "kbd-runtime",
+  "implementation_completed": 0,
+  "implementation_total": 0,
+  "last_updated": "2026-07-29T13:49:44.086428Z",
+  "last_updated_by": "kbd-runtime",
+  "migrationStatus": "legacy-read-only",
+  "parentPhase": null,
+  "phase": "phase-developer-ux",
+  "phaseId": "phase-developer-ux",
+  "schemaVersion": "2",
+  "sourceRevision": 7
 }

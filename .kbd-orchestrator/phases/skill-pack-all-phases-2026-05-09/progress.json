@@ -1,87 +1,40 @@
 {
+  "changes": [],
+  "changes_completed": 0,
+  "changes_total": 0,
+  "children": {},
+  "completion": {
+    "certification": {
+      "blockers": [],
+      "status": "PENDING",
+      "summary": null
+    },
+    "evidence": {
+      "blockers": [],
+      "status": "PENDING",
+      "summary": null
+    },
+    "implementation": {
+      "completed": 0,
+      "status": "PENDING",
+      "total": 0
+    },
+    "primaryCounter": "implementation",
+    "publication": {
+      "blockers": [],
+      "status": "PENDING",
+      "summary": null
+    }
+  },
+  "generatedBy": "kbd-runtime",
+  "implementation_completed": 0,
+  "implementation_total": 0,
+  "last_updated": "2026-07-29T13:49:44.086428Z",
+  "last_updated_by": "kbd-runtime",
+  "migrationStatus": "legacy-read-only",
+  "parentPhase": null,
   "phase": "skill-pack-all-phases-2026-05-09",
-  "active_sub_phase": null,
-  "assessment_complete": true,
-  "plan_complete": true,
-  "execution_complete": true,
-  "last_updated": "2026-05-09T22:30:00Z",
-  "last_updated_by": "claude-code",
-  "changes_total": 36,
-  "changes_completed": 36,
-  "phase_2": {
-    "name": "Boundary Conditions",
-    "changes_total": 7,
-    "changes_completed": 7,
-    "status": "done",
-    "changes": {
-      "change-001-sp008-per-project-kb-scoping": { "status": "done", "commit": "84aa366" },
-      "change-002-bdd005-testid-drift-detection": { "status": "done", "commit": "bf4176d" },
-      "change-003-bdd007-candidate-drafts-directory": { "status": "done", "commit": "f34fc58" },
-      "change-004-sp016-skill-description-collision": { "status": "done", "commit": "6d40af4" },
-      "change-005-sp001-claude-md-unification": { "status": "done", "commit": "202ad73 (skill-pack), 2594e6f (knowledge)" },
-      "change-006-sp014-subagent-fallback-verification": { "status": "done", "commit": "a374bd5" },
-      "change-007-sp007-trace-capture-verification": { "status": "done", "commit": "abd79c0" }
-    }
-  },
-  "phase_3": {
-    "name": "Foundational Architecture",
-    "changes_total": 2,
-    "changes_completed": 2,
-    "status": "done",
-    "changes": {
-      "change-008-bdd008-pk-codegraph-extraction": { "status": "done", "commit": "1564b18 (ssr-frontend), da2b120 (knowledge)" },
-      "change-009-sp019-librarian-event-persistence": { "status": "done", "commit": "f041b11 (knowledge)" }
-    }
-  },
-  "phase_4": {
-    "name": "Selective Execution Payoff",
-    "changes_total": 5,
-    "changes_completed": 5,
-    "status": "done",
-    "changes": {
-      "change-010-bdd009-runtime-coverage-merge": { "status": "done", "commit": "2673719 (ssr-frontend)" },
-      "change-011-bdd010-impact-set-runner": { "status": "done", "commit": "5b30a2a (ssr-frontend)" },
-      "change-012-bdd011-environment-hash": { "status": "done", "commit": "f3e2a96 (ssr-frontend)" },
-      "change-013-bdd012-two-phase-ci-gates": { "status": "done", "commit": "65f950d (ssr-frontend)" },
-      "change-014-sp020-memory-dual-store-separation": { "status": "done", "commit": "f8dce14 (knowledge)" }
-    }
-  },
-  "phase_5": {
-    "name": "Loop Closure",
-    "changes_total": 6,
-    "changes_completed": 6,
-    "status": "done",
-    "changes": {
-      "change-015-bdd013-story-feature-contract": { "status": "done", "commit": "0b7bd60 (ssr-frontend)" },
-      "change-016-bdd014-feedback-aggregation-docs": { "status": "done", "commit": "5ac10d8 (ssr-frontend)" },
-      "change-017-bdd015-feedback-to-draft-scenario": { "status": "done", "commit": "2558a4a (ssr-frontend)" },
-      "change-018-sp002-pk-focus-extraction-quality": { "status": "done", "commit": "206c5f7 (knowledge)" },
-      "change-019-sp004-pk-focus-context-sensitive": { "status": "done", "commit": "278b87c (knowledge)" },
-      "change-020-sp010-strict-json-parser": { "status": "done", "commit": "e903668 (knowledge)" }
-    }
-  },
-  "phase_6": {
-    "name": "Operational Hardening",
-    "changes_total": 16,
-    "changes_completed": 16,
-    "status": "done",
-    "changes": {
-      "change-021-sp012-pipeline-enforce-hook": { "status": "done", "commit": "cba92ac (skill-pack)" },
-      "change-022-sp011-cedar-skill-gate": { "status": "done", "commit": "557304a (skill-pack)" },
-      "change-023-sp018-doctor-command": { "status": "done", "commit": "7df2457 (knowledge)" },
-      "change-024-xc004-pk-init": { "status": "done", "commit": "1dc65c0 (knowledge)" },
-      "change-025-bdd004-video-proof-skill": { "status": "done", "commit": "ff076fd (skill-pack)" },
-      "change-026-bdd004-video-skill-productization": { "status": "done", "commit": "ff076fd (skill-pack)" },
-      "change-027-xc002-cross-model-qa-loop": { "status": "done", "commit": "27e04a3 (skill-pack)" },
-      "change-028-sp014-duplicate-skip": { "status": "done", "note": "duplicate of change-006; skipped" },
-      "change-029-sp021-mem0-compress-scheduled-job": { "status": "done", "commit": "79bb39b (skill-pack)" },
-      "change-030-sp009-pk-lint-scheduled-job": { "status": "done", "commit": "dba8af3 (skill-pack)" },
-      "change-031-sp003-pk-focus-result-caching": { "status": "done", "commit": "21651f0 (knowledge)" },
-      "change-032-sp005-pk-focus-inject-as-system-context": { "status": "done", "commit": "c523649 (knowledge)" },
-      "change-033-sp017-slash-command-merge": { "status": "done", "commit": "f567e9f (skill-pack), ee611fc (knowledge)" },
-      "change-034-bdd003-ipfs-pin-sweep": { "status": "done", "commit": "aa40765 (ssr-frontend)" },
-      "change-035-xc001-bug-fix-ledger": { "status": "done", "commit": "dba2594 (skill-pack)" },
-      "change-036-xc003-session-scratchpad-pattern": { "status": "done", "commit": "7049920 (skill-pack)" }
-    }
-  }
+  "phaseId": "skill-pack-all-phases-2026-05-09",
+  "schemaVersion": "2",
+  "sourceRevision": 7
 }

@@ -1,131 +1,96 @@
 {
-  "phase": "phase-sovereign-sync-hardening",
-  "parentPhase": null,
-  "childPhases": [],
-  "childPointer": null,
-  "assessment_complete": false,
-  "plan_complete": true,
-  "execute_complete": true,
-  "reflect_complete": true,
-  "changes_total": 5,
-  "changes_completed": 5,
   "changes": [
     {
+      "blockers": [],
       "id": "change-hardening-001-iroh-docs-share-import",
-      "title": "Iroh docs share/import sync regression",
-      "status": "done",
-      "backend": "openspec",
-      "driver": "kbd-apply",
-      "model_class": "frontier",
-      "tasks_total": 5,
-      "tasks_done": 5,
-      "completed_by": "codex",
-      "completed_at": "2026-06-29T13:00:43Z",
-      "verification": [
-        "cargo test (substrate/storage-provider): PASS, 26 tests",
-        "cargo test (substrate/sovereign-sync): PASS, 5 unit tests and 8 integration tests; pre-existing warnings only",
-        "openspec validate change-hardening-001-iroh-docs-share-import: PASS",
-        "openspec archive change-hardening-001-iroh-docs-share-import --yes: PASS"
-      ],
-      "archive_path": "openspec/changes/archive/2026-06-29-change-hardening-001-iroh-docs-share-import"
+      "implementation_status": "COMPLETE",
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "status": "DONE",
+      "tasks_done": 0,
+      "tasks_total": 0,
+      "title": "Iroh docs share/import sync regression"
     },
     {
+      "blockers": [],
       "id": "change-hardening-002-sovereign-sync-ci",
-      "title": "Sovereign-sync Rust CI",
-      "status": "done",
-      "backend": "openspec",
-      "driver": "kbd-apply",
-      "model_class": "small",
-      "tasks_total": 5,
-      "tasks_done": 5,
-      "completed_by": "codex",
-      "completed_at": "2026-06-29T13:14:21Z",
-      "verification": [
-        "ruby YAML parse .github/workflows/sovereign-sync.yml: PASS",
-        "cargo fmt --check, cargo clippy --all-targets --all-features, cargo test --all-targets --all-features: PASS for substrate/storage-provider",
-        "cargo fmt --check, cargo clippy --all-targets --all-features, cargo test --all-targets --all-features: PASS for substrate/sovereign-sync; warnings only",
-        "cargo fmt --check, cargo clippy --all-targets --all-features, cargo test --all-targets --all-features: PASS for substrate/sovereign-client",
-        "openspec validate change-hardening-002-sovereign-sync-ci: PASS",
-        "openspec archive change-hardening-002-sovereign-sync-ci --yes: PASS"
-      ],
-      "archive_path": "openspec/changes/archive/2026-06-29-change-hardening-002-sovereign-sync-ci"
+      "implementation_status": "COMPLETE",
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "status": "DONE",
+      "tasks_done": 0,
+      "tasks_total": 0,
+      "title": "Sovereign-sync Rust CI"
     },
     {
+      "blockers": [],
       "id": "change-hardening-003-mcp-client-pool-e2e",
-      "title": "McpClientPool end-to-end forwarding test",
-      "status": "done",
-      "backend": "openspec",
-      "driver": "kbd-apply",
-      "model_class": "frontier",
-      "tasks_total": 6,
-      "tasks_done": 6,
-      "completed_by": "codex",
-      "completed_at": "2026-06-29T14:09:22Z",
-      "verification": [
-        "cargo test mcp_client_pool -- --nocapture (substrate/sovereign-sync): PASS, 7 targeted tests",
-        "cargo fmt --check (substrate/sovereign-sync): PASS",
-        "cargo test (substrate/sovereign-sync): PASS, 9 unit tests and 8 integration tests; existing warnings only",
-        "openspec validate change-hardening-003-mcp-client-pool-e2e: PASS",
-        "openspec archive change-hardening-003-mcp-client-pool-e2e --yes: PASS"
-      ],
-      "archive_path": "openspec/changes/archive/2026-06-29-change-hardening-003-mcp-client-pool-e2e"
+      "implementation_status": "COMPLETE",
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "status": "DONE",
+      "tasks_done": 0,
+      "tasks_total": 0,
+      "title": "McpClientPool end-to-end forwarding test"
     },
     {
+      "blockers": [],
       "id": "change-hardening-004-docusaurus-brand-and-lock",
-      "title": "Docusaurus KnowMe brand tokens and package lock",
-      "status": "done",
-      "backend": "openspec",
-      "driver": "kbd-apply",
-      "model_class": "small",
-      "tasks_total": 5,
-      "tasks_done": 5,
-      "completed_by": "codex",
-      "completed_at": "2026-06-29T14:40:46Z",
-      "verification": [
-        "npm install --package-lock-only --ignore-scripts (site): PASS; npm audit reported 28 existing dependency advisories",
-        "npm run build (site): PASS; Docusaurus generated static files, with existing v4 deprecation warning for onBrokenMarkdownLinks",
-        "purple default palette scan (site/src/css/custom.css, site/docusaurus.config.js, site/package.json): PASS",
-        "openspec validate change-hardening-004-docusaurus-brand-and-lock --strict: PASS",
-        "openspec archive change-hardening-004-docusaurus-brand-and-lock --yes: PASS"
-      ],
-      "archive_path": "openspec/changes/archive/2026-06-29-change-hardening-004-docusaurus-brand-and-lock"
+      "implementation_status": "COMPLETE",
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "status": "DONE",
+      "tasks_done": 0,
+      "tasks_total": 0,
+      "title": "Docusaurus KnowMe brand tokens and package lock"
     },
     {
+      "blockers": [],
       "id": "change-hardening-005-daemon-health-detect-toolchain",
-      "title": "Sovereign-sync daemon health detection",
-      "status": "done",
-      "backend": "openspec",
-      "driver": "kbd-apply",
-      "model_class": "small",
-      "tasks_total": 5,
-      "tasks_done": 5,
-      "completed_by": "codex",
-      "completed_at": "2026-06-29T16:26:58Z",
-      "verification": [
-        "cargo fmt --check && cargo test (substrate/sovereign-sync): PASS, 12 unit tests and 8 integration tests; existing warnings only",
-        "bash -n shared/scripts/detect-toolchain.sh: PASS",
-        "bash shared/scripts/tests/test-detect-toolchain-sovereign-sync.sh: PASS, 4 fixture checks",
-        "bash shared/scripts/detect-toolchain.sh --json parse/smoke: PASS, sovereign-sync-daemon reported missing on current host",
-        "cargo run -- --mode status --format json: PASS, returned missing with exit code 1 on current host",
-        "openspec validate change-hardening-005-daemon-health-detect-toolchain --strict: PASS",
-        "openspec archive change-hardening-005-daemon-health-detect-toolchain --yes: PASS"
-      ],
-      "archive_path": "openspec/changes/archive/2026-06-29-change-hardening-005-daemon-health-detect-toolchain"
+      "implementation_status": "COMPLETE",
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "status": "DONE",
+      "tasks_done": 0,
+      "tasks_total": 0,
+      "title": "Sovereign-sync daemon health detection"
     }
   ],
-  "completed_changes": [
-    "change-hardening-001-iroh-docs-share-import",
-    "change-hardening-002-sovereign-sync-ci",
-    "change-hardening-003-mcp-client-pool-e2e",
-    "change-hardening-004-docusaurus-brand-and-lock",
-    "change-hardening-005-daemon-health-detect-toolchain"
-  ],
-  "active_change": null,
-  "blocked_changes": [],
-  "sourceTool": "unknown",
-  "createdBy": "kbd-new-phase",
-  "execution_backend": "openspec",
-  "execution_driver": "kbd-apply",
-  "execution_path": ".kbd-orchestrator/phases/phase-sovereign-sync-hardening/execution.md",
-  "updatedAt": "2026-06-29T16:26:58Z"
+  "changes_completed": 5,
+  "changes_total": 5,
+  "children": {},
+  "completion": {
+    "certification": {
+      "blockers": [],
+      "status": "PENDING",
+      "summary": null
+    },
+    "evidence": {
+      "blockers": [],
+      "status": "PENDING",
+      "summary": null
+    },
+    "implementation": {
+      "completed": 5,
+      "status": "COMPLETE",
+      "total": 5
+    },
+    "primaryCounter": "implementation",
+    "publication": {
+      "blockers": [],
+      "status": "PENDING",
+      "summary": null
+    }
+  },
+  "generatedBy": "kbd-runtime",
+  "implementation_completed": 5,
+  "implementation_total": 5,
+  "last_updated": "2026-07-29T13:49:44.086428Z",
+  "last_updated_by": "kbd-runtime",
+  "migrationStatus": null,
+  "parentPhase": null,
+  "phase": "phase-sovereign-sync-hardening",
+  "phaseId": "phase-sovereign-sync-hardening",
+  "schemaVersion": "2",
+  "sourceRevision": 7
 }

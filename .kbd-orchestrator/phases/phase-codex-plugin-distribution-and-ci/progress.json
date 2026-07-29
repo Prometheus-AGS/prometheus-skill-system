@@ -1,35 +1,107 @@
 {
-  "phase": "phase-codex-plugin-distribution-and-ci",
-  "parentPhase": null,
-  "childPhases": [],
-  "childPointer": null,
-  "assessment_complete": true,
-  "plan_complete": true,
-  "execute_complete": true,
-  "reflect_complete": true,
-  "changes_total": 6,
-  "changes_completed": 6,
-  "completed_changes": [
-    "change-cpd-001-constraints",
-    "change-cpd-002-ci-validate-codex",
-    "change-cpd-003-install-platforms-build-codex",
-    "change-cpd-004-generator-git-sources",
-    "change-cpd-005-env-provisioning-helper",
-    "change-cpd-006-hook-trust-verification"
-  ],
-  "active_change": null,
-  "blocked_changes": [],
-  "sourceTool": "unknown",
-  "createdBy": "kbd-new-phase",
-  "updatedAt": "2026-07-12T13:19:40Z",
   "changes": [
-    "change-cpd-001-constraints",
-    "change-cpd-002-ci-validate-codex",
-    "change-cpd-003-install-platforms-build-codex",
-    "change-cpd-004-generator-git-sources",
-    "change-cpd-005-env-provisioning-helper",
-    "change-cpd-006-hook-trust-verification"
+    {
+      "blockers": [],
+      "id": "change-cpd-001-constraints",
+      "implementation_status": "PENDING",
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "status": "PENDING",
+      "tasks_done": 0,
+      "tasks_total": 0,
+      "title": "change-cpd-001-constraints"
+    },
+    {
+      "blockers": [],
+      "id": "change-cpd-002-ci-validate-codex",
+      "implementation_status": "PENDING",
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "status": "PENDING",
+      "tasks_done": 0,
+      "tasks_total": 0,
+      "title": "change-cpd-002-ci-validate-codex"
+    },
+    {
+      "blockers": [],
+      "id": "change-cpd-003-install-platforms-build-codex",
+      "implementation_status": "PENDING",
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "status": "PENDING",
+      "tasks_done": 0,
+      "tasks_total": 0,
+      "title": "change-cpd-003-install-platforms-build-codex"
+    },
+    {
+      "blockers": [],
+      "id": "change-cpd-004-generator-git-sources",
+      "implementation_status": "PENDING",
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "status": "PENDING",
+      "tasks_done": 0,
+      "tasks_total": 0,
+      "title": "change-cpd-004-generator-git-sources"
+    },
+    {
+      "blockers": [],
+      "id": "change-cpd-005-env-provisioning-helper",
+      "implementation_status": "PENDING",
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "status": "PENDING",
+      "tasks_done": 0,
+      "tasks_total": 0,
+      "title": "change-cpd-005-env-provisioning-helper"
+    },
+    {
+      "blockers": [],
+      "id": "change-cpd-006-hook-trust-verification",
+      "implementation_status": "PENDING",
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "status": "PENDING",
+      "tasks_done": 0,
+      "tasks_total": 0,
+      "title": "change-cpd-006-hook-trust-verification"
+    }
   ],
-  "goals_met": 6,
-  "goals_total": 6
+  "changes_completed": 0,
+  "changes_total": 6,
+  "children": {},
+  "completion": {
+    "certification": {
+      "blockers": [],
+      "status": "PENDING",
+      "summary": null
+    },
+    "evidence": {
+      "blockers": [],
+      "status": "PENDING",
+      "summary": null
+    },
+    "implementation": {
+      "completed": 0,
+      "status": "PENDING",
+      "total": 6
+    },
+    "primaryCounter": "implementation",
+    "publication": {
+      "blockers": [],
+      "status": "PENDING",
+      "summary": null
+    }
+  },
+  "generatedBy": "kbd-runtime",
+  "implementation_completed": 0,
+  "implementation_total": 6,
+  "last_updated": "2026-07-29T13:49:44.086428Z",
+  "last_updated_by": "kbd-runtime",
+  "migrationStatus": "legacy-read-only",
+  "parentPhase": null,
+  "phase": "phase-codex-plugin-distribution-and-ci",
+  "phaseId": "phase-codex-plugin-distribution-and-ci",
+  "schemaVersion": "2",
+  "sourceRevision": 7
 }

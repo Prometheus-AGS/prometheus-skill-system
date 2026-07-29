@@ -1,69 +1,74 @@
 {
-  "phase": "phase-ci-cross-model-qa-and-hardening",
-  "stage": "reflect",
-  "assessment_complete": true,
-  "analyze_complete": false,
-  "plan_complete": true,
-  "changes_total": 3,
-  "changes_completed": 3,
-  "goals_total": 3,
-  "goals_met": 3,
-  "goals": [
-    "Green or retire cross-model-qa.yml (startup_failure on push, unbadged)",
-    "Replace deprecated forge-mcp bearer auth with constant-time subtle::ConstantTimeEq validator",
-    "Pin local stable Rust toolchain (tools/forge-rs/rust-toolchain.toml) to match CI"
-  ],
-  "gaps": [
-    {
-      "id": "GAP-A",
-      "goal": "cross-model-qa",
-      "cause": "workflow startup_failure (parse/config); workflow_dispatch-only + unbadged; real GitHub error TBD (OQ-A1); fix-vs-retire + missing ANTHROPIC_API_KEY open",
-      "severity": "low"
-    },
-    {
-      "id": "GAP-B",
-      "goal": "bearer auth",
-      "cause": "tower-http 0.6 deprecated non-constant-time ValidateRequestHeaderLayer::bearer at forge-mcp lib.rs:83; add subtle + custom ValidateRequest",
-      "severity": "medium"
-    },
-    {
-      "id": "GAP-C",
-      "goal": "toolchain pin",
-      "cause": "no rust-toolchain.toml; local nightly vs CI stable mismatch",
-      "severity": "low"
-    }
-  ],
-  "open_questions": [
-    "OQ-A1: read GitHub's actual cross-model-qa startup error (actionlint / Actions UI); PyYAML line-130 guess may be false",
-    "OQ-A2: fix vs retire cross-model-qa",
-    "OQ-A3: is ANTHROPIC_API_KEY set as a repo secret?",
-    "GAP-C: confirm no nightly-only features before pinning stable"
-  ],
-  "last_updated": "2026-07-03",
   "changes": [
     {
+      "blockers": [],
       "id": "change-hard-001",
-      "title": "pin local stable Rust toolchain (rust-toolchain.toml)",
-      "gap": "GAP-C",
-      "risk": "low",
-      "status": "done"
+      "implementation_status": "COMPLETE",
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "status": "DONE",
+      "tasks_done": 0,
+      "tasks_total": 0,
+      "title": "pin local stable Rust toolchain (rust-toolchain.toml)"
     },
     {
+      "blockers": [],
       "id": "change-hard-002",
-      "title": "fix cross-model-qa.yml block-scalar parse error",
-      "gap": "GAP-A",
-      "risk": "low",
-      "status": "done"
+      "implementation_status": "COMPLETE",
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "status": "DONE",
+      "tasks_done": 0,
+      "tasks_total": 0,
+      "title": "fix cross-model-qa.yml block-scalar parse error"
     },
     {
+      "blockers": [],
       "id": "change-hard-003",
-      "title": "constant-time forge-mcp bearer auth (subtle::ConstantTimeEq)",
-      "gap": "GAP-B",
-      "risk": "medium-high",
-      "status": "done"
+      "implementation_status": "COMPLETE",
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "status": "DONE",
+      "tasks_done": 0,
+      "tasks_total": 0,
+      "title": "constant-time forge-mcp bearer auth (subtle::ConstantTimeEq)"
     }
   ],
-  "reflect_complete": true,
-  "sycophancy_gate": 0.0,
-  "status": "reflect_complete"
+  "changes_completed": 3,
+  "changes_total": 3,
+  "children": {},
+  "completion": {
+    "certification": {
+      "blockers": [],
+      "status": "PENDING",
+      "summary": null
+    },
+    "evidence": {
+      "blockers": [],
+      "status": "PENDING",
+      "summary": null
+    },
+    "implementation": {
+      "completed": 3,
+      "status": "COMPLETE",
+      "total": 3
+    },
+    "primaryCounter": "implementation",
+    "publication": {
+      "blockers": [],
+      "status": "PENDING",
+      "summary": null
+    }
+  },
+  "generatedBy": "kbd-runtime",
+  "implementation_completed": 3,
+  "implementation_total": 3,
+  "last_updated": "2026-07-29T13:49:44.086428Z",
+  "last_updated_by": "kbd-runtime",
+  "migrationStatus": null,
+  "parentPhase": null,
+  "phase": "phase-ci-cross-model-qa-and-hardening",
+  "phaseId": "phase-ci-cross-model-qa-and-hardening",
+  "schemaVersion": "2",
+  "sourceRevision": 7
 }

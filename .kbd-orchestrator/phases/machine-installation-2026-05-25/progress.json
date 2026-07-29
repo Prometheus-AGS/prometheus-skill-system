@@ -1,71 +1,40 @@
 {
-  "phase": "machine-installation-2026-05-25",
-  "started": "2026-05-25",
-  "tool": "claude-code",
-  "model": "claude-sonnet-4-6",
-  "assessment_complete": true,
-  "assessment_path": ".kbd-orchestrator/phases/assess/machine-installation-assessment-2026-05-25.md",
-  "plan_complete": true,
-  "plan_path": ".kbd-orchestrator/phases/machine-installation-2026-05-25/plan.md",
-  "change_backend": "openspec",
-  "changes_total": 5,
-  "changes_completed": 5,
-  "changes_log": [
-    {
-      "id": "change-install-001-build-and-install-binaries",
-      "status": "DONE",
-      "completed": "2026-05-25",
-      "gaps_closed": ["G-BIN-1", "G-BIN-2", "G-SVC-3"],
-      "depends_on": [],
-      "qa_gate": "skipped (binary install, no source files)",
-      "notes": "Built pk-cherry (pk-mcp server), liter-llm, forge-mcp (via forge build). Discovered pk-cherry is the server binary for prometheus-knowledge MCP (not pk-mcp directly). Installed forge, pk-cherry, liter-llm, prometheus to ~/.local/bin/"
+  "changes": [],
+  "changes_completed": 0,
+  "changes_total": 0,
+  "children": {},
+  "completion": {
+    "certification": {
+      "blockers": [],
+      "status": "PENDING",
+      "summary": null
     },
-    {
-      "id": "change-install-002-launchd-plists-forge-and-pk",
-      "status": "DONE",
-      "completed": "2026-05-25",
-      "gaps_closed": ["G-SVC-1", "G-SVC-2"],
-      "depends_on": ["change-install-001-build-and-install-binaries"],
-      "qa_gate": "skipped (2 plist files, config-only)",
-      "notes": "Created dev.prometheusags.forge-mcp.plist (forge mcp --port 8943) and dev.prometheusags.pk-mcp.plist (pk-cherry --bind 127.0.0.1:8942). Both loaded and healthy — forge-mcp: {status:ok}, pk-mcp: {status:ok, entry_count:0}"
+    "evidence": {
+      "blockers": [],
+      "status": "PENDING",
+      "summary": null
     },
-    {
-      "id": "change-install-003-install-skills-all-platforms",
-      "status": "DONE",
-      "completed": "2026-05-25",
-      "gaps_closed": ["G-SKILL-1", "G-SKILL-2", "G-SKILL-3", "G-SKILL-4", "G-INST-4"],
-      "depends_on": [],
-      "qa_gate": "skipped (1 file changed, script only)",
-      "notes": "Added zed target to install-skills-flat.sh. Ran script: 81 skills installed to claude-code, opencode, cursor, codex, gemini, roo, windsurf, cline, zed. Old repo-level symlinks removed."
+    "implementation": {
+      "completed": 0,
+      "status": "PENDING",
+      "total": 0
     },
-    {
-      "id": "change-install-004-wire-mcp-all-tools",
-      "status": "DONE",
-      "completed": "2026-05-25",
-      "gaps_closed": ["G-MCP-1", "G-MCP-2", "G-MCP-3"],
-      "depends_on": ["change-install-002-launchd-plists-forge-and-pk"],
-      "qa_gate": "skipped (3 config files, no source changes)",
-      "notes": "Added forge-rs, prometheus-knowledge, sycophancy-correction, liter-llm to opencode (opencode.json mcp block), codex (config.toml mcp_servers), and zed (settings.json context_servers). surreal-memory was already present in all 3."
-    },
-    {
-      "id": "change-install-005-prometheus-setup-command",
-      "status": "DONE",
-      "completed": "2026-05-25",
-      "gaps_closed": ["G-INST-1", "G-INST-2", "G-INST-3"],
-      "depends_on": [],
-      "qa_gate": "passed (3 tests: component_status_needs_action_only_for_gap_states, component_status_labels_are_non_empty, setup_state_path_ends_with_expected_filename)",
-      "notes": "Added commands/setup.rs with run(non_interactive, dry_run, check) — detects Docker/launchd/binary/port per component. Registered in mod.rs and main.rs. prometheus setup --check shows all 9 components healthy. setup-state.json written to ~/.prometheus/setup-state.json."
+    "primaryCounter": "implementation",
+    "publication": {
+      "blockers": [],
+      "status": "PENDING",
+      "summary": null
     }
-  ],
-  "active_change": null,
-  "next_pending_change": null,
-  "phase_complete": true,
-  "scope": [
-    "Build pk-mcp, liter-llm, forge-mcp binaries",
-    "Install all project binaries to ~/.local/bin/",
-    "launchd plists for forge-mcp (8943) and pk-mcp (8942)",
-    "install-skills-flat.sh with zed support + global run",
-    "MCP wiring for opencode, codex, zed",
-    "prometheus setup subcommand"
-  ]
+  },
+  "generatedBy": "kbd-runtime",
+  "implementation_completed": 0,
+  "implementation_total": 0,
+  "last_updated": "2026-07-29T13:49:44.086428Z",
+  "last_updated_by": "kbd-runtime",
+  "migrationStatus": "legacy-read-only",
+  "parentPhase": null,
+  "phase": "machine-installation-2026-05-25",
+  "phaseId": "machine-installation-2026-05-25",
+  "schemaVersion": "2",
+  "sourceRevision": 7
 }

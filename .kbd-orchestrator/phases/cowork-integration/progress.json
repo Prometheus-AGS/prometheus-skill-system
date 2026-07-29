@@ -1,15 +1,40 @@
 {
+  "changes": [],
+  "changes_completed": 0,
+  "changes_total": 0,
+  "children": {},
+  "completion": {
+    "certification": {
+      "blockers": [],
+      "status": "PENDING",
+      "summary": null
+    },
+    "evidence": {
+      "blockers": [],
+      "status": "PENDING",
+      "summary": null
+    },
+    "implementation": {
+      "completed": 0,
+      "status": "PENDING",
+      "total": 0
+    },
+    "primaryCounter": "implementation",
+    "publication": {
+      "blockers": [],
+      "status": "PENDING",
+      "summary": null
+    }
+  },
+  "generatedBy": "kbd-runtime",
+  "implementation_completed": 0,
+  "implementation_total": 0,
+  "last_updated": "2026-07-29T13:49:44.086428Z",
+  "last_updated_by": "kbd-runtime",
+  "migrationStatus": "legacy-read-only",
+  "parentPhase": null,
   "phase": "cowork-integration",
-  "status": "reflect_complete",
-  "stage": "complete",
-  "goals_total": 5,
-  "goals_met": 4,
-  "changes_total": 24,
-  "changes_completed": 24,
-  "assessment_complete": true,
-  "analysis_complete": true,
-  "plan_complete": true,
-  "sycophancy_gate": "passed",
-  "createdAt": "2026-07-03T21:07:22Z",
-  "updatedAt": "2026-07-04T20:30:00Z"
+  "phaseId": "cowork-integration",
+  "schemaVersion": "2",
+  "sourceRevision": 7
 }

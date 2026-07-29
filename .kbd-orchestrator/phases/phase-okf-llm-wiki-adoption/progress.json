@@ -1,30 +1,40 @@
 {
-  "phase": "phase-okf-llm-wiki-adoption",
+  "changes": [],
+  "changes_completed": 0,
+  "changes_total": 0,
+  "children": {},
+  "completion": {
+    "certification": {
+      "blockers": [],
+      "status": "PENDING",
+      "summary": null
+    },
+    "evidence": {
+      "blockers": [],
+      "status": "PENDING",
+      "summary": null
+    },
+    "implementation": {
+      "completed": 0,
+      "status": "PENDING",
+      "total": 0
+    },
+    "primaryCounter": "implementation",
+    "publication": {
+      "blockers": [],
+      "status": "PENDING",
+      "summary": null
+    }
+  },
+  "generatedBy": "kbd-runtime",
+  "implementation_completed": 0,
+  "implementation_total": 0,
+  "last_updated": "2026-07-29T13:49:44.086428Z",
+  "last_updated_by": "kbd-runtime",
+  "migrationStatus": "legacy-read-only",
   "parentPhase": null,
-  "childPhases": [],
-  "childPointer": null,
-  "assessment_complete": true,
-  "plan_complete": true,
-  "execute_complete": true,
-  "reflect_complete": true,
-  "changes_total": 8,
-  "changes_completed": 8,
-  "completed_changes": [
-    "change-okf-001-vendor-specs",
-    "change-okf-002-pk-workspace-baseline",
-    "change-okf-003-permissive-okf-parser",
-    "change-okf-004-okf-writer-and-id-mapping",
-    "change-okf-005-index-log-and-body-links",
-    "change-okf-006-okf-lint",
-    "change-okf-007-llm-wiki-skills",
-    "change-okf-008-integration-verification"
-  ],
-  "active_change": null,
-  "blocked_changes": [],
-  "sourceTool": "unknown",
-  "createdBy": "kbd-new-phase",
-  "updatedAt": "2026-07-02T17:16:00Z",
-  "last_updated_by": "claude-code",
-  "last_updated": "2026-07-02T17:16:00Z",
-  "notes": "change-okf-007 completed by a parallel session (archived, skills/documentation/llm-wiki/ created); verified here: passes npm run validate:strict, references match the real pk/knowledge_* commands and the OKF format implemented in changes 003-005. Reconciled into count 2026-07-02."
+  "phase": "phase-okf-llm-wiki-adoption",
+  "phaseId": "phase-okf-llm-wiki-adoption",
+  "schemaVersion": "2",
+  "sourceRevision": 7
 }

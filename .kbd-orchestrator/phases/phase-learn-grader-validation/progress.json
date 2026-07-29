@@ -1,24 +1,118 @@
 {
-  "phase": "phase-learn-grader-validation",
-  "status": "reflect_complete",
-  "stage": "reflect",
-  "changes_completed": 7,
-  "changes_total": 7,
-  "goals_met": 6,
-  "goals_total": 6,
-  "assessment_complete": true,
-  "analysis_complete": false,
-  "plan_complete": true,
-  "reflect_complete": true,
-  "last_change": "change-lgv-007-regression-test-and-docs",
   "changes": [
-    "change-lgv-001-third-domain-corpus",
-    "change-lgv-002-eval-explanations",
-    "change-lgv-003-dataset-schema-and-index",
-    "change-lgv-004-grading-harness",
-    "change-lgv-005-compute-metrics",
-    "change-lgv-006-tune-grader",
-    "change-lgv-007-regression-test-and-docs"
+    {
+      "blockers": [],
+      "id": "change-lgv-001-third-domain-corpus",
+      "implementation_status": "PENDING",
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "status": "PENDING",
+      "tasks_done": 0,
+      "tasks_total": 0,
+      "title": "change-lgv-001-third-domain-corpus"
+    },
+    {
+      "blockers": [],
+      "id": "change-lgv-002-eval-explanations",
+      "implementation_status": "PENDING",
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "status": "PENDING",
+      "tasks_done": 0,
+      "tasks_total": 0,
+      "title": "change-lgv-002-eval-explanations"
+    },
+    {
+      "blockers": [],
+      "id": "change-lgv-003-dataset-schema-and-index",
+      "implementation_status": "PENDING",
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "status": "PENDING",
+      "tasks_done": 0,
+      "tasks_total": 0,
+      "title": "change-lgv-003-dataset-schema-and-index"
+    },
+    {
+      "blockers": [],
+      "id": "change-lgv-004-grading-harness",
+      "implementation_status": "PENDING",
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "status": "PENDING",
+      "tasks_done": 0,
+      "tasks_total": 0,
+      "title": "change-lgv-004-grading-harness"
+    },
+    {
+      "blockers": [],
+      "id": "change-lgv-005-compute-metrics",
+      "implementation_status": "PENDING",
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "status": "PENDING",
+      "tasks_done": 0,
+      "tasks_total": 0,
+      "title": "change-lgv-005-compute-metrics"
+    },
+    {
+      "blockers": [],
+      "id": "change-lgv-006-tune-grader",
+      "implementation_status": "PENDING",
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "status": "PENDING",
+      "tasks_done": 0,
+      "tasks_total": 0,
+      "title": "change-lgv-006-tune-grader"
+    },
+    {
+      "blockers": [],
+      "id": "change-lgv-007-regression-test-and-docs",
+      "implementation_status": "PENDING",
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "status": "PENDING",
+      "tasks_done": 0,
+      "tasks_total": 0,
+      "title": "change-lgv-007-regression-test-and-docs"
+    }
   ],
-  "updatedAt": "2026-07-16T22:45:00Z"
+  "changes_completed": 0,
+  "changes_total": 7,
+  "children": {},
+  "completion": {
+    "certification": {
+      "blockers": [],
+      "status": "PENDING",
+      "summary": null
+    },
+    "evidence": {
+      "blockers": [],
+      "status": "PENDING",
+      "summary": null
+    },
+    "implementation": {
+      "completed": 0,
+      "status": "PENDING",
+      "total": 7
+    },
+    "primaryCounter": "implementation",
+    "publication": {
+      "blockers": [],
+      "status": "PENDING",
+      "summary": null
+    }
+  },
+  "generatedBy": "kbd-runtime",
+  "implementation_completed": 0,
+  "implementation_total": 7,
+  "last_updated": "2026-07-29T13:49:44.086428Z",
+  "last_updated_by": "kbd-runtime",
+  "migrationStatus": "legacy-read-only",
+  "parentPhase": null,
+  "phase": "phase-learn-grader-validation",
+  "phaseId": "phase-learn-grader-validation",
+  "schemaVersion": "2",
+  "sourceRevision": 7
 }

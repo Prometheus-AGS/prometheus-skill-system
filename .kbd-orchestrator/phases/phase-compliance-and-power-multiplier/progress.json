@@ -1,130 +1,40 @@
 {
-  "phase": "phase-compliance-and-power-multiplier",
-  "started": "2026-04-28",
-  "tool": "claude-code",
-  "model": "claude-opus-4-7",
-  "assessment_complete": true,
-  "plan_complete": true,
-  "execution_started": true,
-  "plan_path": ".kbd-orchestrator/phases/phase-compliance-and-power-multiplier/plan.md",
-  "execution_path": ".kbd-orchestrator/phases/phase-compliance-and-power-multiplier/execution.md",
-  "assessment_path": ".kbd-orchestrator/phases/phase-compliance-and-power-multiplier/assessment.md",
-  "change_backend": "native-kbd",
-  "execution_backend": "native-tool",
-  "changes_total": 8,
-  "changes_completed": 8,
-  "changes_log": [
-    {
-      "id": "change-001-compliance-quickfixes",
-      "status": "DONE",
-      "completed": "2026-04-28",
-      "gaps_closed": ["A1 (resolved as non-issue)", "A3", "B1"],
-      "files_changed": 4,
-      "qa_gate": "skipped (config-only, validator-as-QA)",
-      "archive": ".kbd-orchestrator/changes/archive/2026-04-28-change-001-compliance-quickfixes/"
+  "changes": [],
+  "changes_completed": 0,
+  "changes_total": 0,
+  "children": {},
+  "completion": {
+    "certification": {
+      "blockers": [],
+      "status": "PENDING",
+      "summary": null
     },
-    {
-      "id": "change-002-toolchain-bootstrap",
-      "status": "DONE",
-      "completed": "2026-04-28",
-      "gaps_closed": ["F1", "F2", "F3", "F4"],
-      "files_changed": 3,
-      "qa_gate": "skipped (script/config, validator + bash -n + live exec as QA)",
-      "archive": ".kbd-orchestrator/changes/archive/2026-04-28-change-002-toolchain-bootstrap/",
-      "p0": true,
-      "post_correction": "wasm target was wasm32-wasip2 in change-002; corrected to wasm32-unknown-unknown by change-003 after LibreFang source inspection showed core wasmtime (not Component Model)"
+    "evidence": {
+      "blockers": [],
+      "status": "PENDING",
+      "summary": null
     },
-    {
-      "id": "change-003-librefang-wasm-skill",
-      "status": "DONE",
-      "completed": "2026-04-29",
-      "gaps_closed": ["G1"],
-      "files_changed": 17,
-      "lines_added": 1450,
-      "qa_gate": "skipped (live cargo build + symbol-presence verification supersede artifact-refiner for templates)",
-      "archive": ".kbd-orchestrator/changes/archive/2026-04-29-change-003-librefang-wasm-skill/",
-      "p0": true,
-      "key_correction": "Target changed from wasm32-wasip2 (proposal) to wasm32-unknown-unknown (verified). LibreFang uses wasmtime::Module + Linker, not Component Model — wasip2 components fail to link. All downstream changes (004, 005) updated to match.",
-      "build_verified": "82 KB echo.wasm builds cleanly with all required Guest ABI exports"
+    "implementation": {
+      "completed": 0,
+      "status": "PENDING",
+      "total": 0
     },
-    {
-      "id": "change-004-native-agent-wasm-target",
-      "status": "DONE",
-      "completed": "2026-04-29",
-      "gaps_closed": ["G2", "E1", "E3"],
-      "files_changed": 10,
-      "lines_added": 385,
-      "qa_gate": "skipped (templates only; ABI proven in change-003)",
-      "archive": ".kbd-orchestrator/changes/archive/2026-04-29-change-004-native-agent-wasm-target/",
-      "p0": true
-    },
-    {
-      "id": "change-005-package-and-upload",
-      "status": "DONE",
-      "completed": "2026-04-29",
-      "gaps_closed": ["G3", "H4", "G4", "G5"],
-      "files_changed": 8,
-      "lines_added": 950,
-      "qa_gate": "security-reviewer (in-process), 7 findings all addressed",
-      "archive": ".kbd-orchestrator/changes/archive/2026-04-29-change-005-package-and-upload/",
-      "p0": true,
-      "scope_decision": "Shipped skill specs + upload script + orchestrator + Rust subcommand spec. Actual `forge package-librefang` Rust impl queued for phase-librefang-wasm-onramp (effort overflow). Stage 6 of /start-business-build prints manual fallback when subcommand absent — pipeline still runs end-to-end."
-    },
-    {
-      "id": "change-006-karpathy-loop-hooks",
-      "status": "DONE",
-      "completed": "2026-04-29",
-      "gaps_closed": ["C1", "C2", "A4"],
-      "files_changed": 7,
-      "lines_added": 120,
-      "qa_gate": "spec-reviewer + code-quality-reviewer (in-session subagents); 2 important fixes applied (portable timeout, correct length-sort)",
-      "archive": ".kbd-orchestrator/changes/archive/2026-04-29-change-006-karpathy-loop-hooks/"
-    },
-    {
-      "id": "change-007-opencode-real-plugin",
-      "status": "DONE",
-      "completed": "2026-04-29",
-      "gaps_closed": ["D1", "D2", "D3"],
-      "files_changed": 5,
-      "lines_added": 172,
-      "qa_gate": "tsc --noEmit (clean) + npm run validate (0 errors); commit beefed3",
-      "key_decisions": "tool() Zod wrappers delegate to old execute() fns; old tool files untouched; opencode.json auto-written by installer",
-      "post_correction": "Installer was overwriting ~/.opencode/opencode.json; fixed in commit 83748e3 to merge-into instead. Global scope uses absolute path (resolves relative to ~/.opencode/). Idempotent."
-    },
-    {
-      "id": "change-008-rustbpe-skill",
-      "status": "DONE",
-      "completed": "2026-04-29",
-      "gaps_closed": ["E2"],
-      "files_changed": 5,
-      "lines_added": 755,
-      "qa_gate": "npm run validate:skill skills/rust/karpathy-tokenizer (0 errors, 0 warnings); commit 6a970d2",
-      "key_decisions": "rustbpe 0.1.0 is Python-only (PyO3); skill documents Python training → tiktoken export → Rust runtime pattern; templates are .py.tera + .rs.tera (not .rs.tera only)"
+    "primaryCounter": "implementation",
+    "publication": {
+      "blockers": [],
+      "status": "PENDING",
+      "summary": null
     }
-  ],
-  "active_change": null,
-  "next_change": null,
-  "phase_complete": true,
-  "p0_completed": 4,
-  "p0_status": "ALL P0 COMPLETE — ready for remote verification on 2026-05-05",
-  "scope": [
-    "agentskills.io v2026 compliance",
-    "Claude Code marketplace + plugin.json",
-    "hooks.json semantics",
-    "opencode plugin compatibility",
-    "Karpathy rust toolchain integration",
-    "Auto-bootstrap of Rust + submodule build tooling",
-    "LibreFang fork WASM packaging + bossfang URL upload",
-    "ideation->plan->implement->dynamic-tool power-multiplier flow",
-    "Web-research-backed productivity impact"
-  ],
-  "p0_count": 6,
-  "p1_count": 6,
-  "p2_count": 7,
-  "p3_count": 5,
-  "scheduled_verification": {
-    "routine_id": "trig_01MK1jtQZj3z1mQ7joETevuJ",
-    "fires_at": "2026-05-05T14:00:00Z",
-    "url": "https://claude.ai/code/routines/trig_01MK1jtQZj3z1mQ7joETevuJ"
-  }
+  },
+  "generatedBy": "kbd-runtime",
+  "implementation_completed": 0,
+  "implementation_total": 0,
+  "last_updated": "2026-07-29T13:49:44.086428Z",
+  "last_updated_by": "kbd-runtime",
+  "migrationStatus": "legacy-read-only",
+  "parentPhase": null,
+  "phase": "phase-compliance-and-power-multiplier",
+  "phaseId": "phase-compliance-and-power-multiplier",
+  "schemaVersion": "2",
+  "sourceRevision": 7
 }

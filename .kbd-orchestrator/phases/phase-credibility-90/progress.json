@@ -1,22 +1,40 @@
 {
+  "changes": [],
+  "changes_completed": 0,
+  "changes_total": 0,
+  "children": {},
+  "completion": {
+    "certification": {
+      "blockers": [],
+      "status": "PENDING",
+      "summary": null
+    },
+    "evidence": {
+      "blockers": [],
+      "status": "PENDING",
+      "summary": null
+    },
+    "implementation": {
+      "completed": 0,
+      "status": "PENDING",
+      "total": 0
+    },
+    "primaryCounter": "implementation",
+    "publication": {
+      "blockers": [],
+      "status": "PENDING",
+      "summary": null
+    }
+  },
+  "generatedBy": "kbd-runtime",
+  "implementation_completed": 0,
+  "implementation_total": 0,
+  "last_updated": "2026-07-29T13:49:44.086428Z",
+  "last_updated_by": "kbd-runtime",
+  "migrationStatus": "legacy-read-only",
+  "parentPhase": null,
   "phase": "phase-credibility-90",
-  "stage": "reflect",
-  "changes_completed": 5,
-  "changes_total": 5,
-  "assessment_complete": true,
-  "analyze_complete": true,
-  "plan_complete": true,
-  "execute_complete": true,
-  "reflect_complete": true,
-  "last_updated": "2026-06-30",
-  "previous_phase": "phase-credibility-closure",
-  "previous_phase_readiness": "78%",
-  "final_readiness": "92%",
-  "sycophancy_score": 0.0,
-  "sycophancy_strictness": "strict",
-  "oq01_resolved": true,
-  "re_audit_findings_closed": 5,
-  "workspace_tests_passing": 44,
-  "next_stage": "complete",
-  "next_command": "/kbd-new-phase phase-external-validation"
+  "phaseId": "phase-credibility-90",
+  "schemaVersion": "2",
+  "sourceRevision": 7
 }

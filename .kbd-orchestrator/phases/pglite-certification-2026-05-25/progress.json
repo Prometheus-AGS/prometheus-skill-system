@@ -1,53 +1,40 @@
 {
-  "phase": "pglite-certification-2026-05-25",
-  "started": "2026-05-25",
-  "tool": "claude-code",
-  "model": "claude-sonnet-4-6",
-  "assessment_complete": true,
-  "assessment_path": ".kbd-orchestrator/phases/assess/pglite-certification-assessment-2026-05-25.md",
-  "plan_complete": true,
-  "plan_path": ".kbd-orchestrator/phases/pglite-certification-2026-05-25/plan.md",
-  "change_backend": "openspec",
-  "changes_total": 3,
-  "changes_completed": 3,
-  "changes_log": [
-    {
-      "id": "change-pglite-001-skill-compatibility-and-version",
-      "status": "DONE",
-      "completed": "2026-05-25",
-      "gaps_closed": ["G1", "G2"],
-      "files_changed": 1,
-      "qa_gate": "skipped (1 file, doc-only edit + npm run validate:strict passed)",
-      "notes": "Added compatibility field and version callout to entity-realtime-local-first/SKILL.md"
+  "changes": [],
+  "changes_completed": 0,
+  "changes_total": 0,
+  "children": {},
+  "completion": {
+    "certification": {
+      "blockers": [],
+      "status": "PENDING",
+      "summary": null
     },
-    {
-      "id": "change-pglite-002-realtime-plugin-json-license",
-      "status": "DONE",
-      "completed": "2026-05-25",
-      "gaps_closed": ["G3"],
-      "files_changed": 1,
-      "qa_gate": "skipped (1 file, JSON-only edit + python3 -m json.tool passed)",
-      "notes": "Added license: MIT to entity-graph-realtime/.claude-plugin/plugin.json"
+    "evidence": {
+      "blockers": [],
+      "status": "PENDING",
+      "summary": null
     },
-    {
-      "id": "change-pglite-003-top-level-keywords-opencode-bump",
-      "status": "DONE",
-      "completed": "2026-05-25",
-      "gaps_closed": ["G4", "G5"],
-      "files_changed": 2,
-      "qa_gate": "skipped (2 files, config-only + JSON valid + npm run validate:strict passed)",
-      "notes": "Added pglite/electricsql to top-level plugin.json keywords; bumped @opencode-ai/plugin and @opencode-ai/sdk to ^1.15.0"
+    "implementation": {
+      "completed": 0,
+      "status": "PENDING",
+      "total": 0
+    },
+    "primaryCounter": "implementation",
+    "publication": {
+      "blockers": [],
+      "status": "PENDING",
+      "summary": null
     }
-  ],
-  "active_change": null,
-  "next_pending_change": null,
-  "phase_complete": true,
-  "scope": [
-    "PGLite skill certification polish",
-    "agentskills.io compatibility field",
-    "ElectricSQL version pinning",
-    "entity-graph-realtime plugin.json license",
-    "top-level plugin.json pglite/electricsql keywords",
-    "opencode dependency bump to ^1.15.0"
-  ]
+  },
+  "generatedBy": "kbd-runtime",
+  "implementation_completed": 0,
+  "implementation_total": 0,
+  "last_updated": "2026-07-29T13:49:44.086428Z",
+  "last_updated_by": "kbd-runtime",
+  "migrationStatus": "legacy-read-only",
+  "parentPhase": null,
+  "phase": "pglite-certification-2026-05-25",
+  "phaseId": "pglite-certification-2026-05-25",
+  "schemaVersion": "2",
+  "sourceRevision": 7
 }

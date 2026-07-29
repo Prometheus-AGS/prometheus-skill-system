@@ -1,56 +1,96 @@
 {
-  "phase": "canonical-lifecycle",
-  "parentPhase": null,
-  "childPhases": [],
-  "childPointer": null,
-  "assessment_complete": true,
-  "plan_complete": true,
-  "execute_complete": true,
-  "reflect_complete": true,
-  "changes_total": 5,
-  "changes_completed": 5,
-  "completed_changes": [],
-  "active_change": null,
-  "blocked_changes": [],
-  "sourceTool": "claude-code",
-  "createdBy": "kbd-new-phase",
-  "updatedAt": "2026-06-11T22:27:21Z",
-  "backend": "native-kbd",
   "changes": [
     {
+      "blockers": [],
       "id": "change-001-native-kbd-backend",
+      "implementation_status": "COMPLETE",
+      "last_task_completed": null,
+      "next_task_pending": null,
       "status": "DONE",
-      "tasks_total": 5,
-      "tasks_done": 5,
-      "completed_by": "claude-code"
+      "tasks_done": 0,
+      "tasks_total": 0,
+      "title": "change-001-native-kbd-backend"
     },
     {
+      "blockers": [],
       "id": "change-002-position-sync-wiring",
+      "implementation_status": "COMPLETE",
+      "last_task_completed": null,
+      "next_task_pending": null,
       "status": "DONE",
-      "tasks_total": 3,
-      "tasks_done": 3,
-      "completed_by": "claude-code"
+      "tasks_done": 0,
+      "tasks_total": 0,
+      "title": "change-002-position-sync-wiring"
     },
     {
+      "blockers": [],
       "id": "change-003-kbd-spec-stage",
+      "implementation_status": "COMPLETE",
+      "last_task_completed": null,
+      "next_task_pending": null,
       "status": "DONE",
-      "tasks_total": 3,
-      "tasks_done": 3,
-      "completed_by": "claude-code"
+      "tasks_done": 0,
+      "tasks_total": 0,
+      "title": "change-003-kbd-spec-stage"
     },
     {
+      "blockers": [],
       "id": "change-004-kbd-analyze-stage",
+      "implementation_status": "COMPLETE",
+      "last_task_completed": null,
+      "next_task_pending": null,
       "status": "DONE",
-      "tasks_total": 4,
-      "tasks_done": 4,
-      "completed_by": "claude-code"
+      "tasks_done": 0,
+      "tasks_total": 0,
+      "title": "change-004-kbd-analyze-stage"
     },
     {
+      "blockers": [],
       "id": "change-005-pmpo-elicit",
+      "implementation_status": "COMPLETE",
+      "last_task_completed": null,
+      "next_task_pending": null,
       "status": "DONE",
-      "tasks_total": 3,
-      "tasks_done": 3,
-      "completed_by": "claude-code"
+      "tasks_done": 0,
+      "tasks_total": 0,
+      "title": "change-005-pmpo-elicit"
     }
-  ]
+  ],
+  "changes_completed": 5,
+  "changes_total": 5,
+  "children": {},
+  "completion": {
+    "certification": {
+      "blockers": [],
+      "status": "PENDING",
+      "summary": null
+    },
+    "evidence": {
+      "blockers": [],
+      "status": "PENDING",
+      "summary": null
+    },
+    "implementation": {
+      "completed": 5,
+      "status": "COMPLETE",
+      "total": 5
+    },
+    "primaryCounter": "implementation",
+    "publication": {
+      "blockers": [],
+      "status": "PENDING",
+      "summary": null
+    }
+  },
+  "generatedBy": "kbd-runtime",
+  "implementation_completed": 5,
+  "implementation_total": 5,
+  "last_updated": "2026-07-29T13:49:44.086428Z",
+  "last_updated_by": "kbd-runtime",
+  "migrationStatus": null,
+  "parentPhase": null,
+  "phase": "canonical-lifecycle",
+  "phaseId": "canonical-lifecycle",
+  "schemaVersion": "2",
+  "sourceRevision": 7
 }
