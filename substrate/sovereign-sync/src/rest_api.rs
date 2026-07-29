@@ -77,7 +77,12 @@ impl AppState {
         let project_root = discover_project_root(skills_dir);
         let quorum = QuorumPolicy::new(1, [1])?;
         let kbd_control = Arc::new(KbdControlPlane::open(&project_root, quorum).await?);
-        Self::from_control_plane(skills_dir, kbd_control, p2p)
+        let learner_model_dir = dirs_next::home_dir()
+            .unwrap_or_else(|| PathBuf::from("."))
+            .join(".prometheus")
+            .join("learn")
+            .join("learner-model");
+        Self::from_control_plane(skills_dir, kbd_control, learner_model_dir, p2p)
     }
 
     pub async fn try_new_at(
@@ -89,12 +94,13 @@ impl AppState {
         let quorum = QuorumPolicy::new(1, [1])?;
         let kbd_control =
             Arc::new(KbdControlPlane::open_at(project_root, data_root, quorum).await?);
-        Self::from_control_plane(skills_dir, kbd_control, p2p)
+        Self::from_control_plane(skills_dir, kbd_control, learner_model_dir_at(data_root), p2p)
     }
 
     fn from_control_plane(
         skills_dir: &Path,
         kbd_control: Arc<KbdControlPlane>,
+        learner_model_dir: PathBuf,
         p2p: Option<Arc<P2PNode>>,
     ) -> anyhow::Result<Self> {
         let bearer_token: Arc<str> = kbd_control.runtime().control_token()?.into();
@@ -105,14 +111,9 @@ impl AppState {
             "skill-index".to_string(),
             Box::new(SkillIndexAdapter::new(skill_index.clone())),
         );
-        let learner_dir = dirs_next::home_dir()
-            .unwrap_or_else(|| PathBuf::from("."))
-            .join(".prometheus")
-            .join("learn")
-            .join("learner-model");
         adapters.insert(
             "learner-model".to_string(),
-            Box::new(LearnerModelAdapter::new(learner_dir, default_learner_id())),
+            Box::new(LearnerModelAdapter::new(learner_model_dir, default_learner_id())),
         );
         adapters.insert(
             "kbd-control".to_string(),
@@ -142,11 +143,23 @@ impl AppState {
 }
 
 /// Best-effort default learner identity for the `learner-model` domain when
-/// no per-learner scoping has been configured — the local OS user.
-fn default_learner_id() -> String {
+/// no per-learner scoping has been configured — the local OS user. `pub` so
+/// integration tests can seed/read the same storage key the adapter itself
+/// uses, without duplicating the env-var fallback logic.
+pub fn default_learner_id() -> String {
     std::env::var("USER")
         .or_else(|_| std::env::var("USERNAME"))
         .unwrap_or_else(|_| "local-learner".into())
+}
+
+/// Where `AppState::try_new_at`'s `learner-model` adapter stores its CRDT
+/// document, scoped under the caller's `data_root` (mirrors `kbd_control`'s
+/// own scoping) so tests using separate `TempDir`s per node get isolated
+/// storage instead of silently sharing (and mutating) the same directory.
+/// `pub` so integration tests can point their own `LearnerModelStore` at the
+/// exact path the adapter uses, to seed/assert content directly.
+pub fn learner_model_dir_at(data_root: &Path) -> PathBuf {
+    data_root.join("learn").join("learner-model")
 }
 
 /// Best-effort device identity for the `kbd-control` presence domain — derived from
@@ -370,11 +383,15 @@ pub async fn build_push_envelope(
         });
     }
 
-    let identity = state
-        .kbd_control
-        .status()
-        .ok()
-        .map(|status| status.project_id);
+    // Must match handle_incoming_message's per-family `local_identity` check
+    // exactly, or every push for that family is silently dropped as a false
+    // identity mismatch on the receiving side (kbd-control scopes by
+    // project_id; learner-model scopes by learner_id, not project_id).
+    let identity = match family.as_str() {
+        "kbd-control" => state.kbd_control.status().ok().map(|status| status.project_id),
+        "learner-model" => Some(default_learner_id()),
+        _ => None,
+    };
     Ok(PushOutcome::Broadcast {
         envelope: SyncEnvelope {
             schema_version: "1".into(),

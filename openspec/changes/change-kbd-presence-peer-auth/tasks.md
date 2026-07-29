@@ -1,6 +1,6 @@
 # Tasks
 
-- [ ] Decide the authentication source: reuse `KbdStateV2.devices` (enrolled
+- [x] Decide the authentication source: reuse `KbdStateV2.devices` (enrolled
       signer keys) vs. a new P2P-endpoint-to-trust mapping
 - [ ] Thread a real `peer_authorized: bool` from `handle_incoming_message`
       into the `kbd-control` domain's merge path
