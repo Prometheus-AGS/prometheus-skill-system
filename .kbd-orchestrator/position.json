@@ -1,7 +1,7 @@
 {
   "cursor": [
     "sovereign-sync-domain-adapters",
-    "plan"
+    "execute"
   ],
   "generatedBy": "kbd-runtime",
   "root": {
@@ -2372,11 +2372,39 @@
       {
         "annotations": [],
         "canonicalId": "sovereign-sync-domain-adapters",
-        "children": [],
+        "children": [
+          {
+            "id": "change-kbd-presence-peer-auth",
+            "progress": {
+              "done": 1,
+              "total": 5
+            },
+            "status": "PENDING",
+            "type": "change"
+          },
+          {
+            "id": "change-learner-model-e2e-test",
+            "progress": {
+              "done": 4,
+              "total": 4
+            },
+            "status": "COMPLETE",
+            "type": "change"
+          },
+          {
+            "id": "change-verify-p2p-transport",
+            "progress": {
+              "done": 0,
+              "total": 0
+            },
+            "status": "PENDING",
+            "type": "change"
+          }
+        ],
         "id": "sovereign-sync-domain-adapters",
         "progress": {
-          "done": 0,
-          "total": 0
+          "done": 1,
+          "total": 3
         },
         "status": "PENDING",
         "type": "phase"
@@ -2384,13 +2412,13 @@
     ],
     "id": "6ac090a4-3656-4d83-8eb6-2891508196d5",
     "progress": {
-      "done": 142,
-      "total": 194
+      "done": 143,
+      "total": 197
     },
     "status": "completed",
     "type": "phase"
   },
   "schemaVersion": "1",
-  "sourceRevision": 11,
-  "updatedAt": "2026-07-29T15:00:36.078504Z"
+  "sourceRevision": 36,
+  "updatedAt": "2026-07-29T16:38:10.166728Z"
 }

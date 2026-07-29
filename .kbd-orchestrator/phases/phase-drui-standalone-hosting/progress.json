@@ -96,12 +96,12 @@
   "generatedBy": "kbd-runtime",
   "implementation_completed": 0,
   "implementation_total": 6,
-  "last_updated": "2026-07-29T15:00:36.078504Z",
+  "last_updated": "2026-07-29T16:38:10.166728Z",
   "last_updated_by": "kbd-runtime",
   "migrationStatus": "legacy-read-only",
   "parentPhase": null,
   "phase": "phase-drui-standalone-hosting",
   "phaseId": "phase-drui-standalone-hosting",
   "schemaVersion": "2",
-  "sourceRevision": 11
+  "sourceRevision": 36
 }

@@ -6,8 +6,8 @@
   "currentTask": null,
   "exactNextCommand": "/kbd-assess sovereign-sync-domain-adapters",
   "generatedBy": "kbd-runtime",
-  "implementationCompleted": 142,
-  "implementationTotal": 194,
+  "implementationCompleted": 143,
+  "implementationTotal": 197,
   "path": [
     "sovereign-sync-domain-adapters"
   ],
@@ -17,10 +17,10 @@
   ],
   "planRevision": 1,
   "projectId": "6ac090a4-3656-4d83-8eb6-2891508196d5",
-  "revision": 11,
+  "revision": 36,
   "runId": "docusaurus-github-pages-site-20260729T111742Z",
   "schemaVersion": "5",
-  "sourceRevision": 11,
+  "sourceRevision": 36,
   "status": "completed",
-  "updatedAt": "2026-07-29T15:00:36.078504Z"
+  "updatedAt": "2026-07-29T16:38:10.166728Z"
 }
