@@ -1,6 +1,7 @@
 {
   "cursor": [
-    "sovereign-sync-domain-adapters"
+    "sovereign-sync-domain-adapters",
+    "assess"
   ],
   "generatedBy": "kbd-runtime",
   "root": {
@@ -2390,6 +2391,6 @@
     "type": "phase"
   },
   "schemaVersion": "1",
-  "sourceRevision": 7,
-  "updatedAt": "2026-07-29T13:49:44.086428Z"
+  "sourceRevision": 9,
+  "updatedAt": "2026-07-29T14:51:07.187361Z"
 }
