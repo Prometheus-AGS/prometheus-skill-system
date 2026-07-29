@@ -99,15 +99,15 @@ PROGRESS LEDGER
 
 - [PENDING] change-verify-p2p-transport — manual (operator); not started,
   needs the user to drive the laptop side
-- [BLOCKED] change-kbd-presence-peer-auth — SELF; 1 of 5 tasks done (auth
-  source decision). Paused: no existing binding between P2P gossip peers
-  and enrolled devices exists in this codebase (is_peer_authorized governs
-  Raft consensus voters, a different subsystem, and this project's Raft is
-  single-voter standalone so it would never authorize a real gossip sender).
-  See decision `change-kbd-presence-peer-auth-paused-no-gossip-trust` in
-  `prometheus kbd audit`. Needs a user architecture decision on the
-  gossip-peer trust scheme before resuming at task 2. Zero code changed —
-  domains.rs/kbd_raft.rs reverted to pre-change state.
+- [DONE] change-kbd-presence-peer-auth — SELF; all 5 tasks complete. User
+  chose device-key-signed SyncEnvelope (kbd_runtime::DeviceSigner, the same
+  Ed25519 identity Event signing already uses) over building new
+  Raft-membership-based trust after the original approach was found to
+  authorize the wrong subsystem (see decisions
+  `change-kbd-presence-peer-auth-paused-no-gossip-trust` and
+  `...-resolved-device-signed-envelopes` in `prometheus kbd audit`).
+  53/53 sovereign-sync tests pass (incl. 8 new focused auth unit tests).
+  Archived.
 - [DONE] change-learner-model-e2e-test — SELF; all 4 tasks complete,
   cargo test -p sovereign-sync green (45/45). Not yet archived — QA gate
   pending (see task #6).
