@@ -357,8 +357,9 @@ install_learn_substrate() {
         # Install binary to ~/.local/bin
         local bin_dir="$HOME/.local/bin"
         mkdir -p "$bin_dir"
-        cp -f "$substrate_dir/learner-model/target/release/learner-model" "$bin_dir/learner-model" 2>/dev/null && \
-            echo "  ✅ learn-substrate: learner-model installed to $bin_dir/learner-model" || true
+        if cp -f "$substrate_dir/learner-model/target/release/learner-model" "$bin_dir/learner-model" 2>/dev/null; then
+            echo "  ✅ learn-substrate: learner-model installed to $bin_dir/learner-model"
+        fi
     else
         echo "  ⚠️  learn-substrate: learner-model build failed (non-fatal)"
     fi
@@ -384,8 +385,9 @@ install_learn_substrate() {
         echo "  ✅ learn-substrate: sovereign-sync built"
         local bin_dir="$HOME/.local/bin"
         mkdir -p "$bin_dir"
-        cp -f "$substrate_dir/sovereign-sync/target/release/sovereign-sync" "$bin_dir/sovereign-sync" 2>/dev/null && \
-            echo "  ✅ learn-substrate: sovereign-sync installed to $bin_dir/sovereign-sync" || true
+        if cp -f "$substrate_dir/sovereign-sync/target/release/sovereign-sync" "$bin_dir/sovereign-sync" 2>/dev/null; then
+            echo "  ✅ learn-substrate: sovereign-sync installed to $bin_dir/sovereign-sync"
+        fi
     else
         echo "  ⚠️  learn-substrate: sovereign-sync build failed (non-fatal)"
     fi
