@@ -6,116 +6,161 @@ sidebar_label: MCP Tools
 
 # MCP Tools
 
-When running as `--mode mcp` (default when configured via `mcp-servers.json`), sovereign-sync
-exposes 4 tools to any MCP-compatible harness.
+In `--mode mcp`, Sovereign Sync exposes fourteen tools: four local
+discovery/sync tools and ten KBD control tools.
 
 ## Configuration
 
-Add to `~/.claude/mcp-servers.json`:
-
 ```json
 {
   "sovereign-sync": {
-    "command": "/Users/you/.local/bin/sovereign-sync",
+    "command": "/path/to/sovereign-sync",
     "args": ["--mode", "mcp"],
-    "env": { "RUST_LOG": "sovereign_sync=warn" }
+    "env": {
+      "RUST_LOG": "sovereign_sync=warn",
+      "KBD_FOCUS_PROJECT_PATH": "/path/to/project"
+    }
   }
 }
 ```
 
-To avoid tool name collisions in UAR or multi-server environments:
+The MCP process discovers its KBD project from `KBD_FOCUS_PROJECT_PATH`, then
+the current working directory, then the parent of the skills directory.
 
-```json
-{
-  "sovereign-sync": {
-    "command": "/Users/you/.local/bin/sovereign-sync",
-    "args": ["--mode", "mcp", "--prefix-tools"]
-  }
-}
-```
+The CLI accepts `--prefix-tools`, but the current tool router still exposes the
+unprefixed names documented below. Do not configure clients with
+`sovereign:*` names yet.
 
-When `--prefix-tools` is set, all tool names are prefixed with `sovereign:` (e.g.,
-`sovereign:search-skills`).
-
-## Tools
+## Discovery and sync tools
 
 ### `search-skills`
 
-Search the local skill index by keyword.
-
-**Input schema:**
+Input:
 
 ```json
-{
-  "query": "feynman",
-  "limit": 5
-}
+{"query":"feynman grading","limit":5}
 ```
 
-**Output:**
-
-```json
-{
-  "results": [
-    { "name": "feynman-loop", "description": "Core Feynman PMPO loop" }
-  ],
-  "count": 1
-}
-```
+Performs local keyword search over installed skill names and descriptions.
 
 ### `sync-status`
 
-Returns current node state and connected peer count.
-
-**Input schema:** `{}` (no parameters)
-
-**Output:**
+Input:
 
 ```json
-{
-  "node_state": "Connected",
-  "peer_count": 2,
-  "domains_active": ["kbd-orchestrator", "learner-model"]
-}
+{"domain":"learner-model"}
 ```
+
+`domain` is optional. The current MCP response is a bounded local status
+summary and points clients to REST for detailed state.
 
 ### `sync-push`
 
-Push a sync domain to all connected peers.
-
-**Input schema:**
+Input:
 
 ```json
-{
-  "domain": "learner-model"
-}
+{"domain":"learner-model"}
 ```
 
-Valid domains: `skill-index`, `learner-model`, `kbd-orchestrator`, `open-spec`
-
-**Output:**
-
-```json
-{
-  "status": "queued",
-  "domain": "learner-model"
-}
-```
-
-**Privacy:** `surreal-memory` is rejected with a `PrivacyViolation` error.
+Acknowledges a queued push request. It is not delivery confirmation.
 
 ### `sync-peers`
 
-List connected peer node IDs.
+Input: none.
 
-**Input schema:** `{}` (no parameters)
+Returns the current peer summary.
 
-**Output:**
+## KBD read and operator tools
+
+| Tool | Input | Lease required |
+|---|---|---|
+| `kbd_status` | none | No |
+| `kbd_events` | `{"since_revision": 1}` | No |
+| `kbd_pause` | `{"reason":"…"}` | No; operator action |
+| `kbd_cancel` | `{"reason":"…"}` | No; operator action |
+| `kbd_claim` | `{"scope":"project/phase","force":false}` | No |
+| `kbd_revise` | `{"reason":"…","exact_next_work":"…"}` | Yes |
+| `kbd_resume` | `{"plan_revision":4}` | Yes |
+| `kbd_heartbeat` | none | Yes |
+| `kbd_release` | none | Yes |
+| `kbd_handoff` | `{"to":"claude-code"}` | Yes |
+
+### `kbd_status`
+
+Returns canonical `KbdStateV2`, including lifecycle, committed revision, plan
+revision, checkpoint, exact next work, active path, completion dimensions,
+devices, blockers, and lease.
+
+### `kbd_events`
+
+Returns immutable committed events starting at `since_revision` (default 1).
+
+### `kbd_pause`
+
+Creates a pause checkpoint. Operator pause is allowed without the writer lease
+so it cannot be blocked by a stale agent.
+
+```json
+{"reason":"Pause before rotating the control token"}
+```
+
+### `kbd_cancel`
+
+Transitions the run to terminal `cancelled` while preserving history.
+
+```json
+{"reason":"Operator abandoned this run"}
+```
+
+### `kbd_claim`
+
+Claims the single-writer lease. `force:true` is an explicit audited operator
+takeover.
+
+```json
+{"scope":"project/phase","force":false}
+```
+
+### `kbd_revise`
+
+Records immutable plan revision `N+1` and optionally replaces exact next work.
 
 ```json
 {
-  "peers": [
-    { "node_id": "a1b2c3...", "addr": "192.168.1.42:7892" }
-  ]
+  "reason":"Upstream interface changed",
+  "exact_next_work":"Adopt the supported endpoint"
 }
 ```
+
+### `kbd_resume`
+
+Resumes a suspended lifecycle at the supplied or current plan revision.
+
+```json
+{"plan_revision":4}
+```
+
+### `kbd_heartbeat`
+
+Renews the active lease for another 90 seconds. Writers normally heartbeat
+every 30 seconds.
+
+### `kbd_release`
+
+Releases the current lease using its committed lease ID and fence.
+
+### `kbd_handoff`
+
+Transfers ownership atomically and increments the fencing generation:
+
+```json
+{"to":"claude-code"}
+```
+
+Use stable harness IDs: `claude-code`, `codex`, `opencode`, or `kimi`.
+
+## Error behavior
+
+MCP tools return a textual `KBD control error: …` result for revision, lease,
+fence, quorum, or integrity failures. They do not fall back to directly
+editing `.kbd-orchestrator` compatibility files.
