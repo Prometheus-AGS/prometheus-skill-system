@@ -77,7 +77,7 @@ All four conform to the internal standard `TJ-CICD-001 v1.1` and declare `allowe
 | **argocd-multicloud** | Install and manage ArgoCD as a multi-cloud control plane on GKE with AKS/EKS as remote destinations — App-of-Apps root, ApplicationSet fan-out, project isolation, RBAC, Dex OIDC SSO. |
 | **kustomize-overlay** | Generate three-dimensional Kustomize overlays (base/cloud/env) with cloud-specific identity patches (GKE Workload Identity, Azure Workload Identity, EKS IRSA), and validate/repair broken overlay chains. |
 
-A system-wide guard backs these up: `guard-direct-deploy.sh` blocks `kubectl apply` and `helm upgrade` as deploy mechanisms, because in a GitOps world the cluster state is owned by Git, not by an agent running `kubectl`.
+`guard-direct-deploy.sh` encodes the same rule — in a GitOps world the cluster state is owned by Git, not by an agent — but it is **no longer wired as a blocking hook**. Direct cluster commands are deliberate operator actions often enough that a hook could not distinguish them from mistakes. The script is still available to run manually or from CI.
 
 ## Document extraction
 

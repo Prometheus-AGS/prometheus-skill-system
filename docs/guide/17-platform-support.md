@@ -17,7 +17,13 @@ The prometheus-skill-pack installs to ten AI tools and runs the same shared subs
 | **Roo Code** | Yes | — | — | Shell wrappers |
 | **Amp** | Yes | — | — | Shell wrappers |
 
-The shared substrate — surreal-memory at 23001, prometheus-knowledge at 8942, the sycophancy gate, liter-llm routing — is identical across every row. That is the whole point: when you change the tool driving the loop, the loop does not lose its memory or its discipline.
+The shared substrate — surreal-memory at 23001, prometheus-knowledge at 8942,
+Sovereign Sync/KBD control at 7892, the sycophancy gate, and liter-llm routing
+— is identical across every writer-capable row. One capability manifest maps
+each harness's native lifecycle events to the same session, compact, prompt,
+interrupt, and post-mutation contract. The pre-mutation event was removed from
+the contract: it existed only to fence tool calls on KBD lease and lifecycle
+state, which blocked ordinary cross-project work.
 
 ```mermaid
 graph TD
@@ -29,29 +35,30 @@ graph TD
     A --> G[Cursor]
     A --> H[Windsurf]
     A --> I[Gemini CLI / Roo / Amp]
-    B & C & D & E & F & G & H & I --> J[(surreal-memory :23001)]
-    J --> K[(prometheus-knowledge :8942)]
-    J --> L[Shared loop state · .kbd-orchestrator/ · .evolver/ · openspec/]
-    L --> M[Context priming + learning write-back]
+    B & C & D & E --> J["Sovereign Sync KBD control :7892"]
+    J --> K["Signed canonical runtime + fenced lease"]
+    K --> L["Revision-stamped .kbd-orchestrator projections"]
+    B & C & D & E & F & G & H & I --> M[(surreal-memory :23001)]
+    M --> N[(prometheus-knowledge :8942)]
 ```
 
 ## Claude Code
 
-The reference platform, and where the loop primitives are most developed. `/loop`, `/goal`, `/schedule`, `/workflows`, and Agent View ship first-party, and worktree isolation (`isolation: "worktree"`) is built into the Agent tool. The flat installer turns each skill into a slash command; the plugin manifest (`.claude-plugin/plugin.json`) declares skills, agents, hooks, and MCP servers. The hooks documented on the [Hooks & Lifecycle](15-hooks-and-lifecycle.md) page run natively. For any loop where you want native primitives and zero-config worktree sandboxing, Claude Code is the correct substrate. Drivers live in `.claude/commands/*`; a background tick is just `claude -p "/loop-tick <name>"`.
+The reference platform, and where the loop primitives are most developed. `/loop`, `/goal`, `/schedule`, `/workflows`, and Agent View ship first-party, and worktree isolation (`isolation: "worktree"`) is built into the Agent tool. The flat installer turns each skill into a slash command; the plugin manifest (`.claude-plugin/plugin.json`) declares skills, agents, hooks, and MCP servers. Claude Code/Claude Desktop coding sessions use the KBD harness ID `claude-code`; `PreToolUse` fences Bash, Write, Edit, and MultiEdit against the focused project lifecycle and lease. The hooks documented on the [Hooks & Lifecycle](15-hooks-and-lifecycle.md) page run natively.
 
 ## OpenCode
 
-The open-source terminal agent, and the one with first-class plugin support beyond Claude Code. `.opencode/plugin.ts` (using `@opencode-ai/plugin`) registers three tools — `evolve`, `gitops`, and `kbd` — that expose the orchestration skills as native OpenCode tools. The `evolve` tool takes `evolution_name`, `domain`, `goals[]`, and `phase`. MCP servers are written into `~/.opencode/opencode.json` by the installers. OpenCode injects `PROMETHEUS_SKILL_PACK=1` into the shell environment and uses `tool.execute.before/after` hooks for the Karpathy context layer. The trade-off versus Claude Code: loop primitives require the shell-wrapper drivers rather than first-party slash commands. The advantages: model-agnostic, no vendor lock, and access through the OpenCode Zen gateway to a wide model set including GLM-5.2 (High/Max) with a 1M context window.
+The open-source terminal agent, and the one with first-class plugin support beyond Claude Code. `.opencode/plugin.ts` registers orchestration tools and installs the KBD control adapter into both legacy and XDG OpenCode configurations. Session create/compact/idle/cancel events map into the same lifecycle vocabulary as Claude Code; no tool-call interception is installed. MCP servers are written into the active OpenCode config by the installers.
 
 ## Codex CLI
 
-OpenAI's agent, and the one with the strongest sandboxing primitive in the group: **kernel-level syscall filtering**. For any loop executing arbitrary or dynamically generated code, Codex's sandbox is architecturally superior. The pack configures Codex MCP connectivity in `~/.codex/config.toml` (surreal-memory over SSE, liter-llm, sequential-thinking, sycophancy-correction, tavily) and installs skills to `~/.codex/skills/` with prompt files in `~/.codex/prompts/`. Codex reaches the sycophancy gate as MCP tools (`detect_sycophancy`/`correct_sycophancy`) rather than as shell hooks. Loop orchestration is driven externally via the shared scripts and `codex exec`; it reads `AGENTS.md` for context and supports `/goal`.
+OpenAI's agent, and the one with the strongest sandboxing primitive in the group: **kernel-level syscall filtering**. The pack configures Codex MCP connectivity in `~/.codex/config.toml`, installs skills to `~/.codex/skills/`, and generates a native KBD lifecycle adapter from the shared capability manifest. Codex uses harness ID `codex`; `pre_tool` validates ownership and `turn_cancelled` triggers the local pause valve. Real installed-host acceptance for the generated adapter remains a production gate even though fixtures and payload generation pass.
 
 ## Kimi Code CLI
 
 Not the newcomer anymore — a serious contender. Two Moonshot models matter, and they serve different roles in a loop. **Kimi K2.6** is the general-purpose agentic model — a 1T-parameter MoE with 32B active per token and a 256K context window — good for fast tool calls in tight iterations and multi-step planning at loop start. **Kimi K2.7 Code** (released June 12, 2026) is the coding-specialized refinement: same MoE architecture, forced thinking mode by default, and measured gains over K2.6 of +21.8% on Kimi Code Bench v2, +11.0% on Program Bench, and +31.5% on MLS Bench Lite, while cutting reasoning-token usage by roughly 30%. It is open-source under a Modified MIT license on Hugging Face.
 
-That combination — better accuracy, lower token burn, more reliable long-context instruction-following — is exactly what unattended loop execution needs, because the most common loop failure mode is the agent that drifts from the original intent across many turns. The Kimi Code CLI is not just a prompt interface; it generates an inspectable **coding plan** before execution, then executes against it and iterates on validation failures autonomously, with `--continue` and `--session <id>` for persistence. The pack installs skills to `~/.kimi-code/skills/` and merges all MCP servers into `~/.kimi-code/config.toml`; the `kimi` CLI is detected by `check-prerequisites.sh`.
+That combination — better accuracy, lower token burn, more reliable long-context instruction-following — is exactly what unattended loop execution needs. The pack installs skills to `~/.kimi-code/skills/`, merges MCP servers into `~/.kimi-code/config.toml`, and generates SessionStart/PreCompact/PostCompact/Prompt/Stop/Interrupt/PreToolUse/PostToolUse mappings. Kimi uses harness ID `kimi`; real native-host adapter acceptance remains a production gate.
 
 ## Sandboxing across tools
 

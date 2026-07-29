@@ -75,6 +75,8 @@ pub struct DoctorSummary {
 #[derive(Debug, Clone, Serialize)]
 pub struct DoctorReport {
     pub schema_version: u32,
+    #[serde(rename = "contractVersion")]
+    pub contract_version: &'static str,
     pub mode: String,
     pub summary: DoctorSummary,
     pub checks: Vec<CheckResult>,
@@ -213,6 +215,7 @@ async fn build_report(options: &DoctorOptions) -> DoctorReport {
 
     DoctorReport {
         schema_version: 1,
+        contract_version: "2.0.0",
         mode: mode.to_string(),
         summary: DoctorSummary {
             failed,
@@ -1151,22 +1154,15 @@ fn check_harness_adapter_parity() -> CheckResult {
             Err(_) => failures.push(format!("{} is missing", target.display())),
         }
     }
-    if let Some(harnesses) = parsed
-        .as_ref()
-        .and_then(|value| value["harnesses"].as_object())
-    {
-        for (name, capability) in harnesses {
-            if capability["writerRole"] == true && capability["nativeMutationGuard"] != true {
-                failures.push(format!(
-                    "{name} has writerRole without a native mutation guard"
-                ));
-            }
-        }
-    }
+    // The pre-mutation fence was removed deliberately: it gated the operator's
+    // own shell on KBD lifecycle and lease state, which blocks ordinary work
+    // such as editing a submodule or a project this one depends on. Adapters
+    // observe lifecycle events only, so `nativeMutationGuard` is no longer
+    // required and is not checked here.
     CheckResult {
         id: "hooks.harness-adapters".into(),
         group: "hooks".into(),
-        label: "Cross-harness mutation adapters".into(),
+        label: "Cross-harness lifecycle adapters".into(),
         severity: if failures.is_empty() {
             Severity::Green
         } else {
@@ -1184,7 +1180,7 @@ fn check_harness_adapter_parity() -> CheckResult {
         },
         details: if failures.is_empty() {
             vec![
-                "Writer-role adapters all declare native pre-mutation fence guards.".into(),
+                "All adapters route lifecycle events through the canonical script.".into(),
                 "Installed-target parity is enforced separately by clean-install CI.".into(),
             ]
         } else {

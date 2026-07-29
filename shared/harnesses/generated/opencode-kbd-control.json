@@ -9,7 +9,6 @@
     "prompt": "chat.message",
     "stop": "session.idle",
     "interrupt": "session.status:cancelled",
-    "preMutation": "tool.execute.before",
     "postMutation": "tool.execute.after"
   },
   "timeoutMs": 250

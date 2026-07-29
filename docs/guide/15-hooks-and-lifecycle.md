@@ -2,7 +2,10 @@
 
 The loops and skills are visible. The hooks are not — and they are where most of the system's discipline actually lives. Hooks are scripts that fire at lifecycle events: a session starting, a prompt being submitted, a tool about to write a file, a subagent stopping, a session ending. Every guarantee in this guide that sounds automatic — context priming, scope enforcement, the sycophancy gate, the immutable-tests rule, memory write-back — is a hook. This page documents every event and every script that runs on it.
 
-The canonical source is `hooks/hooks.json`. (Per the project's own rules, that physical file is the single source of truth; `.claude-plugin/hooks/hooks.json` is a symlink to it, and CI validates the symlink on every PR.)
+Claude Code's installed hook chain is declared in `hooks/hooks.json`.
+Cross-harness lifecycle mappings are declared once in
+`shared/harnesses/capabilities.json` and generate the Claude Code, Codex,
+OpenCode, and Kimi adapters under `shared/harnesses/generated/`.
 
 ## The lifecycle at a glance
 
@@ -14,12 +17,12 @@ sequenceDiagram
     participant Sub as Each subagent
     participant Stop as Session end
 
-    Session->>Session: SessionStart — detect context, flush outbox, KB health
-    Prompt->>Prompt: UserPromptSubmit — pk focus + position block
-    Tool->>Tool: PreToolUse — guards (deploy, pipeline, cedar, tests, scope)
+    Session->>Session: SessionStart — KBD re-anchor + context + KB health
+    Prompt->>Prompt: UserPromptSubmit — bounded deferred lifecycle event
+    Tool->>Tool: PreToolUse — immutable-tests guard (writes only)
     Tool->>Tool: PostToolUse — validate, record scope, write reminder, sycophancy artifact, memory writeback
     Sub->>Sub: SubagentStop[role] — checkpoint + dispatch (reflector → sycophancy gate)
-    Stop->>Stop: Stop — summary, position gate, finalize, forge reflect
+    Stop->>Stop: Stop — advisory/deferred event; never forces continuation
 ```
 
 ## SessionStart
@@ -28,38 +31,59 @@ Runs once when a session begins. Sets the stage.
 
 | Order | Script | Purpose |
 |---|---|---|
-| 1 | `detect-project-context.sh` | Detect GitOps (Kustomize overlays, ArgoCD CRs) and cloud context |
-| 2 | `memory-outbox-flush.sh` | Drain the surreal-memory write outbox when reachable (failed lines stay queued) |
-| 3 | `pk-health.sh` | Surface KB health once per 24h; no-op if `pk` is absent |
+| 1 | `kbd-harness-adapter.sh session_start claude-code` | Authenticated, bounded KBD re-anchor: revision, lifecycle, active path, next work, and writer |
+| 2 | `kbd-open` | Prime the session with phase context, focused wiki, and pending skill updates |
+| 3 | `detect-project-context.sh` | Detect GitOps and cloud context |
+| 4 | `memory-outbox-flush.sh` | Drain the surreal-memory write outbox when reachable |
+| 5 | `pk-health.sh` | Surface KB health once per 24h |
 
 ## UserPromptSubmit
 
-Runs on every prompt. This is the context-priming edge of the Karpathy loop.
+The generated adapter receives the prompt event and queues noncritical work in
+the project runtime's `deferred-hooks/` outbox. Prompt and Stop events do not
+perform network-heavy memory or learning work inline.
 
-| Order | Script | Purpose |
-|---|---|---|
-| 1 | `pk-focus-on-prompt.sh` (3s) | Inject `pk focus` context for the prompt — semantic path via surreal-memory; disable with `PROMETHEUS_FOCUS_SEMANTIC=0` |
-| 2 | `position-on-prompt.sh` (5s) | Inject the KBD position block so the turn knows where it is |
+## PreCompact
 
-## PreToolUse — the guards
+`kbd-harness-adapter.sh pre_compact claude-code` records a bounded deferred
+event. Claude's `SessionStart:compact` path and native post-compact events on
+other harnesses render the same canonical re-anchor after compaction.
 
-These are blocking gates. They run *before* a tool executes and can refuse it (exit 2). This is where the system's safety rules are enforced.
+## PreToolUse — the one remaining guard
 
-**Matcher `Bash`:**
+A single blocking gate remains. It runs *before* a tool executes and can refuse
+it (exit 2).
 
-| Script | What it blocks |
-|---|---|
-| `guard-direct-deploy.sh` | `kubectl apply` / `helm upgrade` used as deploy mechanisms — in GitOps, the cluster is owned by Git, not by an agent |
-| `pipeline-enforce.sh Bash` | KBD layer-order violations — blocks `kbd-execute`/`kbd-reflect` without the prerequisite artifacts, and when `reflect_gate=rejected` |
+**Matcher `Bash`: none.** Shell commands are not gated.
 
 **Matcher `Write|Edit|MultiEdit`:**
 
 | Script | What it enforces |
 |---|---|
-| `cedar-skill-gate.sh` | Edits to `SKILL.md` must pass the name pattern and carry required frontmatter (name, description, license, metadata.tags, metadata.version); no backslashes |
 | `protect-tests.sh` | The **BDD Immutable-Tests Rule** — blocks edits to existing `tests/steps/*`, `tests/support/*`, `tests/features/*.feature`; allows new files under `tests/features/drafts/` |
-| `scope-guard.sh` | Writes outside the active KBD change's `scoped_paths` (modes off/warn/ask via `PROMETHEUS_SCOPE_ENFORCE`); always allows `.kbd-orchestrator/**` and `SCRATCHPAD.md` |
-| `check-child-scope.sh` | Child-phase scope enforcement (orchestrator-internal) |
+
+### What was removed, and why
+
+The pre-mutation fence (`kbd-harness-adapter.sh pre_mutation`) previously gated
+`Bash`, `Write`, `Edit`, and `MultiEdit` on KBD project identity, control-plane
+reachability, lifecycle state, and lease ownership. It was removed, along with
+`pipeline-enforce.sh`, `scope-guard.sh`, `check-child-scope.sh`,
+`guard-direct-deploy.sh`, and `cedar-skill-gate.sh`.
+
+The fence assumed several agents on several devices contending for one
+repository — the case its lease and fencing token exist to arbitrate. A single
+operator does not have that contention, and the cost was severe: every gate
+failed closed, so a stopped daemon, an uninitialized runtime, or a phase that
+had simply *finished* removed the operator's ability to run `ls`, `git status`,
+or `cargo test` — including the very diagnostics each denial recommended. The
+scope guards compounded it by flagging edits to a submodule or a sibling project
+as out-of-scope, which is ordinary work when a change spans a dependency.
+
+The KBD adapter still runs on `SessionStart`, `UserPromptSubmit`, `Stop`, and
+`PreCompact`. Those events only read state and print the re-anchor block; they
+never intercept a tool call. Phases, `progress.json`, waypoints, and reflections
+are unchanged — they record position, and recording was always the part that
+earned its keep.
 
 The immutable-tests rule deserves emphasis. A code-generation agent under pressure to make a failing test pass has an obvious shortcut: edit the test. That shortcut destroys the test's value. `protect-tests.sh` removes the shortcut structurally — the agent *cannot* edit an existing step definition or feature file; it can only add new draft scenarios for human review. This is the same principle as the sycophancy gate, applied to tests: prevent the agent from grading its own homework.
 
@@ -91,20 +115,13 @@ Each KBD role has its own matcher. Every role runs a checkpoint and a workflow d
 
 The two bolded scripts are the heart of the self-learning loop. On the executor's stop, `evaluate-session.sh` extracts patterns and ingests them into the KB and learning log (and `propose-skill-update.sh` files candidates from there). On the reflector's stop, the sycophancy gate runs before anything is logged. The fallback matcher guarantees that even an unrecognized subagent gets a checkpoint — no role falls through silently.
 
-## Stop — the session-end chain
+## Stop — advisory by design
 
-Order is a correctness constraint here; each script depends on the output of the ones before it.
-
-| Order | Script | Purpose |
-|---|---|---|
-| 1 | `write-session-summary.sh` (5s) | Write the structured summary to `~/.prometheus/last-session-summary.txt` — everything downstream reads this |
-| 2 | `position-stop-gate.sh` (5s) | Block the stop *once* if the final message lacks the position footer (single enforced retry, never loops) |
-| 3 | `state-finalize.sh` (evolver) | Finalize evolver state |
-| 4 | `workflow-dispatch.sh ... cycle_complete` | Dispatch the cycle-complete workflow |
-| 5 | `finalize-session.sh` | Session finalization |
-| 6 | `forge-reflect-on-stop.sh` | Run `forge reflect` if `.forge/iterations` exists, else `pk ingest` from the summary |
-
-No `SubagentStart` or `PreCompact` events are defined — the pack relies on `SessionStart` and `UserPromptSubmit` for priming.
+The Stop hook calls `kbd-harness-adapter.sh stop claude-code`, which queues
+noncritical work and exits successfully. It never emits `decision:block`,
+retries based on transcript length, or treats a missing footer as permission to
+override the operator. Durable continuity comes from checkpoints, lifecycle
+state, and explicit pause/resume—not from forcing an assistant to keep talking.
 
 ## Progress signaling
 
@@ -112,7 +129,15 @@ A lifecycle concern that is not a hook but is mandatory in every orchestration t
 
 ## Strictness and degradation
 
-Two environment knobs govern hook behavior. `PROMETHEUS_REFLECT_STRICTNESS` (loose / standard / strict / adversarial, default strict) sets the sycophancy gate's sensitivity. `PROMETHEUS_SCOPE_ENFORCE` (off / warn / ask) sets the scope guard's force. And the universal rule across all hook scripts: they source `lib/hook-log.sh` and **always exit 0 unless they are deliberate blocking gates**. A missing binary, an unreachable service, a degraded dependency — none of these take a session down. The hooks add discipline when the infrastructure is present and get out of the way when it is not.
+`PROMETHEUS_REFLECT_STRICTNESS` (loose / standard / strict / adversarial,
+default strict) sets the sycophancy gate's sensitivity. It governs a *content*
+gate on reflection artifacts, not a tool gate, so it cannot block a command.
+
+Memory, summary, and learning work is noncritical and deferred: when the control
+plane is unreachable, the adapter queues the event and exits successfully rather
+than failing closed. No hook can now deny a shell command, and
+`PROMETHEUS_SCOPE_ENFORCE` no longer has an effect — the scope guards it
+configured were removed.
 
 ---
 

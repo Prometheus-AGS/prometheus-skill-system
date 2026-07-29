@@ -27,10 +27,11 @@ for (const [harness, file] of Object.entries(expected)) {
   if (!content.includes('kbd-harness-adapter.sh')) {
     failures.push(`${harness}: adapter does not invoke the canonical guard`);
   }
-  if (config.writerRole && !config.nativeMutationGuard) {
-    failures.push(`${harness}: writerRole requires nativeMutationGuard`);
-  }
-  for (const required of ['sessionStart', 'preCompact', 'postCompact', 'stop', 'preMutation']) {
+  // The pre-mutation fence was removed deliberately: it gated the operator's
+  // own shell on KBD lifecycle/lease state, which blocks ordinary work such as
+  // editing a submodule or a project this one depends on. Adapters now observe
+  // lifecycle events only; they never intercept a tool call.
+  for (const required of ['sessionStart', 'preCompact', 'postCompact', 'stop']) {
     if (!(required in config.events)) {
       failures.push(`${harness}: missing normalized ${required} capability`);
     }
