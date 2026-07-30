@@ -124,9 +124,15 @@
 * [Prometheus Entity Sync v4 Scaffold and Phase Goals](/prometheus-entity-sync-v4-scaffold-and-phase-goals.md)
 * [Sansaba Web Scaffold and C-29 Gate Phase Status](/sansaba-web-scaffold-and-c-29-gate-phase-status.md)
 * [Skill Platform Specifications](/skill-platform-specifications.md) - Cross-platform analysis of skill/agent platforms: agentskills.io, Claude Code, Codex, OpenCode, Cursor, Windsurf, Kimi, MiniMax, and their skill packaging formats.
+* [Sovereign Sync Domain Adapters Completion Record](/sovereign-sync-domain-adapters-completion-record.md)
 * [Sovereign Sync Domain Adapters Executor Completion](/sovereign-sync-domain-adapters-executor-completion.md)
 * [Sovereign Sync Domain Adapters Executor Completion Status](/sovereign-sync-domain-adapters-executor-completion-status.md)
 * [Sovereign Sync Domain Adapters Executor Session Complete](/sovereign-sync-domain-adapters-executor-session-complete.md)
+* [Sovereign Sync Domain Adapters Executor Session Status](/sovereign-sync-domain-adapters-executor-session-status.md)
+* [Sovereign Sync Domain Adapters Executor Status](/sovereign-sync-domain-adapters-executor-status.md)
+* [Sovereign Sync Domain Adapters Executor Status Record](/sovereign-sync-domain-adapters-executor-status-record.md)
+* [Sovereign Sync Domain Adapters Phase Completion](/sovereign-sync-domain-adapters-phase-completion.md)
+* [Sovereign Sync Domain Adapters Session Completion](/sovereign-sync-domain-adapters-session-completion.md)
 * [Surreal Memory Wakeup Verification After Toolchain Sync](/surreal-memory-wakeup-verification-after-toolchain-sync.md) - During `phase-okf-llm-wiki-adoption`, a scheduled wakeup fired as a safety fallback after the actual remediation work had already completed. Live verification confirmed there was nothing left to redo for `surreal-memory-server`.
 * [surreal-memory-server Latest Binary Stabilization](/surreal-memory-server-latest-binary-stabilization.md) - During phase `phase-okf-llm-wiki-adoption`, `surreal-memory-server` was verified and stabilized so it no longer blocks remaining repository rebuilds. The phase goals align with [OKF LLM Wiki Adoption Phase Completion Status](/okf-llm-wiki-adoption-phase-completion-status.md): OKF
 * [Threaded/Concurrent Research with Per-Thread Context](/threaded-concurrent-research.md) - Research on implementing threaded and concurrent research with isolated per-thread context, leveraging surreal-memory for thread-safe storage.

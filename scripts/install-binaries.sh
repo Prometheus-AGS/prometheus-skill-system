@@ -148,6 +148,27 @@ if [ -f "${REPO_ROOT}/tools/liter-llm/Cargo.toml" ]; then
             cp "${REPO_ROOT}/shared/config/liter-llm-proxy.toml" "${LLM_CFG}"
         fi
         ok "liter-llm config → ${LLM_CFG}"
+    elif [ -f "${LLM_CFG}" ]; then
+        # An existing config is NOT necessarily a working one. Two omissions make
+        # the proxy unable to serve a single request, and both were present in the
+        # config this installer shipped before 2026-07-30:
+        #   - no [general] master_key  -> every /v1/* route answers 401
+        #   - outbound_policy default  -> `deny_private` refuses localhost base_urls
+        # Warn rather than overwrite: the file may carry real user models/keys.
+        _llm_missing=""
+        grep -qE '^[[:space:]]*master_key[[:space:]]*=' "${LLM_CFG}" 2>/dev/null \
+            || grep -qE '^\[\[keys\]\]' "${LLM_CFG}" 2>/dev/null \
+            || _llm_missing="${_llm_missing} master_key"
+        if grep -qE '^[[:space:]]*base_url[[:space:]]*=.*(localhost|127\.0\.0\.1)' "${LLM_CFG}" 2>/dev/null; then
+            grep -qE '^[[:space:]]*outbound_policy[[:space:]]*=' "${LLM_CFG}" 2>/dev/null \
+                || _llm_missing="${_llm_missing} outbound_policy"
+        fi
+        if [ -n "${_llm_missing}" ]; then
+            echo "  ⚠️  liter-llm config at ${LLM_CFG} is missing:${_llm_missing}" >&2
+            echo "      without these the proxy returns 401 on every request / blocks loopback" >&2
+            echo "      repair with: /liter-llm-bridge configure   (merges, never clobbers)" >&2
+        fi
+        unset _llm_missing
     fi
 else
     info "skip liter-llm (submodule not initialized)"

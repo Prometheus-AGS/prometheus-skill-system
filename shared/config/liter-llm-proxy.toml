@@ -7,12 +7,31 @@
 # Routes model traffic through the local OpenAI-compatible proxy at :8181 (the
 # same openai-proxy pk-cherry uses for chat/completions). Embeddings stay local.
 # Env interpolation supports only ${VAR} (no ${VAR:-default}); unknown -> "".
+#
+# IMPORTANT — liter-llm never searches $HOME for this file. ProxyConfig::discover()
+# walks the CWD upward looking for `liter-llm-proxy.toml`, so callers MUST pass
+# `--config <abs path>`. A registration like `liter-llm mcp --transport stdio` with
+# no --config silently starts with ZERO models.
 
 [general]
+# REQUIRED. Every /v1/* route is behind an unconditional Bearer check, so a config
+# with no master_key (and no [[keys]]) makes the proxy answer 401 to *everything* —
+# including /v1/models. Verified 2026-07-30 against the previous template, which
+# omitted this and could not serve a single request.
+master_key = "${LITER_LLM_MASTER_KEY}"
 default_timeout_secs = 120
 max_retries = 3
 enable_cost_tracking = false
 enable_tracing = false
+
+[security]
+# REQUIRED for any localhost/private base_url below. The default policy is
+# `deny_private`, which refuses loopback with OutboundForbidden — so routing to
+# 127.0.0.1:8181 fails until this is relaxed. Use an allowlist instead of "off"
+# if this host also reaches untrusted networks:
+#   outbound_policy = "allowlist"
+#   outbound_allowlist = ["http://localhost:8181"]
+outbound_policy = "off"
 
 # Named default model routed to the local proxy.
 [[models]]
@@ -20,6 +39,23 @@ name = "gpt-5.4"
 provider_model = "openai/gpt-5.4"
 api_key = "sk-proxy-local"
 base_url = "http://localhost:8181/v1"
+
+# --- KBD adversarial roles -------------------------------------------------
+# The judge MUST be a different model than the producer, or the review is a
+# self-grade. `kbd-judge` is the strongest model the local proxy exposes.
+# Repoint a role in ~/.prometheus/kbd/models.toml — never by editing a script.
+[[models]]
+name = "kbd-judge"
+provider_model = "openai/gpt-5.6-sol"
+api_key = "sk-proxy-local"
+base_url = "http://localhost:8181/v1"
+
+[[models]]
+name = "kbd-critic"
+provider_model = "openai/gpt-5.5"
+api_key = "sk-proxy-local"
+base_url = "http://localhost:8181/v1"
+fallbacks = ["kbd-judge"]
 
 # Catch-all: any openai/* model reference goes through the local proxy.
 [[aliases]]

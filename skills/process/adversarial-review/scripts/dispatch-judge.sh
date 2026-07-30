@@ -46,11 +46,30 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 #
 # LITER_LLM_BASE_URL overrides; otherwise try the local openai-proxy, then a
 # liter-llm `api` server on its default port.
+# Endpoint + model resolution live in ONE shared library so a config change never
+# requires editing this script (and never an edit inside a plugin cache, which the
+# next install silently destroys). See shared/scripts/lib/kbd-model-resolve.sh.
+RESOLVE_LIB=""
+for _cand_lib in \
+  "$(cd "$(dirname "$0")" && pwd)/../../../../shared/scripts/lib/kbd-model-resolve.sh" \
+  "${CLAUDE_PLUGIN_ROOT:-}/shared/scripts/lib/kbd-model-resolve.sh" \
+  "${PLUGIN_ROOT:-}/shared/scripts/lib/kbd-model-resolve.sh"; do
+  if [ -n "$_cand_lib" ] && [ -f "$_cand_lib" ]; then RESOLVE_LIB="$_cand_lib"; break; fi
+done
+if [ -n "$RESOLVE_LIB" ]; then
+  # shellcheck source=/dev/null
+  . "$RESOLVE_LIB"
+fi
+
 probe_endpoint() {
-  curl -s -o /dev/null --max-time 5 "$1/models" 2>/dev/null
+  # --noproxy '*': an ambient HTTP(S)_PROXY must never intercept loopback.
+  curl -s -o /dev/null --max-time 5 --noproxy '*' "$1/models" 2>/dev/null
 }
 
 JUDGE_BASE_URL="${LITER_LLM_BASE_URL:-}"
+if [ -z "$JUDGE_BASE_URL" ] && command -v kbd_resolve_gateway >/dev/null 2>&1; then
+  JUDGE_BASE_URL="$(kbd_resolve_gateway 2>/dev/null || true)"
+fi
 if [ -z "$JUDGE_BASE_URL" ]; then
   for cand in "http://localhost:8181/v1" "http://localhost:4000/v1"; do
     if probe_endpoint "$cand"; then JUDGE_BASE_URL="$cand"; break; fi
@@ -66,54 +85,44 @@ if [ -z "$JUDGE_BASE_URL" ]; then
 fi
 
 # --- model resolution + collision check --------------------------------------
-CONFIG="${LITER_LLM_CONFIG:-$HOME/.config/liter-llm/config.toml}"
 PRODUCER="$(python3 - "$PACKET" <<'PY' 2>/dev/null || echo unknown
 import json, sys
 print(json.load(open(sys.argv[1])).get("producer_model") or "unknown")
 PY
 )"
 
-# Judge class is frontier. Candidate order: frontier alias, then any other
-# distinct alias value (medium, small) as a collision escape hatch — an
-# imperfect-tier different model beats a same-model self-grade.
-JUDGE_MODEL="$(PRODUCER="$PRODUCER" python3 - "$CONFIG" <<'PY' 2>/dev/null || true
-import os, re, sys
-config, producer = sys.argv[1], os.environ.get("PRODUCER", "unknown")
-aliases = {}
-if os.path.exists(config):
-    section = None
-    for line in open(config, encoding="utf-8", errors="replace"):
-        line = line.strip()
-        m = re.match(r"^\[(.+)\]$", line)
-        if m:
-            section = m.group(1)
-            continue
-        if section == "aliases":
-            m = re.match(r'^(\w+)\s*=\s*"([^"]+)"', line)
-            if m:
-                aliases[m.group(1)] = m.group(2)
-order = [aliases.get(k) for k in ("frontier", "medium", "small") if aliases.get(k)]
-if not order:
-    print("frontier")          # no alias table: pass the class name through
-    raise SystemExit
-for cand in order:
-    # producer may be a bare model id or provider/model — compare loosely
-    if cand != producer and cand.split("/")[-1] != producer.split("/")[-1]:
-        print(cand)
-        raise SystemExit
-print("COLLISION:" + order[0])
-PY
-)"
-[ -n "$JUDGE_MODEL" ] || JUDGE_MODEL="frontier"
+# Resolve judge, then critic as the collision escape hatch: an imperfect-tier
+# DIFFERENT model beats a same-model self-grade.
+JUDGE_MODEL=""
+if command -v kbd_resolve_role >/dev/null 2>&1; then
+  JUDGE_MODEL="$(kbd_resolve_role judge 2>/dev/null || true)"
+  _alt_model="$(kbd_resolve_role critic 2>/dev/null || true)"
+fi
+[ -n "$JUDGE_MODEL" ] || JUDGE_MODEL="kbd-judge"
 
-case "$JUDGE_MODEL" in
-  COLLISION:*)
-    JUDGE_MODEL="${JUDGE_MODEL#COLLISION:}"
+# Loose comparison: producer may be a bare id or provider/model.
+_same_model() {
+  [ "${1##*/}" = "${2##*/}" ]
+}
+
+if _same_model "$JUDGE_MODEL" "$PRODUCER"; then
+  if [ -n "${_alt_model:-}" ] && ! _same_model "$_alt_model" "$PRODUCER"; then
+    echo "[judge] NOTE: judge model matched producer — switching to '$_alt_model'" >&2
+    JUDGE_MODEL="$_alt_model"
+  else
     echo "[judge] WARN: JUDGE_MODEL_COLLISION — every configured model matches producer" >&2
     echo "[judge]       ($PRODUCER); proceeding same-model. Configure a second provider" >&2
     echo "[judge]       to restore the cross-model guarantee." >&2
-    ;;
-esac
+  fi
+fi
+
+# A producer of "unknown" makes the collision check pass trivially — every one of
+# the 8 historical reviews did exactly this, so judge!=producer was never actually
+# enforced. Surface it rather than let it read as a clean cross-model review.
+if [ "$PRODUCER" = "unknown" ]; then
+  echo "[judge] WARN: PRODUCER_UNKNOWN — packet carries no producer_model, so the" >&2
+  echo "[judge]       judge!=producer check cannot be enforced for this review." >&2
+fi
 
 echo "[MODEL_ROUTING] phase=adv-review-judge class=frontier model=$JUDGE_MODEL producer=$PRODUCER" >&2
 
@@ -145,15 +154,50 @@ print(json.dumps({
 PY
 )" || { echo "[judge] ERROR: failed to build request body" >&2; exit 4; }
 
-AUTH_HEADER="Authorization: Bearer ${OPENAI_API_KEY:-${LITER_LLM_MASTER_KEY:-sk-local}}"
+# liter-llm requires a Bearer token on every /v1/* route (a config with no
+# master_key answers 401 to everything); openai-proxy ignores the value but still
+# needs the header. Prefer the gateway master key over a personal OPENAI_API_KEY —
+# the latter is the wrong credential for a local liter-llm front door.
+if command -v kbd_gateway_auth >/dev/null 2>&1; then
+  AUTH_HEADER="Authorization: Bearer $(kbd_gateway_auth)"
+else
+  AUTH_HEADER="Authorization: Bearer ${LITER_LLM_MASTER_KEY:-${OPENAI_API_KEY:-sk-local}}"
+fi
 
-RESPONSE="$(curl -s --max-time "${ADV_JUDGE_TIMEOUT:-300}" \
+# Capture the HTTP status separately. `curl -s` without `-f` exits 0 on 4xx/5xx,
+# so the old `|| exit 3` branch was near-dead and a non-JSON 502 from a reverse
+# proxy degraded to the generic "unavailable" message this script exists to avoid.
+_resp_file="$(mktemp)"
+HTTP_CODE="$(curl -s --max-time "${ADV_JUDGE_TIMEOUT:-300}" \
+  -o "$_resp_file" -w '%{http_code}' \
+  --noproxy '*' \
   "$JUDGE_BASE_URL/chat/completions" \
   -H 'content-type: application/json' -H "$AUTH_HEADER" \
-  --data-binary "$REQ_BODY" 2>/dev/null)" || {
-  echo "[judge] WARN: judge request to $JUDGE_BASE_URL failed — unavailable (exit 3)" >&2
+  --data-binary "$REQ_BODY" 2>/dev/null)" || HTTP_CODE="000"
+RESPONSE="$(cat "$_resp_file" 2>/dev/null)"
+rm -f "$_resp_file"
+
+if [ "$HTTP_CODE" = "000" ]; then
+  echo "[judge] WARN: judge request to $JUDGE_BASE_URL did not complete (connection" >&2
+  echo "[judge]       failed or timed out after ${ADV_JUDGE_TIMEOUT:-300}s) — unavailable (exit 3)" >&2
   exit 3
-}
+fi
+
+case "$HTTP_CODE" in
+  2*) ;;
+  401|403)
+    echo "[judge] ERROR: gateway rejected the credential (HTTP $HTTP_CODE) at $JUDGE_BASE_URL." >&2
+    echo "[judge]        liter-llm requires [general] master_key (or [[keys]]) and a matching" >&2
+    echo "[judge]        Bearer token. Repair with: /liter-llm-bridge configure" >&2
+    echo "[judge]        body: $(printf '%s' "$RESPONSE" | head -c 200)" >&2
+    exit 3
+    ;;
+  *)
+    echo "[judge] ERROR: gateway returned HTTP $HTTP_CODE at $JUDGE_BASE_URL" >&2
+    echo "[judge]        body: $(printf '%s' "$RESPONSE" | head -c 200)" >&2
+    exit 3
+    ;;
+esac
 
 # Surface the endpoint's own error text. A silent empty completion here reads as
 # "the judge found nothing", which is the most dangerous possible failure mode
@@ -180,7 +224,8 @@ PY
 }
 
 # --- normalize + shape-check the findings -------------------------------------
-FINDINGS="$(ADV_RAW="$RAW" JUDGE_MODEL="$JUDGE_MODEL" MODE="$MODE" python3 <<'PY'
+FINDINGS="$(ADV_RAW="$RAW" JUDGE_MODEL="$JUDGE_MODEL" MODE="$MODE" \
+  PRODUCER="$PRODUCER" JUDGE_BASE_URL="$JUDGE_BASE_URL" python3 <<'PY'
 import json, os, re, sys
 raw = os.environ.get("ADV_RAW", "")
 
@@ -219,11 +264,29 @@ for f in data.get("findings") or []:
         continue
     findings.append(f)
 
+# isolation_mode must describe what ACTUALLY answered, not what we hoped would.
+# It was previously the hardcoded literal "liter-llm" regardless of endpoint, so a
+# same-family self-grade was indistinguishable from a genuine cross-model review in
+# the stored artifact. Record the real endpoint, and state plainly whether the
+# judge was verified distinct from the producer.
+producer = os.environ.get("PRODUCER", "unknown")
+judge = os.environ["JUDGE_MODEL"]
+endpoint = os.environ.get("JUDGE_BASE_URL", "")
+
+if producer == "unknown":
+    cross = "unverified-producer-unknown"
+elif judge.rsplit("/", 1)[-1] == producer.rsplit("/", 1)[-1]:
+    cross = "same-model-collision"
+else:
+    cross = "verified-distinct"
+
 out = {
     "mode": os.environ["MODE"],
     "verdict": "BLOCK" if any(f["severity"] == "CRITICAL" for f in findings) else "PASS",
-    "judge_model": os.environ["JUDGE_MODEL"],
-    "isolation_mode": "liter-llm",
+    "judge_model": judge,
+    "producer_model": producer,
+    "isolation_mode": "rest-gateway:%s" % endpoint if endpoint else "rest-gateway",
+    "cross_model_check": cross,
     "findings": findings,
 }
 # A zero-finding report must carry its due-diligence trail (mandate rule);

@@ -1,6 +1,13 @@
 # Update Log
 
 ## 2026-07-30
+* **Creation**: [Sovereign Sync Domain Adapters Phase Completion](/sovereign-sync-domain-adapters-phase-completion.md)
+* **Creation**: [Sovereign Sync Domain Adapters Session Completion](/sovereign-sync-domain-adapters-session-completion.md)
+* **Creation**: [Sovereign Sync Domain Adapters Executor Session Status](/sovereign-sync-domain-adapters-executor-session-status.md)
+* **Creation**: [Sovereign Sync Domain Adapters Executor Status Record](/sovereign-sync-domain-adapters-executor-status-record.md)
+* **Creation**: [Sovereign Sync Domain Adapters Session Completion](/sovereign-sync-domain-adapters-session-completion.md)
+* **Creation**: [Sovereign Sync Domain Adapters Executor Status](/sovereign-sync-domain-adapters-executor-status.md)
+* **Creation**: [Sovereign Sync Domain Adapters Completion Record](/sovereign-sync-domain-adapters-completion-record.md)
 * **Creation**: [Sovereign Sync Domain Adapters Executor Session Complete](/sovereign-sync-domain-adapters-executor-session-complete.md)
 
 ## 2026-07-29
