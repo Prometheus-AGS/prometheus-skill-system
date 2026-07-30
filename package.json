@@ -50,7 +50,9 @@
     "update:force": "bash scripts/update-skill-pack.sh --force",
     "cucumber": "NODE_OPTIONS=\"--import tsx\" cucumber-js",
     "build:codex": "node scripts/build-codex-plugin.js",
-    "validate:codex": "node scripts/build-codex-plugin.js --check"
+    "validate:codex": "node scripts/build-codex-plugin.js --check",
+    "generate:skills-index": "node scripts/generate-skills-index.js",
+    "check:skills-index": "node scripts/generate-skills-index.js --check"
   },
   "keywords": [
     "claude-code",

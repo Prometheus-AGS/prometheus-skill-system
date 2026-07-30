@@ -43,7 +43,7 @@ Fields:
 ### Step 1: Check configuration
 
 ```bash
-CONFIG_PATH="${LITER_LLM_CONFIG:-$HOME/.config/liter-llm/config.toml}"
+CONFIG_PATH="${LITER_LLM_CONFIG:-$HOME/.config/liter-llm/liter-llm-proxy.toml}"
 [ -f "${CONFIG_PATH}" ] && cat "${CONFIG_PATH}"
 ```
 

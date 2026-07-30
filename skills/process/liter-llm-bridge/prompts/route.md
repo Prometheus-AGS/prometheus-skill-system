@@ -30,8 +30,15 @@ If the harness does not support model switching but does support MCP, route via 
 
 1. The phase emits `[MODEL_ROUTING] class=medium ...`.
 2. A harness hook intercepts dispatch.
-3. The hook calls liter-llm's MCP `complete` tool with `model: "medium"` (the alias resolves via `~/.config/liter-llm/config.toml`).
+3. The hook resolves the role to a `[[models]]` **name** with `kbd_resolve_role`, then
+   POSTs OpenAI REST to the resolved gateway (`kbd_complete`). The MCP path uses the
+   `chat` tool — **there is no `complete` tool and no `liter-llm complete` CLI.**
 4. The response replaces what the host model would have produced.
+
+Model names come from `~/.config/liter-llm/liter-llm-proxy.toml` (`[[models]]`) and roles
+from `~/.prometheus/kbd/models.toml`. The old flat `[aliases]` table of
+`small`/`medium`/`frontier` in `~/.config/liter-llm/config.toml` is **retired** — that
+shape is not a schema liter-llm can load.
 
 This requires opt-in installation of the routing hook. Do NOT auto-install — the user explicitly invokes `/liter-llm-bridge enable-routing-hook` to consent.
 
@@ -62,10 +69,24 @@ fi
 # Strip the directive line so it doesn't pollute the prompt
 PROMPT="$(echo "$INPUT" | grep -v '\[MODEL_ROUTING\]')"
 
-# Call liter-llm MCP `complete` with the class alias
-# (Implementation depends on harness MCP invocation conventions —
-# this is a sketch, not a working drop-in)
-liter-llm-cli complete --model "$DIRECTIVE" --prompt "$PROMPT"
+# Dispatch over the REST gateway via the shared helper.
+# NOT `liter-llm complete` / `liter-llm-cli complete` — neither exists. The binary
+# ships only `api` and `mcp`; it is a proxy SERVER. Earlier versions of this template
+# called a non-existent command, and because callers only checked that the binary was
+# present, the failure read as "liter-llm unavailable".
+. "${CLAUDE_PLUGIN_ROOT}/shared/scripts/lib/kbd-model-resolve.sh"
+
+# $DIRECTIVE is a CLASS (small/medium/frontier). Map it to a role, then resolve the
+# role to a real [[models]] name — never send the class name as a model id.
+case "$DIRECTIVE" in
+  frontier) ROLE=judge ;;
+  *)        ROLE=critic ;;
+esac
+
+kbd_complete "$(kbd_resolve_role "$ROLE")" "" "$PROMPT" 2048 || {
+  echo "[route] model call failed (see message above) — falling back to host model" >&2
+  printf '%s' "$PROMPT"
+}
 ```
 
 Register the hook in `~/.claude/settings.json` under `hooks.PreToolUse` matching the dispatch tool. Document the exact integration in the harness's hook spec — Claude Code uses JSON over stdin/stdout, opencode and cursor differ.

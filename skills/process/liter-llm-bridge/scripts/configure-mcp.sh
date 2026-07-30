@@ -2,9 +2,7 @@
 # configure-mcp.sh — manage liter-llm config and harness MCP registration.
 #
 # Subcommands:
-#   write-toml <small-alias> <medium-alias> <frontier-alias>
-#       Write/merge ~/.config/liter-llm/config.toml with the given aliases.
-#       Each alias is a "provider/model" identifier, e.g. "anthropic/claude-sonnet-4-6".
+#   write-toml    REMOVED — see configure-models.sh (this now exits 2 with guidance)
 #
 #   register [--harness <name>]
 #       Auto-detect the active harness (or use --harness override) and add a
@@ -20,54 +18,39 @@
 set -euo pipefail
 
 CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/liter-llm"
-CONFIG_FILE="$CONFIG_DIR/config.toml"
+# liter-llm's REAL config. `config.toml` (flat [aliases]) is retired — it is not a
+# schema liter-llm can load.
+CONFIG_FILE="${LITER_LLM_CONFIG:-$CONFIG_DIR/liter-llm-proxy.toml}"
+LEGACY_CONFIG="$CONFIG_DIR/config.toml"
 
 cmd_write_toml() {
-  local small="${1:?small alias required}"
-  local medium="${2:?medium alias required}"
-  local frontier="${3:?frontier alias required}"
+  # REMOVED. This used to write ~/.config/liter-llm/config.toml with a flat
+  # [aliases] table of small/medium/frontier.
+  #
+  # That file shape is NOT a schema liter-llm can load: its real config is
+  # liter-llm-proxy.toml, where [[aliases]] is an ARRAY OF TABLES keyed by
+  # `pattern`. A flat table parsed to nothing, so every caller silently fell back
+  # to sending the class name ("frontier") as a model id. Generating that file was
+  # the root cause of the adversarial judge never reaching a second model.
+  #
+  # Fail loudly rather than keep producing a config that cannot work.
+  cat >&2 <<'MSG'
+configure-mcp.sh write-toml has been REMOVED.
 
-  mkdir -p "$CONFIG_DIR"
+It wrote ~/.config/liter-llm/config.toml with a flat [aliases] table — a shape
+liter-llm cannot load, which silently broke model resolution.
 
-  if [[ ! -f "$CONFIG_FILE" ]]; then
-    cat > "$CONFIG_FILE" <<EOF
-# liter-llm config — managed by liter-llm-bridge skill.
-# Edit [providers.*] freely; [aliases] is overwritten on each \`configure\` run.
+Use instead:
+  bash scripts/configure-models.sh repair              # create/repair valid config
+  bash scripts/configure-models.sh add-provider <name> # local-proxy|kimi|minimax|qwen|glm|glm-coding
+  bash scripts/configure-models.sh verify              # live completion per role
+  bash scripts/configure-models.sh migrate             # retire the old config.toml
 
-[aliases]
-small    = "$small"
-medium   = "$medium"
-frontier = "$frontier"
-EOF
-    echo "Wrote new config: $CONFIG_FILE"
-  else
-    # Merge: replace [aliases] block, preserve everything else
-    local tmp
-    tmp="$(mktemp)"
-    awk -v s="$small" -v m="$medium" -v f="$frontier" '
-      BEGIN { in_aliases = 0; printed = 0 }
-      /^\[aliases\]/ {
-        in_aliases = 1
-        if (!printed) {
-          print "[aliases]"
-          print "small    = \"" s "\""
-          print "medium   = \"" m "\""
-          print "frontier = \"" f "\""
-          printed = 1
-        }
-        next
-      }
-      /^\[/ && in_aliases { in_aliases = 0 }
-      !in_aliases { print }
-    ' "$CONFIG_FILE" > "$tmp"
-
-    if ! grep -q "^\[aliases\]" "$tmp"; then
-      printf '\n[aliases]\nsmall    = "%s"\nmedium   = "%s"\nfrontier = "%s"\n' \
-        "$small" "$medium" "$frontier" >> "$tmp"
-    fi
-    mv "$tmp" "$CONFIG_FILE"
-    echo "Updated aliases in: $CONFIG_FILE"
-  fi
+Roles live in ~/.prometheus/kbd/models.toml; model definitions in
+~/.config/liter-llm/liter-llm-proxy.toml. See
+skills/process/adversarial-review/references/model-configuration.md
+MSG
+  return 2
 }
 
 detect_harness() {
@@ -82,12 +65,12 @@ register_claude_code() {
   local mcp_file="$HOME/.claude/mcp_servers.json"
   mkdir -p "$(dirname "$mcp_file")"
   if [[ ! -f "$mcp_file" ]]; then
-    cat > "$mcp_file" <<'EOF'
+    cat > "$mcp_file" <<EOF
 {
   "mcpServers": {
     "liter-llm": {
       "command": "liter-llm",
-      "args": ["mcp", "--transport", "stdio"]
+      "args": ["mcp", "--transport", "stdio", "--config", "${CONFIG_FILE}"]
     }
   }
 }
@@ -95,15 +78,16 @@ EOF
     echo "$mcp_file"
   else
     # Use python for safe JSON merge
-    python3 - "$mcp_file" <<'PYEOF'
-import json, sys
+    LITER_CFG="$CONFIG_FILE" python3 - "$mcp_file" <<'PYEOF'
+import json, os, sys
 path = sys.argv[1]
 with open(path) as f:
     cfg = json.load(f)
 cfg.setdefault("mcpServers", {})
 cfg["mcpServers"]["liter-llm"] = {
     "command": "liter-llm",
-    "args": ["mcp", "--transport", "stdio"],
+    # --config is mandatory: discover() walks the CWD upward, never $HOME.
+    "args": ["mcp", "--transport", "stdio", "--config", os.environ["LITER_CFG"]],
 }
 with open(path, "w") as f:
     json.dump(cfg, f, indent=2)
@@ -116,15 +100,15 @@ register_opencode() {
   local f="$HOME/.config/opencode/config.json"
   mkdir -p "$(dirname "$f")"
   [[ -f "$f" ]] || echo '{}' > "$f"
-  python3 - "$f" <<'PYEOF'
-import json, sys
+  LITER_CFG="$CONFIG_FILE" python3 - "$f" <<'PYEOF'
+import json, os, sys
 path = sys.argv[1]
 with open(path) as f:
     cfg = json.load(f)
 cfg.setdefault("mcp_servers", {})
 cfg["mcp_servers"]["liter-llm"] = {
     "command": "liter-llm",
-    "args": ["mcp", "--transport", "stdio"],
+    "args": ["mcp", "--transport", "stdio", "--config", os.environ["LITER_CFG"]],
 }
 with open(path, "w") as f:
     json.dump(cfg, f, indent=2)
@@ -136,15 +120,16 @@ register_cursor() {
   local f="$HOME/.cursor/mcp.json"
   mkdir -p "$(dirname "$f")"
   [[ -f "$f" ]] || echo '{"mcpServers":{}}' > "$f"
-  python3 - "$f" <<'PYEOF'
-import json, sys
+  LITER_CFG="$CONFIG_FILE" python3 - "$f" <<'PYEOF'
+import json, os, sys
 path = sys.argv[1]
 with open(path) as f:
     cfg = json.load(f)
 cfg.setdefault("mcpServers", {})
 cfg["mcpServers"]["liter-llm"] = {
     "command": "liter-llm",
-    "args": ["mcp", "--transport", "stdio"],
+    # --config is mandatory: discover() walks the CWD upward, never $HOME.
+    "args": ["mcp", "--transport", "stdio", "--config", os.environ["LITER_CFG"]],
 }
 with open(path, "w") as f:
     json.dump(cfg, f, indent=2)
@@ -156,11 +141,11 @@ register_codex() {
   local f="$HOME/.config/codex/config.toml"
   mkdir -p "$(dirname "$f")"
   if ! grep -q "^\[mcp.servers.liter-llm\]" "$f" 2>/dev/null; then
-    cat >> "$f" <<'EOF'
+    cat >> "$f" <<EOF
 
 [mcp.servers.liter-llm]
 command = "liter-llm"
-args = ["mcp", "--transport", "stdio"]
+args = ["mcp", "--transport", "stdio", "--config", "${CONFIG_FILE}"]
 EOF
   fi
   echo "$f"
@@ -197,11 +182,20 @@ cmd_register() {
 cmd_status() {
   echo "liter-llm config: $CONFIG_FILE"
   if [[ -f "$CONFIG_FILE" ]]; then
-    echo "--- aliases ---"
-    awk '/^\[aliases\]/,/^\[/' "$CONFIG_FILE" | grep -v "^\[" || true
+    echo "--- [[models]] names ---"
+    grep -E '^[[:space:]]*name[[:space:]]*=' "$CONFIG_FILE" | sed -E 's/.*"([^"]*)".*/  \1/' || true
+    grep -qE '^[[:space:]]*master_key[[:space:]]*=' "$CONFIG_FILE" \
+      || echo "  WARNING: no [general] master_key — every /v1/* request will 401"
   else
-    echo "(not configured)"
+    echo "(not configured — run: bash scripts/configure-models.sh repair)"
   fi
+  if [[ -f "$LEGACY_CONFIG" ]]; then
+    echo
+    echo "NOTE: retired $LEGACY_CONFIG still present."
+    echo "      Retire it with: bash scripts/configure-models.sh migrate"
+  fi
+  echo
+  echo "Roles: ${PROMETHEUS_KBD_MODELS_CONFIG:-$HOME/.prometheus/kbd/models.toml}"
   echo
   echo "Harness registrations:"
   for h in "$HOME/.claude/mcp_servers.json" \

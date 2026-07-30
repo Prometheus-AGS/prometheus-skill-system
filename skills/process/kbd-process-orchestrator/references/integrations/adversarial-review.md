@@ -42,7 +42,7 @@ bash "$SKILL_DIR/scripts/check-findings-sycophancy.sh" \
 
 `dispatch-judge.sh` exit codes the caller must honor:
 
-- `0` — findings written (`isolation_mode: liter-llm`).
+- `0` — findings written (`isolation_mode: rest-gateway:<url>`; check `cross_model_check`).
 - `3` — liter-llm unavailable: dispatch a **harness-native fresh-context
   subagent** whose prompt is exactly the mode's mandate file
   (`assets/reviewer-mandate-<mode>.md`) + `packet.json`, nothing else;
@@ -79,7 +79,7 @@ Findings schema:
 | `adv-review-judge` | frontier |
 
 The judge must resolve to a model **different from `producer_model`** in the
-packet; on collision the dispatcher walks frontier → medium → small aliases
+packet; on collision the dispatcher falls back from the judge role to the critic role
 and only proceeds same-model with a logged `JUDGE_MODEL_COLLISION` warning.
 See `skills/process/adversarial-review/references/isolation-and-routing.md`.
 

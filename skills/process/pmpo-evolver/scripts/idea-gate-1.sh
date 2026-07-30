@@ -78,14 +78,32 @@ fi
 
 # --- Check 3: Does this conflict with design-philosophy.md? ---
 PHILOSOPHY_FILE=".evolver/${EVOLUTION_NAME}/design-philosophy.md"
-if [ -f "${PHILOSOPHY_FILE}" ] && command -v liter-llm > /dev/null 2>&1; then
+# Resolve the shared model library. Previously this called `liter-llm complete`, a
+# subcommand that does not exist, with `2>/dev/null || echo "NO"` — so the gate
+# ALWAYS took the "no conflict" branch and silently passed every idea.
+_GATE_LIB=""
+for _cand in \
+  "$(cd "$(dirname "$0")" && pwd)/../../../../shared/scripts/lib/kbd-model-resolve.sh" \
+  "${CLAUDE_PLUGIN_ROOT:-}/shared/scripts/lib/kbd-model-resolve.sh" \
+  "${PLUGIN_ROOT:-}/shared/scripts/lib/kbd-model-resolve.sh"; do
+  if [ -n "$_cand" ] && [ -f "$_cand" ]; then _GATE_LIB="$_cand"; break; fi
+done
+
+if [ -f "${PHILOSOPHY_FILE}" ] && [ -n "$_GATE_LIB" ]; then
+  # shellcheck source=/dev/null
+  . "$_GATE_LIB"
   echo "[gate-1] Check 3: Checking design philosophy conflict..." >&2
 
   # [MODEL_ROUTING] phase=evolver-idea-gate1-philosophy class=small
   PHILOSOPHY=$(head -100 "${PHILOSOPHY_FILE}")
-  CONFLICT=$(printf 'Philosophy:\n%s\n\nIdea: %s\n\nDoes this idea directly conflict with the philosophy? Reply with only YES or NO.' \
-    "${PHILOSOPHY}" "${IDEA}" | \
-    liter-llm complete --model small --max-tokens 5 2>/dev/null || echo "NO")
+  _sys='Answer with only YES or NO.'
+  _usr="$(printf 'Philosophy:\n%s\n\nIdea: %s\n\nDoes this idea directly conflict with the philosophy?' "${PHILOSOPHY}" "${IDEA}")"
+  if ! CONFLICT="$(kbd_complete "$(kbd_resolve_role critic)" "$_sys" "$_usr" 8)"; then
+    # A failed check is NOT a pass. Say so instead of waving the idea through.
+    echo "[gate-1] WARN: philosophy check could not run (see message above) —" >&2
+    echo "[gate-1]       treating as INDETERMINATE, not as 'no conflict'." >&2
+    CONFLICT="INDETERMINATE"
+  fi
 
   if echo "${CONFLICT}" | grep -qi "^YES"; then
     echo "[gate-1] REJECT: Conflicts with design philosophy." >&2

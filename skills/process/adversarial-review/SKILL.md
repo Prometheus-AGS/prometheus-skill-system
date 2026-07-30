@@ -4,7 +4,8 @@ name: adversarial-review
 version: '1.0.0'
 description: >
   Isolated, cross-model adversarial review of KBD artifacts and change diffs.
-  Dispatches a fresh-context LLM judge (via liter-llm) with an explicit
+  Dispatches a fresh-context LLM judge over an OpenAI-compatible REST gateway
+  (openai-proxy or `liter-llm api`) with an explicit
   mandate to find problems — the model that produced an artifact or change is
   never the model that reviews it. Runs as a pipeline stage inside
   kbd-assess/analyze/plan (artifact mode) and kbd-execute's per-change QA gate
@@ -71,7 +72,8 @@ This is a different job from the existing gates:
 
 ## Isolation contract
 
-The judge is a **fresh-context API call** dispatched through liter-llm. It
+The judge is a **fresh-context API call** to an OpenAI-compatible
+`/v1/chat/completions` gateway. It
 receives only a review packet — diff or artifact, acceptance criteria or
 goals, file tree, constraints — and **never** the producing session's chat
 history. Isolation is structural, not honor-system: the session reads only
@@ -79,9 +81,12 @@ the normalized findings JSON (the same pattern pmpo-evolver uses for its
 isolated collection subprocesses).
 
 **The producer never grades itself.** The packet records `producer_model`;
-dispatch refuses to resolve the judge to the same model when any alternative
-exists in the class registry, and emits a `JUDGE_MODEL_COLLISION` warning
-when it cannot (see `references/isolation-and-routing.md`).
+dispatch falls back from the `judge` role to the `critic` role when they would
+match, and emits a `JUDGE_MODEL_COLLISION` warning when no alternative differs
+(see `references/isolation-and-routing.md`). A packet with
+`producer_model: unknown` makes that comparison pass trivially, so it is
+recorded as `cross_model_check: unverified-producer-unknown` rather than
+passed off as a clean cross-model review.
 
 ## Modes
 
@@ -170,7 +175,7 @@ degrade, never block the pipeline:
    `dispatch-judge.sh` called that non-existent subcommand; because the guard only
    checked that the *binary* existed, the failure surfaced as "liter-llm
    unavailable" rather than as the CLI-contract mismatch it was. Speak REST.
-2. **Harness-native fresh-context subagent** — when liter-llm is unavailable
+2. **Harness-native fresh-context subagent** — when no gateway is reachable
    (`dispatch-judge.sh` exit 3), the calling session dispatches a subagent
    (Agent tool / equivalent) whose prompt is exactly: the mode's mandate file
    + the packet JSON. Nothing else. Findings are logged with
@@ -190,7 +195,9 @@ degrade, never block the pipeline:
   "mode": "diff",
   "verdict": "BLOCK",
   "judge_model": "openai/gpt-4o",
-  "isolation_mode": "liter-llm",
+  "isolation_mode": "rest-gateway:http://localhost:8181/v1",
+  "producer_model": "claude-opus-5",
+  "cross_model_check": "verified-distinct",
   "findings": [
     {
       "severity": "CRITICAL",

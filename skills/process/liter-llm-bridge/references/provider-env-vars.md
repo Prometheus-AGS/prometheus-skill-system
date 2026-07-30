@@ -43,13 +43,30 @@ A provider is mapped to a class based on the *cheapest available model* that mee
 
 ## Override
 
-The user can pin specific models via `~/.config/liter-llm/config.toml`:
+The user can pin specific models via `[[models]]` entries in `~/.config/liter-llm/liter-llm-proxy.toml`, and map roles in `~/.prometheus/kbd/models.toml`:
 
 ```toml
-[aliases]
-small    = "ollama/qwen2.5:7b"
-medium   = "groq/llama-3.3-70b-versatile"
-frontier = "anthropic/claude-sonnet-4-6"
+# ~/.config/liter-llm/liter-llm-proxy.toml — define the model
+[[models]]
+name = "kbd-judge"
+provider_model = "zai/glm-4.7"
+api_key = "${ZAI_API_KEY}"      # a ${VAR} reference, never a literal key
+base_url = "https://api.z.ai/api/paas/v4"
 ```
 
-Pinned aliases take precedence over the auto-detect logic.
+```toml
+# ~/.prometheus/kbd/models.toml — point a role at it
+[roles]
+judge = "kbd-judge"
+```
+
+A pinned role takes precedence over auto-detection. Full precedence, highest first:
+
+```
+flag > PROMETHEUS_KBD_<ROLE>_MODEL > models.toml > project.json model_policy > default
+```
+
+> The old flat `[aliases]` table of `small`/`medium`/`frontier` in
+> `~/.config/liter-llm/config.toml` is **retired** — liter-llm cannot load that shape
+> (its real `[[aliases]]` is an array of tables keyed by `pattern`), so it silently
+> resolved to nothing. Manage both files with `/liter-llm-bridge configure`.

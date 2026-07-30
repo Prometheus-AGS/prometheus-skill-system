@@ -851,11 +851,16 @@ Use these test queries to validate the skill across all stages:
 
 ### 9.3 Integration Tests
 
+> **Prescriptive, not descriptive.** The `scripts/test-*.sh` files below are part of what
+> this playbook asks you to *build* — none of them exist in the repo today. For a working
+> model-routing check right now, use `bash scripts/check-model-config.sh` and
+> `bash skills/process/liter-llm-bridge/scripts/configure-models.sh verify`.
+
 ```bash
 # Test surreal-memory integration
 bash scripts/test-surreal-memory.sh
 
-# Test liter-llm routing
+# Test liter-llm routing (see note above — use check-model-config.sh today)
 bash scripts/test-liter-llm.sh
 
 # Test MCP server

@@ -9,7 +9,9 @@ Canonical schema: [`../assets/schemas/findings.schema.json`](../assets/schemas/f
   "mode": "diff | artifact",
   "verdict": "PASS | BLOCK",
   "judge_model": "provider/model-id",
-  "isolation_mode": "liter-llm | harness-native",
+  "isolation_mode": "rest-gateway:<url> | harness-native",
+  "producer_model": "<model whose work was reviewed>",
+  "cross_model_check": "verified-distinct | same-model-collision | unverified-producer-unknown",
   "findings": [
     {
       "severity": "CRITICAL | WARNING | SUGGESTION",

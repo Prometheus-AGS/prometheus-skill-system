@@ -21,8 +21,17 @@
     },
     "isolation_mode": {
       "type": "string",
-      "enum": ["liter-llm", "harness-native"],
-      "description": "liter-llm = fresh-context cross-model API call; harness-native = fresh-context subagent fallback (weaker guarantee)"
+      "pattern": "^(rest-gateway(:.*)?|harness-native)$",
+      "description": "What actually served the review. 'rest-gateway:<url>' = fresh-context cross-model call to that OpenAI-compatible endpoint; 'harness-native' = fresh-context subagent fallback (weaker guarantee). Was previously the fixed literal 'liter-llm' regardless of endpoint, which made a same-family self-grade indistinguishable from a real cross-model review."
+    },
+    "producer_model": {
+      "type": "string",
+      "description": "The model whose work was reviewed, for the judge!=producer comparison. 'unknown' means the check could not be enforced."
+    },
+    "cross_model_check": {
+      "type": "string",
+      "enum": ["verified-distinct", "same-model-collision", "unverified-producer-unknown"],
+      "description": "Whether the judge was proven different from the producer. 'unverified-producer-unknown' means the packet carried no producer_model, so the comparison passed trivially — not a clean review."
     },
     "checked_classes": {
       "type": "array",

@@ -100,17 +100,35 @@ Output JSON only:
   ]
 }"
 
-# Call liter-llm if available, otherwise emit placeholder
-if ! command -v liter-llm > /dev/null 2>&1; then
-  echo "[post-cycle-dream] liter-llm not available — emitting placeholder lessons" >&2
+# Dispatch over the REST gateway. Previously this called `liter-llm complete` — a
+# subcommand that does not exist — guarded only by `command -v liter-llm`, so the
+# binary being present meant we took the "available" path and then got an empty
+# RESPONSE from a failed call, silently producing zero lessons.
+_DREAM_LIB=""
+for _cand in \
+  "$(cd "$(dirname "$0")" && pwd)/../../../../shared/scripts/lib/kbd-model-resolve.sh" \
+  "${CLAUDE_PLUGIN_ROOT:-}/shared/scripts/lib/kbd-model-resolve.sh" \
+  "${PLUGIN_ROOT:-}/shared/scripts/lib/kbd-model-resolve.sh"; do
+  if [ -n "$_cand" ] && [ -f "$_cand" ]; then _DREAM_LIB="$_cand"; break; fi
+done
+
+if [ -z "$_DREAM_LIB" ]; then
+  echo "[post-cycle-dream] model-resolve library not found — emitting placeholder lessons" >&2
   TIMESTAMP=$(date -u +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || \
     python3 -c "from datetime import datetime,timezone; print(datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ'))")
-  printf '{"lessons_added": 0, "note": "liter-llm unavailable — install liter-llm and re-run for strategic dreaming"}\n'
+  printf '{"lessons_added": 0, "note": "model-resolve library unavailable — re-run from a complete skill payload for strategic dreaming"}\n'
   exit 0
 fi
 
+# shellcheck source=/dev/null
+. "$_DREAM_LIB"
+
 # [MODEL_ROUTING] phase=evolver-post-dream class=frontier
-RESPONSE=$(echo "${PROMPT}" | liter-llm complete --model frontier 2>/dev/null)
+if ! RESPONSE="$(kbd_complete "$(kbd_resolve_role judge)" "" "${PROMPT}" 4096)"; then
+  echo "[post-cycle-dream] WARN: dreaming model call failed (see message above) —" >&2
+  echo "[post-cycle-dream]       emitting zero lessons rather than inventing them." >&2
+  RESPONSE=""
+fi
 
 TIMESTAMP=$(date -u +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || \
   python3 -c "from datetime import datetime,timezone; print(datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ'))")

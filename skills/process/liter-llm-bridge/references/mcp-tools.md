@@ -25,30 +25,45 @@ Primary routing tool. Sends a prompt to a model alias and returns the completion
 
 ### `list_models`
 
-Returns the available aliases plus the resolved provider/model behind each. Used by `/liter-llm-bridge status`.
+Returns the models the proxy can route to — the `[[models]]` names plus the registry
+models reachable through `[[aliases]]` patterns. **Not** aliases in the retired
+`small`/`medium`/`frontier` sense; those no longer exist.
 
-### `health`
+## The complete tool list (verified)
 
-Verifies each configured provider is reachable. Used by the configure phase smoke test.
+`liter-llm mcp` exposes exactly these 22 tools, enumerated live from
+`tools/list` on 2026-07-30:
 
-## Tools the Bridge References But Does Not Use
+```
+cancel_batch  cancel_response  chat            create_batch   create_file
+create_response  delete_file   embed           file_content   generate_image
+list_batches  list_files       list_models     moderate       ocr
+rerank        retrieve_batch   retrieve_file   retrieve_response
+search        speech           transcribe
+```
 
-| Tool                | Purpose                                                |
-|---------------------|--------------------------------------------------------|
-| `create_api_key`    | Mint virtual API keys for downstream callers           |
-| `set_rate_limit`    | RPM / TPM caps per virtual key                         |
-| `get_cost`          | Cost tracking per request / per key                    |
-| `set_budget`        | Hard budget enforcement                                |
-| `cache_get` / `cache_set` | Response caching (content-hash keyed)            |
-| `stream`            | SSE streaming variant of `complete`                    |
-| Plus 13 other tools for key management, observability, and provider config |
+Notable absences — earlier revisions of this file documented every one of these as if it existed:
 
-For the bridge's purpose (per-phase routing), `complete` is sufficient. Cost tracking via `get_cost` is useful for verifying the cost reduction is actually happening — consider running a weekly sweep.
+| Documented before | Reality |
+|---|---|
+| `complete` | **Does not exist.** The chat tool is `chat`. |
+| `health` | **Does not exist.** Probe `GET /v1/models` instead. |
+| `stream` | **Does not exist.** Streaming is a `chat` parameter. |
+| `get_cost`, `create_api_key`, `set_rate_limit`, `set_budget`, `cache_*` | **Do not exist as MCP tools.** Rate limits, budgets, and caching are `liter-llm-proxy.toml` config sections (`[rate_limit]`, `[budget]`, `[cache]`), not callable tools. |
+
+There is likewise no `liter-llm complete`, `liter-llm mcp-call`, or `liter-llm
+list_models` **CLI** subcommand — the binary ships only `api` and `mcp`. `list_models`
+is an MCP tool, reachable over the MCP transport or as `GET /v1/models` on the HTTP
+server; it is not something you can run from a shell.
+
+For the bridge's purpose (per-phase routing), `chat` is sufficient — or, from shell,
+`kbd_complete` in `shared/scripts/lib/kbd-model-resolve.sh`, which POSTs
+`/v1/chat/completions` and reports failures instead of swallowing them.
 
 ## Transport
 
-`liter-llm mcp` supports `stdio` (default for Claude Code, opencode, codex) and `http`. The bridge always registers stdio — http requires a long-running server which adds operational complexity that defeats the "one binary on PATH" model.
+`liter-llm mcp` supports `stdio` (default for Claude Code, opencode, codex) and `http`. Registration MUST pass `--config <abs path>`: `ProxyConfig::discover()` walks the CWD upward and never searches `$HOME`, and without it the stdio server does not merely load zero models — it **fails to start**, because `[mcp] stdio_trust_local` lives in the config it was never given. The bridge always registers stdio — http requires a long-running server which adds operational complexity that defeats the "one binary on PATH" model.
 
 ## Versioning
 
-The bridge's smoke test verifies the `complete` tool is present. If liter-llm renames or restructures tools in a future release, the bridge install script will need to bump the pinned commit / tag in `scripts/install-liter-llm.sh`. Track upstream changes via `liter-llm --version` and the fork's CHANGELOG.
+The bridge's smoke test is `configure-models.sh verify`, which checks that `GET /v1/models` returns 200 (not 401) and that one real completion succeeds per role. If liter-llm renames or restructures tools in a future release, the bridge install script will need to bump the pinned commit / tag in `scripts/install-liter-llm.sh`. Track upstream changes via `liter-llm --version` and the fork's CHANGELOG.

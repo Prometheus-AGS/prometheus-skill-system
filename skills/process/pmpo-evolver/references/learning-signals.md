@@ -68,7 +68,7 @@ import json,sys
 items = json.load(sys.stdin)
 titles = [i['title'] for i in items[:20]]
 print('\n'.join(titles))
-" | liter-llm complete --model medium \
+" | kbd_complete "$(kbd_resolve_role critic)" \
   --system 'Classify these GitHub issue titles into themes. Output JSON: {"themes": [{"name": "string", "count": int, "sentiment": "negative|neutral|positive"}]}')
 ```
 
@@ -97,7 +97,7 @@ bash scripts/commit-history-analyze.sh <repo_path> --since <ISO8601>
 ITEMS=$(curl -s <url> | python3 parse-feed.py --format <rss|json|csv>)
 
 # [MODEL_ROUTING] phase=evolver-signal-sentiment class=medium
-SENTIMENT=$(echo "${ITEMS}" | liter-llm complete --model medium \
+SENTIMENT=$(echo "${ITEMS}" | kbd_complete "$(kbd_resolve_role critic)" \
   --system 'Classify the sentiment of these user feedback items. Output JSON: {"overall_sentiment": "positive|mixed|negative", "negative_themes": ["string"], "positive_themes": ["string"], "total_items": int}')
 ```
 
@@ -140,7 +140,7 @@ After all sources collected:
 # [MODEL_ROUTING] phase=evolver-signal-synthesis class=medium
 # Synthesize what signals collectively mean for product direction
 ALL_SIGNALS_JSON="<normalized LearningSignal[] as JSON>"
-SYNTHESIS=$(echo "${ALL_SIGNALS_JSON}" | liter-llm complete --model medium \
+SYNTHESIS=$(echo "${ALL_SIGNALS_JSON}" | kbd_complete "$(kbd_resolve_role critic)" \
   --system 'Given these normalized learning signals, synthesize the top 3 product direction implications. Output JSON: {"implications": [{"implication": "string", "confidence": "high|medium|low", "supporting_signals": ["source_type"]}]}')
 ```
 

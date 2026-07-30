@@ -48,4 +48,4 @@ Running install on an already-installed system should:
 - Rebuild only if the source changed
 - Skip the `cargo install` step if the binary is up-to-date (cargo handles this automatically with `--locked`)
 
-Never delete or move existing config (`~/.config/liter-llm/config.toml`) during install — that is `configure`'s job.
+Never delete or move existing config (`~/.config/liter-llm/liter-llm-proxy.toml`) during install — that is `configure`'s job.

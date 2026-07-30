@@ -45,10 +45,13 @@ CONFIG_PATH="${LITELLM_CONFIG:-${HOME}/.litellm/config.yaml}"
 
 ```bash
 # List all configured models
-liter-llm list_models 2>/dev/null || echo "[]"
+# NOT a CLI subcommand — list_models is an MCP tool. From shell, use the HTTP API:
+curl -s --noproxy '*' -H "Authorization: Bearer $LITER_LLM_MASTER_KEY" \
+  "${LITER_LLM_BASE_URL:-http://localhost:8181/v1}/models" || echo '{}'
 
 # JSON output
-liter-llm list_models --json 2>/dev/null | python3 -c "
+curl -s --noproxy '*' -H "Authorization: Bearer $LITER_LLM_MASTER_KEY" \
+  "${LITER_LLM_BASE_URL:-http://localhost:8181/v1}/models" | python3 -c "
 import json, sys
 models = json.load(sys.stdin)
 for m in models:
@@ -115,10 +118,12 @@ curl -s http://localhost:11434/api/tags >/dev/null 2>&1 && echo "ollama: yes"
 
 ```bash
 # Estimate cost before calling
-COST=$(liter-llm get_cost --model <model> --prompt-tokens 1000 --completion-tokens 200 2>/dev/null || echo "unknown")
+COST=$(# no get_cost tool or subcommand exists; see [budget]/[cache] config sections
+# liter-llm get_cost --model <model> --prompt-tokens 1000 --completion-tokens 200 2>/dev/null || echo "unknown")
 
 # After calling, log actual cost
-RESPONSE=$(echo "${PROMPT}" | liter-llm complete --model <model> --json-output 2>/dev/null)
+. "${CLAUDE_PLUGIN_ROOT}/shared/scripts/lib/kbd-model-resolve.sh"
+RESPONSE="$(kbd_complete "<model>" "" "${PROMPT}" 2048)" || RESPONSE=""
 ACTUAL_COST=$(echo "${RESPONSE}" | python3 -c "
 import json, sys
 d = json.load(sys.stdin)

@@ -528,7 +528,9 @@ The validator (`scripts/validate-skills.js`) checks:
 
 The marketplace is configured for Git-based distribution:
 
-1. **Source**: `marketplace/marketplace.json` with frontmatter
+1. **Source**: `.claude-plugin/marketplace.json` (11 plugin entries). There is no
+   `marketplace/` directory — `npm run build:codex` mirrors this file to
+   `.agents/plugins/marketplace.json` for Codex.
 2. **Plugins**: Defined as Git repository references
 3. **Granularity**: Full package or individual domain packages
 4. **Installation**: Users run `/plugin marketplace add Prometheus-AGS/prometheus-skill-system`
@@ -538,8 +540,9 @@ The marketplace is configured for Git-based distribution:
 Before releasing:
 
 - [ ] All skills validate strict: `npm run validate:strict`
+- [ ] Skills index regenerated: `npm run generate:skills-index` (verify: `npm run check:skills-index`)
 - [ ] Marketplace builds: `npm run build`
-- [ ] Version bumped in `package.json`, `plugin.json`, and every plugin entry in `marketplace/marketplace.json`
+- [ ] Version bumped in `package.json`, `.claude-plugin/plugin.json`, `site/package.json`, and every plugin entry in `.claude-plugin/marketplace.json` (then `npm run build:codex` to re-mirror)
 - [ ] CHANGELOG updated
 - [ ] README reflects new skills
 - [ ] Git tag created: `git tag v1.x.x`
