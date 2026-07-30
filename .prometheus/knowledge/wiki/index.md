@@ -128,6 +128,7 @@
 * [Sovereign Sync Domain Adapters Executor Completion](/sovereign-sync-domain-adapters-executor-completion.md)
 * [Sovereign Sync Domain Adapters Executor Completion Status](/sovereign-sync-domain-adapters-executor-completion-status.md)
 * [Sovereign Sync Domain Adapters Executor Session Complete](/sovereign-sync-domain-adapters-executor-session-complete.md)
+* [Sovereign Sync Domain Adapters Executor Session Record](/sovereign-sync-domain-adapters-executor-session-record.md)
 * [Sovereign Sync Domain Adapters Executor Session Status](/sovereign-sync-domain-adapters-executor-session-status.md)
 * [Sovereign Sync Domain Adapters Executor Status](/sovereign-sync-domain-adapters-executor-status.md)
 * [Sovereign Sync Domain Adapters Executor Status Record](/sovereign-sync-domain-adapters-executor-status-record.md)
