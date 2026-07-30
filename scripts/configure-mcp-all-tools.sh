@@ -85,6 +85,12 @@ const table = JSON.parse(fs.readFileSync(tablePath, 'utf8')).services;
 // OpenCode uses its own MCP schema (key "mcp"): { type: "remote"|"local", enabled, ... }
 // rather than the Claude-style sse/http/stdio used by every other JSON tool.
 const isOpencode = mcpKey === 'mcp';
+// Expand ${HOME} in argument vectors. JSON configs perform no shell expansion, so a
+// literal "${HOME}/..." path would simply not resolve at spawn time.
+const resolveArgs = (args) =>
+    (args || []).map((a) =>
+        typeof a === 'string' ? a.replace(/\$\{HOME\}/g, process.env.HOME || '') : a
+    );
 const resolveEnv = (env) => {
     const out = {};
     for (const [k, v] of Object.entries(env)) {
@@ -94,20 +100,54 @@ const resolveEnv = (env) => {
 };
 
 const added = [];
+const repaired = [];
 for (const [name, svc] of Object.entries(table)) {
-    if (config[mcpKey][name]) continue;
+    if (config[mcpKey][name]) {
+        // An existing entry is not necessarily a CORRECT entry. This loop used to
+        // `continue` on mere presence, so when a REQUIRED argument was added to the
+        // port table it never reached tools that already had the server registered.
+        // That is how five tools ended up registering `liter-llm mcp` without
+        // `--config` — an omission that makes the server fail to start outright,
+        // because [mcp] stdio_trust_local lives in the config it was never given.
+        //
+        // Reconcile flag/value argument PAIRS from the table into the existing args.
+        // Deliberately conservative: only adds missing pairs, never reorders or
+        // removes anything the user may have added by hand.
+        const want = resolveArgs(svc.args);
+        const existing = config[mcpKey][name];
+        const have = Array.isArray(existing.args)
+            ? existing.args
+            : Array.isArray(existing.command)
+              ? existing.command
+              : null;
+        if (have && want.length > 0) {
+            let changed = false;
+            for (let i = 0; i < want.length - 1; i++) {
+                const flag = want[i];
+                if (typeof flag !== 'string' || !flag.startsWith('--')) continue;
+                const value = want[i + 1];
+                if (typeof value !== 'string' || value.startsWith('--')) continue;
+                if (!have.includes(flag)) {
+                    have.push(flag, value);
+                    changed = true;
+                }
+            }
+            if (changed) repaired.push(name);
+        }
+        continue;
+    }
 
     if (svc.type === 'sse' || svc.type === 'http') {
         config[mcpKey][name] = isOpencode
             ? { type: 'remote', url: svc.url, enabled: true }
             : { type: svc.type, url: svc.url }; // sse = SSE, http = Streamable HTTP
     } else if (isOpencode) {
-        const entry = { type: 'local', command: [svc.command, ...(svc.args || [])], enabled: true };
+        const entry = { type: 'local', command: [svc.command, ...resolveArgs(svc.args)], enabled: true };
         if (svc.env) entry.environment = resolveEnv(svc.env);
         config[mcpKey][name] = entry;
     } else {
         const entry = { type: 'stdio', command: svc.command };
-        if (svc.args && svc.args.length > 0) entry.args = svc.args;
+        if (svc.args && svc.args.length > 0) entry.args = resolveArgs(svc.args);
         if (svc.env) entry.env = resolveEnv(svc.env);
         config[mcpKey][name] = entry;
     }
@@ -115,7 +155,10 @@ for (const [name, svc] of Object.entries(table)) {
 }
 
 fs.writeFileSync(configPath, JSON.stringify(config, null, 2) + '\n', 'utf8');
-process.stdout.write(added.length > 0 ? 'added: ' + added.join(', ') : 'already complete');
+const notes = [];
+if (added.length > 0) notes.push('added: ' + added.join(', '));
+if (repaired.length > 0) notes.push('repaired args: ' + repaired.join(', '));
+process.stdout.write(notes.length > 0 ? notes.join('; ') : 'already complete');
 JS
     )"
     echo "  $node_out"
