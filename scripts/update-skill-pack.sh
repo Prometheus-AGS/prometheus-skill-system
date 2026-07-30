@@ -211,6 +211,29 @@ if [[ -d "$HOME/.codex" ]]; then
     PLATFORMS_UPDATED+=("codex")
 fi
 
+# 3b. Refresh native plugin caches.
+#
+# Platform skill dirs (above) and plugin CACHES are different things. The caches
+# under ~/.claude/plugins/cache/... are versioned by the plugin version, so a
+# same-version edit is NOT picked up — the harness keeps serving the stale copy.
+# That is the mechanism by which a previous session's "fix" (editing scripts
+# directly in the cache) both worked temporarily and then silently evaporated.
+# Refresh them here so the repo is always the single source of truth.
+for _cache_base in "$HOME/.claude/plugins/cache/prometheus-skill-pack/prometheus-skill-pack" \
+                   "$HOME/.codex/plugins/cache/prometheus-skill-pack/prometheus-skill-pack"; do
+    [ -d "$_cache_base" ] || continue
+    for _ver in "$_cache_base"/*/; do
+        [ -d "$_ver" ] || continue
+        if [ -d "${_ver}skills" ]; then
+            rsync -a --delete "$REPO_ROOT/skills/" "${_ver}skills/" 2>/dev/null || true
+        fi
+        if [ -d "${_ver}shared" ]; then
+            rsync -a "$REPO_ROOT/shared/" "${_ver}shared/" 2>/dev/null || true
+        fi
+        echo "  ✅ refreshed plugin cache: ${_ver}"
+    done
+done
+
 # 4. Update install reference
 mkdir -p "$(dirname "$INSTALL_REF_FILE")"
 echo "$CURRENT_SHA" > "$INSTALL_REF_FILE"

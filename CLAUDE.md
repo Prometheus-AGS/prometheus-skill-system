@@ -907,6 +907,61 @@ bases were empty (0 entries), so the format change carried no migration cost.
 That window closes once real ingestion starts — a future format change would
 need an explicit migration path.
 
+## Adversarial Model Routing (liter-llm + openai-proxy)
+
+The KBD adversarial review must be judged by a model that is **not** the producer.
+A same-family judge is a failure, not a fallback — the critic must not share the
+producer's blind spots.
+
+### Ownership split — two files, neither of them a script
+
+| File | Owns |
+|---|---|
+| `~/.prometheus/kbd/models.toml` | role → model **name** (KBD) |
+| `~/.config/liter-llm/liter-llm-proxy.toml` | name → provider + `base_url` + `${KEY}` (liter-llm) |
+
+Adding a provider edits liter-llm's file. Repointing a role edits `models.toml`.
+Neither requires touching a pack script. Resolution lives in exactly one place,
+`shared/scripts/lib/kbd-model-resolve.sh`, with AWS-CLI precedence:
+
+```
+flag > PROMETHEUS_KBD_<ROLE>_MODEL > models.toml > project.json model_policy > default
+```
+
+Manage it with `/liter-llm-bridge configure` (`check`, `repair`, `add-provider`,
+`verify`, `migrate`). Audit with `bash scripts/check-model-config.sh`.
+Full reference: [`skills/process/adversarial-review/references/model-configuration.md`](skills/process/adversarial-review/references/model-configuration.md).
+
+### Three liter-llm contracts that produce baffling failures
+
+1. **`/v1/*` requires a Bearer token unconditionally.** No `[general] master_key`
+   and no `[[keys]]` → **401 on everything**, `/v1/models` included.
+2. **`[security].outbound_policy` defaults to `deny_private`,** which **refuses
+   loopback** — any `localhost` `base_url` fails until it is `"off"` or allowlisted.
+3. **liter-llm never searches `$HOME`.** `ProxyConfig::discover()` walks the CWD
+   upward, so callers **must** pass `--config <abs path>`. Without it `liter-llm mcp`
+   does not start at all, because `[mcp] stdio_trust_local` is in the config it was
+   never given.
+
+**There is no `liter-llm complete`.** The binary ships only `api` and `mcp` — it is a
+proxy *server*. Shell callers use `kbd_complete` from the resolver library, which
+speaks OpenAI REST and reports failures instead of swallowing them.
+
+### NEVER edit a plugin cache
+
+Files under `~/.claude/plugins/cache/...` (and the Codex equivalent) are overwritten
+by the next install and edits there are invisible to git. Caches are keyed by plugin
+**version**, so a same-version repo edit is not picked up either. A previous session
+"fixed" model routing this way; the change worked briefly, then silently evaporated.
+
+Change the repo, then `bash scripts/update-skill-pack.sh --force` (which now refreshes
+the caches). `scripts/check-model-config.sh` exits **2** on any cache divergence —
+that exit code means someone edited the wrong file.
+
+Secrets never enter a config file: keys live in `~/.prometheus/kbd/secrets.env`
+(`0600`) and are referenced as `${VAR}`. liter-llm supports `${VAR}` only and expands
+an unset var to `""`, so both the wizard and the audit script verify each is set.
+
 ## Reflector Sycophancy Gate
 
 The `reflector` SubagentStop hook automatically checks reflection artifacts for sycophantic patterns before they are logged or used to advance the PMPO cycle.

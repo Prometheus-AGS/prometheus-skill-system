@@ -96,3 +96,6 @@ SCRATCHPAD.md
 .envrc
 *.local.env
 site/docs-catalog/
+
+# Evolver runtime state — machine-local, regenerated per run.
+.evolver/
