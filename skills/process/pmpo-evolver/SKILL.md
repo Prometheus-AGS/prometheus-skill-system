@@ -160,10 +160,20 @@ fi
 ```bash
 # Example: competitive scan
 # [MODEL_ROUTING] phase=evolver-competitive-scan class=frontier
-liter-llm complete --model frontier --system "..." --user "..."
+. "${CLAUDE_PLUGIN_ROOT}/shared/scripts/lib/kbd-model-resolve.sh"
+result="$(kbd_complete "$(kbd_resolve_role judge)" "$SYSTEM_PROMPT" "$USER_PROMPT" 2048)" || {
+  echo "[evolver] model call failed (see message above) — continuing degraded" >&2
+}
 ```
 
-**Fallback chain:** liter-llm `complete(model=<class>)` → harness-native model override → host model. Never silently upgrade `small` to `frontier`.
+> There is **no `liter-llm complete`** subcommand — the binary ships only `api` and
+> `mcp` (it is a proxy *server*). This skill documented and called that
+> non-existent command; because callers only checked that the *binary* existed and
+> masked failures with `2>/dev/null || echo "{}"`, extraction silently returned
+> empty results. `kbd_complete` speaks OpenAI REST to the resolved gateway and
+> reports failures instead of swallowing them.
+
+**Fallback chain:** `kbd_complete` over the REST gateway → harness-native model override → host model. Never silently upgrade `small` to `frontier`, and never let a failed call read as an empty result.
 
 For discovery (which providers are configured, health check, class-to-model mapping), see [references/model-routing.md](references/model-routing.md).
 

@@ -203,3 +203,80 @@ kbd_model_routing_log() {
     printf '[MODEL_ROUTING] phase=%s class=%s model=%s producer=%s\n' \
         "$1" "$2" "$3" "$4" >&2
 }
+
+# ---------------------------------------------------------------------------
+# kbd_complete <model> <system-prompt> <user-prompt> [max_tokens]
+# One-shot completion over OpenAI REST. Prints the assistant message on stdout.
+# Returns non-zero AND explains why on stderr — never prints a plausible-looking
+# empty result, because a silent empty completion reads as "the model had nothing
+# to say", which is the most dangerous failure mode for a critic or extractor.
+#
+# Use this instead of `liter-llm complete`: that subcommand does not exist (the
+# binary ships only `api` and `mcp`), and callers that used it paired it with
+# `2>/dev/null || echo "{}"`, so the contract mismatch was invisible.
+kbd_complete() {
+    _model="$1"; _sys="$2"; _usr="$3"; _max="${4:-2048}"
+
+    _gw="$(kbd_resolve_gateway 2>/dev/null)" || {
+        echo "kbd_complete: no OpenAI-compatible gateway reachable" >&2
+        return 3
+    }
+    _tok="$(kbd_gateway_auth)"
+
+    # Body built by python3, never by shell interpolation: prompts contain
+    # arbitrary text and string-built JSON corrupts on the first quote.
+    _body="$(MODEL="$_model" SYS="$_sys" USR="$_usr" MAXT="$_max" python3 <<'PY' 2>/dev/null
+import json, os
+print(json.dumps({
+    "model": os.environ["MODEL"],
+    "messages": [
+        {"role": "system", "content": os.environ.get("SYS", "")},
+        {"role": "user", "content": os.environ.get("USR", "")},
+    ],
+    "temperature": 0,
+    "max_tokens": int(os.environ.get("MAXT") or 2048),
+}))
+PY
+)" || { echo "kbd_complete: failed to build request body" >&2; return 4; }
+
+    _tmp="$(mktemp)"
+    # -w '%{http_code}': curl -s without -f exits 0 on 4xx/5xx, so the status must
+    # be captured explicitly or every HTTP error looks like a successful empty reply.
+    _code="$(curl -s --max-time "${KBD_COMPLETE_TIMEOUT:-120}" \
+        -o "$_tmp" -w '%{http_code}' --noproxy '*' \
+        "$_gw/chat/completions" \
+        -H 'content-type: application/json' \
+        -H "Authorization: Bearer $_tok" \
+        --data-binary "$_body" 2>/dev/null)" || _code="000"
+    _out="$(cat "$_tmp" 2>/dev/null)"; rm -f "$_tmp"
+
+    case "$_code" in
+        2*) ;;
+        000) echo "kbd_complete: request to $_gw did not complete (timeout/connection)" >&2; return 3 ;;
+        401|403)
+            echo "kbd_complete: gateway rejected the credential (HTTP $_code)." >&2
+            echo "  liter-llm needs [general] master_key and a matching Bearer token —" >&2
+            echo "  repair with /liter-llm-bridge configure" >&2
+            return 3 ;;
+        *)  echo "kbd_complete: gateway returned HTTP $_code: $(printf '%s' "$_out" | head -c 200)" >&2
+            return 3 ;;
+    esac
+
+    printf '%s' "$_out" | python3 -c '
+import json, sys
+try:
+    d = json.load(sys.stdin)
+except Exception:
+    sys.stderr.write("kbd_complete: response was not JSON\n"); raise SystemExit(1)
+if isinstance(d.get("error"), dict):
+    sys.stderr.write("kbd_complete: %s\n" % d["error"].get("message", "endpoint error"))
+    raise SystemExit(1)
+try:
+    c = d["choices"][0]["message"]["content"]
+except Exception:
+    sys.stderr.write("kbd_complete: response had no message content\n"); raise SystemExit(1)
+if not (c or "").strip():
+    sys.stderr.write("kbd_complete: model returned an empty message\n"); raise SystemExit(1)
+sys.stdout.write(c)
+'
+}

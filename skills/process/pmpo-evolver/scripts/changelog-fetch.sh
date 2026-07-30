@@ -88,45 +88,101 @@ print('\n\n---\n\n'.join(notes))
 # [MODEL_ROUTING] phase=evolver-changelog-extract class=medium
 echo "[changelog-fetch] Extracting features via model=medium"
 
+# Dispatch over OpenAI REST via the shared helper. This previously called
+# `liter-llm complete --model medium` — a subcommand that does not exist (the
+# binary ships only `api` and `mcp`) — and paired it with
+# `2>/dev/null || echo "{}"`, so the contract mismatch was completely invisible:
+# `command -v liter-llm` succeeded, the call failed, and extraction silently
+# yielded {} with no warning on that path.
 EXTRACTED="{}"
-if command -v liter-llm > /dev/null 2>&1; then
-  EXTRACTED=$(printf "%s" "${RELEASE_NOTES}" | liter-llm complete \
-    --model medium \
-    --system 'Extract features, breaking changes, and deprecations from these release notes. Output ONLY valid JSON in this exact format: {"features_added": ["string"], "breaking_changes": ["string"], "deprecations": ["string"]}. No markdown, no explanation.' \
-    2>/dev/null || echo "{}")
+_EXTRACT_LIB=""
+for _cand in \
+  "$(cd "$(dirname "$0")" && pwd)/../../../../shared/scripts/lib/kbd-model-resolve.sh" \
+  "${CLAUDE_PLUGIN_ROOT:-}/shared/scripts/lib/kbd-model-resolve.sh" \
+  "${PLUGIN_ROOT:-}/shared/scripts/lib/kbd-model-resolve.sh"; do
+  if [ -n "$_cand" ] && [ -f "$_cand" ]; then _EXTRACT_LIB="$_cand"; break; fi
+done
+
+if [ -z "$_EXTRACT_LIB" ]; then
+  echo "[changelog-fetch] WARN: model-resolve library not found — skipping extraction" >&2
+  echo "[changelog-fetch]       (returning raw release count only)" >&2
+elif [ -z "${RELEASE_NOTES:-}" ] || [ "${RELEASE_NOTES}" = "No release notes available" ]; then
+  echo "[changelog-fetch] no release notes to extract from — skipping model call" >&2
 else
-  echo "[changelog-fetch] liter-llm not available — returning raw release count only"
+  # shellcheck source=/dev/null
+  . "$_EXTRACT_LIB"
+  _model="$(kbd_resolve_role critic 2>/dev/null || echo kbd-critic)"
+  _sys='Extract features, breaking changes, and deprecations from these release notes. Output ONLY valid JSON in this exact format: {"features_added": ["string"], "breaking_changes": ["string"], "deprecations": ["string"]}. No markdown, no explanation.'
+  # Errors are REPORTED, not swallowed: a silent {} is indistinguishable from
+  # "this release genuinely changed nothing", which is a misleading input to the
+  # evolver's next decision.
+  if _out="$(kbd_complete "$_model" "$_sys" "${RELEASE_NOTES}" 2048)"; then
+    if printf '%s' "$_out" | python3 -c 'import json,sys; json.load(sys.stdin)' 2>/dev/null; then
+      EXTRACTED="$_out"
+    else
+      echo "[changelog-fetch] WARN: model returned non-JSON — keeping empty extraction" >&2
+      echo "[changelog-fetch]       first 160 chars: $(printf '%s' "$_out" | head -c 160)" >&2
+    fi
+  else
+    echo "[changelog-fetch] WARN: extraction model call failed (see message above) —" >&2
+    echo "[changelog-fetch]       continuing with raw release count only" >&2
+  fi
 fi
 
-# Combine into final output
-python3 -c "
-import json, sys
+# Combine into final output.
+#
+# Values are passed through the ENVIRONMENT, never interpolated into the python
+# source. The previous version embedded ${EXTRACTED} inside a '''...''' literal,
+# which was only safe while extraction was permanently broken and always returned
+# "{}". Once real extraction started working, release-note text containing an
+# apostrophe (e.g. "a user's computer") terminated the triple-quoted string and
+# the block died with a SyntaxError — silenced by `2>/dev/null`, so the script
+# exited 1 with no output and no explanation.
+EXTRACTED_JSON="$EXTRACTED" RELEASES_RAW="$RELEASES_JSON" \
+SINCE_TAG_IN="$SINCE_TAG" REPO_IN="$REPO" \
+RELEASE_COUNT_IN="$RELEASE_COUNT" OUTPUT_FILE_IN="$OUTPUT_FILE" \
+python3 <<'PY'
+import json, os
 from datetime import datetime, timezone
 
 try:
-    extracted = json.loads('''${EXTRACTED}''')
-except:
-    extracted = {'features_added': [], 'breaking_changes': [], 'deprecations': []}
+    extracted = json.loads(os.environ.get("EXTRACTED_JSON") or "{}")
+    if not isinstance(extracted, dict):
+        raise ValueError("extraction was not a JSON object")
+except Exception as exc:
+    print("[changelog-fetch] WARN: could not parse extraction (%s)" % exc)
+    extracted = {}
 
-releases_raw = json.loads('''${RELEASES_JSON}''')
-tags = [r.get('tag_name', '') for r in releases_raw]
-from_tag = '${SINCE_TAG}' or (tags[-1] if tags else '')
-to_tag = tags[0] if tags else ''
+try:
+    releases_raw = json.loads(os.environ.get("RELEASES_RAW") or "[]")
+except Exception:
+    releases_raw = []
+
+tags = [r.get("tag_name", "") for r in releases_raw if isinstance(r, dict)]
+from_tag = os.environ.get("SINCE_TAG_IN") or (tags[-1] if tags else "")
+to_tag = tags[0] if tags else ""
+
+try:
+    release_count = int(os.environ.get("RELEASE_COUNT_IN") or 0)
+except ValueError:
+    release_count = 0
 
 result = {
-  'repo': '${REPO}',
-  'fetched_at': datetime.now(timezone.utc).isoformat().replace('+00:00', 'Z'),
-  'since_tag': from_tag,
-  'to_tag': to_tag,
-  'release_count': ${RELEASE_COUNT},
-  'features_added': extracted.get('features_added', []),
-  'breaking_changes': extracted.get('breaking_changes', []),
-  'deprecations': extracted.get('deprecations', [])
+    "repo": os.environ.get("REPO_IN", ""),
+    "fetched_at": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
+    "since_tag": from_tag,
+    "to_tag": to_tag,
+    "release_count": release_count,
+    "features_added": extracted.get("features_added", []),
+    "breaking_changes": extracted.get("breaking_changes", []),
+    "deprecations": extracted.get("deprecations", []),
 }
 
-with open('${OUTPUT_FILE}', 'w') as f:
-    json.dump(result, f, indent=2)
+out_path = os.environ.get("OUTPUT_FILE_IN")
+if out_path:
+    with open(out_path, "w") as fh:
+        json.dump(result, fh, indent=2)
 print(json.dumps(result, indent=2))
-" 2>/dev/null
+PY
 
 echo "[changelog-fetch] Output: ${OUTPUT_FILE}"

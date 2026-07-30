@@ -1,5 +1,27 @@
 # Model Discovery Reference
 
+> **⚠️ CORRECTED — `liter-llm complete` DOES NOT EXIST.**
+> The `liter-llm` binary ships exactly two subcommands, `api` and `mcp`; it is a
+> proxy *server*, not a completion CLI. There is also no `mcp-call` or
+> `list_models` subcommand, and the MCP chat tool is named `chat`, not `complete`.
+> Any `liter-llm complete ...` snippet below is **historical and non-functional** —
+> callers paired it with `2>/dev/null || echo "{}"`, so the contract mismatch was
+> invisible and results were silently empty.
+>
+> Use the shared helper instead, which speaks OpenAI REST to the resolved gateway
+> and reports failures rather than swallowing them:
+>
+> ```bash
+> . "${CLAUDE_PLUGIN_ROOT}/shared/scripts/lib/kbd-model-resolve.sh"
+> out="$(kbd_complete "$(kbd_resolve_role critic)" "$SYSTEM" "$USER" 2048)" || {
+>   echo "model call failed (see message above)" >&2
+> }
+> ```
+>
+> Configure models with `/liter-llm-bridge configure`. See
+> `skills/process/adversarial-review/references/model-configuration.md`.
+
+
 How to programmatically discover available liter-llm models, select the best fit for a task class, and track cost usage.
 
 ---
