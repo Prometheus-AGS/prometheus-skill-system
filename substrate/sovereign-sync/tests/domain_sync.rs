@@ -22,12 +22,15 @@
 //! directly to node B's incoming-message handler, exactly as `main.rs`'s
 //! P2P consumer task would after a real `broadcast()`/`recv()` round trip.
 
+use chrono::Utc;
+use learner_model::{seed_from_survey, LearnerModelSeed, LearnerModelStore, MasteryBasis, MasteryPrior};
 use sovereign_sync::config::PeersConfig;
 use sovereign_sync::p2p::P2PNode;
 use sovereign_sync::rest_api::{self, AppState, PushOutcome};
 use std::fs;
 use std::path::Path;
 use std::sync::Arc;
+use storage_provider::{LocalDirAdapter, LoroAdapter};
 use tempfile::TempDir;
 use uuid::Uuid;
 
@@ -130,6 +133,102 @@ async fn skill_index_replicates_end_to_end_between_two_nodes() {
     );
     assert!(found.iter().any(|entry| entry.name == "demo-skill"
         && entry.description == "A demo skill for the replication test"));
+}
+
+/// Build a `LearnerModelStore` pointed at the exact same on-disk location
+/// `AppState::try_new_at`'s `learner-model` adapter uses for a node built on
+/// `data_root`, so the test can seed/read content directly through the same
+/// storage key (`learner/{learner_id}/model.crdt`) the adapter itself uses.
+fn learner_model_store_at(
+    data_root: &Path,
+) -> LearnerModelStore<LocalDirAdapter, LoroAdapter> {
+    LearnerModelStore::new(
+        LocalDirAdapter::new(rest_api::learner_model_dir_at(data_root)),
+        LoroAdapter,
+    )
+}
+
+fn make_seed(learner_id: &str, priors: Vec<(&str, f64)>) -> LearnerModelSeed {
+    LearnerModelSeed {
+        schema_version: "1.0.0".to_string(),
+        learner_id: learner_id.to_string(),
+        subject: "Rust programming".to_string(),
+        surveyed_at: Utc::now(),
+        mastery_priors: priors
+            .into_iter()
+            .map(|(concept_id, mastery)| MasteryPrior {
+                concept_id: concept_id.to_string(),
+                estimated_mastery_prior: mastery,
+                confidence: 0.8,
+                basis: MasteryBasis::SurveyResponse,
+            })
+            .collect(),
+        recursion_floor: vec![],
+        misconceptions_detected: vec![],
+    }
+}
+
+#[tokio::test]
+async fn learner_model_replicates_end_to_end_between_two_nodes() {
+    let skills_a = TempDir::new().unwrap();
+    let project_a = TempDir::new().unwrap();
+    let data_a = TempDir::new().unwrap();
+    let (node_a, _project_a_id) =
+        new_node_with_p2p(skills_a.path(), project_a.path(), data_a.path()).await;
+
+    let skills_b = TempDir::new().unwrap();
+    let project_b = TempDir::new().unwrap();
+    let data_b = TempDir::new().unwrap();
+    let (node_b, _project_b_id) =
+        new_node_no_p2p(skills_b.path(), project_b.path(), data_b.path()).await;
+
+    let learner_id = rest_api::default_learner_id();
+
+    // Precondition: node B has no learner-model document for this learner yet.
+    let store_b = learner_model_store_at(data_b.path());
+    assert!(
+        store_b.load(&learner_id).await.is_err(),
+        "node B should have no learner-model document before any push"
+    );
+
+    // Seed a real LearnerModel on node A, exactly as learn-survey's cold-start
+    // path would, then persist it through the same store the adapter uses.
+    let seed = make_seed(&learner_id, vec![("ownership", 0.3), ("traits", 0.85)]);
+    let model = seed_from_survey(&seed);
+    let store_a = learner_model_store_at(data_a.path());
+    store_a.save(&model).await.expect("seed node A's learner-model");
+
+    // 1 & 3: push from node A — named domain, and real bytes produced.
+    let outcome = rest_api::build_push_envelope(&node_a, "learner-model")
+        .await
+        .expect("learner-model is Trusted and syncable within this identical-identity pair");
+    let envelope = match outcome {
+        PushOutcome::Broadcast { envelope, .. } => envelope,
+        PushOutcome::LocalOnly { .. } => panic!("node A has a P2P node; expected Broadcast"),
+    };
+    assert_eq!(envelope.domain, "learner-model");
+    // 2: a real CRDT delta, not an empty/no-op payload.
+    assert!(!envelope.payload.is_empty());
+
+    let envelope_bytes = serde_json::to_vec(&envelope).unwrap();
+    assert!(envelope_bytes.len() >= envelope.payload.len());
+
+    // 5: hand the envelope to node B's incoming-message handler — exactly
+    // what main.rs's P2P consumer does with a real gossip-delivered message.
+    rest_api::handle_incoming_message(&node_b, &envelope_bytes).await;
+
+    // Destination import/commit result: node B's own LearnerModelStore now
+    // reflects node A's seeded content.
+    let replicated = store_b
+        .load(&learner_id)
+        .await
+        .expect("node B should have merged node A's learner-model push");
+    assert_eq!(replicated.learner_id, learner_id);
+    assert_eq!(replicated.concepts.len(), 2);
+    assert!(replicated.concepts.contains_key("ownership"));
+    assert!(replicated.concepts.contains_key("traits"));
+    assert_eq!(replicated.concepts["ownership"].mastery, 0.3);
+    assert_eq!(replicated.concepts["traits"].mastery, 0.85);
 }
 
 #[tokio::test]

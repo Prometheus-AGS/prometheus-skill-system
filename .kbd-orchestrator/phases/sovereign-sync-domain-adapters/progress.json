@@ -1,7 +1,41 @@
 {
-  "changes": [],
-  "changes_completed": 0,
-  "changes_total": 0,
+  "changes": [
+    {
+      "blockers": [],
+      "id": "change-kbd-presence-peer-auth",
+      "implementation_status": "COMPLETE",
+      "last_task_completed": "cargo test -p sovereign-sync green",
+      "next_task_pending": null,
+      "status": "DONE",
+      "tasks_done": 5,
+      "tasks_total": 5,
+      "title": "Wire real peer authentication into kbd-control presence sync"
+    },
+    {
+      "blockers": [],
+      "id": "change-learner-model-e2e-test",
+      "implementation_status": "COMPLETE",
+      "last_task_completed": "cargo test -p sovereign-sync green",
+      "next_task_pending": null,
+      "status": "DONE",
+      "tasks_done": 4,
+      "tasks_total": 4,
+      "title": "Add a learner-model end-to-end replication test"
+    },
+    {
+      "blockers": [],
+      "id": "change-verify-p2p-transport",
+      "implementation_status": "PENDING",
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "status": "PENDING",
+      "tasks_done": 0,
+      "tasks_total": 0,
+      "title": "Verify real P2P transport on real hardware"
+    }
+  ],
+  "changes_completed": 2,
+  "changes_total": 3,
   "children": {},
   "completion": {
     "certification": {
@@ -15,9 +49,9 @@
       "summary": null
     },
     "implementation": {
-      "completed": 0,
-      "status": "PENDING",
-      "total": 0
+      "completed": 2,
+      "status": "IN_PROGRESS",
+      "total": 3
     },
     "primaryCounter": "implementation",
     "publication": {
@@ -27,14 +61,14 @@
     }
   },
   "generatedBy": "kbd-runtime",
-  "implementation_completed": 0,
-  "implementation_total": 0,
-  "last_updated": "2026-07-29T15:00:36.078504Z",
+  "implementation_completed": 2,
+  "implementation_total": 3,
+  "last_updated": "2026-07-29T18:49:31.001941Z",
   "last_updated_by": "kbd-runtime",
   "migrationStatus": null,
   "parentPhase": null,
   "phase": "sovereign-sync-domain-adapters",
   "phaseId": "sovereign-sync-domain-adapters",
   "schemaVersion": "2",
-  "sourceRevision": 11
+  "sourceRevision": 45
 }

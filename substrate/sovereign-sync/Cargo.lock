@@ -5186,6 +5186,7 @@ dependencies = [
  "base64",
  "blake3",
  "bytes",
+ "chrono",
  "clap",
  "dirs-next",
  "futures",

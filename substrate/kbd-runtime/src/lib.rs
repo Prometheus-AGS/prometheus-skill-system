@@ -166,6 +166,37 @@ impl DeviceSigner {
     pub fn public_key(&self) -> &str {
         &self.public_key
     }
+
+    /// Sign arbitrary bytes with this device's Ed25519 key, base64-encoded.
+    /// Exposed for callers outside the committed-event log (e.g. signing a
+    /// P2P gossip envelope) that want the same device identity `Event`
+    /// signing already uses, without duplicating key material handling.
+    pub fn sign_base64(&self, message: &[u8]) -> String {
+        BASE64.encode(self.signing_key.sign(message).to_bytes())
+    }
+}
+
+/// Verify an Ed25519 signature against a base64-encoded public key, for
+/// callers that only have a candidate `signer_key_id`/public key (e.g. from
+/// `DeviceRecord`) and message bytes — not a full `Event` to run
+/// `Event::verify_signature`'s revocation-aware path over.
+pub fn verify_ed25519_signature(public_key_base64: &str, message: &[u8], signature_base64: &str) -> bool {
+    let Ok(public_bytes) = BASE64.decode(public_key_base64) else {
+        return false;
+    };
+    let Ok(public_array) = <[u8; 32]>::try_from(public_bytes.as_slice()) else {
+        return false;
+    };
+    let Ok(verifying_key) = VerifyingKey::from_bytes(&public_array) else {
+        return false;
+    };
+    let Ok(signature_bytes) = BASE64.decode(signature_base64) else {
+        return false;
+    };
+    let Ok(signature) = Signature::from_slice(&signature_bytes) else {
+        return false;
+    };
+    verifying_key.verify(message, &signature).is_ok()
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
