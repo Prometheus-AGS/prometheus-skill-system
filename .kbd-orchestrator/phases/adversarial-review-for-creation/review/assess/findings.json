@@ -1,0 +1,38 @@
+{
+  "mode": "artifact",
+  "verdict": "PASS",
+  "judge_model": "kbd-judge",
+  "producer_model": "claude-opus-5",
+  "isolation_mode": "rest-gateway:http://localhost:8181/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "WARNING",
+      "file": "assessment.md",
+      "claim": "Multiple codebase-verification claims are not traceable from the review packet because no file tree or command output is provided.",
+      "evidence": "The assessment states: \"Verified by `grep -rl \\\"adversarial-review\\\"` over each skill tree\", \"`build-review-packet.sh` supports `diff` and `artifact` modes\", and \"Verified in `/Users/gqadonis/Projects/references/librefang`\", but the packet contains no `file_tree`, command output, or referenced file contents to substantiate those claims.",
+      "suggested_fix": "Include the relevant file tree excerpts, grep output, or quoted file snippets for each asserted repository fact."
+    },
+    {
+      "severity": "WARNING",
+      "file": "assessment.md",
+      "claim": "The assessment relies on unverifiable web-research claims to support the ideation-product verdict.",
+      "evidence": "Part 2 cites claims such as \"Debate or Vote (Choi, Zhu & Li, NeurIPS 2025 spotlight)\", \"L-MAD (arXiv 2607.09099)\", \"A Nature paper (Kraidia 2026)\", and \"AI-overdependence and human cognitive decline (ScienceDirect 2026)\" without URLs, DOIs, paper titles sufficient for verification, or source excerpts beyond selected quotations.",
+      "suggested_fix": "Add concrete citations with links/identifiers and enough source detail for analyze to verify the claims before using them as planning premises."
+    },
+    {
+      "severity": "WARNING",
+      "file": "assessment.md",
+      "claim": "The market-differentiation claim overstates uniqueness without evidence.",
+      "evidence": "The assessment states: \"What none of them have is the thing this pack already has\" and contrasts competitors with \"Karpathy loop\", \"sycophancy-corrected answer\", and \"cross_model_check: verified-distinct\", but provides only one named competitor, \"ideaproof.io\", and no evidence that the broader \"9\u201312 competing tools\" lack these features.",
+      "suggested_fix": "Either narrow the claim to the specifically verified competitors or provide a comparison table with sources for each competitor feature claim."
+    },
+    {
+      "severity": "WARNING",
+      "file": "assessment.md",
+      "claim": "The recommendation to make native-agent review advisory conflicts with the phase goal requiring review before readiness.",
+      "evidence": "The phase goal says: \"Wire /adversarial-review into native-agent generation so a generated agent workspace is reviewed before it is declared ready\"; the assessment recommends: \"advisory for agents in v1, blocking for skills\" and lists \"Blocking vs advisory\" as an open question.",
+      "suggested_fix": "Clarify whether advisory review still prevents the workspace from being declared ready until review completes, or mark this as a proposed goal change requiring approval."
+    }
+  ]
+}

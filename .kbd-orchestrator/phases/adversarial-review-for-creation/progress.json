@@ -1,0 +1,140 @@
+{
+  "changes": [
+    {
+      "blockers": [],
+      "id": "change-arc-001-ratify-goal-wording",
+      "implementation_status": "COMPLETE",
+      "last_task_completed": "Record the ratification in analysis.md",
+      "next_task_pending": null,
+      "status": "DONE",
+      "tasks_done": 3,
+      "tasks_total": 3,
+      "title": "change-arc-001-ratify-goal-wording"
+    },
+    {
+      "blockers": [],
+      "id": "change-arc-002-producer-model-fail-closed",
+      "implementation_status": "COMPLETE",
+      "last_task_completed": "Source it from both creator entry points",
+      "next_task_pending": null,
+      "status": "DONE",
+      "tasks_done": 3,
+      "tasks_total": 3,
+      "title": "change-arc-002-producer-model-fail-closed"
+    },
+    {
+      "blockers": [],
+      "id": "change-arc-003-creation-review-packets",
+      "implementation_status": "COMPLETE",
+      "last_task_completed": "Cap each packet and RECORD the cap inside the packet so truncation is never mistaken for completeness",
+      "next_task_pending": null,
+      "status": "DONE",
+      "tasks_done": 4,
+      "tasks_total": 4,
+      "title": "change-arc-003-creation-review-packets"
+    },
+    {
+      "blockers": [],
+      "id": "change-arc-004-wire-skill-creator-review",
+      "implementation_status": "COMPLETE",
+      "last_task_completed": "Retry loop: review final artifact -> CRITICAL -> fix -> re-review -> cap at 2 rounds -> append Unresolved review findings",
+      "next_task_pending": null,
+      "status": "DONE",
+      "tasks_done": 4,
+      "tasks_total": 4,
+      "title": "change-arc-004-wire-skill-creator-review"
+    },
+    {
+      "blockers": [],
+      "id": "change-arc-005-wire-agent-creator-review",
+      "implementation_status": "COMPLETE",
+      "last_task_completed": "Same 2-round retry loop as 004 (goal 5 covers both creators)",
+      "next_task_pending": null,
+      "status": "DONE",
+      "tasks_done": 3,
+      "tasks_total": 3,
+      "title": "change-arc-005-wire-agent-creator-review"
+    },
+    {
+      "blockers": [],
+      "id": "change-arc-006-flawed-input-fixtures",
+      "implementation_status": "COMPLETE",
+      "last_task_completed": "Judge-call ceiling 6; on-demand and release gate only",
+      "next_task_pending": null,
+      "status": "DONE",
+      "tasks_done": 5,
+      "tasks_total": 5,
+      "title": "change-arc-006-flawed-input-fixtures"
+    },
+    {
+      "blockers": [],
+      "id": "change-arc-007-rejection-cap-override",
+      "implementation_status": "COMPLETE",
+      "last_task_completed": "Ships its own test; 006 Group C deliberately does not cover it",
+      "next_task_pending": null,
+      "status": "DONE",
+      "tasks_done": 6,
+      "tasks_total": 6,
+      "title": "change-arc-007-rejection-cap-override"
+    },
+    {
+      "blockers": [],
+      "id": "change-arc-008-cowork-skill-discovery",
+      "implementation_status": "COMPLETE",
+      "last_task_completed": "Site must build with zero broken links",
+      "next_task_pending": null,
+      "status": "DONE",
+      "tasks_done": 5,
+      "tasks_total": 5,
+      "title": "change-arc-008-cowork-skill-discovery"
+    },
+    {
+      "blockers": [],
+      "id": "change-arc-009-openai-proxy-vendoring-decision",
+      "implementation_status": "COMPLETE",
+      "last_task_completed": "Record the liter-llm precedent: an unbuildable submodule aborted install-binaries.sh mid-run this session",
+      "next_task_pending": null,
+      "status": "DONE",
+      "tasks_done": 4,
+      "tasks_total": 4,
+      "title": "change-arc-009-openai-proxy-vendoring-decision"
+    }
+  ],
+  "changes_completed": 9,
+  "changes_total": 9,
+  "children": {},
+  "completion": {
+    "certification": {
+      "blockers": [],
+      "status": "PENDING",
+      "summary": null
+    },
+    "evidence": {
+      "blockers": [],
+      "status": "PENDING",
+      "summary": null
+    },
+    "implementation": {
+      "completed": 9,
+      "status": "COMPLETE",
+      "total": 9
+    },
+    "primaryCounter": "implementation",
+    "publication": {
+      "blockers": [],
+      "status": "PENDING",
+      "summary": null
+    }
+  },
+  "generatedBy": "kbd-runtime",
+  "implementation_completed": 9,
+  "implementation_total": 9,
+  "last_updated": "2026-07-30T22:36:45.468327Z",
+  "last_updated_by": "kbd-runtime",
+  "migrationStatus": null,
+  "parentPhase": null,
+  "phase": "adversarial-review-for-creation",
+  "phaseId": "adversarial-review-for-creation",
+  "schemaVersion": "2",
+  "sourceRevision": 131
+}

@@ -30,3 +30,6 @@
 	path = tools/disk-space-guardian
 	url = https://github.com/GQAdonis/disk-space-guardian.git
 	branch = main
+[submodule "tools/openai-proxy"]
+	path = tools/openai-proxy
+	url = https://github.com/GQAdonis/openai-proxy.git

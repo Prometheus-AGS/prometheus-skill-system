@@ -1,0 +1,45 @@
+{
+  "mode": "artifact",
+  "verdict": "BLOCK",
+  "judge_model": "kbd-judge",
+  "producer_model": "claude-opus-5",
+  "isolation_mode": "rest-gateway:http://localhost:8181/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": "plan.md",
+      "claim": "The producer-model fail-closed behavior is claimed to be tested in change-arc-006, but change-arc-006 contains no unset-KBD_PRODUCER_MODEL test.",
+      "evidence": "change-arc-002 acceptance says: \"unset \u2192 exit 2, no findings file written. Set \u2192 review proceeds and records `cross_model_check: verified-distinct`. Both asserted in 006.\" But change-arc-006 acceptance only says it asserts \"`verdict == BLOCK` and `cross_model_check == verified-distinct` for the flawed pair, `PASS` for the clean pair\"; it never asserts unset env, exit 2, or no findings file.",
+      "suggested_fix": "Add explicit fixtures or CI cases in change-arc-006 for both creators with `KBD_PRODUCER_MODEL` unset, asserting exit 2 and no findings artifact is written."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "plan.md",
+      "claim": "The agent review gate is assigned goal 5 but does not specify the required 2-rejection cap or retry semantics.",
+      "evidence": "Phase goal 5 requires: \"Make the review gate blocking on CRITICAL findings, with the existing 2-rejection cap so it cannot loop forever.\" change-arc-004 specifies for skills: \"review once on the final artifact \u2192 CRITICAL \u2192 fix \u2192 re-review \u2192 cap at 2 rounds\". change-arc-005 only says: \"the ready declaration is withheld until findings are written and no CRITICAL remains\" and its acceptance only checks that a contradictory agent is blocked; it omits the 2-rejection cap.",
+      "suggested_fix": "Add the same explicit retry loop and 2-round cap to change-arc-005, and add an acceptance test proving the cap is enforced for generated agents."
+    },
+    {
+      "severity": "WARNING",
+      "file": "plan.md",
+      "claim": "change-arc-005 depends on change-arc-001 but the dependency table omits that dependency.",
+      "evidence": "The dependency table lists change-arc-005 depends on \"002, 003\". The change-arc-005 text says: \"Blocking semantics (ratified in 001): the workspace persists regardless; only the ready declaration is withheld...\"",
+      "suggested_fix": "Add `001` to change-arc-005's dependency list or remove the reliance on ratified blocking semantics from change-arc-005."
+    },
+    {
+      "severity": "WARNING",
+      "file": "plan.md",
+      "claim": "The plan includes out-of-scope changes not tied to any phase goal.",
+      "evidence": "The phase goals list only adversarial-review wiring, packet definitions, producer-model enforcement, blocking gates, sycophancy validation, and flawed fixture proof. The plan adds change-arc-008 `cowork-skill-discovery` and change-arc-009 `openai-proxy-vendoring-decision`, both with Goal shown as \"\u2014 (new)\" in the change table.",
+      "suggested_fix": "Move change-arc-008 and change-arc-009 to a separate plan or explicitly add corresponding approved goals to this phase."
+    },
+    {
+      "severity": "WARNING",
+      "file": "plan.md",
+      "claim": "change-arc-007 changes the rejection-cap behavior even though the phase goal calls for the existing 2-rejection cap.",
+      "evidence": "Phase goal 5 says: \"with the existing 2-rejection cap so it cannot loop forever.\" change-arc-007 introduces `PROMETHEUS_ADV_REJECT_CAP` and says: \"`PROMETHEUS_ADV_REJECT_CAP=4` permits 4\".",
+      "suggested_fix": "Defer the cap override to a separate phase or update the goals to state that the 2-rejection cap may be deliberately overridden with an audited bounded value."
+    }
+  ]
+}

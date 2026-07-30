@@ -1,0 +1,24 @@
+{
+  "stage": "assess",
+  "phase": "adversarial-review-for-creation",
+  "artifact": "assessment.md",
+  "summary": "Verified gap: 4 KBD stages gate on a cross-model judge; pmpo-skill-creator and native-agent have ZERO adversarial-review references, so generated skills and agents ship ungated. Work is wiring, not invention — dispatch-judge.sh, check-findings-sycophancy.sh (2-rejection cap), kbd-model-resolve.sh and the corrected findings schema all exist and are verified working. Part 2 researched adversarial review as a product: evidence is MIXED and partly contradicts the premise — NeurIPS 2025 spotlight proves debate alone induces a martingale and does not improve expected correctness (majority voting explains most MAD gains), and the human-AI literature documents automation bias and 'False Confirmation' over-reliance, which governs the personal-decision use case. Recommend the asymmetric producer->critic->judge design we already have, NOT a persona debate club, and an explicit refusal boundary for relationship/health decisions.",
+  "open_questions": [
+    "Packet shape for a generated skill tree and for an agent workspace (manifest-level, not source)",
+    "Blocking semantics: judge flagged that 'advisory for agents' contradicts goal 2; corrected to blocking-on-readiness — analyze must ratify the wording",
+    "Cost ceiling: review only the final artifact, not each of up to 3 creator loop iterations",
+    "Does validate-skill.sh grow the sycophancy gate, or does the creator call check-findings-sycophancy.sh?",
+    "Should the ideation product reuse kbd-idea-critic directly or generalise it out of KBD?"
+  ],
+  "adversarial_review": {
+    "verdict": "PASS",
+    "critical": 0,
+    "warning": 4,
+    "cross_model_check": "verified-distinct",
+    "judge_model": "kbd-judge",
+    "producer_model": "claude-opus-5",
+    "isolation_mode": "rest-gateway:http://localhost:8181/v1",
+    "all_warnings_addressed_in_revision": true
+  },
+  "recommended_next_phase": "ideation-and-decision-tools"
+}

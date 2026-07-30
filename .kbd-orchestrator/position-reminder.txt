@@ -1,10 +1,22 @@
 POSITION REMINDER — read this as your FIRST tool call every turn
-Phase: docusaurus-github-pages-site
-Step: 8 of 8
-Stage: reflect (COMPLETE — phase closed)
-Next command: /kbd-next-phase
+Phase: ideation-and-decision-tools
+Step: 0 of 0
+Stage: assessment_ready (goals seeded — assess has not run)
+Next command: /kbd-assess ideation-and-decision-tools
 
 Required signal format (emit BEFORE any tool call):
-  Starting <kbd-skill> — docusaurus-github-pages-site (step 8 of 8)
+  Starting <kbd-skill> — ideation-and-decision-tools (step 0 of 0)
   [do work]
-  Completed <kbd-skill> — docusaurus-github-pages-site (step 8 of 8)
+  Completed <kbd-skill> — ideation-and-decision-tools (step 0 of 0)
+
+Step counts are 0/0 until /kbd-assess and /kbd-plan populate progress.json.
+Read progress.json for N and T — never estimate.
+
+CARRIED-FORWARD BLOCKERS (previous phase reflection.md TD-02, TD-03).
+Neither is optional; the second silently defeats this phase's goals:
+  1. git commit — 150 changed paths are uncommitted, including the new
+     tools/openai-proxy submodule and .gitmodules.
+  2. bash scripts/update-skill-pack.sh --force — plugin caches are stale
+     (6 drift findings). The producer-model guard is NOT live in any
+     installed copy until this runs, so any ideation skill running from a
+     cache cannot make the judge != producer guarantee these goals need.

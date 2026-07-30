@@ -3,6 +3,17 @@
 ## Reference
 
 * [.gitignore Audit for CI Cross-Model QA Hardening Phase](/gitignore-audit-for-ci-cross-model-qa-hardening-phase.md) - The `.gitignore` audit for `phase-ci-cross-model-qa-and-hardening` was completed, committed, and merged to `main`.
+* [Adversarial Review Creation Completion Record](/adversarial-review-creation-completion-record.md)
+* [Adversarial Review Creation Executor Completion Record](/adversarial-review-creation-executor-completion-record.md)
+* [Adversarial Review Creation Executor Completion Status](/adversarial-review-creation-executor-completion-status.md)
+* [Adversarial Review Creation Executor Session Complete](/adversarial-review-creation-executor-session-complete.md)
+* [Adversarial Review Creation Executor Session Completion](/adversarial-review-creation-executor-session-completion.md)
+* [Adversarial Review Creation Phase Completed with Unknown Change](/adversarial-review-creation-phase-completed-with-unknown-change.md)
+* [Adversarial Review Creation Phase Executor Completion](/adversarial-review-creation-phase-executor-completion.md)
+* [Adversarial Review Creation Session Completed with Unknown Change](/adversarial-review-creation-session-completed-with-unknown-change.md)
+* [Adversarial Review for Creation Completion Record](/adversarial-review-for-creation-completion-record.md)
+* [Adversarial Review for Creation Executor Completion](/adversarial-review-for-creation-executor-completion.md)
+* [Adversarial Review for Creation Session Completion Status](/adversarial-review-for-creation-session-completion-status.md)
 * [AG-UI / A2UI / MCP App UI Frameworks](/ag-ui-a2ui-mcp-app-ui-frameworks.md) - Research into Agent-User interaction protocols, generative UI specifications, and MCP App design patterns for the Prometheus Deep-Research Skill.
 * [CI All Green Executor Completion Record](/ci-all-green-executor-completion-record.md) - An executor session completed for the CI all-green phase.
 * [CI All Green Executor Session Completion](/ci-all-green-executor-session-completion.md) - An executor session completed successfully for the CI all-green phase.

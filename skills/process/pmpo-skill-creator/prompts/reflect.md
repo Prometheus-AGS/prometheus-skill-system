@@ -155,6 +155,114 @@ bash scripts/validate-skill.sh dist/<skill_name>/
 
 This script performs Steps 1–9 automatically and outputs a JSON report.
 
+## Producer-Model Guard (required before any adversarial review)
+
+This phase dispatches an adversarial review, which can only make its
+judge≠producer guarantee if the producer's identity is known. Source the shared
+resolver and call the guard **before** building a review packet:
+
+```bash
+# Portable across harnesses: repo-relative, then Claude Code, then Codex.
+for _lib in \
+  "$(cd "$(dirname "$0")" && pwd)/../../../../shared/scripts/lib/kbd-model-resolve.sh" \
+  "${CLAUDE_PLUGIN_ROOT:-}/shared/scripts/lib/kbd-model-resolve.sh" \
+  "${PLUGIN_ROOT:-}/shared/scripts/lib/kbd-model-resolve.sh"; do
+  [ -f "$_lib" ] && { . "$_lib"; break; }
+done
+
+kbd_require_producer_model || exit 2   # exit 2, no packet, no findings file
+```
+
+A non-zero return is **fatal**. Do not log it and continue: a packet built with
+an unknown producer yields a findings file claiming cross-model verification that
+never took place. Export the real value instead —
+`export KBD_PRODUCER_MODEL="claude-opus-5"` — and never a `:-default`, which
+would fabricate the identity rather than supply it.
+
+## Step 12: Adversarial Review (`--mode skill`)
+
+Runs **after** `validate-skill.sh` and **before** the Loop Decision below.
+
+The ordering is load-bearing in both directions. Reviewing *before* validation
+would spend a judge call on an artifact already known to be malformed — the
+validator is a cheap deterministic checklist and belongs first. Reviewing *after*
+the loop decision would let a skill be declared finished before anything judged
+it, which is exactly the gap this step closes.
+
+```bash
+ADV="${CLAUDE_PLUGIN_ROOT}/skills/process/adversarial-review"
+REVIEW_DIR="dist/<skill_name>/.review"
+mkdir -p "$REVIEW_DIR"
+
+# The guard above must already have passed. Build the manifest-level packet:
+# SKILL.md, frontmatter, script inventory, cross-reference map, validator
+# output, and the original intent. --intent is what the skill was ASKED to be;
+# without it the judge can only check internal consistency, never whether the
+# artifact answers the request.
+bash "$ADV/scripts/build-review-packet.sh" \
+  --mode skill \
+  --target "dist/<skill_name>" \
+  --intent "<path to the Specify-phase spec>" \
+  --out "$REVIEW_DIR/packet.json" || exit 2
+
+bash "$ADV/scripts/dispatch-judge.sh" \
+  --packet "$REVIEW_DIR/packet.json" \
+  --out "$REVIEW_DIR/findings.json"
+```
+
+Read `verdict` and `cross_model_check` from `findings.json`:
+
+| Field | Meaning for this step |
+|---|---|
+| `verdict: BLOCK` | at least one CRITICAL finding — enter the retry loop below |
+| `verdict: PASS` | no CRITICAL findings — proceed to the Loop Decision |
+| `cross_model_check: verified-distinct` | the judge provably differed from the producer |
+| `cross_model_check: same-model-collision` | the judge WAS the producer — the review proves nothing; treat as unreviewed and report it |
+
+A `PASS` carrying `same-model-collision` is **not** a passing review. Record it
+as unreviewed rather than reporting the skill as judged.
+
+## Step 13: CRITICAL Retry Loop (max 2 rounds)
+
+CRITICAL findings **block** the skill from being reported as ready.
+
+Do not track the round count by hand — ask the loop script, which owns the bound
+for both creators:
+
+```bash
+STATE="$(bash "$ADV/scripts/review-retry-loop.sh" state \
+           --findings "$REVIEW_DIR/findings.json" --round "$ROUND")"
+
+case "$STATE" in
+  PROCEED)  # no CRITICAL findings — go to the Loop Decision
+            ;;
+  RETRY)    # fix every CRITICAL finding, ROUND=$((ROUND+1)), re-run Step 12
+            ;;
+  CAPPED)   # stop reviewing; the artifact is NOT clean
+            bash "$ADV/scripts/review-retry-loop.sh" unresolved \
+              --findings "$REVIEW_DIR/findings.json" --round "$ROUND" \
+              --out "$REFLECTION_OUTPUT"
+            ;;
+esac
+```
+
+`state` exits `0` PROCEED / `3` RETRY / `4` CAPPED, so the branch works from the
+exit code alone when that is more convenient than the printed word.
+
+On `CAPPED`, the script appends an `## Unresolved review findings` section
+naming every surviving finding, and the skill is reported as **not clean**. The
+cap bounds how long the loop runs; it does not resolve what the judge found.
+Silently dropping the findings at the cap is the sycophantic outcome this phase
+exists to prevent, so the section is emitted by the script rather than left to
+the model to remember.
+
+An unreadable or malformed `findings.json` yields `CAPPED`, never `PROCEED` — a
+review that cannot be parsed is not a review that passed.
+
+> This 2-round cap is the **retry** bound and is separate from the sycophancy
+> screen's rejection cap inside `validate-skill.sh`. `change-arc-007` makes that
+> other cap user-overridable; this one is unaffected.
+
 ## Output Contract
 
 ```yaml

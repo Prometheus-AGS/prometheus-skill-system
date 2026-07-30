@@ -238,6 +238,31 @@ After writing all files:
 
 If `cargo check` fails, print the errors clearly and note which generated file needs editing.
 
+## Producer-Model Guard (required before any adversarial review)
+
+`cargo check` proves the workspace compiles; it says nothing about whether the
+agent is any good. The adversarial review that judges that can only make its
+judge≠producer guarantee if the producer's identity is known, so source the
+shared resolver and call the guard **before** building a review packet:
+
+```bash
+# Portable across harnesses: repo-relative, then Claude Code, then Codex.
+for _lib in \
+  "$(cd "$(dirname "$0")" && pwd)/../../../../shared/scripts/lib/kbd-model-resolve.sh" \
+  "${CLAUDE_PLUGIN_ROOT:-}/shared/scripts/lib/kbd-model-resolve.sh" \
+  "${PLUGIN_ROOT:-}/shared/scripts/lib/kbd-model-resolve.sh"; do
+  [ -f "$_lib" ] && { . "$_lib"; break; }
+done
+
+kbd_require_producer_model || exit 2   # exit 2, no packet, no findings file
+```
+
+A non-zero return is **fatal** — do not log it and continue. The generated
+workspace persists on disk either way; what the guard withholds is the review and
+the readiness declaration, not the work. Export the real value —
+`export KBD_PRODUCER_MODEL="claude-opus-5"` — and never a `:-default`, which
+would fabricate the identity rather than supply it.
+
 ---
 
 ## Post-Generation Docker Actions
@@ -284,9 +309,114 @@ If `compose_up_now = true` but API keys are missing from `.env`, print:
 
 ---
 
+## Adversarial Review (`--mode agent`)
+
+Runs **after** `cargo check`, `npm install`, and any Docker actions above, and
+**before** the Success Output banner below.
+
+`cargo check` proves the workspace compiles. It says nothing about whether the
+agent is wired to do the job that was asked for — whether the system prompt
+matches the configured tools, whether a required MCP server is `enabled = false`,
+whether the thing that builds is the thing that was requested. That is what this
+step judges, using a model that did not generate the workspace.
+
+The Producer-Model Guard above must already have passed.
+
+```bash
+ADV="${CLAUDE_PLUGIN_ROOT}/skills/process/adversarial-review"
+REVIEW_DIR="<output_dir>/.review"
+mkdir -p "$REVIEW_DIR"
+
+# Record the build verdict where the packet builder will find it, so the judge
+# sees the real result instead of "cargo check not run".
+( cd "<output_dir>" && cargo check --workspace --message-format short 2>&1 | tail -40 ) \
+  > "<output_dir>/.cargo-check.txt" || true
+
+# Manifest-level packet: agent.toml, system_prompt.md, workspace members with
+# per-crate purpose, mcp_servers, cargo check result, original intent.
+# --intent is what the agent was ASKED to be; without it the judge can only
+# check internal consistency, never fitness for purpose.
+bash "$ADV/scripts/build-review-packet.sh" \
+  --mode agent \
+  --target "<output_dir>" \
+  --intent "<path to the Specify-phase spec>" \
+  --out "$REVIEW_DIR/packet.json" || exit 2
+
+bash "$ADV/scripts/dispatch-judge.sh" \
+  --mode agent \
+  --packet "$REVIEW_DIR/packet.json" \
+  --out "$REVIEW_DIR/findings.json"
+```
+
+Read `verdict` and `cross_model_check` from `findings.json`:
+
+| Field | Meaning for this step |
+|---|---|
+| `verdict: BLOCK` | at least one CRITICAL finding — enter the retry loop below |
+| `verdict: PASS` | no CRITICAL findings — print the Success Output banner |
+| `cross_model_check: verified-distinct` | the judge provably differed from the producer |
+| `cross_model_check: same-model-collision` | the judge WAS the producer — the review proves nothing; treat as unreviewed and say so |
+
+A `PASS` carrying `same-model-collision` is **not** a passing review. Report the
+workspace as unreviewed rather than declaring it ready.
+
+## CRITICAL Retry Loop (max 2 rounds)
+
+Identical to the skill creator's loop — the bound lives in one script so the two
+creators cannot drift apart on how long they retry:
+
+```bash
+STATE="$(bash "$ADV/scripts/review-retry-loop.sh" state \
+           --findings "$REVIEW_DIR/findings.json" --round "$ROUND")"
+
+case "$STATE" in
+  PROCEED)  # no CRITICAL findings — print the Success Output banner
+            ;;
+  RETRY)    # fix every CRITICAL finding, ROUND=$((ROUND+1)), re-review
+            ;;
+  CAPPED)   # do NOT print the banner; the workspace is not ready
+            bash "$ADV/scripts/review-retry-loop.sh" unresolved \
+              --findings "$REVIEW_DIR/findings.json" --round "$ROUND" \
+              --out "<output_dir>/REVIEW-FINDINGS.md"
+            ;;
+esac
+```
+
+`state` exits `0` PROCEED / `3` RETRY / `4` CAPPED. A malformed `findings.json`
+yields `CAPPED`, never `PROCEED` — a review that cannot be parsed is not a review
+that passed.
+
+### What blocking does and does not mean
+
+The review blocks **the readiness declaration only**. The generated workspace
+**always persists on disk**, whatever the verdict:
+
+- Never delete, revert, or refuse to write the workspace because of findings.
+- On `CAPPED`, write `REVIEW-FINDINGS.md` into the output directory and print
+  the Blocked Output below instead of the Success banner.
+- The operator inspects and repairs what was flagged. Discarding the work would
+  destroy the very thing the findings describe.
+
+## Blocked Output
+
+When the retry loop returns `CAPPED`, print this **instead of** the Success
+Output banner:
+
+```
+⚠️  Native agent '<agent_name>' generated in ./<agent_name>/ — NOT declared ready
+
+    The adversarial review reported CRITICAL findings that survived 2 rounds.
+    The workspace is on disk and intact; it has not been declared ready.
+
+    Findings:  ./<agent_name>/REVIEW-FINDINGS.md
+    Packet:    ./<agent_name>/.review/packet.json
+
+    Review the findings, fix what they name, and re-run the review.
+```
+
 ## Success Output
 
-Print on completion:
+Print on completion **only when the retry loop returned `PROCEED`**:
 
 ```
 ✅ Native agent '<agent_name>' generated in ./<agent_name>/
@@ -330,3 +460,11 @@ Print on completion:
 - Never hardcode API keys — always use `key_env` pointing to env var names
 - If Docker build fails, do not abort — print the error and continue to print next steps
 - `docker_build_now` and `compose_up_now` are best-effort — failures are warnings, not errors
+- **The generated workspace always persists.** A blocking adversarial review
+  withholds the readiness *declaration*, never the work: never delete, revert, or
+  refuse to write the workspace because of review findings. The operator cannot
+  repair what was discarded, and the findings describe files that must still exist
+  to be fixed.
+- On a blocked review, write `REVIEW-FINDINGS.md` into the output directory and
+  print the Blocked Output instead of the Success banner — never the Success
+  banner with warnings appended, which reads as ready.

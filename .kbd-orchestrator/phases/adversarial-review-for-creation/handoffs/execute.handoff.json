@@ -1,0 +1,9 @@
+{
+  "stage": "execute",
+  "completedAt": "2026-07-30T22:35:18Z",
+  "outputs": [],
+  "nextStage": "reflect",
+  "summaryForNext": "skipped: Execute-stage backend selection was implicit: the phase used OpenSpec (detected at plan) and all 9 changes were driven directly through /kbd-apply, which owns the per-task loop. No execution.md was written. Recorded as a skip rather than backfilled so the gap is visible: the artifact-refiner QA gate named in the kbd-apply contract was consequently never run for any change (see reflection.md TD-04).",
+  "skipped": true,
+  "skipReason": "Execute-stage backend selection was implicit: the phase used OpenSpec (detected at plan) and all 9 changes were driven directly through /kbd-apply, which owns the per-task loop. No execution.md was written. Recorded as a skip rather than backfilled so the gap is visible: the artifact-refiner QA gate named in the kbd-apply contract was consequently never run for any change (see reflection.md TD-04)."
+}

@@ -1,12 +1,106 @@
 {
   "cursor": [
-    "sovereign-sync-domain-adapters",
-    "execute"
+    "adversarial-review-for-creation",
+    "reflect"
   ],
   "generatedBy": "kbd-runtime",
   "root": {
     "annotations": [],
     "children": [
+      {
+        "annotations": [],
+        "canonicalId": "adversarial-review-for-creation",
+        "children": [
+          {
+            "id": "change-arc-001-ratify-goal-wording",
+            "progress": {
+              "done": 3,
+              "total": 3
+            },
+            "status": "COMPLETE",
+            "type": "change"
+          },
+          {
+            "id": "change-arc-002-producer-model-fail-closed",
+            "progress": {
+              "done": 3,
+              "total": 3
+            },
+            "status": "COMPLETE",
+            "type": "change"
+          },
+          {
+            "id": "change-arc-003-creation-review-packets",
+            "progress": {
+              "done": 4,
+              "total": 4
+            },
+            "status": "COMPLETE",
+            "type": "change"
+          },
+          {
+            "id": "change-arc-004-wire-skill-creator-review",
+            "progress": {
+              "done": 4,
+              "total": 4
+            },
+            "status": "COMPLETE",
+            "type": "change"
+          },
+          {
+            "id": "change-arc-005-wire-agent-creator-review",
+            "progress": {
+              "done": 3,
+              "total": 3
+            },
+            "status": "COMPLETE",
+            "type": "change"
+          },
+          {
+            "id": "change-arc-006-flawed-input-fixtures",
+            "progress": {
+              "done": 5,
+              "total": 5
+            },
+            "status": "COMPLETE",
+            "type": "change"
+          },
+          {
+            "id": "change-arc-007-rejection-cap-override",
+            "progress": {
+              "done": 6,
+              "total": 6
+            },
+            "status": "COMPLETE",
+            "type": "change"
+          },
+          {
+            "id": "change-arc-008-cowork-skill-discovery",
+            "progress": {
+              "done": 5,
+              "total": 5
+            },
+            "status": "COMPLETE",
+            "type": "change"
+          },
+          {
+            "id": "change-arc-009-openai-proxy-vendoring-decision",
+            "progress": {
+              "done": 4,
+              "total": 4
+            },
+            "status": "COMPLETE",
+            "type": "change"
+          }
+        ],
+        "id": "adversarial-review-for-creation",
+        "progress": {
+          "done": 9,
+          "total": 9
+        },
+        "status": "PENDING",
+        "type": "phase"
+      },
       {
         "annotations": [],
         "canonicalId": "canonical-lifecycle",
@@ -2368,57 +2462,17 @@
         },
         "status": "COMPLETE",
         "type": "phase"
-      },
-      {
-        "annotations": [],
-        "canonicalId": "sovereign-sync-domain-adapters",
-        "children": [
-          {
-            "id": "change-kbd-presence-peer-auth",
-            "progress": {
-              "done": 5,
-              "total": 5
-            },
-            "status": "COMPLETE",
-            "type": "change"
-          },
-          {
-            "id": "change-learner-model-e2e-test",
-            "progress": {
-              "done": 4,
-              "total": 4
-            },
-            "status": "COMPLETE",
-            "type": "change"
-          },
-          {
-            "id": "change-verify-p2p-transport",
-            "progress": {
-              "done": 0,
-              "total": 0
-            },
-            "status": "PENDING",
-            "type": "change"
-          }
-        ],
-        "id": "sovereign-sync-domain-adapters",
-        "progress": {
-          "done": 2,
-          "total": 3
-        },
-        "status": "PENDING",
-        "type": "phase"
       }
     ],
     "id": "6ac090a4-3656-4d83-8eb6-2891508196d5",
     "progress": {
-      "done": 144,
-      "total": 197
+      "done": 151,
+      "total": 203
     },
     "status": "completed",
     "type": "phase"
   },
   "schemaVersion": "1",
-  "sourceRevision": 45,
-  "updatedAt": "2026-07-29T18:49:31.001941Z"
+  "sourceRevision": 131,
+  "updatedAt": "2026-07-30T22:36:45.468327Z"
 }

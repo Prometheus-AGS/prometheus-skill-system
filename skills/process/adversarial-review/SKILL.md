@@ -114,6 +114,44 @@ against reviewed inputs:
 Packet contents: the artifact(s), phase `goals.md`, prior-stage handoff
 summaries, constraints, `producer_model`.
 
+### `--mode skill` / `--mode agent` — generated artifacts (creation gate)
+
+Reviews something a **generator** just produced, so a skill or agent is judged
+by a model that did not write it. Unlike the two modes above, `--target` is a
+**filesystem path** and `--phase` is optional — a creator often runs outside any
+KBD phase, and requiring one would make the gate unreachable where generation
+actually happens.
+
+| Mode | Target | Packet contents |
+|---|---|---|
+| `skill` | generated skill dir | `SKILL.md`, parsed frontmatter, script inventory, cross-reference map, `validate-skill.sh` output, original intent |
+| `agent` | generated Cargo workspace | `agent.toml`, `system_prompt.md`, workspace members with per-crate purpose, `mcp_servers`, `cargo check` result, original intent |
+
+```bash
+build-review-packet.sh --mode skill --target dist/my-skill --intent spec.md --out packet.json
+build-review-packet.sh --mode agent --target ./my-agent   --intent spec.md --out packet.json
+```
+
+Both are **manifest-level**: they record what each file *is* and does, never its
+body. A generated workspace is several crates of Rust that would not fit a judge's
+context and would bury the signal if it did. The contract is enforced, not merely
+intended — a packet whose descriptive fields contain shell-function or Rust
+syntax is refused with **exit 2** and no packet is written.
+
+**Truncation is always recorded.** Every field is capped
+(`PACKET_FIELD_CAP_BYTES`, default 40000). A clipped field carries an inline
+`[TRUNCATED …]` marker, and `packet.truncation` reports the cap and per-field
+byte counts. The block is present even when nothing was cut, so "nothing was
+dropped" is distinguishable from "this packet predates truncation recording" —
+otherwise a judge could return `PASS` on material it never received.
+
+`--intent` supplies what the artifact was *asked* to be. Without it the judge can
+only assess internal consistency, never whether the result answers the request;
+the packet warns when it is missing. `cargo check` output is read from a
+`.cargo-check.txt` recorded by the creator, or run in-line with
+`PACKET_RUN_CARGO_CHECK=1` (off by default — a cold workspace build is far too
+slow to sit inside packet assembly).
+
 ## Workflow
 
 ```
@@ -134,8 +172,13 @@ SKILL_DIR="${CLAUDE_PLUGIN_ROOT}/skills/process/adversarial-review"
 #    The judge's collision check compares candidate != producer, so an unknown
 #    producer makes it pass trivially — which is exactly what happened to all 8
 #    historical reviews. Set it to the model running THIS session.
+#
+#    Do NOT write ${KBD_PRODUCER_MODEL:-claude-opus-5}. A default does not fix the
+#    problem, it hides it: the check would then compare the judge against a guess,
+#    pass, and record verified-distinct for a comparison that never happened.
+#    Export the real value, or let the guard refuse.
 set -a; . ~/.prometheus/kbd/secrets.env 2>/dev/null || true; set +a
-export KBD_PRODUCER_MODEL="${KBD_PRODUCER_MODEL:-claude-opus-5}"
+export KBD_PRODUCER_MODEL="claude-opus-5"   # ← the model running THIS session
 
 # 1. Preflight (cached 24h at .kbd-orchestrator/model-preflight.json)
 #    Reports the gateway, the model per role, and WHICH config layer supplied it.
@@ -228,10 +271,48 @@ The judge's findings report is itself screened through sycophancy-correction
 a report scoring ≥ 0.4 or matching high/critical sycophancy patterns —
 e.g. zero findings on a large multi-file diff wrapped in hedged praise — is
 **rejected**, and the judge is re-dispatched once with the rejection feedback
-appended to its mandate (`dispatch-judge.sh --feedback <file>`). A
-2-rejection soft cap accepts the third report with a logged warning,
-mirroring the reflector gate. When the sycophancy binary is absent the gate
-degrades gracefully (exit 0, warning) — it never blocks the chain.
+appended to its mandate (`dispatch-judge.sh --feedback <file>`). A soft cap
+then accepts the next report with a logged warning, mirroring the reflector gate.
+When the sycophancy binary is absent the gate degrades gracefully (exit 0,
+warning) — it never blocks the chain.
+
+### The rejection cap is yours to set
+
+The cap defaults to **2** and is overridable via `PROMETHEUS_ADV_REJECT_CAP`,
+following the same pattern as `PROMETHEUS_REFLECT_STRICTNESS`:
+
+```bash
+PROMETHEUS_ADV_REJECT_CAP=4 bash scripts/check-findings-sycophancy.sh --findings f.json
+```
+
+| Value | Effect |
+|---|---|
+| unset | cap 2 (default) |
+| 1–5 | honoured |
+| above 5 | **exit 1** — refused, never clamped |
+| 0, negative, non-numeric | **exit 1** — refused, never silently defaulted |
+
+A value above the ceiling is an error rather than being clamped down, because a
+silently-lowered cap would leave you believing a bound was in force that was not.
+
+Every run records the cap in the findings artifact, so a stored review is
+auditable after the fact:
+
+```json
+"sycophancy_screen": { "reject_cap": 4, "cap_overridden": true, "cap_default": 2 }
+```
+
+When the cap is reached **in an interactive terminal**, the gate asks once
+whether to keep rejecting, defaulting to accept. It never prompts without a TTY —
+this script runs inside `SubagentStop` hooks and CI jobs, and a gate that hangs
+the pipeline is a gate someone disables. Set `PROMETHEUS_ADV_NO_PROMPT=1` to
+suppress the prompt on a TTY as well.
+
+> This cap bounds how many times an **evasive judge report** is sent back. The
+> creators' 2-round retry cap — how many times an **artifact** is re-reviewed
+> after CRITICAL findings — is a separate bound owned by `review-retry-loop.sh`
+> and is unaffected by this variable. Verified by
+> `tests/test-reject-cap-override.sh`.
 
 ## Skip rules
 
@@ -250,8 +331,8 @@ and lazily before any dispatch without a fresh cache. It:
 
 1. Checks the `liter-llm` binary — missing → run `/liter-llm-bridge install`.
 2. Detects provider keys from the canonical env vars (delegates to
-   liter-llm-bridge's `detect-providers.sh`; see its
-   `references/provider-env-vars.md`).
+   liter-llm-bridge's `detect-providers.sh`; see
+   `skills/process/liter-llm-bridge/references/provider-env-vars.md`).
 3. Resolves each role through `shared/scripts/lib/kbd-model-resolve.sh` and
    reports which config layer supplied it. Two files own this, and neither is a
    script:

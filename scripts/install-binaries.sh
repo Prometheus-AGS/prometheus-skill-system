@@ -174,6 +174,58 @@ else
     info "skip liter-llm (submodule not initialized)"
 fi
 
+# ── 5b. openai-proxy (judge gateway on :8181 — OPTIONAL) ─────────────────────
+# This is what the `kbd-judge` role resolves to, and its absence silently
+# degrades every adversarial review to a same-model self-grade. It is therefore
+# vendored (change-arc-009) so the source is pinned and obtainable.
+#
+# STRICTLY NON-FATAL, and that is the whole point of the block below.
+# This script runs under `set -euo pipefail`. Earlier this session, `tools/liter-llm`
+# was pinned to a commit whose Cargo.toml hardcoded version = "1.9.3" against a
+# workspace that had moved to 1.11.0; `cargo metadata` exited 101, THIS SCRIPT
+# ABORTED MID-RUN, and 7 of 14 binaries were left stale. Nothing about that was
+# specific to liter-llm — any required submodule build can do it.
+#
+# So every failure path here warns and continues:
+#   - submodule not initialized  -> skip
+#   - cargo missing              -> skip
+#   - build fails                -> warn, keep going
+#   - binary not produced        -> warn, keep going
+# A user who never runs an adversarial review must never lose an install to this.
+if [ -f "${REPO_ROOT}/tools/openai-proxy/Cargo.toml" ] && command -v cargo >/dev/null 2>&1; then
+    info "Building openai-proxy (optional judge gateway)..."
+    _oap_built=1
+    if ! $DRY_RUN; then
+        # `|| _oap_built=0` keeps a non-zero cargo exit from tripping `set -e`.
+        (cd "${REPO_ROOT}/tools/openai-proxy" && cargo build --release 2>&1 | tail -3) \
+            || _oap_built=0
+    else
+        info "[dry-run] would run cargo build --release for openai-proxy"
+    fi
+    if [ "${_oap_built}" -eq 1 ]; then
+        # `|| true` is required, not decorative: under `set -e`, an assignment
+        # from a command substitution whose command FAILS aborts the script, and
+        # `find` on a missing target/release (never built, or a dry-run) exits
+        # non-zero. Without it, `--dry-run` died right here.
+        OAP_BIN=$(find "${REPO_ROOT}/tools/openai-proxy/target/release" -maxdepth 1 \
+                       -name "openai-proxy" -type f 2>/dev/null | head -1) || true
+        if [ -n "${OAP_BIN:-}" ]; then
+            install_bin "${OAP_BIN}" "${BIN_DIR}/openai-proxy"
+            ok "openai-proxy → ${BIN_DIR}/openai-proxy"
+        else
+            echo "  ⚠️  openai-proxy binary not found after build — adversarial review" >&2
+            echo "      will degrade to a same-model self-grade. Install continues." >&2
+        fi
+    else
+        echo "  ⚠️  openai-proxy build failed — adversarial review will degrade to a" >&2
+        echo "      same-model self-grade. Install continues; see" >&2
+        echo "      docs/decisions/openai-proxy-vendoring.md" >&2
+    fi
+    unset _oap_built
+else
+    info "skip openai-proxy (submodule not initialized or cargo unavailable)"
+fi
+
 # ── 5. surreal-memory-server (memory MCP daemon on :23001) ───────────────────
 # Installed to BOTH ~/.local/bin and /usr/local/bin: install-mcp-services.sh
 # resolves the launchd binary via a PATH that lists /usr/local/bin first, so a

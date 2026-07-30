@@ -1,0 +1,24 @@
+{
+  "mode": "artifact",
+  "verdict": "BLOCK",
+  "judge_model": "kbd-judge",
+  "producer_model": "claude-opus-5",
+  "isolation_mode": "rest-gateway:http://localhost:8181/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": "analysis.md",
+      "claim": "The analysis gives contradictory sycophancy-gate placement guidance, so a downstream plan could wire the enforced gate in the wrong place.",
+      "evidence": "Section 6a says: \"validate-skill.sh is the enforced gate\" and \"Creators invoke validate-skill.sh. They do not call check-findings-sycophancy.sh directly.\" But Section 7 answers the assess open question #5 with the opposite: \"Creator calls the existing check-findings-sycophancy.sh... Do not duplicate the logic inside validate-skill.sh.\" This also conflicts with the phase goal: \"Promote the sycophancy pass ... to an enforced gate in validate-skill.sh.\"",
+      "suggested_fix": "Update Section 7 question #5 to match Section 6a: validate-skill.sh shells out to check-findings-sycophancy.sh as the single enforcement point, and creators call validate-skill.sh only."
+    },
+    {
+      "severity": "WARNING",
+      "file": "analysis.md",
+      "claim": "The recommendation to add an MCP server surface to native-agent does not evaluate which existing Rust MCP server implementation should be reused or standardized.",
+      "evidence": "Section 1 notes multiple in-repo MCP/Rust assets: \"rmcp versions: prometheus-research and sovereign-sync at 1.8, liter-llm at 2.1; substrate/sovereign-sync/src/mcp_server.rs exists \u2014 we already run a Rust MCP server.\" Section 9 then recommends: \"Add an MCP server surface to native-agent,\" but gives no verdict on whether to reuse sovereign-sync's server, standardize on rmcp 2.1, support 1.8 compatibility, or create a new crate.",
+      "suggested_fix": "Add an explicit build-vs-reuse decision for the MCP server surface: preferred rmcp version, whether sovereign-sync/src/mcp_server.rs is the reference implementation, and what compatibility or migration work is required."
+    }
+  ]
+}

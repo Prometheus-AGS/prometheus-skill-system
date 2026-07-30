@@ -1,26 +1,31 @@
 {
-  "activePhaseId": "sovereign-sync-domain-adapters",
+  "activePhaseId": "adversarial-review-for-creation",
   "change": null,
   "childPointer": null,
   "completionMetric": "implementation",
-  "currentTask": null,
-  "exactNextCommand": "/kbd-assess sovereign-sync-domain-adapters",
+  "currentTask": "run kbd-assess for ideation-and-decision-tools",
+  "exactNextCommand": "/kbd-assess ideation-and-decision-tools",
   "generatedBy": "kbd-runtime",
-  "implementationCompleted": 144,
-  "implementationTotal": 197,
+  "implementationCompleted": 0,
+  "implementationTotal": 0,
   "path": [
-    "sovereign-sync-domain-adapters"
+    "adversarial-review-for-creation"
   ],
-  "phase": "sovereign-sync-domain-adapters",
+  "phase": "ideation-and-decision-tools",
   "phaseIds": [
-    "sovereign-sync-domain-adapters"
+    "adversarial-review-for-creation"
   ],
   "planRevision": 1,
   "projectId": "6ac090a4-3656-4d83-8eb6-2891508196d5",
-  "revision": 45,
-  "runId": "docusaurus-github-pages-site-20260729T111742Z",
+  "revision": 132,
+  "runId": "docusaurus-github-pages-site-20260729T012334Z",
   "schemaVersion": "5",
-  "sourceRevision": 45,
-  "status": "completed",
-  "updatedAt": "2026-07-29T18:49:31.001941Z"
+  "sourceRevision": 131,
+  "status": "assessment_ready",
+  "updatedAt": "2026-07-30T22:38:37Z",
+  "previousPhase": "adversarial-review-for-creation",
+  "sourceTool": "kbd-next-phase",
+  "nextPendingChange": null,
+  "certificationStatus": "NOT_TRACKED",
+  "publicationStatus": "NOT_TRACKED"
 }

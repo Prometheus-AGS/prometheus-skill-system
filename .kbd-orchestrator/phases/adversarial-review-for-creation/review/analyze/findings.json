@@ -1,0 +1,31 @@
+{
+  "mode": "artifact",
+  "verdict": "BLOCK",
+  "judge_model": "kbd-judge",
+  "producer_model": "claude-opus-5",
+  "isolation_mode": "rest-gateway:http://localhost:8181/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": "analysis.md",
+      "claim": "The analysis does not cover several required phase goals, so a downstream plan would lack necessary implementation guidance for this phase.",
+      "evidence": "Phase goals require: \"Enforce KBD_PRODUCER_MODEL at both creator entry points\", \"Promote the sycophancy pass ... to an enforced gate in validate-skill.sh\", and \"Prove the loop end to end: a deliberately flawed generated skill and agent must each be caught...\". The artifact instead frames its question as \"does exposing a Rust agent that speaks A2A + AG-UI + A2UI... change the calculus from assess?\" and concludes \"None of this changes the seven goals of this phase. It sharpens the next one.\" It contains no analysis of KBD_PRODUCER_MODEL enforcement, no concrete validate-skill.sh enforcement design, and no end-to-end flawed-skill/flawed-agent test strategy.",
+      "suggested_fix": "Add a phase-goal coverage section that analyzes each of the seven goals, including entry-point locations for KBD_PRODUCER_MODEL enforcement, where validate-skill.sh must call the sycophancy gate, and how the deliberately flawed skill and agent tests prove verified-distinct."
+    },
+    {
+      "severity": "WARNING",
+      "file": "analysis.md",
+      "claim": "The analysis makes repo-state claims that are not verifiable from the review packet but uses them to justify recommendations.",
+      "evidence": "The artifact says \"Verified in-repo before researching anything\" and claims, among other things, \"Generated `agent-mcp` crate | MCP client only. Not a server. This is the real gap\" and \"`sovereign-sync/src/mcp_server.rs` is a working Rust MCP server\". The packet provided for review contains no `file_tree` or quoted file excerpts to substantiate those claims.",
+      "suggested_fix": "Include the relevant file-tree entries and short excerpts from SKILL.md, Cargo manifests, and the cited Rust source files, or weaken the claims to assumptions requiring verification before planning."
+    },
+    {
+      "severity": "WARNING",
+      "file": "analysis.md",
+      "claim": "The recommendation to standardise on A2UI-over-MCP overstates adoption readiness despite the artifact's own risk assessment that the extension is pre-standard.",
+      "evidence": "The verdict says \"Standardise on `application/a2ui+json` as our generative-UI wire format\" and the recommended next phase says \"Adopt `application/a2ui+json` over `a2ui://` as the generative-UI wire format\". But the risk table says \"A2UI extension not yet formalised in MCP\" and mitigates with \"treat as pre-standard; isolate behind our `ui-surface` tier contract\".",
+      "suggested_fix": "Change the recommendation from \"standardise/adopt\" to \"prototype behind the ui-surface abstraction with a fallback to official MCP Apps/ui:// until A2UI-over-MCP is formalized and supported by target hosts.\""
+    }
+  ]
+}

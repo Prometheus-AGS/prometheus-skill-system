@@ -10,6 +10,7 @@
 #   kbd_resolve_source <role>        -> prints which layer supplied it (for diagnostics)
 #   kbd_gateway_auth                 -> prints the Bearer token to use
 #   kbd_model_routing_log <phase> <class> <model> <producer>
+#   kbd_require_producer_model       -> 0 if KBD_PRODUCER_MODEL is set, else 2
 #
 # WHY THIS FILE EXISTS
 # Before it, the same TOML-regex parser was duplicated in dispatch-judge.sh and
@@ -202,6 +203,41 @@ kbd_resolve_source() {
 kbd_model_routing_log() {
     printf '[MODEL_ROUTING] phase=%s class=%s model=%s producer=%s\n' \
         "$1" "$2" "$3" "$4" >&2
+}
+
+# ---------------------------------------------------------------------------
+# kbd_require_producer_model — fail-closed guard for creator entry points.
+#
+# Returns 0 (silently) when KBD_PRODUCER_MODEL names the model that produced the
+# artifact; returns 2 with an explanation on stderr when it is unset or empty.
+#
+# WHY THIS REFUSES INSTEAD OF DEFAULTING
+# The judge≠producer guarantee is a comparison between two model identities. If
+# the producer identity is unknown, the comparison cannot be made — so the only
+# honest outcomes are "refuse" or "record that it is unknown".
+#
+# A default such as ${KBD_PRODUCER_MODEL:-claude-opus-5} looks like it satisfies
+# the guarantee and does the opposite: the collision check compares the judge to
+# a *guess*, passes, and the artifact records cross_model_check: verified-distinct
+# for a comparison that never happened. That is precisely the failure this gate
+# exists to catch, reintroduced by the fix for it. This function therefore never
+# assigns a value — it only reports whether one is present.
+#
+# Callers MUST treat a non-zero return as fatal and abort before building the
+# review packet. Logging the failure and continuing produces a findings file that
+# claims cross-model verification it cannot support.
+#
+# Ratified 2026-07-30 by change-arc-001 (goal 4); implemented by change-arc-002.
+kbd_require_producer_model() {
+    if [ -z "${KBD_PRODUCER_MODEL:-}" ]; then
+        echo "[creator] REFUSING to dispatch review: KBD_PRODUCER_MODEL is unset." >&2
+        echo "[creator]   Without it the review cannot prove judge != producer, and a" >&2
+        echo "[creator]   synthesized default would fabricate a verified-distinct result." >&2
+        echo "[creator]   Export the model that produced this artifact, e.g." >&2
+        echo "[creator]     export KBD_PRODUCER_MODEL=\"claude-opus-5\"" >&2
+        return 2
+    fi
+    return 0
 }
 
 # ---------------------------------------------------------------------------

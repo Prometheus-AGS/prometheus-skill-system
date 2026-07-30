@@ -204,6 +204,44 @@ cd skills/imported/artifact-refiner && git pull origin main && cd ../../..
 git submodule status
 ```
 
+#### A submodule build must never be able to abort the installer
+
+`scripts/install-binaries.sh` runs under `set -euo pipefail`. An unguarded
+`cargo build` on a submodule therefore takes the **whole install** down with it.
+
+This is not hypothetical. On 2026-07-30, `tools/liter-llm` was pinned to a commit
+whose `Cargo.toml` hardcoded `version = "1.9.3"` against a workspace that had
+moved to `1.11.0`. `cargo metadata` exited 101, the installer aborted **mid-run**,
+and **7 of 14 binaries were left stale** — including binaries that had nothing to
+do with liter-llm. The failure was silent in the sense that mattered: the install
+appeared to have "run", and the staleness surfaced much later as unrelated bugs.
+
+When adding a submodule that produces a binary, guard every failure path:
+
+```bash
+if [ -f "${REPO_ROOT}/tools/<name>/Cargo.toml" ] && command -v cargo >/dev/null 2>&1; then
+    _built=1
+    (cd "${REPO_ROOT}/tools/<name>" && cargo build --release 2>&1 | tail -3) || _built=0
+    if [ "${_built}" -eq 1 ]; then
+        # `|| true` is REQUIRED: under set -e, an assignment from a failing
+        # command substitution is fatal, and `find` on a target/release that was
+        # never built exits non-zero.
+        BIN=$(find "${REPO_ROOT}/tools/<name>/target/release" -maxdepth 1 \
+                   -name "<name>" -type f 2>/dev/null | head -1) || true
+        ...
+    fi
+else
+    info "skip <name> (submodule not initialized or cargo unavailable)"
+fi
+```
+
+Ask which failure the user should suffer. For a tool only some users need, the
+answer is a warning and a completed install — never a dead installer. See
+[`docs/decisions/openai-proxy-vendoring.md`](docs/decisions/openai-proxy-vendoring.md)
+for the worked example, and note that the `liter-llm` block at
+`install-binaries.sh:131` still lacks the `|| true` and survives only because its
+`target/` happens to exist.
+
 ### Validation
 
 ```bash

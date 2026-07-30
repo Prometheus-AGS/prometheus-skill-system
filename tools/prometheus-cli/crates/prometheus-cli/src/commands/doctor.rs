@@ -10,7 +10,7 @@ use std::fs;
 use std::path::Path;
 use std::path::PathBuf;
 use std::process::Command;
-use std::time::{SystemTime, UNIX_EPOCH};
+use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
 #[derive(Debug, Clone, Default)]
 pub struct DoctorOptions {
@@ -169,6 +169,7 @@ async fn build_report(options: &DoctorOptions) -> DoctorReport {
         check_skills_directory(),
         check_installed_agents(),
         check_surreal_memory().await,
+        check_judge_gateway().await,
         check_managed_binaries(),
         check_managed_services(),
         check_managed_mcp(),
@@ -774,6 +775,132 @@ async fn check_surreal_memory() -> CheckResult {
                 reason_blocked: None,
             }],
         },
+    }
+}
+
+/// Report whether a judge gateway is reachable.
+///
+/// This exists because the failure it detects is SILENT. When no gateway
+/// answers, adversarial review does not error — it falls back to a
+/// harness-native model, still returns `PASS`, and records
+/// `isolation_mode: harness-native` in the findings artifact. That is how eight
+/// consecutive reviews in this repository were Claude grading Claude while the
+/// pipeline reported success the entire time.
+///
+/// Optional by design: a user who never runs an adversarial review needs no
+/// gateway, so this is Yellow/Warn rather than Red/Fail. What it must never do
+/// is stay quiet, or report "not implemented" — an unreported degradation is
+/// indistinguishable from a working gate.
+async fn check_judge_gateway() -> CheckResult {
+    // Candidates in the same precedence order the shell resolver uses:
+    // LITER_LLM_BASE_URL wins, then openai-proxy, then a liter-llm api server.
+    let mut candidates: Vec<String> = Vec::new();
+    if let Ok(explicit) = std::env::var("LITER_LLM_BASE_URL") {
+        if !explicit.trim().is_empty() {
+            candidates.push(explicit.trim().trim_end_matches('/').to_string());
+        }
+    }
+    candidates.push("http://localhost:8181/v1".to_string());
+    candidates.push("http://localhost:4000/v1".to_string());
+
+    let client = match reqwest::Client::builder()
+        .timeout(Duration::from_secs(3))
+        // Loopback must not be sent through a corporate proxy; a proxied
+        // localhost probe reports a false negative.
+        .no_proxy()
+        .build()
+    {
+        Ok(client) => client,
+        Err(_) => {
+            return CheckResult {
+                id: "review.judge-gateway".into(),
+                group: "review".into(),
+                label: "Adversarial judge gateway".into(),
+                severity: Severity::Yellow,
+                status: CheckStatus::Skip,
+                summary: "could not construct an HTTP client to probe the gateway".into(),
+                details: vec![],
+                optional: true,
+                actions: vec![],
+            };
+        }
+    };
+
+    for base in &candidates {
+        let url = format!("{}/models", base);
+        // A 401 still proves something is LISTENING and speaking the API — it is
+        // an auth problem, not an availability one, and the two need different
+        // fixes. Treat any HTTP response as "reachable" and report the status.
+        if let Ok(resp) = client.get(&url).send().await {
+            let status = resp.status();
+            if status.is_success() {
+                return CheckResult {
+                    id: "review.judge-gateway".into(),
+                    group: "review".into(),
+                    label: "Adversarial judge gateway".into(),
+                    severity: Severity::Green,
+                    status: CheckStatus::Pass,
+                    summary: format!("Reachable at {}", base),
+                    details: vec![
+                        "Adversarial review can resolve a judge distinct from the producer.".into(),
+                    ],
+                    optional: true,
+                    actions: vec![],
+                };
+            }
+            return CheckResult {
+                id: "review.judge-gateway".into(),
+                group: "review".into(),
+                label: "Adversarial judge gateway".into(),
+                severity: Severity::Yellow,
+                status: CheckStatus::Warn,
+                summary: format!("{} responded HTTP {}", base, status.as_u16()),
+                details: vec![
+                    "A gateway is listening but rejected the request. liter-llm returns 401 on \
+                     every /v1/* route when [general] master_key is unset."
+                        .into(),
+                ],
+                optional: true,
+                actions: vec![RepairAction {
+                    id: "review.configure-models".into(),
+                    description: "Repair the liter-llm gateway config (merges, never clobbers)."
+                        .into(),
+                    safe: true,
+                    reversible: true,
+                    dry_run_only: false,
+                    command_hint: Some(
+                        "bash skills/process/liter-llm-bridge/scripts/configure-models.sh check"
+                            .into(),
+                    ),
+                    reason_blocked: None,
+                }],
+            };
+        }
+    }
+
+    CheckResult {
+        id: "review.judge-gateway".into(),
+        group: "review".into(),
+        label: "Adversarial judge gateway".into(),
+        severity: Severity::Yellow,
+        status: CheckStatus::Warn,
+        summary: format!("No judge gateway reachable (tried {})", candidates.join(", ")),
+        details: vec![
+            "Adversarial reviews will DEGRADE to a same-model self-review: they still \
+             return PASS, recording isolation_mode: harness-native."
+                .into(),
+            "Start openai-proxy (:8181) or a liter-llm api server, then re-run doctor.".into(),
+        ],
+        optional: true,
+        actions: vec![RepairAction {
+            id: "review.install-judge-gateway".into(),
+            description: "Build and install the optional openai-proxy judge gateway.".into(),
+            safe: true,
+            reversible: true,
+            dry_run_only: false,
+            command_hint: Some("bash scripts/install-binaries.sh --dry-run".into()),
+            reason_blocked: None,
+        }],
     }
 }
 

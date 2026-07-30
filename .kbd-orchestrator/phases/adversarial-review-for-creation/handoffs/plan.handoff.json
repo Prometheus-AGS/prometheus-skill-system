@@ -1,0 +1,27 @@
+{
+  "stage": "plan",
+  "phase": "adversarial-review-for-creation",
+  "artifact": "plan.md",
+  "change_count": 9,
+  "first_change": "change-arc-001-ratify-goal-wording",
+  "summary": "9 OpenSpec changes. change-arc-001 (ratify goal 4 and 6 wording) MUST go first and is a human decision, not code — analyze deadlocked across 5 adversarial rounds precisely because those goals admit literal readings the implementation cannot satisfy. Then shared plumbing (002 fail-closed producer guard, 003 skill/agent packet modes) -> wire both creators (004, 005) -> prove it discriminates (006) -> user-requested additions (007 cap override, 008 cowork discovery + docs, 009 openai-proxy vendoring decision). 006 lands before 007-009 so the additions inherit a working gate rather than a claimed one.",
+  "ordering_rationale": "001 unblocks 002/004/005. 003 is independent and can run in parallel. 006 depends on 004+005 because it tests them. 007 depends on 006 for the working gate but ships its own override test.",
+  "warnings_carried": [
+    "Changes 007-009 are user-requested scope extensions not tied to any of the seven phase goals; 007 modifies goal 5's cap rather than merely using it. Execute must either accept the extension explicitly or defer all three — nothing in 001-006 depends on them.",
+    "The <=6 judge-call budget for 006 is a ceiling, not a measurement; actual count depends on how many retry rounds the fixtures trigger."
+  ],
+  "adversarial_review": {
+    "rounds": 2,
+    "cap_respected": true,
+    "cross_model_check": "verified-distinct",
+    "judge_model": "kbd-judge",
+    "producer_model": "claude-opus-5",
+    "caught_and_fixed": [
+      "006 claimed to assert 002's fail-closed behaviour but tested only verdicts — Group B added",
+      "005 omitted the 2-round retry loop 004 specified though goal 5 covers both creators",
+      "ORDERING BUG: 006 tested 007's override but runs before 007 — override moved into 007's own acceptance",
+      "007 conflated the sycophancy-screen cap with the retry-loop cap — now named separately"
+    ],
+    "unresolved": 2
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "stage": "analyze",
+  "phase": "adversarial-review-for-creation",
+  "artifact": "analysis.md",
+  "summary": "Question answered: a Rust agent with A2A/AG-UI/A2UI + MCP Apps DOES change the calculus — for delivery, not for the debate premise. MCP Apps went GA 2026-01-26 (Claude, ChatGPT, VS Code, Goose). Google + MCP Apps co-creators published three A2UI x MCP patterns 2026-06-17; 'A2UI over MCP' uses application/a2ui+json over a2ui:// and is BACKEND-AGNOSTIC, which removes the TypeScript-SDK objection for a Rust agent entirely. Key in-repo finding: native-agent already speaks all three protocols but its agent-mcp crate is an MCP CLIENT ONLY — the server surface is the real gap, and surface-bridge (:7890, live) already proves UI-over-MCP works in our stack. A better UI does NOT rescue the persona-debate idea: the NeurIPS martingale proof stands. Dynamic MCP App generation is RCE by construction — recommend dynamic A2UI JSON constrained to a component catalog, never dynamic raw HTML.",
+  "open_questions": [
+    "RATIFY GOAL WORDING FIRST: goals 4 and 6 admit literal readings the implementation cannot satisfy; five review rounds deadlocked on exactly this",
+    "Goal 4: fail-closed (exit 2) before dispatch when KBD_PRODUCER_MODEL is unset — ratify this satisfies 'can never record unverified-producer-unknown'",
+    "Goal 6: validate-skill.sh is the single enforced gate and shells out to check-findings-sycophancy.sh; creators invoke validate-skill.sh only",
+    "Is the 2-rejection soft cap (CLAUDE.md:977) in scope to change? Judge objects to it; treating as pack-wide architecture, out of scope here",
+    "Size the A2UI-over-MCP implementation cost before committing (carried WARNING)"
+  ],
+  "adversarial_review": {
+    "rounds": 5,
+    "final_verdict": "BLOCK",
+    "cross_model_check": "verified-distinct",
+    "judge_model": "kbd-judge",
+    "producer_model": "claude-opus-5",
+    "resolved_across_rounds": 4,
+    "unresolved_recorded": 2,
+    "note": "Exceeded the documented 2-round cap; unresolved findings recorded in analysis.md per kbd-assess/SKILL.md:75. Two round-5 CRITICALs declined with reasons — they object to the pack's own documented 2-rejection soft cap."
+  },
+  "recommended_next_phase": "ideation-and-decision-tools"
+}
