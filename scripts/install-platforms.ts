@@ -309,8 +309,13 @@ function installPlatform(platform: Platform, scope: 'global' | 'project'): void 
         );
       }
       if (!existingConfig.includes('[mcp_servers.liter-llm]')) {
+        // --config is REQUIRED: liter-llm's ProxyConfig::discover() walks the CWD
+        // upward and never searches $HOME, so without it the MCP server starts
+        // with ZERO models. Interpolate a literal path — TOML performs no shell
+        // expansion, and Kimi Code rejects ${VAR} forms in these fields.
+        const literConfig = `${HOME}/.config/liter-llm/liter-llm-proxy.toml`;
         mcpEntriesToAdd.push(
-          '[mcp_servers.liter-llm]\ncommand = "liter-llm"\nargs = [\n    "mcp",\n    "--transport",\n    "stdio",\n]'
+          `[mcp_servers.liter-llm]\ncommand = "liter-llm"\nargs = [\n    "mcp",\n    "--transport",\n    "stdio",\n    "--config",\n    "${literConfig}",\n]`
         );
       }
 

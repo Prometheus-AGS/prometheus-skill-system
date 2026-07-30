@@ -208,7 +208,10 @@ configure_kimi_mcp() {
         needs_write=true
     fi
     if ! grep -q "\[mcp_servers.liter-llm\]" "$config_file" 2>/dev/null; then
-        new_entries+=$'\n\n'"[mcp_servers.liter-llm]"$'\n'"command = \"liter-llm\""$'\n'"args = [\"mcp\", \"--transport\", \"stdio\"]"
+        # --config is REQUIRED: liter-llm's discover() walks the CWD upward and never
+        # searches $HOME, so without it the MCP server starts with ZERO models.
+        # Literal path — TOML does no shell expansion and Kimi rejects ${VAR} forms.
+        new_entries+=$'\n\n'"[mcp_servers.liter-llm]"$'\n'"command = \"liter-llm\""$'\n'"args = [\"mcp\", \"--transport\", \"stdio\", \"--config\", \"${HOME}/.config/liter-llm/liter-llm-proxy.toml\"]"
         needs_write=true
     fi
 

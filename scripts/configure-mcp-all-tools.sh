@@ -197,7 +197,11 @@ TOML
 
 [mcp_servers.liter-llm]
 command = "liter-llm"
-args = ["mcp", "--transport", "stdio"]
+# --config is REQUIRED. liter-llm's ProxyConfig::discover() walks the CWD upward
+# and never searches \$HOME, so without it the server starts with ZERO models.
+# Written as a literal path: TOML performs no shell expansion, and Kimi Code
+# rejects \${VAR} forms in these fields outright.
+args = ["mcp", "--transport", "stdio", "--config", "${HOME}/.config/liter-llm/liter-llm-proxy.toml"]
 TOML
         added+=("liter-llm")
     fi
