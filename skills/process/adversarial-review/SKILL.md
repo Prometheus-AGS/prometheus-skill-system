@@ -245,11 +245,25 @@ and lazily before any dispatch without a fresh cache. It:
 2. Detects provider keys from the canonical env vars (delegates to
    liter-llm-bridge's `detect-providers.sh`; see its
    `references/provider-env-vars.md`).
-3. Initializes `~/.config/liter-llm/config.toml` when absent — via
-   `/liter-llm-bridge configure`. Existing pinned aliases are **never**
-   overwritten; only gaps are filled.
-4. Verifies ≥ 2 distinct resolvable models exist (so judge ≠ producer is
-   always possible). Exactly 1 → `status: degraded` warning.
+3. Resolves each role through `shared/scripts/lib/kbd-model-resolve.sh` and
+   reports which config layer supplied it. Two files own this, and neither is a
+   script:
+   - `~/.prometheus/kbd/models.toml` — role → model NAME (KBD owns)
+   - `~/.config/liter-llm/liter-llm-proxy.toml` — NAME → provider + base_url +
+     `${KEY}` (liter-llm owns)
+
+   Repair or extend both with `/liter-llm-bridge configure` (`repair`,
+   `add-provider`, `verify`). It merges and never clobbers.
+
+   The older `~/.config/liter-llm/config.toml` with a flat `[aliases]` table is
+   **retired** — that shape is not a schema liter-llm can load, which is why the
+   judge silently fell back to passing a class name through as a model id.
+4. Verifies ≥ 2 distinct **dispatchable** models exist (so judge ≠ producer is
+   always possible). Exactly 1 → `status: degraded`. It also reports
+   `config_broken` with named defects when the liter-llm config exists but cannot
+   serve a request — missing `[general] master_key` (401 on everything) or a
+   localhost `base_url` with no `[security] outbound_policy` (`deny_private`
+   blocks loopback).
 5. When **no** keys are found: ask the user which providers to configure
    (list the env-var name per provider) and instruct them to export the key.
    **This skill never collects, stores, or writes API keys** — config.toml

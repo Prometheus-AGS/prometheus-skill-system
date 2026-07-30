@@ -19,7 +19,9 @@ Primary routing tool. Sends a prompt to a model alias and returns the completion
 }
 ```
 
-`model` accepts either an alias from `~/.config/liter-llm/config.toml` (`small`, `medium`, `frontier`) or a fully qualified `provider/model` identifier (`anthropic/claude-sonnet-4-6`).
+`model` accepts either a `[[models]]` **name** from `~/.config/liter-llm/liter-llm-proxy.toml` (e.g. `kbd-judge`, `gpt-5.4`) or a fully qualified `provider/model` identifier (`moonshot/kimi-k2.5`, `zai/glm-4.7`).
+
+> The older `~/.config/liter-llm/config.toml` with a flat `[aliases]` table of `small`/`medium`/`frontier` is retired. liter-llm's real schema is an `[[aliases]]` **array of tables** keyed by `pattern`, so a flat table parsed to nothing — callers silently fell back to sending the class name as a model id. Manage this file with `/liter-llm-bridge configure`.
 
 ### `list_models`
 

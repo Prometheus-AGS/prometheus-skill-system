@@ -58,10 +58,52 @@ Skip this skill when:
 The skill has three slash entry points:
 
 1. **`/liter-llm-bridge install`** — clone, build, install the binary. See `prompts/install.md`.
-2. **`/liter-llm-bridge configure`** — detect providers, write `~/.config/liter-llm/config.toml`, register the MCP server with the active harness. See `prompts/configure.md`.
-3. **`/liter-llm-bridge route`** — document or activate per-phase routing via the liter-llm MCP `complete` tool. See `prompts/route.md`.
+2. **`/liter-llm-bridge configure`** — generate/repair model config and register the MCP server. See `prompts/configure.md`.
+3. **`/liter-llm-bridge route`** — document or activate per-phase routing. See `prompts/route.md`.
 
-Run them in order on first setup. After that, only `configure` needs to be re-run when adding new providers.
+Run them in order on first setup. After that, only `configure` needs re-running when adding a provider.
+
+### `configure` subcommands — `scripts/configure-models.sh`
+
+```bash
+S="${CLAUDE_PLUGIN_ROOT}/skills/process/liter-llm-bridge/scripts/configure-models.sh"
+
+bash "$S" check                    # report state; change nothing
+bash "$S" repair                   # add ONLY the missing mandatory pieces
+bash "$S" add-provider glm-coding  # local-proxy|kimi|minimax|qwen|glm|glm-coding|kimi-coding
+bash "$S" verify                   # live 1-token completion per role
+bash "$S" migrate                  # retire the legacy config.toml
+```
+
+Two files own the configuration, and **neither is a script**:
+
+| File | Owns |
+|---|---|
+| `~/.prometheus/kbd/models.toml` | role → model **name** (KBD) |
+| `~/.config/liter-llm/liter-llm-proxy.toml` | name → provider + `base_url` + `${KEY}` (liter-llm) |
+
+Secrets never enter the TOML: keys live in `~/.prometheus/kbd/secrets.env` (0600) and
+are referenced as `${VAR}`.
+
+> **Never edit a plugin cache.** Files under `~/.claude/plugins/cache/...` (and the
+> Codex equivalent) are overwritten by the next install, and the edit is invisible to
+> git. A previous session "fixed" model routing that way and the change silently
+> vanished. Change the two config files above, or edit the repo and run
+> `bash scripts/update-skill-pack.sh --force`.
+
+### Three contracts that will bite you
+
+1. **liter-llm never searches `$HOME`.** `ProxyConfig::discover()` walks the CWD
+   upward for `liter-llm-proxy.toml`. Always pass `--config <abs path>`, or the
+   server starts with **zero models**.
+2. **`/v1/*` requires a Bearer token unconditionally.** A config with no
+   `[general] master_key` and no `[[keys]]` answers **401 to everything**,
+   `/v1/models` included.
+3. **`[security].outbound_policy` defaults to `deny_private`,** which **refuses
+   loopback** — so any `localhost` `base_url` fails until it is set to `"off"` or an
+   explicit allowlist.
+
+`configure check` tests all three and names whichever is broken.
 
 ## Architecture
 
@@ -78,7 +120,15 @@ KBD/evolver/refiner phase
     response
 ```
 
-liter-llm exposes 22 MCP tools (model routing, virtual API keys, rate limits, cost tracking, response caching, OpenAPI spec at `/openapi.json`). The bridge skill only needs the `complete` tool plus the alias resolution table — the rest is reference.
+liter-llm exposes MCP tools for model routing, virtual API keys, rate limits, cost tracking, response caching, and an OpenAPI spec at `/openapi.json`.
+
+> **There is no `liter-llm complete` CLI subcommand and no MCP `complete` tool.** The
+> binary ships exactly two subcommands, `api` and `mcp` — it is a proxy *server*. The
+> MCP chat tool is named `chat`. Shell callers should speak OpenAI REST to
+> `POST /v1/chat/completions` at the resolved gateway. Earlier revisions of these docs
+> taught `liter-llm complete --model frontier`; because callers only checked that the
+> *binary* existed, the failure surfaced as "liter-llm unavailable" rather than as the
+> CLI-contract mismatch it was.
 
 ## Fallback Semantics
 
