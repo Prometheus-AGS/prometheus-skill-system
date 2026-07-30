@@ -124,7 +124,16 @@ Concretely:
 ```bash
 SKILL_DIR="${CLAUDE_PLUGIN_ROOT}/skills/process/adversarial-review"
 
+# 0. Load the gateway credential and declare the producer.
+#    KBD_PRODUCER_MODEL is REQUIRED for the guarantee this skill exists to make.
+#    The judge's collision check compares candidate != producer, so an unknown
+#    producer makes it pass trivially — which is exactly what happened to all 8
+#    historical reviews. Set it to the model running THIS session.
+set -a; . ~/.prometheus/kbd/secrets.env 2>/dev/null || true; set +a
+export KBD_PRODUCER_MODEL="${KBD_PRODUCER_MODEL:-claude-opus-5}"
+
 # 1. Preflight (cached 24h at .kbd-orchestrator/model-preflight.json)
+#    Reports the gateway, the model per role, and WHICH config layer supplied it.
 bash "$SKILL_DIR/scripts/preflight-models.sh"
 
 # 2. Build the packet
@@ -151,8 +160,16 @@ Artifact mode replaces `--target "$CHANGE_ID"` with `--target assess|analyze|pla
 Per the liter-llm-bridge and pmpo-evolver conventions — warn, never silently
 degrade, never block the pipeline:
 
-1. **liter-llm** (`liter-llm complete --model <resolved>`) — full isolation,
-   true cross-model. `dispatch-judge.sh` exit 0.
+1. **REST gateway** — an OpenAI-compatible `POST /v1/chat/completions` at the
+   resolved gateway (openai-proxy on `:8181`, or `liter-llm api`). Full isolation,
+   true cross-model. `dispatch-judge.sh` exit 0, and the findings record
+   `isolation_mode: rest-gateway:<url>` plus `cross_model_check`.
+
+   There is **no `liter-llm complete`** — the binary ships only `api` and `mcp`
+   subcommands (it is a proxy *server*). Earlier revisions of this doc and of
+   `dispatch-judge.sh` called that non-existent subcommand; because the guard only
+   checked that the *binary* existed, the failure surfaced as "liter-llm
+   unavailable" rather than as the CLI-contract mismatch it was. Speak REST.
 2. **Harness-native fresh-context subagent** — when liter-llm is unavailable
    (`dispatch-judge.sh` exit 3), the calling session dispatches a subagent
    (Agent tool / equivalent) whose prompt is exactly: the mode's mandate file

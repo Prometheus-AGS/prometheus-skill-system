@@ -61,7 +61,23 @@ except Exception:
     pass
 PY
 )"
-[ -n "$PRODUCER" ] || PRODUCER="${KBD_PRODUCER_MODEL:-${ANTHROPIC_MODEL:-unknown}}"
+[ -n "$PRODUCER" ] || PRODUCER="${KBD_PRODUCER_MODEL:-${ANTHROPIC_MODEL:-}}"
+# Harness-provided identifiers, before giving up. CLAUDE_MODEL / CLAUDECODE_MODEL
+# are set by some Claude Code builds; CLAUDE_CODE_MODEL by others.
+[ -n "$PRODUCER" ] || PRODUCER="${CLAUDE_MODEL:-${CLAUDE_CODE_MODEL:-${CLAUDECODE_MODEL:-}}}"
+
+# "unknown" is not a harmless default: the judge's collision check compares
+# candidate != producer, so an unknown producer makes it pass TRIVIALLY. Every one
+# of the 8 historical reviews carried producer_model="unknown", which is why
+# judge!=producer was never actually enforced despite the check being present.
+# Warn loudly so a trivially-passing check is visible at packet-build time.
+if [ -z "$PRODUCER" ]; then
+  PRODUCER="unknown"
+  echo "[packet] WARN: PRODUCER_UNKNOWN — cannot determine which model produced this" >&2
+  echo "[packet]       work, so the judge!=producer guarantee cannot be enforced." >&2
+  echo "[packet]       Set KBD_PRODUCER_MODEL (e.g. export KBD_PRODUCER_MODEL=claude-opus-5)" >&2
+  echo "[packet]       to restore the cross-model check." >&2
+fi
 
 # --- shared context -----------------------------------------------------------
 CONSTRAINTS_FILE="$KBD_ROOT/constraints.md"

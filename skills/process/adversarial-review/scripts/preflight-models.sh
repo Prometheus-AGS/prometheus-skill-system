@@ -34,7 +34,42 @@ KBD_ROOT="$(find_kbd_root 2>/dev/null || true)"
 CACHE=""
 [ -n "$KBD_ROOT" ] && CACHE="$KBD_ROOT/model-preflight.json"
 
-CONFIG="${LITER_LLM_CONFIG:-$HOME/.config/liter-llm/config.toml}"
+# liter-llm's REAL config. The previous default here was
+# ~/.config/liter-llm/config.toml with a flat [aliases] TABLE — a shape liter-llm
+# cannot load (its schema is an [[aliases]] ARRAY in liter-llm-proxy.toml), so the
+# parse silently produced nothing and the judge fell back to a literal class name.
+CONFIG="${LITER_LLM_CONFIG:-$HOME/.config/liter-llm/liter-llm-proxy.toml}"
+
+# Role resolution comes from the shared library so precedence lives in one place.
+RESOLVE_LIB=""
+for _cand_lib in \
+  "$(cd "$(dirname "$0")" && pwd)/../../../../shared/scripts/lib/kbd-model-resolve.sh" \
+  "${CLAUDE_PLUGIN_ROOT:-}/shared/scripts/lib/kbd-model-resolve.sh" \
+  "${PLUGIN_ROOT:-}/shared/scripts/lib/kbd-model-resolve.sh"; do
+  if [ -n "$_cand_lib" ] && [ -f "$_cand_lib" ]; then RESOLVE_LIB="$_cand_lib"; break; fi
+done
+if [ -n "$RESOLVE_LIB" ]; then
+  # shellcheck source=/dev/null
+  . "$RESOLVE_LIB"
+fi
+
+# Resolve the three roles up front so the report can state, per role, both the
+# model and WHICH layer supplied it — "where did that model come from?" should
+# never require reading a script.
+ADV_ROLE_JUDGE=""; ADV_ROLE_CRITIC=""; ADV_ROLE_GENERATOR=""
+ADV_SRC_JUDGE=""; ADV_SRC_CRITIC=""; ADV_SRC_GENERATOR=""
+ADV_GATEWAY=""
+if command -v kbd_resolve_role >/dev/null 2>&1; then
+  ADV_ROLE_JUDGE="$(kbd_resolve_role judge 2>/dev/null || true)"
+  ADV_ROLE_CRITIC="$(kbd_resolve_role critic 2>/dev/null || true)"
+  ADV_ROLE_GENERATOR="$(kbd_resolve_role generator 2>/dev/null || true)"
+  ADV_SRC_JUDGE="$(kbd_resolve_source judge 2>/dev/null || true)"
+  ADV_SRC_CRITIC="$(kbd_resolve_source critic 2>/dev/null || true)"
+  ADV_SRC_GENERATOR="$(kbd_resolve_source generator 2>/dev/null || true)"
+  ADV_GATEWAY="$(kbd_resolve_gateway 2>/dev/null || true)"
+fi
+export ADV_ROLE_JUDGE ADV_ROLE_CRITIC ADV_ROLE_GENERATOR
+export ADV_SRC_JUDGE ADV_SRC_CRITIC ADV_SRC_GENERATOR ADV_GATEWAY
 
 command -v python3 >/dev/null 2>&1 || { echo '{"status":"unavailable","reason":"python3 missing"}'; exit 0; }
 
@@ -125,38 +160,60 @@ providers = [p for p, v in detected.get("providers", {}).items() if v.get("prese
 coverage = detected.get("coverage", {})
 classes_available = [c for c in ("small", "medium", "frontier") if coverage.get(c)]
 
-aliases = {}
-if os.path.exists(config):
-    section = None
-    for line in open(config, encoding="utf-8", errors="replace"):
-        line = line.strip()
-        m = re.match(r"^\[(.+)\]$", line)
-        if m:
-            section = m.group(1)
-            continue
-        if section == "aliases":
-            m = re.match(r'^(\w+)\s*=\s*"([^"]+)"', line)
-            if m:
-                aliases[m.group(1)] = m.group(2)
+# Roles come from the shared resolver (exported by the shell above), not from
+# re-parsing TOML here. Each carries the layer that supplied it.
+roles = {
+    "judge":     {"model": os.environ.get("ADV_ROLE_JUDGE") or "",
+                  "source": os.environ.get("ADV_SRC_JUDGE") or ""},
+    "critic":    {"model": os.environ.get("ADV_ROLE_CRITIC") or "",
+                  "source": os.environ.get("ADV_SRC_CRITIC") or ""},
+    "generator": {"model": os.environ.get("ADV_ROLE_GENERATOR") or "",
+                  "source": os.environ.get("ADV_SRC_GENERATOR") or ""},
+}
+gateway = os.environ.get("ADV_GATEWAY") or ""
 
-distinct = len(set(aliases.values()))
+# What matters is not "how many models exist" but "can the judge differ from the
+# producer". Count the distinct dispatchable models (judge + critic); the generator
+# is the harness itself and is never dispatched through the gateway.
+dispatchable = {roles[r]["model"] for r in ("judge", "critic") if roles[r]["model"]}
+distinct = len(dispatchable)
+
+# The two omissions that made the shipped config answer 401 to everything and
+# refuse loopback. Report them by name — they are the difference between "no
+# config" and "a config that cannot serve a single request".
+config_defects = []
+if os.path.exists(config):
+    try:
+        raw = open(config, encoding="utf-8", errors="replace").read()
+    except Exception:
+        raw = ""
+    if not re.search(r"(?m)^\s*master_key\s*=", raw) and not re.search(r"(?m)^\[\[keys\]\]", raw):
+        config_defects.append("missing [general] master_key — every /v1/* route will 401")
+    if re.search(r"(?m)^\s*base_url\s*=.*(localhost|127\.0\.0\.1)", raw) and \
+       not re.search(r"(?m)^\s*outbound_policy\s*=", raw):
+        config_defects.append(
+            "localhost base_url without [security] outbound_policy — deny_private blocks loopback")
 
 if status != "unavailable":
-    if not providers and not aliases:
-        status = "no_providers"
-    elif not aliases:
+    if not gateway:
+        status = "no_gateway"
+    elif config_defects:
+        status = "config_broken"
+    elif not roles["judge"]["model"]:
         status = "needs_configure"
     elif distinct < 2:
         status = "degraded"
 
 report = {
     "status": status,
+    "gateway": gateway,
+    "roles": roles,
     "providers_detected": providers,
     "classes_available": classes_available,
-    "aliases": aliases,
     "distinct_models": distinct,
     "config_path": config,
     "config_exists": os.path.exists(config),
+    "config_defects": config_defects,
     "checked_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
 }
 print(json.dumps(report, indent=2))
@@ -164,14 +221,21 @@ print(json.dumps(report, indent=2))
 hints = {
     "unavailable": "liter-llm binary not found — run /liter-llm-bridge install "
                    "(cross-model judging degrades to harness-native fallback until then)",
+    "no_gateway": "no OpenAI-compatible endpoint answered. Start the local proxy "
+                  "(openai-proxy on :8181) or `liter-llm api --config "
+                  "~/.config/liter-llm/liter-llm-proxy.toml`, or set LITER_LLM_BASE_URL. "
+                  "NOTE: liter-llm never searches $HOME for its config — always pass "
+                  "--config <abs path>, or it starts with zero models",
+    "config_broken": "the liter-llm config exists but cannot serve a request — see "
+                     "config_defects. Repair with /liter-llm-bridge configure (merges, "
+                     "never clobbers)",
     "no_providers": "no provider API keys found in the environment — ask the user which "
                     "providers to configure and instruct them to export the key env var "
                     "(see liter-llm-bridge references/provider-env-vars.md); never collect "
                     "or store key values",
-    "needs_configure": "provider keys detected but no [aliases] table in config — run "
-                       "/liter-llm-bridge configure to generate it (fills gaps only, never "
-                       "overwrites pinned aliases)",
-    "degraded": "only one distinct model configured — judge may equal producer "
+    "needs_configure": "no judge role resolves — run /liter-llm-bridge configure to seed "
+                       "~/.prometheus/kbd/models.toml and the matching [[models]] entries",
+    "degraded": "only one distinct dispatchable model — judge may equal producer "
                 "(JUDGE_MODEL_COLLISION expected); configure a second provider/model",
 }
 if status in hints:
