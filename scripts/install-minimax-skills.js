@@ -44,6 +44,11 @@ function collectSkills(repoRoot) {
       const path = join(dir, entry.name);
       const rel = relative(skillsRoot, path).split('\\').join('/');
       if (rel === 'imported' || rel.startsWith('imported/')) continue;
+      // Skip test fixtures. A skill's tests/ may hold deliberately BROKEN
+      // SKILL.md trees used to prove a review gate discriminates (see
+      // skills/process/adversarial-review/tests/fixtures/). Without this,
+      // `flawed-skill` installs as a real, invocable MiniMax skill.
+      if (entry.isDirectory() && (entry.name === 'tests' || entry.name === 'fixtures')) continue;
       if (entry.isDirectory()) walk(path);
       else if (entry.name === 'SKILL.md') {
         skills.push({ dir, ...parseFrontmatter(path) });

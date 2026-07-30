@@ -31,7 +31,15 @@ while IFS= read -r -d '' skill_md; do
     skill_dir=$(dirname "$skill_md")
     skill_name=$(node -e "const fs=require('fs'); const s=fs.readFileSync(process.argv[1],'utf8'); const m=s.match(/^---\\n([\\s\\S]*?)\\n---/); const n=m&&m[1].match(/^name:\\s*['\\\"]?([^'\\\"\\n]+)['\\\"]?/m); console.log((n&&n[1].trim())||require('path').basename(require('path').dirname(process.argv[1])));" "$skill_md")
     SKILLS+=("$skill_name|$skill_dir")
-done < <(find "$REPO_ROOT/skills" -name "SKILL.md" -not -path "*/imported/*" -print0)
+# Exclude test fixtures. A skill's tests/ may contain deliberately BROKEN
+# SKILL.md trees used to prove a review gate discriminates (see
+# skills/process/adversarial-review/tests/fixtures/). Without this prune they
+# install as real, invocable skills on every platform — `flawed-skill` shipped
+# to 4 platforms once before this guard existed.
+done < <(find "$REPO_ROOT/skills" -name "SKILL.md" \
+    -not -path "*/imported/*" \
+    -not -path "*/tests/*" \
+    -not -path "*/fixtures/*" -print0)
 
 echo "  Found ${#SKILLS[@]} skills"
 echo ""

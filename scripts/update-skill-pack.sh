@@ -49,7 +49,7 @@ CURRENT_SHA=$(git -C "$REPO_ROOT" rev-parse HEAD)
 collect_all_skills() {
     while IFS= read -r -d '' skill_md; do
         CHANGED_SKILLS+=("$(dirname "$skill_md")")
-    done < <(find "$REPO_ROOT/skills" -name "SKILL.md" -not -path "*/imported/*" -print0)
+    done < <(find "$REPO_ROOT/skills" -name "SKILL.md" -not -path "*/imported/*" -not -path "*/tests/*" -not -path "*/fixtures/*" -print0)
 }
 
 if $FORCE; then

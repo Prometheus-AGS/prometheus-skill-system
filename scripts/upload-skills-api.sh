@@ -134,7 +134,7 @@ while IFS= read -r -d '' skill_md; do
         failed=$((failed + 1))
     fi
 
-done < <(find "$REPO_ROOT/skills" -name "SKILL.md" -not -path "*/imported/*" -print0)
+done < <(find "$REPO_ROOT/skills" -name "SKILL.md" -not -path "*/imported/*" -not -path "*/tests/*" -not -path "*/fixtures/*" -print0)
 
 echo ""
 echo "Done. uploaded=$uploaded  skipped_local=$skipped_local  failed=$failed"
