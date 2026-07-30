@@ -140,7 +140,7 @@ graph LR
 
 **Purpose.** Generates a complete, production-ready native Rust agent application with a Supabase-style management CLI. The generated binary embeds an Axum HTTP server, a React 19 chat frontend, liter-llm provider routing, an MCP client, and the skill-pack selection engine. This skill gets its own chapter — see [The Native Agent Generator](12-native-agent-generator.md) — but it lives in the process category.
 
-**Invocation.** `/create-native-agent` (Docker target by default; `librefang-wasm` or `both` are options) and `/native-agent-status`. Child skills: `create-native-agent`, `upload-to-bossfang`, `start-business-build`.
+**Invocation.** `/create-native-agent` (Docker target by default; `librefang-wasm` or `both` are options). Child skills: `create-native-agent`, `upload-to-bossfang`, `start-business-build`.
 
 ---
 

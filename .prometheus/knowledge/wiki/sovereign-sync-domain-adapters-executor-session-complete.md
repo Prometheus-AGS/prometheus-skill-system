@@ -9,14 +9,14 @@ tags:
 - phase-status
 - session-completion
 links:
-- sovereign-sync-domain-adapters-executor-completion
-- sovereign-sync-domain-adapters-executor-session-status
-- sovereign-sync-domain-adapters-executor-completion-status
+- sovereign-sync-domain-adapters-executor-session-completion
+- sovereign-sync-domain-adapters-phase-completion
+- sovereign-sync-domain-adapters-executor-status
 sources:
 - stdin
-timestamp: 2026-07-30T10:34:22.692156+00:00
-created_at: 2026-07-30T10:34:22.691391+00:00
-updated_at: 2026-07-30T10:34:22.692156+00:00
+timestamp: 2026-07-30T13:50:31.985453+00:00
+created_at: 2026-07-30T13:50:31.981447+00:00
+updated_at: 2026-07-30T13:50:31.985453+00:00
 revision: 1
 ---
 
@@ -32,7 +32,7 @@ An executor session completed for the `sovereign-sync-domain-adapters` phase.
 executor session complete | phase: sovereign-sync-domain-adapters | change: unknown
 ```
 
-This completion status is consistent with related sovereign sync domain adapter records, including [Sovereign Sync Domain Adapters Executor Completion](/sovereign-sync-domain-adapters-executor-completion.md), [Sovereign Sync Domain Adapters Executor Session Status](/sovereign-sync-domain-adapters-executor-session-status.md), and [Sovereign Sync Domain Adapters Executor Completion Status](/sovereign-sync-domain-adapters-executor-completion-status.md).
+This record is consistent with related phase-status entries including [Sovereign Sync Domain Adapters Executor Session Completion](/sovereign-sync-domain-adapters-executor-session-completion.md), [Sovereign Sync Domain Adapters Phase Completion](/sovereign-sync-domain-adapters-phase-completion.md), and [Sovereign Sync Domain Adapters Executor Status](/sovereign-sync-domain-adapters-executor-status.md).
 
 # Citations
 

@@ -18,7 +18,16 @@ fi
 
 NOW=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 
-# Read triggers and match against current event
+# Read triggers and match against current event.
+#
+# EVENT/PAYLOAD/TRIGGER_FILE/NOW must be EXPORTED. The heredoc below is quoted
+# (<<'PYEOF'), so the shell performs no substitution inside it and the Python
+# reads these through os.environ. Without the export they were plain shell
+# variables invisible to the child process, and its sys.argv fallback was empty
+# too (nothing is passed after PYEOF) — so `event` was always "", no trigger ever
+# matched, and every hook in hooks/hooks.json was a silent no-op.
+export EVENT PAYLOAD TRIGGER_FILE NOW
+
 python3 << 'PYEOF'
 import json, subprocess, os, sys
 

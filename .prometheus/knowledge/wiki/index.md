@@ -129,6 +129,9 @@
 * [Sovereign Sync Domain Adapters Executor Completion](/sovereign-sync-domain-adapters-executor-completion.md)
 * [Sovereign Sync Domain Adapters Executor Completion Status](/sovereign-sync-domain-adapters-executor-completion-status.md)
 * [Sovereign Sync Domain Adapters Executor Session Complete](/sovereign-sync-domain-adapters-executor-session-complete.md)
+* [Sovereign Sync Domain Adapters Executor Session Completed](/sovereign-sync-domain-adapters-executor-session-completed.md)
+* [Sovereign Sync Domain Adapters Executor Session Completion](/sovereign-sync-domain-adapters-executor-session-completion.md)
+* [Sovereign Sync Domain Adapters Executor Session Completion Status](/sovereign-sync-domain-adapters-executor-session-completion-status.md)
 * [Sovereign Sync Domain Adapters Executor Session Record](/sovereign-sync-domain-adapters-executor-session-record.md)
 * [Sovereign Sync Domain Adapters Executor Session Status](/sovereign-sync-domain-adapters-executor-session-status.md)
 * [Sovereign Sync Domain Adapters Executor Status](/sovereign-sync-domain-adapters-executor-status.md)
@@ -136,6 +139,7 @@
 * [Sovereign Sync Domain Adapters Phase Completion](/sovereign-sync-domain-adapters-phase-completion.md)
 * [Sovereign Sync Domain Adapters Session Complete Record](/sovereign-sync-domain-adapters-session-complete-record.md)
 * [Sovereign Sync Domain Adapters Session Completion](/sovereign-sync-domain-adapters-session-completion.md)
+* [Sovereign Sync Domain Adapters Session Completion Record](/sovereign-sync-domain-adapters-session-completion-record.md)
 * [Sovereign Sync Domain Adapters Session Status](/sovereign-sync-domain-adapters-session-status.md)
 * [Surreal Memory Wakeup Verification After Toolchain Sync](/surreal-memory-wakeup-verification-after-toolchain-sync.md) - During `phase-okf-llm-wiki-adoption`, a scheduled wakeup fired as a safety fallback after the actual remediation work had already completed. Live verification confirmed there was nothing left to redo for `surreal-memory-server`.
 * [surreal-memory-server Latest Binary Stabilization](/surreal-memory-server-latest-binary-stabilization.md) - During phase `phase-okf-llm-wiki-adoption`, `surreal-memory-server` was verified and stabilized so it no longer blocks remaining repository rebuilds. The phase goals align with [OKF LLM Wiki Adoption Phase Completion Status](/okf-llm-wiki-adoption-phase-completion-status.md): OKF

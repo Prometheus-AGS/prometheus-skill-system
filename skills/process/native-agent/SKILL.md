@@ -237,7 +237,6 @@ add the other agent's A2A URL as an MCP server in `agent.toml`.
 - `/create-native-agent` — full interactive scaffold (Docker by default; pass
   `target: librefang-wasm` or `target: both` to additionally produce a
   WASM-deployable skill)
-- `/native-agent-status` — check generated project status
 
 ## Build Targets
 

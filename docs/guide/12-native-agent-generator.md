@@ -1,4 +1,4 @@
-# 12 · The Native Agent Generator
+# 12 · The Agent Creator (`native-agent`)
 
 The skill pack can generate skills, templates, and CLIs. The native-agent generator goes further: it generates a complete, production-ready, standalone AI agent — a Rust binary with an HTTP server, a React 19 chat frontend, multi-provider model routing, an MCP client, and a Supabase-style management CLI — in one command. This is the most ambitious generation capability in the system, and it is what lets the pack produce *deployable products*, not just better code.
 
@@ -12,7 +12,48 @@ The skill pack can generate skills, templates, and CLIs. The native-agent genera
 → ready to run
 ```
 
-The default build target is Docker. Pass `target: librefang-wasm` to produce a WASM-ABI skill instead, or `target: both`. A companion command, `/native-agent-status`, reports on a generated agent. The generation flow runs the PMPO phases — specify (frontier), plan (frontier), generate (tiered), validate (small) — and the specify phase auto-detects whether it is running in a Docker environment.
+The default build target is Docker. Pass `target: librefang-wasm` to produce a WASM-ABI skill instead, or `target: both`. The generation flow has two prompt phases — **specify** (interactive Q&A) and **generate** (render + verify); validation is a section inside generate, not a separate phase. The specify phase auto-detects Docker.
+
+## Why you would reach for it
+
+A generated agent is a **service**, not a delegation. Use it when you need:
+
+- **Something other agents can call.** It self-advertises at `GET /.well-known/agent.json`.
+  Another agent adds one `[[mcp_servers]]` entry and yours becomes a tool in its tool list.
+- **Its own model policy** — `agent.toml` routes through liter-llm and is switchable at
+  runtime, independent of whatever harness spawned it.
+- **A user-facing surface** — a React 19 assistant-ui chat served at `GET /*`.
+- **A deployable artifact** — a Docker image, or a `.lf-skill.zip` for a remote host.
+- **Lifecycle independence** — `start --background` writes `.agent.pid`; it outlives the
+  session that created it.
+
+If none of those apply, you want a skill or a subagent instead. See
+[22a · Self-Extending Agents](22a-self-extending-agents.md).
+
+## What Specify asks
+
+Everything is asked before anything is written.
+
+| Field | Default | Validation |
+|---|---|---|
+| `agent_name` | — | `^[a-z][a-z0-9-]+$` |
+| `agent_description` | `A Prometheus AGS native agent` | required |
+| `port` | `8080` | `1024–65535` |
+| `default_provider` | `anthropic` | `anthropic` / `openai` / `local` |
+| `default_model` | `claude-sonnet-4-6` | required |
+| `enable_surreal` / `enable_forge` / `enable_pk` | `true` | adds each as an MCP server |
+| `target` | `docker` | `docker` · `librefang-wasm` · `both` |
+
+Docker detection then runs, and only if Docker is present does it ask about
+`enable_docker`, `image_tag`, whether to build now (offered only when Desktop is actually
+running), and whether to `compose up`. A confirmation summary precedes generation.
+
+Verification is automatic:
+
+```bash
+cargo check --workspace --manifest-path <output_dir>/Cargo.toml
+npm install --prefix <output_dir>/frontend --silent
+```
 
 ## What gets generated
 
@@ -24,6 +65,8 @@ graph TD
     WS --> C3[agent-mcp · JSON-RPC 2.0 MCP client, SSE]
     WS --> C4[agent-server · Axum HTTP server]
     WS --> C5[agent-cli · management + docker subcommands]
+    WS --> C6[agent-tokenizer · always emitted]
+    WS --> C7["agent-skill · WASM target only"]
     GEN --> FE[frontend/ · React 19 + Vite 8 + assistant-ui]
     GEN --> INFRA[Dockerfile · docker-compose.yml · agent.toml · system_prompt.md]
     C4 --> P1[A2A protocol]
@@ -32,7 +75,7 @@ graph TD
     C4 --> P4[OpenAI-compatible Chat API]
 ```
 
-The workspace is a five-crate Rust project. `agent-core` holds the domain types. `agent-skills` is the skill engine — TF-IDF selection over configured skill directories, hot-reloadable. `agent-mcp` is a JSON-RPC 2.0 MCP client with SSE. `agent-server` is the Axum HTTP server. `agent-cli` is the management binary. The `frontend/` is a React 19 + Vite 8 app using `assistant-ui`, with a `Chat.tsx` that adapts the AG-UI SSE stream. Infrastructure comes with it: a multi-stage `Dockerfile` (cargo-chef + Node, ending at a non-root `debian:bookworm-slim`), `docker-compose.yml`, `agent.toml`, `system_prompt.md`, and `.env.example`.
+The workspace is a **six-crate** Rust project (seven with the WASM target). Earlier documentation said five; `agent-tokenizer` is always a workspace member, and `agent-skill` is added for `librefang-wasm` or `both`. `agent-core` holds the domain types. `agent-skills` is the skill engine — TF-IDF selection over configured skill directories, hot-reloadable. `agent-mcp` is a JSON-RPC 2.0 MCP client with SSE. `agent-server` is the Axum HTTP server. `agent-cli` is the management binary. The `frontend/` is a React 19 + Vite 8 app using `assistant-ui`, with a `Chat.tsx` that adapts the AG-UI SSE stream. Infrastructure comes with it: a multi-stage `Dockerfile` (cargo-chef + Node, ending at a non-root `debian:bookworm-slim`), `docker-compose.yml`, `agent.toml`, `system_prompt.md`, and `.env.example`.
 
 ## The three protocols
 
@@ -84,6 +127,82 @@ A research agent can hand a task to a forge agent over A2A; both read and write 
 ## Build targets and the WASM path
 
 The default target wraps the agent in Docker. The `librefang-wasm` target instead produces a `crates/agent-skill/` with a `skill.toml`, compiled against the LibreFang Guest ABI for `wasm32-unknown-unknown` — a sandboxed, capability-checked skill that runs in a wasmtime host. This connects to the `librefang-wasm-skill` Rust skill ([Language & Domain Skills](10-language-skills.md)) and the upload-to-bossfang child skill, which handles distribution. The `both` target produces both. The choice is about deployment surface: Docker for a standalone service, WASM for a sandboxed skill that runs inside another host. The next page — [The Rust Toolchain](14-rust-toolchain.md) — covers how all of this gets built.
+
+## Generated agent vs plain subagent
+
+Both get called "agents". They are different artifacts entirely.
+
+| | Subagent (`agents/*.md`) | Generated native agent |
+|---|---|---|
+| Artifact | one markdown file | Cargo workspace + React app + Docker stack |
+| Runtime | inside the harness process | own OS process, own port |
+| Lifecycle | spawned per task | `start --background`, survives the session |
+| Reachable by | only its parent | any HTTP client; other agents via A2A |
+| Model | whatever the harness assigns | own `agent.toml`, switchable at runtime |
+| Tools | harness tools | own MCP client aggregating servers |
+| UI | none | bundled React chat |
+| Ship it | copy a file | Docker image or `.lf-skill.zip` |
+
+**Use a subagent** for bounded delegation inside one session — review, verify, critique.
+The pack ships six: `kbd-idea-critic`, `kbd-spec-reviewer`, `kbd-goal-evaluator`,
+`kbd-task-verifier`, `rust-auditor`, `gitops-architect`.
+
+**Use a generated agent** when the work outlives the session, needs its own address, needs
+its own model policy, or ships to someone else.
+
+## End to end: `/start-business-build`
+
+The fullest demonstration of composition in the pack — a child skill chaining ideation →
+specification → planning → generation → packaging → deployment:
+
+```
+$ /start-business-build "track shipping-cost trends across our top 5 carriers"
+
+Stage 1: Ideation mindmap...                            ✅
+Stage 2: ZeeSpec — 60 questions answered, 4 NO-GO       ✅
+Stage 3: Evolver plan — 3 changes ordered               ✅
+Stage 4: OpenSpec changes generated                     ✅
+Stage 5: change-001 (carrier-data-scraper)              ✅ accepted
+Stage 5: change-002 (price-trend-analyzer)              ✅ accepted
+Stage 5: change-003 (alert-dispatch)                    ⚠ rejected (carrier API rate limits)
+        pk ingest captured: "carrier API rate limits force alerting to be daily"
+Stage 6: forge package-librefang ./shipping-cost-watch  ✅ → .lf-skill.zip (78 KB)
+Stage 6: /upload-to-bossfang?                           y  → installed and verified
+```
+
+The *rejection* is the interesting line: a constraint discovered during implementation is
+captured into the knowledge base rather than discarded. `--dry-run` estimates first —
+`Estimated cost: $4.20 (frontier) + $0.80 (tiered)` / `Estimated wall time: 20m`.
+
+## Deployment hardening
+
+`/upload-to-bossfang` is deny-by-default against SSRF: scheme allowlist, rejection of
+embedded credentials, DNS resolution with blocks on loopback, RFC1918, link-local
+(`169.254.0.0/16` — cloud metadata), CGNAT, multicast and reserved ranges, a required
+host:port allowlist at `~/.config/prometheus-skill-pack/bossfang-allowlist.toml`, and
+`curl --max-redirs 0 --resolve` pinning to the validated IP.
+
+## Known gaps
+
+Documented so they do not surprise you mid-generation:
+
+- **Docker CLI wiring is model-generated, not template-rendered.** `agent_cli.rs.tera` has
+  no `Docker` arm; the generate prompt instructs the model to add `mod docker;` and wire
+  `DockerAction` by hand. If `my-agent docker ...` is missing, that step was skipped.
+- **Four frontend files have no template** — `main.tsx`, `vite.config.ts`, `index.html`,
+  and `App.tsx` are generated inline.
+- **Frontend deps are loosely pinned.** Seven are pinned to the literal `"latest"`; pin
+  them before committing a generated project.
+- **The frontmatter `model_routing` block is aspirational.** It names four phases and a
+  `references/model-routing.md` that does not exist; no script in the skill reads a model
+  policy.
+
+## See also
+
+- [12a · Skill Creator](12a-pmpo-skill-creator.md) — the sibling generator, for skills
+- [22a · Self-Extending Agents](22a-self-extending-agents.md) — skill vs agent vs both
+- [14a · forge-rs](14a-forge-rs.md) — `forge package-librefang`, the WASM packager
+- `skills/process/native-agent/references/protocols.md` — A2A/AG-UI/A2UI wire formats
 
 ---
 
