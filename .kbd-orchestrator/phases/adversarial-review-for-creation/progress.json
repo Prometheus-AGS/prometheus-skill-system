@@ -263,10 +263,21 @@
       "tasks_done": 5,
       "tasks_total": 5,
       "title": "change-msp-006-reference-component"
+    },
+    {
+      "blockers": [],
+      "id": "change-msp-007-ffi-pattern-decision",
+      "implementation_status": "PENDING",
+      "last_task_completed": "Write NO FFI code in this change",
+      "next_task_pending": "Write the decision: cbindgen (in-tree, 767-fn, JNI + Dart bridge) vs uniffi (Kotlin+Swift from one definition)",
+      "status": "PENDING",
+      "tasks_done": 4,
+      "tasks_total": 5,
+      "title": "change-msp-007-ffi-pattern-decision"
     }
   ],
   "changes_completed": 22,
-  "changes_total": 24,
+  "changes_total": 25,
   "children": {},
   "completion": {
     "certification": {
@@ -282,7 +293,7 @@
     "implementation": {
       "completed": 22,
       "status": "IN_PROGRESS",
-      "total": 24
+      "total": 25
     },
     "primaryCounter": "implementation",
     "publication": {
@@ -293,13 +304,13 @@
   },
   "generatedBy": "kbd-runtime",
   "implementation_completed": 22,
-  "implementation_total": 24,
-  "last_updated": "2026-07-31T11:38:42.904788Z",
+  "implementation_total": 25,
+  "last_updated": "2026-07-31T11:46:31.368016Z",
   "last_updated_by": "kbd-runtime",
   "migrationStatus": null,
   "parentPhase": null,
   "phase": "adversarial-review-for-creation",
   "phaseId": "adversarial-review-for-creation",
   "schemaVersion": "2",
-  "sourceRevision": 359
+  "sourceRevision": 373
 }

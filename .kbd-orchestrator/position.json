@@ -226,12 +226,21 @@
             },
             "status": "COMPLETE",
             "type": "change"
+          },
+          {
+            "id": "change-msp-007-ffi-pattern-decision",
+            "progress": {
+              "done": 4,
+              "total": 5
+            },
+            "status": "PENDING",
+            "type": "change"
           }
         ],
         "id": "adversarial-review-for-creation",
         "progress": {
           "done": 22,
-          "total": 24
+          "total": 25
         },
         "status": "PENDING",
         "type": "phase"
@@ -2611,12 +2620,12 @@
     "id": "6ac090a4-3656-4d83-8eb6-2891508196d5",
     "progress": {
       "done": 164,
-      "total": 219
+      "total": 220
     },
     "status": "completed",
     "type": "phase"
   },
   "schemaVersion": "1",
-  "sourceRevision": 359,
-  "updatedAt": "2026-07-31T11:38:42.904788Z"
+  "sourceRevision": 373,
+  "updatedAt": "2026-07-31T11:46:31.368016Z"
 }
