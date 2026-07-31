@@ -51,6 +51,13 @@ The **WIT** invariant is **already violated** (`knowme:plugin` at 0.1.0 and
 1.0.0). Gating on it would block every PR for a pre-existing condition, so it
 sits in [`assets/known-violations.json`](assets/known-violations.json).
 
+**The allowlist is scoped per WIT package**, not per invariant. An entry reads
+`wit-world-version-pinned:knowme:plugin`, so quarantining that package cannot
+also excuse a split introduced in `prometheus:component` or anywhere else.
+(A first version keyed entries by invariant name alone; a mutation test showed
+it silently permitted a brand-new split — the quarantine leaking to cover a
+defect it was never granted for.)
+
 **The allowlist is enforcement, not an escape hatch.** It is checked in both
 directions:
 
@@ -84,3 +91,4 @@ Every path below was exercised on 2026-07-31, not asserted:
 | allowlist an invariant that passes | exit 3 | exit 3, naming the stale entry |
 | empty the allowlist | exit 2 | exit 2 on the WIT violation |
 | point all external roots at a missing dir | SKIP ×3, no false PASS | SKIP ×3, exit 0 |
+| split `prometheus:component` across two versions | exit 2 — a knowme entry must not cover it | exit 2, naming the new package |

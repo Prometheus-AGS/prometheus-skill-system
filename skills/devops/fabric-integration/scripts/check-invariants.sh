@@ -114,7 +114,10 @@ results.append(("iroh-floor-1.0.2", "FAIL" if bad else "PASS",
 # ── 4. WIT world version pinned ──────────────────────────────────────────────
 # Already violated: knowme:plugin is declared at two versions at once.
 pkgs = {}
-for root in (uar, km):
+# Include THIS repo: it now declares prometheus:component@0.1.0. A checker that
+# only walked the external repos would never catch a version split introduced
+# here — the very failure mode it exists to prevent.
+for root in (pack, uar, km):
     if not os.path.isdir(root):
         continue
     for dp, _dn, fn in os.walk(root):
@@ -133,10 +136,18 @@ if not pkgs:
     results.append(("wit-world-version-pinned", "SKIP",
                     "unverifiable: no .wit files reachable (external repos absent)"))
 else:
+    # Report ONE result per offending package, not one for the whole invariant.
+    # A single "wit-world-version-pinned" row let an allowlist entry for
+    # knowme:plugin silently cover a NEW split in prometheus:component — the
+    # quarantine leaking to cover a defect it was never granted for.
     dup = {k: sorted(v) for k, v in pkgs.items() if len(v) > 1}
-    results.append(("wit-world-version-pinned", "FAIL" if dup else "PASS",
-                    "; ".join("%s at %s" % (k, ", ".join(v)) for k, v in dup.items())
-                    if dup else "every WIT package declares one version"))
+    if not dup:
+        results.append(("wit-world-version-pinned", "PASS",
+                        "every WIT package declares one version"))
+    else:
+        for k in sorted(dup):
+            results.append(("wit-world-version-pinned:%s" % k, "FAIL",
+                            "%s declared at %s" % (k, ", ".join(dup[k]))))
 
 # ── Allowlist reconciliation ─────────────────────────────────────────────────
 try:

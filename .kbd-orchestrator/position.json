@@ -208,12 +208,21 @@
             },
             "status": "COMPLETE",
             "type": "change"
+          },
+          {
+            "id": "change-msp-005-prometheus-component-wit",
+            "progress": {
+              "done": 6,
+              "total": 6
+            },
+            "status": "COMPLETE",
+            "type": "change"
           }
         ],
         "id": "adversarial-review-for-creation",
         "progress": {
-          "done": 20,
-          "total": 22
+          "done": 21,
+          "total": 23
         },
         "status": "PENDING",
         "type": "phase"
@@ -2592,13 +2601,13 @@
     ],
     "id": "6ac090a4-3656-4d83-8eb6-2891508196d5",
     "progress": {
-      "done": 162,
-      "total": 217
+      "done": 163,
+      "total": 218
     },
     "status": "completed",
     "type": "phase"
   },
   "schemaVersion": "1",
-  "sourceRevision": 324,
-  "updatedAt": "2026-07-31T10:53:47.504735Z"
+  "sourceRevision": 343,
+  "updatedAt": "2026-07-31T11:26:07.150640Z"
 }

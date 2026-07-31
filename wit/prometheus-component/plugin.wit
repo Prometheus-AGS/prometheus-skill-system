@@ -1,0 +1,37 @@
+package prometheus:component@0.1.0;
+
+// prometheus:component — the plugin world.
+//
+// Supersedes `uar:plugin@0.1.0` and `knowme:plugin` (which exists at BOTH
+// 0.1.0 and 1.0.0 simultaneously — the ambiguity the WIT-version invariant
+// flags).
+//
+// WHY PLUGIN IS A SEPARATE WORLD FROM SKILL
+// A skill is invoked and returns; a plugin registers, receives events, and is
+// shut down. Collapsing them would give every skill a lifecycle it does not
+// need, and every plugin a `run` that does not describe it. The unification
+// decision shares `types` and `capabilities` between them and stops there.
+
+world plugin {
+  use types.{error, kv};
+
+  import log;
+  import kv-store;
+  import clock;
+
+  /// Called once before any event is delivered. A plugin that cannot
+  /// initialise must fail here rather than degrade silently on first event.
+  export init: func(config: list<kv>) -> result<_, error>;
+
+  /// Deliver an event. `topic` routes; `payload` is opaque JSON for the same
+  /// reason `skill.run` takes a string — the hosts do not share a schema.
+  ///
+  /// Returning an error does NOT unregister the plugin. A host that dropped a
+  /// plugin on one bad event would make a transient upstream failure
+  /// permanent; unregistering is the host's decision, not a side effect.
+  export handle-event: func(topic: string, payload: string) -> result<_, error>;
+
+  /// Called before teardown. Best-effort: a host must not block shutdown on a
+  /// plugin that hangs here, and a plugin must not rely on it having run.
+  export shutdown: func();
+}
