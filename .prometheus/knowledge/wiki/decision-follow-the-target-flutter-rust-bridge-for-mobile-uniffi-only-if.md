@@ -4,8 +4,9 @@ id: decision-follow-the-target-flutter-rust-bridge-for-mobile-uniffi-only-if
 title: Decision: follow the target — `flutter_rust_bridge` for mobile, uniffi only if a second host appears
 tags:
 - decision
-- outcome-pending
-outcome_status: pending
+- outcome-recorded
+outcome_status: recorded
+outcome_recorded_at: 2026-07-31T11:55:28Z
 decided_at: 2026-07-31T11:43:02Z
 links: []
 sources: []
@@ -59,14 +60,6 @@ correctly.
 
 ## Outcome
 
-**Status: pending.** Nothing has been recorded yet.
+**Status: recorded** (2026-07-31T11:55:28Z)
 
-A decision without a recorded outcome cannot be checked against what actually
-happened — and idea rankings are known to flip after execution, so the judgement
-made here is exactly the thing that needs checking later.
-
-Record it with:
-
-```
-decision-log.sh outcome --id decision-follow-the-target-flutter-rust-bridge-for-mobile-uniffi-only-if --result -
-```
+ACCEPTED. Both load-bearing assumptions tested in change-msp-009 and passed: flutter_rust_bridge 2.12.0 expresses run(string) -> Result<String,E>, and consumes substrate/skill-ffi from outside KnowMe's Cargo workspace with no vendoring. Built for aarch64-apple-ios (16408 B dylib) and aarch64-linux-android (454856 B .so); 7 round-trip tests pass. Falsifier 3 (marginal cost per added function) remains open.

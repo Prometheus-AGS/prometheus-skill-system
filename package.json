@@ -24,6 +24,7 @@
     "test:idea-fixtures": "bash skills/process/adversarial-review/tests/run-idea-fixture-suite.sh",
     "check:mobile-classification": "bash skills/process/adversarial-review/scripts/classify-mobile-execution.sh --check",
     "check:fabric-invariants": "bash skills/devops/fabric-integration/scripts/check-invariants.sh",
+    "test:skill-ffi": "cd substrate/skill-ffi && RUSTUP_TOOLCHAIN=stable cargo test",
     "lint:pk": "bash shared/scripts/pk-lint.sh",
     "memory:compress": "bash shared/scripts/mem0-compress.sh",
     "build": "node scripts/build-marketplace.js",

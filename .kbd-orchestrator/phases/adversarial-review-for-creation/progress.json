@@ -274,10 +274,21 @@
       "tasks_done": 4,
       "tasks_total": 5,
       "title": "change-msp-007-ffi-pattern-decision"
+    },
+    {
+      "blockers": [],
+      "id": "change-msp-009-mobile-ffi-bindings",
+      "implementation_status": "COMPLETE",
+      "last_task_completed": "If the toolchain is unavailable: archive BLOCKED naming it, report goal 3 PARTIAL not MET",
+      "next_task_pending": null,
+      "status": "DONE",
+      "tasks_done": 5,
+      "tasks_total": 5,
+      "title": "change-msp-009-mobile-ffi-bindings"
     }
   ],
-  "changes_completed": 22,
-  "changes_total": 25,
+  "changes_completed": 23,
+  "changes_total": 26,
   "children": {},
   "completion": {
     "certification": {
@@ -291,9 +302,9 @@
       "summary": null
     },
     "implementation": {
-      "completed": 22,
+      "completed": 23,
       "status": "IN_PROGRESS",
-      "total": 25
+      "total": 26
     },
     "primaryCounter": "implementation",
     "publication": {
@@ -303,14 +314,14 @@
     }
   },
   "generatedBy": "kbd-runtime",
-  "implementation_completed": 22,
-  "implementation_total": 25,
-  "last_updated": "2026-07-31T11:46:31.368016Z",
+  "implementation_completed": 23,
+  "implementation_total": 26,
+  "last_updated": "2026-07-31T11:57:02.549429Z",
   "last_updated_by": "kbd-runtime",
   "migrationStatus": null,
   "parentPhase": null,
   "phase": "adversarial-review-for-creation",
   "phaseId": "adversarial-review-for-creation",
   "schemaVersion": "2",
-  "sourceRevision": 373
+  "sourceRevision": 389
 }

@@ -1,23 +1,24 @@
 # Decision: follow the target — `flutter_rust_bridge` for mobile, uniffi only if a second host appears
 
-**Status:** **provisional** · 2026-07-31 · `change-msp-007-ffi-pattern-decision`
+**Status:** **accepted** · 2026-07-31 · `change-msp-007-ffi-pattern-decision`
 **Phase:** mobile-skill-portability
 **Supersedes:** an earlier draft of this file that chose uniffi outright. See
 [What changed and why](#what-changed-and-why).
 
 ## Decision
 
-> **Provisional, not accepted.** Two load-bearing assumptions are unverified and
-> cheaply testable, and review objected — correctly — to accepting a decision
-> while they are outstanding. This becomes **accepted** only when
-> `change-msp-009` confirms both **before** writing bindings:
+> **Accepted 2026-07-31 by `change-msp-009`, after both load-bearing
+> assumptions were tested rather than assumed.** It was recorded *provisional*
+> until then, because review objected — correctly — to accepting a decision
+> while cheap checks were outstanding.
 >
-> 1. `flutter_rust_bridge` 2.12.0 expresses `run(string) -> Result<String, E>`
-> 2. it consumes a crate from **outside** the app's Cargo workspace without
->    vendoring this pack into KnowMe
+> | Check | Result |
+> |---|---|
+> | expresses `run(string) -> Result<String, E>` | **passed** — that exact signature compiles for both mobile targets |
+> | consumes a crate **outside** the app's Cargo workspace, without vendoring | **passed** — `substrate/skill-ffi` has no relationship to KnowMe's workspace and builds for `aarch64-apple-ios` (16,408 B dylib) and `aarch64-linux-android` (454,856 B .so) |
 >
-> If either fails, this decision is reversed before any code depends on it —
-> which is the point of deciding now rather than after.
+> Falsifier 3 (marginal cost per added function) remains **open** — it needs a
+> second function added over time, not at authoring. Recorded, not closed.
 
 Bind the pack's skill-invocation surface to mobile with
 **`flutter_rust_bridge` 2.12.0** — the pattern **already in production at the
