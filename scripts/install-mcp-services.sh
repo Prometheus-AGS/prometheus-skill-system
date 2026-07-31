@@ -211,8 +211,28 @@ render_template() {
     SOVEREIGN_SYNC_BIN="$sovereign_sync_bin" \
     python3 - "$src" "$output" <<'PY'
 import os, pathlib, sys
+from xml.sax.saxutils import escape as xml_escape
+
 src, dst = pathlib.Path(sys.argv[1]), pathlib.Path(sys.argv[2])
 text = src.read_text()
+
+def systemd_escape(value):
+    """Escape a value that will be inserted inside systemd double quotes."""
+    escaped = []
+    for char in value:
+        if char == "\\":
+            escaped.append("\\\\")
+        elif char == '"':
+            escaped.append('\\"')
+        elif char == "%":
+            escaped.append("%%")
+        elif ord(char) < 0x20 or ord(char) == 0x7f:
+            escaped.append(f"\\x{ord(char):02x}")
+        else:
+            escaped.append(char)
+    return "".join(escaped)
+
+escape_value = xml_escape if src.suffix == ".plist" else systemd_escape
 for k, env in {
     "__PROMETHEUS_USER__":    "PROMETHEUS_USER",
     "__PROMETHEUS_HOME__":    "PROMETHEUS_HOME",
@@ -229,7 +249,7 @@ for k, env in {
     "__PROMETHEUS_DEVICE_KEY_FILE__": "PROMETHEUS_DEVICE_KEY_FILE",
     "__KBD_FOCUS_PROJECT_PATH__": "KBD_FOCUS_PROJECT_PATH",
 }.items():
-    text = text.replace(k, os.environ[env])
+    text = text.replace(k, escape_value(os.environ[env]))
 dst.write_text(text)
 PY
 }

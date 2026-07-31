@@ -3203,7 +3203,6 @@ impl Runtime {
             alias_conflicts += u64::from(file_alias_conflict);
             let file_uncertain = progress_uncertain_rows(&progress);
             uncertain += file_uncertain;
-            legacy_read_only_phases += u64::from(file_uncertain > 0 || file_alias_conflict);
             if progress["schemaVersion"] != "2" {
                 migrated += 1;
             }
@@ -3215,6 +3214,7 @@ impl Runtime {
             );
             phase.slug = identity.slug;
             phase.parent_phase_id = identity.parent_phase_id;
+            legacy_read_only_phases += u64::from(phase.legacy_read_only);
             phases.insert(identity.id, phase);
         }
         if apply {
@@ -3818,7 +3818,10 @@ fn legacy_tasks(row: &serde_json::Value) -> BTreeMap<String, Task> {
 }
 
 fn legacy_phase(phase_id: &str, progress: &serde_json::Value, mut legacy_read_only: bool) -> Phase {
-    let rows = match progress.get("changes") {
+    let rows = match progress
+        .get("changes")
+        .or_else(|| progress.get("ordered_changes"))
+    {
         Some(serde_json::Value::Array(rows)) => rows
             .iter()
             .enumerate()
@@ -3908,7 +3911,13 @@ fn legacy_phase(phase_id: &str, progress: &serde_json::Value, mut legacy_read_on
 }
 
 fn progress_uncertain_rows(progress: &serde_json::Value) -> u64 {
-    match &progress["changes"] {
+    let Some(changes) = progress
+        .get("changes")
+        .or_else(|| progress.get("ordered_changes"))
+    else {
+        return 0;
+    };
+    match changes {
         serde_json::Value::Array(rows) => rows
             .iter()
             .filter(|row| !row.is_object() || row.get("id").is_none())
@@ -5037,6 +5046,37 @@ mod tests {
             state.phases["phase-a"].changes["parent-change"].implementation_status,
             WorkStatus::Complete
         );
+    }
+
+    #[test]
+    fn migration_imports_ordered_changes_without_marking_phase_read_only() {
+        let dir = tempdir().unwrap();
+        let phase = dir
+            .path()
+            .join(".kbd-orchestrator/phases/legacy-planned-phase");
+        fs::create_dir_all(&phase).unwrap();
+        fs::write(
+            phase.join("progress.json"),
+            r#"{
+                "phase":"legacy-planned-phase",
+                "ordered_changes":[
+                    {"id":"C-001","title":"First planned change"},
+                    {"id":"C-002","title":"Second planned change"}
+                ]
+            }"#,
+        )
+        .unwrap();
+
+        let runtime = Runtime::open(dir.path());
+        let check = runtime.migrate_legacy_ledgers(false).unwrap();
+        assert_eq!(check.legacy_read_only_phases, 0);
+        runtime.migrate_legacy_ledgers(true).unwrap();
+        let state = runtime.replay().unwrap();
+        let migrated = &state.phases["legacy-planned-phase"];
+
+        assert!(!migrated.legacy_read_only);
+        assert_eq!(migrated.changes.len(), 2);
+        assert_eq!(migrated.changes["C-001"].title, "First planned change");
     }
 
     #[test]

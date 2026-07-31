@@ -5,7 +5,7 @@ REPO_ROOT="$(cd "$(dirname "$0")/../../.." && pwd)"
 TEST_ROOT="$(mktemp -d)"
 trap 'rm -rf "$TEST_ROOT"' EXIT
 
-PROJECT_ROOT="$TEST_ROOT/focus-project"
+PROJECT_ROOT="$TEST_ROOT/focus & percent% \"quoted\" project"
 OUTPUT_ROOT="$TEST_ROOT/rendered"
 mkdir -p "$PROJECT_ROOT/.kbd-orchestrator"
 
@@ -16,13 +16,18 @@ bash "$REPO_ROOT/scripts/install-mcp-services.sh" \
 CANONICAL_PROJECT_ROOT="$(cd "$PROJECT_ROOT" && pwd -P)"
 grep -F "<key>KBD_FOCUS_PROJECT_PATH</key>" \
     "$OUTPUT_ROOT/ai.prometheus.sovereign-sync.plist" >/dev/null
-grep -F "<string>$CANONICAL_PROJECT_ROOT</string>" \
+XML_PROJECT_ROOT="${CANONICAL_PROJECT_ROOT//&/&amp;}"
+grep -F "<string>$XML_PROJECT_ROOT</string>" \
     "$OUTPUT_ROOT/ai.prometheus.sovereign-sync.plist" >/dev/null
-test "$(grep -cF "<string>$CANONICAL_PROJECT_ROOT</string>" \
+test "$(grep -cF "<string>$XML_PROJECT_ROOT</string>" \
     "$OUTPUT_ROOT/ai.prometheus.sovereign-sync.plist")" -eq 2
-grep -F "WorkingDirectory=$CANONICAL_PROJECT_ROOT" \
+plutil -lint "$OUTPUT_ROOT/ai.prometheus.sovereign-sync.plist" >/dev/null
+
+SYSTEMD_PROJECT_ROOT="${CANONICAL_PROJECT_ROOT//%/%%}"
+SYSTEMD_PROJECT_ROOT="${SYSTEMD_PROJECT_ROOT//\"/\\\"}"
+grep -F "WorkingDirectory=\"$SYSTEMD_PROJECT_ROOT\"" \
     "$OUTPUT_ROOT/ai.prometheus.sovereign-sync.service" >/dev/null
-grep -F "Environment=KBD_FOCUS_PROJECT_PATH=$CANONICAL_PROJECT_ROOT" \
+grep -F "Environment=\"KBD_FOCUS_PROJECT_PATH=$SYSTEMD_PROJECT_ROOT\"" \
     "$OUTPUT_ROOT/ai.prometheus.sovereign-sync.service" >/dev/null
 
 if bash "$REPO_ROOT/scripts/install-mcp-services.sh" \
