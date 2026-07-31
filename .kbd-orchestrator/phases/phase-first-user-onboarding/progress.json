@@ -52,12 +52,12 @@
   "generatedBy": "kbd-runtime",
   "implementation_completed": 2,
   "implementation_total": 2,
-  "last_updated": "2026-07-31T15:13:31.497268Z",
+  "last_updated": "2026-07-31T16:18:52.590721Z",
   "last_updated_by": "kbd-runtime",
   "migrationStatus": null,
   "parentPhase": null,
   "phase": "phase-first-user-onboarding",
   "phaseId": "phase-first-user-onboarding",
   "schemaVersion": "2",
-  "sourceRevision": 452
+  "sourceRevision": 466
 }

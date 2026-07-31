@@ -349,12 +349,23 @@
       "next_task_pending": "UAR reads it at load WITHOUT shelling out to git (impossible on mobile)",
       "status": "IN_PROGRESS",
       "tasks_done": 1,
-      "tasks_total": 2,
+      "tasks_total": 3,
       "title": "change-uhe-005-pack-provenance"
+    },
+    {
+      "blockers": [],
+      "id": "change-uhe-006-origin-enabled-columns",
+      "implementation_status": "COMPLETE",
+      "last_task_completed": "Provider round-trips whichever form was chosen; existing rows survive with correct values",
+      "next_task_pending": null,
+      "status": "DONE",
+      "tasks_done": 4,
+      "tasks_total": 4,
+      "title": "change-uhe-006-origin-enabled-columns"
     }
   ],
-  "changes_completed": 27,
-  "changes_total": 32,
+  "changes_completed": 28,
+  "changes_total": 33,
   "children": {},
   "completion": {
     "certification": {
@@ -368,9 +379,9 @@
       "summary": null
     },
     "implementation": {
-      "completed": 27,
+      "completed": 28,
       "status": "IN_PROGRESS",
-      "total": 32
+      "total": 33
     },
     "primaryCounter": "implementation",
     "publication": {
@@ -380,14 +391,14 @@
     }
   },
   "generatedBy": "kbd-runtime",
-  "implementation_completed": 27,
-  "implementation_total": 32,
-  "last_updated": "2026-07-31T15:13:31.497268Z",
+  "implementation_completed": 28,
+  "implementation_total": 33,
+  "last_updated": "2026-07-31T16:18:52.590721Z",
   "last_updated_by": "kbd-runtime",
   "migrationStatus": null,
   "parentPhase": null,
   "phase": "adversarial-review-for-creation",
   "phaseId": "adversarial-review-for-creation",
   "schemaVersion": "2",
-  "sourceRevision": 452
+  "sourceRevision": 466
 }

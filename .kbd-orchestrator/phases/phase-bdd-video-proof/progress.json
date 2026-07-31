@@ -118,12 +118,12 @@
   "generatedBy": "kbd-runtime",
   "implementation_completed": 0,
   "implementation_total": 8,
-  "last_updated": "2026-07-31T15:13:31.497268Z",
+  "last_updated": "2026-07-31T16:18:52.590721Z",
   "last_updated_by": "kbd-runtime",
   "migrationStatus": "legacy-read-only",
   "parentPhase": null,
   "phase": "phase-bdd-video-proof",
   "phaseId": "phase-bdd-video-proof",
   "schemaVersion": "2",
-  "sourceRevision": 452
+  "sourceRevision": 466
 }
