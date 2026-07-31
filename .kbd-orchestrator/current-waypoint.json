@@ -3,26 +3,30 @@
   "change": null,
   "childPointer": null,
   "completionMetric": "implementation",
-  "currentTask": null,
-  "exactNextCommand": "/kbd-assess adversarial-review-for-creation",
+  "currentTask": "run kbd-assess for mobile-skill-portability",
+  "exactNextCommand": "/kbd-assess mobile-skill-portability",
   "generatedBy": "kbd-runtime",
-  "implementationCompleted": 9,
-  "implementationTotal": 9,
+  "implementationCompleted": 0,
+  "implementationTotal": 0,
   "path": [
     "adversarial-review-for-creation"
   ],
-  "phase": "ideation-and-decision-tools",
+  "phase": "mobile-skill-portability",
   "phaseIds": [
     "adversarial-review-for-creation"
   ],
-  "planRevision": 2,
+  "planRevision": 1,
   "projectId": "6ac090a4-3656-4d83-8eb6-2891508196d5",
-  "revision": 263,
+  "revision": 264,
   "runId": "docusaurus-github-pages-site-20260729T012334Z",
   "schemaVersion": "5",
   "sourceRevision": 263,
-  "status": "reflect_complete",
-  "updatedAt": "2026-07-31T09:26:55.513785Z",
-  "next": "/kbd-next-phase mobile-skill-portability",
-  "previousPhase": "adversarial-review-for-creation"
+  "status": "assessment_ready",
+  "updatedAt": "2026-07-31T09:53:02Z",
+  "next": "/kbd-assess mobile-skill-portability",
+  "previousPhase": "ideation-and-decision-tools",
+  "sourceTool": "kbd-next-phase",
+  "nextPendingChange": null,
+  "certificationStatus": "NOT_TRACKED",
+  "publicationStatus": "NOT_TRACKED"
 }

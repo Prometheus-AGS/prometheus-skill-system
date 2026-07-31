@@ -1,19 +1,29 @@
 POSITION REMINDER — read this as your FIRST tool call every turn
-Phase: ideation-and-decision-tools
-Step: 9 of 9
-Stage: reflect (COMPLETE — 7/7 goals MET, reflection.md written, sycophancy 0.018)
-Next command: /kbd-next-phase mobile-skill-portability
+Phase: mobile-skill-portability
+Step: 0 of 0 (totals set by /kbd-plan)
+Stage: assess (PENDING — goals seeded, not yet assessed)
+Next command: /kbd-assess mobile-skill-portability
 
 Required signal format (emit BEFORE any tool call):
-  Starting <kbd-skill> — <phase> (step N of T)
+  Starting <kbd-skill> — mobile-skill-portability (step N of T)
   [do work]
-  Completed <kbd-skill> — <phase> (step N of T)
+  Completed <kbd-skill> — mobile-skill-portability (step N of T)
 
 Read progress.json for N and T — never estimate.
 
-Carry-forwards into mobile-skill-portability:
-  - Author prometheus:component/* WIT family (blocks porting, by design)
-  - fabric-integration skill: make the 4 version invariants enforced, not documented
-  - Mobile FFI bindings — copy frf-ffi (uniffi 0.31.2); this pack has no cdylib
-  - Verify opencode + kimi Tier 1; route zed to file-pair or state why not
+SETTLED, DO NOT REOPEN:
+  docs/decisions/wit-world-unification.md fixes the prometheus:component/* shape
+  AND the ordering (unify BEFORE porting any skill). Implement it; don't re-decide.
+  Divergence is 4 packages across 2 repos — knowme:plugin exists at 0.1.0 AND 1.0.0.
+
+SCOPE GATE:
+  The previous phase wrote ZERO files into flint-realtime-fabric,
+  universal-agent-runtime, or know-me-system (verified by timestamp). Cross-repo
+  code needs the user's explicit agreement first — it is not implied by the
+  decision being recorded.
+
+CARRY-FORWARDS:
+  - 4 version invariants are DOCUMENTED, NOT ENFORCED (3 hold; nothing checks any)
+  - Tier 1 verified on codex ONLY; opencode/kimi unrun; zed falls to Tier 0
   - PRE-EXISTING, not ours: 2 sovereign-sync control-token tests fail
+  - "Demonstrated" is not "enforced" — criteria must make violation impossible

@@ -1,23 +1,23 @@
 # Current Waypoint
 
-**Phase**: `ideation-and-decision-tools`
+**Phase**: `mobile-skill-portability`
 **Stage**: `assess_pending`
-**Created**: 2026-07-30T22:38:37Z
-**Previous phase**: `adversarial-review-for-creation`
+**Created**: 2026-07-31T09:53:02Z
+**Previous phase**: `ideation-and-decision-tools`
 
 ## Summary
 
-New phase seeded from `adversarial-review-for-creation/reflection.md`.
-Goals are pre-loaded in `.kbd-orchestrator/phases/ideation-and-decision-tools/goals.md`.
+New phase seeded from `ideation-and-decision-tools/reflection.md`.
+Goals are pre-loaded in `.kbd-orchestrator/phases/mobile-skill-portability/goals.md`.
 Review the goals, then run `/kbd-assess` to begin.
 
 ## Next action
 
 ```
-/kbd-assess ideation-and-decision-tools
+/kbd-assess mobile-skill-portability
 ```
 
 ## References
 
-- [goals.md](phases/ideation-and-decision-tools/goals.md)
-- [Previous reflection](phases/adversarial-review-for-creation/reflection.md)
+- [goals.md](phases/mobile-skill-portability/goals.md)
+- [Previous reflection](phases/ideation-and-decision-tools/reflection.md)
