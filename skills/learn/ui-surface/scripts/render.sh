@@ -171,7 +171,11 @@ case "$TIER" in
       claude-code)
         _render_tier1_claude_code
         ;;
-      opencode|codex|kimi)
+      opencode|codex|kimi|zed)
+        # zed was detected by _detect_harness but omitted here, so it silently
+        # fell through to Tier 0. The file-pair handshake is harness-agnostic —
+        # it is two files on disk — so there was no mechanism reason to exclude
+        # it, only an oversight in this list.
         _render_tier1_file_pair
         ;;
       *)
@@ -188,7 +192,7 @@ case "$TIER" in
       HARNESS=$(_detect_harness)
       case "$HARNESS" in
         claude-code) _render_tier1_claude_code ;;
-        opencode|codex|kimi) _render_tier1_file_pair ;;
+        opencode|codex|kimi|zed) _render_tier1_file_pair ;;
         *) _render_tier0 ;;
       esac
       exit 0

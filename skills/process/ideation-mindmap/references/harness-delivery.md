@@ -7,21 +7,25 @@ prompt works on its author's harness and silently degrades everywhere else.
 
 ## Verified by running it, not by asserting it
 
-Both rows below were executed on 2026-07-31. The Codex row is the one that
-matters — Tier 0 text is a floor, not evidence of harness delivery.
+Every row below was executed on 2026-07-31. The four non-Claude rows are the ones
+that matter — Tier 0 text is a floor, not evidence of harness delivery.
 
 | Harness | Tier resolved | Mechanism | Result |
 |---|---|---|---|
 | `claude-code` | `tier1_structured` | inline structured prompt | prompt rendered; exit 0 |
 | `codex` (non-Claude) | `tier1_structured` | file-pair handshake | **round trip completed in 2 s**; exit 0 |
+| `zed` (non-Claude) | `tier1_structured` | file-pair handshake | **round trip completed in 2 s**; exit 0 |
+| `opencode` (non-Claude) | `tier1_structured` | file-pair handshake | **round trip completed in 3 s**; exit 0 |
+| `kimi` (non-Claude) | `tier1_structured` | file-pair handshake | **round trip completed in 2 s**; exit 0 |
 | forced `tier0_text` | `tier0_text` | plain text | completed in text; exit 0 |
 
-The Codex run was a genuine two-party handshake: an independent process, blind
-to the flow, polled for `__ui_intent__.json`, read the title, and wrote
+Every non-Claude run was a genuine two-party handshake: an independent process,
+blind to the flow, polled for `__ui_intent__.json`, read the title, and wrote
 `__ui_response__.json`. The flow consumed that response and continued with the
-selected value. Both files were removed afterwards. Confirmed under `bash -x`
-that dispatch reached `HARNESS=codex → _render_tier1_file_pair` — not a Tier 0
-fallback that happened to print something.
+selected value; both files were removed afterwards. Each was confirmed under
+`bash -x` to reach `_render_tier1_file_pair` — `HARNESS=codex`, `HARNESS=zed`,
+`HARNESS=opencode`, `HARNESS=kimi` — not a Tier 0 fallback that happened to print
+something.
 
 ## Stated limits
 
@@ -42,15 +46,27 @@ from a silent fallback, and "some text appeared" would read as delivery. Verifie
 with no responder running, the intent file was written and the flow exited 3
 after 30 s.
 
-**`zed` resolves to Tier 0, not Tier 1.** `render.sh` detects `zed` in
-`_detect_harness` but its Tier 1 dispatch routes only `opencode|codex|kimi` to
-the file-pair branch, so `zed` falls through to Tier 0. That is a working floor,
-not a defect in this change — but it is not Tier 1 delivery, and should not be
-described as such.
+**`zed` is now Tier 1** (`change-msp-002`, 2026-07-31). It previously resolved to
+Tier 0 for two independent reasons, both fixed:
 
-**Only `codex` was exercised.** `opencode` and `kimi` share the identical code
-path and are expected to behave the same, but they were not run. Treat them as
-unverified until someone runs them.
+1. `detect-surface-tier.sh` hardcoded `TIER="tier0_text"` for zed.
+2. `render.sh` omitted `zed` from **both** Tier 1 dispatch lists — the direct one
+   and the Tier 2 → Tier 1 fallback. Fixing only the first would have left zed
+   degrading to text whenever surface-bridge was down.
+
+Neither was a mechanism limit: the file-pair handshake is two files on disk and
+asks nothing of the harness but reading one and writing the other. Verified by an
+executed round trip with an independent blind responder, and confirmed under
+`bash -x` that dispatch reached `HARNESS=zed → _render_tier1_file_pair`.
+
+**All four file-pair harnesses have now been run** (`change-msp-003`,
+2026-07-31). Nothing in this reference rests on "expected to behave the same"
+any more: `codex`, `zed`, `opencode`, and `kimi` each completed a round trip
+with an independent responder and each was confirmed under trace.
+
+`cursor` remains **Tier 0**: `detect-surface-tier.sh` resolves it to
+`tier0_text` and `render.sh` does not route it to the file pair. It was not
+exercised and is not claimed.
 
 ## Calling it
 

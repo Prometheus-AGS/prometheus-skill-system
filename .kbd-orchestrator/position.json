@@ -181,12 +181,30 @@
             },
             "status": "COMPLETE",
             "type": "change"
+          },
+          {
+            "id": "change-msp-002-zed-tier1-routing",
+            "progress": {
+              "done": 4,
+              "total": 4
+            },
+            "status": "COMPLETE",
+            "type": "change"
+          },
+          {
+            "id": "change-msp-003-verify-opencode-kimi",
+            "progress": {
+              "done": 4,
+              "total": 4
+            },
+            "status": "COMPLETE",
+            "type": "change"
           }
         ],
         "id": "adversarial-review-for-creation",
         "progress": {
-          "done": 17,
-          "total": 19
+          "done": 19,
+          "total": 21
         },
         "status": "PENDING",
         "type": "phase"
@@ -2565,13 +2583,13 @@
     ],
     "id": "6ac090a4-3656-4d83-8eb6-2891508196d5",
     "progress": {
-      "done": 159,
-      "total": 214
+      "done": 161,
+      "total": 216
     },
     "status": "completed",
     "type": "phase"
   },
   "schemaVersion": "1",
-  "sourceRevision": 276,
-  "updatedAt": "2026-07-31T10:36:49.377867Z"
+  "sourceRevision": 302,
+  "updatedAt": "2026-07-31T10:45:08.129106Z"
 }
