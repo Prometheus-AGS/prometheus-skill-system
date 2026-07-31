@@ -17,6 +17,7 @@
     "validate:signals": "node scripts/validate-progress-signals.js",
     "test:adversarial-fixtures": "bash skills/process/adversarial-review/tests/run-fixture-suite.sh",
     "test:reject-cap": "bash skills/process/adversarial-review/tests/test-reject-cap-override.sh",
+    "test:decision-gate": "bash skills/process/adversarial-review/tests/test-decision-gate.sh",
     "lint:pk": "bash shared/scripts/pk-lint.sh",
     "memory:compress": "bash shared/scripts/mem0-compress.sh",
     "build": "node scripts/build-marketplace.js",

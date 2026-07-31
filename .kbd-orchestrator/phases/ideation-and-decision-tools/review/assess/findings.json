@@ -1,0 +1,45 @@
+{
+  "mode": "artifact",
+  "verdict": "BLOCK",
+  "judge_model": "kbd-judge",
+  "producer_model": "claude-opus-5",
+  "isolation_mode": "rest-gateway:http://localhost:8181/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": "assessment.md",
+      "claim": "The assessment contradicts the carried-forward blocker that the producer-model guard is not live until the stale plugin caches are regenerated.",
+      "evidence": "Goals say: \"`bash scripts/update-skill-pack.sh --force` \u2014 plugin caches are stale (6 drift findings). The producer-model guard is not live in any installed copy until this runs\". Assessment says: \"The producer\u2260judge rule and `kbd_require_producer_model` fail-closed guard are live.\"",
+      "suggested_fix": "Assess the cache-drift blocker explicitly and state that producer\u2260judge enforcement is not available to installed skills until `scripts/update-skill-pack.sh --force` is run and generated artifacts are committed."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "assessment.md",
+      "claim": "The assessment omits the required prerequisite assessment for the two blockers carried in the goals.",
+      "evidence": "Goals list \"Blockers to clear first\": \"Commit the previous phase \u2014 150 changed paths\" and \"`bash scripts/update-skill-pack.sh --force` \u2014 plugin caches are stale\". The assessment's goal-by-goal table covers only goals 1\u20137 and contains no assessment of whether the previous phase is committed or whether generated/plugin caches are still stale.",
+      "suggested_fix": "Add a blocker section that verifies the current state of the previous-phase commit and plugin-cache drift, and marks downstream ideation work blocked if either remains unresolved."
+    },
+    {
+      "severity": "WARNING",
+      "file": "assessment.md",
+      "claim": "The assessment introduces a large mobile/P2P/KnowMe scope that is not present in the packet goals.",
+      "evidence": "Packet goals list seven ideation-and-decision-tool goals and do not mention mobile, P2P, Universal Agent Runtime, or KnowMe. The assessment states: \"Scope extension: this assessment covers the seven seeded goals plus two areas the user added at invocation: (a) running these skills on mobile inside the Universal Agent Runtime, with KnowMe as the reference container; (b) P2P/remote execution\" and later requires a \"Deliverable: `docs/prometheus-skills-integration.md` in `know-me-system`\".",
+      "suggested_fix": "Either add these mobile/P2P/KnowMe objectives to the formal goals packet or move them to a separate future-phase note so the next stage does not plan unapproved scope."
+    },
+    {
+      "severity": "WARNING",
+      "file": "assessment.md",
+      "claim": "The KnowMe codebase claims are unsupported by the provided repository file tree.",
+      "evidence": "Assessment says: \"Verified in `/Users/gqadonis/Projects/know-me/know-me-system`\" and cites assets such as `knowme_plugin_host`, `gen_ui_ffi`, and `docs/knowme-builder-extensibility-spec.md`. The provided `file_tree` is for the current repository and contains no `/Users/gqadonis/Projects/know-me/know-me-system`, no `knowme_plugin_host`, and no `gen_ui_ffi`.",
+      "suggested_fix": "Do not treat external KnowMe inventory as verified in this assessment unless the packet includes that repository tree or prior handoff evidence; otherwise mark it as external research requiring validation."
+    },
+    {
+      "severity": "WARNING",
+      "file": "assessment.md",
+      "claim": "Several concrete substrate claims rely on files not present in the supplied file tree.",
+      "evidence": "Assessment claims: \"`dispatch-judge.sh` records all three values; `build-review-packet.sh` has `--mode skill|agent`\" and \"`detect-surface-tier.sh` is the single tier-logic site.\" The provided `file_tree` lists `scripts/` contents but does not include `dispatch-judge.sh`, `build-review-packet.sh`, or `detect-surface-tier.sh`, and contains no visible `ui-surface` path.",
+      "suggested_fix": "Cite actual paths present in the packet or downgrade these to unverified assumptions that analyze/plan must confirm before depending on them."
+    }
+  ]
+}

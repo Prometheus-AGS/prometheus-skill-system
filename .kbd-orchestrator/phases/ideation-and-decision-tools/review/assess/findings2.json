@@ -1,0 +1,45 @@
+{
+  "mode": "artifact",
+  "verdict": "BLOCK",
+  "judge_model": "kbd-judge",
+  "producer_model": "claude-opus-5",
+  "isolation_mode": "rest-gateway:http://localhost:8181/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": "assessment.md",
+      "claim": "The assessment treats the prerequisite blockers as cleared using evidence that is not present in the packet, so downstream planning may proceed on an unverifiable assumption.",
+      "evidence": "Goals require blockers first: \u201cNeither is optional\u201d; assessment claims \u201cBoth were cleared during this session\u201d with evidence \u201c`c88a05f` \u2026 `origin/main` behind 0 / ahead 0\u201d and \u201c`check-model-config.sh` reports **0 DRIFT** findings,\u201d but `prior_handoffs` is null and the packet/file_tree contains no git status, commit log, or command output proving those claims.",
+      "suggested_fix": "Either attach the git/status/check-model-config evidence to the packet or mark the blockers as unverified and require analyze/plan to include a verification step before dependent work."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "assessment.md",
+      "claim": "The assessment bases Goal 6 on a `ui-surface` substrate and `detect-surface-tier.sh` script that are not evidenced by the provided repository tree.",
+      "evidence": "Assessment states: \u201c`ui-surface` resolves 3 tiers; `detect-surface-tier.sh` is the single tier-logic site.\u201d The `file_tree` contains no `ui-surface` path and no `scripts/detect-surface-tier.sh`; the listed scripts include `check-*`, `generate-*`, `install-*`, etc., but not `detect-surface-tier.sh`.",
+      "suggested_fix": "Identify the actual existing path that implements `ui-surface` tier detection, or revise the gap to say the tier-detection substrate is missing and must be built."
+    },
+    {
+      "severity": "WARNING",
+      "file": "assessment.md",
+      "claim": "The assessment cites fixture harness files as proven substrate even though the named files are absent from the provided file tree.",
+      "evidence": "For Goal 7 the assessment says: \u201c`tests/run-fixture-suite.sh` + `test-reject-cap-override.sh` (27 + 21 assertions) are the template.\u201d The `file_tree` lists `tests/features`, `tests/learn`, `tests/steps`, and `tests/sycophancy-corpus`, but no `tests/run-fixture-suite.sh` and no `test-reject-cap-override.sh` path anywhere.",
+      "suggested_fix": "Point to the correct existing fixture harness paths, or change the assessment to state that the idea-fixture harness/template must be created or recovered."
+    },
+    {
+      "severity": "WARNING",
+      "file": "assessment.md",
+      "claim": "The assessment expands scope to mobile, P2P, and KnowMe deliverables without support from the packet goals.",
+      "evidence": "The packet `goals` list contains seven goals about ideation judging, cross-model checks, automation bias, decision persistence, coach/reflector separation, harness delivery, and fixtures. The assessment adds: \u201cthis assessment covers the seven seeded goals **plus** two areas the user added at invocation: (a) running these skills on mobile inside the Universal Agent Runtime, with KnowMe as the reference container; (b) P2P/remote execution\u201d and later declares a deliverable: \u201c`docs/prometheus-skills-integration.md` in `know-me-system`, written in this phase.\u201d No such goals or external repository are present in the packet.",
+      "suggested_fix": "Move the mobile/P2P/KnowMe material to an explicitly separate follow-up scope unless the goals packet is amended to include those objectives."
+    },
+    {
+      "severity": "WARNING",
+      "file": "assessment.md",
+      "claim": "The assessment relies on extensive claims about external repositories that cannot be verified from the packet and are therefore unsafe as planning inputs.",
+      "evidence": "Assessment says: \u201cEverything in this subsection was read directly from `/Users/gqadonis/Projects/know-me/know-me-system`, a **separate repository** \u2026 It will not appear in this repo's `file_tree`, so a reviewer scoped to this repository cannot verify it from the packet alone.\u201d It then derives blocking gaps and deliverables from those unverifiable claims, including \u201c`knowme_plugin_host` is orphaned,\u201d \u201cKnowMe has no P2P,\u201d and \u201cNo FFI bindings exist.\u201d",
+      "suggested_fix": "Either include the relevant external repository tree/excerpts in the review packet or downgrade these to unverified assumptions that require confirmation before planning."
+    }
+  ]
+}

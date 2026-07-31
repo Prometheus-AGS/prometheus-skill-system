@@ -1,0 +1,311 @@
+{
+  "phase": "ideation-and-decision-tools",
+  "generated_at": "2026-07-30T23:45:00Z",
+  "research_budget": {
+    "tiers_used": [
+      "tier1-gh",
+      "tier3-registry",
+      "tier4-web"
+    ],
+    "notes": "Tier 3 (cargo search / cargo info) verified every version claim against the live registry. Tier 4 covered iroh cross-platform viability, the ideation-tool landscape, and mobile runtime constraints. In-house state was read directly from four repositories rather than inferred."
+  },
+  "gaps_addressed": [
+    "GOAL 1/5: judge with a find-problems mandate, and roles that cannot grade their own output",
+    "GOAL 2: every decision artifact carries cross_model_check: verified-distinct",
+    "GOAL 3: automation-bias countermeasures for irreversible personal decisions",
+    "GOAL 4: decisions and outcomes persisted so a later decision can be checked against what happened",
+    "GOAL 6: delivery on Claude Code plus a non-Claude harness via ui-surface tier detection",
+    "GOAL 7: committed fixtures proving a weak idea is blocked and a sound one passes",
+    "ADDED SCOPE: P2P/QUIC transport across desktop, server, mobile, browser",
+    "ADDED SCOPE: WASM host and a single component contract for skill parity on mobile",
+    "ADDED SCOPE: mobile FFI bindings, skill delivery without a filesystem, CRDT alignment",
+    "ADDED SCOPE: a mechanical way for every project to consume this pack"
+  ],
+  "candidates": [
+    {
+      "id": "cand-001",
+      "name": "iroh",
+      "kind": "library",
+      "repo_url": "https://github.com/n0-computer/iroh",
+      "registry": "crates",
+      "fit_for_gap": "QUIC P2P transport dialed by public key, with relay fallback. Covers desktop, server, and mobile fully; browser is relay-only.",
+      "verdict": "adopt",
+      "coverage_estimate": 0.75,
+      "license": "MIT OR Apache-2.0",
+      "maintenance": "Active. 1.0.3 (2026-07-20), wire-stable since 1.0 (2026-06-15) after 65 pre-releases. 11.9k stars. >200M endpoints created in 30 days across public relays.",
+      "evidence": "Already pinned at iroh 1.0 in substrate/sovereign-sync. Registry-verified current at 1.0.3. Mobile is the strongest non-desktop story: iroh-ffi v1.1.0 ships a 5-target iOS xcframework with simulator-booted CI tests and all 4 Android ABIs with 16KB page-size verification (Android 15+). Delta Chat has shipped it on iOS/Android/desktop for ~2 years.",
+      "risks": "Browser is RELAY-ONLY by architectural necessity (no UDP in the sandbox); watch_addr/bound_sockets/dns_resolver are unavailable on wasm_browser. Relays see the social graph and traffic timing; 'no record' is a retention policy, not a cryptographic guarantee. iroh 1.0.2 fixed a critical relay DoS (unauthenticated malformed datagram crashed the whole relay) \u2014 pin >=1.0.2. n0 public relays are explicitly dev/testing only; dedicated relays ~$0.27/hr.",
+      "decision_rationale": "Best-in-class NAT traversal and mobile support, self-hostable relays with built-in ACME, and already in this pack. Adopt for desktop/server/mobile; accept relay-only in the browser and state it plainly rather than implying P2P everywhere."
+    },
+    {
+      "id": "cand-002",
+      "name": "iroh-gossip",
+      "kind": "library",
+      "registry": "crates",
+      "fit_for_gap": "Broadcast-tree gossip over iroh endpoints \u2014 the sync fan-out this pack already uses.",
+      "verdict": "adopt",
+      "coverage_estimate": 0.9,
+      "maintenance": "0.101.0, depends on iroh ^1 \u2014 registry-verified 1.0-compatible.",
+      "evidence": "Already pinned at 0.101 in substrate/sovereign-sync. wasm-clean, so it survives a browser target.",
+      "risks": "Application-layer crates stay 0.x and do NOT inherit iroh's wire-stability promise; a minor bump can break their API.",
+      "decision_rationale": "Already adopted and correctly versioned. No change required."
+    },
+    {
+      "id": "cand-003",
+      "name": "iroh-docs",
+      "kind": "library",
+      "registry": "crates",
+      "fit_for_gap": "Document sync backing IrohDocsAdapter in substrate/storage-provider.",
+      "verdict": "adapt",
+      "coverage_estimate": 0.6,
+      "maintenance": "0.101.0, depends on iroh ^1 (+ blobs ^0.103, gossip ^0.101).",
+      "evidence": "substrate/storage-provider/Cargo.toml:19 pins it UNCONDITIONALLY with features=[\"fs-store\"] \u2014 no feature gate.",
+      "risks": "NOT wasm-compatible. Because the dependency is unconditional, storage-provider cannot compile for wasm32 at all today. iroh's own troubleshooting guidance is to use only blobs and gossip in browsers.",
+      "decision_rationale": "Keep for native, but feature-gate it. A one-line change unblocks any future wasm target; leaving it unconditional silently forecloses the browser leg."
+    },
+    {
+      "id": "cand-004",
+      "name": "iroh-webrtc-transport",
+      "kind": "library",
+      "registry": "crates",
+      "fit_for_gap": "Would give browsers hole-punched P2P rather than relay-only.",
+      "verdict": "reject",
+      "coverage_estimate": 0.0,
+      "maintenance": "0.1.0-alpha.2 (2026-05-02). Third-party (SuddenlyHazel, not n0-computer). 33 total downloads. Repository 404s.",
+      "evidence": "Depends on iroh ^0.98.2 \u2014 pre-1.0, incompatible with the 1.0 line. Relies on unstable-custom-transports, which iroh 1.0 explicitly excludes from its stability guarantees. n0's own TRANSPORTS.md registry lists Tor (experimental) and BLE (reserved) \u2014 no WebRTC entry at all.",
+      "risks": "Unverifiable: source is unreachable, so it could not be assessed beyond registry metadata.",
+      "decision_rationale": "Reject. Architecting the browser story around a 33-download alpha pinned to a pre-1.0 iroh would make the parity claim rest on the least reliable component in the stack."
+    },
+    {
+      "id": "cand-005",
+      "name": "rust-libp2p",
+      "kind": "framework",
+      "repo_url": "https://github.com/libp2p/rust-libp2p",
+      "registry": "crates",
+      "fit_for_gap": "Alternative P2P stack; the only credible option offering browsers more than relay-only, via WebRTC browser-to-server.",
+      "verdict": "reference",
+      "coverage_estimate": 0.5,
+      "maintenance": "Mature, IPFS-proven.",
+      "evidence": "Browser-to-server WebRTC is shipped. Browser-to-browser was not verified to the same depth as the iroh claims.",
+      "risks": "Adding it means running two transport stacks to improve one degraded leg. Heavier API (swarm/behaviour ceremony) and weaker NAT traversal than iroh by most independent comparisons.",
+      "decision_rationale": "Reference, not adopt. Revisit only if browser-to-browser direct P2P becomes a product requirement rather than a nice-to-have."
+    },
+    {
+      "id": "cand-006",
+      "name": "wasmtime",
+      "kind": "framework",
+      "repo_url": "https://github.com/bytecodealliance/wasmtime",
+      "registry": "crates",
+      "fit_for_gap": "Component Model host for running skill logic where processes cannot be spawned.",
+      "verdict": "adopt",
+      "coverage_estimate": 0.8,
+      "license": "Apache-2.0 WITH LLVM-exception",
+      "maintenance": "Active, version 46 in both consuming repos.",
+      "evidence": "ALREADY PRESENT TWICE at the same major: universal-agent-runtime src/uar/runtime/skills/wasm_runtime.rs (loads .wasm JIT or .cwasm AOT), and know-me-system knowme_plugin_host (component-model + async + runtime, deliberately WITHOUT cranelift \u2014 the no-JIT shape iOS needs).",
+      "risks": "iOS forbids JIT, so on-device execution is interpreter or AOT-precompiled .cwasm; expect roughly an order of magnitude slowdown versus native. There is no certification of WASIp2-on-Pulley-on-iOS. App Store guideline 4.7.2 has no precedent either direction for a WASM host exposing native APIs. Published binary sizes are desktop-only.",
+      "decision_rationale": "Adopt \u2014 it is already the substrate in both consumers at the same major, and .cwasm AOT is the only viable iOS path. Treat on-device iOS as a research bet, not a delivery commitment, until 4.7.2 is resolved."
+    },
+    {
+      "id": "cand-007",
+      "name": "uar:skill@0.1.0 WIT world",
+      "kind": "pattern",
+      "registry": "none",
+      "fit_for_gap": "The component contract a WASM skill exports.",
+      "verdict": "adapt",
+      "coverage_estimate": 0.4,
+      "evidence": "universal-agent-runtime/wit/uar-skill.wit \u2014 'run(input: string) -> result<string, string>', pinned 0.1.0, additive-only until 1.0. Authorable from Rust (cargo-component), JS (jco), or Python (componentize-py).",
+      "risks": "It is minimal: no host imports at all. know-me-system ships a SECOND, richer world (knowme:plugin@0.1.0) with capability-gated imports for log/kv/net/uar-invoke/infer/memory-recall/a2ui-push. Two worlds means every skill is ported twice and '100% parity' is false by construction.",
+      "decision_rationale": "Adapt into the prometheus:component/* family that KnowMe's own extensibility spec already proposes. This is the highest-leverage decision in the phase and must be settled before any porting begins."
+    },
+    {
+      "id": "cand-008",
+      "name": "knowme_plugin_host",
+      "kind": "pattern",
+      "registry": "none",
+      "fit_for_gap": "Capability-gated WASM sandbox with a typed dispatch seam.",
+      "verdict": "adopt",
+      "coverage_estimate": 0.85,
+      "evidence": "know-me-system/openspec/specs/plugin-sandbox-host ratifies 10 requirements: capability-gated instantiation failing BEFORE guest code runs, deny-by-default WASI (no preopens/env/stdio/sockets), fuel + 64MiB memory + 30s epoch limits, typed HostDispatch with auditable denials at one choke point, SSRF-guarded net_fetch, and a precompiled .cwasm cache keyed by content hash + engine version.",
+      "risks": "ORPHANED \u2014 no crate depends on it, and gen_ui_ffi (the mobile FFI crate) does not include it, so it ships nowhere today.",
+      "decision_rationale": "Adopt the design wholesale rather than rebuilding a sandbox here. host-uar.invoke is already the delegation seam for remote execution. The work is wiring it into gen_ui_ffi, not writing it."
+    },
+    {
+      "id": "cand-009",
+      "name": "uniffi (via frf-ffi)",
+      "kind": "library",
+      "repo_url": "https://github.com/mozilla/uniffi-rs",
+      "registry": "crates",
+      "fit_for_gap": "Swift/Kotlin/Dart bindings so this pack's substrate crates can be called from mobile.",
+      "verdict": "adopt",
+      "coverage_estimate": 0.9,
+      "maintenance": "0.31.2 in flint-realtime-fabric.",
+      "evidence": "flint-realtime-fabric/crates/frf-ffi declares crate-type = [\"cdylib\", \"staticlib\"] with uniffi features=[\"tokio\"], plus a dedicated uniffi-bindgen crate. iroh-ffi independently uses uniffi 0.31 for its own mobile bindings.",
+      "risks": "This pack has NO cdylib/staticlib target and no uniffi anywhere; sovereign-client is pure reqwest/SSE and would compile for mobile but nothing binds it to Dart/Swift/Kotlin.",
+      "decision_rationale": "Adopt FRF's existing pattern rather than inventing one. Two independent codebases in this fabric already converged on uniffi 0.31."
+    },
+    {
+      "id": "cand-010",
+      "name": "Loro",
+      "kind": "library",
+      "repo_url": "https://github.com/loro-dev/loro",
+      "registry": "crates",
+      "fit_for_gap": "CRDT for peer-authoritative state across the fabric.",
+      "verdict": "adopt",
+      "coverage_estimate": 0.95,
+      "evidence": "ALREADY ALIGNED: flint-realtime-fabric pins loro 1.13.1 and substrate/sovereign-sync pins loro 1.13 \u2014 same minor, so interop is already possible without a version negotiation.",
+      "risks": "Loro's Dart/FFI story for Flutter parity is called out as unsettled in KnowMe's extensibility spec, along with snapshot/compaction strategy for long histories.",
+      "decision_rationale": "Adopt and keep the minor pinned in lockstep. Version alignment is an invariant the fabric-integration skill should verify, not a coincidence to rely on."
+    },
+    {
+      "id": "cand-011",
+      "name": "SkillStorageProvider (UAR)",
+      "kind": "pattern",
+      "registry": "none",
+      "fit_for_gap": "Delivering skills to a runtime that has no filesystem to walk.",
+      "verdict": "adopt",
+      "coverage_estimate": 0.9,
+      "evidence": "universal-agent-runtime src/uar/runtime/skills/storage/ implements filesystem, database, and builtin backends behind one trait (list_skills/refresh/save_skill/delete_skill). SkillKind::{Native, Manifest, Wasm} maps exactly onto the E0/E1/E2 tiers from the assessment. pack_detection.rs resolves this pack through 4 levels ending at the embedded submodule.",
+      "risks": "Nothing verifies that the embedded-submodule copy matches the repo; this pack's own cache-drift experience shows stale installed copies fail silently.",
+      "decision_rationale": "Adopt. The database backend is the mobile delivery path and needs no new design \u2014 it already implements the full trait."
+    },
+    {
+      "id": "cand-012",
+      "name": "frf-ports::FederationBridge",
+      "kind": "pattern",
+      "registry": "none",
+      "fit_for_gap": "Where an iroh transport plugs into the realtime fabric.",
+      "verdict": "adopt",
+      "coverage_estimate": 0.85,
+      "evidence": "flint-realtime-fabric/crates/frf-ports/src/federation.rs defines send(protocol, destination, envelope) and subscribe(protocol), already implemented by frf-bridge-matrix and frf-bridge-atproto. FRF is a clean hexagonal architecture across 23 crates.",
+      "risks": "iroh is absent from FRF entirely today, so this is net-new work there \u2014 but additive, not structural.",
+      "decision_rationale": "Adopt the seam as-is. An frf-transport-iroh adapter sits beside the two existing bridges with no architectural change to FRF."
+    },
+    {
+      "id": "cand-013",
+      "name": "obra/superpowers brainstorming skill",
+      "kind": "pattern",
+      "repo_url": "https://github.com/obra/superpowers",
+      "registry": "none",
+      "fit_for_gap": "Prior art for a structured ideation skill.",
+      "verdict": "reference",
+      "coverage_estimate": 0.3,
+      "evidence": "Effectively the only well-known ideation skill in the ecosystem: Socratic refinement, one question at a time, incremental section approval, saves a design doc. Searched VoltAgent (1,497 skills), Anthropic official, and github.com/topics/claude-code-skills and found ZERO skills encoding any named methodology.",
+      "risks": "Encodes no formal methodology and does not persist state across sessions.",
+      "decision_rationale": "Reference for interaction shape only. The differentiators this phase targets \u2014 persistence, outcome tracking, cross-model judging, enforced diversity \u2014 are absent from it and from every commercial tool surveyed."
+    },
+    {
+      "id": "cand-014",
+      "name": "adversarial-review --mode skill|agent packet machinery",
+      "kind": "pattern",
+      "registry": "none",
+      "fit_for_gap": "GOAL 2: the packet + judge + findings pipeline that stamps cross_model_check on an artifact.",
+      "verdict": "adapt",
+      "coverage_estimate": 0.8,
+      "evidence": "build-review-packet.sh supports diff|artifact|skill|agent; dispatch-judge.sh records verified-distinct / same-model-collision / unverified-producer-unknown; proven live last phase (27 assertions, 4 fixtures, all verified-distinct).",
+      "risks": "No idea/decision packet mode exists. An idea is neither a diff, a stage artifact, a SKILL.md tree, nor a Cargo workspace.",
+      "decision_rationale": "Adapt by adding --mode decision. The judge, findings schema, retry loop, and sycophancy screen are reused unchanged \u2014 this is the smallest change that satisfies goal 2."
+    },
+    {
+      "id": "cand-015",
+      "name": "agents/kbd-idea-critic.md",
+      "kind": "pattern",
+      "registry": "none",
+      "fit_for_gap": "GOALS 1 and 5: a separated critic that scores candidate ideas against a rubric and never grades its own output.",
+      "verdict": "adopt",
+      "coverage_estimate": 0.7,
+      "evidence": "Ships today: scores candidates on feasibility/pain_addressed/stack_fit/buildability, returns structured JSON, and explicitly uses a stronger model so 'the idea that proposed the idea should never also grade it'.",
+      "risks": "Rubric predates the Ideation-Execution Gap result, so it scores pre-execution novelty \u2014 the exact measure that study shows flips after execution.",
+      "decision_rationale": "Adopt the role separation as-is; revise the rubric to weight executability over novelty."
+    },
+    {
+      "id": "cand-016",
+      "name": "skills/process/ideation-mindmap",
+      "kind": "pattern",
+      "registry": "none",
+      "fit_for_gap": "GOAL 1: stage-zero ideation onramp that structures a one-line concept into branches.",
+      "verdict": "adapt",
+      "coverage_estimate": 0.5,
+      "evidence": "Generates a 6-branch concept mindmap via surreal-memory, feeding /start-business-build and zeespec constraint capture.",
+      "risks": "Generation is single-pass, so it inherits the diversity-collapse failure mode; no cross-model judging and no persistence of outcomes.",
+      "decision_rationale": "Adapt rather than rebuild \u2014 enforce independent generation then pool, and route the result through the decision packet."
+    },
+    {
+      "id": "cand-017",
+      "name": "skills/process/pmpo-evolver/skills/validate-idea",
+      "kind": "pattern",
+      "registry": "none",
+      "fit_for_gap": "GOALS 1 and 4: staged validation gates with persistence.",
+      "verdict": "adapt",
+      "coverage_estimate": 0.6,
+      "evidence": "Three gates from plausibility to specification using the Darwin Godel Machine pattern, with an Archive of Stepping Stones for persistence.",
+      "risks": "The archive persists attempts, not real-world OUTCOMES, so it cannot answer 'you scored this 8.2 six months ago \u2014 what happened?'",
+      "decision_rationale": "Adapt: the gate structure is reusable; extend the archive into the outcome loop goal 4 requires."
+    },
+    {
+      "id": "cand-018",
+      "name": "skills/learn/ui-surface",
+      "kind": "pattern",
+      "registry": "none",
+      "fit_for_gap": "GOAL 6: one rendering contract across Claude Code and non-Claude harnesses.",
+      "verdict": "adopt",
+      "coverage_estimate": 0.85,
+      "evidence": "detect-surface-tier.sh + render.sh resolve Tier 0 text / Tier 1 native prompt / Tier 2 MCP App. Tier logic lives in ONE place, so adding a harness changes ui-surface only, never each skill.",
+      "risks": "Never exercised by an ideation flow; Tier 1 outside Claude Code uses a file-pair handshake that is untested here.",
+      "decision_rationale": "Adopt unchanged. Goal 6 is satisfied by emitting UiIntent rather than rendering \u2014 and Tier 0 is the universal floor, so a non-Claude harness works by construction."
+    },
+    {
+      "id": "cand-019",
+      "name": "pk wiki (Karpathy loop)",
+      "kind": "pattern",
+      "registry": "none",
+      "fit_for_gap": "GOAL 4: persisting decisions and outcomes across sessions.",
+      "verdict": "adapt",
+      "coverage_estimate": 0.55,
+      "evidence": "pk-focus-on-prompt.sh injects prior knowledge on UserPromptSubmit and Stop-hook ingest records outcomes; 5,260 recorded hook fires. OKF v0.1 requires only a non-empty type key, so a decision entry type is additive.",
+      "risks": "No decision schema and no revisit mechanism. This phase alone auto-generated 10 near-duplicate completion entries, so ingest quality is a live concern.",
+      "decision_rationale": "Adapt rather than build: add a decision entry type plus a revisit query. Answers WARNING-1 \u2014 the outcome loop is NOT build-required from zero."
+    },
+    {
+      "id": "cand-020",
+      "name": "reflector SubagentStop hook",
+      "kind": "pattern",
+      "registry": "none",
+      "fit_for_gap": "GOAL 5: the reflector half of the coach/reflector pair, as a role that cannot grade its own output.",
+      "verdict": "adopt",
+      "coverage_estimate": 0.5,
+      "evidence": "hooks/hooks.json:170 already registers a 'reflector' SubagentStop matcher routing reflection output through sycophancy-correction at strict, rejecting scores >=0.4 with a 2-rejection soft cap.",
+      "risks": "Only the reflector exists. No coach agent is present in agents/, so half of goal 5 is unbuilt.",
+      "decision_rationale": "Adopt the reflector as-is; build only the coach. Half of goal 5 is already wired and was missed in the first analysis draft."
+    }
+  ],
+  "build_required": [
+    {
+      "need": "--mode decision packet + idea/decision fixtures",
+      "why_no_candidate": "build-review-packet.sh has no mode for an idea or decision, and no idea fixtures exist. GOAL 7 needs committed weak/sound fixtures where an inversion fails the suite, mirroring the flawed/clean skill+agent fixtures proven last phase."
+    },
+    {
+      "need": "Automation-bias countermeasures (GOAL 3)",
+      "why_no_candidate": "Nothing in the pack implements commit-before-reveal, confidence calibration, or deliberate friction, and zero surveyed tools do either. Microsoft Research (2025) found confidence in AI among the strongest predictors of whether users engage in critical thinking at all."
+    },
+    {
+      "need": "fabric-integration skill",
+      "why_no_candidate": "Nothing exists that installs this pack into a consuming repo and verifies the cross-repo contracts. Today adoption is convention: UAR resolves the pack through 4 levels, KnowMe keeps its own .claude/skills/, FRF has no link at all. The skill must detect the consumer, install or verify at the right level, check Loro minor / iroh >=1.0.2 / wasmtime major / WIT world version alignment, and report drift. Per this pack's own rule it proposes rather than auto-installs."
+    },
+    {
+      "need": "prometheus:component/* unified WIT family",
+      "why_no_candidate": "Two divergent worlds exist (uar:skill@0.1.0 minimal, knowme:plugin@0.1.0 rich). KnowMe's extensibility spec proposes the layered family (core/agent/data/llm/ui/settings) but nobody has authored it. Until it exists, every skill would be ported twice and the parity claim is false by construction."
+    },
+    {
+      "need": "Ideation skills with enforced diversity and commit-before-reveal",
+      "why_no_candidate": "Zero of 21 surveyed commercial tools persist state, track outcomes, do cross-model judging, or implement over-reliance countermeasures. The Diversity Collapse result (arXiv 2604.18005) means persona prompting does not produce diversity \u2014 it must be enforced structurally by independent generation then pooling."
+    },
+    {
+      "need": "Mobile FFI bindings for this pack's substrate",
+      "why_no_candidate": "sovereign-client and sovereign-sync expose no uniffi/flutter_rust_bridge and declare no cdylib/staticlib target. FRF's frf-ffi is the pattern to copy, but the bindings themselves do not exist here."
+    },
+    {
+      "need": "coach role (GOAL 5)",
+      "why_no_candidate": "agents/ has kbd-idea-critic, kbd-goal-evaluator, kbd-spec-reviewer, kbd-task-verifier \u2014 but no coach. The reflector half is already wired via hooks.json:170; the coach must be built and must not grade its own output, following the producer!=judge rule."
+    }
+  ]
+}

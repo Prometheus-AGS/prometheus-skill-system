@@ -25,15 +25,16 @@ while [ $# -gt 0 ]; do
     --mandate)  MANDATE="${2:-}"; shift 2 ;;
     --feedback) FEEDBACK="${2:-}"; shift 2 ;;
     --out)      OUT="${2:-}"; shift 2 ;;
-    *) echo "usage: $0 --mode diff|artifact|skill|agent --packet <json> [--mandate <md>] [--feedback <md>] [--out <json>]" >&2; exit 4 ;;
+    *) echo "usage: $0 --mode diff|artifact|skill|agent|decision --packet <json> [--mandate <md>] [--feedback <md>] [--out <json>]" >&2; exit 4 ;;
   esac
 done
-# skill|agent are the creation modes added by change-arc-003/004/005. Each needs a
-# matching assets/reviewer-mandate-<mode>.md; the check below enforces that, so a
-# mode accepted here without a mandate fails loudly rather than reviewing blind.
+# skill|agent are the creation modes added by change-arc-003/004/005; decision is
+# the ideation mode added by change-idt-001. Each needs a matching
+# assets/reviewer-mandate-<mode>.md; the check below enforces that, so a mode
+# accepted here without a mandate fails loudly rather than reviewing blind.
 case "$MODE" in
-  diff|artifact|skill|agent) ;;
-  *) echo "[judge] ERROR: --mode must be diff, artifact, skill, or agent" >&2; exit 4 ;;
+  diff|artifact|skill|agent|decision) ;;
+  *) echo "[judge] ERROR: --mode must be diff, artifact, skill, agent, or decision" >&2; exit 4 ;;
 esac
 [ -f "$PACKET" ] || { echo "[judge] ERROR: packet not found: $PACKET" >&2; exit 4; }
 command -v python3 >/dev/null 2>&1 || { echo "[judge] ERROR: python3 required" >&2; exit 4; }

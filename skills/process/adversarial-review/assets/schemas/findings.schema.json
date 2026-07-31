@@ -3,16 +3,32 @@
   "$id": "https://prometheus-ags.dev/schemas/adversarial-review/findings.schema.json",
   "title": "Adversarial Review Findings",
   "type": "object",
-  "required": ["mode", "verdict", "judge_model", "isolation_mode", "findings"],
+  "required": [
+    "mode",
+    "verdict",
+    "judge_model",
+    "isolation_mode",
+    "findings",
+    "cross_model_check"
+  ],
   "additionalProperties": false,
   "properties": {
     "mode": {
       "type": "string",
-      "enum": ["diff", "artifact"]
+      "enum": [
+        "diff",
+        "artifact",
+        "skill",
+        "agent",
+        "decision"
+      ]
     },
     "verdict": {
       "type": "string",
-      "enum": ["PASS", "BLOCK"],
+      "enum": [
+        "PASS",
+        "BLOCK"
+      ],
       "description": "BLOCK iff at least one CRITICAL finding exists"
     },
     "judge_model": {
@@ -30,24 +46,39 @@
     },
     "cross_model_check": {
       "type": "string",
-      "enum": ["verified-distinct", "same-model-collision", "unverified-producer-unknown"],
-      "description": "Whether the judge was proven different from the producer. 'unverified-producer-unknown' means the packet carried no producer_model, so the comparison passed trivially — not a clean review."
+      "enum": [
+        "verified-distinct",
+        "same-model-collision",
+        "unverified-producer-unknown"
+      ],
+      "description": "Whether the judge was proven different from the producer. 'unverified-producer-unknown' means the packet carried no producer_model, so the comparison passed trivially \u2014 not a clean review."
     },
     "checked_classes": {
       "type": "array",
-      "items": { "type": "string", "minLength": 1 },
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
       "description": "REQUIRED (non-empty) when findings is empty: the failure classes the judge checked and why each does not apply. A zero-finding report without this is rejected as theater."
     },
     "findings": {
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["severity", "claim", "evidence"],
+        "required": [
+          "severity",
+          "claim",
+          "evidence"
+        ],
         "additionalProperties": true,
         "properties": {
           "severity": {
             "type": "string",
-            "enum": ["CRITICAL", "WARNING", "SUGGESTION"]
+            "enum": [
+              "CRITICAL",
+              "WARNING",
+              "SUGGESTION"
+            ]
           },
           "file": {
             "type": "string",
@@ -73,5 +104,30 @@
         }
       }
     }
-  }
+  },
+  "allOf": [
+    {
+      "$comment": "change-idt-001: a decision artifact is only meaningful if a DIFFERENT model judged it. same-model-collision and unverified-producer-unknown are honest records for other modes, but for a decision they mean the cross-model guarantee was not obtained \u2014 so the artifact must not validate.",
+      "if": {
+        "properties": {
+          "mode": {
+            "const": "decision"
+          }
+        },
+        "required": [
+          "mode"
+        ]
+      },
+      "then": {
+        "properties": {
+          "cross_model_check": {
+            "const": "verified-distinct"
+          }
+        },
+        "required": [
+          "cross_model_check"
+        ]
+      }
+    }
+  ]
 }

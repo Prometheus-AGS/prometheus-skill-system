@@ -1,0 +1,46 @@
+{
+  "mode": "artifact",
+  "verdict": "BLOCK",
+  "judge_model": "kbd-judge",
+  "producer_model": "claude-opus-5",
+  "isolation_mode": "rest-gateway:http://localhost:8181/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": "analysis.md",
+      "claim": "The analysis drops the two mandatory blockers that the goal packet says must be cleared before this phase, including the stale skill-pack cache that defeats the producer\u2260judge guarantee.",
+      "evidence": "Goals: \"Neither is optional; the second silently defeats the goals above. 1. Commit the previous phase ... 2. bash scripts/update-skill-pack.sh --force ... The producer-model guard is not live in any installed copy until this runs\". Analysis \u00a710 starts with \"A. Ship the ideation capability\" and lists `--mode decision`, `ui-surface`, ideation adaptations, automation-bias, pk wiki, fixtures; it never schedules either blocker.",
+      "suggested_fix": "Add both blockers as prerequisite recommendations before any ideation-skill work: commit/archive the previous phase state, then run `bash scripts/update-skill-pack.sh --force` and verify installed caches contain the producer-model guard."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "analysis.md",
+      "claim": "Goal 5 is reduced to generic producer/judge separation and does not analyze or recommend wiring the required coach and reflector personas as separate roles.",
+      "evidence": "Goal 5: \"Wire coach and reflector personas as separate roles that cannot grade their own output\". Analysis \u00a79 only maps Goal 5 to \"`kbd_require_producer_model` fail-closed guard + `kbd-idea-critic`\" with verdict \"adopt\"; \u00a710 only says \"Adapt `ideation-mindmap` + `validate-idea` + `kbd-idea-critic`\" and contains no candidate, substrate, or recommendation for coach or reflector roles.",
+      "suggested_fix": "Evaluate existing coach/reflector assets if any, or mark them build-required; add an explicit recommendation for role definitions, routing, and tests proving coach/reflector outputs cannot self-grade."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "analysis.md",
+      "claim": "The non-Claude delivery goal is treated as satisfied by a generic Tier 0 fallback without evaluating or selecting the required Codex or Kimi harness.",
+      "evidence": "Goal 6 requires \"Deliver on at least Claude Code plus one non-Claude harness (Codex or Kimi)\". Analysis \u00a79 says `skills/learn/ui-surface` should be \"adopt unchanged\" and \u00a710 says \"Claude Code and a non-Claude harness are satisfied by construction, with Tier 0 as the floor\"; library-candidates cand-018 admits \"Never exercised by an ideation flow; Tier 1 outside Claude Code uses a file-pair handshake that is untested here.\"",
+      "suggested_fix": "Evaluate Codex and/or Kimi specifically, choose one required harness for this phase, and state the concrete integration and fixture coverage needed beyond Tier 0 text fallback."
+    },
+    {
+      "severity": "WARNING",
+      "file": "library-candidates.json",
+      "claim": "The build decision for automation-bias countermeasures rests on an unevaluated claim about 21 surveyed tools rather than listed candidates or criteria.",
+      "evidence": "`build_required` says \"zero of 21 surveyed commercial tools do either\" for automation-bias countermeasures, and analysis \u00a79 says automation-bias countermeasures are \"absent from this pack and from all 21 surveyed tools\". The `candidates` array lists no commercial ideation/decision tools among those 21, and the only ideation prior-art candidate is `obra/superpowers brainstorming skill`.",
+      "suggested_fix": "Add a summarized candidate/category evaluation for the surveyed tools or narrow the claim to the tools actually evaluated in this packet; include the criteria used to decide that commit-before-reveal, calibration, friction, disconfirming evidence, and refusal-to-certainty must be built."
+    },
+    {
+      "severity": "WARNING",
+      "file": "analysis.md",
+      "claim": "Major recommendations depend on cross-repo implementation claims that are not verifiable from the packet's file tree.",
+      "evidence": "Analysis \u00a73 says \"far more is built than the assessment assumed, across three repos\" and cites `universal-agent-runtime`, `know-me-system`, and `flint-realtime-fabric`; the provided file tree contains no `./universal-agent-runtime`, `./know-me-system`, or `./flint-realtime-fabric` roots. Recommendations in \u00a710 depend on those claims, including `frf-transport-iroh`, `prometheus:component/*`, and `frf-ffi`.",
+      "suggested_fix": "Either include the relevant external repo evidence in the packet/prior handoff or downgrade these to assumptions requiring verification before planning cross-repo work."
+    }
+  ],
+  "checked_classes": []
+}

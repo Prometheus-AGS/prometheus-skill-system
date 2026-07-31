@@ -1,0 +1,45 @@
+{
+  "mode": "artifact",
+  "verdict": "BLOCK",
+  "judge_model": "kbd-judge",
+  "producer_model": "claude-opus-5",
+  "isolation_mode": "rest-gateway:http://localhost:8181/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "WARNING",
+      "file": "plan.md",
+      "claim": "The plan assigns change-idt-008 to an agent name that is not present in the packet file tree.",
+      "evidence": "change-idt-008 declares `**Agent:** rust-reviewer`, but the file tree lists `./agents/rust-auditor.md` and does not list `agents/rust-reviewer.md`.",
+      "suggested_fix": "Use the existing `rust-auditor` agent or add an explicit prior change to create `agents/rust-reviewer.md` before assigning work to it."
+    },
+    {
+      "severity": "WARNING",
+      "file": "plan.md",
+      "claim": "change-idt-001 depends on specifically named review-packet files that are not evidenced by the packet file tree, making the implementation target ambiguous.",
+      "evidence": "The plan says `Add a decision mode to build-review-packet.sh`, `Also needs assets/reviewer-mandate-decision.md`, and `dispatch-judge.sh accepts the new mode`; the file tree shows no root `build-review-packet.sh`, no root `dispatch-judge.sh`, no `assets/` directory, and no `scripts/build-review-packet.sh` or `scripts/dispatch-judge.sh`.",
+      "suggested_fix": "Identify the actual existing paths for the creation-review packet builder, judge dispatcher, and mandate assets, or add an explicit setup change that creates these paths before extending them."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "plan.md",
+      "claim": "change-idt-009 has an acceptance criterion that is outside the repository and explicitly unverifiable from the packet, so downstream validation cannot determine whether the change is complete.",
+      "evidence": "The acceptance criteria require updating `/Users/gqadonis/Projects/know-me/know-me-system/docs/prometheus-skills-integration.md` and then state: `That path is outside this repository, so a reviewer scoped to this repo cannot verify it from a packet`.",
+      "suggested_fix": "Move the required decision record into this repository, replace the external edit with a tracked follow-up task, or require a committed/verifiable artifact in this repo that records the external file path, commit HEAD, and diff reference."
+    },
+    {
+      "severity": "WARNING",
+      "file": "plan.md",
+      "claim": "change-idt-003 includes an untestable acceptance criterion for confidence honesty.",
+      "evidence": "The acceptance says `output states confidence honestly and names what would change the answer`; `states confidence honestly` has no measurable schema, threshold, fixture, or oracle.",
+      "suggested_fix": "Define a concrete output schema and tests, for example requiring explicit confidence level, uncertainty drivers, disconfirming evidence, falsifiers, and a fixture that fails if the output uses prohibited certainty language without supporting evidence."
+    },
+    {
+      "severity": "WARNING",
+      "file": "plan.md",
+      "claim": "change-idt-006 uses ambiguous rendering acceptance criteria without defining the observable pass condition for Tier 1 delivery.",
+      "evidence": "The acceptance says `the ideation flow renders on Claude Code at Tier 1` and `the same flow renders on one non-Claude harness at Tier 1 via the file-pair, verified by running it`, but does not define what file contents, UI intent fields, response fields, timeout behavior, or command output constitute a successful render.",
+      "suggested_fix": "Specify the exact command, expected `UiIntent` payload, expected `__ui_response__.json` fields, timeout behavior, and assertions for Claude Code, the selected non-Claude harness, and Tier 0 degradation."
+    }
+  ]
+}

@@ -1,0 +1,52 @@
+{
+  "mode": "artifact",
+  "verdict": "BLOCK",
+  "judge_model": "kbd-judge",
+  "producer_model": "claude-opus-5",
+  "isolation_mode": "rest-gateway:http://localhost:8181/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": "library-candidates.json",
+      "claim": "The analysis does not evaluate any candidate or in-repo substrate for the required `cross_model_check: verified-distinct` decision artifact machinery.",
+      "evidence": "Goal: \"Make every decision artifact carry `cross_model_check: verified-distinct`, reusing the creation-review packet machinery from `adversarial-review-for-creation`.\" But `gaps_addressed` lists only transport/WASM/WIT/mobile/CRDT/fabric/ideation methodology items and omits cross-model decision artifact metadata; no candidate mentions `cross_model_check`, `verified-distinct`, or `adversarial-review-for-creation`.",
+      "suggested_fix": "Add a gap and candidate evaluation for reusing the creation-review packet machinery, including what existing packet fields can be adopted, what schema changes are needed, and how distinct producer/judge models are verified."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "library-candidates.json",
+      "claim": "The analysis does not evaluate how to deliver the ideation skill on Claude Code plus a non-Claude harness through `ui-surface` tier detection.",
+      "evidence": "Goal: \"Deliver on at least Claude Code plus one non-Claude harness (Codex or Kimi), through `ui-surface` tier detection rather than harness-specific rendering.\" The candidate list contains no Codex, Kimi, Claude Code, harness adapter, or `ui-surface` candidate, and `gaps_addressed` contains no harness-delivery or UI-surface gap.",
+      "suggested_fix": "Add analysis of the existing harness surfaces/adapters and a build-vs-adopt decision for `ui-surface` tier detection, including which non-Claude harness is targeted."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "analysis.md",
+      "claim": "The recommendation orders WIT/mobile fabric work ahead of the actual ideation-skill goals, contradicting the goal set and risking a plan centered on unrelated cross-repo architecture.",
+      "evidence": "Goals require shipping an ideation skill, cross-model artifacts, automation-bias countermeasures, Karpathy outcome persistence, role separation, harness delivery, and fixtures. Analysis recommendation says: \"Resolve the WIT worlds first (OQ-1). Nothing else is worth building twice,\" followed by \"Feature-gate `iroh-docs`\" and \"Add `frf-transport-iroh`\"; these are not required by the listed goals.",
+      "suggested_fix": "Separate the cross-repo iroh/WIT/mobile findings into a later phase or explicitly mark them non-blocking for the ideation-and-decision-tools deliverables; prioritize the decision-skill substrate first."
+    },
+    {
+      "severity": "WARNING",
+      "file": "library-candidates.json",
+      "claim": "The analysis labels the outcome-tracking loop as build-required without evaluating the existing Karpathy wiki or repo storage surfaces it must persist into.",
+      "evidence": "Goal: \"Persist decisions and their outcomes into the Karpathy wiki so a later decision can be checked against what actually happened.\" `build_required` says \"Outcome-tracking loop for decisions\" but only justifies it with competitor absence: \"No surveyed tool revisits a scored idea against what actually happened\"; no candidate evaluates `.prometheus/wiki`, `memory/`, `data/memory.db`, or any Karpathy wiki API/path despite those surfaces appearing in the file tree.",
+      "suggested_fix": "Add candidates for the in-repo persistence targets and decide whether to adopt an existing wiki/memory mechanism or build a new decision-outcome store."
+    },
+    {
+      "severity": "WARNING",
+      "file": "library-candidates.json",
+      "claim": "The analysis omits the coach/reflector producer-not-judge role separation goal from both candidate evaluation and build-required work.",
+      "evidence": "Goal: \"Wire coach and reflector personas as separate roles that cannot grade their own output, following the producer\u2260judge rule this pack already enforces.\" `gaps_addressed` has no role-separation or producer\u2260judge gap, and `build_required` has no coach/reflector item.",
+      "suggested_fix": "Add a gap for coach/reflector role wiring and evaluate whether the existing producer\u2260judge machinery can be adopted or must be extended."
+    },
+    {
+      "severity": "WARNING",
+      "file": "library-candidates.json",
+      "claim": "The landscape claim that no ideation tools cover the differentiators is not auditable from the candidate list.",
+      "evidence": "`build_required` claims: \"Zero of 21 surveyed commercial tools persist state, track outcomes, do cross-model judging, or implement over-reliance countermeasures.\" The candidates include only one ideation prior-art entry, `obra/superpowers brainstorming skill`; the packet does not list the 21 tools, criteria, or per-tool verdicts.",
+      "suggested_fix": "Include the surveyed tools as reference/reject candidates or add an appendix/table with names, criteria, and verdicts so the build-required conclusion is reviewable."
+    }
+  ]
+}

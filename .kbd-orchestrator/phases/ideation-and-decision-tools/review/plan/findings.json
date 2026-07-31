@@ -1,0 +1,45 @@
+{
+  "mode": "artifact",
+  "verdict": "BLOCK",
+  "judge_model": "kbd-judge",
+  "producer_model": "claude-opus-5",
+  "isolation_mode": "rest-gateway:http://localhost:8181/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": "plan.md",
+      "claim": "The plan omits the mandatory pre-work blockers that the goals say must be cleared first.",
+      "evidence": "Goals section states under \u201cBlockers to clear first\u201d: \u201cNeither is optional; the second silently defeats the goals above\u201d and lists \u201cCommit the previous phase\u201d plus \u201cbash scripts/update-skill-pack.sh --force\u201d. The plan\u2019s dependency spine starts at \u201c001 (packet mode)\u201d and no change covers either blocker.",
+      "suggested_fix": "Add an initial blocking change before change-idt-001 to commit the previous phase and run `bash scripts/update-skill-pack.sh --force`, with acceptance proving plugin cache drift is gone."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "plan.md",
+      "claim": "Change 004 does not implement outcome persistence, despite goal 4 requiring decisions and their outcomes to be persisted.",
+      "evidence": "Goal 4 says: \u201cPersist decisions and their outcomes into the Karpathy wiki so a later decision can be checked against what actually happened.\u201d Change-idt-004 acceptance only requires \u201ca decision writes one wiki entry with the decision, its assumptions, and its falsifier\u201d and \u201cthe revisit query returns prior decisions on a topic\u201d; it does not require recording the outcome or updating the entry after the fact.",
+      "suggested_fix": "Add explicit outcome fields/status, an outcome-update flow, and acceptance that a later revisit can retrieve both the original decision and the recorded outcome."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "plan.md",
+      "claim": "Change 001 does not guarantee that every decision artifact carries `cross_model_check: verified-distinct` as required.",
+      "evidence": "Goal 2 says: \u201cMake every decision artifact carry `cross_model_check: verified-distinct`.\u201d Change-idt-001 acceptance only says \u201ca decision artifact records `verified-distinct` against a live judge,\u201d which proves one artifact can do it but does not specify schema enforcement, validation, or rejection of decision artifacts missing the field.",
+      "suggested_fix": "Add a validator/schema requirement that all decision artifacts must include `cross_model_check: verified-distinct`, and acceptance that artifacts missing it fail generation or validation."
+    },
+    {
+      "severity": "WARNING",
+      "file": "plan.md",
+      "claim": "Change 002 has untestable acceptance criteria because `N` and independence are not concretely defined.",
+      "evidence": "Change-idt-002 acceptance says: \u201cgeneration produces N independent candidate sets before any pooling.\u201d The plan never defines the value of `N` or the observable test for \u201cindependent\u201d.",
+      "suggested_fix": "Specify a concrete minimum, e.g. `N >= 3`, and define independence mechanically, such as separate model calls/prompts with no shared intermediate pool before judging."
+    },
+    {
+      "severity": "WARNING",
+      "file": "plan.md",
+      "claim": "Change 009 requires updating a KnowMe guide but does not identify a repository path available in the packet, making the acceptance criterion ambiguous.",
+      "evidence": "Change-idt-009 acceptance says: \u201cthe KnowMe guide is updated to match,\u201d while the file tree contains no KnowMe guide path and the same change says \u201cno code lands in FRF, UAR, or KnowMe.\u201d",
+      "suggested_fix": "Name the exact in-repo documentation file to update, or explicitly mark the KnowMe guide update as an external follow-up outside this phase\u2019s acceptance."
+    }
+  ]
+}

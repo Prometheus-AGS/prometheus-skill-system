@@ -1,0 +1,12 @@
+{
+  "stage": "analyze",
+  "completedAt": "2026-07-31T00:08:34Z",
+  "outputs": [
+    "analysis.md",
+    "library-candidates.json"
+  ],
+  "nextStage": "spec",
+  "summaryForNext": "20 candidates, 7 build-required. ADOPT: iroh 1.0.3 (desktop/server/mobile only — browser is RELAY-ONLY by architecture, not a gap to close), wasmtime 46 (already in UAR and KnowMe at the same major), Loro 1.13 (already aligned FRF<->sovereign-sync), uniffi via frf-ffi, UAR SkillStorageProvider, ui-surface, kbd-idea-critic, reflector hook. REJECT: iroh-webrtc-transport (33 downloads, pinned pre-1.0, repo 404s). ADAPT: iroh-docs must be feature-gated — storage-provider/Cargo.toml:19 pins it unconditionally so the crate cannot build for wasm32. KEY DECISION: two divergent WIT worlds (uar:skill@0.1.0 vs knowme:plugin@0.1.0) must reconcile into prometheus:component/* BEFORE any porting, or every skill is ported twice and parity is false by construction. WARNINGS from review: the 21-tool survey is not auditable from a phase-scoped packet (the build call rests on the harm literature plus the checkable absence of commit-before-reveal in this pack); cross-repo claims carry file:line citations but are invisible to the packet because file_tree uses find -maxdepth 2 — open TD on the review tooling. Recommendation is GOALS FIRST: ship ideation (--mode decision, adapt ideation-mindmap/validate-idea, build automation-bias countermeasures and the coach role, extend pk wiki, commit idea fixtures); record fabric decisions now and build them next phase.",
+  "skipped": false,
+  "skipReason": null
+}

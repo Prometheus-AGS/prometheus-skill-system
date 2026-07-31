@@ -5,6 +5,7 @@
 * [.gitignore Audit for CI Cross-Model QA Hardening Phase](/gitignore-audit-for-ci-cross-model-qa-hardening-phase.md) - The `.gitignore` audit for `phase-ci-cross-model-qa-and-hardening` was completed, committed, and merged to `main`.
 * [Adversarial Review Creation Completion Record](/adversarial-review-creation-completion-record.md)
 * [Adversarial Review Creation Executor Completion Record](/adversarial-review-creation-executor-completion-record.md)
+* [Adversarial Review Creation Executor Completion Recorded](/adversarial-review-creation-executor-completion-recorded.md)
 * [Adversarial Review Creation Executor Completion Status](/adversarial-review-creation-executor-completion-status.md)
 * [Adversarial Review Creation Executor Session Complete](/adversarial-review-creation-executor-session-complete.md)
 * [Adversarial Review Creation Executor Session Completion](/adversarial-review-creation-executor-session-completion.md)
@@ -95,6 +96,18 @@
 * [Google OKF LLM Wiki Standards](/google-okf-llm-wiki-standards.md) - Research on Google's Open Knowledge Format (OKF) v0.1, released 2026-06-12, and the emerging landscape of AI-native document standards.
 * [HTMX Layout: The CSS Grid + Fixed Position Sidebar Trap](/htmx-layout-grid-fixed-position-trap.md) - When building a sidebar + main content layout with HTMX/Alpine.js, a common mistake is to use `display: grid` on a container that has a `position: fixed` sidebar inside it.
 * [Hybrid Mobile PoC Codegen and CI Verification Plan](/hybrid-mobile-poc-codegen-and-ci-verification-plan.md)
+* [Ideation and Decision Tools Executor Completion](/ideation-and-decision-tools-executor-completion.md)
+* [Ideation and Decision Tools Executor Completion Event](/ideation-and-decision-tools-executor-completion-event.md)
+* [Ideation and Decision Tools Executor Completion Log](/ideation-and-decision-tools-executor-completion-log.md)
+* [Ideation and Decision Tools Executor Completion Record](/ideation-and-decision-tools-executor-completion-record.md)
+* [Ideation and Decision Tools Executor Completion Status](/ideation-and-decision-tools-executor-completion-status.md)
+* [Ideation and Decision Tools Executor Completion Update](/ideation-and-decision-tools-executor-completion-update.md)
+* [Ideation and Decision Tools Executor Session Complete](/ideation-and-decision-tools-executor-session-complete.md)
+* [Ideation and Decision Tools Executor Session Completion](/ideation-and-decision-tools-executor-session-completion.md)
+* [Ideation and Decision Tools Executor Session Completion Record](/ideation-and-decision-tools-executor-session-completion-record.md)
+* [Ideation and Decision Tools Executor Session Completion Status](/ideation-and-decision-tools-executor-session-completion-status.md)
+* [Ideation and Decision Tools Executor Session Status](/ideation-and-decision-tools-executor-session-status.md)
+* [Ideation and Decision Tools Executor Status Record](/ideation-and-decision-tools-executor-status-record.md)
 * [Karpathy MCP Gate 2026-07-17 Live Ingestion Check](/karpathy-mcp-gate-2026-07-17-live-ingestion-check.md)
 * [Karpathy MCP Gate 2026-07-17 Repair-Gate Ingestion Check](/karpathy-mcp-gate-2026-07-17-repair-gate-ingestion-check.md)
 * [Karpathy MCP Gate Live Ingestion Verification](/karpathy-mcp-gate-live-ingestion-verification.md)

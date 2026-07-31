@@ -9,6 +9,7 @@
 #   build-review-packet.sh --mode artifact --phase <phase> --target assess|analyze|plan [--out <path>]
 #   build-review-packet.sh --mode skill    --target <skill-dir>     [--intent <file>] [--out <path>]
 #   build-review-packet.sh --mode agent    --target <workspace-dir> [--intent <file>] [--out <path>]
+#   build-review-packet.sh --mode decision --target <decision.md>    [--intent <file>] [--out <path>]
 #
 # Emits packet JSON to --out (default: stdout).
 # Exit codes: 0 ok · 1 usage · 2 missing inputs
@@ -20,6 +21,12 @@
 #                   filesystem path, and --phase is optional: a creator can run
 #                   outside any KBD phase, so requiring one would make the gate
 #                   unreachable exactly where generation happens.
+#   decision      — review an IDEA before committing to it (change-idt-001).
+#                   --target is a FILE. The judge is not asked to score novelty:
+#                   pre-execution novelty ratings FLIP after execution
+#                   (Si/Hashimoto/Yang 2025), so the packet carries what is
+#                   claimed, what it rests on, what would falsify it, and what
+#                   was already decided on this topic.
 #
 # Both creation modes are MANIFEST-LEVEL. They record what each file is and does,
 # never its full body. A generated Cargo workspace does not fit in a judge's
@@ -37,12 +44,12 @@ while [ $# -gt 0 ]; do
     --target) TARGET="${2:-}"; shift 2 ;;
     --intent) INTENT="${2:-}"; shift 2 ;;
     --out)    OUT="${2:-}"; shift 2 ;;
-    *) echo "usage: $0 --mode diff|artifact|skill|agent [--phase <phase>] --target <id|stage|path> [--intent <file>] [--out <path>]" >&2; exit 1 ;;
+    *) echo "usage: $0 --mode diff|artifact|skill|agent|decision [--phase <phase>] --target <id|stage|path> [--intent <file>] [--out <path>]" >&2; exit 1 ;;
   esac
 done
 case "$MODE" in
-  diff|artifact|skill|agent) ;;
-  *) echo "[packet] ERROR: --mode must be diff, artifact, skill, or agent" >&2; exit 1 ;;
+  diff|artifact|skill|agent|decision) ;;
+  *) echo "[packet] ERROR: --mode must be diff, artifact, skill, agent, or decision" >&2; exit 1 ;;
 esac
 [ -n "$TARGET" ] || { echo "[packet] ERROR: --target is required" >&2; exit 1; }
 case "$MODE" in
@@ -75,6 +82,17 @@ case "$MODE" in
       PHASE_DIR="$KBD_ROOT/phases/$PHASE"
     fi
     [ -d "$TARGET" ] || { echo "[packet] ERROR: --target must be an existing directory for --mode $MODE: $TARGET" >&2; exit 2; }
+    ;;
+  decision)
+    # Decision mode reviews a single decision document, not a directory or a
+    # phase — an idea is authored as one file. A KBD root is used when present
+    # (constraints, producer record) but never required: ideation legitimately
+    # happens outside any phase, which is most of the point.
+    PHASE_DIR=""
+    if [ -n "$KBD_ROOT" ] && [ -n "$PHASE" ] && [ -d "$KBD_ROOT/phases/$PHASE" ]; then
+      PHASE_DIR="$KBD_ROOT/phases/$PHASE"
+    fi
+    [ -f "$TARGET" ] || { echo "[packet] ERROR: --target must be an existing FILE for --mode decision: $TARGET" >&2; exit 2; }
     ;;
 esac
 
@@ -144,6 +162,8 @@ fi
 # own, not the host repo's — the judge is reviewing what was produced.
 case "$MODE" in
   skill|agent) TREE_ROOT="$TARGET" ;;
+  # decision's target is a FILE, so the tree that gives context is its directory.
+  decision)    TREE_ROOT="$(cd "$(dirname "$TARGET")" && pwd)" ;;
   *)           TREE_ROOT="$REPO_ROOT" ;;
 esac
 # Top 2 levels, pruning bulk dirs. Deterministic (sorted).
@@ -377,6 +397,72 @@ PY
     echo "[packet]       against what was requested, only against itself." >&2
   fi
 
+elif [ "$MODE" = "decision" ]; then
+  # ---- decision mode: review an IDEA before it is committed to ---------------
+  # The judge's job here is not to score novelty. Si, Hashimoto & Yang (2025)
+  # showed LLM idea rankings FLIP after execution — novelty measured before
+  # execution is the wrong signal. What the packet must carry is the material a
+  # reviewer needs to attack the reasoning: what is being claimed, what it rests
+  # on, and what would prove it wrong.
+  cp "$TARGET" "$WORK/decision.md"
+
+  # Structured fields, parsed from the document rather than demanded as separate
+  # flags. A decision that states no assumptions and no falsifier is itself a
+  # finding, so absence is recorded rather than treated as an error.
+  python3 - "$TARGET" > "$WORK/decision_fields.json" 2>/dev/null <<'PY' || true
+import json, re, sys
+text = open(sys.argv[1], encoding="utf-8", errors="replace").read()
+
+def section(*names):
+    """Pull a '## <name>' section body, case-insensitive, first match wins."""
+    for n in names:
+        m = re.search(r"^#{1,6}\s*%s\s*$\n(.*?)(?=^#{1,6}\s|\Z)" % n,
+                      text, re.M | re.I | re.S)
+        if m and m.group(1).strip():
+            return m.group(1).strip()
+    return None
+
+def items(body):
+    if not body:
+        return []
+    return [re.sub(r"^[-*+]\s*", "", l).strip()
+            for l in body.splitlines() if re.match(r"^\s*[-*+]\s+", l)]
+
+assumptions = section("assumptions?", "what this rests on")
+falsifier   = section("falsifier", "what would falsify (?:this|it)",
+                      "what would prove (?:this|me) wrong", "disconfirming evidence")
+decision    = section("decision", "the decision", "what i am deciding")
+
+print(json.dumps({
+    "decision": decision,
+    "assumptions": items(assumptions) or (assumptions and [assumptions]) or [],
+    "falsifier": falsifier,
+    # Recorded, not enforced here: a decision with no falsifier is exactly the
+    # kind of unfalsifiable claim the judge should flag, so the packet states
+    # the absence plainly instead of refusing to build.
+    "missing_fields": [k for k, v in
+                       (("decision", decision), ("assumptions", assumptions),
+                        ("falsifier", falsifier)) if not v],
+}, indent=2))
+PY
+
+  # Prior decisions on the same topic — the Karpathy loop's whole point. Without
+  # this the judge re-litigates settled ground and cannot see that the operator
+  # already tried this and it failed.
+  if command -v pk >/dev/null 2>&1; then
+    # NB: `tr '-_' '  '` fails on BSD/macOS — a leading '-' is parsed as an
+    # option flag ("illegal option -- _"). Use sed, which has no such ambiguity.
+    _q="$(basename "$TARGET" | sed -e 's/\.[^.]*$//' -e 's/[-_]/ /g')"
+    pk search "$_q" 2>/dev/null | head -40 > "$WORK/prior_decisions.txt" || true
+  fi
+  [ -s "$WORK/prior_decisions.txt" ] || \
+    echo "(no prior decisions found; pk unavailable or nothing matched)" > "$WORK/prior_decisions.txt"
+
+  # Original intent: what the operator was actually trying to achieve.
+  if [ -n "$INTENT" ] && [ -f "$INTENT" ]; then
+    cp "$INTENT" "$WORK/intent.md"
+  fi
+
 else
   # artifact mode: TARGET selects the stage artifact set.
   case "$TARGET" in
@@ -456,6 +542,15 @@ elif mode == "agent":
     packet["mcp_servers"] = slurp("mcp_servers.txt")
     packet["cargo_check"] = slurp("cargo_check.txt")
     packet["original_intent"] = slurp("intent.md")
+elif mode == "decision":
+    packet["decision_document"] = slurp("decision.md")
+    fields = slurp("decision_fields.json")
+    try:
+        packet["decision_fields"] = json.loads(fields) if fields else None
+    except ValueError:
+        packet["decision_fields"] = None
+    packet["prior_decisions"] = slurp("prior_decisions.txt")
+    packet["original_intent"] = slurp("intent.md")
 else:
     packet["artifact"] = slurp("artifact.md")
     packet["goals"] = slurp("goals.md")
@@ -470,7 +565,7 @@ else:
 # The cap is per FIELD, not per packet. One oversized field (a 4000-line SKILL.md)
 # must not crowd out the small fields that carry the most signal per byte
 # (frontmatter, the MCP server list, the validator verdict).
-if mode in ("skill", "agent"):
+if mode in ("skill", "agent", "decision"):
     try:
         cap = int(os.environ.get("PACKET_FIELD_CAP_BYTES", "") or 40000)
     except ValueError:
@@ -535,6 +630,7 @@ if mode in ("skill", "agent"):
     VERBATIM_OK = {
         "skill_md", "system_prompt", "agent_toml",
         "validator_output", "original_intent", "file_tree", "constraints",
+        "decision_document", "prior_decisions",
     }
     # Deliberately UNANCHORED. Descriptive fields are tab-delimited records like
     #   scripts/x.sh<TAB>120 bytes<TAB>executable=yes<TAB>#!/usr/bin/env bash<TAB><purpose>

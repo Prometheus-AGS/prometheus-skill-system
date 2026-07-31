@@ -1,0 +1,11 @@
+{
+  "stage": "plan",
+  "completedAt": "2026-07-31T00:31:17Z",
+  "outputs": [
+    "plan.md"
+  ],
+  "nextStage": "execute",
+  "summaryForNext": "9 OpenSpec changes, all valid --strict with specs deltas pre-authored (last phase's verify failures came from missing deltas). Ordering is GOALS FIRST: 001-007 satisfy the seven phase goals against proven substrate; 008-009 record the fabric decisions without cross-repo code, per the scope agreed at analyze. Dependency spine 001->002->003->004->005->006->007; 007 must be LAST because it is the evidence the rest works. First change: change-idt-001-decision-review-packet. WARNINGS carried: (a) two adversarial rounds found the same mistake twice — acceptance criteria that proved one case could succeed rather than that the property always holds; 001 and 004 now enforce via schema+validator and outcome_status rather than demonstrating; (b) change-006's non-Claude Tier 1 file-pair has never been exercised — it must be RUN, and if the harness does not poll, recorded as a stated limit rather than claimed as delivery; (c) artifact-mode packets build file_tree with find -maxdepth 2, so skill files and other repos are invisible to a reviewer — several WARNINGs reduce to that, tracked as TD on the review tooling.",
+  "skipped": false,
+  "skipReason": null
+}

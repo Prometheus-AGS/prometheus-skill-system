@@ -3,29 +3,24 @@
   "change": null,
   "childPointer": null,
   "completionMetric": "implementation",
-  "currentTask": "run kbd-assess for ideation-and-decision-tools",
-  "exactNextCommand": "/kbd-assess ideation-and-decision-tools",
+  "currentTask": null,
+  "exactNextCommand": "/kbd-assess adversarial-review-for-creation",
   "generatedBy": "kbd-runtime",
-  "implementationCompleted": 0,
-  "implementationTotal": 0,
+  "implementationCompleted": 152,
+  "implementationTotal": 204,
   "path": [
     "adversarial-review-for-creation"
   ],
-  "phase": "ideation-and-decision-tools",
+  "phase": "adversarial-review-for-creation",
   "phaseIds": [
     "adversarial-review-for-creation"
   ],
-  "planRevision": 1,
+  "planRevision": 2,
   "projectId": "6ac090a4-3656-4d83-8eb6-2891508196d5",
-  "revision": 132,
+  "revision": 147,
   "runId": "docusaurus-github-pages-site-20260729T012334Z",
   "schemaVersion": "5",
-  "sourceRevision": 131,
-  "status": "assessment_ready",
-  "updatedAt": "2026-07-30T22:38:37Z",
-  "previousPhase": "adversarial-review-for-creation",
-  "sourceTool": "kbd-next-phase",
-  "nextPendingChange": null,
-  "certificationStatus": "NOT_TRACKED",
-  "publicationStatus": "NOT_TRACKED"
+  "sourceRevision": 147,
+  "status": "completed",
+  "updatedAt": "2026-07-31T00:56:37.572806Z"
 }
