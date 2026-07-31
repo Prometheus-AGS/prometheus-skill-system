@@ -75,11 +75,27 @@ checked out. When one is missing the invariant is **unverifiable** and reports
 `SKIP` — it is never counted as holding. Reporting "aligned" because a file
 could not be read is how a check becomes decorative.
 
-**Consequence for CI:** a runner with only this repository checked out verifies
-**one** invariant (the iroh floor, which is in-repo) and skips three. That is
-honest, but it is not full coverage — full coverage needs the sibling
-repositories present. Override the search paths with `FRF_ROOT`, `UAR_ROOT`, and
-`KNOWME_ROOT`.
+**Consequence for CI — measured, not estimated** (`change-uhe-002`):
+
+| Invariant | CI status | Why |
+|---|---|---|
+| `loro-minor-aligned` | **PASS** | `flint-realtime-fabric` is public and checked out |
+| `iroh-floor-1.0.2` | **PASS** | in-repo |
+| `wasmtime-major-aligned` | **SKIP** | needs `know-me-system` |
+| `wit-world-version-pinned` | **SKIP** | needs `know-me-system` |
+
+**`know-me-system` is deliberately not reachable from CI.** It is private and in
+a different org (`Know-Me-Tools/know-me-system`); adding a cross-org PAT to a
+public workflow to compare two version strings is a poor trade. **Two of four
+verified is the honest ceiling here, and it is not described as full coverage.**
+
+The split is **pinned** by `scripts/assert-ci-coverage.sh`, which fails if
+coverage drifts in *either* direction. SKIP never fails a build, so an invariant
+that quietly stops being verified would otherwise go unnoticed — that is how
+coverage rots. If a SKIP ever becomes a PASS, the assertion fails too, which is
+the prompt to update the expectation rather than let it drift upward unrecorded.
+
+Override the search paths with `FRF_ROOT`, `UAR_ROOT`, and `KNOWME_ROOT`.
 
 ## Verified behaviour
 
@@ -91,4 +107,6 @@ Every path below was exercised on 2026-07-31, not asserted:
 | allowlist an invariant that passes | exit 3 | exit 3, naming the stale entry |
 | empty the allowlist | exit 2 | exit 2 on the WIT violation |
 | point all external roots at a missing dir | SKIP ×3, no false PASS | SKIP ×3, exit 0 |
+| omit only `know-me-system` | `wit-world-version-pinned` must be SKIP, **not** PASS | SKIP — fixed in `change-uhe-002`; it previously reported PASS because the repo holding the split was simply absent |
+| drop `FRF_ROOT` in CI | coverage assertion fails | exit 2, naming `loro-minor-aligned: want PASS, got SKIP` |
 | split `prometheus:component` across two versions | exit 2 — a knowme entry must not cover it | exit 2, naming the new package |

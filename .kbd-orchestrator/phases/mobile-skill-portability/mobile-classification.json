@@ -19,7 +19,7 @@
   "skills": [
     {
       "skill": "skills/devops/fabric-integration",
-      "scripts": 2,
+      "scripts": 3,
       "verdict": "E0",
       "rationale": "scripts are build/validation tooling for the pack itself; a phone never invokes them",
       "nested_duplicate": false,

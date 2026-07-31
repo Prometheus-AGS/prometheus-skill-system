@@ -29,12 +29,12 @@
   "generatedBy": "kbd-runtime",
   "implementation_completed": 0,
   "implementation_total": 0,
-  "last_updated": "2026-07-31T14:21:37.675448Z",
+  "last_updated": "2026-07-31T14:44:36.074031Z",
   "last_updated_by": "kbd-runtime",
   "migrationStatus": "legacy-read-only",
   "parentPhase": null,
   "phase": "pglite-certification-2026-05-25",
   "phaseId": "pglite-certification-2026-05-25",
   "schemaVersion": "2",
-  "sourceRevision": 412
+  "sourceRevision": 422
 }

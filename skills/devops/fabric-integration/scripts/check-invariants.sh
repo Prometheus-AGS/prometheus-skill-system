@@ -114,11 +114,15 @@ results.append(("iroh-floor-1.0.2", "FAIL" if bad else "PASS",
 # ── 4. WIT world version pinned ──────────────────────────────────────────────
 # Already violated: knowme:plugin is declared at two versions at once.
 pkgs = {}
-# Include THIS repo: it now declares prometheus:component@0.1.0. A checker that
-# only walked the external repos would never catch a version split introduced
-# here — the very failure mode it exists to prevent.
+# Track which roots were actually readable. A WIT package split lives in ONE
+# repo; if that repo is absent, its violation simply does not appear and the
+# invariant reports PASS — a pass earned by ABSENCE, which is the exact failure
+# this checker exists to prevent. Measured: with know-me-system absent,
+# wit-world-version-pinned went PASS while knowme:plugin was still split.
+wit_missing = []
 for root in (pack, uar, km):
     if not os.path.isdir(root):
+        wit_missing.append(os.path.basename(root.rstrip("/")))
         continue
     for dp, _dn, fn in os.walk(root):
         if "target" in dp or "node_modules" in dp:
@@ -141,7 +145,13 @@ else:
     # knowme:plugin silently cover a NEW split in prometheus:component — the
     # quarantine leaking to cover a defect it was never granted for.
     dup = {k: sorted(v) for k, v in pkgs.items() if len(v) > 1}
-    if not dup:
+    if not dup and wit_missing:
+        # Nothing split among the repos we COULD read — but a repo we could not
+        # read may hold a split. That is SKIP, never PASS.
+        results.append(("wit-world-version-pinned", "SKIP",
+                        "no split among readable repos, but unverifiable: %s absent"
+                        % ", ".join(wit_missing)))
+    elif not dup:
         results.append(("wit-world-version-pinned", "PASS",
                         "every WIT package declares one version"))
     else:

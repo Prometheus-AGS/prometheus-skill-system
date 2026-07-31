@@ -262,12 +262,21 @@
             },
             "status": "COMPLETE",
             "type": "change"
+          },
+          {
+            "id": "change-uhe-002-ci-sibling-repos",
+            "progress": {
+              "done": 3,
+              "total": 3
+            },
+            "status": "COMPLETE",
+            "type": "change"
           }
         ],
         "id": "adversarial-review-for-creation",
         "progress": {
-          "done": 25,
-          "total": 28
+          "done": 26,
+          "total": 29
         },
         "status": "PENDING",
         "type": "phase"
@@ -2646,13 +2655,13 @@
     ],
     "id": "6ac090a4-3656-4d83-8eb6-2891508196d5",
     "progress": {
-      "done": 167,
-      "total": 223
+      "done": 168,
+      "total": 224
     },
     "status": "completed",
     "type": "phase"
   },
   "schemaVersion": "1",
-  "sourceRevision": 412,
-  "updatedAt": "2026-07-31T14:21:37.675448Z"
+  "sourceRevision": 422,
+  "updatedAt": "2026-07-31T14:44:36.074031Z"
 }

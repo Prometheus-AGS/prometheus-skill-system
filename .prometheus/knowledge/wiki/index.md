@@ -5,6 +5,7 @@
 * [.gitignore Audit for CI Cross-Model QA Hardening Phase](/gitignore-audit-for-ci-cross-model-qa-hardening-phase.md) - The `.gitignore` audit for `phase-ci-cross-model-qa-and-hardening` was completed, committed, and merged to `main`.
 * [Adversarial Review Creation Completion Record](/adversarial-review-creation-completion-record.md)
 * [Adversarial Review Creation Executor Completed Unknown Change](/adversarial-review-creation-executor-completed-unknown-change.md)
+* [Adversarial Review Creation Executor Completed with Unknown Change](/adversarial-review-creation-executor-completed-with-unknown-change.md)
 * [Adversarial Review Creation Executor Completion Record](/adversarial-review-creation-executor-completion-record.md)
 * [Adversarial Review Creation Executor Completion Recorded](/adversarial-review-creation-executor-completion-recorded.md)
 * [Adversarial Review Creation Executor Completion Status](/adversarial-review-creation-executor-completion-status.md)

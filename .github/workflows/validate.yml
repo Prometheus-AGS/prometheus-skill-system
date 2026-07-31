@@ -79,12 +79,46 @@ jobs:
         with:
           node-version: 22
 
-      # NOTE: this runner has only THIS repository. Three of the four invariants
-      # compare versions across flint-realtime-fabric, universal-agent-runtime,
-      # and know-me-system, so they report SKIP here — never a silent PASS. Full
-      # coverage needs those repos present (set FRF_ROOT / UAR_ROOT / KNOWME_ROOT).
+      # Two of the three sibling repos are PUBLIC and are checked out here, so
+      # the invariants that depend on them are genuinely verified in CI rather
+      # than skipped.
+      #
+      # know-me-system is deliberately NOT checked out: it is PRIVATE and lives
+      # in a different org (Know-Me-Tools/know-me-system). Adding a PAT to reach
+      # it would put a cross-org credential in this workflow to check two
+      # version strings — a poor trade. Its two invariants report SKIP, which is
+      # honest, and the limit is stated in the skill's SKILL.md.
+      - name: Check out flint-realtime-fabric (public)
+        uses: actions/checkout@v4
+        with:
+          repository: Prometheus-AGS/flint-realtime-fabric
+          path: .siblings/flint-realtime-fabric
+
+      - name: Check out universal-agent-runtime (public)
+        uses: actions/checkout@v4
+        with:
+          repository: Prometheus-AGS/universal-agent-runtime
+          path: .siblings/universal-agent-runtime
+
       - name: Check fabric version invariants
+        env:
+          FRF_ROOT: ${{ github.workspace }}/.siblings/flint-realtime-fabric
+          UAR_ROOT: ${{ github.workspace }}/.siblings/universal-agent-runtime
+          # Deliberately points nowhere: know-me-system is private and out of
+          # org. Naming a path that does not exist makes the SKIP explicit
+          # rather than letting the script fall back to a sibling directory that
+          # happens to exist on a developer machine but never on a runner.
+          KNOWME_ROOT: ${{ github.workspace }}/.siblings/absent-know-me-system
         run: bash skills/devops/fabric-integration/scripts/check-invariants.sh
+
+      # Pin the coverage we actually get, so it cannot silently regress. SKIP is
+      # honest, but a SKIP that appears unnoticed is how coverage rots.
+      - name: Assert expected invariant coverage (2 verified, 2 skipped)
+        env:
+          FRF_ROOT: ${{ github.workspace }}/.siblings/flint-realtime-fabric
+          UAR_ROOT: ${{ github.workspace }}/.siblings/universal-agent-runtime
+          KNOWME_ROOT: ${{ github.workspace }}/.siblings/absent-know-me-system
+        run: bash skills/devops/fabric-integration/scripts/assert-ci-coverage.sh
 
       - name: Check mobile-execution classification has not drifted
         run: bash skills/process/adversarial-review/scripts/classify-mobile-execution.sh --check

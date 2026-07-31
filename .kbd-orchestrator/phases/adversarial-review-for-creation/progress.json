@@ -307,10 +307,21 @@
       "tasks_done": 5,
       "tasks_total": 5,
       "title": "change-uhe-001-cursor-tier1"
+    },
+    {
+      "blockers": [],
+      "id": "change-uhe-002-ci-sibling-repos",
+      "implementation_status": "COMPLETE",
+      "last_task_completed": "If a repo cannot be checked out in CI: record a stated limit, keep SKIP, claim no coverage",
+      "next_task_pending": null,
+      "status": "DONE",
+      "tasks_done": 3,
+      "tasks_total": 3,
+      "title": "change-uhe-002-ci-sibling-repos"
     }
   ],
-  "changes_completed": 25,
-  "changes_total": 28,
+  "changes_completed": 26,
+  "changes_total": 29,
   "children": {},
   "completion": {
     "certification": {
@@ -324,9 +335,9 @@
       "summary": null
     },
     "implementation": {
-      "completed": 25,
+      "completed": 26,
       "status": "IN_PROGRESS",
-      "total": 28
+      "total": 29
     },
     "primaryCounter": "implementation",
     "publication": {
@@ -336,14 +347,14 @@
     }
   },
   "generatedBy": "kbd-runtime",
-  "implementation_completed": 25,
-  "implementation_total": 28,
-  "last_updated": "2026-07-31T14:21:37.675448Z",
+  "implementation_completed": 26,
+  "implementation_total": 29,
+  "last_updated": "2026-07-31T14:44:36.074031Z",
   "last_updated_by": "kbd-runtime",
   "migrationStatus": null,
   "parentPhase": null,
   "phase": "adversarial-review-for-creation",
   "phaseId": "adversarial-review-for-creation",
   "schemaVersion": "2",
-  "sourceRevision": 412
+  "sourceRevision": 422
 }

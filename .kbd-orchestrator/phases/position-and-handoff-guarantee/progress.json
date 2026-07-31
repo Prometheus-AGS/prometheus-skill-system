@@ -96,12 +96,12 @@
   "generatedBy": "kbd-runtime",
   "implementation_completed": 6,
   "implementation_total": 6,
-  "last_updated": "2026-07-31T14:21:37.675448Z",
+  "last_updated": "2026-07-31T14:44:36.074031Z",
   "last_updated_by": "kbd-runtime",
   "migrationStatus": null,
   "parentPhase": null,
   "phase": "position-and-handoff-guarantee",
   "phaseId": "position-and-handoff-guarantee",
   "schemaVersion": "2",
-  "sourceRevision": 412
+  "sourceRevision": 422
 }

@@ -63,12 +63,12 @@
   "generatedBy": "kbd-runtime",
   "implementation_completed": 3,
   "implementation_total": 3,
-  "last_updated": "2026-07-31T14:21:37.675448Z",
+  "last_updated": "2026-07-31T14:44:36.074031Z",
   "last_updated_by": "kbd-runtime",
   "migrationStatus": null,
   "parentPhase": null,
   "phase": "memory-and-karpathy",
   "phaseId": "memory-and-karpathy",
   "schemaVersion": "2",
-  "sourceRevision": 412
+  "sourceRevision": 422
 }
