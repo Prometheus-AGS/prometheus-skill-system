@@ -167,6 +167,17 @@
     },
     {
       "blockers": [],
+      "id": "change-idt-007-idea-fixtures",
+      "implementation_status": "COMPLETE",
+      "last_task_completed": "Bound judge calls; on-demand and release-gate only",
+      "next_task_pending": null,
+      "status": "DONE",
+      "tasks_done": 5,
+      "tasks_total": 5,
+      "title": "change-idt-007-idea-fixtures"
+    },
+    {
+      "blockers": [],
       "id": "change-idt-008-feature-gate-iroh-docs",
       "implementation_status": "COMPLETE",
       "last_task_completed": "Native cargo build unchanged; wasm32 check progresses past the iroh-docs failure",
@@ -188,8 +199,8 @@
       "title": "change-idt-009-record-fabric-decisions"
     }
   ],
-  "changes_completed": 15,
-  "changes_total": 17,
+  "changes_completed": 16,
+  "changes_total": 18,
   "children": {},
   "completion": {
     "certification": {
@@ -203,9 +214,9 @@
       "summary": null
     },
     "implementation": {
-      "completed": 15,
+      "completed": 16,
       "status": "IN_PROGRESS",
-      "total": 17
+      "total": 18
     },
     "primaryCounter": "implementation",
     "publication": {
@@ -215,14 +226,14 @@
     }
   },
   "generatedBy": "kbd-runtime",
-  "implementation_completed": 15,
-  "implementation_total": 17,
-  "last_updated": "2026-07-31T08:52:05.472356Z",
+  "implementation_completed": 16,
+  "implementation_total": 18,
+  "last_updated": "2026-07-31T09:26:55.513785Z",
   "last_updated_by": "kbd-runtime",
   "migrationStatus": null,
   "parentPhase": null,
   "phase": "adversarial-review-for-creation",
   "phaseId": "adversarial-review-for-creation",
   "schemaVersion": "2",
-  "sourceRevision": 247
+  "sourceRevision": 263
 }

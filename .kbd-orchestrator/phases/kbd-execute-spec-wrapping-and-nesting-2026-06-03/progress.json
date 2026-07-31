@@ -118,12 +118,12 @@
   "generatedBy": "kbd-runtime",
   "implementation_completed": 8,
   "implementation_total": 8,
-  "last_updated": "2026-07-31T08:52:05.472356Z",
+  "last_updated": "2026-07-31T09:26:55.513785Z",
   "last_updated_by": "kbd-runtime",
   "migrationStatus": null,
   "parentPhase": null,
   "phase": "kbd-execute-spec-wrapping-and-nesting-2026-06-03",
   "phaseId": "kbd-execute-spec-wrapping-and-nesting-2026-06-03",
   "schemaVersion": "2",
-  "sourceRevision": 247
+  "sourceRevision": 263
 }

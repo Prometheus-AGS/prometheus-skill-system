@@ -147,6 +147,15 @@
             "type": "change"
           },
           {
+            "id": "change-idt-007-idea-fixtures",
+            "progress": {
+              "done": 5,
+              "total": 5
+            },
+            "status": "COMPLETE",
+            "type": "change"
+          },
+          {
             "id": "change-idt-008-feature-gate-iroh-docs",
             "progress": {
               "done": 3,
@@ -167,8 +176,8 @@
         ],
         "id": "adversarial-review-for-creation",
         "progress": {
-          "done": 15,
-          "total": 17
+          "done": 16,
+          "total": 18
         },
         "status": "PENDING",
         "type": "phase"
@@ -2547,13 +2556,13 @@
     ],
     "id": "6ac090a4-3656-4d83-8eb6-2891508196d5",
     "progress": {
-      "done": 157,
-      "total": 212
+      "done": 158,
+      "total": 213
     },
     "status": "completed",
     "type": "phase"
   },
   "schemaVersion": "1",
-  "sourceRevision": 247,
-  "updatedAt": "2026-07-31T08:52:05.472356Z"
+  "sourceRevision": 263,
+  "updatedAt": "2026-07-31T09:26:55.513785Z"
 }

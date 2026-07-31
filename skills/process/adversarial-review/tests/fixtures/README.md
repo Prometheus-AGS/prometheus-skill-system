@@ -88,3 +88,49 @@ The lesson generalises: a fixture that flips verdicts is evidence about the
 fixture before it is evidence about the judge. Read the findings before reaching
 for a retry — an inversion that gets retried away is an inversion that was never
 understood.
+
+## Idea fixtures — `weak-idea/` and `sound-idea/`
+
+Used by [`run-idea-fixture-suite.sh`](../run-idea-fixture-suite.sh) to prove the
+gate sorts weak from sound **ideas**, which is a harder claim than sorting
+flawed from clean code: a weak idea is fluent, confident, and nothing in its
+prose looks broken.
+
+Both propose **the same product** — an AI meeting-notes assistant — under a
+**byte-identical** `.intent.md`. They differ only in rigor. If the fixtures
+differed in topic or length, a verdict could be sorting on the prompt rather
+than the reasoning, so the suite asserts the intents are identical.
+
+| | `weak-idea` | `sound-idea` |
+|---|---|---|
+| Assumptions | 1 (`"It'll work."`) | 4, each named and testable |
+| Falsifier | none | 3, each with a threshold |
+| Competitors | "we'll differentiate on quality" | named, with why we lose on that axis |
+| Commits to | building, immediately | a 2-week pilot; build deferred |
+
+### Determinism
+
+A fixture that passes only sometimes is not evidence. Measured against the live
+judge on 2026-07-31:
+
+- `weak-idea` → **BLOCK 4/4**
+- `sound-idea` → **PASS 6/6**
+
+Getting there required fixing the *fixture*, not loosening the assertion. Early
+runs were 4/6 because the judge found real defects in `sound-idea`: an
+overstated "removes the compliance surface entirely", a payment falsifier with
+no threshold, pilot criteria that did not match the stated wedge, and a commit
+to building before its own falsifiers had run. Each was a genuine hole. The
+lesson worth keeping: **when the judge is inconsistent on a fixture, suspect the
+fixture first** — non-determinism was tracking real internal inconsistency, and
+disappeared entirely once the decision became self-consistent.
+
+### Editing these fixtures
+
+Re-run determinism after any edit — the fixtures are calibrated, not arbitrary:
+
+```bash
+export KBD_PRODUCER_MODEL="<the model running your session>"
+bash ../run-idea-fixture-suite.sh            # all groups, 2 judge calls
+bash ../run-idea-fixture-suite.sh --groups BC # structure only, 0 judge calls
+```

@@ -15,9 +15,9 @@
   "completion": {
     "primaryCounter": "implementation",
     "implementation": {
-      "completed": 8,
+      "completed": 9,
       "total": 9,
-      "status": "IN_PROGRESS"
+      "status": "COMPLETE"
     },
     "evidence": {
       "status": "NOT_TRACKED",
