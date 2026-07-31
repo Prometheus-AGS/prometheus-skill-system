@@ -349,12 +349,12 @@
   "generatedBy": "kbd-runtime",
   "implementation_completed": 29,
   "implementation_total": 29,
-  "last_updated": "2026-07-31T17:48:32.516876Z",
+  "last_updated": "2026-07-31T18:05:46.841882Z",
   "last_updated_by": "kbd-runtime",
   "migrationStatus": null,
   "parentPhase": null,
   "phase": "phase-learn-feynman",
   "phaseId": "phase-learn-feynman",
   "schemaVersion": "2",
-  "sourceRevision": 474
+  "sourceRevision": 475
 }

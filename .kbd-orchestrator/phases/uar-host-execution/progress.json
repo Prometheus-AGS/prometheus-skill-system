@@ -36,5 +36,8 @@
     }
   },
   "changes": [],
-  "stage": "plan_complete"
+  "stage": "plan_complete",
+  "childPhases": [
+    "mcp-2026-07-28-adoption"
+  ]
 }

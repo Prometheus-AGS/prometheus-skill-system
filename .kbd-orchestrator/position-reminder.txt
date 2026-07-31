@@ -1,35 +1,40 @@
 POSITION REMINDER — read this as your FIRST tool call every turn
-Phase: uar-host-execution
-Step: 0 of 16
-Stage: plan (COMPLETE — 16 changes, 68 tasks, all valid --strict)
-Next command: /kbd-apply change-uhe-001-cursor-tier1
+Phase: uar-host-execution / mcp-2026-07-28-adoption   (CHILD)
+Step: 0 of 0 (totals set by the child's /kbd-plan)
+Stage: assess (PENDING)
+Next command: /kbd-assess uar-host-execution/mcp-2026-07-28-adoption
 
-Required signal format (emit BEFORE any tool call):
-  Starting <kbd-skill> — uar-host-execution (step N of T)
-  [do work]
-  Completed <kbd-skill> — uar-host-execution (step N of T)
+PARENT IS PAUSED at change-uhe-008 (7 of 16 done).
+Resume with: /kbd-apply change-uhe-008-builtin-db-registration
 
-Read progress.json for N and T — never estimate.
+DO NOT TRUST current-waypoint.json's `phase` OR its counters.
+  It carries generatedBy: "kbd-runtime", so a `prometheus kbd` runtime store is
+  authoritative for those fields — and that store is pinned to a COMPLETED run
+  from 2026-07-29 (docusaurus-github-pages-site) whose lease EXPIRED 2026-07-29.
+  It reports phase=adversarial-review-for-creation and 170/229. All three are
+  stale. progress.json under phases/<name>/ is the truth: uar-host-execution is
+  7/16.
 
-SCOPE IS ELEVEN ITEMS: seeded S1-S6 + user-added R1-R5. Not five, not six.
+WHY THIS CHILD EXISTS:
+  change-uhe-008 must RUN tests on 3 providers. The UAR crate does not compile:
+  rmcp is pinned =2.2.0, which declares sse-stream ^0.2, and sse-stream 0.2.3
+  removed from_bytes_stream. Pre-existing at 563ecc2.
 
-ORDERING (in-repo cheap first, cross-repo after):
-  W1 001 cursor · 002 CI siblings · 003 FFI cost · 004 librefang decision
-  W2 005 pack provenance  <- blocks R5; nothing records the loaded version today
-  W3 006 origin/enabled (PROBE first) -> 007 delete guard -> 008 all 3 providers
-     009 SDK -> 010 REST per-verb -> 011 dynamic opt-in · 012 UI builtin
-  W4 013 update check · 014 mobile transport · 015 WASM EXECUTION · 016 waypoint check
+  Research (2026-07-31, firecrawl + crates.io):
+    - MCP 2026-07-28 shipped: stateless core, NO handshake, NO Mcp-Session-Id,
+      required resultType, Roots/Sampling/Logging deprecated. BREAKING.
+    - rmcp 3.1.0 published TODAY; 3.0.0 shipped with the spec 2026-07-28.
+    - rmcp 3.1.0 requires sse-stream ^0.2.4 — which EXCLUDES the broken range.
+    -> the dependency defect and the upgrade are the same problem.
 
-HARD RULES:
-  - EVERY UAR claim is cross-repo. Each change RE-RUNS its own reproduction
-    command before acting. Never inherit a claim from plan.md.
-  - 015 is the PARITY GATE. Nothing is end-to-end parity until it passes.
-  - 006 PROBES first (can a constraint target definition->>'origin'?). Either
-    branch COMPLETES the change so downstream deps never dangle.
-  - 008 needs ALL THREE providers. memory IS the embedded case — never skip it.
-  - 016 delivers a report + in-repo CHECK, NOT a patch to installed skills.
-  - 011 defaults OFF. "Optionally" must be encoded in the default.
-  - Authorised: universal-agent-runtime ONLY. NOT flint-realtime-fabric,
-    NOT know-me-system.
+  Two candidate paths: pin sse-stream 0.2.2 (cheap, untested) or upgrade to
+  rmcp 3.1.0 (fixes resolution properly, but breaking across 7 MCP servers).
 
-PRE-EXISTING, not ours: 2 sovereign-sync control-token tests fail.
+SCOPE: this pack + universal-agent-runtime ONLY. Not flint-realtime-fabric,
+not know-me-system.
+
+TOOLING DEFECTS FOUND (all in INSTALLED skills — do NOT patch from here):
+  - kbd-new-child.sh: child_label used at line 156, assigned at line 234.
+    Deterministic. Child was created by hand.
+  - kbd-reflect never writes .phase; kbd-next-phase writes a self-referential
+    `next`. Both already recorded in the parent phase.

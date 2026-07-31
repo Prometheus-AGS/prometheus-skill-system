@@ -377,7 +377,18 @@
   ],
   "changes_completed": 28,
   "changes_total": 34,
-  "children": {},
+  "children": {
+    "mcp-2026-07-28-adoption": {
+      "certification_status": "NOT_TRACKED",
+      "changes_completed": 0,
+      "changes_total": 0,
+      "completed_at": null,
+      "handoff": null,
+      "implementation_completed": 0,
+      "implementation_total": 0,
+      "status": "PENDING"
+    }
+  },
   "completion": {
     "certification": {
       "blockers": [],
@@ -404,12 +415,12 @@
   "generatedBy": "kbd-runtime",
   "implementation_completed": 28,
   "implementation_total": 34,
-  "last_updated": "2026-07-31T17:48:32.516876Z",
+  "last_updated": "2026-07-31T18:05:46.841882Z",
   "last_updated_by": "kbd-runtime",
   "migrationStatus": null,
   "parentPhase": null,
   "phase": "adversarial-review-for-creation",
   "phaseId": "adversarial-review-for-creation",
   "schemaVersion": "2",
-  "sourceRevision": 474
+  "sourceRevision": 475
 }

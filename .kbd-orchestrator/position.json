@@ -12,6 +12,18 @@
         "canonicalId": "adversarial-review-for-creation",
         "children": [
           {
+            "annotations": [],
+            "canonicalId": "adversarial-review-for-creation::mcp-2026-07-28-adoption",
+            "children": [],
+            "id": "mcp-2026-07-28-adoption",
+            "progress": {
+              "done": 0,
+              "total": 0
+            },
+            "status": "PENDING",
+            "type": "phase"
+          },
+          {
             "id": "change-arc-001-ratify-goal-wording",
             "progress": {
               "done": 3,
@@ -2707,6 +2719,6 @@
     "type": "phase"
   },
   "schemaVersion": "1",
-  "sourceRevision": 474,
-  "updatedAt": "2026-07-31T17:48:32.516876Z"
+  "sourceRevision": 475,
+  "updatedAt": "2026-07-31T18:05:46.841882Z"
 }
