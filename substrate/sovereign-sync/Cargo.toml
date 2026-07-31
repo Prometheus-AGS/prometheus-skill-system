@@ -39,7 +39,10 @@ tower-http = { version = "0.6", features = ["cors"] }
 loro = "1.13"
 
 # P2P (iroh 1.0.0 stable — released June 15, 2026)
-iroh = "1.0"
+# Floor is 1.0.2: it fixed a relay DoS where one malformed datagram from any
+# client crashed an entire relay, disconnecting every peer using it. The lockfile
+# here previously pinned 1.0.0 — the vulnerable version.
+iroh = "1.0.2"
 iroh-gossip = "0.101"
 blake3 = "1"
 

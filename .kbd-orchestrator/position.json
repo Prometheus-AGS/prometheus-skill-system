@@ -145,12 +145,30 @@
             },
             "status": "IN_PROGRESS",
             "type": "change"
+          },
+          {
+            "id": "change-idt-008-feature-gate-iroh-docs",
+            "progress": {
+              "done": 3,
+              "total": 3
+            },
+            "status": "COMPLETE",
+            "type": "change"
+          },
+          {
+            "id": "change-idt-009-record-fabric-decisions",
+            "progress": {
+              "done": 6,
+              "total": 6
+            },
+            "status": "COMPLETE",
+            "type": "change"
           }
         ],
         "id": "adversarial-review-for-creation",
         "progress": {
-          "done": 13,
-          "total": 15
+          "done": 15,
+          "total": 17
         },
         "status": "PENDING",
         "type": "phase"
@@ -2529,13 +2547,13 @@
     ],
     "id": "6ac090a4-3656-4d83-8eb6-2891508196d5",
     "progress": {
-      "done": 155,
-      "total": 210
+      "done": 157,
+      "total": 212
     },
     "status": "completed",
     "type": "phase"
   },
   "schemaVersion": "1",
-  "sourceRevision": 218,
-  "updatedAt": "2026-07-31T08:12:00.822667Z"
+  "sourceRevision": 247,
+  "updatedAt": "2026-07-31T08:52:05.472356Z"
 }
