@@ -29,12 +29,12 @@
   "generatedBy": "kbd-runtime",
   "implementation_completed": 0,
   "implementation_total": 0,
-  "last_updated": "2026-07-31T11:57:02.549429Z",
+  "last_updated": "2026-07-31T12:00:18.176452Z",
   "last_updated_by": "kbd-runtime",
   "migrationStatus": "legacy-read-only",
   "parentPhase": null,
   "phase": "phase-okf-llm-wiki-adoption",
   "phaseId": "phase-okf-llm-wiki-adoption",
   "schemaVersion": "2",
-  "sourceRevision": 389
+  "sourceRevision": 396
 }

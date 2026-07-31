@@ -85,12 +85,12 @@
   "generatedBy": "kbd-runtime",
   "implementation_completed": 5,
   "implementation_total": 5,
-  "last_updated": "2026-07-31T11:57:02.549429Z",
+  "last_updated": "2026-07-31T12:00:18.176452Z",
   "last_updated_by": "kbd-runtime",
   "migrationStatus": null,
   "parentPhase": null,
   "phase": "outer-loop-and-ux",
   "phaseId": "outer-loop-and-ux",
   "schemaVersion": "2",
-  "sourceRevision": 389
+  "sourceRevision": 396
 }

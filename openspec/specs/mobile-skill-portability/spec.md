@@ -83,3 +83,13 @@ The bindings SHALL build for at least one real mobile target and a round-trip te
 - **WHEN** goal 3 is reported
 - **THEN** it is PARTIAL, not MET
 
+### Requirement: Cross-repo work requires explicit authorisation, and silence blocks
+
+This change SHALL request authorisation before editing any file outside this repository. Absent an explicit grant, it SHALL be archived BLOCKED and no external file SHALL be modified. Changes 005 and 006 SHALL NOT be reported as end-to-end parity when this change is blocked.
+
+#### Scenario: Silence blocks rather than proceeds
+
+- **GIVEN** no authorisation has been granted
+- **WHEN** the change runs
+- **THEN** it is archived BLOCKED and no external file is modified
+

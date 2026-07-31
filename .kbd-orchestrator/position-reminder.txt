@@ -1,26 +1,28 @@
 POSITION REMINDER — read this as your FIRST tool call every turn
 Phase: mobile-skill-portability
-Step: 0 of 9
-Stage: plan (COMPLETE — 9 changes, 45 tasks, all valid --strict)
-Next command: /kbd-apply change-msp-001-classify-script-skills
+Step: 9 of 9
+Stage: reflect (COMPLETE — 3 goals MET, 1 PARTIAL, sycophancy 0.018)
+Next command: /kbd-next-phase uar-host-execution
 
 Required signal format (emit BEFORE any tool call):
-  Starting <kbd-skill> — mobile-skill-portability (step N of T)
+  Starting <kbd-skill> — <phase> (step N of T)
   [do work]
-  Completed <kbd-skill> — mobile-skill-portability (step N of T)
+  Completed <kbd-skill> — <phase> (step N of T)
 
 Read progress.json for N and T — never estimate.
 
-ORDERING IS CHEAPEST-VERIFIABLE-FIRST (reversed from the seeded order):
-  001 classify 60 skills → sizes everything else, do it FIRST
-  002 zed routing · 003 opencode/kimi · 004 fabric-integration  (independent)
-  005 WIT family (needs 001) → 006 reference component (needs 005)
-  007 FFI decision → 009 FFI bindings (needs 005 AND 007)
-  008 UAR execution proof — CROSS-REPO, LAST, isolated
+WHY GOAL 1 IS PARTIAL, NOT MET:
+  The prometheus:component WIT family is authored and a real component
+  validates against it — but NOTHING HAS EXECUTED IT. UAR's Wasm tier is a
+  stub (wasm_runtime.rs:92-111) and change-msp-008 was archived BLOCKED
+  because cross-repo authorisation was requested and not granted.
+  Well-formed is not working. Do not report it as end-to-end parity.
 
-HARD RULES:
-  - 005 ABORTS if the three UAR discovery commands disagree with plan.md
-  - 008 asks for cross-repo authorisation FIRST; silence = BLOCKED, touch nothing
-  - 006 proves well-formed ONLY; it may not claim the component executes
-  - 009 BLOCKED if no mobile toolchain → goal 3 is PARTIAL, never MET
+CARRY-FORWARDS into uar-host-execution:
+  - De-stub UAR's Wasm runtime — NEEDS USER AUTHORISATION for cross-repo writes
+  - Decide the librefang ABI question: its core-wasm extern-C templates CANNOT
+    load in a component runtime. Port, keep both, or retire.
+  - Close FFI falsifier 3 (marginal cost per added function)
+  - Give CI the sibling repos: it verifies 1 of 4 invariants, not 4
+  - Exercise cursor or state why it cannot reach Tier 1 (same shape as zed was)
   - PRE-EXISTING, not ours: 2 sovereign-sync control-token tests fail

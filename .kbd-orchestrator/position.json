@@ -237,6 +237,15 @@
             "type": "change"
           },
           {
+            "id": "change-msp-008-uar-execution-proof",
+            "progress": {
+              "done": 2,
+              "total": 2
+            },
+            "status": "COMPLETE",
+            "type": "change"
+          },
+          {
             "id": "change-msp-009-mobile-ffi-bindings",
             "progress": {
               "done": 5,
@@ -248,8 +257,8 @@
         ],
         "id": "adversarial-review-for-creation",
         "progress": {
-          "done": 23,
-          "total": 26
+          "done": 24,
+          "total": 27
         },
         "status": "PENDING",
         "type": "phase"
@@ -2628,13 +2637,13 @@
     ],
     "id": "6ac090a4-3656-4d83-8eb6-2891508196d5",
     "progress": {
-      "done": 165,
-      "total": 221
+      "done": 166,
+      "total": 222
     },
     "status": "completed",
     "type": "phase"
   },
   "schemaVersion": "1",
-  "sourceRevision": 389,
-  "updatedAt": "2026-07-31T11:57:02.549429Z"
+  "sourceRevision": 396,
+  "updatedAt": "2026-07-31T12:00:18.176452Z"
 }
