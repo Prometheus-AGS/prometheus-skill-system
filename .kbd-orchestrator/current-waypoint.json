@@ -6,12 +6,12 @@
   "currentTask": null,
   "exactNextCommand": "/kbd-assess adversarial-review-for-creation",
   "generatedBy": "kbd-runtime",
-  "implementationCompleted": 158,
-  "implementationTotal": 213,
+  "implementationCompleted": 9,
+  "implementationTotal": 9,
   "path": [
     "adversarial-review-for-creation"
   ],
-  "phase": "adversarial-review-for-creation",
+  "phase": "ideation-and-decision-tools",
   "phaseIds": [
     "adversarial-review-for-creation"
   ],
@@ -21,6 +21,8 @@
   "runId": "docusaurus-github-pages-site-20260729T012334Z",
   "schemaVersion": "5",
   "sourceRevision": 263,
-  "status": "completed",
-  "updatedAt": "2026-07-31T09:26:55.513785Z"
+  "status": "reflect_complete",
+  "updatedAt": "2026-07-31T09:26:55.513785Z",
+  "next": "/kbd-next-phase mobile-skill-portability",
+  "previousPhase": "adversarial-review-for-creation"
 }

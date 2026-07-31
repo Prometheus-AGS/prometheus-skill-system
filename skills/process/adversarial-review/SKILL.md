@@ -127,6 +127,45 @@ actually happens.
 | `skill` | generated skill dir | `SKILL.md`, parsed frontmatter, script inventory, cross-reference map, `validate-skill.sh` output, original intent |
 | `agent` | generated Cargo workspace | `agent.toml`, `system_prompt.md`, workspace members with per-crate purpose, `mcp_servers`, `cargo check` result, original intent |
 
+### `--mode decision` — an idea, before committing to it
+
+Reviews a **decision someone is about to make**, not code. `--target` is a
+single **file**, not a directory.
+
+The mandate's core instruction is that the judge **must not score novelty**.
+Si, Hashimoto & Yang (2025) had 43 experts spend 100+ hours each *executing*
+randomly-assigned ideas: LLM ideas rated more novel before execution, then
+dropped on every metric after it, and the ranking flipped. A pre-execution
+novelty rating is evidence pointing the wrong way. The judge rates whether the
+reasoning survives contact with reality.
+
+The packet parses the decision into `decision` / `assumptions` / `falsifier` and
+records `missing_fields`. **A decision stating no falsifier cannot be wrong about
+anything, which is itself the defect** — the packet surfaces that structurally,
+without spending a judge call. It also carries `prior_decisions` (via `pk
+search`), so a decision that contradicts an earlier one is visible to the judge.
+
+```bash
+build-review-packet.sh --mode decision --target decision.md --intent intent.md --out packet.json
+dispatch-judge.sh      --mode decision --packet packet.json --out findings.json
+```
+
+Decision-mode findings additionally require `confidence` (0–100),
+`what_would_change_this`, and a non-empty `disconfirming` array — see
+[Output contract](#output-contract). These are the automation-bias
+countermeasures: a review that cannot say what would change its mind is
+manufacturing certainty.
+
+**Ordering matters more than the analysis.** For personal or hard-to-reverse
+decisions, run `commit-before-reveal.sh record` first. Showing someone the
+analysis and then asking what they think produces agreement, not judgement —
+confidence in AI predicts whether users scrutinise it at all. The gate exits 2
+and writes no analysis until a judgement is on record.
+
+Decisions and their outcomes persist via `decision-log.sh` (`record` /
+`outcome` / `revisit`), so a later decision can be checked against what actually
+happened.
+
 ```bash
 build-review-packet.sh --mode skill --target dist/my-skill --intent spec.md --out packet.json
 build-review-packet.sh --mode agent --target ./my-agent   --intent spec.md --out packet.json

@@ -1,19 +1,19 @@
 POSITION REMINDER — read this as your FIRST tool call every turn
 Phase: ideation-and-decision-tools
-Step: 0 of 9
-Stage: plan (COMPLETE — 9 changes emitted, all valid --strict)
-Next command: /kbd-apply change-idt-001-decision-review-packet
+Step: 9 of 9
+Stage: reflect (COMPLETE — 7/7 goals MET, reflection.md written, sycophancy 0.018)
+Next command: /kbd-next-phase mobile-skill-portability
 
 Required signal format (emit BEFORE any tool call):
-  Starting <kbd-skill> — ideation-and-decision-tools (step 0 of 9)
+  Starting <kbd-skill> — <phase> (step N of T)
   [do work]
-  Completed <kbd-skill> — ideation-and-decision-tools (step 0 of 9)
+  Completed <kbd-skill> — <phase> (step N of T)
 
 Read progress.json for N and T — never estimate.
 
-ORDERING IS GOALS-FIRST. 001-007 satisfy the seven phase goals; 008-009 record
-fabric decisions with NO cross-repo code. 007 (fixtures) must be LAST — it is the
-evidence the rest works.
-
-Specs deltas are already authored for all nine, so verify should pass without the
-detour that cost time last phase.
+Carry-forwards into mobile-skill-portability:
+  - Author prometheus:component/* WIT family (blocks porting, by design)
+  - fabric-integration skill: make the 4 version invariants enforced, not documented
+  - Mobile FFI bindings — copy frf-ffi (uniffi 0.31.2); this pack has no cdylib
+  - Verify opencode + kimi Tier 1; route zed to file-pair or state why not
+  - PRE-EXISTING, not ours: 2 sovereign-sync control-token tests fail
