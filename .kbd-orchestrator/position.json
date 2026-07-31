@@ -307,12 +307,21 @@
             },
             "status": "COMPLETE",
             "type": "change"
+          },
+          {
+            "id": "change-uhe-007-db-level-delete-guard",
+            "progress": {
+              "done": 2,
+              "total": 3
+            },
+            "status": "PENDING",
+            "type": "change"
           }
         ],
         "id": "adversarial-review-for-creation",
         "progress": {
           "done": 28,
-          "total": 33
+          "total": 34
         },
         "status": "PENDING",
         "type": "phase"
@@ -2692,12 +2701,12 @@
     "id": "6ac090a4-3656-4d83-8eb6-2891508196d5",
     "progress": {
       "done": 170,
-      "total": 228
+      "total": 229
     },
     "status": "completed",
     "type": "phase"
   },
   "schemaVersion": "1",
-  "sourceRevision": 466,
-  "updatedAt": "2026-07-31T16:18:52.590721Z"
+  "sourceRevision": 474,
+  "updatedAt": "2026-07-31T17:48:32.516876Z"
 }

@@ -362,10 +362,21 @@
       "tasks_done": 4,
       "tasks_total": 4,
       "title": "change-uhe-006-origin-enabled-columns"
+    },
+    {
+      "blockers": [],
+      "id": "change-uhe-007-db-level-delete-guard",
+      "implementation_status": "PENDING",
+      "last_task_completed": "Confirm the existing service.rs:374 guard still returns 409 on the normal path",
+      "next_task_pending": "Add the constraint/trigger so DELETE of a Builtin skill fails at the database",
+      "status": "PENDING",
+      "tasks_done": 2,
+      "tasks_total": 3,
+      "title": "change-uhe-007-db-level-delete-guard"
     }
   ],
   "changes_completed": 28,
-  "changes_total": 33,
+  "changes_total": 34,
   "children": {},
   "completion": {
     "certification": {
@@ -381,7 +392,7 @@
     "implementation": {
       "completed": 28,
       "status": "IN_PROGRESS",
-      "total": 33
+      "total": 34
     },
     "primaryCounter": "implementation",
     "publication": {
@@ -392,13 +403,13 @@
   },
   "generatedBy": "kbd-runtime",
   "implementation_completed": 28,
-  "implementation_total": 33,
-  "last_updated": "2026-07-31T16:18:52.590721Z",
+  "implementation_total": 34,
+  "last_updated": "2026-07-31T17:48:32.516876Z",
   "last_updated_by": "kbd-runtime",
   "migrationStatus": null,
   "parentPhase": null,
   "phase": "adversarial-review-for-creation",
   "phaseId": "adversarial-review-for-creation",
   "schemaVersion": "2",
-  "sourceRevision": 466
+  "sourceRevision": 474
 }

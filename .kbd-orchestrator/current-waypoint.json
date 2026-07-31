@@ -6,8 +6,8 @@
   "currentTask": null,
   "exactNextCommand": "/kbd-assess adversarial-review-for-creation",
   "generatedBy": "kbd-runtime",
-  "implementationCompleted": 6,
-  "implementationTotal": 228,
+  "implementationCompleted": 7,
+  "implementationTotal": 229,
   "path": [
     "adversarial-review-for-creation"
   ],
@@ -17,11 +17,11 @@
   ],
   "planRevision": 2,
   "projectId": "6ac090a4-3656-4d83-8eb6-2891508196d5",
-  "revision": 466,
+  "revision": 474,
   "runId": "docusaurus-github-pages-site-20260729T012334Z",
   "schemaVersion": "5",
-  "sourceRevision": 466,
+  "sourceRevision": 474,
   "status": "completed",
-  "updatedAt": "2026-07-31T16:18:52.590721Z",
-  "next": "/kbd-apply change-uhe-007-db-level-delete-guard"
+  "updatedAt": "2026-07-31T17:48:32.516876Z",
+  "next": "/kbd-apply change-uhe-008-builtin-db-registration"
 }

@@ -250,12 +250,12 @@
   "generatedBy": "kbd-runtime",
   "implementation_completed": 20,
   "implementation_total": 20,
-  "last_updated": "2026-07-31T16:18:52.590721Z",
+  "last_updated": "2026-07-31T17:48:32.516876Z",
   "last_updated_by": "kbd-runtime",
   "migrationStatus": null,
   "parentPhase": null,
   "phase": "phase-learn-sovereign-sync",
   "phaseId": "phase-learn-sovereign-sync",
   "schemaVersion": "2",
-  "sourceRevision": 466
+  "sourceRevision": 474
 }
