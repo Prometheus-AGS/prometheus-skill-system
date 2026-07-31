@@ -1,0 +1,25 @@
+{
+  "stage": "assess",
+  "status": "complete",
+  "artifacts": ["assessment.md"],
+  "decision": "Unblock now (2 changes); converge rmcp later in a dedicated phase; do NOT adopt 2026-07-28 here.",
+  "summary": "The parent phase is already unblocked. sse-stream 0.2.4 + a ContentBlock alias in 2 files make UAR compile; cargo test --lib provenance passes 8/8. Adopting MCP 2026-07-28 was NOT required — the spec release and the build break are adjacent, not identical, which corrects the premise this child was opened on.",
+  "corrections_to_prior_claims": [
+    "from_bytes_stream was ADDED in sse-stream 0.2.4, not removed in 0.2.3. My proposed cheap fix (pin 0.2.2) was backwards and failed when tested.",
+    "rmcp was never compatible with UAR's committed source: it imports rmcp::model::Content, which is ContentBlock in 2.x. The =2.2.0 pin hid a 1.x-source mismatch rather than preventing it.",
+    "FIVE rmcp versions, not four: the surreal-memory-server git pin resolves to 1.4.0, older than either 1.8 crate."
+  ],
+  "warnings": [
+    "FALSIFIER FIRED: surreal-memory-server fails a fresh resolution with the SAME rmcp::model::Content defect UAR had, plus E0639. It compiles today only because its lockfile is stale and uncommitted.",
+    "Two hand-rolled MCP clients hard-code obsolete protocol versions: uar/src/mcp/stdio_client.rs:114 (2025-03-26) and sovereign-sync/src/mcp_client_pool.rs:177,400 (2025-06-18). Both hand-roll the initialize handshake that 2026-07-28 REMOVES.",
+    "Nothing in this stack uses Mcp-Session-Id — the session_id hits are our own domain sessions — so the stateless migration is SMALLER than 'breaking' suggests.",
+    "The ContentBlock alias is verified by cargo check + 8 provenance tests only. NO MCP server was exercised end to end."
+  ],
+  "mitigation_for_plan": "Commit a lockfile for tools/surreal-memory-server, or pin its git dependency to a rev. In scope: it is a submodule of this pack, so the dependency EDGE is ours even though its source is not.",
+  "adversarial_review": {
+    "rounds": 3,
+    "cross_model_check": "verified-distinct",
+    "notable": "Round 2 caught the decision ignoring its own fired falsifier — a falsifier that fires and changes nothing is worse than none, because it looks like the claim was tested."
+  },
+  "tooling_gap": "build-review-packet.sh --mode artifact has no child-phase support; --phase <parent> packages the PARENT's assessment. First review round judged the wrong document."
+}

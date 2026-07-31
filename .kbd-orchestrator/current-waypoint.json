@@ -4,7 +4,7 @@
   "childPointer": "mcp-2026-07-28-adoption",
   "completionMetric": "implementation",
   "currentTask": "assess mcp-2026-07-28-adoption (child of uar-host-execution)",
-  "exactNextCommand": "/kbd-assess uar-host-execution/mcp-2026-07-28-adoption",
+  "exactNextCommand": "/kbd-plan uar-host-execution/mcp-2026-07-28-adoption",
   "generatedBy": "kbd-runtime",
   "implementationCompleted": 170,
   "implementationTotal": 229,
@@ -21,11 +21,11 @@
   "runId": "docusaurus-github-pages-site-20260729T012334Z",
   "schemaVersion": "5",
   "sourceRevision": 475,
-  "status": "child_assess_pending",
+  "status": "child_plan_pending",
   "updatedAt": "2026-07-31T18:05:46.841882Z",
   "childPhases": [
     "mcp-2026-07-28-adoption"
   ],
-  "next": "/kbd-assess uar-host-execution/mcp-2026-07-28-adoption",
+  "next": "/kbd-plan uar-host-execution/mcp-2026-07-28-adoption",
   "parentResumeCommand": "/kbd-apply change-uhe-008-builtin-db-registration"
 }
