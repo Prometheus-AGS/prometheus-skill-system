@@ -80,13 +80,27 @@ read.
 - `Skill.enabled: bool` exists in the domain model; the admin UI exposes
   `toggleSkillApi`.
 
-**Gap, and it is load-bearing:** the **database schema has neither column.**
-`migrations/20251225000000_init_uar.sql` defines
-`skill_id, name, description, definition, embedding, created_at, updated_at` —
-no `origin`, no `enabled`. So the protection lives in the in-memory registry
-only. A skill absent from the registry (or a direct DB delete) is unprotected,
-and `enabled` cannot survive a restart unless it is inside `definition` JSONB.
-**Verify where `enabled` actually persists before trusting the toggle.**
+**Gap — narrower than first assessed. Corrected at plan time by tracing the
+persistence layer rather than reading the schema alone.**
+
+The schema has no `origin`/`enabled` *columns*, but `postgres.rs:77` does
+`serde_json::to_value(skill)` — serialising the **whole** `Skill` into
+`definition` JSONB. Both fields carry `#[serde(default)]` and are **not**
+skipped (`skills.rs:61-62,73-74`), so **they do persist and do survive a
+restart.** My first reading — "protection lives in memory only" — was wrong.
+
+The real gap is one level down: **`DELETE FROM skills WHERE skill_id = $1`
+(`postgres.rs:151`) has no guard**, and `database.rs:72` `delete_skill` passes
+straight through. The `Builtin` check exists **only** in `service.rs:374`. So:
+
+- Deleting through `SkillService` → correctly refused (409).
+- Deleting through the storage provider, or any future caller that skips the
+  service, → **succeeds**, and a `Builtin` skill is gone until the next reload.
+
+That is a defence-in-depth gap, not an absent defence. It argues for a **DB-level
+constraint** (a real `origin` column plus a trigger or a `WHERE origin <>
+'builtin'` clause), because a guard in one call path is one refactor away from
+being bypassed.
 
 ### R3 — skills shown and administered in the UI
 

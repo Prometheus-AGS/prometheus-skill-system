@@ -1,8 +1,8 @@
 POSITION REMINDER — read this as your FIRST tool call every turn
 Phase: uar-host-execution
-Step: 0 of 0 (totals set by /kbd-plan)
-Stage: assess (PENDING — goals seeded, not yet assessed)
-Next command: /kbd-assess uar-host-execution
+Step: 0 of 16
+Stage: plan (COMPLETE — 16 changes, 68 tasks, all valid --strict)
+Next command: /kbd-apply change-uhe-001-cursor-tier1
 
 Required signal format (emit BEFORE any tool call):
   Starting <kbd-skill> — uar-host-execution (step N of T)
@@ -11,27 +11,25 @@ Required signal format (emit BEFORE any tool call):
 
 Read progress.json for N and T — never estimate.
 
-THE GATE — RESOLVE AT ASSESS, DO NOT ASSUME:
-  Goal 1 (de-stub UAR's Wasm runtime) CANNOT be done from this repo. The last
-  phase touched ZERO files in the three external repos and change-msp-008 was
-  archived BLOCKED because silence is not consent. Authorised -> goal 1 is
-  deliverable. Not authorised -> the phase narrows, and that narrowing is the
-  USER's call to state, not ours to infer.
+SCOPE IS ELEVEN ITEMS: seeded S1-S6 + user-added R1-R5. Not five, not six.
 
-  Goal 5 (kbd-reflect .phase staleness) has the SAME shape: the fix lives in an
-  INSTALLED skill under ~/.claude/skills/, outside this repo. Patching it here
-  is the plugin-cache mistake — overwritten by the next install, invisible to git.
+ORDERING (in-repo cheap first, cross-repo after):
+  W1 001 cursor · 002 CI siblings · 003 FFI cost · 004 librefang decision
+  W2 005 pack provenance  <- blocks R5; nothing records the loaded version today
+  W3 006 origin/enabled (PROBE first) -> 007 delete guard -> 008 all 3 providers
+     009 SDK -> 010 REST per-verb -> 011 dynamic opt-in · 012 UI builtin
+  W4 013 update check · 014 mobile transport · 015 WASM EXECUTION · 016 waypoint check
 
-ALREADY DONE — DO NOT REDO:
-  wit/prometheus-component/ (4 files, parse as one package, MAPPING.md)
-  entity-graph-optimize/skill.wasm (validated, NEVER EXECUTED)
-  substrate/skill-ffi (iOS + Android, 7 tests)
-  skills/devops/fabric-integration (3 enforced, 1 quarantined)
-  all 4 file-pair harnesses verified by EXECUTED round trips
-
-STANDING BAR:
-  "Well-formed" is not "working". Nothing is end-to-end parity until a host
-  instantiates AND invokes the component.
-  Run it, don't read it — zed had TWO causes; only executing found the second.
+HARD RULES:
+  - EVERY UAR claim is cross-repo. Each change RE-RUNS its own reproduction
+    command before acting. Never inherit a claim from plan.md.
+  - 015 is the PARITY GATE. Nothing is end-to-end parity until it passes.
+  - 006 PROBES first (can a constraint target definition->>'origin'?). Either
+    branch COMPLETES the change so downstream deps never dangle.
+  - 008 needs ALL THREE providers. memory IS the embedded case — never skip it.
+  - 016 delivers a report + in-repo CHECK, NOT a patch to installed skills.
+  - 011 defaults OFF. "Optionally" must be encoded in the default.
+  - Authorised: universal-agent-runtime ONLY. NOT flint-realtime-fabric,
+    NOT know-me-system.
 
 PRE-EXISTING, not ours: 2 sovereign-sync control-token tests fail.

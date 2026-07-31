@@ -1,0 +1,24 @@
+{
+  "stage": "plan",
+  "status": "complete",
+  "artifacts": ["plan.md"],
+  "change_count": 16,
+  "task_count": 68,
+  "first_change": "change-uhe-001-cursor-tier1",
+  "summary": "16 changes, 68 tasks, all valid under openspec --strict, covering all ELEVEN items (S1-S6 seeded + R1-R5 added). Ordered in-repo-cheap-first (wave 1: cursor, CI, FFI cost, librefang decision), then UAR provenance (wave 2 — blocks R5 because nothing currently records which pack version is loaded), then skill lifecycle (wave 3), then execution proof and mobile (wave 4).",
+  "warnings": [
+    "All UAR claims are CROSS-REPO and unverifiable from this repo's review packet. Each change must re-run its own reproduction command before acting — none may proceed on a claim inherited from plan.md.",
+    "change-uhe-006 begins with a PROBE: if a DB constraint can target definition->>'origin', it delivers that and adds no columns. Either branch COMPLETES so downstream dependencies never dangle.",
+    "change-uhe-015 is the parity gate. Nothing may be reported as end-to-end parity until it passes.",
+    "change-uhe-016 delivers a report plus an in-repo CHECK, not a patch — the kbd-reflect/kbd-next-phase fixes live in installed skills where edits die at the next install.",
+    "R1 requires all THREE persistence providers (postgres, surreal, memory). memory IS the embedded case and must not be skipped."
+  ],
+  "adversarial_review": {
+    "rounds": 2,
+    "round_1": "BLOCK — 4 CRITICAL, 2 WARNING: R5 omitted GitHub-update AND mobile; R1 verified one provider not every platform; R4's REST half was never planned",
+    "round_2": "BLOCK — 3 CRITICAL, 2 WARNING: all three were contradictions introduced BY the round-1 repair",
+    "cross_model_check": "verified-distinct",
+    "all_findings_resolved": true,
+    "notable": "Round 1 caught scope I had dropped; round 2 caught inconsistencies created by fixing it. A plan edited under review pressure needs re-reading whole, not just at the edited lines."
+  }
+}
