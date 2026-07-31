@@ -1,0 +1,25 @@
+{
+  "stage": "assess",
+  "status": "complete",
+  "artifacts": ["assessment.md", "evidence/"],
+  "scope": "ELEVEN items: six seeded (S1-S6) plus five added by the user (R1-R5). NOT five.",
+  "summary": "Cross-repo authorisation GRANTED for universal-agent-runtime. Far more exists in UAR than the requirements assume: a skills table, builtin loader, SkillOrigin::Builtin delete-protection, an enabled flag, REST endpoints, and an admin UI with a toggle. Four of five new requirements are partially met by shipping code. The real gap is R5: nothing records which pack version was loaded, which is why UAR's pin sat 359 commits and two months stale, seeing 161 skills where the pack has 220.",
+  "done_during_assess": [
+    "Updated 4 stale UAR submodules after ancestry-checking every move. skill-system 8ddac9a -> e04bfa0 (359 commits); liter-llm now pinned identically in both repos. 9/9 builtin-loader tests pass, cargo check --lib clean.",
+    "Preserved (stashed, not discarded) uncommitted AGENTS.md/CLAUDE.md 'Phase-Gated Testing' edits found in six checkouts; captured as patches in evidence/.",
+    "Assessed S6 by RUNNING it: cursor resolves to tier0_text with the identical two causes zed had."
+  ],
+  "warnings": [
+    "R1-R5 are CROSS-REPO and cannot be verified from this repo's review packet. Evidence carries UAR's commit SHA, per-file SHA-256, and reproduction commands — plan MUST re-run them.",
+    "R2's delete-protection lives in the IN-MEMORY registry only. The DB schema has no origin and no enabled column, so a direct DB delete is unprotected and enabled may not survive restart. Verify where it persists before trusting the toggle.",
+    "R5 needs TWO transports over one manifest: desktop/server can pull via git, mobile cannot. One mechanism for both will serve neither.",
+    "The 'Phase-Gated Testing' policy found in submodule checkouts belongs in the PACK's own AGENTS.md/CLAUDE.md — an edit in a consumer's checkout is invisible to git and destroyed by the next update."
+  ],
+  "adversarial_review": {
+    "rounds": 3,
+    "round_1": "BLOCK — 7 CRITICAL: I let the user's 5 new requirements REPLACE the 6 seeded goals instead of adding to them",
+    "round_2": "BLOCK — 3 CRITICAL: root cause was that R1-R5 were never written into goals.md, so the packet could not see them",
+    "round_3": "BLOCK — 1 CRITICAL: structural limit only (cross-repo paths unresolvable from a single-repo packet)",
+    "cross_model_check": "verified-distinct"
+  }
+}

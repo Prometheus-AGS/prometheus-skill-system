@@ -1,0 +1,46 @@
+diff --git a/AGENTS.md b/AGENTS.md
+index 0357fa5..4a74a1b 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -4,6 +4,19 @@ Behavioral rules for all AI agents working in this repository. These rules apply
+ 
+ ---
+ 
++## Phase-Gated Testing (MANDATORY)
++
++Tests are a certification gate, not a continuous implementation activity.
++During an implementation phase, write or update tests as needed, but do not
++execute automated suites or manual test flows. Static inspection and cohesive
++non-test compile or type checks may run when needed. Only after every
++implementation task in the phase is complete, run the applicable tests once as
++a consolidated gate immediately before reflection. If the gate fails, return to
++implementation, batch related fixes, and rerun tests only when the phase is
++complete again. Never test after individual tasks or continuously.
++
++---
++
+ ## Progress Signaling (MANDATORY)
+ 
+ Every agent must emit a progress signal at the start and completion of each phase and each task. These signals make long conversations scannable and let any participant orient immediately.
+diff --git a/CLAUDE.md b/CLAUDE.md
+index dae67ed..3a3f55e 100644
+--- a/CLAUDE.md
++++ b/CLAUDE.md
+@@ -14,6 +14,17 @@ All sibling repositories defer to it for cross-cutting concerns.
+ 
+ **Precedence:** when a rule in a sibling CLAUDE.md conflicts with this file, this file wins. Add new project-wide rules here, not in sibling files.
+ 
++## Phase-Gated Testing (MANDATORY)
++
++Tests are a certification gate, not a continuous implementation activity.
++During an implementation phase, write or update tests as needed, but do not
++execute automated suites or manual test flows. Static inspection and cohesive
++non-test compile or type checks may run when needed. Only after every
++implementation task in the phase is complete, run the applicable tests once as
++a consolidated gate immediately before reflection. If the gate fails, return to
++implementation, batch related fixes, and rerun tests only when the phase is
++complete again. Never test after individual tasks or continuously.
++
+ ## Project Overview
+ 
+ This is a comprehensive, enterprise-grade skills package collection for AI-assisted development. The repository manages centralized Agent Skills across multiple domains (React, Rust, UI/UX, DevOps, Testing, Documentation) with full compliance to the [agentskills.io](https://agentskills.io/specification) standard and Claude Code plugin marketplace requirements.

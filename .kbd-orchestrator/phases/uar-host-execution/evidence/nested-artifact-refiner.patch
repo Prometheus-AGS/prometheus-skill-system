@@ -1,0 +1,50 @@
+diff --git a/AGENTS.md b/AGENTS.md
+index dfd2538..10f9a2b 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -2,6 +2,17 @@
+ 
+ Guidelines for contributors working on this repository.
+ 
++## Phase-Gated Testing
++
++Tests are a certification gate, not a continuous implementation activity.
++During an implementation phase, write or update tests as needed, but do not
++execute automated suites or manual test flows. Static inspection and cohesive
++non-test compile or type checks may run when needed. Only after every
++implementation task in the phase is complete, run the applicable tests once as
++a consolidated gate immediately before reflection. If the gate fails, return to
++implementation, batch related fixes, and rerun tests only when the phase is
++complete again. Never test after individual tasks or continuously.
++
+ ## Commit Conventions
+ 
+ Use [Conventional Commits](https://www.conventionalcommits.org/):
+diff --git a/CLAUDE.md b/CLAUDE.md
+index fdd1dd1..64932d2 100644
+--- a/CLAUDE.md
++++ b/CLAUDE.md
+@@ -2,6 +2,17 @@
+ 
+ This file provides guidance for AI assistants working **on** this repository (developing, modifying, debugging). For the skill's functionality, see `SKILL.md`. For project overview, see `README.md`.
+ 
++## Phase-Gated Testing
++
++Tests are a certification gate, not a continuous implementation activity.
++During an implementation phase, write or update tests as needed, but do not
++execute automated suites or manual test flows. Static inspection and cohesive
++non-test compile or type checks may run when needed. Only after every
++implementation task in the phase is complete, run the applicable tests once as
++a consolidated gate immediately before reflection. If the gate fails, return to
++implementation, batch related fixes, and rerun tests only when the phase is
++complete again. Never test after individual tasks or continuously.
++
+ ## Architecture
+ 
+ The skill follows PMPO (Prometheus Meta-Prompting Orchestration):
+diff --git a/shared/sycophancy-correction b/shared/sycophancy-correction
+--- a/shared/sycophancy-correction
++++ b/shared/sycophancy-correction
+@@ -1 +1 @@
+-Subproject commit 01150389c10169816fbd4cc4ef4145fbe052ad90
++Subproject commit 01150389c10169816fbd4cc4ef4145fbe052ad90-dirty

@@ -1,0 +1,31 @@
+diff --git a/CLAUDE.md b/CLAUDE.md
+index f3237bb..f7edcab 100644
+--- a/CLAUDE.md
++++ b/CLAUDE.md
+@@ -285,13 +285,19 @@ echo "$SESSION_SUMMARY" | pk ingest --source "session:$(date +%s)"
+ 
+ ## Testing Strategy
+ 
+-Follow TDD workflow per `common/testing.md`:
+-1. Write test first (RED)
+-2. Run test — should fail
+-3. Implement minimal code (GREEN)
+-4. Run test — should pass
+-5. Refactor (IMPROVE)
+-6. Verify coverage ≥ 80%
++Tests are a certification gate, not a continuous implementation activity:
++1. During an implementation phase, write or update tests as needed, but do not
++   execute automated suites or manual test flows.
++2. Use static inspection and cohesive non-test compile checks when needed to
++   keep implementation moving.
++3. Complete every implementation task in the phase.
++4. Run the applicable tests and coverage check once as a consolidated gate
++   immediately before reflection.
++5. If the gate fails, return to implementation, batch related fixes, and rerun
++   tests only when the phase is complete again.
++
++Never execute tests after individual tasks or use a RED/GREEN test loop during
++implementation.
+ 
+ Test organization:
+ - Unit tests in `#[cfg(test)]` modules within each crate

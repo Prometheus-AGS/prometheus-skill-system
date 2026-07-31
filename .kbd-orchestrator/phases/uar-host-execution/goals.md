@@ -24,6 +24,31 @@ Small, well-specified, and gated on one decision:
   Raised by the sycophancy gate. It is detected and left at Tier 0 with no
   stated cause — the same shape as `zed` before the last phase found two.
 
+## Added requirements (user, 2026-07-31)
+
+Given **after** this phase was seeded. They **add to** the six goals above —
+they do not replace them. Adversarial review caught me assessing these five and
+silently dropping the seeded six; recording them here is what makes the packet
+show the real scope.
+
+- **R1 — Skills install and are recognised in the UAR skill database on every
+  platform**, embedded or not.
+- **R2 — Pack skills can never be deleted in UAR** — only turned off or
+  excluded.
+- **R3 — The UAR user interface shows these skills and can administer them.**
+- **R4 — UAR exposes skill installation and query REST APIs and an SDK (for
+  embedded)**, including adding more skills, and handling the case where this
+  skill set *creates* skills that should be added to the UAR — dynamic skill
+  creation should be able to result, **optionally**, in DB registration.
+- **R5 — Know when skills need updating**, be able to initiate that from the
+  GitHub repository, and have a way for them to be updated **for mobile use**.
+
+Plus a standing instruction: **keep submodules current.** Acted on during
+assess — UAR's pin on this pack was 359 commits stale; see
+[evidence/submodule-currency.md](evidence/submodule-currency.md).
+
+**Total scope: eleven items** (six seeded S1–S6, five added R1–R5).
+
 ---
 
 ## The gate this phase turns on
@@ -43,7 +68,13 @@ since it changes the phase's shape rather than one change's scope:
 | **Authorised** | Goal 1 is deliverable; the other five are in-repo and proceed alongside. |
 | **Not authorised** | Goal 1 stays PARTIAL indefinitely. The phase narrows to the in-repo goals — and that narrowing is the user's call to make explicit, not something to infer. |
 
-Do **not** plan around an assumed answer.
+> **RESOLVED 2026-07-31: AUTHORISED.** The user, verbatim: *"yes, you are
+> authorized to write to universal-agent-runtime because I own it"*.
+> Recorded in [evidence/authorisation.md](evidence/authorisation.md).
+>
+> Scope is exactly `universal-agent-runtime`. **Not** granted for
+> `flint-realtime-fabric` or `know-me-system` — both stay untouched. R1–R5 land
+> in UAR under this grant.
 
 > Goal 5 (`kbd-reflect` staleness) has the **same shape**: the fix lives under
 > `~/.claude/skills/`, outside this repo. Editing an installed skill from here

@@ -1,0 +1,41 @@
+diff --git a/AGENTS.md b/AGENTS.md
+index ea0068b..8f5aba4 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -20,7 +20,15 @@ This repository implements the `sycophancy.correction` skill as a Rust MCP serve
+ 
+ ## Validation
+ 
+-- Start with focused checks such as `cargo fmt --all --check` and targeted `cargo check`/`cargo test` when dependencies are available.
++- Tests are a certification gate, not a continuous implementation activity.
++  During an implementation phase, write or update tests as needed, but do not
++  execute automated suites or manual test flows.
++- Static inspection and cohesive non-test `cargo check` runs may be used during
++  implementation when needed.
++- Only after every implementation task in the phase is complete, run the
++  applicable tests once as a consolidated gate immediately before reflection.
++  If the gate fails, return to implementation, batch related fixes, and rerun
++  tests only when the phase is complete again.
+ - If network-restricted, prefer validations that do not require fetching crates and note any remaining limits in your handoff.
+ 
+ ## Documentation
+diff --git a/CLAUDE.md b/CLAUDE.md
+index 76eb69a..b4dc619 100644
+--- a/CLAUDE.md
++++ b/CLAUDE.md
+@@ -18,6 +18,15 @@ cargo test -p sycophancy-mcp             # test MCP server only
+ cargo test -p sycophancy-core -- <name>  # run a single test by name
+ ```
+ 
++Tests are phase-gated certification. During implementation, write or update
++tests as needed but do not execute automated suites or manual test flows.
++Static inspection and cohesive non-test `cargo check` runs may be used when
++needed. Only after every implementation task in the phase is complete, run the
++applicable tests once as a consolidated gate immediately before reflection. If
++the gate fails, return to implementation, batch related fixes, and rerun tests
++only when the phase is complete again. Never test after individual tasks or
++continuously.
++
+ The binary is `target/release/sycophancy-correction`. It communicates over stdio (JSON-RPC) and requires `ANTHROPIC_API_KEY` in the environment.
+ 
+ Logging goes to stderr (MCP requirement — stdout is reserved for JSON-RPC). Control verbosity via `RUST_LOG=debug`.

@@ -1,0 +1,54 @@
+diff --git a/AGENTS.md b/AGENTS.md
+index 7193de6..639b25c 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -18,7 +18,19 @@ Two layered disciplines apply to every change. They are not advisory.
+    style. If you notice unrelated dead code, mention it; do not delete it.
+    Every changed line must trace directly to the request.
+ 4. **Goal-Driven Execution** — Convert to verifiable goals: "Fix the bug" →
+-   "write a test that reproduces it, then make it pass."
++   "define the required test evidence, complete the implementation phase, then
++   run the consolidated test gate immediately before reflection."
++
++### Phase-Gated Testing
++
++Tests are a certification gate, not a continuous implementation activity.
++During an implementation phase, write or update tests as needed, but do not
++execute automated suites or manual test flows. Static inspection and cohesive
++non-test compile checks may run when needed. Only after every implementation
++task in the phase is complete, run the applicable tests once as a consolidated
++gate immediately before reflection. If the gate fails, return to
++implementation, batch related fixes, and rerun tests only when the phase is
++complete again. Never test after individual tasks or continuously.
+ 
+ ### Boris Cherny's 3 Core Principles + self-improvement loop
+ 
+diff --git a/CLAUDE.md b/CLAUDE.md
+index 080cccc..043a313 100644
+--- a/CLAUDE.md
++++ b/CLAUDE.md
+@@ -23,9 +23,21 @@ the connection-architecture issue tracked in
+    disagree with it. If you notice unrelated dead code, **mention it; do
+    not delete it.** Every changed line must trace directly to the request.
+ 4. **Goal-Driven Execution** — Convert tasks to verifiable goals before
+-   coding. "Add validation" → "write tests for invalid input, then make
+-   them pass." For multi-step work, state the plan with explicit verify
+-   steps before touching code.
++   coding. "Add validation" → "define the required test evidence, complete the
++   implementation phase, then run the consolidated test gate immediately before
++   reflection." For multi-step work, state the plan with an explicit
++   completed-phase test gate before touching code.
++
++### Phase-Gated Testing
++
++Tests are a certification gate, not a continuous implementation activity.
++During an implementation phase, write or update tests as needed, but do not
++execute automated suites or manual test flows. Static inspection and cohesive
++non-test compile checks may run when needed. Only after every implementation
++task in the phase is complete, run the applicable tests once as a consolidated
++gate immediately before reflection. If the gate fails, return to
++implementation, batch related fixes, and rerun tests only when the phase is
++complete again. Never test after individual tasks or continuously.
+ 
+ ### Boris Cherny's 3 Core Principles + self-improvement loop
+ 
