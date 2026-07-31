@@ -103,11 +103,31 @@
           }
         }
       }
+    },
+    "confidence": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100,
+      "description": "Calibrated confidence 0-100 in the analysis. MACHINE-CHECKABLE by design: 'I am fairly confident' is unfalsifiable and cannot be compared against outcomes later. An integer can."
+    },
+    "what_would_change_this": {
+      "type": "string",
+      "minLength": 1,
+      "description": "What evidence would change this conclusion. An analysis that cannot name what would refute it is unfalsifiable, and presenting it as a conclusion invites the over-reliance the countermeasures exist to prevent."
+    },
+    "disconfirming": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "description": "At least one item cutting AGAINST the conclusion. Explainable AI increased trust while promoting over-reliance ('False Confirmation'): visible reasoning may 'provide false assurance that errors have been checked for and ruled out'. Surfacing disconfirming evidence is the counterweight."
     }
   },
   "allOf": [
     {
-      "$comment": "change-idt-001: a decision artifact is only meaningful if a DIFFERENT model judged it. same-model-collision and unverified-producer-unknown are honest records for other modes, but for a decision they mean the cross-model guarantee was not obtained \u2014 so the artifact must not validate.",
+      "$comment": "change-idt-001: a decision artifact is only meaningful if a DIFFERENT model judged it. same-model-collision and unverified-producer-unknown are honest records for other modes, but for a decision they mean the cross-model guarantee was not obtained \u2014 so the artifact must not validate. Also requires the automation-bias countermeasures (confidence, what_would_change_this, disconfirming) \u2014 change-idt-003. A decision artifact is advice a human acts on; a review of a diff is not.",
       "if": {
         "properties": {
           "mode": {
@@ -125,7 +145,10 @@
           }
         },
         "required": [
-          "cross_model_check"
+          "confidence",
+          "cross_model_check",
+          "disconfirming",
+          "what_would_change_this"
         ]
       }
     }

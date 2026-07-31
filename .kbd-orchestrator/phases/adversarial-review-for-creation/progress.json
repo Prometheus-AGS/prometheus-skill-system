@@ -109,10 +109,32 @@
       "tasks_done": 5,
       "tasks_total": 5,
       "title": "change-idt-001-decision-review-packet"
+    },
+    {
+      "blockers": [],
+      "id": "change-idt-002-enforced-diversity-ideation",
+      "implementation_status": "IN_PROGRESS",
+      "last_task_completed": "Reweight the rubric to executability over novelty (Ideation-Execution Gap)",
+      "next_task_pending": "Assert independence by inspecting dispatch inputs, not prompt text",
+      "status": "IN_PROGRESS",
+      "tasks_done": 4,
+      "tasks_total": 5,
+      "title": "change-idt-002-enforced-diversity-ideation"
+    },
+    {
+      "blockers": [],
+      "id": "change-idt-003-automation-bias-countermeasures",
+      "implementation_status": "COMPLETE",
+      "last_task_completed": "Fixture proving the gate cannot be bypassed when the reveal step is forced",
+      "next_task_pending": null,
+      "status": "DONE",
+      "tasks_done": 5,
+      "tasks_total": 5,
+      "title": "change-idt-003-automation-bias-countermeasures"
     }
   ],
-  "changes_completed": 10,
-  "changes_total": 10,
+  "changes_completed": 11,
+  "changes_total": 12,
   "children": {},
   "completion": {
     "certification": {
@@ -126,9 +148,9 @@
       "summary": null
     },
     "implementation": {
-      "completed": 10,
-      "status": "COMPLETE",
-      "total": 10
+      "completed": 11,
+      "status": "IN_PROGRESS",
+      "total": 12
     },
     "primaryCounter": "implementation",
     "publication": {
@@ -138,14 +160,14 @@
     }
   },
   "generatedBy": "kbd-runtime",
-  "implementation_completed": 10,
-  "implementation_total": 10,
-  "last_updated": "2026-07-31T00:56:37.572806Z",
+  "implementation_completed": 11,
+  "implementation_total": 12,
+  "last_updated": "2026-07-31T07:47:32.031270Z",
   "last_updated_by": "kbd-runtime",
   "migrationStatus": null,
   "parentPhase": null,
   "phase": "adversarial-review-for-creation",
   "phaseId": "adversarial-review-for-creation",
   "schemaVersion": "2",
-  "sourceRevision": 147
+  "sourceRevision": 178
 }

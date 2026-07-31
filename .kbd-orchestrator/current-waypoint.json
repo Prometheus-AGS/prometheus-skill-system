@@ -6,8 +6,8 @@
   "currentTask": null,
   "exactNextCommand": "/kbd-assess adversarial-review-for-creation",
   "generatedBy": "kbd-runtime",
-  "implementationCompleted": 152,
-  "implementationTotal": 204,
+  "implementationCompleted": 153,
+  "implementationTotal": 206,
   "path": [
     "adversarial-review-for-creation"
   ],
@@ -17,10 +17,10 @@
   ],
   "planRevision": 2,
   "projectId": "6ac090a4-3656-4d83-8eb6-2891508196d5",
-  "revision": 147,
+  "revision": 178,
   "runId": "docusaurus-github-pages-site-20260729T012334Z",
   "schemaVersion": "5",
-  "sourceRevision": 147,
+  "sourceRevision": 178,
   "status": "completed",
-  "updatedAt": "2026-07-31T00:56:37.572806Z"
+  "updatedAt": "2026-07-31T07:47:32.031270Z"
 }

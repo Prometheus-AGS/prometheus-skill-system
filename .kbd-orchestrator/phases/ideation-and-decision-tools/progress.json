@@ -9,13 +9,13 @@
   "execution_dispatched": false,
   "reflection_complete": false,
   "changes_total": 9,
-  "changes_completed": 1,
+  "changes_completed": 3,
   "implementation_total": 0,
   "implementation_completed": 0,
   "completion": {
     "primaryCounter": "implementation",
     "implementation": {
-      "completed": 1,
+      "completed": 3,
       "total": 9,
       "status": "IN_PROGRESS"
     },

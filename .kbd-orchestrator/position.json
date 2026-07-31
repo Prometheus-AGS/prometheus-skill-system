@@ -100,12 +100,30 @@
             },
             "status": "COMPLETE",
             "type": "change"
+          },
+          {
+            "id": "change-idt-002-enforced-diversity-ideation",
+            "progress": {
+              "done": 4,
+              "total": 5
+            },
+            "status": "IN_PROGRESS",
+            "type": "change"
+          },
+          {
+            "id": "change-idt-003-automation-bias-countermeasures",
+            "progress": {
+              "done": 5,
+              "total": 5
+            },
+            "status": "COMPLETE",
+            "type": "change"
           }
         ],
         "id": "adversarial-review-for-creation",
         "progress": {
-          "done": 10,
-          "total": 10
+          "done": 11,
+          "total": 12
         },
         "status": "PENDING",
         "type": "phase"
@@ -2475,13 +2493,13 @@
     ],
     "id": "6ac090a4-3656-4d83-8eb6-2891508196d5",
     "progress": {
-      "done": 152,
-      "total": 204
+      "done": 153,
+      "total": 206
     },
     "status": "completed",
     "type": "phase"
   },
   "schemaVersion": "1",
-  "sourceRevision": 147,
-  "updatedAt": "2026-07-31T00:56:37.572806Z"
+  "sourceRevision": 178,
+  "updatedAt": "2026-07-31T07:47:32.031270Z"
 }

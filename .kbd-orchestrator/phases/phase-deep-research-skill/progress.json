@@ -29,12 +29,12 @@
   "generatedBy": "kbd-runtime",
   "implementation_completed": 0,
   "implementation_total": 0,
-  "last_updated": "2026-07-31T00:56:37.572806Z",
+  "last_updated": "2026-07-31T07:47:32.031270Z",
   "last_updated_by": "kbd-runtime",
   "migrationStatus": "legacy-read-only",
   "parentPhase": null,
   "phase": "phase-deep-research-skill",
   "phaseId": "phase-deep-research-skill",
   "schemaVersion": "2",
-  "sourceRevision": 147
+  "sourceRevision": 178
 }

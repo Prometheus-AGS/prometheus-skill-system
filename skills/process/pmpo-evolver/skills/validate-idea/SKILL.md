@@ -85,10 +85,30 @@ Web research to assess feasibility and prior art.
 }
 ```
 
-**Routing:**
-- `feasibility_score < 30` → REJECT (archive with `revisit_weight: 0.3`)
-- `feasibility_score 30-60` → PROCEED but require human gate at step 3
-- `feasibility_score > 60` → PROCEED; auto-approve Gate 3 if `--auto-gate`
+**Scoring is delegated — the researcher does not grade its own research.**
+
+Gate 2 produces `research_summary`, `prior_art`, and `missing_deps`. It does
+**not** assign the score that routes the idea. Hand the research to
+`agents/kbd-idea-critic.md`, which scores it on a separate dispatch:
+
+```
+Task(subagent_type="kbd-idea-critic", prompt=<the Gate 2 research output>)
+```
+
+This is the same producer≠judge rule the rest of this pack enforces — the agent
+that gathered evidence for an idea is the worst-placed one to judge whether the
+evidence is sufficient. `kbd-idea-critic` states it directly: *"the idea that
+proposed the idea should never also grade it."*
+
+**Routing** (on the critic's aggregate, not Gate 2's self-assessment):
+- `aggregate < 3.0` → REJECT (archive with `revisit_weight: 0.3`)
+- `aggregate 3.0–7.0` → PROCEED but require human gate at step 3
+- `aggregate > 7.0` → PROCEED; auto-approve Gate 3 if `--auto-gate`
+
+> If the critic is unavailable, **do not fall back to self-scoring** — record
+> `scored_by: "SELF — UNVERIFIED"` in the archive entry and require the human
+> gate regardless of score. A self-assigned score that routes an idea is worse
+> than no score, because it carries the appearance of review.
 
 ---
 
