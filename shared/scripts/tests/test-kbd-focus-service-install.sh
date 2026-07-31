@@ -21,7 +21,12 @@ grep -F "<string>$XML_PROJECT_ROOT</string>" \
     "$OUTPUT_ROOT/ai.prometheus.sovereign-sync.plist" >/dev/null
 test "$(grep -cF "<string>$XML_PROJECT_ROOT</string>" \
     "$OUTPUT_ROOT/ai.prometheus.sovereign-sync.plist")" -eq 2
-plutil -lint "$OUTPUT_ROOT/ai.prometheus.sovereign-sync.plist" >/dev/null
+python3 - "$OUTPUT_ROOT/ai.prometheus.sovereign-sync.plist" <<'PY'
+import sys
+import xml.etree.ElementTree as ET
+
+ET.parse(sys.argv[1])
+PY
 
 SYSTEMD_PROJECT_ROOT="${CANONICAL_PROJECT_ROOT//%/%%}"
 SYSTEMD_PROJECT_ROOT="${SYSTEMD_PROJECT_ROOT//\"/\\\"}"

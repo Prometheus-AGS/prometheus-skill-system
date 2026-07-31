@@ -3818,10 +3818,7 @@ fn legacy_tasks(row: &serde_json::Value) -> BTreeMap<String, Task> {
 }
 
 fn legacy_phase(phase_id: &str, progress: &serde_json::Value, mut legacy_read_only: bool) -> Phase {
-    let rows = match progress
-        .get("changes")
-        .or_else(|| progress.get("ordered_changes"))
-    {
+    let rows = match legacy_changes(progress) {
         Some(serde_json::Value::Array(rows)) => rows
             .iter()
             .enumerate()
@@ -3911,10 +3908,7 @@ fn legacy_phase(phase_id: &str, progress: &serde_json::Value, mut legacy_read_on
 }
 
 fn progress_uncertain_rows(progress: &serde_json::Value) -> u64 {
-    let Some(changes) = progress
-        .get("changes")
-        .or_else(|| progress.get("ordered_changes"))
-    else {
+    let Some(changes) = legacy_changes(progress) else {
         return 0;
     };
     match changes {
@@ -3925,6 +3919,20 @@ fn progress_uncertain_rows(progress: &serde_json::Value) -> u64 {
         serde_json::Value::Object(_) => 0,
         serde_json::Value::Null => 0,
         _ => 1,
+    }
+}
+
+fn legacy_changes(progress: &serde_json::Value) -> Option<&serde_json::Value> {
+    let changes = progress.get("changes");
+    let changes_have_rows = match changes {
+        Some(serde_json::Value::Array(rows)) => !rows.is_empty(),
+        Some(serde_json::Value::Object(rows)) => !rows.is_empty(),
+        _ => false,
+    };
+    if changes_have_rows {
+        changes
+    } else {
+        progress.get("ordered_changes").or(changes)
     }
 }
 
@@ -5059,6 +5067,7 @@ mod tests {
             phase.join("progress.json"),
             r#"{
                 "phase":"legacy-planned-phase",
+                "changes":[],
                 "ordered_changes":[
                     {"id":"C-001","title":"First planned change"},
                     {"id":"C-002","title":"Second planned change"}
