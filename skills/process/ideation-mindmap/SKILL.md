@@ -220,3 +220,23 @@ Branch 6 — Deployment & Scale
 
 Which branches resonate with your vision? ...
 ```
+
+## Presenting to the user
+
+This flow never renders its own prompts. Every user-facing question goes through
+`scripts/emit-ui-intent.sh`, which emits a `UiIntent` and lets `ui-surface`
+resolve the tier:
+
+```bash
+bash scripts/emit-ui-intent.sh \
+  --title "Which idea to build?" \
+  --body  "Three survived scoring." \
+  --option "Standup generator" --option "PR summariser"
+```
+
+Exit `3` means the harness never answered — a stated limit, not delivery. Degrade
+to Tier 0 text rather than reporting the question as delivered.
+
+Verified tiers, stated limits (`zed` is Tier 0; only `codex` was exercised among
+file-pair harnesses), and the round-trip evidence are in
+[references/harness-delivery.md](references/harness-delivery.md).

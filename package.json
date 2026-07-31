@@ -19,6 +19,8 @@
     "test:reject-cap": "bash skills/process/adversarial-review/tests/test-reject-cap-override.sh",
     "test:decision-gate": "bash skills/process/adversarial-review/tests/test-decision-gate.sh",
     "test:automation-bias": "bash skills/process/adversarial-review/tests/test-automation-bias-gate.sh",
+    "test:decision-log": "bash skills/process/adversarial-review/tests/test-decision-log.sh",
+    "test:coach-separation": "bash skills/process/adversarial-review/tests/test-coach-reflector-separation.sh",
     "lint:pk": "bash shared/scripts/pk-lint.sh",
     "memory:compress": "bash shared/scripts/mem0-compress.sh",
     "build": "node scripts/build-marketplace.js",

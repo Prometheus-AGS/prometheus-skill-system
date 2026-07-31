@@ -85,12 +85,12 @@
   "generatedBy": "kbd-runtime",
   "implementation_completed": 5,
   "implementation_total": 5,
-  "last_updated": "2026-07-31T07:47:32.031270Z",
+  "last_updated": "2026-07-31T08:12:00.822667Z",
   "last_updated_by": "kbd-runtime",
   "migrationStatus": null,
   "parentPhase": null,
   "phase": "phase-sovereign-sync-hardening",
   "phaseId": "phase-sovereign-sync-hardening",
   "schemaVersion": "2",
-  "sourceRevision": 178
+  "sourceRevision": 218
 }

@@ -6,6 +6,7 @@
 * [Adversarial Review Creation Completion Record](/adversarial-review-creation-completion-record.md)
 * [Adversarial Review Creation Executor Completed Unknown Change](/adversarial-review-creation-executor-completed-unknown-change.md)
 * [Adversarial Review Creation Executor Completion Record](/adversarial-review-creation-executor-completion-record.md)
+* [Adversarial Review Creation Executor Completion Recorded](/adversarial-review-creation-executor-completion-recorded.md)
 * [Adversarial Review Creation Executor Completion Status](/adversarial-review-creation-executor-completion-status.md)
 * [Adversarial Review Creation Executor Session Complete](/adversarial-review-creation-executor-session-complete.md)
 * [Adversarial Review Creation Executor Session Completion](/adversarial-review-creation-executor-session-completion.md)

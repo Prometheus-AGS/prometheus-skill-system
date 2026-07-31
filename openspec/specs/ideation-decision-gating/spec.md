@@ -66,3 +66,61 @@ not acceptable substitutes.
 - **AND** `what_would_change_this` is non-empty
 - **AND** at least one disconfirming item is present
 
+### Requirement: Decisions persist with their outcomes
+
+A decision SHALL be written with `outcome_status: pending`, an outcome-update flow SHALL
+record what actually happened, and a revisit query SHALL return both the decision and its
+outcome. Persisting decisions without outcomes is the half the surveyed market already
+has and does not close the loop.
+
+#### Scenario: A decision is written pending an outcome
+
+- **GIVEN** a completed decision
+- **WHEN** it is persisted
+- **THEN** one wiki entry records the decision, assumptions, and falsifier
+- **AND** `outcome_status` is `pending`
+
+#### Scenario: A revisit returns decision and outcome
+
+- **GIVEN** a decision whose outcome was later recorded
+- **WHEN** the revisit query runs for that topic
+- **THEN** both the original decision and the recorded outcome are returned
+
+#### Scenario: Re-running a decision does not duplicate
+
+- **GIVEN** a decision already persisted
+- **WHEN** the same decision is run again
+- **THEN** no second entry is created
+
+### Requirement: Coach and reflector are separate roles
+
+A coach agent SHALL advance the plan and SHALL NOT evaluate its own output; the existing
+reflector SubagentStop hook SHALL perform that evaluation unmodified.
+
+#### Scenario: The coach does not grade itself
+
+- **GIVEN** coach output
+- **WHEN** it is evaluated
+- **THEN** the evaluation is performed by the reflector
+- **AND** the coach performs no evaluation of its own output
+
+### Requirement: Delivery is verified on a non-Claude harness
+
+The ideation flow SHALL emit a `UiIntent` rather than rendering directly, and Tier 1
+delivery SHALL be verified by running it on one named non-Claude harness. Tier 0 text is a
+floor, not evidence of harness delivery.
+
+#### Scenario: Tier 1 round trip completes on a non-Claude harness
+
+- **GIVEN** the flow running on a named non-Claude harness
+- **WHEN** it emits a UiIntent
+- **THEN** `__ui_intent__.json` is written
+- **AND** a `__ui_response__.json` placed there is consumed within the timeout
+- **AND** the flow continues using that response
+
+#### Scenario: Tier 0 remains a working floor
+
+- **GIVEN** a harness resolving to `tier0_text`
+- **WHEN** the flow runs
+- **THEN** it completes in text
+

@@ -118,12 +118,39 @@
             },
             "status": "COMPLETE",
             "type": "change"
+          },
+          {
+            "id": "change-idt-004-decision-outcome-persistence",
+            "progress": {
+              "done": 5,
+              "total": 5
+            },
+            "status": "COMPLETE",
+            "type": "change"
+          },
+          {
+            "id": "change-idt-005-coach-role",
+            "progress": {
+              "done": 3,
+              "total": 3
+            },
+            "status": "COMPLETE",
+            "type": "change"
+          },
+          {
+            "id": "change-idt-006-harness-delivery-ui-surface",
+            "progress": {
+              "done": 2,
+              "total": 4
+            },
+            "status": "IN_PROGRESS",
+            "type": "change"
           }
         ],
         "id": "adversarial-review-for-creation",
         "progress": {
-          "done": 11,
-          "total": 12
+          "done": 13,
+          "total": 15
         },
         "status": "PENDING",
         "type": "phase"
@@ -270,6 +297,15 @@
             "type": "change"
           },
           {
+            "id": "change-idt-006-harness-delivery-ui-surface",
+            "progress": {
+              "done": 0,
+              "total": 2
+            },
+            "status": "PENDING",
+            "type": "change"
+          },
+          {
             "id": "change-dgp-002",
             "progress": {
               "done": 0,
@@ -336,7 +372,7 @@
         "id": "docusaurus-github-pages-site",
         "progress": {
           "done": 8,
-          "total": 8
+          "total": 9
         },
         "status": "COMPLETE",
         "type": "phase"
@@ -2493,13 +2529,13 @@
     ],
     "id": "6ac090a4-3656-4d83-8eb6-2891508196d5",
     "progress": {
-      "done": 153,
-      "total": 206
+      "done": 155,
+      "total": 210
     },
     "status": "completed",
     "type": "phase"
   },
   "schemaVersion": "1",
-  "sourceRevision": 178,
-  "updatedAt": "2026-07-31T07:47:32.031270Z"
+  "sourceRevision": 218,
+  "updatedAt": "2026-07-31T08:12:00.822667Z"
 }
