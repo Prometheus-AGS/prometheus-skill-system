@@ -3,30 +3,25 @@
   "change": null,
   "childPointer": null,
   "completionMetric": "implementation",
-  "currentTask": "run kbd-assess for uar-host-execution",
-  "exactNextCommand": "/kbd-assess uar-host-execution",
+  "currentTask": null,
+  "exactNextCommand": "/kbd-assess adversarial-review-for-creation",
   "generatedBy": "kbd-runtime",
-  "implementationCompleted": 0,
-  "implementationTotal": 16,
+  "implementationCompleted": 1,
+  "implementationTotal": 223,
   "path": [
     "adversarial-review-for-creation"
   ],
-  "phase": "uar-host-execution",
+  "phase": "adversarial-review-for-creation",
   "phaseIds": [
     "adversarial-review-for-creation"
   ],
-  "planRevision": 1,
+  "planRevision": 2,
   "projectId": "6ac090a4-3656-4d83-8eb6-2891508196d5",
-  "revision": 397,
+  "revision": 412,
   "runId": "docusaurus-github-pages-site-20260729T012334Z",
   "schemaVersion": "5",
-  "sourceRevision": 396,
-  "status": "plan_complete",
-  "updatedAt": "2026-07-31T12:47:03Z",
-  "next": "/kbd-apply change-uhe-001-cursor-tier1",
-  "previousPhase": "mobile-skill-portability",
-  "sourceTool": "kbd-next-phase",
-  "nextPendingChange": null,
-  "certificationStatus": "NOT_TRACKED",
-  "publicationStatus": "NOT_TRACKED"
+  "sourceRevision": 412,
+  "status": "completed",
+  "updatedAt": "2026-07-31T14:21:37.675448Z",
+  "next": "/kbd-apply change-uhe-002-ci-sibling-repos"
 }

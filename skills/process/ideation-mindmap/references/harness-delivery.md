@@ -7,7 +7,7 @@ prompt works on its author's harness and silently degrades everywhere else.
 
 ## Verified by running it, not by asserting it
 
-Every row below was executed on 2026-07-31. The four non-Claude rows are the ones
+Every row below was executed on 2026-07-31. The five non-Claude rows are the ones
 that matter — Tier 0 text is a floor, not evidence of harness delivery.
 
 | Harness | Tier resolved | Mechanism | Result |
@@ -17,6 +17,7 @@ that matter — Tier 0 text is a floor, not evidence of harness delivery.
 | `zed` (non-Claude) | `tier1_structured` | file-pair handshake | **round trip completed in 2 s**; exit 0 |
 | `opencode` (non-Claude) | `tier1_structured` | file-pair handshake | **round trip completed in 3 s**; exit 0 |
 | `kimi` (non-Claude) | `tier1_structured` | file-pair handshake | **round trip completed in 2 s**; exit 0 |
+| `cursor` (non-Claude) | `tier1_structured` | file-pair handshake | **round trip completed in 2 s**; exit 0 |
 | forced `tier0_text` | `tier0_text` | plain text | completed in text; exit 0 |
 
 Every non-Claude run was a genuine two-party handshake: an independent process,
@@ -24,8 +25,8 @@ blind to the flow, polled for `__ui_intent__.json`, read the title, and wrote
 `__ui_response__.json`. The flow consumed that response and continued with the
 selected value; both files were removed afterwards. Each was confirmed under
 `bash -x` to reach `_render_tier1_file_pair` — `HARNESS=codex`, `HARNESS=zed`,
-`HARNESS=opencode`, `HARNESS=kimi` — not a Tier 0 fallback that happened to print
-something.
+`HARNESS=opencode`, `HARNESS=kimi`, `HARNESS=cursor` — not a Tier 0 fallback that
+happened to print something.
 
 ## Stated limits
 
@@ -64,9 +65,20 @@ executed round trip with an independent blind responder, and confirmed under
 any more: `codex`, `zed`, `opencode`, and `kimi` each completed a round trip
 with an independent responder and each was confirmed under trace.
 
-`cursor` remains **Tier 0**: `detect-surface-tier.sh` resolves it to
-`tier0_text` and `render.sh` does not route it to the file pair. It was not
-exercised and is not claimed.
+**`cursor` is now Tier 1** (`change-uhe-001`, 2026-07-31), and it had the
+**identical two causes `zed` did** — which is why the lesson generalises rather
+than being a one-off:
+
+1. `detect-surface-tier.sh:76-83` hardcoded `TIER="tier0_text"`.
+2. `render.sh` omitted `cursor` from **both** Tier 1 dispatch lists — the direct
+   one and the Tier 2 → Tier 1 fallback.
+
+Fixing only the visible one would have left it degrading to text whenever
+surface-bridge was down. Verified by an executed round trip with an independent
+blind responder, confirmed under `bash -x`.
+
+**Every harness `_detect_harness` recognises now reaches Tier 1.** There is no
+remaining harness held at the text floor by omission rather than by mechanism.
 
 ## Calling it
 

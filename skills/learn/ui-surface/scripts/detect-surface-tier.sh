@@ -73,9 +73,13 @@ if [ "$HARNESS" = "unknown" ] && [ -n "${ZED_AI_CONTEXT:-}" ]; then
 fi
 
 # ── Cursor ────────────────────────────────────────────────────────────────────
+# Tier 1, for the same reason zed is: the file-pair handshake is two files on
+# disk and asks nothing of the harness but reading one and writing the other.
+# Held at the text floor by a hardcoded tier here plus omission from render.sh's
+# dispatch lists — the identical two-cause shape zed had, found by running it.
 if [ "$HARNESS" = "unknown" ] && [ -n "${CURSOR_AI:-}" ]; then
   HARNESS="cursor"
-  TIER="tier0_text"
+  TIER="tier1_structured"
 fi
 
 # ── Fallback ──────────────────────────────────────────────────────────────────

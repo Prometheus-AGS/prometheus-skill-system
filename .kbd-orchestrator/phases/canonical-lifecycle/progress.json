@@ -85,12 +85,12 @@
   "generatedBy": "kbd-runtime",
   "implementation_completed": 5,
   "implementation_total": 5,
-  "last_updated": "2026-07-31T12:00:18.176452Z",
+  "last_updated": "2026-07-31T14:21:37.675448Z",
   "last_updated_by": "kbd-runtime",
   "migrationStatus": null,
   "parentPhase": null,
   "phase": "canonical-lifecycle",
   "phaseId": "canonical-lifecycle",
   "schemaVersion": "2",
-  "sourceRevision": 396
+  "sourceRevision": 412
 }

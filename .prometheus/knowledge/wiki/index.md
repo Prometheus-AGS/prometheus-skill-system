@@ -161,6 +161,7 @@
 * [Threaded/Concurrent Research with Per-Thread Context](/threaded-concurrent-research.md) - Research on implementing threaded and concurrent research with isolated per-thread context, leveraging surreal-memory for thread-safe storage.
 * [Toolchain Binary Sync and OKF Wiki Adoption Session Completion](/toolchain-binary-sync-and-okf-wiki-adoption-session-completion.md) - Phase `phase-okf-llm-wiki-adoption` completed for KBD root:
 * [UAR Host Execution Completion Status](/uar-host-execution-completion-status.md)
+* [UAR Host Execution Executor Completion Status](/uar-host-execution-executor-completion-status.md)
 * [UAR Host Execution Executor Session Completion](/uar-host-execution-executor-session-completion.md)
 * [UI Architecture — Single-View vs Two-Zone Navigation](/ui-architecture-single-vs-two-zone.md) - When evolving a single-item UI (one research job) into a multi-item UI (many concurrent research jobs), the natural temptation is to create **two zones of navigation**: a "workspace" zone for global actions and a "job context" zone for per-job actions. The sidebar switches betwee
 * [Unknown Phase Empty Session Status](/unknown-phase-empty-session-status.md)
