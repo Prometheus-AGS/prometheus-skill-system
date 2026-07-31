@@ -18,11 +18,16 @@
 #
 # Usage:
 #   bash scripts/install-mcp-services.sh [--unload] [--restart] [--user <username>] [--dry-run]
+#       [--kbd-focus-project <path>] [--render-only <directory>]
 #
 # Flags:
 #   --unload      Stop/boot out all managed services (does not delete unit files)
 #   --restart     Reload managed definitions and restart services even when healthy
 #   --user <u>    Target a different user (requires matching uid / privileges)
+#   --kbd-focus-project <path>
+#                 Project root sovereign-sync controls (must contain .kbd-orchestrator)
+#   --render-only <directory>
+#                 Render the sovereign-sync launchd/systemd definitions and exit
 #   --dry-run     Print actions without executing them
 #   --help        Show this message
 
@@ -33,6 +38,8 @@ ACTION="install"
 PROMETHEUS_USER="${PROMETHEUS_USER:-$(id -un)}"
 DRY_RUN=false
 FORCE_RESTART=false
+KBD_FOCUS_PROJECT_PATH="${KBD_FOCUS_PROJECT_PATH:-$REPO_ROOT}"
+RENDER_ONLY_DIR=""
 
 while [ "$#" -gt 0 ]; do
     case "$1" in
@@ -40,10 +47,26 @@ while [ "$#" -gt 0 ]; do
         --restart)  FORCE_RESTART=true; shift ;;
         --dry-run)  DRY_RUN=true; shift ;;
         --user)     PROMETHEUS_USER="${2:?missing value for --user}"; shift 2 ;;
+        --kbd-focus-project)
+            KBD_FOCUS_PROJECT_PATH="${2:?missing value for --kbd-focus-project}"
+            shift 2
+            ;;
+        --render-only)
+            RENDER_ONLY_DIR="${2:?missing value for --render-only}"
+            shift 2
+            ;;
         --help|-h)  grep '^#' "$0" | sed 's/^# \?//'; exit 0 ;;
         *)          echo "Unknown argument: $1" >&2; exit 2 ;;
     esac
 done
+
+if [ "$ACTION" = "install" ]; then
+    if [ ! -d "$KBD_FOCUS_PROJECT_PATH/.kbd-orchestrator" ]; then
+        echo "Invalid KBD focus project: $KBD_FOCUS_PROJECT_PATH (missing .kbd-orchestrator)" >&2
+        exit 2
+    fi
+    KBD_FOCUS_PROJECT_PATH="$(cd "$KBD_FOCUS_PROJECT_PATH" && pwd -P)"
+fi
 
 # Shared provenance-agnostic reachability helpers (probe_port, check_running_service).
 # shellcheck source-path=SCRIPTDIR
@@ -182,6 +205,7 @@ render_template() {
     PROMETHEUS_DEVICE_KEY_FILE="$device_key_file" \
     PROMETHEUS_USER="$PROMETHEUS_USER" PROMETHEUS_HOME="$PROMETHEUS_HOME" \
     PROMETHEUS_ROOT="$REPO_ROOT" PROMETHEUS_LOG_DIR="$LOG_DIR" PROMETHEUS_PATH="$PROMETHEUS_PATH" \
+    KBD_FOCUS_PROJECT_PATH="$KBD_FOCUS_PROJECT_PATH" \
     PK_CHERRY_BIN="$pk_cherry_bin" FORGE_BIN="$forge_bin" DOCKER_BIN="$docker_bin" \
     SURREAL_BIN="$surreal_bin" SURREAL_MEMORY_BIN="$surreal_memory_bin" SURFACE_BRIDGE_BIN="$surface_bridge_bin" \
     SOVEREIGN_SYNC_BIN="$sovereign_sync_bin" \
@@ -203,11 +227,24 @@ for k, env in {
     "__SURFACE_BRIDGE_BIN__": "SURFACE_BRIDGE_BIN",
     "__SOVEREIGN_SYNC_BIN__": "SOVEREIGN_SYNC_BIN",
     "__PROMETHEUS_DEVICE_KEY_FILE__": "PROMETHEUS_DEVICE_KEY_FILE",
+    "__KBD_FOCUS_PROJECT_PATH__": "KBD_FOCUS_PROJECT_PATH",
 }.items():
     text = text.replace(k, os.environ[env])
 dst.write_text(text)
 PY
 }
+
+if [ -n "$RENDER_ONLY_DIR" ]; then
+    mkdir -p "$RENDER_ONLY_DIR"
+    render_template \
+        "$REPO_ROOT/shared/launchagents/ai.prometheus.sovereign-sync.plist" \
+        "$RENDER_ONLY_DIR/ai.prometheus.sovereign-sync.plist"
+    render_template \
+        "$REPO_ROOT/shared/systemd/ai.prometheus.sovereign-sync.service" \
+        "$RENDER_ONLY_DIR/ai.prometheus.sovereign-sync.service"
+    echo "Rendered sovereign-sync definitions in $RENDER_ONLY_DIR"
+    exit 0
+fi
 
 # ════════════════════════════════════════════════════════════════════════════
 # macOS (launchd)

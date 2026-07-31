@@ -315,6 +315,34 @@ fn load_control_token(path: &Path) -> Result<String> {
     Ok(token)
 }
 
+fn ensure_control_token(path: &Path) -> Result<String> {
+    if path.exists() {
+        return load_control_token(path);
+    }
+    let parent = path.parent().ok_or_else(|| {
+        RuntimeError::InvalidState(format!("{} has no parent directory", path.display()))
+    })?;
+    fs::create_dir_all(parent)?;
+    let mut secret = [0_u8; 32];
+    OsRng.fill_bytes(&mut secret);
+    let token = URL_SAFE_NO_PAD.encode(secret);
+    let mut options = OpenOptions::new();
+    options.create_new(true).write(true);
+    #[cfg(unix)]
+    options.mode(0o600);
+    match options.open(path) {
+        Ok(mut file) => {
+            file.write_all(token.as_bytes())?;
+            file.write_all(b"\n")?;
+            file.sync_all()?;
+            File::open(parent)?.sync_all()?;
+            Ok(token)
+        }
+        Err(error) if error.kind() == std::io::ErrorKind::AlreadyExists => load_control_token(path),
+        Err(error) => Err(error.into()),
+    }
+}
+
 fn env_truthy(name: &str) -> bool {
     std::env::var(name)
         .map(|value| matches!(value.to_ascii_lowercase().as_str(), "1" | "true" | "yes"))
@@ -1878,27 +1906,7 @@ impl Runtime {
                 configured.display()
             )));
         }
-        fs::create_dir_all(&self.root)?;
-        let mut secret = [0_u8; 32];
-        OsRng.fill_bytes(&mut secret);
-        let token = URL_SAFE_NO_PAD.encode(secret);
-        let mut options = OpenOptions::new();
-        options.create_new(true).write(true);
-        #[cfg(unix)]
-        options.mode(0o600);
-        match options.open(&configured) {
-            Ok(mut file) => {
-                file.write_all(token.as_bytes())?;
-                file.write_all(b"\n")?;
-                file.sync_all()?;
-                File::open(&self.root)?.sync_all()?;
-                Ok(token)
-            }
-            Err(error) if error.kind() == std::io::ErrorKind::AlreadyExists => {
-                load_control_token(&configured)
-            }
-            Err(error) => Err(error.into()),
-        }
+        ensure_control_token(&configured)
     }
 
     pub fn device_signer(&self) -> Result<DeviceSigner> {
@@ -3199,23 +3207,15 @@ impl Runtime {
             if progress["schemaVersion"] != "2" {
                 migrated += 1;
             }
-            let phase_id = progress["phase"]
-                .as_str()
-                .map(str::to_owned)
-                .or_else(|| {
-                    path.parent()
-                        .and_then(Path::file_name)
-                        .map(|name| name.to_string_lossy().into_owned())
-                })
-                .unwrap_or_else(|| "legacy-phase".into());
-            phases.insert(
-                phase_id.clone(),
-                legacy_phase(
-                    &phase_id,
-                    &progress,
-                    file_uncertain > 0 || file_alias_conflict,
-                ),
+            let identity = legacy_phase_identity(&kbd_root, path, &progress);
+            let mut phase = legacy_phase(
+                &identity.id,
+                &progress,
+                file_uncertain > 0 || file_alias_conflict,
             );
+            phase.slug = identity.slug;
+            phase.parent_phase_id = identity.parent_phase_id;
+            phases.insert(identity.id, phase);
         }
         if apply {
             let waypoint = fs::read(kbd_root.join("current-waypoint.json"))
@@ -3237,25 +3237,42 @@ impl Runtime {
                 )?;
             }
             if state.phases.is_empty() && !phases.is_empty() {
-                let active_phase = waypoint
-                    .get("phase")
-                    .and_then(serde_json::Value::as_str)
-                    .filter(|phase_id| phases.contains_key(*phase_id))
-                    .map(str::to_owned)
-                    .or_else(|| phases.keys().next().cloned());
-                let active_path = ActivePath {
-                    phase_path: waypoint
-                        .get("path")
-                        .and_then(serde_json::Value::as_array)
-                        .map(|path| {
-                            path.iter()
-                                .filter_map(serde_json::Value::as_str)
-                                .filter(|phase_id| phases.contains_key(*phase_id))
-                                .map(str::to_owned)
-                                .collect::<Vec<_>>()
+                let requested_path = waypoint
+                    .get("path")
+                    .and_then(serde_json::Value::as_array)
+                    .map(|path| {
+                        path.iter()
+                            .filter_map(serde_json::Value::as_str)
+                            .collect::<Vec<_>>()
+                    })
+                    .unwrap_or_default();
+                let mut phase_path = resolve_legacy_phase_path(&phases, &requested_path);
+                if phase_path.is_empty() {
+                    let requested_phase = waypoint.get("phase").and_then(serde_json::Value::as_str);
+                    let phase_id = requested_phase
+                        .filter(|phase_id| phases.contains_key(*phase_id))
+                        .map(str::to_owned)
+                        .or_else(|| {
+                            let matches = phases
+                                .values()
+                                .filter(|phase| Some(phase.slug.as_str()) == requested_phase)
+                                .map(|phase| phase.id.clone())
+                                .collect::<Vec<_>>();
+                            (matches.len() == 1).then(|| matches[0].clone())
                         })
-                        .filter(|path| !path.is_empty())
-                        .unwrap_or_else(|| active_phase.iter().cloned().collect()),
+                        .or_else(|| {
+                            phases
+                                .values()
+                                .find(|phase| phase.parent_phase_id.is_none())
+                                .map(|phase| phase.id.clone())
+                        });
+                    if let Some(phase_id) = phase_id {
+                        phase_path = legacy_phase_chain(&phases, &phase_id);
+                    }
+                }
+                let active_phase = phase_path.last().cloned();
+                let active_path = ActivePath {
+                    phase_path,
                     phase_id: active_phase,
                     stage_id: waypoint
                         .get("stage")
@@ -3656,8 +3673,104 @@ fn position_phase_node(state: &RuntimeState, phase: &Phase) -> serde_json::Value
     })
 }
 
+struct LegacyPhaseIdentity {
+    id: String,
+    slug: String,
+    parent_phase_id: Option<String>,
+}
+
+fn legacy_phase_identity(
+    kbd_root: &Path,
+    progress_path: &Path,
+    progress: &serde_json::Value,
+) -> LegacyPhaseIdentity {
+    let mut slugs = Vec::new();
+    if let Ok(relative) = progress_path.strip_prefix(kbd_root.join("phases")) {
+        let components = relative
+            .components()
+            .filter_map(|component| match component {
+                std::path::Component::Normal(value) => Some(value.to_string_lossy().into_owned()),
+                _ => None,
+            })
+            .collect::<Vec<_>>();
+        if components.last().map(String::as_str) == Some("progress.json") {
+            let mut index = 0;
+            while index + 1 < components.len() {
+                slugs.push(components[index].clone());
+                index += 1;
+                if index + 1 < components.len() {
+                    if components[index] != "children" {
+                        slugs.clear();
+                        break;
+                    }
+                    index += 1;
+                }
+            }
+        }
+    }
+    if slugs.is_empty() {
+        slugs.push(
+            progress["phase"]
+                .as_str()
+                .map(str::to_owned)
+                .or_else(|| {
+                    progress_path
+                        .parent()
+                        .and_then(Path::file_name)
+                        .map(|name| name.to_string_lossy().into_owned())
+                })
+                .unwrap_or_else(|| "legacy-phase".into()),
+        );
+    }
+    let id = slugs.join("::");
+    let parent_phase_id = (slugs.len() > 1).then(|| slugs[..slugs.len() - 1].join("::"));
+    LegacyPhaseIdentity {
+        id,
+        slug: slugs
+            .last()
+            .cloned()
+            .unwrap_or_else(|| "legacy-phase".into()),
+        parent_phase_id,
+    }
+}
+
+fn resolve_legacy_phase_path(phases: &BTreeMap<String, Phase>, slugs: &[&str]) -> Vec<String> {
+    let mut resolved = Vec::new();
+    let mut parent: Option<String> = None;
+    for slug in slugs {
+        let Some(phase) = phases.values().find(|phase| {
+            phase.parent_phase_id.as_deref() == parent.as_deref()
+                && (phase.slug == *slug || phase.id == *slug)
+        }) else {
+            return Vec::new();
+        };
+        resolved.push(phase.id.clone());
+        parent = Some(phase.id.clone());
+    }
+    resolved
+}
+
+fn legacy_phase_chain(phases: &BTreeMap<String, Phase>, phase_id: &str) -> Vec<String> {
+    let mut chain = Vec::new();
+    let mut current = Some(phase_id);
+    while let Some(id) = current {
+        let Some(phase) = phases.get(id) else {
+            return Vec::new();
+        };
+        chain.push(phase.id.clone());
+        current = phase.parent_phase_id.as_deref();
+    }
+    chain.reverse();
+    chain
+}
+
 fn parse_work_status(value: Option<&str>) -> WorkStatus {
-    match value.unwrap_or_default().to_ascii_uppercase().as_str() {
+    let normalized = value.unwrap_or_default().trim().to_ascii_uppercase();
+    let status = normalized
+        .split(|character: char| character.is_whitespace() || matches!(character, '(' | '['))
+        .next()
+        .unwrap_or_default();
+    match status {
         "IN_PROGRESS" | "RUNNING" | "EXECUTING" => WorkStatus::InProgress,
         "BLOCKED" | "PAUSED" => WorkStatus::Blocked,
         "COMPLETE" | "COMPLETED" | "DONE" => WorkStatus::Complete,
@@ -3711,17 +3824,15 @@ fn legacy_phase(phase_id: &str, progress: &serde_json::Value, mut legacy_read_on
             .enumerate()
             .map(|(index, row)| (index, row.clone()))
             .collect::<Vec<_>>(),
-        Some(serde_json::Value::Object(rows)) => {
-            legacy_read_only = true;
-            rows.iter()
-                .enumerate()
-                .map(|(index, (id, row))| {
-                    let mut row = row.as_object().cloned().unwrap_or_default();
-                    row.entry("id").or_insert_with(|| serde_json::json!(id));
-                    (index, serde_json::Value::Object(row))
-                })
-                .collect::<Vec<_>>()
-        }
+        Some(serde_json::Value::Object(rows)) => rows
+            .iter()
+            .enumerate()
+            .map(|(index, (id, row))| {
+                let mut row = row.as_object().cloned().unwrap_or_default();
+                row.entry("id").or_insert_with(|| serde_json::json!(id));
+                (index, serde_json::Value::Object(row))
+            })
+            .collect::<Vec<_>>(),
         _ => {
             legacy_read_only = true;
             Vec::new()
@@ -4627,20 +4738,13 @@ mod tests {
     #[test]
     fn local_control_token_is_stable_and_permission_protected() {
         let dir = tempdir().unwrap();
-        let runtime = Runtime::open(dir.path());
-        let first = runtime.control_token().unwrap();
-        let second = runtime.control_token().unwrap();
+        let path = dir.path().join("control-token");
+        let first = ensure_control_token(&path).unwrap();
+        let second = ensure_control_token(&path).unwrap();
         assert_eq!(first, second);
         assert!(first.len() >= 32);
         #[cfg(unix)]
-        assert_eq!(
-            fs::metadata(runtime.runtime_root().join("control-token"))
-                .unwrap()
-                .permissions()
-                .mode()
-                & 0o077,
-            0
-        );
+        assert_eq!(fs::metadata(path).unwrap().permissions().mode() & 0o077, 0);
     }
 
     #[test]
@@ -4860,6 +4964,79 @@ mod tests {
             )
             .unwrap();
         assert_eq!(heartbeat.revision, runtime.events().unwrap().len() as u64);
+    }
+
+    #[test]
+    fn annotated_legacy_statuses_are_parsed_without_prefix_matches() {
+        assert_eq!(
+            parse_work_status(Some("DONE (merged #108)")),
+            WorkStatus::Complete
+        );
+        assert_eq!(
+            parse_work_status(Some("IN_PROGRESS [owner: codex]")),
+            WorkStatus::InProgress
+        );
+        assert_eq!(parse_work_status(Some("DONEISH")), WorkStatus::Pending);
+        assert_eq!(
+            parse_work_status(Some("BLOCKED_BY_DESIGN")),
+            WorkStatus::Pending
+        );
+    }
+
+    #[test]
+    fn migration_preserves_nested_phase_identity_and_scoped_duplicate_slugs() {
+        let dir = tempdir().unwrap();
+        let kbd = dir.path().join(".kbd-orchestrator");
+        for parent in ["phase-a", "phase-b"] {
+            let parent_dir = kbd.join("phases").join(parent);
+            let child_dir = parent_dir.join("children/spike");
+            fs::create_dir_all(&child_dir).unwrap();
+            fs::write(
+                parent_dir.join("progress.json"),
+                format!(
+                    r#"{{"phase":"{parent}","changes":{{"parent-change":{{"status":"DONE (merged)"}}}}}}"#
+                ),
+            )
+            .unwrap();
+            fs::write(
+                child_dir.join("progress.json"),
+                r#"{"phase":"spike","changes":{"child-change":{"status":"IN_PROGRESS"}}}"#,
+            )
+            .unwrap();
+        }
+        fs::write(
+            kbd.join("current-waypoint.json"),
+            r#"{"phase":"spike","path":["phase-b","spike"]}"#,
+        )
+        .unwrap();
+
+        let runtime = Runtime::open(dir.path());
+        runtime.migrate_legacy_ledgers(true).unwrap();
+        let state = runtime.replay().unwrap();
+
+        assert_eq!(
+            state.phases["phase-a::spike"].parent_phase_id.as_deref(),
+            Some("phase-a")
+        );
+        assert_eq!(
+            state.phases["phase-b::spike"].parent_phase_id.as_deref(),
+            Some("phase-b")
+        );
+        assert_eq!(state.phases["phase-a::spike"].slug, "spike");
+        assert_eq!(state.phases["phase-b::spike"].slug, "spike");
+        assert!(!state.phases["phase-a"].legacy_read_only);
+        assert_eq!(
+            state.active_path.phase_path,
+            vec!["phase-b".to_string(), "phase-b::spike".to_string()]
+        );
+        assert_eq!(
+            state.active_path.phase_id.as_deref(),
+            Some("phase-b::spike")
+        );
+        assert_eq!(
+            state.phases["phase-a"].changes["parent-change"].implementation_status,
+            WorkStatus::Complete
+        );
     }
 
     #[test]
