@@ -129,12 +129,12 @@
   "generatedBy": "kbd-runtime",
   "implementation_completed": 8,
   "implementation_total": 9,
-  "last_updated": "2026-07-31T15:04:16.582819Z",
+  "last_updated": "2026-07-31T15:13:31.497268Z",
   "last_updated_by": "kbd-runtime",
   "migrationStatus": null,
   "parentPhase": null,
   "phase": "docusaurus-github-pages-site",
   "phaseId": "docusaurus-github-pages-site",
   "schemaVersion": "2",
-  "sourceRevision": 446
+  "sourceRevision": 452
 }

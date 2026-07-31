@@ -6,8 +6,8 @@
   "currentTask": null,
   "exactNextCommand": "/kbd-assess adversarial-review-for-creation",
   "generatedBy": "kbd-runtime",
-  "implementationCompleted": 4,
-  "implementationTotal": 226,
+  "implementationCompleted": 5,
+  "implementationTotal": 227,
   "path": [
     "adversarial-review-for-creation"
   ],
@@ -17,11 +17,11 @@
   ],
   "planRevision": 2,
   "projectId": "6ac090a4-3656-4d83-8eb6-2891508196d5",
-  "revision": 446,
+  "revision": 452,
   "runId": "docusaurus-github-pages-site-20260729T012334Z",
   "schemaVersion": "5",
-  "sourceRevision": 446,
+  "sourceRevision": 452,
   "status": "completed",
-  "updatedAt": "2026-07-31T15:04:16.582819Z",
-  "next": "/kbd-apply change-uhe-005-pack-provenance"
+  "updatedAt": "2026-07-31T15:13:31.497268Z",
+  "next": "/kbd-apply change-uhe-006-origin-enabled-columns"
 }

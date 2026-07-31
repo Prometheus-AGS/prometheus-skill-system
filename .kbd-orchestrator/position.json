@@ -289,12 +289,21 @@
             },
             "status": "COMPLETE",
             "type": "change"
+          },
+          {
+            "id": "change-uhe-005-pack-provenance",
+            "progress": {
+              "done": 1,
+              "total": 2
+            },
+            "status": "IN_PROGRESS",
+            "type": "change"
           }
         ],
         "id": "adversarial-review-for-creation",
         "progress": {
           "done": 27,
-          "total": 31
+          "total": 32
         },
         "status": "PENDING",
         "type": "phase"
@@ -2674,12 +2683,12 @@
     "id": "6ac090a4-3656-4d83-8eb6-2891508196d5",
     "progress": {
       "done": 169,
-      "total": 226
+      "total": 227
     },
     "status": "completed",
     "type": "phase"
   },
   "schemaVersion": "1",
-  "sourceRevision": 446,
-  "updatedAt": "2026-07-31T15:04:16.582819Z"
+  "sourceRevision": 452,
+  "updatedAt": "2026-07-31T15:13:31.497268Z"
 }

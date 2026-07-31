@@ -340,10 +340,21 @@
       "tasks_done": 5,
       "tasks_total": 5,
       "title": "change-uhe-004-librefang-abi-decision"
+    },
+    {
+      "blockers": [],
+      "id": "change-uhe-005-pack-provenance",
+      "implementation_status": "IN_PROGRESS",
+      "last_task_completed": "Pack emits a version manifest (EXTEND skills-index; do not invent a parallel file)",
+      "next_task_pending": "UAR reads it at load WITHOUT shelling out to git (impossible on mobile)",
+      "status": "IN_PROGRESS",
+      "tasks_done": 1,
+      "tasks_total": 2,
+      "title": "change-uhe-005-pack-provenance"
     }
   ],
   "changes_completed": 27,
-  "changes_total": 31,
+  "changes_total": 32,
   "children": {},
   "completion": {
     "certification": {
@@ -359,7 +370,7 @@
     "implementation": {
       "completed": 27,
       "status": "IN_PROGRESS",
-      "total": 31
+      "total": 32
     },
     "primaryCounter": "implementation",
     "publication": {
@@ -370,13 +381,13 @@
   },
   "generatedBy": "kbd-runtime",
   "implementation_completed": 27,
-  "implementation_total": 31,
-  "last_updated": "2026-07-31T15:04:16.582819Z",
+  "implementation_total": 32,
+  "last_updated": "2026-07-31T15:13:31.497268Z",
   "last_updated_by": "kbd-runtime",
   "migrationStatus": null,
   "parentPhase": null,
   "phase": "adversarial-review-for-creation",
   "phaseId": "adversarial-review-for-creation",
   "schemaVersion": "2",
-  "sourceRevision": 446
+  "sourceRevision": 452
 }

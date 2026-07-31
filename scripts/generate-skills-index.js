@@ -19,6 +19,7 @@
  */
 
 import fs from 'node:fs';
+import { execFileSync } from 'node:child_process';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -163,6 +164,83 @@ function render(categories) {
   return lines.join('\n');
 }
 
+/**
+ * Rewrite the provenance keys in SKILLS.md's YAML frontmatter.
+ *
+ * WHY THIS EXISTS
+ * UAR pinned this pack at a commit that was 359 commits and two months stale,
+ * seeing 161 skills where the pack had 220, and NOTHING DETECTED IT — because
+ * nothing recorded which version had been loaded. A consumer cannot compare
+ * against a version the producer never states.
+ *
+ * The commit is written HERE, at generation time, by the one process that can
+ * read git. A consumer (UAR, and especially a phone) must never shell out to
+ * git: on mobile there is no git and no .git directory to read.
+ */
+function stampProvenance(text, commit, skillCount) {
+  const fields = {
+    commit,
+    skill_count: String(skillCount),
+    generated_at: new Date().toISOString().replace(/\.\d{3}Z$/, 'Z'),
+  };
+  let out = text;
+  for (const [key, value] of Object.entries(fields)) {
+    const re = new RegExp(`^${key}: .*$`, 'm');
+    if (re.test(out)) {
+      out = out.replace(re, `${key}: ${value}`);
+    } else {
+      // Insert after `version:` so provenance stays grouped with identity.
+      out = out.replace(/^(version: .*)$/m, `$1\n${key}: ${value}`);
+    }
+  }
+  return out;
+}
+
+/**
+ * Count every SKILL.md a consumer would load — NOT the 69 shown in the index.
+ *
+ * The index deliberately lists only top-level owned skills for readability. A
+ * consumer (UAR) walks the whole tree minus `imported/`, and sees ~146. Emitting
+ * 69 would guarantee the counts never match, so the field could never detect the
+ * drift it exists to detect: a consumer comparing 161-vs-69 learns nothing.
+ *
+ * Mirrors builtin_loader.rs, which skips paths containing `imported/` unless
+ * explicitly opted in, and never descends into node_modules.
+ */
+function loadableSkillCount(dir = SKILLS_DIR) {
+  let n = 0;
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    const full = path.join(dir, entry.name);
+    if (entry.isDirectory()) {
+      if (entry.name === 'node_modules' || entry.name === 'imported') continue;
+      if (entry.name === 'tests' || entry.name === 'fixtures') continue;
+      n += loadableSkillCount(full);
+    } else if (entry.name === 'SKILL.md') {
+      n += 1;
+    }
+  }
+  return n;
+}
+
+function packCommit() {
+  // Failure is reported, never papered over: an unknown commit must read as
+  // "unknown", not as a plausible-looking wrong value.
+  try {
+    // execFileSync, not execSync: no shell, so a path with spaces or a hostile
+    // env cannot turn this into command injection. And `require` is unavailable
+    // here — this file is an ES module ("type": "module"), which is exactly how
+    // the first version of this function silently returned 'unknown' forever.
+    return execFileSync('git', ['rev-parse', 'HEAD'], {
+      cwd: REPO,
+      stdio: ['ignore', 'pipe', 'ignore'],
+    })
+      .toString()
+      .trim();
+  } catch {
+    return 'unknown';
+  }
+}
+
 function rebuild(current, generated) {
   const start = current.indexOf(START);
   if (start === -1) {
@@ -177,10 +255,17 @@ function rebuild(current, generated) {
 const categories = collect();
 const generated = render(categories);
 const current = fs.readFileSync(TARGET, 'utf8');
-const next = rebuild(current, generated);
+const skillTotal = categories.reduce((n, c) => n + c.skills.length, 0);
+let next = rebuild(current, generated);
+next = stampProvenance(next, packCommit(), loadableSkillCount());
 
 if (process.argv.includes('--check')) {
-  if (next !== current) {
+  // `generated_at` is a timestamp: it differs on every run by design, so a
+  // byte-for-byte comparison could NEVER pass. Normalise it away and compare
+  // everything else — the index body, the commit, and the skill count, which
+  // are the fields that actually go stale.
+  const ignoreTimestamp = (t) => t.replace(/^generated_at: .*$/m, 'generated_at: <ignored>');
+  if (ignoreTimestamp(next) !== ignoreTimestamp(current)) {
     console.error('SKILLS.md skills index is OUT OF DATE.');
     console.error('  Run: npm run generate:skills-index');
     process.exit(1);
@@ -193,6 +278,5 @@ if (next === current) {
   console.log('SKILLS.md already up to date.');
 } else {
   fs.writeFileSync(TARGET, next);
-  const total = categories.reduce((n, c) => n + c.skills.length, 0);
-  console.log(`SKILLS.md regenerated: ${total} skills across ${categories.length} categories.`);
+  console.log(`SKILLS.md regenerated: ${skillTotal} skills across ${categories.length} categories.`);
 }
