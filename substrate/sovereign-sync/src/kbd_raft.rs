@@ -277,7 +277,30 @@ impl RedbRaftStore {
         if let Some(parent) = path.parent() {
             std::fs::create_dir_all(parent)?;
         }
-        let db = Database::create(path).map_err(io_other)?;
+        let mut db = Database::create(path).map_err(io_other)?;
+
+        // Reclaim pages freed by `purge_logs_upto`.
+        //
+        // openraft snapshots and then calls purge, which DELETES log rows — but
+        // redb never returns freed pages to the filesystem on its own, so the
+        // file only ever grows. Observed on a live daemon: raft.redb reached 44
+        // MiB, then 65 MiB within a single working session, while the logical
+        // log stayed small. A wedged daemon on that store answered /health in
+        // 7.2 s; a fresh process on the same data answered in 1.3 ms.
+        //
+        // Compaction runs HERE, at open, because it needs `&mut Database` and no
+        // live transactions — both true only before the store is shared. It is
+        // also the point where a restart already costs startup latency, so the
+        // work is invisible.
+        //
+        // Never fatal. A failure to shrink a file is not a reason to refuse to
+        // start: the daemon is still correct, just larger.
+        match db.compact() {
+            Ok(true) => tracing::info!(path = %path.display(), "raft store compacted"),
+            Ok(false) => tracing::debug!("raft store had nothing to compact"),
+            Err(error) => tracing::warn!(%error, "raft store compaction skipped"),
+        }
+
         {
             let transaction = db.begin_write().map_err(io_other)?;
             transaction.open_table(LOG_TABLE).map_err(io_other)?;
@@ -1107,8 +1130,7 @@ mod tests {
             .initialize("project-a", "run-a", Actor::operator("device-a", "test"))
             .unwrap();
         let genesis = runtime.events().unwrap().remove(0);
-        let after_genesis =
-            kbd_runtime::replay_events(std::slice::from_ref(&genesis)).unwrap();
+        let after_genesis = kbd_runtime::replay_events(std::slice::from_ref(&genesis)).unwrap();
 
         // Ready -> Ready is not a valid lifecycle transition (see
         // `valid_transition`) — a signed, well-formed event that will fail

@@ -180,7 +180,11 @@ impl DeviceSigner {
 /// callers that only have a candidate `signer_key_id`/public key (e.g. from
 /// `DeviceRecord`) and message bytes — not a full `Event` to run
 /// `Event::verify_signature`'s revocation-aware path over.
-pub fn verify_ed25519_signature(public_key_base64: &str, message: &[u8], signature_base64: &str) -> bool {
+pub fn verify_ed25519_signature(
+    public_key_base64: &str,
+    message: &[u8],
+    signature_base64: &str,
+) -> bool {
     let Ok(public_bytes) = BASE64.decode(public_key_base64) else {
         return false;
     };

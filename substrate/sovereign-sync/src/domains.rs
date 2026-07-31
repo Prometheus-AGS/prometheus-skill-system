@@ -211,7 +211,10 @@ impl DomainAdapter for SkillIndexAdapter {
 // ---------------------------------------------------------------------------
 
 pub struct LearnerModelAdapter {
-    store: learner_model::LearnerModelStore<storage_provider::LocalDirAdapter, storage_provider::LoroAdapter>,
+    store: learner_model::LearnerModelStore<
+        storage_provider::LocalDirAdapter,
+        storage_provider::LoroAdapter,
+    >,
     learner_id: String,
 }
 
@@ -283,12 +286,18 @@ mod tests {
             domain_family(&SyncDomain::new("learner-model:did:plc:abc")),
             "learner-model"
         );
-        assert_eq!(domain_family(&SyncDomain::new("skill-index")), "skill-index");
+        assert_eq!(
+            domain_family(&SyncDomain::new("skill-index")),
+            "skill-index"
+        );
     }
 
     #[test]
     fn surreal_memory_is_never_syncable() {
-        assert_eq!(privacy_for_family("surreal-memory"), Some(PrivacyClass::Local));
+        assert_eq!(
+            privacy_for_family("surreal-memory"),
+            Some(PrivacyClass::Local)
+        );
         let mut manifest = SyncManifest::new();
         let domain = SyncDomain::new("surreal-memory");
         ensure_registered(&mut manifest, &domain);

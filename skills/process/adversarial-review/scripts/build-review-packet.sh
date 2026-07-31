@@ -489,6 +489,79 @@ else
       { echo "===== $(basename "$h") ====="; cat "$h"; echo; } >> "$WORK/handoffs.md"
     done
   fi
+
+  # --- cited_paths: resolve every file path the artifact names ----------------
+  # WHY THIS EXISTS
+  # file_tree is built with `find -maxdepth 2` (see above), but every skill lives
+  # at skills/<domain>/<skill>/... — depth 3+. An artifact citing a real skill
+  # file therefore drew an "unverifiable claim" finding EVERY TIME, no matter how
+  # correct the citation. Three separate review rounds in this phase produced that
+  # finding, and a gate that reliably manufactures false findings trains reviewers
+  # to discount the true ones.
+  #
+  # Raising maxdepth is the wrong fix: depth 2 is 9KB, depth 3 is 112KB, depth 4
+  # is 590KB. The tree would dominate the packet to answer a question about ~17
+  # paths. So resolve exactly what the artifact CITES and stamp each one EXISTS or
+  # MISSING. Bounded by the artifact, not by repo size.
+  #
+  # A MISSING entry is now a real, checkable finding rather than an artifact of
+  # the packet's own blindness.
+  python3 - "$WORK/artifact.md" "$REPO_ROOT" > "$WORK/cited_paths.txt" 2>/dev/null <<'PY' || true
+import os, re, sys
+text = open(sys.argv[1], encoding="utf-8", errors="replace").read()
+root = sys.argv[2]
+
+# Backtick-quoted, repo-relative-looking paths with a known source extension.
+# Deliberately conservative: prose mentioning "the plan" is not a path, and a
+# false MISSING is worse than an omission — it would recreate the very problem
+# this block fixes.
+pat = re.compile(r"`([A-Za-z0-9_][A-Za-z0-9_./-]*\."
+                 r"(?:sh|md|json|rs|toml|js|mjs|ts|tsx|py|yml|yaml|wit))"
+                 r"(?::\d+(?:-\d+)?)?`")
+# Index basename -> repo-relative paths, once. Bulk dirs pruned; this walk is
+# the price of not reporting false MISSINGs, and it is paid once per packet.
+matches = {}
+# NB: do NOT blanket-skip dot-directories. .kbd-orchestrator holds every phase
+# artifact (assessment.md, goals.md, plan.md), so pruning it made those cite as
+# MISSING despite dozens of in-repo matches — the same false-finding class this
+# block removes. Skip only the named bulk dirs.
+_skip = {"node_modules", ".git", "target", "dist", ".refiner", "build", "vendor"}
+for dirpath, dirnames, filenames in os.walk(root):
+    dirnames[:] = [d for d in dirnames if d not in _skip]
+    for fn in filenames:
+        rel = os.path.relpath(os.path.join(dirpath, fn), root)
+        matches.setdefault(fn, []).append(rel)
+
+seen, out = set(), []
+for m in pat.finditer(text):
+    p = m.group(1)
+    if p in seen:
+        continue
+    seen.add(p)
+    # Absolute paths point outside this repository (another repo, a home dir).
+    # Mark them explicitly rather than reporting MISSING, which would read as a
+    # defect in the artifact when it is really a scope boundary.
+    if p.startswith("/"):
+        out.append("EXTERNAL %s  (outside this repository — not resolvable here)" % p)
+        continue
+    # Direct hit: the citation is repo-relative.
+    if os.path.exists(os.path.join(root, p)):
+        out.append("%-8s %s" % ("EXISTS", p))
+        continue
+    # Authors cite BARE FILENAMES ("dispatch-judge.sh") far more often than full
+    # paths, and reporting those MISSING would manufacture exactly the false
+    # findings this block exists to eliminate. Resolve by basename before
+    # concluding anything, and show where it actually lives.
+    hits = matches.get(os.path.basename(p), [])
+    if len(hits) == 1:
+        out.append("%-8s %s  -> %s" % ("EXISTS", p, hits[0]))
+    elif hits:
+        out.append("%-8s %s  -> %d matches (%s)"
+                   % ("EXISTS", p, len(hits), ", ".join(sorted(hits)[:3])))
+    else:
+        out.append("%-8s %s" % ("MISSING", p))
+print("\n".join(sorted(out)) if out else "(no file paths cited in this artifact)")
+PY
 fi
 
 # --- assemble packet ----------------------------------------------------------
@@ -554,6 +627,9 @@ elif mode == "decision":
 else:
     packet["artifact"] = slurp("artifact.md")
     packet["goals"] = slurp("goals.md")
+    # Every file path the artifact cites, stamped EXISTS / MISSING / EXTERNAL.
+    # file_tree stops at depth 2; this answers path claims at any depth.
+    packet["cited_paths"] = slurp("cited_paths.txt")
     packet["prior_handoffs"] = slurp("handoffs.md")
 
 # --- per-field cap, recorded in the packet (creation modes) -------------------

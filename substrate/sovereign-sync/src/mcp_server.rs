@@ -131,10 +131,8 @@ impl SkillIndex {
     pub fn search(&self, query: &str) -> Vec<SkillEntry> {
         let tokens: Vec<String> = query.split_whitespace().map(|t| t.to_lowercase()).collect();
         let remote_guard = self.remote.read().ok();
-        let remote_entries: &[SkillEntry] = remote_guard
-            .as_deref()
-            .map(|v| v.as_slice())
-            .unwrap_or(&[]);
+        let remote_entries: &[SkillEntry] =
+            remote_guard.as_deref().map(|v| v.as_slice()).unwrap_or(&[]);
         let mut results: Vec<(SkillEntry, usize)> = self
             .entries
             .iter()

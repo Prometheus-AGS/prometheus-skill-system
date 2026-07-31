@@ -23,7 +23,9 @@
 //! P2P consumer task would after a real `broadcast()`/`recv()` round trip.
 
 use chrono::Utc;
-use learner_model::{seed_from_survey, LearnerModelSeed, LearnerModelStore, MasteryBasis, MasteryPrior};
+use learner_model::{
+    seed_from_survey, LearnerModelSeed, LearnerModelStore, MasteryBasis, MasteryPrior,
+};
 use sovereign_sync::config::PeersConfig;
 use sovereign_sync::p2p::P2PNode;
 use sovereign_sync::rest_api::{self, AppState, PushOutcome};
@@ -52,7 +54,11 @@ fn write_project_manifest(project_root: &Path) -> String {
     project_id
 }
 
-async fn new_node_with_p2p(skills_dir: &Path, project_root: &Path, data_root: &Path) -> (AppState, String) {
+async fn new_node_with_p2p(
+    skills_dir: &Path,
+    project_root: &Path,
+    data_root: &Path,
+) -> (AppState, String) {
     let project_id = write_project_manifest(project_root);
     // A real iroh endpoint bind, but never `.start()`ed — no actual gossip
     // join or network I/O beyond the local socket bind. Present only so
@@ -68,7 +74,11 @@ async fn new_node_with_p2p(skills_dir: &Path, project_root: &Path, data_root: &P
     (state, project_id)
 }
 
-async fn new_node_no_p2p(skills_dir: &Path, project_root: &Path, data_root: &Path) -> (AppState, String) {
+async fn new_node_no_p2p(
+    skills_dir: &Path,
+    project_root: &Path,
+    data_root: &Path,
+) -> (AppState, String) {
     let project_id = write_project_manifest(project_root);
     let state = AppState::try_new_at(skills_dir, project_root, data_root, None)
         .await
@@ -139,9 +149,7 @@ async fn skill_index_replicates_end_to_end_between_two_nodes() {
 /// `AppState::try_new_at`'s `learner-model` adapter uses for a node built on
 /// `data_root`, so the test can seed/read content directly through the same
 /// storage key (`learner/{learner_id}/model.crdt`) the adapter itself uses.
-fn learner_model_store_at(
-    data_root: &Path,
-) -> LearnerModelStore<LocalDirAdapter, LoroAdapter> {
+fn learner_model_store_at(data_root: &Path) -> LearnerModelStore<LocalDirAdapter, LoroAdapter> {
     LearnerModelStore::new(
         LocalDirAdapter::new(rest_api::learner_model_dir_at(data_root)),
         LoroAdapter,
@@ -196,7 +204,10 @@ async fn learner_model_replicates_end_to_end_between_two_nodes() {
     let seed = make_seed(&learner_id, vec![("ownership", 0.3), ("traits", 0.85)]);
     let model = seed_from_survey(&seed);
     let store_a = learner_model_store_at(data_a.path());
-    store_a.save(&model).await.expect("seed node A's learner-model");
+    store_a
+        .save(&model)
+        .await
+        .expect("seed node A's learner-model");
 
     // 1 & 3: push from node A — named domain, and real bytes produced.
     let outcome = rest_api::build_push_envelope(&node_a, "learner-model")

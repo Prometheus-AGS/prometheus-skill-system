@@ -99,7 +99,12 @@ impl AppState {
         let quorum = QuorumPolicy::new(1, [1])?;
         let kbd_control =
             Arc::new(KbdControlPlane::open_at(project_root, data_root, quorum).await?);
-        Self::from_control_plane(skills_dir, kbd_control, learner_model_dir_at(data_root), p2p)
+        Self::from_control_plane(
+            skills_dir,
+            kbd_control,
+            learner_model_dir_at(data_root),
+            p2p,
+        )
     }
 
     fn from_control_plane(
@@ -127,7 +132,10 @@ impl AppState {
         );
         adapters.insert(
             "learner-model".to_string(),
-            Box::new(LearnerModelAdapter::new(learner_model_dir, default_learner_id())),
+            Box::new(LearnerModelAdapter::new(
+                learner_model_dir,
+                default_learner_id(),
+            )),
         );
 
         Ok(Self {
@@ -379,10 +387,12 @@ pub async fn build_push_envelope(
         )
     })?;
 
-    let local_json = adapter
-        .export_json()
-        .await
-        .map_err(|error| (StatusCode::INTERNAL_SERVER_ERROR, serde_json::json!({"error": error.to_string()})))?;
+    let local_json = adapter.export_json().await.map_err(|error| {
+        (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            serde_json::json!({"error": error.to_string()}),
+        )
+    })?;
 
     let crdt = LoroAdapter;
     let (new_snapshot, delta) = {
@@ -469,12 +479,16 @@ async fn build_presence_push_envelope(
         });
     }
 
-    let signer = state.kbd_control.runtime().device_signer().map_err(|error| {
-        (
-            StatusCode::INTERNAL_SERVER_ERROR,
-            serde_json::json!({"error": error.to_string()}),
-        )
-    })?;
+    let signer = state
+        .kbd_control
+        .runtime()
+        .device_signer()
+        .map_err(|error| {
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                serde_json::json!({"error": error.to_string()}),
+            )
+        })?;
     let mut envelope = SyncEnvelope {
         schema_version: "1".into(),
         domain: domain_name.to_string(),
