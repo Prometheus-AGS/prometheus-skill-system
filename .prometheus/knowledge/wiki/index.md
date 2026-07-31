@@ -11,6 +11,7 @@
 * [Adversarial Review Creation Executor Completion Status](/adversarial-review-creation-executor-completion-status.md)
 * [Adversarial Review Creation Executor Session Complete](/adversarial-review-creation-executor-session-complete.md)
 * [Adversarial Review Creation Executor Session Completion](/adversarial-review-creation-executor-session-completion.md)
+* [Adversarial Review Creation Executor Session Completion Record](/adversarial-review-creation-executor-session-completion-record.md)
 * [Adversarial Review Creation Phase Completed with Unknown Change](/adversarial-review-creation-phase-completed-with-unknown-change.md)
 * [Adversarial Review Creation Phase Executor Completion](/adversarial-review-creation-phase-executor-completion.md)
 * [Adversarial Review Creation Session Completed with Unknown Change](/adversarial-review-creation-session-completed-with-unknown-change.md)

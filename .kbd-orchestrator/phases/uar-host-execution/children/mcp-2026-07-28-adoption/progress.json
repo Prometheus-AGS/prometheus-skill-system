@@ -1,0 +1,7 @@
+{
+  "phase": "mcp-2026-07-28-adoption",
+  "parentPhase": "uar-host-execution",
+  "stage": null,
+  "completion": { "implementation": { "completed": 0, "total": 0, "status": "PENDING" } },
+  "childPhases": []
+}

@@ -1,0 +1,8 @@
+{
+  "allowedWritePaths": [
+    ".kbd-orchestrator/phases/adversarial-review-for-creation/children/mcp-2026-07-28-adoption/**"
+  ],
+  "deniedPaths": [],
+  "inheritsConstraints": true,
+  "__note": "Edit allowedWritePaths to widen the child loop's write surface. .kbd-orchestrator/** and SCRATCHPAD.md are always allowed. Enforced advisorily by check-child-scope.sh."
+}

@@ -1,12 +1,12 @@
 {
   "activePhaseId": "adversarial-review-for-creation",
   "change": null,
-  "childPointer": null,
+  "childPointer": "mcp-2026-07-28-adoption",
   "completionMetric": "implementation",
-  "currentTask": null,
-  "exactNextCommand": "/kbd-assess adversarial-review-for-creation",
+  "currentTask": "assess mcp-2026-07-28-adoption (child of uar-host-execution)",
+  "exactNextCommand": "/kbd-assess uar-host-execution/mcp-2026-07-28-adoption",
   "generatedBy": "kbd-runtime",
-  "implementationCompleted": 7,
+  "implementationCompleted": 170,
   "implementationTotal": 229,
   "path": [
     "adversarial-review-for-creation"
@@ -17,11 +17,15 @@
   ],
   "planRevision": 2,
   "projectId": "6ac090a4-3656-4d83-8eb6-2891508196d5",
-  "revision": 474,
+  "revision": 475,
   "runId": "docusaurus-github-pages-site-20260729T012334Z",
   "schemaVersion": "5",
-  "sourceRevision": 474,
-  "status": "completed",
-  "updatedAt": "2026-07-31T17:48:32.516876Z",
-  "next": "/kbd-apply change-uhe-008-builtin-db-registration"
+  "sourceRevision": 475,
+  "status": "child_assess_pending",
+  "updatedAt": "2026-07-31T18:05:46.841882Z",
+  "childPhases": [
+    "mcp-2026-07-28-adoption"
+  ],
+  "next": "/kbd-assess uar-host-execution/mcp-2026-07-28-adoption",
+  "parentResumeCommand": "/kbd-apply change-uhe-008-builtin-db-registration"
 }
