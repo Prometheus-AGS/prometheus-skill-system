@@ -217,12 +217,21 @@
             },
             "status": "COMPLETE",
             "type": "change"
+          },
+          {
+            "id": "change-msp-006-reference-component",
+            "progress": {
+              "done": 5,
+              "total": 5
+            },
+            "status": "COMPLETE",
+            "type": "change"
           }
         ],
         "id": "adversarial-review-for-creation",
         "progress": {
-          "done": 21,
-          "total": 23
+          "done": 22,
+          "total": 24
         },
         "status": "PENDING",
         "type": "phase"
@@ -2601,13 +2610,13 @@
     ],
     "id": "6ac090a4-3656-4d83-8eb6-2891508196d5",
     "progress": {
-      "done": 163,
-      "total": 218
+      "done": 164,
+      "total": 219
     },
     "status": "completed",
     "type": "phase"
   },
   "schemaVersion": "1",
-  "sourceRevision": 343,
-  "updatedAt": "2026-07-31T11:26:07.150640Z"
+  "sourceRevision": 359,
+  "updatedAt": "2026-07-31T11:38:42.904788Z"
 }

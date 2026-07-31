@@ -15,15 +15,19 @@
 #
 # VERDICTS
 #   E0  script is build/dev/CI tooling a phone never invokes → already portable
-#   E1  pure text/JSON transformation → portable as a Wasm component
+#   E1  portable as a Wasm component; `needs_capabilities` says whether it
+#       requires kv-store/clock grants or is a pure function of its input
 #   E2  needs a native binary or daemon on the device
 #   R   needs the network or a host service → remote execution covers it
 #
 # The ordering is deliberate: E2 and R are claims that something CANNOT be
 # ported, so they require positive evidence (a named binary, a network call).
-# E1 is the residual — and being the residual, it is the class most likely to
-# be wrong, which `--check` cannot detect. Treat E1 as "candidate for porting",
-# not as "proven portable".
+#
+# E1 WAS ONCE THE BARE RESIDUAL, AND THAT WAS WRONG. It described members as
+# "pure text/JSON transformation" — and when change-msp-006 went looking for a
+# pure one to port, ALL 18 turned out to touch the filesystem or clock. The
+# residual had silently absorbed every skill no other rule matched. E1 is now
+# split by `needs_capabilities`, so "portable" states what it costs.
 #
 # bash 3.2 compatible. No LLM calls.
 set -uo pipefail
@@ -74,6 +78,13 @@ NATIVE = re.compile(r"\b(cargo|rustc|docker|kubectl|launchctl|systemctl|xcodebui
                     r"gradle|npm|pnpm|node|go|make|cmake|brew|apt-get)\b")
 NETWORK = re.compile(r"\b(curl|wget|gh |git clone|git push|git fetch|ssh|scp|"
                      r"nc |http://|https://)")
+# Filesystem and clock access. A guest CAN do these — but only through granted
+# capabilities (prometheus:component's kv-store and clock), never ambiently. So
+# they are E1 with a capability requirement, not "pure". Verified empirically:
+# when E1 was the bare residual, ALL 18 members touched the filesystem, so
+# "pure transformation" described none of them.
+FSCLOCK = re.compile(r"\b(mkdir|rmdir|touch|date\s|stat\s|find\s|ls\s)|"
+                     r"\brm\s|\bcp\s|\bmv\s|>\s*\"?\$")
 # Build/dev tooling: if a script only exists to validate, format, install, or
 # release the pack itself, a phone has no reason to run it at all.
 DEVTOOL = re.compile(r"(validate|lint|format|install|build|release|publish|"
@@ -109,11 +120,14 @@ for d in skills:
         verdict, why = "R", "scripts make network or host-service calls; remote execution covers this"
     elif has_native:
         verdict, why = "E2", "scripts shell out to a native toolchain or daemon that must exist on the device"
+    elif FSCLOCK.search(blob):
+        verdict, why = "E1", "transformation plus filesystem/clock access; portable as a Wasm component ONLY with the kv-store and clock capabilities granted"
     else:
-        verdict, why = "E1", "pure text/JSON transformation; candidate for a Wasm component (residual class — verify before porting)"
+        verdict, why = "E1", "pure text/JSON transformation; portable as a Wasm component with no capabilities"
 
     rows.append({"skill": d, "scripts": len(scripts), "verdict": verdict,
-                 "rationale": why, "nested_duplicate": nested})
+                 "rationale": why, "nested_duplicate": nested,
+                 "needs_capabilities": verdict == "E1" and bool(FSCLOCK.search(blob))})
 
 counts = {}
 for r in rows:
@@ -128,7 +142,7 @@ doc = {
     "counts": counts,
     "verdict_meanings": {
         "E0": "build/dev tooling or nested duplicate — already portable, no work",
-        "E1": "pure transformation — candidate for a Wasm component",
+        "E1": "portable as a Wasm component; see rationale for whether capabilities are required",
         "E2": "needs a native binary or daemon on the device",
         "R":  "needs network or a host service — remote execution covers it",
     },

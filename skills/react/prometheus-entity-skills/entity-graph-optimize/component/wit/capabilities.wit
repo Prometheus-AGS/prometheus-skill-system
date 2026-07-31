@@ -1,0 +1,38 @@
+package prometheus:component@0.1.0;
+
+// prometheus:component — host capabilities a guest may import.
+//
+// Capability-based, not ambient: a guest that does not import an interface
+// cannot reach it. KnowMe's host already enforces exactly this — a component
+// importing an interface outside its granted set fails with
+// `capability-denied` BEFORE any guest code runs — and that behaviour is the
+// reason this family models capabilities as imports rather than as a runtime
+// permission check.
+
+interface log {
+  use types.{kv};
+
+  enum level { debug, info, warn, error }
+
+  /// Emit a structured log line. Never fails: a guest must not have to handle
+  /// logging errors, or it will skip logging on the paths that matter most.
+  emit: func(lvl: level, message: string, fields: list<kv>);
+}
+
+interface kv-store {
+  use types.{error};
+
+  /// Read a value. `none` means absent, which is distinct from an error.
+  get: func(key: string) -> result<option<string>, error>;
+  set: func(key: string, value: string) -> result<_, error>;
+  delete: func(key: string) -> result<_, error>;
+}
+
+interface clock {
+  /// Milliseconds since the Unix epoch.
+  ///
+  /// A capability, not a builtin, because a deterministic replay host must be
+  /// able to withhold or fake it. A guest that reads the wall clock ambiently
+  /// cannot be replayed.
+  now-ms: func() -> u64;
+}

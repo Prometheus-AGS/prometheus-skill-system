@@ -118,12 +118,12 @@
   "generatedBy": "kbd-runtime",
   "implementation_completed": 0,
   "implementation_total": 8,
-  "last_updated": "2026-07-31T11:26:07.150640Z",
+  "last_updated": "2026-07-31T11:38:42.904788Z",
   "last_updated_by": "kbd-runtime",
   "migrationStatus": "legacy-read-only",
   "parentPhase": null,
   "phase": "phase-codex-plugin-implementation",
   "phaseId": "phase-codex-plugin-implementation",
   "schemaVersion": "2",
-  "sourceRevision": 343
+  "sourceRevision": 359
 }

@@ -252,10 +252,21 @@
       "tasks_done": 6,
       "tasks_total": 6,
       "title": "change-msp-005-prometheus-component-wit"
+    },
+    {
+      "blockers": [],
+      "id": "change-msp-006-reference-component",
+      "implementation_status": "COMPLETE",
+      "last_task_completed": "Report \"well-formed, execution unproven\" — do NOT claim it runs",
+      "next_task_pending": null,
+      "status": "DONE",
+      "tasks_done": 5,
+      "tasks_total": 5,
+      "title": "change-msp-006-reference-component"
     }
   ],
-  "changes_completed": 21,
-  "changes_total": 23,
+  "changes_completed": 22,
+  "changes_total": 24,
   "children": {},
   "completion": {
     "certification": {
@@ -269,9 +280,9 @@
       "summary": null
     },
     "implementation": {
-      "completed": 21,
+      "completed": 22,
       "status": "IN_PROGRESS",
-      "total": 23
+      "total": 24
     },
     "primaryCounter": "implementation",
     "publication": {
@@ -281,14 +292,14 @@
     }
   },
   "generatedBy": "kbd-runtime",
-  "implementation_completed": 21,
-  "implementation_total": 23,
-  "last_updated": "2026-07-31T11:26:07.150640Z",
+  "implementation_completed": 22,
+  "implementation_total": 24,
+  "last_updated": "2026-07-31T11:38:42.904788Z",
   "last_updated_by": "kbd-runtime",
   "migrationStatus": null,
   "parentPhase": null,
   "phase": "adversarial-review-for-creation",
   "phaseId": "adversarial-review-for-creation",
   "schemaVersion": "2",
-  "sourceRevision": 343
+  "sourceRevision": 359
 }

@@ -12,437 +12,498 @@
   },
   "verdict_meanings": {
     "E0": "build/dev tooling or nested duplicate \u2014 already portable, no work",
-    "E1": "pure transformation \u2014 candidate for a Wasm component",
+    "E1": "portable as a Wasm component; see rationale for whether capabilities are required",
     "E2": "needs a native binary or daemon on the device",
     "R": "needs network or a host service \u2014 remote execution covers it"
   },
   "skills": [
     {
       "skill": "skills/devops/fabric-integration",
-      "scripts": 1,
+      "scripts": 2,
       "verdict": "E0",
       "rationale": "scripts are build/validation tooling for the pack itself; a phone never invokes them",
-      "nested_duplicate": false
+      "nested_duplicate": false,
+      "needs_capabilities": false
     },
     {
       "skill": "skills/devops/gitops-bootstrap",
       "scripts": 3,
       "verdict": "E0",
       "rationale": "scripts are build/validation tooling for the pack itself; a phone never invokes them",
-      "nested_duplicate": false
+      "nested_duplicate": false,
+      "needs_capabilities": false
     },
     {
       "skill": "skills/devops/gitops-transform",
       "scripts": 2,
       "verdict": "E2",
       "rationale": "scripts shell out to a native toolchain or daemon that must exist on the device",
-      "nested_duplicate": false
+      "nested_duplicate": false,
+      "needs_capabilities": false
     },
     {
       "skill": "skills/imported/artifact-refiner",
       "scripts": 29,
       "verdict": "R",
       "rationale": "scripts make network or host-service calls; remote execution covers this",
-      "nested_duplicate": false
+      "nested_duplicate": false,
+      "needs_capabilities": false
     },
     {
       "skill": "skills/imported/artifact-refiner/shared/sycophancy-correction",
       "scripts": 1,
       "verdict": "E0",
       "rationale": "scripts are build/validation tooling for the pack itself; a phone never invokes them",
-      "nested_duplicate": false
+      "nested_duplicate": false,
+      "needs_capabilities": false
     },
     {
       "skill": "skills/imported/prometheus-entity-management/.claude/skills/artifact-refiner",
       "scripts": 13,
       "verdict": "E0",
       "rationale": "nested duplicate of an already-classified skill; not independent porting work",
-      "nested_duplicate": true
+      "nested_duplicate": true,
+      "needs_capabilities": false
     },
     {
       "skill": "skills/imported/prometheus-entity-management/.claude/skills/iterative-evolver",
       "scripts": 8,
       "verdict": "E0",
       "rationale": "nested duplicate of an already-classified skill; not independent porting work",
-      "nested_duplicate": true
+      "nested_duplicate": true,
+      "needs_capabilities": false
     },
     {
       "skill": "skills/imported/prometheus-entity-management/.claude/skills/kbd-process-orchestrator",
       "scripts": 1,
       "verdict": "E0",
       "rationale": "nested duplicate of an already-classified skill; not independent porting work",
-      "nested_duplicate": true
+      "nested_duplicate": true,
+      "needs_capabilities": false
     },
     {
       "skill": "skills/imported/prometheus-entity-management/.claude/skills/pmpo-skill-creator",
       "scripts": 6,
       "verdict": "E0",
       "rationale": "nested duplicate of an already-classified skill; not independent porting work",
-      "nested_duplicate": true
+      "nested_duplicate": true,
+      "needs_capabilities": false
     },
     {
       "skill": "skills/imported/prometheus-entity-management/.codex/skills/artifact-refiner",
       "scripts": 13,
       "verdict": "E0",
       "rationale": "nested duplicate of an already-classified skill; not independent porting work",
-      "nested_duplicate": true
+      "nested_duplicate": true,
+      "needs_capabilities": false
     },
     {
       "skill": "skills/imported/prometheus-entity-management/.codex/skills/iterative-evolver",
       "scripts": 8,
       "verdict": "E0",
       "rationale": "nested duplicate of an already-classified skill; not independent porting work",
-      "nested_duplicate": true
+      "nested_duplicate": true,
+      "needs_capabilities": false
     },
     {
       "skill": "skills/imported/prometheus-entity-management/.codex/skills/kbd-process-orchestrator",
       "scripts": 1,
       "verdict": "E0",
       "rationale": "nested duplicate of an already-classified skill; not independent porting work",
-      "nested_duplicate": true
+      "nested_duplicate": true,
+      "needs_capabilities": false
     },
     {
       "skill": "skills/imported/prometheus-entity-management/.codex/skills/pmpo-skill-creator",
       "scripts": 6,
       "verdict": "E0",
       "rationale": "nested duplicate of an already-classified skill; not independent porting work",
-      "nested_duplicate": true
+      "nested_duplicate": true,
+      "needs_capabilities": false
     },
     {
       "skill": "skills/imported/prometheus-entity-management/.cursor/skills/artifact-refiner",
       "scripts": 13,
       "verdict": "E0",
       "rationale": "nested duplicate of an already-classified skill; not independent porting work",
-      "nested_duplicate": true
+      "nested_duplicate": true,
+      "needs_capabilities": false
     },
     {
       "skill": "skills/imported/prometheus-entity-management/.cursor/skills/iterative-evolver",
       "scripts": 8,
       "verdict": "E0",
       "rationale": "nested duplicate of an already-classified skill; not independent porting work",
-      "nested_duplicate": true
+      "nested_duplicate": true,
+      "needs_capabilities": false
     },
     {
       "skill": "skills/imported/prometheus-entity-management/.cursor/skills/kbd-process-orchestrator",
       "scripts": 1,
       "verdict": "E0",
       "rationale": "nested duplicate of an already-classified skill; not independent porting work",
-      "nested_duplicate": true
+      "nested_duplicate": true,
+      "needs_capabilities": false
     },
     {
       "skill": "skills/imported/prometheus-entity-management/.cursor/skills/pmpo-skill-creator",
       "scripts": 6,
       "verdict": "E0",
       "rationale": "nested duplicate of an already-classified skill; not independent porting work",
-      "nested_duplicate": true
+      "nested_duplicate": true,
+      "needs_capabilities": false
     },
     {
       "skill": "skills/imported/prometheus-entity-management/prometheus-entity-skills/entity-graph-crud",
       "scripts": 2,
       "verdict": "E1",
-      "rationale": "pure text/JSON transformation; candidate for a Wasm component (residual class \u2014 verify before porting)",
-      "nested_duplicate": false
+      "rationale": "transformation plus filesystem/clock access; portable as a Wasm component ONLY with the kv-store and clock capabilities granted",
+      "nested_duplicate": false,
+      "needs_capabilities": true
     },
     {
       "skill": "skills/imported/prometheus-entity-management/prometheus-entity-skills/entity-graph-graphql",
       "scripts": 2,
       "verdict": "E1",
-      "rationale": "pure text/JSON transformation; candidate for a Wasm component (residual class \u2014 verify before porting)",
-      "nested_duplicate": false
+      "rationale": "transformation plus filesystem/clock access; portable as a Wasm component ONLY with the kv-store and clock capabilities granted",
+      "nested_duplicate": false,
+      "needs_capabilities": true
     },
     {
       "skill": "skills/imported/prometheus-entity-management/prometheus-entity-skills/entity-graph-optimize",
       "scripts": 2,
       "verdict": "E1",
-      "rationale": "pure text/JSON transformation; candidate for a Wasm component (residual class \u2014 verify before porting)",
-      "nested_duplicate": false
+      "rationale": "transformation plus filesystem/clock access; portable as a Wasm component ONLY with the kv-store and clock capabilities granted",
+      "nested_duplicate": false,
+      "needs_capabilities": true
     },
     {
       "skill": "skills/imported/prometheus-entity-management/prometheus-entity-skills/entity-graph-prisma",
       "scripts": 2,
       "verdict": "E1",
-      "rationale": "pure text/JSON transformation; candidate for a Wasm component (residual class \u2014 verify before porting)",
-      "nested_duplicate": false
+      "rationale": "transformation plus filesystem/clock access; portable as a Wasm component ONLY with the kv-store and clock capabilities granted",
+      "nested_duplicate": false,
+      "needs_capabilities": true
     },
     {
       "skill": "skills/imported/prometheus-entity-management/prometheus-entity-skills/entity-graph-realtime",
       "scripts": 2,
       "verdict": "E1",
-      "rationale": "pure text/JSON transformation; candidate for a Wasm component (residual class \u2014 verify before porting)",
-      "nested_duplicate": false
+      "rationale": "transformation plus filesystem/clock access; portable as a Wasm component ONLY with the kv-store and clock capabilities granted",
+      "nested_duplicate": false,
+      "needs_capabilities": true
     },
     {
       "skill": "skills/imported/prometheus-entity-management/prometheus-entity-skills/entity-graph-setup",
       "scripts": 2,
       "verdict": "E1",
-      "rationale": "pure text/JSON transformation; candidate for a Wasm component (residual class \u2014 verify before porting)",
-      "nested_duplicate": false
+      "rationale": "transformation plus filesystem/clock access; portable as a Wasm component ONLY with the kv-store and clock capabilities granted",
+      "nested_duplicate": false,
+      "needs_capabilities": true
     },
     {
       "skill": "skills/imported/sycophancy-correction",
       "scripts": 1,
       "verdict": "E0",
       "rationale": "scripts are build/validation tooling for the pack itself; a phone never invokes them",
-      "nested_duplicate": false
+      "nested_duplicate": false,
+      "needs_capabilities": false
     },
     {
       "skill": "skills/learn/feynman-loop",
       "scripts": 1,
       "verdict": "E1",
-      "rationale": "pure text/JSON transformation; candidate for a Wasm component (residual class \u2014 verify before porting)",
-      "nested_duplicate": false
+      "rationale": "transformation plus filesystem/clock access; portable as a Wasm component ONLY with the kv-store and clock capabilities granted",
+      "nested_duplicate": false,
+      "needs_capabilities": true
     },
     {
       "skill": "skills/learn/learn-goal",
       "scripts": 3,
       "verdict": "R",
       "rationale": "scripts make network or host-service calls; remote execution covers this",
-      "nested_duplicate": false
+      "nested_duplicate": false,
+      "needs_capabilities": false
     },
     {
       "skill": "skills/learn/learn-grade",
       "scripts": 1,
       "verdict": "E1",
-      "rationale": "pure text/JSON transformation; candidate for a Wasm component (residual class \u2014 verify before porting)",
-      "nested_duplicate": false
+      "rationale": "transformation plus filesystem/clock access; portable as a Wasm component ONLY with the kv-store and clock capabilities granted",
+      "nested_duplicate": false,
+      "needs_capabilities": true
     },
     {
       "skill": "skills/learn/learn-kb",
       "scripts": 1,
       "verdict": "R",
       "rationale": "scripts make network or host-service calls; remote execution covers this",
-      "nested_duplicate": false
+      "nested_duplicate": false,
+      "needs_capabilities": false
     },
     {
       "skill": "skills/learn/learn-plan",
       "scripts": 1,
       "verdict": "E1",
-      "rationale": "pure text/JSON transformation; candidate for a Wasm component (residual class \u2014 verify before porting)",
-      "nested_duplicate": false
+      "rationale": "transformation plus filesystem/clock access; portable as a Wasm component ONLY with the kv-store and clock capabilities granted",
+      "nested_duplicate": false,
+      "needs_capabilities": true
     },
     {
       "skill": "skills/learn/learn-survey",
       "scripts": 1,
       "verdict": "E1",
-      "rationale": "pure text/JSON transformation; candidate for a Wasm component (residual class \u2014 verify before porting)",
-      "nested_duplicate": false
+      "rationale": "transformation plus filesystem/clock access; portable as a Wasm component ONLY with the kv-store and clock capabilities granted",
+      "nested_duplicate": false,
+      "needs_capabilities": true
     },
     {
       "skill": "skills/learn/ui-surface",
       "scripts": 2,
       "verdict": "R",
       "rationale": "scripts make network or host-service calls; remote execution covers this",
-      "nested_duplicate": false
+      "nested_duplicate": false,
+      "needs_capabilities": false
     },
     {
       "skill": "skills/process/adversarial-review",
       "scripts": 9,
       "verdict": "R",
       "rationale": "scripts make network or host-service calls; remote execution covers this",
-      "nested_duplicate": false
+      "nested_duplicate": false,
+      "needs_capabilities": false
     },
     {
       "skill": "skills/process/cowork-management",
       "scripts": 1,
       "verdict": "R",
       "rationale": "scripts make network or host-service calls; remote execution covers this",
-      "nested_duplicate": false
+      "nested_duplicate": false,
+      "needs_capabilities": false
     },
     {
       "skill": "skills/process/ideation-mindmap",
       "scripts": 3,
       "verdict": "E1",
-      "rationale": "pure text/JSON transformation; candidate for a Wasm component (residual class \u2014 verify before porting)",
-      "nested_duplicate": false
+      "rationale": "transformation plus filesystem/clock access; portable as a Wasm component ONLY with the kv-store and clock capabilities granted",
+      "nested_duplicate": false,
+      "needs_capabilities": true
     },
     {
       "skill": "skills/process/iterative-evolver",
       "scripts": 8,
       "verdict": "E0",
       "rationale": "scripts are build/validation tooling for the pack itself; a phone never invokes them",
-      "nested_duplicate": false
+      "nested_duplicate": false,
+      "needs_capabilities": false
     },
     {
       "skill": "skills/process/kbd-goal",
       "scripts": 2,
       "verdict": "E0",
       "rationale": "scripts are build/validation tooling for the pack itself; a phone never invokes them",
-      "nested_duplicate": false
+      "nested_duplicate": false,
+      "needs_capabilities": false
     },
     {
       "skill": "skills/process/kbd-process-orchestrator",
       "scripts": 2,
       "verdict": "E0",
       "rationale": "scripts are build/validation tooling for the pack itself; a phone never invokes them",
-      "nested_duplicate": false
+      "nested_duplicate": false,
+      "needs_capabilities": false
     },
     {
       "skill": "skills/process/kbd-process-orchestrator/skills/kbd-doctor",
       "scripts": 1,
       "verdict": "E0",
       "rationale": "scripts are build/validation tooling for the pack itself; a phone never invokes them",
-      "nested_duplicate": false
+      "nested_duplicate": false,
+      "needs_capabilities": false
     },
     {
       "skill": "skills/process/kbd-process-orchestrator/skills/kbd-next-phase",
       "scripts": 1,
       "verdict": "E1",
-      "rationale": "pure text/JSON transformation; candidate for a Wasm component (residual class \u2014 verify before porting)",
-      "nested_duplicate": false
+      "rationale": "transformation plus filesystem/clock access; portable as a Wasm component ONLY with the kv-store and clock capabilities granted",
+      "nested_duplicate": false,
+      "needs_capabilities": true
     },
     {
       "skill": "skills/process/liter-llm-bridge",
       "scripts": 5,
       "verdict": "R",
       "rationale": "scripts make network or host-service calls; remote execution covers this",
-      "nested_duplicate": false
+      "nested_duplicate": false,
+      "needs_capabilities": false
     },
     {
       "skill": "skills/process/native-agent/skills/start-business-build",
       "scripts": 1,
       "verdict": "E2",
       "rationale": "scripts shell out to a native toolchain or daemon that must exist on the device",
-      "nested_duplicate": false
+      "nested_duplicate": false,
+      "needs_capabilities": false
     },
     {
       "skill": "skills/process/native-agent/skills/upload-to-bossfang",
       "scripts": 1,
       "verdict": "R",
       "rationale": "scripts make network or host-service calls; remote execution covers this",
-      "nested_duplicate": false
+      "nested_duplicate": false,
+      "needs_capabilities": false
     },
     {
       "skill": "skills/process/pmpo-elicit",
       "scripts": 2,
       "verdict": "E0",
       "rationale": "scripts are build/validation tooling for the pack itself; a phone never invokes them",
-      "nested_duplicate": false
+      "nested_duplicate": false,
+      "needs_capabilities": false
     },
     {
       "skill": "skills/process/pmpo-evolver",
       "scripts": 8,
       "verdict": "R",
       "rationale": "scripts make network or host-service calls; remote execution covers this",
-      "nested_duplicate": false
+      "nested_duplicate": false,
+      "needs_capabilities": false
     },
     {
       "skill": "skills/process/pmpo-outer-loop",
       "scripts": 1,
       "verdict": "R",
       "rationale": "scripts make network or host-service calls; remote execution covers this",
-      "nested_duplicate": false
+      "nested_duplicate": false,
+      "needs_capabilities": false
     },
     {
       "skill": "skills/process/pmpo-skill-creator",
       "scripts": 6,
       "verdict": "R",
       "rationale": "scripts make network or host-service calls; remote execution covers this",
-      "nested_duplicate": false
+      "nested_duplicate": false,
+      "needs_capabilities": false
     },
     {
       "skill": "skills/process/zeespec-interrogator",
       "scripts": 6,
       "verdict": "E0",
       "rationale": "scripts are build/validation tooling for the pack itself; a phone never invokes them",
-      "nested_duplicate": false
+      "nested_duplicate": false,
+      "needs_capabilities": false
     },
     {
       "skill": "skills/react/prometheus-entity-skills/entity-graph-crud",
       "scripts": 2,
       "verdict": "E1",
-      "rationale": "pure text/JSON transformation; candidate for a Wasm component (residual class \u2014 verify before porting)",
-      "nested_duplicate": false
+      "rationale": "transformation plus filesystem/clock access; portable as a Wasm component ONLY with the kv-store and clock capabilities granted",
+      "nested_duplicate": false,
+      "needs_capabilities": true
     },
     {
       "skill": "skills/react/prometheus-entity-skills/entity-graph-graphql",
       "scripts": 2,
       "verdict": "E1",
-      "rationale": "pure text/JSON transformation; candidate for a Wasm component (residual class \u2014 verify before porting)",
-      "nested_duplicate": false
+      "rationale": "transformation plus filesystem/clock access; portable as a Wasm component ONLY with the kv-store and clock capabilities granted",
+      "nested_duplicate": false,
+      "needs_capabilities": true
     },
     {
       "skill": "skills/react/prometheus-entity-skills/entity-graph-optimize",
       "scripts": 2,
       "verdict": "E1",
-      "rationale": "pure text/JSON transformation; candidate for a Wasm component (residual class \u2014 verify before porting)",
-      "nested_duplicate": false
+      "rationale": "transformation plus filesystem/clock access; portable as a Wasm component ONLY with the kv-store and clock capabilities granted",
+      "nested_duplicate": false,
+      "needs_capabilities": true
     },
     {
       "skill": "skills/react/prometheus-entity-skills/entity-graph-prisma",
       "scripts": 2,
       "verdict": "E1",
-      "rationale": "pure text/JSON transformation; candidate for a Wasm component (residual class \u2014 verify before porting)",
-      "nested_duplicate": false
+      "rationale": "transformation plus filesystem/clock access; portable as a Wasm component ONLY with the kv-store and clock capabilities granted",
+      "nested_duplicate": false,
+      "needs_capabilities": true
     },
     {
       "skill": "skills/react/prometheus-entity-skills/entity-graph-realtime",
       "scripts": 2,
       "verdict": "E1",
-      "rationale": "pure text/JSON transformation; candidate for a Wasm component (residual class \u2014 verify before porting)",
-      "nested_duplicate": false
+      "rationale": "transformation plus filesystem/clock access; portable as a Wasm component ONLY with the kv-store and clock capabilities granted",
+      "nested_duplicate": false,
+      "needs_capabilities": true
     },
     {
       "skill": "skills/react/prometheus-entity-skills/entity-graph-setup",
       "scripts": 2,
       "verdict": "E1",
-      "rationale": "pure text/JSON transformation; candidate for a Wasm component (residual class \u2014 verify before porting)",
-      "nested_duplicate": false
+      "rationale": "transformation plus filesystem/clock access; portable as a Wasm component ONLY with the kv-store and clock capabilities granted",
+      "nested_duplicate": false,
+      "needs_capabilities": true
     },
     {
       "skill": "skills/research/deep-research",
       "scripts": 5,
       "verdict": "R",
       "rationale": "scripts make network or host-service calls; remote execution covers this",
-      "nested_duplicate": false
+      "nested_duplicate": false,
+      "needs_capabilities": false
     },
     {
       "skill": "skills/rust/librefang-wasm-skill",
       "scripts": 1,
       "verdict": "E0",
       "rationale": "scripts are build/validation tooling for the pack itself; a phone never invokes them",
-      "nested_duplicate": false
+      "nested_duplicate": false,
+      "needs_capabilities": false
     },
     {
       "skill": "skills/rust/prometheus-rust-auditor",
       "scripts": 1,
       "verdict": "E0",
       "rationale": "scripts are build/validation tooling for the pack itself; a phone never invokes them",
-      "nested_duplicate": false
+      "nested_duplicate": false,
+      "needs_capabilities": false
     },
     {
       "skill": "skills/testing/bdd-cucumber-js",
       "scripts": 1,
       "verdict": "E0",
       "rationale": "scripts are build/validation tooling for the pack itself; a phone never invokes them",
-      "nested_duplicate": false
+      "nested_duplicate": false,
+      "needs_capabilities": false
     },
     {
       "skill": "skills/testing/bdd-cucumber-rs",
       "scripts": 1,
       "verdict": "E0",
       "rationale": "scripts are build/validation tooling for the pack itself; a phone never invokes them",
-      "nested_duplicate": false
+      "nested_duplicate": false,
+      "needs_capabilities": false
     },
     {
       "skill": "skills/testing/bdd-lifecycle-loop",
       "scripts": 3,
       "verdict": "E0",
       "rationale": "scripts are build/validation tooling for the pack itself; a phone never invokes them",
-      "nested_duplicate": false
+      "nested_duplicate": false,
+      "needs_capabilities": false
     },
     {
       "skill": "skills/testing/bdd-testing",
       "scripts": 2,
       "verdict": "R",
       "rationale": "scripts make network or host-service calls; remote execution covers this",
-      "nested_duplicate": false
+      "nested_duplicate": false,
+      "needs_capabilities": false
     },
     {
       "skill": "skills/testing/bdd-video-proof",
       "scripts": 2,
       "verdict": "E0",
       "rationale": "scripts are build/validation tooling for the pack itself; a phone never invokes them",
-      "nested_duplicate": false
+      "nested_duplicate": false,
+      "needs_capabilities": false
     }
   ]
 }
