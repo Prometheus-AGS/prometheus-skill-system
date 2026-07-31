@@ -1,28 +1,37 @@
 POSITION REMINDER — read this as your FIRST tool call every turn
-Phase: mobile-skill-portability
-Step: 9 of 9
-Stage: reflect (COMPLETE — 3 goals MET, 1 PARTIAL, sycophancy 0.018)
-Next command: /kbd-next-phase uar-host-execution
+Phase: uar-host-execution
+Step: 0 of 0 (totals set by /kbd-plan)
+Stage: assess (PENDING — goals seeded, not yet assessed)
+Next command: /kbd-assess uar-host-execution
 
 Required signal format (emit BEFORE any tool call):
-  Starting <kbd-skill> — <phase> (step N of T)
+  Starting <kbd-skill> — uar-host-execution (step N of T)
   [do work]
-  Completed <kbd-skill> — <phase> (step N of T)
+  Completed <kbd-skill> — uar-host-execution (step N of T)
 
 Read progress.json for N and T — never estimate.
 
-WHY GOAL 1 IS PARTIAL, NOT MET:
-  The prometheus:component WIT family is authored and a real component
-  validates against it — but NOTHING HAS EXECUTED IT. UAR's Wasm tier is a
-  stub (wasm_runtime.rs:92-111) and change-msp-008 was archived BLOCKED
-  because cross-repo authorisation was requested and not granted.
-  Well-formed is not working. Do not report it as end-to-end parity.
+THE GATE — RESOLVE AT ASSESS, DO NOT ASSUME:
+  Goal 1 (de-stub UAR's Wasm runtime) CANNOT be done from this repo. The last
+  phase touched ZERO files in the three external repos and change-msp-008 was
+  archived BLOCKED because silence is not consent. Authorised -> goal 1 is
+  deliverable. Not authorised -> the phase narrows, and that narrowing is the
+  USER's call to state, not ours to infer.
 
-CARRY-FORWARDS into uar-host-execution:
-  - De-stub UAR's Wasm runtime — NEEDS USER AUTHORISATION for cross-repo writes
-  - Decide the librefang ABI question: its core-wasm extern-C templates CANNOT
-    load in a component runtime. Port, keep both, or retire.
-  - Close FFI falsifier 3 (marginal cost per added function)
-  - Give CI the sibling repos: it verifies 1 of 4 invariants, not 4
-  - Exercise cursor or state why it cannot reach Tier 1 (same shape as zed was)
-  - PRE-EXISTING, not ours: 2 sovereign-sync control-token tests fail
+  Goal 5 (kbd-reflect .phase staleness) has the SAME shape: the fix lives in an
+  INSTALLED skill under ~/.claude/skills/, outside this repo. Patching it here
+  is the plugin-cache mistake — overwritten by the next install, invisible to git.
+
+ALREADY DONE — DO NOT REDO:
+  wit/prometheus-component/ (4 files, parse as one package, MAPPING.md)
+  entity-graph-optimize/skill.wasm (validated, NEVER EXECUTED)
+  substrate/skill-ffi (iOS + Android, 7 tests)
+  skills/devops/fabric-integration (3 enforced, 1 quarantined)
+  all 4 file-pair harnesses verified by EXECUTED round trips
+
+STANDING BAR:
+  "Well-formed" is not "working". Nothing is end-to-end parity until a host
+  instantiates AND invokes the component.
+  Run it, don't read it — zed had TWO causes; only executing found the second.
+
+PRE-EXISTING, not ours: 2 sovereign-sync control-token tests fail.

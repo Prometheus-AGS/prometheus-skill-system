@@ -1,23 +1,23 @@
 # Current Waypoint
 
-**Phase**: `mobile-skill-portability`
+**Phase**: `uar-host-execution`
 **Stage**: `assess_pending`
-**Created**: 2026-07-31T09:53:02Z
-**Previous phase**: `ideation-and-decision-tools`
+**Created**: 2026-07-31T12:47:03Z
+**Previous phase**: `mobile-skill-portability`
 
 ## Summary
 
-New phase seeded from `ideation-and-decision-tools/reflection.md`.
-Goals are pre-loaded in `.kbd-orchestrator/phases/mobile-skill-portability/goals.md`.
+New phase seeded from `mobile-skill-portability/reflection.md`.
+Goals are pre-loaded in `.kbd-orchestrator/phases/uar-host-execution/goals.md`.
 Review the goals, then run `/kbd-assess` to begin.
 
 ## Next action
 
 ```
-/kbd-assess mobile-skill-portability
+/kbd-assess uar-host-execution
 ```
 
 ## References
 
-- [goals.md](phases/mobile-skill-portability/goals.md)
-- [Previous reflection](phases/ideation-and-decision-tools/reflection.md)
+- [goals.md](phases/uar-host-execution/goals.md)
+- [Previous reflection](phases/mobile-skill-portability/reflection.md)

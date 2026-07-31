@@ -33,3 +33,25 @@ The fix belongs in the kbd-reflect skill (set .phase alongside .status).
 That skill is INSTALLED under ~/.claude/skills/, not part of this repo —
 editing it from here would be an untracked change to another package,
 the same class of mistake as editing a plugin cache.
+
+## Second, related defect in the same helper (2026-07-31)
+
+`kbd-next-phase.sh` writes a **self-referential** `next`:
+
+```
+  "next": "/kbd-next-phase uar-host-execution"
+```
+
+pointing at the command that had just finished, rather than `/kbd-assess`. The
+same file's `exactNextCommand` is set correctly to `/kbd-assess <phase>`, so the
+two fields disagree — and `position-reminder.txt` and the phase skills read
+`next`.
+
+Observed at **both** transitions on 2026-07-31 (`ideation-and-decision-tools →
+mobile-skill-portability`, and `mobile-skill-portability → uar-host-execution`),
+so it is deterministic, not a one-off.
+
+Corrected by hand both times. **Fix belongs upstream** in the installed skill
+alongside the `.phase` fix, for the same reason: editing
+`~/.claude/skills/kbd-next-phase/scripts/kbd-next-phase.sh` from this repo would
+be overwritten by the next install and invisible to git.

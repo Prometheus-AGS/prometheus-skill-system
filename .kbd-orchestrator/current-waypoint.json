@@ -3,26 +3,30 @@
   "change": null,
   "childPointer": null,
   "completionMetric": "implementation",
-  "currentTask": null,
-  "exactNextCommand": "/kbd-assess adversarial-review-for-creation",
+  "currentTask": "run kbd-assess for uar-host-execution",
+  "exactNextCommand": "/kbd-assess uar-host-execution",
   "generatedBy": "kbd-runtime",
-  "implementationCompleted": 9,
-  "implementationTotal": 9,
+  "implementationCompleted": 0,
+  "implementationTotal": 0,
   "path": [
     "adversarial-review-for-creation"
   ],
-  "phase": "mobile-skill-portability",
+  "phase": "uar-host-execution",
   "phaseIds": [
     "adversarial-review-for-creation"
   ],
-  "planRevision": 2,
+  "planRevision": 1,
   "projectId": "6ac090a4-3656-4d83-8eb6-2891508196d5",
-  "revision": 396,
+  "revision": 397,
   "runId": "docusaurus-github-pages-site-20260729T012334Z",
   "schemaVersion": "5",
   "sourceRevision": 396,
-  "status": "reflect_complete",
-  "updatedAt": "2026-07-31T12:00:18.176452Z",
-  "next": "/kbd-next-phase uar-host-execution",
-  "previousPhase": "ideation-and-decision-tools"
+  "status": "assessment_ready",
+  "updatedAt": "2026-07-31T12:47:03Z",
+  "next": "/kbd-assess uar-host-execution",
+  "previousPhase": "mobile-skill-portability",
+  "sourceTool": "kbd-next-phase",
+  "nextPendingChange": null,
+  "certificationStatus": "NOT_TRACKED",
+  "publicationStatus": "NOT_TRACKED"
 }
