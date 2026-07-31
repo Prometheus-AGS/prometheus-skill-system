@@ -3,30 +3,24 @@
   "change": null,
   "childPointer": null,
   "completionMetric": "implementation",
-  "currentTask": "run kbd-assess for mobile-skill-portability",
-  "exactNextCommand": "/kbd-assess mobile-skill-portability",
+  "currentTask": null,
+  "exactNextCommand": "/kbd-assess adversarial-review-for-creation",
   "generatedBy": "kbd-runtime",
-  "implementationCompleted": 0,
-  "implementationTotal": 9,
+  "implementationCompleted": 159,
+  "implementationTotal": 214,
   "path": [
     "adversarial-review-for-creation"
   ],
-  "phase": "mobile-skill-portability",
+  "phase": "adversarial-review-for-creation",
   "phaseIds": [
     "adversarial-review-for-creation"
   ],
-  "planRevision": 1,
+  "planRevision": 2,
   "projectId": "6ac090a4-3656-4d83-8eb6-2891508196d5",
-  "revision": 264,
+  "revision": 276,
   "runId": "docusaurus-github-pages-site-20260729T012334Z",
   "schemaVersion": "5",
-  "sourceRevision": 263,
-  "status": "plan_complete",
-  "updatedAt": "2026-07-31T09:53:02Z",
-  "next": "/kbd-apply change-msp-001-classify-script-skills",
-  "previousPhase": "ideation-and-decision-tools",
-  "sourceTool": "kbd-next-phase",
-  "nextPendingChange": null,
-  "certificationStatus": "NOT_TRACKED",
-  "publicationStatus": "NOT_TRACKED"
+  "sourceRevision": 276,
+  "status": "completed",
+  "updatedAt": "2026-07-31T10:36:49.377867Z"
 }

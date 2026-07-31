@@ -29,12 +29,12 @@
   "generatedBy": "kbd-runtime",
   "implementation_completed": 0,
   "implementation_total": 0,
-  "last_updated": "2026-07-31T09:26:55.513785Z",
+  "last_updated": "2026-07-31T10:36:49.377867Z",
   "last_updated_by": "kbd-runtime",
   "migrationStatus": "legacy-read-only",
   "parentPhase": null,
   "phase": "phase-external-validation",
   "phaseId": "phase-external-validation",
   "schemaVersion": "2",
-  "sourceRevision": 263
+  "sourceRevision": 276
 }

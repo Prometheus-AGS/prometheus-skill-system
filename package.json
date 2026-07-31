@@ -22,6 +22,7 @@
     "test:decision-log": "bash skills/process/adversarial-review/tests/test-decision-log.sh",
     "test:coach-separation": "bash skills/process/adversarial-review/tests/test-coach-reflector-separation.sh",
     "test:idea-fixtures": "bash skills/process/adversarial-review/tests/run-idea-fixture-suite.sh",
+    "check:mobile-classification": "bash skills/process/adversarial-review/scripts/classify-mobile-execution.sh --check",
     "lint:pk": "bash shared/scripts/pk-lint.sh",
     "memory:compress": "bash shared/scripts/mem0-compress.sh",
     "build": "node scripts/build-marketplace.js",

@@ -172,12 +172,21 @@
             },
             "status": "COMPLETE",
             "type": "change"
+          },
+          {
+            "id": "change-msp-001-classify-script-skills",
+            "progress": {
+              "done": 4,
+              "total": 4
+            },
+            "status": "COMPLETE",
+            "type": "change"
           }
         ],
         "id": "adversarial-review-for-creation",
         "progress": {
-          "done": 16,
-          "total": 18
+          "done": 17,
+          "total": 19
         },
         "status": "PENDING",
         "type": "phase"
@@ -2556,13 +2565,13 @@
     ],
     "id": "6ac090a4-3656-4d83-8eb6-2891508196d5",
     "progress": {
-      "done": 158,
-      "total": 213
+      "done": 159,
+      "total": 214
     },
     "status": "completed",
     "type": "phase"
   },
   "schemaVersion": "1",
-  "sourceRevision": 263,
-  "updatedAt": "2026-07-31T09:26:55.513785Z"
+  "sourceRevision": 276,
+  "updatedAt": "2026-07-31T10:36:49.377867Z"
 }

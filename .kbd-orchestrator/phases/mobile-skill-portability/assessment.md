@@ -158,9 +158,14 @@ command, so these numbers are reproducible rather than asserted:
 
 | Category | Count | Mobile story |
 |---|---|---|
-| No `scripts/` dir | **259** | E0 manifest-only — **portable today** |
+| No `scripts/` dir | **249** | E0 manifest-only — **portable today** |
 | With `scripts/` | **60** | need E1 (Wasm), E2 (native), or remote execution |
-| **Total** | **319** | |
+| **Total** | **309** | |
+
+> **Corrected by `change-msp-001`.** The first count said 319/259 because it
+> included `SKILL.md` files under `node_modules/`, which are vendored package
+> content, not skills. Excluding them gives 309/249. The script-bearing count of
+> 60 was unaffected.
 
 **81% need no porting at all.** The real scope is the 60 — and many of those
 scripts are build/validation tooling a phone would never invoke.

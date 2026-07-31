@@ -197,10 +197,21 @@
       "tasks_done": 6,
       "tasks_total": 6,
       "title": "change-idt-009-record-fabric-decisions"
+    },
+    {
+      "blockers": [],
+      "id": "change-msp-001-classify-script-skills",
+      "implementation_status": "COMPLETE",
+      "last_task_completed": "Check script fails when the file drifts from evidence/skill-inventory.md",
+      "next_task_pending": null,
+      "status": "DONE",
+      "tasks_done": 4,
+      "tasks_total": 4,
+      "title": "change-msp-001-classify-script-skills"
     }
   ],
-  "changes_completed": 16,
-  "changes_total": 18,
+  "changes_completed": 17,
+  "changes_total": 19,
   "children": {},
   "completion": {
     "certification": {
@@ -214,9 +225,9 @@
       "summary": null
     },
     "implementation": {
-      "completed": 16,
+      "completed": 17,
       "status": "IN_PROGRESS",
-      "total": 18
+      "total": 19
     },
     "primaryCounter": "implementation",
     "publication": {
@@ -226,14 +237,14 @@
     }
   },
   "generatedBy": "kbd-runtime",
-  "implementation_completed": 16,
-  "implementation_total": 18,
-  "last_updated": "2026-07-31T09:26:55.513785Z",
+  "implementation_completed": 17,
+  "implementation_total": 19,
+  "last_updated": "2026-07-31T10:36:49.377867Z",
   "last_updated_by": "kbd-runtime",
   "migrationStatus": null,
   "parentPhase": null,
   "phase": "adversarial-review-for-creation",
   "phaseId": "adversarial-review-for-creation",
   "schemaVersion": "2",
-  "sourceRevision": 263
+  "sourceRevision": 276
 }
