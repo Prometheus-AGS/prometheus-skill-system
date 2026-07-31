@@ -6,8 +6,8 @@
   "currentTask": null,
   "exactNextCommand": "/kbd-assess adversarial-review-for-creation",
   "generatedBy": "kbd-runtime",
-  "implementationCompleted": 3,
-  "implementationTotal": 225,
+  "implementationCompleted": 4,
+  "implementationTotal": 226,
   "path": [
     "adversarial-review-for-creation"
   ],
@@ -17,11 +17,11 @@
   ],
   "planRevision": 2,
   "projectId": "6ac090a4-3656-4d83-8eb6-2891508196d5",
-  "revision": 430,
+  "revision": 446,
   "runId": "docusaurus-github-pages-site-20260729T012334Z",
   "schemaVersion": "5",
-  "sourceRevision": 430,
+  "sourceRevision": 446,
   "status": "completed",
-  "updatedAt": "2026-07-31T14:51:28.784659Z",
-  "next": "/kbd-apply change-uhe-004-librefang-abi-decision"
+  "updatedAt": "2026-07-31T15:04:16.582819Z",
+  "next": "/kbd-apply change-uhe-005-pack-provenance"
 }

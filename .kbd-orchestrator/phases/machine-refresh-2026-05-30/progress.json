@@ -29,12 +29,12 @@
   "generatedBy": "kbd-runtime",
   "implementation_completed": 0,
   "implementation_total": 0,
-  "last_updated": "2026-07-31T14:51:28.784659Z",
+  "last_updated": "2026-07-31T15:04:16.582819Z",
   "last_updated_by": "kbd-runtime",
   "migrationStatus": "legacy-read-only",
   "parentPhase": null,
   "phase": "machine-refresh-2026-05-30",
   "phaseId": "machine-refresh-2026-05-30",
   "schemaVersion": "2",
-  "sourceRevision": 430
+  "sourceRevision": 446
 }

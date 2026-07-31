@@ -329,10 +329,21 @@
       "tasks_done": 2,
       "tasks_total": 3,
       "title": "change-uhe-003-ffi-marginal-cost"
+    },
+    {
+      "blockers": [],
+      "id": "change-uhe-004-librefang-abi-decision",
+      "implementation_status": "COMPLETE",
+      "last_task_completed": "Write NO code in this change",
+      "next_task_pending": null,
+      "status": "DONE",
+      "tasks_done": 5,
+      "tasks_total": 5,
+      "title": "change-uhe-004-librefang-abi-decision"
     }
   ],
-  "changes_completed": 26,
-  "changes_total": 30,
+  "changes_completed": 27,
+  "changes_total": 31,
   "children": {},
   "completion": {
     "certification": {
@@ -346,9 +357,9 @@
       "summary": null
     },
     "implementation": {
-      "completed": 26,
+      "completed": 27,
       "status": "IN_PROGRESS",
-      "total": 30
+      "total": 31
     },
     "primaryCounter": "implementation",
     "publication": {
@@ -358,14 +369,14 @@
     }
   },
   "generatedBy": "kbd-runtime",
-  "implementation_completed": 26,
-  "implementation_total": 30,
-  "last_updated": "2026-07-31T14:51:28.784659Z",
+  "implementation_completed": 27,
+  "implementation_total": 31,
+  "last_updated": "2026-07-31T15:04:16.582819Z",
   "last_updated_by": "kbd-runtime",
   "migrationStatus": null,
   "parentPhase": null,
   "phase": "adversarial-review-for-creation",
   "phaseId": "adversarial-review-for-creation",
   "schemaVersion": "2",
-  "sourceRevision": 430
+  "sourceRevision": 446
 }

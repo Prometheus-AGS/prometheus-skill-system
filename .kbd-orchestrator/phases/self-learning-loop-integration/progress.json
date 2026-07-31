@@ -140,12 +140,12 @@
   "generatedBy": "kbd-runtime",
   "implementation_completed": 10,
   "implementation_total": 10,
-  "last_updated": "2026-07-31T14:51:28.784659Z",
+  "last_updated": "2026-07-31T15:04:16.582819Z",
   "last_updated_by": "kbd-runtime",
   "migrationStatus": null,
   "parentPhase": null,
   "phase": "self-learning-loop-integration",
   "phaseId": "self-learning-loop-integration",
   "schemaVersion": "2",
-  "sourceRevision": 430
+  "sourceRevision": 446
 }

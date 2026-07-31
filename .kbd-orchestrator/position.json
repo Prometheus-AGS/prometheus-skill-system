@@ -280,12 +280,21 @@
             },
             "status": "PENDING",
             "type": "change"
+          },
+          {
+            "id": "change-uhe-004-librefang-abi-decision",
+            "progress": {
+              "done": 5,
+              "total": 5
+            },
+            "status": "COMPLETE",
+            "type": "change"
           }
         ],
         "id": "adversarial-review-for-creation",
         "progress": {
-          "done": 26,
-          "total": 30
+          "done": 27,
+          "total": 31
         },
         "status": "PENDING",
         "type": "phase"
@@ -2664,13 +2673,13 @@
     ],
     "id": "6ac090a4-3656-4d83-8eb6-2891508196d5",
     "progress": {
-      "done": 168,
-      "total": 225
+      "done": 169,
+      "total": 226
     },
     "status": "completed",
     "type": "phase"
   },
   "schemaVersion": "1",
-  "sourceRevision": 430,
-  "updatedAt": "2026-07-31T14:51:28.784659Z"
+  "sourceRevision": 446,
+  "updatedAt": "2026-07-31T15:04:16.582819Z"
 }
