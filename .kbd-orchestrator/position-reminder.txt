@@ -1,8 +1,8 @@
 POSITION REMINDER — read this as your FIRST tool call every turn
 Phase: mobile-skill-portability
-Step: 0 of 0 (totals set by /kbd-plan)
-Stage: assess (PENDING — goals seeded, not yet assessed)
-Next command: /kbd-assess mobile-skill-portability
+Step: 0 of 9
+Stage: plan (COMPLETE — 9 changes, 45 tasks, all valid --strict)
+Next command: /kbd-apply change-msp-001-classify-script-skills
 
 Required signal format (emit BEFORE any tool call):
   Starting <kbd-skill> — mobile-skill-portability (step N of T)
@@ -11,19 +11,16 @@ Required signal format (emit BEFORE any tool call):
 
 Read progress.json for N and T — never estimate.
 
-SETTLED, DO NOT REOPEN:
-  docs/decisions/wit-world-unification.md fixes the prometheus:component/* shape
-  AND the ordering (unify BEFORE porting any skill). Implement it; don't re-decide.
-  Divergence is 4 packages across 2 repos — knowme:plugin exists at 0.1.0 AND 1.0.0.
+ORDERING IS CHEAPEST-VERIFIABLE-FIRST (reversed from the seeded order):
+  001 classify 60 skills → sizes everything else, do it FIRST
+  002 zed routing · 003 opencode/kimi · 004 fabric-integration  (independent)
+  005 WIT family (needs 001) → 006 reference component (needs 005)
+  007 FFI decision → 009 FFI bindings (needs 005 AND 007)
+  008 UAR execution proof — CROSS-REPO, LAST, isolated
 
-SCOPE GATE:
-  The previous phase wrote ZERO files into flint-realtime-fabric,
-  universal-agent-runtime, or know-me-system (verified by timestamp). Cross-repo
-  code needs the user's explicit agreement first — it is not implied by the
-  decision being recorded.
-
-CARRY-FORWARDS:
-  - 4 version invariants are DOCUMENTED, NOT ENFORCED (3 hold; nothing checks any)
-  - Tier 1 verified on codex ONLY; opencode/kimi unrun; zed falls to Tier 0
+HARD RULES:
+  - 005 ABORTS if the three UAR discovery commands disagree with plan.md
+  - 008 asks for cross-repo authorisation FIRST; silence = BLOCKED, touch nothing
+  - 006 proves well-formed ONLY; it may not claim the component executes
+  - 009 BLOCKED if no mobile toolchain → goal 3 is PARTIAL, never MET
   - PRE-EXISTING, not ours: 2 sovereign-sync control-token tests fail
-  - "Demonstrated" is not "enforced" — criteria must make violation impossible

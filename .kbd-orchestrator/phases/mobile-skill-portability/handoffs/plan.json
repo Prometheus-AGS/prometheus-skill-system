@@ -1,0 +1,23 @@
+{
+  "stage": "plan",
+  "status": "complete",
+  "artifacts": ["plan.md"],
+  "change_count": 9,
+  "task_count": 45,
+  "first_change": "change-msp-001-classify-script-skills",
+  "summary": "9 changes, 45 tasks, all valid under openspec --strict. The assess-stage blocking question dissolved: UAR consumes THIS repo as a submodule (crates/prometheus-skill-system) and discovers skill.wasm beside SKILL.md there, so producing components is in-repo work and UAR picks them up by bumping its pointer. Ordering reversed from the seeded order: classify the 60 skills first (sizes everything), then harness verification, then fabric-integration, then WIT, then the reference component, then the FFI decision and bindings. The single cross-repo change (008) is last and isolated.",
+  "warnings": [
+    "NEW FINDING: skills/rust/librefang-wasm-skill ships wasm templates targeting core-wasm extern \"C\" with a host_call import and ZERO .wit files. A guest built from them CANNOT load in UAR's component runtime. The divergence is three incompatible guest targets, not two WIT packages.",
+    "change-msp-005 must ABORT if re-running the three UAR discovery commands disagrees with what plan recorded — the ordering depends on cross-repo facts a single-repo reviewer cannot verify.",
+    "change-msp-008 requires explicit user authorisation for cross-repo writes. BLOCKED is the default on silence; no later change depends on it.",
+    "change-msp-004 enforces only the three invariants that currently hold; the WIT invariant is already violated and is quarantined in a self-shrinking allowlist that fails both on un-allowlisted violations and on allowlisted entries that have been fixed."
+  ],
+  "adversarial_review": {
+    "rounds": 2,
+    "round_1": "BLOCK — 3 CRITICAL, 1 WARNING",
+    "round_2": "BLOCK — 1 CRITICAL, 2 WARNING",
+    "cross_model_check": "verified-distinct",
+    "all_findings_resolved": true,
+    "notable": "Round 1 caught that I had silently dropped the seeded Mobile FFI bindings goal (restored as change-msp-009). Round 2 caught that my fix for round 1's CI paradox over-corrected into an audit-only check that no longer met goal 2's 'enforced'. A planner correcting its own plan introduced a new defect while fixing the old one."
+  }
+}

@@ -7,7 +7,7 @@
   "exactNextCommand": "/kbd-assess mobile-skill-portability",
   "generatedBy": "kbd-runtime",
   "implementationCompleted": 0,
-  "implementationTotal": 0,
+  "implementationTotal": 9,
   "path": [
     "adversarial-review-for-creation"
   ],
@@ -21,9 +21,9 @@
   "runId": "docusaurus-github-pages-site-20260729T012334Z",
   "schemaVersion": "5",
   "sourceRevision": 263,
-  "status": "assess_complete",
+  "status": "plan_complete",
   "updatedAt": "2026-07-31T09:53:02Z",
-  "next": "/kbd-analyze mobile-skill-portability",
+  "next": "/kbd-apply change-msp-001-classify-script-skills",
   "previousPhase": "ideation-and-decision-tools",
   "sourceTool": "kbd-next-phase",
   "nextPendingChange": null,
