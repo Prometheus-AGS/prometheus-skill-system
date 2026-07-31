@@ -23,3 +23,13 @@ The fabric-invariants job SHALL report 4 of 4 verified with 0 SKIP, or SHALL rec
 - **WHEN** the job runs
 - **THEN** the SKIP is recorded as a stated limit rather than reported as verified
 
+### Requirement: The FFI pattern is confirmed or reversed by measurement
+
+Adding a second function SHALL have its hand-written glue counted. Exceeding the decision's threshold SHALL reverse the pattern choice and record that reversal.
+
+#### Scenario: Exceeding the threshold reverses the decision
+
+- **GIVEN** adding one function needs more than the threshold of hand-written glue
+- **WHEN** the measurement is recorded
+- **THEN** the pattern decision is reversed rather than retained
+

@@ -271,12 +271,21 @@
             },
             "status": "COMPLETE",
             "type": "change"
+          },
+          {
+            "id": "change-uhe-003-ffi-marginal-cost",
+            "progress": {
+              "done": 2,
+              "total": 3
+            },
+            "status": "PENDING",
+            "type": "change"
           }
         ],
         "id": "adversarial-review-for-creation",
         "progress": {
           "done": 26,
-          "total": 29
+          "total": 30
         },
         "status": "PENDING",
         "type": "phase"
@@ -2656,12 +2665,12 @@
     "id": "6ac090a4-3656-4d83-8eb6-2891508196d5",
     "progress": {
       "done": 168,
-      "total": 224
+      "total": 225
     },
     "status": "completed",
     "type": "phase"
   },
   "schemaVersion": "1",
-  "sourceRevision": 422,
-  "updatedAt": "2026-07-31T14:44:36.074031Z"
+  "sourceRevision": 430,
+  "updatedAt": "2026-07-31T14:51:28.784659Z"
 }

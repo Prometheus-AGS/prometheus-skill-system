@@ -88,3 +88,24 @@ pub fn describe_skill(skill_id: String) -> Result<SkillDescriptor, SkillError> {
 pub fn world_version() -> String {
     "prometheus:component@0.1.0".into()
 }
+
+/// List the skills available to this client.
+///
+/// The fourth function on this surface, added by `change-uhe-003` to measure
+/// what a real addition costs — the falsifier the FFI pattern decision was
+/// recorded provisional against. It is a genuine need, not a probe: a mobile
+/// client cannot invoke a skill it cannot enumerate.
+///
+/// Returns descriptors rather than raw ids so a client can render a catalog
+/// without a second round trip per skill.
+pub fn list_skills() -> Result<Vec<SkillDescriptor>, SkillError> {
+    // Same honesty constraint as `run_skill`: no host is bound until the Wasm
+    // runtime is implemented, so an empty catalog would be a lie by omission —
+    // it reads as "no skills exist" rather than "nothing can answer yet".
+    Err(SkillError {
+        kind: SkillErrorKind::Unsupported,
+        message: "no host bound: the skill catalog is unavailable until the \
+                  Wasm runtime is implemented (change-uhe-015)"
+            .into(),
+    })
+}

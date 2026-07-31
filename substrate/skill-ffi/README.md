@@ -15,7 +15,7 @@ Pattern: **`flutter_rust_bridge` 2.12.0**, per
 |---|---|
 | builds for `aarch64-apple-ios` | **yes** — 16,408-byte arm64 Mach-O dylib |
 | builds for `aarch64-linux-android` | **yes** — 454,856-byte arm64 ELF `.so` |
-| round-trip tests assert on returned values | **yes** — 7 passing |
+| round-trip tests assert on returned values | **yes** — 8 passing |
 | `crate-type` matches KnowMe's `gen_ui_ffi` | **yes** — `cdylib`, `staticlib`, `rlib` |
 | **actually invokes a skill** | **NO** |
 
@@ -34,9 +34,11 @@ The pattern decision was recorded **provisional** pending two checks, to be run
 |---|---|
 | **2 — can `flutter_rust_bridge` consume a crate outside the app's Cargo workspace?** | **Passed.** This crate is in `substrate/`, has no relationship to KnowMe's workspace, and builds for both mobile targets with `flutter_rust_bridge` as a plain dependency. No vendoring. |
 | **assumption — does it express `run(string) -> Result<String, E>`?** | **Passed.** `run_skill` has exactly that signature with a structured error, and compiles for both targets. |
+| **3 — what does adding one function cost?** | **Passed, and it is 0.** `change-uhe-003` added `list_skills` and counted the glue: 0 FFI attributes, 0 `extern "C"`, 0 Cargo.toml, 0 build-script, 0 Dart. The 21 lines in `api.rs` are 9 doc comments, 3 inline comments, 1 blank, and 8 lines of ordinary function body. Threshold was >~20; actual 0. |
 
-Falsifier 3 (marginal cost per added function) is **not yet testable** — it
-needs a second function added over time, not at authoring. Recorded as open.
+**All three falsifiers are closed and the decision stands on measurement.**
+`flutter_rust_bridge` generates from the plain signature, so the marginal cost of
+a new function is the function.
 
 ## Build
 

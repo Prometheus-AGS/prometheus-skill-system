@@ -60,6 +60,6 @@ correctly.
 
 ## Outcome
 
-**Status: recorded** (2026-07-31T11:55:28Z)
+**Status: recorded** (2026-07-31T14:50:48Z)
 
-ACCEPTED. Both load-bearing assumptions tested in change-msp-009 and passed: flutter_rust_bridge 2.12.0 expresses run(string) -> Result<String,E>, and consumes substrate/skill-ffi from outside KnowMe's Cargo workspace with no vendoring. Built for aarch64-apple-ios (16408 B dylib) and aarch64-linux-android (454856 B .so); 7 round-trip tests pass. Falsifier 3 (marginal cost per added function) remains open.
+Falsifier 3 CLOSED 2026-07-31 by change-uhe-003 and the decision STANDS. Adding a fourth function (list_skills) to substrate/skill-ffi required ZERO hand-written glue: 0 FFI attributes, 0 extern/no_mangle, 0 Cargo.toml lines, 0 lib.rs lines, 0 build-script lines, 0 Dart. The 21 lines added to api.rs are 9 doc comments, 3 inline comments, 1 blank, and 8 lines of ordinary Rust function body. Threshold was >~20 lines of glue reverses; actual was 0. flutter_rust_bridge generates from the plain signature. Both mobile targets still build; 8/8 tests pass. All three falsifiers are now closed and the decision rests on measurement.

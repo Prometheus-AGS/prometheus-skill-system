@@ -67,3 +67,12 @@ fn world_version_matches_the_wit_package() {
     // silent mismatch; this is the value a client checks first.
     assert_eq!(world_version(), "prometheus:component@0.1.0");
 }
+
+#[test]
+fn list_skills_reports_no_host_rather_than_an_empty_catalog() {
+    // An empty Ok(vec![]) would read as "no skills exist" when the truth is
+    // "nothing can answer yet" — the same lie-by-omission `run_skill` avoids.
+    let e = list_skills().unwrap_err();
+    assert!(matches!(e.kind, SkillErrorKind::Unsupported));
+    assert!(e.message.contains("no host bound"), "got: {}", e.message);
+}

@@ -17,8 +17,29 @@
 > | expresses `run(string) -> Result<String, E>` | **passed** — that exact signature compiles for both mobile targets |
 > | consumes a crate **outside** the app's Cargo workspace, without vendoring | **passed** — `substrate/skill-ffi` has no relationship to KnowMe's workspace and builds for `aarch64-apple-ios` (16,408 B dylib) and `aarch64-linux-android` (454,856 B .so) |
 >
-> Falsifier 3 (marginal cost per added function) remains **open** — it needs a
-> second function added over time, not at authoring. Recorded, not closed.
+> **Falsifier 3 CLOSED 2026-07-31 by `change-uhe-003` — measured, not estimated.**
+>
+> A fourth function (`list_skills`) was added to `substrate/skill-ffi` and the
+> hand-written glue counted:
+>
+> | Category | Lines added |
+> |---|---|
+> | FFI attributes / annotations (`#[...]`) | **0** |
+> | `extern "C"` / `no_mangle` / `unsafe` | **0** |
+> | `Cargo.toml` | **0** |
+> | `lib.rs` | **0** |
+> | `build-mobile.sh` | **0** |
+> | Hand-written Dart | **0** |
+> | **Total hand-written glue** | **0** |
+>
+> The 21 lines added to `api.rs` are 9 doc comments, 3 inline comments, 1 blank,
+> and **8 lines of ordinary Rust function** — the function itself, not the cost
+> of exposing it. `flutter_rust_bridge` generates from the plain signature, so a
+> new function needs no annotation at all.
+>
+> Threshold was **>~20 lines reverses the decision**. Actual: **0**. The
+> decision **stands**, and it stands on a measurement rather than on the absence
+> of a counter-argument. Both mobile targets still build; 8/8 tests pass.
 
 Bind the pack's skill-invocation surface to mobile with
 **`flutter_rust_bridge` 2.12.0** — the pattern **already in production at the
