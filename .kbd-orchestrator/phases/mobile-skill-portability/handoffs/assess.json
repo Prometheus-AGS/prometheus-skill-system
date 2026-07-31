@@ -1,0 +1,16 @@
+{
+  "stage": "assess",
+  "status": "complete",
+  "artifacts": ["assessment.md", "evidence/"],
+  "summary": "Two seeded goals rest on assumptions the code contradicts. Goal 1's real blocker is that UAR's Wasm tier is an explicit stub (loads components, never invokes them) — a perfect WIT world changes nothing until that is fixed, and KnowMe's host is already real with 10 e2e tests, inverting which side is the reference. Goal 3's premise that this pack has no cdylib is wrong: tools/liter-llm is an in-tree submodule shipping a 767-fn cbindgen C ABI, 46 Android JNI entry points, wasm-bindgen, and a Dart/Flutter bridge. Scope is smaller than assumed: 259 of 319 skills are manifest-only and portable today; only 60 bear scripts.",
+  "warnings": [
+    "Gaps 1 and 2 are CROSS-REPO: not verifiable from a single-repo review packet. Evidence carries repo SHAs, file SHA-256s, and reproduction commands, but plan MUST re-run those commands rather than accept the claims.",
+    "Adversarial review ended at the 2-round cap with round 2 still BLOCK. Residue is structural (the packet builder does not descend into other repos or submodules), not an unfixed defect. Recorded in the assessment's Review record.",
+    "Round 1 caught a real factual error of mine: the liter-llm C ABI is 767 functions, not the 4 I first reported.",
+    "OPEN QUESTION FOR THE USER: closing gap 1 requires writing into universal-agent-runtime. The previous phase touched ZERO files in the three external repos. Cross-repo code is NOT authorised by a recorded decision.",
+    "Suggested reordering contradicts the seeded goal order: classify the 60 skills first, then zed/opencode/kimi, then fabric-integration, then UAR de-stubbing, then WIT authoring."
+  ],
+  "out_of_scope": [
+    "2 sovereign-sync control-token tests fail pre-existing (one_projects_token_is_rejected_by_another_project, two_projects_mint_distinct_identities_and_tokens) — not this phase's work unless explicitly selected"
+  ]
+}

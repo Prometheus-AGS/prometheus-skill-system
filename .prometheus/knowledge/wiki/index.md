@@ -126,6 +126,7 @@
 * [Long-Running Research Process Management](/long-running-research-process-management.md) - Research on managing long-running research processes: checkpointing, drift detection, progressive summarization, and the Karpathy Loop for iterative refinement.
 * [MCP Ingestion Required for Running pk-cherry Store Visibility](/mcp-ingestion-required-for-running-pk-cherry-store-visibility.md)
 * [Mistral GGUF Load Requires spawn_blocking in KnowMe PoC](/mistral-gguf-load-requires-spawn-blocking-in-knowme-poc.md)
+* [Mobile Skill Portability Executor Session Completion](/mobile-skill-portability-executor-session-completion.md)
 * [OKF LLM Wiki Adoption Executor Completion Status](/okf-llm-wiki-adoption-executor-completion-status.md) - An executor session completed successfully for the OKF LLM wiki adoption phase.
 * [OKF LLM Wiki Adoption Executor Session Completion](/okf-llm-wiki-adoption-executor-session-completion.md) - An executor session completed successfully for the OKF LLM wiki adoption phase.
 * [OKF LLM Wiki Adoption Phase Completion Status](/okf-llm-wiki-adoption-phase-completion-status.md) - `session_ended`: `2026-07-03T13:05:37Z` - `phase`: `phase-okf-llm-wiki-adoption` - `stage`: `reflect` - `last_completed`: `none` - `progress`: `8 of 8 changes done` - `next_pending`: `none`
