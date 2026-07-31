@@ -1,0 +1,11 @@
+{
+  "_comment": "Quarantine, not permission. check-invariants.sh exits 3 if an entry here no longer reproduces, forcing removal. An allowlist that never shrinks is a suppressed check.",
+  "known_violations": [
+    {
+      "invariant": "wit-world-version-pinned",
+      "reason": "knowme:plugin is declared at BOTH 0.1.0 (knowme-plugin.wit) and 1.0.0 (v1/types.wit). Pre-existing; gating on it would block every PR. Resolved by the prometheus:component unification (change-msp-005 authors the world; adoption is later work).",
+      "recorded": "2026-07-31",
+      "recorded_by": "change-msp-004-fabric-integration-skill"
+    }
+  ]
+}

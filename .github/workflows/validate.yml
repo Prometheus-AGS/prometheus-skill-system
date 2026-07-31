@@ -67,6 +67,28 @@ jobs:
           test -f hooks/hooks.json || (echo "FAIL: hooks/hooks.json (canonical) does not exist" && exit 1)
           echo "OK: .claude-plugin/hooks -> ../hooks; hooks/hooks.json is present"
 
+  fabric-invariants:
+    name: Fabric version invariants
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      # NOTE: this runner has only THIS repository. Three of the four invariants
+      # compare versions across flint-realtime-fabric, universal-agent-runtime,
+      # and know-me-system, so they report SKIP here — never a silent PASS. Full
+      # coverage needs those repos present (set FRF_ROOT / UAR_ROOT / KNOWME_ROOT).
+      - name: Check fabric version invariants
+        run: bash skills/devops/fabric-integration/scripts/check-invariants.sh
+
+      - name: Check mobile-execution classification has not drifted
+        run: bash skills/process/adversarial-review/scripts/classify-mobile-execution.sh --check
+
   kbd-control-plane:
     name: KBD control plane (${{ matrix.os }})
     runs-on: ${{ matrix.os }}

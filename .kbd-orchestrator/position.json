@@ -199,12 +199,21 @@
             },
             "status": "COMPLETE",
             "type": "change"
+          },
+          {
+            "id": "change-msp-004-fabric-integration-skill",
+            "progress": {
+              "done": 7,
+              "total": 7
+            },
+            "status": "COMPLETE",
+            "type": "change"
           }
         ],
         "id": "adversarial-review-for-creation",
         "progress": {
-          "done": 19,
-          "total": 21
+          "done": 20,
+          "total": 22
         },
         "status": "PENDING",
         "type": "phase"
@@ -2583,13 +2592,13 @@
     ],
     "id": "6ac090a4-3656-4d83-8eb6-2891508196d5",
     "progress": {
-      "done": 161,
-      "total": 216
+      "done": 162,
+      "total": 217
     },
     "status": "completed",
     "type": "phase"
   },
   "schemaVersion": "1",
-  "sourceRevision": 302,
-  "updatedAt": "2026-07-31T10:45:08.129106Z"
+  "sourceRevision": 324,
+  "updatedAt": "2026-07-31T10:53:47.504735Z"
 }

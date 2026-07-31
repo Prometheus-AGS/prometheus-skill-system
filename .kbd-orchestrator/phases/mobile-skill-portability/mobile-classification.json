@@ -1,11 +1,11 @@
 {
   "generated_by": "skills/process/adversarial-review/scripts/classify-mobile-execution.sh",
   "derived": true,
-  "total_skills": 309,
-  "script_bearing": 60,
+  "total_skills": 310,
+  "script_bearing": 61,
   "manifest_only": 249,
   "counts": {
-    "E0": 27,
+    "E0": 28,
     "E2": 2,
     "R": 13,
     "E1": 18
@@ -17,6 +17,13 @@
     "R": "needs network or a host service \u2014 remote execution covers it"
   },
   "skills": [
+    {
+      "skill": "skills/devops/fabric-integration",
+      "scripts": 1,
+      "verdict": "E0",
+      "rationale": "scripts are build/validation tooling for the pack itself; a phone never invokes them",
+      "nested_duplicate": false
+    },
     {
       "skill": "skills/devops/gitops-bootstrap",
       "scripts": 3,
