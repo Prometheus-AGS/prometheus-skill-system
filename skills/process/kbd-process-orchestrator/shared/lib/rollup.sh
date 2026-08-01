@@ -53,14 +53,19 @@ kbd_rollup_children() {
         --arg cert_status "$cert_status" \
         --slurpfile c "$cp" \
         '.[$name] = {
-          status: ($c[0].reflect_complete == true | if . then "DONE" else ($c[0].active_change // null | if . then "IN_PROGRESS" else "PENDING" end) end),
+          status: (if
+            ((($c[0].completion.implementation.status // "") | ascii_upcase) == "COMPLETE") or
+            ($c[0].reflect_complete == true)
+          then "DONE"
+          else ($c[0].active_change // null | if . then "IN_PROGRESS" else "PENDING" end)
+          end),
           implementation_completed: $impl_done,
           implementation_total: $impl_total,
           changes_completed: $impl_done,
           changes_total: $impl_total,
           certification_status: $cert_status,
           handoff: $handoff,
-          completed_at: ($c[0].updatedAt // null)
+          completed_at: ($c[0].updatedAt // $c[0].last_updated // null)
         }' <<<"$agg")"
     done
   fi
