@@ -2951,6 +2951,20 @@ impl Runtime {
     }
 
     pub fn write_compatibility_projections(&self) -> Result<()> {
+        self.write_compatibility_projections_inner(false)
+    }
+
+    /// Projection during an explicit, backed-up migration.
+    ///
+    /// Relaxes the ownership guard: `migrate_legacy_ledgers` has already copied
+    /// every ledger into `migration-backups/`, and converting them is the whole
+    /// point of the operation. The routine path stays strict because it runs
+    /// unattended on every transition.
+    fn write_compatibility_projections_migrating(&self) -> Result<()> {
+        self.write_compatibility_projections_inner(true)
+    }
+
+    fn write_compatibility_projections_inner(&self, migrating: bool) -> Result<()> {
         fs::create_dir_all(&self.root)?;
         let lock = OpenOptions::new()
             .create(true)
@@ -2968,7 +2982,7 @@ impl Runtime {
             .last()
             .map(|event| event.timestamp)
             .ok_or(RuntimeError::NotInitialized)?;
-        self.write_compatibility_projections_from_state(&state, projection_time)
+        self.write_compatibility_projections_from_state_inner(&state, projection_time, migrating)
     }
 
     /// Render revision-stamped compatibility files from already committed
@@ -2976,8 +2990,17 @@ impl Runtime {
     /// files are projections only and are never read back as authority.
     pub fn write_compatibility_projections_from_state(
         &self,
+        state: &RuntimeState,
+        projection_time: DateTime<Utc>,
+    ) -> Result<()> {
+        self.write_compatibility_projections_from_state_inner(state, projection_time, false)
+    }
+
+    fn write_compatibility_projections_from_state_inner(
+        &self,
         state: &KbdStateV2,
         projection_time: DateTime<Utc>,
+        migrating: bool,
     ) -> Result<()> {
         if state.revision == 0 {
             return Err(RuntimeError::NotInitialized);
@@ -3039,6 +3062,38 @@ impl Runtime {
         for phase in state.phases.values() {
             let phase_dir = phase_projection_directory(&kbd_root, state, phase)?;
             let progress_path = phase_dir.join("progress.json");
+
+            // REFUSE to clobber a projection this runtime did not author.
+            //
+            // `atomic_json` replaces wholesale — no merge, no read-before-write.
+            // This loop runs over EVERY phase in runtime state on EVERY
+            // transition, so a `progress.json` maintained by anything else (a
+            // script, an agent, a hand edit) was silently destroyed and replaced
+            // with a runtime-derived value.
+            //
+            // That is committed data loss with no warning: the file still
+            // exists and still parses, so the next reader trusts it. Reported
+            // 2026-08-01 after a phase lost its ledger mid-run and the operator
+            // had to choose between abandoning canonical tracking and running a
+            // manual restore-and-verify cycle after all 24 changes.
+            //
+            // The marker is `generatedBy: "kbd-runtime"`. A file without it was
+            // written by someone else and is not ours to overwrite.
+            if !projection_is_writable(&progress_path, migrating) {
+                // stderr, not silence: a guard that skips without saying so
+                // trades visible data loss for invisible staleness, which is
+                // the same class of failure with a longer fuse. This crate has
+                // no logging dependency, so eprintln! is the honest channel.
+                eprintln!(
+                    "kbd-runtime: refusing to overwrite {} — it has no \
+                     `generatedBy: \"kbd-runtime\"` marker, so it was written \
+                     by something else. Leaving it untouched. Delete the file \
+                     if the runtime should own it.",
+                    progress_path.display()
+                );
+                continue;
+            }
+
             atomic_json(
                 &progress_path,
                 &phase_progress_projection(state, phase, projection_time),
@@ -3329,7 +3384,7 @@ impl Runtime {
                     BTreeMap::new(),
                 )?;
             }
-            self.write_compatibility_projections()?;
+            self.write_compatibility_projections_migrating()?;
         }
         let backup_manifest = if let Some(backup) = &backup_directory {
             let path = backup.join("manifest.json");
@@ -3449,6 +3504,97 @@ fn ordered_tasks(change: &Change) -> Vec<&Task> {
             .then_with(|| left.id.cmp(&right.id))
     });
     tasks
+}
+
+/// Is this projection file one the runtime wrote, and therefore ours to replace?
+///
+/// The projection loop replaces `progress.json` wholesale. Before this check it
+/// did so for every phase in runtime state unconditionally, which silently
+/// destroyed any `progress.json` maintained outside the runtime — a script, an
+/// agent, a hand edit. The failure was invisible: the file still existed and
+/// still parsed, so the next reader trusted a value that had just been
+/// fabricated from partial state.
+///
+/// Ownership is decided by the `generatedBy: "kbd-runtime"` marker that
+/// [`phase_progress_projection`] stamps into every file it produces.
+///
+/// # Absent file is OURS
+///
+/// A path that does not exist yet returns `true` so the first write still
+/// happens — the guard prevents *overwriting* foreign data, not bootstrapping.
+///
+/// # Unreadable or unparseable file is NOT ours
+///
+/// If the bytes cannot be read or parsed we return `false` and skip. Replacing
+/// a file we cannot understand is exactly the destructive act this guard
+/// exists to prevent, and a corrupt file is more likely to be someone's
+/// in-progress work than a runtime artifact.
+fn projection_is_runtime_owned(path: &Path) -> bool {
+    projection_is_writable(path, false)
+}
+
+/// As [`projection_is_runtime_owned`], but `migrating` relaxes the guard.
+///
+/// Migration is the one path that legitimately rewrites a ledger it did not
+/// author: `migrate_legacy_ledgers` takes a backup first and is an explicit,
+/// operator-invoked conversion. The routine projection loop is not — it runs on
+/// every transition, unattended.
+///
+/// Separating the two is the whole fix. The first attempt used one rule for
+/// both and had to choose between breaking migration and leaving the bug in
+/// place; the repository's own ledgers made that unavoidable, because they
+/// carry legacy counters AND a modern `completion` object at the same time.
+fn projection_is_writable(path: &Path, migrating: bool) -> bool {
+    if !path.exists() {
+        return true;
+    }
+    let Ok(bytes) = fs::read(path) else {
+        return false;
+    };
+    let Ok(value) = serde_json::from_slice::<serde_json::Value>(&bytes) else {
+        return false;
+    };
+    // Ours: we stamped it.
+    if value
+        .get("generatedBy")
+        .and_then(serde_json::Value::as_str)
+        .is_some_and(|who| who == "kbd-runtime")
+    {
+        return true;
+    }
+
+    // A LEGACY ledger is also ours to replace. `migrate_legacy_ledgers` reads
+    // these into runtime state and takes a backup first, and the projection
+    // loop is what writes them back in the new shape — so refusing here would
+    // break migration, not protect anything.
+    //
+    // Legacy shape is recognised by its snake_case counters, which the current
+    // projection does not emit (it uses a nested `completion` object). A file
+    // with neither the marker NOR those keys was written by something else
+    // entirely, and is the case this guard exists for.
+    let has_legacy_counters = value.get("changes_completed").is_some()
+        || value.get("changes_total").is_some()
+        || value.get("implementation_completed").is_some();
+
+    // A TRUE legacy ledger has the old counters and NOTHING newer. A file that
+    // carries both the old counters and a modern `completion` object was
+    // written by a current-generation tool that kept the legacy keys for
+    // compatibility — that is someone else's live ledger, not a migration
+    // candidate.
+    //
+    // Measured on the file this bug actually destroyed: it had
+    // `changes_completed` AND `completion`, so a counters-only check would
+    // still have overwritten it. The distinction has to be "old shape only".
+    let has_modern_shape = value.get("completion").is_some();
+
+    if migrating {
+        // A backup exists; converting any recognisable ledger is the point.
+        return has_legacy_counters || has_modern_shape;
+    }
+
+    // Routine projection: only a pure legacy ledger (old counters, nothing
+    // newer) is safe to replace unattended.
+    has_legacy_counters && !has_modern_shape
 }
 
 fn phase_progress_projection(
@@ -5318,6 +5464,174 @@ mod tests {
                 .unwrap()
                 .migrated_progress_files,
             0
+        );
+    }
+}
+
+#[cfg(test)]
+mod projection_ownership_tests {
+    use super::projection_is_runtime_owned;
+    use std::io::Write;
+
+    fn temp_file(name: &str, body: &str) -> std::path::PathBuf {
+        let dir = std::env::temp_dir().join(format!(
+            "kbd-proj-own-{}-{}",
+            std::process::id(),
+            name
+        ));
+        std::fs::create_dir_all(&dir).unwrap();
+        let path = dir.join("progress.json");
+        let mut f = std::fs::File::create(&path).unwrap();
+        f.write_all(body.as_bytes()).unwrap();
+        path
+    }
+
+    /// THE REGRESSION. A hand-maintained ledger must survive a transition.
+    ///
+    /// Before the guard, the projection loop replaced every phase's
+    /// `progress.json` wholesale, destroying externally-maintained content with
+    /// no warning — the file still existed and still parsed, so the next reader
+    /// trusted a fabricated value.
+    #[test]
+    fn a_file_without_the_marker_is_not_ours_to_overwrite() {
+        let path = temp_file(
+            "foreign",
+            r#"{"completion":{"implementation":{"completed":16,"total":16}}}"#,
+        );
+        assert!(
+            !projection_is_runtime_owned(&path),
+            "a progress.json with no `generatedBy` marker was written by \
+             something else; overwriting it is committed data loss"
+        );
+    }
+
+    #[test]
+    fn a_file_the_runtime_wrote_is_ours() {
+        let path = temp_file("ours", r#"{"generatedBy":"kbd-runtime","phase":"x"}"#);
+        assert!(projection_is_runtime_owned(&path));
+    }
+
+    /// Another writer's marker must not be mistaken for ours.
+    #[test]
+    fn a_different_generator_is_not_ours() {
+        let path = temp_file("other", r#"{"generatedBy":"some-other-tool"}"#);
+        assert!(!projection_is_runtime_owned(&path));
+    }
+
+    /// Bootstrapping still works — the guard blocks overwrites, not first writes.
+    #[test]
+    fn an_absent_file_is_ours_so_the_first_write_still_happens() {
+        let missing = std::env::temp_dir()
+            .join(format!("kbd-proj-absent-{}", std::process::id()))
+            .join("progress.json");
+        let _ = std::fs::remove_file(&missing);
+        assert!(
+            projection_is_runtime_owned(&missing),
+            "an absent path must be writable or the runtime can never \
+             initialise a phase"
+        );
+    }
+
+    /// A LEGACY ledger is ours — migration depends on it.
+    ///
+    /// `migrate_legacy_ledgers` reads these into runtime state (taking a backup
+    /// first), and the projection loop writes them back in the new shape. An
+    /// over-strict guard that refused here would break migration while
+    /// protecting nothing — which is exactly what the first version of this fix
+    /// did, caught by two pre-existing migration tests.
+    #[test]
+    fn a_legacy_ledger_is_ours_to_migrate() {
+        let path = temp_file(
+            "legacy",
+            r#"{"phase":"phase-x","changes_completed":1,"changes_total":2}"#,
+        );
+        assert!(
+            projection_is_runtime_owned(&path),
+            "legacy snake_case counters mark a ledger this runtime is migrating; \
+             refusing to write it would break migrate_legacy_ledgers"
+        );
+    }
+
+    /// The discriminator must be the SHAPE, not merely the absence of a marker.
+    ///
+    /// A foreign file with neither the marker nor legacy counters is the case
+    /// the guard exists for.
+    #[test]
+    fn a_modern_foreign_ledger_is_still_not_ours() {
+        let path = temp_file(
+            "modern-foreign",
+            r#"{"completion":{"implementation":{"completed":16,"total":16}}}"#,
+        );
+        assert!(
+            !projection_is_runtime_owned(&path),
+            "a nested `completion` object with no marker is someone else's \
+             modern ledger — the exact file that was silently destroyed"
+        );
+    }
+
+    /// Unparseable bytes are NOT ours. Replacing a file we cannot understand is
+    /// exactly the destructive act the guard exists to prevent.
+    #[test]
+    fn an_unparseable_file_is_not_ours() {
+        let path = temp_file("corrupt", "{ this is not json");
+        assert!(
+            !projection_is_runtime_owned(&path),
+            "a corrupt file is more likely someone's in-progress work than a \
+             runtime artifact; skip it rather than destroy it"
+        );
+    }
+}
+
+#[cfg(test)]
+mod projection_guard_migration_tests {
+    use super::projection_is_writable;
+    use std::io::Write;
+
+    fn f(name: &str, body: &str) -> std::path::PathBuf {
+        let dir = std::env::temp_dir().join(format!("kbd-guard-mig-{}-{}", std::process::id(), name));
+        std::fs::create_dir_all(&dir).unwrap();
+        let path = dir.join("progress.json");
+        std::fs::File::create(&path).unwrap().write_all(body.as_bytes()).unwrap();
+        path
+    }
+
+    /// THE FILE THIS BUG ACTUALLY DESTROYED.
+    ///
+    /// A ledger carrying legacy counters AND a modern `completion` object — the
+    /// real shape in this repository. A counters-only check would still have
+    /// overwritten it, which is why the discriminator is "old shape and nothing
+    /// newer" rather than "has old keys".
+    #[test]
+    fn a_live_ledger_with_both_shapes_is_protected_from_routine_projection() {
+        let path = f(
+            "both-shapes",
+            r#"{"changes_completed":16,"changes_total":16,
+                "completion":{"implementation":{"completed":16,"total":16}}}"#,
+        );
+        assert!(
+            !projection_is_writable(&path, false),
+            "routine projection must NOT overwrite a live ledger that carries a \
+             modern `completion` object, even though it also keeps the legacy \
+             counters for compatibility"
+        );
+    }
+
+    /// ...but migration MUST still convert it, because a backup was taken first.
+    ///
+    /// This is the pair that forced the routine/migration split. One rule for
+    /// both paths had to either break migration or leave the corruption in
+    /// place — the repository's own ledgers made that unavoidable.
+    #[test]
+    fn migration_may_convert_the_same_file() {
+        let path = f(
+            "both-shapes-mig",
+            r#"{"changes_completed":16,"changes_total":16,
+                "completion":{"implementation":{"completed":16,"total":16}}}"#,
+        );
+        assert!(
+            projection_is_writable(&path, true),
+            "migrate_legacy_ledgers backs every ledger up before converting; \
+             refusing here would break migration while protecting nothing"
         );
     }
 }
