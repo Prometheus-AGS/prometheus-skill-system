@@ -147,6 +147,12 @@ const config = {
           },
           {
             type: 'docSidebar',
+            sidebarId: 'mobileSidebar',
+            position: 'left',
+            label: 'Mobile',
+          },
+          {
+            type: 'docSidebar',
             sidebarId: 'substrateSidebar',
             position: 'left',
             label: 'Substrate',

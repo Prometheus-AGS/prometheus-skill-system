@@ -125,6 +125,24 @@ const sidebars = {
       ],
     },
   ],
+
+  mobileSidebar: [
+    {
+      type: 'category',
+      label: 'Mobile Portability',
+      items: [
+        'mobile/overview',
+        'mobile/execution-classes',
+        'mobile/wasm-components',
+        'mobile/native-ffi',
+      ],
+    },
+    {
+      type: 'category',
+      label: 'Runtime Integration',
+      items: ['mobile/uar-skill-database'],
+    },
+  ],
 };
 
 module.exports = sidebars;

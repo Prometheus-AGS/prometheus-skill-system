@@ -712,6 +712,84 @@ Related future-work docs (background reading):
 
 For downstream projects using this skill-pack with BDD suites (e.g. `ssr-frontend`), see the **Immutable Tests Rule** section in that project's `CLAUDE.md`.
 
+## Mobile Skill Portability
+
+Mobile platforms **cannot spawn processes**. A skill that shells out to `bash`,
+`python3`, or a compiled binary works on a laptop and is inert on iOS. This is a
+hard sandbox constraint, not a configuration problem.
+
+### Prefer manifest-only skills
+
+**249 of 310 skills already run on mobile unchanged**, because a manifest-only
+skill is instructions a model reads — there is nothing to execute. Before adding
+a `scripts/` directory to a new skill, ask whether the script is load-bearing or
+merely convenient. The 61 script-bearing skills are the entire portability
+problem.
+
+### Execution classes are derived, never asserted
+
+```bash
+bash skills/process/adversarial-review/scripts/classify-mobile-execution.sh
+bash skills/process/adversarial-review/scripts/classify-mobile-execution.sh --check
+```
+
+| Class | Count | Mobile path |
+|---|---|---|
+| manifest-only | 249 | Runs today |
+| E0 | 28 | None on-device — remote execution |
+| E1 | 18 | Wasm component **with** capabilities |
+| E2 | 2 | Wasm component, no capabilities |
+| R | 13 | Drive a paired desktop over P2P |
+
+### A residual class is not a verdict
+
+E1 was originally "pure text/JSON transformation" — defined as the **residual**
+after E0/E2/R matched. An audit found **all 18 of 18 members touch the filesystem
+or clock**. Not one was pure.
+
+**`--check` cannot catch this.** Drift checks compare the committed file to a
+freshly generated one; both come from the same wrong rule, so they agree forever.
+The risk was even written in the script's header and shipped anyway.
+
+**Rule: if a class is defined as "everything left over," hand-verify a sample.**
+E1 now carries `needs_capabilities`, so "portable" states its price.
+
+### Two Wasm formats, no adapter
+
+`skills/rust/librefang-wasm-skill/` emits **core-wasm** guests with an
+`extern "C"` pointer ABI and no `.wit` files. UAR loads
+`wasmtime::component::Component` — the **Component Model**. These are different
+binary formats and **cannot interoperate**.
+
+Target `wit/prometheus-component@0.1.0` when writing for UAR. Its capability
+surface is exactly three interfaces (`log`, `kv-store`, `clock`) — no raw
+filesystem, no arbitrary network, no process spawn.
+
+**Status: the WIT family is authored and a reference component validates against
+it, but nothing has executed it.** UAR's Wasm tier is still a stub. Do not
+document it as working until a component has actually run.
+
+### Check the consumer's manifests before choosing an FFI pattern
+
+`change-msp-007` compared **uniffi vs cbindgen** and chose uniffi. Adversarial
+review returned CRITICAL: the stated consumer is Flutter, and one `grep` against
+`know-me-system` found **`flutter_rust_bridge` 2.12.0 already in production
+there** — a third pattern, in neither column.
+
+**Rule: grep the consuming project's manifests first.** The incumbent is
+frequently in neither column of your comparison, and adopting it costs nothing
+while switching imposes a migration on a working system.
+
+`substrate/skill-ffi` therefore pins `flutter_rust_bridge = "=2.12.0"` exactly —
+FFI codegen and runtime must agree, and a caret range lets them drift.
+
+### Test the artifact, not the build
+
+A `.so` that links but returns empty results passes a build check and fails a
+round trip. `substrate/skill-ffi` has 7 tests asserting on **returned values**.
+
+Full documentation: [`site/docs/mobile/`](site/docs/mobile/overview.md).
+
 ## Learn Domain
 
 The learn domain adds a Feynman-Spine learning and education capability to the skill pack. It is architected in four layers so that skills remain portable across all harnesses while substrate crates handle persistence and UI rendering.

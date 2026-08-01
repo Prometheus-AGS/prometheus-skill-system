@@ -459,6 +459,52 @@ bash shared/scripts/detect-toolchain.sh
 npm run install:platforms
 ```
 
+## Mobile (iOS / Android)
+
+Mobile platforms cannot spawn processes, so a skill that shells out to `bash`,
+`python3`, or a binary is inert there. Every skill is classified by what it
+actually needs at runtime:
+
+| Class | Count | Meaning |
+|---|---|---|
+| **manifest-only** | **249** | No scripts — **runs on mobile today, unchanged** |
+| E0 | 28 | Needs a process; no on-device path |
+| E1 | 18 | Portable **with** granted capabilities (filesystem/clock) |
+| E2 | 2 | Portable to a Wasm component |
+| R | 13 | Remote execution — phone drives a paired desktop |
+
+**249 of 310 skills already work on mobile**, because a manifest-only skill is
+instructions a model reads — there is nothing to execute. The portability
+problem is confined to the 61 script-bearing skills.
+
+```bash
+# Classify every skill (derived, not asserted)
+bash skills/process/adversarial-review/scripts/classify-mobile-execution.sh
+
+# Fail CI when the committed classification goes stale
+bash skills/process/adversarial-review/scripts/classify-mobile-execution.sh --check
+
+# Build the native FFI library for iOS + Android
+bash substrate/skill-ffi/build-mobile.sh
+```
+
+Three mechanisms close the gap:
+
+1. **Manifest-only** — nothing to port. Prefer this when authoring new skills.
+2. **Wasm components** — `wit/prometheus-component@0.1.0`. The WIT family is
+   authored and a reference component validates against it, but **nothing has
+   executed it yet**; UAR's Wasm tier is still a stub.
+3. **Native FFI** — `substrate/skill-ffi` builds verified artifacts for
+   `aarch64-apple-ios` (16,408 B) and `aarch64-linux-android` (454,856 B), using
+   `flutter_rust_bridge` 2.12.0 to match what the consuming app already ships.
+
+> ⚠️ **Two Wasm formats.** `skills/rust/librefang-wasm-skill/` emits **core-wasm**
+> guests with an `extern "C"` ABI; UAR loads **Component Model** binaries. They do
+> not interoperate and there is no adapter. Target `wit/prometheus-component` for
+> UAR.
+
+Full detail, reasoning, and best practices: **[Mobile documentation](site/docs/mobile/overview.md)**.
+
 ## Getting Started
 
 **New here?** The [5-step Quick Start](docs/QUICK_START.md) gets you to `/learn-goal` working in under 10 minutes.
