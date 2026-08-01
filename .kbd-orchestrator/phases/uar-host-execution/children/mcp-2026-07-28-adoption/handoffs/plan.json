@@ -1,0 +1,24 @@
+{
+  "stage": "plan",
+  "status": "complete",
+  "artifacts": ["plan.md"],
+  "change_count": 3,
+  "task_count": 15,
+  "first_change": "change-mcp-001-uar-build-unblock",
+  "summary": "Three changes, deliberately small. 001 commits the two-line unblock plus a sse-stream FLOOR so the break cannot recur via cargo update. 002 pins a floating git dep in surreal-memory-server — gated on authorisation this phase does not have. 003 records the findings with re-run commands. No rmcp upgrade here; that is a separate phase.",
+  "warnings": [
+    "AUTHORISATION GATE on 002: tools/surreal-memory-server points at Prometheus-AGS/surreal-memory-server, NOT covered by the grant (this pack + universal-agent-runtime). Silence blocks.",
+    "THE PARENT STAYS BLOCKED unless 001 lands. If 001 fails, report the parent as still blocked — not this phase as succeeding.",
+    "Review caught me calling a caret range a pin. sse-stream = \"0.2.4\" means ^0.2.4, so 0.2.5+ is allowed. Measured: 0.2.5 compiles, so the floor is correct — but it excludes only 0.2.0-0.2.3, not every future break.",
+    "The ContentBlock alias is verified by cargo check + 8 tests only. NO MCP server was exercised end to end."
+  ],
+  "corrections_to_assessment": [
+    "Assess proposed 'commit a lockfile' for surreal-memory-server. Wrong: the lockfile IS tracked and clean. The defect is Cargo.toml:42 declaring the git dep with no rev, so cargo update floats past the lockfile. The fix is one rev= line."
+  ],
+  "adversarial_review": {
+    "rounds": 1,
+    "cross_model_check": "verified-distinct",
+    "note": "The sole CRITICAL (no falsifier) is a harness limitation: build-review-packet.sh has no child-phase support, so a PLAN was reviewed through decision mode, which requires fields plans do not have. Not papered over by bolting a falsifier onto a plan.",
+    "notable": "Finding 4 — I described a caret range as a pin, overstating the guarantee in exactly the way this phase exists to correct."
+  }
+}

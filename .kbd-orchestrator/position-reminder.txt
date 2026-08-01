@@ -1,40 +1,28 @@
 POSITION REMINDER — read this as your FIRST tool call every turn
 Phase: uar-host-execution / mcp-2026-07-28-adoption   (CHILD)
-Step: 0 of 0 (totals set by the child's /kbd-plan)
-Stage: assess (PENDING)
-Next command: /kbd-assess uar-host-execution/mcp-2026-07-28-adoption
+Step: 0 of 3
+Stage: plan (COMPLETE — 3 changes, 15 tasks, all valid --strict)
+Next command: /kbd-apply change-mcp-001-uar-build-unblock
 
-PARENT IS PAUSED at change-uhe-008 (7 of 16 done).
+PARENT IS PAUSED at change-uhe-008 (7 of 16).
 Resume with: /kbd-apply change-uhe-008-builtin-db-registration
 
-DO NOT TRUST current-waypoint.json's `phase` OR its counters.
-  It carries generatedBy: "kbd-runtime", so a `prometheus kbd` runtime store is
-  authoritative for those fields — and that store is pinned to a COMPLETED run
-  from 2026-07-29 (docusaurus-github-pages-site) whose lease EXPIRED 2026-07-29.
-  It reports phase=adversarial-review-for-creation and 170/229. All three are
-  stale. progress.json under phases/<name>/ is the truth: uar-host-execution is
-  7/16.
+DO NOT TRUST current-waypoint.json's `phase` OR its counters — a stale
+prometheus-kbd runtime store owns them (Completed run from 2026-07-29, expired
+lease, reports 170/229). progress.json under each phase dir is the truth.
 
-WHY THIS CHILD EXISTS:
-  change-uhe-008 must RUN tests on 3 providers. The UAR crate does not compile:
-  rmcp is pinned =2.2.0, which declares sse-stream ^0.2, and sse-stream 0.2.3
-  removed from_bytes_stream. Pre-existing at 563ecc2.
+THE THREE CHANGES:
+  001 unblock UAR — commit sse-stream 0.2.4 + ContentBlock alias, AND add a
+      sse-stream FLOOR to UAR's own deps. PROVE the floor by having cargo
+      REFUSE --precise 0.2.2. A lockfile records a resolution; it does not
+      constrain the next one.
+  002 pin surreal-memory-server's floating rmcp git dep — AUTHORISATION GATE
+      FIRST. That repo is NOT in the grant. Silence = BLOCKED, touch nothing.
+  003 record the findings — each with a re-run command, executed at write time.
+      "A record exists" is not acceptance; a record of false findings passes it.
 
-  Research (2026-07-31, firecrawl + crates.io):
-    - MCP 2026-07-28 shipped: stateless core, NO handshake, NO Mcp-Session-Id,
-      required resultType, Roots/Sampling/Logging deprecated. BREAKING.
-    - rmcp 3.1.0 published TODAY; 3.0.0 shipped with the spec 2026-07-28.
-    - rmcp 3.1.0 requires sse-stream ^0.2.4 — which EXCLUDES the broken range.
-    -> the dependency defect and the upgrade are the same problem.
+THE PARENT STAYS BLOCKED UNLESS 001 LANDS. If 001 fails, say the parent is
+still blocked — not that this phase succeeded.
 
-  Two candidate paths: pin sse-stream 0.2.2 (cheap, untested) or upgrade to
-  rmcp 3.1.0 (fixes resolution properly, but breaking across 7 MCP servers).
-
-SCOPE: this pack + universal-agent-runtime ONLY. Not flint-realtime-fabric,
-not know-me-system.
-
-TOOLING DEFECTS FOUND (all in INSTALLED skills — do NOT patch from here):
-  - kbd-new-child.sh: child_label used at line 156, assigned at line 234.
-    Deterministic. Child was created by hand.
-  - kbd-reflect never writes .phase; kbd-next-phase writes a self-referential
-    `next`. Both already recorded in the parent phase.
+NOT IN THIS PHASE: any rmcp 3.x upgrade, and any edit to the two hand-rolled
+protocol clients. Both recorded in 003, migrated in a later convergence phase.
