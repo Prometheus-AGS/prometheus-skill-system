@@ -87,6 +87,7 @@
 * [Docusaurus GitHub Pages Session Completion Record](/docusaurus-github-pages-session-completion-record.md)
 * [Docusaurus GitHub Pages Site Executor Completion](/docusaurus-github-pages-site-executor-completion.md)
 * [Docusaurus GitHub Pages Site Executor Session Complete](/docusaurus-github-pages-site-executor-session-complete.md)
+* [Docusaurus GitHub Pages Site Executor Session Completed](/docusaurus-github-pages-site-executor-session-completed.md)
 * [Docusaurus GitHub Pages Site Executor Session Completion](/docusaurus-github-pages-site-executor-session-completion.md)
 * [Docusaurus GitHub Pages Site Executor Session Completion Record](/docusaurus-github-pages-site-executor-session-completion-record.md)
 * [Docusaurus GitHub Pages Site Executor Session Status](/docusaurus-github-pages-site-executor-session-status.md)

@@ -1,6 +1,8 @@
 # Update Log
 
 ## 2026-08-01
+* **Creation**: [Docusaurus GitHub Pages Site Executor Session Completed](/docusaurus-github-pages-site-executor-session-completed.md)
+* **Creation**: [Adversarial Review Creation Executor Session Complete Status](/adversarial-review-creation-executor-session-complete-status.md)
 * **Creation**: [Adversarial Review Creation Executor Session Complete](/adversarial-review-creation-executor-session-complete.md)
 * **Creation**: [Adversarial Review Creation Executor Complete Status](/adversarial-review-creation-executor-complete-status.md)
 * **Creation**: [Adversarial Review Creation Executor Unknown Change Status](/adversarial-review-creation-executor-unknown-change-status.md)
