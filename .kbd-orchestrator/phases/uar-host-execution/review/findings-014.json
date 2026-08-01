@@ -1,0 +1,58 @@
+{
+  "mode": "decision",
+  "verdict": "BLOCK",
+  "judge_model": "kbd-judge",
+  "producer_model": "claude-opus-5",
+  "isolation_mode": "rest-gateway:http://localhost:8181/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": "decision_fields.falsifier",
+      "line": 0,
+      "claim": "The decision keeps the no-HTTPS conclusion even though a stated falsifier already fired against the premise that the chosen substrate is usable for mobile today.",
+      "evidence": "Falsifier 3 says: \"RUN 2026-08-01. IT FIRED\" and \"A phone on the same network cannot reach the daemon today.\" The document then preserves the decision anyway: \"What survives is narrower and still correct \u2014 sovereign-sync is the right transport... so the decision stands while its scope shrinks.\"",
+      "suggested_fix": "Do not commit to \"Do not build a signed HTTPS bundle fetcher\" until the binding/exposure decision is made and a phone can actually reach and update through sovereign-sync."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "decision_document / Assumptions",
+      "line": 0,
+      "claim": "The decision depends on an explicitly unverified assumption that the synced index is sufficient to make skills usable, which directly determines whether an additional content transport is required.",
+      "evidence": "Assumption: \"skill-index carries enough to update a device... it is unverified whether a device can reconstruct a usable pack from the synced entries alone, or whether it also needs skill bodies.\" Falsifier 2 admits: \"If bodies are missing, a content transport is still required.\"",
+      "suggested_fix": "Run the empty-pack sync test before committing; if skill bodies are required, decide the content transport separately rather than banning the HTTPS bundle path."
+    },
+    {
+      "severity": "WARNING",
+      "file": "decision_document / Falsifier",
+      "line": 0,
+      "claim": "The first falsifier identifies a case where HTTPS may be required, but the decision does not bound whether that case is in or out of scope.",
+      "evidence": "Falsifier 1: \"A device with no paired desktop and no peer cannot update at all... If it cannot, the HTTPS bundle stops being redundant and becomes the offline path \u2014 this decision then covers only the paired case.\" The Decision section still states broadly: \"Do not build a signed HTTPS bundle fetcher.\"",
+      "suggested_fix": "State whether unpaired/no-peer mobile update is a required scenario. If it is required, this decision is not justified; if it is excluded, restrict the decision title and scope to paired/peer-available updates."
+    },
+    {
+      "severity": "WARNING",
+      "file": "prior_decisions",
+      "line": 0,
+      "claim": "The same decision topic/id already appears in prior decisions, but the document does not acknowledge whether this is an amendment, replacement, or duplicate decision.",
+      "evidence": "prior_decisions includes \"[decision-mobile-update-transport] Decision: mobile skill updates ride sovereign-sync, not a signed HTTPS bundle \u2014 tags: decision, outcome-pending\" while the target is also \".prometheus/knowledge/wiki/decision-mobile-update-transport.md\" with id \"decision-mobile-update-transport\".",
+      "suggested_fix": "Mark the document as an update/amendment to the existing decision, record what changed, and preserve the old outcome/status rather than silently re-deciding the same ground."
+    },
+    {
+      "severity": "WARNING",
+      "file": "decision_document / Assumptions",
+      "line": 0,
+      "claim": "The decision assumes LAN/mobile bearer-token exposure is acceptable without addressing the new security boundary created by making the daemon reachable from a phone.",
+      "evidence": "Assumption: \"A mobile client can hold a bearer token... not exercised from an actual device here.\" Falsifier 3 concludes sovereign-sync \"needs a binding/exposure decision before a mobile host can use it\" after showing the daemon is currently loopback-only.",
+      "suggested_fix": "Before choosing LAN-exposed sovereign-sync over HTTPS, define authentication, token storage, rotation/revocation, and network exposure requirements for the mobile daemon path."
+    },
+    {
+      "severity": "WARNING",
+      "file": "decision_document / Assumptions",
+      "line": 0,
+      "claim": "The CRDT assumption is unresolved for destructive pack updates, so the chosen substrate may have wrong semantics for removals or upgrades.",
+      "evidence": "Assumption: \"CRDT merge is the right semantic for a skill catalogue... untested for a pack upgrade that removes skills.\"",
+      "suggested_fix": "Specify and test deletion/tombstone/version semantics for skill pack upgrades before treating sovereign-sync as the update transport."
+    }
+  ]
+}
