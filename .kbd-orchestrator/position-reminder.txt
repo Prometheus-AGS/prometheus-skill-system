@@ -1,8 +1,8 @@
 POSITION REMINDER — read this as your FIRST tool call every turn
 Phase: uar-host-execution   (PARENT — child mcp-2026-07-28-adoption is CLOSED 3/3)
-Step: 9 of 16
+Step: 10 of 16
 Stage: execute
-Next command: /kbd-apply change-uhe-010-rest-api-completeness
+Next command: /kbd-apply change-uhe-011-dynamic-skill-registration
 
 THE CHILD IS DONE. The parent is UNBLOCKED — verified, not asserted:
   cargo test --lib provenance -> 8 passed, from a COLD build.
