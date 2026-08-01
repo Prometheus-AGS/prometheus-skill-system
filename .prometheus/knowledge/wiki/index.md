@@ -1,5 +1,16 @@
 # Wiki Index
 
+## Decision
+
+* [Decision: `frf-transport-iroh` is a `FederationBridge` adapter, additive to FRF](/decision-frf-transport-iroh-is-a-federationbridge-adapter-additive-to-fr.md)
+* [Decision: defer MCP 2026-07-28 adoption; converge rmcp in a dedicated phase](/decision-defer-mcp-2026-07-28-adoption.md)
+* [Decision: follow the target — `flutter_rust_bridge` for mobile, uniffi only if a second host appears](/decision-follow-the-target-flutter-rust-bridge-for-mobile-uniffi-only-if.md)
+* [Decision: four version invariants the fabric must hold](/decision-four-version-invariants-the-fabric-must-hold.md)
+* [Decision: iroh is the fabric transport; the browser is relay-only](/decision-iroh-is-the-fabric-transport-the-browser-is-relay-only.md)
+* [Decision: keep both wasm targets, and make the split explicit](/decision-keep-both-wasm-targets-and-make-the-split-explicit.md)
+* [Decision: uniffi is the mobile FFI pattern, not cbindgen + hand-written JNI](/decision-uniffi-is-the-mobile-ffi-pattern-not-cbindgen-hand-written-jni.md)
+* [Decision: unify the WIT worlds into `prometheus:component/*` before porting any skill](/decision-unify-the-wit-worlds-into-prometheus-component-before-porting-a.md)
+
 ## Reference
 
 * [.gitignore Audit for CI Cross-Model QA Hardening Phase](/gitignore-audit-for-ci-cross-model-qa-hardening-phase.md) - The `.gitignore` audit for `phase-ci-cross-model-qa-and-hardening` was completed, committed, and merged to `main`.
@@ -9,9 +20,11 @@
 * [Adversarial Review Creation Executor Completion Record](/adversarial-review-creation-executor-completion-record.md)
 * [Adversarial Review Creation Executor Completion Recorded](/adversarial-review-creation-executor-completion-recorded.md)
 * [Adversarial Review Creation Executor Completion Status](/adversarial-review-creation-executor-completion-status.md)
+* [Adversarial Review Creation Executor Completion Unknown Change](/adversarial-review-creation-executor-completion-unknown-change.md)
 * [Adversarial Review Creation Executor Session Complete](/adversarial-review-creation-executor-session-complete.md)
 * [Adversarial Review Creation Executor Session Completion](/adversarial-review-creation-executor-session-completion.md)
 * [Adversarial Review Creation Executor Session Completion Record](/adversarial-review-creation-executor-session-completion-record.md)
+* [Adversarial Review Creation Executor Session Status](/adversarial-review-creation-executor-session-status.md)
 * [Adversarial Review Creation Executor Unknown Change Completion](/adversarial-review-creation-executor-unknown-change-completion.md)
 * [Adversarial Review Creation Phase Completed with Unknown Change](/adversarial-review-creation-phase-completed-with-unknown-change.md)
 * [Adversarial Review Creation Phase Executor Completion](/adversarial-review-creation-phase-executor-completion.md)
