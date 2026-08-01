@@ -4,10 +4,12 @@
   "stage": "plan_complete",
   "completion": {
     "implementation": {
-      "completed": 1,
-      "total": 3,
-      "status": "IN_PROGRESS"
+      "completed": 3,
+      "total": 3
     }
   },
-  "childPhases": []
+  "childPhases": [],
+  "status": "reflect_complete",
+  "changes_completed": 3,
+  "changes_total": 3
 }

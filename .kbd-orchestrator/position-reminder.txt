@@ -1,28 +1,27 @@
 POSITION REMINDER — read this as your FIRST tool call every turn
-Phase: uar-host-execution / mcp-2026-07-28-adoption   (CHILD)
-Step: 0 of 3
-Stage: plan (COMPLETE — 3 changes, 15 tasks, all valid --strict)
-Next command: /kbd-apply change-mcp-001-uar-build-unblock
+Phase: uar-host-execution   (PARENT — child mcp-2026-07-28-adoption is CLOSED 3/3)
+Step: 7 of 16
+Stage: execute
+Next command: /kbd-apply change-uhe-008-builtin-db-registration
 
-PARENT IS PAUSED at change-uhe-008 (7 of 16).
-Resume with: /kbd-apply change-uhe-008-builtin-db-registration
+THE CHILD IS DONE. The parent is UNBLOCKED — verified, not asserted:
+  cargo test --lib provenance -> 8 passed, from a COLD build.
 
 DO NOT TRUST current-waypoint.json's `phase` OR its counters — a stale
 prometheus-kbd runtime store owns them (Completed run from 2026-07-29, expired
 lease, reports 170/229). progress.json under each phase dir is the truth.
+`kbd-apply begin-task` fails against that store; `mark-done` works.
 
-THE THREE CHANGES:
-  001 unblock UAR — commit sse-stream 0.2.4 + ContentBlock alias, AND add a
-      sse-stream FLOOR to UAR's own deps. PROVE the floor by having cargo
-      REFUSE --precise 0.2.2. A lockfile records a resolution; it does not
-      constrain the next one.
-  002 pin surreal-memory-server's floating rmcp git dep — AUTHORISATION GATE
-      FIRST. That repo is NOT in the grant. Silence = BLOCKED, touch nothing.
-  003 record the findings — each with a re-run command, executed at write time.
-      "A record exists" is not acceptance; a record of false findings passes it.
+CARRY-FORWARDS for the parent's reflection (do not lose these):
+  1. kbd-new-child.sh   — child_label read line 156, assigned line 234
+  2. kbd-apply begin-task — "failed to commit canonical task start"
+  3. stale runtime store — wrong phase + 170/229
+  4. build-review-packet.sh — no child-phase support (--mode artifact)
+  5. decision-log.sh record — drops every section but 3 (55 of 118 lines lost)
+  6. librefang-wasm-skill/SKILL.md must state it emits core-wasm guests that
+     CANNOT load in UAR (Component Model vs core-wasm are different formats)
 
-THE PARENT STAYS BLOCKED UNLESS 001 LANDS. If 001 fails, say the parent is
-still blocked — not that this phase succeeded.
-
-NOT IN THIS PHASE: any rmcp 3.x upgrade, and any edit to the two hand-rolled
-protocol clients. Both recorded in 003, migrated in a later convergence phase.
+DEBT OWNED BY THE FOLLOW-ON `rmcp-convergence` PHASE, not this one:
+  five rmcp versions (1.4.0/1.8.0x2/2.2.0/3.0.1) across three majors;
+  three hand-rolled handshake sites (2025-03-26, 2025-06-18 x2);
+  NO deployed 2026-07-28 server was ever contacted — that is its FIRST task.
