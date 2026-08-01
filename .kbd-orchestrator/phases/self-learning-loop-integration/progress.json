@@ -1,151 +1,151 @@
 {
-  "changes": [
-    {
-      "blockers": [],
-      "id": "change-slli-008",
-      "implementation_status": "COMPLETE",
-      "last_task_completed": null,
-      "next_task_pending": null,
-      "status": "DONE",
-      "tasks_done": 0,
-      "tasks_total": 0,
-      "title": "Progress signaling fix"
-    },
-    {
-      "blockers": [],
-      "id": "change-slli-002",
-      "implementation_status": "COMPLETE",
-      "last_task_completed": null,
-      "next_task_pending": null,
-      "status": "DONE",
-      "tasks_done": 0,
-      "tasks_total": 0,
-      "title": "MCP launchd services installer"
-    },
-    {
-      "blockers": [],
-      "id": "change-slli-003",
-      "implementation_status": "COMPLETE",
-      "last_task_completed": null,
-      "next_task_pending": null,
-      "status": "DONE",
-      "tasks_done": 0,
-      "tasks_total": 0,
-      "title": "Cross-tool MCP config"
-    },
-    {
-      "blockers": [],
-      "id": "change-slli-001",
-      "implementation_status": "COMPLETE",
-      "last_task_completed": null,
-      "next_task_pending": null,
-      "status": "DONE",
-      "tasks_done": 0,
-      "tasks_total": 0,
-      "title": "L3 outer loop skill"
-    },
-    {
-      "blockers": [],
-      "id": "change-slli-004",
-      "implementation_status": "COMPLETE",
-      "last_task_completed": null,
-      "next_task_pending": null,
-      "status": "DONE",
-      "tasks_done": 0,
-      "tasks_total": 0,
-      "title": "Wire continuous-learning-v2"
-    },
-    {
-      "blockers": [],
-      "id": "change-slli-005",
-      "implementation_status": "COMPLETE",
-      "last_task_completed": null,
-      "next_task_pending": null,
-      "status": "DONE",
-      "tasks_done": 0,
-      "tasks_total": 0,
-      "title": "pk semantic focus upgrade"
-    },
-    {
-      "blockers": [],
-      "id": "change-slli-006",
-      "implementation_status": "COMPLETE",
-      "last_task_completed": null,
-      "next_task_pending": null,
-      "status": "DONE",
-      "tasks_done": 0,
-      "tasks_total": 0,
-      "title": "Forge-independent reflect path"
-    },
-    {
-      "blockers": [],
-      "id": "change-slli-007",
-      "implementation_status": "COMPLETE",
-      "last_task_completed": null,
-      "next_task_pending": null,
-      "status": "DONE",
-      "tasks_done": 0,
-      "tasks_total": 0,
-      "title": "Evolver bridge integration"
-    },
-    {
-      "blockers": [],
-      "id": "change-slli-009",
-      "implementation_status": "COMPLETE",
-      "last_task_completed": null,
-      "next_task_pending": null,
-      "status": "DONE",
-      "tasks_done": 0,
-      "tasks_total": 0,
-      "title": "Periodic nudge script"
-    },
-    {
-      "blockers": [],
-      "id": "change-slli-010",
-      "implementation_status": "COMPLETE",
-      "last_task_completed": null,
-      "next_task_pending": null,
-      "status": "DONE",
-      "tasks_done": 0,
-      "tasks_total": 0,
-      "title": "pmpo-skill-creator --update mode"
-    }
-  ],
-  "changes_completed": 10,
-  "changes_total": 10,
-  "children": {},
-  "completion": {
-    "certification": {
-      "blockers": [],
-      "status": "PENDING",
-      "summary": null
-    },
-    "evidence": {
-      "blockers": [],
-      "status": "PENDING",
-      "summary": null
-    },
-    "implementation": {
-      "completed": 10,
-      "status": "COMPLETE",
-      "total": 10
-    },
-    "primaryCounter": "implementation",
-    "publication": {
-      "blockers": [],
-      "status": "PENDING",
-      "summary": null
-    }
-  },
+  "schemaVersion": "2",
   "generatedBy": "kbd-runtime",
-  "implementation_completed": 10,
-  "implementation_total": 10,
-  "last_updated": "2026-07-31T18:05:46.841882Z",
-  "last_updated_by": "kbd-runtime",
-  "migrationStatus": null,
-  "parentPhase": null,
+  "sourceRevision": 2,
   "phase": "self-learning-loop-integration",
   "phaseId": "self-learning-loop-integration",
-  "schemaVersion": "2",
-  "sourceRevision": 475
+  "parentPhase": null,
+  "last_updated": "2026-07-29T01:23:46.112188Z",
+  "last_updated_by": "kbd-runtime",
+  "changes_total": 10,
+  "changes_completed": 10,
+  "implementation_total": 10,
+  "implementation_completed": 10,
+  "completion": {
+    "primaryCounter": "implementation",
+    "implementation": {
+      "completed": 10,
+      "total": 10,
+      "status": "COMPLETE"
+    },
+    "evidence": {
+      "status": "PENDING",
+      "summary": null,
+      "blockers": []
+    },
+    "certification": {
+      "status": "PENDING",
+      "summary": null,
+      "blockers": []
+    },
+    "publication": {
+      "status": "PENDING",
+      "summary": null,
+      "blockers": []
+    }
+  },
+  "changes": [
+    {
+      "id": "change-slli-008",
+      "title": "Progress signaling fix",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-slli-002",
+      "title": "MCP launchd services installer",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-slli-003",
+      "title": "Cross-tool MCP config",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-slli-001",
+      "title": "L3 outer loop skill",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-slli-004",
+      "title": "Wire continuous-learning-v2",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-slli-005",
+      "title": "pk semantic focus upgrade",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-slli-006",
+      "title": "Forge-independent reflect path",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-slli-007",
+      "title": "Evolver bridge integration",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-slli-009",
+      "title": "Periodic nudge script",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-slli-010",
+      "title": "pmpo-skill-creator --update mode",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    }
+  ],
+  "children": {},
+  "migrationStatus": null
 }

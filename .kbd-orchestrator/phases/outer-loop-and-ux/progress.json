@@ -1,96 +1,96 @@
 {
-  "changes": [
-    {
-      "blockers": [],
-      "id": "change-001-path-scope-helper",
-      "implementation_status": "COMPLETE",
-      "last_task_completed": null,
-      "next_task_pending": null,
-      "status": "DONE",
-      "tasks_done": 0,
-      "tasks_total": 0,
-      "title": "change-001-path-scope-helper"
-    },
-    {
-      "blockers": [],
-      "id": "change-002-skill-extract",
-      "implementation_status": "COMPLETE",
-      "last_task_completed": null,
-      "next_task_pending": null,
-      "status": "DONE",
-      "tasks_done": 0,
-      "tasks_total": 0,
-      "title": "change-002-skill-extract"
-    },
-    {
-      "blockers": [],
-      "id": "change-003-nesting-docs",
-      "implementation_status": "COMPLETE",
-      "last_task_completed": null,
-      "next_task_pending": null,
-      "status": "DONE",
-      "tasks_done": 0,
-      "tasks_total": 0,
-      "title": "change-003-nesting-docs"
-    },
-    {
-      "blockers": [],
-      "id": "change-004-outer-loop",
-      "implementation_status": "COMPLETE",
-      "last_task_completed": null,
-      "next_task_pending": null,
-      "status": "DONE",
-      "tasks_done": 0,
-      "tasks_total": 0,
-      "title": "change-004-outer-loop"
-    },
-    {
-      "blockers": [],
-      "id": "change-005-dual-ux",
-      "implementation_status": "COMPLETE",
-      "last_task_completed": null,
-      "next_task_pending": null,
-      "status": "DONE",
-      "tasks_done": 0,
-      "tasks_total": 0,
-      "title": "change-005-dual-ux"
-    }
-  ],
-  "changes_completed": 5,
-  "changes_total": 5,
-  "children": {},
-  "completion": {
-    "certification": {
-      "blockers": [],
-      "status": "PENDING",
-      "summary": null
-    },
-    "evidence": {
-      "blockers": [],
-      "status": "PENDING",
-      "summary": null
-    },
-    "implementation": {
-      "completed": 5,
-      "status": "COMPLETE",
-      "total": 5
-    },
-    "primaryCounter": "implementation",
-    "publication": {
-      "blockers": [],
-      "status": "PENDING",
-      "summary": null
-    }
-  },
+  "schemaVersion": "2",
   "generatedBy": "kbd-runtime",
-  "implementation_completed": 5,
-  "implementation_total": 5,
-  "last_updated": "2026-07-31T18:05:46.841882Z",
-  "last_updated_by": "kbd-runtime",
-  "migrationStatus": null,
-  "parentPhase": null,
+  "sourceRevision": 2,
   "phase": "outer-loop-and-ux",
   "phaseId": "outer-loop-and-ux",
-  "schemaVersion": "2",
-  "sourceRevision": 475
+  "parentPhase": null,
+  "last_updated": "2026-07-29T01:23:46.112188Z",
+  "last_updated_by": "kbd-runtime",
+  "changes_total": 5,
+  "changes_completed": 5,
+  "implementation_total": 5,
+  "implementation_completed": 5,
+  "completion": {
+    "primaryCounter": "implementation",
+    "implementation": {
+      "completed": 5,
+      "total": 5,
+      "status": "COMPLETE"
+    },
+    "evidence": {
+      "status": "PENDING",
+      "summary": null,
+      "blockers": []
+    },
+    "certification": {
+      "status": "PENDING",
+      "summary": null,
+      "blockers": []
+    },
+    "publication": {
+      "status": "PENDING",
+      "summary": null,
+      "blockers": []
+    }
+  },
+  "changes": [
+    {
+      "id": "change-001-path-scope-helper",
+      "title": "change-001-path-scope-helper",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-002-skill-extract",
+      "title": "change-002-skill-extract",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-003-nesting-docs",
+      "title": "change-003-nesting-docs",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-004-outer-loop",
+      "title": "change-004-outer-loop",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-005-dual-ux",
+      "title": "change-005-dual-ux",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    }
+  ],
+  "children": {},
+  "migrationStatus": null
 }

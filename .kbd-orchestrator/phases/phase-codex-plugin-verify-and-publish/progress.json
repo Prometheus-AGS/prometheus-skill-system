@@ -1,107 +1,107 @@
 {
-  "changes": [
-    {
-      "blockers": [],
-      "id": "change-cpv-001-cowork-progress-signals",
-      "implementation_status": "PENDING",
-      "last_task_completed": null,
-      "next_task_pending": null,
-      "status": "PENDING",
-      "tasks_done": 0,
-      "tasks_total": 0,
-      "title": "change-cpv-001-cowork-progress-signals"
-    },
-    {
-      "blockers": [],
-      "id": "change-cpv-002-format-fix",
-      "implementation_status": "PENDING",
-      "last_task_completed": null,
-      "next_task_pending": null,
-      "status": "PENDING",
-      "tasks_done": 0,
-      "tasks_total": 0,
-      "title": "change-cpv-002-format-fix"
-    },
-    {
-      "blockers": [],
-      "id": "change-cpv-003-ci-green-verify",
-      "implementation_status": "PENDING",
-      "last_task_completed": null,
-      "next_task_pending": null,
-      "status": "PENDING",
-      "tasks_done": 0,
-      "tasks_total": 0,
-      "title": "change-cpv-003-ci-green-verify"
-    },
-    {
-      "blockers": [],
-      "id": "change-cpv-004-real-hooks-codex",
-      "implementation_status": "PENDING",
-      "last_task_completed": null,
-      "next_task_pending": null,
-      "status": "PENDING",
-      "tasks_done": 0,
-      "tasks_total": 0,
-      "title": "change-cpv-004-real-hooks-codex"
-    },
-    {
-      "blockers": [],
-      "id": "change-cpv-005-env-roundtrip",
-      "implementation_status": "PENDING",
-      "last_task_completed": null,
-      "next_task_pending": null,
-      "status": "PENDING",
-      "tasks_done": 0,
-      "tasks_total": 0,
-      "title": "change-cpv-005-env-roundtrip"
-    },
-    {
-      "blockers": [],
-      "id": "change-cpv-006-git-subdir-publish",
-      "implementation_status": "PENDING",
-      "last_task_completed": null,
-      "next_task_pending": null,
-      "status": "PENDING",
-      "tasks_done": 0,
-      "tasks_total": 0,
-      "title": "change-cpv-006-git-subdir-publish"
-    }
-  ],
-  "changes_completed": 0,
-  "changes_total": 6,
-  "children": {},
-  "completion": {
-    "certification": {
-      "blockers": [],
-      "status": "PENDING",
-      "summary": null
-    },
-    "evidence": {
-      "blockers": [],
-      "status": "PENDING",
-      "summary": null
-    },
-    "implementation": {
-      "completed": 0,
-      "status": "PENDING",
-      "total": 6
-    },
-    "primaryCounter": "implementation",
-    "publication": {
-      "blockers": [],
-      "status": "PENDING",
-      "summary": null
-    }
-  },
+  "schemaVersion": "2",
   "generatedBy": "kbd-runtime",
-  "implementation_completed": 0,
-  "implementation_total": 6,
-  "last_updated": "2026-07-31T18:05:46.841882Z",
-  "last_updated_by": "kbd-runtime",
-  "migrationStatus": "legacy-read-only",
-  "parentPhase": null,
+  "sourceRevision": 2,
   "phase": "phase-codex-plugin-verify-and-publish",
   "phaseId": "phase-codex-plugin-verify-and-publish",
-  "schemaVersion": "2",
-  "sourceRevision": 475
+  "parentPhase": null,
+  "last_updated": "2026-07-29T01:23:46.112188Z",
+  "last_updated_by": "kbd-runtime",
+  "changes_total": 6,
+  "changes_completed": 0,
+  "implementation_total": 6,
+  "implementation_completed": 0,
+  "completion": {
+    "primaryCounter": "implementation",
+    "implementation": {
+      "completed": 0,
+      "total": 6,
+      "status": "PENDING"
+    },
+    "evidence": {
+      "status": "PENDING",
+      "summary": null,
+      "blockers": []
+    },
+    "certification": {
+      "status": "PENDING",
+      "summary": null,
+      "blockers": []
+    },
+    "publication": {
+      "status": "PENDING",
+      "summary": null,
+      "blockers": []
+    }
+  },
+  "changes": [
+    {
+      "id": "change-cpv-001-cowork-progress-signals",
+      "title": "change-cpv-001-cowork-progress-signals",
+      "status": "PENDING",
+      "implementation_status": "PENDING",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-cpv-002-format-fix",
+      "title": "change-cpv-002-format-fix",
+      "status": "PENDING",
+      "implementation_status": "PENDING",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-cpv-003-ci-green-verify",
+      "title": "change-cpv-003-ci-green-verify",
+      "status": "PENDING",
+      "implementation_status": "PENDING",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-cpv-004-real-hooks-codex",
+      "title": "change-cpv-004-real-hooks-codex",
+      "status": "PENDING",
+      "implementation_status": "PENDING",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-cpv-005-env-roundtrip",
+      "title": "change-cpv-005-env-roundtrip",
+      "status": "PENDING",
+      "implementation_status": "PENDING",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-cpv-006-git-subdir-publish",
+      "title": "change-cpv-006-git-subdir-publish",
+      "status": "PENDING",
+      "implementation_status": "PENDING",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    }
+  ],
+  "children": {},
+  "migrationStatus": "legacy-read-only"
 }

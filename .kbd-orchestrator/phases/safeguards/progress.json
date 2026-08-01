@@ -1,74 +1,74 @@
 {
-  "changes": [
-    {
-      "blockers": [],
-      "id": "change-001-protect-tests",
-      "implementation_status": "COMPLETE",
-      "last_task_completed": null,
-      "next_task_pending": null,
-      "status": "DONE",
-      "tasks_done": 0,
-      "tasks_total": 0,
-      "title": "change-001-protect-tests"
-    },
-    {
-      "blockers": [],
-      "id": "change-002-scope-guard",
-      "implementation_status": "COMPLETE",
-      "last_task_completed": null,
-      "next_task_pending": null,
-      "status": "DONE",
-      "tasks_done": 0,
-      "tasks_total": 0,
-      "title": "change-002-scope-guard"
-    },
-    {
-      "blockers": [],
-      "id": "change-003-sycophancy-artifact-gate",
-      "implementation_status": "COMPLETE",
-      "last_task_completed": null,
-      "next_task_pending": null,
-      "status": "DONE",
-      "tasks_done": 0,
-      "tasks_total": 0,
-      "title": "change-003-sycophancy-artifact-gate"
-    }
-  ],
-  "changes_completed": 3,
-  "changes_total": 3,
-  "children": {},
-  "completion": {
-    "certification": {
-      "blockers": [],
-      "status": "PENDING",
-      "summary": null
-    },
-    "evidence": {
-      "blockers": [],
-      "status": "PENDING",
-      "summary": null
-    },
-    "implementation": {
-      "completed": 3,
-      "status": "COMPLETE",
-      "total": 3
-    },
-    "primaryCounter": "implementation",
-    "publication": {
-      "blockers": [],
-      "status": "PENDING",
-      "summary": null
-    }
-  },
+  "schemaVersion": "2",
   "generatedBy": "kbd-runtime",
-  "implementation_completed": 3,
-  "implementation_total": 3,
-  "last_updated": "2026-07-31T18:05:46.841882Z",
-  "last_updated_by": "kbd-runtime",
-  "migrationStatus": null,
-  "parentPhase": null,
+  "sourceRevision": 2,
   "phase": "safeguards",
   "phaseId": "safeguards",
-  "schemaVersion": "2",
-  "sourceRevision": 475
+  "parentPhase": null,
+  "last_updated": "2026-07-29T01:23:46.112188Z",
+  "last_updated_by": "kbd-runtime",
+  "changes_total": 3,
+  "changes_completed": 3,
+  "implementation_total": 3,
+  "implementation_completed": 3,
+  "completion": {
+    "primaryCounter": "implementation",
+    "implementation": {
+      "completed": 3,
+      "total": 3,
+      "status": "COMPLETE"
+    },
+    "evidence": {
+      "status": "PENDING",
+      "summary": null,
+      "blockers": []
+    },
+    "certification": {
+      "status": "PENDING",
+      "summary": null,
+      "blockers": []
+    },
+    "publication": {
+      "status": "PENDING",
+      "summary": null,
+      "blockers": []
+    }
+  },
+  "changes": [
+    {
+      "id": "change-001-protect-tests",
+      "title": "change-001-protect-tests",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-002-scope-guard",
+      "title": "change-002-scope-guard",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-003-sycophancy-artifact-gate",
+      "title": "change-003-sycophancy-artifact-gate",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    }
+  ],
+  "children": {},
+  "migrationStatus": null
 }

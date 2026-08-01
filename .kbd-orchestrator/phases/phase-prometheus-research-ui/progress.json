@@ -1,96 +1,96 @@
 {
-  "changes": [
-    {
-      "blockers": [],
-      "id": "change-prui-004-ci-workflow",
-      "implementation_status": "PENDING",
-      "last_task_completed": null,
-      "next_task_pending": null,
-      "status": "PENDING",
-      "tasks_done": 0,
-      "tasks_total": 0,
-      "title": "change-prui-004-ci-workflow"
-    },
-    {
-      "blockers": [],
-      "id": "change-prui-003-surface-bridge-wiring",
-      "implementation_status": "PENDING",
-      "last_task_completed": null,
-      "next_task_pending": null,
-      "status": "PENDING",
-      "tasks_done": 0,
-      "tasks_total": 0,
-      "title": "change-prui-003-surface-bridge-wiring"
-    },
-    {
-      "blockers": [],
-      "id": "change-prui-001-skill-md-update",
-      "implementation_status": "PENDING",
-      "last_task_completed": null,
-      "next_task_pending": null,
-      "status": "PENDING",
-      "tasks_done": 0,
-      "tasks_total": 0,
-      "title": "change-prui-001-skill-md-update"
-    },
-    {
-      "blockers": [],
-      "id": "change-prui-002-htmx-ui-real-sse",
-      "implementation_status": "PENDING",
-      "last_task_completed": null,
-      "next_task_pending": null,
-      "status": "PENDING",
-      "tasks_done": 0,
-      "tasks_total": 0,
-      "title": "change-prui-002-htmx-ui-real-sse"
-    },
-    {
-      "blockers": [],
-      "id": "change-prui-005-smoke-test",
-      "implementation_status": "PENDING",
-      "last_task_completed": null,
-      "next_task_pending": null,
-      "status": "PENDING",
-      "tasks_done": 0,
-      "tasks_total": 0,
-      "title": "change-prui-005-smoke-test"
-    }
-  ],
-  "changes_completed": 0,
-  "changes_total": 5,
-  "children": {},
-  "completion": {
-    "certification": {
-      "blockers": [],
-      "status": "PENDING",
-      "summary": null
-    },
-    "evidence": {
-      "blockers": [],
-      "status": "PENDING",
-      "summary": null
-    },
-    "implementation": {
-      "completed": 0,
-      "status": "PENDING",
-      "total": 5
-    },
-    "primaryCounter": "implementation",
-    "publication": {
-      "blockers": [],
-      "status": "PENDING",
-      "summary": null
-    }
-  },
+  "schemaVersion": "2",
   "generatedBy": "kbd-runtime",
-  "implementation_completed": 0,
-  "implementation_total": 5,
-  "last_updated": "2026-07-31T18:05:46.841882Z",
-  "last_updated_by": "kbd-runtime",
-  "migrationStatus": "legacy-read-only",
-  "parentPhase": null,
+  "sourceRevision": 2,
   "phase": "phase-prometheus-research-ui",
   "phaseId": "phase-prometheus-research-ui",
-  "schemaVersion": "2",
-  "sourceRevision": 475
+  "parentPhase": null,
+  "last_updated": "2026-07-29T01:23:46.112188Z",
+  "last_updated_by": "kbd-runtime",
+  "changes_total": 5,
+  "changes_completed": 0,
+  "implementation_total": 5,
+  "implementation_completed": 0,
+  "completion": {
+    "primaryCounter": "implementation",
+    "implementation": {
+      "completed": 0,
+      "total": 5,
+      "status": "PENDING"
+    },
+    "evidence": {
+      "status": "PENDING",
+      "summary": null,
+      "blockers": []
+    },
+    "certification": {
+      "status": "PENDING",
+      "summary": null,
+      "blockers": []
+    },
+    "publication": {
+      "status": "PENDING",
+      "summary": null,
+      "blockers": []
+    }
+  },
+  "changes": [
+    {
+      "id": "change-prui-004-ci-workflow",
+      "title": "change-prui-004-ci-workflow",
+      "status": "PENDING",
+      "implementation_status": "PENDING",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-prui-003-surface-bridge-wiring",
+      "title": "change-prui-003-surface-bridge-wiring",
+      "status": "PENDING",
+      "implementation_status": "PENDING",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-prui-001-skill-md-update",
+      "title": "change-prui-001-skill-md-update",
+      "status": "PENDING",
+      "implementation_status": "PENDING",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-prui-002-htmx-ui-real-sse",
+      "title": "change-prui-002-htmx-ui-real-sse",
+      "status": "PENDING",
+      "implementation_status": "PENDING",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-prui-005-smoke-test",
+      "title": "change-prui-005-smoke-test",
+      "status": "PENDING",
+      "implementation_status": "PENDING",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    }
+  ],
+  "children": {},
+  "migrationStatus": "legacy-read-only"
 }

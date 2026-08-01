@@ -1,107 +1,107 @@
 {
-  "changes": [
-    {
-      "blockers": [],
-      "id": "change-001-position-render",
-      "implementation_status": "COMPLETE",
-      "last_task_completed": null,
-      "next_task_pending": null,
-      "status": "DONE",
-      "tasks_done": 0,
-      "tasks_total": 0,
-      "title": "change-001-position-render"
-    },
-    {
-      "blockers": [],
-      "id": "change-002-position-prompt-hook",
-      "implementation_status": "COMPLETE",
-      "last_task_completed": null,
-      "next_task_pending": null,
-      "status": "DONE",
-      "tasks_done": 0,
-      "tasks_total": 0,
-      "title": "change-002-position-prompt-hook"
-    },
-    {
-      "blockers": [],
-      "id": "change-003-position-stop-gate",
-      "implementation_status": "COMPLETE",
-      "last_task_completed": null,
-      "next_task_pending": null,
-      "status": "DONE",
-      "tasks_done": 0,
-      "tasks_total": 0,
-      "title": "change-003-position-stop-gate"
-    },
-    {
-      "blockers": [],
-      "id": "change-004-stage-gates-handoffs",
-      "implementation_status": "COMPLETE",
-      "last_task_completed": null,
-      "next_task_pending": null,
-      "status": "DONE",
-      "tasks_done": 0,
-      "tasks_total": 0,
-      "title": "change-004-stage-gates-handoffs"
-    },
-    {
-      "blockers": [],
-      "id": "change-005-position-model",
-      "implementation_status": "COMPLETE",
-      "last_task_completed": null,
-      "next_task_pending": null,
-      "status": "DONE",
-      "tasks_done": 0,
-      "tasks_total": 0,
-      "title": "change-005-position-model"
-    },
-    {
-      "blockers": [],
-      "id": "change-006-ci-signal-lint",
-      "implementation_status": "COMPLETE",
-      "last_task_completed": null,
-      "next_task_pending": null,
-      "status": "DONE",
-      "tasks_done": 0,
-      "tasks_total": 0,
-      "title": "change-006-ci-signal-lint"
-    }
-  ],
-  "changes_completed": 6,
-  "changes_total": 6,
-  "children": {},
-  "completion": {
-    "certification": {
-      "blockers": [],
-      "status": "PENDING",
-      "summary": null
-    },
-    "evidence": {
-      "blockers": [],
-      "status": "PENDING",
-      "summary": null
-    },
-    "implementation": {
-      "completed": 6,
-      "status": "COMPLETE",
-      "total": 6
-    },
-    "primaryCounter": "implementation",
-    "publication": {
-      "blockers": [],
-      "status": "PENDING",
-      "summary": null
-    }
-  },
+  "schemaVersion": "2",
   "generatedBy": "kbd-runtime",
-  "implementation_completed": 6,
-  "implementation_total": 6,
-  "last_updated": "2026-07-31T18:05:46.841882Z",
-  "last_updated_by": "kbd-runtime",
-  "migrationStatus": null,
-  "parentPhase": null,
+  "sourceRevision": 2,
   "phase": "position-and-handoff-guarantee",
   "phaseId": "position-and-handoff-guarantee",
-  "schemaVersion": "2",
-  "sourceRevision": 475
+  "parentPhase": null,
+  "last_updated": "2026-07-29T01:23:46.112188Z",
+  "last_updated_by": "kbd-runtime",
+  "changes_total": 6,
+  "changes_completed": 6,
+  "implementation_total": 6,
+  "implementation_completed": 6,
+  "completion": {
+    "primaryCounter": "implementation",
+    "implementation": {
+      "completed": 6,
+      "total": 6,
+      "status": "COMPLETE"
+    },
+    "evidence": {
+      "status": "PENDING",
+      "summary": null,
+      "blockers": []
+    },
+    "certification": {
+      "status": "PENDING",
+      "summary": null,
+      "blockers": []
+    },
+    "publication": {
+      "status": "PENDING",
+      "summary": null,
+      "blockers": []
+    }
+  },
+  "changes": [
+    {
+      "id": "change-001-position-render",
+      "title": "change-001-position-render",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-002-position-prompt-hook",
+      "title": "change-002-position-prompt-hook",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-003-position-stop-gate",
+      "title": "change-003-position-stop-gate",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-004-stage-gates-handoffs",
+      "title": "change-004-stage-gates-handoffs",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-005-position-model",
+      "title": "change-005-position-model",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-006-ci-signal-lint",
+      "title": "change-006-ci-signal-lint",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    }
+  ],
+  "children": {},
+  "migrationStatus": null
 }

@@ -1,261 +1,261 @@
 {
-  "changes": [
-    {
-      "blockers": [],
-      "id": "change-sync-001",
-      "implementation_status": "COMPLETE",
-      "last_task_completed": null,
-      "next_task_pending": null,
-      "status": "DONE",
-      "tasks_done": 0,
-      "tasks_total": 0,
-      "title": "Delete AutomergeEngine; implement LoroAdapter"
-    },
-    {
-      "blockers": [],
-      "id": "change-sync-002",
-      "implementation_status": "COMPLETE",
-      "last_task_completed": null,
-      "next_task_pending": null,
-      "status": "DONE",
-      "tasks_done": 0,
-      "tasks_total": 0,
-      "title": "SyncManifest schema + SyncDomain + PrivacyClass"
-    },
-    {
-      "blockers": [],
-      "id": "change-sync-003",
-      "implementation_status": "COMPLETE",
-      "last_task_completed": null,
-      "next_task_pending": null,
-      "status": "DONE",
-      "tasks_done": 0,
-      "tasks_total": 0,
-      "title": "sovereign-sync crate scaffold"
-    },
-    {
-      "blockers": [],
-      "id": "change-sync-004",
-      "implementation_status": "COMPLETE",
-      "last_task_completed": null,
-      "next_task_pending": null,
-      "status": "DONE",
-      "tasks_done": 0,
-      "tasks_total": 0,
-      "title": "IrohDocsAdapter implementation"
-    },
-    {
-      "blockers": [],
-      "id": "change-sync-005",
-      "implementation_status": "COMPLETE",
-      "last_task_completed": null,
-      "next_task_pending": null,
-      "status": "DONE",
-      "tasks_done": 0,
-      "tasks_total": 0,
-      "title": "iroh P2P endpoint + iroh-gossip peer discovery"
-    },
-    {
-      "blockers": [],
-      "id": "change-sync-006",
-      "implementation_status": "COMPLETE",
-      "last_task_completed": null,
-      "next_task_pending": null,
-      "status": "DONE",
-      "tasks_done": 0,
-      "tasks_total": 0,
-      "title": "Loro merge engine in sovereign-sync"
-    },
-    {
-      "blockers": [],
-      "id": "change-sync-007",
-      "implementation_status": "COMPLETE",
-      "last_task_completed": null,
-      "next_task_pending": null,
-      "status": "DONE",
-      "tasks_done": 0,
-      "tasks_total": 0,
-      "title": "redb persistence for sync state"
-    },
-    {
-      "blockers": [],
-      "id": "change-sync-008",
-      "implementation_status": "COMPLETE",
-      "last_task_completed": null,
-      "next_task_pending": null,
-      "status": "DONE",
-      "tasks_done": 0,
-      "tasks_total": 0,
-      "title": "rmcp MCP server (stdio mode)"
-    },
-    {
-      "blockers": [],
-      "id": "change-sync-009",
-      "implementation_status": "COMPLETE",
-      "last_task_completed": null,
-      "next_task_pending": null,
-      "status": "DONE",
-      "tasks_done": 0,
-      "tasks_total": 0,
-      "title": "AG-UI + A2UI streaming endpoint"
-    },
-    {
-      "blockers": [],
-      "id": "change-sync-010",
-      "implementation_status": "COMPLETE",
-      "last_task_completed": null,
-      "next_task_pending": null,
-      "status": "DONE",
-      "tasks_done": 0,
-      "tasks_total": 0,
-      "title": "REST API (Axum routes, daemon/server modes)"
-    },
-    {
-      "blockers": [],
-      "id": "change-sync-011",
-      "implementation_status": "COMPLETE",
-      "last_task_completed": null,
-      "next_task_pending": null,
-      "status": "DONE",
-      "tasks_done": 0,
-      "tasks_total": 0,
-      "title": "MCP client pool (rmcp, mcp-servers.json)"
-    },
-    {
-      "blockers": [],
-      "id": "change-sync-012",
-      "implementation_status": "COMPLETE",
-      "last_task_completed": null,
-      "next_task_pending": null,
-      "status": "DONE",
-      "tasks_done": 0,
-      "tasks_total": 0,
-      "title": "sovereign-client Rust SDK"
-    },
-    {
-      "blockers": [],
-      "id": "change-sync-013",
-      "implementation_status": "COMPLETE",
-      "last_task_completed": null,
-      "next_task_pending": null,
-      "status": "DONE",
-      "tasks_done": 0,
-      "tasks_total": 0,
-      "title": "/sync-status skill"
-    },
-    {
-      "blockers": [],
-      "id": "change-sync-014",
-      "implementation_status": "COMPLETE",
-      "last_task_completed": null,
-      "next_task_pending": null,
-      "status": "DONE",
-      "tasks_done": 0,
-      "tasks_total": 0,
-      "title": "/sync-peers skill"
-    },
-    {
-      "blockers": [],
-      "id": "change-sync-015",
-      "implementation_status": "COMPLETE",
-      "last_task_completed": null,
-      "next_task_pending": null,
-      "status": "DONE",
-      "tasks_done": 0,
-      "tasks_total": 0,
-      "title": "/sync-push skill"
-    },
-    {
-      "blockers": [],
-      "id": "change-sync-016",
-      "implementation_status": "COMPLETE",
-      "last_task_completed": null,
-      "next_task_pending": null,
-      "status": "DONE",
-      "tasks_done": 0,
-      "tasks_total": 0,
-      "title": "install-skills-flat.sh extension"
-    },
-    {
-      "blockers": [],
-      "id": "change-sync-017",
-      "implementation_status": "COMPLETE",
-      "last_task_completed": null,
-      "next_task_pending": null,
-      "status": "DONE",
-      "tasks_done": 0,
-      "tasks_total": 0,
-      "title": "Integration tests"
-    },
-    {
-      "blockers": [],
-      "id": "change-sync-018",
-      "implementation_status": "COMPLETE",
-      "last_task_completed": null,
-      "next_task_pending": null,
-      "status": "DONE",
-      "tasks_done": 0,
-      "tasks_total": 0,
-      "title": "Workspace Cargo.toml + version bump + CLAUDE.md"
-    },
-    {
-      "blockers": [],
-      "id": "change-sync-019",
-      "implementation_status": "COMPLETE",
-      "last_task_completed": null,
-      "next_task_pending": null,
-      "status": "DONE",
-      "tasks_done": 0,
-      "tasks_total": 0,
-      "title": "Docusaurus site scaffold + sovereign-sync docs"
-    },
-    {
-      "blockers": [],
-      "id": "change-sync-020",
-      "implementation_status": "COMPLETE",
-      "last_task_completed": null,
-      "next_task_pending": null,
-      "status": "DONE",
-      "tasks_done": 0,
-      "tasks_total": 0,
-      "title": "Cross-link all existing docs into the site"
-    }
-  ],
-  "changes_completed": 20,
-  "changes_total": 20,
-  "children": {},
-  "completion": {
-    "certification": {
-      "blockers": [],
-      "status": "PENDING",
-      "summary": null
-    },
-    "evidence": {
-      "blockers": [],
-      "status": "PENDING",
-      "summary": null
-    },
-    "implementation": {
-      "completed": 20,
-      "status": "COMPLETE",
-      "total": 20
-    },
-    "primaryCounter": "implementation",
-    "publication": {
-      "blockers": [],
-      "status": "PENDING",
-      "summary": null
-    }
-  },
+  "schemaVersion": "2",
   "generatedBy": "kbd-runtime",
-  "implementation_completed": 20,
-  "implementation_total": 20,
-  "last_updated": "2026-07-31T18:05:46.841882Z",
-  "last_updated_by": "kbd-runtime",
-  "migrationStatus": null,
-  "parentPhase": null,
+  "sourceRevision": 2,
   "phase": "phase-learn-sovereign-sync",
   "phaseId": "phase-learn-sovereign-sync",
-  "schemaVersion": "2",
-  "sourceRevision": 475
+  "parentPhase": null,
+  "last_updated": "2026-07-29T01:23:46.112188Z",
+  "last_updated_by": "kbd-runtime",
+  "changes_total": 20,
+  "changes_completed": 20,
+  "implementation_total": 20,
+  "implementation_completed": 20,
+  "completion": {
+    "primaryCounter": "implementation",
+    "implementation": {
+      "completed": 20,
+      "total": 20,
+      "status": "COMPLETE"
+    },
+    "evidence": {
+      "status": "PENDING",
+      "summary": null,
+      "blockers": []
+    },
+    "certification": {
+      "status": "PENDING",
+      "summary": null,
+      "blockers": []
+    },
+    "publication": {
+      "status": "PENDING",
+      "summary": null,
+      "blockers": []
+    }
+  },
+  "changes": [
+    {
+      "id": "change-sync-001",
+      "title": "Delete AutomergeEngine; implement LoroAdapter",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-sync-002",
+      "title": "SyncManifest schema + SyncDomain + PrivacyClass",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-sync-003",
+      "title": "sovereign-sync crate scaffold",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-sync-004",
+      "title": "IrohDocsAdapter implementation",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-sync-005",
+      "title": "iroh P2P endpoint + iroh-gossip peer discovery",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-sync-006",
+      "title": "Loro merge engine in sovereign-sync",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-sync-007",
+      "title": "redb persistence for sync state",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-sync-008",
+      "title": "rmcp MCP server (stdio mode)",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-sync-009",
+      "title": "AG-UI + A2UI streaming endpoint",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-sync-010",
+      "title": "REST API (Axum routes, daemon/server modes)",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-sync-011",
+      "title": "MCP client pool (rmcp, mcp-servers.json)",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-sync-012",
+      "title": "sovereign-client Rust SDK",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-sync-013",
+      "title": "/sync-status skill",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-sync-014",
+      "title": "/sync-peers skill",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-sync-015",
+      "title": "/sync-push skill",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-sync-016",
+      "title": "install-skills-flat.sh extension",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-sync-017",
+      "title": "Integration tests",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-sync-018",
+      "title": "Workspace Cargo.toml + version bump + CLAUDE.md",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-sync-019",
+      "title": "Docusaurus site scaffold + sovereign-sync docs",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-sync-020",
+      "title": "Cross-link all existing docs into the site",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    }
+  ],
+  "children": {},
+  "migrationStatus": null
 }

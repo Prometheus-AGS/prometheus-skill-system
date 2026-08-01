@@ -1,129 +1,129 @@
 {
-  "changes": [
-    {
-      "blockers": [],
-      "id": "change-cpi-001-runtime-spike",
-      "implementation_status": "PENDING",
-      "last_task_completed": null,
-      "next_task_pending": null,
-      "status": "PENDING",
-      "tasks_done": 0,
-      "tasks_total": 0,
-      "title": "change-cpi-001-runtime-spike"
-    },
-    {
-      "blockers": [],
-      "id": "change-cpi-002-plugin-manifest",
-      "implementation_status": "PENDING",
-      "last_task_completed": null,
-      "next_task_pending": null,
-      "status": "PENDING",
-      "tasks_done": 0,
-      "tasks_total": 0,
-      "title": "change-cpi-002-plugin-manifest"
-    },
-    {
-      "blockers": [],
-      "id": "change-cpi-003-codex-marketplace",
-      "implementation_status": "PENDING",
-      "last_task_completed": null,
-      "next_task_pending": null,
-      "status": "PENDING",
-      "tasks_done": 0,
-      "tasks_total": 0,
-      "title": "change-cpi-003-codex-marketplace"
-    },
-    {
-      "blockers": [],
-      "id": "change-cpi-004-plugin-mcp",
-      "implementation_status": "PENDING",
-      "last_task_completed": null,
-      "next_task_pending": null,
-      "status": "PENDING",
-      "tasks_done": 0,
-      "tasks_total": 0,
-      "title": "change-cpi-004-plugin-mcp"
-    },
-    {
-      "blockers": [],
-      "id": "change-cpi-005-hooks-wiring",
-      "implementation_status": "PENDING",
-      "last_task_completed": null,
-      "next_task_pending": null,
-      "status": "PENDING",
-      "tasks_done": 0,
-      "tasks_total": 0,
-      "title": "change-cpi-005-hooks-wiring"
-    },
-    {
-      "blockers": [],
-      "id": "change-cpi-006-skills-bundle",
-      "implementation_status": "PENDING",
-      "last_task_completed": null,
-      "next_task_pending": null,
-      "status": "PENDING",
-      "tasks_done": 0,
-      "tasks_total": 0,
-      "title": "change-cpi-006-skills-bundle"
-    },
-    {
-      "blockers": [],
-      "id": "change-cpi-007-build-tooling",
-      "implementation_status": "PENDING",
-      "last_task_completed": null,
-      "next_task_pending": null,
-      "status": "PENDING",
-      "tasks_done": 0,
-      "tasks_total": 0,
-      "title": "change-cpi-007-build-tooling"
-    },
-    {
-      "blockers": [],
-      "id": "change-cpi-008-parity-docs-uar",
-      "implementation_status": "PENDING",
-      "last_task_completed": null,
-      "next_task_pending": null,
-      "status": "PENDING",
-      "tasks_done": 0,
-      "tasks_total": 0,
-      "title": "change-cpi-008-parity-docs-uar"
-    }
-  ],
-  "changes_completed": 0,
-  "changes_total": 8,
-  "children": {},
-  "completion": {
-    "certification": {
-      "blockers": [],
-      "status": "PENDING",
-      "summary": null
-    },
-    "evidence": {
-      "blockers": [],
-      "status": "PENDING",
-      "summary": null
-    },
-    "implementation": {
-      "completed": 0,
-      "status": "PENDING",
-      "total": 8
-    },
-    "primaryCounter": "implementation",
-    "publication": {
-      "blockers": [],
-      "status": "PENDING",
-      "summary": null
-    }
-  },
+  "schemaVersion": "2",
   "generatedBy": "kbd-runtime",
-  "implementation_completed": 0,
-  "implementation_total": 8,
-  "last_updated": "2026-07-31T18:05:46.841882Z",
-  "last_updated_by": "kbd-runtime",
-  "migrationStatus": "legacy-read-only",
-  "parentPhase": null,
+  "sourceRevision": 2,
   "phase": "phase-codex-plugin-implementation",
   "phaseId": "phase-codex-plugin-implementation",
-  "schemaVersion": "2",
-  "sourceRevision": 475
+  "parentPhase": null,
+  "last_updated": "2026-07-29T01:23:46.112188Z",
+  "last_updated_by": "kbd-runtime",
+  "changes_total": 8,
+  "changes_completed": 0,
+  "implementation_total": 8,
+  "implementation_completed": 0,
+  "completion": {
+    "primaryCounter": "implementation",
+    "implementation": {
+      "completed": 0,
+      "total": 8,
+      "status": "PENDING"
+    },
+    "evidence": {
+      "status": "PENDING",
+      "summary": null,
+      "blockers": []
+    },
+    "certification": {
+      "status": "PENDING",
+      "summary": null,
+      "blockers": []
+    },
+    "publication": {
+      "status": "PENDING",
+      "summary": null,
+      "blockers": []
+    }
+  },
+  "changes": [
+    {
+      "id": "change-cpi-001-runtime-spike",
+      "title": "change-cpi-001-runtime-spike",
+      "status": "PENDING",
+      "implementation_status": "PENDING",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-cpi-002-plugin-manifest",
+      "title": "change-cpi-002-plugin-manifest",
+      "status": "PENDING",
+      "implementation_status": "PENDING",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-cpi-003-codex-marketplace",
+      "title": "change-cpi-003-codex-marketplace",
+      "status": "PENDING",
+      "implementation_status": "PENDING",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-cpi-004-plugin-mcp",
+      "title": "change-cpi-004-plugin-mcp",
+      "status": "PENDING",
+      "implementation_status": "PENDING",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-cpi-005-hooks-wiring",
+      "title": "change-cpi-005-hooks-wiring",
+      "status": "PENDING",
+      "implementation_status": "PENDING",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-cpi-006-skills-bundle",
+      "title": "change-cpi-006-skills-bundle",
+      "status": "PENDING",
+      "implementation_status": "PENDING",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-cpi-007-build-tooling",
+      "title": "change-cpi-007-build-tooling",
+      "status": "PENDING",
+      "implementation_status": "PENDING",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-cpi-008-parity-docs-uar",
+      "title": "change-cpi-008-parity-docs-uar",
+      "status": "PENDING",
+      "implementation_status": "PENDING",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    }
+  ],
+  "children": {},
+  "migrationStatus": "legacy-read-only"
 }

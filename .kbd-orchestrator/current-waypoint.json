@@ -1,31 +1,26 @@
 {
-  "activePhaseId": "adversarial-review-for-creation",
-  "change": null,
-  "childPointer": "mcp-2026-07-28-adoption",
-  "completionMetric": "implementation",
-  "currentTask": "assess mcp-2026-07-28-adoption (child of uar-host-execution)",
-  "exactNextCommand": "/kbd-apply change-mcp-002-pin-floating-git-dep",
-  "generatedBy": "kbd-runtime",
-  "implementationCompleted": 170,
-  "implementationTotal": 229,
-  "path": [
-    "adversarial-review-for-creation"
-  ],
-  "phase": "adversarial-review-for-creation",
-  "phaseIds": [
-    "adversarial-review-for-creation"
-  ],
-  "planRevision": 2,
-  "projectId": "6ac090a4-3656-4d83-8eb6-2891508196d5",
-  "revision": 475,
-  "runId": "docusaurus-github-pages-site-20260729T012334Z",
   "schemaVersion": "5",
-  "sourceRevision": 475,
-  "status": "child_execute_pending",
-  "updatedAt": "2026-07-31T18:05:46.841882Z",
-  "childPhases": [
-    "mcp-2026-07-28-adoption"
+  "generatedBy": "kbd-runtime",
+  "sourceRevision": 2,
+  "projectId": "6ac090a4-3656-4d83-8eb6-2891508196d5",
+  "runId": "docusaurus-github-pages-site-20260729T012334Z",
+  "path": [
+    "docusaurus-github-pages-site"
   ],
-  "next": "/kbd-apply change-mcp-002-pin-floating-git-dep",
-  "parentResumeCommand": "/kbd-apply change-uhe-008-builtin-db-registration"
+  "phaseIds": [
+    "docusaurus-github-pages-site"
+  ],
+  "activePhaseId": "docusaurus-github-pages-site",
+  "phase": "docusaurus-github-pages-site",
+  "childPointer": null,
+  "change": null,
+  "currentTask": "phase closed — seed next phase from reflection.md",
+  "status": "completed",
+  "completionMetric": "implementation",
+  "implementationCompleted": 142,
+  "implementationTotal": 194,
+  "planRevision": 1,
+  "revision": 2,
+  "exactNextCommand": "/kbd-next-phase",
+  "updatedAt": "2026-07-29T01:23:46.112188Z"
 }

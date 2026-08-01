@@ -1,118 +1,118 @@
 {
-  "changes": [
-    {
-      "blockers": [],
-      "id": "change-lgv-001-third-domain-corpus",
-      "implementation_status": "PENDING",
-      "last_task_completed": null,
-      "next_task_pending": null,
-      "status": "PENDING",
-      "tasks_done": 0,
-      "tasks_total": 0,
-      "title": "change-lgv-001-third-domain-corpus"
-    },
-    {
-      "blockers": [],
-      "id": "change-lgv-002-eval-explanations",
-      "implementation_status": "PENDING",
-      "last_task_completed": null,
-      "next_task_pending": null,
-      "status": "PENDING",
-      "tasks_done": 0,
-      "tasks_total": 0,
-      "title": "change-lgv-002-eval-explanations"
-    },
-    {
-      "blockers": [],
-      "id": "change-lgv-003-dataset-schema-and-index",
-      "implementation_status": "PENDING",
-      "last_task_completed": null,
-      "next_task_pending": null,
-      "status": "PENDING",
-      "tasks_done": 0,
-      "tasks_total": 0,
-      "title": "change-lgv-003-dataset-schema-and-index"
-    },
-    {
-      "blockers": [],
-      "id": "change-lgv-004-grading-harness",
-      "implementation_status": "PENDING",
-      "last_task_completed": null,
-      "next_task_pending": null,
-      "status": "PENDING",
-      "tasks_done": 0,
-      "tasks_total": 0,
-      "title": "change-lgv-004-grading-harness"
-    },
-    {
-      "blockers": [],
-      "id": "change-lgv-005-compute-metrics",
-      "implementation_status": "PENDING",
-      "last_task_completed": null,
-      "next_task_pending": null,
-      "status": "PENDING",
-      "tasks_done": 0,
-      "tasks_total": 0,
-      "title": "change-lgv-005-compute-metrics"
-    },
-    {
-      "blockers": [],
-      "id": "change-lgv-006-tune-grader",
-      "implementation_status": "PENDING",
-      "last_task_completed": null,
-      "next_task_pending": null,
-      "status": "PENDING",
-      "tasks_done": 0,
-      "tasks_total": 0,
-      "title": "change-lgv-006-tune-grader"
-    },
-    {
-      "blockers": [],
-      "id": "change-lgv-007-regression-test-and-docs",
-      "implementation_status": "PENDING",
-      "last_task_completed": null,
-      "next_task_pending": null,
-      "status": "PENDING",
-      "tasks_done": 0,
-      "tasks_total": 0,
-      "title": "change-lgv-007-regression-test-and-docs"
-    }
-  ],
-  "changes_completed": 0,
-  "changes_total": 7,
-  "children": {},
-  "completion": {
-    "certification": {
-      "blockers": [],
-      "status": "PENDING",
-      "summary": null
-    },
-    "evidence": {
-      "blockers": [],
-      "status": "PENDING",
-      "summary": null
-    },
-    "implementation": {
-      "completed": 0,
-      "status": "PENDING",
-      "total": 7
-    },
-    "primaryCounter": "implementation",
-    "publication": {
-      "blockers": [],
-      "status": "PENDING",
-      "summary": null
-    }
-  },
+  "schemaVersion": "2",
   "generatedBy": "kbd-runtime",
-  "implementation_completed": 0,
-  "implementation_total": 7,
-  "last_updated": "2026-07-31T18:05:46.841882Z",
-  "last_updated_by": "kbd-runtime",
-  "migrationStatus": "legacy-read-only",
-  "parentPhase": null,
+  "sourceRevision": 2,
   "phase": "phase-learn-grader-validation",
   "phaseId": "phase-learn-grader-validation",
-  "schemaVersion": "2",
-  "sourceRevision": 475
+  "parentPhase": null,
+  "last_updated": "2026-07-29T01:23:46.112188Z",
+  "last_updated_by": "kbd-runtime",
+  "changes_total": 7,
+  "changes_completed": 0,
+  "implementation_total": 7,
+  "implementation_completed": 0,
+  "completion": {
+    "primaryCounter": "implementation",
+    "implementation": {
+      "completed": 0,
+      "total": 7,
+      "status": "PENDING"
+    },
+    "evidence": {
+      "status": "PENDING",
+      "summary": null,
+      "blockers": []
+    },
+    "certification": {
+      "status": "PENDING",
+      "summary": null,
+      "blockers": []
+    },
+    "publication": {
+      "status": "PENDING",
+      "summary": null,
+      "blockers": []
+    }
+  },
+  "changes": [
+    {
+      "id": "change-lgv-001-third-domain-corpus",
+      "title": "change-lgv-001-third-domain-corpus",
+      "status": "PENDING",
+      "implementation_status": "PENDING",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-lgv-002-eval-explanations",
+      "title": "change-lgv-002-eval-explanations",
+      "status": "PENDING",
+      "implementation_status": "PENDING",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-lgv-003-dataset-schema-and-index",
+      "title": "change-lgv-003-dataset-schema-and-index",
+      "status": "PENDING",
+      "implementation_status": "PENDING",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-lgv-004-grading-harness",
+      "title": "change-lgv-004-grading-harness",
+      "status": "PENDING",
+      "implementation_status": "PENDING",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-lgv-005-compute-metrics",
+      "title": "change-lgv-005-compute-metrics",
+      "status": "PENDING",
+      "implementation_status": "PENDING",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-lgv-006-tune-grader",
+      "title": "change-lgv-006-tune-grader",
+      "status": "PENDING",
+      "implementation_status": "PENDING",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-lgv-007-regression-test-and-docs",
+      "title": "change-lgv-007-regression-test-and-docs",
+      "status": "PENDING",
+      "implementation_status": "PENDING",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    }
+  ],
+  "children": {},
+  "migrationStatus": "legacy-read-only"
 }

@@ -70,5 +70,6 @@
   "phase": "sovereign-sync-domain-adapters",
   "phaseId": "sovereign-sync-domain-adapters",
   "schemaVersion": "2",
-  "sourceRevision": 45
+  "sourceRevision": 45,
+  "status": "reflect_complete"
 }

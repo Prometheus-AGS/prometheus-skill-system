@@ -1,74 +1,74 @@
 {
-  "changes": [
-    {
-      "blockers": [],
-      "id": "change-hard-001",
-      "implementation_status": "COMPLETE",
-      "last_task_completed": null,
-      "next_task_pending": null,
-      "status": "DONE",
-      "tasks_done": 0,
-      "tasks_total": 0,
-      "title": "pin local stable Rust toolchain (rust-toolchain.toml)"
-    },
-    {
-      "blockers": [],
-      "id": "change-hard-002",
-      "implementation_status": "COMPLETE",
-      "last_task_completed": null,
-      "next_task_pending": null,
-      "status": "DONE",
-      "tasks_done": 0,
-      "tasks_total": 0,
-      "title": "fix cross-model-qa.yml block-scalar parse error"
-    },
-    {
-      "blockers": [],
-      "id": "change-hard-003",
-      "implementation_status": "COMPLETE",
-      "last_task_completed": null,
-      "next_task_pending": null,
-      "status": "DONE",
-      "tasks_done": 0,
-      "tasks_total": 0,
-      "title": "constant-time forge-mcp bearer auth (subtle::ConstantTimeEq)"
-    }
-  ],
-  "changes_completed": 3,
-  "changes_total": 3,
-  "children": {},
-  "completion": {
-    "certification": {
-      "blockers": [],
-      "status": "PENDING",
-      "summary": null
-    },
-    "evidence": {
-      "blockers": [],
-      "status": "PENDING",
-      "summary": null
-    },
-    "implementation": {
-      "completed": 3,
-      "status": "COMPLETE",
-      "total": 3
-    },
-    "primaryCounter": "implementation",
-    "publication": {
-      "blockers": [],
-      "status": "PENDING",
-      "summary": null
-    }
-  },
+  "schemaVersion": "2",
   "generatedBy": "kbd-runtime",
-  "implementation_completed": 3,
-  "implementation_total": 3,
-  "last_updated": "2026-07-31T18:05:46.841882Z",
-  "last_updated_by": "kbd-runtime",
-  "migrationStatus": null,
-  "parentPhase": null,
+  "sourceRevision": 2,
   "phase": "phase-ci-cross-model-qa-and-hardening",
   "phaseId": "phase-ci-cross-model-qa-and-hardening",
-  "schemaVersion": "2",
-  "sourceRevision": 475
+  "parentPhase": null,
+  "last_updated": "2026-07-29T01:23:46.112188Z",
+  "last_updated_by": "kbd-runtime",
+  "changes_total": 3,
+  "changes_completed": 3,
+  "implementation_total": 3,
+  "implementation_completed": 3,
+  "completion": {
+    "primaryCounter": "implementation",
+    "implementation": {
+      "completed": 3,
+      "total": 3,
+      "status": "COMPLETE"
+    },
+    "evidence": {
+      "status": "PENDING",
+      "summary": null,
+      "blockers": []
+    },
+    "certification": {
+      "status": "PENDING",
+      "summary": null,
+      "blockers": []
+    },
+    "publication": {
+      "status": "PENDING",
+      "summary": null,
+      "blockers": []
+    }
+  },
+  "changes": [
+    {
+      "id": "change-hard-001",
+      "title": "pin local stable Rust toolchain (rust-toolchain.toml)",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-hard-002",
+      "title": "fix cross-model-qa.yml block-scalar parse error",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-hard-003",
+      "title": "constant-time forge-mcp bearer auth (subtle::ConstantTimeEq)",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    }
+  ],
+  "children": {},
+  "migrationStatus": null
 }

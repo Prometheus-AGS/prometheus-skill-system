@@ -1,96 +1,96 @@
 {
-  "changes": [
-    {
-      "blockers": [],
-      "id": "change-hardening-001-iroh-docs-share-import",
-      "implementation_status": "COMPLETE",
-      "last_task_completed": null,
-      "next_task_pending": null,
-      "status": "DONE",
-      "tasks_done": 0,
-      "tasks_total": 0,
-      "title": "Iroh docs share/import sync regression"
-    },
-    {
-      "blockers": [],
-      "id": "change-hardening-002-sovereign-sync-ci",
-      "implementation_status": "COMPLETE",
-      "last_task_completed": null,
-      "next_task_pending": null,
-      "status": "DONE",
-      "tasks_done": 0,
-      "tasks_total": 0,
-      "title": "Sovereign-sync Rust CI"
-    },
-    {
-      "blockers": [],
-      "id": "change-hardening-003-mcp-client-pool-e2e",
-      "implementation_status": "COMPLETE",
-      "last_task_completed": null,
-      "next_task_pending": null,
-      "status": "DONE",
-      "tasks_done": 0,
-      "tasks_total": 0,
-      "title": "McpClientPool end-to-end forwarding test"
-    },
-    {
-      "blockers": [],
-      "id": "change-hardening-004-docusaurus-brand-and-lock",
-      "implementation_status": "COMPLETE",
-      "last_task_completed": null,
-      "next_task_pending": null,
-      "status": "DONE",
-      "tasks_done": 0,
-      "tasks_total": 0,
-      "title": "Docusaurus KnowMe brand tokens and package lock"
-    },
-    {
-      "blockers": [],
-      "id": "change-hardening-005-daemon-health-detect-toolchain",
-      "implementation_status": "COMPLETE",
-      "last_task_completed": null,
-      "next_task_pending": null,
-      "status": "DONE",
-      "tasks_done": 0,
-      "tasks_total": 0,
-      "title": "Sovereign-sync daemon health detection"
-    }
-  ],
-  "changes_completed": 5,
-  "changes_total": 5,
-  "children": {},
-  "completion": {
-    "certification": {
-      "blockers": [],
-      "status": "PENDING",
-      "summary": null
-    },
-    "evidence": {
-      "blockers": [],
-      "status": "PENDING",
-      "summary": null
-    },
-    "implementation": {
-      "completed": 5,
-      "status": "COMPLETE",
-      "total": 5
-    },
-    "primaryCounter": "implementation",
-    "publication": {
-      "blockers": [],
-      "status": "PENDING",
-      "summary": null
-    }
-  },
+  "schemaVersion": "2",
   "generatedBy": "kbd-runtime",
-  "implementation_completed": 5,
-  "implementation_total": 5,
-  "last_updated": "2026-07-31T18:05:46.841882Z",
-  "last_updated_by": "kbd-runtime",
-  "migrationStatus": null,
-  "parentPhase": null,
+  "sourceRevision": 2,
   "phase": "phase-sovereign-sync-hardening",
   "phaseId": "phase-sovereign-sync-hardening",
-  "schemaVersion": "2",
-  "sourceRevision": 475
+  "parentPhase": null,
+  "last_updated": "2026-07-29T01:23:46.112188Z",
+  "last_updated_by": "kbd-runtime",
+  "changes_total": 5,
+  "changes_completed": 5,
+  "implementation_total": 5,
+  "implementation_completed": 5,
+  "completion": {
+    "primaryCounter": "implementation",
+    "implementation": {
+      "completed": 5,
+      "total": 5,
+      "status": "COMPLETE"
+    },
+    "evidence": {
+      "status": "PENDING",
+      "summary": null,
+      "blockers": []
+    },
+    "certification": {
+      "status": "PENDING",
+      "summary": null,
+      "blockers": []
+    },
+    "publication": {
+      "status": "PENDING",
+      "summary": null,
+      "blockers": []
+    }
+  },
+  "changes": [
+    {
+      "id": "change-hardening-001-iroh-docs-share-import",
+      "title": "Iroh docs share/import sync regression",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-hardening-002-sovereign-sync-ci",
+      "title": "Sovereign-sync Rust CI",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-hardening-003-mcp-client-pool-e2e",
+      "title": "McpClientPool end-to-end forwarding test",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-hardening-004-docusaurus-brand-and-lock",
+      "title": "Docusaurus KnowMe brand tokens and package lock",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-hardening-005-daemon-health-detect-toolchain",
+      "title": "Sovereign-sync daemon health detection",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    }
+  ],
+  "children": {},
+  "migrationStatus": null
 }

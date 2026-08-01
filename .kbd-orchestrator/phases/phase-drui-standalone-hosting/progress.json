@@ -1,107 +1,107 @@
 {
-  "changes": [
-    {
-      "blockers": [],
-      "id": "change-drui-001-brand-tokens-and-assets",
-      "implementation_status": "PENDING",
-      "last_task_completed": null,
-      "next_task_pending": null,
-      "status": "PENDING",
-      "tasks_done": 0,
-      "tasks_total": 0,
-      "title": "change-drui-001-brand-tokens-and-assets"
-    },
-    {
-      "blockers": [],
-      "id": "change-drui-002-serve-ui-shell",
-      "implementation_status": "PENDING",
-      "last_task_completed": null,
-      "next_task_pending": null,
-      "status": "PENDING",
-      "tasks_done": 0,
-      "tasks_total": 0,
-      "title": "change-drui-002-serve-ui-shell"
-    },
-    {
-      "blockers": [],
-      "id": "change-drui-003-relative-paths-and-readme",
-      "implementation_status": "PENDING",
-      "last_task_completed": null,
-      "next_task_pending": null,
-      "status": "PENDING",
-      "tasks_done": 0,
-      "tasks_total": 0,
-      "title": "change-drui-003-relative-paths-and-readme"
-    },
-    {
-      "blockers": [],
-      "id": "change-drui-004-docker-compose",
-      "implementation_status": "PENDING",
-      "last_task_completed": null,
-      "next_task_pending": null,
-      "status": "PENDING",
-      "tasks_done": 0,
-      "tasks_total": 0,
-      "title": "change-drui-004-docker-compose"
-    },
-    {
-      "blockers": [],
-      "id": "change-drui-005-restyle-ui-knowme",
-      "implementation_status": "PENDING",
-      "last_task_completed": null,
-      "next_task_pending": null,
-      "status": "PENDING",
-      "tasks_done": 0,
-      "tasks_total": 0,
-      "title": "change-drui-005-restyle-ui-knowme"
-    },
-    {
-      "blockers": [],
-      "id": "change-drui-006-ci-smoke",
-      "implementation_status": "PENDING",
-      "last_task_completed": null,
-      "next_task_pending": null,
-      "status": "PENDING",
-      "tasks_done": 0,
-      "tasks_total": 0,
-      "title": "change-drui-006-ci-smoke"
-    }
-  ],
-  "changes_completed": 0,
-  "changes_total": 6,
-  "children": {},
-  "completion": {
-    "certification": {
-      "blockers": [],
-      "status": "PENDING",
-      "summary": null
-    },
-    "evidence": {
-      "blockers": [],
-      "status": "PENDING",
-      "summary": null
-    },
-    "implementation": {
-      "completed": 0,
-      "status": "PENDING",
-      "total": 6
-    },
-    "primaryCounter": "implementation",
-    "publication": {
-      "blockers": [],
-      "status": "PENDING",
-      "summary": null
-    }
-  },
+  "schemaVersion": "2",
   "generatedBy": "kbd-runtime",
-  "implementation_completed": 0,
-  "implementation_total": 6,
-  "last_updated": "2026-07-31T18:05:46.841882Z",
-  "last_updated_by": "kbd-runtime",
-  "migrationStatus": "legacy-read-only",
-  "parentPhase": null,
+  "sourceRevision": 2,
   "phase": "phase-drui-standalone-hosting",
   "phaseId": "phase-drui-standalone-hosting",
-  "schemaVersion": "2",
-  "sourceRevision": 475
+  "parentPhase": null,
+  "last_updated": "2026-07-29T01:23:46.112188Z",
+  "last_updated_by": "kbd-runtime",
+  "changes_total": 6,
+  "changes_completed": 0,
+  "implementation_total": 6,
+  "implementation_completed": 0,
+  "completion": {
+    "primaryCounter": "implementation",
+    "implementation": {
+      "completed": 0,
+      "total": 6,
+      "status": "PENDING"
+    },
+    "evidence": {
+      "status": "PENDING",
+      "summary": null,
+      "blockers": []
+    },
+    "certification": {
+      "status": "PENDING",
+      "summary": null,
+      "blockers": []
+    },
+    "publication": {
+      "status": "PENDING",
+      "summary": null,
+      "blockers": []
+    }
+  },
+  "changes": [
+    {
+      "id": "change-drui-001-brand-tokens-and-assets",
+      "title": "change-drui-001-brand-tokens-and-assets",
+      "status": "PENDING",
+      "implementation_status": "PENDING",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-drui-002-serve-ui-shell",
+      "title": "change-drui-002-serve-ui-shell",
+      "status": "PENDING",
+      "implementation_status": "PENDING",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-drui-003-relative-paths-and-readme",
+      "title": "change-drui-003-relative-paths-and-readme",
+      "status": "PENDING",
+      "implementation_status": "PENDING",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-drui-004-docker-compose",
+      "title": "change-drui-004-docker-compose",
+      "status": "PENDING",
+      "implementation_status": "PENDING",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-drui-005-restyle-ui-knowme",
+      "title": "change-drui-005-restyle-ui-knowme",
+      "status": "PENDING",
+      "implementation_status": "PENDING",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-drui-006-ci-smoke",
+      "title": "change-drui-006-ci-smoke",
+      "status": "PENDING",
+      "implementation_status": "PENDING",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    }
+  ],
+  "children": {},
+  "migrationStatus": "legacy-read-only"
 }
