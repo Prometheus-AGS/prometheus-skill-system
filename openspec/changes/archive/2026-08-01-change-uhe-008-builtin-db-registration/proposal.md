@@ -158,3 +158,94 @@ state does not.
 **Also learned the expensive way:** `pkill -f 'cargo test …'` matched **my own
 run** as well as the strays, killing it (exit 144). Kill by explicit PID after
 listing them, never by pattern, when your own process matches the same pattern.
+
+## POSTGRES UNBLOCKED — and it found two real defects
+
+The BLOCKED verdict was not bureaucratic completeness. Unblocking the third
+provider surfaced **two bugs the other two providers structurally could not
+detect.**
+
+### How the block was resolved
+
+Reused the **PG18 + pgvector image already proven in `flint-forge`**
+(`docker/postgres/Dockerfile`) rather than re-solving Homebrew's packaging.
+Verified live: PostgreSQL **18.4**, pgvector **0.8.5**.
+
+That image had already solved a trap: it pins `PGVECTOR_REF=v0.8.5` because
+**0.8.0 does not compile on PG18** — pgvector called `vacuum_delay_point()` with
+no arguments while PG18 changed the signature. Its own comment records this.
+Reusing a solved problem beat re-deriving it.
+
+### Defect 1 — the embedder-optional fix was wrong on Postgres
+
+The column is `vector(384)`. Persisting an **empty** vector when no embedder
+exists is rejected outright:
+
+```
+ERROR:  vector must have at least 1 dimension
+```
+
+`SkillRegistry::register` *logs* persist failures without propagating them, so
+the skill vanished silently: **0 rows in Postgres while memory and SurrealDB
+held all 3.**
+
+Neither passing provider could catch this. `InMemoryProvider::save_skill` takes
+`_embedding` and **discards it**; SurrealDB does not enforce vector dimensions.
+The bug was only reachable on the provider that validates.
+
+**Fixed:** empty slice → SQL `NULL`, the correct representation of "not embedded
+yet". The column is already nullable, and vector search simply does not match the
+row until something backfills it.
+
+### Defect 2 — pre-existing: a trigger broke EVERY skills insert
+
+Independent of this change:
+
+```
+ERROR:  record "rec" has no field "id"
+CONTEXT:  PL/pgSQL assignment "row_id := rec.id::text"
+```
+
+`uar_notify_entity_change()` assumes every table has an `id` column. `skills` is
+keyed by `skill_id`. The trigger fires AFTER INSERT, so **the entire statement
+aborted** — no skill could ever reach Postgres, with or without this change.
+
+**Fixed** in migration `20260801000000_notify_entity_change_key_agnostic.sql`:
+resolve the row key generically (`id` → `%_id` → the catalogue's real primary
+key, read via `to_jsonb(rec)` because PL/pgSQL cannot do dynamic field access).
+
+It also gains an exception handler, which is the more important change:
+**a notification is a side channel. Losing a notify is a degraded feature;
+losing the row is data loss.** The trigger must never abort the write.
+
+### The lesson
+
+Two providers passing is not two-thirds of the evidence — it is evidence from the
+two providers that *cannot* fail this way. A third backend was the only thing
+that could surface either bug, and both were silent: one logged-and-swallowed,
+one aborting a statement nobody was watching.
+
+## R1 is now MET — all three providers verified
+
+```
+test result: ok. 5 passed; 0 failed; 0 ignored
+```
+
+| Provider | Result |
+|---|---|
+| memory | ✅ 3 == 3 |
+| surreal (embedded, default backend) | ✅ 3 == 3 |
+| **postgres** | ✅ **3 == 3** on PG18.4 + pgvector 0.8.5 |
+
+Confirmed in the database directly, not only via the assertion:
+
+```
+uhe008-pg-alpha|builtin|t
+uhe008-pg-beta |builtin|t
+uhe008-pg-gamma|builtin|t
+```
+
+`origin=builtin`, `embedding IS NULL` — the NULL is correct, not a shortfall: no
+embedder was configured, and NULL is what "not embedded yet" means.
+
+**R1 upgraded from PARTIAL to MET.** Nothing is left named-but-unverified.
