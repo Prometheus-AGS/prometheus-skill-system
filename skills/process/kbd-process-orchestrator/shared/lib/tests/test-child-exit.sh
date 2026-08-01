@@ -30,13 +30,15 @@ WP=".kbd-orchestrator/current-waypoint.json"
   jq '
     .completion.implementation = {completed:3,total:3,status:"COMPLETE"} |
     .implementation_total=3 | .implementation_completed=3 |
-    .changes_total=3 | .changes_completed=3 | .reflect_complete=true
+    .changes_total=3 | .changes_completed=3 | del(.reflect_complete)
   ' "$adir/progress.json" > "$adir/p.tmp" && mv "$adir/p.tmp" "$adir/progress.json"
   echo "# Reflection — alpha" > "$adir/reflection.md"
 
   # exit: handoff-out written, rolled up into parent, path popped
   "$EXIT" >/dev/null 2>&1 || fail "exit alpha"
   [[ -f "$adir/handoff-out.md" ]] || fail "handoff-out.md not written"
+  grep -q '^\*\*Status:\*\* DONE$' "$adir/handoff-out.md" \
+    || fail "canonical completion was not reflected in handoff: $(head -4 "$adir/handoff-out.md" | tail -1)"
   jq -e '.path == ["parent-x"]' "$WP" >/dev/null || fail "path not popped to [parent-x]: $(jq -c .path "$WP")"
   jq -e '.children.alpha.status == "DONE" and .children.alpha.changes_completed == 3' \
     .kbd-orchestrator/phases/parent-x/progress.json >/dev/null \
@@ -73,7 +75,7 @@ WP=".kbd-orchestrator/current-waypoint.json"
   jq '
     .completion.implementation = {completed:2,total:2,status:"COMPLETE"} |
     .implementation_total=2 | .implementation_completed=2 |
-    .changes_total=2 | .changes_completed=2 | .reflect_complete=true
+    .changes_total=2 | .changes_completed=2 | del(.reflect_complete)
   ' "$bdir/progress.json" > "$bdir/p.tmp" && mv "$bdir/p.tmp" "$bdir/progress.json"
   echo "# Reflection — b" > "$bdir/reflection.md"
   "$EXIT" >/dev/null 2>&1 || fail "exit b"

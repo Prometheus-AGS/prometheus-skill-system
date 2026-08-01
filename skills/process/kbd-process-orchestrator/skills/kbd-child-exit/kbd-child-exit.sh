@@ -89,8 +89,15 @@ parent_label="$(kbd_node_chain "${parent_tokens[@]}")"
 # --- handoff-out.md ---------------------------------------------------------
 status="UNKNOWN"
 if [[ -f "$child_dir/progress.json" ]]; then
-  rc="$(jq -r '.reflect_complete // false' "$child_dir/progress.json")"
-  [[ "$rc" == "true" ]] && status="DONE" || status="INCOMPLETE"
+  status="$(jq -r '
+    if ((.completion.implementation.status // "") | ascii_upcase) == "COMPLETE" then
+      "DONE"
+    elif (.reflect_complete // false) == true then
+      "DONE"
+    else
+      "INCOMPLETE"
+    end
+  ' "$child_dir/progress.json")"
 fi
 {
   printf '# Handoff out — %s\n\n' "$(kbd_node_chain "${toks[@]}")"
