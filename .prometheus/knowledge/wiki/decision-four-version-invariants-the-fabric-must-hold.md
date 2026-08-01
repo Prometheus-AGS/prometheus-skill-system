@@ -1,7 +1,7 @@
 ---
 type: Decision
 id: decision-four-version-invariants-the-fabric-must-hold
-title: Decision: four version invariants the fabric must hold
+title: "Decision: four version invariants the fabric must hold"
 tags:
 - decision
 - outcome-pending

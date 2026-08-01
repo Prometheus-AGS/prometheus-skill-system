@@ -1,0 +1,45 @@
+{
+  "mode": "decision",
+  "verdict": "BLOCK",
+  "judge_model": "kbd-judge",
+  "producer_model": "claude-opus-5",
+  "isolation_mode": "rest-gateway:http://localhost:8181/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": "decision_fields.decision / decision_fields.assumptions / decision_fields.falsifier",
+      "claim": "The deferral still rests on the exact future-compatibility condition it admits was not tested against the relevant target.",
+      "evidence": "The measurement was \"against the live rmcp 1.4.0 server\" and the document admits: \"Still untested: a real 2026-07-28 server (none exists in this stack to run against).\" Yet the decision says \"defer given backward compatibility holds\" and the assumptions include \"Servers keep accepting 2025-03-26 and 2025-06-18.\"",
+      "suggested_fix": "Do not commit the deferral as safe on compatibility grounds; either obtain or build a genuine 2026-07-28 server conformance target, or state that the decision knowingly accepts unmeasured interoperability risk and define the fallback if the first real 2026-07-28 server rejects current clients."
+    },
+    {
+      "severity": "WARNING",
+      "file": "decision_fields.falsifier",
+      "claim": "Falsifier 1 is not operational because it depends on an undefined external event with no deadline or substitute test.",
+      "evidence": "Falsifier 1 says: \"Re-run against a genuine 2026-07-28 server when one exists; a rejected initialize then means deferral costs function.\" The packet gives no date, source, acceptance criteria for what counts as \"genuine,\" or required action if no such server appears before the convergence deadline.",
+      "suggested_fix": "Set a dated obligation to create or source a protocol-conformant 2026-07-28 test server, name the implementation or conformance suite, and make failure to test by that date a decision failure."
+    },
+    {
+      "severity": "WARNING",
+      "file": "decision_fields.falsifier",
+      "claim": "Falsifier 3 can miss the main failure mode: the existing five-version split persists without adding a sixth version or consumer.",
+      "evidence": "The stated failure condition is: \"A sixth version or a sixth consumer means this decision FAILED\" and \"If the deadline passes with no convergence phase started\" is also failure. It does not say that reaching 2026-08-31 with the same five divergent rmcp versions and only a nominally started convergence phase fails.",
+      "suggested_fix": "Change the falsifier to require a concrete convergence outcome by the deadline, such as one approved plan with owner and milestones, or reduction from five rmcp versions to a target count by a specified date."
+    },
+    {
+      "severity": "WARNING",
+      "file": "Alternatives considered",
+      "claim": "The rejection of protocol-side adoption relies on lack of end-to-end MCP tests, but the chosen minimal patch also ships behavior-affecting MCP changes without those tests.",
+      "evidence": "Alternative 4 is rejected because \"patching a handshake asserts a wire-format change with no end-to-end MCP test in this stack to catch the regression,\" while the chosen path includes \"ContentBlock as Content\" and explicitly admits \"compiles\" is not \"behaves identically\" and \"no MCP server was exercised end to end.\"",
+      "suggested_fix": "Apply the same evidentiary standard to the chosen path: either add an end-to-end MCP smoke test before committing the alias change, or explain why the chosen compile-only risk is acceptable while the protocol-side patch is not."
+    },
+    {
+      "severity": "WARNING",
+      "file": "decision_fields.assumptions",
+      "claim": "The 12-month deprecation-window assumption is load-bearing but not independently verified and has no cited source in the packet.",
+      "evidence": "The assumptions state: \"The 12-month deprecation window holds. From the published policy; not independently confirmed with maintainers.\" The `sources` field in frontmatter is empty: `sources: []`.",
+      "suggested_fix": "Attach the exact published policy URL or quoted text, record the effective dates, and state what changes if maintainers interpret or revise the policy differently."
+    }
+  ]
+}

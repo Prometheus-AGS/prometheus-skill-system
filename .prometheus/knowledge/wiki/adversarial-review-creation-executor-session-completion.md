@@ -11,12 +11,12 @@ tags:
 links:
 - adversarial-review-for-creation-executor-completion
 - adversarial-review-creation-executor-completion-status
-- adversarial-review-creation-executor-completed-with-unknown-change
+- adversarial-review-creation-executor-session-complete
 sources:
 - stdin
-timestamp: 2026-07-31T21:08:37.589280+00:00
-created_at: 2026-07-31T21:08:37.589103+00:00
-updated_at: 2026-07-31T21:08:37.589280+00:00
+timestamp: 2026-08-01T03:40:07.290490+00:00
+created_at: 2026-08-01T03:40:07.289623+00:00
+updated_at: 2026-08-01T03:40:07.290490+00:00
 revision: 1
 ---
 
@@ -32,7 +32,7 @@ An executor session completed for the adversarial review for creation phase.
 executor session complete | phase: adversarial-review-for-creation | change: unknown
 ```
 
-This record is consistent with existing entries for the same phase and change classification, including [Adversarial Review for Creation Executor Completion](/adversarial-review-for-creation-executor-completion.md), [Adversarial Review Creation Executor Completion Status](/adversarial-review-creation-executor-completion-status.md), and [Adversarial Review Creation Executor Completed with Unknown Change](/adversarial-review-creation-executor-completed-with-unknown-change.md).
+This record is consistent with previous entries for the same phase and change classification, including [Adversarial Review for Creation Executor Completion](/adversarial-review-for-creation-executor-completion.md), [Adversarial Review Creation Executor Completion Status](/adversarial-review-creation-executor-completion-status.md), and [Adversarial Review Creation Executor Session Complete](/adversarial-review-creation-executor-session-complete.md).
 
 # Citations
 

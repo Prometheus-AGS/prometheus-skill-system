@@ -1,7 +1,7 @@
 ---
 type: Decision
 id: decision-uniffi-is-the-mobile-ffi-pattern-not-cbindgen-hand-written-jni
-title: Decision: uniffi is the mobile FFI pattern, not cbindgen + hand-written JNI
+title: "Decision: uniffi is the mobile FFI pattern, not cbindgen + hand-written JNI"
 tags:
 - decision
 - outcome-recorded

@@ -1,0 +1,45 @@
+{
+  "mode": "decision",
+  "verdict": "BLOCK",
+  "judge_model": "kbd-judge",
+  "producer_model": "claude-opus-5",
+  "isolation_mode": "rest-gateway:http://localhost:8181/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": "prior_decisions / decision_document frontmatter",
+      "claim": "The decision record is malformed in the store, so the commitment may not be discoverable or enforceable by the very decision system it relies on.",
+      "evidence": "prior_decisions reports: \"skipping malformed entry path=/Users/.../.prometheus/knowledge/wiki/decision-defer-mcp-2026-07-28-adoption.md err=frontmatter parse error: yaml parse: mapping values are not allowed in this context at line 4 column 16\". The target document frontmatter has `title: Decision: defer MCP 2026-07-28 adoption; converge rmcp in a dedicated phase`, an unquoted colon-bearing scalar.",
+      "suggested_fix": "Quote frontmatter values containing colons, rerun ingestion, and verify this decision appears in prior-decision lookup before relying on it as a recorded deferral."
+    },
+    {
+      "severity": "WARNING",
+      "file": "Decision / Falsifier",
+      "claim": "The compatibility evidence does not test the compatibility claim that matters for adoption of MCP 2026-07-28.",
+      "evidence": "The decision says falsifier 1 was run \"against the live rmcp 1.4.0 server\" and concludes \"The compatibility assumption is now evidence\"; the same section admits \"Still untested: a real 2026-07-28 server\" and the assumptions say acceptance is \"not exercised against a live 2026-07-28 server.\" Testing an old in-stack server negotiating down does not prove old clients will interoperate with a genuine 2026-07-28 server.",
+      "suggested_fix": "Downgrade the claim to \"our current rmcp 1.4.0 server still accepts current clients\" and make deferral contingent on an explicit external/genuine 2026-07-28 compatibility test or documented absence of any required 2026-07-28 peer."
+    },
+    {
+      "severity": "WARNING",
+      "file": "Falsifier",
+      "claim": "The deadline falsifier for \"deferring is free\" can miss the actual failure modes of deferral.",
+      "evidence": "Falsifier 3 only fails on \"A sixth version or a sixth consumer\" or \"no convergence phase started\" by 2026-08-31. Deferral can still be costly with five versions if an existing consumer breaks, an external 2026-07-28 peer rejects obsolete clients, or the convergence phase starts but does not complete.",
+      "suggested_fix": "Add falsifiers for failed initialize against required peers, any user-visible MCP regression, and convergence not completed by the deadline rather than merely started."
+    },
+    {
+      "severity": "WARNING",
+      "file": "Decision / Assumptions",
+      "claim": "The decision treats the 12-month deprecation window as load-bearing but does not verify whether the relevant versions are inside that window.",
+      "evidence": "Assumption: \"The 12-month deprecation window holds. From the published policy; not independently confirmed with maintainers.\" The obsolete client versions are `2025-03-26` and `2025-06-18`, while the decision date is `2026-08-01`; `2025-03-26` is already more than 12 months old at decision time.",
+      "suggested_fix": "Compute each protocol version's support deadline from the published policy and remove or replace the assumption if any hard-coded version is already outside support."
+    },
+    {
+      "severity": "WARNING",
+      "file": "Alternatives considered",
+      "claim": "The rejected protocol-side alternative is dismissed because no end-to-end test exists, but the decision never evaluates the obvious alternative of adding the minimal test instead of deferring.",
+      "evidence": "Alternative 4 is rejected because \"patching a handshake asserts a wire-format change with no end-to-end MCP test in this stack to catch the regression\". The decision then says this argues for a later phase, but does not consider \"add a minimal initialize compatibility test now, then patch or defer based on it\" as an option.",
+      "suggested_fix": "Add and evaluate a minimal-test-now alternative with estimated effort, and justify why it is larger than the risk accepted by deferral."
+    }
+  ]
+}

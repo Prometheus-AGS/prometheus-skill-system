@@ -1,7 +1,7 @@
 ---
 type: Decision
 id: decision-frf-transport-iroh-is-a-federationbridge-adapter-additive-to-fr
-title: Decision: `frf-transport-iroh` is a `FederationBridge` adapter, additive to FRF
+title: "Decision: `frf-transport-iroh` is a `FederationBridge` adapter, additive to FRF"
 tags:
 - decision
 - outcome-pending

@@ -1,7 +1,7 @@
 ---
 type: Decision
 id: decision-iroh-is-the-fabric-transport-the-browser-is-relay-only
-title: Decision: iroh is the fabric transport; the browser is relay-only
+title: "Decision: iroh is the fabric transport; the browser is relay-only"
 tags:
 - decision
 - outcome-pending

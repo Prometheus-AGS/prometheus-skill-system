@@ -1,7 +1,7 @@
 ---
 type: Decision
 id: decision-keep-both-wasm-targets-and-make-the-split-explicit
-title: Decision: keep both wasm targets, and make the split explicit
+title: "Decision: keep both wasm targets, and make the split explicit"
 tags:
 - decision
 - outcome-recorded

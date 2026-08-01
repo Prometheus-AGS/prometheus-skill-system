@@ -1,7 +1,7 @@
 ---
 type: Decision
 id: decision-unify-the-wit-worlds-into-prometheus-component-before-porting-a
-title: Decision: unify the WIT worlds into `prometheus:component/*` before porting any skill
+title: "Decision: unify the WIT worlds into `prometheus:component/*` before porting any skill"
 tags:
 - decision
 - outcome-pending

@@ -1,0 +1,45 @@
+{
+  "mode": "decision",
+  "verdict": "BLOCK",
+  "judge_model": "kbd-judge",
+  "producer_model": "claude-opus-5",
+  "isolation_mode": "rest-gateway:http://localhost:8181/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": "Decision / Assumptions / Falsifier",
+      "claim": "The central decision to defer is still resting on an untested compatibility assumption, despite being reframed as conditional.",
+      "evidence": "Decision says: \"Do not adopt MCP `2026-07-28` now\" and then narrows the honest form to \"defer *given* backward compatibility holds\" while also stating \"No live 2026-07-28 server was contacted; falsifier 1 is un-run, not passed\" and assumption says \"Servers keep accepting 2025-03-26 and 2025-06-18... not exercised against a live 2026-07-28 server.\"",
+      "suggested_fix": "Do not commit the defer decision as valid until compatibility is exercised, or explicitly change the decision to a temporary unblock with a hard stop before any dependent MCP functionality is relied on."
+    },
+    {
+      "severity": "WARNING",
+      "file": "Falsifier",
+      "claim": "Falsifier 1 is not practically scheduled, so the highest-risk assumption can remain untested while the defer decision proceeds.",
+      "evidence": "Falsifier 1 says: \"Test: exercise both clients against a live 2026-07-28 server\" but gives no deadline, owner, server identity, or fallback if no such live server is available; the decision says this is merely \"the first task of the convergence phase.\"",
+      "suggested_fix": "Bind falsifier 1 to the same deadline as falsifier 3, name the server or fixture to be used, and define failure if no test environment exists by that date."
+    },
+    {
+      "severity": "WARNING",
+      "file": "Falsifier",
+      "claim": "The \"deferring is free\" falsifier uses an arbitrary and incomplete threshold that can miss real deferral cost.",
+      "evidence": "Falsifier 3 declares failure only on \"A sixth version or a sixth consumer\" or if \"no convergence phase started\" by the deadline, but the document gives no source for why six is the failure threshold and does not treat unresolved five-version divergence, broken interoperability, or a started-but-not-completed convergence phase as failure.",
+      "suggested_fix": "Define success/failure around completed convergence or verified compatibility by the deadline, not only growth from five to six versions/consumers."
+    },
+    {
+      "severity": "WARNING",
+      "file": "prior_decisions / frontmatter",
+      "claim": "The decision record is malformed and the prior-decision check is unreliable, so the document cannot support its own claim that there is no settled ground being re-decided.",
+      "evidence": "prior_decisions reports: \"skipping malformed entry path=.../decision-defer-mcp-2026-07-28-adoption.md err=frontmatter parse error: yaml parse: mapping values are not allowed in this context at line 4 column 16\"; the decision frontmatter has an unquoted title containing a colon: \"title: Decision: defer MCP 2026-07-28 adoption; converge rmcp in a dedicated phase\".",
+      "suggested_fix": "Quote the frontmatter title and rerun the prior-decision lookup after malformed decision entries are parseable."
+    },
+    {
+      "severity": "WARNING",
+      "file": "What was re-measured at write time / Alternatives considered",
+      "claim": "The decision treats compile success as enough to unblock the parent while admitting that the affected MCP behavior is not tested end to end.",
+      "evidence": "Decision claims the parent is unblocked based on \"`cargo check --lib` clean and `cargo test --lib provenance` 8/8 from cold,\" but also says \"No live 2026-07-28 server was contacted,\" \"ContentBlock as Content is compile-verified only,\" and rejects protocol-side adoption because there is \"no end-to-end MCP test in this stack to catch the regression.\"",
+      "suggested_fix": "Either add a minimal end-to-end MCP smoke test before declaring the parent unblocked, or narrow the unblock claim to compilation/provenance only and mark functional MCP behavior as blocked."
+    }
+  ]
+}

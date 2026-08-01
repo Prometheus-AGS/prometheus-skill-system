@@ -92,6 +92,14 @@ def section(*names):
     return None
 
 title = (re.search(r"^#\s+(.+)$", src, re.M) or [None, eid])[1] if re.search(r"^#\s+", src, re.M) else eid
+
+# A colon in a title makes YAML read it as a nested mapping, so the entry
+
+# fails to parse and pk SILENTLY SKIPS it. Seven entries were lost this way
+
+# before an adversarial review caught it. Always emit a quoted scalar.
+
+title_yaml = '"' + str(title).replace('\\', '\\\\').replace('"', '\\"') + '"'
 decision = section("decision", "the decision") or "(not stated)"
 assumptions = section("assumptions?", "what this rests on") or "(none stated)"
 falsifier = section("falsifier", "what would falsify (?:this|it)",
@@ -101,7 +109,7 @@ now = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
 out = f"""---
 type: Decision
 id: {eid}
-title: {title}
+title: {title_yaml}
 tags:
 - decision
 - outcome-pending

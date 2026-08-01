@@ -1,7 +1,7 @@
 ---
 type: Decision
 id: decision-follow-the-target-flutter-rust-bridge-for-mobile-uniffi-only-if
-title: Decision: follow the target — `flutter_rust_bridge` for mobile, uniffi only if a second host appears
+title: "Decision: follow the target — `flutter_rust_bridge` for mobile, uniffi only if a second host appears"
 tags:
 - decision
 - outcome-recorded

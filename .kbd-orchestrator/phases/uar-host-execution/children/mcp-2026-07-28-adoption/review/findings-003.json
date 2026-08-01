@@ -1,0 +1,45 @@
+{
+  "mode": "decision",
+  "verdict": "BLOCK",
+  "judge_model": "kbd-judge",
+  "producer_model": "claude-opus-5",
+  "isolation_mode": "rest-gateway:http://localhost:8181/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": "Assumptions / Falsifier",
+      "claim": "The decision rests on an untested, load-bearing compatibility assumption that the document itself says was not exercised before deciding to defer.",
+      "evidence": "Assumption: \"Servers keep accepting 2025-03-26 and 2025-06-18... not exercised against a live 2026-07-28 server.\" Falsifier 1 says the required test is to \"exercise both clients against a live 2026-07-28 server\" and that rejection means \"deferral costs function.\"",
+      "suggested_fix": "Run the live 2026-07-28 server compatibility test before committing the deferral, or make the decision conditional on passing that test."
+    },
+    {
+      "severity": "WARNING",
+      "file": "Falsifier",
+      "claim": "The falsifier for deferral compounding is not practically falsifiable because the convergence phase has no stated deadline.",
+      "evidence": "Falsifier 3 triggers only if \"A sixth consumer adds a sixth `rmcp` version before the convergence phase runs\" and the outcome check is \"at the start of the convergence phase,\" but the decision gives no date or maximum deferral interval for that phase.",
+      "suggested_fix": "Add a deadline such as \"convergence phase must start by YYYY-MM-DD / within N parent-phase changes\" and define the decision as failed if it does not."
+    },
+    {
+      "severity": "WARNING",
+      "file": "prior_decisions",
+      "claim": "There is an apparent prior decision on the same topic that was not read or acknowledged, so this may be re-deciding settled ground.",
+      "evidence": "prior_decisions reports a skipped malformed entry at `/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.prometheus/knowledge/wiki/decision-defer-mcp-2026-07-28-adoption.md`, while the current decision is titled \"defer MCP 2026-07-28 adoption.\"",
+      "suggested_fix": "Repair or inspect the malformed prior decision and explicitly state whether this supersedes, confirms, or contradicts it."
+    },
+    {
+      "severity": "WARNING",
+      "file": "Alternatives considered",
+      "claim": "The rejection of protocol-side adoption conflates client handshakes with server session mounts, so the stated reason does not support dismissing that alternative.",
+      "evidence": "The document identifies hard-coded client handshakes in `universal-agent-runtime/src/mcp/stdio_client.rs` and `substrate/sovereign-sync/src/mcp_client_pool.rs`, but rejects protocol-side adoption because it would mean \"hand-editing the same handshakes now known to sit under 3 server mounts\"; the 3 mounts are `StreamableHttpService::new` server mounts, not the listed client handshake sites.",
+      "suggested_fix": "Separate client initialize-handshake work from server session/stateless migration work and reassess whether a narrow protocol-side compatibility patch is actually blocked by the server mounts."
+    },
+    {
+      "severity": "WARNING",
+      "file": "Decision / Assumptions",
+      "claim": "The decision treats the minimal `ContentBlock as Content` change as safe without an end-to-end MCP exercise, despite using it to unblock the parent phase.",
+      "evidence": "Decision says the committed path includes \"`ContentBlock as Content` in two files,\" while the assumption says \"`cargo check` + 8 provenance tests pass; no MCP server was exercised end to end.\"",
+      "suggested_fix": "Run at least one end-to-end MCP interaction through the changed code path before using this as the unblocker, or explicitly scope the unblocker as compile-only risk."
+    }
+  ]
+}

@@ -1,5 +1,9 @@
 # Update Log
 
+## 2026-08-01
+* **Creation**: [Adversarial Review Creation Executor Session Completion](/adversarial-review-creation-executor-session-completion.md)
+* **Creation**: [Adversarial Review Creation Executor Unknown Change Completion](/adversarial-review-creation-executor-unknown-change-completion.md)
+
 ## 2026-07-31
 * **Creation**: [Adversarial Review Creation Executor Session Completion](/adversarial-review-creation-executor-session-completion.md)
 * **Creation**: [Adversarial Review Creation Executor Completion Record](/adversarial-review-creation-executor-completion-record.md)

@@ -1,7 +1,7 @@
 ---
 type: Reference
 id: codex-plugin-verify-and-publish-reflect-completion-at-2026-07-13t15-40z
-title: Codex Plugin Verify-and-Publish Reflect Completion at 2026-07-13T15:40Z
+title: "Codex Plugin Verify-and-Publish Reflect Completion at 2026-07-13T15:40Z"
 tags:
 - codex-plugin
 - verify-and-publish
