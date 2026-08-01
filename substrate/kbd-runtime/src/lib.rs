@@ -3588,8 +3588,17 @@ fn projection_is_writable(path: &Path, migrating: bool) -> bool {
     let has_modern_shape = value.get("completion").is_some();
 
     if migrating {
-        // A backup exists; converting any recognisable ledger is the point.
-        return has_legacy_counters || has_modern_shape;
+        // A backup exists, so converting a LEGACY ledger is the point of the
+        // operation. But a file with a modern `completion` object and NO legacy
+        // counters is not a migration candidate at all — it is already in a
+        // current shape and was written by something else. Rewriting it during
+        // migration would reintroduce the exact data loss this guard exists to
+        // stop, just behind an operator-invoked command instead of an
+        // unattended one.
+        //
+        // Measured: a pure-`completion` ledger was still being rewritten by
+        // `kbd migrate --apply` after the first version of this guard.
+        return has_legacy_counters;
     }
 
     // Routine projection: only a pure legacy ledger (old counters, nothing
@@ -5613,6 +5622,28 @@ mod projection_guard_migration_tests {
             "routine projection must NOT overwrite a live ledger that carries a \
              modern `completion` object, even though it also keeps the legacy \
              counters for compatibility"
+        );
+    }
+
+    /// A PURE-modern foreign ledger is protected even from `migrate --apply`.
+    ///
+    /// Found by end-to-end probe, not by reasoning: after the first version of
+    /// this guard, `kbd migrate --apply` still rewrote a ledger holding only a
+    /// `completion` object. A backup does not make that acceptable — the file
+    /// is already in a current shape, so it is not a migration candidate at
+    /// all, and rewriting it reintroduces the same data loss behind an
+    /// operator-invoked command instead of an unattended one.
+    #[test]
+    fn a_pure_modern_foreign_ledger_survives_even_migration() {
+        let path = f(
+            "pure-modern",
+            r#"{"completion":{"implementation":{"completed":16,"total":16}}}"#,
+        );
+        assert!(
+            !projection_is_writable(&path, true),
+            "a ledger with a modern `completion` object and NO legacy counters \
+             is not a migration candidate; converting it destroys someone \
+             else's current-shape data"
         );
     }
 
