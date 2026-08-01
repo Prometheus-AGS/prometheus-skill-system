@@ -38,6 +38,20 @@
   <true/>
   <key>KeepAlive</key>
   <true/>
+  <!-- Do not hot-loop on a failure that will not clear on its own.
+
+       KeepAlive=true with no throttle restarts the daemon IMMEDIATELY. When the
+       failure is persistent — a redb lock held by another process, an
+       unwritable path — that is a tight loop: observed 2026-07-28 writing
+       thousands of identical "Database already open. Cannot acquire lock."
+       lines, which buries any other diagnostic and burns CPU without ever
+       recovering.
+
+       10s is launchd's own default for a reason. A transient crash still
+       restarts promptly; a persistent one leaves a readable log and a machine
+       that is not spinning. -->
+  <key>ThrottleInterval</key>
+  <integer>10</integer>
   <key>ProcessType</key>
   <string>Background</string>
 

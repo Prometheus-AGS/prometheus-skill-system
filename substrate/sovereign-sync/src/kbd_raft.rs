@@ -272,12 +272,78 @@ impl Debug for RedbRaftStore {
     }
 }
 
+
+/// Best-effort: which process holds `path` open?
+///
+/// Returns a printable suffix, or an empty string when nothing can be
+/// determined. Deliberately non-fatal and non-blocking — this runs on an error
+/// path, and a diagnostic that can itself hang would make the failure worse.
+///
+/// `lsof` is the only portable-enough option on macOS/Linux without adding a
+/// dependency. Its absence is not an error; the message simply omits the hint.
+fn lock_holder_hint(path: &Path) -> String {
+    use std::process::{Command, Stdio};
+
+    let output = Command::new("lsof")
+        .arg("-t")
+        .arg(path)
+        .stderr(Stdio::null())
+        .output();
+
+    match output {
+        Ok(out) if out.status.success() => {
+            let pids: Vec<String> = String::from_utf8_lossy(&out.stdout)
+                .split_whitespace()
+                .map(str::to_string)
+                .collect();
+            if pids.is_empty() {
+                // No holder, yet the open still failed — a stale lock or a
+                // permissions problem, and worth saying so rather than
+                // implying contention that is not there.
+                " (no process appears to hold this file; the lock may be stale \
+                  or the path may not be writable)"
+                    .to_string()
+            } else {
+                format!(
+                    " (held by pid {}; stop it before starting another daemon)",
+                    pids.join(", ")
+                )
+            }
+        }
+        _ => String::new(),
+    }
+}
+
 impl RedbRaftStore {
     pub fn open(path: &Path) -> io::Result<Arc<Self>> {
         if let Some(parent) = path.parent() {
             std::fs::create_dir_all(parent)?;
         }
-        let mut db = Database::create(path).map_err(io_other)?;
+        // A lock failure must say WHO holds it, not just that it failed.
+        //
+        // `Database::create` returns `Database already open. Cannot acquire
+        // lock.` when another process holds the file. Under launchd's
+        // `KeepAlive=true` with no `ThrottleInterval`, that error restarts the
+        // daemon immediately into the same failure — a tight loop that wrote
+        // the identical line thousands of times and told an operator nothing
+        // actionable. Observed on this machine 2026-07-28.
+        //
+        // redb's lock is advisory and released when the holding process exits,
+        // so there is nothing safe to "clear": forcibly removing it while a
+        // live daemon holds the store risks two writers on one file, which is
+        // far worse than a failed start. The fix is therefore DIAGNOSIS, not
+        // deletion — name the holder so the operator can act in one step
+        // instead of grepping a log full of identical lines.
+        let mut db = match Database::create(path) {
+            Ok(db) => db,
+            Err(e) => {
+                let held_by = lock_holder_hint(path);
+                return Err(io::Error::other(format!(
+                    "cannot open the raft store at {}: {e}{held_by}",
+                    path.display()
+                )));
+            }
+        };
 
         // Reclaim pages freed by `purge_logs_upto`.
         //

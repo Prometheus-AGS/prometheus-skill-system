@@ -214,12 +214,48 @@ fn discover_project_root(skills_dir: &Path) -> PathBuf {
 // ---------------------------------------------------------------------------
 
 /// GET /health
-async fn health() -> impl IntoResponse {
-    Json(serde_json::json!({
-        "status": "ok",
-        "service": "sovereign-sync",
-        "version": env!("CARGO_PKG_VERSION")
-    }))
+/// Liveness AND readiness — the store must actually be reachable.
+///
+/// # Why this probes instead of answering `ok` unconditionally
+///
+/// This handler used to take no state and return a hardcoded `"status": "ok"`.
+/// It therefore reported healthy while the daemon was in a `Database already
+/// open. Cannot acquire lock.` loop and could not serve a single request that
+/// touched its store.
+///
+/// A health endpoint that cannot observe its own core dependency gives false
+/// assurance exactly when something is wrong — the same failure class as an
+/// update check reporting `up-to-date` while offline. The green signal is
+/// measuring process liveness, and callers read it as service readiness.
+///
+/// `KbdControlPlane::status()` is the cheapest honest probe: it reads committed
+/// state through the redb store, so a lock failure or corrupt store surfaces
+/// here rather than three calls later in something a user was relying on.
+///
+/// Returns **503** when the store is unreachable, so a load balancer or a
+/// monitor can act on it. The body always names the reason.
+async fn health(State(state): State<AppState>) -> impl IntoResponse {
+    match state.kbd_control.status() {
+        Ok(_) => (
+            StatusCode::OK,
+            Json(serde_json::json!({
+                "status": "ok",
+                "service": "sovereign-sync",
+                "version": env!("CARGO_PKG_VERSION"),
+                "store": "reachable"
+            })),
+        ),
+        Err(e) => (
+            StatusCode::SERVICE_UNAVAILABLE,
+            Json(serde_json::json!({
+                "status": "degraded",
+                "service": "sovereign-sync",
+                "version": env!("CARGO_PKG_VERSION"),
+                "store": "unreachable",
+                "reason": e.to_string()
+            })),
+        ),
+    }
 }
 
 async fn require_bearer(State(state): State<AppState>, request: Request, next: Next) -> Response {
