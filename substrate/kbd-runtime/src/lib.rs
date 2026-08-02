@@ -3467,25 +3467,7 @@ fn ordered_tasks(change: &Change) -> Vec<&Task> {
 /// still parsed, so the next reader trusted a value that had just been
 /// fabricated from partial state.
 ///
-/// Ownership is decided by the `generatedBy: "kbd-runtime"` marker that
-/// [`phase_progress_projection`] stamps into every file it produces.
-///
-/// # Absent file is OURS
-///
-/// A path that does not exist yet returns `true` so the first write still
-/// happens — the guard prevents *overwriting* foreign data, not bootstrapping.
-///
-/// # Unreadable or unparseable file is NOT ours
-///
-/// If the bytes cannot be read or parsed we return `false` and skip. Replacing
-/// a file we cannot understand is exactly the destructive act this guard
-/// exists to prevent, and a corrupt file is more likely to be someone's
-/// in-progress work than a runtime artifact.
-fn projection_is_runtime_owned(path: &Path) -> bool {
-    projection_is_writable(path, false)
-}
-
-/// As [`projection_is_runtime_owned`], but `migrating` relaxes the guard.
+/// May `path` be replaced by a projection? `migrating` relaxes the guard.
 ///
 /// Migration is the one path that legitimately rewrites a ledger it did not
 /// author: `migrate_legacy_ledgers` takes a backup first and is an explicit,
@@ -4881,8 +4863,6 @@ mod tests {
     }
 
     #[test]
-
-    #[test]
     fn command_envelopes_no_longer_require_concurrency_fields_and_still_dedupe_by_command_id() {
         let dir = tempdir().unwrap();
         let runtime = Runtime::open(dir.path());
@@ -5442,7 +5422,7 @@ mod tests {
 
 #[cfg(test)]
 mod projection_ownership_tests {
-    use super::{projection_is_runtime_owned, projection_is_writable};
+    use super::projection_is_writable;
     use std::io::Write;
 
     fn temp_file(name: &str, body: &str) -> std::path::PathBuf {
@@ -5471,7 +5451,7 @@ mod projection_ownership_tests {
             r#"{"completion":{"implementation":{"completed":16,"total":16}}}"#,
         );
         assert!(
-            !projection_is_runtime_owned(&path),
+            !projection_is_writable(&path, false),
             "a progress.json with no `generatedBy` marker was written by \
              something else; overwriting it is committed data loss"
         );
@@ -5480,14 +5460,14 @@ mod projection_ownership_tests {
     #[test]
     fn a_file_the_runtime_wrote_is_ours() {
         let path = temp_file("ours", r#"{"generatedBy":"kbd-runtime","phase":"x"}"#);
-        assert!(projection_is_runtime_owned(&path));
+        assert!(projection_is_writable(&path, false));
     }
 
     /// Another writer's marker must not be mistaken for ours.
     #[test]
     fn a_different_generator_is_not_ours() {
         let path = temp_file("other", r#"{"generatedBy":"some-other-tool"}"#);
-        assert!(!projection_is_runtime_owned(&path));
+        assert!(!projection_is_writable(&path, false));
     }
 
     /// Bootstrapping still works — the guard blocks overwrites, not first writes.
@@ -5498,7 +5478,7 @@ mod projection_ownership_tests {
             .join("progress.json");
         let _ = std::fs::remove_file(&missing);
         assert!(
-            projection_is_runtime_owned(&missing),
+            projection_is_writable(&missing, false),
             "an absent path must be writable or the runtime can never \
              initialise a phase"
         );
@@ -5510,7 +5490,7 @@ mod projection_ownership_tests {
     /// first), and the projection loop writes them back in the new shape.
     ///
     /// CORRECTED when the GitHub issue landed. This test previously asserted the
-    /// property against `projection_is_runtime_owned` — the ROUTINE path — and
+    /// property against `projection_is_writable(_, false)` — the ROUTINE path — and
     /// so encoded the very defect that was reported: that an unattended
     /// projection may overwrite a legacy ledger. Migration is the path that may
     /// convert these files, because it backs them up first; routine projection
@@ -5544,7 +5524,7 @@ mod projection_ownership_tests {
             r#"{"completion":{"implementation":{"completed":16,"total":16}}}"#,
         );
         assert!(
-            !projection_is_runtime_owned(&path),
+            !projection_is_writable(&path, false),
             "a nested `completion` object with no marker is someone else's \
              modern ledger — the exact file that was silently destroyed"
         );
@@ -5556,7 +5536,7 @@ mod projection_ownership_tests {
     fn an_unparseable_file_is_not_ours() {
         let path = temp_file("corrupt", "{ this is not json");
         assert!(
-            !projection_is_runtime_owned(&path),
+            !projection_is_writable(&path, false),
             "a corrupt file is more likely someone's in-progress work than a \
              runtime artifact; skip it rather than destroy it"
         );
