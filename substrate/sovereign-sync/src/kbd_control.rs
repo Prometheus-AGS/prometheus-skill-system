@@ -13,7 +13,7 @@ use std::{
 
 use kbd_runtime::{
     registry::{ProjectRegistry, RegistrationOutcome, RegistryDocument, ReplicaRegistration},
-    replay_events, CommandEnvelope, CommandResult, DeviceStatus, Event, KbdStateV2, Runtime,
+    CommandEnvelope, CommandResult, DeviceStatus, Event, KbdStateV2, Runtime,
 };
 use serde::Serialize;
 
@@ -31,8 +31,8 @@ pub struct CommittedCommand {
 /// The KBD control plane.
 ///
 /// `Runtime` provides an append-only `events.jsonl` guarded by an exclusive
-/// flock and fsynced on append. The compatibility policy permits exactly one
-/// writer until the project Loro document becomes the converged authority.
+/// flock and fsynced on append before import into the authoritative project
+/// Loro document. The compatibility policy permits exactly one local writer.
 pub struct KbdControlPlane {
     runtime: Arc<Runtime>,
     quorum: Arc<QuorumPolicy>,
@@ -269,6 +269,9 @@ impl KbdControlPlane {
                 "archived an interrupted KBD journal tail before recovery"
             );
         }
+        runtime
+            .reconcile_project_document()
+            .map_err(|error| io::Error::other(error.to_string()))?;
         Ok(Self {
             runtime,
             available_voters: Arc::new(RwLock::new(BTreeSet::from([quorum.node_id()]))),
@@ -326,7 +329,9 @@ impl KbdControlPlane {
             .map_err(|error| io::Error::other(error.to_string()))?;
         Ok(events
             .into_iter()
-            .filter(|event| event.revision > since_revision)
+            .enumerate()
+            .filter(|(index, _)| (*index as u64).saturating_add(1) > since_revision)
+            .map(|(_, event)| event)
             .collect())
     }
 
@@ -340,7 +345,11 @@ impl KbdControlPlane {
     pub fn diagnostics(&self) -> io::Result<serde_json::Value> {
         let state = self.status()?;
         let events = self.events(0)?;
-        let signature_chain_valid = replay_events(&events).is_ok();
+        let signature_chain_valid = self.runtime.replay().is_ok();
+        let replica_events = self
+            .runtime
+            .replica_events()
+            .map_err(|error| io::Error::other(error.to_string()))?;
         let active_devices = state
             .devices
             .values()
@@ -363,24 +372,39 @@ impl KbdControlPlane {
                     .get("sourceRevision")
                     .and_then(|revision| revision.as_u64())
             });
+        let document = self
+            .runtime
+            .project_document()
+            .map(|document| document.status())
+            .transpose()
+            .map_err(|error| io::Error::other(error.to_string()))?;
         Ok(serde_json::json!({
             "schemaVersion": "1",
             "quorum": self.quorum_status(),
             "singleWriter": {
                 "nodeId": self.quorum.node_id(),
-                "lockPath": self.runtime.runtime_root().join("runtime.lock"),
+                "lockPath": self.runtime.journal_lock_path(),
                 "available": self.quorum_status().writable
             },
             "journal": {
                 "path": journal_path,
                 "bytes": journal_bytes,
+                "replicaId": self.runtime.replica_id(),
+                "eventCount": replica_events.len(),
+                "lastLamport": replica_events.last().map(|event| event.lamport).unwrap_or(0),
+                "ingested": replica_events.iter().all(|event| events.iter().any(|committed| committed.event_id == event.event_id))
+            },
+            "document": {
+                "status": document,
                 "eventCount": events.len(),
-                "lastRevision": events.last().map(|event| event.revision).unwrap_or(0),
-                "matchesRuntime": events.last().map(|event| event.revision).unwrap_or(0) == state.revision
+                "derivedRevision": state.revision,
+                "frontier": state.frontier,
+                "conflictCount": state.conflicts.len()
             },
             "runtime": {
                 "projectId": state.project_id,
                 "revision": state.revision,
+                "frontier": state.frontier,
                 "lifecycle": state.lifecycle,
                 "planRevision": state.plan_revision
             },
@@ -474,6 +498,7 @@ mod tests {
             project_id: initialized.project_id.clone(),
             run_id: initialized.run_id.clone(),
             command_id: command_id.clone(),
+            frontier: None,
             expected_revision: initialized.revision,
             actor,
             command: CommandKind::LifecycleTransition {

@@ -1,7 +1,4 @@
-use base64::{
-    engine::general_purpose::STANDARD as BASE64,
-    Engine as _,
-};
+use base64::{engine::general_purpose::STANDARD as BASE64, Engine as _};
 use chrono::{DateTime, Utc};
 use ed25519_dalek::{Signature, Signer, SigningKey, Verifier, VerifyingKey};
 use fs2::FileExt;
@@ -17,6 +14,9 @@ use std::path::{Path, PathBuf};
 use thiserror::Error;
 use uuid::Uuid;
 
+use project_document::ProjectDocument;
+
+pub mod project_document;
 pub mod registry;
 pub mod rollout;
 
@@ -34,6 +34,11 @@ pub enum RuntimeError {
     AlreadyInitialized,
     #[error("expected revision {expected}, current revision is {actual}")]
     RevisionConflict { expected: u64, actual: u64 },
+    #[error("causal frontier conflict: supplied {supplied:?}, current {current:?}")]
+    FrontierConflict {
+        supplied: CausalFrontier,
+        current: CausalFrontier,
+    },
     #[error("event integrity check failed at revision {revision}")]
     Integrity { revision: u64 },
     #[error("event signature check failed at revision {revision}: {reason}")]
@@ -285,6 +290,10 @@ fn env_truthy(name: &str) -> bool {
         .unwrap_or(false)
 }
 
+fn is_zero(value: &u64) -> bool {
+    *value == 0
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
 pub struct Actor {
@@ -307,7 +316,6 @@ impl Actor {
                 .unwrap_or_else(|_| "unknown".into()),
         }
     }
-
 }
 
 fn device_identity() -> String {
@@ -464,6 +472,40 @@ pub struct Blocker {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "snake_case")]
+pub enum ConflictKind {
+    Phase,
+    Lifecycle,
+    ActivePath,
+    Completion,
+    Decision,
+    Blocker,
+    Fold,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+pub struct ConflictCandidate {
+    pub event_id: String,
+    pub replica_id: String,
+    pub lamport: u64,
+    pub actor_id: String,
+    pub value: serde_json::Value,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+pub struct ConflictRecord {
+    pub id: String,
+    pub slot: String,
+    pub kind: ConflictKind,
+    pub candidates: Vec<ConflictCandidate>,
+    pub winner_event_id: String,
+    pub resolved_by_event_id: Option<String>,
+    pub resolution_reason: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(tag = "type", content = "payload", rename_all = "snake_case")]
 pub enum EventKind {
     RunInitialized {
@@ -566,6 +608,72 @@ pub enum EventKind {
         previous_key_id: String,
         replacement: DeviceRecord,
     },
+    ConflictRecorded {
+        conflict: ConflictRecord,
+    },
+    ConflictResolved {
+        conflict_id: String,
+        winner_event_id: String,
+        reason: String,
+    },
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+#[serde(transparent)]
+pub struct CausalFrontier(pub BTreeMap<String, u64>);
+
+impl CausalFrontier {
+    pub fn empty() -> Self {
+        Self(BTreeMap::new())
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.0.is_empty()
+    }
+
+    pub fn lamport(&self, replica_id: &str) -> u64 {
+        self.0.get(replica_id).copied().unwrap_or(0)
+    }
+
+    pub fn next_lamport(&self, replica_id: &str) -> u64 {
+        self.lamport(replica_id).saturating_add(1)
+    }
+
+    pub fn advance(&mut self, replica_id: impl Into<String>, lamport: u64) {
+        let replica_id = replica_id.into();
+        let current = self.0.entry(replica_id).or_default();
+        *current = (*current).max(lamport);
+    }
+
+    pub fn dominates(&self, other: &Self) -> bool {
+        other
+            .0
+            .iter()
+            .all(|(replica_id, lamport)| self.lamport(replica_id) >= *lamport)
+    }
+
+    pub fn contains_event(&self, event: &Event) -> bool {
+        !event.replica_id.is_empty() && self.lamport(&event.replica_id) >= event.lamport
+    }
+
+    pub fn derived_revision(&self) -> u64 {
+        self.0.values().copied().sum()
+    }
+}
+
+impl Default for CausalFrontier {
+    fn default() -> Self {
+        Self::empty()
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+pub struct ReplicaHead {
+    pub event_id: String,
+    pub integrity_hash: String,
+    pub lamport: u64,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
@@ -573,14 +681,22 @@ pub enum EventKind {
 pub struct Event {
     pub schema_version: String,
     pub project_id: String,
+    #[serde(default, skip_serializing_if = "String::is_empty")]
+    pub replica_id: String,
     pub run_id: String,
     pub event_id: String,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub command_id: Option<String>,
     pub revision: u64,
     pub expected_revision: u64,
+    #[serde(default, skip_serializing_if = "is_zero")]
+    pub lamport: u64,
+    #[serde(default, skip_serializing_if = "CausalFrontier::is_empty")]
+    pub frontier: CausalFrontier,
     pub causal_parent: Option<String>,
     pub actor: Actor,
+    #[serde(default, skip_serializing_if = "String::is_empty")]
+    pub actor_id: String,
     pub timestamp: DateTime<Utc>,
     pub kind: EventKind,
     pub previous_hash: Option<String>,
@@ -715,6 +831,10 @@ pub struct KbdStateV2 {
     pub project_id: String,
     pub run_id: String,
     pub revision: u64,
+    #[serde(default)]
+    pub frontier: CausalFrontier,
+    #[serde(default)]
+    pub replica_heads: BTreeMap<String, ReplicaHead>,
     pub last_event_id: Option<String>,
     pub last_event_hash: Option<String>,
     pub lifecycle: LifecycleState,
@@ -726,6 +846,8 @@ pub struct KbdStateV2 {
     pub completion: BTreeMap<CompletionDimension, Completion>,
     pub decisions: BTreeMap<String, Decision>,
     pub blockers: BTreeMap<String, Blocker>,
+    #[serde(default)]
+    pub conflicts: BTreeMap<String, ConflictRecord>,
     pub devices: BTreeMap<String, DeviceRecord>,
     pub command_revisions: BTreeMap<String, u64>,
 }
@@ -746,6 +868,22 @@ pub struct MigrationSummary {
     pub unreplayable_history: bool,
     pub backup_directory: Option<PathBuf>,
     pub backup_manifest: Option<PathBuf>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+pub struct JournalMigrationSummary {
+    pub project_id: String,
+    pub replica_id: String,
+    pub source_journal: PathBuf,
+    pub archive_journal: PathBuf,
+    pub active_journal: PathBuf,
+    pub project_document: PathBuf,
+    pub rollback_instructions: PathBuf,
+    pub original_events: usize,
+    pub migrated_events: usize,
+    pub archive_sha256: String,
+    pub already_migrated: bool,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
@@ -788,6 +926,9 @@ pub struct CommandEnvelope {
     pub project_id: String,
     pub run_id: String,
     pub command_id: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub frontier: Option<CausalFrontier>,
+    #[serde(default)]
     pub expected_revision: u64,
     pub actor: Actor,
     pub command: CommandKind,
@@ -879,6 +1020,11 @@ pub enum CommandKind {
         previous_key_id: String,
         replacement: DeviceRecord,
     },
+    ConflictResolve {
+        conflict_id: String,
+        winner_event_id: String,
+        reason: String,
+    },
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
@@ -912,6 +1058,8 @@ impl Default for KbdStateV2 {
             project_id: String::new(),
             run_id: String::new(),
             revision: 0,
+            frontier: CausalFrontier::empty(),
+            replica_heads: BTreeMap::new(),
             last_event_id: None,
             last_event_hash: None,
             lifecycle: LifecycleState::Ready,
@@ -923,6 +1071,7 @@ impl Default for KbdStateV2 {
             completion,
             decisions: BTreeMap::new(),
             blockers: BTreeMap::new(),
+            conflicts: BTreeMap::new(),
             devices: BTreeMap::new(),
             command_revisions: BTreeMap::new(),
         }
@@ -931,21 +1080,77 @@ impl Default for KbdStateV2 {
 
 impl KbdStateV2 {
     pub fn apply(&mut self, event: &Event) -> Result<()> {
-        if event.revision != self.revision + 1 || event.expected_revision != self.revision {
-            return Err(RuntimeError::RevisionConflict {
-                expected: event.expected_revision,
-                actual: self.revision,
-            });
-        }
-        if event.causal_parent != self.last_event_id {
-            return Err(RuntimeError::CausalChain {
-                revision: event.revision,
-            });
-        }
-        if event.previous_hash != self.last_event_hash {
-            return Err(RuntimeError::Integrity {
-                revision: event.revision,
-            });
+        self.apply_internal(event, true)
+    }
+
+    pub(crate) fn apply_folded(&mut self, event: &Event) -> Result<()> {
+        self.apply_internal(event, false)
+    }
+
+    fn apply_internal(&mut self, event: &Event, validate_envelope: bool) -> Result<()> {
+        let replica_aware = !event.replica_id.is_empty() && event.lamport > 0;
+        if validate_envelope {
+            if replica_aware {
+                if event.actor_id != event.actor.id {
+                    return Err(RuntimeError::InvalidState(format!(
+                        "event {} actorId does not match actor.id",
+                        event.event_id
+                    )));
+                }
+                if event.frontier != self.frontier {
+                    return Err(RuntimeError::InvalidState(format!(
+                        "event {} was prepared from frontier {:?}, current frontier is {:?}",
+                        event.event_id, event.frontier.0, self.frontier.0
+                    )));
+                }
+                if event.lamport != self.frontier.next_lamport(&event.replica_id) {
+                    return Err(RuntimeError::InvalidState(format!(
+                        "event {} has Lamport {}, expected {} for replica {}",
+                        event.event_id,
+                        event.lamport,
+                        self.frontier.next_lamport(&event.replica_id),
+                        event.replica_id
+                    )));
+                }
+                let replica_head = self.replica_heads.get(&event.replica_id);
+                if event.causal_parent.as_deref() != replica_head.map(|head| head.event_id.as_str())
+                {
+                    return Err(RuntimeError::CausalChain {
+                        revision: event.revision,
+                    });
+                }
+                if event.previous_hash.as_deref()
+                    != replica_head.map(|head| head.integrity_hash.as_str())
+                {
+                    return Err(RuntimeError::Integrity {
+                        revision: event.revision,
+                    });
+                }
+                let expected_revision = self.frontier.derived_revision().saturating_add(1);
+                if event.revision != expected_revision {
+                    return Err(RuntimeError::RevisionConflict {
+                        expected: expected_revision,
+                        actual: event.revision,
+                    });
+                }
+            } else {
+                if event.revision != self.revision + 1 || event.expected_revision != self.revision {
+                    return Err(RuntimeError::RevisionConflict {
+                        expected: event.expected_revision,
+                        actual: self.revision,
+                    });
+                }
+                if event.causal_parent != self.last_event_id {
+                    return Err(RuntimeError::CausalChain {
+                        revision: event.revision,
+                    });
+                }
+                if event.previous_hash != self.last_event_hash {
+                    return Err(RuntimeError::Integrity {
+                        revision: event.revision,
+                    });
+                }
+            }
         }
         event.verify_signature(&self.devices)?;
         if event.integrity_hash != event.calculate_hash()? {
@@ -1307,9 +1512,62 @@ impl KbdStateV2 {
                 self.devices
                     .insert(replacement.key_id.clone(), replacement.clone());
             }
+            EventKind::ConflictRecorded { conflict } => {
+                self.conflicts
+                    .entry(conflict.id.clone())
+                    .or_insert_with(|| conflict.clone());
+            }
+            EventKind::ConflictResolved {
+                conflict_id,
+                winner_event_id,
+                reason,
+            } => {
+                if event.actor.kind != ActorKind::Operator {
+                    return Err(RuntimeError::InvalidState(
+                        "only an operator may resolve a conflict".into(),
+                    ));
+                }
+                let conflict = self.conflicts.get_mut(conflict_id).ok_or_else(|| {
+                    RuntimeError::WorkItemNotFound {
+                        kind: "conflict",
+                        id: conflict_id.clone(),
+                    }
+                })?;
+                if !conflict
+                    .candidates
+                    .iter()
+                    .any(|candidate| candidate.event_id == *winner_event_id)
+                {
+                    return Err(RuntimeError::InvalidState(format!(
+                        "event {winner_event_id} is not a candidate for conflict {conflict_id}"
+                    )));
+                }
+                conflict.winner_event_id.clone_from(winner_event_id);
+                conflict.resolved_by_event_id = Some(event.event_id.clone());
+                conflict.resolution_reason = Some(reason.clone());
+            }
         }
 
-        self.revision = event.revision;
+        let replica_id = if replica_aware {
+            event.replica_id.clone()
+        } else {
+            "legacy".into()
+        };
+        let lamport = if replica_aware {
+            event.lamport
+        } else {
+            event.revision
+        };
+        self.frontier.advance(replica_id.clone(), lamport);
+        self.replica_heads.insert(
+            replica_id,
+            ReplicaHead {
+                event_id: event.event_id.clone(),
+                integrity_hash: event.integrity_hash.clone(),
+                lamport,
+            },
+        );
+        self.revision = self.frontier.derived_revision();
         self.last_event_id = Some(event.event_id.clone());
         self.last_event_hash = Some(event.integrity_hash.clone());
         if let Some(command_id) = event.command_id.as_ref() {
@@ -1525,6 +1783,132 @@ pub fn replay_events(events: &[Event]) -> Result<RuntimeState> {
     Ok(state)
 }
 
+fn read_event_file(path: &Path) -> Result<Vec<Event>> {
+    if !path.exists() {
+        return Ok(Vec::new());
+    }
+    let mut events = Vec::new();
+    for line in BufReader::new(File::open(path)?).lines() {
+        let line = line?;
+        if !line.trim().is_empty() {
+            events.push(serde_json::from_str(&line)?);
+        }
+    }
+    Ok(events)
+}
+
+fn resign_journal_events(
+    source_events: &[Event],
+    project_id: &str,
+    replica_id: &str,
+    signer: &DeviceSigner,
+) -> Result<Vec<Event>> {
+    let mut migrated = Vec::with_capacity(source_events.len());
+    let mut frontier = CausalFrontier::empty();
+    let mut previous_event_id = None;
+    let mut previous_hash = None;
+    for source in source_events {
+        let lamport = frontier.next_lamport(replica_id);
+        let mut event = Event {
+            schema_version: EVENT_SCHEMA_VERSION.into(),
+            project_id: project_id.into(),
+            replica_id: replica_id.into(),
+            run_id: source.run_id.clone(),
+            event_id: Uuid::new_v4().to_string(),
+            command_id: source.command_id.clone(),
+            revision: frontier.derived_revision().saturating_add(1),
+            expected_revision: frontier.derived_revision(),
+            lamport,
+            frontier: frontier.clone(),
+            causal_parent: previous_event_id.clone(),
+            actor: source.actor.clone(),
+            actor_id: source.actor.id.clone(),
+            timestamp: source.timestamp,
+            kind: source.kind.clone(),
+            previous_hash: previous_hash.clone(),
+            migration_provenance: Some(MigrationProvenance {
+                source_project_id: source.project_id.clone(),
+                source_replica_id: (!source.replica_id.is_empty())
+                    .then(|| source.replica_id.clone()),
+                source_event_id: source.event_id.clone(),
+                source_integrity_hash: source.integrity_hash.clone(),
+                source_previous_hash: source.previous_hash.clone(),
+            }),
+            integrity_hash: String::new(),
+            signer_key_id: None,
+            signer_public_key: None,
+            signature: None,
+        };
+        event.seal(signer)?;
+        previous_event_id = Some(event.event_id.clone());
+        previous_hash = Some(event.integrity_hash.clone());
+        frontier.advance(replica_id, lamport);
+        migrated.push(event);
+    }
+    replay_events(&migrated)?;
+    Ok(migrated)
+}
+
+fn validate_migrated_provenance(
+    migrated: &[Event],
+    original: &[Event],
+    replica_id: &str,
+) -> Result<()> {
+    if migrated.len() != original.len() {
+        return Err(RuntimeError::InvalidState(format!(
+            "active replica journal has {} events but archived v1 journal has {}",
+            migrated.len(),
+            original.len()
+        )));
+    }
+    for (migrated, original) in migrated.iter().zip(original) {
+        let provenance = migrated.migration_provenance.as_ref().ok_or_else(|| {
+            RuntimeError::InvalidState(format!(
+                "migrated event {} has no source provenance",
+                migrated.event_id
+            ))
+        })?;
+        if migrated.replica_id != replica_id
+            || provenance.source_event_id != original.event_id
+            || provenance.source_integrity_hash != original.integrity_hash
+        {
+            return Err(RuntimeError::InvalidState(format!(
+                "migrated event {} does not match archived source event {}",
+                migrated.event_id, original.event_id
+            )));
+        }
+    }
+    replay_events(migrated)?;
+    Ok(())
+}
+
+fn write_event_file_atomic(path: &Path, events: &[Event]) -> Result<()> {
+    if path.exists() {
+        return Err(RuntimeError::InvalidState(format!(
+            "refusing to overwrite existing replica journal {}",
+            path.display()
+        )));
+    }
+    let parent = path.parent().ok_or_else(|| {
+        RuntimeError::InvalidState(format!("{} has no parent directory", path.display()))
+    })?;
+    fs::create_dir_all(parent)?;
+    let temporary = parent.join(format!(".events.jsonl.{}.tmp", Uuid::new_v4()));
+    let mut options = OpenOptions::new();
+    options.create_new(true).write(true);
+    #[cfg(unix)]
+    options.mode(0o600);
+    let mut file = options.open(&temporary)?;
+    for event in events {
+        serde_json::to_writer(&mut file, event)?;
+        file.write_all(b"\n")?;
+    }
+    file.sync_all()?;
+    fs::rename(&temporary, path)?;
+    File::open(parent)?.sync_all()?;
+    Ok(())
+}
+
 /// Apply one already committed event to an in-memory state machine.
 ///
 /// Consensus/storage integrations use this entry point after an event has
@@ -1580,6 +1964,7 @@ fn valid_transition(from: &LifecycleState, to: &LifecycleState) -> bool {
 pub struct Runtime {
     root: PathBuf,
     project_root: PathBuf,
+    replica_id: String,
     key_storage: KeyStorage,
 }
 
@@ -1683,6 +2068,7 @@ impl Runtime {
         Self {
             root,
             project_root,
+            replica_id: "legacy".into(),
             key_storage,
         }
     }
@@ -1692,12 +2078,15 @@ impl Runtime {
     pub fn open_canonical(project_root: impl AsRef<Path>) -> Result<Self> {
         let project_root = fs::canonicalize(project_root.as_ref())?;
         let manifest = ensure_project_manifest(&project_root)?;
-        registry::ProjectRegistry::open().register_existing(&project_root)?;
-        Ok(Self {
+        let registration = registry::ProjectRegistry::open().register_existing(&project_root)?;
+        let runtime = Self {
             root: canonical_runtime_root(&manifest.project_id),
             project_root,
+            replica_id: registration.registration.replica_id,
             key_storage: KeyStorage::PlatformCredentialStore,
-        })
+        };
+        runtime.reconcile_project_document()?;
+        Ok(runtime)
     }
 
     /// Open a canonical runtime beneath an explicit application-data root.
@@ -1708,12 +2097,16 @@ impl Runtime {
     ) -> Result<Self> {
         let project_root = fs::canonicalize(project_root.as_ref())?;
         let manifest = ensure_project_manifest(&project_root)?;
-        registry::ProjectRegistry::open_at(data_root.as_ref()).register_existing(&project_root)?;
-        Ok(Self {
+        let registration = registry::ProjectRegistry::open_at(data_root.as_ref())
+            .register_existing(&project_root)?;
+        let runtime = Self {
             root: canonical_runtime_root_at(data_root.as_ref(), &manifest.project_id),
             project_root,
+            replica_id: registration.registration.replica_id,
             key_storage: KeyStorage::PlatformCredentialStore,
-        })
+        };
+        runtime.reconcile_project_document()?;
+        Ok(runtime)
     }
 
     pub(crate) fn open_registered_at(
@@ -1734,11 +2127,22 @@ impl Runtime {
                 current: expected_project_id.into(),
             });
         }
-        Ok(Self {
+        let registration = registry::ProjectRegistry::open_at(data_root)
+            .lookup_path(&project_root)?
+            .ok_or_else(|| {
+                RuntimeError::InvalidState(format!(
+                    "project {} is not registered",
+                    project_root.display()
+                ))
+            })?;
+        let runtime = Self {
             root: canonical_runtime_root_at(data_root, expected_project_id),
             project_root,
+            replica_id: registration.replica_id,
             key_storage: KeyStorage::PlatformCredentialStore,
-        })
+        };
+        runtime.reconcile_project_document()?;
+        Ok(runtime)
     }
 
     pub fn runtime_root(&self) -> &Path {
@@ -1749,12 +2153,41 @@ impl Runtime {
         &self.project_root
     }
 
+    pub fn replica_id(&self) -> &str {
+        &self.replica_id
+    }
+
     pub fn events_path(&self) -> PathBuf {
-        self.root.join("events.jsonl")
+        self.journal_root().join("events.jsonl")
     }
 
     fn lock_path(&self) -> PathBuf {
-        self.root.join("runtime.lock")
+        self.journal_root().join("runtime.lock")
+    }
+
+    pub fn journal_lock_path(&self) -> PathBuf {
+        self.lock_path()
+    }
+
+    fn journal_root(&self) -> PathBuf {
+        match self.key_storage {
+            KeyStorage::LegacyRuntimeFile => self.root.clone(),
+            KeyStorage::PlatformCredentialStore => {
+                self.root.join("replicas").join(&self.replica_id)
+            }
+        }
+    }
+
+    pub fn project_document(&self) -> Option<ProjectDocument> {
+        (self.key_storage == KeyStorage::PlatformCredentialStore).then(|| {
+            let project_id = self
+                .project_manifest(false)
+                .ok()
+                .flatten()
+                .map(|manifest| manifest.project_id)
+                .unwrap_or_default();
+            ProjectDocument::open(&self.root, project_id)
+        })
     }
 
     fn device_key_path(&self) -> PathBuf {
@@ -1865,6 +2298,16 @@ impl Runtime {
     }
 
     pub fn events(&self) -> Result<Vec<Event>> {
+        if let Some(document) = self.project_document() {
+            let events = document.events()?;
+            if !events.is_empty() {
+                return Ok(events);
+            }
+        }
+        self.journal_events()
+    }
+
+    fn journal_events(&self) -> Result<Vec<Event>> {
         let path = self.events_path();
         if !path.exists() {
             return Ok(Vec::new());
@@ -1880,6 +2323,150 @@ impl Runtime {
         Ok(events)
     }
 
+    pub fn replica_events(&self) -> Result<Vec<Event>> {
+        self.journal_events()
+    }
+
+    /// Import every fsynced local journal entry that is not yet present in the
+    /// authoritative project document. This is safe to call on every startup
+    /// and closes a crash window between journal fsync and Loro snapshot fsync.
+    pub fn reconcile_project_document(&self) -> Result<usize> {
+        let Some(document) = self.project_document() else {
+            return Ok(0);
+        };
+        document.ingest_events(&self.journal_events()?)
+    }
+
+    pub fn migrate_v1_journal(&self) -> Result<Option<JournalMigrationSummary>> {
+        self.migrate_v1_journal_inner(None)
+    }
+
+    pub fn v1_journal_migration_required(&self) -> bool {
+        self.key_storage == KeyStorage::PlatformCredentialStore
+            && self.root.join("events.jsonl").is_file()
+    }
+
+    fn migrate_v1_journal_inner(
+        &self,
+        signer_override: Option<&DeviceSigner>,
+    ) -> Result<Option<JournalMigrationSummary>> {
+        if self.key_storage != KeyStorage::PlatformCredentialStore {
+            return Ok(None);
+        }
+        fs::create_dir_all(&self.root)?;
+        let migration_lock = OpenOptions::new()
+            .create(true)
+            .truncate(false)
+            .read(true)
+            .write(true)
+            .open(self.root.join("journal-migration.lock"))?;
+        migration_lock.lock_exclusive()?;
+        let result = (|| {
+            let source_journal = self.root.join("events.jsonl");
+            let archive_journal = self.root.join("events.v1.jsonl.archive");
+            let active_journal = self.events_path();
+            if !source_journal.exists() && !archive_journal.exists() {
+                return Ok(None);
+            }
+            let manifest = self.project_manifest(false)?.ok_or_else(|| {
+                RuntimeError::InvalidState(
+                    "journal migration requires .prometheus/project.json".into(),
+                )
+            })?;
+            let original_events = if source_journal.exists() {
+                read_event_file(&source_journal)?
+            } else {
+                read_event_file(&archive_journal)?
+            };
+            replay_events(&original_events)?;
+
+            let already_migrated = archive_journal.exists();
+            let migrated_events = if active_journal.exists() {
+                let events = read_event_file(&active_journal)?;
+                validate_migrated_provenance(&events, &original_events, &self.replica_id)?;
+                events
+            } else {
+                let owned_signer;
+                let signer = if let Some(signer) = signer_override {
+                    signer
+                } else {
+                    owned_signer = self.device_signer()?;
+                    &owned_signer
+                };
+                let events = resign_journal_events(
+                    &original_events,
+                    &manifest.project_id,
+                    &self.replica_id,
+                    signer,
+                )?;
+                write_event_file_atomic(&active_journal, &events)?;
+                events
+            };
+
+            let document = self.project_document().ok_or_else(|| {
+                RuntimeError::InvalidState("canonical project document is unavailable".into())
+            })?;
+            document.ingest_events(&migrated_events)?;
+
+            if source_journal.exists() {
+                if archive_journal.exists() {
+                    return Err(RuntimeError::InvalidState(format!(
+                        "both {} and {} exist; preserve both and adjudicate before retrying",
+                        source_journal.display(),
+                        archive_journal.display()
+                    )));
+                }
+                fs::rename(&source_journal, &archive_journal)?;
+                File::open(&self.root)?.sync_all()?;
+            }
+            let archive_bytes = fs::read(&archive_journal)?;
+            let archive_sha256 = format!("{:x}", Sha256::digest(&archive_bytes));
+            atomic_text(
+                &archive_journal.with_extension("archive.sha256"),
+                &format!(
+                    "{}  {}\n",
+                    archive_sha256,
+                    archive_journal
+                        .file_name()
+                        .unwrap_or_default()
+                        .to_string_lossy()
+                ),
+            )?;
+            let rollback_instructions = self.root.join("JOURNAL-MIGRATION-ROLLBACK.md");
+            atomic_text(
+                &rollback_instructions,
+                &format!(
+                    "# KBD journal migration rollback\n\n\
+                     1. Stop Sovereign Sync.\n\
+                     2. Verify `{checksum}` against `{archive}`.\n\
+                     3. Move `{active}` and `{document}` to timestamped archive names; do not delete them.\n\
+                     4. Rename `{archive}` back to `{source}`.\n\
+                     5. Restart the migration and verify journal/document equivalence before service startup.\n",
+                    checksum = archive_journal.with_extension("archive.sha256").display(),
+                    archive = archive_journal.display(),
+                    active = active_journal.display(),
+                    document = document.path().display(),
+                    source = source_journal.display(),
+                ),
+            )?;
+            Ok(Some(JournalMigrationSummary {
+                project_id: manifest.project_id,
+                replica_id: self.replica_id.clone(),
+                source_journal,
+                archive_journal,
+                active_journal,
+                project_document: document.path(),
+                rollback_instructions,
+                original_events: original_events.len(),
+                migrated_events: migrated_events.len(),
+                archive_sha256,
+                already_migrated,
+            }))
+        })();
+        FileExt::unlock(&migration_lock)?;
+        result
+    }
+
     /// Normalize or recover an interrupted final journal append.
     ///
     /// A complete JSON event without its trailing newline is normalized in
@@ -1887,7 +2474,7 @@ impl Runtime {
     /// journal with a SHA-256 checksum, then the journal is truncated to its
     /// last complete newline. Interior corruption remains a hard replay error.
     pub fn recover_journal_tail(&self) -> Result<Option<PathBuf>> {
-        fs::create_dir_all(&self.root)?;
+        fs::create_dir_all(self.journal_root())?;
         let lock = OpenOptions::new()
             .create(true)
             .truncate(false)
@@ -1921,7 +2508,8 @@ impl Runtime {
             return Ok(None);
         }
 
-        let archive = self.root.join(format!(
+        let journal_root = self.journal_root();
+        let archive = journal_root.join(format!(
             "events.jsonl.torn-{}-{}.archive",
             Utc::now().format("%Y%m%dT%H%M%S%.6fZ"),
             Uuid::new_v4()
@@ -1946,7 +2534,7 @@ impl Runtime {
             archive.file_name().unwrap_or_default().to_string_lossy()
         )?;
         checksum_file.sync_all()?;
-        File::open(&self.root)?.sync_all()?;
+        File::open(&journal_root)?.sync_all()?;
 
         let journal = OpenOptions::new().write(true).open(&path)?;
         journal.set_len(valid_len as u64)?;
@@ -1957,7 +2545,7 @@ impl Runtime {
     /// Export the verified audit chain as RFC 8785 canonical JSON Lines.
     pub fn export_signed_audit(&self, mut writer: impl Write) -> Result<u64> {
         let events = self.events()?;
-        replay_events(&events)?;
+        self.fold_authority_events(&events)?;
         for event in &events {
             let bytes = if event.schema_version == "1" {
                 serde_json::to_vec(event)?
@@ -1972,14 +2560,22 @@ impl Runtime {
     }
 
     pub fn replay(&self) -> Result<RuntimeState> {
-        replay_events(&self.events()?)
+        self.fold_authority_events(&self.events()?)
+    }
+
+    fn fold_authority_events(&self, events: &[Event]) -> Result<RuntimeState> {
+        if self.project_document().is_some() {
+            project_document::fold_project_events(events)
+        } else {
+            replay_events(events)
+        }
     }
 
     /// Import a replicated journal only when it is a valid strict extension of
     /// the local causal chain. Divergent/offline branches are rejected rather
     /// than resolved by timestamp or CRDT map order.
     pub fn import_events(&self, incoming: &[Event]) -> Result<RuntimeState> {
-        fs::create_dir_all(&self.root)?;
+        fs::create_dir_all(self.journal_root())?;
         let lock = OpenOptions::new()
             .create(true)
             .truncate(false)
@@ -1988,10 +2584,11 @@ impl Runtime {
             .open(self.lock_path())?;
         lock.lock_exclusive()?;
         self.recover_journal_tail_locked()?;
+        self.reconcile_project_document()?;
         let local = self.events()?;
         let mut incoming = incoming.to_vec();
         incoming.sort_by_key(|event| event.revision);
-        let imported = replay_events(&incoming)?;
+        let imported = self.fold_authority_events(&incoming)?;
         if local.len() > incoming.len() || local != incoming[..local.len()] {
             return Err(RuntimeError::InvalidState(
                 "replicated journal is not a strict extension of local history".into(),
@@ -2009,6 +2606,10 @@ impl Runtime {
             file.write_all(b"\n")?;
         }
         file.sync_data()?;
+        File::open(self.journal_root())?.sync_all()?;
+        if let Some(document) = self.project_document() {
+            document.ingest_events(&incoming)?;
+        }
         Ok(imported)
     }
 
@@ -2018,7 +2619,7 @@ impl Runtime {
         run_id: impl Into<String>,
         actor: Actor,
     ) -> Result<RuntimeState> {
-        fs::create_dir_all(&self.root)?;
+        fs::create_dir_all(self.journal_root())?;
         let lock = OpenOptions::new()
             .create(true)
             .truncate(false)
@@ -2027,6 +2628,7 @@ impl Runtime {
             .open(self.lock_path())?;
         lock.lock_exclusive()?;
         self.recover_journal_tail_locked()?;
+        self.reconcile_project_document()?;
         if !self.events()?.is_empty() {
             return Err(RuntimeError::AlreadyInitialized);
         }
@@ -2053,7 +2655,7 @@ impl Runtime {
         exact_next_work: Option<String>,
         plan_revision: u64,
     ) -> Result<RuntimeState> {
-        fs::create_dir_all(&self.root)?;
+        fs::create_dir_all(self.journal_root())?;
         let lock = OpenOptions::new()
             .create(true)
             .truncate(false)
@@ -2062,6 +2664,7 @@ impl Runtime {
             .open(self.lock_path())?;
         lock.lock_exclusive()?;
         self.recover_journal_tail_locked()?;
+        self.reconcile_project_document()?;
         if !self.events()?.is_empty() {
             return Err(RuntimeError::AlreadyInitialized);
         }
@@ -2085,12 +2688,7 @@ impl Runtime {
         expected_revision: u64,
         kind: EventKind,
     ) -> Result<RuntimeState> {
-        self.append_command(
-            actor,
-            expected_revision,
-            Uuid::new_v4().to_string(),
-            kind,
-        )
+        self.append_command(actor, expected_revision, Uuid::new_v4().to_string(), kind)
     }
 
     pub fn append_command(
@@ -2106,7 +2704,7 @@ impl Runtime {
                 "commandId must not be empty".into(),
             ));
         }
-        fs::create_dir_all(&self.root)?;
+        fs::create_dir_all(self.journal_root())?;
         let lock = OpenOptions::new()
             .create(true)
             .truncate(false)
@@ -2115,13 +2713,14 @@ impl Runtime {
             .open(self.lock_path())?;
         lock.lock_exclusive()?;
         self.recover_journal_tail_locked()?;
+        self.reconcile_project_document()?;
         let events = self.events()?;
-        let state = replay_events(&events)?;
+        let state = self.fold_authority_events(&events)?;
         if state.revision == 0 {
             return Err(RuntimeError::NotInitialized);
         }
-        if let Some(committed_revision) = state.command_revisions.get(&command_id) {
-            return replay_events(&events[..*committed_revision as usize]);
+        if state.command_revisions.contains_key(&command_id) {
+            return Ok(state);
         }
         if state.revision != expected_revision {
             return Err(RuntimeError::RevisionConflict {
@@ -2131,18 +2730,11 @@ impl Runtime {
         }
         let project_id = state.project_id.clone();
         let run_id = state.run_id.clone();
-        self.append_unchecked(
-            state,
-            project_id,
-            run_id,
-            actor,
-            command_id,
-            kind,
-        )
+        self.append_unchecked(state, project_id, run_id, actor, command_id, kind)
     }
 
     pub fn execute_command(&self, envelope: CommandEnvelope) -> Result<CommandResult> {
-        if envelope.schema_version != "1" {
+        if !matches!(envelope.schema_version.as_str(), "1" | "2") {
             return Err(RuntimeError::InvalidState(format!(
                 "unsupported command schemaVersion {}",
                 envelope.schema_version
@@ -2159,7 +2751,7 @@ impl Runtime {
         // flock across read, replay, validation, preparation, append, and
         // fsync prevents two processes from both preparing revision N + 1
         // from the same frontier.
-        fs::create_dir_all(&self.root)?;
+        fs::create_dir_all(self.journal_root())?;
         let lock = OpenOptions::new()
             .create(true)
             .truncate(false)
@@ -2168,8 +2760,9 @@ impl Runtime {
             .open(self.lock_path())?;
         lock.lock_exclusive()?;
         self.recover_journal_tail_locked()?;
+        self.reconcile_project_document()?;
         let events = self.events()?;
-        let state = replay_events(&events)?;
+        let state = self.fold_authority_events(&events)?;
         if state.revision == 0 {
             return Err(RuntimeError::NotInitialized);
         }
@@ -2185,22 +2778,17 @@ impl Runtime {
                 current: state.run_id,
             });
         }
-        if let Some(committed_revision) = state.command_revisions.get(&envelope.command_id) {
-            let committed = replay_events(&events[..*committed_revision as usize])?;
+        if let Some(committed_revision) = state.command_revisions.get(&envelope.command_id).copied()
+        {
             return Ok(CommandResult {
                 command_id: envelope.command_id,
-                committed_revision: *committed_revision,
+                committed_revision,
                 duplicate: true,
-                state: committed,
+                state,
                 apply_error: None,
             });
         }
-        if state.revision != envelope.expected_revision {
-            return Err(RuntimeError::RevisionConflict {
-                expected: envelope.expected_revision,
-                actual: state.revision,
-            });
-        }
+        validate_command_frontier(&state, &envelope)?;
         let kind = prepare_command_event(&state, &envelope.actor, &envelope.command)?;
         let project_id = state.project_id.clone();
         let run_id = state.run_id.clone();
@@ -2230,7 +2818,7 @@ impl Runtime {
         state: &KbdStateV2,
         envelope: CommandEnvelope,
     ) -> Result<Event> {
-        if envelope.schema_version != "1" {
+        if !matches!(envelope.schema_version.as_str(), "1" | "2") {
             return Err(RuntimeError::InvalidState(format!(
                 "unsupported command schemaVersion {}",
                 envelope.schema_version
@@ -2256,26 +2844,26 @@ impl Runtime {
         if state.command_revisions.contains_key(&envelope.command_id) {
             return Err(RuntimeError::DuplicateCommand(envelope.command_id));
         }
-        if state.revision != envelope.expected_revision {
-            return Err(RuntimeError::RevisionConflict {
-                expected: envelope.expected_revision,
-                actual: state.revision,
-            });
-        }
+        validate_command_frontier(state, &envelope)?;
         let kind = prepare_command_event(state, &envelope.actor, &envelope.command)?;
+        let replica_head = state.replica_heads.get(&self.replica_id);
         let mut event = Event {
             schema_version: EVENT_SCHEMA_VERSION.into(),
             project_id: state.project_id.clone(),
+            replica_id: self.replica_id.clone(),
             run_id: state.run_id.clone(),
             event_id: Uuid::new_v4().to_string(),
             command_id: Some(envelope.command_id),
-            revision: state.revision + 1,
+            revision: state.frontier.derived_revision().saturating_add(1),
             expected_revision: state.revision,
-            causal_parent: state.last_event_id.clone(),
+            lamport: state.frontier.next_lamport(&self.replica_id),
+            frontier: state.frontier.clone(),
+            causal_parent: replica_head.map(|head| head.event_id.clone()),
+            actor_id: envelope.actor.id.clone(),
             actor: envelope.actor,
             timestamp: Utc::now(),
             kind,
-            previous_hash: state.last_event_hash.clone(),
+            previous_hash: replica_head.map(|head| head.integrity_hash.clone()),
             migration_provenance: None,
             integrity_hash: String::new(),
             signer_key_id: None,
@@ -2583,19 +3171,24 @@ impl Runtime {
         command_id: String,
         kind: EventKind,
     ) -> Result<RuntimeState> {
+        let replica_head = state.replica_heads.get(&self.replica_id);
         let mut event = Event {
             schema_version: EVENT_SCHEMA_VERSION.into(),
             project_id,
+            replica_id: self.replica_id.clone(),
             run_id,
             event_id: Uuid::new_v4().to_string(),
             command_id: Some(command_id),
-            revision: state.revision + 1,
+            revision: state.frontier.derived_revision().saturating_add(1),
             expected_revision: state.revision,
-            causal_parent: state.last_event_id.clone(),
+            lamport: state.frontier.next_lamport(&self.replica_id),
+            frontier: state.frontier.clone(),
+            causal_parent: replica_head.map(|head| head.event_id.clone()),
+            actor_id: actor.id.clone(),
             actor,
             timestamp: Utc::now(),
             kind,
-            previous_hash: state.last_event_hash.clone(),
+            previous_hash: replica_head.map(|head| head.integrity_hash.clone()),
             migration_provenance: None,
             integrity_hash: String::new(),
             signer_key_id: None,
@@ -2605,7 +3198,7 @@ impl Runtime {
         let signer = self.device_signer()?;
         event.seal(&signer)?;
         state.apply(&event)?;
-        fs::create_dir_all(&self.root)?;
+        fs::create_dir_all(self.journal_root())?;
         let mut file = OpenOptions::new()
             .create(true)
             .append(true)
@@ -2613,6 +3206,10 @@ impl Runtime {
         serde_json::to_writer(&mut file, &event)?;
         file.write_all(b"\n")?;
         file.sync_data()?;
+        File::open(self.journal_root())?.sync_all()?;
+        if let Some(document) = self.project_document() {
+            document.ingest_events(std::slice::from_ref(&event))?;
+        }
         Ok(state)
     }
 
@@ -2685,12 +3282,7 @@ impl Runtime {
         expected_revision: u64,
         reason: impl Into<String>,
     ) -> Result<RuntimeState> {
-        self.transition(
-            actor,
-            expected_revision,
-            LifecycleState::Cancelled,
-            reason,
-        )
+        self.transition(actor, expected_revision, LifecycleState::Cancelled, reason)
     }
 
     pub fn revise_plan(
@@ -2733,7 +3325,7 @@ impl Runtime {
     }
 
     fn write_compatibility_projections_inner(&self, migrating: bool) -> Result<()> {
-        fs::create_dir_all(&self.root)?;
+        fs::create_dir_all(self.journal_root())?;
         let lock = OpenOptions::new()
             .create(true)
             .truncate(false)
@@ -2807,6 +3399,9 @@ impl Runtime {
             "schemaVersion": "5",
             "generatedBy": "kbd-runtime",
             "sourceRevision": state.revision,
+            "derivedRevision": state.revision,
+            "frontier": state.frontier,
+            "conflictCount": state.conflicts.len(),
             "projectId": state.project_id,
             "runId": state.run_id,
             "path": phase_path,
@@ -2874,7 +3469,7 @@ impl Runtime {
                 // no message at all.
                 if warned.insert(progress_path.clone()) {
                     eprintln!(
-                    "kbd-runtime: refusing to overwrite {} — it has no \
+                        "kbd-runtime: refusing to overwrite {} — it has no \
                      `generatedBy: \"kbd-runtime\"` marker, so it was written \
                      by something else. Leaving it untouched. Delete the file \
                      if the runtime should own it.",
@@ -2898,6 +3493,9 @@ impl Runtime {
             "schemaVersion": "1",
             "generatedBy": "kbd-runtime",
             "sourceRevision": state.revision,
+            "derivedRevision": state.revision,
+            "frontier": state.frontier,
+            "conflictCount": state.conflicts.len(),
             "updatedAt": projection_time,
             "cursor": active_cursor(state),
             "root": {
@@ -2948,6 +3546,7 @@ impl Runtime {
         let comparison_runtime = Self {
             root: comparison_root.join("runtime"),
             project_root: comparison_root.clone(),
+            replica_id: self.replica_id.clone(),
             key_storage: KeyStorage::LegacyRuntimeFile,
         };
         comparison_runtime.write_compatibility_projections_from_state(state, projection_time)?;
@@ -3500,6 +4099,9 @@ fn phase_progress_projection(
         "schemaVersion": "2",
         "generatedBy": "kbd-runtime",
         "sourceRevision": state.revision,
+        "derivedRevision": state.revision,
+        "frontier": state.frontier,
+        "conflictCount": state.conflicts.len(),
         "phase": phase.slug,
         "phaseId": phase.id,
         "parentPhase": phase.parent_phase_id,
@@ -4081,6 +4683,28 @@ fn atomic_bytes(path: &Path, value: &[u8]) -> Result<()> {
     Ok(())
 }
 
+fn validate_command_frontier(state: &RuntimeState, envelope: &CommandEnvelope) -> Result<()> {
+    if envelope.schema_version == "1" {
+        if state.revision != envelope.expected_revision {
+            return Err(RuntimeError::RevisionConflict {
+                expected: envelope.expected_revision,
+                actual: state.revision,
+            });
+        }
+        return Ok(());
+    }
+    let supplied = envelope.frontier.clone().ok_or_else(|| {
+        RuntimeError::InvalidState("command schemaVersion 2 requires frontier".into())
+    })?;
+    if supplied != state.frontier {
+        return Err(RuntimeError::FrontierConflict {
+            supplied,
+            current: state.frontier.clone(),
+        });
+    }
+    Ok(())
+}
+
 fn prepare_command_event(
     state: &RuntimeState,
     actor: &Actor,
@@ -4309,6 +4933,40 @@ fn prepare_command_event(
                 replacement: replacement.clone(),
             }
         }
+        CommandKind::ConflictResolve {
+            conflict_id,
+            winner_event_id,
+            reason,
+        } => {
+            if actor.kind != ActorKind::Operator {
+                return Err(RuntimeError::InvalidState(
+                    "only an operator may resolve a conflict".into(),
+                ));
+            }
+            require_reason(reason)?;
+            let conflict =
+                state
+                    .conflicts
+                    .get(conflict_id)
+                    .ok_or_else(|| RuntimeError::WorkItemNotFound {
+                        kind: "conflict",
+                        id: conflict_id.clone(),
+                    })?;
+            if !conflict
+                .candidates
+                .iter()
+                .any(|candidate| candidate.event_id == *winner_event_id)
+            {
+                return Err(RuntimeError::InvalidState(format!(
+                    "event {winner_event_id} is not a candidate for conflict {conflict_id}"
+                )));
+            }
+            EventKind::ConflictResolved {
+                conflict_id: conflict_id.clone(),
+                winner_event_id: winner_event_id.clone(),
+                reason: reason.clone(),
+            }
+        }
     })
 }
 
@@ -4490,6 +5148,14 @@ mod tests {
             .unwrap();
         let events = runtime.events().unwrap();
         assert_eq!(events[0].schema_version, "2");
+        assert_eq!(events[0].replica_id, runtime.replica_id());
+        assert_eq!(events[0].lamport, 1);
+        assert!(events[0].frontier.is_empty());
+        assert_eq!(events[0].actor_id, events[0].actor.id);
+        assert_eq!(events[1].lamport, 2);
+        assert_eq!(events[1].frontier.lamport(runtime.replica_id()), 1);
+        assert_eq!(running.frontier.lamport(runtime.replica_id()), 2);
+        assert_eq!(running.revision, running.frontier.derived_revision());
         assert!(events[0].signature.is_some());
         assert_eq!(initialized.devices.len(), 1);
 
@@ -4604,11 +5270,12 @@ mod tests {
             .initialize("project", "run", actor(ActorKind::Operator, "codex"))
             .unwrap();
         let phase_command = CommandEnvelope {
-            schema_version: "1".into(),
+            schema_version: "2".into(),
             project_id: "project".into(),
             run_id: "run".into(),
             command_id: "phase-1".into(),
-            expected_revision: initialized.revision,
+            frontier: Some(initialized.frontier.clone()),
+            expected_revision: 0,
             actor: actor(ActorKind::Harness, "codex"),
             command: CommandKind::PhaseDefine {
                 phase: Phase {
@@ -4647,14 +5314,15 @@ mod tests {
             let runtime = Arc::clone(&runtime);
             let barrier = Arc::clone(&barrier);
             let phase_id = phase_id.to_string();
-            let expected_revision = initialized.revision;
+            let frontier = initialized.frontier.clone();
             std::thread::spawn(move || {
                 let command = CommandEnvelope {
-                    schema_version: "1".into(),
+                    schema_version: "2".into(),
                     project_id: "project".into(),
                     run_id: "run".into(),
                     command_id: format!("define-{phase_id}"),
-                    expected_revision,
+                    frontier: Some(frontier),
+                    expected_revision: 0,
                     actor: actor(ActorKind::Harness, &phase_id),
                     command: CommandKind::PhaseDefine {
                         phase: Phase {
@@ -4680,7 +5348,7 @@ mod tests {
         assert_eq!(
             results
                 .iter()
-                .filter(|result| matches!(result, Err(RuntimeError::RevisionConflict { .. })))
+                .filter(|result| matches!(result, Err(RuntimeError::FrontierConflict { .. })))
                 .count(),
             1
         );
@@ -4715,11 +5383,12 @@ mod tests {
 
         let result = runtime
             .execute_command(CommandEnvelope {
-                schema_version: "1".into(),
+                schema_version: "2".into(),
                 project_id: "project".into(),
                 run_id: "run".into(),
                 command_id: "after-recovery".into(),
-                expected_revision: initialized.revision,
+                frontier: Some(initialized.frontier.clone()),
+                expected_revision: 0,
                 actor: actor(ActorKind::Harness, "codex"),
                 command: CommandKind::LifecycleTransition {
                     to: LifecycleState::Running,
@@ -4929,6 +5598,8 @@ mod tests {
         assert_eq!(waypoint["schemaVersion"], "5");
         assert_eq!(waypoint["generatedBy"], "kbd-runtime");
         assert_eq!(waypoint["sourceRevision"], 2);
+        assert_eq!(waypoint["derivedRevision"], 2);
+        assert_eq!(waypoint["frontier"][runtime.replica_id()], 2);
         assert_eq!(waypoint["implementationCompleted"], 1);
         assert!(waypoint.get("changes_completed").is_none());
         assert!(waypoint.get("changesCompleted").is_none());
@@ -4939,6 +5610,7 @@ mod tests {
         assert_eq!(progress["schemaVersion"], "2");
         assert_eq!(progress["generatedBy"], "kbd-runtime");
         assert_eq!(progress["sourceRevision"], 2);
+        assert_eq!(progress["frontier"][runtime.replica_id()], 2);
         assert!(progress["changes"].is_array());
         assert_eq!(progress["changes"][0]["id"], "a");
 
@@ -4946,6 +5618,7 @@ mod tests {
             serde_json::from_reader(File::open(kbd.join("position.json")).unwrap()).unwrap();
         assert_eq!(position["cursor"][0], "phase-x");
         assert_eq!(position["sourceRevision"], 2);
+        assert_eq!(position["frontier"][runtime.replica_id()], 2);
         assert_eq!(runtime.replay().unwrap().revision, 2);
         assert!(fs::read_to_string(kbd.join("phases/phase-x/tasks.md"))
             .unwrap()
@@ -5085,6 +5758,117 @@ mod tests {
     }
 
     #[test]
+    fn startup_reconciles_a_fsynced_replica_journal_missing_from_loro() {
+        let fixture = tempdir().unwrap();
+        let project_id = Uuid::new_v4().to_string();
+        let source = fixture.path().join("source");
+        fs::create_dir_all(&source).unwrap();
+        let source_runtime = Runtime::open(&source);
+        source_runtime
+            .initialize(&project_id, "run-a", actor(ActorKind::Operator, "codex"))
+            .unwrap();
+        let source_events = source_runtime.events().unwrap();
+
+        let project_root = fixture.path().join("checkout");
+        fs::create_dir_all(&project_root).unwrap();
+        atomic_json(
+            &project_root.join(".prometheus/project.json"),
+            &serde_json::json!({
+                "schemaVersion": "1",
+                "projectId": project_id.clone(),
+                "repositoryFingerprint": "sha256:test"
+            }),
+        )
+        .unwrap();
+        let runtime = Runtime {
+            root: fixture.path().join("data/projects").join(&project_id),
+            project_root,
+            replica_id: "replica-a".into(),
+            key_storage: KeyStorage::PlatformCredentialStore,
+        };
+        fs::create_dir_all(runtime.journal_root()).unwrap();
+        let mut journal = OpenOptions::new()
+            .create_new(true)
+            .write(true)
+            .open(runtime.events_path())
+            .unwrap();
+        for event in &source_events {
+            serde_json::to_writer(&mut journal, event).unwrap();
+            journal.write_all(b"\n").unwrap();
+        }
+        journal.sync_all().unwrap();
+
+        let document = runtime.project_document().unwrap();
+        assert!(document.events().unwrap().is_empty());
+        assert_eq!(runtime.reconcile_project_document().unwrap(), 1);
+        assert_eq!(runtime.reconcile_project_document().unwrap(), 0);
+        assert_eq!(document.events().unwrap(), source_events);
+        assert_eq!(runtime.replay().unwrap().revision, 1);
+    }
+
+    #[test]
+    fn v1_journal_migration_archives_resigns_and_is_idempotent() {
+        let fixture = tempdir().unwrap();
+        let project_id = Uuid::new_v4().to_string();
+        let source_runtime = Runtime::open(fixture.path().join("source"));
+        let source_state = source_runtime
+            .initialize(&project_id, "run-a", actor(ActorKind::Operator, "codex"))
+            .unwrap();
+        let source_events = source_runtime.events().unwrap();
+
+        let project_root = fixture.path().join("checkout");
+        fs::create_dir_all(&project_root).unwrap();
+        atomic_json(
+            &project_root.join(".prometheus/project.json"),
+            &serde_json::json!({
+                "schemaVersion": "1",
+                "projectId": project_id.clone(),
+                "repositoryFingerprint": "sha256:test"
+            }),
+        )
+        .unwrap();
+        let runtime = Runtime {
+            root: fixture.path().join("data/projects").join(&project_id),
+            project_root,
+            replica_id: "initial-replica".into(),
+            key_storage: KeyStorage::PlatformCredentialStore,
+        };
+        fs::create_dir_all(runtime.runtime_root()).unwrap();
+        let legacy_path = runtime.runtime_root().join("events.jsonl");
+        write_event_file_atomic(&legacy_path, &source_events).unwrap();
+        let legacy_bytes = fs::read(&legacy_path).unwrap();
+
+        let signer = DeviceSigner::generate();
+        let migrated = runtime
+            .migrate_v1_journal_inner(Some(&signer))
+            .unwrap()
+            .unwrap();
+        assert!(!migrated.already_migrated);
+        assert!(!legacy_path.exists());
+        assert_eq!(fs::read(&migrated.archive_journal).unwrap(), legacy_bytes);
+        assert!(migrated.rollback_instructions.is_file());
+        let active = read_event_file(&migrated.active_journal).unwrap();
+        assert_eq!(active.len(), source_events.len());
+        for (event, source) in active.iter().zip(&source_events) {
+            assert_eq!(event.replica_id, "initial-replica");
+            let provenance = event.migration_provenance.as_ref().unwrap();
+            assert_eq!(provenance.source_event_id, source.event_id);
+            assert_eq!(provenance.source_integrity_hash, source.integrity_hash);
+        }
+        let folded = runtime.project_document().unwrap().fold().unwrap();
+        assert_eq!(folded.project_id, source_state.project_id);
+        assert_eq!(folded.run_id, source_state.run_id);
+        assert_eq!(folded.lifecycle, source_state.lifecycle);
+
+        let repeated = runtime
+            .migrate_v1_journal_inner(Some(&signer))
+            .unwrap()
+            .unwrap();
+        assert!(repeated.already_migrated);
+        assert_eq!(repeated.archive_sha256, migrated.archive_sha256);
+    }
+
+    #[test]
     fn every_repository_ledger_shape_migrates_in_a_recoverable_copy() {
         let repository = Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
         let source_root = repository.join(".kbd-orchestrator");
@@ -5149,11 +5933,8 @@ mod projection_ownership_tests {
     use std::io::Write;
 
     fn temp_file(name: &str, body: &str) -> std::path::PathBuf {
-        let dir = std::env::temp_dir().join(format!(
-            "kbd-proj-own-{}-{}",
-            std::process::id(),
-            name
-        ));
+        let dir =
+            std::env::temp_dir().join(format!("kbd-proj-own-{}-{}", std::process::id(), name));
         std::fs::create_dir_all(&dir).unwrap();
         let path = dir.join("progress.json");
         let mut f = std::fs::File::create(&path).unwrap();
@@ -5272,10 +6053,14 @@ mod projection_guard_migration_tests {
     use std::io::Write;
 
     fn f(name: &str, body: &str) -> std::path::PathBuf {
-        let dir = std::env::temp_dir().join(format!("kbd-guard-mig-{}-{}", std::process::id(), name));
+        let dir =
+            std::env::temp_dir().join(format!("kbd-guard-mig-{}-{}", std::process::id(), name));
         std::fs::create_dir_all(&dir).unwrap();
         let path = dir.join("progress.json");
-        std::fs::File::create(&path).unwrap().write_all(body.as_bytes()).unwrap();
+        std::fs::File::create(&path)
+            .unwrap()
+            .write_all(body.as_bytes())
+            .unwrap();
         path
     }
 

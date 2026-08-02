@@ -8,7 +8,7 @@ sidebar_label: Migration & Rollout
 
 The canonical runtime can inventory and import legacy KBD ledgers while
 preserving a recoverable copy. Rollout evidence is stored separately from the
-authoritative event journal so measurements can block promotion but cannot
+authoritative project document so measurements can block promotion but cannot
 grant write authority.
 
 ## Inventory legacy state
@@ -19,6 +19,7 @@ prometheus kbd --path "/path/to/project" migrate --check | jq .
 
 The report includes:
 
+- whether a top-level v1 journal still requires replica-layout migration;
 - discovered and migrated progress files;
 - uncertain legacy rows;
 - invalid files;
@@ -37,11 +38,14 @@ prometheus kbd --path "/path/to/project" migrate --apply | jq .
 Apply:
 
 1. establishes `.prometheus/project.json` if needed;
-2. creates a checksummed backup of legacy inputs;
-3. initializes the canonical run with the immutable project UUID;
-4. imports recoverable state;
-5. labels uncertain rows instead of inventing certainty;
-6. writes atomic compatibility projections.
+2. re-signs each old journal event into the registered initial replica while
+   preserving source event IDs and hashes as migration provenance;
+3. fsyncs `replicas/<replica-id>/events.jsonl` and `project.loro`;
+4. renames the old journal to `events.v1.jsonl.archive` and writes its SHA-256;
+5. writes `JOURNAL-MIGRATION-ROLLBACK.md` without deleting any runtime data;
+6. creates a checksummed backup of legacy projection inputs;
+7. imports recoverable state and labels uncertain rows instead of inventing certainty;
+8. writes atomic, frontier-stamped compatibility projections.
 
 Never change a copied project manifest to “make migration fit.” A mismatched
 project identity is rejected.

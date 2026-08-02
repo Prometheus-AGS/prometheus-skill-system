@@ -77,7 +77,7 @@ normally means by “sync this project.”
 | Data family | Representative paths/content | Current automatic sync | Correct ownership boundary |
 |---|---|---:|---|
 | Immutable project identity | `.prometheus/project.json` | No | Distribute once through Git or reviewed setup; never merge two generated IDs |
-| Canonical KBD authority | platform data root: `events.jsonl`, `runtime.lock`, signed events | No cross-process sync yet | Journal is write-ahead ingestion; project Loro document becomes converged authority |
+| Canonical KBD authority | platform data root: `project.loro`, replica journals/locks, signed events | No cross-process sync yet | Project Loro document is authoritative; journals are write-ahead ingestion and crash recovery |
 | KBD credentials | control token, device signing key | Never | Local secret/identity |
 | KBD resume projections | `.kbd-orchestrator/current-waypoint.json`, `.md`, `position.json`, `position-reminder.txt` | No | Derived from canonical KBD revision or authored summary |
 | KBD phase lifecycle | `phases/<phase>/progress.json`, goals, assessment, analysis, plan, execution, reflection, tasks, evidence, handoffs, decision logs | No | Project state; future adapter must separate authored artifacts from authoritative commands |

@@ -29,6 +29,14 @@ pub enum Action {
         into_project_id: String,
         apply: bool,
     },
+    Conflicts {
+        json: bool,
+    },
+    Resolve {
+        conflict_id: String,
+        winner_event_id: String,
+        reason: String,
+    },
     Pause {
         reason: String,
     },
@@ -167,6 +175,48 @@ pub async fn run(path: &str, action: Action) -> Result<()> {
     let client = ControlClient::new(&runtime)?;
     match action {
         Action::Status { json } => status(&root, &runtime, &client, json).await,
+        Action::Conflicts { json } => {
+            let state = client.status().await?;
+            if json {
+                println!("{}", serde_json::to_string_pretty(&state.conflicts)?);
+            } else if state.conflicts.is_empty() {
+                println!("No unresolved or adjudicated conflicts.");
+            } else {
+                for conflict in state.conflicts.values() {
+                    println!(
+                        "{}  {}  winner={}{}",
+                        conflict.id,
+                        conflict.slot,
+                        conflict.winner_event_id,
+                        conflict
+                            .resolved_by_event_id
+                            .as_ref()
+                            .map(|event_id| format!("  resolved-by={event_id}"))
+                            .unwrap_or_default()
+                    );
+                }
+            }
+            Ok(())
+        }
+        Action::Resolve {
+            conflict_id,
+            winner_event_id,
+            reason,
+        } => {
+            let state = client.status().await?;
+            let next = client
+                .submit_fresh(
+                    &state,
+                    current_actor(ActorKind::Operator),
+                    CommandKind::ConflictResolve {
+                        conflict_id,
+                        winner_event_id,
+                        reason,
+                    },
+                )
+                .await?;
+            print_state(&next, false)
+        }
         Action::Pause { reason } => {
             write_emergency_pause(&root, &reason)?;
             let state = client.status().await.with_context(|| {
@@ -246,13 +296,26 @@ pub async fn run(path: &str, action: Action) -> Result<()> {
         Action::Migrate { check, apply } => {
             let report = runtime.migrate_legacy_ledgers(false)?;
             if apply {
+                let journal = runtime.migrate_v1_journal()?;
                 ensure_runtime(&root, &runtime)?;
                 let applied = runtime.migrate_legacy_ledgers(true)?;
                 runtime.write_compatibility_projections()?;
-                println!("{}", serde_json::to_string_pretty(&applied)?);
+                println!(
+                    "{}",
+                    serde_json::to_string_pretty(&json!({
+                        "journal": journal,
+                        "ledgers": applied
+                    }))?
+                );
             } else {
                 let _ = check;
-                println!("{}", serde_json::to_string_pretty(&report)?);
+                println!(
+                    "{}",
+                    serde_json::to_string_pretty(&json!({
+                        "journalMigrationRequired": runtime.v1_journal_migration_required(),
+                        "ledgers": report
+                    }))?
+                );
             }
             Ok(())
         }
@@ -345,6 +408,7 @@ pub async fn run(path: &str, action: Action) -> Result<()> {
                     project_id: state.project_id,
                     run_id: state.run_id,
                     command_id,
+                    frontier: None,
                     expected_revision,
                     actor: current_actor(ActorKind::Harness),
                     command,
@@ -532,10 +596,11 @@ impl ControlClient {
     ) -> Result<RuntimeState> {
         let response = self
             .submit(CommandEnvelope {
-                schema_version: "1".into(),
+                schema_version: "2".into(),
                 project_id: state.project_id.clone(),
                 run_id: state.run_id.clone(),
                 command_id: uuid::Uuid::new_v4().to_string(),
+                frontier: Some(state.frontier.clone()),
                 expected_revision: state.revision,
                 actor,
                 command,

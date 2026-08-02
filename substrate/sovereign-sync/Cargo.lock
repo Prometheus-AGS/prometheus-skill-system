@@ -2701,6 +2701,7 @@ dependencies = [
  "ed25519-dalek 2.2.0",
  "fs2",
  "keyring",
+ "loro",
  "rand_core 0.6.4",
  "serde",
  "serde_jcs",

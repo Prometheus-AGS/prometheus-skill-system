@@ -17,13 +17,16 @@ the old model in which multiple tools could independently edit
 flowchart LR
     H["Claude Code, Codex, OpenCode, Kimi"] -->|"typed command"| C["Sovereign Sync control API"]
     CLI["prometheus kbd"] -->|"typed command"| C
-    C -->|"exclusive flock + fsync"| E["Signed event journal"]
-    E --> S["KbdStateV2 replay"]
+    C -->|"exclusive replica flock + fsync"| E["Replica write-ahead journal"]
+    E -->|"import + fsync"| L["project.loro grow-only event map"]
+    L --> S["Deterministic KbdStateV2 fold"]
     S --> P["Atomic compatibility projections"]
     P --> F["progress.json / waypoint / position"]
 ```
 
-The committed event sequence is authoritative. Compatibility files exist for
+The per-project Loro document is authoritative. Replica journals are durable
+write-ahead ingestion logs: a successful command fsyncs its journal, imports
+and fsyncs `project.loro`, then updates projections. Compatibility files exist for
 readers and older skills, but a direct file edit cannot:
 
 - change the committed lifecycle;
@@ -43,9 +46,9 @@ Each controlled repository has `.prometheus/project.json`:
 }
 ```
 
-The UUID names the runtime and REST resource. The fingerprint binds that
-identity to the repository’s Git remote, or to its canonical path when no
-remote exists. Do not copy a manifest between unrelated repositories.
+The UUID names the runtime and REST resource. The fingerprint, Git origin,
+HEAD, and path are duplicate-detection evidence only; none may create, infer,
+or merge project identity. Do not copy a manifest between unrelated repositories.
 
 Read the ID without hard-coding it:
 
@@ -68,10 +71,13 @@ The canonical runtime is outside the Git working tree:
 Typical contents include:
 
 ```text
-events.jsonl
-runtime.lock
-control-token
-deferred-hooks/
+project.loro
+project.loro.lock
+replicas/<replica-id>/events.jsonl
+replicas/<replica-id>/runtime.lock
+events.v1.jsonl.archive
+events.v1.jsonl.archive.sha256
+JOURNAL-MIGRATION-ROLLBACK.md
 ```
 
 Signing keys may live in the platform credential store. Headless services use
@@ -79,12 +85,14 @@ an explicit permission-protected key file instead.
 
 ## Event integrity
 
-Each event contains a revision, previous hash, actor, command result, and
-signature metadata. Events are serialized canonically, hash chained, and
-signed with Ed25519. Replay verifies:
+Each event contains project and replica IDs, Lamport order, actor ID, command
+ID, its preparation frontier, a per-replica previous hash, and signature
+metadata. Events are serialized canonically, hash chained per replica, and
+signed with Ed25519. Folding verifies:
 
-- continuous revisions;
-- previous-event hashes;
+- continuous per-replica Lamport order;
+- causal-frontier reachability;
+- per-replica previous-event hashes;
 - canonical event hashes;
 - signer identity and public key;
 - device enrollment/revocation state;
@@ -96,11 +104,14 @@ All mutation surfaces use the same versioned envelope:
 
 ```json
 {
-  "schemaVersion": "1",
+  "schemaVersion": "2",
   "projectId": "7ce3f728-365d-4c80-9df0-2e0b1540995c",
   "runId": "phase-example-20260728T120000Z",
   "commandId": "a fresh UUID",
-  "expectedRevision": 17,
+  "frontier": {
+    "replica-uuid-a": 12,
+    "replica-uuid-b": 5
+  },
   "actor": {
     "kind": "harness",
     "id": "operator",
@@ -117,19 +128,23 @@ All mutation surfaces use the same versioned envelope:
 
 `commandId` makes retries idempotent: a duplicate returns the original
 committed result instead of appending a second event. `expectedRevision`
-provides optimistic concurrency. One exclusive lock covers replay, validation,
-event preparation, append, and fsync.
+is accepted only by the schema-v1 single-writer compatibility adapter. Normal
+schema-v2 writes compare the supplied causal frontier. One exclusive replica
+lock covers read, fold, identity/idempotency/frontier validation, event
+preparation, append, and journal fsync; the Loro snapshot is fsynced before the
+write is acknowledged.
 
 ## State model
 
 `KbdStateV2` contains:
 
-- run, lifecycle, revision, and immutable plan revision;
+- run, lifecycle, derived revision, causal frontier, and immutable plan revision;
 - pause checkpoint and exact next work;
 - active phase/stage/change/task path;
 - phase, stage, change, and task records;
 - implementation, evidence, certification, and publication completion;
 - decisions and blockers;
+- visible conflict candidates, provisional winners, and signed adjudications;
 - device trust records;
 - command-to-revision idempotency records.
 

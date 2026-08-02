@@ -344,6 +344,19 @@ enum KbdAction {
         #[arg(long)]
         apply: bool,
     },
+    /// List deterministic CRDT conflicts and their candidate events
+    Conflicts {
+        #[arg(long)]
+        json: bool,
+    },
+    /// Append an operator-signed conflict adjudication
+    Resolve {
+        conflict_id: String,
+        #[arg(long = "winner")]
+        winner_event_id: String,
+        #[arg(long)]
+        reason: String,
+    },
     /// Gracefully checkpoint and pause the run
     Pause {
         #[arg(long)]
@@ -765,6 +778,16 @@ async fn main() -> Result<()> {
                     path,
                     into_project_id,
                     apply,
+                },
+                KbdAction::Conflicts { json } => commands::kbd::Action::Conflicts { json },
+                KbdAction::Resolve {
+                    conflict_id,
+                    winner_event_id,
+                    reason,
+                } => commands::kbd::Action::Resolve {
+                    conflict_id,
+                    winner_event_id,
+                    reason,
                 },
                 KbdAction::Pause { reason } => commands::kbd::Action::Pause { reason },
                 KbdAction::Revise {

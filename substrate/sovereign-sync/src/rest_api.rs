@@ -21,7 +21,7 @@ use axum::{
 };
 use bytes::Bytes;
 use futures::stream;
-use kbd_runtime::CommandEnvelope;
+use kbd_runtime::{CommandEnvelope, CommandKind};
 use serde::Deserialize;
 use std::{
     collections::{BTreeMap, HashMap},
@@ -795,6 +795,34 @@ async fn kbd_diagnostics(
     }
 }
 
+async fn kbd_conflicts(
+    State(state): State<AppState>,
+    AxumPath(project_id): AxumPath<String>,
+) -> impl IntoResponse {
+    let control = match state.kbd_projects.control(&project_id) {
+        Ok(control) => control,
+        Err(error) => {
+            return (
+                if error.kind() == std::io::ErrorKind::NotFound {
+                    StatusCode::NOT_FOUND
+                } else {
+                    StatusCode::CONFLICT
+                },
+                Json(serde_json::json!({"error":error.to_string()})),
+            )
+                .into_response()
+        }
+    };
+    match control.status_async().await {
+        Ok(runtime) => (StatusCode::OK, Json(serde_json::json!(runtime.conflicts))).into_response(),
+        Err(error) => (
+            StatusCode::CONFLICT,
+            Json(serde_json::json!({"error":error.to_string()})),
+        )
+            .into_response(),
+    }
+}
+
 async fn kbd_command(
     State(state): State<AppState>,
     AxumPath(project_id): AxumPath<String>,
@@ -835,6 +863,31 @@ async fn kbd_command(
         )
             .into_response(),
     }
+}
+
+async fn kbd_resolve_conflict(
+    State(state): State<AppState>,
+    AxumPath((project_id, conflict_id)): AxumPath<(String, String)>,
+    Json(envelope): Json<CommandEnvelope>,
+) -> impl IntoResponse {
+    match &envelope.command {
+        CommandKind::ConflictResolve {
+            conflict_id: supplied,
+            ..
+        } if supplied == &conflict_id => {}
+        _ => {
+            return (
+                StatusCode::BAD_REQUEST,
+                Json(serde_json::json!({
+                    "error":"resolution path requires a matching conflict_resolve command"
+                })),
+            )
+                .into_response()
+        }
+    }
+    kbd_command(State(state), AxumPath(project_id), Json(envelope))
+        .await
+        .into_response()
 }
 
 async fn kbd_event_stream(
@@ -923,6 +976,14 @@ pub fn build_router(state: AppState) -> Router {
         .route(
             "/api/v1/kbd/projects/{project_id}/diagnostics",
             get(kbd_diagnostics),
+        )
+        .route(
+            "/api/v1/kbd/projects/{project_id}/conflicts",
+            get(kbd_conflicts),
+        )
+        .route(
+            "/api/v1/kbd/projects/{project_id}/conflicts/{conflict_id}/resolve",
+            post(kbd_resolve_conflict),
         )
         .route(
             "/api/v1/kbd/projects/{project_id}/events/stream",

@@ -276,10 +276,11 @@ impl SovereignMcpServer {
         command: CommandKind,
     ) -> String {
         let envelope = CommandEnvelope {
-            schema_version: "1".into(),
+            schema_version: "2".into(),
             project_id: state.project_id.clone(),
             run_id: state.run_id.clone(),
             command_id: Uuid::new_v4().to_string(),
+            frontier: Some(state.frontier.clone()),
             expected_revision: state.revision,
             actor: mcp_actor(actor_kind),
             command,

@@ -150,8 +150,9 @@ Diagnostics include:
 
 - quorum writable state and reason;
 - single-writer node and lock path;
-- journal path, byte size, event count, revision, and runtime match;
-- runtime revision, lifecycle, and plan revision;
+- replica journal path, byte size, event count, Lamport, and ingestion state;
+- Loro snapshot path/hash, authority event count, derived revision, frontier, and conflict count;
+- runtime derived revision, frontier, lifecycle, and plan revision;
 - compatibility projection revision/match;
 - signature-chain validity and event count;
 - active and revoked device counts.
@@ -175,8 +176,8 @@ send it back as `Last-Event-ID` when reconnecting.
 
 ### `POST /api/v1/kbd/projects/{projectId}/commands`
 
-The path project ID must equal `envelope.projectId`. Every command supplies a
-fresh `commandId` and current `expectedRevision`.
+The path project ID must equal `envelope.projectId`. Every normal command
+supplies a fresh `commandId` and the current causal `frontier`.
 
 Example cancellation command:
 
@@ -184,22 +185,22 @@ Example cancellation command:
 RUN_ID="$(curl --fail-with-body -H "$AUTH_HEADER" \
   "http://127.0.0.1:7892/api/v1/kbd/projects/$PROJECT_ID/status" |
   jq -r '.runId')"
-REVISION="$(curl --fail-with-body -H "$AUTH_HEADER" \
+FRONTIER="$(curl --fail-with-body -H "$AUTH_HEADER" \
   "http://127.0.0.1:7892/api/v1/kbd/projects/$PROJECT_ID/status" |
-  jq -r '.revision')"
+  jq -c '.frontier')"
 COMMAND_ID="$(uuidgen | tr '[:upper:]' '[:lower:]')"
 
 jq -n \
   --arg project "$PROJECT_ID" \
   --arg run "$RUN_ID" \
   --arg command "$COMMAND_ID" \
-  --argjson revision "$REVISION" \
+  --argjson frontier "$FRONTIER" \
   '{
-    schemaVersion: "1",
+    schemaVersion: "2",
     projectId: $project,
     runId: $run,
     commandId: $command,
-    expectedRevision: $revision,
+    frontier: $frontier,
     actor: {
       kind: "harness",
       id: "operator",
@@ -222,6 +223,20 @@ curl --fail-with-body \
 
 Prefer `prometheus kbd` or MCP for routine operations; they construct the
 envelope safely.
+
+Schema-v2 concurrency is decided exclusively by `frontier`; scalar revision
+is a derived compatibility projection.
+
+## KBD conflicts and resolution
+
+`GET /api/v1/kbd/projects/{projectId}/conflicts` returns every deterministic
+conflict record, including all candidates, the provisional or adjudicated
+winner, and resolution provenance.
+
+`POST /api/v1/kbd/projects/{projectId}/conflicts/{conflictId}/resolve` accepts
+the same schema-v2 command envelope, with a matching `conflict_resolve` command.
+The actor must be an operator and `winnerEventId` must name one of the recorded
+candidates. Resolution appends a signed event; it never rewrites history.
 
 ## AG-UI routes
 

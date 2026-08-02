@@ -884,7 +884,10 @@ async fn check_judge_gateway() -> CheckResult {
         label: "Adversarial judge gateway".into(),
         severity: Severity::Yellow,
         status: CheckStatus::Warn,
-        summary: format!("No judge gateway reachable (tried {})", candidates.join(", ")),
+        summary: format!(
+            "No judge gateway reachable (tried {})",
+            candidates.join(", ")
+        ),
         details: vec![
             "Adversarial reviews will DEGRADE to a same-model self-review: they still \
              return PASS, recording isolation_mode: harness-native."
@@ -959,12 +962,13 @@ async fn check_kbd_control_plane() -> CheckResult {
             let writer_available = diagnostics["singleWriter"]["available"]
                 .as_bool()
                 .unwrap_or(false);
-            let journal_revision = diagnostics["journal"]["lastRevision"]
-                .as_u64()
-                .unwrap_or(0);
-            let journal_matches = diagnostics["journal"]["matchesRuntime"]
+            let journal_lamport = diagnostics["journal"]["lastLamport"].as_u64().unwrap_or(0);
+            let journal_ingested = diagnostics["journal"]["ingested"]
                 .as_bool()
                 .unwrap_or(false);
+            let document_revision = diagnostics["document"]["derivedRevision"]
+                .as_u64()
+                .unwrap_or(0);
             let projection_matches = diagnostics["projection"]["matchesRuntime"]
                 .as_bool()
                 .unwrap_or(false);
@@ -973,7 +977,7 @@ async fn check_kbd_control_plane() -> CheckResult {
                 .unwrap_or(false);
             let healthy = writable
                 && writer_available
-                && journal_matches
+                && journal_ingested
                 && projection_matches
                 && signatures;
             CheckResult {
@@ -991,9 +995,14 @@ async fn check_kbd_control_plane() -> CheckResult {
                     CheckStatus::Fail
                 },
                 summary: format!(
-                    "writer {}, journal r{}, projection {}, signatures {}",
-                    if writer_available { "available" } else { "unavailable" },
-                    journal_revision,
+                    "writer {}, replica L{}, document r{}, projection {}, signatures {}",
+                    if writer_available {
+                        "available"
+                    } else {
+                        "unavailable"
+                    },
+                    journal_lamport,
+                    document_revision,
                     if projection_matches {
                         "current"
                     } else {
@@ -1016,10 +1025,18 @@ async fn check_kbd_control_plane() -> CheckResult {
                             .unwrap_or("unknown")
                     ),
                     format!(
-                        "journal path/bytes/revision: {}/{}/{}",
+                        "journal path/bytes/lamport: {}/{}/{}",
                         diagnostics["journal"]["path"].as_str().unwrap_or("unknown"),
                         diagnostics["journal"]["bytes"].as_u64().unwrap_or(0),
-                        journal_revision
+                        journal_lamport
+                    ),
+                    format!(
+                        "project document events/frontier/conflicts: {}/{}/{}",
+                        diagnostics["document"]["eventCount"].as_u64().unwrap_or(0),
+                        diagnostics["document"]["frontier"],
+                        diagnostics["document"]["conflictCount"]
+                            .as_u64()
+                            .unwrap_or(0)
                     ),
                     format!(
                         "trusted devices active/revoked: {}/{}",

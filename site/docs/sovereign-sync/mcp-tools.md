@@ -94,9 +94,10 @@ instead of selecting one implicitly.
 
 ### `kbd_status`
 
-Returns canonical `KbdStateV2`, including lifecycle, committed revision, plan
+Returns canonical `KbdStateV2`, including lifecycle, derived revision, causal
+frontier, plan
 revision, checkpoint, exact next work, active path, completion dimensions,
-devices, and blockers.
+devices, blockers, and visible conflicts.
 
 ### `kbd_events`
 
@@ -139,6 +140,6 @@ Resumes a suspended lifecycle at the supplied or current plan revision.
 
 ## Error behavior
 
-MCP tools return a textual `KBD control error: …` result for revision,
+MCP tools return a textual `KBD control error: …` result for frontier,
 single-writer policy, signature, or integrity failures. They do not fall back
 to directly editing `.kbd-orchestrator` compatibility files.

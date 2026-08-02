@@ -107,14 +107,17 @@ export its deltas, or call the merge operation for incoming P2P messages.
 
 ## KBD control-plane storage
 
-KBD uses an append-only `events.jsonl` journal protected by `runtime.lock`.
-Each command holds the lock across replay, validation, event preparation,
-append, and fsync. Compatibility files are updated afterward as projections.
+KBD stores one authoritative `project.loro` document per project and one
+append-only `replicas/<replica-id>/events.jsonl` write-ahead journal plus lock
+per replica. Each command holds the replica lock across fold, validation,
+event preparation, append, and journal fsync, then imports/fsyncs Loro before
+compatibility projections are updated.
 `redb` is not part of the KBD authority; it remains only for the general sync
 store in `store.rs`.
 
 Every committed event is verified by the `kbd-runtime` signature/hash chain.
-Diagnostics report journal path/size/revision, lock and single-writer state,
+Diagnostics report replica journal path/size/Lamport, ingestion state, Loro
+snapshot status/frontier/conflicts, lock and single-writer compatibility,
 projection revision, device trust counts, and signature-chain validity.
 The compatibility quorum configuration accepts exactly one local writer and
 rejects multi-voter settings.

@@ -795,20 +795,26 @@ fn resign_adopted_events(
     let mut migrated = Vec::with_capacity(source_events.len());
     let mut previous_event_id = None;
     let mut previous_hash = None;
+    let mut frontier = crate::CausalFrontier::empty();
     for (index, source) in source_events.iter().enumerate() {
+        let lamport = index as u64 + 1;
         let mut event = Event {
             schema_version: EVENT_SCHEMA_VERSION.into(),
             project_id: into_project_id.into(),
+            replica_id: new_replica_id.into(),
             run_id: source.run_id.clone(),
             event_id: Uuid::new_v4().to_string(),
             command_id: source
                 .command_id
                 .as_ref()
                 .map(|command_id| format!("adopt:{new_replica_id}:{command_id}")),
-            revision: index as u64 + 1,
+            revision: lamport,
             expected_revision: index as u64,
+            lamport,
+            frontier: frontier.clone(),
             causal_parent: previous_event_id.clone(),
             actor: source.actor.clone(),
+            actor_id: source.actor.id.clone(),
             timestamp: source.timestamp,
             kind: source.kind.clone(),
             previous_hash: previous_hash.clone(),
@@ -827,6 +833,7 @@ fn resign_adopted_events(
         event.seal(signer)?;
         previous_event_id = Some(event.event_id.clone());
         previous_hash = Some(event.integrity_hash.clone());
+        frontier.advance(new_replica_id, lamport);
         migrated.push(event);
     }
     crate::replay_events(&migrated)?;
