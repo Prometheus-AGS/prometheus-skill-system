@@ -139,9 +139,17 @@ impl KbdProjectRouter {
             let path = PathBuf::from(path);
             let opened = match &self.data_root {
                 Some(data_root) => {
-                    KbdControlPlane::open_at(&path, data_root, self.policy.clone()).await
+                    KbdControlPlane::open_registered_at(
+                        &path,
+                        data_root,
+                        &project_id,
+                        self.policy.clone(),
+                    )
+                    .await
                 }
-                None => KbdControlPlane::open(&path, self.policy.clone()).await,
+                None => {
+                    KbdControlPlane::open_registered(&path, &project_id, self.policy.clone()).await
+                }
             };
             match opened {
                 Ok(control) => {
@@ -259,6 +267,47 @@ impl KbdControlPlane {
         Self::from_runtime(runtime, quorum).await
     }
 
+    /// Open a replica that is already present in the platform registry without
+    /// re-running classification. Daemon routing must use this constructor so
+    /// recovered/CI/read-only replicas cannot become writable during startup.
+    pub async fn open_registered(
+        project_root: &Path,
+        expected_project_id: &str,
+        quorum: QuorumPolicy,
+    ) -> io::Result<Self> {
+        let project_root = project_root.to_path_buf();
+        let expected_project_id = expected_project_id.to_owned();
+        let runtime = Arc::new(
+            tokio::task::spawn_blocking(move || {
+                Runtime::open_registered(&project_root, &expected_project_id)
+                    .map_err(|error| io::Error::other(error.to_string()))
+            })
+            .await
+            .map_err(|error| io::Error::other(format!("runtime open task failed: {error}")))??,
+        );
+        Self::from_runtime(runtime, quorum).await
+    }
+
+    pub async fn open_registered_at(
+        project_root: &Path,
+        data_root: &Path,
+        expected_project_id: &str,
+        quorum: QuorumPolicy,
+    ) -> io::Result<Self> {
+        let project_root = project_root.to_path_buf();
+        let data_root = data_root.to_path_buf();
+        let expected_project_id = expected_project_id.to_owned();
+        let runtime = Arc::new(
+            tokio::task::spawn_blocking(move || {
+                Runtime::open_registered_at(&project_root, &data_root, &expected_project_id)
+                    .map_err(|error| io::Error::other(error.to_string()))
+            })
+            .await
+            .map_err(|error| io::Error::other(format!("runtime open task failed: {error}")))??,
+        );
+        Self::from_runtime(runtime, quorum).await
+    }
+
     async fn from_runtime(runtime: Arc<Runtime>, quorum: QuorumPolicy) -> io::Result<Self> {
         if quorum.voters().len() != 1 {
             return Err(io::Error::new(
@@ -312,6 +361,19 @@ impl KbdControlPlane {
         })
         .await
         .map_err(|join_error| io::Error::other(format!("status task failed: {join_error}")))?
+    }
+
+    /// Validate journal/Loro authority without invoking local git plumbing.
+    /// Used by `/ready`, whose latency must not depend on checkout size.
+    pub async fn authority_status_async(&self) -> io::Result<KbdStateV2> {
+        let runtime = Arc::clone(&self.runtime);
+        tokio::task::spawn_blocking(move || {
+            runtime
+                .replay_authority()
+                .map_err(|error| io::Error::other(error.to_string()))
+        })
+        .await
+        .map_err(|join_error| io::Error::other(format!("readiness task failed: {join_error}")))?
     }
 
     pub fn quorum_status(&self) -> QuorumStatus {
@@ -536,7 +598,7 @@ impl KbdControlPlane {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use kbd_runtime::{Actor, ActorKind, CommandKind};
+    use kbd_runtime::{registry::ReplicaKind, Actor, ActorKind, CommandKind};
     use tempfile::tempdir;
     use uuid::Uuid;
 
@@ -593,5 +655,43 @@ mod tests {
         )
         .unwrap();
         assert_eq!(waypoint["sourceRevision"], 2);
+    }
+
+    #[tokio::test]
+    async fn daemon_router_preserves_recovered_read_only_classification() {
+        let data_root = tempdir().unwrap();
+        let project_id = Uuid::new_v4().to_string();
+        std::fs::create_dir_all(
+            data_root
+                .path()
+                .join("prometheus/kbd/projects")
+                .join(&project_id),
+        )
+        .unwrap();
+        let registry = ProjectRegistry::open_at(data_root.path());
+        let recovered = registry.register_recovered(&project_id).unwrap();
+        assert_eq!(recovered.registration.kind, ReplicaKind::Recovered);
+        assert!(recovered.registration.read_only);
+
+        let router = KbdProjectRouter::open_registered_at(
+            data_root.path(),
+            QuorumPolicy::new(1, [1]).unwrap(),
+        )
+        .await
+        .unwrap();
+        let after = router
+            .registry()
+            .lookup_path(&recovered.path)
+            .unwrap()
+            .unwrap();
+        assert_eq!(after.kind, ReplicaKind::Recovered);
+        assert!(after.read_only);
+        let authority = router
+            .control(&project_id)
+            .unwrap()
+            .authority_status_async()
+            .await
+            .unwrap();
+        assert!(authority.replica_view.is_none());
     }
 }

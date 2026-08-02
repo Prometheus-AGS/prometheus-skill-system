@@ -259,23 +259,19 @@ async fn health() -> impl IntoResponse {
 async fn ready(State(state): State<AppState>) -> impl IntoResponse {
     let mut projects = Vec::new();
     let mut all_ready = true;
+    let mut checks = tokio::task::JoinSet::new();
     for project_id in state.kbd_projects.project_ids() {
         match state.kbd_projects.control(&project_id) {
-            Ok(control) => match control.status_async().await {
-                Ok(runtime) => projects.push(serde_json::json!({
-                    "projectId": project_id,
-                    "ready": true,
-                    "revision": runtime.revision
-                })),
-                Err(error) => {
-                    all_ready = false;
-                    projects.push(serde_json::json!({
-                        "projectId": project_id,
-                        "ready": false,
-                        "error": error.to_string()
-                    }));
-                }
-            },
+            Ok(control) => {
+                checks.spawn(async move {
+                    let result = tokio::time::timeout(
+                        Duration::from_millis(400),
+                        control.authority_status_async(),
+                    )
+                    .await;
+                    (project_id, result)
+                });
+            }
             Err(error) => {
                 all_ready = false;
                 projects.push(serde_json::json!({
@@ -286,6 +282,40 @@ async fn ready(State(state): State<AppState>) -> impl IntoResponse {
             }
         }
     }
+    while let Some(check) = checks.join_next().await {
+        match check {
+            Ok((project_id, Ok(Ok(runtime)))) => projects.push(serde_json::json!({
+                "projectId": project_id,
+                "ready": true,
+                "revision": runtime.revision
+            })),
+            Ok((project_id, Ok(Err(error)))) => {
+                all_ready = false;
+                projects.push(serde_json::json!({
+                    "projectId": project_id,
+                    "ready": false,
+                    "error": error.to_string()
+                }));
+            }
+            Ok((project_id, Err(_))) => {
+                all_ready = false;
+                projects.push(serde_json::json!({
+                    "projectId": project_id,
+                    "ready": false,
+                    "error": "authority replay exceeded 400 ms"
+                }));
+            }
+            Err(error) => {
+                all_ready = false;
+                projects.push(serde_json::json!({
+                    "projectId": null,
+                    "ready": false,
+                    "error": format!("readiness task failed: {error}")
+                }));
+            }
+        }
+    }
+    projects.sort_by(|left, right| left["projectId"].as_str().cmp(&right["projectId"].as_str()));
     let status = if all_ready {
         StatusCode::OK
     } else {

@@ -2640,6 +2640,16 @@ impl Runtime {
         Ok(runtime)
     }
 
+    /// Open an already-registered replica from the platform data root without
+    /// changing its registry classification.
+    pub fn open_registered(project_root: &Path, expected_project_id: &str) -> Result<Self> {
+        let data_root = std::env::var_os("PROMETHEUS_DATA_DIR")
+            .map(PathBuf::from)
+            .or_else(dirs_next::data_local_dir)
+            .unwrap_or_else(|| std::env::temp_dir().join("prometheus-data"));
+        Self::open_registered_at(project_root, &data_root, expected_project_id)
+    }
+
     /// Open an already-registered replica without changing its classification.
     /// Intended for daemon routing and offline migration utilities.
     pub fn open_registered_at(
@@ -3207,8 +3217,14 @@ impl Runtime {
         })
     }
 
+    /// Replay only authoritative event state. This deliberately omits local
+    /// git/submodule decoration so readiness checks cannot block on a checkout.
+    pub fn replay_authority(&self) -> Result<RuntimeState> {
+        self.fold_authority_events(&self.events()?)
+    }
+
     pub fn replay(&self) -> Result<RuntimeState> {
-        let mut state = self.fold_authority_events(&self.events()?)?;
+        let mut state = self.replay_authority()?;
         self.decorate_replica_view(&mut state);
         Ok(state)
     }
