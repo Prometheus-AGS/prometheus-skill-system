@@ -2640,7 +2640,9 @@ impl Runtime {
         Ok(runtime)
     }
 
-    pub(crate) fn open_registered_at(
+    /// Open an already-registered replica without changing its classification.
+    /// Intended for daemon routing and offline migration utilities.
+    pub fn open_registered_at(
         project_root: &Path,
         data_root: &Path,
         expected_project_id: &str,

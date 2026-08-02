@@ -27,6 +27,7 @@ pub enum ReplicaKind {
     Bare,
     Ci,
     Mobile,
+    Recovered,
 }
 
 impl ReplicaKind {
@@ -38,6 +39,7 @@ impl ReplicaKind {
             Self::Ci => 3,
             Self::Bare => 4,
             Self::Mobile => 5,
+            Self::Recovered => 6,
         }
     }
 }
@@ -286,6 +288,64 @@ impl ProjectRegistry {
     }
 
     pub fn register_existing(&self, project_root: impl AsRef<Path>) -> Result<RegistrationOutcome> {
+        self.register_existing_inner(project_root.as_ref(), None)
+    }
+
+    /// Register an existing declared replica with an operator-provided kind.
+    /// This is reserved for migration evidence that cannot be inferred from
+    /// the current process environment, such as an offline CI checkout.
+    pub fn register_existing_as(
+        &self,
+        project_root: impl AsRef<Path>,
+        kind: ReplicaKind,
+    ) -> Result<RegistrationOutcome> {
+        self.register_existing_inner(project_root.as_ref(), Some(kind))
+    }
+
+    /// Materialize a path-stable, read-only replica for a retained runtime
+    /// whose original checkout no longer exists. No identity relationship is
+    /// inferred: the runtime directory UUID remains the project UUID.
+    pub fn register_recovered(&self, project_id: &str) -> Result<RegistrationOutcome> {
+        Uuid::parse_str(project_id).map_err(|_| {
+            RuntimeError::InvalidState(format!("recovered project id {project_id} is not a UUID"))
+        })?;
+        let runtime_root = self.root.join("projects").join(project_id);
+        if !runtime_root.is_dir() {
+            return Err(RuntimeError::InvalidState(format!(
+                "recovered runtime {} does not exist",
+                runtime_root.display()
+            )));
+        }
+        let recovered_root = self.root.join("recovered-projects").join(project_id);
+        fs::create_dir_all(recovered_root.join(".prometheus"))?;
+        let manifest_path = recovered_root.join(".prometheus/project.json");
+        if !manifest_path.exists() {
+            let manifest = ProjectManifest {
+                schema_version: "1".into(),
+                project_id: project_id.into(),
+                repository_fingerprint: format!(
+                    "sha256:{:x}",
+                    Sha256::digest(format!("recovered:{project_id}").as_bytes())
+                ),
+            };
+            crate::atomic_json(&manifest_path, &serde_json::to_value(manifest)?)?;
+        }
+        crate::atomic_text(
+            &recovered_root.join("RECOVERY.md"),
+            &format!(
+                "# Recovered KBD replica\n\n\
+                 Project ID: `{project_id}`\n\n\
+                 The original checkout was absent during control-plane recovery. This managed path preserves the declared UUID and exposes retained history read-only. It must not be adopted into another project without explicit operator adjudication.\n"
+            ),
+        )?;
+        self.register_existing_inner(&recovered_root, Some(ReplicaKind::Recovered))
+    }
+
+    fn register_existing_inner(
+        &self,
+        project_root: &Path,
+        forced_kind: Option<ReplicaKind>,
+    ) -> Result<RegistrationOutcome> {
         let canonical = canonical_existing_path(project_root.as_ref())?;
         let manifest = read_project_manifest(&canonical)?.ok_or_else(|| {
             RuntimeError::InvalidState(format!(
@@ -293,7 +353,7 @@ impl ProjectRegistry {
                 canonical.display()
             ))
         })?;
-        let evidence = inspect_replica(&canonical, &manifest, None, &self.root)?;
+        let evidence = inspect_replica(&canonical, &manifest, forced_kind, &self.root)?;
 
         fs::create_dir_all(&self.root)?;
         let lock = self.open_lock()?;
@@ -890,6 +950,13 @@ fn inspect_replica(
             true,
             Some("CI replicas are observation-only and cannot commit KBD state".into()),
         ),
+        ReplicaKind::Recovered => (
+            true,
+            Some(
+                "recovered replicas are observation-only until a writable checkout is explicitly restored or adopted"
+                    .into(),
+            ),
+        ),
         _ => {
             let probes = [
                 ("KBD data volume", probe_root.to_path_buf()),
@@ -1282,6 +1349,34 @@ mod tests {
         assert_eq!(one.registration.project_id, two.registration.project_id);
         assert_ne!(one.registration.replica_id, two.registration.replica_id);
         assert_eq!(registry.lookup_project(&project_id).unwrap().len(), 2);
+    }
+
+    #[test]
+    fn missing_checkout_is_materialized_as_a_read_only_recovered_replica() {
+        let fixture = tempdir().unwrap();
+        let project_id = Uuid::new_v4().to_string();
+        let data_root = fixture.path().join("data");
+        let registry = ProjectRegistry::open_at(&data_root);
+        fs::create_dir_all(registry.root().join("projects").join(&project_id)).unwrap();
+
+        let outcome = registry.register_recovered(&project_id).unwrap();
+        assert_eq!(outcome.registration.kind, ReplicaKind::Recovered);
+        assert!(outcome.registration.read_only);
+        assert!(outcome
+            .registration
+            .read_only_reason
+            .as_deref()
+            .unwrap()
+            .contains("observation-only"));
+        let recovered = PathBuf::from(outcome.path);
+        assert_eq!(
+            read_project_manifest(&recovered)
+                .unwrap()
+                .unwrap()
+                .project_id,
+            project_id
+        );
+        assert!(recovered.join("RECOVERY.md").is_file());
     }
 
     #[test]
