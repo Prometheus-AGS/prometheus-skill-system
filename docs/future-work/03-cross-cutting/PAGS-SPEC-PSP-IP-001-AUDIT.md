@@ -5,7 +5,7 @@
 **Scope:** Validation of PAGS-SPEC-PSP-IP-001 (the "Fable 5" Instruction-Plane Improvement Specification), additional audit findings from a fresh read of the working tree at `/Users/gqadonis/Projects/prometheus/prometheus-skill-pack`, and a deep-research survey of industry practice in skill reliability, agent observability, BDD video evidence, and multi-harness control planes.
 **Method:** Filesystem audit of v1.6.0 (commit present at 2026-07-28 09:01), comparative analysis against obra/superpowers, LangGraph/Temporal, the Playwright/Cucumber BDD ecosystem, and the OpenTelemetry/LangSmith agent-observability stack. Confidence stated as ranges. Sources linked in §10.
 
-> **Note on the relationship to existing work.** This document is intentionally orthogonal to the Cross-Harness Control Plane (Codex harness) work in progress. The control plane owns **state**: event-sourced KBD runtime, lifecycle, lease/fencing, the Sovereign Sync `kbd-control:` domain, schema unification, CI consolidation, harness payload parity, and Stop-hook redesign. This document owns **whether skills fire, whether their content survives long sessions, and whether compliance is measurable** — the instruction plane. The two planes touch different files (instruction plane: `skills/*/SKILL.md` frontmatter, `shared/scripts/` prompt-side hooks, `tools/prometheus-cli`, a new `evals/` directory; control plane: `substrate/`, `.kbd-orchestrator` schemas, steering hooks). The split is by design and avoids merge conflicts.
+> **Current-state correction (2026-08-02).** This historical instruction-plane audit is orthogonal to the recovered control plane. The control plane now owns signed journal ingestion, one Loro authority per project, project/replica identity, causal frontiers, CRDT claims and conflicts, Sovereign Sync's authoritative `kbd-control:` domain, schema unification, harness parity, and Stop-hook behavior. Sections below that audited the former coordinator have been updated to describe the replacement rather than prescribe retired behavior.
 
 ---
 
@@ -15,8 +15,8 @@ The original audit below is preserved as the evidence and decision record from i
 
 | Original snapshot claim | Current verified state |
 |---|---|
-| `kbd-control:` did not exist. | `substrate/sovereign-sync` now contains a KBD control plane backed by OpenRaft `=0.9.21` and redb. REST, MCP, SSE, CLI, committed ordering, idempotency, fencing, signatures, enrollment/revocation, snapshots, and projection metadata are implemented. Loro is presence-only. |
-| Progress semantics and migration fixtures were not required CI. | `scripts/test-kbd-control-plane.sh` now runs every state, hook, lifecycle, migration, progress-semantics, adapter, direct-writer, eval-corpus, and installed-payload fixture. `.github/workflows/validate.yml` executes it on Linux and macOS, explicitly using `/bin/bash` for Bash 3.2 compatibility, then runs runtime/Raft tests and CLI checks. |
+| `kbd-control:` did not exist. | `substrate/sovereign-sync` now exchanges signed authoritative Loro deltas over iroh. REST, MCP, SSE, CLI, journal ordering, idempotency, causal-frontier validation, signatures, enrollment/revocation, conflict handling, and projection metadata are implemented. |
+| Progress semantics and migration fixtures were not required CI. | `scripts/test-kbd-control-plane.sh` runs state, hook, lifecycle, migration, progress-semantics, adapter, direct-writer, eval-corpus, and installed-payload fixtures. `.github/workflows/validate.yml` executes it on Linux and macOS, explicitly using `/bin/bash` for Bash 3.2 compatibility, then runs runtime, sync, and CLI checks. |
 | Installed parity could not be verified and remained around 140. | The canonical inventory is 145 first-party skills. A hermetic clean install proves 145 unique payloads across 14 targets. Codex uses relocatable copied payloads; machine-specific Flint SDK paths were removed. |
 | Prompt/Stop hooks could take minutes because synchronous memory, summary, learning, and proposal tasks remained. | Claude Prompt/Stop chains are reduced to the bounded canonical adapter. Noncritical work is placed in a deferred outbox. Stop acknowledgement and emergency pause do not depend on memory, network, state validity, or quorum. |
 | Sentinel-based compaction was the preferred design. | Claude, Codex, OpenCode, and Kimi capability mappings now use native lifecycle events. The renderer is bounded to 4,800 characters. A sentinel is a fallback only for a host without native events. |
@@ -28,7 +28,7 @@ The original audit below is preserved as the evidence and decision record from i
 
 The implementation is substantially converged but is **not production-ready yet**. The remaining blockers are evidence and transport gaps, not another architecture rewrite:
 
-1. The current multi-voter proof uses authenticated embedded transport. Cross-process iroh Raft networking, paired-device authorization, and the real two-device/three-voter partition suite are not complete.
+1. Paired-device authorization, signed cross-process iroh/Loro exchange, collision notification, reconnect convergence, and real peer tests are implemented; live production certification remains the deployment gate.
 2. Claude and OpenCode integration is active locally; generated Codex and Kimi adapters have not passed real native-host installation and mutation-guard scenarios.
 3. Discovery budgets remain unmeasured for all four harnesses.
 4. The 36-prompt corpus has a deterministic grader but no three-run live baseline per harness.
@@ -46,8 +46,8 @@ The full 145-skill compliance rewrite, marketplace work, and broad BossFang disp
 | P0 operator-safety patch has substantially landed in `position-stop-gate.sh` | **Yes** | Reads as written: `stop_hook_active` checked, `PAUSE` file unconditional, terminal/suspended states recognized, dedup keyed to `session + state-revision fingerprint` (transcript size explicitly excluded), advisory-only, exits 0 on every path (`shared/scripts/position-stop-gate.sh:1-115`). |
 | `waypoint-render.sh` implements suspended/terminal vocabularies and dual-casing reads | **Yes** (corroborated) | Both `position-stop-gate.sh` calls `_wr_is_terminal_status` and `_wr_is_suspended_status` from that library. |
 | mtime freshness check on `position.json` remains | **Partially** | True for legacy readers; the canonical KBD runtime is now event-sourced (`substrate/kbd-runtime/src/lib.rs:436-446` replay reducer) and treats mtime as informational. |
-| `kbd-runtime` exists as a Rust crate with append-only event journal, lifecycle, leases, fencing, integrity | **Yes — substantially** | `substrate/kbd-runtime/src/lib.rs:975` lines; full LifecycleState enum, Event enum (RunInitialized/LifecycleTransition/CheckpointCreated/PlanRevised/LeaseClaimed/Heartbeat/Released/HandedOff), `Runtime::replay`, `Runtime::append`, `Runtime::claim/pause/resume/cancel/revise_plan/heartbeat/release/handoff`; 5+ unit tests including `replay_is_deterministic_and_integrity_checked`, `simultaneous_claim_has_one_winner_and_fences_takeover`, `operator_can_pause_without_the_writer_lease`, `checkpoint_plan_revision_and_handoff_preserve_causality`. |
-| `kbd-control:<project-id>` Sovereign Sync domain exists | **No — pending P2** | `grep -r "kbd-control" substrate/sovereign-sync/src/` returns nothing. `substrate/sovereign-sync/src/` contains `ag_ui.rs config.rs crdt.rs error.rs health_check.rs lib.rs main.rs mcp_client_pool.rs mcp_server.rs p2p.rs rest_api.rs store.rs` — the KBD domain is not yet implemented. |
+| `kbd-runtime` exists as a Rust crate with append-only per-replica journals, lifecycle, causal frontiers, CRDT claims, conflicts, and integrity | **Yes** | `substrate/kbd-runtime` implements deterministic replay, signed schema-v2 events, one authoritative `project.loro`, atomic command execution under one file lock, idempotency, project/replica registry, adoption, conflict resolution, audit export, and migration/recovery tests. |
+| `kbd-control:<project-id>` Sovereign Sync domain exists | **Yes** | `substrate/sovereign-sync` publishes and imports signed authoritative Loro deltas, validates grow-only event maps before persistence, supports same-machine loopback convergence, and emits typed conflict/claim events. |
 | P0 schema normalization (`changes` as array) is canonical | **Yes** | `skills/process/kbd-process-orchestrator/references/schemas/progress.schema.json` defines `changes` as an ordered array with `primaryCounter: "implementation"` and a four-dimension `completion` object (primary/implementation/evidence/certification/publication). Schema v2 is declared canonical. |
 | `test-progress-semantics.sh` is fixed and in CI | **Partially — script exists, not in CI** | `skills/process/kbd-process-orchestrator/shared/lib/tests/test-progress-semantics.sh` exists, asserts pre-mutation counter correctness, accepts legacy ledgers, rejects contradictory ones. **Not invoked** by the `test-kbd-control-plane.sh` wrapper nor by `npm test` (see §3.4). |
 | 140/140 portable installed payloads for every harness | **Cannot fully verify — harness-specific install trees exist** | `.claude/`, `.opencode/`, `.codex-plugin/`, `.agents/`, `.cursor/`, `.windsurf/` all populated; counts vary. The Fable 5 spec flagged Kimi at 139 and Codex as containing machine-specific absolute paths; this audit confirms the existence of the structure but cannot enumerate the install tree without running `install:platforms`. |
@@ -58,7 +58,7 @@ The full 145-skill compliance rewrite, marketplace work, and broad BossFang disp
 | F-4 No negative-trigger control in the current test surface | **Confirmed** | `tests/features/` contains exactly two features (`forge-validate.feature`, `forge-enrich.feature`) and one draft (`okf-wiki-ingest.feature`). Step defs in `tests/steps/forge-steps.ts` are forge-binary-only; no behavior assertion that an installed skill is invoked or not invoked. `cucumber.mjs` runs only the two forge features. |
 | F-5 Description drift risk from Prettier | **Confirmed — partial coverage** | `.prettierignore` exists but its current contents (visible at root) do not list `skills/**/SKILL.md` explicitly; markdown formatting via Prettier can re-wrap multi-line `description:` values, which is a documented silent-kill pattern (see §1.2). |
 
-**Net read on the Fable 5 spec:** the diagnosis is correct, the priority ordering is correct, the architectural direction (event journal + single projection writer + leased handoff) matches Temporal/LangGraph precedent, the implementation is **substantially more advanced than the spec implies for P0/P1 but materially under-shipped for P2**, and the cost ranges in the implementation plan (22–38 days) are realistic for the work that remains. The spec's M1–M3 sequence (9–15 days) is the right first cut.
+**Net read on the Fable 5 spec, corrected 2026-08-02:** the instruction-plane diagnosis and priority ordering remain useful. The control-plane recommendation has been superseded by per-replica journals, a project Loro authority, explicit identity, and visible causal conflict handling. The spec's instruction-plane M1–M3 sequence remains the right first cut.
 
 **Three additions the spec does not contain** that this audit adds in §6–§7:
 1. A **BDD-driven skill contract test** that runs every enforcement-critical skill in a controlled harness session, asserts it *fired* (positive) and asserts the *forbidden* skill did not fire on a near-miss prompt (negative). The Fable 5 spec sketches this in §4.4–4.5 but does not commit to running it as part of the same `npm test` cycle the BDD skill tests already use.
@@ -192,26 +192,26 @@ The `surreal-memory` curl in the same file (3s cap) and the `pk focus` invocatio
 
 ### 3.9 The `kbd-runtime` crate is the most important file in the repo
 
-`substrate/kbd-runtime/src/lib.rs` (975 lines) implements the entire event-sourced runtime, lifecycle, lease, fencing, and integrity contract described in the Fable 5 spec — as actual code, not a sketch. Key observations:
+`substrate/kbd-runtime` implements the event-sourced runtime, lifecycle, causal-frontier, CRDT-claim, conflict, and integrity contract as production Rust. Current observations:
 
 - **Replay determinism is not guaranteed by serde_json default.** The spec's footnote 1 ("Specify RFC 8785 / JCS for canonical serialization or byte-equivalence will flake") is correct and load-bearing. The current `serde_json::to_vec` output is non-canonical (HashMap iteration order, number formatting). The acceptance test "byte-equivalent projections on repeated replay" will fail today against the current code, even with deterministic event inputs. Fix: introduce a `canonical_json::to_vec` wrapper or switch to `serde_json::to_vec(&serde_json::Value::Object(map))` with a `BTreeMap<String, Value>` serializer. Effort 0.5–1 day; a single test (`fn replay_is_byte_equivalent_across_replays`) gates it.
 - **The `LifecycleState::is_suspended` and `is_terminal` predicates are correct** and are already used by the bash hooks via `_wr_is_suspended_status` / `_wr_is_terminal_status` in `waypoint-render.sh`. Good.
-- **Lease expiry takes a wall-clock `now: DateTime<Utc>` parameter.** This is testable but means integration tests need to fast-forward time. The unit tests use tempdir + sequential appends, which exercise the causal-chain logic but not the expiry window. Add a `test_expired_lease_may_be_reclaimed_after_ttl` test with `chrono::Duration::seconds(91)` to close the loop. Effort 0.5 day.
-- **The `force` parameter in `claim` is gated on `actor.kind == Operator`.** This is the right policy: harness actors cannot force-takeover a live lease; only operators can. Worth a dedicated test (`fn force_takeover_requires_operator_kind`). Effort 0.25 day.
-- **The `authorize` function has a special-case for `CheckpointCreated` and operator-pause/cancel transitions that bypasses the lease check.** This is the operator-override path. It is the right design (operator can always pause), but it deserves a test that asserts a harness actor with a stale fencing token still cannot create a checkpoint. Effort 0.25 day.
+- **Claim expiry is represented as signed CRDT state with TTL and monotonic tokens.** Tests cover acquire, renew, release, collision winner selection, loser blocking, reconnect conflicts, and operator adjudication.
+- **Singleton mutations validate a causal frontier that dominates the current slot.** Concurrent candidates remain visible and emit an alarm rather than being silently overwritten.
+- **Operator pause/cancel remains an explicit signed authority path.** Ordinary harness mutations still require valid replica identity, signature, frontier, and applicable claim state.
 - **The five named tests cover the headline properties; the test file goes to line 975 of lib.rs.** Worth pulling them into a separate `tests/` integration test directory as the crate grows, but not blocking.
 
-### 3.10 The `sovereign-sync` crate does not yet have the KBD domain
+### 3.10 The `sovereign-sync` KBD domain is now authoritative
 
-`substrate/sovereign-sync/src/` has 12 files. None implement the `kbd-control:<project-id>` domain. The control-plane plan correctly classifies this as P2. This audit does not change that priority but adds: **the KBD runtime is already structured to emit events; the missing piece is a thin `Loro` or `iroh` adapter that takes the `events.jsonl` and replicates it peer-to-peer.** That adapter is bounded — 3–5 day effort for an MVP — and should be co-P1 with the projection writer because without it, the operator safety story is single-device. (See §6.3.)
+The historical gap is closed. `substrate/sovereign-sync` implements `kbd-control:<project-id>` as signed authoritative Loro-delta exchange over iroh. Per-replica journals remain write-ahead ingestion logs; imports are validated before atomic persistence, same-machine replicas converge through the shared document path, and typed subscribers observe appends, claims, conflicts, and singleton violations.
 
 ---
 
 ## 4. The Multi-Harness Development Story
 
-### 4.1 The control plane's "many observers, one writer" model is the right architecture
+### 4.1 The control plane's replicated-authority model
 
-The control-plane plan's leased handoff is the correct model — this is exactly what Temporal's workflow-task semantics provide, what LangGraph's `interrupt + thread_id` pattern encodes, and what Restate's durable execution primitives guarantee. The [LangGraph durable-execution reference](https://docs.langchain.com/oss/python/langgraph/interrupts) describes the same architecture: a checkpointer (here, the `events.jsonl` file) holds the durable record, a `thread_id` (here, the `run_id` + `lease_id`) identifies the active writer, and `Command(resume=...)` is the handoff mechanism. The [Temporal "history is the state" framing](https://chrisgavin.dev/blog/temporal-data-management) is the same idea in different vocabulary.
+The recovered control plane uses a more general model: each replica has a signed write-ahead journal, the grow-only Loro map is project authority, and causal frontiers plus explicit claims/conflicts govern concurrent work. This retains the useful [Temporal "history is the state" framing](https://chrisgavin.dev/blog/temporal-data-management) while supporting offline replicas and deterministic convergence.
 
 The prometheus-skill-pack's choice to put the KBD runtime in a Rust library (`kbd-runtime`) rather than coupling it to any single harness's event loop is the right separation of concerns. The bash hooks (`position-stop-gate.sh`, etc.) and the harness-specific adapters (Claude Code, Kimi, OpenCode, Codex) all consume the same `Runtime` API.
 
@@ -225,9 +225,9 @@ This means the **instruction plane is intrinsically simpler than the control pla
 
 The two planes meet in two places:
 - **The bash hooks** (`shared/scripts/*.sh`) read KBD state (via `current-waypoint.json`, soon via the `kbd-runtime` `replay()` API) and emit advisory or steering behavior. They are control-plane consumers.
-- **The skill bodies** (`SKILL.md` Markdown) sometimes instruct the agent to read KBD state, pause a run, claim a lease, etc. The kbd-process-orchestrator skill body is the canonical example. The skill is instruction-plane; what it *tells* the agent to do is control-plane.
+- **The skill bodies** (`SKILL.md` Markdown) sometimes instruct the agent to read KBD state, pause a run, or acquire a scoped CRDT claim. The kbd-process-orchestrator skill body is the canonical example. The skill is instruction-plane; what it *tells* the agent to do is control-plane.
 
-The seam is the `prometheus kbd ...` CLI surface (`tools/prometheus-cli/crates/prometheus-cli/src/commands/`). The kbd-process-orchestrator skill body tells the agent to run `prometheus kbd status` / `prometheus kbd pause` / `prometheus kbd claim` / `prometheus kbd release` / `prometheus kbd handoff` / `prometheus kbd audit`. This is the right design — the skill is declarative ("here's what to do when X happens"), and the CLI is imperative ("do this thing now"). The control plane's job is to make the CLI commands atomic and reversible.
+The seam is the `prometheus kbd ...` CLI surface (`tools/prometheus-cli/crates/prometheus-cli/src/commands/`). Its operator contract covers status, lifecycle controls, `claim acquire|renew|release`, conflict resolution, registry/adoption, audit, and observation. The skill is declarative ("here's what to do when X happens"), and the CLI is imperative ("do this thing now"). The control plane makes those commands signed, atomic, causally validated, and recoverable.
 
 ### 4.4 The multi-harness install story is more mature than the Fable 5 spec acknowledges
 
@@ -269,11 +269,11 @@ A skill that fires on Claude Code may not fire on Codex. A `position-stop-gate.s
 
 ### 5.5 The cross-tool handoff protocol document is the right reference; the file is not yet a state machine
 
-`skills/process/kbd-process-orchestrator/references/cross-tool-handoff.md` documents the handoff protocol. The Fable 5 control-plane plan replaces the document-driven protocol with an event-sourced `LeaseHandedOff` event. Once the runtime ships, `cross-tool-handoff.md` should be regenerated from the runtime API (the Rust library's public surface) and the document becomes a tutorial, not a spec. The current document is a useful tutorial; the `kbd-runtime` API surface is the canonical spec.
+Cross-tool coordination documentation is tutorial material; the `kbd-runtime` public API and event schema are canonical. Handoffs are represented by signed lifecycle/claim events and causal frontiers, not by a second document-driven state machine.
 
 ### 5.6 Doctor command is the right place to surface instruction-plane health
 
-`tools/prometheus-cli/crates/prometheus-cli/src/commands/doctor.rs` (the head of which I read) implements a multi-check diagnostic with severity levels, repair actions, and dry-run mode. The control-plane plan's P3 workstream adds "prometheus doctor checks for daemon reachability, schema generation, lease health, replication lag, and installed harness parity." This audit adds: the same doctor should report **(a) description-budget utilization per harness with the dropped-skill list if any, (b) skill-collision count and the worst offenders, (c) the last activation-eval baseline date and which skills have regressed, (d) the Prettier/description-format check status.** These are 4 new check methods, all reading existing telemetry — total effort 1–2 days.
+`tools/prometheus-cli/crates/prometheus-cli/src/commands/doctor.rs` implements a multi-check diagnostic with severity levels, repair actions, and dry-run mode. Control-plane diagnostics cover daemon reachability, journal/document integrity, registry and replica state, projection health, claim/conflict state, synchronization lag, and installed harness parity. This audit adds: the same doctor should report **(a) description-budget utilization per harness with the dropped-skill list if any, (b) skill-collision count and the worst offenders, (c) the last activation-eval baseline date and which skills have regressed, (d) the Prettier/description-format check status.** These are 4 new check methods, all reading existing telemetry — total effort 1–2 days.
 
 ### 5.7 The `prometheus-knowledge` MCP server is the right surface for activation telemetry
 
@@ -285,7 +285,7 @@ If the `kbd-control:` event journal is replicated via Loro, Loro's CRDT merge ne
 
 ### 5.9 The `nats`-style pub/sub mental model for hooks is a missed opportunity
 
-The hook chain is: UserPromptSubmit → bash script → emit advisory / context. Each hook is fire-and-forget. There is no shared state across hooks, and there is no way to subscribe to "the agent is about to claim a lease" before it happens. A lightweight in-process pub/sub (a `~/.prometheus/hooks.sock` Unix socket or a `prometheus hooks publish` / `prometheus hooks subscribe` CLI) would let the `pk-focus-on-prompt.sh` and the `position-on-prompt.sh` and the `pipeline-enforce.sh` coordinate. Effort 3–5 days; payoff is a unified hook observability surface that the doctor command can read.
+The hook chain is: UserPromptSubmit → bash script → emit advisory / context. Each hook is fire-and-forget. Typed AG-UI/SSE events now expose appended events, claim acquisition, claim conflicts, and singleton violations. Additional local hook pub/sub remains optional rather than a control-plane prerequisite.
 
 ---
 
@@ -320,13 +320,13 @@ This section lists changes that go beyond the Fable 5 spec. Each has a confidenc
 
 ### 6.3 Promote the `kbd-control:` Sovereign Sync domain to co-P1 — **MEDIUM-HIGH priority, 3–5 day effort**
 
-**Problem.** The Fable 5 control-plane plan defers `kbd-control:` to P2. The argument here is that the KBD runtime is already structured to emit events; the missing piece is a thin `Loro` or `iroh` adapter that takes the `events.jsonl` and replicates it peer-to-peer. Without this, the operator safety story is single-device: a MacBook Pro pause does not survive a Mac mini claim, and the cross-machine contract from the control-plane plan's Test and Acceptance Plan ("Pause in one harness, audit and revise the plan in another, then resume in a third at the exact recorded revision") is not testable.
+**Resolved problem.** The KBD runtime now publishes signed project events through the authoritative `kbd-control:` Loro document. A pause, claim, adjudication, or lifecycle change can converge across machines without treating a compatibility projection or audit export as input.
 
 **Solution.** A `kbd-control` adapter in `substrate/sovereign-sync/src/` that:
 1. Exposes a `subscribe(project_id) -> EventStream<RuntimeEvent>` method.
-2. Internally tails the `events.jsonl` file (using a `notify` watcher or a polling fallback) and emits events as they are appended.
-3. Provides a `replay(project_id, from_revision) -> RuntimeState` method that uses the existing `kbd-runtime::Runtime::replay()` to bootstrap a new device.
-4. Optionally provides a `loro_sync(project_id)` method that uses Loro's CRDT to merge the local event log with a peer's. (The Loro path is for the optimistic-merge case; the strict-lease case is the single-writer invariant the control-plane plan enforces.)
+2. Reconciles per-replica write-ahead journals into the grow-only project document and publishes signed deltas.
+3. Bootstraps a device from the project document and causal frontier, then replays only journal entries missing from that authority.
+4. Provides authoritative signed Loro-delta exchange for each project while retaining per-replica journals as write-ahead ingestion logs.
 
 **Effort:** 3–5 days. The adapter is thin; the existing `kbd-runtime` and `sovereign-sync` crates do the heavy lifting.
 
@@ -452,7 +452,7 @@ If the budget is tight, drop §6.3 from the first 15 days and accept that the cr
 3. **The re-anchor's kill-switch (PROMETHEUS_REANCHOR=0) needs a documented escape hatch.** The spec mentions it; this audit adds: the kill-switch should also produce a one-line log entry to a file (not stderr) so the agent can later diagnose "why did the re-anchor not happen." Effort 0.25 day.
 4. **The cross-harness parity check is only as good as the harness adapters.** If the Codex fallback prompts still contain machine-specific absolute paths (the Fable 5 P0 finding), the lint and budget tool are running on a corrupted install. The control-plane plan's P0 work on Codex relocatability is a precondition for any instruction-plane measurement on Codex.
 5. **The enforcement-critical skill set is a 10-skill list maintained by a person.** A skill added to the repo by a contributor is *not* in the list unless the contributor remembers to update `AGENT_BASE_RULES.md`. A `prometheus skill designate --enforcement-critical <skill>` CLI command is a 0.5-day addition that updates both the markdown and the C2 re-anchor list atomically.
-6. **The Sovereign Sync `kbd-control:` adapter's Loro path may be premature.** If the single-writer lease invariant is enforced strictly, the CRDT merge is never load-bearing — the journal is just replicated. Loro's value is in the optimistic-merge and ephemeral-awareness paths (presence, lease health), not the durable journal. The §6.3 MVP can ship with `iroh` for the durable journal and `Loro` only for presence. This narrows the surface and reduces the risk of CRDT-merge bugs corrupting the journal.
+6. **Resolved:** the Sovereign Sync `kbd-control:` adapter now carries signed authoritative Loro deltas. Imports are validated in isolation before atomic persistence; grow-only event-map validation prevents a peer update from deleting or rewriting accepted events.
 7. **The BDD-driven skill contract test (§6.2) is a meaningful additional test surface.** Two features today → 140 features tomorrow (one per skill). This is fine, but the existing `cucumber.mjs` glob will pick them all up, and the CI runtime will grow proportionally. The spec's per-PR vs nightly split applies here too: a smoke test of 10 enforcement-critical skills per PR, the full 140 nightly.
 
 ---
@@ -487,7 +487,7 @@ If the budget is tight, drop §6.3 from the first 15 days and accept that the cr
 
 ## 11. Final Verdict
 
-**Rev 1.2 correction:** the next step is no longer the 15-day implementation cut described below; most of that convergence work has landed. The current release decision is governed by the six production blockers in the superseding audit: cross-process authenticated Raft transport, real native-host adapter acceptance, measured discovery budgets, live cross-harness eval traces, elapsed shadow/canary evidence, and external security review. Until those pass, the supported disposition is shadow or opt-in canary, not general availability.
+**Rev 1.3 correction (2026-08-02):** the next step is no longer the 15-day implementation cut described below; the control-plane replacement has landed. Its final release decision is governed by live installed-service certification, while the instruction-plane readiness claims remain governed by measured discovery budgets, live cross-harness eval traces, elapsed rollout evidence, and external security review.
 
 The Fable 5 Instruction-Plane Improvement Specification is a sound document grounded in real measurement. Its priority ordering, its architectural direction, its cost ranges, and its sequencing decisions are all defensible against the audit evidence in this document. The P0 operator-safety patch is landed and verifiable. The KBD runtime is shipped as a Rust crate with a real test suite. The schema normalization to `changes` as an ordered array is in place. The multi-harness install is real and the per-harness parity work is the right next step.
 
