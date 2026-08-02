@@ -15,6 +15,7 @@ use futures::stream::{self, Stream, StreamExt};
 use serde::{Deserialize, Serialize};
 use std::time::Duration;
 use std::{convert::Infallible, sync::Arc};
+use tokio::sync::broadcast;
 use tokio::sync::mpsc;
 use tokio_stream::wrappers::ReceiverStream;
 use tracing::info;
@@ -67,6 +68,25 @@ pub enum AgUiEvent {
     },
     /// Task failed.
     Error { task_id: String, error: String },
+    EventAppended {
+        project_id: String,
+        event_id: String,
+        replica_id: String,
+        lamport: u64,
+        frontier: kbd_runtime::CausalFrontier,
+    },
+    ClaimAcquired {
+        project_id: String,
+        claim: kbd_runtime::ClaimRecord,
+    },
+    ClaimConflict {
+        project_id: String,
+        conflict: kbd_runtime::ConflictRecord,
+    },
+    SingletonViolation {
+        project_id: String,
+        conflict: kbd_runtime::ConflictRecord,
+    },
     /// Heartbeat (keepalive).
     Ping,
 }
@@ -76,16 +96,33 @@ pub enum AgUiEvent {
 // ---------------------------------------------------------------------------
 
 /// SSE stream state shared between Axum handlers.
-#[derive(Clone, Default)]
+#[derive(Clone)]
 pub struct AgUiState {
-    _placeholder: Arc<()>,
+    events: broadcast::Sender<AgUiEvent>,
+    _lifetime: Arc<()>,
 }
 
 impl AgUiState {
     pub fn new() -> Self {
+        let (events, _) = broadcast::channel(256);
         Self {
-            _placeholder: Arc::new(()),
+            events,
+            _lifetime: Arc::new(()),
         }
+    }
+
+    pub fn publish(&self, event: AgUiEvent) {
+        let _ = self.events.send(event);
+    }
+
+    pub fn subscribe(&self) -> broadcast::Receiver<AgUiEvent> {
+        self.events.subscribe()
+    }
+}
+
+impl Default for AgUiState {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
@@ -142,6 +179,40 @@ pub async fn ag_ui_ping() -> Sse<impl Stream<Item = Result<Event, Infallible>>> 
     let data = serde_json::to_string(&ping).unwrap_or_else(|_| "{}".into());
     let event = Ok::<_, Infallible>(Event::default().data(data));
     Sse::new(stream::once(async move { event }))
+}
+
+/// GET /api/v1/events — continuous typed operational event stream.
+pub async fn ag_ui_events(
+    State(state): State<AgUiState>,
+) -> Sse<impl Stream<Item = Result<Event, Infallible>>> {
+    let receiver = state.subscribe();
+    let stream = stream::unfold(receiver, |mut receiver| async move {
+        loop {
+            match receiver.recv().await {
+                Ok(event) => {
+                    let event_type = match &event {
+                        AgUiEvent::EventAppended { .. } => "event_appended",
+                        AgUiEvent::ClaimAcquired { .. } => "claim_acquired",
+                        AgUiEvent::ClaimConflict { .. } => "claim_conflict",
+                        AgUiEvent::SingletonViolation { .. } => "singleton_violation",
+                        AgUiEvent::TaskAccepted { .. } => "task_accepted",
+                        AgUiEvent::Progress { .. } => "progress",
+                        AgUiEvent::Done { .. } => "done",
+                        AgUiEvent::Error { .. } => "error",
+                        AgUiEvent::Ping => "ping",
+                    };
+                    let data = serde_json::to_string(&event).unwrap_or_else(|_| "{}".into());
+                    return Some((
+                        Ok::<_, Infallible>(Event::default().event(event_type).data(data)),
+                        receiver,
+                    ));
+                }
+                Err(broadcast::error::RecvError::Lagged(_)) => continue,
+                Err(broadcast::error::RecvError::Closed) => return None,
+            }
+        }
+    });
+    Sse::new(stream).keep_alive(KeepAlive::new().interval(Duration::from_secs(15)))
 }
 
 // ---------------------------------------------------------------------------
@@ -211,5 +282,29 @@ async fn execute_task(
                 .await;
             Ok(serde_json::json!({ "relayed": true }))
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[tokio::test]
+    async fn typed_operational_events_are_broadcast_and_stably_tagged() {
+        let state = AgUiState::new();
+        let mut receiver = state.subscribe();
+        state.publish(AgUiEvent::EventAppended {
+            project_id: "project-a".into(),
+            event_id: "event-a".into(),
+            replica_id: "replica-a".into(),
+            lamport: 4,
+            frontier: kbd_runtime::CausalFrontier(
+                [("replica-a".to_string(), 4)].into_iter().collect(),
+            ),
+        });
+        let event = receiver.recv().await.unwrap();
+        let json = serde_json::to_value(event).unwrap();
+        assert_eq!(json["type"], "event_appended");
+        assert_eq!(json["frontier"]["replica-a"], 4);
     }
 }

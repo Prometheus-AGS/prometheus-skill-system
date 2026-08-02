@@ -55,7 +55,7 @@ serialized across replay, validation, append, and fsync by one journal lock.
 ## Start here
 
 - [Canonical control plane](./control-plane): runtime, identity, events, and projections
-- [Tokens and authentication](./tokens-and-authentication): bearer token, operator ID, and device key
+- [Identity and authentication](./tokens-and-authentication): project, replica, operator, and device identities
 - [Tool guards](./bash-mutation-guard): the one remaining write guard, and why the Bash fence was removed
 - [Operator controls](./operator-controls): pause, revise, resume, cancel, and audit
 - [Migration and rollout](./migration-and-rollout): importing legacy ledgers and canary gates

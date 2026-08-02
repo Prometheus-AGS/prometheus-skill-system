@@ -7,35 +7,17 @@ sidebar_label: Rust SDK
 # Sovereign Client — Rust SDK
 
 `sovereign-client` provides typed models and convenience methods for the
-Sovereign Sync REST and AG-UI surfaces.
-
-## Current authentication limitation
-
-The server now requires a bearer token on every route except `/health`.
-`SovereignClient::new(base_url)` currently has no token parameter and does not
-attach an `Authorization` header.
-
-Therefore, against the current daemon:
-
-| Method | Current result |
-|---|---|
-| `health()` | Works |
-| `search_skills()` | HTTP `401` |
-| `sync_status()` | HTTP `401` |
-| `sync_push()` | HTTP `401` |
-| `stream_task()` | HTTP `401` |
-
-This is a documented SDK gap, not a server configuration problem. Do not
-disable server authentication to make the old client examples pass.
+loopback Sovereign Sync REST and AG-UI surfaces.
 
 ## Add to a workspace
 
 ```toml
 [dependencies]
 sovereign-client = { path = "../substrate/sovereign-client" }
+kbd-runtime = { path = "../substrate/kbd-runtime" }
 ```
 
-## Health-only use
+## Basic use
 
 ```rust
 use sovereign_client::SovereignClient;
@@ -44,38 +26,45 @@ use sovereign_client::SovereignClient;
 async fn main() -> anyhow::Result<()> {
     let client = SovereignClient::new("http://127.0.0.1:7892")?;
     let health = client.health().await?;
-    println!("Service: {}", health["service"]);
+    let sync = client.sync_status().await?;
+    println!("{}: {}", health["service"], sync.node_state);
     Ok(())
 }
 ```
 
-## Authenticated workaround with reqwest
+The daemon is loopback-only. Read routes do not use the removed bearer-token
+scheme. KBD mutation methods accept a `SignedCommandEnvelope`; the caller must
+sign a schema-v2 command with an active enrolled device key before submission.
 
-Keep token loading in a trusted backend:
+## KBD status and signed commands
 
 ```rust
-use reqwest::Client;
+use kbd_runtime::{CommandEnvelope, SignedCommandEnvelope};
 
-async fn sync_status(
-    base_url: &str,
-    token: &str,
-) -> anyhow::Result<serde_json::Value> {
-    let response = Client::new()
-        .get(format!("{base_url}/api/v1/sync/status"))
-        .bearer_auth(token)
-        .send()
-        .await?
-        .error_for_status()?;
+let state = client.kbd_status(project_id).await?;
+let command: CommandEnvelope = build_command_with_frontier(state.frontier);
+let signed = SignedCommandEnvelope::sign(command, &device_signer)?;
+let committed = client.submit_kbd_command(project_id, &signed).await?;
+```
 
-    Ok(response.json().await?)
+Normal commands use the current causal frontier. Scalar revision is a derived
+compatibility projection and is not the concurrency authority.
+
+## Continuous operational events
+
+```rust
+use futures::StreamExt;
+
+let mut events = client.stream_events().await?;
+while let Some(event) = events.next().await {
+    println!("{:?}", event?);
 }
 ```
 
-Read the token from the project-specific mode-`0600` file described in
-[Tokens and authentication](/docs/kbd/tokens-and-authentication). Never embed
-it in frontend JavaScript or a compiled web asset.
+The typed stream includes `event_appended`, `claim_acquired`,
+`claim_conflict`, and `singleton_violation` in addition to AG-UI task events.
 
-## Existing API surface
+## API surface
 
 ```text
 SovereignClient::new(base_url)
@@ -83,12 +72,12 @@ health()
 search_skills(query, limit)
 sync_status()
 sync_push(domain)
+kbd_status(project_id)
+submit_kbd_command(project_id, signed_command)
+kbd_claims(project_id)
 stream_task(task)
+stream_events()
 ```
-
-The next compatible SDK revision needs a constructor or builder that accepts a
-secret bearer token and applies it to REST and SSE requests without exposing
-the value through `Debug` or logs.
 
 ## Error types
 
@@ -101,6 +90,3 @@ pub enum ClientError {
     Api(String),
 }
 ```
-
-At present, `error_for_status()` reports authenticated-route `401` responses
-through `ClientError::Http`.

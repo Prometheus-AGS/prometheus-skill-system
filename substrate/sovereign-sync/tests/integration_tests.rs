@@ -299,19 +299,23 @@ async fn kbd_command_rejects_an_envelope_whose_project_disagrees_with_the_path()
     // could commit a signed event into a project other than the one addressed.
     let (app, project_id, _fixture) = test_project().await;
     let envelope = serde_json::json!({
-        "schemaVersion": "1",
-        "projectId": "00000000-0000-4000-8000-000000000000",
-        "runId": "run-mismatch",
-        "commandId": "11111111-2222-4333-8444-555555555555",
-        "expectedRevision": 0,
-        "actor": {
-            "kind": "harness",
-            "id": "operator",
-            "device": "test-device",
-            "harness": "claude-code",
-            "session": "test-session"
+        "command": {
+            "schemaVersion": "2",
+            "projectId": "00000000-0000-4000-8000-000000000000",
+            "runId": "run-mismatch",
+            "commandId": "11111111-2222-4333-8444-555555555555",
+            "frontier": {},
+            "actor": {
+                "kind": "harness",
+                "id": "operator",
+                "device": "test-device",
+                "harness": "claude-code",
+                "session": "test-session"
+            },
+            "command": { "type": "cancel", "payload": { "reason": "path mismatch" } }
         },
-        "command": { "type": "cancel", "payload": { "reason": "path mismatch" } }
+        "signerKeyId": "ed25519:not-checked-before-path-validation",
+        "signature": "invalid"
     });
     let req = Request::builder()
         .method("POST")
@@ -321,6 +325,87 @@ async fn kbd_command_rejects_an_envelope_whose_project_disagrees_with_the_path()
         .unwrap();
     let resp = app.oneshot(req).await.unwrap();
     assert_eq!(resp.status(), StatusCode::BAD_REQUEST);
+}
+
+#[tokio::test]
+async fn kbd_command_requires_device_signature_and_claim_surface_reports_commit() {
+    let skills_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../skills");
+    let fixture = tempfile::tempdir().unwrap();
+    let project_root = fixture.path().join("project");
+    let data_root = fixture.path().join("data");
+    std::fs::create_dir_all(&project_root).unwrap();
+    let runtime = kbd_runtime::Runtime::open_canonical_at(&project_root, &data_root).unwrap();
+    let project_id = runtime.project_manifest(false).unwrap().unwrap().project_id;
+    let initialized = runtime
+        .initialize(
+            project_id.clone(),
+            "run-a",
+            kbd_runtime::Actor::operator("operator", "test"),
+        )
+        .unwrap();
+    let state = AppState::try_new_at(&skills_dir, &project_root, &data_root, None)
+        .await
+        .unwrap();
+    let app = build_router(state);
+    let command = kbd_runtime::CommandEnvelope {
+        schema_version: "2".into(),
+        project_id: project_id.clone(),
+        run_id: initialized.run_id.clone(),
+        command_id: "claim-command-a".into(),
+        frontier: Some(initialized.frontier.clone()),
+        expected_revision: 0,
+        actor: kbd_runtime::Actor {
+            kind: kbd_runtime::ActorKind::Harness,
+            id: "holder-a".into(),
+            device: "device-a".into(),
+            harness: "test".into(),
+            session: "session-a".into(),
+        },
+        command: kbd_runtime::CommandKind::ClaimAcquire {
+            scope: "phase:recovery".into(),
+            mode: kbd_runtime::ClaimMode::Exclusive,
+            ttl_seconds: 300,
+            holder_id: "holder-a".into(),
+        },
+    };
+
+    let unsigned = Request::builder()
+        .method("POST")
+        .uri(format!("/api/v1/kbd/projects/{project_id}/commands"))
+        .header("content-type", "application/json")
+        .body(Body::from(serde_json::to_vec(&command).unwrap()))
+        .unwrap();
+    assert_eq!(
+        app.clone().oneshot(unsigned).await.unwrap().status(),
+        StatusCode::UNPROCESSABLE_ENTITY
+    );
+
+    let signed =
+        kbd_runtime::SignedCommandEnvelope::sign(command, &runtime.device_signer().unwrap())
+            .unwrap();
+    let request = Request::builder()
+        .method("POST")
+        .uri(format!("/api/v1/kbd/projects/{project_id}/claims/acquire"))
+        .header("content-type", "application/json")
+        .body(Body::from(serde_json::to_vec(&signed).unwrap()))
+        .unwrap();
+    assert_eq!(
+        app.clone().oneshot(request).await.unwrap().status(),
+        StatusCode::OK
+    );
+
+    let claims = Request::builder()
+        .method("GET")
+        .uri(format!("/api/v1/kbd/projects/{project_id}/claims"))
+        .body(Body::empty())
+        .unwrap();
+    let response = app.oneshot(claims).await.unwrap();
+    assert_eq!(response.status(), StatusCode::OK);
+    let body = axum::body::to_bytes(response.into_body(), 32_768)
+        .await
+        .unwrap();
+    let json: serde_json::Value = serde_json::from_slice(&body).unwrap();
+    assert_eq!(json["claims"].as_object().unwrap().len(), 1);
 }
 
 // ---------------------------------------------------------------------------

@@ -1,8 +1,8 @@
-//! Non-authoritative KBD presence.
+//! Signed authoritative KBD project synchronization.
 //!
-//! During journal stabilization, canonical workflow events remain in the
-//! fsynced runtime journal. This Loro document carries only ephemeral presence;
-//! authoritative Loro deltas are introduced by the project-document layer.
+//! The wire payload carries the complete Loro update set for one persisted
+//! `project.loro` document plus optional ephemeral presence. Per-replica
+//! journals remain local write-ahead logs and are never transmitted.
 
 use loro::{ExportMode, LoroDoc};
 use serde::{Deserialize, Serialize};
@@ -20,7 +20,7 @@ pub fn trusted_manifest(project_id: &str) -> SyncManifest {
         domain(project_id),
         DomainConfig::new(
             PrivacyClass::Trusted,
-            format!("kbd-control/{project_id}/presence/"),
+            format!("kbd-control/{project_id}/authority/"),
         ),
     );
     manifest
@@ -33,6 +33,43 @@ pub struct KbdPresence {
     pub harness: String,
     pub session: String,
     pub observed_revision: u64,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+pub struct KbdAuthorityPayload {
+    pub schema_version: String,
+    pub project_id: String,
+    pub project_updates: Vec<u8>,
+    #[serde(default)]
+    pub presence: Vec<KbdPresence>,
+}
+
+impl KbdAuthorityPayload {
+    pub fn encode(
+        project_id: impl Into<String>,
+        project_updates: Vec<u8>,
+        presence: Vec<KbdPresence>,
+    ) -> Result<Vec<u8>, SyncError> {
+        serde_json::to_vec(&Self {
+            schema_version: "2".into(),
+            project_id: project_id.into(),
+            project_updates,
+            presence,
+        })
+        .map_err(|error| SyncError::Crdt(error.to_string()))
+    }
+
+    pub fn decode(bytes: &[u8]) -> Result<Self, SyncError> {
+        let payload: Self =
+            serde_json::from_slice(bytes).map_err(|error| SyncError::Crdt(error.to_string()))?;
+        if payload.schema_version != "2" || payload.project_id.trim().is_empty() {
+            return Err(SyncError::Crdt(
+                "KBD authority payload requires schemaVersion 2 and projectId".into(),
+            ));
+        }
+        Ok(payload)
+    }
 }
 
 pub struct KbdPresenceDocument {
@@ -137,7 +174,7 @@ mod tests {
     }
 
     #[test]
-    fn presence_requires_an_authenticated_peer_and_contains_no_authority() {
+    fn presence_requires_an_authenticated_peer() {
         let first = KbdPresenceDocument::new("project-a");
         first.update(&presence()).unwrap();
         let snapshot = first.export_snapshot().unwrap();
@@ -149,10 +186,15 @@ mod tests {
         ));
         second.import_authenticated(&snapshot, true).unwrap();
         assert_eq!(second.entries().unwrap(), vec![presence()]);
+    }
 
-        let json = serde_json::to_value(presence()).unwrap();
-        for forbidden in ["events", "eventId", "command", "projectDocument", "transcript", "prompt"] {
-            assert!(json.get(forbidden).is_none());
-        }
+    #[test]
+    fn authority_payload_round_trips_loro_updates_and_presence() {
+        let encoded =
+            KbdAuthorityPayload::encode("project-a", vec![1, 2, 3], vec![presence()]).unwrap();
+        let decoded = KbdAuthorityPayload::decode(&encoded).unwrap();
+        assert_eq!(decoded.project_id, "project-a");
+        assert_eq!(decoded.project_updates, vec![1, 2, 3]);
+        assert_eq!(decoded.presence, vec![presence()]);
     }
 }

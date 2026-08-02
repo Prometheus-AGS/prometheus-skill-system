@@ -1,6 +1,6 @@
 use anyhow::Result;
 use bytes::Bytes;
-use iroh::{endpoint::presets, Endpoint, EndpointId};
+use iroh::{endpoint::presets, protocol::Router, Endpoint, EndpointId};
 use iroh_gossip::{
     api::{Event, GossipSender},
     net::Gossip,
@@ -12,8 +12,17 @@ use tokio::sync::{mpsc, RwLock};
 use tokio_stream::StreamExt;
 use tracing::{debug, info, warn};
 
+#[cfg(test)]
+use iroh::address_lookup::MemoryLookup;
+
 use crate::config::PeersConfig;
 use crate::error::SyncError;
+
+/// Loro authority update bundles can exceed iroh-gossip's 4 KiB default even
+/// for a small signed project. Keep a hard upper bound so malformed local
+/// callers cannot enqueue unbounded frames; larger histories must use a
+/// future incremental frontier exchange rather than silently truncating.
+const MAX_GOSSIP_MESSAGE_SIZE: usize = 16 * 1024 * 1024;
 
 /// FSM states for the P2P node.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -35,6 +44,7 @@ pub struct PeerMessage {
 pub struct P2PNode {
     state: Arc<RwLock<NodeState>>,
     endpoint: Endpoint,
+    router: Router,
     gossip: Gossip,
     topic: TopicId,
     message_tx: mpsc::Sender<PeerMessage>,
@@ -60,18 +70,42 @@ impl P2PNode {
         // N0 preset: pkarr DNS discovery + relay mode, with bundled crypto provider.
         let endpoint = Endpoint::builder(presets::N0).bind().await?;
 
-        let node_id = endpoint.id();
-        info!("P2P endpoint started — node_id={}", node_id);
+        Ok(Self::from_endpoint(topic, endpoint))
+    }
+
+    #[cfg(test)]
+    pub(crate) async fn new_with_memory_lookup(
+        operator_id: &[u8; 32],
+        address_lookup: MemoryLookup,
+    ) -> Result<(Self, mpsc::Receiver<PeerMessage>)> {
+        let topic = Self::derive_topic(operator_id);
+        let endpoint = Endpoint::builder(presets::Minimal)
+            .bind_addr(std::net::SocketAddr::from(([127, 0, 0, 1], 0)))?
+            .address_lookup(address_lookup.clone())
+            .bind()
+            .await?;
+        address_lookup.add_endpoint_info(endpoint.addr());
+        Ok(Self::from_endpoint(topic, endpoint))
+    }
+
+    fn from_endpoint(topic: TopicId, endpoint: Endpoint) -> (Self, mpsc::Receiver<PeerMessage>) {
+        info!("P2P endpoint started — node_id={}", endpoint.id());
 
         // spawn() is synchronous — no .await needed.
-        let gossip = Gossip::builder().spawn(endpoint.clone());
+        let gossip = Gossip::builder()
+            .max_message_size(MAX_GOSSIP_MESSAGE_SIZE)
+            .spawn(endpoint.clone());
+        let router = Router::builder(endpoint.clone())
+            .accept(iroh_gossip::ALPN, gossip.clone())
+            .spawn();
 
         let (message_tx, message_rx) = mpsc::channel(256);
 
-        Ok((
+        (
             Self {
                 state: Arc::new(RwLock::new(NodeState::Disconnected)),
                 endpoint,
+                router,
                 gossip,
                 topic,
                 message_tx,
@@ -79,7 +113,7 @@ impl P2PNode {
                 neighbors: Arc::new(RwLock::new(HashSet::new())),
             },
             message_rx,
-        ))
+        )
     }
 
     /// Derive a deterministic TopicId from the operator_id.
@@ -105,9 +139,9 @@ impl P2PNode {
 
         let topic = self
             .gossip
-            .subscribe_and_join(self.topic, bootstrap_peers)
+            .subscribe(self.topic, bootstrap_peers)
             .await
-            .map_err(|e| anyhow::anyhow!("gossip join failed: {e}"))?;
+            .map_err(|e| anyhow::anyhow!("gossip subscription failed: {e}"))?;
 
         let (sender, mut receiver) = topic.split();
 
@@ -184,6 +218,12 @@ impl P2PNode {
     /// Privacy gate is enforced upstream in `crdt.rs` — bytes reaching here
     /// have already passed the `PrivacyClass::LocalOnly` check.
     pub async fn broadcast(&self, payload: Bytes) -> Result<(), SyncError> {
+        if payload.len() > MAX_GOSSIP_MESSAGE_SIZE {
+            return Err(SyncError::Network(format!(
+                "gossip payload is {} bytes; maximum is {MAX_GOSSIP_MESSAGE_SIZE}",
+                payload.len()
+            )));
+        }
         {
             let mut state = self.state.write().await;
             *state = NodeState::Syncing;
@@ -256,7 +296,7 @@ impl P2PNode {
 
     /// Gracefully shut down the endpoint.
     pub async fn shutdown(self) -> Result<()> {
-        self.endpoint.close().await;
+        self.router.shutdown().await?;
         Ok(())
     }
 }

@@ -78,6 +78,20 @@ pub enum RuntimeError {
         from: WorkStatus,
         to: WorkStatus,
     },
+    #[error("claim scope {scope} is held by {holder_id}; refresh frontier {frontier:?} and rebase before retrying")]
+    ClaimBlocked {
+        scope: String,
+        holder_id: String,
+        frontier: CausalFrontier,
+    },
+    #[error("replica {replica_id} is read-only: {reason}")]
+    ReplicaReadOnly { replica_id: String, reason: String },
+    #[error("replica must halt writes intersecting {scope}; winner {winner_event_id}, frontier {frontier:?}; rebase manually before retrying")]
+    ReplicaRebaseRequired {
+        scope: String,
+        winner_event_id: String,
+        frontier: CausalFrontier,
+    },
 }
 
 pub type Result<T> = std::result::Result<T, RuntimeError>;
@@ -471,6 +485,34 @@ pub struct Blocker {
     pub resolution: Option<String>,
 }
 
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "snake_case")]
+pub enum ClaimMode {
+    Shared,
+    Exclusive,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+pub struct ClaimRecord {
+    pub claim_id: String,
+    pub scope: String,
+    pub replica_id: String,
+    pub holder_id: String,
+    pub mode: ClaimMode,
+    pub expires_at: DateTime<Utc>,
+    pub monotonic_token: u64,
+    pub acquired_event_id: String,
+    pub last_event_id: String,
+    pub released: bool,
+}
+
+impl ClaimRecord {
+    pub fn active_at(&self, now: DateTime<Utc>) -> bool {
+        !self.released && self.expires_at > now
+    }
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
 pub enum ConflictKind {
@@ -480,6 +522,7 @@ pub enum ConflictKind {
     Completion,
     Decision,
     Blocker,
+    Claim,
     Fold,
 }
 
@@ -596,6 +639,23 @@ pub enum EventKind {
     BlockerCleared {
         blocker_id: String,
         resolution: String,
+    },
+    ClaimAcquired {
+        claim_id: String,
+        scope: String,
+        holder_id: String,
+        mode: ClaimMode,
+        expires_at: DateTime<Utc>,
+        monotonic_token: u64,
+    },
+    ClaimRenewed {
+        claim_id: String,
+        expires_at: DateTime<Utc>,
+        monotonic_token: u64,
+    },
+    ClaimReleased {
+        claim_id: String,
+        monotonic_token: u64,
     },
     DeviceEnrolled {
         device: DeviceRecord,
@@ -847,6 +907,8 @@ pub struct KbdStateV2 {
     pub decisions: BTreeMap<String, Decision>,
     pub blockers: BTreeMap<String, Blocker>,
     #[serde(default)]
+    pub claims: BTreeMap<String, ClaimRecord>,
+    #[serde(default)]
     pub conflicts: BTreeMap<String, ConflictRecord>,
     pub devices: BTreeMap<String, DeviceRecord>,
     pub command_revisions: BTreeMap<String, u64>,
@@ -932,6 +994,53 @@ pub struct CommandEnvelope {
     pub expected_revision: u64,
     pub actor: Actor,
     pub command: CommandKind,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+pub struct SignedCommandEnvelope {
+    pub command: CommandEnvelope,
+    pub signer_key_id: String,
+    pub signature: String,
+}
+
+impl SignedCommandEnvelope {
+    pub fn sign(command: CommandEnvelope, signer: &DeviceSigner) -> Result<Self> {
+        let signer_key_id = signer.key_id().to_string();
+        let bytes = remote_command_signable_bytes(&command, &signer_key_id)?;
+        Ok(Self {
+            command,
+            signer_key_id,
+            signature: signer.sign_base64(&bytes),
+        })
+    }
+
+    pub fn verify(&self, state: &KbdStateV2) -> Result<()> {
+        let device = state
+            .devices
+            .get(&self.signer_key_id)
+            .filter(|device| device.status == DeviceStatus::Active)
+            .ok_or_else(|| RuntimeError::UnknownSigner(self.signer_key_id.clone()))?;
+        let bytes = remote_command_signable_bytes(&self.command, &self.signer_key_id)?;
+        if !verify_ed25519_signature(&device.public_key, &bytes, &self.signature) {
+            return Err(RuntimeError::Signature {
+                revision: state.revision,
+                reason: "remote command signature is invalid".into(),
+            });
+        }
+        Ok(())
+    }
+}
+
+fn remote_command_signable_bytes(
+    command: &CommandEnvelope,
+    signer_key_id: &str,
+) -> Result<Vec<u8>> {
+    let mut bytes = serde_jcs::to_vec(command)
+        .map_err(|error| RuntimeError::InvalidState(error.to_string()))?;
+    bytes.push(0);
+    bytes.extend_from_slice(signer_key_id.as_bytes());
+    Ok(bytes)
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
@@ -1025,6 +1134,19 @@ pub enum CommandKind {
         winner_event_id: String,
         reason: String,
     },
+    ClaimAcquire {
+        scope: String,
+        mode: ClaimMode,
+        ttl_seconds: u64,
+        holder_id: String,
+    },
+    ClaimRenew {
+        claim_id: String,
+        ttl_seconds: u64,
+    },
+    ClaimRelease {
+        claim_id: String,
+    },
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
@@ -1071,6 +1193,7 @@ impl Default for KbdStateV2 {
             completion,
             decisions: BTreeMap::new(),
             blockers: BTreeMap::new(),
+            claims: BTreeMap::new(),
             conflicts: BTreeMap::new(),
             devices: BTreeMap::new(),
             command_revisions: BTreeMap::new(),
@@ -1474,6 +1597,89 @@ impl KbdStateV2 {
                 })?;
                 blocker.resolved = true;
                 blocker.resolution = Some(resolution.clone());
+            }
+            EventKind::ClaimAcquired {
+                claim_id,
+                scope,
+                holder_id,
+                mode,
+                expires_at,
+                monotonic_token,
+            } => {
+                if claim_id.trim().is_empty()
+                    || scope.trim().is_empty()
+                    || holder_id.trim().is_empty()
+                    || *monotonic_token == 0
+                {
+                    return Err(RuntimeError::InvalidState(
+                        "claim acquisition requires non-empty IDs/scope and a positive token"
+                            .into(),
+                    ));
+                }
+                if self.claims.contains_key(claim_id) {
+                    return Err(RuntimeError::WorkItemExists {
+                        kind: "claim",
+                        id: claim_id.clone(),
+                    });
+                }
+                self.claims.insert(
+                    claim_id.clone(),
+                    ClaimRecord {
+                        claim_id: claim_id.clone(),
+                        scope: scope.clone(),
+                        replica_id: if event.replica_id.is_empty() {
+                            "legacy".into()
+                        } else {
+                            event.replica_id.clone()
+                        },
+                        holder_id: holder_id.clone(),
+                        mode: *mode,
+                        expires_at: *expires_at,
+                        monotonic_token: *monotonic_token,
+                        acquired_event_id: event.event_id.clone(),
+                        last_event_id: event.event_id.clone(),
+                        released: false,
+                    },
+                );
+            }
+            EventKind::ClaimRenewed {
+                claim_id,
+                expires_at,
+                monotonic_token,
+            } => {
+                let claim = self.claims.get_mut(claim_id).ok_or_else(|| {
+                    RuntimeError::WorkItemNotFound {
+                        kind: "claim",
+                        id: claim_id.clone(),
+                    }
+                })?;
+                if claim.released || *monotonic_token <= claim.monotonic_token {
+                    return Err(RuntimeError::InvalidState(format!(
+                        "claim {claim_id} renewal token must increase monotonically"
+                    )));
+                }
+                claim.expires_at = *expires_at;
+                claim.monotonic_token = *monotonic_token;
+                claim.last_event_id = event.event_id.clone();
+            }
+            EventKind::ClaimReleased {
+                claim_id,
+                monotonic_token,
+            } => {
+                let claim = self.claims.get_mut(claim_id).ok_or_else(|| {
+                    RuntimeError::WorkItemNotFound {
+                        kind: "claim",
+                        id: claim_id.clone(),
+                    }
+                })?;
+                if *monotonic_token <= claim.monotonic_token {
+                    return Err(RuntimeError::InvalidState(format!(
+                        "claim {claim_id} release token must increase monotonically"
+                    )));
+                }
+                claim.monotonic_token = *monotonic_token;
+                claim.last_event_id = event.event_id.clone();
+                claim.released = true;
             }
             EventKind::DeviceEnrolled { device } => {
                 if self.devices.contains_key(&device.key_id) {
@@ -1966,6 +2172,7 @@ pub struct Runtime {
     project_root: PathBuf,
     replica_id: String,
     key_storage: KeyStorage,
+    read_only: bool,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -2070,6 +2277,7 @@ impl Runtime {
             project_root,
             replica_id: "legacy".into(),
             key_storage,
+            read_only: false,
         }
     }
 
@@ -2084,6 +2292,7 @@ impl Runtime {
             project_root,
             replica_id: registration.registration.replica_id,
             key_storage: KeyStorage::PlatformCredentialStore,
+            read_only: registration.registration.read_only,
         };
         runtime.reconcile_project_document()?;
         Ok(runtime)
@@ -2104,6 +2313,7 @@ impl Runtime {
             project_root,
             replica_id: registration.registration.replica_id,
             key_storage: KeyStorage::PlatformCredentialStore,
+            read_only: registration.registration.read_only,
         };
         runtime.reconcile_project_document()?;
         Ok(runtime)
@@ -2140,6 +2350,7 @@ impl Runtime {
             project_root,
             replica_id: registration.replica_id,
             key_storage: KeyStorage::PlatformCredentialStore,
+            read_only: registration.read_only,
         };
         runtime.reconcile_project_document()?;
         Ok(runtime)
@@ -2193,9 +2404,6 @@ impl Runtime {
     fn device_key_path(&self) -> PathBuf {
         self.root.join("device-key.json")
     }
-
-    /// Return the local REST bearer token, creating it atomically with mode
-    /// 0600 when this is the first daemon/client process on the device.
 
     pub fn device_signer(&self) -> Result<DeviceSigner> {
         if let Some(path) = std::env::var_os("PROMETHEUS_DEVICE_KEY_FILE") {
@@ -2563,6 +2771,28 @@ impl Runtime {
         self.fold_authority_events(&self.events()?)
     }
 
+    pub fn export_project_updates(&self) -> Result<Vec<u8>> {
+        self.reconcile_project_document()?;
+        self.project_document()
+            .ok_or_else(|| {
+                RuntimeError::InvalidState(
+                    "authoritative Loro sync requires a canonical runtime".into(),
+                )
+            })?
+            .export_updates()
+    }
+
+    pub fn import_project_updates(&self, updates: &[u8]) -> Result<(usize, RuntimeState)> {
+        self.reconcile_project_document()?;
+        self.project_document()
+            .ok_or_else(|| {
+                RuntimeError::InvalidState(
+                    "authoritative Loro sync requires a canonical runtime".into(),
+                )
+            })?
+            .import_updates(updates)
+    }
+
     fn fold_authority_events(&self, events: &[Event]) -> Result<RuntimeState> {
         if self.project_document().is_some() {
             project_document::fold_project_events(events)
@@ -2619,6 +2849,7 @@ impl Runtime {
         run_id: impl Into<String>,
         actor: Actor,
     ) -> Result<RuntimeState> {
+        self.ensure_writable_replica()?;
         fs::create_dir_all(self.journal_root())?;
         let lock = OpenOptions::new()
             .create(true)
@@ -2698,6 +2929,7 @@ impl Runtime {
         command_id: impl Into<String>,
         kind: EventKind,
     ) -> Result<RuntimeState> {
+        self.ensure_writable_replica()?;
         let command_id = command_id.into();
         if command_id.trim().is_empty() {
             return Err(RuntimeError::InvalidState(
@@ -2734,6 +2966,7 @@ impl Runtime {
     }
 
     pub fn execute_command(&self, envelope: CommandEnvelope) -> Result<CommandResult> {
+        self.ensure_writable_replica()?;
         if !matches!(envelope.schema_version.as_str(), "1" | "2") {
             return Err(RuntimeError::InvalidState(format!(
                 "unsupported command schemaVersion {}",
@@ -2789,6 +3022,8 @@ impl Runtime {
             });
         }
         validate_command_frontier(&state, &envelope)?;
+        validate_claim_write(&state, &envelope.actor, &envelope.command)?;
+        self.validate_replica_write(&state, &envelope.actor, &envelope.command)?;
         let kind = prepare_command_event(&state, &envelope.actor, &envelope.command)?;
         let project_id = state.project_id.clone();
         let run_id = state.run_id.clone();
@@ -2818,6 +3053,7 @@ impl Runtime {
         state: &KbdStateV2,
         envelope: CommandEnvelope,
     ) -> Result<Event> {
+        self.ensure_writable_replica()?;
         if !matches!(envelope.schema_version.as_str(), "1" | "2") {
             return Err(RuntimeError::InvalidState(format!(
                 "unsupported command schemaVersion {}",
@@ -2845,6 +3081,8 @@ impl Runtime {
             return Err(RuntimeError::DuplicateCommand(envelope.command_id));
         }
         validate_command_frontier(state, &envelope)?;
+        validate_claim_write(state, &envelope.actor, &envelope.command)?;
+        self.validate_replica_write(state, &envelope.actor, &envelope.command)?;
         let kind = prepare_command_event(state, &envelope.actor, &envelope.command)?;
         let replica_head = state.replica_heads.get(&self.replica_id);
         let mut event = Event {
@@ -2872,6 +3110,55 @@ impl Runtime {
         };
         event.seal(&self.device_signer()?)?;
         Ok(event)
+    }
+
+    fn ensure_writable_replica(&self) -> Result<()> {
+        if self.read_only {
+            return Err(RuntimeError::ReplicaReadOnly {
+                replica_id: self.replica_id.clone(),
+                reason: "registry classification forbids authoritative writes".into(),
+            });
+        }
+        Ok(())
+    }
+
+    fn validate_replica_write(
+        &self,
+        state: &RuntimeState,
+        actor: &Actor,
+        command: &CommandKind,
+    ) -> Result<()> {
+        let Some(scope) = command_scope(command) else {
+            return Ok(());
+        };
+        let now = Utc::now();
+        if let Some(claim) = state.claims.values().find(|claim| {
+            claim.mode == ClaimMode::Exclusive
+                && claim.holder_id != actor.id
+                && claim.active_at(now)
+                && scopes_intersect(&claim.scope, &scope)
+        }) {
+            return Err(RuntimeError::ReplicaRebaseRequired {
+                scope: claim.scope.clone(),
+                winner_event_id: claim.acquired_event_id.clone(),
+                frontier: state.frontier.clone(),
+            });
+        }
+        if let Some(conflict) = state.conflicts.values().find(|conflict| {
+            conflict.resolved_by_event_id.is_none()
+                && matches!(
+                    conflict.kind,
+                    ConflictKind::Lifecycle | ConflictKind::ActivePath | ConflictKind::Completion
+                )
+                && scopes_intersect(&conflict.slot, &scope)
+        }) {
+            return Err(RuntimeError::ReplicaRebaseRequired {
+                scope,
+                winner_event_id: conflict.winner_event_id.clone(),
+                frontier: state.frontier.clone(),
+            });
+        }
+        Ok(())
     }
 
     #[allow(clippy::too_many_arguments)]
@@ -3548,6 +3835,7 @@ impl Runtime {
             project_root: comparison_root.clone(),
             replica_id: self.replica_id.clone(),
             key_storage: KeyStorage::LegacyRuntimeFile,
+            read_only: false,
         };
         comparison_runtime.write_compatibility_projections_from_state(state, projection_time)?;
         let expected_root = comparison_root.join(".kbd-orchestrator");
@@ -4705,6 +4993,108 @@ fn validate_command_frontier(state: &RuntimeState, envelope: &CommandEnvelope) -
     Ok(())
 }
 
+fn validate_claim_write(state: &RuntimeState, actor: &Actor, command: &CommandKind) -> Result<()> {
+    let Some(command_scope) = command_scope(command) else {
+        return Ok(());
+    };
+    for conflict in state
+        .conflicts
+        .values()
+        .filter(|conflict| conflict.kind == ConflictKind::Claim)
+    {
+        let winner = conflict
+            .candidates
+            .iter()
+            .find(|candidate| candidate.event_id == conflict.winner_event_id);
+        let winner_holder = winner
+            .and_then(|candidate| candidate.value.get("payload"))
+            .and_then(|payload| payload.get("holderId"))
+            .and_then(serde_json::Value::as_str)
+            .unwrap_or("unknown");
+        for candidate in &conflict.candidates {
+            let payload = candidate.value.get("payload");
+            let holder = payload
+                .and_then(|payload| payload.get("holderId"))
+                .and_then(serde_json::Value::as_str)
+                .unwrap_or(&candidate.actor_id);
+            let scope = payload
+                .and_then(|payload| payload.get("scope"))
+                .and_then(serde_json::Value::as_str)
+                .unwrap_or_default();
+            if candidate.event_id != conflict.winner_event_id
+                && holder == actor.id
+                && scopes_intersect(scope, &command_scope)
+            {
+                return Err(RuntimeError::ClaimBlocked {
+                    scope: scope.to_string(),
+                    holder_id: winner_holder.to_string(),
+                    frontier: state.frontier.clone(),
+                });
+            }
+        }
+    }
+    Ok(())
+}
+
+fn scopes_intersect(left: &str, right: &str) -> bool {
+    left == right
+        || right
+            .strip_prefix(left)
+            .is_some_and(|suffix| suffix.starts_with('/'))
+        || left
+            .strip_prefix(right)
+            .is_some_and(|suffix| suffix.starts_with('/'))
+}
+
+fn command_scope(command: &CommandKind) -> Option<String> {
+    Some(match command {
+        CommandKind::ClaimAcquire { .. }
+        | CommandKind::ClaimRenew { .. }
+        | CommandKind::ClaimRelease { .. }
+        | CommandKind::ConflictResolve { .. }
+        | CommandKind::DeviceEnroll { .. }
+        | CommandKind::DeviceRevoke { .. }
+        | CommandKind::DeviceRotate { .. } => return None,
+        CommandKind::Pause { .. }
+        | CommandKind::Cancel { .. }
+        | CommandKind::LifecycleTransition { .. }
+        | CommandKind::Resume { .. }
+        | CommandKind::PlanRevise { .. } => "singleton:lifecycle".into(),
+        CommandKind::ActivePathSet { .. } => "singleton:active_path".into(),
+        CommandKind::PhaseDefine { phase } => format!("phase:{}", phase.id),
+        CommandKind::PhaseTransition { phase_id, .. } => format!("phase:{phase_id}"),
+        CommandKind::StageEnter { phase_id, stage } => {
+            format!("phase:{phase_id}/stage:{}", stage.id)
+        }
+        CommandKind::StageTransition {
+            phase_id, stage_id, ..
+        } => format!("phase:{phase_id}/stage:{stage_id}"),
+        CommandKind::ChangeRegister { phase_id, change } => {
+            format!("phase:{phase_id}/change:{}", change.id)
+        }
+        CommandKind::ChangeTransition {
+            phase_id,
+            change_id,
+            ..
+        } => format!("phase:{phase_id}/change:{change_id}"),
+        CommandKind::TaskRegister {
+            phase_id,
+            change_id,
+            task,
+        } => format!("phase:{phase_id}/change:{change_id}/task:{}", task.id),
+        CommandKind::TaskTransition {
+            phase_id,
+            change_id,
+            task_id,
+            ..
+        } => format!("phase:{phase_id}/change:{change_id}/task:{task_id}"),
+        CommandKind::CompletionSet { dimension, .. } => format!("completion:{dimension:?}"),
+        CommandKind::DecisionRecord { decision } => format!("decision:{}", decision.id),
+        CommandKind::BlockerRecord { blocker } => format!("blocker:{}", blocker.id),
+        CommandKind::BlockerClear { blocker_id, .. } => format!("blocker:{blocker_id}"),
+    })
+}
+
 fn prepare_command_event(
     state: &RuntimeState,
     actor: &Actor,
@@ -4967,7 +5357,111 @@ fn prepare_command_event(
                 reason: reason.clone(),
             }
         }
+        CommandKind::ClaimAcquire {
+            scope,
+            mode,
+            ttl_seconds,
+            holder_id,
+        } => {
+            validate_claim_ttl(*ttl_seconds)?;
+            if scope.trim().is_empty() || holder_id.trim().is_empty() {
+                return Err(RuntimeError::InvalidState(
+                    "claim scope and holderId must not be empty".into(),
+                ));
+            }
+            if holder_id != &actor.id {
+                return Err(RuntimeError::InvalidState(
+                    "claim holderId must match actor.id".into(),
+                ));
+            }
+            let now = Utc::now();
+            if let Some(existing) = state.claims.values().find(|claim| {
+                claim.scope == *scope
+                    && claim.holder_id != *holder_id
+                    && claim.active_at(now)
+                    && (*mode == ClaimMode::Exclusive || claim.mode == ClaimMode::Exclusive)
+            }) {
+                return Err(RuntimeError::ClaimBlocked {
+                    scope: scope.clone(),
+                    holder_id: existing.holder_id.clone(),
+                    frontier: state.frontier.clone(),
+                });
+            }
+            let monotonic_token = state
+                .claims
+                .values()
+                .filter(|claim| claim.scope == *scope)
+                .map(|claim| claim.monotonic_token)
+                .max()
+                .unwrap_or(0)
+                .saturating_add(1);
+            EventKind::ClaimAcquired {
+                claim_id: Uuid::new_v4().to_string(),
+                scope: scope.clone(),
+                holder_id: holder_id.clone(),
+                mode: *mode,
+                expires_at: now + chrono::Duration::seconds(*ttl_seconds as i64),
+                monotonic_token,
+            }
+        }
+        CommandKind::ClaimRenew {
+            claim_id,
+            ttl_seconds,
+        } => {
+            validate_claim_ttl(*ttl_seconds)?;
+            let claim =
+                state
+                    .claims
+                    .get(claim_id)
+                    .ok_or_else(|| RuntimeError::WorkItemNotFound {
+                        kind: "claim",
+                        id: claim_id.clone(),
+                    })?;
+            if claim.released {
+                return Err(RuntimeError::InvalidState(format!(
+                    "claim {claim_id} is already released"
+                )));
+            }
+            if claim.holder_id != actor.id && actor.kind != ActorKind::Operator {
+                return Err(RuntimeError::InvalidState(
+                    "only the claim holder or an operator may renew a claim".into(),
+                ));
+            }
+            EventKind::ClaimRenewed {
+                claim_id: claim_id.clone(),
+                expires_at: Utc::now() + chrono::Duration::seconds(*ttl_seconds as i64),
+                monotonic_token: claim.monotonic_token.saturating_add(1),
+            }
+        }
+        CommandKind::ClaimRelease { claim_id } => {
+            let claim =
+                state
+                    .claims
+                    .get(claim_id)
+                    .ok_or_else(|| RuntimeError::WorkItemNotFound {
+                        kind: "claim",
+                        id: claim_id.clone(),
+                    })?;
+            if claim.holder_id != actor.id && actor.kind != ActorKind::Operator {
+                return Err(RuntimeError::InvalidState(
+                    "only the claim holder or an operator may release a claim".into(),
+                ));
+            }
+            EventKind::ClaimReleased {
+                claim_id: claim_id.clone(),
+                monotonic_token: claim.monotonic_token.saturating_add(1),
+            }
+        }
     })
+}
+
+fn validate_claim_ttl(ttl_seconds: u64) -> Result<()> {
+    if !(1..=86_400).contains(&ttl_seconds) {
+        return Err(RuntimeError::InvalidState(
+            "claim TTL must be between 1 and 86400 seconds".into(),
+        ));
+    }
+    Ok(())
 }
 
 #[cfg(test)]
@@ -5204,6 +5698,40 @@ mod tests {
     }
 
     #[test]
+    fn remote_command_signature_covers_the_full_schema_v2_envelope() {
+        let dir = tempdir().unwrap();
+        let runtime = Runtime::open(dir.path());
+        let state = runtime
+            .initialize("project", "run", actor(ActorKind::Operator, "operator"))
+            .unwrap();
+        let signer = runtime.device_signer().unwrap();
+        let command = CommandEnvelope {
+            schema_version: "2".into(),
+            project_id: state.project_id.clone(),
+            run_id: state.run_id.clone(),
+            command_id: "signed-command".into(),
+            frontier: Some(state.frontier.clone()),
+            expected_revision: 0,
+            actor: actor(ActorKind::Harness, "remote"),
+            command: CommandKind::PlanRevise {
+                reason: "signed remote mutation".into(),
+                exact_next_work: Some("continue".into()),
+            },
+        };
+        let signed = SignedCommandEnvelope::sign(command, &signer).unwrap();
+        signed.verify(&state).unwrap();
+
+        let mut tampered = signed;
+        if let CommandKind::PlanRevise { reason, .. } = &mut tampered.command.command {
+            *reason = "tampered".into();
+        }
+        assert!(matches!(
+            tampered.verify(&state),
+            Err(RuntimeError::Signature { .. })
+        ));
+    }
+
+    #[test]
     fn explicit_headless_device_key_is_validated_before_use() {
         let dir = tempdir().unwrap();
         let path = dir.path().join("device-key.json");
@@ -5354,6 +5882,70 @@ mod tests {
         );
         assert_eq!(runtime.events().unwrap().len(), 2);
         assert_eq!(runtime.replay().unwrap().revision, initialized.revision + 1);
+    }
+
+    #[test]
+    fn losing_claim_holder_is_blocked_with_winner_frontier_and_rebase_instruction() {
+        let mut state = RuntimeState::default();
+        state.frontier.advance("winner-replica", 4);
+        state.conflicts.insert(
+            "claim-conflict".into(),
+            ConflictRecord {
+                id: "claim-conflict".into(),
+                slot: "claim:phase:recovery".into(),
+                kind: ConflictKind::Claim,
+                candidates: vec![
+                    ConflictCandidate {
+                        event_id: "loser-event".into(),
+                        replica_id: "loser-replica".into(),
+                        lamport: 2,
+                        actor_id: "holder-a".into(),
+                        value: serde_json::json!({
+                            "type":"claim_acquired",
+                            "payload":{"scope":"phase:recovery","holderId":"holder-a"}
+                        }),
+                    },
+                    ConflictCandidate {
+                        event_id: "winner-event".into(),
+                        replica_id: "winner-replica".into(),
+                        lamport: 4,
+                        actor_id: "holder-b".into(),
+                        value: serde_json::json!({
+                            "type":"claim_acquired",
+                            "payload":{"scope":"phase:recovery","holderId":"holder-b"}
+                        }),
+                    },
+                ],
+                winner_event_id: "winner-event".into(),
+                resolved_by_event_id: None,
+                resolution_reason: None,
+            },
+        );
+        let losing_actor = Actor {
+            kind: ActorKind::Harness,
+            id: "holder-a".into(),
+            device: "device-a".into(),
+            harness: "test".into(),
+            session: "session-a".into(),
+        };
+        let error = validate_claim_write(
+            &state,
+            &losing_actor,
+            &CommandKind::PhaseTransition {
+                phase_id: "recovery".into(),
+                to: WorkStatus::InProgress,
+            },
+        )
+        .unwrap_err();
+        assert!(matches!(
+            &error,
+            RuntimeError::ClaimBlocked {
+                holder_id,
+                frontier,
+                ..
+            } if holder_id == "holder-b" && frontier == &state.frontier
+        ));
+        assert!(error.to_string().contains("rebase"));
     }
 
     #[test]
@@ -5785,6 +6377,7 @@ mod tests {
             project_root,
             replica_id: "replica-a".into(),
             key_storage: KeyStorage::PlatformCredentialStore,
+            read_only: false,
         };
         fs::create_dir_all(runtime.journal_root()).unwrap();
         let mut journal = OpenOptions::new()
@@ -5804,6 +6397,54 @@ mod tests {
         assert_eq!(runtime.reconcile_project_document().unwrap(), 0);
         assert_eq!(document.events().unwrap(), source_events);
         assert_eq!(runtime.replay().unwrap().revision, 1);
+    }
+
+    #[test]
+    fn same_machine_replicas_converge_through_the_shared_project_document() {
+        let fixture = tempdir().unwrap();
+        let first_root = fixture.path().join("first");
+        let second_root = fixture.path().join("second");
+        let data_root = fixture.path().join("data");
+        fs::create_dir_all(&first_root).unwrap();
+        fs::create_dir_all(second_root.join(".prometheus")).unwrap();
+
+        let first = Runtime::open_canonical_at(&first_root, &data_root).unwrap();
+        let project_id = first.project_manifest(false).unwrap().unwrap().project_id;
+        let initialized = first
+            .initialize(project_id, "run-a", actor(ActorKind::Operator, "operator"))
+            .unwrap();
+        fs::copy(
+            first_root.join(".prometheus/project.json"),
+            second_root.join(".prometheus/project.json"),
+        )
+        .unwrap();
+        let second = Runtime::open_canonical_at(&second_root, &data_root).unwrap();
+        assert_ne!(first.replica_id(), second.replica_id());
+        assert_eq!(second.replay().unwrap(), initialized);
+
+        let actor = actor(ActorKind::Harness, "replica-two");
+        let claimed = second
+            .execute_command(CommandEnvelope {
+                schema_version: "2".into(),
+                project_id: initialized.project_id.clone(),
+                run_id: initialized.run_id.clone(),
+                command_id: "claim-on-second".into(),
+                frontier: Some(initialized.frontier.clone()),
+                expected_revision: 0,
+                actor: actor.clone(),
+                command: CommandKind::ClaimAcquire {
+                    scope: "phase:sync".into(),
+                    mode: ClaimMode::Shared,
+                    ttl_seconds: 300,
+                    holder_id: actor.id,
+                },
+            })
+            .unwrap()
+            .state;
+        assert_eq!(claimed.claims.len(), 1);
+        let converged = first.replay().unwrap();
+        assert_eq!(converged.frontier, claimed.frontier);
+        assert_eq!(converged.claims, claimed.claims);
     }
 
     #[test]
@@ -5832,6 +6473,7 @@ mod tests {
             project_root,
             replica_id: "initial-replica".into(),
             key_storage: KeyStorage::PlatformCredentialStore,
+            read_only: false,
         };
         fs::create_dir_all(runtime.runtime_root()).unwrap();
         let legacy_path = runtime.runtime_root().join("events.jsonl");

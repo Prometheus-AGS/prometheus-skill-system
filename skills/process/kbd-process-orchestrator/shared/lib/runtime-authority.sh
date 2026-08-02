@@ -29,16 +29,3 @@ kbd_runtime_status_json() {
   }
   prometheus kbd --path "$root" status --json
 }
-
-kbd_runtime_mutation_args() {
-  local root="${1:-.}"
-  local command_id="$2"
-  local state revision
-  state="$(kbd_runtime_status_json "$root")" || return 1
-  revision="$(printf '%s' "$state" | jq -r '.revision // empty')"
-  [ -n "$revision" ] || {
-    printf 'kbd-runtime: could not resolve current revision\n' >&2
-    return 1
-  }
-  printf '%s\n%s\n' "$revision" "$command_id"
-}

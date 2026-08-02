@@ -27,20 +27,12 @@ tail -n 100 "$HOME/.prometheus/logs/sovereign-sync.stderr.log"
 prometheus doctor --json | jq .
 ```
 
-## Token receives `401`
+## KBD mutation receives `401`
 
-The running daemon loaded a different token.
-
-Check:
-
-- project ID used to derive the token path;
-- `PROMETHEUS_CONTROL_TOKEN_FILE` in the daemon;
-- `PROMETHEUS_CONTROL_TOKEN_FILE` in the harness;
-- whether the token was rotated after the daemon started;
-- whether the requested project UUID is registered.
-
-Restart Sovereign Sync after correcting the path. Do not copy `operator_id`
-into the bearer-token file.
+KBD mutation POSTs reject unsigned, tampered, unknown-device, and revoked-device
+envelopes. Confirm that the client signed a schema-v2 command with the current
+device key, that the key ID is enrolled and active, and that the command was
+not changed after signing. The removed bearer-token setting is not a remedy.
 
 ## KBD route receives `404`
 
@@ -48,7 +40,7 @@ into the bearer-token file.
 UUID. Register an existing manifest-bearing checkout and retry; do not infer or
 rewrite its UUID from Git evidence.
 
-`kbd runtime is not initialized` means authentication succeeded, but no
+`kbd runtime is not initialized` means the project is registered but no
 committed state exists. Inventory and apply migration:
 
 ```bash

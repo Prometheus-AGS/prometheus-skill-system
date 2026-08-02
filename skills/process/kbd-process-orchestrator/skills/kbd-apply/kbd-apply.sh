@@ -416,10 +416,8 @@ runtime_task_transition() {
       --arg phase "$phase" --arg change "$change" \
       '.phases[$phase].changes[$change]' >/dev/null 2>&1; then
     command_id="apply:change-register:${phase}:${change}"
-    mutation="$(kbd_runtime_mutation_args "." "$command_id")" || return 1
-    revision="$(printf '%s\n' "$mutation" | sed -n '1p')"
     prometheus kbd --path . change register \
-      --expected-revision "$revision" --command-id "$command_id" \
+      --command-id "$command_id" \
       --phase "$phase" --id "$change" --title "$change" >/dev/null || return 1
     state="$(kbd_runtime_status_json ".")" || return 1
   fi
@@ -428,19 +426,15 @@ runtime_task_transition() {
       --arg phase "$phase" --arg change "$change" --arg task "$task_id" \
       '.phases[$phase].changes[$change].tasks[$task]' >/dev/null 2>&1; then
     command_id="apply:task-register:${phase}:${change}:${task_id}"
-    mutation="$(kbd_runtime_mutation_args "." "$command_id")" || return 1
-    revision="$(printf '%s\n' "$mutation" | sed -n '1p')"
     prometheus kbd --path . task register \
-      --expected-revision "$revision" --command-id "$command_id" \
+      --command-id "$command_id" \
       --phase "$phase" --change "$change" --id "$task_id" \
       --title "$title" --sequence "$sequence" >/dev/null || return 1
   fi
 
   command_id="apply:task-${status}:${phase}:${change}:${task_id}"
-  mutation="$(kbd_runtime_mutation_args "." "$command_id")" || return 1
-  revision="$(printf '%s\n' "$mutation" | sed -n '1p')"
   prometheus kbd --path . task transition \
-    --expected-revision "$revision" --command-id "$command_id" \
+    --command-id "$command_id" \
     --phase "$phase" --change "$change" --id "$task_id" \
     --status "$status" --summary "$title" >/dev/null
 }

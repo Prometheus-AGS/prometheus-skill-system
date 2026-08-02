@@ -40,6 +40,11 @@ use uuid::Uuid;
 /// `Runtime` can resolve a device signer via the OS credential store.
 fn write_project_manifest(project_root: &Path) -> String {
     let project_id = Uuid::new_v4().to_string();
+    write_project_manifest_with_id(project_root, &project_id);
+    project_id
+}
+
+fn write_project_manifest_with_id(project_root: &Path, project_id: &str) {
     fs::create_dir_all(project_root.join(".prometheus")).unwrap();
     fs::write(
         project_root.join(".prometheus").join("project.json"),
@@ -51,7 +56,6 @@ fn write_project_manifest(project_root: &Path) -> String {
         .to_string(),
     )
     .unwrap();
-    project_id
 }
 
 async fn new_node_with_p2p(
@@ -254,6 +258,91 @@ async fn surreal_memory_is_rejected_before_any_bytes_are_prepared() {
         result.is_err(),
         "surreal-memory must never be pushed, even if a caller asks for it"
     );
+}
+
+#[tokio::test]
+async fn signed_kbd_authority_updates_replicate_claims_between_two_nodes() {
+    let skills = TempDir::new().unwrap();
+    let project_a = TempDir::new().unwrap();
+    let project_b = TempDir::new().unwrap();
+    let data_a = TempDir::new().unwrap();
+    let data_b = TempDir::new().unwrap();
+    let project_id = Uuid::new_v4().to_string();
+    write_project_manifest_with_id(project_a.path(), &project_id);
+    write_project_manifest_with_id(project_b.path(), &project_id);
+
+    let runtime_a =
+        kbd_runtime::Runtime::open_canonical_at(project_a.path(), data_a.path()).unwrap();
+    let initialized = runtime_a
+        .initialize(
+            project_id.clone(),
+            "run-a",
+            kbd_runtime::Actor::operator("operator", "test"),
+        )
+        .unwrap();
+    let runtime_b =
+        kbd_runtime::Runtime::open_canonical_at(project_b.path(), data_b.path()).unwrap();
+    runtime_b
+        .import_project_updates(&runtime_a.export_project_updates().unwrap())
+        .unwrap();
+
+    let (p2p_a, _incoming) = P2PNode::new(&[9u8; 32], &PeersConfig::default())
+        .await
+        .unwrap();
+    let node_a = AppState::try_new_at(
+        skills.path(),
+        project_a.path(),
+        data_a.path(),
+        Some(Arc::new(p2p_a)),
+    )
+    .await
+    .unwrap();
+    let node_b = AppState::try_new_at(skills.path(), project_b.path(), data_b.path(), None)
+        .await
+        .unwrap();
+
+    let actor = kbd_runtime::Actor {
+        kind: kbd_runtime::ActorKind::Harness,
+        id: "holder-a".into(),
+        device: "device-a".into(),
+        harness: "test".into(),
+        session: "session-a".into(),
+    };
+    runtime_a
+        .execute_command(kbd_runtime::CommandEnvelope {
+            schema_version: "2".into(),
+            project_id: project_id.clone(),
+            run_id: initialized.run_id,
+            command_id: "claim-sync-a".into(),
+            frontier: Some(initialized.frontier),
+            expected_revision: 0,
+            actor: actor.clone(),
+            command: kbd_runtime::CommandKind::ClaimAcquire {
+                scope: "phase:sync".into(),
+                mode: kbd_runtime::ClaimMode::Exclusive,
+                ttl_seconds: 300,
+                holder_id: actor.id,
+            },
+        })
+        .unwrap();
+
+    let outcome = rest_api::build_push_envelope(&node_a, &format!("kbd-control:{project_id}"))
+        .await
+        .unwrap();
+    let envelope = match outcome {
+        PushOutcome::Broadcast { envelope, .. } => envelope,
+        PushOutcome::LocalOnly { .. } => panic!("node A has a P2P node"),
+    };
+    assert_eq!(envelope.schema_version, "2");
+    assert!(envelope.signature.is_some());
+    rest_api::handle_incoming_message(&node_b, &serde_json::to_vec(&envelope).unwrap()).await;
+
+    let converged = runtime_b.replay().unwrap();
+    assert_eq!(converged.claims.len(), 1);
+    assert!(converged
+        .claims
+        .values()
+        .any(|claim| claim.scope == "phase:sync" && claim.holder_id == "holder-a"));
 }
 
 // A `kbd-control` cross-project-identity rejection test is intentionally not

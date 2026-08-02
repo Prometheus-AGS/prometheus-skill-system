@@ -357,6 +357,11 @@ enum KbdAction {
         #[arg(long)]
         reason: String,
     },
+    /// Inspect or mutate CRDT work claims
+    Claim {
+        #[command(subcommand)]
+        action: KbdClaimAction,
+    },
     /// Gracefully checkpoint and pause the run
     Pause {
         #[arg(long)]
@@ -437,6 +442,48 @@ enum KbdAction {
     },
 }
 
+#[derive(Clone, clap::ValueEnum)]
+enum KbdClaimMode {
+    Shared,
+    Exclusive,
+}
+
+impl From<KbdClaimMode> for kbd_runtime::ClaimMode {
+    fn from(value: KbdClaimMode) -> Self {
+        match value {
+            KbdClaimMode::Shared => Self::Shared,
+            KbdClaimMode::Exclusive => Self::Exclusive,
+        }
+    }
+}
+
+#[derive(Subcommand)]
+enum KbdClaimAction {
+    /// List claims and any claim conflicts
+    List {
+        #[arg(long)]
+        json: bool,
+    },
+    /// Acquire a shared or exclusive work-scope claim
+    Acquire {
+        scope: String,
+        #[arg(long, value_enum, default_value = "exclusive")]
+        mode: KbdClaimMode,
+        #[arg(long, default_value_t = 900)]
+        ttl: u64,
+        #[arg(long)]
+        holder: Option<String>,
+    },
+    /// Renew a claim with a larger monotonic token
+    Renew {
+        claim_id: String,
+        #[arg(long, default_value_t = 900)]
+        ttl: u64,
+    },
+    /// Release a claim
+    Release { claim_id: String },
+}
+
 #[derive(Subcommand)]
 enum KbdRolloutAction {
     /// Show the current rollout stage and next promotion gate
@@ -468,8 +515,6 @@ enum KbdRolloutAction {
 
 #[derive(clap::Args, Clone)]
 struct KbdMutationArgs {
-    #[arg(long)]
-    expected_revision: u64,
     #[arg(long)]
     command_id: String,
 }
@@ -758,7 +803,6 @@ async fn main() -> Result<()> {
         Commands::Kbd { path, action } => {
             let typed_command = |mutation: KbdMutationArgs, command: kbd_runtime::CommandKind| {
                 commands::kbd::Action::Command {
-                    expected_revision: mutation.expected_revision,
                     command_id: mutation.command_id,
                     command,
                 }
@@ -788,6 +832,27 @@ async fn main() -> Result<()> {
                     conflict_id,
                     winner_event_id,
                     reason,
+                },
+                KbdAction::Claim { action } => match action {
+                    KbdClaimAction::List { json } => commands::kbd::Action::Claims { json },
+                    KbdClaimAction::Acquire {
+                        scope,
+                        mode,
+                        ttl,
+                        holder,
+                    } => commands::kbd::Action::ClaimAcquire {
+                        scope,
+                        mode: mode.into(),
+                        ttl_seconds: ttl,
+                        holder_id: holder,
+                    },
+                    KbdClaimAction::Renew { claim_id, ttl } => commands::kbd::Action::ClaimRenew {
+                        claim_id,
+                        ttl_seconds: ttl,
+                    },
+                    KbdClaimAction::Release { claim_id } => {
+                        commands::kbd::Action::ClaimRelease { claim_id }
+                    }
                 },
                 KbdAction::Pause { reason } => commands::kbd::Action::Pause { reason },
                 KbdAction::Revise {

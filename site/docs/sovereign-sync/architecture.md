@@ -18,7 +18,7 @@ sidebar_label: Architecture
 | General sync persistence | `redb` | 2.x | Sovereign Sync's non-KBD `state.redb` store |
 | MCP server | `rmcp` | 1.8.0 | Harness tool surface |
 | HTTP server | `axum` | 0.8 | Loopback REST API and AG-UI SSE |
-| Rust SDK | `sovereign-client` | 0.1.0 | REST/SSE client; bearer-token support remains pending |
+| Rust SDK | `sovereign-client` | 0.1.0 | REST, signed KBD command, claims, and typed SSE client |
 
 ## Topic derivation
 
@@ -34,8 +34,8 @@ All devices with the same `node.operator_id` value in
 is necessary but not sufficient: a node must also know at least one peer
 endpoint ID to join an existing mesh.
 
-`operator_id` is configuration, not a command-line flag, endpoint ID, signing
-key, HTTP bearer token, or project ID.
+`operator_id` is configuration, not a command-line flag, endpoint ID, device
+signing key, or project ID.
 
 ## SyncManifest
 
@@ -102,8 +102,8 @@ doc.import(delta)?
 The learner-model crate stores one CRDT document at
 `learner/<learner-id>/model.crdt`. Its typed content includes concepts,
 mastery observations, gaps, sessions, and FSRS cards. The store exposes a
-`merge_delta()` operation, but the daemon does not yet read that directory,
-export its deltas, or call the merge operation for incoming P2P messages.
+`merge_delta()` operation. The daemon's domain adapter exports the local model,
+merges Loro updates, and persists the converged typed value.
 
 ## KBD control-plane storage
 
@@ -121,6 +121,13 @@ snapshot status/frontier/conflicts, lock and single-writer compatibility,
 projection revision, device trust counts, and signature-chain validity.
 The compatibility quorum configuration accepts exactly one local writer and
 rejects multi-voter settings.
+
+The `kbd-control:<project-id>` gossip domain exports the complete Loro update
+set from `project.loro`, wraps it with auxiliary presence, and signs the wire
+envelope with an enrolled project device. Receivers verify project identity,
+active device membership, envelope signature, every event signature/hash, and
+grow-only semantics before fsyncing the merged authority. Replicas on one
+machine converge through the shared document path without a network hop.
 
 ## P2P endpoint lifecycle
 
@@ -156,9 +163,8 @@ sequenceDiagram
   CRDT-->>Owner: "Advance local version vector"
 ```
 
-The `0.1.0` daemon currently stops before this sequence: it creates the P2P
-node, but it does not retain the incoming receiver, create the domain envelope,
-connect a domain owner, or advance versions after delivery.
+The daemon retains the incoming receiver and implements this sequence for
+skill index, learner model, and signed KBD project authority domains.
 
 ## MCP server tools
 
@@ -181,13 +187,12 @@ The repository proves these pieces separately:
 - Loro snapshot export/import and version vectors;
 - deterministic topic derivation;
 - iroh-docs two-node sharing in the storage-provider crate;
-- REST authentication and queue acknowledgement;
+- signed KBD envelopes and real domain push/import paths;
 - single-voter KBD command ordering and embedded quorum behavior.
 
-It does not yet prove one two-machine daemon workflow that discovers peers,
-exports a real producer’s state, transmits it, imports it, and reports the
-applied version. A successful health check, queue acknowledgement, or matching
-topic is not evidence that project data was replicated.
+The test battery proves two-node domain merge without live internet discovery;
+final deployment certification separately exercises real iroh peer discovery,
+signed KBD convergence, and applied-frontier reporting.
 
 ---
 *Canonical source: [`substrate/sovereign-sync`](https://github.com/Prometheus-AGS/prometheus-skill-system/tree/main/substrate/sovereign-sync).*

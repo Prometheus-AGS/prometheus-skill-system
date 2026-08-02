@@ -56,10 +56,10 @@ its own interpretation of `progress.json`. Audits show which device and harness
 claimed, revised, paused, or released the work.
 
 **Security rule.** The devices share `operator_id`, but never share signing
-keys or control tokens. Actor identity remains attributable.
+keys. Actor identity remains attributable.
 
-**Today.** The local KBD control plane coordinates multiple harnesses through
-one fsynced journal writer. Authoritative cross-machine Loro synchronization is
+**Today.** Each replica writes through one fsynced journal lock and imports into
+the shared project document. Authoritative cross-machine Loro synchronization is
 not yet enabled in the deployed service.
 
 ## 3. Feynman study continuity between work and home
@@ -143,7 +143,7 @@ The runner should install the actual versioned skill payload from the canonical
 repository or package source.
 
 **Benefit.** CI can compare the project’s declared skill catalog with the
-operator machines without receiving private learning history, control tokens,
+operator machines without receiving private learning history, device keys,
 or local paths.
 
 **Security rule.** Do not pair a disposable runner into a `Trusted` topic that

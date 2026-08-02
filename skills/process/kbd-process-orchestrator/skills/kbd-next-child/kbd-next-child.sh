@@ -49,16 +49,12 @@ if command -v kbd_runtime_authoritative >/dev/null 2>&1 && kbd_runtime_authorita
   fi
   next_id="${next_row%%	*}"
   next="${next_row#*	}"
-  mutation="$(kbd_runtime_mutation_args "." "phase-next-child:${parent_id}:${next_id}")" ||
-    die "failed to resolve current revision"
-  revision="$(printf '%s\n' "$mutation" | sed -n '1p')"
   ancestor_args=()
   while IFS= read -r ancestor; do
     [[ -n "$ancestor" ]] || continue
     ancestor_args+=(--ancestor "$ancestor")
   done < <(printf '%s' "$parent_path" | jq -r '.[]')
   prometheus kbd --path . phase activate \
-    --expected-revision "$revision" \
     --command-id "phase-next-child:${parent_id}:${next_id}" \
     --id "$next_id" "${ancestor_args[@]}" \
     --exact-next-work "/kbd-assess ${next}" >/dev/null

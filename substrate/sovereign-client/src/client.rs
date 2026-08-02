@@ -87,6 +87,38 @@ impl SovereignClient {
         Ok(resp.json().await?)
     }
 
+    pub async fn kbd_status(
+        &self,
+        project_id: &str,
+    ) -> Result<kbd_runtime::KbdStateV2, ClientError> {
+        let url = self.url(&format!("/api/v1/kbd/projects/{project_id}/status"))?;
+        let resp = self.http.get(url).send().await?.error_for_status()?;
+        Ok(resp.json().await?)
+    }
+
+    pub async fn submit_kbd_command(
+        &self,
+        project_id: &str,
+        command: &kbd_runtime::SignedCommandEnvelope,
+    ) -> Result<kbd_runtime::CommandResult, ClientError> {
+        let url = self.url(&format!("/api/v1/kbd/projects/{project_id}/commands"))?;
+        let resp = self
+            .http
+            .post(url)
+            .json(command)
+            .send()
+            .await?
+            .error_for_status()?;
+        let body: Value = resp.json().await?;
+        serde_json::from_value(body).map_err(ClientError::Json)
+    }
+
+    pub async fn kbd_claims(&self, project_id: &str) -> Result<Value, ClientError> {
+        let url = self.url(&format!("/api/v1/kbd/projects/{project_id}/claims"))?;
+        let resp = self.http.get(url).send().await?.error_for_status()?;
+        Ok(resp.json().await?)
+    }
+
     // -----------------------------------------------------------------------
     // AG-UI SSE stream
     // -----------------------------------------------------------------------
@@ -116,6 +148,27 @@ impl SovereignClient {
             Err(e) => Err(ClientError::Stream(e.to_string())),
         });
 
+        Ok(Box::pin(event_stream))
+    }
+
+    /// Subscribe to continuous typed KBD/AG-UI operational events.
+    pub async fn stream_events(
+        &self,
+    ) -> Result<
+        Pin<Box<dyn futures::Stream<Item = Result<AgUiEvent, ClientError>> + Send>>,
+        ClientError,
+    > {
+        let url = self.url("/api/v1/events")?;
+        let resp = self.http.get(url).send().await?.error_for_status()?;
+        let event_stream = resp
+            .bytes_stream()
+            .eventsource()
+            .map(|result| match result {
+                Ok(event) => {
+                    serde_json::from_str::<AgUiEvent>(&event.data).map_err(ClientError::Json)
+                }
+                Err(error) => Err(ClientError::Stream(error.to_string())),
+            });
         Ok(Box::pin(event_stream))
     }
 }

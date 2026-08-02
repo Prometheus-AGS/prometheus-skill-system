@@ -26,13 +26,13 @@ What the installer does for sovereign-sync:
 5. starts the daemon on loopback port `7892`;
 6. reuses an already-running service instead of double-starting it.
 
-`operator_id`, the device key, and the KBD control bearer token are three
-different values. See [Tokens and authentication](/docs/kbd/tokens-and-authentication).
+`operator_id`, the project/replica identities, and each device key are
+different values. See [Identity and authentication](/docs/kbd/tokens-and-authentication).
 
 Each independent installation generates its own `operator_id`. That is the
 safe single-machine default, but two machines will not share a gossip topic
 until you deliberately choose one operator namespace and place that same value
-in both configs. Do not copy the device key or bearer token with it. Follow
+in both configs. Do not copy the device key with it. Follow
 [Pair two machines](./pair-two-machines) after both installations are healthy.
 
 ## Verify installation
@@ -66,9 +66,6 @@ Expected health response:
 If you prefer not to use launchd:
 
 ```bash
-# Optional explicit token path
-export PROMETHEUS_CONTROL_TOKEN_FILE="$HOME/.config/sovereign-sync/kbd-control-token"
-
 # Foreground server (verbose)
 RUST_LOG=sovereign_sync=debug sovereign-sync --mode daemon
 ```
@@ -99,17 +96,10 @@ bootstrap = [
 
 [server]
 port = 7892
-
-[kbd]
-node_id = 1
-
-[[kbd.voters]]
-id = 1
-endpoint = "local"
-witness = false
 ```
 
-The installer creates `operator_id`; do not use it as an HTTP bearer token.
+The installer creates `operator_id`; it is a gossip namespace, not an HTTP or
+device-signing credential.
 `peers.bootstrap` accepts iroh endpoint IDs, not IP addresses, HTTP URLs,
 device-key IDs, project IDs, or relay tickets. In `0.1.0` the endpoint ID is
 logged at daemon startup and changes after that daemon restarts.
@@ -212,7 +202,7 @@ of operating on the local P2P network directly.
 - macOS or Linux
 - Port 7892 available (daemon/server modes)
 - `config.toml` with non-empty `node.operator_id` in daemon mode
-- mode-`0600` Ed25519 device key when `PROMETHEUS_HEADLESS_VOTER=1`
+- a protected Ed25519 device key for signed KBD mutations
 - Outbound access to the N0 discovery/relay infrastructure for the current P2P
   preset, even when the two peers are on the same LAN
 

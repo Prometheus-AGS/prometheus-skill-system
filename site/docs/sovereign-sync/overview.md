@@ -14,7 +14,7 @@ It combines:
 - an iroh peer-to-peer connection layer;
 - Loro conflict-free replicated data types (CRDTs) for mergeable data;
 - a privacy manifest that decides which named data domains may leave a device;
-- an authenticated loopback API and MCP tool surface; and
+- a loopback API, device-signed KBD command surface, and MCP tools; and
 - the local KBD command authority used by Claude Code, Codex, OpenCode, Kimi,
   and CLI operators.
 
@@ -22,24 +22,12 @@ The design goal is continuity: a user should be able to stop work on one
 trusted machine and resume on another with the relevant project position,
 learning state, and approved knowledge already present.
 
-:::warning Current release boundary
+:::info Current release boundary
 
-Version `0.1.0` contains the network, CRDT, privacy, storage, API, and
-single-node KBD building blocks, but the daemon does **not yet connect them into
-an end-to-end project data replication pipeline**.
-
-- `POST /api/v1/sync/push` returns a queue acknowledgement but does not export
-  project data or broadcast a delta.
-- `GET /api/v1/sync/status` and `/sync/peers` return bounded scaffold data, not
-  live P2P state.
-- the daemon drops the P2P incoming-message receiver;
-- the installed learner model, Karpathy wiki, loop directories, OpenSpec
-  files, and KBD authority are not automatically ingested into sync domains;
-- authoritative KBD replication is explicitly disabled between processes.
-
-Today, pairing two machines proves network-topic membership only. It does not
-prove that project or global data moved. The pages in this section distinguish
-the intended contract from the behavior operators can verify now.
+Signed `kbd-control:<project-id>` Loro updates and auxiliary presence now flow
+over the iroh gossip transport, while `skill-index` and `learner-model` use
+their explicit domain adapters. Other project/global artifact families remain
+adapter work and are not copied merely because files exist on disk.
 
 :::
 
@@ -75,20 +63,21 @@ explicitly classified, peer-to-peer replication.
 7. Send the encrypted payload to authorized peers.
 8. Merge it into the matching domain and advance its version vector.
 
-Steps 5–8 are implemented as libraries and tests but are not wired to the
-daemon’s project/global data producers in `0.1.0`.
+Steps 5–8 are wired for the registered KBD authority and the implemented
+domain adapters. Every additional artifact family still requires an explicit
+privacy classification and adapter.
 
 ## Three planes, three different jobs
 
 | Plane | Purpose | Scope today |
 |---|---|---|
-| Local control | REST, SSE, MCP, KBD commands, search | Operational on one focused project |
+| Local control | REST, SSE, MCP, KBD commands, search | Routes every registered project by immutable UUID |
 | P2P connectivity | Endpoint discovery, NAT traversal, relay fallback, gossip topic | Starts in daemon mode; pairing is log-driven |
 | Domain replication | Manifest gate, CRDT export/import, per-domain versions | Library-tested; not connected to daemon data sources |
 
-The deployed KBD control plane is currently separate from CRDT merge. A learner
-model or public skill index can merge concurrent updates, while KBD currently
-uses one ordered, signed local event chain.
+The KBD authority is a grow-only Loro event map fed by per-replica signed,
+hash-chained journals. Generic domains use their own explicitly registered
+CRDT adapters.
 
 ## What sync is not
 
@@ -99,21 +88,22 @@ Sovereign Sync is not:
 - remote access to the loopback REST API;
 - a folder mirroring tool that copies everything under `.prometheus/`;
 - permission to transmit a domain merely because a file exists;
-- a way to merge two independent offline KBD writers;
-- a reason to copy device keys, bearer tokens, or other credentials.
+- permission to hide KBD conflicts produced by independent offline writers;
+- a reason to copy device keys or other credentials.
 
 ## Architecture
 
 ```mermaid
 flowchart TB
   Client["CLI, MCP harness, or desktop backend"] --> Local["Loopback REST, SSE, and MCP"]
-  Local --> KBD["Local KBD authority<br/>flocked journal + signed events"]
-  Producer["Explicit domain adapter<br/>not yet daemon-wired"] --> Gate["SyncManifest privacy gate"]
+  Local --> KBD["Project KBD authority<br/>Loro document + replica journals"]
+  Producer["Explicit domain adapter"] --> Gate["SyncManifest privacy gate"]
   Gate --> CRDT["Loro snapshot or delta"]
   CRDT --> Gossip["iroh-gossip operator topic"]
   Gossip --> Peer["Trusted peer"]
   Peer --> Import["Manifest check + CRDT import"]
-  KBD -. "authoritative cross-process transport not yet enabled" .-> Peer
+  KBD --> Signed["Signed kbd-control Loro updates"]
+  Signed --> Gossip
 ```
 
 See [Architecture](./architecture) for the component and trust boundaries.
@@ -142,9 +132,9 @@ curl --fail-with-body http://127.0.0.1:7892/health | jq .
 /sync-status
 ```
 
-The health route is intentionally unauthenticated on loopback. All other REST
-calls require the focused project’s KBD control token. See
-[Tokens and authentication](/docs/kbd/tokens-and-authentication).
+The HTTP service is intentionally loopback-only. KBD mutation POSTs require a
+device-signed schema-v2 command; read routes do not use the removed bearer-token
+scheme. See [Identity and authentication](/docs/kbd/tokens-and-authentication).
 
 ## Read next
 

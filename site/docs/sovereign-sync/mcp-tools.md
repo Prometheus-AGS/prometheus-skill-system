@@ -108,7 +108,7 @@ Returns immutable committed events starting at `since_revision` (default 1).
 Creates a pause checkpoint.
 
 ```json
-{"reason":"Pause before rotating the control token"}
+{"reason":"Pause before rotating the device signing key"}
 ```
 
 ### `kbd_cancel`

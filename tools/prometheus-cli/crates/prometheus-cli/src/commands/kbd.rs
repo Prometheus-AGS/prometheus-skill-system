@@ -2,10 +2,11 @@ use anyhow::{anyhow, Context, Result};
 use kbd_runtime::{
     registry::ProjectRegistry,
     rollout::{RolloutObservation, RolloutTracker},
-    Actor, ActorKind, Checkpoint, CommandEnvelope, CommandKind, Event, LifecycleState, Runtime,
-    RuntimeError, RuntimeState,
+    Actor, ActorKind, Checkpoint, ClaimMode, CommandEnvelope, CommandKind, DeviceSigner, Event,
+    LifecycleState, Runtime, RuntimeError, RuntimeState, SignedCommandEnvelope,
 };
 use serde_json::{json, Value};
+use std::collections::BTreeSet;
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::time::Duration;
@@ -36,6 +37,22 @@ pub enum Action {
         conflict_id: String,
         winner_event_id: String,
         reason: String,
+    },
+    Claims {
+        json: bool,
+    },
+    ClaimAcquire {
+        scope: String,
+        mode: ClaimMode,
+        ttl_seconds: u64,
+        holder_id: Option<String>,
+    },
+    ClaimRenew {
+        claim_id: String,
+        ttl_seconds: u64,
+    },
+    ClaimRelease {
+        claim_id: String,
     },
     Pause {
         reason: String,
@@ -73,7 +90,6 @@ pub enum Action {
     },
     RolloutPromote,
     Command {
-        expected_revision: u64,
         command_id: String,
         command: CommandKind,
     },
@@ -213,6 +229,93 @@ pub async fn run(path: &str, action: Action) -> Result<()> {
                         winner_event_id,
                         reason,
                     },
+                )
+                .await?;
+            print_state(&next, false)
+        }
+        Action::Claims { json } => {
+            let state = client.status().await?;
+            let claim_conflicts = state
+                .conflicts
+                .values()
+                .filter(|conflict| conflict.kind == kbd_runtime::ConflictKind::Claim)
+                .collect::<Vec<_>>();
+            if json {
+                println!(
+                    "{}",
+                    serde_json::to_string_pretty(&json!({
+                        "claims": state.claims,
+                        "conflicts": claim_conflicts
+                    }))?
+                );
+            } else if state.claims.is_empty() {
+                println!("No claims.");
+            } else {
+                for claim in state.claims.values() {
+                    println!(
+                        "{}  {}  {:?}  holder={}  token={}  expires={}{}",
+                        claim.claim_id,
+                        claim.scope,
+                        claim.mode,
+                        claim.holder_id,
+                        claim.monotonic_token,
+                        claim.expires_at,
+                        if claim.released { "  released" } else { "" }
+                    );
+                }
+            }
+            Ok(())
+        }
+        Action::ClaimAcquire {
+            scope,
+            mode,
+            ttl_seconds,
+            holder_id,
+        } => {
+            let state = client.status().await?;
+            let mut actor = current_actor(ActorKind::Harness);
+            if let Some(holder_id) = holder_id {
+                actor.id = holder_id;
+            }
+            let holder_id = actor.id.clone();
+            let next = client
+                .submit_fresh(
+                    &state,
+                    actor,
+                    CommandKind::ClaimAcquire {
+                        scope,
+                        mode,
+                        ttl_seconds,
+                        holder_id,
+                    },
+                )
+                .await?;
+            print_state(&next, false)
+        }
+        Action::ClaimRenew {
+            claim_id,
+            ttl_seconds,
+        } => {
+            let state = client.status().await?;
+            let next = client
+                .submit_fresh(
+                    &state,
+                    current_actor(ActorKind::Harness),
+                    CommandKind::ClaimRenew {
+                        claim_id,
+                        ttl_seconds,
+                    },
+                )
+                .await?;
+            print_state(&next, false)
+        }
+        Action::ClaimRelease { claim_id } => {
+            let state = client.status().await?;
+            let next = client
+                .submit_fresh(
+                    &state,
+                    current_actor(ActorKind::Harness),
+                    CommandKind::ClaimRelease { claim_id },
                 )
                 .await?;
             print_state(&next, false)
@@ -397,19 +500,18 @@ pub async fn run(path: &str, action: Action) -> Result<()> {
             Ok(())
         }
         Action::Command {
-            expected_revision,
             command_id,
             command,
         } => {
             let state = client.status().await?;
             let result = client
                 .submit(CommandEnvelope {
-                    schema_version: "1".into(),
+                    schema_version: "2".into(),
                     project_id: state.project_id,
                     run_id: state.run_id,
                     command_id,
-                    frontier: None,
-                    expected_revision,
+                    frontier: Some(state.frontier),
+                    expected_revision: state.revision,
                     actor: current_actor(ActorKind::Harness),
                     command,
                 })
@@ -521,6 +623,7 @@ struct ControlClient {
     http: reqwest::Client,
     endpoint: String,
     project_id: String,
+    signer: DeviceSigner,
 }
 
 impl ControlClient {
@@ -548,6 +651,7 @@ impl ControlClient {
                 .trim_end_matches('/')
                 .to_string(),
             project_id,
+            signer: runtime.device_signer()?,
         })
     }
 
@@ -576,13 +680,14 @@ impl ControlClient {
     }
 
     async fn submit(&self, envelope: CommandEnvelope) -> Result<Value> {
+        let signed = SignedCommandEnvelope::sign(envelope, &self.signer)?;
         let response = self
             .http
             .post(format!(
                 "{}/api/v1/kbd/projects/{}/commands",
                 self.endpoint, self.project_id
             ))
-            .json(&envelope)
+            .json(&signed)
             .send()
             .await?;
         decode_response(response).await
@@ -671,17 +776,15 @@ async fn audit(
 }
 
 async fn watch(client: &ControlClient) -> Result<()> {
-    let mut revision = 0;
+    let mut seen = BTreeSet::new();
     loop {
-        let seen = revision;
         let fresh: Vec<_> = client
             .events()
             .await?
             .into_iter()
-            .filter(|event| event.revision > seen)
+            .filter(|event| seen.insert(event.event_id.clone()))
             .collect();
         for event in fresh {
-            revision = event.revision;
             println!("{}", serde_json::to_string(&event)?);
         }
         tokio::select! {

@@ -1,5 +1,5 @@
 //! Domain adapters bridging real local data (skill index, learner model, KBD
-//! presence) to the generic CRDT sync machinery in `crdt.rs`.
+//! authority) to the generic CRDT sync machinery in `crdt.rs`.
 //!
 //! Each domain family has a fixed [`storage_provider::PrivacyClass`] and a
 //! [`DomainAdapter`] that exports local state as JSON (for merging into a
@@ -36,7 +36,7 @@ pub fn privacy_for_family(family: &str) -> Option<PrivacyClass> {
         "learner-model" => Some(PrivacyClass::Trusted),
         // Matches `kbd_sync::domain()`'s existing, tested naming convention
         // (`"kbd-control:<project-id>"`) — not a second, inconsistent
-        // presence-domain scheme.
+        // control-domain scheme.
         "kbd-control" => Some(PrivacyClass::Trusted),
         // Explicitly registered as Local so `is_syncable` structurally
         // rejects it, matching data-scope.md's policy table — never leaves
@@ -72,7 +72,7 @@ pub struct SyncEnvelope {
     /// CRDT delta or snapshot bytes, produced by `CrdtEngine::apply_json`'s
     /// delta output or by `CrdtEngine::merge`'s remote-delta input.
     pub payload: Vec<u8>,
-    /// Ed25519 signer for `kbd-control` presence pushes — the enrolled
+    /// Ed25519 signer for `kbd-control` authority pushes — the enrolled
     /// device's `key_id` (see `kbd_runtime::DeviceRecord`). `None` for
     /// families that don't require peer authentication (`skill-index`,
     /// `learner-model`).
@@ -256,17 +256,13 @@ impl DomainAdapter for LearnerModelAdapter {
 }
 
 // ---------------------------------------------------------------------------
-// kbd-control:<project-id> — Trusted, ephemeral, non-authoritative
+// kbd-control:<project-id> — Trusted, signed authoritative Loro updates
 // ---------------------------------------------------------------------------
 //
-// Deliberately NOT a `DomainAdapter`: `kbd_sync::KbdPresenceDocument` owns
-// its own Loro document with a fixed wire shape (a `"presence"` map keyed by
-// `device:harness:session`), gated on import by `peer_authorized: bool` —
-// incompatible with the generic JSON-object-in/JSON-object-out shape every
-// other `DomainAdapter` uses via `storage_provider::LoroAdapter`. `AppState`
-// holds a `KbdPresenceDocument` directly; `rest_api::build_push_envelope`
-// and `rest_api::handle_incoming_message` special-case the `kbd-control`
-// family before reaching the generic adapter lookup.
+// Deliberately NOT a generic `DomainAdapter`: KBD already persists its own
+// Loro document with signed event validation and fsync ordering. The REST
+// sync path exports/imports that document directly and carries presence only
+// as auxiliary metadata.
 //
 // Peer authentication is real: each push is signed with the sending node's
 // own `kbd_runtime::DeviceSigner` (`SyncEnvelope::sign`), and the receiver

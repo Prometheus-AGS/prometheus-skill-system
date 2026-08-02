@@ -156,6 +156,75 @@ impl ProjectDocument {
         result
     }
 
+    /// Export the complete operation history as a Loro update bundle. Peers
+    /// may import this repeatedly; Loro deduplicates operations by ID.
+    pub fn export_updates(&self) -> Result<Vec<u8>> {
+        fs::create_dir_all(&self.root)?;
+        let lock = self.open_lock()?;
+        lock.lock_shared()?;
+        let result = self
+            .load_locked()?
+            .export(ExportMode::all_updates())
+            .map_err(|error| RuntimeError::InvalidState(format!("project.loro: {error}")));
+        FileExt::unlock(&lock)?;
+        result
+    }
+
+    /// Validate and merge a peer's Loro updates, then fsync the authoritative
+    /// project document. Validation happens against an isolated document
+    /// before the on-disk authority is changed.
+    pub fn import_updates(&self, updates: &[u8]) -> Result<(usize, KbdStateV2)> {
+        fs::create_dir_all(&self.root)?;
+        let lock = self.open_lock()?;
+        lock.lock_exclusive()?;
+        let result = (|| {
+            let incoming = LoroDoc::new();
+            incoming.import(updates).map_err(loro_error)?;
+            let incoming_events = events_from_doc(&incoming)?;
+            validate_unique_events(&incoming_events, &self.project_id)?;
+
+            let local = self.load_locked()?;
+            let before = events_from_doc(&local)?;
+            let before_by_id = before
+                .iter()
+                .map(|event| (event.event_id.as_str(), event))
+                .collect::<BTreeMap<_, _>>();
+            for event in &incoming_events {
+                if let Some(existing) = before_by_id.get(event.event_id.as_str()) {
+                    if *existing != event {
+                        return Err(RuntimeError::DuplicateEvent(event.event_id.clone()));
+                    }
+                }
+            }
+            local.import(updates).map_err(loro_error)?;
+            local.commit();
+            let merged = events_from_doc(&local)?;
+            let merged_by_id = merged
+                .iter()
+                .map(|event| (event.event_id.as_str(), event))
+                .collect::<BTreeMap<_, _>>();
+            if before_by_id
+                .iter()
+                .any(|(event_id, event)| merged_by_id.get(event_id).copied() != Some(*event))
+            {
+                return Err(RuntimeError::InvalidState(
+                    "project.loro updates attempted to mutate or delete committed events".into(),
+                ));
+            }
+            let state = fold_project_events(&merged)?;
+            let inserted = incoming_events
+                .iter()
+                .filter(|event| !before_by_id.contains_key(event.event_id.as_str()))
+                .count();
+            if inserted > 0 || !self.path().exists() {
+                self.persist_locked(&local)?;
+            }
+            Ok((inserted, state))
+        })();
+        FileExt::unlock(&lock)?;
+        result
+    }
+
     fn open_lock(&self) -> Result<File> {
         Ok(OpenOptions::new()
             .create(true)
@@ -263,6 +332,7 @@ pub fn fold_project_events(events: &[Event]) -> Result<KbdStateV2> {
     validate_unique_events(events, &project_id)?;
     let ordered = causal_order(events)?;
     let mut conflicts = detect_conflicts(events)?;
+    conflicts.extend(detect_claim_conflicts(events)?);
 
     let resolutions = events
         .iter()
@@ -407,6 +477,88 @@ fn detect_conflicts(events: &[Event]) -> Result<BTreeMap<String, ConflictRecord>
                 slot,
                 kind,
                 candidates: conflict_candidates,
+                winner_event_id,
+                resolved_by_event_id: None,
+                resolution_reason: None,
+            },
+        );
+    }
+    Ok(conflicts)
+}
+
+fn detect_claim_conflicts(events: &[Event]) -> Result<BTreeMap<String, ConflictRecord>> {
+    let mut scopes = BTreeMap::<String, Vec<&Event>>::new();
+    for event in events {
+        if let EventKind::ClaimAcquired { scope, .. } = &event.kind {
+            scopes.entry(scope.clone()).or_default().push(event);
+        }
+    }
+    let mut conflicts = BTreeMap::new();
+    for (scope, candidates) in scopes {
+        let maximal = candidates
+            .iter()
+            .copied()
+            .filter(|candidate| {
+                !candidates.iter().copied().any(|other| {
+                    candidate.event_id != other.event_id && event_observes(other, candidate)
+                })
+            })
+            .collect::<Vec<_>>();
+        let incompatible = maximal.len() > 1
+            && maximal.iter().any(|event| {
+                matches!(
+                    event.kind,
+                    EventKind::ClaimAcquired {
+                        mode: crate::ClaimMode::Exclusive,
+                        ..
+                    }
+                )
+            });
+        if !incompatible {
+            continue;
+        }
+        let mut claim_candidates = maximal
+            .iter()
+            .map(|event| conflict_candidate(event))
+            .collect::<Result<Vec<_>>>()?;
+        claim_candidates.sort_by(|left, right| {
+            let left_holder = left
+                .value
+                .get("payload")
+                .and_then(|payload| payload.get("holderId"))
+                .and_then(serde_json::Value::as_str)
+                .unwrap_or(&left.actor_id);
+            let right_holder = right
+                .value
+                .get("payload")
+                .and_then(|payload| payload.get("holderId"))
+                .and_then(serde_json::Value::as_str)
+                .unwrap_or(&right.actor_id);
+            (left.lamport, left_holder, &left.event_id).cmp(&(
+                right.lamport,
+                right_holder,
+                &right.event_id,
+            ))
+        });
+        let winner_event_id = claim_candidates
+            .last()
+            .expect("incompatible claims have candidates")
+            .event_id
+            .clone();
+        let slot = format!("claim:{scope}");
+        let id = conflict_id(
+            &slot,
+            claim_candidates
+                .iter()
+                .map(|candidate| candidate.event_id.as_str()),
+        );
+        conflicts.insert(
+            id.clone(),
+            ConflictRecord {
+                id,
+                slot,
+                kind: ConflictKind::Claim,
+                candidates: claim_candidates,
                 winner_event_id,
                 resolved_by_event_id: None,
                 resolution_reason: None,
@@ -588,8 +740,8 @@ fn loro_error(error: loro::LoroError) -> RuntimeError {
 mod tests {
     use super::*;
     use crate::{
-        Actor, ActorKind, DeviceSigner, EventKind, MigrationProvenance, Phase, Runtime, WorkStatus,
-        EVENT_SCHEMA_VERSION,
+        Actor, ActorKind, ClaimMode, DeviceSigner, EventKind, MigrationProvenance, Phase, Runtime,
+        WorkStatus, EVENT_SCHEMA_VERSION,
     };
     use chrono::Utc;
     use tempfile::tempdir;
@@ -622,6 +774,41 @@ mod tests {
         assert_eq!(status.event_count, 1);
         assert!(status.bytes > 0);
         assert!(status.snapshot_sha256.is_some());
+    }
+
+    #[test]
+    fn authoritative_updates_validate_merge_fsync_and_replay_idempotently() {
+        let fixture = tempdir().unwrap();
+        let runtime = Runtime::open(fixture.path().join("runtime"));
+        runtime
+            .initialize(
+                "project-a",
+                "run-a",
+                Actor {
+                    kind: ActorKind::Operator,
+                    id: "operator-a".into(),
+                    device: "device-a".into(),
+                    harness: "test".into(),
+                    session: "session-a".into(),
+                },
+            )
+            .unwrap();
+        let source = ProjectDocument::open(fixture.path().join("source"), "project-a");
+        source.ingest_events(&runtime.events().unwrap()).unwrap();
+        let updates = source.export_updates().unwrap();
+
+        let target = ProjectDocument::open(fixture.path().join("target"), "project-a");
+        let (inserted, state) = target.import_updates(&updates).unwrap();
+        assert_eq!(inserted, 1);
+        assert_eq!(state.project_id, "project-a");
+        assert_eq!(state.revision, 1);
+        assert_eq!(target.import_updates(&updates).unwrap().0, 0);
+
+        let before = fs::read(target.path()).unwrap();
+        let mut corrupt = updates;
+        corrupt.truncate(corrupt.len() / 2);
+        assert!(target.import_updates(&corrupt).is_err());
+        assert_eq!(fs::read(target.path()).unwrap(), before);
     }
 
     fn signed_branch_event(
@@ -755,5 +942,88 @@ mod tests {
             conflict.resolved_by_event_id.as_deref(),
             Some("resolution-1")
         );
+    }
+
+    #[test]
+    fn concurrent_exclusive_claims_select_lamport_then_holder_and_keep_loser_visible() {
+        let fixture = tempdir().unwrap();
+        let document = ProjectDocument::open(fixture.path(), "project-a");
+        let operator = Actor {
+            kind: ActorKind::Operator,
+            id: "operator".into(),
+            device: "device".into(),
+            harness: "test".into(),
+            session: "session".into(),
+        };
+        let genesis = signed_branch_event(
+            "project-a",
+            "origin",
+            "genesis",
+            CausalFrontier::empty(),
+            EventKind::RunInitialized {
+                initial_state: crate::LifecycleState::Ready,
+                exact_next_work: None,
+                plan_revision: 1,
+            },
+            operator,
+        );
+        let mut frontier = CausalFrontier::empty();
+        frontier.advance("origin", 1);
+        let expires_at = Utc::now() + chrono::Duration::minutes(10);
+        let claim_a = signed_branch_event(
+            "project-a",
+            "replica-a",
+            "claim-a",
+            frontier.clone(),
+            EventKind::ClaimAcquired {
+                claim_id: "claim-a".into(),
+                scope: "phase:recovery".into(),
+                holder_id: "holder-a".into(),
+                mode: ClaimMode::Exclusive,
+                expires_at,
+                monotonic_token: 1,
+            },
+            Actor {
+                kind: ActorKind::Harness,
+                id: "holder-a".into(),
+                device: "device-a".into(),
+                harness: "test".into(),
+                session: "a".into(),
+            },
+        );
+        let claim_b = signed_branch_event(
+            "project-a",
+            "replica-b",
+            "claim-b",
+            frontier,
+            EventKind::ClaimAcquired {
+                claim_id: "claim-b".into(),
+                scope: "phase:recovery".into(),
+                holder_id: "holder-b".into(),
+                mode: ClaimMode::Exclusive,
+                expires_at,
+                monotonic_token: 1,
+            },
+            Actor {
+                kind: ActorKind::Harness,
+                id: "holder-b".into(),
+                device: "device-b".into(),
+                harness: "test".into(),
+                session: "b".into(),
+            },
+        );
+        document
+            .ingest_events(&[genesis, claim_a, claim_b])
+            .unwrap();
+        let state = document.fold().unwrap();
+        let conflict = state
+            .conflicts
+            .values()
+            .find(|conflict| conflict.kind == ConflictKind::Claim)
+            .unwrap();
+        assert_eq!(conflict.winner_event_id, "claim-b");
+        assert_eq!(conflict.candidates.len(), 2);
+        assert!(state.claims.contains_key("claim-b"));
+        assert!(!state.claims.contains_key("claim-a"));
     }
 }

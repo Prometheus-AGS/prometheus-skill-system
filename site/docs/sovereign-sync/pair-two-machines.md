@@ -13,14 +13,14 @@ Pairing has two independent requirements:
    endpoint ID.
 
 Matching the operator ID does not perform discovery by itself. Copying every ID
-is also wrong: signing keys, endpoint identities, KBD node IDs, and API tokens
+is also wrong: signing keys, endpoint identities, and KBD replica identities
 represent different security boundaries.
 
-:::warning What pairing proves today
+:::info What pairing enables
 
-The procedure below can establish an iroh-gossip neighbor relationship for the
-current process lifetime. Version `0.1.0` does not connect that relationship to
-project/global data replication. The REST peer list is a scaffold and the
+The procedure below establishes an iroh-gossip neighbor relationship. Signed
+KBD authority updates and implemented domain adapters can then exchange state;
+pairing alone is not proof that a particular peer imported a broadcast. The
 endpoint ID changes when the daemon restarts.
 
 :::
@@ -32,9 +32,8 @@ endpoint ID changes when the daemon restarts.
 | Sovereign `operator_id` | **Yes** | Yes | `$HOME/.config/sovereign-sync/config.toml` | Derives the shared gossip topic |
 | Repository `projectId` | **Yes for clones of one project** | Yes | `<project>/.prometheus/project.json` | Names the canonical KBD project/runtime |
 | iroh endpoint ID | **No** | **No** | Startup log only | Identifies and locates one running P2P endpoint |
-| KBD `node_id` | Local compatibility value | Yes in config | `[kbd].node_id` | Identifies the current single journal writer; defaults to `1` |
+| KBD replica ID | **No** | Yes | platform KBD registry | Identifies one project checkout/device replica |
 | KBD device-signing key | **No** | Yes | platform credential store or `device-key.json` | Proves which physical device signed a command |
-| KBD control token | **No requirement to match** | Yes | project runtime `control-token` | Authenticates the local loopback REST API |
 | learner ID | Yes for one human learner | Yes in model data | learner-model document key | Joins the same logical learner record |
 
 ### Values that must match
@@ -54,11 +53,9 @@ one runtime with the other ID.
 Never copy `device-key.json` between machines. The signing key is the identity
 of one device.
 
-Do not copy `control-token` as a pairing step. It protects a local API and is
-not used by iroh.
-
-The compatibility policy accepts one local writer with ID `1`. Multi-voter
-configuration is rejected; replica identity is handled by the project registry.
+Each checkout keeps its own replica UUID. The compatibility policy remains
+single-writer and rejects multi-voter configuration; replica identity and
+convergence are handled by the project registry and Loro authority.
 
 ## Before you begin
 

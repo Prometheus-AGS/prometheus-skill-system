@@ -130,14 +130,11 @@ kbd_progress_mark_implementation_complete() {
       *) printf 'kbd-progress: cannot resolve project root from %s\n' "$file" >&2; return 1 ;;
     esac
     phase="$(jq -r '.phase // empty' "$file" 2>/dev/null)"
-    state="$(prometheus kbd --path "$root" status --json)" || return 1
-    revision="$(printf '%s' "$state" | jq -r '.revision')"
     [ -n "$phase" ] || {
       printf 'kbd-progress: active phase is required\n' >&2
       return 1
     }
     prometheus kbd --path "$root" change transition \
-      --expected-revision "$revision" \
       --command-id "implementation-complete:${phase}:${change_id}" \
       --phase "$phase" \
       --id "$change_id" \

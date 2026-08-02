@@ -134,6 +134,12 @@ lock covers read, fold, identity/idempotency/frontier validation, event
 preparation, append, and journal fsync; the Loro snapshot is fsynced before the
 write is acknowledged.
 
+REST mutation bodies wrap this inner command as
+`{"command":{…},"signerKeyId":"ed25519:…","signature":"…"}`. The server
+accepts only schema-v2 commands signed by an active enrolled device. The CLI
+and MCP adapters sign through the runtime device identity rather than exposing
+key material to shell or browser code.
+
 ## State model
 
 `KbdStateV2` contains:
@@ -145,6 +151,7 @@ write is acknowledged.
 - implementation, evidence, certification, and publication completion;
 - decisions and blockers;
 - visible conflict candidates, provisional winners, and signed adjudications;
+- shared/exclusive CRDT claims with scope, TTL, holder, replica, and monotonic token;
 - device trust records;
 - command-to-revision idempotency records.
 
@@ -153,7 +160,16 @@ Use the CLI to inspect it:
 ```bash
 prometheus kbd --path "$PROJECT_ROOT" status --json | jq .
 prometheus kbd --path "$PROJECT_ROOT" audit --json | jq .
+prometheus kbd --path "$PROJECT_ROOT" claim list --json | jq .
+prometheus kbd --path "$PROJECT_ROOT" claim acquire phase:example --mode exclusive --ttl 900
 ```
+
+Concurrent incompatible claims remain visible. The provisional winner is
+selected by `(lamport, holderId)`; the losing holder's intersecting writes are
+rejected with the winning event, current frontier, and a manual rebase
+instruction. Shared claims coexist. Singleton lifecycle, active-path, and
+completion writes require the current frontier; offline concurrency emits a
+`singleton_violation` and requires operator adjudication.
 
 See [Migration and rollout](./migration-and-rollout) for importing legacy
 state.

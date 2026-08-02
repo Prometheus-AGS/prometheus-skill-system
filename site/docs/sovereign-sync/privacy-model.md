@@ -51,10 +51,10 @@ returns false from `is_syncable()`.
 
 :::caution Integration responsibility
 
-`SyncManifest` is a library contract. The transport caller must consult it
-before placing bytes on the wire. The current daemon does not yet transmit
-domain payloads, so the gate is exercised in library tests rather than an
-end-to-end daemon path. Future adapters must preserve that call order.
+`SyncManifest` is a library contract. The transport caller consults it before
+placing bytes on the wire. Current domain and transport integration tests
+exercise both export and import gates. Future adapters must preserve that call
+order.
 
 :::
 
@@ -65,7 +65,6 @@ These values must never be domain payloads:
 | Data | Why it stays local |
 |---|---|
 | `device-key.json` and platform signing keys | Copying a private key destroys per-device identity |
-| KBD `control-token` | It authorizes the loopback API; it is not a peer credential |
 | Sovereign Sync `operator_id` outside the pairing channel | It is a shared topic namespace and should not be published |
 | API keys, SSH keys, cloud credentials, cookies | Credentials are never workflow state |
 | raw prompts, conversations, and harness transcripts | Not part of any declared sync domain |
@@ -94,8 +93,10 @@ discovery, or peer-hook configuration. See
 
 ## Current bytes-on-wire statement
 
-In `0.1.0`, no learner model, loop directory, Karpathy wiki, OpenSpec tree,
-project file, or global state is placed on the P2P wire by the daemon. It may
-publish endpoint reachability metadata to n0 discovery and establish encrypted
-gossip connectivity. That narrow statement is the current operational truth;
+The daemon can place signed `kbd-control:<project-id>` authority updates,
+auxiliary presence, skill-index data, and learner-model data on the P2P wire
+when their privacy policy permits it. Loop directories, Karpathy wiki,
+OpenSpec trees, arbitrary project files, and unregistered global state are not
+automatically transmitted. Endpoint reachability metadata may be published to
+n0 discovery. That narrow allowlist is the current operational truth;
 the broader domain classifications describe the intended replication contract.

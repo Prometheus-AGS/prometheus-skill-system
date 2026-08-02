@@ -131,10 +131,8 @@ if [[ -f "$RUNTIME_LIB" ]]; then
 fi
 if command -v kbd_runtime_authoritative >/dev/null 2>&1 &&
    kbd_runtime_authoritative "$REPO_ROOT"; then
-  mutation="$(kbd_runtime_mutation_args "$REPO_ROOT" "phase-create:${CHILD_PHASE_NAME}")"
-  revision="$(printf '%s\n' "$mutation" | sed -n '1p')"
   prometheus kbd --path "$REPO_ROOT" phase create \
-    --expected-revision "$revision" --command-id "phase-create:${CHILD_PHASE_NAME}" \
+    --command-id "phase-create:${CHILD_PHASE_NAME}" \
     --id "$CHILD_PHASE_NAME" --title "$CHILD_PHASE_NAME" >/dev/null
 else
 # Write progress.json for the child phase
@@ -172,7 +170,7 @@ cat >> "$STATE_FILE" << STATE_EOF
 - **Reason:** ${FAIL_THRESHOLD} consecutive failures
 - **Parent loop status:** Continuing with remaining tasks
 
-EOF
+STATE_EOF
 
 # Update promotions array in goal.json
 if command -v jq &>/dev/null; then

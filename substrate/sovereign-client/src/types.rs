@@ -41,5 +41,24 @@ pub enum AgUiEvent {
         task_id: String,
         error: String,
     },
+    EventAppended {
+        project_id: String,
+        event_id: String,
+        replica_id: String,
+        lamport: u64,
+        frontier: kbd_runtime::CausalFrontier,
+    },
+    ClaimAcquired {
+        project_id: String,
+        claim: kbd_runtime::ClaimRecord,
+    },
+    ClaimConflict {
+        project_id: String,
+        conflict: kbd_runtime::ConflictRecord,
+    },
+    SingletonViolation {
+        project_id: String,
+        conflict: kbd_runtime::ConflictRecord,
+    },
     Ping,
 }

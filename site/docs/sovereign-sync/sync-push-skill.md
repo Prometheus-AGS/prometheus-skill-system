@@ -22,7 +22,7 @@ the request but does not transmit domain state.
 |--------|---------|
 | `skill-index` | Recommended `Public` metadata |
 | `learner-model` | Recommended `Trusted` |
-| `kbd-control:<project-id>` | Presence may be `Trusted`; authoritative Loro deltas are introduced by the project-document layer |
+| `kbd-control:<project-id>` | `Trusted`; signed authoritative Loro updates plus auxiliary presence |
 | `open-spec:<project-id>` | Future project adapter |
 | `surreal-memory` | `Local` — must remain ineligible |
 
@@ -31,19 +31,14 @@ maintain a live manifest registry for the REST handler.
 
 ## Quick push
 
-For raw REST calls, derive `AUTH_HEADER` using the
-[REST authentication helper](./rest-api#authentication-helper).
-
 ```bash
 # Push skill index
 curl -s -X POST http://127.0.0.1:7892/api/v1/sync/push \
-  -H "$AUTH_HEADER" \
   -H 'Content-Type: application/json' \
   -d '{"domain": "skill-index"}'
 
 # Push learner model
 curl -s -X POST http://127.0.0.1:7892/api/v1/sync/push \
-  -H "$AUTH_HEADER" \
   -H 'Content-Type: application/json' \
   -d '{"domain": "learner-model"}'
 ```

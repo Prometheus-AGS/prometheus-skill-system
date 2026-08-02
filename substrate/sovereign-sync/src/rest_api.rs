@@ -21,7 +21,7 @@ use axum::{
 };
 use bytes::Bytes;
 use futures::stream;
-use kbd_runtime::{CommandEnvelope, CommandKind};
+use kbd_runtime::{CommandKind, SignedCommandEnvelope};
 use serde::Deserialize;
 use std::{
     collections::{BTreeMap, HashMap},
@@ -35,11 +35,11 @@ use storage_provider::{CrdtEngine, LoroAdapter, SyncDomain, SyncManifest};
 use tokio::sync::RwLock as AsyncRwLock;
 use tracing::info;
 
-use crate::ag_ui::{ag_ui_ping, ag_ui_stream, AgUiState};
+use crate::ag_ui::{ag_ui_events, ag_ui_ping, ag_ui_stream, AgUiEvent, AgUiState};
 use crate::domains::{self, DomainAdapter, LearnerModelAdapter, SkillIndexAdapter, SyncEnvelope};
 use crate::kbd_control::KbdProjectRouter;
 use crate::kbd_single_writer::QuorumPolicy;
-use crate::kbd_sync::KbdPresenceDocument;
+use crate::kbd_sync::{KbdAuthorityPayload, KbdPresenceDocument};
 use crate::mcp_server::SkillIndex;
 use crate::p2p::P2PNode;
 
@@ -64,7 +64,7 @@ pub struct AppState {
     /// Present in daemon mode (real P2P gossip); absent in plain server mode.
     p2p: Option<Arc<P2PNode>>,
     adapters: Arc<HashMap<String, Box<dyn DomainAdapter>>>,
-    /// `kbd-control` presence — handled directly here, not through
+    /// `kbd-control` auxiliary presence — handled directly here, not through
     /// `adapters`/`docs` (see `domains.rs`'s module comment on why it isn't
     /// a `DomainAdapter`).
     presence: Arc<StdRwLock<BTreeMap<String, Arc<KbdPresenceDocument>>>>,
@@ -416,7 +416,7 @@ pub async fn build_push_envelope(
     let family = domains::domain_family(&domain).to_string();
 
     if family == "kbd-control" {
-        return build_presence_push_envelope(state, domain_name).await;
+        return build_kbd_authority_push_envelope(state, domain_name).await;
     }
 
     let adapter = state.adapters.get(&family).ok_or_else(|| {
@@ -460,7 +460,7 @@ pub async fn build_push_envelope(
     // exactly, or every push for that family is silently dropped as a false
     // identity mismatch on the receiving side (learner-model scopes by
     // learner_id, not project_id; kbd-control has its own dedicated path,
-    // see build_presence_push_envelope).
+    // see build_kbd_authority_push_envelope).
     let identity = match family.as_str() {
         "learner-model" => Some(default_learner_id()),
         _ => None,
@@ -478,13 +478,10 @@ pub async fn build_push_envelope(
     })
 }
 
-/// `kbd-control` push: refresh this node's own presence entry in the
-/// dedicated `KbdPresenceDocument`, export a full snapshot (Loro merges a
-/// snapshot into an existing doc correctly, so no incremental-delta
-/// tracking is needed for a small, infrequent presence heartbeat), sign it
-/// with this node's device identity, and broadcast. Bypasses the generic
-/// DomainAdapter/docs pipeline entirely — see domains.rs's module comment.
-async fn build_presence_push_envelope(
+/// `kbd-control` push: export the persisted project's complete Loro update
+/// set, attach auxiliary presence, sign the envelope with the project device
+/// identity, and broadcast. Replica journals never leave the machine.
+async fn build_kbd_authority_push_envelope(
     state: &AppState,
     domain_name: &str,
 ) -> Result<PushOutcome, (StatusCode, serde_json::Value)> {
@@ -531,16 +528,29 @@ async fn build_presence_push_envelope(
             serde_json::json!({"error": error.to_string()}),
         )
     })?;
-    let snapshot = presence_document.export_snapshot().map_err(|error| {
+    let presence = presence_document.entries().map_err(|error| {
         (
             StatusCode::INTERNAL_SERVER_ERROR,
             serde_json::json!({"error": error.to_string()}),
         )
     })?;
+    let project_updates = control.export_project_updates().await.map_err(|error| {
+        (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            serde_json::json!({"error": error.to_string()}),
+        )
+    })?;
+    let payload =
+        KbdAuthorityPayload::encode(project_id, project_updates, presence).map_err(|error| {
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                serde_json::json!({"error": error.to_string()}),
+            )
+        })?;
 
     if state.p2p.is_none() {
         return Ok(PushOutcome::LocalOnly {
-            snapshot_bytes: snapshot.len(),
+            snapshot_bytes: payload.len(),
         });
     }
 
@@ -551,10 +561,10 @@ async fn build_presence_push_envelope(
         )
     })?;
     let mut envelope = SyncEnvelope {
-        schema_version: "1".into(),
+        schema_version: "2".into(),
         domain: domain_name.to_string(),
         identity: Some(status.project_id),
-        payload: snapshot,
+        payload,
         signer_key_id: None,
         signature: None,
     };
@@ -826,8 +836,9 @@ async fn kbd_conflicts(
 async fn kbd_command(
     State(state): State<AppState>,
     AxumPath(project_id): AxumPath<String>,
-    Json(envelope): Json<CommandEnvelope>,
+    Json(signed): Json<SignedCommandEnvelope>,
 ) -> impl IntoResponse {
+    let envelope = &signed.command;
     if envelope.project_id != project_id {
         return (
             StatusCode::BAD_REQUEST,
@@ -851,13 +862,25 @@ async fn kbd_command(
                 .into_response()
         }
     };
-    match control.submit(envelope).await {
-        Ok(committed) => (StatusCode::OK, Json(serde_json::json!(committed))).into_response(),
+    let command_id = signed.command.command_id.clone();
+    match control.submit_signed(signed).await {
+        Ok(committed) => {
+            if let Ok(events) = control.events_async(0).await {
+                if let Some(event) = events
+                    .iter()
+                    .find(|event| event.command_id.as_deref() == Some(&command_id))
+                {
+                    publish_kbd_event(&state.ag_ui, event, &committed.result.state);
+                }
+            }
+            (StatusCode::OK, Json(serde_json::json!(committed))).into_response()
+        }
         Err(error) => (
-            if error.kind() == std::io::ErrorKind::WouldBlock {
-                StatusCode::SERVICE_UNAVAILABLE
-            } else {
-                StatusCode::CONFLICT
+            match error.kind() {
+                std::io::ErrorKind::WouldBlock => StatusCode::SERVICE_UNAVAILABLE,
+                std::io::ErrorKind::PermissionDenied => StatusCode::UNAUTHORIZED,
+                std::io::ErrorKind::InvalidInput => StatusCode::BAD_REQUEST,
+                _ => StatusCode::CONFLICT,
             },
             Json(serde_json::json!({"error":error.to_string()})),
         )
@@ -865,12 +888,60 @@ async fn kbd_command(
     }
 }
 
+fn publish_kbd_event(
+    ag_ui: &AgUiState,
+    event: &kbd_runtime::Event,
+    state: &kbd_runtime::KbdStateV2,
+) {
+    ag_ui.publish(AgUiEvent::EventAppended {
+        project_id: event.project_id.clone(),
+        event_id: event.event_id.clone(),
+        replica_id: event.replica_id.clone(),
+        lamport: event.lamport,
+        frontier: state.frontier.clone(),
+    });
+    if matches!(event.kind, kbd_runtime::EventKind::ClaimAcquired { .. }) {
+        if let Some(claim) = state
+            .claims
+            .values()
+            .find(|claim| claim.acquired_event_id == event.event_id)
+        {
+            ag_ui.publish(AgUiEvent::ClaimAcquired {
+                project_id: event.project_id.clone(),
+                claim: claim.clone(),
+            });
+        }
+    }
+    for conflict in state.conflicts.values().filter(|conflict| {
+        conflict
+            .candidates
+            .iter()
+            .any(|candidate| candidate.event_id == event.event_id)
+    }) {
+        match conflict.kind {
+            kbd_runtime::ConflictKind::Claim => ag_ui.publish(AgUiEvent::ClaimConflict {
+                project_id: event.project_id.clone(),
+                conflict: conflict.clone(),
+            }),
+            kbd_runtime::ConflictKind::Lifecycle
+            | kbd_runtime::ConflictKind::ActivePath
+            | kbd_runtime::ConflictKind::Completion => {
+                ag_ui.publish(AgUiEvent::SingletonViolation {
+                    project_id: event.project_id.clone(),
+                    conflict: conflict.clone(),
+                })
+            }
+            _ => {}
+        }
+    }
+}
+
 async fn kbd_resolve_conflict(
     State(state): State<AppState>,
     AxumPath((project_id, conflict_id)): AxumPath<(String, String)>,
-    Json(envelope): Json<CommandEnvelope>,
+    Json(signed): Json<SignedCommandEnvelope>,
 ) -> impl IntoResponse {
-    match &envelope.command {
+    match &signed.command.command {
         CommandKind::ConflictResolve {
             conflict_id: supplied,
             ..
@@ -885,9 +956,98 @@ async fn kbd_resolve_conflict(
                 .into_response()
         }
     }
-    kbd_command(State(state), AxumPath(project_id), Json(envelope))
+    kbd_command(State(state), AxumPath(project_id), Json(signed))
         .await
         .into_response()
+}
+
+async fn kbd_claims(
+    State(state): State<AppState>,
+    AxumPath(project_id): AxumPath<String>,
+) -> impl IntoResponse {
+    let control = match state.kbd_projects.control(&project_id) {
+        Ok(control) => control,
+        Err(error) => {
+            return (
+                StatusCode::NOT_FOUND,
+                Json(serde_json::json!({"error":error.to_string()})),
+            )
+                .into_response()
+        }
+    };
+    match control.status_async().await {
+        Ok(runtime) => {
+            let conflicts = runtime
+                .conflicts
+                .values()
+                .filter(|conflict| conflict.kind == kbd_runtime::ConflictKind::Claim)
+                .collect::<Vec<_>>();
+            (
+                StatusCode::OK,
+                Json(serde_json::json!({
+                    "claims": runtime.claims,
+                    "conflicts": conflicts,
+                    "frontier": runtime.frontier
+                })),
+            )
+                .into_response()
+        }
+        Err(error) => (
+            StatusCode::CONFLICT,
+            Json(serde_json::json!({"error":error.to_string()})),
+        )
+            .into_response(),
+    }
+}
+
+async fn kbd_claim_command(
+    state: AppState,
+    project_id: String,
+    expected_action: &'static str,
+    signed: SignedCommandEnvelope,
+) -> axum::response::Response {
+    let matches = matches!(
+        (&signed.command.command, expected_action),
+        (CommandKind::ClaimAcquire { .. }, "acquire")
+            | (CommandKind::ClaimRenew { .. }, "renew")
+            | (CommandKind::ClaimRelease { .. }, "release")
+    );
+    if !matches {
+        return (
+            StatusCode::BAD_REQUEST,
+            Json(serde_json::json!({"error":format!(
+                "claim endpoint requires a claim_{expected_action} command"
+            )})),
+        )
+            .into_response();
+    }
+    kbd_command(State(state), AxumPath(project_id), Json(signed))
+        .await
+        .into_response()
+}
+
+async fn kbd_claim_acquire(
+    State(state): State<AppState>,
+    AxumPath(project_id): AxumPath<String>,
+    Json(signed): Json<SignedCommandEnvelope>,
+) -> impl IntoResponse {
+    kbd_claim_command(state, project_id, "acquire", signed).await
+}
+
+async fn kbd_claim_renew(
+    State(state): State<AppState>,
+    AxumPath(project_id): AxumPath<String>,
+    Json(signed): Json<SignedCommandEnvelope>,
+) -> impl IntoResponse {
+    kbd_claim_command(state, project_id, "renew", signed).await
+}
+
+async fn kbd_claim_release(
+    State(state): State<AppState>,
+    AxumPath(project_id): AxumPath<String>,
+    Json(signed): Json<SignedCommandEnvelope>,
+) -> impl IntoResponse {
+    kbd_claim_command(state, project_id, "release", signed).await
 }
 
 async fn kbd_event_stream(
@@ -926,14 +1086,8 @@ async fn kbd_event_stream(
         .unwrap_or(0);
     let events = stream::unfold((control, last_event_id), |(control, revision)| async move {
         tokio::time::sleep(Duration::from_secs(1)).await;
-        let current = control
-            .events(revision.saturating_add(1))
-            .unwrap_or_default();
-        let fresh: Vec<_> = current
-            .into_iter()
-            .filter(|event| event.revision > revision)
-            .collect();
-        let next_revision = fresh.last().map_or(revision, |event| event.revision);
+        let fresh = control.events(revision).unwrap_or_default();
+        let next_revision = revision.saturating_add(fresh.len() as u64);
         let payload = serde_json::to_string(&fresh).unwrap_or_else(|_| "[]".into());
         Some((
             Ok::<_, Infallible>(
@@ -985,6 +1139,19 @@ pub fn build_router(state: AppState) -> Router {
             "/api/v1/kbd/projects/{project_id}/conflicts/{conflict_id}/resolve",
             post(kbd_resolve_conflict),
         )
+        .route("/api/v1/kbd/projects/{project_id}/claims", get(kbd_claims))
+        .route(
+            "/api/v1/kbd/projects/{project_id}/claims/acquire",
+            post(kbd_claim_acquire),
+        )
+        .route(
+            "/api/v1/kbd/projects/{project_id}/claims/renew",
+            post(kbd_claim_renew),
+        )
+        .route(
+            "/api/v1/kbd/projects/{project_id}/claims/release",
+            post(kbd_claim_release),
+        )
         .route(
             "/api/v1/kbd/projects/{project_id}/events/stream",
             get(kbd_event_stream),
@@ -998,6 +1165,10 @@ pub fn build_router(state: AppState) -> Router {
             post(ag_ui_stream).with_state(ag_state.clone()),
         )
         .route("/api/v1/stream/ping", get(ag_ui_ping))
+        .route(
+            "/api/v1/events",
+            get(ag_ui_events).with_state(ag_state.clone()),
+        )
         .with_state(state.clone())
 }
 
@@ -1035,7 +1206,7 @@ pub async fn handle_incoming_message(state: &AppState, payload: &[u8]) {
     let family = domains::domain_family(&domain).to_string();
 
     if family == "kbd-control" {
-        return import_presence_message(state, &envelope).await;
+        return import_kbd_authority_message(state, &envelope).await;
     }
 
     // Public domains (skill-index) carry no meaningful identity scope.
@@ -1101,7 +1272,7 @@ pub async fn handle_incoming_message(state: &AppState, payload: &[u8]) {
 /// public key. `peer_authorized` is only true when both hold; `import_authenticated`
 /// enforces it again independently (defense in depth), so a bug here fails
 /// closed rather than open.
-async fn import_presence_message(state: &AppState, envelope: &SyncEnvelope) {
+async fn import_kbd_authority_message(state: &AppState, envelope: &SyncEnvelope) {
     let Some(project_id) = envelope.identity.as_deref() else {
         tracing::warn!("dropping kbd-control message — missing project identity");
         return;
@@ -1124,14 +1295,61 @@ async fn import_presence_message(state: &AppState, envelope: &SyncEnvelope) {
         return;
     }
 
-    let peer_authorized = presence_peer_is_authorized(&status.devices, envelope);
+    let peer_authorized = kbd_peer_is_authorized(&status.devices, envelope);
+    if !peer_authorized {
+        tracing::warn!("dropping kbd-control authority message — signer is not authorized");
+        return;
+    }
+
+    let payload = match KbdAuthorityPayload::decode(&envelope.payload) {
+        Ok(payload) if payload.project_id == project_id => payload,
+        Ok(payload) => {
+            tracing::warn!(
+                "dropping kbd-control authority message — payload project {} does not match {}",
+                payload.project_id,
+                project_id
+            );
+            return;
+        }
+        Err(error) => {
+            tracing::warn!("dropping invalid kbd-control authority payload: {error}");
+            return;
+        }
+    };
+    let before = control
+        .events_async(0)
+        .await
+        .unwrap_or_default()
+        .into_iter()
+        .map(|event| event.event_id)
+        .collect::<std::collections::HashSet<_>>();
+    let merged = match control
+        .import_project_updates(payload.project_updates)
+        .await
+    {
+        Ok((_, merged)) => merged,
+        Err(error) => {
+            tracing::warn!("dropping invalid kbd-control project updates: {error}");
+            return;
+        }
+    };
+    if let Ok(events) = control.events_async(0).await {
+        for event in events
+            .iter()
+            .filter(|event| !before.contains(&event.event_id))
+        {
+            publish_kbd_event(&state.ag_ui, event, &merged);
+        }
+    }
 
     let Some(presence) = state.presence_for(project_id) else {
         tracing::warn!("dropping kbd-control message — presence document is unavailable");
         return;
     };
-    if let Err(error) = presence.import_authenticated(&envelope.payload, peer_authorized) {
-        tracing::warn!("dropping kbd-control presence message: {error}");
+    for entry in payload.presence {
+        if let Err(error) = presence.update(&entry) {
+            tracing::warn!("failed to merge kbd-control presence: {error}");
+        }
     }
 }
 
@@ -1141,7 +1359,7 @@ async fn import_presence_message(state: &AppState, envelope: &SyncEnvelope) {
 /// envelope's claimed signer resolves to an `Active` enrolled device AND the
 /// signature verifies against that device's own public key — an unknown
 /// signer, a revoked device, or a tampered/forged signature all fail closed.
-fn presence_peer_is_authorized(
+fn kbd_peer_is_authorized(
     devices: &std::collections::BTreeMap<String, kbd_runtime::DeviceRecord>,
     envelope: &SyncEnvelope,
 ) -> bool {
@@ -1171,13 +1389,11 @@ pub async fn serve_with_state(port: u16, state: AppState) -> anyhow::Result<()> 
     // LOOPBACK ONLY — and this is load-bearing, not incidental.
     //
     // There is no authentication on this server. That is deliberate: the
-    // previous bearer-token scheme had both sides call
-    // `Runtime::control_token()`, which mints a FRESH RANDOM secret when no
-    // token file exists. The CLI and the daemon resolve different runtime
-    // roots, no token file was ever created, and so the two processes always
-    // generated different secrets. Every authenticated write returned 401. It
-    // produced 100% false positives and 0% security, for a service reachable
-    // only by processes that already have local code execution.
+    // previous bearer-token scheme resolved different runtime roots for CLI
+    // and daemon processes and produced mismatched secrets. It returned false
+    // 401s without protecting a service reachable only by processes that
+    // already have local code execution. KBD mutation POSTs now have their own
+    // device-signature authorization in addition to this transport boundary.
     //
     // IF YOU CHANGE THIS ADDRESS, YOU MUST ADD AUTHENTICATION FIRST. Binding
     // anything other than 127.0.0.1 exposes unauthenticated control-plane
@@ -1197,9 +1413,20 @@ pub async fn serve_with_state(port: u16, state: AppState) -> anyhow::Result<()> 
 
 #[cfg(test)]
 mod presence_auth_tests {
-    use super::{presence_peer_is_authorized, SyncEnvelope};
-    use kbd_runtime::{DeviceRecord, DeviceSigner, DeviceStatus};
-    use std::collections::BTreeMap;
+    use super::{
+        build_push_envelope, handle_incoming_message, kbd_peer_is_authorized, AppState,
+        PushOutcome, SyncEnvelope,
+    };
+    use crate::p2p::P2PNode;
+    use bytes::Bytes;
+    use iroh::address_lookup::MemoryLookup;
+    use kbd_runtime::{
+        Actor, ActorKind, ClaimMode, CommandEnvelope, CommandKind, DeviceRecord, DeviceSigner,
+        DeviceStatus, Runtime,
+    };
+    use std::{collections::BTreeMap, fs, sync::Arc, time::Duration};
+    use tempfile::tempdir;
+    use uuid::Uuid;
 
     fn envelope() -> SyncEnvelope {
         SyncEnvelope {
@@ -1260,7 +1487,7 @@ mod presence_auth_tests {
         let devices = enrolled(&signer, DeviceStatus::Active);
         let mut env = envelope();
         env.sign(&signer);
-        assert!(presence_peer_is_authorized(&devices, &env));
+        assert!(kbd_peer_is_authorized(&devices, &env));
     }
 
     #[test]
@@ -1268,7 +1495,7 @@ mod presence_auth_tests {
         let signer = DeviceSigner::generate();
         let devices = enrolled(&signer, DeviceStatus::Active);
         let env = envelope();
-        assert!(!presence_peer_is_authorized(&devices, &env));
+        assert!(!kbd_peer_is_authorized(&devices, &env));
     }
 
     #[test]
@@ -1277,7 +1504,7 @@ mod presence_auth_tests {
         let devices = BTreeMap::new(); // signer never enrolled on this node
         let mut env = envelope();
         env.sign(&signer);
-        assert!(!presence_peer_is_authorized(&devices, &env));
+        assert!(!kbd_peer_is_authorized(&devices, &env));
     }
 
     #[test]
@@ -1286,7 +1513,7 @@ mod presence_auth_tests {
         let devices = enrolled(&signer, DeviceStatus::Revoked);
         let mut env = envelope();
         env.sign(&signer);
-        assert!(!presence_peer_is_authorized(&devices, &env));
+        assert!(!kbd_peer_is_authorized(&devices, &env));
     }
 
     #[test]
@@ -1300,6 +1527,121 @@ mod presence_auth_tests {
         let mut env = envelope();
         env.sign(&impostor);
         env.signer_key_id = Some(signer.key_id().to_string());
-        assert!(!presence_peer_is_authorized(&devices, &env));
+        assert!(!kbd_peer_is_authorized(&devices, &env));
+    }
+
+    #[tokio::test]
+    async fn two_iroh_peers_exchange_a_signed_claim_authority_update() {
+        let fixture = tempdir().unwrap();
+        let project_a = fixture.path().join("project-a");
+        let project_b = fixture.path().join("project-b");
+        let data_a = fixture.path().join("data-a");
+        let data_b = fixture.path().join("data-b");
+        let skills = fixture.path().join("skills");
+        let project_id = Uuid::new_v4().to_string();
+        for project in [&project_a, &project_b] {
+            fs::create_dir_all(project.join(".prometheus")).unwrap();
+            fs::write(
+                project.join(".prometheus/project.json"),
+                serde_json::json!({
+                    "schemaVersion":"1",
+                    "projectId":project_id,
+                    "repositoryFingerprint":"sha256:iroh-claim-test"
+                })
+                .to_string(),
+            )
+            .unwrap();
+        }
+        fs::create_dir_all(&skills).unwrap();
+
+        let runtime_a = Runtime::open_canonical_at(&project_a, &data_a).unwrap();
+        let initialized = runtime_a
+            .initialize(
+                project_id.clone(),
+                "run-a",
+                Actor::operator("operator", "test"),
+            )
+            .unwrap();
+        let runtime_b = Runtime::open_canonical_at(&project_b, &data_b).unwrap();
+        runtime_b
+            .import_project_updates(&runtime_a.export_project_updates().unwrap())
+            .unwrap();
+
+        let lookup = MemoryLookup::new();
+        let (p2p_a, _incoming_a) = P2PNode::new_with_memory_lookup(&[42; 32], lookup.clone())
+            .await
+            .unwrap();
+        let (p2p_b, mut incoming_b) = P2PNode::new_with_memory_lookup(&[42; 32], lookup)
+            .await
+            .unwrap();
+        let node_a_id = p2p_a.node_id();
+        p2p_a.start(Vec::new()).await.unwrap();
+        p2p_b.start(vec![node_a_id]).await.unwrap();
+        let p2p_a = Arc::new(p2p_a);
+        let p2p_b = Arc::new(p2p_b);
+
+        tokio::time::timeout(Duration::from_secs(5), async {
+            loop {
+                if !p2p_a.neighbors().await.is_empty() && !p2p_b.neighbors().await.is_empty() {
+                    break;
+                }
+                tokio::time::sleep(Duration::from_millis(20)).await;
+            }
+        })
+        .await
+        .expect("local iroh peers should become neighbors");
+
+        let state_a = AppState::try_new_at(&skills, &project_a, &data_a, Some(Arc::clone(&p2p_a)))
+            .await
+            .unwrap();
+        let state_b = AppState::try_new_at(&skills, &project_b, &data_b, Some(p2p_b))
+            .await
+            .unwrap();
+        let actor = Actor {
+            kind: ActorKind::Harness,
+            id: "holder-a".into(),
+            device: "device-a".into(),
+            harness: "test".into(),
+            session: "session-a".into(),
+        };
+        runtime_a
+            .execute_command(CommandEnvelope {
+                schema_version: "2".into(),
+                project_id: project_id.clone(),
+                run_id: initialized.run_id,
+                command_id: "claim-over-iroh".into(),
+                frontier: Some(initialized.frontier),
+                expected_revision: 0,
+                actor: actor.clone(),
+                command: CommandKind::ClaimAcquire {
+                    scope: "phase:iroh".into(),
+                    mode: ClaimMode::Exclusive,
+                    ttl_seconds: 300,
+                    holder_id: actor.id,
+                },
+            })
+            .unwrap();
+        let outcome = build_push_envelope(&state_a, &format!("kbd-control:{project_id}"))
+            .await
+            .unwrap();
+        let envelope = match outcome {
+            PushOutcome::Broadcast { envelope, .. } => envelope,
+            PushOutcome::LocalOnly { .. } => panic!("node A has an active P2P transport"),
+        };
+        p2p_a
+            .broadcast(Bytes::from(serde_json::to_vec(&envelope).unwrap()))
+            .await
+            .unwrap();
+        let received = tokio::time::timeout(Duration::from_secs(5), incoming_b.recv())
+            .await
+            .expect("peer B should receive the claim envelope")
+            .expect("peer B receiver should stay open");
+        handle_incoming_message(&state_b, &received.payload).await;
+
+        let converged = runtime_b.replay().unwrap();
+        assert!(converged
+            .claims
+            .values()
+            .any(|claim| claim.scope == "phase:iroh" && claim.holder_id == "holder-a"));
     }
 }

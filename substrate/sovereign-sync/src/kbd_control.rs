@@ -14,6 +14,7 @@ use std::{
 use kbd_runtime::{
     registry::{ProjectRegistry, RegistrationOutcome, RegistryDocument, ReplicaRegistration},
     CommandEnvelope, CommandResult, DeviceStatus, Event, KbdStateV2, Runtime,
+    SignedCommandEnvelope,
 };
 use serde::Serialize;
 
@@ -433,6 +434,31 @@ impl KbdControlPlane {
             })?
     }
 
+    pub async fn export_project_updates(&self) -> io::Result<Vec<u8>> {
+        let runtime = Arc::clone(&self.runtime);
+        tokio::task::spawn_blocking(move || {
+            runtime
+                .export_project_updates()
+                .map_err(|error| io::Error::other(error.to_string()))
+        })
+        .await
+        .map_err(|join_error| io::Error::other(format!("export task failed: {join_error}")))?
+    }
+
+    pub async fn import_project_updates(
+        &self,
+        updates: Vec<u8>,
+    ) -> io::Result<(usize, KbdStateV2)> {
+        let runtime = Arc::clone(&self.runtime);
+        tokio::task::spawn_blocking(move || {
+            runtime
+                .import_project_updates(&updates)
+                .map_err(|error| io::Error::other(error.to_string()))
+        })
+        .await
+        .map_err(|join_error| io::Error::other(format!("import task failed: {join_error}")))?
+    }
+
     pub async fn submit(&self, envelope: CommandEnvelope) -> io::Result<CommittedCommand> {
         let quorum = self.quorum_status();
         if !quorum.writable {
@@ -463,6 +489,23 @@ impl KbdControlPlane {
         })
         .await
         .map_err(|join_error| io::Error::other(format!("command task failed: {join_error}")))?
+    }
+
+    pub async fn submit_signed(
+        &self,
+        signed: SignedCommandEnvelope,
+    ) -> io::Result<CommittedCommand> {
+        if signed.command.schema_version != "2" {
+            return Err(io::Error::new(
+                io::ErrorKind::InvalidInput,
+                "remote commands require schemaVersion 2",
+            ));
+        }
+        let state = self.status_async().await?;
+        signed
+            .verify(&state)
+            .map_err(|error| io::Error::new(io::ErrorKind::PermissionDenied, error.to_string()))?;
+        self.submit(signed.command).await
     }
 }
 

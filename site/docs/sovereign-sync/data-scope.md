@@ -31,18 +31,18 @@ but the daemon’s P2P sender/receiver is not connected to any real data produce
 
 | Domain or family | Code that exists | Intended/recommended classification | Automatically transmitted by `0.1.0`? |
 |---|---|---|---:|
-| `skill-index` | Example manifest entry and local MCP search index | `Public` metadata | **No** |
-| `learner-model` | Local CRDT documents, typed store, merge API, manifest tests | `Trusted` | **No** |
+| `skill-index` | Local MCP search index plus domain adapter | `Public` metadata | **Yes, on explicit push** |
+| `learner-model` | Local CRDT documents, typed store, merge adapter | `Trusted` | **Yes, on explicit push** |
 | `surreal-memory` | Manifest/privacy rejection tests | `Local` | **No; rejected in tested CRDT path** |
-| `kbd-control:<project-id>` presence | Project-scoped Loro presence document | `Trusted` after peer authorization | **No** |
-| KBD authoritative commands/events | Flocked, fsynced journal + signed event runtime | Single writer during project-document migration | **Local only until authoritative Loro sync is enabled** |
+| `kbd-control:<project-id>` | Signed project Loro updates plus auxiliary presence | `Trusted` after peer authorization | **Yes, on explicit push and incoming gossip** |
+| KBD authoritative commands/events | Flocked replica WAL + signed grow-only Loro authority | Multi-replica CRDT authority | **Same-machine shared document plus signed P2P updates** |
 | `open-spec` | Advertised in the REST scaffold response | Trusted project data would be appropriate | **No adapter or daemon registration** |
 | `kbd-orchestrator` | Advertised in the REST scaffold response | Split authored artifacts from command authority | **No adapter or daemon registration** |
 | `kb:<name>` | Generic custom-domain model in `storage-provider` | Explicit `Public`, `Trusted`, or `Local` decision | **No daemon adapter** |
 
-`POST /api/v1/sync/push` accepts any domain string and echoes
-`{"status":"queued"}`. It does not validate the domain against a live manifest,
-read a source, export a delta, call `P2PNode::broadcast`, or confirm delivery.
+`POST /api/v1/sync/push` validates the domain against the live manifest,
+exports its real source, prepares a Loro update, and broadcasts when a P2P node
+is active. The response proves local preparation/broadcast, not remote apply.
 
 ## Project identity and isolation
 
@@ -77,8 +77,8 @@ normally means by “sync this project.”
 | Data family | Representative paths/content | Current automatic sync | Correct ownership boundary |
 |---|---|---:|---|
 | Immutable project identity | `.prometheus/project.json` | No | Distribute once through Git or reviewed setup; never merge two generated IDs |
-| Canonical KBD authority | platform data root: `project.loro`, replica journals/locks, signed events | No cross-process sync yet | Project Loro document is authoritative; journals are write-ahead ingestion and crash recovery |
-| KBD credentials | control token, device signing key | Never | Local secret/identity |
+| Canonical KBD authority | platform data root: `project.loro`, replica journals/locks, signed events | Signed `kbd-control:<project-id>` Loro updates | Project Loro document is authoritative; journals remain local write-ahead ingestion and crash recovery |
+| KBD credentials | device signing keys | Never | Per-device secret identity |
 | KBD resume projections | `.kbd-orchestrator/current-waypoint.json`, `.md`, `position.json`, `position-reminder.txt` | No | Derived from canonical KBD revision or authored summary |
 | KBD phase lifecycle | `phases/<phase>/progress.json`, goals, assessment, analysis, plan, execution, reflection, tasks, evidence, handoffs, decision logs | No | Project state; future adapter must separate authored artifacts from authoritative commands |
 | KBD changes | `.kbd-orchestrator/changes/<change>/change.md`, `tasks.md`, `tasks.json`, execution evidence | No | Project work products; often also tracked by Git |
@@ -122,8 +122,8 @@ Authoritative events move through signed project-scoped Loro deltas once the
 project-document migration is enabled. The local journal remains the fsynced
 write-ahead ingestion log.
 
-**Current sync:** local single-writer journal authority only; authoritative P2P
-sync is not yet enabled in the deployed service.
+**Current sync:** signed project-scoped Loro updates over existing iroh gossip;
+per-replica journals remain local WALs and Git is never an import authority.
 
 ### Iterative evolver and strategic loops
 
@@ -209,7 +209,6 @@ are listed below.
 | Installed skill trees | tool-specific global skill directories | No | Reinstall/update from the canonical skill pack |
 | Sovereign config | `$HOME/.config/sovereign-sync/config.toml` | No | Copy only the chosen `operator_id`; preserve machine-specific settings |
 | Device signing key | platform credential store or `device-key.json` | Never | Unique secret per machine |
-| KBD control tokens | one token per canonical project runtime | Never | Local loopback API credential |
 | Service logs | `$HOME/.prometheus/logs/` | No | Local diagnostics |
 
 Global scope does not mean “safe to send to every device.” It means the data is
@@ -226,7 +225,7 @@ payload:
 | `skill-index` | names, versions, descriptions, source hashes | Public CRDT/index rebuild |
 | `learner-model:<learner-id>` | typed learner CRDT only | Trusted CRDT merge |
 | `approved-kb:<project-id>` | reviewed, sanitized project wiki entries | Trusted CRDT or content-addressed docs |
-| `kbd-presence:<project-id>` | device/harness/session/revision presence | Trusted ephemeral CRDT |
+| auxiliary KBD presence | device/harness/session/revision presence inside signed `kbd-control` payload | Trusted ephemeral metadata |
 | `kbd-authority:<project-id>` | signed commands, replicas, project document | Authenticated Loro deltas |
 | `openspec:<project-id>` | reviewed specs/change state | Trusted, project-scoped adapter |
 | `loop:<project-id>:<loop-id>` | definition plus tick results | Structured merge and conflict records |

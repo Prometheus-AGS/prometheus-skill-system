@@ -68,15 +68,11 @@ if [[ -f "$runtime_lib" ]]; then
   . "$runtime_lib"
 fi
 if command -v kbd_runtime_authoritative >/dev/null 2>&1 && kbd_runtime_authoritative "."; then
-  mutation="$(kbd_runtime_mutation_args "." "phase-create:${name}")" || die "failed to resolve current revision"
-  revision="$(printf '%s\n' "$mutation" | sed -n '1p')"
   prometheus kbd --path . phase create \
-    --expected-revision "$revision" --command-id "phase-create:${name}" \
+    --command-id "phase-create:${name}" \
     --id "$name" --title "$name" >/dev/null
-  mutation="$(kbd_runtime_mutation_args "." "phase-activate:${name}")" || die "failed to resolve current revision"
-  revision="$(printf '%s\n' "$mutation" | sed -n '1p')"
   prometheus kbd --path . phase activate \
-    --expected-revision "$revision" --command-id "phase-activate:${name}" \
+    --command-id "phase-activate:${name}" \
     --id "$name" --exact-next-work "/kbd-assess $name" >/dev/null
   printf '\nCompleted kbd-new-phase — %s ready for /kbd-assess\n' "$name"
   printf '  phase:  %s\n' "$name"

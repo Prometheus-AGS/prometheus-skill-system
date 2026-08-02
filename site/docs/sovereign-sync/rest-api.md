@@ -6,27 +6,14 @@ sidebar_label: REST API
 
 # REST API Reference
 
-Sovereign Sync binds to `127.0.0.1:7892` in daemon/server mode. `/health` is
-public on loopback. Every other route requires the focused project’s KBD
-control bearer token.
-
-## Authentication helper
+Sovereign Sync binds to `127.0.0.1:7892` in daemon/server mode. Read routes are
+available to local processes. Every remote KBD command POST requires a
+schema-v2 `SignedCommandEnvelope` signed by an active enrolled device.
 
 ```bash
 PROJECT_ROOT="/path/to/project"
 PROJECT_ID="$(jq -r '.projectId' "$PROJECT_ROOT/.prometheus/project.json")"
-
-case "$(uname -s)" in
-  Darwin) DATA_ROOT="$HOME/Library/Application Support" ;;
-  *) DATA_ROOT="${XDG_DATA_HOME:-$HOME/.local/share}" ;;
-esac
-
-TOKEN_FILE="${PROMETHEUS_CONTROL_TOKEN_FILE:-$DATA_ROOT/prometheus/kbd/projects/$PROJECT_ID/control-token}"
-TOKEN="$(tr -d '\r\n' < "$TOKEN_FILE")"
-AUTH_HEADER="Authorization: Bearer $TOKEN"
 ```
-
-Never commit, log, or paste the token.
 
 ## Health
 
@@ -55,7 +42,6 @@ reachable or valid. `/health` remains static and store-independent.
 
 ```bash
 curl --fail-with-body \
-  -H "$AUTH_HEADER" \
   http://127.0.0.1:7892/api/v1/sync/status | jq .
 ```
 
@@ -67,7 +53,6 @@ classification for `kbd-orchestrator`, `open-spec`, `surreal-memory`, and
 
 ```bash
 curl --fail-with-body \
-  -H "$AUTH_HEADER" \
   http://127.0.0.1:7892/api/v1/sync/peers | jq .
 ```
 
@@ -75,7 +60,6 @@ curl --fail-with-body \
 
 ```bash
 curl --fail-with-body \
-  -H "$AUTH_HEADER" \
   "http://127.0.0.1:7892/api/v1/skills/search?q=feynman&limit=5" | jq .
 ```
 
@@ -84,14 +68,14 @@ curl --fail-with-body \
 ```bash
 curl --fail-with-body \
   -X POST \
-  -H "$AUTH_HEADER" \
   -H 'Content-Type: application/json' \
   -d '{"domain":"learner-model"}' \
   http://127.0.0.1:7892/api/v1/sync/push | jq .
 ```
 
-The current handler acknowledges that the domain is queued. Treat this as
-request acceptance, not proof that a peer received or applied a delta.
+The handler validates the domain, exports its real owner state, prepares Loro
+updates, and returns either `broadcast` or `applied-locally-only`. A broadcast
+response is not proof that a peer applied the update.
 
 ## KBD read endpoints
 
@@ -105,7 +89,6 @@ any project that could not be opened by the router.
 ```bash
 curl --fail-with-body \
   -X POST \
-  -H "$AUTH_HEADER" \
   -H 'Content-Type: application/json' \
   -d '{"path":"/path/to/project"}' \
   http://127.0.0.1:7892/api/v1/kbd/projects/register | jq .
@@ -122,7 +105,6 @@ Returns every registered replica path for the declared project UUID.
 
 ```bash
 curl --fail-with-body \
-  -H "$AUTH_HEADER" \
   "http://127.0.0.1:7892/api/v1/kbd/projects/$PROJECT_ID/status" | jq .
 ```
 
@@ -132,7 +114,6 @@ Returns canonical `KbdStateV2`.
 
 ```bash
 curl --fail-with-body \
-  -H "$AUTH_HEADER" \
   "http://127.0.0.1:7892/api/v1/kbd/projects/$PROJECT_ID/events" | jq .
 ```
 
@@ -142,7 +123,6 @@ Returns committed immutable events from revision 1.
 
 ```bash
 curl --fail-with-body \
-  -H "$AUTH_HEADER" \
   "http://127.0.0.1:7892/api/v1/kbd/projects/$PROJECT_ID/diagnostics" | jq .
 ```
 
@@ -163,29 +143,35 @@ Diagnostics include:
 
 ```bash
 curl --no-buffer \
-  -H "$AUTH_HEADER" \
   -H 'Last-Event-ID: 0' \
   "http://127.0.0.1:7892/api/v1/kbd/projects/$PROJECT_ID/events/stream"
 ```
 
-The server emits `kbd.events` once per second when new revisions exist and a
-keepalive every 15 seconds. The SSE event ID is the latest emitted revision;
-send it back as `Last-Event-ID` when reconnecting.
+The server emits `kbd.events` once per second when new events exist and a
+keepalive every 15 seconds. The SSE event ID is a deterministic authority
+cursor (not a branch-local scalar revision); send it back as `Last-Event-ID`
+when reconnecting.
 
 ## KBD command endpoint
 
 ### `POST /api/v1/kbd/projects/{projectId}/commands`
 
-The path project ID must equal `envelope.projectId`. Every normal command
-supplies a fresh `commandId` and the current causal `frontier`.
+The path project ID must equal `signed.command.projectId`. The outer object
+contains `command`, `signerKeyId`, and an Ed25519 `signature` over canonical
+command bytes plus the signer key ID. Every normal command supplies a fresh
+`commandId` and the current causal `frontier`. Unsigned, schema-v1, unknown,
+revoked, or incorrectly signed remote commands fail closed.
+
+Use `prometheus kbd` or `sovereign-client` to construct signatures; shell
+examples below show the inner command only and are not directly POSTable.
 
 Example cancellation command:
 
 ```bash
-RUN_ID="$(curl --fail-with-body -H "$AUTH_HEADER" \
+RUN_ID="$(curl --fail-with-body \
   "http://127.0.0.1:7892/api/v1/kbd/projects/$PROJECT_ID/status" |
   jq -r '.runId')"
-FRONTIER="$(curl --fail-with-body -H "$AUTH_HEADER" \
+FRONTIER="$(curl --fail-with-body \
   "http://127.0.0.1:7892/api/v1/kbd/projects/$PROJECT_ID/status" |
   jq -c '.frontier')"
 COMMAND_ID="$(uuidgen | tr '[:upper:]' '[:lower:]')"
@@ -212,13 +198,7 @@ jq -n \
       type: "cancel",
       payload: {reason: "Operator abandoned this run"}
     }
-  }' |
-curl --fail-with-body \
-  -X POST \
-  -H "$AUTH_HEADER" \
-  -H 'Content-Type: application/json' \
-  --data-binary @- \
-  "http://127.0.0.1:7892/api/v1/kbd/projects/$PROJECT_ID/commands" | jq .
+  }'
 ```
 
 Prefer `prometheus kbd` or MCP for routine operations; they construct the
@@ -238,19 +218,33 @@ the same schema-v2 command envelope, with a matching `conflict_resolve` command.
 The actor must be an operator and `winnerEventId` must name one of the recorded
 candidates. Resolution appends a signed event; it never rewrites history.
 
+## KBD claims
+
+- `GET /api/v1/kbd/projects/{projectId}/claims`
+- `POST /api/v1/kbd/projects/{projectId}/claims/acquire`
+- `POST /api/v1/kbd/projects/{projectId}/claims/renew`
+- `POST /api/v1/kbd/projects/{projectId}/claims/release`
+
+Mutation bodies are signed command envelopes whose inner command is
+`claim_acquire`, `claim_renew`, or `claim_release`. Claims carry project and
+replica identity, work scope, shared/exclusive mode, holder, expiry, and a
+monotonic token.
+
 ## AG-UI routes
 
 - `POST /api/v1/stream`
 - `GET /api/v1/stream/ping`
+- `GET /api/v1/events`
 
-Both require the bearer token. See [AG-UI SSE Reference](./ag-ui-sse).
+The continuous event route emits `event_appended`, `claim_acquired`,
+`claim_conflict`, and `singleton_violation`. See [AG-UI SSE Reference](./ag-ui-sse).
 
 ## Error responses
 
 | Status | Meaning |
 |---|---|
 | `400` | Path project ID differs from command envelope |
-| `401` | Missing or invalid bearer token |
-| `404` | Unknown focused project or uninitialized KBD runtime |
+| `401` | Unknown, revoked, unsigned, or invalid device signature |
+| `404` | Unknown registered project or uninitialized KBD runtime |
 | `409` | Replay, revision, signature, or command conflict |
 | `503` | Quorum is not writable |
