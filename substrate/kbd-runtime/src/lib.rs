@@ -11,6 +11,7 @@ use std::io::{BufRead, BufReader, Write};
 #[cfg(unix)]
 use std::os::unix::fs::{OpenOptionsExt, PermissionsExt};
 use std::path::{Path, PathBuf};
+use std::process::{Command, Stdio};
 use thiserror::Error;
 use uuid::Uuid;
 
@@ -21,6 +22,7 @@ pub mod registry;
 pub mod rollout;
 
 pub const EVENT_SCHEMA_VERSION: &str = "2";
+pub const AUDIT_GIT_REF: &str = "refs/heads/audit/kbd";
 
 #[derive(Debug, Error)]
 pub enum RuntimeError {
@@ -95,6 +97,17 @@ pub enum RuntimeError {
 }
 
 pub type Result<T> = std::result::Result<T, RuntimeError>;
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+pub struct GitAuditExport {
+    pub ref_name: String,
+    pub tree_path: String,
+    pub commit_id: String,
+    pub event_count: u64,
+    pub sha256: String,
+    pub unchanged: bool,
+}
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
@@ -465,6 +478,42 @@ pub struct ActivePath {
     pub stage_id: Option<String>,
     pub change_id: Option<String>,
     pub task_id: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub commit: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+pub struct SubmodulePin {
+    pub path: String,
+    pub child_project_id: String,
+    pub gitlink_sha: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "snake_case")]
+pub enum ReplicaCommitStatus {
+    Current,
+    AheadOfMe,
+    Unknown,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "snake_case")]
+pub enum SubmoduleChildStatus {
+    Current,
+    AheadOfParent,
+    Diverged,
+    Unavailable,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+pub struct ReplicaView {
+    pub replica_id: String,
+    pub local_head: Option<String>,
+    pub active_path_status: ReplicaCommitStatus,
+    pub submodules: BTreeMap<String, SubmoduleChildStatus>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
@@ -523,6 +572,7 @@ pub enum ConflictKind {
     Decision,
     Blocker,
     Claim,
+    SubmodulePin,
     Fold,
 }
 
@@ -656,6 +706,9 @@ pub enum EventKind {
     ClaimReleased {
         claim_id: String,
         monotonic_token: u64,
+    },
+    SubmodulePinRecorded {
+        pin: SubmodulePin,
     },
     DeviceEnrolled {
         device: DeviceRecord,
@@ -799,13 +852,58 @@ impl Event {
         Ok(format!("{:x}", Sha256::digest(bytes)))
     }
 
-    fn seal(&mut self, signer: &DeviceSigner) -> Result<()> {
-        self.signer_key_id = Some(signer.key_id.clone());
-        self.signer_public_key = Some(signer.public_key.clone());
+    pub fn prepare_host_signature(
+        &mut self,
+        signer_key_id: impl Into<String>,
+        signer_public_key: impl Into<String>,
+    ) -> Result<Vec<u8>> {
+        self.signer_key_id = Some(signer_key_id.into());
+        self.signer_public_key = Some(signer_public_key.into());
+        self.signature = None;
         let bytes = self.canonical_unsigned_bytes()?;
         self.integrity_hash = self.calculate_hash()?;
-        self.signature = Some(BASE64.encode(signer.signing_key.sign(&bytes).to_bytes()));
+        Ok(bytes)
+    }
+
+    pub fn attach_host_signature(&mut self, signature_base64: impl Into<String>) -> Result<()> {
+        let signature = signature_base64.into();
+        let key_id = self
+            .signer_key_id
+            .as_deref()
+            .ok_or_else(|| RuntimeError::InvalidState("event signerKeyId is missing".into()))?;
+        let public_key = self
+            .signer_public_key
+            .as_deref()
+            .ok_or_else(|| RuntimeError::InvalidState("event signerPublicKey is missing".into()))?;
+        let bytes = self.canonical_unsigned_bytes()?;
+        if self.integrity_hash != self.calculate_hash()?
+            || !verify_ed25519_signature(public_key, &bytes, &signature)
+        {
+            return Err(RuntimeError::Signature {
+                revision: self.revision,
+                reason: "host-supplied event signature is invalid".into(),
+            });
+        }
+        let public_bytes = BASE64
+            .decode(public_key)
+            .map_err(|error| RuntimeError::Signature {
+                revision: self.revision,
+                reason: error.to_string(),
+            })?;
+        let derived_key_id = format!("ed25519:{:x}", Sha256::digest(public_bytes));
+        if derived_key_id != key_id {
+            return Err(RuntimeError::Signature {
+                revision: self.revision,
+                reason: "signerKeyId does not match signerPublicKey".into(),
+            });
+        }
+        self.signature = Some(signature);
         Ok(())
+    }
+
+    fn seal(&mut self, signer: &DeviceSigner) -> Result<()> {
+        let bytes = self.prepare_host_signature(signer.key_id(), signer.public_key())?;
+        self.attach_host_signature(signer.sign_base64(&bytes))
     }
 
     fn verify_signature(&self, devices: &BTreeMap<String, DeviceRecord>) -> Result<()> {
@@ -908,6 +1006,10 @@ pub struct KbdStateV2 {
     pub blockers: BTreeMap<String, Blocker>,
     #[serde(default)]
     pub claims: BTreeMap<String, ClaimRecord>,
+    #[serde(default)]
+    pub submodule_pins: BTreeMap<String, SubmodulePin>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub replica_view: Option<ReplicaView>,
     #[serde(default)]
     pub conflicts: BTreeMap<String, ConflictRecord>,
     pub devices: BTreeMap<String, DeviceRecord>,
@@ -1147,6 +1249,9 @@ pub enum CommandKind {
     ClaimRelease {
         claim_id: String,
     },
+    SubmodulePinSet {
+        pin: SubmodulePin,
+    },
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
@@ -1194,6 +1299,8 @@ impl Default for KbdStateV2 {
             decisions: BTreeMap::new(),
             blockers: BTreeMap::new(),
             claims: BTreeMap::new(),
+            submodule_pins: BTreeMap::new(),
+            replica_view: None,
             conflicts: BTreeMap::new(),
             devices: BTreeMap::new(),
             command_revisions: BTreeMap::new(),
@@ -1681,6 +1788,23 @@ impl KbdStateV2 {
                 claim.last_event_id = event.event_id.clone();
                 claim.released = true;
             }
+            EventKind::SubmodulePinRecorded { pin } => {
+                if pin.path.trim().is_empty()
+                    || pin.path.starts_with('/')
+                    || pin
+                        .path
+                        .split('/')
+                        .any(|part| part.is_empty() || part == "..")
+                    || Uuid::parse_str(&pin.child_project_id).is_err()
+                    || !matches!(pin.gitlink_sha.len(), 40 | 64)
+                    || !pin.gitlink_sha.bytes().all(|byte| byte.is_ascii_hexdigit())
+                {
+                    return Err(RuntimeError::InvalidState(
+                        "submodule pin requires a relative normalized path, child UUID, and valid gitlink SHA".into(),
+                    ));
+                }
+                self.submodule_pins.insert(pin.path.clone(), pin.clone());
+            }
             EventKind::DeviceEnrolled { device } => {
                 if self.devices.contains_key(&device.key_id) {
                     return Err(RuntimeError::WorkItemExists {
@@ -1813,6 +1937,13 @@ impl KbdStateV2 {
     }
 
     fn validate_active_path(&self, path: &ActivePath) -> Result<()> {
+        if path.commit.as_ref().is_some_and(|commit| {
+            !matches!(commit.len(), 40 | 64) || !commit.bytes().all(|byte| byte.is_ascii_hexdigit())
+        }) {
+            return Err(RuntimeError::InvalidState(
+                "active path commit must be a valid Git object ID".into(),
+            ));
+        }
         if !path.phase_path.is_empty() {
             let mut previous: Option<&str> = None;
             for phase_id in &path.phase_path {
@@ -2752,6 +2883,7 @@ impl Runtime {
 
     /// Export the verified audit chain as RFC 8785 canonical JSON Lines.
     pub fn export_signed_audit(&self, mut writer: impl Write) -> Result<u64> {
+        self.reconcile_project_document()?;
         let events = self.events()?;
         self.fold_authority_events(&events)?;
         for event in &events {
@@ -2767,8 +2899,121 @@ impl Runtime {
         Ok(events.len() as u64)
     }
 
+    pub fn signed_audit_jsonl(&self) -> Result<(Vec<u8>, u64)> {
+        let mut bytes = Vec::new();
+        let event_count = self.export_signed_audit(&mut bytes)?;
+        Ok((bytes, event_count))
+    }
+
+    /// Write the converged audit chain to `refs/heads/audit/kbd` using only
+    /// Git plumbing. The current branch, worktree, and ordinary Git index are
+    /// never read as an authority and are never modified.
+    pub fn export_audit_to_git(&self) -> Result<GitAuditExport> {
+        let (bytes, event_count) = self.signed_audit_jsonl()?;
+        if event_count == 0 {
+            return Err(RuntimeError::NotInitialized);
+        }
+        let state = self.replay()?;
+        let tree_path = format!("audit/kbd/{}.jsonl", state.project_id);
+        let sha256 = format!("{:x}", Sha256::digest(&bytes));
+        let blob = git_plumbing(
+            &self.project_root,
+            &["hash-object", "-w", "--stdin"],
+            Some(&bytes),
+            None,
+        )?;
+        let old_commit = git_plumbing_optional(
+            &self.project_root,
+            &["rev-parse", "--verify", AUDIT_GIT_REF],
+            None,
+        )?;
+        if let Some(old_commit) = old_commit.as_deref() {
+            let existing = git_plumbing_optional(
+                &self.project_root,
+                &["rev-parse", &format!("{old_commit}:{tree_path}")],
+                None,
+            )?;
+            if existing.as_deref() == Some(blob.as_str()) {
+                return Ok(GitAuditExport {
+                    ref_name: AUDIT_GIT_REF.into(),
+                    tree_path,
+                    commit_id: old_commit.into(),
+                    event_count,
+                    sha256,
+                    unchanged: true,
+                });
+            }
+        }
+
+        let index_path =
+            std::env::temp_dir().join(format!("prometheus-kbd-audit-index-{}", Uuid::new_v4()));
+        let index_guard = TemporaryGitIndex(index_path.clone());
+        if let Some(old_commit) = old_commit.as_deref() {
+            git_plumbing(
+                &self.project_root,
+                &["read-tree", old_commit],
+                None,
+                Some(&index_path),
+            )?;
+        } else {
+            git_plumbing(
+                &self.project_root,
+                &["read-tree", "--empty"],
+                None,
+                Some(&index_path),
+            )?;
+        }
+        git_plumbing(
+            &self.project_root,
+            &[
+                "update-index",
+                "--add",
+                "--cacheinfo",
+                "100644",
+                &blob,
+                &tree_path,
+            ],
+            None,
+            Some(&index_path),
+        )?;
+        let tree = git_plumbing(&self.project_root, &["write-tree"], None, Some(&index_path))?;
+        let mut commit_args = vec!["commit-tree", tree.as_str()];
+        if let Some(old_commit) = old_commit.as_deref() {
+            commit_args.extend(["-p", old_commit]);
+        }
+        let message = format!(
+            "KBD audit export for {}\n\nEvents: {event_count}\nSHA-256: {sha256}\n",
+            state.project_id
+        );
+        let commit_id = git_plumbing(
+            &self.project_root,
+            &commit_args,
+            Some(message.as_bytes()),
+            Some(&index_path),
+        )?;
+        let zero_oid = "0".repeat(blob.len());
+        let expected_old = old_commit.as_deref().unwrap_or(&zero_oid);
+        git_plumbing(
+            &self.project_root,
+            &["update-ref", AUDIT_GIT_REF, &commit_id, expected_old],
+            None,
+            None,
+        )?;
+        drop(index_guard);
+        Ok(GitAuditExport {
+            ref_name: AUDIT_GIT_REF.into(),
+            tree_path,
+            commit_id,
+            event_count,
+            sha256,
+            unchanged: false,
+        })
+    }
+
     pub fn replay(&self) -> Result<RuntimeState> {
-        self.fold_authority_events(&self.events()?)
+        let mut state = self.fold_authority_events(&self.events()?)?;
+        self.decorate_replica_view(&mut state);
+        Ok(state)
     }
 
     pub fn export_project_updates(&self) -> Result<Vec<u8>> {
@@ -2784,13 +3029,16 @@ impl Runtime {
 
     pub fn import_project_updates(&self, updates: &[u8]) -> Result<(usize, RuntimeState)> {
         self.reconcile_project_document()?;
-        self.project_document()
+        let (inserted, mut state) = self
+            .project_document()
             .ok_or_else(|| {
                 RuntimeError::InvalidState(
                     "authoritative Loro sync requires a canonical runtime".into(),
                 )
             })?
-            .import_updates(updates)
+            .import_updates(updates)?;
+        self.decorate_replica_view(&mut state);
+        Ok((inserted, state))
     }
 
     fn fold_authority_events(&self, events: &[Event]) -> Result<RuntimeState> {
@@ -2818,7 +3066,8 @@ impl Runtime {
         let local = self.events()?;
         let mut incoming = incoming.to_vec();
         incoming.sort_by_key(|event| event.revision);
-        let imported = self.fold_authority_events(&incoming)?;
+        let mut imported = self.fold_authority_events(&incoming)?;
+        self.decorate_replica_view(&mut imported);
         if local.len() > incoming.len() || local != incoming[..local.len()] {
             return Err(RuntimeError::InvalidState(
                 "replicated journal is not a strict extension of local history".into(),
@@ -2952,6 +3201,8 @@ impl Runtime {
             return Err(RuntimeError::NotInitialized);
         }
         if state.command_revisions.contains_key(&command_id) {
+            let mut state = state;
+            self.decorate_replica_view(&mut state);
             return Ok(state);
         }
         if state.revision != expected_revision {
@@ -3013,6 +3264,8 @@ impl Runtime {
         }
         if let Some(committed_revision) = state.command_revisions.get(&envelope.command_id).copied()
         {
+            let mut state = state;
+            self.decorate_replica_view(&mut state);
             return Ok(CommandResult {
                 command_id: envelope.command_id,
                 committed_revision,
@@ -3122,43 +3375,57 @@ impl Runtime {
         Ok(())
     }
 
+    fn decorate_replica_view(&self, state: &mut RuntimeState) {
+        let local_head = git_stdout(&self.project_root, &["rev-parse", "HEAD"]);
+        let active_path_status = match state.active_path.commit.as_deref() {
+            Some(commit)
+                if git_success(
+                    &self.project_root,
+                    &["cat-file", "-e", &format!("{commit}^{{commit}}")],
+                ) =>
+            {
+                ReplicaCommitStatus::Current
+            }
+            Some(_) => ReplicaCommitStatus::AheadOfMe,
+            None => ReplicaCommitStatus::Unknown,
+        };
+        let submodules = state
+            .submodule_pins
+            .iter()
+            .map(|(path, pin)| {
+                let child_root = self.project_root.join(path);
+                let child_head = git_stdout(&child_root, &["rev-parse", "HEAD"]);
+                let status = match child_head {
+                    Some(ref head) if head == &pin.gitlink_sha => SubmoduleChildStatus::Current,
+                    Some(ref head)
+                        if git_success(
+                            &child_root,
+                            &["merge-base", "--is-ancestor", &pin.gitlink_sha, head],
+                        ) =>
+                    {
+                        SubmoduleChildStatus::AheadOfParent
+                    }
+                    Some(_) => SubmoduleChildStatus::Diverged,
+                    None => SubmoduleChildStatus::Unavailable,
+                };
+                (path.clone(), status)
+            })
+            .collect();
+        state.replica_view = Some(ReplicaView {
+            replica_id: self.replica_id.clone(),
+            local_head,
+            active_path_status,
+            submodules,
+        });
+    }
+
     fn validate_replica_write(
         &self,
         state: &RuntimeState,
         actor: &Actor,
         command: &CommandKind,
     ) -> Result<()> {
-        let Some(scope) = command_scope(command) else {
-            return Ok(());
-        };
-        let now = Utc::now();
-        if let Some(claim) = state.claims.values().find(|claim| {
-            claim.mode == ClaimMode::Exclusive
-                && claim.holder_id != actor.id
-                && claim.active_at(now)
-                && scopes_intersect(&claim.scope, &scope)
-        }) {
-            return Err(RuntimeError::ReplicaRebaseRequired {
-                scope: claim.scope.clone(),
-                winner_event_id: claim.acquired_event_id.clone(),
-                frontier: state.frontier.clone(),
-            });
-        }
-        if let Some(conflict) = state.conflicts.values().find(|conflict| {
-            conflict.resolved_by_event_id.is_none()
-                && matches!(
-                    conflict.kind,
-                    ConflictKind::Lifecycle | ConflictKind::ActivePath | ConflictKind::Completion
-                )
-                && scopes_intersect(&conflict.slot, &scope)
-        }) {
-            return Err(RuntimeError::ReplicaRebaseRequired {
-                scope,
-                winner_event_id: conflict.winner_event_id.clone(),
-                frontier: state.frontier.clone(),
-            });
-        }
-        Ok(())
+        validate_replica_write_state(state, actor, command)
     }
 
     #[allow(clippy::too_many_arguments)]
@@ -3497,6 +3764,7 @@ impl Runtime {
         if let Some(document) = self.project_document() {
             document.ingest_events(std::slice::from_ref(&event))?;
         }
+        self.decorate_replica_view(&mut state);
         Ok(state)
     }
 
@@ -4020,6 +4288,7 @@ impl Runtime {
                         .or_else(|| waypoint.get("current_task"))
                         .and_then(serde_json::Value::as_str)
                         .map(str::to_owned),
+                    commit: None,
                 };
                 let mut completion = CompletionDimension::all()
                     .into_iter()
@@ -4993,6 +5262,219 @@ fn validate_command_frontier(state: &RuntimeState, envelope: &CommandEnvelope) -
     Ok(())
 }
 
+/// Prepare an event for a filesystem-free replica. The returned bytes are the
+/// exact Ed25519 payload a secure host must sign; private key material never
+/// needs to cross the embedding boundary.
+pub fn prepare_host_signed_event(
+    state: &KbdStateV2,
+    replica_id: &str,
+    envelope: CommandEnvelope,
+    signer_key_id: &str,
+    signer_public_key: &str,
+) -> Result<(Event, Vec<u8>)> {
+    if replica_id.trim().is_empty() {
+        return Err(RuntimeError::InvalidState(
+            "replicaId must not be empty".into(),
+        ));
+    }
+    if envelope.schema_version != EVENT_SCHEMA_VERSION {
+        return Err(RuntimeError::InvalidState(format!(
+            "embedded replicas require command schemaVersion {EVENT_SCHEMA_VERSION}"
+        )));
+    }
+    if envelope.command_id.trim().is_empty() {
+        return Err(RuntimeError::InvalidState(
+            "commandId must not be empty".into(),
+        ));
+    }
+    if envelope.project_id != state.project_id {
+        return Err(RuntimeError::ProjectMismatch {
+            supplied: envelope.project_id,
+            current: state.project_id.clone(),
+        });
+    }
+    if envelope.run_id != state.run_id {
+        return Err(RuntimeError::RunMismatch {
+            supplied: envelope.run_id,
+            current: state.run_id.clone(),
+        });
+    }
+    if state.command_revisions.contains_key(&envelope.command_id) {
+        return Err(RuntimeError::DuplicateCommand(envelope.command_id));
+    }
+    validate_command_frontier(state, &envelope)?;
+    validate_claim_write(state, &envelope.actor, &envelope.command)?;
+    validate_replica_write_state(state, &envelope.actor, &envelope.command)?;
+    let kind = prepare_command_event(state, &envelope.actor, &envelope.command)?;
+    let replica_head = state.replica_heads.get(replica_id);
+    let mut event = Event {
+        schema_version: EVENT_SCHEMA_VERSION.into(),
+        project_id: state.project_id.clone(),
+        replica_id: replica_id.into(),
+        run_id: state.run_id.clone(),
+        event_id: Uuid::new_v4().to_string(),
+        command_id: Some(envelope.command_id),
+        revision: state.frontier.derived_revision().saturating_add(1),
+        expected_revision: state.revision,
+        lamport: state.frontier.next_lamport(replica_id),
+        frontier: state.frontier.clone(),
+        causal_parent: replica_head.map(|head| head.event_id.clone()),
+        actor_id: envelope.actor.id.clone(),
+        actor: envelope.actor,
+        timestamp: Utc::now(),
+        kind,
+        previous_hash: replica_head.map(|head| head.integrity_hash.clone()),
+        migration_provenance: None,
+        integrity_hash: String::new(),
+        signer_key_id: None,
+        signer_public_key: None,
+        signature: None,
+    };
+    let bytes = event.prepare_host_signature(signer_key_id, signer_public_key)?;
+    Ok((event, bytes))
+}
+
+fn validate_replica_write_state(
+    state: &RuntimeState,
+    actor: &Actor,
+    command: &CommandKind,
+) -> Result<()> {
+    let Some(scope) = command_scope(command) else {
+        return Ok(());
+    };
+    let now = Utc::now();
+    if let Some(claim) = state.claims.values().find(|claim| {
+        claim.mode == ClaimMode::Exclusive
+            && claim.holder_id != actor.id
+            && claim.active_at(now)
+            && scopes_intersect(&claim.scope, &scope)
+    }) {
+        return Err(RuntimeError::ReplicaRebaseRequired {
+            scope: claim.scope.clone(),
+            winner_event_id: claim.acquired_event_id.clone(),
+            frontier: state.frontier.clone(),
+        });
+    }
+    if let Some(conflict) = state.conflicts.values().find(|conflict| {
+        conflict.resolved_by_event_id.is_none()
+            && matches!(
+                conflict.kind,
+                ConflictKind::Lifecycle | ConflictKind::ActivePath | ConflictKind::Completion
+            )
+            && scopes_intersect(&conflict.slot, &scope)
+    }) {
+        return Err(RuntimeError::ReplicaRebaseRequired {
+            scope,
+            winner_event_id: conflict.winner_event_id.clone(),
+            frontier: state.frontier.clone(),
+        });
+    }
+    Ok(())
+}
+
+struct TemporaryGitIndex(PathBuf);
+
+impl Drop for TemporaryGitIndex {
+    fn drop(&mut self) {
+        let _ = fs::remove_file(&self.0);
+        let mut lock = self.0.as_os_str().to_owned();
+        lock.push(".lock");
+        let _ = fs::remove_file(PathBuf::from(lock));
+    }
+}
+
+fn git_plumbing(
+    root: &Path,
+    arguments: &[&str],
+    stdin: Option<&[u8]>,
+    index_path: Option<&Path>,
+) -> Result<String> {
+    let mut command = Command::new("git");
+    command.arg("-C").arg(root).args(arguments);
+    command
+        .env("GIT_AUTHOR_NAME", "Prometheus KBD Audit")
+        .env("GIT_AUTHOR_EMAIL", "kbd-audit@localhost")
+        .env("GIT_COMMITTER_NAME", "Prometheus KBD Audit")
+        .env("GIT_COMMITTER_EMAIL", "kbd-audit@localhost");
+    if let Some(index_path) = index_path {
+        command.env("GIT_INDEX_FILE", index_path);
+    }
+    if stdin.is_some() {
+        command.stdin(Stdio::piped());
+    }
+    command.stdout(Stdio::piped()).stderr(Stdio::piped());
+    let mut child = command.spawn().map_err(|error| {
+        RuntimeError::InvalidState(format!("cannot run git {}: {error}", arguments.join(" ")))
+    })?;
+    if let Some(bytes) = stdin {
+        child
+            .stdin
+            .take()
+            .ok_or_else(|| RuntimeError::InvalidState("git stdin was unavailable".into()))?
+            .write_all(bytes)?;
+    }
+    let output = child.wait_with_output()?;
+    if !output.status.success() {
+        return Err(RuntimeError::InvalidState(format!(
+            "git {} failed: {}",
+            arguments.join(" "),
+            String::from_utf8_lossy(&output.stderr).trim()
+        )));
+    }
+    String::from_utf8(output.stdout)
+        .map(|value| value.trim().to_owned())
+        .map_err(|error| {
+            RuntimeError::InvalidState(format!("git returned non-UTF-8 output: {error}"))
+        })
+}
+
+fn git_plumbing_optional(
+    root: &Path,
+    arguments: &[&str],
+    index_path: Option<&Path>,
+) -> Result<Option<String>> {
+    let mut command = Command::new("git");
+    command.arg("-C").arg(root).args(arguments);
+    if let Some(index_path) = index_path {
+        command.env("GIT_INDEX_FILE", index_path);
+    }
+    let output = command.output().map_err(|error| {
+        RuntimeError::InvalidState(format!("cannot run git {}: {error}", arguments.join(" ")))
+    })?;
+    if !output.status.success() {
+        return Ok(None);
+    }
+    String::from_utf8(output.stdout)
+        .map(|value| Some(value.trim().to_owned()))
+        .map_err(|error| {
+            RuntimeError::InvalidState(format!("git returned non-UTF-8 output: {error}"))
+        })
+}
+
+fn git_stdout(root: &Path, arguments: &[&str]) -> Option<String> {
+    let output = Command::new("git")
+        .arg("-C")
+        .arg(root)
+        .args(arguments)
+        .output()
+        .ok()?;
+    if !output.status.success() {
+        return None;
+    }
+    let value = String::from_utf8(output.stdout).ok()?;
+    let value = value.trim();
+    (!value.is_empty()).then(|| value.to_owned())
+}
+
+fn git_success(root: &Path, arguments: &[&str]) -> bool {
+    Command::new("git")
+        .arg("-C")
+        .arg(root)
+        .args(arguments)
+        .output()
+        .is_ok_and(|output| output.status.success())
+}
+
 fn validate_claim_write(state: &RuntimeState, actor: &Actor, command: &CommandKind) -> Result<()> {
     let Some(command_scope) = command_scope(command) else {
         return Ok(());
@@ -5092,6 +5574,7 @@ fn command_scope(command: &CommandKind) -> Option<String> {
         CommandKind::DecisionRecord { decision } => format!("decision:{}", decision.id),
         CommandKind::BlockerRecord { blocker } => format!("blocker:{}", blocker.id),
         CommandKind::BlockerClear { blocker_id, .. } => format!("blocker:{blocker_id}"),
+        CommandKind::SubmodulePinSet { pin } => format!("submodule:{}", pin.path),
     })
 }
 
@@ -5452,6 +5935,14 @@ fn prepare_command_event(
                 monotonic_token: claim.monotonic_token.saturating_add(1),
             }
         }
+        CommandKind::SubmodulePinSet { pin } => {
+            if actor.kind != ActorKind::Operator {
+                return Err(RuntimeError::InvalidState(
+                    "submodule pins are parent-owned and require an operator actor".into(),
+                ));
+            }
+            EventKind::SubmodulePinRecorded { pin: pin.clone() }
+        }
     })
 }
 
@@ -5477,6 +5968,11 @@ mod tests {
             harness: harness.into(),
             session: format!("session-{harness}"),
         }
+    }
+
+    fn authority_state(mut state: RuntimeState) -> RuntimeState {
+        state.replica_view = None;
+        state
     }
 
     #[test]
@@ -5586,6 +6082,7 @@ mod tests {
                     stage_id: None,
                     change_id: Some("change-1".into()),
                     task_id: Some("task-1".into()),
+                    commit: None,
                 },
                 Some("start quorum storage".into()),
             )
@@ -5684,7 +6181,7 @@ mod tests {
             .iter()
             .map(|line| serde_json::from_str::<Event>(line).unwrap())
             .collect::<Vec<_>>();
-        assert_eq!(replay_events(&exported).unwrap(), running);
+        assert_eq!(replay_events(&exported).unwrap(), authority_state(running));
 
         #[cfg(unix)]
         assert_eq!(
@@ -5695,6 +6192,79 @@ mod tests {
                 & 0o077,
             0
         );
+    }
+
+    #[test]
+    fn git_audit_export_preserves_worktree_and_detects_chain_tampering() {
+        let project = tempdir().unwrap();
+        assert!(Command::new("git")
+            .arg("-C")
+            .arg(project.path())
+            .args(["init", "--quiet"])
+            .status()
+            .unwrap()
+            .success());
+        fs::write(
+            project.path().join("tracked.txt"),
+            b"worktree remains untouched\n",
+        )
+        .unwrap();
+        assert!(Command::new("git")
+            .arg("-C")
+            .arg(project.path())
+            .args(["add", "tracked.txt"])
+            .status()
+            .unwrap()
+            .success());
+
+        let runtime = Runtime::open(project.path());
+        let initialized = runtime
+            .initialize("project", "run", actor(ActorKind::Operator, "codex"))
+            .unwrap();
+        runtime
+            .transition(
+                actor(ActorKind::Harness, "codex"),
+                initialized.revision,
+                LifecycleState::Running,
+                "begin",
+            )
+            .unwrap();
+        let status_before = git_stdout(project.path(), &["status", "--porcelain=v1"]).unwrap();
+        let index_before = git_plumbing(project.path(), &["write-tree"], None, None).unwrap();
+
+        let exported = runtime.export_audit_to_git().unwrap();
+        assert_eq!(exported.ref_name, AUDIT_GIT_REF);
+        assert!(!exported.unchanged);
+        let repeated = runtime.export_audit_to_git().unwrap();
+        assert!(repeated.unchanged);
+        assert_eq!(repeated.commit_id, exported.commit_id);
+        assert_eq!(
+            git_stdout(project.path(), &["status", "--porcelain=v1"]).unwrap(),
+            status_before
+        );
+        assert_eq!(
+            git_plumbing(project.path(), &["write-tree"], None, None).unwrap(),
+            index_before
+        );
+        let committed = git_plumbing(
+            project.path(),
+            &["show", &format!("{}:{}", AUDIT_GIT_REF, exported.tree_path)],
+            None,
+            None,
+        )
+        .unwrap();
+        let (audit, count) = runtime.signed_audit_jsonl().unwrap();
+        assert_eq!(count, 2);
+        assert_eq!(committed.as_bytes(), audit.strip_suffix(b"\n").unwrap());
+
+        let events = runtime.events().unwrap();
+        assert!(replay_events(&events[1..]).is_err());
+        let mut mutated = events.clone();
+        mutated[1].command_id = Some("mutated-command".into());
+        assert!(replay_events(&mutated).is_err());
+        let mut reordered = events;
+        reordered.reverse();
+        assert!(replay_events(&reordered).is_err());
     }
 
     #[test]
@@ -5729,6 +6299,20 @@ mod tests {
             tampered.verify(&state),
             Err(RuntimeError::Signature { .. })
         ));
+    }
+
+    #[test]
+    fn missing_active_path_commit_renders_ahead_of_me_without_a_conflict() {
+        let dir = tempdir().unwrap();
+        let runtime = Runtime::open(dir.path());
+        let mut state = RuntimeState::default();
+        state.active_path.commit = Some("0".repeat(40));
+        runtime.decorate_replica_view(&mut state);
+        assert_eq!(
+            state.replica_view.unwrap().active_path_status,
+            ReplicaCommitStatus::AheadOfMe
+        );
+        assert!(state.conflicts.is_empty());
     }
 
     #[test]
@@ -6420,7 +7004,10 @@ mod tests {
         .unwrap();
         let second = Runtime::open_canonical_at(&second_root, &data_root).unwrap();
         assert_ne!(first.replica_id(), second.replica_id());
-        assert_eq!(second.replay().unwrap(), initialized);
+        assert_eq!(
+            authority_state(second.replay().unwrap()),
+            authority_state(initialized.clone())
+        );
 
         let actor = actor(ActorKind::Harness, "replica-two");
         let claimed = second

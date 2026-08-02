@@ -4323,6 +4323,7 @@ dependencies = [
  "ed25519-dalek",
  "fs2",
  "keyring",
+ "libc",
  "loro",
  "rand_core 0.6.4",
  "serde",

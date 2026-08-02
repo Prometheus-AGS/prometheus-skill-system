@@ -597,6 +597,10 @@ fn event_slot(event: &Event) -> Option<(String, ConflictKind)> {
         EventKind::BlockerCleared { blocker_id, .. } => {
             Some((format!("blocker:{blocker_id}"), ConflictKind::Blocker))
         }
+        EventKind::SubmodulePinRecorded { pin } => Some((
+            format!("submodule:{}", pin.path),
+            ConflictKind::SubmodulePin,
+        )),
         _ => None,
     }
 }

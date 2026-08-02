@@ -23,10 +23,14 @@
 //! P2P consumer task would after a real `broadcast()`/`recv()` round trip.
 
 use chrono::Utc;
+use kbd_mobile::{MobilePeer, MobileProject};
+use kbd_runtime::{Actor, DeviceSigner, Runtime};
 use learner_model::{
     seed_from_survey, LearnerModelSeed, LearnerModelStore, MasteryBasis, MasteryPrior,
 };
 use sovereign_sync::config::PeersConfig;
+use sovereign_sync::domains::SyncEnvelope;
+use sovereign_sync::kbd_sync::KbdAuthorityPayload;
 use sovereign_sync::p2p::P2PNode;
 use sovereign_sync::rest_api::{self, AppState, PushOutcome};
 use std::fs;
@@ -35,6 +39,48 @@ use std::sync::Arc;
 use storage_provider::{LocalDirAdapter, LoroAdapter};
 use tempfile::TempDir;
 use uuid::Uuid;
+
+#[test]
+fn mobile_wire_is_byte_compatible_with_sovereign_sync() {
+    let fixture = tempfile::tempdir().unwrap();
+    let project_id = Uuid::new_v4().to_string();
+    let runtime = Runtime::open(fixture.path());
+    runtime
+        .initialize(
+            &project_id,
+            "mobile-wire-run",
+            Actor::operator("operator", "mobile-wire-test"),
+        )
+        .unwrap();
+    let signer: DeviceSigner = runtime.device_signer().unwrap();
+    let mobile =
+        MobileProject::from_events(&project_id, "mobile-replica", &runtime.events().unwrap())
+            .unwrap();
+    let mut prepared = mobile.prepare_signed_delta(signer.key_id()).unwrap();
+    assert_eq!(
+        prepared.delta.signable_bytes_for_host(),
+        prepared.signing_payload
+    );
+    let signature = signer.sign_base64(&prepared.signing_payload);
+    prepared
+        .delta
+        .attach_host_signature(signer.public_key(), signature)
+        .unwrap();
+
+    let wire = prepared.delta.encode().unwrap();
+    let daemon_envelope: SyncEnvelope = serde_json::from_slice(&wire).unwrap();
+    assert_eq!(daemon_envelope.signable_bytes(), prepared.signing_payload);
+    assert!(daemon_envelope.verify(signer.public_key()));
+    let authority = KbdAuthorityPayload::decode(&daemon_envelope.payload).unwrap();
+    assert_eq!(authority.project_id, project_id);
+    assert_eq!(authority.project_updates, mobile.export_updates().unwrap());
+
+    let operator_id = [73; 32];
+    assert_eq!(
+        MobilePeer::derive_topic(&operator_id),
+        P2PNode::derive_topic(&operator_id)
+    );
+}
 
 /// Every canonical KBD project needs `.prometheus/project.json` before its
 /// `Runtime` can resolve a device signer via the OS credential store.

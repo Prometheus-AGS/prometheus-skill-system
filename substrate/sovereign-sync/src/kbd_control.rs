@@ -229,9 +229,14 @@ impl KbdProjectRouter {
 
 impl KbdControlPlane {
     pub async fn open(project_root: &Path, quorum: QuorumPolicy) -> io::Result<Self> {
+        let project_root = project_root.to_path_buf();
         let runtime = Arc::new(
-            Runtime::open_canonical(project_root)
-                .map_err(|error| io::Error::other(error.to_string()))?,
+            tokio::task::spawn_blocking(move || {
+                Runtime::open_canonical(project_root)
+                    .map_err(|error| io::Error::other(error.to_string()))
+            })
+            .await
+            .map_err(|error| io::Error::other(format!("runtime open task failed: {error}")))??,
         );
         Self::from_runtime(runtime, quorum).await
     }
@@ -241,9 +246,15 @@ impl KbdControlPlane {
         data_root: &Path,
         quorum: QuorumPolicy,
     ) -> io::Result<Self> {
+        let project_root = project_root.to_path_buf();
+        let data_root = data_root.to_path_buf();
         let runtime = Arc::new(
-            Runtime::open_canonical_at(project_root, data_root)
-                .map_err(|error| io::Error::other(error.to_string()))?,
+            tokio::task::spawn_blocking(move || {
+                Runtime::open_canonical_at(project_root, data_root)
+                    .map_err(|error| io::Error::other(error.to_string()))
+            })
+            .await
+            .map_err(|error| io::Error::other(format!("runtime open task failed: {error}")))??,
         );
         Self::from_runtime(runtime, quorum).await
     }
@@ -257,9 +268,13 @@ impl KbdControlPlane {
         }
         let recovery_runtime = Arc::clone(&runtime);
         if let Some(archive) = tokio::task::spawn_blocking(move || {
-            recovery_runtime
+            let archive = recovery_runtime
                 .recover_journal_tail()
-                .map_err(|error| io::Error::other(error.to_string()))
+                .map_err(|error| io::Error::other(error.to_string()))?;
+            recovery_runtime
+                .reconcile_project_document()
+                .map_err(|error| io::Error::other(error.to_string()))?;
+            Ok::<_, io::Error>(archive)
         })
         .await
         .map_err(|join_error| {
@@ -270,9 +285,6 @@ impl KbdControlPlane {
                 "archived an interrupted KBD journal tail before recovery"
             );
         }
-        runtime
-            .reconcile_project_document()
-            .map_err(|error| io::Error::other(error.to_string()))?;
         Ok(Self {
             runtime,
             available_voters: Arc::new(RwLock::new(BTreeSet::from([quorum.node_id()]))),
@@ -341,6 +353,18 @@ impl KbdControlPlane {
         tokio::task::spawn_blocking(move || control.events(since_revision))
             .await
             .map_err(|join_error| io::Error::other(format!("events task failed: {join_error}")))?
+    }
+
+    pub async fn signed_audit_jsonl(&self) -> io::Result<Vec<u8>> {
+        let runtime = Arc::clone(&self.runtime);
+        tokio::task::spawn_blocking(move || {
+            runtime
+                .signed_audit_jsonl()
+                .map(|(bytes, _)| bytes)
+                .map_err(|error| io::Error::other(error.to_string()))
+        })
+        .await
+        .map_err(|join_error| io::Error::other(format!("audit export task failed: {join_error}")))?
     }
 
     pub fn diagnostics(&self) -> io::Result<serde_json::Value> {

@@ -362,6 +362,14 @@ enum KbdAction {
         #[command(subcommand)]
         action: KbdClaimAction,
     },
+    /// Inspect or record parent-owned Git submodule pins
+    Submodules {
+        /// Scan gitlinks and append signed pin events to the parent project
+        #[arg(long)]
+        scan: bool,
+        #[arg(long)]
+        json: bool,
+    },
     /// Gracefully checkpoint and pause the run
     Pause {
         #[arg(long)]
@@ -390,6 +398,9 @@ enum KbdAction {
         since: Option<String>,
         #[arg(long)]
         json: bool,
+        /// Export the full converged chain to refs/heads/audit/kbd without checkout
+        #[arg(long, conflicts_with_all = ["since", "json"])]
+        export_git: bool,
     },
     /// Follow new events until interrupted
     Watch,
@@ -854,6 +865,9 @@ async fn main() -> Result<()> {
                         commands::kbd::Action::ClaimRelease { claim_id }
                     }
                 },
+                KbdAction::Submodules { scan, json } => {
+                    commands::kbd::Action::Submodules { scan, json }
+                }
                 KbdAction::Pause { reason } => commands::kbd::Action::Pause { reason },
                 KbdAction::Revise {
                     reason,
@@ -866,7 +880,15 @@ async fn main() -> Result<()> {
                     commands::kbd::Action::Resume { plan_revision }
                 }
                 KbdAction::Cancel { reason } => commands::kbd::Action::Cancel { reason },
-                KbdAction::Audit { since, json } => commands::kbd::Action::Audit { since, json },
+                KbdAction::Audit {
+                    since,
+                    json,
+                    export_git,
+                } => commands::kbd::Action::Audit {
+                    since,
+                    json,
+                    export_git,
+                },
                 KbdAction::Watch => commands::kbd::Action::Watch,
                 KbdAction::Migrate { check, apply } => {
                     commands::kbd::Action::Migrate { check, apply }

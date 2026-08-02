@@ -1,6 +1,6 @@
 use anyhow::{anyhow, Context, Result};
 use kbd_runtime::{
-    registry::ProjectRegistry,
+    registry::{scan_submodule_pins, ProjectRegistry},
     rollout::{RolloutObservation, RolloutTracker},
     Actor, ActorKind, Checkpoint, ClaimMode, CommandEnvelope, CommandKind, DeviceSigner, Event,
     LifecycleState, Runtime, RuntimeError, RuntimeState, SignedCommandEnvelope,
@@ -54,6 +54,10 @@ pub enum Action {
     ClaimRelease {
         claim_id: String,
     },
+    Submodules {
+        scan: bool,
+        json: bool,
+    },
     Pause {
         reason: String,
     },
@@ -70,6 +74,7 @@ pub enum Action {
     Audit {
         since: Option<String>,
         json: bool,
+        export_git: bool,
     },
     Watch,
     Migrate {
@@ -105,13 +110,18 @@ pub async fn run(path: &str, action: Action) -> Result<()> {
             } else {
                 println!("Machine: {}", document.machine_id);
                 for (path, replica) in document.replicas {
+                    let access = replica
+                        .read_only
+                        .then(|| {
+                            format!(
+                                "  read-only ({})",
+                                replica.read_only_reason.as_deref().unwrap_or("policy")
+                            )
+                        })
+                        .unwrap_or_default();
                     println!(
                         "{}  {}  {}  {:?}{}",
-                        replica.project_id,
-                        replica.replica_id,
-                        path,
-                        replica.kind,
-                        if replica.read_only { "  read-only" } else { "" }
+                        replica.project_id, replica.replica_id, path, replica.kind, access
                     );
                 }
             }
@@ -148,12 +158,21 @@ pub async fn run(path: &str, action: Action) -> Result<()> {
                 );
             } else {
                 for (path, replica) in replicas {
+                    let access = replica
+                        .read_only
+                        .then(|| {
+                            format!(
+                                "  read-only ({})",
+                                replica.read_only_reason.as_deref().unwrap_or("policy")
+                            )
+                        })
+                        .unwrap_or_default();
                     println!(
                         "{}  {}  {:?}{}",
                         replica.replica_id,
                         path.display(),
                         replica.kind,
-                        if replica.read_only { "  read-only" } else { "" }
+                        access
                     );
                 }
             }
@@ -320,6 +339,54 @@ pub async fn run(path: &str, action: Action) -> Result<()> {
                 .await?;
             print_state(&next, false)
         }
+        Action::Submodules { scan, json } => {
+            if scan {
+                let scanned = scan_submodule_pins(&root)?;
+                for pin in &scanned.pins {
+                    let state = client.status().await?;
+                    if state.submodule_pins.get(&pin.path) == Some(pin) {
+                        continue;
+                    }
+                    client
+                        .submit_fresh(
+                            &state,
+                            current_actor(ActorKind::Operator),
+                            CommandKind::SubmodulePinSet { pin: pin.clone() },
+                        )
+                        .await?;
+                }
+                let state = client.status().await?;
+                println!(
+                    "{}",
+                    serde_json::to_string_pretty(&json!({
+                        "scan": scanned,
+                        "pins": state.submodule_pins,
+                        "replicaView": state.replica_view
+                    }))?
+                );
+            } else {
+                let state = client.status().await?;
+                if json {
+                    println!(
+                        "{}",
+                        serde_json::to_string_pretty(&json!({
+                            "pins": state.submodule_pins,
+                            "replicaView": state.replica_view
+                        }))?
+                    );
+                } else if state.submodule_pins.is_empty() {
+                    println!("No submodule pins.");
+                } else {
+                    for pin in state.submodule_pins.values() {
+                        println!(
+                            "{}  {}  {}",
+                            pin.path, pin.child_project_id, pin.gitlink_sha
+                        );
+                    }
+                }
+            }
+            Ok(())
+        }
         Action::Pause { reason } => {
             write_emergency_pause(&root, &reason)?;
             let state = client.status().await.with_context(|| {
@@ -394,7 +461,11 @@ pub async fn run(path: &str, action: Action) -> Result<()> {
             write_pause_valve(&root, &next)?;
             print_state(&next, false)
         }
-        Action::Audit { since, json } => audit(&runtime, &client, since.as_deref(), json).await,
+        Action::Audit {
+            since,
+            json,
+            export_git,
+        } => audit(&runtime, &client, since.as_deref(), json, export_git).await,
         Action::Watch => watch(&client).await,
         Action::Migrate { check, apply } => {
             let report = runtime.migrate_legacy_ledgers(false)?;
@@ -501,8 +572,13 @@ pub async fn run(path: &str, action: Action) -> Result<()> {
         }
         Action::Command {
             command_id,
-            command,
+            mut command,
         } => {
+            if let CommandKind::ActivePathSet { active_path, .. } = &mut command {
+                if active_path.commit.is_none() {
+                    active_path.commit = git_head(&root);
+                }
+            }
             let state = client.status().await?;
             let result = client
                 .submit(CommandEnvelope {
@@ -735,7 +811,13 @@ async fn audit(
     client: &ControlClient,
     since: Option<&str>,
     json_output: bool,
+    export_git: bool,
 ) -> Result<()> {
+    if export_git {
+        let exported = runtime.export_audit_to_git()?;
+        println!("{}", serde_json::to_string_pretty(&exported)?);
+        return Ok(());
+    }
     let events = match client.events().await {
         Ok(events) => events,
         Err(_) => {
@@ -866,6 +948,20 @@ fn git_dirty_summary(root: &Path) -> Option<String> {
     let text = String::from_utf8_lossy(&output.stdout);
     let count = text.lines().count();
     Some(format!("{count} changed paths"))
+}
+
+fn git_head(root: &Path) -> Option<String> {
+    let output = std::process::Command::new("git")
+        .args(["rev-parse", "HEAD"])
+        .current_dir(root)
+        .output()
+        .ok()?;
+    if !output.status.success() {
+        return None;
+    }
+    let head = String::from_utf8(output.stdout).ok()?;
+    let head = head.trim();
+    (!head.is_empty()).then(|| head.to_owned())
 }
 
 fn write_pause_valve(root: &Path, state: &RuntimeState) -> Result<()> {

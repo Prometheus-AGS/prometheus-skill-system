@@ -13,7 +13,7 @@ use uuid::Uuid;
 
 use crate::{
     read_project_manifest, DeviceSigner, Event, MigrationProvenance, ProjectManifest, Result,
-    Runtime, RuntimeError, EVENT_SCHEMA_VERSION,
+    Runtime, RuntimeError, SubmodulePin, EVENT_SCHEMA_VERSION,
 };
 
 pub const REGISTRY_SCHEMA_VERSION: &str = "1";
@@ -61,6 +61,8 @@ pub struct ReplicaRegistration {
     pub head: Option<String>,
     pub origin: Option<String>,
     pub read_only: bool,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub read_only_reason: Option<String>,
     pub registered_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
 }
@@ -129,6 +131,69 @@ pub struct RegistrationOutcome {
     pub registration: ReplicaRegistration,
     pub created: bool,
     pub duplicate_candidates: Vec<DuplicateCandidate>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+pub struct SubmoduleScanResult {
+    pub parent_path: String,
+    pub pins: Vec<SubmodulePin>,
+    pub skipped: Vec<String>,
+}
+
+pub fn scan_submodule_pins(project_root: impl AsRef<Path>) -> Result<SubmoduleScanResult> {
+    let parent = canonical_existing_path(project_root.as_ref())?;
+    let output = Command::new("git")
+        .arg("-C")
+        .arg(&parent)
+        .args(["ls-files", "--stage", "-z"])
+        .output()?;
+    if !output.status.success() {
+        return Err(RuntimeError::InvalidState(format!(
+            "{} is not a readable Git work tree",
+            parent.display()
+        )));
+    }
+    let mut pins = Vec::new();
+    let mut skipped = Vec::new();
+    for entry in output
+        .stdout
+        .split(|byte| *byte == 0)
+        .filter(|entry| !entry.is_empty())
+    {
+        let Some(tab) = entry.iter().position(|byte| *byte == b'\t') else {
+            continue;
+        };
+        let metadata = std::str::from_utf8(&entry[..tab]).map_err(|_| {
+            RuntimeError::InvalidState("gitlink metadata must be valid UTF-8".into())
+        })?;
+        let mut fields = metadata.split_whitespace();
+        if fields.next() != Some("160000") {
+            continue;
+        }
+        let Some(gitlink_sha) = fields.next() else {
+            continue;
+        };
+        let path = std::str::from_utf8(&entry[tab + 1..])
+            .map_err(|_| RuntimeError::InvalidState("gitlink path must be valid UTF-8".into()))?;
+        let child_root = parent.join(path);
+        let Some(manifest) = read_project_manifest(&child_root)? else {
+            skipped.push(format!("{path}: child project manifest is unavailable"));
+            continue;
+        };
+        pins.push(SubmodulePin {
+            path: path.to_owned(),
+            child_project_id: manifest.project_id,
+            gitlink_sha: gitlink_sha.to_owned(),
+        });
+    }
+    pins.sort_by(|left, right| left.path.cmp(&right.path));
+    skipped.sort();
+    Ok(SubmoduleScanResult {
+        parent_path: path_key(&parent)?,
+        pins,
+        skipped,
+    })
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
@@ -228,7 +293,7 @@ impl ProjectRegistry {
                 canonical.display()
             ))
         })?;
-        let evidence = inspect_replica(&canonical, &manifest, None)?;
+        let evidence = inspect_replica(&canonical, &manifest, None, &self.root)?;
 
         fs::create_dir_all(&self.root)?;
         let lock = self.open_lock()?;
@@ -264,6 +329,7 @@ impl ProjectRegistry {
                 head: evidence.head,
                 origin: evidence.origin,
                 read_only: evidence.read_only,
+                read_only_reason: evidence.read_only_reason,
                 registered_at,
                 updated_at: now,
             };
@@ -440,7 +506,7 @@ impl ProjectRegistry {
 
             let source_key = path_key(&source_path)?;
             let now = Utc::now();
-            let evidence = inspect_replica(&source_path, &adopted_manifest, None)?;
+            let evidence = inspect_replica(&source_path, &adopted_manifest, None, &self.root)?;
             let parent = resolve_parent_replica(&evidence.parent, &document);
             let registration = ReplicaRegistration {
                 project_id: into_project_id.into(),
@@ -451,6 +517,7 @@ impl ProjectRegistry {
                 head: evidence.head,
                 origin: evidence.origin,
                 read_only: evidence.read_only,
+                read_only_reason: evidence.read_only_reason,
                 registered_at: now,
                 updated_at: now,
             };
@@ -549,7 +616,7 @@ impl ProjectRegistry {
                 })?;
         let source_key = path_key(source_path)?;
         let source_registration = document.replicas.get(&source_key);
-        let evidence = inspect_replica(source_path, source_manifest, None)?;
+        let evidence = inspect_replica(source_path, source_manifest, None, &self.root)?;
         let source_events = read_events(&self.project_events_path(&source_manifest.project_id))?;
         let mut warnings = Vec::new();
         if evidence.kind == ReplicaKind::Standalone && target.kind == ReplicaKind::Standalone {
@@ -635,6 +702,136 @@ impl ProjectRegistry {
     }
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(tag = "status", rename_all = "snake_case")]
+pub enum FlockProbe {
+    Proven {
+        child_pid: u32,
+    },
+    Unavailable {
+        child_pid: Option<u32>,
+        reason: String,
+    },
+}
+
+/// Verify lock exclusion with a separately opened descriptor in a real child
+/// process. A volume is writable only when the child observes `WouldBlock`.
+#[cfg(unix)]
+pub fn probe_flock_exclusion(probe_root: &Path) -> Result<FlockProbe> {
+    use std::ffi::CString;
+    use std::os::unix::ffi::OsStrExt;
+    use std::os::unix::io::AsRawFd;
+
+    if let Err(error) = fs::create_dir_all(probe_root) {
+        return Ok(FlockProbe::Unavailable {
+            child_pid: None,
+            reason: format!("cannot create lock probe directory: {error}"),
+        });
+    }
+    let path = probe_root.join(format!(".flock-probe-{}", Uuid::new_v4()));
+    let parent = match OpenOptions::new()
+        .create_new(true)
+        .read(true)
+        .write(true)
+        .open(&path)
+    {
+        Ok(file) => file,
+        Err(error) => {
+            return Ok(FlockProbe::Unavailable {
+                child_pid: None,
+                reason: format!("cannot create lock probe file: {error}"),
+            })
+        }
+    };
+    if let Err(error) = parent.lock_exclusive() {
+        drop(parent);
+        let _ = fs::remove_file(&path);
+        return Ok(FlockProbe::Unavailable {
+            child_pid: None,
+            reason: format!("cannot acquire parent lock: {error}"),
+        });
+    }
+    let c_path = CString::new(path.as_os_str().as_bytes()).map_err(|_| {
+        RuntimeError::InvalidState("flock probe path contains an interior NUL".into())
+    })?;
+    let parent_fd = parent.as_raw_fd();
+    // SAFETY: the child performs only async-signal-safe libc calls and exits
+    // with `_exit`; all Rust-owned cleanup remains in the parent.
+    let pid = unsafe { libc::fork() };
+    if pid < 0 {
+        FileExt::unlock(&parent)?;
+        fs::remove_file(&path)?;
+        return Ok(FlockProbe::Unavailable {
+            child_pid: None,
+            reason: std::io::Error::last_os_error().to_string(),
+        });
+    }
+    if pid == 0 {
+        unsafe {
+            libc::close(parent_fd);
+            let child_fd = libc::open(c_path.as_ptr(), libc::O_RDWR | libc::O_CLOEXEC);
+            if child_fd < 0 {
+                libc::_exit(2);
+            }
+            let result = libc::flock(child_fd, libc::LOCK_EX | libc::LOCK_NB);
+            if result == 0 {
+                libc::_exit(1);
+            }
+            #[cfg(target_vendor = "apple")]
+            let errno = *libc::__error();
+            #[cfg(target_os = "android")]
+            let errno = *libc::__errno();
+            #[cfg(all(not(target_vendor = "apple"), not(target_os = "android")))]
+            let errno = *libc::__errno_location();
+            if errno == libc::EWOULDBLOCK || errno == libc::EAGAIN {
+                libc::_exit(0);
+            }
+            libc::_exit(2);
+        }
+    }
+
+    let mut status = 0;
+    let waited = loop {
+        let result = unsafe { libc::waitpid(pid, &mut status, 0) };
+        if result >= 0 {
+            break result;
+        }
+        if std::io::Error::last_os_error().kind() != std::io::ErrorKind::Interrupted {
+            break result;
+        }
+    };
+    FileExt::unlock(&parent)?;
+    drop(parent);
+    fs::remove_file(&path)?;
+    File::open(probe_root)?.sync_all()?;
+    let child_pid = pid as u32;
+    if waited != pid || !libc::WIFEXITED(status) {
+        return Ok(FlockProbe::Unavailable {
+            child_pid: Some(child_pid),
+            reason: "flock probe child did not exit normally".into(),
+        });
+    }
+    match libc::WEXITSTATUS(status) {
+        0 => Ok(FlockProbe::Proven { child_pid }),
+        1 => Ok(FlockProbe::Unavailable {
+            child_pid: Some(child_pid),
+            reason: "a second process acquired the exclusive lock".into(),
+        }),
+        _ => Ok(FlockProbe::Unavailable {
+            child_pid: Some(child_pid),
+            reason: "the child could not verify an expected WouldBlock result".into(),
+        }),
+    }
+}
+
+#[cfg(not(unix))]
+pub fn probe_flock_exclusion(_probe_root: &Path) -> Result<FlockProbe> {
+    Ok(FlockProbe::Unavailable {
+        child_pid: None,
+        reason: "cross-process flock probing is unsupported on this platform".into(),
+    })
+}
+
 #[derive(Debug)]
 struct ReplicaEvidence {
     kind: ReplicaKind,
@@ -642,12 +839,14 @@ struct ReplicaEvidence {
     head: Option<String>,
     origin: Option<String>,
     read_only: bool,
+    read_only_reason: Option<String>,
 }
 
 fn inspect_replica(
     path: &Path,
     _manifest: &ProjectManifest,
     forced_kind: Option<ReplicaKind>,
+    probe_root: &Path,
 ) -> Result<ReplicaEvidence> {
     let bare = git_output(path, &["rev-parse", "--is-bare-repository"]).as_deref() == Some("true");
     let superproject = git_output(path, &["rev-parse", "--show-superproject-working-tree"])
@@ -682,13 +881,48 @@ fn inspect_replica(
             replica_id: None,
         })
     });
-    let read_only = matches!(kind, ReplicaKind::Bare | ReplicaKind::Ci);
+    let (read_only, read_only_reason) = match kind {
+        ReplicaKind::Bare => (
+            true,
+            Some("bare replicas do not have a writable worktree".into()),
+        ),
+        ReplicaKind::Ci => (
+            true,
+            Some("CI replicas are observation-only and cannot commit KBD state".into()),
+        ),
+        _ => {
+            let probes = [
+                ("KBD data volume", probe_root.to_path_buf()),
+                ("project volume", path.join(".prometheus")),
+            ];
+            let unavailable =
+                probes
+                    .into_iter()
+                    .find_map(|(label, root)| match probe_flock_exclusion(&root) {
+                        Ok(FlockProbe::Proven { .. }) => None,
+                        Ok(FlockProbe::Unavailable { reason, .. }) => {
+                            Some(format!("{label}: {reason}"))
+                        }
+                        Err(error) => Some(format!("{label}: {error}")),
+                    });
+            match unavailable {
+                None => (false, None),
+                Some(reason) => (
+                    true,
+                    Some(format!(
+                        "cross-process flock exclusion could not be proven: {reason}"
+                    )),
+                ),
+            }
+        }
+    };
     Ok(ReplicaEvidence {
         kind,
         parent,
         head: git_output(path, &["rev-parse", "HEAD"]),
         origin: git_output(path, &["config", "--get", "remote.origin.url"]),
         read_only,
+        read_only_reason,
     })
 }
 
@@ -1051,6 +1285,57 @@ mod tests {
     }
 
     #[test]
+    fn flock_probe_uses_a_real_child_and_leaves_no_probe_file() {
+        let fixture = tempdir().unwrap();
+        let probe_root = fixture.path().join("probe");
+        let result = probe_flock_exclusion(&probe_root).unwrap();
+        match result {
+            FlockProbe::Proven { child_pid } => {
+                assert_ne!(child_pid, std::process::id());
+            }
+            FlockProbe::Unavailable { reason, .. } => {
+                panic!("temporary local filesystem must support flock exclusion: {reason}")
+            }
+        }
+        assert_eq!(fs::read_dir(probe_root).unwrap().count(), 0);
+    }
+
+    #[test]
+    fn bare_replica_is_registered_read_only_with_an_actionable_reason() {
+        let fixture = tempdir().unwrap();
+        let project = fixture.path().join("bare.git");
+        assert!(Command::new("git")
+            .args(["init", "--bare", "--quiet"])
+            .arg(&project)
+            .status()
+            .unwrap()
+            .success());
+        let project_id = Uuid::new_v4().to_string();
+        write_manifest(&project, &project_id);
+        let data_root = fixture.path().join("data");
+        let registry = ProjectRegistry::open_at(&data_root);
+        let outcome = registry.register_existing(&project).unwrap();
+        assert_eq!(outcome.registration.kind, ReplicaKind::Bare);
+        assert!(outcome.registration.read_only);
+        assert!(outcome
+            .registration
+            .read_only_reason
+            .as_deref()
+            .unwrap()
+            .contains("writable worktree"));
+
+        let runtime = Runtime::open_registered_at(&project, &data_root, &project_id).unwrap();
+        assert!(matches!(
+            runtime.initialize(
+                &project_id,
+                "run",
+                crate::Actor::operator("operator", "bare-test")
+            ),
+            Err(RuntimeError::ReplicaReadOnly { .. })
+        ));
+    }
+
+    #[test]
     fn matching_origin_and_head_only_suggest_a_duplicate() {
         let fixture = tempdir().unwrap();
         let first = fixture.path().join("first");
@@ -1090,6 +1375,40 @@ mod tests {
     }
 
     #[test]
+    fn gitlink_scan_records_child_uuid_sha_and_path_without_mutating_child_state() {
+        let fixture = tempdir().unwrap();
+        let parent = fixture.path().join("parent");
+        let child = parent.join("vendor/child");
+        fs::create_dir_all(&child).unwrap();
+        init_git(&parent, "https://example.invalid/parent.git");
+        init_git(&child, "https://example.invalid/child.git");
+        let child_project_id = Uuid::new_v4().to_string();
+        write_manifest(&child, &child_project_id);
+        commit_all(&child, "child identity");
+        let child_head = git_output(&child, &["rev-parse", "HEAD"]).unwrap();
+        assert!(Command::new("git")
+            .args(["update-index", "--add", "--cacheinfo", "160000"])
+            .arg(&child_head)
+            .arg("vendor/child")
+            .current_dir(&parent)
+            .status()
+            .unwrap()
+            .success());
+
+        let scanned = scan_submodule_pins(&parent).unwrap();
+        assert!(scanned.skipped.is_empty());
+        assert_eq!(
+            scanned.pins,
+            vec![SubmodulePin {
+                path: "vendor/child".into(),
+                child_project_id,
+                gitlink_sha: child_head,
+            }]
+        );
+        assert!(child.join(".prometheus/project.json").exists());
+    }
+
+    #[test]
     fn standalone_replica_wins_the_authority_order() {
         let now = Utc::now();
         let project_id = Uuid::new_v4().to_string();
@@ -1103,6 +1422,7 @@ mod tests {
             head: None,
             origin: None,
             read_only: false,
+            read_only_reason: None,
             registered_at: now,
             updated_at: now,
         };

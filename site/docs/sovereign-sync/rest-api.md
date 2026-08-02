@@ -31,6 +31,10 @@ curl --fail-with-body http://127.0.0.1:7892/health | jq .
 }
 ```
 
+The daemon binds the loopback listener and serves this static route before P2P
+or KBD registry initialization. Other routes return `503` with
+`status: "initializing"` until the full application state is installed.
+
 ### `GET /ready`
 
 Asynchronously replays the journal and returns `503` when the authority is not
@@ -100,6 +104,35 @@ a replica UUID but never invents or changes the project UUID.
 ### `GET /api/v1/kbd/projects/{projectId}/replicas`
 
 Returns every registered replica path for the declared project UUID.
+
+### `POST /api/v1/kbd/projects/adopt`
+
+```json
+{
+  "path": "/path/to/embedded-copy",
+  "intoProjectId": "declared-target-project-uuid",
+  "apply": false
+}
+```
+
+The default is a non-mutating evidence plan. Applying adoption creates a new
+replica UUID, checksummed backups, re-signed migrated events with source-hash
+provenance, and a redirect record. Standalone-to-standalone identity remains
+ambiguous and cannot be applied automatically.
+
+### `GET /api/v1/kbd/projects/{projectId}/submodules`
+
+Returns parent-owned `SubmodulePin` records plus the derived read-only child
+status. The parent never mutates child project authority. A referenced commit
+that is simply unavailable in this checkout is reported as `ahead_of_me`, not
+as a conflict.
+
+### `GET /api/v1/kbd/projects/{projectId}/audit`
+
+Returns canonical signed events as `application/x-ndjson`. The CLI can export
+the same converged per-device hash chains to the local `audit/kbd` Git ref by
+using a temporary index and Git plumbing; the worktree and normal index do not
+change. Audit data is export-only and is never imported as authority.
 
 ### `GET /api/v1/kbd/projects/{projectId}/status`
 
@@ -246,5 +279,5 @@ The continuous event route emits `event_appended`, `claim_acquired`,
 | `400` | Path project ID differs from command envelope |
 | `401` | Unknown, revoked, unsigned, or invalid device signature |
 | `404` | Unknown registered project or uninitialized KBD runtime |
-| `409` | Replay, revision, signature, or command conflict |
+| `409` | Replay, frontier, signature, claim, or command conflict |
 | `503` | Quorum is not writable |

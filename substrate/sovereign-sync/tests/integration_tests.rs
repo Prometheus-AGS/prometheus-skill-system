@@ -64,6 +64,54 @@ async fn health_endpoint_returns_200() {
 }
 
 #[tokio::test]
+async fn loopback_listener_can_be_acquired_before_application_state_exists() {
+    let listener = sovereign_sync::rest_api::bind_loopback(0).await.unwrap();
+    let address = listener.local_addr().unwrap();
+    assert!(address.ip().is_loopback());
+    let connection = tokio::net::TcpStream::connect(address).await.unwrap();
+    drop(connection);
+    drop(listener);
+}
+
+#[tokio::test]
+async fn startup_router_serves_health_and_gates_stateful_routes_until_install() {
+    let (app, gate) = sovereign_sync::rest_api::build_startup_router();
+    let health = Request::builder()
+        .uri("/health")
+        .body(Body::empty())
+        .unwrap();
+    assert_eq!(
+        app.clone().oneshot(health).await.unwrap().status(),
+        StatusCode::OK
+    );
+
+    let ready = Request::builder()
+        .uri("/ready")
+        .body(Body::empty())
+        .unwrap();
+    assert_eq!(
+        app.clone().oneshot(ready).await.unwrap().status(),
+        StatusCode::SERVICE_UNAVAILABLE
+    );
+
+    let skills_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../skills");
+    let fixture = tempfile::tempdir().unwrap();
+    let project_root = fixture.path().join("project");
+    let data_root = fixture.path().join("data");
+    std::fs::create_dir_all(&project_root).unwrap();
+    let state = AppState::try_new_at(&skills_dir, &project_root, &data_root, None)
+        .await
+        .unwrap();
+    gate.install(state).await;
+
+    let ready = Request::builder()
+        .uri("/ready")
+        .body(Body::empty())
+        .unwrap();
+    assert_eq!(app.oneshot(ready).await.unwrap().status(), StatusCode::OK);
+}
+
+#[tokio::test]
 async fn ready_endpoint_replays_the_journal_asynchronously() {
     let (app, _fixture) = test_router().await;
     let req = Request::builder()
@@ -130,6 +178,20 @@ async fn registry_routes_two_projects_without_a_focus_environment_variable() {
     let response = app.clone().oneshot(replicas).await.unwrap();
     assert_eq!(response.status(), StatusCode::OK);
 
+    let submodules = Request::builder()
+        .method("GET")
+        .uri(format!("/api/v1/kbd/projects/{second_id}/submodules"))
+        .body(Body::empty())
+        .unwrap();
+    let response = app.clone().oneshot(submodules).await.unwrap();
+    assert_eq!(response.status(), StatusCode::OK);
+    let body = axum::body::to_bytes(response.into_body(), 16_384)
+        .await
+        .unwrap();
+    let json: serde_json::Value = serde_json::from_slice(&body).unwrap();
+    assert_eq!(json["projectId"], second_id);
+    assert!(json["pins"].as_object().unwrap().is_empty());
+
     let ready = Request::builder()
         .method("GET")
         .uri("/ready")
@@ -142,6 +204,64 @@ async fn registry_routes_two_projects_without_a_focus_environment_variable() {
         .unwrap();
     let json: serde_json::Value = serde_json::from_slice(&body).unwrap();
     assert_eq!(json["projectCount"], 2);
+}
+
+#[tokio::test]
+async fn adoption_route_is_a_non_mutating_dry_run_by_default() {
+    let skills_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../skills");
+    let fixture = tempfile::tempdir().unwrap();
+    let target = fixture.path().join("target");
+    let source = fixture.path().join("source");
+    let data_root = fixture.path().join("data");
+    std::fs::create_dir_all(&target).unwrap();
+    std::fs::create_dir_all(&source).unwrap();
+
+    let state = AppState::try_new_at(&skills_dir, &target, &data_root, None)
+        .await
+        .unwrap();
+    let target_id = kbd_runtime::Runtime::open_canonical_at(&target, &data_root)
+        .unwrap()
+        .project_manifest(false)
+        .unwrap()
+        .unwrap()
+        .project_id;
+    let source_runtime = kbd_runtime::Runtime::open_canonical_at(&source, &data_root).unwrap();
+    let source_manifest = source_runtime.project_manifest(false).unwrap().unwrap();
+    let app = build_router(state);
+
+    let request = Request::builder()
+        .method("POST")
+        .uri("/api/v1/kbd/projects/adopt")
+        .header("content-type", "application/json")
+        .body(Body::from(
+            serde_json::json!({
+                "path": source,
+                "intoProjectId": target_id
+            })
+            .to_string(),
+        ))
+        .unwrap();
+    let response = app.oneshot(request).await.unwrap();
+    assert_eq!(response.status(), StatusCode::OK);
+    let body = axum::body::to_bytes(response.into_body(), 32_768)
+        .await
+        .unwrap();
+    let json: serde_json::Value = serde_json::from_slice(&body).unwrap();
+    assert_eq!(json["dryRun"], true);
+    assert_eq!(
+        json["outcome"]["formerProjectId"],
+        source_manifest.project_id
+    );
+    assert_eq!(json["outcome"]["intoProjectId"], target_id);
+    assert_eq!(json["outcome"]["sourceEventCount"], 0);
+    assert!(!json["outcome"]["warnings"].as_array().unwrap().is_empty());
+    let current_manifest: kbd_runtime::ProjectManifest =
+        serde_json::from_slice(&std::fs::read(source.join(".prometheus/project.json")).unwrap())
+            .unwrap();
+    assert_eq!(
+        current_manifest, source_manifest,
+        "dry-run adoption must not rewrite the declared project UUID"
+    );
 }
 
 // ---------------------------------------------------------------------------
@@ -393,6 +513,25 @@ async fn kbd_command_requires_device_signature_and_claim_surface_reports_commit(
         app.clone().oneshot(request).await.unwrap().status(),
         StatusCode::OK
     );
+
+    let audit = Request::builder()
+        .method("GET")
+        .uri(format!("/api/v1/kbd/projects/{project_id}/audit"))
+        .body(Body::empty())
+        .unwrap();
+    let response = app.clone().oneshot(audit).await.unwrap();
+    assert_eq!(response.status(), StatusCode::OK);
+    assert_eq!(response.headers()["content-type"], "application/x-ndjson");
+    let body = axum::body::to_bytes(response.into_body(), 64 * 1024)
+        .await
+        .unwrap();
+    let events = std::str::from_utf8(&body)
+        .unwrap()
+        .lines()
+        .map(|line| serde_json::from_str::<kbd_runtime::Event>(line).unwrap())
+        .collect::<Vec<_>>();
+    assert_eq!(events.len(), 2);
+    assert_eq!(kbd_runtime::replay_events(&events).unwrap().claims.len(), 1);
 
     let claims = Request::builder()
         .method("GET")

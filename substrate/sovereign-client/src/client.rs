@@ -96,6 +96,55 @@ impl SovereignClient {
         Ok(resp.json().await?)
     }
 
+    pub async fn kbd_projects(&self) -> Result<Value, ClientError> {
+        let url = self.url("/api/v1/kbd/projects")?;
+        let resp = self.http.get(url).send().await?.error_for_status()?;
+        Ok(resp.json().await?)
+    }
+
+    pub async fn kbd_replicas(&self, project_id: &str) -> Result<Value, ClientError> {
+        let url = self.url(&format!("/api/v1/kbd/projects/{project_id}/replicas"))?;
+        let resp = self.http.get(url).send().await?.error_for_status()?;
+        Ok(resp.json().await?)
+    }
+
+    pub async fn plan_kbd_adoption(
+        &self,
+        path: &str,
+        into_project_id: &str,
+    ) -> Result<Value, ClientError> {
+        self.kbd_adoption(path, into_project_id, false).await
+    }
+
+    pub async fn apply_kbd_adoption(
+        &self,
+        path: &str,
+        into_project_id: &str,
+    ) -> Result<Value, ClientError> {
+        self.kbd_adoption(path, into_project_id, true).await
+    }
+
+    async fn kbd_adoption(
+        &self,
+        path: &str,
+        into_project_id: &str,
+        apply: bool,
+    ) -> Result<Value, ClientError> {
+        let url = self.url("/api/v1/kbd/projects/adopt")?;
+        let resp = self
+            .http
+            .post(url)
+            .json(&serde_json::json!({
+                "path": path,
+                "intoProjectId": into_project_id,
+                "apply": apply
+            }))
+            .send()
+            .await?
+            .error_for_status()?;
+        Ok(resp.json().await?)
+    }
+
     pub async fn submit_kbd_command(
         &self,
         project_id: &str,
@@ -117,6 +166,24 @@ impl SovereignClient {
         let url = self.url(&format!("/api/v1/kbd/projects/{project_id}/claims"))?;
         let resp = self.http.get(url).send().await?.error_for_status()?;
         Ok(resp.json().await?)
+    }
+
+    pub async fn kbd_conflicts(&self, project_id: &str) -> Result<Value, ClientError> {
+        let url = self.url(&format!("/api/v1/kbd/projects/{project_id}/conflicts"))?;
+        let resp = self.http.get(url).send().await?.error_for_status()?;
+        Ok(resp.json().await?)
+    }
+
+    pub async fn kbd_submodules(&self, project_id: &str) -> Result<Value, ClientError> {
+        let url = self.url(&format!("/api/v1/kbd/projects/{project_id}/submodules"))?;
+        let resp = self.http.get(url).send().await?.error_for_status()?;
+        Ok(resp.json().await?)
+    }
+
+    pub async fn export_kbd_audit(&self, project_id: &str) -> Result<Vec<u8>, ClientError> {
+        let url = self.url(&format!("/api/v1/kbd/projects/{project_id}/audit"))?;
+        let resp = self.http.get(url).send().await?.error_for_status()?;
+        Ok(resp.bytes().await?.to_vec())
     }
 
     // -----------------------------------------------------------------------

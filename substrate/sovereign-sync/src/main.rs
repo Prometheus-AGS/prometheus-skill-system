@@ -126,6 +126,12 @@ async fn main() -> anyhow::Result<()> {
                     "node.operator_id is required in daemon mode; pair trusted devices before KBD sync"
                 );
             }
+            // Bind before P2P startup and KBD registry reconciliation. Those
+            // operations can take seconds for a large existing registry, but
+            // launchd must see the loopback port acquired immediately.
+            let listener = rest_api::bind_loopback(port).await?;
+            let (startup_app, startup_gate) = rest_api::build_startup_router();
+            let server = tokio::spawn(async move { axum::serve(listener, startup_app).await });
             let operator_key = *blake3::hash(cfg.node.operator_id.as_bytes()).as_bytes();
             let (node, mut incoming) = p2p::P2PNode::new(&operator_key, &cfg.peers).await?;
             let peers = cfg
@@ -158,7 +164,9 @@ async fn main() -> anyhow::Result<()> {
                     rest_api::handle_incoming_message(&consumer_state, &message.payload).await;
                 }
             });
-            rest_api::serve_with_state(port, state).await?;
+            startup_gate.install(state).await;
+            info!("sovereign-sync state initialized; all REST routes are ready");
+            server.await??;
         }
         Mode::Server => {
             info!("Starting sovereign-sync HTTP server on port {port}");

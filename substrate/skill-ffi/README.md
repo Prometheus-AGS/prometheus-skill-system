@@ -9,13 +9,13 @@ failure this phase exists to prevent.
 Pattern: **`flutter_rust_bridge` 2.12.0**, per
 [`docs/decisions/mobile-ffi-pattern.md`](../../docs/decisions/mobile-ffi-pattern.md).
 
-## Status: builds and round-trips; **does not execute skills yet**
+## Status: builds and round-trips; skills remain unbound, mobile KBD is live
 
 | Claim | Status |
 |---|---|
 | builds for `aarch64-apple-ios` | **yes** — 16,408-byte arm64 Mach-O dylib |
 | builds for `aarch64-linux-android` | **yes** — 454,856-byte arm64 ELF `.so` |
-| round-trip tests assert on returned values | **yes** — 8 passing |
+| round-trip tests assert on returned values | **yes** — 9 passing |
 | `crate-type` matches KnowMe's `gen_ui_ffi` | **yes** — `cdylib`, `staticlib`, `rlib` |
 | **actually invokes a skill** | **NO** |
 
@@ -24,6 +24,18 @@ That is the truthful answer while UAR's Wasm runtime is a stub
 (`change-msp-008`): returning `Ok` would make a mobile caller believe a skill
 ran when nothing did. One test asserts exactly this, so a future change cannot
 quietly make it fake success.
+
+This limitation applies only to the unrelated Wasm skill host. The mobile KBD
+surface is implemented by `kbd-mobile` and exposes:
+
+- restricted capability discovery;
+- host-key preparation and attachment for signed commands;
+- commit of prepared signed events into the local Loro authority;
+- sovereign-sync-compatible delta preparation, host signing, and import.
+
+The wire envelope and topic derivation are byte-compatible with
+`sovereign-sync`. Secure device keys stay with the host application. Git,
+adoption, submodule scanning, and audit-ref writes are absent by design.
 
 ## Falsifiers from the decision — both tested
 

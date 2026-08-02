@@ -76,3 +76,15 @@ fn list_skills_reports_no_host_rather_than_an_empty_catalog() {
     assert!(matches!(e.kind, SkillErrorKind::Unsupported));
     assert!(e.message.contains("no host bound"), "got: {}", e.message);
 }
+
+#[test]
+fn kbd_mobile_capabilities_expose_the_restricted_security_boundary() {
+    let capabilities: serde_json::Value = serde_json::from_str(&kbd_mobile_capabilities()).unwrap();
+    assert_eq!(capabilities["signedEvents"], true);
+    assert_eq!(capabilities["claims"], true);
+    assert_eq!(capabilities["adjudications"], true);
+    assert_eq!(capabilities["git"], false);
+    assert_eq!(capabilities["adoption"], false);
+    assert_eq!(capabilities["submoduleScan"], false);
+    assert_eq!(capabilities["auditBranchWrite"], false);
+}

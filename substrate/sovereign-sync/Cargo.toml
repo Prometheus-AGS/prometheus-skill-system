@@ -74,3 +74,4 @@ async-trait = "0.1"
 tokio = { version = "1", features = ["full"] }
 tempfile = "3"
 chrono = { version = "0.4", features = ["serde"] }
+kbd-mobile = { path = "../kbd-mobile" }

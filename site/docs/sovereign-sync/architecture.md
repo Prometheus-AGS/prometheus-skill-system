@@ -66,11 +66,11 @@ owner has classified the payload as safe for any paired peer.
 Sovereign Sync separates:
 
 1. **Replicated domain data**, where Loro CRDT merge is appropriate.
-2. **KBD command authority**, where journal writes require one atomic writer
-   during the Loro authority migration.
+2. **KBD command authority**, where each replica journal write is atomic and
+   the signed, grow-only Loro project document is authoritative.
 
 KBD currently commits through one exclusive-flock journal transaction and
-rejects stale revisions. Multi-writer convergence is introduced through the
+rejects stale causal frontiers. Multi-replica convergence occurs through the
 project Loro document rather than an unjoined consensus configuration.
 
 The canonical KBD runtime lives outside the repository under the platform
@@ -122,12 +122,30 @@ projection revision, device trust counts, and signature-chain validity.
 The compatibility quorum configuration accepts exactly one local writer and
 rejects multi-voter settings.
 
+The platform-level registry maps canonical paths to explicit project, replica,
+and machine IDs plus replica kind, parent linkage, HEAD, and read-only reason.
+Bare/CI replicas are read-only. Writable filesystem replicas must also pass a
+real child-process flock exclusion probe; a container volume whose exclusion
+cannot be proven fails closed as read-only.
+
 The `kbd-control:<project-id>` gossip domain exports the complete Loro update
 set from `project.loro`, wraps it with auxiliary presence, and signs the wire
 envelope with an enrolled project device. Receivers verify project identity,
 active device membership, envelope signature, every event signature/hash, and
 grow-only semantics before fsyncing the merged authority. Replicas on one
 machine converge through the shared document path without a network hop.
+
+Parent repositories may append `SubmodulePin` events for Git links. The event
+contains child project UUID, path, and gitlink SHA; child authority remains a
+separate project. The converged authority can also be exported as canonical
+per-device audit JSONL to `refs/heads/audit/kbd` without checking out or
+importing that ref.
+
+Mobile peers use `kbd-mobile` plus `skill-ffi`. They share the exact signed
+`kbd-control:<project-id>` envelope and iroh topic derivation used by the
+daemon, while host applications retain the secure device key. Mobile permits
+signed events, claims, and adjudications but deliberately excludes Git,
+adoption, submodule scans, and audit-ref writes.
 
 ## P2P endpoint lifecycle
 

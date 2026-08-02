@@ -10,13 +10,13 @@
 ///   POST /api/v1/stream        (AG-UI SSE — delegates to ag_ui module)
 ///   GET  /api/v1/stream/ping   (AG-UI SSE ping)
 use axum::{
-    extract::{Path as AxumPath, Query, State},
+    extract::{Path as AxumPath, Query, Request, State},
     http::{HeaderMap, StatusCode},
     response::{
         sse::{Event as SseEvent, KeepAlive},
-        IntoResponse, Sse,
+        IntoResponse, Response, Sse,
     },
-    routing::{get, post},
+    routing::{any, get, post},
     Json, Router,
 };
 use bytes::Bytes;
@@ -33,6 +33,7 @@ use std::{
 };
 use storage_provider::{CrdtEngine, LoroAdapter, SyncDomain, SyncManifest};
 use tokio::sync::RwLock as AsyncRwLock;
+use tower::ServiceExt;
 use tracing::info;
 
 use crate::ag_ui::{ag_ui_events, ag_ui_ping, ag_ui_stream, AgUiEvent, AgUiState};
@@ -68,6 +69,21 @@ pub struct AppState {
     /// `adapters`/`docs` (see `domains.rs`'s module comment on why it isn't
     /// a `DomainAdapter`).
     presence: Arc<StdRwLock<BTreeMap<String, Arc<KbdPresenceDocument>>>>,
+}
+
+/// Hot-swappable application router used only during daemon startup. The
+/// static liveness endpoint is available as soon as the socket is bound;
+/// every stateful route fails closed with 503 until initialization installs
+/// the full application router.
+#[derive(Clone, Default)]
+pub struct StartupGate {
+    app: Arc<AsyncRwLock<Option<Router>>>,
+}
+
+impl StartupGate {
+    pub async fn install(&self, state: AppState) {
+        *self.app.write().await = Some(build_router(state));
+    }
 }
 
 impl AppState {
@@ -690,12 +706,106 @@ struct RegisterProjectBody {
     path: PathBuf,
 }
 
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct AdoptProjectBody {
+    path: PathBuf,
+    into_project_id: String,
+    #[serde(default)]
+    apply: bool,
+}
+
 async fn kbd_register_project(
     State(state): State<AppState>,
     Json(body): Json<RegisterProjectBody>,
 ) -> impl IntoResponse {
     match state.kbd_projects.register_path(&body.path).await {
         Ok(outcome) => (StatusCode::OK, Json(serde_json::json!(outcome))).into_response(),
+        Err(error) => (
+            StatusCode::CONFLICT,
+            Json(serde_json::json!({"error":error.to_string()})),
+        )
+            .into_response(),
+    }
+}
+
+async fn kbd_adopt_project(
+    State(state): State<AppState>,
+    Json(body): Json<AdoptProjectBody>,
+) -> impl IntoResponse {
+    let registry = state.kbd_projects.registry().clone();
+    let path = body.path.clone();
+    let project_id = body.into_project_id.clone();
+    let apply = body.apply;
+    let result = tokio::task::spawn_blocking(move || {
+        if apply {
+            registry
+                .apply_adoption(&path, &project_id)
+                .and_then(|outcome| serde_json::to_value(outcome).map_err(Into::into))
+        } else {
+            registry
+                .plan_adoption(&path, &project_id)
+                .and_then(|plan| serde_json::to_value(plan).map_err(Into::into))
+        }
+    })
+    .await;
+    match result {
+        Ok(Ok(outcome)) => {
+            if apply {
+                if let Err(error) = state.kbd_projects.reload().await {
+                    return (
+                        StatusCode::INTERNAL_SERVER_ERROR,
+                        Json(serde_json::json!({"error":error.to_string()})),
+                    )
+                        .into_response();
+                }
+            }
+            (
+                StatusCode::OK,
+                Json(serde_json::json!({
+                    "dryRun": !apply,
+                    "outcome": outcome
+                })),
+            )
+                .into_response()
+        }
+        Ok(Err(error)) => (
+            StatusCode::CONFLICT,
+            Json(serde_json::json!({"error":error.to_string()})),
+        )
+            .into_response(),
+        Err(error) => (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            Json(serde_json::json!({"error":format!("adoption task failed: {error}")})),
+        )
+            .into_response(),
+    }
+}
+
+async fn kbd_submodules(
+    State(state): State<AppState>,
+    AxumPath(project_id): AxumPath<String>,
+) -> impl IntoResponse {
+    let control = match state.kbd_projects.control(&project_id) {
+        Ok(control) => control,
+        Err(error) => {
+            return (
+                StatusCode::NOT_FOUND,
+                Json(serde_json::json!({"error":error.to_string()})),
+            )
+                .into_response()
+        }
+    };
+    match control.status_async().await {
+        Ok(runtime) => (
+            StatusCode::OK,
+            Json(serde_json::json!({
+                "projectId": project_id,
+                "pins": runtime.submodule_pins,
+                "replicaView": runtime.replica_view
+            })),
+        )
+            .into_response(),
         Err(error) => (
             StatusCode::CONFLICT,
             Json(serde_json::json!({"error":error.to_string()})),
@@ -761,6 +871,39 @@ async fn kbd_events(
         )
             .into_response(),
         (Err(error), _) | (_, Err(error)) => (
+            StatusCode::CONFLICT,
+            Json(serde_json::json!({"error":error.to_string()})),
+        )
+            .into_response(),
+    }
+}
+
+async fn kbd_audit_export(
+    State(state): State<AppState>,
+    AxumPath(project_id): AxumPath<String>,
+) -> impl IntoResponse {
+    let control = match state.kbd_projects.control(&project_id) {
+        Ok(control) => control,
+        Err(error) => {
+            return (
+                if error.kind() == std::io::ErrorKind::NotFound {
+                    StatusCode::NOT_FOUND
+                } else {
+                    StatusCode::CONFLICT
+                },
+                Json(serde_json::json!({"error":error.to_string()})),
+            )
+                .into_response()
+        }
+    };
+    match control.signed_audit_jsonl().await {
+        Ok(bytes) => (
+            StatusCode::OK,
+            [("content-type", "application/x-ndjson")],
+            bytes,
+        )
+            .into_response(),
+        Err(error) => (
             StatusCode::CONFLICT,
             Json(serde_json::json!({"error":error.to_string()})),
         )
@@ -1121,12 +1264,21 @@ pub fn build_router(state: AppState) -> Router {
         .route("/api/v1/sync/push", post(sync_push))
         .route("/api/v1/kbd/projects", get(kbd_projects))
         .route("/api/v1/kbd/projects/register", post(kbd_register_project))
+        .route("/api/v1/kbd/projects/adopt", post(kbd_adopt_project))
         .route(
             "/api/v1/kbd/projects/{project_id}/replicas",
             get(kbd_replicas),
         )
         .route("/api/v1/kbd/projects/{project_id}/status", get(kbd_status))
         .route("/api/v1/kbd/projects/{project_id}/events", get(kbd_events))
+        .route(
+            "/api/v1/kbd/projects/{project_id}/audit",
+            get(kbd_audit_export),
+        )
+        .route(
+            "/api/v1/kbd/projects/{project_id}/submodules",
+            get(kbd_submodules),
+        )
         .route(
             "/api/v1/kbd/projects/{project_id}/diagnostics",
             get(kbd_diagnostics),
@@ -1375,17 +1527,59 @@ fn kbd_peer_is_authorized(
 // Server entry point
 // ---------------------------------------------------------------------------
 
+async fn startup_dispatch(State(gate): State<StartupGate>, request: Request) -> Response {
+    let app = gate.app.read().await.clone();
+    let Some(app) = app else {
+        return (
+            StatusCode::SERVICE_UNAVAILABLE,
+            Json(serde_json::json!({
+                "status": "initializing",
+                "error": "sovereign-sync state is not ready"
+            })),
+        )
+            .into_response();
+    };
+    match app.oneshot(request).await {
+        Ok(response) => response,
+        Err(error) => match error {},
+    }
+}
+
+/// Build the liveness-only router installed while persistent state is opening.
+/// `/health` remains static and store-independent; all other paths return 503
+/// until `StartupGate::install` atomically exposes the full application.
+pub fn build_startup_router() -> (Router, StartupGate) {
+    let gate = StartupGate::default();
+    let app = Router::new()
+        .route("/health", get(health))
+        .fallback(any(startup_dispatch))
+        .with_state(gate.clone());
+    (app, gate)
+}
+
 pub async fn serve(port: u16, skills_dir: &Path) -> anyhow::Result<()> {
+    let listener = bind_loopback(port).await?;
+    let (startup_app, gate) = build_startup_router();
+    let server = tokio::spawn(async move { axum::serve(listener, startup_app).await });
     let state = AppState::try_new(skills_dir, None).await?;
-    serve_with_state(port, state).await
+    gate.install(state).await;
+    server.await??;
+    Ok(())
 }
 
 /// Serve using a caller-constructed `AppState` — lets `main.rs` hold a clone
 /// of the same state (e.g. to spawn the incoming-P2P-message consumer with
 /// access to the same `docs`/`manifest`/`adapters`) before the server starts.
 pub async fn serve_with_state(port: u16, state: AppState) -> anyhow::Result<()> {
-    let app = build_router(state);
+    let listener = bind_loopback(port).await?;
+    serve_with_listener(listener, state).await
+}
 
+/// Acquire the unauthenticated loopback listener before opening KBD project
+/// state or joining P2P gossip. Registry reconciliation can be deliberately
+/// expensive; it must not leave the control-plane port unbound while launchd
+/// considers the process alive.
+pub async fn bind_loopback(port: u16) -> anyhow::Result<tokio::net::TcpListener> {
     // LOOPBACK ONLY — and this is load-bearing, not incidental.
     //
     // There is no authentication on this server. That is deliberate: the
@@ -1401,12 +1595,25 @@ pub async fn serve_with_state(port: u16, state: AppState) -> anyhow::Result<()> 
     // network. Design it against the threat model you actually have at that
     // point; do not resurrect the token scheme deleted here.
     let addr = SocketAddr::from(([127, 0, 0, 1], port));
-    info!(
-        "sovereign-sync REST API listening on http://{} (no auth: loopback only)",
-        addr
-    );
-
     let listener = tokio::net::TcpListener::bind(addr).await?;
+    info!(
+        "sovereign-sync REST API bound on http://{} (no auth: loopback only)",
+        listener.local_addr()?
+    );
+    Ok(listener)
+}
+
+/// Serve a fully initialized application on an already-acquired listener.
+pub async fn serve_with_listener(
+    listener: tokio::net::TcpListener,
+    state: AppState,
+) -> anyhow::Result<()> {
+    let app = build_router(state);
+
+    info!(
+        "sovereign-sync REST API ready on http://{}",
+        listener.local_addr()?
+    );
     axum::serve(listener, app).await?;
     Ok(())
 }

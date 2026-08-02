@@ -19,11 +19,12 @@ Nothing is included because it happens to be under a familiar directory.
 There is no recursive scan of a repository, home directory, Karpathy wiki, or
 KBD phase tree.
 
-:::warning Current answer in one sentence
+:::note Current answer in one sentence
 
-In `sovereign-sync 0.1.0`, **no project or global application data is
-automatically synced by the daemon**. The domain and CRDT building blocks exist,
-but the daemon’s P2P sender/receiver is not connected to any real data producer.
+`skill-index` and `learner-model` move only on explicit push;
+`kbd-control:<project-id>` carries authenticated authoritative Loro updates and
+presence over the live iroh receiver. No directory tree, Git audit ref, secret,
+or `surreal-memory` database is implicitly imported or replicated.
 
 :::
 
@@ -60,9 +61,8 @@ local KBD runtime is keyed by that value:
 ```
 
 The operator gossip topic is broader: every project using one `operator_id`
-would use the same topic. A completed replication protocol therefore needs a
-domain envelope that includes the project identity and rejects cross-project
-payloads. The current raw gossip layer has no such daemon-wired envelope.
+uses the same topic. Each signed KBD domain envelope therefore includes the
+project identity and rejects cross-project payloads before import.
 
 Do not create two different `.prometheus/project.json` files for two clones and
 assume a matching operator ID will join their KBD state. Conversely, do not
@@ -173,8 +173,8 @@ $HOME/.prometheus/learn/learner-model/
 
 The storage key is `learner/<learner-id>/model.crdt`.
 
-**Current sync:** local storage and merge API exist; Sovereign Sync does not
-open this directory or send its deltas.
+**Current sync:** local storage and merge API exist; the daemon adapter opens
+this directory and sends deltas only after an explicit domain push.
 
 ### Karpathy knowledge and reflection loop
 
@@ -247,6 +247,6 @@ An end-to-end proof must include all of the following:
 8. content-level assertion on the expected record;
 9. negative assertion that `Local` and secret data did not move.
 
-The current health, peer, status, and push responses do not provide this proof.
-Until they do, use Git or another explicit reviewed transfer for project
-artifacts and treat global state as device-local.
+Health alone is not replication proof. The signed KBD two-peer tests assert
+destination import and claim content; other domain pushes still require the
+content-level destination checks above for operational certification.

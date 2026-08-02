@@ -109,3 +109,137 @@ pub fn list_skills() -> Result<Vec<SkillDescriptor>, SkillError> {
             .into(),
     })
 }
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct KbdMobileCommitPayload {
+    pub event_json: String,
+    pub state_json: String,
+    pub project_updates: Vec<u8>,
+}
+
+fn kbd_mobile_error(error: impl std::fmt::Display) -> SkillError {
+    SkillError {
+        kind: SkillErrorKind::Internal,
+        message: format!("KBD mobile peer: {error}"),
+    }
+}
+
+/// Return the explicit embedded-peer capability boundary. False capabilities
+/// are security constraints, not unimplemented promises.
+pub fn kbd_mobile_capabilities() -> String {
+    serde_json::to_string(&kbd_mobile::MobileCapabilities::default())
+        .expect("static KBD capability report must serialize")
+}
+
+/// Prepare a mobile event and return the exact bytes for the host secure-key
+/// provider to sign. Private key material never crosses this FFI boundary.
+pub fn kbd_mobile_prepare_command(
+    project_id: String,
+    replica_id: String,
+    project_updates: Vec<u8>,
+    command_json: String,
+    signer_key_id: String,
+    signer_public_key: String,
+) -> Result<String, SkillError> {
+    let project = kbd_mobile::MobileProject::from_updates(project_id, replica_id, &project_updates)
+        .map_err(kbd_mobile_error)?;
+    let command =
+        serde_json::from_str::<kbd_runtime::CommandEnvelope>(&command_json).map_err(|e| {
+            SkillError {
+                kind: SkillErrorKind::InvalidInput,
+                message: format!("invalid KBD command envelope: {e}"),
+            }
+        })?;
+    let prepared = project
+        .prepare_command(command, &signer_key_id, &signer_public_key)
+        .map_err(kbd_mobile_error)?;
+    serde_json::to_string(&prepared).map_err(kbd_mobile_error)
+}
+
+/// Verify a secure-host signature, commit the prepared event into Loro, and
+/// return the updated authority bytes for host-controlled durable storage.
+pub fn kbd_mobile_commit_prepared(
+    project_id: String,
+    replica_id: String,
+    project_updates: Vec<u8>,
+    prepared_json: String,
+    signature_base64: String,
+) -> Result<KbdMobileCommitPayload, SkillError> {
+    let mut project =
+        kbd_mobile::MobileProject::from_updates(project_id, replica_id, &project_updates)
+            .map_err(kbd_mobile_error)?;
+    let prepared = serde_json::from_str::<kbd_mobile::PreparedMobileEvent>(&prepared_json)
+        .map_err(|e| SkillError {
+            kind: SkillErrorKind::InvalidInput,
+            message: format!("invalid prepared KBD event: {e}"),
+        })?;
+    let committed = project
+        .commit_prepared(prepared, signature_base64)
+        .map_err(kbd_mobile_error)?;
+    Ok(KbdMobileCommitPayload {
+        event_json: serde_json::to_string(&committed.event).map_err(kbd_mobile_error)?,
+        state_json: serde_json::to_string(&committed.state).map_err(kbd_mobile_error)?,
+        project_updates: committed.project_updates,
+    })
+}
+
+/// Prepare the exact sovereign-sync-compatible `kbd-control:<project_id>`
+/// envelope bytes for host signing before iroh broadcast.
+pub fn kbd_mobile_prepare_delta(
+    project_id: String,
+    replica_id: String,
+    project_updates: Vec<u8>,
+    signer_key_id: String,
+) -> Result<String, SkillError> {
+    let project = kbd_mobile::MobileProject::from_updates(project_id, replica_id, &project_updates)
+        .map_err(kbd_mobile_error)?;
+    let prepared = project
+        .prepare_signed_delta(signer_key_id)
+        .map_err(kbd_mobile_error)?;
+    serde_json::to_string(&prepared).map_err(kbd_mobile_error)
+}
+
+/// Attach a signature produced by the host secure-key provider and return the
+/// wire-compatible envelope for `MobilePeer::broadcast`.
+pub fn kbd_mobile_attach_delta_signature(
+    prepared_json: String,
+    signer_public_key: String,
+    signature_base64: String,
+) -> Result<Vec<u8>, SkillError> {
+    let mut prepared = serde_json::from_str::<kbd_mobile::PreparedMobileDelta>(&prepared_json)
+        .map_err(|e| SkillError {
+            kind: SkillErrorKind::InvalidInput,
+            message: format!("invalid prepared KBD delta: {e}"),
+        })?;
+    if prepared.delta.signable_bytes_for_host() != prepared.signing_payload {
+        return Err(SkillError {
+            kind: SkillErrorKind::InvalidInput,
+            message: "prepared KBD delta signing payload was modified".into(),
+        });
+    }
+    prepared
+        .delta
+        .attach_host_signature(&signer_public_key, signature_base64)
+        .map_err(kbd_mobile_error)?;
+    prepared.delta.encode().map_err(kbd_mobile_error)
+}
+
+/// Import one signed iroh payload into a host-persisted mobile authority.
+pub fn kbd_mobile_import_signed_delta(
+    project_id: String,
+    replica_id: String,
+    project_updates: Vec<u8>,
+    signed_delta: Vec<u8>,
+) -> Result<KbdMobileCommitPayload, SkillError> {
+    let mut project =
+        kbd_mobile::MobileProject::from_updates(project_id, replica_id, &project_updates)
+            .map_err(kbd_mobile_error)?;
+    let state = project
+        .import_signed_delta(&signed_delta)
+        .map_err(kbd_mobile_error)?;
+    Ok(KbdMobileCommitPayload {
+        event_json: String::new(),
+        state_json: serde_json::to_string(&state).map_err(kbd_mobile_error)?,
+        project_updates: project.export_updates().map_err(kbd_mobile_error)?,
+    })
+}

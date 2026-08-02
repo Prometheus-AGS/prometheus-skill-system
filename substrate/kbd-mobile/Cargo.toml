@@ -1,0 +1,29 @@
+[package]
+name = "kbd-mobile"
+version = "0.1.0"
+edition = "2021"
+publish = false
+description = "Filesystem-free Loro/iroh embedded KBD replica for mobile hosts"
+
+[lib]
+name = "kbd_mobile"
+path = "src/lib.rs"
+
+[dependencies]
+blake3 = "1"
+bytes = "1"
+iroh = "1.0.2"
+iroh-gossip = "0.101"
+kbd-runtime = { path = "../kbd-runtime" }
+loro = "1.13"
+serde = { version = "1", features = ["derive"] }
+serde_jcs = "0.1"
+serde_json = "1"
+thiserror = "2"
+tokio = { version = "1", features = ["rt", "sync"] }
+tokio-stream = "0.1"
+
+[dev-dependencies]
+tempfile = "3"
+tokio = { version = "1", features = ["macros", "rt-multi-thread", "time"] }
+uuid = { version = "1", features = ["v4"] }
