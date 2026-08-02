@@ -21,6 +21,9 @@ pub mod project_document;
 pub mod registry;
 pub mod rollout;
 
+#[cfg(test)]
+mod live_migration_proof;
+
 pub const EVENT_SCHEMA_VERSION: &str = "2";
 pub const AUDIT_GIT_REF: &str = "refs/heads/audit/kbd";
 
@@ -2134,6 +2137,193 @@ fn read_event_file(path: &Path) -> Result<Vec<Event>> {
     Ok(events)
 }
 
+/// Verify the exact pre-replica v2 wire representation before migration.
+///
+/// Those journals included two now-obsolete nullable envelope keys. Dropping
+/// unknown keys during `Event` deserialization changes the canonical bytes and
+/// makes an otherwise valid historical signature appear forged. This verifier
+/// is deliberately private to migration: it authenticates the raw JSON object,
+/// permits only the one known historical key set, and validates the scalar
+/// chain before the events are re-signed into the current replica schema.
+fn validate_pre_replica_v2_journal(path: &Path, events: &[Event]) -> Result<()> {
+    const LEGACY_KEYS: &[&str] = &[
+        "actor",
+        "causalParent",
+        "commandId",
+        "eventId",
+        "expectedRevision",
+        "fencingToken",
+        "integrityHash",
+        "kind",
+        "leaseId",
+        "previousHash",
+        "projectId",
+        "revision",
+        "runId",
+        "schemaVersion",
+        "signature",
+        "signerKeyId",
+        "signerPublicKey",
+        "timestamp",
+    ];
+    let allowed = LEGACY_KEYS.iter().copied().collect::<HashSet<_>>();
+    let lines = BufReader::new(File::open(path)?)
+        .lines()
+        .filter_map(|line| match line {
+            Ok(line) if line.trim().is_empty() => None,
+            other => Some(other),
+        })
+        .collect::<std::result::Result<Vec<_>, _>>()?;
+    if lines.len() != events.len() {
+        return Err(RuntimeError::InvalidState(format!(
+            "legacy journal line count {} does not match decoded event count {}",
+            lines.len(),
+            events.len()
+        )));
+    }
+
+    let mut previous_event_id: Option<&str> = None;
+    let mut previous_hash: Option<&str> = None;
+    let mut project_id: Option<&str> = None;
+    let mut run_id: Option<&str> = None;
+    let mut event_ids = HashSet::new();
+    let mut command_ids = HashSet::new();
+    for (index, (line, event)) in lines.iter().zip(events).enumerate() {
+        if event.schema_version != EVENT_SCHEMA_VERSION
+            || !event.replica_id.is_empty()
+            || event.lamport != 0
+            || !event.frontier.is_empty()
+        {
+            return Err(RuntimeError::InvalidState(format!(
+                "event {} is not a pre-replica v2 migration event",
+                event.event_id
+            )));
+        }
+        let mut raw: serde_json::Value = serde_json::from_str(line)?;
+        let object = raw.as_object_mut().ok_or_else(|| {
+            RuntimeError::InvalidState("legacy journal event must be a JSON object".into())
+        })?;
+        if let Some(unexpected) = object.keys().find(|key| !allowed.contains(key.as_str())) {
+            return Err(RuntimeError::InvalidState(format!(
+                "legacy journal event contains unsupported key {unexpected}"
+            )));
+        }
+        let stored_hash = object
+            .get("integrityHash")
+            .and_then(serde_json::Value::as_str)
+            .ok_or_else(|| RuntimeError::Integrity {
+                revision: event.revision,
+            })?
+            .to_owned();
+        let signature = object
+            .get("signature")
+            .and_then(serde_json::Value::as_str)
+            .ok_or_else(|| RuntimeError::Signature {
+                revision: event.revision,
+                reason: "legacy signature is missing".into(),
+            })?
+            .to_owned();
+        let signer_key_id = object
+            .get("signerKeyId")
+            .and_then(serde_json::Value::as_str)
+            .ok_or_else(|| RuntimeError::Signature {
+                revision: event.revision,
+                reason: "legacy signerKeyId is missing".into(),
+            })?
+            .to_owned();
+        let signer_public_key = object
+            .get("signerPublicKey")
+            .and_then(serde_json::Value::as_str)
+            .ok_or_else(|| RuntimeError::Signature {
+                revision: event.revision,
+                reason: "legacy signerPublicKey is missing".into(),
+            })?
+            .to_owned();
+        object.insert(
+            "integrityHash".into(),
+            serde_json::Value::String(String::new()),
+        );
+        object.remove("signature");
+        let unsigned = serde_jcs::to_vec(&raw)
+            .map_err(|error| RuntimeError::InvalidState(error.to_string()))?;
+        if format!("{:x}", Sha256::digest(&unsigned)) != stored_hash {
+            return Err(RuntimeError::Integrity {
+                revision: event.revision,
+            });
+        }
+        if !verify_ed25519_signature(&signer_public_key, &unsigned, &signature) {
+            return Err(RuntimeError::Signature {
+                revision: event.revision,
+                reason: "pre-replica v2 signature is invalid".into(),
+            });
+        }
+        let public_key =
+            BASE64
+                .decode(&signer_public_key)
+                .map_err(|error| RuntimeError::Signature {
+                    revision: event.revision,
+                    reason: error.to_string(),
+                })?;
+        if format!("ed25519:{:x}", Sha256::digest(public_key)) != signer_key_id {
+            return Err(RuntimeError::Signature {
+                revision: event.revision,
+                reason: "legacy signerKeyId does not match signerPublicKey".into(),
+            });
+        }
+
+        let expected_revision = index as u64 + 1;
+        if event.revision != expected_revision || event.expected_revision + 1 != event.revision {
+            return Err(RuntimeError::RevisionConflict {
+                expected: expected_revision,
+                actual: event.revision,
+            });
+        }
+        if event.causal_parent.as_deref() != previous_event_id {
+            return Err(RuntimeError::CausalChain {
+                revision: event.revision,
+            });
+        }
+        if event.previous_hash.as_deref() != previous_hash {
+            return Err(RuntimeError::Integrity {
+                revision: event.revision,
+            });
+        }
+        if project_id.is_some_and(|project_id| project_id != event.project_id)
+            || run_id.is_some_and(|run_id| run_id != event.run_id)
+        {
+            return Err(RuntimeError::InvalidState(
+                "legacy journal changes projectId or runId mid-chain".into(),
+            ));
+        }
+        if !event_ids.insert(event.event_id.as_str()) {
+            return Err(RuntimeError::DuplicateEvent(event.event_id.clone()));
+        }
+        if let Some(command_id) = event.command_id.as_deref() {
+            if !command_ids.insert(command_id) {
+                return Err(RuntimeError::DuplicateCommand(command_id.into()));
+            }
+        }
+        project_id.get_or_insert(&event.project_id);
+        run_id.get_or_insert(&event.run_id);
+        previous_event_id = Some(&event.event_id);
+        previous_hash = Some(&event.integrity_hash);
+    }
+    Ok(())
+}
+
+fn validate_journal_for_migration(path: &Path, events: &[Event]) -> Result<()> {
+    if events.iter().all(|event| {
+        event.schema_version == EVENT_SCHEMA_VERSION
+            && event.replica_id.is_empty()
+            && event.lamport == 0
+            && event.frontier.is_empty()
+    }) {
+        validate_pre_replica_v2_journal(path, events)
+    } else {
+        replay_events(events).map(|_| ())
+    }
+}
+
 fn resign_journal_events(
     source_events: &[Event],
     project_id: &str,
@@ -2717,7 +2907,12 @@ impl Runtime {
             } else {
                 read_event_file(&archive_journal)?
             };
-            replay_events(&original_events)?;
+            let original_path = if source_journal.exists() {
+                &source_journal
+            } else {
+                &archive_journal
+            };
+            validate_journal_for_migration(original_path, &original_events)?;
 
             let already_migrated = archive_journal.exists();
             let migrated_events = if active_journal.exists() {
