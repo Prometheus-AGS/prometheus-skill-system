@@ -585,23 +585,52 @@ async fn health() -> impl IntoResponse {
 
 /// GET /ready — asynchronous journal reachability and replay validation.
 async fn ready(State(state): State<AppState>) -> impl IntoResponse {
+    const PROJECT_BUDGET: Duration = Duration::from_millis(400);
+    // Reserve response-assembly time so the complete HTTP handler remains
+    // below the externally enforced 500 ms total budget.
+    const COLLECTION_BUDGET: Duration = Duration::from_millis(475);
     let mut projects = Vec::new();
-    let mut all_ready = true;
     let mut checks = tokio::task::JoinSet::new();
+    let mut pending = std::collections::BTreeSet::new();
     for project_id in state.kbd_projects.project_ids() {
         match state.kbd_projects.control(&project_id) {
             Ok(control) => {
+                pending.insert(project_id.clone());
                 checks.spawn(async move {
-                    let result = tokio::time::timeout(
-                        Duration::from_millis(400),
-                        control.authority_status_async(),
-                    )
-                    .await;
-                    (project_id, result)
+                    match tokio::time::timeout(PROJECT_BUDGET, control.authority_status_async())
+                        .await
+                    {
+                        Ok(Ok(runtime)) => (
+                            project_id.clone(),
+                            serde_json::json!({
+                                "projectId": project_id,
+                                "ready": true,
+                                "revision": runtime.revision
+                            }),
+                            true,
+                        ),
+                        Ok(Err(error)) => (
+                            project_id.clone(),
+                            serde_json::json!({
+                                "projectId": project_id,
+                                "ready": false,
+                                "error": error.to_string()
+                            }),
+                            false,
+                        ),
+                        Err(_) => (
+                            project_id.clone(),
+                            serde_json::json!({
+                                "projectId": project_id,
+                                "ready": false,
+                                "error": "authority replay exceeded 400 ms"
+                            }),
+                            false,
+                        ),
+                    }
                 });
             }
             Err(error) => {
-                all_ready = false;
                 projects.push(serde_json::json!({
                     "projectId": project_id,
                     "ready": false,
@@ -610,38 +639,15 @@ async fn ready(State(state): State<AppState>) -> impl IntoResponse {
             }
         }
     }
-    while let Some(check) = checks.join_next().await {
-        match check {
-            Ok((project_id, Ok(Ok(runtime)))) => projects.push(serde_json::json!({
-                "projectId": project_id,
-                "ready": true,
-                "revision": runtime.revision
-            })),
-            Ok((project_id, Ok(Err(error)))) => {
-                all_ready = false;
-                projects.push(serde_json::json!({
-                    "projectId": project_id,
-                    "ready": false,
-                    "error": error.to_string()
-                }));
-            }
-            Ok((project_id, Err(_))) => {
-                all_ready = false;
-                projects.push(serde_json::json!({
-                    "projectId": project_id,
-                    "ready": false,
-                    "error": "authority replay exceeded 400 ms"
-                }));
-            }
-            Err(error) => {
-                all_ready = false;
-                projects.push(serde_json::json!({
-                    "projectId": null,
-                    "ready": false,
-                    "error": format!("readiness task failed: {error}")
-                }));
-            }
-        }
+    let (mut checked, checks_ready) =
+        collect_readiness_tasks(checks, pending, COLLECTION_BUDGET).await;
+    projects.append(&mut checked);
+    let mut all_ready = checks_ready
+        && projects
+            .iter()
+            .all(|project| project["ready"].as_bool() == Some(true));
+    if projects.is_empty() {
+        all_ready = true;
     }
     projects.sort_by(|left, right| left["projectId"].as_str().cmp(&right["projectId"].as_str()));
     let status = if all_ready {
@@ -660,6 +666,56 @@ async fn ready(State(state): State<AppState>) -> impl IntoResponse {
         })),
     )
         .into_response()
+}
+
+async fn collect_readiness_tasks(
+    mut checks: tokio::task::JoinSet<(String, serde_json::Value, bool)>,
+    mut pending: std::collections::BTreeSet<String>,
+    budget: Duration,
+) -> (Vec<serde_json::Value>, bool) {
+    let mut projects = Vec::new();
+    let mut all_ready = true;
+    let deadline = tokio::time::Instant::now() + budget;
+    loop {
+        let check = match tokio::time::timeout_at(deadline, checks.join_next()).await {
+            Ok(Some(check)) => check,
+            Ok(None) => break,
+            Err(_) => {
+                all_ready = false;
+                checks.abort_all();
+                for project_id in std::mem::take(&mut pending) {
+                    projects.push(serde_json::json!({
+                        "projectId": project_id,
+                        "ready": false,
+                        "error": "authority check was unfinished at the 500 ms total readiness deadline"
+                    }));
+                }
+                break;
+            }
+        };
+        match check {
+            Ok((project_id, project, ready)) => {
+                pending.remove(&project_id);
+                all_ready &= ready;
+                projects.push(project);
+            }
+            Err(error) => {
+                all_ready = false;
+                tracing::warn!(%error, "authority readiness task failed");
+            }
+        }
+    }
+    if !pending.is_empty() {
+        all_ready = false;
+        for project_id in pending {
+            projects.push(serde_json::json!({
+                "projectId": project_id,
+                "ready": false,
+                "error": "authority readiness task failed"
+            }));
+        }
+    }
+    (projects, all_ready)
 }
 
 #[derive(Debug, Deserialize)]
@@ -2421,9 +2477,11 @@ mod presence_auth_tests {
 
 #[cfg(test)]
 mod transport_status_tests {
-    use super::broadcast_error_status;
+    use super::{broadcast_error_status, collect_readiness_tasks};
     use crate::p2p::P2PHandleErrorKind;
     use axum::http::StatusCode;
+    use std::collections::BTreeSet;
+    use std::time::{Duration, Instant};
 
     #[test]
     fn unavailable_transport_is_503_but_ready_transport_failures_are_502() {
@@ -2439,5 +2497,41 @@ mod transport_status_tests {
             broadcast_error_status(P2PHandleErrorKind::Timeout),
             StatusCode::BAD_GATEWAY
         );
+    }
+
+    #[tokio::test]
+    async fn aggregate_readiness_aborts_and_reports_an_unfinished_authority() {
+        let mut checks = tokio::task::JoinSet::new();
+        checks.spawn(async {
+            (
+                "fast".to_string(),
+                serde_json::json!({"projectId":"fast","ready":true}),
+                true,
+            )
+        });
+        checks.spawn(async {
+            tokio::time::sleep(Duration::from_secs(5)).await;
+            (
+                "stalled".to_string(),
+                serde_json::json!({"projectId":"stalled","ready":true}),
+                true,
+            )
+        });
+        let pending = BTreeSet::from(["fast".to_string(), "stalled".to_string()]);
+        let started = Instant::now();
+
+        let (mut projects, ready) =
+            collect_readiness_tasks(checks, pending, Duration::from_millis(25)).await;
+
+        assert!(!ready);
+        assert!(started.elapsed() < Duration::from_millis(100));
+        projects
+            .sort_by(|left, right| left["projectId"].as_str().cmp(&right["projectId"].as_str()));
+        assert_eq!(projects.len(), 2);
+        assert_eq!(projects[1]["projectId"], "stalled");
+        assert!(projects[1]["error"]
+            .as_str()
+            .unwrap()
+            .contains("500 ms total readiness deadline"));
     }
 }
