@@ -379,17 +379,33 @@ impl ProjectRegistry {
                 .as_ref()
                 .map(|registration| registration.registered_at)
                 .unwrap_or(now);
-            let parent = resolve_parent_replica(&evidence.parent, &document);
+            let protected = existing.as_ref().filter(|registration| {
+                registration.read_only
+                    || matches!(
+                        registration.kind,
+                        ReplicaKind::Bare
+                            | ReplicaKind::Ci
+                            | ReplicaKind::Mobile
+                            | ReplicaKind::Recovered
+                    )
+            });
+            let parent = protected
+                .and_then(|registration| registration.parent.clone())
+                .or_else(|| resolve_parent_replica(&evidence.parent, &document));
             let registration = ReplicaRegistration {
                 project_id: manifest.project_id.clone(),
                 replica_id,
                 machine_id: document.machine_id.clone(),
-                kind: evidence.kind,
+                kind: protected
+                    .map(|registration| registration.kind.clone())
+                    .unwrap_or(evidence.kind),
                 parent,
                 head: evidence.head,
                 origin: evidence.origin,
-                read_only: evidence.read_only,
-                read_only_reason: evidence.read_only_reason,
+                read_only: protected.is_some() || evidence.read_only,
+                read_only_reason: protected
+                    .and_then(|registration| registration.read_only_reason.clone())
+                    .or(evidence.read_only_reason),
                 registered_at,
                 updated_at: now,
             };
@@ -1377,6 +1393,14 @@ mod tests {
             project_id
         );
         assert!(recovered.join("RECOVERY.md").is_file());
+
+        let repeated = registry.register_existing(&recovered).unwrap();
+        assert_eq!(repeated.registration.kind, ReplicaKind::Recovered);
+        assert!(repeated.registration.read_only);
+        assert_eq!(
+            repeated.registration.read_only_reason, outcome.registration.read_only_reason,
+            "ordinary registration must not make a protected replica writable"
+        );
     }
 
     #[test]

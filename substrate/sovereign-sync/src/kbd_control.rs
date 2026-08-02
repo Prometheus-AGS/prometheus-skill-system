@@ -9,6 +9,7 @@ use std::{
     fs, io,
     path::{Path, PathBuf},
     sync::{Arc, RwLock},
+    time::Instant,
 };
 
 use kbd_runtime::{
@@ -114,49 +115,112 @@ impl KbdProjectRouter {
             .map_err(|error| io::Error::other(error.to_string()))
     }
 
+    pub async fn registry_document_async(&self) -> io::Result<RegistryDocument> {
+        let registry = self.registry.clone();
+        tokio::task::spawn_blocking(move || {
+            registry
+                .load()
+                .map_err(|error| io::Error::other(error.to_string()))
+        })
+        .await
+        .map_err(|error| io::Error::other(format!("registry load task failed: {error}")))?
+    }
+
+    /// Ensure a manifest-backed path is present without rewriting or
+    /// reclassifying an existing replica. Daemon discovery uses this path;
+    /// explicit operator registration continues through `register_path`.
+    pub async fn ensure_registered_path(&self, path: &Path) -> io::Result<bool> {
+        let registry = self.registry.clone();
+        let lookup_path = path.to_path_buf();
+        let existing = tokio::task::spawn_blocking(move || {
+            registry
+                .lookup_path(&lookup_path)
+                .map_err(|error| io::Error::other(error.to_string()))
+        })
+        .await
+        .map_err(|error| io::Error::other(format!("registry lookup task failed: {error}")))??;
+        if existing.is_some() {
+            return Ok(false);
+        }
+        self.register_path(path).await?;
+        Ok(true)
+    }
+
     pub async fn register_path(&self, path: &Path) -> io::Result<RegistrationOutcome> {
-        let outcome = self
-            .registry
-            .register_existing(path)
-            .map_err(|error| io::Error::other(error.to_string()))?;
-        self.reload().await?;
+        let registry = self.registry.clone();
+        let path = path.to_path_buf();
+        let outcome = tokio::task::spawn_blocking(move || {
+            registry
+                .register_existing(path)
+                .map_err(|error| io::Error::other(error.to_string()))
+        })
+        .await
+        .map_err(|error| io::Error::other(format!("registry update task failed: {error}")))??;
+        self.reload_project(&outcome.registration.project_id)
+            .await?;
         Ok(outcome)
     }
 
     pub async fn reload(&self) -> io::Result<()> {
-        let document = self.registry_document()?;
+        const OPEN_CONCURRENCY: usize = 4;
+        let started = Instant::now();
+        let document = self.registry_document_async().await?;
         let mut next_controls = BTreeMap::new();
         let mut next_errors = BTreeMap::new();
-        let project_ids = document
+        let projects = document
             .replicas
             .values()
             .map(|replica| replica.project_id.clone())
-            .collect::<BTreeSet<_>>();
-        for project_id in project_ids {
-            let Some((path, _)) = document.authoritative_replica(&project_id) else {
-                continue;
-            };
-            let path = PathBuf::from(path);
-            let opened = match &self.data_root {
-                Some(data_root) => {
-                    KbdControlPlane::open_registered_at(
-                        &path,
-                        data_root,
-                        &project_id,
-                        self.policy.clone(),
-                    )
+            .collect::<BTreeSet<_>>()
+            .into_iter()
+            .filter_map(|project_id| {
+                document
+                    .authoritative_replica(&project_id)
+                    .map(|(path, _)| (project_id, PathBuf::from(path)))
+            })
+            .collect::<Vec<_>>();
+        let semaphore = Arc::new(tokio::sync::Semaphore::new(OPEN_CONCURRENCY));
+        let mut opens = tokio::task::JoinSet::new();
+        for (project_id, path) in projects {
+            let permit = Arc::clone(&semaphore);
+            let data_root = self.data_root.clone();
+            let policy = self.policy.clone();
+            opens.spawn(async move {
+                let _permit = permit
+                    .acquire_owned()
                     .await
-                }
-                None => {
-                    KbdControlPlane::open_registered(&path, &project_id, self.policy.clone()).await
-                }
-            };
-            match opened {
-                Ok(control) => {
+                    .map_err(|error| io::Error::other(error.to_string()))?;
+                let project_started = Instant::now();
+                let opened = match data_root {
+                    Some(data_root) => {
+                        KbdControlPlane::open_registered_at(&path, &data_root, &project_id, policy)
+                            .await
+                    }
+                    None => KbdControlPlane::open_registered(&path, &project_id, policy).await,
+                };
+                tracing::info!(
+                    startup_phase = "project_open",
+                    project_id,
+                    elapsed_ms = project_started.elapsed().as_millis(),
+                    success = opened.is_ok(),
+                    "KBD authority startup project open completed"
+                );
+                Ok::<_, io::Error>((project_id, opened))
+            });
+        }
+        while let Some(joined) = opens.join_next().await {
+            match joined {
+                Ok(Ok((project_id, Ok(control)))) => {
                     next_controls.insert(project_id, Arc::new(control));
                 }
-                Err(error) => {
+                Ok(Ok((project_id, Err(error)))) => {
                     next_errors.insert(project_id, error.to_string());
+                }
+                Ok(Err(error)) => {
+                    next_errors.insert("<startup-task>".into(), error.to_string());
+                }
+                Err(error) => {
+                    next_errors.insert("<startup-task>".into(), error.to_string());
                 }
             }
         }
@@ -168,7 +232,65 @@ impl KbdProjectRouter {
             .errors
             .write()
             .expect("project error map lock poisoned") = next_errors;
+        tracing::info!(
+            startup_phase = "registry_reload",
+            elapsed_ms = started.elapsed().as_millis(),
+            project_count = self.project_ids().len(),
+            "KBD registered authorities loaded"
+        );
         Ok(())
+    }
+
+    async fn reload_project(&self, project_id: &str) -> io::Result<()> {
+        let result = async {
+            let document = self.registry_document_async().await?;
+            let (path, _) = document.authoritative_replica(project_id).ok_or_else(|| {
+                io::Error::new(
+                    io::ErrorKind::NotFound,
+                    format!("registered project {project_id} has no authoritative replica"),
+                )
+            })?;
+            let path = PathBuf::from(path);
+            match &self.data_root {
+                Some(data_root) => {
+                    KbdControlPlane::open_registered_at(
+                        &path,
+                        data_root,
+                        project_id,
+                        self.policy.clone(),
+                    )
+                    .await
+                }
+                None => {
+                    KbdControlPlane::open_registered(&path, project_id, self.policy.clone()).await
+                }
+            }
+        }
+        .await;
+        match result {
+            Ok(control) => {
+                self.errors
+                    .write()
+                    .expect("project error map lock poisoned")
+                    .remove(project_id);
+                self.controls
+                    .write()
+                    .expect("project control map lock poisoned")
+                    .insert(project_id.to_owned(), Arc::new(control));
+                Ok(())
+            }
+            Err(error) => {
+                self.controls
+                    .write()
+                    .expect("project control map lock poisoned")
+                    .remove(project_id);
+                self.errors
+                    .write()
+                    .expect("project error map lock poisoned")
+                    .insert(project_id.to_owned(), error.to_string());
+                Err(error)
+            }
+        }
     }
 
     pub fn control(&self, project_id: &str) -> io::Result<Arc<KbdControlPlane>> {
@@ -314,25 +436,6 @@ impl KbdControlPlane {
                 io::ErrorKind::InvalidInput,
                 "multi-voter KBD configuration is unsupported; configure exactly one journal writer",
             ));
-        }
-        let recovery_runtime = Arc::clone(&runtime);
-        if let Some(archive) = tokio::task::spawn_blocking(move || {
-            let archive = recovery_runtime
-                .recover_journal_tail()
-                .map_err(|error| io::Error::other(error.to_string()))?;
-            recovery_runtime
-                .reconcile_project_document()
-                .map_err(|error| io::Error::other(error.to_string()))?;
-            Ok::<_, io::Error>(archive)
-        })
-        .await
-        .map_err(|join_error| {
-            io::Error::other(format!("journal recovery task failed: {join_error}"))
-        })?? {
-            tracing::warn!(
-                archive = %archive.display(),
-                "archived an interrupted KBD journal tail before recovery"
-            );
         }
         Ok(Self {
             runtime,
@@ -672,6 +775,7 @@ mod tests {
         let recovered = registry.register_recovered(&project_id).unwrap();
         assert_eq!(recovered.registration.kind, ReplicaKind::Recovered);
         assert!(recovered.registration.read_only);
+        let registry_before = std::fs::read(registry.registry_path()).unwrap();
 
         let router = KbdProjectRouter::open_registered_at(
             data_root.path(),
@@ -679,6 +783,15 @@ mod tests {
         )
         .await
         .unwrap();
+        assert!(!router
+            .ensure_registered_path(std::path::Path::new(&recovered.path))
+            .await
+            .unwrap());
+        assert_eq!(
+            std::fs::read(registry.registry_path()).unwrap(),
+            registry_before,
+            "daemon discovery must not rewrite an existing registration"
+        );
         let after = router
             .registry()
             .lookup_path(&recovered.path)

@@ -247,9 +247,9 @@ impl SovereignMcpServer {
                 .map(Path::to_path_buf)
         }) {
             kbd_projects
-                .register_path(&project_root)
+                .ensure_registered_path(&project_root)
                 .await
-                .expect("cannot register current KBD project");
+                .expect("cannot ensure current KBD project registration");
         }
         Self {
             tool_router: Self::tool_router(),

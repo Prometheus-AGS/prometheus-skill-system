@@ -2577,6 +2577,19 @@ fn ensure_project_manifest(project_root: &Path) -> Result<ProjectManifest> {
 }
 
 impl Runtime {
+    /// Complete the durable authority startup sequence exactly once.
+    ///
+    /// Recovery must precede reconciliation: a final interrupted JSONL append
+    /// can otherwise make the first document import fail before the tail has
+    /// been normalized or archived. Keeping this sequence in the runtime
+    /// constructors also prevents higher-level facades from replaying the same
+    /// journal into Loro a second time during startup.
+    fn finish_authority_open(runtime: Self) -> Result<Self> {
+        runtime.recover_journal_tail()?;
+        runtime.reconcile_project_document()?;
+        Ok(runtime)
+    }
+
     pub fn open(project_root: impl AsRef<Path>) -> Self {
         let project_root = project_root.as_ref().to_path_buf();
         let manifest = read_project_manifest(&project_root).ok().flatten();
@@ -2615,8 +2628,7 @@ impl Runtime {
             key_storage: KeyStorage::PlatformCredentialStore,
             read_only: registration.registration.read_only,
         };
-        runtime.reconcile_project_document()?;
-        Ok(runtime)
+        Self::finish_authority_open(runtime)
     }
 
     /// Open a canonical runtime beneath an explicit application-data root.
@@ -2636,8 +2648,7 @@ impl Runtime {
             key_storage: KeyStorage::PlatformCredentialStore,
             read_only: registration.registration.read_only,
         };
-        runtime.reconcile_project_document()?;
-        Ok(runtime)
+        Self::finish_authority_open(runtime)
     }
 
     /// Open an already-registered replica from the platform data root without
@@ -2685,8 +2696,7 @@ impl Runtime {
             key_storage: KeyStorage::PlatformCredentialStore,
             read_only: registration.read_only,
         };
-        runtime.reconcile_project_document()?;
-        Ok(runtime)
+        Self::finish_authority_open(runtime)
     }
 
     pub fn runtime_root(&self) -> &Path {
@@ -7142,6 +7152,47 @@ mod tests {
         assert_eq!(registration.project_id, manifest.project_id);
         assert_eq!(
             registry.lookup_project(&manifest.project_id).unwrap().len(),
+            1
+        );
+    }
+
+    #[test]
+    fn registered_open_recovers_torn_tail_before_loro_reconciliation() {
+        let project = tempdir().unwrap();
+        let data = tempdir().unwrap();
+        let runtime = Runtime::open_canonical_at(project.path(), data.path()).unwrap();
+        let initialized = runtime
+            .initialize(
+                runtime.project_manifest(false).unwrap().unwrap().project_id,
+                "run-a",
+                actor(ActorKind::Operator, "codex"),
+            )
+            .unwrap();
+        let mut journal = OpenOptions::new()
+            .append(true)
+            .open(runtime.events_path())
+            .unwrap();
+        journal.write_all(b"{interrupted").unwrap();
+        journal.sync_all().unwrap();
+
+        let reopened =
+            Runtime::open_registered_at(project.path(), data.path(), &initialized.project_id)
+                .unwrap();
+
+        assert_eq!(reopened.replay_authority().unwrap().revision, 1);
+        assert!(fs::read(reopened.events_path()).unwrap().ends_with(b"\n"));
+        assert_eq!(
+            fs::read_dir(reopened.journal_root())
+                .unwrap()
+                .flatten()
+                .filter(|entry| {
+                    entry
+                        .file_name()
+                        .to_string_lossy()
+                        .starts_with("events.jsonl.torn-")
+                        && entry.path().extension().is_some_and(|ext| ext == "archive")
+                })
+                .count(),
             1
         );
     }

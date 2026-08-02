@@ -97,7 +97,7 @@ impl AppState {
         let quorum = QuorumPolicy::new(1, [1])?;
         let kbd_projects = Arc::new(KbdProjectRouter::open_registered(quorum).await?);
         if let Some(project_root) = discover_manifest_project_root(skills_dir) {
-            kbd_projects.register_path(&project_root).await?;
+            kbd_projects.ensure_registered_path(&project_root).await?;
         }
         let learner_model_dir = dirs_next::home_dir()
             .unwrap_or_else(|| PathBuf::from("."))
