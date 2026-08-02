@@ -39,9 +39,9 @@
   <!-- Do not hot-loop on a failure that will not clear on its own.
 
        KeepAlive=true with no throttle restarts the daemon IMMEDIATELY. When the
-       failure is persistent — a redb lock held by another process, an
+       failure is persistent — a journal lock held by another process, an
        unwritable path — that is a tight loop: observed 2026-07-28 writing
-       thousands of identical "Database already open. Cannot acquire lock."
+       thousands of identical lock-failure lines,
        lines, which buries any other diagnostic and burns CPU without ever
        recovering.
 
