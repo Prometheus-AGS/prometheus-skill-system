@@ -149,40 +149,6 @@ async fn main() -> anyhow::Result<()> {
                     );
                 }
             });
-            let project_root = std::env::var("KBD_FOCUS_PROJECT_PATH")
-                .map(PathBuf::from)
-                .unwrap_or(std::env::current_dir()?);
-            // Canonicalize BEFORE opening. macOS reaches the same directory as
-            // both /Users/x and /System/Volumes/Data/Users/x; a symlinked or
-            // firmlinked path would otherwise register one physical working
-            // copy as two distinct replicas with two divergent journals.
-            let project_root = std::fs::canonicalize(&project_root).unwrap_or(project_root);
-
-            // `open_canonical`, NOT `open`.
-            //
-            // `open` derives the runtime directory from the PROJECT PATH when
-            // no identity manifest exists. The CLI (commands/kbd.rs) already
-            // uses `open_canonical`, which reads -- or mints -- the immutable
-            // UUID in `.prometheus/project.json` and keys the runtime by that.
-            //
-            // The two disagreeing was the bug: the CLI addressed a project by
-            // UUID while the daemon addressed it by path, so every write
-            // returned `unknown KBD project`. Path is not identity -- one
-            // logical project appears at many paths (worktrees, submodule
-            // embeddings, standalone clones, container mounts), and the same
-            // path can host different projects over time.
-            let runtime = Arc::new(kbd_runtime::Runtime::open_canonical(&project_root)?);
-            match runtime.replay() {
-                Ok(state) if state.revision > 0 => {
-                    info!(
-                        "KBD project {} ready; authoritative gossip/CRDT replication is disabled",
-                        state.project_id
-                    );
-                }
-                Ok(_) => warn!("KBD runtime is not initialized; P2P journal replication is idle"),
-                Err(error) => warn!("KBD runtime replay failed; replication disabled: {error}"),
-            }
-
             let state = rest_api::AppState::try_new(skills_path, Some(node.clone())).await?;
             // Consume incoming domain-sync gossip messages — previously
             // discarded entirely, so no push from a peer ever did anything.

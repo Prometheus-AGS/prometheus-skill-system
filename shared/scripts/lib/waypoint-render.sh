@@ -14,7 +14,7 @@
 #     (explain appends a "Why:" line sourced from waypoint next_action).
 
 # Walk up from $PWD to the filesystem root looking for .kbd-orchestrator/.
-# Also checks explicit focus-project env vars. Skill-pack roots are not treated
+# Also checks explicit tool-root fallbacks. Skill-pack roots are not treated
 # as project fallbacks unless they explicitly self-identify via project.json.
 # Prints the directory that CONTAINS .kbd-orchestrator and returns 0, else 1.
 _wr_find_root() {
@@ -28,9 +28,9 @@ _wr_find_root() {
     dir="$(dirname "$dir")"
   done
   [ -d "/.kbd-orchestrator" ] && { printf '/'; return 0; }
-  # Explicit env var fallbacks (for hooks that run from non-project CWD)
+  # Explicit tool-root fallbacks (for hooks that run from non-project CWD)
   local candidate focus
-  for candidate in "${KBD_FOCUS_PROJECT_PATH:-}" "${REPO_ROOT:-}" "${CLAUDE_PLUGIN_ROOT:-}"; do
+  for candidate in "${REPO_ROOT:-}" "${CLAUDE_PLUGIN_ROOT:-}"; do
     [ -n "$candidate" ] || continue
     [ -d "$candidate/.kbd-orchestrator" ] || continue
     if [ -f "$candidate/.kbd-orchestrator/project.json" ] && command -v jq >/dev/null 2>&1; then
@@ -42,9 +42,7 @@ _wr_find_root() {
       continue
     fi
     printf '%s' "$candidate"
-    if [ "$candidate" = "${KBD_FOCUS_PROJECT_PATH:-}" ]; then
-      printf '[wr] resolved via KBD_FOCUS_PROJECT_PATH\n' >&2
-    elif [ "$candidate" = "${REPO_ROOT:-}" ]; then
+    if [ "$candidate" = "${REPO_ROOT:-}" ]; then
       printf '[wr] resolved via REPO_ROOT\n' >&2
     else
       printf '[wr] resolved via CLAUDE_PLUGIN_ROOT\n' >&2

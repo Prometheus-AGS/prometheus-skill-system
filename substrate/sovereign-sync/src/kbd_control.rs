@@ -5,13 +5,14 @@
 //! flock. Multi-voter configurations are rejected explicitly.
 
 use std::{
-    collections::BTreeSet,
+    collections::{BTreeMap, BTreeSet},
     fs, io,
-    path::Path,
+    path::{Path, PathBuf},
     sync::{Arc, RwLock},
 };
 
 use kbd_runtime::{
+    registry::{ProjectRegistry, RegistrationOutcome, RegistryDocument, ReplicaRegistration},
     replay_events, CommandEnvelope, CommandResult, DeviceStatus, Event, KbdStateV2, Runtime,
 };
 use serde::Serialize;
@@ -36,6 +37,193 @@ pub struct KbdControlPlane {
     runtime: Arc<Runtime>,
     quorum: Arc<QuorumPolicy>,
     available_voters: Arc<RwLock<BTreeSet<u64>>>,
+}
+
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct RegisteredProjectRoute {
+    pub project_id: String,
+    pub path: PathBuf,
+    pub replica: ReplicaRegistration,
+    pub ready: bool,
+    pub error: Option<String>,
+}
+
+#[derive(Clone)]
+pub struct KbdProjectRouter {
+    registry: ProjectRegistry,
+    data_root: Option<PathBuf>,
+    policy: QuorumPolicy,
+    controls: Arc<RwLock<BTreeMap<String, Arc<KbdControlPlane>>>>,
+    errors: Arc<RwLock<BTreeMap<String, String>>>,
+}
+
+impl KbdProjectRouter {
+    pub async fn open_registered(policy: QuorumPolicy) -> io::Result<Self> {
+        let router = Self {
+            registry: ProjectRegistry::open(),
+            data_root: None,
+            policy,
+            controls: Arc::new(RwLock::new(BTreeMap::new())),
+            errors: Arc::new(RwLock::new(BTreeMap::new())),
+        };
+        router.reload().await?;
+        Ok(router)
+    }
+
+    pub async fn open_registered_at(data_root: &Path, policy: QuorumPolicy) -> io::Result<Self> {
+        let router = Self {
+            registry: ProjectRegistry::open_at(data_root),
+            data_root: Some(data_root.to_path_buf()),
+            policy,
+            controls: Arc::new(RwLock::new(BTreeMap::new())),
+            errors: Arc::new(RwLock::new(BTreeMap::new())),
+        };
+        router.reload().await?;
+        Ok(router)
+    }
+
+    pub async fn open_with_project(project_root: &Path, policy: QuorumPolicy) -> io::Result<Self> {
+        let registry = ProjectRegistry::open();
+        registry
+            .register_existing(project_root)
+            .map_err(|error| io::Error::other(error.to_string()))?;
+        Self::open_registered(policy).await
+    }
+
+    pub async fn open_with_project_at(
+        project_root: &Path,
+        data_root: &Path,
+        policy: QuorumPolicy,
+    ) -> io::Result<Self> {
+        // Establishing a canonical runtime is the explicit project-initialization
+        // path. Registry registration itself still consumes only the manifest.
+        Runtime::open_canonical_at(project_root, data_root)
+            .map_err(|error| io::Error::other(error.to_string()))?;
+        Self::open_registered_at(data_root, policy).await
+    }
+
+    pub fn registry(&self) -> &ProjectRegistry {
+        &self.registry
+    }
+
+    pub fn registry_document(&self) -> io::Result<RegistryDocument> {
+        self.registry
+            .load()
+            .map_err(|error| io::Error::other(error.to_string()))
+    }
+
+    pub async fn register_path(&self, path: &Path) -> io::Result<RegistrationOutcome> {
+        let outcome = self
+            .registry
+            .register_existing(path)
+            .map_err(|error| io::Error::other(error.to_string()))?;
+        self.reload().await?;
+        Ok(outcome)
+    }
+
+    pub async fn reload(&self) -> io::Result<()> {
+        let document = self.registry_document()?;
+        let mut next_controls = BTreeMap::new();
+        let mut next_errors = BTreeMap::new();
+        let project_ids = document
+            .replicas
+            .values()
+            .map(|replica| replica.project_id.clone())
+            .collect::<BTreeSet<_>>();
+        for project_id in project_ids {
+            let Some((path, _)) = document.authoritative_replica(&project_id) else {
+                continue;
+            };
+            let path = PathBuf::from(path);
+            let opened = match &self.data_root {
+                Some(data_root) => {
+                    KbdControlPlane::open_at(&path, data_root, self.policy.clone()).await
+                }
+                None => KbdControlPlane::open(&path, self.policy.clone()).await,
+            };
+            match opened {
+                Ok(control) => {
+                    next_controls.insert(project_id, Arc::new(control));
+                }
+                Err(error) => {
+                    next_errors.insert(project_id, error.to_string());
+                }
+            }
+        }
+        *self
+            .controls
+            .write()
+            .expect("project control map lock poisoned") = next_controls;
+        *self
+            .errors
+            .write()
+            .expect("project error map lock poisoned") = next_errors;
+        Ok(())
+    }
+
+    pub fn control(&self, project_id: &str) -> io::Result<Arc<KbdControlPlane>> {
+        if let Some(control) = self
+            .controls
+            .read()
+            .expect("project control map lock poisoned")
+            .get(project_id)
+            .cloned()
+        {
+            return Ok(control);
+        }
+        if let Some(error) = self
+            .errors
+            .read()
+            .expect("project error map lock poisoned")
+            .get(project_id)
+            .cloned()
+        {
+            return Err(io::Error::other(error));
+        }
+        Err(io::Error::new(
+            io::ErrorKind::NotFound,
+            format!("unknown KBD project {project_id}"),
+        ))
+    }
+
+    pub fn project_ids(&self) -> Vec<String> {
+        let mut project_ids = self
+            .controls
+            .read()
+            .expect("project control map lock poisoned")
+            .keys()
+            .cloned()
+            .collect::<BTreeSet<_>>();
+        project_ids.extend(
+            self.errors
+                .read()
+                .expect("project error map lock poisoned")
+                .keys()
+                .cloned(),
+        );
+        project_ids.into_iter().collect()
+    }
+
+    pub fn routes(&self) -> io::Result<Vec<RegisteredProjectRoute>> {
+        let document = self.registry_document()?;
+        let controls = self
+            .controls
+            .read()
+            .expect("project control map lock poisoned");
+        let errors = self.errors.read().expect("project error map lock poisoned");
+        Ok(document
+            .replicas
+            .into_iter()
+            .map(|(path, replica)| RegisteredProjectRoute {
+                project_id: replica.project_id.clone(),
+                ready: controls.contains_key(&replica.project_id),
+                error: errors.get(&replica.project_id).cloned(),
+                path: PathBuf::from(path),
+                replica,
+            })
+            .collect())
+    }
 }
 
 impl KbdControlPlane {

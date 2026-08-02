@@ -114,22 +114,21 @@ A valid token with an uninitialized KBD runtime can still receive HTTP `404`
 from a KBD route. That means authentication succeeded but the requested
 project state is not initialized. An invalid token receives HTTP `401`.
 
-## Focus Sovereign Sync on a project
+## Register projects served by Sovereign Sync
 
-The daemon serves one focused KBD project. Set its project root independently
-from the token:
+The daemon serves every project in its platform registry. Register a checkout
+that already declares `.prometheus/project.json`:
 
 ```bash
-export KBD_FOCUS_PROJECT_PATH="/path/to/project"
 export PROMETHEUS_CONTROL_TOKEN_FILE="$TOKEN_FILE"
+prometheus kbd register /path/to/project
 sovereign-sync --mode daemon
 ```
 
-If `KBD_FOCUS_PROJECT_PATH` is unset, the daemon discovers the project from its
-working directory. The token alone does not retarget the daemon.
-
-For launchd or systemd, put both variables in the service definition and fully
-reload it. See [Sovereign Sync installation](/docs/sovereign-sync/installation).
+The token authenticates the local control surface; it does not select a
+project. REST routes and multi-project MCP calls use the declared project UUID.
+The managed launchd/systemd definitions deliberately have no project-path
+environment variable. See [Sovereign Sync installation](/docs/sovereign-sync/installation).
 
 ## Device signing keys
 

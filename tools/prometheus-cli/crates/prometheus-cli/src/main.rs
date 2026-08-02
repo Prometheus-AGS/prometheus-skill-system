@@ -321,6 +321,29 @@ enum KbdAction {
         #[arg(long)]
         json: bool,
     },
+    /// List all registered projects and replicas on this machine
+    Projects {
+        #[arg(long)]
+        json: bool,
+    },
+    /// Register a checkout that already declares .prometheus/project.json
+    Register { path: String },
+    /// List replicas for a project UUID (defaults to the current project)
+    Replicas {
+        #[arg(long)]
+        project_id: Option<String>,
+        #[arg(long)]
+        json: bool,
+    },
+    /// Adopt an existing checkout into a registered project identity
+    Adopt {
+        path: String,
+        #[arg(long = "into")]
+        into_project_id: String,
+        /// Apply after printing the same evidence returned by dry-run
+        #[arg(long)]
+        apply: bool,
+    },
     /// Gracefully checkpoint and pause the run
     Pause {
         #[arg(long)]
@@ -729,6 +752,20 @@ async fn main() -> Result<()> {
             };
             let action = match action {
                 KbdAction::Status { json } => commands::kbd::Action::Status { json },
+                KbdAction::Projects { json } => commands::kbd::Action::Projects { json },
+                KbdAction::Register { path } => commands::kbd::Action::Register { path },
+                KbdAction::Replicas { project_id, json } => {
+                    commands::kbd::Action::Replicas { project_id, json }
+                }
+                KbdAction::Adopt {
+                    path,
+                    into_project_id,
+                    apply,
+                } => commands::kbd::Action::Adopt {
+                    path,
+                    into_project_id,
+                    apply,
+                },
                 KbdAction::Pause { reason } => commands::kbd::Action::Pause { reason },
                 KbdAction::Revise {
                     reason,

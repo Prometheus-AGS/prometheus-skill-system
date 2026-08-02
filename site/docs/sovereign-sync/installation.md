@@ -66,10 +66,7 @@ Expected health response:
 If you prefer not to use launchd:
 
 ```bash
-# Focus the daemon on one KBD project
-export KBD_FOCUS_PROJECT_PATH="/path/to/project"
-
-# Optional explicit token path; omit to use the project canonical default
+# Optional explicit token path
 export PROMETHEUS_CONTROL_TOKEN_FILE="$HOME/.config/sovereign-sync/kbd-control-token"
 
 # Foreground server (verbose)
@@ -121,32 +118,25 @@ The config parser accepts any non-empty operator ID, but a value generated with
 `openssl rand -hex 32` is the recommended format. Preserve each machine’s own
 `skills_dir` and copy only the shared operator value during pairing.
 
-## Focus a managed daemon on another repository
+## Register projects with a managed daemon
 
-The daemon controls one focused KBD project. Configure both variables in the
-service environment:
+The daemon routes every project in the machine registry; it is not focused by
+its working directory or an environment variable. A checkout is eligible only
+when it already declares its UUID in `.prometheus/project.json`:
 
-```text
-KBD_FOCUS_PROJECT_PATH=/path/to/project
-PROMETHEUS_CONTROL_TOKEN_FILE=/path/to/project-specific/control-token
+```bash
+prometheus kbd register /path/to/project
+prometheus kbd projects --json
+prometheus kbd replicas --project-id <project-uuid> --json
 ```
 
-The explicit token variable is optional when the canonical project token is
-used. `KBD_FOCUS_PROJECT_PATH` is what changes the project; changing only the
-token does not.
+Registration never creates or infers project identity from a path, Git origin,
+or commit. Matching origin/HEAD evidence is reported only as a possible
+duplicate. Restarting is not required for REST registration; the router reloads
+after a successful `POST /api/v1/kbd/projects/register`.
 
-On macOS, these entries belong under the LaunchAgent’s
-`EnvironmentVariables` dictionary:
-
-```xml
-<key>KBD_FOCUS_PROJECT_PATH</key>
-<string>/path/to/project</string>
-<key>PROMETHEUS_CONTROL_TOKEN_FILE</key>
-<string>/path/to/control-token</string>
-```
-
-After changing a plist, fully reload it. `kickstart` alone does not reload the
-definition:
+After changing any other plist setting, fully reload it. `kickstart` alone does
+not reload the definition:
 
 ```bash
 LABEL="ai.prometheus.sovereign-sync"
@@ -170,7 +160,7 @@ Be aware that a managed reinstall regenerates the plist from the repository
 template. Persist deployment-specific overrides in your service-management
 layer rather than relying on an untracked manual edit.
 
-For systemd, add equivalent `Environment=` entries to the user unit, then:
+For systemd unit changes, reload and restart the user service:
 
 ```bash
 systemctl --user daemon-reload
@@ -179,8 +169,7 @@ systemctl --user restart ai.prometheus.sovereign-sync
 
 ## MCP configuration
 
-An MCP client launches stdio mode with the same focused-project and signing-key
-environment:
+An MCP client launches stdio mode and reads the same platform registry:
 
 ```json
 {
@@ -188,12 +177,15 @@ environment:
     "command": "/path/to/sovereign-sync",
     "args": ["--mode", "mcp"],
     "env": {
-      "RUST_LOG": "sovereign_sync=warn",
-      "KBD_FOCUS_PROJECT_PATH": "/path/to/project"
+      "RUST_LOG": "sovereign_sync=warn"
     }
   }
 }
 ```
+
+When exactly one project is registered, KBD tool calls may omit `project_id`.
+With multiple projects, pass the UUID explicitly; omission is rejected rather
+than guessed.
 
 For Kimi Code, add an equivalent entry to `~/.kimi-code/config.toml`.
 

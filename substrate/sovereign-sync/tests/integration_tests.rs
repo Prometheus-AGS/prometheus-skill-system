@@ -76,7 +76,72 @@ async fn ready_endpoint_replays_the_journal_asynchronously() {
     let body = axum::body::to_bytes(resp.into_body(), 8192).await.unwrap();
     let json: serde_json::Value = serde_json::from_slice(&body).unwrap();
     assert_eq!(json["status"], "ready");
-    assert_eq!(json["revision"], 0);
+    assert_eq!(json["projectCount"], 1);
+    assert_eq!(json["projects"][0]["revision"], 0);
+}
+
+#[tokio::test]
+async fn registry_routes_two_projects_without_a_focus_environment_variable() {
+    let skills_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../skills");
+    let fixture = tempfile::tempdir().unwrap();
+    let first = fixture.path().join("first");
+    let second = fixture.path().join("second");
+    let data_root = fixture.path().join("data");
+    std::fs::create_dir_all(&first).unwrap();
+    std::fs::create_dir_all(&second).unwrap();
+    let state = AppState::try_new_at(&skills_dir, &first, &data_root, None)
+        .await
+        .unwrap();
+    let second_runtime = kbd_runtime::Runtime::open_canonical_at(&second, &data_root).unwrap();
+    let second_id = second_runtime
+        .project_manifest(false)
+        .unwrap()
+        .unwrap()
+        .project_id;
+    let app = build_router(state);
+
+    let register = Request::builder()
+        .method("POST")
+        .uri("/api/v1/kbd/projects/register")
+        .header("content-type", "application/json")
+        .body(Body::from(serde_json::json!({"path":second}).to_string()))
+        .unwrap();
+    let response = app.clone().oneshot(register).await.unwrap();
+    assert_eq!(response.status(), StatusCode::OK);
+
+    let projects = Request::builder()
+        .method("GET")
+        .uri("/api/v1/kbd/projects")
+        .body(Body::empty())
+        .unwrap();
+    let response = app.clone().oneshot(projects).await.unwrap();
+    assert_eq!(response.status(), StatusCode::OK);
+    let body = axum::body::to_bytes(response.into_body(), 16_384)
+        .await
+        .unwrap();
+    let json: serde_json::Value = serde_json::from_slice(&body).unwrap();
+    assert_eq!(json["projects"].as_array().unwrap().len(), 2);
+
+    let replicas = Request::builder()
+        .method("GET")
+        .uri(format!("/api/v1/kbd/projects/{second_id}/replicas"))
+        .body(Body::empty())
+        .unwrap();
+    let response = app.clone().oneshot(replicas).await.unwrap();
+    assert_eq!(response.status(), StatusCode::OK);
+
+    let ready = Request::builder()
+        .method("GET")
+        .uri("/ready")
+        .body(Body::empty())
+        .unwrap();
+    let response = app.oneshot(ready).await.unwrap();
+    assert_eq!(response.status(), StatusCode::OK);
+    let body = axum::body::to_bytes(response.into_body(), 16_384)
+        .await
+        .unwrap();
+    let json: serde_json::Value = serde_json::from_slice(&body).unwrap();
+    assert_eq!(json["projectCount"], 2);
 }
 
 // ---------------------------------------------------------------------------
@@ -169,7 +234,6 @@ async fn sync_push_queues_domain() {
     assert!(json["snapshotBytes"].as_u64().unwrap_or(0) > 0);
 }
 
-
 // ---------------------------------------------------------------------------
 // KBD project routes
 //
@@ -208,17 +272,13 @@ fn kbd_status_request(project_id: &str) -> Request<Body> {
         .unwrap()
 }
 
-
 #[tokio::test]
 async fn kbd_status_reports_uninitialized_runtime_distinctly() {
     // A fresh project authenticates but has no committed events. This must stay
     // distinguishable from "unknown project" — collapsing the two is what made
     // an empty runtime look like an unreachable daemon.
     let (app, project_id, _fixture) = test_project().await;
-    let resp = app
-        .oneshot(kbd_status_request(&project_id))
-        .await
-        .unwrap();
+    let resp = app.oneshot(kbd_status_request(&project_id)).await.unwrap();
     assert_eq!(resp.status(), StatusCode::NOT_FOUND);
     let body = axum::body::to_bytes(resp.into_body(), 8192).await.unwrap();
     let json: serde_json::Value = serde_json::from_slice(&body).unwrap();
@@ -229,14 +289,9 @@ async fn kbd_status_reports_uninitialized_runtime_distinctly() {
 async fn kbd_status_rejects_an_unrelated_project_id() {
     let (app, _project_id, _fixture) = test_project().await;
     let unrelated = "00000000-0000-4000-8000-000000000000";
-    let resp = app
-        .oneshot(kbd_status_request(unrelated))
-        .await
-        .unwrap();
+    let resp = app.oneshot(kbd_status_request(unrelated)).await.unwrap();
     assert_eq!(resp.status(), StatusCode::NOT_FOUND);
 }
-
-
 
 #[tokio::test]
 async fn kbd_command_rejects_an_envelope_whose_project_disagrees_with_the_path() {

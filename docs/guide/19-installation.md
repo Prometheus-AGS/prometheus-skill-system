@@ -131,9 +131,10 @@ prometheus kbd --path "$PROJECT_ROOT" migrate --apply
 prometheus kbd --path "$PROJECT_ROOT" status --json | jq .
 ```
 
-When the daemon must control a repository other than its service working
-directory, configure `KBD_FOCUS_PROJECT_PATH` and fully reload the service.
-Changing only the token does not retarget Sovereign Sync.
+Sovereign Sync routes all manifest-bearing checkouts in the platform registry;
+its service working directory does not select a project. Register each checkout
+explicitly with `prometheus kbd register /path/to/project`. The registry keeps
+project UUID and replica UUID distinct and never infers identity from Git.
 
 ## First run
 

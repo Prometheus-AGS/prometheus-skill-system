@@ -14,6 +14,7 @@ use tracing::info;
 use uuid::Uuid;
 
 use crate::kbd_control::KbdControlPlane;
+use crate::kbd_control::KbdProjectRouter;
 use crate::kbd_single_writer::QuorumPolicy;
 
 // ---------------------------------------------------------------------------
@@ -190,23 +191,32 @@ pub struct SyncPushParams {
 
 #[derive(Debug, Serialize, Deserialize, JsonSchema)]
 pub struct KbdReasonParams {
+    pub project_id: Option<String>,
     pub reason: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, JsonSchema)]
 pub struct KbdResumeParams {
+    pub project_id: Option<String>,
     pub plan_revision: Option<u64>,
 }
 
 #[derive(Debug, Serialize, Deserialize, JsonSchema)]
 pub struct KbdReviseParams {
+    pub project_id: Option<String>,
     pub reason: String,
     pub exact_next_work: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, JsonSchema)]
 pub struct KbdEventsParams {
+    pub project_id: Option<String>,
     pub since_revision: Option<u64>,
+}
+
+#[derive(Debug, Serialize, Deserialize, JsonSchema)]
+pub struct KbdProjectParams {
+    pub project_id: Option<String>,
 }
 
 // ---------------------------------------------------------------------------
@@ -217,7 +227,7 @@ pub struct KbdEventsParams {
 pub struct SovereignMcpServer {
     tool_router: ToolRouter<Self>,
     skill_index: Arc<SkillIndex>,
-    kbd_control: Arc<KbdControlPlane>,
+    kbd_projects: Arc<KbdProjectRouter>,
     _prefix_tools: bool,
     _uar_passthrough: bool,
 }
@@ -225,26 +235,26 @@ pub struct SovereignMcpServer {
 impl SovereignMcpServer {
     pub async fn new(skills_dir: &Path, prefix_tools: bool, uar_passthrough: bool) -> Self {
         let skill_index = Arc::new(SkillIndex::load_from_dir(skills_dir));
-        let project_root = std::env::var("KBD_FOCUS_PROJECT_PATH")
-            .map(PathBuf::from)
-            .unwrap_or_else(|_| {
-                std::env::current_dir()
-                    .ok()
-                    .and_then(|cwd| {
-                        cwd.ancestors()
-                            .find(|candidate| candidate.join(".kbd-orchestrator").is_dir())
-                            .map(Path::to_path_buf)
-                    })
-                    .unwrap_or_else(|| skills_dir.parent().unwrap_or(skills_dir).to_path_buf())
-            });
         let quorum = QuorumPolicy::new(1, [1]).expect("valid standalone quorum");
-        let kbd_control = KbdControlPlane::open(&project_root, quorum)
-            .await
-            .expect("cannot open authoritative KBD control plane");
+        let kbd_projects = Arc::new(
+            KbdProjectRouter::open_registered(quorum)
+                .await
+                .expect("cannot open registered KBD control planes"),
+        );
+        if let Some(project_root) = std::env::current_dir().ok().and_then(|cwd| {
+            cwd.ancestors()
+                .find(|candidate| candidate.join(".prometheus/project.json").is_file())
+                .map(Path::to_path_buf)
+        }) {
+            kbd_projects
+                .register_path(&project_root)
+                .await
+                .expect("cannot register current KBD project");
+        }
         Self {
             tool_router: Self::tool_router(),
             skill_index,
-            kbd_control: Arc::new(kbd_control),
+            kbd_projects,
             _prefix_tools: prefix_tools,
             _uar_passthrough: uar_passthrough,
         }
@@ -260,6 +270,7 @@ impl SovereignMcpServer {
 
     async fn submit_fresh(
         &self,
+        control: Arc<KbdControlPlane>,
         state: KbdStateV2,
         actor_kind: ActorKind,
         command: CommandKind,
@@ -273,12 +284,32 @@ impl SovereignMcpServer {
             actor: mcp_actor(actor_kind),
             command,
         };
-        match self.kbd_control.submit(envelope).await {
+        match control.submit(envelope).await {
             Ok(committed) => {
                 serde_json::to_string_pretty(&committed).unwrap_or_else(|error| error.to_string())
             }
             Err(error) => format!("KBD control error: {error}"),
         }
+    }
+
+    fn control(&self, project_id: Option<&str>) -> Result<Arc<KbdControlPlane>, String> {
+        if let Some(project_id) = project_id {
+            return self
+                .kbd_projects
+                .control(project_id)
+                .map_err(|error| error.to_string());
+        }
+        let project_ids = self.kbd_projects.project_ids();
+        if project_ids.len() != 1 {
+            return Err(format!(
+                "project_id is required when {} projects are registered: {}",
+                project_ids.len(),
+                project_ids.join(", ")
+            ));
+        }
+        self.kbd_projects
+            .control(&project_ids[0])
+            .map_err(|error| error.to_string())
     }
 }
 
@@ -344,11 +375,28 @@ impl SovereignMcpServer {
     }
 
     #[tool(
+        name = "kbd_projects",
+        description = "List registered KBD projects, replicas, and route readiness."
+    )]
+    pub async fn kbd_projects(&self) -> String {
+        match self.kbd_projects.routes() {
+            Ok(routes) => {
+                serde_json::to_string_pretty(&routes).unwrap_or_else(|error| error.to_string())
+            }
+            Err(error) => format!("KBD registry error: {error}"),
+        }
+    }
+
+    #[tool(
         name = "kbd_status",
         description = "Read canonical KBD lifecycle, revision, checkpoint, and workflow state."
     )]
-    pub async fn kbd_status(&self) -> String {
-        match self.kbd_control.status() {
+    pub async fn kbd_status(&self, params: Parameters<KbdProjectParams>) -> String {
+        let control = match self.control(params.0.project_id.as_deref()) {
+            Ok(control) => control,
+            Err(error) => return format!("KBD project error: {error}"),
+        };
+        match control.status() {
             Ok(state) => {
                 serde_json::to_string_pretty(&state).unwrap_or_else(|error| error.to_string())
             }
@@ -361,7 +409,11 @@ impl SovereignMcpServer {
         description = "Checkpoint and pause the KBD run. Operator pause overrides writer steering."
     )]
     pub async fn kbd_pause(&self, params: Parameters<KbdReasonParams>) -> String {
-        match self.kbd_control.status() {
+        let control = match self.control(params.0.project_id.as_deref()) {
+            Ok(control) => control,
+            Err(error) => return format!("KBD project error: {error}"),
+        };
+        match control.status() {
             Ok(state) => {
                 let command = CommandKind::Pause {
                     checkpoint: Checkpoint {
@@ -375,7 +427,7 @@ impl SovereignMcpServer {
                         plan_revision: state.plan_revision,
                     },
                 };
-                self.submit_fresh(state, ActorKind::Operator, command)
+                self.submit_fresh(control, state, ActorKind::Operator, command)
                     .await
             }
             Err(error) => format!("KBD status error: {error}"),
@@ -387,9 +439,14 @@ impl SovereignMcpServer {
         description = "Create an immutable N+1 plan revision that supersedes the previous next work."
     )]
     pub async fn kbd_revise(&self, params: Parameters<KbdReviseParams>) -> String {
-        match self.kbd_control.status() {
+        let control = match self.control(params.0.project_id.as_deref()) {
+            Ok(control) => control,
+            Err(error) => return format!("KBD project error: {error}"),
+        };
+        match control.status() {
             Ok(state) => {
                 self.submit_fresh(
+                    control,
                     state,
                     ActorKind::Harness,
                     CommandKind::PlanRevise {
@@ -408,10 +465,15 @@ impl SovereignMcpServer {
         description = "Resume a paused KBD run at the validated plan revision."
     )]
     pub async fn kbd_resume(&self, params: Parameters<KbdResumeParams>) -> String {
-        match self.kbd_control.status() {
+        let control = match self.control(params.0.project_id.as_deref()) {
+            Ok(control) => control,
+            Err(error) => return format!("KBD project error: {error}"),
+        };
+        match control.status() {
             Ok(state) => {
                 let plan_revision = params.0.plan_revision.unwrap_or(state.plan_revision);
                 self.submit_fresh(
+                    control,
                     state,
                     ActorKind::Operator,
                     CommandKind::Resume { plan_revision },
@@ -427,9 +489,14 @@ impl SovereignMcpServer {
         description = "Gracefully cancel the KBD run while preserving its audit history."
     )]
     pub async fn kbd_cancel(&self, params: Parameters<KbdReasonParams>) -> String {
-        match self.kbd_control.status() {
+        let control = match self.control(params.0.project_id.as_deref()) {
+            Ok(control) => control,
+            Err(error) => return format!("KBD project error: {error}"),
+        };
+        match control.status() {
             Ok(state) => {
                 self.submit_fresh(
+                    control,
                     state,
                     ActorKind::Operator,
                     CommandKind::Cancel {
@@ -447,10 +514,11 @@ impl SovereignMcpServer {
         description = "Read immutable KBD events from an optional starting revision."
     )]
     pub async fn kbd_events(&self, params: Parameters<KbdEventsParams>) -> String {
-        match self
-            .kbd_control
-            .events(params.0.since_revision.unwrap_or(1))
-        {
+        let control = match self.control(params.0.project_id.as_deref()) {
+            Ok(control) => control,
+            Err(error) => return format!("KBD project error: {error}"),
+        };
+        match control.events(params.0.since_revision.unwrap_or(1)) {
             Ok(events) => {
                 serde_json::to_string_pretty(&events).unwrap_or_else(|error| error.to_string())
             }

@@ -6,8 +6,8 @@ sidebar_label: MCP Tools
 
 # MCP Tools
 
-In `--mode mcp`, Sovereign Sync exposes ten tools: four local discovery/sync
-tools and six KBD control tools.
+In `--mode mcp`, Sovereign Sync exposes eleven tools: four local discovery/sync
+tools and seven KBD registry/control tools.
 
 ## Configuration
 
@@ -17,15 +17,15 @@ tools and six KBD control tools.
     "command": "/path/to/sovereign-sync",
     "args": ["--mode", "mcp"],
     "env": {
-      "RUST_LOG": "sovereign_sync=warn",
-      "KBD_FOCUS_PROJECT_PATH": "/path/to/project"
+      "RUST_LOG": "sovereign_sync=warn"
     }
   }
 }
 ```
 
-The MCP process discovers its KBD project from `KBD_FOCUS_PROJECT_PATH`, then
-the current working directory, then the parent of the skills directory.
+The MCP process loads the platform KBD registry. It registers the current
+working directory only when that checkout already contains
+`.prometheus/project.json`; it never creates or infers an identity.
 
 The CLI accepts `--prefix-tools`, but the current tool router still exposes the
 unprefixed names documented below. Do not configure clients with
@@ -77,12 +77,20 @@ live gossip neighbors. See [Pair two machines](./pair-two-machines).
 
 | Tool | Input |
 |---|---|
-| `kbd_status` | none |
-| `kbd_events` | `{"since_revision": 1}` |
-| `kbd_pause` | `{"reason":"…"}` |
-| `kbd_cancel` | `{"reason":"…"}` |
-| `kbd_revise` | `{"reason":"…","exact_next_work":"…"}` |
-| `kbd_resume` | `{"plan_revision":4}` |
+| `kbd_projects` | none |
+| `kbd_status` | `{"project_id":"<uuid>"}` |
+| `kbd_events` | `{"project_id":"<uuid>","since_revision":1}` |
+| `kbd_pause` | `{"project_id":"<uuid>","reason":"…"}` |
+| `kbd_cancel` | `{"project_id":"<uuid>","reason":"…"}` |
+| `kbd_revise` | `{"project_id":"<uuid>","reason":"…","exact_next_work":"…"}` |
+| `kbd_resume` | `{"project_id":"<uuid>","plan_revision":4}` |
+
+### `kbd_projects`
+
+Returns the registered projects, replicas, machine identity, and any per-project
+open error. When one project is registered, the other KBD tools may omit
+`project_id`. With multiple projects, omission returns the available UUIDs
+instead of selecting one implicitly.
 
 ### `kbd_status`
 

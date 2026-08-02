@@ -24,11 +24,11 @@ use futures::stream;
 use kbd_runtime::CommandEnvelope;
 use serde::Deserialize;
 use std::{
-    collections::HashMap,
+    collections::{BTreeMap, HashMap},
     convert::Infallible,
     net::SocketAddr,
     path::{Path, PathBuf},
-    sync::{Arc, Mutex as StdMutex},
+    sync::{Arc, Mutex as StdMutex, RwLock as StdRwLock},
     time::Duration,
 };
 use storage_provider::{CrdtEngine, LoroAdapter, SyncDomain, SyncManifest};
@@ -37,7 +37,7 @@ use tracing::info;
 
 use crate::ag_ui::{ag_ui_ping, ag_ui_stream, AgUiState};
 use crate::domains::{self, DomainAdapter, LearnerModelAdapter, SkillIndexAdapter, SyncEnvelope};
-use crate::kbd_control::KbdControlPlane;
+use crate::kbd_control::KbdProjectRouter;
 use crate::kbd_single_writer::QuorumPolicy;
 use crate::kbd_sync::KbdPresenceDocument;
 use crate::mcp_server::SkillIndex;
@@ -51,7 +51,7 @@ use crate::p2p::P2PNode;
 pub struct AppState {
     skill_index: Arc<SkillIndex>,
     ag_ui: AgUiState,
-    kbd_control: Arc<KbdControlPlane>,
+    kbd_projects: Arc<KbdProjectRouter>,
     /// Domain sync policy (privacy class + storage prefix), populated
     /// lazily on first use of a concrete domain instance.
     manifest: Arc<AsyncRwLock<SyncManifest>>,
@@ -67,7 +67,7 @@ pub struct AppState {
     /// `kbd-control` presence — handled directly here, not through
     /// `adapters`/`docs` (see `domains.rs`'s module comment on why it isn't
     /// a `DomainAdapter`).
-    presence: Arc<KbdPresenceDocument>,
+    presence: Arc<StdRwLock<BTreeMap<String, Arc<KbdPresenceDocument>>>>,
 }
 
 impl AppState {
@@ -78,15 +78,17 @@ impl AppState {
     }
 
     pub async fn try_new(skills_dir: &Path, p2p: Option<Arc<P2PNode>>) -> anyhow::Result<Self> {
-        let project_root = discover_project_root(skills_dir);
         let quorum = QuorumPolicy::new(1, [1])?;
-        let kbd_control = Arc::new(KbdControlPlane::open(&project_root, quorum).await?);
+        let kbd_projects = Arc::new(KbdProjectRouter::open_registered(quorum).await?);
+        if let Some(project_root) = discover_manifest_project_root(skills_dir) {
+            kbd_projects.register_path(&project_root).await?;
+        }
         let learner_model_dir = dirs_next::home_dir()
             .unwrap_or_else(|| PathBuf::from("."))
             .join(".prometheus")
             .join("learn")
             .join("learner-model");
-        Self::from_control_plane(skills_dir, kbd_control, learner_model_dir, p2p)
+        Self::from_project_router(skills_dir, kbd_projects, learner_model_dir, p2p)
     }
 
     pub async fn try_new_at(
@@ -96,32 +98,32 @@ impl AppState {
         p2p: Option<Arc<P2PNode>>,
     ) -> anyhow::Result<Self> {
         let quorum = QuorumPolicy::new(1, [1])?;
-        let kbd_control =
-            Arc::new(KbdControlPlane::open_at(project_root, data_root, quorum).await?);
-        Self::from_control_plane(
+        let kbd_projects = Arc::new(
+            KbdProjectRouter::open_with_project_at(project_root, data_root, quorum).await?,
+        );
+        Self::from_project_router(
             skills_dir,
-            kbd_control,
+            kbd_projects,
             learner_model_dir_at(data_root),
             p2p,
         )
     }
 
-    fn from_control_plane(
+    fn from_project_router(
         skills_dir: &Path,
-        kbd_control: Arc<KbdControlPlane>,
+        kbd_projects: Arc<KbdProjectRouter>,
         learner_model_dir: PathBuf,
         p2p: Option<Arc<P2PNode>>,
     ) -> anyhow::Result<Self> {
         let skill_index = Arc::new(SkillIndex::load_from_dir(skills_dir));
-        // Best-effort: an uninitialized runtime has no project_id yet. The
-        // presence domain is scoped by this at import time via SyncEnvelope's
-        // `identity` field, same as before — an empty scope just means no
-        // legitimate push will ever match it until the runtime initializes.
-        let project_id = kbd_control
-            .status()
-            .map(|status| status.project_id)
-            .unwrap_or_default();
-        let presence = Arc::new(KbdPresenceDocument::new(project_id));
+        let presence = kbd_projects
+            .project_ids()
+            .into_iter()
+            .map(|project_id| {
+                let document = Arc::new(KbdPresenceDocument::new(project_id.clone()));
+                (project_id, document)
+            })
+            .collect();
 
         let mut adapters: HashMap<String, Box<dyn DomainAdapter>> = HashMap::new();
         adapters.insert(
@@ -139,12 +141,12 @@ impl AppState {
         Ok(Self {
             skill_index,
             ag_ui: AgUiState::new(),
-            kbd_control,
+            kbd_projects,
             manifest: Arc::new(AsyncRwLock::new(SyncManifest::new())),
             docs: Arc::new(StdMutex::new(HashMap::new())),
             p2p,
             adapters: Arc::new(adapters),
-            presence,
+            presence: Arc::new(StdRwLock::new(presence)),
         })
     }
 
@@ -154,8 +156,21 @@ impl AppState {
     }
 
     /// Inspection accessor for tests — not part of the wire API.
-    pub fn presence(&self) -> &KbdPresenceDocument {
-        &self.presence
+    pub fn presence(&self) -> Option<Arc<KbdPresenceDocument>> {
+        self.presence
+            .read()
+            .expect("presence map lock poisoned")
+            .values()
+            .next()
+            .cloned()
+    }
+
+    fn presence_for(&self, project_id: &str) -> Option<Arc<KbdPresenceDocument>> {
+        self.presence
+            .read()
+            .expect("presence map lock poisoned")
+            .get(project_id)
+            .cloned()
     }
 }
 
@@ -187,19 +202,19 @@ fn device_identity() -> String {
         .unwrap_or_else(|| "unknown-device".into())
 }
 
-fn discover_project_root(skills_dir: &Path) -> PathBuf {
-    if let Ok(path) = std::env::var("KBD_FOCUS_PROJECT_PATH") {
-        return PathBuf::from(path);
-    }
+fn discover_manifest_project_root(skills_dir: &Path) -> Option<PathBuf> {
     if let Ok(cwd) = std::env::current_dir() {
         if let Some(root) = cwd
             .ancestors()
-            .find(|candidate| candidate.join(".kbd-orchestrator").is_dir())
+            .find(|candidate| candidate.join(".prometheus/project.json").is_file())
         {
-            return root.to_path_buf();
+            return Some(root.to_path_buf());
         }
     }
-    skills_dir.parent().unwrap_or(skills_dir).to_path_buf()
+    skills_dir
+        .ancestors()
+        .find(|candidate| candidate.join(".prometheus/project.json").is_file())
+        .map(Path::to_path_buf)
 }
 
 // ---------------------------------------------------------------------------
@@ -226,25 +241,49 @@ async fn health() -> impl IntoResponse {
 
 /// GET /ready — asynchronous journal reachability and replay validation.
 async fn ready(State(state): State<AppState>) -> impl IntoResponse {
-    match state.kbd_control.status_async().await {
-        Ok(runtime) => (
-            StatusCode::OK,
-            Json(serde_json::json!({
-                "status": "ready",
-                "projectId": runtime.project_id,
-                "revision": runtime.revision
-            })),
-        )
-            .into_response(),
-        Err(error) => (
-            StatusCode::SERVICE_UNAVAILABLE,
-            Json(serde_json::json!({
-                "status": "not_ready",
-                "error": error.to_string()
-            })),
-        )
-            .into_response(),
+    let mut projects = Vec::new();
+    let mut all_ready = true;
+    for project_id in state.kbd_projects.project_ids() {
+        match state.kbd_projects.control(&project_id) {
+            Ok(control) => match control.status_async().await {
+                Ok(runtime) => projects.push(serde_json::json!({
+                    "projectId": project_id,
+                    "ready": true,
+                    "revision": runtime.revision
+                })),
+                Err(error) => {
+                    all_ready = false;
+                    projects.push(serde_json::json!({
+                        "projectId": project_id,
+                        "ready": false,
+                        "error": error.to_string()
+                    }));
+                }
+            },
+            Err(error) => {
+                all_ready = false;
+                projects.push(serde_json::json!({
+                    "projectId": project_id,
+                    "ready": false,
+                    "error": error.to_string()
+                }));
+            }
+        }
     }
+    let status = if all_ready {
+        StatusCode::OK
+    } else {
+        StatusCode::SERVICE_UNAVAILABLE
+    };
+    (
+        status,
+        Json(serde_json::json!({
+            "status": if all_ready { "ready" } else { "not_ready" },
+            "projectCount": projects.len(),
+            "projects": projects
+        })),
+    )
+        .into_response()
 }
 
 #[derive(Debug, Deserialize)]
@@ -449,7 +488,26 @@ async fn build_presence_push_envelope(
     state: &AppState,
     domain_name: &str,
 ) -> Result<PushOutcome, (StatusCode, serde_json::Value)> {
-    let status = state.kbd_control.status_async().await.map_err(|error| {
+    let project_id = domain_name
+        .strip_prefix("kbd-control:")
+        .filter(|project_id| !project_id.is_empty())
+        .ok_or_else(|| {
+            (
+                StatusCode::BAD_REQUEST,
+                serde_json::json!({"error":"kbd-control domain requires a project ID"}),
+            )
+        })?;
+    let control = state.kbd_projects.control(project_id).map_err(|error| {
+        (
+            if error.kind() == std::io::ErrorKind::NotFound {
+                StatusCode::NOT_FOUND
+            } else {
+                StatusCode::CONFLICT
+            },
+            serde_json::json!({"error": error.to_string()}),
+        )
+    })?;
+    let status = control.status_async().await.map_err(|error| {
         (
             StatusCode::INTERNAL_SERVER_ERROR,
             serde_json::json!({"error": error.to_string()}),
@@ -461,13 +519,19 @@ async fn build_presence_push_envelope(
         session: "daemon".to_string(),
         observed_revision: status.revision,
     };
-    state.presence.update(&presence).map_err(|error| {
+    let presence_document = state.presence_for(project_id).ok_or_else(|| {
+        (
+            StatusCode::NOT_FOUND,
+            serde_json::json!({"error":"project presence document is unavailable"}),
+        )
+    })?;
+    presence_document.update(&presence).map_err(|error| {
         (
             StatusCode::INTERNAL_SERVER_ERROR,
             serde_json::json!({"error": error.to_string()}),
         )
     })?;
-    let snapshot = state.presence.export_snapshot().map_err(|error| {
+    let snapshot = presence_document.export_snapshot().map_err(|error| {
         (
             StatusCode::INTERNAL_SERVER_ERROR,
             serde_json::json!({"error": error.to_string()}),
@@ -480,16 +544,12 @@ async fn build_presence_push_envelope(
         });
     }
 
-    let signer = state
-        .kbd_control
-        .runtime()
-        .device_signer()
-        .map_err(|error| {
-            (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                serde_json::json!({"error": error.to_string()}),
-            )
-        })?;
+    let signer = control.runtime().device_signer().map_err(|error| {
+        (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            serde_json::json!({"error": error.to_string()}),
+        )
+    })?;
     let mut envelope = SyncEnvelope {
         schema_version: "1".into(),
         domain: domain_name.to_string(),
@@ -565,18 +625,93 @@ async fn kbd_status(
     State(state): State<AppState>,
     AxumPath(project_id): AxumPath<String>,
 ) -> impl IntoResponse {
-    match state.kbd_control.status_async().await {
-        Ok(runtime) if runtime.revision > 0 && runtime.project_id == project_id => {
+    let control = match state.kbd_projects.control(&project_id) {
+        Ok(control) => control,
+        Err(error) => {
+            return (
+                if error.kind() == std::io::ErrorKind::NotFound {
+                    StatusCode::NOT_FOUND
+                } else {
+                    StatusCode::CONFLICT
+                },
+                Json(serde_json::json!({"error":error.to_string()})),
+            )
+                .into_response()
+        }
+    };
+    match control.status_async().await {
+        Ok(runtime) if runtime.revision > 0 => {
             (StatusCode::OK, Json(serde_json::json!(runtime))).into_response()
         }
-        Ok(runtime) if runtime.revision > 0 => (
+        Ok(_) => (
             StatusCode::NOT_FOUND,
-            Json(serde_json::json!({"error":"unknown KBD project"})),
+            Json(serde_json::json!({"error":"kbd runtime is not initialized"})),
+        )
+            .into_response(),
+        Err(error) => (
+            StatusCode::CONFLICT,
+            Json(serde_json::json!({"error":error.to_string()})),
+        )
+            .into_response(),
+    }
+}
+
+async fn kbd_projects(State(state): State<AppState>) -> impl IntoResponse {
+    match state.kbd_projects.routes() {
+        Ok(routes) => (
+            StatusCode::OK,
+            Json(serde_json::json!({
+                "schemaVersion": "1",
+                "projects": routes
+            })),
+        )
+            .into_response(),
+        Err(error) => (
+            StatusCode::CONFLICT,
+            Json(serde_json::json!({"error":error.to_string()})),
+        )
+            .into_response(),
+    }
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct RegisterProjectBody {
+    path: PathBuf,
+}
+
+async fn kbd_register_project(
+    State(state): State<AppState>,
+    Json(body): Json<RegisterProjectBody>,
+) -> impl IntoResponse {
+    match state.kbd_projects.register_path(&body.path).await {
+        Ok(outcome) => (StatusCode::OK, Json(serde_json::json!(outcome))).into_response(),
+        Err(error) => (
+            StatusCode::CONFLICT,
+            Json(serde_json::json!({"error":error.to_string()})),
+        )
+            .into_response(),
+    }
+}
+
+async fn kbd_replicas(
+    State(state): State<AppState>,
+    AxumPath(project_id): AxumPath<String>,
+) -> impl IntoResponse {
+    match state.kbd_projects.registry().lookup_project(&project_id) {
+        Ok(replicas) if !replicas.is_empty() => (
+            StatusCode::OK,
+            Json(serde_json::json!({
+                "projectId": project_id,
+                "replicas": replicas.into_iter().map(|(path, replica)| {
+                    serde_json::json!({"path":path, "registration":replica})
+                }).collect::<Vec<_>>()
+            })),
         )
             .into_response(),
         Ok(_) => (
             StatusCode::NOT_FOUND,
-            Json(serde_json::json!({"error":"kbd runtime is not initialized"})),
+            Json(serde_json::json!({"error":"unknown KBD project"})),
         )
             .into_response(),
         Err(error) => (
@@ -591,10 +726,21 @@ async fn kbd_events(
     State(state): State<AppState>,
     AxumPath(project_id): AxumPath<String>,
 ) -> impl IntoResponse {
-    let (runtime, events) = tokio::join!(
-        state.kbd_control.status_async(),
-        state.kbd_control.events_async(1)
-    );
+    let control = match state.kbd_projects.control(&project_id) {
+        Ok(control) => control,
+        Err(error) => {
+            return (
+                if error.kind() == std::io::ErrorKind::NotFound {
+                    StatusCode::NOT_FOUND
+                } else {
+                    StatusCode::CONFLICT
+                },
+                Json(serde_json::json!({"error":error.to_string()})),
+            )
+                .into_response()
+        }
+    };
+    let (runtime, events) = tokio::join!(control.status_async(), control.events_async(1));
     match (runtime, events) {
         (Ok(runtime), Ok(events)) if runtime.project_id == project_id => {
             (StatusCode::OK, Json(serde_json::json!(events))).into_response()
@@ -616,7 +762,21 @@ async fn kbd_diagnostics(
     State(state): State<AppState>,
     AxumPath(project_id): AxumPath<String>,
 ) -> impl IntoResponse {
-    match state.kbd_control.diagnostics_async().await {
+    let control = match state.kbd_projects.control(&project_id) {
+        Ok(control) => control,
+        Err(error) => {
+            return (
+                if error.kind() == std::io::ErrorKind::NotFound {
+                    StatusCode::NOT_FOUND
+                } else {
+                    StatusCode::CONFLICT
+                },
+                Json(serde_json::json!({"error":error.to_string()})),
+            )
+                .into_response()
+        }
+    };
+    match control.diagnostics_async().await {
         Ok(diagnostics)
             if diagnostics["runtime"]["projectId"].as_str() == Some(project_id.as_str()) =>
         {
@@ -649,7 +809,21 @@ async fn kbd_command(
         )
             .into_response();
     }
-    match state.kbd_control.submit(envelope).await {
+    let control = match state.kbd_projects.control(&project_id) {
+        Ok(control) => control,
+        Err(error) => {
+            return (
+                if error.kind() == std::io::ErrorKind::NotFound {
+                    StatusCode::NOT_FOUND
+                } else {
+                    StatusCode::CONFLICT
+                },
+                Json(serde_json::json!({"error":error.to_string()})),
+            )
+                .into_response()
+        }
+    };
+    match control.submit(envelope).await {
         Ok(committed) => (StatusCode::OK, Json(serde_json::json!(committed))).into_response(),
         Err(error) => (
             if error.kind() == std::io::ErrorKind::WouldBlock {
@@ -668,15 +842,22 @@ async fn kbd_event_stream(
     AxumPath(project_id): AxumPath<String>,
     headers: HeaderMap,
 ) -> impl IntoResponse {
-    match state.kbd_control.status_async().await {
-        Ok(runtime) if runtime.project_id == project_id => {}
-        Ok(_) => {
+    let control = match state.kbd_projects.control(&project_id) {
+        Ok(control) => control,
+        Err(error) => {
             return (
-                StatusCode::NOT_FOUND,
-                Json(serde_json::json!({"error":"unknown KBD project"})),
+                if error.kind() == std::io::ErrorKind::NotFound {
+                    StatusCode::NOT_FOUND
+                } else {
+                    StatusCode::CONFLICT
+                },
+                Json(serde_json::json!({"error":error.to_string()})),
             )
                 .into_response()
         }
+    };
+    match control.status_async().await {
+        Ok(_) => {}
         Err(error) => {
             return (
                 StatusCode::CONFLICT,
@@ -690,7 +871,6 @@ async fn kbd_event_stream(
         .and_then(|value| value.to_str().ok())
         .and_then(|value| value.parse::<u64>().ok())
         .unwrap_or(0);
-    let control = state.kbd_control.clone();
     let events = stream::unfold((control, last_event_id), |(control, revision)| async move {
         tokio::time::sleep(Duration::from_secs(1)).await;
         let current = control
@@ -732,6 +912,12 @@ pub fn build_router(state: AppState) -> Router {
         .route("/api/v1/sync/status", get(sync_status))
         .route("/api/v1/sync/peers", get(sync_peers))
         .route("/api/v1/sync/push", post(sync_push))
+        .route("/api/v1/kbd/projects", get(kbd_projects))
+        .route("/api/v1/kbd/projects/register", post(kbd_register_project))
+        .route(
+            "/api/v1/kbd/projects/{project_id}/replicas",
+            get(kbd_replicas),
+        )
         .route("/api/v1/kbd/projects/{project_id}/status", get(kbd_status))
         .route("/api/v1/kbd/projects/{project_id}/events", get(kbd_events))
         .route(
@@ -855,11 +1041,19 @@ pub async fn handle_incoming_message(state: &AppState, payload: &[u8]) {
 /// enforces it again independently (defense in depth), so a bug here fails
 /// closed rather than open.
 async fn import_presence_message(state: &AppState, envelope: &SyncEnvelope) {
-    let Ok(status) = state.kbd_control.status_async().await else {
+    let Some(project_id) = envelope.identity.as_deref() else {
+        tracing::warn!("dropping kbd-control message — missing project identity");
+        return;
+    };
+    let Ok(control) = state.kbd_projects.control(project_id) else {
+        tracing::warn!("dropping kbd-control message — project is not registered");
+        return;
+    };
+    let Ok(status) = control.status_async().await else {
         tracing::warn!("dropping kbd-control message — local runtime status unavailable");
         return;
     };
-    let local_identity = Some(status.project_id);
+    let local_identity = Some(status.project_id.clone());
     if envelope.identity != local_identity {
         tracing::warn!(
             "dropping kbd-control message — project identity mismatch (local={:?}, remote={:?})",
@@ -871,10 +1065,11 @@ async fn import_presence_message(state: &AppState, envelope: &SyncEnvelope) {
 
     let peer_authorized = presence_peer_is_authorized(&status.devices, envelope);
 
-    if let Err(error) = state
-        .presence
-        .import_authenticated(&envelope.payload, peer_authorized)
-    {
+    let Some(presence) = state.presence_for(project_id) else {
+        tracing::warn!("dropping kbd-control message — presence document is unavailable");
+        return;
+    };
+    if let Err(error) = presence.import_authenticated(&envelope.payload, peer_authorized) {
         tracing::warn!("dropping kbd-control presence message: {error}");
     }
 }

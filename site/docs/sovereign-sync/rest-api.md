@@ -95,6 +95,29 @@ request acceptance, not proof that a peer received or applied a delta.
 
 ## KBD read endpoints
 
+### `GET /api/v1/kbd/projects`
+
+Returns the machine registry, including all project and replica identities plus
+any project that could not be opened by the router.
+
+### `POST /api/v1/kbd/projects/register`
+
+```bash
+curl --fail-with-body \
+  -X POST \
+  -H "$AUTH_HEADER" \
+  -H 'Content-Type: application/json' \
+  -d '{"path":"/path/to/project"}' \
+  http://127.0.0.1:7892/api/v1/kbd/projects/register | jq .
+```
+
+The path must already contain `.prometheus/project.json`. Registration assigns
+a replica UUID but never invents or changes the project UUID.
+
+### `GET /api/v1/kbd/projects/{projectId}/replicas`
+
+Returns every registered replica path for the declared project UUID.
+
 ### `GET /api/v1/kbd/projects/{projectId}/status`
 
 ```bash

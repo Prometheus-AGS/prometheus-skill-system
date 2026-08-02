@@ -14,7 +14,7 @@
   </array>
 
   <key>WorkingDirectory</key>
-  <string>__KBD_FOCUS_PROJECT_PATH__</string>
+  <string>__PROMETHEUS_HOME__</string>
 
   <key>EnvironmentVariables</key>
   <dict>
@@ -30,8 +30,6 @@
     <string>1</string>
     <key>PROMETHEUS_DEVICE_KEY_FILE</key>
     <string>__PROMETHEUS_DEVICE_KEY_FILE__</string>
-    <key>KBD_FOCUS_PROJECT_PATH</key>
-    <string>__KBD_FOCUS_PROJECT_PATH__</string>
   </dict>
 
   <key>RunAtLoad</key>

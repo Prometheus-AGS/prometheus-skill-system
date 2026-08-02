@@ -37,15 +37,16 @@ Check:
 - `PROMETHEUS_CONTROL_TOKEN_FILE` in the daemon;
 - `PROMETHEUS_CONTROL_TOKEN_FILE` in the harness;
 - whether the token was rotated after the daemon started;
-- whether Sovereign Sync is focused on the intended repository.
+- whether the requested project UUID is registered.
 
 Restart Sovereign Sync after correcting the path. Do not copy `operator_id`
 into the bearer-token file.
 
 ## KBD route receives `404`
 
-`unknown KBD project` means the daemon is focused on another project. Set
-`KBD_FOCUS_PROJECT_PATH` and reload the service.
+`unknown KBD project` means no registered replica resolves to the requested
+UUID. Register an existing manifest-bearing checkout and retry; do not infer or
+rewrite its UUID from Git evidence.
 
 `kbd runtime is not initialized` means authentication succeeded, but no
 committed state exists. Inventory and apply migration:

@@ -24,9 +24,9 @@ _find_root() {
     [[ -d "$dir/.kbd-orchestrator" ]] && echo "$dir" && return 0
     dir="$(dirname "$dir")"
   done
-  # Fallbacks must point at the active focus project, not the skill-pack repo.
+  # A tool root is accepted only when it identifies itself as the active project.
   local candidate focus
-  for candidate in "${KBD_FOCUS_PROJECT_PATH:-}" "${REPO_ROOT:-}"; do
+  for candidate in "${REPO_ROOT:-}"; do
     [[ -n "$candidate" ]] || continue
     [[ -d "${candidate}/.kbd-orchestrator" ]] || continue
     if [[ -f "${candidate}/.kbd-orchestrator/project.json" ]] && command -v jq >/dev/null 2>&1; then

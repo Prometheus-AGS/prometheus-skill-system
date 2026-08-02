@@ -1,5 +1,6 @@
 use anyhow::{anyhow, Context, Result};
 use kbd_runtime::{
+    registry::ProjectRegistry,
     rollout::{RolloutObservation, RolloutTracker},
     Actor, ActorKind, Checkpoint, CommandEnvelope, CommandKind, Event, LifecycleState, Runtime,
     RuntimeError, RuntimeState,
@@ -12,6 +13,21 @@ use std::time::Duration;
 pub enum Action {
     Status {
         json: bool,
+    },
+    Projects {
+        json: bool,
+    },
+    Register {
+        path: String,
+    },
+    Replicas {
+        project_id: Option<String>,
+        json: bool,
+    },
+    Adopt {
+        path: String,
+        into_project_id: String,
+        apply: bool,
     },
     Pause {
         reason: String,
@@ -56,6 +72,96 @@ pub enum Action {
 }
 
 pub async fn run(path: &str, action: Action) -> Result<()> {
+    let action = match action {
+        Action::Projects { json } => {
+            let registry = ProjectRegistry::open();
+            let document = registry.load()?;
+            if json {
+                println!("{}", serde_json::to_string_pretty(&document)?);
+            } else {
+                println!("Machine: {}", document.machine_id);
+                for (path, replica) in document.replicas {
+                    println!(
+                        "{}  {}  {}  {:?}{}",
+                        replica.project_id,
+                        replica.replica_id,
+                        path,
+                        replica.kind,
+                        if replica.read_only { "  read-only" } else { "" }
+                    );
+                }
+            }
+            return Ok(());
+        }
+        Action::Register { path } => {
+            let outcome = ProjectRegistry::open().register_existing(&path)?;
+            println!("{}", serde_json::to_string_pretty(&outcome)?);
+            return Ok(());
+        }
+        Action::Replicas { project_id, json } => {
+            let registry = ProjectRegistry::open();
+            let project_id = match project_id {
+                Some(project_id) => project_id,
+                None => {
+                    let root = find_manifest_project_root(Path::new(path))?;
+                    fs::read(root.join(".prometheus/project.json"))
+                        .context("read current project manifest")
+                        .and_then(|bytes| {
+                            serde_json::from_slice::<kbd_runtime::ProjectManifest>(&bytes)
+                                .context("parse current project manifest")
+                        })?
+                        .project_id
+                }
+            };
+            let replicas = registry.lookup_project(&project_id)?;
+            if json {
+                println!(
+                    "{}",
+                    serde_json::to_string_pretty(&json!({
+                        "projectId": project_id,
+                        "replicas": replicas
+                    }))?
+                );
+            } else {
+                for (path, replica) in replicas {
+                    println!(
+                        "{}  {}  {:?}{}",
+                        replica.replica_id,
+                        path.display(),
+                        replica.kind,
+                        if replica.read_only { "  read-only" } else { "" }
+                    );
+                }
+            }
+            return Ok(());
+        }
+        Action::Adopt {
+            path,
+            into_project_id,
+            apply,
+        } => {
+            let registry = ProjectRegistry::open();
+            let plan = registry.plan_adoption(&path, &into_project_id)?;
+            if !apply {
+                println!(
+                    "{}",
+                    serde_json::to_string_pretty(&json!({
+                        "dryRun": true,
+                        "plan": plan,
+                        "applyCommand": format!(
+                            "prometheus kbd adopt {:?} --into {} --apply",
+                            path, into_project_id
+                        )
+                    }))?
+                );
+                return Ok(());
+            }
+            let result = registry.apply_adoption(&path, &into_project_id)?;
+            println!("{}", serde_json::to_string_pretty(&result)?);
+            return Ok(());
+        }
+        action => action,
+    };
     let root = find_project_root(Path::new(path))?;
     let runtime = Runtime::open_canonical(&root)?;
     let client = ControlClient::new(&runtime)?;
@@ -247,6 +353,10 @@ pub async fn run(path: &str, action: Action) -> Result<()> {
             println!("{}", serde_json::to_string_pretty(&result)?);
             Ok(())
         }
+        Action::Projects { .. }
+        | Action::Register { .. }
+        | Action::Replicas { .. }
+        | Action::Adopt { .. } => unreachable!("registry actions return before project open"),
     }
 }
 
@@ -377,9 +487,10 @@ impl ControlClient {
         })
     }
 
-
     async fn status(&self) -> Result<RuntimeState> {
-        let response = self.http.get(format!(
+        let response = self
+            .http
+            .get(format!(
                 "{}/api/v1/kbd/projects/{}/status",
                 self.endpoint, self.project_id
             ))
@@ -389,7 +500,9 @@ impl ControlClient {
     }
 
     async fn events(&self) -> Result<Vec<Event>> {
-        let response = self.http.get(format!(
+        let response = self
+            .http
+            .get(format!(
                 "{}/api/v1/kbd/projects/{}/events",
                 self.endpoint, self.project_id
             ))
@@ -399,7 +512,9 @@ impl ControlClient {
     }
 
     async fn submit(&self, envelope: CommandEnvelope) -> Result<Value> {
-        let response = self.http.post(format!(
+        let response = self
+            .http
+            .post(format!(
                 "{}/api/v1/kbd/projects/{}/commands",
                 self.endpoint, self.project_id
             ))
@@ -543,6 +658,20 @@ fn find_project_root(start: &Path) -> Result<PathBuf> {
     }
     Err(anyhow!(
         "no .kbd-orchestrator directory found from {}",
+        start.display()
+    ))
+}
+
+fn find_manifest_project_root(start: &Path) -> Result<PathBuf> {
+    let start = fs::canonicalize(start)
+        .with_context(|| format!("cannot resolve project path {}", start.display()))?;
+    for candidate in start.ancestors() {
+        if candidate.join(".prometheus/project.json").is_file() {
+            return Ok(candidate.to_path_buf());
+        }
+    }
+    Err(anyhow!(
+        "no .prometheus/project.json found from {}",
         start.display()
     ))
 }

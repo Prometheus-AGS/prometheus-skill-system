@@ -17,6 +17,7 @@ use std::path::{Path, PathBuf};
 use thiserror::Error;
 use uuid::Uuid;
 
+pub mod registry;
 pub mod rollout;
 
 pub const EVENT_SCHEMA_VERSION: &str = "2";
@@ -277,8 +278,6 @@ pub fn ensure_device_key_file(path: &Path) -> Result<DeviceSigner> {
         Err(error) => Err(error.into()),
     }
 }
-
-
 
 fn env_truthy(name: &str) -> bool {
     std::env::var(name)
@@ -585,6 +584,8 @@ pub struct Event {
     pub timestamp: DateTime<Utc>,
     pub kind: EventKind,
     pub previous_hash: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub migration_provenance: Option<MigrationProvenance>,
     pub integrity_hash: String,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub signer_key_id: Option<String>,
@@ -592,6 +593,16 @@ pub struct Event {
     pub signer_public_key: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub signature: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+pub struct MigrationProvenance {
+    pub source_project_id: String,
+    pub source_replica_id: Option<String>,
+    pub source_event_id: String,
+    pub source_integrity_hash: String,
+    pub source_previous_hash: Option<String>,
 }
 
 impl Event {
@@ -1679,8 +1690,9 @@ impl Runtime {
     /// Open the platform-owned canonical runtime, creating the repository's
     /// immutable identity manifest when it does not yet exist.
     pub fn open_canonical(project_root: impl AsRef<Path>) -> Result<Self> {
-        let project_root = project_root.as_ref().to_path_buf();
+        let project_root = fs::canonicalize(project_root.as_ref())?;
         let manifest = ensure_project_manifest(&project_root)?;
+        registry::ProjectRegistry::open().register_existing(&project_root)?;
         Ok(Self {
             root: canonical_runtime_root(&manifest.project_id),
             project_root,
@@ -1694,10 +1706,36 @@ impl Runtime {
         project_root: impl AsRef<Path>,
         data_root: impl AsRef<Path>,
     ) -> Result<Self> {
-        let project_root = project_root.as_ref().to_path_buf();
+        let project_root = fs::canonicalize(project_root.as_ref())?;
         let manifest = ensure_project_manifest(&project_root)?;
+        registry::ProjectRegistry::open_at(data_root.as_ref()).register_existing(&project_root)?;
         Ok(Self {
             root: canonical_runtime_root_at(data_root.as_ref(), &manifest.project_id),
+            project_root,
+            key_storage: KeyStorage::PlatformCredentialStore,
+        })
+    }
+
+    pub(crate) fn open_registered_at(
+        project_root: &Path,
+        data_root: &Path,
+        expected_project_id: &str,
+    ) -> Result<Self> {
+        let project_root = fs::canonicalize(project_root)?;
+        let manifest = read_project_manifest(&project_root)?.ok_or_else(|| {
+            RuntimeError::InvalidState(format!(
+                "registered project {} has no identity manifest",
+                project_root.display()
+            ))
+        })?;
+        if manifest.project_id != expected_project_id {
+            return Err(RuntimeError::ProjectMismatch {
+                supplied: manifest.project_id,
+                current: expected_project_id.into(),
+            });
+        }
+        Ok(Self {
+            root: canonical_runtime_root_at(data_root, expected_project_id),
             project_root,
             key_storage: KeyStorage::PlatformCredentialStore,
         })
@@ -2238,6 +2276,7 @@ impl Runtime {
             timestamp: Utc::now(),
             kind,
             previous_hash: state.last_event_hash.clone(),
+            migration_provenance: None,
             integrity_hash: String::new(),
             signer_key_id: None,
             signer_public_key: None,
@@ -2557,6 +2596,7 @@ impl Runtime {
             timestamp: Utc::now(),
             kind,
             previous_hash: state.last_event_hash.clone(),
+            migration_provenance: None,
             integrity_hash: String::new(),
             signer_key_id: None,
             signer_public_key: None,
@@ -5034,6 +5074,13 @@ mod tests {
         assert_eq!(
             runtime.project_manifest(false).unwrap().unwrap(),
             reopened.project_manifest(false).unwrap().unwrap()
+        );
+        let registry = registry::ProjectRegistry::open_at(data.path());
+        let registration = registry.lookup_path(project.path()).unwrap().unwrap();
+        assert_eq!(registration.project_id, manifest.project_id);
+        assert_eq!(
+            registry.lookup_project(&manifest.project_id).unwrap().len(),
+            1
         );
     }
 
