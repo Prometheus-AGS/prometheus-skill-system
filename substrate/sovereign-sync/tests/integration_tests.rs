@@ -10,7 +10,7 @@ use tempfile::TempDir;
 use tower::ServiceExt;
 
 use sovereign_sync::crdt::{apply_incoming_delta, current_version, export_outgoing_delta};
-use sovereign_sync::p2p::P2PNode;
+use sovereign_sync::p2p::{P2PHandle, P2PNode};
 use sovereign_sync::rest_api::{build_router, AppState};
 use storage_provider::{DomainConfig, PrivacyClass, SyncDomain, SyncManifest};
 
@@ -410,6 +410,48 @@ async fn sync_push_queues_domain() {
     assert_eq!(json["status"], "applied-locally-only");
     assert_eq!(json["domain"], "learner-model");
     assert!(json["snapshotBytes"].as_u64().unwrap_or(0) > 0);
+}
+
+#[tokio::test]
+async fn daemon_sync_push_reports_initializing_and_failed_transport_after_local_preparation() {
+    let skills_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../skills");
+    let fixture = tempfile::tempdir().unwrap();
+    let project_root = fixture.path().join("project");
+    let data_root = fixture.path().join("data");
+    std::fs::create_dir_all(&project_root).unwrap();
+    let handle = P2PHandle::pending();
+    let state =
+        AppState::try_new_at_with_handle(&skills_dir, &project_root, &data_root, handle.clone())
+            .await
+            .unwrap();
+    let app = build_router(state);
+
+    let push = || {
+        Request::builder()
+            .method("POST")
+            .uri("/api/v1/sync/push")
+            .header("Content-Type", "application/json")
+            .body(Body::from(r#"{"domain":"learner-model"}"#))
+            .unwrap()
+    };
+    let response = app.clone().oneshot(push()).await.unwrap();
+    assert_eq!(response.status(), StatusCode::SERVICE_UNAVAILABLE);
+    let body = axum::body::to_bytes(response.into_body(), 8192)
+        .await
+        .unwrap();
+    let json: serde_json::Value = serde_json::from_slice(&body).unwrap();
+    assert_eq!(json["preparationAppliedLocally"], true);
+    assert_eq!(json["transport"]["state"], "initializing");
+
+    handle.mark_failed("simulated initialization failure");
+    let response = app.oneshot(push()).await.unwrap();
+    assert_eq!(response.status(), StatusCode::SERVICE_UNAVAILABLE);
+    let body = axum::body::to_bytes(response.into_body(), 8192)
+        .await
+        .unwrap();
+    let json: serde_json::Value = serde_json::from_slice(&body).unwrap();
+    assert_eq!(json["preparationAppliedLocally"], true);
+    assert_eq!(json["transport"]["state"], "failed");
 }
 
 // ---------------------------------------------------------------------------

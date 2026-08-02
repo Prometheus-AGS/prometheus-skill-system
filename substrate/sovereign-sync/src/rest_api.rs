@@ -43,7 +43,9 @@ use crate::kbd_control::KbdProjectRouter;
 use crate::kbd_single_writer::QuorumPolicy;
 use crate::kbd_sync::{KbdAuthorityPayload, KbdPresenceDocument};
 use crate::mcp_server::SkillIndex;
-use crate::p2p::P2PNode;
+use crate::p2p::{
+    P2PHandle, P2PHandleError, P2PHandleErrorKind, P2PNode, P2PStatusSnapshot, P2PTransportState,
+};
 
 // ---------------------------------------------------------------------------
 // Shared state
@@ -63,13 +65,78 @@ pub struct AppState {
     /// `LoroDoc` is reconstructed transiently within a synchronous block
     /// wherever it's needed and never held across an `.await`.
     docs: Arc<StdMutex<HashMap<SyncDomain, Vec<u8>>>>,
-    /// Present in daemon mode (real P2P gossip); absent in plain server mode.
-    p2p: Option<Arc<P2PNode>>,
+    p2p: AppP2PTransport,
     adapters: Arc<HashMap<String, Box<dyn DomainAdapter>>>,
     /// `kbd-control` auxiliary presence — handled directly here, not through
     /// `adapters`/`docs` (see `domains.rs`'s module comment on why it isn't
     /// a `DomainAdapter`).
     presence: Arc<StdRwLock<BTreeMap<String, Arc<KbdPresenceDocument>>>>,
+}
+
+#[derive(Clone)]
+enum AppP2PTransport {
+    Disabled,
+    /// Deterministic in-memory lookup transport retained for existing tests.
+    Direct(Arc<P2PNode>),
+    /// Production transport isolated on the dedicated P2P runtime.
+    Supervised(P2PHandle),
+}
+
+impl AppP2PTransport {
+    fn enabled(&self) -> bool {
+        !matches!(self, Self::Disabled)
+    }
+
+    async fn status(&self) -> (String, P2PStatusSnapshot) {
+        match self {
+            Self::Disabled => ("no-p2p".into(), P2PStatusSnapshot::disabled()),
+            Self::Supervised(handle) => {
+                let status = handle.status();
+                (format!("{:?}", status.state), status)
+            }
+            Self::Direct(node) => {
+                let node_state = node.state().await;
+                let peers = node
+                    .neighbors()
+                    .await
+                    .into_iter()
+                    .map(|peer| peer.to_string())
+                    .collect();
+                let state = match node_state {
+                    crate::p2p::NodeState::Disconnected => P2PTransportState::Initializing,
+                    crate::p2p::NodeState::Bootstrapping => P2PTransportState::Bootstrapping,
+                    crate::p2p::NodeState::Connected
+                    | crate::p2p::NodeState::Syncing
+                    | crate::p2p::NodeState::Idle => P2PTransportState::Ready,
+                };
+                (
+                    format!("{node_state:?}"),
+                    P2PStatusSnapshot {
+                        state,
+                        node_id: Some(node.node_id().to_string()),
+                        peers,
+                        attempt: 1,
+                        last_error: None,
+                        next_retry_ms: None,
+                    },
+                )
+            }
+        }
+    }
+
+    async fn broadcast(&self, payload: Bytes) -> Result<(), P2PHandleError> {
+        match self {
+            Self::Supervised(handle) => handle.broadcast(payload).await,
+            Self::Direct(node) => match node.broadcast(payload).await {
+                Ok(()) => Ok(()),
+                Err(error) => {
+                    let (_, status) = self.status().await;
+                    Err(P2PHandleError::transport(error.to_string(), status))
+                }
+            },
+            Self::Disabled => Err(P2PHandleError::unavailable(P2PStatusSnapshot::disabled())),
+        }
+    }
 }
 
 /// Hot-swappable application router used only during daemon startup. The
@@ -211,7 +278,13 @@ impl AppState {
     }
 
     pub async fn try_new(skills_dir: &Path, p2p: Option<Arc<P2PNode>>) -> anyhow::Result<Self> {
-        Self::try_new_inner(skills_dir, p2p, None).await
+        Self::try_new_inner(
+            skills_dir,
+            p2p.map(AppP2PTransport::Direct)
+                .unwrap_or(AppP2PTransport::Disabled),
+            None,
+        )
+        .await
     }
 
     pub async fn try_new_with_startup(
@@ -219,12 +292,31 @@ impl AppState {
         p2p: Option<Arc<P2PNode>>,
         startup: &StartupGate,
     ) -> anyhow::Result<Self> {
-        Self::try_new_inner(skills_dir, p2p, Some(startup.clone())).await
+        Self::try_new_inner(
+            skills_dir,
+            p2p.map(AppP2PTransport::Direct)
+                .unwrap_or(AppP2PTransport::Disabled),
+            Some(startup.clone()),
+        )
+        .await
+    }
+
+    pub async fn try_new_with_startup_handle(
+        skills_dir: &Path,
+        p2p: P2PHandle,
+        startup: &StartupGate,
+    ) -> anyhow::Result<Self> {
+        Self::try_new_inner(
+            skills_dir,
+            AppP2PTransport::Supervised(p2p),
+            Some(startup.clone()),
+        )
+        .await
     }
 
     async fn try_new_inner(
         skills_dir: &Path,
-        p2p: Option<Arc<P2PNode>>,
+        p2p: AppP2PTransport,
         startup: Option<StartupGate>,
     ) -> anyhow::Result<Self> {
         let skills_path = skills_dir.to_path_buf();
@@ -305,6 +397,37 @@ impl AppState {
         data_root: &Path,
         p2p: Option<Arc<P2PNode>>,
     ) -> anyhow::Result<Self> {
+        Self::try_new_at_inner(
+            skills_dir,
+            project_root,
+            data_root,
+            p2p.map(AppP2PTransport::Direct)
+                .unwrap_or(AppP2PTransport::Disabled),
+        )
+        .await
+    }
+
+    pub async fn try_new_at_with_handle(
+        skills_dir: &Path,
+        project_root: &Path,
+        data_root: &Path,
+        p2p: P2PHandle,
+    ) -> anyhow::Result<Self> {
+        Self::try_new_at_inner(
+            skills_dir,
+            project_root,
+            data_root,
+            AppP2PTransport::Supervised(p2p),
+        )
+        .await
+    }
+
+    async fn try_new_at_inner(
+        skills_dir: &Path,
+        project_root: &Path,
+        data_root: &Path,
+        p2p: AppP2PTransport,
+    ) -> anyhow::Result<Self> {
         let quorum = QuorumPolicy::new(1, [1])?;
         let project_root = project_root.to_path_buf();
         let data_root = data_root.to_path_buf();
@@ -335,7 +458,7 @@ impl AppState {
         kbd_projects: Arc<KbdProjectRouter>,
         skill_index: Arc<SkillIndex>,
         learner_model_dir: PathBuf,
-        p2p: Option<Arc<P2PNode>>,
+        p2p: AppP2PTransport,
     ) -> anyhow::Result<Self> {
         let presence = kbd_projects
             .project_ids()
@@ -526,12 +649,14 @@ async fn ready(State(state): State<AppState>) -> impl IntoResponse {
     } else {
         StatusCode::SERVICE_UNAVAILABLE
     };
+    let (_, transport) = state.p2p.status().await;
     (
         status,
         Json(serde_json::json!({
             "status": if all_ready { "ready" } else { "not_ready" },
             "projectCount": projects.len(),
-            "projects": projects
+            "projects": projects,
+            "transport": transport
         })),
     )
         .into_response()
@@ -573,20 +698,12 @@ async fn skills_search(
 
 /// GET /api/v1/sync/status
 async fn sync_status(State(state): State<AppState>) -> impl IntoResponse {
-    let (node_state, peers) = match &state.p2p {
-        Some(p2p) => (
-            format!("{:?}", p2p.state().await),
-            p2p.neighbors()
-                .await
-                .into_iter()
-                .map(|id| id.to_string())
-                .collect::<Vec<_>>(),
-        ),
-        None => ("no-p2p".to_string(), Vec::new()),
-    };
+    let (node_state, transport) = state.p2p.status().await;
+    let peers = transport.peers.clone();
     Json(serde_json::json!({
         "node_state": node_state,
         "peers": peers,
+        "transport": transport,
         "domains": {
             "skill-index":    { "privacy": "public",      "adapter": "wired" },
             "learner-model":  { "privacy": "trusted",      "adapter": "wired" },
@@ -598,16 +715,11 @@ async fn sync_status(State(state): State<AppState>) -> impl IntoResponse {
 
 /// GET /api/v1/sync/peers
 async fn sync_peers(State(state): State<AppState>) -> impl IntoResponse {
-    let peers = match &state.p2p {
-        Some(p2p) => p2p
-            .neighbors()
-            .await
-            .into_iter()
-            .map(|id| id.to_string())
-            .collect::<Vec<_>>(),
-        None => Vec::new(),
-    };
-    Json(serde_json::json!({ "peers": peers }))
+    let (_, transport) = state.p2p.status().await;
+    Json(serde_json::json!({
+        "peers": transport.peers,
+        "transport": transport
+    }))
 }
 
 #[derive(Debug, Deserialize)]
@@ -701,7 +813,7 @@ pub async fn build_push_envelope(
         (new_snapshot, delta)
     };
 
-    if state.p2p.is_none() {
+    if !state.p2p.enabled() {
         return Ok(PushOutcome::LocalOnly {
             snapshot_bytes: new_snapshot.len(),
         });
@@ -799,7 +911,7 @@ async fn build_kbd_authority_push_envelope(
             )
         })?;
 
-    if state.p2p.is_none() {
+    if !state.p2p.enabled() {
         return Ok(PushOutcome::LocalOnly {
             snapshot_bytes: payload.len(),
         });
@@ -859,12 +971,17 @@ async fn sync_push(
                 }
             };
             let bytes_transmitted = envelope_bytes.len();
-            // `Broadcast` is only returned when `state.p2p.is_some()`.
-            let p2p = state.p2p.as_ref().expect("Broadcast implies a P2P node");
-            if let Err(error) = p2p.broadcast(Bytes::from(envelope_bytes)).await {
+            if let Err(error) = state.p2p.broadcast(Bytes::from(envelope_bytes)).await {
+                let status = broadcast_error_status(error.kind);
                 return (
-                    StatusCode::BAD_GATEWAY,
-                    Json(serde_json::json!({"error": error.to_string()})),
+                    status,
+                    Json(serde_json::json!({
+                        "error": error.to_string(),
+                        "domain": body.domain,
+                        "preparationAppliedLocally": true,
+                        "snapshotBytes": snapshot_bytes,
+                        "transport": error.status
+                    })),
                 )
                     .into_response();
             }
@@ -879,6 +996,13 @@ async fn sync_push(
             )
                 .into_response()
         }
+    }
+}
+
+fn broadcast_error_status(kind: P2PHandleErrorKind) -> StatusCode {
+    match kind {
+        P2PHandleErrorKind::Unavailable => StatusCode::SERVICE_UNAVAILABLE,
+        P2PHandleErrorKind::Timeout | P2PHandleErrorKind::Transport => StatusCode::BAD_GATEWAY,
     }
 }
 
@@ -1861,10 +1985,37 @@ impl HttpService {
     }
 
     pub async fn wait(mut self) -> anyhow::Result<()> {
-        let thread = self
+        self.join().await
+    }
+
+    pub async fn wait_for_exit(&self) {
+        while self
             .thread
-            .take()
-            .ok_or_else(|| anyhow::anyhow!("HTTP service thread is unavailable"))?;
+            .as_ref()
+            .is_some_and(|thread| !thread.is_finished())
+        {
+            tokio::time::sleep(Duration::from_millis(50)).await;
+        }
+    }
+
+    pub async fn begin_shutdown(&mut self) {
+        self.gate.set_stage(StartupStage::Stopping).await;
+        if let Some(shutdown) = self.shutdown.take() {
+            let _ = shutdown.send(());
+        }
+    }
+
+    pub async fn join(&mut self) -> anyhow::Result<()> {
+        let Some(thread) = self.thread.take() else {
+            return Ok(());
+        };
+        let deadline = tokio::time::Instant::now() + Duration::from_secs(5);
+        while !thread.is_finished() && tokio::time::Instant::now() < deadline {
+            tokio::time::sleep(Duration::from_millis(20)).await;
+        }
+        if !thread.is_finished() {
+            anyhow::bail!("dedicated HTTP runtime did not drain within five seconds");
+        }
         tokio::task::spawn_blocking(move || {
             thread
                 .join()
@@ -1875,20 +2026,8 @@ impl HttpService {
     }
 
     pub async fn shutdown(&mut self) -> anyhow::Result<()> {
-        self.gate.set_stage(StartupStage::Stopping).await;
-        if let Some(shutdown) = self.shutdown.take() {
-            let _ = shutdown.send(());
-        }
-        let Some(thread) = self.thread.take() else {
-            return Ok(());
-        };
-        tokio::task::spawn_blocking(move || {
-            thread
-                .join()
-                .map_err(|_| anyhow::anyhow!("dedicated HTTP runtime panicked"))?
-        })
-        .await
-        .map_err(|error| anyhow::anyhow!("HTTP shutdown join task failed: {error}"))?
+        self.begin_shutdown().await;
+        self.join().await
     }
 }
 
@@ -1952,7 +2091,7 @@ pub fn build_startup_router() -> (Router, StartupGate) {
 }
 
 pub async fn serve(port: u16, skills_dir: &Path) -> anyhow::Result<()> {
-    let service = HttpService::start(port).await?;
+    let mut service = HttpService::start(port).await?;
     let gate = service.gate().clone();
     match AppState::try_new_with_startup(skills_dir, None, &gate).await {
         Ok(state) => {
@@ -1968,7 +2107,30 @@ pub async fn serve(port: u16, skills_dir: &Path) -> anyhow::Result<()> {
                 .await;
         }
     }
-    service.wait().await
+    tokio::select! {
+        _ = shutdown_signal() => {
+            info!("shutdown signal received");
+            service.shutdown().await
+        }
+        _ = service.wait_for_exit() => service.join().await,
+    }
+}
+
+pub async fn shutdown_signal() {
+    #[cfg(unix)]
+    {
+        let mut terminate =
+            tokio::signal::unix::signal(tokio::signal::unix::SignalKind::terminate())
+                .expect("cannot install SIGTERM handler");
+        tokio::select! {
+            _ = tokio::signal::ctrl_c() => {},
+            _ = terminate.recv() => {},
+        }
+    }
+    #[cfg(not(unix))]
+    {
+        let _ = tokio::signal::ctrl_c().await;
+    }
 }
 
 /// Serve using a caller-constructed `AppState` — lets `main.rs` hold a clone
@@ -2254,5 +2416,28 @@ mod presence_auth_tests {
             .claims
             .values()
             .any(|claim| claim.scope == "phase:iroh" && claim.holder_id == "holder-a"));
+    }
+}
+
+#[cfg(test)]
+mod transport_status_tests {
+    use super::broadcast_error_status;
+    use crate::p2p::P2PHandleErrorKind;
+    use axum::http::StatusCode;
+
+    #[test]
+    fn unavailable_transport_is_503_but_ready_transport_failures_are_502() {
+        assert_eq!(
+            broadcast_error_status(P2PHandleErrorKind::Unavailable),
+            StatusCode::SERVICE_UNAVAILABLE
+        );
+        assert_eq!(
+            broadcast_error_status(P2PHandleErrorKind::Transport),
+            StatusCode::BAD_GATEWAY
+        );
+        assert_eq!(
+            broadcast_error_status(P2PHandleErrorKind::Timeout),
+            StatusCode::BAD_GATEWAY
+        );
     }
 }

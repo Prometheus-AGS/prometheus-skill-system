@@ -2,7 +2,6 @@ use sovereign_sync::{config, health_check, mcp_server, p2p, rest_api};
 
 use clap::{Parser, ValueEnum};
 use std::path::PathBuf;
-use std::sync::Arc;
 use tracing::{info, warn};
 
 #[derive(Debug, Clone, ValueEnum)]
@@ -51,6 +50,44 @@ struct Cli {
     /// Prefix all MCP tool names with 'sovereign:' (avoids collision in UAR/BossFang)
     #[arg(long)]
     prefix_tools: bool,
+}
+
+async fn run_daemon_until_shutdown(
+    mut http: rest_api::HttpService,
+    p2p_supervisor: Option<p2p::P2PSupervisor>,
+    mut incoming_consumer: Option<tokio::task::JoinHandle<()>>,
+) -> anyhow::Result<()> {
+    tokio::select! {
+        _ = rest_api::shutdown_signal() => info!("shutdown signal received"),
+        _ = http.wait_for_exit() => warn!("dedicated HTTP runtime exited"),
+    }
+
+    // Stop accepting new requests first, then stop the network runtime and
+    // drain its authority consumer before joining the HTTP runtime.
+    http.begin_shutdown().await;
+    let mut shutdown_error = None;
+    if let Some(supervisor) = p2p_supervisor {
+        if let Err(error) = supervisor.shutdown().await {
+            warn!(%error, "P2P supervisor did not shut down cleanly");
+            shutdown_error = Some(error);
+        }
+    }
+    if let Some(consumer) = incoming_consumer.as_mut() {
+        if tokio::time::timeout(std::time::Duration::from_secs(5), &mut *consumer)
+            .await
+            .is_err()
+        {
+            consumer.abort();
+            warn!("P2P authority consumer exceeded shutdown drain bound and was aborted");
+        }
+    }
+    if let Err(error) = http.join().await {
+        shutdown_error.get_or_insert(error);
+    }
+    if let Some(error) = shutdown_error {
+        return Err(error);
+    }
+    Ok(())
 }
 
 #[tokio::main]
@@ -132,31 +169,10 @@ async fn main() -> anyhow::Result<()> {
             let http_service = rest_api::HttpService::start(port).await?;
             let startup_gate = http_service.gate().clone();
             let operator_key = *blake3::hash(cfg.node.operator_id.as_bytes()).as_bytes();
-            let (node, mut incoming) = p2p::P2PNode::new(&operator_key, &cfg.peers).await?;
-            let peers = cfg
-                .peers
-                .bootstrap
-                .iter()
-                .filter_map(|peer| match peer.parse() {
-                    Ok(peer) => Some(peer),
-                    Err(error) => {
-                        warn!("Ignoring invalid bootstrap peer {peer}: {error}");
-                        None
-                    }
-                })
-                .collect();
-            let node = Arc::new(node);
-            let joining_node = node.clone();
-            tokio::spawn(async move {
-                if let Err(error) = joining_node.start(peers).await {
-                    warn!(
-                        "P2P gossip startup failed; local KBD control remains available: {error}"
-                    );
-                }
-            });
-            let state = match rest_api::AppState::try_new_with_startup(
+            let p2p_handle = p2p::P2PHandle::pending();
+            let state = match rest_api::AppState::try_new_with_startup_handle(
                 skills_path,
-                Some(node.clone()),
+                p2p_handle.clone(),
                 &startup_gate,
             )
             .await
@@ -167,20 +183,37 @@ async fn main() -> anyhow::Result<()> {
                     startup_gate
                         .fail("local authority initialization failed; inspect the service log")
                         .await;
-                    return http_service.wait().await;
+                    return run_daemon_until_shutdown(http_service, None, None).await;
                 }
             };
-            // Consume incoming domain-sync gossip messages — previously
-            // discarded entirely, so no push from a peer ever did anything.
-            let consumer_state = state.clone();
-            tokio::spawn(async move {
-                while let Some(message) = incoming.recv().await {
-                    rest_api::handle_incoming_message(&consumer_state, &message.payload).await;
+            startup_gate.install(state.clone()).await;
+            info!("sovereign-sync local authority routes are ready");
+
+            // Only now may the production N0 endpoint create netwatch and join
+            // gossip. The node remains entirely on its dedicated runtime.
+            let (p2p_supervisor, incoming_consumer) = match p2p::P2PSupervisor::spawn(
+                operator_key,
+                cfg.peers.clone(),
+                p2p_handle.clone(),
+            ) {
+                Ok((supervisor, mut incoming)) => {
+                    let consumer_state = state.clone();
+                    let consumer = tokio::spawn(async move {
+                        while let Some(message) = incoming.recv().await {
+                            rest_api::handle_incoming_message(&consumer_state, &message.payload)
+                                .await;
+                        }
+                    });
+                    (Some(supervisor), Some(consumer))
                 }
-            });
-            startup_gate.install(state).await;
-            info!("sovereign-sync state initialized; all REST routes are ready");
-            http_service.wait().await?;
+                Err(error) => {
+                    warn!(%error, "P2P supervisor failed to start; local authority remains available");
+                    p2p_handle.mark_failed("P2P supervisor thread could not be created");
+                    (None, None)
+                }
+            };
+            info!("sovereign-sync daemon startup completed");
+            run_daemon_until_shutdown(http_service, p2p_supervisor, incoming_consumer).await?;
         }
         Mode::Server => {
             info!("Starting sovereign-sync HTTP server on port {port}");
