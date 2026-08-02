@@ -336,6 +336,20 @@ impl KbdProjectRouter {
         project_ids.into_iter().collect()
     }
 
+    pub fn startup_counts(&self) -> (usize, usize, usize) {
+        let opened = self
+            .controls
+            .read()
+            .expect("project control map lock poisoned")
+            .len();
+        let failed = self
+            .errors
+            .read()
+            .expect("project error map lock poisoned")
+            .len();
+        (opened + failed, opened, failed)
+    }
+
     pub fn routes(&self) -> io::Result<Vec<RegisteredProjectRoute>> {
         let document = self.registry_document()?;
         let controls = self

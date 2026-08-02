@@ -22,22 +22,23 @@ use axum::{
 use bytes::Bytes;
 use futures::stream;
 use kbd_runtime::{CommandKind, SignedCommandEnvelope};
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use std::{
     collections::{BTreeMap, HashMap},
     convert::Infallible,
     net::SocketAddr,
     path::{Path, PathBuf},
     sync::{Arc, Mutex as StdMutex, RwLock as StdRwLock},
-    time::Duration,
+    time::{Duration, Instant},
 };
 use storage_provider::{CrdtEngine, LoroAdapter, SyncDomain, SyncManifest};
 use tokio::sync::RwLock as AsyncRwLock;
 use tower::ServiceExt;
-use tracing::info;
+use tracing::{info, warn};
 
 use crate::ag_ui::{ag_ui_events, ag_ui_ping, ag_ui_stream, AgUiEvent, AgUiState};
 use crate::domains::{self, DomainAdapter, LearnerModelAdapter, SkillIndexAdapter, SyncEnvelope};
+use crate::health_check::{detect_daemon_health, DaemonHealthKind};
 use crate::kbd_control::KbdProjectRouter;
 use crate::kbd_single_writer::QuorumPolicy;
 use crate::kbd_sync::{KbdAuthorityPayload, KbdPresenceDocument};
@@ -75,14 +76,130 @@ pub struct AppState {
 /// static liveness endpoint is available as soon as the socket is bound;
 /// every stateful route fails closed with 503 until initialization installs
 /// the full application router.
-#[derive(Clone, Default)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
+#[serde(rename_all = "snake_case")]
+pub enum StartupStage {
+    ListenerBound,
+    HealthVerified,
+    LoadingRegistry,
+    OpeningAuthorities,
+    ScanningSkills,
+    InstallingRouter,
+    Ready,
+    Failed,
+    Stopping,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
+#[serde(rename_all = "snake_case")]
+pub enum StartupComponentStatus {
+    Pending,
+    Running,
+    Ready,
+    Failed,
+}
+
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct StartupSnapshot {
+    pub stage: StartupStage,
+    pub elapsed_ms: u64,
+    pub project_total: usize,
+    pub opened_projects: usize,
+    pub failed_projects: usize,
+    pub skill_index: StartupComponentStatus,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub terminal_error: Option<String>,
+}
+
+#[derive(Debug)]
+struct StartupProgress {
+    started_at: Instant,
+    stage: StartupStage,
+    project_total: usize,
+    opened_projects: usize,
+    failed_projects: usize,
+    skill_index: StartupComponentStatus,
+    terminal_error: Option<String>,
+}
+
+impl Default for StartupProgress {
+    fn default() -> Self {
+        Self {
+            started_at: Instant::now(),
+            stage: StartupStage::ListenerBound,
+            project_total: 0,
+            opened_projects: 0,
+            failed_projects: 0,
+            skill_index: StartupComponentStatus::Pending,
+            terminal_error: None,
+        }
+    }
+}
+
+#[derive(Clone)]
 pub struct StartupGate {
     app: Arc<AsyncRwLock<Option<Router>>>,
+    progress: Arc<AsyncRwLock<StartupProgress>>,
+}
+
+impl Default for StartupGate {
+    fn default() -> Self {
+        Self {
+            app: Arc::new(AsyncRwLock::new(None)),
+            progress: Arc::new(AsyncRwLock::new(StartupProgress::default())),
+        }
+    }
 }
 
 impl StartupGate {
+    pub async fn set_stage(&self, stage: StartupStage) {
+        self.progress.write().await.stage = stage;
+    }
+
+    pub async fn set_project_progress(&self, total: usize, opened: usize, failed: usize) {
+        let mut progress = self.progress.write().await;
+        progress.project_total = total;
+        progress.opened_projects = opened;
+        progress.failed_projects = failed;
+    }
+
+    pub async fn set_skill_index_status(&self, status: StartupComponentStatus) {
+        self.progress.write().await.skill_index = status;
+    }
+
+    /// Leave the startup router alive in a terminal diagnostic state. Callers
+    /// supply a deliberately sanitized, operator-safe summary rather than a
+    /// raw error chain that could contain paths, keys, or envelope payloads.
+    pub async fn fail(&self, sanitized_error: impl Into<String>) {
+        let mut progress = self.progress.write().await;
+        progress.stage = StartupStage::Failed;
+        progress.terminal_error = Some(sanitized_error.into());
+    }
+
+    pub async fn snapshot(&self) -> StartupSnapshot {
+        let progress = self.progress.read().await;
+        StartupSnapshot {
+            stage: progress.stage,
+            elapsed_ms: progress
+                .started_at
+                .elapsed()
+                .as_millis()
+                .min(u64::MAX as u128) as u64,
+            project_total: progress.project_total,
+            opened_projects: progress.opened_projects,
+            failed_projects: progress.failed_projects,
+            skill_index: progress.skill_index,
+            terminal_error: progress.terminal_error.clone(),
+        }
+    }
+
     pub async fn install(&self, state: AppState) {
+        self.set_stage(StartupStage::InstallingRouter).await;
         *self.app.write().await = Some(build_router(state));
+        let mut progress = self.progress.write().await;
+        progress.stage = StartupStage::Ready;
+        progress.terminal_error = None;
     }
 }
 
@@ -94,17 +211,92 @@ impl AppState {
     }
 
     pub async fn try_new(skills_dir: &Path, p2p: Option<Arc<P2PNode>>) -> anyhow::Result<Self> {
-        let quorum = QuorumPolicy::new(1, [1])?;
-        let kbd_projects = Arc::new(KbdProjectRouter::open_registered(quorum).await?);
-        if let Some(project_root) = discover_manifest_project_root(skills_dir) {
-            kbd_projects.ensure_registered_path(&project_root).await?;
-        }
+        Self::try_new_inner(skills_dir, p2p, None).await
+    }
+
+    pub async fn try_new_with_startup(
+        skills_dir: &Path,
+        p2p: Option<Arc<P2PNode>>,
+        startup: &StartupGate,
+    ) -> anyhow::Result<Self> {
+        Self::try_new_inner(skills_dir, p2p, Some(startup.clone())).await
+    }
+
+    async fn try_new_inner(
+        skills_dir: &Path,
+        p2p: Option<Arc<P2PNode>>,
+        startup: Option<StartupGate>,
+    ) -> anyhow::Result<Self> {
+        let skills_path = skills_dir.to_path_buf();
+        let authority_startup = startup.clone();
+        let authorities = async move {
+            if let Some(gate) = &authority_startup {
+                gate.set_stage(StartupStage::LoadingRegistry).await;
+            }
+            let quorum = QuorumPolicy::new(1, [1])?;
+            if let Some(gate) = &authority_startup {
+                gate.set_stage(StartupStage::OpeningAuthorities).await;
+            }
+            let kbd_projects = Arc::new(KbdProjectRouter::open_registered(quorum).await?);
+            let discovery_path = skills_path.clone();
+            let project_root = tokio::task::spawn_blocking(move || {
+                discover_manifest_project_root(&discovery_path)
+            })
+            .await
+            .map_err(|error| anyhow::anyhow!("project discovery task failed: {error}"))?;
+            if let Some(project_root) = project_root {
+                kbd_projects.ensure_registered_path(&project_root).await?;
+            }
+            let (total, opened, failed) = kbd_projects.startup_counts();
+            if let Some(gate) = &authority_startup {
+                gate.set_project_progress(total, opened, failed).await;
+            }
+            if failed != 0 {
+                anyhow::bail!(
+                    "{failed} registered local authorit{} failed to open",
+                    if failed == 1 { "y" } else { "ies" }
+                );
+            }
+            Ok::<_, anyhow::Error>(kbd_projects)
+        };
+
+        let skill_startup = startup.clone();
+        let skill_path = skills_dir.to_path_buf();
+        let skills = async move {
+            if let Some(gate) = &skill_startup {
+                gate.set_skill_index_status(StartupComponentStatus::Running)
+                    .await;
+            }
+            let started = Instant::now();
+            let result =
+                tokio::task::spawn_blocking(move || SkillIndex::load_from_dir(&skill_path))
+                    .await
+                    .map(Arc::new)
+                    .map_err(|error| anyhow::anyhow!("skill-index task failed: {error}"));
+            tracing::info!(
+                startup_phase = "skill_index",
+                elapsed_ms = started.elapsed().as_millis(),
+                success = result.is_ok(),
+                "skill index startup scan completed"
+            );
+            if let Some(gate) = &skill_startup {
+                gate.set_skill_index_status(if result.is_ok() {
+                    StartupComponentStatus::Ready
+                } else {
+                    StartupComponentStatus::Failed
+                })
+                .await;
+            }
+            result
+        };
+
+        let (kbd_projects, skill_index) = tokio::try_join!(authorities, skills)?;
         let learner_model_dir = dirs_next::home_dir()
             .unwrap_or_else(|| PathBuf::from("."))
             .join(".prometheus")
             .join("learn")
             .join("learner-model");
-        Self::from_project_router(skills_dir, kbd_projects, learner_model_dir, p2p)
+        Self::from_components(kbd_projects, skill_index, learner_model_dir, p2p)
     }
 
     pub async fn try_new_at(
@@ -114,24 +306,37 @@ impl AppState {
         p2p: Option<Arc<P2PNode>>,
     ) -> anyhow::Result<Self> {
         let quorum = QuorumPolicy::new(1, [1])?;
-        let kbd_projects = Arc::new(
-            KbdProjectRouter::open_with_project_at(project_root, data_root, quorum).await?,
-        );
-        Self::from_project_router(
-            skills_dir,
+        let project_root = project_root.to_path_buf();
+        let data_root = data_root.to_path_buf();
+        let skills_path = skills_dir.to_path_buf();
+        let (kbd_projects, skill_index) = tokio::try_join!(
+            async {
+                KbdProjectRouter::open_with_project_at(&project_root, &data_root, quorum)
+                    .await
+                    .map(Arc::new)
+                    .map_err(anyhow::Error::from)
+            },
+            async {
+                tokio::task::spawn_blocking(move || SkillIndex::load_from_dir(&skills_path))
+                    .await
+                    .map(Arc::new)
+                    .map_err(|error| anyhow::anyhow!("skill-index task failed: {error}"))
+            }
+        )?;
+        Self::from_components(
             kbd_projects,
-            learner_model_dir_at(data_root),
+            skill_index,
+            learner_model_dir_at(&data_root),
             p2p,
         )
     }
 
-    fn from_project_router(
-        skills_dir: &Path,
+    fn from_components(
         kbd_projects: Arc<KbdProjectRouter>,
+        skill_index: Arc<SkillIndex>,
         learner_model_dir: PathBuf,
         p2p: Option<Arc<P2PNode>>,
     ) -> anyhow::Result<Self> {
-        let skill_index = Arc::new(SkillIndex::load_from_dir(skills_dir));
         let presence = kbd_projects
             .project_ids()
             .into_iter()
@@ -1557,14 +1762,150 @@ fn kbd_peer_is_authorized(
 // Server entry point
 // ---------------------------------------------------------------------------
 
+/// Axum owner isolated from authority and P2P runtimes. No iroh/netwatch work
+/// and no journal initialization task can consume these two worker threads.
+pub struct HttpService {
+    address: SocketAddr,
+    gate: StartupGate,
+    shutdown: Option<tokio::sync::oneshot::Sender<()>>,
+    thread: Option<std::thread::JoinHandle<anyhow::Result<()>>>,
+}
+
+impl HttpService {
+    pub async fn start(port: u16) -> anyhow::Result<Self> {
+        let bind_started = Instant::now();
+        let mut service = tokio::task::spawn_blocking(move || Self::start_blocking(port))
+            .await
+            .map_err(|error| anyhow::anyhow!("HTTP service startup task failed: {error}"))??;
+        tracing::info!(
+            startup_phase = "listener_bind",
+            elapsed_ms = bind_started.elapsed().as_millis(),
+            address = %service.address,
+            "dedicated HTTP service bound"
+        );
+
+        let probe_started = Instant::now();
+        let deadline = Instant::now() + Duration::from_secs(1);
+        loop {
+            let report = detect_daemon_health(service.address.port()).await;
+            if report.status == DaemonHealthKind::Healthy {
+                break;
+            }
+            if Instant::now() >= deadline {
+                let message = report.message;
+                service.shutdown().await?;
+                anyhow::bail!("dedicated HTTP liveness self-probe failed: {message}");
+            }
+            tokio::time::sleep(Duration::from_millis(20)).await;
+        }
+        service.gate.set_stage(StartupStage::HealthVerified).await;
+        tracing::info!(
+            startup_phase = "health_self_probe",
+            elapsed_ms = probe_started.elapsed().as_millis(),
+            "dedicated HTTP liveness self-probe passed"
+        );
+        Ok(service)
+    }
+
+    fn start_blocking(port: u16) -> anyhow::Result<Self> {
+        let (boot_tx, boot_rx) = std::sync::mpsc::sync_channel(1);
+        let (shutdown_tx, shutdown_rx) = tokio::sync::oneshot::channel();
+        let thread = std::thread::Builder::new()
+            .name("sovereign-http".into())
+            .spawn(move || {
+                let runtime = tokio::runtime::Builder::new_multi_thread()
+                    .worker_threads(2)
+                    .thread_name("sovereign-http-worker")
+                    .enable_all()
+                    .build()?;
+                runtime.block_on(async move {
+                    let listener = match bind_loopback(port).await {
+                        Ok(listener) => listener,
+                        Err(error) => {
+                            let _ = boot_tx.send(Err(error.to_string()));
+                            return Err(error);
+                        }
+                    };
+                    let address = listener.local_addr()?;
+                    let (startup_app, gate) = build_startup_router();
+                    if boot_tx.send(Ok((address, gate))).is_err() {
+                        anyhow::bail!("HTTP service owner stopped before startup completed");
+                    }
+                    axum::serve(listener, startup_app)
+                        .with_graceful_shutdown(async move {
+                            let _ = shutdown_rx.await;
+                        })
+                        .await?;
+                    Ok(())
+                })
+            })?;
+
+        let (address, gate) = boot_rx
+            .recv()
+            .map_err(|_| anyhow::anyhow!("dedicated HTTP runtime exited before binding"))?
+            .map_err(anyhow::Error::msg)?;
+        Ok(Self {
+            address,
+            gate,
+            shutdown: Some(shutdown_tx),
+            thread: Some(thread),
+        })
+    }
+
+    pub fn address(&self) -> SocketAddr {
+        self.address
+    }
+
+    pub fn gate(&self) -> &StartupGate {
+        &self.gate
+    }
+
+    pub async fn wait(mut self) -> anyhow::Result<()> {
+        let thread = self
+            .thread
+            .take()
+            .ok_or_else(|| anyhow::anyhow!("HTTP service thread is unavailable"))?;
+        tokio::task::spawn_blocking(move || {
+            thread
+                .join()
+                .map_err(|_| anyhow::anyhow!("dedicated HTTP runtime panicked"))?
+        })
+        .await
+        .map_err(|error| anyhow::anyhow!("HTTP service join task failed: {error}"))?
+    }
+
+    pub async fn shutdown(&mut self) -> anyhow::Result<()> {
+        self.gate.set_stage(StartupStage::Stopping).await;
+        if let Some(shutdown) = self.shutdown.take() {
+            let _ = shutdown.send(());
+        }
+        let Some(thread) = self.thread.take() else {
+            return Ok(());
+        };
+        tokio::task::spawn_blocking(move || {
+            thread
+                .join()
+                .map_err(|_| anyhow::anyhow!("dedicated HTTP runtime panicked"))?
+        })
+        .await
+        .map_err(|error| anyhow::anyhow!("HTTP shutdown join task failed: {error}"))?
+    }
+}
+
 async fn startup_dispatch(State(gate): State<StartupGate>, request: Request) -> Response {
     let app = gate.app.read().await.clone();
     let Some(app) = app else {
+        let startup = gate.snapshot().await;
         return (
             StatusCode::SERVICE_UNAVAILABLE,
             Json(serde_json::json!({
-                "status": "initializing",
-                "error": "sovereign-sync state is not ready"
+                "status": if startup.stage == StartupStage::Failed {
+                    "failed"
+                } else {
+                    "initializing"
+                },
+                "error": "local authority routes are not ready",
+                "startup": startup
             })),
         )
             .into_response();
@@ -1575,6 +1916,28 @@ async fn startup_dispatch(State(gate): State<StartupGate>, request: Request) -> 
     }
 }
 
+async fn startup_ready(State(gate): State<StartupGate>, request: Request) -> Response {
+    if let Some(app) = gate.app.read().await.clone() {
+        return match app.oneshot(request).await {
+            Ok(response) => response,
+            Err(error) => match error {},
+        };
+    }
+    let startup = gate.snapshot().await;
+    (
+        StatusCode::SERVICE_UNAVAILABLE,
+        Json(serde_json::json!({
+            "status": if startup.stage == StartupStage::Failed {
+                "failed"
+            } else {
+                "initializing"
+            },
+            "startup": startup
+        })),
+    )
+        .into_response()
+}
+
 /// Build the liveness-only router installed while persistent state is opening.
 /// `/health` remains static and store-independent; all other paths return 503
 /// until `StartupGate::install` atomically exposes the full application.
@@ -1582,19 +1945,30 @@ pub fn build_startup_router() -> (Router, StartupGate) {
     let gate = StartupGate::default();
     let app = Router::new()
         .route("/health", get(health))
+        .route("/ready", get(startup_ready))
         .fallback(any(startup_dispatch))
         .with_state(gate.clone());
     (app, gate)
 }
 
 pub async fn serve(port: u16, skills_dir: &Path) -> anyhow::Result<()> {
-    let listener = bind_loopback(port).await?;
-    let (startup_app, gate) = build_startup_router();
-    let server = tokio::spawn(async move { axum::serve(listener, startup_app).await });
-    let state = AppState::try_new(skills_dir, None).await?;
-    gate.install(state).await;
-    server.await??;
-    Ok(())
+    let service = HttpService::start(port).await?;
+    let gate = service.gate().clone();
+    match AppState::try_new_with_startup(skills_dir, None, &gate).await {
+        Ok(state) => {
+            gate.install(state).await;
+            info!(
+                startup_phase = "router_install",
+                "local REST routes installed"
+            );
+        }
+        Err(error) => {
+            warn!(%error, "local authority initialization failed; diagnostic router remains active");
+            gate.fail("local authority initialization failed; inspect the service log")
+                .await;
+        }
+    }
+    service.wait().await
 }
 
 /// Serve using a caller-constructed `AppState` — lets `main.rs` hold a clone

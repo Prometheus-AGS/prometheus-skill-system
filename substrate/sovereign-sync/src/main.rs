@@ -126,12 +126,11 @@ async fn main() -> anyhow::Result<()> {
                     "node.operator_id is required in daemon mode; pair trusted devices before KBD sync"
                 );
             }
-            // Bind before P2P startup and KBD registry reconciliation. Those
-            // operations can take seconds for a large existing registry, but
-            // launchd must see the loopback port acquired immediately.
-            let listener = rest_api::bind_loopback(port).await?;
-            let (startup_app, startup_gate) = rest_api::build_startup_router();
-            let server = tokio::spawn(async move { axum::serve(listener, startup_app).await });
+            // The HTTP service owns a dedicated two-worker runtime and proves
+            // static liveness before authority or network initialization can
+            // begin consuming resources.
+            let http_service = rest_api::HttpService::start(port).await?;
+            let startup_gate = http_service.gate().clone();
             let operator_key = *blake3::hash(cfg.node.operator_id.as_bytes()).as_bytes();
             let (node, mut incoming) = p2p::P2PNode::new(&operator_key, &cfg.peers).await?;
             let peers = cfg
@@ -155,7 +154,22 @@ async fn main() -> anyhow::Result<()> {
                     );
                 }
             });
-            let state = rest_api::AppState::try_new(skills_path, Some(node.clone())).await?;
+            let state = match rest_api::AppState::try_new_with_startup(
+                skills_path,
+                Some(node.clone()),
+                &startup_gate,
+            )
+            .await
+            {
+                Ok(state) => state,
+                Err(error) => {
+                    warn!(%error, "local authority initialization failed; diagnostic router remains active");
+                    startup_gate
+                        .fail("local authority initialization failed; inspect the service log")
+                        .await;
+                    return http_service.wait().await;
+                }
+            };
             // Consume incoming domain-sync gossip messages — previously
             // discarded entirely, so no push from a peer ever did anything.
             let consumer_state = state.clone();
@@ -166,7 +180,7 @@ async fn main() -> anyhow::Result<()> {
             });
             startup_gate.install(state).await;
             info!("sovereign-sync state initialized; all REST routes are ready");
-            server.await??;
+            http_service.wait().await?;
         }
         Mode::Server => {
             info!("Starting sovereign-sync HTTP server on port {port}");

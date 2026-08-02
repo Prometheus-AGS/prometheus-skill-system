@@ -89,9 +89,30 @@ async fn startup_router_serves_health_and_gates_stateful_routes_until_install() 
         .uri("/ready")
         .body(Body::empty())
         .unwrap();
+    let ready = app.clone().oneshot(ready).await.unwrap();
+    assert_eq!(ready.status(), StatusCode::SERVICE_UNAVAILABLE);
+    let body = axum::body::to_bytes(ready.into_body(), 8192).await.unwrap();
+    let json: serde_json::Value = serde_json::from_slice(&body).unwrap();
+    assert_eq!(json["startup"]["stage"], "listener_bound");
+    assert_eq!(json["startup"]["skillIndex"], "pending");
+
+    gate.set_project_progress(18, 12, 1).await;
+    gate.fail("local authority initialization failed").await;
+    let ready = Request::builder()
+        .uri("/ready")
+        .body(Body::empty())
+        .unwrap();
+    let ready = app.clone().oneshot(ready).await.unwrap();
+    assert_eq!(ready.status(), StatusCode::SERVICE_UNAVAILABLE);
+    let body = axum::body::to_bytes(ready.into_body(), 8192).await.unwrap();
+    let json: serde_json::Value = serde_json::from_slice(&body).unwrap();
+    assert_eq!(json["status"], "failed");
+    assert_eq!(json["startup"]["projectTotal"], 18);
+    assert_eq!(json["startup"]["openedProjects"], 12);
+    assert_eq!(json["startup"]["failedProjects"], 1);
     assert_eq!(
-        app.clone().oneshot(ready).await.unwrap().status(),
-        StatusCode::SERVICE_UNAVAILABLE
+        json["startup"]["terminalError"],
+        "local authority initialization failed"
     );
 
     let skills_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../skills");
@@ -109,6 +130,43 @@ async fn startup_router_serves_health_and_gates_stateful_routes_until_install() 
         .body(Body::empty())
         .unwrap();
     assert_eq!(app.oneshot(ready).await.unwrap().status(), StatusCode::OK);
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn dedicated_http_runtime_keeps_liveness_available_in_diagnostic_mode() {
+    let mut service = sovereign_sync::rest_api::HttpService::start(0)
+        .await
+        .unwrap();
+    let port = service.address().port();
+    service
+        .gate()
+        .fail("local authority initialization failed")
+        .await;
+
+    let report = sovereign_sync::health_check::detect_daemon_health(port).await;
+    assert_eq!(
+        report.status,
+        sovereign_sync::health_check::DaemonHealthKind::Healthy
+    );
+
+    let response = tokio::time::timeout(std::time::Duration::from_millis(500), async move {
+        let stream = tokio::net::TcpStream::connect(("127.0.0.1", port)).await?;
+        let request = b"GET /ready HTTP/1.1\r\nHost: 127.0.0.1\r\nConnection: close\r\n\r\n";
+        use tokio::io::{AsyncReadExt, AsyncWriteExt};
+        let mut stream = stream;
+        stream.write_all(request).await?;
+        let mut response = Vec::new();
+        stream.read_to_end(&mut response).await?;
+        Ok::<_, std::io::Error>(response)
+    })
+    .await
+    .expect("diagnostic readiness exceeded 500 ms")
+    .unwrap();
+    let response = String::from_utf8(response).unwrap();
+    assert!(response.starts_with("HTTP/1.1 503"));
+    assert!(response.contains("\"stage\":\"failed\""));
+
+    service.shutdown().await.unwrap();
 }
 
 #[tokio::test]
