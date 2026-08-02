@@ -1,11 +1,11 @@
 use base64::{
-    engine::general_purpose::{STANDARD as BASE64, URL_SAFE_NO_PAD},
+    engine::general_purpose::STANDARD as BASE64,
     Engine as _,
 };
 use chrono::{DateTime, Duration, Utc};
 use ed25519_dalek::{Signature, Signer, SigningKey, Verifier, VerifyingKey};
 use fs2::FileExt;
-use rand_core::{OsRng, RngCore};
+use rand_core::OsRng;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use std::collections::{BTreeMap, HashSet};
@@ -286,62 +286,7 @@ pub fn ensure_device_key_file(path: &Path) -> Result<DeviceSigner> {
     }
 }
 
-fn load_control_token(path: &Path) -> Result<String> {
-    let metadata = fs::symlink_metadata(path)?;
-    if metadata.file_type().is_symlink() || !metadata.is_file() {
-        return Err(RuntimeError::InvalidState(format!(
-            "{} must be a regular, non-symlink control token file",
-            path.display()
-        )));
-    }
-    #[cfg(unix)]
-    if metadata.permissions().mode() & 0o077 != 0 {
-        return Err(RuntimeError::InvalidState(format!(
-            "{} must not be readable, writable, or executable by group or other users (use mode 0600)",
-            path.display()
-        )));
-    }
-    let token = fs::read_to_string(path)?.trim().to_string();
-    if token.len() < 32
-        || !token
-            .bytes()
-            .all(|byte| byte.is_ascii_alphanumeric() || b"-_".contains(&byte))
-    {
-        return Err(RuntimeError::InvalidState(format!(
-            "{} does not contain a valid URL-safe bearer token",
-            path.display()
-        )));
-    }
-    Ok(token)
-}
 
-fn ensure_control_token(path: &Path) -> Result<String> {
-    if path.exists() {
-        return load_control_token(path);
-    }
-    let parent = path.parent().ok_or_else(|| {
-        RuntimeError::InvalidState(format!("{} has no parent directory", path.display()))
-    })?;
-    fs::create_dir_all(parent)?;
-    let mut secret = [0_u8; 32];
-    OsRng.fill_bytes(&mut secret);
-    let token = URL_SAFE_NO_PAD.encode(secret);
-    let mut options = OpenOptions::new();
-    options.create_new(true).write(true);
-    #[cfg(unix)]
-    options.mode(0o600);
-    match options.open(path) {
-        Ok(mut file) => {
-            file.write_all(token.as_bytes())?;
-            file.write_all(b"\n")?;
-            file.sync_all()?;
-            File::open(parent)?.sync_all()?;
-            Ok(token)
-        }
-        Err(error) if error.kind() == std::io::ErrorKind::AlreadyExists => load_control_token(path),
-        Err(error) => Err(error.into()),
-    }
-}
 
 fn env_truthy(name: &str) -> bool {
     std::env::var(name)
@@ -1893,21 +1838,6 @@ impl Runtime {
 
     /// Return the local REST bearer token, creating it atomically with mode
     /// 0600 when this is the first daemon/client process on the device.
-    pub fn control_token(&self) -> Result<String> {
-        let configured = std::env::var_os("PROMETHEUS_CONTROL_TOKEN_FILE")
-            .map(PathBuf::from)
-            .unwrap_or_else(|| self.root.join("control-token"));
-        if configured.exists() {
-            return load_control_token(&configured);
-        }
-        if std::env::var_os("PROMETHEUS_CONTROL_TOKEN_FILE").is_some() {
-            return Err(RuntimeError::InvalidState(format!(
-                "configured control token file {} does not exist",
-                configured.display()
-            )));
-        }
-        ensure_control_token(&configured)
-    }
 
     pub fn device_signer(&self) -> Result<DeviceSigner> {
         if let Some(path) = std::env::var_os("PROMETHEUS_DEVICE_KEY_FILE") {
@@ -4951,16 +4881,6 @@ mod tests {
     }
 
     #[test]
-    fn local_control_token_is_stable_and_permission_protected() {
-        let dir = tempdir().unwrap();
-        let path = dir.path().join("control-token");
-        let first = ensure_control_token(&path).unwrap();
-        let second = ensure_control_token(&path).unwrap();
-        assert_eq!(first, second);
-        assert!(first.len() >= 32);
-        #[cfg(unix)]
-        assert_eq!(fs::metadata(path).unwrap().permissions().mode() & 0o077, 0);
-    }
 
     #[test]
     fn command_envelopes_no_longer_require_concurrency_fields_and_still_dedupe_by_command_id() {

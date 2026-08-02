@@ -463,7 +463,6 @@ struct ControlClient {
     http: reqwest::Client,
     endpoint: String,
     project_id: String,
-    bearer_token: Option<String>,
 }
 
 impl ControlClient {
@@ -491,45 +490,35 @@ impl ControlClient {
                 .trim_end_matches('/')
                 .to_string(),
             project_id,
-            bearer_token: Some(runtime.control_token()?),
         })
     }
 
-    fn authorize(&self, request: reqwest::RequestBuilder) -> reqwest::RequestBuilder {
-        match &self.bearer_token {
-            Some(token) => request.bearer_auth(token),
-            None => request,
-        }
-    }
 
     async fn status(&self) -> Result<RuntimeState> {
-        let response = self
-            .authorize(self.http.get(format!(
+        let response = self.http.get(format!(
                 "{}/api/v1/kbd/projects/{}/status",
                 self.endpoint, self.project_id
-            )))
+            ))
             .send()
             .await?;
         decode_response(response).await
     }
 
     async fn events(&self) -> Result<Vec<Event>> {
-        let response = self
-            .authorize(self.http.get(format!(
+        let response = self.http.get(format!(
                 "{}/api/v1/kbd/projects/{}/events",
                 self.endpoint, self.project_id
-            )))
+            ))
             .send()
             .await?;
         decode_response(response).await
     }
 
     async fn submit(&self, envelope: CommandEnvelope) -> Result<Value> {
-        let response = self
-            .authorize(self.http.post(format!(
+        let response = self.http.post(format!(
                 "{}/api/v1/kbd/projects/{}/commands",
                 self.endpoint, self.project_id
-            )))
+            ))
             .json(&envelope)
             .send()
             .await?;

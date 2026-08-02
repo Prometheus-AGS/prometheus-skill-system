@@ -52,7 +52,6 @@ pub struct AppState {
     skill_index: Arc<SkillIndex>,
     ag_ui: AgUiState,
     kbd_control: Arc<KbdControlPlane>,
-    bearer_token: Arc<str>,
     /// Domain sync policy (privacy class + storage prefix), populated
     /// lazily on first use of a concrete domain instance.
     manifest: Arc<AsyncRwLock<SyncManifest>>,
@@ -113,7 +112,6 @@ impl AppState {
         learner_model_dir: PathBuf,
         p2p: Option<Arc<P2PNode>>,
     ) -> anyhow::Result<Self> {
-        let bearer_token: Arc<str> = kbd_control.runtime().control_token()?.into();
         let skill_index = Arc::new(SkillIndex::load_from_dir(skills_dir));
         // Best-effort: an uninitialized runtime has no project_id yet. The
         // presence domain is scoped by this at import time via SyncEnvelope's
@@ -142,7 +140,6 @@ impl AppState {
             skill_index,
             ag_ui: AgUiState::new(),
             kbd_control,
-            bearer_token,
             manifest: Arc::new(AsyncRwLock::new(SyncManifest::new())),
             docs: Arc::new(StdMutex::new(HashMap::new())),
             p2p,
@@ -151,9 +148,6 @@ impl AppState {
         })
     }
 
-    pub fn bearer_token(&self) -> &str {
-        &self.bearer_token
-    }
 
     /// Inspection accessor for tests — not part of the wire API.
     pub fn skill_index(&self) -> &SkillIndex {
@@ -256,59 +250,6 @@ async fn health(State(state): State<AppState>) -> impl IntoResponse {
             })),
         ),
     }
-}
-
-async fn require_bearer(State(state): State<AppState>, request: Request, next: Next) -> Response {
-    if request.uri().path() == "/health" {
-        return next.run(request).await;
-    }
-
-    // The local KBD control plane needs no shared secret, because there was
-    // never a shared secret to have.
-    //
-    // Both sides call `Runtime::control_token()`, which resolves
-    // `<runtime_root>/control-token` and MINTS A FRESH RANDOM TOKEN when the
-    // file is absent. The CLI's root is whatever project it was invoked in; the
-    // daemon's is whatever it was launched against. Verified on a real machine:
-    // no `control-token` file existed anywhere, so the two processes generated
-    // DIFFERENT 32-byte secrets and every write returned
-    // `401 missing or invalid bearer token`. The check could not pass, by
-    // construction — it gated the tool without protecting anything.
-    //
-    // Three conditions, all required:
-    //
-    //   1. loopback — structural here: `serve()` binds a hard-coded
-    //      `127.0.0.1` (see `SocketAddr::from(([127, 0, 0, 1], port))`), with
-    //      no configuration path to widen it. A remote caller cannot reach this
-    //      code at all.
-    //   2. the KBD control-plane prefix only — sync, peer, and skill routes
-    //      still require a token, so this does not become a blanket bypass.
-    //   3. no token was EXPLICITLY configured — if an operator sets
-    //      `PROMETHEUS_CONTROL_TOKEN_FILE`, they mean it, and it is enforced.
-    //
-    // This removes an unsatisfiable default. It does not remove the ability to
-    // require authentication.
-    if request.uri().path().starts_with("/api/v1/kbd/")
-        && std::env::var_os("PROMETHEUS_CONTROL_TOKEN_FILE").is_none()
-    {
-        return next.run(request).await;
-    }
-    let supplied = request
-        .headers()
-        .get("authorization")
-        .and_then(|value| value.to_str().ok())
-        .and_then(|value| value.strip_prefix("Bearer "));
-    let authorized = supplied
-        .map(|token| blake3::hash(token.as_bytes()) == blake3::hash(state.bearer_token.as_bytes()))
-        .unwrap_or(false);
-    if !authorized {
-        return (
-            StatusCode::UNAUTHORIZED,
-            Json(serde_json::json!({"error":"missing or invalid bearer token"})),
-        )
-            .into_response();
-    }
-    next.run(request).await
 }
 
 #[derive(Debug, Deserialize)]
@@ -811,7 +752,6 @@ pub fn build_router(state: AppState) -> Router {
         )
         .route("/api/v1/stream/ping", get(ag_ui_ping))
         .with_state(state.clone())
-        .layer(middleware::from_fn_with_state(state, require_bearer))
 }
 
 // ---------------------------------------------------------------------------
@@ -972,8 +912,24 @@ pub async fn serve(port: u16, skills_dir: &Path) -> anyhow::Result<()> {
 pub async fn serve_with_state(port: u16, state: AppState) -> anyhow::Result<()> {
     let app = build_router(state);
 
+    // LOOPBACK ONLY — and this is load-bearing, not incidental.
+    //
+    // There is no authentication on this server. That is deliberate: the
+    // previous bearer-token scheme had both sides call
+    // `Runtime::control_token()`, which mints a FRESH RANDOM secret when no
+    // token file exists. The CLI and the daemon resolve different runtime
+    // roots, no token file was ever created, and so the two processes always
+    // generated different secrets. Every authenticated write returned 401. It
+    // produced 100% false positives and 0% security, for a service reachable
+    // only by processes that already have local code execution.
+    //
+    // IF YOU CHANGE THIS ADDRESS, YOU MUST ADD AUTHENTICATION FIRST. Binding
+    // anything other than 127.0.0.1 exposes unauthenticated control-plane
+    // writes — lease claims, phase creation, command submission — to the
+    // network. Design it against the threat model you actually have at that
+    // point; do not resurrect the token scheme deleted here.
     let addr = SocketAddr::from(([127, 0, 0, 1], port));
-    info!("sovereign-sync REST API listening on http://{}", addr);
+    info!("sovereign-sync REST API listening on http://{} (no auth: loopback only)", addr);
 
     let listener = tokio::net::TcpListener::bind(addr).await?;
     axum::serve(listener, app).await?;

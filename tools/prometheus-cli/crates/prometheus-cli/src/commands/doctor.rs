@@ -933,7 +933,6 @@ async fn check_kbd_control_plane() -> CheckResult {
         });
     let result = async {
         let project_id = project_id.ok_or_else(|| anyhow::anyhow!("missing project id"))?;
-        let token = runtime.control_token()?;
         let endpoint = std::env::var("PROMETHEUS_CONTROL_ENDPOINT")
             .unwrap_or_else(|_| "http://127.0.0.1:7892".into());
         let response = reqwest::Client::builder()
@@ -943,7 +942,6 @@ async fn check_kbd_control_plane() -> CheckResult {
                 "{}/api/v1/kbd/projects/{project_id}/diagnostics",
                 endpoint.trim_end_matches('/')
             ))
-            .bearer_auth(token)
             .send()
             .await?;
         let status = response.status();
