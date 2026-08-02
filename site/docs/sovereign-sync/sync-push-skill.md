@@ -22,7 +22,7 @@ the request but does not transmit domain state.
 |--------|---------|
 | `skill-index` | Recommended `Public` metadata |
 | `learner-model` | Recommended `Trusted` |
-| `kbd-control:<project-id>` | Presence may be `Trusted`; authority requires Raft |
+| `kbd-control:<project-id>` | Presence may be `Trusted`; authoritative Loro deltas are introduced by the project-document layer |
 | `open-spec:<project-id>` | Future project adapter |
 | `surreal-memory` | `Local` — must remain ineligible |
 

@@ -2,6 +2,7 @@
 ///
 /// Routes:
 ///   GET  /health
+///   GET  /ready
 ///   GET  /api/v1/skills/search?q=<query>
 ///   GET  /api/v1/sync/status
 ///   GET  /api/v1/sync/peers
@@ -9,12 +10,11 @@
 ///   POST /api/v1/stream        (AG-UI SSE — delegates to ag_ui module)
 ///   GET  /api/v1/stream/ping   (AG-UI SSE ping)
 use axum::{
-    extract::{Path as AxumPath, Query, Request, State},
+    extract::{Path as AxumPath, Query, State},
     http::{HeaderMap, StatusCode},
-    middleware::{self, Next},
     response::{
         sse::{Event as SseEvent, KeepAlive},
-        IntoResponse, Response, Sse,
+        IntoResponse, Sse,
     },
     routing::{get, post},
     Json, Router,
@@ -38,7 +38,7 @@ use tracing::info;
 use crate::ag_ui::{ag_ui_ping, ag_ui_stream, AgUiState};
 use crate::domains::{self, DomainAdapter, LearnerModelAdapter, SkillIndexAdapter, SyncEnvelope};
 use crate::kbd_control::KbdControlPlane;
-use crate::kbd_raft::QuorumPolicy;
+use crate::kbd_single_writer::QuorumPolicy;
 use crate::kbd_sync::KbdPresenceDocument;
 use crate::mcp_server::SkillIndex;
 use crate::p2p::P2PNode;
@@ -148,7 +148,6 @@ impl AppState {
         })
     }
 
-
     /// Inspection accessor for tests — not part of the wire API.
     pub fn skill_index(&self) -> &SkillIndex {
         &self.skill_index
@@ -207,48 +206,44 @@ fn discover_project_root(skills_dir: &Path) -> PathBuf {
 // Route handlers
 // ---------------------------------------------------------------------------
 
-/// GET /health
-/// Liveness AND readiness — the store must actually be reachable.
+/// GET /health — process liveness only; deliberately touches no state.
 ///
-/// # Why this probes instead of answering `ok` unconditionally
+/// An earlier version probed persistent state from this handler. `status()` is a
+/// SYNCHRONOUS read, so each probe parked a tokio worker on a file lock; under
+/// concurrent polling every worker parked and the daemon accepted connections
+/// it could never answer. It looked alive to `lsof` and hung every client.
 ///
-/// This handler used to take no state and return a hardcoded `"status": "ok"`.
-/// It therefore reported healthy while the daemon was in a `Database already
-/// open. Cannot acquire lock.` loop and could not serve a single request that
-/// touched its store.
-///
-/// A health endpoint that cannot observe its own core dependency gives false
-/// assurance exactly when something is wrong — the same failure class as an
-/// update check reporting `up-to-date` while offline. The green signal is
-/// measuring process liveness, and callers read it as service readiness.
-///
-/// `KbdControlPlane::status()` is the cheapest honest probe: it reads committed
-/// state through the redb store, so a lock failure or corrupt store surfaces
-/// here rather than three calls later in something a user was relying on.
-///
-/// Returns **503** when the store is unreachable, so a load balancer or a
-/// monitor can act on it. The body always names the reason.
-async fn health(State(state): State<AppState>) -> impl IntoResponse {
-    match state.kbd_control.status() {
-        Ok(_) => (
+/// A liveness endpoint must not be able to hang the server it reports on: it
+/// fails exactly when it is being relied upon. Store reachability belongs on a
+/// separate readiness route that is allowed to be slow.
+async fn health() -> impl IntoResponse {
+    Json(serde_json::json!({
+        "status": "ok",
+        "service": "sovereign-sync",
+        "version": env!("CARGO_PKG_VERSION")
+    }))
+}
+
+/// GET /ready — asynchronous journal reachability and replay validation.
+async fn ready(State(state): State<AppState>) -> impl IntoResponse {
+    match state.kbd_control.status_async().await {
+        Ok(runtime) => (
             StatusCode::OK,
             Json(serde_json::json!({
-                "status": "ok",
-                "service": "sovereign-sync",
-                "version": env!("CARGO_PKG_VERSION"),
-                "store": "reachable"
+                "status": "ready",
+                "projectId": runtime.project_id,
+                "revision": runtime.revision
             })),
-        ),
-        Err(e) => (
+        )
+            .into_response(),
+        Err(error) => (
             StatusCode::SERVICE_UNAVAILABLE,
             Json(serde_json::json!({
-                "status": "degraded",
-                "service": "sovereign-sync",
-                "version": env!("CARGO_PKG_VERSION"),
-                "store": "unreachable",
-                "reason": e.to_string()
+                "status": "not_ready",
+                "error": error.to_string()
             })),
-        ),
+        )
+            .into_response(),
     }
 }
 
@@ -454,7 +449,7 @@ async fn build_presence_push_envelope(
     state: &AppState,
     domain_name: &str,
 ) -> Result<PushOutcome, (StatusCode, serde_json::Value)> {
-    let status = state.kbd_control.status().map_err(|error| {
+    let status = state.kbd_control.status_async().await.map_err(|error| {
         (
             StatusCode::INTERNAL_SERVER_ERROR,
             serde_json::json!({"error": error.to_string()}),
@@ -572,7 +567,7 @@ async fn kbd_status(
     State(state): State<AppState>,
     AxumPath(project_id): AxumPath<String>,
 ) -> impl IntoResponse {
-    match state.kbd_control.status() {
+    match state.kbd_control.status_async().await {
         Ok(runtime) if runtime.revision > 0 && runtime.project_id == project_id => {
             (StatusCode::OK, Json(serde_json::json!(runtime))).into_response()
         }
@@ -598,7 +593,11 @@ async fn kbd_events(
     State(state): State<AppState>,
     AxumPath(project_id): AxumPath<String>,
 ) -> impl IntoResponse {
-    match (state.kbd_control.status(), state.kbd_control.events(1)) {
+    let (runtime, events) = tokio::join!(
+        state.kbd_control.status_async(),
+        state.kbd_control.events_async(1)
+    );
+    match (runtime, events) {
         (Ok(runtime), Ok(events)) if runtime.project_id == project_id => {
             (StatusCode::OK, Json(serde_json::json!(events))).into_response()
         }
@@ -619,16 +618,18 @@ async fn kbd_diagnostics(
     State(state): State<AppState>,
     AxumPath(project_id): AxumPath<String>,
 ) -> impl IntoResponse {
-    match (state.kbd_control.status(), state.kbd_control.diagnostics()) {
-        (Ok(runtime), Ok(diagnostics)) if runtime.project_id == project_id => {
+    match state.kbd_control.diagnostics_async().await {
+        Ok(diagnostics)
+            if diagnostics["runtime"]["projectId"].as_str() == Some(project_id.as_str()) =>
+        {
             (StatusCode::OK, Json(diagnostics)).into_response()
         }
-        (Ok(_), Ok(_)) => (
+        Ok(_) => (
             StatusCode::NOT_FOUND,
             Json(serde_json::json!({"error":"unknown KBD project"})),
         )
             .into_response(),
-        (Err(error), _) | (_, Err(error)) => (
+        Err(error) => (
             StatusCode::CONFLICT,
             Json(serde_json::json!({"error":error.to_string()})),
         )
@@ -669,7 +670,7 @@ async fn kbd_event_stream(
     AxumPath(project_id): AxumPath<String>,
     headers: HeaderMap,
 ) -> impl IntoResponse {
-    match state.kbd_control.status() {
+    match state.kbd_control.status_async().await {
         Ok(runtime) if runtime.project_id == project_id => {}
         Ok(_) => {
             return (
@@ -728,6 +729,7 @@ pub fn build_router(state: AppState) -> Router {
 
     Router::new()
         .route("/health", get(health))
+        .route("/ready", get(ready))
         .route("/api/v1/skills/search", get(skills_search))
         .route("/api/v1/sync/status", get(sync_status))
         .route("/api/v1/sync/peers", get(sync_peers))
@@ -855,7 +857,7 @@ pub async fn handle_incoming_message(state: &AppState, payload: &[u8]) {
 /// enforces it again independently (defense in depth), so a bug here fails
 /// closed rather than open.
 async fn import_presence_message(state: &AppState, envelope: &SyncEnvelope) {
-    let Ok(status) = state.kbd_control.status() else {
+    let Ok(status) = state.kbd_control.status_async().await else {
         tracing::warn!("dropping kbd-control message — local runtime status unavailable");
         return;
     };
@@ -929,7 +931,10 @@ pub async fn serve_with_state(port: u16, state: AppState) -> anyhow::Result<()> 
     // network. Design it against the threat model you actually have at that
     // point; do not resurrect the token scheme deleted here.
     let addr = SocketAddr::from(([127, 0, 0, 1], port));
-    info!("sovereign-sync REST API listening on http://{} (no auth: loopback only)", addr);
+    info!(
+        "sovereign-sync REST API listening on http://{} (no auth: loopback only)",
+        addr
+    );
 
     let listener = tokio::net::TcpListener::bind(addr).await?;
     axum::serve(listener, app).await?;

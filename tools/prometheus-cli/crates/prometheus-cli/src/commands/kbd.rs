@@ -478,9 +478,9 @@ impl ControlClient {
             .unwrap_or(manifest.project_id);
         Ok(Self {
             http: reqwest::Client::builder()
-                // 2s was too aggressive: a command that commits an event
-                // through OpenRaft (disk write + fsync) can legitimately
-                // take longer, especially right after a daemon restart,
+                // 2s was too aggressive: a command that validates and fsyncs
+                // the journal can legitimately take longer, especially right
+                // after a daemon restart,
                 // producing a client-side "operation timed out" even though
                 // the write succeeds server-side moments later.
                 .timeout(Duration::from_secs(30))

@@ -62,7 +62,7 @@ Documented in full on the [Tools Reference](13-tools-reference.md) page; summari
 | `check-harness-adapters.js` | Reject drift between the manifest and generated adapters |
 | `check-kbd-direct-writers.js` | Reject new direct writers to canonical KBD compatibility projections |
 | `validate-kbd-state.js` | Validate KBD projection schemas and revision relationships |
-| `test-kbd-control-plane.sh` | Run runtime/Raft/control-plane fixture tests |
+| `test-kbd-control-plane.sh` | Run runtime/journal/control-plane fixture tests |
 | `generate-skill-eval-corpus.js` / `check-skill-evals.js` | Maintain and validate the 36-prompt critical-skill activation corpus |
 
 ### `prometheus kbd`

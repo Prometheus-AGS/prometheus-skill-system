@@ -58,9 +58,9 @@ claimed, revised, paused, or released the work.
 **Security rule.** The devices share `operator_id`, but never share signing
 keys or control tokens. Actor identity remains attributable.
 
-**Today.** The local KBD control plane already coordinates multiple harnesses
-on one machine. Cross-process Raft transport is disabled, so two machines
-cannot yet share one canonical command authority through Sovereign Sync.
+**Today.** The local KBD control plane coordinates multiple harnesses through
+one fsynced journal writer. Authoritative cross-machine Loro synchronization is
+not yet enabled in the deployed service.
 
 ## 3. Feynman study continuity between work and home
 

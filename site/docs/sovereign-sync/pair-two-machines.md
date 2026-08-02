@@ -32,7 +32,7 @@ endpoint ID changes when the daemon restarts.
 | Sovereign `operator_id` | **Yes** | Yes | `$HOME/.config/sovereign-sync/config.toml` | Derives the shared gossip topic |
 | Repository `projectId` | **Yes for clones of one project** | Yes | `<project>/.prometheus/project.json` | Names the canonical KBD project/runtime |
 | iroh endpoint ID | **No** | **No** | Startup log only | Identifies and locates one running P2P endpoint |
-| KBD `node_id` | No in a future multi-voter cluster | Yes in config | `[kbd].node_id` | Raft voter identity; current daemon supports standalone node `1` |
+| KBD `node_id` | Local compatibility value | Yes in config | `[kbd].node_id` | Identifies the current single journal writer; defaults to `1` |
 | KBD device-signing key | **No** | Yes | platform credential store or `device-key.json` | Proves which physical device signed a command |
 | KBD control token | **No requirement to match** | Yes | project runtime `control-token` | Authenticates the local loopback REST API |
 | learner ID | Yes for one human learner | Yes in model data | learner-model document key | Joins the same logical learner record |
@@ -57,9 +57,8 @@ of one device.
 Do not copy `control-token` as a pairing step. It protects a local API and is
 not used by iroh.
 
-Do not make future KBD voters share a `node_id`. Duplicate Raft voter IDs are
-invalid. The current daemon’s normal supported configuration is a single local
-voter with ID `1`.
+The compatibility policy accepts one local writer with ID `1`. Multi-voter
+configuration is rejected; replica identity is handled by the project registry.
 
 ## Before you begin
 

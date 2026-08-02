@@ -107,7 +107,7 @@ Sovereign Sync is not:
 ```mermaid
 flowchart TB
   Client["CLI, MCP harness, or desktop backend"] --> Local["Loopback REST, SSE, and MCP"]
-  Local --> KBD["Local KBD authority<br/>OpenRaft + redb + signed events"]
+  Local --> KBD["Local KBD authority<br/>flocked journal + signed events"]
   Producer["Explicit domain adapter<br/>not yet daemon-wired"] --> Gate["SyncManifest privacy gate"]
   Gate --> CRDT["Loro snapshot or delta"]
   CRDT --> Gossip["iroh-gossip operator topic"]

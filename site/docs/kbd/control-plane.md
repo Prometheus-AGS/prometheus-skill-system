@@ -17,8 +17,7 @@ the old model in which multiple tools could independently edit
 flowchart LR
     H["Claude Code, Codex, OpenCode, Kimi"] -->|"typed command"| C["Sovereign Sync control API"]
     CLI["prometheus kbd"] -->|"typed command"| C
-    C -->|"quorum commit"| R["OpenRaft + redb"]
-    R --> E["Signed event journal"]
+    C -->|"exclusive flock + fsync"| E["Signed event journal"]
     E --> S["KbdStateV2 replay"]
     S --> P["Atomic compatibility projections"]
     P --> F["progress.json / waypoint / position"]
@@ -75,7 +74,6 @@ events.jsonl
 runtime.lock
 control-token
 deferred-hooks/
-raft.redb
 ```
 
 Signing keys may live in the platform credential store. Headless services use

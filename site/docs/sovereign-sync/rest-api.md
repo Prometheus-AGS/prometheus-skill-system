@@ -44,6 +44,11 @@ curl --fail-with-body http://127.0.0.1:7892/health | jq .
 }
 ```
 
+### `GET /ready`
+
+Asynchronously replays the journal and returns `503` when the authority is not
+reachable or valid. `/health` remains static and store-independent.
+
 ## Sync and discovery
 
 ### `GET /api/v1/sync/status`
@@ -121,7 +126,8 @@ curl --fail-with-body \
 Diagnostics include:
 
 - quorum writable state and reason;
-- Raft node, term, leader, log/apply lag, snapshot, and transport label;
+- single-writer node and lock path;
+- journal path, byte size, event count, revision, and runtime match;
 - runtime revision, lifecycle, plan revision, lease, and fence;
 - compatibility projection revision/match;
 - signature-chain validity and event count;

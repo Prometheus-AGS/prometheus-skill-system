@@ -273,7 +273,7 @@ impl DomainAdapter for LearnerModelAdapter {
 // verifies the signature against the claimed signer's public key in its own
 // `KbdStateV2.devices` (`SyncEnvelope::verify`), requiring `DeviceStatus::Active`.
 // This reuses the same Ed25519 device identity `Event` signing already
-// relies on — no new pairing ceremony, and no dependency on Raft membership
+// relies on — no new pairing ceremony and no separate membership identity
 // (which only ever reflects consensus voters, not P2P gossip peers).
 
 #[cfg(test)]

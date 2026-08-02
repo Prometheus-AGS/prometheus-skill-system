@@ -52,7 +52,6 @@ schemars = "1.0"
 
 # Persistence
 redb = "2"
-openraft = { version = "=0.9.21", features = ["serde"] }
 
 # Error handling
 thiserror = "1"

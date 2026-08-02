@@ -1824,6 +1824,10 @@ impl Runtime {
         &self.root
     }
 
+    pub fn project_root(&self) -> &Path {
+        &self.project_root
+    }
+
     pub fn events_path(&self) -> PathBuf {
         self.root.join("events.jsonl")
     }
@@ -1955,6 +1959,80 @@ impl Runtime {
         Ok(events)
     }
 
+    /// Normalize or recover an interrupted final journal append.
+    ///
+    /// A complete JSON event without its trailing newline is normalized in
+    /// place. An invalid unterminated tail is first archived beside the
+    /// journal with a SHA-256 checksum, then the journal is truncated to its
+    /// last complete newline. Interior corruption remains a hard replay error.
+    pub fn recover_journal_tail(&self) -> Result<Option<PathBuf>> {
+        fs::create_dir_all(&self.root)?;
+        let lock = OpenOptions::new()
+            .create(true)
+            .truncate(false)
+            .read(true)
+            .write(true)
+            .open(self.lock_path())?;
+        lock.lock_exclusive()?;
+        self.recover_journal_tail_locked()
+    }
+
+    fn recover_journal_tail_locked(&self) -> Result<Option<PathBuf>> {
+        let path = self.events_path();
+        if !path.exists() {
+            return Ok(None);
+        }
+        let bytes = fs::read(&path)?;
+        if bytes.is_empty() || bytes.ends_with(b"\n") {
+            return Ok(None);
+        }
+
+        let valid_len = bytes
+            .iter()
+            .rposition(|byte| *byte == b'\n')
+            .map(|index| index + 1)
+            .unwrap_or(0);
+        let tail = &bytes[valid_len..];
+        if serde_json::from_slice::<Event>(tail).is_ok() {
+            let mut file = OpenOptions::new().append(true).open(&path)?;
+            file.write_all(b"\n")?;
+            file.sync_data()?;
+            return Ok(None);
+        }
+
+        let archive = self.root.join(format!(
+            "events.jsonl.torn-{}-{}.archive",
+            Utc::now().format("%Y%m%dT%H%M%S%.6fZ"),
+            Uuid::new_v4()
+        ));
+        let mut archive_file = OpenOptions::new()
+            .create_new(true)
+            .write(true)
+            .open(&archive)?;
+        archive_file.write_all(tail)?;
+        archive_file.sync_all()?;
+
+        let checksum = format!("{:x}", Sha256::digest(tail));
+        let checksum_path = archive.with_extension("archive.sha256");
+        let mut checksum_file = OpenOptions::new()
+            .create_new(true)
+            .write(true)
+            .open(&checksum_path)?;
+        writeln!(
+            checksum_file,
+            "{}  {}",
+            checksum,
+            archive.file_name().unwrap_or_default().to_string_lossy()
+        )?;
+        checksum_file.sync_all()?;
+        File::open(&self.root)?.sync_all()?;
+
+        let journal = OpenOptions::new().write(true).open(&path)?;
+        journal.set_len(valid_len as u64)?;
+        journal.sync_data()?;
+        Ok(Some(archive))
+    }
+
     /// Export the verified audit chain as RFC 8785 canonical JSON Lines.
     pub fn export_signed_audit(&self, mut writer: impl Write) -> Result<u64> {
         let events = self.events()?;
@@ -1988,6 +2066,7 @@ impl Runtime {
             .write(true)
             .open(self.lock_path())?;
         lock.lock_exclusive()?;
+        self.recover_journal_tail_locked()?;
         let local = self.events()?;
         let mut incoming = incoming.to_vec();
         incoming.sort_by_key(|event| event.revision);
@@ -2026,6 +2105,7 @@ impl Runtime {
             .write(true)
             .open(self.lock_path())?;
         lock.lock_exclusive()?;
+        self.recover_journal_tail_locked()?;
         if !self.events()?.is_empty() {
             return Err(RuntimeError::AlreadyInitialized);
         }
@@ -2062,6 +2142,7 @@ impl Runtime {
             .write(true)
             .open(self.lock_path())?;
         lock.lock_exclusive()?;
+        self.recover_journal_tail_locked()?;
         if !self.events()?.is_empty() {
             return Err(RuntimeError::AlreadyInitialized);
         }
@@ -2122,6 +2203,7 @@ impl Runtime {
             .write(true)
             .open(self.lock_path())?;
         lock.lock_exclusive()?;
+        self.recover_journal_tail_locked()?;
         let events = self.events()?;
         let state = replay_events(&events)?;
         if state.revision == 0 {
@@ -2158,6 +2240,26 @@ impl Runtime {
                 envelope.schema_version
             )));
         }
+        if envelope.command_id.trim().is_empty() {
+            return Err(RuntimeError::InvalidState(
+                "commandId must not be empty".into(),
+            ));
+        }
+
+        // The command envelope must be validated against the same state that
+        // is used to prepare and append its event.  Holding one exclusive
+        // flock across read, replay, validation, preparation, append, and
+        // fsync prevents two processes from both preparing revision N + 1
+        // from the same frontier.
+        fs::create_dir_all(&self.root)?;
+        let lock = OpenOptions::new()
+            .create(true)
+            .truncate(false)
+            .read(true)
+            .write(true)
+            .open(self.lock_path())?;
+        lock.lock_exclusive()?;
+        self.recover_journal_tail_locked()?;
         let events = self.events()?;
         let state = replay_events(&events)?;
         if state.revision == 0 {
@@ -2198,16 +2300,28 @@ impl Runtime {
             envelope.lease_id.as_deref(),
             envelope.fencing_token,
         )?;
-        let next = self.append_command(
+        authorize(
+            &state,
+            &envelope.actor,
+            &kind,
+            envelope.lease_id.as_deref(),
+            envelope.fencing_token,
+        )?;
+        let project_id = state.project_id.clone();
+        let run_id = state.run_id.clone();
+        let command_id = envelope.command_id;
+        let next = self.append_unchecked(
+            state,
+            project_id,
+            run_id,
             envelope.actor,
-            envelope.expected_revision,
-            envelope.command_id.clone(),
+            command_id.clone(),
             kind,
             envelope.lease_id,
             envelope.fencing_token,
         )?;
         Ok(CommandResult {
-            command_id: envelope.command_id,
+            command_id,
             committed_revision: next.revision,
             duplicate: false,
             state: next,
@@ -4923,6 +5037,109 @@ mod tests {
         let duplicate = runtime.execute_command(phase_command).unwrap();
         assert!(duplicate.duplicate);
         assert_eq!(duplicate.state, applied.state);
+    }
+
+    #[test]
+    fn concurrent_commands_cannot_both_commit_from_the_same_revision() {
+        use std::sync::{Arc, Barrier};
+
+        let dir = tempdir().unwrap();
+        let runtime = Arc::new(Runtime::open(dir.path()));
+        let initialized = runtime
+            .initialize("project", "run", actor(ActorKind::Operator, "codex"))
+            .unwrap();
+        let barrier = Arc::new(Barrier::new(3));
+
+        let handles = ["phase-a", "phase-b"].map(|phase_id| {
+            let runtime = Arc::clone(&runtime);
+            let barrier = Arc::clone(&barrier);
+            let phase_id = phase_id.to_string();
+            let expected_revision = initialized.revision;
+            std::thread::spawn(move || {
+                let command = CommandEnvelope {
+                    schema_version: "1".into(),
+                    project_id: "project".into(),
+                    run_id: "run".into(),
+                    command_id: format!("define-{phase_id}"),
+                    expected_revision,
+                    actor: actor(ActorKind::Harness, &phase_id),
+                    lease_id: None,
+                    fencing_token: None,
+                    command: CommandKind::PhaseDefine {
+                        phase: Phase {
+                            id: phase_id.clone(),
+                            slug: phase_id.clone(),
+                            title: phase_id,
+                            parent_phase_id: None,
+                            status: WorkStatus::Pending,
+                            stages: BTreeMap::new(),
+                            changes: BTreeMap::new(),
+                            legacy_read_only: false,
+                        },
+                    },
+                };
+                barrier.wait();
+                runtime.execute_command(command)
+            })
+        });
+
+        barrier.wait();
+        let results = handles.map(|handle| handle.join().unwrap());
+        assert_eq!(results.iter().filter(|result| result.is_ok()).count(), 1);
+        assert_eq!(
+            results
+                .iter()
+                .filter(|result| matches!(result, Err(RuntimeError::RevisionConflict { .. })))
+                .count(),
+            1
+        );
+        assert_eq!(runtime.events().unwrap().len(), 2);
+        assert_eq!(runtime.replay().unwrap().revision, initialized.revision + 1);
+    }
+
+    #[test]
+    fn torn_journal_tail_is_archived_with_checksum_before_recovery() {
+        let dir = tempdir().unwrap();
+        let runtime = Runtime::open(dir.path());
+        let initialized = runtime
+            .initialize("project", "run", actor(ActorKind::Operator, "codex"))
+            .unwrap();
+        let torn = br#"{"schemaVersion":"2","eventId":"interrupted"#;
+        let mut journal = OpenOptions::new()
+            .append(true)
+            .open(runtime.events_path())
+            .unwrap();
+        journal.write_all(torn).unwrap();
+        journal.sync_data().unwrap();
+        assert!(runtime.events().is_err());
+
+        let archive = runtime
+            .recover_journal_tail()
+            .unwrap()
+            .expect("invalid tail must be preserved");
+        assert_eq!(fs::read(&archive).unwrap(), torn);
+        let checksum = fs::read_to_string(archive.with_extension("archive.sha256")).unwrap();
+        assert!(checksum.contains(&format!("{:x}", Sha256::digest(torn))));
+        assert_eq!(runtime.events().unwrap().len(), 1);
+
+        let result = runtime
+            .execute_command(CommandEnvelope {
+                schema_version: "1".into(),
+                project_id: "project".into(),
+                run_id: "run".into(),
+                command_id: "after-recovery".into(),
+                expected_revision: initialized.revision,
+                actor: actor(ActorKind::Harness, "codex"),
+                lease_id: None,
+                fencing_token: None,
+                command: CommandKind::Claim {
+                    scope: "project/phase".into(),
+                    force: false,
+                },
+            })
+            .unwrap();
+        assert_eq!(result.committed_revision, initialized.revision + 1);
+        assert_eq!(runtime.events().unwrap().len(), 2);
     }
 
     #[test]

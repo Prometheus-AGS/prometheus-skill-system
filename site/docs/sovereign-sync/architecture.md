@@ -14,9 +14,8 @@ sidebar_label: Architecture
 | Gossip protocol | `iroh-gossip` | 0.101 | Topic-based broadcast to a connected peer set |
 | CRDT engine | `loro` | 1.13.x | Snapshot, delta, version-vector, and conflict-free merge primitives |
 | Domain storage | `storage-provider` | workspace | Local, Loro, and iroh-docs adapters plus the sync manifest |
-| KBD consensus | `openraft` | =0.9.21 | Ordered commands, membership, snapshots, and fencing |
-| KBD persistence | `redb` | 2.x | Raft log, state machine, command results, projections |
-| KBD runtime | `kbd-runtime` | workspace | Signed events, deterministic replay, project identity |
+| KBD authority | `kbd-runtime` | workspace | Flocked journal writes, signed events, deterministic replay, project identity |
+| General sync persistence | `redb` | 2.x | Sovereign Sync's non-KBD `state.redb` store |
 | MCP server | `rmcp` | 1.8.0 | Harness tool surface |
 | HTTP server | `axum` | 0.8 | Loopback REST API and AG-UI SSE |
 | Rust SDK | `sovereign-client` | 0.1.0 | REST/SSE client; bearer-token support remains pending |
@@ -67,12 +66,12 @@ owner has classified the payload as safe for any paired peer.
 Sovereign Sync separates:
 
 1. **Replicated domain data**, where Loro CRDT merge is appropriate.
-2. **KBD command authority**, where a single ordered, fenced event chain is
-   required.
+2. **KBD command authority**, where journal writes require one atomic writer
+   during the Loro authority migration.
 
-Merging two offline KBD writer branches would preserve bytes but destroy causal
-authority. KBD therefore commits commands through OpenRaft and rejects stale
-expected revisions, leases, and fencing tokens.
+KBD currently commits through one exclusive-flock journal transaction and
+rejects stale revisions. Multi-writer convergence is introduced through the
+project Loro document rather than an unjoined consensus configuration.
 
 The canonical KBD runtime lives outside the repository under the platform
 application-data root:
@@ -108,23 +107,17 @@ export its deltas, or call the merge operation for incoming P2P messages.
 
 ## KBD control-plane storage
 
-OpenRaft uses redb for:
-
-- vote and membership state;
-- ordered log entries;
-- deterministic KBD state-machine application;
-- snapshots;
-- idempotent command results;
-- compatibility-projection revision metadata.
+KBD uses an append-only `events.jsonl` journal protected by `runtime.lock`.
+Each command holds the lock across replay, validation, event preparation,
+append, and fsync. Compatibility files are updated afterward as projections.
+`redb` is not part of the KBD authority; it remains only for the general sync
+store in `store.rs`.
 
 Every committed event is verified by the `kbd-runtime` signature/hash chain.
-Diagnostics report quorum state, leader and term, commit/apply lag, snapshot
-index, projection revision, device trust counts, and signature-chain validity.
-
-Single-voter mode is writable but not highly available. Multi-voter behavior is
-tested with an embedded in-process transport. The daemon refuses normal
-multi-voter startup because authenticated cross-process Raft transport is not
-yet connected.
+Diagnostics report journal path/size/revision, lock and single-writer state,
+projection revision, device trust counts, and signature-chain validity.
+The compatibility quorum configuration accepts exactly one local writer and
+rejects multi-voter settings.
 
 ## P2P endpoint lifecycle
 

@@ -35,7 +35,7 @@ but the daemon’s P2P sender/receiver is not connected to any real data produce
 | `learner-model` | Local CRDT documents, typed store, merge API, manifest tests | `Trusted` | **No** |
 | `surreal-memory` | Manifest/privacy rejection tests | `Local` | **No; rejected in tested CRDT path** |
 | `kbd-control:<project-id>` presence | Project-scoped Loro presence document | `Trusted` after peer authorization | **No** |
-| KBD authoritative commands/events | OpenRaft + redb + signed event runtime | Ordered authenticated Raft, not CRDT | **Local only; no cross-process transport** |
+| KBD authoritative commands/events | Flocked, fsynced journal + signed event runtime | Single writer during project-document migration | **Local only until authoritative Loro sync is enabled** |
 | `open-spec` | Advertised in the REST scaffold response | Trusted project data would be appropriate | **No adapter or daemon registration** |
 | `kbd-orchestrator` | Advertised in the REST scaffold response | Split authored artifacts from command authority | **No adapter or daemon registration** |
 | `kb:<name>` | Generic custom-domain model in `storage-provider` | Explicit `Public`, `Trusted`, or `Local` decision | **No daemon adapter** |
@@ -77,7 +77,7 @@ normally means by “sync this project.”
 | Data family | Representative paths/content | Current automatic sync | Correct ownership boundary |
 |---|---|---:|---|
 | Immutable project identity | `.prometheus/project.json` | No | Distribute once through Git or reviewed setup; never merge two generated IDs |
-| Canonical KBD authority | platform data root: `raft.redb`, command results, snapshots, revision metadata | No cross-process sync | OpenRaft transport only; never CRDT-merge two journals |
+| Canonical KBD authority | platform data root: `events.jsonl`, `runtime.lock`, signed events | No cross-process sync yet | Journal is write-ahead ingestion; project Loro document becomes converged authority |
 | KBD credentials | control token, device signing key | Never | Local secret/identity |
 | KBD resume projections | `.kbd-orchestrator/current-waypoint.json`, `.md`, `position.json`, `position-reminder.txt` | No | Derived from canonical KBD revision or authored summary |
 | KBD phase lifecycle | `phases/<phase>/progress.json`, goals, assessment, analysis, plan, execution, reflection, tasks, evidence, handoffs, decision logs | No | Project state; future adapter must separate authored artifacts from authoritative commands |
@@ -118,12 +118,12 @@ canonical command history is ordered, signed, revisioned, leased, and fenced.
 Compatibility projections and authored Markdown live under
 `.kbd-orchestrator/`.
 
-Authoritative events must eventually move through authenticated Raft transport.
-They must not be merged as independent CRDT branches. Non-authoritative
-presence can use the project-scoped `kbd-control:<project-id>` Loro document.
+Authoritative events move through signed project-scoped Loro deltas once the
+project-document migration is enabled. The local journal remains the fsynced
+write-ahead ingestion log.
 
-**Current sync:** local single-voter command authority only; no cross-process
-Raft; no P2P presence wiring; no phase-tree adapter.
+**Current sync:** local single-writer journal authority only; authoritative P2P
+sync is not yet enabled in the deployed service.
 
 ### Iterative evolver and strategic loops
 
@@ -227,7 +227,7 @@ payload:
 | `learner-model:<learner-id>` | typed learner CRDT only | Trusted CRDT merge |
 | `approved-kb:<project-id>` | reviewed, sanitized project wiki entries | Trusted CRDT or content-addressed docs |
 | `kbd-presence:<project-id>` | device/harness/session/revision presence | Trusted ephemeral CRDT |
-| `kbd-authority:<project-id>` | signed commands, membership, snapshots | Authenticated Raft only |
+| `kbd-authority:<project-id>` | signed commands, replicas, project document | Authenticated Loro deltas |
 | `openspec:<project-id>` | reviewed specs/change state | Trusted, project-scoped adapter |
 | `loop:<project-id>:<loop-id>` | definition plus single-writer tick results | Lease/fence plus structured merge |
 

@@ -104,8 +104,8 @@ fn default_kbd_voters() -> Vec<KbdVoterConfig> {
 }
 
 impl KbdConfig {
-    pub fn quorum_policy(&self) -> anyhow::Result<crate::kbd_raft::QuorumPolicy> {
-        let policy = crate::kbd_raft::QuorumPolicy::new(
+    pub fn quorum_policy(&self) -> anyhow::Result<crate::kbd_single_writer::QuorumPolicy> {
+        let policy = crate::kbd_single_writer::QuorumPolicy::new(
             self.node_id,
             self.voters.iter().map(|voter| voter.id),
         )?;

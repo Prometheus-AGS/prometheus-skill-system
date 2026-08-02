@@ -956,22 +956,30 @@ async fn check_kbd_control_plane() -> CheckResult {
     match result {
         Ok(diagnostics) => {
             let writable = diagnostics["quorum"]["writable"].as_bool().unwrap_or(false);
-            let leader = diagnostics["raft"]["leaderId"].as_u64();
-            let lag = diagnostics["raft"]["commitApplyLag"]
+            let writer_available = diagnostics["singleWriter"]["available"]
+                .as_bool()
+                .unwrap_or(false);
+            let journal_revision = diagnostics["journal"]["lastRevision"]
                 .as_u64()
-                .unwrap_or(u64::MAX);
+                .unwrap_or(0);
+            let journal_matches = diagnostics["journal"]["matchesRuntime"]
+                .as_bool()
+                .unwrap_or(false);
             let projection_matches = diagnostics["projection"]["matchesRuntime"]
                 .as_bool()
                 .unwrap_or(false);
             let signatures = diagnostics["integrity"]["signatureChainValid"]
                 .as_bool()
                 .unwrap_or(false);
-            let healthy =
-                writable && leader.is_some() && lag == 0 && projection_matches && signatures;
+            let healthy = writable
+                && writer_available
+                && journal_matches
+                && projection_matches
+                && signatures;
             CheckResult {
                 id: "control.kbd-runtime".into(),
                 group: "control".into(),
-                label: "KBD quorum control plane".into(),
+                label: "KBD journal control plane".into(),
                 severity: if healthy {
                     Severity::Green
                 } else {
@@ -983,11 +991,9 @@ async fn check_kbd_control_plane() -> CheckResult {
                     CheckStatus::Fail
                 },
                 summary: format!(
-                    "leader {}, lag {}, projection {}, signatures {}",
-                    leader
-                        .map(|value| value.to_string())
-                        .unwrap_or_else(|| "none".into()),
-                    lag,
+                    "writer {}, journal r{}, projection {}, signatures {}",
+                    if writer_available { "available" } else { "unavailable" },
+                    journal_revision,
                     if projection_matches {
                         "current"
                     } else {
@@ -1003,39 +1009,22 @@ async fn check_kbd_control_plane() -> CheckResult {
                             .unwrap_or("unknown")
                     ),
                     format!(
-                        "Raft term/state/transport: {}/{}/{}",
-                        diagnostics["raft"]["term"].as_u64().unwrap_or(0),
-                        diagnostics["raft"]["state"].as_str().unwrap_or("unknown"),
-                        diagnostics["raft"]["transport"]
+                        "single writer node/lock: {}/{}",
+                        diagnostics["singleWriter"]["nodeId"].as_u64().unwrap_or(0),
+                        diagnostics["singleWriter"]["lockPath"]
                             .as_str()
                             .unwrap_or("unknown")
                     ),
                     format!(
-                        "log/applied/snapshot: {}/{}/{}",
-                        diagnostics["raft"]["lastLogIndex"]
-                            .as_u64()
-                            .map(|value| value.to_string())
-                            .unwrap_or_else(|| "none".into()),
-                        diagnostics["raft"]["lastAppliedIndex"]
-                            .as_u64()
-                            .map(|value| value.to_string())
-                            .unwrap_or_else(|| "none".into()),
-                        diagnostics["raft"]["snapshotIndex"]
-                            .as_u64()
-                            .map(|value| value.to_string())
-                            .unwrap_or_else(|| "none".into())
+                        "journal path/bytes/revision: {}/{}/{}",
+                        diagnostics["journal"]["path"].as_str().unwrap_or("unknown"),
+                        diagnostics["journal"]["bytes"].as_u64().unwrap_or(0),
+                        journal_revision
                     ),
                     format!(
                         "trusted devices active/revoked: {}/{}",
                         diagnostics["trust"]["activeDevices"].as_u64().unwrap_or(0),
                         diagnostics["trust"]["revokedDevices"].as_u64().unwrap_or(0)
-                    ),
-                    format!(
-                        "lease/fencing token: {}/{}",
-                        diagnostics["runtime"]["lease"]["leaseId"]
-                            .as_str()
-                            .unwrap_or("unclaimed"),
-                        diagnostics["runtime"]["fencingToken"].as_u64().unwrap_or(0),
                     ),
                     format!(
                         "signed events: {}",

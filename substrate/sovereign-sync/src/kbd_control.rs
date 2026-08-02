@@ -1,26 +1,22 @@
 //! Authoritative command facade shared by REST, MCP, and the daemon.
 //!
-//! Callers submit the same versioned `CommandEnvelope`. In standalone mode the
-//! command is atomically committed to the redb Raft store. Multi-voter mode is
-//! deliberately read-only until an OpenRaft leader is connected; it never
-//! falls back to a local compatibility-file write.
+//! Callers submit the same versioned `CommandEnvelope`. During stabilization,
+//! commands are committed by one journal writer protected by an exclusive
+//! flock. Multi-voter configurations are rejected explicitly.
 
 use std::{
-    collections::{BTreeMap, BTreeSet},
-    io,
+    collections::BTreeSet,
+    fs, io,
     path::Path,
     sync::{Arc, RwLock},
-    time::Duration,
 };
 
 use kbd_runtime::{
     replay_events, CommandEnvelope, CommandResult, DeviceStatus, Event, KbdStateV2, Runtime,
 };
-use openraft::{Config, Raft};
 use serde::Serialize;
 
-use crate::kbd_raft::{KbdRaftConfig, KbdRaftNode, QuorumPolicy, QuorumStatus, RedbRaftStore};
-use crate::kbd_raft_network::EmbeddedRaftNetworkFactory;
+use crate::kbd_single_writer::{QuorumPolicy, QuorumStatus};
 
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -31,10 +27,13 @@ pub struct CommittedCommand {
 }
 
 #[derive(Clone)]
+/// The KBD control plane.
+///
+/// `Runtime` provides an append-only `events.jsonl` guarded by an exclusive
+/// flock and fsynced on append. The compatibility policy permits exactly one
+/// writer until the project Loro document becomes the converged authority.
 pub struct KbdControlPlane {
     runtime: Arc<Runtime>,
-    store: Arc<RedbRaftStore>,
-    raft: Raft<KbdRaftConfig>,
     quorum: Arc<QuorumPolicy>,
     available_voters: Arc<RwLock<BTreeSet<u64>>>,
 }
@@ -64,79 +63,51 @@ impl KbdControlPlane {
         if quorum.voters().len() != 1 {
             return Err(io::Error::new(
                 io::ErrorKind::InvalidInput,
-                "multi-voter startup requires explicit authenticated KbdRaftNode membership",
+                "multi-voter KBD configuration is unsupported; configure exactly one journal writer",
             ));
         }
-        let store = RedbRaftStore::open(&runtime.runtime_root().join("raft.redb"))?;
-        let signer_key_id = runtime
-            .device_signer()
-            .map_err(|error| io::Error::other(error.to_string()))?
-            .key_id()
-            .to_string();
-        let node = KbdRaftNode {
-            endpoint: format!("embedded://{}", quorum.node_id()),
-            signer_key_id: signer_key_id.clone(),
-            witness: false,
-        };
-        let network = EmbeddedRaftNetworkFactory::new(node.clone());
-        let (log_store, state_machine) = store.into_openraft_stores();
-        let config = Config {
-            cluster_name: format!("kbd-{}", runtime.runtime_root().display()),
-            ..Default::default()
-        }
-        .validate()
-        .map_err(|error| io::Error::other(error.to_string()))?;
-        let raft = Raft::new(
-            quorum.node_id(),
-            Arc::new(config),
-            network.clone(),
-            log_store,
-            state_machine,
-        )
+        let recovery_runtime = Arc::clone(&runtime);
+        if let Some(archive) = tokio::task::spawn_blocking(move || {
+            recovery_runtime
+                .recover_journal_tail()
+                .map_err(|error| io::Error::other(error.to_string()))
+        })
         .await
-        .map_err(|error| io::Error::other(error.to_string()))?;
-        network
-            .register(
-                quorum.node_id(),
-                node.clone(),
-                raft.clone(),
-                [signer_key_id],
-            )
-            .await;
-        if !raft
-            .is_initialized()
-            .await
-            .map_err(|error| io::Error::other(error.to_string()))?
-        {
-            raft.initialize(BTreeMap::from([(quorum.node_id(), node)]))
-                .await
-                .map_err(|error| io::Error::other(error.to_string()))?;
+        .map_err(|join_error| {
+            io::Error::other(format!("journal recovery task failed: {join_error}"))
+        })?? {
+            tracing::warn!(
+                archive = %archive.display(),
+                "archived an interrupted KBD journal tail before recovery"
+            );
         }
-        raft.wait(Some(Duration::from_secs(5)))
-            .current_leader(quorum.node_id(), "standalone KBD leader")
-            .await
-            .map_err(|error| io::Error::new(io::ErrorKind::TimedOut, error.to_string()))?;
-        let control = Self {
+        Ok(Self {
             runtime,
-            store,
-            raft,
             available_voters: Arc::new(RwLock::new(BTreeSet::from([quorum.node_id()]))),
             quorum: Arc::new(quorum),
-        };
-        control.bootstrap_standalone_audit_log().await?;
-        Ok(control)
+        })
     }
 
     pub fn runtime(&self) -> &Runtime {
         &self.runtime
     }
 
-    pub fn store(&self) -> &Arc<RedbRaftStore> {
-        &self.store
+    pub fn status(&self) -> io::Result<KbdStateV2> {
+        self.runtime
+            .replay()
+            .map_err(|error| io::Error::other(error.to_string()))
     }
 
-    pub fn status(&self) -> io::Result<KbdStateV2> {
-        self.store.runtime_state()
+    /// Replay the journal without parking an async runtime worker.
+    pub async fn status_async(&self) -> io::Result<KbdStateV2> {
+        let runtime = Arc::clone(&self.runtime);
+        tokio::task::spawn_blocking(move || {
+            runtime
+                .replay()
+                .map_err(|error| io::Error::other(error.to_string()))
+        })
+        .await
+        .map_err(|join_error| io::Error::other(format!("status task failed: {join_error}")))?
     }
 
     pub fn quorum_status(&self) -> QuorumStatus {
@@ -161,47 +132,66 @@ impl KbdControlPlane {
     }
 
     pub fn events(&self, since_revision: u64) -> io::Result<Vec<Event>> {
-        self.store.committed_events(since_revision)
+        let events = self
+            .runtime
+            .events()
+            .map_err(|error| io::Error::other(error.to_string()))?;
+        Ok(events
+            .into_iter()
+            .filter(|event| event.revision > since_revision)
+            .collect())
+    }
+
+    pub async fn events_async(&self, since_revision: u64) -> io::Result<Vec<Event>> {
+        let control = self.clone();
+        tokio::task::spawn_blocking(move || control.events(since_revision))
+            .await
+            .map_err(|join_error| io::Error::other(format!("events task failed: {join_error}")))?
     }
 
     pub fn diagnostics(&self) -> io::Result<serde_json::Value> {
         let state = self.status()?;
-        let events = self.events(1)?;
+        let events = self.events(0)?;
         let signature_chain_valid = replay_events(&events).is_ok();
-        let metrics = self.raft.metrics().borrow().clone();
-        let applied_index = metrics.last_applied.map(|log_id| log_id.index);
-        let commit_apply_lag = metrics
-            .last_log_index
-            .zip(applied_index)
-            .map(|(last, applied)| last.saturating_sub(applied))
-            .unwrap_or(0);
         let active_devices = state
             .devices
             .values()
             .filter(|device| device.status == DeviceStatus::Active)
             .count();
         let revoked_devices = state.devices.len().saturating_sub(active_devices);
-        let projection_revision = self.store.projection_revision()?;
+        let journal_path = self.runtime.events_path();
+        let journal_bytes = fs::metadata(&journal_path)
+            .map(|meta| meta.len())
+            .unwrap_or(0);
+        let projection_path = self
+            .runtime
+            .project_root()
+            .join(".kbd-orchestrator/current-waypoint.json");
+        let projection_revision = fs::read(&projection_path)
+            .ok()
+            .and_then(|bytes| serde_json::from_slice::<serde_json::Value>(&bytes).ok())
+            .and_then(|value| {
+                value
+                    .get("sourceRevision")
+                    .and_then(|revision| revision.as_u64())
+            });
         Ok(serde_json::json!({
             "schemaVersion": "1",
             "quorum": self.quorum_status(),
-            "raft": {
-                "nodeId": metrics.id,
-                "state": format!("{:?}", metrics.state).to_lowercase(),
-                "term": metrics.current_term,
-                "leaderId": metrics.current_leader,
-                "lastLogIndex": metrics.last_log_index,
-                "lastAppliedIndex": applied_index,
-                "commitApplyLag": commit_apply_lag,
-                "snapshotIndex": metrics.snapshot.map(|log_id| log_id.index),
-                "millisSinceQuorumAck": metrics.millis_since_quorum_ack,
-                "transport": if self.quorum.voters().len() == 1 {
-                    "embedded-standalone"
-                } else {
-                    "authenticated-embedded"
-                }
+            "singleWriter": {
+                "nodeId": self.quorum.node_id(),
+                "lockPath": self.runtime.runtime_root().join("runtime.lock"),
+                "available": self.quorum_status().writable
+            },
+            "journal": {
+                "path": journal_path,
+                "bytes": journal_bytes,
+                "eventCount": events.len(),
+                "lastRevision": events.last().map(|event| event.revision).unwrap_or(0),
+                "matchesRuntime": events.last().map(|event| event.revision).unwrap_or(0) == state.revision
             },
             "runtime": {
+                "projectId": state.project_id,
                 "revision": state.revision,
                 "lifecycle": state.lifecycle,
                 "planRevision": state.plan_revision,
@@ -210,7 +200,8 @@ impl KbdControlPlane {
             },
             "projection": {
                 "revision": projection_revision,
-                "matchesRuntime": projection_revision == state.revision
+                "path": projection_path,
+                "matchesRuntime": projection_revision == Some(state.revision)
             },
             "integrity": {
                 "signatureChainValid": signature_chain_valid,
@@ -223,103 +214,45 @@ impl KbdControlPlane {
         }))
     }
 
+    pub async fn diagnostics_async(&self) -> io::Result<serde_json::Value> {
+        let control = self.clone();
+        tokio::task::spawn_blocking(move || control.diagnostics())
+            .await
+            .map_err(|join_error| {
+                io::Error::other(format!("diagnostics task failed: {join_error}"))
+            })?
+    }
+
     pub async fn submit(&self, envelope: CommandEnvelope) -> io::Result<CommittedCommand> {
-        if let Some(original) = self.store.command_result(&envelope.command_id)? {
-            // A cached failure (apply_error set) must still surface as an
-            // error on retry — otherwise a client that retries an
-            // already-attempted, already-invalid command_id would see a
-            // false success.
-            if let Some(error) = original.apply_error.clone() {
-                return Err(io::Error::other(error));
-            }
-            let mut duplicate = original;
-            duplicate.duplicate = true;
-            return Ok(CommittedCommand {
-                result: duplicate,
-                projection_error: None,
-            });
-        }
         let quorum = self.quorum_status();
         if !quorum.writable {
             return Err(io::Error::new(io::ErrorKind::WouldBlock, quorum.reason));
         }
-        let state = self.store.runtime_state()?;
-        let event = self
-            .runtime
-            .prepare_signed_command(&state, envelope)
-            .map_err(|error| io::Error::other(error.to_string()))?;
-        let timestamp = event.timestamp;
-        let result = self
-            .raft
-            .client_write(event)
-            .await
-            .map_err(|error| io::Error::other(error.to_string()))?
-            .data;
-        // The command committed durably to the log (and the log position
-        // advances past it either way — see apply_to_state_machine), but it
-        // may still have failed business-logic validation. Surface that to
-        // the caller as an error, exactly as a hard client_write failure
-        // would have been reported before, instead of a false success.
-        if let Some(error) = result.apply_error.clone() {
-            return Err(io::Error::other(error));
-        }
-        let projection_error = self
-            .runtime
-            .write_compatibility_projections_from_state(&result.state, timestamp)
-            .err()
-            .map(|error| error.to_string());
-        Ok(CommittedCommand {
-            result,
-            projection_error,
-        })
-    }
-
-    async fn bootstrap_standalone_audit_log(&self) -> io::Result<()> {
-        if self.store.runtime_state()?.revision > 0 {
-            return Ok(());
-        }
-        let events = self
-            .runtime
-            .events()
-            .map_err(|error| io::Error::other(error.to_string()))?;
-        if events.is_empty() {
-            return Ok(());
-        }
-        let manifest = self
-            .runtime
-            .project_manifest(false)
-            .map_err(|error| io::Error::other(error.to_string()))?
-            .ok_or_else(|| {
-                io::Error::new(
-                    io::ErrorKind::InvalidData,
-                    "legacy audit import requires .prometheus/project.json",
-                )
-            })?;
-        if events
-            .iter()
-            .any(|event| event.project_id != manifest.project_id)
-        {
-            return Err(io::Error::new(
-                io::ErrorKind::InvalidData,
-                format!(
-                    "legacy audit identity does not match immutable project UUID {}; rerun `prometheus kbd migrate --apply` from a recoverable legacy backup",
-                    manifest.project_id
-                ),
-            ));
-        }
-        if self.quorum.voters().len() != 1 {
-            return Err(io::Error::new(
-                io::ErrorKind::InvalidData,
-                "legacy audit import must complete in one-voter migration mode before enabling a quorum",
-            ));
-        }
-        for event in events {
-            self.raft
-                .client_write(event)
-                .await
+        let runtime = Arc::clone(&self.runtime);
+        tokio::task::spawn_blocking(move || {
+            let result = runtime
+                .execute_command(envelope)
                 .map_err(|error| io::Error::other(error.to_string()))?;
-        }
-        Ok(())
+            if let Some(error) = result.apply_error.clone() {
+                return Err(io::Error::other(error));
+            }
+            let timestamp = runtime
+                .events()
+                .map_err(|error| io::Error::other(error.to_string()))?
+                .get(result.committed_revision.saturating_sub(1) as usize)
+                .map(|event| event.timestamp)
+                .ok_or_else(|| io::Error::other("committed event is missing from journal"))?;
+            let projection_error = runtime
+                .write_compatibility_projections_from_state(&result.state, timestamp)
+                .err()
+                .map(|error| error.to_string());
+            Ok(CommittedCommand {
+                result,
+                projection_error,
+            })
+        })
+        .await
+        .map_err(|join_error| io::Error::other(format!("command task failed: {join_error}")))?
     }
 }
 
@@ -331,7 +264,7 @@ mod tests {
     use uuid::Uuid;
 
     #[tokio::test]
-    async fn standalone_commands_commit_to_redb_without_appending_legacy_jsonl() {
+    async fn standalone_commands_commit_to_the_fsynced_journal() {
         let project = tempdir().unwrap();
         let runtime = Arc::new(Runtime::open(project.path()));
         let project_id = runtime.project_manifest(true).unwrap().unwrap().project_id;
@@ -367,8 +300,8 @@ mod tests {
         let committed = control.submit(envelope.clone()).await.unwrap();
         assert_eq!(committed.result.committed_revision, 2);
         assert!(!committed.result.duplicate);
-        assert_eq!(runtime.events().unwrap().len(), 1);
-        assert_eq!(control.events(1).unwrap().len(), 2);
+        assert_eq!(runtime.events().unwrap().len(), 2);
+        assert_eq!(control.events(1).unwrap().len(), 1);
 
         let duplicate = control.submit(envelope).await.unwrap();
         assert!(duplicate.result.duplicate);

@@ -1,9 +1,8 @@
 //! Non-authoritative KBD presence.
 //!
-//! Canonical workflow events, commands, leases, and snapshots are never
-//! carried by Loro or the shared gossip topic. They travel only as committed
-//! OpenRaft entries over authenticated peer transports. Loro is limited to
-//! ephemeral awareness after the transport has authorized the peer.
+//! During journal stabilization, canonical workflow events remain in the
+//! fsynced runtime journal. This Loro document carries only ephemeral presence;
+//! authoritative Loro deltas are introduced by the project-document layer.
 
 use loro::{ExportMode, LoroDoc};
 use serde::{Deserialize, Serialize};

@@ -63,6 +63,22 @@ async fn health_endpoint_returns_200() {
     assert_eq!(json["status"], "ok");
 }
 
+#[tokio::test]
+async fn ready_endpoint_replays_the_journal_asynchronously() {
+    let (app, _fixture) = test_router().await;
+    let req = Request::builder()
+        .method("GET")
+        .uri("/ready")
+        .body(Body::empty())
+        .unwrap();
+    let resp = app.oneshot(req).await.unwrap();
+    assert_eq!(resp.status(), StatusCode::OK);
+    let body = axum::body::to_bytes(resp.into_body(), 8192).await.unwrap();
+    let json: serde_json::Value = serde_json::from_slice(&body).unwrap();
+    assert_eq!(json["status"], "ready");
+    assert_eq!(json["revision"], 0);
+}
+
 // ---------------------------------------------------------------------------
 // 2. Sync status returns idle state and domains map
 // ---------------------------------------------------------------------------

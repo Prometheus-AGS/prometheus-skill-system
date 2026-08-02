@@ -14,7 +14,7 @@ use tracing::info;
 use uuid::Uuid;
 
 use crate::kbd_control::KbdControlPlane;
-use crate::kbd_raft::QuorumPolicy;
+use crate::kbd_single_writer::QuorumPolicy;
 
 // ---------------------------------------------------------------------------
 // SkillIndex — keyword-only loader (no embeddings, no external calls)
