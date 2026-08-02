@@ -1269,7 +1269,7 @@ fn check_harness_adapter_parity() -> CheckResult {
         }
     }
     // The pre-mutation fence was removed deliberately: it gated the operator's
-    // own shell on KBD lifecycle and lease state, which blocks ordinary work
+    // own shell on KBD lifecycle state, which blocks ordinary work
     // such as editing a submodule or a project this one depends on. Adapters
     // observe lifecycle events only, so `nativeMutationGuard` is no longer
     // required and is not checked here.

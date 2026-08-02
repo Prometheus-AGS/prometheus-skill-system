@@ -5,21 +5,21 @@ import { fileURLToPath } from 'node:url';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const corpus = JSON.parse(
-  fs.readFileSync(path.join(root, 'evals/skill-activation/critical-36.json'), 'utf8')
+  fs.readFileSync(path.join(root, 'evals/skill-activation/critical-30.json'), 'utf8')
 );
 const budgets = JSON.parse(
   fs.readFileSync(path.join(root, 'evals/skill-activation/harness-budgets.json'), 'utf8')
 );
 const failures = [];
 
-if (corpus.schemaVersion !== '1' || corpus.cases.length !== 36 || corpus.trialsPerHarness !== 3) {
-  failures.push('critical corpus must be schema 1 with 36 cases and three trials');
+if (corpus.schemaVersion !== '1' || corpus.cases.length !== 30 || corpus.trialsPerHarness !== 3) {
+  failures.push('critical corpus must be schema 1 with 30 cases and three trials');
 }
-if (new Set(corpus.cases.map(entry => entry.id)).size !== 36) {
+if (new Set(corpus.cases.map(entry => entry.id)).size !== 30) {
   failures.push('critical corpus case ids are not unique');
 }
-if (new Set(corpus.cases.map(entry => entry.skill)).size !== 6) {
-  failures.push('critical corpus must cover exactly six skills');
+if (new Set(corpus.cases.map(entry => entry.skill)).size !== 5) {
+  failures.push('critical corpus must cover exactly five skills');
 }
 const kinds = Object.fromEntries(
   ['explicit', 'implicit', 'near_miss'].map(kind => [
@@ -27,7 +27,7 @@ const kinds = Object.fromEntries(
     corpus.cases.filter(entry => entry.kind === kind).length,
   ])
 );
-if (kinds.explicit !== 6 || kinds.implicit !== 18 || kinds.near_miss !== 12) {
+if (kinds.explicit !== 5 || kinds.implicit !== 15 || kinds.near_miss !== 10) {
   failures.push(`unexpected corpus distribution: ${JSON.stringify(kinds)}`);
 }
 for (const entry of corpus.cases) {

@@ -30,13 +30,13 @@ exact next change rather than reconstruct the session from chat history.
 already been proven?” without replaying a transcript. Repeated discovery and
 duplicate work decrease, and the decision log survives a harness change.
 
-**Authority rule.** Only one machine may own a mutable KBD lease at a time.
-Authored Markdown can be replicated or carried by Git, but signed KBD commands
-must follow the ordered authority path.
+**Authority rule.** The currently deployed runtime accepts KBD writes through
+one local journal authority. Authored Markdown can be replicated or carried by
+Git, but signed KBD commands must follow that ordered path.
 
-**Today.** Use Git for reviewed project artifacts and explicitly hand off the
-KBD lease/state. P2P pairing alone does not transfer the phase tree or KBD
-authority in `0.1.0`.
+**Today.** Use Git for reviewed project artifacts and explicitly pause before
+moving execution to another machine. P2P pairing alone does not transfer the
+phase tree or KBD authority in `0.1.0`.
 
 ## 2. One user, different AI harnesses on different machines
 
@@ -47,7 +47,7 @@ Claude Code on a larger workstation for research and review.
 
 - a shared project identity;
 - distinct device signing keys and harness/session actor identities;
-- one fenced KBD command chain;
+- one ordered KBD command chain;
 - task handoffs and committed revision;
 - project-scoped context, not raw conversations.
 
@@ -111,14 +111,14 @@ the anchor restarts.
 ## 5. Pair-programming or on-call handoff
 
 **Situation.** Two trusted operators need a precise handoff during an incident
-or a long-running migration. One person pauses and releases; the other claims
-the next step from a different device.
+or a long-running migration. One person pauses and records the next step; the
+other resumes from a different device.
 
 **What should cross devices.**
 
 - current revision and lifecycle;
 - decision and evidence logs;
-- active lease owner, expiry, and fencing token;
+- actor and device provenance;
 - pause/revise/resume/cancel events;
 - exact next command and fallback;
 - device enrollment/revocation state.
@@ -127,13 +127,11 @@ the next step from a different device.
 the outgoing operator. Duplicate commands are idempotent, stale revisions are
 rejected, and the audit trail is preserved.
 
-**Availability rule.** A production topology should use an odd number of
-authenticated voters or an explicit witness policy. A two-node cluster alone
-cannot preserve availability across one failure without weakening consistency.
+**Availability rule.** A receiving operator must be able to verify the durable
+checkpoint and command history before resuming.
 
-**Today.** Embedded tests exercise quorum and fencing behavior, but normal
-daemon startup supports one local voter. This use case is a target, not a
-production-supported multi-machine workflow.
+**Today.** Normal daemon startup supports one local writer. This use case is a
+target, not a production-supported multi-machine workflow.
 
 ## 6. CI runner consumes public skill metadata
 
@@ -186,10 +184,9 @@ rejoins the operator’s environment.
 **Mergeable target.** Learner observations and approved knowledge can use CRDT
 deltas after reconnection.
 
-**Non-mergeable target.** KBD cannot accept two independent offline writers and
-later combine their command histories. Only the lease-holding authority may
-advance the canonical chain; the offline machine should work read-only or on an
-explicit branch that is reviewed/replayed later.
+**Current limitation.** KBD cannot yet accept two independent offline writers
+and later combine their command histories. An offline machine should work
+read-only or on an explicit branch that is reviewed/replayed later.
 
 **Benefit.** The system can preserve legitimate offline learning without
 pretending that causal control conflicts are ordinary text conflicts.

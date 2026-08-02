@@ -31,12 +31,6 @@ kbd_runtime_status_json() {
 }
 
 kbd_runtime_mutation_args() {
-  # Phase/stage/change/task/completion/decision/blocker commands never
-  # consult lease_id/fencing_token server-side (only LeaseHeartbeat/
-  # LeaseRelease/LeaseHandoff do, via their own dedicated actions) — so no
-  # writer lease is required here. Emits revision + command_id only; callers
-  # built against the old 4-line contract should drop the lease-id/
-  # fencing-token lines.
   local root="${1:-.}"
   local command_id="$2"
   local state revision

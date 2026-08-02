@@ -412,8 +412,6 @@ runtime_task_transition() {
 
   # Register missing change/task definitions before transitioning them. Each
   # operation refreshes revision so optimistic concurrency remains exact.
-  # No writer lease is involved — phase/change/task commands never consult
-  # lease_id/fencing_token server-side.
   if ! printf '%s' "$state" | jq -e \
       --arg phase "$phase" --arg change "$change" \
       '.phases[$phase].changes[$change]' >/dev/null 2>&1; then

@@ -76,17 +76,14 @@ MCP_STRICTNESS="$(syco_map_strictness "$STRICTNESS")"
 _clear_gate() {
   [ -f "$PROGRESS" ] || return 0
   if [ "$RUNTIME_AUTHORITY" = "1" ]; then
-    local state mutation revision lease_id fencing_token blocker_id="sycophancy:${KEY}"
+    local state mutation revision blocker_id="sycophancy:${KEY}"
     state="$(kbd_runtime_status_json "$PROJECT_ROOT")" || return 0
     printf '%s' "$state" | jq -e --arg id "$blocker_id" \
       '.blockers[$id] | select(.resolved == false)' >/dev/null 2>&1 || return 0
     mutation="$(kbd_runtime_mutation_args "$PROJECT_ROOT" "blocker-clear:${blocker_id}")" || return 1
     revision="$(printf '%s\n' "$mutation" | sed -n '1p')"
-    lease_id="$(printf '%s\n' "$mutation" | sed -n '3p')"
-    fencing_token="$(printf '%s\n' "$mutation" | sed -n '4p')"
     prometheus kbd --path "$PROJECT_ROOT" blocker clear \
       --expected-revision "$revision" --command-id "blocker-clear:${blocker_id}" \
-      --lease-id "$lease_id" --fencing-token "$fencing_token" \
       --id "$blocker_id" --resolution "artifact passed sycophancy review" >/dev/null
     return $?
   fi
@@ -96,14 +93,11 @@ _clear_gate() {
 _set_gate() {
   [ -f "$PROGRESS" ] || return 0
   if [ "$RUNTIME_AUTHORITY" = "1" ]; then
-    local mutation revision lease_id fencing_token blocker_id="sycophancy:${KEY}"
+    local mutation revision blocker_id="sycophancy:${KEY}"
     mutation="$(kbd_runtime_mutation_args "$PROJECT_ROOT" "blocker-record:${blocker_id}")" || return 1
     revision="$(printf '%s\n' "$mutation" | sed -n '1p')"
-    lease_id="$(printf '%s\n' "$mutation" | sed -n '3p')"
-    fencing_token="$(printf '%s\n' "$mutation" | sed -n '4p')"
     prometheus kbd --path "$PROJECT_ROOT" blocker record \
       --expected-revision "$revision" --command-id "blocker-record:${blocker_id}" \
-      --lease-id "$lease_id" --fencing-token "$fencing_token" \
       --id "$blocker_id" --summary "artifact rejected by sycophancy gate" >/dev/null
     return $?
   fi

@@ -93,19 +93,13 @@ if command -v kbd_runtime_authoritative >/dev/null 2>&1 &&
   RUNTIME_AUTHORITY=1
   mutation="$(kbd_runtime_mutation_args "$REPO_ROOT" "phase-create:${PHASE_NAME}")"
   revision="$(printf '%s\n' "$mutation" | sed -n '1p')"
-  lease_id="$(printf '%s\n' "$mutation" | sed -n '3p')"
-  fencing_token="$(printf '%s\n' "$mutation" | sed -n '4p')"
   prometheus kbd --path "$REPO_ROOT" phase create \
     --expected-revision "$revision" --command-id "phase-create:${PHASE_NAME}" \
-    --lease-id "$lease_id" --fencing-token "$fencing_token" \
     --id "$PHASE_NAME" --title "$PHASE_NAME" >/dev/null
   mutation="$(kbd_runtime_mutation_args "$REPO_ROOT" "phase-activate:${PHASE_NAME}")"
   revision="$(printf '%s\n' "$mutation" | sed -n '1p')"
-  lease_id="$(printf '%s\n' "$mutation" | sed -n '3p')"
-  fencing_token="$(printf '%s\n' "$mutation" | sed -n '4p')"
   prometheus kbd --path "$REPO_ROOT" phase activate \
     --expected-revision "$revision" --command-id "phase-activate:${PHASE_NAME}" \
-    --lease-id "$lease_id" --fencing-token "$fencing_token" \
     --id "$PHASE_NAME" --exact-next-work "/kbd-assess ${PHASE_NAME}" >/dev/null
 fi
 

@@ -47,8 +47,8 @@ the intended contract from the behavior operators can verify now.
 
 Prometheus produces useful state outside the source tree:
 
-- KBD knows the active phase, next command, progress, decisions, leases, and
-  handoffs;
+- KBD knows the active phase, next command, progress, decisions, and
+  checkpoints;
 - the Feynman system records mastery, knowledge gaps, observations, sessions,
   and FSRS review schedules;
 - the Karpathy learning loop produces project and shared wiki entries,
@@ -86,9 +86,9 @@ daemon’s project/global data producers in `0.1.0`.
 | P2P connectivity | Endpoint discovery, NAT traversal, relay fallback, gossip topic | Starts in daemon mode; pairing is log-driven |
 | Domain replication | Manifest gate, CRDT export/import, per-domain versions | Library-tested; not connected to daemon data sources |
 
-The KBD control plane is intentionally separate from CRDT merge. A learner
-model or public skill index can merge concurrent updates. KBD command authority
-cannot: it needs one ordered, signed, fenced event chain.
+The deployed KBD control plane is currently separate from CRDT merge. A learner
+model or public skill index can merge concurrent updates, while KBD currently
+uses one ordered, signed local event chain.
 
 ## What sync is not
 

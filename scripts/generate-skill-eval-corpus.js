@@ -23,7 +23,7 @@ const definitions = [
       'Use /kbd-resume at plan revision 3.',
       'Resume the paused KBD run from its committed next task.',
       'Continue execution only after validating the revised plan.',
-      'Claim the writer lease and resume this suspended phase.',
+      'Resume this suspended phase from its durable checkpoint.',
     ],
     near: ['Resume the download after the network reconnects.', 'Improve this résumé summary.'],
   },
@@ -48,17 +48,6 @@ const definitions = [
       'Inspect the committed causal history for this phase.',
     ],
     near: ['Audit this CSS file for accessibility.', 'What does a financial auditor do?'],
-  },
-  {
-    skill: 'kbd-handoff',
-    command: 'kbd_handoff',
-    positives: [
-      'Use /kbd-handoff to transfer the writer lease to Claude Code.',
-      'Hand this paused run from Codex to OpenCode at the same revision.',
-      'Move execution ownership to Kimi without an unleased write window.',
-      'Atomically release this harness and claim the next one.',
-    ],
-    near: ['Write a handoff note for the support team.', 'Explain a relay-race baton handoff.'],
   },
   {
     skill: 'kbd-process-orchestrator',
@@ -105,8 +94,8 @@ const corpus = {
   criticalSkills: definitions.map(definition => definition.skill),
   cases,
 };
-if (cases.length !== 36) throw new Error(`expected 36 cases, got ${cases.length}`);
+if (cases.length !== 30) throw new Error(`expected 30 cases, got ${cases.length}`);
 const output = path.join(root, 'evals/skill-activation');
 fs.mkdirSync(output, { recursive: true });
-fs.writeFileSync(path.join(output, 'critical-36.json'), `${JSON.stringify(corpus, null, 2)}\n`);
+fs.writeFileSync(path.join(output, 'critical-30.json'), `${JSON.stringify(corpus, null, 2)}\n`);
 console.log(`Generated ${cases.length} critical skill evaluation prompts.`);

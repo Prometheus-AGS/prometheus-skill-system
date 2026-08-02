@@ -35,7 +35,7 @@ Completed kbd-cancel — <phase-name> cancelled
 3. If the runtime is unavailable, create `.kbd-orchestrator/PAUSE` first and
    atomically set the waypoint status to `cancelled`, recording the prior
    status, reason, actor, and timestamp.
-4. Preserve all checkpoints and dirty-work metadata. Release any owned lease.
+4. Preserve all checkpoints and dirty-work metadata.
 5. Invoke a host-native cancel operation when the harness exposes one.
 
 Cancellation is terminal. Resuming it requires a new run, never an in-place

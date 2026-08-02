@@ -63,7 +63,7 @@ Documented in full on the [Tools Reference](13-tools-reference.md) page; summari
 | `check-kbd-direct-writers.js` | Reject new direct writers to canonical KBD compatibility projections |
 | `validate-kbd-state.js` | Validate KBD projection schemas and revision relationships |
 | `test-kbd-control-plane.sh` | Run runtime/journal/control-plane fixture tests |
-| `generate-skill-eval-corpus.js` / `check-skill-evals.js` | Maintain and validate the 36-prompt critical-skill activation corpus |
+| `generate-skill-eval-corpus.js` / `check-skill-evals.js` | Maintain and validate the 30-prompt critical-skill activation corpus |
 
 ### `prometheus kbd`
 
@@ -75,29 +75,20 @@ prometheus kbd --path "/path/to/project" status --json
 
 | Command | Purpose |
 |---|---|
-| `status [--json]` | Lifecycle, revision, plan, checkpoint, active path, completion, and lease |
+| `status [--json]` | Lifecycle, revision, plan, checkpoint, active path, and completion |
 | `pause --reason <text>` | Create the emergency valve and durable checkpoint |
 | `revise --reason <text> [--exact-next-work <text>]` | Append immutable plan revision N+1 |
-| `resume [--plan-revision <n>]` | Validate checkpoint/lease and resume |
+| `resume [--plan-revision <n>]` | Validate checkpoint and resume |
 | `cancel --reason <text>` | Terminal cancellation with audit history |
-| `claim [--scope project/phase] [--force]` | Claim the single-writer lease |
-| `heartbeat` / `release` / `handoff --to <harness>` | Maintain or transfer fenced ownership |
 | `audit [--since <revision-or-event>] [--json]` / `watch` | Inspect immutable events |
 | `migrate --check|--apply` | Inventory or import legacy ledgers |
 | `rollout status|observe|promote` | Record non-authoritative shadow/canary evidence |
 | `phase`, `stage`, `change`, `task` | Submit typed work-structure mutations |
 | `completion`, `decision`, `blocker` | Record independent completion, decisions, and blockers |
 
-Manual claims should name the receiving native adapter:
-
-```bash
-PROMETHEUS_HARNESS=claude-code \
-  prometheus kbd --path "/path/to/project" claim
-```
-
 Full runbooks: [KBD control plane](/docs/kbd/control-plane),
 [tokens](/docs/kbd/tokens-and-authentication), and
-[leases](/docs/kbd/leases-and-handoffs).
+[operator controls](/docs/kbd/operator-controls).
 
 ### The MCP port table
 
@@ -136,7 +127,7 @@ scripts remain on disk and can still be invoked directly or from CI.
 
 **SubagentStop gates** — `sycophancy-check-reflection.sh`, `evaluate-session.sh`, `propose-skill-update.sh`, `subagent-checkpoint-fallback.sh`.
 
-**KBD lifecycle and fencing** — `kbd-harness-adapter.sh`,
+**KBD lifecycle and journal authority** — `kbd-harness-adapter.sh`,
 `kbd-phase-status.sh`, `kbd-next-phase.sh`, and
 `lib/runtime-authority.sh`.
 

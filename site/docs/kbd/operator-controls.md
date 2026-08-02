@@ -19,7 +19,7 @@ prometheus kbd --path "/path/to/project" status --json | jq .
 
 Status reports the run and project IDs, committed revision, lifecycle, plan
 revision, checkpoint, exact next work, active path, completion dimensions, and
-lease.
+actor/device provenance.
 
 ## Pause
 
@@ -68,9 +68,7 @@ PROMETHEUS_HARNESS=claude-code \
   prometheus kbd --path "/path/to/project" resume --plan-revision 4
 ```
 
-Resume refuses a plan-revision mismatch. If no lease exists, the CLI claims
-one for the resuming actor. If another actor owns it, resume fails rather than
-silently taking over.
+Resume refuses a plan-revision mismatch.
 
 ## Cancel
 
@@ -108,7 +106,6 @@ The same operator contract is available as:
 /kbd-resume
 /kbd-cancel
 /kbd-audit
-/kbd-handoff
 ```
 
 These skills call the canonical CLI when available and preserve a bounded

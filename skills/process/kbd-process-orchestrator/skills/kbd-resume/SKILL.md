@@ -4,8 +4,7 @@ name: kbd-resume
 version: '1.0.0'
 argument-hint: '[--plan-revision <n>] [--reason <text> --exact-next-work <text>]'
 description: >
-  Resume a paused KBD run after validating its checkpoint, plan revision, and
-  mutation lease.
+  Resume a paused KBD run after validating its checkpoint and plan revision.
 metadata:
   tags: [process, orchestration, control, resume]
 ---
@@ -34,9 +33,8 @@ Completed kbd-resume — <phase-name> running at plan revision <n>
 1. Resolve the project and read the current checkpoint.
 2. Refuse unless the state is `paused`, `pause_requested`, or `blocked`.
 3. When the operator supplies a correction reason or replacement next work,
-   claim the lease and run `prometheus kbd revise --reason <text>
-   --exact-next-work <text>`. Use the returned N+1 revision; never edit or
-   overwrite the prior plan record.
+   run `prometheus kbd revise --reason <text> --exact-next-work <text>`. Use
+   the returned N+1 revision; never edit or overwrite the prior plan record.
 4. If `prometheus kbd` is available, run `prometheus kbd resume`, forwarding
    `--plan-revision` when supplied or created in step 3.
 5. Otherwise validate the requested plan revision, atomically restore
@@ -45,5 +43,4 @@ Completed kbd-resume — <phase-name> running at plan revision <n>
 6. Print the exact resumed command. Do not silently execute it unless the
    operator also requested execution.
 
-Never resume across a plan-revision mismatch or while another writer owns the
-active lease.
+Never resume across a plan-revision mismatch.

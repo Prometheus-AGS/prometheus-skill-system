@@ -256,7 +256,7 @@ async fn kbd_command_rejects_an_envelope_whose_project_disagrees_with_the_path()
             "harness": "claude-code",
             "session": "test-session"
         },
-        "command": { "type": "lease_heartbeat" }
+        "command": { "type": "cancel", "payload": { "reason": "path mismatch" } }
     });
     let req = Request::builder()
         .method("POST")

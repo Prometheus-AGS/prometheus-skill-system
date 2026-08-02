@@ -9,7 +9,7 @@ sidebar_label: Tool Guards
 :::info The Bash mutation fence was removed
 Earlier versions gated `Bash`, `Write`, `Edit`, and `MultiEdit` behind a
 pre-mutation fence that checked KBD project identity, control-plane
-reachability, lifecycle state, and lease ownership. That fence no longer
+reachability, and lifecycle state. That fence no longer
 exists. **Shell commands are not gated at all**, and the only remaining
 `PreToolUse` guard protects BDD test files.
 :::
@@ -29,10 +29,9 @@ definitions and feature files cannot be rewritten to manufacture a green run.
 
 ## Why the fence was removed
 
-The lease and fencing token arbitrate contention between several agents on
-several devices writing one repository. A single operator does not have that
-contention, so the mechanism protected against a failure mode that was not
-occurring — while imposing one that was.
+The fence attempted to arbitrate contention between several agents by blocking
+the operator's own tools. It protected against a failure mode that was not
+occurring while imposing one that was.
 
 Every gate failed closed. A stopped daemon, an uninitialized runtime, or a
 phase that had merely *finished* would deny `ls`, `git status`, and
@@ -53,7 +52,7 @@ was flagged every time.
 
 | Event | Behavior |
 |---|---|
-| `session_start` | Renders the bounded re-anchor block (committed revision, lifecycle, active path, next work, lease owner) |
+| `session_start` | Renders the bounded re-anchor block (committed revision, lifecycle, active path, next work) |
 | `post_compact` | Same re-anchor after context compaction |
 | `prompt` | Queues a deferred event for the daemon |
 | `stop` | Queues a deferred event; advisory only |
@@ -70,8 +69,7 @@ reflections all still work. They record position so a session — or a different
 harness entirely — can resume with one read. That bookkeeping never blocked
 anything, and it is the part that carries its weight.
 
-Leases, fencing tokens, and lifecycle state are still committed to the event
-journal and visible through
+Lifecycle state remains committed to the event journal and visible through
 [`prometheus kbd status`](./operator-controls) and the
-[REST API](/docs/sovereign-sync/rest-api). They are now advisory metadata for
-coordination and audit rather than an enforcement mechanism.
+[REST API](/docs/sovereign-sync/rest-api). Command concurrency is enforced at
+the journal transaction boundary, not by intercepting shell tools.

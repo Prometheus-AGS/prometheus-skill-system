@@ -305,7 +305,7 @@ enum SkillAction {
     Eval {
         #[arg(long)]
         harness: String,
-        #[arg(long, default_value = "evals/skill-activation/critical-36.json")]
+        #[arg(long, default_value = "evals/skill-activation/critical-30.json")]
         corpus: String,
         #[arg(long)]
         trace: Option<String>,
@@ -316,7 +316,7 @@ enum SkillAction {
 
 #[derive(Subcommand)]
 enum KbdAction {
-    /// Show lifecycle, revision, plan, checkpoint, and lease state
+    /// Show lifecycle, revision, plan, checkpoint, and workflow state
     Status {
         #[arg(long)]
         json: bool,
@@ -333,7 +333,7 @@ enum KbdAction {
         #[arg(long)]
         exact_next_work: Option<String>,
     },
-    /// Resume a paused run after claiming or validating its lease
+    /// Resume a paused run at a validated plan revision
     Resume {
         #[arg(long)]
         plan_revision: Option<u64>,
@@ -342,22 +342,6 @@ enum KbdAction {
     Cancel {
         #[arg(long)]
         reason: String,
-    },
-    /// Claim the single-writer lease
-    Claim {
-        #[arg(long, default_value = "project/phase")]
-        scope: String,
-        #[arg(long)]
-        force: bool,
-    },
-    /// Renew the active writer lease (normally every 30 seconds)
-    Heartbeat,
-    /// Release the current writer lease
-    Release,
-    /// Atomically transfer ownership to another harness
-    Handoff {
-        #[arg(long)]
-        to: String,
     },
     /// Show immutable events
     Audit {
@@ -757,10 +741,6 @@ async fn main() -> Result<()> {
                     commands::kbd::Action::Resume { plan_revision }
                 }
                 KbdAction::Cancel { reason } => commands::kbd::Action::Cancel { reason },
-                KbdAction::Claim { scope, force } => commands::kbd::Action::Claim { scope, force },
-                KbdAction::Heartbeat => commands::kbd::Action::Heartbeat,
-                KbdAction::Release => commands::kbd::Action::Release,
-                KbdAction::Handoff { to } => commands::kbd::Action::Handoff { to },
                 KbdAction::Audit { since, json } => commands::kbd::Action::Audit { since, json },
                 KbdAction::Watch => commands::kbd::Action::Watch,
                 KbdAction::Migrate { check, apply } => {

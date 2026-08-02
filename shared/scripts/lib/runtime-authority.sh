@@ -37,14 +37,12 @@ kbd_runtime_status_json() {
 }
 
 kbd_runtime_mutation_args() {
-  local root="${1:-.}" command_id="$2" state revision lease_id fencing_token
+  local root="${1:-.}" command_id="$2" state revision
   state="$(kbd_runtime_status_json "$root")" || return 1
   revision="$(printf '%s' "$state" | jq -r '.revision // empty')"
-  lease_id="$(printf '%s' "$state" | jq -r '.lease.leaseId // empty')"
-  fencing_token="$(printf '%s' "$state" | jq -r '.lease.fencingToken // empty')"
-  [ -n "$revision" ] && [ -n "$lease_id" ] && [ -n "$fencing_token" ] || {
-    printf 'kbd-runtime: a current writer lease is required\n' >&2
+  [ -n "$revision" ] || {
+    printf 'kbd-runtime: could not resolve current revision\n' >&2
     return 1
   }
-  printf '%s\n%s\n%s\n%s\n' "$revision" "$command_id" "$lease_id" "$fencing_token"
+  printf '%s\n%s\n' "$revision" "$command_id"
 }

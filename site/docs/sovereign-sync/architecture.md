@@ -159,14 +159,13 @@ connect a domain owner, or advance versions after delivery.
 
 ## MCP server tools
 
-In `--mode mcp`, Sovereign Sync exposes four discovery/sync/search tools and ten
+In `--mode mcp`, Sovereign Sync exposes four discovery/sync/search tools and six
 KBD tools:
 
 | Family | Tools |
 |---|---|
 | Discovery/sync | `search-skills`, `sync-status`, `sync-push`, `sync-peers` |
 | KBD read/control | `kbd_status`, `kbd_events`, `kbd_pause`, `kbd_revise`, `kbd_resume`, `kbd_cancel` |
-| KBD lease | `kbd_claim`, `kbd_heartbeat`, `kbd_release`, `kbd_handoff` |
 
 The CLI accepts `--prefix-tools` and logs the requested prefix mode, but the
 generated router still exposes the stable names above.

@@ -86,10 +86,7 @@ render_reanchor() {
     "Active path: " +
       ([.activePath.phaseId, .activePath.stageId, .activePath.changeId, .activePath.taskId]
        | map(select(. != null and . != "")) | join(" → ")) + "\n" +
-    "Exact next work: \(.exactNextWork // "not recorded")\n" +
-    (if .lease then
-       "Writer: \(.lease.owner.harness) on \(.lease.owner.device), fence \(.lease.fencingToken)"
-     else "Writer: unclaimed" end)
+    "Exact next work: \(.exactNextWork // "not recorded")"
   ' 2>/dev/null || true)"
   # The renderer is deliberately far below the 1,200-token contract. The
   # 4,800-character hard ceiling remains as a deterministic final guard.

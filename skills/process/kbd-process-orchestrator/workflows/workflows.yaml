@@ -100,15 +100,6 @@ workflows:
     skill: skills/kbd-audit/SKILL.md
     prompt_file: null
 
-  - name: kbd-handoff
-    description: "Transfer the KBD mutation lease to another harness"
-    args:
-      - name: harness
-        optional: false
-        description: "Target harness identity"
-    skill: skills/kbd-handoff/SKILL.md
-    prompt_file: null
-
   - name: kbd-new-phase
     description: "Start a new named KBD phase and initialize its directory structure"
     args:

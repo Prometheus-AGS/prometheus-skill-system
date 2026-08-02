@@ -194,9 +194,7 @@ impl KbdControlPlane {
                 "projectId": state.project_id,
                 "revision": state.revision,
                 "lifecycle": state.lifecycle,
-                "planRevision": state.plan_revision,
-                "lease": state.lease,
-                "fencingToken": state.last_fencing_token
+                "planRevision": state.plan_revision
             },
             "projection": {
                 "revision": projection_revision,
@@ -290,11 +288,9 @@ mod tests {
             command_id: command_id.clone(),
             expected_revision: initialized.revision,
             actor,
-            lease_id: None,
-            fencing_token: None,
-            command: CommandKind::Claim {
-                scope: "project/phase".into(),
-                force: false,
+            command: CommandKind::LifecycleTransition {
+                to: kbd_runtime::LifecycleState::Running,
+                reason: "test journal commit".into(),
             },
         };
         let committed = control.submit(envelope.clone()).await.unwrap();

@@ -22,7 +22,7 @@ Sovereign Sync/KBD control at 7892, the sycophancy gate, and liter-llm routing
 — is identical across every writer-capable row. One capability manifest maps
 each harness's native lifecycle events to the same session, compact, prompt,
 interrupt, and post-mutation contract. The pre-mutation event was removed from
-the contract: it existed only to fence tool calls on KBD lease and lifecycle
+the contract: it existed only to gate tool calls on KBD lifecycle
 state, which blocked ordinary cross-project work.
 
 ```mermaid
@@ -36,7 +36,7 @@ graph TD
     A --> H[Windsurf]
     A --> I[Gemini CLI / Roo / Amp]
     B & C & D & E --> J["Sovereign Sync KBD control :7892"]
-    J --> K["Signed canonical runtime + fenced lease"]
+    J --> K["Signed canonical runtime + exclusive journal transaction"]
     K --> L["Revision-stamped .kbd-orchestrator projections"]
     B & C & D & E & F & G & H & I --> M[(surreal-memory :23001)]
     M --> N[(prometheus-knowledge :8942)]
@@ -44,7 +44,7 @@ graph TD
 
 ## Claude Code
 
-The reference platform, and where the loop primitives are most developed. `/loop`, `/goal`, `/schedule`, `/workflows`, and Agent View ship first-party, and worktree isolation (`isolation: "worktree"`) is built into the Agent tool. The flat installer turns each skill into a slash command; the plugin manifest (`.claude-plugin/plugin.json`) declares skills, agents, hooks, and MCP servers. Claude Code/Claude Desktop coding sessions use the KBD harness ID `claude-code`; `PreToolUse` fences Bash, Write, Edit, and MultiEdit against the focused project lifecycle and lease. The hooks documented on the [Hooks & Lifecycle](15-hooks-and-lifecycle.md) page run natively.
+The reference platform, and where the loop primitives are most developed. `/loop`, `/goal`, `/schedule`, `/workflows`, and Agent View ship first-party, and worktree isolation (`isolation: "worktree"`) is built into the Agent tool. The flat installer turns each skill into a slash command; the plugin manifest (`.claude-plugin/plugin.json`) declares skills, agents, hooks, and MCP servers. Claude Code/Claude Desktop coding sessions use the KBD harness ID `claude-code`; the remaining `PreToolUse` guard protects existing BDD tests rather than gating KBD lifecycle mutations. The hooks documented on the [Hooks & Lifecycle](15-hooks-and-lifecycle.md) page run natively.
 
 ## OpenCode
 

@@ -23,7 +23,6 @@ model_routing:
     kbd-resume: small
     kbd-cancel: small
     kbd-audit: small
-    kbd-handoff: small
     kbd-reflect: frontier
     opsx-new: small
     opsx-apply: tiered
@@ -126,8 +125,9 @@ runs outside KBD. Delegates QA to `artifact-refiner` when available.
 KBD uses the append-only event journal in
 `.kbd-orchestrator/runtime/events.jsonl` as its universal coordination
 contract. Harnesses mutate it through the CLI, REST, or MCP contract while one
-writer holds the fenced lease. Compatibility JSON is generated from replay and
-is never an independent authority.
+exclusive journal lock serializes each complete command transaction.
+Compatibility JSON is generated from replay and is never an independent
+authority.
 
 ### Runtime and compatibility files
 
@@ -415,7 +415,6 @@ integration provides, and the entity schema are in
 - `/kbd-resume` — Resume a paused run at a validated plan revision
 - `/kbd-cancel` — Gracefully terminate the active run
 - `/kbd-audit` — Inspect causal history, ownership, and drift
-- `/kbd-handoff` — Transfer the single-writer lease to another harness
 - `/kbd-new-phase <name> [goals...]` — Start a new named phase with goals (implemented in `skills/kbd-new-phase/`)
 - `/kbd-new-child <name> [goals...]` — Spawn a child phase inside the active top-level phase (implemented in `skills/kbd-new-child/`)
 - `/kbd-next-child [<name>]` — Advance childPointer (implicit) or jump to a named child (implemented in `skills/kbd-next-child/`)

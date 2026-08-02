@@ -16,7 +16,7 @@ command, so a session (or a different tool entirely) resumes with one read.
 
 Waypoints are compatibility projections. A projection is accepted as current
 only when its `sourceRevision` matches the canonical runtime revision. File
-mtime is not causal authority, and direct writes do not grant a lease.
+mtime is not causal authority, and direct writes do not append an event.
 
 **Stage gates** — each stage requires its predecessor's handoff
 (`kbd_stage_gate`), and writes its own (`kbd_stage_handoff_write`) — a
@@ -53,8 +53,8 @@ memory, or parsing work.
 ## Re-anchor after compaction
 
 Session-start and post-compact events render a bounded status block containing
-the committed revision, plan revision, lifecycle, active path, exact next work,
-and current lease owner. The renderer has a 4,800-character ceiling so it
+the committed revision, plan revision, lifecycle, active path, and exact next
+work. The renderer has a 4,800-character ceiling so it
 cannot flood the new context window.
 
 *Canonical source: [`shared/lib`](https://github.com/Prometheus-AGS/prometheus-skill-system/tree/main/skills/process/kbd-process-orchestrator/shared/lib) (`hooks.sh`,

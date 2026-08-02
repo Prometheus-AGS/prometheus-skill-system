@@ -9,7 +9,7 @@ use std::{
 use uuid::Uuid;
 
 /// Rollout evidence is operational metadata only. It can gate promotion, but it
-/// cannot grant a KBD lease, append an authoritative event, or mutate KbdStateV2.
+/// cannot append an authoritative event or mutate KbdStateV2.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord)]
 #[serde(rename_all = "snake_case")]
 pub enum RolloutStage {

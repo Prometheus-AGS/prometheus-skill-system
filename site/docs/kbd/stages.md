@@ -23,10 +23,10 @@ Changes are tracked in `progress.json` (the ledger: `changes[]`,
 A phase or task can be `pending`, `in_progress`, `blocked`, `complete`, or
 `cancelled`. The run itself has a separate lifecycle:
 
-| Lifecycle | Meaning | Mutation guard |
+| Lifecycle | Meaning | Mutation policy |
 |---|---|---|
-| `ready` | Runtime exists and can be claimed | Requires the matching lease |
-| `running` | Work may proceed | Requires the matching lease |
+| `ready` | Runtime exists and can accept an initial transition | Allowed |
+| `running` | Work may proceed | Allowed and journal-serialized |
 | `pause_requested` | An interrupt or operator pause is being checkpointed | Denied |
 | `paused` | Durable checkpoint exists | Denied |
 | `blocked` | External or operator blocker is active | Denied |
@@ -35,7 +35,7 @@ A phase or task can be `pending`, `in_progress`, `blocked`, `complete`, or
 | `failed` | Run ended unsuccessfully | Denied |
 
 `prometheus kbd resume` only resumes a suspended run after validating its plan
-revision and lease. It does not reopen a completed, cancelled, or failed run.
+revision. It does not reopen a completed, cancelled, or failed run.
 Start a new phase/run for new work after a terminal state.
 
 ## Independent completion dimensions

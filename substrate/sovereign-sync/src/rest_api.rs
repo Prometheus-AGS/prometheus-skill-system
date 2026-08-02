@@ -460,8 +460,6 @@ async fn build_presence_push_envelope(
         harness: "sovereign-sync".to_string(),
         session: "daemon".to_string(),
         observed_revision: status.revision,
-        leader_term: None,
-        lease_healthy: status.lease.is_some(),
     };
     state.presence.update(&presence).map_err(|error| {
         (
@@ -927,7 +925,7 @@ pub async fn serve_with_state(port: u16, state: AppState) -> anyhow::Result<()> 
     //
     // IF YOU CHANGE THIS ADDRESS, YOU MUST ADD AUTHENTICATION FIRST. Binding
     // anything other than 127.0.0.1 exposes unauthenticated control-plane
-    // writes — lease claims, phase creation, command submission — to the
+    // writes — phase creation, command submission — to the
     // network. Design it against the threat model you actually have at that
     // point; do not resurrect the token scheme deleted here.
     let addr = SocketAddr::from(([127, 0, 0, 1], port));

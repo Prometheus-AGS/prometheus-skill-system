@@ -6,7 +6,6 @@
     "kbd-resume",
     "kbd-cancel",
     "kbd-audit",
-    "kbd-handoff",
     "kbd-process-orchestrator"
   ],
   "cases": [
@@ -16,7 +15,9 @@
       "kind": "explicit",
       "prompt": "Use /kbd-pause because I need to inspect an architectural deviation.",
       "expectedInvocation": true,
-      "expectedCommands": ["kbd_pause"],
+      "expectedCommands": [
+        "kbd_pause"
+      ],
       "forbidDirectWrites": true
     },
     {
@@ -25,7 +26,9 @@
       "kind": "implicit",
       "prompt": "Stop mutations, preserve the exact next task, and let me audit the run.",
       "expectedInvocation": true,
-      "expectedCommands": ["kbd_pause"],
+      "expectedCommands": [
+        "kbd_pause"
+      ],
       "forbidDirectWrites": true
     },
     {
@@ -34,7 +37,9 @@
       "kind": "implicit",
       "prompt": "Pause this phase before the agent makes another edit.",
       "expectedInvocation": true,
-      "expectedCommands": ["kbd_pause"],
+      "expectedCommands": [
+        "kbd_pause"
+      ],
       "forbidDirectWrites": true
     },
     {
@@ -43,7 +48,9 @@
       "kind": "implicit",
       "prompt": "Create a durable checkpoint so I can change course from another harness.",
       "expectedInvocation": true,
-      "expectedCommands": ["kbd_pause"],
+      "expectedCommands": [
+        "kbd_pause"
+      ],
       "forbidDirectWrites": true
     },
     {
@@ -70,7 +77,9 @@
       "kind": "explicit",
       "prompt": "Use /kbd-resume at plan revision 3.",
       "expectedInvocation": true,
-      "expectedCommands": ["kbd_resume"],
+      "expectedCommands": [
+        "kbd_resume"
+      ],
       "forbidDirectWrites": true
     },
     {
@@ -79,7 +88,9 @@
       "kind": "implicit",
       "prompt": "Resume the paused KBD run from its committed next task.",
       "expectedInvocation": true,
-      "expectedCommands": ["kbd_resume"],
+      "expectedCommands": [
+        "kbd_resume"
+      ],
       "forbidDirectWrites": true
     },
     {
@@ -88,16 +99,20 @@
       "kind": "implicit",
       "prompt": "Continue execution only after validating the revised plan.",
       "expectedInvocation": true,
-      "expectedCommands": ["kbd_resume"],
+      "expectedCommands": [
+        "kbd_resume"
+      ],
       "forbidDirectWrites": true
     },
     {
       "id": "kbd-resume-positive-4",
       "skill": "kbd-resume",
       "kind": "implicit",
-      "prompt": "Claim the writer lease and resume this suspended phase.",
+      "prompt": "Resume this suspended phase from its durable checkpoint.",
       "expectedInvocation": true,
-      "expectedCommands": ["kbd_resume"],
+      "expectedCommands": [
+        "kbd_resume"
+      ],
       "forbidDirectWrites": true
     },
     {
@@ -124,7 +139,9 @@
       "kind": "explicit",
       "prompt": "Use /kbd-cancel because this run should terminate gracefully.",
       "expectedInvocation": true,
-      "expectedCommands": ["kbd_cancel"],
+      "expectedCommands": [
+        "kbd_cancel"
+      ],
       "forbidDirectWrites": true
     },
     {
@@ -133,7 +150,9 @@
       "kind": "implicit",
       "prompt": "Cancel the KBD phase and preserve its audit history.",
       "expectedInvocation": true,
-      "expectedCommands": ["kbd_cancel"],
+      "expectedCommands": [
+        "kbd_cancel"
+      ],
       "forbidDirectWrites": true
     },
     {
@@ -142,7 +161,9 @@
       "kind": "implicit",
       "prompt": "Stop this workflow permanently; do not resume it.",
       "expectedInvocation": true,
-      "expectedCommands": ["kbd_cancel"],
+      "expectedCommands": [
+        "kbd_cancel"
+      ],
       "forbidDirectWrites": true
     },
     {
@@ -151,7 +172,9 @@
       "kind": "implicit",
       "prompt": "Record an operator cancellation before cleanup.",
       "expectedInvocation": true,
-      "expectedCommands": ["kbd_cancel"],
+      "expectedCommands": [
+        "kbd_cancel"
+      ],
       "forbidDirectWrites": true
     },
     {
@@ -178,7 +201,9 @@
       "kind": "explicit",
       "prompt": "Use /kbd-audit and show changes since revision 12.",
       "expectedInvocation": true,
-      "expectedCommands": ["kbd_events"],
+      "expectedCommands": [
+        "kbd_events"
+      ],
       "forbidDirectWrites": true
     },
     {
@@ -187,7 +212,9 @@
       "kind": "implicit",
       "prompt": "Audit the decisions and blockers before I revise the plan.",
       "expectedInvocation": true,
-      "expectedCommands": ["kbd_events"],
+      "expectedCommands": [
+        "kbd_events"
+      ],
       "forbidDirectWrites": true
     },
     {
@@ -196,7 +223,9 @@
       "kind": "implicit",
       "prompt": "Show exactly where the KBD run is without mutating it.",
       "expectedInvocation": true,
-      "expectedCommands": ["kbd_events"],
+      "expectedCommands": [
+        "kbd_events"
+      ],
       "forbidDirectWrites": true
     },
     {
@@ -205,7 +234,9 @@
       "kind": "implicit",
       "prompt": "Inspect the committed causal history for this phase.",
       "expectedInvocation": true,
-      "expectedCommands": ["kbd_events"],
+      "expectedCommands": [
+        "kbd_events"
+      ],
       "forbidDirectWrites": true
     },
     {
@@ -227,66 +258,14 @@
       "forbidDirectWrites": true
     },
     {
-      "id": "kbd-handoff-positive-1",
-      "skill": "kbd-handoff",
-      "kind": "explicit",
-      "prompt": "Use /kbd-handoff to transfer the writer lease to Claude Code.",
-      "expectedInvocation": true,
-      "expectedCommands": ["kbd_handoff"],
-      "forbidDirectWrites": true
-    },
-    {
-      "id": "kbd-handoff-positive-2",
-      "skill": "kbd-handoff",
-      "kind": "implicit",
-      "prompt": "Hand this paused run from Codex to OpenCode at the same revision.",
-      "expectedInvocation": true,
-      "expectedCommands": ["kbd_handoff"],
-      "forbidDirectWrites": true
-    },
-    {
-      "id": "kbd-handoff-positive-3",
-      "skill": "kbd-handoff",
-      "kind": "implicit",
-      "prompt": "Move execution ownership to Kimi without an unleased write window.",
-      "expectedInvocation": true,
-      "expectedCommands": ["kbd_handoff"],
-      "forbidDirectWrites": true
-    },
-    {
-      "id": "kbd-handoff-positive-4",
-      "skill": "kbd-handoff",
-      "kind": "implicit",
-      "prompt": "Atomically release this harness and claim the next one.",
-      "expectedInvocation": true,
-      "expectedCommands": ["kbd_handoff"],
-      "forbidDirectWrites": true
-    },
-    {
-      "id": "kbd-handoff-near-miss-1",
-      "skill": "kbd-handoff",
-      "kind": "near_miss",
-      "prompt": "Write a handoff note for the support team.",
-      "expectedInvocation": false,
-      "expectedCommands": [],
-      "forbidDirectWrites": true
-    },
-    {
-      "id": "kbd-handoff-near-miss-2",
-      "skill": "kbd-handoff",
-      "kind": "near_miss",
-      "prompt": "Explain a relay-race baton handoff.",
-      "expectedInvocation": false,
-      "expectedCommands": [],
-      "forbidDirectWrites": true
-    },
-    {
       "id": "kbd-process-orchestrator-positive-1",
       "skill": "kbd-process-orchestrator",
       "kind": "explicit",
       "prompt": "Use /kbd-process-orchestrator to continue the current phase safely.",
       "expectedInvocation": true,
-      "expectedCommands": ["kbd_status"],
+      "expectedCommands": [
+        "kbd_status"
+      ],
       "forbidDirectWrites": true
     },
     {
@@ -295,7 +274,9 @@
       "kind": "implicit",
       "prompt": "Determine the active KBD task and execute only its recorded next work.",
       "expectedInvocation": true,
-      "expectedCommands": ["kbd_status"],
+      "expectedCommands": [
+        "kbd_status"
+      ],
       "forbidDirectWrites": true
     },
     {
@@ -304,7 +285,9 @@
       "kind": "implicit",
       "prompt": "Coordinate this phase across assessment, plan, execution, and reflection.",
       "expectedInvocation": true,
-      "expectedCommands": ["kbd_status"],
+      "expectedCommands": [
+        "kbd_status"
+      ],
       "forbidDirectWrites": true
     },
     {
@@ -313,7 +296,9 @@
       "kind": "implicit",
       "prompt": "Reanchor after compaction and follow the committed lifecycle.",
       "expectedInvocation": true,
-      "expectedCommands": ["kbd_status"],
+      "expectedCommands": [
+        "kbd_status"
+      ],
       "forbidDirectWrites": true
     },
     {

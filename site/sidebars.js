@@ -48,7 +48,6 @@ const sidebars = {
         'kbd/control-plane',
         'kbd/tokens-and-authentication',
         'kbd/bash-mutation-guard',
-        'kbd/leases-and-handoffs',
       ],
     },
     {

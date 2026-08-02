@@ -15,24 +15,22 @@ Operator pause and cancellation always outrank continuation policy. The local
 `.kbd-orchestrator/PAUSE` emergency valve disables steering before any state is
 parsed.
 
-## Handoff protocol
+## Harness transition protocol
 
 1. The current writer runs `prometheus kbd pause --reason <text>` if an audit
    checkpoint is required.
 2. It records a course correction, when needed, with `prometheus kbd revise
    --reason <text> --exact-next-work <text>`.
-3. It runs `prometheus kbd handoff --to <harness>`.
-4. The runtime atomically replaces the old lease, increments the fencing
-   token, and records the target harness. There is no unleased write window.
-5. The receiving harness runs `prometheus kbd status --json`, verifies the
+3. It records the destination harness in the human handoff note and stops
+   issuing commands.
+4. The receiving harness runs `prometheus kbd status --json`, verifies the
    checkpoint and plan revision, then `prometheus kbd resume
    --plan-revision <n>`.
-6. All other harnesses remain observers. A stale lease ID, fencing token, or
-   expected revision is rejected.
+5. A stale expected revision is rejected, and the complete read/validate/append
+   transaction is serialized by the journal lock.
 
-The destination device and session are resolved only after the replicated
-handoff reaches a trusted peer. They are never copied from the sending
-session.
+The destination device and session are supplied by the receiving harness.
+They are never copied from the sending session.
 
 ## Pause checkpoint
 

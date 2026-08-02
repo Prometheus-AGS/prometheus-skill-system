@@ -114,7 +114,7 @@ reviewed learning artifact.
 ### KBD tactical loop
 
 KBD covers global phase, OpenSpec change, and artifact QA granularity. Its
-canonical command history is ordered, signed, revisioned, leased, and fenced.
+canonical command history is ordered, signed, and revisioned.
 Compatibility projections and authored Markdown live under
 `.kbd-orchestrator/`.
 
@@ -143,7 +143,7 @@ feedback digests, and elicitation checkpoints under
 
 **Current sync:** none. Two machines ticking one loop concurrently can create
 semantic conflicts even if Markdown could be merged; future coordination needs
-one lease/fence owner.
+an explicit merge and conflict policy.
 
 ### ZeeSpec, creator, and artifact QA loops
 
@@ -229,7 +229,7 @@ payload:
 | `kbd-presence:<project-id>` | device/harness/session/revision presence | Trusted ephemeral CRDT |
 | `kbd-authority:<project-id>` | signed commands, replicas, project document | Authenticated Loro deltas |
 | `openspec:<project-id>` | reviewed specs/change state | Trusted, project-scoped adapter |
-| `loop:<project-id>:<loop-id>` | definition plus single-writer tick results | Lease/fence plus structured merge |
+| `loop:<project-id>:<loop-id>` | definition plus tick results | Structured merge and conflict records |
 
 `surreal-memory`, secrets, raw transcripts, unreviewed prompts, and service logs
 should remain outside those domains.

@@ -205,19 +205,6 @@ pub struct KbdReviseParams {
 }
 
 #[derive(Debug, Serialize, Deserialize, JsonSchema)]
-pub struct KbdClaimParams {
-    #[serde(default)]
-    pub scope: String,
-    #[serde(default)]
-    pub force: bool,
-}
-
-#[derive(Debug, Serialize, Deserialize, JsonSchema)]
-pub struct KbdHandoffParams {
-    pub to: String,
-}
-
-#[derive(Debug, Serialize, Deserialize, JsonSchema)]
 pub struct KbdEventsParams {
     pub since_revision: Option<u64>,
 }
@@ -276,16 +263,7 @@ impl SovereignMcpServer {
         state: KbdStateV2,
         actor_kind: ActorKind,
         command: CommandKind,
-        lease_required: bool,
     ) -> String {
-        let (lease_id, fencing_token) = if lease_required {
-            match state.lease.as_ref() {
-                Some(lease) => (Some(lease.lease_id.clone()), Some(lease.fencing_token)),
-                None => return "KBD control error: mutation lease is required".into(),
-            }
-        } else {
-            (None, None)
-        };
         let envelope = CommandEnvelope {
             schema_version: "1".into(),
             project_id: state.project_id.clone(),
@@ -293,8 +271,6 @@ impl SovereignMcpServer {
             command_id: Uuid::new_v4().to_string(),
             expected_revision: state.revision,
             actor: mcp_actor(actor_kind),
-            lease_id,
-            fencing_token,
             command,
         };
         match self.kbd_control.submit(envelope).await {
@@ -369,7 +345,7 @@ impl SovereignMcpServer {
 
     #[tool(
         name = "kbd_status",
-        description = "Read canonical KBD lifecycle, revision, checkpoint, and lease state."
+        description = "Read canonical KBD lifecycle, revision, checkpoint, and workflow state."
     )]
     pub async fn kbd_status(&self) -> String {
         match self.kbd_control.status() {
@@ -399,7 +375,7 @@ impl SovereignMcpServer {
                         plan_revision: state.plan_revision,
                     },
                 };
-                self.submit_fresh(state, ActorKind::Operator, command, false)
+                self.submit_fresh(state, ActorKind::Operator, command)
                     .await
             }
             Err(error) => format!("KBD status error: {error}"),
@@ -420,7 +396,6 @@ impl SovereignMcpServer {
                         reason: params.0.reason,
                         exact_next_work: params.0.exact_next_work,
                     },
-                    true,
                 )
                 .await
             }
@@ -430,7 +405,7 @@ impl SovereignMcpServer {
 
     #[tool(
         name = "kbd_resume",
-        description = "Resume a paused KBD run at the validated plan revision and lease."
+        description = "Resume a paused KBD run at the validated plan revision."
     )]
     pub async fn kbd_resume(&self, params: Parameters<KbdResumeParams>) -> String {
         match self.kbd_control.status() {
@@ -440,7 +415,6 @@ impl SovereignMcpServer {
                     state,
                     ActorKind::Operator,
                     CommandKind::Resume { plan_revision },
-                    true,
                 )
                 .await
             }
@@ -461,91 +435,6 @@ impl SovereignMcpServer {
                     CommandKind::Cancel {
                         reason: params.0.reason,
                     },
-                    false,
-                )
-                .await
-            }
-            Err(error) => format!("KBD status error: {error}"),
-        }
-    }
-
-    #[tool(name = "kbd_claim", description = "Claim the KBD single-writer lease.")]
-    pub async fn kbd_claim(&self, params: Parameters<KbdClaimParams>) -> String {
-        match self.kbd_control.status() {
-            Ok(state) => {
-                let scope = if params.0.scope.is_empty() {
-                    "project/phase".into()
-                } else {
-                    params.0.scope
-                };
-                self.submit_fresh(
-                    state,
-                    if params.0.force {
-                        ActorKind::Operator
-                    } else {
-                        ActorKind::Harness
-                    },
-                    CommandKind::Claim {
-                        scope,
-                        force: params.0.force,
-                    },
-                    false,
-                )
-                .await
-            }
-            Err(error) => format!("KBD status error: {error}"),
-        }
-    }
-
-    #[tool(
-        name = "kbd_heartbeat",
-        description = "Renew the active KBD writer lease for another 90 seconds."
-    )]
-    pub async fn kbd_heartbeat(&self) -> String {
-        match self.kbd_control.status() {
-            Ok(state) => {
-                self.submit_fresh(state, ActorKind::Harness, CommandKind::LeaseHeartbeat, true)
-                    .await
-            }
-            Err(error) => format!("KBD status error: {error}"),
-        }
-    }
-
-    #[tool(
-        name = "kbd_release",
-        description = "Release the current KBD writer lease."
-    )]
-    pub async fn kbd_release(&self) -> String {
-        match self.kbd_control.status() {
-            Ok(state) => {
-                self.submit_fresh(
-                    state,
-                    ActorKind::Harness,
-                    CommandKind::LeaseRelease {
-                        reason: "MCP release".into(),
-                    },
-                    true,
-                )
-                .await
-            }
-            Err(error) => format!("KBD status error: {error}"),
-        }
-    }
-
-    #[tool(
-        name = "kbd_handoff",
-        description = "Atomically hand the KBD lease to another harness and increment its fence."
-    )]
-    pub async fn kbd_handoff(&self, params: Parameters<KbdHandoffParams>) -> String {
-        match self.kbd_control.status() {
-            Ok(state) => {
-                self.submit_fresh(
-                    state,
-                    ActorKind::Harness,
-                    CommandKind::LeaseHandoff {
-                        target: Actor::handoff_target(params.0.to),
-                    },
-                    true,
                 )
                 .await
             }

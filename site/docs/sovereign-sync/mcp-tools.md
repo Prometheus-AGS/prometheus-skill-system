@@ -6,8 +6,8 @@ sidebar_label: MCP Tools
 
 # MCP Tools
 
-In `--mode mcp`, Sovereign Sync exposes fourteen tools: four local
-discovery/sync tools and ten KBD control tools.
+In `--mode mcp`, Sovereign Sync exposes ten tools: four local discovery/sync
+tools and six KBD control tools.
 
 ## Configuration
 
@@ -75,24 +75,20 @@ live gossip neighbors. See [Pair two machines](./pair-two-machines).
 
 ## KBD read and operator tools
 
-| Tool | Input | Lease required |
-|---|---|---|
-| `kbd_status` | none | No |
-| `kbd_events` | `{"since_revision": 1}` | No |
-| `kbd_pause` | `{"reason":"…"}` | No; operator action |
-| `kbd_cancel` | `{"reason":"…"}` | No; operator action |
-| `kbd_claim` | `{"scope":"project/phase","force":false}` | No |
-| `kbd_revise` | `{"reason":"…","exact_next_work":"…"}` | Yes |
-| `kbd_resume` | `{"plan_revision":4}` | Yes |
-| `kbd_heartbeat` | none | Yes |
-| `kbd_release` | none | Yes |
-| `kbd_handoff` | `{"to":"claude-code"}` | Yes |
+| Tool | Input |
+|---|---|
+| `kbd_status` | none |
+| `kbd_events` | `{"since_revision": 1}` |
+| `kbd_pause` | `{"reason":"…"}` |
+| `kbd_cancel` | `{"reason":"…"}` |
+| `kbd_revise` | `{"reason":"…","exact_next_work":"…"}` |
+| `kbd_resume` | `{"plan_revision":4}` |
 
 ### `kbd_status`
 
 Returns canonical `KbdStateV2`, including lifecycle, committed revision, plan
 revision, checkpoint, exact next work, active path, completion dimensions,
-devices, blockers, and lease.
+devices, and blockers.
 
 ### `kbd_events`
 
@@ -100,8 +96,7 @@ Returns immutable committed events starting at `since_revision` (default 1).
 
 ### `kbd_pause`
 
-Creates a pause checkpoint. Operator pause is allowed without the writer lease
-so it cannot be blocked by a stale agent.
+Creates a pause checkpoint.
 
 ```json
 {"reason":"Pause before rotating the control token"}
@@ -113,15 +108,6 @@ Transitions the run to terminal `cancelled` while preserving history.
 
 ```json
 {"reason":"Operator abandoned this run"}
-```
-
-### `kbd_claim`
-
-Claims the single-writer lease. `force:true` is an explicit audited operator
-takeover.
-
-```json
-{"scope":"project/phase","force":false}
 ```
 
 ### `kbd_revise`
@@ -143,27 +129,8 @@ Resumes a suspended lifecycle at the supplied or current plan revision.
 {"plan_revision":4}
 ```
 
-### `kbd_heartbeat`
-
-Renews the active lease for another 90 seconds. Writers normally heartbeat
-every 30 seconds.
-
-### `kbd_release`
-
-Releases the current lease using its committed lease ID and fence.
-
-### `kbd_handoff`
-
-Transfers ownership atomically and increments the fencing generation:
-
-```json
-{"to":"claude-code"}
-```
-
-Use stable harness IDs: `claude-code`, `codex`, `opencode`, or `kimi`.
-
 ## Error behavior
 
-MCP tools return a textual `KBD control error: …` result for revision, lease,
-fence, quorum, or integrity failures. They do not fall back to directly
-editing `.kbd-orchestrator` compatibility files.
+MCP tools return a textual `KBD control error: …` result for revision,
+single-writer policy, signature, or integrity failures. They do not fall back
+to directly editing `.kbd-orchestrator` compatibility files.

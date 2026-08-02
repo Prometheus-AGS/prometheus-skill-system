@@ -16,8 +16,8 @@ lifecycle. The current implementation separates two concerns:
 
 Every phase still moves through six stages, but `progress.json`,
 `current-waypoint.json`, and `position.json` are now revision-stamped views of
-the committed runtime. They are not the authority for leases, lifecycle
-transitions, or cross-harness ownership.
+the committed runtime. They are not the authority for lifecycle transitions
+or command ordering.
 
 ```mermaid
 flowchart LR
@@ -45,20 +45,18 @@ Sovereign Sync around one ordered history:
 - implementation, evidence, certification, and publication completion;
 - decisions and blockers;
 - enrolled or revoked signing devices;
-- a 90-second single-writer lease with monotonic fencing;
+- a single exclusive journal transaction for each command;
 - idempotent command results keyed by `commandId`.
 
-Every mutation supplies the expected committed revision. Lease-protected
-mutations also supply the lease ID and fencing token. A stale harness therefore
-cannot regain authority by editing a JSON file or waiting for a wall-clock
-timestamp.
+Every mutation supplies the expected committed revision. A stale harness
+cannot regain authority by editing a JSON file, and concurrent commands are
+serialized across replay, validation, append, and fsync by one journal lock.
 
 ## Start here
 
 - [Canonical control plane](./control-plane): runtime, identity, events, and projections
 - [Tokens and authentication](./tokens-and-authentication): bearer token, operator ID, and device key
 - [Tool guards](./bash-mutation-guard): the one remaining write guard, and why the Bash fence was removed
-- [Leases and handoffs](./leases-and-handoffs): Claude Code, Codex, and fenced ownership
 - [Operator controls](./operator-controls): pause, revise, resume, cancel, and audit
 - [Migration and rollout](./migration-and-rollout): importing legacy ledgers and canary gates
 - [Troubleshooting](./troubleshooting): error-to-remediation lookup

@@ -133,11 +133,8 @@ if command -v kbd_runtime_authoritative >/dev/null 2>&1 &&
    kbd_runtime_authoritative "$REPO_ROOT"; then
   mutation="$(kbd_runtime_mutation_args "$REPO_ROOT" "phase-create:${CHILD_PHASE_NAME}")"
   revision="$(printf '%s\n' "$mutation" | sed -n '1p')"
-  lease_id="$(printf '%s\n' "$mutation" | sed -n '3p')"
-  fencing_token="$(printf '%s\n' "$mutation" | sed -n '4p')"
   prometheus kbd --path "$REPO_ROOT" phase create \
     --expected-revision "$revision" --command-id "phase-create:${CHILD_PHASE_NAME}" \
-    --lease-id "$lease_id" --fencing-token "$fencing_token" \
     --id "$CHILD_PHASE_NAME" --title "$CHILD_PHASE_NAME" >/dev/null
 else
 # Write progress.json for the child phase

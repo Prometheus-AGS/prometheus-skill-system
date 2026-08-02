@@ -27,8 +27,6 @@ The committed event sequence is authoritative. Compatibility files exist for
 readers and older skills, but a direct file edit cannot:
 
 - change the committed lifecycle;
-- claim or transfer a lease;
-- increment the fencing generation;
 - revise a plan;
 - enroll a device;
 - satisfy an expected-revision check.
@@ -110,18 +108,17 @@ All mutation surfaces use the same versioned envelope:
     "harness": "claude-code",
     "session": "session-id"
   },
-  "leaseId": "current lease UUID",
-  "fencingToken": 4,
   "command": {
-    "type": "lease_heartbeat"
+    "type": "pause",
+    "payload": {"reason": "Operator checkpoint"}
   }
 }
 ```
 
 `commandId` makes retries idempotent: a duplicate returns the original
 committed result instead of appending a second event. `expectedRevision`
-provides optimistic concurrency. Lease-protected mutations additionally
-require the current lease ID and fencing token.
+provides optimistic concurrency. One exclusive lock covers replay, validation,
+event preparation, append, and fsync.
 
 ## State model
 
@@ -129,7 +126,6 @@ require the current lease ID and fencing token.
 
 - run, lifecycle, revision, and immutable plan revision;
 - pause checkpoint and exact next work;
-- current lease and last fencing token;
 - active phase/stage/change/task path;
 - phase, stage, change, and task records;
 - implementation, evidence, certification, and publication completion;
@@ -144,5 +140,5 @@ prometheus kbd --path "$PROJECT_ROOT" status --json | jq .
 prometheus kbd --path "$PROJECT_ROOT" audit --json | jq .
 ```
 
-See [Leases and handoffs](./leases-and-handoffs) for writer ownership and
-[Migration and rollout](./migration-and-rollout) for importing legacy state.
+See [Migration and rollout](./migration-and-rollout) for importing legacy
+state.

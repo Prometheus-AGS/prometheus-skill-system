@@ -166,12 +166,9 @@ EOF
 /loop-tick quality-gate
 ```
 
-For structured development work, `/create-native-agent` scaffolds a complete agent and the KBD orchestrator handles the full lifecycle. Claim the writer lease for the active harness before mutations:
-
-```bash
-PROMETHEUS_HARNESS=claude-code \
-  prometheus kbd --path "$PROJECT_ROOT" claim
-```
+For structured development work, `/create-native-agent` scaffolds a complete
+agent and the KBD orchestrator handles the full lifecycle. Use
+`prometheus kbd --path "$PROJECT_ROOT" status` to re-anchor before mutations.
 
 Claude Code/Claude Desktop uses `claude-code`; other stable IDs are `codex`,
 `opencode`, and `kimi`. A valid token does not override a paused, blocked, or

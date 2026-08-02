@@ -28,7 +28,7 @@ for (const [harness, file] of Object.entries(expected)) {
     failures.push(`${harness}: adapter does not invoke the canonical guard`);
   }
   // The pre-mutation fence was removed deliberately: it gated the operator's
-  // own shell on KBD lifecycle/lease state, which blocks ordinary work such as
+  // own shell on KBD lifecycle state, which blocks ordinary work such as
   // editing a submodule or a project this one depends on. Adapters now observe
   // lifecycle events only; they never intercept a tool call.
   for (const required of ['sessionStart', 'preCompact', 'postCompact', 'stop']) {

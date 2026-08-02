@@ -55,29 +55,20 @@ prometheus kbd --path "$PROJECT_ROOT" migrate --check
 prometheus kbd --path "$PROJECT_ROOT" migrate --apply
 ```
 
-## Lifecycle or lease looks wrong
+## Lifecycle looks wrong
 
-Bash is no longer gated by KBD state — a stale lifecycle or lease cannot block a
-shell command (see [Tool guards](./bash-mutation-guard)). It can still cause the
-control plane to reject a `prometheus kbd` command. Read the lifecycle and lease
-independently:
+Bash is no longer gated by KBD state, so a stale lifecycle cannot block a shell
+command (see [Tool guards](./bash-mutation-guard)). It can still cause the
+control plane to reject a `prometheus kbd` command. Read the lifecycle and
+checkpoint:
 
 ```bash
 prometheus kbd --path "$PROJECT_ROOT" status --json |
-  jq '{lifecycle, owner: .lease.owner.harness, fence: .lease.fencingToken}'
+  jq '{lifecycle, checkpoint, exactNextWork}'
 ```
 
 - Suspended lifecycle: audit and resume explicitly.
 - Terminal lifecycle: start a new run/phase.
-- No lease: claim for the active harness.
-- Different owner: hand off or release; do not edit the lease projection.
-
-For Claude Code:
-
-```bash
-PROMETHEUS_HARNESS=claude-code \
-  prometheus kbd --path "$PROJECT_ROOT" claim
-```
 
 ## Service environment change is ignored on macOS
 
@@ -127,5 +118,5 @@ prometheus kbd --path "$PROJECT_ROOT" status --json > kbd-status.json
 ```
 
 Then inspect diagnostics through the authenticated REST endpoint. Divergent
-offline branches, invalid signatures, revoked devices, and stale fencing
-tokens are safety failures that require audit—not a forceful file repair.
+offline branches, invalid signatures, and revoked devices are safety failures
+that require audit—not a forceful file repair.

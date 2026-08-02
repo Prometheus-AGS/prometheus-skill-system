@@ -66,13 +66,12 @@ it (exit 2).
 
 The pre-mutation fence (`kbd-harness-adapter.sh pre_mutation`) previously gated
 `Bash`, `Write`, `Edit`, and `MultiEdit` on KBD project identity, control-plane
-reachability, lifecycle state, and lease ownership. It was removed, along with
+reachability, and lifecycle state. It was removed, along with
 `pipeline-enforce.sh`, `scope-guard.sh`, `check-child-scope.sh`,
 `guard-direct-deploy.sh`, and `cedar-skill-gate.sh`.
 
 The fence assumed several agents on several devices contending for one
-repository — the case its lease and fencing token exist to arbitrate. A single
-operator does not have that contention, and the cost was severe: every gate
+repository. A single operator does not have that contention, and the cost was severe: every gate
 failed closed, so a stopped daemon, an uninitialized runtime, or a phase that
 had simply *finished* removed the operator's ability to run `ls`, `git status`,
 or `cargo test` — including the very diagnostics each denial recommended. The

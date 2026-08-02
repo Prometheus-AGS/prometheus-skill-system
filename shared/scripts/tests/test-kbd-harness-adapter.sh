@@ -10,8 +10,8 @@ printf '{"schemaVersion":"1","projectId":"00000000-0000-4000-8000-000000000001",
   >"$TEST_ROOT/.prometheus/project.json"
 
 # The adapter no longer intercepts tool calls: the pre-mutation fence was
-# removed because it gated the operator's own shell on KBD lifecycle and lease
-# state. An emergency PAUSE must still be *observable* — session_start and
+# removed because it gated the operator's own shell on KBD lifecycle state. An
+# emergency PAUSE must still be *observable* — session_start and
 # post_compact announce it — but it must never deny a tool call, and no event
 # may exit nonzero.
 printf 'paused\n' >"$TEST_ROOT/.kbd-orchestrator/PAUSE"
@@ -33,7 +33,7 @@ rm "$TEST_ROOT/.kbd-orchestrator/PAUSE"
 mkdir -p "$TEST_ROOT/bin"
 cat >"$TEST_ROOT/bin/curl" <<'MOCK'
 #!/usr/bin/env bash
-printf '%s\n' '{"revision":42,"planRevision":7,"lifecycle":"paused","activePath":{"phaseId":"phase-a","stageId":"audit","changeId":"change-a","taskId":"task-a"},"exactNextWork":"Review the committed architecture decision","lease":{"owner":{"harness":"codex","device":"device-a"},"fencingToken":9}}'
+printf '%s\n' '{"revision":42,"planRevision":7,"lifecycle":"paused","activePath":{"phaseId":"phase-a","stageId":"audit","changeId":"change-a","taskId":"task-a"},"exactNextWork":"Review the committed architecture decision"}'
 MOCK
 chmod +x "$TEST_ROOT/bin/curl"
 printf 'test-control-token-with-at-least-thirty-two-characters\n' >"$TEST_ROOT/control-token"

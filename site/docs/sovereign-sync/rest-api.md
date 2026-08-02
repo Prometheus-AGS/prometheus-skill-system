@@ -128,7 +128,7 @@ Diagnostics include:
 - quorum writable state and reason;
 - single-writer node and lock path;
 - journal path, byte size, event count, revision, and runtime match;
-- runtime revision, lifecycle, plan revision, lease, and fence;
+- runtime revision, lifecycle, and plan revision;
 - compatibility projection revision/match;
 - signature-chain validity and event count;
 - active and revoked device counts.
@@ -153,10 +153,9 @@ send it back as `Last-Event-ID` when reconnecting.
 ### `POST /api/v1/kbd/projects/{projectId}/commands`
 
 The path project ID must equal `envelope.projectId`. Every command supplies a
-fresh `commandId` and current `expectedRevision`. Lease-protected commands also
-supply the current `leaseId` and `fencingToken`.
+fresh `commandId` and current `expectedRevision`.
 
-Example lease claim:
+Example cancellation command:
 
 ```bash
 RUN_ID="$(curl --fail-with-body -H "$AUTH_HEADER" \
@@ -185,11 +184,9 @@ jq -n \
       harness: "claude-code",
       session: "manual-rest-example"
     },
-    leaseId: null,
-    fencingToken: null,
     command: {
-      type: "claim",
-      payload: {scope: "project/phase", force: false}
+      type: "cancel",
+      payload: {reason: "Operator abandoned this run"}
     }
   }' |
 curl --fail-with-body \
@@ -201,7 +198,7 @@ curl --fail-with-body \
 ```
 
 Prefer `prometheus kbd` or MCP for routine operations; they construct the
-envelope and current lease context safely.
+envelope safely.
 
 ## AG-UI routes
 
@@ -217,5 +214,5 @@ Both require the bearer token. See [AG-UI SSE Reference](./ag-ui-sse).
 | `400` | Path project ID differs from command envelope |
 | `401` | Missing or invalid bearer token |
 | `404` | Unknown focused project or uninitialized KBD runtime |
-| `409` | Replay, revision, lease, fencing, signature, or command conflict |
+| `409` | Replay, revision, signature, or command conflict |
 | `503` | Quorum is not writable |

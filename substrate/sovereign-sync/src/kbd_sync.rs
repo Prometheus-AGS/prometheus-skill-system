@@ -33,8 +33,6 @@ pub struct KbdPresence {
     pub harness: String,
     pub session: String,
     pub observed_revision: u64,
-    pub leader_term: Option<u64>,
-    pub lease_healthy: bool,
 }
 
 pub struct KbdPresenceDocument {
@@ -122,8 +120,6 @@ mod tests {
             harness: "codex".into(),
             session: "session-a".into(),
             observed_revision: 12,
-            leader_term: Some(4),
-            lease_healthy: true,
         }
     }
 
@@ -155,14 +151,7 @@ mod tests {
         assert_eq!(second.entries().unwrap(), vec![presence()]);
 
         let json = serde_json::to_value(presence()).unwrap();
-        for forbidden in [
-            "events",
-            "command",
-            "leaseId",
-            "fencingToken",
-            "transcript",
-            "prompt",
-        ] {
+        for forbidden in ["events", "eventId", "command", "projectDocument", "transcript", "prompt"] {
             assert!(json.get(forbidden).is_none());
         }
     }

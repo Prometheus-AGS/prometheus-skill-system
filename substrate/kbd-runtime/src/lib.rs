@@ -2,7 +2,7 @@ use base64::{
     engine::general_purpose::STANDARD as BASE64,
     Engine as _,
 };
-use chrono::{DateTime, Duration, Utc};
+use chrono::{DateTime, Utc};
 use ed25519_dalek::{Signature, Signer, SigningKey, Verifier, VerifyingKey};
 use fs2::FileExt;
 use rand_core::OsRng;
@@ -20,8 +20,6 @@ use uuid::Uuid;
 pub mod rollout;
 
 pub const EVENT_SCHEMA_VERSION: &str = "2";
-pub const DEFAULT_LEASE_TTL_SECONDS: i64 = 90;
-pub const DEFAULT_HEARTBEAT_SECONDS: i64 = 30;
 
 #[derive(Debug, Error)]
 pub enum RuntimeError {
@@ -54,12 +52,6 @@ pub enum RuntimeError {
         from: LifecycleState,
         to: LifecycleState,
     },
-    #[error("mutation lease is required")]
-    LeaseRequired,
-    #[error("lease {0} is owned by another writer")]
-    LeaseConflict(String),
-    #[error("stale fencing token: supplied {supplied}, current {current}")]
-    StaleFencing { supplied: u64, current: u64 },
     #[error("plan revision mismatch: supplied {supplied}, current {current}")]
     PlanRevision { supplied: u64, current: u64 },
     #[error("command targets project {supplied}, runtime project is {current}")]
@@ -317,18 +309,6 @@ impl Actor {
         }
     }
 
-    /// Create a lease target that can be completed by the named harness on a
-    /// trusted device/session discovered after the handoff event replicates.
-    pub fn handoff_target(harness: impl Into<String>) -> Self {
-        let harness = harness.into();
-        Self {
-            kind: ActorKind::Harness,
-            id: harness.clone(),
-            device: "*".into(),
-            harness,
-            session: "*".into(),
-        }
-    }
 }
 
 fn device_identity() -> String {
@@ -485,18 +465,6 @@ pub struct Blocker {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
-#[serde(rename_all = "camelCase")]
-pub struct Lease {
-    pub scope: String,
-    pub lease_id: String,
-    pub owner: Actor,
-    pub fencing_token: u64,
-    pub acquired_at: DateTime<Utc>,
-    pub heartbeat_at: DateTime<Utc>,
-    pub expires_at: DateTime<Utc>,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(tag = "type", content = "payload", rename_all = "snake_case")]
 pub enum EventKind {
     RunInitialized {
@@ -521,24 +489,6 @@ pub enum EventKind {
         reason: String,
         superseded_next_work: Option<String>,
         exact_next_work: Option<String>,
-    },
-    LeaseClaimed {
-        lease: Lease,
-    },
-    LeaseHeartbeat {
-        lease_id: String,
-        fencing_token: u64,
-        heartbeat_at: DateTime<Utc>,
-        expires_at: DateTime<Utc>,
-    },
-    LeaseReleased {
-        lease_id: String,
-        fencing_token: u64,
-        reason: String,
-    },
-    LeaseHandedOff {
-        previous_lease_id: String,
-        lease: Lease,
     },
     LegacyStateImported {
         phases: BTreeMap<String, Phase>,
@@ -632,8 +582,6 @@ pub struct Event {
     pub expected_revision: u64,
     pub causal_parent: Option<String>,
     pub actor: Actor,
-    pub lease_id: Option<String>,
-    pub fencing_token: Option<u64>,
     pub timestamp: DateTime<Utc>,
     pub kind: EventKind,
     pub previous_hash: Option<String>,
@@ -697,12 +645,9 @@ impl Event {
             // it adds no real protection; the actual trust boundary is the
             // signature itself (proving local OS-keychain/filesystem key
             // possession) plus revocation (above), which remains fully
-            // enforced. Routine harness-driven commands (claim, heartbeat,
-            // release) submit as ActorKind::Harness, not Operator, so
-            // restricting this to Operator alone still deadlocked ordinary
-            // day-to-day use the moment a second local identity (e.g. a
-            // headless daemon vs. the interactive CLI on the same machine)
-            // touched the same project.
+            // enforced. A second local identity (for example a headless
+            // daemon and an interactive CLI) may legitimately sign events;
+            // the signature and revocation records are the trust boundary.
             self.signer_public_key
                 .as_deref()
                 .ok_or_else(|| RuntimeError::UnknownSigner(key_id.clone()))?
@@ -764,8 +709,6 @@ pub struct KbdStateV2 {
     pub lifecycle: LifecycleState,
     pub plan_revision: u64,
     pub checkpoint: Option<Checkpoint>,
-    pub lease: Option<Lease>,
-    pub last_fencing_token: u64,
     pub exact_next_work: Option<String>,
     pub active_path: ActivePath,
     pub phases: BTreeMap<String, Phase>,
@@ -825,8 +768,6 @@ pub struct ProjectManifest {
 pub struct MutationContext {
     pub expected_revision: u64,
     pub command_id: String,
-    pub lease_id: String,
-    pub fencing_token: u64,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
@@ -838,8 +779,6 @@ pub struct CommandEnvelope {
     pub command_id: String,
     pub expected_revision: u64,
     pub actor: Actor,
-    pub lease_id: Option<String>,
-    pub fencing_token: Option<u64>,
     pub command: CommandKind,
 }
 
@@ -852,10 +791,6 @@ pub enum CommandKind {
     Cancel {
         reason: String,
     },
-    Claim {
-        scope: String,
-        force: bool,
-    },
     LifecycleTransition {
         to: LifecycleState,
         reason: String,
@@ -866,13 +801,6 @@ pub enum CommandKind {
     PlanRevise {
         reason: String,
         exact_next_work: Option<String>,
-    },
-    LeaseHeartbeat,
-    LeaseRelease {
-        reason: String,
-    },
-    LeaseHandoff {
-        target: Actor,
     },
     PhaseDefine {
         phase: Phase,
@@ -978,8 +906,6 @@ impl Default for KbdStateV2 {
             lifecycle: LifecycleState::Ready,
             plan_revision: 1,
             checkpoint: None,
-            lease: None,
-            last_fencing_token: 0,
             exact_next_work: None,
             active_path: ActivePath::default(),
             phases: BTreeMap::new(),
@@ -1038,11 +964,8 @@ impl KbdStateV2 {
         // mirrors the widened trust condition in `Event::verify_signature`
         // above. Keeps `devices` (and therefore revocation) accurate for
         // every local identity that legitimately touches this project,
-        // instead of only the first one ever seen. Not gated on actor kind:
-        // routine harness-driven commands (claim, heartbeat, release) submit
-        // as ActorKind::Harness, not Operator, and ActorKind is a
-        // self-declared routing label anyway, not a cryptographic identity
-        // claim — the signature itself is the real trust boundary.
+        // instead of only the first one ever seen. ActorKind is a routing
+        // label, while the signature is the cryptographic trust boundary.
         if event.schema_version != "1" && !signer_already_enrolled {
             let key_id = event
                 .signer_key_id
@@ -1095,9 +1018,6 @@ impl KbdStateV2 {
                     });
                 }
                 self.lifecycle = to.clone();
-                if *to == LifecycleState::Cancelled {
-                    self.lease = None;
-                }
             }
             EventKind::CheckpointCreated { checkpoint } => {
                 self.exact_next_work.clone_from(&checkpoint.exact_next_work);
@@ -1130,34 +1050,6 @@ impl KbdStateV2 {
                 }
                 self.plan_revision = *to_revision;
                 self.exact_next_work.clone_from(exact_next_work);
-            }
-            EventKind::LeaseClaimed { lease } => {
-                self.last_fencing_token = lease.fencing_token;
-                self.lease = Some(lease.clone());
-            }
-            EventKind::LeaseHeartbeat {
-                lease_id,
-                fencing_token,
-                heartbeat_at,
-                expires_at,
-            } => {
-                let lease = self.lease.as_mut().ok_or(RuntimeError::LeaseRequired)?;
-                ensure_lease(lease, lease_id, *fencing_token)?;
-                lease.heartbeat_at = *heartbeat_at;
-                lease.expires_at = *expires_at;
-            }
-            EventKind::LeaseReleased {
-                lease_id,
-                fencing_token,
-                ..
-            } => {
-                let lease = self.lease.as_ref().ok_or(RuntimeError::LeaseRequired)?;
-                ensure_lease(lease, lease_id, *fencing_token)?;
-                self.lease = None;
-            }
-            EventKind::LeaseHandedOff { lease, .. } => {
-                self.last_fencing_token = lease.fencing_token;
-                self.lease = Some(lease.clone());
             }
             EventKind::LegacyStateImported {
                 phases,
@@ -1586,15 +1478,6 @@ impl KbdStateV2 {
             },
         );
     }
-}
-
-fn ensure_lease(_lease: &Lease, _lease_id: &str, _fencing_token: u64) -> Result<()> {
-    // No-op: lease-id and fencing-token matching no longer gate mutations.
-    // For a solo operator there is no real writer to fence out, and this
-    // check only ever produced spurious blocks (a locally cached lease/
-    // fencing value one step behind the committed state was enough to
-    // reject an otherwise-legitimate command).
-    Ok(())
 }
 
 fn validate_device_record(device: &DeviceRecord, revision: u64) -> Result<()> {
@@ -2120,8 +2003,6 @@ impl Runtime {
                 exact_next_work: None,
                 plan_revision: 1,
             },
-            None,
-            None,
         )
     }
 
@@ -2157,8 +2038,6 @@ impl Runtime {
                 exact_next_work,
                 plan_revision: plan_revision.max(1),
             },
-            None,
-            None,
         )
     }
 
@@ -2167,16 +2046,12 @@ impl Runtime {
         actor: Actor,
         expected_revision: u64,
         kind: EventKind,
-        lease_id: Option<String>,
-        fencing_token: Option<u64>,
     ) -> Result<RuntimeState> {
         self.append_command(
             actor,
             expected_revision,
             Uuid::new_v4().to_string(),
             kind,
-            lease_id,
-            fencing_token,
         )
     }
 
@@ -2186,8 +2061,6 @@ impl Runtime {
         expected_revision: u64,
         command_id: impl Into<String>,
         kind: EventKind,
-        lease_id: Option<String>,
-        fencing_token: Option<u64>,
     ) -> Result<RuntimeState> {
         let command_id = command_id.into();
         if command_id.trim().is_empty() {
@@ -2218,7 +2091,6 @@ impl Runtime {
                 actual: state.revision,
             });
         }
-        authorize(&state, &actor, &kind, lease_id.as_deref(), fencing_token)?;
         let project_id = state.project_id.clone();
         let run_id = state.run_id.clone();
         self.append_unchecked(
@@ -2228,8 +2100,6 @@ impl Runtime {
             actor,
             command_id,
             kind,
-            lease_id,
-            fencing_token,
         )
     }
 
@@ -2293,20 +2163,7 @@ impl Runtime {
                 actual: state.revision,
             });
         }
-        let kind = prepare_command_event(
-            &state,
-            &envelope.actor,
-            &envelope.command,
-            envelope.lease_id.as_deref(),
-            envelope.fencing_token,
-        )?;
-        authorize(
-            &state,
-            &envelope.actor,
-            &kind,
-            envelope.lease_id.as_deref(),
-            envelope.fencing_token,
-        )?;
+        let kind = prepare_command_event(&state, &envelope.actor, &envelope.command)?;
         let project_id = state.project_id.clone();
         let run_id = state.run_id.clone();
         let command_id = envelope.command_id;
@@ -2317,8 +2174,6 @@ impl Runtime {
             envelope.actor,
             command_id.clone(),
             kind,
-            envelope.lease_id,
-            envelope.fencing_token,
         )?;
         Ok(CommandResult {
             command_id,
@@ -2369,13 +2224,7 @@ impl Runtime {
                 actual: state.revision,
             });
         }
-        let kind = prepare_command_event(
-            state,
-            &envelope.actor,
-            &envelope.command,
-            envelope.lease_id.as_deref(),
-            envelope.fencing_token,
-        )?;
+        let kind = prepare_command_event(state, &envelope.actor, &envelope.command)?;
         let mut event = Event {
             schema_version: EVENT_SCHEMA_VERSION.into(),
             project_id: state.project_id.clone(),
@@ -2386,8 +2235,6 @@ impl Runtime {
             expected_revision: state.revision,
             causal_parent: state.last_event_id.clone(),
             actor: envelope.actor,
-            lease_id: envelope.lease_id,
-            fencing_token: envelope.fencing_token,
             timestamp: Utc::now(),
             kind,
             previous_hash: state.last_event_hash.clone(),
@@ -2423,8 +2270,6 @@ impl Runtime {
                 decisions,
                 blockers,
             },
-            None,
-            None,
         )
     }
 
@@ -2439,8 +2284,6 @@ impl Runtime {
             context.expected_revision,
             context.command_id,
             EventKind::PhaseDefined { phase },
-            Some(context.lease_id),
-            Some(context.fencing_token),
         )
     }
 
@@ -2459,8 +2302,6 @@ impl Runtime {
                 phase_id: phase_id.into(),
                 stage,
             },
-            Some(context.lease_id),
-            Some(context.fencing_token),
         )
     }
 
@@ -2479,8 +2320,6 @@ impl Runtime {
                 phase_id: phase_id.into(),
                 change,
             },
-            Some(context.lease_id),
-            Some(context.fencing_token),
         )
     }
 
@@ -2501,8 +2340,6 @@ impl Runtime {
                 change_id: change_id.into(),
                 task,
             },
-            Some(context.lease_id),
-            Some(context.fencing_token),
         )
     }
 
@@ -2543,8 +2380,6 @@ impl Runtime {
                 to,
                 summary,
             },
-            Some(context.lease_id),
-            Some(context.fencing_token),
         )
     }
 
@@ -2563,8 +2398,6 @@ impl Runtime {
                 active_path,
                 exact_next_work,
             },
-            Some(context.lease_id),
-            Some(context.fencing_token),
         )
     }
 
@@ -2583,8 +2416,6 @@ impl Runtime {
                 dimension,
                 completion,
             },
-            Some(context.lease_id),
-            Some(context.fencing_token),
         )
     }
 
@@ -2599,8 +2430,6 @@ impl Runtime {
             context.expected_revision,
             context.command_id,
             EventKind::DecisionRecorded { decision },
-            Some(context.lease_id),
-            Some(context.fencing_token),
         )
     }
 
@@ -2615,8 +2444,6 @@ impl Runtime {
             context.expected_revision,
             context.command_id,
             EventKind::BlockerRecorded { blocker },
-            Some(context.lease_id),
-            Some(context.fencing_token),
         )
     }
 
@@ -2635,8 +2462,6 @@ impl Runtime {
                 blocker_id: blocker_id.into(),
                 resolution: resolution.into(),
             },
-            Some(context.lease_id),
-            Some(context.fencing_token),
         )
     }
 
@@ -2656,8 +2481,6 @@ impl Runtime {
             context.expected_revision,
             context.command_id,
             EventKind::DeviceEnrolled { device },
-            Some(context.lease_id),
-            Some(context.fencing_token),
         )
     }
 
@@ -2685,8 +2508,6 @@ impl Runtime {
                 key_id: key_id.into(),
                 reason,
             },
-            Some(context.lease_id),
-            Some(context.fencing_token),
         )
     }
 
@@ -2710,8 +2531,6 @@ impl Runtime {
                 previous_key_id: previous_key_id.into(),
                 replacement,
             },
-            Some(context.lease_id),
-            Some(context.fencing_token),
         )
     }
 
@@ -2724,8 +2543,6 @@ impl Runtime {
         actor: Actor,
         command_id: String,
         kind: EventKind,
-        lease_id: Option<String>,
-        fencing_token: Option<u64>,
     ) -> Result<RuntimeState> {
         let mut event = Event {
             schema_version: EVENT_SCHEMA_VERSION.into(),
@@ -2737,8 +2554,6 @@ impl Runtime {
             expected_revision: state.revision,
             causal_parent: state.last_event_id.clone(),
             actor,
-            lease_id,
-            fencing_token,
             timestamp: Utc::now(),
             kind,
             previous_hash: state.last_event_hash.clone(),
@@ -2761,53 +2576,12 @@ impl Runtime {
         Ok(state)
     }
 
-    pub fn claim(
-        &self,
-        actor: Actor,
-        expected_revision: u64,
-        scope: impl Into<String>,
-        force: bool,
-    ) -> Result<RuntimeState> {
-        let state = self.replay()?;
-        let now = Utc::now();
-        let _ = force;
-        // Any claim always succeeds and takes over the lease, regardless of
-        // an existing holder or actor kind. There is no real multi-writer
-        // contention to arbitrate for a solo operator on their own
-        // machine(s): the previous "reject unless --force, and --force
-        // requires Operator/System" rule just deadlocked ordinary
-        // harness-driven claims (claim submits as ActorKind::Harness) the
-        // moment any lease — including a stale one from a crashed or
-        // previous session — existed. Fencing tokens still increment below,
-        // so stale in-flight commands from a genuinely superseded writer are
-        // still rejected by `authorize()`'s fencing check; this only removes
-        // the up-front refusal to even attempt a new claim.
-        let lease = Lease {
-            scope: scope.into(),
-            lease_id: Uuid::new_v4().to_string(),
-            owner: actor.clone(),
-            fencing_token: state.last_fencing_token + 1,
-            acquired_at: now,
-            heartbeat_at: now,
-            expires_at: now + Duration::seconds(DEFAULT_LEASE_TTL_SECONDS),
-        };
-        self.append(
-            actor,
-            expected_revision,
-            EventKind::LeaseClaimed { lease },
-            None,
-            None,
-        )
-    }
-
     pub fn transition(
         &self,
         actor: Actor,
         expected_revision: u64,
         to: LifecycleState,
         reason: impl Into<String>,
-        lease_id: Option<String>,
-        fencing_token: Option<u64>,
     ) -> Result<RuntimeState> {
         let reason = reason.into();
         if reason.trim().is_empty() {
@@ -2822,8 +2596,6 @@ impl Runtime {
                 to,
                 reason,
             },
-            lease_id,
-            fencing_token,
         )
     }
 
@@ -2843,8 +2615,6 @@ impl Runtime {
             actor,
             expected_revision,
             EventKind::PauseCheckpointed { checkpoint },
-            None,
-            None,
         )
     }
 
@@ -2853,8 +2623,6 @@ impl Runtime {
         actor: Actor,
         expected_revision: u64,
         plan_revision: u64,
-        lease_id: String,
-        fencing_token: u64,
     ) -> Result<RuntimeState> {
         let state = self.replay()?;
         if state.plan_revision != plan_revision {
@@ -2868,8 +2636,6 @@ impl Runtime {
             expected_revision,
             LifecycleState::Running,
             format!("resume plan revision {plan_revision}"),
-            Some(lease_id),
-            Some(fencing_token),
         )
     }
 
@@ -2884,8 +2650,6 @@ impl Runtime {
             expected_revision,
             LifecycleState::Cancelled,
             reason,
-            None,
-            None,
         )
     }
 
@@ -2895,8 +2659,6 @@ impl Runtime {
         expected_revision: u64,
         reason: impl Into<String>,
         exact_next_work: Option<String>,
-        lease_id: String,
-        fencing_token: u64,
     ) -> Result<RuntimeState> {
         let reason = reason.into();
         if reason.trim().is_empty() {
@@ -2913,84 +2675,6 @@ impl Runtime {
                 superseded_next_work: state.exact_next_work,
                 exact_next_work,
             },
-            Some(lease_id),
-            Some(fencing_token),
-        )
-    }
-
-    pub fn heartbeat(
-        &self,
-        actor: Actor,
-        expected_revision: u64,
-        lease_id: String,
-        fencing_token: u64,
-    ) -> Result<RuntimeState> {
-        let now = Utc::now();
-        self.append(
-            actor,
-            expected_revision,
-            EventKind::LeaseHeartbeat {
-                lease_id: lease_id.clone(),
-                fencing_token,
-                heartbeat_at: now,
-                expires_at: now + Duration::seconds(DEFAULT_LEASE_TTL_SECONDS),
-            },
-            Some(lease_id),
-            Some(fencing_token),
-        )
-    }
-
-    pub fn release(
-        &self,
-        actor: Actor,
-        expected_revision: u64,
-        lease_id: String,
-        fencing_token: u64,
-        reason: impl Into<String>,
-    ) -> Result<RuntimeState> {
-        self.append(
-            actor,
-            expected_revision,
-            EventKind::LeaseReleased {
-                lease_id: lease_id.clone(),
-                fencing_token,
-                reason: reason.into(),
-            },
-            Some(lease_id),
-            Some(fencing_token),
-        )
-    }
-
-    pub fn handoff(
-        &self,
-        actor: Actor,
-        target: Actor,
-        expected_revision: u64,
-        lease_id: String,
-        fencing_token: u64,
-    ) -> Result<RuntimeState> {
-        let state = self.replay()?;
-        let current = state.lease.as_ref().ok_or(RuntimeError::LeaseRequired)?;
-        ensure_lease(current, &lease_id, fencing_token)?;
-        let now = Utc::now();
-        let lease = Lease {
-            scope: current.scope.clone(),
-            lease_id: Uuid::new_v4().to_string(),
-            owner: target,
-            fencing_token: state.last_fencing_token + 1,
-            acquired_at: now,
-            heartbeat_at: now,
-            expires_at: now + Duration::seconds(DEFAULT_LEASE_TTL_SECONDS),
-        };
-        self.append(
-            actor,
-            expected_revision,
-            EventKind::LeaseHandedOff {
-                previous_lease_id: lease_id.clone(),
-                lease,
-            },
-            Some(lease_id),
-            Some(fencing_token),
         )
     }
 
@@ -3197,7 +2881,7 @@ impl Runtime {
 
     /// Compare repository compatibility files with a clean render of the
     /// committed journal. This never imports legacy writes and cannot mutate
-    /// canonical state or grant a lease.
+    /// canonical state or create writer authority.
     pub fn compatibility_projection_mismatches(&self) -> Result<Vec<PathBuf>> {
         let state = self.replay()?;
         if state.revision == 0 {
@@ -4361,8 +4045,6 @@ fn prepare_command_event(
     state: &RuntimeState,
     actor: &Actor,
     command: &CommandKind,
-    lease_id: Option<&str>,
-    fencing_token: Option<u64>,
 ) -> Result<EventKind> {
     let require_reason = |reason: &str| {
         if reason.trim().is_empty() {
@@ -4385,25 +4067,6 @@ fn prepare_command_event(
                 from: state.lifecycle.clone(),
                 to: LifecycleState::Cancelled,
                 reason: reason.clone(),
-            }
-        }
-        CommandKind::Claim { scope, force: _ } => {
-            let now = Utc::now();
-            // Any claim always succeeds and takes over the lease — see the
-            // matching comment in `Runtime::claim` above. No real
-            // multi-writer contention exists for a solo operator; the old
-            // "reject unless --force + Operator/System" rule deadlocked
-            // ordinary harness-driven claims.
-            EventKind::LeaseClaimed {
-                lease: Lease {
-                    scope: scope.clone(),
-                    lease_id: Uuid::new_v4().to_string(),
-                    owner: actor.clone(),
-                    fencing_token: state.last_fencing_token + 1,
-                    acquired_at: now,
-                    heartbeat_at: now,
-                    expires_at: now + Duration::seconds(DEFAULT_LEASE_TTL_SECONDS),
-                },
             }
         }
         CommandKind::LifecycleTransition { to, reason } => {
@@ -4438,56 +4101,6 @@ fn prepare_command_event(
                 reason: reason.clone(),
                 superseded_next_work: state.exact_next_work.clone(),
                 exact_next_work: exact_next_work.clone(),
-            }
-        }
-        CommandKind::LeaseHeartbeat => {
-            let current = state.lease.as_ref().ok_or(RuntimeError::LeaseRequired)?;
-            ensure_lease(
-                current,
-                lease_id.ok_or(RuntimeError::LeaseRequired)?,
-                fencing_token.ok_or(RuntimeError::LeaseRequired)?,
-            )?;
-            let now = Utc::now();
-            EventKind::LeaseHeartbeat {
-                lease_id: current.lease_id.clone(),
-                fencing_token: current.fencing_token,
-                heartbeat_at: now,
-                expires_at: now + Duration::seconds(DEFAULT_LEASE_TTL_SECONDS),
-            }
-        }
-        CommandKind::LeaseRelease { reason } => {
-            require_reason(reason)?;
-            let current = state.lease.as_ref().ok_or(RuntimeError::LeaseRequired)?;
-            ensure_lease(
-                current,
-                lease_id.ok_or(RuntimeError::LeaseRequired)?,
-                fencing_token.ok_or(RuntimeError::LeaseRequired)?,
-            )?;
-            EventKind::LeaseReleased {
-                lease_id: current.lease_id.clone(),
-                fencing_token: current.fencing_token,
-                reason: reason.clone(),
-            }
-        }
-        CommandKind::LeaseHandoff { target } => {
-            let current = state.lease.as_ref().ok_or(RuntimeError::LeaseRequired)?;
-            ensure_lease(
-                current,
-                lease_id.ok_or(RuntimeError::LeaseRequired)?,
-                fencing_token.ok_or(RuntimeError::LeaseRequired)?,
-            )?;
-            let now = Utc::now();
-            EventKind::LeaseHandedOff {
-                previous_lease_id: current.lease_id.clone(),
-                lease: Lease {
-                    scope: current.scope.clone(),
-                    lease_id: Uuid::new_v4().to_string(),
-                    owner: target.clone(),
-                    fencing_token: state.last_fencing_token + 1,
-                    acquired_at: now,
-                    heartbeat_at: now,
-                    expires_at: now + Duration::seconds(DEFAULT_LEASE_TTL_SECONDS),
-                },
             }
         }
         CommandKind::PhaseDefine { phase } => EventKind::PhaseDefined {
@@ -4659,25 +4272,6 @@ fn prepare_command_event(
     })
 }
 
-fn authorize(
-    _state: &RuntimeState,
-    _actor: &Actor,
-    _kind: &EventKind,
-    _lease_id: Option<&str>,
-    _fencing_token: Option<u64>,
-) -> Result<()> {
-    // No-op: lease ownership is no longer a mutation gate. There is no real
-    // multi-writer contention to arbitrate for a solo operator across their
-    // own machines/harnesses, and requiring a pre-existing lease (plus an
-    // exact owner/lease-id/fencing-token match) only ever produced spurious
-    // "lease required" / "lease conflict" rejections of otherwise-legitimate
-    // local commands. Revision/causal-chain/hash integrity checks elsewhere
-    // in the event pipeline are untouched — those protect log consistency,
-    // not writer authorization, and removing them would risk real corruption
-    // rather than just friction.
-    Ok(())
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -4700,16 +4294,15 @@ mod tests {
         let state = runtime
             .initialize("project", "run", actor(ActorKind::Operator, "codex"))
             .unwrap();
-        let claimed = runtime
-            .claim(
+        let running = runtime
+            .transition(
                 actor(ActorKind::Harness, "codex"),
                 state.revision,
-                "project/phase",
-                false,
+                LifecycleState::Running,
+                "begin",
             )
             .unwrap();
-        assert_eq!(claimed, runtime.replay().unwrap());
-        assert_eq!(claimed.lease.unwrap().fencing_token, 1);
+        assert_eq!(running, runtime.replay().unwrap());
     }
 
     #[test]
@@ -4719,25 +4312,14 @@ mod tests {
         let initialized = runtime
             .initialize("project", "run", actor(ActorKind::Operator, "codex"))
             .unwrap();
-        let claimed = runtime
-            .claim(
-                actor(ActorKind::Harness, "codex"),
-                initialized.revision,
-                "project/phase",
-                false,
-            )
-            .unwrap();
-        let lease = claimed.lease.clone().unwrap();
         let context = |state: &RuntimeState, command_id: &str| MutationContext {
             expected_revision: state.revision,
             command_id: command_id.into(),
-            lease_id: lease.lease_id.clone(),
-            fencing_token: lease.fencing_token,
         };
         let phase = runtime
             .define_phase(
                 actor(ActorKind::Harness, "codex"),
-                context(&claimed, "define-phase"),
+                context(&initialized, "define-phase"),
                 Phase {
                     id: "phase-1".into(),
                     slug: "phase-1".into(),
@@ -4826,8 +4408,6 @@ mod tests {
                     active_path: ActivePath::default(),
                     exact_next_work: None,
                 },
-                Some(lease.lease_id),
-                Some(lease.fencing_token),
             )
             .unwrap();
         assert_eq!(original, positioned);
@@ -4860,12 +4440,12 @@ mod tests {
         let initialized = runtime
             .initialize("project", "run", actor(ActorKind::Operator, "codex"))
             .unwrap();
-        let claimed = runtime
-            .claim(
+        let running = runtime
+            .transition(
                 actor(ActorKind::Harness, "codex"),
                 initialized.revision,
-                "project/phase",
-                false,
+                LifecycleState::Running,
+                "begin",
             )
             .unwrap();
         let events = runtime.events().unwrap();
@@ -4891,7 +4471,7 @@ mod tests {
             replay_events(&tampered),
             Err(RuntimeError::Signature { .. }) | Err(RuntimeError::Integrity { .. })
         ));
-        assert_eq!(claimed.devices.len(), 1);
+        assert_eq!(running.devices.len(), 1);
 
         let mut audit = Vec::new();
         assert_eq!(runtime.export_signed_audit(&mut audit).unwrap(), 2);
@@ -4904,7 +4484,7 @@ mod tests {
             .iter()
             .map(|line| serde_json::from_str::<Event>(line).unwrap())
             .collect::<Vec<_>>();
-        assert_eq!(replay_events(&exported).unwrap(), claimed);
+        assert_eq!(replay_events(&exported).unwrap(), running);
 
         #[cfg(unix)]
         assert_eq!(
@@ -4977,41 +4557,19 @@ mod tests {
     }
 
     #[test]
-    fn command_envelopes_no_longer_require_concurrency_fields_and_still_dedupe_by_command_id() {
+    fn command_envelopes_dedupe_by_command_id_without_ownership_fields() {
         let dir = tempdir().unwrap();
         let runtime = Runtime::open(dir.path());
         let initialized = runtime
             .initialize("project", "run", actor(ActorKind::Operator, "codex"))
             .unwrap();
-        let claim = CommandEnvelope {
-            schema_version: "1".into(),
-            project_id: "project".into(),
-            run_id: "run".into(),
-            command_id: "claim-1".into(),
-            expected_revision: initialized.revision,
-            actor: actor(ActorKind::Harness, "codex"),
-            lease_id: None,
-            fencing_token: None,
-            command: CommandKind::Claim {
-                scope: "project/phase".into(),
-                force: false,
-            },
-        };
-        let claimed = runtime.execute_command(claim.clone()).unwrap();
-        assert!(!claimed.duplicate);
-        let duplicate = runtime.execute_command(claim).unwrap();
-        assert!(duplicate.duplicate);
-        assert_eq!(duplicate.state, claimed.state);
-
         let phase_command = CommandEnvelope {
             schema_version: "1".into(),
             project_id: "project".into(),
             run_id: "run".into(),
             command_id: "phase-1".into(),
-            expected_revision: claimed.committed_revision,
+            expected_revision: initialized.revision,
             actor: actor(ActorKind::Harness, "codex"),
-            lease_id: None,
-            fencing_token: None,
             command: CommandKind::PhaseDefine {
                 phase: Phase {
                     id: "phase-1".into(),
@@ -5025,14 +4583,9 @@ mod tests {
                 },
             },
         };
-        // Concurrency fields (lease_id/fencing_token) are no longer required
-        // — lease-ownership gating was removed as a mutation blocker for
-        // solo/local use. The command succeeds immediately without them.
-        let applied = runtime
-            .execute_command(phase_command.clone())
-            .expect("lease_id/fencing_token are no longer required to mutate");
+        let applied = runtime.execute_command(phase_command.clone()).unwrap();
         assert!(!applied.duplicate);
-        assert_eq!(applied.committed_revision, claimed.committed_revision + 1);
+        assert_eq!(applied.committed_revision, initialized.revision + 1);
         // Resubmitting the exact same command_id is still idempotent.
         let duplicate = runtime.execute_command(phase_command).unwrap();
         assert!(duplicate.duplicate);
@@ -5063,8 +4616,6 @@ mod tests {
                     command_id: format!("define-{phase_id}"),
                     expected_revision,
                     actor: actor(ActorKind::Harness, &phase_id),
-                    lease_id: None,
-                    fencing_token: None,
                     command: CommandKind::PhaseDefine {
                         phase: Phase {
                             id: phase_id.clone(),
@@ -5130,11 +4681,9 @@ mod tests {
                 command_id: "after-recovery".into(),
                 expected_revision: initialized.revision,
                 actor: actor(ActorKind::Harness, "codex"),
-                lease_id: None,
-                fencing_token: None,
-                command: CommandKind::Claim {
-                    scope: "project/phase".into(),
-                    force: false,
+                command: CommandKind::LifecycleTransition {
+                    to: LifecycleState::Running,
+                    reason: "continue after recovery".into(),
                 },
             })
             .unwrap();
@@ -5143,108 +4692,39 @@ mod tests {
     }
 
     #[test]
-    fn every_claim_succeeds_and_takes_over_with_monotonic_fencing() {
-        // Lease-ownership conflicts are no longer a mutation blocker for
-        // solo/local use: any claim always succeeds and takes over the
-        // lease, regardless of an existing holder, actor kind, or `force`.
-        // The one property that remains meaningful — and is asserted here —
-        // is that the fencing token still strictly increases on every
-        // takeover, so a stale in-flight command from a superseded writer
-        // is still rejected by fencing, even though claiming itself is
-        // unconditional.
+    fn operator_can_cancel_without_an_ownership_side_channel() {
         let dir = tempdir().unwrap();
         let runtime = Runtime::open(dir.path());
         let initialized = runtime
             .initialize("project", "run", actor(ActorKind::Operator, "codex"))
-            .unwrap();
-        let first = runtime
-            .claim(
-                actor(ActorKind::Harness, "codex"),
-                initialized.revision,
-                "project/phase",
-                false,
-            )
-            .unwrap();
-        assert_eq!(first.lease.as_ref().unwrap().fencing_token, 1);
-
-        let second = runtime
-            .claim(
-                actor(ActorKind::Harness, "claude"),
-                first.revision,
-                "project/phase",
-                false,
-            )
-            .expect("ordinary (non-forced) claims now always succeed and take over");
-        assert_eq!(second.lease.as_ref().unwrap().fencing_token, 2);
-        assert_eq!(second.lease.as_ref().unwrap().owner.harness, "claude");
-
-        let takeover = runtime
-            .claim(
-                actor(ActorKind::Operator, "claude"),
-                second.revision,
-                "project/phase",
-                true,
-            )
-            .unwrap();
-        assert_eq!(takeover.lease.unwrap().fencing_token, 3);
-    }
-
-    #[test]
-    fn operator_can_cancel_and_atomically_release_the_writer_lease() {
-        let dir = tempdir().unwrap();
-        let runtime = Runtime::open(dir.path());
-        let initialized = runtime
-            .initialize("project", "run", actor(ActorKind::Operator, "codex"))
-            .unwrap();
-        let claimed = runtime
-            .claim(
-                actor(ActorKind::Harness, "codex"),
-                initialized.revision,
-                "project/phase",
-                false,
-            )
             .unwrap();
         let cancelled = runtime
             .append(
                 actor(ActorKind::Operator, "claude"),
-                claimed.revision,
+                initialized.revision,
                 EventKind::LifecycleTransition {
                     from: LifecycleState::Ready,
                     to: LifecycleState::Cancelled,
                     reason: "architectural issue".into(),
                 },
-                None,
-                None,
             )
             .unwrap();
         assert_eq!(cancelled.lifecycle, LifecycleState::Cancelled);
-        assert!(cancelled.lease.is_none());
     }
 
     #[test]
-    fn checkpoint_plan_revision_and_handoff_preserve_causality() {
+    fn checkpoint_and_plan_revision_preserve_causality() {
         let dir = tempdir().unwrap();
         let runtime = Runtime::open(dir.path());
         let initialized = runtime
             .initialize("project", "run", actor(ActorKind::Operator, "codex"))
             .unwrap();
-        let claimed = runtime
-            .claim(
-                actor(ActorKind::Harness, "codex"),
-                initialized.revision,
-                "project/phase",
-                false,
-            )
-            .unwrap();
-        let lease = claimed.lease.clone().unwrap();
         let running = runtime
             .transition(
                 actor(ActorKind::Harness, "codex"),
-                claimed.revision,
+                initialized.revision,
                 LifecycleState::Running,
                 "begin",
-                Some(lease.lease_id.clone()),
-                Some(lease.fencing_token),
             )
             .unwrap();
         let revised = runtime
@@ -5253,8 +4733,6 @@ mod tests {
                 running.revision,
                 "architectural correction",
                 Some("implement boundary first".into()),
-                lease.lease_id.clone(),
-                lease.fencing_token,
             )
             .unwrap();
         assert_eq!(revised.plan_revision, 2);
@@ -5276,26 +4754,7 @@ mod tests {
             .unwrap();
         assert_eq!(paused.lifecycle, LifecycleState::Paused);
         assert_eq!(paused.checkpoint.unwrap().plan_revision, 2);
-        let handed = runtime
-            .handoff(
-                actor(ActorKind::Harness, "codex"),
-                Actor::handoff_target("claude"),
-                paused.revision,
-                lease.lease_id,
-                lease.fencing_token,
-            )
-            .unwrap();
-        let handed_lease = handed.lease.unwrap();
-        assert_eq!(handed_lease.fencing_token, 2);
-        let heartbeat = runtime
-            .heartbeat(
-                actor(ActorKind::Harness, "claude"),
-                handed.revision,
-                handed_lease.lease_id,
-                handed_lease.fencing_token,
-            )
-            .unwrap();
-        assert_eq!(heartbeat.revision, runtime.events().unwrap().len() as u64);
+        assert_eq!(paused.revision, runtime.events().unwrap().len() as u64);
     }
 
     #[test]

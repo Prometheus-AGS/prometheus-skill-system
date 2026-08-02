@@ -18,7 +18,7 @@ sidebar_label: kbd-runtime
 - independent completion dimensions;
 - decisions, blockers, and device trust;
 - command idempotency and optimistic revisions;
-- single-writer leases, heartbeats, handoffs, and fencing;
+- exclusive journal transactions and idempotent command replay;
 - atomic compatibility projections;
 - legacy-ledger migration with checksummed backups;
 - non-authoritative shadow/canary rollout evidence.
@@ -51,7 +51,6 @@ Detailed runbooks:
 
 - [Canonical control plane](/docs/kbd/control-plane)
 - [Tokens and authentication](/docs/kbd/tokens-and-authentication)
-- [Leases and handoffs](/docs/kbd/leases-and-handoffs)
 - [Migration and rollout](/docs/kbd/migration-and-rollout)
 
 Canonical source:

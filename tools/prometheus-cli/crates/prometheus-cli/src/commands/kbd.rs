@@ -26,15 +26,6 @@ pub enum Action {
     Cancel {
         reason: String,
     },
-    Claim {
-        scope: String,
-        force: bool,
-    },
-    Heartbeat,
-    Release,
-    Handoff {
-        to: String,
-    },
     Audit {
         since: Option<String>,
         json: bool,
@@ -91,7 +82,6 @@ pub async fn run(path: &str, action: Action) -> Result<()> {
                     &state,
                     current_actor(ActorKind::Operator),
                     CommandKind::Pause { checkpoint },
-                    false,
                 )
                 .await?;
             write_pause_valve(&root, &next)?;
@@ -110,42 +100,13 @@ pub async fn run(path: &str, action: Action) -> Result<()> {
                         reason,
                         exact_next_work,
                     },
-                    true,
                 )
                 .await?;
             print_state(&next, false)
         }
         Action::Resume { plan_revision } => {
-            let mut state = client.status().await?;
+            let state = client.status().await?;
             let actor = current_actor(ActorKind::Operator);
-            match state.lease.clone() {
-                Some(lease)
-                    if (lease.owner.device == "*" || lease.owner.device == actor.device)
-                        && lease.owner.harness == actor.harness =>
-                {
-                    // Existing compatible lease is used below.
-                }
-                Some(lease) => {
-                    return Err(anyhow!(
-                        "lease is owned by {} on {}",
-                        lease.owner.harness,
-                        lease.owner.device
-                    ))
-                }
-                None => {
-                    state = client
-                        .submit_fresh(
-                            &state,
-                            actor.clone(),
-                            CommandKind::Claim {
-                                scope: "project/phase".into(),
-                                force: false,
-                            },
-                            false,
-                        )
-                        .await?;
-                }
-            }
             let revision = plan_revision.unwrap_or(state.plan_revision);
             let next = client
                 .submit_fresh(
@@ -154,7 +115,6 @@ pub async fn run(path: &str, action: Action) -> Result<()> {
                     CommandKind::Resume {
                         plan_revision: revision,
                     },
-                    true,
                 )
                 .await?;
             release_pause_valve(&root)?;
@@ -170,66 +130,9 @@ pub async fn run(path: &str, action: Action) -> Result<()> {
                     &state,
                     current_actor(ActorKind::Operator),
                     CommandKind::Cancel { reason },
-                    false,
                 )
                 .await?;
             write_pause_valve(&root, &next)?;
-            print_state(&next, false)
-        }
-        Action::Claim { scope, force } => {
-            let state = client.status().await?;
-            let next = client
-                .submit_fresh(
-                    &state,
-                    current_actor(if force {
-                        ActorKind::Operator
-                    } else {
-                        ActorKind::Harness
-                    }),
-                    CommandKind::Claim { scope, force },
-                    false,
-                )
-                .await?;
-            print_state(&next, false)
-        }
-        Action::Heartbeat => {
-            let state = client.status().await?;
-            let next = client
-                .submit_fresh(
-                    &state,
-                    current_actor(ActorKind::Harness),
-                    CommandKind::LeaseHeartbeat,
-                    true,
-                )
-                .await?;
-            print_state(&next, false)
-        }
-        Action::Release => {
-            let state = client.status().await?;
-            let next = client
-                .submit_fresh(
-                    &state,
-                    current_actor(ActorKind::Harness),
-                    CommandKind::LeaseRelease {
-                        reason: "explicit release".into(),
-                    },
-                    true,
-                )
-                .await?;
-            print_state(&next, false)
-        }
-        Action::Handoff { to } => {
-            let state = client.status().await?;
-            let next = client
-                .submit_fresh(
-                    &state,
-                    current_actor(ActorKind::Harness),
-                    CommandKind::LeaseHandoff {
-                        target: Actor::handoff_target(to),
-                    },
-                    true,
-                )
-                .await?;
             print_state(&next, false)
         }
         Action::Audit { since, json } => audit(&runtime, &client, since.as_deref(), json).await,
@@ -338,13 +241,6 @@ pub async fn run(path: &str, action: Action) -> Result<()> {
                     command_id,
                     expected_revision,
                     actor: current_actor(ActorKind::Harness),
-                    // Work-item commands (phase/stage/change/task/completion/
-                    // decision/blocker) never consult lease_id/fencing_token
-                    // in prepare_command_event — only LeaseHeartbeat/
-                    // LeaseRelease/LeaseHandoff do, and those go through their
-                    // own dedicated Action variants, not this generic path.
-                    lease_id: None,
-                    fencing_token: None,
                     command,
                 })
                 .await?;
@@ -398,18 +294,6 @@ fn print_state(state: &RuntimeState, json_output: bool) -> Result<()> {
         "Lifecycle: {:?}  plan revision {}",
         state.lifecycle, state.plan_revision
     );
-    if let Some(lease) = &state.lease {
-        println!(
-            "Lease: {} by {}@{} fence={} expires={}",
-            lease.lease_id,
-            lease.owner.harness,
-            lease.owner.device,
-            lease.fencing_token,
-            lease.expires_at
-        );
-    } else {
-        println!("Lease: unclaimed");
-    }
     if let Some(checkpoint) = &state.checkpoint {
         println!("Checkpoint: {}", checkpoint.reason);
         if let Some(next) = &checkpoint.exact_next_work {
@@ -530,14 +414,7 @@ impl ControlClient {
         state: &RuntimeState,
         actor: Actor,
         command: CommandKind,
-        lease_required: bool,
     ) -> Result<RuntimeState> {
-        let (lease_id, fencing_token) = if lease_required {
-            let lease = state.lease.as_ref().ok_or(RuntimeError::LeaseRequired)?;
-            (Some(lease.lease_id.clone()), Some(lease.fencing_token))
-        } else {
-            (None, None)
-        };
         let response = self
             .submit(CommandEnvelope {
                 schema_version: "1".into(),
@@ -546,8 +423,6 @@ impl ControlClient {
                 command_id: uuid::Uuid::new_v4().to_string(),
                 expected_revision: state.revision,
                 actor,
-                lease_id,
-                fencing_token,
                 command,
             })
             .await?;

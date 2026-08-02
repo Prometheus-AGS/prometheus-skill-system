@@ -295,12 +295,12 @@ pub fn eval(
             .with_context(|| format!("open corpus {}", corpus_path.display()))?,
     )?;
     if corpus.schema_version != "1"
-        || corpus.cases.len() != 36
-        || corpus.critical_skills.len() != 6
+        || corpus.cases.len() != 30
+        || corpus.critical_skills.len() != 5
         || corpus.trials_per_harness != 3
     {
         anyhow::bail!(
-            "critical corpus must contain schema 1, six skills, 36 prompts, and three trials"
+            "critical corpus must contain schema 1, five skills, 30 prompts, and three trials"
         );
     }
     let ids = corpus
