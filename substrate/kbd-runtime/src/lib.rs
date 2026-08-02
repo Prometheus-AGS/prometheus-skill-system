@@ -3059,9 +3059,21 @@ impl Runtime {
         });
         atomic_json(&kbd_root.join("current-waypoint.json"), &waypoint)?;
 
+        // Paths already warned about, PROCESS-WIDE. A per-call set would reset
+        // on every transition and reproduce the flood it exists to stop.
+        static WARNED: std::sync::OnceLock<std::sync::Mutex<HashSet<PathBuf>>> =
+            std::sync::OnceLock::new();
+        let warned_lock = WARNED.get_or_init(|| std::sync::Mutex::new(HashSet::new()));
+
         for phase in state.phases.values() {
             let phase_dir = phase_projection_directory(&kbd_root, state, phase)?;
             let progress_path = phase_dir.join("progress.json");
+            // Poisoned lock is not a reason to fail a projection: fall back to
+            // warning every time rather than aborting the write path.
+            let mut warned = match warned_lock.lock() {
+                Ok(guard) => guard,
+                Err(poisoned) => poisoned.into_inner(),
+            };
 
             // REFUSE to clobber a projection this runtime did not author.
             //
@@ -3084,13 +3096,23 @@ impl Runtime {
                 // trades visible data loss for invisible staleness, which is
                 // the same class of failure with a longer fuse. This crate has
                 // no logging dependency, so eprintln! is the honest channel.
-                eprintln!(
+                //
+                // ONCE PER PATH, though. This loop runs over every phase on
+                // every transition, and an unconditional warn produced
+                // thousands of identical lines in the daemon's stderr —
+                // burying exactly the diagnostics someone would need. That is
+                // the same failure the launchd ThrottleInterval fix addressed:
+                // a message repeated without limit is indistinguishable from
+                // no message at all.
+                if warned.insert(progress_path.clone()) {
+                    eprintln!(
                     "kbd-runtime: refusing to overwrite {} — it has no \
                      `generatedBy: \"kbd-runtime\"` marker, so it was written \
                      by something else. Leaving it untouched. Delete the file \
                      if the runtime should own it.",
-                    progress_path.display()
-                );
+                        progress_path.display()
+                    );
+                }
                 continue;
             }
 
@@ -3601,9 +3623,30 @@ fn projection_is_writable(path: &Path, migrating: bool) -> bool {
         return has_legacy_counters;
     }
 
-    // Routine projection: only a pure legacy ledger (old counters, nothing
-    // newer) is safe to replace unattended.
-    has_legacy_counters && !has_modern_shape
+    // Routine projection replaces NOTHING it did not provably write.
+    //
+    // The earlier rule here was `has_legacy_counters && !has_modern_shape`,
+    // which still returned true for a PURE-LEGACY ledger — old counters, no
+    // `completion` key. That is precisely the shape carried by phases which
+    // predate the current schema, so the guard protected the modern files and
+    // left the oldest ones exposed. Reported as a GitHub issue against this
+    // repo; the reporter was right.
+    //
+    // Measured on this repository when the issue landed: 51 phase ledgers were
+    // already `generatedBy: kbd-runtime`, 21 of them empty — overwritten before
+    // any guard existed.
+    //
+    // Legacy CONVERSION is a real need, but it belongs to `migrate_legacy_
+    // ledgers`, which takes a backup into `migration-backups/` first and runs
+    // only when an operator asks for it. The routine loop runs unattended on
+    // every transition and has no backup, so it gets the strict rule: the
+    // `generatedBy` marker checked above is the only license to overwrite.
+    //
+    // `has_legacy_counters` and `has_modern_shape` remain computed because the
+    // migrating branch above needs the former; naming the latter keeps the two
+    // shapes visible side by side.
+    let _ = has_modern_shape;
+    false
 }
 
 fn phase_progress_projection(
@@ -5479,7 +5522,7 @@ mod tests {
 
 #[cfg(test)]
 mod projection_ownership_tests {
-    use super::projection_is_runtime_owned;
+    use super::{projection_is_runtime_owned, projection_is_writable};
     use std::io::Write;
 
     fn temp_file(name: &str, body: &str) -> std::path::PathBuf {
@@ -5544,10 +5587,14 @@ mod projection_ownership_tests {
     /// A LEGACY ledger is ours — migration depends on it.
     ///
     /// `migrate_legacy_ledgers` reads these into runtime state (taking a backup
-    /// first), and the projection loop writes them back in the new shape. An
-    /// over-strict guard that refused here would break migration while
-    /// protecting nothing — which is exactly what the first version of this fix
-    /// did, caught by two pre-existing migration tests.
+    /// first), and the projection loop writes them back in the new shape.
+    ///
+    /// CORRECTED when the GitHub issue landed. This test previously asserted the
+    /// property against `projection_is_runtime_owned` — the ROUTINE path — and
+    /// so encoded the very defect that was reported: that an unattended
+    /// projection may overwrite a legacy ledger. Migration is the path that may
+    /// convert these files, because it backs them up first; routine projection
+    /// is not, because it does not.
     #[test]
     fn a_legacy_ledger_is_ours_to_migrate() {
         let path = temp_file(
@@ -5555,9 +5602,14 @@ mod projection_ownership_tests {
             r#"{"phase":"phase-x","changes_completed":1,"changes_total":2}"#,
         );
         assert!(
-            projection_is_runtime_owned(&path),
-            "legacy snake_case counters mark a ledger this runtime is migrating; \
-             refusing to write it would break migrate_legacy_ledgers"
+            projection_is_writable(&path, true),
+            "migrate_legacy_ledgers must be able to convert legacy counters; \
+             refusing here would break migration while protecting nothing"
+        );
+        assert!(
+            !projection_is_writable(&path, false),
+            "...but the UNATTENDED loop must not touch it — that is the reported \
+             issue, and it has no backup to fall back on"
         );
     }
 
@@ -5622,6 +5674,44 @@ mod projection_guard_migration_tests {
             "routine projection must NOT overwrite a live ledger that carries a \
              modern `completion` object, even though it also keeps the legacy \
              counters for compatibility"
+        );
+    }
+
+    /// THE FILED ISSUE. A pure-LEGACY ledger must survive routine projection.
+    ///
+    /// Old counters, no `completion` key — the shape carried by phases that
+    /// predate the current schema. The earlier rule
+    /// (`has_legacy_counters && !has_modern_shape`) returned TRUE here, so the
+    /// guard protected modern ledgers and left the oldest ones exposed to
+    /// unattended overwrite. Reported against this repo; the reporter was right.
+    ///
+    /// Legacy CONVERSION still works — it belongs to `migrate_legacy_ledgers`,
+    /// which backs the file up first. See the pair below.
+    #[test]
+    fn a_pure_legacy_ledger_survives_routine_projection() {
+        let path = f(
+            "pure-legacy-routine",
+            r#"{"phase":"old","changes_completed":3,"changes_total":7}"#,
+        );
+        assert!(
+            !projection_is_writable(&path, false),
+            "routine projection overwrote a pure-legacy ledger. The unattended \
+             loop has no backup, so this is committed data loss for exactly the \
+             phases whose ledgers are oldest."
+        );
+    }
+
+    /// ...and migration still converts that same file, because it backs up first.
+    #[test]
+    fn migration_still_converts_a_pure_legacy_ledger() {
+        let path = f(
+            "pure-legacy-migrating",
+            r#"{"phase":"old","changes_completed":3,"changes_total":7}"#,
+        );
+        assert!(
+            projection_is_writable(&path, true),
+            "migrate_legacy_ledgers must still be able to convert legacy files; \
+             refusing here would break migration while protecting nothing"
         );
     }
 

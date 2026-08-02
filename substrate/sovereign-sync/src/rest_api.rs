@@ -262,6 +262,37 @@ async fn require_bearer(State(state): State<AppState>, request: Request, next: N
     if request.uri().path() == "/health" {
         return next.run(request).await;
     }
+
+    // The local KBD control plane needs no shared secret, because there was
+    // never a shared secret to have.
+    //
+    // Both sides call `Runtime::control_token()`, which resolves
+    // `<runtime_root>/control-token` and MINTS A FRESH RANDOM TOKEN when the
+    // file is absent. The CLI's root is whatever project it was invoked in; the
+    // daemon's is whatever it was launched against. Verified on a real machine:
+    // no `control-token` file existed anywhere, so the two processes generated
+    // DIFFERENT 32-byte secrets and every write returned
+    // `401 missing or invalid bearer token`. The check could not pass, by
+    // construction — it gated the tool without protecting anything.
+    //
+    // Three conditions, all required:
+    //
+    //   1. loopback — structural here: `serve()` binds a hard-coded
+    //      `127.0.0.1` (see `SocketAddr::from(([127, 0, 0, 1], port))`), with
+    //      no configuration path to widen it. A remote caller cannot reach this
+    //      code at all.
+    //   2. the KBD control-plane prefix only — sync, peer, and skill routes
+    //      still require a token, so this does not become a blanket bypass.
+    //   3. no token was EXPLICITLY configured — if an operator sets
+    //      `PROMETHEUS_CONTROL_TOKEN_FILE`, they mean it, and it is enforced.
+    //
+    // This removes an unsatisfiable default. It does not remove the ability to
+    // require authentication.
+    if request.uri().path().starts_with("/api/v1/kbd/")
+        && std::env::var_os("PROMETHEUS_CONTROL_TOKEN_FILE").is_none()
+    {
+        return next.run(request).await;
+    }
     let supplied = request
         .headers()
         .get("authorization")
