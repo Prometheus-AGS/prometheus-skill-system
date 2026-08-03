@@ -2,8 +2,8 @@ use anyhow::{anyhow, Context, Result};
 use kbd_runtime::{
     registry::{scan_submodule_pins, ProjectRegistry},
     rollout::{RolloutObservation, RolloutTracker},
-    Actor, ActorKind, Checkpoint, ClaimMode, CommandEnvelope, CommandKind, DeviceSigner, Event,
-    LifecycleState, Runtime, RuntimeError, RuntimeState, SignedCommandEnvelope,
+    Actor, ActorKind, Checkpoint, ClaimMode, CommandEnvelope, CommandKind, Event, LifecycleState,
+    Runtime, RuntimeError, RuntimeState, SignedCommandEnvelope,
 };
 use serde_json::{json, Value};
 use std::collections::BTreeSet;
@@ -697,7 +697,7 @@ struct ControlClient {
     http: reqwest::Client,
     endpoint: String,
     project_id: String,
-    signer: DeviceSigner,
+    runtime: Runtime,
 }
 
 impl ControlClient {
@@ -725,7 +725,7 @@ impl ControlClient {
                 .trim_end_matches('/')
                 .to_string(),
             project_id,
-            signer: runtime.device_signer()?,
+            runtime: runtime.clone(),
         })
     }
 
@@ -754,7 +754,14 @@ impl ControlClient {
     }
 
     async fn submit(&self, envelope: CommandEnvelope) -> Result<Value> {
-        let signed = SignedCommandEnvelope::sign(envelope, &self.signer)?;
+        // Read-only commands must never touch the platform credential store.
+        // Resolve the signer only for an actual mutation, and keep the
+        // synchronous OS credential lookup off the async executor.
+        let runtime = self.runtime.clone();
+        let signer = tokio::task::spawn_blocking(move || runtime.device_signer())
+            .await
+            .context("device signer task failed")??;
+        let signed = SignedCommandEnvelope::sign(envelope, &signer)?;
         let response = self
             .http
             .post(format!(
