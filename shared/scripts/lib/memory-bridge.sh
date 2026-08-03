@@ -5,11 +5,9 @@
 #   source "$(dirname "$0")/lib/memory-bridge.sh"
 #   mem_add_memory "learned X" "$(mem_scope_for "$content")"
 #
-# CONTRACT: every function returns 0. When the endpoint is unreachable, curl is
-# missing, or the call fails, the intended operation is appended as one JSON
-# line to .kbd-orchestrator/memory-outbox.jsonl and the function still returns 0.
-# Memory writes must never block the caller — the endpoint was observed timing
-# out during this project's own assessment.
+# CONTRACT: every function returns 0. Writes are atomically queued under the
+# central Prometheus learning queue and delivered by the supervised worker.
+# Hook latency therefore never depends on the memory service.
 #
 # TRANSPORT NOTE (verified 2026-06-12): the default surreal-memory server speaks
 # the two-connection SSE MCP transport — GET /mcp/sse opens a stream that emits a
@@ -29,28 +27,23 @@
 MEM_URL="${SURREAL_MEMORY_URL:-http://localhost:23001/mcp/sse}"
 MEM_PROJECT="${KBD_PROJECT_NAME:-prometheus-skill-pack}"
 
-# Locate the orchestrator root for the outbox; fall back to $PWD.
-_mem_outbox() {
-  local dir="$PWD"
-  while [ -n "$dir" ] && [ "$dir" != "/" ]; do
-    [ -d "$dir/.kbd-orchestrator" ] && { printf '%s/.kbd-orchestrator/memory-outbox.jsonl' "$dir"; return 0; }
-    dir="$(dirname "$dir")"
-  done
-  printf '%s/.kbd-orchestrator/memory-outbox.jsonl' "$PWD"
-}
-
-# Append a deferred operation to the outbox (never fails the caller).
+# Persist a deferred operation to the central outbox (never fails the caller).
 _mem_outbox_write() { # <method> <arguments-json>
-  local method="$1" args="$2" outbox now
-  outbox="$(_mem_outbox)"
+  local method="$1" args="$2" root pending now operation_id target temporary
+  root="${PROMETHEUS_LEARNING_QUEUE:-${HOME}/.prometheus/learning-queue}"
+  pending="$root/memory/pending"
   now="$(date -u +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || echo unknown)"
-  mkdir -p "$(dirname "$outbox")" 2>/dev/null || return 0
-  if command -v jq >/dev/null 2>&1; then
-    jq -cn --arg m "$method" --argjson a "$args" --arg t "$now" \
-      '{queuedAt:$t, method:$m, arguments:$a}' >> "$outbox" 2>/dev/null || true
-  else
-    printf '{"queuedAt":"%s","method":"%s"}\n' "$now" "$method" >> "$outbox" 2>/dev/null || true
-  fi
+  mkdir -p "$pending" 2>/dev/null || return 0
+  command -v jq >/dev/null 2>&1 || return 0
+  command -v shasum >/dev/null 2>&1 || return 0
+  operation_id="$(printf '%s\0%s' "$method" "$args" | shasum -a 256 | awk '{print $1}')"
+  target="$pending/$operation_id.json"
+  [ -e "$target" ] && return 0
+  temporary="$pending/.$operation_id.$$.tmp"
+  jq -cn --arg id "$operation_id" --arg method "$method" --argjson arguments "$args" --arg queued "$now" \
+    '{schemaVersion:1,operationId:$id,method:$method,arguments:$arguments,attempt:0,queuedAt:$queued,lastError:null}' \
+    > "$temporary" 2>/dev/null || return 0
+  mv "$temporary" "$target" 2>/dev/null || true
   return 0
 }
 
@@ -126,27 +119,27 @@ import sys, json
 print(json.dumps({"content": sys.argv[1], "user_id": sys.argv[2]}))
 ' "$content" "$user_id" 2>/dev/null)" || args=""
   if [ -z "$args" ]; then _mem_outbox_write add_memory '{}'; return 0; fi
-  _mem_call add_memory "$args" || _mem_outbox_write add_memory "$args"
+  _mem_outbox_write add_memory "$args"
   return 0
 }
 
 # mem_create_task_stream <name>
 mem_create_task_stream() {
   local args; args="$(python3 -c 'import sys,json; print(json.dumps({"name": sys.argv[1]}))' "$1" 2>/dev/null)" || args='{}'
-  _mem_call create_task_stream "$args" || _mem_outbox_write create_task_stream "$args"
+  _mem_outbox_write create_task_stream "$args"
   return 0
 }
 
 # mem_add_task_step <stream> <description>
 mem_add_task_step() {
   local args; args="$(python3 -c 'import sys,json; print(json.dumps({"stream": sys.argv[1], "description": sys.argv[2]}))' "$1" "$2" 2>/dev/null)" || args='{}'
-  _mem_call add_task_step "$args" || _mem_outbox_write add_task_step "$args"
+  _mem_outbox_write add_task_step "$args"
   return 0
 }
 
 # mem_complete_step <stream> <step>
 mem_complete_step() {
   local args; args="$(python3 -c 'import sys,json; print(json.dumps({"stream": sys.argv[1], "step": sys.argv[2]}))' "$1" "$2" 2>/dev/null)" || args='{}'
-  _mem_call complete_step "$args" || _mem_outbox_write complete_step "$args"
+  _mem_outbox_write complete_step "$args"
   return 0
 }

@@ -196,6 +196,12 @@ enum Commands {
         dry_run: bool,
     },
 
+    /// Inspect the durable Karpathy learning queue and worker
+    Learning {
+        #[command(subcommand)]
+        action: LearningAction,
+    },
+
     /// Optimize a skill's prompts using dspy-rs
     Optimize {
         /// Path to the skill directory
@@ -764,6 +770,15 @@ enum MemoryAction {
     },
 }
 
+#[derive(Subcommand)]
+enum LearningAction {
+    /// Show queue, retry, dead-letter, and memory-delivery status
+    Status {
+        #[arg(long, default_value_t = false)]
+        json: bool,
+    },
+}
+
 #[tokio::main]
 async fn main() -> Result<()> {
     tracing_subscriber::fmt()
@@ -1199,6 +1214,9 @@ async fn main() -> Result<()> {
             lint,
             dry_run,
         } => commands::learn::run(capture_session, seed, compile, lint, dry_run).await,
+        Commands::Learning { action } => match action {
+            LearningAction::Status { json } => commands::learning::status(json),
+        },
         Commands::Policy { action } => match action {
             PolicyAction::Show => commands::policy::show(),
             PolicyAction::Validate => commands::policy::validate(),

@@ -6,6 +6,7 @@ pub mod generate;
 pub mod install;
 pub mod kbd;
 pub mod learn;
+pub mod learning;
 pub mod list;
 pub mod memory;
 pub mod optimize;
