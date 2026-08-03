@@ -110,15 +110,14 @@ pub async fn run(path: &str, action: Action) -> Result<()> {
             } else {
                 println!("Machine: {}", document.machine_id);
                 for (path, replica) in document.replicas {
-                    let access = replica
-                        .read_only
-                        .then(|| {
-                            format!(
-                                "  read-only ({})",
-                                replica.read_only_reason.as_deref().unwrap_or("policy")
-                            )
-                        })
-                        .unwrap_or_default();
+                    let access = if replica.read_only {
+                        format!(
+                            "  read-only ({})",
+                            replica.read_only_reason.as_deref().unwrap_or("policy")
+                        )
+                    } else {
+                        String::new()
+                    };
                     println!(
                         "{}  {}  {}  {:?}{}",
                         replica.project_id, replica.replica_id, path, replica.kind, access
@@ -158,15 +157,14 @@ pub async fn run(path: &str, action: Action) -> Result<()> {
                 );
             } else {
                 for (path, replica) in replicas {
-                    let access = replica
-                        .read_only
-                        .then(|| {
-                            format!(
-                                "  read-only ({})",
-                                replica.read_only_reason.as_deref().unwrap_or("policy")
-                            )
-                        })
-                        .unwrap_or_default();
+                    let access = if replica.read_only {
+                        format!(
+                            "  read-only ({})",
+                            replica.read_only_reason.as_deref().unwrap_or("policy")
+                        )
+                    } else {
+                        String::new()
+                    };
                     println!(
                         "{}  {}  {:?}{}",
                         replica.replica_id,

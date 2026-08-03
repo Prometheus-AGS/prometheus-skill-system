@@ -2211,7 +2211,7 @@ fn validate_pre_replica_v2_journal(path: &Path, events: &[Event]) -> Result<()> 
         let stored_hash = object
             .get("integrityHash")
             .and_then(serde_json::Value::as_str)
-            .ok_or_else(|| RuntimeError::Integrity {
+            .ok_or(RuntimeError::Integrity {
                 revision: event.revision,
             })?
             .to_owned();

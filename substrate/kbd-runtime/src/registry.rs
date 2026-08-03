@@ -346,7 +346,7 @@ impl ProjectRegistry {
         project_root: &Path,
         forced_kind: Option<ReplicaKind>,
     ) -> Result<RegistrationOutcome> {
-        let canonical = canonical_existing_path(project_root.as_ref())?;
+        let canonical = canonical_existing_path(project_root)?;
         let manifest = read_project_manifest(&canonical)?.ok_or_else(|| {
             RuntimeError::InvalidState(format!(
                 "{} has no .prometheus/project.json; registration never infers or creates project identity",

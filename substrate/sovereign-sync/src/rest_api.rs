@@ -793,6 +793,7 @@ struct SyncPushBody {
 ///    synchronous — no `.await` while touching CRDT bytes);
 /// 4. broadcasts the resulting delta, wrapped in a [`SyncEnvelope`], over the
 ///    P2P gossip layer (if this node has one; server mode does not).
+///
 /// Result of preparing a domain push, before any network broadcast happens.
 /// Split out from the HTTP handler so tests (and any future non-HTTP caller)
 /// can exercise the real registration/adapter/CRDT-merge pipeline directly,
