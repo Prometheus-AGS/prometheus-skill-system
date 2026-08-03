@@ -22,6 +22,8 @@ pub mod registry;
 pub mod rollout;
 
 #[cfg(test)]
+mod live_certification_proof;
+#[cfg(test)]
 mod live_migration_proof;
 
 pub const EVENT_SCHEMA_VERSION: &str = "2";
