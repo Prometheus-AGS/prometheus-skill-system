@@ -25,7 +25,7 @@ count = 0
 
 for skill_md in skills_root.rglob("SKILL.md"):
     rel = skill_md.relative_to(skills_root)
-    if rel.parts[0] == "imported":
+    if rel.parts[0] == "imported" or "tests" in rel.parts or "fixtures" in rel.parts:
         continue
     source = skill_md.parent
     text = skill_md.read_text()

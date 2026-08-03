@@ -1,5 +1,5 @@
 {
-  "schemaVersion": "1",
+  "schemaVersion": "2",
   "harness": "claude-code",
   "hooks": {
     "SessionStart": [
@@ -16,13 +16,20 @@
     ],
     "UserPromptSubmit": [
       {
-        "command": "bash ${PROMETHEUS_SKILL_PACK_ROOT}/shared/scripts/kbd-harness-adapter.sh prompt claude-code",
-        "timeout": 1000
+        "command": "bash ${PROMETHEUS_SKILL_PACK_ROOT}/shared/scripts/karpathy-hook-dispatch.sh prompt claude-code",
+        "timeout": 2100
       }
     ],
     "Stop": [
       {
-        "command": "bash ${PROMETHEUS_SKILL_PACK_ROOT}/shared/scripts/kbd-harness-adapter.sh stop claude-code",
+        "command": "bash ${PROMETHEUS_SKILL_PACK_ROOT}/shared/scripts/karpathy-hook-dispatch.sh stop claude-code",
+        "timeout": 250
+      }
+    ],
+    "SubagentStop": [
+      {
+        "matcher": "executor",
+        "command": "bash ${PROMETHEUS_SKILL_PACK_ROOT}/shared/scripts/karpathy-hook-dispatch.sh executor_complete claude-code",
         "timeout": 250
       }
     ]

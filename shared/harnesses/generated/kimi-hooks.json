@@ -1,5 +1,5 @@
 {
-  "schemaVersion": "1",
+  "schemaVersion": "2",
   "harness": "kimi",
   "hooks": {
     "SessionStart": {
@@ -15,12 +15,12 @@
       "timeoutMs": 1000
     },
     "UserPromptSubmit": {
-      "command": "bash ${PROMETHEUS_SKILL_PACK_ROOT}/shared/scripts/kbd-harness-adapter.sh prompt kimi",
-      "timeoutMs": 1000
+      "command": "bash ${PROMETHEUS_SKILL_PACK_ROOT}/shared/scripts/karpathy-hook-dispatch.sh prompt kimi",
+      "timeoutMs": 2100
     },
     "Stop": {
-      "command": "bash ${PROMETHEUS_SKILL_PACK_ROOT}/shared/scripts/kbd-harness-adapter.sh stop kimi",
-      "timeoutMs": 1000
+      "command": "bash ${PROMETHEUS_SKILL_PACK_ROOT}/shared/scripts/karpathy-hook-dispatch.sh stop kimi",
+      "timeoutMs": 250
     },
     "Interrupt": {
       "command": "bash ${PROMETHEUS_SKILL_PACK_ROOT}/shared/scripts/kbd-harness-adapter.sh interrupt kimi",

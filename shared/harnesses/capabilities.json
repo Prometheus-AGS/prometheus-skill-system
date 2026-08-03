@@ -1,6 +1,6 @@
 {
-  "schemaVersion": "1",
-  "contractVersion": "kbd-harness-v1",
+  "schemaVersion": "2",
+  "contractVersion": "karpathy-learning-v2",
   "harnesses": {
     "claude-code": {
       "events": {
@@ -13,6 +13,8 @@
         "postMutation": "PostToolUse"
       },
       "nativeMutationGuard": false,
+      "promptOutputInjection": true,
+      "learningDispatch": true,
       "writerRole": true
     },
     "codex": {
@@ -26,6 +28,8 @@
         "postMutation": "post_tool"
       },
       "nativeMutationGuard": false,
+      "promptOutputInjection": true,
+      "learningDispatch": true,
       "writerRole": true
     },
     "opencode": {
@@ -39,6 +43,8 @@
         "postMutation": "tool.execute.after"
       },
       "nativeMutationGuard": false,
+      "promptOutputInjection": false,
+      "learningDispatch": true,
       "writerRole": true
     },
     "kimi": {
@@ -52,6 +58,8 @@
         "postMutation": "PostToolUse"
       },
       "nativeMutationGuard": false,
+      "promptOutputInjection": true,
+      "learningDispatch": true,
       "writerRole": true
     }
   }

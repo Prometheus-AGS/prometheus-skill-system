@@ -1,6 +1,6 @@
 {
   "name": "prometheus-skill-pack",
-  "version": "1.6.0",
+  "version": "1.6.1",
   "description": "Enterprise-grade AI skills for React entity management, GitOps CI/CD, process orchestration, strategic evolution (5-perspective pmpo-evolver + Darwin idea validation), goal tracking, BDD testing, and deep-research with prometheus-research binary — with surreal-memory distributed state",
   "author": {
     "name": "Travis James",
@@ -66,6 +66,7 @@
     "./skills/learn/learn-harness"
   ],
   "mcpServers": "./.mcp.json",
+  "hooks": "./hooks/hooks.json",
   "compatibility": {
     "platforms": [
       "claude-code",

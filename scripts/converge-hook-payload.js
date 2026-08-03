@@ -6,7 +6,7 @@ import { fileURLToPath } from 'node:url';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const target = path.join(root, 'hooks/hooks.json');
 const payload = JSON.parse(fs.readFileSync(target, 'utf8'));
-const command = 'bash ${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/shared/scripts/kbd-harness-adapter.sh';
+const command = 'bash ${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/shared/scripts/karpathy-hook-dispatch.sh';
 
 payload.hooks.UserPromptSubmit = [
   {
@@ -14,7 +14,7 @@ payload.hooks.UserPromptSubmit = [
       {
         type: 'command',
         command: `${command} prompt claude-code`,
-        timeout: 250,
+        timeout: 2100,
       },
     ],
   },
@@ -32,4 +32,4 @@ payload.hooks.Stop = [
 ];
 
 fs.writeFileSync(target, `${JSON.stringify(payload, null, 2)}\n`);
-console.log('Converged prompt and Stop hooks to bounded deferred adapters.');
+console.log('Converged prompt and Stop hooks to the Karpathy learning dispatcher.');

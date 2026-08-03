@@ -6,6 +6,10 @@ umask 077
 EVENT="${1:-status}"
 HARNESS="${2:-${PROMETHEUS_HARNESS:-unknown}}"
 
+if [[ "$EVENT" == "auto" ]] && command -v jq >/dev/null 2>&1; then
+  EVENT="$(jq -r '.hook_event_name // .event_name // .event // .type // "status"' 2>/dev/null | head -n 1)"
+fi
+
 find_project_root() {
   local cursor="${PWD}"
   while [[ "$cursor" != "/" ]]; do
@@ -31,19 +35,6 @@ runtime_data_root() {
   esac
 }
 
-queue_deferred_event() {
-  [[ -n "$PROJECT_ID" ]] || return 0
-  local outbox
-  outbox="$(runtime_data_root)/prometheus/kbd/projects/$PROJECT_ID/deferred-hooks"
-  mkdir -p "$outbox" 2>/dev/null || return 0
-  local target
-  target="$outbox/$(date -u '+%Y%m%dT%H%M%S').$$.${RANDOM:-0}.json"
-  printf '{"schemaVersion":"1","event":%s,"harness":%s,"createdAt":%s}\n' \
-    "$(printf '%s' "$EVENT" | jq -Rs . 2>/dev/null || printf '"unknown"')" \
-    "$(printf '%s' "$HARNESS" | jq -Rs . 2>/dev/null || printf '"unknown"')" \
-    "$(date -u '+\"%Y-%m-%dT%H:%M:%SZ\"')" >"$target" 2>/dev/null || true
-}
-
 PAUSE_FILE="$PROJECT_ROOT/.kbd-orchestrator/PAUSE"
 if [[ -e "$PAUSE_FILE" ]]; then
   if [[ "$EVENT" == "session_start" || "$EVENT" == "post_compact" ]]; then
@@ -60,9 +51,8 @@ if [[ "$EVENT" == "interrupt" ]]; then
     printf 'reason=Native %s interrupt\n' "$HARNESS"
     printf 'lifecycle=pause_requested\n'
   } >"$PAUSE_FILE"
-  queue_deferred_event
-  # Durable acknowledgement is deferred; the local valve already owns safety.
-  (prometheus kbd --path "$PROJECT_ROOT" pause --reason "Native $HARNESS interrupt" >/dev/null 2>&1 || true) &
+  # The local valve is the complete interrupt path. Harness callbacks do not
+  # invoke the control-plane binary.
   exit 0
 fi
 
@@ -95,11 +85,9 @@ render_reanchor() {
 
 if [[ "$EVENT" == "session_start" || "$EVENT" == "post_compact" ]]; then
   render_reanchor
-  queue_deferred_event
   exit 0
 fi
 
-# Every remaining event is observational. The adapter records it for the daemon
-# and returns success; it never intercepts or blocks a tool call.
-queue_deferred_event
+# Prompt and completion learning belongs to karpathy-hook-dispatch.sh. This
+# adapter has no observational queue and only handles reanchor/interrupt.
 exit 0

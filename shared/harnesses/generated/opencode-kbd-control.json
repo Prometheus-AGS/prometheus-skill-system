@@ -1,7 +1,8 @@
 {
-  "schemaVersion": "1",
+  "schemaVersion": "2",
   "harness": "opencode",
-  "adapter": "${PROMETHEUS_SKILL_PACK_ROOT}/shared/scripts/kbd-harness-adapter.sh",
+  "controlAdapter": "${PROMETHEUS_SKILL_PACK_ROOT}/shared/scripts/kbd-harness-adapter.sh",
+  "learningDispatcher": "${PROMETHEUS_SKILL_PACK_ROOT}/shared/scripts/karpathy-hook-dispatch.sh",
   "events": {
     "sessionStart": "session.created",
     "preCompact": "session.compacting",
