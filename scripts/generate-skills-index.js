@@ -268,7 +268,7 @@ if (process.argv.includes('--check')) {
   let parentCommit;
   try {
     parentCommit = execFileSync('git', ['rev-parse', 'HEAD^'], {
-      cwd: ROOT,
+      cwd: REPO,
       encoding: 'utf8',
       stdio: ['ignore', 'pipe', 'ignore'],
     }).trim();
