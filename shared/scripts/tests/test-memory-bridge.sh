@@ -18,7 +18,7 @@ FAKE
 chmod +x "$BIN/curl"
 export PATH="$BIN:$PATH"
 export PROMETHEUS_LEARNING_QUEUE="$TMP/queue"
-export KBD_PROJECT_NAME="test-project"
+export PROMETHEUS_PROJECT_ID="test-project"
 PENDING="$PROMETHEUS_LEARNING_QUEUE/memory/pending"
 # shellcheck source=/dev/null
 source "$LIB"
@@ -31,19 +31,26 @@ mem_add_memory "a project learning" >/dev/null; rc=$?
 [ "$(find "$PENDING" -type f -name '*.json' | wc -l | tr -d ' ')" = "1" ] \
   && ok || bad "one central operation queued"
 first="$(find "$PENDING" -type f -name '*.json' -print -quit)"
-jq -e '.schemaVersion == 1 and .method == "add_memory" and .arguments.user_id == "test-project"' "$first" >/dev/null \
-  && ok || bad "queued operation records schema, method, and project scope"
+jq -e '.schemaVersion == 2 and .method == "add_memory" and .arguments.user_id == "test-project" and .state == "pending" and (.payloadHash | length) == 64' "$first" >/dev/null \
+  && ok || bad "queued operation records v2 schema, hash, state, and project scope"
 
 mem_add_memory "[GLOBAL] a universal rule" >/dev/null
 find "$PENDING" -type f -name '*.json' -exec jq -e 'select(.arguments.user_id == "global")' {} + >/dev/null \
   && ok || bad "[GLOBAL] content routes to global scope"
 
 before="$(find "$PENDING" -type f -name '*.json' | wc -l | tr -d ' ')"
-mem_create_task_stream "kbd:test:phase" >/dev/null
-mem_add_task_step "kbd:test:phase" "change-001" >/dev/null
-mem_complete_step "kbd:test:phase" "change-001" >/dev/null
+mem_create_task_stream "test:phase" >/dev/null
+mem_add_task_step "test:phase" "change-001" >/dev/null
+mem_complete_step "test:phase" "change-001" >/dev/null
 after="$(find "$PENDING" -type f -name '*.json' | wc -l | tr -d ' ')"
 [ "$((after - before))" = "3" ] && ok || bad "all operations use the central outbox" "$before→$after"
+jq -s -e '
+  (map(select(.method == "create_task_stream"))[0].operationId) as $create |
+  (map(select(.method == "add_task_step"))[0]) as $add |
+  (map(select(.method == "complete_step"))[0]) as $complete |
+  ($add.dependencies == [$create]) and ($complete.dependencies == [$add.operationId])
+' "$PENDING"/*.json >/dev/null \
+  && ok || bad "compound operations encode explicit dependency ids"
 
 # Repeated identical writes are idempotent and never call the service inline.
 before="$after"
@@ -51,8 +58,8 @@ mem_add_memory "a project learning" >/dev/null
 after="$(find "$PENDING" -type f -name '*.json' | wc -l | tr -d ' ')"
 [ "$before" = "$after" ] && ok || bad "duplicate operation is idempotent" "$before→$after"
 
-export FAKE_CURL_MODE=ok
-mem_available && ok || bad "mem_available still reports service health"
+! declare -F mem_available >/dev/null \
+  && ok || bad "hook bridge exposes no synchronous service probe"
 
 echo "---"; echo "PASS=$PASS FAIL=$FAIL"
 [ "$FAIL" -eq 0 ]

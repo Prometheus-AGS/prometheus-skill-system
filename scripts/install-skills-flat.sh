@@ -3,17 +3,23 @@
 # This makes each skill appear as a slash command (e.g., /evolve, /kbd-plan, /gitops-bootstrap).
 #
 # Usage:
-#   ./scripts/install-skills-flat.sh              # all platforms
-#   ./scripts/install-skills-flat.sh --uninstall   # remove all
+#   ./scripts/install-skills-flat.sh                # all platforms + integrations
+#   ./scripts/install-skills-flat.sh --skills-only  # payloads only; no builds/MCP changes
+#   ./scripts/install-skills-flat.sh --uninstall    # remove all
 
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 UNINSTALL=false
+SKILLS_ONLY=false
 
-if [[ "${1:-}" == "--uninstall" ]]; then
-    UNINSTALL=true
-fi
+for arg in "$@"; do
+    case "$arg" in
+        --uninstall) UNINSTALL=true ;;
+        --skills-only) SKILLS_ONLY=true ;;
+        *) echo "Unknown argument: $arg" >&2; exit 2 ;;
+    esac
+done
 
 echo "🔥 Prometheus Skill Pack — Flat Skill Installation"
 echo "=================================================="
@@ -140,9 +146,10 @@ install_to_codex() {
     [[ "$(uname -s)" == "Darwin" ]] || return 0
     local label="ai.prometheus.codex-skills-sync"
     local dst="$HOME/Library/LaunchAgents/$label.plist"
+    local gui_domain="gui/$(id -u)"
 
     if $UNINSTALL; then
-        launchctl unload "$dst" 2>/dev/null || true
+        launchctl bootout "$gui_domain/$label" 2>/dev/null || true
         rm -f "$dst"
         echo "  ✅ codex: skills-sync agent removed"
         return 0
@@ -151,8 +158,9 @@ install_to_codex() {
     mkdir -p "$HOME/Library/LaunchAgents" "$HOME/.prometheus/logs"
     sed -e "s|__REPO_ROOT__|$REPO_ROOT|g" -e "s|__HOME__|$HOME|g" \
         "$REPO_ROOT/shared/launchagents/$label.plist" > "$dst"
-    launchctl unload "$dst" 2>/dev/null || true
-    if launchctl load -w "$dst" 2>/dev/null; then
+    launchctl bootout "$gui_domain/$label" 2>/dev/null || true
+    if launchctl bootstrap "$gui_domain" "$dst" 2>/dev/null && \
+       launchctl enable "$gui_domain/$label" 2>/dev/null; then
         echo "  ✅ codex: skills-sync agent loaded (re-syncs on skill edits)"
     else
         echo "  ⚠️  codex: skills-sync agent failed to load — run 'bash scripts/codex-sync-skills.sh' manually after editing skills"
@@ -232,7 +240,7 @@ configure_kimi_mcp() {
 
 configure_kimi_mcp
 
-if [[ "${PROMETHEUS_INSTALL_SKILLS_ONLY:-0}" == "1" ]]; then
+if $SKILLS_ONLY || [[ "${PROMETHEUS_INSTALL_SKILLS_ONLY:-0}" == "1" ]]; then
     echo ""
     echo "✨ Done — skills-only installation completed"
     exit 0

@@ -34,4 +34,10 @@ for unit in \
 done
 
 grep -q '\.hooks.lock' "$ROOT/shared/scripts/rotate-hooks-log.sh"
+
+RECOVERY_OUTPUT=$(bash "$ROOT/scripts/install-mcp-services.sh" --learning-recovery --dry-run)
+grep -q 'ai.prometheus.pk-cherry' <<<"$RECOVERY_OUTPUT"
+grep -q 'ai.prometheus.learning-worker' <<<"$RECOVERY_OUTPUT"
+grep -q 'ai.prometheus.hooks-logrotate' <<<"$RECOVERY_OUTPUT"
+! grep -q 'sovereign-sync' <<<"$RECOVERY_OUTPUT"
 printf 'Learning worker and locked hook rotation definitions render correctly.\n'

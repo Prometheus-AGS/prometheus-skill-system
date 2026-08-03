@@ -17,12 +17,15 @@
 # The bundled SurrealDB binds :28000 and never touches an external instance on :8000.
 #
 # Usage:
-#   bash scripts/install-mcp-services.sh [--unload] [--restart] [--user <username>] [--dry-run]
-#       [--render-only <directory>]
+#   bash scripts/install-mcp-services.sh [--unload] [--restart] [--learning-recovery]
+#       [--user <username>] [--dry-run] [--render-only <directory>]
 #
 # Flags:
 #   --unload      Stop/boot out all managed services (does not delete unit files)
 #   --restart     Reload managed definitions and restart services even when healthy
+#   --learning-recovery
+#                 Install only pk-cherry, the learning worker, and hook rotation.
+#                 This mode never initializes, renders, stops, or starts sovereign-sync.
 #   --user <u>    Target a different user (requires matching uid / privileges)
 #   --render-only <directory>
 #                 Render the sovereign-sync launchd/systemd definitions and exit
@@ -37,12 +40,14 @@ PROMETHEUS_USER="${PROMETHEUS_USER:-$(id -un)}"
 DRY_RUN=false
 FORCE_RESTART=false
 RENDER_ONLY_DIR=""
+LEARNING_RECOVERY=false
 
 while [ "$#" -gt 0 ]; do
     case "$1" in
         --unload)   ACTION="unload"; shift ;;
         --restart)  FORCE_RESTART=true; shift ;;
         --dry-run)  DRY_RUN=true; shift ;;
+        --learning-recovery) LEARNING_RECOVERY=true; shift ;;
         --user)     PROMETHEUS_USER="${2:?missing value for --user}"; shift 2 ;;
         --render-only)
             RENDER_ONLY_DIR="${2:?missing value for --render-only}"
@@ -319,6 +324,35 @@ macos_install() {
         render_logrotate_config "$PROMETHEUS_HOME/.prometheus/logrotate/prometheus-hooks.conf"
         chmod 700 "$PROMETHEUS_HOME/.prometheus" "$PROMETHEUS_HOME/.prometheus/logrotate" "$PROMETHEUS_HOME/.prometheus/learning-queue"
     fi
+    if $LEARNING_RECOVERY; then
+        local recovery_labels=("ai.prometheus.pk-cherry" "$LEARNING_LABEL" "$ROTATION_LABEL")
+        local recovery_label recovery_src recovery_out
+        for recovery_label in "${recovery_labels[@]}"; do
+            recovery_src="$REPO_ROOT/shared/launchagents/$recovery_label.plist"
+            recovery_out="$LAUNCH_AGENTS_DIR/$recovery_label.plist"
+            echo "→ rendering $recovery_label"
+            if ! $DRY_RUN; then
+                render_template "$recovery_src" "$recovery_out"
+                plutil -lint "$recovery_out" >/dev/null
+            fi
+            case "$recovery_label" in
+                "$ROTATION_LABEL")
+                    echo "  ↳ hook rotation: registered daily at 03:15"
+                    $DRY_RUN || reload_scheduled_launch_agent "$recovery_label" "$recovery_out"
+                    ;;
+                "$LEARNING_LABEL")
+                    echo "  ↳ learning worker: registered for queue changes and five-minute retries"
+                    $DRY_RUN || reload_launch_agent "$recovery_label" "$recovery_out"
+                    ;;
+                *)
+                    echo "  ↳ bootstrapping $recovery_label"
+                    $DRY_RUN || reload_launch_agent "$recovery_label" "$recovery_out"
+                    ;;
+            esac
+        done
+        return
+    fi
+
     # Older installers registered these daemons under com.prometheusags.*.
     # Remove them before probing ports; otherwise a healthy legacy process can
     # permanently prevent its canonical ai.prometheus.* replacement starting.
@@ -391,6 +425,23 @@ linux_install() {
         "$PROMETHEUS_HOME/.prometheus/learning-queue/memory/retry"
     $DRY_RUN || render_logrotate_config "$PROMETHEUS_HOME/.prometheus/logrotate/prometheus-hooks.conf"
 
+    if $LEARNING_RECOVERY; then
+        local recovery_files=(
+            ai.prometheus.pk-cherry.service
+            "$LEARNING_LABEL.service" "$LEARNING_LABEL.path" "$LEARNING_LABEL.timer"
+            "$ROTATION_LABEL.service" "$ROTATION_LABEL.timer"
+        )
+        local recovery_file
+        for recovery_file in "${recovery_files[@]}"; do
+            echo "→ rendering $recovery_file"
+            $DRY_RUN || render_template "$REPO_ROOT/shared/systemd/$recovery_file" "$SYSTEMD_USER_DIR/$recovery_file"
+        done
+        run systemctl --user daemon-reload
+        run systemctl --user enable --now ai.prometheus.pk-cherry.service \
+            "$LEARNING_LABEL.path" "$LEARNING_LABEL.timer" "$ROTATION_LABEL.timer"
+        return
+    fi
+
     # Persist user services across logout / on a headless box.
     if ! loginctl show-user "$PROMETHEUS_USER" -p Linger 2>/dev/null | grep -q 'Linger=yes'; then
         run loginctl enable-linger "$PROMETHEUS_USER" || echo "  WARN: could not enable-linger (services may stop on logout)" >&2
@@ -448,8 +499,8 @@ linux_unload() {
 }
 
 case "$OS/$ACTION" in
-    macos/install) ensure_sovereign_config; macos_install ;;
+    macos/install) $LEARNING_RECOVERY || ensure_sovereign_config; macos_install ;;
     macos/unload)  macos_unload ;;
-    linux/install) ensure_sovereign_config; linux_install ;;
+    linux/install) $LEARNING_RECOVERY || ensure_sovereign_config; linux_install ;;
     linux/unload)  linux_unload ;;
 esac
