@@ -1,20 +1,10 @@
 POSITION REMINDER — read this as your FIRST tool call every turn
-Phase: uar-host-execution   (CLOSED 16/16, reflected 2026-08-01)
-Stage: reflect_complete
-Next command: /kbd-next-phase uar-frontend-workspace-repair
+Phase: docusaurus-github-pages-site
+Step: 8 of 8
+Stage: completed
+Next command: /kbd-next-phase
 
-RESULT: 9 goals MET, 2 PARTIAL (R3, R5) — both blocked by measured
-prerequisites, not by work left undone.
-
-THE HIGHEST-LEVERAGE NEXT ITEM:
-  frontend/packages/prometheus-entity-management is NAMED
-  @prometheus-ags/entity-graph-workspace, so the name 90+ files import does
-  not exist. This blocks `tsc -b` AND the entire Playwright suite — the direct
-  cause of R3 being PARTIAL. An incoming commit (c49a3d1) may fix it; UNVERIFIED.
-
-DEFERRED BY EXPLICIT INSTRUCTION — do not reopen without being asked:
-  mobile update transport (uhe-014 BLOCKED: skill-index syncs metadata only;
-  daemon binds loopback).
-
-DO NOT TRUST current-waypoint.json's `phase` — kbd-reflect never writes it.
-Run scripts/check-waypoint-staleness.sh to see the drift.
+Required signal format (emit BEFORE any tool call):
+  Starting <kbd-skill> — docusaurus-github-pages-site (step 8 of 8)
+  [do work]
+  Completed <kbd-skill> — docusaurus-github-pages-site (step 8 of 8)
