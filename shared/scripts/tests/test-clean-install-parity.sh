@@ -33,7 +33,9 @@ TARGETS=(
     ".cline/skills"
 )
 
-EXPECTED="$(find "$REPO_ROOT/skills" -name SKILL.md -not -path '*/imported/*' | wc -l | tr -d ' ')"
+EXPECTED="$(find "$REPO_ROOT/skills" -name SKILL.md \
+    -not -path '*/imported/*' -not -path '*/tests/*' -not -path '*/fixtures/*' \
+    | wc -l | tr -d ' ')"
 [[ "$EXPECTED" == "145" ]]
 
 for relative in "${TARGETS[@]}"; do
@@ -46,6 +48,9 @@ import sys
 
 names = set()
 for directory, _, files in os.walk(sys.argv[1], followlinks=True):
+    relative = pathlib.Path(directory).relative_to(sys.argv[1])
+    if "tests" in relative.parts or "fixtures" in relative.parts:
+        continue
     if "SKILL.md" in files:
         text = pathlib.Path(directory, "SKILL.md").read_text()
         frontmatter = re.search(r"^---\n([\s\S]*?)\n---", text)

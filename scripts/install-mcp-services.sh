@@ -17,12 +17,15 @@
 # The bundled SurrealDB binds :28000 and never touches an external instance on :8000.
 #
 # Usage:
-#   bash scripts/install-mcp-services.sh [--unload] [--restart] [--user <username>] [--dry-run]
-#       [--render-only <directory>]
+#   bash scripts/install-mcp-services.sh [--unload] [--restart] [--learning-recovery]
+#       [--user <username>] [--dry-run] [--render-only <directory>]
 #
 # Flags:
 #   --unload      Stop/boot out all managed services (does not delete unit files)
 #   --restart     Reload managed definitions and restart services even when healthy
+#   --learning-recovery
+#                 Install only pk-cherry, the learning worker, and hook rotation.
+#                 This mode never initializes, renders, stops, or starts sovereign-sync.
 #   --user <u>    Target a different user (requires matching uid / privileges)
 #   --render-only <directory>
 #                 Render the sovereign-sync launchd/systemd definitions and exit
@@ -37,12 +40,14 @@ PROMETHEUS_USER="${PROMETHEUS_USER:-$(id -un)}"
 DRY_RUN=false
 FORCE_RESTART=false
 RENDER_ONLY_DIR=""
+LEARNING_RECOVERY=false
 
 while [ "$#" -gt 0 ]; do
     case "$1" in
         --unload)   ACTION="unload"; shift ;;
         --restart)  FORCE_RESTART=true; shift ;;
         --dry-run)  DRY_RUN=true; shift ;;
+        --learning-recovery) LEARNING_RECOVERY=true; shift ;;
         --user)     PROMETHEUS_USER="${2:?missing value for --user}"; shift 2 ;;
         --render-only)
             RENDER_ONLY_DIR="${2:?missing value for --render-only}"
@@ -169,13 +174,15 @@ declare -A DAEMON_PATH=(
     [ai.prometheus.sovereign-sync]=/health
 )
 NUDGE_LABEL="ai.prometheus.prometheus-nudge"
+LEARNING_LABEL="ai.prometheus.learning-worker"
+ROTATION_LABEL="ai.prometheus.hooks-logrotate"
 
 # ── Shared template rendering (identical __PLACEHOLDER__ map for both OSes) ───
 render_template() {
     local src="$1" output="$2"
     [ -f "$src" ] || { echo "Template not found: $src" >&2; return 1; }
 
-    local pk_cherry_bin forge_bin docker_bin surreal_bin surreal_memory_bin surface_bridge_bin sovereign_sync_bin
+    local pk_cherry_bin forge_bin docker_bin surreal_bin surreal_memory_bin surface_bridge_bin sovereign_sync_bin learning_worker_bin logrotate_bin flock_bin
     pk_cherry_bin="$(resolve_bin pk-cherry)";  [ -n "$pk_cherry_bin" ] || pk_cherry_bin="$BIN_FALLBACK_DIR/pk-cherry"
     forge_bin="$(resolve_bin forge)";          [ -n "$forge_bin" ]     || forge_bin="$BIN_FALLBACK_DIR/forge"
     docker_bin="$(resolve_bin docker)";        [ -n "$docker_bin" ]    || docker_bin="/usr/local/bin/docker"
@@ -185,6 +192,9 @@ render_template() {
     [ -f "$surreal_memory_bin" ] || surreal_memory_bin="$BIN_FALLBACK_DIR/surreal-memory-server"
     surface_bridge_bin="$(resolve_bin surface-bridge)"; [ -n "$surface_bridge_bin" ] || surface_bridge_bin="$BIN_FALLBACK_DIR/surface-bridge"
     sovereign_sync_bin="$(resolve_bin sovereign-sync)"; [ -n "$sovereign_sync_bin" ] || sovereign_sync_bin="$BIN_FALLBACK_DIR/sovereign-sync"
+    learning_worker_bin="$(resolve_bin prometheus-learning-worker)"; [ -n "$learning_worker_bin" ] || learning_worker_bin="$BIN_FALLBACK_DIR/prometheus-learning-worker"
+    logrotate_bin="$(resolve_bin logrotate)"; [ -n "$logrotate_bin" ] || logrotate_bin="/opt/homebrew/opt/logrotate/sbin/logrotate"
+    flock_bin="$(resolve_bin flock)"; [ -n "$flock_bin" ] || flock_bin="/usr/bin/flock"
 
     local device_key_file="$PROMETHEUS_HOME/.config/sovereign-sync/device-key.json"
     PROMETHEUS_DEVICE_KEY_FILE="$device_key_file" \
@@ -192,7 +202,8 @@ render_template() {
     PROMETHEUS_ROOT="$REPO_ROOT" PROMETHEUS_LOG_DIR="$LOG_DIR" PROMETHEUS_PATH="$PROMETHEUS_PATH" \
     PK_CHERRY_BIN="$pk_cherry_bin" FORGE_BIN="$forge_bin" DOCKER_BIN="$docker_bin" \
     SURREAL_BIN="$surreal_bin" SURREAL_MEMORY_BIN="$surreal_memory_bin" SURFACE_BRIDGE_BIN="$surface_bridge_bin" \
-    SOVEREIGN_SYNC_BIN="$sovereign_sync_bin" \
+    SOVEREIGN_SYNC_BIN="$sovereign_sync_bin" LEARNING_WORKER_BIN="$learning_worker_bin" \
+    LOGROTATE_BIN="$logrotate_bin" FLOCK_BIN="$flock_bin" \
     python3 - "$src" "$output" <<'PY'
 import os, pathlib, sys
 from xml.sax.saxutils import escape as xml_escape
@@ -230,11 +241,26 @@ for k, env in {
     "__SURREAL_MEMORY_BIN__": "SURREAL_MEMORY_BIN",
     "__SURFACE_BRIDGE_BIN__": "SURFACE_BRIDGE_BIN",
     "__SOVEREIGN_SYNC_BIN__": "SOVEREIGN_SYNC_BIN",
+    "__LEARNING_WORKER_BIN__": "LEARNING_WORKER_BIN",
+    "__LOGROTATE_BIN__": "LOGROTATE_BIN",
+    "__FLOCK_BIN__": "FLOCK_BIN",
     "__PROMETHEUS_DEVICE_KEY_FILE__": "PROMETHEUS_DEVICE_KEY_FILE",
 }.items():
     text = text.replace(k, escape_value(os.environ[env]))
 dst.write_text(text)
 PY
+}
+
+render_logrotate_config() {
+    local output="$1"
+    python3 - "$REPO_ROOT/shared/config/logrotate.d/prometheus-hooks" "$output" "$PROMETHEUS_HOME/.prometheus/hooks.log" <<'PY'
+import pathlib, sys
+src, dst, hook_log = map(pathlib.Path, sys.argv[1:])
+text = src.read_text().replace("__PROMETHEUS_HOOK_LOG__", str(hook_log))
+dst.parent.mkdir(parents=True, exist_ok=True)
+dst.write_text(text)
+PY
+    chmod 600 "$output"
 }
 
 if [ -n "$RENDER_ONLY_DIR" ]; then
@@ -245,6 +271,12 @@ if [ -n "$RENDER_ONLY_DIR" ]; then
     render_template \
         "$REPO_ROOT/shared/systemd/ai.prometheus.sovereign-sync.service" \
         "$RENDER_ONLY_DIR/ai.prometheus.sovereign-sync.service"
+    render_template "$REPO_ROOT/shared/launchagents/$LEARNING_LABEL.plist" "$RENDER_ONLY_DIR/$LEARNING_LABEL.plist"
+    render_template "$REPO_ROOT/shared/launchagents/$ROTATION_LABEL.plist" "$RENDER_ONLY_DIR/$ROTATION_LABEL.plist"
+    for f in "$LEARNING_LABEL.service" "$LEARNING_LABEL.path" "$LEARNING_LABEL.timer" "$ROTATION_LABEL.service" "$ROTATION_LABEL.timer"; do
+        render_template "$REPO_ROOT/shared/systemd/$f" "$RENDER_ONLY_DIR/$f"
+    done
+    render_logrotate_config "$RENDER_ONLY_DIR/prometheus-hooks.conf"
     echo "Rendered sovereign-sync definitions in $RENDER_ONLY_DIR"
     exit 0
 fi
@@ -271,8 +303,56 @@ reload_launch_agent() {
     launchctl kickstart -k "$GUI_DOMAIN/$label"
 }
 
+reload_scheduled_launch_agent() {
+    local label="$1" plist="$2"
+    launchctl bootout "$GUI_DOMAIN/$label" >/dev/null 2>&1 || true
+    launchctl bootstrap "$GUI_DOMAIN" "$plist"
+    launchctl enable "$GUI_DOMAIN/$label"
+}
+
 macos_install() {
-    $DRY_RUN || mkdir -p "$LAUNCH_AGENTS_DIR" "$LOG_DIR" "$KNOWLEDGE_DIR"
+    $DRY_RUN || mkdir -p "$LAUNCH_AGENTS_DIR" "$LOG_DIR" "$KNOWLEDGE_DIR" \
+        "$PROMETHEUS_HOME/.prometheus/logrotate" \
+        "$PROMETHEUS_HOME/.prometheus/learning-queue/pending" \
+        "$PROMETHEUS_HOME/.prometheus/learning-queue/processing" \
+        "$PROMETHEUS_HOME/.prometheus/learning-queue/completed" \
+        "$PROMETHEUS_HOME/.prometheus/learning-queue/retry" \
+        "$PROMETHEUS_HOME/.prometheus/learning-queue/dead-letter" \
+        "$PROMETHEUS_HOME/.prometheus/learning-queue/memory/pending" \
+        "$PROMETHEUS_HOME/.prometheus/learning-queue/memory/retry"
+    if ! $DRY_RUN; then
+        render_logrotate_config "$PROMETHEUS_HOME/.prometheus/logrotate/prometheus-hooks.conf"
+        chmod 700 "$PROMETHEUS_HOME/.prometheus" "$PROMETHEUS_HOME/.prometheus/logrotate" "$PROMETHEUS_HOME/.prometheus/learning-queue"
+    fi
+    if $LEARNING_RECOVERY; then
+        local recovery_labels=("ai.prometheus.pk-cherry" "$LEARNING_LABEL" "$ROTATION_LABEL")
+        local recovery_label recovery_src recovery_out
+        for recovery_label in "${recovery_labels[@]}"; do
+            recovery_src="$REPO_ROOT/shared/launchagents/$recovery_label.plist"
+            recovery_out="$LAUNCH_AGENTS_DIR/$recovery_label.plist"
+            echo "→ rendering $recovery_label"
+            if ! $DRY_RUN; then
+                render_template "$recovery_src" "$recovery_out"
+                plutil -lint "$recovery_out" >/dev/null
+            fi
+            case "$recovery_label" in
+                "$ROTATION_LABEL")
+                    echo "  ↳ hook rotation: registered daily at 03:15"
+                    $DRY_RUN || reload_scheduled_launch_agent "$recovery_label" "$recovery_out"
+                    ;;
+                "$LEARNING_LABEL")
+                    echo "  ↳ learning worker: registered for queue changes and five-minute retries"
+                    $DRY_RUN || reload_launch_agent "$recovery_label" "$recovery_out"
+                    ;;
+                *)
+                    echo "  ↳ bootstrapping $recovery_label"
+                    $DRY_RUN || reload_launch_agent "$recovery_label" "$recovery_out"
+                    ;;
+            esac
+        done
+        return
+    fi
+
     # Older installers registered these daemons under com.prometheusags.*.
     # Remove them before probing ports; otherwise a healthy legacy process can
     # permanently prevent its canonical ai.prometheus.* replacement starting.
@@ -290,7 +370,7 @@ macos_install() {
             echo "→ archived legacy service: $archived_plist"
         fi
     done
-    local all=("${DAEMON_LABELS[@]}" "$NUDGE_LABEL")
+    local all=("${DAEMON_LABELS[@]}" "$NUDGE_LABEL" "$LEARNING_LABEL" "$ROTATION_LABEL")
     for label in "${all[@]}"; do
         local src="$REPO_ROOT/shared/launchagents/$label.plist"
         local out="$LAUNCH_AGENTS_DIR/$label.plist"
@@ -301,6 +381,16 @@ macos_install() {
         fi
         if [ "$label" = "$NUDGE_LABEL" ]; then
             echo "  ↳ nudge: registered (fires every 4h, not at load)"
+            $DRY_RUN || reload_scheduled_launch_agent "$label" "$out"
+            continue
+        fi
+        if [ "$label" = "$ROTATION_LABEL" ]; then
+            echo "  ↳ hook rotation: registered daily at 03:15"
+            $DRY_RUN || reload_scheduled_launch_agent "$label" "$out"
+            continue
+        fi
+        if [ "$label" = "$LEARNING_LABEL" ]; then
+            echo "  ↳ learning worker: registered for queue changes and five-minute retries"
             $DRY_RUN || reload_launch_agent "$label" "$out"
             continue
         fi
@@ -318,7 +408,7 @@ macos_install() {
     done
 }
 macos_unload() {
-    for label in "${DAEMON_LABELS[@]}" "$NUDGE_LABEL"; do
+    for label in "${DAEMON_LABELS[@]}" "$NUDGE_LABEL" "$LEARNING_LABEL" "$ROTATION_LABEL"; do
         run launchctl bootout "$GUI_DOMAIN/$label" >/dev/null 2>&1 || true
         echo "unloaded $label"
     done
@@ -329,7 +419,28 @@ macos_unload() {
 # ════════════════════════════════════════════════════════════════════════════
 linux_install() {
     command -v systemctl >/dev/null 2>&1 || { echo "systemctl not found — systemd required on Linux." >&2; exit 1; }
-    $DRY_RUN || mkdir -p "$SYSTEMD_USER_DIR" "$LOG_DIR" "$KNOWLEDGE_DIR"
+    $DRY_RUN || mkdir -p "$SYSTEMD_USER_DIR" "$LOG_DIR" "$KNOWLEDGE_DIR" \
+        "$PROMETHEUS_HOME/.prometheus/logrotate" "$PROMETHEUS_HOME/.prometheus/learning-queue/pending" \
+        "$PROMETHEUS_HOME/.prometheus/learning-queue/retry" "$PROMETHEUS_HOME/.prometheus/learning-queue/memory/pending" \
+        "$PROMETHEUS_HOME/.prometheus/learning-queue/memory/retry"
+    $DRY_RUN || render_logrotate_config "$PROMETHEUS_HOME/.prometheus/logrotate/prometheus-hooks.conf"
+
+    if $LEARNING_RECOVERY; then
+        local recovery_files=(
+            ai.prometheus.pk-cherry.service
+            "$LEARNING_LABEL.service" "$LEARNING_LABEL.path" "$LEARNING_LABEL.timer"
+            "$ROTATION_LABEL.service" "$ROTATION_LABEL.timer"
+        )
+        local recovery_file
+        for recovery_file in "${recovery_files[@]}"; do
+            echo "→ rendering $recovery_file"
+            $DRY_RUN || render_template "$REPO_ROOT/shared/systemd/$recovery_file" "$SYSTEMD_USER_DIR/$recovery_file"
+        done
+        run systemctl --user daemon-reload
+        run systemctl --user enable --now ai.prometheus.pk-cherry.service \
+            "$LEARNING_LABEL.path" "$LEARNING_LABEL.timer" "$ROTATION_LABEL.timer"
+        return
+    fi
 
     # Persist user services across logout / on a headless box.
     if ! loginctl show-user "$PROMETHEUS_USER" -p Linger 2>/dev/null | grep -q 'Linger=yes'; then
@@ -338,6 +449,12 @@ linux_install() {
 
     # Render every unit (4 daemons + nudge service + nudge timer).
     for f in "${DAEMON_LABELS[@]/%/.service}" "$NUDGE_LABEL.service" "$NUDGE_LABEL.timer"; do
+        local src="$REPO_ROOT/shared/systemd/$f"
+        local out="$SYSTEMD_USER_DIR/$f"
+        echo "→ rendering $f"
+        $DRY_RUN || render_template "$src" "$out"
+    done
+    for f in "$LEARNING_LABEL.service" "$LEARNING_LABEL.path" "$LEARNING_LABEL.timer" "$ROTATION_LABEL.service" "$ROTATION_LABEL.timer"; do
         local src="$REPO_ROOT/shared/systemd/$f"
         local out="$SYSTEMD_USER_DIR/$f"
         echo "→ rendering $f"
@@ -366,6 +483,7 @@ linux_install() {
     # Nudge: enable the timer (drives the oneshot every 4h), not the service.
     echo "  ↳ enabling nudge timer (fires every 4h)"
     run systemctl --user enable --now "$NUDGE_LABEL.timer"
+    run systemctl --user enable --now "$LEARNING_LABEL.path" "$LEARNING_LABEL.timer" "$ROTATION_LABEL.timer"
 
     echo ""
     echo "All daemons installed. Verify with: bash scripts/check-mcp-health.sh"
@@ -377,11 +495,12 @@ linux_unload() {
     done
     run systemctl --user disable --now "$NUDGE_LABEL.timer" 2>/dev/null || true
     echo "stopped $NUDGE_LABEL.timer"
+    run systemctl --user disable --now "$LEARNING_LABEL.path" "$LEARNING_LABEL.timer" "$ROTATION_LABEL.timer" 2>/dev/null || true
 }
 
 case "$OS/$ACTION" in
-    macos/install) ensure_sovereign_config; macos_install ;;
+    macos/install) $LEARNING_RECOVERY || ensure_sovereign_config; macos_install ;;
     macos/unload)  macos_unload ;;
-    linux/install) ensure_sovereign_config; linux_install ;;
+    linux/install) $LEARNING_RECOVERY || ensure_sovereign_config; linux_install ;;
     linux/unload)  linux_unload ;;
 esac

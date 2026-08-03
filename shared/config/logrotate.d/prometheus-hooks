@@ -1,11 +1,5 @@
-# logrotate config for ~/.prometheus/hooks.log
-# Install: sudo cp prometheus-hooks /etc/logrotate.d/
-# Or run user-level: logrotate --state ~/.logrotate.state prometheus-hooks
-#
-# Keeps 30 days of gzipped daily logs. Missing log is not an error
-# (log is created on first hook run).
-
-~/.prometheus/hooks.log {
+# Rendered by install-mcp-services.sh with an absolute user path.
+__PROMETHEUS_HOOK_LOG__ {
     daily
     rotate 30
     compress

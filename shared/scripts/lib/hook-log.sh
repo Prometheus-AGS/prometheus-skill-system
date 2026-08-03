@@ -51,7 +51,9 @@ _hook_ts() {
 # Ensure log directory exists; return non-zero if unusable
 _hook_log_ensure_dir() {
   mkdir -p "$_HOOK_LOG_DIR" 2>/dev/null || return 1
-  touch "$_HOOK_LOG_LOCK" 2>/dev/null || return 1
+  chmod 700 "$_HOOK_LOG_DIR" 2>/dev/null || return 1
+  touch "$_HOOK_LOG_LOCK" "$_HOOK_LOG_FILE" 2>/dev/null || return 1
+  chmod 600 "$_HOOK_LOG_LOCK" "$_HOOK_LOG_FILE" 2>/dev/null || return 1
   return 0
 }
 

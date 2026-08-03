@@ -24,8 +24,11 @@ for (const [harness, file] of Object.entries(expected)) {
     continue;
   }
   const content = fs.readFileSync(target, 'utf8');
+  if (!content.includes('karpathy-hook-dispatch.sh')) {
+    failures.push(`${harness}: adapter does not invoke the learning dispatcher`);
+  }
   if (!content.includes('kbd-harness-adapter.sh')) {
-    failures.push(`${harness}: adapter does not invoke the canonical guard`);
+    failures.push(`${harness}: adapter does not retain bounded reanchor/interrupt control`);
   }
   // The pre-mutation fence was removed deliberately: it gated the operator's
   // own shell on KBD lifecycle state, which blocks ordinary work such as
@@ -41,13 +44,15 @@ for (const [harness, file] of Object.entries(expected)) {
 const claudePayload = JSON.parse(fs.readFileSync(path.join(root, 'hooks/hooks.json'), 'utf8'));
 for (const event of ['UserPromptSubmit', 'Stop']) {
   const serialized = JSON.stringify(claudePayload.hooks[event] ?? []);
-  if (!serialized.includes('kbd-harness-adapter.sh')) {
-    failures.push(`claude-code: ${event} does not use the bounded adapter`);
+  if (!serialized.includes('karpathy-hook-dispatch.sh')) {
+    failures.push(`claude-code: ${event} does not use the learning dispatcher`);
+  }
+  if (serialized.includes('kbd-harness-adapter.sh')) {
+    failures.push(`claude-code: ${event} still routes learning through KBD control`);
   }
   for (const forbidden of [
     'memory-writeback',
     'pk-focus-on-prompt',
-    'evaluate-session',
     'propose-skill-update',
     'write-session-summary',
     'kbd-close',
@@ -56,6 +61,15 @@ for (const event of ['UserPromptSubmit', 'Stop']) {
       failures.push(`claude-code: ${event} still runs synchronous ${forbidden}`);
     }
   }
+}
+
+const executorHooks = JSON.stringify(claudePayload.hooks.SubagentStop ?? []);
+if (!executorHooks.includes('karpathy-hook-dispatch.sh executor_complete claude-code')) {
+  failures.push('claude-code: executor completion does not enqueue a learning job');
+}
+
+if (fs.readFileSync(path.join(root, 'shared/scripts/kbd-harness-adapter.sh'), 'utf8').includes('deferred-hooks')) {
+  failures.push('KBD adapter still contains the obsolete deferred observational queue');
 }
 
 if (failures.length) {
