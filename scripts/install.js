@@ -33,12 +33,19 @@ async function copyDirectory(src, dest) {
 async function installSkills(scope) {
   console.log(`📦 Installing Prometheus Skill Pack to ${scope} scope\n`);
 
+  if (scope === 'user') {
+    const installer = path.join(rootDir, 'scripts', 'install-plugin-generation.js');
+    execFileSync(process.execPath, [installer, '--source-root', rootDir, '--home', homedir()], {
+      stdio: 'inherit',
+    });
+    console.log('✅ Verified immutable generation installed to all supported user targets.');
+    return;
+  }
+
   const skillsDir = path.join(rootDir, 'skills');
   let targetDir;
 
-  if (scope === 'user') {
-    targetDir = path.join(homedir(), '.claude', 'skills', 'prometheus');
-  } else if (scope === 'project') {
+  if (scope === 'project') {
     targetDir = path.join(process.cwd(), '.claude', 'skills', 'prometheus');
   } else {
     console.error(`Invalid scope: ${scope}. Use 'user' or 'project'`);

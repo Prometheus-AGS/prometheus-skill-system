@@ -1,5 +1,6 @@
 use std::collections::BTreeSet;
 use std::fs;
+use std::net::TcpListener;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 use std::time::{SystemTime, UNIX_EPOCH};
@@ -87,8 +88,8 @@ fn doctor_reports_unreachable_memory_as_failure() {
         "doctor output should mention the memory check; stdout:\n{stdout}"
     );
     assert!(
-        stdout.contains("unreachable"),
-        "doctor output should report the memory service as unreachable; stdout:\n{stdout}"
+        stdout.contains("unhealthy or not ready"),
+        "doctor output should report the memory service as unhealthy or not ready; stdout:\n{stdout}"
     );
     assert!(
         !stdout.contains("All checks passed"),
@@ -136,6 +137,38 @@ fn doctor_json_mode_emits_versioned_schema() {
     assert!(
         !stdout.contains('\u{1b}'),
         "doctor --json must not contain ANSI escapes; payload: {stdout}"
+    );
+}
+
+#[test]
+fn doctor_json_reports_rotation_dependencies() {
+    let (project_root, home_dir) = prepared_environment("doctor-rotation-dependencies");
+
+    let output = base_command(&project_root, &home_dir)
+        .args(["doctor", "--json"])
+        .output()
+        .expect("run doctor --json");
+    let payload: serde_json::Value =
+        serde_json::from_slice(&output.stdout).expect("doctor --json should emit valid JSON");
+    let rotation = payload["checks"]
+        .as_array()
+        .expect("checks array")
+        .iter()
+        .find(|check| check["id"] == "hooks.rotation")
+        .expect("rotation check");
+    let details = rotation["details"].as_array().expect("rotation details");
+
+    assert!(
+        details.iter().any(|detail| detail
+            .as_str()
+            .is_some_and(|value| value.starts_with("logrotate: "))),
+        "rotation check must report the configured logrotate dependency: {rotation}"
+    );
+    assert!(
+        details.iter().any(|detail| detail
+            .as_str()
+            .is_some_and(|value| value.starts_with("flock: "))),
+        "rotation check must report the configured flock dependency: {rotation}"
     );
 }
 
@@ -249,4 +282,96 @@ fn doctor_refresh_requires_yes_or_dry_run_for_mutation() {
         before, after,
         "refresh without --yes must not mutate the filesystem"
     );
+}
+
+#[test]
+fn doctor_exclusions_are_applied_before_kbd_checks_execute() {
+    let (project_root, home_dir) = prepared_environment("doctor-lazy-exclusions");
+    write_file(
+        &project_root.join(".prometheus/project.json"),
+        r#"{"schemaVersion":"1","projectId":"00000000-0000-4000-8000-000000000001","repositoryFingerprint":"sha256:test"}"#,
+    );
+    let listener = TcpListener::bind("127.0.0.1:0").expect("bind KBD sentinel");
+    listener
+        .set_nonblocking(true)
+        .expect("configure KBD sentinel");
+    let endpoint = format!(
+        "http://{}",
+        listener.local_addr().expect("sentinel address")
+    );
+
+    let output = base_command(&project_root, &home_dir)
+        .env("PROMETHEUS_CONTROL_ENDPOINT", endpoint)
+        .args([
+            "doctor",
+            "--json",
+            "--check",
+            "skills",
+            "--exclude",
+            "control.kbd-runtime",
+            "--exclude",
+            "state.kbd-orchestrator",
+            "--exclude",
+            "control.kbd-rollout",
+            "--exclude",
+            "service:sovereign-sync",
+        ])
+        .output()
+        .expect("run filtered doctor");
+
+    assert!(
+        output.status.success(),
+        "filtered doctor should succeed: {}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+    assert!(
+        listener.accept().is_err(),
+        "an excluded KBD check must not open a control-plane connection"
+    );
+    let payload: serde_json::Value =
+        serde_json::from_slice(&output.stdout).expect("filtered doctor should emit JSON");
+    let checks = payload["checks"].as_array().expect("checks array");
+    assert!(checks.iter().all(|check| check["group"] == "skills"));
+    assert_eq!(
+        payload["selection"]["excluded"].as_array().map(Vec::len),
+        Some(4)
+    );
+}
+
+#[test]
+fn sovereign_exclusion_is_propagated_to_service_repairs() {
+    let (project_root, home_dir) = prepared_environment("doctor-service-exclusion");
+    let output = base_command(&project_root, &home_dir)
+        .args([
+            "doctor",
+            "--json",
+            "--refresh",
+            "--exclude",
+            "control.kbd-runtime",
+            "--exclude",
+            "state.kbd-orchestrator",
+            "--exclude",
+            "control.kbd-rollout",
+            "--exclude",
+            "service:sovereign-sync",
+        ])
+        .output()
+        .expect("run scoped refresh plan");
+    let payload: serde_json::Value = serde_json::from_slice(&output.stdout).expect("refresh JSON");
+    let safe_actions = payload["repair_plan"]["safe_actions"]
+        .as_array()
+        .expect("safe actions");
+    let service_actions = safe_actions.iter().filter(|action| {
+        action["id"]
+            .as_str()
+            .is_some_and(|id| id.starts_with("services."))
+    });
+    for action in service_actions {
+        assert!(
+            action["command_hint"]
+                .as_str()
+                .is_some_and(|hint| hint.contains("--exclude sovereign-sync")),
+            "service repair must preserve sovereign exclusion: {action}"
+        );
+    }
 }

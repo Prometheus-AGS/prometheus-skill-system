@@ -26,6 +26,24 @@ This is a comprehensive, enterprise-grade skills package collection for AI-assis
 - Automated validation and marketplace distribution
 - Portable across AI platforms (Claude Code, Kimi Code, MiniMax/Mavis, OpenCode, Codex, Cursor, Windsurf, Gemini CLI, and more)
 
+## Local-Only Validation (MANDATORY)
+
+All builds, tests, linting, formatting, type checks, documentation checks, API
+contract checks, doctor runs, health checks, diagnosis, and release certification
+must run on the local development machine.
+
+- **Never use GitHub Actions or any hosted CI/CD runner for testing or validation.**
+- Do not start, rerun, watch, poll, debug, or cite a GitHub Actions test workflow.
+- Do not use GitHub Actions as a development loop, failure reproducer, parity gate,
+  or source of release evidence.
+- Push only after the applicable local gates pass, and record the exact local
+  commands and results.
+- GitHub may be used for source hosting, review, and an explicitly authorized
+  deployment such as GitHub Pages. A deployment workflow must not substitute for
+  local testing.
+- If a legacy test workflow starts automatically, cancel it when authorized and
+  continue locally. Its result is not validation evidence.
+
 ## Memory — Check Before You Code, Write After You Ship
 
 **This is mandatory, not optional.**
@@ -377,7 +395,7 @@ This repository supports two distribution formats simultaneously:
 
 **Important**: The `skills/` directory is the source of truth. The `.claude-plugin/` directory contains symlinks created by `npm run build`.
 
-**Canonical hooks path**: `hooks/hooks.json` is the physical source of truth for hook definitions. Claude Code auto-loads `hooks/hooks.json` from the plugin root by default, so `plugin.json` must NOT also declare `"hooks": "./hooks/hooks.json"` — that duplicates the default path and fails plugin load with "Duplicate hooks file detected". `.claude-plugin/hooks → ../hooks` is a directory symlink kept only so `.claude-plugin/` mirrors the full plugin layout on disk; it plays no role in hook loading. Always edit `hooks/hooks.json` directly — never edit through `.claude-plugin/hooks/hooks.json`. CI validates the symlink on every PR (`hooks-integrity` job in `.github/workflows/validate.yml`).
+**Canonical hooks path**: `hooks/hooks.json` is the physical source of truth for hook definitions. Claude Code auto-loads `hooks/hooks.json` from the plugin root by default, so `plugin.json` must NOT also declare `"hooks": "./hooks/hooks.json"` — that duplicates the default path and fails plugin load with "Duplicate hooks file detected". `.claude-plugin/hooks → ../hooks` is a directory symlink kept only so `.claude-plugin/` mirrors the full plugin layout on disk; it plays no role in hook loading. Always edit `hooks/hooks.json` directly — never edit through `.claude-plugin/hooks/hooks.json`. Verify the symlink locally before committing with `test -L .claude-plugin/hooks && test -f hooks/hooks.json`.
 
 ### Imported Skills (Git Submodules)
 
@@ -701,7 +719,7 @@ Code-generation agents operating in projects that use Cucumber/BDD step definiti
 This rule is enforced two ways:
 
 1. **PreToolUse hook** (agent-time) — `shared/scripts/protect-tests.sh` blocks `Edit`/`Write` on protected paths.
-2. **CI gate** (PR-time) — `skills/testing/bdd-lifecycle-loop/scripts/test-file-diff-guard.sh` fails PRs touching protected paths without a `test-change-approved` label.
+2. **Local diff gate** (before commit) — run `skills/testing/bdd-lifecycle-loop/scripts/test-file-diff-guard.sh` against the intended base and head; it rejects protected-path changes unless the explicit override is present.
 
 **Canonical guidance now lives in the operative skill** — see [`skills/testing/bdd-lifecycle-loop/references/immutable-tests.md`](skills/testing/bdd-lifecycle-loop/references/immutable-tests.md) rather than repeating the rationale here. That skill also documents the four-phase BDD loop (author → run → triage → maintain), the flake-budget enforcement, and the visual-baseline refresh workflow.
 
@@ -910,7 +928,7 @@ The pack ships a Codex plugin in parity with `.claude-plugin/`. Artifacts are
 **generated**, never hand-edited: `npm run build:codex` emits
 `.codex-plugin/plugin.json` and `.agents/plugins/marketplace.json` from the
 canonical `.claude-plugin/*` sources; `npm run validate:codex` (`--check`) is the
-CI drift/validity guard. Codex reads the existing `mcpServers`-wrapper `.mcp.json`
+local drift/validity guard. Codex reads the existing `mcpServers`-wrapper `.mcp.json`
 and the PascalCase `hooks/hooks.json` **as-is** (verified: `codex plugin
 marketplace add .` resolves all 11 plugins; the 7 MCP servers register). Full
 guide: [`docs/codex-plugin.md`](docs/codex-plugin.md). Codex verbs are `codex

@@ -6,7 +6,8 @@ import { fileURLToPath } from 'node:url';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const target = path.join(root, 'hooks/hooks.json');
 const payload = JSON.parse(fs.readFileSync(target, 'utf8'));
-const command = 'bash ${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/shared/scripts/karpathy-hook-dispatch.sh';
+const command =
+  'bash "$HOME/.prometheus/plugins/prometheus-skill-pack/stable/karpathy-hook-dispatch.sh"';
 
 payload.hooks.UserPromptSubmit = [
   {
@@ -14,7 +15,6 @@ payload.hooks.UserPromptSubmit = [
       {
         type: 'command',
         command: `${command} prompt claude-code`,
-        timeout: 2100,
       },
     ],
   },
@@ -25,7 +25,6 @@ payload.hooks.Stop = [
       {
         type: 'command',
         command: `${command} stop claude-code`,
-        timeout: 250,
       },
     ],
   },

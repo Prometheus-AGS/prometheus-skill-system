@@ -3,7 +3,7 @@
 # durable outbox fallback. Source this file; no import side effects.
 #
 #   source "$(dirname "$0")/lib/memory-bridge.sh"
-#   mem_add_memory "learned X" "$(mem_scope_for "$content")"
+#   mem_add_memory "learned X" "$PROMETHEUS_PROJECT_ID"
 #
 # CONTRACT: every function returns 0. Writes are atomically queued under the
 # central Prometheus learning queue and delivered by the supervised worker.
@@ -19,43 +19,23 @@ _mem_operation_id() { # <method> <canonical-arguments-json>
   printf '%s\0%s' "$1" "$2" | shasum -a 256 | awk '{print $1}'
 }
 
-# Persist a deferred operation to the central outbox (never fails the caller).
-_mem_outbox_write() { # <method> <arguments-json> [dependencies-json]
-  local method="$1" args="$2" dependencies="${3:-[]}" root pending now operation_id payload_hash target temporary
-  root="${PROMETHEUS_LEARNING_QUEUE:-${HOME}/.prometheus/learning-queue}"
-  pending="$root/memory/pending"
-  now="$(date -u +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || echo unknown)"
-  mkdir -p "$pending" 2>/dev/null || return 0
-  command -v jq >/dev/null 2>&1 || return 0
-  command -v shasum >/dev/null 2>&1 || return 0
-  args="$(printf '%s' "$args" | jq -cS . 2>/dev/null)" || return 0
-  operation_id="$(_mem_operation_id "$method" "$args")"
-  payload_hash="$(printf '%s' "$args" | shasum -a 256 | awk '{print $1}')"
-  target="$pending/$operation_id.json"
-  [ -e "$target" ] && return 0
-  temporary="$pending/.$operation_id.$$.tmp"
-  jq -cn --arg id "$operation_id" --arg method "$method" --argjson arguments "$args" \
-    --argjson dependencies "$dependencies" --arg payloadHash "$payload_hash" --arg queued "$now" \
-    '{schemaVersion:2,operationId:$id,method:$method,arguments:$arguments,dependencies:$dependencies,payloadHash:$payloadHash,state:"pending",queuedAt:$queued,lastError:null,receipt:null}' \
-    > "$temporary" 2>/dev/null || return 0
-  mv "$temporary" "$target" 2>/dev/null || true
-  return 0
+_MEM_BRIDGE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+_MEM_ENQUEUE="$_MEM_BRIDGE_DIR/../enqueue-memory-operation.py"
+
+_mem_outbox_write_verified() { # <method> <arguments-json> [dependencies-json]
+  [ -x "$_MEM_ENQUEUE" ] || return 1
+  "$_MEM_ENQUEUE" "$1" "$2" "${3:-[]}" 2>/dev/null
 }
 
-# Choose the memory scope for a piece of content. Content that carries a
-# [GLOBAL] marker anywhere (a cross-project learning) is scoped global; the rest
-# is project-scoped. A caller that wants strict line-level routing should split
-# the content and call this per line.
-mem_scope_for() { # <content>
-  case "$1" in
-    *"[GLOBAL]"*) printf 'global' ;;
-    *) printf '%s' "$MEM_PROJECT" ;;
-  esac
+# Persist a deferred operation to the central outbox (never fails the caller).
+_mem_outbox_write() { # <method> <arguments-json> [dependencies-json]
+  _mem_outbox_write_verified "$1" "$2" "${3:-[]}" >/dev/null 2>&1 || true
+  return 0
 }
 
 # mem_add_memory <content> [user_id]
 mem_add_memory() {
-  local content="$1" user_id="${2:-$(mem_scope_for "$1")}"
+  local content="$1" user_id="${2:-$MEM_PROJECT}"
   local args
   args="$(python3 -c '
 import sys, json

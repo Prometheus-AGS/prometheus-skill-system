@@ -27,6 +27,13 @@ for (const [harness, file] of Object.entries(expected)) {
   if (!content.includes('karpathy-hook-dispatch.sh')) {
     failures.push(`${harness}: adapter does not invoke the learning dispatcher`);
   }
+  if (
+    !content.includes(
+      '$HOME/.prometheus/plugins/prometheus-skill-pack/stable/karpathy-hook-dispatch.sh'
+    )
+  ) {
+    failures.push(`${harness}: learning dispatcher does not resolve through the active generation`);
+  }
   if (!content.includes('kbd-harness-adapter.sh')) {
     failures.push(`${harness}: adapter does not retain bounded reanchor/interrupt control`);
   }
@@ -50,6 +57,16 @@ for (const event of ['UserPromptSubmit', 'Stop']) {
   if (serialized.includes('kbd-harness-adapter.sh')) {
     failures.push(`claude-code: ${event} still routes learning through KBD control`);
   }
+  if (
+    !serialized.includes(
+      '$HOME/.prometheus/plugins/prometheus-skill-pack/stable/karpathy-hook-dispatch.sh'
+    )
+  ) {
+    failures.push(`claude-code: ${event} bypasses the stable active-generation dispatcher`);
+  }
+  if (serialized.includes('"timeout"')) {
+    failures.push(`claude-code: ${event} still uses a latency deadline as a learning bound`);
+  }
   for (const forbidden of [
     'memory-writeback',
     'pk-focus-on-prompt',
@@ -64,11 +81,25 @@ for (const event of ['UserPromptSubmit', 'Stop']) {
 }
 
 const executorHooks = JSON.stringify(claudePayload.hooks.SubagentStop ?? []);
-if (!executorHooks.includes('karpathy-hook-dispatch.sh executor_complete claude-code')) {
+if (
+  !executorHooks.includes('karpathy-hook-dispatch.sh') ||
+  !executorHooks.includes('executor_complete claude-code')
+) {
   failures.push('claude-code: executor completion does not enqueue a learning job');
 }
+if (
+  !executorHooks.includes(
+    '$HOME/.prometheus/plugins/prometheus-skill-pack/stable/karpathy-hook-dispatch.sh'
+  )
+) {
+  failures.push('claude-code: executor completion bypasses the active generation');
+}
 
-if (fs.readFileSync(path.join(root, 'shared/scripts/kbd-harness-adapter.sh'), 'utf8').includes('deferred-hooks')) {
+if (
+  fs
+    .readFileSync(path.join(root, 'shared/scripts/kbd-harness-adapter.sh'), 'utf8')
+    .includes('deferred-hooks')
+) {
   failures.push('KBD adapter still contains the obsolete deferred observational queue');
 }
 

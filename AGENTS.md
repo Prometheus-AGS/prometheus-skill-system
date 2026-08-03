@@ -28,6 +28,26 @@ Completed phase 2 out of 6: SP-014 fallback SubagentStop matcher verification
 
 ---
 
+## Local-Only Validation (MANDATORY)
+
+All builds, tests, linting, formatting, type checks, documentation checks, API
+contract checks, doctor runs, health checks, diagnosis, and release certification
+must run on the local development machine.
+
+- **Never use GitHub Actions or any hosted CI/CD runner for testing or validation.**
+- Do not start, rerun, watch, poll, debug, or cite a GitHub Actions test workflow.
+- Do not use GitHub Actions as a development loop, failure reproducer, parity gate,
+  or source of release evidence.
+- Push only after the applicable local gates pass, and record the exact local
+  commands and results.
+- GitHub may be used for source hosting, review, and an explicitly authorized
+  deployment such as GitHub Pages. A deployment workflow must not substitute for
+  local testing.
+- If a legacy test workflow starts automatically, cancel it when authorized and
+  continue locally. Its result is not validation evidence.
+
+---
+
 ## Memory — Mandatory Protocol
 
 Memory lookup and write is **not optional**. Every agent session must follow this protocol.

@@ -5,6 +5,50 @@ const sidebars = {
   // guideSidebar moved to sidebars-guide.js — the guide is served from the
   // canonical ../docs/guide via a separate plugin instance (id: 'guide').
 
+  memorySidebar: [
+    {
+      type: 'category',
+      label: 'Memory',
+      items: ['memory/overview', 'memory/operation-api', 'memory/executor-and-recovery'],
+    },
+  ],
+
+  knowledgeLearningSidebar: [
+    {
+      type: 'category',
+      label: 'Knowledge & Learning',
+      items: [
+        'knowledge-learning/snapshots-and-context',
+        'knowledge-learning/hooks-worker-and-receipts',
+        'knowledge-learning/migration-and-troubleshooting',
+      ],
+    },
+  ],
+
+  pluginDistributionSidebar: [
+    {
+      type: 'category',
+      label: 'Plugin Distribution',
+      items: [
+        'plugin-distribution/immutable-generations',
+        'plugin-distribution/targets-and-dispatchers',
+        'plugin-distribution/activation-rollback-uninstall',
+      ],
+    },
+  ],
+
+  operationsSidebar: [
+    {
+      type: 'category',
+      label: 'Operations',
+      items: [
+        'operations/installation-and-upgrades',
+        'operations/doctors-and-mac-certification',
+        'operations/logs-recovery-and-failures',
+      ],
+    },
+  ],
+
   learnSidebar: [
     {
       type: 'category',
@@ -44,11 +88,7 @@ const sidebars = {
     {
       type: 'category',
       label: 'Control Plane',
-      items: [
-        'kbd/control-plane',
-        'kbd/tokens-and-authentication',
-        'kbd/bash-mutation-guard',
-      ],
+      items: ['kbd/control-plane', 'kbd/tokens-and-authentication', 'kbd/bash-mutation-guard'],
     },
     {
       type: 'category',

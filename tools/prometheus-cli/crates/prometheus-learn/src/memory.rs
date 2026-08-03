@@ -71,6 +71,18 @@ impl SurrealMemoryClient {
         Ok(resp.status().is_success())
     }
 
+    /// Read the durable ingestion readiness contract.
+    pub async fn readiness(&self) -> anyhow::Result<serde_json::Value> {
+        Ok(self
+            .client
+            .get(format!("{}/ready", self.base_url))
+            .send()
+            .await?
+            .error_for_status()?
+            .json()
+            .await?)
+    }
+
     /// Create an entity in the knowledge graph.
     pub async fn create_entity(
         &self,

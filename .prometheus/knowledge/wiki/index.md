@@ -196,3 +196,7 @@
 * [Unknown Phase Empty Session Status at 2026-07-13T01:32:48Z](/unknown-phase-empty-session-status-at-2026-07-13t01-32-48z.md)
 * [Unknown Phase Empty Session Status at 2026-07-16T18:49:04Z](/unknown-phase-empty-session-status-at-2026-07-16t18-49-04z.md)
 * [Verify-and-Publish Session Waiting on Memory Server Build](/verify-and-publish-session-waiting-on-memory-server-build.md)
+
+## SessionRecord
+
+* [Karpathy session 38373f1cce9c](/karpathy-session-38373f1cce9c59d7.md)

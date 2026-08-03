@@ -103,6 +103,11 @@ test_forge_package_librefang() {
 
     local wasm_path="${agent_dir}/target/wasm32-unknown-unknown/release/librefang-wasm-skill.wasm"
     if [[ ! -f "$wasm_path" ]]; then
+        if [[ ! -f "${agent_dir}/Cargo.toml" ]]; then
+            echo "    ⚠️  librefang WASM source is not included in this checkout — skipping"
+            SKIP=$((SKIP + 1))
+            return
+        fi
         echo "    Building WASM (this may take a minute)..."
         if ! cargo build --manifest-path "${agent_dir}/Cargo.toml" \
                 --release --target wasm32-unknown-unknown --quiet 2>/dev/null; then

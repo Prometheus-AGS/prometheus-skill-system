@@ -14,7 +14,7 @@ C4Container
         Container(mem, "surreal-memory-server", "Rust · binary: surreal-memory-server", "Graph memory + MCP :23001")
         Container(audit, "prometheus-rust-auditor", "Rust · binary: prometheus-rust-auditor", "Rust quality pipeline")
     }
-    Rel(forge, pk, "pk focus / pk ingest")
+    Rel(forge, pk, "bounded snapshot reads / pk ingest")
     Rel(cli, mem, "memory ping/search")
     Rel(cli, pk, "knowledge compile")
     Rel(forge, liter, "model routing")
@@ -26,7 +26,7 @@ C4Container
 
 **Purpose.** The code-generation enrichment engine — Layer 4 of the pipeline. It sits between an OpenSpec task and the implementing agent and injects language-specific knowledge before the agent writes code, then processes the agent's reflection back into the Karpathy loop.
 
-**Workspace.** Six crates: `forge-core` (domain types — `Constitution`, `SkillManifest`, `EnrichmentContext`, `IterationRecord`, `DriftReport`), `forge-skills` (skill discovery, resolution, Tera rendering, dependency ordering), `forge-enricher` (task reading, language detection, `pk focus`, context generation), `forge-reflect` (drift computation, `pk ingest`, iteration archival), `forge-mcp` (the Axum MCP server), and `forge-cli` (the `forge` binary).
+**Workspace.** Six crates: `forge-core` (domain types — `Constitution`, `SkillManifest`, `EnrichmentContext`, `IterationRecord`, `DriftReport`), `forge-skills` (skill discovery, resolution, Tera rendering, dependency ordering), `forge-enricher` (task reading, language detection, bounded snapshot context), `forge-reflect` (drift computation, `pk ingest`, iteration archival), `forge-mcp` (the Axum MCP server), and `forge-cli` (the `forge` binary).
 
 **CLI — `forge`.**
 
@@ -56,7 +56,7 @@ forge template list [--language] | validate <skill-path> | edit <tmpl>
 
 ## prometheus-cli
 
-**Purpose.** The CLI companion for the whole pack — manages skills, validates GitOps, and runs the self-learning pipeline. This is the binary that ties the four-layer self-learning engine together across ten platforms.
+**Purpose.** The CLI companion for the whole pack — manages skills, validates GitOps, and runs the self-learning pipeline. This is the binary that ties the four-layer self-learning engine together across the 14-target distribution matrix.
 
 **Workspace.** `prometheus-cli` (the binary), `prometheus-agents` (platform detection, install, trace protocol), `prometheus-learn` (trace capture, grading, knowledge compilation, DSPy optimization — designed to be embeddable in the UAR), and `prometheus-cedar` (the Cedar Skill-Mutation policy enforcement point, on `cedar-policy 4`).
 
@@ -73,6 +73,7 @@ prometheus doctor                                # read-only diagnosis
 prometheus doctor --json                         # machine-readable report
 prometheus doctor --fix --dry-run                # safe repair planning
 prometheus doctor --refresh --dry-run            # pinned-source refresh planning
+prometheus doctor --exclude <check-or-service>   # repeatable pre-execution exclusion
 prometheus status [path]
 prometheus generate <path> [--language]          # forge-style generation
 prometheus validate [path]
@@ -80,6 +81,7 @@ prometheus build <service> <overlay> [--gitops-path]
 prometheus memory <ping|stats|search <q>|install>
 prometheus evolve <name> [--domain --phase]
 prometheus learn [--capture-session --seed --compile --lint --dry-run]
+prometheus learning status --json                # worker and queue state machine
 prometheus optimize <skill> [--min-traces N --dry-run]
 prometheus policy <show|validate|check>
 prometheus sycophancy <detect|score|correct> <file> [-s strictness]
@@ -119,11 +121,10 @@ token, journal, and troubleshooting runbooks are published in the
 ```bash
 pk ingest <file|stdin> [--source --scope project|shared --yes]
 pk lint [--fix]
-pk focus <topic> [--turns N] [--no-cache] [--wrap-context]
 pk search <query>
 pk get <id> | pk list | pk stats
 pk init [--name --stack --yes]
-pk doctor [--json]                  # checks hooks, sycophancy binary, KB scoping
+pk doctor [--json]                  # non-mutating generation, snapshot, queue health
 pk migrate [--execute]
 pk codegraph extract [--ci]         # BDD scenario → source mapping
 pk events list [--kind --limit --json] | for-entry --json
@@ -131,7 +132,7 @@ pk events list [--kind --limit --json] | for-entry --json
 
 KB directory resolution: `--kb-dir`/`PK_KB_DIR` → shared (`~/.prometheus/knowledge/shared/`) → project (`<root>/.prometheus/knowledge/`) → global (`~/.prometheus/knowledge/`).
 
-**MCP server — `pk-cherry`.** Default bind `127.0.0.1:8942` (env `PK_BIND`), SSE transport, endpoint `http://localhost:8942/mcp` plus `GET /events`. Tools: `knowledge_ingest`, `knowledge_lint`, `knowledge_focus`, `knowledge_search`, `knowledge_get`. Model routing via env: `PK_COMPILE_MODEL`/`CLOUD_LLM_URL` (frontier compile) and `PK_LINT_MODEL`/`PK_FOCUS_MODEL`/`LOCAL_LLM_URL` (cheap local). **Build:** `cargo build --release -p pk-cherry -p pk-cli`.
+**MCP server and worker.** `pk-cherry` binds `127.0.0.1:8942` (env `PK_BIND`) and exposes `POST /mcp` plus `GET /events`. `prometheus-learning-worker` owns durable queue reconciliation and immutable project/shared/global snapshot publication. Model routing uses `PK_COMPILE_MODEL`/`CLOUD_LLM_URL` and `PK_LINT_MODEL`/`LOCAL_LLM_URL`. **Build:** `cargo build --release -p pk-cherry -p pk-cli -p prometheus-learning-worker`.
 
 ---
 
@@ -158,9 +159,9 @@ The proxy defaults to port **4000** with a 600-second request timeout and a 10 M
 
 **Workspace.** A root binary `surreal-memory-server` plus an embeddable `crates/surreal-memory` library (embeddings via OpenAI/Cohere/Candle; SurrealDB storage + migrations; an opt-in `palace` feature; memory types Episodic/Semantic/Procedural/Associative across User/Session/Agent scopes; mindmaps; model profiles; task streams). The server exposes API modules (a2a, entities, memory, mindmaps, palace, search), MCP handlers ("42+ tools"), and a TTL worker.
 
-**MCP & REST.** Canonical MCP URL in the skill pack: **`http://localhost:23001/mcp/sse`** (port 23001). MCP tool families: knowledge graph (`create_entity(ies)`, `add_observations`, `create_relation(s)`, `read_graph`, `search_entities`, `semantic_search`, deletes), Graph-RAG (`find_path`, `expand_neighbors`, `get_related`), scoped memory (`add/get/update/delete_memory`, `search_memories`, `hybrid_search_memories`, `compress_memories`, `add_memories_from_conversation`), TaskStreams and TaskSteps, Mindmaps (`generate_persona_mindmap`, `generate_ideation_mindmap`), and Memory Palace (`palace_ingest/recall/search/...`). REST endpoints: `/api/v1/memory`, `/api/v1/entities`, `/api/v1/mindmaps`, `/api/v1/search`, `/api/v1/palace`, `/a2a/tasks/:id/events` (SSE), and `/health`.
+**MCP & REST.** Canonical MCP URL in the skill pack is **`http://localhost:23001/mcp/sse`**. MCP tool families cover the knowledge graph, Graph-RAG, scoped memory, TaskStreams, TaskSteps, Mindmaps, and optional Memory Palace. Durable writes use `POST /api/v2/operations`; reconciliation uses `GET /api/v2/operations/{operation_id}` and resumable `/events?after=` SSE. `/health` reports liveness and `/ready` reports ledger/model capabilities. Existing v1 read/search resources remain available for compatibility. See the canonical [Operation API](/docs/memory/operation-api).
 
-**Build.** `cargo build --release` (embedded SurrealDB + local Candle embeddings); `--features palace`, `--features cuda|metal` for GPU. Docker exposes the server too. (Note the port: the skill pack standardizes on **23001**; the upstream server's own default `API_PORT` is `3000`. The 23001 mapping is the canonical one for this pack.) Environment defaults: `SURREAL_MEMORY_URL`, `SURREAL_MEMORY_NAMESPACE` (`prometheus`), `SURREAL_MEMORY_DATABASE` (`skillpack`).
+**Build.** `cargo build --release` builds the canonical native service (embedded SurrealDB client + local Candle embeddings); `--features palace` and `--features cuda|metal` add optional capabilities. The managed local service binds **23001** and uses the dedicated SurrealDB instance on **28000**. Containers are optional development packaging, not an installation requirement. Environment defaults: `SURREAL_MEMORY_URL`, `SURREAL_MEMORY_NAMESPACE` (`prometheus`), `SURREAL_MEMORY_DATABASE` (`skillpack`).
 
 ---
 

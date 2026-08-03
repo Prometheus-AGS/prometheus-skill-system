@@ -19,6 +19,7 @@
 # Usage:
 #   bash scripts/install-mcp-services.sh [--unload] [--restart] [--learning-recovery]
 #       [--user <username>] [--dry-run] [--render-only <directory>]
+#       [--exclude <service> ...]
 #
 # Flags:
 #   --unload      Stop/boot out all managed services (does not delete unit files)
@@ -28,7 +29,7 @@
 #                 This mode never initializes, renders, stops, or starts sovereign-sync.
 #   --user <u>    Target a different user (requires matching uid / privileges)
 #   --render-only <directory>
-#                 Render the sovereign-sync launchd/systemd definitions and exit
+#                 Render non-excluded managed service definitions and exit
 #   --dry-run     Print actions without executing them
 #   --help        Show this message
 
@@ -41,6 +42,7 @@ DRY_RUN=false
 FORCE_RESTART=false
 RENDER_ONLY_DIR=""
 LEARNING_RECOVERY=false
+EXCLUDED_SERVICES=""
 
 while [ "$#" -gt 0 ]; do
     case "$1" in
@@ -48,6 +50,12 @@ while [ "$#" -gt 0 ]; do
         --restart)  FORCE_RESTART=true; shift ;;
         --dry-run)  DRY_RUN=true; shift ;;
         --learning-recovery) LEARNING_RECOVERY=true; shift ;;
+        --exclude)
+            [ "$#" -ge 2 ] || { echo "Missing value for --exclude" >&2; exit 2; }
+            EXCLUDED_SERVICES="$EXCLUDED_SERVICES${2#service:}
+"
+            shift 2
+            ;;
         --user)     PROMETHEUS_USER="${2:?missing value for --user}"; shift 2 ;;
         --render-only)
             RENDER_ONLY_DIR="${2:?missing value for --render-only}"
@@ -57,6 +65,11 @@ while [ "$#" -gt 0 ]; do
         *)          echo "Unknown argument: $1" >&2; exit 2 ;;
     esac
 done
+
+service_is_excluded() {
+    local name="${1#ai.prometheus.}"
+    printf '%s' "$EXCLUDED_SERVICES" | grep -qx "$name"
+}
 
 # Shared provenance-agnostic reachability helpers (probe_port, check_running_service).
 # shellcheck source-path=SCRIPTDIR
@@ -77,13 +90,13 @@ if [ "$OS" = "macos" ]; then
             || eval "printf '%s' ~$1"
     }
     PROMETHEUS_HOME="$(user_home "$PROMETHEUS_USER")"
-    PROMETHEUS_PATH="/usr/local/bin:/opt/homebrew/bin:$PROMETHEUS_HOME/.cargo/bin:$PROMETHEUS_HOME/.local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
+    PROMETHEUS_PATH="/usr/local/bin:/usr/local/sbin:/opt/homebrew/bin:/opt/homebrew/sbin:$PROMETHEUS_HOME/.cargo/bin:$PROMETHEUS_HOME/.local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
     SURREAL_FALLBACK="/opt/homebrew/bin/surreal"
     BIN_FALLBACK_DIR="$PROMETHEUS_HOME/.local/bin"
 else
     PROMETHEUS_HOME="$(getent passwd "$PROMETHEUS_USER" 2>/dev/null | cut -d: -f6)"
     [ -n "$PROMETHEUS_HOME" ] || PROMETHEUS_HOME="$HOME"
-    PROMETHEUS_PATH="$PROMETHEUS_HOME/.cargo/bin:$PROMETHEUS_HOME/.local/bin:/usr/local/bin:/usr/bin:/bin"
+    PROMETHEUS_PATH="$PROMETHEUS_HOME/.cargo/bin:$PROMETHEUS_HOME/.local/bin:/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin"
     SURREAL_FALLBACK="/usr/local/bin/surreal"
     BIN_FALLBACK_DIR="$PROMETHEUS_HOME/.local/bin"
     SYSTEMD_USER_DIR="$PROMETHEUS_HOME/.config/systemd/user"
@@ -193,7 +206,16 @@ render_template() {
     surface_bridge_bin="$(resolve_bin surface-bridge)"; [ -n "$surface_bridge_bin" ] || surface_bridge_bin="$BIN_FALLBACK_DIR/surface-bridge"
     sovereign_sync_bin="$(resolve_bin sovereign-sync)"; [ -n "$sovereign_sync_bin" ] || sovereign_sync_bin="$BIN_FALLBACK_DIR/sovereign-sync"
     learning_worker_bin="$(resolve_bin prometheus-learning-worker)"; [ -n "$learning_worker_bin" ] || learning_worker_bin="$BIN_FALLBACK_DIR/prometheus-learning-worker"
-    logrotate_bin="$(resolve_bin logrotate)"; [ -n "$logrotate_bin" ] || logrotate_bin="/opt/homebrew/opt/logrotate/sbin/logrotate"
+    logrotate_bin="$(resolve_bin logrotate)"
+    if [ -z "$logrotate_bin" ]; then
+        if [ "$OS" = "macos" ] && [ -x "/opt/homebrew/opt/logrotate/sbin/logrotate" ]; then
+            logrotate_bin="/opt/homebrew/opt/logrotate/sbin/logrotate"
+        elif [ -x "/usr/local/sbin/logrotate" ]; then
+            logrotate_bin="/usr/local/sbin/logrotate"
+        else
+            logrotate_bin="/usr/sbin/logrotate"
+        fi
+    fi
     flock_bin="$(resolve_bin flock)"; [ -n "$flock_bin" ] || flock_bin="/usr/bin/flock"
 
     local device_key_file="$PROMETHEUS_HOME/.config/sovereign-sync/device-key.json"
@@ -265,19 +287,21 @@ PY
 
 if [ -n "$RENDER_ONLY_DIR" ]; then
     mkdir -p "$RENDER_ONLY_DIR"
-    render_template \
-        "$REPO_ROOT/shared/launchagents/ai.prometheus.sovereign-sync.plist" \
-        "$RENDER_ONLY_DIR/ai.prometheus.sovereign-sync.plist"
-    render_template \
-        "$REPO_ROOT/shared/systemd/ai.prometheus.sovereign-sync.service" \
-        "$RENDER_ONLY_DIR/ai.prometheus.sovereign-sync.service"
+    if ! service_is_excluded sovereign-sync; then
+        render_template \
+            "$REPO_ROOT/shared/launchagents/ai.prometheus.sovereign-sync.plist" \
+            "$RENDER_ONLY_DIR/ai.prometheus.sovereign-sync.plist"
+        render_template \
+            "$REPO_ROOT/shared/systemd/ai.prometheus.sovereign-sync.service" \
+            "$RENDER_ONLY_DIR/ai.prometheus.sovereign-sync.service"
+    fi
     render_template "$REPO_ROOT/shared/launchagents/$LEARNING_LABEL.plist" "$RENDER_ONLY_DIR/$LEARNING_LABEL.plist"
     render_template "$REPO_ROOT/shared/launchagents/$ROTATION_LABEL.plist" "$RENDER_ONLY_DIR/$ROTATION_LABEL.plist"
     for f in "$LEARNING_LABEL.service" "$LEARNING_LABEL.path" "$LEARNING_LABEL.timer" "$ROTATION_LABEL.service" "$ROTATION_LABEL.timer"; do
         render_template "$REPO_ROOT/shared/systemd/$f" "$RENDER_ONLY_DIR/$f"
     done
     render_logrotate_config "$RENDER_ONLY_DIR/prometheus-hooks.conf"
-    echo "Rendered sovereign-sync definitions in $RENDER_ONLY_DIR"
+    echo "Rendered non-excluded service definitions in $RENDER_ONLY_DIR"
     exit 0
 fi
 
@@ -358,6 +382,7 @@ macos_install() {
     # permanently prevent its canonical ai.prometheus.* replacement starting.
     local legacy_label legacy_plist archived_plist
     for legacy_label in com.prometheusags.surface-bridge com.prometheusags.sovereign-sync; do
+        service_is_excluded "${legacy_label#com.prometheusags.}" && continue
         legacy_plist="$LAUNCH_AGENTS_DIR/$legacy_label.plist"
         if $DRY_RUN; then
             echo "[dry-run] migrate legacy service $legacy_label"
@@ -372,6 +397,7 @@ macos_install() {
     done
     local all=("${DAEMON_LABELS[@]}" "$NUDGE_LABEL" "$LEARNING_LABEL" "$ROTATION_LABEL")
     for label in "${all[@]}"; do
+        service_is_excluded "$label" && continue
         local src="$REPO_ROOT/shared/launchagents/$label.plist"
         local out="$LAUNCH_AGENTS_DIR/$label.plist"
         echo "→ rendering $label"
@@ -409,6 +435,7 @@ macos_install() {
 }
 macos_unload() {
     for label in "${DAEMON_LABELS[@]}" "$NUDGE_LABEL" "$LEARNING_LABEL" "$ROTATION_LABEL"; do
+        service_is_excluded "$label" && continue
         run launchctl bootout "$GUI_DOMAIN/$label" >/dev/null 2>&1 || true
         echo "unloaded $label"
     done
@@ -449,6 +476,7 @@ linux_install() {
 
     # Render every unit (4 daemons + nudge service + nudge timer).
     for f in "${DAEMON_LABELS[@]/%/.service}" "$NUDGE_LABEL.service" "$NUDGE_LABEL.timer"; do
+        service_is_excluded "${f%.service}" && continue
         local src="$REPO_ROOT/shared/systemd/$f"
         local out="$SYSTEMD_USER_DIR/$f"
         echo "→ rendering $f"
@@ -465,6 +493,7 @@ linux_install() {
     # Daemons in dependency order, reusing anything already on its port unless
     # a rebuilt component requires a definition reload.
     for label in "${DAEMON_LABELS[@]}"; do
+        service_is_excluded "$label" && continue
         if ! $FORCE_RESTART && check_running_service "$label" "${DAEMON_PORT[$label]}" "${DAEMON_PATH[$label]}"; then
             echo "  ↳ reusing running instance — skipping enable/start"
             continue
@@ -490,6 +519,7 @@ linux_install() {
 }
 linux_unload() {
     for label in "${DAEMON_LABELS[@]}"; do
+        service_is_excluded "$label" && continue
         run systemctl --user disable --now "$label.service" 2>/dev/null || true
         echo "stopped $label"
     done
@@ -499,8 +529,8 @@ linux_unload() {
 }
 
 case "$OS/$ACTION" in
-    macos/install) $LEARNING_RECOVERY || ensure_sovereign_config; macos_install ;;
+    macos/install) $LEARNING_RECOVERY || service_is_excluded sovereign-sync || ensure_sovereign_config; macos_install ;;
     macos/unload)  macos_unload ;;
-    linux/install) $LEARNING_RECOVERY || ensure_sovereign_config; linux_install ;;
+    linux/install) $LEARNING_RECOVERY || service_is_excluded sovereign-sync || ensure_sovereign_config; linux_install ;;
     linux/unload)  linux_unload ;;
 esac

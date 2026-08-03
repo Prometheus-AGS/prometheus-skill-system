@@ -114,6 +114,30 @@ const config = {
         items: [
           {
             type: 'docSidebar',
+            sidebarId: 'memorySidebar',
+            position: 'left',
+            label: 'Memory',
+          },
+          {
+            type: 'docSidebar',
+            sidebarId: 'knowledgeLearningSidebar',
+            position: 'left',
+            label: 'Knowledge & Learning',
+          },
+          {
+            type: 'docSidebar',
+            sidebarId: 'pluginDistributionSidebar',
+            position: 'left',
+            label: 'Plugin Distribution',
+          },
+          {
+            type: 'docSidebar',
+            sidebarId: 'operationsSidebar',
+            position: 'left',
+            label: 'Operations',
+          },
+          {
+            type: 'docSidebar',
             sidebarId: 'guideSidebar',
             docsPluginId: 'guide',
             position: 'left',

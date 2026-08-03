@@ -12,12 +12,13 @@ Documented in full on the [Tools Reference](13-tools-reference.md) page; summari
 | `forge` | Enrichment, reflection, drift, templates, MCP server | [13](13-tools-reference.md) |
 | `pk` / `pk-cherry` | Karpathy KB CLI / MCP bridge | [13](13-tools-reference.md) |
 | `liter-llm` | LLM proxy + MCP tool server | [13](13-tools-reference.md) |
-| `surreal-memory-server` | Graph memory + MCP + REST | [13](13-tools-reference.md) |
+| `surreal-memory-server` | Graph memory + MCP + durable v2 receipt API | [13](13-tools-reference.md) |
+| `prometheus-learning-worker` | Queue, receipt, and snapshot reconciliation | [13](13-tools-reference.md) |
 | `prometheus-rust-auditor` | Staged Rust quality pipeline | [13](13-tools-reference.md) |
 
 ## The npm script surface
 
-`package.json` (v1.2.0, ES module) is the most common entry point.
+`package.json` (v1.6.1, ES module) is the most common entry point.
 
 | Command | What it does |
 |---|---|
@@ -25,11 +26,12 @@ Documented in full on the [Tools Reference](13-tools-reference.md) page; summari
 | `npm run validate:strict` | Strict validation — `license`, `version`, `metadata.tags` become errors; the gate for new skills |
 | `npm run validate:skill <path>` | Validate one skill (lenient; includes imported) |
 | `npm run validate:signals` | Lint that every process skill declares a `## Progress Signals` section |
-| `npm run doctor` | `check-prerequisites.sh --install --build-tools` then `smoke-test.sh` — full system health |
+| `npm run doctor` | Canonical local diagnosis parity with `prometheus doctor` |
+| `npm run docs:check` | Public safety, OpenAPI/examples, semantic drift, links/sidebars, production build |
 | `npm run build` | Build the marketplace distribution (the `.claude-plugin/` symlinks) |
 | `npm run install:user` / `install:project` | Install skills to `~/.claude/skills/` or `.claude/skills/` |
 | `npm run install:platforms` | Multi-platform installer (tsx) with full plugin support |
-| `npm run install:opencode` / `install:skills` | OpenCode / flat-symlink installs |
+| `npm run install:opencode` / `install:skills` | OpenCode install / immutable generation projection |
 | `npm run generate:commands` / `register:commands` / `unregister:commands` | Generate/register native slash commands |
 | `npm run skill-matrix` / `skill-matrix:ci` | Pairwise skill-similarity collision report |
 | `npm run update` / `update:force` | Pull and delta-install changed skills |
@@ -39,17 +41,18 @@ Documented in full on the [Tools Reference](13-tools-reference.md) page; summari
 
 | Script | Purpose |
 |---|---|
-| `install-skills-flat.sh` | Install skills as flat symlinks into each platform's skills dir (each becomes a slash command); configures kimi-code MCP. `[--uninstall]` |
+| `install-plugin-generation.js` | Stage, hash, verify, activate, roll back, or uninstall an immutable 14-target generation. `[--verify] [--rollback] [--uninstall]` |
 | `install-platforms.ts` | Multi-platform symlink installer for Claude Code, OpenCode, Cursor, Codex, etc. `[--platform] [--scope] [--uninstall] [--list]` |
 | `install.js` | Copy skills to user or project scope |
 | `install-binaries.sh` | Build and install all six tool binaries to `~/.local/bin/` |
-| `install-mcp-services.sh` | Render/reload launchd or systemd user services, initialize Sovereign Sync operator/device identity, and probe managed ports. `[--unload] [--restart] [--user] [--dry-run]` |
+| `install-mcp-services.sh` | Render/reload allowed launchd or systemd user services. Repeatable `--exclude` prevents rendering, restart, or rewrite of a service. `[--unload] [--restart] [--user] [--dry-run] [--exclude]` |
 | `configure-mcp-all-tools.sh` | Merge `mcp-port-table.json` into each tool's native MCP config (idempotent). `[--dry-run] [--tool]` |
 | `prometheus-services.sh` | Manage MCP services as macOS user LaunchAgents (`install`/`load`/`status`/`doctor`/…) |
 | `register-slash-commands.sh` | Register skills as OpenCode commands and Codex prompt files. `[--uninstall]` |
 | `generate-commands.js` | Generate Claude Code slash-command files from skill frontmatter. `[--output] [--uninstall]` |
 | `check-prerequisites.sh` | Check/install Node, Rust, npm deps; build tool binaries. `[--install] [--build-tools]` |
-| `check-mcp-health.sh` | Health table (launchctl + HTTP probe) for all MCP services. `[--json]` |
+| `check-mcp-health.sh` | Health table (service state + HTTP readiness) for non-excluded services. `[--json] [--exclude]` |
+| `certify-memory-operations.sh` | Mutating local proof of exact replay, conflict, response-loss reconciliation, terminal receipts, SSE resume, and optional long memory. |
 | `smoke-test.sh` | Confirm every tool binary is reachable and answers `--version` |
 | `detect-command-conflicts.sh` | Detect slash-command name collisions across installed command dirs |
 | `skill-matrix.js` | Pairwise Jaccard similarity of skill name+description; CI fails on un-allowlisted collisions |
@@ -104,7 +107,7 @@ Full runbooks: [KBD control plane](/docs/kbd/control-plane),
 
 These are the scripts the hooks fire (the events are mapped on the [Hooks & Lifecycle](15-hooks-and-lifecycle.md) page). Grouped by function:
 
-**Context injection** — `pk-focus-on-prompt.sh`, `position-on-prompt.sh`, `detect-project-context.sh`, `pk-health.sh`, `memory-outbox-flush.sh`.
+**Context injection** — immutable scoped snapshot readers, `position-on-prompt.sh`, `detect-project-context.sh`, `pk-health.sh`, `memory-outbox-flush.sh`.
 
 **Stop event** — `kbd-harness-adapter.sh stop <harness>` queues bounded,
 noncritical work and never blocks operator stop. Older summary/position
@@ -113,7 +116,7 @@ Claude Stop chain.
 
 **Position / waypoint** — `write-position-reminder.sh`, plus `lib/waypoint-render.sh`.
 
-**Memory** — `memory-writeback.sh`, `mem0-compress.sh`, `lib/memory-bridge.sh`.
+**Memory** — `enqueue-memory-operation.py`, `memory-outbox-flush.sh`, and `lib/memory-bridge.sh`. Hooks publish locally; the worker owns remote receipt reconciliation.
 
 **PreToolUse guards (blocking)** — `protect-tests.sh` only. It is the sole
 remaining hook that can refuse a tool call, and it guards exactly one thing:

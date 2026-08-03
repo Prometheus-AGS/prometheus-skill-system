@@ -185,20 +185,27 @@ install_to_minimax() {
     node "$REPO_ROOT/scripts/install-minimax-skills.js" "${args[@]}"
 }
 
-install_to_dir "claude-code"     "$HOME/.claude/skills"
-install_to_dir "opencode"        "$HOME/.opencode/skills"
-install_to_dir "kimi-code"       "$HOME/.kimi-code/skills"
-install_to_minimax
-install_to_dir "cursor"          "$HOME/.cursor/skills"
-install_to_codex
-install_to_dir "gemini"          "$HOME/.gemini/skills"
-install_to_dir "roo"             "$HOME/.roo/skills"
-install_to_dir "windsurf"        "$HOME/.windsurf/skills"
-install_to_dir "windsurf-legacy" "$HOME/.codeium/windsurf/skills"
-install_to_dir "amp"             "$HOME/.agents/skills"
-install_to_dir "zed"             "$HOME/.config/zed/skills"
-install_to_dir "antigravity"     "$HOME/.zed/skills"
-install_to_dir "cline"           "$HOME/.cline/skills"
+if $UNINSTALL; then
+    install_to_dir "claude-code"     "$HOME/.claude/skills"
+    install_to_dir "opencode"        "$HOME/.opencode/skills"
+    install_to_dir "kimi-code"       "$HOME/.kimi-code/skills"
+    install_to_minimax
+    install_to_dir "cursor"          "$HOME/.cursor/skills"
+    install_to_codex
+    install_to_dir "gemini"          "$HOME/.gemini/skills"
+    install_to_dir "roo"             "$HOME/.roo/skills"
+    install_to_dir "windsurf"        "$HOME/.windsurf/skills"
+    install_to_dir "windsurf-legacy" "$HOME/.codeium/windsurf/skills"
+    install_to_dir "amp"             "$HOME/.agents/skills"
+    install_to_dir "zed"             "$HOME/.config/zed/skills"
+    install_to_dir "antigravity"     "$HOME/.zed/skills"
+    install_to_dir "cline"           "$HOME/.cline/skills"
+    node "$REPO_ROOT/scripts/install-plugin-generation.js" --home "$HOME" --uninstall >/dev/null
+else
+    generation="$(node "$REPO_ROOT/scripts/install-plugin-generation.js" \
+        --source-root "$REPO_ROOT" --home "$HOME")"
+    echo "  ✅ activated verified plugin generation: $generation"
+fi
 
 # Post-install: configure Kimi Code MCP servers if config.toml is absent
 configure_kimi_mcp() {

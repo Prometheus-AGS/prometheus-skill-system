@@ -29,17 +29,17 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash ${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/shared/scripts/detect-project-context.sh 2>&1 || true",
+            "command": "bash \"$HOME/.prometheus/plugins/prometheus-skill-pack/stable/detect-project-context.sh\" 2>&1 || true",
             "timeout": 15000
           },
           {
             "type": "command",
-            "command": "bash ${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/shared/scripts/memory-outbox-flush.sh 2>&1 || true",
+            "command": "bash \"$HOME/.prometheus/plugins/prometheus-skill-pack/stable/memory-outbox-flush.sh\" 2>&1 || true",
             "timeout": 10000
           },
           {
             "type": "command",
-            "command": "bash ${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/shared/scripts/pk-health.sh 2>&1 || true",
+            "command": "bash \"$HOME/.prometheus/plugins/prometheus-skill-pack/stable/pk-health.sh\" 2>&1 || true",
             "timeout": 8000
           }
         ]
@@ -50,8 +50,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash ${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/shared/scripts/karpathy-hook-dispatch.sh prompt claude-code",
-            "timeout": 2100
+            "command": "bash \"$HOME/.prometheus/plugins/prometheus-skill-pack/stable/karpathy-hook-dispatch.sh\" prompt claude-code"
           }
         ]
       }
@@ -149,8 +148,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash ${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/shared/scripts/karpathy-hook-dispatch.sh executor_complete claude-code",
-            "timeout": 250
+            "command": "bash \"$HOME/.prometheus/plugins/prometheus-skill-pack/stable/karpathy-hook-dispatch.sh\" executor_complete claude-code"
           },
           {
             "type": "command",
@@ -207,8 +205,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash ${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/shared/scripts/karpathy-hook-dispatch.sh stop claude-code",
-            "timeout": 250
+            "command": "bash \"$HOME/.prometheus/plugins/prometheus-skill-pack/stable/karpathy-hook-dispatch.sh\" stop claude-code"
           }
         ]
       }

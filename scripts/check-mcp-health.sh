@@ -6,12 +6,28 @@
 # (sycophancy-correction, liter-llm, sequential-thinking, tavily) are managed by the
 # AI client and listed as "stdio — no HTTP probe".
 #
-# Usage: bash scripts/check-mcp-health.sh [--json]
+# Usage: bash scripts/check-mcp-health.sh [--json] [--exclude <service> ...]
 
 set -euo pipefail
 
 JSON_MODE=false
-[ "${1:-}" = "--json" ] && JSON_MODE=true
+EXCLUDED_SERVICES=""
+while [ "$#" -gt 0 ]; do
+    case "$1" in
+        --json) JSON_MODE=true; shift ;;
+        --exclude)
+            [ "$#" -ge 2 ] || { echo "Missing value for --exclude" >&2; exit 2; }
+            EXCLUDED_SERVICES="$EXCLUDED_SERVICES${2#service:}
+"
+            shift 2
+            ;;
+        *) echo "Unknown argument: $1" >&2; exit 2 ;;
+    esac
+done
+
+service_is_excluded() {
+    printf '%s' "$EXCLUDED_SERVICES" | grep -qx "$1"
+}
 
 PROMETHEUS_USER="${PROMETHEUS_USER:-$(id -un)}"
 PROMETHEUS_UID="$(id -u "$PROMETHEUS_USER" 2>/dev/null || id -u)"
@@ -81,6 +97,7 @@ mcp_probe() {
 
 print_row() {
     local name="$1" label="$2" url="$3" desc="$4"
+    service_is_excluded "$name" && return 0
     local svc code status
     svc="$(service_state "$label" 2>/dev/null || echo 'n/a')"
 
@@ -118,6 +135,7 @@ fi
 # HTTP-reachable daemons
 print_row "surrealdb"              "ai.prometheus.surrealdb-native"       "http://localhost:28000/health"  "SurrealDB engine (native, :28000)"
 print_row "surreal-memory"         "ai.prometheus.surreal-memory-native"  "http://localhost:23001/health"  "Knowledge graph + scoped memory (native)"
+print_row "surreal-memory-ready"   "ai.prometheus.surreal-memory-native"  "http://localhost:23001/ready"   "Durable operation-ledger readiness"
 print_row "prometheus-knowledge"   "ai.prometheus.pk-cherry"              "http://localhost:8942/mcp"      "pk-cherry HTTP MCP (Karpathy KB)"
 print_row "forge-rs"               "ai.prometheus.forge-mcp"              "http://localhost:8943/mcp"      "Forge code-enrichment MCP"
 print_row "surface-bridge"         "ai.prometheus.surface-bridge"         "http://localhost:7890/health"   "Tier 2 UI MCP App server (native, :7890)"
@@ -131,6 +149,8 @@ print_row "tavily"                 "n/a"  "stdio"  "Web search (npx)"
 
 # Periodic timer
 print_row "prometheus-nudge"       "$NUDGE_HEALTH_LABEL" "stdio"  "Periodic nudge every 4h"
+print_row "learning-worker"        "ai.prometheus.learning-worker" "stdio" "Durable Karpathy queue worker"
+print_row "hooks-logrotate"        "ai.prometheus.hooks-logrotate" "stdio" "Owner-only hook log rotation"
 
 if ! $JSON_MODE; then
     printf '\n'

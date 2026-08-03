@@ -1,147 +1,70 @@
 # 20 · Updating
 
-Keeping the pack current means updating four things that move on different schedules: the skills, the tool binaries, the git submodules, and the MCP service configuration. This page is the procedure for updating each without breaking the others. The design goal throughout is a smooth update — delta installs, tracked install refs, idempotent configuration — so that pulling the latest never means re-running the whole installer from scratch.
+An upgrade moves three independently certified repositories plus installed host state. Preserve recovery records and validate locally before pushing any branch.
 
-## The one-command update
+## Safe sequence
 
-For routine updates, a single script handles the common case:
-
-```bash
-# Pull the latest and delta-install only the skills that changed
-bash scripts/update-skill-pack.sh
-
-# Force a full re-install of all skills regardless of diff
-bash scripts/update-skill-pack.sh --force
-
-# Or via npm
-npm run update
-npm run update:force
-```
-
-`update-skill-pack.sh` does a git pull, then installs only the skills that changed since the last run — it tracks the last installed SHA in `~/.prometheus/skill-pack-install-ref`. That delta behavior is what makes the update fast and safe: unchanged skills are left exactly as they are.
+1. Record server, knowledge, and root commits plus active/previous plugin generations.
+2. Preserve terminal receipts, operation events, queue records, immutable snapshots, and owner-only logs.
+3. Update and certify the Memory server.
+4. Update and certify knowledge tools and the learning worker.
+5. Update root gitlinks, CLI, Docusaurus, and release metadata.
+6. Build and test all workspaces using internal-SSD Cargo directories.
+7. Generate the excluded doctor/refresh plan; inspect it before any repair.
+8. Install/sign binaries, activate the plugin generation, and reload only allowed services.
+9. Run the full local health and certification matrix.
+10. Push in dependency order. Use GitHub checks only as final environment parity and Pages deployment.
 
 ```mermaid
-graph TD
-    A[update-skill-pack.sh] --> B[git pull]
-    B --> C{compare HEAD to ~/.prometheus/skill-pack-install-ref}
-    C -->|changed skills| D[delta-install to all platforms]
-    C -->|no change| E[no-op]
-    D --> F[record new SHA]
+flowchart LR
+  Old["Certified active state"] --> Server["Server release"]
+  Server --> Knowledge["Knowledge/worker release"]
+  Knowledge --> Root["Root + docs + gitlinks"]
+  Root --> Local["Local Mac certification"]
+  Local --> PRs["Three release PRs"]
+  PRs --> Pages["Pages deployment smoke"]
+  Old -. preserved rollback .-> Local
 ```
 
-## Updating the git submodules
+## Submodule pins
 
-The imported skills (`artifact-refiner`, `sycophancy-correction`) and three of the tools (`surreal-memory-server`, `prometheus-knowledge`, `liter-llm`) are submodules with independent lifecycles. They update separately from the main repo.
+Do not advance a root gitlink until its dependency commit passes its local gates. After dependency PRs merge, update root gitlinks to the resulting `main` commits and rerun the root/docs certification. Never rewrite published recovery history.
+
+## Plugin upgrade and rollback
 
 ```bash
-# Update every submodule to its tracked branch's latest
-git submodule update --remote
-git add skills/imported tools/
-git commit -m "chore: bump submodule pointers"
-
-# Update a single submodule
-cd skills/imported/artifact-refiner
-git pull origin main
-cd -
-git add skills/imported/artifact-refiner && git commit -m "chore: bump artifact-refiner"
-
-# Check status
-git submodule status
+node scripts/install-plugin-generation.js
+node scripts/install-plugin-generation.js --verify
 ```
 
-In production, pin submodules to a tag rather than tracking a moving branch — check out the tag inside the submodule and commit the pointer. This is what keeps a production deployment reproducible. The full submodule workflow is on the [Contributing](21-contributing.md) page.
-
-## Rebuilding the tool binaries
-
-When a tool submodule moves, its binary needs rebuilding.
+Activation keeps `previous`. If installed-host certification fails:
 
 ```bash
-# Rebuild and reinstall all six binaries
-bash scripts/install-binaries.sh
-
-# Or the full prerequisite + build + smoke-test path
-npm run doctor
+node scripts/install-plugin-generation.js --rollback
+node scripts/install-plugin-generation.js --verify
 ```
 
-After rebuilding, fully reload the managed service definitions so they pick up
-new binaries and environment:
+Do not patch an active generation or a copied target by hand.
+
+## Service refresh
 
 ```bash
-bash scripts/install-mcp-services.sh --restart
-bash scripts/check-mcp-health.sh
+bash scripts/install-mcp-services.sh --dry-run --restart --exclude sovereign-sync
+bash scripts/install-mcp-services.sh --restart --exclude sovereign-sync
+bash scripts/check-mcp-health.sh --json --exclude sovereign-sync
 ```
 
-On macOS, `launchctl kickstart` alone does not reload plist environment
-changes. The installer uses bootout, waits for label removal, bootstraps the
-rendered definition, enables it, and then kickstarts it.
+On macOS, a complete bootout/bootstrap cycle is required when a LaunchAgent definition changes; kickstart alone does not reload its environment.
 
-## Reconciling MCP configuration
-
-The MCP configuration writers are idempotent — running them again after an update reconciles each tool's config against the current `mcp-port-table.json` without duplicating entries.
+## Documentation and release gates
 
 ```bash
-# Re-merge the canonical port table into every tool's config
-bash scripts/configure-mcp-all-tools.sh
-
-# Preview without writing
-bash scripts/configure-mcp-all-tools.sh --dry-run
-
-# Just one tool
-bash scripts/configure-mcp-all-tools.sh --tool opencode
+npm run docs:check
 ```
 
-## A recommended update sequence
+The gate validates public safety, OpenAPI examples, semantic drift, internal links and sidebars, deterministic generated artifacts, and a production Docusaurus build with broken links treated as errors.
 
-Run these in order after pulling a release:
-
-```bash
-git pull
-git submodule update --remote          # 1 · move submodules
-bash scripts/install-binaries.sh       # 2 · rebuild binaries
-bash scripts/update-skill-pack.sh      # 3 · delta-install skills
-bash scripts/configure-mcp-all-tools.sh # 4 · reconcile MCP config
-bash scripts/install-mcp-services.sh --restart # 5 · reload definitions + restart services
-npm run doctor                         # 6 · verify
-```
-
-## Rotating the KBD control token
-
-Token rotation is coordinated because Sovereign Sync caches its bearer token
-at startup:
-
-1. pause active writers;
-2. stop or boot out Sovereign Sync;
-3. atomically replace the same regular token file with a URL-safe value;
-4. preserve mode `0600`;
-5. reload the service definition;
-6. restart harnesses that use an explicit token path;
-7. verify the valid token succeeds and a test-invalid token returns `401`.
-
-Do not rotate by changing only `PROMETHEUS_CONTROL_TOKEN_FILE` in one shell.
-The daemon, harness adapter, and CLI must resolve the same file. Full commands
-are in [Tokens and authentication](/docs/kbd/tokens-and-authentication).
-
-## Verifying nothing broke
-
-After any update, three checks confirm the system is healthy:
-
-```bash
-npm run validate          # all native skills still pass the spec
-npm run validate:strict   # strict gate (new/changed skills)
-bash scripts/check-mcp-health.sh   # services reachable
-```
-
-If `validate:strict` fails on a skill that just changed, the cause is almost always a missing strict field — `license`, `version`, or a non-empty `metadata.tags`. `scripts/backfill-strict-fields.js --dry-run` will show what is missing. The [Contributing](21-contributing.md) page covers the validation gates in full.
-
-## Scheduled maintenance that runs itself
-
-Some upkeep does not need a manual update at all — it runs on a schedule:
-
-- The **4-hour KB nudge** (`periodic-nudge.sh`, `launchd` `ai.prometheus.prometheus-nudge`) keeps the knowledge base warm between sessions.
-- The **weekly `pk lint --fix` sweep** (`pk-lint.sh`) keeps the knowledge base clean.
-- The **weekly mem0 compression** (`mem0-compress.sh`) keeps scoped memory from growing without bound.
-
-These are installed as `launchd` plists (or cron jobs) by the service installer and require no manual intervention. The point of the whole update model is that the parts that change rarely are explicit commands you run, and the parts that need constant attention run themselves.
+See [Installation and upgrades](/docs/operations/installation-and-upgrades) for the canonical runbook.
 
 ---
 

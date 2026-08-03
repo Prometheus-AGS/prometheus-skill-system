@@ -5,7 +5,7 @@ ROOT="$(cd "$(dirname "$0")/../../.." && pwd)"
 OUTPUT="$(mktemp -d)"
 trap 'rm -rf "$OUTPUT"' EXIT
 
-bash "$ROOT/scripts/install-mcp-services.sh" --render-only "$OUTPUT" >/dev/null
+bash "$ROOT/scripts/install-mcp-services.sh" --render-only "$OUTPUT" --exclude sovereign-sync >/dev/null
 
 for plist in \
   "$OUTPUT/ai.prometheus.learning-worker.plist" \
@@ -17,6 +17,10 @@ done
 grep -q '<key>WatchPaths</key>' "$OUTPUT/ai.prometheus.learning-worker.plist"
 grep -q '<key>StartInterval</key>' "$OUTPUT/ai.prometheus.learning-worker.plist"
 grep -q '<key>StartCalendarInterval</key>' "$OUTPUT/ai.prometheus.hooks-logrotate.plist"
+EXPECTED_LOGROTATE="$(command -v logrotate)"
+RENDERED_LOGROTATE="$(plutil -extract EnvironmentVariables.PROMETHEUS_LOGROTATE_BIN raw -o - "$OUTPUT/ai.prometheus.hooks-logrotate.plist")"
+test "$RENDERED_LOGROTATE" = "$EXPECTED_LOGROTATE"
+test -x "$RENDERED_LOGROTATE"
 grep -q '/Users/' "$OUTPUT/prometheus-hooks.conf"
 grep -q 'rotate 30' "$OUTPUT/prometheus-hooks.conf"
 grep -q 'create 0600' "$OUTPUT/prometheus-hooks.conf"

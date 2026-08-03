@@ -16,21 +16,18 @@
     ],
     "UserPromptSubmit": [
       {
-        "command": "bash ${PROMETHEUS_SKILL_PACK_ROOT}/shared/scripts/karpathy-hook-dispatch.sh prompt claude-code",
-        "timeout": 2100
+        "command": "bash $HOME/.prometheus/plugins/prometheus-skill-pack/stable/karpathy-hook-dispatch.sh prompt claude-code"
       }
     ],
     "Stop": [
       {
-        "command": "bash ${PROMETHEUS_SKILL_PACK_ROOT}/shared/scripts/karpathy-hook-dispatch.sh stop claude-code",
-        "timeout": 250
+        "command": "bash $HOME/.prometheus/plugins/prometheus-skill-pack/stable/karpathy-hook-dispatch.sh stop claude-code"
       }
     ],
     "SubagentStop": [
       {
         "matcher": "executor",
-        "command": "bash ${PROMETHEUS_SKILL_PACK_ROOT}/shared/scripts/karpathy-hook-dispatch.sh executor_complete claude-code",
-        "timeout": 250
+        "command": "bash $HOME/.prometheus/plugins/prometheus-skill-pack/stable/karpathy-hook-dispatch.sh executor_complete claude-code"
       }
     ]
   }

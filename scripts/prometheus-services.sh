@@ -9,6 +9,7 @@ shift || true
 
 PROMETHEUS_USER="${PROMETHEUS_USER:-gqadonis}"
 ALLOW_USER_OVERRIDE=false
+EXCLUDED_SERVICES=""
 
 while [ "$#" -gt 0 ]; do
     case "$1" in
@@ -16,6 +17,12 @@ while [ "$#" -gt 0 ]; do
             PROMETHEUS_USER="${2:-}"
             [ -n "$PROMETHEUS_USER" ] || { echo "Missing value for --user" >&2; exit 2; }
             ALLOW_USER_OVERRIDE=true
+            shift 2
+            ;;
+        --exclude)
+            [ "$#" -ge 2 ] || { echo "Missing value for --exclude" >&2; exit 2; }
+            EXCLUDED_SERVICES="$EXCLUDED_SERVICES${2#service:}
+"
             shift 2
             ;;
         --help|-h)
@@ -29,12 +36,18 @@ while [ "$#" -gt 0 ]; do
     esac
 done
 
+service_is_excluded() {
+    local name="${1#ai.prometheus.}"
+    printf '%s' "$EXCLUDED_SERVICES" | grep -qx "$name"
+}
+
 LABELS=("ai.prometheus.surrealdb-native" "ai.prometheus.surreal-memory-native" "ai.prometheus.pk-cherry" "ai.prometheus.forge-mcp" "ai.prometheus.prometheus-nudge")
 TEMPLATES=("ai.prometheus.surrealdb-native.plist" "ai.prometheus.surreal-memory-native.plist" "ai.prometheus.pk-cherry.plist" "ai.prometheus.forge-mcp.plist" "ai.prometheus.prometheus-nudge.plist")
+DOCTOR_LABELS=("${LABELS[@]}" "ai.prometheus.learning-worker" "ai.prometheus.hooks-logrotate")
 
 usage() {
     cat <<'EOF'
-Usage: scripts/prometheus-services.sh <command> [--user gqadonis]
+Usage: scripts/prometheus-services.sh <command> [--user gqadonis] [--exclude service]
 
 Commands:
   install   Render LaunchAgent plists into ~/Library/LaunchAgents
@@ -167,6 +180,7 @@ install_services() {
 
     for i in "${!LABELS[@]}"; do
         local label="${LABELS[$i]}"
+        service_is_excluded "$label" && continue
         local template="${TEMPLATES[$i]}"
         local out
         out="$(plist_path "$label")"
@@ -189,6 +203,7 @@ load_services() {
     fi
 
     for label in "${LABELS[@]}"; do
+        service_is_excluded "$label" && continue
         local plist
         plist="$(plist_path "$label")"
         [ -f "$plist" ] || { echo "$plist missing; run install first." >&2; exit 1; }
@@ -207,6 +222,7 @@ unload_services() {
     require_macos
     init_user
     for label in "${LABELS[@]}"; do
+        service_is_excluded "$label" && continue
         launchctl bootout "$GUI_DOMAIN/$label" >/dev/null 2>&1 || true
         echo "Unloaded $label"
     done
@@ -216,7 +232,7 @@ probe() {
     local label="$1"
     local url="$2"
     local code
-    code=$(curl -sI -o /dev/null -w '%{http_code}' --connect-timeout 1 --max-time 2 "$url" 2>/dev/null || true)
+    code=$(curl -s -o /dev/null -w '%{http_code}' --connect-timeout 1 --max-time 2 "$url" 2>/dev/null || true)
     [ -n "$code" ] || code="000"
     printf '%-28s %s %s\n' "$label" "$code" "$url"
 }
@@ -238,6 +254,7 @@ status_services() {
     require_macos
     init_user
     for label in "${LABELS[@]}"; do
+        service_is_excluded "$label" && continue
         print_launchctl_summary "$label"
     done
     echo ""
@@ -263,7 +280,7 @@ doctor_services() {
     echo "PATH: $PROMETHEUS_PATH"
     echo ""
 
-    for bin in surreal pk-cherry forge docker curl plutil launchctl; do
+    for bin in surreal prometheus pk pk-cherry prometheus-learning-worker surreal-memory-server logrotate flock curl plutil launchctl; do
         local found
         found="$(resolve_bin "$bin")"
         printf '%-14s %s\n' "$bin" "${found:-missing}"
@@ -277,7 +294,8 @@ doctor_services() {
     fi
     echo ""
 
-    for label in "${LABELS[@]}"; do
+    for label in "${DOCTOR_LABELS[@]}"; do
+        service_is_excluded "$label" && continue
         local plist
         plist="$(plist_path "$label")"
         if [ -f "$plist" ]; then
@@ -289,6 +307,12 @@ doctor_services() {
     done
     echo ""
     status_services
+    probe "surreal-memory-ready" "http://localhost:23001/ready"
+    if command -v prometheus >/dev/null 2>&1; then
+        prometheus learning status --json
+    else
+        echo "prometheus learning status: unavailable"
+    fi
 }
 
 logs_services() {

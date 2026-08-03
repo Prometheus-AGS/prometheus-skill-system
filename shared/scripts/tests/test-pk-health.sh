@@ -21,7 +21,8 @@ echo "$out" | grep -q '^rc=0$' || bad "no pk → rc 0" "$out"
 BIN="$TMP/bin"; mkdir -p "$BIN"
 cat > "$BIN/pk" <<'FAKE'
 #!/usr/bin/env bash
-# pk lint --check → emit one summary line
+[ "$1" = "lint" ] || exit 64
+[ "$#" -eq 1 ] || exit 65
 echo "312 articles indexed, 0 issues"
 FAKE
 chmod +x "$BIN/pk"
@@ -37,6 +38,15 @@ out="$(PATH="$BIN:/usr/bin:/bin" bash "$HEALTH" 2>/dev/null)"
 echo "$(( $(date -u +%s) - 90000 ))" > "$HOME/.prometheus/pk-health-last-run"
 out="$(PATH="$BIN:/usr/bin:/bin" bash "$HEALTH" 2>/dev/null)"
 echo "$out" | grep -q 'pk health:' && ok || bad "stale marker → runs again" "$out"
+
+# 5. A failed lint command is visible and must never be translated into OK.
+echo '#!/usr/bin/env bash' > "$BIN/pk"
+echo 'exit 42' >> "$BIN/pk"
+chmod +x "$BIN/pk"
+echo "$(( $(date -u +%s) - 90000 ))" > "$HOME/.prometheus/pk-health-last-run"
+out="$(PATH="$BIN:/usr/bin:/bin" bash "$HEALTH" 2>/dev/null)"
+echo "$out" | grep -q 'pk health: FAIL' && ok || bad "lint failure → visible failure" "$out"
+echo "$out" | grep -q 'pk health: OK' && bad "lint failure must not false-green" "$out" || ok
 
 echo "---"; echo "PASS=$PASS FAIL=$FAIL"
 [ "$FAIL" -eq 0 ]

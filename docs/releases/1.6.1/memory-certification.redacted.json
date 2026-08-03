@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "readiness": {
+    "status": "ready",
+    "ingestion_ready": true,
+    "search_ready": true,
+    "capabilities": {
+      "coordinator": true,
+      "ledger": true,
+      "model_executor": true,
+      "search_index": true,
+      "storage": true,
+      "tokenizer": true
+    }
+  },
+  "standard_operation": {
+    "operation_id": "prometheus-release-1.6.1-memory-certification-20260803",
+    "payload_hash": "85c79454513fdd013af369011dc73d24f22d07b6a415a1a93605613b7ef4afe2",
+    "state": "committed",
+    "response_loss_reconciled": true,
+    "exact_replay": true,
+    "hash_conflict_http": 409,
+    "sse": {"first_sequence": 1, "resumed_sequence": 2},
+    "token_count": 15,
+    "content_bytes": 60,
+    "embedding_dimensions": 384
+  },
+  "long_operation": {
+    "operation_id": "prometheus-release-1.6.1-long-memory-certification-20260803",
+    "payload_hash": "3ef0e859c4c039be2fa32ccb4ed2df545e7718ea86b4660539d1e06200d4a971",
+    "state": "committed",
+    "response_loss_reconciled": true,
+    "exact_replay": true,
+    "hash_conflict_http": 409,
+    "sse": {"first_sequence": 1, "resumed_sequence": 2},
+    "token_count": 36705,
+    "embedding_dimensions": 384,
+    "restart_recovery": {
+      "pre_restart_generation": 1,
+      "pre_restart_progress_sequence": 229,
+      "terminal_generation": 2,
+      "terminal_executor_progress_sequence": 488,
+      "persisted_plan_reused": true
+    }
+  },
+  "hook_learning_operation": {
+    "operation_id": "38373f1cce9c59d7c266bce4d22d0258fe20b58a02b1b27b2ce8bec2e682cfc5",
+    "payload_hash": "7756755ff4fd83ff8297b258d0ddcefe95e50af6a263f04549d389a0c2eb83db",
+    "state": "committed",
+    "session_id": "prometheus-release-1.6.1-learning-certification-20260803",
+    "token_count": 236
+  },
+  "snapshots": {
+    "project": "3289dafdf425cfe16cf56f990332d7c60f46378010afbdd7d691fa11d1ac5b21",
+    "shared": "8b9d7694324d5df60eee2b28546e77450615796977c6ce0f627d8f541c006b0b",
+    "global": "f7b2c0f33b4f48bcd225b79de17a30bc555028863091ca1adb3004585a7084bc"
+  },
+  "plugin": {
+    "active_generation": "a9ca01e71a37669b50b3a78ff504f68a7cae5c5c93d90d6a9be7bedef77fe01d",
+    "rollback_generation": "165b07072ce98e9c3864816b8637346cabc1b96837ff68ad04705fb2a2ac1200",
+    "restored": true,
+    "targets_verified": 14,
+    "stale_1_6_0_paths": 0
+  }
+}

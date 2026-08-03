@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "pk_doctor": {
+    "schema_version": 2,
+    "summary": {"passed": 6, "warned": 0, "failed": 0},
+    "checks": {
+      "hooks-log-path": "PASS",
+      "plugin-generation": "PASS",
+      "stable-dispatchers": "PASS",
+      "prompt-snapshots": "PASS",
+      "learning-queue": "PASS",
+      "kb-scoping": "PASS"
+    }
+  },
+  "learning_status": {
+    "workerInstalled": true,
+    "pending": 0,
+    "processing": 0,
+    "retry": 0,
+    "completed": 2,
+    "rejected": 0,
+    "deadLetter": 0,
+    "memoryPending": 0,
+    "memorySubmitting": 0,
+    "memoryAccepted": 0,
+    "memoryCompleted": 4,
+    "memoryRejected": 0,
+    "memoryDeadLetter": 0,
+    "lastError": null
+  },
+  "codex_doctor": {
+    "schemaVersion": 1,
+    "version": "0.144.3",
+    "overallStatus": "ok",
+    "checkCount": 18,
+    "failed": 0
+  },
+  "allowed_mcp_health": {
+    "surrealdb": "OK (200)",
+    "surreal-memory": "OK (200)",
+    "surreal-memory-ready": "OK (200)",
+    "prometheus-knowledge": "MCP OK (200)",
+    "forge-rs": "AUTH REQUIRED (401; expected protected boundary)",
+    "surface-bridge": "OK (200)",
+    "learning-worker": "loaded event-driven service",
+    "hooks-logrotate": "loaded scheduled service; manual run exited 0"
+  }
+}

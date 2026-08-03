@@ -30,7 +30,13 @@ async function findSkillFiles(dir) {
   const out = [];
   const entries = await fs.readdir(dir, { withFileTypes: true });
   for (const entry of entries) {
-    if (entry.name === 'node_modules' || entry.name.startsWith('.')) continue;
+    if (
+      entry.name === 'node_modules' ||
+      entry.name === 'tests' ||
+      entry.name === 'fixtures' ||
+      entry.name.startsWith('.')
+    )
+      continue;
     const full = path.join(dir, entry.name);
     if (entry.isDirectory()) {
       out.push(...(await findSkillFiles(full)));

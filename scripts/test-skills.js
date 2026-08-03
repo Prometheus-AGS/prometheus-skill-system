@@ -6,7 +6,7 @@ import { fileURLToPath } from 'node:url';
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 
-const tests = [
+const allTests = [
   [
     'strict skill validation',
     'node',
@@ -23,12 +23,19 @@ const tests = [
     ['shared/scripts/tests/test-cross-tool-skill-payloads.sh'],
   ],
   ['PK health hook fixtures', 'bash', ['shared/scripts/tests/test-pk-health.sh']],
-  ['Karpathy hook fixtures', 'bash', ['shared/scripts/tests/test-karpathy-hooks.sh']],
+  ['Karpathy hook fixtures', 'bash', ['shared/scripts/tests/test-karpathy-dispatch.sh']],
+  ['Atomic plugin generation', 'bash', ['shared/scripts/tests/test-plugin-generation.sh']],
   ['learning basic flow', 'bash', ['tests/learn/integration-basic-flow.sh']],
   ['learning full loop', 'bash', ['tests/learn/integration-full-loop.sh']],
   ['learning KB adapter', 'bash', ['tests/learn/integration-kb.sh']],
   ['learning meta/harness parity', 'bash', ['tests/learn/integration-meta.sh']],
 ];
+
+const skippedKbdTests = new Set(['KBD control-plane fixtures', 'kbd-next-phase packaging']);
+const tests =
+  process.env.PROMETHEUS_SKIP_KBD === '1'
+    ? allTests.filter(([name]) => !skippedKbdTests.has(name))
+    : allTests;
 
 let passed = 0;
 for (const [name, command, args] of tests) {
