@@ -753,6 +753,30 @@ impl ControlClient {
         decode_response(response).await
     }
 
+    async fn audit_events(&self) -> Result<Vec<Event>> {
+        let response = self
+            .http
+            .get(format!(
+                "{}/api/v1/kbd/projects/{}/audit",
+                self.endpoint, self.project_id
+            ))
+            .send()
+            .await?;
+        let status = response.status();
+        let body = response.text().await?;
+        if !status.is_success() {
+            return Err(anyhow!("control plane returned {status}: {body}"));
+        }
+        body.lines()
+            .filter(|line| !line.trim().is_empty())
+            .enumerate()
+            .map(|(index, line)| {
+                serde_json::from_str(line)
+                    .with_context(|| format!("invalid audit JSONL at line {}", index + 1))
+            })
+            .collect()
+    }
+
     async fn submit(&self, envelope: CommandEnvelope) -> Result<Value> {
         // Read-only commands must never touch the platform credential store.
         // Resolve the signer only for an actual mutation, and keep the
@@ -823,7 +847,7 @@ async fn audit(
         println!("{}", serde_json::to_string_pretty(&exported)?);
         return Ok(());
     }
-    let events = match client.events().await {
+    let events = match client.audit_events().await {
         Ok(events) => events,
         Err(_) => {
             // A freshly migrated standalone project may have a valid local
