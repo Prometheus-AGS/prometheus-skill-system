@@ -141,6 +141,38 @@ fn doctor_json_mode_emits_versioned_schema() {
 }
 
 #[test]
+fn doctor_json_reports_rotation_dependencies() {
+    let (project_root, home_dir) = prepared_environment("doctor-rotation-dependencies");
+
+    let output = base_command(&project_root, &home_dir)
+        .args(["doctor", "--json"])
+        .output()
+        .expect("run doctor --json");
+    let payload: serde_json::Value =
+        serde_json::from_slice(&output.stdout).expect("doctor --json should emit valid JSON");
+    let rotation = payload["checks"]
+        .as_array()
+        .expect("checks array")
+        .iter()
+        .find(|check| check["id"] == "hooks.rotation")
+        .expect("rotation check");
+    let details = rotation["details"].as_array().expect("rotation details");
+
+    assert!(
+        details.iter().any(|detail| detail
+            .as_str()
+            .is_some_and(|value| value.starts_with("logrotate: "))),
+        "rotation check must report the configured logrotate dependency: {rotation}"
+    );
+    assert!(
+        details.iter().any(|detail| detail
+            .as_str()
+            .is_some_and(|value| value.starts_with("flock: "))),
+        "rotation check must report the configured flock dependency: {rotation}"
+    );
+}
+
+#[test]
 fn doctor_dry_run_fix_is_non_mutating() {
     let (project_root, home_dir) = prepared_environment("doctor-dry-run-fix");
     write_file(&project_root.join("before.txt"), "marker");

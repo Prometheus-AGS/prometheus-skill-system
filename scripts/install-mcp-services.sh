@@ -90,13 +90,13 @@ if [ "$OS" = "macos" ]; then
             || eval "printf '%s' ~$1"
     }
     PROMETHEUS_HOME="$(user_home "$PROMETHEUS_USER")"
-    PROMETHEUS_PATH="/usr/local/bin:/opt/homebrew/bin:$PROMETHEUS_HOME/.cargo/bin:$PROMETHEUS_HOME/.local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
+    PROMETHEUS_PATH="/usr/local/bin:/usr/local/sbin:/opt/homebrew/bin:/opt/homebrew/sbin:$PROMETHEUS_HOME/.cargo/bin:$PROMETHEUS_HOME/.local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
     SURREAL_FALLBACK="/opt/homebrew/bin/surreal"
     BIN_FALLBACK_DIR="$PROMETHEUS_HOME/.local/bin"
 else
     PROMETHEUS_HOME="$(getent passwd "$PROMETHEUS_USER" 2>/dev/null | cut -d: -f6)"
     [ -n "$PROMETHEUS_HOME" ] || PROMETHEUS_HOME="$HOME"
-    PROMETHEUS_PATH="$PROMETHEUS_HOME/.cargo/bin:$PROMETHEUS_HOME/.local/bin:/usr/local/bin:/usr/bin:/bin"
+    PROMETHEUS_PATH="$PROMETHEUS_HOME/.cargo/bin:$PROMETHEUS_HOME/.local/bin:/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin"
     SURREAL_FALLBACK="/usr/local/bin/surreal"
     BIN_FALLBACK_DIR="$PROMETHEUS_HOME/.local/bin"
     SYSTEMD_USER_DIR="$PROMETHEUS_HOME/.config/systemd/user"
@@ -206,7 +206,16 @@ render_template() {
     surface_bridge_bin="$(resolve_bin surface-bridge)"; [ -n "$surface_bridge_bin" ] || surface_bridge_bin="$BIN_FALLBACK_DIR/surface-bridge"
     sovereign_sync_bin="$(resolve_bin sovereign-sync)"; [ -n "$sovereign_sync_bin" ] || sovereign_sync_bin="$BIN_FALLBACK_DIR/sovereign-sync"
     learning_worker_bin="$(resolve_bin prometheus-learning-worker)"; [ -n "$learning_worker_bin" ] || learning_worker_bin="$BIN_FALLBACK_DIR/prometheus-learning-worker"
-    logrotate_bin="$(resolve_bin logrotate)"; [ -n "$logrotate_bin" ] || logrotate_bin="/opt/homebrew/opt/logrotate/sbin/logrotate"
+    logrotate_bin="$(resolve_bin logrotate)"
+    if [ -z "$logrotate_bin" ]; then
+        if [ "$OS" = "macos" ] && [ -x "/opt/homebrew/opt/logrotate/sbin/logrotate" ]; then
+            logrotate_bin="/opt/homebrew/opt/logrotate/sbin/logrotate"
+        elif [ -x "/usr/local/sbin/logrotate" ]; then
+            logrotate_bin="/usr/local/sbin/logrotate"
+        else
+            logrotate_bin="/usr/sbin/logrotate"
+        fi
+    fi
     flock_bin="$(resolve_bin flock)"; [ -n "$flock_bin" ] || flock_bin="/usr/bin/flock"
 
     local device_key_file="$PROMETHEUS_HOME/.config/sovereign-sync/device-key.json"

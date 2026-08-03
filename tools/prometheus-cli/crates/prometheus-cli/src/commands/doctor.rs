@@ -1863,6 +1863,27 @@ fn check_hook_log_rotation() -> CheckResult {
     let mode = fs::metadata(&log)
         .ok()
         .map(|metadata| metadata.permissions().mode() & 0o777);
+    let plist = home.join("Library/LaunchAgents/ai.prometheus.hooks-logrotate.plist");
+    let logrotate = configured_rotation_dependency(
+        &plist,
+        "EnvironmentVariables.PROMETHEUS_LOGROTATE_BIN",
+        &[
+            "/usr/local/sbin/logrotate",
+            "/opt/homebrew/opt/logrotate/sbin/logrotate",
+            "/usr/sbin/logrotate",
+        ],
+    );
+    let flock = configured_rotation_dependency(
+        &plist,
+        "EnvironmentVariables.PROMETHEUS_FLOCK_BIN",
+        &[
+            "/usr/local/bin/flock",
+            "/opt/homebrew/bin/flock",
+            "/usr/bin/flock",
+        ],
+    );
+    let logrotate_ready = logrotate.as_deref().is_some_and(is_executable);
+    let flock_ready = flock.as_deref().is_some_and(is_executable);
     let loaded = if cfg!(target_os = "macos") {
         let target = format!(
             "gui/{}/ai.prometheus.hooks-logrotate",
@@ -1886,7 +1907,8 @@ fn check_hook_log_rotation() -> CheckResult {
             .status()
             .is_ok_and(|status| status.success())
     };
-    let healthy = config.is_file() && loaded && mode == Some(0o600);
+    let healthy =
+        config.is_file() && loaded && mode == Some(0o600) && logrotate_ready && flock_ready;
     CheckResult {
         id: "hooks.rotation".into(),
         group: "hooks".into(),
@@ -1902,17 +1924,24 @@ fn check_hook_log_rotation() -> CheckResult {
             CheckStatus::Fail
         },
         summary: format!(
-            "config {}, service {}, hook-log mode {}",
+            "config {}, service {}, dependencies {}, hook-log mode {}",
             if config.is_file() {
                 "installed"
             } else {
                 "missing"
             },
             if loaded { "loaded" } else { "unloaded" },
+            if logrotate_ready && flock_ready {
+                "ready"
+            } else {
+                "missing"
+            },
             mode.map(|value| format!("{value:04o}"))
                 .unwrap_or_else(|| "missing".into())
         ),
         details: vec![
+            dependency_detail("logrotate", logrotate.as_deref(), logrotate_ready),
+            dependency_detail("flock", flock.as_deref(), flock_ready),
             "30 daily archives, delayed compression, and writer-lock coordination are required."
                 .into(),
         ],
@@ -1927,6 +1956,45 @@ fn check_hook_log_rotation() -> CheckResult {
             reason_blocked: None,
         }],
     }
+}
+
+fn configured_rotation_dependency(plist: &Path, key: &str, fallbacks: &[&str]) -> Option<PathBuf> {
+    if cfg!(target_os = "macos") && plist.is_file() {
+        let output = Command::new("plutil")
+            .args(["-extract", key, "raw", "-o", "-"])
+            .arg(plist)
+            .output()
+            .ok();
+        if let Some(path) = output
+            .filter(|output| output.status.success())
+            .and_then(|output| String::from_utf8(output.stdout).ok())
+            .map(|path| PathBuf::from(path.trim()))
+            .filter(|path| !path.as_os_str().is_empty())
+        {
+            return Some(path);
+        }
+    }
+
+    fallbacks
+        .iter()
+        .map(PathBuf::from)
+        .find(|path| is_executable(path))
+}
+
+fn is_executable(path: &Path) -> bool {
+    use std::os::unix::fs::PermissionsExt;
+    fs::metadata(path)
+        .ok()
+        .is_some_and(|metadata| metadata.is_file() && metadata.permissions().mode() & 0o111 != 0)
+}
+
+fn dependency_detail(name: &str, path: Option<&Path>, ready: bool) -> String {
+    format!(
+        "{name}: {} ({})",
+        path.map(|path| path.display().to_string())
+            .unwrap_or_else(|| "not found".into()),
+        if ready { "executable" } else { "missing" }
+    )
 }
 
 fn check_prompt_snapshots() -> CheckResult {

@@ -98,10 +98,24 @@ resumed_sequence="$(awk '/^id:/{gsub(/\r/, "", $2); print $2; exit}' "$resumed_f
   exit 1
 }
 
+# Certification evidence must stay compact and safe to archive. Preserve
+# dimensions and byte counts while omitting the full embedding and memory body.
+redacted_receipt="$(jq '
+  if .result == null then .
+  else .result |= (
+    . + {
+      content_bytes: ((.content // "") | length),
+      embedding_dimensions: ((.embedding // []) | length)
+    }
+    | del(.content, .embedding)
+  )
+  end
+' <<<"$receipt")"
+
 jq -n \
   --arg operation_id "$OPERATION_ID" \
   --arg payload_hash "$payload_hash" \
-  --argjson receipt "$receipt" \
+  --argjson receipt "$redacted_receipt" \
   --argjson readiness "$ready" \
   --arg first_sequence "$first_sequence" \
   --arg resumed_sequence "$resumed_sequence" \
