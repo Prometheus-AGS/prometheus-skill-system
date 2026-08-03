@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "contractVersion": "2.0.0",
+  "mode": "diagnose",
+  "selection": {
+    "check": null,
+    "excluded": [
+      "control.kbd-runtime",
+      "state.kbd-orchestrator",
+      "control.kbd-rollout",
+      "service:sovereign-sync"
+    ]
+  },
+  "summary": {
+    "failed": 0,
+    "warned": 1,
+    "passed": 11,
+    "skipped": 3,
+    "exit_code": 0
+  },
+  "checks": [
+    {"id": "skills.directory", "status": "pass", "summary": "skills/ exists"},
+    {"id": "skills.installed-agents", "status": "pass", "summary": "Detected 9 installed agent(s)"},
+    {"id": "learning.surreal-memory", "status": "pass", "summary": "Durable operation ledger is ready"},
+    {"id": "review.judge-gateway", "status": "pass", "summary": "Judge gateway is reachable"},
+    {"id": "binaries.manifest", "status": "pass", "summary": "5/5 managed binaries are executable, hashed, and signed"},
+    {"id": "services.launch-agents", "status": "pass", "summary": "4/4 deterministic learning services are installed and loaded"},
+    {"id": "learning.worker", "status": "pass", "summary": "worker installed; terminal jobs 2; terminal memory receipts 4; no unsettled records"},
+    {"id": "learning.snapshots", "status": "pass", "summary": "project/shared/global committed snapshot pointers are valid"},
+    {"id": "hooks.rotation", "status": "pass", "summary": "config installed, service loaded, dependencies ready, hook-log mode 0600"},
+    {"id": "mcp.config", "status": "skip", "summary": "Optional declarative reconciliation check is reserved but not implemented"},
+    {"id": "hooks.lifecycle", "status": "pass", "summary": "active generation and all 14 targets are verified"},
+    {"id": "hooks.harness-adapters", "status": "pass", "summary": "4/4 harnesses derive from one capability contract"},
+    {"id": "skills.discovery-budget", "status": "warn", "summary": "147 skills; discovery-character measurement is not implemented for four harnesses"},
+    {"id": "state.evolver", "status": "skip", "summary": "Optional evolution state is not initialized"},
+    {"id": "learning.trace-store", "status": "skip", "summary": "Optional trace store has no records"}
+  ]
+}
