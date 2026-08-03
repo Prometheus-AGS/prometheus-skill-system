@@ -12,6 +12,7 @@ mkdir -p \
   "$SOURCE/skills/example/scripts" \
   "$SOURCE/agents" \
   "$SOURCE/hooks" \
+  "$SOURCE/shared/scripts/lib" \
   "$SOURCE/shared/scripts/tests/fixtures" \
   "$SOURCE/.claude-plugin" \
   "$SOURCE/.codex-plugin" \
@@ -19,6 +20,8 @@ mkdir -p \
 printf '%s\n' '---' 'name: example' 'description: fixture' '---' > "$SOURCE/skills/example/SKILL.md"
 printf '#!/usr/bin/env bash\nprintf "example\\n"\n' > "$SOURCE/skills/example/scripts/example.sh"
 printf 'fixture\n' > "$SOURCE/shared/scripts/tests/fixtures/example.txt"
+printf '#!/usr/bin/env bash\n' > "$SOURCE/shared/scripts/lib/hook-log.sh"
+printf '#!/usr/bin/env bash\n' > "$SOURCE/shared/scripts/lib/memory-bridge.sh"
 for script in karpathy-hook-dispatch detect-project-context memory-outbox-flush pk-health; do
   printf '#!/usr/bin/env bash\nprintf "%s-a\\n"\n' "$script" > "$SOURCE/shared/scripts/$script.sh"
   chmod +x "$SOURCE/shared/scripts/$script.sh"
@@ -56,6 +59,12 @@ for script in karpathy-hook-dispatch detect-project-context memory-outbox-flush 
   [[ "$(readlink "$PLUGIN_ROOT/stable/$script.sh")" == "../current/shared/scripts/$script.sh" ]]
   cmp "$SOURCE/shared/scripts/$script.sh" "$PLUGIN_ROOT/stable/$script.sh"
 done
+for script in enqueue-learning-job enqueue-memory-operation; do
+  [[ "$(readlink "$PLUGIN_ROOT/stable/$script.py")" == "../current/shared/scripts/$script.py" ]]
+  [[ "$(HOME="$TMP/home" "$PLUGIN_ROOT/stable/$script.py")" == "$script-a" ]]
+done
+[[ "$(readlink "$PLUGIN_ROOT/stable/lib")" == "../current/shared/scripts/lib" ]]
+cmp "$SOURCE/shared/scripts/lib/memory-bridge.sh" "$PLUGIN_ROOT/stable/lib/memory-bridge.sh"
 [[ "$(HOME="$TMP/home" bash "$PLUGIN_ROOT/stable/karpathy-hook-dispatch.sh")" == "karpathy-hook-dispatch-a" ]]
 [[ ! -e "$TMP/home/.codex/skills/prometheus-example" ]]
 [[ ! -e "$TMP/home/.minimax/skills/prometheus-example" ]]

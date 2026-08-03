@@ -31,6 +31,8 @@ const REQUIRED_SCRIPTS = [
   'enqueue-memory-operation.py',
 ];
 const STABLE_SCRIPTS = REQUIRED_SCRIPTS.slice(0, 4);
+const STABLE_HELPERS = REQUIRED_SCRIPTS.slice(4);
+const STABLE_DIRECTORIES = ['lib'];
 const PAYLOAD_ROOTS = [
   'skills',
   'agents',
@@ -484,8 +486,40 @@ function verifyTargets(home, pluginRoot, generationPath, generation, skills) {
 function createStableDispatchers(pluginRoot) {
   const stable = path.join(pluginRoot, 'stable');
   ensureDirectory(stable);
-  for (const script of STABLE_SCRIPTS) {
+  for (const script of [...STABLE_SCRIPTS, ...STABLE_HELPERS]) {
     atomicSymlink(stable, script, `../current/shared/scripts/${script}`);
+  }
+  for (const directory of STABLE_DIRECTORIES) {
+    atomicSymlink(stable, directory, `../current/shared/scripts/${directory}`);
+  }
+}
+
+function verifyStableDispatchers(pluginRoot) {
+  const stable = path.join(pluginRoot, 'stable');
+  for (const script of [...STABLE_SCRIPTS, ...STABLE_HELPERS]) {
+    const projected = path.join(stable, script);
+    const stat = fs.lstatSync(projected, { throwIfNoEntry: false });
+    const expected = path.join(pluginRoot, 'current/shared/scripts', script);
+    if (
+      !stat?.isSymbolicLink() ||
+      path.resolve(stable, fs.readlinkSync(projected)) !== expected ||
+      !fs.statSync(projected).isFile() ||
+      (fs.statSync(projected).mode & 0o111) === 0
+    ) {
+      fail(`stable script projection is invalid: ${script}`);
+    }
+  }
+  for (const directory of STABLE_DIRECTORIES) {
+    const projected = path.join(stable, directory);
+    const stat = fs.lstatSync(projected, { throwIfNoEntry: false });
+    const expected = path.join(pluginRoot, 'current/shared/scripts', directory);
+    if (
+      !stat?.isSymbolicLink() ||
+      path.resolve(stable, fs.readlinkSync(projected)) !== expected ||
+      !fs.statSync(projected).isDirectory()
+    ) {
+      fail(`stable support directory projection is invalid: ${directory}`);
+    }
   }
 }
 
@@ -520,7 +554,9 @@ function verifyActive(pluginRoot) {
   const resolved = path.resolve(pluginRoot, target);
   if (!isWithin(path.join(pluginRoot, 'generations'), resolved))
     fail('active pointer escapes generations directory');
-  return verifyGeneration(resolved, path.basename(resolved));
+  const manifest = verifyGeneration(resolved, path.basename(resolved));
+  verifyStableDispatchers(pluginRoot);
+  return manifest;
 }
 
 function rollback(pluginRoot, home) {
