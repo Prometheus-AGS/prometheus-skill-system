@@ -4,7 +4,8 @@ Date: 2026-08-03
 
 Host class: macOS x86_64
 
-Release loop: local only; GitHub Actions was not used for development or diagnosis.
+Release loop: local only. GitHub Actions is not a testing, validation, diagnosis,
+parity, or certification surface, and no Actions result is release evidence.
 
 ## Certified source heads
 
@@ -114,9 +115,11 @@ The live Mac runtime certified:
 5. **Knowledge lint inventory:** `pk lint` completed with exit 0 and reported 364 pre-existing wiki quality findings, mainly missing optional descriptions, broken historical cross-links, and duplicate session records. These are content-quality backlog, not queue, snapshot, receipt, or runtime failures; `pk doctor` remained 6/6 green.
 6. **CUDA all-features build:** an exploratory `--all-features` build requires NVIDIA `nvcc`, which is unavailable on this Mac. The installed and certified platform contract is `embedded,metal,local-embeddings`; its format, check, clippy, tests, and release build all pass.
 7. **Excluded-service caveat:** the legacy `cowork toolchain status` command has no exclusion flag and performed one read-only health probe of the excluded service before its behavior was observed. It made no install, restart, rewrite, or credential change and is not used as certification evidence. All repository-owned diagnosis, repair, refresh, install, and health surfaces remained exclusion-aware.
-8. **Initial PR workflow cancellation:** the first root PR validation run inherited legacy unconditional jobs. Before cancellation completed, the KBD packaging fixture started and failed; the Ubuntu and macOS control-plane jobs completed setup, but their KBD and sovereign test steps were skipped. The run was cancelled immediately. The workflow now honors `exclude:kbd` and `exclude:sovereign-sync` PR labels before scheduling those steps/jobs, and the release PR carries both labels.
-9. **Server parity dependencies:** the first final server parity run passed check and clippy but failed five server-mode storage tests because its legacy workflow had not started SurrealDB. The missing prerequisite was reproduced locally with a fresh isolated `v3.0.5` container; the workflow now starts that image by immutable digest and waits for `/health`. The next run passed every in-process and storage test, then exposed two standalone REST lifecycle binaries that assumed an already-running memory API. Those tests are now explicit `--ignored` host gates: the ordinary workspace suite passes without a hidden port-23001 dependency, and the documented ignored-test command passes against the installed certified API.
+8. **Historical workflow cancellation:** an earlier root PR run inherited legacy unconditional jobs. Before cancellation completed, the KBD packaging fixture started and failed; the Ubuntu and macOS control-plane jobs completed setup, but their KBD and sovereign test steps were skipped. This is retained only as a recovery record. The run and all later Actions outcomes are excluded from certification evidence.
+9. **Locally resolved dependency contracts:** a historical hosted run exposed that five server-mode storage tests require SurrealDB and two standalone REST lifecycle binaries require an already-running memory API. Both contracts were reproduced and resolved locally. The ordinary workspace suite uses a pinned, healthy `v3.0.5` SurrealDB container without a hidden port-23001 dependency; the two REST tests are explicit `--ignored` host gates, and their documented ignored-test command passes against the installed certified API.
 
 ## Publication boundary
 
-GitHub is used only after these local gates for final PR parity and Pages deployment. Any follow-up failure must be reproduced and fixed locally before another push.
+GitHub is used only for source hosting, review, and an explicitly approved Pages
+deployment. Testing and parity remain local; Actions test workflows are not
+started, watched, debugged, or cited.
