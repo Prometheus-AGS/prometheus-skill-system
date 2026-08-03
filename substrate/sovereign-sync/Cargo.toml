@@ -65,7 +65,7 @@ tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 
 # Storage provider (local crate)
-storage-provider = { path = "../storage-provider" }
+storage-provider = { path = "../storage-provider", default-features = false }
 kbd-runtime = { path = "../kbd-runtime" }
 learner-model = { path = "../learner-model" }
 async-trait = "0.1"

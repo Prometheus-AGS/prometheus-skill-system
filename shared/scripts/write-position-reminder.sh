@@ -24,17 +24,12 @@ _find_root() {
     [[ -d "$dir/.kbd-orchestrator" ]] && echo "$dir" && return 0
     dir="$(dirname "$dir")"
   done
-  # A tool root is accepted only when it identifies itself as the active project.
-  local candidate focus
+  # A tool root is accepted only when it carries an explicit project UUID.
+  local candidate
   for candidate in "${REPO_ROOT:-}"; do
     [[ -n "$candidate" ]] || continue
     [[ -d "${candidate}/.kbd-orchestrator" ]] || continue
-    if [[ -f "${candidate}/.kbd-orchestrator/project.json" ]] && command -v jq >/dev/null 2>&1; then
-      focus="$(jq -r '.focus_project_path // empty' "${candidate}/.kbd-orchestrator/project.json" 2>/dev/null || true)"
-      if [[ -n "$focus" && "$focus" != "$candidate" ]]; then
-        continue
-      fi
-    fi
+    [[ -f "${candidate}/.prometheus/project.json" ]] || continue
     echo "$candidate"
     return 0
   done

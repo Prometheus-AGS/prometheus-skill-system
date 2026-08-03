@@ -29,24 +29,13 @@ _wr_find_root() {
   done
   [ -d "/.kbd-orchestrator" ] && { printf '/'; return 0; }
   # Explicit tool-root fallbacks (for hooks that run from non-project CWD)
-  local candidate focus
-  for candidate in "${REPO_ROOT:-}" "${CLAUDE_PLUGIN_ROOT:-}"; do
+  local candidate
+  for candidate in "${REPO_ROOT:-}"; do
     [ -n "$candidate" ] || continue
     [ -d "$candidate/.kbd-orchestrator" ] || continue
-    if [ -f "$candidate/.kbd-orchestrator/project.json" ] && command -v jq >/dev/null 2>&1; then
-      focus="$(jq -r '.focus_project_path // empty' "$candidate/.kbd-orchestrator/project.json" 2>/dev/null || true)"
-      if [ -n "$focus" ] && [ "$focus" != "$candidate" ]; then
-        continue
-      fi
-    elif [ "$candidate" = "${CLAUDE_PLUGIN_ROOT:-}" ]; then
-      continue
-    fi
+    [ -f "$candidate/.prometheus/project.json" ] || continue
     printf '%s' "$candidate"
-    if [ "$candidate" = "${REPO_ROOT:-}" ]; then
-      printf '[wr] resolved via REPO_ROOT\n' >&2
-    else
-      printf '[wr] resolved via CLAUDE_PLUGIN_ROOT\n' >&2
-    fi
+    printf '[wr] resolved via REPO_ROOT\n' >&2
     return 0
   done
   return 1
