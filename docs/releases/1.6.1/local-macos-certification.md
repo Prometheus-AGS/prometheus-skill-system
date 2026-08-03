@@ -10,11 +10,11 @@ Release loop: local only; GitHub Actions was not used for development or diagnos
 
 | Repository | Recovery base | Certified implementation head |
 | --- | --- | --- |
-| `surreal-memory-server` | `83c9bc2` | `acd962d` |
+| `surreal-memory-server` | `83c9bc2` | `d0db9f2` |
 | `prometheus-knowledge-rs` | `e5cb0dd` | `5143891` |
-| `prometheus-skill-system` | `7e83779` | `2f42091` |
+| `prometheus-skill-system` | `7e83779` | `8cec02e` |
 
-The server and knowledge heads merge their newly advanced `main` branches without rebasing or dropping the certified implementation commits (`7a0d5d2` and `b2f796c`). The root documentation/evidence commit follows the implementation head and does not alter the installed runtime. The isolated release worktrees preserved the dirty `main` worktree.
+The server and knowledge heads merge their newly advanced `main` branches without rebasing or dropping the certified implementation commits (`7a0d5d2` and `b2f796c`). Server head `d0db9f2` additionally provisions the pinned SurrealDB dependency required by its server-mode integration tests; it does not alter the installed binary. The root documentation/evidence commit follows the implementation head and does not alter the installed runtime. The isolated release worktrees preserved the dirty `main` worktree.
 
 ## Mandatory exclusions
 
@@ -115,6 +115,7 @@ The live Mac runtime certified:
 6. **CUDA all-features build:** an exploratory `--all-features` build requires NVIDIA `nvcc`, which is unavailable on this Mac. The installed and certified platform contract is `embedded,metal,local-embeddings`; its format, check, clippy, tests, and release build all pass.
 7. **Excluded-service caveat:** the legacy `cowork toolchain status` command has no exclusion flag and performed one read-only health probe of the excluded service before its behavior was observed. It made no install, restart, rewrite, or credential change and is not used as certification evidence. All repository-owned diagnosis, repair, refresh, install, and health surfaces remained exclusion-aware.
 8. **Initial PR workflow cancellation:** the first root PR validation run inherited legacy unconditional jobs. Before cancellation completed, the KBD packaging fixture started and failed; the Ubuntu and macOS control-plane jobs completed setup, but their KBD and sovereign test steps were skipped. The run was cancelled immediately. The workflow now honors `exclude:kbd` and `exclude:sovereign-sync` PR labels before scheduling those steps/jobs, and the release PR carries both labels.
+9. **Server parity dependency:** the first final server parity run passed check and clippy but failed five server-mode integration tests because its legacy workflow had not started SurrealDB. The missing prerequisite was reproduced locally with a fresh isolated `v3.0.5` container; the complete workspace passed against it. The workflow now starts that image by immutable digest and waits for `/health` before testing.
 
 ## Publication boundary
 
