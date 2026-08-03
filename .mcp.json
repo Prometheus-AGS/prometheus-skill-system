@@ -2,7 +2,7 @@
   "mcpServers": {
     "surreal-memory": {
       "type": "sse",
-      "url": "${SURREAL_MEMORY_URL:-http://localhost:23001/mcp/sse}",
+      "url": "http://localhost:23001/mcp/sse",
       "description": "Global distributed memory state server — knowledge graph, scoped memory, TaskStreams, mindmaps, Graph-RAG traversal, hybrid search"
     },
     "sycophancy-correction": {
@@ -11,15 +11,15 @@
     },
     "forge-rs": {
       "type": "http",
-      "url": "${FORGE_MCP_URL:-http://localhost:8943/mcp}",
+      "url": "http://localhost:8943/mcp",
       "headers": {
-        "Authorization": "Bearer ${FORGE_MCP_TOKEN:-forge-mcp-local-dev-30dfefcc32263a0813ffdbd2}"
+        "Authorization": "Bearer forge-mcp-local-dev-30dfefcc32263a0813ffdbd2"
       },
       "description": "Layer 4 code-enrichment engine — forge_enrich, forge_reflect, forge_drift, forge_validate"
     },
     "prometheus-knowledge": {
       "type": "http",
-      "url": "${PK_MCP_URL:-http://localhost:8942/mcp}",
+      "url": "http://localhost:8942/mcp",
       "description": "Karpathy LLM Knowledge Base — knowledge_ingest, knowledge_focus, knowledge_search, knowledge_lint, knowledge_get"
     },
     "liter-llm": {
@@ -29,7 +29,7 @@
         "--transport",
         "stdio",
         "--config",
-        "${LITER_LLM_CONFIG:-/Users/gqadonis/.config/liter-llm/liter-llm-proxy.toml}"
+        "/Users/gqadonis/.config/liter-llm/liter-llm-proxy.toml"
       ],
       "description": "Multi-model routing proxy — 22 MCP tools across 140+ providers with per-phase model class routing (default config routes through the local openai-proxy at :8181)"
     },
