@@ -15,12 +15,10 @@
       "timeoutMs": 1000
     },
     "UserPromptSubmit": {
-      "command": "bash ${PROMETHEUS_SKILL_PACK_ROOT}/shared/scripts/karpathy-hook-dispatch.sh prompt kimi",
-      "timeoutMs": 2100
+      "command": "bash $HOME/.prometheus/plugins/prometheus-skill-pack/stable/karpathy-hook-dispatch.sh prompt kimi"
     },
     "Stop": {
-      "command": "bash ${PROMETHEUS_SKILL_PACK_ROOT}/shared/scripts/karpathy-hook-dispatch.sh stop kimi",
-      "timeoutMs": 250
+      "command": "bash $HOME/.prometheus/plugins/prometheus-skill-pack/stable/karpathy-hook-dispatch.sh stop kimi"
     },
     "Interrupt": {
       "command": "bash ${PROMETHEUS_SKILL_PACK_ROOT}/shared/scripts/kbd-harness-adapter.sh interrupt kimi",

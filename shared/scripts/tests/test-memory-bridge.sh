@@ -23,8 +23,7 @@ PENDING="$PROMETHEUS_LEARNING_QUEUE/memory/pending"
 # shellcheck source=/dev/null
 source "$LIB"
 
-[ "$(mem_scope_for "[GLOBAL] some rule")" = "global" ] && ok || bad "scope: [GLOBAL] → global"
-[ "$(mem_scope_for "ordinary note")" = "test-project" ] && ok || bad "scope: plain → project"
+! declare -F mem_scope_for >/dev/null && ok || bad "bridge does not infer scope from content"
 
 mem_add_memory "a project learning" >/dev/null; rc=$?
 [ "$rc" = "0" ] && ok || bad "mem_add_memory returns 0" "rc=$rc"
@@ -34,9 +33,13 @@ first="$(find "$PENDING" -type f -name '*.json' -print -quit)"
 jq -e '.schemaVersion == 2 and .method == "add_memory" and .arguments.user_id == "test-project" and .state == "pending" and (.payloadHash | length) == 64' "$first" >/dev/null \
   && ok || bad "queued operation records v2 schema, hash, state, and project scope"
 
-mem_add_memory "[GLOBAL] a universal rule" >/dev/null
+mem_add_memory "[GLOBAL] a universal rule" "global" >/dev/null
 find "$PENDING" -type f -name '*.json' -exec jq -e 'select(.arguments.user_id == "global")' {} + >/dev/null \
   && ok || bad "[GLOBAL] content routes to global scope"
+
+mode="$(stat -f '%Lp' "$first" 2>/dev/null || stat -c '%a' "$first")"
+[ "$mode" = 600 ] && grep -q 'os.fsync' "$SCRIPT_DIR/../enqueue-memory-operation.py" \
+  && ok || bad "memory enqueue is mode-0600 and fsynced"
 
 before="$(find "$PENDING" -type f -name '*.json' | wc -l | tr -d ' ')"
 mem_create_task_stream "test:phase" >/dev/null
@@ -57,6 +60,11 @@ before="$after"
 mem_add_memory "a project learning" >/dev/null
 after="$(find "$PENDING" -type f -name '*.json' | wc -l | tr -d ' ')"
 [ "$before" = "$after" ] && ok || bad "duplicate operation is idempotent" "$before→$after"
+
+mkdir -p "$PROMETHEUS_LEARNING_QUEUE/memory/accepted"
+mv "$first" "$PROMETHEUS_LEARNING_QUEUE/memory/accepted/"
+mem_add_memory "a project learning" >/dev/null
+[ ! -e "$first" ] && ok || bad "accepted operation is not duplicated into pending"
 
 ! declare -F mem_available >/dev/null \
   && ok || bad "hook bridge exposes no synchronous service probe"

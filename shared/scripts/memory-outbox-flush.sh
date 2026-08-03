@@ -38,8 +38,12 @@ while IFS= read -r line; do
     invalid=$((invalid + 1))
     continue
   fi
-  _mem_outbox_write "$method" "$arguments"
-  valid=$((valid + 1))
+  if operation_id="$(_mem_outbox_write_verified "$method" "$arguments")" && \
+      [ -n "$operation_id" ]; then
+    valid=$((valid + 1))
+  else
+    invalid=$((invalid + 1))
+  fi
 done < "$LEGACY"
 
 if [ "$invalid" -eq 0 ] && [ "$valid" -gt 0 ]; then

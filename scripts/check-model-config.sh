@@ -1,19 +1,12 @@
 #!/usr/bin/env bash
-# check-model-config.sh — verify KBD adversarial model routing is actually wired,
-# and that nobody has "fixed" it by editing a plugin cache.
+# check-model-config.sh — verify KBD adversarial model routing and the active
+# content-addressed plugin generation.
 #
 # Usage:
 #   bash scripts/check-model-config.sh          human-readable report
 #   bash scripts/check-model-config.sh --json   machine-readable
 #
-# Exit: 0 all good · 1 routing broken · 2 cache drift detected
-#
-# WHY THE CACHE CHECK EXISTS
-# A previous session made the judge work by editing the pack's scripts inside
-# ~/.claude/plugins/cache/... Those copies are overwritten by the next install and
-# the change is invisible to git, so the fix silently evaporated and the defect
-# came back looking new. Byte-divergence between the repo and an installed cache
-# is the fingerprint of that anti-pattern — treat it as a finding, not a warning.
+# Exit: 0 all good · 1 routing broken · 2 active generation invalid
 
 set -uo pipefail
 
@@ -31,37 +24,17 @@ NOTES=""
 note() { NOTES="${NOTES}$1
 "; }
 
-# --- 1. cache drift ---------------------------------------------------------
-# Scripts whose behaviour the judge depends on. A cache copy that differs from the
-# repo means someone edited the wrong file.
-TRACKED="
-skills/process/adversarial-review/scripts/dispatch-judge.sh
-skills/process/adversarial-review/scripts/preflight-models.sh
-skills/process/adversarial-review/scripts/build-review-packet.sh
-shared/scripts/lib/kbd-model-resolve.sh
-shared/scripts/pk-focus-on-prompt.sh
-"
-
-DRIFTED_FILES=""
-for cache_root in "$HOME/.claude/plugins/cache/prometheus-skill-pack/prometheus-skill-pack" \
-                  "$HOME/.codex/plugins/cache/prometheus-skill-pack/prometheus-skill-pack"; do
-    [ -d "$cache_root" ] || continue
-    for ver_dir in "$cache_root"/*/; do
-        [ -d "$ver_dir" ] || continue
-        for rel in $TRACKED; do
-            repo_f="$REPO_ROOT/$rel"
-            cache_f="${ver_dir}${rel}"
-            [ -f "$repo_f" ] || continue
-            [ -f "$cache_f" ] || continue
-            if ! cmp -s "$repo_f" "$cache_f"; then
-                DRIFT=1
-                DRIFTED_FILES="${DRIFTED_FILES}${cache_f}
-"
-                note "DRIFT: ${cache_f} differs from the repo copy"
-            fi
-        done
-    done
-done
+# --- 1. active generation integrity ----------------------------------------
+PLUGIN_ROOT="${PROMETHEUS_PLUGIN_ROOT:-$HOME/.prometheus/plugins/prometheus-skill-pack}"
+if [ -e "$PLUGIN_ROOT/current" ]; then
+    if ! node "$REPO_ROOT/scripts/install-plugin-generation.js" \
+        --plugin-root "$PLUGIN_ROOT" --verify >/dev/null 2>&1; then
+        DRIFT=1
+        note "INVALID: active plugin generation failed its content-hash manifest verification"
+    fi
+else
+    note "WARN: no active plugin generation; run bash scripts/install-skills-flat.sh --skills-only"
+fi
 
 # --- 2. liter-llm config sanity ---------------------------------------------
 CFG_OK=true
@@ -133,7 +106,7 @@ print(json.dumps([l for l in sys.stdin.read().split("\n") if l.strip()]))' 2>/de
     printf '  "roles": {"judge": "%s", "critic": "%s", "generator": "%s"},\n' "$R_JUDGE" "$R_CRITIC" "$R_GEN"
     printf '  "isolation_mode_would_be": "%s",\n' "$ISO"
     printf '  "config_ok": %s,\n' "$($CFG_OK && echo true || echo false)"
-    printf '  "cache_drift": %s,\n' "$([ "$DRIFT" -eq 1 ] && echo true || echo false)"
+    printf '  "active_generation_invalid": %s,\n' "$([ "$DRIFT" -eq 1 ] && echo true || echo false)"
     printf '  "findings": %s\n' "$NOTES_J"
     printf '}\n'
 else
@@ -151,9 +124,7 @@ else
         printf '%s' "$NOTES" | sed 's/^/  - /'
         if [ "$DRIFT" -eq 1 ]; then
             echo ""
-            echo "  Cache drift means someone edited an installed copy instead of the repo."
-            echo "  Those edits are destroyed by the next install and invisible to git."
-            echo "  Fix the repo, then: bash scripts/update-skill-pack.sh --force"
+            echo "  Roll back to the previous verified generation or reinstall from source."
         fi
     else
         echo ""

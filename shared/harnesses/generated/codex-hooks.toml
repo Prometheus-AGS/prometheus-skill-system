@@ -5,6 +5,5 @@ events = ["session_start", "pre_compact", "post_compact", "turn_cancelled"]
 timeout_ms = 250
 
 [hooks.karpathy_learning]
-command = ["bash", "${PROMETHEUS_SKILL_PACK_ROOT}/shared/scripts/karpathy-hook-dispatch.sh", "auto", "codex"]
+command = ["bash", "$HOME/.prometheus/plugins/prometheus-skill-pack/stable/karpathy-hook-dispatch.sh", "auto", "codex"]
 events = ["user_prompt_submit", "stop"]
-timeout_ms = 2100

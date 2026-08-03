@@ -98,6 +98,10 @@ PY
 [ -n "$PAYLOAD" ] || finish
 
 # Route [GLOBAL]-marked corrective actions to global scope; the rest to project.
-mem_add_memory "$PAYLOAD" "$(mem_scope_for "$PAYLOAD")"
+SCOPE="$MEM_PROJECT"
+case "$PAYLOAD" in
+  *"[GLOBAL]"*) SCOPE="global" ;;
+esac
+mem_add_memory "$PAYLOAD" "$SCOPE"
 echo "[memory-writeback] persisted reflection from $(basename "$(dirname "$REFLECTION")")" >&2
 finish

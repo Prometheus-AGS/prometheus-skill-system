@@ -63,15 +63,23 @@ if [ "$HARNESS" = "unknown" ] && \
 fi
 
 # ── Zed ───────────────────────────────────────────────────────────────────────
+# Tier 1, not Tier 0. The file-pair handshake is two files on disk and needs
+# nothing from the harness but the willingness to read one and write the other,
+# so there is no mechanism reason to hold zed at the text floor. Verified by an
+# executed round trip (see ideation-mindmap/references/harness-delivery.md).
 if [ "$HARNESS" = "unknown" ] && [ -n "${ZED_AI_CONTEXT:-}" ]; then
   HARNESS="zed"
-  TIER="tier0_text"
+  TIER="tier1_structured"
 fi
 
 # ── Cursor ────────────────────────────────────────────────────────────────────
+# Tier 1, for the same reason zed is: the file-pair handshake is two files on
+# disk and asks nothing of the harness but reading one and writing the other.
+# Held at the text floor by a hardcoded tier here plus omission from render.sh's
+# dispatch lists — the identical two-cause shape zed had, found by running it.
 if [ "$HARNESS" = "unknown" ] && [ -n "${CURSOR_AI:-}" ]; then
   HARNESS="cursor"
-  TIER="tier0_text"
+  TIER="tier1_structured"
 fi
 
 # ── Fallback ──────────────────────────────────────────────────────────────────
