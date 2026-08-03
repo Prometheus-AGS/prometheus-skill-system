@@ -114,6 +114,7 @@ The live Mac runtime certified:
 5. **Knowledge lint inventory:** `pk lint` completed with exit 0 and reported 364 pre-existing wiki quality findings, mainly missing optional descriptions, broken historical cross-links, and duplicate session records. These are content-quality backlog, not queue, snapshot, receipt, or runtime failures; `pk doctor` remained 6/6 green.
 6. **CUDA all-features build:** an exploratory `--all-features` build requires NVIDIA `nvcc`, which is unavailable on this Mac. The installed and certified platform contract is `embedded,metal,local-embeddings`; its format, check, clippy, tests, and release build all pass.
 7. **Excluded-service caveat:** the legacy `cowork toolchain status` command has no exclusion flag and performed one read-only health probe of the excluded service before its behavior was observed. It made no install, restart, rewrite, or credential change and is not used as certification evidence. All repository-owned diagnosis, repair, refresh, install, and health surfaces remained exclusion-aware.
+8. **Initial PR workflow cancellation:** the first root PR validation run inherited legacy unconditional jobs. Before cancellation completed, the KBD packaging fixture started and failed; the Ubuntu and macOS control-plane jobs completed setup, but their KBD and sovereign test steps were skipped. The run was cancelled immediately. The workflow now honors `exclude:kbd` and `exclude:sovereign-sync` PR labels before scheduling those steps/jobs, and the release PR carries both labels.
 
 ## Publication boundary
 

@@ -43,6 +43,9 @@ site/build
 # Skills catalog emitted by site/scripts/generate-skills-catalog.mjs at
 # prebuild. Gitignored, but CI regenerates it before formatting runs.
 site/docs-catalog
+# Generated release artifacts have dedicated deterministic diff checks.
+SKILLS.md
+site/static/openapi/examples.generated.json
 # BDD step definitions are immutable (see CLAUDE.md BDD rule) and test
 # fixtures/corpus are content-sensitive — formatting them could alter data
 # that tests assert against. Exclude the whole tests/ tree from prettier.
