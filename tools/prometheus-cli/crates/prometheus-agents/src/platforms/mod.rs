@@ -30,12 +30,22 @@ pub fn install_to_agent(agent: &AgentConfig, source: &Path, name: &str) -> Resul
 
     // Create symlink
     #[cfg(unix)]
-    std::os::unix::fs::symlink(source, &target)
-        .with_context(|| format!("Failed to create symlink: {} -> {}", target.display(), source.display()))?;
+    std::os::unix::fs::symlink(source, &target).with_context(|| {
+        format!(
+            "Failed to create symlink: {} -> {}",
+            target.display(),
+            source.display()
+        )
+    })?;
 
     #[cfg(windows)]
-    std::os::windows::fs::symlink_dir(source, &target)
-        .with_context(|| format!("Failed to create symlink: {} -> {}", target.display(), source.display()))?;
+    std::os::windows::fs::symlink_dir(source, &target).with_context(|| {
+        format!(
+            "Failed to create symlink: {} -> {}",
+            target.display(),
+            source.display()
+        )
+    })?;
 
     // Platform-specific extras
     if agent.kind == AgentKind::OpenCode {

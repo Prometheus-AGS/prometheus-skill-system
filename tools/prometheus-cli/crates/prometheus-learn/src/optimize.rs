@@ -50,12 +50,24 @@ pub fn parse_skill_to_signature(skill_path: &Path) -> anyhow::Result<SkillSignat
         description: frontmatter.description,
         instruction: body.trim().to_string(),
         input_fields: vec![
-            SignatureField { name: "task".into(), description: Some("What to accomplish".into()) },
-            SignatureField { name: "context".into(), description: Some("Project context and constraints".into()) },
+            SignatureField {
+                name: "task".into(),
+                description: Some("What to accomplish".into()),
+            },
+            SignatureField {
+                name: "context".into(),
+                description: Some("Project context and constraints".into()),
+            },
         ],
         output_fields: vec![
-            SignatureField { name: "result".into(), description: Some("The skill's output".into()) },
-            SignatureField { name: "reasoning".into(), description: Some("Why this approach was chosen".into()) },
+            SignatureField {
+                name: "result".into(),
+                description: Some("The skill's output".into()),
+            },
+            SignatureField {
+                name: "reasoning".into(),
+                description: Some("Why this approach was chosen".into()),
+            },
         ],
     })
 }
@@ -66,9 +78,8 @@ pub fn parse_skill_to_signature(skill_path: &Path) -> anyhow::Result<SkillSignat
 mod inner {
     use super::*;
     use dspy::{
-        Signature as DspySignature, Predict, BootstrapFewShot,
-        Example, Dataset, Record, Value, Metric,
-        LanguageModel, OpenAIModel,
+        BootstrapFewShot, Dataset, Example, LanguageModel, Metric, OpenAIModel, Predict, Record,
+        Signature as DspySignature, Value,
     };
     use std::sync::Arc;
 
@@ -92,19 +103,19 @@ mod inner {
             // Both branches default to the local openai-proxy (:8181, bridges Codex CLI
             // auth) rather than a hosted API or an absent LM Studio instance.
             let base_url = if use_cloud {
-                std::env::var("CLOUD_LLM_URL")
-                    .unwrap_or_else(|_| "http://localhost:8181/v1".into())
+                std::env::var("CLOUD_LLM_URL").unwrap_or_else(|_| "http://localhost:8181/v1".into())
             } else {
                 std::env::var("OPTIMIZER_LLM_URL")
                     .unwrap_or_else(|_| "http://localhost:8181/v1".into())
             };
 
-            let model_name = std::env::var("OPTIMIZER_LLM_MODEL")
-                .unwrap_or_else(|_| if use_cloud {
+            let model_name = std::env::var("OPTIMIZER_LLM_MODEL").unwrap_or_else(|_| {
+                if use_cloud {
                     "gpt-5.5".into()
                 } else {
                     "gpt-5.4-mini".into()
-                });
+                }
+            });
 
             let api_key = if use_cloud {
                 std::env::var("CLOUD_LLM_API_KEY").ok()
@@ -124,12 +135,13 @@ mod inner {
                 "Optimizer model configured"
             );
 
-            Ok(Self { model: Arc::new(model) })
+            Ok(Self {
+                model: Arc::new(model),
+            })
         }
 
         pub fn to_dspy_signature(sig: &SkillSignature) -> DspySignature {
-            let mut dsig = DspySignature::new(&sig.name)
-                .with_instruction(&sig.instruction);
+            let mut dsig = DspySignature::new(&sig.name).with_instruction(&sig.instruction);
             for f in &sig.input_fields {
                 dsig = dsig.input(&f.name, f.description.as_deref());
             }
@@ -140,18 +152,21 @@ mod inner {
         }
 
         pub fn traces_to_dataset(traces: &[ExecutionTrace]) -> Dataset {
-            let examples: Vec<Example> = traces.iter()
+            let examples: Vec<Example> = traces
+                .iter()
                 .filter(|t| t.score.unwrap_or(0.0) >= 0.7)
                 .map(|t| {
                     let mut record = Record::new();
                     record.insert("task", Value::String(t.input_summary.clone()));
-                    record.insert("context", Value::String(
-                        t.project_path.clone().unwrap_or_default()
-                    ));
+                    record.insert(
+                        "context",
+                        Value::String(t.project_path.clone().unwrap_or_default()),
+                    );
                     record.insert("result", Value::String(t.output_summary.clone()));
-                    record.insert("reasoning", Value::String(
-                        t.reflection.clone().unwrap_or_default()
-                    ));
+                    record.insert(
+                        "reasoning",
+                        Value::String(t.reflection.clone().unwrap_or_default()),
+                    );
                     Example::new(record)
                 })
                 .collect();
@@ -178,17 +193,13 @@ mod inner {
             let metric: Metric = skill_success_metric;
 
             // Run BootstrapFewShot to collect best demos
-            let optimizer = BootstrapFewShot::new(
-                Arc::new(student.clone()),
-                metric,
-            );
+            let optimizer = BootstrapFewShot::new(Arc::new(student.clone()), metric);
             let optimized = optimizer.compile(student, &dataset).await;
             let demos_collected = optimized.demos.len();
 
             // Evaluate before/after
             let evaluator = dspy::Evaluate::new(metric, 4);
-            let after_score = evaluator.run(&optimized, &dataset).await
-                .unwrap_or(0.0);
+            let after_score = evaluator.run(&optimized, &dataset).await.unwrap_or(0.0);
 
             Ok(OptimizationReport {
                 skill_name: signature.name.clone(),
@@ -196,7 +207,7 @@ mod inner {
                 successful_traces: successful,
                 demos_collected,
                 instruction_optimized: false, // MIPRO not run in this pass
-                before_score: 0.0, // Would need baseline evaluation
+                before_score: 0.0,            // Would need baseline evaluation
                 after_score,
                 improvement_pct: 0.0,
             })
@@ -213,24 +224,44 @@ mod inner {
     /// For production use, replace with embedding cosine similarity via
     /// surreal-memory's HNSW index or a local embedding model (candle + BERT).
     fn skill_success_metric(example: &Example, prediction: &dspy::Prediction) -> f64 {
-        let expected = example.record.get("result").and_then(|v| v.as_str()).unwrap_or("");
-        let actual = prediction.record.get("result").and_then(|v| v.as_str()).unwrap_or("");
+        let expected = example
+            .record
+            .get("result")
+            .and_then(|v| v.as_str())
+            .unwrap_or("");
+        let actual = prediction
+            .record
+            .get("result")
+            .and_then(|v| v.as_str())
+            .unwrap_or("");
 
-        if actual.is_empty() { return 0.0; }
-        if expected.is_empty() { return 0.5; } // No ground truth — neutral score
+        if actual.is_empty() {
+            return 0.0;
+        }
+        if expected.is_empty() {
+            return 0.5;
+        } // No ground truth — neutral score
 
         // Extract significant terms (4+ chars, lowercased, deduplicated)
         let expected_terms: std::collections::HashSet<String> = expected
             .split_whitespace()
             .filter(|w| w.len() >= 4)
-            .map(|w| w.to_lowercase().trim_matches(|c: char| !c.is_alphanumeric()).to_string())
+            .map(|w| {
+                w.to_lowercase()
+                    .trim_matches(|c: char| !c.is_alphanumeric())
+                    .to_string()
+            })
             .filter(|w| !w.is_empty())
             .collect();
 
         let actual_terms: std::collections::HashSet<String> = actual
             .split_whitespace()
             .filter(|w| w.len() >= 4)
-            .map(|w| w.to_lowercase().trim_matches(|c: char| !c.is_alphanumeric()).to_string())
+            .map(|w| {
+                w.to_lowercase()
+                    .trim_matches(|c: char| !c.is_alphanumeric())
+                    .to_string()
+            })
             .filter(|w| !w.is_empty())
             .collect();
 
@@ -278,7 +309,8 @@ fn parse_frontmatter(content: &str) -> anyhow::Result<(Frontmatter, &str)> {
     }
 
     let after_first = &content[3..];
-    let end = after_first.find("\n---")
+    let end = after_first
+        .find("\n---")
         .ok_or_else(|| anyhow::anyhow!("Unterminated frontmatter"))?;
 
     let yaml_str = &after_first[..end];
@@ -291,7 +323,11 @@ fn parse_frontmatter(content: &str) -> anyhow::Result<(Frontmatter, &str)> {
     for line in yaml_str.lines() {
         let trimmed = line.trim();
         if trimmed.starts_with("name:") {
-            name = trimmed.strip_prefix("name:").unwrap_or("").trim().to_string();
+            name = trimmed
+                .strip_prefix("name:")
+                .unwrap_or("")
+                .trim()
+                .to_string();
             in_description = false;
         } else if trimmed.starts_with("description:") {
             let rest = trimmed.strip_prefix("description:").unwrap_or("").trim();
@@ -303,7 +339,9 @@ fn parse_frontmatter(content: &str) -> anyhow::Result<(Frontmatter, &str)> {
         } else if in_description && (trimmed.is_empty() || !line.starts_with(' ')) {
             in_description = false;
         } else if in_description {
-            if !description.is_empty() { description.push(' '); }
+            if !description.is_empty() {
+                description.push(' ');
+            }
             description.push_str(trimmed);
         }
     }

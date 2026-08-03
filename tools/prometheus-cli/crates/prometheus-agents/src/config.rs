@@ -165,7 +165,10 @@ impl AgentConfig {
 
     /// Check if this agent's configuration directory exists on the system.
     pub fn is_installed(&self) -> bool {
-        let parent = self.global_skills_dir.parent().unwrap_or(&self.global_skills_dir);
+        let parent = self
+            .global_skills_dir
+            .parent()
+            .unwrap_or(&self.global_skills_dir);
         parent.exists()
     }
 }

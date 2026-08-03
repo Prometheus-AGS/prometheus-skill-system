@@ -63,7 +63,8 @@ impl SurrealMemoryClient {
 
     /// Check if the server is reachable.
     pub async fn ping(&self) -> anyhow::Result<bool> {
-        let resp = self.client
+        let resp = self
+            .client
             .get(format!("{}/health", self.base_url))
             .send()
             .await?;
@@ -109,8 +110,13 @@ impl SurrealMemoryClient {
     }
 
     /// Search entities by text query.
-    pub async fn search(&self, query: &str, entity_type: Option<&str>) -> anyhow::Result<Vec<Entity>> {
-        let resp = self.client
+    pub async fn search(
+        &self,
+        query: &str,
+        entity_type: Option<&str>,
+    ) -> anyhow::Result<Vec<Entity>> {
+        let resp = self
+            .client
             .post(format!("{}/api/v1/search", self.base_url))
             .json(&SearchRequest {
                 query: query.to_string(),

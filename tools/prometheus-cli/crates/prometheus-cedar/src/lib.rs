@@ -100,7 +100,8 @@ impl SkillMutationPep {
     pub fn from_files(policy_path: &Path, entities_path: &Path) -> anyhow::Result<Self> {
         let policy_text = std::fs::read_to_string(policy_path)
             .map_err(|e| anyhow::anyhow!("Failed to read policy file: {}", e))?;
-        let policies: PolicySet = policy_text.parse()
+        let policies: PolicySet = policy_text
+            .parse()
             .map_err(|e| anyhow::anyhow!("Failed to parse Cedar policies: {:?}", e))?;
 
         let entities_text = std::fs::read_to_string(entities_path)
@@ -117,7 +118,8 @@ impl SkillMutationPep {
 
     /// Create with inline policies (for testing or embedded defaults).
     pub fn from_policy_text(policy_text: &str) -> anyhow::Result<Self> {
-        let policies: PolicySet = policy_text.parse()
+        let policies: PolicySet = policy_text
+            .parse()
             .map_err(|e| anyhow::anyhow!("Failed to parse Cedar policies: {:?}", e))?;
 
         Ok(Self {
@@ -148,12 +150,9 @@ impl SkillMutationPep {
         skill_id: &str,
         context: &MutationContext,
     ) -> PolicyDecision {
-        let principal = format!(r#"Agent::"{}""#, agent_id)
-            .parse::<EntityUid>();
-        let action = format!(r#"Action::"{}""#, operation.action_id())
-            .parse::<EntityUid>();
-        let resource = format!(r#"Skill::"{}""#, skill_id)
-            .parse::<EntityUid>();
+        let principal = format!(r#"Agent::"{}""#, agent_id).parse::<EntityUid>();
+        let action = format!(r#"Action::"{}""#, operation.action_id()).parse::<EntityUid>();
+        let resource = format!(r#"Skill::"{}""#, skill_id).parse::<EntityUid>();
 
         let context_json = serde_json::to_string(context).unwrap_or_default();
         let cedar_context = Context::from_json_str(&context_json, None);
@@ -174,20 +173,18 @@ impl SkillMutationPep {
             };
         };
 
-        let request = Request::new(
-            principal,
-            action,
-            resource,
-            cedar_context,
-            None,
-        );
+        let request = Request::new(principal, action, resource, cedar_context, None);
 
         match request {
             Ok(req) => {
-                let response = self.authorizer.is_authorized(&req, &self.policies, &self.entities);
+                let response = self
+                    .authorizer
+                    .is_authorized(&req, &self.policies, &self.entities);
                 let allowed = response.decision() == Decision::Allow;
 
-                let reasons: Vec<String> = response.diagnostics().reason()
+                let reasons: Vec<String> = response
+                    .diagnostics()
+                    .reason()
                     .map(|id| id.to_string())
                     .collect();
 
@@ -240,7 +237,9 @@ impl SkillMutationPep {
         // 1. Environment variable
         if let Ok(dir) = std::env::var("PROMETHEUS_POLICY_DIR") {
             let p = std::path::PathBuf::from(dir);
-            if p.exists() { return Some(p); }
+            if p.exists() {
+                return Some(p);
+            }
         }
 
         // 2. Local ./policies/

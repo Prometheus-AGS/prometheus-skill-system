@@ -81,7 +81,9 @@ impl ClaudeCodeTraceCapture {
 
         for project_entry in std::fs::read_dir(&self.projects_dir)? {
             let project_entry = project_entry?;
-            if !project_entry.file_type()?.is_dir() { continue; }
+            if !project_entry.file_type()?.is_dir() {
+                continue;
+            }
 
             for file_entry in std::fs::read_dir(project_entry.path())? {
                 let file_entry = file_entry?;
@@ -99,7 +101,8 @@ impl ClaudeCodeTraceCapture {
         }
 
         Ok(latest.map(|(path, _)| {
-            let session_id = path.file_stem()
+            let session_id = path
+                .file_stem()
                 .unwrap_or_default()
                 .to_string_lossy()
                 .to_string();
@@ -120,7 +123,9 @@ impl ClaudeCodeTraceCapture {
 
         for line in reader.lines() {
             let line = line?;
-            if line.is_empty() { continue; }
+            if line.is_empty() {
+                continue;
+            }
 
             let entry: serde_json::Value = match serde_json::from_str(&line) {
                 Ok(v) => v,
@@ -128,7 +133,10 @@ impl ClaudeCodeTraceCapture {
             };
 
             let entry_type = entry.get("type").and_then(|t| t.as_str()).unwrap_or("");
-            let timestamp = entry.get("timestamp").and_then(|t| t.as_str()).unwrap_or("");
+            let timestamp = entry
+                .get("timestamp")
+                .and_then(|t| t.as_str())
+                .unwrap_or("");
 
             if !timestamp.is_empty() {
                 if first_timestamp.is_none() {
@@ -156,19 +164,22 @@ impl ClaudeCodeTraceCapture {
                         if block.get("type").and_then(|t| t.as_str()) == Some("tool_use") {
                             tool_calls_total += 1;
 
-                            let tool_name = block.get("name")
-                                .and_then(|n| n.as_str())
-                                .unwrap_or("");
+                            let tool_name =
+                                block.get("name").and_then(|n| n.as_str()).unwrap_or("");
 
                             // Track Skill invocations specifically
                             if tool_name == "Skill" {
-                                let input = block.get("input").cloned()
+                                let input = block
+                                    .get("input")
+                                    .cloned()
                                     .unwrap_or(serde_json::Value::Object(Default::default()));
-                                let skill_name = input.get("skill")
+                                let skill_name = input
+                                    .get("skill")
                                     .and_then(|s| s.as_str())
                                     .unwrap_or("unknown")
                                     .to_string();
-                                let args = input.get("args")
+                                let args = input
+                                    .get("args")
                                     .and_then(|a| a.as_str())
                                     .unwrap_or("")
                                     .to_string();
@@ -242,21 +253,30 @@ impl FileBasedTraceCapture {
 }
 
 impl TraceCapture for FileBasedTraceCapture {
-    fn platform(&self) -> AgentKind { self.platform }
-    fn is_available(&self) -> bool { self.log_dir.exists() }
-    fn capture_latest(&self) -> anyhow::Result<Option<PlatformTrace>> { Ok(None) }
-    fn capture_since(&self, _since: &str) -> anyhow::Result<Vec<PlatformTrace>> { Ok(vec![]) }
+    fn platform(&self) -> AgentKind {
+        self.platform
+    }
+    fn is_available(&self) -> bool {
+        self.log_dir.exists()
+    }
+    fn capture_latest(&self) -> anyhow::Result<Option<PlatformTrace>> {
+        Ok(None)
+    }
+    fn capture_since(&self, _since: &str) -> anyhow::Result<Vec<PlatformTrace>> {
+        Ok(vec![])
+    }
 }
 
 /// Build trace capture implementations for all detected platforms.
 pub fn build_trace_captures() -> Vec<Box<dyn TraceCapture>> {
-    let mut captures: Vec<Box<dyn TraceCapture>> = vec![
-        Box::new(ClaudeCodeTraceCapture::new()),
-    ];
+    let mut captures: Vec<Box<dyn TraceCapture>> = vec![Box::new(ClaudeCodeTraceCapture::new())];
 
     let home = dirs::home_dir().unwrap_or_default();
     let file_based_platforms = [
-        (AgentKind::OpenCode, home.join(".config").join("opencode").join("sessions")),
+        (
+            AgentKind::OpenCode,
+            home.join(".config").join("opencode").join("sessions"),
+        ),
         (AgentKind::Codex, home.join(".agents").join("sessions")),
     ];
 

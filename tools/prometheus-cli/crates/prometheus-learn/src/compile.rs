@@ -69,9 +69,13 @@ mod inner {
                     format!("skill: {}", trace.skill_name),
                     format!("score: {:.2}", trace.score.unwrap_or(0.0)),
                 ];
-                let _ = mem.create_entity("lesson", entry.id.as_str(), &observations).await;
+                let _ = mem
+                    .create_entity("lesson", entry.id.as_str(), &observations)
+                    .await;
                 for tag in &entry.tags {
-                    let _ = mem.create_relation(entry.id.as_str(), "tagged_with", tag).await;
+                    let _ = mem
+                        .create_relation(entry.id.as_str(), "tagged_with", tag)
+                        .await;
                 }
             }
 
@@ -83,14 +87,21 @@ mod inner {
             Ok(entry)
         }
 
-        pub async fn compile_batch(&self, traces: &[ExecutionTrace]) -> anyhow::Result<CompilationReport> {
+        pub async fn compile_batch(
+            &self,
+            traces: &[ExecutionTrace],
+        ) -> anyhow::Result<CompilationReport> {
             let mut created = 0usize;
             let mut updated = 0usize;
 
             for trace in traces {
                 match self.compile_trace(trace).await {
                     Ok(entry) => {
-                        if entry.revision <= 1 { created += 1; } else { updated += 1; }
+                        if entry.revision <= 1 {
+                            created += 1;
+                        } else {
+                            updated += 1;
+                        }
                     }
                     Err(e) => {
                         tracing::warn!(trace_id = %trace.id, error = %e, "failed to compile trace");
@@ -98,7 +109,10 @@ mod inner {
                 }
             }
 
-            let lint_issues = self.librarian.lint().await
+            let lint_issues = self
+                .librarian
+                .lint()
+                .await
                 .map(|reports| reports.len())
                 .unwrap_or(0);
 

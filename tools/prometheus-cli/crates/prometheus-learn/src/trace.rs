@@ -63,7 +63,10 @@ impl ExecutionTrace {
     pub fn to_markdown(&self) -> String {
         let mut md = String::new();
         md.push_str(&format!("# Execution Trace: {}\n\n", self.skill_name));
-        md.push_str(&format!("**Date**: {}\n", self.timestamp.format("%Y-%m-%d %H:%M:%S UTC")));
+        md.push_str(&format!(
+            "**Date**: {}\n",
+            self.timestamp.format("%Y-%m-%d %H:%M:%S UTC")
+        ));
         md.push_str(&format!("**Duration**: {}ms\n", self.duration_ms));
         md.push_str(&format!("**Classification**: {:?}\n", self.classification));
         if let Some(score) = self.score {
@@ -76,8 +79,10 @@ impl ExecutionTrace {
             md.push_str("\n## Tool Calls\n\n");
             for tc in &self.tool_calls {
                 let status = if tc.success { "ok" } else { "FAIL" };
-                md.push_str(&format!("- **{}** [{}] ({}ms): {}\n",
-                    tc.tool_name, status, tc.duration_ms, tc.input_summary));
+                md.push_str(&format!(
+                    "- **{}** [{}] ({}ms): {}\n",
+                    tc.tool_name, status, tc.duration_ms, tc.input_summary
+                ));
             }
         }
 
@@ -103,7 +108,9 @@ pub struct TraceStore {
 
 impl TraceStore {
     pub fn new(base_dir: impl Into<PathBuf>) -> Self {
-        Self { base_dir: base_dir.into() }
+        Self {
+            base_dir: base_dir.into(),
+        }
     }
 
     /// Default location: .prometheus/traces/ (override with PROMETHEUS_TRACE_DIR env var)

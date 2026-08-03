@@ -20,5 +20,5 @@ pub mod optimize;
 pub mod trace;
 
 pub use compile::KnowledgeCompiler;
-pub use optimize::{parse_skill_to_signature, SkillOptimizer, SkillSignature, OptimizationReport};
+pub use optimize::{parse_skill_to_signature, OptimizationReport, SkillOptimizer, SkillSignature};
 pub use trace::{ExecutionTrace, TraceStore};
