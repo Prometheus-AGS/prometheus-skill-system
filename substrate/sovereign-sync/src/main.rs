@@ -47,6 +47,32 @@ struct Cli {
     )]
     format: OutputFormat,
 
+    #[arg(
+        long,
+        default_value_t = 1,
+        help = "Measured warm-connection health probes in status mode"
+    )]
+    samples: usize,
+
+    #[arg(
+        long,
+        default_value_t = 0,
+        help = "Unmeasured warm-up health probes in status mode"
+    )]
+    warmup: usize,
+
+    #[arg(
+        long,
+        help = "Fail status mode when measured p99 exceeds this many milliseconds"
+    )]
+    p99_budget_ms: Option<f64>,
+
+    #[arg(
+        long,
+        help = "Fail status mode when maximum latency exceeds this many milliseconds"
+    )]
+    max_budget_ms: Option<f64>,
+
     /// Prefix all MCP tool names with 'sovereign:' (avoids collision in UAR/BossFang)
     #[arg(long)]
     prefix_tools: bool,
@@ -221,14 +247,30 @@ async fn main() -> anyhow::Result<()> {
             rest_api::serve(port, skills_path).await?;
         }
         Mode::Status => {
-            let report = health_check::detect_daemon_health(port).await;
+            let report = health_check::sample_daemon_health(
+                port,
+                cli.samples,
+                cli.warmup,
+                cli.p99_budget_ms,
+                cli.max_budget_ms,
+            )
+            .await;
             match cli.format {
                 OutputFormat::Text => {
                     println!(
                         "sovereign-sync daemon: {} ({})",
-                        report.status, report.endpoint
+                        report.health.status, report.health.endpoint
                     );
-                    println!("{}", report.message);
+                    println!("{}", report.health.message);
+                    println!(
+                        "latency ms: p50={} p95={} p99={} max={} failures={} timeouts={}",
+                        display_latency(report.latency.p50_ms),
+                        display_latency(report.latency.p95_ms),
+                        display_latency(report.latency.p99_ms),
+                        display_latency(report.latency.maximum_ms),
+                        report.latency.failures,
+                        report.latency.timeouts
+                    );
                 }
                 OutputFormat::Json => {
                     println!("{}", serde_json::to_string_pretty(&report)?);
@@ -239,4 +281,8 @@ async fn main() -> anyhow::Result<()> {
     }
 
     Ok(())
+}
+
+fn display_latency(value: Option<f64>) -> String {
+    value.map_or_else(|| "n/a".into(), |value| format!("{value:.3}"))
 }
