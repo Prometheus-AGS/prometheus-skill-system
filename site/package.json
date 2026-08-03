@@ -1,6 +1,6 @@
 {
   "name": "prometheus-skill-pack-docs",
-  "version": "1.6.0",
+  "version": "1.6.1",
   "private": true,
   "scripts": {
     "start": "docusaurus start",
@@ -12,8 +12,13 @@
     "write-translations": "docusaurus write-translations",
     "write-heading-ids": "docusaurus write-heading-ids",
     "generate:catalog": "node scripts/generate-skills-catalog.mjs",
+    "generate:api-examples": "node scripts/generate-api-examples.mjs",
     "check:public-docs": "node scripts/check-public-docs.mjs",
-    "prebuild": "node scripts/check-public-docs.mjs && node scripts/generate-skills-catalog.mjs",
+    "check:openapi": "node scripts/check-openapi.mjs",
+    "check:api-examples": "node scripts/generate-api-examples.mjs --check",
+    "check:docs-contracts": "node scripts/check-doc-contracts.mjs",
+    "docs:check": "npm run check:public-docs && npm run check:openapi && npm run check:api-examples && npm run check:docs-contracts && npm run build",
+    "prebuild": "node scripts/check-public-docs.mjs && node scripts/check-openapi.mjs && node scripts/generate-api-examples.mjs --check && node scripts/check-doc-contracts.mjs && node scripts/generate-skills-catalog.mjs",
     "prestart": "node scripts/check-public-docs.mjs && node scripts/generate-skills-catalog.mjs"
   },
   "dependencies": {

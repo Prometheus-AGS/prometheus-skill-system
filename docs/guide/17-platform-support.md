@@ -1,6 +1,6 @@
 # 17 · Platform Support
 
-The prometheus-skill-pack installs to ten AI tools and runs the same shared substrate underneath all of them. This page documents what each tool gets, how the loop architecture maps onto it, and where its config lives. The governing principle, from the loop architecture, is the one that makes this possible: **the loop body is harness-specific, but the loop state is harness-agnostic.** Swap the driver and the cadence; never swap the state.
+The prometheus-skill-pack projects one immutable generation into 14 verified target directories. Some tools have multiple compatible locations, so target count is deliberately more precise than a marketing count of tools. The governing principle is: **the loop body is harness-specific, but receipts, queues, snapshots, and generation state are harness-agnostic.**
 
 ## The compatibility matrix
 
@@ -15,11 +15,13 @@ The prometheus-skill-pack installs to ten AI tools and runs the same shared subs
 | **Windsurf** | Yes | (config-dependent) | — | Shell wrappers |
 | **Gemini CLI** | Yes | — | — | Shell wrappers |
 | **Roo Code** | Yes | — | — | Shell wrappers |
-| **Amp** | Yes | — | — | Shell wrappers |
+| **Zed** | Yes — two target locations | config-dependent | — | Editor agent primitives |
+| **Cline** | Yes | config-dependent | — | Extension agent primitives |
+| **Generic AgentSkills clients** | Yes — `.agents/skills` | client-dependent | — | Client-specific |
 
-The shared substrate — surreal-memory at 23001, prometheus-knowledge at 8942,
-Sovereign Sync/KBD control at 7892, the sycophancy gate, and liter-llm routing
-— is identical across every writer-capable row. One capability manifest maps
+The shared deterministic-learning substrate — Memory at 23001,
+prometheus-knowledge at 8942, the learning worker, immutable snapshots,
+the sycophancy gate, and liter-llm routing — is identical across every writer-capable row. One capability manifest maps
 each harness's native lifecycle events to the same session, compact, prompt,
 interrupt, and post-mutation contract. The pre-mutation event was removed from
 the contract: it existed only to gate tool calls on KBD lifecycle
@@ -34,17 +36,14 @@ graph TD
     A --> F[MiniMax]
     A --> G[Cursor]
     A --> H[Windsurf]
-    A --> I[Gemini CLI / Roo / Amp]
-    B & C & D & E --> J["Sovereign Sync KBD control :7892"]
-    J --> K["Signed canonical runtime + exclusive journal transaction"]
-    K --> L["Revision-stamped .kbd-orchestrator projections"]
+    A --> I[Gemini CLI / Roo / Zed / Cline]
     B & C & D & E & F & G & H & I --> M[(surreal-memory :23001)]
     M --> N[(prometheus-knowledge :8942)]
 ```
 
 ## Claude Code
 
-The reference platform, and where the loop primitives are most developed. `/loop`, `/goal`, `/schedule`, `/workflows`, and Agent View ship first-party, and worktree isolation (`isolation: "worktree"`) is built into the Agent tool. The flat installer turns each skill into a slash command; the plugin manifest (`.claude-plugin/plugin.json`) declares skills, agents, hooks, and MCP servers. Claude Code/Claude Desktop coding sessions use the KBD harness ID `claude-code`; the remaining `PreToolUse` guard protects existing BDD tests rather than gating KBD lifecycle mutations. The hooks documented on the [Hooks & Lifecycle](15-hooks-and-lifecycle.md) page run natively.
+The reference platform, and where the loop primitives are most developed. `/loop`, `/goal`, `/schedule`, `/workflows`, and Agent View ship first-party, and worktree isolation (`isolation: "worktree"`) is built into the Agent tool. The immutable generation installer projects verified skills while the plugin manifest declares skills, agents, hooks, and MCP servers. The remaining `PreToolUse` guard protects existing BDD tests. The hooks documented on the [Hooks & Lifecycle](15-hooks-and-lifecycle.md) page run natively.
 
 ## OpenCode
 
@@ -52,7 +51,7 @@ The open-source terminal agent, and the one with first-class plugin support beyo
 
 ## Codex CLI
 
-OpenAI's agent, and the one with the strongest sandboxing primitive in the group: **kernel-level syscall filtering**. The pack configures Codex MCP connectivity in `~/.codex/config.toml`, installs skills to `~/.codex/skills/`, and generates a native KBD lifecycle adapter from the shared capability manifest. Codex uses harness ID `codex`; `pre_tool` validates ownership and `turn_cancelled` triggers the local pause valve. Real installed-host acceptance for the generated adapter remains a production gate even though fixtures and payload generation pass.
+OpenAI's agent, and the one with the strongest sandboxing primitive in the group: **kernel-level syscall filtering**. The pack configures Codex MCP connectivity in `~/.codex/config.toml` and installs a receipt-bearing copy to `~/.codex/skills/`. Generated lifecycle adapters observe session events; they do not gate tool calls. Real installed-host acceptance remains a production gate even though fixtures and payload generation pass.
 
 ## Kimi Code CLI
 
@@ -74,13 +73,13 @@ Git worktree isolation → Filesystem isolation → Process isolation → Kernel
 
 For the pack's own loops, worktree isolation is the default. For loops that run arbitrary shell scripts or hit external infrastructure, wrap in Docker or use Codex's native sandbox.
 
-## MiniMax, Cursor, Windsurf, Gemini CLI, Roo Code, Amp
+## MiniMax, Cursor, Windsurf, Gemini CLI, Roo Code, Zed, and Cline
 
 These tools receive the skills (MiniMax also gets `_meta.json` metadata and an MCP config at `~/.minimax/mcp/mcp.json`; Cursor gets `~/.cursor/mcp.json`). They run the same shared substrate where MCP is supported, and loop orchestration is driven through the shared shell scripts rather than first-party primitives. The skill content and the durable loop state are identical to every other platform — which means a loop started under Claude Code can be inspected and resumed under any of these, because the state lives on disk, not in the tool.
 
-## A note on Zed and other editors
+## Target receipts and copy modes
 
-The repository's configuration directories (`.cursor`, `.windsurf`, `.clinerules`, `.codex`, `.opencode`, `.agents`) reflect the tools the pack has been tested against and ships first-class config for. Editors and agents not listed in the matrix above can still consume the skills — they conform to the AgentSkills.io standard — but MCP wiring and loop drivers for them are not pre-built and would need to follow the same pattern the supported tools use: install the skills, point the tool's MCP config at the shared port table, and drive the loop with the shell scripts. The pack's design makes that straightforward; it does not make it automatic for tools outside the matrix.
+Codex and MiniMax require verified real-directory copies with generation receipts. The other 12 targets link through the active content-addressed generation. Activation fails on a collision, missing receipt, wrong mode, stale path, or dispatcher that resolves outside `generations/`. See [Targets and stable dispatchers](/docs/plugin-distribution/targets-and-dispatchers).
 
 ---
 

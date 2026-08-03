@@ -17,12 +17,12 @@ sequenceDiagram
     participant Sub as Each subagent
     participant Stop as Session end
 
-    Session->>Session: SessionStart — KBD re-anchor + context + KB health
-    Prompt->>Prompt: UserPromptSubmit — bounded deferred lifecycle event
+    Session->>Session: SessionStart — bounded snapshots + KB health
+    Prompt->>Prompt: UserPromptSubmit — immutable bounded context
     Tool->>Tool: PreToolUse — immutable-tests guard (writes only)
-    Tool->>Tool: PostToolUse — validate, record scope, write reminder, sycophancy artifact, memory writeback
+    Tool->>Tool: PostToolUse — validate and record local evidence
     Sub->>Sub: SubagentStop[role] — checkpoint + dispatch (reflector → sycophancy gate)
-    Stop->>Stop: Stop — advisory/deferred event; never forces continuation
+    Stop->>Stop: Stop — atomic local enqueue; never forces continuation
 ```
 
 ## SessionStart
@@ -31,11 +31,10 @@ Runs once when a session begins. Sets the stage.
 
 | Order | Script | Purpose |
 |---|---|---|
-| 1 | `kbd-harness-adapter.sh session_start claude-code` | Authenticated, bounded KBD re-anchor: revision, lifecycle, active path, next work, and writer |
-| 2 | `kbd-open` | Prime the session with phase context, focused wiki, and pending skill updates |
-| 3 | `detect-project-context.sh` | Detect GitOps and cloud context |
-| 4 | `memory-outbox-flush.sh` | Drain the surreal-memory write outbox when reachable |
-| 5 | `pk-health.sh` | Surface KB health once per 24h |
+| 1 | `detect-project-context.sh` | Resolve project identity and snapshot scope without network work. |
+| 2 | snapshot reader | Load bounded project/shared/global immutable generations. |
+| 3 | `memory-outbox-flush.sh` | Hand local uncertain delivery records to durable reconciliation. |
+| 4 | `pk-health.sh` | Run read-only `pk lint` once per 24h and preserve failure/empty-output status. |
 
 ## UserPromptSubmit
 
@@ -88,7 +87,7 @@ The immutable-tests rule deserves emphasis. A code-generation agent under pressu
 
 ## PostToolUse
 
-Runs after a `Write|Edit|MultiEdit` succeeds. This is where validation, scope recording, and memory write-back happen.
+Runs after a `Write|Edit|MultiEdit` succeeds. This records and validates local evidence only; durable learning is deferred to Stop enqueue and the worker.
 
 | Order | Script | Purpose |
 |---|---|---|
@@ -97,7 +96,6 @@ Runs after a `Write|Edit|MultiEdit` succeeds. This is where validation, scope re
 | 3 | `scope-record.sh` | Record approved out-of-scope writes to the waypoint so they are not re-flagged |
 | 4 | `write-position-reminder.sh` | Refresh `.kbd-orchestrator/position-reminder.txt` |
 | 5 | `sycophancy-check-artifact.sh` (35s) | Gate `**/reflection.md` and `**/assessment.md` — exit 2 with Delta/Root-Cause/Corrective-Actions feedback, set `reflect_gate=rejected`; two-rejection soft cap |
-| 6 | `memory-writeback.sh` (8s) | Persist accepted reflection Delta + Corrective Actions to surreal-memory; route `[GLOBAL]` lines to `user_id=global`; skip if `reflect_gate=rejected` |
 
 ## SubagentStop — per-role
 
@@ -112,15 +110,17 @@ Each KBD role has its own matcher. Every role runs a checkpoint and a workflow d
 | `reflector` | **`sycophancy-check-reflection.sh` (35s)** → `log-reflection.sh` → `state-checkpoint(reflect)` → `workflow-dispatch(reflect)` |
 | *(fallback, no matcher)* | `subagent-checkpoint-fallback.sh` |
 
-The two bolded scripts are the heart of the self-learning loop. On the executor's stop, `evaluate-session.sh` extracts patterns and ingests them into the KB and learning log (and `propose-skill-update.sh` files candidates from there). On the reflector's stop, the sycophancy gate runs before anything is logged. The fallback matcher guarantees that even an unrecognized subagent gets a checkpoint — no role falls through silently.
+Executor and reflector gates produce local evidence, but they do not acknowledge a memory write. Durable learning is owned by the queue worker, which reconciles the v2 operation receipt before publishing snapshots. The fallback matcher guarantees that even an unrecognized subagent gets a checkpoint — no role falls through silently.
 
-## Stop — advisory by design
+## Stop — atomic enqueue by design
 
-The Stop hook calls `kbd-harness-adapter.sh stop claude-code`, which queues
-noncritical work and exits successfully. It never emits `decision:block`,
-retries based on transcript length, or treats a missing footer as permission to
-override the operator. Durable continuity comes from checkpoints, lifecycle
-state, and explicit pause/resume—not from forcing an assistant to keep talking.
+The installed Stop path resolves `karpathy-hook-dispatch.sh` through the stable
+plugin directory. `enqueue-learning-job.py` writes a private temporary record,
+fsyncs it, and atomically renames it into `pending`; the hook then exits. It
+does not call a model, Memory, or a service manager. Duplicate Stop events are
+deduplicated by stable record identity. Durable continuity comes from the queue,
+receipts, checkpoints, and immutable snapshots—not from forcing an assistant
+to keep talking.
 
 ## Progress signaling
 
@@ -132,9 +132,8 @@ A lifecycle concern that is not a hook but is mandatory in every orchestration t
 default strict) sets the sycophancy gate's sensitivity. It governs a *content*
 gate on reflection artifacts, not a tool gate, so it cannot block a command.
 
-Memory, summary, and learning work is noncritical and deferred: when the control
-plane is unreachable, the adapter queues the event and exits successfully rather
-than failing closed. No hook can now deny a shell command, and
+Memory, summary, and learning work is noncritical and deferred to the local queue.
+No hook can now deny a shell command, and
 `PROMETHEUS_SCOPE_ENFORCE` no longer has an effect — the scope guards it
 configured were removed.
 

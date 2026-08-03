@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "source": "surreal-memory-v2.openapi.json",
+  "add_memory_request": {
+    "dependencies": [],
+    "kind": "add_memory",
+    "operation_id": "memory-release-20260803",
+    "payload": {
+      "categories": [
+        "architecture",
+        "durability"
+      ],
+      "content": "Receipts are the acknowledgement boundary.",
+      "user_id": "prometheus-skill-pack"
+    },
+    "payload_hash": "a026d7fd122070a74973fa27e3ba92d438ba60e7fa84fd7fd3c8d769e3339a09",
+    "schema_version": 2
+  },
+  "accepted_receipt": {
+    "blocked_by": [],
+    "created_at": "2026-08-03T12:00:00Z",
+    "dependencies": [],
+    "error": null,
+    "executor_error": null,
+    "executor_exit_count": 0,
+    "executor_generation": 0,
+    "executor_last_exit": null,
+    "executor_progress_seq": 0,
+    "kind": "add_memory",
+    "operation_id": "memory-release-20260803",
+    "payload_hash": "a026d7fd122070a74973fa27e3ba92d438ba60e7fa84fd7fd3c8d769e3339a09",
+    "progress_seq": 1,
+    "result": null,
+    "schema_version": 2,
+    "state": "accepted",
+    "updated_at": "2026-08-03T12:00:00Z"
+  },
+  "committed_replay_receipt": {
+    "blocked_by": [],
+    "created_at": "2026-08-03T12:00:00Z",
+    "dependencies": [],
+    "error": null,
+    "executor_error": null,
+    "executor_exit_count": 0,
+    "executor_generation": 1,
+    "executor_last_exit": null,
+    "executor_progress_seq": 4,
+    "kind": "add_memory",
+    "operation_id": "memory-release-20260803",
+    "payload_hash": "a026d7fd122070a74973fa27e3ba92d438ba60e7fa84fd7fd3c8d769e3339a09",
+    "progress_seq": 6,
+    "result": {
+      "id": "memory:example"
+    },
+    "schema_version": 2,
+    "state": "committed",
+    "updated_at": "2026-08-03T12:00:02Z"
+  },
+  "correctness_scenarios": {
+    "same-id-same-hash": "Repeat POST after response loss; 200 returns the stored receipt and never duplicates logical work.",
+    "same-id-different-hash": "Repeat the operation ID with another canonical payload hash; 409 preserves the original receipt.",
+    "response-loss": "Discard POST response, then GET by operation_id until committed or rejected.",
+    "long-logical-memory": "Persist tokenizer-planned parts and per-part embeddings; restart resumes only unfinished parts and commits one logical memory."
+  }
+}
