@@ -21,6 +21,10 @@ use serde::Serialize;
 
 use crate::kbd_single_writer::{QuorumPolicy, QuorumStatus};
 
+#[cfg(test)]
+static AUTHORITY_OPEN_COUNTS: std::sync::LazyLock<std::sync::Mutex<BTreeMap<String, usize>>> =
+    std::sync::LazyLock::new(|| std::sync::Mutex::new(BTreeMap::new()));
+
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct CommittedCommand {
@@ -451,6 +455,15 @@ impl KbdControlPlane {
                 "multi-voter KBD configuration is unsupported; configure exactly one journal writer",
             ));
         }
+        #[cfg(test)]
+        {
+            let key = runtime.runtime_root().display().to_string();
+            *AUTHORITY_OPEN_COUNTS
+                .lock()
+                .expect("authority open counter lock poisoned")
+                .entry(key)
+                .or_default() += 1;
+        }
         Ok(Self {
             runtime,
             available_voters: Arc::new(RwLock::new(BTreeSet::from([quorum.node_id()]))),
@@ -820,5 +833,59 @@ mod tests {
             .await
             .unwrap();
         assert!(authority.replica_view.is_none());
+    }
+
+    #[tokio::test]
+    async fn eighteen_authorities_open_once_and_existing_discovery_does_not_reload() {
+        let fixture = tempdir().unwrap();
+        let data_root = fixture.path().join("data");
+        let mut paths = Vec::new();
+        for index in 0..18 {
+            let path = fixture.path().join(format!("project-{index:02}"));
+            std::fs::create_dir_all(&path).unwrap();
+            Runtime::open_canonical_at(&path, &data_root).unwrap();
+            paths.push(path);
+        }
+        AUTHORITY_OPEN_COUNTS
+            .lock()
+            .expect("authority open counter lock poisoned")
+            .clear();
+
+        let router =
+            KbdProjectRouter::open_registered_at(&data_root, QuorumPolicy::new(1, [1]).unwrap())
+                .await
+                .unwrap();
+
+        assert_eq!(router.project_ids().len(), 18);
+        let data_prefix = data_root.display().to_string();
+        let counts_before = AUTHORITY_OPEN_COUNTS
+            .lock()
+            .expect("authority open counter lock poisoned")
+            .iter()
+            .filter(|(path, _)| path.starts_with(&data_prefix))
+            .map(|(path, count)| (path.clone(), *count))
+            .collect::<BTreeMap<_, _>>();
+        assert_eq!(counts_before.len(), 18);
+        assert!(counts_before.values().all(|count| *count == 1));
+        let registry_before = std::fs::read(router.registry().registry_path()).unwrap();
+
+        assert!(!router.ensure_registered_path(&paths[0]).await.unwrap());
+
+        let counts_after = AUTHORITY_OPEN_COUNTS
+            .lock()
+            .expect("authority open counter lock poisoned")
+            .iter()
+            .filter(|(path, _)| path.starts_with(&data_prefix))
+            .map(|(path, count)| (path.clone(), *count))
+            .collect::<BTreeMap<_, _>>();
+        assert_eq!(
+            counts_after, counts_before,
+            "an existing manifest-backed path must not trigger a second authority reload"
+        );
+        assert_eq!(
+            std::fs::read(router.registry().registry_path()).unwrap(),
+            registry_before,
+            "existing daemon discovery must remain byte-stable"
+        );
     }
 }

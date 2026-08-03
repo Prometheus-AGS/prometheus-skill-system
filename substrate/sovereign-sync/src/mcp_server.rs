@@ -40,6 +40,10 @@ pub struct SkillIndex {
 
 impl SkillIndex {
     pub fn load_from_dir(skills_dir: &Path) -> Self {
+        #[cfg(test)]
+        if skills_dir.join(".slow-scan-test").is_file() {
+            std::thread::sleep(std::time::Duration::from_millis(250));
+        }
         let mut entries = Vec::new();
         if let Ok(iter) = std::fs::read_dir(skills_dir) {
             for entry in iter.flatten() {

@@ -2477,7 +2477,7 @@ mod presence_auth_tests {
 
 #[cfg(test)]
 mod transport_status_tests {
-    use super::{broadcast_error_status, collect_readiness_tasks};
+    use super::{broadcast_error_status, collect_readiness_tasks, AppState, HttpService};
     use crate::p2p::P2PHandleErrorKind;
     use axum::http::StatusCode;
     use std::collections::BTreeSet;
@@ -2533,5 +2533,33 @@ mod transport_status_tests {
             .as_str()
             .unwrap()
             .contains("500 ms total readiness deadline"));
+    }
+
+    #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+    async fn slow_skill_scan_cannot_delay_dedicated_http_liveness() {
+        let fixture = tempfile::tempdir().unwrap();
+        let skills = fixture.path().join("skills");
+        let project = fixture.path().join("project");
+        let data = fixture.path().join("data");
+        std::fs::create_dir_all(&skills).unwrap();
+        std::fs::create_dir_all(&project).unwrap();
+        std::fs::write(skills.join(".slow-scan-test"), b"250ms").unwrap();
+        let mut service = HttpService::start(0).await.unwrap();
+        let port = service.address().port();
+        let initialization =
+            tokio::spawn(async move { AppState::try_new_at(&skills, &project, &data, None).await });
+        tokio::time::sleep(Duration::from_millis(25)).await;
+        assert!(!initialization.is_finished());
+
+        let started = Instant::now();
+        let health = crate::health_check::detect_daemon_health(port).await;
+
+        assert_eq!(
+            health.status,
+            crate::health_check::DaemonHealthKind::Healthy
+        );
+        assert!(started.elapsed() < Duration::from_millis(100));
+        initialization.await.unwrap().unwrap();
+        service.shutdown().await.unwrap();
     }
 }
