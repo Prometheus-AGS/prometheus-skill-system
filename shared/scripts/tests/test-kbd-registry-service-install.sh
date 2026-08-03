@@ -21,6 +21,9 @@ with open(sys.argv[1], "rb") as handle:
 environment = document["EnvironmentVariables"]
 assert not any("FOCUS_PROJECT" in key for key in environment)
 assert document["WorkingDirectory"] == environment["HOME"]
+assert document["ProcessType"] == "Interactive"
+assert document["KeepAlive"] is True
+assert document["ThrottleInterval"] == 10
 PY
 
 if grep -F "FOCUS_PROJECT" "$SERVICE" >/dev/null; then
