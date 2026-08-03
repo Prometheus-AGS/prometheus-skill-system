@@ -1,0 +1,11 @@
+[Unit]
+Description=Retry Prometheus learning queues
+
+[Timer]
+OnBootSec=1min
+OnUnitActiveSec=5min
+Persistent=true
+Unit=ai.prometheus.learning-worker.service
+
+[Install]
+WantedBy=timers.target

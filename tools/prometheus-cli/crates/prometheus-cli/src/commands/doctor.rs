@@ -172,6 +172,8 @@ async fn build_report(options: &DoctorOptions) -> DoctorReport {
         check_judge_gateway().await,
         check_managed_binaries(),
         check_managed_services(),
+        check_learning_worker(),
+        check_hook_log_rotation(),
         check_managed_mcp(),
         check_managed_hooks(),
         check_kbd_control_plane().await,
@@ -1486,6 +1488,117 @@ fn check_managed_services() -> CheckResult {
             reversible: true,
             dry_run_only: false,
             command_hint: Some("bash scripts/install-mcp-services.sh --dry-run".into()),
+            reason_blocked: None,
+        }],
+    }
+}
+
+fn check_learning_worker() -> CheckResult {
+    let home = dirs::home_dir().unwrap_or_else(|| PathBuf::from("/"));
+    let queue = home.join(".prometheus/learning-queue");
+    let count = |relative: &str| -> usize {
+        fs::read_dir(queue.join(relative))
+            .ok()
+            .into_iter()
+            .flatten()
+            .filter_map(|entry| entry.ok())
+            .filter(|entry| entry.path().extension().and_then(|ext| ext.to_str()) == Some("json"))
+            .count()
+    };
+    let pending = count("pending") + count("memory/pending");
+    let retry = count("retry") + count("memory/retry");
+    let dead = count("dead-letter") + count("memory/dead-letter");
+    let worker = home.join(".local/bin/prometheus-learning-worker");
+    let loaded = if cfg!(target_os = "macos") {
+        let target = format!(
+            "gui/{}/ai.prometheus.learning-worker",
+            command_stdout(&["id", "-u"]).unwrap_or_else(|| "0".into())
+        );
+        Command::new("launchctl")
+            .args(["print", &target])
+            .status()
+            .is_ok_and(|status| status.success())
+    } else {
+        Command::new("systemctl")
+            .args(["--user", "is-enabled", "ai.prometheus.learning-worker.path"])
+            .status()
+            .is_ok_and(|status| status.success())
+    };
+    let healthy = worker.is_file() && loaded && retry == 0 && dead == 0;
+    CheckResult {
+        id: "learning.worker".into(),
+        group: "learning".into(),
+        label: "Asynchronous learning worker".into(),
+        severity: if healthy { Severity::Green } else { Severity::Red },
+        status: if healthy { CheckStatus::Pass } else { CheckStatus::Fail },
+        summary: format!(
+            "worker {}, service {}, pending {}, retry {}, dead-letter {}",
+            if worker.is_file() { "installed" } else { "missing" },
+            if loaded { "loaded" } else { "unloaded" },
+            pending,
+            retry,
+            dead
+        ),
+        details: vec![format!("queue: {}", queue.display())],
+        optional: false,
+        actions: vec![RepairAction {
+            id: "services.install-learning-worker".into(),
+            description: "Install the learning worker and reload its supervised queue service.".into(),
+            safe: true,
+            reversible: true,
+            dry_run_only: false,
+            command_hint: Some("bash scripts/install-mcp-services.sh --restart".into()),
+            reason_blocked: None,
+        }],
+    }
+}
+
+fn check_hook_log_rotation() -> CheckResult {
+    use std::os::unix::fs::PermissionsExt;
+    let home = dirs::home_dir().unwrap_or_else(|| PathBuf::from("/"));
+    let root = home.join(".prometheus");
+    let log = root.join("hooks.log");
+    let config = root.join("logrotate/prometheus-hooks.conf");
+    let mode = fs::metadata(&log)
+        .ok()
+        .map(|metadata| metadata.permissions().mode() & 0o777);
+    let loaded = if cfg!(target_os = "macos") {
+        let target = format!(
+            "gui/{}/ai.prometheus.hooks-logrotate",
+            command_stdout(&["id", "-u"]).unwrap_or_else(|| "0".into())
+        );
+        Command::new("launchctl")
+            .args(["print", &target])
+            .status()
+            .is_ok_and(|status| status.success())
+    } else {
+        Command::new("systemctl")
+            .args(["--user", "is-enabled", "ai.prometheus.hooks-logrotate.timer"])
+            .status()
+            .is_ok_and(|status| status.success())
+    };
+    let healthy = config.is_file() && loaded && mode == Some(0o600);
+    CheckResult {
+        id: "hooks.rotation".into(),
+        group: "hooks".into(),
+        label: "Hook log rotation".into(),
+        severity: if healthy { Severity::Green } else { Severity::Red },
+        status: if healthy { CheckStatus::Pass } else { CheckStatus::Fail },
+        summary: format!(
+            "config {}, service {}, hook-log mode {}",
+            if config.is_file() { "installed" } else { "missing" },
+            if loaded { "loaded" } else { "unloaded" },
+            mode.map(|value| format!("{value:04o}")).unwrap_or_else(|| "missing".into())
+        ),
+        details: vec!["30 daily archives, delayed compression, and writer-lock coordination are required.".into()],
+        optional: false,
+        actions: vec![RepairAction {
+            id: "services.install-hook-rotation".into(),
+            description: "Render and load the owner-only hook rotation service.".into(),
+            safe: true,
+            reversible: true,
+            dry_run_only: false,
+            command_hint: Some("bash scripts/install-mcp-services.sh --restart".into()),
             reason_blocked: None,
         }],
     }

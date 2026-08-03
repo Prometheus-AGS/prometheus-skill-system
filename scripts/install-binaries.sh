@@ -80,21 +80,23 @@ else
     info "skip forge-rs (submodule not initialized)"
 fi
 
-# ── 3. pk + pk-cherry (prometheus-knowledge CLI + MCP server) ────────────────
+# ── 3. pk + pk-cherry + learning worker ─────────────────────────────────────
 # pk-cherry serves the knowledge MCP on :8942; pk is the CLI that the hooks
 # (pk-focus-on-prompt.sh, pk-health.sh, Stop ingest) invoke. pk-mcp is a
 # library, not a bin — do not try to build it as a binary target.
 if [ -f "${REPO_ROOT}/tools/prometheus-knowledge/Cargo.toml" ]; then
-    info "Building pk + pk-cherry..."
+    info "Building pk + pk-cherry + prometheus-learning-worker..."
     if ! $DRY_RUN; then
-        (cd "${REPO_ROOT}/tools/prometheus-knowledge" && cargo build --release -p pk-cli -p pk-cherry 2>&1 | tail -3)
+        (cd "${REPO_ROOT}/tools/prometheus-knowledge" && cargo build --release -p pk-cli -p pk-cherry -p pk-learning-worker 2>&1 | tail -3)
     else
-        info "[dry-run] would run cargo build --release -p pk-cli -p pk-cherry"
+        info "[dry-run] would run cargo build --release -p pk-cli -p pk-cherry -p pk-learning-worker"
     fi
     install_bin "${REPO_ROOT}/tools/prometheus-knowledge/target/release/pk"        "${BIN_DIR}/pk"
     install_bin "${REPO_ROOT}/tools/prometheus-knowledge/target/release/pk-cherry" "${BIN_DIR}/pk-cherry"
+    install_bin "${REPO_ROOT}/tools/prometheus-knowledge/target/release/prometheus-learning-worker" "${BIN_DIR}/prometheus-learning-worker"
     ok "pk        → ${BIN_DIR}/pk"
     ok "pk-cherry → ${BIN_DIR}/pk-cherry"
+    ok "prometheus-learning-worker → ${BIN_DIR}/prometheus-learning-worker"
 else
     info "skip prometheus-knowledge (submodule not initialized)"
 fi
