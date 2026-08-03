@@ -10,11 +10,11 @@ Release loop: local only; GitHub Actions was not used for development or diagnos
 
 | Repository | Recovery base | Certified implementation head |
 | --- | --- | --- |
-| `surreal-memory-server` | `83c9bc2` | `7a0d5d2` |
-| `prometheus-knowledge-rs` | `e5cb0dd` | `b2f796c` |
+| `surreal-memory-server` | `83c9bc2` | `acd962d` |
+| `prometheus-knowledge-rs` | `e5cb0dd` | `5143891` |
 | `prometheus-skill-system` | `7e83779` | `2f42091` |
 
-The root documentation/evidence commit follows the implementation head and does not alter the installed runtime. The isolated release worktrees preserved the dirty `main` worktree.
+The server and knowledge heads merge their newly advanced `main` branches without rebasing or dropping the certified implementation commits (`7a0d5d2` and `b2f796c`). The root documentation/evidence commit follows the implementation head and does not alter the installed runtime. The isolated release worktrees preserved the dirty `main` worktree.
 
 ## Mandatory exclusions
 
