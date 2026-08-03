@@ -24,6 +24,14 @@
 
 **KBD (Knowledge-Based Development).** The Prometheus methodology that keeps domain knowledge and code aligned across sessions, via KB priming, hard phase discipline, and waypoint continuity.
 
+**KBD control token.** A project-scoped, mode-`0600`, URL-safe bearer token
+used for loopback Sovereign Sync REST authentication. It is not the Sovereign
+Sync `operator_id` and not an Ed25519 device key.
+
+**KbdStateV2.** The canonical replayed state containing lifecycle, plan,
+active phase/stage/change/task path, completion dimensions, decisions,
+blockers, devices, and commands.
+
 **liter-llm.** The multi-provider LLM gateway (140+ providers) that does per-phase model routing. Frontier models for reasoning phases, cheap models for status.
 
 **Loop levels (L0–L3).** L0 harness micro-loop, L1 tactical KBD loop, L2 strategic evolver loop, L3 outer standing loop. State is harness-agnostic; the driver is harness-specific.
@@ -39,6 +47,17 @@
 **prometheus-knowledge / pk.** The Rust implementation of the Karpathy KB. `pk focus` primes context; `pk ingest` writes learning back. MCP bridge `pk-cherry` on port 8942.
 
 **Progress signals.** Mandatory start/completion lines emitted every phase and task, with counts read from `progress.json`, so multi-session work stays resumable.
+
+**Project manifest.** `.prometheus/project.json`, the immutable UUID and
+repository fingerprint used to name a canonical KBD runtime.
+
+**Compatibility projection.** Revision-stamped files such as
+`progress.json`, `current-waypoint.json`, and `position.json` rendered from
+canonical replay for older readers. They are not mutation authority.
+
+**Sovereign Sync `operator_id`.** A random namespace in
+`$HOME/.config/sovereign-sync/config.toml` used to derive the P2P gossip
+group. It is unrelated to REST bearer authentication.
 
 **Sycophancy patterns (S-01–S-08).** The eight classified patterns the correction server detects, from unprompted affirmation (S-01) to reflect-phase inversion (S-08).
 

@@ -84,9 +84,27 @@ prometheus optimize <skill> [--min-traces N --dry-run]
 prometheus policy <show|validate|check>
 prometheus sycophancy <detect|score|correct> <file> [-s strictness]
 prometheus setup [--non-interactive --dry-run --check --rebuild]
+prometheus skill lint [--json]
+prometheus skill budget --harness <name> [--budget-chars N] [--json]
+prometheus skill eval --harness <name> [--corpus <file> --trace <file> --json]
+prometheus kbd --path <project> status [--json]
+prometheus kbd --path <project> <pause|revise|resume|cancel>
+prometheus kbd --path <project> <audit|watch|migrate|rollout>
+prometheus kbd --path <project> <phase|stage|change|task|completion|decision|blocker>
 ```
 
 The `policy check` subcommand gates the operations `skill.mutate`, `skill.generate`, `skill.promote`, and `trace.capture` against the Cedar policy per environment. The `sycophancy` subcommands are a CLI front-end to the [sycophancy-correction](07-sycophancy-correction.md) server. **Build:** `cargo build --release -p prometheus-cli` → copied to `~/.local/bin/prometheus`. (This crate has no README; its surface is documented here from `Cargo.toml` and the clap definitions in `main.rs`.)
+
+`prometheus skill` validates the instruction inventory, measures
+trace-backed harness discovery budgets without inventing unknown ceilings, and
+grades the 30-prompt critical-skill activation corpus.
+
+`prometheus kbd` is the canonical control client. It submits typed,
+idempotent commands to Sovereign Sync, reads signed state, manages the
+single-writer journal, migrates legacy ledgers, and records rollout evidence.
+The detailed operator reference is in [CLI & Scripts](16-cli-and-scripts.md);
+token, journal, and troubleshooting runbooks are published in the
+[KBD section](/docs/kbd/overview).
 
 ---
 

@@ -80,9 +80,12 @@
 * [Cowork CLI Integration Planning Phase Goals](/cowork-cli-integration-planning-phase-goals.md) - Phase:** `cowork-integration` - **Project:** unspecified - **KBD root:** `/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.claude/worktrees/charming-diffie-309eef` - **Captured:** `2026-07-03T21:15:09Z` - **Source context:** `manual:cowork-integration`
 * [Deep Research + Feynman Learning Integration](/deep-research-feynman-integration.md) - Research into how deep research combines with Feynman learning skills, Karpathy LLM wiki patterns, and learning loop integration.
 * [Deep Research Skill Landscape](/deep-research-skill-landscape.md) - Comprehensive survey of existing deep research agents and skills, including GPT Researcher, LangGraph ODR, MiroThinker, and other implementations in the ecosystem.
+* [Docusaurus GitHub Pages Executor Session Complete Status](/docusaurus-github-pages-executor-session-complete-status.md)
 * [Docusaurus GitHub Pages Executor Session Completion](/docusaurus-github-pages-executor-session-completion.md)
+* [Docusaurus GitHub Pages Executor Session Status](/docusaurus-github-pages-executor-session-status.md)
 * [Docusaurus GitHub Pages Phase Completion Record](/docusaurus-github-pages-phase-completion-record.md)
 * [Docusaurus GitHub Pages Phase Completion Status](/docusaurus-github-pages-phase-completion-status.md)
+* [Docusaurus GitHub Pages Phase Executor Completion](/docusaurus-github-pages-phase-executor-completion.md)
 * [Docusaurus GitHub Pages Phase Session Completion](/docusaurus-github-pages-phase-session-completion.md)
 * [Docusaurus GitHub Pages Session Completion Record](/docusaurus-github-pages-session-completion-record.md)
 * [Docusaurus GitHub Pages Site Executor Completion](/docusaurus-github-pages-site-executor-completion.md)
@@ -91,6 +94,7 @@
 * [Docusaurus GitHub Pages Site Executor Session Completion](/docusaurus-github-pages-site-executor-session-completion.md)
 * [Docusaurus GitHub Pages Site Executor Session Completion Record](/docusaurus-github-pages-site-executor-session-completion-record.md)
 * [Docusaurus GitHub Pages Site Executor Session Status](/docusaurus-github-pages-site-executor-session-status.md)
+* [Docusaurus GitHub Pages Site Phase Completed](/docusaurus-github-pages-site-phase-completed.md)
 * [Docusaurus GitHub Pages Site Phase Completion](/docusaurus-github-pages-site-phase-completion.md)
 * [Docusaurus GitHub Pages Site Phase Completion Record](/docusaurus-github-pages-site-phase-completion-record.md)
 * [Docusaurus GitHub Pages Site Phase Pull Summary](/docusaurus-github-pages-site-phase-pull-summary.md)

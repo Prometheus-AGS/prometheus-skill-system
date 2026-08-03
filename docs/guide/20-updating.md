@@ -63,12 +63,17 @@ bash scripts/install-binaries.sh
 npm run doctor
 ```
 
-After rebuilding, restart the MCP services so they pick up the new binaries:
+After rebuilding, fully reload the managed service definitions so they pick up
+new binaries and environment:
 
 ```bash
-bash scripts/prometheus-services.sh reload   # or: unload then load
+bash scripts/install-mcp-services.sh --restart
 bash scripts/check-mcp-health.sh
 ```
+
+On macOS, `launchctl kickstart` alone does not reload plist environment
+changes. The installer uses bootout, waits for label removal, bootstraps the
+rendered definition, enables it, and then kickstarts it.
 
 ## Reconciling MCP configuration
 
@@ -95,9 +100,26 @@ git submodule update --remote          # 1 · move submodules
 bash scripts/install-binaries.sh       # 2 · rebuild binaries
 bash scripts/update-skill-pack.sh      # 3 · delta-install skills
 bash scripts/configure-mcp-all-tools.sh # 4 · reconcile MCP config
-bash scripts/prometheus-services.sh reload  # 5 · restart services
+bash scripts/install-mcp-services.sh --restart # 5 · reload definitions + restart services
 npm run doctor                         # 6 · verify
 ```
+
+## Rotating the KBD control token
+
+Token rotation is coordinated because Sovereign Sync caches its bearer token
+at startup:
+
+1. pause active writers;
+2. stop or boot out Sovereign Sync;
+3. atomically replace the same regular token file with a URL-safe value;
+4. preserve mode `0600`;
+5. reload the service definition;
+6. restart harnesses that use an explicit token path;
+7. verify the valid token succeeds and a test-invalid token returns `401`.
+
+Do not rotate by changing only `PROMETHEUS_CONTROL_TOKEN_FILE` in one shell.
+The daemon, harness adapter, and CLI must resolve the same file. Full commands
+are in [Tokens and authentication](/docs/kbd/tokens-and-authentication).
 
 ## Verifying nothing broke
 
