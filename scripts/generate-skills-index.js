@@ -57,7 +57,7 @@ function readFrontmatter(file) {
     if (folded) {
       description = folded[1]
         .split('\n')
-        .map((l) => l.trim())
+        .map(l => l.trim())
         .filter(Boolean)
         .join(' ');
     }
@@ -92,15 +92,15 @@ function countNested(root) {
 /** Top-level categories, each with its skills. Excludes imported/ submodules. */
 function collect() {
   const categories = [];
-  for (const entry of fs.readdirSync(SKILLS_DIR, { withFileTypes: true }).sort((a, b) =>
-    a.name.localeCompare(b.name)
-  )) {
+  for (const entry of fs
+    .readdirSync(SKILLS_DIR, { withFileTypes: true })
+    .sort((a, b) => a.name.localeCompare(b.name))) {
     if (!entry.isDirectory() || entry.name === 'imported') continue;
     const catDir = path.join(SKILLS_DIR, entry.name);
     const skills = [];
-    for (const sub of fs.readdirSync(catDir, { withFileTypes: true }).sort((a, b) =>
-      a.name.localeCompare(b.name)
-    )) {
+    for (const sub of fs
+      .readdirSync(catDir, { withFileTypes: true })
+      .sort((a, b) => a.name.localeCompare(b.name))) {
       // lstat, not stat: the platform install dirs are symlink farms and following
       // them can recurse or double-count.
       if (!sub.isDirectory()) continue;
@@ -128,7 +128,7 @@ function titleCase(slug) {
   if (special[slug]) return special[slug];
   return slug
     .split('-')
-    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .map(w => w.charAt(0).toUpperCase() + w.slice(1))
     .join(' ');
 }
 
@@ -261,11 +261,29 @@ next = stampProvenance(next, packCommit(), loadableSkillCount());
 
 if (process.argv.includes('--check')) {
   // `generated_at` is a timestamp: it differs on every run by design, so a
-  // byte-for-byte comparison could NEVER pass. Normalise it away and compare
-  // everything else — the index body, the commit, and the skill count, which
-  // are the fields that actually go stale.
-  const ignoreTimestamp = (t) => t.replace(/^generated_at: .*$/m, 'generated_at: <ignored>');
-  if (ignoreTimestamp(next) !== ignoreTimestamp(current)) {
+  // byte-for-byte comparison could NEVER pass. The recorded commit may be
+  // HEAD while changes are staged or HEAD^ after the generated file is
+  // committed; accepting anything older would hide real provenance drift.
+  const recordedCommit = current.match(/^commit: (.*)$/m)?.[1];
+  let parentCommit;
+  try {
+    parentCommit = execFileSync('git', ['rev-parse', 'HEAD^'], {
+      cwd: ROOT,
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'ignore'],
+    }).trim();
+  } catch {
+    parentCommit = undefined;
+  }
+  const validProvenance = recordedCommit === packCommit() || recordedCommit === parentCommit;
+  const normaliseVolatileProvenance = t =>
+    t
+      .replace(/^generated_at: .*$/m, 'generated_at: <ignored>')
+      .replace(/^commit: .*$/m, 'commit: <validated>');
+  if (
+    !validProvenance ||
+    normaliseVolatileProvenance(next) !== normaliseVolatileProvenance(current)
+  ) {
     console.error('SKILLS.md skills index is OUT OF DATE.');
     console.error('  Run: npm run generate:skills-index');
     process.exit(1);
@@ -278,5 +296,7 @@ if (next === current) {
   console.log('SKILLS.md already up to date.');
 } else {
   fs.writeFileSync(TARGET, next);
-  console.log(`SKILLS.md regenerated: ${skillTotal} skills across ${categories.length} categories.`);
+  console.log(
+    `SKILLS.md regenerated: ${skillTotal} skills across ${categories.length} categories.`
+  );
 }

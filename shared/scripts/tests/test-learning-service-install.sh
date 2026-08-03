@@ -5,7 +5,7 @@ ROOT="$(cd "$(dirname "$0")/../../.." && pwd)"
 OUTPUT="$(mktemp -d)"
 trap 'rm -rf "$OUTPUT"' EXIT
 
-bash "$ROOT/scripts/install-mcp-services.sh" --render-only "$OUTPUT" >/dev/null
+bash "$ROOT/scripts/install-mcp-services.sh" --render-only "$OUTPUT" --exclude sovereign-sync >/dev/null
 
 for plist in \
   "$OUTPUT/ai.prometheus.learning-worker.plist" \
