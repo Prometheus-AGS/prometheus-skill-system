@@ -88,8 +88,8 @@ fn doctor_reports_unreachable_memory_as_failure() {
         "doctor output should mention the memory check; stdout:\n{stdout}"
     );
     assert!(
-        stdout.contains("unreachable"),
-        "doctor output should report the memory service as unreachable; stdout:\n{stdout}"
+        stdout.contains("unhealthy or not ready"),
+        "doctor output should report the memory service as unhealthy or not ready; stdout:\n{stdout}"
     );
     assert!(
         !stdout.contains("All checks passed"),
@@ -263,7 +263,10 @@ fn doctor_exclusions_are_applied_before_kbd_checks_execute() {
     listener
         .set_nonblocking(true)
         .expect("configure KBD sentinel");
-    let endpoint = format!("http://{}", listener.local_addr().expect("sentinel address"));
+    let endpoint = format!(
+        "http://{}",
+        listener.local_addr().expect("sentinel address")
+    );
 
     let output = base_command(&project_root, &home_dir)
         .env("PROMETHEUS_CONTROL_ENDPOINT", endpoint)
@@ -293,8 +296,8 @@ fn doctor_exclusions_are_applied_before_kbd_checks_execute() {
         listener.accept().is_err(),
         "an excluded KBD check must not open a control-plane connection"
     );
-    let payload: serde_json::Value = serde_json::from_slice(&output.stdout)
-        .expect("filtered doctor should emit JSON");
+    let payload: serde_json::Value =
+        serde_json::from_slice(&output.stdout).expect("filtered doctor should emit JSON");
     let checks = payload["checks"].as_array().expect("checks array");
     assert!(checks.iter().all(|check| check["group"] == "skills"));
     assert_eq!(
@@ -322,8 +325,7 @@ fn sovereign_exclusion_is_propagated_to_service_repairs() {
         ])
         .output()
         .expect("run scoped refresh plan");
-    let payload: serde_json::Value =
-        serde_json::from_slice(&output.stdout).expect("refresh JSON");
+    let payload: serde_json::Value = serde_json::from_slice(&output.stdout).expect("refresh JSON");
     let safe_actions = payload["repair_plan"]["safe_actions"]
         .as_array()
         .expect("safe actions");

@@ -12,8 +12,13 @@ struct LearningStatus {
     processing: usize,
     retry: usize,
     completed: usize,
+    rejected: usize,
     dead_letter: usize,
     memory_pending: usize,
+    memory_submitting: usize,
+    memory_accepted: usize,
+    memory_completed: usize,
+    memory_rejected: usize,
     memory_dead_letter: usize,
     last_run: Option<Value>,
 }
@@ -23,10 +28,11 @@ pub fn status(json: bool) -> Result<()> {
     let queue_root = std::env::var_os("PROMETHEUS_LEARNING_QUEUE")
         .map(PathBuf::from)
         .unwrap_or_else(|| home.join(".prometheus/learning-queue"));
-    let worker_installed = std::env::var_os("PROMETHEUS_LEARNING_WORKER_BIN")
+    let configured_worker = std::env::var_os("PROMETHEUS_LEARNING_WORKER_BIN")
         .map(PathBuf::from)
-        .unwrap_or_else(|| home.join(".local/bin/prometheus-learning-worker"))
-        .is_file();
+        .unwrap_or_else(|| home.join(".local/bin/prometheus-learning-worker"));
+    let worker_installed = configured_worker.is_file()
+        || Path::new("/usr/local/bin/prometheus-learning-worker").is_file();
     let report = LearningStatus {
         queue_root: queue_root.display().to_string(),
         worker_installed,
@@ -34,9 +40,13 @@ pub fn status(json: bool) -> Result<()> {
         processing: json_count(&queue_root.join("processing")),
         retry: json_count(&queue_root.join("retry")),
         completed: json_count(&queue_root.join("completed")),
+        rejected: json_count(&queue_root.join("rejected")),
         dead_letter: json_count(&queue_root.join("dead-letter")),
-        memory_pending: json_count(&queue_root.join("memory/pending"))
-            + json_count(&queue_root.join("memory/retry")),
+        memory_pending: json_count(&queue_root.join("memory/pending")),
+        memory_submitting: json_count(&queue_root.join("memory/submitting")),
+        memory_accepted: json_count(&queue_root.join("memory/accepted")),
+        memory_completed: json_count(&queue_root.join("memory/completed")),
+        memory_rejected: json_count(&queue_root.join("memory/rejected")),
         memory_dead_letter: json_count(&queue_root.join("memory/dead-letter")),
         last_run: fs::read(queue_root.join("status.json"))
             .ok()
@@ -51,8 +61,13 @@ pub fn status(json: bool) -> Result<()> {
         println!("Processing: {}", report.processing);
         println!("Retry: {}", report.retry);
         println!("Completed: {}", report.completed);
+        println!("Rejected: {}", report.rejected);
         println!("Dead-letter: {}", report.dead_letter);
         println!("Memory pending: {}", report.memory_pending);
+        println!("Memory submitting: {}", report.memory_submitting);
+        println!("Memory accepted: {}", report.memory_accepted);
+        println!("Memory completed: {}", report.memory_completed);
+        println!("Memory rejected: {}", report.memory_rejected);
         println!("Memory dead-letter: {}", report.memory_dead_letter);
     }
     Ok(())

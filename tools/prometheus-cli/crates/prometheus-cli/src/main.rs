@@ -92,6 +92,9 @@ enum Commands {
         /// Restrict output to a specific check id or group
         #[arg(long)]
         check: Option<String>,
+        /// Exclude a check id, group, or managed service scope (repeatable)
+        #[arg(long)]
+        exclude: Vec<String>,
         /// Plan or apply safe repairs
         #[arg(long, conflicts_with = "refresh")]
         fix: bool,
@@ -810,6 +813,7 @@ async fn main() -> Result<()> {
         Commands::Doctor {
             json,
             check,
+            exclude,
             fix,
             refresh,
             dry_run,
@@ -818,6 +822,7 @@ async fn main() -> Result<()> {
             commands::doctor::run(commands::doctor::DoctorOptions {
                 json,
                 check,
+                exclude,
                 fix,
                 refresh,
                 dry_run,

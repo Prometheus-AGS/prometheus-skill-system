@@ -9,13 +9,14 @@ use std::collections::BTreeSet;
 use std::fs;
 use std::path::Path;
 use std::path::PathBuf;
-use std::process::Command;
+use std::process::{Command, Stdio};
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
 #[derive(Debug, Clone, Default)]
 pub struct DoctorOptions {
     pub json: bool,
     pub check: Option<String>,
+    pub exclude: Vec<String>,
     pub fix: bool,
     pub refresh: bool,
     pub dry_run: bool,
@@ -78,9 +79,16 @@ pub struct DoctorReport {
     #[serde(rename = "contractVersion")]
     pub contract_version: &'static str,
     pub mode: String,
+    pub selection: DoctorSelection,
     pub summary: DoctorSummary,
     pub checks: Vec<CheckResult>,
     pub repair_plan: Option<RepairPlan>,
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct DoctorSelection {
+    pub check: Option<String>,
+    pub excluded: Vec<String>,
 }
 
 #[derive(Debug, Clone, Serialize)]
@@ -165,29 +173,62 @@ pub async fn run(options: DoctorOptions) -> Result<()> {
 }
 
 async fn build_report(options: &DoctorOptions) -> DoctorReport {
-    let mut checks = vec![
-        check_skills_directory(),
-        check_installed_agents(),
-        check_surreal_memory().await,
-        check_judge_gateway().await,
-        check_managed_binaries(),
-        check_managed_services(),
-        check_learning_worker(),
-        check_hook_log_rotation(),
-        check_managed_mcp(),
-        check_managed_hooks(),
-        check_kbd_control_plane().await,
-        check_kbd_state(),
-        check_kbd_rollout(),
-        check_harness_adapter_parity(),
-        check_instruction_budgets(),
-        check_evolver_state(),
-        check_trace_store(),
-    ];
-
-    if let Some(filter) = options.check.as_deref() {
-        checks.retain(|check| check.id == filter || check.group == filter);
+    let mut checks = Vec::new();
+    macro_rules! run_check {
+        ($id:literal, $group:literal, $check:expr) => {
+            if check_selected(options, $id, $group) {
+                checks.push($check);
+            }
+        };
     }
+
+    run_check!("skills.directory", "skills", check_skills_directory());
+    run_check!(
+        "skills.installed-agents",
+        "skills",
+        check_installed_agents()
+    );
+    run_check!(
+        "learning.surreal-memory",
+        "learning",
+        check_surreal_memory().await
+    );
+    run_check!(
+        "review.judge-gateway",
+        "review",
+        check_judge_gateway().await
+    );
+    run_check!("binaries.manifest", "binaries", check_managed_binaries());
+    run_check!(
+        "services.launch-agents",
+        "services",
+        check_managed_services()
+    );
+    run_check!("learning.worker", "learning", check_learning_worker());
+    run_check!("learning.snapshots", "learning", check_prompt_snapshots());
+    run_check!("hooks.rotation", "hooks", check_hook_log_rotation());
+    run_check!("mcp.config", "mcp", check_managed_mcp());
+    run_check!("hooks.lifecycle", "hooks", check_managed_hooks());
+    run_check!(
+        "control.kbd-runtime",
+        "control",
+        check_kbd_control_plane().await
+    );
+    run_check!("state.kbd-orchestrator", "state", check_kbd_state());
+    run_check!("control.kbd-rollout", "control", check_kbd_rollout());
+    run_check!(
+        "hooks.harness-adapters",
+        "hooks",
+        check_harness_adapter_parity()
+    );
+    run_check!(
+        "skills.discovery-budget",
+        "skills",
+        check_instruction_budgets()
+    );
+    run_check!("state.evolver", "state", check_evolver_state());
+    run_check!("learning.trace-store", "learning", check_trace_store());
+    scope_repair_actions(options, &mut checks);
 
     let failed = checks
         .iter()
@@ -220,6 +261,10 @@ async fn build_report(options: &DoctorOptions) -> DoctorReport {
         schema_version: 1,
         contract_version: "2.0.0",
         mode: mode.to_string(),
+        selection: DoctorSelection {
+            check: options.check.clone(),
+            excluded: options.exclude.clone(),
+        },
         summary: DoctorSummary {
             failed,
             warned,
@@ -229,6 +274,40 @@ async fn build_report(options: &DoctorOptions) -> DoctorReport {
         },
         repair_plan: build_repair_plan(options, &checks),
         checks,
+    }
+}
+
+fn check_selected(options: &DoctorOptions, id: &str, group: &str) -> bool {
+    let included = options
+        .check
+        .as_deref()
+        .is_none_or(|filter| filter == id || filter == group);
+    included
+        && !options
+            .exclude
+            .iter()
+            .any(|excluded| excluded == id || excluded == group)
+}
+
+fn service_excluded(options: &DoctorOptions, service: &str) -> bool {
+    let scope = format!("service:{service}");
+    options.exclude.iter().any(|excluded| excluded == &scope)
+}
+
+fn scope_repair_actions(options: &DoctorOptions, checks: &mut [CheckResult]) {
+    if !service_excluded(options, "sovereign-sync") {
+        return;
+    }
+    for action in checks
+        .iter_mut()
+        .flat_map(|check| check.actions.iter_mut())
+        .filter(|action| action.id.starts_with("services."))
+    {
+        if let Some(command_hint) = action.command_hint.as_mut() {
+            if !command_hint.contains("--exclude sovereign-sync") {
+                command_hint.push_str(" --exclude sovereign-sync");
+            }
+        }
     }
 }
 
@@ -414,6 +493,10 @@ struct RefreshManifest {
     service_definition_hashes: Vec<HashedPath>,
     catalog_hash: Option<String>,
     mcp_health_snapshot: Option<String>,
+    surreal_memory_readiness: Option<String>,
+    plugin_generation: Option<String>,
+    learning_status: Option<String>,
+    prompt_snapshot_pointers: Vec<ManifestEntry>,
 }
 
 #[derive(Debug, Clone, Serialize)]
@@ -478,6 +561,9 @@ fn run_safe_action(options: &DoctorOptions, action: &RepairAction) -> Result<()>
         }
         "services.install-mcp-services" => {
             command.arg("scripts/install-mcp-services.sh");
+            if service_excluded(options, "sovereign-sync") {
+                command.args(["--exclude", "sovereign-sync"]);
+            }
         }
         "mcp.configure-all-tools" => {
             command.arg("scripts/configure-mcp-all-tools.sh");
@@ -529,26 +615,44 @@ fn write_refresh_manifest(
         submodule_heads: collect_submodule_heads(),
         build_hashes: collect_hashed_paths(&[
             "tools/prometheus-cli/target/release/prometheus",
-            "tools/forge-rs/target/release/forge",
             "tools/prometheus-knowledge/target/release/pk",
             "tools/prometheus-knowledge/target/release/pk-cherry",
+            "tools/prometheus-knowledge/target/release/prometheus-learning-worker",
+            "tools/surreal-memory-server/target/release/surreal-memory-server",
         ]),
         installed_hashes: collect_hashed_paths_from_paths(&[
             local_bin.join("prometheus"),
-            local_bin.join("forge"),
             local_bin.join("pk"),
             local_bin.join("pk-cherry"),
+            local_bin.join("prometheus-learning-worker"),
+            local_bin.join("surreal-memory-server"),
         ]),
         service_definition_hashes: collect_hashed_paths(&[
             "shared/launchagents/ai.prometheus.surreal-memory-native.plist",
             "shared/launchagents/ai.prometheus.pk-cherry.plist",
-            "shared/launchagents/ai.prometheus.forge-mcp.plist",
+            "shared/launchagents/ai.prometheus.learning-worker.plist",
+            "shared/launchagents/ai.prometheus.hooks-logrotate.plist",
             "shared/systemd/ai.prometheus.surreal-memory-native.service",
             "shared/systemd/ai.prometheus.pk-cherry.service",
-            "shared/systemd/ai.prometheus.forge-mcp.service",
+            "shared/systemd/ai.prometheus.learning-worker.service",
+            "shared/systemd/ai.prometheus.hooks-logrotate.service",
         ]),
         catalog_hash: hash_file("config/codex-catalog.txt"),
-        mcp_health_snapshot: command_stdout(&["bash", "scripts/check-mcp-health.sh", "--json"]),
+        mcp_health_snapshot: command_stdout(&[
+            "bash",
+            "scripts/check-mcp-health.sh",
+            "--json",
+            "--exclude",
+            "sovereign-sync",
+        ]),
+        surreal_memory_readiness: command_stdout(&["curl", "-fsS", "http://127.0.0.1:23001/ready"]),
+        plugin_generation: command_stdout(&[
+            "node",
+            "scripts/install-plugin-generation.js",
+            "--verify",
+        ]),
+        learning_status: command_stdout(&["prometheus", "learning", "status", "--json"]),
+        prompt_snapshot_pointers: collect_prompt_snapshot_pointers(&home_dir),
     };
 
     fs::write(&manifest_path, serde_json::to_vec_pretty(&manifest)?)?;
@@ -573,6 +677,33 @@ fn collect_submodule_heads() -> Vec<ManifestEntry> {
             Some(ManifestEntry { name, value: sha })
         })
         .collect()
+}
+
+fn collect_prompt_snapshot_pointers(home: &Path) -> Vec<ManifestEntry> {
+    let project_root = std::env::var_os("PROMETHEUS_PROJECT_ROOT")
+        .map(PathBuf::from)
+        .or_else(|| std::env::current_dir().ok())
+        .unwrap_or_else(|| PathBuf::from("."));
+    let global = home.join(".prometheus/knowledge");
+    [
+        (
+            "project",
+            project_root.join(".prometheus/knowledge/.prompt-snapshots/project/current"),
+        ),
+        (
+            "shared",
+            global.join("shared/.prompt-snapshots/shared/current"),
+        ),
+        ("global", global.join(".prompt-snapshots/global/current")),
+    ]
+    .into_iter()
+    .filter_map(|(name, path)| {
+        fs::read_to_string(path).ok().map(|value| ManifestEntry {
+            name: name.into(),
+            value: value.trim().into(),
+        })
+    })
+    .collect()
 }
 
 fn collect_hashed_paths(paths: &[&str]) -> Vec<HashedPath> {
@@ -742,28 +873,45 @@ async fn check_surreal_memory() -> CheckResult {
         };
     };
 
-    match client.ping().await {
-        Ok(true) => CheckResult {
+    let health = client.ping().await;
+    let readiness = if matches!(health, Ok(true)) {
+        client.readiness().await.ok()
+    } else {
+        None
+    };
+    let ledger_ready = readiness.as_ref().is_some_and(|payload| {
+        payload["status"] == "ready"
+            && payload["ingestion_ready"] == true
+            && payload["capabilities"]["ledger"] == true
+            && payload["capabilities"]["storage"] == true
+            && payload["capabilities"]["coordinator"] == true
+    });
+
+    match (health, ledger_ready) {
+        (Ok(true), true) => CheckResult {
             id: "learning.surreal-memory".into(),
             group: "learning".into(),
             label: "Surreal-memory".into(),
             severity: Severity::Green,
             status: CheckStatus::Pass,
-            summary: format!("Reachable at {}", client.base_url()),
-            details: vec![],
+            summary: format!("Durable operation ledger is ready at {}", client.base_url()),
+            details: vec![format!(
+                "readiness: {}",
+                serde_json::to_string(readiness.as_ref().expect("readiness was validated"))
+                    .unwrap_or_else(|_| "unavailable".into())
+            )],
             optional: false,
             actions: vec![],
         },
-        Ok(false) | Err(_) => CheckResult {
+        _ => CheckResult {
             id: "learning.surreal-memory".into(),
             group: "learning".into(),
             label: "Surreal-memory".into(),
             severity: Severity::Red,
             status: CheckStatus::Fail,
-            summary: format!("Surreal-memory is unreachable at {}", client.base_url()),
+            summary: format!("Surreal-memory is unhealthy or not ready at {}", client.base_url()),
             details: vec![
-                "Required memory substrate must be healthy before learning-loop work proceeds."
-                    .into(),
+                "Required memory substrate must expose healthy ledger, storage, coordinator, and ingestion readiness before learning-loop work proceeds.".into(),
             ],
             optional: false,
             actions: vec![RepairAction {
@@ -1450,18 +1598,87 @@ fn check_trace_store() -> CheckResult {
 }
 
 fn check_managed_binaries() -> CheckResult {
+    use std::os::unix::fs::PermissionsExt;
+
+    let home = dirs::home_dir().unwrap_or_else(|| PathBuf::from("/"));
+    let bin_dir = home.join(".local/bin");
+    let binaries = [
+        (
+            "prometheus",
+            "tools/prometheus-cli/target/release/prometheus",
+        ),
+        ("pk", "tools/prometheus-knowledge/target/release/pk"),
+        (
+            "pk-cherry",
+            "tools/prometheus-knowledge/target/release/pk-cherry",
+        ),
+        (
+            "prometheus-learning-worker",
+            "tools/prometheus-knowledge/target/release/prometheus-learning-worker",
+        ),
+        (
+            "surreal-memory-server",
+            "tools/surreal-memory-server/target/release/surreal-memory-server",
+        ),
+    ];
+    let mut failures = Vec::new();
+    let mut details = Vec::new();
+    for (name, source) in binaries {
+        let installed = bin_dir.join(name);
+        let executable = fs::metadata(&installed).ok().is_some_and(|metadata| {
+            metadata.is_file() && metadata.permissions().mode() & 0o111 != 0
+        });
+        let Some(installed_hash) = hash_path(&installed) else {
+            failures.push(format!("{name} is missing from {}", bin_dir.display()));
+            continue;
+        };
+        if !executable {
+            failures.push(format!("{name} is not executable"));
+            continue;
+        }
+        let signed = !cfg!(target_os = "macos")
+            || Command::new("codesign")
+                .args(["--verify", "--strict"])
+                .arg(&installed)
+                .stdout(Stdio::null())
+                .stderr(Stdio::null())
+                .status()
+                .is_ok_and(|status| status.success());
+        if !signed {
+            failures.push(format!("{name} does not have a valid macOS code signature"));
+        }
+        let source_hash = hash_file(source).unwrap_or_else(|| "not-built".into());
+        details.push(format!(
+            "{name}: installed sha256 {installed_hash}; source sha256 {source_hash}; signature {}",
+            if signed { "valid" } else { "invalid" }
+        ));
+    }
+    let healthy = failures.is_empty();
     CheckResult {
         id: "binaries.manifest".into(),
         group: "binaries".into(),
         label: "Managed binary manifest".into(),
-        severity: Severity::Yellow,
-        status: CheckStatus::Skip,
-        summary: "Binary refresh manifest is not implemented yet".into(),
-        details: vec!["Doctor registry now reserves the binaries group for pinned-source hash and freshness checks.".into()],
-        optional: true,
+        severity: if healthy {
+            Severity::Green
+        } else {
+            Severity::Red
+        },
+        status: if healthy {
+            CheckStatus::Pass
+        } else {
+            CheckStatus::Fail
+        },
+        summary: if healthy {
+            "5/5 managed binaries are executable, hashed, and signed".into()
+        } else {
+            format!("{} managed binary defect(s)", failures.len())
+        },
+        details: if healthy { details } else { failures },
+        optional: false,
         actions: vec![RepairAction {
             id: "binaries.install-binaries".into(),
-            description: "Rebuild and reinstall the managed binaries from the pinned source checkout.".into(),
+            description:
+                "Rebuild and reinstall the managed binaries from the pinned source checkout.".into(),
             safe: true,
             reversible: true,
             dry_run_only: false,
@@ -1472,18 +1689,82 @@ fn check_managed_binaries() -> CheckResult {
 }
 
 fn check_managed_services() -> CheckResult {
+    let home = dirs::home_dir().unwrap_or_else(|| PathBuf::from("/"));
+    let labels = [
+        "ai.prometheus.surreal-memory-native",
+        "ai.prometheus.pk-cherry",
+        "ai.prometheus.learning-worker",
+        "ai.prometheus.hooks-logrotate",
+    ];
+    let mut failures = Vec::new();
+    let mut details = Vec::new();
+    for label in labels {
+        let definition = if cfg!(target_os = "macos") {
+            home.join("Library/LaunchAgents")
+                .join(format!("{label}.plist"))
+        } else {
+            home.join(".config/systemd/user")
+                .join(format!("{label}.service"))
+        };
+        if !definition.is_file() {
+            failures.push(format!(
+                "missing service definition: {}",
+                definition.display()
+            ));
+            continue;
+        }
+        let loaded = if cfg!(target_os = "macos") {
+            let target = format!(
+                "gui/{}/{}",
+                command_stdout(&["id", "-u"]).unwrap_or_else(|| "0".into()),
+                label
+            );
+            Command::new("launchctl")
+                .args(["print", &target])
+                .stdout(Stdio::null())
+                .stderr(Stdio::null())
+                .status()
+                .is_ok_and(|status| status.success())
+        } else {
+            Command::new("systemctl")
+                .args(["--user", "is-enabled", label])
+                .stdout(Stdio::null())
+                .stderr(Stdio::null())
+                .status()
+                .is_ok_and(|status| status.success())
+        };
+        if loaded {
+            details.push(format!("{label}: loaded from {}", definition.display()));
+        } else {
+            failures.push(format!("{label} is installed but not loaded"));
+        }
+    }
+    let healthy = failures.is_empty();
     CheckResult {
         id: "services.launch-agents".into(),
         group: "services".into(),
         label: "Managed LaunchAgents".into(),
-        severity: Severity::Yellow,
-        status: CheckStatus::Skip,
-        summary: "LaunchAgent ownership checks are not implemented yet".into(),
-        details: vec!["Doctor registry now reserves the services group for plist ownership and health validation.".into()],
-        optional: true,
+        severity: if healthy {
+            Severity::Green
+        } else {
+            Severity::Red
+        },
+        status: if healthy {
+            CheckStatus::Pass
+        } else {
+            CheckStatus::Fail
+        },
+        summary: if healthy {
+            "4/4 deterministic learning services are installed and loaded".into()
+        } else {
+            format!("{} managed service defect(s)", failures.len())
+        },
+        details: if healthy { details } else { failures },
+        optional: false,
         actions: vec![RepairAction {
             id: "services.install-mcp-services".into(),
-            description: "Reload only the managed MCP service definitions owned by this repository.".into(),
+            description:
+                "Reload only the managed MCP service definitions owned by this repository.".into(),
             safe: true,
             reversible: true,
             dry_run_only: false,
@@ -1505,9 +1786,17 @@ fn check_learning_worker() -> CheckResult {
             .filter(|entry| entry.path().extension().and_then(|ext| ext.to_str()) == Some("json"))
             .count()
     };
-    let pending = count("pending") + count("memory/pending");
-    let retry = count("retry") + count("memory/retry");
-    let dead = count("dead-letter") + count("memory/dead-letter");
+    let pending = count("pending");
+    let processing = count("processing");
+    let completed = count("completed");
+    let rejected = count("rejected");
+    let memory_pending = count("memory/pending");
+    let memory_submitting = count("memory/submitting");
+    let memory_accepted = count("memory/accepted");
+    let memory_completed = count("memory/completed");
+    let memory_rejected = count("memory/rejected");
+    let legacy_retry = count("retry") + count("memory/retry");
+    let legacy_dead = count("dead-letter") + count("memory/dead-letter");
     let worker = home.join(".local/bin/prometheus-learning-worker");
     let loaded = if cfg!(target_os = "macos") {
         let target = format!(
@@ -1516,15 +1805,27 @@ fn check_learning_worker() -> CheckResult {
         );
         Command::new("launchctl")
             .args(["print", &target])
+            .stdout(Stdio::null())
+            .stderr(Stdio::null())
             .status()
             .is_ok_and(|status| status.success())
     } else {
         Command::new("systemctl")
             .args(["--user", "is-enabled", "ai.prometheus.learning-worker.path"])
+            .stdout(Stdio::null())
+            .stderr(Stdio::null())
             .status()
             .is_ok_and(|status| status.success())
     };
-    let healthy = worker.is_file() && loaded && retry == 0 && dead == 0;
+    let healthy = worker.is_file()
+        && loaded
+        && pending == 0
+        && processing == 0
+        && memory_pending == 0
+        && memory_submitting == 0
+        && memory_accepted == 0
+        && legacy_retry == 0
+        && legacy_dead == 0;
     CheckResult {
         id: "learning.worker".into(),
         group: "learning".into(),
@@ -1532,17 +1833,17 @@ fn check_learning_worker() -> CheckResult {
         severity: if healthy { Severity::Green } else { Severity::Red },
         status: if healthy { CheckStatus::Pass } else { CheckStatus::Fail },
         summary: format!(
-            "worker {}, service {}, pending {}, retry {}, dead-letter {}",
+            "worker {}, service {}, jobs {pending}/{processing}/{completed}/{rejected}, memory {memory_pending}/{memory_submitting}/{memory_accepted}/{memory_completed}/{memory_rejected}, legacy retry/dead {legacy_retry}/{legacy_dead}",
             if worker.is_file() { "installed" } else { "missing" },
             if loaded { "loaded" } else { "unloaded" },
-            pending,
-            retry,
-            dead
         ),
-        details: vec![format!("queue: {}", queue.display())],
+        details: vec![
+            format!("queue: {}", queue.display()),
+            "job states: pending/processing/completed/rejected; memory states: pending/submitting/accepted/completed/rejected".into(),
+        ],
         optional: false,
         actions: vec![RepairAction {
-            id: "services.install-learning-worker".into(),
+            id: "services.install-mcp-services".into(),
             description: "Install the learning worker and reload its supervised queue service.".into(),
             safe: true,
             reversible: true,
@@ -1569,11 +1870,19 @@ fn check_hook_log_rotation() -> CheckResult {
         );
         Command::new("launchctl")
             .args(["print", &target])
+            .stdout(Stdio::null())
+            .stderr(Stdio::null())
             .status()
             .is_ok_and(|status| status.success())
     } else {
         Command::new("systemctl")
-            .args(["--user", "is-enabled", "ai.prometheus.hooks-logrotate.timer"])
+            .args([
+                "--user",
+                "is-enabled",
+                "ai.prometheus.hooks-logrotate.timer",
+            ])
+            .stdout(Stdio::null())
+            .stderr(Stdio::null())
             .status()
             .is_ok_and(|status| status.success())
     };
@@ -1582,24 +1891,116 @@ fn check_hook_log_rotation() -> CheckResult {
         id: "hooks.rotation".into(),
         group: "hooks".into(),
         label: "Hook log rotation".into(),
-        severity: if healthy { Severity::Green } else { Severity::Red },
-        status: if healthy { CheckStatus::Pass } else { CheckStatus::Fail },
+        severity: if healthy {
+            Severity::Green
+        } else {
+            Severity::Red
+        },
+        status: if healthy {
+            CheckStatus::Pass
+        } else {
+            CheckStatus::Fail
+        },
         summary: format!(
             "config {}, service {}, hook-log mode {}",
-            if config.is_file() { "installed" } else { "missing" },
+            if config.is_file() {
+                "installed"
+            } else {
+                "missing"
+            },
             if loaded { "loaded" } else { "unloaded" },
-            mode.map(|value| format!("{value:04o}")).unwrap_or_else(|| "missing".into())
+            mode.map(|value| format!("{value:04o}"))
+                .unwrap_or_else(|| "missing".into())
         ),
-        details: vec!["30 daily archives, delayed compression, and writer-lock coordination are required.".into()],
+        details: vec![
+            "30 daily archives, delayed compression, and writer-lock coordination are required."
+                .into(),
+        ],
         optional: false,
         actions: vec![RepairAction {
-            id: "services.install-hook-rotation".into(),
+            id: "services.install-mcp-services".into(),
             description: "Render and load the owner-only hook rotation service.".into(),
             safe: true,
             reversible: true,
             dry_run_only: false,
             command_hint: Some("bash scripts/install-mcp-services.sh --restart".into()),
             reason_blocked: None,
+        }],
+    }
+}
+
+fn check_prompt_snapshots() -> CheckResult {
+    let home = dirs::home_dir().unwrap_or_else(|| PathBuf::from("/"));
+    let project_root = std::env::var_os("PROMETHEUS_PROJECT_ROOT")
+        .map(PathBuf::from)
+        .or_else(|| std::env::current_dir().ok())
+        .unwrap_or_else(|| PathBuf::from("."));
+    let global = home.join(".prometheus/knowledge");
+    let snapshots = [
+        ("project", project_root.join(".prometheus/knowledge")),
+        ("shared", global.join("shared")),
+        ("global", global),
+    ];
+    let mut failures = Vec::new();
+    let mut details = Vec::new();
+    for (scope, knowledge_root) in snapshots {
+        let snapshot_root = knowledge_root.join(".prompt-snapshots").join(scope);
+        let pointer = snapshot_root.join("current");
+        let generation = fs::read_to_string(&pointer)
+            .ok()
+            .map(|value| value.trim().to_owned())
+            .filter(|value| {
+                value.len() == 64 && value.bytes().all(|byte| byte.is_ascii_hexdigit())
+            });
+        match generation {
+            Some(generation)
+                if snapshot_root
+                    .join("generations")
+                    .join(format!("{generation}.json"))
+                    .is_file() =>
+            {
+                details.push(format!("{scope}: committed generation {generation}"));
+            }
+            _ => failures.push(format!(
+                "{scope}: no valid committed snapshot at {}",
+                pointer.display()
+            )),
+        }
+    }
+    let healthy = failures.is_empty();
+    CheckResult {
+        id: "learning.snapshots".into(),
+        group: "learning".into(),
+        label: "Immutable prompt snapshots".into(),
+        severity: if healthy {
+            Severity::Green
+        } else {
+            Severity::Red
+        },
+        status: if healthy {
+            CheckStatus::Pass
+        } else {
+            CheckStatus::Fail
+        },
+        summary: if healthy {
+            "project/shared/global committed snapshot pointers are valid".into()
+        } else {
+            format!("{} prompt snapshot defect(s)", failures.len())
+        },
+        details: if healthy { details } else { failures },
+        optional: false,
+        actions: vec![RepairAction {
+            id: "manual.publish-prompt-snapshots".into(),
+            description: "Publish project, shared, and global snapshots with `pk snapshot`.".into(),
+            safe: false,
+            reversible: true,
+            dry_run_only: false,
+            command_hint: Some(
+                "pk snapshot --scope project --scope shared; pk snapshot --scope global".into(),
+            ),
+            reason_blocked: Some(
+                "Snapshot publication requires an explicit knowledge-root choice.".into(),
+            ),
         }],
     }
 }
@@ -1627,15 +2028,46 @@ fn check_managed_mcp() -> CheckResult {
 }
 
 fn check_managed_hooks() -> CheckResult {
+    let home = dirs::home_dir().unwrap_or_else(|| PathBuf::from("/"));
+    let plugin_root = home.join(".prometheus/plugins/prometheus-skill-pack");
+    let output = Command::new("node")
+        .args([
+            "scripts/install-plugin-generation.js",
+            "--verify",
+            "--plugin-root",
+        ])
+        .arg(&plugin_root)
+        .arg("--home")
+        .arg(&home)
+        .output();
+    let generation = output
+        .as_ref()
+        .ok()
+        .filter(|output| output.status.success())
+        .and_then(|output| String::from_utf8(output.stdout.clone()).ok())
+        .map(|value| value.trim().to_owned())
+        .filter(|value| value.len() == 64);
+    let healthy = generation.is_some();
     CheckResult {
         id: "hooks.lifecycle".into(),
         group: "hooks".into(),
         label: "Lifecycle hooks".into(),
-        severity: Severity::Yellow,
-        status: CheckStatus::Skip,
-        summary: "Hook integrity checks are not implemented yet".into(),
-        details: vec!["Doctor registry now reserves the hooks group for prompt/stop/subagent hook validation.".into()],
-        optional: true,
+        severity: if healthy { Severity::Green } else { Severity::Red },
+        status: if healthy { CheckStatus::Pass } else { CheckStatus::Fail },
+        summary: generation
+            .as_ref()
+            .map(|generation| format!("active generation {generation} passed manifest, dispatcher, and 14-target verification"))
+            .unwrap_or_else(|| "active plugin generation verification failed".into()),
+        details: if healthy {
+            vec![format!("plugin root: {}", plugin_root.display())]
+        } else {
+            vec![output
+                .ok()
+                .and_then(|output| String::from_utf8(output.stderr).ok())
+                .filter(|stderr| !stderr.trim().is_empty())
+                .unwrap_or_else(|| "plugin verifier did not return a certified generation".into())]
+        },
+        optional: false,
         actions: vec![RepairAction {
             id: "manual.review-hooks".into(),
             description: "Review hook ownership and payload integrity before any automatic replacement.".into(),

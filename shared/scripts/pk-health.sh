@@ -24,16 +24,18 @@ if [ -f "$LAST_RUN" ]; then
 fi
 date -u +%s > "$LAST_RUN" 2>/dev/null || true
 
-# Run a read-only lint check; surface a one-line summary to session context.
-if command -v timeout >/dev/null 2>&1; then
-  SUMMARY="$(timeout 6 pk lint --check 2>/dev/null | tail -1 || true)"
-else
-  SUMMARY="$(pk lint --check 2>/dev/null | tail -1 || true)"
-fi
+# Run the read-only lint command. Its exit status is authoritative; an empty or
+# failed invocation must never be translated into a successful health report.
+LINT_OUTPUT="$(pk lint 2>&1)"
+LINT_STATUS=$?
+SUMMARY="$(printf '%s\n' "$LINT_OUTPUT" | tail -1)"
 
-if [ -n "$SUMMARY" ]; then
+if [ "$LINT_STATUS" -ne 0 ]; then
+  printf 'pk health: FAIL (pk lint exited %s)%s\n' "$LINT_STATUS" \
+    "$([ -n "$SUMMARY" ] && printf ': %s' "$SUMMARY")"
+elif [ -n "$SUMMARY" ]; then
   printf 'pk health: %s\n' "$SUMMARY"
 else
-  printf 'pk health: OK (no issues reported)\n'
+  printf 'pk health: WARN (pk lint produced no diagnostic output)\n'
 fi
 finish
