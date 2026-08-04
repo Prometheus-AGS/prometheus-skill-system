@@ -4,10 +4,51 @@
 
 The execution service is an optional evidence path. It does not inspect or restrict an agent's ordinary Bash, Python, Edit, or Write tool use.
 
-This first implementation slice provides portable contracts and offline verification:
+The local sidecar exposes a mode-`0600` Unix-domain socket, persists accepted runs and
+ordered events before execution, and returns signed receipts whose streams and declared
+artifacts are stored in the content-addressed store. The current runtime-certified Tier P
+worker uses macOS Seatbelt; unsupported hosts stay health-live but fail readiness rather
+than claiming an execution backend.
 
 ```bash
 prometheus-exec init --identity ./device-key.json
+prometheus-exec daemon \
+  --socket ./runtime/exec.sock \
+  --state-dir ./state \
+  --identity ./device-key.json
+
+prometheus-exec run \
+  --socket ./runtime/exec.sock \
+  --state-dir ./state \
+  --identity ./device-key.json \
+  --runtime python3 \
+  --code ./job.py \
+  --input records=./records.json \
+  --format json
+
+prometheus-exec status \
+  --socket ./runtime/exec.sock \
+  --run-id '<run-uuid>' \
+  --format json
+
+prometheus-exec doctor \
+  --socket ./runtime/exec.sock \
+  --state-dir ./state \
+  --identity ./device-key.json \
+  --format json
+```
+
+`run` signs the request with the configured device identity, places code and named inputs
+in the shared CAS, submits over the Unix socket, and waits for the durable terminal
+receipt. Reusing the same request ID and canonical payload replays the original run;
+conflicting payloads are rejected. `status` retrieves durable state without resubmitting.
+`doctor` is diagnostic only: it verifies the running binary and same-UID socket, bounded
+health/readiness, identity consistency, reconciled run records, sandbox availability, and
+every CAS blob without creating or repairing state.
+
+Portable contracts and offline verification remain available independently of the daemon:
+
+```bash
 prometheus-exec verify \
   --receipt ./receipt.json \
   --public-key '<unpadded-base64url-public-key>' \
@@ -16,7 +57,7 @@ prometheus-exec verify \
 prometheus-exec contracts --output-dir ../../docs/reference/api
 ```
 
-`init` atomically creates a mode-`0600` Ed25519 identity and refuses to replace an existing file. Its stdout contains only the public key, algorithm, and key ID. `verify` reads only caller-supplied files; it does not initialize a daemon, bind a socket, contact KBD or Sovereign Sync, or use the network.
+`init` atomically creates a mode-`0600` Ed25519 identity and refuses to replace an existing file. Its stdout contains only the public key, algorithm, and key ID. `verify` reads only caller-supplied files; it does not initialize a daemon, bind a socket, or use the network.
 
 Revision-1 signatures use RFC 8785 canonical JSON with the top-level `signature` field omitted. Ed25519 uses raw 32-byte public keys and raw 64-byte signatures. P-256 uses compressed SEC1 public keys and fixed-width IEEE P1363 signatures. Binary values are unpadded base64url; key IDs are `<algorithm>:<sha256-of-public-key>`.
 

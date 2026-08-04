@@ -18,7 +18,7 @@
 - [x] 3.1 Implement the durable request/run ledger, same-hash replay, hash conflict, terminal commit ordering, and restart reconciliation
 - [x] 3.2 Implement ordered durable events and response-loss retrieval in the transport-independent service
 - [x] 3.3 Implement health-first mode-0600 UDS binding, same-UID peer credentials, readiness state, and REST/SSE routes
-- [ ] 3.4 Extend `prometheus-exec` with daemon, run, status, and non-mutating doctor commands
+- [x] 3.4 Extend `prometheus-exec` with daemon, run, status, and non-mutating doctor commands
 
 ## 4. Local certification and handoff
 

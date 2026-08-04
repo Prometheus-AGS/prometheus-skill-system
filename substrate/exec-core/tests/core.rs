@@ -124,7 +124,11 @@ fn receipt_assembly_produces_portable_signed_evidence() {
         platform: "macos-aarch64".into(),
     };
 
-    let receipt = assembler.assemble(&validated, execution).unwrap();
+    let run_id = Uuid::new_v4();
+    let receipt = assembler
+        .assemble_for_run(run_id, &validated, execution)
+        .unwrap();
+    assert_eq!(receipt.run_id, run_id);
     assert_eq!(receipt.evidence_class, EvidenceClass::Attested);
     assert_eq!(receipt.outputs.stdout, hash_bytes(b"ok\n"));
     assert_eq!(receipt.grants.len(), 1);

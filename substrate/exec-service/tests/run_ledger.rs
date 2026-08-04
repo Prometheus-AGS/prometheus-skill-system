@@ -157,6 +157,44 @@ fn concurrent_accept_has_exactly_one_creator() {
 }
 
 #[test]
+fn concurrent_execution_claim_has_exactly_one_spawner() {
+    let directory = tempdir().unwrap();
+    let request = request(Uuid::new_v4(), b"print('claim-once')");
+    let request_id = request.request_id;
+    let request_hash = request.request_hash().unwrap();
+    RunLedger::open(directory.path())
+        .unwrap()
+        .accept(request)
+        .unwrap();
+    let root = directory.path().to_path_buf();
+    let handles: Vec<_> = (0..8)
+        .map(|_| {
+            let root = root.clone();
+            let request_hash = request_hash.clone();
+            thread::spawn(move || {
+                RunLedger::open(root)
+                    .unwrap()
+                    .claim_for_execution(request_id, &request_hash)
+                    .unwrap()
+            })
+        })
+        .collect();
+    let claims: Vec<_> = handles
+        .into_iter()
+        .map(|handle| handle.join().unwrap())
+        .collect();
+    assert_eq!(claims.iter().filter(|claim| claim.claimed).count(), 1);
+    assert_eq!(
+        claims
+            .iter()
+            .map(|claim| claim.record.run_id)
+            .collect::<std::collections::HashSet<_>>()
+            .len(),
+        1
+    );
+}
+
+#[test]
 fn spawn_boundary_is_durable_and_idempotent() {
     let directory = tempdir().unwrap();
     let request = request(Uuid::new_v4(), b"print('spawn')");

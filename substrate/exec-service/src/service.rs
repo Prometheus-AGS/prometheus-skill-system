@@ -10,7 +10,8 @@ use uuid::Uuid;
 
 use crate::{
     AcceptRunResult, AppendEventResult, ReconciliationReport, RunEvent, RunEventData, RunEventLog,
-    RunEventLogError, RunLedger, RunLedgerError, RunRecord, SpawnStatus, TerminalCommitResult,
+    RunEventLogError, RunLedger, RunLedgerError, RunRecord, SpawnRunResult, SpawnStatus,
+    TerminalCommitResult,
 };
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -91,6 +92,9 @@ impl ExecutionService {
     }
 
     pub fn run(&self, run_id: Uuid) -> Result<Option<RunRecord>, ExecutionServiceError> {
+        let lock = self.open_operation_lock()?;
+        fs2::FileExt::lock_shared(&lock)
+            .map_err(|source| self.io_error(self.lock_path(), source))?;
         Ok(self.ledger.get_by_run_id(run_id)?)
     }
 
@@ -111,6 +115,19 @@ impl ExecutionService {
         let record = self.ledger.mark_spawned(request_id, request_hash)?;
         self.synchronize_events(&record)?;
         Ok(record)
+    }
+
+    pub fn claim_for_execution(
+        &self,
+        request_id: Uuid,
+        request_hash: &Digest,
+    ) -> Result<SpawnRunResult, ExecutionServiceError> {
+        let lock = self.open_operation_lock()?;
+        fs2::FileExt::lock_exclusive(&lock)
+            .map_err(|source| self.io_error(self.lock_path(), source))?;
+        let claimed = self.ledger.claim_for_execution(request_id, request_hash)?;
+        self.synchronize_events(&claimed.record)?;
+        Ok(claimed)
     }
 
     pub fn append_runtime_event(
@@ -163,6 +180,9 @@ impl ExecutionService {
         run_id: Uuid,
         after: u64,
     ) -> Result<Vec<RunEvent>, ExecutionServiceError> {
+        let lock = self.open_operation_lock()?;
+        fs2::FileExt::lock_shared(&lock)
+            .map_err(|source| self.io_error(self.lock_path(), source))?;
         if self.ledger.get_by_run_id(run_id)?.is_none() {
             return Err(ExecutionServiceError::RunNotFound(run_id));
         }

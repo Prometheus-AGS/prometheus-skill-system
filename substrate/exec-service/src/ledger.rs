@@ -77,6 +77,12 @@ pub struct TerminalCommitResult {
     pub created: bool,
 }
 
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct SpawnRunResult {
+    pub record: RunRecord,
+    pub claimed: bool,
+}
+
 #[derive(Clone, Debug, Default, PartialEq, Eq)]
 pub struct ReconciliationReport {
     pub recovered_from_log: Vec<Uuid>,
@@ -237,6 +243,16 @@ impl RunLedger {
         request_id: Uuid,
         request_hash: &Digest,
     ) -> Result<RunRecord, RunLedgerError> {
+        Ok(self.claim_for_execution(request_id, request_hash)?.record)
+    }
+
+    /// Atomically claims a queued run. Only the caller receiving `claimed=true`
+    /// may spawn an executor process.
+    pub fn claim_for_execution(
+        &self,
+        request_id: Uuid,
+        request_hash: &Digest,
+    ) -> Result<SpawnRunResult, RunLedgerError> {
         let lock = self.open_lock()?;
         fs2::FileExt::lock_exclusive(&lock).map_err(|source| io_error(self.lock_path(), source))?;
         let mut record = self
@@ -250,7 +266,10 @@ impl RunLedger {
             )));
         }
         if matches!(record.spawn, SpawnStatus::Spawned { .. }) {
-            return Ok(record);
+            return Ok(SpawnRunResult {
+                record,
+                claimed: false,
+            });
         }
         let now = Utc::now();
         record.state = RunState::Running;
@@ -258,7 +277,10 @@ impl RunLedger {
         record.updated_at = now;
         record.revision = record.revision.saturating_add(1);
         self.write_record(&record, true)?;
-        Ok(record)
+        Ok(SpawnRunResult {
+            record,
+            claimed: true,
+        })
     }
 
     /// Appends the signed receipt before publishing terminal state in the ledger.
