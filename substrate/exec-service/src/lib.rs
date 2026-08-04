@@ -7,10 +7,17 @@
 #![forbid(unsafe_code)]
 
 mod event_log;
+mod http;
 mod ledger;
 mod service;
 
 pub use event_log::{AppendEventResult, RunEvent, RunEventData, RunEventLog, RunEventLogError};
+pub use http::{
+    build_api_router, ApiErrorDetail, ApiErrorEnvelope, ReadinessSnapshot, ReadinessStatus,
+    RunResponse, SidecarState, SubsystemReadiness,
+};
+#[cfg(unix)]
+pub use http::{peer_is_same_user, UdsSidecar, UdsSidecarError};
 pub use ledger::{
     AcceptRunResult, ReconciliationReport, RunLedger, RunLedgerError, RunRecord, SpawnStatus,
     TerminalCommitResult, TerminalReceiptRecord,
