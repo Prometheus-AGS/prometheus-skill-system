@@ -1,5 +1,5 @@
 use serde::Serialize;
-use std::{fmt, net::SocketAddr, time::Duration};
+use std::{fmt, net::SocketAddr, path::Path, time::Duration};
 use tokio::{
     io::{AsyncReadExt, AsyncWriteExt},
     net::TcpStream,
@@ -59,6 +59,22 @@ impl DaemonHealthReport {
         let mut report = Self::new(status, port, message);
         report.timed_out = true;
         report
+    }
+
+    #[cfg(unix)]
+    fn unix(
+        status: DaemonHealthKind,
+        path: &Path,
+        message: impl Into<String>,
+        timed_out: bool,
+    ) -> Self {
+        Self {
+            status,
+            port: 0,
+            endpoint: format!("unix://{}/health", path.display()),
+            message: message.into(),
+            timed_out,
+        }
     }
 
     pub fn exit_code(&self) -> i32 {
@@ -181,10 +197,21 @@ pub async fn sample_daemon_health(
     p99_budget_ms: Option<f64>,
     max_budget_ms: Option<f64>,
 ) -> SampledDaemonHealthReport {
+    sample_daemon_health_with_token(port, samples, warmup, p99_budget_ms, max_budget_ms, None).await
+}
+
+pub async fn sample_daemon_health_with_token(
+    port: u16,
+    samples: usize,
+    warmup: usize,
+    p99_budget_ms: Option<f64>,
+    max_budget_ms: Option<f64>,
+    token: Option<&str>,
+) -> SampledDaemonHealthReport {
     let samples = samples.max(1);
     let mut stream = None;
     for _ in 0..warmup {
-        let report = probe_keep_alive(port, &mut stream).await;
+        let report = probe_keep_alive(port, &mut stream, token).await;
         if report.status != DaemonHealthKind::Healthy {
             tokio::time::sleep(Duration::from_millis(10)).await;
         }
@@ -197,7 +224,7 @@ pub async fn sample_daemon_health(
     let mut last_report = None;
     for _ in 0..samples {
         let started = std::time::Instant::now();
-        let report = probe_keep_alive(port, &mut stream).await;
+        let report = probe_keep_alive(port, &mut stream, token).await;
         let elapsed_ms = started.elapsed().as_secs_f64() * 1_000.0;
         if report.status == DaemonHealthKind::Healthy {
             latencies.push(elapsed_ms);
@@ -236,7 +263,144 @@ pub async fn sample_daemon_health(
     }
 }
 
-async fn probe_keep_alive(port: u16, stream: &mut Option<TcpStream>) -> DaemonHealthReport {
+#[cfg(unix)]
+pub async fn sample_unix_daemon_health(
+    path: &Path,
+    samples: usize,
+    warmup: usize,
+    p99_budget_ms: Option<f64>,
+    max_budget_ms: Option<f64>,
+) -> SampledDaemonHealthReport {
+    for _ in 0..warmup {
+        let _ = probe_unix(path).await;
+    }
+    let samples = samples.max(1);
+    let mut latencies = Vec::with_capacity(samples);
+    let mut failures = 0;
+    let mut timeouts = 0;
+    let mut first_failure = None;
+    let mut last_report = None;
+    for _ in 0..samples {
+        let started = std::time::Instant::now();
+        let report = probe_unix(path).await;
+        if report.status == DaemonHealthKind::Healthy {
+            latencies.push(started.elapsed().as_secs_f64() * 1_000.0);
+        } else {
+            failures += 1;
+            timeouts += usize::from(report.timed_out);
+            first_failure.get_or_insert_with(|| report.clone());
+        }
+        last_report = Some(report);
+    }
+    latencies.sort_by(f64::total_cmp);
+    let summary = LatencySummary {
+        samples,
+        warmup,
+        p50_ms: percentile(&latencies, 0.50),
+        p95_ms: percentile(&latencies, 0.95),
+        p99_ms: percentile(&latencies, 0.99),
+        maximum_ms: latencies.last().copied(),
+        failures,
+        timeouts,
+    };
+    let budgets = LatencyBudgets {
+        p99_budget_ms,
+        max_budget_ms,
+        passed: p99_budget_ms
+            .is_none_or(|budget| summary.p99_ms.is_some_and(|value| value <= budget))
+            && max_budget_ms
+                .is_none_or(|budget| summary.maximum_ms.is_some_and(|value| value <= budget)),
+    };
+    SampledDaemonHealthReport {
+        health: first_failure.or(last_report).unwrap_or_else(|| {
+            DaemonHealthReport::unix(
+                DaemonHealthKind::Missing,
+                path,
+                "no samples completed",
+                false,
+            )
+        }),
+        latency: summary,
+        budgets,
+    }
+}
+
+#[cfg(unix)]
+async fn probe_unix(path: &Path) -> DaemonHealthReport {
+    let connect = timeout(
+        Duration::from_millis(750),
+        tokio::net::UnixStream::connect(path),
+    )
+    .await;
+    let mut stream = match connect {
+        Ok(Ok(stream)) => stream,
+        Ok(Err(error)) => {
+            return DaemonHealthReport::unix(
+                DaemonHealthKind::Missing,
+                path,
+                format!("could not connect to sovereign-sync socket: {error}"),
+                false,
+            );
+        }
+        Err(_) => {
+            return DaemonHealthReport::unix(
+                DaemonHealthKind::Missing,
+                path,
+                "timed out connecting to sovereign-sync socket",
+                true,
+            );
+        }
+    };
+    if let Err(error) = stream
+        .write_all(b"GET /health HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n")
+        .await
+    {
+        return DaemonHealthReport::unix(
+            DaemonHealthKind::Occupied,
+            path,
+            format!("socket did not accept sovereign-sync health request: {error}"),
+            false,
+        );
+    }
+    let mut response = Vec::new();
+    match timeout(
+        Duration::from_millis(750),
+        stream.read_to_end(&mut response),
+    )
+    .await
+    {
+        Ok(Ok(_)) if response.starts_with(b"HTTP/1.1 200") => DaemonHealthReport::unix(
+            DaemonHealthKind::Healthy,
+            path,
+            "sovereign-sync health endpoint responded successfully",
+            false,
+        ),
+        Ok(Ok(_)) => DaemonHealthReport::unix(
+            DaemonHealthKind::Occupied,
+            path,
+            "socket response was not sovereign-sync health",
+            false,
+        ),
+        Ok(Err(error)) => DaemonHealthReport::unix(
+            DaemonHealthKind::Occupied,
+            path,
+            format!("socket health response failed: {error}"),
+            false,
+        ),
+        Err(_) => DaemonHealthReport::unix(
+            DaemonHealthKind::Occupied,
+            path,
+            "socket health response timed out",
+            true,
+        ),
+    }
+}
+
+async fn probe_keep_alive(
+    port: u16,
+    stream: &mut Option<TcpStream>,
+    token: Option<&str>,
+) -> DaemonHealthReport {
     if stream.is_none() {
         let addr = SocketAddr::from(([127, 0, 0, 1], port));
         match timeout(Duration::from_millis(750), TcpStream::connect(addr)).await {
@@ -258,8 +422,11 @@ async fn probe_keep_alive(port: u16, stream: &mut Option<TcpStream>) -> DaemonHe
         }
     }
 
+    let authorization = token.map_or_else(String::new, |token| {
+        format!("Authorization: Bearer {token}\r\n")
+    });
     let request = format!(
-        "GET /health HTTP/1.1\r\nHost: 127.0.0.1:{port}\r\nConnection: keep-alive\r\nAccept: application/json\r\n\r\n"
+        "GET /health HTTP/1.1\r\nHost: 127.0.0.1:{port}\r\n{authorization}Connection: keep-alive\r\nAccept: application/json\r\n\r\n"
     );
     let exchange = async {
         let stream = stream.as_mut().expect("stream was connected above");

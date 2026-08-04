@@ -2571,13 +2571,16 @@ name = "learner-model"
 version = "0.1.0"
 dependencies = [
  "async-trait",
+ "blake3",
  "chrono",
  "serde",
+ "serde_jcs",
  "serde_json",
  "shellexpand",
  "storage-provider",
  "thiserror 1.0.69",
  "tokio",
+ "uuid",
 ]
 
 [[package]]
@@ -4619,11 +4622,13 @@ dependencies = [
  "kbd-runtime",
  "learner-model",
  "loro",
+ "nix 0.31.3",
  "rand_core 0.6.4",
  "redb",
  "rmcp",
  "schemars",
  "serde",
+ "serde_jcs",
  "serde_json",
  "storage-provider",
  "tempfile",

@@ -10,28 +10,38 @@
 ///   POST /api/v1/stream        (AG-UI SSE — delegates to ag_ui module)
 ///   GET  /api/v1/stream/ping   (AG-UI SSE ping)
 use axum::{
+    extract::connect_info::{ConnectInfo, Connected},
     extract::{Path as AxumPath, Query, Request, State},
-    http::{HeaderMap, StatusCode},
+    http::{header::AUTHORIZATION, HeaderMap, StatusCode},
+    middleware::{self, Next},
     response::{
         sse::{Event as SseEvent, KeepAlive},
         IntoResponse, Response, Sse,
     },
     routing::{any, get, post},
+    serve::IncomingStream,
     Json, Router,
 };
+use base64::Engine as _;
 use bytes::Bytes;
 use futures::stream;
 use kbd_runtime::{CommandKind, SignedCommandEnvelope};
+use rand_core::{OsRng, RngCore};
 use serde::{Deserialize, Serialize};
+#[cfg(unix)]
+use std::os::unix::fs::{FileTypeExt, PermissionsExt};
 use std::{
     collections::{BTreeMap, HashMap},
     convert::Infallible,
+    fs::{self, File, OpenOptions},
+    io::Write as _,
     net::SocketAddr,
     path::{Path, PathBuf},
     sync::{Arc, Mutex as StdMutex, RwLock as StdRwLock},
     time::{Duration, Instant},
 };
 use storage_provider::{CrdtEngine, LoroAdapter, SyncDomain, SyncManifest};
+use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::sync::RwLock as AsyncRwLock;
 use tower::ServiceExt;
 use tracing::{info, warn};
@@ -1943,36 +1953,170 @@ fn kbd_peer_is_authorized(
 /// Axum owner isolated from authority and P2P runtimes. No iroh/netwatch work
 /// and no journal initialization task can consume these two worker threads.
 pub struct HttpService {
-    address: SocketAddr,
+    address: LocalServiceAddress,
     gate: StartupGate,
     shutdown: Option<tokio::sync::oneshot::Sender<()>>,
     thread: Option<std::thread::JoinHandle<anyhow::Result<()>>>,
 }
 
+#[derive(Debug, Clone)]
+enum LocalServiceAddress {
+    Tcp(SocketAddr),
+    #[cfg(unix)]
+    Unix(PathBuf),
+}
+
+#[cfg(unix)]
+#[derive(Clone, Debug)]
+struct UdsConnectInfo {
+    uid: Option<u32>,
+}
+
+#[cfg(unix)]
+impl Connected<IncomingStream<'_, tokio::net::UnixListener>> for UdsConnectInfo {
+    fn connect_info(stream: IncomingStream<'_, tokio::net::UnixListener>) -> Self {
+        Self {
+            uid: stream
+                .io()
+                .peer_cred()
+                .ok()
+                .map(|credentials| credentials.uid()),
+        }
+    }
+}
+
+#[cfg(unix)]
+async fn require_same_user(
+    ConnectInfo(peer): ConnectInfo<UdsConnectInfo>,
+    request: Request,
+    next: Next,
+) -> Response {
+    if peer.uid != Some(nix::unistd::geteuid().as_raw()) {
+        return StatusCode::FORBIDDEN.into_response();
+    }
+    next.run(request).await
+}
+
+#[derive(Clone)]
+struct TcpBearerToken(Arc<str>);
+
+async fn require_tcp_bearer(
+    State(token): State<TcpBearerToken>,
+    request: Request,
+    next: Next,
+) -> Response {
+    let authorized = request
+        .headers()
+        .get(AUTHORIZATION)
+        .and_then(|value| value.to_str().ok())
+        .and_then(|value| value.strip_prefix("Bearer "))
+        .is_some_and(|candidate| candidate.as_bytes() == token.0.as_bytes());
+    if !authorized {
+        return (
+            StatusCode::UNAUTHORIZED,
+            Json(serde_json::json!({
+                "error": {
+                    "code": "tcp_token_required",
+                    "message": "a valid bearer token is required for loopback TCP"
+                }
+            })),
+        )
+            .into_response();
+    }
+    next.run(request).await
+}
+
+/// Create or load the loopback-TCP bearer token. The token is never accepted
+/// from an environment variable or CLI value: its durable source is a regular,
+/// non-symlink file readable only by the current user.
+pub fn ensure_tcp_token_file(path: impl AsRef<Path>) -> anyhow::Result<String> {
+    let path = path.as_ref();
+    if path.exists() {
+        return load_tcp_token_file(path);
+    }
+    let parent = path
+        .parent()
+        .ok_or_else(|| anyhow::anyhow!("TCP token path has no parent"))?;
+    fs::create_dir_all(parent)?;
+    let mut bytes = [0_u8; 32];
+    OsRng.fill_bytes(&mut bytes);
+    let token = base64::engine::general_purpose::URL_SAFE_NO_PAD.encode(bytes);
+    let temporary = parent.join(format!(".tcp-token-{}.tmp", uuid::Uuid::new_v4()));
+    let mut options = OpenOptions::new();
+    options.create_new(true).write(true);
+    #[cfg(unix)]
+    std::os::unix::fs::OpenOptionsExt::mode(&mut options, 0o600);
+    let mut file = options.open(&temporary)?;
+    file.write_all(token.as_bytes())?;
+    file.write_all(b"\n")?;
+    file.sync_all()?;
+    fs::rename(&temporary, path)?;
+    #[cfg(unix)]
+    fs::set_permissions(path, fs::Permissions::from_mode(0o600))?;
+    File::open(parent)?.sync_all()?;
+    Ok(token)
+}
+
+pub fn load_tcp_token_file(path: &Path) -> anyhow::Result<String> {
+    let metadata = fs::symlink_metadata(path)?;
+    if metadata.file_type().is_symlink() || !metadata.is_file() {
+        anyhow::bail!("{} must be a regular TCP token file", path.display());
+    }
+    #[cfg(unix)]
+    if metadata.permissions().mode() & 0o077 != 0 {
+        anyhow::bail!("{} must have mode 0600", path.display());
+    }
+    let token = fs::read_to_string(path)?.trim().to_owned();
+    if token.len() < 32 || token.chars().any(char::is_whitespace) {
+        anyhow::bail!("{} does not contain a valid TCP token", path.display());
+    }
+    Ok(token)
+}
+
 impl HttpService {
     pub async fn start(port: u16) -> anyhow::Result<Self> {
+        Self::start_with_tcp_auth(port, None).await
+    }
+
+    pub async fn start_tcp(port: u16, token_file: impl AsRef<Path>) -> anyhow::Result<Self> {
+        let token = ensure_tcp_token_file(token_file)?;
+        Self::start_with_tcp_auth(port, Some(token)).await
+    }
+
+    async fn start_with_tcp_auth(port: u16, token: Option<String>) -> anyhow::Result<Self> {
         let bind_started = Instant::now();
-        let mut service = tokio::task::spawn_blocking(move || Self::start_blocking(port))
+        let probe_token = token.clone();
+        let mut service = tokio::task::spawn_blocking(move || Self::start_blocking(port, token))
             .await
             .map_err(|error| anyhow::anyhow!("HTTP service startup task failed: {error}"))??;
         tracing::info!(
             startup_phase = "listener_bind",
             elapsed_ms = bind_started.elapsed().as_millis(),
-            address = %service.address,
+            address = ?service.address,
             "dedicated HTTP service bound"
         );
 
         let probe_started = Instant::now();
         let deadline = Instant::now() + Duration::from_secs(1);
         loop {
-            let report = detect_daemon_health(service.address.port()).await;
-            if report.status == DaemonHealthKind::Healthy {
+            let healthy = match &service.address {
+                LocalServiceAddress::Tcp(address) => {
+                    if let Some(token) = probe_token.as_deref() {
+                        tcp_health_probe(*address, token).await
+                    } else {
+                        detect_daemon_health(address.port()).await.status
+                            == DaemonHealthKind::Healthy
+                    }
+                }
+                #[cfg(unix)]
+                LocalServiceAddress::Unix(path) => unix_health_probe(path).await,
+            };
+            if healthy {
                 break;
             }
             if Instant::now() >= deadline {
-                let message = report.message;
                 service.shutdown().await?;
-                anyhow::bail!("dedicated HTTP liveness self-probe failed: {message}");
+                anyhow::bail!("dedicated local API liveness self-probe failed");
             }
             tokio::time::sleep(Duration::from_millis(20)).await;
         }
@@ -1985,7 +2129,36 @@ impl HttpService {
         Ok(service)
     }
 
-    fn start_blocking(port: u16) -> anyhow::Result<Self> {
+    #[cfg(unix)]
+    pub async fn start_unix(path: impl AsRef<Path>) -> anyhow::Result<Self> {
+        let path = path.as_ref().to_path_buf();
+        let bind_started = Instant::now();
+        let mut service = tokio::task::spawn_blocking(move || Self::start_unix_blocking(path))
+            .await
+            .map_err(|error| anyhow::anyhow!("Unix service startup task failed: {error}"))??;
+        let socket = match &service.address {
+            LocalServiceAddress::Unix(path) => path.clone(),
+            LocalServiceAddress::Tcp(_) => unreachable!(),
+        };
+        tracing::info!(
+            startup_phase = "listener_bind",
+            elapsed_ms = bind_started.elapsed().as_millis(),
+            socket = %socket.display(),
+            "dedicated Unix API service bound"
+        );
+        let deadline = Instant::now() + Duration::from_secs(1);
+        while !unix_health_probe(&socket).await {
+            if Instant::now() >= deadline {
+                service.shutdown().await?;
+                anyhow::bail!("dedicated Unix API liveness self-probe failed");
+            }
+            tokio::time::sleep(Duration::from_millis(20)).await;
+        }
+        service.gate.set_stage(StartupStage::HealthVerified).await;
+        Ok(service)
+    }
+
+    fn start_blocking(port: u16, token: Option<String>) -> anyhow::Result<Self> {
         let (boot_tx, boot_rx) = std::sync::mpsc::sync_channel(1);
         let (shutdown_tx, shutdown_rx) = tokio::sync::oneshot::channel();
         let thread = std::thread::Builder::new()
@@ -2006,6 +2179,14 @@ impl HttpService {
                     };
                     let address = listener.local_addr()?;
                     let (startup_app, gate) = build_startup_router();
+                    let startup_app = if let Some(token) = token {
+                        startup_app.layer(middleware::from_fn_with_state(
+                            TcpBearerToken(Arc::from(token)),
+                            require_tcp_bearer,
+                        ))
+                    } else {
+                        startup_app
+                    };
                     if boot_tx.send(Ok((address, gate))).is_err() {
                         anyhow::bail!("HTTP service owner stopped before startup completed");
                     }
@@ -2023,7 +2204,56 @@ impl HttpService {
             .map_err(|_| anyhow::anyhow!("dedicated HTTP runtime exited before binding"))?
             .map_err(anyhow::Error::msg)?;
         Ok(Self {
-            address,
+            address: LocalServiceAddress::Tcp(address),
+            gate,
+            shutdown: Some(shutdown_tx),
+            thread: Some(thread),
+        })
+    }
+
+    #[cfg(unix)]
+    fn start_unix_blocking(path: PathBuf) -> anyhow::Result<Self> {
+        let (boot_tx, boot_rx) = std::sync::mpsc::sync_channel(1);
+        let (shutdown_tx, shutdown_rx) = tokio::sync::oneshot::channel();
+        let thread_path = path.clone();
+        let thread = std::thread::Builder::new()
+            .name("sovereign-unix-http".into())
+            .spawn(move || {
+                let runtime = tokio::runtime::Builder::new_multi_thread()
+                    .worker_threads(2)
+                    .thread_name("sovereign-unix-http-worker")
+                    .enable_all()
+                    .build()?;
+                runtime.block_on(async move {
+                    let listener = match bind_unix_atomic(&thread_path).await {
+                        Ok(listener) => listener,
+                        Err(error) => {
+                            let _ = boot_tx.send(Err(error.to_string()));
+                            return Err(error);
+                        }
+                    };
+                    let (startup_app, gate) = build_startup_router();
+                    let startup_app = startup_app.layer(middleware::from_fn(require_same_user));
+                    if boot_tx.send(Ok(gate)).is_err() {
+                        anyhow::bail!("Unix API owner stopped before startup completed");
+                    }
+                    axum::serve(
+                        listener,
+                        startup_app.into_make_service_with_connect_info::<UdsConnectInfo>(),
+                    )
+                    .with_graceful_shutdown(async move {
+                        let _ = shutdown_rx.await;
+                    })
+                    .await?;
+                    Ok(())
+                })
+            })?;
+        let gate = boot_rx
+            .recv()
+            .map_err(|_| anyhow::anyhow!("dedicated Unix runtime exited before binding"))?
+            .map_err(anyhow::Error::msg)?;
+        Ok(Self {
+            address: LocalServiceAddress::Unix(path),
             gate,
             shutdown: Some(shutdown_tx),
             thread: Some(thread),
@@ -2031,7 +2261,11 @@ impl HttpService {
     }
 
     pub fn address(&self) -> SocketAddr {
-        self.address
+        match self.address {
+            LocalServiceAddress::Tcp(address) => address,
+            #[cfg(unix)]
+            LocalServiceAddress::Unix(_) => panic!("Unix service has no TCP address"),
+        }
     }
 
     pub fn gate(&self) -> &StartupGate {
@@ -2170,6 +2404,45 @@ pub async fn serve(port: u16, skills_dir: &Path) -> anyhow::Result<()> {
     }
 }
 
+pub async fn serve_tcp(
+    port: u16,
+    skills_dir: &Path,
+    token_file: impl AsRef<Path>,
+) -> anyhow::Result<()> {
+    let mut service = HttpService::start_tcp(port, token_file).await?;
+    let gate = service.gate().clone();
+    match AppState::try_new_with_startup(skills_dir, None, &gate).await {
+        Ok(state) => gate.install(state).await,
+        Err(error) => {
+            warn!(%error, "local authority initialization failed; diagnostic router remains active");
+            gate.fail("local authority initialization failed; inspect the service log")
+                .await;
+        }
+    }
+    tokio::select! {
+        _ = shutdown_signal() => service.shutdown().await,
+        _ = service.wait_for_exit() => service.join().await,
+    }
+}
+
+#[cfg(unix)]
+pub async fn serve_unix(path: impl AsRef<Path>, skills_dir: &Path) -> anyhow::Result<()> {
+    let mut service = HttpService::start_unix(path).await?;
+    let gate = service.gate().clone();
+    match AppState::try_new_with_startup(skills_dir, None, &gate).await {
+        Ok(state) => gate.install(state).await,
+        Err(error) => {
+            warn!(%error, "local authority initialization failed; diagnostic router remains active");
+            gate.fail("local authority initialization failed; inspect the service log")
+                .await;
+        }
+    }
+    tokio::select! {
+        _ = shutdown_signal() => service.shutdown().await,
+        _ = service.wait_for_exit() => service.join().await,
+    }
+}
+
 pub async fn shutdown_signal() {
     #[cfg(unix)]
     {
@@ -2195,25 +2468,16 @@ pub async fn serve_with_state(port: u16, state: AppState) -> anyhow::Result<()> 
     serve_with_listener(listener, state).await
 }
 
-/// Acquire the unauthenticated loopback listener before opening KBD project
+/// Acquire the loopback listener before opening KBD project
 /// state or joining P2P gossip. Registry reconciliation can be deliberately
 /// expensive; it must not leave the control-plane port unbound while launchd
 /// considers the process alive.
 pub async fn bind_loopback(port: u16) -> anyhow::Result<tokio::net::TcpListener> {
     // LOOPBACK ONLY — and this is load-bearing, not incidental.
-    //
-    // There is no authentication on this server. That is deliberate: the
-    // previous bearer-token scheme resolved different runtime roots for CLI
-    // and daemon processes and produced mismatched secrets. It returned false
-    // 401s without protecting a service reachable only by processes that
-    // already have local code execution. KBD mutation POSTs now have their own
-    // device-signature authorization in addition to this transport boundary.
-    //
-    // IF YOU CHANGE THIS ADDRESS, YOU MUST ADD AUTHENTICATION FIRST. Binding
-    // anything other than 127.0.0.1 exposes unauthenticated control-plane
-    // writes — phase creation, command submission — to the
-    // network. Design it against the threat model you actually have at that
-    // point; do not resurrect the token scheme deleted here.
+    // Production callers layer a token sourced from one shared mode-0600 file
+    // over this listener. `HttpService::start` remains an in-process fixture
+    // helper; CLI daemon/server modes always use `start_tcp` when `--tcp` is
+    // explicit. Never broaden this bind address.
     let addr = SocketAddr::from(([127, 0, 0, 1], port));
     let listener = tokio::net::TcpListener::bind(addr).await?;
     info!(
@@ -2221,6 +2485,80 @@ pub async fn bind_loopback(port: u16) -> anyhow::Result<tokio::net::TcpListener>
         listener.local_addr()?
     );
     Ok(listener)
+}
+
+async fn tcp_health_probe(address: SocketAddr, token: &str) -> bool {
+    let Ok(mut stream) = tokio::net::TcpStream::connect(address).await else {
+        return false;
+    };
+    let request = format!(
+        "GET /health HTTP/1.1\r\nHost: localhost\r\nAuthorization: Bearer {token}\r\nConnection: close\r\n\r\n"
+    );
+    if stream.write_all(request.as_bytes()).await.is_err() {
+        return false;
+    }
+    let mut response = Vec::new();
+    if tokio::time::timeout(
+        Duration::from_millis(500),
+        stream.read_to_end(&mut response),
+    )
+    .await
+    .is_err()
+    {
+        return false;
+    }
+    response.starts_with(b"HTTP/1.1 200")
+}
+
+#[cfg(unix)]
+async fn bind_unix_atomic(path: &Path) -> anyhow::Result<tokio::net::UnixListener> {
+    let parent = path
+        .parent()
+        .ok_or_else(|| anyhow::anyhow!("Unix socket path has no parent"))?;
+    fs::create_dir_all(parent)?;
+    fs::set_permissions(parent, fs::Permissions::from_mode(0o700))?;
+    if path.exists() {
+        let metadata = fs::symlink_metadata(path)?;
+        if !metadata.file_type().is_socket() {
+            anyhow::bail!("refusing to replace non-socket path {}", path.display());
+        }
+        if tokio::net::UnixStream::connect(path).await.is_ok() {
+            anyhow::bail!("Unix socket {} is already in use", path.display());
+        }
+        fs::remove_file(path)?;
+    }
+    let nonce = uuid::Uuid::new_v4().simple().to_string();
+    let temporary = parent.join(format!(".s-{}.sock", &nonce[..8]));
+    let listener = tokio::net::UnixListener::bind(&temporary)?;
+    fs::set_permissions(&temporary, fs::Permissions::from_mode(0o600))?;
+    fs::rename(&temporary, path)?;
+    File::open(parent)?.sync_all()?;
+    Ok(listener)
+}
+
+#[cfg(unix)]
+async fn unix_health_probe(path: &Path) -> bool {
+    let Ok(mut stream) = tokio::net::UnixStream::connect(path).await else {
+        return false;
+    };
+    if stream
+        .write_all(b"GET /health HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n")
+        .await
+        .is_err()
+    {
+        return false;
+    }
+    let mut response = Vec::new();
+    if tokio::time::timeout(
+        Duration::from_millis(500),
+        stream.read_to_end(&mut response),
+    )
+    .await
+    .is_err()
+    {
+        return false;
+    }
+    response.starts_with(b"HTTP/1.1 200")
 }
 
 /// Serve a fully initialized application on an already-acquired listener.
@@ -2479,7 +2817,11 @@ mod transport_status_tests {
     use crate::p2p::P2PHandleErrorKind;
     use axum::http::StatusCode;
     use std::collections::BTreeSet;
+    #[cfg(unix)]
+    use std::os::unix::fs::PermissionsExt;
     use std::time::{Duration, Instant};
+    #[cfg(unix)]
+    use tokio::io::{AsyncReadExt, AsyncWriteExt};
 
     #[test]
     fn unavailable_transport_is_503_but_ready_transport_failures_are_502() {
@@ -2558,6 +2900,55 @@ mod transport_status_tests {
         );
         assert!(started.elapsed() < Duration::from_millis(100));
         initialization.await.unwrap().unwrap();
+        service.shutdown().await.unwrap();
+    }
+
+    #[cfg(unix)]
+    #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+    async fn unix_socket_is_private_and_serves_same_user_health() {
+        let fixture = tempfile::tempdir().unwrap();
+        let socket = fixture.path().join("sovereign-sync.sock");
+        let mut service = HttpService::start_unix(&socket).await.unwrap();
+
+        assert_eq!(
+            std::fs::metadata(&socket).unwrap().permissions().mode() & 0o777,
+            0o600
+        );
+        assert!(super::unix_health_probe(&socket).await);
+        let report =
+            crate::health_check::sample_unix_daemon_health(&socket, 3, 1, Some(100.0), Some(100.0))
+                .await;
+        assert_eq!(report.exit_code(), 0);
+        assert!(report.health.endpoint.starts_with("unix://"));
+        service.shutdown().await.unwrap();
+    }
+
+    #[cfg(unix)]
+    #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+    async fn explicit_tcp_requires_private_file_backed_token() {
+        let fixture = tempfile::tempdir().unwrap();
+        let token_file = fixture.path().join("tcp-token");
+        let mut service = HttpService::start_tcp(0, &token_file).await.unwrap();
+        let address = service.address();
+        let token = super::load_tcp_token_file(&token_file).unwrap();
+
+        assert_eq!(
+            std::fs::metadata(&token_file).unwrap().permissions().mode() & 0o777,
+            0o600
+        );
+        assert!(super::tcp_health_probe(address, &token).await);
+
+        let mut stream = tokio::net::TcpStream::connect(address).await.unwrap();
+        stream
+            .write_all(b"GET /health HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n")
+            .await
+            .unwrap();
+        let mut response = Vec::new();
+        stream.read_to_end(&mut response).await.unwrap();
+        assert!(response.starts_with(b"HTTP/1.1 401"));
+
+        std::fs::set_permissions(&token_file, std::fs::Permissions::from_mode(0o644)).unwrap();
+        assert!(super::load_tcp_token_file(&token_file).is_err());
         service.shutdown().await.unwrap();
     }
 }

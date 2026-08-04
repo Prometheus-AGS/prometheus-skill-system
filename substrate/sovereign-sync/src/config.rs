@@ -5,8 +5,8 @@ use std::path::{Path, PathBuf};
 pub struct NodeConfig {
     #[serde(default = "default_skills_dir")]
     pub skills_dir: String,
-    #[serde(default)]
-    pub operator_id: String,
+    #[serde(default = "default_p2p_identity_file")]
+    pub p2p_identity_file: String,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
@@ -35,7 +35,7 @@ impl Default for NodeConfig {
     fn default() -> Self {
         Self {
             skills_dir: default_skills_dir(),
-            operator_id: String::new(),
+            p2p_identity_file: default_p2p_identity_file(),
         }
     }
 }
@@ -61,6 +61,18 @@ fn default_skills_dir() -> String {
 
 fn default_port() -> u16 {
     7892
+}
+
+fn default_p2p_identity_file() -> String {
+    dirs_next::home_dir()
+        .map(|home| {
+            home.join(".config")
+                .join("sovereign-sync")
+                .join("p2p-identity.json")
+                .to_string_lossy()
+                .into_owned()
+        })
+        .unwrap_or_else(|| "p2p-identity.json".into())
 }
 
 impl SovereignConfig {

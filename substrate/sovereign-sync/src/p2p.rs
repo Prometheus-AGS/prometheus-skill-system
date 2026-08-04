@@ -1,15 +1,22 @@
-use anyhow::Result;
+use anyhow::{Context, Result};
+use base64::{engine::general_purpose::URL_SAFE_NO_PAD, Engine as _};
 use bytes::Bytes;
-use iroh::{endpoint::presets, protocol::Router, Endpoint, EndpointId};
+use iroh::{endpoint::presets, protocol::Router, Endpoint, EndpointId, SecretKey, Signature};
 use iroh_gossip::{
     api::{Event, GossipSender},
     net::Gossip,
     proto::TopicId,
 };
-use serde::Serialize;
-use std::collections::HashSet;
+use rand_core::{OsRng, RngCore};
+use serde::{Deserialize, Serialize};
+use std::collections::{BTreeMap, HashSet};
+use std::fs::{self, File, OpenOptions};
+use std::io::Write;
+#[cfg(unix)]
+use std::os::unix::fs::{OpenOptionsExt, PermissionsExt};
+use std::path::{Path, PathBuf};
 use std::sync::Arc;
-use std::time::Duration;
+use std::time::{Duration, SystemTime, UNIX_EPOCH};
 use tokio::sync::{mpsc, oneshot, RwLock};
 use tokio_stream::StreamExt;
 use tracing::{debug, info, warn};
@@ -28,6 +35,296 @@ const MAX_GOSSIP_MESSAGE_SIZE: usize = 16 * 1024 * 1024;
 const P2P_COMMAND_CAPACITY: usize = 64;
 const P2P_EVENT_CAPACITY: usize = 256;
 const P2P_REQUEST_TIMEOUT: Duration = Duration::from_secs(5);
+const PEER_FRAME_MAX_AGE: Duration = Duration::from_secs(300);
+const PEER_REPLAY_WINDOW: usize = 4_096;
+
+#[derive(Clone)]
+pub struct P2PIdentity {
+    secret_key: SecretKey,
+    group_secret: [u8; 32],
+    allow_list: BTreeMap<String, String>,
+    path: PathBuf,
+}
+
+impl std::fmt::Debug for P2PIdentity {
+    fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        formatter
+            .debug_struct("P2PIdentity")
+            .field("endpoint_id", &self.endpoint_id())
+            .field("allow_list_entries", &self.allow_list.len())
+            .field("path", &self.path)
+            .finish_non_exhaustive()
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+struct StoredP2PIdentity {
+    schema_version: String,
+    secret_key: String,
+    group_secret: String,
+    #[serde(default)]
+    allow_list: BTreeMap<String, String>,
+}
+
+#[derive(Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+pub struct PairingTicket {
+    pub protocol_version: String,
+    pub group_secret: String,
+    pub endpoint_id: String,
+    pub signing_key_fingerprint: String,
+}
+
+impl std::fmt::Debug for PairingTicket {
+    fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        formatter
+            .debug_struct("PairingTicket")
+            .field("protocol_version", &self.protocol_version)
+            .field("endpoint_id", &self.endpoint_id)
+            .field("signing_key_fingerprint", &self.signing_key_fingerprint)
+            .field("group_secret", &"[REDACTED]")
+            .finish()
+    }
+}
+
+impl P2PIdentity {
+    pub fn load_or_create(path: impl AsRef<Path>) -> Result<Self> {
+        let path = path.as_ref().to_path_buf();
+        if path.exists() {
+            return Self::load(path);
+        }
+        let mut group_secret = [0_u8; 32];
+        OsRng.fill_bytes(&mut group_secret);
+        let identity = Self {
+            secret_key: SecretKey::generate(),
+            group_secret,
+            allow_list: BTreeMap::new(),
+            path,
+        };
+        identity.persist()?;
+        Ok(identity)
+    }
+
+    fn load(path: PathBuf) -> Result<Self> {
+        let metadata = fs::symlink_metadata(&path)?;
+        if metadata.file_type().is_symlink() || !metadata.is_file() {
+            anyhow::bail!("{} must be a regular P2P identity file", path.display());
+        }
+        #[cfg(unix)]
+        if metadata.permissions().mode() & 0o077 != 0 {
+            anyhow::bail!("{} must have mode 0600", path.display());
+        }
+        let stored: StoredP2PIdentity = serde_json::from_reader(File::open(&path)?)?;
+        if stored.schema_version != "1" {
+            anyhow::bail!("unsupported P2P identity schema {}", stored.schema_version);
+        }
+        let secret: [u8; 32] = URL_SAFE_NO_PAD
+            .decode(stored.secret_key)?
+            .try_into()
+            .map_err(|_| anyhow::anyhow!("P2P secret key must contain 32 bytes"))?;
+        let group_secret: [u8; 32] = URL_SAFE_NO_PAD
+            .decode(stored.group_secret)?
+            .try_into()
+            .map_err(|_| anyhow::anyhow!("P2P group secret must contain 32 bytes"))?;
+        Ok(Self {
+            secret_key: SecretKey::from_bytes(&secret),
+            group_secret,
+            allow_list: stored.allow_list,
+            path,
+        })
+    }
+
+    fn persist(&self) -> Result<()> {
+        let stored = StoredP2PIdentity {
+            schema_version: "1".into(),
+            secret_key: URL_SAFE_NO_PAD.encode(self.secret_key.to_bytes()),
+            group_secret: URL_SAFE_NO_PAD.encode(self.group_secret),
+            allow_list: self.allow_list.clone(),
+        };
+        write_private_json(&self.path, &stored)
+    }
+
+    pub fn endpoint_id(&self) -> EndpointId {
+        self.secret_key.public()
+    }
+
+    pub fn signing_key_fingerprint(&self) -> String {
+        endpoint_signing_fingerprint(self.endpoint_id())
+    }
+
+    pub fn export_ticket(&self) -> Result<String> {
+        let ticket = PairingTicket {
+            protocol_version: "1".into(),
+            group_secret: URL_SAFE_NO_PAD.encode(self.group_secret),
+            endpoint_id: self.endpoint_id().to_string(),
+            signing_key_fingerprint: self.signing_key_fingerprint(),
+        };
+        Ok(URL_SAFE_NO_PAD.encode(serde_jcs::to_vec(&ticket)?))
+    }
+
+    pub fn import_ticket(&mut self, encoded: &str) -> Result<PairingTicket> {
+        let ticket: PairingTicket = serde_json::from_slice(
+            &URL_SAFE_NO_PAD
+                .decode(encoded.trim())
+                .context("invalid pairing ticket encoding")?,
+        )?;
+        if ticket.protocol_version != "1" {
+            anyhow::bail!("unsupported pairing protocol {}", ticket.protocol_version);
+        }
+        let group_secret: [u8; 32] = URL_SAFE_NO_PAD
+            .decode(&ticket.group_secret)?
+            .try_into()
+            .map_err(|_| anyhow::anyhow!("pairing group secret must contain 32 bytes"))?;
+        let endpoint_id = ticket.endpoint_id.parse::<EndpointId>()?;
+        if ticket.signing_key_fingerprint.trim().is_empty() {
+            anyhow::bail!("pairing ticket has no signing-key fingerprint");
+        }
+        if ticket.signing_key_fingerprint != endpoint_signing_fingerprint(endpoint_id) {
+            anyhow::bail!("pairing ticket signing-key fingerprint does not match endpoint ID");
+        }
+        self.group_secret = group_secret;
+        self.allow_list.insert(
+            ticket.endpoint_id.clone(),
+            ticket.signing_key_fingerprint.clone(),
+        );
+        self.persist()?;
+        Ok(ticket)
+    }
+
+    pub fn authorize_endpoint(&self, endpoint: EndpointId, signer_key_id: &str) -> bool {
+        self.allow_list
+            .get(&endpoint.to_string())
+            .is_some_and(|fingerprint| fingerprint == signer_key_id)
+    }
+
+    fn sign_frame(&self, payload: Bytes) -> Result<AuthenticatedPeerFrame> {
+        let mut frame = AuthenticatedPeerFrame {
+            schema_version: "1".into(),
+            frame_id: uuid::Uuid::new_v4().to_string(),
+            issued_at_ms: unix_time_ms()?,
+            endpoint_id: self.endpoint_id().to_string(),
+            signing_key_fingerprint: self.signing_key_fingerprint(),
+            payload: payload.to_vec(),
+            signature: String::new(),
+        };
+        frame.signature =
+            URL_SAFE_NO_PAD.encode(self.secret_key.sign(&frame.signable_bytes()?).to_bytes());
+        Ok(frame)
+    }
+
+    fn verify_frame(
+        &self,
+        delivered_from: EndpointId,
+        encoded: &[u8],
+        replay_ids: &mut HashSet<String>,
+    ) -> Result<Bytes> {
+        let frame: AuthenticatedPeerFrame =
+            serde_json::from_slice(encoded).context("P2P message is not an authenticated frame")?;
+        if frame.schema_version != "1" {
+            anyhow::bail!("unsupported P2P frame schema {}", frame.schema_version);
+        }
+        if frame.endpoint_id != delivered_from.to_string() {
+            anyhow::bail!("P2P delivery endpoint does not match signed frame endpoint");
+        }
+        if !self.authorize_endpoint(delivered_from, &frame.signing_key_fingerprint) {
+            anyhow::bail!("P2P endpoint/signing-key binding is not enrolled");
+        }
+        let now = unix_time_ms()?;
+        let max_age = PEER_FRAME_MAX_AGE.as_millis() as u64;
+        if frame.issued_at_ms > now.saturating_add(30_000)
+            || now.saturating_sub(frame.issued_at_ms) > max_age
+        {
+            anyhow::bail!("P2P frame is stale or issued too far in the future");
+        }
+        if replay_ids.contains(&frame.frame_id) {
+            anyhow::bail!("P2P frame ID was already received");
+        }
+        let signature_bytes: [u8; Signature::LENGTH] = URL_SAFE_NO_PAD
+            .decode(&frame.signature)
+            .context("invalid P2P frame signature encoding")?
+            .try_into()
+            .map_err(|_| anyhow::anyhow!("invalid P2P frame signature length"))?;
+        let signature = Signature::from_bytes(&signature_bytes);
+        delivered_from
+            .verify(&frame.signable_bytes()?, &signature)
+            .map_err(|_| anyhow::anyhow!("P2P frame signature verification failed"))?;
+        if replay_ids.len() >= PEER_REPLAY_WINDOW {
+            replay_ids.clear();
+        }
+        replay_ids.insert(frame.frame_id);
+        Ok(Bytes::from(frame.payload))
+    }
+}
+
+fn endpoint_signing_fingerprint(endpoint: EndpointId) -> String {
+    format!("ed25519:{}", blake3::hash(endpoint.as_bytes()).to_hex())
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct AuthenticatedPeerFrame {
+    schema_version: String,
+    frame_id: String,
+    issued_at_ms: u64,
+    endpoint_id: String,
+    signing_key_fingerprint: String,
+    payload: Vec<u8>,
+    signature: String,
+}
+
+impl AuthenticatedPeerFrame {
+    fn signable_bytes(&self) -> Result<Vec<u8>> {
+        #[derive(Serialize)]
+        #[serde(rename_all = "camelCase")]
+        struct Signable<'a> {
+            schema_version: &'a str,
+            frame_id: &'a str,
+            issued_at_ms: u64,
+            endpoint_id: &'a str,
+            signing_key_fingerprint: &'a str,
+            payload: &'a [u8],
+        }
+        Ok(serde_jcs::to_vec(&Signable {
+            schema_version: &self.schema_version,
+            frame_id: &self.frame_id,
+            issued_at_ms: self.issued_at_ms,
+            endpoint_id: &self.endpoint_id,
+            signing_key_fingerprint: &self.signing_key_fingerprint,
+            payload: &self.payload,
+        })?)
+    }
+}
+
+fn unix_time_ms() -> Result<u64> {
+    Ok(SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .context("system clock is before the Unix epoch")?
+        .as_millis()
+        .try_into()
+        .unwrap_or(u64::MAX))
+}
+
+fn write_private_json(path: &Path, value: &impl Serialize) -> Result<()> {
+    let parent = path
+        .parent()
+        .ok_or_else(|| anyhow::anyhow!("identity path has no parent"))?;
+    fs::create_dir_all(parent)?;
+    let temporary = parent.join(format!(".p2p-identity-{}.tmp", uuid::Uuid::new_v4()));
+    let mut options = OpenOptions::new();
+    options.create_new(true).write(true);
+    #[cfg(unix)]
+    options.mode(0o600);
+    let mut file = options.open(&temporary)?;
+    serde_json::to_writer_pretty(&mut file, value)?;
+    file.write_all(b"\n")?;
+    file.sync_all()?;
+    fs::rename(&temporary, path)?;
+    #[cfg(unix)]
+    fs::set_permissions(path, fs::Permissions::from_mode(0o600))?;
+    File::open(parent)?.sync_all()?;
+    Ok(())
+}
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
 #[serde(rename_all = "snake_case")]
@@ -245,7 +542,7 @@ pub struct P2PSupervisor {
 
 impl P2PSupervisor {
     pub fn spawn(
-        operator_id: [u8; 32],
+        identity: P2PIdentity,
         peers_config: PeersConfig,
         handle: P2PHandle,
     ) -> Result<(Self, mpsc::Receiver<PeerMessage>)> {
@@ -264,7 +561,7 @@ impl P2PSupervisor {
                         .enable_all()
                         .build()?;
                     runtime.block_on(run_supervisor(
-                        operator_id,
+                        identity,
                         peers_config,
                         runtime_handle,
                         commands_rx,
@@ -358,7 +655,7 @@ impl P2PSupervisor {
 }
 
 async fn run_supervisor(
-    operator_id: [u8; 32],
+    identity: P2PIdentity,
     peers_config: PeersConfig,
     handle: P2PHandle,
     mut commands: mpsc::Receiver<P2PCommand>,
@@ -389,7 +686,7 @@ async fn run_supervisor(
             next_retry_ms: None,
         });
         let bind_started = std::time::Instant::now();
-        let initialized = P2PNode::new(&operator_id, &peers_config).await;
+        let initialized = P2PNode::new_with_identity(&identity, &peers_config).await;
         tracing::info!(
             startup_phase = "p2p_bind",
             elapsed_ms = bind_started.elapsed().as_millis(),
@@ -463,11 +760,18 @@ async fn run_supervisor(
         let mut peer_refresh = tokio::time::interval(Duration::from_secs(1));
         let mut shutdown_reply = None;
         let mut retry_after_shutdown = false;
+        let mut replay_ids = HashSet::new();
         loop {
             tokio::select! {
                 command = commands.recv() => match command {
                     Some(P2PCommand::Broadcast { payload, reply }) => {
-                        let result = node.broadcast(payload).await.map_err(|error| error.to_string());
+                        let result = match identity.sign_frame(payload) {
+                            Ok(frame) => match serde_json::to_vec(&frame) {
+                                Ok(encoded) => node.broadcast(Bytes::from(encoded)).await.map_err(|error| error.to_string()),
+                                Err(error) => Err(format!("failed to encode authenticated P2P frame: {error}")),
+                            },
+                            Err(error) => Err(format!("failed to sign P2P frame: {error}")),
+                        };
                         if let Err(error) = &result {
                             let mut status = handle.status();
                             status.state = P2PTransportState::Degraded;
@@ -483,7 +787,15 @@ async fn run_supervisor(
                     None => break,
                 },
                 message = incoming.recv() => match message {
-                    Some(message) => {
+                    Some(mut message) => {
+                        let verified = match identity.verify_frame(message.from, &message.payload, &mut replay_ids) {
+                            Ok(payload) => payload,
+                            Err(error) => {
+                                warn!(peer = %message.from, %error, "dropping unauthenticated P2P frame");
+                                continue;
+                            }
+                        };
+                        message.payload = verified;
                         if incoming_tx.try_send(message).is_err() {
                             let mut status = handle.status();
                             status.state = P2PTransportState::Degraded;
@@ -610,26 +922,40 @@ pub struct P2PNode {
 impl P2PNode {
     /// Create a new P2P node.
     ///
-    /// `operator_id` derives the gossip topic: all nodes sharing the same
-    /// operator_id subscribe to the same gossip channel and form a sync group.
-    pub async fn new(
-        operator_id: &[u8; 32],
+    /// The random group secret derives the gossip topic; the durable iroh key
+    /// preserves this endpoint's identity across restarts.
+    pub async fn new_with_identity(
+        identity: &P2PIdentity,
         _peers_config: &PeersConfig,
     ) -> Result<(Self, mpsc::Receiver<PeerMessage>)> {
-        let topic = Self::derive_topic(operator_id);
+        let topic = Self::derive_topic(&identity.group_secret);
 
         // N0 preset: pkarr DNS discovery + relay mode, with bundled crypto provider.
-        let endpoint = Endpoint::builder(presets::N0).bind().await?;
+        let endpoint = Endpoint::builder(presets::N0)
+            .secret_key(identity.secret_key.clone())
+            .bind()
+            .await?;
 
+        Ok(Self::from_endpoint(topic, endpoint))
+    }
+
+    /// Disposable constructor with an ephemeral endpoint key. Production code
+    /// must use `new_with_identity` so endpoint identity survives restarts.
+    pub async fn new(
+        group_secret: &[u8; 32],
+        _peers_config: &PeersConfig,
+    ) -> Result<(Self, mpsc::Receiver<PeerMessage>)> {
+        let topic = Self::derive_topic(group_secret);
+        let endpoint = Endpoint::builder(presets::N0).bind().await?;
         Ok(Self::from_endpoint(topic, endpoint))
     }
 
     #[cfg(test)]
     pub(crate) async fn new_with_memory_lookup(
-        operator_id: &[u8; 32],
+        group_secret: &[u8; 32],
         address_lookup: MemoryLookup,
     ) -> Result<(Self, mpsc::Receiver<PeerMessage>)> {
-        let topic = Self::derive_topic(operator_id);
+        let topic = Self::derive_topic(group_secret);
         let endpoint = Endpoint::builder(presets::Minimal)
             .bind_addr(std::net::SocketAddr::from(([127, 0, 0, 1], 0)))?
             .address_lookup(address_lookup.clone())
@@ -667,10 +993,9 @@ impl P2PNode {
         )
     }
 
-    /// Derive a deterministic TopicId from the operator_id.
-    /// All nodes with the same operator_id join the same gossip topic.
-    pub fn derive_topic(operator_id: &[u8; 32]) -> TopicId {
-        let mut input = operator_id.to_vec();
+    /// Derive a deterministic TopicId from a random 256-bit group secret.
+    pub fn derive_topic(group_secret: &[u8; 32]) -> TopicId {
+        let mut input = group_secret.to_vec();
         input.extend_from_slice(b"sovereign-sync-v1");
         let hash = *blake3::hash(&input).as_bytes();
         TopicId::from_bytes(hash)
@@ -869,6 +1194,62 @@ mod tests {
         let t1 = P2PNode::derive_topic(&[1u8; 32]);
         let t2 = P2PNode::derive_topic(&[2u8; 32]);
         assert_ne!(t1.as_bytes(), t2.as_bytes());
+    }
+
+    #[test]
+    fn identity_is_private_stable_and_pairing_enrolls_endpoint_binding() {
+        let directory = tempfile::tempdir().unwrap();
+        let first_path = directory.path().join("first.json");
+        let second_path = directory.path().join("second.json");
+        let first = P2PIdentity::load_or_create(&first_path).unwrap();
+        let endpoint = first.endpoint_id();
+        let ticket = first.export_ticket().unwrap();
+        assert!(!format!("{first:?}").contains(&URL_SAFE_NO_PAD.encode(first.group_secret)));
+        let reopened = P2PIdentity::load_or_create(&first_path).unwrap();
+        assert_eq!(reopened.endpoint_id(), endpoint);
+        #[cfg(unix)]
+        assert_eq!(
+            fs::metadata(&first_path).unwrap().permissions().mode() & 0o777,
+            0o600
+        );
+
+        let mut second = P2PIdentity::load_or_create(&second_path).unwrap();
+        second.import_ticket(&ticket).unwrap();
+        assert_eq!(
+            P2PNode::derive_topic(&first.group_secret),
+            P2PNode::derive_topic(&second.group_secret)
+        );
+        assert!(second.authorize_endpoint(endpoint, &first.signing_key_fingerprint()));
+        assert!(!second.authorize_endpoint(endpoint, "ed25519:wrong"));
+
+        let mut mismatched: PairingTicket =
+            serde_json::from_slice(&URL_SAFE_NO_PAD.decode(&ticket).unwrap()).unwrap();
+        mismatched.signing_key_fingerprint = "ed25519:wrong".into();
+        let mismatched = URL_SAFE_NO_PAD.encode(serde_jcs::to_vec(&mismatched).unwrap());
+        assert!(second.import_ticket(&mismatched).is_err());
+
+        let frame = first
+            .sign_frame(Bytes::from_static(b"authenticated"))
+            .unwrap();
+        let encoded = serde_json::to_vec(&frame).unwrap();
+        let mut replay_ids = HashSet::new();
+        assert_eq!(
+            second
+                .verify_frame(endpoint, &encoded, &mut replay_ids)
+                .unwrap(),
+            Bytes::from_static(b"authenticated")
+        );
+        assert!(second
+            .verify_frame(endpoint, &encoded, &mut replay_ids)
+            .is_err());
+
+        let unknown = P2PIdentity::load_or_create(directory.path().join("unknown.json")).unwrap();
+        let unknown_frame =
+            serde_json::to_vec(&unknown.sign_frame(Bytes::from_static(b"unknown")).unwrap())
+                .unwrap();
+        assert!(second
+            .verify_frame(unknown.endpoint_id(), &unknown_frame, &mut HashSet::new())
+            .is_err());
     }
 
     #[tokio::test]

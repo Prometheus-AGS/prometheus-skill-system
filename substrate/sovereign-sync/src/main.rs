@@ -16,6 +16,10 @@ enum Mode {
     Server,
     /// Check daemon health on localhost without starting a server
     Status,
+    /// Export a redacted-safe pairing ticket to stdout for explicit transfer
+    PairExport,
+    /// Import a pairing ticket and enroll its endpoint/signing-key binding
+    PairImport,
 }
 
 #[derive(Debug, Clone, ValueEnum)]
@@ -38,6 +42,18 @@ struct Cli {
 
     #[arg(long, help = "HTTP port (daemon/server modes)", default_value = "7892")]
     port: u16,
+
+    #[arg(long, help = "Expose loopback TCP instead of the default Unix socket")]
+    tcp: bool,
+
+    #[arg(long, help = "Unix socket path (daemon/server modes)")]
+    socket: Option<PathBuf>,
+
+    #[arg(
+        long,
+        help = "Mode-0600 bearer-token file used only with explicit --tcp"
+    )]
+    token_file: Option<PathBuf>,
 
     #[arg(
         long,
@@ -76,6 +92,9 @@ struct Cli {
     /// Prefix all MCP tool names with 'sovereign:' (avoids collision in UAR/BossFang)
     #[arg(long)]
     prefix_tools: bool,
+
+    #[arg(long, help = "Pairing ticket for --mode pair-import")]
+    ticket: Option<String>,
 }
 
 async fn run_daemon_until_shutdown(
@@ -129,8 +148,13 @@ async fn main() -> anyhow::Result<()> {
 
     let config_path = cli
         .config
+        .clone()
         .unwrap_or_else(config::SovereignConfig::default_path);
     let cfg = config::SovereignConfig::load(&config_path)?;
+    let tcp_token_path = cli
+        .token_file
+        .clone()
+        .unwrap_or_else(|| default_tcp_token_path(&config_path));
 
     // Detect UAR passthrough mode
     let uar_passthrough = std::env::var("UAR_SKILL_SERVICE_URL").is_ok();
@@ -158,6 +182,38 @@ async fn main() -> anyhow::Result<()> {
                     "keyId": signer.key_id()
                 })
             );
+            if cli.tcp {
+                rest_api::ensure_tcp_token_file(&tcp_token_path)?;
+                println!("{}", serde_json::json!({ "tcpTokenFile": tcp_token_path }));
+            }
+            let identity_path = PathBuf::from(&cfg.node.p2p_identity_file);
+            let identity = p2p::P2PIdentity::load_or_create(&identity_path)?;
+            println!(
+                "{}",
+                serde_json::json!({
+                    "p2pIdentityFile": identity_path,
+                    "endpointId": identity.endpoint_id().to_string()
+                })
+            );
+        }
+        Mode::PairExport => {
+            let identity = p2p::P2PIdentity::load_or_create(&cfg.node.p2p_identity_file)?;
+            println!("{}", identity.export_ticket()?);
+        }
+        Mode::PairImport => {
+            let ticket = cli
+                .ticket
+                .as_deref()
+                .ok_or_else(|| anyhow::anyhow!("--ticket is required for pair-import"))?;
+            let mut identity = p2p::P2PIdentity::load_or_create(&cfg.node.p2p_identity_file)?;
+            let imported = identity.import_ticket(ticket)?;
+            println!(
+                "{}",
+                serde_json::json!({
+                    "pairedEndpointId": imported.endpoint_id,
+                    "signingKeyFingerprint": imported.signing_key_fingerprint
+                })
+            );
         }
         Mode::Mcp => {
             info!("Starting sovereign-sync MCP server (stdio)");
@@ -172,19 +228,28 @@ async fn main() -> anyhow::Result<()> {
             server.serve_stdio().await?;
         }
         Mode::Daemon => {
-            info!("Starting sovereign-sync daemon on port {port}");
+            info!("Starting sovereign-sync daemon");
             let skills_path = std::path::Path::new(&cfg.node.skills_dir);
-            if cfg.node.operator_id.trim().is_empty() {
-                anyhow::bail!(
-                    "node.operator_id is required in daemon mode; pair trusted devices before KBD sync"
-                );
-            }
             // The HTTP service owns a dedicated two-worker runtime and proves
             // static liveness before authority or network initialization can
             // begin consuming resources.
-            let http_service = rest_api::HttpService::start(port).await?;
+            let http_service = if cli.tcp {
+                rest_api::HttpService::start_tcp(port, &tcp_token_path).await?
+            } else {
+                #[cfg(unix)]
+                {
+                    rest_api::HttpService::start_unix(
+                        cli.socket.clone().unwrap_or_else(default_socket_path),
+                    )
+                    .await?
+                }
+                #[cfg(not(unix))]
+                {
+                    anyhow::bail!("Unix sockets are unavailable; use explicit --tcp")
+                }
+            };
             let startup_gate = http_service.gate().clone();
-            let operator_key = *blake3::hash(cfg.node.operator_id.as_bytes()).as_bytes();
+            let p2p_identity = p2p::P2PIdentity::load_or_create(&cfg.node.p2p_identity_file)?;
             let p2p_handle = p2p::P2PHandle::pending();
             let state = match rest_api::AppState::try_new_with_startup_handle(
                 skills_path,
@@ -208,7 +273,7 @@ async fn main() -> anyhow::Result<()> {
             // Only now may the production N0 endpoint create netwatch and join
             // gossip. The node remains entirely on its dedicated runtime.
             let (p2p_supervisor, incoming_consumer) = match p2p::P2PSupervisor::spawn(
-                operator_key,
+                p2p_identity,
                 cfg.peers.clone(),
                 p2p_handle.clone(),
             ) {
@@ -232,19 +297,49 @@ async fn main() -> anyhow::Result<()> {
             run_daemon_until_shutdown(http_service, p2p_supervisor, incoming_consumer).await?;
         }
         Mode::Server => {
-            info!("Starting sovereign-sync HTTP server on port {port}");
+            info!("Starting sovereign-sync local API server");
             let skills_path = std::path::Path::new(&cfg.node.skills_dir);
-            rest_api::serve(port, skills_path).await?;
+            if cli.tcp {
+                rest_api::serve_tcp(port, skills_path, &tcp_token_path).await?;
+            } else {
+                #[cfg(unix)]
+                rest_api::serve_unix(
+                    cli.socket.clone().unwrap_or_else(default_socket_path),
+                    skills_path,
+                )
+                .await?;
+                #[cfg(not(unix))]
+                anyhow::bail!("Unix sockets are unavailable; use explicit --tcp");
+            }
         }
         Mode::Status => {
-            let report = health_check::sample_daemon_health(
-                port,
-                cli.samples,
-                cli.warmup,
-                cli.p99_budget_ms,
-                cli.max_budget_ms,
-            )
-            .await;
+            let report = if cli.tcp {
+                let token = rest_api::load_tcp_token_file(&tcp_token_path)?;
+                health_check::sample_daemon_health_with_token(
+                    port,
+                    cli.samples,
+                    cli.warmup,
+                    cli.p99_budget_ms,
+                    cli.max_budget_ms,
+                    Some(&token),
+                )
+                .await
+            } else {
+                #[cfg(unix)]
+                {
+                    let socket = cli.socket.clone().unwrap_or_else(default_socket_path);
+                    health_check::sample_unix_daemon_health(
+                        &socket,
+                        cli.samples,
+                        cli.warmup,
+                        cli.p99_budget_ms,
+                        cli.max_budget_ms,
+                    )
+                    .await
+                }
+                #[cfg(not(unix))]
+                anyhow::bail!("Unix sockets are unavailable; use explicit --tcp")
+            };
             match cli.format {
                 OutputFormat::Text => {
                     println!(
@@ -275,4 +370,19 @@ async fn main() -> anyhow::Result<()> {
 
 fn display_latency(value: Option<f64>) -> String {
     value.map_or_else(|| "n/a".into(), |value| format!("{value:.3}"))
+}
+
+fn default_socket_path() -> PathBuf {
+    dirs_next::data_local_dir()
+        .unwrap_or_else(std::env::temp_dir)
+        .join("prometheus")
+        .join("run")
+        .join("sovereign-sync.sock")
+}
+
+fn default_tcp_token_path(config_path: &std::path::Path) -> PathBuf {
+    config_path
+        .parent()
+        .unwrap_or_else(|| std::path::Path::new("."))
+        .join("tcp-token")
 }
