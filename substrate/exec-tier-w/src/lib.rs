@@ -6,6 +6,7 @@ mod bindings;
 mod capabilities;
 mod engine;
 mod limits;
+mod projection;
 
 pub use authorization::{ComponentAuthorizer, ComponentTrustPolicy};
 pub use capabilities::{
@@ -18,6 +19,7 @@ pub use engine::{
 pub use limits::{
     TierWExecutionFailure, TierWExecutionOutcome, TierWExecutionSuccess, TierWLimits,
 };
+pub use projection::TierWDeterministicReceiptProjection;
 
 #[cfg(all(feature = "mobile", feature = "cranelift"))]
 compile_error!(

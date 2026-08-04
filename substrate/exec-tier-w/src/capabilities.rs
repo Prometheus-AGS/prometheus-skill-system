@@ -3,6 +3,7 @@ use std::{
     time::Duration,
 };
 
+use serde::Serialize;
 use wasmtime::{
     component::{Component, HasSelf, Linker, ResourceTable},
     Engine, ResourceLimiter, StoreLimits, StoreLimitsBuilder,
@@ -52,7 +53,8 @@ const SUPPORTED_IMPORTS: [&str; 21] = [
     "wasi:cli/terminal-stderr@0.2.9",
 ];
 
-#[derive(Clone, Debug, Default, Eq, PartialEq)]
+#[derive(Clone, Debug, Default, Eq, PartialEq, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct CapabilityGrant {
     log: bool,
     readable_keys: BTreeSet<String>,
@@ -129,7 +131,8 @@ impl CapabilityGrant {
     }
 }
 
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct HostLogEntry {
     pub level: String,
     pub message: String,

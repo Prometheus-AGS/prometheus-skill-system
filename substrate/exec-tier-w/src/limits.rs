@@ -6,6 +6,7 @@ use std::time::Duration;
 use prometheus_exec_contracts::{
     ExecutionFailure, ExecutionFailureKind, ExecutionLimits, RunState,
 };
+use serde::Serialize;
 use wasmtime::{Store, StoreLimits, StoreLimitsBuilder, Trap};
 
 use crate::{
@@ -18,7 +19,8 @@ use crate::{
     ComponentAuthorizer, TierWEngine, TierWError, ValidatedComponent,
 };
 
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct TierWLimits {
     pub memory_bytes: usize,
     pub fuel: u64,
