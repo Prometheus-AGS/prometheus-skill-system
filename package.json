@@ -42,6 +42,7 @@
     "generate:harness-adapters": "node scripts/generate-harness-adapters.js",
     "validate:skill-evals": "node scripts/check-skill-evals.js",
     "test:clean-install-parity": "bash shared/scripts/tests/test-clean-install-parity.sh",
+    "test:install-policy": "bash scripts/tests/install-policy.test.sh",
     "lint": "node scripts/lint-skills.js",
     "format": "prettier --write --ignore-path .prettierignore \"**/*.{md,json,js,ts}\"",
     "check-format": "prettier --check --ignore-path .prettierignore \"**/*.{md,json,js,ts}\"",
