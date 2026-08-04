@@ -12,6 +12,7 @@ exec-layer = "service"
 [dependencies]
 async-trait = "0.1"
 chrono = { version = "0.4", features = ["serde"] }
+fs2 = "0.4"
 prometheus-exec-contracts = { path = "../exec-contracts", version = "1.7.0" }
 prometheus-exec-core = { path = "../exec-core", version = "1.7.0" }
 serde = { version = "1", features = ["derive"] }
@@ -22,4 +23,5 @@ tokio = { version = "1", features = ["fs", "rt-multi-thread", "sync", "time"] }
 uuid = { version = "1", features = ["serde", "v4"] }
 
 [dev-dependencies]
+ed25519-dalek = "2"
 proptest = "1"

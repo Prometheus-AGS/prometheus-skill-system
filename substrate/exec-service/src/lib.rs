@@ -6,5 +6,12 @@
 
 #![forbid(unsafe_code)]
 
+mod ledger;
+
+pub use ledger::{
+    AcceptRunResult, ReconciliationReport, RunLedger, RunLedgerError, RunRecord, SpawnStatus,
+    TerminalCommitResult, TerminalReceiptRecord,
+};
+
 /// Release family shared by every execution crate.
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");
