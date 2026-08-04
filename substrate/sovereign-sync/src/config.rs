@@ -21,23 +21,6 @@ pub struct ServerConfig {
     pub port: u16,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
-pub struct KbdVoterConfig {
-    pub id: u64,
-    #[serde(default)]
-    pub endpoint: String,
-    #[serde(default)]
-    pub witness: bool,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct KbdConfig {
-    #[serde(default = "default_kbd_node_id")]
-    pub node_id: u64,
-    #[serde(default = "default_kbd_voters")]
-    pub voters: Vec<KbdVoterConfig>,
-}
-
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct SovereignConfig {
     #[serde(default)]
@@ -46,8 +29,6 @@ pub struct SovereignConfig {
     pub peers: PeersConfig,
     #[serde(default)]
     pub server: ServerConfig,
-    #[serde(default)]
-    pub kbd: KbdConfig,
 }
 
 impl Default for NodeConfig {
@@ -67,15 +48,6 @@ impl Default for ServerConfig {
     }
 }
 
-impl Default for KbdConfig {
-    fn default() -> Self {
-        Self {
-            node_id: default_kbd_node_id(),
-            voters: default_kbd_voters(),
-        }
-    }
-}
-
 fn default_skills_dir() -> String {
     dirs_next::home_dir()
         .map(|h| {
@@ -89,31 +61,6 @@ fn default_skills_dir() -> String {
 
 fn default_port() -> u16 {
     7892
-}
-
-fn default_kbd_node_id() -> u64 {
-    1
-}
-
-fn default_kbd_voters() -> Vec<KbdVoterConfig> {
-    vec![KbdVoterConfig {
-        id: default_kbd_node_id(),
-        endpoint: "local".into(),
-        witness: false,
-    }]
-}
-
-impl KbdConfig {
-    pub fn quorum_policy(&self) -> anyhow::Result<crate::kbd_single_writer::QuorumPolicy> {
-        let policy = crate::kbd_single_writer::QuorumPolicy::new(
-            self.node_id,
-            self.voters.iter().map(|voter| voter.id),
-        )?;
-        if policy.voters().len() != self.voters.len() {
-            anyhow::bail!("kbd.voters contains duplicate voter ids");
-        }
-        Ok(policy)
-    }
 }
 
 impl SovereignConfig {

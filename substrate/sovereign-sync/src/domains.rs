@@ -269,8 +269,8 @@ impl DomainAdapter for LearnerModelAdapter {
 // verifies the signature against the claimed signer's public key in its own
 // `KbdStateV2.devices` (`SyncEnvelope::verify`), requiring `DeviceStatus::Active`.
 // This reuses the same Ed25519 device identity `Event` signing already
-// relies on — no new pairing ceremony and no separate membership identity
-// (which only ever reflects consensus voters, not P2P gossip peers).
+// relies on. Transport pairing and endpoint enrollment are enforced separately
+// from the signed KBD command authority.
 
 #[cfg(test)]
 mod tests {

@@ -316,12 +316,6 @@ pub fn ensure_device_key_file(path: &Path) -> Result<DeviceSigner> {
     }
 }
 
-fn env_truthy(name: &str) -> bool {
-    std::env::var(name)
-        .map(|value| matches!(value.to_ascii_lowercase().as_str(), "1" | "true" | "yes"))
-        .unwrap_or(false)
-}
-
 fn is_zero(value: &u64) -> bool {
     *value == 0
 }
@@ -2440,9 +2434,9 @@ fn write_event_file_atomic(path: &Path, events: &[Event]) -> Result<()> {
 
 /// Apply one already committed event to an in-memory state machine.
 ///
-/// Consensus/storage integrations use this entry point after an event has
-/// reached quorum. It deliberately does not create, sign, append, or project
-/// anything: those are leader, durable-log, and projection-worker concerns.
+/// Storage integrations use this entry point after an event is durable. It
+/// deliberately does not create, sign, append, or project anything: those are
+/// journal-writer and projection-worker concerns.
 pub fn apply_committed_event(state: &mut RuntimeState, event: &Event) -> Result<()> {
     state.apply(event)
 }
@@ -2753,11 +2747,6 @@ impl Runtime {
     pub fn device_signer(&self) -> Result<DeviceSigner> {
         if let Some(path) = std::env::var_os("PROMETHEUS_DEVICE_KEY_FILE") {
             return load_device_key(Path::new(&path));
-        }
-        if env_truthy("PROMETHEUS_HEADLESS_VOTER") {
-            return Err(RuntimeError::InvalidState(
-                "headless voters require PROMETHEUS_DEVICE_KEY_FILE pointing to an existing mode-0600 Ed25519 key file; no key was created".into(),
-            ));
         }
         match self.key_storage {
             KeyStorage::LegacyRuntimeFile => self.legacy_file_device_signer(),
@@ -6309,7 +6298,7 @@ mod tests {
                     task_id: Some("task-1".into()),
                     commit: None,
                 },
-                Some("start quorum storage".into()),
+                Some("start durable storage".into()),
             )
             .unwrap();
         let before_retry = runtime.events().unwrap().len();

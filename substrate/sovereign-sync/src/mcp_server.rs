@@ -15,7 +15,6 @@ use uuid::Uuid;
 
 use crate::kbd_control::KbdControlPlane;
 use crate::kbd_control::KbdProjectRouter;
-use crate::kbd_single_writer::QuorumPolicy;
 
 // ---------------------------------------------------------------------------
 // SkillIndex — keyword-only loader (no embeddings, no external calls)
@@ -239,9 +238,8 @@ pub struct SovereignMcpServer {
 impl SovereignMcpServer {
     pub async fn new(skills_dir: &Path, prefix_tools: bool, uar_passthrough: bool) -> Self {
         let skill_index = Arc::new(SkillIndex::load_from_dir(skills_dir));
-        let quorum = QuorumPolicy::new(1, [1]).expect("valid standalone quorum");
         let kbd_projects = Arc::new(
-            KbdProjectRouter::open_registered(quorum)
+            KbdProjectRouter::open_registered()
                 .await
                 .expect("cannot open registered KBD control planes"),
         );

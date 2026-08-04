@@ -2,7 +2,7 @@
 //!
 //! Callers submit the same versioned `CommandEnvelope`. During stabilization,
 //! commands are committed by one journal writer protected by an exclusive
-//! flock. Multi-voter configurations are rejected explicitly.
+//! lock. The lock is the sole write-concurrency boundary.
 
 use std::{
     collections::{BTreeMap, BTreeSet},
@@ -18,8 +18,6 @@ use kbd_runtime::{
     SignedCommandEnvelope,
 };
 use serde::Serialize;
-
-use crate::kbd_single_writer::{QuorumPolicy, QuorumStatus};
 
 #[cfg(test)]
 static AUTHORITY_OPEN_COUNTS: std::sync::LazyLock<std::sync::Mutex<BTreeMap<String, usize>>> =
@@ -38,11 +36,9 @@ pub struct CommittedCommand {
 ///
 /// `Runtime` provides an append-only `events.jsonl` guarded by an exclusive
 /// flock and fsynced on append before import into the authoritative project
-/// Loro document. The compatibility policy permits exactly one local writer.
+/// Loro document. The journal lock permits exactly one local writer.
 pub struct KbdControlPlane {
     runtime: Arc<Runtime>,
-    quorum: Arc<QuorumPolicy>,
-    available_voters: Arc<RwLock<BTreeSet<u64>>>,
 }
 
 #[derive(Debug, Clone, Serialize)]
@@ -59,17 +55,15 @@ pub struct RegisteredProjectRoute {
 pub struct KbdProjectRouter {
     registry: ProjectRegistry,
     data_root: Option<PathBuf>,
-    policy: QuorumPolicy,
     controls: Arc<RwLock<BTreeMap<String, Arc<KbdControlPlane>>>>,
     errors: Arc<RwLock<BTreeMap<String, String>>>,
 }
 
 impl KbdProjectRouter {
-    pub async fn open_registered(policy: QuorumPolicy) -> io::Result<Self> {
+    pub async fn open_registered() -> io::Result<Self> {
         let router = Self {
             registry: ProjectRegistry::open(),
             data_root: None,
-            policy,
             controls: Arc::new(RwLock::new(BTreeMap::new())),
             errors: Arc::new(RwLock::new(BTreeMap::new())),
         };
@@ -77,11 +71,10 @@ impl KbdProjectRouter {
         Ok(router)
     }
 
-    pub async fn open_registered_at(data_root: &Path, policy: QuorumPolicy) -> io::Result<Self> {
+    pub async fn open_registered_at(data_root: &Path) -> io::Result<Self> {
         let router = Self {
             registry: ProjectRegistry::open_at(data_root),
             data_root: Some(data_root.to_path_buf()),
-            policy,
             controls: Arc::new(RwLock::new(BTreeMap::new())),
             errors: Arc::new(RwLock::new(BTreeMap::new())),
         };
@@ -89,24 +82,20 @@ impl KbdProjectRouter {
         Ok(router)
     }
 
-    pub async fn open_with_project(project_root: &Path, policy: QuorumPolicy) -> io::Result<Self> {
+    pub async fn open_with_project(project_root: &Path) -> io::Result<Self> {
         let registry = ProjectRegistry::open();
         registry
             .register_existing(project_root)
             .map_err(|error| io::Error::other(error.to_string()))?;
-        Self::open_registered(policy).await
+        Self::open_registered().await
     }
 
-    pub async fn open_with_project_at(
-        project_root: &Path,
-        data_root: &Path,
-        policy: QuorumPolicy,
-    ) -> io::Result<Self> {
+    pub async fn open_with_project_at(project_root: &Path, data_root: &Path) -> io::Result<Self> {
         // Establishing a canonical runtime is the explicit project-initialization
         // path. Registry registration itself still consumes only the manifest.
         Runtime::open_canonical_at(project_root, data_root)
             .map_err(|error| io::Error::other(error.to_string()))?;
-        Self::open_registered_at(data_root, policy).await
+        Self::open_registered_at(data_root).await
     }
 
     pub fn registry(&self) -> &ProjectRegistry {
@@ -188,7 +177,6 @@ impl KbdProjectRouter {
         for (project_id, path) in projects {
             let permit = Arc::clone(&semaphore);
             let data_root = self.data_root.clone();
-            let policy = self.policy.clone();
             opens.spawn(async move {
                 let _permit = permit
                     .acquire_owned()
@@ -197,10 +185,9 @@ impl KbdProjectRouter {
                 let project_started = Instant::now();
                 let opened = match data_root {
                     Some(data_root) => {
-                        KbdControlPlane::open_registered_at(&path, &data_root, &project_id, policy)
-                            .await
+                        KbdControlPlane::open_registered_at(&path, &data_root, &project_id).await
                     }
-                    None => KbdControlPlane::open_registered(&path, &project_id, policy).await,
+                    None => KbdControlPlane::open_registered(&path, &project_id).await,
                 };
                 tracing::info!(
                     startup_phase = "project_open",
@@ -257,17 +244,9 @@ impl KbdProjectRouter {
             let path = PathBuf::from(path);
             match &self.data_root {
                 Some(data_root) => {
-                    KbdControlPlane::open_registered_at(
-                        &path,
-                        data_root,
-                        project_id,
-                        self.policy.clone(),
-                    )
-                    .await
+                    KbdControlPlane::open_registered_at(&path, data_root, project_id).await
                 }
-                None => {
-                    KbdControlPlane::open_registered(&path, project_id, self.policy.clone()).await
-                }
+                None => KbdControlPlane::open_registered(&path, project_id).await,
             }
         }
         .await;
@@ -376,7 +355,7 @@ impl KbdProjectRouter {
 }
 
 impl KbdControlPlane {
-    pub async fn open(project_root: &Path, quorum: QuorumPolicy) -> io::Result<Self> {
+    pub async fn open(project_root: &Path) -> io::Result<Self> {
         let project_root = project_root.to_path_buf();
         let runtime = Arc::new(
             tokio::task::spawn_blocking(move || {
@@ -386,14 +365,10 @@ impl KbdControlPlane {
             .await
             .map_err(|error| io::Error::other(format!("runtime open task failed: {error}")))??,
         );
-        Self::from_runtime(runtime, quorum).await
+        Self::from_runtime(runtime).await
     }
 
-    pub async fn open_at(
-        project_root: &Path,
-        data_root: &Path,
-        quorum: QuorumPolicy,
-    ) -> io::Result<Self> {
+    pub async fn open_at(project_root: &Path, data_root: &Path) -> io::Result<Self> {
         let project_root = project_root.to_path_buf();
         let data_root = data_root.to_path_buf();
         let runtime = Arc::new(
@@ -404,7 +379,7 @@ impl KbdControlPlane {
             .await
             .map_err(|error| io::Error::other(format!("runtime open task failed: {error}")))??,
         );
-        Self::from_runtime(runtime, quorum).await
+        Self::from_runtime(runtime).await
     }
 
     /// Open a replica that is already present in the platform registry without
@@ -413,7 +388,6 @@ impl KbdControlPlane {
     pub async fn open_registered(
         project_root: &Path,
         expected_project_id: &str,
-        quorum: QuorumPolicy,
     ) -> io::Result<Self> {
         let project_root = project_root.to_path_buf();
         let expected_project_id = expected_project_id.to_owned();
@@ -425,14 +399,13 @@ impl KbdControlPlane {
             .await
             .map_err(|error| io::Error::other(format!("runtime open task failed: {error}")))??,
         );
-        Self::from_runtime(runtime, quorum).await
+        Self::from_runtime(runtime).await
     }
 
     pub async fn open_registered_at(
         project_root: &Path,
         data_root: &Path,
         expected_project_id: &str,
-        quorum: QuorumPolicy,
     ) -> io::Result<Self> {
         let project_root = project_root.to_path_buf();
         let data_root = data_root.to_path_buf();
@@ -445,16 +418,10 @@ impl KbdControlPlane {
             .await
             .map_err(|error| io::Error::other(format!("runtime open task failed: {error}")))??,
         );
-        Self::from_runtime(runtime, quorum).await
+        Self::from_runtime(runtime).await
     }
 
-    async fn from_runtime(runtime: Arc<Runtime>, quorum: QuorumPolicy) -> io::Result<Self> {
-        if quorum.voters().len() != 1 {
-            return Err(io::Error::new(
-                io::ErrorKind::InvalidInput,
-                "multi-voter KBD configuration is unsupported; configure exactly one journal writer",
-            ));
-        }
+    async fn from_runtime(runtime: Arc<Runtime>) -> io::Result<Self> {
         #[cfg(test)]
         {
             let key = runtime.runtime_root().display().to_string();
@@ -464,11 +431,7 @@ impl KbdControlPlane {
                 .entry(key)
                 .or_default() += 1;
         }
-        Ok(Self {
-            runtime,
-            available_voters: Arc::new(RwLock::new(BTreeSet::from([quorum.node_id()]))),
-            quorum: Arc::new(quorum),
-        })
+        Ok(Self { runtime })
     }
 
     pub fn runtime(&self) -> &Runtime {
@@ -504,27 +467,6 @@ impl KbdControlPlane {
         })
         .await
         .map_err(|join_error| io::Error::other(format!("readiness task failed: {join_error}")))?
-    }
-
-    pub fn quorum_status(&self) -> QuorumStatus {
-        let available = self
-            .available_voters
-            .read()
-            .expect("available voter lock poisoned")
-            .clone();
-        self.quorum.status(available)
-    }
-
-    pub fn set_voter_available(&self, node_id: u64, available: bool) {
-        let mut voters = self
-            .available_voters
-            .write()
-            .expect("available voter lock poisoned");
-        if available {
-            voters.insert(node_id);
-        } else {
-            voters.remove(&node_id);
-        }
     }
 
     pub fn events(&self, since_revision: u64) -> io::Result<Vec<Event>> {
@@ -596,12 +538,11 @@ impl KbdControlPlane {
             .transpose()
             .map_err(|error| io::Error::other(error.to_string()))?;
         Ok(serde_json::json!({
-            "schemaVersion": "1",
-            "quorum": self.quorum_status(),
+            "schemaVersion": "2",
             "singleWriter": {
-                "nodeId": self.quorum.node_id(),
                 "lockPath": self.runtime.journal_lock_path(),
-                "available": self.quorum_status().writable
+                "available": true,
+                "authority": "exclusive-journal-lock"
             },
             "journal": {
                 "path": journal_path,
@@ -676,10 +617,6 @@ impl KbdControlPlane {
     }
 
     pub async fn submit(&self, envelope: CommandEnvelope) -> io::Result<CommittedCommand> {
-        let quorum = self.quorum_status();
-        if !quorum.writable {
-            return Err(io::Error::new(io::ErrorKind::WouldBlock, quorum.reason));
-        }
         let runtime = Arc::clone(&self.runtime);
         tokio::task::spawn_blocking(move || {
             let result = runtime
@@ -740,10 +677,9 @@ mod tests {
         let initialized = runtime
             .initialize(project_id, "run-a", Actor::operator("operator-a", "test"))
             .unwrap();
-        let control =
-            KbdControlPlane::from_runtime(runtime.clone(), QuorumPolicy::new(1, [1]).unwrap())
-                .await
-                .unwrap();
+        let control = KbdControlPlane::from_runtime(runtime.clone())
+            .await
+            .unwrap();
         let actor = Actor {
             kind: ActorKind::Harness,
             id: "codex".into(),
@@ -804,12 +740,9 @@ mod tests {
         assert!(recovered.registration.read_only);
         let registry_before = std::fs::read(registry.registry_path()).unwrap();
 
-        let router = KbdProjectRouter::open_registered_at(
-            data_root.path(),
-            QuorumPolicy::new(1, [1]).unwrap(),
-        )
-        .await
-        .unwrap();
+        let router = KbdProjectRouter::open_registered_at(data_root.path())
+            .await
+            .unwrap();
         assert!(!router
             .ensure_registered_path(std::path::Path::new(&recovered.path))
             .await
@@ -851,10 +784,9 @@ mod tests {
             .expect("authority open counter lock poisoned")
             .clear();
 
-        let router =
-            KbdProjectRouter::open_registered_at(&data_root, QuorumPolicy::new(1, [1]).unwrap())
-                .await
-                .unwrap();
+        let router = KbdProjectRouter::open_registered_at(&data_root)
+            .await
+            .unwrap();
 
         assert_eq!(router.project_ids().len(), 18);
         let data_prefix = data_root.display().to_string();

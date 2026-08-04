@@ -174,16 +174,6 @@ async fn main() -> anyhow::Result<()> {
         Mode::Daemon => {
             info!("Starting sovereign-sync daemon on port {port}");
             let skills_path = std::path::Path::new(&cfg.node.skills_dir);
-            let quorum = cfg.kbd.quorum_policy()?;
-            let initial_quorum = quorum.status([cfg.kbd.node_id]);
-            if initial_quorum.standalone_non_ha {
-                warn!("KBD quorum mode: {}", initial_quorum.reason);
-            } else if !initial_quorum.writable {
-                warn!(
-                    "KBD starts read-only until quorum forms: {}",
-                    initial_quorum.reason
-                );
-            }
             if cfg.node.operator_id.trim().is_empty() {
                 anyhow::bail!(
                     "node.operator_id is required in daemon mode; pair trusted devices before KBD sync"

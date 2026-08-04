@@ -1062,7 +1062,7 @@ async fn check_kbd_control_plane() -> CheckResult {
         return CheckResult {
             id: "control.kbd-runtime".into(),
             group: "control".into(),
-            label: "KBD quorum control plane".into(),
+            label: "KBD journal control plane".into(),
             severity: Severity::Yellow,
             status: CheckStatus::Skip,
             summary: "project identity is not initialized".into(),
@@ -1108,7 +1108,6 @@ async fn check_kbd_control_plane() -> CheckResult {
 
     match result {
         Ok(diagnostics) => {
-            let writable = diagnostics["quorum"]["writable"].as_bool().unwrap_or(false);
             let writer_available = diagnostics["singleWriter"]["available"]
                 .as_bool()
                 .unwrap_or(false);
@@ -1125,11 +1124,7 @@ async fn check_kbd_control_plane() -> CheckResult {
             let signatures = diagnostics["integrity"]["signatureChainValid"]
                 .as_bool()
                 .unwrap_or(false);
-            let healthy = writable
-                && writer_available
-                && journal_ingested
-                && projection_matches
-                && signatures;
+            let healthy = writer_available && journal_ingested && projection_matches && signatures;
             CheckResult {
                 id: "control.kbd-runtime".into(),
                 group: "control".into(),
@@ -1162,14 +1157,10 @@ async fn check_kbd_control_plane() -> CheckResult {
                 ),
                 details: vec![
                     format!(
-                        "quorum: {}",
-                        diagnostics["quorum"]["reason"]
+                        "single writer authority/lock: {}/{}",
+                        diagnostics["singleWriter"]["authority"]
                             .as_str()
-                            .unwrap_or("unknown")
-                    ),
-                    format!(
-                        "single writer node/lock: {}/{}",
-                        diagnostics["singleWriter"]["nodeId"].as_u64().unwrap_or(0),
+                            .unwrap_or("unknown"),
                         diagnostics["singleWriter"]["lockPath"]
                             .as_str()
                             .unwrap_or("unknown")
@@ -1205,7 +1196,7 @@ async fn check_kbd_control_plane() -> CheckResult {
         Err(error) => CheckResult {
             id: "control.kbd-runtime".into(),
             group: "control".into(),
-            label: "KBD quorum control plane".into(),
+            label: "KBD journal control plane".into(),
             severity: Severity::Yellow,
             status: CheckStatus::Warn,
             summary: "KBD daemon diagnostics are unreachable".into(),
@@ -1374,11 +1365,11 @@ fn check_kbd_rollout() -> CheckResult {
                         gate.synthetic_replay_mutations
                     ),
                     format!(
-                        "projection mismatches: {}; harnesses/devices/voters: {}/{}/{}",
+                        "projection mismatches: {}; harnesses/devices/replicas: {}/{}/{}",
                         gate.unexplained_projection_mismatches,
                         gate.harnesses.len(),
                         gate.devices.len(),
-                        gate.max_voters
+                        gate.max_replicas
                     ),
                     if gate.failures.is_empty() {
                         "no outstanding gate failures".into()

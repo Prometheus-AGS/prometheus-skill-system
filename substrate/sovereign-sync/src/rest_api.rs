@@ -40,7 +40,6 @@ use crate::ag_ui::{ag_ui_events, ag_ui_ping, ag_ui_stream, AgUiEvent, AgUiState}
 use crate::domains::{self, DomainAdapter, LearnerModelAdapter, SkillIndexAdapter, SyncEnvelope};
 use crate::health_check::{detect_daemon_health, DaemonHealthKind};
 use crate::kbd_control::KbdProjectRouter;
-use crate::kbd_single_writer::QuorumPolicy;
 use crate::kbd_sync::{KbdAuthorityPayload, KbdPresenceDocument};
 use crate::mcp_server::SkillIndex;
 use crate::p2p::{
@@ -325,11 +324,10 @@ impl AppState {
             if let Some(gate) = &authority_startup {
                 gate.set_stage(StartupStage::LoadingRegistry).await;
             }
-            let quorum = QuorumPolicy::new(1, [1])?;
             if let Some(gate) = &authority_startup {
                 gate.set_stage(StartupStage::OpeningAuthorities).await;
             }
-            let kbd_projects = Arc::new(KbdProjectRouter::open_registered(quorum).await?);
+            let kbd_projects = Arc::new(KbdProjectRouter::open_registered().await?);
             let discovery_path = skills_path.clone();
             let project_root = tokio::task::spawn_blocking(move || {
                 discover_manifest_project_root(&discovery_path)
@@ -428,13 +426,12 @@ impl AppState {
         data_root: &Path,
         p2p: AppP2PTransport,
     ) -> anyhow::Result<Self> {
-        let quorum = QuorumPolicy::new(1, [1])?;
         let project_root = project_root.to_path_buf();
         let data_root = data_root.to_path_buf();
         let skills_path = skills_dir.to_path_buf();
         let (kbd_projects, skill_index) = tokio::try_join!(
             async {
-                KbdProjectRouter::open_with_project_at(&project_root, &data_root, quorum)
+                KbdProjectRouter::open_with_project_at(&project_root, &data_root)
                     .await
                     .map(Arc::new)
                     .map_err(anyhow::Error::from)
