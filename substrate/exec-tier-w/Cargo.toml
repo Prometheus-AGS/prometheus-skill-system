@@ -12,6 +12,10 @@ component-world = "prometheus:component@0.1.0"
 
 [features]
 default = ["cranelift"]
+# Selects the native-execution profile. Wasmtime's Cranelift compiler support
+# remains available in Pulley builds because it translates source components to
+# Pulley bytecode; the mobile profile still executes only through the Pulley
+# interpreter and never permits executable-memory JIT.
 cranelift = []
 pulley = ["wasmtime/pulley"]
 estate = ["dep:base64", "dep:ed25519-dalek", "dep:serde_json"]
