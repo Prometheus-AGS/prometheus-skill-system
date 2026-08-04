@@ -7,6 +7,7 @@
 #![forbid(unsafe_code)]
 
 mod artifact;
+mod grant;
 mod job;
 mod policy;
 mod port;
@@ -25,3 +26,8 @@ pub use receipt_log::{AppendReceiptResult, ReceiptLog, ReceiptLogError};
 /// Release family shared by every execution crate.
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");
 pub use artifact::{ArtifactStore, CasError, GcReport, StoredArtifact};
+pub use grant::{
+    verify_interactive_grant, GrantValidationError, InteractiveGrantIssuer,
+    InteractiveGrantStatement, InteractiveGrantToken, SshGrantManifest, SshGrantVerifier,
+    ValidatedGrant, GRANT_NAMESPACE,
+};
