@@ -1,5 +1,12 @@
 #![forbid(unsafe_code)]
 
+mod engine;
+
+pub use engine::{
+    BackendAvailability, EngineProfile, ExecutionTarget, TierWEngine, TierWError,
+    ValidatedComponent,
+};
+
 #[cfg(all(feature = "mobile", feature = "cranelift"))]
 compile_error!(
     "mobile builds must disable default features and select the Pulley-only mobile profile"
@@ -17,10 +24,20 @@ pub const COMPONENT_WORLD: &str = "prometheus:component@0.1.0";
 /// Wasmtime major shared with UAR, KnowMe, and LibreFang cache identities.
 pub const WASMTIME_MAJOR: u32 = 46;
 
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, serde::Serialize)]
+#[serde(rename_all = "lowercase")]
 pub enum BackendProfile {
     Cranelift,
     Pulley,
+}
+
+impl BackendProfile {
+    pub const fn name(self) -> &'static str {
+        match self {
+            Self::Cranelift => "cranelift",
+            Self::Pulley => "pulley",
+        }
+    }
 }
 
 /// Returns the compile-time backend profile without initializing Wasmtime.
