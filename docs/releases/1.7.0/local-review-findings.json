@@ -37,6 +37,20 @@
       "area": "Loro schema downgrade",
       "summary": "Unsigned schema-v1 events could bypass the new Loro authorization prepass.",
       "resolution": "Project Loro ingestion and imports now reject every non-v2 event before causal or conflict processing; legacy v1 history remains available only through the explicit backed-up journal migration path."
+    },
+    {
+      "severity": "medium",
+      "status": "resolved",
+      "area": "Plugin transactional activation",
+      "summary": "Reinstalling an equivalent hook bundle as a new signed generation advanced current but left the bundle index on the prior generation.",
+      "resolution": "Activation and rollback now preflight bundle collisions and publish the verified runtime/index before moving current. Repointing a same-ID bundle is allowed only after proving identical signed dispatcher bytes; a regression fixture covers install and rollback."
+    },
+    {
+      "severity": "medium",
+      "status": "resolved",
+      "area": "Plugin activation ordering",
+      "summary": "An intermediate fix moved current before publishing a new bundle index, creating a hook-resolution crash window.",
+      "resolution": "The final ordering publishes and verifies the bundle runtime first, then atomically advances current. A same-ID repoint cannot change hook behavior because collision validation requires identical signed dispatcher bytes."
     }
   ],
   "verdict": "pass_after_remediation"
