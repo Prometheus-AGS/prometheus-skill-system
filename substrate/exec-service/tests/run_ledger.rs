@@ -8,7 +8,9 @@ use prometheus_exec_contracts::{
     ExecutionProvenance, ExecutionReceipt, ExecutionTier, RequestedTier, ResourceUsage, RunState,
     RuntimeKind, SignatureAlgorithm, SignedExecRequest, VerificationKey, SCHEMA_VERSION,
 };
-use prometheus_exec_service::{AcceptRunResult, RunLedger, RunLedgerError, RunRecord, SpawnStatus};
+use prometheus_exec_service::{
+    AcceptRunResult, GrantPendingRecord, RunLedger, RunLedgerError, RunRecord, SpawnStatus,
+};
 use tempfile::tempdir;
 use uuid::Uuid;
 
@@ -214,6 +216,75 @@ fn spawn_boundary_is_durable_and_idempotent() {
     let persisted = reopened.get(request.request_id).unwrap().unwrap();
     assert_eq!(persisted.run_id, accepted.run_id);
     assert_eq!(persisted, spawned);
+}
+
+#[test]
+fn grant_pending_is_durable_idempotent_and_preserved_by_reconciliation() {
+    let directory = tempdir().unwrap();
+    let (_, verification) = signing_material();
+    let request = request(Uuid::new_v4(), b"print('grant pending')");
+    let hash = request.request_hash().unwrap();
+    let ledger = RunLedger::open(directory.path()).unwrap();
+    let accepted = ledger.accept(request.clone()).unwrap().record().clone();
+    let pending = GrantPendingRecord {
+        event_id: "grant.policy".into(),
+        reason: "network egress requires a trusted-host grant".into(),
+        occurred_at: Utc::now(),
+    };
+    let marked = ledger
+        .mark_grant_pending(request.request_id, &hash, pending.clone())
+        .unwrap();
+    assert_eq!(marked.state, RunState::GrantPending);
+    assert_eq!(marked.spawn, SpawnStatus::NotSpawned);
+    assert_eq!(marked.grant_pending.as_ref(), Some(&pending));
+    let repeated = GrantPendingRecord {
+        occurred_at: Utc::now(),
+        ..pending.clone()
+    };
+    assert_eq!(
+        ledger
+            .mark_grant_pending(request.request_id, &hash, repeated)
+            .unwrap(),
+        marked
+    );
+    assert!(matches!(
+        ledger.claim_for_execution(request.request_id, &hash),
+        Err(RunLedgerError::InvalidRecord(_))
+    ));
+
+    drop(ledger);
+    let reopened = RunLedger::open(directory.path()).unwrap();
+    let report = reopened
+        .reconcile(&verification, |_| {
+            panic!("grant-pending run must not spawn")
+        })
+        .unwrap();
+    assert!(report.requeued.is_empty());
+    assert!(report.interrupted.is_empty());
+    let recovered = reopened.get(request.request_id).unwrap().unwrap();
+    assert_eq!(recovered.run_id, accepted.run_id);
+    assert_eq!(recovered, marked);
+}
+
+#[test]
+fn successful_terminal_receipt_requires_the_durable_spawn_boundary() {
+    let directory = tempdir().unwrap();
+    let (signing, verification) = signing_material();
+    let request = request(Uuid::new_v4(), b"print('must spawn')");
+    let hash = request.request_hash().unwrap();
+    let ledger = RunLedger::open(directory.path()).unwrap();
+    let record = ledger.accept(request.clone()).unwrap().record().clone();
+    let error = ledger
+        .commit_terminal(
+            request.request_id,
+            &hash,
+            signed_receipt(&record, RunState::Succeeded, &signing),
+            &verification,
+        )
+        .unwrap_err();
+    assert!(matches!(error, RunLedgerError::InvalidReceipt(_)));
+    assert_eq!(ledger.get(request.request_id).unwrap().unwrap(), record);
+    assert!(ledger.receipt_log().segments().unwrap().is_empty());
 }
 
 #[test]

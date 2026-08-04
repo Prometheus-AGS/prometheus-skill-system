@@ -397,7 +397,14 @@ async fn uds_binds_health_first_with_private_mode_and_real_peer_credentials() {
 
     let directory = tempdir().unwrap();
     let socket = directory.path().join("runtime/prometheus-exec.sock");
+    let bind_started = Instant::now();
     let sidecar = UdsSidecar::start(&socket).await.unwrap();
+    let bind_elapsed = bind_started.elapsed();
+    assert!(
+        bind_elapsed < Duration::from_secs(1),
+        "health-first UDS bind exceeded one second"
+    );
+    eprintln!("health_first_bind_us={}", bind_elapsed.as_micros());
     let mode = std::fs::symlink_metadata(&socket)
         .unwrap()
         .permissions()
@@ -425,6 +432,20 @@ async fn uds_binds_health_first_with_private_mode_and_real_peer_credentials() {
     let health = uds_request(&socket, "/health").await;
     assert!(started.elapsed() < Duration::from_millis(500));
     assert!(health.starts_with(b"HTTP/1.1 200"));
+    let mut warm_health_latencies = Vec::with_capacity(100);
+    for _ in 0..100 {
+        let started = Instant::now();
+        let health = uds_request(&socket, "/health").await;
+        warm_health_latencies.push(started.elapsed());
+        assert!(health.starts_with(b"HTTP/1.1 200"));
+    }
+    warm_health_latencies.sort_unstable();
+    let p95 = warm_health_latencies[94];
+    eprintln!("warm_health_p95_us={}", p95.as_micros());
+    assert!(
+        p95 < Duration::from_millis(10),
+        "warm /health p95 was {p95:?}, expected under 10 ms"
+    );
     let ready = uds_request(&socket, "/ready").await;
     assert!(ready.starts_with(b"HTTP/1.1 503"));
 

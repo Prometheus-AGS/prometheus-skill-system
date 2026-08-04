@@ -19,8 +19,8 @@ pub use http::{
 #[cfg(unix)]
 pub use http::{peer_is_same_user, UdsSidecar, UdsSidecarError};
 pub use ledger::{
-    AcceptRunResult, ReconciliationReport, RunLedger, RunLedgerError, RunRecord, SpawnRunResult,
-    SpawnStatus, TerminalCommitResult, TerminalReceiptRecord,
+    AcceptRunResult, GrantPendingRecord, ReconciliationReport, RunLedger, RunLedgerError,
+    RunRecord, SpawnRunResult, SpawnStatus, TerminalCommitResult, TerminalReceiptRecord,
 };
 pub use service::{ExecutionService, ExecutionServiceError, SubmitRunResult};
 

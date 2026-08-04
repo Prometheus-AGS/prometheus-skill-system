@@ -1,26 +1,34 @@
-use std::{collections::BTreeMap, path::PathBuf, sync::Arc, time::Duration};
+use std::{collections::BTreeMap, path::PathBuf, sync::Arc};
+
+#[cfg(target_os = "macos")]
+use std::time::Duration;
 
 use chrono::Utc;
 use ed25519_dalek::SigningKey;
+#[cfg(target_os = "macos")]
+use prometheus_exec_contracts::verify_request_signature;
 use prometheus_exec_contracts::{
-    hash_bytes, hash_serializable, sign_receipt_ed25519, verify_request_signature, EvidenceClass,
-    ExecutingDevice, ExecutionBackend, ExecutionExit, ExecutionOutputs, ExecutionReceipt,
-    ExecutionTier, ResourceUsage, RunState, SignatureAlgorithm, VerificationKey, SCHEMA_VERSION,
+    hash_bytes, hash_serializable, sign_receipt_ed25519, EvidenceClass, ExecutingDevice,
+    ExecutionBackend, ExecutionExit, ExecutionOutputs, ExecutionReceipt, ExecutionTier,
+    ResourceUsage, RunState, SignatureAlgorithm, VerificationKey, SCHEMA_VERSION,
 };
+use prometheus_exec_core::ArtifactStore;
+#[cfg(target_os = "macos")]
 use prometheus_exec_core::{
-    ArtifactStore, BaselinePolicy, CedarTighteningPolicy, Ed25519ReceiptSigner, ExecutionJob,
-    ExecutionPort, PolicyEvaluator, PolicyOutcome, ReceiptAssembler,
+    BaselinePolicy, CedarTighteningPolicy, Ed25519ReceiptSigner, ExecutionJob, ExecutionPort,
+    PolicyEvaluator, PolicyOutcome, ReceiptAssembler,
 };
+#[cfg(target_os = "macos")]
+use prometheus_exec_service::RunEventData;
 #[cfg(unix)]
 use prometheus_exec_service::UdsSidecar;
-use prometheus_exec_service::{
-    ExecutionService, ReadinessStatus, RunEventData, RunRecord, SidecarState,
-};
+use prometheus_exec_service::{ExecutionService, ReadinessStatus, RunRecord, SidecarState};
 #[cfg(target_os = "macos")]
 use prometheus_exec_tier_p::{SeatbeltConfig, SeatbeltExecutor};
 
 use crate::identity;
 
+#[cfg(target_os = "macos")]
 const RUNNER_POLL_INTERVAL: Duration = Duration::from_millis(50);
 
 #[derive(Clone, Debug)]
@@ -244,13 +252,11 @@ async fn process_queued_run(
     match BaselinePolicy.evaluate(&record.request) {
         PolicyOutcome::AutoApproved => {}
         PolicyOutcome::GrantRequired { reasons } => {
-            service.append_runtime_event(
-                record.run_id,
+            service.mark_grant_pending(
+                record.request_id,
+                &record.request_hash,
                 "grant.policy",
-                record.accepted_at,
-                RunEventData::GrantPending {
-                    reason: serde_json::to_string(&reasons)?,
-                },
+                serde_json::to_string(&reasons)?,
             )?;
             return Ok(());
         }
@@ -267,13 +273,11 @@ async fn process_queued_run(
     match policy.evaluate(&record.request) {
         PolicyOutcome::AutoApproved => {}
         PolicyOutcome::GrantRequired { reasons } => {
-            service.append_runtime_event(
-                record.run_id,
+            service.mark_grant_pending(
+                record.request_id,
+                &record.request_hash,
                 "grant.cedar",
-                record.accepted_at,
-                RunEventData::GrantPending {
-                    reason: serde_json::to_string(&reasons)?,
-                },
+                serde_json::to_string(&reasons)?,
             )?;
             return Ok(());
         }

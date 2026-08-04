@@ -16,6 +16,8 @@ use uuid::Uuid;
 
 const LEDGER_SCHEMA_VERSION: &str = "1";
 const MAX_RECORD_BYTES: u64 = 8 * 1024 * 1024;
+const MAX_GRANT_EVENT_ID_BYTES: usize = 128;
+const MAX_GRANT_REASON_BYTES: usize = 64 * 1024;
 
 /// Durable evidence that the executor has, or has not, crossed the spawn boundary.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -35,6 +37,28 @@ pub struct TerminalReceiptRecord {
     pub log_segment_hash: Digest,
 }
 
+/// Durable explanation for a request that cannot cross the spawn boundary
+/// until a trusted host supplies a privileged grant.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct GrantPendingRecord {
+    pub event_id: String,
+    pub reason: String,
+    pub occurred_at: DateTime<Utc>,
+}
+
+impl GrantPendingRecord {
+    fn is_valid(&self) -> bool {
+        !self.event_id.is_empty()
+            && self.event_id.len() <= MAX_GRANT_EVENT_ID_BYTES
+            && self.event_id.bytes().all(|byte| {
+                byte.is_ascii_alphanumeric() || matches!(byte, b'.' | b'-' | b'_' | b':')
+            })
+            && !self.reason.trim().is_empty()
+            && self.reason.len() <= MAX_GRANT_REASON_BYTES
+    }
+}
+
 /// The persisted identity and lifecycle state for one idempotent request.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -49,6 +73,8 @@ pub struct RunRecord {
     pub accepted_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
     pub revision: u64,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub grant_pending: Option<GrantPendingRecord>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub terminal: Option<TerminalReceiptRecord>,
 }
@@ -209,6 +235,7 @@ impl RunLedger {
             accepted_at: now,
             updated_at: now,
             revision: 0,
+            grant_pending: None,
             terminal: None,
         };
         validate_record(&record)?;
@@ -246,6 +273,52 @@ impl RunLedger {
         Ok(self.claim_for_execution(request_id, request_hash)?.record)
     }
 
+    /// Persist a grant-required decision without crossing the spawn boundary.
+    pub fn mark_grant_pending(
+        &self,
+        request_id: Uuid,
+        request_hash: &Digest,
+        pending: GrantPendingRecord,
+    ) -> Result<RunRecord, RunLedgerError> {
+        let lock = self.open_lock()?;
+        fs2::FileExt::lock_exclusive(&lock).map_err(|source| io_error(self.lock_path(), source))?;
+        let mut record = self
+            .load_record_if_present(request_id)?
+            .ok_or(RunLedgerError::NotFound(request_id))?;
+        require_hash(&record, request_hash)?;
+        if record.state == RunState::GrantPending {
+            if record.grant_pending.as_ref().is_some_and(|existing| {
+                existing.event_id == pending.event_id && existing.reason == pending.reason
+            }) {
+                return Ok(record);
+            }
+            return Err(RunLedgerError::InvalidRecord(format!(
+                "run {} already has a different pending grant decision",
+                record.run_id
+            )));
+        }
+        if record.state != RunState::Queued
+            || !matches!(record.spawn, SpawnStatus::NotSpawned)
+            || record.terminal.is_some()
+        {
+            return Err(RunLedgerError::InvalidRecord(format!(
+                "run {} cannot enter grant-pending from {:?}",
+                record.run_id, record.state
+            )));
+        }
+        if !pending.is_valid() {
+            return Err(RunLedgerError::InvalidRecord(
+                "grant-pending event id or reason is invalid".into(),
+            ));
+        }
+        record.state = RunState::GrantPending;
+        record.updated_at = pending.occurred_at;
+        record.revision = record.revision.saturating_add(1);
+        record.grant_pending = Some(pending);
+        self.write_record(&record, true)?;
+        Ok(record)
+    }
+
     /// Atomically claims a queued run. Only the caller receiving `claimed=true`
     /// may spawn an executor process.
     pub fn claim_for_execution(
@@ -270,6 +343,12 @@ impl RunLedger {
                 record,
                 claimed: false,
             });
+        }
+        if record.state != RunState::Queued || record.grant_pending.is_some() {
+            return Err(RunLedgerError::InvalidRecord(format!(
+                "run {} is not eligible to cross the spawn boundary",
+                record.run_id
+            )));
         }
         let now = Utc::now();
         record.state = RunState::Running;
@@ -357,6 +436,7 @@ impl RunLedger {
                 continue;
             }
             match record.spawn {
+                SpawnStatus::NotSpawned if record.state == RunState::GrantPending => {}
                 SpawnStatus::NotSpawned => {
                     if record.state != RunState::Queued {
                         record.state = RunState::Queued;
@@ -535,6 +615,13 @@ impl RunLedger {
     }
 }
 
+impl RunRecord {
+    /// Validate durable structural invariants without mutating or repairing state.
+    pub fn validate(&self) -> Result<(), RunLedgerError> {
+        validate_record(self)
+    }
+}
+
 fn validate_record(record: &RunRecord) -> Result<(), RunLedgerError> {
     if record.schema_version != LEDGER_SCHEMA_VERSION {
         return Err(RunLedgerError::InvalidRecord(format!(
@@ -557,6 +644,21 @@ fn validate_record(record: &RunRecord) -> Result<(), RunLedgerError> {
         return Err(RunLedgerError::InvalidRecord(
             "updated timestamp precedes accepted timestamp".into(),
         ));
+    }
+    match (&record.state, &record.spawn, &record.grant_pending) {
+        (RunState::GrantPending, SpawnStatus::NotSpawned, Some(pending))
+            if pending.is_valid() && pending.occurred_at >= record.accepted_at => {}
+        (RunState::GrantPending, _, _) => {
+            return Err(RunLedgerError::InvalidRecord(
+                "grant-pending state requires an unspawned durable decision".into(),
+            ))
+        }
+        (_, _, None) => {}
+        _ => {
+            return Err(RunLedgerError::InvalidRecord(
+                "pending grant metadata exists outside grant-pending state".into(),
+            ))
+        }
     }
     match (&record.terminal, record.state.is_terminal()) {
         (Some(terminal), true) => {
@@ -596,6 +698,16 @@ fn validate_receipt_for_record(
             "receipt request hash does not match ledger".into(),
         ));
     }
+    if matches!(
+        receipt.state,
+        RunState::Succeeded | RunState::Failed | RunState::Interrupted
+    ) && !matches!(record.spawn, SpawnStatus::Spawned { .. })
+    {
+        return Err(RunLedgerError::InvalidReceipt(format!(
+            "receipt state {:?} requires a durable spawn boundary",
+            receipt.state
+        )));
+    }
     let verification = verify_receipt(receipt, verification_key, Some(&record.request), None);
     if !verification.valid {
         return Err(RunLedgerError::InvalidReceipt(
@@ -618,6 +730,7 @@ fn apply_terminal(
     record.state = receipt.state;
     record.updated_at = Utc::now();
     record.revision = record.revision.saturating_add(1);
+    record.grant_pending = None;
     record.terminal = Some(TerminalReceiptRecord {
         receipt,
         receipt_hash: appended.receipt_hash,

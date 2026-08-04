@@ -254,10 +254,10 @@ fn opening_service_reconstructs_lifecycle_events_from_durable_state() {
 fn runtime_events_cannot_forge_lifecycle_or_append_after_completion() {
     let directory = tempdir().unwrap();
     let (signing, verification) = signing_material();
-    let request = request(Uuid::new_v4());
-    let hash = request.request_hash().unwrap();
+    let pending_request = request(Uuid::new_v4());
+    let hash = pending_request.request_hash().unwrap();
     let service = ExecutionService::open(directory.path()).unwrap();
-    let record = service.submit(request.clone()).unwrap().record;
+    let record = service.submit(pending_request.clone()).unwrap().record;
     let reserved = service
         .append_runtime_event(
             record.run_id,
@@ -287,30 +287,65 @@ fn runtime_events_cannot_forge_lifecycle_or_append_after_completion() {
         before_spawn,
         ExecutionServiceError::RunNotSpawned(_)
     ));
-    assert!(
-        service
-            .append_runtime_event(
-                record.run_id,
-                "grant.waiting",
-                Utc::now(),
-                RunEventData::GrantPending {
-                    reason: "operator approval required".into(),
-                },
-            )
-            .unwrap()
-            .created
+    let pending = service
+        .mark_grant_pending(
+            pending_request.request_id,
+            &hash,
+            "grant.waiting",
+            "operator approval required",
+        )
+        .unwrap();
+    assert_eq!(pending.state, RunState::GrantPending);
+    assert_eq!(
+        pending.spawn,
+        prometheus_exec_service::SpawnStatus::NotSpawned
     );
+    let forged_pending = service
+        .append_runtime_event(
+            record.run_id,
+            "grant.forged",
+            Utc::now(),
+            RunEventData::GrantPending {
+                reason: "not service-owned".into(),
+            },
+        )
+        .unwrap_err();
+    assert!(matches!(
+        forged_pending,
+        ExecutionServiceError::ReservedLifecycleEvent
+    ));
+    drop(service);
+
+    let service = ExecutionService::open(directory.path()).unwrap();
+    let recovered = service.run(record.run_id).unwrap().unwrap();
+    assert_eq!(recovered.state, RunState::GrantPending);
+    assert_eq!(
+        service
+            .events_after(record.run_id, 0)
+            .unwrap()
+            .iter()
+            .filter(|event| matches!(event.data, RunEventData::GrantPending { .. }))
+            .count(),
+        1
+    );
+
+    let completed_request = request(Uuid::new_v4());
+    let completed_hash = completed_request.request_hash().unwrap();
+    let completed = service.submit(completed_request.clone()).unwrap().record;
+    service
+        .mark_spawned(completed_request.request_id, &completed_hash)
+        .unwrap();
     service
         .commit_terminal(
-            request.request_id,
-            &hash,
-            signed_receipt(&record, &signing),
+            completed_request.request_id,
+            &completed_hash,
+            signed_receipt(&completed, &signing),
             &verification,
         )
         .unwrap();
     let late = service
         .append_runtime_event(
-            record.run_id,
+            completed.run_id,
             "stdout.late",
             Utc::now(),
             RunEventData::Stdout {

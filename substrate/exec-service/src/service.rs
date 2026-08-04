@@ -9,9 +9,9 @@ use thiserror::Error;
 use uuid::Uuid;
 
 use crate::{
-    AcceptRunResult, AppendEventResult, ReconciliationReport, RunEvent, RunEventData, RunEventLog,
-    RunEventLogError, RunLedger, RunLedgerError, RunRecord, SpawnRunResult, SpawnStatus,
-    TerminalCommitResult,
+    AcceptRunResult, AppendEventResult, GrantPendingRecord, ReconciliationReport, RunEvent,
+    RunEventData, RunEventLog, RunEventLogError, RunLedger, RunLedgerError, RunRecord,
+    SpawnRunResult, SpawnStatus, TerminalCommitResult,
 };
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -130,6 +130,28 @@ impl ExecutionService {
         Ok(claimed)
     }
 
+    pub fn mark_grant_pending(
+        &self,
+        request_id: Uuid,
+        request_hash: &Digest,
+        event_id: impl Into<String>,
+        reason: impl Into<String>,
+    ) -> Result<RunRecord, ExecutionServiceError> {
+        let lock = self.open_operation_lock()?;
+        fs2::FileExt::lock_exclusive(&lock)
+            .map_err(|source| self.io_error(self.lock_path(), source))?;
+        let pending = GrantPendingRecord {
+            event_id: event_id.into(),
+            reason: reason.into(),
+            occurred_at: Utc::now(),
+        };
+        let record = self
+            .ledger
+            .mark_grant_pending(request_id, request_hash, pending)?;
+        self.synchronize_events(&record)?;
+        Ok(record)
+    }
+
     pub fn append_runtime_event(
         &self,
         run_id: Uuid,
@@ -150,9 +172,7 @@ impl ExecutionService {
         if record.state.is_terminal() {
             return Err(ExecutionServiceError::RunTerminal(run_id));
         }
-        if !matches!(&data, RunEventData::GrantPending { .. })
-            && !matches!(record.spawn, SpawnStatus::Spawned { .. })
-        {
+        if !matches!(record.spawn, SpawnStatus::Spawned { .. }) {
             return Err(ExecutionServiceError::RunNotSpawned(run_id));
         }
         Ok(self.event_log.append(run_id, event_id, occurred_at, data)?)
@@ -230,6 +250,16 @@ impl ExecutionService {
                 "run.started",
                 *spawned_at,
                 RunEventData::Started,
+            )?;
+        }
+        if let Some(pending) = &record.grant_pending {
+            self.event_log.append(
+                record.run_id,
+                &pending.event_id,
+                pending.occurred_at,
+                RunEventData::GrantPending {
+                    reason: pending.reason.clone(),
+                },
             )?;
         }
         if let Some(terminal) = &record.terminal {

@@ -52,7 +52,10 @@ impl RunEventData {
     pub fn is_lifecycle(&self) -> bool {
         matches!(
             self,
-            Self::Accepted { .. } | Self::Started | Self::Completed { .. }
+            Self::Accepted { .. }
+                | Self::GrantPending { .. }
+                | Self::Started
+                | Self::Completed { .. }
         )
     }
 

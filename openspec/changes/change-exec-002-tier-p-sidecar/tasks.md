@@ -22,6 +22,6 @@
 
 ## 4. Local certification and handoff
 
-- [ ] 4.1 Run local format, warnings-denied Clippy, unit/property/integration, sandbox, restart, API, and false-green doctor tests
+- [x] 4.1 Run local format, warnings-denied Clippy, unit/property/integration, sandbox, restart, API, and false-green doctor tests
 - [ ] 4.2 Record macOS runtime evidence and explicit Linux/Windows dispositions without using hosted CI
 - [ ] 4.3 Update phase evidence/progress and prepare the dependency-ordered Tier P local commit

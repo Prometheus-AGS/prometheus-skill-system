@@ -261,11 +261,7 @@ fn inspect_state(config: &DoctorConfig, daemon_healthy: bool, checks: &mut Vec<D
                 return;
             }
         };
-        if record.request.validate().is_err()
-            || record.request.request_hash().ok().as_ref() != Some(&record.request_hash)
-            || record.request.request_id != record.request_id
-            || record.state.is_terminal() != record.terminal.is_some()
-        {
+        if record.validate().is_err() {
             fail(
                 checks,
                 "state-reconciliation",

@@ -327,6 +327,10 @@ async fn run_command(command: RunCommand) -> Result<ExitCode, BoxError> {
     let deadline = tokio::time::Instant::now()
         + Duration::from_millis(command.timeout_ms.saturating_add(10_000));
     while !run.state.is_terminal() {
+        if run.state == RunState::GrantPending {
+            print_run(&run, command.format)?;
+            return Ok(ExitCode::from(1));
+        }
         if tokio::time::Instant::now() >= deadline {
             return Err(format!("timed out waiting for run {}", run.run_id).into());
         }
@@ -483,10 +487,31 @@ fn read_json<T: for<'de> Deserialize<'de>>(path: &Path) -> Result<T, BoxError> {
 }
 
 fn write_json(path: PathBuf, value: &impl Serialize) -> Result<(), BoxError> {
-    let mut bytes = serde_json::to_vec_pretty(value)?;
+    let mut value = serde_json::to_value(value)?;
+    sort_json_keys(&mut value);
+    let mut bytes = serde_json::to_vec_pretty(&value)?;
     bytes.push(b'\n');
     fs::write(path, bytes)?;
     Ok(())
+}
+
+fn sort_json_keys(value: &mut serde_json::Value) {
+    match value {
+        serde_json::Value::Object(object) => {
+            let mut entries: Vec<_> = std::mem::take(object).into_iter().collect();
+            entries.sort_by(|(left, _), (right, _)| left.cmp(right));
+            for (key, mut child) in entries {
+                sort_json_keys(&mut child);
+                object.insert(key, child);
+            }
+        }
+        serde_json::Value::Array(values) => {
+            for child in values {
+                sort_json_keys(child);
+            }
+        }
+        _ => {}
+    }
 }
 
 fn mebibytes(value: u64) -> Result<u64, BoxError> {
