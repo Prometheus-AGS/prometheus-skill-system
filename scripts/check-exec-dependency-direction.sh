@@ -15,6 +15,12 @@ layers = {
     "exec-tier-w": {"prometheus-exec-contracts", "prometheus-exec-core"},
     "exec-tier-p": {"prometheus-exec-contracts", "prometheus-exec-core"},
     "exec-service": {"prometheus-exec-contracts", "prometheus-exec-core"},
+    "exec-embedded": {
+        "prometheus-exec-contracts",
+        "prometheus-exec-core",
+        "prometheus-exec-service",
+        "prometheus-exec-tier-w",
+    },
 }
 internal_prefix = "prometheus-exec-"
 errors = []

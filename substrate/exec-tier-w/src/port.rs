@@ -55,28 +55,17 @@ impl TierWExecutionPort {
         &self.authorizer
     }
 
+    /// Performs every fallible trust, component, capability, limit, and
+    /// invocation check before a durable caller crosses its spawn boundary.
+    pub fn preflight_job(&self, job: &ValidatedExecutionJob) -> Result<(), TierWPortError> {
+        self.prepare_job(job).map(|_| ())
+    }
+
     pub(crate) fn execute_job(
         &self,
         job: &ValidatedExecutionJob,
     ) -> Result<BackendExecution, TierWPortError> {
-        if job.request().code.runtime != RuntimeKind::WasmComponent {
-            return Err(TierWPortError::InvalidRuntime);
-        }
-        let component = self.engine.load_component(job.code(), &self.authorizer)?;
-        let requested_authorization = job
-            .request()
-            .provenance
-            .component_authorization
-            .as_ref()
-            .ok_or(TierWPortError::AuthorizationMismatch)?;
-        if requested_authorization != component.authorization() {
-            return Err(TierWPortError::AuthorizationMismatch);
-        }
-
-        let grant = capability_grant(job)?;
-        let limits = TierWLimits::from_contract(&job.request().limits)?;
-        let invocation = String::from_utf8(job.request().canonical_unsigned()?)
-            .map_err(|_| TierWPortError::InvalidInvocation)?;
+        let (component, grant, limits, invocation) = self.prepare_job(job)?;
         let capability_hash = hash_serializable(&grant)?;
         let sandbox_profile_hash = hash_serializable(&SandboxIdentity {
             schema_version: 1,
@@ -171,6 +160,38 @@ impl TierWExecutionPort {
             component: component_provenance,
             failure,
         })
+    }
+
+    fn prepare_job(
+        &self,
+        job: &ValidatedExecutionJob,
+    ) -> Result<
+        (
+            crate::ValidatedComponent,
+            CapabilityGrant,
+            TierWLimits,
+            String,
+        ),
+        TierWPortError,
+    > {
+        if job.request().code.runtime != RuntimeKind::WasmComponent {
+            return Err(TierWPortError::InvalidRuntime);
+        }
+        let component = self.engine.load_component(job.code(), &self.authorizer)?;
+        let requested_authorization = job
+            .request()
+            .provenance
+            .component_authorization
+            .as_ref()
+            .ok_or(TierWPortError::AuthorizationMismatch)?;
+        if requested_authorization != component.authorization() {
+            return Err(TierWPortError::AuthorizationMismatch);
+        }
+        let grant = capability_grant(job)?;
+        let limits = TierWLimits::from_contract(&job.request().limits)?;
+        let invocation = String::from_utf8(job.request().canonical_unsigned()?)
+            .map_err(|_| TierWPortError::InvalidInvocation)?;
+        Ok((component, grant, limits, invocation))
     }
 }
 
