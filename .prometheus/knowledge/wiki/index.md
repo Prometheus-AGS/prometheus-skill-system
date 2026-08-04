@@ -51,10 +51,46 @@
 * [CI Cross-Model QA Hardening Executor Session Complete](/ci-cross-model-qa-hardening-executor-session-complete.md) - An executor session completed for the CI cross-model QA and hardening phase.
 * [CI Cross-Model QA Hardening Phase Completion Record](/ci-cross-model-qa-hardening-phase-completion-record.md) - An executor session completed for the CI cross-model QA and hardening phase.
 * [CI Cross-Model QA Hardening Session Completion](/ci-cross-model-qa-hardening-session-completion.md) - An executor session completed for the CI cross-model QA and hardening phase.
+* [Codex Plugin Distribution and CI Executor Completion](/codex-plugin-distribution-and-ci-executor-completion.md)
+* [Codex Plugin Distribution and CI Executor Completion Record](/codex-plugin-distribution-and-ci-executor-completion-record.md)
+* [Codex Plugin Distribution and CI Executor Session Complete](/codex-plugin-distribution-and-ci-executor-session-complete.md)
+* [Codex Plugin Distribution and CI Executor Session Status](/codex-plugin-distribution-and-ci-executor-session-status.md)
+* [Codex Plugin Distribution and CI Executor Status](/codex-plugin-distribution-and-ci-executor-status.md)
+* [Codex Plugin Distribution and CI Final Reflect Status](/codex-plugin-distribution-and-ci-final-reflect-status.md)
+* [Codex Plugin Distribution and CI Phase Completion Status](/codex-plugin-distribution-and-ci-phase-completion-status.md)
+* [Codex Plugin Distribution and CI Session Complete](/codex-plugin-distribution-and-ci-session-complete.md)
+* [Codex Plugin Distribution and CI Session Completion Status](/codex-plugin-distribution-and-ci-session-completion-status.md)
+* [Codex Plugin Distribution CI 2026-07-12 Execute 5-of-6 Status](/codex-plugin-distribution-ci-2026-07-12-execute-5-of-6-status.md)
+* [Codex Plugin Distribution CI Execute-Stage 5-of-6 July 12 Status](/codex-plugin-distribution-ci-execute-stage-5-of-6-july-12-status.md)
+* [Codex Plugin Distribution CI Execute-Stage 5-of-6 Status](/codex-plugin-distribution-ci-execute-stage-5-of-6-status.md)
+* [Codex Plugin Distribution CI Execute-Stage 5-of-6 Status 2026-07-12](/codex-plugin-distribution-ci-execute-stage-5-of-6-status-2026-07-12.md)
+* [Codex Plugin Distribution CI Execute-Stage 5-of-6 Status Update](/codex-plugin-distribution-ci-execute-stage-5-of-6-status-update.md)
+* [Codex Plugin Distribution CI Execute-Stage Completion Status](/codex-plugin-distribution-ci-execute-stage-completion-status.md)
+* [Codex Plugin Distribution CI Execute-Stage July 12 5-of-6 Status](/codex-plugin-distribution-ci-execute-stage-july-12-5-of-6-status.md)
+* [Codex Plugin Distribution CI Execute-Stage Partial Progress Status](/codex-plugin-distribution-ci-execute-stage-partial-progress-status.md)
+* [Codex Plugin Distribution CI Plan-Stage Zero-Progress Status](/codex-plugin-distribution-ci-plan-stage-zero-progress-status.md)
+* [Codex Plugin Implementation Executor Completion Record](/codex-plugin-implementation-executor-completion-record.md)
+* [Codex Plugin Implementation Executor Completion Status](/codex-plugin-implementation-executor-completion-status.md)
+* [Codex Plugin Implementation Executor Session Complete](/codex-plugin-implementation-executor-session-complete.md)
+* [Codex Plugin Implementation Executor Session Completion](/codex-plugin-implementation-executor-session-completion.md)
+* [Codex Plugin Implementation Executor Session Status](/codex-plugin-implementation-executor-session-status.md)
+* [Codex Plugin Implementation Phase Completion Status](/codex-plugin-implementation-phase-completion-status.md)
+* [Codex Plugin Implementation Phase Executor Completion](/codex-plugin-implementation-phase-executor-completion.md)
+* [Codex Plugin Verify and Publish Execute Completion Status](/codex-plugin-verify-and-publish-execute-completion-status.md)
+* [Codex Plugin Verify and Publish Final Reflect Status](/codex-plugin-verify-and-publish-final-reflect-status.md)
+* [Codex Plugin Verify and Publish Plan-Stage Zero-Progress Status](/codex-plugin-verify-and-publish-plan-stage-zero-progress-status.md)
+* [Codex Plugin Verify and Publish Reflect Status 2026-07-12 13:49](/codex-plugin-verify-and-publish-reflect-status-2026-07-12-13-49.md)
+* [Codex Plugin Verify and Publish Reflect Status 2026-07-12 15:48](/codex-plugin-verify-and-publish-reflect-status-2026-07-12-15-48.md)
+* [Codex Plugin Verify and Publish Reflect Status 2026-07-13](/codex-plugin-verify-and-publish-reflect-status-2026-07-13.md)
+* [Codex Plugin Verify and Publish Reflect Status 2026-07-13 21:01](/codex-plugin-verify-and-publish-reflect-status-2026-07-13-21-01.md)
+* [Codex Plugin Verify and Publish Reflect Status 2026-07-13 21:03](/codex-plugin-verify-and-publish-reflect-status-2026-07-13-21-03.md)
+* [Codex Plugin Verify-and-Publish Completion Status](/codex-plugin-verify-and-publish-completion-status.md)
+* [Codex Plugin Verify-and-Publish Completion Tracking Record](/codex-plugin-verify-and-publish-completion-tracking-record.md)
 * [Codex Plugin Verify-and-Publish Executor Completion](/codex-plugin-verify-and-publish-executor-completion.md)
 * [Codex Plugin Verify-and-Publish Executor Completion Log](/codex-plugin-verify-and-publish-executor-completion-log.md)
 * [Codex Plugin Verify-and-Publish Executor Completion Record](/codex-plugin-verify-and-publish-executor-completion-record.md)
 * [Codex Plugin Verify-and-Publish Executor Completion Status](/codex-plugin-verify-and-publish-executor-completion-status.md)
+* [Codex Plugin Verify-and-Publish Executor Session Complete](/codex-plugin-verify-and-publish-executor-session-complete.md)
 * [Codex Plugin Verify-and-Publish Executor Session Completed](/codex-plugin-verify-and-publish-executor-session-completed.md)
 * [Codex Plugin Verify-and-Publish Executor Session Completion](/codex-plugin-verify-and-publish-executor-session-completion.md)
 * [Codex Plugin Verify-and-Publish Phase Completion](/codex-plugin-verify-and-publish-phase-completion.md)
@@ -73,6 +109,7 @@
 * [Codex Plugin Verify-and-Publish Session Complete](/codex-plugin-verify-and-publish-session-complete.md)
 * [Codex Plugin Verify-and-Publish Session Completion](/codex-plugin-verify-and-publish-session-completion.md)
 * [Codex Plugin Verify-and-Publish Session Completion Log](/codex-plugin-verify-and-publish-session-completion-log.md)
+* [Codex Plugin Verify-and-Publish Session Completion Record](/codex-plugin-verify-and-publish-session-completion-record.md)
 * [Codex Plugin Verify-and-Publish Session Completion Status](/codex-plugin-verify-and-publish-session-completion-status.md)
 * [Codex Verify-and-Publish Build Feature Fix Status](/codex-verify-and-publish-build-feature-fix-status.md)
 * [Codex Verify-and-Publish Executor Session Completion](/codex-verify-and-publish-executor-session-completion.md)
@@ -93,6 +130,7 @@
 * [Docusaurus GitHub Pages Site Executor Session Completed](/docusaurus-github-pages-site-executor-session-completed.md)
 * [Docusaurus GitHub Pages Site Executor Session Completion](/docusaurus-github-pages-site-executor-session-completion.md)
 * [Docusaurus GitHub Pages Site Executor Session Completion Record](/docusaurus-github-pages-site-executor-session-completion-record.md)
+* [Docusaurus GitHub Pages Site Executor Session Record](/docusaurus-github-pages-site-executor-session-record.md)
 * [Docusaurus GitHub Pages Site Executor Session Status](/docusaurus-github-pages-site-executor-session-status.md)
 * [Docusaurus GitHub Pages Site Phase Completed](/docusaurus-github-pages-site-phase-completed.md)
 * [Docusaurus GitHub Pages Site Phase Completion](/docusaurus-github-pages-site-phase-completion.md)
@@ -103,6 +141,18 @@
 * [Docusaurus GitHub Pages Site Session Complete Record](/docusaurus-github-pages-site-session-complete-record.md)
 * [Docusaurus GitHub Pages Site Session Completion](/docusaurus-github-pages-site-session-completion.md)
 * [Docusaurus GitHub Pages Site Session Completion Status](/docusaurus-github-pages-site-session-completion-status.md)
+* [DRUI Standalone Hosting Executor Completion Log](/drui-standalone-hosting-executor-completion-log.md)
+* [DRUI Standalone Hosting Executor Completion Record](/drui-standalone-hosting-executor-completion-record.md) - An executor session completed for the DRUI standalone hosting phase.
+* [DRUI Standalone Hosting Executor Completion Status](/drui-standalone-hosting-executor-completion-status.md) - An executor session completed for the DRUI standalone hosting phase.
+* [DRUI Standalone Hosting Executor Completion Update](/drui-standalone-hosting-executor-completion-update.md)
+* [DRUI Standalone Hosting Executor Session Completion](/drui-standalone-hosting-executor-session-completion.md)
+* [DRUI Standalone Hosting Final Reflection Status 2026-07-11](/drui-standalone-hosting-final-reflection-status-2026-07-11.md)
+* [DRUI Standalone Hosting Latest Phase Completion Status](/drui-standalone-hosting-latest-phase-completion-status.md) - The `phase-drui-standalone-hosting` phase reached reflection with all planned changes completed.
+* [DRUI Standalone Hosting Phase Completion Log](/drui-standalone-hosting-phase-completion-log.md)
+* [DRUI Standalone Hosting Phase Completion Status](/drui-standalone-hosting-phase-completion-status.md) - The `phase-drui-standalone-hosting` phase reached reflection with all planned changes completed.
+* [DRUI Standalone Hosting Phase Executor Completion](/drui-standalone-hosting-phase-executor-completion.md)
+* [DRUI Standalone Hosting Phase Final Completion Status](/drui-standalone-hosting-phase-final-completion-status.md) - The `phase-drui-standalone-hosting` phase reached reflection with all planned changes completed.
+* [DRUI Standalone Hosting Reflection Status 2026-07-11 04:29](/drui-standalone-hosting-reflection-status-2026-07-11-04-29.md)
 * [Flint Forge G4 GraphQL Subscription Wiring Scope Decision](/flint-forge-g4-graphql-subscription-wiring-scope-decision.md) - Project:** Flint Forge - **Phase:** `p3-auth-rls-keto` - **KBD root:** `/Users/gqadonis/Projects/prometheus/flint-forge` - **Captured:** `2026-07-03T14:27:30Z` - **Status:** `in_progress` - **Progress:** changes `7/9` - **Related phase status:** [Flint Forge p3 Auth RLS Keto Phas
 * [Flint Forge p15 Mandatory SubStreamFactory Enforcement](/flint-forge-p15-mandatory-substreamfactory-enforcement.md)
 * [Flint Forge p15 StateManager Constructor Removal](/flint-forge-p15-statemanager-constructor-removal.md)
@@ -126,9 +176,11 @@
 * [HTMX Layout: The CSS Grid + Fixed Position Sidebar Trap](/htmx-layout-grid-fixed-position-trap.md) - When building a sidebar + main content layout with HTMX/Alpine.js, a common mistake is to use `display: grid` on a container that has a `position: fixed` sidebar inside it.
 * [Hybrid Mobile PoC Codegen and CI Verification Plan](/hybrid-mobile-poc-codegen-and-ci-verification-plan.md)
 * [Ideation and Decision Tools Executor Completion](/ideation-and-decision-tools-executor-completion.md)
+* [Integration Test Drift Cleanup Session Status](/integration-test-drift-cleanup-session-status.md)
 * [Karpathy MCP Gate 2026-07-17 Live Ingestion Check](/karpathy-mcp-gate-2026-07-17-live-ingestion-check.md)
 * [Karpathy MCP Gate 2026-07-17 Repair-Gate Ingestion Check](/karpathy-mcp-gate-2026-07-17-repair-gate-ingestion-check.md)
 * [Karpathy MCP Gate Live Ingestion Verification](/karpathy-mcp-gate-live-ingestion-verification.md)
+* [Karpathy Tools OpenAI Proxy Routing via localhost:8181](/karpathy-tools-openai-proxy-routing-via-localhost-8181.md) - On `2026-07-10`, the Prometheus stack was configured so Karpathy knowledge tools route chat/completion traffic through a local OpenAI-compatible proxy:
 * [KBD Stop-Gate Suspension State Defect During Docusaurus Phase](/kbd-stop-gate-suspension-state-defect-during-docusaurus-phase.md)
 * [KBD Waypoint execution_complete Status Drift in Docusaurus Phase](/kbd-waypoint-execution-complete-status-drift-in-docusaurus-phase.md)
 * [Knowledge Assets & Architecture Patterns](/knowledge-assets-architecture.md) - Foundational research on knowledge storage architectures for deep research: knowledge graphs, vector databases, embedding strategies, and retrieval patterns.
@@ -161,7 +213,17 @@
 * [OKF Wiki Adoption PR 21 CI Triage and Merge Readiness](/okf-wiki-adoption-pr-21-ci-triage-and-merge-readiness.md) - Phase `phase-okf-llm-wiki-adoption` for KBD root `/Users/gqadonis/Projects/prometheus/prometheus-skill-pack` completed with changes committed, pushed, and a PR opened. This continues the operational closeout recorded in [Toolchain Binary Sync and OKF Wiki Adoption Session Complet
 * [Orchestrator Lessons: Read Before Build](/orchestrator-lessons-read-before-build.md) - When a user provides an existing file (HTML, CSS, code, config) and asks for improvements, **read it first** before building anything new.
 * [Parlour C9 UAR Config Admin Phase Goals and C8 Handoff](/parlour-c9-uar-config-admin-phase-goals-and-c8-handoff.md)
+* [Phase 17 Plane Completion and Release Audit Status](/phase-17-plane-completion-and-release-audit-status.md)
 * [Phase CI All Green Assessment for OKF Wiki Adoption](/phase-ci-all-green-assessment-for-okf-wiki-adoption.md) - A `kbd-assess` run completed for `phase-ci-all-green` under the OKF LLM wiki adoption effort. This follows the PR/CI readiness work tracked in [OKF Wiki Adoption PR 21 CI Triage and Merge Readiness](/okf-wiki-adoption-pr-21-ci-triage-and-merge-readiness.md) and the broader comple
+* [Phase Learn Grader Validation Executor Completion](/phase-learn-grader-validation-executor-completion.md)
+* [Phase Learn Grader Validation Reflect Status 2026-07-18](/phase-learn-grader-validation-reflect-status-2026-07-18.md)
+* [Phase Learn Grader Validation Reflect Status 2026-07-18 03:57](/phase-learn-grader-validation-reflect-status-2026-07-18-03-57.md)
+* [Phase Learn Grader Validation Reflect Status 2026-07-18 04:33](/phase-learn-grader-validation-reflect-status-2026-07-18-04-33.md)
+* [Phase Learn Grader Validation Reflect Status 2026-07-18 04:59](/phase-learn-grader-validation-reflect-status-2026-07-18-04-59.md)
+* [Phase Learn Grader Validation Reflect Status 2026-07-18 04:59:54](/phase-learn-grader-validation-reflect-status-2026-07-18-04-59-54.md)
+* [Phase Learn Grader Validation Reflect Status 2026-07-18 05:13](/phase-learn-grader-validation-reflect-status-2026-07-18-05-13.md)
+* [Phase Learn Grader Validation Reflect Status 2026-07-18 05:13:43](/phase-learn-grader-validation-reflect-status-2026-07-18-05-13-43.md)
+* [Phase Learn Grader Validation Session Completion](/phase-learn-grader-validation-session-completion.md)
 * [Plan for CI Cross-Model QA YAML Fix and Forge MCP Auth Hardening](/plan-for-ci-cross-model-qa-yaml-fix-and-forge-mcp-auth-hardening.md) - `kbd-plan` completed for `phase-ci-cross-model-qa-and-hardening` at step `0/3` in `/Users/gqadonis/Projects/prometheus/prometheus-skill-pack`.
 * [Prometheus Deep Research Skill — Master Specification](/prometheus-deep-research-skill-master-spec.md) - This document is the master specification for the **Prometheus Deep Research Skill** — a universal, cross-platform deep-research capability designed for the Prometheus Skill Pack. It synthesizes findings from 8 parallel research investigations into a unified architectural bluepri
 * [Prometheus Entity Sync v4 Scaffold and Phase Goals](/prometheus-entity-sync-v4-scaffold-and-phase-goals.md)
@@ -188,6 +250,15 @@
 * [surreal-memory-server Latest Binary Stabilization](/surreal-memory-server-latest-binary-stabilization.md) - During phase `phase-okf-llm-wiki-adoption`, `surreal-memory-server` was verified and stabilized so it no longer blocks remaining repository rebuilds. The phase goals align with [OKF LLM Wiki Adoption Phase Completion Status](/okf-llm-wiki-adoption-phase-completion-status.md): OKF
 * [Threaded/Concurrent Research with Per-Thread Context](/threaded-concurrent-research.md) - Research on implementing threaded and concurrent research with isolated per-thread context, leveraging surreal-memory for thread-safe storage.
 * [Toolchain Binary Sync and OKF Wiki Adoption Session Completion](/toolchain-binary-sync-and-okf-wiki-adoption-session-completion.md) - Phase `phase-okf-llm-wiki-adoption` completed for KBD root:
+* [UAR Final Production Hardening 01:15 Zero-Change Status](/uar-final-production-hardening-01-15-zero-change-status.md)
+* [UAR Final Production Hardening 04:29 Zero-Change Status](/uar-final-production-hardening-04-29-zero-change-status.md)
+* [UAR Final Production Hardening 04:51 Zero-Change Status](/uar-final-production-hardening-04-51-zero-change-status.md)
+* [UAR Final Production Hardening 05:39 Partial Progress Status](/uar-final-production-hardening-05-39-partial-progress-status.md)
+* [UAR Final Production Hardening 13:31 Partial Progress Status](/uar-final-production-hardening-13-31-partial-progress-status.md)
+* [UAR Final Production Hardening 22:34 Partial Progress Status](/uar-final-production-hardening-22-34-partial-progress-status.md)
+* [UAR Final Production Hardening Latest Zero-Change Status](/uar-final-production-hardening-latest-zero-change-status.md) - `session_ended`: `2026-07-11T00:39:05Z` - `phase`: `uar-final-production-hardening-2026-07` - `stage`: `executing` - `last_completed`: `none` - `progress`: `0 of 0 changes done` - `next_pending`: `none`
+* [UAR Final Production Hardening Session Final Status](/uar-final-production-hardening-session-final-status.md) - `session_ended`: `2026-07-11T00:27:29Z` - `phase`: `uar-final-production-hardening-2026-07` - `stage`: `executing` - `last_completed`: `none` - `progress`: `0 of 0 changes done` - `next_pending`: `none`
+* [UAR Final Production Hardening Session Status](/uar-final-production-hardening-session-status.md) - `session_ended`: `2026-07-11T00:13:30Z` - `phase`: `uar-final-production-hardening-2026-07` - `stage`: `executing` - `last_completed`: `none` - `progress`: `0 of 0 changes done` - `next_pending`: `none`
 * [UAR Host Execution Completion Status](/uar-host-execution-completion-status.md)
 * [UAR Host Execution Executor Completion Status](/uar-host-execution-executor-completion-status.md)
 * [UAR Host Execution Executor Session Completion](/uar-host-execution-executor-session-completion.md)
@@ -195,6 +266,15 @@
 * [Unknown Phase Empty Session Status](/unknown-phase-empty-session-status.md)
 * [Unknown Phase Empty Session Status at 2026-07-13T01:32:48Z](/unknown-phase-empty-session-status-at-2026-07-13t01-32-48z.md)
 * [Unknown Phase Empty Session Status at 2026-07-16T18:49:04Z](/unknown-phase-empty-session-status-at-2026-07-16t18-49-04z.md)
+* [Unknown Phase Zero-Change Session Status 2026-07-11 14:31](/unknown-phase-zero-change-session-status-2026-07-11-14-31.md)
+* [Unknown Phase Zero-Change Session Status 2026-07-11 14:57](/unknown-phase-zero-change-session-status-2026-07-11-14-57.md)
+* [Unknown Phase Zero-Change Session Status 2026-07-11 15:02](/unknown-phase-zero-change-session-status-2026-07-11-15-02.md)
+* [Unknown Phase Zero-Change Session Status 2026-07-11 15:13](/unknown-phase-zero-change-session-status-2026-07-11-15-13.md)
+* [Unknown Phase Zero-Change Session Status 2026-07-11 15:25](/unknown-phase-zero-change-session-status-2026-07-11-15-25.md)
+* [Unknown Phase Zero-Change Session Status 2026-07-11 15:37](/unknown-phase-zero-change-session-status-2026-07-11-15-37.md)
+* [Unknown Phase Zero-Change Session Status 2026-07-11 15:43](/unknown-phase-zero-change-session-status-2026-07-11-15-43.md)
+* [Unknown Phase Zero-Change Session Status 2026-07-11 22:27](/unknown-phase-zero-change-session-status-2026-07-11-22-27.md)
+* [Unknown Phase Zero-Change Session Status 2026-07-11 22:53](/unknown-phase-zero-change-session-status-2026-07-11-22-53.md)
 * [Verify-and-Publish Session Waiting on Memory Server Build](/verify-and-publish-session-waiting-on-memory-server-build.md)
 
 ## SessionRecord
