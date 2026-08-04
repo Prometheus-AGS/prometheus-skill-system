@@ -2,7 +2,7 @@
 name = "prometheus-exec"
 version = "1.7.0"
 edition = "2021"
-rust-version = "1.85"
+rust-version = "1.94"
 license = "MIT"
 description = "Evidence-producing code execution service for Prometheus"
 
@@ -19,6 +19,7 @@ prometheus-exec-contracts = { path = "../../substrate/exec-contracts", version =
 prometheus-exec-core = { path = "../../substrate/exec-core", version = "1.7.0" }
 prometheus-exec-service = { path = "../../substrate/exec-service", version = "1.7.0" }
 prometheus-exec-tier-p = { path = "../../substrate/exec-tier-p", version = "1.7.0" }
+prometheus-exec-tier-w = { path = "../../substrate/exec-tier-w", version = "1.7.0", features = ["estate", "pulley"] }
 rand_core = { version = "0.6", features = ["getrandom"] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"

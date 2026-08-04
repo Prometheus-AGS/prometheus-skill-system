@@ -3,6 +3,7 @@ use std::{fs, path::PathBuf};
 use hyper::Method;
 use prometheus_exec_contracts::hash_bytes;
 use prometheus_exec_service::{RunRecord, SpawnStatus};
+use prometheus_exec_tier_w::{ComponentAuthorizer, EngineProfile, TierWEngine};
 use serde::Serialize;
 
 use crate::{identity, uds_client};
@@ -12,6 +13,7 @@ pub struct DoctorConfig {
     pub socket: PathBuf,
     pub state_dir: PathBuf,
     pub identity: PathBuf,
+    pub plugin_root: PathBuf,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize)]
@@ -56,7 +58,8 @@ pub async fn inspect(config: DoctorConfig) -> DoctorReport {
     inspect_binary(&mut checks);
     inspect_identity(&config, &mut checks);
     let socket_healthy = inspect_socket(&config, &mut checks).await;
-    inspect_sandbox(&mut checks);
+    inspect_tier_p(&mut checks);
+    inspect_tier_w(&config, &mut checks);
     inspect_state(&config, socket_healthy, &mut checks);
     inspect_cas(&config, &mut checks);
     DoctorReport::finish(checks)
@@ -181,31 +184,68 @@ async fn inspect_socket(config: &DoctorConfig, checks: &mut Vec<DoctorCheck>) ->
     }
 }
 
-fn inspect_sandbox(checks: &mut Vec<DoctorCheck>) {
+fn inspect_tier_p(checks: &mut Vec<DoctorCheck>) {
     #[cfg(target_os = "macos")]
     match prometheus_exec_tier_p::SeatbeltConfig::detect() {
         Ok(_) => pass(
             checks,
-            "sandbox-backend",
+            "tier-p-backend",
             "macOS Seatbelt launcher and runtimes are available".into(),
         ),
-        Err(error) => fail(checks, "sandbox-backend", error.to_string()),
+        Err(error) => fail(checks, "tier-p-backend", error.to_string()),
     }
     #[cfg(target_os = "linux")]
     match prometheus_exec_tier_p::BwrapConfig::detect() {
         Ok(config) => pass(
             checks,
-            "sandbox-backend",
+            "tier-p-backend",
             format!("bubblewrap {} is available", config.version()),
         ),
-        Err(error) => fail(checks, "sandbox-backend", error.to_string()),
+        Err(error) => fail(checks, "tier-p-backend", error.to_string()),
     }
     #[cfg(not(any(target_os = "macos", target_os = "linux")))]
     fail(
         checks,
-        "sandbox-backend",
+        "tier-p-backend",
         "Tier P is unavailable on this platform".into(),
     );
+}
+
+fn inspect_tier_w(config: &DoctorConfig, checks: &mut Vec<DoctorCheck>) {
+    let profile = EngineProfile::for_current_target();
+    let availability = TierWEngine::probe(profile);
+    if availability.available {
+        pass(
+            checks,
+            "tier-w-backend",
+            format!(
+                "Wasmtime 46 {} backend is available for {} without compiling guest bytes",
+                availability.backend.name(),
+                availability.target.name()
+            ),
+        );
+    } else {
+        fail(
+            checks,
+            "tier-w-backend",
+            availability
+                .reason
+                .unwrap_or_else(|| "Tier W backend probe failed".into()),
+        );
+    }
+
+    match ComponentAuthorizer::estate(&config.plugin_root).inspect() {
+        Ok(inspection) => pass(
+            checks,
+            "tier-w-trust",
+            format!(
+                "active signed generation {} verifies {} component(s)",
+                inspection.generation_id.as_deref().unwrap_or("exact-pins"),
+                inspection.component_count
+            ),
+        ),
+        Err(error) => fail(checks, "tier-w-trust", error.to_string()),
+    }
 }
 
 fn inspect_state(config: &DoctorConfig, daemon_healthy: bool, checks: &mut Vec<DoctorCheck>) {
@@ -372,4 +412,36 @@ fn fail(checks: &mut Vec<DoctorCheck>, name: &str, detail: String) {
         required: true,
         detail,
     });
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use tempfile::tempdir;
+
+    #[test]
+    fn tier_w_doctor_probe_does_not_repair_or_populate_trust_state() {
+        let directory = tempdir().unwrap();
+        let plugin_root = directory.path().join("plugin");
+        fs::create_dir(&plugin_root).unwrap();
+        let config = DoctorConfig {
+            socket: directory.path().join("exec.sock"),
+            state_dir: directory.path().join("state"),
+            identity: directory.path().join("identity.json"),
+            plugin_root: plugin_root.clone(),
+        };
+        let before: Vec<_> = fs::read_dir(&plugin_root).unwrap().collect();
+        let mut checks = Vec::new();
+
+        inspect_tier_w(&config, &mut checks);
+
+        let after: Vec<_> = fs::read_dir(&plugin_root).unwrap().collect();
+        assert!(before.is_empty());
+        assert!(after.is_empty());
+        assert_eq!(checks.len(), 2);
+        assert_eq!(checks[0].name, "tier-w-backend");
+        assert_eq!(checks[0].status, CheckStatus::Pass);
+        assert_eq!(checks[1].name, "tier-w-trust");
+        assert_eq!(checks[1].status, CheckStatus::Fail);
+    }
 }

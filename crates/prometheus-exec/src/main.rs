@@ -49,6 +49,9 @@ enum Command {
         state_dir: PathBuf,
         #[arg(long)]
         identity: PathBuf,
+        /// Signed plugin estate containing the active component generation.
+        #[arg(long)]
+        plugin_root: Option<PathBuf>,
         #[arg(long, default_value_t = 2048)]
         artifact_budget_mb: u64,
     },
@@ -93,6 +96,9 @@ enum Command {
         state_dir: PathBuf,
         #[arg(long)]
         identity: PathBuf,
+        /// Signed plugin estate containing the active component generation.
+        #[arg(long)]
+        plugin_root: Option<PathBuf>,
         #[arg(long, value_enum, default_value_t = OutputFormat::Human)]
         format: OutputFormat,
     },
@@ -166,12 +172,14 @@ async fn run(cli: Cli) -> Result<ExitCode, BoxError> {
             socket,
             state_dir,
             identity,
+            plugin_root,
             artifact_budget_mb,
         } => {
             daemon::run(daemon::DaemonConfig {
                 socket,
                 state_dir,
                 identity,
+                plugin_root: plugin_root.unwrap_or(default_plugin_root()?),
                 artifact_budget_bytes: mebibytes(artifact_budget_mb)?,
             })
             .await?;
@@ -212,8 +220,18 @@ async fn run(cli: Cli) -> Result<ExitCode, BoxError> {
             socket,
             state_dir,
             identity,
+            plugin_root,
             format,
-        } => doctor_command(socket, state_dir, identity, format).await,
+        } => {
+            doctor_command(
+                socket,
+                state_dir,
+                identity,
+                plugin_root.unwrap_or(default_plugin_root()?),
+                format,
+            )
+            .await
+        }
         Command::Verify {
             receipt,
             public_key,
@@ -459,12 +477,14 @@ async fn doctor_command(
     socket: PathBuf,
     state_dir: PathBuf,
     identity: PathBuf,
+    plugin_root: PathBuf,
     format: OutputFormat,
 ) -> Result<ExitCode, BoxError> {
     let report = doctor::inspect(doctor::DoctorConfig {
         socket,
         state_dir,
         identity,
+        plugin_root,
     })
     .await;
     match format {
@@ -487,6 +507,11 @@ async fn doctor_command(
     } else {
         ExitCode::from(1)
     })
+}
+
+fn default_plugin_root() -> Result<PathBuf, BoxError> {
+    let home = std::env::var_os("HOME").ok_or("HOME is unavailable; pass --plugin-root")?;
+    Ok(PathBuf::from(home).join(".prometheus/plugins/prometheus-skill-pack"))
 }
 
 fn verify_command(

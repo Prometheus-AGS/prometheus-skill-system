@@ -515,10 +515,19 @@ impl ExecutionReceipt {
                 if !matches!(
                     self.backend,
                     ExecutionBackend::Cranelift | ExecutionBackend::Pulley
-                ) || self.component.is_none() =>
+                ) =>
             {
                 return Err(ContractError::ReceiptInvariant(
-                    "tier W requires a Wasmtime backend and component provenance".into(),
+                    "tier W requires a Wasmtime backend".into(),
+                ));
+            }
+            ExecutionTier::W
+                if self.component.is_none()
+                    && (self.state == RunState::Succeeded || self.failure.is_none()) =>
+            {
+                return Err(ContractError::ReceiptInvariant(
+                    "a successful Tier W receipt requires component provenance; a pre-execution Tier W terminal receipt requires failure details"
+                        .into(),
                 ));
             }
             ExecutionTier::P if self.component.is_some() => {

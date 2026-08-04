@@ -9,7 +9,7 @@ mod limits;
 mod port;
 mod projection;
 
-pub use authorization::{ComponentAuthorizer, ComponentTrustPolicy};
+pub use authorization::{ComponentAuthorizer, ComponentTrustInspection, ComponentTrustPolicy};
 pub use capabilities::{
     capability_linker, validate_component_grants, CapabilityGrant, CapabilityHost, HostLogEntry,
 };

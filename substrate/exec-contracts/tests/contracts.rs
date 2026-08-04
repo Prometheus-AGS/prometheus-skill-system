@@ -168,6 +168,23 @@ fn tier_p_wire_shape_omits_tier_w_extensions() {
 }
 
 #[test]
+fn tier_w_pre_execution_rejection_is_honest_without_component_provenance() {
+    let mut rejected = receipt(request().request_hash().unwrap());
+    rejected.state = RunState::Rejected;
+    rejected.exit.status = 125;
+    rejected.component = None;
+    rejected.failure = Some(ExecutionFailure {
+        kind: ExecutionFailureKind::ComponentUnauthorized,
+        code: "component_unauthorized".into(),
+        message: "component did not pass the configured trust policy".into(),
+    });
+    rejected.validate().unwrap();
+
+    rejected.failure = None;
+    assert!(rejected.validate().is_err());
+}
+
+#[test]
 fn ed25519_receipt_mutation_fails() {
     let key = SigningKey::generate(&mut OsRng);
     let public = VerificationKey::ed25519(key.verifying_key().to_bytes());

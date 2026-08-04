@@ -1,34 +1,40 @@
 use std::{collections::BTreeMap, path::PathBuf, sync::Arc};
 
-#[cfg(target_os = "macos")]
-use std::time::Duration;
+#[cfg(unix)]
+use std::time::{Duration, Instant as StdInstant};
 
 use chrono::Utc;
 use ed25519_dalek::SigningKey;
-#[cfg(target_os = "macos")]
+#[cfg(unix)]
 use prometheus_exec_contracts::verify_request_signature;
 use prometheus_exec_contracts::{
     hash_bytes, hash_serializable, sign_receipt_ed25519, EvidenceClass, ExecutingDevice,
-    ExecutionBackend, ExecutionExit, ExecutionOutputs, ExecutionReceipt, ExecutionTier,
-    ResourceUsage, RunState, SignatureAlgorithm, VerificationKey, SCHEMA_VERSION,
+    ExecutionBackend, ExecutionExit, ExecutionFailure, ExecutionFailureKind, ExecutionOutputs,
+    ExecutionReceipt, ExecutionTier, RequestedTier, ResourceUsage, RunState, RuntimeKind,
+    SignatureAlgorithm, VerificationKey, SCHEMA_VERSION,
 };
 use prometheus_exec_core::ArtifactStore;
-#[cfg(target_os = "macos")]
+#[cfg(unix)]
 use prometheus_exec_core::{
-    BaselinePolicy, CedarTighteningPolicy, Ed25519ReceiptSigner, ExecutionJob, ExecutionPort,
-    PolicyEvaluator, PolicyOutcome, ReceiptAssembler,
+    BackendExecution, BaselinePolicy, CedarTighteningPolicy, Ed25519ReceiptSigner, ExecutionJob,
+    ExecutionPort, PolicyEvaluator, PolicyOutcome, ReceiptAssembler, ValidatedExecutionJob,
 };
-#[cfg(target_os = "macos")]
+#[cfg(unix)]
 use prometheus_exec_service::RunEventData;
 #[cfg(unix)]
 use prometheus_exec_service::UdsSidecar;
 use prometheus_exec_service::{ExecutionService, ReadinessStatus, RunRecord, SidecarState};
 #[cfg(target_os = "macos")]
 use prometheus_exec_tier_p::{SeatbeltConfig, SeatbeltExecutor};
+#[cfg(unix)]
+use prometheus_exec_tier_w::{
+    compiled_backend, BackendProfile, ComponentAuthorizer, EngineProfile, TierWEngine, TierWError,
+    TierWExecutionPort, TierWPortError,
+};
 
 use crate::identity;
 
-#[cfg(target_os = "macos")]
+#[cfg(unix)]
 const RUNNER_POLL_INTERVAL: Duration = Duration::from_millis(50);
 
 #[derive(Clone, Debug)]
@@ -36,6 +42,7 @@ pub struct DaemonConfig {
     pub socket: PathBuf,
     pub state_dir: PathBuf,
     pub identity: PathBuf,
+    pub plugin_root: PathBuf,
     pub artifact_budget_bytes: u64,
 }
 
@@ -52,9 +59,30 @@ pub async fn run(config: DaemonConfig) -> Result<(), Box<dyn std::error::Error +
         .await;
     state
         .set_readiness(
-            "sandbox",
+            "tier-p-backend",
             ReadinessStatus::Initializing,
             "Tier P sandbox is being detected",
+        )
+        .await;
+    state
+        .set_readiness(
+            "tier-w-backend",
+            ReadinessStatus::Initializing,
+            "Tier W Wasmtime backend is being probed",
+        )
+        .await;
+    state
+        .set_readiness(
+            "tier-w-trust",
+            ReadinessStatus::Initializing,
+            "Tier W component trust is being verified",
+        )
+        .await;
+    state
+        .set_readiness(
+            "execution-runner",
+            ReadinessStatus::Initializing,
+            "durable execution runner is starting",
         )
         .await;
 
@@ -81,6 +109,7 @@ pub async fn run(config: DaemonConfig) -> Result<(), Box<dyn std::error::Error +
             record,
             RunState::Interrupted,
             "daemon restarted after the durable spawn boundary",
+            ExecutionFailureKind::Interrupted,
             &recovery_key,
             &recovery_artifacts,
         )
@@ -92,74 +121,114 @@ pub async fn run(config: DaemonConfig) -> Result<(), Box<dyn std::error::Error +
     }
     state.install(service.clone(), artifacts.clone()).await;
 
+    state
+        .set_readiness(
+            "receipt-identity",
+            ReadinessStatus::Ready,
+            format!("receipt signer {} is ready", verification_key.key_id()),
+        )
+        .await;
+
+    let authorizer = ComponentAuthorizer::estate(&config.plugin_root);
+    match authorizer.inspect() {
+        Ok(inspection) => {
+            state
+                .set_readiness(
+                    "tier-w-trust",
+                    ReadinessStatus::Ready,
+                    format!(
+                        "active signed generation {} authorizes {} component(s)",
+                        inspection.generation_id.as_deref().unwrap_or("exact-pins"),
+                        inspection.component_count
+                    ),
+                )
+                .await;
+        }
+        Err(error) => {
+            state
+                .set_readiness("tier-w-trust", ReadinessStatus::Failed, error.to_string())
+                .await;
+        }
+    }
+    let tier_w = match TierWEngine::new(EngineProfile::for_current_target()) {
+        Ok(engine) => {
+            state
+                .set_readiness(
+                    "tier-w-backend",
+                    ReadinessStatus::Ready,
+                    format!(
+                        "Wasmtime 46 {} backend is available for {}",
+                        engine.profile().backend.name(),
+                        engine.profile().target.name()
+                    ),
+                )
+                .await;
+            Some(TierWExecutionPort::new(engine, authorizer.clone()))
+        }
+        Err(error) => {
+            state
+                .set_readiness("tier-w-backend", ReadinessStatus::Failed, error.to_string())
+                .await;
+            None
+        }
+    };
+
     #[cfg(target_os = "macos")]
-    let runner = match SeatbeltConfig::detect() {
+    let tier_p = match SeatbeltConfig::detect() {
         Ok(detected) => {
             let executor =
                 SeatbeltExecutor::new(detected.with_work_root(config.state_dir.join("work")));
             state
                 .set_readiness(
-                    "sandbox",
+                    "tier-p-backend",
                     ReadinessStatus::Ready,
                     "macOS Seatbelt Tier P backend is available",
                 )
                 .await;
-            state
-                .set_readiness(
-                    "receipt-identity",
-                    ReadinessStatus::Ready,
-                    format!("receipt signer {} is ready", verification_key.key_id()),
-                )
-                .await;
-            Some(tokio::spawn(runner_loop(
-                service.clone(),
-                artifacts.clone(),
-                signing_key,
-                verification_key,
-                executor,
-            )))
+            Some(executor)
         }
         Err(error) => {
             state
-                .set_readiness("sandbox", ReadinessStatus::Failed, error.to_string())
-                .await;
-            state
-                .set_readiness(
-                    "receipt-identity",
-                    ReadinessStatus::Ready,
-                    format!("receipt signer {} is ready", verification_key.key_id()),
-                )
+                .set_readiness("tier-p-backend", ReadinessStatus::Failed, error.to_string())
                 .await;
             None
         }
     };
 
     #[cfg(not(target_os = "macos"))]
-    let runner: Option<
-        tokio::task::JoinHandle<Result<(), Box<dyn std::error::Error + Send + Sync>>>,
-    > = {
+    {
         state
             .set_readiness(
-                "sandbox",
+                "tier-p-backend",
                 ReadinessStatus::Failed,
                 "Tier P execution is not runtime-certified on this platform",
             )
             .await;
-        state
-            .set_readiness(
-                "receipt-identity",
-                ReadinessStatus::Ready,
-                format!("receipt signer {} is ready", verification_key.key_id()),
-            )
-            .await;
-        None
+    }
+
+    #[cfg(target_os = "macos")]
+    let backends = RunnerBackends {
+        tier_w,
+        tier_w_trust: authorizer,
+        tier_p,
     };
+    #[cfg(not(target_os = "macos"))]
+    let backends = RunnerBackends {
+        tier_w,
+        tier_w_trust: authorizer,
+    };
+    let runner = tokio::spawn(runner_loop(
+        service.clone(),
+        artifacts.clone(),
+        signing_key,
+        verification_key,
+        backends,
+        state.clone(),
+    ));
 
     tokio::signal::ctrl_c().await?;
-    if let Some(runner) = runner {
-        runner.abort();
-        let _ = runner.await;
-    }
+    runner.abort();
+    let _ = runner.await;
     sidecar.shutdown().await?;
     Ok(())
 }
@@ -194,16 +263,139 @@ async fn initialize(
     ))
 }
 
-#[cfg(target_os = "macos")]
+#[cfg(unix)]
+struct RunnerBackends {
+    tier_w: Option<TierWExecutionPort>,
+    tier_w_trust: ComponentAuthorizer,
+    #[cfg(target_os = "macos")]
+    tier_p: Option<SeatbeltExecutor>,
+}
+
+#[cfg(unix)]
+#[derive(Debug)]
+struct BackendFailure {
+    kind: ExecutionFailureKind,
+    message: String,
+}
+
+#[cfg(unix)]
+impl RunnerBackends {
+    async fn refresh_tier_w_trust(&self, state: &SidecarState) {
+        match self.tier_w_trust.inspect() {
+            Ok(inspection) => {
+                state
+                    .set_readiness(
+                        "tier-w-trust",
+                        ReadinessStatus::Ready,
+                        format!(
+                            "active signed generation {} authorizes {} component(s)",
+                            inspection.generation_id.as_deref().unwrap_or("exact-pins"),
+                            inspection.component_count
+                        ),
+                    )
+                    .await;
+            }
+            Err(error) => {
+                state
+                    .set_readiness("tier-w-trust", ReadinessStatus::Failed, error.to_string())
+                    .await;
+            }
+        }
+    }
+
+    async fn execute(
+        &self,
+        job: &ValidatedExecutionJob,
+    ) -> Result<BackendExecution, BackendFailure> {
+        match selected_tier(job.request().tier, job.request().code.runtime) {
+            ExecutionTier::W => {
+                let Some(executor) = &self.tier_w else {
+                    return Err(BackendFailure {
+                        kind: ExecutionFailureKind::BackendUnavailable,
+                        message: "Tier W backend or component trust is unavailable".into(),
+                    });
+                };
+                executor.execute(job).await.map_err(map_tier_w_failure)
+            }
+            ExecutionTier::P => {
+                #[cfg(target_os = "macos")]
+                {
+                    let Some(executor) = &self.tier_p else {
+                        return Err(BackendFailure {
+                            kind: ExecutionFailureKind::BackendUnavailable,
+                            message: "Tier P Seatbelt backend is unavailable".into(),
+                        });
+                    };
+                    executor.execute(job).await.map_err(|error| BackendFailure {
+                        kind: ExecutionFailureKind::Trap,
+                        message: format!("Seatbelt execution failed: {error}"),
+                    })
+                }
+                #[cfg(not(target_os = "macos"))]
+                {
+                    Err(BackendFailure {
+                        kind: ExecutionFailureKind::BackendUnavailable,
+                        message: "Tier P execution is not runtime-certified on this platform"
+                            .into(),
+                    })
+                }
+            }
+        }
+    }
+}
+
+#[cfg(unix)]
+fn selected_tier(requested: RequestedTier, runtime: RuntimeKind) -> ExecutionTier {
+    if requested == RequestedTier::W || runtime == RuntimeKind::WasmComponent {
+        ExecutionTier::W
+    } else {
+        ExecutionTier::P
+    }
+}
+
+#[cfg(unix)]
+fn map_tier_w_failure(error: TierWPortError) -> BackendFailure {
+    let kind = match &error {
+        TierWPortError::Adapter(TierWError::ComponentUnauthorized(_))
+        | TierWPortError::AuthorizationMismatch
+        | TierWPortError::InvalidRuntime => ExecutionFailureKind::ComponentUnauthorized,
+        TierWPortError::Adapter(TierWError::CapabilityDenied(_))
+        | TierWPortError::Adapter(TierWError::InvalidCapabilityGrant(_))
+        | TierWPortError::UnsupportedCapability(_) => ExecutionFailureKind::CapabilityDenied,
+        TierWPortError::Adapter(TierWError::BackendUnavailable { .. }) => {
+            ExecutionFailureKind::BackendUnavailable
+        }
+        _ => ExecutionFailureKind::Trap,
+    };
+    BackendFailure {
+        kind,
+        message: error.to_string(),
+    }
+}
+
+#[cfg(unix)]
 async fn runner_loop(
     service: Arc<ExecutionService>,
     artifacts: Arc<ArtifactStore>,
     signing_key: SigningKey,
     verification_key: VerificationKey,
-    executor: SeatbeltExecutor,
+    backends: RunnerBackends,
+    state: SidecarState,
 ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let policy = CedarTighteningPolicy::default();
+    let mut last_trust_check = StdInstant::now();
+    state
+        .set_readiness(
+            "execution-runner",
+            ReadinessStatus::Ready,
+            "durable Tier P/Tier W execution dispatcher is running",
+        )
+        .await;
     loop {
+        if last_trust_check.elapsed() >= Duration::from_secs(1) {
+            backends.refresh_tier_w_trust(&state).await;
+            last_trust_check = StdInstant::now();
+        }
         // New requests are retained by the sidecar HTTP handler before the
         // service accepts them. This loop therefore never needs a racy second
         // pin pass and can process each durable record independently.
@@ -211,28 +403,38 @@ async fn runner_loop(
             if record.state != RunState::Queued {
                 continue;
             }
-            process_queued_run(
+            if let Err(error) = process_queued_run(
                 &service,
                 &artifacts,
                 &signing_key,
                 &verification_key,
-                &executor,
+                &backends,
                 &policy,
                 record,
             )
-            .await?;
+            .await
+            {
+                state
+                    .set_readiness(
+                        "execution-runner",
+                        ReadinessStatus::Failed,
+                        format!("execution runner stopped: {error}"),
+                    )
+                    .await;
+                return Err(error);
+            }
         }
         tokio::time::sleep(RUNNER_POLL_INTERVAL).await;
     }
 }
 
-#[cfg(target_os = "macos")]
+#[cfg(unix)]
 async fn process_queued_run(
     service: &ExecutionService,
     artifacts: &ArtifactStore,
     signing_key: &SigningKey,
     verification_key: &VerificationKey,
-    executor: &SeatbeltExecutor,
+    backends: &RunnerBackends,
     policy: &CedarTighteningPolicy,
     record: RunRecord,
 ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
@@ -352,13 +554,14 @@ async fn process_queued_run(
         return Ok(());
     }
 
-    let execution = match executor.execute(&job).await {
+    let execution = match backends.execute(&job).await {
         Ok(execution) => execution,
-        Err(error) => {
+        Err(failure) => {
             let receipt = synthetic_receipt(
                 &claim.record,
                 RunState::Failed,
-                &format!("Seatbelt execution failed: {error}"),
+                &failure.message,
+                failure.kind,
                 signing_key,
                 artifacts,
             )?;
@@ -373,11 +576,6 @@ async fn process_queued_run(
         }
     };
 
-    artifacts.put(&execution.stdout)?;
-    artifacts.put(&execution.stderr)?;
-    for artifact in &execution.artifacts {
-        artifacts.put(&artifact.bytes)?;
-    }
     emit_stream_events(
         service,
         claim.record.run_id,
@@ -393,12 +591,13 @@ async fn process_queued_run(
         execution.finished_at,
     )?;
     let receipt = ReceiptAssembler::new(Ed25519ReceiptSigner::new(signing_key.clone()))
-        .assemble_for_run(claim.record.run_id, &job, execution)?;
+        .assemble_for_run(claim.record.run_id, &job, execution.clone())?;
+    artifacts.persist_and_retain_for_receipt(&claim.record.request, &receipt, &execution)?;
     commit_terminal_with_retention(service, artifacts, &claim.record, receipt, verification_key)?;
     Ok(())
 }
 
-#[cfg(target_os = "macos")]
+#[cfg(unix)]
 fn emit_stream_events(
     service: &ExecutionService,
     run_id: uuid::Uuid,
@@ -425,7 +624,7 @@ fn emit_stream_events(
     Ok(())
 }
 
-#[cfg(target_os = "macos")]
+#[cfg(unix)]
 fn reject_run(
     service: &ExecutionService,
     artifacts: &ArtifactStore,
@@ -434,12 +633,19 @@ fn reject_run(
     reason: &str,
 ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let verification_key = VerificationKey::ed25519(signing_key.verifying_key().to_bytes());
-    let receipt = synthetic_receipt(record, RunState::Rejected, reason, signing_key, artifacts)?;
+    let receipt = synthetic_receipt(
+        record,
+        RunState::Rejected,
+        reason,
+        ExecutionFailureKind::CapabilityDenied,
+        signing_key,
+        artifacts,
+    )?;
     commit_terminal_with_retention(service, artifacts, record, receipt, &verification_key)?;
     Ok(())
 }
 
-#[cfg(target_os = "macos")]
+#[cfg(unix)]
 fn commit_terminal_with_retention(
     service: &ExecutionService,
     artifacts: &ArtifactStore,
@@ -477,6 +683,7 @@ fn commit_terminal_with_retention(
     Ok(())
 }
 
+#[cfg(unix)]
 fn retain_reconciled_receipts(
     service: &ExecutionService,
     artifacts: &ArtifactStore,
@@ -508,10 +715,12 @@ fn retain_reconciled_receipts(
     Ok(())
 }
 
+#[cfg(unix)]
 fn synthetic_receipt(
     record: &RunRecord,
     state: RunState,
     reason: &str,
+    failure_kind: ExecutionFailureKind,
     signing_key: &SigningKey,
     artifacts: &ArtifactStore,
 ) -> Result<ExecutionReceipt, Box<dyn std::error::Error + Send + Sync>> {
@@ -524,19 +733,33 @@ fn synthetic_receipt(
         .map(|input| (input.name.clone(), input.hash.clone()))
         .collect();
     let now = Utc::now();
+    let tier = selected_tier(record.request.tier, record.request.code.runtime);
+    let tier_w = tier == ExecutionTier::W;
     let mut receipt = ExecutionReceipt {
         schema_version: SCHEMA_VERSION.into(),
         run_id: record.run_id,
         request_hash: record.request_hash.clone(),
         state,
-        evidence_class: EvidenceClass::Attested,
-        tier: ExecutionTier::P,
+        evidence_class: if tier_w {
+            EvidenceClass::Verified
+        } else {
+            EvidenceClass::Attested
+        },
+        tier,
         code_hash: record.request.code.hash.clone(),
         input_set_hash: hash_serializable(&input_hashes)?,
         env_hash: hash_serializable(&BTreeMap::<String, String>::new())?,
         toolchain_hash: None,
-        sandbox_profile_hash: hash_bytes(b"prometheus-exec-no-spawn-v1"),
-        backend: host_backend(),
+        sandbox_profile_hash: hash_bytes(if tier_w {
+            b"prometheus-exec-tier-w-no-instantiation-v1"
+        } else {
+            b"prometheus-exec-tier-p-no-spawn-v1"
+        }),
+        backend: if tier_w {
+            tier_w_backend()
+        } else {
+            host_backend()
+        },
         exit: ExecutionExit {
             status: 125,
             signal_or_trap: Some(reason.into()),
@@ -556,11 +779,41 @@ fn synthetic_receipt(
         },
         grants: vec![],
         component: None,
-        failure: None,
+        failure: Some(ExecutionFailure {
+            kind: failure_kind,
+            code: failure_code(failure_kind).into(),
+            message: reason.into(),
+        }),
         signature: None,
     };
     sign_receipt_ed25519(&mut receipt, signing_key)?;
     Ok(receipt)
+}
+
+#[cfg(unix)]
+fn failure_code(kind: ExecutionFailureKind) -> &'static str {
+    match kind {
+        ExecutionFailureKind::Trap => "backend_error",
+        ExecutionFailureKind::FuelExhausted => "fuel_exhausted",
+        ExecutionFailureKind::EpochDeadline => "epoch_deadline",
+        ExecutionFailureKind::MemoryLimit => "memory_limit",
+        ExecutionFailureKind::TableLimit => "table_limit",
+        ExecutionFailureKind::InstanceLimit => "instance_limit",
+        ExecutionFailureKind::StreamLimit => "stream_limit",
+        ExecutionFailureKind::ArtifactLimit => "artifact_limit",
+        ExecutionFailureKind::CapabilityDenied => "capability_denied",
+        ExecutionFailureKind::ComponentUnauthorized => "component_unauthorized",
+        ExecutionFailureKind::BackendUnavailable => "backend_unavailable",
+        ExecutionFailureKind::Interrupted => "interrupted",
+    }
+}
+
+#[cfg(unix)]
+fn tier_w_backend() -> ExecutionBackend {
+    match compiled_backend() {
+        BackendProfile::Cranelift => ExecutionBackend::Cranelift,
+        BackendProfile::Pulley => ExecutionBackend::Pulley,
+    }
 }
 
 fn host_backend() -> ExecutionBackend {
@@ -575,5 +828,136 @@ fn host_backend() -> ExecutionBackend {
     #[cfg(not(any(target_os = "macos", target_os = "linux")))]
     {
         ExecutionBackend::Bwrap
+    }
+}
+
+#[cfg(all(test, unix))]
+mod tests {
+    use super::*;
+    use prometheus_exec_contracts::{
+        sign_request_ed25519, CapabilityManifest, CodeIdentity, CodeKind, ComponentAuthorization,
+        ComponentAuthorizationMode, ExecutionLimits, ExecutionProvenance, SignatureAlgorithm,
+        SignedExecRequest,
+    };
+    use tempfile::tempdir;
+    use uuid::Uuid;
+
+    const REFERENCE_COMPONENT: &[u8] = include_bytes!(
+        "../../../skills/react/prometheus-entity-skills/entity-graph-optimize/skill.wasm"
+    );
+
+    #[tokio::test]
+    async fn tier_w_uses_the_shared_durable_ledger_events_and_receipt_path() {
+        let directory = tempdir().unwrap();
+        let service = ExecutionService::open(directory.path().join("service")).unwrap();
+        let artifacts =
+            ArtifactStore::open(directory.path().join("artifacts"), 64 * 1024 * 1024).unwrap();
+        let signing_key = SigningKey::from_bytes(&[89; 32]);
+        let verification_key = VerificationKey::ed25519(signing_key.verifying_key().to_bytes());
+        let code = artifacts.put(REFERENCE_COMPONENT).unwrap();
+        let authorization = ComponentAuthorization {
+            mode: ComponentAuthorizationMode::HashPin,
+            world: prometheus_exec_tier_w::COMPONENT_WORLD.into(),
+            manifest_hash: None,
+            generation_id: None,
+        };
+        let mut request = SignedExecRequest {
+            schema_version: SCHEMA_VERSION.into(),
+            request_id: Uuid::new_v4(),
+            issued_at: Utc::now(),
+            queued_at: None,
+            validity_window_secs: 300,
+            tier: RequestedTier::W,
+            code: CodeIdentity {
+                kind: CodeKind::Component,
+                hash: code.hash.clone(),
+                runtime: RuntimeKind::WasmComponent,
+                toolchain_pin: None,
+            },
+            inputs: Vec::new(),
+            capabilities: CapabilityManifest {
+                fs: prometheus_exec_contracts::FilesystemCapabilities {
+                    read_only: vec![
+                        ".kbd-orchestrator/project.json".into(),
+                        ".evolver/".into(),
+                        ".refiner/".into(),
+                        "openspec/".into(),
+                    ],
+                    read_write: Vec::new(),
+                },
+                net: prometheus_exec_contracts::NetworkCapabilities::default(),
+                env: prometheus_exec_contracts::EnvironmentCapabilities::default(),
+                clock: false,
+                random: false,
+            },
+            limits: ExecutionLimits::default(),
+            targets: Vec::new(),
+            provenance: ExecutionProvenance {
+                component_authorization: Some(authorization),
+                ..ExecutionProvenance::default()
+            },
+            signer_key_id: None,
+            sig_alg: SignatureAlgorithm::Ed25519,
+            signature: None,
+        };
+        sign_request_ed25519(&mut request, &signing_key).unwrap();
+        artifacts.retain_for_request(&request).unwrap();
+        let accepted = service.submit(request.clone()).unwrap().record;
+        let backends = test_backends(code.hash);
+
+        process_queued_run(
+            &service,
+            &artifacts,
+            &signing_key,
+            &verification_key,
+            &backends,
+            &CedarTighteningPolicy::default(),
+            accepted,
+        )
+        .await
+        .unwrap();
+
+        let terminal = service.ledger().get(request.request_id).unwrap().unwrap();
+        assert_eq!(terminal.state, RunState::Succeeded, "{terminal:#?}");
+        let receipt = terminal.terminal.unwrap().receipt;
+        assert_eq!(receipt.tier, ExecutionTier::W);
+        assert_eq!(receipt.evidence_class, EvidenceClass::Verified);
+        assert!(matches!(
+            receipt.backend,
+            ExecutionBackend::Cranelift | ExecutionBackend::Pulley
+        ));
+        assert!(receipt.component.is_some());
+        assert!(artifacts.get(&receipt.outputs.stdout).is_ok());
+        assert!(artifacts.is_pinned(&receipt.outputs.stdout).unwrap());
+
+        let events = service.events_after(receipt.run_id, 0).unwrap();
+        assert!(events
+            .iter()
+            .any(|event| matches!(&event.data, RunEventData::Accepted { .. })));
+        assert!(events
+            .iter()
+            .any(|event| matches!(&event.data, RunEventData::Completed { .. })));
+    }
+
+    fn test_backends(component_hash: prometheus_exec_contracts::Digest) -> RunnerBackends {
+        let tier_w = Some(TierWExecutionPort::new(
+            TierWEngine::new(EngineProfile::for_current_target()).unwrap(),
+            ComponentAuthorizer::hash_pins([component_hash.clone()]),
+        ));
+        #[cfg(target_os = "macos")]
+        {
+            RunnerBackends {
+                tier_w,
+                tier_w_trust: ComponentAuthorizer::hash_pins([component_hash]),
+                tier_p: None,
+            }
+        }
+        #[cfg(not(target_os = "macos"))]
+        {
+            RunnerBackends {
+                tier_w,
+                tier_w_trust: ComponentAuthorizer::hash_pins([component_hash]),
+            }
+        }
     }
 }

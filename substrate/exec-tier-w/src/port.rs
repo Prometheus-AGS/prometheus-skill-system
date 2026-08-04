@@ -197,7 +197,10 @@ fn capability_grant(job: &ValidatedExecutionJob) -> Result<CapabilityGrant, Tier
         grant = grant.allow_kv_read(path, None);
     }
     for path in &capabilities.fs.read_write {
-        grant = grant.allow_output_prefix(path)?;
+        // The public contract represents directory scopes with a trailing
+        // separator (for example `outputs/`), while the capability host stores
+        // canonical path prefixes without empty segments.
+        grant = grant.allow_output_prefix(path.trim_end_matches(['/', '\\']))?;
     }
     for (name, bytes) in job.inputs() {
         grant = grant.allow_input(name, Some(bytes.clone()));
@@ -285,7 +288,7 @@ mod tests {
                         ".refiner/".into(),
                         "openspec/".into(),
                     ],
-                    read_write: Vec::new(),
+                    read_write: vec!["outputs/".into()],
                 },
                 net: NetworkCapabilities::default(),
                 env: EnvironmentCapabilities::default(),

@@ -177,7 +177,8 @@ fn is_output_scoped(path: &str) -> bool {
 
 fn is_workspace_relative(path: &str) -> bool {
     let normalized = path.replace('\\', "/");
-    if normalized.is_empty() || normalized.starts_with('/') || has_windows_drive_prefix(&normalized)
+    let normalized = normalized.trim_end_matches('/');
+    if normalized.is_empty() || normalized.starts_with('/') || has_windows_drive_prefix(normalized)
     {
         return false;
     }

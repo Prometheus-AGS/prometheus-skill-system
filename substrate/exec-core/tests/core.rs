@@ -77,6 +77,9 @@ fn baseline_policy_is_deterministic_and_never_broadens() {
     let mut request = job().request;
     assert_eq!(policy.evaluate(&request), PolicyOutcome::AutoApproved);
 
+    request.capabilities.fs.read_only = vec![".evolver/".into(), "openspec/".into()];
+    assert_eq!(policy.evaluate(&request), PolicyOutcome::AutoApproved);
+
     request.capabilities.net.egress = vec!["example.com:443".into()];
     request.capabilities.env.read = vec!["TOKEN".into()];
     let expected = PolicyOutcome::GrantRequired {

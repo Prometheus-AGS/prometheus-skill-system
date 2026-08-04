@@ -7,6 +7,7 @@ use std::{
 use base64::{engine::general_purpose::STANDARD, Engine as _};
 use ed25519_dalek::VerifyingKey;
 use prometheus_exec_contracts::{ComponentAuthorization, ComponentAuthorizationMode, Digest};
+use serde::Serialize;
 use serde_json::{Map, Value};
 
 use crate::{TierWError, COMPONENT_WORLD};
@@ -34,6 +35,24 @@ pub enum ComponentTrustPolicy {
 #[derive(Clone, Debug)]
 pub struct ComponentAuthorizer {
     policy: ComponentTrustPolicy,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ComponentTrustInspection {
+    pub mode: ComponentAuthorizationMode,
+    pub component_count: usize,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub generation_id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub manifest_hash: Option<Digest>,
+}
+
+struct VerifiedGeneration {
+    root: PathBuf,
+    manifest: Value,
+    generation_id: String,
+    manifest_hash: Digest,
 }
 
 pub(crate) struct AuthorizedComponent<'a> {
@@ -65,6 +84,39 @@ impl ComponentAuthorizer {
 
     pub fn policy(&self) -> &ComponentTrustPolicy {
         &self.policy
+    }
+
+    /// Verifies the configured trust roots without compiling or executing a
+    /// component and without changing the active generation or trust store.
+    pub fn inspect(&self) -> Result<ComponentTrustInspection, TierWError> {
+        match &self.policy {
+            ComponentTrustPolicy::ExactPins { mode, digests } => {
+                if digests.is_empty() {
+                    return Err(unauthorized("component trust has no exact pins"));
+                }
+                Ok(ComponentTrustInspection {
+                    mode: *mode,
+                    component_count: digests.len(),
+                    generation_id: None,
+                    manifest_hash: None,
+                })
+            }
+            ComponentTrustPolicy::Estate { plugin_root } => {
+                let generation = verify_generation(plugin_root)?;
+                let component_count = verify_generation_components(&generation)?;
+                if component_count == 0 {
+                    return Err(unauthorized(
+                        "active signed generation contains no Wasm components",
+                    ));
+                }
+                Ok(ComponentTrustInspection {
+                    mode: ComponentAuthorizationMode::SignedGeneration,
+                    component_count,
+                    generation_id: Some(generation.generation_id),
+                    manifest_hash: Some(generation.manifest_hash),
+                })
+            }
+        }
     }
 
     pub(crate) fn authorize<'a>(
@@ -167,6 +219,23 @@ fn verify_active_generation(
     component_hash: &Digest,
     component_size: Option<usize>,
 ) -> Result<ComponentAuthorization, TierWError> {
+    let generation = verify_generation(plugin_root)?;
+    verify_component_entry(
+        &generation.root,
+        &generation.manifest,
+        component_hash,
+        component_size,
+    )?;
+
+    Ok(ComponentAuthorization {
+        mode: ComponentAuthorizationMode::SignedGeneration,
+        world: COMPONENT_WORLD.into(),
+        manifest_hash: Some(generation.manifest_hash),
+        generation_id: Some(generation.generation_id),
+    })
+}
+
+fn verify_generation(plugin_root: &Path) -> Result<VerifiedGeneration, TierWError> {
     let plugin_root = plugin_root
         .canonicalize()
         .map_err(|error| unauthorized(format!("plugin root is unavailable: {error}")))?;
@@ -206,19 +275,51 @@ fn verify_active_generation(
     let signature: Value = serde_json::from_slice(&signature_bytes)
         .map_err(|error| unauthorized(format!("generation signature is invalid JSON: {error}")))?;
     verify_signature_envelope(&plugin_root, &signature, signer_key_id, &canonical_manifest)?;
-    verify_component_entry(
-        &canonical_generation,
-        &manifest,
-        component_hash,
-        component_size,
-    )?;
-
-    Ok(ComponentAuthorization {
-        mode: ComponentAuthorizationMode::SignedGeneration,
-        world: COMPONENT_WORLD.into(),
-        manifest_hash: Some(Digest::from_bytes(&canonical_manifest)),
-        generation_id: Some(generation_id),
+    Ok(VerifiedGeneration {
+        root: canonical_generation,
+        manifest,
+        generation_id,
+        manifest_hash: Digest::from_bytes(&canonical_manifest),
     })
+}
+
+fn verify_generation_components(generation: &VerifiedGeneration) -> Result<usize, TierWError> {
+    let files = generation
+        .manifest
+        .get("files")
+        .and_then(Value::as_array)
+        .ok_or_else(|| unauthorized("generation manifest has no files array"))?;
+    let mut component_count = 0usize;
+    let mut observed = HashSet::new();
+    for entry in files {
+        let Some(path) = entry.get("path").and_then(Value::as_str) else {
+            continue;
+        };
+        if !path.ends_with(".wasm") {
+            continue;
+        }
+        let raw_hash = required_string(entry, "sha256")?;
+        let component_hash = Digest::parse(&format!("sha256:{raw_hash}"))
+            .map_err(|error| unauthorized(format!("component digest is invalid: {error}")))?;
+        if !observed.insert(component_hash.clone()) {
+            return Err(unauthorized(
+                "component digest is duplicated in the active generation manifest",
+            ));
+        }
+        let size = entry
+            .get("size")
+            .and_then(Value::as_u64)
+            .and_then(|value| usize::try_from(value).ok())
+            .ok_or_else(|| unauthorized("component manifest entry has no valid byte size"))?;
+        verify_component_entry(
+            &generation.root,
+            &generation.manifest,
+            &component_hash,
+            Some(size),
+        )?;
+        component_count += 1;
+    }
+    Ok(component_count)
 }
 
 fn generation_from_pointer(target: &Path) -> Result<String, TierWError> {
@@ -610,6 +711,60 @@ mod tests {
         );
     }
 
+    #[cfg(unix)]
+    #[test]
+    fn trust_inspection_verifies_active_component_bytes_without_mutation() {
+        let fixture = tempfile::tempdir().unwrap();
+        let plugin_root = fixture.path().join("plugin");
+        fs::create_dir_all(plugin_root.join("generations")).unwrap();
+        let signing_key = SigningKey::from_bytes(&[67; 32]);
+        write_trust_store(&plugin_root, &signing_key);
+        let generation =
+            write_generation(&plugin_root, &signing_key, REFERENCE_COMPONENT, "inspect");
+        activate(&plugin_root, &generation);
+        let authorizer = ComponentAuthorizer::estate(&plugin_root);
+
+        let before = tree_snapshot(&plugin_root);
+        let inspection = authorizer.inspect().unwrap();
+        let after = tree_snapshot(&plugin_root);
+
+        assert_eq!(
+            inspection.mode,
+            ComponentAuthorizationMode::SignedGeneration
+        );
+        assert_eq!(inspection.component_count, 1);
+        assert_eq!(
+            inspection.generation_id.as_deref(),
+            Some(generation.as_str())
+        );
+        assert!(inspection.manifest_hash.is_some());
+        assert_eq!(before, after);
+
+        let component = plugin_root
+            .join("generations")
+            .join(generation)
+            .join("skills/fixture/skill.wasm");
+        fs::write(component, b"tampered").unwrap();
+        assert!(matches!(
+            authorizer.inspect(),
+            Err(TierWError::ComponentUnauthorized(_))
+        ));
+    }
+
+    #[test]
+    fn exact_pin_inspection_rejects_an_empty_trust_policy() {
+        let empty = ComponentAuthorizer::hash_pins([]);
+        assert!(matches!(
+            empty.inspect(),
+            Err(TierWError::ComponentUnauthorized(_))
+        ));
+
+        let digest = Digest::from_bytes(b"component");
+        let ready = ComponentAuthorizer::bundled([digest]).inspect().unwrap();
+        assert_eq!(ready.mode, ComponentAuthorizationMode::Bundled);
+        assert_eq!(ready.component_count, 1);
+    }
+
     #[cfg(all(unix, feature = "cranelift"))]
     #[test]
     fn signed_generation_rejects_tampering_before_engine_validation() {
@@ -756,6 +911,39 @@ mod tests {
             "-----BEGIN PUBLIC KEY-----\n{}\n-----END PUBLIC KEY-----\n",
             STANDARD.encode(der)
         )
+    }
+
+    #[cfg(unix)]
+    fn tree_snapshot(root: &Path) -> Vec<(PathBuf, Vec<u8>)> {
+        fn collect(root: &Path, current: &Path, snapshot: &mut Vec<(PathBuf, Vec<u8>)>) {
+            let mut entries: Vec<_> = fs::read_dir(current)
+                .unwrap()
+                .map(|entry| entry.unwrap())
+                .collect();
+            entries.sort_by_key(|entry| entry.file_name());
+            for entry in entries {
+                let path = entry.path();
+                let relative = path.strip_prefix(root).unwrap().to_path_buf();
+                let metadata = fs::symlink_metadata(&path).unwrap();
+                if metadata.file_type().is_symlink() {
+                    snapshot.push((
+                        relative,
+                        fs::read_link(path)
+                            .unwrap()
+                            .into_os_string()
+                            .into_encoded_bytes(),
+                    ));
+                } else if metadata.is_dir() {
+                    collect(root, &path, snapshot);
+                } else {
+                    snapshot.push((relative, fs::read(path).unwrap()));
+                }
+            }
+        }
+
+        let mut snapshot = Vec::new();
+        collect(root, root, &mut snapshot);
+        snapshot
     }
 
     fn component_with_custom_section(component: &[u8], marker: u8) -> Vec<u8> {
