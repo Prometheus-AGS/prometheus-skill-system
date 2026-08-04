@@ -216,6 +216,21 @@ impl RunLedger {
         self.load_record_if_present(request_id)
     }
 
+    pub fn get_by_run_id(&self, run_id: Uuid) -> Result<Option<RunRecord>, RunLedgerError> {
+        let lock = self.open_lock()?;
+        fs2::FileExt::lock_shared(&lock).map_err(|source| io_error(self.lock_path(), source))?;
+        Ok(self
+            .load_records()?
+            .into_iter()
+            .find(|record| record.run_id == run_id))
+    }
+
+    pub fn records(&self) -> Result<Vec<RunRecord>, RunLedgerError> {
+        let lock = self.open_lock()?;
+        fs2::FileExt::lock_shared(&lock).map_err(|source| io_error(self.lock_path(), source))?;
+        self.load_records()
+    }
+
     /// Durably records the spawn boundary before the backend process is started.
     pub fn mark_spawned(
         &self,
