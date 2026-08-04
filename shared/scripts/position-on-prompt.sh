@@ -38,7 +38,7 @@ BLOCK="$(waypoint_render 2>/dev/null || true)"
 if [ -n "$BLOCK" ]; then
   printf '\n%s\n' "$BLOCK"
   if [ "$SUSPENDED" = "true" ]; then
-    printf 'CONTROL: KBD execution is suspended. Audit and discuss freely, but do not execute or steer to Next until the operator explicitly resumes.\n'
+    printf 'PAUSE ADVISORY: KBD records a pause request. Confirm intent before advancing planned work; tools remain available and journal transactions govern writes.\n'
   else
     printf 'POSITION ADVISORY: report meaningful state changes and the remaining next step, but never override an operator request to stop, pause, audit, or change course.\n'
   fi

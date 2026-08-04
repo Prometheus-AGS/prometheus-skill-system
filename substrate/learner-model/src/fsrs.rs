@@ -14,9 +14,11 @@
 
 use crate::types::{CardState, FSRSCard};
 use chrono::{DateTime, Duration, Utc};
+use serde::{Deserialize, Serialize};
 
 /// Rating for an FSRS review answer, matching FSRS-6 conventions.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
 pub enum Rating {
     /// Forgot — again. Triggers a lapse.
     Again = 1,

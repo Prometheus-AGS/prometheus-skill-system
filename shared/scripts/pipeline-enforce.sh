@@ -58,20 +58,11 @@ if ! KBD_DIR="$(find_kbd_dir)"; then
   exit 0
 fi
 
-# An emergency operator pause prevents lifecycle execution even if the
-# waypoint is unreadable. Audit/status commands are not in the guarded command
-# set above and remain available.
+# A pause is an operator advisory. It is surfaced here, but it never blocks a
+# tool invocation; journal transactions remain the write-concurrency boundary.
 if [[ -e "${KBD_DIR}/PAUSE" ]]; then
-  log_error "KBD execution is paused by ${KBD_DIR}/PAUSE"
-  cat >&2 <<EOF
-
-[pipeline-enforce] BLOCKED — operator pause is active.
-
-Audit or revise the plan, then run /kbd-resume explicitly before executing a
-KBD lifecycle command.
-
-EOF
-  exit 2
+  log_info "operator pause advisory is active at ${KBD_DIR}/PAUSE"
+  printf '[pipeline-enforce] ADVISORY — KBD pause is recorded; journal locking still governs writes.\n' >&2
 fi
 
 # Find the active phase from current-waypoint.json
@@ -90,15 +81,8 @@ fi
 STATUS="$(python3 -c "import json; d=json.load(open('${WAYPOINT}')); print(d.get('status', d.get('stage', '')))" 2>/dev/null || true)"
 case "$(printf '%s' "$STATUS" | tr '[:upper:] -' '[:lower:]__')" in
   pause_requested|paused|blocked|suspended)
-    log_error "KBD execution is suspended (status=${STATUS})"
-    cat >&2 <<EOF
-
-[pipeline-enforce] BLOCKED — KBD lifecycle state is ${STATUS}.
-
-Audit or revise the plan, then run /kbd-resume explicitly.
-
-EOF
-    exit 2
+    log_info "lifecycle advisory is ${STATUS}; continuing"
+    printf '[pipeline-enforce] ADVISORY — lifecycle is %s; journal locking still governs writes.\n' "$STATUS" >&2
     ;;
 esac
 

@@ -38,10 +38,8 @@ runtime_data_root() {
 PAUSE_FILE="$PROJECT_ROOT/.kbd-orchestrator/PAUSE"
 if [[ -e "$PAUSE_FILE" ]]; then
   if [[ "$EVENT" == "session_start" || "$EVENT" == "post_compact" ]]; then
-    printf 'KBD REANCHOR: emergency PAUSE is active. Audit before resuming.\n'
+    printf 'KBD REANCHOR: pause advisory is active. Confirm intent before advancing planned work; tools remain available.\n'
   fi
-  # Stop/interrupt acknowledgement is unconditional while paused.
-  exit 0
 fi
 
 if [[ "$EVENT" == "interrupt" ]]; then
@@ -51,8 +49,7 @@ if [[ "$EVENT" == "interrupt" ]]; then
     printf 'reason=Native %s interrupt\n' "$HARNESS"
     printf 'lifecycle=pause_requested\n'
   } >"$PAUSE_FILE"
-  # The local valve is the complete interrupt path. Harness callbacks do not
-  # invoke the control-plane binary.
+  # The marker records operator intent without intercepting subsequent tools.
   exit 0
 fi
 

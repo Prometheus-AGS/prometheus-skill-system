@@ -108,9 +108,7 @@ fn write_json_value_into_map(map: &LoroMap, key: &str, v: &serde_json::Value) ->
             }
         }
         serde_json::Value::Object(_) => {
-            let child = map
-                .insert_container(key, LoroMap::new())
-                .map_err(crdt_err)?;
+            let child = map.ensure_mergeable_map(key).map_err(crdt_err)?;
             write_json_object(&child, v)?;
         }
     }
@@ -183,12 +181,37 @@ mod tests {
         let base = adapter.new_doc();
 
         let (doc_a, delta_a) = adapter.apply_json(&base, json!({"a": 1})).expect("apply a");
-        let (_doc_b, _delta_b) = adapter.apply_json(&base, json!({"b": 2})).expect("apply b");
+        let (_doc_b, delta_b) = adapter.apply_json(&base, json!({"b": 2})).expect("apply b");
 
         let merged = adapter
-            .merge(&doc_a, &delta_a)
-            .expect("merge self-delta is a no-op");
+            .merge(&doc_a, &delta_b)
+            .expect("merge independent delta");
         let value = adapter.to_json(&merged).expect("to_json");
         assert_eq!(value["a"], json!(1));
+        assert_eq!(value["b"], json!(2));
+        assert!(!delta_a.is_empty());
+    }
+
+    #[test]
+    fn mergeable_nested_maps_preserve_independent_evidence() {
+        let adapter = LoroAdapter;
+        let base = adapter.new_doc();
+        let (doc_a, _) = adapter
+            .apply_json(
+                &base,
+                json!({"concepts": {"rust": {"observations": {"a": {"score": 1}}}}}),
+            )
+            .expect("apply evidence a");
+        let (_, delta_b) = adapter
+            .apply_json(
+                &base,
+                json!({"concepts": {"rust": {"observations": {"b": {"score": 0}}}}}),
+            )
+            .expect("apply evidence b");
+
+        let merged = adapter.merge(&doc_a, &delta_b).expect("merge evidence");
+        let value = adapter.to_json(&merged).expect("to_json");
+        assert_eq!(value["concepts"]["rust"]["observations"]["a"]["score"], 1);
+        assert_eq!(value["concepts"]["rust"]["observations"]["b"]["score"], 0);
     }
 }

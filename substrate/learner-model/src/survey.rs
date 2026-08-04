@@ -1,6 +1,6 @@
 use crate::types::{CardState, ConceptState, FSRSCard, LearnerModel, LearnerModelSeed};
 use chrono::Utc;
-use std::collections::HashMap;
+use std::collections::{BTreeMap, HashMap};
 
 /// Seed a new `LearnerModel` from a learn-survey diagnostic output.
 ///
@@ -26,7 +26,8 @@ pub fn seed_from_survey(seed: &LearnerModelSeed) -> LearnerModel {
                 concept_id: prior.concept_id.clone(),
                 label: prior.concept_id.replace('-', " "),
                 mastery: prior.estimated_mastery_prior,
-                observations: vec![],
+                mastery_prior: Some(prior.estimated_mastery_prior),
+                observations: BTreeMap::new(),
                 fsrs_card: FSRSCard {
                     // New cards start with stability=1 day, difficulty=5 (neutral midpoint)
                     stability: 1.0,
@@ -37,6 +38,7 @@ pub fn seed_from_survey(seed: &LearnerModelSeed) -> LearnerModel {
                     lapses: 0,
                     last_review: None,
                 },
+                fsrs_prior: None,
             };
 
             (prior.concept_id.clone(), concept)
@@ -44,7 +46,7 @@ pub fn seed_from_survey(seed: &LearnerModelSeed) -> LearnerModel {
         .collect();
 
     LearnerModel {
-        schema_version: "1.0.0".to_string(),
+        schema_version: "1.1.0".to_string(),
         learner_id: seed.learner_id.clone(),
         created_at: now,
         updated_at: now,
@@ -88,7 +90,7 @@ mod tests {
         ]);
         let model = seed_from_survey(&seed);
 
-        assert_eq!(model.schema_version, "1.0.0");
+        assert_eq!(model.schema_version, "1.1.0");
         assert_eq!(model.learner_id, "did:plc:test-survey");
         assert_eq!(model.concepts.len(), 3);
         assert!(model.concepts.contains_key("ownership"));
