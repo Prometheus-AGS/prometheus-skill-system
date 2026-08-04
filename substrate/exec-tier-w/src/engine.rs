@@ -4,12 +4,13 @@ use std::{
     time::Duration,
 };
 
-use prometheus_exec_contracts::{hash_serializable, Digest};
+use prometheus_exec_contracts::{hash_serializable, ComponentAuthorization, Digest};
 use serde::Serialize;
 use wasmtime::{component::Component, Config, Engine, Strategy};
 
+use crate::authorization::AuthorizedComponent;
 use crate::capabilities::validate_supported_imports;
-use crate::{BackendProfile, COMPONENT_WORLD};
+use crate::{BackendProfile, ComponentAuthorizer, COMPONENT_WORLD};
 
 const WASMTIME_VERSION: &str = "46.0.0";
 pub(crate) const EPOCH_TICK_MILLIS: u64 = 10;
@@ -160,6 +161,8 @@ pub enum TierWError {
     EngineConfiguration(String),
     #[error("component validation failed: {0}")]
     InvalidComponent(String),
+    #[error("component authorization failed: {0}")]
+    ComponentUnauthorized(String),
     #[error("component import is permanently forbidden in Tier W: {0}")]
     ForbiddenImport(String),
     #[error("component import is unsupported in Tier W: {0}")]
@@ -177,6 +180,7 @@ pub enum TierWError {
 pub struct ValidatedComponent {
     component: Component,
     component_hash: Digest,
+    authorization: ComponentAuthorization,
     cache_key: Digest,
 }
 
@@ -185,6 +189,7 @@ impl std::fmt::Debug for ValidatedComponent {
         formatter
             .debug_struct("ValidatedComponent")
             .field("component_hash", &self.component_hash)
+            .field("authorization", &self.authorization)
             .field("cache_key", &self.cache_key)
             .finish_non_exhaustive()
     }
@@ -197,6 +202,10 @@ impl ValidatedComponent {
 
     pub fn component_hash(&self) -> &Digest {
         &self.component_hash
+    }
+
+    pub fn authorization(&self) -> &ComponentAuthorization {
+        &self.authorization
     }
 
     pub fn cache_key(&self) -> &Digest {
@@ -322,18 +331,33 @@ impl TierWEngine {
         &self.engine
     }
 
-    pub fn cache_key(&self, component_bytes: &[u8]) -> Result<Digest, TierWError> {
+    pub fn cache_key(
+        &self,
+        component_hash: &Digest,
+        authorization: &ComponentAuthorization,
+    ) -> Result<Digest, TierWError> {
         Ok(hash_serializable(&ComponentCacheIdentity {
             schema_version: 1,
             profile_hash: &self.profile_hash,
-            component_hash: Digest::from_bytes(component_bytes),
+            component_hash,
+            authorization,
         })?)
     }
 
-    pub fn validate_component(
+    pub fn load_component(
         &self,
         component_bytes: &[u8],
+        authorizer: &ComponentAuthorizer,
     ) -> Result<ValidatedComponent, TierWError> {
+        let authorized = authorizer.authorize(component_bytes)?;
+        self.validate_authorized_component(authorized)
+    }
+
+    fn validate_authorized_component(
+        &self,
+        authorized: AuthorizedComponent<'_>,
+    ) -> Result<ValidatedComponent, TierWError> {
+        let component_bytes = authorized.bytes();
         if Engine::detect_precompiled(component_bytes).is_some() {
             return Err(TierWError::InvalidComponent(
                 "precompiled engine artifacts are not accepted as component source bytes".into(),
@@ -342,11 +366,13 @@ impl TierWEngine {
         let component = Component::from_binary(&self.engine, component_bytes)
             .map_err(|error| TierWError::InvalidComponent(error.to_string()))?;
         validate_supported_imports(&self.engine, &component)?;
-        let component_hash = Digest::from_bytes(component_bytes);
-        let cache_key = self.cache_key(component_bytes)?;
+        let component_hash = authorized.component_hash().clone();
+        let authorization = authorized.authorization().clone();
+        let cache_key = self.cache_key(&component_hash, &authorization)?;
         Ok(ValidatedComponent {
             component,
             component_hash,
+            authorization,
             cache_key,
         })
     }
@@ -422,7 +448,8 @@ impl EngineIdentity {
 struct ComponentCacheIdentity<'a> {
     schema_version: u32,
     profile_hash: &'a Digest,
-    component_hash: Digest,
+    component_hash: &'a Digest,
+    authorization: &'a ComponentAuthorization,
 }
 
 const fn pulley_target() -> &'static str {
@@ -477,15 +504,20 @@ mod tests {
     #[test]
     fn desktop_engine_validates_the_reference_component() {
         let engine = TierWEngine::new(EngineProfile::desktop()).unwrap();
+        let authorizer = crate::test_authorizer(REFERENCE_COMPONENT);
         assert!(!engine.engine().is_pulley());
-        let component = engine.validate_component(REFERENCE_COMPONENT).unwrap();
+        let component = engine
+            .load_component(REFERENCE_COMPONENT, &authorizer)
+            .unwrap();
         assert_eq!(
             component.component_hash(),
             &Digest::from_bytes(REFERENCE_COMPONENT)
         );
         assert_eq!(
             component.cache_key(),
-            &engine.cache_key(REFERENCE_COMPONENT).unwrap()
+            &engine
+                .cache_key(component.component_hash(), component.authorization())
+                .unwrap()
         );
     }
 
@@ -493,8 +525,11 @@ mod tests {
     #[test]
     fn pulley_engine_validates_the_reference_component_without_jit() {
         let engine = TierWEngine::new(EngineProfile::portable_replay()).unwrap();
+        let authorizer = crate::test_authorizer(REFERENCE_COMPONENT);
         assert!(engine.engine().is_pulley());
-        let component = engine.validate_component(REFERENCE_COMPONENT).unwrap();
+        let component = engine
+            .load_component(REFERENCE_COMPONENT, &authorizer)
+            .unwrap();
         assert_eq!(
             component.component_hash(),
             &Digest::from_bytes(REFERENCE_COMPONENT)
@@ -506,10 +541,16 @@ mod tests {
     fn backend_profiles_have_distinct_cache_namespaces() {
         let cranelift = TierWEngine::new(EngineProfile::desktop()).unwrap();
         let pulley = TierWEngine::new(EngineProfile::portable_replay()).unwrap();
+        let authorizer = crate::test_authorizer(REFERENCE_COMPONENT);
+        let authorized = authorizer.authorize(REFERENCE_COMPONENT).unwrap();
         assert_ne!(cranelift.profile_hash(), pulley.profile_hash());
         assert_ne!(
-            cranelift.cache_key(REFERENCE_COMPONENT).unwrap(),
-            pulley.cache_key(REFERENCE_COMPONENT).unwrap()
+            cranelift
+                .cache_key(authorized.component_hash(), authorized.authorization())
+                .unwrap(),
+            pulley
+                .cache_key(authorized.component_hash(), authorized.authorization())
+                .unwrap()
         );
     }
 
@@ -518,14 +559,22 @@ mod tests {
     fn cache_identity_is_stable_and_component_sensitive() {
         let a = TierWEngine::new(EngineProfile::desktop()).unwrap();
         let b = TierWEngine::new(EngineProfile::desktop()).unwrap();
+        let reference_authorizer = crate::test_authorizer(REFERENCE_COMPONENT);
+        let reference = reference_authorizer.authorize(REFERENCE_COMPONENT).unwrap();
+        let other_authorizer = crate::test_authorizer(b"not the component");
+        let other = other_authorizer.authorize(b"not the component").unwrap();
         assert_eq!(a.profile_hash(), b.profile_hash());
         assert_eq!(
-            a.cache_key(REFERENCE_COMPONENT).unwrap(),
-            b.cache_key(REFERENCE_COMPONENT).unwrap()
+            a.cache_key(reference.component_hash(), reference.authorization())
+                .unwrap(),
+            b.cache_key(reference.component_hash(), reference.authorization())
+                .unwrap()
         );
         assert_ne!(
-            a.cache_key(REFERENCE_COMPONENT).unwrap(),
-            a.cache_key(b"not the component").unwrap()
+            a.cache_key(reference.component_hash(), reference.authorization())
+                .unwrap(),
+            a.cache_key(other.component_hash(), other.authorization())
+                .unwrap()
         );
     }
 
@@ -533,14 +582,20 @@ mod tests {
     #[test]
     fn invalid_and_precompiled_bytes_are_rejected() {
         let engine = TierWEngine::new(EngineProfile::desktop()).unwrap();
-        let error = engine.validate_component(b"not a component").unwrap_err();
+        let authorizer = crate::test_authorizer(b"not a component");
+        let error = engine
+            .load_component(b"not a component", &authorizer)
+            .unwrap_err();
         assert!(matches!(error, TierWError::InvalidComponent(_)));
 
         let precompiled = engine
             .engine()
             .precompile_component(REFERENCE_COMPONENT)
             .unwrap();
-        let error = engine.validate_component(&precompiled).unwrap_err();
+        let authorizer = crate::test_authorizer(&precompiled);
+        let error = engine
+            .load_component(&precompiled, &authorizer)
+            .unwrap_err();
         assert!(error.to_string().contains("precompiled engine artifacts"));
     }
 }

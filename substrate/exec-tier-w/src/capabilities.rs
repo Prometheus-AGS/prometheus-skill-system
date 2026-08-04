@@ -713,7 +713,12 @@ mod tests {
     #[test]
     fn missing_declared_interface_is_denied_before_instantiation() {
         let engine = TierWEngine::new(EngineProfile::desktop()).unwrap();
-        let component = engine.validate_component(REFERENCE_COMPONENT).unwrap();
+        let component = engine
+            .load_component(
+                REFERENCE_COMPONENT,
+                &crate::test_authorizer(REFERENCE_COMPONENT),
+            )
+            .unwrap();
         let error = validate_component_grants(
             engine.engine(),
             component.component(),
@@ -748,7 +753,9 @@ mod tests {
                     (import "{import}" (func (type $f))))"#,
             ))
             .unwrap();
-            let error = engine.validate_component(&forbidden).unwrap_err();
+            let error = engine
+                .load_component(&forbidden, &crate::test_authorizer(&forbidden))
+                .unwrap_err();
             assert!(matches!(error, TierWError::ForbiddenImport(_)));
         }
 
@@ -758,7 +765,9 @@ mod tests {
                 (import "wasi:filesystem/read@0.2.0" (func (type $f))))"#,
         )
         .unwrap();
-        let error = engine.validate_component(&unsupported).unwrap_err();
+        let error = engine
+            .load_component(&unsupported, &crate::test_authorizer(&unsupported))
+            .unwrap_err();
         assert!(matches!(error, TierWError::UnsupportedImport(_)));
     }
 }

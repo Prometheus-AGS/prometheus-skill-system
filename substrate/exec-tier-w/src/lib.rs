@@ -1,11 +1,13 @@
 #![deny(unsafe_code)]
 
 #[allow(unsafe_code, dead_code, unused_variables)]
+mod authorization;
 mod bindings;
 mod capabilities;
 mod engine;
 mod limits;
 
+pub use authorization::{ComponentAuthorizer, ComponentTrustPolicy};
 pub use capabilities::{
     capability_linker, validate_component_grants, CapabilityGrant, CapabilityHost, HostLogEntry,
 };
@@ -30,6 +32,13 @@ pub const VERSION: &str = env!("CARGO_PKG_VERSION");
 
 /// Normative component-model world accepted by this adapter.
 pub const COMPONENT_WORLD: &str = "prometheus:component@0.1.0";
+
+#[cfg(test)]
+pub(crate) fn test_authorizer(component_bytes: &[u8]) -> ComponentAuthorizer {
+    ComponentAuthorizer::hash_pins([prometheus_exec_contracts::Digest::from_bytes(
+        component_bytes,
+    )])
+}
 
 /// Wasmtime major shared with UAR, KnowMe, and LibreFang cache identities.
 pub const WASMTIME_MAJOR: u32 = 46;

@@ -15,7 +15,7 @@ use crate::{
         HostLimitFailure, HostLogEntry, ResourceLimitFailure,
     },
     engine::EPOCH_TICK_MILLIS,
-    TierWEngine, TierWError, ValidatedComponent,
+    ComponentAuthorizer, TierWEngine, TierWError, ValidatedComponent,
 };
 
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -118,10 +118,21 @@ impl TierWEngine {
     pub fn execute_component(
         &self,
         component: &ValidatedComponent,
+        authorizer: &ComponentAuthorizer,
         grant: CapabilityGrant,
         limits: &TierWLimits,
         input: &str,
     ) -> TierWExecutionOutcome {
+        if let Err(error) =
+            authorizer.reauthorize(component.component_hash(), component.authorization())
+        {
+            return failed(
+                ExecutionFailureKind::ComponentUnauthorized,
+                "tier_w.component_unauthorized",
+                error.to_string(),
+                0,
+            );
+        }
         if let Err(error) = validate_component_grants(self.engine(), component.component(), &grant)
         {
             return failed(
@@ -389,10 +400,18 @@ mod tests {
     #[test]
     fn reference_run_and_limit_failures_are_terminal_and_classified() {
         let engine = TierWEngine::new(EngineProfile::desktop()).unwrap();
-        let component = engine.validate_component(REFERENCE_COMPONENT).unwrap();
+        let authorizer = crate::test_authorizer(REFERENCE_COMPONENT);
+        let component = engine
+            .load_component(REFERENCE_COMPONENT, &authorizer)
+            .unwrap();
 
-        let success =
-            engine.execute_component(&component, reference_grant(), &TierWLimits::default(), "{}");
+        let success = engine.execute_component(
+            &component,
+            &authorizer,
+            reference_grant(),
+            &TierWLimits::default(),
+            "{}",
+        );
         assert!(matches!(success, TierWExecutionOutcome::Succeeded(_)));
 
         let fuel = TierWLimits {
@@ -401,7 +420,7 @@ mod tests {
         };
         assert_eq!(
             engine
-                .execute_component(&component, reference_grant(), &fuel, "{}")
+                .execute_component(&component, &authorizer, reference_grant(), &fuel, "{}")
                 .failure()
                 .unwrap()
                 .kind,
@@ -414,7 +433,7 @@ mod tests {
         };
         assert_eq!(
             engine
-                .execute_component(&component, reference_grant(), &stream, "{}")
+                .execute_component(&component, &authorizer, reference_grant(), &stream, "{}",)
                 .failure()
                 .unwrap()
                 .kind,
@@ -426,14 +445,17 @@ mod tests {
     #[test]
     fn pulley_applies_the_same_fuel_fence() {
         let engine = TierWEngine::new(crate::EngineProfile::portable_replay()).unwrap();
-        let component = engine.validate_component(REFERENCE_COMPONENT).unwrap();
+        let authorizer = crate::test_authorizer(REFERENCE_COMPONENT);
+        let component = engine
+            .load_component(REFERENCE_COMPONENT, &authorizer)
+            .unwrap();
         let limits = TierWLimits {
             fuel: 1,
             ..TierWLimits::default()
         };
         assert_eq!(
             engine
-                .execute_component(&component, reference_grant(), &limits, "{}")
+                .execute_component(&component, &authorizer, reference_grant(), &limits, "{}",)
                 .failure()
                 .unwrap()
                 .kind,
@@ -445,7 +467,10 @@ mod tests {
     #[test]
     fn store_memory_table_and_instance_fences_are_classified() {
         let engine = TierWEngine::new(EngineProfile::desktop()).unwrap();
-        let component = engine.validate_component(REFERENCE_COMPONENT).unwrap();
+        let authorizer = crate::test_authorizer(REFERENCE_COMPONENT);
+        let component = engine
+            .load_component(REFERENCE_COMPONENT, &authorizer)
+            .unwrap();
 
         let memory = TierWLimits {
             memory_bytes: 1,
@@ -453,7 +478,7 @@ mod tests {
         };
         assert_eq!(
             engine
-                .execute_component(&component, reference_grant(), &memory, "{}")
+                .execute_component(&component, &authorizer, reference_grant(), &memory, "{}",)
                 .failure()
                 .unwrap()
                 .kind,
@@ -466,7 +491,7 @@ mod tests {
         };
         assert_eq!(
             engine
-                .execute_component(&component, reference_grant(), &table, "{}")
+                .execute_component(&component, &authorizer, reference_grant(), &table, "{}",)
                 .failure()
                 .unwrap()
                 .kind,
@@ -479,7 +504,7 @@ mod tests {
         };
         assert_eq!(
             engine
-                .execute_component(&component, reference_grant(), &instances, "{}")
+                .execute_component(&component, &authorizer, reference_grant(), &instances, "{}",)
                 .failure()
                 .unwrap()
                 .kind,
@@ -491,7 +516,12 @@ mod tests {
     #[test]
     fn epoch_ticker_interrupts_an_expired_store() {
         let engine = TierWEngine::new(EngineProfile::desktop()).unwrap();
-        let component = engine.validate_component(REFERENCE_COMPONENT).unwrap();
+        let component = engine
+            .load_component(
+                REFERENCE_COMPONENT,
+                &crate::test_authorizer(REFERENCE_COMPONENT),
+            )
+            .unwrap();
         let grant = reference_grant();
         let linker = capability_linker(engine.engine(), &grant).unwrap();
         let mut store = Store::new(engine.engine(), CapabilityHost::new(grant));

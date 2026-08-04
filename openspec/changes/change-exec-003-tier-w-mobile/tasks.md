@@ -9,7 +9,7 @@
 - [x] 2.1 Implement target-aware Cranelift/Pulley engine configuration, component validation, cache identity, and honest backend availability
 - [x] 2.2 Implement typed capability hosts with declared read/output/time/random access and pre-instantiation denial of unsupported, `host:exec`, and `host:memory` imports
 - [x] 2.3 Enforce fuel, epoch, memory, table, instance, stream, and artifact limits with deterministic terminal failure classification
-- [ ] 2.4 Implement signed-generation and explicit-hash component authorization before validation/compilation, including cache re-authorization and rollback fixtures
+- [x] 2.4 Implement signed-generation and explicit-hash component authorization before validation/compilation, including cache re-authorization and rollback fixtures
 - [ ] 2.5 Execute the reference/property corpus under Pulley and Cranelift and implement deterministic receipt-projection/output comparison
 
 ## 3. Core, service, CLI, and standalone integration
