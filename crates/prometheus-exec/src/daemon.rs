@@ -200,7 +200,13 @@ async fn runner_loop(
 ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let policy = CedarTighteningPolicy::default();
     loop {
-        for record in service.ledger().records()? {
+        let records = service.ledger().records()?;
+        for record in &records {
+            if !record.state.is_terminal() {
+                artifacts.retain_for_request(&record.request)?;
+            }
+        }
+        for record in records {
             if record.state != RunState::Queued {
                 continue;
             }
@@ -386,12 +392,14 @@ async fn process_queued_run(
     )?;
     let receipt = ReceiptAssembler::new(Ed25519ReceiptSigner::new(signing_key.clone()))
         .assemble_for_run(claim.record.run_id, &job, execution)?;
+    artifacts.retain_for_receipt(&claim.record.request, &receipt)?;
     service.commit_terminal(
         claim.record.request_id,
         &claim.record.request_hash,
         receipt,
         verification_key,
     )?;
+    artifacts.garbage_collect()?;
     Ok(())
 }
 
@@ -491,6 +499,8 @@ fn synthetic_receipt(
         signature: None,
     };
     sign_receipt_ed25519(&mut receipt, signing_key)?;
+    artifacts.retain_for_receipt(&record.request, &receipt)?;
+    artifacts.garbage_collect()?;
     Ok(receipt)
 }
 

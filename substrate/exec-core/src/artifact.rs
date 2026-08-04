@@ -1,11 +1,15 @@
 use std::{
-    fs::{self, File},
+    fs::{self, File, OpenOptions},
     io::{Read as _, Write as _},
     path::{Path, PathBuf},
     time::SystemTime,
 };
 
-use prometheus_exec_contracts::{hash_bytes, validate_artifact_path, ArtifactReference, Digest};
+use fs2::FileExt as _;
+use prometheus_exec_contracts::{
+    hash_bytes, validate_artifact_path, ArtifactReference, Digest, ExecutionReceipt,
+    SignedExecRequest,
+};
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 use walkdir::WalkDir;
@@ -126,6 +130,15 @@ impl ArtifactStore {
         })
     }
 
+    /// Stores content and pins it under one cross-process CAS operation lock.
+    pub fn put_pinned(&self, bytes: &[u8], reason: &str) -> Result<StoredArtifact, CasError> {
+        validate_reason(reason)?;
+        let _lock = self.operation_lock()?;
+        let stored = self.put(bytes)?;
+        self.pin_unlocked(&stored.hash, reason)?;
+        Ok(stored)
+    }
+
     pub fn get(&self, hash: &Digest) -> Result<Vec<u8>, CasError> {
         let path = self.blob_path(hash)?;
         let metadata = fs::symlink_metadata(&path).map_err(|source| io_error(&path, source))?;
@@ -232,6 +245,11 @@ impl ArtifactStore {
 
     pub fn pin(&self, hash: &Digest, reason: &str) -> Result<(), CasError> {
         validate_reason(reason)?;
+        let _lock = self.operation_lock()?;
+        self.pin_unlocked(hash, reason)
+    }
+
+    fn pin_unlocked(&self, hash: &Digest, reason: &str) -> Result<(), CasError> {
         self.get(hash)?;
         let directory = self.pin_directory(hash)?;
         create_private_dir(&directory)?;
@@ -248,6 +266,7 @@ impl ArtifactStore {
 
     pub fn unpin(&self, hash: &Digest, reason: &str) -> Result<bool, CasError> {
         validate_reason(reason)?;
+        let _lock = self.operation_lock()?;
         let marker = self.pin_directory(hash)?.join(pin_reason_id(reason));
         match fs::remove_file(&marker) {
             Ok(()) => Ok(true),
@@ -257,6 +276,11 @@ impl ArtifactStore {
     }
 
     pub fn is_pinned(&self, hash: &Digest) -> Result<bool, CasError> {
+        let _lock = self.operation_lock()?;
+        self.is_pinned_unlocked(hash)
+    }
+
+    fn is_pinned_unlocked(&self, hash: &Digest) -> Result<bool, CasError> {
         let directory = self.pin_directory(hash)?;
         match fs::read_dir(&directory) {
             Ok(entries) => {
@@ -276,7 +300,45 @@ impl ArtifactStore {
         }
     }
 
+    /// Retains every currently materialized blob referenced by a durable run.
+    ///
+    /// Receipt outputs are required to exist. Request code and inputs are also
+    /// pinned when present, while a pre-spawn rejection may legitimately refer
+    /// to a request blob that was already missing. Pins are deliberately kept
+    /// until a future receipt-archival contract explicitly releases them.
+    pub fn retain_for_receipt(
+        &self,
+        request: &SignedExecRequest,
+        receipt: &ExecutionReceipt,
+    ) -> Result<(), CasError> {
+        let reason = format!("receipt:{}", receipt.run_id);
+        let _lock = self.operation_lock()?;
+        self.pin_unlocked(&receipt.outputs.stdout, &reason)?;
+        self.pin_unlocked(&receipt.outputs.stderr, &reason)?;
+        for artifact in &receipt.outputs.artifacts {
+            self.pin_unlocked(&artifact.hash, &reason)?;
+        }
+
+        self.pin_when_present_unlocked(&request.code.hash, &reason)?;
+        for input in &request.inputs {
+            self.pin_when_present_unlocked(&input.hash, &reason)?;
+        }
+        Ok(())
+    }
+
+    /// Retains available request material while a run is non-terminal.
+    pub fn retain_for_request(&self, request: &SignedExecRequest) -> Result<(), CasError> {
+        let reason = format!("request:{}", request.request_id);
+        let _lock = self.operation_lock()?;
+        self.pin_when_present_unlocked(&request.code.hash, &reason)?;
+        for input in &request.inputs {
+            self.pin_when_present_unlocked(&input.hash, &reason)?;
+        }
+        Ok(())
+    }
+
     pub fn garbage_collect(&self) -> Result<GcReport, CasError> {
+        let _lock = self.operation_lock()?;
         let mut inventory = self.inventory()?;
         let bytes_before = inventory.iter().map(|blob| blob.size).sum();
         let mut report = GcReport {
@@ -293,7 +355,7 @@ impl ArtifactStore {
                 .then_with(|| left.digest.as_str().cmp(right.digest.as_str()))
         });
         for blob in inventory {
-            if self.is_pinned(&blob.digest)? {
+            if self.is_pinned_unlocked(&blob.digest)? {
                 report.pinned.push(blob.digest);
                 continue;
             }
@@ -343,6 +405,31 @@ impl ArtifactStore {
             });
         }
         Ok(records)
+    }
+
+    fn pin_when_present_unlocked(&self, hash: &Digest, reason: &str) -> Result<bool, CasError> {
+        match self.pin_unlocked(hash, reason) {
+            Ok(()) => Ok(true),
+            Err(CasError::Io { source, .. }) if source.kind() == std::io::ErrorKind::NotFound => {
+                Ok(false)
+            }
+            Err(error) => Err(error),
+        }
+    }
+
+    fn operation_lock(&self) -> Result<File, CasError> {
+        let path = self.root.join(".cas-operation.lock");
+        let lock = OpenOptions::new()
+            .create(true)
+            .read(true)
+            .write(true)
+            .truncate(false)
+            .open(&path)
+            .map_err(|source| io_error(&path, source))?;
+        set_private_file(&lock)?;
+        lock.lock_exclusive()
+            .map_err(|source| io_error(&path, source))?;
+        Ok(lock)
     }
 
     fn verify_existing(&self, expected: &Digest, path: &Path) -> Result<(), CasError> {

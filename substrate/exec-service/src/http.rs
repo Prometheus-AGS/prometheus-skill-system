@@ -281,6 +281,14 @@ async fn create_run(
         Ok(service) => service,
         Err(error) => return error.response(StatusCode::SERVICE_UNAVAILABLE),
     };
+    let artifacts = match state.artifacts().await {
+        Ok(artifacts) => artifacts,
+        Err(error) => return error.response(StatusCode::SERVICE_UNAVAILABLE),
+    };
+    if let Err(error) = artifacts.retain_for_request(&request) {
+        return ApiErrorEnvelope::new("artifact_unavailable", error.to_string())
+            .response(StatusCode::SERVICE_UNAVAILABLE);
+    }
     match service.submit(request) {
         Ok(result) => {
             let status = if result.replayed {

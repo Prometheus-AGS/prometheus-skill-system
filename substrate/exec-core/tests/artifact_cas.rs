@@ -1,8 +1,17 @@
 use std::fs;
 
-use prometheus_exec_contracts::hash_bytes;
+use std::collections::BTreeMap;
+
+use chrono::Utc;
+use prometheus_exec_contracts::{
+    hash_bytes, ArtifactReference, CapabilityManifest, CodeIdentity, CodeKind, EvidenceClass,
+    ExecutingDevice, ExecutionBackend, ExecutionExit, ExecutionLimits, ExecutionOutputs,
+    ExecutionProvenance, ExecutionReceipt, ExecutionTier, NamedInput, RequestedTier, ResourceUsage,
+    RunState, RuntimeKind, SignatureAlgorithm, SignedExecRequest, SCHEMA_VERSION,
+};
 use prometheus_exec_core::{ArtifactStore, CasError};
 use tempfile::tempdir;
+use uuid::Uuid;
 
 #[test]
 fn put_is_atomic_deduplicated_and_corruption_detected() {
@@ -89,4 +98,107 @@ fn garbage_collection_never_removes_pinned_content() {
 
     assert!(store.unpin(&pinned.hash, "open-certification").unwrap());
     assert!(!store.is_pinned(&pinned.hash).unwrap());
+}
+
+#[test]
+fn receipt_retention_protects_all_materialized_evidence_from_budget_gc() {
+    let root = tempdir().unwrap();
+    let store = ArtifactStore::open(root.path(), 1).unwrap();
+    let code = store.put(b"print('retained')").unwrap();
+    let input = store.put(b"input").unwrap();
+    let stdout = store.put(b"stdout").unwrap();
+    let stderr = store.put(b"").unwrap();
+    let artifact = store.put(b"artifact").unwrap();
+    let removable = store.put(b"unreferenced").unwrap();
+    let request_id = Uuid::new_v4();
+    let request = SignedExecRequest {
+        schema_version: SCHEMA_VERSION.into(),
+        request_id,
+        issued_at: Utc::now(),
+        queued_at: None,
+        validity_window_secs: 60,
+        tier: RequestedTier::P,
+        code: CodeIdentity {
+            kind: CodeKind::Inline,
+            hash: code.hash.clone(),
+            runtime: RuntimeKind::Python3,
+            toolchain_pin: None,
+        },
+        inputs: vec![NamedInput {
+            name: "input.json".into(),
+            hash: input.hash.clone(),
+        }],
+        capabilities: CapabilityManifest::default(),
+        limits: ExecutionLimits::default(),
+        targets: Vec::new(),
+        provenance: ExecutionProvenance::default(),
+        signer_key_id: None,
+        sig_alg: SignatureAlgorithm::Ed25519,
+        signature: None,
+    };
+    let receipt = ExecutionReceipt {
+        schema_version: SCHEMA_VERSION.into(),
+        run_id: request_id,
+        request_hash: request.request_hash().unwrap(),
+        state: RunState::Succeeded,
+        evidence_class: EvidenceClass::Attested,
+        tier: ExecutionTier::P,
+        code_hash: code.hash.clone(),
+        input_set_hash: prometheus_exec_contracts::hash_serializable(&BTreeMap::from([(
+            "input.json".to_string(),
+            input.hash.clone(),
+        )]))
+        .unwrap(),
+        env_hash: prometheus_exec_contracts::hash_serializable(&BTreeMap::<String, String>::new())
+            .unwrap(),
+        toolchain_hash: None,
+        sandbox_profile_hash: hash_bytes(b"profile"),
+        backend: ExecutionBackend::Seatbelt,
+        exit: ExecutionExit {
+            status: 0,
+            signal_or_trap: None,
+        },
+        outputs: ExecutionOutputs {
+            stdout: stdout.hash.clone(),
+            stderr: stderr.hash.clone(),
+            artifacts: vec![ArtifactReference {
+                path: "outputs/result.txt".into(),
+                hash: artifact.hash.clone(),
+                size_bytes: Some(8),
+            }],
+        },
+        usage: ResourceUsage::default(),
+        started_at: Utc::now(),
+        finished_at: Utc::now(),
+        executing_device: ExecutingDevice {
+            key_id: "fixture".into(),
+            sig_alg: SignatureAlgorithm::Ed25519,
+            platform: "macos-test".into(),
+        },
+        grants: Vec::new(),
+        signature: None,
+    };
+
+    store.retain_for_receipt(&request, &receipt).unwrap();
+    let report = store.garbage_collect().unwrap();
+
+    for retained in [
+        &code.hash,
+        &input.hash,
+        &stdout.hash,
+        &stderr.hash,
+        &artifact.hash,
+    ] {
+        assert!(
+            store.is_pinned(retained).unwrap(),
+            "{retained} was not pinned"
+        );
+        assert!(store.get(retained).is_ok(), "{retained} was collected");
+    }
+    assert!(report.removed.contains(&removable.hash));
+    assert!(store.get(&removable.hash).is_err());
+    assert!(
+        report.bytes_after > 1,
+        "pinned evidence may exceed the CAS budget"
+    );
 }

@@ -292,9 +292,12 @@ impl SignedExecRequest {
         if self.validity_window_secs == 0
             || self.limits.memory_mb == 0
             || self.limits.wall_clock_ms == 0
+            || self.limits.output_mb == 0
+            || self.limits.stack_kb == 0
         {
             return Err(ContractError::ReceiptInvariant(
-                "validity window, memory, and wall-clock limits must be non-zero".into(),
+                "validity window, memory, wall-clock, output, and stack limits must be non-zero"
+                    .into(),
             ));
         }
         Ok(())

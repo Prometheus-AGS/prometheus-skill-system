@@ -29,7 +29,7 @@ use tokio::{
     fs,
     io::{AsyncRead, AsyncReadExt},
     process::{Child, Command},
-    sync::{mpsc, Mutex},
+    sync::{mpsc, watch, Mutex},
     task::JoinHandle,
 };
 use walkdir::WalkDir;
@@ -302,10 +302,16 @@ impl SeatbeltExecutor {
         let environment = self.requested_environment(job)?;
         let output_limit = mebibytes_to_usize(job.request().limits.output_mb);
 
+        let stack_kb = job.request().limits.stack_kb.to_string();
         let mut command = Command::new(&self.config.sandbox_exec);
         command
             .arg("-p")
             .arg(profile.source())
+            .arg("/bin/sh")
+            .arg("-c")
+            .arg("ulimit -s \"$1\" || exit 125\nexec \"$2\" \"$3\"")
+            .arg("prometheus-exec-stack")
+            .arg(stack_kb)
             .arg(&runtime)
             .arg(&code_path)
             .current_dir(&run_root)
@@ -342,17 +348,37 @@ impl SeatbeltExecutor {
             output_counter,
             overflow_tx,
         ));
+        let memory_limit_kib = job.request().limits.memory_mb.saturating_mul(1024);
+        let usage = Arc::new(Mutex::new(UsageSample::default()));
+        let (monitor_tx, mut monitor_rx) = mpsc::channel(1);
+        let (monitor_stop, monitor_stop_rx) = watch::channel(false);
+        let monitor_task = tokio::spawn(monitor_process_group(
+            process_group,
+            memory_limit_kib,
+            Arc::clone(&usage),
+            monitor_tx,
+            monitor_stop_rx,
+        ));
 
         let timeout = Duration::from_millis(job.request().limits.wall_clock_ms);
         let termination = tokio::select! {
             status = child.wait() => Termination::Exited(status.map_err(SeatbeltError::Wait)?),
             _ = tokio::time::sleep(timeout) => Termination::TimedOut,
             Some(()) = overflow_rx.recv() => Termination::OutputExceeded,
+            Some(signal) = monitor_rx.recv() => match signal {
+                MonitorSignal::MemoryExceeded(observed_kib) => Termination::MemoryExceeded(observed_kib),
+                MonitorSignal::Failed(reason) => Termination::ResourceMonitorFailed(reason),
+            },
         };
         let (status, forced_trap) =
             finish_process_group(&mut child, process_group, termination).await?;
+        let _ = monitor_stop.send(true);
+        monitor_task
+            .await
+            .map_err(|error| SeatbeltError::ResourceMonitor(error.to_string()))?;
         let stdout = join_output(stdout_task).await?;
         let stderr = join_output(stderr_task).await?;
+        let usage = *usage.lock().await;
 
         let stream_bytes = stdout.len().saturating_add(stderr.len());
         let artifact_budget = output_limit.saturating_sub(stream_bytes);
@@ -386,7 +412,9 @@ impl SeatbeltExecutor {
             artifacts,
             usage: ResourceUsage {
                 wall_clock_ms,
-                ..ResourceUsage::default()
+                cpu_ms: usage.cpu_ms,
+                peak_mem_mb: kibibytes_to_mebibytes_ceil(usage.peak_rss_kib),
+                fuel_consumed: 0,
             },
             started_at,
             finished_at,
@@ -444,6 +472,8 @@ pub enum SeatbeltError {
     MissingProcessId,
     #[error("failed to terminate sandbox process group: {0}")]
     ProcessGroup(Errno),
+    #[error("resource monitor failed: {0}")]
+    ResourceMonitor(String),
     #[error("output reader task failed: {0}")]
     OutputTask(String),
     #[error("filesystem operation failed: {0}")]
@@ -455,6 +485,20 @@ enum Termination {
     Exited(ExitStatus),
     TimedOut,
     OutputExceeded,
+    MemoryExceeded(u64),
+    ResourceMonitorFailed(String),
+}
+
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+struct UsageSample {
+    cpu_ms: u64,
+    peak_rss_kib: u64,
+}
+
+#[derive(Debug)]
+enum MonitorSignal {
+    MemoryExceeded(u64),
+    Failed(String),
 }
 
 fn create_work_dir(root: Option<&Path>) -> Result<TempDir, SeatbeltError> {
@@ -605,6 +649,10 @@ fn mebibytes_to_usize(mebibytes: u64) -> usize {
     usize::try_from(bytes).unwrap_or(usize::MAX)
 }
 
+fn kibibytes_to_mebibytes_ceil(kibibytes: u64) -> u64 {
+    kibibytes.saturating_add(1023) / 1024
+}
+
 async fn read_bounded<R>(
     mut reader: R,
     limit: usize,
@@ -670,8 +718,157 @@ async fn finish_process_group(
                 Some("output_limit_exceeded".into()),
             )
         }
+        Termination::MemoryExceeded(observed_kib) => {
+            terminate_process_group(process_group)?;
+            (
+                child.wait().await.map_err(SeatbeltError::Wait)?,
+                Some(format!("memory_limit_exceeded:{observed_kib}KiB")),
+            )
+        }
+        Termination::ResourceMonitorFailed(reason) => {
+            terminate_process_group(process_group)?;
+            (
+                child.wait().await.map_err(SeatbeltError::Wait)?,
+                Some(format!("resource_monitor_failed:{reason}")),
+            )
+        }
     };
     Ok((status, trap))
+}
+
+async fn monitor_process_group(
+    process_group: Pid,
+    memory_limit_kib: u64,
+    usage: Arc<Mutex<UsageSample>>,
+    signal: mpsc::Sender<MonitorSignal>,
+    mut stop: watch::Receiver<bool>,
+) {
+    let mut interval = tokio::time::interval(Duration::from_millis(10));
+    interval.set_missed_tick_behavior(tokio::time::MissedTickBehavior::Skip);
+    loop {
+        tokio::select! {
+            _ = interval.tick() => {
+                match sample_process_group(process_group).await {
+                    Ok(sample) => {
+                        let mut aggregate = usage.lock().await;
+                        aggregate.cpu_ms = aggregate.cpu_ms.max(sample.cpu_ms);
+                        aggregate.peak_rss_kib = aggregate.peak_rss_kib.max(sample.peak_rss_kib);
+                        if sample.peak_rss_kib > memory_limit_kib {
+                            let _ = signal.send(MonitorSignal::MemoryExceeded(sample.peak_rss_kib)).await;
+                            return;
+                        }
+                    }
+                    Err(error) => {
+                        let _ = signal.send(MonitorSignal::Failed(error.to_string())).await;
+                        return;
+                    }
+                }
+            }
+            changed = stop.changed() => {
+                if changed.is_err() || *stop.borrow() {
+                    return;
+                }
+            }
+        }
+    }
+}
+
+async fn sample_process_group(process_group: Pid) -> io::Result<UsageSample> {
+    let output = Command::new("/bin/ps")
+        .args(["-ax", "-o", "pgid=,rss=,time="])
+        .env_clear()
+        .output()
+        .await?;
+    if !output.status.success() {
+        return Err(io::Error::other(format!(
+            "ps exited with status {}",
+            output.status
+        )));
+    }
+    let stdout = std::str::from_utf8(&output.stdout)
+        .map_err(|error| io::Error::new(io::ErrorKind::InvalidData, error))?;
+    parse_process_group_usage(stdout, process_group.as_raw())
+}
+
+fn parse_process_group_usage(output: &str, process_group: i32) -> io::Result<UsageSample> {
+    let mut sample = UsageSample::default();
+    for line in output.lines().filter(|line| !line.trim().is_empty()) {
+        let mut fields = line.split_whitespace();
+        let pgid = fields
+            .next()
+            .ok_or_else(|| io::Error::new(io::ErrorKind::InvalidData, "ps row missing pgid"))?
+            .parse::<i32>()
+            .map_err(|error| io::Error::new(io::ErrorKind::InvalidData, error))?;
+        let rss_kib = fields
+            .next()
+            .ok_or_else(|| io::Error::new(io::ErrorKind::InvalidData, "ps row missing rss"))?
+            .parse::<u64>()
+            .map_err(|error| io::Error::new(io::ErrorKind::InvalidData, error))?;
+        let cpu = fields
+            .next()
+            .ok_or_else(|| io::Error::new(io::ErrorKind::InvalidData, "ps row missing cpu time"))?;
+        if fields.next().is_some() {
+            return Err(io::Error::new(
+                io::ErrorKind::InvalidData,
+                "ps row contains unexpected fields",
+            ));
+        }
+        if pgid == process_group {
+            sample.peak_rss_kib = sample.peak_rss_kib.saturating_add(rss_kib);
+            sample.cpu_ms = sample.cpu_ms.saturating_add(parse_ps_cpu_ms(cpu)?);
+        }
+    }
+    Ok(sample)
+}
+
+fn parse_ps_cpu_ms(value: &str) -> io::Result<u64> {
+    let (day_count, time) = match value.split_once('-') {
+        Some((days, time)) => (
+            days.parse::<u64>()
+                .map_err(|error| io::Error::new(io::ErrorKind::InvalidData, error))?,
+            time,
+        ),
+        None => (0, value),
+    };
+    let parts: Vec<_> = time.split(':').collect();
+    let (hours, minutes, seconds) = match parts.as_slice() {
+        [minutes, seconds] => (0, *minutes, *seconds),
+        [hours, minutes, seconds] => (
+            hours
+                .parse::<u64>()
+                .map_err(|error| io::Error::new(io::ErrorKind::InvalidData, error))?,
+            *minutes,
+            *seconds,
+        ),
+        _ => {
+            return Err(io::Error::new(
+                io::ErrorKind::InvalidData,
+                format!("invalid ps CPU time: {value}"),
+            ))
+        }
+    };
+    let minutes = minutes
+        .parse::<u64>()
+        .map_err(|error| io::Error::new(io::ErrorKind::InvalidData, error))?;
+    let (whole_seconds, fractional) = seconds.split_once('.').unwrap_or((seconds, "0"));
+    let whole_seconds = whole_seconds
+        .parse::<u64>()
+        .map_err(|error| io::Error::new(io::ErrorKind::InvalidData, error))?;
+    let fractional_ms = format!("{fractional:0<3}")
+        .chars()
+        .take(3)
+        .collect::<String>()
+        .parse::<u64>()
+        .map_err(|error| io::Error::new(io::ErrorKind::InvalidData, error))?;
+    Ok(day_count
+        .saturating_mul(24)
+        .saturating_add(hours)
+        .saturating_mul(60)
+        .saturating_add(minutes)
+        .saturating_mul(60)
+        .saturating_add(whole_seconds)
+        .saturating_mul(1000)
+        .saturating_add(fractional_ms))
 }
 
 fn terminate_process_group(process_group: Pid) -> Result<(), SeatbeltError> {
@@ -811,5 +1008,25 @@ mod tests {
         assert!(validate_relative_path("../secret").is_err());
         assert!(validate_relative_path("/absolute").is_err());
         assert!(validate_relative_path("./relative").is_err());
+    }
+
+    #[test]
+    fn ps_usage_parser_filters_the_exact_process_group_and_sums_children() {
+        let sample = parse_process_group_usage(
+            "  41  1024   0:00.02\n  99 8192   1:02.345\n  41  2048   0:01.25\n",
+            41,
+        )
+        .unwrap();
+
+        assert_eq!(sample.peak_rss_kib, 3072);
+        assert_eq!(sample.cpu_ms, 1270);
+    }
+
+    #[test]
+    fn ps_cpu_parser_supports_day_hour_and_fractional_formats() {
+        assert_eq!(parse_ps_cpu_ms("0:00.02").unwrap(), 20);
+        assert_eq!(parse_ps_cpu_ms("1:02.345").unwrap(), 62_345);
+        assert_eq!(parse_ps_cpu_ms("2:03:04").unwrap(), 7_384_000);
+        assert_eq!(parse_ps_cpu_ms("1-02:03:04.5").unwrap(), 93_784_500);
     }
 }

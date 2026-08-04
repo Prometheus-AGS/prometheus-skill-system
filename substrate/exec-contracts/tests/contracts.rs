@@ -102,6 +102,21 @@ fn canonical_request_is_stable_across_object_order() {
 }
 
 #[test]
+fn request_rejects_every_zero_enforcement_limit() {
+    for field in ["memory", "wall-clock", "output", "stack"] {
+        let mut candidate = request();
+        match field {
+            "memory" => candidate.limits.memory_mb = 0,
+            "wall-clock" => candidate.limits.wall_clock_ms = 0,
+            "output" => candidate.limits.output_mb = 0,
+            "stack" => candidate.limits.stack_kb = 0,
+            _ => unreachable!(),
+        }
+        assert!(candidate.validate().is_err(), "zero {field} limit passed");
+    }
+}
+
+#[test]
 fn ed25519_receipt_mutation_fails() {
     let key = SigningKey::generate(&mut OsRng);
     let public = VerificationKey::ed25519(key.verifying_key().to_bytes());

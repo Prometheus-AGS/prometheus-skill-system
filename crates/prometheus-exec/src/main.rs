@@ -265,8 +265,10 @@ async fn run_command(command: RunCommand) -> Result<ExitCode, BoxError> {
         command.state_dir.join("artifacts"),
         command.artifact_budget_bytes,
     )?;
+    let request_id = Uuid::new_v4();
+    let request_pin = format!("request:{request_id}");
     let code = fs::read(&command.code)?;
-    let stored_code = artifacts.put(&code)?;
+    let stored_code = artifacts.put_pinned(&code, &request_pin)?;
     let mut named_inputs = Vec::new();
     for input in command.inputs {
         let (name, path) = input
@@ -275,7 +277,7 @@ async fn run_command(command: RunCommand) -> Result<ExitCode, BoxError> {
         if name.is_empty() {
             return Err("input name cannot be empty".into());
         }
-        let stored = artifacts.put(&fs::read(path)?)?;
+        let stored = artifacts.put_pinned(&fs::read(path)?, &request_pin)?;
         named_inputs.push(NamedInput {
             name: name.into(),
             hash: stored.hash,
@@ -285,7 +287,7 @@ async fn run_command(command: RunCommand) -> Result<ExitCode, BoxError> {
     let now = Utc::now();
     let mut request = SignedExecRequest {
         schema_version: SCHEMA_VERSION.into(),
-        request_id: Uuid::new_v4(),
+        request_id,
         issued_at: now,
         queued_at: Some(now),
         validity_window_secs: command.timeout_ms.saturating_add(60_000).div_ceil(1000),

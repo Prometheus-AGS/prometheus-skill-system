@@ -33,6 +33,26 @@ fn job_with_capabilities(
     output_mb: u64,
     capabilities: CapabilityManifest,
 ) -> prometheus_exec_core::ValidatedExecutionJob {
+    job_with_limits(
+        code,
+        runtime,
+        ExecutionLimits {
+            memory_mb: 256,
+            fuel: 1,
+            wall_clock_ms,
+            output_mb,
+            stack_kb: 512,
+        },
+        capabilities,
+    )
+}
+
+fn job_with_limits(
+    code: &[u8],
+    runtime: RuntimeKind,
+    limits: ExecutionLimits,
+    capabilities: CapabilityManifest,
+) -> prometheus_exec_core::ValidatedExecutionJob {
     ExecutionJob {
         request: SignedExecRequest {
             schema_version: prometheus_exec_contracts::SCHEMA_VERSION.into(),
@@ -49,13 +69,7 @@ fn job_with_capabilities(
             },
             inputs: Vec::new(),
             capabilities,
-            limits: ExecutionLimits {
-                memory_mb: 256,
-                fuel: 1,
-                wall_clock_ms,
-                output_mb,
-                stack_kb: 512,
-            },
+            limits,
             targets: Vec::new(),
             provenance: ExecutionProvenance::default(),
             signer_key_id: None,
@@ -68,6 +82,79 @@ fn job_with_capabilities(
     }
     .validate()
     .unwrap()
+}
+
+#[tokio::test]
+async fn requested_stack_limit_is_applied_before_the_runtime_starts() {
+    let executor = SeatbeltExecutor::new(SeatbeltConfig::detect().unwrap());
+    let execution = executor
+        .execute(&job_with_limits(
+            b"ulimit -s | tr -d ' \\n'\n",
+            RuntimeKind::Bash,
+            ExecutionLimits {
+                stack_kb: 256,
+                ..ExecutionLimits::default()
+            },
+            CapabilityManifest::default(),
+        ))
+        .await
+        .unwrap();
+
+    assert_eq!(execution.state, RunState::Succeeded);
+    assert_eq!(execution.stdout, b"256");
+}
+
+#[tokio::test]
+async fn memory_limit_terminates_the_complete_process_group() {
+    let executor = SeatbeltExecutor::new(SeatbeltConfig::detect().unwrap());
+    let code = br#"import time
+payload = bytearray(96 * 1024 * 1024)
+payload[0] = 1
+time.sleep(30)
+"#;
+    let started = Instant::now();
+    let execution = executor
+        .execute(&job_with_limits(
+            code,
+            RuntimeKind::Python3,
+            ExecutionLimits {
+                memory_mb: 32,
+                wall_clock_ms: 5_000,
+                ..ExecutionLimits::default()
+            },
+            CapabilityManifest::default(),
+        ))
+        .await
+        .unwrap();
+
+    assert_eq!(execution.state, RunState::Failed);
+    assert!(execution
+        .exit
+        .signal_or_trap
+        .as_deref()
+        .is_some_and(|trap| trap.starts_with("memory_limit_exceeded:")));
+    assert!(execution.usage.peak_mem_mb > 32);
+    assert!(started.elapsed().as_secs() < 3);
+}
+
+#[tokio::test]
+async fn receipt_usage_reports_observed_cpu_and_peak_memory() {
+    let executor = SeatbeltExecutor::new(SeatbeltConfig::detect().unwrap());
+    let code = br#"import time
+payload = bytearray(8 * 1024 * 1024)
+deadline = time.monotonic() + 0.2
+while time.monotonic() < deadline:
+    sum(range(1000))
+print(len(payload), end="")
+"#;
+    let execution = executor
+        .execute(&job(code, RuntimeKind::Python3, 5_000, 1))
+        .await
+        .unwrap();
+
+    assert_eq!(execution.state, RunState::Succeeded);
+    assert!(execution.usage.cpu_ms > 0);
+    assert!(execution.usage.peak_mem_mb > 0);
 }
 
 #[tokio::test]
