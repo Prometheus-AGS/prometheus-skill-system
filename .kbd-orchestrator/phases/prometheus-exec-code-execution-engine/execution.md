@@ -31,7 +31,7 @@ DISPATCH CONTRACTS
   Concrete model: current Codex session
   Model rationale: OS sandbox, authorization, durable service, and API boundaries are security-critical and cross-domain
   Progress file: .kbd-orchestrator/phases/prometheus-exec-code-execution-engine/progress.json
-  Handoff: mark implementation complete only after local sandbox escape, idempotency, and service tests pass
+  Handoff: macOS Tier P implementation and local certification complete at `1b8d905`; public evidence is under `evidence/change-exec-002-tier-p-sidecar*`. Linux runtime and Windows Tier P remain explicitly unavailable/pending as recorded in the evidence.
 
 - change-exec-003-tier-w-mobile → OpenSpec through kbd-apply
   Entry: /kbd-apply change-exec-003-tier-w-mobile
@@ -69,7 +69,7 @@ VERIFICATION REQUIREMENTS
 PROGRESS LEDGER
 
 - [DONE] change-exec-001-contracts-verification — OpenSpec/kbd-apply-equivalent task ledger, local commit 632981a
-- [IN_PROGRESS] change-exec-002-tier-p-sidecar — OpenSpec through kbd-apply
+- [DONE] change-exec-002-tier-p-sidecar — OpenSpec through kbd-apply, implementation commit `1b8d905`, 86 local tests and three Linux-musl cross-Clippy gates passing
 - [PENDING] change-exec-003-tier-w-mobile — OpenSpec through kbd-apply
 - [PENDING] change-exec-004-remote-mcp-docs — OpenSpec through kbd-apply
 
@@ -79,7 +79,7 @@ OUTPUTS
 
 BLOCKERS
 
-- NONE for macOS-local implementation; platform-specific certification is evidence-pending, not an implementation blocker
+- NONE for change 002 on the certified macOS host. Linux kernel runtime certification is evidence-pending and Windows Tier P is unavailable by design; neither is represented as green.
 
 REFLECTION HANDOFF
 

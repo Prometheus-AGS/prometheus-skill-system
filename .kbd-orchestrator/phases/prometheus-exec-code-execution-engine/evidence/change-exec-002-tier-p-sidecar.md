@@ -2,7 +2,9 @@
 
 Date: 2026-08-04
 
-Certified implementation commit: `364fc5c87d79813de759fcff2e7fc9722d7fc717`
+Certified implementation commit: `1b8d905f09fb233aec7eccbf1b3c0de8e032479d`
+
+Original public evidence archive commit: `74f5099`
 
 Environment: macOS 26.5.2, MacPro7,1, x86_64 execution architecture; local execution only
 
@@ -41,17 +43,17 @@ The terminal run was:
 
 | Field | Observed value |
 |---|---|
-| run ID | `17e6fa74-50fc-4c12-a4d9-6bc8627e2c6e` |
-| request ID | `3b7df805-f1bf-4d97-b87a-85c63f1c0880` |
-| request hash | `sha256:99ee5010d1e43eeb965f02359e1eafeac28658f8a21c099d7dfd1090abc48c43` |
+| run ID | `00d22297-e75b-45d5-aefd-464241e27f04` |
+| request ID | `d2576f49-aa03-4e92-85bf-a1157fcc56f5` |
+| request hash | `sha256:07ba4c36a356cd6a1b50ebee3d056f8c87155b41a370142003aecd3dda841cc5` |
 | state | `succeeded` |
 | evidence class | `attested` |
 | tier / backend | `p` / `seatbelt` |
 | exit status | `0` |
-| wall clock | `108 ms` |
-| sandbox profile | `sha256:8278427b9632278e5e3dfd1d712ee0e8cd984ecd483ec7a2fbc2049286a60869` |
+| wall clock / peak RSS | `70 ms` / `4 MiB` |
+| sandbox profile | `sha256:14819ffbbcfd674dda50f1df407cba83099c661ed41c24817fd2ff54b1a25019` |
 | Python toolchain | `sha256:179301dcb41ea78accc3fa0048a7e6f6710d891945a751a34addd622020c1818` |
-| receipt hash | `sha256:899016657d6f72b9cd75d63a4ef05de601fc50f2dd268a1f4e9abaa8265e7618` |
+| receipt hash | `sha256:95810a5221bd432a4f3041b45e8eb065efb735dfc227be66482057c652be83cd` |
 | output artifact | `sha256:99b31f41b94ec6b079fbf7687a949c851fb55cbe47029d37b7f2cb3be3c13e56`, 50 bytes |
 
 The complete public artifacts are archived in [`change-exec-002-tier-p-sidecar/`](change-exec-002-tier-p-sidecar/):
@@ -93,7 +95,7 @@ Pointing `--artifacts` at a tree without `outputs/risk-summary.json` returned `v
 | Check | Observed value |
 |---|---|
 | `prometheus-exec --version` | `prometheus-exec 1.7.0` |
-| release binary SHA-256 | `18b109b4818b6e868b4ccf7346585c8c069d491eb7bc698b11e0f215602b1780` |
+| release binary SHA-256 | `a77a8f4a861092ac919125f77d1707eefe071d5984e2fa58cdd289978511841c` |
 | binary format | `Mach-O 64-bit executable x86_64` |
 | signing state | unsigned local build; not installation evidence |
 | private identity mode | `0600` |
@@ -104,7 +106,7 @@ The private identity is intentionally absent from the archive. Only the Ed25519 
 
 ## Restart and doctor evidence
 
-The daemon was terminated with SIGKILL, leaving its socket path behind. A second release-binary daemon invocation recovered the stale socket, reopened the same identity, ledger, receipt log, and CAS, and returned a status response byte-identical to the original terminal `run` response (`SHA-256 6d67210e7c8de3b24e5b2aaaa8fc7f15113050fc26e22c2dcff4c70d426467ff`).
+The daemon was terminated with SIGKILL, leaving its socket path behind. A second release-binary daemon invocation recovered the stale socket, reopened the same identity, ledger, receipt log, and CAS, and returned a status response byte-identical to the pre-kill terminal status (`SHA-256 de765e16c37828356528fe3fb4b21d2d1f52e435e5bb41c92b2f1c672a6ef467`).
 
 The restarted doctor reported `healthy: true` with all required checks passing:
 
@@ -114,7 +116,7 @@ The restarted doctor reported `healthy: true` with all required checks passing:
 - same-UID peer `/health`;
 - readiness;
 - macOS Seatbelt backend;
-- one structurally valid record and zero in-flight runs;
+- two structurally valid records and zero in-flight runs;
 - five verified content-addressed blobs.
 
 The focused startup fixture measured:
@@ -128,18 +130,18 @@ These are local single-run measurements on the named host, not universal latency
 
 ## Local gate results
 
-All commands ran locally. The final task-4.1 matrix at implementation commit `364fc5c` was:
+All commands ran locally. The complete task-4.1 matrix was rerun after the final audit and independent-review remediation at implementation commit `1b8d905`:
 
 | Workspace | Format | Check | Clippy `-D warnings` | Tests |
 |---|---|---|---|---:|
-| `substrate/exec-contracts` | PASS | PASS | PASS | 7 |
-| `substrate/exec-core` | PASS | PASS | PASS | 17 |
-| `substrate/exec-tier-p` | PASS | PASS | PASS | 23 |
+| `substrate/exec-contracts` | PASS | PASS | PASS | 8 |
+| `substrate/exec-core` | PASS | PASS | PASS | 19 |
+| `substrate/exec-tier-p` | PASS | PASS | PASS | 28 |
 | `substrate/exec-service` | PASS | PASS | PASS | 23 |
-| `crates/prometheus-exec` | PASS | PASS | PASS | 7 |
-| **Total** | | | | **77** |
+| `crates/prometheus-exec` | PASS | PASS | PASS | 8 |
+| **Total** | | | | **86** |
 
-The 23 Tier P tests include 11 real macOS Seatbelt executions proving Python, Node, and Bash success; denied external reads and writes; denied loopback networking; environment filtering; process-group timeout; stream/output bounds; artifact bounds; symlink escape rejection; and unsupported/privileged requests rejected before spawn.
+The 28 Tier P tests include 14 real macOS Seatbelt executions proving Python, Node, and Bash success; denied external reads and writes; denied loopback networking; environment filtering; process-group timeout; memory termination; inherited stack limits; observed CPU/RSS accounting; stream/output bounds; artifact bounds; symlink escape rejection; and unsupported/privileged requests rejected before spawn.
 
 Additional PASS gates:
 
@@ -151,11 +153,35 @@ Additional PASS gates:
 - corrupted grant metadata causing a non-mutating nonzero doctor result;
 - no orphan `prometheus-exec daemon` process after fixtures.
 
+## Task-4.3 audit remediation and fresh release-binary proof
+
+The final requirement audit found two implementation gaps that the earlier green matrix did not exercise:
+
+1. CAS pins and GC existed as primitives, but the daemon did not retain queued request material or receipt-referenced evidence and did not invoke budget GC.
+2. Seatbelt enforced wall-clock and output limits, but did not enforce `memoryMb`/`stackKb` or populate observed CPU/RSS usage.
+
+Commit `a08ee42` closed both initial gaps. The independent cross-model review then found transactional ownership failures around CLI uploads, request replay/conflict paths, receipt-publication rollback, and restart reconciliation. Commit `1b8d905` makes upload-to-request ownership transfer atomic under the CAS operation lock, scopes request pins by canonical request hash, preserves grant-pending references, retains receipt evidence before terminal publication, rolls back failed publication, attempts every cleanup even after an error, and preserves request ownership for malformed terminal records without receipts. The Seatbelt runner applies the requested stack ceiling before interpreter startup, samples the exact process group every 10 ms, terminates it on memory breach, fails closed on monitor failure, and records observed CPU and peak RSS.
+
+A fresh optimized binary (`sha256:a77a8f4a861092ac919125f77d1707eefe071d5984e2fa58cdd289978511841c`) built from `1b8d905` repeated the incident-risk use case with a 1 MiB CAS budget:
+
+| Field | Observed value |
+|---|---|
+| run ID | `00d22297-e75b-45d5-aefd-464241e27f04` |
+| request hash | `sha256:07ba4c36a356cd6a1b50ebee3d056f8c87155b41a370142003aecd3dda841cc5` |
+| state | `succeeded` |
+| output artifact | `sha256:99b31f41b94ec6b079fbf7687a949c851fb55cbe47029d37b7f2cb3be3c13e56`, 50 bytes |
+| wall clock / peak RSS | `70 ms` / `4 MiB` |
+| receipt hash | `sha256:95810a5221bd432a4f3041b45e8eb065efb735dfc227be66482057c652be83cd` |
+
+Offline verification passed receipt invariants, Ed25519 signature/key identity, exact request hash, and exact artifact hash. After SIGKILL recovery, a fresh non-mutating doctor reported `healthy: true`, all eight required checks passed, five CAS blobs verified, two structurally valid records, and zero in-flight runs. CAS inspection showed receipt-scoped pins for the code, input, stdout, stderr, and output artifact, with no stale upload or request pins. The temporary private identity and runtime tree were destroyed after verification; no private key was archived.
+
+The final adversarial-review gate used producer `gpt-5.6-sol` and distinct judge `gpt-5.4`. It iterated on real lifecycle findings until `findings-final-pass.json` returned `PASS` with zero findings; the strict anti-sycophancy gate also passed with score `0.0`. A protected-test Git comparison from `a08ee42` to `1b8d905` reported zero protected changes.
+
 ## Platform dispositions
 
 | Platform | Evidence achieved in change 002 | Honest status |
 |---|---|---|
-| macOS x86_64 | Release-binary real use case, signed receipt and artifact verification, 11 real Seatbelt tests, UDS/doctor/startup/restart evidence | **locally runtime-certified for Tier P on this host** |
+| macOS x86_64 | Release-binary real use case, signed receipt and artifact verification, 14 real Seatbelt tests, UDS/doctor/startup/restart evidence | **locally runtime-certified for Tier P on this host** |
 | Linux x86_64-musl | Tier P, service, and CLI warnings-denied cross-Clippy; nine portable bwrap/Landlock plan fixtures | **source/cross-build/fixture-certified only; runtime pending** |
 | Windows | No process sandbox adapter or runtime execution; Windows Tier P is an explicit v1 non-goal | **Tier P unavailable by design; no runtime or cross-build claim** |
 
@@ -183,16 +209,16 @@ Change 002 has no Windows Tier P backend. There is no AppContainer/restricted-to
 
 | Artifact | SHA-256 |
 |---|---|
-| `doctor-restart.redacted.json` | `112697c3f23582bf339d0219f5c5e549240efb44b12b9328fade51cc6dd922d6` |
+| `doctor-restart.redacted.json` | `4d0e8728f6888dc427b8e3a7acc5cdf076148d64962588e0ccba4c06ef431809` |
 | `incident-batch.json` | `c0297e78d7c4d80b520a2a81af6f9da84a2f3ecc696b36e5ac5c27bc0f2b72aa` |
 | `incident-risk.py` | `5653f1c4aeca3871e10eb903ed9000272c9a922a25679d118167d7d14e96b6bc` |
 | `outputs/risk-summary.json` | `99b31f41b94ec6b079fbf7687a949c851fb55cbe47029d37b7f2cb3be3c13e56` |
-| `public-identity.json` | `5ffe20c1e31ae6a35fe82be5c88fce21ac95b90d286f767511c2bbbd6bd7a9ee` |
-| `receipt.json` | `8555667efa1a6599643e49ac299c146c6dc1d8fec49b164751faef94d7adf374` |
-| `request.json` | `bb11d5f4c701c4701b556483b37cf9ba16f05412c44ab0b1f27e8759d8e33410` |
-| `run.json` | `6d67210e7c8de3b24e5b2aaaa8fc7f15113050fc26e22c2dcff4c70d426467ff` |
-| `verify-wrong-root.json` | `52a27001d1ada2e0cc5afa1da40f50d95ecea4c1643102e8349fd20f162ac5f1` |
-| `verify.json` | `503d2594c77926ff4abdc3d8d71fbf948568ee59ca0d97b8f1cc2c244270237f` |
+| `public-identity.json` | `0dc5dabb50e005bb5c7e359f0086622e79eb59329406c4d75fdbbd108b028e30` |
+| `receipt.json` | `df5856f5835abd48b3a829b082cb386eca6b02747fb3d92bac1d55d7269c6529` |
+| `request.json` | `77f531b4e644d9a295b97dc2643a24cc9296bae62cb2b4ed8982112fda206bfd` |
+| `run.json` | `1a60dc3e85a1104e13fe49e743a66799836fb45ad0c1eefe94e52978b2f53fa4` |
+| `verify-wrong-root.json` | `41d0ad3586eb58e3138a1b78621e65729675aa97ce6e321ccabfd64299a2856a` |
+| `verify.json` | `baaf05defccb35f0fdcfa0cba4f1b6bfe6c2e1f3512daf6afa5cd469744a89d3` |
 
 The archive is public-data-only. Searches for `privateKey`, hardware serials, hardware UUIDs, provisioning identifiers, and activation-lock fields return no matches.
 

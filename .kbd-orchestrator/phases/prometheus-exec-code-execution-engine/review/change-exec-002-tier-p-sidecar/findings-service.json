@@ -1,0 +1,50 @@
+{
+  "mode": "diff",
+  "verdict": "BLOCK",
+  "judge_model": "k3",
+  "producer_model": "gpt-5.6-sol",
+  "isolation_mode": "rest-gateway:http://127.0.0.1:4000/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": "crates/prometheus-exec/src/daemon.rs",
+      "line": 204,
+      "claim": "A single retain_for_request failure now aborts the entire runner loop via `?`, permanently halting processing of all queued runs.",
+      "evidence": "Hunk @@ -200,7 +200,13 @@: `for record in &records { if !record.state.is_terminal() { artifacts.retain_for_request(&record.request)?; } }` \u2014 the `?` propagates out of `runner_loop`, which previously only failed on `records()?`. One record referencing a missing/corrupt artifact hash (e.g. after a crash between submit and retain, or a partially collected store) kills the daemon's execution path for every other run.",
+      "suggested_fix": "Log the error and `continue` to the next record (or skip the record and mark it failed) instead of propagating; only ledger-level failures should abort the loop."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "crates/prometheus-exec/src/daemon.rs",
+      "line": 395,
+      "claim": "retain_for_receipt is called before commit_terminal, so a commit failure leaks receipt pins that the pin-aware GC will never reclaim.",
+      "evidence": "Hunk @@ -386,12 +392,14 @@: `artifacts.retain_for_receipt(&claim.record.request, &receipt)?;` precedes `service.commit_terminal(...)?`. If commit_terminal fails (ledger I/O, hash conflict), the function returns early \u2014 `garbage_collect()` is skipped and the receipt pins remain with no corresponding terminal ledger record to trigger their release. Per criterion 1.3 ('pin-aware budget enforcement'), pinned artifacts are exempt from collection, so repeated failures permanently consume the artifact budget.",
+      "suggested_fix": "Wrap commit in a scope that unpins the receipt pins on failure, or move pin acquisition/release into a transactional helper that rolls back if commit_terminal errors."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "crates/prometheus-exec/src/main.rs",
+      "line": 269,
+      "claim": "Pins created by put_pinned in run_command are never released on error paths, permanently leaking pinned artifacts exempt from garbage collection.",
+      "evidence": "Hunk @@ -265,8 +265,10 @@: `artifacts.put_pinned(&code, &request_pin)?` then, per input, `artifacts.put_pinned(&fs::read(path)?, &request_pin)?`. If any later input fails to parse (the `ok_or_else`/empty-name checks) or `fs::read` fails, the function returns Err with the code blob and earlier inputs still pinned under `request:{request_id}`. Nothing in the diff unpins on this failure path, and if the subsequent submit fails (e.g. same-hash conflict from criterion 3.1) the request never reaches a terminal state, so the request pin is never released either.",
+      "suggested_fix": "On any error after the first put_pinned, call an unpin/release for `request_pin` before returning, or stage all inputs in memory first and only pin once validation succeeds, with a cleanup guard on submit failure."
+    },
+    {
+      "severity": "WARNING",
+      "file": "substrate/exec-service/src/http.rs",
+      "line": 287,
+      "claim": "retain_for_request runs before service.submit, so failed submits and replays of terminal requests add request pins with no release path.",
+      "evidence": "Hunk @@ -281,6 +281,14 @@: `artifacts.retain_for_request(&request)` executes, then `match service.submit(request)`. If submit errors (hash conflict, validation failure), the handler returns the error but the pin remains. For a replayed request (`result.replayed` branch) whose run is already terminal, the request is re-pinned after the terminal commit/GC cycle may already have released its request pins, re-protecting artifacts the lifecycle expects to be collectable.",
+      "suggested_fix": "Skip retain_for_request when submit returns a replayed/conflict result (retain only on accepted new submissions), and unpin on submit error paths."
+    },
+    {
+      "severity": "WARNING",
+      "file": "crates/prometheus-exec/src/daemon.rs",
+      "line": 502,
+      "claim": "synthetic_receipt calls garbage_collect before its returned receipt is committed by the caller, making the GC pass ineffective for this request and leaking pins if the later commit fails.",
+      "evidence": "Hunk @@ -491,6 +499,8 @@: `artifacts.retain_for_receipt(&record.request, &receipt)?; artifacts.garbage_collect()?; Ok(receipt)` \u2014 the receipt is returned to the caller, so commit_terminal happens after this function returns. At GC time the record is not yet terminal, so this request's pins are all still active and cannot be reclaimed; conversely if the caller's commit subsequently fails, both the request and receipt pins leak with no cleanup.",
+      "suggested_fix": "Move retain_for_receipt + garbage_collect to after the caller's commit_terminal (mirroring the intended ordering in process_queued_run), or document and handle the commit-failure unpin path."
+    }
+  ]
+}

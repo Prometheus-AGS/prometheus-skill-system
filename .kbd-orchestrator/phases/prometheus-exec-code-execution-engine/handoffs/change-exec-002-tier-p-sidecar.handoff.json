@@ -1,0 +1,37 @@
+{
+  "change": "change-exec-002-tier-p-sidecar",
+  "status": "locally-certified",
+  "certifiedCommit": "1b8d905f09fb233aec7eccbf1b3c0de8e032479d",
+  "evidence": [
+    ".kbd-orchestrator/phases/prometheus-exec-code-execution-engine/evidence/change-exec-002-tier-p-sidecar.md",
+    ".kbd-orchestrator/phases/prometheus-exec-code-execution-engine/evidence/change-exec-002-tier-p-sidecar/"
+  ],
+  "localGates": {
+    "tests": {
+      "status": "pass",
+      "count": 86
+    },
+    "warningsDeniedClippy": {
+      "status": "pass",
+      "workspaces": 5
+    },
+    "linuxMuslCrossClippy": {
+      "status": "pass",
+      "workspaces": 3,
+      "runtimeCertified": false
+    },
+    "releaseBinaryUseCase": "pass",
+    "offlineReceiptVerification": "pass",
+    "nonMutatingDoctor": "pass",
+    "adversarialReview": "pass-zero-findings",
+    "antiSycophancy": "pass-score-0.0",
+    "protectedTestVerifier": "pass-zero-changes"
+  },
+  "platformDisposition": {
+    "macos-x86_64": "locally runtime-certified on the named host",
+    "linux-x86_64-musl": "source, cross-build, and planning-fixture certified; kernel runtime pending",
+    "windows-tier-p": "unavailable by design"
+  },
+  "publication": "not pushed; external publication requires explicit user authorization",
+  "nextChange": "change-exec-003-tier-w-mobile"
+}

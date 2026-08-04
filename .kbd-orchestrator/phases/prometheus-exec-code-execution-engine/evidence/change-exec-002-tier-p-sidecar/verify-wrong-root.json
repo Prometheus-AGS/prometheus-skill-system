@@ -1,15 +1,10 @@
 {
   "valid": false,
-  "receiptHash": "sha256:899016657d6f72b9cd75d63a4ef05de601fc50f2dd268a1f4e9abaa8265e7618",
+  "receiptHash": "sha256:95810a5221bd432a4f3041b45e8eb065efb735dfc227be66482057c652be83cd",
   "checks": [
-    {
-      "code": "receipt.invariants",
-      "message": "receipt semantic invariants are valid"
-    },
-    {
-      "code": "receipt.signature",
-      "message": "receipt signature and key identity are valid"
-    }
+    { "code": "receipt.invariants", "message": "receipt semantic invariants are valid" },
+    { "code": "receipt.signature", "message": "receipt signature and key identity are valid" },
+    { "code": "request.hash", "message": "receipt matches the supplied request" }
   ],
   "failures": [
     {

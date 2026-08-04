@@ -1,8 +1,8 @@
 {
   "schemaVersion": "1",
-  "requestId": "3b7df805-f1bf-4d97-b87a-85c63f1c0880",
-  "issuedAt": "2026-08-04T14:08:30.870868Z",
-  "queuedAt": "2026-08-04T14:08:30.870868Z",
+  "requestId": "d2576f49-aa03-4e92-85bf-a1157fcc56f5",
+  "issuedAt": "2026-08-04T16:14:47.986768Z",
+  "queuedAt": "2026-08-04T16:14:47.986768Z",
   "validityWindowSecs": 65,
   "tier": "p",
   "code": {
@@ -17,20 +17,9 @@
     }
   ],
   "capabilities": {
-    "fs": {
-      "readOnly": [
-        "."
-      ],
-      "readWrite": [
-        "outputs/"
-      ]
-    },
-    "net": {
-      "egress": []
-    },
-    "env": {
-      "read": []
-    },
+    "fs": { "readOnly": ["."], "readWrite": ["outputs/"] },
+    "net": { "egress": [] },
+    "env": { "read": [] },
     "clock": true,
     "random": true
   },
@@ -42,10 +31,8 @@
     "stackKb": 512
   },
   "targets": [],
-  "provenance": {
-    "harness": "prometheus-exec-cli"
-  },
-  "signerKeyId": "ed25519:c117022ddccb3744880d806d5677e667701fb5d0ca9575debbfb80cb76aa2dd0",
+  "provenance": { "harness": "prometheus-exec-cli" },
+  "signerKeyId": "ed25519:b5d81875795af6794353d742465a2dd6e1ab16e8c3673e629ce1044ef669a837",
   "sigAlg": "ed25519",
-  "signature": "DWb6YrofkDIRzLhd3wezs_oKWBU2zgPBaEevm7rIHulYT6bDfy6-kJaqtO1SjjjptjoEjnHmuW8KGUleuMUzAQ"
+  "signature": "FaqMrKwYKBUmrcDTNNOPazi2PLKxZ9VeC20-qut92-d_HL8T5BTl6cyP10g77ny1fv0fNkmqxU5Ky61jrsnsAA"
 }

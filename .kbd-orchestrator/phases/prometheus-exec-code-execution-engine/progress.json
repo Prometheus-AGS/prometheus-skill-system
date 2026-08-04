@@ -8,13 +8,13 @@
   "execute_complete": false,
   "reflect_complete": false,
   "implementation_total": 4,
-  "implementation_completed": 1,
+  "implementation_completed": 2,
   "changes_total": 4,
-  "changes_completed": 1,
+  "changes_completed": 2,
   "completion": {
     "primaryCounter": "implementation",
     "implementation": {
-      "completed": 1,
+      "completed": 2,
       "total": 4,
       "status": "PENDING"
     },
@@ -35,9 +35,10 @@
     }
   },
   "completed_changes": [
-    "change-exec-001-contracts-verification"
+    "change-exec-001-contracts-verification",
+    "change-exec-002-tier-p-sidecar"
   ],
-  "active_change": "change-exec-002-tier-p-sidecar",
+  "active_change": "change-exec-003-tier-w-mobile",
   "blocked_changes": [],
   "changes": [
     {
@@ -46,7 +47,9 @@
     },
     {
       "id": "change-exec-002-tier-p-sidecar",
-      "status": "pending"
+      "status": "completed",
+      "tasks_done": 16,
+      "tasks_total": 16
     },
     {
       "id": "change-exec-003-tier-w-mobile",
@@ -60,6 +63,6 @@
   "sourceTool": "unknown",
   "createdBy": "kbd-new-phase",
   "last_updated_by": "codex",
-  "last_updated": "2026-08-04T11:18:00Z",
-  "updatedAt": "2026-08-04T11:18:00Z"
+  "last_updated": "2026-08-04T16:18:37Z",
+  "updatedAt": "2026-08-04T16:18:37Z"
 }

@@ -1,13 +1,13 @@
 {
-  "runId": "17e6fa74-50fc-4c12-a4d9-6bc8627e2c6e",
-  "requestId": "3b7df805-f1bf-4d97-b87a-85c63f1c0880",
-  "requestHash": "sha256:99ee5010d1e43eeb965f02359e1eafeac28658f8a21c099d7dfd1090abc48c43",
+  "runId": "00d22297-e75b-45d5-aefd-464241e27f04",
+  "requestId": "d2576f49-aa03-4e92-85bf-a1157fcc56f5",
+  "requestHash": "sha256:07ba4c36a356cd6a1b50ebee3d056f8c87155b41a370142003aecd3dda841cc5",
   "state": "succeeded",
   "replayed": false,
   "receipt": {
     "schemaVersion": "1",
-    "runId": "17e6fa74-50fc-4c12-a4d9-6bc8627e2c6e",
-    "requestHash": "sha256:99ee5010d1e43eeb965f02359e1eafeac28658f8a21c099d7dfd1090abc48c43",
+    "runId": "00d22297-e75b-45d5-aefd-464241e27f04",
+    "requestHash": "sha256:07ba4c36a356cd6a1b50ebee3d056f8c87155b41a370142003aecd3dda841cc5",
     "state": "succeeded",
     "evidenceClass": "attested",
     "tier": "p",
@@ -15,14 +15,12 @@
     "inputSetHash": "sha256:72949a13675654b3f2d5e60c834828a37afba52de81ddf8a403fb8c7965a541c",
     "envHash": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
     "toolchainHash": "sha256:179301dcb41ea78accc3fa0048a7e6f6710d891945a751a34addd622020c1818",
-    "sandboxProfileHash": "sha256:8278427b9632278e5e3dfd1d712ee0e8cd984ecd483ec7a2fbc2049286a60869",
+    "sandboxProfileHash": "sha256:14819ffbbcfd674dda50f1df407cba83099c661ed41c24817fd2ff54b1a25019",
     "backend": "seatbelt",
-    "exit": {
-      "status": 0
-    },
+    "exit": { "status": 0 },
     "outputs": {
       "stdout": "sha256:8eaeb4f00548071ac4e69629a8f6d02b441b917fa9bcbadc2d3f79aaf944b979",
-      "stderr": "sha256:bac892b4efc820269ec9c46bb48cff4b927e468077d11350b7c4b95ae38e69ba",
+      "stderr": "sha256:2d750a1402b0e7cdbbe3cdb19ba8bf154bb1c88d48961b9ae17f15fa73a2bcc6",
       "artifacts": [
         {
           "path": "outputs/risk-summary.json",
@@ -32,19 +30,19 @@
       ]
     },
     "usage": {
-      "wallClockMs": 108,
+      "wallClockMs": 70,
       "cpuMs": 0,
-      "peakMemMb": 0,
+      "peakMemMb": 4,
       "fuelConsumed": 0
     },
-    "startedAt": "2026-08-04T14:08:31.046262Z",
-    "finishedAt": "2026-08-04T14:08:31.154781Z",
+    "startedAt": "2026-08-04T16:14:48.242789Z",
+    "finishedAt": "2026-08-04T16:14:48.313692Z",
     "executingDevice": {
-      "keyId": "ed25519:c117022ddccb3744880d806d5677e667701fb5d0ca9575debbfb80cb76aa2dd0",
+      "keyId": "ed25519:b5d81875795af6794353d742465a2dd6e1ab16e8c3673e629ce1044ef669a837",
       "sigAlg": "ed25519",
       "platform": "macos-x86_64"
     },
     "grants": [],
-    "signature": "A7puv680yATLIuGCEzGnqvWAeL3y_Vm7h5lzj7GKPU6y2O0KZrz8G-l7mBvDJRTnFPZubAOfI7XoI6K_kvSVCQ"
+    "signature": "KHESe8k2jAauVzNPjo8REmtIlH65q4g4tM2gXH7B5XDau-KhuJMSWCg49kzev7OepyLYwVcCRffJSGI9pMDJBw"
   }
 }

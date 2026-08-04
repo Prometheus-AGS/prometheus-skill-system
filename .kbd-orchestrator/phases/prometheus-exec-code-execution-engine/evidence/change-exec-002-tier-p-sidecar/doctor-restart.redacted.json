@@ -6,19 +6,19 @@
       "name": "binary-identity",
       "status": "pass",
       "required": true,
-      "detail": "prometheus-exec 1.7.0 sha256:18b109b4818b6e868b4ccf7346585c8c069d491eb7bc698b11e0f215602b1780"
+      "detail": "prometheus-exec 1.7.0 sha256:a77a8f4a861092ac919125f77d1707eefe071d5984e2fa58cdd289978511841c"
     },
     {
       "name": "receipt-identity",
       "status": "pass",
       "required": true,
-      "detail": "ed25519:c117022ddccb3744880d806d5677e667701fb5d0ca9575debbfb80cb76aa2dd0 is internally consistent"
+      "detail": "ed25519:b5d81875795af6794353d742465a2dd6e1ab16e8c3673e629ce1044ef669a837 is internally consistent"
     },
     {
       "name": "socket-permissions",
       "status": "pass",
       "required": true,
-      "detail": "<evidence-root>/runtime/exec.sock is a mode-0600 Unix socket"
+      "detail": "<runtime>/exec.sock is a mode-0600 Unix socket"
     },
     {
       "name": "socket-peer-health",
@@ -42,7 +42,7 @@
       "name": "state-reconciliation",
       "status": "pass",
       "required": true,
-      "detail": "1 records are structurally valid; 0 are in flight"
+      "detail": "2 records are structurally valid; 0 are in flight"
     },
     {
       "name": "artifact-cas",

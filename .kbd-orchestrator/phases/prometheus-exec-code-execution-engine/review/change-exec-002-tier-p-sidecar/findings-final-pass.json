@@ -1,0 +1,21 @@
+{
+  "mode": "diff",
+  "verdict": "PASS",
+  "judge_model": "gpt-5.4",
+  "producer_model": "gpt-5.6-sol",
+  "isolation_mode": "rest-gateway:http://127.0.0.1:4000/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [],
+  "checked_classes": [
+    "Spec/acceptance criteria checked \u2014 transfer_upload_to_request retains request-hash pins then unpins upload pins under one operation_lock; terminal-without-receipt startup reconciliation preserves request ownership; commit_terminal_with_retention pins receipts before commit and rolls them back on commit failure; HTTP cleanup errors are only logged so original statuses are preserved.",
+    "Correctness checked \u2014 unpin_unlocked returns Ok(false) on missing markers and unpin_all_unlocked treats that as success, so direct requests with absent upload pins are accepted while still pinning any materialized blobs; retain_request_unlocked rolls back partial request pinning on failure.",
+    "Regression checked \u2014 runner_loop no longer does a second request retention pass, but startup reconciliation plus HTTP-side transfer/install covers durable records without exposing accepted blobs to GC before publication.",
+    "Security/constraint checked \u2014 no new input boundary or auth changes are introduced in the diff, and the stated constraint about never exposing materialized accepted blobs to GC before terminal publication is upheld by the locked transfer and pre-commit receipt retention.",
+    "Silent failure checked \u2014 startup/post-commit/release cleanup failures are logged but do not alter domain/HTTP results, matching the acceptance criterion that cleanup failures preserve original status; no concrete path in the submitted code shows a materialized accepted blob becoming unpinned before terminal publication."
+  ],
+  "sycophancy_screen": {
+    "reject_cap": 2,
+    "cap_overridden": false,
+    "cap_default": 2
+  }
+}
