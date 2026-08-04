@@ -389,4 +389,39 @@ mod tests {
         assert_eq!(updated.concepts["closures"].observations.len(), 1);
         assert_eq!(updated.concepts["closures"].fsrs_card.reps, 1);
     }
+
+    #[test]
+    fn deterministic_evidence_fold_is_order_independent() {
+        let at = Utc::now();
+        let mut left = seed_model("did:plc:left").concepts.remove("closures").unwrap();
+        left.observations = [
+            ("evidence-b".to_string(), ObservationRecord {
+                observation_id: "evidence-b".into(),
+                timestamp: at + chrono::Duration::seconds(1),
+                score: 0.2,
+                source_skill: "learn-grade".into(),
+                vector_clock: HashMap::new(),
+                rating: None,
+            }),
+            ("evidence-a".to_string(), ObservationRecord {
+                observation_id: "evidence-a".into(),
+                timestamp: at,
+                score: 1.0,
+                source_skill: "learn-grade".into(),
+                vector_clock: HashMap::new(),
+                rating: None,
+            }),
+        ].into_iter().collect();
+        let mut right = left.clone();
+        right.observations = left.observations.iter().rev()
+            .map(|(id, evidence)| (id.clone(), evidence.clone()))
+            .collect();
+
+        fold_concept(&mut left);
+        fold_concept(&mut right);
+
+        assert_eq!(left.mastery, right.mastery);
+        assert_eq!(left.fsrs_card.reps, right.fsrs_card.reps);
+        assert_eq!(left.fsrs_card.due, right.fsrs_card.due);
+    }
 }
