@@ -154,19 +154,12 @@ impossible.
 
 ### Immutable tests
 
-The **immutable-tests rule** is enforced two ways:
-
-1. **PreToolUse hook** (agent-time): `shared/scripts/protect-tests.sh`
-   blocks code-generation agents from editing `tests/steps/**`,
-   `tests/features/**`, or `tests/support/**` files — see
-   [references/immutable-tests.md](references/immutable-tests.md).
-2. **CI gate** (PR-time): `scripts/test-file-diff-guard.sh` fails PRs
-   that modify protected test files without a `test-change-approved`
-   label.
-
-Both together mean tests never move to accommodate a change in production
-code — production code moves to satisfy tests. New behavior requires new
-tests, not edited old ones.
+The **immutable-tests rule** is enforced once, at final local certification.
+Agent-time Bash, Python, Edit, and Write calls remain unrestricted. The
+method-independent verifier compares the certified base and candidate Git
+commits and detects protected modifications, deletions, renames, and mode
+changes. Intentional changes require an SSH-signed canonical approval
+manifest; see [references/immutable-tests.md](references/immutable-tests.md).
 
 ### Visual baseline refresh
 
@@ -187,4 +180,4 @@ for the branch-and-review workflow.
 - `docs/future-work/02-bdd-testing-evolution/BDD-006-immutable-tests-rule.md`
 - `docs/future-work/02-bdd-testing-evolution/BDD-007-candidate-test-drafts.md`
 - [`STATUS.md`](../../../docs/future-work/02-bdd-testing-evolution/STATUS.md) — BDD-* implementation matrix
-- `shared/scripts/protect-tests.sh` — PreToolUse hook reference implementation
+- `scripts/verify-protected-tests.mjs` — canonical local verifier

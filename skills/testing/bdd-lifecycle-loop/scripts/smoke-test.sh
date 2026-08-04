@@ -45,12 +45,12 @@ for s in flake-budget.sh test-file-diff-guard.sh; do
     fi
 done
 
-# --- test-file-diff-guard: override path exits 0 ---
-if BDD_ALLOW_TEST_EDITS=1 bash "$SKILL_DIR/scripts/test-file-diff-guard.sh" \
+# --- test-file-diff-guard: clean committed range exits 0 ---
+if bash "$SKILL_DIR/scripts/test-file-diff-guard.sh" \
         HEAD HEAD >/dev/null 2>&1; then
-    pass "test-file-diff-guard: override path exits 0"
+    pass "test-file-diff-guard: clean range exits 0"
 else
-    fail "test-file-diff-guard: override path did not exit 0"
+    fail "test-file-diff-guard: clean range did not exit 0"
 fi
 
 # --- flake-budget: bad-args path exits non-zero ---

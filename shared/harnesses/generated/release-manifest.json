@@ -3,7 +3,7 @@
   "sourceVersion": "1.6.2",
   "contractSchemaVersion": "hook-contract-v1",
   "dispatcherAbi": "hook-runtime-v1",
-  "contractSha256": "730ce1ea6b99b8a4cea16013fb970bdea5dad238238d0c74bfd7cda5b1749bb9",
+  "contractSha256": "90134122da71285bc0deba2d645536211417aa0ee71fdb48ebb43e2bfc4e3fa5",
   "runtimeFiles": [
     {
       "path": "scripts/install-plugin-generation.js",
@@ -12,7 +12,7 @@
     },
     {
       "path": "shared/harnesses/hook-contract.json",
-      "sha256": "2a8e18e8d717831d6b1e331e60adb1095daa842d17cc38e226c34202c2aa6bdb",
+      "sha256": "fc63f6fb4f59e7c6025db4c93a43980a3083a850e724eeccdd4044921cf03928",
       "mode": "0644"
     },
     {
@@ -72,7 +72,7 @@
     },
     {
       "path": "shared/scripts/generated/hook-dispatch-v1.sh",
-      "sha256": "a449ee6ae41b842b30eb910f9ad0134c55a57cc8886dd549d83771daafe479d3",
+      "sha256": "70d49794121f60cf6a6deb22c225ba59ff74cee0803aaf599a4e58bb410e57ac",
       "mode": "0755"
     },
     {
@@ -92,7 +92,7 @@
     },
     {
       "path": "shared/scripts/kbd-harness-adapter.sh",
-      "sha256": "e045d1cf617407041a518fc0329a2fd75b3bf84dc56cb0c9604d1bb04bb331c5",
+      "sha256": "71d8ee282440025361f165932b3f292734230d94954fe017e1cec5723e6673c9",
       "mode": "0755"
     },
     {
@@ -157,7 +157,7 @@
     },
     {
       "path": "shared/scripts/pipeline-enforce.sh",
-      "sha256": "446d5d826c0bd0ed0de2157d5709435c3fa40e28abe737654f5a1e449aa20a51",
+      "sha256": "a391d8187a9e848afe5f94bd31cf1da2b6ca5d5d866de21d597c4159939ffbf4",
       "mode": "0755"
     },
     {
@@ -177,7 +177,7 @@
     },
     {
       "path": "shared/scripts/position-on-prompt.sh",
-      "sha256": "5e1973620f1d36b1044816223bb896f19de815e998e3b6844c63fdba9f261362",
+      "sha256": "7cfdba5029df973bb3f3925314fa76cf4cf899d3d17f1e82cc146d0b50674003",
       "mode": "0755"
     },
     {
@@ -188,11 +188,6 @@
     {
       "path": "shared/scripts/propose-skill-update.sh",
       "sha256": "983875db0e948e2220602d16454ff6138ee48bda4818c95822e3c01161347410",
-      "mode": "0755"
-    },
-    {
-      "path": "shared/scripts/protect-tests.sh",
-      "sha256": "c64961a4e59589e7f5b48cea80e7c4fb697ad897ca58d7878826a07a71422ca1",
       "mode": "0755"
     },
     {
@@ -272,7 +267,7 @@
     },
     {
       "path": "shared/scripts/write-position-reminder.sh",
-      "sha256": "57e09501e93a5d9fa251e141a8975ff2d92f487cd9560df9e8d6e69b123d7705",
+      "sha256": "48c26f943efaf52ab91e64af756912fb80cf335e3131af9f96a3501860940a88",
       "mode": "0755"
     },
     {
@@ -321,5 +316,5 @@
       "mode": "0755"
     }
   ],
-  "bundleId": "0966d0d8f25090cdf2bc1bf132d4a9b43a7ffd12cb04c75851b1e5c3f57a365d"
+  "bundleId": "2c6f831799ad9ac9f9d95b9fc4c1259ef89fb06bc3ed29b7d4faccee38a451a0"
 }
