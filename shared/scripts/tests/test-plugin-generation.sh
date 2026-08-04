@@ -110,6 +110,23 @@ node "$INSTALLER" --plugin-root "$PLUGIN_ROOT" --verify >/dev/null
 echo '[PASS] signed generation, canonical index parity, and 14 signed target receipts verify'
 echo '[PASS] manifest-signature tampering fails closed before activation'
 
+printf '%s\n' '---' 'name: example' 'description: fixture-same-bundle' '---' > \
+  "$SOURCE/skills/example/SKILL.md"
+node "$INSTALLER" --source-root "$SOURCE" --plugin-root "$PLUGIN_ROOT" --home "$TMP/home" >/dev/null
+SAME_BUNDLE="$(readlink "$PLUGIN_ROOT/current")"
+SAME_BUNDLE_HASH="${SAME_BUNDLE##*/}"
+[[ "$SAME_BUNDLE" != "$FIRST" ]]
+[[ "$(jq -r '.bundleId' "$PLUGIN_ROOT/generations/$SAME_BUNDLE_HASH/manifest.json")" == \
+  "$FIRST_BUNDLE" ]]
+[[ "$(readlink "$PLUGIN_ROOT/bundles/$FIRST_BUNDLE")" == \
+  "../generations/$SAME_BUNDLE_HASH" ]]
+node "$INSTALLER" --plugin-root "$PLUGIN_ROOT" --home "$TMP/home" --rollback >/dev/null
+[[ "$(readlink "$PLUGIN_ROOT/current")" == "$FIRST" ]]
+[[ "$(readlink "$PLUGIN_ROOT/bundles/$FIRST_BUNDLE")" == \
+  "../generations/$FIRST_HASH" ]]
+node "$INSTALLER" --plugin-root "$PLUGIN_ROOT" --verify >/dev/null
+echo '[PASS] same-bundle activation and rollback move the bundle index with current'
+
 node - "$TMP/untrusted-private.pem" <<'JS'
 const crypto = require('crypto');
 const fs = require('fs');
