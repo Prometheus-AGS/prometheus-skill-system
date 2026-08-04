@@ -142,3 +142,16 @@ impl SovereignConfig {
         Ok(())
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn default_config_has_no_voter_or_quorum_surface() {
+        let rendered = toml::to_string_pretty(&SovereignConfig::default()).unwrap();
+        assert!(!rendered.contains("[kbd]"));
+        assert!(!rendered.contains("voter"));
+        assert!(!rendered.contains("quorum"));
+    }
+}
