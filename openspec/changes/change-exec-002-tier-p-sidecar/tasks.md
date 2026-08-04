@@ -7,7 +7,7 @@
 
 ## 2. Policy, grants, and native sandbox
 
-- [ ] 2.1 Implement the hard auto-approval ceiling and Cedar tighten-only policy evaluation
+- [x] 2.1 Implement the hard auto-approval ceiling and Cedar tighten-only policy evaluation
 - [ ] 2.2 Implement SSH-signed and interactive grant validation with canonical grant hashes
 - [ ] 2.3 Implement macOS Seatbelt profile generation, execution, process-group timeout, output bounds, and profile hashing
 - [ ] 2.4 Implement Linux bwrap command construction and Landlock enforcement classification without unsandboxed fallback

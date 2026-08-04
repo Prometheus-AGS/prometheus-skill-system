@@ -14,7 +14,10 @@ mod receipt;
 mod receipt_log;
 
 pub use job::{ExecutionJob, JobValidationError, ValidatedExecutionJob};
-pub use policy::{BaselinePolicy, PolicyEvaluator, PolicyOutcome, PolicyReason};
+pub use policy::{
+    BaselinePolicy, CedarPolicyError, CedarTighteningPolicy, PolicyEvaluator, PolicyOutcome,
+    PolicyReason, DEFAULT_EXECUTION_POLICY,
+};
 pub use port::{BackendExecution, ExecutionPort, ProducedArtifact};
 pub use receipt::{Ed25519ReceiptSigner, ReceiptAssembler, ReceiptAssemblyError, ReceiptSigner};
 pub use receipt_log::{AppendReceiptResult, ReceiptLog, ReceiptLogError};
