@@ -285,12 +285,20 @@ async fn create_run(
         Ok(artifacts) => artifacts,
         Err(error) => return error.response(StatusCode::SERVICE_UNAVAILABLE),
     };
-    if let Err(error) = artifacts.retain_for_request(&request) {
+    if let Err(error) = artifacts.transfer_upload_to_request(&request) {
         return ApiErrorEnvelope::new("artifact_unavailable", error.to_string())
             .response(StatusCode::SERVICE_UNAVAILABLE);
     }
-    match service.submit(request) {
+    match service.submit(request.clone()) {
         Ok(result) => {
+            if result.record.state.is_terminal() {
+                if let Err(error) = artifacts.release_request(&request) {
+                    eprintln!(
+                        "prometheus-exec: terminal replay request-pin cleanup failed for {}: {error}",
+                        request.request_id
+                    );
+                }
+            }
             let status = if result.replayed {
                 StatusCode::OK
             } else {
@@ -302,7 +310,15 @@ async fn create_run(
             )
                 .into_response()
         }
-        Err(error) => map_service_error(error),
+        Err(error) => {
+            if let Err(release_error) = artifacts.release_request(&request) {
+                eprintln!(
+                    "prometheus-exec: request-pin rollback failed for {}: {release_error}",
+                    request.request_id
+                );
+            }
+            map_service_error(error)
+        }
     }
 }
 

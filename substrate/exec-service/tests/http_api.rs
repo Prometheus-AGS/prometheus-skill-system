@@ -159,10 +159,16 @@ async fn health_is_static_while_ready_and_mutating_routes_report_initialization(
 
 #[tokio::test]
 async fn run_routes_are_replay_safe_and_return_consistent_errors() {
-    let (state, _, _, _directory) = ready_state().await;
+    let (state, _, artifacts, _directory) = ready_state().await;
     let router = build_api_router(state);
     let request_id = Uuid::new_v4();
-    let original = request(request_id, b"print('original')");
+    let shared_blob = artifacts.put(b"shared input").unwrap();
+    let mut original = request(request_id, b"print('original')");
+    original.inputs.push(prometheus_exec_contracts::NamedInput {
+        name: "shared.txt".into(),
+        hash: shared_blob.hash.clone(),
+    });
+    let original_blob = artifacts.put(b"print('original')").unwrap();
 
     let accepted = router
         .clone()
@@ -174,6 +180,7 @@ async fn run_routes_are_replay_safe_and_return_consistent_errors() {
         serde_json::from_slice(&to_bytes(accepted.into_body(), 64 * 1024).await.unwrap()).unwrap();
     let run_id = accepted["runId"].as_str().unwrap();
     assert_eq!(accepted["replayed"], false);
+    assert!(artifacts.is_pinned(&original_blob.hash).unwrap());
 
     let replay = router
         .clone()
@@ -186,19 +193,38 @@ async fn run_routes_are_replay_safe_and_return_consistent_errors() {
     assert_eq!(replay["runId"], run_id);
     assert_eq!(replay["replayed"], true);
 
+    let mut different = request(request_id, b"print('different')");
+    different
+        .inputs
+        .push(prometheus_exec_contracts::NamedInput {
+            name: "shared.txt".into(),
+            hash: shared_blob.hash.clone(),
+        });
+    let different_blob = artifacts.put(b"print('different')").unwrap();
     let conflict = router
         .clone()
-        .oneshot(json_request(
-            "POST",
-            "/api/v2/exec/runs",
-            &request(request_id, b"print('different')"),
-        ))
+        .oneshot(json_request("POST", "/api/v2/exec/runs", &different))
         .await
         .unwrap();
     assert_eq!(conflict.status(), StatusCode::CONFLICT);
     let conflict: ApiErrorEnvelope =
         serde_json::from_slice(&to_bytes(conflict.into_body(), 16 * 1024).await.unwrap()).unwrap();
     assert_eq!(conflict.error.code, "request_hash_conflict");
+    assert!(!artifacts.is_pinned(&different_blob.hash).unwrap());
+    assert!(artifacts.is_pinned(&original_blob.hash).unwrap());
+    assert!(artifacts.is_pinned(&shared_blob.hash).unwrap());
+
+    let invalid_id = Uuid::new_v4();
+    let mut invalid_request = request(invalid_id, b"print('invalid')");
+    invalid_request.limits.stack_kb = 0;
+    let invalid_blob = artifacts.put(b"print('invalid')").unwrap();
+    let rejected = router
+        .clone()
+        .oneshot(json_request("POST", "/api/v2/exec/runs", &invalid_request))
+        .await
+        .unwrap();
+    assert_eq!(rejected.status(), StatusCode::BAD_REQUEST);
+    assert!(!artifacts.is_pinned(&invalid_blob.hash).unwrap());
 
     let found = router
         .clone()

@@ -266,10 +266,9 @@ async fn run_command(command: RunCommand) -> Result<ExitCode, BoxError> {
         command.artifact_budget_bytes,
     )?;
     let request_id = Uuid::new_v4();
-    let request_pin = format!("request:{request_id}");
+    let upload_pin = format!("upload:{request_id}");
     let code = fs::read(&command.code)?;
-    let stored_code = artifacts.put_pinned(&code, &request_pin)?;
-    let mut named_inputs = Vec::new();
+    let mut loaded_inputs = Vec::new();
     for input in command.inputs {
         let (name, path) = input
             .split_once('=')
@@ -277,9 +276,25 @@ async fn run_command(command: RunCommand) -> Result<ExitCode, BoxError> {
         if name.is_empty() {
             return Err("input name cannot be empty".into());
         }
-        let stored = artifacts.put_pinned(&fs::read(path)?, &request_pin)?;
+        loaded_inputs.push((name.to_string(), fs::read(path)?));
+    }
+
+    let stored_code = artifacts.put_pinned(&code, &upload_pin)?;
+    let mut pinned_hashes = vec![stored_code.hash.clone()];
+    let mut named_inputs = Vec::new();
+    for (name, bytes) in loaded_inputs {
+        let stored = match artifacts.put_pinned(&bytes, &upload_pin) {
+            Ok(stored) => stored,
+            Err(error) => {
+                if let Err(rollback) = release_pins(&artifacts, &pinned_hashes, &upload_pin) {
+                    return Err(format!("{error}; upload-pin rollback failed: {rollback}").into());
+                }
+                return Err(error.into());
+            }
+        };
+        pinned_hashes.push(stored.hash.clone());
         named_inputs.push(NamedInput {
-            name: name.into(),
+            name,
             hash: stored.hash,
         });
     }
@@ -314,15 +329,45 @@ async fn run_command(command: RunCommand) -> Result<ExitCode, BoxError> {
         sig_alg: SignatureAlgorithm::Ed25519,
         signature: None,
     };
-    sign_request_ed25519(&mut request, &identity.signing_key)?;
-    let response = uds_client::request(
+    if let Err(error) = sign_request_ed25519(&mut request, &identity.signing_key) {
+        if let Err(rollback) = release_pins(&artifacts, &pinned_hashes, &upload_pin) {
+            return Err(format!("{error}; upload-pin rollback failed: {rollback}").into());
+        }
+        return Err(error.into());
+    }
+    let request_body = match serde_json::to_vec(&request) {
+        Ok(body) => body,
+        Err(error) => {
+            if let Err(rollback) = release_pins(&artifacts, &pinned_hashes, &upload_pin) {
+                return Err(format!("{error}; upload-pin rollback failed: {rollback}").into());
+            }
+            return Err(error.into());
+        }
+    };
+    let response = match uds_client::request(
         &command.socket,
         Method::POST,
         "/api/v2/exec/runs",
-        serde_json::to_vec(&request)?,
+        request_body,
     )
-    .await?;
+    .await
+    {
+        Ok(response) => response,
+        Err(error) => {
+            if let Err(rollback) = release_pins(&artifacts, &pinned_hashes, &upload_pin) {
+                return Err(format!("{error}; upload-pin rollback failed: {rollback}").into());
+            }
+            return Err(error);
+        }
+    };
     if !matches!(response.status, 200 | 202) {
+        if let Err(rollback) = release_pins(&artifacts, &pinned_hashes, &upload_pin) {
+            return Err(format!(
+                "{}; upload-pin rollback failed: {rollback}",
+                http_error(response.status, &response.body)
+            )
+            .into());
+        }
         return Err(http_error(response.status, &response.body).into());
     }
     let mut run: RunResponse = serde_json::from_slice(&response.body)?;
@@ -345,6 +390,24 @@ async fn run_command(command: RunCommand) -> Result<ExitCode, BoxError> {
     } else {
         ExitCode::from(1)
     })
+}
+
+fn release_pins(
+    artifacts: &ArtifactStore,
+    hashes: &[prometheus_exec_contracts::Digest],
+    reason: &str,
+) -> Result<(), String> {
+    let mut failures = Vec::new();
+    for hash in hashes {
+        if let Err(error) = artifacts.unpin(hash, reason) {
+            failures.push(format!("{hash}: {error}"));
+        }
+    }
+    if failures.is_empty() {
+        Ok(())
+    } else {
+        Err(failures.join("; "))
+    }
 }
 
 async fn status_command(
@@ -527,4 +590,28 @@ fn http_error(status: u16, body: &[u8]) -> String {
         "sidecar returned HTTP {status}: {}",
         String::from_utf8_lossy(body)
     )
+}
+
+#[cfg(test)]
+mod pin_tests {
+    use super::*;
+
+    #[test]
+    fn upload_pin_rollback_releases_every_materialized_hash() {
+        let root = tempfile::tempdir().unwrap();
+        let artifacts = ArtifactStore::open(root.path(), 1).unwrap();
+        let reason = "upload:fixture";
+        let first = artifacts.put_pinned(b"first", reason).unwrap();
+        let second = artifacts.put_pinned(b"second", reason).unwrap();
+
+        release_pins(
+            &artifacts,
+            &[first.hash.clone(), second.hash.clone()],
+            reason,
+        )
+        .unwrap();
+
+        assert!(!artifacts.is_pinned(&first.hash).unwrap());
+        assert!(!artifacts.is_pinned(&second.hash).unwrap());
+    }
 }

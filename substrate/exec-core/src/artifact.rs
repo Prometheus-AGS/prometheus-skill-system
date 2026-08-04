@@ -267,6 +267,10 @@ impl ArtifactStore {
     pub fn unpin(&self, hash: &Digest, reason: &str) -> Result<bool, CasError> {
         validate_reason(reason)?;
         let _lock = self.operation_lock()?;
+        self.unpin_unlocked(hash, reason)
+    }
+
+    fn unpin_unlocked(&self, hash: &Digest, reason: &str) -> Result<bool, CasError> {
         let marker = self.pin_directory(hash)?.join(pin_reason_id(reason));
         match fs::remove_file(&marker) {
             Ok(()) => Ok(true),
@@ -326,15 +330,76 @@ impl ArtifactStore {
         Ok(())
     }
 
-    /// Retains available request material while a run is non-terminal.
+    /// Retains materialized request blobs while a run is non-terminal.
     pub fn retain_for_request(&self, request: &SignedExecRequest) -> Result<(), CasError> {
-        let reason = format!("request:{}", request.request_id);
+        let reason = request_pin_reason(request)?;
         let _lock = self.operation_lock()?;
-        self.pin_when_present_unlocked(&request.code.hash, &reason)?;
-        for input in &request.inputs {
-            self.pin_when_present_unlocked(&input.hash, &reason)?;
+        self.retain_request_unlocked(request, &reason)
+    }
+
+    /// Atomically transfers CLI upload ownership to request-hash ownership.
+    ///
+    /// The operation lock prevents budget GC from observing a materialized blob
+    /// without at least one of the two pin reasons.
+    pub fn transfer_upload_to_request(&self, request: &SignedExecRequest) -> Result<(), CasError> {
+        let request_reason = request_pin_reason(request)?;
+        let upload_reason = format!("upload:{}", request.request_id);
+        let _lock = self.operation_lock()?;
+        self.retain_request_unlocked(request, &request_reason)?;
+        let hashes = std::iter::once(&request.code.hash)
+            .chain(request.inputs.iter().map(|input| &input.hash));
+        self.unpin_all_unlocked(hashes, &upload_reason)
+    }
+
+    fn retain_request_unlocked(
+        &self,
+        request: &SignedExecRequest,
+        reason: &str,
+    ) -> Result<(), CasError> {
+        let hashes = std::iter::once(&request.code.hash)
+            .chain(request.inputs.iter().map(|input| &input.hash))
+            .collect::<Vec<_>>();
+        for hash in &hashes {
+            if let Err(error) = self.pin_when_present_unlocked(hash, reason) {
+                let _ = self.unpin_all_unlocked(hashes.iter().copied(), reason);
+                return Err(error);
+            }
         }
         Ok(())
+    }
+
+    /// Releases the temporary pins owned by a non-terminal request.
+    pub fn release_request(&self, request: &SignedExecRequest) -> Result<(), CasError> {
+        let reason = request_pin_reason(request)?;
+        let _lock = self.operation_lock()?;
+        let hashes = std::iter::once(&request.code.hash)
+            .chain(request.inputs.iter().map(|input| &input.hash));
+        self.unpin_all_unlocked(hashes, &reason)
+    }
+
+    /// Releases CLI upload pins after request-hash-scoped retention succeeds.
+    pub fn release_upload(&self, request: &SignedExecRequest) -> Result<(), CasError> {
+        let reason = format!("upload:{}", request.request_id);
+        let _lock = self.operation_lock()?;
+        let hashes = std::iter::once(&request.code.hash)
+            .chain(request.inputs.iter().map(|input| &input.hash));
+        self.unpin_all_unlocked(hashes, &reason)
+    }
+
+    /// Rolls back receipt pins when terminal publication does not commit.
+    pub fn release_receipt(
+        &self,
+        request: &SignedExecRequest,
+        receipt: &ExecutionReceipt,
+    ) -> Result<(), CasError> {
+        let reason = format!("receipt:{}", receipt.run_id);
+        let _lock = self.operation_lock()?;
+        let hashes = [&receipt.outputs.stdout, &receipt.outputs.stderr]
+            .into_iter()
+            .chain(receipt.outputs.artifacts.iter().map(|item| &item.hash))
+            .chain(std::iter::once(&request.code.hash))
+            .chain(request.inputs.iter().map(|input| &input.hash));
+        self.unpin_all_unlocked(hashes, &reason)
     }
 
     pub fn garbage_collect(&self) -> Result<GcReport, CasError> {
@@ -417,6 +482,25 @@ impl ArtifactStore {
         }
     }
 
+    fn unpin_all_unlocked<'a>(
+        &self,
+        hashes: impl IntoIterator<Item = &'a Digest>,
+        reason: &str,
+    ) -> Result<(), CasError> {
+        let mut first_error = None;
+        for hash in hashes {
+            if let Err(error) = self.unpin_unlocked(hash, reason) {
+                if first_error.is_none() {
+                    first_error = Some(error);
+                }
+            }
+        }
+        match first_error {
+            Some(error) => Err(error),
+            None => Ok(()),
+        }
+    }
+
     fn operation_lock(&self) -> Result<File, CasError> {
         let path = self.root.join(".cas-operation.lock");
         let lock = OpenOptions::new()
@@ -463,6 +547,14 @@ impl ArtifactStore {
     fn pin_directory(&self, digest: &Digest) -> Result<PathBuf, CasError> {
         digest_path(&self.pin_root(), digest)
     }
+}
+
+fn request_pin_reason(request: &SignedExecRequest) -> Result<String, CasError> {
+    Ok(format!(
+        "request:{}:{}",
+        request.request_id,
+        request.request_hash()?
+    ))
 }
 
 fn digest_path(root: &Path, digest: &Digest) -> Result<PathBuf, CasError> {

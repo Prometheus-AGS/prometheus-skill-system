@@ -101,6 +101,46 @@ fn garbage_collection_never_removes_pinned_content() {
 }
 
 #[test]
+fn upload_to_request_transfer_preserves_every_materialized_blob() {
+    let root = tempdir().unwrap();
+    let store = ArtifactStore::open(root.path(), 1024).unwrap();
+    let code = store.put(b"print('present')").unwrap();
+    let missing = hash_bytes(b"missing input");
+    let request = SignedExecRequest {
+        schema_version: SCHEMA_VERSION.into(),
+        request_id: Uuid::new_v4(),
+        issued_at: Utc::now(),
+        queued_at: None,
+        validity_window_secs: 60,
+        tier: RequestedTier::P,
+        code: CodeIdentity {
+            kind: CodeKind::Inline,
+            hash: code.hash.clone(),
+            runtime: RuntimeKind::Python3,
+            toolchain_pin: None,
+        },
+        inputs: vec![NamedInput {
+            name: "missing.json".into(),
+            hash: missing,
+        }],
+        capabilities: CapabilityManifest::default(),
+        limits: ExecutionLimits::default(),
+        targets: Vec::new(),
+        provenance: ExecutionProvenance::default(),
+        signer_key_id: None,
+        sig_alg: SignatureAlgorithm::Ed25519,
+        signature: None,
+    };
+
+    let upload_reason = format!("upload:{}", request.request_id);
+    store.pin(&code.hash, &upload_reason).unwrap();
+    store.transfer_upload_to_request(&request).unwrap();
+    assert!(store.is_pinned(&code.hash).unwrap());
+    store.release_request(&request).unwrap();
+    assert!(!store.is_pinned(&code.hash).unwrap());
+}
+
+#[test]
 fn receipt_retention_protects_all_materialized_evidence_from_budget_gc() {
     let root = tempdir().unwrap();
     let store = ArtifactStore::open(root.path(), 1).unwrap();
@@ -179,7 +219,13 @@ fn receipt_retention_protects_all_materialized_evidence_from_budget_gc() {
         signature: None,
     };
 
+    let upload_reason = format!("upload:{}", request.request_id);
+    store.pin(&code.hash, &upload_reason).unwrap();
+    store.pin(&input.hash, &upload_reason).unwrap();
+    store.retain_for_request(&request).unwrap();
     store.retain_for_receipt(&request, &receipt).unwrap();
+    store.release_upload(&request).unwrap();
+    store.release_request(&request).unwrap();
     let report = store.garbage_collect().unwrap();
 
     for retained in [
@@ -201,4 +247,15 @@ fn receipt_retention_protects_all_materialized_evidence_from_budget_gc() {
         report.bytes_after > 1,
         "pinned evidence may exceed the CAS budget"
     );
+
+    store.release_receipt(&request, &receipt).unwrap();
+    for released in [
+        &code.hash,
+        &input.hash,
+        &stdout.hash,
+        &stderr.hash,
+        &artifact.hash,
+    ] {
+        assert!(!store.is_pinned(released).unwrap());
+    }
 }

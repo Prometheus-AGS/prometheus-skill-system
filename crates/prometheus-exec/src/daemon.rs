@@ -86,6 +86,10 @@ pub async fn run(config: DaemonConfig) -> Result<(), Box<dyn std::error::Error +
         )
         .map_err(|error| error.to_string())
     })?;
+    retain_reconciled_receipts(&service, &artifacts)?;
+    if let Err(error) = artifacts.garbage_collect() {
+        eprintln!("prometheus-exec: startup artifact GC failed: {error}");
+    }
     state.install(service.clone(), artifacts.clone()).await;
 
     #[cfg(target_os = "macos")]
@@ -200,13 +204,10 @@ async fn runner_loop(
 ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let policy = CedarTighteningPolicy::default();
     loop {
-        let records = service.ledger().records()?;
-        for record in &records {
-            if !record.state.is_terminal() {
-                artifacts.retain_for_request(&record.request)?;
-            }
-        }
-        for record in records {
+        // New requests are retained by the sidecar HTTP handler before the
+        // service accepts them. This loop therefore never needs a racy second
+        // pin pass and can process each durable record independently.
+        for record in service.ledger().records()? {
             if record.state != RunState::Queued {
                 continue;
             }
@@ -361,9 +362,10 @@ async fn process_queued_run(
                 signing_key,
                 artifacts,
             )?;
-            service.commit_terminal(
-                claim.record.request_id,
-                &claim.record.request_hash,
+            commit_terminal_with_retention(
+                service,
+                artifacts,
+                &claim.record,
                 receipt,
                 verification_key,
             )?;
@@ -392,14 +394,7 @@ async fn process_queued_run(
     )?;
     let receipt = ReceiptAssembler::new(Ed25519ReceiptSigner::new(signing_key.clone()))
         .assemble_for_run(claim.record.run_id, &job, execution)?;
-    artifacts.retain_for_receipt(&claim.record.request, &receipt)?;
-    service.commit_terminal(
-        claim.record.request_id,
-        &claim.record.request_hash,
-        receipt,
-        verification_key,
-    )?;
-    artifacts.garbage_collect()?;
+    commit_terminal_with_retention(service, artifacts, &claim.record, receipt, verification_key)?;
     Ok(())
 }
 
@@ -440,12 +435,76 @@ fn reject_run(
 ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let verification_key = VerificationKey::ed25519(signing_key.verifying_key().to_bytes());
     let receipt = synthetic_receipt(record, RunState::Rejected, reason, signing_key, artifacts)?;
-    service.commit_terminal(
+    commit_terminal_with_retention(service, artifacts, record, receipt, &verification_key)?;
+    Ok(())
+}
+
+#[cfg(target_os = "macos")]
+fn commit_terminal_with_retention(
+    service: &ExecutionService,
+    artifacts: &ArtifactStore,
+    record: &RunRecord,
+    receipt: ExecutionReceipt,
+    verification_key: &VerificationKey,
+) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+    artifacts.retain_for_receipt(&record.request, &receipt)?;
+    if let Err(commit_error) = service.commit_terminal(
         record.request_id,
         &record.request_hash,
-        receipt,
-        &verification_key,
-    )?;
+        receipt.clone(),
+        verification_key,
+    ) {
+        if let Err(error) = artifacts.release_receipt(&record.request, &receipt) {
+            eprintln!(
+                "prometheus-exec: receipt-pin rollback failed for {}: {error}",
+                record.run_id
+            );
+        }
+        return Err(commit_error.into());
+    }
+    if let Err(error) = artifacts.release_request(&record.request) {
+        eprintln!(
+            "prometheus-exec: request-pin cleanup failed for {}: {error}",
+            record.run_id
+        );
+    }
+    if let Err(error) = artifacts.garbage_collect() {
+        eprintln!(
+            "prometheus-exec: post-commit artifact GC failed for {}: {error}",
+            record.run_id
+        );
+    }
+    Ok(())
+}
+
+fn retain_reconciled_receipts(
+    service: &ExecutionService,
+    artifacts: &ArtifactStore,
+) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+    for record in service.ledger().records()? {
+        let result = if record.state.is_terminal() {
+            match &record.terminal {
+                Some(terminal) => artifacts
+                    .retain_for_receipt(&record.request, &terminal.receipt)
+                    .and_then(|()| artifacts.release_request(&record.request)),
+                None => {
+                    eprintln!(
+                        "prometheus-exec: terminal record {} has no terminal receipt; preserving request ownership",
+                        record.run_id
+                    );
+                    artifacts.retain_for_request(&record.request)
+                }
+            }
+        } else {
+            artifacts.retain_for_request(&record.request)
+        };
+        if let Err(error) = result {
+            eprintln!(
+                "prometheus-exec: artifact retention reconciliation failed for {}: {error}",
+                record.run_id
+            );
+        }
+    }
     Ok(())
 }
 
@@ -499,8 +558,6 @@ fn synthetic_receipt(
         signature: None,
     };
     sign_receipt_ed25519(&mut receipt, signing_key)?;
-    artifacts.retain_for_receipt(&record.request, &receipt)?;
-    artifacts.garbage_collect()?;
     Ok(receipt)
 }
 
