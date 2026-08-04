@@ -70,6 +70,22 @@ fn version_is_release_aligned() {
 }
 
 #[test]
+fn cli_exposes_component_submission_and_offline_replay_options() {
+    command()
+        .args(["run", "--help"])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("wasm-component"))
+        .stdout(predicate::str::contains("--plugin-root"));
+    command()
+        .args(["verify", "--help"])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("--component"))
+        .stdout(predicate::str::contains("--input"));
+}
+
+#[test]
 fn init_is_atomic_private_and_does_not_disclose_secret() {
     let directory = tempdir().unwrap();
     let identity = directory.path().join("identity.json");

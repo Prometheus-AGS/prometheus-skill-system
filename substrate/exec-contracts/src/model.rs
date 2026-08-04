@@ -171,6 +171,8 @@ pub struct ComponentProvenance {
     pub authorization: ComponentAuthorization,
     pub engine_version: String,
     pub backend_profile_hash: Digest,
+    /// Canonical hash of the backend-independent Tier W receipt projection.
+    pub deterministic_projection_hash: Digest,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]

@@ -4,6 +4,7 @@ mod identity;
 mod uds_client;
 
 use std::{
+    collections::BTreeMap,
     fs,
     io::{self},
     path::{Path, PathBuf},
@@ -22,6 +23,7 @@ use prometheus_exec_contracts::{
 };
 use prometheus_exec_core::ArtifactStore;
 use prometheus_exec_service::RunResponse;
+use prometheus_exec_tier_w::{replay_verified_receipt, ComponentAuthorizer};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
@@ -41,7 +43,7 @@ enum Command {
         #[arg(long)]
         identity: PathBuf,
     },
-    /// Run the health-first local sidecar and Tier P worker.
+    /// Run the health-first local sidecar with Tier P and Tier W workers.
     Daemon {
         #[arg(long)]
         socket: PathBuf,
@@ -55,7 +57,7 @@ enum Command {
         #[arg(long, default_value_t = 2048)]
         artifact_budget_mb: u64,
     },
-    /// Submit one signed Tier P execution and wait for its durable receipt.
+    /// Submit one signed native or Wasm-component execution and await its receipt.
     Run {
         #[arg(long)]
         socket: PathBuf,
@@ -63,6 +65,9 @@ enum Command {
         state_dir: PathBuf,
         #[arg(long)]
         identity: PathBuf,
+        /// Signed plugin estate used to authorize Wasm component bytes.
+        #[arg(long)]
+        plugin_root: Option<PathBuf>,
         #[arg(long, value_enum)]
         runtime: RuntimeArg,
         #[arg(long)]
@@ -113,6 +118,12 @@ enum Command {
         request: Option<PathBuf>,
         #[arg(long)]
         artifacts: Option<PathBuf>,
+        /// Re-execute a verified Tier W receipt with this exact component.
+        #[arg(long)]
+        component: Option<PathBuf>,
+        /// Named replay input in NAME=PATH form. May be repeated.
+        #[arg(long = "input")]
+        inputs: Vec<String>,
         #[arg(long, value_enum, default_value_t = OutputFormat::Human)]
         format: OutputFormat,
     },
@@ -131,6 +142,7 @@ enum OutputFormat {
 
 #[derive(Clone, Copy, Debug, ValueEnum)]
 enum RuntimeArg {
+    WasmComponent,
     Python3,
     Node,
     Bash,
@@ -139,6 +151,7 @@ enum RuntimeArg {
 impl From<RuntimeArg> for RuntimeKind {
     fn from(value: RuntimeArg) -> Self {
         match value {
+            RuntimeArg::WasmComponent => Self::WasmComponent,
             RuntimeArg::Python3 => Self::Python3,
             RuntimeArg::Node => Self::Node,
             RuntimeArg::Bash => Self::Bash,
@@ -189,6 +202,7 @@ async fn run(cli: Cli) -> Result<ExitCode, BoxError> {
             socket,
             state_dir,
             identity,
+            plugin_root,
             runtime,
             code,
             inputs,
@@ -201,6 +215,7 @@ async fn run(cli: Cli) -> Result<ExitCode, BoxError> {
                 socket,
                 state_dir,
                 identity,
+                plugin_root,
                 runtime: runtime.into(),
                 code,
                 inputs,
@@ -237,12 +252,16 @@ async fn run(cli: Cli) -> Result<ExitCode, BoxError> {
             public_key,
             request,
             artifacts,
+            component,
+            inputs,
             format,
         } => verify_command(
             &receipt,
             &public_key,
             request.as_deref(),
             artifacts.as_deref(),
+            component.as_deref(),
+            &inputs,
             format,
         ),
         Command::Contracts { output_dir } => generate_contracts(&output_dir),
@@ -265,6 +284,7 @@ struct RunCommand {
     socket: PathBuf,
     state_dir: PathBuf,
     identity: PathBuf,
+    plugin_root: Option<PathBuf>,
     runtime: RuntimeKind,
     code: PathBuf,
     inputs: Vec<String>,
@@ -286,6 +306,15 @@ async fn run_command(command: RunCommand) -> Result<ExitCode, BoxError> {
     let request_id = Uuid::new_v4();
     let upload_pin = format!("upload:{request_id}");
     let code = fs::read(&command.code)?;
+    let (tier, code_kind, component_authorization) =
+        if command.runtime == RuntimeKind::WasmComponent {
+            let plugin_root = command.plugin_root.unwrap_or(default_plugin_root()?);
+            let authorization =
+                ComponentAuthorizer::estate(plugin_root).authorization_for_bytes(&code)?;
+            (RequestedTier::W, CodeKind::Component, Some(authorization))
+        } else {
+            (RequestedTier::P, CodeKind::File, None)
+        };
     let mut loaded_inputs = Vec::new();
     for input in command.inputs {
         let (name, path) = input
@@ -324,9 +353,9 @@ async fn run_command(command: RunCommand) -> Result<ExitCode, BoxError> {
         issued_at: now,
         queued_at: Some(now),
         validity_window_secs: command.timeout_ms.saturating_add(60_000).div_ceil(1000),
-        tier: RequestedTier::P,
+        tier,
         code: CodeIdentity {
-            kind: CodeKind::File,
+            kind: code_kind,
             hash: stored_code.hash,
             runtime: command.runtime,
             toolchain_pin: None,
@@ -341,6 +370,7 @@ async fn run_command(command: RunCommand) -> Result<ExitCode, BoxError> {
         targets: vec![],
         provenance: ExecutionProvenance {
             harness: Some("prometheus-exec-cli".into()),
+            component_authorization,
             ..ExecutionProvenance::default()
         },
         signer_key_id: None,
@@ -519,6 +549,8 @@ fn verify_command(
     public_key: &str,
     request_path: Option<&Path>,
     artifact_root: Option<&Path>,
+    component_path: Option<&Path>,
+    input_arguments: &[String],
     format: OutputFormat,
 ) -> Result<ExitCode, BoxError> {
     let receipt: ExecutionReceipt = read_json(receipt_path)?;
@@ -526,7 +558,35 @@ fn verify_command(
     let request = request_path
         .map(read_json::<SignedExecRequest>)
         .transpose()?;
-    let result = verify_receipt(&receipt, &key, request.as_ref(), artifact_root);
+    let mut result = verify_receipt(&receipt, &key, request.as_ref(), artifact_root);
+    if let Some(component_path) = component_path {
+        let request = request
+            .as_ref()
+            .ok_or("--component requires --request for deterministic replay")?;
+        let inputs = load_named_inputs(input_arguments)?;
+        match replay_verified_receipt(&receipt, request, &key, fs::read(component_path)?, inputs) {
+            Ok(replay) => {
+                if !replay.valid {
+                    result.record_failure(
+                        "tier_w.replay_mismatch",
+                        format!(
+                            "portable replay differs at {}",
+                            replay.mismatches.join(", ")
+                        ),
+                        Some(receipt.run_id.to_string()),
+                    );
+                }
+                result.replay = Some(replay);
+            }
+            Err(error) => result.record_failure(
+                "tier_w.replay_error",
+                error.to_string(),
+                Some(receipt.run_id.to_string()),
+            ),
+        }
+    } else if !input_arguments.is_empty() {
+        return Err("--input requires --component during verification".into());
+    }
     match format {
         OutputFormat::Json => {
             serde_json::to_writer_pretty(io::stdout().lock(), &result)?;
@@ -544,11 +604,21 @@ fn verify_command(
             for check in &result.checks {
                 println!("  ok {}: {}", check.code, check.message);
             }
+            if let Some(replay) = &result.replay {
+                for check in &replay.checks {
+                    println!("  replay ok {check}");
+                }
+            }
         }
         OutputFormat::Human => {
             println!("INVALID");
             for failure in &result.failures {
                 println!("  error {}: {}", failure.code, failure.message);
+            }
+            if let Some(replay) = &result.replay {
+                for mismatch in &replay.mismatches {
+                    println!("  replay mismatch {mismatch}");
+                }
             }
         }
     }
@@ -557,6 +627,22 @@ fn verify_command(
     } else {
         ExitCode::from(1)
     })
+}
+
+fn load_named_inputs(arguments: &[String]) -> Result<BTreeMap<String, Vec<u8>>, BoxError> {
+    let mut inputs = BTreeMap::new();
+    for argument in arguments {
+        let (name, path) = argument
+            .split_once('=')
+            .ok_or("input must use NAME=PATH syntax")?;
+        if name.is_empty() {
+            return Err("input name cannot be empty".into());
+        }
+        if inputs.insert(name.into(), fs::read(path)?).is_some() {
+            return Err(format!("duplicate input name: {name}").into());
+        }
+    }
+    Ok(inputs)
 }
 
 fn generate_contracts(output_dir: &Path) -> Result<ExitCode, BoxError> {

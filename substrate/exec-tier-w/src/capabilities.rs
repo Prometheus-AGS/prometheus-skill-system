@@ -58,6 +58,7 @@ const SUPPORTED_IMPORTS: [&str; 21] = [
 pub struct CapabilityGrant {
     log: bool,
     readable_keys: BTreeSet<String>,
+    readable_prefixes: BTreeSet<String>,
     writable_keys: BTreeSet<String>,
     kv_values: BTreeMap<String, String>,
     readable_inputs: BTreeSet<String>,
@@ -84,6 +85,23 @@ impl CapabilityGrant {
             self.kv_values.insert(key, value);
         }
         self
+    }
+
+    /// Grants a portable relative filesystem-like read scope to the typed KV
+    /// host. `.` means all relative keys; directory scopes are prefix-bound.
+    pub fn allow_kv_scope(mut self, scope: impl Into<String>) -> Result<Self, TierWError> {
+        let scope = scope.into();
+        if scope == "." {
+            self.readable_prefixes.insert(String::new());
+        } else if scope.ends_with(['/', '\\']) {
+            let normalized = normalize_prefix(scope.trim_end_matches(['/', '\\']))?;
+            self.readable_prefixes.insert(normalized);
+        } else {
+            let normalized = normalize_output_path(&scope)
+                .map_err(|message| TierWError::InvalidCapabilityGrant(message.to_string()))?;
+            self.readable_keys.insert(normalized);
+        }
+        Ok(self)
     }
 
     pub fn allow_kv_write(mut self, key: impl Into<String>) -> Self {
@@ -120,7 +138,11 @@ impl CapabilityGrant {
         match name {
             TYPES_IMPORT => true,
             LOG_IMPORT => self.log,
-            KV_IMPORT => !self.readable_keys.is_empty() || !self.writable_keys.is_empty(),
+            KV_IMPORT => {
+                !self.readable_keys.is_empty()
+                    || !self.readable_prefixes.is_empty()
+                    || !self.writable_keys.is_empty()
+            }
             INPUT_IMPORT => !self.readable_inputs.is_empty(),
             OUTPUT_IMPORT => !self.output_prefixes.is_empty(),
             CLOCK_IMPORT => self.clock_ms.is_some(),
@@ -458,7 +480,12 @@ impl kv_store::Host for CapabilityHost {
         if let Some(error) = self.active_limit_error() {
             return Err(error);
         }
-        if !self.grant.readable_keys.contains(&key) {
+        let permitted_by_scope = self
+            .grant
+            .readable_prefixes
+            .iter()
+            .any(|prefix| prefix.is_empty() || key.starts_with(prefix));
+        if !self.grant.readable_keys.contains(&key) && !permitted_by_scope {
             return Err(denied(format!("kv read was not granted for {key}")));
         }
         Ok(self.grant.kv_values.get(&key).cloned())
@@ -710,6 +737,28 @@ mod tests {
         assert_eq!(random::Host::bytes(&mut host, 2).unwrap(), vec![1, 2]);
         assert!(random::Host::bytes(&mut host, 2).is_err());
         assert_eq!(host.random_bytes_consumed(), 2);
+    }
+
+    #[test]
+    fn portable_read_scopes_cover_only_the_declared_directory() {
+        let grant = CapabilityGrant::empty()
+            .allow_kv_scope("openspec/")
+            .unwrap()
+            .allow_kv_read("openspec/change.json", Some("{}".into()));
+        let mut host = CapabilityHost::new(grant);
+
+        assert_eq!(
+            kv_store::Host::get(&mut host, "openspec/change.json".into()).unwrap(),
+            Some("{}".into())
+        );
+        assert!(kv_store::Host::get(&mut host, "open-spec/secret".into()).is_err());
+
+        let mut all_relative =
+            CapabilityHost::new(CapabilityGrant::empty().allow_kv_scope(".").unwrap());
+        assert_eq!(
+            kv_store::Host::get(&mut all_relative, "any/relative/path".into()).unwrap(),
+            None
+        );
     }
 
     #[cfg(feature = "cranelift")]

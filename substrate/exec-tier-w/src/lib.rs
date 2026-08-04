@@ -8,6 +8,7 @@ mod engine;
 mod limits;
 mod port;
 mod projection;
+mod replay;
 
 pub use authorization::{ComponentAuthorizer, ComponentTrustInspection, ComponentTrustPolicy};
 pub use capabilities::{
@@ -22,6 +23,7 @@ pub use limits::{
 };
 pub use port::{TierWExecutionPort, TierWPortError};
 pub use projection::TierWDeterministicReceiptProjection;
+pub use replay::{replay_verified_receipt, TierWReplayError};
 
 #[cfg(all(feature = "mobile", feature = "cranelift"))]
 compile_error!(

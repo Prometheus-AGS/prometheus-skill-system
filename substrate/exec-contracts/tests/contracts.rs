@@ -93,6 +93,7 @@ fn receipt(request_hash: Digest) -> ExecutionReceipt {
             authorization: request().provenance.component_authorization.unwrap(),
             engine_version: "wasmtime 46.0.0".into(),
             backend_profile_hash: digest("cranelift-profile"),
+            deterministic_projection_hash: digest("tier-w-projection"),
         }),
         failure: None,
         signature: None,

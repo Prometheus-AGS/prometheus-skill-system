@@ -35,6 +35,13 @@ pub enum ComponentTrustPolicy {
 #[derive(Clone, Debug)]
 pub struct ComponentAuthorizer {
     policy: ComponentTrustPolicy,
+    verified_receipt: Option<VerifiedReceiptAuthorization>,
+}
+
+#[derive(Clone, Debug)]
+struct VerifiedReceiptAuthorization {
+    component_hash: Digest,
+    authorization: ComponentAuthorization,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize)]
@@ -75,11 +82,41 @@ impl ComponentAuthorizer {
             policy: ComponentTrustPolicy::Estate {
                 plugin_root: plugin_root.into(),
             },
+            verified_receipt: None,
         }
     }
 
+    pub(crate) fn verified_receipt(
+        component_hash: Digest,
+        authorization: ComponentAuthorization,
+    ) -> Self {
+        Self {
+            policy: ComponentTrustPolicy::ExactPins {
+                mode: ComponentAuthorizationMode::HashPin,
+                digests: HashSet::from([component_hash.clone()]),
+            },
+            verified_receipt: Some(VerifiedReceiptAuthorization {
+                component_hash,
+                authorization,
+            }),
+        }
+    }
+
+    /// Resolves authorization without compiling, linking, executing, or
+    /// mutating the active plugin generation.
+    pub fn authorization_for_bytes(
+        &self,
+        component_bytes: &[u8],
+    ) -> Result<ComponentAuthorization, TierWError> {
+        let component_hash = Digest::from_bytes(component_bytes);
+        self.authorization_for(&component_hash, Some(component_bytes.len()))
+    }
+
     pub fn from_policy(policy: ComponentTrustPolicy) -> Self {
-        Self { policy }
+        Self {
+            policy,
+            verified_receipt: None,
+        }
     }
 
     pub fn policy(&self) -> &ComponentTrustPolicy {
@@ -89,6 +126,18 @@ impl ComponentAuthorizer {
     /// Verifies the configured trust roots without compiling or executing a
     /// component and without changing the active generation or trust store.
     pub fn inspect(&self) -> Result<ComponentTrustInspection, TierWError> {
+        if let Some(verified) = &self.verified_receipt {
+            verified
+                .authorization
+                .validate()
+                .map_err(|error| unauthorized(error.to_string()))?;
+            return Ok(ComponentTrustInspection {
+                mode: verified.authorization.mode,
+                component_count: 1,
+                generation_id: verified.authorization.generation_id.clone(),
+                manifest_hash: verified.authorization.manifest_hash.clone(),
+            });
+        }
         match &self.policy {
             ComponentTrustPolicy::ExactPins { mode, digests } => {
                 if digests.is_empty() {
@@ -162,6 +211,7 @@ impl ComponentAuthorizer {
                 mode,
                 digests: digests.into_iter().collect(),
             },
+            verified_receipt: None,
         }
     }
 
@@ -170,6 +220,19 @@ impl ComponentAuthorizer {
         component_hash: &Digest,
         component_size: Option<usize>,
     ) -> Result<ComponentAuthorization, TierWError> {
+        if let Some(verified) = &self.verified_receipt {
+            verified
+                .authorization
+                .validate()
+                .map_err(|error| unauthorized(error.to_string()))?;
+            if &verified.component_hash != component_hash {
+                return Err(unauthorized(format!(
+                    "component {} differs from verified receipt component {}",
+                    component_hash, verified.component_hash
+                )));
+            }
+            return Ok(verified.authorization.clone());
+        }
         match &self.policy {
             ComponentTrustPolicy::ExactPins { mode, digests } => {
                 if !matches!(
@@ -299,7 +362,7 @@ fn verify_generation_components(generation: &VerifiedGeneration) -> Result<usize
             continue;
         }
         let raw_hash = required_string(entry, "sha256")?;
-        let component_hash = Digest::parse(&format!("sha256:{raw_hash}"))
+        let component_hash = Digest::parse(format!("sha256:{raw_hash}"))
             .map_err(|error| unauthorized(format!("component digest is invalid: {error}")))?;
         if !observed.insert(component_hash.clone()) {
             return Err(unauthorized(

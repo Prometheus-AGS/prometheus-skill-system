@@ -55,7 +55,10 @@ impl TierWExecutionPort {
         &self.authorizer
     }
 
-    fn execute_job(&self, job: &ValidatedExecutionJob) -> Result<BackendExecution, TierWPortError> {
+    pub(crate) fn execute_job(
+        &self,
+        job: &ValidatedExecutionJob,
+    ) -> Result<BackendExecution, TierWPortError> {
         if job.request().code.runtime != RuntimeKind::WasmComponent {
             return Err(TierWPortError::InvalidRuntime);
         }
@@ -86,16 +89,20 @@ impl TierWExecutionPort {
         let outcome = self.engine.execute_component(
             &component,
             &self.authorizer,
-            grant,
+            grant.clone(),
             &limits,
             &invocation,
         );
         let finished_at = Utc::now();
         let wall_clock_ms = started.elapsed().as_millis().min(u128::from(u64::MAX)) as u64;
+        let deterministic_projection_hash = outcome
+            .deterministic_receipt_projection(&component, &grant, &limits, &invocation)?
+            .canonical_hash()?;
         let component_provenance = Some(ComponentProvenance {
             authorization: component.authorization().clone(),
             engine_version: WASMTIME_VERSION.into(),
             backend_profile_hash: self.engine.profile_hash().clone(),
+            deterministic_projection_hash,
         });
         let backend = match self.engine.profile().backend {
             BackendProfile::Cranelift => ExecutionBackend::Cranelift,
@@ -180,7 +187,9 @@ impl ExecutionPort for TierWExecutionPort {
     }
 }
 
-fn capability_grant(job: &ValidatedExecutionJob) -> Result<CapabilityGrant, TierWPortError> {
+pub(crate) fn capability_grant(
+    job: &ValidatedExecutionJob,
+) -> Result<CapabilityGrant, TierWPortError> {
     let capabilities = &job.request().capabilities;
     if let Some(egress) = capabilities.net.egress.first() {
         return Err(TierWPortError::UnsupportedCapability(format!(
@@ -194,7 +203,7 @@ fn capability_grant(job: &ValidatedExecutionJob) -> Result<CapabilityGrant, Tier
     }
     let mut grant = CapabilityGrant::empty().allow_log();
     for path in &capabilities.fs.read_only {
-        grant = grant.allow_kv_read(path, None);
+        grant = grant.allow_kv_scope(path)?;
     }
     for path in &capabilities.fs.read_write {
         // The public contract represents directory scopes with a trailing

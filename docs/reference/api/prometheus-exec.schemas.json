@@ -84,6 +84,10 @@
       "backendProfileHash": {
         "type": "string"
       },
+      "deterministicProjectionHash": {
+        "description": "Canonical hash of the backend-independent Tier W receipt projection.",
+        "type": "string"
+      },
       "engineVersion": {
         "type": "string"
       }
@@ -91,7 +95,8 @@
     "required": [
       "authorization",
       "engineVersion",
-      "backendProfileHash"
+      "backendProfileHash",
+      "deterministicProjectionHash"
     ],
     "title": "ComponentProvenance",
     "type": "object"
@@ -300,6 +305,10 @@
           "backendProfileHash": {
             "type": "string"
           },
+          "deterministicProjectionHash": {
+            "description": "Canonical hash of the backend-independent Tier W receipt projection.",
+            "type": "string"
+          },
           "engineVersion": {
             "type": "string"
           }
@@ -307,7 +316,8 @@
         "required": [
           "authorization",
           "engineVersion",
-          "backendProfileHash"
+          "backendProfileHash",
+          "deterministicProjectionHash"
         ],
         "type": "object"
       },
@@ -692,6 +702,10 @@
           "backendProfileHash": {
             "type": "string"
           },
+          "deterministicProjectionHash": {
+            "description": "Canonical hash of the backend-independent Tier W receipt projection.",
+            "type": "string"
+          },
           "engineVersion": {
             "type": "string"
           }
@@ -699,7 +713,8 @@
         "required": [
           "authorization",
           "engineVersion",
-          "backendProfileHash"
+          "backendProfileHash",
+          "deterministicProjectionHash"
         ],
         "type": "object"
       },
@@ -1503,6 +1518,10 @@
           "backendProfileHash": {
             "type": "string"
           },
+          "deterministicProjectionHash": {
+            "description": "Canonical hash of the backend-independent Tier W receipt projection.",
+            "type": "string"
+          },
           "engineVersion": {
             "type": "string"
           }
@@ -1510,7 +1529,8 @@
         "required": [
           "authorization",
           "engineVersion",
-          "backendProfileHash"
+          "backendProfileHash",
+          "deterministicProjectionHash"
         ],
         "type": "object"
       },
@@ -1893,6 +1913,31 @@
   },
   "VerificationResult": {
     "$defs": {
+      "TierWReplayResult": {
+        "properties": {
+          "checks": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "mismatches": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "valid": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "valid"
+        ],
+        "type": "object"
+      },
       "VerificationCheck": {
         "properties": {
           "code": {
@@ -1951,6 +1996,17 @@
           "string",
           "null"
         ]
+      },
+      "replay": {
+        "anyOf": [
+          {
+            "$ref": "#/$defs/TierWReplayResult"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "description": "Optional deterministic backend replay. Signature/hash verification is\nstill complete and transport-free when this field is absent."
       },
       "valid": {
         "type": "boolean"
