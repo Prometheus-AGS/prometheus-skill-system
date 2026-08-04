@@ -40,7 +40,7 @@ impl ExecutionTarget {
         }
     }
 
-    const fn name(self) -> &'static str {
+    pub const fn name(self) -> &'static str {
         match self {
             Self::Desktop => "desktop",
             Self::Ios => "ios",

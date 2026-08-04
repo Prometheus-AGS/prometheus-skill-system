@@ -3,7 +3,8 @@ use std::collections::BTreeMap;
 use async_trait::async_trait;
 use chrono::{DateTime, Utc};
 use prometheus_exec_contracts::{
-    Digest, EvidenceClass, ExecutionBackend, ExecutionExit, ExecutionTier, ResourceUsage, RunState,
+    ComponentProvenance, Digest, EvidenceClass, ExecutionBackend, ExecutionExit, ExecutionFailure,
+    ExecutionTier, ResourceUsage, RunState,
 };
 
 use crate::ValidatedExecutionJob;
@@ -32,6 +33,8 @@ pub struct BackendExecution {
     pub toolchain_hash: Option<Digest>,
     pub environment: BTreeMap<String, String>,
     pub platform: String,
+    pub component: Option<ComponentProvenance>,
+    pub failure: Option<ExecutionFailure>,
 }
 
 #[async_trait]

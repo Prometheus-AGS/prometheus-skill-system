@@ -25,7 +25,10 @@ pub use receipt_log::{AppendReceiptResult, ReceiptLog, ReceiptLogError};
 
 /// Release family shared by every execution crate.
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");
-pub use artifact::{ArtifactStore, CasError, GcReport, StoredArtifact};
+pub use artifact::{
+    ArtifactBudgetProfile, ArtifactStore, CasError, GcReport, StoredArtifact,
+    DESKTOP_ARTIFACT_BUDGET_BYTES, MOBILE_ARTIFACT_BUDGET_BYTES,
+};
 pub use grant::{
     verify_interactive_grant, GrantValidationError, InteractiveGrantIssuer,
     InteractiveGrantStatement, InteractiveGrantToken, SshGrantManifest, SshGrantVerifier,

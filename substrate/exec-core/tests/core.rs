@@ -122,6 +122,8 @@ fn receipt_assembly_produces_portable_signed_evidence() {
         toolchain_hash: Some(hash_bytes(b"python3-toolchain")),
         environment: BTreeMap::new(),
         platform: "macos-aarch64".into(),
+        component: None,
+        failure: None,
     };
 
     let run_id = Uuid::new_v4();

@@ -14,7 +14,7 @@
 
 ## 3. Core, service, CLI, and standalone integration
 
-- [ ] 3.1 Wire Tier W through `ExecutionPort`, receipt assembly, receipt-first CAS retention, and desktop/mobile budget profiles without importing Tier P
+- [x] 3.1 Wire Tier W through `ExecutionPort`, receipt assembly, receipt-first CAS retention, and desktop/mobile budget profiles without importing Tier P
 - [ ] 3.2 Route Tier W through the durable service ledger/events/API and extend non-mutating readiness/doctor checks for backend and trust state
 - [ ] 3.3 Extend `prometheus-exec run|status|verify` with component submission and offline verified replay while preserving transport-free verification
 - [ ] 3.4 Add standalone and bundled-mobile feature profiles with embedded policy, local receipt log, hash pins, and zero estate/KBD/Sovereign dependencies

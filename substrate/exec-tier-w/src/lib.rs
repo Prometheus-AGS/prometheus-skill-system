@@ -6,6 +6,7 @@ mod bindings;
 mod capabilities;
 mod engine;
 mod limits;
+mod port;
 mod projection;
 
 pub use authorization::{ComponentAuthorizer, ComponentTrustPolicy};
@@ -19,6 +20,7 @@ pub use engine::{
 pub use limits::{
     TierWExecutionFailure, TierWExecutionOutcome, TierWExecutionSuccess, TierWLimits,
 };
+pub use port::{TierWExecutionPort, TierWPortError};
 pub use projection::TierWDeterministicReceiptProjection;
 
 #[cfg(all(feature = "mobile", feature = "cranelift"))]

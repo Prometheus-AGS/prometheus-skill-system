@@ -9,9 +9,42 @@ use prometheus_exec_contracts::{
     ExecutionProvenance, ExecutionReceipt, ExecutionTier, NamedInput, RequestedTier, ResourceUsage,
     RunState, RuntimeKind, SignatureAlgorithm, SignedExecRequest, SCHEMA_VERSION,
 };
-use prometheus_exec_core::{ArtifactStore, CasError};
+use prometheus_exec_core::{
+    ArtifactBudgetProfile, ArtifactStore, CasError, DESKTOP_ARTIFACT_BUDGET_BYTES,
+    MOBILE_ARTIFACT_BUDGET_BYTES,
+};
 use tempfile::tempdir;
 use uuid::Uuid;
+
+#[test]
+fn desktop_and_mobile_budget_profiles_have_exact_defaults_and_overrides() {
+    let desktop_root = tempdir().unwrap();
+    let mobile_root = tempdir().unwrap();
+    let override_root = tempdir().unwrap();
+    let desktop =
+        ArtifactStore::open_for_profile(desktop_root.path(), ArtifactBudgetProfile::Desktop, None)
+            .unwrap();
+    let mobile =
+        ArtifactStore::open_for_profile(mobile_root.path(), ArtifactBudgetProfile::Mobile, None)
+            .unwrap();
+    let overridden = ArtifactStore::open_for_profile(
+        override_root.path(),
+        ArtifactBudgetProfile::Mobile,
+        Some(42),
+    )
+    .unwrap();
+    assert_eq!(desktop.budget_bytes(), DESKTOP_ARTIFACT_BUDGET_BYTES);
+    assert_eq!(mobile.budget_bytes(), MOBILE_ARTIFACT_BUDGET_BYTES);
+    assert_eq!(overridden.budget_bytes(), 42);
+    assert!(matches!(
+        ArtifactStore::open_for_profile(
+            tempdir().unwrap().path(),
+            ArtifactBudgetProfile::Mobile,
+            Some(0)
+        ),
+        Err(CasError::InvalidBudget)
+    ));
+}
 
 #[test]
 fn put_is_atomic_deduplicated_and_corruption_detected() {
@@ -218,8 +251,22 @@ fn receipt_retention_protects_all_materialized_evidence_from_budget_gc() {
         grants: Vec::new(),
         component: None,
         failure: None,
-        signature: None,
+        signature: Some("fixture-signature".into()),
     };
+
+    let stderr_hex = stderr.hash.as_str().trim_start_matches("sha256:");
+    let stderr_path = root
+        .path()
+        .join("blobs/sha256")
+        .join(&stderr_hex[..2])
+        .join(&stderr_hex[2..]);
+    fs::remove_file(stderr_path).unwrap();
+    assert!(store.retain_for_receipt(&request, &receipt).is_err());
+    assert!(
+        !store.is_pinned(&stdout.hash).unwrap(),
+        "a failed receipt-retention transaction left a partial stdout pin"
+    );
+    assert_eq!(store.put(b"").unwrap().hash, stderr.hash);
 
     let upload_reason = format!("upload:{}", request.request_id);
     store.pin(&code.hash, &upload_reason).unwrap();

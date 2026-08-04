@@ -69,6 +69,8 @@ fn signed_receipt(index: u128, key: &SigningKey) -> prometheus_exec_contracts::E
                 toolchain_hash: Some(hash_bytes(b"python3")),
                 environment: BTreeMap::new(),
                 platform: "macos-aarch64".into(),
+                component: None,
+                failure: None,
             },
         )
         .unwrap()

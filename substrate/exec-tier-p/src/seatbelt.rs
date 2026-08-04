@@ -421,6 +421,8 @@ impl SeatbeltExecutor {
             toolchain_hash: Some(toolchain_hash),
             environment,
             platform,
+            component: None,
+            failure: None,
         })
     }
 }

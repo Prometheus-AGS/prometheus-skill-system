@@ -1754,7 +1754,9 @@ dependencies = [
 name = "prometheus-exec-tier-w"
 version = "1.7.0"
 dependencies = [
+ "async-trait",
  "base64",
+ "chrono",
  "ed25519-dalek",
  "prometheus-exec-contracts",
  "prometheus-exec-core",
@@ -1764,6 +1766,7 @@ dependencies = [
  "sha2",
  "tempfile",
  "thiserror",
+ "uuid",
  "wasmtime",
  "wasmtime-wasi",
  "wat",
