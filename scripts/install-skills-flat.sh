@@ -5,6 +5,7 @@
 # Usage:
 #   ./scripts/install-skills-flat.sh                # all platforms + integrations
 #   ./scripts/install-skills-flat.sh --skills-only  # payloads only; no builds/MCP changes
+#   ./scripts/install-skills-flat.sh --best-effort  # development mode; report failures and continue
 #   ./scripts/install-skills-flat.sh --uninstall    # remove all
 
 set -euo pipefail
@@ -12,14 +13,40 @@ set -euo pipefail
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 UNINSTALL=false
 SKILLS_ONLY=false
+BEST_EFFORT=false
+FAILED_COMPONENTS=0
 
 for arg in "$@"; do
     case "$arg" in
         --uninstall) UNINSTALL=true ;;
         --skills-only) SKILLS_ONLY=true ;;
+        --best-effort) BEST_EFFORT=true ;;
         *) echo "Unknown argument: $arg" >&2; exit 2 ;;
     esac
 done
+
+install_failure() {
+    local component="$1"
+    FAILED_COMPONENTS=$((FAILED_COMPONENTS + 1))
+    if $BEST_EFFORT; then
+        echo "  ⚠️  $component failed (continuing only because --best-effort is active)" >&2
+        return 0
+    fi
+    echo "  ❌ $component failed" >&2
+    return 1
+}
+
+verify_installed_binary() {
+    local component="$1"
+    local source_path="$2"
+    local installed_path="$3"
+
+    if [[ -f "$source_path" && -x "$installed_path" ]] && cmp -s "$source_path" "$installed_path"; then
+        echo "  ✅ $component: installed artifact matches the local release build"
+        return 0
+    fi
+    install_failure "$component post-install verification"
+}
 
 echo "🔥 Prometheus Skill Pack — Flat Skill Installation"
 echo "=================================================="
@@ -29,6 +56,8 @@ if $UNINSTALL; then
 else
     echo "  Mode: INSTALL"
 fi
+$SKILLS_ONLY && echo "  Scope: SKILLS ONLY"
+$BEST_EFFORT && echo "  Failure policy: BEST EFFORT (development only)"
 echo ""
 
 # Collect all skill directories
@@ -163,7 +192,7 @@ install_to_codex() {
        launchctl enable "$gui_domain/$label" 2>/dev/null; then
         echo "  ✅ codex: skills-sync agent loaded (re-syncs on skill edits)"
     else
-        echo "  ⚠️  codex: skills-sync agent failed to load — run 'bash scripts/codex-sync-skills.sh' manually after editing skills"
+        install_failure "codex skills-sync LaunchAgent" || return 1
     fi
 }
 
@@ -202,9 +231,21 @@ if $UNINSTALL; then
     install_to_dir "cline"           "$HOME/.cline/skills"
     node "$REPO_ROOT/scripts/install-plugin-generation.js" --home "$HOME" --uninstall >/dev/null
 else
-    generation="$(node "$REPO_ROOT/scripts/install-plugin-generation.js" \
-        --source-root "$REPO_ROOT" --home "$HOME")"
-    echo "  ✅ activated verified plugin generation: $generation"
+    if generation="$(node "$REPO_ROOT/scripts/install-plugin-generation.js" \
+        --source-root "$REPO_ROOT" --home "$HOME")"; then
+        [[ -n "$generation" ]] || install_failure "empty plugin generation result"
+        [[ -z "$generation" ]] || echo "  ✅ activated verified plugin generation: $generation"
+    else
+        generation=""
+        install_failure "plugin generation installation"
+    fi
+fi
+
+# Deterministic local fixture hook. It is deliberately inert unless both variables
+# are present so normal installations cannot accidentally enable fault injection.
+if [[ "${PROMETHEUS_INSTALL_TEST_MODE:-0}" == "1" && \
+      -n "${PROMETHEUS_INSTALL_TEST_FAIL_COMPONENT:-}" ]]; then
+    install_failure "fixture:${PROMETHEUS_INSTALL_TEST_FAIL_COMPONENT}"
 fi
 
 # Post-install: configure Kimi Code MCP servers if config.toml is absent
@@ -239,17 +280,31 @@ configure_kimi_mcp() {
     fi
 
     if $needs_write && ! $UNINSTALL; then
-        [[ -f "$config_file" ]] && cp "$config_file" "${config_file}.bak.$(date +%Y%m%d%H%M%S)"
-        printf '%s%s\n' "$existing" "$new_entries" > "$config_file"
+        if [[ -f "$config_file" ]] && \
+           ! cp "$config_file" "${config_file}.bak.$(date +%Y%m%d%H%M%S)"; then
+            return 1
+        fi
+        printf '%s%s\n' "$existing" "$new_entries" > "$config_file" || return 1
         echo "  ✅ kimi-code: config.toml updated with MCP server entries"
     fi
 }
 
-configure_kimi_mcp
+if ! configure_kimi_mcp; then
+    install_failure "kimi-code MCP configuration"
+fi
 
 if $SKILLS_ONLY || [[ "${PROMETHEUS_INSTALL_SKILLS_ONLY:-0}" == "1" ]]; then
+    verified_generation="$(node "$REPO_ROOT/scripts/install-plugin-generation.js" \
+        --home "$HOME" --verify)" || install_failure "plugin generation verification"
+    if [[ -z "$verified_generation" ]]; then
+        install_failure "empty plugin verification result" || exit 1
+    fi
     echo ""
-    echo "✨ Done — skills-only installation completed"
+    if [[ "$FAILED_COMPONENTS" -gt 0 ]]; then
+        echo "⚠️  Skills-only best-effort run completed with $FAILED_COMPONENTS failed component(s)"
+    else
+        echo "✨ Done — skills-only generation $verified_generation installed and verified"
+    fi
     exit 0
 fi
 
@@ -288,8 +343,8 @@ JS
     if ! $plugin_installed; then
         echo "  ⚙️  opencode: installing @prevalentware/opencode-goal-plugin..."
         opencode plugin -g @prevalentware/opencode-goal-plugin || {
-            echo "  ⚠️  opencode: goal plugin install failed; run manually: opencode plugin -g @prevalentware/opencode-goal-plugin"
-            return
+            install_failure "opencode goal plugin installation" || return 1
+            return 0
         }
         echo "  ✅ opencode: goal plugin installed in global server and TUI configs"
     else
@@ -297,7 +352,9 @@ JS
     fi
 }
 
-configure_opencode_goal_plugin
+if ! configure_opencode_goal_plugin; then
+    install_failure "opencode goal plugin configuration"
+fi
 
 # Post-install: register surreal-memory in MiniMax MCP config
 configure_minimax_mcp() {
@@ -313,7 +370,7 @@ configure_minimax_mcp() {
 
     # Merge our MCP entries using node (already required for skill name extraction)
     # When using 'node - <file>', argv[0]=node, argv[1]='-', argv[2]=the file
-    node - "$mcp_file" <<'JS'
+    node - "$mcp_file" <<'JS' || return 1
 const fs = require('fs');
 const path = process.argv[2];
 
@@ -352,7 +409,9 @@ if (changed) {
 JS
 }
 
-configure_minimax_mcp
+if ! configure_minimax_mcp; then
+    install_failure "minimax MCP configuration"
+fi
 
 # Build and install learn-domain substrate crates
 install_learn_substrate() {
@@ -361,8 +420,8 @@ install_learn_substrate() {
     fi
 
     if ! command -v cargo &>/dev/null; then
-        echo "  — learn-substrate: cargo not found, skipping Rust substrate builds"
-        return
+        install_failure "learn-substrate prerequisite: cargo" || return 1
+        return 0
     fi
 
     local substrate_dir="$REPO_ROOT/substrate"
@@ -373,7 +432,7 @@ install_learn_substrate() {
     if cargo build --release --manifest-path "$substrate_dir/storage-provider/Cargo.toml" 2>/dev/null; then
         echo "  ✅ learn-substrate: storage-provider built"
     else
-        echo "  ⚠️  learn-substrate: storage-provider build failed (non-fatal)"
+        install_failure "learn-substrate storage-provider build" || return 1
     fi
 
     # Build learner-model (binary + lib)
@@ -385,9 +444,14 @@ install_learn_substrate() {
         mkdir -p "$bin_dir"
         if cp -f "$substrate_dir/learner-model/target/release/learner-model" "$bin_dir/learner-model" 2>/dev/null; then
             echo "  ✅ learn-substrate: learner-model installed to $bin_dir/learner-model"
+            verify_installed_binary "learner-model" \
+                "$substrate_dir/learner-model/target/release/learner-model" \
+                "$bin_dir/learner-model" || return 1
+        else
+            install_failure "learner-model binary installation" || return 1
         fi
     else
-        echo "  ⚠️  learn-substrate: learner-model build failed (non-fatal)"
+        install_failure "learn-substrate learner-model build" || return 1
     fi
 
     # Build surface-bridge (Axum MCP App server)
@@ -399,10 +463,16 @@ install_learn_substrate() {
         # -f: if the destination is a currently-running binary (e.g. the
         # live surface-bridge daemon), a plain cp fails with "Text file
         # busy"; -f unlinks and recreates instead of writing in place.
-        cp -f "$substrate_dir/surface-bridge/target/release/surface-bridge" "$bin_dir/surface-bridge" 2>/dev/null || true
+        if cp -f "$substrate_dir/surface-bridge/target/release/surface-bridge" "$bin_dir/surface-bridge" 2>/dev/null; then
+            verify_installed_binary "surface-bridge" \
+                "$substrate_dir/surface-bridge/target/release/surface-bridge" \
+                "$bin_dir/surface-bridge" || return 1
+        else
+            install_failure "surface-bridge binary installation" || return 1
+        fi
         echo "  ℹ️  learn-substrate: run 'npm run install:daemons' to install/start the surface-bridge service (macOS + Linux)"
     else
-        echo "  ⚠️  learn-substrate: surface-bridge build failed (non-fatal)"
+        install_failure "learn-substrate surface-bridge build" || return 1
     fi
 
     # Build sovereign-sync (P2P CRDT daemon + MCP server)
@@ -413,9 +483,14 @@ install_learn_substrate() {
         mkdir -p "$bin_dir"
         if cp -f "$substrate_dir/sovereign-sync/target/release/sovereign-sync" "$bin_dir/sovereign-sync" 2>/dev/null; then
             echo "  ✅ learn-substrate: sovereign-sync installed to $bin_dir/sovereign-sync"
+            verify_installed_binary "sovereign-sync" \
+                "$substrate_dir/sovereign-sync/target/release/sovereign-sync" \
+                "$bin_dir/sovereign-sync" || return 1
+        else
+            install_failure "sovereign-sync binary installation" || return 1
         fi
     else
-        echo "  ⚠️  learn-substrate: sovereign-sync build failed (non-fatal)"
+        install_failure "learn-substrate sovereign-sync build" || return 1
     fi
 
     echo "  ℹ️  learn-substrate: run 'npm run install:daemons' to install/start sovereign-sync (port 7892)"
@@ -446,14 +521,31 @@ JS
     fi
 }
 
-install_learn_substrate
+if ! install_learn_substrate; then
+    install_failure "learn-substrate installation"
+fi
 
 # Post-install: configure all Prometheus MCP servers across all AI tools
 if [[ -f "$REPO_ROOT/scripts/configure-mcp-all-tools.sh" ]] && ! $UNINSTALL; then
     echo ""
     echo "Configuring Prometheus MCP servers across all AI tools..."
-    bash "$REPO_ROOT/scripts/configure-mcp-all-tools.sh" 2>/dev/null || true
+    bash "$REPO_ROOT/scripts/configure-mcp-all-tools.sh" 2>/dev/null || \
+        install_failure "cross-tool MCP configuration"
+fi
+
+if ! $UNINSTALL; then
+    verified_generation="$(node "$REPO_ROOT/scripts/install-plugin-generation.js" \
+        --home "$HOME" --verify)" || install_failure "plugin generation verification"
+    if [[ -z "$verified_generation" ]]; then
+        install_failure "empty plugin verification result" || exit 1
+    fi
 fi
 
 echo ""
-echo "✨ Done — skills available as slash commands on all platforms"
+if [[ "$FAILED_COMPONENTS" -gt 0 ]]; then
+    echo "⚠️  Best-effort installation completed with $FAILED_COMPONENTS failed component(s)"
+elif $UNINSTALL; then
+    echo "✨ Done — managed skill payloads uninstalled"
+else
+    echo "✨ Done — requested components installed; plugin generation $verified_generation verified"
+fi

@@ -49,6 +49,16 @@ must run on the local development machine.
 - If a legacy test workflow starts automatically, cancel it when authorized and
   continue locally. Its result is not validation evidence.
 
+## Agent Tool Freedom and Certification Integrity
+
+- Bash, Python, Edit, Write, and other mutation tools remain unrestricted.
+- Do not add PreToolUse mutation guards, Bash matchers, shell parsers, command
+  allow-lists, or Python restrictions.
+- Protected BDD test integrity is evaluated only at final local certification
+  from committed Git state with `scripts/verify-protected-tests.mjs`.
+- Intentional protected-test changes require an SSH-signed canonical approval
+  manifest under the `prometheus-test-change` namespace.
+
 ---
 
 ## Memory — Mandatory Protocol

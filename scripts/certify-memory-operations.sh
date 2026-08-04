@@ -4,7 +4,7 @@
 set -euo pipefail
 
 BASE_URL="${SURREAL_MEMORY_URL:-http://127.0.0.1:23001}"
-OPERATION_ID="prometheus-release-1.6.1-memory-certification"
+OPERATION_ID="prometheus-release-1.7.0-memory-certification"
 LONG_MEMORY=false
 
 while [ "$#" -gt 0 ]; do
@@ -28,12 +28,12 @@ for command in curl jq shasum; do
   }
 done
 
-content="Prometheus 1.6.1 deterministic memory receipt certification."
+content="Prometheus 1.7.0 deterministic memory receipt certification."
 if $LONG_MEMORY; then
   content="$(awk 'BEGIN { for (i = 1; i <= 6000; i++) printf "certification-token-%04d%s", i, (i == 6000 ? "" : " ") }')"
 fi
 
-payload="$(jq -cnS --arg content "$content" '{categories:["certification","release-1.6.1"],content:$content,user_id:"prometheus-skill-pack"}')"
+payload="$(jq -cnS --arg content "$content" '{categories:["certification","release-1.7.0"],content:$content,user_id:"prometheus-skill-pack"}')"
 payload_hash="$(printf '%s' "$payload" | shasum -a 256 | awk '{print $1}')"
 request="$(jq -cnS \
   --arg operation_id "$OPERATION_ID" \

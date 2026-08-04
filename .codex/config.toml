@@ -27,3 +27,10 @@ args = [
 ]
 command = "npx"
 env_vars = ["TAVILY_API_KEY"]
+
+[mcp_servers.forge-rs]
+url = "http://localhost:8943/mcp"
+bearer_token_env_var = "FORGE_MCP_TOKEN"
+
+[mcp_servers.prometheus-knowledge]
+url = "http://localhost:8942/mcp"

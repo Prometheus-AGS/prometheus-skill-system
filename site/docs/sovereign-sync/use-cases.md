@@ -34,9 +34,10 @@ duplicate work decrease, and the decision log survives a harness change.
 one local journal authority. Authored Markdown can be replicated or carried by
 Git, but signed KBD commands must follow that ordered path.
 
-**Today.** Use Git for reviewed project artifacts and explicitly pause before
-moving execution to another machine. P2P pairing alone does not transfer the
-phase tree or KBD authority in `0.1.0`.
+**Today.** Signed `kbd-control:<project-id>` updates can move the authoritative
+Loro project document between enrolled peers. Pause remains advisory: use a
+deliberate handoff and confirm the destination's applied receipt/frontier
+before resuming writes. Git still carries reviewed authored artifacts.
 
 ## 2. One user, different AI harnesses on different machines
 
@@ -55,12 +56,13 @@ Claude Code on a larger workstation for research and review.
 its own interpretation of `progress.json`. Audits show which device and harness
 claimed, revised, paused, or released the work.
 
-**Security rule.** The devices share `operator_id`, but never share signing
+**Security rule.** The devices share a random group secret through pairing, but never share signing
 keys. Actor identity remains attributable.
 
 **Today.** Each replica writes through one fsynced journal lock and imports into
-the shared project document. Authoritative cross-machine Loro synchronization is
-not yet enabled in the deployed service.
+the shared project document. Signed cross-machine Loro pushes require the same
+group secret plus an endpoint-to-signing-key allow-list; receipt replay and
+frontier checks prevent ambiguous duplicate execution.
 
 ## 3. Feynman study continuity between work and home
 
@@ -84,9 +86,10 @@ session’s observation can improve the next work-session plan.
 **Privacy rule.** Sync the typed learner model, not the user’s raw prompts,
 private notes, entire graph memory, or credentials.
 
-**Today.** The learner model is stored as a Loro-backed document and exposes a
-merge API, but the daemon does not open
-`$HOME/.prometheus/learn/learner-model/` or send its deltas.
+**Today.** The learner model is stored as immutable, uniquely keyed Loro
+evidence. The daemon adapter opens the configured learner-model directory and
+sends deltas only after an explicit signed push. Folding remains commutative,
+associative, and idempotent after local writes and imports.
 
 ## 4. Home workstation and travel laptop on different networks
 
@@ -150,8 +153,9 @@ or local paths.
 also carries learner or approved private project domains. Prefer separate
 operator namespaces or domain-level peer authorization.
 
-**Today.** MCP search builds a local index from `skills_dir`; no skill-index
-CRDT producer is connected to P2P.
+**Today.** MCP search and `skill-index` pushes use the same deterministic index
+implementation as generated agents, plugin generations, and mobile FFI. A
+signed explicit push sends the manifest-approved public metadata domain.
 
 ## 7. Share distilled knowledge, keep raw memory private
 
@@ -173,8 +177,9 @@ auditable.
 `approved-kb:<project-id>` or approved global-knowledge domain must filter and
 classify content before export.
 
-**Today.** Project/global Karpathy KBs are not daemon domains. Use a reviewed
-Git commit or explicit secure transfer for approved entries.
+**Today.** Project/global Karpathy KBs remain outside the daemon's automatic
+domains. Use a reviewed Git commit or explicit secure transfer for approved
+entries; do not relabel raw Memory data as learner evidence.
 
 ## 8. Offline field work
 
@@ -184,16 +189,18 @@ rejoins the operator’s environment.
 **Mergeable target.** Learner observations and approved knowledge can use CRDT
 deltas after reconnection.
 
-**Current limitation.** KBD cannot yet accept two independent offline writers
-and later combine their command histories. An offline machine should work
-read-only or on an explicit branch that is reviewed/replayed later.
+**Current limitation.** Two offline writers may produce causally conflicting
+control decisions even though signed grow-only events can converge. Stale
+frontiers are rejected and surfaced for explicit reconciliation rather than
+silently choosing a winner.
 
 **Benefit.** The system can preserve legitimate offline learning without
 pretending that causal control conflicts are ordinary text conflicts.
 
-**Today.** The current N0 endpoint-ID bootstrap is not suitable for an
-air-gapped LAN, and the daemon does not transmit reconnection deltas. Use Git
-branches/exported artifacts and an explicit KBD handoff.
+**Today.** Iroh reconnects enrolled peers and explicit signed pushes reconcile
+Loro deltas. Fully air-gapped deployments still need an approved discovery or
+ticket-transfer design; use exported artifacts and an explicit KBD handoff
+when the configured discovery fabric is unavailable.
 
 ## Choosing the right transport today
 
@@ -204,8 +211,8 @@ branches/exported artifacts and an explicit KBD handoff.
 | Copy one approved wiki entry | Reviewed Git commit or explicit secure transfer |
 | Share raw secrets or device identities | Do not copy |
 | Use one KBD authority across local harnesses | Local REST/MCP/CLI control plane |
-| Prove iroh connectivity during development | Current pairing/log procedure |
-| Automatically replicate project/global runtime state | Not yet available in `0.1.0` |
+| Prove iroh connectivity during development | Pairing plus live peer/status and signed receipt evidence |
+| Replicate a supported runtime domain | Explicit signed v2 push with terminal per-peer receipt |
 
 ## Acceptance criteria for claiming a use case works
 

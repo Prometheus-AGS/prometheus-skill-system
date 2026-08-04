@@ -263,10 +263,10 @@ degrade, never block the pipeline:
    + the packet JSON. Nothing else. Findings are logged with
    `"isolation_mode": "harness-native"` — a weaker guarantee (same model
    family), stated, not hidden.
-3. **Skip with warning** (exit 4) — no judge available at all. Record
-   `adversarial_review: SKIPPED (<reason>)` as a canonical KBD decision; never
-   edit the phase progress projection.
-   Never fail the phase because review infrastructure is missing.
+3. **Pending review** (exit 4) — no judge available at all. Write a local
+   `pending_review` receipt for the cumulative Git diff. Development may
+   continue; final local certification requires a completed independent review
+   receipt or an SSH-signed waiver.
 
 ## Output contract
 
@@ -355,13 +355,12 @@ suppress the prompt on a TTY as well.
 
 ## Skip rules
 
-- Diff mode inherits the QA gate heuristics: skip when the change touches
-  fewer than 3 files or is documentation-only, or when the caller passes
-  `--skip-adversarial-review`.
-- Artifact mode has **no** size heuristic — planning artifacts are always
-  judgment-heavy. Skipping is explicit-flag-only (`--skip-adversarial-review`).
-- `--skip-qa` and `--skip-adversarial-review` are independent flags; neither
-  implies the other.
+- No file-count or documentation-only heuristic exists in any mode.
+- Diff mode reviews the cumulative Git diff since the last accepted local
+  review receipt, so a sequence of small commits cannot evade review.
+- `--skip-qa` and `--skip-adversarial-review` are independent. Either records
+  `pending_review`; neither satisfies final local certification without an
+  SSH-signed waiver.
 
 ## Multi-model preflight
 

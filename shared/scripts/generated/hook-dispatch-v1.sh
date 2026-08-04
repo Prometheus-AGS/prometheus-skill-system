@@ -49,9 +49,6 @@ case "$HOOK_ID" in
   'prompt-karpathy-learning')
     run_bundle_script 'shared/scripts/karpathy-hook-dispatch.sh' 'prompt' "$HARNESS"
     ;;
-  'pretool-protect-tests')
-    run_bundle_script 'shared/scripts/protect-tests.sh'
-    ;;
   'posttool-validate-evolution-state')
     run_bundle_script 'skills/process/iterative-evolver/scripts/validate-state.sh' 2>&1 || true
     ;;

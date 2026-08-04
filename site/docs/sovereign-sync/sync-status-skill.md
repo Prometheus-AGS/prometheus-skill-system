@@ -6,8 +6,8 @@ sidebar_label: /sync-status
 
 # /sync-status
 
-Show the current bounded Sovereign Sync status response. Live P2P state is not
-wired to this response in `0.1.0`.
+Show the current bounded Sovereign Sync status response from the same service
+layer used by REST and signed push execution.
 
 ## Trigger phrases
 
@@ -32,11 +32,10 @@ Peers     : 0
 Domain    : all
 ```
 
-The current MCP implementation returns a bounded local summary and directs
-clients to the authenticated REST endpoint. The REST sync status is also a
-scaffold response in `0.1.0`: it does not read the live P2P node, peer mesh,
-domain versions, or applied deltas. Use it to confirm tool/API availability,
-not replication health. See [Exactly what syncs](./data-scope).
+The MCP implementation returns the live transport state, durable endpoint ID,
+bounded peer summary, and receipt-backed domain activity. Use the push receipt
+and its per-peer applied state—not the process-level status alone—to prove
+replication. See [Exactly what syncs](./data-scope).
 
 ## Source
 

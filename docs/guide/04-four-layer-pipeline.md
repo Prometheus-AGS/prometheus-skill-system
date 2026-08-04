@@ -7,7 +7,7 @@ graph TD
     L1["LAYER 1 · ZeeSpec Interrogator<br/>Zachman 5W1H — 60 questions across 6 dimensions<br/>→ GO / CAUTION / NO-GO constraint manifest"]
     L2["LAYER 2 · PMPO Orchestration<br/>iterative-evolver (strategic) + kbd-process-orchestrator (tactical)<br/>Assess → Analyze → Plan → Execute → Reflect<br/>→ task manifests"]
     L3["LAYER 3 · OpenSpec Change Management<br/>per-change proposals · GIVEN/WHEN/THEN acceptance<br/>audit trail · liter-llm per-phase model routing<br/>→ enriched implementation context"]
-    L4["LAYER 4 · forge-rs Enrichment Engine<br/>language detection → skill resolution → constitution check<br/>pk focus → Tera rendering → .forge/enriched/&lt;task&gt;.context.md<br/>→ agent implements → forge reflect → pk ingest"]
+    L4["LAYER 4 · forge-rs Enrichment Engine<br/>language detection → skill resolution → constitution check<br/>committed snapshot → Tera rendering → .forge/enriched/&lt;task&gt;.context.md<br/>→ agent implements → atomic learning enqueue"]
     L1 -->|constraint manifest| L2
     L2 -->|task manifests| L3
     L3 -->|enriched context| L4
@@ -50,7 +50,7 @@ sequenceDiagram
     participant Forge as forge enrich
     participant Skills as forge-skills registry
     participant Const as Language constitution
-    participant PK as prometheus-knowledge (pk focus)
+    participant PK as prometheus-knowledge snapshots
     participant Tera as Tera template engine
     participant Agent as AI agent
 
@@ -58,7 +58,7 @@ sequenceDiagram
     Forge->>Forge: detect language from task + files
     Forge->>Skills: resolve matching skills + templates
     Forge->>Const: load active constitution (standards, denied patterns)
-    Forge->>PK: pk focus <topic> — retrieve prior knowledge
+    Forge->>PK: read bounded committed snapshot
     PK-->>Forge: ranked KB context
     Forge->>Tera: render templates with task_description, task_id,<br/>constitution_summary, karpathy_focus
     Tera-->>Forge: enriched context
@@ -68,7 +68,13 @@ sequenceDiagram
     Forge->>PK: pk ingest — write session learning back
 ```
 
-The four Tera template variables are the seams where knowledge enters: `task_description` and `task_id` come from the OpenSpec task; `constitution_summary` is the active language constitution's standards; and `karpathy_focus` is prior knowledge retrieved by `pk focus`. The result is a single enriched context file — `.forge/enriched/<task-id>.context.md` — that the agent reads before it begins. After implementation, `forge reflect` computes drift and `pk ingest` writes what was learned back into the knowledge base, closing the loop to Layer 1 for the next unit of work.
+The four Tera template variables are the seams where knowledge enters:
+`task_description` and `task_id` come from the OpenSpec task;
+`constitution_summary` is the active language constitution's standards; and
+`karpathy_focus` is bounded context from the committed snapshot. The result is
+a single enriched context file. After implementation, the Stop hook atomically
+enqueues learning and the worker publishes a new immutable snapshot only after
+receipt reconciliation.
 
 ## The pipeline as a system
 
@@ -88,7 +94,7 @@ C4Container
     }
 
     System_Boundary(substrate, "Shared substrate") {
-        ContainerDb(pk, "prometheus-knowledge", "Karpathy KB", "pk focus / pk ingest")
+        ContainerDb(pk, "prometheus-knowledge", "Karpathy KB", "snapshots / receipt ingestion")
         ContainerDb(mem, "surreal-memory", "Knowledge graph", "session state + learning")
         Container(liter, "liter-llm", "Model gateway", "per-phase routing")
         Container(syco, "sycophancy-correction", "MCP server", "reflection gate")
@@ -98,7 +104,7 @@ C4Container
     Rel(zeespec, pmpo, "constraint manifest")
     Rel(pmpo, openspec, "task manifests")
     Rel(openspec, forge, "enriched context request")
-    Rel(forge, pk, "pk focus / pk ingest")
+    Rel(forge, pk, "snapshot read / atomic enqueue")
     Rel(pmpo, mem, "reads/writes state")
     Rel(openspec, liter, "per-phase model routing")
     Rel(pmpo, syco, "reflect-phase gate")

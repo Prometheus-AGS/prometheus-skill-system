@@ -49,7 +49,7 @@ graph TD
 
 KBD has three mechanisms.
 
-**1 · Knowledge base as session substrate.** Every development session starts with knowledge-base context priming and ends with knowledge-base enrichment. The agent never starts from zero. On the way in, `pk-focus-on-prompt.sh` pulls relevant prior context. On the way out, the session's learning is written back. The knowledge base is not a reference the agent occasionally consults — it is the ground the agent stands on.
+**1 · Knowledge base as session substrate.** Every development session starts with bounded context from immutable project/shared/global snapshots and ends with one atomic metadata-only queue record. The agent never starts from zero. On the way in, the canonical dispatcher calls `pk context`; on the way out, the supervised worker reflects, reconciles receipts, and publishes the next snapshot asynchronously. The knowledge base is not a reference the agent occasionally consults—it is a versioned input with an explicit publication boundary.
 
 **2 · Phase discipline via KBD skills.** Six KBD phases — assess, analyze, plan, execute, reflect, and (at the strategic layer) evolve — are enforced as hard boundaries. Each phase produces a specific artifact and a clean handoff to the next phase. No cross-phase contamination. The orchestrator that drives this is documented on the [Process & Orchestration Skills](09-process-skills.md) page.
 

@@ -69,17 +69,6 @@
       ]
     },
     {
-      "event": "PreToolUse",
-      "matcher": "Write|Edit|MultiEdit",
-      "hooks": [
-        {
-          "id": "pretool-protect-tests",
-          "target": "shared/scripts/protect-tests.sh",
-          "timeout": 5000
-        }
-      ]
-    },
-    {
       "event": "PostToolUse",
       "matcher": "Write|Edit|MultiEdit",
       "hooks": [

@@ -33,7 +33,7 @@ gaps exist is rewritten before delivery.
 
 **The Karpathy loop** operates *across* tasks. Each session's outcomes are compiled into a
 persistent, interlinked wiki that the next session reads before it starts. Concretely: a
-`UserPromptSubmit` hook runs `pk focus` on your prompt and injects prior relevant knowledge;
+`UserPromptSubmit` reads a bounded committed prompt snapshot and injects prior relevant knowledge;
 a `Stop` hook ingests what happened. The knowledge compounds whether or not anyone
 remembers to write it down.
 
@@ -47,7 +47,7 @@ This is the decision the toolset exists to make actionable.
 ```mermaid
 graph TD
     GAP["Agent hits a capability gap"] --> Q1{"Is the knowledge<br/>already in the pack?"}
-    Q1 -->|yes| USE["Use the skill.<br/>pk focus surfaces it automatically"]
+    Q1 -->|yes| USE["Use the skill.<br/>the committed snapshot surfaces it"]
     Q1 -->|no| Q2{"Does the agent need to<br/>KNOW something, or<br/>BE something?"}
     Q2 -->|know| SKILL["/create-skill<br/>portable capability"]
     Q2 -->|be| Q3{"Does it need to outlive<br/>the session or be<br/>callable by others?"}

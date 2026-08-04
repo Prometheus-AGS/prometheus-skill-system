@@ -3707,6 +3707,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "prometheus-skill-index"
+version = "1.7.0"
+dependencies = [
+ "serde",
+ "serde_json",
+ "sha2 0.10.9",
+ "thiserror 1.0.69",
+]
+
+[[package]]
 name = "quick-xml"
 version = "0.41.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4387,6 +4397,7 @@ dependencies = [
  "flutter_rust_bridge",
  "kbd-mobile",
  "kbd-runtime",
+ "prometheus-skill-index",
  "serde",
  "serde_json",
 ]

@@ -114,7 +114,7 @@ init_user() {
     LOG_DIR="$PROMETHEUS_HOME/.prometheus/logs"
     KNOWLEDGE_DIR="$PROMETHEUS_HOME/.prometheus/knowledge"
     GUI_DOMAIN="gui/$PROMETHEUS_UID"
-    PROMETHEUS_PATH="/usr/local/bin:/opt/homebrew/bin:$PROMETHEUS_HOME/.cargo/bin:$PROMETHEUS_HOME/.local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
+    PROMETHEUS_PATH="/usr/local/bin:/usr/local/sbin:/opt/homebrew/bin:/opt/homebrew/sbin:$PROMETHEUS_HOME/.cargo/bin:$PROMETHEUS_HOME/.local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
 }
 
 resolve_bin() {

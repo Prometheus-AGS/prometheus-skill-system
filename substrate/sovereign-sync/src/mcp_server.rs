@@ -27,6 +27,7 @@ pub struct SkillEntry {
     pub description: String,
     pub path: PathBuf,
     pub keywords: Vec<String>,
+    pub search_text: String,
 }
 
 #[derive(Debug)]
@@ -44,23 +45,48 @@ impl SkillIndex {
         if skills_dir.join(".slow-scan-test").is_file() {
             std::thread::sleep(std::time::Duration::from_millis(250));
         }
-        let mut entries = Vec::new();
-        if let Ok(iter) = std::fs::read_dir(skills_dir) {
-            for entry in iter.flatten() {
-                let path = entry.path();
-                let skill_md = path.join("SKILL.md");
-                if skill_md.exists() {
-                    if let Some((name, description, keywords)) = Self::parse_skill_md(&skill_md) {
-                        entries.push(SkillEntry {
-                            name,
-                            description,
-                            path,
-                            keywords,
-                        });
+        let generation_index = skills_dir
+            .parent()
+            .map(|parent| parent.join("indexes/skills.json"));
+        let mut entries: Vec<SkillEntry> = generation_index
+            .filter(|candidate| candidate.is_file())
+            .and_then(|candidate| prometheus_skill_index::SkillIndex::from_path(&candidate).ok())
+            .map(|index| {
+                index
+                    .entries
+                    .into_iter()
+                    .map(|entry| SkillEntry {
+                        name: entry.id,
+                        description: entry.description,
+                        path: skills_dir.join(entry.relative_path),
+                        keywords: Vec::new(),
+                        search_text: entry.search_text,
+                    })
+                    .collect()
+            })
+            .unwrap_or_default();
+        if entries.is_empty() {
+            if let Ok(iter) = std::fs::read_dir(skills_dir) {
+                for entry in iter.flatten() {
+                    let path = entry.path();
+                    let skill_md = path.join("SKILL.md");
+                    if skill_md.exists() {
+                        if let Some((name, description, keywords)) = Self::parse_skill_md(&skill_md)
+                        {
+                            let search_text = format!("{name} {description}").to_lowercase();
+                            entries.push(SkillEntry {
+                                name,
+                                description,
+                                path,
+                                keywords,
+                                search_text,
+                            });
+                        }
                     }
                 }
             }
         }
+        entries.sort_by(|left, right| left.name.cmp(&right.name));
         info!(
             "SkillIndex loaded {} skills from {:?}",
             entries.len(),
@@ -134,32 +160,85 @@ impl SkillIndex {
     }
 
     pub fn search(&self, query: &str) -> Vec<SkillEntry> {
-        let tokens: Vec<String> = query.split_whitespace().map(|t| t.to_lowercase()).collect();
         let remote_guard = self.remote.read().ok();
         let remote_entries: &[SkillEntry] =
             remote_guard.as_deref().map(|v| v.as_slice()).unwrap_or(&[]);
-        let mut results: Vec<(SkillEntry, usize)> = self
+        let combined: Vec<SkillEntry> = self
             .entries
             .iter()
             .chain(remote_entries.iter())
-            .filter_map(|e| {
-                let score = tokens
-                    .iter()
-                    .filter(|t| {
-                        e.keywords.iter().any(|k| k.contains(t.as_str()))
-                            || e.name.contains(t.as_str())
-                            || e.description.to_lowercase().contains(t.as_str())
-                    })
-                    .count();
-                if score > 0 {
-                    Some((e.clone(), score))
-                } else {
-                    None
-                }
-            })
+            .cloned()
             .collect();
-        results.sort_by_key(|entry| std::cmp::Reverse(entry.1));
-        results.into_iter().map(|(e, _)| e).collect()
+        let canonical = prometheus_skill_index::SkillIndex {
+            schema_version: prometheus_skill_index::SCHEMA_VERSION.to_string(),
+            entries: combined
+                .iter()
+                .map(|entry| prometheus_skill_index::SkillIndexEntry {
+                    id: entry.name.clone(),
+                    description: entry.description.clone(),
+                    relative_path: entry.path.to_string_lossy().into_owned(),
+                    search_text: entry.search_text.clone(),
+                })
+                .collect(),
+            sha256: String::new(),
+        };
+        canonical
+            .search(query, usize::MAX)
+            .into_iter()
+            .filter_map(|selected| {
+                combined
+                    .iter()
+                    .find(|entry| entry.name == selected.id)
+                    .cloned()
+            })
+            .collect()
+    }
+}
+
+#[cfg(test)]
+mod skill_index_tests {
+    use super::*;
+
+    #[test]
+    fn generation_index_is_the_host_search_authority() {
+        let generation = tempfile::tempdir().unwrap();
+        let skills = generation.path().join("skills");
+        let indexes = generation.path().join("indexes");
+        std::fs::create_dir_all(skills.join("backend/api-design")).unwrap();
+        std::fs::create_dir_all(&indexes).unwrap();
+        std::fs::write(
+            skills.join("backend/api-design/SKILL.md"),
+            "---\nname: wrong-file-name\ndescription: should not be rescanned\n---\n",
+        )
+        .unwrap();
+        std::fs::write(
+            indexes.join("skills.json"),
+            r#"{
+  "entries": [
+    {
+      "description": "REST contracts",
+      "id": "api-design",
+      "relativePath": "backend/api-design",
+      "searchText": "api-design rest contracts"
+    },
+    {
+      "description": "Rust correctness",
+      "id": "rust-review",
+      "relativePath": "rust/rust-review",
+      "searchText": "rust-review rust correctness"
+    }
+  ],
+  "schemaVersion": "prometheus-skill-index-v1",
+  "sha256": "08cd6d1575faa7966b5aef855f3091a0e4e1a53d8f5fba2806519934a16a9888"
+}
+"#,
+        )
+        .unwrap();
+
+        let index = SkillIndex::load_from_dir(&skills);
+        let selected = index.search("rest contracts");
+        assert_eq!(selected[0].name, "api-design");
+        assert!(index.search("wrong-file-name").is_empty());
     }
 }
 

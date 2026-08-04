@@ -6,12 +6,12 @@ harness-agnostic — this document is the KBD-side wiring contract).
 
 ## Where it runs
 
-| KBD stage | Mode | When | Skip |
+| KBD stage | Mode | When | Deferral |
 |---|---|---|---|
 | `kbd-assess` | `artifact assess` | after `assessment.md` is written, before `kbd_stage_handoff_write assess` | `--skip-adversarial-review` only |
 | `kbd-analyze` | `artifact analyze` | after `analysis.md` + `library-candidates.json`, before handoff | `--skip-adversarial-review` only |
 | `kbd-plan` | `artifact plan` | after `plan.md`, **before** change structures are emitted | `--skip-adversarial-review` only |
-| `kbd-execute` | `diff <change-id>` | after `/refine-validate` passes, before archive | `--skip-adversarial-review`, or <3 files, or docs-only |
+| `kbd-execute` | `diff <change-id>` | after `/refine-validate` passes, before archive | explicit flag records `pending_review`; no size/docs exemption |
 
 `kbd-assess` additionally runs the **multi-model preflight** as its step 0
 (the KBD entry point), caching `.kbd-orchestrator/model-preflight.json`.
@@ -48,9 +48,9 @@ bash "$SKILL_DIR/scripts/check-findings-sycophancy.sh" \
   (`assets/reviewer-mandate-<mode>.md`) + `packet.json`, nothing else;
   normalize its output to the findings schema with
   `"isolation_mode": "harness-native"`.
-- `4` — no judge possible: record
-  `adversarial_review: "SKIPPED (<reason>)"` in the phase `progress.json`
-  and continue. Never fail the stage on missing review infrastructure.
+- `4` — no judge possible: write `pending_review` for the cumulative Git diff
+  and continue. Final local certification fails until a completed review or
+  SSH-signed waiver exists.
 
 ## Gate semantics
 

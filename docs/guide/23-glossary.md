@@ -25,8 +25,9 @@
 **KBD (Knowledge-Based Development).** The Prometheus methodology that keeps domain knowledge and code aligned across sessions, via KB priming, hard phase discipline, and waypoint continuity.
 
 **KBD control token.** A project-scoped, mode-`0600`, URL-safe bearer token
-used for loopback Sovereign Sync REST authentication. It is not the Sovereign
-Sync `operator_id` and not an Ed25519 device key.
+used only for explicit loopback-TCP Sovereign Sync authentication. The default
+local API uses same-user Unix-socket credentials. This token is not a P2P group
+secret or an Ed25519 device key.
 
 **KbdStateV2.** The canonical replayed state containing lifecycle, plan,
 active phase/stage/change/task path, completion dimensions, decisions,
@@ -44,7 +45,9 @@ blockers, devices, and commands.
 
 **PMPO (Prometheus Meta-Prompting Orchestration).** The two-loop methodology (inner task loop + outer evolution loop) whose load-bearing constraint is phase discipline.
 
-**prometheus-knowledge / pk.** The Rust implementation of the Karpathy KB. `pk focus` primes context; `pk ingest` writes learning back. MCP bridge `pk-cherry` on port 8942.
+**prometheus-knowledge / pk.** The Rust implementation of the Karpathy KB.
+Hooks read bounded committed project/shared/global snapshots; the worker ingests
+queued learning and reconciles receipts. MCP bridge `pk-cherry` serves the API.
 
 **Progress signals.** Mandatory start/completion lines emitted every phase and task, with counts read from `progress.json`, so multi-session work stays resumable.
 
@@ -55,9 +58,9 @@ repository fingerprint used to name a canonical KBD runtime.
 `progress.json`, `current-waypoint.json`, and `position.json` rendered from
 canonical replay for older readers. They are not mutation authority.
 
-**Sovereign Sync `operator_id`.** A random namespace in
-`$HOME/.config/sovereign-sync/config.toml` used to derive the P2P gossip
-group. It is unrelated to REST bearer authentication.
+**Sovereign Sync group secret.** A random 256-bit value persisted in the private
+P2P identity and transferred only through pairing tickets. It derives the
+gossip topic and is separate from endpoint, KBD device, and TCP-token identity.
 
 **Sycophancy patterns (S-01–S-08).** The eight classified patterns the correction server detects, from unprompted affirmation (S-01) to reflect-phase inversion (S-08).
 

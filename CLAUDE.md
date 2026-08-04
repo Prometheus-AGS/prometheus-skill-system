@@ -713,16 +713,12 @@ description: Skill with validation
 
 ## BDD Immutable-Tests Rule
 
-Code-generation agents operating in projects that use Cucumber/BDD step definitions **may not edit existing tests** to make failing tests pass.
-
-- **May not** edit `tests/steps/*.steps.ts`, `tests/support/*.ts`, or `tests/features/*.feature` as part of code changes.
-- **Must** surface failing tests to the user rather than silently updating steps to match new code.
-- **May** add new `.feature` files to `tests/features/drafts/` and matching new step definitions.
-
-This rule is enforced two ways:
-
-1. **PreToolUse hook** (agent-time) — `shared/scripts/protect-tests.sh` blocks `Edit`/`Write` on protected paths.
-2. **Local diff gate** (before commit) — run `skills/testing/bdd-lifecycle-loop/scripts/test-file-diff-guard.sh` against the intended base and head; it rejects protected-path changes unless the explicit override is present.
+BDD tests remain independent specifications, but agent tools are unrestricted.
+Bash, Python, Edit, Write, and other mutation mechanisms must not be parsed,
+allow-listed, or blocked at agent time. Final local certification runs
+`scripts/verify-protected-tests.mjs` against committed base and candidate
+revisions. Protected test changes require an SSH-signed canonical approval
+manifest; environment variables and hosted PR labels are not overrides.
 
 **Canonical guidance now lives in the operative skill** — see [`skills/testing/bdd-lifecycle-loop/references/immutable-tests.md`](skills/testing/bdd-lifecycle-loop/references/immutable-tests.md) rather than repeating the rationale here. That skill also documents the four-phase BDD loop (author → run → triage → maintain), the flake-budget enforcement, and the visual-baseline refresh workflow.
 
@@ -1018,10 +1014,11 @@ markdown knowledge base sitting between raw sources and the agent — is
 implemented by the `pk` CLI, shipped from the separate
 **prometheus-knowledge-rs** repository
 (`github.com/Prometheus-AGS/prometheus-knowledge-rs`). This repo does not vendor
-that source; it consumes the built `pk` binary via hooks
-(`shared/scripts/pk-focus-on-prompt.sh`, `pk-health.sh`, `pk-lint.sh`, and
-`pk ingest` at session Stop) and, from `phase-okf-llm-wiki-adoption` onward,
-via a first-class `llm-wiki` skill.
+that source; it consumes the built `pk` binary through bounded
+`pk context`, `pk-health.sh`, and `pk-lint.sh`. Stop hooks only atomically
+enqueue metadata; the supervised learning worker performs reflection,
+reconciliation, and durable writeback asynchronously. The `llm-wiki` skill
+remains the authored knowledge interface.
 
 **Ownership split (decided 2026-07-01, phase-okf-llm-wiki-adoption):**
 

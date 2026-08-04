@@ -24,9 +24,20 @@ One generation is projected into 14 supported skill locations:
 | `.zed/skills` | symlink |
 | `.cline/skills` | symlink |
 
-Codex and MiniMax require real directories, so the installer copies their skills and writes generation receipts. Every other target links through the active generation. A destination collision is preserved and reported; the installer does not overwrite unrelated user content.
+Codex and MiniMax require real directories, so the installer copies their
+skills. Every target receives an Ed25519-signed receipt that binds its payload
+mode and hash to the generation and canonical skill-index hash. Every other
+target links through the active generation. A destination collision is
+preserved and reported; the installer does not overwrite unrelated user
+content.
 
-Stable dispatchers live under `~/.prometheus/plugins/prometheus-skill-pack/stable/`. They resolve required scripts and helpers through `current`, including hook dispatch, project detection, memory outbox flush, learning enqueue, and `pk` health. Host configuration points to these stable paths, so activation and rollback do not require rewriting hook registrations.
+Stable dispatchers live under
+`~/.prometheus/plugins/prometheus-skill-pack/stable/`. They resolve required
+scripts and helpers through `current`, including hook dispatch, project
+detection, memory outbox flush, learning enqueue, `pk` health, and the skill
+index. Host configuration points to these stable paths, so activation and
+rollback do not require rewriting hook registrations.
 
-Verification rejects missing receipts, wrong modes, a dispatcher that resolves outside `generations/`, or a target still resolving through a stale version path.
-
+Verification rejects missing or unsigned receipts, wrong modes or hashes, index
+parity drift, a dispatcher that resolves outside `generations/`, or a target
+still resolving through a stale version path.

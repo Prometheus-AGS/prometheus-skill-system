@@ -22,7 +22,11 @@ const outDir = join(siteDir, 'docs-catalog');
 function findSkillFiles(dir) {
   const out = [];
   for (const entry of readdirSync(dir)) {
-    if (entry === 'imported' || entry === 'node_modules' || entry.startsWith('.')) continue;
+    if (
+      ['imported', 'node_modules', 'tests', 'fixtures'].includes(entry) ||
+      entry.startsWith('.')
+    )
+      continue;
     const p = join(dir, entry);
     let st;
     try {

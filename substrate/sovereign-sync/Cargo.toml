@@ -70,6 +70,7 @@ tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 storage-provider = { path = "../storage-provider", default-features = false }
 kbd-runtime = { path = "../kbd-runtime" }
 learner-model = { path = "../learner-model" }
+prometheus-skill-index = { path = "../skill-index" }
 async-trait = "0.1"
 
 [dev-dependencies]

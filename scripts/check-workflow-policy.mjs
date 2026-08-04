@@ -37,17 +37,45 @@ if (fs.existsSync(workflowsRoot)) {
     if (!/^\s*push\s*:/m.test(source) && !/^\s*workflow_dispatch\s*:/m.test(source)) {
       failures.push(`${relative}: workflow must be main-push or explicit deployment automation`);
     }
-    if (/^\s*(?:test|tests|validate|validation|lint|doctor|certif(?:y|ication)|checks?)\s*:/mi.test(source)) {
+    if (
+      /^\s*(?:test|tests|validate|validation|lint|doctor|certif(?:y|ication)|checks?)\s*:/im.test(
+        source
+      )
+    ) {
       failures.push(`${relative}: validation-shaped job or step name is forbidden`);
     }
     for (const [pattern, label] of forbiddenCommands) {
-      if (pattern.test(source)) failures.push(`${relative}: ${label} is forbidden on hosted runners`);
+      if (pattern.test(source))
+        failures.push(`${relative}: ${label} is forbidden on hosted runners`);
     }
     if (name.startsWith('docs-sync') && !/\bdocs:sync\b/.test(source)) {
-      failures.push(`${relative}: docs sync workflow must invoke only the deterministic docs:sync entry point`);
+      failures.push(
+        `${relative}: docs sync workflow must invoke only the deterministic docs:sync entry point`
+      );
+    }
+    if (name.startsWith('docs-sync')) {
+      if (
+        !/^permissions:\s*\n\s+contents:\s*write\s*\n\s+pull-requests:\s*write\s*$/m.test(source)
+      ) {
+        failures.push(
+          `${relative}: docs sync permissions must be exactly contents:write and pull-requests:write`
+        );
+      }
+      if (/git\s+add\s+(?:-A|--all|\.)\b/.test(source)) {
+        failures.push(`${relative}: docs sync may stage only named managed documentation paths`);
+      }
     }
     if (name.startsWith('docs-pages') && !/\bbuild:deploy\b/.test(source)) {
-      failures.push(`${relative}: Pages must use build:deploy so npm prebuild validation stays local`);
+      failures.push(
+        `${relative}: Pages must use build:deploy so npm prebuild validation stays local`
+      );
+    }
+    for (const match of source.matchAll(/^\s*-?\s*uses:\s*([^\s#]+)/gm)) {
+      const reference = match[1];
+      if (reference.startsWith('./') || /^[^@]+@[a-f0-9]{40}$/.test(reference)) continue;
+      failures.push(
+        `${relative}: third-party action is not pinned by a full commit SHA: ${reference}`
+      );
     }
   }
 }

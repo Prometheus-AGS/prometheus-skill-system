@@ -20,22 +20,19 @@ sidebar_label: Architecture
 | HTTP server | `axum` | 0.8 | Loopback REST API and AG-UI SSE |
 | Rust SDK | `sovereign-client` | 0.1.0 | REST, signed KBD command, claims, and typed SSE client |
 
-## Topic derivation
+## Topic derivation and peer identity
 
-Every operator group shares a gossip topic derived from its operator ID:
+Every paired group shares a random 256-bit secret:
 
 ```text
-operator_key = BLAKE3(UTF8(operator_id))
-topic        = BLAKE3(operator_key || "sovereign-sync-v1")
+topic = BLAKE3(group_secret || "sovereign-sync-v1")
 ```
 
-All devices with the same `node.operator_id` value in
-`$HOME/.config/sovereign-sync/config.toml` derive the same topic. That equality
-is necessary but not sufficient: a node must also know at least one peer
-endpoint ID to join an existing mesh.
-
-`operator_id` is configuration, not a command-line flag, endpoint ID, device
-signing key, or project ID.
+The secret is created with the durable P2P identity and transferred only inside
+an explicit pairing ticket. Each mode-`0600` identity file also stores the iroh
+secret key and an allow-list binding endpoint IDs to signing-key fingerprints.
+Frames from unknown endpoints, wrong groups, signer mismatches, stale requests,
+and replayed request IDs are rejected before domain import.
 
 ## SyncManifest
 
@@ -119,8 +116,8 @@ Every committed event is verified by the `kbd-runtime` signature/hash chain.
 Diagnostics report replica journal path/size/Lamport, ingestion state, Loro
 snapshot status/frontier/conflicts, lock and single-writer compatibility,
 projection revision, device trust counts, and signature-chain validity.
-The compatibility quorum configuration accepts exactly one local writer and
-rejects multi-voter settings.
+There is no quorum or voter configuration. One journal transaction is the local
+write boundary; Loro plus signed causal frontiers handle imported convergence.
 
 The platform-level registry maps canonical paths to explicit project, replica,
 and machine IDs plus replica kind, parent linkage, HEAD, and read-only reason.
@@ -149,18 +146,11 @@ adoption, submodule scans, and audit-ref writes.
 
 ## P2P endpoint lifecycle
 
-The daemon builds an iroh endpoint with `presets::N0`. Because it does not pass
-a persistent iroh secret key to the endpoint builder, iroh generates a new
-endpoint key at each daemon start. Consequently:
-
-- the endpoint ID is unique per running process;
-- it is printed in startup logs;
-- it is not the KBD `device-key.json` identity;
-- bootstrap IDs become stale when the bootstrap daemon restarts.
-
-Persistent endpoint identity, a pairing/export command, live peer
-observability, and peer allow-list enforcement are required before pairing is
-durable enough for production use.
+The daemon passes the atomically persisted iroh secret key into the endpoint
+builder. The endpoint ID therefore remains stable across restarts. Pairing uses
+`pair-export` and `pair-import`; tickets carry protocol version, group secret,
+endpoint ID, and fingerprint without logging the complete ticket. The endpoint
+identity is deliberately separate from the KBD device-signing key.
 
 ## Intended domain data flow
 
@@ -175,7 +165,7 @@ sequenceDiagram
   Manifest-->>Owner: "Allow only Public or Trusted"
   Owner->>CRDT: "Export snapshot or updates since peer version"
   CRDT->>P2P: "Encrypted bytes plus domain/version envelope"
-  P2P->>Peer: "Deliver on shared operator topic"
+  P2P->>Peer: "Deliver on secret-derived paired-group topic"
   Peer->>Manifest: "Re-check classification and peer trust"
   Peer->>CRDT: "Import delta"
   CRDT-->>Owner: "Advance local version vector"
@@ -203,10 +193,10 @@ The repository proves these pieces separately:
 
 - manifest default-deny and `Local` rejection;
 - Loro snapshot export/import and version vectors;
-- deterministic topic derivation;
+- secret-based topic derivation and durable endpoint restart identity;
 - iroh-docs two-node sharing in the storage-provider crate;
 - signed KBD envelopes and real domain push/import paths;
-- single-voter KBD command ordering and embedded quorum behavior.
+- single-writer journal ordering and causal-frontier conflict behavior.
 
 The test battery proves two-node domain merge without live internet discovery;
 final deployment certification separately exercises real iroh peer discovery,

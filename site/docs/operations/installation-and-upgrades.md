@@ -5,7 +5,8 @@ description: Local-first build, signing, service installation, skill discovery, 
 
 # Installation and upgrades
 
-Prometheus 1.6.1 is installed and certified locally before release branches are pushed. Use an internal SSD for Rust caches:
+Prometheus 1.7.0 is installed and certified locally before release branches are
+pushed. Use an internal SSD for Rust caches:
 
 ```bash
 export CARGO_HOME=/path/to/cargo-home
@@ -20,7 +21,20 @@ Build and test the server first, then knowledge/worker tools, then the root CLI.
 - `prometheus-learning-worker`
 - `prometheus`
 
-Install the immutable plugin generation after binaries, followed by the learning-worker and hook-log-rotation user services. The service installer accepts repeatable exclusions:
+The root installer is strict by default: any requested build, copy, service, or
+post-install verification failure makes the command fail. Use `--skills-only`
+to install only skill payloads, or `--best-effort` for an explicitly
+non-certifying development run:
+
+```bash
+bash scripts/install-skills-flat.sh
+bash scripts/install-skills-flat.sh --skills-only
+bash scripts/install-skills-flat.sh --best-effort
+```
+
+Install the immutable plugin generation after binaries, followed by the
+learning-worker and hook-log-rotation user services. The service installer
+accepts repeatable exclusions:
 
 ```bash
 bash scripts/install-mcp-services.sh --dry-run --exclude sovereign-sync
@@ -28,6 +42,11 @@ bash scripts/install-mcp-services.sh --exclude sovereign-sync
 ```
 
 Always inspect the dry-run plan first. Excluded services are not rendered, installed, restarted, or rewritten.
+
+Success means every requested artifact was byte-verified (and executability was
+verified for binaries), the active signed plugin generation passed trust and
+receipt verification, and each requested service passed its post-install check.
+An empty or skipped check is not success.
 
 ## Skills discovery
 
@@ -44,4 +63,6 @@ Repository skills live under `.agents/skills/`; Codex discovery uses `.codex/ski
 7. Certify receipts, queues, snapshots, logs, rollback, and stale-path absence.
 8. Push server, knowledge, then root branches.
 
-GitHub checks confirm the final environment; they are not the edit/test loop.
+Push only after local certification. Hosted automation may synchronize
+deterministic documentation and package/deploy Pages; it never confirms runtime,
+installer, doctor, test, lint, or certification state.

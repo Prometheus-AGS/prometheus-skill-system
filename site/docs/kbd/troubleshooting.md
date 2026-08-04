@@ -99,7 +99,8 @@ sovereign-sync --mode init \
 chmod 600 "$HOME/.config/sovereign-sync/device-key.json"
 ```
 
-Also ensure `[node].operator_id` is non-empty in `config.toml`.
+Verify the P2P identity file is regular, mode `0600`, and contains a valid group
+secret and durable endpoint key. Pairing tickets replace `operator_id` setup.
 
 ## Runtime reports an integrity conflict
 

@@ -27,7 +27,7 @@
     <key>PK_KB_DIR</key>
     <!-- Serve the PROJECT KB (repo-scoped), matching WorkingDirectory above, so the
          HTTP/MCP daemon reflects the same KB the pk CLI hooks (pk-ingest-on-reflect,
-         forge-reflect-on-stop, pk-focus-on-prompt) read and write. -->
+         bounded context dispatcher and supervised learning worker) read and write. -->
     <string>__PROMETHEUS_ROOT__/.prometheus/knowledge</string>
   </dict>
 

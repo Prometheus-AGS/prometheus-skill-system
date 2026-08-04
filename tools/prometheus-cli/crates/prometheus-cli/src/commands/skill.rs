@@ -511,10 +511,12 @@ fn load_skills(root: &Path) -> Result<(Vec<SkillRecord>, Vec<LintIssue>)> {
         .filter(|entry| {
             entry.file_type().is_file()
                 && entry.file_name() == "SKILL.md"
-                && !entry
-                    .path()
-                    .components()
-                    .any(|component| component.as_os_str().to_str() == Some("imported"))
+                && !entry.path().components().any(|component| {
+                    matches!(
+                        component.as_os_str().to_str(),
+                        Some("imported" | "tests" | "fixtures")
+                    )
+                })
         })
     {
         let path = entry.into_path();
@@ -589,4 +591,38 @@ fn jaccard(left: &str, right: &str) -> f64 {
     let intersection = left.intersection(&right).count();
     let union = left.union(&right).count();
     intersection as f64 / union as f64
+}
+
+#[cfg(test)]
+mod tests {
+    use super::load_skills;
+    use std::fs;
+
+    #[test]
+    fn skill_inventory_excludes_test_fixtures() {
+        let temporary =
+            std::env::temp_dir().join(format!("prometheus-skill-inventory-{}", std::process::id()));
+        fs::remove_dir_all(&temporary).ok();
+        let real = temporary.join("process/real-skill");
+        let fixture = temporary.join("process/review/tests/fixtures/flawed-skill");
+        fs::create_dir_all(&real).expect("create real skill");
+        fs::create_dir_all(&fixture).expect("create fixture skill");
+        fs::write(
+            real.join("SKILL.md"),
+            "---\nname: real-skill\ndescription: Real capability\n---\nBody\n",
+        )
+        .expect("write real skill");
+        fs::write(
+            fixture.join("SKILL.md"),
+            "---\nname: flawed-skill\ndescription: Test fixture\n---\nBody\n",
+        )
+        .expect("write fixture skill");
+
+        let (skills, issues) = load_skills(&temporary).expect("load skills");
+        assert!(issues.is_empty());
+        assert_eq!(skills.len(), 1);
+        assert_eq!(skills[0].name, "real-skill");
+
+        fs::remove_dir_all(temporary).expect("remove fixture tree");
+    }
 }

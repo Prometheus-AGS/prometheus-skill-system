@@ -30,7 +30,7 @@ or `surreal-memory` database is implicitly imported or replicated.
 
 ## Implemented domain primitives versus daemon behavior
 
-| Domain or family | Code that exists | Intended/recommended classification | Automatically transmitted by `0.1.0`? |
+| Domain or family | Code that exists | Intended/recommended classification | Automatically transmitted by `1.7.0`? |
 |---|---|---|---:|
 | `skill-index` | Local MCP search index plus domain adapter | `Public` metadata | **Yes, on explicit push** |
 | `learner-model` | Local CRDT documents, typed store, merge adapter | `Trusted` | **Yes, on explicit push** |
@@ -41,9 +41,12 @@ or `surreal-memory` database is implicitly imported or replicated.
 | `kbd-orchestrator` | Advertised in the REST scaffold response | Split authored artifacts from command authority | **No adapter or daemon registration** |
 | `kb:<name>` | Generic custom-domain model in `storage-provider` | Explicit `Public`, `Trusted`, or `Local` decision | **No daemon adapter** |
 
-`POST /api/v1/sync/push` validates the domain against the live manifest,
+`POST /api/v2/sync/pushes` validates the signed canonical request and domain,
 exports its real source, prepares a Loro update, and broadcasts when a P2P node
-is active. The response proves local preparation/broadcast, not remote apply.
+is active. Its durable receipt distinguishes local acceptance, broadcast,
+per-peer receipt, remote apply, and rejection. The deprecated unsigned v1 path
+is available only through the same-user Unix socket during the transition and
+must never be exposed over TCP or P2P.
 
 ## Project identity and isolation
 
@@ -60,7 +63,7 @@ local KBD runtime is keyed by that value:
 <platform-data-root>/prometheus/kbd/projects/<project-id>/
 ```
 
-The operator gossip topic is broader: every project using one `operator_id`
+The paired-group gossip topic is broader: every project using one group secret
 uses the same topic. Each signed KBD domain envelope therefore includes the
 project identity and rejects cross-project payloads before import.
 
@@ -180,7 +183,7 @@ this directory and sends deltas only after an explicit domain push.
 
 The Karpathy-pattern path spans more than the Markdown wiki:
 
-1. `pk focus` reads project/global wiki context;
+1. the hook reads a bounded committed project/shared/global prompt snapshot;
 2. Forge enrichment records focused context with an iteration;
 3. `forge reflect` produces project reflection/drift records;
 4. `pk ingest` compiles durable wiki entries;
@@ -204,10 +207,10 @@ are listed below.
 | Last session summary | `$HOME/.prometheus/last-session-summary.txt` | No | Device-local working summary |
 | Hook log | `$HOME/.prometheus/hooks.log` | No | Device-local diagnostic data |
 | Global traces | `$HOME/.prometheus/traces/<skill>/<timestamp>.json` | No | Potentially sensitive telemetry |
-| Learner model | `$HOME/.prometheus/learn/learner-model/` | No | `Trusted` is appropriate only after explicit user/device policy |
+| Learner model | `$HOME/.prometheus/learn/learner-model/` | Explicit signed push | `Trusted`; only enrolled endpoint/signing-key bindings may receive it |
 | `surreal-memory` | local SurrealDB graph, vectors, tasks, Memory Palace | No | `Local`; do not export through P2P |
 | Installed skill trees | tool-specific global skill directories | No | Reinstall/update from the canonical skill pack |
-| Sovereign config | `$HOME/.config/sovereign-sync/config.toml` | No | Copy only the chosen `operator_id`; preserve machine-specific settings |
+| Sovereign config | `$HOME/.config/sovereign-sync/config.toml` | No | Preserve machine-specific paths; pair with tickets rather than copying config |
 | Device signing key | platform credential store or `device-key.json` | Never | Unique secret per machine |
 | Service logs | `$HOME/.prometheus/logs/` | No | Local diagnostics |
 

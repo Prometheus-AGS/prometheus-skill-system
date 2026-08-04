@@ -72,7 +72,10 @@ forge template validate skills/rust/my-skill/                # check Tera syntax
 forge template render handler.rs --var name=Widget          # render with variables
 ```
 
-A template becomes useful through its four variables, filled at enrichment time: `task_description` and `task_id` from the OpenSpec task, `constitution_summary` from the active language constitution, and `karpathy_focus` from `pk focus`. This is how a skill contributes runnable scaffolding, not just prose.
+A template becomes useful through its four variables, filled at enrichment time:
+`task_description` and `task_id` from the OpenSpec task,
+`constitution_summary` from the active language constitution, and
+`karpathy_focus` from the bounded committed prompt snapshot.
 
 ### Layer 2 — pmpo-skill-creator
 

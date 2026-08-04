@@ -63,14 +63,15 @@ Phase classes (declared in SKILL.md frontmatter `model_routing`):
 
 ## Fallback chain
 
-Following liter-llm-bridge semantics — warn loudly, degrade honestly, never
-block the pipeline on missing review infrastructure:
+Following liter-llm-bridge semantics — warn loudly and degrade honestly.
+Missing infrastructure does not block agent tools, but final certification
+still requires review or a signed waiver:
 
 | Tier | Trigger | Guarantee | Marker |
 |---|---|---|---|
 | REST gateway | an OpenAI-compatible endpoint answers `GET /v1/models` | fresh context AND cross-model | `isolation_mode: "rest-gateway:<url>"`, exit 0 |
 | harness-native subagent | `dispatch-judge.sh` exit 3 | fresh context only (same model family) | `isolation_mode: "harness-native"` |
-| skip | exit 4 / no subagent capability | none | `adversarial_review: SKIPPED (<reason>)` in progress.json |
+| pending | exit 4 / no subagent capability | none | cumulative `pending_review` receipt; final certification fails |
 
 The trigger is **gateway reachability** (`kbd_resolve_gateway`), not the presence of the
 `liter-llm` binary — the judge speaks OpenAI REST and does not shell out to it.

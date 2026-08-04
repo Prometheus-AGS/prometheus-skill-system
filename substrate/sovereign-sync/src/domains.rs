@@ -199,6 +199,7 @@ impl DomainAdapter for SkillIndexAdapter {
                         .collect()
                 })
                 .unwrap_or_default();
+            let search_text = format!("{} {}", name, description).to_lowercase();
             remote.push(SkillEntry {
                 name: name.clone(),
                 description,
@@ -207,6 +208,7 @@ impl DomainAdapter for SkillIndexAdapter {
                 // them, so `path` is a sentinel rather than a real one.
                 path: PathBuf::from(format!("remote:{name}")),
                 keywords,
+                search_text,
             });
         }
         self.index.replace_remote(remote);

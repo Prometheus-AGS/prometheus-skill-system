@@ -1,6 +1,6 @@
 # 18 · Plugins and Immutable Distribution
 
-Prometheus 1.6.1 distributes one certified source tree as harness-native plugins and as a verified 14-target AgentSkills generation. The generation is content-addressed; host paths never point at a mutable staging directory or a hardcoded release version.
+Prometheus 1.7.0 distributes one certified source tree as harness-native plugins and as a verified 14-target AgentSkills generation. The generation is content-addressed; host paths never point at a mutable staging directory or a hardcoded release version.
 
 ## Packaging model
 
