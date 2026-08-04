@@ -110,6 +110,46 @@ pub fn list_skills() -> Result<Vec<SkillDescriptor>, SkillError> {
     })
 }
 
+fn indexed_descriptor(entry: prometheus_skill_index::SkillIndexEntry) -> SkillDescriptor {
+    SkillDescriptor {
+        id: entry.id,
+        exports: vec!["run".into(), "describe".into()],
+        capabilities: Vec::new(),
+    }
+}
+
+/// Enumerate the exact signed generation index supplied by the host app.
+///
+/// The bytes are the same `indexes/skills.json` payload used by host search and
+/// projected as `mobile/skill-index.json`; mobile does not rescan or reinterpret
+/// `SKILL.md` files.
+pub fn list_indexed_skills(index_json: String) -> Result<Vec<SkillDescriptor>, SkillError> {
+    let index =
+        prometheus_skill_index::SkillIndex::from_json(&index_json).map_err(|error| SkillError {
+            kind: SkillErrorKind::InvalidInput,
+            message: format!("invalid skill index: {error}"),
+        })?;
+    Ok(index.entries.into_iter().map(indexed_descriptor).collect())
+}
+
+/// Search with the same deterministic ranking implementation used by the host.
+pub fn search_indexed_skills(
+    index_json: String,
+    query: String,
+    limit: u32,
+) -> Result<Vec<SkillDescriptor>, SkillError> {
+    let index =
+        prometheus_skill_index::SkillIndex::from_json(&index_json).map_err(|error| SkillError {
+            kind: SkillErrorKind::InvalidInput,
+            message: format!("invalid skill index: {error}"),
+        })?;
+    Ok(index
+        .search(&query, limit as usize)
+        .into_iter()
+        .map(indexed_descriptor)
+        .collect())
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct KbdMobileCommitPayload {
     pub event_json: String,

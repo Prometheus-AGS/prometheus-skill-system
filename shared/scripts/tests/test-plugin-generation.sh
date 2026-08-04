@@ -68,6 +68,20 @@ FIRST_BUNDLE="$(jq -r '.bundleId' "$PLUGIN_ROOT/generations/$FIRST_HASH/manifest
 PROMETHEUS_PLUGIN_ROOT="$PLUGIN_ROOT" "$PLUGIN_ROOT/runtime/v1/run-hook" \
   --bundle "$FIRST_BUNDLE" --resolve-only >/dev/null
 [[ "$(jq '.targetPayloads | length' "$PLUGIN_ROOT/generations/$FIRST_HASH/manifest.json")" == 14 ]]
+[[ -f "$PLUGIN_ROOT/generations/$FIRST_HASH/manifest.sig.json" ]]
+[[ "$(stat -f '%Lp' "$PLUGIN_ROOT/generations/$FIRST_HASH/manifest.sig.json" 2>/dev/null || stat -c '%a' "$PLUGIN_ROOT/generations/$FIRST_HASH/manifest.sig.json")" == 600 ]]
+[[ "$(find "$PLUGIN_ROOT/receipts/$FIRST_HASH" -type f -name '*.json' | wc -l | tr -d ' ')" == 14 ]]
+[[ -f "$PLUGIN_ROOT/trust/allowed-signers.json" ]]
+[[ "$(jq '.signers | length' "$PLUGIN_ROOT/trust/allowed-signers.json")" == 1 ]]
+[[ "$(stat -f '%Lp' "$TMP/home/.prometheus/plugin-signing/ed25519-private.pem" 2>/dev/null || stat -c '%a' "$TMP/home/.prometheus/plugin-signing/ed25519-private.pem")" == 600 ]]
+cmp "$PLUGIN_ROOT/generations/$FIRST_HASH/indexes/skills.json" \
+  "$PLUGIN_ROOT/generations/$FIRST_HASH/mobile/skill-index.json"
+cmp "$PLUGIN_ROOT/generations/$FIRST_HASH/indexes/skills.json" \
+  "$PLUGIN_ROOT/generations/$FIRST_HASH/agents/skill-index.json"
+cmp "$PLUGIN_ROOT/generations/$FIRST_HASH/indexes/skills.json" \
+  "$PLUGIN_ROOT/stable/skill-index.json"
+[[ "$(jq -r '.skillIndexSha256' "$PLUGIN_ROOT/generations/$FIRST_HASH/mobile/parity.json")" == \
+    "$(jq -r '.skillIndex.sha256' "$PLUGIN_ROOT/generations/$FIRST_HASH/manifest.json")" ]]
 [[ "$(jq -r '.files[] | select(.path == "shared/scripts/karpathy-hook-dispatch.sh") | .mode' "$PLUGIN_ROOT/generations/$FIRST_HASH/manifest.json")" == "0755" ]]
 for script in karpathy-hook-dispatch detect-project-context memory-outbox-flush pk-health; do
   [[ "$(readlink "$PLUGIN_ROOT/stable/$script.sh")" == "../current/shared/scripts/$script.sh" ]]
@@ -84,7 +98,33 @@ cmp "$SOURCE/shared/scripts/lib/memory-bridge.sh" "$PLUGIN_ROOT/stable/lib/memor
 [[ ! -e "$TMP/home/.minimax/skills/prometheus-example" ]]
 [[ ! -e "$TMP/home/.claude/skills/prometheus-example" ]]
 node "$INSTALLER" --plugin-root "$PLUGIN_ROOT" --verify >/dev/null
-echo '[PASS] first generation is hash-verified and exposes 14 validated target payloads'
+cp "$PLUGIN_ROOT/generations/$FIRST_HASH/manifest.sig.json" "$TMP/manifest.sig.json"
+jq '.signature = "AAAA"' "$TMP/manifest.sig.json" > \
+  "$PLUGIN_ROOT/generations/$FIRST_HASH/manifest.sig.json"
+if node "$INSTALLER" --plugin-root "$PLUGIN_ROOT" --verify >/dev/null 2>&1; then
+  echo '[FAIL] tampered generation signature unexpectedly verified' >&2
+  exit 1
+fi
+cp "$TMP/manifest.sig.json" "$PLUGIN_ROOT/generations/$FIRST_HASH/manifest.sig.json"
+node "$INSTALLER" --plugin-root "$PLUGIN_ROOT" --verify >/dev/null
+echo '[PASS] signed generation, canonical index parity, and 14 signed target receipts verify'
+echo '[PASS] manifest-signature tampering fails closed before activation'
+
+node - "$TMP/untrusted-private.pem" <<'JS'
+const crypto = require('crypto');
+const fs = require('fs');
+const pair = crypto.generateKeyPairSync('ed25519');
+fs.writeFileSync(process.argv[2], pair.privateKey.export({ type: 'pkcs8', format: 'pem' }), {
+  mode: 0o600,
+});
+JS
+if node "$INSTALLER" --source-root "$SOURCE" --plugin-root "$PLUGIN_ROOT" \
+  --home "$TMP/home" --signing-key "$TMP/untrusted-private.pem" >/dev/null 2>&1; then
+  echo '[FAIL] untrusted signing key was silently enrolled' >&2
+  exit 1
+fi
+[[ "$(readlink "$PLUGIN_ROOT/current")" == "$FIRST" ]]
+echo '[PASS] an existing trust store rejects unapproved signing identities'
 
 printf '#!/usr/bin/env bash\nprintf "karpathy-hook-dispatch-b\\n"\n' > "$SOURCE/shared/scripts/karpathy-hook-dispatch.sh"
 printf '%s\n' '---' 'name: example' 'description: fixture-b' '---' > "$SOURCE/skills/example/SKILL.md"
@@ -126,6 +166,8 @@ echo '[PASS] activation atomically advances current and retains a previous point
 
 node "$INSTALLER" --plugin-root "$PLUGIN_ROOT" --home "$TMP/home" --rollback >/dev/null
 [[ "$(readlink "$PLUGIN_ROOT/current")" == "$FIRST" ]]
+cmp "$PLUGIN_ROOT/generations/$FIRST_HASH/indexes/skills.json" \
+  "$PLUGIN_ROOT/stable/skill-index.json"
 [[ "$(HOME="$TMP/home" bash "$PLUGIN_ROOT/stable/karpathy-hook-dispatch.sh")" == "karpathy-hook-dispatch-a" ]]
 grep -q 'description: fixture$' "$TMP/home/.codex/skills/example/SKILL.md"
 grep -q 'description: fixture$' "$TMP/home/.minimax/skills/example/SKILL.md"
@@ -138,6 +180,22 @@ if node "$INSTALLER" --source-root "$SOURCE" --plugin-root "$PLUGIN_ROOT" --home
 fi
 [[ "$(readlink "$PLUGIN_ROOT/current")" == "$FIRST" ]]
 echo '[PASS] invalid script modes cannot replace the active generation'
+
+chmod +x "$SOURCE/shared/scripts/pk-health.sh"
+mkdir -p "$SOURCE/skills/collision" \
+  "$TMP/home/.claude/skills/collision" \
+  "$TMP/home/.claude/skills/prometheus-collision"
+printf '%s\n' '---' 'name: collision' 'description: collision fixture' '---' > \
+  "$SOURCE/skills/collision/SKILL.md"
+printf 'owned\n' > "$TMP/home/.claude/skills/collision/marker.txt"
+printf 'owned\n' > "$TMP/home/.claude/skills/prometheus-collision/marker.txt"
+if node "$INSTALLER" --source-root "$SOURCE" --plugin-root "$PLUGIN_ROOT" \
+  --home "$TMP/home" >/dev/null 2>&1; then
+  echo '[FAIL] dual primary/namespaced target collision unexpectedly installed' >&2
+  exit 1
+fi
+[[ "$(readlink "$PLUGIN_ROOT/current")" == "$FIRST" ]]
+echo '[PASS] unresolved target collisions reject the candidate without moving activation'
 
 for target in \
   .claude/skills .opencode/skills .kimi-code/skills .minimax/skills .cursor/skills \

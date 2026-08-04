@@ -77,6 +77,30 @@ fn list_skills_reports_no_host_rather_than_an_empty_catalog() {
     assert!(e.message.contains("no host bound"), "got: {}", e.message);
 }
 
+const INDEX_FIXTURE: &str = r#"{
+  "schemaVersion":"prometheus-skill-index-v1",
+  "entries":[
+    {"id":"api-design","description":"REST contracts","relativePath":"backend/api-design","searchText":"api-design rest contracts"},
+    {"id":"rust-review","description":"Rust correctness","relativePath":"rust/rust-review","searchText":"rust-review rust correctness"}
+  ],
+  "sha256":"08cd6d1575faa7966b5aef855f3091a0e4e1a53d8f5fba2806519934a16a9888"
+}"#;
+
+#[test]
+fn mobile_catalog_consumes_the_generation_index() {
+    let listed = list_indexed_skills(INDEX_FIXTURE.into()).unwrap();
+    assert_eq!(listed.len(), 2);
+    assert_eq!(listed[0].id, "api-design");
+}
+
+#[test]
+fn mobile_search_uses_shared_deterministic_selection() {
+    let selected =
+        search_indexed_skills(INDEX_FIXTURE.into(), "rust correctness".into(), 1).unwrap();
+    assert_eq!(selected.len(), 1);
+    assert_eq!(selected[0].id, "rust-review");
+}
+
 #[test]
 fn kbd_mobile_capabilities_expose_the_restricted_security_boundary() {
     let capabilities: serde_json::Value = serde_json::from_str(&kbd_mobile_capabilities()).unwrap();

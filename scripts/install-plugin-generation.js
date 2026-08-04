@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import crypto from 'node:crypto';
+import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -52,6 +53,9 @@ const PAYLOAD_ROOTS = [
   '.agents/plugins',
   '.mcp.json',
 ];
+const MANIFEST_SIGNATURE = 'manifest.sig.json';
+const SKILL_INDEX_SCHEMA = 'prometheus-skill-index-v1';
+const SIGNATURE_NAMESPACE = 'prometheus-plugin-generation-v1';
 
 function fail(message) {
   throw new Error(message);
@@ -66,6 +70,8 @@ function parseArgs(argv) {
     rollback: false,
     uninstall: false,
     expectedBundle: null,
+    signingKey: null,
+    trustStore: null,
   };
   for (let index = 0; index < argv.length; index += 1) {
     const value = argv[index];
@@ -76,6 +82,8 @@ function parseArgs(argv) {
     else if (value === '--source-root') args.sourceRoot = argv[++index];
     else if (value === '--plugin-root') args.pluginRoot = argv[++index];
     else if (value === '--home') args.home = argv[++index];
+    else if (value === '--signing-key') args.signingKey = argv[++index];
+    else if (value === '--trust-store') args.trustStore = argv[++index];
     else fail(`unknown argument: ${value}`);
   }
   for (const key of ['sourceRoot', 'pluginRoot', 'home']) {
@@ -83,6 +91,12 @@ function parseArgs(argv) {
       fail(`missing value for --${key.replace(/[A-Z]/g, c => `-${c.toLowerCase()}`)}`);
     args[key] = path.resolve(args[key]);
   }
+  args.signingKey = path.resolve(
+    args.signingKey ?? path.join(args.home, '.prometheus/plugin-signing/ed25519-private.pem')
+  );
+  args.trustStore = path.resolve(
+    args.trustStore ?? path.join(args.pluginRoot, 'trust/allowed-signers.json')
+  );
   if (args.expectedBundle && !/^[a-f0-9]{64}$/.test(args.expectedBundle)) {
     fail('invalid value for --expected-bundle');
   }
@@ -99,6 +113,90 @@ function assertSafeRoot(root, home) {
 
 function sha256(value) {
   return crypto.createHash('sha256').update(value).digest('hex');
+}
+
+function keyId(publicKey) {
+  return sha256(publicKey.export({ type: 'spki', format: 'der' }));
+}
+
+function ensureSigningIdentity(privateKeyPath, trustStorePath) {
+  ensureDirectory(path.dirname(privateKeyPath), 0o700);
+  const trustExists = fs.existsSync(trustStorePath);
+  let privateKey;
+  if (fs.existsSync(privateKeyPath)) {
+    const mode = fs.statSync(privateKeyPath).mode & 0o777;
+    if (mode !== 0o600) fail(`plugin signing key must have mode 0600: ${privateKeyPath}`);
+    privateKey = crypto.createPrivateKey(fs.readFileSync(privateKeyPath));
+  } else {
+    if (trustExists) {
+      fail(`plugin signing key is missing but a trust store already exists: ${privateKeyPath}`);
+    }
+    const pair = crypto.generateKeyPairSync('ed25519');
+    atomicWrite(privateKeyPath, pair.privateKey.export({ type: 'pkcs8', format: 'pem' }), 0o600);
+    privateKey = pair.privateKey;
+  }
+  const publicKey = crypto.createPublicKey(privateKey);
+  const signer = keyId(publicKey);
+  const encoded = publicKey.export({ type: 'spki', format: 'pem' }).toString();
+  ensureDirectory(path.dirname(trustStorePath), 0o700);
+  let trust = { schemaVersion: 1, signers: [] };
+  if (trustExists) trust = JSON.parse(fs.readFileSync(trustStorePath, 'utf8'));
+  if (!Array.isArray(trust.signers)) fail('plugin trust store has no signers array');
+  const existing = trust.signers.find(entry => entry.keyId === signer);
+  if (existing && existing.publicKey !== encoded) fail(`plugin signer collision: ${signer}`);
+  if (!existing && trustExists) fail(`plugin signer is not enrolled: ${signer}`);
+  if (!existing) {
+    trust.signers.push({ keyId: signer, algorithm: 'Ed25519', publicKey: encoded });
+    trust.signers.sort((left, right) => left.keyId.localeCompare(right.keyId));
+    atomicWrite(trustStorePath, canonicalJson(trust), 0o600);
+  }
+  return { privateKey, publicKey, keyId: signer };
+}
+
+function readTrustedKey(trustStorePath, signer) {
+  if (!fs.existsSync(trustStorePath)) fail(`plugin trust store is missing: ${trustStorePath}`);
+  const trust = JSON.parse(fs.readFileSync(trustStorePath, 'utf8'));
+  const entry = trust.signers?.find(candidate => candidate.keyId === signer);
+  if (!entry || entry.algorithm !== 'Ed25519') fail(`untrusted plugin signer: ${signer}`);
+  const publicKey = crypto.createPublicKey(entry.publicKey);
+  if (keyId(publicKey) !== signer) fail(`plugin trust-store key fingerprint mismatch: ${signer}`);
+  return publicKey;
+}
+
+function signaturePayload(value) {
+  return Buffer.from(`${SIGNATURE_NAMESPACE}\n${canonicalJson(value)}`);
+}
+
+function signValue(value, identity) {
+  return {
+    schemaVersion: 1,
+    namespace: SIGNATURE_NAMESPACE,
+    algorithm: 'Ed25519',
+    signerKeyId: identity.keyId,
+    signature: crypto.sign(null, signaturePayload(value), identity.privateKey).toString('base64'),
+  };
+}
+
+function verifySignedValue(value, signature, trustStorePath) {
+  if (
+    signature?.schemaVersion !== 1 ||
+    signature?.namespace !== SIGNATURE_NAMESPACE ||
+    signature?.algorithm !== 'Ed25519'
+  ) {
+    fail('invalid plugin signature envelope');
+  }
+  const publicKey = readTrustedKey(trustStorePath, signature.signerKeyId);
+  if (
+    !crypto.verify(
+      null,
+      signaturePayload(value),
+      publicKey,
+      Buffer.from(signature.signature ?? '', 'base64')
+    )
+  ) {
+    fail('plugin signature verification failed');
+  }
+  return signature.signerKeyId;
 }
 
 function canonical(value) {
@@ -207,7 +305,7 @@ function collectManifestFiles(root, relative = '') {
   const absolute = path.join(root, relative);
   for (const name of fs.readdirSync(absolute).sort()) {
     const itemRelative = path.posix.join(relative.split(path.sep).join('/'), name);
-    if (itemRelative === 'manifest.json') continue;
+    if (itemRelative === 'manifest.json' || itemRelative === MANIFEST_SIGNATURE) continue;
     const itemAbsolute = path.join(root, ...itemRelative.split('/'));
     const stat = fs.lstatSync(itemAbsolute);
     if (stat.isDirectory()) {
@@ -246,6 +344,19 @@ function readSkillName(skillFile) {
   return name;
 }
 
+function readSkillDescription(skillFile) {
+  const text = fs.readFileSync(skillFile, 'utf8').replace(/\r\n/g, '\n');
+  const frontmatter = text.match(/^---\n([\s\S]*?)\n---/)?.[1] ?? '';
+  const inline = frontmatter.match(/^description:\s*(?![>|])['"]?([^'"\n]+)['"]?\s*$/m);
+  if (inline) return inline[1].replace(/\s+/g, ' ').trim();
+  const folded = frontmatter.match(/^description:\s*[>|][-+]?\s*\n((?:[ \t]+\S[^\n]*\n?)+)/m);
+  return (folded?.[1] ?? '')
+    .split('\n')
+    .map(line => line.trim())
+    .filter(Boolean)
+    .join(' ');
+}
+
 function collectSkills(skillsRoot) {
   const skills = [];
   function visit(directory) {
@@ -257,7 +368,11 @@ function collectSkills(skillsRoot) {
       if (relative.some(part => ['imported', 'tests', 'fixtures'].includes(part))) continue;
       const skillFile = path.join(entry, 'SKILL.md');
       if (fs.existsSync(skillFile))
-        skills.push({ name: readSkillName(skillFile), relative: path.relative(skillsRoot, entry) });
+        skills.push({
+          name: readSkillName(skillFile),
+          description: readSkillDescription(skillFile),
+          relative: path.relative(skillsRoot, entry).split(path.sep).join('/'),
+        });
       visit(entry);
     }
   }
@@ -271,6 +386,45 @@ function collectSkills(skillsRoot) {
   return skills;
 }
 
+function buildSkillIndex(skills) {
+  const entries = skills.map(skill => ({
+    id: skill.name,
+    description: skill.description,
+    relativePath: skill.relative,
+    searchText: `${skill.name} ${skill.description}`.toLocaleLowerCase('en-US'),
+  }));
+  const body = { schemaVersion: SKILL_INDEX_SCHEMA, entries };
+  return { ...body, sha256: sha256(canonicalJson(body)) };
+}
+
+function sourceProvenance(sourceRoot) {
+  const git = (...args) => {
+    const result = spawnSync('git', args, { cwd: sourceRoot, encoding: 'utf8' });
+    return result.status === 0 ? result.stdout.trim() : null;
+  };
+  const sourceCommit = git('rev-parse', 'HEAD');
+  const sourceTreeState = git('status', '--porcelain') ? 'modified' : 'clean';
+  const configuredPaths = git('config', '-f', '.gitmodules', '--get-regexp', 'path');
+  const externalSources = [];
+  if (configuredPaths) {
+    for (const line of configuredPaths.split('\n').filter(Boolean)) {
+      const sourcePath = line.trim().split(/\s+/).at(-1);
+      const treeEntry = git('ls-tree', 'HEAD', '--', sourcePath);
+      const match = treeEntry?.match(/^160000 commit ([a-f0-9]{40,64})\t/);
+      if (!match) fail(`external source has no commit gitlink: ${sourcePath}`);
+      const checkedOutCommit = fs.existsSync(path.join(sourceRoot, sourcePath, '.git'))
+        ? git('-C', sourcePath, 'rev-parse', 'HEAD')
+        : null;
+      if (checkedOutCommit && checkedOutCommit !== match[1]) {
+        fail(`external source checkout differs from its commit pin: ${sourcePath}`);
+      }
+      externalSources.push({ path: sourcePath, commit: match[1] });
+    }
+  }
+  externalSources.sort((left, right) => left.path.localeCompare(right.path));
+  return { sourceCommit, sourceTreeState, externalSources };
+}
+
 function targetPayloads(skills) {
   const digest = sha256(canonicalJson(skills));
   return TARGETS.map(target => ({
@@ -282,10 +436,7 @@ function targetPayloads(skills) {
 }
 
 function verifyReleaseManifest(payloadRoot, expectedBundle = null) {
-  const manifestPath = path.join(
-    payloadRoot,
-    'shared/harnesses/generated/release-manifest.json'
-  );
+  const manifestPath = path.join(payloadRoot, 'shared/harnesses/generated/release-manifest.json');
   if (!fs.existsSync(manifestPath)) fail(`release manifest is missing: ${manifestPath}`);
   const release = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
   const identity = {
@@ -334,21 +485,39 @@ function verifyReleaseManifest(payloadRoot, expectedBundle = null) {
   return release;
 }
 
-function verifyGeneration(generationPath, expectedName = path.basename(generationPath)) {
+function verifyGeneration(
+  generationPath,
+  expectedName = path.basename(generationPath),
+  trustStorePath = path.join(
+    path.dirname(path.dirname(generationPath)),
+    'trust/allowed-signers.json'
+  )
+) {
   const manifestPath = path.join(generationPath, 'manifest.json');
   if (!fs.existsSync(manifestPath)) fail(`generation has no manifest: ${generationPath}`);
   const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
   const identity = {
     schemaVersion: manifest.schemaVersion,
     sourceVersion: manifest.sourceVersion,
+    signerKeyId: manifest.signerKeyId,
     bundleId: manifest.bundleId,
     hookRuntime: manifest.hookRuntime,
+    sourceProvenance: manifest.sourceProvenance,
+    skillIndex: manifest.skillIndex,
     files: manifest.files,
     targetPayloads: manifest.targetPayloads,
   };
   const digest = sha256(canonicalJson(identity));
   if (manifest.generation !== digest || expectedName !== digest)
     fail(`generation identity mismatch: ${generationPath}`);
+  const signaturePath = path.join(generationPath, MANIFEST_SIGNATURE);
+  if (!fs.existsSync(signaturePath)) fail(`generation signature is missing: ${generationPath}`);
+  const signerKeyId = verifySignedValue(
+    manifest,
+    JSON.parse(fs.readFileSync(signaturePath, 'utf8')),
+    trustStorePath
+  );
+  if (manifest.signerKeyId !== signerKeyId) fail('manifest signer does not match its signature');
   if (!Array.isArray(manifest.targetPayloads) || manifest.targetPayloads.length !== TARGETS.length)
     fail('generation does not certify all 14 targets');
   for (let index = 0; index < TARGETS.length; index += 1) {
@@ -360,6 +529,44 @@ function verifyGeneration(generationPath, expectedName = path.basename(generatio
   }
   if (canonicalJson(collectManifestFiles(generationPath)) !== canonicalJson(manifest.files)) {
     fail(`generation contains unmanifested or missing payload files: ${generationPath}`);
+  }
+  const indexPath = path.join(generationPath, 'indexes/skills.json');
+  const mobilePath = path.join(generationPath, 'mobile/skill-index.json');
+  const agentPath = path.join(generationPath, 'agents/skill-index.json');
+  const parityPath = path.join(generationPath, 'mobile/parity.json');
+  if (
+    !fs.existsSync(indexPath) ||
+    !fs.existsSync(mobilePath) ||
+    !fs.existsSync(agentPath) ||
+    !fs.existsSync(parityPath)
+  ) {
+    fail('generation omits a host, generated-agent, or mobile skill-index projection');
+  }
+  const indexBytes = fs.readFileSync(indexPath);
+  if (
+    !indexBytes.equals(fs.readFileSync(mobilePath)) ||
+    !indexBytes.equals(fs.readFileSync(agentPath))
+  ) {
+    fail('host/generated-agent/mobile skill indexes diverge');
+  }
+  const index = JSON.parse(indexBytes);
+  const indexBody = { schemaVersion: index.schemaVersion, entries: index.entries };
+  if (
+    index.schemaVersion !== SKILL_INDEX_SCHEMA ||
+    index.sha256 !== sha256(canonicalJson(indexBody)) ||
+    manifest.skillIndex?.sha256 !== index.sha256 ||
+    manifest.skillIndex?.entryCount !== index.entries.length
+  ) {
+    fail('generation skill index receipt is invalid');
+  }
+  const parity = JSON.parse(fs.readFileSync(parityPath, 'utf8'));
+  if (
+    parity.schemaVersion !== 1 ||
+    parity.skillIndexSchema !== SKILL_INDEX_SCHEMA ||
+    parity.skillIndexSha256 !== index.sha256 ||
+    parity.entryCount !== index.entries.length
+  ) {
+    fail('mobile skill-index parity receipt is invalid');
   }
   for (const entry of manifest.files) {
     const absolute = path.join(generationPath, ...entry.path.split('/'));
@@ -446,7 +653,7 @@ function installLinkTarget(targetRoot, skill, pluginRoot) {
     fallback &&
     !(fallback.isSymbolicLink() && isManagedSkillLink(destination, pluginRoot, skill))
   )
-    return;
+    fail(`skill target collision: ${destination}`);
   const relativeTarget = path.relative(path.dirname(destination), managedTarget);
   const temporary = `${destination}.${process.pid}.tmp`;
   try {
@@ -480,7 +687,9 @@ function copySkill(source, targetRoot, target, skill, generation) {
   let destination = path.join(targetRoot, skill.name);
   if (fs.existsSync(destination) && !isManagedCopy(destination, target))
     destination = path.join(targetRoot, `prometheus-${skill.name}`);
-  if (fs.existsSync(destination) && !isManagedCopy(destination, target)) return;
+  if (fs.existsSync(destination) && !isManagedCopy(destination, target)) {
+    fail(`skill target collision: ${destination}`);
+  }
   const temporary = path.join(targetRoot, `.${path.basename(destination)}.${process.pid}.tmp`);
   fs.rmSync(temporary, { recursive: true, force: true });
   // The immutable generation was fsynced before activation. Copy-based
@@ -567,6 +776,55 @@ function verifyTargets(home, pluginRoot, generationPath, generation, skills) {
   }
 }
 
+function receiptFile(pluginRoot, generation, target) {
+  return path.join(
+    pluginRoot,
+    'receipts',
+    generation,
+    `${target.replaceAll('/', '__').replace(/^\./, '')}.json`
+  );
+}
+
+function targetReceipt(manifest, targetPayload) {
+  return {
+    schemaVersion: 1,
+    generation: manifest.generation,
+    signerKeyId: manifest.signerKeyId,
+    target: targetPayload.target,
+    mode: targetPayload.mode,
+    skillCount: targetPayload.skillCount,
+    skillsSha256: targetPayload.skillsSha256,
+    skillIndexSha256: manifest.skillIndex.sha256,
+    status: 'verified',
+  };
+}
+
+function writeTargetReceipts(pluginRoot, manifest, identity) {
+  for (const targetPayload of manifest.targetPayloads) {
+    const body = targetReceipt(manifest, targetPayload);
+    atomicWrite(
+      receiptFile(pluginRoot, manifest.generation, targetPayload.target),
+      canonicalJson({ body, signature: signValue(body, identity) }),
+      0o600
+    );
+  }
+}
+
+function verifyTargetReceipts(pluginRoot, manifest, trustStorePath) {
+  if (manifest.targetPayloads.length !== TARGETS.length)
+    fail('target receipt matrix is incomplete');
+  for (const targetPayload of manifest.targetPayloads) {
+    const file = receiptFile(pluginRoot, manifest.generation, targetPayload.target);
+    if (!fs.existsSync(file)) fail(`target receipt is missing: ${targetPayload.target}`);
+    const receipt = JSON.parse(fs.readFileSync(file, 'utf8'));
+    const expected = targetReceipt(manifest, targetPayload);
+    if (canonicalJson(receipt.body) !== canonicalJson(expected)) {
+      fail(`target receipt body mismatch: ${targetPayload.target}`);
+    }
+    verifySignedValue(receipt.body, receipt.signature, trustStorePath);
+  }
+}
+
 function createStableDispatchers(pluginRoot) {
   const stable = path.join(pluginRoot, 'stable');
   ensureDirectory(stable);
@@ -576,6 +834,7 @@ function createStableDispatchers(pluginRoot) {
   for (const directory of STABLE_DIRECTORIES) {
     atomicSymlink(stable, directory, `../current/shared/scripts/${directory}`);
   }
+  atomicSymlink(stable, 'skill-index.json', '../current/indexes/skills.json');
 }
 
 function verifyStableDispatchers(pluginRoot) {
@@ -605,9 +864,23 @@ function verifyStableDispatchers(pluginRoot) {
       fail(`stable support directory projection is invalid: ${directory}`);
     }
   }
+  const skillIndex = path.join(stable, 'skill-index.json');
+  const indexStat = fs.lstatSync(skillIndex, { throwIfNoEntry: false });
+  const expectedIndex = path.join(pluginRoot, 'current/indexes/skills.json');
+  if (
+    !indexStat?.isSymbolicLink() ||
+    path.resolve(stable, fs.readlinkSync(skillIndex)) !== expectedIndex ||
+    !fs.statSync(skillIndex).isFile()
+  ) {
+    fail('stable skill index projection is invalid');
+  }
 }
 
-function verifyHookRuntime(pluginRoot, manifest) {
+function verifyHookRuntime(
+  pluginRoot,
+  manifest,
+  trustStorePath = path.join(pluginRoot, 'trust/allowed-signers.json')
+) {
   const runner = path.join(pluginRoot, 'runtime/v1/run-hook');
   const runnerStat = fs.lstatSync(runner, { throwIfNoEntry: false });
   if (
@@ -624,7 +897,7 @@ function verifyHookRuntime(pluginRoot, manifest) {
   if (!isWithin(path.join(pluginRoot, 'generations'), resolved)) {
     fail(`bundle index escapes generations: ${manifest.bundleId}`);
   }
-  const indexed = verifyGeneration(resolved, path.basename(resolved));
+  const indexed = verifyGeneration(resolved, path.basename(resolved), trustStorePath);
   if (
     indexed.bundleId !== manifest.bundleId ||
     indexed.hookRuntime.dispatcherSha256 !== manifest.hookRuntime.dispatcherSha256
@@ -633,13 +906,9 @@ function verifyHookRuntime(pluginRoot, manifest) {
   }
 }
 
-function installHookRuntime(pluginRoot, generationPath, manifest) {
+function installHookRuntime(pluginRoot, generationPath, manifest, trustStorePath) {
   const runnerSource = path.join(generationPath, 'shared/scripts/hook-runtime-v1.sh');
-  atomicWrite(
-    path.join(pluginRoot, 'runtime/v1/run-hook'),
-    fs.readFileSync(runnerSource),
-    0o755
-  );
+  atomicWrite(path.join(pluginRoot, 'runtime/v1/run-hook'), fs.readFileSync(runnerSource), 0o755);
   const bundles = path.join(pluginRoot, 'bundles');
   ensureDirectory(bundles);
   const bundleLink = path.join(bundles, manifest.bundleId);
@@ -650,7 +919,7 @@ function installHookRuntime(pluginRoot, generationPath, manifest) {
     if (!isWithin(path.join(pluginRoot, 'generations'), resolved)) {
       fail(`bundle index escapes generations: ${manifest.bundleId}`);
     }
-    const indexed = verifyGeneration(resolved, path.basename(resolved));
+    const indexed = verifyGeneration(resolved, path.basename(resolved), trustStorePath);
     if (
       indexed.bundleId !== manifest.bundleId ||
       indexed.hookRuntime.dispatcherSha256 !== manifest.hookRuntime.dispatcherSha256
@@ -660,7 +929,7 @@ function installHookRuntime(pluginRoot, generationPath, manifest) {
   } else {
     atomicSymlink(bundles, manifest.bundleId, `../generations/${manifest.generation}`);
   }
-  verifyHookRuntime(pluginRoot, manifest);
+  verifyHookRuntime(pluginRoot, manifest, trustStorePath);
 }
 
 function uninstall(home, pluginRoot) {
@@ -688,33 +957,38 @@ function uninstall(home, pluginRoot) {
   return 'uninstalled';
 }
 
-function verifyActive(pluginRoot) {
+function verifyActive(
+  pluginRoot,
+  trustStorePath = path.join(pluginRoot, 'trust/allowed-signers.json')
+) {
   const target = currentTarget(pluginRoot, 'current');
   if (!target) fail('no active plugin generation');
   const resolved = path.resolve(pluginRoot, target);
   if (!isWithin(path.join(pluginRoot, 'generations'), resolved))
     fail('active pointer escapes generations directory');
-  const manifest = verifyGeneration(resolved, path.basename(resolved));
+  const manifest = verifyGeneration(resolved, path.basename(resolved), trustStorePath);
   verifyStableDispatchers(pluginRoot);
-  verifyHookRuntime(pluginRoot, manifest);
+  verifyHookRuntime(pluginRoot, manifest, trustStorePath);
+  verifyTargetReceipts(pluginRoot, manifest, trustStorePath);
   return manifest;
 }
 
-function rollback(pluginRoot, home) {
+function rollback(pluginRoot, home, trustStorePath) {
   const active = currentTarget(pluginRoot, 'current');
   const previous = currentTarget(pluginRoot, 'previous');
   if (!active || !previous) fail('rollback requires current and previous generations');
   const generationPath = path.resolve(pluginRoot, previous);
   if (!isWithin(path.join(pluginRoot, 'generations'), generationPath))
     fail('previous pointer escapes generations directory');
-  const manifest = verifyGeneration(generationPath, path.basename(previous));
+  const manifest = verifyGeneration(generationPath, path.basename(previous), trustStorePath);
   const skills = collectSkills(path.join(generationPath, 'skills'));
   installTargets(home, pluginRoot, generationPath, manifest.generation, skills);
   verifyTargets(home, pluginRoot, generationPath, manifest.generation, skills);
   atomicSymlink(pluginRoot, 'current', previous);
   atomicSymlink(pluginRoot, 'previous', active);
-  installHookRuntime(pluginRoot, generationPath, manifest);
+  installHookRuntime(pluginRoot, generationPath, manifest, trustStorePath);
   createStableDispatchers(pluginRoot);
+  verifyTargetReceipts(pluginRoot, manifest, trustStorePath);
   return path.basename(previous);
 }
 
@@ -738,6 +1012,7 @@ function install(args) {
 
   const generations = path.join(args.pluginRoot, 'generations');
   ensureDirectory(generations);
+  const signingIdentity = ensureSigningIdentity(args.signingKey, args.trustStore);
   const staging = path.join(
     generations,
     `.staging-${process.pid}-${crypto.randomBytes(6).toString('hex')}`
@@ -750,6 +1025,19 @@ function install(args) {
     }
     const skills = collectSkills(path.join(staging, 'skills'));
     if (skills.length === 0) fail('generation contains no installable skills');
+    const skillIndex = buildSkillIndex(skills);
+    atomicWrite(path.join(staging, 'indexes/skills.json'), canonicalJson(skillIndex));
+    atomicWrite(path.join(staging, 'mobile/skill-index.json'), canonicalJson(skillIndex));
+    atomicWrite(path.join(staging, 'agents/skill-index.json'), canonicalJson(skillIndex));
+    atomicWrite(
+      path.join(staging, 'mobile/parity.json'),
+      canonicalJson({
+        schemaVersion: 1,
+        skillIndexSchema: SKILL_INDEX_SCHEMA,
+        skillIndexSha256: skillIndex.sha256,
+        entryCount: skillIndex.entries.length,
+      })
+    );
     const pluginMetadata = JSON.parse(
       fs.readFileSync(path.join(staging, '.claude-plugin/plugin.json'), 'utf8')
     );
@@ -771,36 +1059,45 @@ function install(args) {
     const identity = {
       schemaVersion: 1,
       sourceVersion: String(pluginMetadata.version ?? 'unknown'),
+      signerKeyId: signingIdentity.keyId,
       bundleId: release.bundleId,
       hookRuntime,
+      sourceProvenance: sourceProvenance(source),
+      skillIndex: { sha256: skillIndex.sha256, entryCount: skillIndex.entries.length },
       files: collectManifestFiles(staging),
       targetPayloads: targetPayloads(skills),
     };
     const generation = sha256(canonicalJson(identity));
     const manifest = { ...identity, generation };
     atomicWrite(path.join(staging, 'manifest.json'), canonicalJson(manifest));
-    verifyGeneration(staging, generation);
+    atomicWrite(
+      path.join(staging, MANIFEST_SIGNATURE),
+      canonicalJson(signValue(manifest, signingIdentity)),
+      0o600
+    );
+    verifyGeneration(staging, generation, args.trustStore);
 
     const generationPath = path.join(generations, generation);
     if (fs.existsSync(generationPath)) {
-      verifyGeneration(generationPath, generation);
+      verifyGeneration(generationPath, generation, args.trustStore);
       fs.rmSync(staging, { recursive: true, force: true });
     } else {
       fs.renameSync(staging, generationPath);
       syncDirectory(generations);
     }
 
-    installHookRuntime(args.pluginRoot, generationPath, manifest);
+    installHookRuntime(args.pluginRoot, generationPath, manifest, args.trustStore);
 
     installTargets(args.home, args.pluginRoot, generationPath, generation, skills);
     verifyTargets(args.home, args.pluginRoot, generationPath, generation, skills);
+    writeTargetReceipts(args.pluginRoot, manifest, signingIdentity);
     const active = currentTarget(args.pluginRoot, 'current');
     if (active !== `generations/${generation}`) {
       if (active) atomicSymlink(args.pluginRoot, 'previous', active);
       atomicSymlink(args.pluginRoot, 'current', `generations/${generation}`);
     }
     createStableDispatchers(args.pluginRoot);
-    verifyActive(args.pluginRoot);
+    verifyActive(args.pluginRoot, args.trustStore);
     return generation;
   } catch (error) {
     fs.rmSync(staging, { recursive: true, force: true });
@@ -812,8 +1109,8 @@ const args = parseArgs(process.argv.slice(2));
 assertSafeRoot(args.pluginRoot, args.home);
 try {
   let generation;
-  if (args.verify) generation = verifyActive(args.pluginRoot).generation;
-  else if (args.rollback) generation = rollback(args.pluginRoot, args.home);
+  if (args.verify) generation = verifyActive(args.pluginRoot, args.trustStore).generation;
+  else if (args.rollback) generation = rollback(args.pluginRoot, args.home, args.trustStore);
   else if (args.uninstall) generation = uninstall(args.home, args.pluginRoot);
   else generation = install(args);
   process.stdout.write(`${generation}\n`);
