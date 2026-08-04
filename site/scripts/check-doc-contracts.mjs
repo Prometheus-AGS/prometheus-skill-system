@@ -12,6 +12,18 @@ const failures = [];
 const release = '1.7.0';
 
 const json = file => JSON.parse(fs.readFileSync(file, 'utf8'));
+const text = file => fs.readFileSync(file, 'utf8');
+const sitePackage = json(path.join(siteRoot, 'package.json'));
+const cargoTableVersion = (file, table) => {
+  const source = text(file);
+  const header = `[${table}]`;
+  const start = source.indexOf(header);
+  if (start < 0) return undefined;
+  const bodyStart = start + header.length;
+  const nextTable = source.indexOf('\n[', bodyStart);
+  const section = source.slice(bodyStart, nextTable < 0 ? undefined : nextTable);
+  return section.match(/^version\s*=\s*"([^"]+)"\s*$/m)?.[1];
+};
 for (const [label, file] of [
   ['root package', path.join(repoRoot, 'package.json')],
   ['root lockfile', path.join(repoRoot, 'package-lock.json')],
@@ -21,6 +33,12 @@ for (const [label, file] of [
   ['Codex plugin', path.join(repoRoot, '.codex-plugin/plugin.json')],
 ]) {
   if (json(file).version !== release) failures.push(`${label} is not version ${release}`);
+}
+if (sitePackage.scripts?.['build:deploy'] !== 'npm run generate:catalog && docusaurus build') {
+  failures.push('Pages build:deploy does not generate the skills catalog before packaging');
+}
+if (!sitePackage.scripts?.['docs:check']?.includes('check:mermaid')) {
+  failures.push('docs:check does not validate Mermaid source');
 }
 const marketplace = json(path.join(repoRoot, '.claude-plugin/marketplace.json'));
 if (marketplace.version !== release || marketplace.plugins?.[0]?.version !== release) {
@@ -38,6 +56,46 @@ if (
   )
 ) {
   failures.push(`SKILLS.md is not version ${release}`);
+}
+
+for (const [label, file, table] of [
+  [
+    'Prometheus CLI workspace',
+    path.join(repoRoot, 'tools/prometheus-cli/Cargo.toml'),
+    'workspace.package',
+  ],
+  [
+    'Knowledge workspace',
+    path.join(repoRoot, 'tools/prometheus-knowledge/Cargo.toml'),
+    'workspace.package',
+  ],
+  [
+    'Memory server package',
+    path.join(repoRoot, 'tools/surreal-memory-server/Cargo.toml'),
+    'package',
+  ],
+]) {
+  if (cargoTableVersion(file, table) !== release) {
+    failures.push(`${label} is not version ${release}`);
+  }
+}
+
+const knowledgeManifest = text(path.join(repoRoot, 'tools/prometheus-knowledge/Cargo.toml'));
+for (const crate of [
+  'pk-core',
+  'pk-store',
+  'pk-watcher',
+  'pk-librarian',
+  'pk-mcp',
+  'pk-event-store',
+]) {
+  const dependency = new RegExp(
+    `^${crate}\\s*=\\s*\\{[^\\n]*version\\s*=\\s*"${release.replaceAll('.', '\\.')}"`,
+    'm'
+  );
+  if (!dependency.test(knowledgeManifest)) {
+    failures.push(`Knowledge dependency ${crate} is not pinned to ${release}`);
+  }
 }
 
 const requiredSidebars = {

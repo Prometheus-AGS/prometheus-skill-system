@@ -27,7 +27,7 @@ sequenceDiagram
     Tool->>Tool: PreToolUse — no Prometheus mutation guard
     Tool->>Tool: PostToolUse — validate and record local evidence
     Sub->>Sub: SubagentStop[role] — checkpoint + dispatch (reflector → sycophancy gate)
-    Stop->>Stop: Stop — atomic local enqueue; never forces continuation
+    Stop->>Stop: Stop — atomic local enqueue, never forces continuation
 ```
 
 ## SessionStart

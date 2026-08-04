@@ -219,3 +219,61 @@ Artifact, disposable-runtime, and installed-service evidence above are current
 for this Mac. No external deployment certification is claimed. GitHub workflow
 output is never certification evidence, and no aggregate readiness percentage
 is derived from these unlike evidence classes.
+
+## 2026-08-04 binary and documentation recovery addendum
+
+This addendum preserves the earlier certification record and documents the
+focused 1.7.0 recovery requested after stale installed binary metadata and the
+Pages layout regression were found. It used root base
+`e9f48ca39a68d355b2e9e7ed5259901fb117ab3a`, Knowledge commit
+`4a62bef615b1c210a94f2f97e59757be21eead94`, and Memory commit
+`ec238aae39bd0b60722baba980d63e133e7ce879`.
+
+No Rust test suite or hosted validation was run. KBD and Sovereign Sync were not
+invoked. The local scope was limited to release builds, exact version checks,
+documentation contracts and packaging, Mermaid parsing, production site builds,
+browser/accessibility inspection, ad-hoc signing, and installed-artifact checks.
+
+All five installed commands now return the exact release contract:
+
+```text
+prometheus 1.7.0
+pk 1.7.0
+pk-cherry 1.7.0
+prometheus-learning-worker 1.7.0
+surreal-memory-server 1.7.0
+```
+
+Each installed Mach-O has a valid ad-hoc signature and the same UUID as its
+release-build artifact. The prior executables are recoverable from
+`~/.prometheus/repair/1.7.0-binary-docs-recovery-20260804T053000/`. The Memory
+binary's `--version` and `-V` paths produced identical output, zero stderr, and
+created no files in an empty isolated home. The Memory and Knowledge services
+were restarted from the installed paths; the learning worker was also kicked
+and remained managed by its LaunchAgent.
+
+The focused documentation results were:
+
+- `npm run docs:check`: exit 0, including 50 Mermaid diagrams across 41 files;
+- `npm run build:deploy` with `site/docs-catalog` initially absent: exit 0 and
+  deterministic regeneration of 145 skills across 17 categories;
+- production Docusaurus build: exit 0 with broken links treated as errors; and
+- local production inspection at 375, 768, 1024, 1280, and 1536 CSS pixels:
+  no horizontal overflow, responsive 1/2/2/4/4 capability-card columns,
+  desktop dropdown and mobile-menu operation, no sub-24px sampled interactive
+  target, visible 3px keyboard focus, and no console errors.
+
+The lifecycle page rendered one Mermaid SVG and contained no Mermaid error
+text. The focused accessibility inspection found one `main`, one primary
+navigation landmark, one footer, one `h1`, no heading-level skips, no unnamed
+visible controls, no images without alt text, and no duplicate IDs.
+
+Screenshots are archived for
+[375 px](./screenshots/home-375.png),
+[768 px](./screenshots/home-768.png),
+[1024 px](./screenshots/home-1024.png),
+[1536 px light](./screenshots/home-1536.png),
+[1536 px dark](./screenshots/home-1536-dark.png), and the
+[rendered lifecycle diagram](./screenshots/lifecycle-1536.png). Machine-readable
+hashes and results are in
+[`binary-docs-recovery.json`](./binary-docs-recovery.json).

@@ -1,0 +1,89 @@
+{
+  "certification_date": "2026-08-04",
+  "release": "1.7.0",
+  "root_base_commit": "e9f48ca39a68d355b2e9e7ed5259901fb117ab3a",
+  "dependency_commits": {
+    "prometheus-knowledge-rs": "4a62bef615b1c210a94f2f97e59757be21eead94",
+    "surreal-memory-server": "ec238aae39bd0b60722baba980d63e133e7ce879"
+  },
+  "validation_boundary": {
+    "rust_test_suites_run": false,
+    "hosted_validation_used": false,
+    "kbd_invoked": false,
+    "sovereign_sync_invoked": false
+  },
+  "installed_binaries": [
+    {
+      "name": "prometheus",
+      "path": "/Users/gqadonis/.local/bin/prometheus",
+      "version": "prometheus 1.7.0",
+      "build_sha256": "62b306833d613b5edfd4d77177c1e6181d615e771ac5c73156f098147dfdf264",
+      "installed_sha256": "a64f530b4332d9950e9a7ec58e8d1bd82ed208d2a447a9195e41bb4e23870abd",
+      "macho_uuid": "E28E6520-F0D4-38A2-96BD-01D2703271EE",
+      "codesign": "valid"
+    },
+    {
+      "name": "pk",
+      "path": "/usr/local/bin/pk",
+      "version": "pk 1.7.0",
+      "build_sha256": "2ee3e3ff426a7dfc9c15a00b6e0079fd51a7d4f5e15a546f92d5caf8ec90ca26",
+      "installed_sha256": "5cb7d99cbfdb76e5cd57ebb7b1d09ad9fb182fc6b4cdbd4614718c9b54dde899",
+      "macho_uuid": "BCE25628-BAD2-3A92-BBC3-40DAF498E9A2",
+      "codesign": "valid"
+    },
+    {
+      "name": "pk-cherry",
+      "path": "/usr/local/bin/pk-cherry",
+      "version": "pk-cherry 1.7.0",
+      "build_sha256": "9fb1200ab307c1f731638c8dd5389fde65c8ec6838c836cd16fe0eb33cb0b170",
+      "installed_sha256": "52ea198bbb76c527b377893e1b1dfbbe3ee3b49896aebe51ba97409a6fabf38f",
+      "macho_uuid": "7CA0F7D5-BD7F-3FEA-976D-FBFC810C09EF",
+      "codesign": "valid"
+    },
+    {
+      "name": "prometheus-learning-worker",
+      "path": "/usr/local/bin/prometheus-learning-worker",
+      "version": "prometheus-learning-worker 1.7.0",
+      "build_sha256": "9726069edd40191b9500bcc9445d0c553f91a40789e15af91e039b8d7ed1156d",
+      "installed_sha256": "e25634277c7d97daa224ab1ab377588f00112e5ccf0cdc902e9a65d4313457fd",
+      "macho_uuid": "EE492EF0-1431-34F3-898A-A20405A178AC",
+      "codesign": "valid"
+    },
+    {
+      "name": "surreal-memory-server",
+      "path": "/usr/local/bin/surreal-memory-server",
+      "version": "surreal-memory-server 1.7.0",
+      "build_sha256": "c70f86586c7abbcf60710e5fcebcbb2eaf5c00852e1a6c7f3f8f26bcfb6ded1b",
+      "installed_sha256": "d8d844f39f89801f4835326d578a784250ae876566e530cd66aa220a0b0e1655",
+      "macho_uuid": "14BB15C1-F560-3123-BEDF-03D085602664",
+      "codesign": "valid"
+    }
+  ],
+  "memory_version_short_circuit": {
+    "long_output": "surreal-memory-server 1.7.0",
+    "short_output": "surreal-memory-server 1.7.0",
+    "created_paths": 0,
+    "stderr_bytes": 0
+  },
+  "documentation": {
+    "docs_check": "passed",
+    "build_deploy_without_catalog": "passed",
+    "production_build": "passed",
+    "mermaid_diagrams_parsed": 50,
+    "mermaid_files_scanned": 41,
+    "catalog_skills": 145,
+    "catalog_categories": 17
+  },
+  "browser_qa": {
+    "viewports": [375, 768, 1024, 1280, 1536],
+    "horizontal_overflow": false,
+    "capability_card_columns": [1, 2, 2, 4, 4],
+    "small_interactive_targets": 0,
+    "visible_focus_outline": "3px solid",
+    "desktop_dropdown": "hover and keyboard Enter",
+    "mobile_navigation": "passed",
+    "mermaid_svg_count": 1,
+    "console_errors": 0,
+    "serious_accessibility_findings": 0
+  }
+}

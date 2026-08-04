@@ -105,7 +105,7 @@ const config = {
       navbar: {
         title: 'Prometheus Skill Pack',
         logo: {
-          alt: 'KnowMe Conviction mark',
+          alt: 'Prometheus Skill Pack home',
           src: 'img/knowme-conviction.svg',
           srcDark: 'img/knowme-conviction-dark.svg',
           width: 32,
@@ -114,34 +114,54 @@ const config = {
         items: [
           {
             type: 'docSidebar',
-            sidebarId: 'memorySidebar',
-            position: 'left',
-            label: 'Memory',
-          },
-          {
-            type: 'docSidebar',
-            sidebarId: 'knowledgeLearningSidebar',
-            position: 'left',
-            label: 'Knowledge & Learning',
-          },
-          {
-            type: 'docSidebar',
-            sidebarId: 'pluginDistributionSidebar',
-            position: 'left',
-            label: 'Plugin Distribution',
-          },
-          {
-            type: 'docSidebar',
-            sidebarId: 'operationsSidebar',
-            position: 'left',
-            label: 'Operations',
-          },
-          {
-            type: 'docSidebar',
             sidebarId: 'guideSidebar',
             docsPluginId: 'guide',
             position: 'left',
             label: 'Guide',
+          },
+          {
+            type: 'dropdown',
+            position: 'left',
+            label: 'Core',
+            items: [
+              { type: 'docSidebar', sidebarId: 'memorySidebar', label: 'Memory' },
+              {
+                type: 'docSidebar',
+                sidebarId: 'knowledgeLearningSidebar',
+                label: 'Knowledge & Learning',
+              },
+              {
+                type: 'docSidebar',
+                sidebarId: 'pluginDistributionSidebar',
+                label: 'Plugin Distribution',
+              },
+              { type: 'docSidebar', sidebarId: 'operationsSidebar', label: 'Operations' },
+            ],
+          },
+          {
+            type: 'dropdown',
+            position: 'left',
+            label: 'Learn',
+            items: [
+              { type: 'docSidebar', sidebarId: 'learnSidebar', label: 'Learn Domain' },
+              {
+                type: 'docSidebar',
+                sidebarId: 'learnInternalsSidebar',
+                docsPluginId: 'learn-internals',
+                label: 'Learn Internals',
+              },
+            ],
+          },
+          {
+            type: 'dropdown',
+            position: 'left',
+            label: 'Platforms',
+            items: [
+              { type: 'docSidebar', sidebarId: 'sovereignSidebar', label: 'Sovereign Sync' },
+              { type: 'docSidebar', sidebarId: 'mobileSidebar', label: 'Mobile' },
+              { type: 'docSidebar', sidebarId: 'substrateSidebar', label: 'Substrate' },
+              { type: 'docSidebar', sidebarId: 'kbdSidebar', label: 'KBD' },
+            ],
           },
           {
             type: 'docSidebar',
@@ -149,43 +169,6 @@ const config = {
             docsPluginId: 'catalog',
             position: 'left',
             label: 'Skills Catalog',
-          },
-          {
-            type: 'docSidebar',
-            sidebarId: 'learnSidebar',
-            position: 'left',
-            label: 'Learn Domain',
-          },
-          {
-            type: 'docSidebar',
-            sidebarId: 'learnInternalsSidebar',
-            docsPluginId: 'learn-internals',
-            position: 'left',
-            label: 'Learn Internals',
-          },
-          {
-            type: 'docSidebar',
-            sidebarId: 'sovereignSidebar',
-            position: 'left',
-            label: 'Sovereign Sync',
-          },
-          {
-            type: 'docSidebar',
-            sidebarId: 'mobileSidebar',
-            position: 'left',
-            label: 'Mobile',
-          },
-          {
-            type: 'docSidebar',
-            sidebarId: 'substrateSidebar',
-            position: 'left',
-            label: 'Substrate',
-          },
-          {
-            type: 'docSidebar',
-            sidebarId: 'kbdSidebar',
-            position: 'left',
-            label: 'KBD',
           },
           {
             href: 'https://github.com/Prometheus-AGS/prometheus-skill-system',
@@ -198,11 +181,30 @@ const config = {
         style: 'dark',
         links: [
           {
-            title: 'Docs',
+            title: 'Core',
             items: [
-              { label: 'Introduction', to: '/docs/guide/introduction' },
+              { label: 'Memory', to: '/docs/memory/overview' },
+              {
+                label: 'Knowledge & Learning',
+                to: '/docs/knowledge-learning/snapshots-and-context',
+              },
+              { label: 'Operations', to: '/docs/operations/installation-and-upgrades' },
+            ],
+          },
+          {
+            title: 'Learn',
+            items: [
               { label: 'Learn Domain', to: '/docs/learn/overview' },
+              { label: 'Skills Catalog', to: '/docs/catalog/' },
+              { label: 'Numbered Guide', to: '/docs/guide/introduction' },
+            ],
+          },
+          {
+            title: 'Platforms',
+            items: [
               { label: 'Sovereign Sync', to: '/docs/sovereign-sync/overview' },
+              { label: 'Mobile', to: '/docs/mobile/overview' },
+              { label: 'Substrate', to: '/docs/substrate/' },
             ],
           },
           {
