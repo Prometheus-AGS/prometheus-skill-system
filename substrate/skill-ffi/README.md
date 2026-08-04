@@ -13,8 +13,9 @@ Pattern: **`flutter_rust_bridge` 2.12.0**, per
 
 | Claim | Status |
 |---|---|
-| exec-enabled `aarch64-apple-ios` build | **pending measurement** — task 4.3 |
-| exec-enabled `aarch64-linux-android` build | **pending measurement** — task 4.3 |
+| exec-enabled `aarch64-apple-ios` build | **builds; release pending** — retained delta 25,935,300 bytes exceeds 12 MiB |
+| exec-enabled `aarch64-linux-android` build | **builds; release pending** — retained delta 31,701,736 bytes exceeds 12 MiB |
+| generated FRB dispatcher | **yes** — checked in, reproducible, and export-checked for both mobile ABIs |
 | round-trip tests assert on returned values | **yes** — 12 passing |
 | `crate-type` matches KnowMe's `gen_ui_ffi` | **yes** — `cdylib`, `staticlib`, `rlib` |
 | `exec_run` actually invokes a signed Tier W component | **yes** |
@@ -63,6 +64,8 @@ a new function is the function.
 ## Build
 
 ```bash
+bash generate-frb.sh          # deterministic Rust bridge regeneration
+bash generate-frb.sh --check  # fail on checked-in dispatcher drift
 bash build-mobile.sh all      # ios + android
 bash build-mobile.sh ios
 RUSTUP_TOOLCHAIN=stable cargo test
@@ -78,10 +81,16 @@ Two environment facts the script encodes, both of which cost time to discover:
   host target. Unrelated to this crate, but it makes a bare `cargo test` fail
   confusingly.
 
-## What is deliberately absent
+## Release boundary
 
-- **No generated Dart yet.** `flutter_rust_bridge_codegen` output belongs with
-  the consuming app; generating it here would commit bindings nothing imports.
+- **Generated Rust glue is checked in.** It is the exported dispatcher that
+  retains the complete API graph. `generate-frb.sh` pins codegen 2.12.0 and
+  reproduces it byte-for-byte. Generated Dart remains owned by the consuming
+  application and is intentionally not committed here.
+- **Mobile Tier W is not release-ready.** Fair baseline/current measurements
+  include a generated dispatcher on both sides. The retained iOS and Android
+  deltas exceed the 12 MiB gate, and physical-device round trips are still
+  pending. Cross-build success is not represented as mobile certification.
 - **No implicit catalog-ID dispatch in `run_skill`.** Callers use the explicit
   content-addressed `exec_run` contract until catalog resolution is bound to a
   trusted host generation.

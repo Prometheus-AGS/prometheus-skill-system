@@ -1238,6 +1238,7 @@
                 "type": "integer"
               },
               "stackKb": {
+                "description": "Guest stack ceiling in KiB. Tier W currently requires exactly 512\nbecause Wasmtime configures this limit per engine; Tier P may apply a\nplatform-specific value.",
                 "format": "uint64",
                 "minimum": 0,
                 "type": "integer"

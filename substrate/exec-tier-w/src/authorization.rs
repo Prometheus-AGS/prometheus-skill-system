@@ -233,6 +233,8 @@ impl ComponentAuthorizer {
         component_hash: &Digest,
         component_size: Option<usize>,
     ) -> Result<ComponentAuthorization, TierWError> {
+        #[cfg(not(feature = "estate"))]
+        let _ = component_size;
         if let Some(verified) = &self.verified_receipt {
             verified
                 .authorization

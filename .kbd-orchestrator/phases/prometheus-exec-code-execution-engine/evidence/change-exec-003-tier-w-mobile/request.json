@@ -1,0 +1,49 @@
+{
+  "schemaVersion": "1",
+  "requestId": "c8595ef3-0fa2-4f1d-ae9f-35e42a24a532",
+  "issuedAt": "2026-08-04T20:37:47.644192Z",
+  "validityWindowSecs": 300,
+  "tier": "w",
+  "code": {
+    "kind": "component",
+    "hash": "sha256:ba438895404a23985d5226735b8f362cf3e8044894a1140852ba0992f2fdbe78",
+    "runtime": "wasm-component"
+  },
+  "inputs": [],
+  "capabilities": {
+    "fs": {
+      "readOnly": [
+        ".kbd-orchestrator/project.json",
+        ".evolver/",
+        ".refiner/",
+        "openspec/"
+      ],
+      "readWrite": [
+        "outputs/"
+      ]
+    },
+    "net": {
+      "egress": []
+    },
+    "env": {
+      "read": []
+    },
+    "clock": false,
+    "random": false
+  },
+  "limits": {
+    "memoryMb": 256,
+    "fuel": 500000000,
+    "wallClockMs": 120000,
+    "outputMb": 10,
+    "stackKb": 512
+  },
+  "targets": [],
+  "provenance": {
+    "componentAuthorization": {
+      "mode": "hash-pin",
+      "world": "prometheus:component@0.1.0"
+    }
+  },
+  "sigAlg": "ed25519"
+}

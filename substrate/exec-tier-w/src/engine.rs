@@ -14,6 +14,7 @@ use crate::{BackendProfile, ComponentAuthorizer, COMPONENT_WORLD};
 
 pub(crate) const WASMTIME_VERSION: &str = "46.0.0";
 pub(crate) const EPOCH_TICK_MILLIS: u64 = 10;
+pub(crate) const MAX_WASM_STACK_BYTES: usize = 512 * 1024;
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize)]
 #[serde(rename_all = "kebab-case")]
@@ -288,7 +289,8 @@ impl TierWEngine {
         config
             .wasm_component_model(true)
             .consume_fuel(true)
-            .epoch_interruption(true);
+            .epoch_interruption(true)
+            .max_wasm_stack(MAX_WASM_STACK_BYTES);
 
         match profile.backend {
             BackendProfile::Cranelift => {

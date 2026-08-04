@@ -1,6 +1,5 @@
 #![deny(unsafe_code)]
 
-#[allow(unsafe_code, dead_code, unused_variables)]
 mod authorization;
 mod bindings;
 mod capabilities;

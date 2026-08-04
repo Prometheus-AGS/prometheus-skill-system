@@ -26,11 +26,16 @@ All tests passed locally:
 | `exec-core` | 20 | CAS retention/GC, policy, grants, receipt-log tamper/restart/concurrency |
 | `exec-service` | 23 | lifecycle, response loss, replay/conflict, SSE resume, UDS, tamper/reconciliation |
 | `exec-embedded` standalone | 3 | exact replay, ordered evidence, grant-pending, empty trust |
-| `exec-tier-w` combined | 33 | Cranelift/Pulley parity, property corpus, replay, trust tamper/rollback, limits, CAS |
+| `exec-tier-w` combined | 35 | Cranelift/Pulley parity, property corpus, replay, trust tamper/rollback, directory-scope linking, observed-memory rollback, limits, CAS |
 | `exec-tier-w` bundled mobile | 15 | Pulley no-JIT profile, bundled pins, mobile limit behavior |
 | `skill-ffi` | 12 | returned value, events, receipt/artifacts, verify, interruption, key boundary |
 | `prometheus-exec` | 11 | real Python use case, Tier W service route, contracts, non-mutating false-green doctor |
-| **Total** | **128** | **all green** |
+| **Total** | **130** | **all green** |
+
+The task 5.2 review remediation added and passed two Tier W regression tests,
+raising the combined Tier W count from 33 to 35 and the cumulative matrix from
+128 to 130. The 35-test combined profile and warnings-denied Clippy were rerun
+after the final fixes.
 
 The mobile-feature build of `exec-embedded` also compiled under its test profile;
 its integration fixture is intentionally standalone-only, while the mobile
@@ -60,7 +65,7 @@ Warnings-denied `skill-ffi --lib` cross-Clippy also passed for:
 - `aarch64-apple-ios`;
 - `aarch64-linux-android` using NDK 28.0.12433566 and its API-35 Clang wrapper.
 
-## Determinism, topology, and mobile gates
+## Determinism, topology, and mobile cross-build
 
 The following local commands passed:
 
@@ -69,8 +74,8 @@ scripts/check-exec-dependency-direction.sh
 scripts/check-exec-tier-w-reference.sh
 openspec validate change-exec-003-tier-w-mobile --strict
 
-ANDROID_NDK_HOME=/Users/gqadonis/Library/Android/sdk/ndk/28.0.12433566 \
-CARGO_TARGET_DIR=/tmp/prometheus-exec-current \
+ANDROID_NDK_HOME=<ANDROID_NDK> \
+CARGO_TARGET_DIR=<current-target-dir> \
   substrate/skill-ffi/build-mobile.sh all
 ```
 
@@ -80,10 +85,19 @@ returned `exec_tier_w_reference=PASS`.
 
 The mobile build entry point required the target-specific embedded mobile and
 Tier W Pulley feature graph, rejected the Tier W native-execution feature, and
-reported `jit_permitted=false` for both ABIs. Release output remained:
+reported `jit_permitted=false` for both ABIs.
 
-- iOS arm64: 679,816 bytes;
-- Android arm64: 7,195,008 bytes.
+Task 5.2 independent review found the task 4.3 size measurements had allowed the
+exec dependency graph to be dead-stripped because no generated FFI dispatcher
+was linked. The corrected builds retain and export a generated dispatcher on
+both baseline and current artifacts. Their corrected current sizes are:
+
+- iOS arm64: 34,041,468 bytes;
+- Android arm64: 43,520,400 bytes.
+
+The fair deltas fail the 12 MiB gate. The cross-build/profile result remains
+green, but mobile release readiness is now explicitly pending. See task 4.3's
+superseding measurements.
 
 ## False-green and cleanup checks
 
@@ -98,7 +112,9 @@ reported `jit_permitted=false` for both ABIs. Release output remained:
 
 ## Result
 
-Task 5.1: **PASS** for the named local/source/cross-build boundary.
+Task 5.1: **PASS** for the named local source/runtime and cross-build boundary.
+Its earlier implied mobile size-gate pass is superseded by task 5.2's retained
+dispatcher measurement, which **fails** the mobile release gate.
 
 Remaining release work is the task 5.2 evidence bundle, artifact refinement,
 distinct-model review, and change handoff. Mobile physical-device runtime status

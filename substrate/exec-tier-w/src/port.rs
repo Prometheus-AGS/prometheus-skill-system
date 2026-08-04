@@ -98,39 +98,42 @@ impl TierWExecutionPort {
             BackendProfile::Pulley => ExecutionBackend::Pulley,
         };
 
-        let (state, exit, stdout, stderr, artifacts, fuel_consumed, failure) = match outcome {
-            TierWExecutionOutcome::Succeeded(success) => (
-                success.state,
-                ExecutionExit {
-                    status: 0,
-                    signal_or_trap: None,
-                },
-                success.output.into_bytes(),
-                canonical_bytes(&success.logs)?,
-                success
-                    .artifacts
-                    .into_iter()
-                    .map(|(path, bytes)| ProducedArtifact { path, bytes })
-                    .collect(),
-                success.fuel_consumed,
-                None,
-            ),
-            TierWExecutionOutcome::Failed(failed) => {
-                let code = failed.failure.code.clone();
-                (
-                    failed.state,
+        let (state, exit, stdout, stderr, artifacts, fuel_consumed, peak_memory_bytes, failure) =
+            match outcome {
+                TierWExecutionOutcome::Succeeded(success) => (
+                    success.state,
                     ExecutionExit {
-                        status: 1,
-                        signal_or_trap: Some(code),
+                        status: 0,
+                        signal_or_trap: None,
                     },
-                    Vec::new(),
-                    canonical_bytes(&Vec::<crate::HostLogEntry>::new())?,
-                    Vec::new(),
-                    failed.fuel_consumed,
-                    Some(failed.failure),
-                )
-            }
-        };
+                    success.output.into_bytes(),
+                    canonical_bytes(&success.logs)?,
+                    success
+                        .artifacts
+                        .into_iter()
+                        .map(|(path, bytes)| ProducedArtifact { path, bytes })
+                        .collect(),
+                    success.fuel_consumed,
+                    success.peak_memory_bytes,
+                    None,
+                ),
+                TierWExecutionOutcome::Failed(failed) => {
+                    let code = failed.failure.code.clone();
+                    (
+                        failed.state,
+                        ExecutionExit {
+                            status: 1,
+                            signal_or_trap: Some(code),
+                        },
+                        Vec::new(),
+                        canonical_bytes(&Vec::<crate::HostLogEntry>::new())?,
+                        Vec::new(),
+                        failed.fuel_consumed,
+                        failed.peak_memory_bytes,
+                        Some(failed.failure),
+                    )
+                }
+            };
 
         Ok(BackendExecution {
             state,
@@ -145,7 +148,8 @@ impl TierWExecutionPort {
             usage: ResourceUsage {
                 wall_clock_ms,
                 cpu_ms: 0,
-                peak_mem_mb: 0,
+                peak_mem_mb: u64::try_from(peak_memory_bytes.div_ceil(1024 * 1024))
+                    .unwrap_or(u64::MAX),
                 fuel_consumed,
             },
             started_at,
@@ -351,6 +355,7 @@ mod tests {
         let execution = port.execute_job(&job).unwrap();
         assert_eq!(execution.state, RunState::Succeeded);
         assert_eq!(execution.evidence_class, EvidenceClass::Verified);
+        assert!(execution.usage.peak_mem_mb > 0);
         assert_eq!(
             execution.component.as_ref().unwrap().authorization,
             authorization

@@ -298,6 +298,9 @@ pub struct ExecutionLimits {
     pub fuel: u64,
     pub wall_clock_ms: u64,
     pub output_mb: u64,
+    /// Guest stack ceiling in KiB. Tier W currently requires exactly 512
+    /// because Wasmtime configures this limit per engine; Tier P may apply a
+    /// platform-specific value.
     pub stack_kb: u64,
 }
 

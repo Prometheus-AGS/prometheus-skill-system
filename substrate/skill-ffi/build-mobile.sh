@@ -22,6 +22,10 @@ export RUSTUP_TOOLCHAIN="${RUSTUP_TOOLCHAIN:-stable}"
 verify_mobile_profile() {
   local target="$1"
   local tree
+  grep -Fq 'wire__crate__api__exec_run_impl' "$HERE/src/frb_generated.rs" || {
+    echo "[ffi] generated dispatcher does not retain the exec API" >&2
+    return 2
+  }
   tree="$(cargo tree --target "$target" -e features -i prometheus-exec-tier-w)" || return 2
 
   grep -Fq 'prometheus-exec-tier-w feature "pulley"' <<<"$tree" || {
@@ -43,11 +47,23 @@ verify_mobile_profile() {
   echo "[ffi] $target profile: pulley execution, jit_permitted=false"
 }
 
+verify_generated_dispatcher() {
+  local artifact="$1"
+  shift
+  "$@" "$artifact" | grep -Eq 'frb_pde_ffi_dispatcher_primary' || {
+    echo "[ffi] generated Flutter Rust Bridge dispatcher is absent from $artifact" >&2
+    return 2
+  }
+  echo "[ffi] retained generated dispatcher: $artifact"
+}
+
 build_ios() {
   rustup target list --installed | grep -q aarch64-apple-ios || {
     echo "[ffi] rustup target add aarch64-apple-ios" >&2; return 1; }
   verify_mobile_profile aarch64-apple-ios || return $?
   cargo build --release --target aarch64-apple-ios || return 2
+  verify_generated_dispatcher \
+    "$TARGET_DIR/aarch64-apple-ios/release/libskill_ffi.dylib" nm -gU || return $?
   echo "[ffi] ios: $(wc -c < "$TARGET_DIR/aarch64-apple-ios/release/libskill_ffi.dylib" | tr -d ' ') bytes"
 }
 
@@ -74,6 +90,9 @@ build_android() {
   export AR_aarch64_linux_android="$tb/llvm-ar"
   export CARGO_TARGET_AARCH64_LINUX_ANDROID_LINKER="$cc"
   cargo build --release --target aarch64-linux-android || return 2
+  verify_generated_dispatcher \
+    "$TARGET_DIR/aarch64-linux-android/release/libskill_ffi.so" \
+    "$tb/llvm-nm" -g || return $?
   echo "[ffi] android: $(wc -c < "$TARGET_DIR/aarch64-linux-android/release/libskill_ffi.so" | tr -d ' ') bytes"
 }
 

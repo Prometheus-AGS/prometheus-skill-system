@@ -29,4 +29,4 @@
 ## 5. Local certification and handoff
 
 - [x] 5.1 Run local format, warnings-denied Clippy, unit/property/integration, tamper, replay, cross-backend, service, FFI, and false-green doctor gates
-- [ ] 5.2 Archive redacted Tier W receipts/artifacts/measurements, complete artifact-refiner and distinct-model review, update phase progress, and prepare the dependency-ordered local commit
+- [x] 5.2 Archive redacted Tier W receipts/artifacts/measurements, complete artifact-refiner and distinct-model review, update phase progress, and prepare the dependency-ordered local commit

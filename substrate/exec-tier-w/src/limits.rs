@@ -23,6 +23,7 @@ use crate::{
 #[serde(rename_all = "camelCase")]
 pub struct TierWLimits {
     pub memory_bytes: usize,
+    pub stack_bytes: usize,
     pub fuel: u64,
     pub wall_clock_ms: u64,
     pub max_table_elements: usize,
@@ -42,9 +43,17 @@ impl TierWLimits {
             ));
         }
         let memory_bytes = bytes_from_megabytes(limits.memory_mb, "memory")?;
+        let stack_bytes = bytes_from_kibibytes(limits.stack_kb, "stack")?;
+        if stack_bytes != crate::engine::MAX_WASM_STACK_BYTES {
+            return Err(TierWError::InvalidCapabilityGrant(format!(
+                "Tier W requires stackKb=512 because the Wasmtime stack limit is engine-scoped; received {}",
+                limits.stack_kb
+            )));
+        }
         let output_bytes = bytes_from_megabytes(limits.output_mb, "output")?;
         Ok(Self {
             memory_bytes,
+            stack_bytes,
             fuel: limits.fuel,
             wall_clock_ms: limits.wall_clock_ms,
             max_table_elements: 100_000,
@@ -91,6 +100,7 @@ pub struct TierWExecutionSuccess {
     pub artifacts: BTreeMap<String, Vec<u8>>,
     pub logs: Vec<HostLogEntry>,
     pub fuel_consumed: u64,
+    pub peak_memory_bytes: usize,
     pub random_bytes_consumed: usize,
 }
 
@@ -99,6 +109,7 @@ pub struct TierWExecutionFailure {
     pub state: RunState,
     pub failure: ExecutionFailure,
     pub fuel_consumed: u64,
+    pub peak_memory_bytes: usize,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -133,6 +144,7 @@ impl TierWEngine {
                 "tier_w.component_unauthorized",
                 error.to_string(),
                 0,
+                0,
             );
         }
         if let Err(error) = validate_component_grants(self.engine(), component.component(), &grant)
@@ -141,6 +153,7 @@ impl TierWEngine {
                 ExecutionFailureKind::CapabilityDenied,
                 "tier_w.capability_denied",
                 error.to_string(),
+                0,
                 0,
             );
         }
@@ -151,6 +164,7 @@ impl TierWEngine {
                     ExecutionFailureKind::Trap,
                     "tier_w.capability_link_failed",
                     error.to_string(),
+                    0,
                     0,
                 )
             }
@@ -172,6 +186,7 @@ impl TierWEngine {
                 "tier_w.fuel_configuration_failed",
                 error.to_string(),
                 0,
+                0,
             );
         }
         store.set_epoch_deadline(limits.epoch_ticks());
@@ -181,23 +196,25 @@ impl TierWEngine {
             Ok(bindings) => bindings,
             Err(error) => {
                 let fuel = consumed_fuel(&store, limits.fuel);
+                let peak_memory = store.data().peak_allocated_memory_bytes();
                 if let Some(fence) = store.data().resource_limit_failure() {
-                    return failed_from_resource_limit(fence, fuel);
+                    return failed_from_resource_limit(fence, fuel, peak_memory);
                 }
-                return failed_from_wasmtime(&error, fuel);
+                return failed_from_wasmtime(&error, fuel, peak_memory);
             }
         };
         let result = bindings.call_run(&mut store, input);
         let fuel = consumed_fuel(&store, limits.fuel);
+        let peak_memory = store.data().peak_allocated_memory_bytes();
         if let Some(fence) = store.data().limit_failure() {
-            return failed_from_host_limit(fence, fuel);
+            return failed_from_host_limit(fence, fuel, peak_memory);
         }
         if let Some(fence) = store.data().resource_limit_failure() {
-            return failed_from_resource_limit(fence, fuel);
+            return failed_from_resource_limit(fence, fuel, peak_memory);
         }
 
         match result {
-            Err(error) => failed_from_wasmtime(&error, fuel),
+            Err(error) => failed_from_wasmtime(&error, fuel, peak_memory),
             Ok(Err(error)) => {
                 let (kind, code) = match error.kind {
                     ErrorKind::CapabilityDenied => (
@@ -212,13 +229,14 @@ impl TierWEngine {
                     }
                     ErrorKind::Internal => (ExecutionFailureKind::Trap, "tier_w.guest_internal"),
                 };
-                failed(kind, code, error.message, fuel)
+                failed(kind, code, error.message, fuel, peak_memory)
             }
             Ok(Ok(output)) if output.len() > limits.max_stream_bytes => failed(
                 ExecutionFailureKind::StreamLimit,
                 "tier_w.stream_limit",
                 "component result exceeds the configured stream byte limit".into(),
                 fuel,
+                peak_memory,
             ),
             Ok(Ok(output)) => TierWExecutionOutcome::Succeeded(TierWExecutionSuccess {
                 state: RunState::Succeeded,
@@ -226,6 +244,7 @@ impl TierWEngine {
                 artifacts: store.data().outputs().clone(),
                 logs: store.data().logs().to_vec(),
                 fuel_consumed: fuel,
+                peak_memory_bytes: peak_memory,
                 random_bytes_consumed: store.data().random_bytes_consumed(),
             }),
         }
@@ -238,41 +257,57 @@ fn consumed_fuel(store: &Store<CapabilityHost>, supplied: u64) -> u64 {
         .map_or(0, |remaining| supplied.saturating_sub(remaining))
 }
 
-fn failed_from_host_limit(fence: HostLimitFailure, fuel: u64) -> TierWExecutionOutcome {
+fn failed_from_host_limit(
+    fence: HostLimitFailure,
+    fuel: u64,
+    peak_memory: usize,
+) -> TierWExecutionOutcome {
     match fence {
         HostLimitFailure::Stream => failed(
             ExecutionFailureKind::StreamLimit,
             "tier_w.stream_limit",
             "component logs exceed the configured stream byte limit".into(),
             fuel,
+            peak_memory,
         ),
         HostLimitFailure::Artifact => failed(
             ExecutionFailureKind::ArtifactLimit,
             "tier_w.artifact_limit",
             "component artifacts exceed the configured artifact byte limit".into(),
             fuel,
+            peak_memory,
         ),
     }
 }
 
-fn failed_from_resource_limit(fence: ResourceLimitFailure, fuel: u64) -> TierWExecutionOutcome {
+fn failed_from_resource_limit(
+    fence: ResourceLimitFailure,
+    fuel: u64,
+    peak_memory: usize,
+) -> TierWExecutionOutcome {
     match fence {
         ResourceLimitFailure::Memory => failed(
             ExecutionFailureKind::MemoryLimit,
             "tier_w.memory_limit",
             "component exceeded its configured memory limit".into(),
             fuel,
+            peak_memory,
         ),
         ResourceLimitFailure::Table => failed(
             ExecutionFailureKind::TableLimit,
             "tier_w.table_limit",
             "component exceeded its configured table limit".into(),
             fuel,
+            peak_memory,
         ),
     }
 }
 
-fn failed_from_wasmtime(error: &wasmtime::Error, fuel: u64) -> TierWExecutionOutcome {
+fn failed_from_wasmtime(
+    error: &wasmtime::Error,
+    fuel: u64,
+    peak_memory: usize,
+) -> TierWExecutionOutcome {
     if let Some(trap) = error.downcast_ref::<Trap>() {
         return match trap {
             Trap::OutOfFuel => failed(
@@ -280,24 +315,28 @@ fn failed_from_wasmtime(error: &wasmtime::Error, fuel: u64) -> TierWExecutionOut
                 "tier_w.fuel_exhausted",
                 "component exhausted its configured fuel".into(),
                 fuel,
+                peak_memory,
             ),
             Trap::Interrupt => failed(
                 ExecutionFailureKind::EpochDeadline,
                 "tier_w.epoch_deadline",
                 "component exceeded its wall-clock epoch deadline".into(),
                 fuel,
+                peak_memory,
             ),
             Trap::AllocationTooLarge => failed(
                 ExecutionFailureKind::MemoryLimit,
                 "tier_w.memory_limit",
                 "component exceeded its configured memory limit".into(),
                 fuel,
+                peak_memory,
             ),
             _ => failed(
                 ExecutionFailureKind::Trap,
                 "tier_w.trap",
                 "component trapped during execution".into(),
                 fuel,
+                peak_memory,
             ),
         };
     }
@@ -309,6 +348,7 @@ fn failed_from_wasmtime(error: &wasmtime::Error, fuel: u64) -> TierWExecutionOut
             "tier_w.memory_limit",
             "component exceeded its configured memory limit".into(),
             fuel,
+            peak_memory,
         );
     }
     if message.contains("table") && (message.contains("limit") || message.contains("minimum")) {
@@ -317,6 +357,7 @@ fn failed_from_wasmtime(error: &wasmtime::Error, fuel: u64) -> TierWExecutionOut
             "tier_w.table_limit",
             "component exceeded its configured table limit".into(),
             fuel,
+            peak_memory,
         );
     }
     if message.contains("instance") && message.contains("limit") {
@@ -325,6 +366,7 @@ fn failed_from_wasmtime(error: &wasmtime::Error, fuel: u64) -> TierWExecutionOut
             "tier_w.instance_limit",
             "component exceeded its configured instance limit".into(),
             fuel,
+            peak_memory,
         );
     }
     failed(
@@ -332,6 +374,7 @@ fn failed_from_wasmtime(error: &wasmtime::Error, fuel: u64) -> TierWExecutionOut
         "tier_w.instantiation_or_call_failed",
         "component instantiation or invocation failed".into(),
         fuel,
+        peak_memory,
     )
 }
 
@@ -340,6 +383,7 @@ fn failed(
     code: &str,
     message: String,
     fuel_consumed: u64,
+    peak_memory_bytes: usize,
 ) -> TierWExecutionOutcome {
     TierWExecutionOutcome::Failed(TierWExecutionFailure {
         state: RunState::Failed,
@@ -349,12 +393,21 @@ fn failed(
             message,
         },
         fuel_consumed,
+        peak_memory_bytes,
     })
 }
 
 fn bytes_from_megabytes(value: u64, name: &str) -> Result<usize, TierWError> {
     let bytes = value
         .checked_mul(1024 * 1024)
+        .ok_or_else(|| TierWError::InvalidCapabilityGrant(format!("{name} limit overflow")))?;
+    usize::try_from(bytes)
+        .map_err(|_| TierWError::InvalidCapabilityGrant(format!("{name} limit exceeds usize")))
+}
+
+fn bytes_from_kibibytes(value: u64, name: &str) -> Result<usize, TierWError> {
+    let bytes = value
+        .checked_mul(1024)
         .ok_or_else(|| TierWError::InvalidCapabilityGrant(format!("{name} limit overflow")))?;
     usize::try_from(bytes)
         .map_err(|_| TierWError::InvalidCapabilityGrant(format!("{name} limit exceeds usize")))
@@ -390,9 +443,15 @@ mod tests {
     fn contract_limits_convert_without_unit_ambiguity() {
         let limits = TierWLimits::from_contract(&ExecutionLimits::default()).unwrap();
         assert_eq!(limits.memory_bytes, 256 * 1024 * 1024);
+        assert_eq!(limits.stack_bytes, 512 * 1024);
         assert_eq!(limits.max_stream_bytes, 10 * 1024 * 1024);
         assert!(TierWLimits::from_contract(&ExecutionLimits {
             fuel: 0,
+            ..ExecutionLimits::default()
+        })
+        .is_err());
+        assert!(TierWLimits::from_contract(&ExecutionLimits {
+            stack_kb: 256,
             ..ExecutionLimits::default()
         })
         .is_err());

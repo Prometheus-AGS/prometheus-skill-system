@@ -48,7 +48,9 @@ The following narrower evidence remains valid and separately labeled:
 
 - iOS arm64 and Android arm64 release cross-builds pass;
 - both target graphs select Pulley execution with `jit_permitted=false`;
-- both measured `skill-ffi` ABI deltas pass the 12 MiB limit;
+- the corrected dispatcher-retaining `skill-ffi` deltas **fail** the 12 MiB
+  limit, so mobile Tier W is not release-ready even after device evidence is
+  collected;
 - host-native embedded/FFI fixtures exercise returned values, ordered events,
   signed receipts, artifact retrieval, interruption recovery, and offline
   verification.

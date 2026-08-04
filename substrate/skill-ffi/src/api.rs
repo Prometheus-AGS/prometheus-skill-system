@@ -5,7 +5,7 @@
 //! If the two ever diverge, a skill behaves differently depending on how it was
 //! reached, which is the failure this whole phase exists to prevent.
 
-use std::collections::BTreeMap;
+pub(crate) use std::collections::BTreeMap;
 
 use serde::{Deserialize, Serialize};
 

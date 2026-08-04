@@ -1,0 +1,36 @@
+{
+  "valid": true,
+  "receiptHash": "sha256:2cf13e35e94a887a134aa2de1ea11f1ad0585ef0a78bfc81ce007bc16af41c95",
+  "checks": [
+    {
+      "code": "receipt.invariants",
+      "message": "receipt semantic invariants are valid"
+    },
+    {
+      "code": "receipt.signature",
+      "message": "receipt signature and key identity are valid"
+    },
+    {
+      "code": "request.hash",
+      "message": "receipt matches the supplied request"
+    }
+  ],
+  "failures": [],
+  "replay": {
+    "valid": true,
+    "checks": [
+      "transport.receipt-and-request",
+      "request.inputSetHash",
+      "receipt.state",
+      "receipt.stdout",
+      "receipt.stderr",
+      "receipt.artifacts",
+      "receipt.failure",
+      "component.authorization",
+      "component.engineVersion",
+      "component.deterministicProjectionHash",
+      "replay.backend"
+    ],
+    "mismatches": []
+  }
+}

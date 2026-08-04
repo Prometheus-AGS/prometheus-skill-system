@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "reviewer": {
+    "provider": "Anthropic",
+    "model": "Claude Opus 5",
+    "independence": "distinct model, read-only review",
+    "durationMs": 632010,
+    "apiDurationMs": 357481,
+    "turns": 36,
+    "costUsd": 2.3830895
+  },
+  "verdict": "FAIL",
+  "summary": "All seven initial blockers were remediated, but the public checksum manifest and artifact-refiner distribution were stale and the archive index named a not-yet-created final review.",
+  "blockingFindings": [
+    {
+      "severity": "high",
+      "code": "evidence.integrity.stale_checksum_manifest",
+      "disposition": "fixed"
+    },
+    {
+      "severity": "high",
+      "code": "evidence.integrity.retracted_false_green_republished",
+      "disposition": "fixed"
+    },
+    {
+      "severity": "medium",
+      "code": "evidence.index.missing_documented_artifact",
+      "disposition": "fixed"
+    }
+  ],
+  "lowFindings": [
+    "baseline generated-dispatcher procedure lacked exact reproduction data",
+    "FRB generation lacked a non-mutating drift-check mode",
+    "two verification entry points shared one implementation",
+    "failed memory growth could overstate observed peak memory",
+    "Tier W stackKb=512 narrowing was absent from generated API documentation"
+  ]
+}

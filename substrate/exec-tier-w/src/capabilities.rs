@@ -264,6 +264,10 @@ impl CapabilityHost {
         self.store_limits.failure
     }
 
+    pub(crate) fn peak_allocated_memory_bytes(&self) -> usize {
+        self.store_limits.peak_allocated_memory_bytes
+    }
+
     pub(crate) fn limit_failure(&self) -> Option<HostLimitFailure> {
         self.limit_failure
     }
@@ -291,7 +295,10 @@ struct TrackingStoreLimits {
     failure: Option<ResourceLimitFailure>,
     total_memory_bytes: usize,
     allocated_memory_bytes: usize,
+    peak_allocated_memory_bytes: usize,
+    peak_before_pending_memory_grow: usize,
     pending_memory_delta: usize,
+    memory_grow_pending: bool,
     total_table_elements: usize,
     allocated_table_elements: usize,
     pending_table_delta: usize,
@@ -304,7 +311,10 @@ impl TrackingStoreLimits {
             failure: None,
             total_memory_bytes,
             allocated_memory_bytes: 0,
+            peak_allocated_memory_bytes: 0,
+            peak_before_pending_memory_grow: 0,
             pending_memory_delta: 0,
+            memory_grow_pending: false,
             total_table_elements,
             allocated_table_elements: 0,
             pending_table_delta: 0,
@@ -319,6 +329,9 @@ impl ResourceLimiter for TrackingStoreLimits {
         desired: usize,
         maximum: Option<usize>,
     ) -> wasmtime::Result<bool> {
+        self.pending_memory_delta = 0;
+        self.memory_grow_pending = false;
+        self.peak_before_pending_memory_grow = self.peak_allocated_memory_bytes;
         let result = self.inner.memory_growing(current, desired, maximum);
         if !matches!(result, Ok(true)) {
             self.failure = Some(ResourceLimitFailure::Memory);
@@ -334,16 +347,22 @@ impl ResourceLimiter for TrackingStoreLimits {
             return Ok(false);
         }
         self.allocated_memory_bytes = total;
+        self.peak_allocated_memory_bytes = self.peak_allocated_memory_bytes.max(total);
         self.pending_memory_delta = delta;
+        self.memory_grow_pending = true;
         Ok(true)
     }
 
     fn memory_grow_failed(&mut self, error: wasmtime::Error) -> wasmtime::Result<()> {
         self.failure = Some(ResourceLimitFailure::Memory);
-        self.allocated_memory_bytes = self
-            .allocated_memory_bytes
-            .saturating_sub(self.pending_memory_delta);
-        self.pending_memory_delta = 0;
+        if self.memory_grow_pending {
+            self.allocated_memory_bytes = self
+                .allocated_memory_bytes
+                .saturating_sub(self.pending_memory_delta);
+            self.pending_memory_delta = 0;
+            self.memory_grow_pending = false;
+            self.peak_allocated_memory_bytes = self.peak_before_pending_memory_grow;
+        }
         self.inner.memory_grow_failed(error)
     }
 
@@ -637,7 +656,10 @@ pub fn capability_linker(
         log::add_to_linker::<_, HasSelf<_>>(&mut linker, |host| host)
             .map_err(|error| TierWError::CapabilityLink(error.to_string()))?;
     }
-    if !grant.readable_keys.is_empty() || !grant.writable_keys.is_empty() {
+    if !grant.readable_keys.is_empty()
+        || !grant.readable_prefixes.is_empty()
+        || !grant.writable_keys.is_empty()
+    {
         kv_store::add_to_linker::<_, HasSelf<_>>(&mut linker, |host| host)
             .map_err(|error| TierWError::CapabilityLink(error.to_string()))?;
     }
@@ -759,6 +781,48 @@ mod tests {
             kv_store::Host::get(&mut all_relative, "any/relative/path".into()).unwrap(),
             None
         );
+    }
+
+    #[test]
+    fn failed_memory_growth_restores_only_the_pending_observation() {
+        let mut limits = TrackingStoreLimits::new(
+            StoreLimitsBuilder::new()
+                .memory_size(8 * 1024 * 1024)
+                .build(),
+            8 * 1024 * 1024,
+            usize::MAX,
+        );
+
+        assert!(limits.memory_growing(0, 1024 * 1024, None).unwrap());
+        assert!(limits
+            .memory_growing(1024 * 1024, 4 * 1024 * 1024, None)
+            .unwrap());
+        let _ = limits.memory_grow_failed(wasmtime::Error::msg("synthetic allocation failure"));
+        assert_eq!(limits.allocated_memory_bytes, 1024 * 1024);
+        assert_eq!(limits.peak_allocated_memory_bytes, 1024 * 1024);
+
+        let _ = limits.memory_grow_failed(wasmtime::Error::msg("no pending growth"));
+        assert_eq!(limits.peak_allocated_memory_bytes, 1024 * 1024);
+    }
+
+    #[cfg(feature = "cranelift")]
+    #[test]
+    fn directory_only_read_scope_links_the_declared_kv_interface() {
+        let engine = TierWEngine::new(EngineProfile::desktop()).unwrap();
+        let component = engine
+            .load_component(
+                REFERENCE_COMPONENT,
+                &crate::test_authorizer(REFERENCE_COMPONENT),
+            )
+            .unwrap();
+        let grant = CapabilityGrant::empty()
+            .allow_log()
+            .allow_kv_scope("openspec/")
+            .unwrap();
+
+        validate_component_grants(engine.engine(), component.component(), &grant).unwrap();
+        let linker = capability_linker(engine.engine(), &grant).unwrap();
+        linker.instantiate_pre(component.component()).unwrap();
     }
 
     #[cfg(feature = "cranelift")]

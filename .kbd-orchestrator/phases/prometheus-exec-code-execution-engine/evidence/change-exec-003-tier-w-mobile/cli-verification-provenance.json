@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "producer": "crates/prometheus-exec/target/debug/prometheus-exec",
+  "verificationSurface": "prometheus-exec verify",
+  "implementation": "prometheus-exec-core shared verifier",
+  "implementationIndependent": false,
+  "replayBackend": "pulley",
+  "sourceBoundary": "working tree after 4da9748",
+  "resultFile": "cli-verification.json"
+}
