@@ -24,7 +24,7 @@
 - [x] 4.1 Add one embedded Rust execution API for run, ordered events, receipt, artifact, and verify operations using the existing process-global runtime
 - [x] 4.2 Expose the embedded API through `skill-ffi`/FRB and Tauri-compatible adapters with returned-value, grant-pending, interruption, and key-boundary fixtures
 - [x] 4.3 Cross-build iOS and Android profiles, certify Pulley selection/no-JIT behavior, and record the per-ABI `gen_ui_core` binary-size delta
-- [ ] 4.4 Run receipt-producing round trips on a physical iOS device and Android device, or archive an explicit pending-evidence disposition when hardware is unavailable
+- [x] 4.4 Run receipt-producing round trips on a physical iOS device and Android device, or archive an explicit pending-evidence disposition when hardware is unavailable
 
 ## 5. Local certification and handoff
 
