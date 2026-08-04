@@ -1,6 +1,6 @@
 # 19 · Installation
 
-This procedure builds, signs, installs, and locally certifies Prometheus 1.6.1. The canonical deployment is native user services on macOS or systemd user services on Linux; containers remain optional development packaging.
+This procedure builds, signs, installs, and locally certifies Prometheus 1.7.0. The canonical deployment is native user services on macOS or systemd user services on Linux; containers remain optional development packaging.
 
 ## Prerequisites
 

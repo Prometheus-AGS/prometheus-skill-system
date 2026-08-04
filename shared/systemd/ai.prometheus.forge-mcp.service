@@ -1,6 +1,6 @@
 # systemd --user unit — Prometheus forge code-enrichment MCP (native).
 # Mirrors shared/launchagents/ai.prometheus.forge-mcp.plist. Binds :8943.
-# After/Wants (soft) on pk-cherry, which forge calls for `pk focus`.
+# After/Wants (soft) on pk-cherry, which serves bounded knowledge operations.
 [Unit]
 Description=Prometheus forge code-enrichment MCP (native, :8943)
 After=ai.prometheus.pk-cherry.service

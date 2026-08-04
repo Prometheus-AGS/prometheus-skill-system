@@ -12,7 +12,7 @@ library, for apps that embed the runtime rather than talking to a server.
 ## Verified builds
 
 Unlike the [Wasm path](./wasm-components), this one is executed and asserted —
-both targets build and seven round-trip tests check **returned values**, not
+both targets build and eleven round-trip tests check **returned values**, not
 merely that linking succeeded.
 
 | Target | Artifact | Size |
@@ -40,6 +40,13 @@ pub fn describe_skill(skill_id: String) -> Result<SkillDescriptor, SkillError>;
 
 /// Everything the embedded registry knows about.
 pub fn list_skills() -> Result<Vec<SkillDescriptor>, SkillError>;
+
+/// Skills from the signed generation's canonical search index.
+pub fn list_indexed_skills() -> Result<Vec<IndexedSkillDescriptor>, SkillError>;
+
+/// Deterministically ranked results from the shared selector.
+pub fn search_indexed_skills(query: String, limit: u32)
+    -> Result<Vec<IndexedSkillDescriptor>, SkillError>;
 
 /// The `prometheus:component` world version this build targets.
 pub fn world_version() -> String;
@@ -134,7 +141,8 @@ like logic bugs.
 
 ## Testing guidance
 
-Seven tests assert on returned values. That distinction matters:
+Eleven tests assert on returned values, including canonical-index list/search
+parity. That distinction matters:
 
 ```rust
 // WEAK — passes if the function returns garbage
@@ -160,9 +168,12 @@ round trip. **Test the artifact, not the build.**
 1. **Pin the bridge version exactly** (`=2.12.0`). FFI codegen and runtime must
    agree; a caret range lets them drift apart between builds.
 2. **Call `world_version()` on startup** and fail loudly on mismatch.
-3. **Keep the FFI surface small.** Four functions is deliberate — every exported
-   symbol is a compatibility obligation across two toolchains.
+3. **Keep the FFI surface deliberate.** Every exported symbol is a compatibility
+   obligation across two toolchains; index APIs exist because they reuse the
+   verified host selector instead of duplicating mobile ranking logic.
 4. **Pass JSON across the boundary, not rich types.** It keeps the generated
    bindings trivial and the versioning story simple.
-5. **Run the round-trip tests on every target you ship**, not just the host you
+5. **Verify the generation signature and index hash before exposing search.**
+   Host, generated-agent, and mobile projections must identify the same index.
+6. **Run the round-trip tests on every target you ship**, not just the host you
    develop on.

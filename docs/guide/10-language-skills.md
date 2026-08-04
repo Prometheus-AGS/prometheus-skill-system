@@ -64,7 +64,10 @@ The architecture principle is consistent across these: **the server drives, the 
 | **bdd-testing** | BDD integration tests with Cucumber.js + Gherkin + Playwright, across API/UI/agent layers, with automatic video capture. Ships `run-bdd.sh` and `generate-report.sh`. |
 | **bdd-video-proof** | Record MP4 video evidence per passing Cucumber scenario and pin it to IPFS for an immutable audit trail. |
 
-These two connect to a system-wide rule: the **BDD Immutable-Tests Rule** (`BDD-006`), enforced by the `protect-tests.sh` hook. Code-generation agents may add new `.feature` files under `tests/features/drafts/` but may not edit existing tests to make failing tests pass. The full treatment is on the [Hooks & Lifecycle](15-hooks-and-lifecycle.md) page.
+These two connect to the **BDD Protected-Tests Rule** (`BDD-006`). Agents may
+use any editing mechanism; final local certification detects protected changes
+from Git state and requires an SSH-signed approval manifest. The full treatment
+is on the [Hooks & Lifecycle](15-hooks-and-lifecycle.md) page.
 
 ## DevOps (4 skills)
 

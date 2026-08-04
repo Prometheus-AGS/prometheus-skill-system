@@ -1014,10 +1014,11 @@ markdown knowledge base sitting between raw sources and the agent — is
 implemented by the `pk` CLI, shipped from the separate
 **prometheus-knowledge-rs** repository
 (`github.com/Prometheus-AGS/prometheus-knowledge-rs`). This repo does not vendor
-that source; it consumes the built `pk` binary via hooks
-(`shared/scripts/pk-focus-on-prompt.sh`, `pk-health.sh`, `pk-lint.sh`, and
-`pk ingest` at session Stop) and, from `phase-okf-llm-wiki-adoption` onward,
-via a first-class `llm-wiki` skill.
+that source; it consumes the built `pk` binary through bounded
+`pk context`, `pk-health.sh`, and `pk-lint.sh`. Stop hooks only atomically
+enqueue metadata; the supervised learning worker performs reflection,
+reconciliation, and durable writeback asynchronously. The `llm-wiki` skill
+remains the authored knowledge interface.
 
 **Ownership split (decided 2026-07-01, phase-okf-llm-wiki-adoption):**
 

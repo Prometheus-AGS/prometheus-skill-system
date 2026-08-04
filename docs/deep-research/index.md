@@ -1543,12 +1543,12 @@ prometheus-research watch \
 
 ### 20.8 The Karpathy Loop in Long-Running Research
 
-The Karpathy Loop (focus → reflect → ingest) operates at two frequencies:
+The Karpathy Loop (bounded context → enqueue → supervised reflect/ingest) operates at two frequencies:
 
 **Micro-loop (per iteration):**
-- **Focus**: `pk focus` injects relevant knowledge context before each planning step
+- **Context**: `pk context` reads bounded committed project/shared/global snapshots before each planning step
 - **Reflect**: `forge reflect` evaluates the quality of each research stage
-- **Ingest**: `pk ingest` writes verified findings to the knowledge base
+- **Enqueue**: completion writes one metadata-only job; the worker performs durable ingestion
 
 **Macro-loop (per session):**
 - **Focus**: Load prior research state from surreal-memory before starting a new session

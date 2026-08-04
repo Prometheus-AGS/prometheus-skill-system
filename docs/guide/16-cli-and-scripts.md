@@ -18,7 +18,7 @@ Documented in full on the [Tools Reference](13-tools-reference.md) page; summari
 
 ## The npm script surface
 
-`package.json` (v1.6.1, ES module) is the most common entry point.
+`package.json` (v1.7.0, ES module) is the most common entry point.
 
 | Command | What it does |
 |---|---|
@@ -118,13 +118,13 @@ Claude Stop chain.
 
 **Memory** — `enqueue-memory-operation.py`, `memory-outbox-flush.sh`, and `lib/memory-bridge.sh`. Hooks publish locally; the worker owns remote receipt reconciliation.
 
-**PreToolUse guards (blocking)** — `protect-tests.sh` only. It is the sole
-remaining hook that can refuse a tool call, and it guards exactly one thing:
-edits to existing BDD step definitions and feature files. `scope-guard.sh`,
+**Certification integrity** — `verify-protected-tests.mjs` compares committed
+Git states and validates SSH-signed approval manifests. It does not intercept
+Bash, Python, Edit, or Write. `scope-guard.sh`,
 `pipeline-enforce.sh`, `cedar-skill-gate.sh`, `guard-direct-deploy.sh`, and
 `check-child-scope.sh` were unwired from `PreToolUse` — see
 [Hooks & Lifecycle](15-hooks-and-lifecycle.md#what-was-removed-and-why). The
-scripts remain on disk and can still be invoked directly or from CI.
+scripts remain on disk and can still be invoked directly during local work.
 
 **PostToolUse companions** — `scope-record.sh`, `validate-gitops-write.sh`, `sycophancy-check-artifact.sh`.
 

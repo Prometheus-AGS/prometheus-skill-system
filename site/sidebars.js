@@ -20,6 +20,7 @@ const sidebars = {
       items: [
         'knowledge-learning/snapshots-and-context',
         'knowledge-learning/hooks-worker-and-receipts',
+        'knowledge-learning/loro-evidence-and-migration',
         'knowledge-learning/migration-and-troubleshooting',
       ],
     },
@@ -31,6 +32,7 @@ const sidebars = {
       label: 'Plugin Distribution',
       items: [
         'plugin-distribution/immutable-generations',
+        'plugin-distribution/signing-index-and-receipts',
         'plugin-distribution/targets-and-dispatchers',
         'plugin-distribution/activation-rollback-uninstall',
       ],
@@ -43,6 +45,8 @@ const sidebars = {
       label: 'Operations',
       items: [
         'operations/installation-and-upgrades',
+        'operations/local-validation-and-docs-automation',
+        'operations/generated-reference',
         'operations/doctors-and-mac-certification',
         'operations/logs-recovery-and-failures',
       ],
@@ -95,6 +99,7 @@ const sidebars = {
       label: 'Operations',
       items: [
         'kbd/operator-controls',
+        'kbd/checkpoints-compaction-recovery',
         'kbd/migration-and-rollout',
         'kbd/hooks-and-waypoints',
         'kbd/troubleshooting',
@@ -141,6 +146,7 @@ const sidebars = {
       items: [
         'sovereign-sync/installation',
         'sovereign-sync/pair-two-machines',
+        'sovereign-sync/signed-pushes-and-receipts',
         'sovereign-sync/p2p-network',
       ],
     },

@@ -11,7 +11,7 @@ This shared addressability is the whole reason the architecture is cross-tool. W
 | Server | Transport | Endpoint / command | Port | Role in the loop |
 |---|---|---|---|---|
 | **surreal-memory** | SSE / HTTP | `http://localhost:23001/mcp/sse` | 23001 | Semantic knowledge graph. Session learning writes here; loop start reads here. The memory substrate. |
-| **prometheus-knowledge** (`pk-cherry`) | SSE / HTTP | `http://localhost:8942/mcp` | 8942 | Karpathy-pattern flat-file knowledge base. `pk focus` primes the loop with relevant context before execution. |
+| **prometheus-knowledge** (`pk-cherry`) | SSE / HTTP | `http://localhost:8942/mcp` | 8942 | Karpathy-pattern flat-file knowledge base with immutable snapshots and receipt-backed ingestion. |
 | **forge-rs** | SSE / HTTP | `http://localhost:8943/mcp` | 8943 | Code-enrichment engine. `forge reflect` writes reflection output; `pk ingest` writes session summaries back. |
 | **sovereign-sync** | REST / SSE / stdio MCP | `http://127.0.0.1:7892` or `sovereign-sync --mode mcp` | 7892 | P2P domains plus the authenticated, journal-backed KBD control plane. `/health` is public; every other HTTP route requires the focused project token. |
 | **sycophancy-correction** | stdio | `sycophancy-correction --config skill.toml` | — | Structural quality gate. The reflector hook calls it before any reflection is logged. |
@@ -38,7 +38,7 @@ sequenceDiagram
     participant Syco as sycophancy-correction
     participant Sync as sovereign-sync :7892
 
-    Hook->>PK: pk focus <prompt keywords>
+    Hook->>PK: read bounded committed prompt snapshot
     Hook->>Mem: POST /api/v1/memory/search
     PK-->>Agent: ranked KB context
     Mem-->>Agent: prior session entries
@@ -100,7 +100,11 @@ bash scripts/check-mcp-health.sh
 
 On macOS the `launchd` agents manage `pk-cherry` on `127.0.0.1:8942`, `forge mcp` on `127.0.0.1:8943`, and Sovereign Sync on `127.0.0.1:7892`; on Linux the same installer manages them as `systemd --user` units. surreal-memory runs natively on `127.0.0.1:23001` against a dedicated SurrealDB on `127.0.0.1:28000` (or stays Docker-managed if you choose that runtime). Full installation detail is on the [Installation](19-installation.md) page.
 
-Noncritical learning and memory features degrade gracefully: memory writes queue or no-op when surreal-memory is unreachable, and `pk focus` does nothing when `pk` is not installed. The KBD adapter degrades the same way: it queues the event and exits successfully when the control plane is unreachable. The journal transaction orders *control-plane commands* without gating tool calls. See [Tool guards](/docs/kbd/bash-mutation-guard) and the [token guide](/docs/kbd/tokens-and-authentication).
+Noncritical learning and memory features degrade gracefully: hooks enqueue
+locally and read the last committed bounded snapshot when remote services are
+unavailable. The KBD adapter queues its event and exits successfully when the
+control plane is unreachable. The journal transaction orders *control-plane
+commands* without gating tool calls. See [Tool guards](/docs/kbd/bash-mutation-guard).
 
 ---
 

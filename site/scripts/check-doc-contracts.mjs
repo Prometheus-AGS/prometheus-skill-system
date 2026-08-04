@@ -9,7 +9,7 @@ const require = createRequire(import.meta.url);
 const sidebars = require(path.join(siteRoot, 'sidebars.js'));
 const configSource = fs.readFileSync(path.join(siteRoot, 'docusaurus.config.js'), 'utf8');
 const failures = [];
-const release = '1.6.1';
+const release = '1.7.0';
 
 const json = file => JSON.parse(fs.readFileSync(file, 'utf8'));
 for (const [label, file] of [
@@ -22,23 +22,54 @@ for (const [label, file] of [
 ]) {
   if (json(file).version !== release) failures.push(`${label} is not version ${release}`);
 }
+const marketplace = json(path.join(repoRoot, '.claude-plugin/marketplace.json'));
+if (marketplace.version !== release || marketplace.plugins?.[0]?.version !== release) {
+  failures.push(`Claude marketplace root plugin is not version ${release}`);
+}
+if (
+  json(path.join(repoRoot, 'shared/harnesses/generated/release-manifest.json')).sourceVersion !==
+  release
+) {
+  failures.push(`release manifest sourceVersion is not ${release}`);
+}
+if (
+  !new RegExp(`^version: ${release.replaceAll('.', '\\.')}$`, 'm').test(
+    fs.readFileSync(path.join(repoRoot, 'SKILLS.md'), 'utf8')
+  )
+) {
+  failures.push(`SKILLS.md is not version ${release}`);
+}
 
 const requiredSidebars = {
   memorySidebar: ['memory/overview', 'memory/operation-api', 'memory/executor-and-recovery'],
   knowledgeLearningSidebar: [
     'knowledge-learning/snapshots-and-context',
     'knowledge-learning/hooks-worker-and-receipts',
+    'knowledge-learning/loro-evidence-and-migration',
     'knowledge-learning/migration-and-troubleshooting',
   ],
   pluginDistributionSidebar: [
     'plugin-distribution/immutable-generations',
+    'plugin-distribution/signing-index-and-receipts',
     'plugin-distribution/targets-and-dispatchers',
     'plugin-distribution/activation-rollback-uninstall',
   ],
   operationsSidebar: [
     'operations/installation-and-upgrades',
+    'operations/local-validation-and-docs-automation',
+    'operations/generated-reference',
     'operations/doctors-and-mac-certification',
     'operations/logs-recovery-and-failures',
+  ],
+  kbdSidebar: [
+    'kbd/operator-controls',
+    'kbd/checkpoints-compaction-recovery',
+    'kbd/migration-and-rollout',
+  ],
+  sovereignSidebar: [
+    'sovereign-sync/pair-two-machines',
+    'sovereign-sync/signed-pushes-and-receipts',
+    'sovereign-sync/rest-api',
   ],
 };
 for (const [sidebarId, ids] of Object.entries(requiredSidebars)) {
@@ -46,17 +77,57 @@ for (const [sidebarId, ids] of Object.entries(requiredSidebars)) {
   if (!sidebars[sidebarId]) failures.push(`missing sidebar ${sidebarId}`);
   for (const id of ids) {
     if (!encoded.includes(`"${id}"`)) failures.push(`${sidebarId} misses ${id}`);
-    if (!fs.existsSync(path.join(siteRoot, 'docs', `${id}.md`))) failures.push(`missing doc ${id}.md`);
+    if (!fs.existsSync(path.join(siteRoot, 'docs', `${id}.md`)))
+      failures.push(`missing doc ${id}.md`);
   }
-  if (!configSource.includes(`sidebarId: '${sidebarId}'`)) failures.push(`navbar misses ${sidebarId}`);
+  if (!configSource.includes(`sidebarId: '${sidebarId}'`))
+    failures.push(`navbar misses ${sidebarId}`);
 }
 
+for (const decision of [
+  'unrestricted-agent-tools-certification-integrity.md',
+  'loro-only-deterministic-learner-convergence.md',
+  'unix-socket-durable-p2p-pairing.md',
+  'signed-transactional-plugin-generations.md',
+  'local-only-validation-documentation-automation.md',
+]) {
+  if (!fs.existsSync(path.join(repoRoot, 'docs/decisions', decision))) {
+    failures.push(`missing release architecture decision ${decision}`);
+  }
+}
+
+const markdownFiles = directory => {
+  const files = [];
+  for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
+    const candidate = path.join(directory, entry.name);
+    if (entry.isDirectory()) files.push(...markdownFiles(candidate));
+    else if (entry.isFile() && /\.mdx?$/.test(entry.name)) files.push(candidate);
+  }
+  return files;
+};
 const driftFiles = [
-  ...fs.readdirSync(path.join(siteRoot, 'docs/memory')).map(name => path.join(siteRoot, 'docs/memory', name)),
-  ...fs.readdirSync(path.join(siteRoot, 'docs/knowledge-learning')).map(name => path.join(siteRoot, 'docs/knowledge-learning', name)),
-  ...fs.readdirSync(path.join(siteRoot, 'docs/plugin-distribution')).map(name => path.join(siteRoot, 'docs/plugin-distribution', name)),
-  ...fs.readdirSync(path.join(siteRoot, 'docs/operations')).map(name => path.join(siteRoot, 'docs/operations', name)),
-  ...['06-memory-and-learning.md', '13-tools-reference.md', '15-hooks-and-lifecycle.md', '16-cli-and-scripts.md', '17-platform-support.md', '18-plugins-and-marketplace.md', '19-installation.md', '20-updating.md'].map(name => path.join(repoRoot, 'docs/guide', name)),
+  ...[
+    'memory',
+    'knowledge-learning',
+    'plugin-distribution',
+    'operations',
+    'kbd',
+    'sovereign-sync',
+    'mobile',
+  ].flatMap(directory => markdownFiles(path.join(siteRoot, 'docs', directory))),
+  ...['kbd-runtime.md', 'learner-model.md'].map(name =>
+    path.join(siteRoot, 'docs/substrate', name)
+  ),
+  ...[
+    '06-memory-and-learning.md',
+    '13-tools-reference.md',
+    '15-hooks-and-lifecycle.md',
+    '16-cli-and-scripts.md',
+    '17-platform-support.md',
+    '18-plugins-and-marketplace.md',
+    '19-installation.md',
+    '20-updating.md',
+  ].map(name => path.join(repoRoot, 'docs/guide', name)),
 ];
 const forbidden = [
   [/\bpk focus\b/i, 'removed pk focus command'],
@@ -64,8 +135,16 @@ const forbidden = [
   [/synchronous writeback/i, 'obsolete inline writeback claim'],
   [/retry[- ]counts?\s+(prove|mean|determine|indicate)/i, 'retry-count correctness claim'],
   [/prometheus-skill-pack\/1\.6\.0/i, 'hardcoded stale plugin path'],
-  [/\b1\.6\.0\b/i, 'stale release metadata'],
+  [/\b1\.6\.[012]\b/i, 'stale release metadata'],
   [/Docker (is )?(required|recommended)/i, 'Docker-only installation claim'],
+  [/\b92%\s+production readiness\b/i, 'unsupported production-readiness percentage'],
+  [/\bAutomerge(?:-backed)?\b/i, 'stale learner CRDT implementation'],
+  [/operator_id\s+(?:topic|credential|identity)/i, 'obsolete operator_id identity/topic claim'],
+  [
+    /(?:remaining|installed|active)[^\n]{0,40}PreToolUse[^\n]{0,100}(?:BDD|test|mutation)|PreToolUse\s+(?:guard\s+)?(?:blocks?|protects?)/i,
+    'obsolete mutation guard claim',
+  ],
+  [/GitHub Actions[^\n]{0,120}(?:test|lint|doctor|certif|validat)/i, 'hosted validation claim'],
 ];
 for (const file of driftFiles) {
   const content = fs.readFileSync(file, 'utf8');
@@ -75,8 +154,20 @@ for (const file of driftFiles) {
 }
 
 const rootSpec = path.join(siteRoot, 'static/openapi/surreal-memory-v2.openapi.json');
-const submoduleSpec = path.join(repoRoot, 'tools/surreal-memory-server/openapi/surreal-memory-v2.openapi.json');
-if (fs.existsSync(submoduleSpec) && fs.readFileSync(rootSpec, 'utf8') !== fs.readFileSync(submoduleSpec, 'utf8')) {
+if (json(rootSpec).info?.version !== release)
+  failures.push(`Memory OpenAPI is not version ${release}`);
+const sovereignSpec = path.join(siteRoot, 'static/openapi/sovereign-sync-v2.openapi.json');
+if (!fs.existsSync(sovereignSpec) || json(sovereignSpec).info?.version !== release) {
+  failures.push(`Sovereign Sync OpenAPI is not version ${release}`);
+}
+const submoduleSpec = path.join(
+  repoRoot,
+  'tools/surreal-memory-server/openapi/surreal-memory-v2.openapi.json'
+);
+if (
+  fs.existsSync(submoduleSpec) &&
+  fs.readFileSync(rootSpec, 'utf8') !== fs.readFileSync(submoduleSpec, 'utf8')
+) {
   failures.push('Docusaurus OpenAPI copy differs from the pinned server specification');
 }
 

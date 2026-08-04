@@ -41,7 +41,9 @@ Input:
 {"query":"feynman grading","limit":5}
 ```
 
-Performs local keyword search over installed skill names and descriptions.
+Searches the signed active generation's `prometheus-skill-index-v1` artifact.
+Host, generated-agent, and mobile projections contain identical bytes and use
+the shared deterministic ranking implementation.
 
 ### `sync-status`
 
@@ -51,9 +53,8 @@ Input:
 {"domain":"learner-model"}
 ```
 
-`domain` is optional. The current MCP response is a bounded local status
-summary and points clients to REST. Neither MCP nor REST reads live
-`P2PNode` state in `0.1.0`.
+`domain` is optional. The tool uses the same `AppState` and status service as
+REST, including current transport and receipt state.
 
 ### `sync-push`
 
@@ -63,15 +64,18 @@ Input:
 {"domain":"learner-model"}
 ```
 
-Acknowledges a queued push request. It does not call the CRDT exporter or P2P
-broadcaster and is not delivery confirmation.
+Constructs a signed 1.7 request and calls the same durable service as
+`POST /api/v2/sync/pushes`. Exact retries return the stored receipt; conflicts
+and transport failures use the same state transitions as REST. A `broadcast`
+receipt is still not peer application confirmation.
 
 ### `sync-peers`
 
 Input: none.
 
-Returns a fixed no-peers summary. The tool is not connected to the daemon’s
-live gossip neighbors. See [Pair two machines](./pair-two-machines).
+Returns the same peer/transport summary as the REST service. Pairing and
+allow-list membership are separate from per-push applied receipts; use the
+receipt resource for delivery evidence. See [Pair two machines](./pair-two-machines).
 
 ## KBD read and operator tools
 

@@ -14,13 +14,15 @@ and authorization. They are not interchangeable:
 | Project ID | Immutable project identity | `.prometheus/project.json` |
 | Replica ID | Identifies one checkout/device replica | platform KBD registry |
 | Machine ID | Identifies the local registry owner | platform KBD registry |
-| Sovereign Sync `operator_id` | Derives the private iroh gossip group | `$HOME/.config/sovereign-sync/config.toml` |
+| Sovereign group secret | Derives the private iroh gossip group | Mode-`0600` P2P identity; transferred only in pairing tickets |
 | Ed25519 device key | Signs KBD events, remote commands, claims, and sync envelopes | OS credential store or protected device-key file |
 
-The obsolete KBD bearer-token protocol has been removed. Sovereign Sync binds
-its local API to `127.0.0.1`; read routes and non-authoritative sync controls
-rely on that loopback boundary. Every KBD mutation POST must additionally carry
-a schema-v2 `SignedCommandEnvelope` from an active enrolled device.
+The obsolete KBD bearer-token protocol has been removed. Sovereign Sync uses a
+mode-`0600` Unix-domain socket by default and verifies that the client belongs
+to the same operating-system user. Explicit loopback TCP mode requires a token
+from a mode-`0600` file; the service exposes no unauthenticated TCP constructor.
+Every KBD mutation POST must additionally carry a schema-v2
+`SignedCommandEnvelope` from an active enrolled device.
 
 ## Device signing keys
 
@@ -56,6 +58,16 @@ Unsigned, schema-v1, tampered, unknown-device, and revoked-device command
 requests fail closed. Use `prometheus kbd` or `sovereign-client` to construct
 the signature; do not hand-roll canonicalization in shell scripts.
 
+Only the operator-signed genesis event may bootstrap its own signing key. The
+folded state records that key as operator authority; a signed key-rotation event
+moves the authority binding to its replacement. A new device is trusted only
+after an active operator key signs a `DeviceEnrolled` event. Every causal event,
+including a conflict loser or resolution record, is authorized before conflict
+selection; presenting a new public key alongside a self-signed event never
+enrolls it. The Loro authority accepts only signed schema-v2 events. Unsigned
+schema-v1 history is handled solely by the explicit, backed-up legacy journal
+migration path and cannot enter through peer imports.
+
 ## Register projects served by Sovereign Sync
 
 The daemon serves every project in its platform registry. A checkout is
@@ -79,5 +91,5 @@ reviewed transport-authentication design. Thin clients should connect through
 an authenticated host integration that forwards device-signed KBD commands;
 the device signature is not a substitute for securing an exposed HTTP server.
 
-The `operator_id` controls gossip topic membership but is not a credential for
+The group secret controls gossip topic membership but is not a credential for
 the REST API and is not a device signing key.

@@ -48,6 +48,9 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+permissions:
+  contents: write
+  pull-requests: write
 jobs:
   sync:
     runs-on: ubuntu-latest
@@ -57,6 +60,21 @@ jobs:
       - run: gh pr merge --auto --squash "$PR_URL"
 YAML
 expect_pass "$allowed_sync"
+
+unpinned_action="$(make_repo unpinned-action)"
+cat >"$unpinned_action/.github/workflows/docs-pages.yml" <<'YAML'
+name: Pages deployment
+on:
+  push:
+    branches: [main]
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm run build:deploy
+YAML
+expect_fail "$unpinned_action"
 
 hosted_test="$(make_repo hosted-test)"
 cat >"$hosted_test/.github/workflows/validate.yml" <<'YAML'

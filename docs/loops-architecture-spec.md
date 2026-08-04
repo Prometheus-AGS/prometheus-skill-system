@@ -68,8 +68,8 @@ L0  HARNESS MICRO-LOOP          read→act→observe (the built-in agent tool lo
 
 Orthogonal to L0–L3, your `change-006-karpathy-loop-hooks` wires a learning loop through Claude Code hooks so each iteration is *informed by* and *writes back to* memory:
 
-- `UserPromptSubmit` → `pk-focus-on-prompt.sh` injects relevant `prometheus-knowledge` context into the prompt (top‑5 keywords → `pk focus`, 2.5s timeout, silent no‑op if `pk` absent).
-- `Stop` → `forge-reflect-on-stop.sh` runs `forge reflect` then `pk ingest` when `.forge/iterations/` exists — the session's lessons re‑enter the knowledge base.
+- `UserPromptSubmit` → `karpathy-hook-dispatch.sh` reads bounded immutable project/shared/global snapshots through `pk context`; absence or failure is observable without fabricating success.
+- `Stop` → `karpathy-hook-dispatch.sh` atomically enqueues one metadata-only job. The supervised worker performs reflection, ingestion, receipt reconciliation, and snapshot publication outside the hook latency path.
 - `SubagentStop[reflector]` → `sycophancy-check-reflection.sh` gates the reflection artifact (Delta → Root Cause → Corrective Actions), rejecting sycophantic "everything went great" reflections, with a 2‑rejection soft cap to avoid infinite loops.
 
 This is the loop *around* the loops: focus in, reflect out, ingest, repeat. It is currently Claude‑Code‑native (hooks); §6 covers replicating it under OpenCode and Codex.
@@ -367,7 +367,7 @@ The `kbd` tool auto‑detects `openspec/`, `constraints.md`, and `current-waypoi
 ```
 **Provider/phase routing (the GLM lever):** point `execute` at self‑hosted GLM‑5.2 (High effort) and `assess/plan/reflect` at GLM‑5.2 **Max** (or Opus via the Anthropic‑compatible base‑URL). The 1M context means `assess` can hold the whole workspace; reserve Max effort for the reasoning phases and High for execution to halve output tokens.
 
-**Replicating the Karpathy layer (no shell hooks):** OpenCode exposes `tool.execute.before/after` (reserved stubs in `plugin.ts`) and `shell.env`. Implement focus/reflect there: in `tool.execute.after`, when a session/loop tick ends, call `forge reflect` + `pk ingest` programmatically; in a `before` guard, inject `pk focus` context. Same behavior, plugin‑native instead of hook‑native.
+**Replicating the Karpathy layer (no shell hooks):** OpenCode exposes `tool.execute.before/after` (reserved stubs in `plugin.ts`) and `shell.env`. Its before adapter calls the same bounded `pk context` contract; its after adapter writes the same atomic queue envelope. Reflection and ingestion stay in the supervised worker, so harnesses share behavior without synchronous writeback.
 
 ### 6.3 Codex (GPT‑5.5)
 
@@ -394,8 +394,8 @@ The `kbd` tool auto‑detects `openspec/`, `constraints.md`, and `current-waypoi
 | Headless tick | `claude -p "/loop-tick <n>"` | `opencode run -p "…"` | `codex exec "…"` |
 | In‑session loop | `/loop` + `/goal` | plugin tool + Plan/Build | skill + `/goal` |
 | Memory | surreal‑memory MCP / file | surreal‑memory MCP / file | surreal‑memory MCP (`:23001`) |
-| Focus‑in | `UserPromptSubmit` hook | `tool.execute.before` | prompt‑time MCP `pk focus` |
-| Reflect‑out | `Stop` hook (`forge reflect`+`pk ingest`) | `tool.execute.after` | reflect‑phase MCP call |
+| Context‑in | bounded `UserPromptSubmit` dispatcher | `tool.execute.before` | bounded prompt adapter |
+| Learning‑out | atomic `Stop` enqueue | atomic `tool.execute.after` enqueue | atomic completion enqueue |
 | Sycophancy gate | `SubagentStop` shell hook | plugin `after` hook | `sycophancy-correction` MCP |
 | Routing per phase | subagents w/ bound models | provider per phase (Max/High) | `liter-llm` route / model flag |
 

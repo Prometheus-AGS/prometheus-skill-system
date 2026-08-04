@@ -6,237 +6,95 @@ sidebar_label: Pair Two Machines
 
 # Pair Two Machines
 
-Pairing has two independent requirements:
+Pairing transfers one opaque ticket from an existing peer to a joining peer.
+The ticket contains protocol version, the random 256-bit group secret, the
+exporting endpoint ID, and its signing-key fingerprint. Treat the complete ticket
+as a secret: do not paste it into logs, issue trackers, shell history, or release
+evidence.
 
-1. both machines derive the same gossip topic from the same `operator_id`; and
-2. at least one machine bootstraps with the other machine’s distinct iroh
-   endpoint ID.
+## Identity map
 
-Matching the operator ID does not perform discovery by itself. Copying every ID
-is also wrong: signing keys, endpoint identities, and KBD replica identities
-represent different security boundaries.
+| Identity | Shared? | Persistence | Purpose |
+|---|---:|---:|---|
+| 256-bit group secret | Yes, only within the paired group | Stored in each mode-`0600` P2P identity file | Derives the private gossip topic |
+| iroh endpoint secret/key | No | Atomically persisted across restarts | Gives one peer a stable endpoint ID |
+| Endpoint allow-list binding | Each peer enrolls the other | Persisted with P2P identity | Binds endpoint ID to signing-key fingerprint |
+| KBD project ID | Only for replicas of one project | Repository manifest + runtime registry | Names one KBD authority |
+| KBD device key | No | Credential store or mode-`0600` file | Signs KBD commands/events |
 
-:::info What pairing enables
+The removed `operator_id` is not a pairing credential. New groups use a random
+secret and explicit enrollment, so a guessable name cannot join a topic.
 
-The procedure below establishes an iroh-gossip neighbor relationship. Signed
-KBD authority updates and implemented domain adapters can then exchange state;
-pairing alone is not proof that a particular peer imported a broadcast. The
-endpoint ID changes when the daemon restarts.
+## 1. Initialize stable identities
 
-:::
-
-## Identifier map
-
-| Identifier | Same on both machines? | Persistent today? | Where it lives | Purpose |
-|---|---:|---:|---|---|
-| Sovereign `operator_id` | **Yes** | Yes | `$HOME/.config/sovereign-sync/config.toml` | Derives the shared gossip topic |
-| Repository `projectId` | **Yes for clones of one project** | Yes | `<project>/.prometheus/project.json` | Names the canonical KBD project/runtime |
-| iroh endpoint ID | **No** | **No** | Startup log only | Identifies and locates one running P2P endpoint |
-| KBD replica ID | **No** | Yes | platform KBD registry | Identifies one project checkout/device replica |
-| KBD device-signing key | **No** | Yes | platform credential store or `device-key.json` | Proves which physical device signed a command |
-| learner ID | Yes for one human learner | Yes in model data | learner-model document key | Joins the same logical learner record |
-
-### Values that must match
-
-`operator_id` must match byte-for-byte. The installer generates a recommended
-64-character hexadecimal value, although the parser only requires a non-empty
-string.
-
-`projectId` must match when two repository checkouts represent the same logical
-project. Establish `.prometheus/project.json` once, then distribute that file
-through the repository or another reviewed setup channel. Do not let each
-machine independently create a different project manifest and later overwrite
-one runtime with the other ID.
-
-### Values that must remain different
-
-Never copy `device-key.json` between machines. The signing key is the identity
-of one device.
-
-Each checkout keeps its own replica UUID. The compatibility policy remains
-single-writer and rejects multi-voter configuration; replica identity and
-convergence are handled by the project registry and Loro authority.
-
-## Before you begin
-
-On both machines:
+Run on both machines with their own config:
 
 ```bash
-bash scripts/check-prerequisites.sh --install --build-tools
-bash scripts/install-mcp-services.sh
-sovereign-sync --mode status --format json
+sovereign-sync --mode init
 ```
 
-Confirm that both checkouts contain the same project identity:
+The output reports the P2P identity path and endpoint ID, never the group secret.
+The identity file must be regular, atomically written, and mode `0600`.
+
+## 2. Export on the existing peer
+
+On Machine A:
 
 ```bash
-jq '{projectId, repositoryFingerprint}' .prometheus/project.json
+PAIR_TICKET="$(sovereign-sync --mode pair-export)"
 ```
 
-If the manifest does not exist yet, start the KBD runtime on one canonical
-checkout first, commit or securely transfer the generated manifest, and only
-then initialize the second checkout.
+Transfer `PAIR_TICKET` through an authenticated confidential channel. Do not use
+`set -x`, command tracing, CI variables, or chat transcripts.
 
-## Step 1: create one operator namespace
+## 3. Import on the joining peer
 
-On Machine A, generate the shared value once:
+On Machine B:
 
 ```bash
-openssl rand -hex 32
+sovereign-sync --mode pair-import --ticket "$PAIR_TICKET"
 ```
 
-Place the exact output in the config on both machines:
+Import validates the ticket protocol, 32-byte group secret, endpoint ID, and
+fingerprint binding before persisting the group and allow-list entry. The command
+prints only the paired endpoint and fingerprint.
 
-```toml
-[node]
-operator_id = "replace-with-the-same-64-hex-character-value"
-```
-
-Transfer only this value through a trusted channel. It is not a private key,
-but possession lets another node derive the same topic. Do not put a personal
-operator namespace in a public issue, build log, or example repository.
-
-Keep each machine’s own `skills_dir`, server port, device key, and token.
-
-## Step 2: start Machine A as the temporary anchor
-
-Machine A can subscribe with no bootstrap peers:
-
-```toml
-[peers]
-bootstrap = []
-```
-
-For initial diagnostics, a foreground process is easier to observe than the
-managed service:
+Export Machine B’s ticket and import it on Machine A so both sides have explicit
+allow-list bindings:
 
 ```bash
-RUST_LOG=sovereign_sync=debug,iroh_gossip=debug \
-  sovereign-sync --mode daemon
+# Machine B
+PAIR_TICKET_B="$(sovereign-sync --mode pair-export)"
+
+# Machine A, after confidential transfer
+sovereign-sync --mode pair-import --ticket "$PAIR_TICKET_B"
 ```
 
-Keep it running. Find this line in its startup output:
+## 4. Start isolated peers and verify
 
-```text
-P2P endpoint started — node_id=<machine-a-endpoint-id>
-```
-
-That value is Machine A’s current iroh endpoint ID. It is public identity
-material, not the endpoint’s private key.
-
-For a managed macOS service, the same startup line is normally in:
+The default local API is a Unix socket; it does not open port 7892:
 
 ```bash
-rg 'P2P endpoint started' \
-  "$HOME/.prometheus/logs/sovereign-sync.stderr.log" | tail -n 1
+SOCKET_PATH="$HOME/.prometheus/run/sovereign-sync.sock"
+sovereign-sync --mode daemon --socket "$SOCKET_PATH"
+curl --unix-socket "$SOCKET_PATH" \
+  http://localhost/health
 ```
 
-For the managed Linux service:
+Use the actual socket path reported by your installation on macOS. Loopback TCP
+is opt-in with `--tcp` and requires a bearer token loaded from a mode-`0600` file.
 
-```bash
-journalctl --user -u ai.prometheus.sovereign-sync \
-  | rg 'P2P endpoint started' | tail -n 1
-```
+Create a signed v2 push, then poll its durable receipt or resume the event stream.
+A local `broadcast` state alone is not peer application evidence. Certification
+requires a per-peer `received`, `applied`, or `rejected` receipt and proves the
+same terminal receipt survives restart.
 
-## Step 3: bootstrap Machine B to Machine A
+## Rejection behavior
 
-On Machine B, keep the same `operator_id` and add Machine A’s endpoint ID:
+Inbound frames fail closed when the endpoint is unknown, the group secret/topic
+does not match, the endpoint and signing key disagree, the request is stale, or a
+request ID is replayed. The full ticket and group secret are never logged.
 
-```toml
-[node]
-operator_id = "the-same-value-used-on-machine-a"
-
-[peers]
-bootstrap = [
-  "machine-a-endpoint-id"
-]
-```
-
-Then start or fully restart Machine B:
-
-```bash
-# Foreground diagnostic
-RUST_LOG=sovereign_sync=debug,iroh_gossip=debug \
-  sovereign-sync --mode daemon
-```
-
-Or restart the managed definition:
-
-```bash
-bash scripts/install-mcp-services.sh --restart
-```
-
-Machine B uses the configured endpoint ID with the N0 address resolver. It does
-not need Machine A’s IP address in `config.toml`.
-
-Machine A does not need Machine B in its bootstrap list for this first
-connection: B joins A’s already-running topic subscription. For more resilient
-meshes, every node should eventually have at least one known entry point, but
-the current ephemeral endpoint limitation prevents durable configuration.
-
-## Step 4: verify the correct layer
-
-Check each local service:
-
-```bash
-curl --fail-with-body http://127.0.0.1:7892/health | jq .
-```
-
-Then inspect debug logs for gossip neighbor/connectivity events. Do not use the
-following as proof of a live peer in `0.1.0`:
-
-- `GET /api/v1/sync/peers` — currently always returns an empty list;
-- `/sync-peers` — reports the same bounded summary;
-- `POST /api/v1/sync/push` — acknowledges a queue request but sends no domain
-  data;
-- a local `/health` response — proves only that the local HTTP process is up.
-
-There is currently no operator-facing end-to-end assertion such as “peer B
-applied learner-model version 17.” That observability is part of the remaining
-implementation work.
-
-## Step 5: manage restarts
-
-The daemon does not load its iroh endpoint from `device-key.json`. It lets iroh
-generate an endpoint key at each process start.
-
-Therefore:
-
-- restarting Machine B gives B a new ID, but B can still reconnect while the
-  configured Machine A process remains alive;
-- restarting Machine A invalidates the endpoint ID stored by B;
-- restarting both machines loses the only configured rendezvous unless one
-  config is updated from the other machine’s new startup log.
-
-The temporary recovery procedure is:
-
-1. start the designated anchor with an empty bootstrap list;
-2. capture its new endpoint ID;
-3. replace the stale ID on the other machine;
-4. restart only the joining machine;
-5. re-check debug logs.
-
-Do not build production operations around this procedure. Durable pairing
-requires a persistent iroh endpoint key plus a supported peer-management and
-status surface.
-
-## Rotating and separating operator groups
-
-To remove both machines from an old topic:
-
-1. generate a new `operator_id`;
-2. update every intended member through a trusted channel;
-3. remove stale bootstrap IDs;
-4. restart each daemon;
-5. repeat the endpoint exchange.
-
-Machines with different `operator_id` values derive different topics even if
-one has the other’s endpoint ID. Machines with the same `operator_id` but no
-reachable bootstrap path do not find each other automatically.
-
-## Next
-
-Read [Network configuration](./p2p-network) before pairing across a corporate
-firewall, guest Wi-Fi, VPN, cellular network, or air-gapped LAN. Read
-[Exactly what syncs](./data-scope) before interpreting a successful neighbor
-connection as application-level replication.
+To remove a peer, delete its endpoint-to-signing-key binding through the supported
+identity-management path and restart the isolated peer. Creating a new group
+secret is a group rotation, not an `operator_id` rename.

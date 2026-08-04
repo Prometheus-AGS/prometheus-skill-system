@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "sourceVersion": "1.6.2",
+  "sourceVersion": "1.7.0",
   "contractSchemaVersion": "hook-contract-v1",
   "dispatcherAbi": "hook-runtime-v1",
   "contractSha256": "90134122da71285bc0deba2d645536211417aa0ee71fdb48ebb43e2bfc4e3fa5",
@@ -63,11 +63,6 @@
     {
       "path": "shared/scripts/evaluate-session.sh",
       "sha256": "514099dd7fcb9d71c6c983c39d0b6a101f54a60a0a71a9748efeb95c7517a908",
-      "mode": "0755"
-    },
-    {
-      "path": "shared/scripts/forge-reflect-on-stop.sh",
-      "sha256": "03125c9e509ef004303e45ee6230c6376e831345a16d5ffc21b62fb073b7353d",
       "mode": "0755"
     },
     {
@@ -158,11 +153,6 @@
     {
       "path": "shared/scripts/pipeline-enforce.sh",
       "sha256": "a391d8187a9e848afe5f94bd31cf1da2b6ca5d5d866de21d597c4159939ffbf4",
-      "mode": "0755"
-    },
-    {
-      "path": "shared/scripts/pk-focus-on-prompt.sh",
-      "sha256": "56ff2604566b3cbac308ed4f44551bc6729e9a8a6d308c17daf938da83ef1501",
       "mode": "0755"
     },
     {
@@ -272,7 +262,7 @@
     },
     {
       "path": "shared/scripts/write-session-summary.sh",
-      "sha256": "564e5dd6a9458f20555aff32d12a9f4d1ceb1e8fb32685071316ef64942f4b7d",
+      "sha256": "f668031f7a529b0d4bbfab729c284be01113c204dfd62dae582f761042d07997",
       "mode": "0755"
     },
     {
@@ -316,5 +306,5 @@
       "mode": "0755"
     }
   ],
-  "bundleId": "7a0bebbb3c6e89b7e2bc7dea070c44bf0a37010b65b56eb4a82d9b2a93b6a828"
+  "bundleId": "e39e2f6b7cf1515c7f4db423f6a336a428d28430394b56c7f48b3084ccc02be0"
 }

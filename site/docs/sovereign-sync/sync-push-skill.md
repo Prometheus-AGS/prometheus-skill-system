@@ -6,8 +6,8 @@ sidebar_label: /sync-push
 
 # /sync-push
 
-Request a push for a named sync domain. The current implementation acknowledges
-the request but does not transmit domain state.
+Create or exactly replay a signed push for a named sync domain. MCP and REST
+use the same service and durable receipt store.
 
 ## Trigger phrases
 
@@ -26,27 +26,28 @@ the request but does not transmit domain state.
 | `open-spec:<project-id>` | Future project adapter |
 | `surreal-memory` | `Local` — must remain ineligible |
 
-These names describe the intended domain model. The `0.1.0` daemon does not
-maintain a live manifest registry for the REST handler.
+These names are validated against the live default-deny manifest. Unknown and
+`Local` domains are rejected before export.
 
 ## Quick push
 
 ```bash
-# Push skill index
-curl -s -X POST http://127.0.0.1:7892/api/v1/sync/push \
+# Submit a pre-signed canonical request through the private Unix transport
+curl --unix-socket "$SOCKET" -s -X POST http://localhost/api/v2/sync/pushes \
   -H 'Content-Type: application/json' \
-  -d '{"domain": "skill-index"}'
+  --data @signed-push.json
 
-# Push learner model
-curl -s -X POST http://127.0.0.1:7892/api/v1/sync/push \
-  -H 'Content-Type: application/json' \
-  -d '{"domain": "learner-model"}'
+# Recover the durable receipt after response loss
+curl --unix-socket "$SOCKET" -s \
+  http://localhost/api/v2/sync/pushes/<push-id>
 ```
 
-The current REST handler acknowledges a queued domain request. The structural
-`Local` privacy invariant is enforced in the storage/CRDT library; the queue
-acknowledgement itself is not export, peer delivery, import, or apply
-confirmation. See [Exactly what syncs](./data-scope).
+The receipt's canonical payload hash makes same-ID/same-payload retries exact.
+Reusing the ID with a different payload returns `409`. Per-peer states and
+ordered SSE events distinguish receipt, apply, and rejection; a local
+`accepted` state alone is not remote-apply proof. See
+[Signed pushes and receipts](./signed-pushes-and-receipts) and
+[Exactly what syncs](./data-scope).
 
 ## Source
 

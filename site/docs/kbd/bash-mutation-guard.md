@@ -9,23 +9,24 @@ sidebar_label: Tool Guards
 :::info The Bash mutation fence was removed
 Earlier versions gated `Bash`, `Write`, `Edit`, and `MultiEdit` behind a
 pre-mutation fence that checked KBD project identity, control-plane
-reachability, and lifecycle state. That fence no longer
-exists. **Shell commands are not gated at all**, and the only remaining
-`PreToolUse` guard protects BDD test files.
+reachability, and lifecycle state. That fence and the protected-test
+`PreToolUse` hook no longer exist. **Bash, Python, Write, and Edit are not
+gated.**
 :::
 
 ## What still guards a tool call
 
 | Matcher | Script | What it blocks |
 |---|---|---|
-| `Write\|Edit\|MultiEdit` | `protect-tests.sh` | Edits to existing `tests/steps/*`, `tests/support/*`, `tests/features/*.feature` |
+| `Write\|Edit\|MultiEdit` | *(none)* | Nothing |
 | `Bash` | *(none)* | Nothing |
+| `Python` | *(none)* | Nothing |
 
-`protect-tests.sh` implements the [BDD Immutable-Tests Rule](https://github.com/Prometheus-AGS/prometheus-skill-system/blob/main/skills/testing/bdd-lifecycle-loop/references/immutable-tests.md).
-An agent under pressure to make a failing test pass has an obvious shortcut:
-edit the test. This removes the shortcut structurally — new scenarios may be
-added under `tests/features/drafts/` for human review, but existing step
-definitions and feature files cannot be rewritten to manufacture a green run.
+Protected BDD integrity is checked at final local certification by
+`scripts/verify-protected-tests.mjs`. It compares committed Git states, so it
+detects content changes, deletion, rename, or mode changes regardless of which
+tool caused them. Intentional changes require an SSH-signed canonical approval
+manifest. Missing approval does not block creative work; it fails certification.
 
 ## Why the fence was removed
 

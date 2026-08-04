@@ -28,7 +28,7 @@ OpenSpec task folder
     ├── 1. Read tasks.md → detect language
     ├── 2. SkillRegistry.resolve(language, description)
     ├── 3. ConstitutionChecker → flag forbidden patterns
-    ├── 4. KarpathyFocus → pk focus "<topic>" → prior learned context
+    ├── 4. KarpathyFocus → committed snapshot → prior learned context
     ├── 5. Tera template rendering
     └── 6. Write .forge/enriched/<task-id>.context.md
               ↓ the AI agent reads this and implements the code
@@ -151,7 +151,7 @@ Exactly six, and this is the important limitation:
 | `{{ task_path }}` | path to the task folder |
 | `{{ acceptance_criteria }}` | GIVEN/WHEN/THEN blocks, when present |
 | `{{ constitution_summary }}` | active constitution |
-| `{{ karpathy_focus }}` | `pk focus` output, when `pk` succeeded |
+| `{{ karpathy_focus }}` | Bounded context from the committed snapshot |
 
 > **Templates that declare their own variables silently fail.** `router.rs.tera` expects
 > `module_name`, `state_type`, `resource_name`, and `base_path` — none of which forge

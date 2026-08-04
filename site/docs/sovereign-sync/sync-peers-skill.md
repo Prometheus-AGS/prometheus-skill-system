@@ -18,24 +18,23 @@ configured.
 
 ## What it does
 
-- Describes the configured bootstrap-peer model
-- Explains how to find the current endpoint ID in startup logs
-- Separates the shared operator ID from distinct endpoint IDs
-- Points to network and pairing limitations
+- Returns the live bounded peer summary from the shared sync service
+- Reports the durable local endpoint ID and enrolled peer endpoint IDs
+- Separates the random paired-group secret from distinct endpoint identities
+- Points to pairing, allow-list, and transport diagnostics
 
 ## Current behavior
 
-`/health` reports service status and version; it does not expose a node ID.
-The current `sync-peers` MCP tool and authenticated
-`GET /api/v1/sync/peers` route return the known peer summary. Bootstrap peer
-tickets/addresses are configured in `config.toml`, not added through the
-health route.
+`/health` reports service status and version. The `sync-peers` MCP tool and
+authenticated `GET /api/v1/sync/peers` route call the same service layer and
+return the durable endpoint identity, transport state, enrolled peers, and
+bounded live-neighbor status.
 
-In `0.1.0`, the MCP and REST peer summaries are not connected to
-`P2PNode` and return no live neighbors. Add/remove operations are not
-implemented. Use the log-driven
-[two-machine pairing procedure](./pair-two-machines) for connectivity
-development.
+Enrollment is explicit: export a redacted pairing ticket on one machine,
+import it on the other, and verify the endpoint-to-signing-key allow-list.
+Add/remove operations are not health-route side effects. Follow the
+[two-machine pairing procedure](./pair-two-machines), and never log or paste a
+complete ticket into an issue or diagnostic report.
 
 ## Source
 

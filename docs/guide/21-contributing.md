@@ -119,9 +119,12 @@ Before a release:
 
 ## The rules that protect the system
 
-Two project-wide rules apply to any code-generation work in repositories that use this pack, and they are enforced by hooks (see [Hooks & Lifecycle](15-hooks-and-lifecycle.md)):
+Two project-wide rules apply to code-generation work (see [Hooks & Lifecycle](15-hooks-and-lifecycle.md)):
 
-**The BDD Immutable-Tests Rule (`BDD-006`).** You may not edit existing tests to make failing tests pass. `protect-tests.sh` blocks edits to `tests/steps/*`, `tests/support/*`, and `tests/features/*.feature`; you may add new `.feature` files under `tests/features/drafts/`. Surface failing tests to a human rather than silently rewriting them.
+**The BDD Protected-Tests Rule (`BDD-006`).** Do not rewrite tests to manufacture
+a pass. Tools remain unrestricted, but final local certification compares the
+candidate with its certified base and requires an SSH-signed approval manifest
+for intentional protected-path changes.
 
 **The Session Scratchpad pattern (`XC-003`).** In-flight session notes go in `SCRATCHPAD.md` at the project root — not committed (it is gitignored), not a plan, disposable. Plans live in `.kbd-orchestrator/phases/*/plan.md`; outcomes go in `reflection.md` or memory; architecture decisions go in `CLAUDE.md`.
 

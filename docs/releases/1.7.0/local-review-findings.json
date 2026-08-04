@@ -1,0 +1,43 @@
+{
+  "schemaVersion": "1",
+  "review": "independent local read-only remediation review",
+  "baseCommit": "dc22ae5092f6e852e9eea8116dc6bcab9186940c",
+  "findings": [
+    {
+      "severity": "high",
+      "status": "resolved",
+      "area": "KBD device trust",
+      "summary": "Unknown event signers could self-enroll using event-supplied public keys.",
+      "resolution": "Unknown signers now fail closed after the narrowly scoped operator-genesis bootstrap; additional devices require an already-authorized DeviceEnrolled event."
+    },
+    {
+      "severity": "medium",
+      "status": "resolved",
+      "area": "Sovereign Sync TCP transport",
+      "summary": "A public constructor could start the full loopback TCP API without authentication.",
+      "resolution": "Unauthenticated TCP constructors and serving helpers were removed; every TCP service now requires a private file-backed bearer token."
+    },
+    {
+      "severity": "high",
+      "status": "resolved",
+      "area": "Loro import authorization",
+      "summary": "Unknown-signed conflict losers and conflict-resolution events could bypass folded-state signer checks.",
+      "resolution": "The complete causal stream is now authorized against the accumulated device registry before conflict selection, resolution, frontier advancement, or persistence of imported updates."
+    },
+    {
+      "severity": "medium",
+      "status": "resolved",
+      "area": "Operator authority",
+      "summary": "Imported device-management events relied on a self-declared operator actor kind.",
+      "resolution": "Folded state now binds operator authority to the genesis signing key and transfers it only through an authorized key rotation; operator events must be signed by a currently active operator key."
+    },
+    {
+      "severity": "high",
+      "status": "resolved",
+      "area": "Loro schema downgrade",
+      "summary": "Unsigned schema-v1 events could bypass the new Loro authorization prepass.",
+      "resolution": "Project Loro ingestion and imports now reject every non-v2 event before causal or conflict processing; legacy v1 history remains available only through the explicit backed-up journal migration path."
+    }
+  ],
+  "verdict": "pass_after_remediation"
+}
