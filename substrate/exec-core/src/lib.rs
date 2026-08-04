@@ -6,6 +6,7 @@
 
 #![forbid(unsafe_code)]
 
+mod artifact;
 mod job;
 mod policy;
 mod port;
@@ -18,3 +19,4 @@ pub use receipt::{Ed25519ReceiptSigner, ReceiptAssembler, ReceiptAssemblyError, 
 
 /// Release family shared by every execution crate.
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");
+pub use artifact::{ArtifactStore, CasError, GcReport, StoredArtifact};

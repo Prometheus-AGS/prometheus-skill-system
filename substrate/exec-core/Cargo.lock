@@ -1102,6 +1102,7 @@ dependencies = [
  "tempfile",
  "thiserror",
  "uuid",
+ "walkdir",
 ]
 
 [[package]]
