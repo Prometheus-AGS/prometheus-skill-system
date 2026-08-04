@@ -28,8 +28,7 @@ prometheus kbd --path "/path/to/project" pause \
   --reason "Pause before database maintenance"
 ```
 
-Pause creates the local emergency valve first, then records a durable
-checkpoint containing:
+Pause records an advisory operator checkpoint containing:
 
 - prior lifecycle;
 - last completed work;
@@ -38,7 +37,10 @@ checkpoint containing:
 - dirty-work summary;
 - plan revision.
 
-Mutating harness tools are denied until an explicit resume.
+Pause does **not** intercept Bash, Python, Edit, or Write. Agents are expected to
+honor the checkpoint, while concurrent command safety remains enforced by the
+exclusive journal transaction and causal-frontier validation. Resume changes
+the lifecycle state; it does not unlock shell tools because they were never locked.
 
 ## Revise an active plan
 

@@ -7,6 +7,42 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.7.0] - 2026-08-03
+
+### Added
+
+- Signed, exact-replay Sovereign Sync push resources with durable receipts,
+  resumable events, shared REST/MCP execution, and Rust-generated OpenAPI 3.1.
+- Private Unix-socket transport, durable P2P identity, secret pairing tickets,
+  endpoint/signing-key enrollment, replay defense, and explicit token-authenticated
+  loopback TCP.
+- Signed folded-state checkpoints, frontier caches, immutable hash-linked journal
+  archive segments, and rollback metadata.
+- Ed25519-signed plugin generations, a separate trust store, one canonical skill
+  index across host/agent/mobile surfaces, and 14 signed target receipts.
+- Git-object protected-test certification with SSH-signed change approvals and
+  cumulative local adversarial-review receipts.
+- Deterministic `docs:sync`, generated route/schema/CLI/capability references,
+  five architecture decisions, and a documentation-only main-branch sync bot.
+
+### Changed
+
+- Learner storage is Loro-only. Immutable uniquely keyed evidence is folded
+  deterministically into mastery and conservative FSRS state after local writes
+  and remote imports; legacy snapshots are preserved during migration.
+- KBD pause is explicitly advisory. Journal transactions and causal-frontier
+  validation remain the write-concurrency boundary; agent Bash and Python are
+  unrestricted.
+- Installation is strict by default, with explicit `--skills-only` and
+  non-certifying `--best-effort` modes plus post-install artifact verification.
+- Release validation is local-only. Hosted automation is limited to deterministic
+  managed-document synchronization and GitHub Pages packaging/deployment.
+
+### Removed
+
+- The obsolete KBD voter/quorum facade, mutation-policing `PreToolUse` hooks,
+  hosted test workflows, and stale Automerge/operator-ID documentation.
+
 ## [1.6.2] - 2026-08-03
 
 ### Fixed

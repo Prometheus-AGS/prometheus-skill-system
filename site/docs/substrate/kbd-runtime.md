@@ -27,8 +27,9 @@ sidebar_label: kbd-runtime
 
 Events use canonical JSON, SHA-256 hash chaining, and Ed25519 signatures.
 Interactive runtimes use the supported platform credential store; headless
-voters require an explicit mode-`0600` device-key file. The loopback REST
-bearer token is a separate project-scoped secret.
+services require an explicit mode-`0600` device-key file. The optional
+loopback-TCP bearer token is a separate project-scoped secret. The default
+local transport is a same-user Unix-domain socket.
 
 ## Canonical runtime
 

@@ -64,7 +64,7 @@ Here is the difference, stated as a scorecard.
 | Goal-conditioned termination | Yes (`/goal`) | Yes (+ `loop-tick.sh` feedback sources) |
 | Worktree isolation | Yes | Yes (and portable across tools) |
 | Cross-session memory | No | Yes (surreal-memory + prometheus-knowledge) |
-| Context priming at loop start | No | Yes (`pk-focus-on-prompt.sh`) |
+| Context priming at loop start | No | Yes (bounded committed `pk context`) |
 | Anti-sycophancy gate on reflection | No | Yes (`sycophancy-correction` MCP) |
 | Cross-tool support | No (Claude Code only) | Yes (ten AI tools) |
 | Self-hosted web extraction | No | Yes (Firecrawl, self-hostable) |

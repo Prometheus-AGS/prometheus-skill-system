@@ -12,7 +12,11 @@ governed, audited, and reproducible.
 
 [![Docs site](https://github.com/Prometheus-AGS/prometheus-skill-system/actions/workflows/docs-pages.yml/badge.svg?branch=main)](https://github.com/Prometheus-AGS/prometheus-skill-system/actions/workflows/docs-pages.yml)
 
-> **Production readiness: 92%** — sycophancy-corrected score against the 2026-06-29 independent credibility assessment (commit `e0e720b`). All P0 security, P1 capability, P2/P3 quality, and P4 operational findings are closed. Remaining 8%: single-maintainer bus factor and no external production deployments yet. See [docs/production-readiness-report.md](docs/production-readiness-report.md).
+> **Readiness is evidence-scoped, not a percentage.** The repository distinguishes
+> locally certified artifacts, disposable runtime tests, installed-service state,
+> and external deployment evidence. A green artifact test does not claim that a
+> service is installed or externally operated. See
+> [the readiness evidence table](docs/production-readiness-report.md).
 
 ---
 
@@ -71,7 +75,7 @@ Every piece of work flows through four layers. Each layer feeds the next.
 ┌─────────────────────────────────────────────────────────────────┐
 │  LAYER 4: forge-rs (Code Enrichment Engine)                     │
 │  Language detection → skill resolution → constitution check     │
-│  pk focus (Karpathy context) → Tera template rendering          │
+│  committed prompt snapshot → Tera template rendering            │
 │  → .forge/enriched/<task>.context.md → AI agent implements      │
 │  → forge reflect → pk ingest (Karpathy learning loop)           │
 │  tools/forge-rs/ · tools/prometheus-knowledge/                  │
@@ -351,7 +355,7 @@ forge-rs scans `skills/<language>/<skill-name>/templates/*.tera`. Each skill's
 | `{{ "{{" }} task_description {{ "}}" }}` | From `tasks.md` in the OpenSpec task folder |
 | `{{ "{{" }} task_id {{ "}}" }}` | Change ID |
 | `{{ "{{" }} constitution_summary {{ "}}" }}` | Active language constitution standards |
-| `{{ "{{" }} karpathy_focus {{ "}}" }}` | Prior knowledge from `pk focus <topic>` |
+| `{{ "{{" }} karpathy_focus {{ "}}" }}` | Bounded context from the committed project/shared/global snapshot |
 
 ### Meta-Template System
 
@@ -413,7 +417,7 @@ The canonical port table is `scripts/mcp-port-table.json`; full detail is in
 | Server | Transport | Port | Role |
 |---|---|---|---|
 | surreal-memory | sse/http | 23001 | Semantic knowledge graph — the memory substrate |
-| prometheus-knowledge | sse/http | 8942 | Karpathy flat-file KB — context priming via `pk focus` |
+| prometheus-knowledge | sse/http | 8942 | Karpathy flat-file KB — immutable snapshots, search, and receipt reconciliation |
 | forge-rs | sse/http | 8943 | Code enrichment — `forge reflect` / `pk ingest` |
 | sycophancy-correction | stdio | — | Structural anti-sycophancy gate on reflection output |
 | liter-llm | stdio | — | Multi-provider LLM gateway / per-phase routing |

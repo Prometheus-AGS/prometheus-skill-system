@@ -17,23 +17,16 @@ bash scripts/install-mcp-services.sh
 
 What the installer does for sovereign-sync:
 
-1. ensures `$HOME/.config/sovereign-sync/config.toml` has a non-empty
-   `node.operator_id`;
-2. runs `sovereign-sync --mode init` to create a permission-protected Ed25519
-   device key;
-3. sets the config and key file to mode `0600`;
-4. renders `ai.prometheus.sovereign-sync` for launchd or systemd;
-5. starts the daemon on loopback port `7892`;
-6. reuses an already-running service instead of double-starting it.
+1. runs `sovereign-sync --mode init` to create permission-protected KBD and
+   durable P2P identities;
+2. atomically persists secrets with mode `0600`;
+3. renders `ai.prometheus.sovereign-sync` for launchd or systemd;
+4. starts the daemon on a same-user Unix-domain socket;
+5. reuses an already-running service instead of double-starting it.
 
-`operator_id`, the project/replica identities, and each device key are
-different values. See [Identity and authentication](/docs/kbd/tokens-and-authentication).
-
-Each independent installation generates its own `operator_id`. That is the
-safe single-machine default, but two machines will not share a gossip topic
-until you deliberately choose one operator namespace and place that same value
-in both configs. Do not copy the device key with it. Follow
-[Pair two machines](./pair-two-machines) after both installations are healthy.
+The P2P identity/group secret, project/replica identities, and each KBD device
+key are different values. Pair machines with export/import tickets; never copy
+an identity file. See [Pair two machines](./pair-two-machines).
 
 ## Verify installation
 
@@ -44,8 +37,8 @@ sovereign-sync --help
 # Daemon running (macOS launchd)
 launchctl print "gui/$(id -u)/ai.prometheus.sovereign-sync"
 
-# REST health check
-curl -s http://127.0.0.1:7892/health | jq .
+# Local health check through the default Unix socket
+sovereign-sync --mode status --format json | jq .
 
 # Full CLI diagnosis
 prometheus doctor --json | jq .
@@ -57,7 +50,7 @@ Expected health response:
 {
   "status": "ok",
   "service": "sovereign-sync",
-  "version": "0.1.0"
+  "version": "1.7.0"
 }
 ```
 
@@ -74,6 +67,10 @@ RUST_LOG=sovereign_sync=debug sovereign-sync --mode daemon
 available when zero peers exist or gossip startup fails. `--mode server`
 starts the HTTP server without the daemon-mode P2P setup.
 
+Both modes use the platform data-directory Unix socket by default. To expose
+loopback TCP, pass `--tcp`; the process then requires a bearer token from the
+configured mode-`0600` token file.
+
 ## Configuration file
 
 Default path:
@@ -87,7 +84,7 @@ Example:
 ```toml
 [node]
 skills_dir = "/path/to/installed/skills"
-operator_id = "recommended-64-random-hex-characters"
+p2p_identity_file = "/private/path/p2p-identity.json"
 
 [peers]
 bootstrap = [
@@ -95,18 +92,13 @@ bootstrap = [
 ]
 
 [server]
-port = 7892
+port = 7892 # used only with explicit --tcp
 ```
 
-The installer creates `operator_id`; it is a gossip namespace, not an HTTP or
-device-signing credential.
 `peers.bootstrap` accepts iroh endpoint IDs, not IP addresses, HTTP URLs,
-device-key IDs, project IDs, or relay tickets. In `0.1.0` the endpoint ID is
-logged at daemon startup and changes after that daemon restarts.
-
-The config parser accepts any non-empty operator ID, but a value generated with
-`openssl rand -hex 32` is the recommended format. Preserve each machine’s own
-`skills_dir` and copy only the shared operator value during pairing.
+device-key IDs, project IDs, or relay tickets. In `1.7.0` the endpoint ID is
+persisted and stable across daemon restarts. Group membership comes from the
+random secret and endpoint allow-list stored in the P2P identity, not config.
 
 ## Register projects with a managed daemon
 
@@ -200,8 +192,8 @@ of operating on the local P2P network directly.
 
 - Rust stable (for building from source)
 - macOS or Linux
-- Port 7892 available (daemon/server modes)
-- `config.toml` with non-empty `node.operator_id` in daemon mode
+- a writable private location for the Unix socket and P2P identity
+- Port 7892 available only when using explicit `--tcp`
 - a protected Ed25519 device key for signed KBD mutations
 - Outbound access to the N0 discovery/relay infrastructure for the current P2P
   preset, even when the two peers are on the same LAN

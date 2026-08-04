@@ -65,7 +65,7 @@ These values must never be domain payloads:
 | Data | Why it stays local |
 |---|---|
 | `device-key.json` and platform signing keys | Copying a private key destroys per-device identity |
-| Sovereign Sync `operator_id` outside the pairing channel | It is a shared topic namespace and should not be published |
+| Pairing ticket or group secret outside the confidential pairing channel | It grants topic membership and must not be published or logged |
 | API keys, SSH keys, cloud credentials, cookies | Credentials are never workflow state |
 | raw prompts, conversations, and harness transcripts | Not part of any declared sync domain |
 | `surreal-memory` graph, Memory Palace, embeddings, and private RAG content | Default recommended classification is `Local` |

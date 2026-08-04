@@ -82,7 +82,7 @@ fi
 
 # ── 3. pk + pk-cherry + learning worker ─────────────────────────────────────
 # pk-cherry serves the knowledge MCP on :8942; pk is the CLI that the hooks
-# (pk-focus-on-prompt.sh, pk-health.sh, Stop ingest) invoke. pk-mcp is a
+# (bounded context dispatch, pk-health.sh, and the learning worker) invoke. pk-mcp is a
 # library, not a bin — do not try to build it as a binary target.
 if [ -f "${REPO_ROOT}/tools/prometheus-knowledge/Cargo.toml" ]; then
     info "Building pk + pk-cherry + prometheus-learning-worker..."

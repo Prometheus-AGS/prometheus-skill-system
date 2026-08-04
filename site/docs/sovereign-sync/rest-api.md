@@ -6,278 +6,128 @@ sidebar_label: REST API
 
 # REST API Reference
 
-Sovereign Sync binds to `127.0.0.1:7892` in daemon/server mode. Read routes are
-available to local processes. Every remote KBD command POST requires a
-schema-v2 `SignedCommandEnvelope` signed by an active enrolled device.
+The local API uses a same-user Unix-domain socket by default. The socket is
+created atomically with mode `0600`; the server validates peer credentials on
+macOS and Linux. Loopback TCP exists only with `--tcp` and requires a bearer
+token read from a mode-`0600` file.
 
-```bash
-PROJECT_ROOT="/path/to/project"
-PROJECT_ID="$(jq -r '.projectId' "$PROJECT_ROOT/.prometheus/project.json")"
-```
+The generated OpenAPI 3.1 contract is available at `/openapi.json`, from
+`sovereign-sync --mode openapi`, and as a checked-in release artifact under
+`site/static/openapi/`.
 
-## Health
+## Liveness and readiness
 
-### `GET /health`
+- `GET /health` proves the dedicated HTTP runtime is bound and responsive. It
+  does not read KBD, Loro, the receipt store, or P2P state.
+- `GET /ready` performs bounded authority checks and returns `503` until the
+  application state is installed and readable.
 
-```bash
-curl --fail-with-body http://127.0.0.1:7892/health | jq .
-```
+This separation keeps liveness available while slow P2P startup or an invalid
+authority is being diagnosed.
 
-```json
-{
-  "status": "ok",
-  "service": "sovereign-sync",
-  "version": "0.1.0"
-}
-```
+## Create a signed push
 
-The daemon binds the loopback listener and serves this static route before P2P
-or KBD registry initialization. Other routes return `503` with
-`status: "initializing"` until the full application state is installed.
-
-### `GET /ready`
-
-Asynchronously replays the journal and returns `503` when the authority is not
-reachable or valid. `/health` remains static and store-independent.
-
-## Sync and discovery
-
-### `GET /api/v1/sync/status`
-
-```bash
-curl --fail-with-body \
-  http://127.0.0.1:7892/api/v1/sync/status | jq .
-```
-
-The current response reports the local scaffold state, peer list, and privacy
-classification for `kbd-orchestrator`, `open-spec`, `surreal-memory`, and
-`learner-model`.
-
-### `GET /api/v1/sync/peers`
-
-```bash
-curl --fail-with-body \
-  http://127.0.0.1:7892/api/v1/sync/peers | jq .
-```
-
-### `GET /api/v1/skills/search?q=<query>&limit=<n>`
-
-```bash
-curl --fail-with-body \
-  "http://127.0.0.1:7892/api/v1/skills/search?q=feynman&limit=5" | jq .
-```
-
-### `POST /api/v1/sync/push`
-
-```bash
-curl --fail-with-body \
-  -X POST \
-  -H 'Content-Type: application/json' \
-  -d '{"domain":"learner-model"}' \
-  http://127.0.0.1:7892/api/v1/sync/push | jq .
-```
-
-The handler validates the domain, exports its real owner state, prepares Loro
-updates, and returns either `broadcast` or `applied-locally-only`. A broadcast
-response is not proof that a peer applied the update.
-
-## KBD read endpoints
-
-### `GET /api/v1/kbd/projects`
-
-Returns the machine registry, including all project and replica identities plus
-any project that could not be opened by the router.
-
-### `POST /api/v1/kbd/projects/register`
-
-```bash
-curl --fail-with-body \
-  -X POST \
-  -H 'Content-Type: application/json' \
-  -d '{"path":"/path/to/project"}' \
-  http://127.0.0.1:7892/api/v1/kbd/projects/register | jq .
-```
-
-The path must already contain `.prometheus/project.json`. Registration assigns
-a replica UUID but never invents or changes the project UUID.
-
-### `GET /api/v1/kbd/projects/{projectId}/replicas`
-
-Returns every registered replica path for the declared project UUID.
-
-### `POST /api/v1/kbd/projects/adopt`
+`POST /api/v2/sync/pushes`
 
 ```json
 {
-  "path": "/path/to/embedded-copy",
-  "intoProjectId": "declared-target-project-uuid",
-  "apply": false
+  "schemaVersion": "1.7",
+  "requestId": "f2d84eaf-5474-4e28-971d-4bc4334c1fb7",
+  "domain": "learner-model",
+  "targetEndpointIds": [],
+  "expectedFrontier": null,
+  "issuedAtMs": 1785772800000,
+  "signerKeyId": "ed25519:device-key-id",
+  "signature": "base64-signature"
 }
 ```
 
-The default is a non-mutating evidence plan. Applying adoption creates a new
-replica UUID, checksummed backups, re-signed migrated events with source-hash
-provenance, and a redirect record. Standalone-to-standalone identity remains
-ambiguous and cannot be applied automatically.
+The signature covers RFC 8785/JCS canonical JSON of every request field except
+`signature`. `requestId` must be a UUID. `issuedAtMs` must be within the accepted
+five-minute window (with 30 seconds of future clock tolerance). Target endpoint
+IDs must be valid and unique. `expectedFrontier` is accepted only for
+`kbd-control:<project-id>` domains.
 
-### `GET /api/v1/kbd/projects/{projectId}/submodules`
+The signer must be an active enrolled KBD device for the selected scope.
 
-Returns parent-owned `SubmodulePin` records plus the derived read-only child
-status. The parent never mutates child project authority. A referenced commit
-that is simply unavailable in this checkout is reported as `ahead_of_me`, not
-as a conflict.
+## Receipt semantics
 
-### `GET /api/v1/kbd/projects/{projectId}/audit`
+A successful new submission returns `201` and a durable `PushReceipt`:
 
-Returns canonical signed events as `application/x-ndjson`. The CLI can export
-the same converged per-device hash chains to the local `audit/kbd` Git ref by
-using a temporary index and Git plumbing; the worktree and normal index do not
-change. Audit data is export-only and is never imported as authority.
-
-### `GET /api/v1/kbd/projects/{projectId}/status`
-
-```bash
-curl --fail-with-body \
-  "http://127.0.0.1:7892/api/v1/kbd/projects/$PROJECT_ID/status" | jq .
+```json
+{
+  "schemaVersion": "1.7",
+  "pushId": "f2d84eaf-5474-4e28-971d-4bc4334c1fb7",
+  "canonicalPayloadHash": "blake3-hex",
+  "domain": "learner-model",
+  "targets": [],
+  "localState": "broadcast",
+  "perPeer": {},
+  "createdAtMs": 1785772800001,
+  "updatedAtMs": 1785772800003,
+  "events": []
+}
 ```
 
-Returns canonical `KbdStateV2`.
+Local states are `accepted`, `prepared`, `applied_locally`, `broadcast`, and
+`failed`. Per-peer receipts separately record `received`, `applied`, or
+`rejected` state and failure detail. A local broadcast is not proof of peer
+application.
 
-### `GET /api/v1/kbd/projects/{projectId}/events`
+### Exact replay and conflict
 
-```bash
-curl --fail-with-body \
-  "http://127.0.0.1:7892/api/v1/kbd/projects/$PROJECT_ID/events" | jq .
-```
+- Same `requestId` and same canonical payload hash returns the exact persisted
+  receipt with `200`; execution is not repeated.
+- Same `requestId` and a different canonical payload hash returns `409`.
 
-Returns committed immutable events from revision 1.
+This is the response-loss recovery contract: after a client times out, resend
+the identical signed request or retrieve the receipt by ID.
 
-### `GET /api/v1/kbd/projects/{projectId}/diagnostics`
+## Retrieve and resume
 
-```bash
-curl --fail-with-body \
-  "http://127.0.0.1:7892/api/v1/kbd/projects/$PROJECT_ID/diagnostics" | jq .
-```
+- `GET /api/v2/sync/pushes/{push_id}` returns the durable current receipt.
+- `GET /api/v2/sync/pushes/{push_id}/events?after=<sequence>` returns SSE events
+  strictly after the supplied sequence.
 
-Diagnostics include:
-
-- quorum writable state and reason;
-- single-writer node and lock path;
-- replica journal path, byte size, event count, Lamport, and ingestion state;
-- Loro snapshot path/hash, authority event count, derived revision, frontier, and conflict count;
-- runtime derived revision, frontier, lifecycle, and plan revision;
-- compatibility projection revision/match;
-- signature-chain validity and event count;
-- active and revoked device counts.
-
-## KBD event stream
-
-### `GET /api/v1/kbd/projects/{projectId}/events/stream`
+`Last-Event-ID` is also accepted. Event sequences are monotonic and persisted
+with the receipt, so a reconnect does not require replaying already observed
+events.
 
 ```bash
-curl --no-buffer \
-  -H 'Last-Event-ID: 0' \
-  "http://127.0.0.1:7892/api/v1/kbd/projects/$PROJECT_ID/events/stream"
+curl --unix-socket "$SOCKET_PATH" --no-buffer \
+  -H 'Last-Event-ID: 2' \
+  "http://localhost/api/v2/sync/pushes/$PUSH_ID/events"
 ```
 
-The server emits `kbd.events` once per second when new events exist and a
-keepalive every 15 seconds. The SSE event ID is a deterministic authority
-cursor (not a branch-local scalar revision); send it back as `Last-Event-ID`
-when reconnecting.
+## Error envelope
 
-## KBD command endpoint
-
-### `POST /api/v1/kbd/projects/{projectId}/commands`
-
-The path project ID must equal `signed.command.projectId`. The outer object
-contains `command`, `signerKeyId`, and an Ed25519 `signature` over canonical
-command bytes plus the signer key ID. Every normal command supplies a fresh
-`commandId` and the current causal `frontier`. Unsigned, schema-v1, unknown,
-revoked, or incorrectly signed remote commands fail closed.
-
-Use `prometheus kbd` or `sovereign-client` to construct signatures; shell
-examples below show the inner command only and are not directly POSTable.
-
-Example cancellation command:
-
-```bash
-RUN_ID="$(curl --fail-with-body \
-  "http://127.0.0.1:7892/api/v1/kbd/projects/$PROJECT_ID/status" |
-  jq -r '.runId')"
-FRONTIER="$(curl --fail-with-body \
-  "http://127.0.0.1:7892/api/v1/kbd/projects/$PROJECT_ID/status" |
-  jq -c '.frontier')"
-COMMAND_ID="$(uuidgen | tr '[:upper:]' '[:lower:]')"
-
-jq -n \
-  --arg project "$PROJECT_ID" \
-  --arg run "$RUN_ID" \
-  --arg command "$COMMAND_ID" \
-  --argjson frontier "$FRONTIER" \
-  '{
-    schemaVersion: "2",
-    projectId: $project,
-    runId: $run,
-    commandId: $command,
-    frontier: $frontier,
-    actor: {
-      kind: "harness",
-      id: "operator",
-      device: "workstation",
-      harness: "claude-code",
-      session: "manual-rest-example"
-    },
-    command: {
-      type: "cancel",
-      payload: {reason: "Operator abandoned this run"}
-    }
-  }'
+```json
+{
+  "error": {
+    "code": "request_id_conflict",
+    "message": "requestId already exists with a different canonical payload hash",
+    "pushId": "f2d84eaf-5474-4e28-971d-4bc4334c1fb7"
+  }
+}
 ```
 
-Prefer `prometheus kbd` or MCP for routine operations; they construct the
-envelope safely.
+| Status | Typical meaning |
+|---:|---|
+| `400` | Unsupported schema, malformed request, canonicalization failure |
+| `401` | Canonical signature is invalid |
+| `403` | Signer is unknown or revoked, or the domain is prohibited |
+| `404` | Push, domain, or KBD project scope does not exist |
+| `409` | Request-ID/hash conflict or expected-frontier mismatch |
+| `422` | Invalid targets, stale request, or frontier on an unsupported domain |
+| `503` | Receipt store, authority, envelope preparation, or transport unavailable |
 
-Schema-v2 concurrency is decided exclusively by `frontier`; scalar revision
-is a derived compatibility projection.
+## Deprecated v1 compatibility
 
-## KBD conflicts and resolution
+`POST /api/v1/sync/push` is unsigned and available only over the same-user Unix
+socket during the 1.7 transition. Responses carry `Deprecation`, `Sunset`, and
+successor-version headers. It is rejected over TCP and P2P. New callers use v2.
 
-`GET /api/v1/kbd/projects/{projectId}/conflicts` returns every deterministic
-conflict record, including all candidates, the provisional or adjudicated
-winner, and resolution provenance.
-
-`POST /api/v1/kbd/projects/{projectId}/conflicts/{conflictId}/resolve` accepts
-the same schema-v2 command envelope, with a matching `conflict_resolve` command.
-The actor must be an operator and `winnerEventId` must name one of the recorded
-candidates. Resolution appends a signed event; it never rewrites history.
-
-## KBD claims
-
-- `GET /api/v1/kbd/projects/{projectId}/claims`
-- `POST /api/v1/kbd/projects/{projectId}/claims/acquire`
-- `POST /api/v1/kbd/projects/{projectId}/claims/renew`
-- `POST /api/v1/kbd/projects/{projectId}/claims/release`
-
-Mutation bodies are signed command envelopes whose inner command is
-`claim_acquire`, `claim_renew`, or `claim_release`. Claims carry project and
-replica identity, work scope, shared/exclusive mode, holder, expiry, and a
-monotonic token.
-
-## AG-UI routes
-
-- `POST /api/v1/stream`
-- `GET /api/v1/stream/ping`
-- `GET /api/v1/events`
-
-The continuous event route emits `event_appended`, `claim_acquired`,
-`claim_conflict`, and `singleton_violation`. See [AG-UI SSE Reference](./ag-ui-sse).
-
-## Error responses
-
-| Status | Meaning |
-|---|---|
-| `400` | Path project ID differs from command envelope |
-| `401` | Unknown, revoked, unsigned, or invalid device signature |
-| `404` | Unknown registered project or uninitialized KBD runtime |
-| `409` | Replay, frontier, signature, claim, or command conflict |
-| `503` | Quorum is not writable |
+The v1 status, peers, search, KBD read/control, claims, conflicts, audit, and
+AG-UI routes remain available. KBD command routes continue to require their own
+signed schema-v2 command envelopes. Scalar revision is derived compatibility
+data; concurrency is decided by the causal frontier.

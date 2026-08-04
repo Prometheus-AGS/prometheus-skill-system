@@ -46,6 +46,7 @@ site/docs-catalog
 # Generated release artifacts have dedicated deterministic diff checks.
 SKILLS.md
 site/static/openapi/examples.generated.json
+site/static/openapi/sovereign-sync-v2.openapi.json
 # BDD step definitions are immutable (see CLAUDE.md BDD rule) and test
 # fixtures/corpus are content-sensitive — formatting them could alter data
 # that tests assert against. Exclude the whole tests/ tree from prettier.

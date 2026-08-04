@@ -14,7 +14,7 @@ graph TD
     L2["L2 · Strategic evolver loop<br/>iterative-evolver<br/>state: .evolver/ or surreal-memory<br/>assess → analyze → plan → execute → reflect"]
     L1["L1 · Tactical KBD loop<br/>kbd-process-orchestrator<br/>state: .kbd-orchestrator/phases/* + openspec/changes/*<br/>one phase / one change"]
     L0["L0 · Harness micro-loop<br/>the AI tool's built-in read→act→observe runtime<br/>you bound it, you don't build it"]
-    KARP["Cross-cutting · Karpathy learning loop<br/>UserPromptSubmit → pk focus · Stop → forge reflect + pk ingest<br/>SubagentStop[reflector] → sycophancy gate"]
+    KARP["Cross-cutting · Karpathy learning loop<br/>UserPromptSubmit → committed snapshot · Stop → atomic enqueue<br/>worker → receipt reconciliation"]
 
     L3 -->|each tick runs| L2
     L2 -->|software-domain execute delegates to| L1
@@ -55,7 +55,7 @@ Driven by the `pmpo-outer-loop` skill. This is the level that most directly real
 
 ### The cross-cutting Karpathy learning loop
 
-Orthogonal to L0–L3 and always running: `UserPromptSubmit` triggers `pk-focus-on-prompt.sh` to prime the turn with relevant knowledge; `Stop` triggers `forge-reflect-on-stop.sh` to run `forge reflect` and `pk ingest`; `SubagentStop[reflector]` triggers the sycophancy gate. This loop is what makes every other loop compound. It is documented in full on the [Memory and Learning](06-memory-and-learning.md) page.
+Orthogonal to L0–L3 and always running: `UserPromptSubmit` calls the canonical dispatcher for bounded committed `pk context`; `Stop` atomically enqueues one metadata-only learning job; the supervised worker performs reflection, receipt reconciliation, and snapshot publication. The sycophancy gate remains part of review, outside the latency-sensitive hook path. This loop is what makes every other loop compound. It is documented in full on the [Memory and Learning](06-memory-and-learning.md) page.
 
 ## The loop definition — `loop.json`
 
@@ -169,7 +169,7 @@ There are five gates, and each one is load-bearing.
 graph TD
     A[Operator: write loop.json] --> B[Autonomous: loop execution]
     B --> C[Autonomous: KBD phase execution]
-    C --> D[Autonomous: context priming via pk focus]
+    C --> D[Autonomous: bounded context from committed snapshots]
     D --> E[Autonomous: evaluate-session write-back]
     E --> F[Autonomous: sycophancy gate on reflection]
     F --> G{Escalation threshold?}

@@ -76,8 +76,7 @@ prometheus kbd --path "/path/to/project" rollout observe \
   --synthetic-replay-mutations 1500 \
   --unexplained-projection-mismatches 0 \
   --harness claude-code \
-  --device workstation \
-  --voters 1
+  --device workstation
 ```
 
 Mark a failed observation with `--failed`. Advance only when all thresholds
@@ -89,6 +88,7 @@ prometheus kbd --path "/path/to/project" rollout promote
 
 The current production-convergence gates require seven shadow days, at least
 100 real mutations, at least 10,000 synthetic replay mutations, and zero
-unexplained projection mismatches before staged canaries. Embedded quorum tests
-do not substitute for cross-process, real-device partition and stale-writer
-acceptance.
+unexplained projection mismatches before staged canaries. There is no voter or
+quorum mode: one exclusive journal transaction is the write authority.
+Disposable cross-process tests still exercise partitions, stale frontiers,
+crash windows, and replay without turning those tests into consensus.

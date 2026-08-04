@@ -1,6 +1,6 @@
 # 06 · Deterministic Memory and Learning
 
-Prometheus 1.6.1 separates fast local publication from durable remote acknowledgement. Stop hooks atomically enqueue work and return. A supervised worker extracts learning, submits stable v2 operation IDs, reconciles exact receipts, and publishes immutable project, shared, and global prompt snapshots.
+Prometheus 1.7.0 separates fast local publication from durable remote acknowledgement. Stop hooks atomically enqueue work and return. A supervised worker extracts learning, submits stable v2 operation IDs, reconciles exact receipts, and publishes immutable project, shared, and global prompt snapshots.
 
 ## Runtime flow
 

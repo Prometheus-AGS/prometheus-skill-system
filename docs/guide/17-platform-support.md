@@ -43,7 +43,14 @@ graph TD
 
 ## Claude Code
 
-The reference platform, and where the loop primitives are most developed. `/loop`, `/goal`, `/schedule`, `/workflows`, and Agent View ship first-party, and worktree isolation (`isolation: "worktree"`) is built into the Agent tool. The immutable generation installer projects verified skills while the plugin manifest declares skills, agents, hooks, and MCP servers. The remaining `PreToolUse` guard protects existing BDD tests. The hooks documented on the [Hooks & Lifecycle](15-hooks-and-lifecycle.md) page run natively.
+The reference platform, and where the loop primitives are most developed.
+`/loop`, `/goal`, `/schedule`, `/workflows`, and Agent View ship first-party,
+and worktree isolation (`isolation: "worktree"`) is built into the Agent tool.
+The immutable generation installer projects verified skills while the plugin
+manifest declares skills, agents, hooks, and MCP servers. Prometheus installs no
+mutation-blocking `PreToolUse` guard; protected BDD integrity is checked from Git
+state at final local certification. The hooks documented on the
+[Hooks & Lifecycle](15-hooks-and-lifecycle.md) page run natively.
 
 ## OpenCode
 

@@ -1,6 +1,11 @@
 # 15 · Hooks & Lifecycle
 
-The loops and skills are visible. The hooks are not — and they are where most of the system's discipline actually lives. Hooks are scripts that fire at lifecycle events: a session starting, a prompt being submitted, a tool about to write a file, a subagent stopping, a session ending. Every guarantee in this guide that sounds automatic — context priming, scope enforcement, the sycophancy gate, the immutable-tests rule, memory write-back — is a hook. This page documents every event and every script that runs on it.
+The loops and skills are visible. The hooks are not — and they are where much
+of the system's lifecycle integration lives. Hooks fire when a session starts,
+a prompt is submitted, a tool completes, a subagent stops, or a session ends.
+Context priming, deferred learning enqueue, and local evidence capture use
+hooks. Protected-test integrity is deliberately different: it is checked from
+Git state during final local certification, independent of agent tools.
 
 Claude Code's installed hook chain is declared in `hooks/hooks.json`.
 Cross-harness lifecycle mappings are declared once in
@@ -19,7 +24,7 @@ sequenceDiagram
 
     Session->>Session: SessionStart — bounded snapshots + KB health
     Prompt->>Prompt: UserPromptSubmit — immutable bounded context
-    Tool->>Tool: PreToolUse — immutable-tests guard (writes only)
+    Tool->>Tool: PreToolUse — no Prometheus mutation guard
     Tool->>Tool: PostToolUse — validate and record local evidence
     Sub->>Sub: SubagentStop[role] — checkpoint + dispatch (reflector → sycophancy gate)
     Stop->>Stop: Stop — atomic local enqueue; never forces continuation
@@ -48,18 +53,10 @@ perform network-heavy memory or learning work inline.
 event. Claude's `SessionStart:compact` path and native post-compact events on
 other harnesses render the same canonical re-anchor after compaction.
 
-## PreToolUse — the one remaining guard
+## PreToolUse — unrestricted agent tools
 
-A single blocking gate remains. It runs *before* a tool executes and can refuse
-it (exit 2).
-
-**Matcher `Bash`: none.** Shell commands are not gated.
-
-**Matcher `Write|Edit|MultiEdit`:**
-
-| Script | What it enforces |
-|---|---|
-| `protect-tests.sh` | The **BDD Immutable-Tests Rule** — blocks edits to existing `tests/steps/*`, `tests/support/*`, `tests/features/*.feature`; allows new files under `tests/features/drafts/` |
+No KBD or protected-test `PreToolUse` matcher remains. Bash, Python, Write,
+Edit, and MultiEdit stay available for implementation and diagnosis.
 
 ### What was removed, and why
 
@@ -83,7 +80,10 @@ never intercept a tool call. Phases, `progress.json`, waypoints, and reflections
 are unchanged — they record position, and recording was always the part that
 earned its keep.
 
-The immutable-tests rule deserves emphasis. A code-generation agent under pressure to make a failing test pass has an obvious shortcut: edit the test. That shortcut destroys the test's value. `protect-tests.sh` removes the shortcut structurally — the agent *cannot* edit an existing step definition or feature file; it can only add new draft scenarios for human review. This is the same principle as the sycophancy gate, applied to tests: prevent the agent from grading its own homework.
+Protected-test integrity moves to final local certification. The verifier compares
+the base and candidate commits, independent of mutation method. An intentional
+protected change requires an SSH-signed manifest; without one, work can continue
+but the candidate cannot be certified.
 
 ## PostToolUse
 

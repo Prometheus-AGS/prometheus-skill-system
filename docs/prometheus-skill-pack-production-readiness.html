@@ -186,7 +186,7 @@ footer .prov{font-family:"JetBrains Mono",monospace;font-size:0.78rem;color:var(
       <div class="meta"><span class="k">Assessed</span><span class="v">2026-06-30</span></div>
       <div class="meta"><span class="k">Baseline</span><span class="v">Independent audit · 06-29</span></div>
       <div class="meta"><span class="k">Merge</span><span class="v"><span class="mono-chip">e0e720b</span> → main</span></div>
-      <div class="meta"><span class="k">Readiness</span><span class="v ok">92% (self-reported)</span></div>
+      <div class="meta"><span class="k">Readiness</span><span class="v ok">Evidence-classified</span></div>
       <div class="meta"><span class="k">Sycophancy gate</span><span class="v ok">0.0 · strict</span></div>
     </div>
   </div>
@@ -221,7 +221,7 @@ footer .prov{font-family:"JetBrains Mono",monospace;font-size:0.78rem;color:var(
       <div class="stat"><div class="big fire">5</div><div class="lbl">MUST&nbsp;FIX dimensions on 06-29</div></div>
       <div class="stat"><div class="big ok">4</div><div class="lbl">code-addressable, now closed</div></div>
       <div class="stat"><div class="big ok">20</div><div class="lbl">unit tests added (forge-rs)</div></div>
-      <div class="stat"><div class="big ok">92%</div><div class="lbl">weighted readiness ceiling</div></div>
+      <div class="stat"><div class="big ok">4</div><div class="lbl">separate evidence classes</div></div>
     </div>
 
     <p>The narrative is deliberately unembellished. Three security defects were closed at the file-and-line locations the audit named. The self-improving loop — the audit's marquee objection, where reflection wrote drift data that nothing ever read — now closes through a real readback path. Test coverage moved from approximately zero to a workspace that compiles, lints clean, and runs on every push. The remaining gap is not engineering. It is structural, and it is named honestly below rather than discounted away.</p>
@@ -234,7 +234,18 @@ footer .prov{font-family:"JetBrains Mono",monospace;font-size:0.78rem;color:var(
     <div class="callout cyan">
       <div class="label">Provenance</div>
       <p>The 2026-06-29 assessment was <strong>independent</strong> — a clean-machine clone, a full toolchain build, both Rust workspaces compiled, binaries exercised end-to-end, three adversarial code reviews, and a structured debate. This v1.5.0 report is <strong>self-reported remediation status</strong> authored by the maintainer, mapped one-to-one against those findings.</p>
-      <p>It is not a second independent audit. The 06-29 review remains the last external verification. The arbiter's instruction in that review applies directly here: <em>validate the headline capability by running it end-to-end yourself before depending on it</em> — trust execution over a report's success claims. The 92% figure should be read as a credible internal claim awaiting external re-confirmation, not as a re-issued external verdict.</p>
+      <p>It is not a second independent audit. The 06-29 review remains the last external verification. The arbiter's instruction in that review applies directly here: <em>validate the headline capability by running it end-to-end yourself before depending on it</em> — trust execution over a report's success claims. The former weighted percentage is retired because it collapsed unlike evidence. Use the current artifact, disposable-runtime, installed-service, and external-deployment rows instead.</p>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Evidence class</th><th>What it can establish</th><th>Required proof</th></tr></thead>
+        <tbody>
+          <tr><td>Artifact certification</td><td>Types, routes, schemas, policies, deterministic builds</td><td>Local format, lint, test, contract, and generated-diff results</td></tr>
+          <tr><td>Disposable runtime</td><td>Live behavior without installed-state dependence</td><td>Isolated identities, ports, crash/restart, latency, and receipt evidence</td></tr>
+          <tr><td>Installed service</td><td>This host's current binaries and supervised processes</td><td>Signed hashes, definitions, loaded state, queues, readiness, and warnings</td></tr>
+          <tr><td>External deployment</td><td>Behavior outside the certification Mac</td><td>Independent environment evidence; never inferred from local or GitHub output</td></tr>
+        </tbody>
+      </table>
     </div>
   </section>
 
@@ -245,7 +256,7 @@ footer .prov{font-family:"JetBrains Mono",monospace;font-size:0.78rem;color:var(
     <p class="lead">The audit issued a qualitative verdict, not a number. The remediation report issues a weighted number with an explicit ceiling. The gauge below states the claimed position; the band beneath it states where it started.</p>
 
     <figure>
-      <svg viewBox="0 0 460 280" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Readiness gauge at 92 percent, up from a conditional verdict">
+      <svg viewBox="0 0 460 280" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Historical readiness gauge retired in favor of evidence classes">
         <defs>
           <linearGradient id="arc" x1="0" y1="0" x2="1" y2="0">
             <stop offset="0" stop-color="#CE3012"/>
@@ -256,10 +267,10 @@ footer .prov{font-family:"JetBrains Mono",monospace;font-size:0.78rem;color:var(
         </defs>
         <!-- track -->
         <path d="M80,190 A150,150 0 0 1 380,190" fill="none" stroke="#222C39" stroke-width="26" stroke-linecap="round"/>
-        <!-- value 92% -->
+        <!-- historical numeric score retired -->
         <path d="M80,190 A150,150 0 0 1 367,162" fill="none" stroke="url(#arc)" stroke-width="26" stroke-linecap="round"/>
-        <text x="230" y="172" text-anchor="middle" font-family="Space Grotesk,sans-serif" font-size="62" font-weight="700" fill="#EDF2F8">92%</text>
-        <text x="230" y="200" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="12" letter-spacing="2" fill="#8B98A8">PRODUCTION READINESS</text>
+        <text x="230" y="172" text-anchor="middle" font-family="Space Grotesk,sans-serif" font-size="42" font-weight="700" fill="#EDF2F8">RETIRED</text>
+        <text x="230" y="200" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="12" letter-spacing="2" fill="#8B98A8">USE EVIDENCE CLASSES</text>
         <!-- from band -->
         <rect x="80" y="232" width="135" height="34" rx="8" fill="#1A222D"/>
         <text x="147" y="249" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9.5" letter-spacing="1.5" fill="#8B98A8">2026-06-29</text>
@@ -269,7 +280,7 @@ footer .prov{font-family:"JetBrains Mono",monospace;font-size:0.78rem;color:var(
         <text x="315" y="249" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9.5" letter-spacing="1.5" fill="#8B98A8">2026-06-30</text>
         <text x="315" y="261" text-anchor="middle" font-family="Inter,sans-serif" font-size="11" font-weight="600" fill="#5FD897">DEPENDABLE-FOR-ADOPTERS</text>
       </svg>
-      <figcaption><strong>Fig 1.</strong> From a qualitative “not yet a production-credible foundation” to a quantified, ceilinged 92%. The arc terminates short of full — by design, not omission (see §07).</figcaption>
+      <figcaption><strong>Fig 1.</strong> This historical aggregate gauge is retired. Current certification reports each evidence class independently.</figcaption>
     </figure>
 
     <p>The audit's own framing of the build-on question resolved cleanly: build selectively on what ships, do not depend on what doesn't, and fix the security items before any networked use. The v1.5.0 work targets exactly the second and third clauses — converting "do not depend" items into "now dependable" ones, and closing the security defects outright.</p>
@@ -282,7 +293,7 @@ footer .prov{font-family:"JetBrains Mono",monospace;font-size:0.78rem;color:var(
     <p class="lead">Five tiers, weighted by consequence. Security carries 40% because a remote unauthenticated file-read primitive is disqualifying regardless of how elegant everything above it is. The colored bar shows achieved score against weight; the unfilled segment is the structural gap.</p>
 
     <figure>
-      <svg viewBox="0 0 920 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Weighted score bar summing to 95 percent raw, discounted to 92 percent">
+      <svg viewBox="0 0 920 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Historical weighted score model, now retired">
         <!-- segments -->
         <rect x="20"  y="56" width="352" height="48" fill="#CE3012"/>
         <rect x="372" y="56" width="220" height="48" fill="#E96A12"/>
@@ -300,11 +311,11 @@ footer .prov{font-family:"JetBrains Mono",monospace;font-size:0.78rem;color:var(
         <text x="856" y="146" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" fill="#C4CEDA">raw 95%</text>
         <!-- applied 92 tick -->
         <line x1="829.6" y1="44" x2="829.6" y2="128" stroke="#5FD897" stroke-width="2" stroke-dasharray="4 3"/>
-        <text x="829.6" y="34" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" font-weight="600" fill="#5FD897">applied 92%</text>
+        <text x="829.6" y="34" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="11" font-weight="600" fill="#5FD897">model retired</text>
         <!-- discount annotation -->
         <text x="700" y="176" text-anchor="middle" font-family="Inter,sans-serif" font-size="12" fill="#8B98A8">−3% structural discount: bus factor · no external production deployments</text>
       </svg>
-      <figcaption><strong>Fig 2.</strong> P0–P4 are fully achieved (95% of the weighted total). The P5 strategic tier scores 0% by design — it cannot be closed by code. Raw 95% is discounted to an applied <strong>92%</strong> ceiling.</figcaption>
+      <figcaption><strong>Fig 2.</strong> Historical weighting is retained only as audit context. It is not current certification evidence.</figcaption>
     </figure>
 
     <div class="table-wrap">
@@ -318,7 +329,7 @@ footer .prov{font-family:"JetBrains Mono",monospace;font-size:0.78rem;color:var(
           <tr><td>P2/P3</td><td>Quality</td><td class="num">20%</td><td class="num">100%</td><td class="num">20.0%</td></tr>
           <tr><td>P4</td><td>Operational</td><td class="num">10%</td><td class="num">100%</td><td class="num">10.0%</td></tr>
           <tr><td>P5</td><td>Strategic</td><td class="num">5%</td><td class="num">0%</td><td class="num">0.0%</td></tr>
-          <tr class="total-row"><td colspan="4">Total — raw 95% → applied</td><td class="num">92%</td></tr>
+          <tr class="total-row"><td colspan="4">Aggregate score</td><td class="num">Retired</td></tr>
         </tbody>
       </table>
     </div>
@@ -486,7 +497,7 @@ footer .prov{font-family:"JetBrains Mono",monospace;font-size:0.78rem;color:var(
       <p><strong>The maintainer count is one.</strong> 209 of 209 commits are from a single author. The process scaffolding exists; the community does not yet. A merged PR from an outside contributor is the first real signal — and it has not happened.</p>
       <p><strong>No external production deployment is confirmed.</strong> There is no operational telemetry from usage at scale, no incident history, no recovery track record under failure. The system is fit for early adopters who understand the four-service model and can run without a guaranteed SLA. It is not yet fit for organizations that require a multi-maintainer support model or zero-tolerance for operational unknowns.</p>
     </div>
-    <p>This is the reason the gauge stops at 92% and not higher. A static 100% claim would assert certainty about properties that are only observable through sustained operation — usage under load, incident response, community health, ecosystem drift over time. For a well-engineered single-maintainer v1.x at initial release with no established user base, roughly 92% is the honest ceiling. Claiming past it would be the precise failure the system's own sycophancy gate exists to catch.</p>
+    <p>This is why the aggregate gauge is retired. A static percentage asserts certainty about properties that are only observable through sustained operation—usage under load, incident response, community health, and ecosystem drift. Current reports keep artifact certification, disposable runtime evidence, installed-service status, and external deployment evidence separate.</p>
   </section>
 
   <!-- 9. PATH -->

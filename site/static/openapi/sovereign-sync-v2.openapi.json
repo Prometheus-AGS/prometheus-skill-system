@@ -1,0 +1,817 @@
+{
+  "components": {
+    "examples": {
+      "AcceptedPushReceipt": {
+        "value": {
+          "canonicalPayloadHash": "865d11ca3076d1121405fcf811867d9b1e9b2b301f3f15fbcf53cea60c65038b",
+          "createdAtMs": 1785772800001,
+          "domain": "learner-model",
+          "events": [
+            {
+              "event": "accepted",
+              "localState": "accepted",
+              "sequence": 1,
+              "timestampMs": 1785772800001
+            }
+          ],
+          "localState": "accepted",
+          "perPeer": {},
+          "pushId": "f2d84eaf-5474-4e28-971d-4bc4334c1fb7",
+          "schemaVersion": "1.7",
+          "targets": [],
+          "updatedAtMs": 1785772800001
+        }
+      },
+      "AppliedPushReceipt": {
+        "value": {
+          "canonicalPayloadHash": "865d11ca3076d1121405fcf811867d9b1e9b2b301f3f15fbcf53cea60c65038b",
+          "createdAtMs": 1785772800001,
+          "domain": "learner-model",
+          "events": [
+            {
+              "event": "accepted",
+              "localState": "accepted",
+              "sequence": 1,
+              "timestampMs": 1785772800001
+            },
+            {
+              "event": "broadcast",
+              "localState": "broadcast",
+              "sequence": 2,
+              "timestampMs": 1785772800003
+            }
+          ],
+          "localState": "broadcast",
+          "perPeer": {},
+          "pushId": "f2d84eaf-5474-4e28-971d-4bc4334c1fb7",
+          "schemaVersion": "1.7",
+          "targets": [],
+          "updatedAtMs": 1785772800003
+        }
+      },
+      "RequestIdConflict": {
+        "value": {
+          "error": {
+            "code": "request_id_conflict",
+            "message": "requestId already exists with a different canonical payload hash",
+            "pushId": "f2d84eaf-5474-4e28-971d-4bc4334c1fb7"
+          }
+        }
+      },
+      "SignedPushRequest": {
+        "value": {
+          "domain": "learner-model",
+          "issuedAtMs": 1785772800000,
+          "requestId": "f2d84eaf-5474-4e28-971d-4bc4334c1fb7",
+          "schemaVersion": "1.7",
+          "signature": "base64-signature",
+          "signerKeyId": "ed25519:device-key-id"
+        }
+      }
+    },
+    "schemas": {
+      "PushReceipt": {
+        "$defs": {
+          "PeerPushReceipt": {
+            "properties": {
+              "failure": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "state": {
+                "type": "string"
+              },
+              "updatedAtMs": {
+                "format": "uint64",
+                "minimum": 0,
+                "type": "integer"
+              }
+            },
+            "required": [
+              "state",
+              "updatedAtMs"
+            ],
+            "type": "object"
+          },
+          "PushLocalState": {
+            "enum": [
+              "accepted",
+              "prepared",
+              "applied_locally",
+              "broadcast",
+              "failed"
+            ],
+            "type": "string"
+          },
+          "PushReceiptEvent": {
+            "properties": {
+              "detail": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "event": {
+                "type": "string"
+              },
+              "localState": {
+                "$ref": "#/$defs/PushLocalState"
+              },
+              "sequence": {
+                "format": "uint64",
+                "minimum": 0,
+                "type": "integer"
+              },
+              "timestampMs": {
+                "format": "uint64",
+                "minimum": 0,
+                "type": "integer"
+              }
+            },
+            "required": [
+              "sequence",
+              "event",
+              "timestampMs",
+              "localState"
+            ],
+            "type": "object"
+          }
+        },
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "properties": {
+          "canonicalPayloadHash": {
+            "type": "string"
+          },
+          "createdAtMs": {
+            "format": "uint64",
+            "minimum": 0,
+            "type": "integer"
+          },
+          "domain": {
+            "type": "string"
+          },
+          "events": {
+            "items": {
+              "$ref": "#/$defs/PushReceiptEvent"
+            },
+            "type": "array"
+          },
+          "failure": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "localState": {
+            "$ref": "#/$defs/PushLocalState"
+          },
+          "perPeer": {
+            "additionalProperties": {
+              "$ref": "#/$defs/PeerPushReceipt"
+            },
+            "type": "object"
+          },
+          "pushId": {
+            "type": "string"
+          },
+          "schemaVersion": {
+            "type": "string"
+          },
+          "targets": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "updatedAtMs": {
+            "format": "uint64",
+            "minimum": 0,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "schemaVersion",
+          "pushId",
+          "canonicalPayloadHash",
+          "domain",
+          "targets",
+          "localState",
+          "perPeer",
+          "createdAtMs",
+          "updatedAtMs",
+          "events"
+        ],
+        "title": "PushReceipt",
+        "type": "object"
+      },
+      "PushReceiptEvent": {
+        "$defs": {
+          "PushLocalState": {
+            "enum": [
+              "accepted",
+              "prepared",
+              "applied_locally",
+              "broadcast",
+              "failed"
+            ],
+            "type": "string"
+          }
+        },
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "properties": {
+          "detail": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "event": {
+            "type": "string"
+          },
+          "localState": {
+            "$ref": "#/$defs/PushLocalState"
+          },
+          "sequence": {
+            "format": "uint64",
+            "minimum": 0,
+            "type": "integer"
+          },
+          "timestampMs": {
+            "format": "uint64",
+            "minimum": 0,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "sequence",
+          "event",
+          "timestampMs",
+          "localState"
+        ],
+        "title": "PushReceiptEvent",
+        "type": "object"
+      },
+      "SignedSyncPushRequest": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "properties": {
+          "domain": {
+            "type": "string"
+          },
+          "expectedFrontier": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "issuedAtMs": {
+            "format": "uint64",
+            "minimum": 0,
+            "type": "integer"
+          },
+          "requestId": {
+            "type": "string"
+          },
+          "schemaVersion": {
+            "type": "string"
+          },
+          "signature": {
+            "type": "string"
+          },
+          "signerKeyId": {
+            "type": "string"
+          },
+          "targetEndpointIds": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "schemaVersion",
+          "requestId",
+          "domain",
+          "issuedAtMs",
+          "signerKeyId",
+          "signature"
+        ],
+        "title": "SignedSyncPushRequest",
+        "type": "object"
+      }
+    }
+  },
+  "info": {
+    "description": "Signed, replay-safe resource synchronization over a same-user Unix socket by default.",
+    "title": "Sovereign Sync API",
+    "version": "1.7.0"
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/api/v2/sync/pushes": {
+      "post": {
+        "operationId": "createSyncPush",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "examples": {
+                "signedPush": {
+                  "$ref": "#/components/examples/SignedPushRequest"
+                }
+              },
+              "schema": {
+                "$ref": "#/components/schemas/SignedSyncPushRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PushReceipt"
+                }
+              }
+            },
+            "description": "Exact same-ID/same-hash receipt replay"
+          },
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PushReceipt"
+                }
+              }
+            },
+            "description": "Push created"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "error": {
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "pushId": {
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ],
+                      "type": "object"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Canonical error envelope"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "error": {
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "pushId": {
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ],
+                      "type": "object"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Canonical error envelope"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "error": {
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "pushId": {
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ],
+                      "type": "object"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Canonical error envelope"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "error": {
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "pushId": {
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ],
+                      "type": "object"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Canonical error envelope"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "error": {
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "pushId": {
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ],
+                      "type": "object"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Canonical error envelope"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "error": {
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "pushId": {
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ],
+                      "type": "object"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Canonical error envelope"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "error": {
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "pushId": {
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ],
+                      "type": "object"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Canonical error envelope"
+          }
+        },
+        "summary": "Create or exactly replay a signed sync push"
+      }
+    },
+    "/api/v2/sync/pushes/{push_id}": {
+      "get": {
+        "operationId": "getSyncPush",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "push_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PushReceipt"
+                }
+              }
+            },
+            "description": "Durable push receipt"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "error": {
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "pushId": {
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ],
+                      "type": "object"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Canonical error envelope"
+          }
+        }
+      }
+    },
+    "/api/v2/sync/pushes/{push_id}/events": {
+      "get": {
+        "operationId": "streamSyncPushEvents",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "push_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "after",
+            "required": false,
+            "schema": {
+              "minimum": 0,
+              "type": "integer"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Last-Event-ID",
+            "required": false,
+            "schema": {
+              "minimum": 0,
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "text/event-stream": {
+                "schema": {
+                  "$ref": "#/components/schemas/PushReceiptEvent"
+                }
+              }
+            },
+            "description": "text/event-stream of events strictly after the supplied sequence"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "error": {
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "pushId": {
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ],
+                      "type": "object"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Canonical error envelope"
+          }
+        },
+        "summary": "Resume ordered receipt events after a sequence"
+      }
+    },
+    "/health": {
+      "get": {
+        "operationId": "health",
+        "responses": {
+          "200": {
+            "description": "Process liveness"
+          }
+        }
+      }
+    },
+    "/ready": {
+      "get": {
+        "operationId": "ready",
+        "responses": {
+          "200": {
+            "description": "Authority readiness"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "error": {
+                      "properties": {
+                        "code": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        },
+                        "pushId": {
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "code",
+                        "message"
+                      ],
+                      "type": "object"
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Canonical error envelope"
+          }
+        }
+      }
+    }
+  },
+  "x-correctness-scenarios": {
+    "event-resume": "Return only durable events whose sequence is greater than the after cursor or Last-Event-ID.",
+    "response-loss": "Retry the identical POST or retrieve the durable receipt, then resume events after the last observed sequence.",
+    "same-id-different-hash": "Reuse the request ID with another canonical payload; return 409 and preserve the original receipt.",
+    "same-id-same-hash": "Repeat the identical signed request after response loss; return the persisted receipt without executing another push."
+  }
+}

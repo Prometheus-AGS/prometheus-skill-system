@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # write-session-summary.sh — Stop hook (runs first in Stop chain)
 # Writes a structured session summary to ~/.prometheus/last-session-summary.txt
-# for consumption by forge-reflect-on-stop.sh and pk ingest fallback paths.
+# for operator inspection and asynchronous worker reconciliation.
 # Must always exit 0.
 set -uo pipefail
 
