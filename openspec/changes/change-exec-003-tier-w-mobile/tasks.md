@@ -2,7 +2,7 @@
 
 - [x] 1.1 Create the `exec-tier-w` 1.7.0 crate, pin Wasmtime component-model/Pulley versions, add feature profiles, and extend dependency-direction enforcement
 - [x] 1.2 Extend request, receipt, backend, provenance, failure, schema, and OpenAPI contracts for Tier W without changing existing Tier P serialization
-- [ ] 1.3 Check in `prometheus:component@0.1.0` and `capabilities.wit`, plus a deterministic reference component and byte-stable build fixtures
+- [x] 1.3 Check in `prometheus:component@0.1.0` and `capabilities.wit`, plus a deterministic reference component and byte-stable build fixtures
 
 ## 2. Tier W engine and trust boundary
 

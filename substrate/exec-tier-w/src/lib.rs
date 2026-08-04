@@ -46,11 +46,56 @@ pub const fn compiled_backend() -> BackendProfile {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use sha2::{Digest, Sha256};
+
+    const CANONICAL_TYPES: &str = include_str!("../../../wit/prometheus-component/types.wit");
+    const CANONICAL_CAPABILITIES: &str =
+        include_str!("../../../wit/prometheus-component/capabilities.wit");
+    const CANONICAL_SKILL: &str = include_str!("../../../wit/prometheus-component/skill.wit");
+    const GUEST_TYPES: &str = include_str!(
+        "../../../skills/react/prometheus-entity-skills/entity-graph-optimize/component/wit/types.wit"
+    );
+    const GUEST_CAPABILITIES: &str = include_str!(
+        "../../../skills/react/prometheus-entity-skills/entity-graph-optimize/component/wit/capabilities.wit"
+    );
+    const GUEST_SKILL: &str = include_str!(
+        "../../../skills/react/prometheus-entity-skills/entity-graph-optimize/component/wit/skill.wit"
+    );
+    const REFERENCE_COMPONENT: &[u8] = include_bytes!(
+        "../../../skills/react/prometheus-entity-skills/entity-graph-optimize/skill.wasm"
+    );
+    const REFERENCE_COMPONENT_SHA256: &str = include_str!("../fixtures/reference-component.sha256");
+    const REFERENCE_RUN_FIXTURE: &str = include_str!("../fixtures/reference-run-absent.json");
 
     #[test]
     fn release_and_component_world_are_pinned() {
         assert_eq!(VERSION, "1.7.0");
         assert_eq!(WASMTIME_MAJOR, 46);
         assert_eq!(COMPONENT_WORLD, "prometheus:component@0.1.0");
+    }
+
+    #[test]
+    fn reference_guest_uses_the_canonical_world_byte_for_byte() {
+        assert_eq!(GUEST_TYPES, CANONICAL_TYPES);
+        assert_eq!(GUEST_CAPABILITIES, CANONICAL_CAPABILITIES);
+        assert_eq!(GUEST_SKILL, CANONICAL_SKILL);
+        assert!(CANONICAL_CAPABILITIES.contains("interface kv-store"));
+        assert!(CANONICAL_CAPABILITIES.contains("interface clock"));
+    }
+
+    #[test]
+    fn checked_in_reference_component_matches_the_release_fixture() {
+        let actual = format!("{:x}", Sha256::digest(REFERENCE_COMPONENT));
+        assert_eq!(actual, REFERENCE_COMPONENT_SHA256.trim());
+
+        let fixture: serde_json::Value =
+            serde_json::from_str(REFERENCE_RUN_FIXTURE).expect("reference fixture must be JSON");
+        assert_eq!(fixture["world"], COMPONENT_WORLD);
+        assert_eq!(fixture["component_sha256"], actual);
+        assert_eq!(fixture["input"], "{}");
+        assert_eq!(
+            fixture["expected_output"],
+            r#"{"kbd":{"available":false},"evolver":{"available":false},"refiner":{"available":false},"openspec":{"available":false}}"#
+        );
     }
 }

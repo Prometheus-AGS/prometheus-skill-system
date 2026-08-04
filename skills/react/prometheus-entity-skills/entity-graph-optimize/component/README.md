@@ -3,7 +3,7 @@
 Reference component for `prometheus:component@0.1.0` — the first real skill
 built against the unified world (`change-msp-006`).
 
-## Status: well-formed, **execution unproven**
+## Status: deterministic fixture, Tier W execution pending
 
 | Claim | Status |
 |---|---|
@@ -11,13 +11,13 @@ built against the unified world (`change-msp-006`).
 | `wasm-tools validate --features component-model` | **passes** |
 | exports `run` and `describe` from the `skill` world | **yes** |
 | sits where UAR discovery looks (`skill.wasm` beside `SKILL.md`) | **yes** |
-| **has actually been executed by a host** | **NO** |
+| executed by the UAR host | **yes** (`change-uhe-015`) |
+| executed by `prometheus-exec` Tier W | **pending** (`change-exec-003`) |
 
-That last row is the point. UAR's Wasm tier is a stub
-(`wasm_runtime.rs:92-111`): it loads components and returns a placeholder string
-without instantiating them. Until `change-msp-008` de-stubs it, this artifact is
-**proven well-formed and nothing more**. Describing it as working end-to-end
-would be the "demonstrated, not enforced" mistake this phase keeps catching.
+UAR's host has instantiated this component and asserted its returned guest
+value. That evidence does not certify a different runtime: `prometheus-exec`
+must independently execute the checked bytes and produce a signed receipt
+before Tier W is described as working.
 
 ## What it ports, and what changed
 
@@ -39,9 +39,12 @@ The shell script **stays**. This does not replace it.
 ## Rebuild
 
 ```bash
-bash build.sh          # builds, validates, copies to ../skill.wasm
+bash build.sh
+bash ../../../../../scripts/check-exec-tier-w-reference.sh
 ```
 
 `skill.wasm` is committed because UAR consumes this repo as a submodule and must
 not need a Rust toolchain to obtain it. `build.sh` exists so the binary is never
-the only copy of the truth.
+the only copy of the truth. The Tier W reference check builds the component
+twice in isolated target directories, requires byte-for-byte equality, and
+compares the result with the release hash and the checked artifact.

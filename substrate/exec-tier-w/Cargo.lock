@@ -1446,6 +1446,8 @@ version = "1.7.0"
 dependencies = [
  "prometheus-exec-contracts",
  "prometheus-exec-core",
+ "serde_json",
+ "sha2",
  "thiserror",
  "wasmtime",
 ]

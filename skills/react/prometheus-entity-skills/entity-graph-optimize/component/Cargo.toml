@@ -8,7 +8,7 @@ publish = false
 crate-type = ["cdylib"]
 
 [dependencies]
-wit-bindgen = "0.46"
+wit-bindgen = "=0.46.0"
 
 [package.metadata.component]
 package = "prometheus:component"
