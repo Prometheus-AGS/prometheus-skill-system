@@ -906,27 +906,40 @@ function verifyHookRuntime(
   }
 }
 
-function installHookRuntime(pluginRoot, generationPath, manifest, trustStorePath) {
-  const runnerSource = path.join(generationPath, 'shared/scripts/hook-runtime-v1.sh');
-  atomicWrite(path.join(pluginRoot, 'runtime/v1/run-hook'), fs.readFileSync(runnerSource), 0o755);
+function validateBundleIndex(pluginRoot, generationPath, manifest, trustStorePath) {
+  if (!isWithin(path.join(pluginRoot, 'generations'), generationPath)) {
+    fail(`bundle generation escapes immutable storage: ${manifest.bundleId}`);
+  }
   const bundles = path.join(pluginRoot, 'bundles');
   ensureDirectory(bundles);
   const bundleLink = path.join(bundles, manifest.bundleId);
   const existing = fs.lstatSync(bundleLink, { throwIfNoEntry: false });
-  if (existing) {
-    if (!existing.isSymbolicLink()) fail(`bundle index is not a symlink: ${manifest.bundleId}`);
-    const resolved = path.resolve(bundles, fs.readlinkSync(bundleLink));
-    if (!isWithin(path.join(pluginRoot, 'generations'), resolved)) {
-      fail(`bundle index escapes generations: ${manifest.bundleId}`);
-    }
-    const indexed = verifyGeneration(resolved, path.basename(resolved), trustStorePath);
-    if (
-      indexed.bundleId !== manifest.bundleId ||
-      indexed.hookRuntime.dispatcherSha256 !== manifest.hookRuntime.dispatcherSha256
-    ) {
-      fail(`bundle identity collision: ${manifest.bundleId}`);
-    }
-  } else {
+  if (!existing) return;
+  if (!existing.isSymbolicLink()) fail(`bundle index is not a symlink: ${manifest.bundleId}`);
+  const resolved = path.resolve(bundles, fs.readlinkSync(bundleLink));
+  if (!isWithin(path.join(pluginRoot, 'generations'), resolved)) {
+    fail(`bundle index escapes generations: ${manifest.bundleId}`);
+  }
+  const indexed = verifyGeneration(resolved, path.basename(resolved), trustStorePath);
+  if (
+    indexed.bundleId !== manifest.bundleId ||
+    indexed.hookRuntime.dispatcherSha256 !== manifest.hookRuntime.dispatcherSha256
+  ) {
+    fail(`bundle identity collision: ${manifest.bundleId}`);
+  }
+}
+
+function installHookRuntime(pluginRoot, generationPath, manifest, trustStorePath) {
+  validateBundleIndex(pluginRoot, generationPath, manifest, trustStorePath);
+  const runnerSource = path.join(generationPath, 'shared/scripts/hook-runtime-v1.sh');
+  atomicWrite(path.join(pluginRoot, 'runtime/v1/run-hook'), fs.readFileSync(runnerSource), 0o755);
+  const bundles = path.join(pluginRoot, 'bundles');
+  const expectedTarget = `../generations/${manifest.generation}`;
+  const bundleLink = path.join(bundles, manifest.bundleId);
+  const existingTarget = fs.existsSync(bundleLink)
+    ? fs.readlinkSync(bundleLink, { encoding: 'utf8' })
+    : null;
+  if (existingTarget !== expectedTarget) {
     atomicSymlink(bundles, manifest.bundleId, `../generations/${manifest.generation}`);
   }
   verifyHookRuntime(pluginRoot, manifest, trustStorePath);
@@ -982,11 +995,12 @@ function rollback(pluginRoot, home, trustStorePath) {
     fail('previous pointer escapes generations directory');
   const manifest = verifyGeneration(generationPath, path.basename(previous), trustStorePath);
   const skills = collectSkills(path.join(generationPath, 'skills'));
+  validateBundleIndex(pluginRoot, generationPath, manifest, trustStorePath);
   installTargets(home, pluginRoot, generationPath, manifest.generation, skills);
   verifyTargets(home, pluginRoot, generationPath, manifest.generation, skills);
+  installHookRuntime(pluginRoot, generationPath, manifest, trustStorePath);
   atomicSymlink(pluginRoot, 'current', previous);
   atomicSymlink(pluginRoot, 'previous', active);
-  installHookRuntime(pluginRoot, generationPath, manifest, trustStorePath);
   createStableDispatchers(pluginRoot);
   verifyTargetReceipts(pluginRoot, manifest, trustStorePath);
   return path.basename(previous);
@@ -1086,11 +1100,11 @@ function install(args) {
       syncDirectory(generations);
     }
 
-    installHookRuntime(args.pluginRoot, generationPath, manifest, args.trustStore);
-
+    validateBundleIndex(args.pluginRoot, generationPath, manifest, args.trustStore);
     installTargets(args.home, args.pluginRoot, generationPath, generation, skills);
     verifyTargets(args.home, args.pluginRoot, generationPath, generation, skills);
     writeTargetReceipts(args.pluginRoot, manifest, signingIdentity);
+    installHookRuntime(args.pluginRoot, generationPath, manifest, args.trustStore);
     const active = currentTarget(args.pluginRoot, 'current');
     if (active !== `generations/${generation}`) {
       if (active) atomicSymlink(args.pluginRoot, 'previous', active);
