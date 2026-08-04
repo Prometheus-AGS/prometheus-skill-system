@@ -1,7 +1,7 @@
 ## 1. Crate boundaries and core primitives
 
 - [x] 1.1 Create `exec-core`, `exec-tier-p`, and `exec-service` crate manifests with enforced dependency direction and version 1.7.0
-- [ ] 1.2 Implement execution job/port abstractions, deterministic policy outcomes, and receipt assembly in `exec-core`
+- [x] 1.2 Implement execution job/port abstractions, deterministic policy outcomes, and receipt assembly in `exec-core`
 - [ ] 1.3 Implement atomic artifact CAS storage, safe output collection, pins, and budgeted garbage collection
 - [ ] 1.4 Implement immutable single-writer receipt-log appends using the contracts segment format
 
