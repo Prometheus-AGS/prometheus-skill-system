@@ -1,23 +1,12 @@
-# Current Waypoint
+# Current KBD Waypoint
 
-**Phase**: `uar-host-execution`
-**Stage**: `assess_pending`
-**Created**: 2026-07-31T12:47:03Z
-**Previous phase**: `mobile-skill-portability`
+- Phase: `prometheus-exec-code-execution-engine`
+- Status: executing
+- Completed implementation changes: 1 of 4
+- Next change: `change-exec-002-tier-p-sidecar`
+- Re-entry: `/kbd-execute prometheus-exec-code-execution-engine`
+- Source baseline: `fa7cae63b114a43283e672b3006f1a3a6a81acd2`
 
-## Summary
-
-New phase seeded from `mobile-skill-portability/reflection.md`.
-Goals are pre-loaded in `.kbd-orchestrator/phases/uar-host-execution/goals.md`.
-Review the goals, then run `/kbd-assess` to begin.
-
-## Next action
-
-```
-/kbd-assess uar-host-execution
-```
-
-## References
-
-- [goals.md](phases/uar-host-execution/goals.md)
-- [Previous reflection](phases/mobile-skill-portability/reflection.md)
+The portable contracts, algorithm-agile signatures, offline verifier, and
+receipt-segment format are complete. Tier P now builds on that fixed evidence
+boundary; Wasmtime 46 remains the canonical component-host line for Tier W.

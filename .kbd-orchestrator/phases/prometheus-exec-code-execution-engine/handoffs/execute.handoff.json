@@ -1,0 +1,12 @@
+{
+  "stage": "execute",
+  "completedAt": "2026-08-04T11:11:42Z",
+  "outputs": [
+    "execution.md",
+    "progress.json"
+  ],
+  "nextStage": "reflect",
+  "summaryForNext": "OpenSpec through kbd-apply is the canonical backend. Contracts are complete at 1/4; Tier P sidecar is the first pending change, with external platform claims held pending rather than false-green.",
+  "skipped": false,
+  "skipReason": null
+}

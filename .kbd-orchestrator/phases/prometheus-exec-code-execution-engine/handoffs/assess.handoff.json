@@ -1,0 +1,11 @@
+{
+  "stage": "assess",
+  "completedAt": "2026-08-04T10:48:32Z",
+  "outputs": [
+    "assessment.md"
+  ],
+  "nextStage": "analyze",
+  "summaryForNext": "G0 is satisfied; all execution crates are absent, while KBD, sovereign-sync, Cedar, WIT, and skill-ffi provide reusable trust and transport patterns. Plan contracts and offline verification first, use Wasmtime 46, and keep platform-only evidence explicit.",
+  "skipped": false,
+  "skipReason": null
+}

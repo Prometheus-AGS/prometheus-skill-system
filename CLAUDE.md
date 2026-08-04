@@ -1069,7 +1069,7 @@ Manage it with `/liter-llm-bridge configure` (`check`, `repair`, `add-provider`,
 `verify`, `migrate`). Audit with `bash scripts/check-model-config.sh`.
 Full reference: [`skills/process/adversarial-review/references/model-configuration.md`](skills/process/adversarial-review/references/model-configuration.md).
 
-### Three liter-llm contracts that produce baffling failures
+### Four liter-llm contracts that produce baffling failures
 
 1. **`/v1/*` requires a Bearer token unconditionally.** No `[general] master_key`
    and no `[[keys]]` → **401 on everything**, `/v1/models` included.
@@ -1079,6 +1079,18 @@ Full reference: [`skills/process/adversarial-review/references/model-configurati
    upward, so callers **must** pass `--config <abs path>`. Without it `liter-llm mcp`
    does not start at all, because `[mcp] stdio_trust_local` is in the config it was
    never given.
+4. **A `base_url` override forces a generic OpenAI-compatible client regardless of
+   `provider_model`, and the proxy forwards the caller's literal `model` string
+   upstream unchanged.** For any `base_url`-overridden `[[models]]` entry, `name`
+   **must be the real upstream model id** — an alias like `kbd-critic` gets sent
+   verbatim as `"model"`. Some upstreams tolerate this silently (`openai-proxy`
+   ignores `model` entirely and always answers as its own backend), which is what
+   makes it dangerous: a `curl` against the wrong backend still returns HTTP 200
+   with a well-formed response. Verified 2026-08-04 by asking a configured model
+   to self-identify — see contract #4 in
+   [`model-configuration.md`](skills/process/adversarial-review/references/model-configuration.md)
+   for the full incident (a MiniMax entry silently answered as ChatGPT via
+   `openai-proxy` before the gateway-candidate order was fixed).
 
 **There is no `liter-llm complete`.** The binary ships only `api` and `mcp` — it is a
 proxy *server*. Shell callers use `kbd_complete` from the resolver library, which

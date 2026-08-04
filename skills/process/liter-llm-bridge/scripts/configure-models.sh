@@ -55,6 +55,21 @@ err()  { printf '  ❌ %s\n' "$*" >&2; }
 # are metadata, NOT routable providers, so coding plans keep a routable prefix
 # and override the endpoint instead.
 #
+# NAMING CONSTRAINT (verified 2026-08-04 against tools/liter-llm): for ANY
+# [[models]] entry with `base_url` set, liter-llm-proxy's chat_completions
+# handler forwards the CALLER's literal "model" string upstream UNCHANGED —
+# `provider_model` only selects a protocol handler client-side and is never
+# substituted into the request body. Practically: `name` must equal the real
+# upstream model id whenever the upstream validates it strictly. Some
+# upstreams tolerate an arbitrary name (Kimi's coding endpoint auto-upgrades
+# any model string; openai-proxy ignores model entirely and always answers as
+# its own backend, which is why `local-proxy` below gets away with `kbd-judge`)
+# — but MiniMax's endpoint 400s on an unrecognized model, and this was caught
+# only by comparing the model's own stated identity in the response against
+# what was requested. The `kimi`/`minimax`/`qwen`/`glm`/`glm-coding` rows below
+# predate this finding and were not re-verified against it; `kimi-coding` and
+# `minimax-coding` were fixed and confirmed live.
+#
 # Format: name|provider_model|base_url|key_var
 provider_row() {
     case "$1" in
@@ -64,12 +79,24 @@ provider_row() {
       qwen)          echo 'kbd-qwen|dashscope/qwen3-coder-plus|https://dashscope-intl.aliyuncs.com/compatible-mode/v1|DASHSCOPE_API_KEY' ;;
       glm)           echo 'kbd-glm|zai/glm-4.7|https://api.z.ai/api/paas/v4|ZAI_API_KEY' ;;
       glm-coding)    echo 'kbd-glm|zai/glm-5.2|https://api.z.ai/api/coding/paas/v4|ZAI_API_KEY' ;;
-      kimi-coding)   echo 'kbd-kimi|moonshot/kimi-k2.5|https://api.moonshot.ai/v1|MOONSHOT_API_KEY' ;;
+      # Kimi For Coding (kimi.com/code subscription plan). The key is scoped to
+      # the /coding/v1 auth realm ONLY (401s on the plain Moonshot endpoint),
+      # and /coding/v1 answers OpenAI-shaped /chat/completions directly — no
+      # Anthropic Messages framing needed despite the "anthropic-compatible"
+      # docs. `name` = "k3", the real model id (see NAMING CONSTRAINT above).
+      kimi-coding)   echo 'k3|moonshot/k3|https://api.kimi.com/coding/v1|KIMI_CODING_KEY' ;;
+      # MiniMax Token Plan (subscription). The subscription key (sk-cp...) works
+      # against the plain OpenAI-compatible /v1 endpoint — the KEY, not the
+      # path, is what draws on the Token Plan quota. /anthropic/v1 only accepts
+      # genuine Anthropic Messages framing, which this proxy's base_url-override
+      # path cannot speak. `name` = "MiniMax-M3" — MiniMax 400s on any other
+      # model string (see NAMING CONSTRAINT above).
+      minimax-coding) echo 'MiniMax-M3|minimax/MiniMax-M3|https://api.minimax.io/v1|MINIMAX_KEY' ;;
       *)             return 1 ;;
     esac
 }
 
-provider_names() { echo "local-proxy kimi minimax qwen glm glm-coding kimi-coding"; }
+provider_names() { echo "local-proxy kimi minimax qwen glm glm-coding kimi-coding minimax-coding"; }
 
 # --- helpers ----------------------------------------------------------------
 cfg_has_master_key() {
@@ -110,7 +137,33 @@ unset_referenced_vars() {
 
 gateway_url() {
     if [ -n "${LITER_LLM_BASE_URL:-}" ]; then printf '%s\n' "$LITER_LLM_BASE_URL"; return 0; fi
-    for c in "http://localhost:8181/v1" "http://localhost:4000/v1"; do
+
+    # Candidate order MUST come from $KBD_MODELS [gateway] candidates, not a
+    # hardcoded list here. This script used to hardcode 8181-then-4000, which
+    # silently disagreed with the order KBD itself resolves via
+    # shared/scripts/lib/kbd-model-resolve.sh — and since :8181 (openai-proxy)
+    # answers 200 for ANY model name regardless of whether it's declared in
+    # liter-llm's config (verified 2026-08-04: it happily "answered" for
+    # model=MiniMax-M3 with a fabricated response), a stale hardcoded order
+    # here made `verify` silently pass against the wrong backend while
+    # reporting the named KBD models as confirmed working.
+    _cands=""
+    if [ -f "$KBD_MODELS" ]; then
+        _cands="$(awk '
+            /^[[:space:]]*#/ { next }
+            /^[[:space:]]*\[/ { cur=$0; gsub(/^[[:space:]]*\[+|\]+[[:space:]]*$/, "", cur); next }
+            cur == "gateway" && $0 ~ /^[[:space:]]*candidates[[:space:]]*=/ {
+                sub(/^[^=]*=[[:space:]]*/, "")
+                gsub(/[][",]/, " ")
+                print
+                exit
+            }
+        ' "$KBD_MODELS" 2>/dev/null)"
+    fi
+    [ -n "$_cands" ] || _cands="http://localhost:4000/v1 http://localhost:8181/v1"
+
+    for c in $_cands; do
+        [ -n "$c" ] || continue
         if curl -s -o /dev/null --max-time 5 --noproxy '*' "$c/models" 2>/dev/null; then
             printf '%s\n' "$c"; return 0
         fi
@@ -180,6 +233,8 @@ export LITER_LLM_MASTER_KEY="${_key}"
 # export MOONSHOT_API_KEY=""
 # export MINIMAX_API_KEY=""
 # export DASHSCOPE_API_KEY=""
+# export KIMI_CODING_KEY=""    # kimi.com/code subscription plan (anthropic/k3)
+# export MINIMAX_KEY=""        # MiniMax Token Plan subscription (anthropic/MiniMax-M3)
 EOF
         chmod 0600 "$SECRETS"
         ok "created $SECRETS (0600) with a generated gateway key"

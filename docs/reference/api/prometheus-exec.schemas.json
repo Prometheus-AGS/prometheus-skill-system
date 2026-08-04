@@ -1,0 +1,1107 @@
+{
+  "ErrorEnvelope": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "ErrorEnvelope",
+    "type": "object",
+    "properties": {
+      "error": {
+        "$ref": "#/$defs/ErrorDetail"
+      },
+      "requestId": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "format": "uuid"
+      },
+      "schemaVersion": {
+        "type": "string"
+      }
+    },
+    "required": [
+      "schemaVersion",
+      "error"
+    ],
+    "$defs": {
+      "ErrorDetail": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "field": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "message": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "message"
+        ]
+      }
+    }
+  },
+  "ExecutionEvent": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "ExecutionEvent",
+    "type": "object",
+    "properties": {
+      "data": {
+        "default": null
+      },
+      "kind": {
+        "$ref": "#/$defs/ExecutionEventKind"
+      },
+      "occurredAt": {
+        "type": "string",
+        "format": "date-time"
+      },
+      "runId": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "schemaVersion": {
+        "type": "string"
+      },
+      "sequence": {
+        "type": "integer",
+        "format": "uint64",
+        "minimum": 0
+      }
+    },
+    "required": [
+      "schemaVersion",
+      "runId",
+      "sequence",
+      "occurredAt",
+      "kind"
+    ],
+    "$defs": {
+      "ExecutionEventKind": {
+        "type": "string",
+        "enum": [
+          "accepted",
+          "stdout",
+          "stderr",
+          "progress",
+          "grant-pending",
+          "completed"
+        ]
+      }
+    }
+  },
+  "ExecutionReceipt": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "ExecutionReceipt",
+    "type": "object",
+    "properties": {
+      "backend": {
+        "$ref": "#/$defs/ExecutionBackend"
+      },
+      "codeHash": {
+        "type": "string"
+      },
+      "envHash": {
+        "type": "string"
+      },
+      "evidenceClass": {
+        "$ref": "#/$defs/EvidenceClass"
+      },
+      "executingDevice": {
+        "$ref": "#/$defs/ExecutingDevice"
+      },
+      "exit": {
+        "$ref": "#/$defs/ExecutionExit"
+      },
+      "finishedAt": {
+        "type": "string",
+        "format": "date-time"
+      },
+      "grants": {
+        "type": "array",
+        "default": [],
+        "items": {
+          "$ref": "#/$defs/ExecutionGrant"
+        }
+      },
+      "inputSetHash": {
+        "type": "string"
+      },
+      "outputs": {
+        "$ref": "#/$defs/ExecutionOutputs"
+      },
+      "requestHash": {
+        "type": "string"
+      },
+      "runId": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "sandboxProfileHash": {
+        "type": "string"
+      },
+      "schemaVersion": {
+        "type": "string"
+      },
+      "signature": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "startedAt": {
+        "type": "string",
+        "format": "date-time"
+      },
+      "state": {
+        "$ref": "#/$defs/RunState"
+      },
+      "tier": {
+        "$ref": "#/$defs/ExecutionTier"
+      },
+      "toolchainHash": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "usage": {
+        "$ref": "#/$defs/ResourceUsage"
+      }
+    },
+    "required": [
+      "schemaVersion",
+      "runId",
+      "requestHash",
+      "state",
+      "evidenceClass",
+      "tier",
+      "codeHash",
+      "inputSetHash",
+      "envHash",
+      "sandboxProfileHash",
+      "backend",
+      "exit",
+      "outputs",
+      "usage",
+      "startedAt",
+      "finishedAt",
+      "executingDevice"
+    ],
+    "$defs": {
+      "ArtifactReference": {
+        "type": "object",
+        "properties": {
+          "hash": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          },
+          "sizeBytes": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "uint64",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "path",
+          "hash"
+        ]
+      },
+      "EvidenceClass": {
+        "type": "string",
+        "enum": [
+          "verified",
+          "attested"
+        ]
+      },
+      "ExecutingDevice": {
+        "type": "object",
+        "properties": {
+          "keyId": {
+            "type": "string"
+          },
+          "platform": {
+            "type": "string"
+          },
+          "sigAlg": {
+            "$ref": "#/$defs/SignatureAlgorithm"
+          }
+        },
+        "required": [
+          "keyId",
+          "sigAlg",
+          "platform"
+        ]
+      },
+      "ExecutionBackend": {
+        "type": "string",
+        "enum": [
+          "cranelift",
+          "pulley",
+          "seatbelt",
+          "bwrap",
+          "landlock"
+        ]
+      },
+      "ExecutionExit": {
+        "type": "object",
+        "properties": {
+          "signalOrTrap": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "status": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "ExecutionGrant": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "$ref": "#/$defs/GrantKind"
+          },
+          "ref": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "kind"
+        ]
+      },
+      "ExecutionOutputs": {
+        "type": "object",
+        "properties": {
+          "artifacts": {
+            "type": "array",
+            "default": [],
+            "items": {
+              "$ref": "#/$defs/ArtifactReference"
+            }
+          },
+          "stderr": {
+            "type": "string"
+          },
+          "stdout": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "stdout",
+          "stderr"
+        ]
+      },
+      "ExecutionTier": {
+        "type": "string",
+        "enum": [
+          "w",
+          "p"
+        ]
+      },
+      "GrantKind": {
+        "type": "string",
+        "enum": [
+          "ssh-manifest",
+          "interactive",
+          "cedar-auto"
+        ]
+      },
+      "ResourceUsage": {
+        "type": "object",
+        "properties": {
+          "cpuMs": {
+            "type": "integer",
+            "format": "uint64",
+            "minimum": 0
+          },
+          "fuelConsumed": {
+            "type": "integer",
+            "format": "uint64",
+            "minimum": 0
+          },
+          "peakMemMb": {
+            "type": "integer",
+            "format": "uint64",
+            "minimum": 0
+          },
+          "wallClockMs": {
+            "type": "integer",
+            "format": "uint64",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "wallClockMs",
+          "cpuMs",
+          "peakMemMb",
+          "fuelConsumed"
+        ]
+      },
+      "RunState": {
+        "type": "string",
+        "enum": [
+          "queued",
+          "grant-pending",
+          "running",
+          "succeeded",
+          "failed",
+          "rejected",
+          "interrupted"
+        ]
+      },
+      "SignatureAlgorithm": {
+        "type": "string",
+        "enum": [
+          "ed25519",
+          "p256"
+        ]
+      }
+    }
+  },
+  "ReceiptLogSegment": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "ReceiptLogSegment",
+    "type": "object",
+    "properties": {
+      "entries": {
+        "type": "array",
+        "items": {
+          "$ref": "#/$defs/ReceiptLogEntry"
+        }
+      },
+      "header": {
+        "$ref": "#/$defs/ReceiptLogSegmentHeader"
+      },
+      "segmentHash": {
+        "type": [
+          "string",
+          "null"
+        ]
+      }
+    },
+    "required": [
+      "header",
+      "entries"
+    ],
+    "$defs": {
+      "ArtifactReference": {
+        "type": "object",
+        "properties": {
+          "hash": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          },
+          "sizeBytes": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "format": "uint64",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "path",
+          "hash"
+        ]
+      },
+      "EvidenceClass": {
+        "type": "string",
+        "enum": [
+          "verified",
+          "attested"
+        ]
+      },
+      "ExecutingDevice": {
+        "type": "object",
+        "properties": {
+          "keyId": {
+            "type": "string"
+          },
+          "platform": {
+            "type": "string"
+          },
+          "sigAlg": {
+            "$ref": "#/$defs/SignatureAlgorithm"
+          }
+        },
+        "required": [
+          "keyId",
+          "sigAlg",
+          "platform"
+        ]
+      },
+      "ExecutionBackend": {
+        "type": "string",
+        "enum": [
+          "cranelift",
+          "pulley",
+          "seatbelt",
+          "bwrap",
+          "landlock"
+        ]
+      },
+      "ExecutionExit": {
+        "type": "object",
+        "properties": {
+          "signalOrTrap": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "status": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "ExecutionGrant": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "$ref": "#/$defs/GrantKind"
+          },
+          "ref": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "kind"
+        ]
+      },
+      "ExecutionOutputs": {
+        "type": "object",
+        "properties": {
+          "artifacts": {
+            "type": "array",
+            "default": [],
+            "items": {
+              "$ref": "#/$defs/ArtifactReference"
+            }
+          },
+          "stderr": {
+            "type": "string"
+          },
+          "stdout": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "stdout",
+          "stderr"
+        ]
+      },
+      "ExecutionReceipt": {
+        "type": "object",
+        "properties": {
+          "backend": {
+            "$ref": "#/$defs/ExecutionBackend"
+          },
+          "codeHash": {
+            "type": "string"
+          },
+          "envHash": {
+            "type": "string"
+          },
+          "evidenceClass": {
+            "$ref": "#/$defs/EvidenceClass"
+          },
+          "executingDevice": {
+            "$ref": "#/$defs/ExecutingDevice"
+          },
+          "exit": {
+            "$ref": "#/$defs/ExecutionExit"
+          },
+          "finishedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "grants": {
+            "type": "array",
+            "default": [],
+            "items": {
+              "$ref": "#/$defs/ExecutionGrant"
+            }
+          },
+          "inputSetHash": {
+            "type": "string"
+          },
+          "outputs": {
+            "$ref": "#/$defs/ExecutionOutputs"
+          },
+          "requestHash": {
+            "type": "string"
+          },
+          "runId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "sandboxProfileHash": {
+            "type": "string"
+          },
+          "schemaVersion": {
+            "type": "string"
+          },
+          "signature": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "startedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "state": {
+            "$ref": "#/$defs/RunState"
+          },
+          "tier": {
+            "$ref": "#/$defs/ExecutionTier"
+          },
+          "toolchainHash": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "usage": {
+            "$ref": "#/$defs/ResourceUsage"
+          }
+        },
+        "required": [
+          "schemaVersion",
+          "runId",
+          "requestHash",
+          "state",
+          "evidenceClass",
+          "tier",
+          "codeHash",
+          "inputSetHash",
+          "envHash",
+          "sandboxProfileHash",
+          "backend",
+          "exit",
+          "outputs",
+          "usage",
+          "startedAt",
+          "finishedAt",
+          "executingDevice"
+        ]
+      },
+      "ExecutionTier": {
+        "type": "string",
+        "enum": [
+          "w",
+          "p"
+        ]
+      },
+      "GrantKind": {
+        "type": "string",
+        "enum": [
+          "ssh-manifest",
+          "interactive",
+          "cedar-auto"
+        ]
+      },
+      "ReceiptLogEntry": {
+        "type": "object",
+        "properties": {
+          "receipt": {
+            "$ref": "#/$defs/ExecutionReceipt"
+          },
+          "receiptHash": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "receiptHash",
+          "receipt"
+        ]
+      },
+      "ReceiptLogSegmentHeader": {
+        "type": "object",
+        "properties": {
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "previousSegmentHash": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "receiptCount": {
+            "type": "integer",
+            "format": "uint32",
+            "minimum": 0
+          },
+          "schemaVersion": {
+            "type": "string"
+          },
+          "sequence": {
+            "type": "integer",
+            "format": "uint64",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "schemaVersion",
+          "sequence",
+          "createdAt",
+          "receiptCount"
+        ]
+      },
+      "ResourceUsage": {
+        "type": "object",
+        "properties": {
+          "cpuMs": {
+            "type": "integer",
+            "format": "uint64",
+            "minimum": 0
+          },
+          "fuelConsumed": {
+            "type": "integer",
+            "format": "uint64",
+            "minimum": 0
+          },
+          "peakMemMb": {
+            "type": "integer",
+            "format": "uint64",
+            "minimum": 0
+          },
+          "wallClockMs": {
+            "type": "integer",
+            "format": "uint64",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "wallClockMs",
+          "cpuMs",
+          "peakMemMb",
+          "fuelConsumed"
+        ]
+      },
+      "RunState": {
+        "type": "string",
+        "enum": [
+          "queued",
+          "grant-pending",
+          "running",
+          "succeeded",
+          "failed",
+          "rejected",
+          "interrupted"
+        ]
+      },
+      "SignatureAlgorithm": {
+        "type": "string",
+        "enum": [
+          "ed25519",
+          "p256"
+        ]
+      }
+    }
+  },
+  "SignedExecRequest": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "SignedExecRequest",
+    "type": "object",
+    "properties": {
+      "capabilities": {
+        "$ref": "#/$defs/CapabilityManifest"
+      },
+      "code": {
+        "$ref": "#/$defs/CodeIdentity"
+      },
+      "inputs": {
+        "type": "array",
+        "default": [],
+        "items": {
+          "$ref": "#/$defs/NamedInput"
+        }
+      },
+      "issuedAt": {
+        "type": "string",
+        "format": "date-time"
+      },
+      "limits": {
+        "$ref": "#/$defs/ExecutionLimits"
+      },
+      "provenance": {
+        "$ref": "#/$defs/ExecutionProvenance",
+        "default": {}
+      },
+      "queuedAt": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "format": "date-time"
+      },
+      "requestId": {
+        "type": "string",
+        "format": "uuid"
+      },
+      "schemaVersion": {
+        "type": "string"
+      },
+      "sigAlg": {
+        "$ref": "#/$defs/SignatureAlgorithm"
+      },
+      "signature": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "signerKeyId": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "targets": {
+        "type": "array",
+        "default": [],
+        "items": {
+          "type": "string"
+        }
+      },
+      "tier": {
+        "$ref": "#/$defs/RequestedTier"
+      },
+      "validityWindowSecs": {
+        "type": "integer",
+        "format": "uint64",
+        "minimum": 0
+      }
+    },
+    "required": [
+      "schemaVersion",
+      "requestId",
+      "issuedAt",
+      "validityWindowSecs",
+      "tier",
+      "code",
+      "capabilities",
+      "limits",
+      "sigAlg"
+    ],
+    "$defs": {
+      "CapabilityManifest": {
+        "type": "object",
+        "properties": {
+          "clock": {
+            "type": "boolean",
+            "default": false
+          },
+          "env": {
+            "$ref": "#/$defs/EnvironmentCapabilities",
+            "default": {
+              "read": []
+            }
+          },
+          "fs": {
+            "$ref": "#/$defs/FilesystemCapabilities",
+            "default": {
+              "readOnly": [],
+              "readWrite": []
+            }
+          },
+          "net": {
+            "$ref": "#/$defs/NetworkCapabilities",
+            "default": {
+              "egress": []
+            }
+          },
+          "random": {
+            "type": "boolean",
+            "default": false
+          }
+        }
+      },
+      "CodeIdentity": {
+        "type": "object",
+        "properties": {
+          "hash": {
+            "type": "string"
+          },
+          "kind": {
+            "$ref": "#/$defs/CodeKind"
+          },
+          "runtime": {
+            "$ref": "#/$defs/RuntimeKind"
+          },
+          "toolchainPin": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "kind",
+          "hash",
+          "runtime"
+        ]
+      },
+      "CodeKind": {
+        "type": "string",
+        "enum": [
+          "inline",
+          "component",
+          "file"
+        ]
+      },
+      "EnvironmentCapabilities": {
+        "type": "object",
+        "properties": {
+          "read": {
+            "type": "array",
+            "default": [],
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "ExecutionLimits": {
+        "type": "object",
+        "properties": {
+          "fuel": {
+            "type": "integer",
+            "format": "uint64",
+            "minimum": 0
+          },
+          "memoryMb": {
+            "type": "integer",
+            "format": "uint64",
+            "minimum": 0
+          },
+          "outputMb": {
+            "type": "integer",
+            "format": "uint64",
+            "minimum": 0
+          },
+          "stackKb": {
+            "type": "integer",
+            "format": "uint64",
+            "minimum": 0
+          },
+          "wallClockMs": {
+            "type": "integer",
+            "format": "uint64",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "memoryMb",
+          "fuel",
+          "wallClockMs",
+          "outputMb",
+          "stackKb"
+        ]
+      },
+      "ExecutionProvenance": {
+        "type": "object",
+        "properties": {
+          "change": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "harness": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "phase": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "skill": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      },
+      "FilesystemCapabilities": {
+        "type": "object",
+        "properties": {
+          "readOnly": {
+            "type": "array",
+            "default": [],
+            "items": {
+              "type": "string"
+            }
+          },
+          "readWrite": {
+            "type": "array",
+            "default": [],
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "NamedInput": {
+        "type": "object",
+        "properties": {
+          "hash": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "hash"
+        ]
+      },
+      "NetworkCapabilities": {
+        "type": "object",
+        "properties": {
+          "egress": {
+            "type": "array",
+            "default": [],
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "RequestedTier": {
+        "type": "string",
+        "enum": [
+          "w",
+          "p",
+          "auto"
+        ]
+      },
+      "RuntimeKind": {
+        "type": "string",
+        "enum": [
+          "wasm-component",
+          "python3",
+          "node",
+          "bash"
+        ]
+      },
+      "SignatureAlgorithm": {
+        "type": "string",
+        "enum": [
+          "ed25519",
+          "p256"
+        ]
+      }
+    }
+  },
+  "VerificationResult": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "VerificationResult",
+    "type": "object",
+    "properties": {
+      "checks": {
+        "type": "array",
+        "default": [],
+        "items": {
+          "$ref": "#/$defs/VerificationCheck"
+        }
+      },
+      "failures": {
+        "type": "array",
+        "default": [],
+        "items": {
+          "$ref": "#/$defs/VerificationFailure"
+        }
+      },
+      "receiptHash": {
+        "type": [
+          "string",
+          "null"
+        ]
+      },
+      "valid": {
+        "type": "boolean"
+      }
+    },
+    "required": [
+      "valid"
+    ],
+    "$defs": {
+      "VerificationCheck": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "message"
+        ]
+      },
+      "VerificationFailure": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "subject": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "code",
+          "message"
+        ]
+      }
+    }
+  }
+}

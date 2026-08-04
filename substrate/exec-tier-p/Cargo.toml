@@ -1,0 +1,25 @@
+[package]
+name = "prometheus-exec-tier-p"
+version = "1.7.0"
+edition = "2021"
+rust-version = "1.85"
+license = "MIT"
+description = "OS-sandboxed native process adapter for Prometheus Exec"
+
+[package.metadata.prometheus]
+exec-layer = "tier-p"
+
+[dependencies]
+async-trait = "0.1"
+chrono = { version = "0.4", features = ["serde"] }
+nix = { version = "0.30", features = ["process", "signal", "resource"] }
+prometheus-exec-contracts = { path = "../exec-contracts", version = "1.7.0" }
+prometheus-exec-core = { path = "../exec-core", version = "1.7.0" }
+serde = { version = "1", features = ["derive"] }
+sha2 = "0.10"
+tempfile = "3"
+thiserror = "2"
+tokio = { version = "1", features = ["fs", "io-util", "process", "rt-multi-thread", "sync", "time"] }
+
+[dev-dependencies]
+serde_json = "1"

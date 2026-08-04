@@ -1,0 +1,29 @@
+[package]
+name = "prometheus-exec-core"
+version = "1.7.0"
+edition = "2021"
+rust-version = "1.85"
+license = "MIT"
+description = "Transport-independent execution kernel for Prometheus"
+
+[package.metadata.prometheus]
+exec-layer = "core"
+
+[dependencies]
+async-trait = "0.1"
+base64 = "0.22"
+cedar-policy = "4"
+chrono = { version = "0.4", features = ["serde"] }
+ed25519-dalek = { version = "2", features = ["rand_core"] }
+prometheus-exec-contracts = { path = "../exec-contracts", version = "1.7.0" }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+sha2 = "0.10"
+tempfile = "3"
+thiserror = "2"
+uuid = { version = "1", features = ["serde", "v4"] }
+walkdir = "2"
+
+[dev-dependencies]
+proptest = "1"
+rand_core = { version = "0.6", features = ["getrandom"] }
