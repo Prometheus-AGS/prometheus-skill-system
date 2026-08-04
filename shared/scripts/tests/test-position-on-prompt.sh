@@ -23,13 +23,15 @@ if printf '%s' "$OUT" | grep -q 'MANDATORY:'; then bad "running advisory must no
 jq '.status = "paused"' "$TMP/repo/.kbd-orchestrator/current-waypoint.json" > "$TMP/wp.tmp"
 mv "$TMP/wp.tmp" "$TMP/repo/.kbd-orchestrator/current-waypoint.json"
 OUT="$(cd "$TMP/repo" && printf '{}' | bash "$HOOK")"
-printf '%s' "$OUT" | grep -q 'execution is suspended' && ok || bad "paused state suppresses steering" "$OUT"
+printf '%s' "$OUT" | grep -q 'PAUSE ADVISORY' && ok || bad "paused state records an advisory" "$OUT"
+printf '%s' "$OUT" | grep -q 'tools remain available' && ok || bad "paused advisory preserves tools" "$OUT"
 
 jq '.status = "running"' "$TMP/repo/.kbd-orchestrator/current-waypoint.json" > "$TMP/wp.tmp"
 mv "$TMP/wp.tmp" "$TMP/repo/.kbd-orchestrator/current-waypoint.json"
 : > "$TMP/repo/.kbd-orchestrator/PAUSE"
 OUT="$(cd "$TMP/repo" && printf '{}' | bash "$HOOK")"
-printf '%s' "$OUT" | grep -q 'execution is suspended' && ok || bad "emergency PAUSE suppresses steering" "$OUT"
+printf '%s' "$OUT" | grep -q 'PAUSE ADVISORY' && ok || bad "pause marker records an advisory" "$OUT"
+printf '%s' "$OUT" | grep -q 'journal transactions govern writes' && ok || bad "pause marker leaves authority with journal" "$OUT"
 
 echo "---"
 echo "PASS=$PASS FAIL=$FAIL"

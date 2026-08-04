@@ -12,7 +12,7 @@ use uuid::Uuid;
 
 use crate::{
     CausalFrontier, ConflictCandidate, ConflictKind, ConflictRecord, Event, EventKind, KbdStateV2,
-    ReplicaHead, Result, RuntimeError,
+    ReplicaHead, Result, RuntimeError, EVENT_SCHEMA_VERSION,
 };
 
 pub const PROJECT_DOCUMENT_SCHEMA_VERSION: &str = "1";
@@ -303,6 +303,12 @@ fn validate_unique_events(events: &[Event], project_id: &str) -> Result<()> {
 }
 
 fn validate_event(event: &Event, project_id: &str) -> Result<()> {
+    if event.schema_version != EVENT_SCHEMA_VERSION {
+        return Err(RuntimeError::InvalidState(format!(
+            "project.loro accepts only signed event schema v2; found {}",
+            event.schema_version
+        )));
+    }
     if event.project_id != project_id {
         return Err(RuntimeError::ProjectMismatch {
             supplied: event.project_id.clone(),
@@ -315,11 +321,25 @@ fn validate_event(event: &Event, project_id: &str) -> Result<()> {
             event.event_id
         )));
     }
-    event.verify_signature(&BTreeMap::new())?;
+    // Validate cryptographic integrity here; causal folding below enforces
+    // device enrollment and permits self-described key material only for the
+    // genesis event.
+    event.verify_signature(&BTreeMap::new(), true)?;
     if event.integrity_hash != event.calculate_hash()? {
         return Err(RuntimeError::Integrity {
             revision: event.revision,
         });
+    }
+    Ok(())
+}
+
+fn validate_authority_sequence(events: &[&Event]) -> Result<()> {
+    let mut authority = KbdStateV2::default();
+    for event in events {
+        authority.verify_and_apply_device_authority(event)?;
+        if authority.revision == 0 {
+            authority.revision = event.revision.max(1);
+        }
     }
     Ok(())
 }
@@ -331,6 +351,10 @@ pub fn fold_project_events(events: &[Event]) -> Result<KbdStateV2> {
     let project_id = events[0].project_id.clone();
     validate_unique_events(events, &project_id)?;
     let ordered = causal_order(events)?;
+    // Authorize the complete causal stream before conflict selection. Losers
+    // and resolution records still affect audit/frontier state and therefore
+    // must never bypass signer enrollment, revocation, or operator-key checks.
+    validate_authority_sequence(&ordered)?;
     let mut conflicts = detect_conflicts(events)?;
     conflicts.extend(detect_claim_conflicts(events)?);
 
@@ -411,6 +435,14 @@ pub fn fold_project_events(events: &[Event]) -> Result<KbdStateV2> {
         if let Err(error) = state.apply_folded(event) {
             if matches!(error, RuntimeError::DuplicateCommand(_)) {
                 continue;
+            }
+            if matches!(
+                error,
+                RuntimeError::UnknownSigner(_)
+                    | RuntimeError::RevokedSigner(_)
+                    | RuntimeError::Signature { .. }
+            ) {
+                return Err(error);
             }
             let conflict = fold_error_conflict(event, &error.to_string())?;
             conflicts.insert(conflict.id.clone(), conflict);
@@ -744,8 +776,8 @@ fn loro_error(error: loro::LoroError) -> RuntimeError {
 mod tests {
     use super::*;
     use crate::{
-        Actor, ActorKind, ClaimMode, DeviceSigner, EventKind, MigrationProvenance, Phase, Runtime,
-        WorkStatus, EVENT_SCHEMA_VERSION,
+        Actor, ActorKind, ClaimMode, DeviceRecord, DeviceSigner, DeviceStatus, EventKind,
+        MigrationProvenance, Phase, Runtime, WorkStatus, EVENT_SCHEMA_VERSION,
     };
     use chrono::Utc;
     use tempfile::tempdir;
@@ -822,8 +854,8 @@ mod tests {
         frontier: CausalFrontier,
         kind: EventKind,
         actor: Actor,
+        signer: &DeviceSigner,
     ) -> Event {
-        let signer = DeviceSigner::generate();
         let mut event = Event {
             schema_version: EVENT_SCHEMA_VERSION.into(),
             project_id: project_id.into(),
@@ -847,8 +879,48 @@ mod tests {
             signer_public_key: None,
             signature: None,
         };
-        event.seal(&signer).unwrap();
+        event.seal(signer).unwrap();
         event
+    }
+
+    fn active_device(signer: &DeviceSigner, device_id: &str, revision: u64) -> DeviceRecord {
+        DeviceRecord {
+            device_id: device_id.into(),
+            key_id: signer.key_id().into(),
+            public_key: signer.public_key().into(),
+            status: DeviceStatus::Active,
+            enrolled_at_revision: revision,
+            revoked_at_revision: None,
+        }
+    }
+
+    fn advance_frontier(mut frontier: CausalFrontier, event: &Event) -> CausalFrontier {
+        frontier.advance(event.replica_id.clone(), event.lamport);
+        frontier
+    }
+
+    fn unsigned_v1(mut event: Event) -> Event {
+        event.schema_version = "1".into();
+        event.signer_key_id = None;
+        event.signer_public_key = None;
+        event.signature = None;
+        event.integrity_hash = event.calculate_hash().unwrap();
+        event
+    }
+
+    fn unchecked_updates(events: &[Event]) -> Vec<u8> {
+        let doc = LoroDoc::new();
+        let event_map = doc.get_map("events");
+        for event in events {
+            event_map
+                .insert(
+                    event.event_id.as_str(),
+                    serde_json::to_string(event).unwrap(),
+                )
+                .unwrap();
+        }
+        doc.commit();
+        doc.export(ExportMode::all_updates()).unwrap()
     }
 
     fn phase(id: &str, title: &str) -> Phase {
@@ -867,12 +939,49 @@ mod tests {
     #[test]
     fn divergent_phases_union_conflicts_stay_visible_and_resolution_is_authoritative() {
         let fixture = tempdir().unwrap();
-        let runtime = Runtime::open(fixture.path().join("source"));
-        runtime
-            .initialize("project-a", "run-a", Actor::operator("operator-a", "test"))
-            .unwrap();
-        let genesis = runtime.events().unwrap().remove(0);
-        let base = crate::replay_events(std::slice::from_ref(&genesis)).unwrap();
+        let operator = Actor::operator("operator-a", "test");
+        let operator_signer = DeviceSigner::generate();
+        let signer_a = DeviceSigner::generate();
+        let signer_b = DeviceSigner::generate();
+        let signer_c = DeviceSigner::generate();
+        let genesis = signed_branch_event(
+            "project-a",
+            "origin",
+            "genesis",
+            CausalFrontier::empty(),
+            EventKind::RunInitialized {
+                initial_state: crate::LifecycleState::Ready,
+                exact_next_work: None,
+                plan_revision: 1,
+            },
+            operator.clone(),
+            &operator_signer,
+        );
+        let mut enrolled_frontier = advance_frontier(CausalFrontier::empty(), &genesis);
+        let mut enrollments = Vec::new();
+        for (event_id, device_id, signer) in [
+            ("enroll-a", "device-actor-a", &signer_a),
+            ("enroll-b", "device-actor-b", &signer_b),
+            ("enroll-c", "device-actor-c", &signer_c),
+        ] {
+            let event = signed_branch_event(
+                "project-a",
+                "origin",
+                event_id,
+                enrolled_frontier.clone(),
+                EventKind::DeviceEnrolled {
+                    device: active_device(
+                        signer,
+                        device_id,
+                        enrolled_frontier.derived_revision().saturating_add(1),
+                    ),
+                },
+                operator.clone(),
+                &operator_signer,
+            );
+            enrolled_frontier = advance_frontier(enrolled_frontier, &event);
+            enrollments.push(event);
+        }
         let branch_actor = |id: &str| Actor {
             kind: ActorKind::Harness,
             id: id.into(),
@@ -884,36 +993,40 @@ mod tests {
             "project-a",
             "replica-a",
             "event-a",
-            base.frontier.clone(),
+            enrolled_frontier.clone(),
             EventKind::PhaseDefined {
                 phase: phase("phase-1", "candidate A"),
             },
             branch_actor("actor-a"),
+            &signer_a,
         );
         let phase_b = signed_branch_event(
             "project-a",
             "replica-b",
             "event-b",
-            base.frontier.clone(),
+            enrolled_frontier.clone(),
             EventKind::PhaseDefined {
                 phase: phase("phase-1", "candidate B"),
             },
             branch_actor("actor-b"),
+            &signer_b,
         );
         let distinct = signed_branch_event(
             "project-a",
             "replica-c",
             "event-c",
-            base.frontier,
+            enrolled_frontier,
             EventKind::PhaseDefined {
                 phase: phase("phase-2", "independent"),
             },
             branch_actor("actor-c"),
+            &signer_c,
         );
         let document = ProjectDocument::open(fixture.path().join("document"), "project-a");
-        document
-            .ingest_events(&[genesis.clone(), phase_a.clone(), phase_b.clone(), distinct])
-            .unwrap();
+        let mut initial_events = vec![genesis.clone()];
+        initial_events.extend(enrollments);
+        initial_events.extend([phase_a.clone(), phase_b.clone(), distinct]);
+        document.ingest_events(&initial_events).unwrap();
 
         let folded = document.fold().unwrap();
         assert_eq!(folded.phases.len(), 2);
@@ -936,6 +1049,7 @@ mod tests {
                 reason: "operator selected the canonical phase definition".into(),
             },
             Actor::operator("operator-a", "test"),
+            &operator_signer,
         );
         document.ingest_events(&[resolution]).unwrap();
         let resolved = document.fold().unwrap();
@@ -952,6 +1066,9 @@ mod tests {
     fn concurrent_exclusive_claims_select_lamport_then_holder_and_keep_loser_visible() {
         let fixture = tempdir().unwrap();
         let document = ProjectDocument::open(fixture.path(), "project-a");
+        let operator_signer = DeviceSigner::generate();
+        let signer_a = DeviceSigner::generate();
+        let signer_b = DeviceSigner::generate();
         let operator = Actor {
             kind: ActorKind::Operator,
             id: "operator".into(),
@@ -969,10 +1086,33 @@ mod tests {
                 exact_next_work: None,
                 plan_revision: 1,
             },
-            operator,
+            operator.clone(),
+            &operator_signer,
         );
-        let mut frontier = CausalFrontier::empty();
-        frontier.advance("origin", 1);
+        let mut frontier = advance_frontier(CausalFrontier::empty(), &genesis);
+        let mut enrollments = Vec::new();
+        for (event_id, device_id, signer) in [
+            ("enroll-a", "device-a", &signer_a),
+            ("enroll-b", "device-b", &signer_b),
+        ] {
+            let event = signed_branch_event(
+                "project-a",
+                "origin",
+                event_id,
+                frontier.clone(),
+                EventKind::DeviceEnrolled {
+                    device: active_device(
+                        signer,
+                        device_id,
+                        frontier.derived_revision().saturating_add(1),
+                    ),
+                },
+                operator.clone(),
+                &operator_signer,
+            );
+            frontier = advance_frontier(frontier, &event);
+            enrollments.push(event);
+        }
         let expires_at = Utc::now() + chrono::Duration::minutes(10);
         let claim_a = signed_branch_event(
             "project-a",
@@ -994,6 +1134,7 @@ mod tests {
                 harness: "test".into(),
                 session: "a".into(),
             },
+            &signer_a,
         );
         let claim_b = signed_branch_event(
             "project-a",
@@ -1015,10 +1156,12 @@ mod tests {
                 harness: "test".into(),
                 session: "b".into(),
             },
+            &signer_b,
         );
-        document
-            .ingest_events(&[genesis, claim_a, claim_b])
-            .unwrap();
+        let mut events = vec![genesis];
+        events.extend(enrollments);
+        events.extend([claim_a, claim_b]);
+        document.ingest_events(&events).unwrap();
         let state = document.fold().unwrap();
         let conflict = state
             .conflicts
@@ -1029,5 +1172,166 @@ mod tests {
         assert_eq!(conflict.candidates.len(), 2);
         assert!(state.claims.contains_key("claim-b"));
         assert!(!state.claims.contains_key("claim-a"));
+    }
+
+    #[test]
+    fn loro_import_rejects_unknown_signed_conflict_resolution_before_it_can_select_a_winner() {
+        let fixture = tempdir().unwrap();
+        let operator = Actor::operator("operator", "test");
+        let operator_signer = DeviceSigner::generate();
+        let unknown_signer = DeviceSigner::generate();
+        let genesis = signed_branch_event(
+            "project-a",
+            "origin",
+            "genesis",
+            CausalFrontier::empty(),
+            EventKind::RunInitialized {
+                initial_state: crate::LifecycleState::Ready,
+                exact_next_work: None,
+                plan_revision: 1,
+            },
+            operator.clone(),
+            &operator_signer,
+        );
+        let frontier = advance_frontier(CausalFrontier::empty(), &genesis);
+        let phase_a = signed_branch_event(
+            "project-a",
+            "replica-a",
+            "phase-a",
+            frontier.clone(),
+            EventKind::PhaseDefined {
+                phase: phase("phase-1", "A"),
+            },
+            operator.clone(),
+            &operator_signer,
+        );
+        let phase_b = signed_branch_event(
+            "project-a",
+            "replica-b",
+            "phase-b",
+            frontier,
+            EventKind::PhaseDefined {
+                phase: phase("phase-1", "B"),
+            },
+            operator.clone(),
+            &operator_signer,
+        );
+        let provisional =
+            fold_project_events(&[genesis.clone(), phase_a.clone(), phase_b.clone()]).unwrap();
+        let conflict = provisional.conflicts.values().next().unwrap();
+        let forged_resolution = signed_branch_event(
+            "project-a",
+            "attacker",
+            "forged-resolution",
+            provisional.frontier,
+            EventKind::ConflictResolved {
+                conflict_id: conflict.id.clone(),
+                winner_event_id: "phase-a".into(),
+                reason: "self-authorized".into(),
+            },
+            operator,
+            &unknown_signer,
+        );
+        let v1_updates = unchecked_updates(&[
+            genesis.clone(),
+            phase_a.clone(),
+            phase_b.clone(),
+            unsigned_v1(forged_resolution.clone()),
+        ]);
+
+        let source = ProjectDocument::open(fixture.path().join("source"), "project-a");
+        source
+            .ingest_events(&[genesis, phase_a, phase_b, forged_resolution])
+            .unwrap();
+        let updates = source.export_updates().unwrap();
+        let target = ProjectDocument::open(fixture.path().join("target"), "project-a");
+        assert!(matches!(
+            target.import_updates(&updates),
+            Err(RuntimeError::UnknownSigner(_))
+        ));
+        assert!(!target.path().exists());
+        let v1_target = ProjectDocument::open(fixture.path().join("v1-target"), "project-a");
+        assert!(matches!(
+            v1_target.import_updates(&v1_updates),
+            Err(RuntimeError::InvalidState(message)) if message.contains("schema v2")
+        ));
+        assert!(!v1_target.path().exists());
+    }
+
+    #[test]
+    fn loro_import_rejects_device_enrollment_signed_by_a_non_operator_key() {
+        let fixture = tempdir().unwrap();
+        let operator = Actor::operator("operator", "test");
+        let operator_signer = DeviceSigner::generate();
+        let regular_signer = DeviceSigner::generate();
+        let attacker_signer = DeviceSigner::generate();
+        let genesis = signed_branch_event(
+            "project-a",
+            "origin",
+            "genesis",
+            CausalFrontier::empty(),
+            EventKind::RunInitialized {
+                initial_state: crate::LifecycleState::Ready,
+                exact_next_work: None,
+                plan_revision: 1,
+            },
+            operator.clone(),
+            &operator_signer,
+        );
+        let frontier = advance_frontier(CausalFrontier::empty(), &genesis);
+        let enroll_regular = signed_branch_event(
+            "project-a",
+            "origin",
+            "enroll-regular",
+            frontier.clone(),
+            EventKind::DeviceEnrolled {
+                device: active_device(
+                    &regular_signer,
+                    "regular-device",
+                    frontier.derived_revision().saturating_add(1),
+                ),
+            },
+            operator.clone(),
+            &operator_signer,
+        );
+        let frontier = advance_frontier(frontier, &enroll_regular);
+        let forged_enrollment = signed_branch_event(
+            "project-a",
+            "regular-replica",
+            "forged-enrollment",
+            frontier.clone(),
+            EventKind::DeviceEnrolled {
+                device: active_device(
+                    &attacker_signer,
+                    "attacker-device",
+                    frontier.derived_revision().saturating_add(1),
+                ),
+            },
+            operator,
+            &regular_signer,
+        );
+        let v1_updates = unchecked_updates(&[
+            genesis.clone(),
+            enroll_regular.clone(),
+            unsigned_v1(forged_enrollment.clone()),
+        ]);
+
+        let source = ProjectDocument::open(fixture.path().join("source"), "project-a");
+        source
+            .ingest_events(&[genesis, enroll_regular, forged_enrollment])
+            .unwrap();
+        let updates = source.export_updates().unwrap();
+        let target = ProjectDocument::open(fixture.path().join("target"), "project-a");
+        assert!(matches!(
+            target.import_updates(&updates),
+            Err(RuntimeError::InvalidState(message)) if message.contains("operator signing key")
+        ));
+        assert!(!target.path().exists());
+        let v1_target = ProjectDocument::open(fixture.path().join("v1-target"), "project-a");
+        assert!(matches!(
+            v1_target.import_updates(&v1_updates),
+            Err(RuntimeError::InvalidState(message)) if message.contains("schema v2")
+        ));
+        assert!(!v1_target.path().exists());
     }
 }

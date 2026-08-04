@@ -6,7 +6,6 @@ pub mod domains;
 pub mod error;
 pub mod health_check;
 pub mod kbd_control;
-pub mod kbd_single_writer;
 pub mod kbd_sync;
 pub mod mcp_client_pool;
 pub mod mcp_server;

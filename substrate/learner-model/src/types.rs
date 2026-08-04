@@ -1,6 +1,8 @@
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
+use std::collections::{BTreeMap, HashMap};
+
+use crate::fsrs::Rating;
 
 /// Top-level learner model document. Stored as a CRDT document keyed by learner_id.
 ///
@@ -27,15 +29,25 @@ pub struct ConceptState {
     /// Current mastery estimate [0,1].
     /// Updated by PFA rule after ≥5 observations; LLM-seeded prior before that.
     pub mastery: f64,
-    /// Append-only log of mastery observations.
-    pub observations: Vec<ObservationRecord>,
+    /// Immutable mastery seed. Legacy snapshots populate this from `mastery`
+    /// during migration before any new evidence is folded.
+    #[serde(default)]
+    pub mastery_prior: Option<f64>,
+    /// Immutable evidence keyed by globally unique observation ID.
+    #[serde(default, deserialize_with = "deserialize_observations")]
+    pub observations: BTreeMap<String, ObservationRecord>,
     /// FSRS-6 scheduling card for spaced-repetition scheduling.
     pub fsrs_card: FSRSCard,
+    /// Immutable scheduling seed used to derive `fsrs_card` after every merge.
+    #[serde(default)]
+    pub fsrs_prior: Option<FSRSCard>,
 }
 
 /// A single scored observation of learner performance on a concept.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ObservationRecord {
+    #[serde(default)]
+    pub observation_id: String,
     pub timestamp: DateTime<Utc>,
     /// Performance score [0,1].
     pub score: f64,
@@ -43,6 +55,46 @@ pub struct ObservationRecord {
     pub source_skill: String,
     /// Vector clock for CRDT LWW merge. Key = device DID, value = logical timestamp.
     pub vector_clock: HashMap<String, u64>,
+    /// Present only when this evidence also represents a retention review.
+    #[serde(default)]
+    pub rating: Option<Rating>,
+}
+
+#[derive(Deserialize)]
+#[serde(untagged)]
+enum ObservationCollection {
+    Keyed(BTreeMap<String, ObservationRecord>),
+    Legacy(Vec<ObservationRecord>),
+}
+
+fn deserialize_observations<'de, D>(
+    deserializer: D,
+) -> Result<BTreeMap<String, ObservationRecord>, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    let collection = ObservationCollection::deserialize(deserializer)?;
+    let mut keyed = BTreeMap::new();
+    match collection {
+        ObservationCollection::Keyed(records) => keyed = records,
+        ObservationCollection::Legacy(records) => {
+            for (index, mut record) in records.into_iter().enumerate() {
+                if record.observation_id.is_empty() {
+                    let canonical = serde_jcs::to_vec(&serde_json::json!({
+                        "timestamp": record.timestamp,
+                        "score": record.score,
+                        "sourceSkill": record.source_skill,
+                        "vectorClock": record.vector_clock,
+                        "legacyIndex": index,
+                    }))
+                    .map_err(serde::de::Error::custom)?;
+                    record.observation_id = format!("legacy-{}", blake3::hash(&canonical).to_hex());
+                }
+                keyed.entry(record.observation_id.clone()).or_insert(record);
+            }
+        }
+    }
+    Ok(keyed)
 }
 
 /// FSRS-6 scheduling card state, persisted per concept.
@@ -170,7 +222,8 @@ mod tests {
                 concept_id: "ownership".to_string(),
                 label: "Ownership".to_string(),
                 mastery: 0.5,
-                observations: vec![],
+                mastery_prior: Some(0.5),
+                observations: BTreeMap::new(),
                 fsrs_card: FSRSCard {
                     stability: 1.0,
                     difficulty: 5.0,
@@ -180,11 +233,12 @@ mod tests {
                     lapses: 0,
                     last_review: None,
                 },
+                fsrs_prior: None,
             },
         );
 
         let model = LearnerModel {
-            schema_version: "1.0.0".to_string(),
+            schema_version: "1.1.0".to_string(),
             learner_id: "did:plc:test".to_string(),
             created_at: now,
             updated_at: now,
@@ -196,7 +250,7 @@ mod tests {
         let json = serde_json::to_string(&model).expect("serialize");
         let decoded: LearnerModel = serde_json::from_str(&json).expect("deserialize");
         assert_eq!(decoded.learner_id, "did:plc:test");
-        assert_eq!(decoded.schema_version, "1.0.0");
+        assert_eq!(decoded.schema_version, "1.1.0");
         assert!(decoded.concepts.contains_key("ownership"));
     }
 

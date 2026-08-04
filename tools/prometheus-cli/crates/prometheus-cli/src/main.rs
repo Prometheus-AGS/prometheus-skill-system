@@ -525,7 +525,7 @@ enum KbdRolloutAction {
         #[arg(long)]
         device: Option<String>,
         #[arg(long, default_value_t = 1)]
-        voters: u64,
+        replicas: u64,
         #[arg(long)]
         failed: bool,
     },
@@ -923,7 +923,7 @@ async fn main() -> Result<()> {
                         unexplained_projection_mismatches,
                         harness,
                         device,
-                        voters,
+                        replicas,
                         failed,
                     } => commands::kbd::Action::RolloutObserve {
                         observation_id,
@@ -933,7 +933,7 @@ async fn main() -> Result<()> {
                         unexplained_projection_mismatches,
                         harness,
                         device,
-                        voters,
+                        replicas,
                         successful: !failed,
                     },
                     KbdRolloutAction::Promote => commands::kbd::Action::RolloutPromote,

@@ -72,6 +72,10 @@ pub struct SyncEnvelope {
     /// CRDT delta or snapshot bytes, produced by `CrdtEngine::apply_json`'s
     /// delta output or by `CrdtEngine::merge`'s remote-delta input.
     pub payload: Vec<u8>,
+    /// Empty broadcasts to the enrolled group. A non-empty list is enforced
+    /// by the authenticated transport before the payload reaches a receiver.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub target_endpoint_ids: Vec<String>,
     /// Ed25519 signer for `kbd-control` authority pushes — the enrolled
     /// device's `key_id` (see `kbd_runtime::DeviceRecord`). `None` for
     /// families that don't require peer authentication (`skill-index`,
@@ -110,6 +114,10 @@ impl SyncEnvelope {
             bytes.extend_from_slice(signer_key_id.as_bytes());
         }
         bytes.push(0);
+        for target in &self.target_endpoint_ids {
+            bytes.extend_from_slice(target.as_bytes());
+            bytes.push(0);
+        }
         bytes.extend_from_slice(&self.payload);
         bytes
     }
@@ -269,8 +277,8 @@ impl DomainAdapter for LearnerModelAdapter {
 // verifies the signature against the claimed signer's public key in its own
 // `KbdStateV2.devices` (`SyncEnvelope::verify`), requiring `DeviceStatus::Active`.
 // This reuses the same Ed25519 device identity `Event` signing already
-// relies on — no new pairing ceremony and no separate membership identity
-// (which only ever reflects consensus voters, not P2P gossip peers).
+// relies on. Transport pairing and endpoint enrollment are enforced separately
+// from the signed KBD command authority.
 
 #[cfg(test)]
 mod tests {

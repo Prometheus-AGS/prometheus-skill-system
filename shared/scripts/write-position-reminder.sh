@@ -108,14 +108,14 @@ esac
 
 if [[ "$SUSPENDED" == "true" ]]; then
 cat > "$REMINDER" <<EOF
-POSITION REMINDER — execution suspended by operator control
+POSITION REMINDER — operator pause advisory recorded
 Phase: $PHASE
 Step: $CHANGES_COMPLETED of $CHANGES_TOTAL
 Stage: $STAGE
 Recorded next command: $NEXT_CMD
 
-Do not execute or steer to the recorded next command.
-Allowed actions: audit, explain, revise the plan, cancel, or explicitly resume.
+Confirm operator intent before advancing the recorded next command. Tools remain
+available; the exclusive journal transaction lock governs concurrent writes.
 EOF
 echo "[write-position-reminder] wrote suspended reminder $REMINDER" >&2
 exit 0

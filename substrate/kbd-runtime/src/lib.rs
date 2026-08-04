@@ -5,7 +5,7 @@ use fs2::FileExt;
 use rand_core::OsRng;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
-use std::collections::{BTreeMap, HashSet};
+use std::collections::{BTreeMap, BTreeSet, HashSet};
 use std::fs::{self, File, OpenOptions};
 use std::io::{BufRead, BufReader, Write};
 #[cfg(unix)]
@@ -314,12 +314,6 @@ pub fn ensure_device_key_file(path: &Path) -> Result<DeviceSigner> {
         Err(error) if error.kind() == std::io::ErrorKind::AlreadyExists => load_device_key(path),
         Err(error) => Err(error.into()),
     }
-}
-
-fn env_truthy(name: &str) -> bool {
-    std::env::var(name)
-        .map(|value| matches!(value.to_ascii_lowercase().as_str(), "1" | "true" | "yes"))
-        .unwrap_or(false)
 }
 
 fn is_zero(value: &u64) -> bool {
@@ -911,7 +905,11 @@ impl Event {
         self.attach_host_signature(signer.sign_base64(&bytes))
     }
 
-    fn verify_signature(&self, devices: &BTreeMap<String, DeviceRecord>) -> Result<()> {
+    fn verify_signature(
+        &self,
+        devices: &BTreeMap<String, DeviceRecord>,
+        allow_genesis_bootstrap: bool,
+    ) -> Result<()> {
         if self.schema_version == "1" {
             return Ok(());
         }
@@ -927,20 +925,12 @@ impl Event {
                 return Err(RuntimeError::RevokedSigner(key_id.clone()));
             }
             device.public_key.as_str()
-        } else {
-            // Trust any not-yet-enrolled signer, regardless of actor kind —
-            // not just the very first one this runtime ever sees. ActorKind
-            // is a self-declared routing label (harness vs. operator vs.
-            // system), not a cryptographic identity claim, so gating trust on
-            // it adds no real protection; the actual trust boundary is the
-            // signature itself (proving local OS-keychain/filesystem key
-            // possession) plus revocation (above), which remains fully
-            // enforced. A second local identity (for example a headless
-            // daemon and an interactive CLI) may legitimately sign events;
-            // the signature and revocation records are the trust boundary.
+        } else if allow_genesis_bootstrap {
             self.signer_public_key
                 .as_deref()
                 .ok_or_else(|| RuntimeError::UnknownSigner(key_id.clone()))?
+        } else {
+            return Err(RuntimeError::UnknownSigner(key_id.clone()));
         };
         let public_bytes = BASE64
             .decode(public_key)
@@ -1018,10 +1008,110 @@ pub struct KbdStateV2 {
     #[serde(default)]
     pub conflicts: BTreeMap<String, ConflictRecord>,
     pub devices: BTreeMap<String, DeviceRecord>,
+    #[serde(default, skip_serializing_if = "BTreeSet::is_empty")]
+    pub operator_key_ids: BTreeSet<String>,
     pub command_revisions: BTreeMap<String, u64>,
 }
 
 pub type RuntimeState = KbdStateV2;
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+pub struct SignedFoldedCheckpoint {
+    pub schema_version: String,
+    pub event_count: u64,
+    pub frontier_hash: String,
+    pub last_event_hash: Option<String>,
+    pub created_at: DateTime<Utc>,
+    pub state: KbdStateV2,
+    pub signer_key_id: String,
+    pub signer_public_key: String,
+    pub signature: String,
+}
+
+impl SignedFoldedCheckpoint {
+    fn canonical_unsigned_bytes(&self) -> Result<Vec<u8>> {
+        let mut unsigned = serde_json::to_value(self)?;
+        unsigned
+            .as_object_mut()
+            .expect("checkpoint is an object")
+            .remove("signature");
+        serde_jcs::to_vec(&unsigned).map_err(|error| RuntimeError::InvalidState(error.to_string()))
+    }
+
+    fn verify(&self) -> Result<()> {
+        if self.schema_version != "1"
+            || self.frontier_hash != frontier_hash(&self.state.frontier)?
+            || self.event_count != self.state.revision
+            || !verify_ed25519_signature(
+                &self.signer_public_key,
+                &self.canonical_unsigned_bytes()?,
+                &self.signature,
+            )
+        {
+            return Err(RuntimeError::InvalidState(
+                "folded-state checkpoint signature or frontier is invalid".into(),
+            ));
+        }
+        let key_id = format!(
+            "ed25519:{:x}",
+            Sha256::digest(
+                BASE64
+                    .decode(&self.signer_public_key)
+                    .map_err(|error| RuntimeError::InvalidState(error.to_string()))?
+            )
+        );
+        if key_id != self.signer_key_id {
+            return Err(RuntimeError::InvalidState(
+                "folded-state checkpoint signer key id is invalid".into(),
+            ));
+        }
+        Ok(())
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+pub struct JournalArchiveSummary {
+    pub segment: PathBuf,
+    pub manifest: PathBuf,
+    pub archived_events: u64,
+    pub retained_events: u64,
+    pub payload_sha256: String,
+    pub previous_manifest_sha256: Option<String>,
+    pub rollback_metadata: PathBuf,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+struct JournalArchiveManifest {
+    schema_version: String,
+    segment: String,
+    first_revision: u64,
+    last_revision: u64,
+    event_count: u64,
+    payload_sha256: String,
+    previous_manifest_sha256: Option<String>,
+    created_at: DateTime<Utc>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct CheckpointPointer {
+    schema_version: String,
+    checkpoint: String,
+    authority_source_sha256: String,
+}
+
+fn frontier_hash(frontier: &CausalFrontier) -> Result<String> {
+    Ok(format!(
+        "sha256:{:x}",
+        Sha256::digest(
+            serde_jcs::to_vec(frontier)
+                .map_err(|error| RuntimeError::InvalidState(error.to_string()))?
+        )
+    ))
+}
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
@@ -1308,6 +1398,7 @@ impl Default for KbdStateV2 {
             replica_view: None,
             conflicts: BTreeMap::new(),
             devices: BTreeMap::new(),
+            operator_key_ids: BTreeSet::new(),
             command_revisions: BTreeMap::new(),
         }
     }
@@ -1320,6 +1411,131 @@ impl KbdStateV2 {
 
     pub(crate) fn apply_folded(&mut self, event: &Event) -> Result<()> {
         self.apply_internal(event, false)
+    }
+
+    pub(crate) fn verify_and_apply_device_authority(&mut self, event: &Event) -> Result<()> {
+        let bootstrap = self.revision == 0;
+        if bootstrap
+            && (!matches!(event.kind, EventKind::RunInitialized { .. })
+                || event.actor.kind != ActorKind::Operator)
+        {
+            return Err(RuntimeError::InvalidState(
+                "the first signed event must initialize the run under operator authority".into(),
+            ));
+        }
+        event.verify_signature(&self.devices, bootstrap)?;
+        if event.integrity_hash != event.calculate_hash()? {
+            return Err(RuntimeError::Integrity {
+                revision: event.revision,
+            });
+        }
+
+        if event.schema_version != "1" && !bootstrap && event.actor.kind == ActorKind::Operator {
+            let signer_key_id =
+                event
+                    .signer_key_id
+                    .as_deref()
+                    .ok_or_else(|| RuntimeError::Signature {
+                        revision: event.revision,
+                        reason: "operator event is missing signerKeyId".into(),
+                    })?;
+            if !self.operator_key_ids.contains(signer_key_id) {
+                return Err(RuntimeError::InvalidState(
+                    "operator event requires an active operator signing key".into(),
+                ));
+            }
+        }
+
+        if event.schema_version != "1" && bootstrap {
+            let key_id = event
+                .signer_key_id
+                .clone()
+                .ok_or_else(|| RuntimeError::Signature {
+                    revision: event.revision,
+                    reason: "missing bootstrap signerKeyId".into(),
+                })?;
+            let public_key =
+                event
+                    .signer_public_key
+                    .clone()
+                    .ok_or_else(|| RuntimeError::Signature {
+                        revision: event.revision,
+                        reason: "missing bootstrap signerPublicKey".into(),
+                    })?;
+            self.devices.insert(
+                key_id.clone(),
+                DeviceRecord {
+                    device_id: event.actor.device.clone(),
+                    key_id: key_id.clone(),
+                    public_key,
+                    status: DeviceStatus::Active,
+                    enrolled_at_revision: event.revision,
+                    revoked_at_revision: None,
+                },
+            );
+            self.operator_key_ids.insert(key_id);
+        }
+
+        match &event.kind {
+            EventKind::DeviceEnrolled { device } => {
+                if event.actor.kind != ActorKind::Operator {
+                    return Err(RuntimeError::InvalidState(
+                        "only an operator may enroll a device".into(),
+                    ));
+                }
+                if self.devices.contains_key(&device.key_id) {
+                    return Err(RuntimeError::WorkItemExists {
+                        kind: "device key",
+                        id: device.key_id.clone(),
+                    });
+                }
+                validate_device_record(device, event.revision)?;
+                self.devices.insert(device.key_id.clone(), device.clone());
+            }
+            EventKind::DeviceRevoked { key_id, .. } => {
+                if event.actor.kind != ActorKind::Operator {
+                    return Err(RuntimeError::InvalidState(
+                        "only an operator may revoke a device".into(),
+                    ));
+                }
+                let device =
+                    self.devices
+                        .get_mut(key_id)
+                        .ok_or_else(|| RuntimeError::WorkItemNotFound {
+                            kind: "device key",
+                            id: key_id.clone(),
+                        })?;
+                device.status = DeviceStatus::Revoked;
+                device.revoked_at_revision = Some(event.revision);
+                self.operator_key_ids.remove(key_id);
+            }
+            EventKind::DeviceKeyRotated {
+                previous_key_id,
+                replacement,
+            } => {
+                if event.actor.kind != ActorKind::Operator {
+                    return Err(RuntimeError::InvalidState(
+                        "only an operator may rotate a device key".into(),
+                    ));
+                }
+                validate_device_record(replacement, event.revision)?;
+                let previous = self.devices.get_mut(previous_key_id).ok_or_else(|| {
+                    RuntimeError::WorkItemNotFound {
+                        kind: "device key",
+                        id: previous_key_id.clone(),
+                    }
+                })?;
+                previous.status = DeviceStatus::Revoked;
+                previous.revoked_at_revision = Some(event.revision);
+                self.devices
+                    .insert(replacement.key_id.clone(), replacement.clone());
+                if self.operator_key_ids.remove(previous_key_id) {
+                    self.operator_key_ids.insert(replacement.key_id.clone());
+                }
+            }
+            _ => {}
+        }
+        Ok(())
     }
 
     fn apply_internal(&mut self, event: &Event, validate_envelope: bool) -> Result<()> {
@@ -1387,64 +1603,12 @@ impl KbdStateV2 {
                 }
             }
         }
-        event.verify_signature(&self.devices)?;
-        if event.integrity_hash != event.calculate_hash()? {
-            return Err(RuntimeError::Integrity {
-                revision: event.revision,
-            });
-        }
-        if self.revision == 0
-            && (!matches!(event.kind, EventKind::RunInitialized { .. })
-                || event.actor.kind != ActorKind::Operator)
-        {
-            return Err(RuntimeError::InvalidState(
-                "the first signed event must initialize the run under operator authority".into(),
-            ));
-        }
         if let Some(command_id) = event.command_id.as_ref() {
             if self.command_revisions.contains_key(command_id) {
                 return Err(RuntimeError::DuplicateCommand(command_id.clone()));
             }
         }
-        let signer_already_enrolled = event
-            .signer_key_id
-            .as_deref()
-            .map(|id| self.devices.contains_key(id))
-            .unwrap_or(false);
-        // Enroll any not-yet-known signer, not just the genesis signer —
-        // mirrors the widened trust condition in `Event::verify_signature`
-        // above. Keeps `devices` (and therefore revocation) accurate for
-        // every local identity that legitimately touches this project,
-        // instead of only the first one ever seen. ActorKind is a routing
-        // label, while the signature is the cryptographic trust boundary.
-        if event.schema_version != "1" && !signer_already_enrolled {
-            let key_id = event
-                .signer_key_id
-                .clone()
-                .ok_or_else(|| RuntimeError::Signature {
-                    revision: event.revision,
-                    reason: "missing bootstrap signerKeyId".into(),
-                })?;
-            let public_key =
-                event
-                    .signer_public_key
-                    .clone()
-                    .ok_or_else(|| RuntimeError::Signature {
-                        revision: event.revision,
-                        reason: "missing bootstrap signerPublicKey".into(),
-                    })?;
-            self.devices.insert(
-                key_id.clone(),
-                DeviceRecord {
-                    device_id: event.actor.device.clone(),
-                    key_id,
-                    public_key,
-                    status: DeviceStatus::Active,
-                    enrolled_at_revision: event.revision,
-                    revoked_at_revision: None,
-                },
-            );
-        }
+        self.verify_and_apply_device_authority(event)?;
 
         match &event.kind {
             EventKind::RunInitialized {
@@ -1810,43 +1974,9 @@ impl KbdStateV2 {
                 }
                 self.submodule_pins.insert(pin.path.clone(), pin.clone());
             }
-            EventKind::DeviceEnrolled { device } => {
-                if self.devices.contains_key(&device.key_id) {
-                    return Err(RuntimeError::WorkItemExists {
-                        kind: "device key",
-                        id: device.key_id.clone(),
-                    });
-                }
-                validate_device_record(device, event.revision)?;
-                self.devices.insert(device.key_id.clone(), device.clone());
-            }
-            EventKind::DeviceRevoked { key_id, .. } => {
-                let device =
-                    self.devices
-                        .get_mut(key_id)
-                        .ok_or_else(|| RuntimeError::WorkItemNotFound {
-                            kind: "device key",
-                            id: key_id.clone(),
-                        })?;
-                device.status = DeviceStatus::Revoked;
-                device.revoked_at_revision = Some(event.revision);
-            }
-            EventKind::DeviceKeyRotated {
-                previous_key_id,
-                replacement,
-            } => {
-                validate_device_record(replacement, event.revision)?;
-                let previous = self.devices.get_mut(previous_key_id).ok_or_else(|| {
-                    RuntimeError::WorkItemNotFound {
-                        kind: "device key",
-                        id: previous_key_id.clone(),
-                    }
-                })?;
-                previous.status = DeviceStatus::Revoked;
-                previous.revoked_at_revision = Some(event.revision);
-                self.devices
-                    .insert(replacement.key_id.clone(), replacement.clone());
-            }
+            EventKind::DeviceEnrolled { .. }
+            | EventKind::DeviceRevoked { .. }
+            | EventKind::DeviceKeyRotated { .. } => {}
             EventKind::ConflictRecorded { conflict } => {
                 self.conflicts
                     .entry(conflict.id.clone())
@@ -2438,11 +2568,32 @@ fn write_event_file_atomic(path: &Path, events: &[Event]) -> Result<()> {
     Ok(())
 }
 
+fn replace_event_file_atomic(path: &Path, events: &[Event]) -> Result<()> {
+    let parent = path.parent().ok_or_else(|| {
+        RuntimeError::InvalidState(format!("{} has no parent directory", path.display()))
+    })?;
+    fs::create_dir_all(parent)?;
+    let temporary = parent.join(format!(".events.jsonl.{}.tmp", Uuid::new_v4()));
+    let mut options = OpenOptions::new();
+    options.create_new(true).write(true);
+    #[cfg(unix)]
+    options.mode(0o600);
+    let mut file = options.open(&temporary)?;
+    for event in events {
+        serde_json::to_writer(&mut file, event)?;
+        file.write_all(b"\n")?;
+    }
+    file.sync_all()?;
+    fs::rename(&temporary, path)?;
+    File::open(parent)?.sync_all()?;
+    Ok(())
+}
+
 /// Apply one already committed event to an in-memory state machine.
 ///
-/// Consensus/storage integrations use this entry point after an event has
-/// reached quorum. It deliberately does not create, sign, append, or project
-/// anything: those are leader, durable-log, and projection-worker concerns.
+/// Storage integrations use this entry point after an event is durable. It
+/// deliberately does not create, sign, append, or project anything: those are
+/// journal-writer and projection-worker concerns.
 pub fn apply_committed_event(state: &mut RuntimeState, event: &Event) -> Result<()> {
     state.apply(event)
 }
@@ -2754,11 +2905,6 @@ impl Runtime {
         if let Some(path) = std::env::var_os("PROMETHEUS_DEVICE_KEY_FILE") {
             return load_device_key(Path::new(&path));
         }
-        if env_truthy("PROMETHEUS_HEADLESS_VOTER") {
-            return Err(RuntimeError::InvalidState(
-                "headless voters require PROMETHEUS_DEVICE_KEY_FILE pointing to an existing mode-0600 Ed25519 key file; no key was created".into(),
-            ));
-        }
         match self.key_storage {
             KeyStorage::LegacyRuntimeFile => self.legacy_file_device_signer(),
             KeyStorage::PlatformCredentialStore => self.platform_device_signer(),
@@ -2861,19 +3007,38 @@ impl Runtime {
     }
 
     fn journal_events(&self) -> Result<Vec<Event>> {
-        let path = self.events_path();
-        if !path.exists() {
-            return Ok(Vec::new());
-        }
-        let file = File::open(path)?;
         let mut events = Vec::new();
-        for line in BufReader::new(file).lines() {
-            let line = line?;
-            if !line.trim().is_empty() {
-                events.push(serde_json::from_str(&line)?);
+        for path in self.journal_event_paths()? {
+            let file = File::open(path)?;
+            for line in BufReader::new(file).lines() {
+                let line = line?;
+                if !line.trim().is_empty() {
+                    events.push(serde_json::from_str(&line)?);
+                }
             }
         }
         Ok(events)
+    }
+
+    fn journal_event_paths(&self) -> Result<Vec<PathBuf>> {
+        let mut paths = Vec::new();
+        let archive_dir = self.journal_root().join("archives");
+        if archive_dir.exists() {
+            for entry in fs::read_dir(archive_dir)? {
+                let path = entry?.path();
+                if path
+                    .extension()
+                    .is_some_and(|extension| extension == "jsonl")
+                {
+                    paths.push(path);
+                }
+            }
+            paths.sort();
+        }
+        if self.events_path().exists() {
+            paths.push(self.events_path());
+        }
+        Ok(paths)
     }
 
     pub fn replica_events(&self) -> Result<Vec<Event>> {
@@ -3232,6 +3397,9 @@ impl Runtime {
     /// Replay only authoritative event state. This deliberately omits local
     /// git/submodule decoration so readiness checks cannot block on a checkout.
     pub fn replay_authority(&self) -> Result<RuntimeState> {
+        if let Some(state) = self.load_folded_checkpoint()? {
+            return Ok(state);
+        }
         self.fold_authority_events(&self.events()?)
     }
 
@@ -3262,8 +3430,210 @@ impl Runtime {
                 )
             })?
             .import_updates(updates)?;
+        self.persist_folded_checkpoint(&state)?;
         self.decorate_replica_view(&mut state);
         Ok((inserted, state))
+    }
+
+    fn checkpoint_dir(&self) -> PathBuf {
+        self.root.join("checkpoints")
+    }
+
+    fn authority_source_sha256(&self) -> Result<String> {
+        let mut digest = Sha256::new();
+        if let Some(document) = self.project_document() {
+            let path = document.path();
+            if path.exists() {
+                digest.update(fs::read(path)?);
+            }
+        } else {
+            for path in self.journal_event_paths()? {
+                digest.update(fs::read(path)?);
+            }
+        }
+        Ok(format!("sha256:{:x}", digest.finalize()))
+    }
+
+    fn persist_folded_checkpoint(&self, state: &RuntimeState) -> Result<PathBuf> {
+        if state.revision == 0 {
+            return Err(RuntimeError::NotInitialized);
+        }
+        let mut authoritative = state.clone();
+        authoritative.replica_view = None;
+        let signer = self.device_signer()?;
+        let mut checkpoint = SignedFoldedCheckpoint {
+            schema_version: "1".into(),
+            event_count: authoritative.revision,
+            frontier_hash: frontier_hash(&authoritative.frontier)?,
+            last_event_hash: authoritative.last_event_hash.clone(),
+            created_at: Utc::now(),
+            state: authoritative,
+            signer_key_id: signer.key_id().into(),
+            signer_public_key: signer.public_key().into(),
+            signature: String::new(),
+        };
+        checkpoint.signature = signer.sign_base64(&checkpoint.canonical_unsigned_bytes()?);
+        let directory = self.checkpoint_dir();
+        fs::create_dir_all(&directory)?;
+        let filename = format!(
+            "checkpoint-{:020}-{}.json",
+            checkpoint.event_count,
+            checkpoint.frontier_hash.trim_start_matches("sha256:")
+        );
+        let path = directory.join(&filename);
+        if !path.exists() {
+            atomic_json(&path, &serde_json::to_value(&checkpoint)?)?;
+        }
+        let pointer = CheckpointPointer {
+            schema_version: "1".into(),
+            checkpoint: filename,
+            authority_source_sha256: self.authority_source_sha256()?,
+        };
+        atomic_json(
+            &directory.join("current.json"),
+            &serde_json::to_value(pointer)?,
+        )?;
+        Ok(path)
+    }
+
+    fn load_folded_checkpoint(&self) -> Result<Option<RuntimeState>> {
+        let pointer_path = self.checkpoint_dir().join("current.json");
+        if !pointer_path.exists() {
+            return Ok(None);
+        }
+        let pointer: CheckpointPointer = serde_json::from_reader(File::open(pointer_path)?)?;
+        if pointer.schema_version != "1"
+            || pointer.authority_source_sha256 != self.authority_source_sha256()?
+        {
+            return Ok(None);
+        }
+        let checkpoint_path = self.checkpoint_dir().join(pointer.checkpoint);
+        let checkpoint: SignedFoldedCheckpoint =
+            serde_json::from_reader(File::open(checkpoint_path)?)?;
+        checkpoint.verify()?;
+        if checkpoint.state.revision > 0 && checkpoint.state.operator_key_ids.is_empty() {
+            // A pre-1.7 checkpoint has no cryptographically bound operator-key
+            // projection. Replay the signed event stream once to derive it,
+            // then the next checkpoint will persist the binding.
+            return Ok(None);
+        }
+        Ok(Some(checkpoint.state))
+    }
+
+    /// Move an immutable prefix of the local journal into a hash-linked archive
+    /// segment. Replay continues across archives plus the active suffix, and
+    /// rollback metadata names every artifact required to restore the layout.
+    pub fn compact_journal(&self, retain_active: usize) -> Result<Option<JournalArchiveSummary>> {
+        self.ensure_writable_replica()?;
+        if retain_active == 0 {
+            return Err(RuntimeError::InvalidState(
+                "journal compaction must retain at least one active event".into(),
+            ));
+        }
+        fs::create_dir_all(self.journal_root())?;
+        let lock = OpenOptions::new()
+            .create(true)
+            .truncate(false)
+            .read(true)
+            .write(true)
+            .open(self.lock_path())?;
+        lock.lock_exclusive()?;
+        self.recover_journal_tail_locked()?;
+        let active = read_event_file(&self.events_path())?;
+        if active.len() <= retain_active {
+            return Ok(None);
+        }
+        let checkpoint_count = fs::read_dir(self.checkpoint_dir())?
+            .filter_map(std::result::Result::ok)
+            .filter(|entry| {
+                entry
+                    .file_name()
+                    .to_string_lossy()
+                    .starts_with("checkpoint-")
+            })
+            .count();
+        if checkpoint_count < 2 {
+            return Err(RuntimeError::InvalidState(
+                "journal compaction requires at least two signed checkpoints".into(),
+            ));
+        }
+        let split = active.len() - retain_active;
+        let archived = &active[..split];
+        let retained = &active[split..];
+        let directory = self.journal_root().join("archives");
+        fs::create_dir_all(&directory)?;
+        let first = archived.first().expect("non-empty archive").revision;
+        let last = archived.last().expect("non-empty archive").revision;
+        let segment_name = format!("segment-{first:020}-{last:020}.jsonl");
+        let segment = directory.join(&segment_name);
+        let mut payload = Vec::new();
+        for event in archived {
+            serde_json::to_writer(&mut payload, event)?;
+            payload.push(b'\n');
+        }
+        let payload_sha256 = format!("sha256:{:x}", Sha256::digest(&payload));
+        let manifest_name = format!("segment-{first:020}-{last:020}.manifest.json");
+        let manifest = directory.join(&manifest_name);
+        if segment.exists() || manifest.exists() {
+            return Err(RuntimeError::InvalidState(format!(
+                "immutable journal archive segment already exists: {}",
+                segment.display()
+            )));
+        }
+        let previous_manifest_sha256 = fs::read_dir(&directory)?
+            .filter_map(std::result::Result::ok)
+            .map(|entry| entry.path())
+            .filter(|path| {
+                path.file_name()
+                    .is_some_and(|name| name.to_string_lossy().ends_with(".manifest.json"))
+            })
+            .max()
+            .map(fs::read)
+            .transpose()?
+            .map(|bytes| format!("sha256:{:x}", Sha256::digest(bytes)));
+        let mut options = OpenOptions::new();
+        options.create_new(true).write(true);
+        #[cfg(unix)]
+        options.mode(0o600);
+        let mut archive_file = options.open(&segment)?;
+        archive_file.write_all(&payload)?;
+        archive_file.sync_all()?;
+        let archive_manifest = JournalArchiveManifest {
+            schema_version: "1".into(),
+            segment: segment_name,
+            first_revision: first,
+            last_revision: last,
+            event_count: archived.len() as u64,
+            payload_sha256: payload_sha256.clone(),
+            previous_manifest_sha256: previous_manifest_sha256.clone(),
+            created_at: Utc::now(),
+        };
+        atomic_json(&manifest, &serde_json::to_value(&archive_manifest)?)?;
+        replace_event_file_atomic(&self.events_path(), retained)?;
+        let rollback_metadata = directory.join(format!("rollback-{first:020}-{last:020}.json"));
+        atomic_json(
+            &rollback_metadata,
+            &serde_json::json!({
+                "schemaVersion": "1",
+                "segment": segment,
+                "manifest": manifest,
+                "activeJournal": self.events_path(),
+                "restoreBeforeRevision": retained.first().map(|event| event.revision),
+                "checkpointDirectory": self.checkpoint_dir(),
+            }),
+        )?;
+        let state = self.fold_authority_events(&self.events()?)?;
+        self.persist_folded_checkpoint(&state)?;
+        File::open(&directory)?.sync_all()?;
+        Ok(Some(JournalArchiveSummary {
+            segment,
+            manifest,
+            archived_events: archived.len() as u64,
+            retained_events: retained.len() as u64,
+            payload_sha256,
+            previous_manifest_sha256,
+            rollback_metadata,
+        }))
     }
 
     fn fold_authority_events(&self, events: &[Event]) -> Result<RuntimeState> {
@@ -3989,6 +4359,7 @@ impl Runtime {
         if let Some(document) = self.project_document() {
             document.ingest_events(std::slice::from_ref(&event))?;
         }
+        self.persist_folded_checkpoint(&state)?;
         self.decorate_replica_view(&mut state);
         Ok(state)
     }
@@ -6309,7 +6680,7 @@ mod tests {
                     task_id: Some("task-1".into()),
                     commit: None,
                 },
-                Some("start quorum storage".into()),
+                Some("start durable storage".into()),
             )
             .unwrap();
         let before_retry = runtime.events().unwrap().len();
@@ -6380,12 +6751,10 @@ mod tests {
         forged.command_id = Some(Uuid::new_v4().to_string());
         let unknown = DeviceSigner::generate();
         forged.seal(&unknown).unwrap();
-        // Any not-yet-enrolled signer is now trusted (auto-enrolled) rather
-        // than rejected — enrollment is no longer genesis-only. Revocation
-        // (tested elsewhere) remains the real, enforced trust boundary.
-        let forged_state = replay_events(&[events[0].clone(), forged])
-            .expect("a new signer on a fresh event is auto-enrolled, not rejected");
-        assert_eq!(forged_state.devices.len(), 2);
+        assert!(matches!(
+            replay_events(&[events[0].clone(), forged]),
+            Err(RuntimeError::UnknownSigner(_))
+        ));
 
         let mut tampered = events;
         tampered[1].actor.harness = "claude".into();
@@ -6865,6 +7234,116 @@ mod tests {
         assert_eq!(paused.lifecycle, LifecycleState::Paused);
         assert_eq!(paused.checkpoint.unwrap().plan_revision, 2);
         assert_eq!(paused.revision, runtime.events().unwrap().len() as u64);
+    }
+
+    #[test]
+    fn signed_frontier_cache_and_hash_linked_compaction_preserve_replay() {
+        let project = tempdir().unwrap();
+        let runtime = Runtime::open(project.path());
+        let initialized = runtime
+            .initialize(
+                "project-cache",
+                "run-cache",
+                Actor::operator("operator-cache", "test"),
+            )
+            .unwrap();
+        let running = runtime
+            .transition(
+                Actor::operator("operator-cache", "test"),
+                initialized.revision,
+                LifecycleState::Running,
+                "exercise checkpoint cache",
+            )
+            .unwrap();
+        let checkpoints = fs::read_dir(runtime.checkpoint_dir())
+            .unwrap()
+            .filter_map(std::result::Result::ok)
+            .filter(|entry| {
+                entry
+                    .file_name()
+                    .to_string_lossy()
+                    .starts_with("checkpoint-")
+            })
+            .count();
+        assert!(checkpoints >= 2);
+        assert_eq!(
+            runtime.replay_authority().unwrap(),
+            authority_state(running.clone())
+        );
+
+        let compacted = runtime.compact_journal(1).unwrap().unwrap();
+        assert_eq!(compacted.archived_events, 1);
+        assert_eq!(compacted.retained_events, 1);
+        assert!(compacted.segment.is_file());
+        assert!(compacted.manifest.is_file());
+        assert!(compacted.rollback_metadata.is_file());
+        assert_eq!(
+            compacted.payload_sha256,
+            format!(
+                "sha256:{:x}",
+                Sha256::digest(fs::read(&compacted.segment).unwrap())
+            )
+        );
+        assert_eq!(
+            runtime.replay_authority().unwrap(),
+            authority_state(running)
+        );
+    }
+
+    #[test]
+    fn tampered_folded_checkpoint_is_rejected() {
+        let project = tempdir().unwrap();
+        let runtime = Runtime::open(project.path());
+        runtime
+            .initialize(
+                "project-tamper",
+                "run-tamper",
+                Actor::operator("operator-tamper", "test"),
+            )
+            .unwrap();
+        let pointer: CheckpointPointer = serde_json::from_reader(
+            File::open(runtime.checkpoint_dir().join("current.json")).unwrap(),
+        )
+        .unwrap();
+        let path = runtime.checkpoint_dir().join(pointer.checkpoint);
+        let mut checkpoint: serde_json::Value =
+            serde_json::from_reader(File::open(&path).unwrap()).unwrap();
+        checkpoint["signature"] = serde_json::Value::String("tampered".into());
+        atomic_json(&path, &checkpoint).unwrap();
+
+        assert!(matches!(
+            runtime.replay_authority(),
+            Err(RuntimeError::InvalidState(message)) if message.contains("checkpoint")
+        ));
+    }
+
+    #[test]
+    fn pre_operator_binding_checkpoint_falls_back_to_signed_event_replay() {
+        let project = tempdir().unwrap();
+        let runtime = Runtime::open(project.path());
+        let initialized = runtime
+            .initialize(
+                "project-legacy-checkpoint",
+                "run-legacy-checkpoint",
+                Actor::operator("operator-legacy", "test"),
+            )
+            .unwrap();
+        let pointer: CheckpointPointer = serde_json::from_reader(
+            File::open(runtime.checkpoint_dir().join("current.json")).unwrap(),
+        )
+        .unwrap();
+        let path = runtime.checkpoint_dir().join(pointer.checkpoint);
+        let mut checkpoint: SignedFoldedCheckpoint =
+            serde_json::from_reader(File::open(&path).unwrap()).unwrap();
+        checkpoint.state.operator_key_ids.clear();
+        let signer = runtime.device_signer().unwrap();
+        checkpoint.signature = signer.sign_base64(&checkpoint.canonical_unsigned_bytes().unwrap());
+        atomic_json(&path, &serde_json::to_value(checkpoint).unwrap()).unwrap();
+
+        assert!(runtime.load_folded_checkpoint().unwrap().is_none());
+        let replayed = runtime.replay_authority().unwrap();
+        assert_eq!(replayed.revision, initialized.revision);
+        assert_eq!(replayed.operator_key_ids.len(), 1);
     }
 
     #[test]

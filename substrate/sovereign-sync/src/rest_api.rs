@@ -10,37 +10,45 @@
 ///   POST /api/v1/stream        (AG-UI SSE — delegates to ag_ui module)
 ///   GET  /api/v1/stream/ping   (AG-UI SSE ping)
 use axum::{
-    extract::{Path as AxumPath, Query, Request, State},
-    http::{HeaderMap, StatusCode},
+    extract::connect_info::{ConnectInfo, Connected},
+    extract::{Extension, Path as AxumPath, Query, Request, State},
+    http::{header::AUTHORIZATION, HeaderMap, HeaderValue, StatusCode},
+    middleware::{self, Next},
     response::{
         sse::{Event as SseEvent, KeepAlive},
         IntoResponse, Response, Sse,
     },
     routing::{any, get, post},
+    serve::IncomingStream,
     Json, Router,
 };
+use base64::Engine as _;
 use bytes::Bytes;
 use futures::stream;
 use kbd_runtime::{CommandKind, SignedCommandEnvelope};
+use rand_core::{OsRng, RngCore};
 use serde::{Deserialize, Serialize};
+#[cfg(unix)]
+use std::os::unix::fs::{FileTypeExt, PermissionsExt};
 use std::{
     collections::{BTreeMap, HashMap},
     convert::Infallible,
+    fs::{self, File, OpenOptions},
+    io::Write as _,
     net::SocketAddr,
     path::{Path, PathBuf},
     sync::{Arc, Mutex as StdMutex, RwLock as StdRwLock},
-    time::{Duration, Instant},
+    time::{Duration, Instant, SystemTime, UNIX_EPOCH},
 };
 use storage_provider::{CrdtEngine, LoroAdapter, SyncDomain, SyncManifest};
+use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::sync::RwLock as AsyncRwLock;
 use tower::ServiceExt;
 use tracing::{info, warn};
 
 use crate::ag_ui::{ag_ui_events, ag_ui_ping, ag_ui_stream, AgUiEvent, AgUiState};
 use crate::domains::{self, DomainAdapter, LearnerModelAdapter, SkillIndexAdapter, SyncEnvelope};
-use crate::health_check::{detect_daemon_health, DaemonHealthKind};
 use crate::kbd_control::KbdProjectRouter;
-use crate::kbd_single_writer::QuorumPolicy;
 use crate::kbd_sync::{KbdAuthorityPayload, KbdPresenceDocument};
 use crate::mcp_server::SkillIndex;
 use crate::p2p::{
@@ -71,6 +79,7 @@ pub struct AppState {
     /// `adapters`/`docs` (see `domains.rs`'s module comment on why it isn't
     /// a `DomainAdapter`).
     presence: Arc<StdRwLock<BTreeMap<String, Arc<KbdPresenceDocument>>>>,
+    receipts: ReceiptLedger,
 }
 
 #[derive(Clone)]
@@ -325,11 +334,10 @@ impl AppState {
             if let Some(gate) = &authority_startup {
                 gate.set_stage(StartupStage::LoadingRegistry).await;
             }
-            let quorum = QuorumPolicy::new(1, [1])?;
             if let Some(gate) = &authority_startup {
                 gate.set_stage(StartupStage::OpeningAuthorities).await;
             }
-            let kbd_projects = Arc::new(KbdProjectRouter::open_registered(quorum).await?);
+            let kbd_projects = Arc::new(KbdProjectRouter::open_registered().await?);
             let discovery_path = skills_path.clone();
             let project_root = tokio::task::spawn_blocking(move || {
                 discover_manifest_project_root(&discovery_path)
@@ -383,11 +391,16 @@ impl AppState {
         };
 
         let (kbd_projects, skill_index) = tokio::try_join!(authorities, skills)?;
-        let learner_model_dir = dirs_next::home_dir()
-            .unwrap_or_else(|| PathBuf::from("."))
-            .join(".prometheus")
-            .join("learn")
-            .join("learner-model");
+        let learner_model_dir = std::env::var_os("PROMETHEUS_DATA_DIR")
+            .map(PathBuf::from)
+            .map(|data_root| learner_model_dir_at(&data_root))
+            .unwrap_or_else(|| {
+                dirs_next::home_dir()
+                    .unwrap_or_else(|| PathBuf::from("."))
+                    .join(".prometheus")
+                    .join("learn")
+                    .join("learner-model")
+            });
         Self::from_components(kbd_projects, skill_index, learner_model_dir, p2p)
     }
 
@@ -428,13 +441,12 @@ impl AppState {
         data_root: &Path,
         p2p: AppP2PTransport,
     ) -> anyhow::Result<Self> {
-        let quorum = QuorumPolicy::new(1, [1])?;
         let project_root = project_root.to_path_buf();
         let data_root = data_root.to_path_buf();
         let skills_path = skills_dir.to_path_buf();
         let (kbd_projects, skill_index) = tokio::try_join!(
             async {
-                KbdProjectRouter::open_with_project_at(&project_root, &data_root, quorum)
+                KbdProjectRouter::open_with_project_at(&project_root, &data_root)
                     .await
                     .map(Arc::new)
                     .map_err(anyhow::Error::from)
@@ -460,6 +472,12 @@ impl AppState {
         learner_model_dir: PathBuf,
         p2p: AppP2PTransport,
     ) -> anyhow::Result<Self> {
+        let receipts_dir = learner_model_dir
+            .parent()
+            .and_then(Path::parent)
+            .unwrap_or(&learner_model_dir)
+            .join("sync-receipts");
+        let receipts = ReceiptLedger::open(receipts_dir)?;
         let presence = kbd_projects
             .project_ids()
             .into_iter()
@@ -491,7 +509,42 @@ impl AppState {
             p2p,
             adapters: Arc::new(adapters),
             presence: Arc::new(StdRwLock::new(presence)),
+            receipts,
         })
+    }
+
+    pub(crate) fn from_mcp_components(
+        kbd_projects: Arc<KbdProjectRouter>,
+        skill_index: Arc<SkillIndex>,
+        learner_model_dir: PathBuf,
+    ) -> anyhow::Result<Self> {
+        Self::from_components(
+            kbd_projects,
+            skill_index,
+            learner_model_dir,
+            AppP2PTransport::Disabled,
+        )
+    }
+
+    pub fn signed_local_push_request(
+        &self,
+        domain: impl Into<String>,
+    ) -> anyhow::Result<SignedSyncPushRequest> {
+        let domain = domain.into();
+        let project_id = if let Some(project_id) = domain.strip_prefix("kbd-control:") {
+            project_id.to_string()
+        } else {
+            let projects = self.kbd_projects.project_ids();
+            if projects.len() != 1 {
+                anyhow::bail!(
+                    "a single registered project is required to select the local sync signer"
+                );
+            }
+            projects[0].clone()
+        };
+        let control = self.kbd_projects.control(&project_id)?;
+        let signer = control.runtime().device_signer()?;
+        Ok(SignedSyncPushRequest::new_local(domain, &signer))
     }
 
     /// Inspection accessor for tests — not part of the wire API.
@@ -752,11 +805,262 @@ async fn skills_search(
     }))
 }
 
+pub const SYNC_PUSH_COLLECTION_ROUTE: &str = "/api/v2/sync/pushes";
+pub const SYNC_PUSH_ITEM_ROUTE: &str = "/api/v2/sync/pushes/{push_id}";
+pub const SYNC_PUSH_EVENTS_ROUTE: &str = "/api/v2/sync/pushes/{push_id}/events";
+
+#[derive(Debug, Clone, Serialize, Deserialize, schemars::JsonSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct SignedSyncPushRequest {
+    pub schema_version: String,
+    pub request_id: String,
+    pub domain: String,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub target_endpoint_ids: Vec<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub expected_frontier: Option<String>,
+    pub issued_at_ms: u64,
+    pub signer_key_id: String,
+    pub signature: String,
+}
+
+impl SignedSyncPushRequest {
+    pub fn new_local(domain: impl Into<String>, signer: &kbd_runtime::DeviceSigner) -> Self {
+        let mut request = Self {
+            schema_version: "1.7".into(),
+            request_id: uuid::Uuid::new_v4().to_string(),
+            domain: domain.into(),
+            target_endpoint_ids: Vec::new(),
+            expected_frontier: None,
+            issued_at_ms: current_time_ms(),
+            signer_key_id: signer.key_id().to_string(),
+            signature: String::new(),
+        };
+        request.sign(signer);
+        request
+    }
+
+    pub fn sign(&mut self, signer: &kbd_runtime::DeviceSigner) {
+        self.signer_key_id = signer.key_id().to_string();
+        self.signature = signer.sign_base64(
+            &self
+                .canonical_payload()
+                .expect("sync push request must serialize canonically"),
+        );
+    }
+
+    fn canonical_payload(&self) -> anyhow::Result<Vec<u8>> {
+        #[derive(Serialize)]
+        #[serde(rename_all = "camelCase")]
+        struct Canonical<'a> {
+            schema_version: &'a str,
+            request_id: &'a str,
+            domain: &'a str,
+            target_endpoint_ids: &'a [String],
+            expected_frontier: &'a Option<String>,
+            issued_at_ms: u64,
+            signer_key_id: &'a str,
+        }
+        Ok(serde_jcs::to_vec(&Canonical {
+            schema_version: &self.schema_version,
+            request_id: &self.request_id,
+            domain: &self.domain,
+            target_endpoint_ids: &self.target_endpoint_ids,
+            expected_frontier: &self.expected_frontier,
+            issued_at_ms: self.issued_at_ms,
+            signer_key_id: &self.signer_key_id,
+        })?)
+    }
+
+    fn payload_hash(&self) -> anyhow::Result<String> {
+        Ok(blake3::hash(&self.canonical_payload()?)
+            .to_hex()
+            .to_string())
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, schemars::JsonSchema)]
+#[serde(rename_all = "snake_case")]
+pub enum PushLocalState {
+    Accepted,
+    Prepared,
+    AppliedLocally,
+    Broadcast,
+    Failed,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, schemars::JsonSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct PeerPushReceipt {
+    pub state: String,
+    pub updated_at_ms: u64,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub failure: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, schemars::JsonSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct PushReceiptEvent {
+    pub sequence: u64,
+    pub event: String,
+    pub timestamp_ms: u64,
+    pub local_state: PushLocalState,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub detail: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, schemars::JsonSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct PushReceipt {
+    pub schema_version: String,
+    pub push_id: String,
+    pub canonical_payload_hash: String,
+    pub domain: String,
+    pub targets: Vec<String>,
+    pub local_state: PushLocalState,
+    pub per_peer: BTreeMap<String, PeerPushReceipt>,
+    pub created_at_ms: u64,
+    pub updated_at_ms: u64,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub failure: Option<String>,
+    pub events: Vec<PushReceiptEvent>,
+}
+
+impl PushReceipt {
+    fn accepted(request: &SignedSyncPushRequest, hash: String) -> Self {
+        let now = current_time_ms();
+        let mut receipt = Self {
+            schema_version: "1.7".into(),
+            push_id: request.request_id.clone(),
+            canonical_payload_hash: hash,
+            domain: request.domain.clone(),
+            targets: request.target_endpoint_ids.clone(),
+            local_state: PushLocalState::Accepted,
+            per_peer: request
+                .target_endpoint_ids
+                .iter()
+                .map(|target| {
+                    (
+                        target.clone(),
+                        PeerPushReceipt {
+                            state: "pending".into(),
+                            updated_at_ms: now,
+                            failure: None,
+                        },
+                    )
+                })
+                .collect(),
+            created_at_ms: now,
+            updated_at_ms: now,
+            failure: None,
+            events: Vec::new(),
+        };
+        receipt.transition(PushLocalState::Accepted, "accepted", None);
+        receipt
+    }
+
+    fn transition(&mut self, state: PushLocalState, event: &str, detail: Option<String>) {
+        let now = current_time_ms();
+        self.local_state = state.clone();
+        self.updated_at_ms = now;
+        self.events.push(PushReceiptEvent {
+            sequence: self.events.last().map_or(1, |event| event.sequence + 1),
+            event: event.into(),
+            timestamp_ms: now,
+            local_state: state,
+            detail,
+        });
+    }
+}
+
+#[derive(Clone)]
+struct ReceiptLedger {
+    directory: Arc<PathBuf>,
+    receipts: Arc<AsyncRwLock<BTreeMap<String, PushReceipt>>>,
+}
+
+impl ReceiptLedger {
+    fn open(directory: PathBuf) -> anyhow::Result<Self> {
+        fs::create_dir_all(&directory)?;
+        let mut receipts = BTreeMap::new();
+        for entry in fs::read_dir(&directory)? {
+            let entry = entry?;
+            let path = entry.path();
+            if path.extension().and_then(|value| value.to_str()) != Some("json")
+                || fs::symlink_metadata(&path)?.file_type().is_symlink()
+            {
+                continue;
+            }
+            let receipt: PushReceipt = serde_json::from_reader(File::open(path)?)?;
+            receipts.insert(receipt.push_id.clone(), receipt);
+        }
+        Ok(Self {
+            directory: Arc::new(directory),
+            receipts: Arc::new(AsyncRwLock::new(receipts)),
+        })
+    }
+
+    async fn get(&self, push_id: &str) -> Option<PushReceipt> {
+        self.receipts.read().await.get(push_id).cloned()
+    }
+
+    async fn save(&self, receipt: PushReceipt) -> anyhow::Result<()> {
+        persist_receipt(&self.directory, &receipt)?;
+        self.receipts
+            .write()
+            .await
+            .insert(receipt.push_id.clone(), receipt);
+        Ok(())
+    }
+
+    async fn insert_if_absent(
+        &self,
+        receipt: PushReceipt,
+    ) -> anyhow::Result<Result<(), PushReceipt>> {
+        let mut receipts = self.receipts.write().await;
+        if let Some(existing) = receipts.get(&receipt.push_id) {
+            return Ok(Err(existing.clone()));
+        }
+        persist_receipt(&self.directory, &receipt)?;
+        receipts.insert(receipt.push_id.clone(), receipt);
+        Ok(Ok(()))
+    }
+}
+
+fn persist_receipt(directory: &Path, receipt: &PushReceipt) -> anyhow::Result<()> {
+    let path = directory.join(format!("{}.json", receipt.push_id));
+    let temporary = directory.join(format!(".receipt-{}.tmp", uuid::Uuid::new_v4()));
+    let mut options = OpenOptions::new();
+    options.create_new(true).write(true);
+    #[cfg(unix)]
+    std::os::unix::fs::OpenOptionsExt::mode(&mut options, 0o600);
+    let mut file = options.open(&temporary)?;
+    serde_json::to_writer_pretty(&mut file, receipt)?;
+    file.write_all(b"\n")?;
+    file.sync_all()?;
+    fs::rename(&temporary, path)?;
+    File::open(directory)?.sync_all()?;
+    Ok(())
+}
+
+fn current_time_ms() -> u64 {
+    SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap_or_default()
+        .as_millis()
+        .try_into()
+        .unwrap_or(u64::MAX)
+}
+
 /// GET /api/v1/sync/status
 async fn sync_status(State(state): State<AppState>) -> impl IntoResponse {
+    Json(sync_status_value(&state).await)
+}
+
+pub async fn sync_status_value(state: &AppState) -> serde_json::Value {
     let (node_state, transport) = state.p2p.status().await;
     let peers = transport.peers.clone();
-    Json(serde_json::json!({
+    serde_json::json!({
         "node_state": node_state,
         "peers": peers,
         "transport": transport,
@@ -766,16 +1070,20 @@ async fn sync_status(State(state): State<AppState>) -> impl IntoResponse {
             "kbd-control":   { "privacy": "trusted",      "adapter": "wired" },
             "surreal-memory": { "privacy": "local_only",   "adapter": "never-synced" }
         }
-    }))
+    })
 }
 
 /// GET /api/v1/sync/peers
 async fn sync_peers(State(state): State<AppState>) -> impl IntoResponse {
+    Json(sync_peers_value(&state).await)
+}
+
+pub async fn sync_peers_value(state: &AppState) -> serde_json::Value {
     let (_, transport) = state.p2p.status().await;
-    Json(serde_json::json!({
+    serde_json::json!({
         "peers": transport.peers,
         "transport": transport
-    }))
+    })
 }
 
 #[derive(Debug, Deserialize)]
@@ -891,6 +1199,7 @@ pub async fn build_push_envelope(
             domain: domain_name.to_string(),
             identity,
             payload: delta,
+            target_endpoint_ids: Vec::new(),
             signer_key_id: None,
             signature: None,
         },
@@ -985,6 +1294,7 @@ async fn build_kbd_authority_push_envelope(
         domain: domain_name.to_string(),
         identity: Some(status.project_id),
         payload,
+        target_endpoint_ids: Vec::new(),
         signer_key_id: None,
         signature: None,
     };
@@ -999,9 +1309,18 @@ async fn build_kbd_authority_push_envelope(
 /// POST /api/v1/sync/push { "domain": "<name>" }
 async fn sync_push(
     State(state): State<AppState>,
+    transport: Option<Extension<LocalTransport>>,
     Json(body): Json<SyncPushBody>,
 ) -> impl IntoResponse {
-    match build_push_envelope(&state, &body.domain).await {
+    if !matches!(transport, Some(Extension(LocalTransport::Unix))) {
+        return api_error(
+            StatusCode::FORBIDDEN,
+            "v1_transport_forbidden",
+            "the deprecated unsigned v1 push is available only over the same-user Unix socket",
+            None,
+        );
+    }
+    let mut response = match build_push_envelope(&state, &body.domain).await {
         Err((status, error_body)) => (status, Json(error_body)).into_response(),
         Ok(PushOutcome::LocalOnly { snapshot_bytes }) => (
             StatusCode::OK,
@@ -1053,7 +1372,412 @@ async fn sync_push(
             )
                 .into_response()
         }
+    };
+    response
+        .headers_mut()
+        .insert("deprecation", HeaderValue::from_static("true"));
+    response.headers_mut().insert(
+        "sunset",
+        HeaderValue::from_static("Wed, 30 Sep 2026 23:59:59 GMT"),
+    );
+    response.headers_mut().insert(
+        "link",
+        HeaderValue::from_static("</api/v2/sync/pushes>; rel=\"successor-version\""),
+    );
+    response
+}
+
+fn api_error(
+    status: StatusCode,
+    code: &str,
+    message: impl Into<String>,
+    push_id: Option<&str>,
+) -> Response {
+    (
+        status,
+        Json(serde_json::json!({
+            "error": {
+                "code": code,
+                "message": message.into(),
+                "pushId": push_id
+            }
+        })),
+    )
+        .into_response()
+}
+
+async fn verify_sync_push_signature(
+    state: &AppState,
+    request: &SignedSyncPushRequest,
+) -> Result<(), Response> {
+    let canonical = request.canonical_payload().map_err(|error| {
+        api_error(
+            StatusCode::BAD_REQUEST,
+            "canonicalization_failed",
+            error.to_string(),
+            Some(&request.request_id),
+        )
+    })?;
+    let project_scope = request
+        .domain
+        .strip_prefix("kbd-control:")
+        .filter(|project_id| !project_id.is_empty());
+    let project_ids = project_scope.map_or_else(
+        || state.kbd_projects.project_ids(),
+        |project_id| vec![project_id.to_string()],
+    );
+    let mut public_key = None;
+    for project_id in project_ids {
+        let Ok(control) = state.kbd_projects.control(&project_id) else {
+            continue;
+        };
+        let Ok(status) = control.status_async().await else {
+            continue;
+        };
+        if let Some(device) = status.devices.get(&request.signer_key_id) {
+            if device.status != kbd_runtime::DeviceStatus::Active {
+                return Err(api_error(
+                    StatusCode::FORBIDDEN,
+                    "signer_revoked",
+                    "the signing key is not an active enrolled device",
+                    Some(&request.request_id),
+                ));
+            }
+            public_key = Some(device.public_key.clone());
+            break;
+        }
     }
+    let public_key = public_key.ok_or_else(|| {
+        api_error(
+            StatusCode::FORBIDDEN,
+            "signer_not_enrolled",
+            "the signing key is not enrolled for this sync scope",
+            Some(&request.request_id),
+        )
+    })?;
+    if !kbd_runtime::verify_ed25519_signature(&public_key, &canonical, &request.signature) {
+        return Err(api_error(
+            StatusCode::UNAUTHORIZED,
+            "invalid_signature",
+            "the canonical request signature is invalid",
+            Some(&request.request_id),
+        ));
+    }
+    Ok(())
+}
+
+fn validate_sync_push_request(request: &SignedSyncPushRequest) -> Result<(), Box<Response>> {
+    if request.schema_version != "1.7" {
+        return Err(Box::new(api_error(
+            StatusCode::BAD_REQUEST,
+            "unsupported_schema",
+            "schemaVersion must be 1.7",
+            Some(&request.request_id),
+        )));
+    }
+    if uuid::Uuid::parse_str(&request.request_id).is_err() || request.domain.trim().is_empty() {
+        return Err(Box::new(api_error(
+            StatusCode::BAD_REQUEST,
+            "invalid_request",
+            "requestId must be a UUID and domain must be non-empty",
+            Some(&request.request_id),
+        )));
+    }
+    let mut targets = std::collections::BTreeSet::new();
+    for target in &request.target_endpoint_ids {
+        if target.parse::<iroh::EndpointId>().is_err() || !targets.insert(target) {
+            return Err(Box::new(api_error(
+                StatusCode::UNPROCESSABLE_ENTITY,
+                "invalid_targets",
+                "targetEndpointIds must contain unique valid endpoint IDs",
+                Some(&request.request_id),
+            )));
+        }
+    }
+    Ok(())
+}
+
+fn validate_sync_push_freshness(request: &SignedSyncPushRequest) -> Result<(), Box<Response>> {
+    let now = current_time_ms();
+    if request.issued_at_ms > now.saturating_add(30_000)
+        || now.saturating_sub(request.issued_at_ms) > 300_000
+    {
+        return Err(Box::new(api_error(
+            StatusCode::UNPROCESSABLE_ENTITY,
+            "stale_request",
+            "issuedAtMs is outside the accepted five-minute window",
+            Some(&request.request_id),
+        )));
+    }
+    Ok(())
+}
+
+async fn enforce_expected_frontier(
+    state: &AppState,
+    request: &SignedSyncPushRequest,
+) -> Result<(), Response> {
+    let Some(expected) = request.expected_frontier.as_deref() else {
+        return Ok(());
+    };
+    let Some(project_id) = request.domain.strip_prefix("kbd-control:") else {
+        return Err(api_error(
+            StatusCode::UNPROCESSABLE_ENTITY,
+            "frontier_not_supported",
+            "expectedFrontier is supported only for kbd-control domains",
+            Some(&request.request_id),
+        ));
+    };
+    let control = state.kbd_projects.control(project_id).map_err(|_| {
+        api_error(
+            StatusCode::NOT_FOUND,
+            "sync_scope_not_found",
+            "the requested KBD project is not registered",
+            Some(&request.request_id),
+        )
+    })?;
+    let status = control.status_async().await.map_err(|_| {
+        api_error(
+            StatusCode::SERVICE_UNAVAILABLE,
+            "sync_scope_unavailable",
+            "the requested KBD project is not currently readable",
+            Some(&request.request_id),
+        )
+    })?;
+    let actual = serde_jcs::to_string(&status.frontier).map_err(|error| {
+        api_error(
+            StatusCode::SERVICE_UNAVAILABLE,
+            "frontier_unavailable",
+            error.to_string(),
+            Some(&request.request_id),
+        )
+    })?;
+    if expected != actual {
+        return Err(api_error(
+            StatusCode::CONFLICT,
+            "frontier_conflict",
+            "expectedFrontier does not match the current project frontier",
+            Some(&request.request_id),
+        ));
+    }
+    Ok(())
+}
+
+/// Shared signed-push service used by REST and MCP. A same-ID/same-hash retry
+/// returns the persisted receipt exactly; a same-ID/different-hash request is
+/// a conflict and never re-executes local preparation or network delivery.
+pub async fn execute_signed_sync_push(
+    state: &AppState,
+    request: SignedSyncPushRequest,
+) -> Result<(StatusCode, PushReceipt), Response> {
+    let hash = request.payload_hash().map_err(|error| {
+        api_error(
+            StatusCode::BAD_REQUEST,
+            "canonicalization_failed",
+            error.to_string(),
+            Some(&request.request_id),
+        )
+    })?;
+    validate_sync_push_request(&request).map_err(|response| *response)?;
+    verify_sync_push_signature(state, &request).await?;
+    if let Some(existing) = state.receipts.get(&request.request_id).await {
+        if existing.canonical_payload_hash == hash {
+            return Ok((StatusCode::OK, existing));
+        }
+        return Err(api_error(
+            StatusCode::CONFLICT,
+            "request_id_conflict",
+            "requestId already exists with a different canonical payload hash",
+            Some(&request.request_id),
+        ));
+    }
+    validate_sync_push_freshness(&request).map_err(|response| *response)?;
+    enforce_expected_frontier(state, &request).await?;
+
+    let mut receipt = PushReceipt::accepted(&request, hash);
+    let inserted = state
+        .receipts
+        .insert_if_absent(receipt.clone())
+        .await
+        .map_err(|error| {
+            api_error(
+                StatusCode::SERVICE_UNAVAILABLE,
+                "receipt_store_unavailable",
+                error.to_string(),
+                Some(&request.request_id),
+            )
+        })?;
+    if let Err(existing) = inserted {
+        if existing.canonical_payload_hash == receipt.canonical_payload_hash {
+            return Ok((StatusCode::OK, existing));
+        }
+        return Err(api_error(
+            StatusCode::CONFLICT,
+            "request_id_conflict",
+            "requestId was concurrently accepted with a different canonical payload hash",
+            Some(&request.request_id),
+        ));
+    }
+    let outcome = match build_push_envelope(state, &request.domain).await {
+        Ok(outcome) => outcome,
+        Err((status, body)) => {
+            let detail = body.to_string();
+            receipt.failure = Some(detail.clone());
+            receipt.transition(PushLocalState::Failed, "failed", Some(detail.clone()));
+            let _ = state.receipts.save(receipt).await;
+            let mapped = match status {
+                StatusCode::NOT_FOUND => StatusCode::NOT_FOUND,
+                StatusCode::BAD_REQUEST => StatusCode::BAD_REQUEST,
+                StatusCode::CONFLICT => StatusCode::CONFLICT,
+                StatusCode::FORBIDDEN => StatusCode::FORBIDDEN,
+                _ => StatusCode::SERVICE_UNAVAILABLE,
+            };
+            return Err(api_error(
+                mapped,
+                "push_preparation_failed",
+                detail,
+                Some(&request.request_id),
+            ));
+        }
+    };
+    receipt.transition(PushLocalState::Prepared, "prepared", None);
+    match outcome {
+        PushOutcome::LocalOnly { snapshot_bytes } => {
+            receipt.transition(
+                PushLocalState::AppliedLocally,
+                "applied_locally",
+                Some(format!("snapshotBytes={snapshot_bytes}")),
+            );
+        }
+        PushOutcome::Broadcast {
+            mut envelope,
+            snapshot_bytes,
+        } => {
+            envelope.target_endpoint_ids = request.target_endpoint_ids.clone();
+            let encoded = serde_json::to_vec(&envelope).map_err(|error| {
+                api_error(
+                    StatusCode::SERVICE_UNAVAILABLE,
+                    "envelope_encoding_failed",
+                    error.to_string(),
+                    Some(&request.request_id),
+                )
+            })?;
+            if let Err(error) = state.p2p.broadcast(Bytes::from(encoded)).await {
+                let detail = error.to_string();
+                receipt.failure = Some(detail.clone());
+                receipt.transition(
+                    PushLocalState::Failed,
+                    "broadcast_failed",
+                    Some(detail.clone()),
+                );
+                let _ = state.receipts.save(receipt).await;
+                return Err(api_error(
+                    StatusCode::SERVICE_UNAVAILABLE,
+                    "transport_unavailable",
+                    detail,
+                    Some(&request.request_id),
+                ));
+            }
+            receipt.transition(
+                PushLocalState::Broadcast,
+                "broadcast",
+                Some(format!("snapshotBytes={snapshot_bytes}")),
+            );
+        }
+    }
+    state
+        .receipts
+        .save(receipt.clone())
+        .await
+        .map_err(|error| {
+            api_error(
+                StatusCode::SERVICE_UNAVAILABLE,
+                "receipt_store_unavailable",
+                error.to_string(),
+                Some(&request.request_id),
+            )
+        })?;
+    Ok((StatusCode::CREATED, receipt))
+}
+
+async fn create_sync_push_v2(
+    State(state): State<AppState>,
+    Json(request): Json<SignedSyncPushRequest>,
+) -> Response {
+    match execute_signed_sync_push(&state, request).await {
+        Ok((status, receipt)) => (status, Json(receipt)).into_response(),
+        Err(response) => response,
+    }
+}
+
+async fn get_sync_push_v2(
+    State(state): State<AppState>,
+    AxumPath(push_id): AxumPath<String>,
+) -> Response {
+    state.receipts.get(&push_id).await.map_or_else(
+        || {
+            api_error(
+                StatusCode::NOT_FOUND,
+                "push_not_found",
+                "no receipt exists for this push ID",
+                Some(&push_id),
+            )
+        },
+        |receipt| (StatusCode::OK, Json(receipt)).into_response(),
+    )
+}
+
+#[derive(Debug, Deserialize)]
+struct ReceiptEventsQuery {
+    #[serde(default)]
+    after: u64,
+}
+
+async fn sync_push_events_v2(
+    State(state): State<AppState>,
+    AxumPath(push_id): AxumPath<String>,
+    Query(query): Query<ReceiptEventsQuery>,
+    headers: HeaderMap,
+) -> Response {
+    if state.receipts.get(&push_id).await.is_none() {
+        return api_error(
+            StatusCode::NOT_FOUND,
+            "push_not_found",
+            "no receipt exists for this push ID",
+            Some(&push_id),
+        );
+    }
+    let after = headers
+        .get("last-event-id")
+        .and_then(|value| value.to_str().ok())
+        .and_then(|value| value.parse().ok())
+        .unwrap_or(query.after);
+    let ledger = state.receipts.clone();
+    let events = stream::unfold(
+        (ledger, push_id, after),
+        |(ledger, push_id, after)| async move {
+            loop {
+                let receipt = ledger.get(&push_id).await?;
+                if let Some(event) = receipt.events.iter().find(|event| event.sequence > after) {
+                    let event = event.clone();
+                    let sequence = event.sequence;
+                    let data = serde_json::to_string(&event).unwrap_or_else(|_| "{}".into());
+                    return Some((
+                        Ok::<_, Infallible>(
+                            SseEvent::default()
+                                .event("sync.push.receipt")
+                                .id(sequence.to_string())
+                                .data(data),
+                        ),
+                        (ledger, push_id, sequence),
+                    ));
+                }
+                tokio::time::sleep(Duration::from_millis(250)).await;
+            }
+        },
+    );
+    Sse::new(events)
+        .keep_alive(KeepAlive::new().interval(Duration::from_secs(15)))
+        .into_response()
 }
 
 fn broadcast_error_status(kind: P2PHandleErrorKind) -> StatusCode {
@@ -1667,6 +2391,156 @@ async fn kbd_event_stream(
 // Router builder
 // ---------------------------------------------------------------------------
 
+pub fn openapi_document() -> serde_json::Value {
+    let request_schema = serde_json::to_value(schemars::schema_for!(SignedSyncPushRequest))
+        .expect("request schema must serialize");
+    let receipt_schema = serde_json::to_value(schemars::schema_for!(PushReceipt))
+        .expect("receipt schema must serialize");
+    let event_schema = serde_json::to_value(schemars::schema_for!(PushReceiptEvent))
+        .expect("event schema must serialize");
+    let example_request = SignedSyncPushRequest {
+        schema_version: "1.7".into(),
+        request_id: "f2d84eaf-5474-4e28-971d-4bc4334c1fb7".into(),
+        domain: "learner-model".into(),
+        target_endpoint_ids: vec![],
+        expected_frontier: None,
+        issued_at_ms: 1_785_772_800_000,
+        signer_key_id: "ed25519:device-key-id".into(),
+        signature: "base64-signature".into(),
+    };
+    let example_hash = example_request
+        .payload_hash()
+        .expect("example push must hash canonically");
+    let example_request =
+        serde_json::to_value(example_request).expect("example request must serialize");
+    let accepted_receipt = serde_json::json!({
+        "schemaVersion": "1.7",
+        "pushId": "f2d84eaf-5474-4e28-971d-4bc4334c1fb7",
+        "canonicalPayloadHash": example_hash.clone(),
+        "domain": "learner-model",
+        "targets": [],
+        "localState": "accepted",
+        "perPeer": {},
+        "createdAtMs": 1_785_772_800_001_u64,
+        "updatedAtMs": 1_785_772_800_001_u64,
+        "events": [{
+            "sequence": 1,
+            "event": "accepted",
+            "timestampMs": 1_785_772_800_001_u64,
+            "localState": "accepted"
+        }]
+    });
+    let applied_receipt = serde_json::json!({
+        "schemaVersion": "1.7",
+        "pushId": "f2d84eaf-5474-4e28-971d-4bc4334c1fb7",
+        "canonicalPayloadHash": example_hash,
+        "domain": "learner-model",
+        "targets": [],
+        "localState": "broadcast",
+        "perPeer": {},
+        "createdAtMs": 1_785_772_800_001_u64,
+        "updatedAtMs": 1_785_772_800_003_u64,
+        "events": [
+            {
+                "sequence": 1,
+                "event": "accepted",
+                "timestampMs": 1_785_772_800_001_u64,
+                "localState": "accepted"
+            },
+            {
+                "sequence": 2,
+                "event": "broadcast",
+                "timestampMs": 1_785_772_800_003_u64,
+                "localState": "broadcast"
+            }
+        ]
+    });
+    let error_response = serde_json::json!({
+        "description": "Canonical error envelope",
+        "content": { "application/json": { "schema": {
+            "type": "object",
+            "required": ["error"],
+            "properties": { "error": {
+                "type": "object",
+                "required": ["code", "message"],
+                "properties": {
+                    "code": { "type": "string" },
+                    "message": { "type": "string" },
+                    "pushId": { "type": ["string", "null"] }
+                }
+            }}
+        }}}
+    });
+    serde_json::json!({
+        "openapi": "3.1.0",
+        "info": {
+            "title": "Sovereign Sync API",
+            "version": "1.7.0",
+            "description": "Signed, replay-safe resource synchronization over a same-user Unix socket by default."
+        },
+        "paths": {
+            "/health": { "get": { "operationId": "health", "responses": { "200": { "description": "Process liveness" } } } },
+            "/ready": { "get": { "operationId": "ready", "responses": { "200": { "description": "Authority readiness" }, "503": error_response.clone() } } },
+            "/api/v2/sync/pushes": { "post": {
+                "operationId": "createSyncPush",
+                "summary": "Create or exactly replay a signed sync push",
+                "requestBody": { "required": true, "content": { "application/json": {
+                    "schema": { "$ref": "#/components/schemas/SignedSyncPushRequest" },
+                    "examples": { "signedPush": { "$ref": "#/components/examples/SignedPushRequest" } }
+                } } },
+                "responses": {
+                    "201": { "description": "Push created", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/PushReceipt" } } } },
+                    "200": { "description": "Exact same-ID/same-hash receipt replay", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/PushReceipt" } } } },
+                    "400": error_response.clone(), "401": error_response.clone(), "403": error_response.clone(),
+                    "404": error_response.clone(), "409": error_response.clone(), "422": error_response.clone(), "503": error_response.clone()
+                }
+            }},
+            "/api/v2/sync/pushes/{push_id}": { "get": {
+                "operationId": "getSyncPush",
+                "parameters": [{ "name": "push_id", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }],
+                "responses": { "200": { "description": "Durable push receipt", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/PushReceipt" } } } }, "404": error_response.clone() }
+            }},
+            "/api/v2/sync/pushes/{push_id}/events": { "get": {
+                "operationId": "streamSyncPushEvents",
+                "summary": "Resume ordered receipt events after a sequence",
+                "parameters": [
+                    { "name": "push_id", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } },
+                    { "name": "after", "in": "query", "required": false, "schema": { "type": "integer", "minimum": 0 } },
+                    { "name": "Last-Event-ID", "in": "header", "required": false, "schema": { "type": "integer", "minimum": 0 } }
+                ],
+                "responses": { "200": { "description": "text/event-stream of events strictly after the supplied sequence", "content": { "text/event-stream": { "schema": { "$ref": "#/components/schemas/PushReceiptEvent" } } } }, "404": error_response }
+            }}
+        },
+        "components": {
+            "schemas": {
+                "SignedSyncPushRequest": request_schema,
+                "PushReceipt": receipt_schema,
+                "PushReceiptEvent": event_schema
+            },
+            "examples": {
+                "SignedPushRequest": { "value": example_request },
+                "AcceptedPushReceipt": { "value": accepted_receipt },
+                "AppliedPushReceipt": { "value": applied_receipt },
+                "RequestIdConflict": { "value": { "error": {
+                    "code": "request_id_conflict",
+                    "message": "requestId already exists with a different canonical payload hash",
+                    "pushId": "f2d84eaf-5474-4e28-971d-4bc4334c1fb7"
+                } } }
+            }
+        },
+        "x-correctness-scenarios": {
+            "same-id-same-hash": "Repeat the identical signed request after response loss; return the persisted receipt without executing another push.",
+            "same-id-different-hash": "Reuse the request ID with another canonical payload; return 409 and preserve the original receipt.",
+            "response-loss": "Retry the identical POST or retrieve the durable receipt, then resume events after the last observed sequence.",
+            "event-resume": "Return only durable events whose sequence is greater than the after cursor or Last-Event-ID."
+        }
+    })
+}
+
+async fn openapi_json() -> Json<serde_json::Value> {
+    Json(openapi_document())
+}
+
 pub fn build_router(state: AppState) -> Router {
     // AG-UI state needs to be extracted separately.
     let ag_state = state.ag_ui.clone();
@@ -1674,10 +2548,14 @@ pub fn build_router(state: AppState) -> Router {
     Router::new()
         .route("/health", get(health))
         .route("/ready", get(ready))
+        .route("/openapi.json", get(openapi_json))
         .route("/api/v1/skills/search", get(skills_search))
         .route("/api/v1/sync/status", get(sync_status))
         .route("/api/v1/sync/peers", get(sync_peers))
         .route("/api/v1/sync/push", post(sync_push))
+        .route(SYNC_PUSH_COLLECTION_ROUTE, post(create_sync_push_v2))
+        .route(SYNC_PUSH_ITEM_ROUTE, get(get_sync_push_v2))
+        .route(SYNC_PUSH_EVENTS_ROUTE, get(sync_push_events_v2))
         .route("/api/v1/kbd/projects", get(kbd_projects))
         .route("/api/v1/kbd/projects/register", post(kbd_register_project))
         .route("/api/v1/kbd/projects/adopt", post(kbd_adopt_project))
@@ -1946,36 +2824,163 @@ fn kbd_peer_is_authorized(
 /// Axum owner isolated from authority and P2P runtimes. No iroh/netwatch work
 /// and no journal initialization task can consume these two worker threads.
 pub struct HttpService {
-    address: SocketAddr,
+    address: LocalServiceAddress,
     gate: StartupGate,
     shutdown: Option<tokio::sync::oneshot::Sender<()>>,
     thread: Option<std::thread::JoinHandle<anyhow::Result<()>>>,
 }
 
+#[derive(Debug, Clone)]
+enum LocalServiceAddress {
+    Tcp(SocketAddr),
+    #[cfg(unix)]
+    Unix(PathBuf),
+}
+
+#[cfg(unix)]
+#[derive(Clone, Debug)]
+struct UdsConnectInfo {
+    uid: Option<u32>,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum LocalTransport {
+    Unix,
+    Tcp,
+}
+
+#[cfg(unix)]
+impl Connected<IncomingStream<'_, tokio::net::UnixListener>> for UdsConnectInfo {
+    fn connect_info(stream: IncomingStream<'_, tokio::net::UnixListener>) -> Self {
+        Self {
+            uid: stream
+                .io()
+                .peer_cred()
+                .ok()
+                .map(|credentials| credentials.uid()),
+        }
+    }
+}
+
+#[cfg(unix)]
+async fn require_same_user(
+    ConnectInfo(peer): ConnectInfo<UdsConnectInfo>,
+    mut request: Request,
+    next: Next,
+) -> Response {
+    if peer.uid != Some(nix::unistd::geteuid().as_raw()) {
+        return StatusCode::FORBIDDEN.into_response();
+    }
+    request.extensions_mut().insert(LocalTransport::Unix);
+    next.run(request).await
+}
+
+#[derive(Clone)]
+struct TcpBearerToken(Arc<str>);
+
+async fn require_tcp_bearer(
+    State(token): State<TcpBearerToken>,
+    mut request: Request,
+    next: Next,
+) -> Response {
+    let authorized = request
+        .headers()
+        .get(AUTHORIZATION)
+        .and_then(|value| value.to_str().ok())
+        .and_then(|value| value.strip_prefix("Bearer "))
+        .is_some_and(|candidate| candidate.as_bytes() == token.0.as_bytes());
+    if !authorized {
+        return (
+            StatusCode::UNAUTHORIZED,
+            Json(serde_json::json!({
+                "error": {
+                    "code": "tcp_token_required",
+                    "message": "a valid bearer token is required for loopback TCP"
+                }
+            })),
+        )
+            .into_response();
+    }
+    request.extensions_mut().insert(LocalTransport::Tcp);
+    next.run(request).await
+}
+
+/// Create or load the loopback-TCP bearer token. The token is never accepted
+/// from an environment variable or CLI value: its durable source is a regular,
+/// non-symlink file readable only by the current user.
+pub fn ensure_tcp_token_file(path: impl AsRef<Path>) -> anyhow::Result<String> {
+    let path = path.as_ref();
+    if path.exists() {
+        return load_tcp_token_file(path);
+    }
+    let parent = path
+        .parent()
+        .ok_or_else(|| anyhow::anyhow!("TCP token path has no parent"))?;
+    fs::create_dir_all(parent)?;
+    let mut bytes = [0_u8; 32];
+    OsRng.fill_bytes(&mut bytes);
+    let token = base64::engine::general_purpose::URL_SAFE_NO_PAD.encode(bytes);
+    let temporary = parent.join(format!(".tcp-token-{}.tmp", uuid::Uuid::new_v4()));
+    let mut options = OpenOptions::new();
+    options.create_new(true).write(true);
+    #[cfg(unix)]
+    std::os::unix::fs::OpenOptionsExt::mode(&mut options, 0o600);
+    let mut file = options.open(&temporary)?;
+    file.write_all(token.as_bytes())?;
+    file.write_all(b"\n")?;
+    file.sync_all()?;
+    fs::rename(&temporary, path)?;
+    #[cfg(unix)]
+    fs::set_permissions(path, fs::Permissions::from_mode(0o600))?;
+    File::open(parent)?.sync_all()?;
+    Ok(token)
+}
+
+pub fn load_tcp_token_file(path: &Path) -> anyhow::Result<String> {
+    let metadata = fs::symlink_metadata(path)?;
+    if metadata.file_type().is_symlink() || !metadata.is_file() {
+        anyhow::bail!("{} must be a regular TCP token file", path.display());
+    }
+    #[cfg(unix)]
+    if metadata.permissions().mode() & 0o077 != 0 {
+        anyhow::bail!("{} must have mode 0600", path.display());
+    }
+    let token = fs::read_to_string(path)?.trim().to_owned();
+    if token.len() < 32 || token.chars().any(char::is_whitespace) {
+        anyhow::bail!("{} does not contain a valid TCP token", path.display());
+    }
+    Ok(token)
+}
+
 impl HttpService {
-    pub async fn start(port: u16) -> anyhow::Result<Self> {
+    pub async fn start_tcp(port: u16, token_file: impl AsRef<Path>) -> anyhow::Result<Self> {
+        let token = ensure_tcp_token_file(token_file)?;
         let bind_started = Instant::now();
-        let mut service = tokio::task::spawn_blocking(move || Self::start_blocking(port))
+        let probe_token = token.clone();
+        let mut service = tokio::task::spawn_blocking(move || Self::start_blocking(port, token))
             .await
             .map_err(|error| anyhow::anyhow!("HTTP service startup task failed: {error}"))??;
         tracing::info!(
             startup_phase = "listener_bind",
             elapsed_ms = bind_started.elapsed().as_millis(),
-            address = %service.address,
+            address = ?service.address,
             "dedicated HTTP service bound"
         );
 
         let probe_started = Instant::now();
         let deadline = Instant::now() + Duration::from_secs(1);
         loop {
-            let report = detect_daemon_health(service.address.port()).await;
-            if report.status == DaemonHealthKind::Healthy {
+            let healthy = match &service.address {
+                LocalServiceAddress::Tcp(address) => tcp_health_probe(*address, &probe_token).await,
+                #[cfg(unix)]
+                LocalServiceAddress::Unix(path) => unix_health_probe(path).await,
+            };
+            if healthy {
                 break;
             }
             if Instant::now() >= deadline {
-                let message = report.message;
                 service.shutdown().await?;
-                anyhow::bail!("dedicated HTTP liveness self-probe failed: {message}");
+                anyhow::bail!("dedicated local API liveness self-probe failed");
             }
             tokio::time::sleep(Duration::from_millis(20)).await;
         }
@@ -1988,7 +2993,36 @@ impl HttpService {
         Ok(service)
     }
 
-    fn start_blocking(port: u16) -> anyhow::Result<Self> {
+    #[cfg(unix)]
+    pub async fn start_unix(path: impl AsRef<Path>) -> anyhow::Result<Self> {
+        let path = path.as_ref().to_path_buf();
+        let bind_started = Instant::now();
+        let mut service = tokio::task::spawn_blocking(move || Self::start_unix_blocking(path))
+            .await
+            .map_err(|error| anyhow::anyhow!("Unix service startup task failed: {error}"))??;
+        let socket = match &service.address {
+            LocalServiceAddress::Unix(path) => path.clone(),
+            LocalServiceAddress::Tcp(_) => unreachable!(),
+        };
+        tracing::info!(
+            startup_phase = "listener_bind",
+            elapsed_ms = bind_started.elapsed().as_millis(),
+            socket = %socket.display(),
+            "dedicated Unix API service bound"
+        );
+        let deadline = Instant::now() + Duration::from_secs(1);
+        while !unix_health_probe(&socket).await {
+            if Instant::now() >= deadline {
+                service.shutdown().await?;
+                anyhow::bail!("dedicated Unix API liveness self-probe failed");
+            }
+            tokio::time::sleep(Duration::from_millis(20)).await;
+        }
+        service.gate.set_stage(StartupStage::HealthVerified).await;
+        Ok(service)
+    }
+
+    fn start_blocking(port: u16, token: String) -> anyhow::Result<Self> {
         let (boot_tx, boot_rx) = std::sync::mpsc::sync_channel(1);
         let (shutdown_tx, shutdown_rx) = tokio::sync::oneshot::channel();
         let thread = std::thread::Builder::new()
@@ -2009,6 +3043,10 @@ impl HttpService {
                     };
                     let address = listener.local_addr()?;
                     let (startup_app, gate) = build_startup_router();
+                    let startup_app = startup_app.layer(middleware::from_fn_with_state(
+                        TcpBearerToken(Arc::from(token)),
+                        require_tcp_bearer,
+                    ));
                     if boot_tx.send(Ok((address, gate))).is_err() {
                         anyhow::bail!("HTTP service owner stopped before startup completed");
                     }
@@ -2026,7 +3064,56 @@ impl HttpService {
             .map_err(|_| anyhow::anyhow!("dedicated HTTP runtime exited before binding"))?
             .map_err(anyhow::Error::msg)?;
         Ok(Self {
-            address,
+            address: LocalServiceAddress::Tcp(address),
+            gate,
+            shutdown: Some(shutdown_tx),
+            thread: Some(thread),
+        })
+    }
+
+    #[cfg(unix)]
+    fn start_unix_blocking(path: PathBuf) -> anyhow::Result<Self> {
+        let (boot_tx, boot_rx) = std::sync::mpsc::sync_channel(1);
+        let (shutdown_tx, shutdown_rx) = tokio::sync::oneshot::channel();
+        let thread_path = path.clone();
+        let thread = std::thread::Builder::new()
+            .name("sovereign-unix-http".into())
+            .spawn(move || {
+                let runtime = tokio::runtime::Builder::new_multi_thread()
+                    .worker_threads(2)
+                    .thread_name("sovereign-unix-http-worker")
+                    .enable_all()
+                    .build()?;
+                runtime.block_on(async move {
+                    let listener = match bind_unix_atomic(&thread_path).await {
+                        Ok(listener) => listener,
+                        Err(error) => {
+                            let _ = boot_tx.send(Err(error.to_string()));
+                            return Err(error);
+                        }
+                    };
+                    let (startup_app, gate) = build_startup_router();
+                    let startup_app = startup_app.layer(middleware::from_fn(require_same_user));
+                    if boot_tx.send(Ok(gate)).is_err() {
+                        anyhow::bail!("Unix API owner stopped before startup completed");
+                    }
+                    axum::serve(
+                        listener,
+                        startup_app.into_make_service_with_connect_info::<UdsConnectInfo>(),
+                    )
+                    .with_graceful_shutdown(async move {
+                        let _ = shutdown_rx.await;
+                    })
+                    .await?;
+                    Ok(())
+                })
+            })?;
+        let gate = boot_rx
+            .recv()
+            .map_err(|_| anyhow::anyhow!("dedicated Unix runtime exited before binding"))?
+            .map_err(anyhow::Error::msg)?;
+        Ok(Self {
+            address: LocalServiceAddress::Unix(path),
             gate,
             shutdown: Some(shutdown_tx),
             thread: Some(thread),
@@ -2034,7 +3121,11 @@ impl HttpService {
     }
 
     pub fn address(&self) -> SocketAddr {
-        self.address
+        match self.address {
+            LocalServiceAddress::Tcp(address) => address,
+            #[cfg(unix)]
+            LocalServiceAddress::Unix(_) => panic!("Unix service has no TCP address"),
+        }
     }
 
     pub fn gate(&self) -> &StartupGate {
@@ -2147,17 +3238,15 @@ pub fn build_startup_router() -> (Router, StartupGate) {
     (app, gate)
 }
 
-pub async fn serve(port: u16, skills_dir: &Path) -> anyhow::Result<()> {
-    let mut service = HttpService::start(port).await?;
+pub async fn serve_tcp(
+    port: u16,
+    skills_dir: &Path,
+    token_file: impl AsRef<Path>,
+) -> anyhow::Result<()> {
+    let mut service = HttpService::start_tcp(port, token_file).await?;
     let gate = service.gate().clone();
     match AppState::try_new_with_startup(skills_dir, None, &gate).await {
-        Ok(state) => {
-            gate.install(state).await;
-            info!(
-                startup_phase = "router_install",
-                "local REST routes installed"
-            );
-        }
+        Ok(state) => gate.install(state).await,
         Err(error) => {
             warn!(%error, "local authority initialization failed; diagnostic router remains active");
             gate.fail("local authority initialization failed; inspect the service log")
@@ -2165,10 +3254,25 @@ pub async fn serve(port: u16, skills_dir: &Path) -> anyhow::Result<()> {
         }
     }
     tokio::select! {
-        _ = shutdown_signal() => {
-            info!("shutdown signal received");
-            service.shutdown().await
+        _ = shutdown_signal() => service.shutdown().await,
+        _ = service.wait_for_exit() => service.join().await,
+    }
+}
+
+#[cfg(unix)]
+pub async fn serve_unix(path: impl AsRef<Path>, skills_dir: &Path) -> anyhow::Result<()> {
+    let mut service = HttpService::start_unix(path).await?;
+    let gate = service.gate().clone();
+    match AppState::try_new_with_startup(skills_dir, None, &gate).await {
+        Ok(state) => gate.install(state).await,
+        Err(error) => {
+            warn!(%error, "local authority initialization failed; diagnostic router remains active");
+            gate.fail("local authority initialization failed; inspect the service log")
+                .await;
         }
+    }
+    tokio::select! {
+        _ = shutdown_signal() => service.shutdown().await,
         _ = service.wait_for_exit() => service.join().await,
     }
 }
@@ -2190,33 +3294,14 @@ pub async fn shutdown_signal() {
     }
 }
 
-/// Serve using a caller-constructed `AppState` — lets `main.rs` hold a clone
-/// of the same state (e.g. to spawn the incoming-P2P-message consumer with
-/// access to the same `docs`/`manifest`/`adapters`) before the server starts.
-pub async fn serve_with_state(port: u16, state: AppState) -> anyhow::Result<()> {
-    let listener = bind_loopback(port).await?;
-    serve_with_listener(listener, state).await
-}
-
-/// Acquire the unauthenticated loopback listener before opening KBD project
+/// Acquire the loopback listener before opening KBD project
 /// state or joining P2P gossip. Registry reconciliation can be deliberately
 /// expensive; it must not leave the control-plane port unbound while launchd
 /// considers the process alive.
-pub async fn bind_loopback(port: u16) -> anyhow::Result<tokio::net::TcpListener> {
+async fn bind_loopback(port: u16) -> anyhow::Result<tokio::net::TcpListener> {
     // LOOPBACK ONLY — and this is load-bearing, not incidental.
-    //
-    // There is no authentication on this server. That is deliberate: the
-    // previous bearer-token scheme resolved different runtime roots for CLI
-    // and daemon processes and produced mismatched secrets. It returned false
-    // 401s without protecting a service reachable only by processes that
-    // already have local code execution. KBD mutation POSTs now have their own
-    // device-signature authorization in addition to this transport boundary.
-    //
-    // IF YOU CHANGE THIS ADDRESS, YOU MUST ADD AUTHENTICATION FIRST. Binding
-    // anything other than 127.0.0.1 exposes unauthenticated control-plane
-    // writes — phase creation, command submission — to the
-    // network. Design it against the threat model you actually have at that
-    // point; do not resurrect the token scheme deleted here.
+    // Production callers layer a token sourced from one shared mode-0600 file
+    // over this listener. Never broaden this bind address.
     let addr = SocketAddr::from(([127, 0, 0, 1], port));
     let listener = tokio::net::TcpListener::bind(addr).await?;
     info!(
@@ -2226,19 +3311,78 @@ pub async fn bind_loopback(port: u16) -> anyhow::Result<tokio::net::TcpListener>
     Ok(listener)
 }
 
-/// Serve a fully initialized application on an already-acquired listener.
-pub async fn serve_with_listener(
-    listener: tokio::net::TcpListener,
-    state: AppState,
-) -> anyhow::Result<()> {
-    let app = build_router(state);
-
-    info!(
-        "sovereign-sync REST API ready on http://{}",
-        listener.local_addr()?
+async fn tcp_health_probe(address: SocketAddr, token: &str) -> bool {
+    let Ok(mut stream) = tokio::net::TcpStream::connect(address).await else {
+        return false;
+    };
+    let request = format!(
+        "GET /health HTTP/1.1\r\nHost: localhost\r\nAuthorization: Bearer {token}\r\nConnection: close\r\n\r\n"
     );
-    axum::serve(listener, app).await?;
-    Ok(())
+    if stream.write_all(request.as_bytes()).await.is_err() {
+        return false;
+    }
+    let mut response = Vec::new();
+    if tokio::time::timeout(
+        Duration::from_millis(500),
+        stream.read_to_end(&mut response),
+    )
+    .await
+    .is_err()
+    {
+        return false;
+    }
+    response.starts_with(b"HTTP/1.1 200")
+}
+
+#[cfg(unix)]
+async fn bind_unix_atomic(path: &Path) -> anyhow::Result<tokio::net::UnixListener> {
+    let parent = path
+        .parent()
+        .ok_or_else(|| anyhow::anyhow!("Unix socket path has no parent"))?;
+    fs::create_dir_all(parent)?;
+    fs::set_permissions(parent, fs::Permissions::from_mode(0o700))?;
+    if path.exists() {
+        let metadata = fs::symlink_metadata(path)?;
+        if !metadata.file_type().is_socket() {
+            anyhow::bail!("refusing to replace non-socket path {}", path.display());
+        }
+        if tokio::net::UnixStream::connect(path).await.is_ok() {
+            anyhow::bail!("Unix socket {} is already in use", path.display());
+        }
+        fs::remove_file(path)?;
+    }
+    let nonce = uuid::Uuid::new_v4().simple().to_string();
+    let temporary = parent.join(format!(".s-{}.sock", &nonce[..8]));
+    let listener = tokio::net::UnixListener::bind(&temporary)?;
+    fs::set_permissions(&temporary, fs::Permissions::from_mode(0o600))?;
+    fs::rename(&temporary, path)?;
+    File::open(parent)?.sync_all()?;
+    Ok(listener)
+}
+
+#[cfg(unix)]
+async fn unix_health_probe(path: &Path) -> bool {
+    let Ok(mut stream) = tokio::net::UnixStream::connect(path).await else {
+        return false;
+    };
+    if stream
+        .write_all(b"GET /health HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n")
+        .await
+        .is_err()
+    {
+        return false;
+    }
+    let mut response = Vec::new();
+    if tokio::time::timeout(
+        Duration::from_millis(500),
+        stream.read_to_end(&mut response),
+    )
+    .await
+    .is_err()
+    {
+        return false;
+    }
+    response.starts_with(b"HTTP/1.1 200")
 }
 
 #[cfg(test)]
@@ -2264,6 +3408,7 @@ mod presence_auth_tests {
             domain: "kbd-control:project-a".into(),
             identity: Some("project-a".into()),
             payload: b"presence snapshot bytes".to_vec(),
+            target_endpoint_ids: Vec::new(),
             signer_key_id: None,
             signature: None,
         }
@@ -2478,11 +3623,19 @@ mod presence_auth_tests {
 
 #[cfg(test)]
 mod transport_status_tests {
-    use super::{broadcast_error_status, collect_readiness_tasks, AppState, HttpService};
+    use super::{
+        broadcast_error_status, build_router, collect_readiness_tasks, AppState, HttpService,
+        LocalTransport,
+    };
     use crate::p2p::P2PHandleErrorKind;
-    use axum::http::StatusCode;
+    use axum::{body::Body, http::Request, http::StatusCode, Extension};
     use std::collections::BTreeSet;
+    #[cfg(unix)]
+    use std::os::unix::fs::PermissionsExt;
     use std::time::{Duration, Instant};
+    #[cfg(unix)]
+    use tokio::io::{AsyncReadExt, AsyncWriteExt};
+    use tower::ServiceExt;
 
     #[test]
     fn unavailable_transport_is_503_but_ready_transport_failures_are_502() {
@@ -2542,25 +3695,111 @@ mod transport_status_tests {
         let skills = fixture.path().join("skills");
         let project = fixture.path().join("project");
         let data = fixture.path().join("data");
+        let token_file = fixture.path().join("tcp-token");
         std::fs::create_dir_all(&skills).unwrap();
         std::fs::create_dir_all(&project).unwrap();
         std::fs::write(skills.join(".slow-scan-test"), b"250ms").unwrap();
-        let mut service = HttpService::start(0).await.unwrap();
+        let mut service = HttpService::start_tcp(0, &token_file).await.unwrap();
         let port = service.address().port();
+        let token = super::load_tcp_token_file(&token_file).unwrap();
         let initialization =
             tokio::spawn(async move { AppState::try_new_at(&skills, &project, &data, None).await });
         tokio::time::sleep(Duration::from_millis(25)).await;
         assert!(!initialization.is_finished());
 
         let started = Instant::now();
-        let health = crate::health_check::detect_daemon_health(port).await;
+        let health = crate::health_check::sample_daemon_health_with_token(
+            port,
+            1,
+            0,
+            None,
+            None,
+            Some(&token),
+        )
+        .await;
 
         assert_eq!(
-            health.status,
+            health.health.status,
             crate::health_check::DaemonHealthKind::Healthy
         );
         assert!(started.elapsed() < Duration::from_millis(100));
         initialization.await.unwrap().unwrap();
         service.shutdown().await.unwrap();
+    }
+
+    #[cfg(unix)]
+    #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+    async fn unix_socket_is_private_and_serves_same_user_health() {
+        let fixture = tempfile::tempdir().unwrap();
+        let socket = fixture.path().join("sovereign-sync.sock");
+        let mut service = HttpService::start_unix(&socket).await.unwrap();
+
+        assert_eq!(
+            std::fs::metadata(&socket).unwrap().permissions().mode() & 0o777,
+            0o600
+        );
+        assert!(super::unix_health_probe(&socket).await);
+        let report =
+            crate::health_check::sample_unix_daemon_health(&socket, 3, 1, Some(100.0), Some(100.0))
+                .await;
+        assert_eq!(report.exit_code(), 0);
+        assert!(report.health.endpoint.starts_with("unix://"));
+        service.shutdown().await.unwrap();
+    }
+
+    #[cfg(unix)]
+    #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+    async fn explicit_tcp_requires_private_file_backed_token() {
+        let fixture = tempfile::tempdir().unwrap();
+        let token_file = fixture.path().join("tcp-token");
+        let mut service = HttpService::start_tcp(0, &token_file).await.unwrap();
+        let address = service.address();
+        let token = super::load_tcp_token_file(&token_file).unwrap();
+
+        assert_eq!(
+            std::fs::metadata(&token_file).unwrap().permissions().mode() & 0o777,
+            0o600
+        );
+        assert!(super::tcp_health_probe(address, &token).await);
+
+        let mut stream = tokio::net::TcpStream::connect(address).await.unwrap();
+        stream
+            .write_all(b"GET /health HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n")
+            .await
+            .unwrap();
+        let mut response = Vec::new();
+        stream.read_to_end(&mut response).await.unwrap();
+        assert!(response.starts_with(b"HTTP/1.1 401"));
+
+        std::fs::set_permissions(&token_file, std::fs::Permissions::from_mode(0o644)).unwrap();
+        assert!(super::load_tcp_token_file(&token_file).is_err());
+        service.shutdown().await.unwrap();
+    }
+
+    #[tokio::test]
+    async fn unsigned_v1_push_is_deprecated_and_unix_only() {
+        let fixture = tempfile::tempdir().unwrap();
+        let project = fixture.path().join("project");
+        let data = fixture.path().join("data");
+        let skills = fixture.path().join("skills");
+        std::fs::create_dir_all(&project).unwrap();
+        std::fs::create_dir_all(&skills).unwrap();
+        let state = AppState::try_new_at(&skills, &project, &data, None)
+            .await
+            .unwrap();
+        let app = build_router(state).layer(Extension(LocalTransport::Unix));
+        let request = Request::builder()
+            .method("POST")
+            .uri("/api/v1/sync/push")
+            .header("content-type", "application/json")
+            .body(Body::from(r#"{"domain":"learner-model"}"#))
+            .unwrap();
+        let response = app.oneshot(request).await.unwrap();
+        assert_eq!(response.status(), StatusCode::OK);
+        assert_eq!(response.headers()["deprecation"], "true");
+        assert!(response.headers()["link"]
+            .to_str()
+            .unwrap()
+            .contains("/api/v2/sync/pushes"));
     }
 }

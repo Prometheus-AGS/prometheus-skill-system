@@ -90,7 +90,7 @@ pub enum Action {
         unexplained_projection_mismatches: u64,
         harness: Option<String>,
         device: Option<String>,
-        voters: u64,
+        replicas: u64,
         successful: bool,
     },
     RolloutPromote,
@@ -511,7 +511,7 @@ pub async fn run(path: &str, action: Action) -> Result<()> {
             mut unexplained_projection_mismatches,
             harness,
             device,
-            voters,
+            replicas,
             successful,
         } => {
             let observed_at = observed_at
@@ -542,7 +542,7 @@ pub async fn run(path: &str, action: Action) -> Result<()> {
                 projection_mismatches,
                 harness,
                 device,
-                voters,
+                replicas,
                 successful,
             })?;
             let next_gate = evidence.gate();

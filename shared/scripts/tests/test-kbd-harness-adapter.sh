@@ -16,7 +16,7 @@ printf '{"schemaVersion":"1","projectId":"00000000-0000-4000-8000-000000000001",
 # may exit nonzero.
 printf 'paused\n' >"$TEST_ROOT/.kbd-orchestrator/PAUSE"
 OUTPUT="$(cd "$TEST_ROOT" && bash "$ADAPTER" session_start claude-code 2>&1)"
-[[ "$OUTPUT" == *"emergency PAUSE"* ]]
+[[ "$OUTPUT" == *"pause advisory"* ]]
 
 for event in session_start post_compact prompt stop; do
   (cd "$TEST_ROOT" && bash "$ADAPTER" "$event" claude-code >/dev/null 2>&1) ||

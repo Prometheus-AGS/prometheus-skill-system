@@ -16,7 +16,8 @@ pub enum RolloutStage {
     Shadow,
     CanaryLocal,
     CanaryHarnesses,
-    CanaryQuorum,
+    #[serde(alias = "canary_quorum")]
+    CanaryDevices,
     Production,
 }
 
@@ -32,7 +33,8 @@ pub struct RolloutObservation {
     pub projection_mismatches: Vec<PathBuf>,
     pub harness: Option<String>,
     pub device: Option<String>,
-    pub voters: u64,
+    #[serde(alias = "voters")]
+    pub replicas: u64,
     pub successful: bool,
 }
 
@@ -57,7 +59,8 @@ pub struct PromotionGate {
     pub unexplained_projection_mismatches: u64,
     pub harnesses: BTreeSet<String>,
     pub devices: BTreeSet<String>,
-    pub max_voters: u64,
+    #[serde(alias = "maxVoters")]
+    pub max_replicas: u64,
     pub failures: Vec<String>,
 }
 
@@ -75,8 +78,8 @@ impl RolloutEvidence {
         let target = match self.stage {
             RolloutStage::Shadow => RolloutStage::CanaryLocal,
             RolloutStage::CanaryLocal => RolloutStage::CanaryHarnesses,
-            RolloutStage::CanaryHarnesses => RolloutStage::CanaryQuorum,
-            RolloutStage::CanaryQuorum => RolloutStage::Production,
+            RolloutStage::CanaryHarnesses => RolloutStage::CanaryDevices,
+            RolloutStage::CanaryDevices => RolloutStage::Production,
             RolloutStage::Production => RolloutStage::Production,
         };
         let observations = self
@@ -104,9 +107,9 @@ impl RolloutEvidence {
             .iter()
             .filter_map(|observation| observation.device.clone())
             .collect::<BTreeSet<_>>();
-        let max_voters = observations
+        let max_replicas = observations
             .iter()
-            .map(|observation| observation.voters)
+            .map(|observation| observation.replicas)
             .max()
             .unwrap_or_default();
         let days = observations
@@ -165,25 +168,25 @@ impl RolloutEvidence {
                     );
                 }
             }
-            RolloutStage::CanaryQuorum => {
+            RolloutStage::CanaryDevices => {
                 require(
                     consecutive_successful_days >= 7,
-                    "quorum canary requires seven consecutive successful days",
+                    "device canary requires seven consecutive successful days",
                     &mut failures,
                 );
                 require(
                     devices.len() >= 2,
-                    "quorum canary requires at least two devices",
+                    "device canary requires at least two devices",
                     &mut failures,
                 );
                 require(
-                    max_voters >= 3,
-                    "quorum canary requires at least three voters",
+                    max_replicas >= 2,
+                    "device canary requires at least two replicas",
                     &mut failures,
                 );
                 require(
                     unexplained_projection_mismatches == 0,
-                    "quorum canary has unexplained projection mismatches",
+                    "device canary has unexplained projection mismatches",
                     &mut failures,
                 );
             }
@@ -201,7 +204,7 @@ impl RolloutEvidence {
             unexplained_projection_mismatches,
             harnesses,
             devices,
-            max_voters,
+            max_replicas,
             failures,
         }
     }
@@ -334,7 +337,7 @@ mod tests {
             projection_mismatches: Vec::new(),
             harness: Some("codex".into()),
             device: Some("device-a".into()),
-            voters: 1,
+            replicas: 1,
             successful: true,
         }
     }

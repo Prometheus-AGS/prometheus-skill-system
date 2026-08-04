@@ -5,8 +5,8 @@ use std::path::{Path, PathBuf};
 pub struct NodeConfig {
     #[serde(default = "default_skills_dir")]
     pub skills_dir: String,
-    #[serde(default)]
-    pub operator_id: String,
+    #[serde(default = "default_p2p_identity_file")]
+    pub p2p_identity_file: String,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
@@ -21,23 +21,6 @@ pub struct ServerConfig {
     pub port: u16,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
-pub struct KbdVoterConfig {
-    pub id: u64,
-    #[serde(default)]
-    pub endpoint: String,
-    #[serde(default)]
-    pub witness: bool,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct KbdConfig {
-    #[serde(default = "default_kbd_node_id")]
-    pub node_id: u64,
-    #[serde(default = "default_kbd_voters")]
-    pub voters: Vec<KbdVoterConfig>,
-}
-
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct SovereignConfig {
     #[serde(default)]
@@ -46,15 +29,13 @@ pub struct SovereignConfig {
     pub peers: PeersConfig,
     #[serde(default)]
     pub server: ServerConfig,
-    #[serde(default)]
-    pub kbd: KbdConfig,
 }
 
 impl Default for NodeConfig {
     fn default() -> Self {
         Self {
             skills_dir: default_skills_dir(),
-            operator_id: String::new(),
+            p2p_identity_file: default_p2p_identity_file(),
         }
     }
 }
@@ -63,15 +44,6 @@ impl Default for ServerConfig {
     fn default() -> Self {
         Self {
             port: default_port(),
-        }
-    }
-}
-
-impl Default for KbdConfig {
-    fn default() -> Self {
-        Self {
-            node_id: default_kbd_node_id(),
-            voters: default_kbd_voters(),
         }
     }
 }
@@ -91,29 +63,16 @@ fn default_port() -> u16 {
     7892
 }
 
-fn default_kbd_node_id() -> u64 {
-    1
-}
-
-fn default_kbd_voters() -> Vec<KbdVoterConfig> {
-    vec![KbdVoterConfig {
-        id: default_kbd_node_id(),
-        endpoint: "local".into(),
-        witness: false,
-    }]
-}
-
-impl KbdConfig {
-    pub fn quorum_policy(&self) -> anyhow::Result<crate::kbd_single_writer::QuorumPolicy> {
-        let policy = crate::kbd_single_writer::QuorumPolicy::new(
-            self.node_id,
-            self.voters.iter().map(|voter| voter.id),
-        )?;
-        if policy.voters().len() != self.voters.len() {
-            anyhow::bail!("kbd.voters contains duplicate voter ids");
-        }
-        Ok(policy)
-    }
+fn default_p2p_identity_file() -> String {
+    dirs_next::home_dir()
+        .map(|home| {
+            home.join(".config")
+                .join("sovereign-sync")
+                .join("p2p-identity.json")
+                .to_string_lossy()
+                .into_owned()
+        })
+        .unwrap_or_else(|| "p2p-identity.json".into())
 }
 
 impl SovereignConfig {
@@ -140,5 +99,18 @@ impl SovereignConfig {
         let content = toml::to_string_pretty(&default)?;
         std::fs::write(path, content)?;
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn default_config_has_no_voter_or_quorum_surface() {
+        let rendered = toml::to_string_pretty(&SovereignConfig::default()).unwrap();
+        assert!(!rendered.contains("[kbd]"));
+        assert!(!rendered.contains("voter"));
+        assert!(!rendered.contains("quorum"));
     }
 }
