@@ -50,9 +50,9 @@ explicit argument
 
 `preflight-models.sh` prints which layer supplied each role, so this is never a guess.
 
-## Three contracts that will bite you
+## Four contracts that will bite you
 
-All three were verified against `tools/liter-llm`, and all three were live defects
+All four were verified against `tools/liter-llm`, and all four were live defects
 in the shipped configuration.
 
 ### 1. `/v1/*` requires a Bearer token unconditionally
@@ -92,6 +92,61 @@ liter-llm mcp --transport stdio --config ~/.config/liter-llm/liter-llm-proxy.tom
 Without it the MCP server does not merely load zero models — it **fails to start**,
 because `[mcp] stdio_trust_local` lives in the config it was never given.
 
+### 4. A `base_url` override never speaks a non-OpenAI wire protocol, and never substitutes `provider_model` into the request
+
+Two separate behaviors compound into one trap:
+
+- **Protocol.** `DefaultClient::build_provider()` checks `config.base_url.is_some()`
+  *before* looking at `provider_model` at all (the one exception is an explicit
+  `azure/` prefix). Any `[[models]]` entry that sets `base_url` gets a generic
+  OpenAI-compatible client — `/chat/completions`, `Authorization: Bearer`, OpenAI
+  response shape — **no matter what prefix `provider_model` uses**. `provider_model =
+  "anthropic/whatever"` with a `base_url` override does **not** get you the real
+  Anthropic Messages wire format (`x-api-key`, `anthropic-version`, `/messages`,
+  `content: [...]` responses). There is currently no way to point liter-llm's
+  Anthropic client at a third-party host — it only ever talks to
+  `https://api.anthropic.com/v1`.
+- **Model field.** `liter-llm-proxy`'s `/v1/chat/completions` handler
+  (`routes/chat.rs`) forwards the **caller's literal `"model"` string** upstream
+  unchanged. `provider_model` is used only as a `model_hint` to pick the protocol
+  handler above (irrelevant once `base_url` forces the generic client) — it is
+  **never substituted into the outgoing request body**.
+
+The practical consequence: for any `base_url`-overridden `[[models]]` entry, `name`
+**must equal the real upstream model id**, or the upstream receives your alias
+string (e.g. `"kbd-critic"`) as its `model` field. Some upstreams tolerate this
+silently — Kimi's coding endpoint auto-upgrades any string to its current model,
+and `openai-proxy` ignores `model` entirely and always answers as its own backend
+— which is exactly what makes this dangerous: **`curl .../chat/completions` comes
+back HTTP 200 with a well-formed `choices` array regardless of whether the
+intended backend was ever reached.** The only way to catch it is to ask the model
+to self-identify and compare the answer against what you configured. This is
+precisely how the `kimi-coding` / `minimax-coding` rows below were caught wrong
+(verified 2026-08-04): a `[[models]] name = "kbd-minimax-coding"` entry pointed at
+MiniMax's real subscription endpoint got a clean `choices` response from
+`openai-proxy` at `:8181` (which was answering *instead of* liter-llm, per the
+gateway-ordering note below) that self-identified as ChatGPT — and, once routed
+through liter-llm's own gateway correctly, a 400 from MiniMax itself
+(`unknown model 'kbd-minimax-coding'`) because MiniMax — unlike Kimi and
+openai-proxy — validates the model field strictly.
+
+**Gateway ordering matters for the same reason.** `~/.prometheus/kbd/models.toml`
+`[gateway] candidates` is checked in order; the first URL that answers `GET
+/models` wins. `openai-proxy` (`:8181`) is a *different tool* that always answers
+200 and always serves its own backend regardless of the requested model. If
+liter-llm's own `api` server (default port `4000`) isn't running or isn't listed
+first, KBD dispatch silently falls through to `openai-proxy` and every named
+model — `kbd-critic`, `kbd-judge`, `k3`, `MiniMax-M3`, all of them — gets served by
+whatever `openai-proxy` proxies to, with no error. Start liter-llm's gateway before
+relying on named models:
+
+```bash
+set -a; . ~/.prometheus/kbd/secrets.env; set +a
+liter-llm api --config ~/.config/liter-llm/liter-llm-proxy.toml &
+```
+
+and put `http://localhost:4000/v1` **first** in `[gateway] candidates`.
+
 ## Providers
 
 liter-llm has first-class providers for all four; use the real prefixes.
@@ -100,9 +155,15 @@ liter-llm has first-class providers for all four; use the real prefixes.
 |---|---|---|---|
 | openai-proxy (local) | `openai/gpt-5.6-sol` | `http://localhost:8181/v1` | none (`sk-proxy-local`) |
 | Kimi / Moonshot | `moonshot/kimi-k2.5` | `https://api.moonshot.ai/v1` | `MOONSHOT_API_KEY` |
-| MiniMax | `minimax/MiniMax-M2.5` | `https://api.minimax.io/v1` | `MINIMAX_API_KEY` |
+| MiniMax (pay-as-you-go) | `minimax/MiniMax-M2.5` | `https://api.minimax.io/v1` | `MINIMAX_API_KEY` |
 | Qwen / DashScope | `dashscope/qwen3-coder-plus` | `https://dashscope-intl.aliyuncs.com/compatible-mode/v1` | `DASHSCOPE_API_KEY` |
 | Z.ai GLM | `zai/glm-4.7` | `https://api.z.ai/api/paas/v4` | `ZAI_API_KEY` |
+| Kimi For Coding (subscription) | `moonshot/k3` | `https://api.kimi.com/coding/v1` | `KIMI_CODING_KEY` |
+| MiniMax Token Plan (subscription) | `minimax/MiniMax-M3` | `https://api.minimax.io/v1` | `MINIMAX_KEY` |
+
+Remember contract #4 above: for the last two rows, `name` in `[[models]]` **must
+literally be** `k3` / `MiniMax-M3` respectively — not an alias like `kbd-critic` —
+because that literal string is what gets forwarded upstream as `"model"`.
 
 ### Coding plans
 
@@ -122,10 +183,20 @@ Z.ai's docs are explicit: a Coding Plan **must** use `/api/coding/paas/v4`, or t
 subscription quota is not drawn. `/liter-llm-bridge configure add-provider glm-coding`
 writes this for you.
 
-**OAuth-only plans** (MiniMax/Qwen subscription portals, some Kimi coding plans)
-expose *Anthropic*-shaped endpoints an OpenAI-REST caller cannot use. The wizard
-refuses these rather than writing config that 404s later. (`openai-proxy`'s OAuth is
-OpenAI/ChatGPT-only and unrelated.)
+**Kimi For Coding and the MiniMax Token Plan are each a distinct auth realm, not
+just a distinct path** — the subscription key for one 401s against the other
+product's endpoint (verified: `KIMI_CODING_KEY` gets `invalid_authentication_error`
+against plain `api.moonshot.ai/v1`). Both products' own docs describe an
+*Anthropic-compatible* surface (`/coding/v1` for Kimi, `/anthropic/v1` for MiniMax)
+for use with Claude Code / Anthropic-SDK clients — but per contract #4, liter-llm's
+`base_url`-override path cannot speak that wire format regardless of prefix. What
+was actually verified live (2026-08-04) instead: **both subscription keys also work
+against a plain OpenAI-compatible `/chat/completions` path** — `/coding/v1` for Kimi
+(its own dedicated OpenAI-compatible path), and MiniMax's regular `/v1` (the
+subscription *key* draws on the Token Plan quota regardless of which of MiniMax's
+equivalent paths receives it). Use `add-provider kimi-coding` / `add-provider
+minimax-coding` rather than hand-writing these — the presets encode the verified
+`name`/`base_url` combination.
 
 ## Secrets
 
@@ -148,7 +219,7 @@ S="${CLAUDE_PLUGIN_ROOT}/skills/process/liter-llm-bridge/scripts/configure-model
 
 bash "$S" check                    # report state; change nothing
 bash "$S" repair                   # add ONLY the missing mandatory pieces
-bash "$S" add-provider glm-coding   # local-proxy|kimi|minimax|qwen|glm|glm-coding|kimi-coding
+bash "$S" add-provider glm-coding   # local-proxy|kimi|minimax|qwen|glm|glm-coding|kimi-coding|minimax-coding
 bash "$S" verify                   # live 1-token completion per role
 bash "$S" migrate                  # retire the legacy config.toml
 
