@@ -5,7 +5,7 @@ use fs2::FileExt;
 use rand_core::OsRng;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
-use std::collections::{BTreeMap, HashSet};
+use std::collections::{BTreeMap, BTreeSet, HashSet};
 use std::fs::{self, File, OpenOptions};
 use std::io::{BufRead, BufReader, Write};
 #[cfg(unix)]
@@ -905,7 +905,11 @@ impl Event {
         self.attach_host_signature(signer.sign_base64(&bytes))
     }
 
-    fn verify_signature(&self, devices: &BTreeMap<String, DeviceRecord>) -> Result<()> {
+    fn verify_signature(
+        &self,
+        devices: &BTreeMap<String, DeviceRecord>,
+        allow_genesis_bootstrap: bool,
+    ) -> Result<()> {
         if self.schema_version == "1" {
             return Ok(());
         }
@@ -921,20 +925,12 @@ impl Event {
                 return Err(RuntimeError::RevokedSigner(key_id.clone()));
             }
             device.public_key.as_str()
-        } else {
-            // Trust any not-yet-enrolled signer, regardless of actor kind —
-            // not just the very first one this runtime ever sees. ActorKind
-            // is a self-declared routing label (harness vs. operator vs.
-            // system), not a cryptographic identity claim, so gating trust on
-            // it adds no real protection; the actual trust boundary is the
-            // signature itself (proving local OS-keychain/filesystem key
-            // possession) plus revocation (above), which remains fully
-            // enforced. A second local identity (for example a headless
-            // daemon and an interactive CLI) may legitimately sign events;
-            // the signature and revocation records are the trust boundary.
+        } else if allow_genesis_bootstrap {
             self.signer_public_key
                 .as_deref()
                 .ok_or_else(|| RuntimeError::UnknownSigner(key_id.clone()))?
+        } else {
+            return Err(RuntimeError::UnknownSigner(key_id.clone()));
         };
         let public_bytes = BASE64
             .decode(public_key)
@@ -1012,6 +1008,8 @@ pub struct KbdStateV2 {
     #[serde(default)]
     pub conflicts: BTreeMap<String, ConflictRecord>,
     pub devices: BTreeMap<String, DeviceRecord>,
+    #[serde(default, skip_serializing_if = "BTreeSet::is_empty")]
+    pub operator_key_ids: BTreeSet<String>,
     pub command_revisions: BTreeMap<String, u64>,
 }
 
@@ -1400,6 +1398,7 @@ impl Default for KbdStateV2 {
             replica_view: None,
             conflicts: BTreeMap::new(),
             devices: BTreeMap::new(),
+            operator_key_ids: BTreeSet::new(),
             command_revisions: BTreeMap::new(),
         }
     }
@@ -1412,6 +1411,131 @@ impl KbdStateV2 {
 
     pub(crate) fn apply_folded(&mut self, event: &Event) -> Result<()> {
         self.apply_internal(event, false)
+    }
+
+    pub(crate) fn verify_and_apply_device_authority(&mut self, event: &Event) -> Result<()> {
+        let bootstrap = self.revision == 0;
+        if bootstrap
+            && (!matches!(event.kind, EventKind::RunInitialized { .. })
+                || event.actor.kind != ActorKind::Operator)
+        {
+            return Err(RuntimeError::InvalidState(
+                "the first signed event must initialize the run under operator authority".into(),
+            ));
+        }
+        event.verify_signature(&self.devices, bootstrap)?;
+        if event.integrity_hash != event.calculate_hash()? {
+            return Err(RuntimeError::Integrity {
+                revision: event.revision,
+            });
+        }
+
+        if event.schema_version != "1" && !bootstrap && event.actor.kind == ActorKind::Operator {
+            let signer_key_id =
+                event
+                    .signer_key_id
+                    .as_deref()
+                    .ok_or_else(|| RuntimeError::Signature {
+                        revision: event.revision,
+                        reason: "operator event is missing signerKeyId".into(),
+                    })?;
+            if !self.operator_key_ids.contains(signer_key_id) {
+                return Err(RuntimeError::InvalidState(
+                    "operator event requires an active operator signing key".into(),
+                ));
+            }
+        }
+
+        if event.schema_version != "1" && bootstrap {
+            let key_id = event
+                .signer_key_id
+                .clone()
+                .ok_or_else(|| RuntimeError::Signature {
+                    revision: event.revision,
+                    reason: "missing bootstrap signerKeyId".into(),
+                })?;
+            let public_key =
+                event
+                    .signer_public_key
+                    .clone()
+                    .ok_or_else(|| RuntimeError::Signature {
+                        revision: event.revision,
+                        reason: "missing bootstrap signerPublicKey".into(),
+                    })?;
+            self.devices.insert(
+                key_id.clone(),
+                DeviceRecord {
+                    device_id: event.actor.device.clone(),
+                    key_id: key_id.clone(),
+                    public_key,
+                    status: DeviceStatus::Active,
+                    enrolled_at_revision: event.revision,
+                    revoked_at_revision: None,
+                },
+            );
+            self.operator_key_ids.insert(key_id);
+        }
+
+        match &event.kind {
+            EventKind::DeviceEnrolled { device } => {
+                if event.actor.kind != ActorKind::Operator {
+                    return Err(RuntimeError::InvalidState(
+                        "only an operator may enroll a device".into(),
+                    ));
+                }
+                if self.devices.contains_key(&device.key_id) {
+                    return Err(RuntimeError::WorkItemExists {
+                        kind: "device key",
+                        id: device.key_id.clone(),
+                    });
+                }
+                validate_device_record(device, event.revision)?;
+                self.devices.insert(device.key_id.clone(), device.clone());
+            }
+            EventKind::DeviceRevoked { key_id, .. } => {
+                if event.actor.kind != ActorKind::Operator {
+                    return Err(RuntimeError::InvalidState(
+                        "only an operator may revoke a device".into(),
+                    ));
+                }
+                let device =
+                    self.devices
+                        .get_mut(key_id)
+                        .ok_or_else(|| RuntimeError::WorkItemNotFound {
+                            kind: "device key",
+                            id: key_id.clone(),
+                        })?;
+                device.status = DeviceStatus::Revoked;
+                device.revoked_at_revision = Some(event.revision);
+                self.operator_key_ids.remove(key_id);
+            }
+            EventKind::DeviceKeyRotated {
+                previous_key_id,
+                replacement,
+            } => {
+                if event.actor.kind != ActorKind::Operator {
+                    return Err(RuntimeError::InvalidState(
+                        "only an operator may rotate a device key".into(),
+                    ));
+                }
+                validate_device_record(replacement, event.revision)?;
+                let previous = self.devices.get_mut(previous_key_id).ok_or_else(|| {
+                    RuntimeError::WorkItemNotFound {
+                        kind: "device key",
+                        id: previous_key_id.clone(),
+                    }
+                })?;
+                previous.status = DeviceStatus::Revoked;
+                previous.revoked_at_revision = Some(event.revision);
+                self.devices
+                    .insert(replacement.key_id.clone(), replacement.clone());
+                if self.operator_key_ids.remove(previous_key_id) {
+                    self.operator_key_ids.insert(replacement.key_id.clone());
+                }
+            }
+            _ => {}
+        }
+        Ok(())
     }
 
     fn apply_internal(&mut self, event: &Event, validate_envelope: bool) -> Result<()> {
@@ -1479,64 +1603,12 @@ impl KbdStateV2 {
                 }
             }
         }
-        event.verify_signature(&self.devices)?;
-        if event.integrity_hash != event.calculate_hash()? {
-            return Err(RuntimeError::Integrity {
-                revision: event.revision,
-            });
-        }
-        if self.revision == 0
-            && (!matches!(event.kind, EventKind::RunInitialized { .. })
-                || event.actor.kind != ActorKind::Operator)
-        {
-            return Err(RuntimeError::InvalidState(
-                "the first signed event must initialize the run under operator authority".into(),
-            ));
-        }
         if let Some(command_id) = event.command_id.as_ref() {
             if self.command_revisions.contains_key(command_id) {
                 return Err(RuntimeError::DuplicateCommand(command_id.clone()));
             }
         }
-        let signer_already_enrolled = event
-            .signer_key_id
-            .as_deref()
-            .map(|id| self.devices.contains_key(id))
-            .unwrap_or(false);
-        // Enroll any not-yet-known signer, not just the genesis signer —
-        // mirrors the widened trust condition in `Event::verify_signature`
-        // above. Keeps `devices` (and therefore revocation) accurate for
-        // every local identity that legitimately touches this project,
-        // instead of only the first one ever seen. ActorKind is a routing
-        // label, while the signature is the cryptographic trust boundary.
-        if event.schema_version != "1" && !signer_already_enrolled {
-            let key_id = event
-                .signer_key_id
-                .clone()
-                .ok_or_else(|| RuntimeError::Signature {
-                    revision: event.revision,
-                    reason: "missing bootstrap signerKeyId".into(),
-                })?;
-            let public_key =
-                event
-                    .signer_public_key
-                    .clone()
-                    .ok_or_else(|| RuntimeError::Signature {
-                        revision: event.revision,
-                        reason: "missing bootstrap signerPublicKey".into(),
-                    })?;
-            self.devices.insert(
-                key_id.clone(),
-                DeviceRecord {
-                    device_id: event.actor.device.clone(),
-                    key_id,
-                    public_key,
-                    status: DeviceStatus::Active,
-                    enrolled_at_revision: event.revision,
-                    revoked_at_revision: None,
-                },
-            );
-        }
+        self.verify_and_apply_device_authority(event)?;
 
         match &event.kind {
             EventKind::RunInitialized {
@@ -1902,43 +1974,9 @@ impl KbdStateV2 {
                 }
                 self.submodule_pins.insert(pin.path.clone(), pin.clone());
             }
-            EventKind::DeviceEnrolled { device } => {
-                if self.devices.contains_key(&device.key_id) {
-                    return Err(RuntimeError::WorkItemExists {
-                        kind: "device key",
-                        id: device.key_id.clone(),
-                    });
-                }
-                validate_device_record(device, event.revision)?;
-                self.devices.insert(device.key_id.clone(), device.clone());
-            }
-            EventKind::DeviceRevoked { key_id, .. } => {
-                let device =
-                    self.devices
-                        .get_mut(key_id)
-                        .ok_or_else(|| RuntimeError::WorkItemNotFound {
-                            kind: "device key",
-                            id: key_id.clone(),
-                        })?;
-                device.status = DeviceStatus::Revoked;
-                device.revoked_at_revision = Some(event.revision);
-            }
-            EventKind::DeviceKeyRotated {
-                previous_key_id,
-                replacement,
-            } => {
-                validate_device_record(replacement, event.revision)?;
-                let previous = self.devices.get_mut(previous_key_id).ok_or_else(|| {
-                    RuntimeError::WorkItemNotFound {
-                        kind: "device key",
-                        id: previous_key_id.clone(),
-                    }
-                })?;
-                previous.status = DeviceStatus::Revoked;
-                previous.revoked_at_revision = Some(event.revision);
-                self.devices
-                    .insert(replacement.key_id.clone(), replacement.clone());
-            }
+            EventKind::DeviceEnrolled { .. }
+            | EventKind::DeviceRevoked { .. }
+            | EventKind::DeviceKeyRotated { .. } => {}
             EventKind::ConflictRecorded { conflict } => {
                 self.conflicts
                     .entry(conflict.id.clone())
@@ -3473,6 +3511,12 @@ impl Runtime {
         let checkpoint: SignedFoldedCheckpoint =
             serde_json::from_reader(File::open(checkpoint_path)?)?;
         checkpoint.verify()?;
+        if checkpoint.state.revision > 0 && checkpoint.state.operator_key_ids.is_empty() {
+            // A pre-1.7 checkpoint has no cryptographically bound operator-key
+            // projection. Replay the signed event stream once to derive it,
+            // then the next checkpoint will persist the binding.
+            return Ok(None);
+        }
         Ok(Some(checkpoint.state))
     }
 
@@ -6707,12 +6751,10 @@ mod tests {
         forged.command_id = Some(Uuid::new_v4().to_string());
         let unknown = DeviceSigner::generate();
         forged.seal(&unknown).unwrap();
-        // Any not-yet-enrolled signer is now trusted (auto-enrolled) rather
-        // than rejected — enrollment is no longer genesis-only. Revocation
-        // (tested elsewhere) remains the real, enforced trust boundary.
-        let forged_state = replay_events(&[events[0].clone(), forged])
-            .expect("a new signer on a fresh event is auto-enrolled, not rejected");
-        assert_eq!(forged_state.devices.len(), 2);
+        assert!(matches!(
+            replay_events(&[events[0].clone(), forged]),
+            Err(RuntimeError::UnknownSigner(_))
+        ));
 
         let mut tampered = events;
         tampered[1].actor.harness = "claude".into();
@@ -7273,6 +7315,35 @@ mod tests {
             runtime.replay_authority(),
             Err(RuntimeError::InvalidState(message)) if message.contains("checkpoint")
         ));
+    }
+
+    #[test]
+    fn pre_operator_binding_checkpoint_falls_back_to_signed_event_replay() {
+        let project = tempdir().unwrap();
+        let runtime = Runtime::open(project.path());
+        let initialized = runtime
+            .initialize(
+                "project-legacy-checkpoint",
+                "run-legacy-checkpoint",
+                Actor::operator("operator-legacy", "test"),
+            )
+            .unwrap();
+        let pointer: CheckpointPointer = serde_json::from_reader(
+            File::open(runtime.checkpoint_dir().join("current.json")).unwrap(),
+        )
+        .unwrap();
+        let path = runtime.checkpoint_dir().join(pointer.checkpoint);
+        let mut checkpoint: SignedFoldedCheckpoint =
+            serde_json::from_reader(File::open(&path).unwrap()).unwrap();
+        checkpoint.state.operator_key_ids.clear();
+        let signer = runtime.device_signer().unwrap();
+        checkpoint.signature = signer.sign_base64(&checkpoint.canonical_unsigned_bytes().unwrap());
+        atomic_json(&path, &serde_json::to_value(checkpoint).unwrap()).unwrap();
+
+        assert!(runtime.load_folded_checkpoint().unwrap().is_none());
+        let replayed = runtime.replay_authority().unwrap();
+        assert_eq!(replayed.revision, initialized.revision);
+        assert_eq!(replayed.operator_key_ids.len(), 1);
     }
 
     #[test]

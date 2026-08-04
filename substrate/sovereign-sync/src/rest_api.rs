@@ -48,7 +48,6 @@ use tracing::{info, warn};
 
 use crate::ag_ui::{ag_ui_events, ag_ui_ping, ag_ui_stream, AgUiEvent, AgUiState};
 use crate::domains::{self, DomainAdapter, LearnerModelAdapter, SkillIndexAdapter, SyncEnvelope};
-use crate::health_check::{detect_daemon_health, DaemonHealthKind};
 use crate::kbd_control::KbdProjectRouter;
 use crate::kbd_sync::{KbdAuthorityPayload, KbdPresenceDocument};
 use crate::mcp_server::SkillIndex;
@@ -392,11 +391,16 @@ impl AppState {
         };
 
         let (kbd_projects, skill_index) = tokio::try_join!(authorities, skills)?;
-        let learner_model_dir = dirs_next::home_dir()
-            .unwrap_or_else(|| PathBuf::from("."))
-            .join(".prometheus")
-            .join("learn")
-            .join("learner-model");
+        let learner_model_dir = std::env::var_os("PROMETHEUS_DATA_DIR")
+            .map(PathBuf::from)
+            .map(|data_root| learner_model_dir_at(&data_root))
+            .unwrap_or_else(|| {
+                dirs_next::home_dir()
+                    .unwrap_or_else(|| PathBuf::from("."))
+                    .join(".prometheus")
+                    .join("learn")
+                    .join("learner-model")
+            });
         Self::from_components(kbd_projects, skill_index, learner_model_dir, p2p)
     }
 
@@ -2394,6 +2398,63 @@ pub fn openapi_document() -> serde_json::Value {
         .expect("receipt schema must serialize");
     let event_schema = serde_json::to_value(schemars::schema_for!(PushReceiptEvent))
         .expect("event schema must serialize");
+    let example_request = SignedSyncPushRequest {
+        schema_version: "1.7".into(),
+        request_id: "f2d84eaf-5474-4e28-971d-4bc4334c1fb7".into(),
+        domain: "learner-model".into(),
+        target_endpoint_ids: vec![],
+        expected_frontier: None,
+        issued_at_ms: 1_785_772_800_000,
+        signer_key_id: "ed25519:device-key-id".into(),
+        signature: "base64-signature".into(),
+    };
+    let example_hash = example_request
+        .payload_hash()
+        .expect("example push must hash canonically");
+    let example_request =
+        serde_json::to_value(example_request).expect("example request must serialize");
+    let accepted_receipt = serde_json::json!({
+        "schemaVersion": "1.7",
+        "pushId": "f2d84eaf-5474-4e28-971d-4bc4334c1fb7",
+        "canonicalPayloadHash": example_hash.clone(),
+        "domain": "learner-model",
+        "targets": [],
+        "localState": "accepted",
+        "perPeer": {},
+        "createdAtMs": 1_785_772_800_001_u64,
+        "updatedAtMs": 1_785_772_800_001_u64,
+        "events": [{
+            "sequence": 1,
+            "event": "accepted",
+            "timestampMs": 1_785_772_800_001_u64,
+            "localState": "accepted"
+        }]
+    });
+    let applied_receipt = serde_json::json!({
+        "schemaVersion": "1.7",
+        "pushId": "f2d84eaf-5474-4e28-971d-4bc4334c1fb7",
+        "canonicalPayloadHash": example_hash,
+        "domain": "learner-model",
+        "targets": [],
+        "localState": "broadcast",
+        "perPeer": {},
+        "createdAtMs": 1_785_772_800_001_u64,
+        "updatedAtMs": 1_785_772_800_003_u64,
+        "events": [
+            {
+                "sequence": 1,
+                "event": "accepted",
+                "timestampMs": 1_785_772_800_001_u64,
+                "localState": "accepted"
+            },
+            {
+                "sequence": 2,
+                "event": "broadcast",
+                "timestampMs": 1_785_772_800_003_u64,
+                "localState": "broadcast"
+            }
+        ]
+    });
     let error_response = serde_json::json!({
         "description": "Canonical error envelope",
         "content": { "application/json": { "schema": {
@@ -2423,7 +2484,10 @@ pub fn openapi_document() -> serde_json::Value {
             "/api/v2/sync/pushes": { "post": {
                 "operationId": "createSyncPush",
                 "summary": "Create or exactly replay a signed sync push",
-                "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/SignedSyncPushRequest" } } } },
+                "requestBody": { "required": true, "content": { "application/json": {
+                    "schema": { "$ref": "#/components/schemas/SignedSyncPushRequest" },
+                    "examples": { "signedPush": { "$ref": "#/components/examples/SignedPushRequest" } }
+                } } },
                 "responses": {
                     "201": { "description": "Push created", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/PushReceipt" } } } },
                     "200": { "description": "Exact same-ID/same-hash receipt replay", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/PushReceipt" } } } },
@@ -2447,11 +2511,29 @@ pub fn openapi_document() -> serde_json::Value {
                 "responses": { "200": { "description": "text/event-stream of events strictly after the supplied sequence", "content": { "text/event-stream": { "schema": { "$ref": "#/components/schemas/PushReceiptEvent" } } } }, "404": error_response }
             }}
         },
-        "components": { "schemas": {
-            "SignedSyncPushRequest": request_schema,
-            "PushReceipt": receipt_schema,
-            "PushReceiptEvent": event_schema
-        }}
+        "components": {
+            "schemas": {
+                "SignedSyncPushRequest": request_schema,
+                "PushReceipt": receipt_schema,
+                "PushReceiptEvent": event_schema
+            },
+            "examples": {
+                "SignedPushRequest": { "value": example_request },
+                "AcceptedPushReceipt": { "value": accepted_receipt },
+                "AppliedPushReceipt": { "value": applied_receipt },
+                "RequestIdConflict": { "value": { "error": {
+                    "code": "request_id_conflict",
+                    "message": "requestId already exists with a different canonical payload hash",
+                    "pushId": "f2d84eaf-5474-4e28-971d-4bc4334c1fb7"
+                } } }
+            }
+        },
+        "x-correctness-scenarios": {
+            "same-id-same-hash": "Repeat the identical signed request after response loss; return the persisted receipt without executing another push.",
+            "same-id-different-hash": "Reuse the request ID with another canonical payload; return 409 and preserve the original receipt.",
+            "response-loss": "Retry the identical POST or retrieve the durable receipt, then resume events after the last observed sequence.",
+            "event-resume": "Return only durable events whose sequence is greater than the after cursor or Last-Event-ID."
+        }
     })
 }
 
@@ -2871,16 +2953,8 @@ pub fn load_tcp_token_file(path: &Path) -> anyhow::Result<String> {
 }
 
 impl HttpService {
-    pub async fn start(port: u16) -> anyhow::Result<Self> {
-        Self::start_with_tcp_auth(port, None).await
-    }
-
     pub async fn start_tcp(port: u16, token_file: impl AsRef<Path>) -> anyhow::Result<Self> {
         let token = ensure_tcp_token_file(token_file)?;
-        Self::start_with_tcp_auth(port, Some(token)).await
-    }
-
-    async fn start_with_tcp_auth(port: u16, token: Option<String>) -> anyhow::Result<Self> {
         let bind_started = Instant::now();
         let probe_token = token.clone();
         let mut service = tokio::task::spawn_blocking(move || Self::start_blocking(port, token))
@@ -2897,14 +2971,7 @@ impl HttpService {
         let deadline = Instant::now() + Duration::from_secs(1);
         loop {
             let healthy = match &service.address {
-                LocalServiceAddress::Tcp(address) => {
-                    if let Some(token) = probe_token.as_deref() {
-                        tcp_health_probe(*address, token).await
-                    } else {
-                        detect_daemon_health(address.port()).await.status
-                            == DaemonHealthKind::Healthy
-                    }
-                }
+                LocalServiceAddress::Tcp(address) => tcp_health_probe(*address, &probe_token).await,
                 #[cfg(unix)]
                 LocalServiceAddress::Unix(path) => unix_health_probe(path).await,
             };
@@ -2955,7 +3022,7 @@ impl HttpService {
         Ok(service)
     }
 
-    fn start_blocking(port: u16, token: Option<String>) -> anyhow::Result<Self> {
+    fn start_blocking(port: u16, token: String) -> anyhow::Result<Self> {
         let (boot_tx, boot_rx) = std::sync::mpsc::sync_channel(1);
         let (shutdown_tx, shutdown_rx) = tokio::sync::oneshot::channel();
         let thread = std::thread::Builder::new()
@@ -2976,14 +3043,10 @@ impl HttpService {
                     };
                     let address = listener.local_addr()?;
                     let (startup_app, gate) = build_startup_router();
-                    let startup_app = if let Some(token) = token {
-                        startup_app.layer(middleware::from_fn_with_state(
-                            TcpBearerToken(Arc::from(token)),
-                            require_tcp_bearer,
-                        ))
-                    } else {
-                        startup_app
-                    };
+                    let startup_app = startup_app.layer(middleware::from_fn_with_state(
+                        TcpBearerToken(Arc::from(token)),
+                        require_tcp_bearer,
+                    ));
                     if boot_tx.send(Ok((address, gate))).is_err() {
                         anyhow::bail!("HTTP service owner stopped before startup completed");
                     }
@@ -3175,32 +3238,6 @@ pub fn build_startup_router() -> (Router, StartupGate) {
     (app, gate)
 }
 
-pub async fn serve(port: u16, skills_dir: &Path) -> anyhow::Result<()> {
-    let mut service = HttpService::start(port).await?;
-    let gate = service.gate().clone();
-    match AppState::try_new_with_startup(skills_dir, None, &gate).await {
-        Ok(state) => {
-            gate.install(state).await;
-            info!(
-                startup_phase = "router_install",
-                "local REST routes installed"
-            );
-        }
-        Err(error) => {
-            warn!(%error, "local authority initialization failed; diagnostic router remains active");
-            gate.fail("local authority initialization failed; inspect the service log")
-                .await;
-        }
-    }
-    tokio::select! {
-        _ = shutdown_signal() => {
-            info!("shutdown signal received");
-            service.shutdown().await
-        }
-        _ = service.wait_for_exit() => service.join().await,
-    }
-}
-
 pub async fn serve_tcp(
     port: u16,
     skills_dir: &Path,
@@ -3257,24 +3294,14 @@ pub async fn shutdown_signal() {
     }
 }
 
-/// Serve using a caller-constructed `AppState` — lets `main.rs` hold a clone
-/// of the same state (e.g. to spawn the incoming-P2P-message consumer with
-/// access to the same `docs`/`manifest`/`adapters`) before the server starts.
-pub async fn serve_with_state(port: u16, state: AppState) -> anyhow::Result<()> {
-    let listener = bind_loopback(port).await?;
-    serve_with_listener(listener, state).await
-}
-
 /// Acquire the loopback listener before opening KBD project
 /// state or joining P2P gossip. Registry reconciliation can be deliberately
 /// expensive; it must not leave the control-plane port unbound while launchd
 /// considers the process alive.
-pub async fn bind_loopback(port: u16) -> anyhow::Result<tokio::net::TcpListener> {
+async fn bind_loopback(port: u16) -> anyhow::Result<tokio::net::TcpListener> {
     // LOOPBACK ONLY — and this is load-bearing, not incidental.
     // Production callers layer a token sourced from one shared mode-0600 file
-    // over this listener. `HttpService::start` remains an in-process fixture
-    // helper; CLI daemon/server modes always use `start_tcp` when `--tcp` is
-    // explicit. Never broaden this bind address.
+    // over this listener. Never broaden this bind address.
     let addr = SocketAddr::from(([127, 0, 0, 1], port));
     let listener = tokio::net::TcpListener::bind(addr).await?;
     info!(
@@ -3356,21 +3383,6 @@ async fn unix_health_probe(path: &Path) -> bool {
         return false;
     }
     response.starts_with(b"HTTP/1.1 200")
-}
-
-/// Serve a fully initialized application on an already-acquired listener.
-pub async fn serve_with_listener(
-    listener: tokio::net::TcpListener,
-    state: AppState,
-) -> anyhow::Result<()> {
-    let app = build_router(state);
-
-    info!(
-        "sovereign-sync REST API ready on http://{}",
-        listener.local_addr()?
-    );
-    axum::serve(listener, app).await?;
-    Ok(())
 }
 
 #[cfg(test)]
@@ -3683,21 +3695,31 @@ mod transport_status_tests {
         let skills = fixture.path().join("skills");
         let project = fixture.path().join("project");
         let data = fixture.path().join("data");
+        let token_file = fixture.path().join("tcp-token");
         std::fs::create_dir_all(&skills).unwrap();
         std::fs::create_dir_all(&project).unwrap();
         std::fs::write(skills.join(".slow-scan-test"), b"250ms").unwrap();
-        let mut service = HttpService::start(0).await.unwrap();
+        let mut service = HttpService::start_tcp(0, &token_file).await.unwrap();
         let port = service.address().port();
+        let token = super::load_tcp_token_file(&token_file).unwrap();
         let initialization =
             tokio::spawn(async move { AppState::try_new_at(&skills, &project, &data, None).await });
         tokio::time::sleep(Duration::from_millis(25)).await;
         assert!(!initialization.is_finished());
 
         let started = Instant::now();
-        let health = crate::health_check::detect_daemon_health(port).await;
+        let health = crate::health_check::sample_daemon_health_with_token(
+            port,
+            1,
+            0,
+            None,
+            None,
+            Some(&token),
+        )
+        .await;
 
         assert_eq!(
-            health.status,
+            health.health.status,
             crate::health_check::DaemonHealthKind::Healthy
         );
         assert!(started.elapsed() < Duration::from_millis(100));

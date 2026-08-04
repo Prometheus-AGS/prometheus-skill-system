@@ -1,6 +1,6 @@
 [package]
 name = "sovereign-sync"
-version = "0.1.0"
+version = "1.7.0"
 edition = "2021"
 description = "P2P CRDT sync daemon, MCP server, and REST API for prometheus-skill-pack"
 

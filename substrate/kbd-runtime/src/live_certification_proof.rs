@@ -14,10 +14,12 @@ fn required_path(name: &str) -> PathBuf {
 fn certification_runtime() -> Runtime {
     let project = required_path("KBD_CERT_PROJECT_ROOT");
     let data = required_path("KBD_CERT_DATA_ROOT");
-    let manifest = read_project_manifest(&project)
-        .unwrap()
-        .expect("the disposable project must have a manifest");
-    Runtime::open_registered_at(&project, &data, &manifest.project_id).unwrap()
+    match read_project_manifest(&project).unwrap() {
+        Some(manifest) => Runtime::open_registered_at(&project, &data, &manifest.project_id)
+            .or_else(|_| Runtime::open_canonical_at(&project, &data))
+            .unwrap(),
+        None => Runtime::open_canonical_at(&project, &data).unwrap(),
+    }
 }
 
 fn certification_actor() -> Actor {

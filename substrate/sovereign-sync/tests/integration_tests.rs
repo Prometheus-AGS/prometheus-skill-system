@@ -59,6 +59,25 @@ fn generated_openapi_tracks_v2_route_constants_and_rust_schemas() {
     assert_eq!(document["openapi"], "3.1.0");
     assert_eq!(document["info"]["version"], "1.7.0");
     assert!(document["components"]["schemas"]["SignedSyncPushRequest"].is_object());
+    let request: SignedSyncPushRequest = serde_json::from_value(
+        document["components"]["examples"]["SignedPushRequest"]["value"].clone(),
+    )
+    .unwrap();
+    let receipt = &document["components"]["examples"]["AcceptedPushReceipt"]["value"];
+    assert_eq!(receipt["pushId"], request.request_id);
+    assert_eq!(receipt["events"][0]["sequence"], 1);
+    for status in [
+        "200", "201", "400", "401", "403", "404", "409", "422", "503",
+    ] {
+        assert!(
+            document["paths"][sovereign_sync::rest_api::SYNC_PUSH_COLLECTION_ROUTE]["post"]
+                ["responses"]
+                .get(status)
+                .is_some(),
+            "missing documented status {status}"
+        );
+    }
+    assert!(document["x-correctness-scenarios"]["response-loss"].is_string());
 }
 
 // ---------------------------------------------------------------------------
@@ -83,7 +102,9 @@ async fn health_endpoint_returns_200() {
 
 #[tokio::test]
 async fn loopback_listener_can_be_acquired_before_application_state_exists() {
-    let listener = sovereign_sync::rest_api::bind_loopback(0).await.unwrap();
+    let listener = tokio::net::TcpListener::bind(("127.0.0.1", 0))
+        .await
+        .unwrap();
     let address = listener.local_addr().unwrap();
     assert!(address.ip().is_loopback());
     let connection = tokio::net::TcpStream::connect(address).await.unwrap();
@@ -152,27 +173,40 @@ async fn startup_router_serves_health_and_gates_stateful_routes_until_install() 
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn dedicated_http_runtime_keeps_liveness_available_in_diagnostic_mode() {
-    let mut service = sovereign_sync::rest_api::HttpService::start(0)
+    let fixture = tempfile::tempdir().unwrap();
+    let token_file = fixture.path().join("tcp-token");
+    let mut service = sovereign_sync::rest_api::HttpService::start_tcp(0, &token_file)
         .await
         .unwrap();
     let port = service.address().port();
+    let token = sovereign_sync::rest_api::load_tcp_token_file(&token_file).unwrap();
     service
         .gate()
         .fail("local authority initialization failed")
         .await;
 
-    let report = sovereign_sync::health_check::detect_daemon_health(port).await;
+    let report = sovereign_sync::health_check::sample_daemon_health_with_token(
+        port,
+        1,
+        0,
+        None,
+        None,
+        Some(&token),
+    )
+    .await;
     assert_eq!(
-        report.status,
+        report.health.status,
         sovereign_sync::health_check::DaemonHealthKind::Healthy
     );
 
     let response = tokio::time::timeout(std::time::Duration::from_millis(500), async move {
         let stream = tokio::net::TcpStream::connect(("127.0.0.1", port)).await?;
-        let request = b"GET /ready HTTP/1.1\r\nHost: 127.0.0.1\r\nConnection: close\r\n\r\n";
+        let request = format!(
+            "GET /ready HTTP/1.1\r\nHost: 127.0.0.1\r\nAuthorization: Bearer {token}\r\nConnection: close\r\n\r\n"
+        );
         use tokio::io::{AsyncReadExt, AsyncWriteExt};
         let mut stream = stream;
-        stream.write_all(request).await?;
+        stream.write_all(request.as_bytes()).await?;
         let mut response = Vec::new();
         stream.read_to_end(&mut response).await?;
         Ok::<_, std::io::Error>(response)
