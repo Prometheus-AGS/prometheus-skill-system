@@ -53,7 +53,9 @@
     },
     {
       "id": "change-exec-003-tier-w-mobile",
-      "status": "pending"
+      "status": "pending",
+      "tasks_done": 1,
+      "tasks_total": 18
     },
     {
       "id": "change-exec-004-remote-mcp-docs",
@@ -63,6 +65,6 @@
   "sourceTool": "unknown",
   "createdBy": "kbd-new-phase",
   "last_updated_by": "codex",
-  "last_updated": "2026-08-04T16:18:37Z",
-  "updatedAt": "2026-08-04T16:18:37Z"
+  "last_updated": "2026-08-04T16:32:31Z",
+  "updatedAt": "2026-08-04T16:32:31Z"
 }

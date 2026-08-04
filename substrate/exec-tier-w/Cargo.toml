@@ -1,0 +1,25 @@
+[package]
+name = "prometheus-exec-tier-w"
+version = "1.7.0"
+edition = "2021"
+rust-version = "1.94"
+license = "MIT"
+description = "Deterministic Wasm component adapter for Prometheus Exec"
+
+[package.metadata.prometheus]
+exec-layer = "tier-w"
+component-world = "prometheus:component@0.1.0"
+
+[features]
+default = ["cranelift"]
+cranelift = ["wasmtime/cranelift"]
+pulley = []
+estate = []
+standalone = []
+mobile = ["pulley"]
+
+[dependencies]
+prometheus-exec-contracts = { path = "../exec-contracts", version = "1.7.0" }
+prometheus-exec-core = { path = "../exec-core", version = "1.7.0" }
+thiserror = "2"
+wasmtime = { version = "=46.0.0", default-features = false, features = ["component-model", "runtime", "std"] }
