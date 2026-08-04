@@ -4,17 +4,29 @@ use schemars::{schema_for, Schema};
 use serde_json::{json, Value};
 
 use crate::{
-    ErrorEnvelope, ExecutionEvent, ExecutionReceipt, ReceiptLogSegment, SignedExecRequest,
+    ComponentAuthorization, ComponentProvenance, ErrorEnvelope, ExecutionEvent, ExecutionFailure,
+    ExecutionReceipt, ReceiptLogSegment, SignedExecRequest, TierWReplayRequest, TierWReplayResult,
     VerificationResult,
 };
 
 pub fn contract_schemas() -> BTreeMap<String, Schema> {
     BTreeMap::from([
+        (
+            "ComponentAuthorization".into(),
+            schema_for!(ComponentAuthorization),
+        ),
+        (
+            "ComponentProvenance".into(),
+            schema_for!(ComponentProvenance),
+        ),
         ("ErrorEnvelope".into(), schema_for!(ErrorEnvelope)),
         ("ExecutionEvent".into(), schema_for!(ExecutionEvent)),
+        ("ExecutionFailure".into(), schema_for!(ExecutionFailure)),
         ("ExecutionReceipt".into(), schema_for!(ExecutionReceipt)),
         ("ReceiptLogSegment".into(), schema_for!(ReceiptLogSegment)),
         ("SignedExecRequest".into(), schema_for!(SignedExecRequest)),
+        ("TierWReplayRequest".into(), schema_for!(TierWReplayRequest)),
+        ("TierWReplayResult".into(), schema_for!(TierWReplayResult)),
         ("VerificationResult".into(), schema_for!(VerificationResult)),
     ])
 }

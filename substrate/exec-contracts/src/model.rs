@@ -128,6 +128,74 @@ pub enum ExecutionBackend {
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 #[serde(rename_all = "kebab-case")]
+pub enum ComponentAuthorizationMode {
+    SignedGeneration,
+    HashPin,
+    Bundled,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct ComponentAuthorization {
+    pub mode: ComponentAuthorizationMode,
+    pub world: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub manifest_hash: Option<Digest>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub generation_id: Option<String>,
+}
+
+impl ComponentAuthorization {
+    pub fn validate(&self) -> Result<()> {
+        if self.world != "prometheus:component@0.1.0" {
+            return Err(ContractError::ReceiptInvariant(format!(
+                "unsupported component world: {}",
+                self.world
+            )));
+        }
+        if self.mode == ComponentAuthorizationMode::SignedGeneration
+            && (self.manifest_hash.is_none()
+                || self.generation_id.as_deref().unwrap_or("").is_empty())
+        {
+            return Err(ContractError::ReceiptInvariant(
+                "signed-generation authorization requires manifestHash and generationId".into(),
+            ));
+        }
+        Ok(())
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct ComponentProvenance {
+    pub authorization: ComponentAuthorization,
+    pub engine_version: String,
+    pub backend_profile_hash: Digest,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[serde(rename_all = "kebab-case")]
+pub enum ExecutionFailureKind {
+    Trap,
+    FuelExhausted,
+    EpochDeadline,
+    MemoryLimit,
+    CapabilityDenied,
+    ComponentUnauthorized,
+    BackendUnavailable,
+    Interrupted,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct ExecutionFailure {
+    pub kind: ExecutionFailureKind,
+    pub code: String,
+    pub message: String,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[serde(rename_all = "kebab-case")]
 pub enum RunState {
     Queued,
     GrantPending,
@@ -250,6 +318,8 @@ pub struct ExecutionProvenance {
     pub change: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub harness: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub component_authorization: Option<ComponentAuthorization>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
@@ -299,6 +369,22 @@ impl SignedExecRequest {
                 "validity window, memory, wall-clock, output, and stack limits must be non-zero"
                     .into(),
             ));
+        }
+        let component_request = self.code.kind == CodeKind::Component
+            || self.code.runtime == RuntimeKind::WasmComponent
+            || self.tier == RequestedTier::W;
+        if component_request
+            && (self.code.kind != CodeKind::Component
+                || self.code.runtime != RuntimeKind::WasmComponent
+                || self.provenance.component_authorization.is_none())
+        {
+            return Err(ContractError::ReceiptInvariant(
+                "Tier W requires component code, the wasm-component runtime, and component authorization"
+                    .into(),
+            ));
+        }
+        if let Some(authorization) = &self.provenance.component_authorization {
+            authorization.validate()?;
         }
         Ok(())
     }
@@ -388,6 +474,10 @@ pub struct ExecutionReceipt {
     #[serde(default)]
     pub grants: Vec<ExecutionGrant>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub component: Option<ComponentProvenance>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub failure: Option<ExecutionFailure>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub signature: Option<String>,
 }
 
@@ -416,6 +506,37 @@ impl ExecutionReceipt {
                 ))
             }
         }
+        match self.tier {
+            ExecutionTier::W
+                if !matches!(
+                    self.backend,
+                    ExecutionBackend::Cranelift | ExecutionBackend::Pulley
+                ) || self.component.is_none() =>
+            {
+                return Err(ContractError::ReceiptInvariant(
+                    "tier W requires a Wasmtime backend and component provenance".into(),
+                ));
+            }
+            ExecutionTier::P if self.component.is_some() => {
+                return Err(ContractError::ReceiptInvariant(
+                    "tier P cannot claim component provenance".into(),
+                ));
+            }
+            _ => {}
+        }
+        if let Some(component) = &self.component {
+            component.authorization.validate()?;
+            if component.engine_version.trim().is_empty() {
+                return Err(ContractError::ReceiptInvariant(
+                    "component engineVersion must not be empty".into(),
+                ));
+            }
+        }
+        if self.state == RunState::Succeeded && self.failure.is_some() {
+            return Err(ContractError::ReceiptInvariant(
+                "a succeeded receipt cannot contain failure details".into(),
+            ));
+        }
         if self.finished_at < self.started_at {
             return Err(ContractError::ReceiptInvariant(
                 "finishedAt precedes startedAt".into(),
@@ -433,6 +554,25 @@ impl ExecutionReceipt {
         }
         Ok(())
     }
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct TierWReplayRequest {
+    pub receipt: ExecutionReceipt,
+    pub component_hash: Digest,
+    #[serde(default)]
+    pub inputs: Vec<NamedInput>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct TierWReplayResult {
+    pub valid: bool,
+    #[serde(default)]
+    pub checks: Vec<String>,
+    #[serde(default)]
+    pub mismatches: Vec<String>,
 }
 
 pub fn validate_artifact_path(path: &str) -> Result<()> {

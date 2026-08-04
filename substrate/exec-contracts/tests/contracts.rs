@@ -36,6 +36,12 @@ fn request() -> SignedExecRequest {
         targets: vec![],
         provenance: ExecutionProvenance {
             skill: Some("refine-validate".into()),
+            component_authorization: Some(ComponentAuthorization {
+                mode: ComponentAuthorizationMode::HashPin,
+                world: "prometheus:component@0.1.0".into(),
+                manifest_hash: None,
+                generation_id: None,
+            }),
             ..ExecutionProvenance::default()
         },
         signer_key_id: None,
@@ -83,6 +89,12 @@ fn receipt(request_hash: Digest) -> ExecutionReceipt {
             kind: GrantKind::CedarAuto,
             r#ref: None,
         }],
+        component: Some(ComponentProvenance {
+            authorization: request().provenance.component_authorization.unwrap(),
+            engine_version: "wasmtime 46.0.0".into(),
+            backend_profile_hash: digest("cranelift-profile"),
+        }),
+        failure: None,
         signature: None,
     }
 }
@@ -114,6 +126,45 @@ fn request_rejects_every_zero_enforcement_limit() {
         }
         assert!(candidate.validate().is_err(), "zero {field} limit passed");
     }
+}
+
+#[test]
+fn tier_w_requires_pinned_component_authorization() {
+    let mut candidate = request();
+    candidate.provenance.component_authorization = None;
+    assert!(candidate.validate().is_err());
+
+    let mut candidate = request();
+    candidate.provenance.component_authorization = Some(ComponentAuthorization {
+        mode: ComponentAuthorizationMode::SignedGeneration,
+        world: "prometheus:component@0.1.0".into(),
+        manifest_hash: None,
+        generation_id: None,
+    });
+    assert!(candidate.validate().is_err());
+}
+
+#[test]
+fn tier_p_wire_shape_omits_tier_w_extensions() {
+    let mut native_request = request();
+    native_request.tier = RequestedTier::P;
+    native_request.code.kind = CodeKind::File;
+    native_request.code.runtime = RuntimeKind::Python3;
+    native_request.provenance.component_authorization = None;
+    let request_json = serde_json::to_value(&native_request).unwrap();
+    assert!(request_json["provenance"]
+        .get("componentAuthorization")
+        .is_none());
+
+    let mut native_receipt = receipt(native_request.request_hash().unwrap());
+    native_receipt.tier = ExecutionTier::P;
+    native_receipt.evidence_class = EvidenceClass::Attested;
+    native_receipt.backend = ExecutionBackend::Seatbelt;
+    native_receipt.component = None;
+    let receipt_json = serde_json::to_value(&native_receipt).unwrap();
+    assert!(receipt_json.get("component").is_none());
+    assert!(receipt_json.get("failure").is_none());
+    native_receipt.validate().unwrap();
 }
 
 #[test]

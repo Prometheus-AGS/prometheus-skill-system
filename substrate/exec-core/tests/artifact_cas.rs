@@ -216,6 +216,8 @@ fn receipt_retention_protects_all_materialized_evidence_from_budget_gc() {
             platform: "macos-test".into(),
         },
         grants: Vec::new(),
+        component: None,
+        failure: None,
         signature: None,
     };
 

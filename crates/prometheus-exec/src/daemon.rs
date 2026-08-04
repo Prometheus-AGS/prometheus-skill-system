@@ -555,6 +555,8 @@ fn synthetic_receipt(
             platform: format!("{}-{}", std::env::consts::OS, std::env::consts::ARCH),
         },
         grants: vec![],
+        component: None,
+        failure: None,
         signature: None,
     };
     sign_receipt_ed25519(&mut receipt, signing_key)?;

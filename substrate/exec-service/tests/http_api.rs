@@ -90,6 +90,8 @@ fn signed_receipt(record: &RunRecord, key: &SigningKey) -> ExecutionReceipt {
             platform: "macos-aarch64".into(),
         },
         grants: vec![],
+        component: None,
+        failure: None,
         signature: None,
     };
     sign_receipt_ed25519(&mut receipt, key).unwrap();

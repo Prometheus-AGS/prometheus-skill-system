@@ -139,6 +139,8 @@ impl<S: ReceiptSigner> ReceiptAssembler<S> {
                 platform: execution.platform,
             },
             grants: job.grants().to_vec(),
+            component: None,
+            failure: None,
             signature: None,
         };
         receipt.validate()?;
