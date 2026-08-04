@@ -4,8 +4,7 @@ use std::{collections::BTreeMap, time::Instant};
 
 use chrono::Utc;
 use prometheus_exec_contracts::{
-    hash_bytes, CapabilityManifest, CodeIdentity, CodeKind, EnvironmentCapabilities,
-    ExecutionLimits, ExecutionProvenance, FilesystemCapabilities, NetworkCapabilities,
+    hash_bytes, CapabilityManifest, CodeIdentity, CodeKind, ExecutionLimits, ExecutionProvenance,
     RequestedTier, RunState, RuntimeKind, SignatureAlgorithm, SignedExecRequest,
 };
 use prometheus_exec_core::{ExecutionJob, ExecutionPort};
@@ -17,6 +16,22 @@ fn job(
     runtime: RuntimeKind,
     wall_clock_ms: u64,
     output_mb: u64,
+) -> prometheus_exec_core::ValidatedExecutionJob {
+    job_with_capabilities(
+        code,
+        runtime,
+        wall_clock_ms,
+        output_mb,
+        CapabilityManifest::default(),
+    )
+}
+
+fn job_with_capabilities(
+    code: &[u8],
+    runtime: RuntimeKind,
+    wall_clock_ms: u64,
+    output_mb: u64,
+    capabilities: CapabilityManifest,
 ) -> prometheus_exec_core::ValidatedExecutionJob {
     ExecutionJob {
         request: SignedExecRequest {
@@ -33,16 +48,7 @@ fn job(
                 toolchain_pin: None,
             },
             inputs: Vec::new(),
-            capabilities: CapabilityManifest {
-                fs: FilesystemCapabilities {
-                    read_only: vec![".".into()],
-                    read_write: vec!["outputs/".into()],
-                },
-                net: NetworkCapabilities::default(),
-                env: EnvironmentCapabilities::default(),
-                clock: true,
-                random: true,
-            },
+            capabilities,
             limits: ExecutionLimits {
                 memory_mb: 256,
                 fuel: 1,
@@ -173,4 +179,181 @@ process.stdout.write("node-ok");
     );
     assert_eq!(node_execution.stdout, b"node-ok");
     assert_eq!(node_execution.artifacts[0].bytes, b"node");
+}
+
+#[tokio::test]
+async fn real_seatbelt_denies_external_reads() {
+    let forbidden = tempfile::tempdir().unwrap();
+    let forbidden_path = forbidden.path().join("secret.txt");
+    std::fs::write(&forbidden_path, b"secret").unwrap();
+    let code = format!(
+        "if IFS= read -r value < \"{}\" 2>/dev/null; then exit 91; fi\n\
+         printf read-denied\n",
+        forbidden_path.display()
+    );
+    let executor = SeatbeltExecutor::new(SeatbeltConfig::detect().unwrap());
+
+    let execution = executor
+        .execute(&job(code.as_bytes(), RuntimeKind::Bash, 5_000, 1))
+        .await
+        .unwrap();
+
+    assert_eq!(execution.state, RunState::Succeeded);
+    assert_eq!(execution.stdout, b"read-denied");
+    assert_eq!(std::fs::read(forbidden_path).unwrap(), b"secret");
+}
+
+#[tokio::test]
+async fn real_seatbelt_filters_environment_to_explicit_values() {
+    let mut capabilities = CapabilityManifest::default();
+    capabilities.env.read = vec!["PROMETHEUS_FIXTURE_VISIBLE".into()];
+    let code = br#"import os
+assert os.environ.get("PROMETHEUS_FIXTURE_VISIBLE") == "visible-value"
+assert "PATH" not in os.environ
+assert "VOLTA_HOME" not in os.environ
+print("environment-filtered", end="")
+"#;
+    let config = SeatbeltConfig::detect()
+        .unwrap()
+        .allow_environment("PROMETHEUS_FIXTURE_VISIBLE", "visible-value")
+        .unwrap();
+    let executor = SeatbeltExecutor::new(config);
+
+    let execution = executor
+        .execute(&job_with_capabilities(
+            code,
+            RuntimeKind::Python3,
+            5_000,
+            1,
+            capabilities,
+        ))
+        .await
+        .unwrap();
+
+    assert_eq!(
+        execution.state,
+        RunState::Succeeded,
+        "{}",
+        String::from_utf8_lossy(&execution.stderr)
+    );
+    assert_eq!(execution.stdout, b"environment-filtered");
+    assert_eq!(
+        execution
+            .environment
+            .get("PROMETHEUS_FIXTURE_VISIBLE")
+            .map(String::as_str),
+        Some("visible-value")
+    );
+    assert_eq!(execution.environment.len(), 1);
+}
+
+#[tokio::test]
+async fn real_seatbelt_denies_loopback_network_connections() {
+    let listener = std::net::TcpListener::bind(("127.0.0.1", 0)).unwrap();
+    listener.set_nonblocking(true).unwrap();
+    let port = listener.local_addr().unwrap().port();
+    let code = format!(
+        r#"import socket
+try:
+    connection = socket.create_connection(("127.0.0.1", {port}), timeout=0.25)
+except OSError:
+    print("network-denied", end="")
+else:
+    connection.close()
+    raise SystemExit(91)
+"#
+    );
+    let executor = SeatbeltExecutor::new(SeatbeltConfig::detect().unwrap());
+
+    let execution = executor
+        .execute(&job(code.as_bytes(), RuntimeKind::Python3, 5_000, 1))
+        .await
+        .unwrap();
+
+    assert_eq!(
+        execution.state,
+        RunState::Succeeded,
+        "{}",
+        String::from_utf8_lossy(&execution.stderr)
+    );
+    assert_eq!(execution.stdout, b"network-denied");
+    assert!(matches!(
+        listener.accept(),
+        Err(error) if error.kind() == std::io::ErrorKind::WouldBlock
+    ));
+}
+
+#[tokio::test]
+async fn artifact_output_limit_fails_without_persisting_oversized_bytes() {
+    let code = br#"import os
+from pathlib import Path
+Path(os.environ["PROMETHEUS_OUTPUT_DIR"], "oversized.bin").write_bytes(b"x" * (2 * 1024 * 1024))
+"#;
+    let executor = SeatbeltExecutor::new(SeatbeltConfig::detect().unwrap());
+
+    let execution = executor
+        .execute(&job(code, RuntimeKind::Python3, 5_000, 1))
+        .await
+        .unwrap();
+
+    assert_eq!(execution.state, RunState::Failed);
+    assert_eq!(
+        execution.exit.signal_or_trap.as_deref(),
+        Some("artifact output limit exceeded")
+    );
+    assert!(execution.artifacts.is_empty());
+}
+
+#[tokio::test]
+async fn symlink_artifacts_are_rejected_as_escape_attempts() {
+    let code = b"/bin/ln -s /etc/passwd \"$PROMETHEUS_OUTPUT_DIR/leak\"\n";
+    let executor = SeatbeltExecutor::new(SeatbeltConfig::detect().unwrap());
+
+    let execution = executor
+        .execute(&job(code, RuntimeKind::Bash, 5_000, 1))
+        .await
+        .unwrap();
+
+    assert_eq!(execution.state, RunState::Failed);
+    assert!(execution
+        .exit
+        .signal_or_trap
+        .as_deref()
+        .is_some_and(|trap| trap.contains("unsafe file type")));
+    assert!(execution.artifacts.is_empty());
+}
+
+#[tokio::test]
+async fn wasm_requests_are_rejected_before_any_process_spawn() {
+    let executor = SeatbeltExecutor::new(SeatbeltConfig::detect().unwrap());
+    let error = executor
+        .execute(&job(b"not-wasm", RuntimeKind::WasmComponent, 5_000, 1))
+        .await
+        .unwrap_err();
+
+    assert!(error.to_string().contains("unsupported by Tier P"));
+}
+
+#[tokio::test]
+async fn requested_network_egress_is_rejected_before_spawn() {
+    let marker_root = tempfile::tempdir().unwrap();
+    let marker = marker_root.path().join("must-not-exist");
+    let code = format!("printf spawned > \"{}\"\n", marker.display());
+    let mut capabilities = CapabilityManifest::default();
+    capabilities.net.egress = vec!["https://example.invalid".into()];
+    let executor = SeatbeltExecutor::new(SeatbeltConfig::detect().unwrap());
+
+    let error = executor
+        .execute(&job_with_capabilities(
+            code.as_bytes(),
+            RuntimeKind::Bash,
+            5_000,
+            1,
+            capabilities,
+        ))
+        .await
+        .unwrap_err();
+
+    assert!(error.to_string().contains("deny-all networking only"));
+    assert!(!marker.exists());
 }

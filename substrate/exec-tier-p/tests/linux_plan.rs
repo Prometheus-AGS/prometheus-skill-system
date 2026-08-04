@@ -2,8 +2,7 @@ use std::{collections::BTreeMap, path::PathBuf};
 
 use chrono::Utc;
 use prometheus_exec_contracts::{
-    hash_bytes, CapabilityManifest, CodeIdentity, CodeKind, EnvironmentCapabilities,
-    ExecutionLimits, ExecutionProvenance, FilesystemCapabilities, NetworkCapabilities,
+    hash_bytes, CapabilityManifest, CodeIdentity, CodeKind, ExecutionLimits, ExecutionProvenance,
     RequestedTier, RuntimeKind, SignatureAlgorithm, SignedExecRequest,
 };
 use prometheus_exec_core::ExecutionJob;
@@ -14,6 +13,12 @@ use prometheus_exec_tier_p::{
 use uuid::Uuid;
 
 fn job() -> prometheus_exec_core::ValidatedExecutionJob {
+    job_with_capabilities(CapabilityManifest::default())
+}
+
+fn job_with_capabilities(
+    capabilities: CapabilityManifest,
+) -> prometheus_exec_core::ValidatedExecutionJob {
     let code = b"print('sandboxed')\n";
     ExecutionJob {
         request: SignedExecRequest {
@@ -30,16 +35,7 @@ fn job() -> prometheus_exec_core::ValidatedExecutionJob {
                 toolchain_pin: None,
             },
             inputs: Vec::new(),
-            capabilities: CapabilityManifest {
-                fs: FilesystemCapabilities {
-                    read_only: vec![".".into()],
-                    read_write: vec!["outputs/".into()],
-                },
-                net: NetworkCapabilities::default(),
-                env: EnvironmentCapabilities::default(),
-                clock: true,
-                random: true,
-            },
+            capabilities,
             limits: ExecutionLimits::default(),
             targets: Vec::new(),
             provenance: ExecutionProvenance::default(),
@@ -193,4 +189,51 @@ fn fully_enforced_landlock_is_classified_but_not_selected_without_certification(
         panic!("Landlock must not execute before Linux runtime certification")
     };
     assert!(reason.contains("not yet runtime-certified"));
+}
+
+#[test]
+fn bwrap_rejects_requested_network_egress_before_command_construction() {
+    let mut capabilities = CapabilityManifest::default();
+    capabilities.net.egress = vec!["https://example.invalid".into()];
+
+    let error = config()
+        .plan(
+            &job_with_capabilities(capabilities),
+            PathBuf::from("/tmp/run-123").as_path(),
+            PathBuf::from("/tmp/run-123/outputs").as_path(),
+            PathBuf::from("/usr/bin/python3").as_path(),
+            PathBuf::from("/tmp/run-123/program.py").as_path(),
+            &BTreeMap::new(),
+        )
+        .unwrap_err();
+
+    assert!(error
+        .to_string()
+        .contains("isolated network namespace only"));
+}
+
+#[cfg(not(target_os = "linux"))]
+#[test]
+fn linux_backend_detection_is_explicitly_unavailable_off_linux() {
+    let error = BwrapConfig::detect().unwrap_err();
+    assert!(error.to_string().contains("unavailable on this platform"));
+}
+
+#[test]
+fn landlock_without_no_new_privs_is_partial_and_unavailable() {
+    let partial = LandlockClassification::classify(&LandlockProbe {
+        compatibility: LandlockCompatibility::BestEffort,
+        ruleset: LandlockRulesetStatus::FullyEnforced,
+        no_new_privs: false,
+        effective_abi: Some(6),
+        kernel_abi: None,
+    });
+    let LandlockClassification::PartiallyEnforced { warning, .. } = &partial else {
+        panic!("missing no_new_privs must prevent full classification")
+    };
+    assert!(warning.contains("no_new_privs"));
+    assert!(matches!(
+        LinuxSandboxSelection::select(None, partial),
+        LinuxSandboxSelection::TierUnavailable { .. }
+    ));
 }
