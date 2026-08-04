@@ -1,0 +1,293 @@
+{
+  "schemaVersion": "hook-contract-v1",
+  "dispatcherAbi": "hook-runtime-v1",
+  "harnesses": ["claude-code", "codex"],
+  "events": [
+    {
+      "event": "SessionStart",
+      "matcher": "*",
+      "description": "Bounded canonical KBD session adapter",
+      "groupId": "sessionstart:kbd-control",
+      "hooks": [
+        {
+          "id": "sessionstart-kbd-control",
+          "target": "shared/scripts/kbd-harness-adapter.sh",
+          "args": ["session_start", "{harness}"],
+          "timeout": 1000
+        }
+      ]
+    },
+    {
+      "event": "SessionStart",
+      "matcher": "*",
+      "description": "kbd-open — prime session with KBD phase context + focused wiki + pending skill-updates",
+      "groupId": "sessionstart:kbd-open",
+      "hooks": [
+        {
+          "id": "sessionstart-kbd-open",
+          "externalTarget": "$HOME/.local/bin/kbd-open",
+          "stderrToStdout": true,
+          "ignoreFailure": true,
+          "timeout": 30000
+        }
+      ]
+    },
+    {
+      "event": "SessionStart",
+      "hooks": [
+        {
+          "id": "sessionstart-detect-project-context",
+          "target": "shared/scripts/detect-project-context.sh",
+          "stderrToStdout": true,
+          "ignoreFailure": true,
+          "timeout": 15000
+        },
+        {
+          "id": "sessionstart-memory-outbox-flush",
+          "target": "shared/scripts/memory-outbox-flush.sh",
+          "stderrToStdout": true,
+          "ignoreFailure": true,
+          "timeout": 10000
+        },
+        {
+          "id": "sessionstart-pk-health",
+          "target": "shared/scripts/pk-health.sh",
+          "stderrToStdout": true,
+          "ignoreFailure": true,
+          "timeout": 8000
+        }
+      ]
+    },
+    {
+      "event": "UserPromptSubmit",
+      "hooks": [
+        {
+          "id": "prompt-karpathy-learning",
+          "target": "shared/scripts/karpathy-hook-dispatch.sh",
+          "args": ["prompt", "{harness}"]
+        }
+      ]
+    },
+    {
+      "event": "PreToolUse",
+      "matcher": "Write|Edit|MultiEdit",
+      "hooks": [
+        {
+          "id": "pretool-protect-tests",
+          "target": "shared/scripts/protect-tests.sh",
+          "timeout": 5000
+        }
+      ]
+    },
+    {
+      "event": "PostToolUse",
+      "matcher": "Write|Edit|MultiEdit",
+      "hooks": [
+        {
+          "id": "posttool-validate-evolution-state",
+          "target": "skills/process/iterative-evolver/scripts/validate-state.sh",
+          "stderrToStdout": true,
+          "ignoreFailure": true
+        },
+        {
+          "id": "posttool-validate-gitops-write",
+          "target": "shared/scripts/validate-gitops-write.sh",
+          "stderrToStdout": true,
+          "ignoreFailure": true,
+          "timeout": 10000
+        },
+        {
+          "id": "posttool-scope-record",
+          "target": "shared/scripts/scope-record.sh",
+          "stderrToStdout": true,
+          "ignoreFailure": true,
+          "timeout": 5000
+        },
+        {
+          "id": "posttool-write-position-reminder",
+          "target": "shared/scripts/write-position-reminder.sh",
+          "stderrToStdout": true,
+          "ignoreFailure": true,
+          "timeout": 5000
+        },
+        {
+          "id": "posttool-sycophancy-artifact",
+          "target": "shared/scripts/sycophancy-check-artifact.sh",
+          "timeout": 35000
+        },
+        {
+          "id": "posttool-memory-writeback",
+          "target": "shared/scripts/memory-writeback.sh",
+          "stderrToStdout": true,
+          "ignoreFailure": true,
+          "timeout": 8000
+        }
+      ]
+    },
+    {
+      "event": "SubagentStop",
+      "matcher": "assessor",
+      "hooks": [
+        {
+          "id": "subagent-assessor-checkpoint",
+          "target": "skills/process/iterative-evolver/scripts/state-checkpoint.sh",
+          "args": ["{evolution}", "assess", "phase_complete"],
+          "stderrToStdout": true,
+          "ignoreFailure": true
+        },
+        {
+          "id": "subagent-assessor-dispatch",
+          "target": "skills/process/iterative-evolver/scripts/workflow-dispatch.sh",
+          "args": ["{evolution}", "phase_complete", "assess"],
+          "stderrToStdout": true,
+          "ignoreFailure": true
+        }
+      ]
+    },
+    {
+      "event": "SubagentStop",
+      "matcher": "analyst",
+      "hooks": [
+        {
+          "id": "subagent-analyst-checkpoint",
+          "target": "skills/process/iterative-evolver/scripts/state-checkpoint.sh",
+          "args": ["{evolution}", "analyze", "phase_complete"],
+          "stderrToStdout": true,
+          "ignoreFailure": true
+        },
+        {
+          "id": "subagent-analyst-dispatch",
+          "target": "skills/process/iterative-evolver/scripts/workflow-dispatch.sh",
+          "args": ["{evolution}", "phase_complete", "analyze"],
+          "stderrToStdout": true,
+          "ignoreFailure": true
+        }
+      ]
+    },
+    {
+      "event": "SubagentStop",
+      "matcher": "planner",
+      "hooks": [
+        {
+          "id": "subagent-planner-checkpoint",
+          "target": "skills/process/iterative-evolver/scripts/state-checkpoint.sh",
+          "args": ["{evolution}", "plan", "phase_complete"],
+          "stderrToStdout": true,
+          "ignoreFailure": true
+        },
+        {
+          "id": "subagent-planner-dispatch",
+          "target": "skills/process/iterative-evolver/scripts/workflow-dispatch.sh",
+          "args": ["{evolution}", "phase_complete", "plan"],
+          "stderrToStdout": true,
+          "ignoreFailure": true
+        }
+      ]
+    },
+    {
+      "event": "SubagentStop",
+      "matcher": "executor",
+      "hooks": [
+        {
+          "id": "subagent-executor-karpathy-learning",
+          "target": "shared/scripts/karpathy-hook-dispatch.sh",
+          "args": ["executor_complete", "{harness}"]
+        },
+        {
+          "id": "subagent-executor-validate-state",
+          "target": "skills/process/iterative-evolver/scripts/validate-state.sh",
+          "stderrToStdout": true,
+          "ignoreFailure": true
+        },
+        {
+          "id": "subagent-executor-checkpoint",
+          "target": "skills/process/iterative-evolver/scripts/state-checkpoint.sh",
+          "args": ["{evolution}", "execute", "phase_complete"],
+          "stderrToStdout": true,
+          "ignoreFailure": true
+        },
+        {
+          "id": "subagent-executor-evaluate-session",
+          "target": "shared/scripts/evaluate-session.sh",
+          "stderrToStdout": true,
+          "ignoreFailure": true,
+          "timeout": 30000
+        },
+        {
+          "id": "subagent-executor-dispatch",
+          "target": "skills/process/iterative-evolver/scripts/workflow-dispatch.sh",
+          "args": ["{evolution}", "phase_complete", "execute"],
+          "stderrToStdout": true,
+          "ignoreFailure": true
+        }
+      ]
+    },
+    {
+      "event": "SubagentStop",
+      "matcher": "reflector",
+      "hooks": [
+        {
+          "id": "subagent-reflector-sycophancy",
+          "target": "shared/scripts/sycophancy-check-reflection.sh",
+          "stderrToStdout": true,
+          "timeout": 35000
+        },
+        {
+          "id": "subagent-reflector-log",
+          "target": "skills/process/iterative-evolver/scripts/log-reflection.sh",
+          "stderrToStdout": true,
+          "ignoreFailure": true
+        },
+        {
+          "id": "subagent-reflector-checkpoint",
+          "target": "skills/process/iterative-evolver/scripts/state-checkpoint.sh",
+          "args": ["{evolution}", "reflect", "phase_complete"],
+          "stderrToStdout": true,
+          "ignoreFailure": true
+        },
+        {
+          "id": "subagent-reflector-dispatch",
+          "target": "skills/process/iterative-evolver/scripts/workflow-dispatch.sh",
+          "args": ["{evolution}", "phase_complete", "reflect"],
+          "stderrToStdout": true,
+          "ignoreFailure": true
+        }
+      ]
+    },
+    {
+      "event": "SubagentStop",
+      "hooks": [
+        {
+          "id": "subagent-fallback-checkpoint",
+          "target": "shared/scripts/subagent-checkpoint-fallback.sh",
+          "stderrToStdout": true,
+          "ignoreFailure": true
+        }
+      ]
+    },
+    {
+      "event": "Stop",
+      "hooks": [
+        {
+          "id": "stop-karpathy-learning",
+          "target": "shared/scripts/karpathy-hook-dispatch.sh",
+          "args": ["stop", "{harness}"]
+        }
+      ]
+    },
+    {
+      "event": "PreCompact",
+      "matcher": "*",
+      "description": "Bounded canonical KBD pre-compaction checkpoint",
+      "groupId": "precompact:kbd-control",
+      "hooks": [
+        {
+          "id": "precompact-kbd-control",
+          "target": "shared/scripts/kbd-harness-adapter.sh",
+          "args": ["pre_compact", "{harness}"],
+          "timeout": 1000
+        }
+      ]
+    }
+  ]
+}

@@ -9,7 +9,7 @@ never hand-edit them.
 | `.codex-plugin/plugin.json` | `.claude-plugin/plugin.json` (+ `interface` block) | `scripts/build-codex-plugin.js` |
 | `.agents/plugins/marketplace.json` | `.claude-plugin/marketplace.json` (source→`{source,path}`, +`policy`) | `scripts/build-codex-plugin.js` |
 | MCP servers | `.mcp.json` (referenced by pointer — Codex reads the `mcpServers`-wrapper form as-is) | — |
-| Hooks | `hooks/hooks.json` (PascalCase; shared with Claude) | — |
+| Hooks | `shared/harnesses/hook-contract.json` | `scripts/generate-harness-adapters.js` → `hooks/codex-hooks.json` |
 
 ## Build / validate
 
@@ -56,10 +56,15 @@ scope: `~/.agents/plugins/marketplace.json`. Codex also reads the legacy
 
 ## Hooks — interactive, non-managed trust (change-005)
 
-`plugin.json.hooks → ./hooks/hooks.json`. Codex plugin hooks use the **same
-PascalCase event schema as Claude** (`SessionStart`, `PreToolUse`, …) — no
-translation. Hook commands receive `${PLUGIN_ROOT}` (installed package) and
-`${PLUGIN_DATA}` (writable, created lazily on first session).
+`plugin.json.hooks → ./hooks/codex-hooks.json`. Codex and Claude manifests are
+generated separately from one declarative hook contract while retaining the
+same PascalCase event schema (`SessionStart`, `PreToolUse`, …).
+
+Each generated command embeds an immutable bundle ID. It first resolves that ID
+through `~/.prometheus/plugins/prometheus-skill-pack/runtime/v1/run-hook`; if the
+bundle has not been activated, it uses the native plugin payload exposed through
+`${PLUGIN_ROOT}` to perform a hash-verified bootstrap. Hook business logic never
+resolves through the mutable `stable` or `current` projections.
 
 **Trust is independent of install.** Plugin-bundled hooks are *non-managed*:
 an interactive `codex` session shows a one-time trust prompt before running them.
@@ -71,8 +76,8 @@ Consequences:
   via `codex exec --dangerously-bypass-hook-trust` (built for vetted automation) —
   it is *not* interactive-only. Evidence:
   `.kbd-orchestrator/phases/phase-codex-plugin-distribution-and-ci/references/hook-trust-verification.md`.
-- **Portability:** the hooks use `${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}` so they
-  resolve under both Claude (`CLAUDE_PLUGIN_ROOT`) and Codex (`PLUGIN_ROOT`).
+- **Portability:** bootstrap uses `${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}` so the
+  generated command can acquire its pinned bundle under both harnesses.
   Codex provides `PLUGIN_ROOT` / `PLUGIN_DATA`, not `CLAUDE_PLUGIN_ROOT`.
 - Distinct from the earlier `config.toml [hooks]` snake_case attempt (which
   silently never fired). The plugin `hooks.json` path is the working one.
@@ -93,7 +98,7 @@ secrets**. (See the tavily name-collision note in CLAUDE.md for a Codex MCP gotc
 | Marketplace | `.claude-plugin/marketplace.json` (`source:"."`) | `.agents/plugins/marketplace.json` (`source.{source,path}`+`policy`) | ✅ generated, 11 plugins |
 | Skills | 30 curated (array) | same 30 (array); budget curated via `config/codex-catalog.txt`; real dirs via `codex-sync-skills.sh` (Codex ignores symlinks) | ✅ |
 | MCP | `.mcp.json` (7) | same `.mcp.json` via pointer | ✅ 7 register |
-| Hooks | `hooks/hooks.json` (managed) | same file (non-managed, interactive trust) | ✅ wired / ⚠ interactive-verify |
+| Hooks | generated `hooks/hooks.json` (managed) | generated `hooks/codex-hooks.json` (non-managed, interactive trust) | ✅ bundle-pinned |
 | Apps (`.app.json`) | — | — | n/a (no connectors yet) |
 
 ## Publishing checklist

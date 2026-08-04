@@ -23,6 +23,9 @@ const TARGETS = [
 ];
 const COPY_TARGETS = new Set(['.minimax/skills', '.codex/skills']);
 const REQUIRED_SCRIPTS = [
+  'hook-runtime-v1.sh',
+  'bootstrap-hook-runtime.sh',
+  'generated/hook-dispatch-v1.sh',
   'karpathy-hook-dispatch.sh',
   'detect-project-context.sh',
   'memory-outbox-flush.sh',
@@ -30,8 +33,13 @@ const REQUIRED_SCRIPTS = [
   'enqueue-learning-job.py',
   'enqueue-memory-operation.py',
 ];
-const STABLE_SCRIPTS = REQUIRED_SCRIPTS.slice(0, 4);
-const STABLE_HELPERS = REQUIRED_SCRIPTS.slice(4);
+const STABLE_SCRIPTS = [
+  'karpathy-hook-dispatch.sh',
+  'detect-project-context.sh',
+  'memory-outbox-flush.sh',
+  'pk-health.sh',
+];
+const STABLE_HELPERS = ['enqueue-learning-job.py', 'enqueue-memory-operation.py'];
 const STABLE_DIRECTORIES = ['lib'];
 const PAYLOAD_ROOTS = [
   'skills',
@@ -57,12 +65,14 @@ function parseArgs(argv) {
     verify: false,
     rollback: false,
     uninstall: false,
+    expectedBundle: null,
   };
   for (let index = 0; index < argv.length; index += 1) {
     const value = argv[index];
     if (value === '--verify') args.verify = true;
     else if (value === '--rollback') args.rollback = true;
     else if (value === '--uninstall') args.uninstall = true;
+    else if (value === '--expected-bundle') args.expectedBundle = argv[++index];
     else if (value === '--source-root') args.sourceRoot = argv[++index];
     else if (value === '--plugin-root') args.pluginRoot = argv[++index];
     else if (value === '--home') args.home = argv[++index];
@@ -72,6 +82,9 @@ function parseArgs(argv) {
     if (!args[key])
       fail(`missing value for --${key.replace(/[A-Z]/g, c => `-${c.toLowerCase()}`)}`);
     args[key] = path.resolve(args[key]);
+  }
+  if (args.expectedBundle && !/^[a-f0-9]{64}$/.test(args.expectedBundle)) {
+    fail('invalid value for --expected-bundle');
   }
   return args;
 }
@@ -268,6 +281,59 @@ function targetPayloads(skills) {
   }));
 }
 
+function verifyReleaseManifest(payloadRoot, expectedBundle = null) {
+  const manifestPath = path.join(
+    payloadRoot,
+    'shared/harnesses/generated/release-manifest.json'
+  );
+  if (!fs.existsSync(manifestPath)) fail(`release manifest is missing: ${manifestPath}`);
+  const release = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+  const identity = {
+    schemaVersion: release.schemaVersion,
+    sourceVersion: release.sourceVersion,
+    contractSchemaVersion: release.contractSchemaVersion,
+    dispatcherAbi: release.dispatcherAbi,
+    contractSha256: release.contractSha256,
+    runtimeFiles: release.runtimeFiles,
+  };
+  const bundleId = sha256(canonicalJson(identity));
+  if (release.bundleId !== bundleId) fail('release manifest bundle identity mismatch');
+  if (expectedBundle && bundleId !== expectedBundle) {
+    fail(`release bundle ${bundleId} does not match expected ${expectedBundle}`);
+  }
+  if (
+    release.dispatcherAbi !== 'hook-runtime-v1' ||
+    !Array.isArray(release.runtimeFiles) ||
+    release.runtimeFiles.length === 0
+  ) {
+    fail('release manifest hook runtime contract is invalid');
+  }
+  const seen = new Set();
+  for (const entry of release.runtimeFiles) {
+    const normalized = path.posix.normalize(entry.path ?? '');
+    if (
+      !normalized ||
+      normalized !== entry.path ||
+      normalized.startsWith('../') ||
+      path.isAbsolute(normalized) ||
+      seen.has(normalized)
+    ) {
+      fail(`unsafe or duplicate release payload path: ${entry.path}`);
+    }
+    seen.add(normalized);
+    const absolute = path.join(payloadRoot, ...normalized.split('/'));
+    const stat = fs.lstatSync(absolute, { throwIfNoEntry: false });
+    if (
+      !stat?.isFile() ||
+      sha256(fs.readFileSync(absolute)) !== entry.sha256 ||
+      modeString(stat.mode) !== entry.mode
+    ) {
+      fail(`release payload verification failed for ${normalized}`);
+    }
+  }
+  return release;
+}
+
 function verifyGeneration(generationPath, expectedName = path.basename(generationPath)) {
   const manifestPath = path.join(generationPath, 'manifest.json');
   if (!fs.existsSync(manifestPath)) fail(`generation has no manifest: ${generationPath}`);
@@ -275,6 +341,8 @@ function verifyGeneration(generationPath, expectedName = path.basename(generatio
   const identity = {
     schemaVersion: manifest.schemaVersion,
     sourceVersion: manifest.sourceVersion,
+    bundleId: manifest.bundleId,
+    hookRuntime: manifest.hookRuntime,
     files: manifest.files,
     targetPayloads: manifest.targetPayloads,
   };
@@ -319,6 +387,22 @@ function verifyGeneration(generationPath, expectedName = path.basename(generatio
     const absolute = path.join(generationPath, 'shared/scripts', script);
     if (!fs.existsSync(absolute) || (fs.statSync(absolute).mode & 0o111) === 0)
       fail(`required script is missing or not executable: ${script}`);
+  }
+  const release = verifyReleaseManifest(generationPath, manifest.bundleId);
+  const dispatcher = release.runtimeFiles.find(
+    entry => entry.path === 'shared/scripts/generated/hook-dispatch-v1.sh'
+  );
+  const runner = release.runtimeFiles.find(
+    entry => entry.path === 'shared/scripts/hook-runtime-v1.sh'
+  );
+  if (
+    manifest.hookRuntime?.abi !== 'hook-runtime-v1' ||
+    manifest.hookRuntime?.bundleId !== manifest.bundleId ||
+    manifest.hookRuntime?.dispatcherPath !== 'shared/scripts/generated/hook-dispatch-v1.sh' ||
+    manifest.hookRuntime?.dispatcherSha256 !== dispatcher?.sha256 ||
+    manifest.hookRuntime?.runnerSha256 !== runner?.sha256
+  ) {
+    fail('generation hook runtime receipt is invalid');
   }
   if (
     !manifest.files.some(
@@ -523,6 +607,62 @@ function verifyStableDispatchers(pluginRoot) {
   }
 }
 
+function verifyHookRuntime(pluginRoot, manifest) {
+  const runner = path.join(pluginRoot, 'runtime/v1/run-hook');
+  const runnerStat = fs.lstatSync(runner, { throwIfNoEntry: false });
+  if (
+    !runnerStat?.isFile() ||
+    (runnerStat.mode & 0o111) === 0 ||
+    sha256(fs.readFileSync(runner)) !== manifest.hookRuntime.runnerSha256
+  ) {
+    fail('stable hook runtime v1 is missing or invalid');
+  }
+  const bundleLink = path.join(pluginRoot, 'bundles', manifest.bundleId);
+  const stat = fs.lstatSync(bundleLink, { throwIfNoEntry: false });
+  if (!stat?.isSymbolicLink()) fail(`bundle index is missing: ${manifest.bundleId}`);
+  const resolved = path.resolve(path.dirname(bundleLink), fs.readlinkSync(bundleLink));
+  if (!isWithin(path.join(pluginRoot, 'generations'), resolved)) {
+    fail(`bundle index escapes generations: ${manifest.bundleId}`);
+  }
+  const indexed = verifyGeneration(resolved, path.basename(resolved));
+  if (
+    indexed.bundleId !== manifest.bundleId ||
+    indexed.hookRuntime.dispatcherSha256 !== manifest.hookRuntime.dispatcherSha256
+  ) {
+    fail(`bundle index collision: ${manifest.bundleId}`);
+  }
+}
+
+function installHookRuntime(pluginRoot, generationPath, manifest) {
+  const runnerSource = path.join(generationPath, 'shared/scripts/hook-runtime-v1.sh');
+  atomicWrite(
+    path.join(pluginRoot, 'runtime/v1/run-hook'),
+    fs.readFileSync(runnerSource),
+    0o755
+  );
+  const bundles = path.join(pluginRoot, 'bundles');
+  ensureDirectory(bundles);
+  const bundleLink = path.join(bundles, manifest.bundleId);
+  const existing = fs.lstatSync(bundleLink, { throwIfNoEntry: false });
+  if (existing) {
+    if (!existing.isSymbolicLink()) fail(`bundle index is not a symlink: ${manifest.bundleId}`);
+    const resolved = path.resolve(bundles, fs.readlinkSync(bundleLink));
+    if (!isWithin(path.join(pluginRoot, 'generations'), resolved)) {
+      fail(`bundle index escapes generations: ${manifest.bundleId}`);
+    }
+    const indexed = verifyGeneration(resolved, path.basename(resolved));
+    if (
+      indexed.bundleId !== manifest.bundleId ||
+      indexed.hookRuntime.dispatcherSha256 !== manifest.hookRuntime.dispatcherSha256
+    ) {
+      fail(`bundle identity collision: ${manifest.bundleId}`);
+    }
+  } else {
+    atomicSymlink(bundles, manifest.bundleId, `../generations/${manifest.generation}`);
+  }
+  verifyHookRuntime(pluginRoot, manifest);
+}
+
 function uninstall(home, pluginRoot) {
   for (const target of TARGETS) {
     const targetRoot = path.join(home, ...target.split('/'));
@@ -556,6 +696,7 @@ function verifyActive(pluginRoot) {
     fail('active pointer escapes generations directory');
   const manifest = verifyGeneration(resolved, path.basename(resolved));
   verifyStableDispatchers(pluginRoot);
+  verifyHookRuntime(pluginRoot, manifest);
   return manifest;
 }
 
@@ -572,13 +713,21 @@ function rollback(pluginRoot, home) {
   verifyTargets(home, pluginRoot, generationPath, manifest.generation, skills);
   atomicSymlink(pluginRoot, 'current', previous);
   atomicSymlink(pluginRoot, 'previous', active);
+  installHookRuntime(pluginRoot, generationPath, manifest);
   createStableDispatchers(pluginRoot);
   return path.basename(previous);
 }
 
 function install(args) {
   const source = args.sourceRoot;
-  for (const required of ['skills', 'shared/scripts', 'hooks', '.claude-plugin', '.codex-plugin']) {
+  for (const required of [
+    'skills',
+    'shared/scripts',
+    'shared/harnesses/generated/release-manifest.json',
+    'hooks',
+    '.claude-plugin',
+    '.codex-plugin',
+  ]) {
     if (!fs.existsSync(path.join(source, required))) fail(`source payload is missing ${required}`);
   }
   for (const script of REQUIRED_SCRIPTS) {
@@ -604,9 +753,26 @@ function install(args) {
     const pluginMetadata = JSON.parse(
       fs.readFileSync(path.join(staging, '.claude-plugin/plugin.json'), 'utf8')
     );
+    const release = verifyReleaseManifest(staging, args.expectedBundle);
+    const dispatcher = release.runtimeFiles.find(
+      entry => entry.path === 'shared/scripts/generated/hook-dispatch-v1.sh'
+    );
+    const runner = release.runtimeFiles.find(
+      entry => entry.path === 'shared/scripts/hook-runtime-v1.sh'
+    );
+    if (!dispatcher || !runner) fail('release manifest omits hook runtime payloads');
+    const hookRuntime = {
+      abi: release.dispatcherAbi,
+      bundleId: release.bundleId,
+      dispatcherPath: dispatcher.path,
+      dispatcherSha256: dispatcher.sha256,
+      runnerSha256: runner.sha256,
+    };
     const identity = {
       schemaVersion: 1,
       sourceVersion: String(pluginMetadata.version ?? 'unknown'),
+      bundleId: release.bundleId,
+      hookRuntime,
       files: collectManifestFiles(staging),
       targetPayloads: targetPayloads(skills),
     };
@@ -623,6 +789,8 @@ function install(args) {
       fs.renameSync(staging, generationPath);
       syncDirectory(generations);
     }
+
+    installHookRuntime(args.pluginRoot, generationPath, manifest);
 
     installTargets(args.home, args.pluginRoot, generationPath, generation, skills);
     verifyTargets(args.home, args.pluginRoot, generationPath, generation, skills);

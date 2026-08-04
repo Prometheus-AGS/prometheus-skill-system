@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.6.2] - 2026-08-03
+
+### Fixed
+
+- Generate distinct Claude Code and Codex hook manifests from one declarative contract, with every command pinned to a content-addressed runtime bundle.
+- Bootstrap missing bundles only from the native plugin payload after hash verification; hook execution no longer follows mutable `stable` or `current` projections.
+- Validate the source manifest, immutable generation, bundle index, fixed runner, and actual Codex cache in `prometheus doctor`.
+- Install versioned hook runtime receipts and retain older bundle mappings so already-open sessions remain resolvable during cache turnover.
+
 ## [1.4.0] - 2026-06-28
 
 ### Added

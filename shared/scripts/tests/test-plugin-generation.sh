@@ -12,6 +12,8 @@ mkdir -p \
   "$SOURCE/skills/example/scripts" \
   "$SOURCE/agents" \
   "$SOURCE/hooks" \
+  "$SOURCE/scripts" \
+  "$SOURCE/shared/harnesses" \
   "$SOURCE/shared/scripts/lib" \
   "$SOURCE/shared/scripts/tests/fixtures" \
   "$SOURCE/.claude-plugin" \
@@ -22,6 +24,12 @@ printf '#!/usr/bin/env bash\nprintf "example\\n"\n' > "$SOURCE/skills/example/sc
 printf 'fixture\n' > "$SOURCE/shared/scripts/tests/fixtures/example.txt"
 printf '#!/usr/bin/env bash\n' > "$SOURCE/shared/scripts/lib/hook-log.sh"
 printf '#!/usr/bin/env bash\n' > "$SOURCE/shared/scripts/lib/memory-bridge.sh"
+cp "$ROOT/scripts/install-plugin-generation.js" "$SOURCE/scripts/install-plugin-generation.js"
+cp "$ROOT/scripts/generate-harness-adapters.js" "$SOURCE/scripts/generate-harness-adapters.js"
+cp "$ROOT/shared/scripts/hook-runtime-v1.sh" "$SOURCE/shared/scripts/hook-runtime-v1.sh"
+cp "$ROOT/shared/scripts/bootstrap-hook-runtime.sh" "$SOURCE/shared/scripts/bootstrap-hook-runtime.sh"
+cp "$ROOT/shared/harnesses/capabilities.json" "$SOURCE/shared/harnesses/capabilities.json"
+printf '%s\n' '{"schemaVersion":"hook-contract-v1","dispatcherAbi":"hook-runtime-v1","harnesses":["claude-code","codex"],"events":[{"event":"UserPromptSubmit","hooks":[{"id":"fixture-hook","target":"shared/scripts/karpathy-hook-dispatch.sh"}]}]}' > "$SOURCE/shared/harnesses/hook-contract.json"
 for script in karpathy-hook-dispatch detect-project-context memory-outbox-flush pk-health; do
   printf '#!/usr/bin/env bash\nprintf "%s-a\\n"\n' "$script" > "$SOURCE/shared/scripts/$script.sh"
   chmod +x "$SOURCE/shared/scripts/$script.sh"
@@ -36,6 +44,7 @@ printf '{"name":"prometheus-skill-pack","version":"test"}\n' > "$SOURCE/.claude-
 printf '{"name":"prometheus-skill-pack","version":"test"}\n' > "$SOURCE/.codex-plugin/plugin.json"
 printf '{"plugins":[]}\n' > "$SOURCE/.agents/plugins/marketplace.json"
 printf '{}\n' > "$SOURCE/.mcp.json"
+node "$SOURCE/scripts/generate-harness-adapters.js" >/dev/null
 
 mkdir -p "$TMP/home/.codex/skills/example" "$TMP/home/.minimax/skills/example"
 mkdir -p "$TMP/home/.codex/skills/user-owned"
@@ -53,6 +62,11 @@ node "$INSTALLER" --source-root "$SOURCE" --plugin-root "$PLUGIN_ROOT" --home "$
 FIRST="$(readlink "$PLUGIN_ROOT/current")"
 FIRST_HASH="${FIRST##*/}"
 [[ -f "$PLUGIN_ROOT/generations/$FIRST_HASH/manifest.json" ]]
+FIRST_BUNDLE="$(jq -r '.bundleId' "$PLUGIN_ROOT/generations/$FIRST_HASH/manifest.json")"
+[[ "$(readlink "$PLUGIN_ROOT/bundles/$FIRST_BUNDLE")" == "../generations/$FIRST_HASH" ]]
+[[ -x "$PLUGIN_ROOT/runtime/v1/run-hook" ]]
+PROMETHEUS_PLUGIN_ROOT="$PLUGIN_ROOT" "$PLUGIN_ROOT/runtime/v1/run-hook" \
+  --bundle "$FIRST_BUNDLE" --resolve-only >/dev/null
 [[ "$(jq '.targetPayloads | length' "$PLUGIN_ROOT/generations/$FIRST_HASH/manifest.json")" == 14 ]]
 [[ "$(jq -r '.files[] | select(.path == "shared/scripts/karpathy-hook-dispatch.sh") | .mode' "$PLUGIN_ROOT/generations/$FIRST_HASH/manifest.json")" == "0755" ]]
 for script in karpathy-hook-dispatch detect-project-context memory-outbox-flush pk-health; do
@@ -75,16 +89,39 @@ echo '[PASS] first generation is hash-verified and exposes 14 validated target p
 printf '#!/usr/bin/env bash\nprintf "karpathy-hook-dispatch-b\\n"\n' > "$SOURCE/shared/scripts/karpathy-hook-dispatch.sh"
 printf '%s\n' '---' 'name: example' 'description: fixture-b' '---' > "$SOURCE/skills/example/SKILL.md"
 chmod +x "$SOURCE/shared/scripts/karpathy-hook-dispatch.sh"
+node "$SOURCE/scripts/generate-harness-adapters.js" >/dev/null
 node "$INSTALLER" --source-root "$SOURCE" --plugin-root "$PLUGIN_ROOT" --home "$TMP/home" >/dev/null
 SECOND="$(readlink "$PLUGIN_ROOT/current")"
+SECOND_HASH="${SECOND##*/}"
+SECOND_BUNDLE="$(jq -r '.bundleId' "$PLUGIN_ROOT/generations/$SECOND_HASH/manifest.json")"
 [[ "$SECOND" != "$FIRST" ]]
+[[ "$SECOND_BUNDLE" != "$FIRST_BUNDLE" ]]
 [[ "$(readlink "$PLUGIN_ROOT/previous")" == "$FIRST" ]]
+PROMETHEUS_PLUGIN_ROOT="$PLUGIN_ROOT" "$PLUGIN_ROOT/runtime/v1/run-hook" \
+  --bundle "$FIRST_BUNDLE" --resolve-only >/dev/null
+PROMETHEUS_PLUGIN_ROOT="$PLUGIN_ROOT" "$PLUGIN_ROOT/runtime/v1/run-hook" \
+  --bundle "$SECOND_BUNDLE" --resolve-only >/dev/null
+FIRST_DISPATCH="$(PROMETHEUS_PLUGIN_ROOT="$PLUGIN_ROOT" "$PLUGIN_ROOT/runtime/v1/run-hook" \
+  --bundle "$FIRST_BUNDLE" --hook fixture-hook --harness codex)"
+SECOND_DISPATCH="$(PROMETHEUS_PLUGIN_ROOT="$PLUGIN_ROOT" "$PLUGIN_ROOT/runtime/v1/run-hook" \
+  --bundle "$SECOND_BUNDLE" --hook fixture-hook --harness codex)"
+[[ "$FIRST_DISPATCH" == karpathy-hook-dispatch-a ]]
+[[ "$SECOND_DISPATCH" == karpathy-hook-dispatch-b ]]
+UNKNOWN_BUNDLE="$(printf 'f%.0s' {1..64})"
+if PROMETHEUS_PLUGIN_ROOT="$PLUGIN_ROOT" "$PLUGIN_ROOT/runtime/v1/run-hook" \
+  --bundle "$UNKNOWN_BUNDLE" --resolve-only >"$TMP/unknown.out" 2>"$TMP/unknown.err"; then
+  echo '[FAIL] unknown bundle unexpectedly resolved' >&2
+  exit 1
+fi
+[[ ! -s "$TMP/unknown.out" ]]
+grep -q '"code":"NOT_ACTIVATED"' "$TMP/unknown.err"
 [[ "$(HOME="$TMP/home" bash "$PLUGIN_ROOT/stable/karpathy-hook-dispatch.sh")" == "karpathy-hook-dispatch-b" ]]
 grep -q 'fixture-b' "$TMP/home/.codex/skills/example/SKILL.md"
 grep -q 'fixture-b' "$TMP/home/.minimax/skills/example/SKILL.md"
 for script in detect-project-context memory-outbox-flush pk-health; do
   cmp "$SOURCE/shared/scripts/$script.sh" "$PLUGIN_ROOT/stable/$script.sh"
 done
+echo '[PASS] pinned old and new bundles dispatch independently; unknown bundles fail closed'
 echo '[PASS] activation atomically advances current and retains a previous pointer'
 
 node "$INSTALLER" --plugin-root "$PLUGIN_ROOT" --home "$TMP/home" --rollback >/dev/null

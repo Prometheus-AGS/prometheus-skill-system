@@ -2,26 +2,26 @@
   "hooks": {
     "SessionStart": [
       {
-        "matcher": "*",
         "hooks": [
           {
             "type": "command",
-            "command": "bash ${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/shared/scripts/kbd-harness-adapter.sh session_start claude-code",
+            "command": "bash -c 'runner=\"$HOME/.prometheus/plugins/prometheus-skill-pack/runtime/v1/run-hook\"\nif [[ ! -x \"$runner\" ]] || ! \"$runner\" --bundle \"$1\" --resolve-only >/dev/null 2>&1; then\n  plugin_root=\"${CLAUDE_PLUGIN_ROOT:-${PLUGIN_ROOT:-}}\"\n  bootstrap=\"$plugin_root/shared/scripts/bootstrap-hook-runtime.sh\"\n  if [[ -z \"$plugin_root\" || ! -x \"$bootstrap\" ]]; then\n    printf '\"'\"'{\"status\":\"NOT_ACTIVATED\",\"bundle\":\"%s\"}\\n'\"'\"' \"$1\" >&2\n    exit 78\n  fi\n  bash \"$bootstrap\" --source-root \"$plugin_root\" --expected-bundle \"$1\" || exit\nfi\nexec \"$runner\" --bundle \"$1\" --hook \"$2\" --harness \"$3\"' prometheus-hook '0966d0d8f25090cdf2bc1bf132d4a9b43a7ffd12cb04c75851b1e5c3f57a365d' 'sessionstart-kbd-control' 'claude-code'",
             "timeout": 1000
           }
         ],
+        "matcher": "*",
         "description": "Bounded canonical KBD session adapter",
         "id": "sessionstart:kbd-control"
       },
       {
-        "matcher": "*",
         "hooks": [
           {
             "type": "command",
-            "command": "bash ~/.local/bin/kbd-open 2>&1 || true",
+            "command": "bash -c 'runner=\"$HOME/.prometheus/plugins/prometheus-skill-pack/runtime/v1/run-hook\"\nif [[ ! -x \"$runner\" ]] || ! \"$runner\" --bundle \"$1\" --resolve-only >/dev/null 2>&1; then\n  plugin_root=\"${CLAUDE_PLUGIN_ROOT:-${PLUGIN_ROOT:-}}\"\n  bootstrap=\"$plugin_root/shared/scripts/bootstrap-hook-runtime.sh\"\n  if [[ -z \"$plugin_root\" || ! -x \"$bootstrap\" ]]; then\n    printf '\"'\"'{\"status\":\"NOT_ACTIVATED\",\"bundle\":\"%s\"}\\n'\"'\"' \"$1\" >&2\n    exit 78\n  fi\n  bash \"$bootstrap\" --source-root \"$plugin_root\" --expected-bundle \"$1\" || exit\nfi\nexec \"$runner\" --bundle \"$1\" --hook \"$2\" --harness \"$3\"' prometheus-hook '0966d0d8f25090cdf2bc1bf132d4a9b43a7ffd12cb04c75851b1e5c3f57a365d' 'sessionstart-kbd-open' 'claude-code'",
             "timeout": 30000
           }
         ],
+        "matcher": "*",
         "description": "kbd-open — prime session with KBD phase context + focused wiki + pending skill-updates",
         "id": "sessionstart:kbd-open"
       },
@@ -29,17 +29,17 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash \"$HOME/.prometheus/plugins/prometheus-skill-pack/stable/detect-project-context.sh\" 2>&1 || true",
+            "command": "bash -c 'runner=\"$HOME/.prometheus/plugins/prometheus-skill-pack/runtime/v1/run-hook\"\nif [[ ! -x \"$runner\" ]] || ! \"$runner\" --bundle \"$1\" --resolve-only >/dev/null 2>&1; then\n  plugin_root=\"${CLAUDE_PLUGIN_ROOT:-${PLUGIN_ROOT:-}}\"\n  bootstrap=\"$plugin_root/shared/scripts/bootstrap-hook-runtime.sh\"\n  if [[ -z \"$plugin_root\" || ! -x \"$bootstrap\" ]]; then\n    printf '\"'\"'{\"status\":\"NOT_ACTIVATED\",\"bundle\":\"%s\"}\\n'\"'\"' \"$1\" >&2\n    exit 78\n  fi\n  bash \"$bootstrap\" --source-root \"$plugin_root\" --expected-bundle \"$1\" || exit\nfi\nexec \"$runner\" --bundle \"$1\" --hook \"$2\" --harness \"$3\"' prometheus-hook '0966d0d8f25090cdf2bc1bf132d4a9b43a7ffd12cb04c75851b1e5c3f57a365d' 'sessionstart-detect-project-context' 'claude-code'",
             "timeout": 15000
           },
           {
             "type": "command",
-            "command": "bash \"$HOME/.prometheus/plugins/prometheus-skill-pack/stable/memory-outbox-flush.sh\" 2>&1 || true",
+            "command": "bash -c 'runner=\"$HOME/.prometheus/plugins/prometheus-skill-pack/runtime/v1/run-hook\"\nif [[ ! -x \"$runner\" ]] || ! \"$runner\" --bundle \"$1\" --resolve-only >/dev/null 2>&1; then\n  plugin_root=\"${CLAUDE_PLUGIN_ROOT:-${PLUGIN_ROOT:-}}\"\n  bootstrap=\"$plugin_root/shared/scripts/bootstrap-hook-runtime.sh\"\n  if [[ -z \"$plugin_root\" || ! -x \"$bootstrap\" ]]; then\n    printf '\"'\"'{\"status\":\"NOT_ACTIVATED\",\"bundle\":\"%s\"}\\n'\"'\"' \"$1\" >&2\n    exit 78\n  fi\n  bash \"$bootstrap\" --source-root \"$plugin_root\" --expected-bundle \"$1\" || exit\nfi\nexec \"$runner\" --bundle \"$1\" --hook \"$2\" --harness \"$3\"' prometheus-hook '0966d0d8f25090cdf2bc1bf132d4a9b43a7ffd12cb04c75851b1e5c3f57a365d' 'sessionstart-memory-outbox-flush' 'claude-code'",
             "timeout": 10000
           },
           {
             "type": "command",
-            "command": "bash \"$HOME/.prometheus/plugins/prometheus-skill-pack/stable/pk-health.sh\" 2>&1 || true",
+            "command": "bash -c 'runner=\"$HOME/.prometheus/plugins/prometheus-skill-pack/runtime/v1/run-hook\"\nif [[ ! -x \"$runner\" ]] || ! \"$runner\" --bundle \"$1\" --resolve-only >/dev/null 2>&1; then\n  plugin_root=\"${CLAUDE_PLUGIN_ROOT:-${PLUGIN_ROOT:-}}\"\n  bootstrap=\"$plugin_root/shared/scripts/bootstrap-hook-runtime.sh\"\n  if [[ -z \"$plugin_root\" || ! -x \"$bootstrap\" ]]; then\n    printf '\"'\"'{\"status\":\"NOT_ACTIVATED\",\"bundle\":\"%s\"}\\n'\"'\"' \"$1\" >&2\n    exit 78\n  fi\n  bash \"$bootstrap\" --source-root \"$plugin_root\" --expected-bundle \"$1\" || exit\nfi\nexec \"$runner\" --bundle \"$1\" --hook \"$2\" --harness \"$3\"' prometheus-hook '0966d0d8f25090cdf2bc1bf132d4a9b43a7ffd12cb04c75851b1e5c3f57a365d' 'sessionstart-pk-health' 'claude-code'",
             "timeout": 8000
           }
         ]
@@ -50,152 +50,152 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash \"$HOME/.prometheus/plugins/prometheus-skill-pack/stable/karpathy-hook-dispatch.sh\" prompt claude-code"
+            "command": "bash -c 'runner=\"$HOME/.prometheus/plugins/prometheus-skill-pack/runtime/v1/run-hook\"\nif [[ ! -x \"$runner\" ]] || ! \"$runner\" --bundle \"$1\" --resolve-only >/dev/null 2>&1; then\n  plugin_root=\"${CLAUDE_PLUGIN_ROOT:-${PLUGIN_ROOT:-}}\"\n  bootstrap=\"$plugin_root/shared/scripts/bootstrap-hook-runtime.sh\"\n  if [[ -z \"$plugin_root\" || ! -x \"$bootstrap\" ]]; then\n    printf '\"'\"'{\"status\":\"NOT_ACTIVATED\",\"bundle\":\"%s\"}\\n'\"'\"' \"$1\" >&2\n    exit 78\n  fi\n  bash \"$bootstrap\" --source-root \"$plugin_root\" --expected-bundle \"$1\" || exit\nfi\nexec \"$runner\" --bundle \"$1\" --hook \"$2\" --harness \"$3\"' prometheus-hook '0966d0d8f25090cdf2bc1bf132d4a9b43a7ffd12cb04c75851b1e5c3f57a365d' 'prompt-karpathy-learning' 'claude-code'"
           }
         ]
       }
     ],
     "PreToolUse": [
       {
-        "matcher": "Write|Edit|MultiEdit",
         "hooks": [
           {
             "type": "command",
-            "command": "bash ${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/shared/scripts/protect-tests.sh",
+            "command": "bash -c 'runner=\"$HOME/.prometheus/plugins/prometheus-skill-pack/runtime/v1/run-hook\"\nif [[ ! -x \"$runner\" ]] || ! \"$runner\" --bundle \"$1\" --resolve-only >/dev/null 2>&1; then\n  plugin_root=\"${CLAUDE_PLUGIN_ROOT:-${PLUGIN_ROOT:-}}\"\n  bootstrap=\"$plugin_root/shared/scripts/bootstrap-hook-runtime.sh\"\n  if [[ -z \"$plugin_root\" || ! -x \"$bootstrap\" ]]; then\n    printf '\"'\"'{\"status\":\"NOT_ACTIVATED\",\"bundle\":\"%s\"}\\n'\"'\"' \"$1\" >&2\n    exit 78\n  fi\n  bash \"$bootstrap\" --source-root \"$plugin_root\" --expected-bundle \"$1\" || exit\nfi\nexec \"$runner\" --bundle \"$1\" --hook \"$2\" --harness \"$3\"' prometheus-hook '0966d0d8f25090cdf2bc1bf132d4a9b43a7ffd12cb04c75851b1e5c3f57a365d' 'pretool-protect-tests' 'claude-code'",
             "timeout": 5000
           }
-        ]
+        ],
+        "matcher": "Write|Edit|MultiEdit"
       }
     ],
     "PostToolUse": [
       {
-        "matcher": "Write|Edit|MultiEdit",
         "hooks": [
           {
             "type": "command",
-            "command": "bash ${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/skills/process/iterative-evolver/scripts/validate-state.sh 2>&1 || true"
+            "command": "bash -c 'runner=\"$HOME/.prometheus/plugins/prometheus-skill-pack/runtime/v1/run-hook\"\nif [[ ! -x \"$runner\" ]] || ! \"$runner\" --bundle \"$1\" --resolve-only >/dev/null 2>&1; then\n  plugin_root=\"${CLAUDE_PLUGIN_ROOT:-${PLUGIN_ROOT:-}}\"\n  bootstrap=\"$plugin_root/shared/scripts/bootstrap-hook-runtime.sh\"\n  if [[ -z \"$plugin_root\" || ! -x \"$bootstrap\" ]]; then\n    printf '\"'\"'{\"status\":\"NOT_ACTIVATED\",\"bundle\":\"%s\"}\\n'\"'\"' \"$1\" >&2\n    exit 78\n  fi\n  bash \"$bootstrap\" --source-root \"$plugin_root\" --expected-bundle \"$1\" || exit\nfi\nexec \"$runner\" --bundle \"$1\" --hook \"$2\" --harness \"$3\"' prometheus-hook '0966d0d8f25090cdf2bc1bf132d4a9b43a7ffd12cb04c75851b1e5c3f57a365d' 'posttool-validate-evolution-state' 'claude-code'"
           },
           {
             "type": "command",
-            "command": "bash ${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/shared/scripts/validate-gitops-write.sh 2>&1 || true",
+            "command": "bash -c 'runner=\"$HOME/.prometheus/plugins/prometheus-skill-pack/runtime/v1/run-hook\"\nif [[ ! -x \"$runner\" ]] || ! \"$runner\" --bundle \"$1\" --resolve-only >/dev/null 2>&1; then\n  plugin_root=\"${CLAUDE_PLUGIN_ROOT:-${PLUGIN_ROOT:-}}\"\n  bootstrap=\"$plugin_root/shared/scripts/bootstrap-hook-runtime.sh\"\n  if [[ -z \"$plugin_root\" || ! -x \"$bootstrap\" ]]; then\n    printf '\"'\"'{\"status\":\"NOT_ACTIVATED\",\"bundle\":\"%s\"}\\n'\"'\"' \"$1\" >&2\n    exit 78\n  fi\n  bash \"$bootstrap\" --source-root \"$plugin_root\" --expected-bundle \"$1\" || exit\nfi\nexec \"$runner\" --bundle \"$1\" --hook \"$2\" --harness \"$3\"' prometheus-hook '0966d0d8f25090cdf2bc1bf132d4a9b43a7ffd12cb04c75851b1e5c3f57a365d' 'posttool-validate-gitops-write' 'claude-code'",
             "timeout": 10000
           },
           {
             "type": "command",
-            "command": "bash ${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/shared/scripts/scope-record.sh 2>&1 || true",
+            "command": "bash -c 'runner=\"$HOME/.prometheus/plugins/prometheus-skill-pack/runtime/v1/run-hook\"\nif [[ ! -x \"$runner\" ]] || ! \"$runner\" --bundle \"$1\" --resolve-only >/dev/null 2>&1; then\n  plugin_root=\"${CLAUDE_PLUGIN_ROOT:-${PLUGIN_ROOT:-}}\"\n  bootstrap=\"$plugin_root/shared/scripts/bootstrap-hook-runtime.sh\"\n  if [[ -z \"$plugin_root\" || ! -x \"$bootstrap\" ]]; then\n    printf '\"'\"'{\"status\":\"NOT_ACTIVATED\",\"bundle\":\"%s\"}\\n'\"'\"' \"$1\" >&2\n    exit 78\n  fi\n  bash \"$bootstrap\" --source-root \"$plugin_root\" --expected-bundle \"$1\" || exit\nfi\nexec \"$runner\" --bundle \"$1\" --hook \"$2\" --harness \"$3\"' prometheus-hook '0966d0d8f25090cdf2bc1bf132d4a9b43a7ffd12cb04c75851b1e5c3f57a365d' 'posttool-scope-record' 'claude-code'",
             "timeout": 5000
           },
           {
             "type": "command",
-            "command": "bash ${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/shared/scripts/write-position-reminder.sh 2>&1 || true",
+            "command": "bash -c 'runner=\"$HOME/.prometheus/plugins/prometheus-skill-pack/runtime/v1/run-hook\"\nif [[ ! -x \"$runner\" ]] || ! \"$runner\" --bundle \"$1\" --resolve-only >/dev/null 2>&1; then\n  plugin_root=\"${CLAUDE_PLUGIN_ROOT:-${PLUGIN_ROOT:-}}\"\n  bootstrap=\"$plugin_root/shared/scripts/bootstrap-hook-runtime.sh\"\n  if [[ -z \"$plugin_root\" || ! -x \"$bootstrap\" ]]; then\n    printf '\"'\"'{\"status\":\"NOT_ACTIVATED\",\"bundle\":\"%s\"}\\n'\"'\"' \"$1\" >&2\n    exit 78\n  fi\n  bash \"$bootstrap\" --source-root \"$plugin_root\" --expected-bundle \"$1\" || exit\nfi\nexec \"$runner\" --bundle \"$1\" --hook \"$2\" --harness \"$3\"' prometheus-hook '0966d0d8f25090cdf2bc1bf132d4a9b43a7ffd12cb04c75851b1e5c3f57a365d' 'posttool-write-position-reminder' 'claude-code'",
             "timeout": 5000
           },
           {
             "type": "command",
-            "command": "bash ${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/shared/scripts/sycophancy-check-artifact.sh",
+            "command": "bash -c 'runner=\"$HOME/.prometheus/plugins/prometheus-skill-pack/runtime/v1/run-hook\"\nif [[ ! -x \"$runner\" ]] || ! \"$runner\" --bundle \"$1\" --resolve-only >/dev/null 2>&1; then\n  plugin_root=\"${CLAUDE_PLUGIN_ROOT:-${PLUGIN_ROOT:-}}\"\n  bootstrap=\"$plugin_root/shared/scripts/bootstrap-hook-runtime.sh\"\n  if [[ -z \"$plugin_root\" || ! -x \"$bootstrap\" ]]; then\n    printf '\"'\"'{\"status\":\"NOT_ACTIVATED\",\"bundle\":\"%s\"}\\n'\"'\"' \"$1\" >&2\n    exit 78\n  fi\n  bash \"$bootstrap\" --source-root \"$plugin_root\" --expected-bundle \"$1\" || exit\nfi\nexec \"$runner\" --bundle \"$1\" --hook \"$2\" --harness \"$3\"' prometheus-hook '0966d0d8f25090cdf2bc1bf132d4a9b43a7ffd12cb04c75851b1e5c3f57a365d' 'posttool-sycophancy-artifact' 'claude-code'",
             "timeout": 35000
           },
           {
             "type": "command",
-            "command": "bash ${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/shared/scripts/memory-writeback.sh 2>&1 || true",
+            "command": "bash -c 'runner=\"$HOME/.prometheus/plugins/prometheus-skill-pack/runtime/v1/run-hook\"\nif [[ ! -x \"$runner\" ]] || ! \"$runner\" --bundle \"$1\" --resolve-only >/dev/null 2>&1; then\n  plugin_root=\"${CLAUDE_PLUGIN_ROOT:-${PLUGIN_ROOT:-}}\"\n  bootstrap=\"$plugin_root/shared/scripts/bootstrap-hook-runtime.sh\"\n  if [[ -z \"$plugin_root\" || ! -x \"$bootstrap\" ]]; then\n    printf '\"'\"'{\"status\":\"NOT_ACTIVATED\",\"bundle\":\"%s\"}\\n'\"'\"' \"$1\" >&2\n    exit 78\n  fi\n  bash \"$bootstrap\" --source-root \"$plugin_root\" --expected-bundle \"$1\" || exit\nfi\nexec \"$runner\" --bundle \"$1\" --hook \"$2\" --harness \"$3\"' prometheus-hook '0966d0d8f25090cdf2bc1bf132d4a9b43a7ffd12cb04c75851b1e5c3f57a365d' 'posttool-memory-writeback' 'claude-code'",
             "timeout": 8000
           }
-        ]
+        ],
+        "matcher": "Write|Edit|MultiEdit"
       }
     ],
     "SubagentStop": [
       {
-        "matcher": "assessor",
         "hooks": [
           {
             "type": "command",
-            "command": "bash ${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/skills/process/iterative-evolver/scripts/state-checkpoint.sh \"${EVOLUTION_NAME:-default}\" assess phase_complete 2>&1 || true"
+            "command": "bash -c 'runner=\"$HOME/.prometheus/plugins/prometheus-skill-pack/runtime/v1/run-hook\"\nif [[ ! -x \"$runner\" ]] || ! \"$runner\" --bundle \"$1\" --resolve-only >/dev/null 2>&1; then\n  plugin_root=\"${CLAUDE_PLUGIN_ROOT:-${PLUGIN_ROOT:-}}\"\n  bootstrap=\"$plugin_root/shared/scripts/bootstrap-hook-runtime.sh\"\n  if [[ -z \"$plugin_root\" || ! -x \"$bootstrap\" ]]; then\n    printf '\"'\"'{\"status\":\"NOT_ACTIVATED\",\"bundle\":\"%s\"}\\n'\"'\"' \"$1\" >&2\n    exit 78\n  fi\n  bash \"$bootstrap\" --source-root \"$plugin_root\" --expected-bundle \"$1\" || exit\nfi\nexec \"$runner\" --bundle \"$1\" --hook \"$2\" --harness \"$3\"' prometheus-hook '0966d0d8f25090cdf2bc1bf132d4a9b43a7ffd12cb04c75851b1e5c3f57a365d' 'subagent-assessor-checkpoint' 'claude-code'"
           },
           {
             "type": "command",
-            "command": "bash ${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/skills/process/iterative-evolver/scripts/workflow-dispatch.sh \"${EVOLUTION_NAME:-default}\" phase_complete assess 2>&1 || true"
+            "command": "bash -c 'runner=\"$HOME/.prometheus/plugins/prometheus-skill-pack/runtime/v1/run-hook\"\nif [[ ! -x \"$runner\" ]] || ! \"$runner\" --bundle \"$1\" --resolve-only >/dev/null 2>&1; then\n  plugin_root=\"${CLAUDE_PLUGIN_ROOT:-${PLUGIN_ROOT:-}}\"\n  bootstrap=\"$plugin_root/shared/scripts/bootstrap-hook-runtime.sh\"\n  if [[ -z \"$plugin_root\" || ! -x \"$bootstrap\" ]]; then\n    printf '\"'\"'{\"status\":\"NOT_ACTIVATED\",\"bundle\":\"%s\"}\\n'\"'\"' \"$1\" >&2\n    exit 78\n  fi\n  bash \"$bootstrap\" --source-root \"$plugin_root\" --expected-bundle \"$1\" || exit\nfi\nexec \"$runner\" --bundle \"$1\" --hook \"$2\" --harness \"$3\"' prometheus-hook '0966d0d8f25090cdf2bc1bf132d4a9b43a7ffd12cb04c75851b1e5c3f57a365d' 'subagent-assessor-dispatch' 'claude-code'"
           }
-        ]
+        ],
+        "matcher": "assessor"
       },
       {
-        "matcher": "analyst",
         "hooks": [
           {
             "type": "command",
-            "command": "bash ${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/skills/process/iterative-evolver/scripts/state-checkpoint.sh \"${EVOLUTION_NAME:-default}\" analyze phase_complete 2>&1 || true"
+            "command": "bash -c 'runner=\"$HOME/.prometheus/plugins/prometheus-skill-pack/runtime/v1/run-hook\"\nif [[ ! -x \"$runner\" ]] || ! \"$runner\" --bundle \"$1\" --resolve-only >/dev/null 2>&1; then\n  plugin_root=\"${CLAUDE_PLUGIN_ROOT:-${PLUGIN_ROOT:-}}\"\n  bootstrap=\"$plugin_root/shared/scripts/bootstrap-hook-runtime.sh\"\n  if [[ -z \"$plugin_root\" || ! -x \"$bootstrap\" ]]; then\n    printf '\"'\"'{\"status\":\"NOT_ACTIVATED\",\"bundle\":\"%s\"}\\n'\"'\"' \"$1\" >&2\n    exit 78\n  fi\n  bash \"$bootstrap\" --source-root \"$plugin_root\" --expected-bundle \"$1\" || exit\nfi\nexec \"$runner\" --bundle \"$1\" --hook \"$2\" --harness \"$3\"' prometheus-hook '0966d0d8f25090cdf2bc1bf132d4a9b43a7ffd12cb04c75851b1e5c3f57a365d' 'subagent-analyst-checkpoint' 'claude-code'"
           },
           {
             "type": "command",
-            "command": "bash ${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/skills/process/iterative-evolver/scripts/workflow-dispatch.sh \"${EVOLUTION_NAME:-default}\" phase_complete analyze 2>&1 || true"
+            "command": "bash -c 'runner=\"$HOME/.prometheus/plugins/prometheus-skill-pack/runtime/v1/run-hook\"\nif [[ ! -x \"$runner\" ]] || ! \"$runner\" --bundle \"$1\" --resolve-only >/dev/null 2>&1; then\n  plugin_root=\"${CLAUDE_PLUGIN_ROOT:-${PLUGIN_ROOT:-}}\"\n  bootstrap=\"$plugin_root/shared/scripts/bootstrap-hook-runtime.sh\"\n  if [[ -z \"$plugin_root\" || ! -x \"$bootstrap\" ]]; then\n    printf '\"'\"'{\"status\":\"NOT_ACTIVATED\",\"bundle\":\"%s\"}\\n'\"'\"' \"$1\" >&2\n    exit 78\n  fi\n  bash \"$bootstrap\" --source-root \"$plugin_root\" --expected-bundle \"$1\" || exit\nfi\nexec \"$runner\" --bundle \"$1\" --hook \"$2\" --harness \"$3\"' prometheus-hook '0966d0d8f25090cdf2bc1bf132d4a9b43a7ffd12cb04c75851b1e5c3f57a365d' 'subagent-analyst-dispatch' 'claude-code'"
           }
-        ]
+        ],
+        "matcher": "analyst"
       },
       {
-        "matcher": "planner",
         "hooks": [
           {
             "type": "command",
-            "command": "bash ${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/skills/process/iterative-evolver/scripts/state-checkpoint.sh \"${EVOLUTION_NAME:-default}\" plan phase_complete 2>&1 || true"
+            "command": "bash -c 'runner=\"$HOME/.prometheus/plugins/prometheus-skill-pack/runtime/v1/run-hook\"\nif [[ ! -x \"$runner\" ]] || ! \"$runner\" --bundle \"$1\" --resolve-only >/dev/null 2>&1; then\n  plugin_root=\"${CLAUDE_PLUGIN_ROOT:-${PLUGIN_ROOT:-}}\"\n  bootstrap=\"$plugin_root/shared/scripts/bootstrap-hook-runtime.sh\"\n  if [[ -z \"$plugin_root\" || ! -x \"$bootstrap\" ]]; then\n    printf '\"'\"'{\"status\":\"NOT_ACTIVATED\",\"bundle\":\"%s\"}\\n'\"'\"' \"$1\" >&2\n    exit 78\n  fi\n  bash \"$bootstrap\" --source-root \"$plugin_root\" --expected-bundle \"$1\" || exit\nfi\nexec \"$runner\" --bundle \"$1\" --hook \"$2\" --harness \"$3\"' prometheus-hook '0966d0d8f25090cdf2bc1bf132d4a9b43a7ffd12cb04c75851b1e5c3f57a365d' 'subagent-planner-checkpoint' 'claude-code'"
           },
           {
             "type": "command",
-            "command": "bash ${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/skills/process/iterative-evolver/scripts/workflow-dispatch.sh \"${EVOLUTION_NAME:-default}\" phase_complete plan 2>&1 || true"
+            "command": "bash -c 'runner=\"$HOME/.prometheus/plugins/prometheus-skill-pack/runtime/v1/run-hook\"\nif [[ ! -x \"$runner\" ]] || ! \"$runner\" --bundle \"$1\" --resolve-only >/dev/null 2>&1; then\n  plugin_root=\"${CLAUDE_PLUGIN_ROOT:-${PLUGIN_ROOT:-}}\"\n  bootstrap=\"$plugin_root/shared/scripts/bootstrap-hook-runtime.sh\"\n  if [[ -z \"$plugin_root\" || ! -x \"$bootstrap\" ]]; then\n    printf '\"'\"'{\"status\":\"NOT_ACTIVATED\",\"bundle\":\"%s\"}\\n'\"'\"' \"$1\" >&2\n    exit 78\n  fi\n  bash \"$bootstrap\" --source-root \"$plugin_root\" --expected-bundle \"$1\" || exit\nfi\nexec \"$runner\" --bundle \"$1\" --hook \"$2\" --harness \"$3\"' prometheus-hook '0966d0d8f25090cdf2bc1bf132d4a9b43a7ffd12cb04c75851b1e5c3f57a365d' 'subagent-planner-dispatch' 'claude-code'"
           }
-        ]
+        ],
+        "matcher": "planner"
       },
       {
-        "matcher": "executor",
         "hooks": [
           {
             "type": "command",
-            "command": "bash \"$HOME/.prometheus/plugins/prometheus-skill-pack/stable/karpathy-hook-dispatch.sh\" executor_complete claude-code"
+            "command": "bash -c 'runner=\"$HOME/.prometheus/plugins/prometheus-skill-pack/runtime/v1/run-hook\"\nif [[ ! -x \"$runner\" ]] || ! \"$runner\" --bundle \"$1\" --resolve-only >/dev/null 2>&1; then\n  plugin_root=\"${CLAUDE_PLUGIN_ROOT:-${PLUGIN_ROOT:-}}\"\n  bootstrap=\"$plugin_root/shared/scripts/bootstrap-hook-runtime.sh\"\n  if [[ -z \"$plugin_root\" || ! -x \"$bootstrap\" ]]; then\n    printf '\"'\"'{\"status\":\"NOT_ACTIVATED\",\"bundle\":\"%s\"}\\n'\"'\"' \"$1\" >&2\n    exit 78\n  fi\n  bash \"$bootstrap\" --source-root \"$plugin_root\" --expected-bundle \"$1\" || exit\nfi\nexec \"$runner\" --bundle \"$1\" --hook \"$2\" --harness \"$3\"' prometheus-hook '0966d0d8f25090cdf2bc1bf132d4a9b43a7ffd12cb04c75851b1e5c3f57a365d' 'subagent-executor-karpathy-learning' 'claude-code'"
           },
           {
             "type": "command",
-            "command": "bash ${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/skills/process/iterative-evolver/scripts/validate-state.sh 2>&1 || true"
+            "command": "bash -c 'runner=\"$HOME/.prometheus/plugins/prometheus-skill-pack/runtime/v1/run-hook\"\nif [[ ! -x \"$runner\" ]] || ! \"$runner\" --bundle \"$1\" --resolve-only >/dev/null 2>&1; then\n  plugin_root=\"${CLAUDE_PLUGIN_ROOT:-${PLUGIN_ROOT:-}}\"\n  bootstrap=\"$plugin_root/shared/scripts/bootstrap-hook-runtime.sh\"\n  if [[ -z \"$plugin_root\" || ! -x \"$bootstrap\" ]]; then\n    printf '\"'\"'{\"status\":\"NOT_ACTIVATED\",\"bundle\":\"%s\"}\\n'\"'\"' \"$1\" >&2\n    exit 78\n  fi\n  bash \"$bootstrap\" --source-root \"$plugin_root\" --expected-bundle \"$1\" || exit\nfi\nexec \"$runner\" --bundle \"$1\" --hook \"$2\" --harness \"$3\"' prometheus-hook '0966d0d8f25090cdf2bc1bf132d4a9b43a7ffd12cb04c75851b1e5c3f57a365d' 'subagent-executor-validate-state' 'claude-code'"
           },
           {
             "type": "command",
-            "command": "bash ${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/skills/process/iterative-evolver/scripts/state-checkpoint.sh \"${EVOLUTION_NAME:-default}\" execute phase_complete 2>&1 || true"
+            "command": "bash -c 'runner=\"$HOME/.prometheus/plugins/prometheus-skill-pack/runtime/v1/run-hook\"\nif [[ ! -x \"$runner\" ]] || ! \"$runner\" --bundle \"$1\" --resolve-only >/dev/null 2>&1; then\n  plugin_root=\"${CLAUDE_PLUGIN_ROOT:-${PLUGIN_ROOT:-}}\"\n  bootstrap=\"$plugin_root/shared/scripts/bootstrap-hook-runtime.sh\"\n  if [[ -z \"$plugin_root\" || ! -x \"$bootstrap\" ]]; then\n    printf '\"'\"'{\"status\":\"NOT_ACTIVATED\",\"bundle\":\"%s\"}\\n'\"'\"' \"$1\" >&2\n    exit 78\n  fi\n  bash \"$bootstrap\" --source-root \"$plugin_root\" --expected-bundle \"$1\" || exit\nfi\nexec \"$runner\" --bundle \"$1\" --hook \"$2\" --harness \"$3\"' prometheus-hook '0966d0d8f25090cdf2bc1bf132d4a9b43a7ffd12cb04c75851b1e5c3f57a365d' 'subagent-executor-checkpoint' 'claude-code'"
           },
           {
             "type": "command",
-            "command": "bash ${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/shared/scripts/evaluate-session.sh 2>&1 || true",
+            "command": "bash -c 'runner=\"$HOME/.prometheus/plugins/prometheus-skill-pack/runtime/v1/run-hook\"\nif [[ ! -x \"$runner\" ]] || ! \"$runner\" --bundle \"$1\" --resolve-only >/dev/null 2>&1; then\n  plugin_root=\"${CLAUDE_PLUGIN_ROOT:-${PLUGIN_ROOT:-}}\"\n  bootstrap=\"$plugin_root/shared/scripts/bootstrap-hook-runtime.sh\"\n  if [[ -z \"$plugin_root\" || ! -x \"$bootstrap\" ]]; then\n    printf '\"'\"'{\"status\":\"NOT_ACTIVATED\",\"bundle\":\"%s\"}\\n'\"'\"' \"$1\" >&2\n    exit 78\n  fi\n  bash \"$bootstrap\" --source-root \"$plugin_root\" --expected-bundle \"$1\" || exit\nfi\nexec \"$runner\" --bundle \"$1\" --hook \"$2\" --harness \"$3\"' prometheus-hook '0966d0d8f25090cdf2bc1bf132d4a9b43a7ffd12cb04c75851b1e5c3f57a365d' 'subagent-executor-evaluate-session' 'claude-code'",
             "timeout": 30000
           },
           {
             "type": "command",
-            "command": "bash ${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/skills/process/iterative-evolver/scripts/workflow-dispatch.sh \"${EVOLUTION_NAME:-default}\" phase_complete execute 2>&1 || true"
+            "command": "bash -c 'runner=\"$HOME/.prometheus/plugins/prometheus-skill-pack/runtime/v1/run-hook\"\nif [[ ! -x \"$runner\" ]] || ! \"$runner\" --bundle \"$1\" --resolve-only >/dev/null 2>&1; then\n  plugin_root=\"${CLAUDE_PLUGIN_ROOT:-${PLUGIN_ROOT:-}}\"\n  bootstrap=\"$plugin_root/shared/scripts/bootstrap-hook-runtime.sh\"\n  if [[ -z \"$plugin_root\" || ! -x \"$bootstrap\" ]]; then\n    printf '\"'\"'{\"status\":\"NOT_ACTIVATED\",\"bundle\":\"%s\"}\\n'\"'\"' \"$1\" >&2\n    exit 78\n  fi\n  bash \"$bootstrap\" --source-root \"$plugin_root\" --expected-bundle \"$1\" || exit\nfi\nexec \"$runner\" --bundle \"$1\" --hook \"$2\" --harness \"$3\"' prometheus-hook '0966d0d8f25090cdf2bc1bf132d4a9b43a7ffd12cb04c75851b1e5c3f57a365d' 'subagent-executor-dispatch' 'claude-code'"
           }
-        ]
+        ],
+        "matcher": "executor"
       },
       {
-        "matcher": "reflector",
         "hooks": [
           {
             "type": "command",
-            "command": "bash ${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/shared/scripts/sycophancy-check-reflection.sh 2>&1",
+            "command": "bash -c 'runner=\"$HOME/.prometheus/plugins/prometheus-skill-pack/runtime/v1/run-hook\"\nif [[ ! -x \"$runner\" ]] || ! \"$runner\" --bundle \"$1\" --resolve-only >/dev/null 2>&1; then\n  plugin_root=\"${CLAUDE_PLUGIN_ROOT:-${PLUGIN_ROOT:-}}\"\n  bootstrap=\"$plugin_root/shared/scripts/bootstrap-hook-runtime.sh\"\n  if [[ -z \"$plugin_root\" || ! -x \"$bootstrap\" ]]; then\n    printf '\"'\"'{\"status\":\"NOT_ACTIVATED\",\"bundle\":\"%s\"}\\n'\"'\"' \"$1\" >&2\n    exit 78\n  fi\n  bash \"$bootstrap\" --source-root \"$plugin_root\" --expected-bundle \"$1\" || exit\nfi\nexec \"$runner\" --bundle \"$1\" --hook \"$2\" --harness \"$3\"' prometheus-hook '0966d0d8f25090cdf2bc1bf132d4a9b43a7ffd12cb04c75851b1e5c3f57a365d' 'subagent-reflector-sycophancy' 'claude-code'",
             "timeout": 35000
           },
           {
             "type": "command",
-            "command": "bash ${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/skills/process/iterative-evolver/scripts/log-reflection.sh 2>&1 || true"
+            "command": "bash -c 'runner=\"$HOME/.prometheus/plugins/prometheus-skill-pack/runtime/v1/run-hook\"\nif [[ ! -x \"$runner\" ]] || ! \"$runner\" --bundle \"$1\" --resolve-only >/dev/null 2>&1; then\n  plugin_root=\"${CLAUDE_PLUGIN_ROOT:-${PLUGIN_ROOT:-}}\"\n  bootstrap=\"$plugin_root/shared/scripts/bootstrap-hook-runtime.sh\"\n  if [[ -z \"$plugin_root\" || ! -x \"$bootstrap\" ]]; then\n    printf '\"'\"'{\"status\":\"NOT_ACTIVATED\",\"bundle\":\"%s\"}\\n'\"'\"' \"$1\" >&2\n    exit 78\n  fi\n  bash \"$bootstrap\" --source-root \"$plugin_root\" --expected-bundle \"$1\" || exit\nfi\nexec \"$runner\" --bundle \"$1\" --hook \"$2\" --harness \"$3\"' prometheus-hook '0966d0d8f25090cdf2bc1bf132d4a9b43a7ffd12cb04c75851b1e5c3f57a365d' 'subagent-reflector-log' 'claude-code'"
           },
           {
             "type": "command",
-            "command": "bash ${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/skills/process/iterative-evolver/scripts/state-checkpoint.sh \"${EVOLUTION_NAME:-default}\" reflect phase_complete 2>&1 || true"
+            "command": "bash -c 'runner=\"$HOME/.prometheus/plugins/prometheus-skill-pack/runtime/v1/run-hook\"\nif [[ ! -x \"$runner\" ]] || ! \"$runner\" --bundle \"$1\" --resolve-only >/dev/null 2>&1; then\n  plugin_root=\"${CLAUDE_PLUGIN_ROOT:-${PLUGIN_ROOT:-}}\"\n  bootstrap=\"$plugin_root/shared/scripts/bootstrap-hook-runtime.sh\"\n  if [[ -z \"$plugin_root\" || ! -x \"$bootstrap\" ]]; then\n    printf '\"'\"'{\"status\":\"NOT_ACTIVATED\",\"bundle\":\"%s\"}\\n'\"'\"' \"$1\" >&2\n    exit 78\n  fi\n  bash \"$bootstrap\" --source-root \"$plugin_root\" --expected-bundle \"$1\" || exit\nfi\nexec \"$runner\" --bundle \"$1\" --hook \"$2\" --harness \"$3\"' prometheus-hook '0966d0d8f25090cdf2bc1bf132d4a9b43a7ffd12cb04c75851b1e5c3f57a365d' 'subagent-reflector-checkpoint' 'claude-code'"
           },
           {
             "type": "command",
-            "command": "bash ${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/skills/process/iterative-evolver/scripts/workflow-dispatch.sh \"${EVOLUTION_NAME:-default}\" phase_complete reflect 2>&1 || true"
+            "command": "bash -c 'runner=\"$HOME/.prometheus/plugins/prometheus-skill-pack/runtime/v1/run-hook\"\nif [[ ! -x \"$runner\" ]] || ! \"$runner\" --bundle \"$1\" --resolve-only >/dev/null 2>&1; then\n  plugin_root=\"${CLAUDE_PLUGIN_ROOT:-${PLUGIN_ROOT:-}}\"\n  bootstrap=\"$plugin_root/shared/scripts/bootstrap-hook-runtime.sh\"\n  if [[ -z \"$plugin_root\" || ! -x \"$bootstrap\" ]]; then\n    printf '\"'\"'{\"status\":\"NOT_ACTIVATED\",\"bundle\":\"%s\"}\\n'\"'\"' \"$1\" >&2\n    exit 78\n  fi\n  bash \"$bootstrap\" --source-root \"$plugin_root\" --expected-bundle \"$1\" || exit\nfi\nexec \"$runner\" --bundle \"$1\" --hook \"$2\" --harness \"$3\"' prometheus-hook '0966d0d8f25090cdf2bc1bf132d4a9b43a7ffd12cb04c75851b1e5c3f57a365d' 'subagent-reflector-dispatch' 'claude-code'"
           }
-        ]
+        ],
+        "matcher": "reflector"
       },
       {
         "hooks": [
           {
             "type": "command",
-            "command": "bash ${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/shared/scripts/subagent-checkpoint-fallback.sh 2>&1 || true"
+            "command": "bash -c 'runner=\"$HOME/.prometheus/plugins/prometheus-skill-pack/runtime/v1/run-hook\"\nif [[ ! -x \"$runner\" ]] || ! \"$runner\" --bundle \"$1\" --resolve-only >/dev/null 2>&1; then\n  plugin_root=\"${CLAUDE_PLUGIN_ROOT:-${PLUGIN_ROOT:-}}\"\n  bootstrap=\"$plugin_root/shared/scripts/bootstrap-hook-runtime.sh\"\n  if [[ -z \"$plugin_root\" || ! -x \"$bootstrap\" ]]; then\n    printf '\"'\"'{\"status\":\"NOT_ACTIVATED\",\"bundle\":\"%s\"}\\n'\"'\"' \"$1\" >&2\n    exit 78\n  fi\n  bash \"$bootstrap\" --source-root \"$plugin_root\" --expected-bundle \"$1\" || exit\nfi\nexec \"$runner\" --bundle \"$1\" --hook \"$2\" --harness \"$3\"' prometheus-hook '0966d0d8f25090cdf2bc1bf132d4a9b43a7ffd12cb04c75851b1e5c3f57a365d' 'subagent-fallback-checkpoint' 'claude-code'"
           }
         ]
       }
@@ -205,21 +205,21 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash \"$HOME/.prometheus/plugins/prometheus-skill-pack/stable/karpathy-hook-dispatch.sh\" stop claude-code"
+            "command": "bash -c 'runner=\"$HOME/.prometheus/plugins/prometheus-skill-pack/runtime/v1/run-hook\"\nif [[ ! -x \"$runner\" ]] || ! \"$runner\" --bundle \"$1\" --resolve-only >/dev/null 2>&1; then\n  plugin_root=\"${CLAUDE_PLUGIN_ROOT:-${PLUGIN_ROOT:-}}\"\n  bootstrap=\"$plugin_root/shared/scripts/bootstrap-hook-runtime.sh\"\n  if [[ -z \"$plugin_root\" || ! -x \"$bootstrap\" ]]; then\n    printf '\"'\"'{\"status\":\"NOT_ACTIVATED\",\"bundle\":\"%s\"}\\n'\"'\"' \"$1\" >&2\n    exit 78\n  fi\n  bash \"$bootstrap\" --source-root \"$plugin_root\" --expected-bundle \"$1\" || exit\nfi\nexec \"$runner\" --bundle \"$1\" --hook \"$2\" --harness \"$3\"' prometheus-hook '0966d0d8f25090cdf2bc1bf132d4a9b43a7ffd12cb04c75851b1e5c3f57a365d' 'stop-karpathy-learning' 'claude-code'"
           }
         ]
       }
     ],
     "PreCompact": [
       {
-        "matcher": "*",
         "hooks": [
           {
             "type": "command",
-            "command": "bash ${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}/shared/scripts/kbd-harness-adapter.sh pre_compact claude-code",
+            "command": "bash -c 'runner=\"$HOME/.prometheus/plugins/prometheus-skill-pack/runtime/v1/run-hook\"\nif [[ ! -x \"$runner\" ]] || ! \"$runner\" --bundle \"$1\" --resolve-only >/dev/null 2>&1; then\n  plugin_root=\"${CLAUDE_PLUGIN_ROOT:-${PLUGIN_ROOT:-}}\"\n  bootstrap=\"$plugin_root/shared/scripts/bootstrap-hook-runtime.sh\"\n  if [[ -z \"$plugin_root\" || ! -x \"$bootstrap\" ]]; then\n    printf '\"'\"'{\"status\":\"NOT_ACTIVATED\",\"bundle\":\"%s\"}\\n'\"'\"' \"$1\" >&2\n    exit 78\n  fi\n  bash \"$bootstrap\" --source-root \"$plugin_root\" --expected-bundle \"$1\" || exit\nfi\nexec \"$runner\" --bundle \"$1\" --hook \"$2\" --harness \"$3\"' prometheus-hook '0966d0d8f25090cdf2bc1bf132d4a9b43a7ffd12cb04c75851b1e5c3f57a365d' 'precompact-kbd-control' 'claude-code'",
             "timeout": 1000
           }
         ],
+        "matcher": "*",
         "description": "Bounded canonical KBD pre-compaction checkpoint",
         "id": "precompact:kbd-control"
       }

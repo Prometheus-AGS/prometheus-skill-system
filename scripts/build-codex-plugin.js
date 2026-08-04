@@ -6,7 +6,7 @@
  * Source of truth:
  *   .claude-plugin/plugin.json       → .codex-plugin/plugin.json
  *   .claude-plugin/marketplace.json  → .agents/plugins/marketplace.json
- *   .mcp.json / hooks/hooks.json      (referenced by pointer from the manifest)
+ *   .mcp.json / hooks/codex-hooks.json (generated runtime pointers)
  *
  * Usage:
  *   node scripts/build-codex-plugin.js            # generate + validate
@@ -18,11 +18,18 @@
  */
 import fs from 'node:fs';
 import path from 'node:path';
+import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..');
 const CHECK = process.argv.includes('--check');
+
+execFileSync(
+  process.execPath,
+  [path.join(ROOT, 'scripts/generate-harness-adapters.js'), ...(CHECK ? ['--check'] : [])],
+  { cwd: ROOT, stdio: 'inherit' }
+);
 
 const read = p => JSON.parse(fs.readFileSync(path.join(ROOT, p), 'utf8'));
 const rel = s => (s === '.' ? './' : s.startsWith('./') ? s : './' + s.replace(/^\/+/, ''));
@@ -70,7 +77,7 @@ function buildPluginManifest() {
     keywords: c.keywords,
     skills: c.skills, // curated array — parity with Claude; budget curated via config/codex-catalog.txt
     mcpServers: './.mcp.json', // Codex accepts the mcpServers-wrapper .mcp.json (verified 0.144.1)
-    hooks: './hooks/hooks.json', // PascalCase schema shared with Claude; non-managed (interactive trust)
+    hooks: './hooks/codex-hooks.json',
     interface: {
       displayName: 'Prometheus Skill Pack',
       shortDescription:
@@ -116,6 +123,25 @@ function validate(pluginObj, marketObj) {
   for (const ptr of ['mcpServers', 'hooks'])
     if (pluginObj[ptr] && !insideRoot(pluginObj[ptr]))
       fail(`plugin.json ${ptr} not ./-inside-root: ${pluginObj[ptr]}`);
+  const hookPath = path.join(ROOT, pluginObj.hooks ?? '');
+  if (!fs.existsSync(hookPath)) fail(`plugin.json hooks target is missing: ${pluginObj.hooks}`);
+  else {
+    const hookPayload = JSON.parse(fs.readFileSync(hookPath, 'utf8'));
+    const commands = Object.values(hookPayload.hooks ?? {}).flatMap(groups =>
+      groups.flatMap(group => (group.hooks ?? []).map(hook => hook.command))
+    );
+    if (commands.length === 0) fail('Codex hooks target contains no commands');
+    for (const command of commands) {
+      if (
+        typeof command !== 'string' ||
+        !command.includes('/runtime/v1/run-hook') ||
+        !command.includes('--bundle') ||
+        !command.includes('bootstrap-hook-runtime.sh')
+      ) {
+        fail('Codex hook bypasses the generated bundle-pinned runtime template');
+      }
+    }
+  }
   (pluginObj.skills || []).forEach(s => {
     if (!insideRoot(s)) fail(`plugin.json skill path not ./-inside-root: ${s}`);
   });

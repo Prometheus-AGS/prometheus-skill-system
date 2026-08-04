@@ -1404,46 +1404,256 @@ fn check_kbd_rollout() -> CheckResult {
     }
 }
 
-fn check_harness_adapter_parity() -> CheckResult {
-    let manifest = Path::new("shared/harnesses/capabilities.json");
-    let generated = Path::new("shared/harnesses/generated");
-    let expected = [
-        ("claude-code", "claude-hooks.json"),
-        ("codex", "codex-hooks.toml"),
-        ("opencode", "opencode-kbd-control.json"),
-        ("kimi", "kimi-hooks.json"),
-    ];
-    let parsed = fs::read(manifest)
-        .ok()
-        .and_then(|bytes| serde_json::from_slice::<serde_json::Value>(&bytes).ok());
-    let mut failures = Vec::new();
-    for (harness, file) in expected {
-        if parsed
-            .as_ref()
-            .and_then(|value| value["harnesses"].get(harness))
-            .is_none()
-        {
-            failures.push(format!("{harness} is absent from the capability manifest"));
-        }
-        let target = generated.join(file);
-        match fs::read_to_string(&target) {
-            Ok(content) if content.contains("kbd-harness-adapter.sh") => {}
-            Ok(_) => failures.push(format!(
-                "{} bypasses the canonical adapter",
-                target.display()
-            )),
-            Err(_) => failures.push(format!("{} is missing", target.display())),
+fn read_json_for_doctor(
+    path: &Path,
+    label: &str,
+    failures: &mut Vec<String>,
+) -> Option<serde_json::Value> {
+    match fs::read(path) {
+        Ok(bytes) => match serde_json::from_slice(&bytes) {
+            Ok(value) => Some(value),
+            Err(error) => {
+                failures.push(format!("{label} is invalid JSON: {error}"));
+                None
+            }
+        },
+        Err(error) => {
+            failures.push(format!(
+                "{label} is unreadable at {}: {error}",
+                path.display()
+            ));
+            None
         }
     }
-    // The pre-mutation fence was removed deliberately: it gated the operator's
-    // own shell on KBD lifecycle state, which blocks ordinary work
-    // such as editing a submodule or a project this one depends on. Adapters
-    // observe lifecycle events only, so `nativeMutationGuard` is no longer
-    // required and is not checked here.
+}
+
+fn collect_hook_commands(value: &serde_json::Value, commands: &mut Vec<String>) {
+    match value {
+        serde_json::Value::Object(object) => {
+            for (key, child) in object {
+                if key == "command" {
+                    if let Some(command) = child.as_str() {
+                        commands.push(command.to_string());
+                    }
+                }
+                collect_hook_commands(child, commands);
+            }
+        }
+        serde_json::Value::Array(array) => {
+            for child in array {
+                collect_hook_commands(child, commands);
+            }
+        }
+        _ => {}
+    }
+}
+
+fn validate_codex_hook_graph(
+    root: &Path,
+    plugin_manifest: &Path,
+    expected_bundle: &str,
+    expected_hook_count: usize,
+    expected_hooks_sha: &str,
+    label: &str,
+    failures: &mut Vec<String>,
+) -> Option<String> {
+    let plugin = read_json_for_doctor(
+        plugin_manifest,
+        &format!("{label} plugin manifest"),
+        failures,
+    )?;
+    let version = plugin["version"].as_str().unwrap_or_default().to_string();
+    let hooks_reference = match plugin["hooks"].as_str() {
+        Some("./hooks/codex-hooks.json") => "hooks/codex-hooks.json",
+        Some(other) => {
+            failures.push(format!(
+                "{label} selects {other}, not ./hooks/codex-hooks.json"
+            ));
+            return Some(version);
+        }
+        None => {
+            failures.push(format!("{label} has no hooks manifest selection"));
+            return Some(version);
+        }
+    };
+    let hooks_path = root.join(hooks_reference);
+    let hooks = match read_json_for_doctor(
+        &hooks_path,
+        &format!("{label} selected hooks manifest"),
+        failures,
+    ) {
+        Some(hooks) => hooks,
+        None => return Some(version),
+    };
+    let actual_sha = hash_path(&hooks_path).unwrap_or_default();
+    if actual_sha != expected_hooks_sha {
+        failures.push(format!(
+            "{label} selected hooks differ from the generated source manifest"
+        ));
+    }
+    let mut commands = Vec::new();
+    collect_hook_commands(&hooks, &mut commands);
+    if commands.len() != expected_hook_count {
+        failures.push(format!(
+            "{label} exposes {} hook commands; expected {expected_hook_count}",
+            commands.len()
+        ));
+    }
+    for (index, command) in commands.iter().enumerate() {
+        let invalid = !command.contains("runtime/v1/run-hook")
+            || !command.contains("bootstrap-hook-runtime.sh")
+            || !command.contains("--bundle")
+            || !command.contains(expected_bundle)
+            || !command.contains("--harness")
+            || !command.contains("'codex'")
+            || command.contains("/stable/")
+            || command.contains("/current/");
+        if invalid {
+            failures.push(format!(
+                "{label} hook command {} is not pinned to bundle {expected_bundle}",
+                index + 1
+            ));
+        }
+    }
+    Some(version)
+}
+
+fn check_harness_adapter_parity() -> CheckResult {
+    let mut failures = Vec::new();
+    let source_root = Path::new(".");
+    let release_path = source_root.join("shared/harnesses/generated/release-manifest.json");
+    let contract_path = source_root.join("shared/harnesses/hook-contract.json");
+    let release = read_json_for_doctor(&release_path, "release manifest", &mut failures);
+    let contract = read_json_for_doctor(&contract_path, "hook contract", &mut failures);
+    let bundle = release
+        .as_ref()
+        .and_then(|value| value["bundleId"].as_str())
+        .unwrap_or_default()
+        .to_string();
+    if bundle.len() != 64
+        || !bundle
+            .chars()
+            .all(|character| character.is_ascii_hexdigit())
+    {
+        failures.push("release manifest has no valid bundle id".into());
+    }
+    if release
+        .as_ref()
+        .and_then(|value| value["dispatcherAbi"].as_str())
+        != Some("hook-runtime-v1")
+    {
+        failures.push("release manifest does not select hook-runtime-v1".into());
+    }
+    let expected_hook_count = contract
+        .as_ref()
+        .and_then(|value| value["events"].as_array())
+        .map(|events| {
+            events
+                .iter()
+                .filter_map(|event| event["hooks"].as_array())
+                .map(Vec::len)
+                .sum()
+        })
+        .unwrap_or_default();
+    if expected_hook_count == 0 {
+        failures.push("hook contract contains no hooks".into());
+    }
+    let source_hooks = source_root.join("hooks/codex-hooks.json");
+    let expected_hooks_sha = hash_path(&source_hooks).unwrap_or_default();
+    if expected_hooks_sha.is_empty() {
+        failures.push(format!("{} is unreadable", source_hooks.display()));
+    }
+    let source_version = validate_codex_hook_graph(
+        source_root,
+        &source_root.join(".codex-plugin/plugin.json"),
+        &bundle,
+        expected_hook_count,
+        &expected_hooks_sha,
+        "source",
+        &mut failures,
+    )
+    .unwrap_or_default();
+
+    if let Some(home) = dirs::home_dir() {
+        let plugin_root = home.join(".prometheus/plugins/prometheus-skill-pack");
+        let generations = fs::canonicalize(plugin_root.join("generations"));
+        let active = fs::canonicalize(plugin_root.join("current"));
+        match (generations, active) {
+            (Ok(generations), Ok(active)) if active.starts_with(&generations) => {
+                validate_codex_hook_graph(
+                    &active,
+                    &active.join(".codex-plugin/plugin.json"),
+                    &bundle,
+                    expected_hook_count,
+                    &expected_hooks_sha,
+                    "active immutable generation",
+                    &mut failures,
+                );
+                let generation_manifest = read_json_for_doctor(
+                    &active.join("manifest.json"),
+                    "active generation receipt",
+                    &mut failures,
+                );
+                let installed_bundle = generation_manifest
+                    .as_ref()
+                    .and_then(|value| value["bundleId"].as_str())
+                    .unwrap_or_default();
+                if installed_bundle != bundle {
+                    failures.push(format!(
+                        "active immutable generation is bundle {installed_bundle}, not {bundle}"
+                    ));
+                }
+                let runner = plugin_root.join("runtime/v1/run-hook");
+                let expected_runner_sha = generation_manifest
+                    .as_ref()
+                    .and_then(|value| value["hookRuntime"]["runnerSha256"].as_str())
+                    .unwrap_or_default();
+                if hash_path(&runner).as_deref() != Some(expected_runner_sha) {
+                    failures.push("fixed hook runtime differs from its generation receipt".into());
+                }
+                match fs::canonicalize(plugin_root.join("bundles").join(&bundle)) {
+                    Ok(indexed) if indexed == active => {}
+                    Ok(indexed) => failures.push(format!(
+                        "bundle index resolves to {}, not the active generation",
+                        indexed.display()
+                    )),
+                    Err(error) => {
+                        failures.push(format!("bundle index {bundle} is not resolvable: {error}"))
+                    }
+                }
+            }
+            (Ok(_), Ok(active)) => failures.push(format!(
+                "active generation escapes the immutable store: {}",
+                active.display()
+            )),
+            (_, Err(error)) => failures.push(format!("active generation is unavailable: {error}")),
+            (Err(error), _) => failures.push(format!("generation store is unavailable: {error}")),
+        }
+
+        if source_version.is_empty() {
+            failures.push("source plugin version is missing".into());
+        } else {
+            let cache_root = home
+                .join(".codex/plugins/cache/prometheus-skill-pack/prometheus-skill-pack")
+                .join(&source_version);
+            validate_codex_hook_graph(
+                &cache_root,
+                &cache_root.join(".codex-plugin/plugin.json"),
+                &bundle,
+                expected_hook_count,
+                &expected_hooks_sha,
+                "Codex native cache",
+                &mut failures,
+            );
+        }
+    } else {
+        failures.push("home directory cannot be resolved".into());
+    }
+
     CheckResult {
         id: "hooks.harness-adapters".into(),
         group: "hooks".into(),
-        label: "Cross-harness lifecycle adapters".into(),
+        label: "Installed Codex hook graph".into(),
         severity: if failures.is_empty() {
             Severity::Green
         } else {
@@ -1455,14 +1665,16 @@ fn check_harness_adapter_parity() -> CheckResult {
             CheckStatus::Fail
         },
         summary: if failures.is_empty() {
-            "4/4 harnesses derive from one capability contract".into()
+            format!(
+                "source, immutable generation, bundle index, and Codex cache agree on {expected_hook_count} pinned hooks"
+            )
         } else {
-            format!("{} adapter parity defect(s)", failures.len())
+            format!("{} installed hook graph defect(s)", failures.len())
         },
         details: if failures.is_empty() {
             vec![
-                "All adapters route lifecycle events through the canonical script.".into(),
-                "Installed-target parity is enforced separately by clean-install CI.".into(),
+                format!("bundle: {bundle}"),
+                "No selected command resolves business logic through stable or current.".into(),
             ]
         } else {
             failures
