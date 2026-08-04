@@ -4,6 +4,7 @@
 /// Tests 6-8 test the CRDT and P2P utilities directly.
 use axum::body::Body;
 use axum::http::{Request, StatusCode};
+use futures::StreamExt;
 use std::collections::HashMap;
 use std::path::PathBuf;
 use tempfile::TempDir;
@@ -11,7 +12,9 @@ use tower::ServiceExt;
 
 use sovereign_sync::crdt::{apply_incoming_delta, current_version, export_outgoing_delta};
 use sovereign_sync::p2p::{P2PHandle, P2PNode};
-use sovereign_sync::rest_api::{build_router, AppState};
+use sovereign_sync::rest_api::{
+    build_router, execute_signed_sync_push, AppState, SignedSyncPushRequest,
+};
 use storage_provider::{DomainConfig, PrivacyClass, SyncDomain, SyncManifest};
 
 // ---------------------------------------------------------------------------
@@ -41,6 +44,21 @@ fn default_manifest() -> SyncManifest {
         DomainConfig::new(PrivacyClass::Local, "memory/"),
     );
     manifest
+}
+
+#[test]
+fn generated_openapi_tracks_v2_route_constants_and_rust_schemas() {
+    let document = sovereign_sync::rest_api::openapi_document();
+    for route in [
+        sovereign_sync::rest_api::SYNC_PUSH_COLLECTION_ROUTE,
+        sovereign_sync::rest_api::SYNC_PUSH_ITEM_ROUTE,
+        sovereign_sync::rest_api::SYNC_PUSH_EVENTS_ROUTE,
+    ] {
+        assert!(document["paths"].get(route).is_some(), "missing {route}");
+    }
+    assert_eq!(document["openapi"], "3.1.0");
+    assert_eq!(document["info"]["version"], "1.7.0");
+    assert!(document["components"]["schemas"]["SignedSyncPushRequest"].is_object());
 }
 
 // ---------------------------------------------------------------------------
@@ -392,7 +410,7 @@ async fn skills_search_returns_results_array() {
 // ---------------------------------------------------------------------------
 
 #[tokio::test]
-async fn sync_push_queues_domain() {
+async fn unsigned_v1_sync_push_is_rejected_without_same_user_unix_transport() {
     let (app, _fixture) = test_router().await;
     let req = Request::builder()
         .method("POST")
@@ -401,15 +419,188 @@ async fn sync_push_queues_domain() {
         .body(Body::from(r#"{"domain":"learner-model"}"#))
         .unwrap();
     let resp = app.oneshot(req).await.unwrap();
-    assert_eq!(resp.status(), StatusCode::OK);
+    assert_eq!(resp.status(), StatusCode::FORBIDDEN);
     let body = axum::body::to_bytes(resp.into_body(), 8192).await.unwrap();
     let json: serde_json::Value = serde_json::from_slice(&body).unwrap();
-    // Real push pipeline now runs (domain registration, adapter export, CRDT
-    // merge) instead of the old hardcoded "queued" stub. No P2P node in this
-    // test fixture, so it merges locally rather than broadcasting.
-    assert_eq!(json["status"], "applied-locally-only");
-    assert_eq!(json["domain"], "learner-model");
-    assert!(json["snapshotBytes"].as_u64().unwrap_or(0) > 0);
+    assert_eq!(json["error"]["code"], "v1_transport_forbidden");
+}
+
+#[tokio::test]
+async fn signed_v2_push_replays_exact_receipt_and_rejects_hash_conflict() {
+    let skills_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../skills");
+    let fixture = tempfile::tempdir().unwrap();
+    let project_root = fixture.path().join("project");
+    let data_root = fixture.path().join("data");
+    std::fs::create_dir_all(&project_root).unwrap();
+    let runtime = kbd_runtime::Runtime::open_canonical_at(&project_root, &data_root).unwrap();
+    let project_id = runtime.project_manifest(false).unwrap().unwrap().project_id;
+    runtime
+        .initialize(
+            project_id,
+            "run-sync-v2",
+            kbd_runtime::Actor::operator("operator", "test"),
+        )
+        .unwrap();
+    let state = AppState::try_new_at(&skills_dir, &project_root, &data_root, None)
+        .await
+        .unwrap();
+    let signer = runtime.device_signer().unwrap();
+    let request = SignedSyncPushRequest::new_local("learner-model", &signer);
+
+    let (created_status, created) = execute_signed_sync_push(&state, request.clone())
+        .await
+        .unwrap();
+    assert_eq!(created_status, StatusCode::CREATED);
+    assert_eq!(
+        created.local_state,
+        sovereign_sync::rest_api::PushLocalState::AppliedLocally
+    );
+    assert_eq!(created.events[0].sequence, 1);
+
+    let (replay_status, replay) = execute_signed_sync_push(&state, request.clone())
+        .await
+        .unwrap();
+    assert_eq!(replay_status, StatusCode::OK);
+    assert_eq!(
+        serde_json::to_value(&replay).unwrap(),
+        serde_json::to_value(&created).unwrap()
+    );
+
+    let mut conflict = SignedSyncPushRequest::new_local("skill-index", &signer);
+    conflict.request_id = request.request_id.clone();
+    conflict.sign(&signer);
+    let conflict = execute_signed_sync_push(&state, conflict)
+        .await
+        .unwrap_err();
+    assert_eq!(conflict.status(), StatusCode::CONFLICT);
+
+    let reopened = AppState::try_new_at(&skills_dir, &project_root, &data_root, None)
+        .await
+        .unwrap();
+    let (restart_status, restart_replay) =
+        execute_signed_sync_push(&reopened, request).await.unwrap();
+    assert_eq!(restart_status, StatusCode::OK);
+    assert_eq!(
+        restart_replay.canonical_payload_hash,
+        created.canonical_payload_hash
+    );
+}
+
+#[tokio::test]
+async fn signed_v2_http_contract_covers_errors_receipts_and_sse_resume() {
+    let skills_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../skills");
+    let fixture = tempfile::tempdir().unwrap();
+    let project_root = fixture.path().join("project");
+    let data_root = fixture.path().join("data");
+    std::fs::create_dir_all(&project_root).unwrap();
+    let runtime = kbd_runtime::Runtime::open_canonical_at(&project_root, &data_root).unwrap();
+    let project_id = runtime.project_manifest(false).unwrap().unwrap().project_id;
+    runtime
+        .initialize(
+            project_id,
+            "run-sync-http",
+            kbd_runtime::Actor::operator("operator", "test"),
+        )
+        .unwrap();
+    let state = AppState::try_new_at(&skills_dir, &project_root, &data_root, None)
+        .await
+        .unwrap();
+    let app = build_router(state);
+    let signer = runtime.device_signer().unwrap();
+    let request = SignedSyncPushRequest::new_local("learner-model", &signer);
+    let push_id = request.request_id.clone();
+    let post = |request: &SignedSyncPushRequest| {
+        Request::builder()
+            .method("POST")
+            .uri("/api/v2/sync/pushes")
+            .header("content-type", "application/json")
+            .body(Body::from(serde_json::to_vec(request).unwrap()))
+            .unwrap()
+    };
+
+    let created = app.clone().oneshot(post(&request)).await.unwrap();
+    assert_eq!(created.status(), StatusCode::CREATED);
+    let replay = app.clone().oneshot(post(&request)).await.unwrap();
+    assert_eq!(replay.status(), StatusCode::OK);
+
+    let get = Request::builder()
+        .uri(format!("/api/v2/sync/pushes/{push_id}"))
+        .body(Body::empty())
+        .unwrap();
+    assert_eq!(
+        app.clone().oneshot(get).await.unwrap().status(),
+        StatusCode::OK
+    );
+    let missing = Request::builder()
+        .uri("/api/v2/sync/pushes/00000000-0000-4000-8000-000000000000")
+        .body(Body::empty())
+        .unwrap();
+    assert_eq!(
+        app.clone().oneshot(missing).await.unwrap().status(),
+        StatusCode::NOT_FOUND
+    );
+
+    let mut conflict = SignedSyncPushRequest::new_local("skill-index", &signer);
+    conflict.request_id = push_id.clone();
+    conflict.sign(&signer);
+    assert_eq!(
+        app.clone().oneshot(post(&conflict)).await.unwrap().status(),
+        StatusCode::CONFLICT
+    );
+
+    let mut unsupported = SignedSyncPushRequest::new_local("skill-index", &signer);
+    unsupported.schema_version = "9".into();
+    unsupported.sign(&signer);
+    assert_eq!(
+        app.clone()
+            .oneshot(post(&unsupported))
+            .await
+            .unwrap()
+            .status(),
+        StatusCode::BAD_REQUEST
+    );
+
+    let mut bad_signature = SignedSyncPushRequest::new_local("skill-index", &signer);
+    bad_signature.signature = "not-a-signature".into();
+    assert_eq!(
+        app.clone()
+            .oneshot(post(&bad_signature))
+            .await
+            .unwrap()
+            .status(),
+        StatusCode::UNAUTHORIZED
+    );
+
+    let unknown_signer = kbd_runtime::DeviceSigner::generate();
+    let unknown = SignedSyncPushRequest::new_local("skill-index", &unknown_signer);
+    assert_eq!(
+        app.clone().oneshot(post(&unknown)).await.unwrap().status(),
+        StatusCode::FORBIDDEN
+    );
+
+    let mut stale = SignedSyncPushRequest::new_local("skill-index", &signer);
+    stale.issued_at_ms = 1;
+    stale.sign(&signer);
+    assert_eq!(
+        app.clone().oneshot(post(&stale)).await.unwrap().status(),
+        StatusCode::UNPROCESSABLE_ENTITY
+    );
+
+    let events = Request::builder()
+        .uri(format!("/api/v2/sync/pushes/{push_id}/events?after=1"))
+        .body(Body::empty())
+        .unwrap();
+    let response = app.oneshot(events).await.unwrap();
+    assert_eq!(response.status(), StatusCode::OK);
+    let mut body = response.into_body().into_data_stream();
+    let chunk = tokio::time::timeout(std::time::Duration::from_secs(1), body.next())
+        .await
+        .unwrap()
+        .unwrap()
+        .unwrap();
+    let chunk = String::from_utf8(chunk.to_vec()).unwrap();
+    assert!(chunk.contains("id: 2"));
+    assert!(!chunk.contains("id: 1"));
 }
 
 #[tokio::test]
@@ -419,39 +610,39 @@ async fn daemon_sync_push_reports_initializing_and_failed_transport_after_local_
     let project_root = fixture.path().join("project");
     let data_root = fixture.path().join("data");
     std::fs::create_dir_all(&project_root).unwrap();
+    let runtime = kbd_runtime::Runtime::open_canonical_at(&project_root, &data_root).unwrap();
+    let project_id = runtime.project_manifest(false).unwrap().unwrap().project_id;
+    runtime
+        .initialize(
+            project_id,
+            "run-transport-failure",
+            kbd_runtime::Actor::operator("operator", "test"),
+        )
+        .unwrap();
     let handle = P2PHandle::pending();
     let state =
         AppState::try_new_at_with_handle(&skills_dir, &project_root, &data_root, handle.clone())
             .await
             .unwrap();
-    let app = build_router(state);
-
-    let push = || {
-        Request::builder()
-            .method("POST")
-            .uri("/api/v1/sync/push")
-            .header("Content-Type", "application/json")
-            .body(Body::from(r#"{"domain":"learner-model"}"#))
-            .unwrap()
-    };
-    let response = app.clone().oneshot(push()).await.unwrap();
-    assert_eq!(response.status(), StatusCode::SERVICE_UNAVAILABLE);
-    let body = axum::body::to_bytes(response.into_body(), 8192)
+    let signer = runtime.device_signer().unwrap();
+    let request = SignedSyncPushRequest::new_local("learner-model", &signer);
+    let response = execute_signed_sync_push(&state, request.clone())
         .await
-        .unwrap();
-    let json: serde_json::Value = serde_json::from_slice(&body).unwrap();
-    assert_eq!(json["preparationAppliedLocally"], true);
-    assert_eq!(json["transport"]["state"], "initializing");
+        .unwrap_err();
+    assert_eq!(response.status(), StatusCode::SERVICE_UNAVAILABLE);
+
+    let (replay_status, replay) = execute_signed_sync_push(&state, request).await.unwrap();
+    assert_eq!(replay_status, StatusCode::OK);
+    assert_eq!(
+        replay.local_state,
+        sovereign_sync::rest_api::PushLocalState::Failed
+    );
+    assert!(replay.failure.is_some());
 
     handle.mark_failed("simulated initialization failure");
-    let response = app.oneshot(push()).await.unwrap();
+    let request = SignedSyncPushRequest::new_local("learner-model", &signer);
+    let response = execute_signed_sync_push(&state, request).await.unwrap_err();
     assert_eq!(response.status(), StatusCode::SERVICE_UNAVAILABLE);
-    let body = axum::body::to_bytes(response.into_body(), 8192)
-        .await
-        .unwrap();
-    let json: serde_json::Value = serde_json::from_slice(&body).unwrap();
-    assert_eq!(json["preparationAppliedLocally"], true);
-    assert_eq!(json["transport"]["state"], "failed");
 }
 
 // ---------------------------------------------------------------------------
@@ -707,21 +898,24 @@ fn crdt_rejects_local_only_domain() {
 }
 
 // ---------------------------------------------------------------------------
-// 8. P2P: topic derivation is deterministic and operator-specific
+// 8. P2P: topic derivation is deterministic and group-secret-specific
 // ---------------------------------------------------------------------------
 
 #[test]
 fn p2p_topic_derivation_deterministic_and_unique() {
-    let operator_a = [1u8; 32];
-    let operator_b = [2u8; 32];
+    let group_secret_a = [1u8; 32];
+    let group_secret_b = [2u8; 32];
 
-    let topic_a1 = P2PNode::derive_topic(&operator_a);
-    let topic_a2 = P2PNode::derive_topic(&operator_a);
-    let topic_b = P2PNode::derive_topic(&operator_b);
+    let topic_a1 = P2PNode::derive_topic(&group_secret_a);
+    let topic_a2 = P2PNode::derive_topic(&group_secret_a);
+    let topic_b = P2PNode::derive_topic(&group_secret_b);
 
-    assert_eq!(topic_a1, topic_a2, "same operator_id must yield same topic");
+    assert_eq!(
+        topic_a1, topic_a2,
+        "same group secret must yield same topic"
+    );
     assert_ne!(
         topic_a1, topic_b,
-        "different operator_ids must yield different topics"
+        "different group secrets must yield different topics"
     );
 }

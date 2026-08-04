@@ -604,11 +604,10 @@ mod tests {
 
     #[tokio::test]
     async fn detects_missing_listener() {
-        let listener = TcpListener::bind("127.0.0.1:0").await.unwrap();
-        let port = listener.local_addr().unwrap().port();
-        drop(listener);
-
-        let report = detect_daemon_health(port).await;
+        // Port zero is never a connectable service endpoint, avoiding the
+        // bind-drop race where a parallel fixture can immediately acquire the
+        // supposedly unused ephemeral port.
+        let report = detect_daemon_health(0).await;
 
         assert_eq!(report.status, DaemonHealthKind::Missing);
         assert_eq!(report.exit_code(), 1);

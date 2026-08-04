@@ -15,6 +15,7 @@ use uuid::Uuid;
 
 use crate::kbd_control::KbdControlPlane;
 use crate::kbd_control::KbdProjectRouter;
+use crate::rest_api::{execute_signed_sync_push, sync_peers_value, sync_status_value, AppState};
 
 // ---------------------------------------------------------------------------
 // SkillIndex — keyword-only loader (no embeddings, no external calls)
@@ -231,6 +232,7 @@ pub struct SovereignMcpServer {
     tool_router: ToolRouter<Self>,
     skill_index: Arc<SkillIndex>,
     kbd_projects: Arc<KbdProjectRouter>,
+    sync_state: AppState,
     _prefix_tools: bool,
     _uar_passthrough: bool,
 }
@@ -253,10 +255,22 @@ impl SovereignMcpServer {
                 .await
                 .expect("cannot ensure current KBD project registration");
         }
+        let learner_model_dir = dirs_next::home_dir()
+            .unwrap_or_else(|| PathBuf::from("."))
+            .join(".prometheus")
+            .join("learn")
+            .join("learner-model");
+        let sync_state = AppState::from_mcp_components(
+            kbd_projects.clone(),
+            skill_index.clone(),
+            learner_model_dir,
+        )
+        .expect("cannot open sync receipt service");
         Self {
             tool_router: Self::tool_router(),
             skill_index,
             kbd_projects,
+            sync_state,
             _prefix_tools: prefix_tools,
             _uar_passthrough: uar_passthrough,
         }
@@ -344,13 +358,11 @@ impl SovereignMcpServer {
         description = "Get the current P2P sync status including node state and connected peers."
     )]
     pub async fn sync_status(&self, params: Parameters<SyncStatusParams>) -> String {
-        let domain = params.0.domain.unwrap_or_else(|| "all".into());
-        // Detailed implementation wired in change-sync-010 (REST API).
-        // Stub response for MCP server scaffolding.
-        format!(
-            "sovereign-sync node status:\n  domain: {}\n  state: idle\n  peers: 0\n  (full status available via REST on :7892)",
-            domain
-        )
+        let mut status = sync_status_value(&self.sync_state).await;
+        if let Some(domain) = params.0.domain {
+            status["requestedDomain"] = serde_json::Value::String(domain);
+        }
+        serde_json::to_string_pretty(&status).unwrap_or_else(|error| error.to_string())
     }
 
     /// Push local CRDT state for a domain to connected peers.
@@ -359,12 +371,16 @@ impl SovereignMcpServer {
         description = "Push local CRDT state for a sync domain to connected P2P peers."
     )]
     pub async fn sync_push(&self, params: Parameters<SyncPushParams>) -> String {
-        let domain = &params.0.domain;
-        // Full implementation wired in change-sync-015.
-        format!(
-            "sync-push for domain '{}' queued — peer broadcast will occur when P2P node is active.",
-            domain
-        )
+        let request = match self.sync_state.signed_local_push_request(params.0.domain) {
+            Ok(request) => request,
+            Err(error) => return format!("sync-push signing error: {error}"),
+        };
+        match execute_signed_sync_push(&self.sync_state, request).await {
+            Ok((_, receipt)) => {
+                serde_json::to_string_pretty(&receipt).unwrap_or_else(|error| error.to_string())
+            }
+            Err(response) => format!("sync-push failed with HTTP status {}", response.status()),
+        }
     }
 
     /// List known P2P peers.
@@ -373,8 +389,8 @@ impl SovereignMcpServer {
         description = "List known P2P peers in the current sync group."
     )]
     pub async fn sync_peers(&self) -> String {
-        // Full implementation in change-sync-014.
-        "No peers connected yet. Start the daemon with --mode daemon to enable P2P.".into()
+        serde_json::to_string_pretty(&sync_peers_value(&self.sync_state).await)
+            .unwrap_or_else(|error| error.to_string())
     }
 
     #[tool(

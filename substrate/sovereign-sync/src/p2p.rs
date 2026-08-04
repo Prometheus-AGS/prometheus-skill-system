@@ -795,6 +795,10 @@ async fn run_supervisor(
                                 continue;
                             }
                         };
+                        if !payload_targets_local_endpoint(&verified, identity.endpoint_id()) {
+                            debug!(peer = %message.from, "ignoring authenticated P2P payload targeted to other endpoints");
+                            continue;
+                        }
                         message.payload = verified;
                         if incoming_tx.try_send(message).is_err() {
                             let mut status = handle.status();
@@ -854,6 +858,23 @@ async fn run_supervisor(
         ..handle.status()
     });
     Ok(())
+}
+
+fn payload_targets_local_endpoint(payload: &[u8], local_endpoint: EndpointId) -> bool {
+    let Ok(value) = serde_json::from_slice::<serde_json::Value>(payload) else {
+        return true;
+    };
+    let Some(targets) = value
+        .get("target_endpoint_ids")
+        .and_then(serde_json::Value::as_array)
+    else {
+        return true;
+    };
+    targets.is_empty()
+        || targets
+            .iter()
+            .filter_map(serde_json::Value::as_str)
+            .any(|target| target == local_endpoint.to_string())
 }
 
 async fn wait_for_retry_or_shutdown(
@@ -1194,6 +1215,27 @@ mod tests {
         let t1 = P2PNode::derive_topic(&[1u8; 32]);
         let t2 = P2PNode::derive_topic(&[2u8; 32]);
         assert_ne!(t1.as_bytes(), t2.as_bytes());
+    }
+
+    #[test]
+    fn targeted_payloads_are_filtered_before_domain_delivery() {
+        let local = SecretKey::generate().public();
+        let other = SecretKey::generate().public();
+        let broadcast = serde_json::to_vec(&serde_json::json!({
+            "target_endpoint_ids": []
+        }))
+        .unwrap();
+        let targeted_local = serde_json::to_vec(&serde_json::json!({
+            "target_endpoint_ids": [local.to_string()]
+        }))
+        .unwrap();
+        let targeted_other = serde_json::to_vec(&serde_json::json!({
+            "target_endpoint_ids": [other.to_string()]
+        }))
+        .unwrap();
+        assert!(payload_targets_local_endpoint(&broadcast, local));
+        assert!(payload_targets_local_endpoint(&targeted_local, local));
+        assert!(!payload_targets_local_endpoint(&targeted_other, local));
     }
 
     #[test]

@@ -20,6 +20,8 @@ enum Mode {
     PairExport,
     /// Import a pairing ticket and enroll its endpoint/signing-key binding
     PairImport,
+    /// Print the generated OpenAPI 3.1 contract and exit
+    Openapi,
 }
 
 #[derive(Debug, Clone, ValueEnum)]
@@ -213,6 +215,12 @@ async fn main() -> anyhow::Result<()> {
                     "pairedEndpointId": imported.endpoint_id,
                     "signingKeyFingerprint": imported.signing_key_fingerprint
                 })
+            );
+        }
+        Mode::Openapi => {
+            println!(
+                "{}",
+                serde_json::to_string_pretty(&rest_api::openapi_document())?
             );
         }
         Mode::Mcp => {

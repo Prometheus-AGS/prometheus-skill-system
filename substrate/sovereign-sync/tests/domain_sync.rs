@@ -75,10 +75,10 @@ fn mobile_wire_is_byte_compatible_with_sovereign_sync() {
     assert_eq!(authority.project_id, project_id);
     assert_eq!(authority.project_updates, mobile.export_updates().unwrap());
 
-    let operator_id = [73; 32];
+    let group_secret = [73; 32];
     assert_eq!(
-        MobilePeer::derive_topic(&operator_id),
-        P2PNode::derive_topic(&operator_id)
+        MobilePeer::derive_topic(&group_secret),
+        P2PNode::derive_topic(&group_secret)
     );
 }
 
