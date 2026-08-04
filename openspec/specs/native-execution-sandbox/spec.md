@@ -27,4 +27,3 @@ Every completed Tier P run SHALL produce an `attested` receipt containing the in
 #### Scenario: Successful Python run
 - **WHEN** an approved Python request completes under Seatbelt or bwrap
 - **THEN** the signed receipt verifies offline and all referenced outputs resolve through the CAS
-

@@ -30,4 +30,3 @@ The sidecar SHALL expose run creation, run status, resumable ordered events, ter
 #### Scenario: Missing Seatbelt binary
 - **WHEN** doctor runs on macOS without the configured sandbox executable
 - **THEN** it reports Tier P unavailable and exits non-zero without attempting repair
-

@@ -16,4 +16,3 @@ Garbage collection SHALL honor the configured byte budget while never collecting
 #### Scenario: Budget pressure with pinned blob
 - **WHEN** the store exceeds budget and its oldest blob is pinned
 - **THEN** collection skips that blob and removes only eligible unpinned content
-

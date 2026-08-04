@@ -16,4 +16,3 @@ An escalated run SHALL require either a valid SSH-signed canonical manifest unde
 #### Scenario: Missing privileged grant
 - **WHEN** a request needs a privileged capability and no valid grant is supplied
 - **THEN** the service returns a grant-required state without spawning code
-

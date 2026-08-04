@@ -1,7 +1,7 @@
 # Independent review disposition
 
-Producer: `gpt-5.6-sol`  
-Final judge: `gpt-5.4`  
+Producer: `gpt-5.6-sol`
+Final judge: `gpt-5.4`
 Isolation: verified distinct models through the local REST gateway
 
 The initial production review found lifecycle defects in upload, request, and
