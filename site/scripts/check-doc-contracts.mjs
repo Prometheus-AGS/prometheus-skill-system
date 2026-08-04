@@ -166,7 +166,7 @@ const submoduleSpec = path.join(
 );
 if (
   fs.existsSync(submoduleSpec) &&
-  fs.readFileSync(rootSpec, 'utf8') !== fs.readFileSync(submoduleSpec, 'utf8')
+  JSON.stringify(json(rootSpec)) !== JSON.stringify(json(submoduleSpec))
 ) {
   failures.push('Docusaurus OpenAPI copy differs from the pinned server specification');
 }
