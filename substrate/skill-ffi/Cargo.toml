@@ -5,6 +5,9 @@ edition = "2021"
 publish = false
 description = "Mobile FFI boundary for the prometheus:component/skill invocation surface"
 
+[lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = ["cfg(frb_expand)"] }
+
 [lib]
 crate-type = ["cdylib", "staticlib", "rlib"]
 
@@ -15,6 +18,22 @@ kbd-runtime = { path = "../kbd-runtime" }
 prometheus-skill-index = { path = "../skill-index" }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
+
+[target.'cfg(any(target_os = "ios", target_os = "android"))'.dependencies]
+prometheus-exec-embedded = { path = "../exec-embedded", version = "1.7.0", default-features = false, features = ["mobile"] }
+
+[target.'cfg(not(any(target_os = "ios", target_os = "android")))'.dependencies]
+prometheus-exec-embedded = { path = "../exec-embedded", version = "1.7.0", default-features = false, features = ["standalone"] }
+
+[dev-dependencies]
+chrono = "0.4"
+ed25519-dalek = "2"
+prometheus-exec-contracts = { path = "../exec-contracts", version = "1.7.0" }
+prometheus-exec-core = { path = "../exec-core", version = "1.7.0" }
+prometheus-exec-service = { path = "../exec-service", version = "1.7.0" }
+tempfile = "3"
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+uuid = { version = "1", features = ["v4"] }
 
 [profile.release]
 opt-level = "s"

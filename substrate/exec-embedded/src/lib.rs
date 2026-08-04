@@ -31,6 +31,9 @@ use serde::{Deserialize, Serialize};
 use thiserror::Error;
 use uuid::Uuid;
 
+mod adapter;
+pub use adapter::{EmbeddedExecutionAdapter, EmbeddedExecutionAdapterError, EmbeddedPublicKey};
+
 #[cfg(all(feature = "standalone", feature = "mobile"))]
 compile_error!("embedded builds must select exactly one of standalone or mobile");
 
@@ -59,6 +62,15 @@ pub struct EmbeddedRunResult {
     pub run_id: Uuid,
     pub state: RunState,
     pub replayed: bool,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub receipt: Option<ExecutionReceipt>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct EmbeddedRunStatus {
+    pub run_id: Uuid,
+    pub state: RunState,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub receipt: Option<ExecutionReceipt>,
 }
@@ -189,6 +201,19 @@ impl EmbeddedExecutionApi {
     ) -> Result<Option<ExecutionReceipt>, EmbeddedExecutionError> {
         let inner = Arc::clone(&self.inner);
         Ok(tokio::task::spawn_blocking(move || inner.service.receipt(run_id)).await??)
+    }
+
+    pub async fn status(
+        &self,
+        run_id: Uuid,
+    ) -> Result<Option<EmbeddedRunStatus>, EmbeddedExecutionError> {
+        let inner = Arc::clone(&self.inner);
+        let record = tokio::task::spawn_blocking(move || inner.service.run(run_id)).await??;
+        Ok(record.map(|record| EmbeddedRunStatus {
+            run_id: record.run_id,
+            state: record.state,
+            receipt: record.terminal.map(|terminal| terminal.receipt),
+        }))
     }
 
     /// Retrieves and re-hashes any content-addressed input or output artifact.
@@ -368,10 +393,11 @@ impl Inner {
                 message: "the embedding process restarted after the durable spawn boundary".into(),
             }),
         };
-        Ok(
-            ReceiptAssembler::new(Ed25519ReceiptSigner::new(self.signing_key.clone()))
-                .assemble_for_run(record.run_id, &job, execution)?,
-        )
+        let receipt = ReceiptAssembler::new(Ed25519ReceiptSigner::new(self.signing_key.clone()))
+            .assemble_for_run(record.run_id, &job, execution.clone())?;
+        self.artifacts
+            .persist_and_retain_for_receipt(&record.request, &receipt, &execution)?;
+        Ok(receipt)
     }
 }
 

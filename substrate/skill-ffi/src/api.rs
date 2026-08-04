@@ -5,6 +5,8 @@
 //! If the two ever diverge, a skill behaves differently depending on how it was
 //! reached, which is the failure this whole phase exists to prevent.
 
+use std::collections::BTreeMap;
+
 use serde::{Deserialize, Serialize};
 
 /// Mirrors `prometheus:component/types.error-kind`. Kept as a Rust enum rather
@@ -87,6 +89,106 @@ pub fn describe_skill(skill_id: String) -> Result<SkillDescriptor, SkillError> {
 /// it to detect a host/binding mismatch before invoking anything.
 pub fn world_version() -> String {
     "prometheus:component@0.1.0".into()
+}
+
+fn exec_error(error: impl std::fmt::Display) -> SkillError {
+    SkillError {
+        kind: SkillErrorKind::Internal,
+        message: format!("Prometheus Exec: {error}"),
+    }
+}
+
+fn exec_adapter_error(
+    error: prometheus_exec_embedded::EmbeddedExecutionAdapterError,
+) -> SkillError {
+    use prometheus_exec_embedded::{EmbeddedExecutionAdapterError, EmbeddedExecutionError};
+
+    let kind = match &error {
+        EmbeddedExecutionAdapterError::Json(_)
+        | EmbeddedExecutionAdapterError::Uuid(_)
+        | EmbeddedExecutionAdapterError::Contract(_)
+        | EmbeddedExecutionAdapterError::PublicKeyIdentity => SkillErrorKind::InvalidInput,
+        EmbeddedExecutionAdapterError::Execution(EmbeddedExecutionError::PolicyDenied(_))
+        | EmbeddedExecutionAdapterError::Execution(EmbeddedExecutionError::Preflight(_)) => {
+            SkillErrorKind::CapabilityDenied
+        }
+        EmbeddedExecutionAdapterError::Execution(_) => SkillErrorKind::Internal,
+    };
+    SkillError {
+        kind,
+        message: format!("Prometheus Exec: {error}"),
+    }
+}
+
+fn exec_adapter() -> Result<&'static prometheus_exec_embedded::EmbeddedExecutionAdapter, SkillError>
+{
+    crate::exec_host::execution_adapter().map_err(exec_error)
+}
+
+/// Submit an envelope-free Tier W invocation through the installed host.
+pub async fn exec_run(
+    request_json: String,
+    component: Vec<u8>,
+    inputs: BTreeMap<String, Vec<u8>>,
+) -> Result<String, SkillError> {
+    exec_adapter()?
+        .run_json(request_json, component, inputs)
+        .await
+        .map_err(exec_adapter_error)
+}
+
+/// Read the current durable state and optional terminal receipt.
+pub async fn exec_status(run_id: String) -> Result<String, SkillError> {
+    exec_adapter()?
+        .status_json(run_id)
+        .await
+        .map_err(exec_adapter_error)
+}
+
+/// Read hash-linked events strictly after the supplied cursor.
+pub async fn exec_events(run_id: String, after: u64) -> Result<String, SkillError> {
+    exec_adapter()?
+        .events_json(run_id, after)
+        .await
+        .map_err(exec_adapter_error)
+}
+
+/// Read the terminal signed receipt, or JSON `null` while non-terminal.
+pub async fn exec_receipt(run_id: String) -> Result<String, SkillError> {
+    exec_adapter()?
+        .receipt_json(run_id)
+        .await
+        .map_err(exec_adapter_error)
+}
+
+/// Read and re-hash a content-addressed execution input or output.
+pub async fn exec_artifact(hash: String) -> Result<Vec<u8>, SkillError> {
+    exec_adapter()?
+        .artifact(hash)
+        .await
+        .map_err(exec_adapter_error)
+}
+
+/// Compatibility alias for consumers generated from the canonical plural tool name.
+pub async fn exec_artifacts(hash: String) -> Result<Vec<u8>, SkillError> {
+    exec_artifact(hash).await
+}
+
+/// Verify a receipt using public-only key material.
+pub async fn exec_verify(
+    receipt_json: String,
+    request_json: Option<String>,
+    public_key_json: String,
+) -> Result<String, SkillError> {
+    exec_adapter()?
+        .verify_json(receipt_json, request_json, public_key_json)
+        .await
+        .map_err(exec_adapter_error)
+}
+
+/// Return only the public receipt-verification key and its derived key ID.
+pub fn exec_public_key() -> Result<String, SkillError> {
+    serde_json::to_string(&exec_adapter()?.public_key()).map_err(exec_error)
 }
 
 /// List the skills available to this client.
