@@ -1,0 +1,23 @@
+{
+  "valid": true,
+  "receiptHash": "sha256:899016657d6f72b9cd75d63a4ef05de601fc50f2dd268a1f4e9abaa8265e7618",
+  "checks": [
+    {
+      "code": "receipt.invariants",
+      "message": "receipt semantic invariants are valid"
+    },
+    {
+      "code": "receipt.signature",
+      "message": "receipt signature and key identity are valid"
+    },
+    {
+      "code": "request.hash",
+      "message": "receipt matches the supplied request"
+    },
+    {
+      "code": "artifact.hash",
+      "message": "outputs/risk-summary.json matches sha256:99b31f41b94ec6b079fbf7687a949c851fb55cbe47029d37b7f2cb3be3c13e56"
+    }
+  ],
+  "failures": []
+}
