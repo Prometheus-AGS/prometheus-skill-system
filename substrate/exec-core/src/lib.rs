@@ -11,11 +11,13 @@ mod job;
 mod policy;
 mod port;
 mod receipt;
+mod receipt_log;
 
 pub use job::{ExecutionJob, JobValidationError, ValidatedExecutionJob};
 pub use policy::{BaselinePolicy, PolicyEvaluator, PolicyOutcome, PolicyReason};
 pub use port::{BackendExecution, ExecutionPort, ProducedArtifact};
 pub use receipt::{Ed25519ReceiptSigner, ReceiptAssembler, ReceiptAssemblyError, ReceiptSigner};
+pub use receipt_log::{AppendReceiptResult, ReceiptLog, ReceiptLogError};
 
 /// Release family shared by every execution crate.
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");
