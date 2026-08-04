@@ -37,7 +37,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - run: npm ci
-      - run: npm run build
+      - run: npm run build:deploy
 YAML
 expect_pass "$allowed_pages"
 
@@ -81,7 +81,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - run: npm run build
+      - run: npm run build:deploy
 YAML
 expect_fail "$pr_pages"
 

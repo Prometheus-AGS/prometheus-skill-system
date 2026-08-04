@@ -41,6 +41,9 @@ must run on the local development machine.
 - GitHub may be used for source hosting, review, and an explicitly authorized
   deployment such as GitHub Pages. A deployment workflow must not substitute for
   local testing.
+- The only hosted automation exceptions are deterministic `docs:sync` updates
+  after a commit reaches `main` and GitHub Pages packaging/deployment. Neither
+  workflow may run tests, lint, doctors, contract checks, or certification.
 - If a legacy test workflow starts automatically, cancel it when authorized and
   continue locally. Its result is not validation evidence.
 

@@ -10,9 +10,6 @@ Cedar-governed self-optimization.
 Built for teams deploying AI agents in production where capability improvement must be
 governed, audited, and reproducible.
 
-[![Validate Skills](https://github.com/Prometheus-AGS/prometheus-skill-system/actions/workflows/validate.yml/badge.svg?branch=main)](https://github.com/Prometheus-AGS/prometheus-skill-system/actions/workflows/validate.yml)
-[![Sovereign Sync Rust](https://github.com/Prometheus-AGS/prometheus-skill-system/actions/workflows/sovereign-sync.yml/badge.svg?branch=main)](https://github.com/Prometheus-AGS/prometheus-skill-system/actions/workflows/sovereign-sync.yml)
-[![Prometheus Research Rust](https://github.com/Prometheus-AGS/prometheus-skill-system/actions/workflows/prometheus-research.yml/badge.svg?branch=main)](https://github.com/Prometheus-AGS/prometheus-skill-system/actions/workflows/prometheus-research.yml)
 [![Docs site](https://github.com/Prometheus-AGS/prometheus-skill-system/actions/workflows/docs-pages.yml/badge.svg?branch=main)](https://github.com/Prometheus-AGS/prometheus-skill-system/actions/workflows/docs-pages.yml)
 
 > **Production readiness: 92%** — sycophancy-corrected score against the 2026-06-29 independent credibility assessment (commit `e0e720b`). All P0 security, P1 capability, P2/P3 quality, and P4 operational findings are closed. Remaining 8%: single-maintainer bus factor and no external production deployments yet. See [docs/production-readiness-report.md](docs/production-readiness-report.md).
