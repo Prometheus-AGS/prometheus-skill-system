@@ -1,0 +1,25 @@
+[package]
+name = "prometheus-exec-service"
+version = "1.7.0"
+edition = "2021"
+rust-version = "1.85"
+license = "MIT"
+description = "Idempotent service layer for Prometheus Exec"
+
+[package.metadata.prometheus]
+exec-layer = "service"
+
+[dependencies]
+async-trait = "0.1"
+chrono = { version = "0.4", features = ["serde"] }
+prometheus-exec-contracts = { path = "../exec-contracts", version = "1.7.0" }
+prometheus-exec-core = { path = "../exec-core", version = "1.7.0" }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tempfile = "3"
+thiserror = "2"
+tokio = { version = "1", features = ["fs", "rt-multi-thread", "sync", "time"] }
+uuid = { version = "1", features = ["serde", "v4"] }
+
+[dev-dependencies]
+proptest = "1"
