@@ -31,7 +31,7 @@ world skill {
 |---|---|---|
 | `run(string) -> result<string, string>` | `run(string) -> result<string, error>` | **Superset.** Same input, same success payload. The error side gains a machine-routable `kind`; a host wanting the old shape reads `error.message`. |
 | — | `describe() -> string` | **Added, optional.** A host must treat its absence as "no metadata", never as an error. |
-| — | `log`, `kv-store`, `clock` | **Added, imported.** A guest importing none is a pure function of its input. |
+| — | `log`, `kv-store`, `input`, `output`, `clock`, `random` | **Added, imported.** Named inputs and output paths are host-validated; clock and random values are host-supplied replay material. A guest importing none is a pure function of its input. |
 
 **Migration cost for an existing `uar:skill` guest: the error type only.** Nothing
 is removed or narrowed.
@@ -84,11 +84,14 @@ declared at two versions — cannot recur here as long as all four files carry
 the identical `package` line, which
 `skills/devops/fabric-integration/scripts/check-invariants.sh` verifies.
 
-## What was NOT done here
+## Adoption status
 
-- **No guest is ported.** `change-msp-006` builds the first reference component.
-- **No host adopts this world.** UAR's Wasm tier is still a stub
-  (`change-msp-008`), so a component built against this world is **well-formed
-  but unexecuted** — and must not be described as working end to end.
+- `change-msp-006` ports `entity-graph-optimize` as the deterministic reference
+  guest.
+- `change-uhe-015` executes that guest in UAR and asserts its returned value.
+- `change-exec-003` adds the independent `prometheus-exec` Tier W host. Its
+  typed capability boundary rejects unsupported imports plus `host:exec` and
+  `host:memory` before instantiation; runtime receipt certification remains a
+  separate acceptance boundary.
 - **`knowme:plugin`'s dual version is not fixed.** It stays quarantined in
-  `fabric-integration`'s allowlist until something adopts this world.
+  `fabric-integration`'s allowlist until migration is complete.

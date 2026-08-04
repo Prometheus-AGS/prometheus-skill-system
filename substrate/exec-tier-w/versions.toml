@@ -6,7 +6,7 @@ wasmtime = "46.0.0"
 world = "prometheus:component@0.1.0"
 cargo_component = "0.21.1"
 wit_bindgen = "0.46.0"
-artifact_sha256 = "25e92930e94e0b26e63f33ff73e985dbaddc5030473481629de59bc4964d14bb"
+artifact_sha256 = "ba438895404a23985d5226735b8f362cf3e8044894a1140852ba0992f2fdbe78"
 
 [profiles.desktop]
 backend = "cranelift"

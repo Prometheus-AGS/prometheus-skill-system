@@ -608,6 +608,197 @@ pub mod prometheus {
             }
         }
         #[allow(dead_code, async_fn_in_trait, unused_imports, clippy::all)]
+        pub mod input {
+            #[used]
+            #[doc(hidden)]
+            static __FORCE_SECTION_REF: fn() = super::super::super::__link_custom_section_describing_imports;
+            use super::super::super::_rt;
+            pub type Error = super::super::super::prometheus::component::types::Error;
+            #[allow(unused_unsafe, clippy::all)]
+            /// Read one named, content-addressed input granted by the host. `none`
+            /// means the name was declared but no value was supplied; undeclared names
+            /// fail with `capability-denied`.
+            pub fn read(name: &str) -> Result<Option<_rt::Vec<u8>>, Error> {
+                unsafe {
+                    #[cfg_attr(target_pointer_width = "64", repr(align(8)))]
+                    #[cfg_attr(target_pointer_width = "32", repr(align(4)))]
+                    struct RetArea(
+                        [::core::mem::MaybeUninit<
+                            u8,
+                        >; 4 * ::core::mem::size_of::<*const u8>()],
+                    );
+                    let mut ret_area = RetArea(
+                        [::core::mem::MaybeUninit::uninit(); 4
+                            * ::core::mem::size_of::<*const u8>()],
+                    );
+                    let vec0 = name;
+                    let ptr0 = vec0.as_ptr().cast::<u8>();
+                    let len0 = vec0.len();
+                    let ptr1 = ret_area.0.as_mut_ptr().cast::<u8>();
+                    #[cfg(target_arch = "wasm32")]
+                    #[link(wasm_import_module = "prometheus:component/input@0.1.0")]
+                    unsafe extern "C" {
+                        #[link_name = "read"]
+                        fn wit_import2(_: *mut u8, _: usize, _: *mut u8);
+                    }
+                    #[cfg(not(target_arch = "wasm32"))]
+                    unsafe extern "C" fn wit_import2(_: *mut u8, _: usize, _: *mut u8) {
+                        unreachable!()
+                    }
+                    unsafe { wit_import2(ptr0.cast_mut(), len0, ptr1) };
+                    let l3 = i32::from(*ptr1.add(0).cast::<u8>());
+                    let result12 = match l3 {
+                        0 => {
+                            let e = {
+                                let l4 = i32::from(
+                                    *ptr1.add(::core::mem::size_of::<*const u8>()).cast::<u8>(),
+                                );
+                                match l4 {
+                                    0 => None,
+                                    1 => {
+                                        let e = {
+                                            let l5 = *ptr1
+                                                .add(2 * ::core::mem::size_of::<*const u8>())
+                                                .cast::<*mut u8>();
+                                            let l6 = *ptr1
+                                                .add(3 * ::core::mem::size_of::<*const u8>())
+                                                .cast::<usize>();
+                                            let len7 = l6;
+                                            _rt::Vec::from_raw_parts(l5.cast(), len7, len7)
+                                        };
+                                        Some(e)
+                                    }
+                                    _ => _rt::invalid_enum_discriminant(),
+                                }
+                            };
+                            Ok(e)
+                        }
+                        1 => {
+                            let e = {
+                                let l8 = i32::from(
+                                    *ptr1.add(::core::mem::size_of::<*const u8>()).cast::<u8>(),
+                                );
+                                let l9 = *ptr1
+                                    .add(2 * ::core::mem::size_of::<*const u8>())
+                                    .cast::<*mut u8>();
+                                let l10 = *ptr1
+                                    .add(3 * ::core::mem::size_of::<*const u8>())
+                                    .cast::<usize>();
+                                let len11 = l10;
+                                let bytes11 = _rt::Vec::from_raw_parts(
+                                    l9.cast(),
+                                    len11,
+                                    len11,
+                                );
+                                super::super::super::prometheus::component::types::Error {
+                                    kind: super::super::super::prometheus::component::types::ErrorKind::_lift(
+                                        l8 as u8,
+                                    ),
+                                    message: _rt::string_lift(bytes11),
+                                }
+                            };
+                            Err(e)
+                        }
+                        _ => _rt::invalid_enum_discriminant(),
+                    };
+                    result12
+                }
+            }
+        }
+        #[allow(dead_code, async_fn_in_trait, unused_imports, clippy::all)]
+        pub mod output {
+            #[used]
+            #[doc(hidden)]
+            static __FORCE_SECTION_REF: fn() = super::super::super::__link_custom_section_describing_imports;
+            use super::super::super::_rt;
+            pub type Error = super::super::super::prometheus::component::types::Error;
+            #[allow(unused_unsafe, clippy::all)]
+            /// Publish an artifact below the declared output namespace. The host owns
+            /// path validation and content-addressed persistence after execution.
+            pub fn write(path: &str, contents: &[u8]) -> Result<(), Error> {
+                unsafe {
+                    #[cfg_attr(target_pointer_width = "64", repr(align(8)))]
+                    #[cfg_attr(target_pointer_width = "32", repr(align(4)))]
+                    struct RetArea(
+                        [::core::mem::MaybeUninit<
+                            u8,
+                        >; 4 * ::core::mem::size_of::<*const u8>()],
+                    );
+                    let mut ret_area = RetArea(
+                        [::core::mem::MaybeUninit::uninit(); 4
+                            * ::core::mem::size_of::<*const u8>()],
+                    );
+                    let vec0 = path;
+                    let ptr0 = vec0.as_ptr().cast::<u8>();
+                    let len0 = vec0.len();
+                    let vec1 = contents;
+                    let ptr1 = vec1.as_ptr().cast::<u8>();
+                    let len1 = vec1.len();
+                    let ptr2 = ret_area.0.as_mut_ptr().cast::<u8>();
+                    #[cfg(target_arch = "wasm32")]
+                    #[link(wasm_import_module = "prometheus:component/output@0.1.0")]
+                    unsafe extern "C" {
+                        #[link_name = "write"]
+                        fn wit_import3(
+                            _: *mut u8,
+                            _: usize,
+                            _: *mut u8,
+                            _: usize,
+                            _: *mut u8,
+                        );
+                    }
+                    #[cfg(not(target_arch = "wasm32"))]
+                    unsafe extern "C" fn wit_import3(
+                        _: *mut u8,
+                        _: usize,
+                        _: *mut u8,
+                        _: usize,
+                        _: *mut u8,
+                    ) {
+                        unreachable!()
+                    }
+                    unsafe {
+                        wit_import3(ptr0.cast_mut(), len0, ptr1.cast_mut(), len1, ptr2)
+                    };
+                    let l4 = i32::from(*ptr2.add(0).cast::<u8>());
+                    let result9 = match l4 {
+                        0 => {
+                            let e = ();
+                            Ok(e)
+                        }
+                        1 => {
+                            let e = {
+                                let l5 = i32::from(
+                                    *ptr2.add(::core::mem::size_of::<*const u8>()).cast::<u8>(),
+                                );
+                                let l6 = *ptr2
+                                    .add(2 * ::core::mem::size_of::<*const u8>())
+                                    .cast::<*mut u8>();
+                                let l7 = *ptr2
+                                    .add(3 * ::core::mem::size_of::<*const u8>())
+                                    .cast::<usize>();
+                                let len8 = l7;
+                                let bytes8 = _rt::Vec::from_raw_parts(
+                                    l6.cast(),
+                                    len8,
+                                    len8,
+                                );
+                                super::super::super::prometheus::component::types::Error {
+                                    kind: super::super::super::prometheus::component::types::ErrorKind::_lift(
+                                        l5 as u8,
+                                    ),
+                                    message: _rt::string_lift(bytes8),
+                                }
+                            };
+                            Err(e)
+                        }
+                        _ => _rt::invalid_enum_discriminant(),
+                    };
+                    result9
+                }
+            }
+        }
+        #[allow(dead_code, async_fn_in_trait, unused_imports, clippy::all)]
         pub mod clock {
             #[used]
             #[doc(hidden)]
@@ -635,6 +826,88 @@ pub mod prometheus {
                 }
             }
         }
+        #[allow(dead_code, async_fn_in_trait, unused_imports, clippy::all)]
+        pub mod random {
+            #[used]
+            #[doc(hidden)]
+            static __FORCE_SECTION_REF: fn() = super::super::super::__link_custom_section_describing_imports;
+            use super::super::super::_rt;
+            pub type Error = super::super::super::prometheus::component::types::Error;
+            #[allow(unused_unsafe, clippy::all)]
+            /// Consume deterministic bytes granted by the host. Replays receive the
+            /// same byte sequence; exhausting the grant is an explicit error.
+            pub fn bytes(len: u32) -> Result<_rt::Vec<u8>, Error> {
+                unsafe {
+                    #[cfg_attr(target_pointer_width = "64", repr(align(8)))]
+                    #[cfg_attr(target_pointer_width = "32", repr(align(4)))]
+                    struct RetArea(
+                        [::core::mem::MaybeUninit<
+                            u8,
+                        >; 4 * ::core::mem::size_of::<*const u8>()],
+                    );
+                    let mut ret_area = RetArea(
+                        [::core::mem::MaybeUninit::uninit(); 4
+                            * ::core::mem::size_of::<*const u8>()],
+                    );
+                    let ptr0 = ret_area.0.as_mut_ptr().cast::<u8>();
+                    #[cfg(target_arch = "wasm32")]
+                    #[link(wasm_import_module = "prometheus:component/random@0.1.0")]
+                    unsafe extern "C" {
+                        #[link_name = "bytes"]
+                        fn wit_import1(_: i32, _: *mut u8);
+                    }
+                    #[cfg(not(target_arch = "wasm32"))]
+                    unsafe extern "C" fn wit_import1(_: i32, _: *mut u8) {
+                        unreachable!()
+                    }
+                    unsafe { wit_import1(_rt::as_i32(&len), ptr0) };
+                    let l2 = i32::from(*ptr0.add(0).cast::<u8>());
+                    let result10 = match l2 {
+                        0 => {
+                            let e = {
+                                let l3 = *ptr0
+                                    .add(::core::mem::size_of::<*const u8>())
+                                    .cast::<*mut u8>();
+                                let l4 = *ptr0
+                                    .add(2 * ::core::mem::size_of::<*const u8>())
+                                    .cast::<usize>();
+                                let len5 = l4;
+                                _rt::Vec::from_raw_parts(l3.cast(), len5, len5)
+                            };
+                            Ok(e)
+                        }
+                        1 => {
+                            let e = {
+                                let l6 = i32::from(
+                                    *ptr0.add(::core::mem::size_of::<*const u8>()).cast::<u8>(),
+                                );
+                                let l7 = *ptr0
+                                    .add(2 * ::core::mem::size_of::<*const u8>())
+                                    .cast::<*mut u8>();
+                                let l8 = *ptr0
+                                    .add(3 * ::core::mem::size_of::<*const u8>())
+                                    .cast::<usize>();
+                                let len9 = l8;
+                                let bytes9 = _rt::Vec::from_raw_parts(
+                                    l7.cast(),
+                                    len9,
+                                    len9,
+                                );
+                                super::super::super::prometheus::component::types::Error {
+                                    kind: super::super::super::prometheus::component::types::ErrorKind::_lift(
+                                        l6 as u8,
+                                    ),
+                                    message: _rt::string_lift(bytes9),
+                                }
+                            };
+                            Err(e)
+                        }
+                        _ => _rt::invalid_enum_discriminant(),
+                    };
+                    result10
+                }
+            }
+        }
     }
 }
 #[rustfmt::skip]
@@ -655,6 +928,65 @@ mod _rt {
             panic!("invalid enum discriminant")
         } else {
             unsafe { core::hint::unreachable_unchecked() }
+        }
+    }
+    pub fn as_i32<T: AsI32>(t: T) -> i32 {
+        t.as_i32()
+    }
+    pub trait AsI32 {
+        fn as_i32(self) -> i32;
+    }
+    impl<'a, T: Copy + AsI32> AsI32 for &'a T {
+        fn as_i32(self) -> i32 {
+            (*self).as_i32()
+        }
+    }
+    impl AsI32 for i32 {
+        #[inline]
+        fn as_i32(self) -> i32 {
+            self as i32
+        }
+    }
+    impl AsI32 for u32 {
+        #[inline]
+        fn as_i32(self) -> i32 {
+            self as i32
+        }
+    }
+    impl AsI32 for i16 {
+        #[inline]
+        fn as_i32(self) -> i32 {
+            self as i32
+        }
+    }
+    impl AsI32 for u16 {
+        #[inline]
+        fn as_i32(self) -> i32 {
+            self as i32
+        }
+    }
+    impl AsI32 for i8 {
+        #[inline]
+        fn as_i32(self) -> i32 {
+            self as i32
+        }
+    }
+    impl AsI32 for u8 {
+        #[inline]
+        fn as_i32(self) -> i32 {
+            self as i32
+        }
+    }
+    impl AsI32 for char {
+        #[inline]
+        fn as_i32(self) -> i32 {
+            self as i32
+        }
+    }
+    impl AsI32 for usize {
+        #[inline]
+        fn as_i32(self) -> i32 {
+            self as i32
         }
     }
     #[cfg(target_arch = "wasm32")]
@@ -705,9 +1037,9 @@ pub(crate) use __export_skill_impl as export;
 )]
 #[doc(hidden)]
 #[allow(clippy::octal_escapes)]
-pub static __WIT_BINDGEN_COMPONENT_TYPE: [u8; 722] = *b"\
-\0asm\x0d\0\x01\0\0\x19\x16wit-component-encoding\x04\0\x07\xd6\x04\x01A\x02\x01\
-A\x10\x01B\x06\x01m\x04\x0dinvalid-input\x11capability-denied\x0bunsupported\x08\
+pub static __WIT_BINDGEN_COMPONENT_TYPE: [u8; 992] = *b"\
+\0asm\x0d\0\x01\0\0\x19\x16wit-component-encoding\x04\0\x07\xe4\x06\x01A\x02\x01\
+A\x16\x01B\x06\x01m\x04\x0dinvalid-input\x11capability-denied\x0bunsupported\x08\
 internal\x04\0\x0aerror-kind\x03\0\0\x01r\x02\x04kind\x01\x07messages\x04\0\x05e\
 rror\x03\0\x02\x01r\x02\x03keys\x05values\x04\0\x02kv\x03\0\x04\x03\0\x20prometh\
 eus:component/types@0.1.0\x05\0\x02\x03\0\0\x05error\x03\0\x05error\x03\0\x01\x02\
@@ -717,12 +1049,19 @@ g\x04info\x04warn\x05error\x04\0\x05level\x03\0\x02\x01p\x01\x01@\x03\x03lvl\x03
 nent/log@0.1.0\x05\x04\x01B\x0b\x02\x03\x02\x01\x01\x04\0\x05error\x03\0\0\x01ks\
 \x01j\x01\x02\x01\x01\x01@\x01\x03keys\0\x03\x04\0\x03get\x01\x04\x01j\0\x01\x01\
 \x01@\x02\x03keys\x05values\0\x05\x04\0\x03set\x01\x06\x01@\x01\x03keys\0\x05\x04\
-\0\x06delete\x01\x07\x03\0#prometheus:component/kv-store@0.1.0\x05\x05\x01B\x02\x01\
-@\0\0w\x04\0\x06now-ms\x01\0\x03\0\x20prometheus:component/clock@0.1.0\x05\x06\x01\
-j\x01s\x01\x02\x01@\x01\x05inputs\0\x07\x04\0\x03run\x01\x08\x01@\0\0s\x04\0\x08\
-describe\x01\x09\x04\0\x20prometheus:component/skill@0.1.0\x04\0\x0b\x0b\x01\0\x05\
-skill\x03\0\0\0G\x09producers\x01\x0cprocessed-by\x02\x0dwit-component\x070.227.\
-1\x10wit-bindgen-rust\x060.41.0";
+\0\x06delete\x01\x07\x03\0#prometheus:component/kv-store@0.1.0\x05\x05\x01B\x07\x02\
+\x03\x02\x01\x01\x04\0\x05error\x03\0\0\x01p}\x01k\x02\x01j\x01\x03\x01\x01\x01@\
+\x01\x04names\0\x04\x04\0\x04read\x01\x05\x03\0\x20prometheus:component/input@0.\
+1.0\x05\x06\x01B\x06\x02\x03\x02\x01\x01\x04\0\x05error\x03\0\0\x01p}\x01j\0\x01\
+\x01\x01@\x02\x04paths\x08contents\x02\0\x03\x04\0\x05write\x01\x04\x03\0!promet\
+heus:component/output@0.1.0\x05\x07\x01B\x02\x01@\0\0w\x04\0\x06now-ms\x01\0\x03\
+\0\x20prometheus:component/clock@0.1.0\x05\x08\x01B\x06\x02\x03\x02\x01\x01\x04\0\
+\x05error\x03\0\0\x01p}\x01j\x01\x02\x01\x01\x01@\x01\x03leny\0\x03\x04\0\x05byt\
+es\x01\x04\x03\0!prometheus:component/random@0.1.0\x05\x09\x01j\x01s\x01\x02\x01\
+@\x01\x05inputs\0\x0a\x04\0\x03run\x01\x0b\x01@\0\0s\x04\0\x08describe\x01\x0c\x04\
+\0\x20prometheus:component/skill@0.1.0\x04\0\x0b\x0b\x01\0\x05skill\x03\0\0\0G\x09\
+producers\x01\x0cprocessed-by\x02\x0dwit-component\x070.227.1\x10wit-bindgen-rus\
+t\x060.41.0";
 #[inline(never)]
 #[doc(hidden)]
 pub fn __link_custom_section_describing_imports() {

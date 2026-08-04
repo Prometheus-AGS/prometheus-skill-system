@@ -2,6 +2,7 @@ use prometheus_exec_contracts::{hash_serializable, Digest};
 use serde::Serialize;
 use wasmtime::{component::Component, Config, Engine, Strategy};
 
+use crate::capabilities::validate_supported_imports;
 use crate::{BackendProfile, COMPONENT_WORLD};
 
 const WASMTIME_VERSION: &str = "46.0.0";
@@ -152,6 +153,16 @@ pub enum TierWError {
     EngineConfiguration(String),
     #[error("component validation failed: {0}")]
     InvalidComponent(String),
+    #[error("component import is permanently forbidden in Tier W: {0}")]
+    ForbiddenImport(String),
+    #[error("component import is unsupported in Tier W: {0}")]
+    UnsupportedImport(String),
+    #[error("component capability was not granted: {0}")]
+    CapabilityDenied(String),
+    #[error("invalid Tier W capability grant: {0}")]
+    InvalidCapabilityGrant(String),
+    #[error("failed to link Tier W capabilities: {0}")]
+    CapabilityLink(String),
     #[error("failed to derive deterministic Tier W identity: {0}")]
     Identity(#[from] prometheus_exec_contracts::ContractError),
 }
@@ -320,6 +331,7 @@ impl TierWEngine {
         }
         let component = Component::from_binary(&self.engine, component_bytes)
             .map_err(|error| TierWError::InvalidComponent(error.to_string()))?;
+        validate_supported_imports(&self.engine, &component)?;
         let component_hash = Digest::from_bytes(component_bytes);
         let cache_key = self.cache_key(component_bytes)?;
         Ok(ValidatedComponent {
