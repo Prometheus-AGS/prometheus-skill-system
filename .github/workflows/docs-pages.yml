@@ -6,7 +6,11 @@ name: Docs site (GitHub Pages)
 on:
   push:
     branches: [main]
-    paths: ["site/**", "docs/**", ".github/workflows/docs-pages.yml"]
+    paths:
+      - 'site/**'
+      - 'docs/**'
+      - 'skills/**/SKILL.md'
+      - '.github/workflows/docs-pages.yml'
   workflow_dispatch:
 
 permissions:
@@ -27,7 +31,7 @@ jobs:
       - uses: actions/configure-pages@983d7736d9b0ae728b81ab479565c72886d7745b # v5
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
-          node-version: "24"
+          node-version: '24'
           cache: npm
           cache-dependency-path: site/package-lock.json
       - run: npm ci

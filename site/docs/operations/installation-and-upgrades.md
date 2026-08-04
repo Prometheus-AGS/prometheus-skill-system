@@ -21,6 +21,21 @@ Build and test the server first, then knowledge/worker tools, then the root CLI.
 - `prometheus-learning-worker`
 - `prometheus`
 
+Every installed release binary must report the same product version without
+initializing a service or contacting the network:
+
+```text
+prometheus 1.7.0
+pk 1.7.0
+pk-cherry 1.7.0
+prometheus-learning-worker 1.7.0
+surreal-memory-server 1.7.0
+```
+
+Use `--version` for all five binaries; `surreal-memory-server -V` is an
+equivalent short form. Treat a missing flag, different version, stderr output,
+or runtime initialization as an installation failure.
+
 The root installer is strict by default: any requested build, copy, service, or
 post-install verification failure makes the command fail. Use `--skills-only`
 to install only skill payloads, or `--best-effort` for an explicitly

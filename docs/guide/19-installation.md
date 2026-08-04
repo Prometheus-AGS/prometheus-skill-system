@@ -33,6 +33,21 @@ flowchart TD
 
 The five release binaries are `surreal-memory-server`, `pk`, `pk-cherry`, `prometheus-learning-worker`, and `prometheus`. Run `cargo fmt --check`, `cargo check --all-targets`, Clippy with warnings denied, and tests in each workspace before installation.
 
+All five executables share the product release version. Verify the installed
+artifacts before loading services:
+
+```text
+prometheus 1.7.0
+pk 1.7.0
+pk-cherry 1.7.0
+prometheus-learning-worker 1.7.0
+surreal-memory-server 1.7.0
+```
+
+Each line is the exact output of the corresponding `--version` command. The
+Memory command must exit before logging, configuration, storage, embeddings, or
+network initialization; `-V` is also supported.
+
 ## Plugin generation
 
 ```bash
