@@ -1,22 +1,33 @@
+use std::collections::HashSet;
+
+#[cfg(feature = "estate")]
 use std::{
-    collections::HashSet,
     fs,
     path::{Component as PathComponent, Path, PathBuf},
 };
 
+#[cfg(feature = "estate")]
 use base64::{engine::general_purpose::STANDARD, Engine as _};
+#[cfg(feature = "estate")]
 use ed25519_dalek::VerifyingKey;
 use prometheus_exec_contracts::{ComponentAuthorization, ComponentAuthorizationMode, Digest};
 use serde::Serialize;
+#[cfg(feature = "estate")]
 use serde_json::{Map, Value};
 
 use crate::{TierWError, COMPONENT_WORLD};
 
+#[cfg(feature = "estate")]
 const SIGNATURE_NAMESPACE: &str = "prometheus-plugin-generation-v1";
+#[cfg(feature = "estate")]
 const MAX_MANIFEST_BYTES: u64 = 32 * 1024 * 1024;
+#[cfg(feature = "estate")]
 const MAX_SIGNATURE_BYTES: u64 = 16 * 1024;
+#[cfg(feature = "estate")]
 const MAX_TRUST_STORE_BYTES: u64 = 1024 * 1024;
+#[cfg(feature = "estate")]
 const MAX_COMPONENT_BYTES: u64 = 512 * 1024 * 1024;
+#[cfg(feature = "estate")]
 const ED25519_SPKI_PREFIX: &[u8] = &[
     0x30, 0x2a, 0x30, 0x05, 0x06, 0x03, 0x2b, 0x65, 0x70, 0x03, 0x21, 0x00,
 ];
@@ -27,9 +38,8 @@ pub enum ComponentTrustPolicy {
         mode: ComponentAuthorizationMode,
         digests: HashSet<Digest>,
     },
-    Estate {
-        plugin_root: PathBuf,
-    },
+    #[cfg(feature = "estate")]
+    Estate { plugin_root: PathBuf },
 }
 
 #[derive(Clone, Debug)]
@@ -55,6 +65,7 @@ pub struct ComponentTrustInspection {
     pub manifest_hash: Option<Digest>,
 }
 
+#[cfg(feature = "estate")]
 struct VerifiedGeneration {
     root: PathBuf,
     manifest: Value,
@@ -77,6 +88,7 @@ impl ComponentAuthorizer {
         Self::exact_pins(ComponentAuthorizationMode::Bundled, digests)
     }
 
+    #[cfg(feature = "estate")]
     pub fn estate(plugin_root: impl Into<PathBuf>) -> Self {
         Self {
             policy: ComponentTrustPolicy::Estate {
@@ -150,6 +162,7 @@ impl ComponentAuthorizer {
                     manifest_hash: None,
                 })
             }
+            #[cfg(feature = "estate")]
             ComponentTrustPolicy::Estate { plugin_root } => {
                 let generation = verify_generation(plugin_root)?;
                 let component_count = verify_generation_components(&generation)?;
@@ -256,6 +269,7 @@ impl ComponentAuthorizer {
                     generation_id: None,
                 })
             }
+            #[cfg(feature = "estate")]
             ComponentTrustPolicy::Estate { plugin_root } => {
                 verify_active_generation(plugin_root, component_hash, component_size)
             }
@@ -277,6 +291,7 @@ impl<'a> AuthorizedComponent<'a> {
     }
 }
 
+#[cfg(feature = "estate")]
 fn verify_active_generation(
     plugin_root: &Path,
     component_hash: &Digest,
@@ -298,6 +313,7 @@ fn verify_active_generation(
     })
 }
 
+#[cfg(feature = "estate")]
 fn verify_generation(plugin_root: &Path) -> Result<VerifiedGeneration, TierWError> {
     let plugin_root = plugin_root
         .canonicalize()
@@ -346,6 +362,7 @@ fn verify_generation(plugin_root: &Path) -> Result<VerifiedGeneration, TierWErro
     })
 }
 
+#[cfg(feature = "estate")]
 fn verify_generation_components(generation: &VerifiedGeneration) -> Result<usize, TierWError> {
     let files = generation
         .manifest
@@ -385,6 +402,7 @@ fn verify_generation_components(generation: &VerifiedGeneration) -> Result<usize
     Ok(component_count)
 }
 
+#[cfg(feature = "estate")]
 fn generation_from_pointer(target: &Path) -> Result<String, TierWError> {
     if target.is_absolute() {
         return Err(unauthorized("active generation pointer must be relative"));
@@ -414,6 +432,7 @@ fn generation_from_pointer(target: &Path) -> Result<String, TierWError> {
     Ok(generation.into())
 }
 
+#[cfg(feature = "estate")]
 fn verify_generation_identity(manifest: &Value, generation_id: &str) -> Result<(), TierWError> {
     let declared = required_string(manifest, "generation")?;
     if declared != generation_id {
@@ -448,6 +467,7 @@ fn verify_generation_identity(manifest: &Value, generation_id: &str) -> Result<(
     Ok(())
 }
 
+#[cfg(feature = "estate")]
 fn verify_signature_envelope(
     plugin_root: &Path,
     envelope: &Value,
@@ -516,6 +536,7 @@ fn verify_signature_envelope(
         .map_err(|_| unauthorized("plugin generation signature verification failed"))
 }
 
+#[cfg(feature = "estate")]
 fn verify_component_entry(
     generation_root: &Path,
     manifest: &Value,
@@ -586,6 +607,7 @@ fn verify_component_entry(
     Ok(())
 }
 
+#[cfg(feature = "estate")]
 fn parse_ed25519_spki(pem: &str) -> Result<(Vec<u8>, VerifyingKey), TierWError> {
     let body = pem
         .strip_prefix("-----BEGIN PUBLIC KEY-----")
@@ -613,6 +635,7 @@ fn parse_ed25519_spki(pem: &str) -> Result<(Vec<u8>, VerifyingKey), TierWError> 
     Ok((der, key))
 }
 
+#[cfg(feature = "estate")]
 fn read_regular_file(
     path: &Path,
     max_bytes: u64,
@@ -637,6 +660,7 @@ fn read_regular_file(
     fs::read(path).map_err(|error| unauthorized(format!("failed to read {label}: {error}")))
 }
 
+#[cfg(feature = "estate")]
 fn required_string<'a>(value: &'a Value, field: &str) -> Result<&'a str, TierWError> {
     value
         .get(field)
@@ -645,6 +669,7 @@ fn required_string<'a>(value: &'a Value, field: &str) -> Result<&'a str, TierWEr
         .ok_or_else(|| unauthorized(format!("signed plugin value omits {field}")))
 }
 
+#[cfg(feature = "estate")]
 fn canonical_pretty_json(value: &Value) -> Result<Vec<u8>, TierWError> {
     let sorted = sort_json(value);
     let mut bytes = serde_json::to_vec_pretty(&sorted)
@@ -653,6 +678,7 @@ fn canonical_pretty_json(value: &Value) -> Result<Vec<u8>, TierWError> {
     Ok(bytes)
 }
 
+#[cfg(feature = "estate")]
 fn sort_json(value: &Value) -> Value {
     match value {
         Value::Array(values) => Value::Array(values.iter().map(sort_json).collect()),
@@ -669,6 +695,7 @@ fn sort_json(value: &Value) -> Value {
     }
 }
 
+#[cfg(feature = "estate")]
 fn raw_sha256(bytes: &[u8]) -> String {
     use sha2::Digest as _;
     let digest = sha2::Sha256::digest(bytes);
@@ -682,12 +709,17 @@ fn unauthorized(message: impl Into<String>) -> TierWError {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[cfg(feature = "estate")]
     use base64::engine::general_purpose::STANDARD;
+    #[cfg(feature = "estate")]
     use ed25519_dalek::{Signer as _, SigningKey};
+    #[cfg(feature = "estate")]
     use serde_json::json;
 
     #[cfg(feature = "cranelift")]
-    use crate::{EngineProfile, TierWEngine, TierWExecutionOutcome, TierWLimits};
+    use crate::{EngineProfile, TierWEngine};
+    #[cfg(all(feature = "cranelift", feature = "estate"))]
+    use crate::{TierWExecutionOutcome, TierWLimits};
 
     const REFERENCE_COMPONENT: &[u8] = include_bytes!(
         "../../../skills/react/prometheus-entity-skills/entity-graph-optimize/skill.wasm"
@@ -724,7 +756,7 @@ mod tests {
         assert_ne!(pinned.cache_key(), bundled_component.cache_key());
     }
 
-    #[cfg(all(unix, feature = "cranelift"))]
+    #[cfg(all(unix, feature = "cranelift", feature = "estate"))]
     #[test]
     fn signed_generation_rollback_reauthorizes_cached_components() {
         let fixture = tempfile::tempdir().unwrap();
@@ -774,7 +806,7 @@ mod tests {
         );
     }
 
-    #[cfg(unix)]
+    #[cfg(all(unix, feature = "estate"))]
     #[test]
     fn trust_inspection_verifies_active_component_bytes_without_mutation() {
         let fixture = tempfile::tempdir().unwrap();
@@ -828,7 +860,7 @@ mod tests {
         assert_eq!(ready.component_count, 1);
     }
 
-    #[cfg(all(unix, feature = "cranelift"))]
+    #[cfg(all(unix, feature = "cranelift", feature = "estate"))]
     #[test]
     fn signed_generation_rejects_tampering_before_engine_validation() {
         let fixture = tempfile::tempdir().unwrap();
@@ -862,7 +894,7 @@ mod tests {
         ));
     }
 
-    #[cfg(unix)]
+    #[cfg(all(unix, feature = "estate"))]
     fn write_trust_store(plugin_root: &Path, signing_key: &SigningKey) {
         use std::os::unix::fs::PermissionsExt as _;
 
@@ -883,7 +915,7 @@ mod tests {
         fs::set_permissions(&trust_path, fs::Permissions::from_mode(0o600)).unwrap();
     }
 
-    #[cfg(unix)]
+    #[cfg(all(unix, feature = "estate"))]
     fn write_generation(
         plugin_root: &Path,
         signing_key: &SigningKey,
@@ -952,7 +984,7 @@ mod tests {
         generation
     }
 
-    #[cfg(unix)]
+    #[cfg(all(unix, feature = "estate"))]
     fn activate(plugin_root: &Path, generation: &str) {
         use std::os::unix::fs::symlink;
 
@@ -963,12 +995,14 @@ mod tests {
         symlink(Path::new("generations").join(generation), current).unwrap();
     }
 
+    #[cfg(feature = "estate")]
     fn public_der(signing_key: &SigningKey) -> Vec<u8> {
         let mut der = ED25519_SPKI_PREFIX.to_vec();
         der.extend_from_slice(signing_key.verifying_key().as_bytes());
         der
     }
 
+    #[cfg(feature = "estate")]
     fn public_pem(der: &[u8]) -> String {
         format!(
             "-----BEGIN PUBLIC KEY-----\n{}\n-----END PUBLIC KEY-----\n",
@@ -976,7 +1010,7 @@ mod tests {
         )
     }
 
-    #[cfg(unix)]
+    #[cfg(all(unix, feature = "estate"))]
     fn tree_snapshot(root: &Path) -> Vec<(PathBuf, Vec<u8>)> {
         fn collect(root: &Path, current: &Path, snapshot: &mut Vec<(PathBuf, Vec<u8>)>) {
             let mut entries: Vec<_> = fs::read_dir(current)
@@ -1009,6 +1043,7 @@ mod tests {
         snapshot
     }
 
+    #[cfg(feature = "estate")]
     fn component_with_custom_section(component: &[u8], marker: u8) -> Vec<u8> {
         let mut bytes = component.to_vec();
         bytes.extend_from_slice(&[0, 3, 2, b'p', marker]);

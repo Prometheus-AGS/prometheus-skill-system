@@ -15,6 +15,16 @@ jit = true
 [profiles.mobile]
 backend = "pulley"
 jit = false
+trust = "bundled-hash-pins"
+policy = "embedded-default"
+receipt_log = "local-hash-linked"
+
+[profiles.standalone]
+backend = "cranelift"
+jit = true
+trust = "explicit-hash-pins"
+policy = "embedded-default"
+receipt_log = "local-hash-linked"
 
 [profiles.portable_replay]
 backend = "pulley"

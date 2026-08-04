@@ -6,6 +6,8 @@ mod bindings;
 mod capabilities;
 mod engine;
 mod limits;
+#[cfg(any(feature = "standalone", feature = "bundled-mobile"))]
+mod local_profile;
 mod port;
 mod projection;
 mod replay;
@@ -21,6 +23,8 @@ pub use engine::{
 pub use limits::{
     TierWExecutionFailure, TierWExecutionOutcome, TierWExecutionSuccess, TierWLimits,
 };
+#[cfg(any(feature = "standalone", feature = "bundled-mobile"))]
+pub use local_profile::{LocalExecutionMode, LocalExecutionProfile, LocalExecutionProfileError};
 pub use port::{TierWExecutionPort, TierWPortError};
 pub use projection::TierWDeterministicReceiptProjection;
 pub use replay::{replay_verified_receipt, TierWReplayError};
