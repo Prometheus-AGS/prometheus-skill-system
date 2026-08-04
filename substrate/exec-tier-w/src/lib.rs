@@ -4,6 +4,7 @@
 mod bindings;
 mod capabilities;
 mod engine;
+mod limits;
 
 pub use capabilities::{
     capability_linker, validate_component_grants, CapabilityGrant, CapabilityHost, HostLogEntry,
@@ -11,6 +12,9 @@ pub use capabilities::{
 pub use engine::{
     BackendAvailability, EngineProfile, ExecutionTarget, TierWEngine, TierWError,
     ValidatedComponent,
+};
+pub use limits::{
+    TierWExecutionFailure, TierWExecutionOutcome, TierWExecutionSuccess, TierWLimits,
 };
 
 #[cfg(all(feature = "mobile", feature = "cranelift"))]

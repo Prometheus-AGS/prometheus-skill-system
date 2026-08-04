@@ -5,7 +5,7 @@ use std::{
 
 use wasmtime::{
     component::{Component, HasSelf, Linker, ResourceTable},
-    Engine,
+    Engine, ResourceLimiter, StoreLimits, StoreLimitsBuilder,
 };
 use wasmtime_wasi::{
     clocks::{HostMonotonicClock, HostWallClock},
@@ -143,6 +143,13 @@ pub struct CapabilityHost {
     random_cursor: usize,
     wasi: WasiCtx,
     wasi_table: ResourceTable,
+    store_limits: TrackingStoreLimits,
+    max_stream_bytes: usize,
+    stream_bytes: usize,
+    max_artifact_bytes: usize,
+    max_total_artifact_bytes: usize,
+    artifact_bytes: usize,
+    limit_failure: Option<HostLimitFailure>,
 }
 
 impl std::fmt::Debug for CapabilityHost {
@@ -153,12 +160,35 @@ impl std::fmt::Debug for CapabilityHost {
             .field("outputs", &self.outputs)
             .field("logs", &self.logs)
             .field("random_cursor", &self.random_cursor)
+            .field("stream_bytes", &self.stream_bytes)
+            .field("artifact_bytes", &self.artifact_bytes)
+            .field("limit_failure", &self.limit_failure)
             .finish_non_exhaustive()
     }
 }
 
 impl CapabilityHost {
     pub fn new(grant: CapabilityGrant) -> Self {
+        Self::with_limits(
+            grant,
+            StoreLimitsBuilder::new().build(),
+            usize::MAX,
+            usize::MAX,
+            1024 * 1024,
+            10 * 1024 * 1024,
+            10 * 1024 * 1024,
+        )
+    }
+
+    pub(crate) fn with_limits(
+        grant: CapabilityGrant,
+        store_limits: StoreLimits,
+        total_memory_bytes: usize,
+        total_table_elements: usize,
+        max_stream_bytes: usize,
+        max_artifact_bytes: usize,
+        max_total_artifact_bytes: usize,
+    ) -> Self {
         let fixed_time = grant.clock_ms.unwrap_or_default();
         let mut wasi = WasiCtxBuilder::new();
         wasi.wall_clock(FixedWallClock(fixed_time))
@@ -175,6 +205,17 @@ impl CapabilityHost {
             random_cursor: 0,
             wasi: wasi.build(),
             wasi_table: ResourceTable::new(),
+            store_limits: TrackingStoreLimits::new(
+                store_limits,
+                total_memory_bytes,
+                total_table_elements,
+            ),
+            max_stream_bytes,
+            stream_bytes: 0,
+            max_artifact_bytes,
+            max_total_artifact_bytes,
+            artifact_bytes: 0,
+            limit_failure: None,
         }
     }
 
@@ -188,6 +229,152 @@ impl CapabilityHost {
 
     pub fn random_bytes_consumed(&self) -> usize {
         self.random_cursor
+    }
+
+    pub(crate) fn store_limits_mut(&mut self) -> &mut dyn ResourceLimiter {
+        &mut self.store_limits
+    }
+
+    pub(crate) fn resource_limit_failure(&self) -> Option<ResourceLimitFailure> {
+        self.store_limits.failure
+    }
+
+    pub(crate) fn limit_failure(&self) -> Option<HostLimitFailure> {
+        self.limit_failure
+    }
+
+    fn active_limit_error(&self) -> Option<Error> {
+        self.limit_failure
+            .map(|failure| limit_error(format!("{} limit was already exceeded", failure.code())))
+    }
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub(crate) enum HostLimitFailure {
+    Stream,
+    Artifact,
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub(crate) enum ResourceLimitFailure {
+    Memory,
+    Table,
+}
+
+struct TrackingStoreLimits {
+    inner: StoreLimits,
+    failure: Option<ResourceLimitFailure>,
+    total_memory_bytes: usize,
+    allocated_memory_bytes: usize,
+    pending_memory_delta: usize,
+    total_table_elements: usize,
+    allocated_table_elements: usize,
+    pending_table_delta: usize,
+}
+
+impl TrackingStoreLimits {
+    fn new(inner: StoreLimits, total_memory_bytes: usize, total_table_elements: usize) -> Self {
+        Self {
+            inner,
+            failure: None,
+            total_memory_bytes,
+            allocated_memory_bytes: 0,
+            pending_memory_delta: 0,
+            total_table_elements,
+            allocated_table_elements: 0,
+            pending_table_delta: 0,
+        }
+    }
+}
+
+impl ResourceLimiter for TrackingStoreLimits {
+    fn memory_growing(
+        &mut self,
+        current: usize,
+        desired: usize,
+        maximum: Option<usize>,
+    ) -> wasmtime::Result<bool> {
+        let result = self.inner.memory_growing(current, desired, maximum);
+        if !matches!(result, Ok(true)) {
+            self.failure = Some(ResourceLimitFailure::Memory);
+            return result;
+        }
+        let delta = desired.saturating_sub(current);
+        let Some(total) = self.allocated_memory_bytes.checked_add(delta) else {
+            self.failure = Some(ResourceLimitFailure::Memory);
+            return Ok(false);
+        };
+        if total > self.total_memory_bytes {
+            self.failure = Some(ResourceLimitFailure::Memory);
+            return Ok(false);
+        }
+        self.allocated_memory_bytes = total;
+        self.pending_memory_delta = delta;
+        Ok(true)
+    }
+
+    fn memory_grow_failed(&mut self, error: wasmtime::Error) -> wasmtime::Result<()> {
+        self.failure = Some(ResourceLimitFailure::Memory);
+        self.allocated_memory_bytes = self
+            .allocated_memory_bytes
+            .saturating_sub(self.pending_memory_delta);
+        self.pending_memory_delta = 0;
+        self.inner.memory_grow_failed(error)
+    }
+
+    fn table_growing(
+        &mut self,
+        current: usize,
+        desired: usize,
+        maximum: Option<usize>,
+    ) -> wasmtime::Result<bool> {
+        let result = self.inner.table_growing(current, desired, maximum);
+        if !matches!(result, Ok(true)) {
+            self.failure = Some(ResourceLimitFailure::Table);
+            return result;
+        }
+        let delta = desired.saturating_sub(current);
+        let Some(total) = self.allocated_table_elements.checked_add(delta) else {
+            self.failure = Some(ResourceLimitFailure::Table);
+            return Ok(false);
+        };
+        if total > self.total_table_elements {
+            self.failure = Some(ResourceLimitFailure::Table);
+            return Ok(false);
+        }
+        self.allocated_table_elements = total;
+        self.pending_table_delta = delta;
+        Ok(true)
+    }
+
+    fn table_grow_failed(&mut self, error: wasmtime::Error) -> wasmtime::Result<()> {
+        self.failure = Some(ResourceLimitFailure::Table);
+        self.allocated_table_elements = self
+            .allocated_table_elements
+            .saturating_sub(self.pending_table_delta);
+        self.pending_table_delta = 0;
+        self.inner.table_grow_failed(error)
+    }
+
+    fn instances(&self) -> usize {
+        self.inner.instances()
+    }
+
+    fn tables(&self) -> usize {
+        self.inner.tables()
+    }
+
+    fn memories(&self) -> usize {
+        self.inner.memories()
+    }
+}
+
+impl HostLimitFailure {
+    pub(crate) const fn code(self) -> &'static str {
+        match self {
+            Self::Stream => "stream",
+            Self::Artifact => "artifact",
+        }
     }
 }
 
@@ -228,6 +415,24 @@ impl types::Host for CapabilityHost {}
 
 impl log::Host for CapabilityHost {
     fn emit(&mut self, level: log::Level, message: String, fields: Vec<types::Kv>) {
+        if self.limit_failure.is_some() {
+            return;
+        }
+        let field_bytes = fields.iter().fold(0usize, |total, field| {
+            total
+                .saturating_add(field.key.len())
+                .saturating_add(field.value.len())
+        });
+        let entry_bytes = message.len().saturating_add(field_bytes);
+        let Some(total) = self.stream_bytes.checked_add(entry_bytes) else {
+            self.limit_failure = Some(HostLimitFailure::Stream);
+            return;
+        };
+        if total > self.max_stream_bytes {
+            self.limit_failure = Some(HostLimitFailure::Stream);
+            return;
+        }
+        self.stream_bytes = total;
         let level = match level {
             log::Level::Debug => "debug",
             log::Level::Info => "info",
@@ -247,6 +452,9 @@ impl log::Host for CapabilityHost {
 
 impl kv_store::Host for CapabilityHost {
     fn get(&mut self, key: String) -> Result<Option<String>, Error> {
+        if let Some(error) = self.active_limit_error() {
+            return Err(error);
+        }
         if !self.grant.readable_keys.contains(&key) {
             return Err(denied(format!("kv read was not granted for {key}")));
         }
@@ -254,6 +462,9 @@ impl kv_store::Host for CapabilityHost {
     }
 
     fn set(&mut self, key: String, value: String) -> Result<(), Error> {
+        if let Some(error) = self.active_limit_error() {
+            return Err(error);
+        }
         if !self.grant.writable_keys.contains(&key) {
             return Err(denied(format!("kv write was not granted for {key}")));
         }
@@ -262,6 +473,9 @@ impl kv_store::Host for CapabilityHost {
     }
 
     fn delete(&mut self, key: String) -> Result<(), Error> {
+        if let Some(error) = self.active_limit_error() {
+            return Err(error);
+        }
         if !self.grant.writable_keys.contains(&key) {
             return Err(denied(format!("kv delete was not granted for {key}")));
         }
@@ -272,6 +486,9 @@ impl kv_store::Host for CapabilityHost {
 
 impl input::Host for CapabilityHost {
     fn read(&mut self, name: String) -> Result<Option<Vec<u8>>, Error> {
+        if let Some(error) = self.active_limit_error() {
+            return Err(error);
+        }
         if !self.grant.readable_inputs.contains(&name) {
             return Err(denied(format!("input read was not granted for {name}")));
         }
@@ -281,6 +498,9 @@ impl input::Host for CapabilityHost {
 
 impl output::Host for CapabilityHost {
     fn write(&mut self, path: String, contents: Vec<u8>) -> Result<(), Error> {
+        if let Some(error) = self.active_limit_error() {
+            return Err(error);
+        }
         let normalized = normalize_output_path(&path).map_err(invalid)?;
         if !self
             .grant
@@ -290,6 +510,24 @@ impl output::Host for CapabilityHost {
         {
             return Err(denied(format!("output write was not granted for {path}")));
         }
+        if contents.len() > self.max_artifact_bytes {
+            self.limit_failure = Some(HostLimitFailure::Artifact);
+            return Err(limit_error("artifact exceeds the per-artifact byte limit"));
+        }
+        let previous = self.outputs.get(&normalized).map_or(0, Vec::len);
+        let Some(total) = self
+            .artifact_bytes
+            .checked_sub(previous)
+            .and_then(|bytes| bytes.checked_add(contents.len()))
+        else {
+            self.limit_failure = Some(HostLimitFailure::Artifact);
+            return Err(limit_error("artifact byte accounting overflow"));
+        };
+        if total > self.max_total_artifact_bytes {
+            self.limit_failure = Some(HostLimitFailure::Artifact);
+            return Err(limit_error("artifacts exceed the total byte limit"));
+        }
+        self.artifact_bytes = total;
         self.outputs.insert(normalized, contents);
         Ok(())
     }
@@ -303,6 +541,9 @@ impl clock::Host for CapabilityHost {
 
 impl random::Host for CapabilityHost {
     fn bytes(&mut self, len: u32) -> Result<Vec<u8>, Error> {
+        if let Some(error) = self.active_limit_error() {
+            return Err(error);
+        }
         let requested = usize::try_from(len).map_err(|_| invalid("random length overflow"))?;
         let granted = self.grant.random_bytes.as_deref().unwrap_or_default();
         let end = self
@@ -423,6 +664,13 @@ fn denied(message: impl Into<String>) -> Error {
 fn invalid(message: impl Into<String>) -> Error {
     Error {
         kind: ErrorKind::InvalidInput,
+        message: message.into(),
+    }
+}
+
+fn limit_error(message: impl Into<String>) -> Error {
+    Error {
+        kind: ErrorKind::Internal,
         message: message.into(),
     }
 }

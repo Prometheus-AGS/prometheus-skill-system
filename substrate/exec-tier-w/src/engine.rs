@@ -1,3 +1,9 @@
+use std::{
+    sync::mpsc::{self, RecvTimeoutError},
+    thread,
+    time::Duration,
+};
+
 use prometheus_exec_contracts::{hash_serializable, Digest};
 use serde::Serialize;
 use wasmtime::{component::Component, Config, Engine, Strategy};
@@ -6,6 +12,7 @@ use crate::capabilities::validate_supported_imports;
 use crate::{BackendProfile, COMPONENT_WORLD};
 
 const WASMTIME_VERSION: &str = "46.0.0";
+pub(crate) const EPOCH_TICK_MILLIS: u64 = 10;
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize)]
 #[serde(rename_all = "kebab-case")]
@@ -201,6 +208,7 @@ pub struct TierWEngine {
     engine: Engine,
     profile: EngineProfile,
     profile_hash: Digest,
+    _epoch_ticker: EpochTicker,
 }
 
 impl TierWEngine {
@@ -292,11 +300,13 @@ impl TierWEngine {
                 profile.backend.name()
             )));
         }
+        let epoch_ticker = EpochTicker::start(engine.clone())?;
 
         Ok(Self {
             engine,
             profile,
             profile_hash,
+            _epoch_ticker: epoch_ticker,
         })
     }
 
@@ -339,6 +349,39 @@ impl TierWEngine {
             component_hash,
             cache_key,
         })
+    }
+}
+
+struct EpochTicker {
+    stop: mpsc::Sender<()>,
+    thread: Option<thread::JoinHandle<()>>,
+}
+
+impl EpochTicker {
+    fn start(engine: Engine) -> Result<Self, TierWError> {
+        let (stop, receiver) = mpsc::channel();
+        let thread = thread::Builder::new()
+            .name("prometheus-exec-tier-w-epoch".into())
+            .spawn(move || loop {
+                match receiver.recv_timeout(Duration::from_millis(EPOCH_TICK_MILLIS)) {
+                    Ok(()) | Err(RecvTimeoutError::Disconnected) => break,
+                    Err(RecvTimeoutError::Timeout) => engine.increment_epoch(),
+                }
+            })
+            .map_err(|error| TierWError::EngineConfiguration(error.to_string()))?;
+        Ok(Self {
+            stop,
+            thread: Some(thread),
+        })
+    }
+}
+
+impl Drop for EpochTicker {
+    fn drop(&mut self) {
+        let _ = self.stop.send(());
+        if let Some(thread) = self.thread.take() {
+            let _ = thread.join();
+        }
     }
 }
 
