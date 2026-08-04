@@ -60,20 +60,13 @@ contract and constraint wiring, and
 `references/integrations/adversarial-review.md` for the adversarial-review
 contract (packet assembly, judge dispatch, fallback chain).
 
-### When to skip QA
+### Local review coverage
 
-- Change has fewer than 3 files modified
-- Change is documentation-only
-- User passes `--skip-qa` flag
-
-### When to skip adversarial review
-
-Same heuristics, independent flag — `--skip-qa` does **not** skip
-adversarial review, and `--skip-adversarial-review` does not skip QA:
-
-- Change has fewer than 3 files modified
-- Change is documentation-only
-- User passes `--skip-adversarial-review` flag
+File-count and documentation-only skips do not exist. QA and adversarial review
+cover the cumulative Git diff since the last accepted local review receipt.
+`--skip-qa` and `--skip-adversarial-review` may let development continue, but
+record `pending_review`; final local certification still requires a completed
+receipt or an SSH-signed waiver. The two flags remain independent.
 
 ## Progress Signals (MANDATORY)
 

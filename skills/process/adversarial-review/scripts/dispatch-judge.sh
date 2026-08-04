@@ -12,7 +12,7 @@
 #   3  liter-llm unavailable — caller must fall back to a harness-native
 #      fresh-context subagent (mandate + packet ONLY) and record
 #      isolation_mode=harness-native
-#   4  no judge possible — caller records adversarial_review: SKIPPED
+#   4  no judge possible — caller records a cumulative pending_review receipt
 #
 # bash 3.2 compatible (no mapfile, no declare -A).
 set -uo pipefail
