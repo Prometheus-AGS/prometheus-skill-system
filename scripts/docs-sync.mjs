@@ -59,7 +59,10 @@ function walk(directory, predicate, result = []) {
   const absolute = path.join(root, directory);
   if (!fs.existsSync(absolute)) return result;
   for (const entry of fs.readdirSync(absolute, { withFileTypes: true })) {
-    if (entry.name === '.git' || entry.name === 'node_modules' || entry.name === 'imported') continue;
+    if (
+      ['.git', 'node_modules', 'imported', 'tests', 'fixtures'].includes(entry.name)
+    )
+      continue;
     const relative = path.join(directory, entry.name);
     if (entry.isDirectory()) walk(relative, predicate, result);
     else if (predicate(relative)) result.push(relative.split(path.sep).join('/'));
