@@ -17,6 +17,7 @@ hyper = { version = "1", features = ["client", "http1"] }
 hyper-util = { version = "0.1", features = ["tokio"] }
 prometheus-exec-contracts = { path = "../../substrate/exec-contracts", version = "1.7.0" }
 prometheus-exec-core = { path = "../../substrate/exec-core", version = "1.7.0" }
+prometheus-exec-remote = { path = "../../substrate/exec-remote", version = "1.7.0" }
 prometheus-exec-service = { path = "../../substrate/exec-service", version = "1.7.0" }
 prometheus-exec-tier-p = { path = "../../substrate/exec-tier-p", version = "1.7.0" }
 prometheus-exec-tier-w = { path = "../../substrate/exec-tier-w", version = "1.7.0", features = ["estate", "pulley"] }

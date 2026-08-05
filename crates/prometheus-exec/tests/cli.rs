@@ -167,6 +167,33 @@ fn doctor_failure_is_structured_non_mutating_and_never_false_green() {
 }
 
 #[test]
+fn doctor_excludes_remote_queue_before_path_inspection() {
+    let directory = tempdir().unwrap();
+    let remote = directory.path().join("remote-must-not-exist");
+    let output = command()
+        .args(["doctor", "--socket"])
+        .arg(directory.path().join("exec.sock"))
+        .args(["--state-dir"])
+        .arg(directory.path().join("state"))
+        .args(["--identity"])
+        .arg(directory.path().join("identity.json"))
+        .args(["--remote-queue"])
+        .arg(&remote)
+        .args(["--exclude", "service:sovereign-sync", "--format", "json"])
+        .output()
+        .unwrap();
+    assert_eq!(output.status.code(), Some(1));
+    let payload: serde_json::Value = serde_json::from_slice(&output.stdout).unwrap();
+    assert_eq!(payload["excluded"][0], "service:sovereign-sync");
+    assert!(payload["checks"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .all(|check| check["name"] != "remote-queue"));
+    assert!(!remote.exists());
+}
+
+#[test]
 fn contracts_regenerate_checked_in_references_byte_for_byte() {
     let directory = tempdir().unwrap();
     command()

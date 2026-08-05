@@ -19,7 +19,7 @@
 ## 4. Installation, doctors, and signed distribution
 
 - [x] 4.1 Add `prometheus-exec` to managed binary/version/hash manifests and strict atomic install/sign/readback flows without best-effort false success
-- [ ] 4.2 Extend root and execution doctors for binary, service, UDS, readiness, trust, CAS/receipt reconciliation, MCP schema, and optional remote queue checks with pre-construction exclusions
+- [x] 4.2 Extend root and execution doctors for binary, service, UDS, readiness, trust, CAS/receipt reconciliation, MCP schema, and optional remote queue checks with pre-construction exclusions
 - [ ] 4.3 Publish the exact reference component and capability metadata inside one signed immutable plugin generation and verify tamper, rollback, index parity, and 14 target receipts
 
 ## 5. Canonical APIs and documentation

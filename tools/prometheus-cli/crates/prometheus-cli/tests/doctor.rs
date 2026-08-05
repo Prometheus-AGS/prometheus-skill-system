@@ -375,3 +375,52 @@ fn sovereign_exclusion_is_propagated_to_service_repairs() {
         );
     }
 }
+
+#[cfg(unix)]
+#[test]
+fn execution_doctor_receives_exclusions_before_optional_remote_configuration() {
+    use std::os::unix::fs::PermissionsExt as _;
+
+    let (project_root, home_dir) = prepared_environment("doctor-exec-exclusion");
+    let arguments = home_dir.join("exec-doctor-arguments.txt");
+    let binary = home_dir.join(".local/bin/prometheus-exec");
+    write_file(
+        &binary,
+        &format!(
+            "#!/usr/bin/env bash\nprintf '%s\\n' \"$@\" > '{}'\nprintf '%s\\n' '{{\"healthy\":true,\"checks\":[]}}'\n",
+            arguments.display()
+        ),
+    );
+    fs::set_permissions(&binary, fs::Permissions::from_mode(0o755)).unwrap();
+    write_file(
+        &home_dir.join("Library/LaunchAgents/ai.prometheus.exec.plist"),
+        "prometheus-exec daemon",
+    );
+    fs::create_dir_all(home_dir.join(".prometheus/exec/remote")).unwrap();
+
+    let output = base_command(&project_root, &home_dir)
+        .args([
+            "doctor",
+            "--json",
+            "--check",
+            "execution",
+            "--exclude",
+            "control.kbd-runtime",
+            "--exclude",
+            "state.kbd-orchestrator",
+            "--exclude",
+            "control.kbd-rollout",
+            "--exclude",
+            "service:sovereign-sync",
+        ])
+        .output()
+        .expect("run execution doctor");
+    assert!(
+        output.status.success(),
+        "execution doctor failed: {}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+    let invoked = fs::read_to_string(arguments).unwrap();
+    assert!(invoked.contains("service:sovereign-sync"));
+    assert!(!invoked.contains("--remote-queue"));
+}

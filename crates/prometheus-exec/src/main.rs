@@ -117,6 +117,18 @@ enum Command {
         /// Signed plugin estate containing the active component generation.
         #[arg(long)]
         plugin_root: Option<PathBuf>,
+        /// Installed service definition to verify; omitted when unmanaged.
+        #[arg(long)]
+        service_definition: Option<PathBuf>,
+        /// Checked MCP schema to compare with the compiled tool contract.
+        #[arg(long)]
+        mcp_schema: Option<PathBuf>,
+        /// Optional estate remote queue to inspect without mutation.
+        #[arg(long)]
+        remote_queue: Option<PathBuf>,
+        /// Exclude a check ID, group, or service scope before construction.
+        #[arg(long = "exclude")]
+        exclusions: Vec<String>,
         #[arg(long, value_enum, default_value_t = OutputFormat::Human)]
         format: OutputFormat,
     },
@@ -274,13 +286,23 @@ async fn run(cli: Cli) -> Result<ExitCode, BoxError> {
             state_dir,
             identity,
             plugin_root,
+            service_definition,
+            mcp_schema,
+            remote_queue,
+            exclusions,
             format,
         } => {
             doctor_command(
-                socket,
-                state_dir,
-                identity,
-                plugin_root.unwrap_or(default_plugin_root()?),
+                doctor::DoctorConfig {
+                    socket,
+                    state_dir,
+                    identity,
+                    plugin_root: plugin_root.unwrap_or(default_plugin_root()?),
+                    service_definition,
+                    mcp_schema,
+                    remote_queue,
+                    exclusions,
+                },
                 format,
             )
             .await
@@ -558,19 +580,10 @@ fn print_run(run: &RunResponse, format: OutputFormat) -> Result<(), BoxError> {
 }
 
 async fn doctor_command(
-    socket: PathBuf,
-    state_dir: PathBuf,
-    identity: PathBuf,
-    plugin_root: PathBuf,
+    config: doctor::DoctorConfig,
     format: OutputFormat,
 ) -> Result<ExitCode, BoxError> {
-    let report = doctor::inspect(doctor::DoctorConfig {
-        socket,
-        state_dir,
-        identity,
-        plugin_root,
-    })
-    .await;
+    let report = doctor::inspect(config).await;
     match format {
         OutputFormat::Json => {
             serde_json::to_writer_pretty(io::stdout().lock(), &report)?;

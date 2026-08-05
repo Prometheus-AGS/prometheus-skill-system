@@ -2150,6 +2150,7 @@ dependencies = [
  "predicates",
  "prometheus-exec-contracts",
  "prometheus-exec-core",
+ "prometheus-exec-remote",
  "prometheus-exec-service",
  "prometheus-exec-tier-p",
  "prometheus-exec-tier-w",
@@ -2199,6 +2200,23 @@ dependencies = [
  "thiserror",
  "uuid",
  "walkdir",
+]
+
+[[package]]
+name = "prometheus-exec-remote"
+version = "1.7.0"
+dependencies = [
+ "base64",
+ "chrono",
+ "ed25519-dalek",
+ "fs2",
+ "prometheus-exec-contracts",
+ "schemars 1.2.2",
+ "serde",
+ "serde_json",
+ "tempfile",
+ "thiserror",
+ "uuid",
 ]
 
 [[package]]

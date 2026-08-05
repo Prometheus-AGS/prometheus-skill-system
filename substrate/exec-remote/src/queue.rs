@@ -94,6 +94,32 @@ impl DispatchQueue {
         &self.root
     }
 
+    /// Inspect an existing queue without creating directories, lock files, or
+    /// repair state. Intended for doctor/certification surfaces.
+    pub fn inspect_read_only(root: impl Into<PathBuf>) -> Result<Vec<DispatchRecord>> {
+        let queue = Self { root: root.into() };
+        let root_metadata =
+            fs::symlink_metadata(&queue.root).map_err(|source| io_error(&queue.root, source))?;
+        let segment_metadata = fs::symlink_metadata(queue.segment_root())
+            .map_err(|source| io_error(queue.segment_root(), source))?;
+        if root_metadata.file_type().is_symlink()
+            || !root_metadata.is_dir()
+            || segment_metadata.file_type().is_symlink()
+            || !segment_metadata.is_dir()
+        {
+            return Err(RemoteError::CorruptSegment(
+                "remote queue root or segment directory is unsafe".into(),
+            ));
+        }
+        let lock_path = queue.root.join("queue.lock");
+        let lock = OpenOptions::new()
+            .read(true)
+            .open(&lock_path)
+            .map_err(|source| io_error(&lock_path, source))?;
+        FileExt::lock_shared(&lock).map_err(|source| io_error(&lock_path, source))?;
+        queue.records_unlocked()
+    }
+
     pub fn accept(
         &self,
         dispatch: SignedRemoteDispatch,
@@ -674,6 +700,28 @@ mod tests {
         assert!(DispatchQueue::open(directory.path()).is_err());
     }
 
+    #[test]
+    fn read_only_inspection_never_constructs_missing_queue_state() {
+        let directory = tempdir().expect("temporary root");
+        let missing = directory.path().join("missing");
+        assert!(DispatchQueue::inspect_read_only(&missing).is_err());
+        assert!(!missing.exists());
+
+        let queue_root = directory.path().join("queue");
+        let (dispatch, enrollment, _) = crate::tests::fixture();
+        let queue = DispatchQueue::open(&queue_root).expect("queue opens");
+        queue
+            .accept(dispatch, &enrollment, chrono::Utc::now())
+            .expect("dispatch accepted");
+        drop(queue);
+        let before = walk_files(&queue_root);
+        assert_eq!(
+            DispatchQueue::inspect_read_only(&queue_root).unwrap().len(),
+            1
+        );
+        assert_eq!(walk_files(&queue_root), before);
+    }
+
     fn walk_first_file(root: &std::path::Path) -> std::path::PathBuf {
         let dispatch = std::fs::read_dir(root)
             .expect("dispatch directory")
@@ -687,5 +735,26 @@ mod tests {
             .expect("segment entry")
             .expect("segment entry valid")
             .path()
+    }
+
+    fn walk_files(root: &std::path::Path) -> Vec<std::path::PathBuf> {
+        fn collect(
+            root: &std::path::Path,
+            current: &std::path::Path,
+            paths: &mut Vec<std::path::PathBuf>,
+        ) {
+            for entry in std::fs::read_dir(current).expect("directory reads") {
+                let path = entry.expect("entry reads").path();
+                if path.is_dir() {
+                    collect(root, &path, paths);
+                } else {
+                    paths.push(path.strip_prefix(root).unwrap().to_path_buf());
+                }
+            }
+        }
+        let mut paths = Vec::new();
+        collect(root, root, &mut paths);
+        paths.sort();
+        paths
     }
 }
