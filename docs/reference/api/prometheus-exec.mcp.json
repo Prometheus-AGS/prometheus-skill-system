@@ -6,6 +6,10 @@
     {
       "inputSchema": {
         "$defs": {
+          "McpInputBase64": {
+            "maxLength": 22369622,
+            "type": "string"
+          },
           "McpRuntime": {
             "enum": [
               "wasm-component",
@@ -21,13 +25,13 @@
         "properties": {
           "codeBase64": {
             "description": "Unpadded base64url code or component bytes.",
+            "maxLength": 11184811,
             "type": "string"
           },
           "inputs": {
             "additionalProperties": {
-              "type": "string"
+              "$ref": "#/$defs/McpInputBase64"
             },
-            "default": {},
             "description": "Named unpadded base64url input bytes.",
             "type": "object"
           },

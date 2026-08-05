@@ -33,6 +33,8 @@ use crate::{daemon, identity, uds_client, BoxError};
 
 const MAX_CODE_BYTES: usize = 8 * 1024 * 1024;
 const MAX_INPUT_BYTES: usize = 16 * 1024 * 1024;
+const MAX_CODE_BASE64URL_CHARS: usize = max_unpadded_base64url_chars(MAX_CODE_BYTES);
+const MAX_INPUT_BASE64URL_CHARS: usize = max_unpadded_base64url_chars(MAX_INPUT_BYTES);
 
 pub fn tool_contracts() -> Value {
     let tools = [
@@ -90,6 +92,10 @@ pub enum McpRuntime {
     Bash,
 }
 
+#[derive(Clone, Debug, Deserialize, JsonSchema)]
+#[serde(transparent)]
+pub struct McpInputBase64(#[schemars(length(max = MAX_INPUT_BASE64URL_CHARS))] pub String);
+
 impl From<McpRuntime> for RuntimeKind {
     fn from(value: McpRuntime) -> Self {
         match value {
@@ -114,10 +120,11 @@ pub struct ExecRunParams {
     pub issued_at: Option<DateTime<Utc>>,
     pub runtime: McpRuntime,
     /// Unpadded base64url code or component bytes.
+    #[schemars(length(max = MAX_CODE_BASE64URL_CHARS))]
     pub code_base64: String,
     /// Named unpadded base64url input bytes.
     #[serde(default)]
-    pub inputs: BTreeMap<String, String>,
+    pub inputs: BTreeMap<String, McpInputBase64>,
     #[serde(default = "default_timeout_ms")]
     #[schemars(range(min = 1))]
     pub timeout_ms: u64,
@@ -240,7 +247,7 @@ impl ExecMcpServer {
                 return Err("input names must not be empty".into());
             }
             let remaining = MAX_INPUT_BYTES.saturating_sub(total_input_bytes);
-            let bytes = decode_bounded(&format!("inputs.{name}"), &encoded, remaining)?;
+            let bytes = decode_bounded(&format!("inputs.{name}"), &encoded.0, remaining)?;
             total_input_bytes = total_input_bytes.saturating_add(bytes.len());
             decoded_inputs.push((name, bytes));
         }
@@ -549,6 +556,12 @@ async fn wait_for_runner_ready(
 }
 
 fn decode_bounded(name: &str, encoded: &str, limit: usize) -> Result<Vec<u8>, String> {
+    let encoded_limit = max_unpadded_base64url_chars(limit);
+    if encoded.len() > encoded_limit {
+        return Err(format!(
+            "{name} exceeds the {encoded_limit}-character encoded limit for {limit} bytes"
+        ));
+    }
     let bytes = URL_SAFE_NO_PAD
         .decode(encoded)
         .map_err(|error| format!("{name} is not unpadded base64url: {error}"))?;
@@ -556,6 +569,17 @@ fn decode_bounded(name: &str, encoded: &str, limit: usize) -> Result<Vec<u8>, St
         return Err(format!("{name} exceeds the {limit}-byte limit"));
     }
     Ok(bytes)
+}
+
+const fn max_unpadded_base64url_chars(byte_limit: usize) -> usize {
+    let full_groups = byte_limit / 3;
+    let remainder = byte_limit % 3;
+    full_groups * 4
+        + match remainder {
+            0 => 0,
+            1 => 2,
+            _ => 3,
+        }
 }
 
 fn success(value: impl Serialize) -> String {
@@ -605,8 +629,8 @@ mod tests {
     use uuid::Uuid;
 
     use super::{
-        wait_for_runner_ready, ExecArtifactParams, ExecMcpServer, ExecRunParams, ExecVerifyParams,
-        McpRuntime,
+        decode_bounded, wait_for_runner_ready, ExecArtifactParams, ExecMcpServer, ExecRunParams,
+        ExecVerifyParams, McpRuntime, MAX_CODE_BASE64URL_CHARS, MAX_INPUT_BASE64URL_CHARS,
     };
 
     fn fixture() -> (ExecMcpServer, Arc<ExecutionService>) {
@@ -719,7 +743,22 @@ mod tests {
             .expect("exec-run contract");
         assert_eq!(run["inputSchema"]["properties"]["timeoutMs"]["minimum"], 1);
         assert_eq!(run["inputSchema"]["properties"]["outputMb"]["minimum"], 1);
+        assert_eq!(
+            run["inputSchema"]["properties"]["codeBase64"]["maxLength"],
+            MAX_CODE_BASE64URL_CHARS
+        );
+        assert_eq!(
+            run["inputSchema"]["$defs"]["McpInputBase64"]["maxLength"],
+            MAX_INPUT_BASE64URL_CHARS
+        );
         assert_eq!(valid.timeout_ms, 1);
+    }
+
+    #[test]
+    fn base64_limit_is_checked_before_decoding() {
+        let error = decode_bounded("fixture", "AAAA", 2)
+            .expect_err("four encoded characters cannot fit a two-byte ceiling");
+        assert!(error.contains("3-character encoded limit for 2 bytes"));
     }
 
     #[tokio::test]
