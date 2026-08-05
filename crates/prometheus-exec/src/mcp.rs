@@ -15,7 +15,9 @@ use prometheus_exec_contracts::{
     SignatureAlgorithm, SignedExecRequest, VerificationKey, SCHEMA_VERSION,
 };
 use prometheus_exec_core::ArtifactStore;
-use prometheus_exec_service::{LocalExecutionFacade, RunRecord, DEFAULT_INLINE_ARTIFACT_BYTES};
+use prometheus_exec_service::{
+    LocalExecutionFacade, RunEvent, RunRecord, DEFAULT_INLINE_ARTIFACT_BYTES,
+};
 use prometheus_exec_tier_w::ComponentAuthorizer;
 use rmcp::{
     handler::server::{router::tool::ToolRouter, wrapper::Parameters},
@@ -33,6 +35,8 @@ use crate::{daemon, identity, uds_client, BoxError};
 
 const MAX_CODE_BYTES: usize = 8 * 1024 * 1024;
 const MAX_INPUT_BYTES: usize = 16 * 1024 * 1024;
+const MAX_EVENT_PAGE_EVENTS: usize = 100;
+const MAX_EVENT_PAGE_BYTES: usize = 8 * 1024 * 1024;
 const MAX_CODE_BASE64URL_CHARS: usize = max_unpadded_base64url_chars(MAX_CODE_BYTES);
 const MAX_INPUT_BASE64URL_CHARS: usize = max_unpadded_base64url_chars(MAX_INPUT_BYTES);
 
@@ -145,6 +149,9 @@ pub struct ExecEventsParams {
     pub run_id: Uuid,
     #[serde(default)]
     pub after: u64,
+    #[serde(default = "default_event_page_limit")]
+    #[schemars(range(min = 1, max = MAX_EVENT_PAGE_EVENTS))]
+    pub limit: usize,
 }
 
 #[derive(Debug, Deserialize, JsonSchema)]
@@ -184,6 +191,14 @@ struct ArtifactRetrievalGuidance {
     method: &'static str,
     socket_path: PathBuf,
     path: String,
+}
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+struct EventPage {
+    events: Vec<RunEvent>,
+    next_after: u64,
+    has_more: bool,
 }
 
 impl RunSummary {
@@ -392,15 +407,33 @@ impl ExecMcpServer {
 
     #[rmcp::tool(
         name = "exec-events",
-        description = "Read ordered execution events after an exclusive sequence cursor."
+        description = "Read a bounded page of ordered execution events after an exclusive sequence cursor."
     )]
     pub async fn exec_events(&self, params: Parameters<ExecEventsParams>) -> String {
         let params = params.0;
+        if params.limit == 0 || params.limit > MAX_EVENT_PAGE_EVENTS {
+            return failure(
+                "invalid_event_limit",
+                format!("limit must be between 1 and {MAX_EVENT_PAGE_EVENTS}"),
+            );
+        }
+        let run_id = params.run_id;
+        let after = params.after;
+        let limit = params.limit;
         let facade = self.facade.clone();
-        match tokio::task::spawn_blocking(move || facade.events_after(params.run_id, params.after))
-            .await
+        match tokio::task::spawn_blocking(move || {
+            facade.events_page_after(run_id, after, limit, MAX_EVENT_PAGE_BYTES)
+        })
+        .await
         {
-            Ok(Ok(events)) => success(events),
+            Ok(Ok((events, has_more))) => {
+                let next_after = events.last().map_or(after, |event| event.sequence);
+                success(EventPage {
+                    events,
+                    next_after,
+                    has_more,
+                })
+            }
             Ok(Err(error)) => failure("events_failed", error.to_string()),
             Err(error) => failure("events_task_failed", error.to_string()),
         }
@@ -609,6 +642,10 @@ const fn default_inline_ceiling() -> usize {
     256 * 1024
 }
 
+const fn default_event_page_limit() -> usize {
+    MAX_EVENT_PAGE_EVENTS
+}
+
 #[cfg(test)]
 mod tests {
     use std::{collections::BTreeMap, future, sync::Arc, time::Duration};
@@ -629,8 +666,9 @@ mod tests {
     use uuid::Uuid;
 
     use super::{
-        decode_bounded, wait_for_runner_ready, ExecArtifactParams, ExecMcpServer, ExecRunParams,
-        ExecVerifyParams, McpRuntime, MAX_CODE_BASE64URL_CHARS, MAX_INPUT_BASE64URL_CHARS,
+        decode_bounded, wait_for_runner_ready, ExecArtifactParams, ExecEventsParams, ExecMcpServer,
+        ExecRunParams, ExecVerifyParams, McpRuntime, MAX_CODE_BASE64URL_CHARS,
+        MAX_INPUT_BASE64URL_CHARS,
     };
 
     fn fixture() -> (ExecMcpServer, Arc<ExecutionService>) {
@@ -873,6 +911,29 @@ mod tests {
             .expect("events after cursor");
         assert_eq!(events.len(), 1);
         assert_eq!(events[0].sequence, 3);
+    }
+
+    #[tokio::test]
+    async fn events_tool_returns_a_bounded_page_and_continuation_cursor() {
+        let (server, service) = fixture();
+        let request = signed_request(&server);
+        let submitted = server.facade.submit(request.clone()).expect("submit");
+        service
+            .mark_spawned(request.request_id, &submitted.record.request_hash)
+            .expect("spawn boundary");
+        let response = server
+            .exec_events(Parameters(ExecEventsParams {
+                run_id: submitted.record.run_id,
+                after: 0,
+                limit: 1,
+            }))
+            .await;
+        let value: Value = serde_json::from_str(&response).expect("valid page JSON");
+
+        assert_eq!(value["ok"], true);
+        assert_eq!(value["result"]["events"].as_array().unwrap().len(), 1);
+        assert_eq!(value["result"]["nextAfter"], 1);
+        assert_eq!(value["result"]["hasMore"], true);
     }
 
     #[tokio::test]

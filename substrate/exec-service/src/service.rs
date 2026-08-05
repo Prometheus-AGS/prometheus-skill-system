@@ -209,6 +209,24 @@ impl ExecutionService {
         Ok(self.event_log.events_after(run_id, after)?)
     }
 
+    pub fn events_page_after(
+        &self,
+        run_id: Uuid,
+        after: u64,
+        max_events: usize,
+        max_bytes: usize,
+    ) -> Result<(Vec<RunEvent>, bool), ExecutionServiceError> {
+        let lock = self.open_operation_lock()?;
+        fs2::FileExt::lock_shared(&lock)
+            .map_err(|source| self.io_error(self.lock_path(), source))?;
+        if self.ledger.get_by_run_id(run_id)?.is_none() {
+            return Err(ExecutionServiceError::RunNotFound(run_id));
+        }
+        Ok(self
+            .event_log
+            .events_page_after(run_id, after, max_events, max_bytes)?)
+    }
+
     pub fn reconcile<F>(
         &self,
         verification_key: &VerificationKey,

@@ -79,6 +79,8 @@ For Tier W, use `--runtime wasm-component`, point `--code` at the authorized com
 
 The spawning process authenticates the stdio boundary. Tool arguments never accept a private key; receipts are signed by the configured host identity. MCP calls share the same facade as REST, including request replay and event cursors. For response-loss reconciliation, preserve and resubmit the same `requestId`, `issuedAt`, and canonical `exec-run` arguments. The service returns the original `runId`, `requestHash`, and receipt with `replayed: true`; a reused ID with a different canonical payload fails as a conflict. If `requestId` and `issuedAt` are omitted, the server creates a one-shot identity and timestamp.
 
+`exec-events` returns at most 100 events and 8 MiB of serialized event data per page. Pass the returned exclusive `nextAfter` cursor as the next call's `after`; `hasMore` indicates that another page is available. The server validates the hash chain while reading only the bounded page into the response.
+
 Inline artifacts are capped at 1 MiB. When an artifact exceeds the caller's effective ceiling, `exec-artifact` returns `inline: false`, the exact digest and size, and a `retrieval` object containing the `unix-domain-http` transport, `GET` method, private runner `socketPath`, and `/api/v2/exec/artifacts/{digest}` path. The caller can stream the complete bytes without expanding an unbounded MCP response while the MCP process remains active:
 
 ```bash

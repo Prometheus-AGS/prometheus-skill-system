@@ -133,6 +133,13 @@
             "minimum": 0,
             "type": "integer"
           },
+          "limit": {
+            "default": 100,
+            "format": "uint",
+            "maximum": 100,
+            "minimum": 1,
+            "type": "integer"
+          },
           "runId": {
             "format": "uuid",
             "type": "string"

@@ -95,6 +95,18 @@ impl LocalExecutionFacade {
         Ok(self.service.events_after(run_id, after)?)
     }
 
+    pub fn events_page_after(
+        &self,
+        run_id: Uuid,
+        after: u64,
+        max_events: usize,
+        max_bytes: usize,
+    ) -> Result<(Vec<RunEvent>, bool), LocalExecutionFacadeError> {
+        Ok(self
+            .service
+            .events_page_after(run_id, after, max_events, max_bytes)?)
+    }
+
     pub fn receipt(
         &self,
         run_id: Uuid,

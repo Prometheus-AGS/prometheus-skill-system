@@ -283,12 +283,80 @@ impl RunEventLog {
             .collect())
     }
 
+    pub fn events_page_after(
+        &self,
+        run_id: Uuid,
+        after: u64,
+        max_events: usize,
+        max_bytes: usize,
+    ) -> Result<(Vec<RunEvent>, bool), RunEventLogError> {
+        if max_events == 0 || max_bytes == 0 {
+            return Err(RunEventLogError::InvalidEvent(
+                "event page limits must be non-zero".into(),
+            ));
+        }
+        let run_root = self.run_root(run_id);
+        if !run_root.exists() {
+            return Ok((vec![], false));
+        }
+        let metadata =
+            fs::symlink_metadata(&run_root).map_err(|source| io_error(&run_root, source))?;
+        if metadata.file_type().is_symlink() || !metadata.is_dir() {
+            return Err(RunEventLogError::InvalidEvent(format!(
+                "unsafe run event directory: {}",
+                run_root.display()
+            )));
+        }
+        let lock = self.open_lock(run_id)?;
+        fs2::FileExt::lock_shared(&lock)
+            .map_err(|source| io_error(self.lock_path(run_id), source))?;
+
+        let paths = self.event_paths(run_id)?;
+        let mut events = Vec::with_capacity(max_events.min(paths.len()));
+        let mut response_bytes = 0usize;
+        let mut previous = None;
+        for (index, path) in paths.into_iter().enumerate() {
+            let event = read_validated_event(&path, run_id, index, previous.as_ref())?;
+            previous = Some(event.event_hash.clone());
+            if event.sequence <= after {
+                continue;
+            }
+            let encoded_bytes = serde_json::to_vec(&event)
+                .map_err(|source| RunEventLogError::Json {
+                    path: path.clone(),
+                    source,
+                })?
+                .len();
+            if events.len() == max_events
+                || response_bytes.saturating_add(encoded_bytes) > max_bytes
+            {
+                return Ok((events, true));
+            }
+            response_bytes = response_bytes.saturating_add(encoded_bytes);
+            events.push(event);
+        }
+        Ok((events, false))
+    }
+
     fn prepare_run(&self, run_id: Uuid) -> Result<(), RunEventLogError> {
         create_private_dir(&self.run_root(run_id))?;
         create_private_dir(&self.segment_root(run_id))
     }
 
     fn load_events(&self, run_id: Uuid) -> Result<Vec<RunEvent>, RunEventLogError> {
+        let paths = self.event_paths(run_id)?;
+
+        let mut events = Vec::with_capacity(paths.len());
+        let mut previous = None;
+        for (index, path) in paths.into_iter().enumerate() {
+            let event = read_validated_event(&path, run_id, index, previous.as_ref())?;
+            previous = Some(event.event_hash.clone());
+            events.push(event);
+        }
+        Ok(events)
+    }
+
+    fn event_paths(&self, run_id: Uuid) -> Result<Vec<PathBuf>, RunEventLogError> {
         let segment_root = self.segment_root(run_id);
         if !segment_root.exists() {
             return Ok(vec![]);
@@ -320,27 +388,7 @@ impl RunEventLog {
             paths.push(path);
         }
         paths.sort();
-
-        let mut events = Vec::with_capacity(paths.len());
-        let mut previous = None;
-        for (index, path) in paths.into_iter().enumerate() {
-            let event = read_event(&path)?;
-            let expected_sequence = index as u64 + 1;
-            if event.run_id != run_id
-                || event.sequence != expected_sequence
-                || event.previous_event_hash != previous
-            {
-                return Err(RunEventLogError::InvalidEvent(format!(
-                    "event chain mismatch at {}",
-                    path.display()
-                )));
-            }
-            event.validate()?;
-            validate_filename(&path, &event)?;
-            previous = Some(event.event_hash.clone());
-            events.push(event);
-        }
-        Ok(events)
+        Ok(paths)
     }
 
     fn open_lock(&self, run_id: Uuid) -> Result<File, RunEventLogError> {
@@ -420,6 +468,28 @@ fn read_event(path: &Path) -> Result<RunEvent, RunEventLogError> {
         path: path.to_path_buf(),
         source,
     })
+}
+
+fn read_validated_event(
+    path: &Path,
+    run_id: Uuid,
+    index: usize,
+    previous: Option<&Digest>,
+) -> Result<RunEvent, RunEventLogError> {
+    let event = read_event(path)?;
+    let expected_sequence = index as u64 + 1;
+    if event.run_id != run_id
+        || event.sequence != expected_sequence
+        || event.previous_event_hash.as_ref() != previous
+    {
+        return Err(RunEventLogError::InvalidEvent(format!(
+            "event chain mismatch at {}",
+            path.display()
+        )));
+    }
+    event.validate()?;
+    validate_filename(path, &event)?;
+    Ok(event)
 }
 
 fn atomic_create(path: &Path, bytes: &[u8]) -> Result<(), RunEventLogError> {
