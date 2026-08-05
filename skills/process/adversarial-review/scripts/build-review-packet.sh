@@ -6,7 +6,7 @@
 #
 # Usage:
 #   build-review-packet.sh --mode diff     --phase <phase> --target <change-id>       [--out <path>]
-#   build-review-packet.sh --mode artifact --phase <phase> --target assess|analyze|plan [--out <path>]
+#   build-review-packet.sh --mode artifact --phase <phase> --target assess|analyze|spec|plan [--out <path>]
 #   build-review-packet.sh --mode skill    --target <skill-dir>     [--intent <file>] [--out <path>]
 #   build-review-packet.sh --mode agent    --target <workspace-dir> [--intent <file>] [--out <path>]
 #   build-review-packet.sh --mode decision --target <decision.md>    [--intent <file>] [--out <path>]
@@ -469,9 +469,38 @@ else
     assess)  ARTS="assessment.md" ;;
     analyze) ARTS="analysis.md library-candidates.json" ;;
     plan)    ARTS="plan.md" ;;
-    *) echo "[packet] ERROR: artifact --target must be assess|analyze|plan" >&2; exit 1 ;;
+    spec)    ARTS="" ;;   # handled below: spec artifacts live outside PHASE_DIR
+    *) echo "[packet] ERROR: artifact --target must be assess|analyze|spec|plan" >&2; exit 1 ;;
   esac
+
+  # Initialised BEFORE the spec block below, which sets it. A later `FOUND=0`
+  # would silently discard collected spec artifacts and report "no artifacts".
   FOUND=0
+
+  # Spec is the one stage whose artifacts are NOT under the phase directory:
+  # kbd-spec writes .kbd-orchestrator/changes/<change-id>/{spec.md,tasks.json,
+  # verification.md}, one directory per change. Collect every change belonging to
+  # this phase so the judge reviews the change set as a whole — a spec is only
+  # coherent against its siblings (ordering, overlapping scope, contradictory
+  # acceptance criteria).
+  if [ "$TARGET" = "spec" ]; then
+    CHANGES_ROOT="$(dirname "$(dirname "$PHASE_DIR")")/changes"
+    for d in "$CHANGES_ROOT"/*/; do
+      [ -d "$d" ] || continue
+      # Only changes referenced by this phase's spec handoff, so a packet for one
+      # phase never drags in another phase's changes.
+      if [ -f "$PHASE_DIR/handoffs/spec.handoff.json" ] &&
+         ! grep -q "$(basename "$d")" "$PHASE_DIR/handoffs/spec.handoff.json" 2>/dev/null; then
+        continue
+      fi
+      for f in spec.md tasks.json verification.md; do
+        [ -f "$d$f" ] || continue
+        { echo "===== $(basename "$d")/$f ====="; cat "$d$f"; echo; } >> "$WORK/artifact.md"
+        FOUND=1
+      done
+    done
+  fi
+
   for a in $ARTS; do
     if [ -f "$PHASE_DIR/$a" ]; then
       { echo "===== $a ====="; cat "$PHASE_DIR/$a"; echo; } >> "$WORK/artifact.md"

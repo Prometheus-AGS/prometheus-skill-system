@@ -111,6 +111,22 @@ root"). Absent from installed packages.
 The pack has agents, but they are Claude-Code-shaped. Porting them is a larger
 effort than E2/E3 and should follow, not precede, tool availability.
 
+### E0 — `skillInstructions` — ADOPTED, already shipping (resolved)
+
+Flagged as an unresolved gap in three consecutive handoffs; resolved here so it
+stops being carried forward.
+
+**Status: adopted and already emitted.** `install-kimi-desktop-plugin.sh` writes
+a `skillInstructions` block naming the skill families (kbd-*, learn-*,
+adversarial-review, language patterns, bdd-*) and instructing the agent to read a
+SKILL.md in full before following it.
+
+**Rationale for adopting rather than expanding it:** it is the routing hint that
+tells the model which of 145 skills to reach for, and it costs one string. It is
+also the reason E5 (`systemPrompt`) is held at CONSIDER rather than adopted —
+the two compete for the same context budget, and `skillInstructions` is the
+supported, already-working one. No further change is required.
+
 ### E7 — Marketplace publication — OUT OF SCOPE for now
 
 Distribution is a CDN-backed `plugins/marketplace.json`, with trust tiers

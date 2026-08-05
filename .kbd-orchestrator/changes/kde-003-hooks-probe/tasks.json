@@ -1,6 +1,9 @@
 {
   "change_id": "kde-003-hooks-probe",
-  "scope": ["throwaway probe package under plugin-packages/ (removed on completion)"],
+  "scope": [
+    "throwaway probe package under plugin-packages/ (removed on completion)",
+    ".kbd-orchestrator/phases/kimi-desktop-extensibility/assessment.md (E4/E5 status lines only)"
+  ],
   "tasks": [
     {
       "id": "t1",
@@ -19,9 +22,9 @@
     {
       "id": "t3",
       "title": "Record both verdicts",
-      "detail": "Restart Kimi Desktop. Check the hook artifact file. Ask the model for the systemPrompt sentinel. Record fires/does-not-fire with evidence for each — a negative result is a successful outcome for this change.",
+      "detail": "Restart Kimi Desktop. Check the hook artifact file. For systemPrompt, do NOT rely on asking the model to repeat a sentinel \u2014 a refusal or a miss does not prove the field was ignored. Use a positive control instead: include a field already PROVEN to work in this package (skills), confirm the package loaded, and only then treat a sentinel miss as evidence. Record fires / does-not-fire / inconclusive per field.",
       "blocking": false,
-      "verify": "two written verdicts with evidence"
+      "verify": "two verdicts, each one of fires|does-not-fire|inconclusive, with the evidence and the positive-control result"
     },
     {
       "id": "t4",

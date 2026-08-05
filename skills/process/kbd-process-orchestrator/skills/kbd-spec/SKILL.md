@@ -75,7 +75,21 @@ Never guess. Emit to plain response text — no tool call needed.
 5. **Resolve backend** — `kbd-apply detect` semantics.
 6. **Write change specs** — native-kbd files or `/opsx:new` per change, with a
    declared `scope:` and explicit task list each.
-7. **Write handoff** — `kbd_stage_handoff_write spec "<changes created, zeespec verdict>" <first change path>`.
+7. **Adversarial vet** — unless `--skip-adversarial-review` is passed, run
+   `/adversarial-review --mode artifact spec` on the change set (see orchestrator
+   `references/integrations/adversarial-review.md`). CRITICAL findings → revise
+   the affected `spec.md` / `tasks.json` / `verification.md` and re-vet (max 2
+   rounds, then accept with an "Unresolved review findings" section appended).
+   WARNING findings → carry into the stage handoff.
+
+   The packet collects **every change named in the spec handoff**, not one change
+   at a time: a spec is only coherent against its siblings. The failures this
+   catches are cross-file and cross-change — a `verification.md` gate that
+   contradicts its own `spec.md` acceptance criteria, a `tasks.json` `scope` that
+   omits a file its tasks edit, or two changes editing the same file with no
+   ordering. Reviewing one change in isolation cannot see any of them.
+
+8. **Write handoff** — `kbd_stage_handoff_write spec "<changes created, zeespec verdict>" <first change path>`.
 
 ```sh
 . "$KBD_ORCHESTRATOR_ROOT/shared/lib/waypoint.sh"
@@ -85,6 +99,7 @@ Never guess. Emit to plain response text — no tool call needed.
 kbd_stage_gate spec || exit 2
 kbd_hooks_fire spec before "$phase" 1 1
 # … write change specs …
+# … adversarial vet (step 7) runs here, before the handoff …
 kbd_hooks_fire spec after  "$phase" 1 1
 kbd_stage_handoff_write spec "<N changes; zeespec: GO|CAUTION|n/a>" "<first-change>/spec.md"
 ```

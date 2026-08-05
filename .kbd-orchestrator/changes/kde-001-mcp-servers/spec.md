@@ -52,18 +52,38 @@ HTTPS endpoints**, and their value objects carry only `url` (+ optional
 
 ## Acceptance criteria
 
-1. `install-kimi-desktop-plugin.sh` emits an `mcpServers` object containing
+The generated manifest is **strict JSON and cannot carry comments**. Every
+"record why" below therefore means a comment in the GENERATOR
+(`install-kimi-desktop-plugin.sh`), never in the emitted artifact.
+
+Criteria are conditional on t1, which may legitimately end the change with no
+manifest edit at all:
+
+1. **If t1 shows the daimon accepts a loopback `http://` URL:**
+   `install-kimi-desktop-plugin.sh` emits an `mcpServers` object containing
    `prometheus-knowledge` with `"url": "http://localhost:8942/mcp"`.
-2. `surreal-memory` is emitted **only if** task 2 proves the daimon drives its
-   SSE transport; otherwise it is omitted with a comment recording why.
-3. `forge-rs` is **not** emitted. A comment records the 401 and the absent
-   auth-header field.
-4. The generated manifest still validates against the existing structural check
-   (`name`, `version`, `skills`, `interface` present; `skills == "./skills/"`).
-5. Re-running the installer is idempotent and the package still reports 145
+2. **If t1 shows loopback URLs are refused:** no `mcpServers` field is emitted,
+   the negative result is recorded in the phase directory, and the change closes
+   as a recorded finding. This is a SUCCESSFUL outcome, not a failure.
+3. `surreal-memory` is emitted **only if** t2 proves the daimon drives its SSE
+   transport; otherwise omitted, with the reason in a generator comment.
+4. `forge-rs` is **not** emitted. A generator comment records the 401 and the
+   absent auth-header field.
+5. The generated manifest still validates against the existing structural check
+   (`name`, `version`, `skills`, `interface` present; `skills == "./skills/"`)
+   and parses as strict JSON.
+6. Re-running the installer is idempotent and the package still reports 145
    skills.
-6. No binary is copied into the plugin package (payload-bloat rule; the
+7. No binary is copied into the plugin package (payload-bloat rule; the
    generation payload was already cut 188M → 98M for this reason).
+
+## Ordering
+
+`kde-001` and `kde-002` both edit the manifest dict in
+`scripts/install-kimi-desktop-plugin.sh`. They MUST be applied sequentially,
+kde-001 first, and each verified before the next starts. Applying them in
+parallel would conflict in the same heredoc, and a merge there is silent —
+the generator would still run and emit a manifest missing one field.
 
 ## Out of scope
 

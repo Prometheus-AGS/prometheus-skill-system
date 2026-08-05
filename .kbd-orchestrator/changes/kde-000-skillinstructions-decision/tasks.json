@@ -1,0 +1,20 @@
+{
+  "change_id": "kde-000-skillinstructions-decision",
+  "scope": [".kbd-orchestrator/phases/kimi-desktop-extensibility/assessment.md"],
+  "tasks": [
+    {
+      "id": "t1",
+      "title": "Record the E0 adopt decision in assessment.md",
+      "detail": "Add an E0 section giving skillInstructions an explicit ADOPTED verdict, its rationale, and its relationship to E5 (they compete for the same context budget).",
+      "blocking": false,
+      "verify": "assessment.md contains an E0 section with an explicit verdict"
+    },
+    {
+      "id": "t2",
+      "title": "Confirm the decision closes the review finding",
+      "detail": "Re-run the spec-stage adversarial review and confirm skillInstructions is no longer reported as undecided.",
+      "blocking": false,
+      "verify": "no finding mentioning skillInstructions in the next review round"
+    }
+  ]
+}
