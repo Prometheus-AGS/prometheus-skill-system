@@ -361,6 +361,7 @@
 * [Karpathy session f35607e7ef8a](/karpathy-session-f35607e7ef8ae7be.md)
 * [Karpathy session f4eee3dc3ecd](/karpathy-session-f4eee3dc3ecd9100.md)
 * [Karpathy session f82a6d56360e](/karpathy-session-f82a6d56360e80f3.md)
+* [Karpathy session f98108dda836](/karpathy-session-f98108dda836db73.md)
 * [Karpathy session fb328189c11c](/karpathy-session-fb328189c11cd183.md)
 * [Karpathy session fc341e3307d5](/karpathy-session-fc341e3307d51188.md)
 * [Karpathy session ffe18c7d5bd5](/karpathy-session-ffe18c7d5bd59ab8.md)

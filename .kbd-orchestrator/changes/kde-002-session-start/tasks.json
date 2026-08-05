@@ -1,0 +1,27 @@
+{
+  "change_id": "kde-002-session-start",
+  "scope": ["scripts/install-kimi-desktop-plugin.sh"],
+  "tasks": [
+    {
+      "id": "t1",
+      "title": "Validate kbd-status behaviour outside a KBD project",
+      "detail": "Read skills/*/kbd-status/SKILL.md and determine what it does when .kbd-orchestrator/ is absent. A sessionStart payload runs on EVERY session, including ones unrelated to KBD.",
+      "blocking": true,
+      "verify": "documented behaviour: graceful degradation, or a decision to choose another skill / drop the change"
+    },
+    {
+      "id": "t2",
+      "title": "Emit sessionStart from the generator",
+      "detail": "Add \"sessionStart\": {\"skill\": \"kbd-status\"} to the manifest dict in install-kimi-desktop-plugin.sh, conditional on t1 passing.",
+      "blocking": false,
+      "verify": "generated kimi.plugin.json contains the sessionStart object"
+    },
+    {
+      "id": "t3",
+      "title": "Confirm it actually fires",
+      "detail": "Restart Kimi Desktop and start a session; confirm the skill is invoked. A present-but-inert field is the failure mode this pack has already hit twice (config.toml hooks, {{file:}} commands).",
+      "blocking": false,
+      "verify": "observable evidence the skill ran, or a recorded negative result"
+    }
+  ]
+}

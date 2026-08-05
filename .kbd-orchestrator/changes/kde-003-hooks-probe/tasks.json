@@ -1,0 +1,34 @@
+{
+  "change_id": "kde-003-hooks-probe",
+  "scope": ["throwaway probe package under plugin-packages/ (removed on completion)"],
+  "tasks": [
+    {
+      "id": "t1",
+      "title": "Determine the hook event vocabulary the daimon accepts",
+      "detail": "The CLI docs describe event/matcher/command/timeout, same fields as config.toml hooks. Identify a concrete event name before writing the probe; a wrong event name would produce a false negative.",
+      "blocking": true,
+      "verify": "a named event with its source"
+    },
+    {
+      "id": "t2",
+      "title": "Build and install the probe package",
+      "detail": "Minimal manifest with a hooks rule (inert append-to-file command) and a systemPrompt sentinel. Must not affect the shipping prometheus-skill-pack package.",
+      "blocking": false,
+      "verify": "package present; Kimi Desktop still starts"
+    },
+    {
+      "id": "t3",
+      "title": "Record both verdicts",
+      "detail": "Restart Kimi Desktop. Check the hook artifact file. Ask the model for the systemPrompt sentinel. Record fires/does-not-fire with evidence for each — a negative result is a successful outcome for this change.",
+      "blocking": false,
+      "verify": "two written verdicts with evidence"
+    },
+    {
+      "id": "t4",
+      "title": "Remove the probe and update the assessment",
+      "detail": "Delete the probe package from plugin-packages/. Update assessment.md E4/E5 from 'unproven' to the measured verdict.",
+      "blocking": false,
+      "verify": "probe absent; assessment.md reflects the verdict"
+    }
+  ]
+}

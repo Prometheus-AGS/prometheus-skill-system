@@ -1,0 +1,57 @@
+# kde-003 — probe whether the daimon honours `hooks` and `systemPrompt`
+
+**Phase:** kimi-desktop-extensibility
+**Scope:** a throwaway probe package; NO change to the pack's generator
+**Backend:** native-kbd
+
+## Problem
+
+`hooks` and `systemPrompt` / `systemPromptPath` are documented for Kimi Code CLI
+plugins, and would be the route to parity with the pack's 30-hook bundle. But
+**neither appears in any of the 12 vendor packages installed by Moonshot itself**,
+so their support on the *desktop daimon* path is unproven.
+
+## Why this is a probe and not an implementation
+
+This repo has already shipped a documented-but-inert extension path: the Codex
+`config.toml [hooks]` snake_case form parsed cleanly (`config.toml parse ok`) and
+**never fired**. It was reverted. The same failure mode recurred twice more this
+session — `{{file:}}` slash commands and dangling skill symlinks — each time
+because presence was mistaken for function.
+
+The only output of this change is a **verdict**. Do not wire the pack's hook
+bundle in the same change.
+
+## Approach
+
+Build a minimal package `prometheus-hook-probe` in `plugin-packages/` declaring:
+
+- a `hooks` rule on the earliest available event, whose command appends a line
+  with a timestamp to a file under the probe package root;
+- a `systemPrompt` containing a distinctive, unlikely sentinel string.
+
+Restart Kimi Desktop. Then:
+
+- **hooks verdict** — did the file get written?
+- **systemPrompt verdict** — ask the model to repeat the sentinel; does it know it?
+
+## Acceptance criteria
+
+1. Probe package installs and does not break Kimi Desktop startup (it must not
+   take the app down the way a bad OpenCode reference does).
+2. A written verdict for `hooks`: fires / does not fire, with the evidence.
+3. A written verdict for `systemPrompt`: honoured / ignored, with the evidence.
+4. Verdicts recorded in the phase directory, and reflected back into
+   `assessment.md` E4/E5.
+5. **The probe package is removed afterwards.** It must not linger in
+   app-managed state.
+
+## Out of scope
+
+- Wiring the real hook bundle (that is kde-004, conditional on this verdict)
+- Any change to `install-kimi-desktop-plugin.sh`
+
+## Safety
+
+The probe's hook command must be inert — append a line to a file, nothing more.
+No network, no mutation outside the probe directory.
