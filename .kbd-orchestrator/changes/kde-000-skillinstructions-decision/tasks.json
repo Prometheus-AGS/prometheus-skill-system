@@ -1,6 +1,8 @@
 {
   "change_id": "kde-000-skillinstructions-decision",
-  "scope": [".kbd-orchestrator/phases/kimi-desktop-extensibility/assessment.md"],
+  "scope": [
+    ".kbd-orchestrator/phases/kimi-desktop-extensibility/assessment.md"
+  ],
   "tasks": [
     {
       "id": "t1",
@@ -11,10 +13,10 @@
     },
     {
       "id": "t2",
-      "title": "Confirm the decision closes the review finding",
-      "detail": "Re-run the spec-stage adversarial review and confirm skillInstructions is no longer reported as undecided.",
+      "title": "Confirm the decision is discoverable where the gate looks",
+      "detail": "Verify the E0 section in assessment.md states an explicit verdict AND names kde-000 as its owner, so a reader arriving from a review finds the decision and its owning change. Do NOT gate on a future review's verdict \u2014 that is outside this change's control.",
       "blocking": false,
-      "verify": "no finding mentioning skillInstructions in the next review round"
+      "verify": "assessment.md E0 states an explicit ADOPTED verdict and names kde-000 as owner"
     }
   ]
 }

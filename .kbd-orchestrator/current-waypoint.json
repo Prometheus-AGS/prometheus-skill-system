@@ -17,12 +17,12 @@
   "currentTask": "implement Tier P sandboxing, artifact CAS, grants, and sidecar service",
   "status": "executing",
   "completionMetric": "implementation",
-  "implementationCompleted": 0,
+  "implementationCompleted": 1,
   "implementationTotal": 5,
   "planRevision": 2,
   "revision": 4,
   "exactNextCommand": "/kbd-execute prometheus-exec-code-execution-engine",
-  "updatedAt": "2026-08-05T13:14:54Z",
+  "updatedAt": "2026-08-05T13:43:05Z",
   "previousPhase": "docusaurus-github-pages-site",
   "nextPendingChange": "change-exec-002-tier-p-sidecar",
   "parentPhase": null,
@@ -31,6 +31,6 @@
   "publicationStatus": "NOT_TRACKED",
   "changesCompleted": 1,
   "changesTotal": 4,
-  "stage": "plan_complete",
-  "nextCommand": "/kbd-apply kde-000-skillinstructions-decision"
+  "stage": "applying",
+  "nextCommand": "/kbd-apply kde-003-hooks-probe"
 }

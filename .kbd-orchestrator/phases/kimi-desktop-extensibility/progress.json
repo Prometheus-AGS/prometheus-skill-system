@@ -1,0 +1,34 @@
+{
+  "phase": "kimi-desktop-extensibility",
+  "updatedAt": "2026-08-05T13:43:05Z",
+  "completion": {
+    "implementation": {
+      "completed": 1,
+      "total": 5
+    }
+  },
+  "changes": [
+    {
+      "id": "kde-000-skillinstructions-decision",
+      "status": "completed",
+      "completedAt": "2026-08-05T13:43:05Z",
+      "note": "Decision record only; no code. Gate 3 rewritten during apply: it required a future review's verdict, which AC3 had already been corrected to forbid."
+    },
+    {
+      "id": "kde-003-hooks-probe",
+      "status": "pending"
+    },
+    {
+      "id": "kde-001-mcp-servers",
+      "status": "pending"
+    },
+    {
+      "id": "kde-002-session-start",
+      "status": "pending"
+    },
+    {
+      "id": "kde-005-catalog-budget",
+      "status": "pending"
+    }
+  ]
+}

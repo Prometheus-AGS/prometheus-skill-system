@@ -113,8 +113,10 @@ effort than E2/E3 and should follow, not precede, tool availability.
 
 ### E0 — `skillInstructions` — ADOPTED, already shipping (resolved)
 
-Flagged as an unresolved gap in three consecutive handoffs; resolved here so it
-stops being carried forward.
+Flagged as an unresolved gap in three consecutive handoffs (assess, analyze,
+spec). Owned and resolved by change `kde-000-skillinstructions-decision`, so the
+decision has a spec, a verification, and an archive record rather than living
+only as a note here.
 
 **Status: adopted and already emitted.** `install-kimi-desktop-plugin.sh` writes
 a `skillInstructions` block naming the skill families (kbd-*, learn-*,
