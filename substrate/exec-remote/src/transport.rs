@@ -81,7 +81,9 @@ where
                 dispatch.target_endpoint_id.clone(),
             ));
         }
-        let accepted = self.queue.accept(dispatch.clone(), &self.enrollment, now)?;
+        let accepted = self
+            .queue
+            .accept_at_target(dispatch.clone(), &self.enrollment, now)?;
         if accepted.record.state.is_terminal() {
             return self.response_from_record(&accepted.record);
         }

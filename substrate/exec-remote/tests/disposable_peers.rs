@@ -368,6 +368,45 @@ fn target_rechecks_expiry_immediately_before_execution() {
     assert_eq!(calls.load(Ordering::SeqCst), 0);
 }
 
+#[test]
+fn target_durably_records_a_dispatch_that_arrives_expired() {
+    let (mut dispatch, enrollment, origin_key, target_key) = fixture();
+    dispatch.issued_at = Utc::now() - Duration::seconds(10);
+    dispatch.validity_window_secs = 1;
+    sign_dispatch_ed25519(&mut dispatch, &origin_key).unwrap();
+    let dispatch_id = dispatch.dispatch_id;
+    let target_dir = tempdir().unwrap();
+    let queue = DispatchQueue::open(target_dir.path()).unwrap();
+    let calls = Arc::new(AtomicUsize::new(0));
+    let target = RemoteTarget::new(
+        TARGET,
+        queue.clone(),
+        enrollment,
+        target_key.clone(),
+        Arc::new(CountingExecutor {
+            key: target_key,
+            calls: calls.clone(),
+        }),
+    )
+    .unwrap();
+
+    let response = futures::executor::block_on(target.receive(dispatch, Utc::now()))
+        .expect("expired target arrival returns a signed terminal response");
+
+    assert_eq!(response.state, PeerDispatchState::Expired);
+    assert!(response
+        .failure
+        .as_deref()
+        .is_some_and(|failure| failure.contains("before target acceptance")));
+    let durable = queue
+        .get(dispatch_id)
+        .expect("queue remains readable")
+        .expect("expired dispatch is durably recorded");
+    assert_eq!(durable.state, PeerDispatchState::Expired);
+    assert_eq!(durable.sequence, 2);
+    assert_eq!(calls.load(Ordering::SeqCst), 0);
+}
+
 struct BlockingTransport {
     started: mpsc::Sender<()>,
     release: Mutex<mpsc::Receiver<()>>,

@@ -131,6 +131,39 @@ impl DispatchQueue {
             return Err(RemoteError::Expired);
         }
         let _lock = self.operation_lock()?;
+        self.accept_verified_unlocked(dispatch, now)
+    }
+
+    /// Accept a verified dispatch at its target and preserve an already-expired
+    /// arrival as a durable terminal record instead of dropping the evidence.
+    pub fn accept_at_target(
+        &self,
+        dispatch: SignedRemoteDispatch,
+        enrollment: &EnrollmentSnapshot,
+        now: DateTime<Utc>,
+    ) -> Result<AcceptDispatchResult> {
+        verify_dispatch(&dispatch, enrollment)?;
+        let expired = now > dispatch.expires_at()?;
+        let _lock = self.operation_lock()?;
+        let mut accepted = self.accept_verified_unlocked(dispatch, now)?;
+        if expired && !accepted.record.state.is_terminal() {
+            accepted.record = self.transition_unlocked(
+                accepted.record.dispatch.dispatch_id,
+                PeerDispatchState::Expired,
+                accepted.record.run_id,
+                None,
+                Some("remote dispatch validity window expired before target acceptance".into()),
+                now,
+            )?;
+        }
+        Ok(accepted)
+    }
+
+    fn accept_verified_unlocked(
+        &self,
+        dispatch: SignedRemoteDispatch,
+        now: DateTime<Utc>,
+    ) -> Result<AcceptDispatchResult> {
         let supplied = dispatch.dispatch_hash()?;
         if let Some(existing) = self.get_unlocked(dispatch.dispatch_id)? {
             if existing.dispatch_hash == supplied {
@@ -189,6 +222,18 @@ impl DispatchQueue {
         now: DateTime<Utc>,
     ) -> Result<DispatchRecord> {
         let _lock = self.operation_lock()?;
+        self.transition_unlocked(dispatch_id, state, run_id, receipt, failure, now)
+    }
+
+    fn transition_unlocked(
+        &self,
+        dispatch_id: Uuid,
+        state: PeerDispatchState,
+        run_id: Option<Uuid>,
+        receipt: Option<ExecutionReceipt>,
+        failure: Option<String>,
+        now: DateTime<Utc>,
+    ) -> Result<DispatchRecord> {
         let current = self
             .get_unlocked(dispatch_id)?
             .ok_or(RemoteError::DispatchNotFound(dispatch_id))?;
