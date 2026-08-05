@@ -61,14 +61,19 @@ manifest edit at all:
 
 1. **If t1 shows the daimon accepts a loopback `http://` URL:**
    `install-kimi-desktop-plugin.sh` emits an `mcpServers` object containing
-   `prometheus-knowledge` with `"url": "http://localhost:8942/mcp"`.
+   `prometheus-knowledge`. The URL is `http://localhost:8942/mcp` **unless t4
+   establishes the port is configurable**, in which case it is the resolved
+   value. t4 runs BEFORE t3 so the emitted form is decided once, not rewritten.
 2. **If t1 shows loopback URLs are refused:** no `mcpServers` field is emitted,
    the negative result is recorded in the phase directory, and the change closes
    as a recorded finding. This is a SUCCESSFUL outcome, not a failure.
 3. `surreal-memory` is emitted **only if** t2 proves the daimon drives its SSE
    transport; otherwise omitted, with the reason in a generator comment.
-4. `forge-rs` is **not** emitted. A generator comment records the 401 and the
-   absent auth-header field.
+4. `forge-rs` is emitted **only if** t2b finds a credential mechanism the daimon
+   supplies (OAuth, per-plugin credential store, interactive connect) that
+   `forge-rs` can use. Otherwise it is omitted, with a generator comment citing
+   the 401, the absent auth-header field, and t2b's finding. AC and task must
+   agree: t2b decides, this criterion records.
 5. The generated manifest still validates against the existing structural check
    (`name`, `version`, `skills`, `interface` present; `skills == "./skills/"`)
    and parses as strict JSON.

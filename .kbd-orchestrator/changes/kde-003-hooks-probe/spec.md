@@ -33,7 +33,10 @@ Build a minimal package `prometheus-hook-probe` in `plugin-packages/` declaring:
 Restart Kimi Desktop. Then:
 
 - **hooks verdict** — did the file get written?
-- **systemPrompt verdict** — ask the model to repeat the sentinel; does it know it?
+- **systemPrompt verdict** — ask the model for the sentinel, but treat a miss as
+  evidence ONLY when the positive control (below) proves the package loaded. A
+  model declining or failing to echo a string does not by itself prove the field
+  was ignored. See "What a negative result may and may not conclude".
 
 ## Acceptance criteria
 

@@ -37,8 +37,10 @@ exists so the decision has an owner, a verification, and an archive record.
 1. `assessment.md` contains an E0 section giving `skillInstructions` an explicit
    **ADOPTED** verdict with rationale.
 2. No generator or manifest change — the field is already emitted correctly.
-3. Subsequent adversarial review of the change set no longer reports
-   `skillInstructions` as undecided.
+3. The decision is discoverable where the gate looks: an E0 section in
+   `assessment.md` AND this change's own `spec.md`. (A future review's verdict
+   is outside this change's control and is therefore NOT a criterion — it is an
+   expected consequence.)
 
 ## Out of scope
 

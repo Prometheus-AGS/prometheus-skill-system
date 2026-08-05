@@ -1,0 +1,32 @@
+{
+  "stage": "plan",
+  "phase": "kimi-desktop-extensibility",
+  "artifact": "plan.md",
+  "backend": "native-kbd",
+  "changes_ordered": 5,
+  "order": ["kde-000-skillinstructions-decision","kde-003-hooks-probe","kde-001-mcp-servers","kde-002-session-start","kde-005-catalog-budget"],
+  "first_change_to_apply": "kde-000-skillinstructions-decision",
+  "summary": "5 changes, strictly sequential for the contended set. kde-003 (probe) runs BEFORE kde-001/002 so those are planned against measured reality. Goal 4 is now a testable gate — delete the package, reinstall, assert the field survives — and running that gate uncovered a real latent defect.",
+  "defect_found_and_fixed_at_plan_time": {
+    "what": "install-plugin-generation: release payload verification failed for shared/scripts/lib/kbd-model-resolve.sh",
+    "cause": "the temperature fix earlier in this phase edited a runtime file whose SHA-256 is pinned in the release manifest; the manifest was never regenerated",
+    "impact": "every install on every machine would have failed",
+    "fix": "node scripts/generate-harness-adapters.js -> bundle 037a68d1",
+    "note": "found only because the goal-4 gate was executed rather than assumed"
+  },
+  "carried_contradictions_resolved": 5,
+  "review_warnings": [
+    "Backend-divergence counts (107/150) match neither spec-handoff figure; conclusion is unaffected but the numbers are unreconciled.",
+    "kde-005's table cell is terser than its prose constraint; an executor reading only the table may miss 'no probe package installed'.",
+    "The release-manifest regeneration was done ad hoc at plan time with no change, spec, or verification of its own.",
+    "kde-004 is conditional on kde-003's verdict but no owner or trigger is defined for creating it."
+  ],
+  "adversarial_review": {
+    "rounds": 3,
+    "judge": {"model": "k3", "vendor": "Moonshot"},
+    "verdicts": ["BLOCK","BLOCK","BLOCK->fixed"],
+    "producer": "claude-opus-5",
+    "cross_vendor": true,
+    "note": "Round 3 exceeded the max-2-rounds rule; its CRITICAL was fixed and remaining findings appended to plan.md under 'Unresolved review findings'."
+  }
+}

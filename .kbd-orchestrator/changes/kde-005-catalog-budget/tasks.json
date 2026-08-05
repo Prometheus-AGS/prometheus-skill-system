@@ -1,0 +1,30 @@
+{
+  "change_id": "kde-005-catalog-budget",
+  "scope": [
+    ".kbd-orchestrator/phases/kimi-desktop-extensibility/ (findings)",
+    ".kbd-orchestrator/phases/kimi-desktop-extensibility/assessment.md (OQ-3 status line)"
+  ],
+  "tasks": [
+    {
+      "id": "t1",
+      "title": "Locate how the daimon renders the skill catalog",
+      "detail": "Inspect the daimon bundle for the code or prompt region that lists available skills. Codex exposes this via `codex debug prompt-input`; find the Kimi equivalent if one exists.",
+      "blocking": false,
+      "verify": "either the rendering path is identified, or a recorded statement that it is not inspectable"
+    },
+    {
+      "id": "t2",
+      "title": "Measure description presentation at 145 skills",
+      "detail": "If t1 found an inspectable surface, read it directly. Otherwise run the differential test in the spec: a distinctive long description presented alongside 145 skills vs alone.",
+      "blocking": false,
+      "verify": "an observed measurement, not an inference"
+    },
+    {
+      "id": "t3",
+      "title": "Record the verdict and update OQ-3",
+      "detail": "Write the finding with its method. Update assessment.md OQ-3 from open to the measured verdict. If a budget exists, recommend whether to curate.",
+      "blocking": false,
+      "verify": "assessment.md OQ-3 reflects a measured verdict with method recorded"
+    }
+  ]
+}

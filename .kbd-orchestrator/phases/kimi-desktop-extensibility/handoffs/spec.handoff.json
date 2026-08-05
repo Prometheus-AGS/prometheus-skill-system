@@ -3,12 +3,13 @@
   "phase": "kimi-desktop-extensibility",
   "backend": "native-kbd",
   "zeespec_verdict": "n/a (no .zeespec/ for this subject \u2014 gate inactive, opt-in)",
-  "changes_created": 4,
+  "changes_created": 5,
   "changes": [
     ".kbd-orchestrator/changes/kde-000-skillinstructions-decision",
     ".kbd-orchestrator/changes/kde-001-mcp-servers",
     ".kbd-orchestrator/changes/kde-002-session-start",
-    ".kbd-orchestrator/changes/kde-003-hooks-probe"
+    ".kbd-orchestrator/changes/kde-003-hooks-probe",
+    ".kbd-orchestrator/changes/kde-005-catalog-budget"
   ],
   "summary": "3 native-kbd changes, all scoped to scripts/install-kimi-desktop-plugin.sh (the generator) except kde-003 which is a throwaway probe. Resolving the analyze stage's review WARNING changed kde-001 materially: an MCP initialize probe showed the three candidate servers use THREE different transports, and only prometheus-knowledge is confirmed compatible.",
   "evidence_that_changed_the_spec": {

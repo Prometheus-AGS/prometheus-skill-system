@@ -27,18 +27,18 @@
       "verify": "documented mechanism, and a decision on whether forge-rs can use it"
     },
     {
+      "id": "t4",
+      "title": "Resolve port hardcoding (OQ-B)",
+      "detail": "Runs BEFORE t3 so the emitted URL form is decided once. Ports 23001/8942 are embedded; check whether they are user-configurable in the pack's own config. If so, read the value at generation time rather than hardcoding, so a reinstall on a machine with different ports still works (goal 4).",
+      "blocking": false,
+      "verify": "either ports are read from config, or a comment records that they are fixed by contract"
+    },
+    {
       "id": "t3",
       "title": "Emit mcpServers from the generator",
       "detail": "Add the mcpServers object to the manifest dict in the Python heredoc of install-kimi-desktop-plugin.sh. Include prometheus-knowledge; include surreal-memory only per t2; exclude forge-rs with a GENERATOR comment citing the 401 and the missing auth-header field. If t4 makes ports config-read, emit the resolved value rather than the literal localhost:8942.",
       "blocking": false,
       "verify": "generated kimi.plugin.json contains the expected mcpServers keys"
-    },
-    {
-      "id": "t4",
-      "title": "Resolve port hardcoding (OQ-B)",
-      "detail": "Ports 23001/8942 are embedded. Check whether they are user-configurable in the pack's own config; if so, read the value at generation time rather than hardcoding, so a reinstall on a machine with different ports still works (goal 4).",
-      "blocking": false,
-      "verify": "either ports are read from config, or a comment records that they are fixed by contract"
     },
     {
       "id": "t5",
