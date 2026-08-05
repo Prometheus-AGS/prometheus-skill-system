@@ -134,4 +134,127 @@ Plugin targets: **14**
 | Plugin distribution | Ed25519-signed generation, shared index, and 14 signed receipts |
 | Validation | Local certification; hosted automation limited to docs sync and Pages |
 
+## Prometheus Exec HTTP routes
+
+| Method | Route |
+| --- | --- |
+| `GET` | `/api/v2/exec/artifacts/{digest}` |
+| `GET` | `/api/v2/exec/receipts/{run_id}` |
+| `POST` | `/api/v2/exec/runs` |
+| `GET` | `/api/v2/exec/runs/{run_id}` |
+| `GET` | `/api/v2/exec/runs/{run_id}/events` |
+| `GET` | `/health` |
+| `GET` | `/ready` |
+
+## SignedExecRequest schema
+
+| Field | Rust type |
+| --- | --- |
+| `schemaVersion` | `String` |
+| `requestId` | `Uuid` |
+| `issuedAt` | `DateTime<Utc>` |
+| `queuedAt` | `Option<DateTime<Utc>>` |
+| `validityWindowSecs` | `u64` |
+| `tier` | `RequestedTier` |
+| `code` | `CodeIdentity` |
+| `inputs` | `Vec<NamedInput>` |
+| `capabilities` | `CapabilityManifest` |
+| `limits` | `ExecutionLimits` |
+| `targets` | `Vec<String>` |
+| `provenance` | `ExecutionProvenance` |
+| `signerKeyId` | `Option<String>` |
+| `sigAlg` | `SignatureAlgorithm` |
+| `signature` | `Option<String>` |
+
+## ExecutionReceipt schema
+
+| Field | Rust type |
+| --- | --- |
+| `schemaVersion` | `String` |
+| `runId` | `Uuid` |
+| `requestHash` | `Digest` |
+| `state` | `RunState` |
+| `evidenceClass` | `EvidenceClass` |
+| `tier` | `ExecutionTier` |
+| `codeHash` | `Digest` |
+| `inputSetHash` | `Digest` |
+| `envHash` | `Digest` |
+| `toolchainHash` | `Option<Digest>` |
+| `sandboxProfileHash` | `Digest` |
+| `backend` | `ExecutionBackend` |
+| `exit` | `ExecutionExit` |
+| `outputs` | `ExecutionOutputs` |
+| `usage` | `ResourceUsage` |
+| `startedAt` | `DateTime<Utc>` |
+| `finishedAt` | `DateTime<Utc>` |
+| `executingDevice` | `ExecutingDevice` |
+| `grants` | `Vec<ExecutionGrant>` |
+| `component` | `Option<ComponentProvenance>` |
+| `failure` | `Option<ExecutionFailure>` |
+| `signature` | `Option<String>` |
+
+## Prometheus Exec MCP tools
+
+Maximum inline artifact bytes: **1048576**
+
+| Tool | Input schema |
+| --- | --- |
+| `exec-run` | `ExecRunParams` |
+| `exec-status` | `ExecStatusParams` |
+| `exec-events` | `ExecEventsParams` |
+| `exec-receipt` | `ExecStatusParams` |
+| `exec-artifact` | `ExecArtifactParams` |
+| `exec-verify` | `ExecVerifyParams` |
+
+## Prometheus Exec CLI/config flags
+
+Commands: `init`, `daemon`, `mcp`, `run`, `status`, `doctor`, `verify`, `verify-bundle`, `contracts`
+
+- `--artifact-budget-mb`
+- `--artifacts`
+- `--code`
+- `--component`
+- `--exclusions`
+- `--format`
+- `--identity`
+- `--index`
+- `--inputs`
+- `--mcp-schema`
+- `--output-dir`
+- `--output-mb`
+- `--plugin-root`
+- `--public-key`
+- `--receipt`
+- `--remote-queue`
+- `--request`
+- `--root`
+- `--run-id`
+- `--runtime`
+- `--service-definition`
+- `--socket`
+- `--state-dir`
+- `--timeout-ms`
+
+## Reference execution component
+
+- Component: `entity-graph-optimize`
+- World: `prometheus:component@0.1.0`
+- SHA-256: `ba438895404a23985d5226735b8f362cf3e8044894a1140852ba0992f2fdbe78`
+- Size: **55798 bytes**
+- Typed host capabilities: **7**
+- Fixed WASI adapter imports: **14**
+- Signed plugin target receipts: **14**
+
+## Execution platform and evidence status
+
+| Dimension | Status | Environment | Disposition |
+| --- | --- | --- | --- |
+| `artifact_source` | `completed` | macos-x86_64-disposable | evidence bundle indexed |
+| `disposable_runtime` | `completed` | macos-x86_64-disposable | evidence bundle indexed |
+| `installed_host` | `completed` | macos-x86_64-disposable | evidence bundle indexed |
+| `judge_review` | `pending_review` | release-1.7.0 | distinct judge is temporarily unavailable |
+| `mobile_size` | `blocked` | release-1.7.0 | measured iOS and Android deltas exceed the 12 MiB gate |
+| `physical_device` | `pending_evidence` | release-1.7.0 | no usable physical iOS or Android device is connected |
+| `remote_deployment` | `pending_evidence` | release-1.7.0 | protocol kernel is disposable-runtime certified; production transport is not deployed |
+
 <!-- END PROMETHEUS DOCS SYNC: runtime-reference -->

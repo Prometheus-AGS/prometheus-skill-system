@@ -357,6 +357,19 @@ pub struct SignedExecRequest {
     pub signature: Option<String>,
 }
 
+/// Durable status returned by REST, MCP, and other service adapters.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct ExecutionRunStatus {
+    pub run_id: Uuid,
+    pub request_id: Uuid,
+    pub request_hash: Digest,
+    pub state: RunState,
+    pub replayed: bool,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub receipt: Option<ExecutionReceipt>,
+}
+
 impl SignedExecRequest {
     pub fn canonical_unsigned(&self) -> Result<Vec<u8>> {
         canonical_bytes_without(self, "signature")
@@ -644,6 +657,33 @@ pub struct ErrorEnvelope {
     pub error: ErrorDetail,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub request_id: Option<Uuid>,
+}
+
+/// HTTP error shape emitted by the execution sidecar.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+pub struct ExecutionApiErrorDetail {
+    pub code: String,
+    pub message: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+pub struct ExecutionApiErrorEnvelope {
+    pub error: ExecutionApiErrorDetail,
+}
+
+impl ExecutionApiErrorEnvelope {
+    pub fn new(code: impl Into<String>, message: impl Into<String>) -> Self {
+        Self {
+            error: ExecutionApiErrorDetail {
+                code: code.into(),
+                message: message.into(),
+            },
+        }
+    }
+
+    pub fn unavailable(code: impl Into<String>, message: impl Into<String>) -> Self {
+        Self::new(code, message)
+    }
 }
 
 pub fn ensure_schema(version: &str) -> Result<()> {

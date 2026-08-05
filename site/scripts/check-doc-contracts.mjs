@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { createRequire } from 'node:module';
+import crypto from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 
 const siteRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -74,6 +75,13 @@ for (const [label, file, table] of [
     path.join(repoRoot, 'tools/surreal-memory-server/Cargo.toml'),
     'package',
   ],
+  ['Prometheus Exec binary', path.join(repoRoot, 'crates/prometheus-exec/Cargo.toml'), 'package'],
+  [
+    'Prometheus Exec contracts',
+    path.join(repoRoot, 'substrate/exec-contracts/Cargo.toml'),
+    'package',
+  ],
+  ['Prometheus Exec service', path.join(repoRoot, 'substrate/exec-service/Cargo.toml'), 'package'],
 ]) {
   if (cargoTableVersion(file, table) !== release) {
     failures.push(`${label} is not version ${release}`);
@@ -218,6 +226,38 @@ const sovereignSpec = path.join(siteRoot, 'static/openapi/sovereign-sync-v2.open
 if (!fs.existsSync(sovereignSpec) || json(sovereignSpec).info?.version !== release) {
   failures.push(`Sovereign Sync OpenAPI is not version ${release}`);
 }
+const execReferenceSpec = path.join(repoRoot, 'docs/reference/api/prometheus-exec.openapi.json');
+const execSiteSpec = path.join(siteRoot, 'static/openapi/prometheus-exec.openapi.json');
+if (
+  !fs.existsSync(execSiteSpec) ||
+  json(execSiteSpec).info?.version !== release ||
+  JSON.stringify(json(execSiteSpec)) !== JSON.stringify(json(execReferenceSpec))
+) {
+  failures.push('Prometheus Exec OpenAPI is missing, stale, or not version 1.7.0');
+}
+const execBinary = json(path.join(repoRoot, 'config/prometheus-exec-binary.json'));
+if (execBinary.expectedVersion !== `prometheus-exec ${release}`) {
+  failures.push(`Prometheus Exec installation manifest is not version ${release}`);
+}
+const execComponent = json(path.join(repoRoot, 'config/prometheus-exec-component.json'));
+const componentBytes = fs.readFileSync(path.join(repoRoot, execComponent.sourcePath));
+const componentHash = crypto.createHash('sha256').update(componentBytes).digest('hex');
+if (
+  execComponent.release !== release ||
+  execComponent.world !== 'prometheus:component@0.1.0' ||
+  execComponent.sha256 !== componentHash ||
+  execComponent.sizeBytes !== componentBytes.length ||
+  execComponent.capabilities?.hostImports?.length !== 7 ||
+  execComponent.capabilities?.wasiAdapterImports?.length !== 14
+) {
+  failures.push('Prometheus Exec reference component metadata is stale or invalid');
+}
+const pluginTargets = [
+  ...text(path.join(repoRoot, 'scripts/install-plugin-generation.js')).matchAll(
+    /^\s*'([^']+\/skills)',?$/gm
+  ),
+].map(match => match[1]);
+if (pluginTargets.length !== 14) failures.push('Prometheus plugin target matrix is not 14');
 const submoduleSpec = path.join(
   repoRoot,
   'tools/surreal-memory-server/openapi/surreal-memory-v2.openapi.json'

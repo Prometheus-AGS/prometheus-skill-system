@@ -15,7 +15,10 @@ use axum::{
     Json, Router,
 };
 use chrono::{DateTime, Utc};
-use prometheus_exec_contracts::{Digest, ExecutionReceipt, RunState, SignedExecRequest};
+use prometheus_exec_contracts::{
+    Digest, ExecutionApiErrorDetail, ExecutionApiErrorEnvelope, ExecutionRunStatus,
+    SignedExecRequest,
+};
 use prometheus_exec_core::{ArtifactStore, CasError};
 use serde::{Deserialize, Serialize};
 use tokio::sync::RwLock;
@@ -177,58 +180,26 @@ impl SidecarState {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-pub struct ApiErrorEnvelope {
-    pub error: ApiErrorDetail,
-}
+pub type ApiErrorEnvelope = ExecutionApiErrorEnvelope;
+pub type ApiErrorDetail = ExecutionApiErrorDetail;
+pub type RunResponse = ExecutionRunStatus;
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-pub struct ApiErrorDetail {
-    pub code: String,
-    pub message: String,
-}
-
-impl ApiErrorEnvelope {
-    fn new(code: impl Into<String>, message: impl Into<String>) -> Self {
-        Self {
-            error: ApiErrorDetail {
-                code: code.into(),
-                message: message.into(),
-            },
-        }
-    }
-
-    fn unavailable(code: impl Into<String>, message: impl Into<String>) -> Self {
-        Self::new(code, message)
-    }
-
+trait ApiErrorResponse: Sized + Serialize {
     fn response(self, status: StatusCode) -> Response {
         (status, Json(self)).into_response()
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct RunResponse {
-    pub run_id: Uuid,
-    pub request_id: Uuid,
-    pub request_hash: Digest,
-    pub state: RunState,
-    pub replayed: bool,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    pub receipt: Option<ExecutionReceipt>,
-}
+impl ApiErrorResponse for ApiErrorEnvelope {}
 
-impl RunResponse {
-    fn from_record(record: RunRecord, replayed: bool) -> Self {
-        Self {
-            run_id: record.run_id,
-            request_id: record.request_id,
-            request_hash: record.request_hash,
-            state: record.state,
-            replayed,
-            receipt: record.terminal.map(|terminal| terminal.receipt),
-        }
+fn run_response(record: RunRecord, replayed: bool) -> RunResponse {
+    RunResponse {
+        run_id: record.run_id,
+        request_id: record.request_id,
+        request_hash: record.request_hash,
+        state: record.state,
+        replayed,
+        receipt: record.terminal.map(|terminal| terminal.receipt),
     }
 }
 
@@ -304,11 +275,7 @@ async fn create_run(
             } else {
                 StatusCode::ACCEPTED
             };
-            (
-                status,
-                Json(RunResponse::from_record(result.record, result.replayed)),
-            )
-                .into_response()
+            (status, Json(run_response(result.record, result.replayed))).into_response()
         }
         Err(error) => {
             if let Err(release_error) = artifacts.release_request(&request) {
@@ -335,7 +302,7 @@ async fn get_run(
         Err(error) => return error.response(StatusCode::SERVICE_UNAVAILABLE),
     };
     match service.run(run_id) {
-        Ok(Some(record)) => Json(RunResponse::from_record(record, false)).into_response(),
+        Ok(Some(record)) => Json(run_response(record, false)).into_response(),
         Ok(None) => ApiErrorEnvelope::new("run_not_found", format!("run {run_id} was not found"))
             .response(StatusCode::NOT_FOUND),
         Err(error) => map_service_error(error),
@@ -570,7 +537,7 @@ mod uds {
     use tokio::{net::UnixListener, sync::oneshot, task::JoinHandle};
     use uuid::Uuid;
 
-    use super::{build_api_router, ApiErrorEnvelope, SidecarState};
+    use super::{build_api_router, ApiErrorEnvelope, ApiErrorResponse, SidecarState};
 
     #[derive(Clone, Debug)]
     struct UdsPeer {

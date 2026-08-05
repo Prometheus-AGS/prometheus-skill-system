@@ -15,6 +15,11 @@ const sourceInputs = [
   '.claude-plugin/marketplace.json',
   '.codex-plugin/plugin.json',
   'scripts/install-plugin-generation.js',
+  'config/prometheus-exec-component.json',
+  'crates/prometheus-exec/src/',
+  'substrate/exec-contracts/src/',
+  'substrate/exec-service/src/',
+  'docs/reference/api/',
   'substrate/sovereign-sync/src/',
   'substrate/learner-model/src/',
   'substrate/skill-index/',
@@ -59,10 +64,7 @@ function walk(directory, predicate, result = []) {
   const absolute = path.join(root, directory);
   if (!fs.existsSync(absolute)) return result;
   for (const entry of fs.readdirSync(absolute, { withFileTypes: true })) {
-    if (
-      ['.git', 'node_modules', 'imported', 'tests', 'fixtures'].includes(entry.name)
-    )
-      continue;
+    if (['.git', 'node_modules', 'imported', 'tests', 'fixtures'].includes(entry.name)) continue;
     const relative = path.join(directory, entry.name);
     if (entry.isDirectory()) walk(relative, predicate, result);
     else if (predicate(relative)) result.push(relative.split(path.sep).join('/'));
@@ -132,6 +134,13 @@ function cliFlags(source) {
   return [...new Set(flags)].sort();
 }
 
+function cliCommands(source) {
+  const block = rustBlock(source, 'enum Command {');
+  return [...block.matchAll(/^\s{4}([A-Z][A-Za-z0-9_]*)\s*(?:\{|,)/gm)].map(match =>
+    match[1].replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase()
+  );
+}
+
 function pluginTargets(source) {
   const match = source.match(/const TARGETS = \[([\s\S]*?)\];/);
   if (!match) throw new Error('Plugin target matrix not found');
@@ -158,12 +167,23 @@ const pkg = json('package.json');
 const restSource = read('substrate/sovereign-sync/src/rest_api.rs');
 const mainSource = read('substrate/sovereign-sync/src/main.rs');
 const pluginSource = read('scripts/install-plugin-generation.js');
+const execModelSource = read('substrate/exec-contracts/src/model.rs');
+const execHttpSource = read('substrate/exec-service/src/http.rs');
+const execMainSource = read('crates/prometheus-exec/src/main.rs');
 const routes = routeReference(restSource);
 const requestFields = rustFields(restSource, 'SignedSyncPushRequest');
 const receiptFields = rustFields(restSource, 'PushReceipt');
 const states = rustVariants(restSource, 'PushLocalState');
 const flags = cliFlags(mainSource);
 const targets = pluginTargets(pluginSource);
+const execRoutes = routeReference(execHttpSource);
+const execRequestFields = rustFields(execModelSource, 'SignedExecRequest');
+const execReceiptFields = rustFields(execModelSource, 'ExecutionReceipt');
+const execFlags = cliFlags(execMainSource);
+const execCommands = cliCommands(execMainSource);
+const execMcp = json('docs/reference/api/prometheus-exec.mcp.json');
+const execEvidence = json('docs/reference/api/prometheus-exec.evidence-status.json');
+const execComponent = json('config/prometheus-exec-component.json');
 const skillFiles = walk('skills', file => file.endsWith('/SKILL.md')).sort();
 
 const marker = 'PROMETHEUS DOCS SYNC: runtime-reference';
@@ -226,6 +246,64 @@ ${table(
   ]
 )}
 
+## Prometheus Exec HTTP routes
+
+${table(
+  ['Method', 'Route'],
+  execRoutes.map(item => [`\`${item.method}\``, `\`${item.route}\``])
+)}
+
+## SignedExecRequest schema
+
+${table(
+  ['Field', 'Rust type'],
+  execRequestFields.map(item => [`\`${item.name}\``, `\`${item.type}\``])
+)}
+
+## ExecutionReceipt schema
+
+${table(
+  ['Field', 'Rust type'],
+  execReceiptFields.map(item => [`\`${item.name}\``, `\`${item.type}\``])
+)}
+
+## Prometheus Exec MCP tools
+
+Maximum inline artifact bytes: **${execMcp.maximumInlineArtifactBytes}**
+
+${table(
+  ['Tool', 'Input schema'],
+  execMcp.tools.map(tool => [`\`${tool.name}\``, `\`${tool.inputSchema.title}\``])
+)}
+
+## Prometheus Exec CLI/config flags
+
+Commands: ${execCommands.map(command => `\`${command}\``).join(', ')}
+
+${execFlags.map(flag => `- \`${flag}\``).join('\n')}
+
+## Reference execution component
+
+- Component: \`${execComponent.componentId}\`
+- World: \`${execComponent.world}\`
+- SHA-256: \`${execComponent.sha256}\`
+- Size: **${execComponent.sizeBytes} bytes**
+- Typed host capabilities: **${execComponent.capabilities.hostImports.length}**
+- Fixed WASI adapter imports: **${execComponent.capabilities.wasiAdapterImports.length}**
+- Signed plugin target receipts: **${targets.length}**
+
+## Execution platform and evidence status
+
+${table(
+  ['Dimension', 'Status', 'Environment', 'Disposition'],
+  Object.values(execEvidence.requirements).map(requirement => [
+    `\`${requirement.dimension}\``,
+    `\`${requirement.status}\``,
+    requirement.environment,
+    requirement.disposition ?? 'evidence bundle indexed',
+  ])
+)}
+
 <!-- END ${marker} -->
 `;
 
@@ -237,6 +315,10 @@ const outputs = new Map([
   [
     'site/docs/operations/generated-reference.md',
     `---\ntitle: Generated runtime reference\ndescription: Deterministic API, schema, CLI, capability, skill, target, and release metadata.\n---\n\n# Generated runtime reference\n\nThis page is synchronized from code declarations. Narrative design belongs in the authored guides.\n\n${body}`,
+  ],
+  [
+    'site/static/openapi/prometheus-exec.openapi.json',
+    read('docs/reference/api/prometheus-exec.openapi.json'),
   ],
 ]);
 
