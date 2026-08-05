@@ -1,58 +1,106 @@
 ---
-title: Architecture and execution tiers
-description: Shared durable service, Tier P and Tier W kernels, embedded forms, and the optional Tier R boundary.
+title: Runtime architecture and execution tiers
+description: Shared durable service, policy and trust boundaries, Tier P and Tier W kernels, embedded forms, and optional Tier R dispatch.
 ---
 
-# Architecture and execution tiers
+# Runtime architecture and execution tiers
 
-Every local surface converges on one durable service. REST, MCP, CLI, and embedded adapters do not own separate replay or receipt logic. They submit the same signed request, then read the same run ledger, event log, receipt log, and content-addressed artifact store.
+REST, CLI, MCP, and embedded callers converge on the same correctness boundary. No adapter owns a private replay cache or a second definition of success. Each surface submits a signed contract to the durable service and reads the same ledger, event log, content-addressed store, and receipt chain.
 
 ```mermaid
 flowchart LR
-  Caller["CLI, REST, MCP, or embedded caller"] --> Facade["Shared execution facade"]
-  Facade --> Ledger["Durable request and run ledger"]
-  Ledger --> Router{"Validated runtime"}
-  Router --> P["Tier P process sandbox"]
-  Router --> W["Tier W Wasmtime component"]
-  P --> CAS["Content-addressed streams and artifacts"]
+  accTitle: Prometheus Exec trust and data architecture
+  accDescr: Authenticated callers submit signed requests through adapters to one facade. Admission validates identity, policy, limits, code, and inputs before durable acceptance. Tier P or Tier W executes, artifacts enter the CAS, and a signed hash-linked receipt becomes available for offline verification.
+  Caller["CLI, UDS REST, MCP, embedded, or Tier R target"] --> Auth["Same-user or in-process caller boundary"]
+  Auth --> Facade["Shared execution facade"]
+  Facade --> Validate["Signature + canonical hash + schema + limits"]
+  Validate --> Policy["Baseline policy; Cedar can only tighten"]
+  Policy --> Ledger["Durable request/run ledger"]
+  Ledger --> Router{"Validated tier and runtime"}
+  Router --> P["Tier P\nSeatbelt or bwrap/Landlock"]
+  Router --> W["Tier W\nWasmtime Cranelift or Pulley"]
+  P --> CAS["SHA-256 CAS\nstreams + artifacts + environment"]
   W --> CAS
-  CAS --> Receipt["Hash-linked signed receipt log"]
-  Receipt --> Verify["Offline verifier and evidence bundle"]
-  Remote["Optional Tier R dispatch"] --> Facade
+  CAS --> Events["Hash-linked event log"]
+  Events --> Receipt["Signed hash-linked receipt log"]
+  Receipt --> Terminal["Terminal state publication"]
+  Terminal --> Offline["Public-key verification and portable bundle"]
 ```
 
-## The shared correctness boundary
+## Admission before execution
 
-Acceptance is durable before execution starts. The service binds a request ID to its RFC 8785 canonical unsigned hash. Same ID and same hash replay; same ID and different hash return `409`. A spawn boundary is persisted before native process creation. Ordered events are appended before terminal visibility, and the receipt log is durable before terminal ledger publication. Restart reconciliation therefore has three safe outcomes: requeue work that never spawned, recover a logged receipt, or sign an interrupted terminal receipt for work that crossed the spawn boundary.
+Admission establishes the claim that later evidence can support:
 
-Artifact ownership follows the same transaction. Uploaded code and inputs move from temporary upload pins to request ownership. Terminal streams and artifacts are pinned to the signed receipt before the terminal state becomes visible. Failed publication rolls those pins back.
+1. Validate the signed request and its RFC 8785 canonical hash.
+2. Bind one request ID to one canonical payload.
+3. Validate code kind, runtime, inputs, capabilities, provenance, and resource limits.
+4. Apply baseline authority rules before any optional Cedar policy.
+5. Verify Tier W component authorization before validation, compilation, caching, or linking.
+6. Transfer uploaded code and input blobs from temporary pins to durable request ownership.
+7. Persist acceptance before a worker can start.
 
-## Tier P: native process isolation
+If any step fails, no execution receipt claims that code ran. Cedar is a one-way tightening layer: it may deny authority that baseline policy permits, but it cannot permit undeclared network, environment, filesystem, or output access.
 
-Tier P runs Python, Node, or Bash. Baseline policy rejects undeclared network, environment, filesystem, and output authority before the platform sandbox starts. Cedar may tighten that decision but cannot broaden it.
+## The durability order
 
-The locally certified macOS backend is Seatbelt. It launches the real interpreter under a generated profile, clears the environment, restricts reads/writes, denies networking, controls the complete process group, and enforces wall, stream, and artifact ceilings. The receipt is **attested** because the operating-system process sandbox and measured host state are part of the claim.
+The service persists state in an order designed for crash ambiguity:
 
-Linux has deterministic bubblewrap/Landlock planning and cross-build evidence but no kernel runtime evidence from this Mac. Windows Tier P is unavailable. Unsupported platforms remain health-live and readiness-failed instead of falling back to an unsandboxed process.
+- acceptance exists before execution begins;
+- a spawn boundary exists before a native process is created;
+- events exist before a caller can observe the corresponding lifecycle transition;
+- streams and artifacts are stored and receipt-pinned before terminal publication;
+- the signed receipt enters the immutable receipt log before the ledger becomes terminal.
 
-## Tier W: portable component execution
+After restart, reconciliation can therefore distinguish work that never spawned, work that crossed the spawn boundary without a terminal receipt, and work whose receipt exists but whose final response was lost. It requeues, interrupts, or republishes accordingly; it does not guess from retry counts.
 
-Tier W accepts WebAssembly components only after authorization. Estate mode requires the active Ed25519-signed plugin generation; standalone and bundled-mobile modes require exact hash pins. Authorization happens before validation, compilation, caching, linking, or instantiation and is bound into the cache identity.
+## Tier P: host-attested process execution
 
-Wasmtime 46 runs either Cranelift or Pulley. The host exposes only typed capabilities explicitly present in the grant. Fixed time and random inputs make replay deterministic. Fuel, epoch, memory, table, instance, stream, stack, and artifact fences map to stable terminal failure kinds. A backend-independent projection lets Cranelift and Pulley results be compared without pretending their engine profiles or measured usage are identical.
+Tier P runs one Python, Node, or Bash program under a supported OS sandbox. Baseline policy constrains authority before the process is created. The backend clears the environment, materializes declared inputs read-only, provides a private writable output tree, denies network by default, controls the process group, and applies wall-clock, stream, stack, and artifact ceilings.
+
+The receipt is **attested**: it binds the exact interpreter/toolchain, generated sandbox profile, measured host state, request, outputs, and signer. A different operating system or unavailable sandbox is not silently replaced with direct process execution.
+
+- macOS uses Seatbelt and is the release host with runtime evidence.
+- Linux has deterministic bubblewrap/Landlock planning and cross-build evidence, but no release Linux kernel runtime evidence.
+- Windows Tier P is unavailable.
+
+Read [Tier P native processes](./tier-p-native-processes.md) for the platform theory and authoring constraints.
+
+## Tier W: portable capability execution
+
+Tier W runs an authorized WebAssembly component implementing `prometheus:component@0.1.0`. The host links only the typed imports present in the capability grant. Closed stdio, empty ambient environment and preopens, disabled TCP/UDP, fixed clocks, deterministic random bytes, fuel, epochs, memory/table/instance limits, and bounded output make the invocation replayable.
+
+The receipt is **verified**: it includes component authorization, engine version, backend profile, and a deterministic projection. The projection binds behaviorally relevant inputs and outputs while excluding backend-specific measurements such as wall time. Cranelift and Pulley can therefore be compared without pretending that their execution profiles are identical.
+
+- Estate desktop mode trusts the active signed plugin generation.
+- Standalone embedded mode trusts exact component pins.
+- Bundled-mobile mode uses compiled-in pins and Pulley/no-JIT policy.
+- Portable verification replays receipt-bound bytes through Pulley.
+
+Read [Tier W portable components](./tier-w-portable-components.md) for WIT, authorization, deterministic capabilities, and platform profiles.
+
+## Tier R: delivery to enrolled targets
+
+Tier R is an estate-only protocol kernel. It signs dispatch envelopes, validates enrolled endpoint/key bindings, persists per-target queues, handles expiry and replay, and verifies peer responses. It does not execute code itself. Each accepted target submits the original request once through its local facade.
+
+The transport is injected. Local execution crates do not depend on KBD or Sovereign Sync, and local health or offline verification does not wait for remote peers. See [Remote dispatch and reconciliation](./remote-dispatch-and-reconciliation.md).
 
 ## Three local deployment forms
 
-| Form | Trust | Transport | Intended host |
+| Form | Trust source | Transport | Runtime purpose |
 | --- | --- | --- | --- |
-| Estate sidecar | Active signed plugin generation | Same-user mode-`0600` Unix socket | Managed Mac workstation |
+| Estate sidecar | Active signed plugin generation | Same-user mode-`0600` Unix socket | Managed desktop operation service |
 | Standalone embedded | Explicit component hash pins | In-process async Rust API | Desktop/Tauri or service integration |
-| Bundled-mobile embedded | Compiled-in component pins | In-process API through FFI | iOS/Android application |
+| Bundled-mobile embedded | Compiled-in component pins | In-process API through FFI | iOS/Android application integration |
 
-The embedded API never creates a Tokio runtime. Blocking Wasmtime, ledger, and CAS work is placed on the embedding runtime's blocking pool. Neither FFI nor thin Tauri adapters accept private signing-key bytes.
+The embedded API never creates a Tokio runtime. Blocking Wasmtime, ledger, and CAS operations use the embedding runtime's blocking pool. Thin FFI and Tauri boundaries do not accept private signing-key bytes.
 
-## Tier R: remote dispatch without local coupling
+## Separate identities and trust material
 
-The estate-only remote crate adds signed origin envelopes, enrollment snapshots, per-target immutable queues, expiry/replay checks, and verified peer receipts. The transport is injected; local crates do not depend on Sovereign Sync or KBD. A remote target hands accepted work to its local facade, so local request idempotency remains authoritative. Slow or unavailable peers cannot delay local health, local execution, or offline verification.
+The local identity signs requests and receipts. Plugin trust authorizes component bytes. Remote enrollment binds peer endpoints to signing keys. These are different scopes:
 
-Next: [Local API, CLI, and MCP](./local-api-cli-and-mcp.md).
+- a trusted local device key does not authorize an arbitrary component;
+- an authorized component does not enroll a remote peer;
+- an enrolled peer cannot broaden a request's capabilities; and
+- a portable bundle contains public verification material, never a private signing key.
+
+Next: [Tier P native processes](./tier-p-native-processes.md).

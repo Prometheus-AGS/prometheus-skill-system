@@ -120,12 +120,17 @@ const config = {
             label: 'Guide',
           },
           {
+            type: 'docSidebar',
+            sidebarId: 'executionSidebar',
+            position: 'left',
+            label: 'Dynamic Operations',
+          },
+          {
             type: 'dropdown',
             position: 'left',
             label: 'Core',
             items: [
               { type: 'docSidebar', sidebarId: 'memorySidebar', label: 'Memory' },
-              { type: 'docSidebar', sidebarId: 'executionSidebar', label: 'Execution' },
               {
                 type: 'docSidebar',
                 sidebarId: 'knowledgeLearningSidebar',
@@ -184,8 +189,11 @@ const config = {
           {
             title: 'Core',
             items: [
+              {
+                label: 'Dynamic Operations',
+                to: '/docs/execution/overview-and-use-cases',
+              },
               { label: 'Memory', to: '/docs/memory/overview' },
-              { label: 'Execution', to: '/docs/execution/overview-and-use-cases' },
               {
                 label: 'Knowledge & Learning',
                 to: '/docs/knowledge-learning/snapshots-and-context',

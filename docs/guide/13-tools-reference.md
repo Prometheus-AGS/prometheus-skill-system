@@ -190,6 +190,8 @@ The config defines workspace partitions (actor/mcp/wasm/persistence/runtime/netw
 
 **Purpose.** An optional evidence-producing execution service. It runs native Python/Node/Bash through fail-closed Tier P process isolation or authorized WebAssembly components through deterministic Tier W. Its primary output is a signed receipt bound to request, code, inputs, capabilities, limits, environment, streams, and content-addressed artifacts.
 
+**Boundary.** `prometheus-exec` executes eligible bytes; it does not generate programs or host an autonomous agent. Forge and installed language toolchains author/build code. `/create-native-agent` produces a persistent addressable service. Tier P does not accept arbitrary native binaries, and Tier W's Prometheus component ABI is distinct from the native-agent LibreFang WASM ABI.
+
 **Surfaces.** The same durable facade backs the mode-`0600` same-user Unix-socket REST API, CLI, and six MCP stdio tools. Embedded desktop/mobile hosts use the estate-free Rust/FFI boundary. Estate-only Tier R dispatch uses enrolled peer identities and per-target immutable queues without coupling local execution to KBD or Sovereign services.
 
 ```bash
@@ -199,7 +201,7 @@ prometheus-exec run --socket ./exec.sock --state-dir ./state --identity ./identi
 prometheus-exec verify-bundle --index ./execution-evidence.json --format json
 ```
 
-See the canonical [Execution section](/docs/execution/overview-and-use-cases) and [OpenAPI 3.1 specification](/openapi/prometheus-exec.openapi.json).
+See the canonical [Dynamic Operations section](/docs/execution/overview-and-use-cases), [capability decision guide](/docs/execution/choosing-the-right-capability), and [OpenAPI 3.1 specification](/openapi/prometheus-exec.openapi.json).
 
 ## A note on the submodule discrepancies
 

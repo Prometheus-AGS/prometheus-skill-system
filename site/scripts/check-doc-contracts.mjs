@@ -41,6 +41,9 @@ if (sitePackage.scripts?.['build:deploy'] !== 'npm run generate:catalog && docus
 if (!sitePackage.scripts?.['docs:check']?.includes('check:mermaid')) {
   failures.push('docs:check does not validate Mermaid source');
 }
+if (!sitePackage.scripts?.['docs:check']?.includes('check:exec-examples')) {
+  failures.push('docs:check does not validate Dynamic Operations examples and semantics');
+}
 const marketplace = json(path.join(repoRoot, '.claude-plugin/marketplace.json'));
 if (marketplace.version !== release || marketplace.plugins?.[0]?.version !== release) {
   failures.push(`Claude marketplace root plugin is not version ${release}`);
@@ -129,10 +132,17 @@ const requiredSidebars = {
   ],
   executionSidebar: [
     'execution/overview-and-use-cases',
+    'execution/choosing-the-right-capability',
+    'execution/closed-loop-architecture',
+    'execution/generating-programs',
     'execution/architecture-and-tiers',
+    'execution/tier-p-native-processes',
+    'execution/tier-w-portable-components',
     'execution/local-api-cli-and-mcp',
     'execution/remote-dispatch-and-reconciliation',
     'execution/receipts-verification-and-certification',
+    'execution/use-case-cookbook',
+    'execution/security-and-trust',
     'execution/installation-doctor-and-recovery',
     'execution/platform-and-evidence-status',
   ],
@@ -157,6 +167,29 @@ for (const [sidebarId, ids] of Object.entries(requiredSidebars)) {
   }
   if (!configSource.includes(`sidebarId: '${sidebarId}'`))
     failures.push(`navbar misses ${sidebarId}`);
+}
+
+if (!configSource.includes("label: 'Dynamic Operations'")) {
+  failures.push('Docusaurus navigation does not promote Dynamic Operations');
+}
+const homepageSource = text(path.join(siteRoot, 'src', 'pages', 'index.js'));
+if (
+  !homepageSource.includes('Turn generated code into verifiable work.') ||
+  !homepageSource.includes('/docs/execution/choosing-the-right-capability')
+) {
+  failures.push('homepage does not feature Dynamic Operations and its decision guide');
+}
+
+for (const example of [
+  'examples/prometheus-exec/README.md',
+  'examples/prometheus-exec/tier-p/transform.py',
+  'examples/prometheus-exec/tier-p/transform.mjs',
+  'examples/prometheus-exec/tier-p/transform.sh',
+  'examples/prometheus-exec/tier-p/records.json',
+]) {
+  if (!fs.existsSync(path.join(repoRoot, example))) {
+    failures.push(`missing runnable Dynamic Operations example ${example}`);
+  }
 }
 
 for (const decision of [

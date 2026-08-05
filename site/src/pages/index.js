@@ -56,7 +56,7 @@ export default function Home() {
   return (
     <Layout
       title="Prometheus Skill Pack"
-      description="Enterprise-grade AI skills, P2P sync, and the Feynman learning engine"
+      description="Governed AI skills, dynamic operations, durable evidence, and compounding learning"
     >
       <main className={styles.main}>
         <section className={styles.hero} aria-labelledby="home-title">
@@ -65,8 +65,8 @@ export default function Home() {
               <p className={styles.eyebrow}>Prometheus 1.7.0</p>
               <h1 id="home-title">Build AI systems that learn without losing control.</h1>
               <p className={styles.lead}>
-                Durable memory, governed learning, and signed skill distribution for teams that need
-                every improvement to remain reproducible and recoverable.
+                Create capabilities, run bounded dynamic operations, preserve signed evidence, and
+                turn verified outcomes into durable learning.
               </p>
               <div className={styles.actions}>
                 <Link
@@ -97,7 +97,7 @@ export default function Home() {
                   <dd>signed targets</dd>
                 </div>
                 <div>
-                  <dt>5</dt>
+                  <dt>6</dt>
                   <dd>versioned binaries</dd>
                 </div>
               </dl>
@@ -108,6 +108,31 @@ export default function Home() {
                 See the evidence model <span aria-hidden="true">→</span>
               </Link>
             </aside>
+          </div>
+        </section>
+
+        <section className={styles.dynamicOperations} aria-labelledby="dynamic-operations-title">
+          <div className="container">
+            <div className={styles.featuredCapability}>
+              <div>
+                <p className={styles.eyebrow}>Dynamic Operations</p>
+                <h2 id="dynamic-operations-title">Turn generated code into verifiable work.</h2>
+                <p>
+                  Prometheus Exec runs bounded Python, Node, Bash, and authorized WebAssembly
+                  components. It records ordered events, content-addressed artifacts, and a signed
+                  receipt—without replacing ordinary agent tools or the native-agent generator.
+                </p>
+              </div>
+              <nav className={styles.featuredLinks} aria-label="Dynamic Operations resources">
+                <Link to="/docs/execution/overview-and-use-cases">
+                  Understand the execution loop
+                </Link>
+                <Link to="/docs/execution/choosing-the-right-capability">
+                  Choose Exec, a toolchain, or an agent
+                </Link>
+                <Link to="/docs/execution/local-api-cli-and-mcp">Run the first operation</Link>
+              </nav>
+            </div>
           </div>
         </section>
 

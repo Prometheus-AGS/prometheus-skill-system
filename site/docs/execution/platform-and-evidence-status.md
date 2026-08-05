@@ -7,6 +7,21 @@ description: Evidence-scoped support matrix for local, remote, embedded, and mob
 
 Readiness is evidence-scoped, not a percentage. Source/build evidence, disposable runtime evidence, installed-host state, remote deployment, mobile size, and physical-device runtime are separate claims.
 
+```mermaid
+flowchart TB
+  accTitle: Prometheus Exec platform topology and evidence
+  accDescr: Desktop hosts run Tier P and Tier W through the local facade. Embedded desktop and mobile hosts use Tier W. Tier R dispatches to enrolled hosts. Linux, Windows, mobile, and production remote boundaries are labeled by their current evidence state.
+  Caller["CLI, MCP, REST, or embedded caller"] --> Facade["Shared local execution facade"]
+  Facade --> MacP["macOS Tier P\nSeatbelt\nruntime-certified on release Mac"]
+  Facade --> LinuxP["Linux Tier P\nbwrap + Landlock\nsource/cross-build only"]
+  Facade --> WindowsP["Windows Tier P\nunavailable"]
+  Facade --> DesktopW["Desktop Tier W\nCranelift + Pulley\nruntime-certified on release Mac"]
+  Facade --> EmbeddedW["Standalone embedded Tier W\nlocally certified"]
+  Facade --> MobileW["iOS/Android Tier W\ncross-buildable; size blocked; device pending"]
+  Remote["Tier R dispatch kernel\ndisposable-runtime certified"] --> Facade
+  Transport["Production transport adapter\npending evidence"] -.-> Remote
+```
+
 | Surface | Status | Evidence boundary |
 | --- | --- | --- |
 | Contract schemas, signatures, receipt log, and offline verifier | Completed | Local unit/property/integration and portable bundle fixtures |
@@ -19,7 +34,7 @@ Readiness is evidence-scoped, not a percentage. Source/build evidence, disposabl
 | Physical iOS/Android runtime | `pending_evidence` | No usable connected physical device produced a signed run bundle |
 | Tier R protocol kernel | Disposable-runtime certified | Isolated peer delivery, auth, replay, expiry, response loss, offline resume, restart, and slow-peer fixtures |
 | Production remote transport deployment | `pending_evidence` | No external transport/service deployment was invoked or certified |
-| Installed host binary/service | Locally certifiable | Requires final release install receipt, signature/hash readback, service state, and doctor archive |
+| Installed host binary/service | Completed for the release Mac | Signed `prometheus-exec 1.7.0` hash readback, service state, and doctor evidence are archived; this does not claim another host is installed |
 
 ## Mobile size status
 

@@ -2,7 +2,7 @@
 
 ## What the prometheus-skill-pack is
 
-The prometheus-skill-pack is a self-improving AI skill execution engine. It ships production-grade skills across eight language domains, a four-layer orchestration pipeline, a Karpathy-pattern knowledge-learning loop, a code-generation enrichment engine, a native-agent generator, and Cedar-governed self-optimization. It installs to ten AI tools. It runs the same durable state substrate underneath all of them.
+The prometheus-skill-pack is a self-improving AI skill execution engine. It ships production-grade skills across eight language domains, a four-layer orchestration pipeline, a Karpathy-pattern knowledge-learning loop, a code-generation enrichment engine, a native-agent generator, Dynamic Operations through Prometheus Exec, and Cedar-governed self-optimization. It installs to supported AI tools from one signed generation and runs the same durable state substrate underneath them.
 
 That is the inventory. The premise is more important than the inventory.
 
@@ -70,11 +70,12 @@ Here is the difference, stated as a scorecard.
 | Self-hosted web extraction | No | Yes (Firecrawl, self-hostable) |
 | Self-updating skills (human-gated) | No | Yes (`pmpo-skill-creator --update`) |
 | Structured phase discipline | No | Yes (KBD: assess → analyze → plan → execute → reflect) |
+| Bounded generated-code operations | No | Yes (Tier P/Tier W + signed receipts and replay) |
 | Periodic background KB enrichment | No | Yes (4-hour nudge agent) |
 | Learning-log → skill-candidate pipeline | No | Yes (`evaluate-session` → `propose-skill-update`) |
 | Progress signals across context windows | No | Yes (`position-reminder.txt` protocol) |
 
-The structural difference is compounding. A bare loop runs at constant capability. A prometheus-skill-pack loop runs at increasing capability: each session writes to memory, each memory enriches the next session's context, each approved skill update makes the next loop turn more accurate. That is not a feature differential. It is a different answer to the question of what a loop is for.
+The structural difference is compounding. A bare loop runs at constant capability. A prometheus-skill-pack loop runs at increasing capability: each session writes to memory, each memory enriches the next session's context, each approved skill update makes the next loop turn more accurate. Dynamic Operations adds the missing evidence boundary when a loop generates code that must run with declared authority, durable replay, artifacts, and a signed receipt. Read [Dynamic Operations with Prometheus Exec](/docs/execution/overview-and-use-cases) for that complete path.
 
 ## How to read the rest of this guide
 

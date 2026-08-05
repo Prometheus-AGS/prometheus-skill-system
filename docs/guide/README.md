@@ -6,7 +6,7 @@ This is the canonical product documentation for the **prometheus-skill-pack**: a
 
 Most teams treat an AI coding agent as something you talk to. You type, it responds, you type again. That posture caps out fast. The prometheus-skill-pack is built on a different premise: you design the loop that prompts the agent, the loop remembers what it learned, and the system proposes improvements to its own skills as it discovers better ways to work. The agent executes. You write loops.
 
-That premise is not aspirational. It is implemented — across Claude Code, OpenCode, Codex, Kimi Code, and five more AI tools — as a four-layer pipeline, three nested loop levels, eight MCP servers, a Karpathy-pattern knowledge base, a structural anti-sycophancy gate, and a Rust toolchain that generates new agents, skills, and native tools on demand.
+That premise is not aspirational. It is implemented across supported AI tools as a four-layer pipeline, three nested loop levels, a Karpathy-pattern knowledge base, a structural anti-sycophancy gate, a Rust toolchain that generates agents, skills, and native tools, and Dynamic Operations that turn eligible generated code into bounded runs with signed evidence.
 
 This documentation explains all of it. Every skill, every tool, every CLI, every script, every hook — documented individually and then collectively, with the architecture diagrams that make the design legible.
 
@@ -76,6 +76,7 @@ The guide is built in layers. Read it top to bottom the first time; use it as a 
 |---|---|
 | [Production Readiness Report](https://github.com/Prometheus-AGS/prometheus-skill-system/blob/main/docs/production-readiness-report.md) | Evidence table separating artifact, disposable-runtime, installed-service, and external-deployment certification |
 | [Deployment Modes](https://github.com/Prometheus-AGS/prometheus-skill-system/blob/main/docs/deployment-modes.md) | Mode 0-3 capability matrix — which services are required for which features |
+| [Dynamic Operations with Prometheus Exec](/docs/execution/overview-and-use-cases) | Choosing generated programs versus native agents, Tier P/W/R theory, APIs, receipts, examples, security, and platform evidence |
 
 ---
 

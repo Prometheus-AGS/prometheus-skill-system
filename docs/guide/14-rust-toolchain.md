@@ -95,6 +95,17 @@ Three Rust skills exist specifically so that the things the pack generates are t
 
 The result is a closed loop at the toolchain level: the pack uses Rust skills to generate Rust tools that the loops depend on, audits them with `prometheus-rust-auditor`, and — when a generated skill proves useful — promotes it through the human-gated update flow. The `start-business-build` pipeline chains the whole sequence: ideation-mindmap → zeespec-interrogator → skill/agent generation → validation. That is dynamic creation of agents, skills, and native tools, end to end.
 
+## Generation ends before evidence-producing execution
+
+The installed toolchain creates and validates programs. It does not make every generated program a Prometheus Exec operation.
+
+- Generated Python, Node, or Bash can enter Tier P when the job is bounded and needs isolation, replay, artifacts, or a signed receipt.
+- Generated Rust can enter Tier W only after it is compiled as a component implementing `prometheus:component@0.1.0` and its exact bytes are authorized.
+- Generated native CLIs and services are built, installed, and operated normally; Tier P does not launch arbitrary native binaries.
+- Generated native agents own long-lived model, protocol, UI, and lifecycle responsibilities. They may delegate a bounded sub-job through an explicit Exec adapter.
+
+This separation keeps authoring flexible and makes execution authority reviewable. See [Generate programs, then choose how they run](/docs/execution/generating-programs).
+
 ## Quality enforcement on generated Rust
 
 Generated Rust does not get a pass on quality. `prometheus-rust-auditor` runs the same staged pipeline — Clippy enforcement, formatting, dependency policy, workspace inventory, partition-based architectural invariants, and CI generation — against generated code as against hand-written code. The architectural invariants (`actor_no_shared_mutable_state`, `wasm_unsafe_confined`, `async_cancellation_safe`) are exactly the properties that are easy to violate when generating concurrent Rust automatically, which is why they are checked rather than assumed.
