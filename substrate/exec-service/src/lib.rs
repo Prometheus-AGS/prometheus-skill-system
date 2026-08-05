@@ -6,5 +6,27 @@
 
 #![forbid(unsafe_code)]
 
+mod event_log;
+mod facade;
+mod http;
+mod ledger;
+mod service;
+
+pub use event_log::{AppendEventResult, RunEvent, RunEventData, RunEventLog, RunEventLogError};
+pub use facade::{
+    ArtifactPayload, LocalExecutionFacade, LocalExecutionFacadeError, DEFAULT_INLINE_ARTIFACT_BYTES,
+};
+pub use http::{
+    build_api_router, ApiErrorDetail, ApiErrorEnvelope, ReadinessSnapshot, ReadinessStatus,
+    RunResponse, SidecarState, SubsystemReadiness,
+};
+#[cfg(unix)]
+pub use http::{peer_is_same_user, UdsSidecar, UdsSidecarError};
+pub use ledger::{
+    AcceptRunResult, GrantPendingRecord, ReconciliationReport, RunLedger, RunLedgerError,
+    RunRecord, SpawnRunResult, SpawnStatus, TerminalCommitResult, TerminalReceiptRecord,
+};
+pub use service::{ExecutionService, ExecutionServiceError, SubmitRunResult};
+
 /// Release family shared by every execution crate.
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");

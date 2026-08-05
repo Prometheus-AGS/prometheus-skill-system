@@ -1,0 +1,32 @@
+[package]
+name = "prometheus-exec-embedded"
+version = "1.7.0"
+edition = "2021"
+rust-version = "1.94"
+license = "MIT"
+description = "Process-runtime-neutral embedded API for Prometheus Exec"
+
+[package.metadata.prometheus]
+exec-layer = "embedded"
+
+[features]
+default = ["standalone"]
+standalone = ["prometheus-exec-tier-w/standalone"]
+mobile = ["prometheus-exec-tier-w/bundled-mobile"]
+
+[dependencies]
+chrono = "0.4"
+ed25519-dalek = "2"
+prometheus-exec-contracts = { path = "../exec-contracts", version = "1.7.0" }
+prometheus-exec-core = { path = "../exec-core", version = "1.7.0" }
+prometheus-exec-service = { path = "../exec-service", version = "1.7.0" }
+prometheus-exec-tier-w = { path = "../exec-tier-w", version = "1.7.0", default-features = false }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+thiserror = "2"
+tokio = { version = "1", features = ["rt", "sync"] }
+uuid = { version = "1", features = ["serde", "v4"] }
+
+[dev-dependencies]
+tempfile = "3"
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }

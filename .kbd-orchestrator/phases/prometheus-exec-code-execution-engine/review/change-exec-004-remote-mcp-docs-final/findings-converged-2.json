@@ -1,0 +1,22 @@
+{
+  "mode": "diff",
+  "verdict": "PASS",
+  "judge_model": "MiniMax-M3",
+  "producer_model": "gpt-5.6-sol",
+  "isolation_mode": "rest-gateway:http://localhost:8181/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [],
+  "checked_classes": [
+    "Spec violations \u2014 reviewed acceptance criteria 1.1 through 6.3 against the selected implementation/spec/docs hunks; the previously rejected nested-receipt verification path is now covered by RemoteOrigin receipt verification before persistence and a regression test.",
+    "Correctness \u2014 checked MCP request construction/replay, remote queue accept/replay/expiry transitions, target execution-time expiry, origin response-loss recovery, installer rollback, and doctor non-mutating paths; no remaining concrete defect is provable from the packet.",
+    "Regressions \u2014 checked changed CLI modes, generated MCP contracts, REST response type refactor, doctor output shape, and release/install scripts against documented usage; no packet evidence shows a broken existing dependency.",
+    "Security \u2014 checked private-key argument rejection, enrolled-key dispatch/response verification, symlink/regular-file checks in doctor/queue, owner-only socket claims, and committed evidence for secrets; no concrete committed secret or authorization bypass is visible.",
+    "Constraint breaches \u2014 checked C-01 through C-05 against touched generated/docs/hooks/scripts surfaces in the packet; no hand-edited generated artifact or launchd bash-3.2-incompatible invoked script violation is demonstrated by the provided diff.",
+    "Silent failure \u2014 checked installer false-green handling, doctor exclusions before remote queue construction, MCP runner readiness, certification pending states, and remote invalid receipt rejection; errors are surfaced rather than swallowed in the shown paths."
+  ],
+  "sycophancy_screen": {
+    "reject_cap": 2,
+    "cap_overridden": false,
+    "cap_default": 2
+  }
+}

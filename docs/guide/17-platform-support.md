@@ -84,6 +84,10 @@ For the pack's own loops, worktree isolation is the default. For loops that run 
 
 These tools receive the skills (MiniMax also gets `_meta.json` metadata and an MCP config at `~/.minimax/mcp/mcp.json`; Cursor gets `~/.cursor/mcp.json`). They run the same shared substrate where MCP is supported, and loop orchestration is driven through the shared shell scripts rather than first-party primitives. The skill content and the durable loop state are identical to every other platform — which means a loop started under Claude Code can be inspected and resumed under any of these, because the state lives on disk, not in the tool.
 
+## Execution portability across hosts
+
+Prometheus Exec is separate from an AI harness's ordinary shell permissions. Tier P uses the host OS sandbox and is runtime-certified only on the release Mac. Tier W runs authorized components under Wasmtime in estate-sidecar, standalone embedded, or bundled-mobile forms. Tier R adds signed enrolled-peer dispatch while retaining each target's local request ledger and receipt. Linux runtime, Windows Tier P, production remote deployment, mobile size compliance, and physical-device execution remain explicitly incomplete where their evidence is unavailable or blocked. See [Platform and evidence status](/docs/execution/platform-and-evidence-status).
+
 ## Target receipts and copy modes
 
 Codex and MiniMax require verified real-directory copies with generation receipts. The other 12 targets link through the active content-addressed generation. Activation fails on a collision, missing receipt, wrong mode, stale path, or dispatcher that resolves outside `generations/`. See [Targets and stable dispatchers](/docs/plugin-distribution/targets-and-dispatchers).

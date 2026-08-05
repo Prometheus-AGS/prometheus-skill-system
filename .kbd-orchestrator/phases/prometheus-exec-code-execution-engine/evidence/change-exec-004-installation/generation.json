@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "generation": "f10ccceecd2b340ea64eff70316829dd0781c13972b2cc0afa84e75e41e71186",
+  "bundleId": "ac153d1ea55ca21fd28cd3332d7b6e0eb6b93c734561efd474b2b8b5dc32aa4e",
+  "sourceCommit": "7b4e943dfd0299fa51cbd6b7afb3d3f1bfd74571",
+  "sourceTreeState": "clean",
+  "skillCount": 145,
+  "skillIndexSha256": "da0fb36f504cb8ed7dcfb3484db23c55284898614ef27ee7a60237059350c60c",
+  "targetReceiptCount": 14,
+  "component": {
+    "id": "entity-graph-optimize",
+    "world": "prometheus:component@0.1.0",
+    "sha256": "ba438895404a23985d5226735b8f362cf3e8044894a1140852ba0992f2fdbe78",
+    "sizeBytes": 55798,
+    "capabilityMetadataSha256": "d5c9e6d2a733b86377ad7447a261461edcbc4f7b9e199e1a74e2534bdd8f303e",
+    "indexSha256": "f914c531fb96dd44928689e0d2deca42bbc37f3de7a507b09f436434cf7175c1"
+  }
+}

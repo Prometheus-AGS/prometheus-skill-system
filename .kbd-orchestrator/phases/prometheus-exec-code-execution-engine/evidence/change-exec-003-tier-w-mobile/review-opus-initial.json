@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 1,
+  "reviewer": {
+    "provider": "Anthropic",
+    "model": "Claude Opus 5",
+    "independence": "distinct model, read-only review"
+  },
+  "verdict": "FAIL",
+  "summary": "The implementation and archive were not certifiable until two medium-severity evidence/correctness blockers were resolved.",
+  "findings": [
+    {
+      "severity": "medium",
+      "code": "tier_w.directory_scope_link_gap",
+      "disposition": "fixed",
+      "detail": "Directory-only K/V read scopes passed preflight validation but did not cause the K/V host interface to be linked, so instantiation could trap."
+    },
+    {
+      "severity": "medium",
+      "code": "mobile.dead_stripped_measurement",
+      "disposition": "fixed-by-honest-failing-evidence",
+      "detail": "The previous mobile delta did not retain the exec graph because no generated FRB dispatcher was linked. Fair retained measurements exceed the 12 MiB gate, so mobile release readiness is now explicitly pending."
+    },
+    {
+      "severity": "low",
+      "code": "tier_w.broad_allow",
+      "disposition": "fixed",
+      "detail": "A broad unsafe/dead-code/unused exemption obscured authorization-module diagnostics."
+    },
+    {
+      "severity": "low",
+      "code": "tier_w.stack_limit_ignored",
+      "disposition": "fixed",
+      "detail": "stackKb was accepted without being bound to the engine-scoped Wasmtime stack limit."
+    },
+    {
+      "severity": "low",
+      "code": "tier_w.peak_memory_zero",
+      "disposition": "fixed",
+      "detail": "Verified receipts always reported zero peak guest memory despite store allocation tracking."
+    },
+    {
+      "severity": "low",
+      "code": "evidence.producer_identity",
+      "disposition": "fixed",
+      "detail": "Embedded and CLI verification artifacts lacked explicit producer identities."
+    }
+  ]
+}

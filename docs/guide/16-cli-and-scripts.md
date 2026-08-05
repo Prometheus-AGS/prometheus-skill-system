@@ -42,6 +42,8 @@ Documented in full on the [Tools Reference](13-tools-reference.md) page; summari
 | Script | Purpose |
 |---|---|
 | `install-plugin-generation.js` | Stage, hash, verify, activate, roll back, or uninstall an immutable 14-target generation. `[--verify] [--rollback] [--uninstall]` |
+| `install-prometheus-exec.sh` | Build/select, version-check, stage, sign, atomically install, and hash-readback `prometheus-exec 1.7.0`. `[--dry-run]` |
+| `install-prometheus-exec-service.sh` | Render and optionally load the private macOS execution LaunchAgent. `[--dry-run] [--no-load]` |
 | `install-platforms.ts` | Multi-platform symlink installer for Claude Code, OpenCode, Cursor, Codex, etc. `[--platform] [--scope] [--uninstall] [--list]` |
 | `install.js` | Copy skills to user or project scope |
 | `install-binaries.sh` | Build and install all six tool binaries to `~/.local/bin/` |
@@ -141,6 +143,10 @@ scripts remain on disk and can still be invoked directly during local work.
 `waypoint-render.sh`.
 
 **Scheduled (`shared/scripts/scheduled/`)** — `ai.prometheus.mem0-compress.plist`, `ai.prometheus.pk-lint.plist`, `mem0-compress.cron`, `pk-lint.cron`. The mem0 compression runs weekly; the `pk lint --fix` sweep runs weekly.
+
+### `prometheus-exec`
+
+`init`, `daemon`, `mcp`, `run`, `status`, `doctor`, `verify`, `verify-bundle`, and `contracts` are the complete CLI command surface. `doctor`, `verify`, and `verify-bundle` are non-mutating. The generated CLI flag, REST route, request/receipt field, MCP tool, component, target, and evidence tables live in the [generated runtime reference](/docs/operations/generated-reference).
 
 ## How the surfaces relate
 

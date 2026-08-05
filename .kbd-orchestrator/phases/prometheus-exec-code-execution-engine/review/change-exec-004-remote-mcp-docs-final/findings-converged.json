@@ -1,0 +1,23 @@
+{
+  "mode": "diff",
+  "verdict": "BLOCK",
+  "judge_model": "MiniMax-M3",
+  "producer_model": "gpt-5.6-sol",
+  "isolation_mode": "rest-gateway:http://localhost:8181/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": "substrate/exec-remote/src/transport.rs",
+      "line": 252,
+      "claim": "The origin accepts and stores an applied peer receipt without verifying the receipt signature against the enrolled target key.",
+      "evidence": "Acceptance criterion 2.3 requires \"verified per-peer receipt return\" and the design states \"Returned peer receipts are verified against the enrolled key and stored before aggregate terminal publication,\" but `RemoteOrigin::dispatch` only calls `verify_peer_response(&response, &dispatch, &self.enrollment)?` and then persists `response.receipt` via `self.queue.transition(... response.state, response.run_id, response.receipt, ...)`; `verify_peer_response` in `substrate/exec-remote/src/crypto.rs` verifies the signed peer response envelope, while receipt verification is only implemented in `RemoteTarget::verify_target_receipt`, so an enrolled peer can sign an envelope containing an invalid or differently signed receipt that the origin records as applied.",
+      "suggested_fix": "Before transitioning to `Applied` in `RemoteOrigin::dispatch`, when `response.receipt` is present, load the target enrollment binding, construct a `VerificationKey`, call `verify_receipt(&receipt, &key, Some(&dispatch.request), None)`, and reject the response unless it is valid; add a regression with a valid peer-response signature carrying an invalid receipt signature."
+    }
+  ],
+  "sycophancy_screen": {
+    "reject_cap": 2,
+    "cap_overridden": false,
+    "cap_default": 2
+  }
+}

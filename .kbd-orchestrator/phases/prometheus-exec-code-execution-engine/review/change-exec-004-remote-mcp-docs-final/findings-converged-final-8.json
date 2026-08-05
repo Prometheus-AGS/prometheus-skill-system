@@ -1,0 +1,18 @@
+{
+  "mode": "diff",
+  "verdict": "BLOCK",
+  "judge_model": "MiniMax-M3",
+  "producer_model": "gpt-5.6-sol",
+  "isolation_mode": "rest-gateway:http://localhost:8181/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": "substrate/exec-service/src/event_log.rs",
+      "line": 333,
+      "claim": "An oversized first event can produce an empty page with `has_more=true`, causing MCP clients to loop forever with an unchanged `nextAfter` cursor.",
+      "evidence": "The added `events_page_after` returns `Ok((events, true))` when `response_bytes.saturating_add(encoded_bytes) > max_bytes` before pushing the event; if `events` is empty, `crates/prometheus-exec/src/mcp.rs` computes `next_after = events.last().map_or(after, |event| event.sequence)`, so the caller receives no events, `hasMore: true`, and the same exclusive cursor. This violates the documented continuation contract in `site/docs/execution/local-api-cli-and-mcp.md`: `Pass the returned exclusive nextAfter cursor as the next call's after; hasMore indicates that another page is available.`",
+      "suggested_fix": "If the next event alone exceeds the byte budget, return an explicit error instead of an empty `has_more` page, or otherwise guarantee cursor progress without silently skipping the event."
+    }
+  ]
+}

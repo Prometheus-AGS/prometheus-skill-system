@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "world": "prometheus:component@0.1.0",
+  "component_sha256": "ba438895404a23985d5226735b8f362cf3e8044894a1140852ba0992f2fdbe78",
+  "input": "{}",
+  "kv_store": {},
+  "clock_ms": 0,
+  "expected_output": "{\"kbd\":{\"available\":false},\"evolver\":{\"available\":false},\"refiner\":{\"available\":false},\"openspec\":{\"available\":false}}"
+}

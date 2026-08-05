@@ -1,0 +1,37 @@
+{
+  "mode": "diff",
+  "verdict": "BLOCK",
+  "judge_model": "MiniMax-M3",
+  "producer_model": "gpt-5.6-sol",
+  "isolation_mode": "rest-gateway:http://localhost:8181/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": ".prometheus/knowledge/wiki/index.md",
+      "claim": "The diff does not implement the required MCP shared-service surface at all.",
+      "evidence": "Acceptance criteria 1.1-1.3 require a reusable local execution facade, `prometheus-exec --mode mcp`, typed rmcp tools, schema generation, and fixtures, but the diff only changes `.prometheus/knowledge/wiki/index.md`, `.prometheus/knowledge/wiki/log.md`, and `.prometheus/knowledge/wiki/prometheus-exec-code-execution-engine-session-complete.md` with no changes under `crates/prometheus-exec`, schemas, or tests.",
+      "suggested_fix": "Add the actual MCP implementation, shared facade, schema generation/drift checks, and required fixtures, or narrow the acceptance criteria to match a documentation-only/wiki-only change."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": ".prometheus/knowledge/wiki/log.md",
+      "claim": "The diff does not implement the required estate-only remote dispatch functionality.",
+      "evidence": "Acceptance criteria 2.1-2.4 require `exec-remote` contracts, durable dispatch queue behavior, injected transport/origin/target flow, receipt aggregation, and remote dispatch fixtures, but the diff contains no changes under `substrate/exec-remote`, `crates`, tests, or transport code.",
+      "suggested_fix": "Implement the remote dispatch crate/contracts/queue/transport behavior and fixtures required by criteria 2.1-2.4."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": ".prometheus/knowledge/wiki/prometheus-exec-code-execution-engine-session-complete.md",
+      "claim": "The required canonical API and public documentation updates are missing.",
+      "evidence": "Acceptance criteria 5.1-5.3 require OpenAPI/generated references, a canonical Docusaurus Execution section, numbered guide updates, crate READMEs, troubleshooting references, and ADRs, but the diff modifies only `.prometheus/knowledge/wiki/*` and does not touch `docs/`, `site/docs/`, OpenAPI/generated references, crate READMEs, or ADR files.",
+      "suggested_fix": "Add the required OpenAPI/generated reference updates and public documentation changes in `docs/`, `site/docs/`, crate READMEs, troubleshooting docs, and ADRs."
+    },
+    {
+      "severity": "CRITICAL",
+      "claim": "The final phase completion criterion is explicitly unsatisfied.",
+      "evidence": "Acceptance criterion 6.3 is marked `[ ]` and requires install/sign/readback of the final binary and generation, artifact-refiner and distinct-model review, OpenSpec verification/archive, and KBD phase closure; the diff contains only wiki metadata/content edits and no evidence of those actions.",
+      "suggested_fix": "Complete and commit evidence for the install/sign/readback, reviews, OpenSpec archive, and KBD phase closure, then mark criterion 6.3 satisfied only if actually completed."
+    }
+  ]
+}

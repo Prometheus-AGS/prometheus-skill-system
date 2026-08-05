@@ -7,6 +7,7 @@ import { resolve } from 'node:path';
 
 const args = process.argv.slice(2);
 const command = args.shift();
+const MAX_GIT_OUTPUT_BYTES = 128 * 1024 * 1024;
 const repository = execFileSync('git', ['rev-parse', '--show-toplevel'], {
   encoding: 'utf8',
 }).trim();
@@ -28,7 +29,11 @@ function canonical(value) {
 }
 
 function git(...gitArgs) {
-  return execFileSync('git', gitArgs, { cwd: repository, encoding: 'buffer' });
+  return execFileSync('git', gitArgs, {
+    cwd: repository,
+    encoding: 'buffer',
+    maxBuffer: MAX_GIT_OUTPUT_BYTES,
+  });
 }
 
 function commit(ref) {

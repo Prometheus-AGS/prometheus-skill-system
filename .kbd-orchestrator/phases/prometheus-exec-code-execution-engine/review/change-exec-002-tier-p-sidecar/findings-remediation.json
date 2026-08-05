@@ -1,0 +1,58 @@
+{
+  "mode": "diff",
+  "verdict": "BLOCK",
+  "judge_model": "k3",
+  "producer_model": "gpt-5.6-sol",
+  "isolation_mode": "rest-gateway:http://127.0.0.1:4000/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": "substrate/exec-service/src/http.rs",
+      "line": 310,
+      "claim": "On submit conflict/error, release_request unpins by reason `request:{request_id}`, which is identical for the conflicting submission and the still-queued original request, so any input hash shared between the two requests has its live pin removed and becomes eligible for GC while the original run is non-terminal.",
+      "evidence": "http.rs Err arm calls `artifacts.release_request(&request)`; artifact.rs `release_request` builds `reason = format!(\"request:{}\", request.request_id)` and unpins code + every input hash. A 409 `request_hash_conflict` (same request_id, different body \u2014 exactly the scenario in the new http_api.rs test) means both submissions share the pin-reason string; if any input hash is shared, the conflicting handler's rollback deletes the marker `pins/<shared_hash>/<request:{id}>` that protects the queued original. The new test only asserts on hashes that differ (`original_blob` vs `different_blob`), so this clobbering is untested. Violates criterion 5 ('request pins live only while non-terminal') for the original run.",
+      "suggested_fix": "Make the rollback hash-aware: before unpinning on conflict, load the ledgered record for that request_id and skip any hash present in its request (or include the request_hash in the pin reason so each submission owns distinct markers)."
+    },
+    {
+      "severity": "WARNING",
+      "file": "crates/prometheus-exec/src/daemon.rs",
+      "line": 89,
+      "claim": "A single record whose retention fails now aborts daemon startup entirely (`retain_reconciled_receipts(&service, &artifacts)?`), so one bad record still halts all queued execution \u2014 the failure mode criterion 1 requires eliminating is moved, not removed, and within the loop one record's failure also skips retention for all subsequent records.",
+      "evidence": "daemon.rs startup: `retain_reconciled_receipts(&service, &artifacts)?;` propagates any error before `state.install`; `retain_reconciled_receipts` uses `?` inside `for record in service.ledger().records()?`, aborting on the first failing record. Criterion 1: 'one request-retention failure must not halt all queued execution'.",
+      "suggested_fix": "Log per-record retention failures and continue reconciling the remaining records; fail startup only if the ledger itself cannot be read."
+    },
+    {
+      "severity": "WARNING",
+      "file": "crates/prometheus-exec/src/main.rs",
+      "line": 289,
+      "claim": "The CLI rollback loop uses `?` on `artifacts.unpin(hash, &request_pin)`, so a failure unpinning one hash aborts rollback of the remaining pinned hashes and replaces the original CAS error, leaking pins \u2014 a residual gap against criterion 3.",
+      "evidence": "main.rs: `Err(error) => { for hash in &pinned_hashes { artifacts.unpin(hash, &request_pin)?; } return Err(error.into()); }` \u2014 the `?` inside the loop short-circuits both the rollback and the original error return. Criterion 3: 'CLI request pins must not leak on local validation/CAS failure'.",
+      "suggested_fix": "Collect rollback errors without early return (e.g. `let _ = artifacts.unpin(...)` or accumulate), then return the original `error`."
+    },
+    {
+      "severity": "WARNING",
+      "file": "substrate/exec-service/src/http.rs",
+      "line": 312,
+      "claim": "When pin rollback itself fails on the submit-error path, the handler replaces the real service error (e.g. 409 request_hash_conflict, 400 validation) with a 503 artifact_unavailable, changing the API's error semantics observed by clients.",
+      "evidence": "http.rs Err arm: on `release_request` failure it returns `ApiErrorEnvelope::new(\"artifact_unavailable\", ...).response(StatusCode::SERVICE_UNAVAILABLE)` instead of `map_service_error(error)`; the pre-existing contract (asserted in the same test file: `conflict.error.code == \"request_hash_conflict\"`) is discarded whenever rollback also fails.",
+      "suggested_fix": "Return `map_service_error(error)` and only log/annotate the rollback failure, preserving the primary error classification."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "crates/prometheus-exec/src/daemon.rs",
+      "line": 449,
+      "claim": "In commit_terminal_with_retention, a release_receipt failure masks the original commit error (`artifacts.release_receipt(...)?` precedes `return Err(commit_error.into())`), and after a successful durable commit, release_request/garbage_collect failures propagate as processing errors even though the terminal state is already published.",
+      "evidence": "daemon.rs: `if let Err(commit_error) = service.commit_terminal(...) { artifacts.release_receipt(&record.request, &receipt)?; return Err(commit_error.into()); } artifacts.release_request(&record.request)?; artifacts.garbage_collect()?;`",
+      "suggested_fix": "Log rollback/cleanup failures without propagating them over the commit result; only the commit outcome should determine the returned error."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "crates/prometheus-exec/src/main.rs",
+      "line": 285,
+      "claim": "Criterion 7 requires tests proving rollback, but no test covers the new CLI partial-pin rollback path in main.rs (input put_pinned failure after code pin); the added tests cover release_receipt (artifact_cas.rs) and HTTP conflict/invalid cleanup only.",
+      "evidence": "acceptance_criteria item (7) 'tests prove rollback and conflict/invalid-request cleanup'; the diff adds tests in substrate/exec-core/tests/artifact_cas.rs and substrate/exec-service/tests/http_api.rs, none exercising the main.rs rollback loop.",
+      "suggested_fix": "Add a test (or extract the pinning routine into a testable function) that fails an input put_pinned and asserts all previously pinned hashes for the request are unpinned."
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "producer": "prometheus-exec-tier-w-evidence-producer",
+  "verificationSurface": "EmbeddedExecutionApi::verify",
+  "implementation": "prometheus-exec-core shared verifier",
+  "implementationIndependent": false,
+  "replayBackend": "pulley",
+  "sourceBoundary": "working tree after 4da9748",
+  "resultFile": "verification.json"
+}

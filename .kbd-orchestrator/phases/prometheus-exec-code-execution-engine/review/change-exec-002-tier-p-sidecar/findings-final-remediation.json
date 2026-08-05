@@ -1,0 +1,27 @@
+{
+  "mode": "diff",
+  "verdict": "BLOCK",
+  "judge_model": "gpt-5.4",
+  "producer_model": "gpt-5.6-sol",
+  "isolation_mode": "rest-gateway:http://127.0.0.1:4000/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": "substrate/exec-service/src/http.rs",
+      "line": 292,
+      "claim": "The handler releases the CLI upload pin before it knows whether the service accepted the request, allowing evidence to become collectible if submit fails after request-pin retention cannot cover all request artifacts.",
+      "evidence": "In `create_run`, `artifacts.release_upload(&request)` is executed immediately after `retain_for_request(&request)` and before `match service.submit(request.clone())`. `retain_for_request` uses `pin_when_present_unlocked` for each artifact, so missing request artifacts are tolerated, while `release_upload` unconditionally unpins all request hashes. If submit then returns `Err(...)`, the rollback path only logs any `release_request` failure; there is no restoration of the upload ownership. This violates the constraint that evidence pins \"must be transactionally owned and must not be collectible before durable terminal publication.\"",
+      "suggested_fix": "Keep upload ownership until after `service.submit` succeeds, or make the transfer atomic under one lock so upload pins are only dropped once durable request ownership is confirmed for every referenced hash."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "crates/prometheus-exec/src/daemon.rs",
+      "line": 474,
+      "claim": "Startup reconciliation can drop the last live pin for a terminal record that lacks a stored receipt, making durable evidence collectible even though terminal publication exists.",
+      "evidence": "`retain_reconciled_receipts` treats `record.state.is_terminal()` with `record.terminal == None` as `Ok(())`, logs `\"terminal record {} has no terminal receipt\"`, and then still executes `.and_then(|()| artifacts.release_request(&record.request))`. That releases request ownership without creating receipt ownership for the terminal record. The constraint requires evidence pins to remain owned until durable terminal publication; this path leaves terminal records with no pin at all.",
+      "suggested_fix": "Do not release the request pin for terminal records unless receipt retention succeeds and a terminal receipt is actually present; otherwise fail reconciliation or preserve the request pin."
+    }
+  ],
+  "checked_classes": []
+}

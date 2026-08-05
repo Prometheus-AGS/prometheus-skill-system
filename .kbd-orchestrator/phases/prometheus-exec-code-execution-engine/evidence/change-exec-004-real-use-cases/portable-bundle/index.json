@@ -1,0 +1,29 @@
+{
+  "artifacts": [],
+  "environment": "macos-local-release-candidate",
+  "environments": [
+    {
+      "hash": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "path": "environment.json",
+      "sizeBytes": 2
+    }
+  ],
+  "receipt": {
+    "hash": "sha256:6e8d0aef1abe3ff9ff52d74f8a5d83ea8e72b22e70e663949ee8b7df3bea5818",
+    "path": "receipt.json",
+    "sizeBytes": 1937
+  },
+  "request": {
+    "hash": "sha256:37ce7e4d22e33ccea637bca47325de5ff71d5875d12816eba2a55fe72379bebf",
+    "path": "request.json",
+    "sizeBytes": 1368
+  },
+  "requirementId": "exec.release-real-use-cases",
+  "runId": "cf4045ba-7a3d-4be4-a2e3-83337dca3329",
+  "schemaVersion": "1",
+  "verificationIdentity": {
+    "keyId": "ed25519:dce9ba5dd030c9aee94afc9cd0b43cd822382172dc96775033e43700e3bfec53",
+    "publicKey": "aVFcE-CvV__0m4EGk_pUxosOblo_qKRHJlPtvZdo92I",
+    "sigAlg": "ed25519"
+  }
+}

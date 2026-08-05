@@ -9,15 +9,17 @@ failure this phase exists to prevent.
 Pattern: **`flutter_rust_bridge` 2.12.0**, per
 [`docs/decisions/mobile-ffi-pattern.md`](../../docs/decisions/mobile-ffi-pattern.md).
 
-## Status: builds and round-trips; skills remain unbound, mobile KBD is live
+## Status: Prometheus Exec is live; legacy `run_skill` remains unbound
 
 | Claim | Status |
 |---|---|
-| builds for `aarch64-apple-ios` | **yes** — 16,408-byte arm64 Mach-O dylib |
-| builds for `aarch64-linux-android` | **yes** — 454,856-byte arm64 ELF `.so` |
-| round-trip tests assert on returned values | **yes** — 9 passing |
+| exec-enabled `aarch64-apple-ios` build | **builds; release pending** — retained delta 25,935,300 bytes exceeds 12 MiB |
+| exec-enabled `aarch64-linux-android` build | **builds; release pending** — retained delta 31,701,736 bytes exceeds 12 MiB |
+| generated FRB dispatcher | **yes** — checked in, reproducible, and export-checked for both mobile ABIs |
+| round-trip tests assert on returned values | **yes** — 12 passing |
 | `crate-type` matches KnowMe's `gen_ui_ffi` | **yes** — `cdylib`, `staticlib`, `rlib` |
-| **actually invokes a skill** | **NO** |
+| `exec_run` actually invokes a signed Tier W component | **yes** |
+| legacy `run_skill` resolves catalog IDs automatically | **NO** |
 
 `run_skill` returns `Unsupported` with `"no host bound"` rather than a result.
 That is the truthful answer while UAR's Wasm runtime is a stub
@@ -25,8 +27,15 @@ That is the truthful answer while UAR's Wasm runtime is a stub
 ran when nothing did. One test asserts exactly this, so a future change cannot
 quietly make it fake success.
 
-This limitation applies only to the unrelated Wasm skill host. The mobile KBD
-surface is implemented by `kbd-mobile` and exposes:
+The Prometheus Exec surface is separately live. Trusted Rust host code installs
+one `EmbeddedExecutionApi`; plain async `exec_run`, `exec_status`,
+`exec_events`, `exec_receipt`, `exec_artifact`, and `exec_verify` functions in
+`api.rs` are available to Flutter Rust Bridge. They return concrete values and
+signed receipts, use the embedding app's existing Tokio runtime, and never
+accept private signing keys. The same `EmbeddedExecutionAdapter` methods are
+usable as thin Tauri commands.
+
+The mobile KBD surface is implemented by `kbd-mobile` and exposes:
 
 - restricted capability discovery;
 - host-key preparation and attachment for signed commands;
@@ -52,9 +61,13 @@ The pattern decision was recorded **provisional** pending two checks, to be run
 `flutter_rust_bridge` generates from the plain signature, so the marginal cost of
 a new function is the function.
 
+Canonical execution status and deployment boundaries are documented in [Execution architecture](/docs/execution/architecture-and-tiers) and [Platform and evidence status](/docs/execution/platform-and-evidence-status).
+
 ## Build
 
 ```bash
+bash generate-frb.sh          # deterministic Rust bridge regeneration
+bash generate-frb.sh --check  # fail on checked-in dispatcher drift
 bash build-mobile.sh all      # ios + android
 bash build-mobile.sh ios
 RUSTUP_TOOLCHAIN=stable cargo test
@@ -70,9 +83,16 @@ Two environment facts the script encodes, both of which cost time to discover:
   host target. Unrelated to this crate, but it makes a bare `cargo test` fail
   confusingly.
 
-## What is deliberately absent
+## Release boundary
 
-- **No generated Dart yet.** `flutter_rust_bridge_codegen` output belongs with
-  the consuming app; generating it here would commit bindings nothing imports.
-- **No host dispatch.** Wiring one now would produce a call that silently
-  returns UAR's placeholder string — worse than the honest `Unsupported`.
+- **Generated Rust glue is checked in.** It is the exported dispatcher that
+  retains the complete API graph. `generate-frb.sh` pins codegen 2.12.0 and
+  reproduces it byte-for-byte. Generated Dart remains owned by the consuming
+  application and is intentionally not committed here.
+- **Mobile Tier W is not release-ready.** Fair baseline/current measurements
+  include a generated dispatcher on both sides. The retained iOS and Android
+  deltas exceed the 12 MiB gate, and physical-device round trips are still
+  pending. Cross-build success is not represented as mobile certification.
+- **No implicit catalog-ID dispatch in `run_skill`.** Callers use the explicit
+  content-addressed `exec_run` contract until catalog resolution is bound to a
+  trusted host generation.

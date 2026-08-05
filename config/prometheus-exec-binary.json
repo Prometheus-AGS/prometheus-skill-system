@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "name": "prometheus-exec",
+  "release": "1.7.0",
+  "manifestPath": "crates/prometheus-exec/Cargo.toml",
+  "sourcePath": "crates/prometheus-exec/target/release/prometheus-exec",
+  "installPath": "~/.local/bin/prometheus-exec",
+  "expectedVersion": "prometheus-exec 1.7.0",
+  "expectedBuildSha256": "ae70b4d2e128f0f69afe25f21983a84a56c93fba351821f020e4c37976981e4f",
+  "installReceipt": "~/.prometheus/install/manifests/prometheus-exec.json"
+}

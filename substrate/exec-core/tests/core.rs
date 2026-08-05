@@ -77,6 +77,9 @@ fn baseline_policy_is_deterministic_and_never_broadens() {
     let mut request = job().request;
     assert_eq!(policy.evaluate(&request), PolicyOutcome::AutoApproved);
 
+    request.capabilities.fs.read_only = vec![".evolver/".into(), "openspec/".into()];
+    assert_eq!(policy.evaluate(&request), PolicyOutcome::AutoApproved);
+
     request.capabilities.net.egress = vec!["example.com:443".into()];
     request.capabilities.env.read = vec!["TOKEN".into()];
     let expected = PolicyOutcome::GrantRequired {
@@ -122,9 +125,15 @@ fn receipt_assembly_produces_portable_signed_evidence() {
         toolchain_hash: Some(hash_bytes(b"python3-toolchain")),
         environment: BTreeMap::new(),
         platform: "macos-aarch64".into(),
+        component: None,
+        failure: None,
     };
 
-    let receipt = assembler.assemble(&validated, execution).unwrap();
+    let run_id = Uuid::new_v4();
+    let receipt = assembler
+        .assemble_for_run(run_id, &validated, execution)
+        .unwrap();
+    assert_eq!(receipt.run_id, run_id);
     assert_eq!(receipt.evidence_class, EvidenceClass::Attested);
     assert_eq!(receipt.outputs.stdout, hash_bytes(b"ok\n"));
     assert_eq!(receipt.grants.len(), 1);

@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::{
     hash_bytes, verify_receipt_signature, ContractError, ExecutionReceipt, SignedExecRequest,
-    VerificationKey,
+    TierWReplayResult, VerificationKey,
 };
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
@@ -34,6 +34,10 @@ pub struct VerificationResult {
     pub checks: Vec<VerificationCheck>,
     #[serde(default)]
     pub failures: Vec<VerificationFailure>,
+    /// Optional deterministic backend replay. Signature/hash verification is
+    /// still complete and transport-free when this field is absent.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub replay: Option<TierWReplayResult>,
 }
 
 impl VerificationResult {
@@ -43,6 +47,7 @@ impl VerificationResult {
             receipt_hash: Some(receipt_hash),
             checks: Vec::new(),
             failures: Vec::new(),
+            replay: None,
         }
     }
 

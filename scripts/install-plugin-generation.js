@@ -55,6 +55,33 @@ const PAYLOAD_ROOTS = [
 ];
 const MANIFEST_SIGNATURE = 'manifest.sig.json';
 const SKILL_INDEX_SCHEMA = 'prometheus-skill-index-v1';
+const COMPONENT_INDEX_SCHEMA = 'prometheus-exec-component-index-v1';
+const EXEC_COMPONENT_DESCRIPTOR = 'config/prometheus-exec-component.json';
+const EXEC_HOST_IMPORTS = [
+  'prometheus:component/types@0.1.0',
+  'prometheus:component/log@0.1.0',
+  'prometheus:component/kv-store@0.1.0',
+  'prometheus:component/input@0.1.0',
+  'prometheus:component/output@0.1.0',
+  'prometheus:component/clock@0.1.0',
+  'prometheus:component/random@0.1.0',
+];
+const EXEC_WASI_IMPORTS = [
+  'wasi:io/poll@0.2.9',
+  'wasi:clocks/monotonic-clock@0.2.9',
+  'wasi:io/error@0.2.9',
+  'wasi:io/streams@0.2.9',
+  'wasi:cli/stdout@0.2.9',
+  'wasi:cli/stderr@0.2.9',
+  'wasi:cli/stdin@0.2.9',
+  'wasi:cli/environment@0.2.9',
+  'wasi:cli/exit@0.2.9',
+  'wasi:cli/terminal-input@0.2.9',
+  'wasi:cli/terminal-output@0.2.9',
+  'wasi:cli/terminal-stdin@0.2.9',
+  'wasi:cli/terminal-stdout@0.2.9',
+  'wasi:cli/terminal-stderr@0.2.9',
+];
 const SIGNATURE_NAMESPACE = 'prometheus-plugin-generation-v1';
 
 function fail(message) {
@@ -450,14 +477,166 @@ function sourceProvenance(sourceRoot) {
   return { sourceCommit, sourceTreeState, externalSources };
 }
 
-function targetPayloads(skills) {
+function stageExecutionComponent(source, staging) {
+  const descriptorPath = path.join(source, ...EXEC_COMPONENT_DESCRIPTOR.split('/'));
+  if (!fs.existsSync(descriptorPath)) {
+    fail(`execution component descriptor is missing: ${EXEC_COMPONENT_DESCRIPTOR}`);
+  }
+  const descriptor = JSON.parse(fs.readFileSync(descriptorPath, 'utf8'));
+  if (
+    descriptor.schemaVersion !== 1 ||
+    descriptor.release !== '1.7.0' ||
+    !/^[a-z0-9][a-z0-9-]*$/.test(descriptor.componentId ?? '') ||
+    descriptor.world !== 'prometheus:component@0.1.0' ||
+    !/^[a-f0-9]{64}$/.test(descriptor.sha256 ?? '') ||
+    !Number.isSafeInteger(descriptor.sizeBytes) ||
+    canonicalJson(descriptor.capabilities?.hostImports) !== canonicalJson(EXEC_HOST_IMPORTS) ||
+    canonicalJson(descriptor.capabilities?.wasiAdapterImports) !== canonicalJson(EXEC_WASI_IMPORTS)
+  ) {
+    fail('execution component descriptor is invalid');
+  }
+  const sourceRelative = path.posix.normalize(descriptor.sourcePath ?? '');
+  if (
+    !sourceRelative ||
+    sourceRelative !== descriptor.sourcePath ||
+    sourceRelative.startsWith('../') ||
+    path.isAbsolute(sourceRelative)
+  ) {
+    fail('execution component source path is unsafe');
+  }
+  const sourceArtifact = path.join(source, ...sourceRelative.split('/'));
+  const artifactBytes = fs.readFileSync(sourceArtifact);
+  if (
+    sha256(artifactBytes) !== descriptor.sha256 ||
+    artifactBytes.length !== descriptor.sizeBytes
+  ) {
+    fail('execution component bytes differ from the checked capability descriptor');
+  }
+
+  const componentRoot = path.posix.join('components', descriptor.componentId);
+  const artifactPath = sourceRelative;
+  const capabilityMetadataPath = path.posix.join(componentRoot, 'component.json');
+  const descriptorBytes = Buffer.from(canonicalJson(descriptor));
+  atomicWrite(path.join(staging, ...capabilityMetadataPath.split('/')), descriptorBytes);
+
+  const componentEntry = {
+    componentId: descriptor.componentId,
+    world: descriptor.world,
+    artifactPath,
+    sha256: descriptor.sha256,
+    sizeBytes: descriptor.sizeBytes,
+    capabilityMetadataPath,
+    capabilityMetadataSha256: sha256(descriptorBytes),
+  };
+  const indexBody = { schemaVersion: COMPONENT_INDEX_SCHEMA, components: [componentEntry] };
+  const componentIndex = { ...indexBody, sha256: sha256(canonicalJson(indexBody)) };
+  const indexBytes = Buffer.from(canonicalJson(componentIndex));
+  for (const relative of [
+    'indexes/components.json',
+    'agents/component-index.json',
+    'mobile/component-index.json',
+  ]) {
+    atomicWrite(path.join(staging, ...relative.split('/')), indexBytes);
+  }
+  return {
+    ...componentEntry,
+    indexPath: 'indexes/components.json',
+    indexSha256: sha256(indexBytes),
+  };
+}
+
+function targetPayloads(skills, executionComponent) {
   const digest = sha256(canonicalJson(skills));
   return TARGETS.map(target => ({
     target,
     mode: COPY_TARGETS.has(target) ? 'copy' : 'symlink',
     skillCount: skills.length,
     skillsSha256: digest,
+    executionComponentSha256: executionComponent.sha256,
+    executionCapabilitySha256: executionComponent.capabilityMetadataSha256,
+    executionComponentIndexSha256: executionComponent.indexSha256,
   }));
+}
+
+function verifyExecutionComponent(generationPath, manifest) {
+  const component = manifest.executionComponent;
+  if (
+    component?.world !== 'prometheus:component@0.1.0' ||
+    !/^[a-f0-9]{64}$/.test(component?.sha256 ?? '') ||
+    !Number.isSafeInteger(component?.sizeBytes) ||
+    !/^[a-f0-9]{64}$/.test(component?.capabilityMetadataSha256 ?? '') ||
+    !/^[a-f0-9]{64}$/.test(component?.indexSha256 ?? '')
+  ) {
+    fail('generation execution component receipt is invalid');
+  }
+  const safeFile = relative => {
+    const normalized = path.posix.normalize(relative ?? '');
+    if (
+      !normalized ||
+      normalized !== relative ||
+      normalized.startsWith('../') ||
+      path.isAbsolute(normalized)
+    ) {
+      fail('generation execution component path is unsafe');
+    }
+    return path.join(generationPath, ...normalized.split('/'));
+  };
+  const artifactBytes = fs.readFileSync(safeFile(component.artifactPath));
+  if (sha256(artifactBytes) !== component.sha256 || artifactBytes.length !== component.sizeBytes) {
+    fail('generation execution component artifact is invalid');
+  }
+  const descriptorBytes = fs.readFileSync(safeFile(component.capabilityMetadataPath));
+  if (sha256(descriptorBytes) !== component.capabilityMetadataSha256) {
+    fail('generation execution capability metadata is invalid');
+  }
+  const descriptor = JSON.parse(descriptorBytes);
+  if (
+    descriptor.schemaVersion !== 1 ||
+    descriptor.release !== manifest.sourceVersion ||
+    !/^[a-z0-9][a-z0-9-]*$/.test(component.componentId ?? '') ||
+    descriptor.componentId !== component.componentId ||
+    descriptor.world !== component.world ||
+    descriptor.sha256 !== component.sha256 ||
+    descriptor.sizeBytes !== component.sizeBytes ||
+    canonicalJson(descriptor.capabilities?.hostImports) !== canonicalJson(EXEC_HOST_IMPORTS) ||
+    canonicalJson(descriptor.capabilities?.wasiAdapterImports) !== canonicalJson(EXEC_WASI_IMPORTS)
+  ) {
+    fail('generation execution capability metadata does not match its receipt');
+  }
+  if (descriptor.sourcePath !== component.artifactPath) {
+    fail('generation skill component path and execution receipt diverge');
+  }
+  const indexPaths = [
+    component.indexPath,
+    'agents/component-index.json',
+    'mobile/component-index.json',
+  ];
+  const indexBytes = fs.readFileSync(safeFile(indexPaths[0]));
+  if (
+    sha256(indexBytes) !== component.indexSha256 ||
+    !indexBytes.equals(fs.readFileSync(safeFile(indexPaths[1]))) ||
+    !indexBytes.equals(fs.readFileSync(safeFile(indexPaths[2])))
+  ) {
+    fail('host/generated-agent/mobile execution component indexes diverge');
+  }
+  const index = JSON.parse(indexBytes);
+  const indexBody = { schemaVersion: index.schemaVersion, components: index.components };
+  const expectedEntry = {
+    componentId: component.componentId,
+    world: component.world,
+    artifactPath: component.artifactPath,
+    sha256: component.sha256,
+    sizeBytes: component.sizeBytes,
+    capabilityMetadataPath: component.capabilityMetadataPath,
+    capabilityMetadataSha256: component.capabilityMetadataSha256,
+  };
+  if (
+    index.schemaVersion !== COMPONENT_INDEX_SCHEMA ||
+    index.sha256 !== sha256(canonicalJson(indexBody)) ||
+    canonicalJson(index.components) !== canonicalJson([expectedEntry])
+  ) {
+    fail('generation execution component index is invalid');
+  }
 }
 
 function verifyReleaseManifest(payloadRoot, expectedBundle = null) {
@@ -529,6 +708,7 @@ function verifyGeneration(
     hookRuntime: manifest.hookRuntime,
     sourceProvenance: manifest.sourceProvenance,
     skillIndex: manifest.skillIndex,
+    executionComponent: manifest.executionComponent,
     files: manifest.files,
     targetPayloads: manifest.targetPayloads,
   };
@@ -545,10 +725,17 @@ function verifyGeneration(
   if (manifest.signerKeyId !== signerKeyId) fail('manifest signer does not match its signature');
   if (!Array.isArray(manifest.targetPayloads) || manifest.targetPayloads.length !== TARGETS.length)
     fail('generation does not certify all 14 targets');
+  verifyExecutionComponent(generationPath, manifest);
   for (let index = 0; index < TARGETS.length; index += 1) {
     const payload = manifest.targetPayloads[index];
     const wantedMode = COPY_TARGETS.has(TARGETS[index]) ? 'copy' : 'symlink';
-    if (payload?.target !== TARGETS[index] || payload?.mode !== wantedMode) {
+    if (
+      payload?.target !== TARGETS[index] ||
+      payload?.mode !== wantedMode ||
+      payload?.executionComponentSha256 !== manifest.executionComponent.sha256 ||
+      payload?.executionCapabilitySha256 !== manifest.executionComponent.capabilityMetadataSha256 ||
+      payload?.executionComponentIndexSha256 !== manifest.executionComponent.indexSha256
+    ) {
       fail('generation target payload matrix does not match the canonical 14 targets');
     }
   }
@@ -837,6 +1024,9 @@ function targetReceipt(manifest, targetPayload) {
     skillCount: targetPayload.skillCount,
     skillsSha256: targetPayload.skillsSha256,
     skillIndexSha256: manifest.skillIndex.sha256,
+    executionComponentSha256: targetPayload.executionComponentSha256,
+    executionCapabilitySha256: targetPayload.executionCapabilitySha256,
+    executionComponentIndexSha256: targetPayload.executionComponentIndexSha256,
     status: 'verified',
   };
 }
@@ -863,7 +1053,10 @@ function verifyTargetReceipts(pluginRoot, manifest, trustStorePath) {
     if (canonicalJson(receipt.body) !== canonicalJson(expected)) {
       fail(`target receipt body mismatch: ${targetPayload.target}`);
     }
-    verifySignedValue(receipt.body, receipt.signature, trustStorePath);
+    const receiptSigner = verifySignedValue(receipt.body, receipt.signature, trustStorePath);
+    if (receiptSigner !== manifest.signerKeyId) {
+      fail(`target receipt signer differs from generation signer: ${targetPayload.target}`);
+    }
   }
 }
 
@@ -1083,6 +1276,7 @@ function install(args) {
       // skills/imported/** evidence match would never fire.
       if (fs.existsSync(absolute)) copyEntry(absolute, path.join(staging, root), true, source);
     }
+    const executionComponent = stageExecutionComponent(source, staging);
     const skills = collectSkills(path.join(staging, 'skills'));
     if (skills.length === 0) fail('generation contains no installable skills');
     const skillIndex = buildSkillIndex(skills);
@@ -1124,8 +1318,9 @@ function install(args) {
       hookRuntime,
       sourceProvenance: sourceProvenance(source),
       skillIndex: { sha256: skillIndex.sha256, entryCount: skillIndex.entries.length },
+      executionComponent,
       files: collectManifestFiles(staging),
-      targetPayloads: targetPayloads(skills),
+      targetPayloads: targetPayloads(skills, executionComponent),
     };
     const generation = sha256(canonicalJson(identity));
     const manifest = { ...identity, generation };

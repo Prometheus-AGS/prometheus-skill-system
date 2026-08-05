@@ -28,6 +28,23 @@ interface kv-store {
   delete: func(key: string) -> result<_, error>;
 }
 
+interface input {
+  use types.{error};
+
+  /// Read one named, content-addressed input granted by the host. `none`
+  /// means the name was declared but no value was supplied; undeclared names
+  /// fail with `capability-denied`.
+  read: func(name: string) -> result<option<list<u8>>, error>;
+}
+
+interface output {
+  use types.{error};
+
+  /// Publish an artifact below the declared output namespace. The host owns
+  /// path validation and content-addressed persistence after execution.
+  write: func(path: string, contents: list<u8>) -> result<_, error>;
+}
+
 interface clock {
   /// Milliseconds since the Unix epoch.
   ///
@@ -35,4 +52,12 @@ interface clock {
   /// able to withhold or fake it. A guest that reads the wall clock ambiently
   /// cannot be replayed.
   now-ms: func() -> u64;
+}
+
+interface random {
+  use types.{error};
+
+  /// Consume deterministic bytes granted by the host. Replays receive the
+  /// same byte sequence; exhausting the grant is an explicit error.
+  bytes: func(len: u32) -> result<list<u8>, error>;
 }

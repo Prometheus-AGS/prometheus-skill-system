@@ -18,11 +18,12 @@
     "check:public-docs": "node scripts/check-public-docs.mjs",
     "check:openapi": "node scripts/check-openapi.mjs",
     "check:sovereign-openapi": "node scripts/check-sovereign-openapi.mjs && node scripts/generate-sovereign-openapi.mjs --check",
+    "check:exec-openapi": "node scripts/check-exec-openapi.mjs",
     "check:api-examples": "node scripts/generate-api-examples.mjs --check",
     "check:mermaid": "node scripts/check-mermaid.mjs",
     "check:docs-contracts": "node scripts/check-doc-contracts.mjs",
-    "docs:check": "npm --prefix .. run test:docs-sync && npm --prefix .. run check:workflow-policy && npm --prefix .. run test:workflow-policy && npm run check:public-docs && npm run check:openapi && npm run check:sovereign-openapi && npm run check:api-examples && npm run check:mermaid && npm run check:docs-contracts && npm run build",
-    "prebuild": "node scripts/check-public-docs.mjs && node scripts/check-openapi.mjs && node scripts/generate-api-examples.mjs --check && node scripts/check-doc-contracts.mjs && node scripts/generate-skills-catalog.mjs",
+    "docs:check": "npm --prefix .. run test:docs-sync && npm --prefix .. run check:workflow-policy && npm --prefix .. run test:workflow-policy && npm run check:public-docs && npm run check:openapi && npm run check:sovereign-openapi && npm run check:exec-openapi && npm run check:api-examples && npm run check:mermaid && npm run check:docs-contracts && npm run build",
+    "prebuild": "node scripts/check-public-docs.mjs && node scripts/check-openapi.mjs && node scripts/check-exec-openapi.mjs && node scripts/generate-api-examples.mjs --check && node scripts/check-doc-contracts.mjs && node scripts/generate-skills-catalog.mjs",
     "prestart": "node scripts/check-public-docs.mjs && node scripts/generate-skills-catalog.mjs"
   },
   "dependencies": {

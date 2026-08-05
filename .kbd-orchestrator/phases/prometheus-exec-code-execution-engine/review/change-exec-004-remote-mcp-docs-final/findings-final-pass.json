@@ -1,0 +1,23 @@
+{
+  "mode": "diff",
+  "verdict": "BLOCK",
+  "judge_model": "MiniMax-M3",
+  "producer_model": "gpt-5.6-sol",
+  "isolation_mode": "rest-gateway:http://localhost:8181/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": "crates/prometheus-exec/src/mcp.rs",
+      "line": 438,
+      "claim": "Oversized MCP artifact responses omit the required retrieval guidance.",
+      "evidence": "Acceptance criterion `execution-mcp-surface` scenario `Oversized artifact retrieval` requires the tool to return \"bounded metadata and explicit retrieval guidance without truncating bytes\", but `exec_artifact` only serializes `digest`, `sizeBytes`, `inline`, and `bytesBase64` in its success payload.",
+      "suggested_fix": "Add a deterministic guidance field for non-inline artifacts, such as a REST artifact route, CLI command, or CAS path reference, and cover it with the oversized artifact MCP fixture."
+    }
+  ],
+  "sycophancy_screen": {
+    "reject_cap": 2,
+    "cap_overridden": false,
+    "cap_default": 2
+  }
+}

@@ -200,6 +200,11 @@ async fn build_report(options: &DoctorOptions) -> DoctorReport {
     );
     run_check!("binaries.manifest", "binaries", check_managed_binaries());
     run_check!(
+        "execution.runtime",
+        "execution",
+        check_execution_runtime(options)
+    );
+    run_check!(
         "services.launch-agents",
         "services",
         check_managed_services()
@@ -496,6 +501,7 @@ struct RefreshManifest {
     surreal_memory_readiness: Option<String>,
     plugin_generation: Option<String>,
     learning_status: Option<String>,
+    execution_status: Option<String>,
     prompt_snapshot_pointers: Vec<ManifestEntry>,
 }
 
@@ -619,6 +625,7 @@ fn write_refresh_manifest(
             "tools/prometheus-knowledge/target/release/pk-cherry",
             "tools/prometheus-knowledge/target/release/prometheus-learning-worker",
             "tools/surreal-memory-server/target/release/surreal-memory-server",
+            "crates/prometheus-exec/target/release/prometheus-exec",
         ]),
         installed_hashes: collect_hashed_paths_from_paths(&[
             local_bin.join("prometheus"),
@@ -626,6 +633,7 @@ fn write_refresh_manifest(
             local_bin.join("pk-cherry"),
             local_bin.join("prometheus-learning-worker"),
             local_bin.join("surreal-memory-server"),
+            local_bin.join("prometheus-exec"),
         ]),
         service_definition_hashes: collect_hashed_paths(&[
             "shared/launchagents/ai.prometheus.surreal-memory-native.plist",
@@ -636,6 +644,7 @@ fn write_refresh_manifest(
             "shared/systemd/ai.prometheus.pk-cherry.service",
             "shared/systemd/ai.prometheus.learning-worker.service",
             "shared/systemd/ai.prometheus.hooks-logrotate.service",
+            "shared/launchagents/ai.prometheus.exec.plist",
         ]),
         catalog_hash: hash_file("config/codex-catalog.txt"),
         mcp_health_snapshot: command_stdout(&[
@@ -652,11 +661,32 @@ fn write_refresh_manifest(
             "--verify",
         ]),
         learning_status: command_stdout(&["prometheus", "learning", "status", "--json"]),
+        execution_status: collect_execution_status(&home_dir),
         prompt_snapshot_pointers: collect_prompt_snapshot_pointers(&home_dir),
     };
 
     fs::write(&manifest_path, serde_json::to_vec_pretty(&manifest)?)?;
     Ok(manifest_path)
+}
+
+fn collect_execution_status(home: &Path) -> Option<String> {
+    let binary = home.join(".local/bin/prometheus-exec");
+    if !binary.is_file() {
+        return None;
+    }
+    let output = Command::new(binary)
+        .args(["doctor", "--socket"])
+        .arg(home.join(".prometheus/run/prometheus-exec.sock"))
+        .args(["--state-dir"])
+        .arg(home.join(".prometheus/exec"))
+        .args(["--identity"])
+        .arg(home.join(".prometheus/exec/identity.json"))
+        .args(["--plugin-root"])
+        .arg(home.join(".prometheus/plugins/prometheus-skill-pack"))
+        .args(["--exclude", "service:sovereign-sync", "--format", "json"])
+        .output()
+        .ok()?;
+    (!output.stdout.is_empty()).then(|| String::from_utf8_lossy(&output.stdout).into_owned())
 }
 
 fn collect_submodule_heads() -> Vec<ManifestEntry> {
@@ -1823,6 +1853,10 @@ fn check_managed_binaries() -> CheckResult {
             "surreal-memory-server",
             "tools/surreal-memory-server/target/release/surreal-memory-server",
         ),
+        (
+            "prometheus-exec",
+            "crates/prometheus-exec/target/release/prometheus-exec",
+        ),
     ];
     let mut failures = Vec::new();
     let mut details = Vec::new();
@@ -1872,7 +1906,7 @@ fn check_managed_binaries() -> CheckResult {
             CheckStatus::Fail
         },
         summary: if healthy {
-            "5/5 managed binaries are executable, hashed, and signed".into()
+            "6/6 managed binaries are executable, hashed, and signed".into()
         } else {
             format!("{} managed binary defect(s)", failures.len())
         },
@@ -1888,6 +1922,106 @@ fn check_managed_binaries() -> CheckResult {
             command_hint: Some("bash scripts/install-binaries.sh --dry-run".into()),
             reason_blocked: None,
         }],
+    }
+}
+
+fn check_execution_runtime(options: &DoctorOptions) -> CheckResult {
+    let home = dirs::home_dir().unwrap_or_else(|| PathBuf::from("/"));
+    let binary = home.join(".local/bin/prometheus-exec");
+    let socket = home.join(".prometheus/run/prometheus-exec.sock");
+    let state = home.join(".prometheus/exec");
+    let identity = state.join("identity.json");
+    let plugin_root = home.join(".prometheus/plugins/prometheus-skill-pack");
+    let service = home.join("Library/LaunchAgents/ai.prometheus.exec.plist");
+    let mcp_schema = PathBuf::from("docs/reference/api/prometheus-exec.mcp.json");
+    let remote_queue = state.join("remote");
+    let mut failures = Vec::new();
+    let mut details = Vec::new();
+    if !binary.is_file() {
+        failures.push(format!("prometheus-exec is missing: {}", binary.display()));
+    }
+    if !service.is_file() {
+        failures.push(format!(
+            "execution service is missing: {}",
+            service.display()
+        ));
+    }
+    if failures.is_empty() {
+        let mut command = Command::new(&binary);
+        command
+            .args(["doctor", "--socket"])
+            .arg(&socket)
+            .args(["--state-dir"])
+            .arg(&state)
+            .args(["--identity"])
+            .arg(&identity)
+            .args(["--plugin-root"])
+            .arg(&plugin_root)
+            .args(["--service-definition"])
+            .arg(&service)
+            .args(["--mcp-schema"])
+            .arg(&mcp_schema)
+            .args(["--format", "json"]);
+        for exclusion in &options.exclude {
+            command.args(["--exclude", exclusion]);
+        }
+        if remote_queue.is_dir() && !service_excluded(options, "sovereign-sync") {
+            command.args(["--remote-queue"]).arg(&remote_queue);
+        }
+        match command.output() {
+            Ok(output) => {
+                let payload: std::result::Result<serde_json::Value, _> =
+                    serde_json::from_slice(&output.stdout);
+                match payload {
+                    Ok(payload) => {
+                        if payload["healthy"] != true {
+                            failures.push("prometheus-exec doctor reported unhealthy".into());
+                        }
+                        if let Some(checks) = payload["checks"].as_array() {
+                            details.extend(checks.iter().filter_map(|check| {
+                                Some(format!(
+                                    "{}: {}",
+                                    check["name"].as_str()?,
+                                    check["detail"].as_str()?
+                                ))
+                            }));
+                        }
+                    }
+                    Err(error) => failures.push(format!(
+                        "prometheus-exec doctor returned invalid JSON: {error}: {}",
+                        String::from_utf8_lossy(&output.stderr)
+                    )),
+                }
+                if !output.status.success() && failures.is_empty() {
+                    failures.push(format!("prometheus-exec doctor exited {}", output.status));
+                }
+            }
+            Err(error) => failures.push(format!("prometheus-exec doctor failed: {error}")),
+        }
+    }
+    let healthy = failures.is_empty();
+    CheckResult {
+        id: "execution.runtime".into(),
+        group: "execution".into(),
+        label: "Prometheus Exec runtime".into(),
+        severity: if healthy {
+            Severity::Green
+        } else {
+            Severity::Red
+        },
+        status: if healthy {
+            CheckStatus::Pass
+        } else {
+            CheckStatus::Fail
+        },
+        summary: if healthy {
+            "binary, service, UDS, readiness, trust, receipts, CAS, and MCP schema verify".into()
+        } else {
+            format!("{} execution runtime defect(s)", failures.len())
+        },
+        details: if healthy { details } else { failures },
+        optional: false,
+        actions: vec![],
     }
 }
 

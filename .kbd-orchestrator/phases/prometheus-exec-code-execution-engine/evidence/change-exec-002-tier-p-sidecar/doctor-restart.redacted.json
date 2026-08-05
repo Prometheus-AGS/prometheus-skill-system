@@ -1,0 +1,54 @@
+{
+  "healthy": true,
+  "version": "1.7.0",
+  "checks": [
+    {
+      "name": "binary-identity",
+      "status": "pass",
+      "required": true,
+      "detail": "prometheus-exec 1.7.0 sha256:a77a8f4a861092ac919125f77d1707eefe071d5984e2fa58cdd289978511841c"
+    },
+    {
+      "name": "receipt-identity",
+      "status": "pass",
+      "required": true,
+      "detail": "ed25519:b5d81875795af6794353d742465a2dd6e1ab16e8c3673e629ce1044ef669a837 is internally consistent"
+    },
+    {
+      "name": "socket-permissions",
+      "status": "pass",
+      "required": true,
+      "detail": "<runtime>/exec.sock is a mode-0600 Unix socket"
+    },
+    {
+      "name": "socket-peer-health",
+      "status": "pass",
+      "required": true,
+      "detail": "same-UID /health request succeeded"
+    },
+    {
+      "name": "readiness",
+      "status": "pass",
+      "required": true,
+      "detail": "all required subsystems are ready"
+    },
+    {
+      "name": "sandbox-backend",
+      "status": "pass",
+      "required": true,
+      "detail": "macOS Seatbelt launcher and runtimes are available"
+    },
+    {
+      "name": "state-reconciliation",
+      "status": "pass",
+      "required": true,
+      "detail": "2 records are structurally valid; 0 are in flight"
+    },
+    {
+      "name": "artifact-cas",
+      "status": "pass",
+      "required": true,
+      "detail": "5 content-addressed blobs verified"
+    }
+  ]
+}

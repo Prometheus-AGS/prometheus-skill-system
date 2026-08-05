@@ -1,0 +1,39 @@
+{
+  "mode": "diff",
+  "verdict": "BLOCK",
+  "judge_model": "MiniMax-M3",
+  "producer_model": "gpt-5.6-sol",
+  "isolation_mode": "rest-gateway:http://localhost:8181/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": "docs/reference/api/prometheus-exec.evidence-status.json",
+      "line": 10,
+      "claim": "The checked-in evidence status marks requirements completed while using obvious placeholder hashes rather than verifiable release evidence.",
+      "evidence": "The file records completed requirements with hashes such as `sourceHash: \"sha256:1111111111111111111111111111111111111111111111111111111111111111\"`, `bundleIndexHash: \"sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"`, and similar `2222`/`3333`/`bbbb`/`cccc` values, while acceptance requires receipt-backed certification evidence and honest separated status fixtures under criteria 3.1, 3.2, and 5.1.",
+      "suggested_fix": "Replace placeholder hashes with the actual archived evidence bundle/source/install hashes or mark those dimensions pending/failed until real verifiable evidence is available."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "substrate/exec-remote/src/transport.rs",
+      "line": 102,
+      "claim": "A target can execute a dispatch after its validity window expires because expiry is checked only at queue acceptance, not immediately before local execution handoff.",
+      "evidence": "`RemoteTarget::receive` calls `self.queue.accept(dispatch.clone(), &self.enrollment, now)?` and later calls `self.executor.execute(&dispatch).await` without rechecking `dispatch.expires_at()`, while the execution-remote-dispatch spec requires the origin/target to `enforce request validity at acceptance and execution time` and the expired queued request scenario says the target must record terminal rejection and never start a local run.",
+      "suggested_fix": "Check `Utc::now() > dispatch.expires_at()?` immediately before transitioning to Running/executing; if expired, transition to `PeerDispatchState::Expired` with a disposition and return the signed terminal response without invoking the executor."
+    },
+    {
+      "severity": "WARNING",
+      "file": "crates/prometheus-exec/src/mcp.rs",
+      "line": 584,
+      "claim": "MCP startup treats the mere existence of `.mcp-runner.sock` as readiness, so a stale socket can make MCP serve requests with no live private runner.",
+      "evidence": "`wait_for_runner_socket` returns `Ok(())` as soon as `socket.exists()` is true, before checking whether the spawned daemon has exited or whether `/ready`/`/health` can be reached; acceptance criterion 1.2 requires MCP to expose tools backed by the shared service behavior, and the sidecar-service spec requires readiness to reflect subsystem state rather than stale filesystem state.",
+      "suggested_fix": "Poll the private socket with a real health/readiness request or remove/replace stale sockets during daemon bind; only return success after the runner accepts connections and reports readiness."
+    }
+  ],
+  "sycophancy_screen": {
+    "reject_cap": 2,
+    "cap_overridden": false,
+    "cap_default": 2
+  }
+}

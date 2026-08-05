@@ -72,6 +72,16 @@ impl<S: ReceiptSigner> ReceiptAssembler<S> {
         job: &ValidatedExecutionJob,
         execution: BackendExecution,
     ) -> Result<ExecutionReceipt, ReceiptAssemblyError> {
+        self.assemble_for_run(Uuid::new_v4(), job, execution)
+    }
+
+    /// Assemble a receipt for a run identifier durably assigned before spawn.
+    pub fn assemble_for_run(
+        &self,
+        run_id: Uuid,
+        job: &ValidatedExecutionJob,
+        execution: BackendExecution,
+    ) -> Result<ExecutionReceipt, ReceiptAssemblyError> {
         let requested = job.request().tier;
         let allowed = matches!(requested, RequestedTier::Auto)
             || matches!(
@@ -107,7 +117,7 @@ impl<S: ReceiptSigner> ReceiptAssembler<S> {
 
         let mut receipt = ExecutionReceipt {
             schema_version: prometheus_exec_contracts::SCHEMA_VERSION.into(),
-            run_id: Uuid::new_v4(),
+            run_id,
             request_hash: job.request().request_hash()?,
             state: execution.state,
             evidence_class: execution.evidence_class,
@@ -129,6 +139,8 @@ impl<S: ReceiptSigner> ReceiptAssembler<S> {
                 platform: execution.platform,
             },
             grants: job.grants().to_vec(),
+            component: execution.component,
+            failure: execution.failure,
             signature: None,
         };
         receipt.validate()?;

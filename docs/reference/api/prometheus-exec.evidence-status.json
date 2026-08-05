@@ -1,0 +1,74 @@
+{
+  "schemaVersion": "1",
+  "release": "1.7.0",
+  "requirements": {
+    "artifact-source": {
+      "requirementId": "artifact-source",
+      "dimension": "artifact_source",
+      "status": "completed",
+      "environment": "macos-x86_64-disposable",
+      "evidenceProperties": {
+        "sourceHash": "sha256:ba438895404a23985d5226735b8f362cf3e8044894a1140852ba0992f2fdbe78"
+      },
+      "bundleIndexHash": "sha256:34f1a025e17ae570579c222cbe0d281ab52845ec34b7a0f7c04e216699129008",
+      "producerMethod": "prometheus-exec"
+    },
+    "disposable-runtime": {
+      "requirementId": "disposable-runtime",
+      "dimension": "disposable_runtime",
+      "status": "completed",
+      "environment": "macos-x86_64-disposable",
+      "evidenceProperties": {
+        "receiptHash": "sha256:6e8d0aef1abe3ff9ff52d74f8a5d83ea8e72b22e70e663949ee8b7df3bea5818"
+      },
+      "bundleIndexHash": "sha256:70b9ae775a672b79d8d034a1c5f391d9203d1fc077e46fb957fbd89e2e291a6c",
+      "producerMethod": "prometheus-exec"
+    },
+    "installed-host": {
+      "requirementId": "installed-host",
+      "dimension": "installed_host",
+      "status": "completed",
+      "environment": "macos-x86_64-disposable",
+      "evidenceProperties": {
+        "binaryHash": "sha256:d4fcd01e7a0c4cbb2a6dc9657557c5a0aa3dbd54a21845deefe6a52bc68bcd1c"
+      },
+      "bundleIndexHash": "sha256:6bac8940f22d87dc173ff9c4d8cf9e45b8e443fd670181dfd45fa7d316850f4c",
+      "producerMethod": "prometheus-exec"
+    },
+    "judge-review": {
+      "requirementId": "judge-review",
+      "dimension": "judge_review",
+      "status": "completed",
+      "environment": "release-1.7.0",
+      "evidenceProperties": {
+        "findingsHash": "sha256:44e679387a7073027c2ef2fba38af2297c36feba261c30b640af4cdf8d552d9c"
+      },
+      "bundleIndexHash": "sha256:40bd53a2199cbecd180e6733bd6b89cb2721325b56210ca7e8c5fa09e375c9b2",
+      "producerMethod": "MiniMax-M3 via isolated local REST gateway"
+    },
+    "mobile-size": {
+      "requirementId": "mobile-size",
+      "dimension": "mobile_size",
+      "status": "blocked",
+      "environment": "release-1.7.0",
+      "evidenceProperties": {},
+      "disposition": "measured iOS and Android deltas exceed the 12 MiB gate"
+    },
+    "physical-device": {
+      "requirementId": "physical-device",
+      "dimension": "physical_device",
+      "status": "pending_evidence",
+      "environment": "release-1.7.0",
+      "evidenceProperties": {},
+      "disposition": "no usable physical iOS or Android device is connected"
+    },
+    "remote-deployment": {
+      "requirementId": "remote-deployment",
+      "dimension": "remote_deployment",
+      "status": "pending_evidence",
+      "environment": "release-1.7.0",
+      "evidenceProperties": {},
+      "disposition": "protocol kernel is disposable-runtime certified; production transport is not deployed"
+    }
+  }
+}

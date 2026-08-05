@@ -1,0 +1,38 @@
+{
+  "mode": "diff",
+  "verdict": "BLOCK",
+  "judge_model": "MiniMax-M3",
+  "producer_model": "gpt-5.6-sol",
+  "isolation_mode": "rest-gateway:http://localhost:8181/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": "crates/prometheus-exec/src/mcp.rs",
+      "line": 184,
+      "claim": "MCP `exec-run` cannot satisfy response-loss replay because clients cannot resubmit the same request ID and the handler always creates a fresh UUID.",
+      "evidence": "Acceptance criterion `execution-mcp-surface` scenario says: \"WHEN an MCP client resubmits a same-ID/same-hash request after losing the original response THEN it receives the original run identity and receipt without a second execution\"; `ExecRunParams` contains only runtime/code/inputs/timeout/output fields, and `build_request` sets `let request_id = Uuid::new_v4();` for every `exec-run` call.",
+      "suggested_fix": "Add an optional client-supplied request ID to the MCP run parameters, bind it into `SignedExecRequest`, and test that two MCP `exec-run` calls with the same ID and canonical payload return the same run with replay semantics."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "substrate/exec-remote/src/crypto.rs",
+      "line": 35,
+      "claim": "Remote dispatch verification accepts a dispatch whose target endpoint is absent from the enrollment snapshot.",
+      "evidence": "Acceptance criterion `execution-remote-dispatch` scenario says an endpoint absent from the enrollment snapshot must be rejected before queue insertion or execution; `verify_dispatch` validates the snapshot hash and only calls `enrollment.binding(&dispatch.origin_endpoint_id)?`, while `DispatchQueue::accept` calls `verify_dispatch` and then appends the accepted event without checking `dispatch.target_endpoint_id` enrollment.",
+      "suggested_fix": "Require `enrollment.binding(&dispatch.target_endpoint_id)?` during dispatch verification before any queue write, and add a queue-level test proving an unknown target cannot be accepted."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "hooks/hooks.json",
+      "claim": "The change alters hook/plugin surface files without updating the required Codex plugin documentation.",
+      "evidence": "Constraint C-03 states: \"A change that alters the Codex plugin surface (manifest fields, marketplace schema, MCP servers, hooks, install flow) must update `docs/codex-plugin.md` and, where relevant, the CLAUDE.md \\\"Codex CLI Integration\\\" section in the same change.\" The name/status manifest lists `M hooks/codex-hooks.json` and `M hooks/hooks.json`, but does not list `docs/codex-plugin.md` or `CLAUDE.md` as modified.",
+      "suggested_fix": "Update `docs/codex-plugin.md` for the hook/MCP/install-flow surface changes and update the CLAUDE.md Codex CLI Integration section if the changed surface is relevant there."
+    }
+  ],
+  "sycophancy_screen": {
+    "reject_cap": 2,
+    "cap_overridden": false,
+    "cap_default": 2
+  }
+}

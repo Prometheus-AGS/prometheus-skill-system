@@ -1,0 +1,49 @@
+{
+  "runId": "31b9a730-541b-46ec-8f6b-45d08b275ee7",
+  "state": "succeeded",
+  "receipt": {
+    "schemaVersion": "1",
+    "runId": "31b9a730-541b-46ec-8f6b-45d08b275ee7",
+    "requestHash": "sha256:e9b3c756451ab33d40c2a575e817a8aeca64e99d9136ada74121c52a20a61291",
+    "state": "succeeded",
+    "evidenceClass": "verified",
+    "tier": "w",
+    "codeHash": "sha256:ba438895404a23985d5226735b8f362cf3e8044894a1140852ba0992f2fdbe78",
+    "inputSetHash": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+    "envHash": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+    "sandboxProfileHash": "sha256:a287c633a85330d6ef0c60572a5d79bdc379eae6f4ca977fc2e8c55c22c44df9",
+    "backend": "cranelift",
+    "exit": {
+      "status": 0
+    },
+    "outputs": {
+      "stdout": "sha256:f748ed012ee0f3179e36ded52ba31ff90fc97d9daf0cc35bf87e4e25fb2382c4",
+      "stderr": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "artifacts": []
+    },
+    "usage": {
+      "wallClockMs": 0,
+      "cpuMs": 0,
+      "peakMemMb": 2,
+      "fuelConsumed": 25257
+    },
+    "startedAt": "2026-08-04T20:37:48.215159Z",
+    "finishedAt": "2026-08-04T20:37:48.215645Z",
+    "executingDevice": {
+      "keyId": "ed25519:a14ceb53e49f58ad6efabb257747751542116f1302a77a1b667dd7274042496d",
+      "sigAlg": "ed25519",
+      "platform": "desktop-x86_64"
+    },
+    "grants": [],
+    "component": {
+      "authorization": {
+        "mode": "hash-pin",
+        "world": "prometheus:component@0.1.0"
+      },
+      "engineVersion": "46.0.0",
+      "backendProfileHash": "sha256:674d3d50c6afb5f84f7f4e3862e4731507a844f4dc27cf2cfdc6bd4ea55b2c59",
+      "deterministicProjectionHash": "sha256:1f22e6ce4501c862cb2a642d6917a2d14e6484477492df620d7e53d124da9c64"
+    },
+    "signature": "vKACyvNuCyZTheLYj1ertuBWqdntRRhKpRjH-iNcg7BeL7Y9pmsA4I-JewRjpQEE7jxsE_WfMW_Dzkab3qywDA"
+  }
+}

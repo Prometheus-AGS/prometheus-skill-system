@@ -227,9 +227,6 @@
 * [Plan for CI Cross-Model QA YAML Fix and Forge MCP Auth Hardening](/plan-for-ci-cross-model-qa-yaml-fix-and-forge-mcp-auth-hardening.md) - `kbd-plan` completed for `phase-ci-cross-model-qa-and-hardening` at step `0/3` in `/Users/gqadonis/Projects/prometheus/prometheus-skill-pack`.
 * [Prometheus Deep Research Skill — Master Specification](/prometheus-deep-research-skill-master-spec.md) - This document is the master specification for the **Prometheus Deep Research Skill** — a universal, cross-platform deep-research capability designed for the Prometheus Skill Pack. It synthesizes findings from 8 parallel research investigations into a unified architectural bluepri
 * [Prometheus Entity Sync v4 Scaffold and Phase Goals](/prometheus-entity-sync-v4-scaffold-and-phase-goals.md)
-* [Prometheus Exec Code Execution Engine Completion Record](/prometheus-exec-code-execution-engine-completion-record.md)
-* [Prometheus Exec Code Execution Engine Completion Status](/prometheus-exec-code-execution-engine-completion-status.md)
-* [Prometheus Exec Code Execution Engine Executor Session Complete](/prometheus-exec-code-execution-engine-executor-session-complete.md)
 * [Prometheus Exec Code Execution Engine Session Complete](/prometheus-exec-code-execution-engine-session-complete.md)
 * [Prometheus Exec Code Execution Engine Session Completion](/prometheus-exec-code-execution-engine-session-completion.md)
 * [Prometheus Exec Code Execution Executor Session Complete](/prometheus-exec-code-execution-executor-session-complete.md)
@@ -367,3 +364,10 @@
 * [Karpathy session fb328189c11c](/karpathy-session-fb328189c11cd183.md)
 * [Karpathy session fc341e3307d5](/karpathy-session-fc341e3307d51188.md)
 * [Karpathy session ffe18c7d5bd5](/karpathy-session-ffe18c7d5bd59ab8.md)
+* [Karpathy session 0c62f2ff1a87](/karpathy-session-0c62f2ff1a871ee1.md)
+* [Karpathy session 1a33609df42e](/karpathy-session-1a33609df42ed941.md)
+* [Karpathy session 3149a14101ed](/karpathy-session-3149a14101ed89ed.md)
+* [Karpathy session 38373f1cce9c](/karpathy-session-38373f1cce9c59d7.md) - Local 1.6.1 hook-to-worker-to-receipt certification record.
+* [Karpathy session b2dfc21d82fd](/karpathy-session-b2dfc21d82fd3491.md)
+* [Karpathy session bd5fda9b1e74](/karpathy-session-bd5fda9b1e740cf4.md)
+* [Karpathy session ce6ff8913aa7](/karpathy-session-ce6ff8913aa7f281.md)

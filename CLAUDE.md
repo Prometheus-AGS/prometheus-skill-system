@@ -1007,6 +1007,13 @@ vetted automation) — so it is NOT interactive-only. The hooks use
 `.codex-plugin/plugin.json → hooks`; see [`docs/codex-plugin.md`](docs/codex-plugin.md)
 and the change-cpd-006 hook-trust-verification evidence.
 
+Every signed plugin-generation publication refreshes the immutable bundle ID in
+both `hooks/hooks.json` and `hooks/codex-hooks.json`. Treat the pair as generated
+release provenance: regenerate and validate them together, then verify the active
+manifest and all 14 target receipts. A bundle-ID-only refresh does not alter hook
+matchers, trust semantics, or the repository policy that keeps Bash and Python
+unrestricted during agent work.
+
 ## Karpathy LLM Wiki (pk) — Open Knowledge Format Adoption
 
 The "Karpathy LLM wiki" pattern — an LLM-maintained, persistent, interlinked

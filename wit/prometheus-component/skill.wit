@@ -23,7 +23,10 @@ world skill {
   /// safe to run anywhere.
   import log;
   import kv-store;
+  import input;
+  import output;
   import clock;
+  import random;
 
   /// The one required export. Input and output are opaque strings by design:
   /// every skill in this pack already speaks JSON over stdin/stdout, so a

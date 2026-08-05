@@ -9,6 +9,7 @@ const root = path.resolve(import.meta.dirname, '..', '..');
 const outputs = [
   'docs/generated/runtime-reference.md',
   'site/docs/operations/generated-reference.md',
+  'site/static/openapi/prometheus-exec.openapi.json',
 ];
 
 execFileSync('node', ['scripts/docs-sync.mjs'], { cwd: root, stdio: 'inherit' });
@@ -17,7 +18,7 @@ execFileSync('node', ['scripts/docs-sync.mjs'], { cwd: root, stdio: 'inherit' })
 for (const file of outputs) {
   const second = fs.readFileSync(path.join(root, file), 'utf8');
   if (first.get(file) !== second) throw new Error(`docs:sync is not idempotent: ${file}`);
-  if (!second.includes('BEGIN PROMETHEUS DOCS SYNC: runtime-reference')) {
+  if (file.endsWith('.md') && !second.includes('BEGIN PROMETHEUS DOCS SYNC: runtime-reference')) {
     throw new Error(`managed block marker is missing: ${file}`);
   }
 }

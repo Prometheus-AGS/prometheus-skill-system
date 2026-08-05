@@ -36,6 +36,12 @@ fn request() -> SignedExecRequest {
         targets: vec![],
         provenance: ExecutionProvenance {
             skill: Some("refine-validate".into()),
+            component_authorization: Some(ComponentAuthorization {
+                mode: ComponentAuthorizationMode::HashPin,
+                world: "prometheus:component@0.1.0".into(),
+                manifest_hash: None,
+                generation_id: None,
+            }),
             ..ExecutionProvenance::default()
         },
         signer_key_id: None,
@@ -83,6 +89,13 @@ fn receipt(request_hash: Digest) -> ExecutionReceipt {
             kind: GrantKind::CedarAuto,
             r#ref: None,
         }],
+        component: Some(ComponentProvenance {
+            authorization: request().provenance.component_authorization.unwrap(),
+            engine_version: "wasmtime 46.0.2".into(),
+            backend_profile_hash: digest("cranelift-profile"),
+            deterministic_projection_hash: digest("tier-w-projection"),
+        }),
+        failure: None,
         signature: None,
     }
 }
@@ -99,6 +112,77 @@ fn canonical_request_is_stable_across_object_order() {
         canonical_bytes(&value).unwrap(),
         canonical_bytes(&serde_json::Value::Object(reversed)).unwrap()
     );
+}
+
+#[test]
+fn request_rejects_every_zero_enforcement_limit() {
+    for field in ["memory", "wall-clock", "output", "stack"] {
+        let mut candidate = request();
+        match field {
+            "memory" => candidate.limits.memory_mb = 0,
+            "wall-clock" => candidate.limits.wall_clock_ms = 0,
+            "output" => candidate.limits.output_mb = 0,
+            "stack" => candidate.limits.stack_kb = 0,
+            _ => unreachable!(),
+        }
+        assert!(candidate.validate().is_err(), "zero {field} limit passed");
+    }
+}
+
+#[test]
+fn tier_w_requires_pinned_component_authorization() {
+    let mut candidate = request();
+    candidate.provenance.component_authorization = None;
+    assert!(candidate.validate().is_err());
+
+    let mut candidate = request();
+    candidate.provenance.component_authorization = Some(ComponentAuthorization {
+        mode: ComponentAuthorizationMode::SignedGeneration,
+        world: "prometheus:component@0.1.0".into(),
+        manifest_hash: None,
+        generation_id: None,
+    });
+    assert!(candidate.validate().is_err());
+}
+
+#[test]
+fn tier_p_wire_shape_omits_tier_w_extensions() {
+    let mut native_request = request();
+    native_request.tier = RequestedTier::P;
+    native_request.code.kind = CodeKind::File;
+    native_request.code.runtime = RuntimeKind::Python3;
+    native_request.provenance.component_authorization = None;
+    let request_json = serde_json::to_value(&native_request).unwrap();
+    assert!(request_json["provenance"]
+        .get("componentAuthorization")
+        .is_none());
+
+    let mut native_receipt = receipt(native_request.request_hash().unwrap());
+    native_receipt.tier = ExecutionTier::P;
+    native_receipt.evidence_class = EvidenceClass::Attested;
+    native_receipt.backend = ExecutionBackend::Seatbelt;
+    native_receipt.component = None;
+    let receipt_json = serde_json::to_value(&native_receipt).unwrap();
+    assert!(receipt_json.get("component").is_none());
+    assert!(receipt_json.get("failure").is_none());
+    native_receipt.validate().unwrap();
+}
+
+#[test]
+fn tier_w_pre_execution_rejection_is_honest_without_component_provenance() {
+    let mut rejected = receipt(request().request_hash().unwrap());
+    rejected.state = RunState::Rejected;
+    rejected.exit.status = 125;
+    rejected.component = None;
+    rejected.failure = Some(ExecutionFailure {
+        kind: ExecutionFailureKind::ComponentUnauthorized,
+        code: "component_unauthorized".into(),
+        message: "component did not pass the configured trust policy".into(),
+    });
+    rejected.validate().unwrap();
+
+    rejected.failure = None;
+    assert!(rejected.validate().is_err());
 }
 
 #[test]

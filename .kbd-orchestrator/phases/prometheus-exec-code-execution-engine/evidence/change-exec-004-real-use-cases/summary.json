@@ -1,0 +1,46 @@
+{
+  "binarySha256": "b693cd8df48a6b8634bba9c88b9b7da5a871c5ad919eebf351f89719dc59127b",
+  "binaryVersion": "prometheus-exec 1.7.0",
+  "disposableRemote": {
+    "feature": "transport",
+    "productionAdapterInvoked": false,
+    "scenariosPassed": 3,
+    "status": "artifact_and_disposable_runtime_certified"
+  },
+  "externalEvidence": {
+    "githubActions": "not certification evidence",
+    "installedService": "not evaluated by this disposable certification",
+    "kbdOrSovereignServiceInvoked": false,
+    "physicalMobileDevices": "pending_evidence",
+    "productionRemoteAdapter": "pending_evidence"
+  },
+  "mcp": {
+    "artifactInline": true,
+    "backend": "seatbelt",
+    "protocolVersion": "2025-06-18",
+    "runId": "ab952fe2-13f4-4eaf-9b20-3a09b564dbcf",
+    "state": "succeeded",
+    "tools": [
+      "exec-artifact",
+      "exec-events",
+      "exec-receipt",
+      "exec-run",
+      "exec-status",
+      "exec-verify"
+    ],
+    "verificationValid": true
+  },
+  "pluginGeneration": "452142507447142fb15ad942f3e99538b32535fd909115dc9050241c4ea0de52",
+  "schemaVersion": 1,
+  "sourceCommit": "3f2bff5",
+  "tierW": {
+    "backend": "cranelift",
+    "doctorHealthy": true,
+    "engineVersion": "46.0.2",
+    "offlineVerificationValid": true,
+    "portableBundleValid": true,
+    "restartExact": true,
+    "runId": "cf4045ba-7a3d-4be4-a2e3-83337dca3329",
+    "state": "succeeded"
+  }
+}

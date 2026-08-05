@@ -1,0 +1,48 @@
+{
+  "runId": "00d22297-e75b-45d5-aefd-464241e27f04",
+  "requestId": "d2576f49-aa03-4e92-85bf-a1157fcc56f5",
+  "requestHash": "sha256:07ba4c36a356cd6a1b50ebee3d056f8c87155b41a370142003aecd3dda841cc5",
+  "state": "succeeded",
+  "replayed": false,
+  "receipt": {
+    "schemaVersion": "1",
+    "runId": "00d22297-e75b-45d5-aefd-464241e27f04",
+    "requestHash": "sha256:07ba4c36a356cd6a1b50ebee3d056f8c87155b41a370142003aecd3dda841cc5",
+    "state": "succeeded",
+    "evidenceClass": "attested",
+    "tier": "p",
+    "codeHash": "sha256:5653f1c4aeca3871e10eb903ed9000272c9a922a25679d118167d7d14e96b6bc",
+    "inputSetHash": "sha256:72949a13675654b3f2d5e60c834828a37afba52de81ddf8a403fb8c7965a541c",
+    "envHash": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+    "toolchainHash": "sha256:179301dcb41ea78accc3fa0048a7e6f6710d891945a751a34addd622020c1818",
+    "sandboxProfileHash": "sha256:14819ffbbcfd674dda50f1df407cba83099c661ed41c24817fd2ff54b1a25019",
+    "backend": "seatbelt",
+    "exit": { "status": 0 },
+    "outputs": {
+      "stdout": "sha256:8eaeb4f00548071ac4e69629a8f6d02b441b917fa9bcbadc2d3f79aaf944b979",
+      "stderr": "sha256:2d750a1402b0e7cdbbe3cdb19ba8bf154bb1c88d48961b9ae17f15fa73a2bcc6",
+      "artifacts": [
+        {
+          "path": "outputs/risk-summary.json",
+          "hash": "sha256:99b31f41b94ec6b079fbf7687a949c851fb55cbe47029d37b7f2cb3be3c13e56",
+          "sizeBytes": 50
+        }
+      ]
+    },
+    "usage": {
+      "wallClockMs": 70,
+      "cpuMs": 0,
+      "peakMemMb": 4,
+      "fuelConsumed": 0
+    },
+    "startedAt": "2026-08-04T16:14:48.242789Z",
+    "finishedAt": "2026-08-04T16:14:48.313692Z",
+    "executingDevice": {
+      "keyId": "ed25519:b5d81875795af6794353d742465a2dd6e1ab16e8c3673e629ce1044ef669a837",
+      "sigAlg": "ed25519",
+      "platform": "macos-x86_64"
+    },
+    "grants": [],
+    "signature": "KHESe8k2jAauVzNPjo8REmtIlH65q4g4tM2gXH7B5XDau-KhuJMSWCg49kzev7OepyLYwVcCRffJSGI9pMDJBw"
+  }
+}

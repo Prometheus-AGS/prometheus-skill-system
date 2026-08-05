@@ -1,0 +1,38 @@
+{
+  "schemaVersion": "1",
+  "requestId": "d2576f49-aa03-4e92-85bf-a1157fcc56f5",
+  "issuedAt": "2026-08-04T16:14:47.986768Z",
+  "queuedAt": "2026-08-04T16:14:47.986768Z",
+  "validityWindowSecs": 65,
+  "tier": "p",
+  "code": {
+    "kind": "file",
+    "hash": "sha256:5653f1c4aeca3871e10eb903ed9000272c9a922a25679d118167d7d14e96b6bc",
+    "runtime": "python3"
+  },
+  "inputs": [
+    {
+      "name": "incident_batch.json",
+      "hash": "sha256:c0297e78d7c4d80b520a2a81af6f9da84a2f3ecc696b36e5ac5c27bc0f2b72aa"
+    }
+  ],
+  "capabilities": {
+    "fs": { "readOnly": ["."], "readWrite": ["outputs/"] },
+    "net": { "egress": [] },
+    "env": { "read": [] },
+    "clock": true,
+    "random": true
+  },
+  "limits": {
+    "memoryMb": 256,
+    "fuel": 500000000,
+    "wallClockMs": 5000,
+    "outputMb": 1,
+    "stackKb": 512
+  },
+  "targets": [],
+  "provenance": { "harness": "prometheus-exec-cli" },
+  "signerKeyId": "ed25519:b5d81875795af6794353d742465a2dd6e1ab16e8c3673e629ce1044ef669a837",
+  "sigAlg": "ed25519",
+  "signature": "FaqMrKwYKBUmrcDTNNOPazi2PLKxZ9VeC20-qut92-d_HL8T5BTl6cyP10g77ny1fv0fNkmqxU5Ky61jrsnsAA"
+}

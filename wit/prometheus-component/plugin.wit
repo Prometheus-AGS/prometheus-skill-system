@@ -17,7 +17,10 @@ world plugin {
 
   import log;
   import kv-store;
+  import input;
+  import output;
   import clock;
+  import random;
 
   /// Called once before any event is delivered. A plugin that cannot
   /// initialise must fail here rather than degrade silently on first event.

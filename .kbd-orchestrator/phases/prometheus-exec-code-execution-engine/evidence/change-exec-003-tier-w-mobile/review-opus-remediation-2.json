@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "reviewer": {
+    "provider": "Anthropic",
+    "model": "Claude Opus 5",
+    "independence": "distinct model, read-only review",
+    "durationMs": 338588,
+    "apiDurationMs": 262355,
+    "turns": 27,
+    "costUsd": 1.537786
+  },
+  "verdict": "FAIL",
+  "summary": "The corrected bundles and all prior functional remediations passed inspection, but task 4.4 still repeated the retracted mobile size-gate pass.",
+  "blockingFindings": [
+    {
+      "severity": "medium",
+      "code": "evidence.integrity.retracted_false_green_still_published",
+      "disposition": "fixed"
+    }
+  ],
+  "lowFindings": [
+    "FRB drift check temporarily overwrote the checked-in file",
+    "peak-memory rollback path lacked a direct regression test and pending sentinel",
+    "current generated-dispatcher hash was absent from the measurement evidence",
+    "generated dispatcher remained unstaged before the final local commit",
+    "an unrelated user-owned knowledge session was not indexed"
+  ]
+}

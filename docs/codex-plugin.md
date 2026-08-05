@@ -66,6 +66,13 @@ bundle has not been activated, it uses the native plugin payload exposed through
 `${PLUGIN_ROOT}` to perform a hash-verified bootstrap. Hook business logic never
 resolves through the mutable `stable` or `current` projections.
 
+Publishing a new signed plugin generation deterministically refreshes that
+embedded bundle ID in both `hooks/hooks.json` and `hooks/codex-hooks.json`.
+Those files must change together, and the active-generation manifest plus all
+14 target receipts must identify the same bundle before activation. A bundle-ID
+refresh changes provenance, not hook event names, matchers, trust behavior, or
+the unrestricted Bash/Python tool policy.
+
 **Trust is independent of install.** Plugin-bundled hooks are *non-managed*:
 an interactive `codex` session shows a one-time trust prompt before running them.
 Consequences:

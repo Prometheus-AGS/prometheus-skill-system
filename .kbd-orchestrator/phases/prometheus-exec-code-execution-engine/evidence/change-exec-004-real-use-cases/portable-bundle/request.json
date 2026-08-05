@@ -1,0 +1,52 @@
+{
+  "capabilities": {
+    "clock": true,
+    "env": {
+      "read": []
+    },
+    "fs": {
+      "readOnly": [
+        "."
+      ],
+      "readWrite": [
+        "outputs/"
+      ]
+    },
+    "net": {
+      "egress": []
+    },
+    "random": true
+  },
+  "code": {
+    "hash": "sha256:ba438895404a23985d5226735b8f362cf3e8044894a1140852ba0992f2fdbe78",
+    "kind": "component",
+    "runtime": "wasm-component"
+  },
+  "inputs": [],
+  "issuedAt": "2026-08-05T08:16:40.667558Z",
+  "limits": {
+    "fuel": 500000000,
+    "memoryMb": 256,
+    "outputMb": 2,
+    "stackKb": 512,
+    "wallClockMs": 5000
+  },
+  "provenance": {
+    "componentAuthorization": {
+      "generationId": "452142507447142fb15ad942f3e99538b32535fd909115dc9050241c4ea0de52",
+      "manifestHash": "sha256:6648d8e257d02db14eb53f7c5a54700aad26ca2ed63f5a887fcea643662474f4",
+      "mode": "signed-generation",
+      "world": "prometheus:component@0.1.0"
+    },
+    "harness": "prometheus-exec-cli"
+  },
+  "queuedAt": "2026-08-05T08:16:40.667558Z",
+  "requestId": "9c3aa8be-5988-4190-9ee6-9fe02802784d",
+  "schemaVersion": "1",
+  "sigAlg": "ed25519",
+  "signature": "Pywp8-iQckPqS7ma77CE1itk6pAyascgGSO-y3rSRwNgDauO--5WyiUxC_A2y7yO2ekYUeCafCDxa5MT5n3fBw",
+  "signerKeyId": "ed25519:dce9ba5dd030c9aee94afc9cd0b43cd822382172dc96775033e43700e3bfec53",
+  "targets": [],
+  "tier": "w",
+  "validityWindowSecs": 65
+}

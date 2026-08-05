@@ -53,6 +53,22 @@ const sidebars = {
     },
   ],
 
+  executionSidebar: [
+    {
+      type: 'category',
+      label: 'Execution',
+      items: [
+        'execution/overview-and-use-cases',
+        'execution/architecture-and-tiers',
+        'execution/local-api-cli-and-mcp',
+        'execution/remote-dispatch-and-reconciliation',
+        'execution/receipts-verification-and-certification',
+        'execution/installation-doctor-and-recovery',
+        'execution/platform-and-evidence-status',
+      ],
+    },
+  ],
+
   learnSidebar: [
     {
       type: 'category',

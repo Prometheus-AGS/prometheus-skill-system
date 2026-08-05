@@ -1,0 +1,19 @@
+{
+  "mode": "diff",
+  "verdict": "BLOCK",
+  "judge_model": "gpt-5.4",
+  "producer_model": "gpt-5.6-sol",
+  "isolation_mode": "rest-gateway:http://127.0.0.1:4000/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": "substrate/exec-service/src/http.rs",
+      "line": 288,
+      "claim": "The HTTP handler now rejects direct grant-pending requests that legitimately reference absent blobs, violating the acceptance criterion that absent blobs are allowed as long as any materialized ones stay pinned.",
+      "evidence": "Acceptance criteria: \"Direct grant-pending requests may reference absent blobs, but any materialized blob must stay pinned.\" Current handler unconditionally calls `artifacts.transfer_upload_to_request(&request)` before `service.submit(...)`. In CAS context, `transfer_upload_to_request` calls `retain_request_unlocked`, which uses `pin_when_present_unlocked` for each hash, but then immediately calls `self.unpin_all_unlocked(hashes, &upload_reason)` and returns its result. `unpin_all_unlocked` returns the first `unpin_unlocked` error, and `unpin_unlocked` returns `NotPinned` when the upload marker is absent. For grant-pending requests with absent blobs (no CLI upload pins), this makes `create_run` return `artifact_unavailable` instead of accepting the request.",
+      "suggested_fix": "Do not require upload pins to exist in the sidecar path. Either make `transfer_upload_to_request` ignore missing `upload:*` markers (while still pinning any present blobs), or have `create_run` use a retention path that only adds request pins for materialized blobs and treats absent upload pins as expected for grant-pending requests."
+    }
+  ],
+  "checked_classes": []
+}

@@ -1,14 +1,38 @@
 use std::{
-    fs::{self, File},
+    fs::{self, File, OpenOptions},
     io::{Read as _, Write as _},
     path::{Path, PathBuf},
     time::SystemTime,
 };
 
-use prometheus_exec_contracts::{hash_bytes, validate_artifact_path, ArtifactReference, Digest};
+use fs2::FileExt as _;
+use prometheus_exec_contracts::{
+    hash_bytes, validate_artifact_path, ArtifactReference, Digest, ExecutionReceipt,
+    SignedExecRequest,
+};
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 use walkdir::WalkDir;
+
+use crate::BackendExecution;
+
+pub const DESKTOP_ARTIFACT_BUDGET_BYTES: u64 = 2 * 1024 * 1024 * 1024;
+pub const MOBILE_ARTIFACT_BUDGET_BYTES: u64 = 256 * 1024 * 1024;
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum ArtifactBudgetProfile {
+    Desktop,
+    Mobile,
+}
+
+impl ArtifactBudgetProfile {
+    pub const fn default_bytes(self) -> u64 {
+        match self {
+            Self::Desktop => DESKTOP_ARTIFACT_BUDGET_BYTES,
+            Self::Mobile => MOBILE_ARTIFACT_BUDGET_BYTES,
+        }
+    }
+}
 
 #[derive(Clone, Debug)]
 pub struct ArtifactStore {
@@ -52,6 +76,12 @@ pub enum CasError {
     InvalidPinReason,
     #[error("invalid CAS path: {0}")]
     InvalidCasPath(PathBuf),
+    #[error("artifact budget must be non-zero")]
+    InvalidBudget,
+    #[error("receipt does not match its request or execution: {0}")]
+    ReceiptMismatch(String),
+    #[error("receipt retention failed: {retention}; pin rollback also failed: {rollback}")]
+    RetentionRollback { retention: String, rollback: String },
     #[error("JSON serialization failed: {0}")]
     Json(#[from] serde_json::Error),
 }
@@ -82,8 +112,24 @@ impl ArtifactStore {
         Ok(store)
     }
 
+    pub fn open_for_profile(
+        root: impl Into<PathBuf>,
+        profile: ArtifactBudgetProfile,
+        override_bytes: Option<u64>,
+    ) -> Result<Self, CasError> {
+        let budget = override_bytes.unwrap_or_else(|| profile.default_bytes());
+        if budget == 0 {
+            return Err(CasError::InvalidBudget);
+        }
+        Self::open(root, budget)
+    }
+
     pub fn root(&self) -> &Path {
         &self.root
+    }
+
+    pub fn budget_bytes(&self) -> u64 {
+        self.budget_bytes
     }
 
     pub fn put(&self, bytes: &[u8]) -> Result<StoredArtifact, CasError> {
@@ -124,6 +170,15 @@ impl ArtifactStore {
             hash,
             size_bytes: bytes.len() as u64,
         })
+    }
+
+    /// Stores content and pins it under one cross-process CAS operation lock.
+    pub fn put_pinned(&self, bytes: &[u8], reason: &str) -> Result<StoredArtifact, CasError> {
+        validate_reason(reason)?;
+        let _lock = self.operation_lock()?;
+        let stored = self.put(bytes)?;
+        self.pin_unlocked(&stored.hash, reason)?;
+        Ok(stored)
     }
 
     pub fn get(&self, hash: &Digest) -> Result<Vec<u8>, CasError> {
@@ -232,6 +287,11 @@ impl ArtifactStore {
 
     pub fn pin(&self, hash: &Digest, reason: &str) -> Result<(), CasError> {
         validate_reason(reason)?;
+        let _lock = self.operation_lock()?;
+        self.pin_unlocked(hash, reason)
+    }
+
+    fn pin_unlocked(&self, hash: &Digest, reason: &str) -> Result<(), CasError> {
         self.get(hash)?;
         let directory = self.pin_directory(hash)?;
         create_private_dir(&directory)?;
@@ -248,6 +308,11 @@ impl ArtifactStore {
 
     pub fn unpin(&self, hash: &Digest, reason: &str) -> Result<bool, CasError> {
         validate_reason(reason)?;
+        let _lock = self.operation_lock()?;
+        self.unpin_unlocked(hash, reason)
+    }
+
+    fn unpin_unlocked(&self, hash: &Digest, reason: &str) -> Result<bool, CasError> {
         let marker = self.pin_directory(hash)?.join(pin_reason_id(reason));
         match fs::remove_file(&marker) {
             Ok(()) => Ok(true),
@@ -257,6 +322,11 @@ impl ArtifactStore {
     }
 
     pub fn is_pinned(&self, hash: &Digest) -> Result<bool, CasError> {
+        let _lock = self.operation_lock()?;
+        self.is_pinned_unlocked(hash)
+    }
+
+    fn is_pinned_unlocked(&self, hash: &Digest) -> Result<bool, CasError> {
         let directory = self.pin_directory(hash)?;
         match fs::read_dir(&directory) {
             Ok(entries) => {
@@ -276,7 +346,161 @@ impl ArtifactStore {
         }
     }
 
+    /// Retains every currently materialized blob referenced by a durable run.
+    ///
+    /// Receipt outputs are required to exist. Request code and inputs are also
+    /// pinned when present, while a pre-spawn rejection may legitimately refer
+    /// to a request blob that was already missing. Pins are deliberately kept
+    /// until a future receipt-archival contract explicitly releases them.
+    pub fn retain_for_receipt(
+        &self,
+        request: &SignedExecRequest,
+        receipt: &ExecutionReceipt,
+    ) -> Result<(), CasError> {
+        validate_receipt_request_binding(request, receipt)?;
+        let reason = format!("receipt:{}", receipt.run_id);
+        let _lock = self.operation_lock()?;
+        self.retain_materialized_receipt_unlocked(request, receipt, &reason)
+    }
+
+    /// Materializes and pins execution outputs only after a signed receipt has
+    /// been assembled. The operation lock prevents GC from observing a new
+    /// output blob without its receipt pin.
+    pub fn persist_and_retain_for_receipt(
+        &self,
+        request: &SignedExecRequest,
+        receipt: &ExecutionReceipt,
+        execution: &BackendExecution,
+    ) -> Result<(), CasError> {
+        validate_receipt_execution_binding(request, receipt, execution)?;
+        let reason = format!("receipt:{}", receipt.run_id);
+        let _lock = self.operation_lock()?;
+        let result = (|| {
+            self.put(&execution.stdout)?;
+            self.put(&execution.stderr)?;
+            for artifact in &execution.artifacts {
+                self.put(&artifact.bytes)?;
+            }
+            self.retain_materialized_receipt_unlocked(request, receipt, &reason)
+        })();
+        if let Err(retention) = result {
+            let hashes = receipt_hashes(request, receipt);
+            return match self.unpin_all_unlocked(hashes, &reason) {
+                Ok(()) => Err(retention),
+                Err(rollback) => Err(CasError::RetentionRollback {
+                    retention: retention.to_string(),
+                    rollback: rollback.to_string(),
+                }),
+            };
+        }
+        Ok(())
+    }
+
+    /// Retains materialized request blobs while a run is non-terminal.
+    pub fn retain_for_request(&self, request: &SignedExecRequest) -> Result<(), CasError> {
+        let reason = request_pin_reason(request)?;
+        let _lock = self.operation_lock()?;
+        self.retain_request_unlocked(request, &reason)
+    }
+
+    /// Atomically transfers CLI upload ownership to request-hash ownership.
+    ///
+    /// The operation lock prevents budget GC from observing a materialized blob
+    /// without at least one of the two pin reasons.
+    pub fn transfer_upload_to_request(&self, request: &SignedExecRequest) -> Result<(), CasError> {
+        let request_reason = request_pin_reason(request)?;
+        let upload_reason = format!("upload:{}", request.request_id);
+        let _lock = self.operation_lock()?;
+        self.retain_request_unlocked(request, &request_reason)?;
+        let hashes = std::iter::once(&request.code.hash)
+            .chain(request.inputs.iter().map(|input| &input.hash));
+        self.unpin_all_unlocked(hashes, &upload_reason)
+    }
+
+    fn retain_request_unlocked(
+        &self,
+        request: &SignedExecRequest,
+        reason: &str,
+    ) -> Result<(), CasError> {
+        let hashes = std::iter::once(&request.code.hash)
+            .chain(request.inputs.iter().map(|input| &input.hash))
+            .collect::<Vec<_>>();
+        for hash in &hashes {
+            if let Err(error) = self.pin_when_present_unlocked(hash, reason) {
+                let _ = self.unpin_all_unlocked(hashes.iter().copied(), reason);
+                return Err(error);
+            }
+        }
+        Ok(())
+    }
+
+    fn retain_materialized_receipt_unlocked(
+        &self,
+        request: &SignedExecRequest,
+        receipt: &ExecutionReceipt,
+        reason: &str,
+    ) -> Result<(), CasError> {
+        let result = (|| {
+            self.pin_unlocked(&receipt.outputs.stdout, reason)?;
+            self.pin_unlocked(&receipt.outputs.stderr, reason)?;
+            for artifact in &receipt.outputs.artifacts {
+                self.pin_unlocked(&artifact.hash, reason)?;
+            }
+            self.pin_when_present_unlocked(&request.code.hash, reason)?;
+            for input in &request.inputs {
+                self.pin_when_present_unlocked(&input.hash, reason)?;
+            }
+            Ok(())
+        })();
+        if let Err(retention) = result {
+            let hashes = receipt_hashes(request, receipt);
+            return match self.unpin_all_unlocked(hashes, reason) {
+                Ok(()) => Err(retention),
+                Err(rollback) => Err(CasError::RetentionRollback {
+                    retention: retention.to_string(),
+                    rollback: rollback.to_string(),
+                }),
+            };
+        }
+        Ok(())
+    }
+
+    /// Releases the temporary pins owned by a non-terminal request.
+    pub fn release_request(&self, request: &SignedExecRequest) -> Result<(), CasError> {
+        let reason = request_pin_reason(request)?;
+        let _lock = self.operation_lock()?;
+        let hashes = std::iter::once(&request.code.hash)
+            .chain(request.inputs.iter().map(|input| &input.hash));
+        self.unpin_all_unlocked(hashes, &reason)
+    }
+
+    /// Releases CLI upload pins after request-hash-scoped retention succeeds.
+    pub fn release_upload(&self, request: &SignedExecRequest) -> Result<(), CasError> {
+        let reason = format!("upload:{}", request.request_id);
+        let _lock = self.operation_lock()?;
+        let hashes = std::iter::once(&request.code.hash)
+            .chain(request.inputs.iter().map(|input| &input.hash));
+        self.unpin_all_unlocked(hashes, &reason)
+    }
+
+    /// Rolls back receipt pins when terminal publication does not commit.
+    pub fn release_receipt(
+        &self,
+        request: &SignedExecRequest,
+        receipt: &ExecutionReceipt,
+    ) -> Result<(), CasError> {
+        let reason = format!("receipt:{}", receipt.run_id);
+        let _lock = self.operation_lock()?;
+        let hashes = [&receipt.outputs.stdout, &receipt.outputs.stderr]
+            .into_iter()
+            .chain(receipt.outputs.artifacts.iter().map(|item| &item.hash))
+            .chain(std::iter::once(&request.code.hash))
+            .chain(request.inputs.iter().map(|input| &input.hash));
+        self.unpin_all_unlocked(hashes, &reason)
+    }
+
     pub fn garbage_collect(&self) -> Result<GcReport, CasError> {
+        let _lock = self.operation_lock()?;
         let mut inventory = self.inventory()?;
         let bytes_before = inventory.iter().map(|blob| blob.size).sum();
         let mut report = GcReport {
@@ -293,7 +517,7 @@ impl ArtifactStore {
                 .then_with(|| left.digest.as_str().cmp(right.digest.as_str()))
         });
         for blob in inventory {
-            if self.is_pinned(&blob.digest)? {
+            if self.is_pinned_unlocked(&blob.digest)? {
                 report.pinned.push(blob.digest);
                 continue;
             }
@@ -345,6 +569,50 @@ impl ArtifactStore {
         Ok(records)
     }
 
+    fn pin_when_present_unlocked(&self, hash: &Digest, reason: &str) -> Result<bool, CasError> {
+        match self.pin_unlocked(hash, reason) {
+            Ok(()) => Ok(true),
+            Err(CasError::Io { source, .. }) if source.kind() == std::io::ErrorKind::NotFound => {
+                Ok(false)
+            }
+            Err(error) => Err(error),
+        }
+    }
+
+    fn unpin_all_unlocked<'a>(
+        &self,
+        hashes: impl IntoIterator<Item = &'a Digest>,
+        reason: &str,
+    ) -> Result<(), CasError> {
+        let mut first_error = None;
+        for hash in hashes {
+            if let Err(error) = self.unpin_unlocked(hash, reason) {
+                if first_error.is_none() {
+                    first_error = Some(error);
+                }
+            }
+        }
+        match first_error {
+            Some(error) => Err(error),
+            None => Ok(()),
+        }
+    }
+
+    fn operation_lock(&self) -> Result<File, CasError> {
+        let path = self.root.join(".cas-operation.lock");
+        let lock = OpenOptions::new()
+            .create(true)
+            .read(true)
+            .write(true)
+            .truncate(false)
+            .open(&path)
+            .map_err(|source| io_error(&path, source))?;
+        set_private_file(&lock)?;
+        lock.lock_exclusive()
+            .map_err(|source| io_error(&path, source))?;
+        Ok(lock)
+    }
+
     fn verify_existing(&self, expected: &Digest, path: &Path) -> Result<(), CasError> {
         let metadata = fs::symlink_metadata(path).map_err(|source| io_error(path, source))?;
         if !metadata.file_type().is_file() || metadata.file_type().is_symlink() {
@@ -376,6 +644,90 @@ impl ArtifactStore {
     fn pin_directory(&self, digest: &Digest) -> Result<PathBuf, CasError> {
         digest_path(&self.pin_root(), digest)
     }
+}
+
+fn validate_receipt_request_binding(
+    request: &SignedExecRequest,
+    receipt: &ExecutionReceipt,
+) -> Result<(), CasError> {
+    receipt.validate()?;
+    if receipt.signature.is_none() {
+        return Err(CasError::ReceiptMismatch(
+            "receipt must be signed before artifact retention".into(),
+        ));
+    }
+    if receipt.request_hash != request.request_hash()? {
+        return Err(CasError::ReceiptMismatch(
+            "receipt request hash differs from the request".into(),
+        ));
+    }
+    if receipt.code_hash != request.code.hash {
+        return Err(CasError::ReceiptMismatch(
+            "receipt code hash differs from the request".into(),
+        ));
+    }
+    Ok(())
+}
+
+fn validate_receipt_execution_binding(
+    request: &SignedExecRequest,
+    receipt: &ExecutionReceipt,
+    execution: &BackendExecution,
+) -> Result<(), CasError> {
+    validate_receipt_request_binding(request, receipt)?;
+    let mismatch = |message: &str| Err(CasError::ReceiptMismatch(message.into()));
+    if receipt.state != execution.state
+        || receipt.evidence_class != execution.evidence_class
+        || receipt.tier != execution.tier
+        || receipt.sandbox_profile_hash != execution.sandbox_profile_hash
+        || receipt.backend != execution.backend
+        || receipt.exit != execution.exit
+        || receipt.usage != execution.usage
+        || receipt.started_at != execution.started_at
+        || receipt.finished_at != execution.finished_at
+        || receipt.toolchain_hash != execution.toolchain_hash
+        || receipt.component != execution.component
+        || receipt.failure != execution.failure
+    {
+        return mismatch("receipt metadata differs from backend execution");
+    }
+    if receipt.outputs.stdout != hash_bytes(&execution.stdout)
+        || receipt.outputs.stderr != hash_bytes(&execution.stderr)
+    {
+        return mismatch("receipt stream hashes differ from backend output bytes");
+    }
+    if receipt.outputs.artifacts.len() != execution.artifacts.len() {
+        return mismatch("receipt artifact count differs from backend outputs");
+    }
+    for (receipt_artifact, produced) in receipt.outputs.artifacts.iter().zip(&execution.artifacts) {
+        if receipt_artifact.path != produced.path
+            || receipt_artifact.hash != hash_bytes(&produced.bytes)
+            || receipt_artifact.size_bytes != Some(produced.bytes.len() as u64)
+        {
+            return mismatch("receipt artifact differs from backend output bytes");
+        }
+    }
+    Ok(())
+}
+
+fn receipt_hashes<'a>(
+    request: &'a SignedExecRequest,
+    receipt: &'a ExecutionReceipt,
+) -> Vec<&'a Digest> {
+    [&receipt.outputs.stdout, &receipt.outputs.stderr]
+        .into_iter()
+        .chain(receipt.outputs.artifacts.iter().map(|item| &item.hash))
+        .chain(std::iter::once(&request.code.hash))
+        .chain(request.inputs.iter().map(|input| &input.hash))
+        .collect()
+}
+
+fn request_pin_reason(request: &SignedExecRequest) -> Result<String, CasError> {
+    Ok(format!(
+        "request:{}:{}",
+        request.request_id,
+        request.request_hash()?
+    ))
 }
 
 fn digest_path(root: &Path, digest: &Digest) -> Result<PathBuf, CasError> {
