@@ -179,7 +179,9 @@ impl DispatchQueue {
             });
         }
         for existing in self.records_unlocked()? {
-            if existing.dispatch.request.request_id == dispatch.request.request_id {
+            if existing.dispatch.request.request_id == dispatch.request.request_id
+                && existing.dispatch.target_endpoint_id == dispatch.target_endpoint_id
+            {
                 return Err(RemoteError::RequestReplay {
                     request_id: dispatch.request.request_id,
                     existing_dispatch_id: existing.dispatch.dispatch_id,
@@ -750,6 +752,51 @@ mod tests {
             .expect("expiry reconciles");
         assert_eq!(expired.len(), 1);
         assert_eq!(expired[0].state, PeerDispatchState::Expired);
+    }
+
+    #[test]
+    fn one_request_is_accepted_once_per_target() {
+        let directory = tempdir().expect("temporary queue");
+        let (mut first, mut enrollment, signing_key) = crate::tests::fixture();
+        let second_target = "endpoint-target-2";
+        let mut second_binding = enrollment
+            .bindings
+            .get("endpoint-target")
+            .expect("fixture target binding")
+            .clone();
+        second_binding.endpoint_id = second_target.into();
+        enrollment
+            .bindings
+            .insert(second_target.into(), second_binding);
+        first.request.targets.push(second_target.into());
+        first.request.targets.sort();
+        prometheus_exec_contracts::sign_request_ed25519(&mut first.request, &signing_key)
+            .expect("multi-target request signs");
+        first.request_hash = first.request.request_hash().expect("request hashes");
+        first.enrollment_snapshot_hash = enrollment.snapshot_hash().expect("enrollment hashes");
+        crate::sign_dispatch_ed25519(&mut first, &signing_key).expect("first dispatch signs");
+
+        let mut second = first.clone();
+        second.dispatch_id = uuid::Uuid::new_v4();
+        second.target_endpoint_id = second_target.into();
+        crate::sign_dispatch_ed25519(&mut second, &signing_key).expect("second dispatch signs");
+        let mut same_target_replay = first.clone();
+        same_target_replay.dispatch_id = uuid::Uuid::new_v4();
+        crate::sign_dispatch_ed25519(&mut same_target_replay, &signing_key)
+            .expect("same-target replay signs");
+
+        let queue = DispatchQueue::open(directory.path()).expect("queue opens");
+        queue
+            .accept(first, &enrollment, chrono::Utc::now())
+            .expect("first target accepts request");
+        queue
+            .accept(second, &enrollment, chrono::Utc::now())
+            .expect("second target accepts same request");
+        assert!(matches!(
+            queue.accept(same_target_replay, &enrollment, chrono::Utc::now()),
+            Err(RemoteError::RequestReplay { .. })
+        ));
+        assert_eq!(queue.records().expect("records remain readable").len(), 2);
     }
 
     #[test]

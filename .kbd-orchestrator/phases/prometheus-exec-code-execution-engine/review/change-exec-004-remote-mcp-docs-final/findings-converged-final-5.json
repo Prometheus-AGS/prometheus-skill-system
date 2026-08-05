@@ -1,0 +1,18 @@
+{
+  "mode": "diff",
+  "verdict": "BLOCK",
+  "judge_model": "MiniMax-M3",
+  "producer_model": "gpt-5.6-sol",
+  "isolation_mode": "rest-gateway:http://localhost:8181/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": "substrate/exec-remote/src/queue.rs",
+      "line": 185,
+      "claim": "The origin queue rejects a second dispatch for the same signed request ID, which prevents a single remote request from being delivered to multiple target peers and breaks per-peer aggregation.",
+      "evidence": "In `accept_verified_unlocked`, after accepting one dispatch, the queue iterates all records and returns `RemoteError::RequestReplay` whenever `existing.dispatch.request.request_id == dispatch.request.request_id`, regardless of target endpoint; acceptance criteria require per-peer receipt aggregation and mixed-target outcomes (`2.3 Implement ... per-peer terminal receipt aggregation`, `execution-remote-dispatch` scenario: \"WHEN one target returns a verified receipt and another rejects authorization THEN aggregate status exposes both outcomes\").",
+      "suggested_fix": "Deduplicate by dispatch ID/hash and by `(request_id, target_endpoint_id)` or another per-target key, not by request ID alone, so the same canonical request can be durably tracked for each enrolled target while still rejecting conflicting replays for the same target."
+    }
+  ]
+}
