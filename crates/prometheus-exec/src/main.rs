@@ -17,10 +17,10 @@ use chrono::Utc;
 use clap::{Parser, Subcommand, ValueEnum};
 use hyper::Method;
 use prometheus_exec_contracts::{
-    contract_schemas, openapi_components, sign_request_ed25519, verify_receipt, CapabilityManifest,
-    CodeIdentity, CodeKind, ExecutionLimits, ExecutionProvenance, ExecutionReceipt, NamedInput,
-    RequestedTier, RunState, RuntimeKind, SignatureAlgorithm, SignedExecRequest, VerificationKey,
-    SCHEMA_VERSION,
+    contract_schemas, openapi_components, sign_request_ed25519, verify_evidence_bundle,
+    verify_receipt, CapabilityManifest, CodeIdentity, CodeKind, ExecutionEvidenceIndex,
+    ExecutionLimits, ExecutionProvenance, ExecutionReceipt, NamedInput, RequestedTier, RunState,
+    RuntimeKind, SignatureAlgorithm, SignedExecRequest, VerificationKey, SCHEMA_VERSION,
 };
 use prometheus_exec_core::ArtifactStore;
 use prometheus_exec_service::RunResponse;
@@ -137,6 +137,16 @@ enum Command {
         /// Named replay input in NAME=PATH form. May be repeated.
         #[arg(long = "input")]
         inputs: Vec<String>,
+        #[arg(long, value_enum, default_value_t = OutputFormat::Human)]
+        format: OutputFormat,
+    },
+    /// Verify a portable execution-evidence bundle without a service or network.
+    VerifyBundle {
+        #[arg(long)]
+        index: PathBuf,
+        /// Bundle root; defaults to the index file's parent directory.
+        #[arg(long)]
+        root: Option<PathBuf>,
         #[arg(long, value_enum, default_value_t = OutputFormat::Human)]
         format: OutputFormat,
     },
@@ -292,6 +302,11 @@ async fn run(cli: Cli) -> Result<ExitCode, BoxError> {
             &inputs,
             format,
         ),
+        Command::VerifyBundle {
+            index,
+            root,
+            format,
+        } => verify_bundle_command(&index, root.as_deref(), format),
         Command::Contracts { output_dir } => generate_contracts(&output_dir),
     }
 }
@@ -668,6 +683,48 @@ fn verify_command(
     })
 }
 
+fn verify_bundle_command(
+    index_path: &Path,
+    root: Option<&Path>,
+    format: OutputFormat,
+) -> Result<ExitCode, BoxError> {
+    let index: ExecutionEvidenceIndex = read_json(index_path)?;
+    let root = root
+        .or_else(|| index_path.parent())
+        .ok_or("evidence index has no parent; pass --root")?;
+    let result = verify_evidence_bundle(&index, root);
+    match format {
+        OutputFormat::Json => {
+            serde_json::to_writer_pretty(io::stdout().lock(), &result)?;
+            println!();
+        }
+        OutputFormat::Human if result.valid => {
+            println!(
+                "VALID BUNDLE {}",
+                result
+                    .index_hash
+                    .as_ref()
+                    .map(ToString::to_string)
+                    .unwrap_or_else(|| "index-hash-unavailable".into())
+            );
+            for check in &result.checks {
+                println!("  ok {}: {}", check.code, check.message);
+            }
+        }
+        OutputFormat::Human => {
+            println!("INVALID BUNDLE");
+            for failure in &result.failures {
+                println!("  error {}: {}", failure.code, failure.message);
+            }
+        }
+    }
+    Ok(if result.valid {
+        ExitCode::SUCCESS
+    } else {
+        ExitCode::from(1)
+    })
+}
+
 fn load_named_inputs(arguments: &[String]) -> Result<BTreeMap<String, Vec<u8>>, BoxError> {
     let mut inputs = BTreeMap::new();
     for argument in arguments {
@@ -767,5 +824,26 @@ mod pin_tests {
 
         assert!(!artifacts.is_pinned(&first.hash).unwrap());
         assert!(!artifacts.is_pinned(&second.hash).unwrap());
+    }
+
+    #[test]
+    fn portable_bundle_verifier_is_exposed_without_runtime_arguments() {
+        let cli = Cli::try_parse_from([
+            "prometheus-exec",
+            "verify-bundle",
+            "--index",
+            "bundle/index.json",
+            "--format",
+            "json",
+        ])
+        .unwrap();
+        assert!(matches!(
+            cli.command,
+            Command::VerifyBundle {
+                index,
+                root: None,
+                format: OutputFormat::Json,
+            } if index == Path::new("bundle/index.json")
+        ));
     }
 }

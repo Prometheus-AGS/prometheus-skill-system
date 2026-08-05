@@ -13,7 +13,7 @@
 
 ## 3. Certification evidence integration
 
-- [ ] 3.1 Add a deterministic portable execution-evidence index and offline checker for receipts, requests, public identities, artifacts, environments, and hashes
+- [x] 3.1 Add a deterministic portable execution-evidence index and offline checker for receipts, requests, public identities, artifacts, environments, and hashes
 - [ ] 3.2 Integrate `pending_evidence`, preserve distinct `pending_review`, prove method independence, and add separated artifact/runtime/install/remote/mobile status fixtures
 
 ## 4. Installation, doctors, and signed distribution
