@@ -150,14 +150,31 @@ USER_PROMPT="$(cat "$PACKET")"
 # string-built JSON would corrupt on the first awkward diff.
 REQ_BODY="$(JUDGE_MODEL="$JUDGE_MODEL" SYS="$SYSTEM_PROMPT" USR="$USER_PROMPT" python3 <<'PY'
 import json, os
-print(json.dumps({
-    "model": os.environ["JUDGE_MODEL"],
+
+model = os.environ["JUDGE_MODEL"]
+body = {
+    "model": model,
     "messages": [
         {"role": "system", "content": os.environ.get("SYS", "")},
         {"role": "user", "content": os.environ.get("USR", "")},
     ],
-    "temperature": 0,
-}))
+}
+
+# temperature=0 is the right default for a judge — a review should be
+# reproducible. But some reasoning models REFUSE any other value and reject the
+# whole request rather than clamping:
+#   HTTP 400 "invalid temperature: only 1 is allowed for this model"
+# Kimi k3 does exactly this, which made every dispatch to it fail outright.
+#
+# Omitting the field lets such a model apply its own required default, while
+# every other model still gets an explicit 0. Do not "fix" this by sending 1
+# unconditionally — that would silently make ALL judges non-deterministic to
+# accommodate one.
+FIXED_TEMPERATURE_MODELS = ("k3", "kimi-for-coding", "o1", "o3", "gpt-5")
+if not any(model.startswith(p) for p in FIXED_TEMPERATURE_MODELS):
+    body["temperature"] = 0
+
+print(json.dumps(body))
 PY
 )" || { echo "[judge] ERROR: failed to build request body" >&2; exit 4; }
 
@@ -174,21 +191,65 @@ fi
 # Capture the HTTP status separately. `curl -s` without `-f` exits 0 on 4xx/5xx,
 # so the old `|| exit 3` branch was near-dead and a non-JSON 502 from a reverse
 # proxy degraded to the generic "unavailable" message this script exists to avoid.
-_resp_file="$(mktemp)"
-HTTP_CODE="$(curl -s --max-time "${ADV_JUDGE_TIMEOUT:-300}" \
-  -o "$_resp_file" -w '%{http_code}' \
-  --noproxy '*' \
-  "$JUDGE_BASE_URL/chat/completions" \
-  -H 'content-type: application/json' -H "$AUTH_HEADER" \
-  --data-binary "$REQ_BODY" 2>/dev/null)" || HTTP_CODE="000"
-RESPONSE="$(cat "$_resp_file" 2>/dev/null)"
-rm -f "$_resp_file"
+#
+# TIMEOUT ESCALATION WITH RETRY
+#
+# A reasoning judge emits a long reasoning preamble before any content. On a
+# large review packet that regularly exceeds a fixed client timeout, and an
+# upstream that gives up first surfaces as HTTP 502 with a Network body — NOT as
+# a clean curl timeout. Both symptoms mean the same thing: not enough time.
+#
+# A single fixed timeout therefore either fails on big packets or wastes wall
+# clock on small ones. Instead: start at ADV_JUDGE_TIMEOUT and, on a
+# timeout-shaped failure only, double it and retry up to ADV_JUDGE_RETRIES
+# times, reporting each escalation so the wait is never silent.
+#
+# Only timeout-shaped failures escalate. A 401 is not slow, it is wrong, and
+# retrying it just delays an actionable error.
+_timeout="${ADV_JUDGE_TIMEOUT:-300}"
+_max_attempts="${ADV_JUDGE_RETRIES:-3}"
+_attempt=1
 
-if [ "$HTTP_CODE" = "000" ]; then
-  echo "[judge] WARN: judge request to $JUDGE_BASE_URL did not complete (connection" >&2
-  echo "[judge]       failed or timed out after ${ADV_JUDGE_TIMEOUT:-300}s) — unavailable (exit 3)" >&2
-  exit 3
-fi
+while : ; do
+  _resp_file="$(mktemp)"
+  HTTP_CODE="$(curl -s --max-time "$_timeout" \
+    -o "$_resp_file" -w '%{http_code}' \
+    --noproxy '*' \
+    "$JUDGE_BASE_URL/chat/completions" \
+    -H 'content-type: application/json' -H "$AUTH_HEADER" \
+    --data-binary "$REQ_BODY" 2>/dev/null)" || HTTP_CODE="000"
+  RESPONSE="$(cat "$_resp_file" 2>/dev/null)"
+  rm -f "$_resp_file"
+
+  # 000 = curl gave up locally. 502/503/504 with a Network/timeout body = the
+  # gateway gave up on the upstream. Treat both as "needs more time".
+  _retryable=0
+  if [ "$HTTP_CODE" = "000" ]; then
+    _retryable=1
+  elif [ "$HTTP_CODE" = "502" ] || [ "$HTTP_CODE" = "503" ] || [ "$HTTP_CODE" = "504" ]; then
+    case "$RESPONSE" in
+      *Network*|*network*|*timeout*|*Timeout*|*timed\ out*) _retryable=1 ;;
+    esac
+  fi
+
+  if [ "$_retryable" -eq 0 ]; then
+    break
+  fi
+
+  if [ "$_attempt" -ge "$_max_attempts" ]; then
+    echo "[judge] WARN: judge request to $JUDGE_BASE_URL did not complete after" >&2
+    echo "[judge]       ${_attempt} attempt(s), final timeout ${_timeout}s (HTTP ${HTTP_CODE})." >&2
+    echo "[judge]       Raise ADV_JUDGE_TIMEOUT or ADV_JUDGE_RETRIES, or reduce the" >&2
+    echo "[judge]       packet size — unavailable (exit 3)" >&2
+    exit 3
+  fi
+
+  _prev="$_timeout"
+  _timeout=$(( _timeout * 2 ))
+  _attempt=$(( _attempt + 1 ))
+  echo "[judge] retry ${_attempt}/${_max_attempts}: HTTP ${HTTP_CODE} looks like a timeout" >&2
+  echo "[judge]        at ${_prev}s; escalating timeout to ${_timeout}s and retrying." >&2
+done
 
 case "$HTTP_CODE" in
   2*) ;;

@@ -1,6 +1,15 @@
 # Update Log
 
 ## 2026-08-05
+* **Ingest**: [Karpathy session 4ea47e791161](/karpathy-session-4ea47e791161bf83.md)
+* **Ingest**: [Karpathy session 5dbe0228b36a](/karpathy-session-5dbe0228b36ae80b.md)
+* **Creation**: [Prometheus Exec Engine Phase Completion Status](/prometheus-exec-engine-phase-completion-status.md)
+* **Ingest**: [Karpathy session bfb3f3fd1747](/karpathy-session-bfb3f3fd174766bd.md)
+* **Ingest**: [Karpathy session d1e0d50cee1a](/karpathy-session-d1e0d50cee1a36e7.md)
+* **Ingest**: [Karpathy session 93f566af257e](/karpathy-session-93f566af257e1a5a.md)
+* **Ingest**: [Karpathy session 85d8a138d48f](/karpathy-session-85d8a138d48f6b5b.md)
+* **Creation**: [Prometheus Exec Code Execution Engine Session Completion](/prometheus-exec-code-execution-engine-session-completion.md)
+* **Creation**: [Prometheus Exec Code Execution Engine Session Completion](/prometheus-exec-code-execution-engine-session-completion.md)
 * **Ingest**: [Karpathy session d56a2edbd2a8](/karpathy-session-d56a2edbd2a8dd12.md)
 * **Creation**: [Prometheus Exec Engine Session Completion Record](/prometheus-exec-engine-session-completion-record.md)
 * **Ingest**: [Karpathy session b2a894c15d4f](/karpathy-session-b2a894c15d4f842e.md)

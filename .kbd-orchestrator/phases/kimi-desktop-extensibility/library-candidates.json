@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "phase": "kimi-desktop-extensibility",
+  "mode": "stack-specified",
+  "stack": "Kimi Desktop plugin API (daimon 0.5.49)",
+  "generated_at": "2026-08-05",
+  "research_tiers_used": ["local-artifact-inspection", "tier1-vendor-packages"],
+  "tiers_skipped": {
+    "tier2_context7": "no third-party library API to confirm",
+    "tier3_registries": "no package to health-check; the API is one vendor's local runtime",
+    "tier4_web": "authoritative evidence was the 12 vendor packages on disk"
+  },
+  "candidates": [
+    {
+      "id": "mcp-url-transport",
+      "gap": "Kimi Desktop has skills but no tools",
+      "verdict": "adopt",
+      "confidence": "high",
+      "evidence": "3 of 4 vendor packages declaring mcpServers use the url form (cloudflare, github, supabase). Pack servers surreal-memory (HTTP 200), prometheus-knowledge (HTTP 405 = listener up) are already HTTP MCP endpoints in .mcp.json.",
+      "rationale": "No shim, no PATH coupling, no binary shipped into app-managed state."
+    },
+    {
+      "id": "mcp-stdio-shim",
+      "gap": "same",
+      "verdict": "defer",
+      "confidence": "high",
+      "evidence": "kimi-cu/bin/kimi-cu-mcp is a POSIX shim whose header states kimi-code only accepts a PATH command or ./ relative path, and forwards to an absolute app path.",
+      "rationale": "Sanctioned fallback, proven by vendor precedent, but unnecessary while the url form covers the local HTTP servers."
+    },
+    {
+      "id": "session-start-kbd-status",
+      "gap": "no orientation discipline on Kimi Desktop",
+      "verdict": "adopt",
+      "confidence": "high",
+      "evidence": "sessionStart shape is {\"skill\": \"<name>\"} per the github package; kbd-status confirmed present in the 145 installed skills.",
+      "rationale": "Matches the SessionStart hook discipline the other harnesses get."
+    },
+    {
+      "id": "npx-third-party-servers",
+      "gap": "tavily / sequential-thinking tools",
+      "verdict": "reject",
+      "confidence": "high",
+      "evidence": ".mcp.json declares both via npx; they are third-party services requiring their own credentials.",
+      "rationale": "Not the pack's to redistribute; shipping them makes our package responsible for third-party auth."
+    },
+    {
+      "id": "ship-binaries-in-package",
+      "gap": "same",
+      "verdict": "reject",
+      "confidence": "high",
+      "evidence": "Pack binaries total hundreds of MB; the generation payload was already cut 188M -> 98M for exactly this reason (commit 67d29a2).",
+      "rationale": "Would duplicate large binaries into app-managed state that the vendor may prune."
+    }
+  ],
+  "blocked": [
+    {
+      "id": "forge-rs-url",
+      "reason": "Endpoint returned HTTP 401. The vendor url schema in installed packages shows no auth-header field, so a bearer-token server may be unusable from Kimi Desktop.",
+      "blocks": "inclusion of forge-rs in change-kde-001 only; does not block the change"
+    }
+  ]
+}
