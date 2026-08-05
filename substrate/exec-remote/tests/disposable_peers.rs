@@ -277,6 +277,38 @@ fn unknown_endpoint_signer_mismatch_replay_and_expiry_are_rejected() {
     ));
 }
 
+#[test]
+fn target_rechecks_expiry_immediately_before_execution() {
+    let (mut dispatch, enrollment, origin_key, target_key) = fixture();
+    dispatch.issued_at = Utc::now() - Duration::seconds(10);
+    dispatch.validity_window_secs = 1;
+    sign_dispatch_ed25519(&mut dispatch, &origin_key).unwrap();
+    let acceptance_time = dispatch.issued_at;
+    let target_dir = tempdir().unwrap();
+    let calls = Arc::new(AtomicUsize::new(0));
+    let target = RemoteTarget::new(
+        TARGET,
+        DispatchQueue::open(target_dir.path()).unwrap(),
+        enrollment,
+        target_key.clone(),
+        Arc::new(CountingExecutor {
+            key: target_key,
+            calls: calls.clone(),
+        }),
+    )
+    .unwrap();
+
+    let response = futures::executor::block_on(target.receive(dispatch, acceptance_time))
+        .expect("receipt is recorded before the execution-time expiry check");
+
+    assert_eq!(response.state, PeerDispatchState::Expired);
+    assert!(response
+        .failure
+        .as_deref()
+        .is_some_and(|failure| failure.contains("before local execution")));
+    assert_eq!(calls.load(Ordering::SeqCst), 0);
+}
+
 struct BlockingTransport {
     started: mpsc::Sender<()>,
     release: Mutex<mpsc::Receiver<()>>,

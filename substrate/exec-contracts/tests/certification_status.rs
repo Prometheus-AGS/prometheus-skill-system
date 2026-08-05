@@ -5,8 +5,8 @@ use prometheus_exec_contracts::{
     SCHEMA_VERSION,
 };
 
-fn digest(character: char) -> Digest {
-    Digest::parse(format!("sha256:{}", character.to_string().repeat(64))).unwrap()
+fn digest(value: &str) -> Digest {
+    Digest::parse(format!("sha256:{value}")).unwrap()
 }
 
 fn completed(
@@ -52,28 +52,28 @@ fn report() -> ExecutionCertificationReport {
             "artifact-source",
             EvidenceDimension::ArtifactSource,
             "sourceHash",
-            digest('1'),
-            digest('a'),
+            digest("ba438895404a23985d5226735b8f362cf3e8044894a1140852ba0992f2fdbe78"),
+            digest("d653e6494d9afedd73a91d6e1e2b2e899d597b53329b3ca729f387e2ee9e4e97"),
         ),
         completed(
             "disposable-runtime",
             EvidenceDimension::DisposableRuntime,
             "receiptHash",
-            digest('2'),
-            digest('b'),
+            digest("6e8d0aef1abe3ff9ff52d74f8a5d83ea8e72b22e70e663949ee8b7df3bea5818"),
+            digest("70b9ae775a672b79d8d034a1c5f391d9203d1fc077e46fb957fbd89e2e291a6c"),
         ),
         completed(
             "installed-host",
             EvidenceDimension::InstalledHost,
             "binaryHash",
-            digest('3'),
-            digest('c'),
+            digest("1998093f01968099d4eaac4e034cb5c3efb2268b92f1a32ca8ecdbd3f0300fb2"),
+            digest("07331e8572f37762ca4a182cd22754ad31feeb08ad275fdc3cc808e275dbea2f"),
         ),
         pending(
             "judge-review",
             EvidenceDimension::JudgeReview,
             EvidenceStatus::PendingReview,
-            "distinct judge is temporarily unavailable",
+            "distinct-model review found remediable findings; remediation is in progress",
         ),
         pending(
             "mobile-size",

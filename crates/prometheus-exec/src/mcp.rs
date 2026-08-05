@@ -8,6 +8,7 @@ use std::{
 use base64::{engine::general_purpose::URL_SAFE_NO_PAD, Engine as _};
 use chrono::{DateTime, Utc};
 use ed25519_dalek::SigningKey;
+use hyper::Method;
 use prometheus_exec_contracts::{
     sign_request_ed25519, CapabilityManifest, CodeIdentity, CodeKind, Digest, ExecutionLimits,
     ExecutionProvenance, ExecutionReceipt, NamedInput, RequestedTier, RunState, RuntimeKind,
@@ -28,7 +29,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use uuid::Uuid;
 
-use crate::{daemon, identity, BoxError};
+use crate::{daemon, identity, uds_client, BoxError};
 
 const MAX_CODE_BYTES: usize = 8 * 1024 * 1024;
 const MAX_INPUT_BYTES: usize = 16 * 1024 * 1024;
@@ -434,7 +435,7 @@ pub async fn run(config: McpConfig) -> Result<(), BoxError> {
         artifact_budget_bytes: config.artifact_budget_bytes,
     };
     let daemon = tokio::spawn(daemon::run(daemon_config));
-    wait_for_runner_socket(&socket, &daemon).await?;
+    wait_for_runner_ready(&socket, &daemon, Duration::from_secs(5)).await?;
     let server = ExecMcpServer::new(facade, loaded.signing_key, config.plugin_root);
     let result = server.serve_stdio().await;
     daemon.abort();
@@ -442,20 +443,32 @@ pub async fn run(config: McpConfig) -> Result<(), BoxError> {
     result
 }
 
-async fn wait_for_runner_socket(
+async fn wait_for_runner_ready(
     socket: &Path,
     daemon: &tokio::task::JoinHandle<Result<(), BoxError>>,
+    timeout: Duration,
 ) -> Result<(), BoxError> {
-    let deadline = tokio::time::Instant::now() + Duration::from_secs(5);
+    let deadline = tokio::time::Instant::now() + timeout;
     loop {
-        if socket.exists() {
-            return Ok(());
-        }
         if daemon.is_finished() {
             return Err("MCP execution runner exited before binding its private socket".into());
         }
+        if socket.exists() {
+            let readiness = tokio::time::timeout(
+                Duration::from_millis(250),
+                uds_client::request(socket, Method::GET, "/ready", Vec::new()),
+            )
+            .await;
+            if matches!(readiness, Ok(Ok(response)) if response.status == 200) {
+                return Ok(());
+            }
+        }
         if tokio::time::Instant::now() >= deadline {
-            return Err("MCP execution runner did not bind within 5 seconds".into());
+            return Err(format!(
+                "MCP execution runner did not become ready within {} milliseconds",
+                timeout.as_millis()
+            )
+            .into());
         }
         tokio::time::sleep(Duration::from_millis(10)).await;
     }
@@ -500,7 +513,7 @@ const fn default_inline_ceiling() -> usize {
 
 #[cfg(test)]
 mod tests {
-    use std::{collections::BTreeMap, sync::Arc};
+    use std::{collections::BTreeMap, future, sync::Arc, time::Duration};
 
     use chrono::Utc;
     use ed25519_dalek::SigningKey;
@@ -516,7 +529,10 @@ mod tests {
     use tempfile::tempdir;
     use uuid::Uuid;
 
-    use super::{ExecArtifactParams, ExecMcpServer, ExecRunParams, ExecVerifyParams, McpRuntime};
+    use super::{
+        wait_for_runner_ready, ExecArtifactParams, ExecMcpServer, ExecRunParams, ExecVerifyParams,
+        McpRuntime,
+    };
 
     fn fixture() -> (ExecMcpServer, Arc<ExecutionService>) {
         let directory = tempdir().expect("temporary directory").keep();
@@ -532,6 +548,22 @@ mod tests {
             ExecMcpServer::new(facade, SigningKey::from_bytes(&[7; 32]), directory),
             service,
         )
+    }
+
+    #[cfg(unix)]
+    #[tokio::test]
+    async fn runner_socket_path_is_not_readiness_evidence() {
+        let directory = tempdir().expect("temporary directory");
+        let socket = directory.path().join("stalled.sock");
+        let _listener = tokio::net::UnixListener::bind(&socket).expect("socket binds");
+        let daemon = tokio::spawn(async { future::pending::<Result<(), super::BoxError>>().await });
+
+        let error = wait_for_runner_ready(&socket, &daemon, Duration::from_millis(50))
+            .await
+            .expect_err("a bound socket without a live ready response must fail");
+        assert!(error.to_string().contains("did not become ready"));
+        daemon.abort();
+        let _ = daemon.await;
     }
 
     fn signed_request(server: &ExecMcpServer) -> SignedExecRequest {

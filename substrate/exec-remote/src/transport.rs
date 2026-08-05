@@ -102,6 +102,18 @@ where
                 )))
             }
         };
+        let execution_now = Utc::now();
+        if execution_now > dispatch.expires_at()? {
+            let expired = self.queue.transition(
+                dispatch.dispatch_id,
+                PeerDispatchState::Expired,
+                received.run_id,
+                None,
+                Some("remote dispatch validity window expired before local execution".into()),
+                execution_now,
+            )?;
+            return self.response_from_record(&expired);
+        }
         let running = match received.state {
             PeerDispatchState::Received => self.queue.transition(
                 dispatch.dispatch_id,
