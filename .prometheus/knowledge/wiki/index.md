@@ -183,6 +183,7 @@
 * [Karpathy Tools OpenAI Proxy Routing via localhost:8181](/karpathy-tools-openai-proxy-routing-via-localhost-8181.md) - On `2026-07-10`, the Prometheus stack was configured so Karpathy knowledge tools route chat/completion traffic through a local OpenAI-compatible proxy:
 * [KBD Stop-Gate Suspension State Defect During Docusaurus Phase](/kbd-stop-gate-suspension-state-defect-during-docusaurus-phase.md)
 * [KBD Waypoint execution_complete Status Drift in Docusaurus Phase](/kbd-waypoint-execution-complete-status-drift-in-docusaurus-phase.md)
+* [Kimi Desktop Extensibility Executor Completion Status](/kimi-desktop-extensibility-executor-completion-status.md)
 * [Knowledge Assets & Architecture Patterns](/knowledge-assets-architecture.md) - Foundational research on knowledge storage architectures for deep research: knowledge graphs, vector databases, embedding strategies, and retrieval patterns.
 * [Learn Grader Validation Completion Marker Unknown Change](/learn-grader-validation-completion-marker-unknown-change.md)
 * [Learn Grader Validation Execute Completion at 2026-07-16T20:58Z](/learn-grader-validation-execute-completion-at-2026-07-16t20-58z.md)
@@ -306,6 +307,7 @@
 * [Karpathy session 2b34e92ef41a](/karpathy-session-2b34e92ef41afb98.md)
 * [Karpathy session 2d47dc18780c](/karpathy-session-2d47dc18780cb546.md)
 * [Karpathy session 3149a14101ed](/karpathy-session-3149a14101ed89ed.md)
+* [Karpathy session 3270078ce33c](/karpathy-session-3270078ce33c688b.md)
 * [Karpathy session 32ee1be19537](/karpathy-session-32ee1be19537e6d9.md)
 * [Karpathy session 356302e6421b](/karpathy-session-356302e6421b3f39.md)
 * [Karpathy session 377baefab115](/karpathy-session-377baefab1157add.md)
@@ -347,6 +349,7 @@
 * [Karpathy session 9dcc47a92755](/karpathy-session-9dcc47a9275511db.md)
 * [Karpathy session a02e77eb120e](/karpathy-session-a02e77eb120e7f7c.md)
 * [Karpathy session a309f7488926](/karpathy-session-a309f7488926c040.md)
+* [Karpathy session a3d969dec3ef](/karpathy-session-a3d969dec3efc241.md)
 * [Karpathy session a655ae785ae8](/karpathy-session-a655ae785ae82490.md)
 * [Karpathy session ae2bd20fb3a2](/karpathy-session-ae2bd20fb3a2760f.md)
 * [Karpathy session af647babea31](/karpathy-session-af647babea31244a.md)

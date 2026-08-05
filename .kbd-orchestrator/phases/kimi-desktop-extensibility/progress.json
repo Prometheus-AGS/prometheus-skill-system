@@ -1,9 +1,9 @@
 {
   "phase": "kimi-desktop-extensibility",
-  "updatedAt": "2026-08-05T13:43:05Z",
+  "updatedAt": "2026-08-05T13:58:08Z",
   "completion": {
     "implementation": {
-      "completed": 1,
+      "completed": 2,
       "total": 5
     }
   },
@@ -16,7 +16,9 @@
     },
     {
       "id": "kde-003-hooks-probe",
-      "status": "pending"
+      "status": "completed",
+      "completedAt": "2026-08-05T13:58:08Z",
+      "note": "Answered by source inspection of the shipped loader instead of a probe package \u2014 stronger evidence, and no write into app-managed state. hooks SUPPORTED (array shape, seconds timeout <=600, 7 events); systemPrompt NOT SUPPORTED and silently ignored. Discovered `commands` is supported and unowned."
     },
     {
       "id": "kde-001-mcp-servers",

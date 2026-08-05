@@ -78,29 +78,36 @@ skill to run at session start. The natural candidate is a KBD position/orientati
 skill, giving Kimi Desktop the same "read the waypoint first" discipline the
 other harnesses get from `SessionStart` hooks.
 
-### E4 — `hooks` — INVESTIGATE BEFORE ADOPTING
+### E4 — `hooks` — **SUPPORTED** (verdict from kde-003)
 
 Documented for Kimi Code CLI plugins ("declare hook rules in its manifest that run
 on lifecycle events … using the same fields as config.toml hooks: event, matcher,
 command, timeout"). **Not present in any of the 12 installed vendor packages**,
 so it is unproven on the desktop daimon path.
 
-If it works, it is the route to parity with the pack's 30-hook bundle. It must be
-verified empirically before adoption — the pack has already been burned by a
-documented-but-inert hook path (`config.toml [hooks]` snake_case parsed cleanly
-and never fired; see CLAUDE.md).
+**Resolved by `kde-003`** via source inspection of the shipped loader
+(`agent-core/dist/index.mjs`, `parseManifest`). `hooks` is parsed and returned.
 
-### E5 — `systemPrompt` / `systemPromptPath` — CONSIDER, with caution
+Contract — **differs from Claude Code's shape**: a flat ARRAY of
+`{event, matcher?, command, timeout?}`, `.strict()`, where `event` is one of
+`PreToolUse PostToolUse SessionStart Stop SubagentStop UserPromptSubmit
+Notification`. `timeout` is an integer **seconds** value capped at 600; the
+pack's `hooks.json` uses milliseconds and would be rejected.
 
-Documented as letting an enabled plugin contribute to the agent's system prompt.
-Also absent from all installed vendor packages.
+Caveat: parsing is not execution. See `probe-verdict.md`.
 
-Caution: the pack already carries `skillInstructions` (present and supported),
-which covers routing guidance. A system prompt injection is a blunter instrument
-and competes for the same context budget. **The Codex catalog-budget lesson
-applies** — 145 skills already pressure any fixed-size prompt region, and adding
-prose on top could crowd out the per-skill descriptions the model needs to tell
-skills apart.
+### E5 — `systemPrompt` / `systemPromptPath` — **NOT SUPPORTED** (verdict from kde-003)
+
+**Resolved by `kde-003`: REJECT for this runtime.** Neither field appears in
+`parseManifest`'s returned manifest object on daimon 0.5.49. The CLI docs that
+described them do not reflect this build.
+
+Worse than unsupported: neither is in `UNSUPPORTED_RUNTIME_FIELDS`, so declaring
+one produces **no diagnostic** — it is silently ignored. That is precisely the
+inertness failure mode this phase exists to avoid.
+
+`skillInstructions` (E0, adopted) already covers routing guidance and IS
+consumed, so nothing is lost.
 
 ### E6 — `agents` — DEFER
 
@@ -129,6 +136,16 @@ also the reason E5 (`systemPrompt`) is held at CONSIDER rather than adopted —
 the two compete for the same context budget, and `skillInstructions` is the
 supported, already-working one. No further change is required.
 
+### E8 — `commands` — **SUPPORTED, UNOWNED** (discovered by kde-003)
+
+Not in any of the 12 vendor packages and in no documentation reviewed during
+assess or analyze — found only by reading the loader. `parseManifest` returns
+`commands: await readCommands(...)`, accepting a string or string[].
+
+This may be the Kimi Desktop equivalent of the 147 slash commands the pack ships
+to Claude Code and Codex. No change owns it. Plan should decide whether to
+create one.
+
 ### E7 — Marketplace publication — OUT OF SCOPE for now
 
 Distribution is a CDN-backed `plugins/marketplace.json`, with trust tiers
@@ -147,10 +164,11 @@ Building a desktop integration there would ship dead files.
 
 ## Open questions for analyze/plan
 
-1. **Does the desktop daimon honour `hooks` and `systemPrompt`?** Both are
-   documented for the CLI plugin path and absent from every installed desktop
-   package. A one-field probe package answers this cheaply and must run before
-   either is planned.
+1. ~~Does the desktop daimon honour `hooks` and `systemPrompt`?~~ **CLOSED by
+   `kde-003`**: `hooks` supported (array shape, seconds timeout ≤600);
+   `systemPrompt` not supported and silently ignored. See `probe-verdict.md`.
+   New open question in its place: does a parsed hook actually SPAWN? Parsing is
+   not execution.
 2. **Do `~/.kimi/plugins` (CLI, per docs) and desktop `plugin-packages` share a
    loader?** Locally `~/.kimi/plugins` does not exist and our package is not
    visible to the CLI, so they appear separate — but the CLI is 0.29.1 while the
