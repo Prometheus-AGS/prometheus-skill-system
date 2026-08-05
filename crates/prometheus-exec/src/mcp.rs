@@ -1,0 +1,458 @@
+use std::{
+    collections::BTreeMap,
+    path::{Path, PathBuf},
+    sync::Arc,
+    time::Duration,
+};
+
+use base64::{engine::general_purpose::URL_SAFE_NO_PAD, Engine as _};
+use chrono::Utc;
+use ed25519_dalek::SigningKey;
+use prometheus_exec_contracts::{
+    sign_request_ed25519, CapabilityManifest, CodeIdentity, CodeKind, Digest, ExecutionLimits,
+    ExecutionProvenance, ExecutionReceipt, NamedInput, RequestedTier, RunState, RuntimeKind,
+    SignatureAlgorithm, SignedExecRequest, VerificationKey, SCHEMA_VERSION,
+};
+use prometheus_exec_core::ArtifactStore;
+use prometheus_exec_service::{LocalExecutionFacade, RunRecord, DEFAULT_INLINE_ARTIFACT_BYTES};
+use prometheus_exec_tier_w::ComponentAuthorizer;
+use rmcp::{
+    handler::server::{router::tool::ToolRouter, wrapper::Parameters},
+    model::{Implementation, ServerCapabilities, ServerInfo},
+    serve_server, tool_handler, tool_router,
+    transport::io::stdio,
+    ServerHandler,
+};
+use schemars::JsonSchema;
+use serde::{Deserialize, Serialize};
+use serde_json::Value;
+use uuid::Uuid;
+
+use crate::{daemon, identity, BoxError};
+
+const MAX_CODE_BYTES: usize = 8 * 1024 * 1024;
+const MAX_INPUT_BYTES: usize = 16 * 1024 * 1024;
+
+#[derive(Clone, Debug)]
+pub struct McpConfig {
+    pub state_dir: PathBuf,
+    pub identity: PathBuf,
+    pub plugin_root: PathBuf,
+    pub artifact_budget_bytes: u64,
+}
+
+#[derive(Clone)]
+pub struct ExecMcpServer {
+    tool_router: ToolRouter<Self>,
+    facade: LocalExecutionFacade,
+    signing_key: Arc<SigningKey>,
+    plugin_root: PathBuf,
+}
+
+#[derive(Clone, Copy, Debug, Deserialize, JsonSchema)]
+#[serde(rename_all = "kebab-case")]
+pub enum McpRuntime {
+    WasmComponent,
+    Python3,
+    Node,
+    Bash,
+}
+
+impl From<McpRuntime> for RuntimeKind {
+    fn from(value: McpRuntime) -> Self {
+        match value {
+            McpRuntime::WasmComponent => Self::WasmComponent,
+            McpRuntime::Python3 => Self::Python3,
+            McpRuntime::Node => Self::Node,
+            McpRuntime::Bash => Self::Bash,
+        }
+    }
+}
+
+#[derive(Debug, Deserialize, JsonSchema)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct ExecRunParams {
+    pub runtime: McpRuntime,
+    /// Unpadded base64url code or component bytes.
+    pub code_base64: String,
+    /// Named unpadded base64url input bytes.
+    #[serde(default)]
+    pub inputs: BTreeMap<String, String>,
+    #[serde(default = "default_timeout_ms")]
+    pub timeout_ms: u64,
+    #[serde(default = "default_output_mb")]
+    pub output_mb: u64,
+}
+
+#[derive(Debug, Deserialize, JsonSchema)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct ExecStatusParams {
+    pub run_id: Uuid,
+}
+
+#[derive(Debug, Deserialize, JsonSchema)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct ExecEventsParams {
+    pub run_id: Uuid,
+    #[serde(default)]
+    pub after: u64,
+}
+
+#[derive(Debug, Deserialize, JsonSchema)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct ExecArtifactParams {
+    pub digest: String,
+    #[serde(default = "default_inline_ceiling")]
+    pub inline_ceiling_bytes: usize,
+}
+
+#[derive(Debug, Deserialize, JsonSchema)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct ExecVerifyParams {
+    pub receipt: Value,
+    pub public_key: String,
+    #[serde(default)]
+    pub request: Option<Value>,
+}
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+struct RunSummary {
+    run_id: Uuid,
+    request_id: Uuid,
+    request_hash: Digest,
+    state: RunState,
+    replayed: bool,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    receipt: Option<ExecutionReceipt>,
+}
+
+impl RunSummary {
+    fn from_record(record: RunRecord, replayed: bool) -> Self {
+        Self {
+            run_id: record.run_id,
+            request_id: record.request_id,
+            request_hash: record.request_hash,
+            state: record.state,
+            replayed,
+            receipt: record.terminal.map(|terminal| terminal.receipt),
+        }
+    }
+}
+
+impl ExecMcpServer {
+    fn new(facade: LocalExecutionFacade, signing_key: SigningKey, plugin_root: PathBuf) -> Self {
+        Self {
+            tool_router: Self::tool_router(),
+            facade,
+            signing_key: Arc::new(signing_key),
+            plugin_root,
+        }
+    }
+
+    async fn serve_stdio(self) -> Result<(), BoxError> {
+        let running = serve_server(self, stdio()).await?;
+        running.waiting().await?;
+        Ok(())
+    }
+
+    fn build_request(&self, params: ExecRunParams) -> Result<SignedExecRequest, String> {
+        if params.timeout_ms == 0 || params.output_mb == 0 {
+            return Err("timeoutMs and outputMb must be non-zero".into());
+        }
+        let code = decode_bounded("codeBase64", &params.code_base64, MAX_CODE_BYTES)?;
+        let request_id = Uuid::new_v4();
+        let upload_pin = format!("upload:{request_id}");
+        let stored_code = self
+            .facade
+            .artifacts()
+            .put_pinned(&code, &upload_pin)
+            .map_err(|error| error.to_string())?;
+        let runtime: RuntimeKind = params.runtime.into();
+        let component_authorization = if runtime == RuntimeKind::WasmComponent {
+            Some(
+                ComponentAuthorizer::estate(&self.plugin_root)
+                    .authorization_for_bytes(&code)
+                    .map_err(|error| error.to_string())?,
+            )
+        } else {
+            None
+        };
+        let mut inputs = Vec::with_capacity(params.inputs.len());
+        let mut total_input_bytes = 0usize;
+        for (name, encoded) in params.inputs {
+            if name.is_empty() {
+                return Err("input names must not be empty".into());
+            }
+            let remaining = MAX_INPUT_BYTES.saturating_sub(total_input_bytes);
+            let bytes = decode_bounded(&format!("inputs.{name}"), &encoded, remaining)?;
+            total_input_bytes = total_input_bytes.saturating_add(bytes.len());
+            let stored = self
+                .facade
+                .artifacts()
+                .put_pinned(&bytes, &upload_pin)
+                .map_err(|error| error.to_string())?;
+            inputs.push(NamedInput {
+                name,
+                hash: stored.hash,
+            });
+        }
+        inputs.sort_by(|left, right| left.name.cmp(&right.name));
+        let now = Utc::now();
+        let mut request = SignedExecRequest {
+            schema_version: SCHEMA_VERSION.into(),
+            request_id,
+            issued_at: now,
+            queued_at: Some(now),
+            validity_window_secs: params.timeout_ms.saturating_add(60_000).div_ceil(1000),
+            tier: if runtime == RuntimeKind::WasmComponent {
+                RequestedTier::W
+            } else {
+                RequestedTier::P
+            },
+            code: CodeIdentity {
+                kind: if runtime == RuntimeKind::WasmComponent {
+                    CodeKind::Component
+                } else {
+                    CodeKind::File
+                },
+                hash: stored_code.hash,
+                runtime,
+                toolchain_pin: None,
+            },
+            inputs,
+            capabilities: CapabilityManifest::default(),
+            limits: ExecutionLimits {
+                wall_clock_ms: params.timeout_ms,
+                output_mb: params.output_mb,
+                ..ExecutionLimits::default()
+            },
+            targets: Vec::new(),
+            provenance: ExecutionProvenance {
+                harness: Some("prometheus-exec-mcp".into()),
+                component_authorization,
+                ..ExecutionProvenance::default()
+            },
+            signer_key_id: None,
+            sig_alg: SignatureAlgorithm::Ed25519,
+            signature: None,
+        };
+        sign_request_ed25519(&mut request, &self.signing_key).map_err(|error| error.to_string())?;
+        Ok(request)
+    }
+}
+
+#[tool_router(router = tool_router)]
+impl ExecMcpServer {
+    #[rmcp::tool(
+        name = "exec-run",
+        description = "Submit code or a Wasm component to the local evidence-producing execution service."
+    )]
+    pub async fn exec_run(&self, params: Parameters<ExecRunParams>) -> String {
+        let request = match self.build_request(params.0) {
+            Ok(request) => request,
+            Err(error) => return failure("invalid_request", error),
+        };
+        let facade = self.facade.clone();
+        match tokio::task::spawn_blocking(move || facade.submit(request)).await {
+            Ok(Ok(result)) => success(RunSummary::from_record(result.record, result.replayed)),
+            Ok(Err(error)) => failure("submit_failed", error.to_string()),
+            Err(error) => failure("submit_task_failed", error.to_string()),
+        }
+    }
+
+    #[rmcp::tool(
+        name = "exec-status",
+        description = "Read durable execution status by run ID."
+    )]
+    pub async fn exec_status(&self, params: Parameters<ExecStatusParams>) -> String {
+        let run_id = params.0.run_id;
+        let facade = self.facade.clone();
+        match tokio::task::spawn_blocking(move || facade.run(run_id)).await {
+            Ok(Ok(Some(record))) => success(RunSummary::from_record(record, false)),
+            Ok(Ok(None)) => failure("run_not_found", format!("run {run_id} was not found")),
+            Ok(Err(error)) => failure("status_failed", error.to_string()),
+            Err(error) => failure("status_task_failed", error.to_string()),
+        }
+    }
+
+    #[rmcp::tool(
+        name = "exec-events",
+        description = "Read ordered execution events after an exclusive sequence cursor."
+    )]
+    pub async fn exec_events(&self, params: Parameters<ExecEventsParams>) -> String {
+        let params = params.0;
+        let facade = self.facade.clone();
+        match tokio::task::spawn_blocking(move || facade.events_after(params.run_id, params.after))
+            .await
+        {
+            Ok(Ok(events)) => success(events),
+            Ok(Err(error)) => failure("events_failed", error.to_string()),
+            Err(error) => failure("events_task_failed", error.to_string()),
+        }
+    }
+
+    #[rmcp::tool(
+        name = "exec-receipt",
+        description = "Read a terminal signed receipt by run ID."
+    )]
+    pub async fn exec_receipt(&self, params: Parameters<ExecStatusParams>) -> String {
+        let run_id = params.0.run_id;
+        let facade = self.facade.clone();
+        match tokio::task::spawn_blocking(move || facade.receipt(run_id)).await {
+            Ok(Ok(Some(receipt))) => success(receipt),
+            Ok(Ok(None)) => failure(
+                "receipt_not_found",
+                format!("run {run_id} has no terminal receipt"),
+            ),
+            Ok(Err(error)) => failure("receipt_failed", error.to_string()),
+            Err(error) => failure("receipt_task_failed", error.to_string()),
+        }
+    }
+
+    #[rmcp::tool(
+        name = "exec-artifact",
+        description = "Read a content-addressed artifact inline when it fits the bounded response ceiling."
+    )]
+    pub async fn exec_artifact(&self, params: Parameters<ExecArtifactParams>) -> String {
+        let params = params.0;
+        let digest = match Digest::parse(params.digest) {
+            Ok(digest) => digest,
+            Err(error) => return failure("invalid_digest", error.to_string()),
+        };
+        if params.inline_ceiling_bytes == 0 {
+            return failure("invalid_ceiling", "inlineCeilingBytes must be non-zero");
+        }
+        let ceiling = params
+            .inline_ceiling_bytes
+            .min(DEFAULT_INLINE_ARTIFACT_BYTES);
+        let facade = self.facade.clone();
+        match tokio::task::spawn_blocking(move || facade.artifact(&digest, ceiling)).await {
+            Ok(Ok(payload)) => success(serde_json::json!({
+                "digest": payload.digest,
+                "sizeBytes": payload.size_bytes,
+                "inline": payload.is_inline(),
+                "bytesBase64": payload.bytes.map(|bytes| URL_SAFE_NO_PAD.encode(bytes)),
+            })),
+            Ok(Err(error)) => failure("artifact_failed", error.to_string()),
+            Err(error) => failure("artifact_task_failed", error.to_string()),
+        }
+    }
+
+    #[rmcp::tool(
+        name = "exec-verify",
+        description = "Verify a signed execution receipt offline using a public key and optional request."
+    )]
+    pub async fn exec_verify(&self, params: Parameters<ExecVerifyParams>) -> String {
+        let params = params.0;
+        let receipt: ExecutionReceipt = match serde_json::from_value(params.receipt) {
+            Ok(receipt) => receipt,
+            Err(error) => return failure("invalid_receipt", error.to_string()),
+        };
+        let request: Option<SignedExecRequest> = match params.request.map(serde_json::from_value) {
+            Some(Ok(request)) => Some(request),
+            Some(Err(error)) => return failure("invalid_request", error.to_string()),
+            None => None,
+        };
+        let key = match VerificationKey::from_base64url(
+            receipt.executing_device.sig_alg,
+            &params.public_key,
+        ) {
+            Ok(key) => key,
+            Err(error) => return failure("invalid_public_key", error.to_string()),
+        };
+        success(self.facade.verify(&receipt, &key, request.as_ref(), None))
+    }
+}
+
+#[tool_handler(router = self.tool_router)]
+impl ServerHandler for ExecMcpServer {
+    fn get_info(&self) -> ServerInfo {
+        ServerInfo::new(ServerCapabilities::builder().enable_tools().build()).with_server_info(
+            Implementation::new("prometheus-exec", env!("CARGO_PKG_VERSION")),
+        )
+    }
+}
+
+pub async fn run(config: McpConfig) -> Result<(), BoxError> {
+    let loaded = identity::load(&config.identity)?;
+    let service = Arc::new(prometheus_exec_service::ExecutionService::open(
+        config.state_dir.join("service"),
+    )?);
+    let artifacts = Arc::new(ArtifactStore::open(
+        config.state_dir.join("artifacts"),
+        config.artifact_budget_bytes,
+    )?);
+    let facade = LocalExecutionFacade::new(service, artifacts);
+    let socket = config.state_dir.join(".mcp-runner.sock");
+    let daemon_config = daemon::DaemonConfig {
+        socket: socket.clone(),
+        state_dir: config.state_dir,
+        identity: config.identity,
+        plugin_root: config.plugin_root.clone(),
+        artifact_budget_bytes: config.artifact_budget_bytes,
+    };
+    let daemon = tokio::spawn(daemon::run(daemon_config));
+    wait_for_runner_socket(&socket, &daemon).await?;
+    let server = ExecMcpServer::new(facade, loaded.signing_key, config.plugin_root);
+    let result = server.serve_stdio().await;
+    daemon.abort();
+    let _ = daemon.await;
+    result
+}
+
+async fn wait_for_runner_socket(
+    socket: &Path,
+    daemon: &tokio::task::JoinHandle<Result<(), BoxError>>,
+) -> Result<(), BoxError> {
+    let deadline = tokio::time::Instant::now() + Duration::from_secs(5);
+    loop {
+        if socket.exists() {
+            return Ok(());
+        }
+        if daemon.is_finished() {
+            return Err("MCP execution runner exited before binding its private socket".into());
+        }
+        if tokio::time::Instant::now() >= deadline {
+            return Err("MCP execution runner did not bind within 5 seconds".into());
+        }
+        tokio::time::sleep(Duration::from_millis(10)).await;
+    }
+}
+
+fn decode_bounded(name: &str, encoded: &str, limit: usize) -> Result<Vec<u8>, String> {
+    let bytes = URL_SAFE_NO_PAD
+        .decode(encoded)
+        .map_err(|error| format!("{name} is not unpadded base64url: {error}"))?;
+    if bytes.len() > limit {
+        return Err(format!("{name} exceeds the {limit}-byte limit"));
+    }
+    Ok(bytes)
+}
+
+fn success(value: impl Serialize) -> String {
+    serde_json::to_string(&serde_json::json!({"ok": true, "result": value}))
+        .unwrap_or_else(|error| failure("serialization_failed", error.to_string()))
+}
+
+fn failure(code: impl Into<String>, message: impl Into<String>) -> String {
+    serde_json::to_string(&serde_json::json!({
+        "ok": false,
+        "error": {"code": code.into(), "message": message.into()}
+    }))
+    .unwrap_or_else(|_| {
+        "{\"error\":{\"code\":\"serialization_failed\",\"message\":\"unable to encode error\"},\"ok\":false}".into()
+    })
+}
+
+const fn default_timeout_ms() -> u64 {
+    120_000
+}
+
+const fn default_output_mb() -> u64 {
+    10
+}
+
+const fn default_inline_ceiling() -> usize {
+    256 * 1024
+}

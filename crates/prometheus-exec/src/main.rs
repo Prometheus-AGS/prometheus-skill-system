@@ -1,6 +1,7 @@
 mod daemon;
 mod doctor;
 mod identity;
+mod mcp;
 mod uds_client;
 
 use std::{
@@ -52,6 +53,18 @@ enum Command {
         #[arg(long)]
         identity: PathBuf,
         /// Signed plugin estate containing the active component generation.
+        #[arg(long)]
+        plugin_root: Option<PathBuf>,
+        #[arg(long, default_value_t = 2048)]
+        artifact_budget_mb: u64,
+    },
+    /// Serve the execution tools over MCP stdio with a private local runner.
+    Mcp {
+        #[arg(long)]
+        state_dir: PathBuf,
+        #[arg(long)]
+        identity: PathBuf,
+        /// Signed plugin estate containing authorized Wasm components.
         #[arg(long)]
         plugin_root: Option<PathBuf>,
         #[arg(long, default_value_t = 2048)]
@@ -169,7 +182,7 @@ struct PublicIdentity<'a> {
 
 #[tokio::main]
 async fn main() -> ExitCode {
-    match run(Cli::parse()).await {
+    match run(parse_cli()).await {
         Ok(code) => code,
         Err(error) => {
             eprintln!("prometheus-exec: {error}");
@@ -190,6 +203,21 @@ async fn run(cli: Cli) -> Result<ExitCode, BoxError> {
         } => {
             daemon::run(daemon::DaemonConfig {
                 socket,
+                state_dir,
+                identity,
+                plugin_root: plugin_root.unwrap_or(default_plugin_root()?),
+                artifact_budget_bytes: mebibytes(artifact_budget_mb)?,
+            })
+            .await?;
+            Ok(ExitCode::SUCCESS)
+        }
+        Command::Mcp {
+            state_dir,
+            identity,
+            plugin_root,
+            artifact_budget_mb,
+        } => {
+            mcp::run(mcp::McpConfig {
                 state_dir,
                 identity,
                 plugin_root: plugin_root.unwrap_or(default_plugin_root()?),
@@ -266,6 +294,17 @@ async fn run(cli: Cli) -> Result<ExitCode, BoxError> {
         ),
         Command::Contracts { output_dir } => generate_contracts(&output_dir),
     }
+}
+
+fn parse_cli() -> Cli {
+    let mut arguments: Vec<_> = std::env::args_os().collect();
+    if arguments.get(1).is_some_and(|value| value == "--mode")
+        && arguments.get(2).is_some_and(|value| value == "mcp")
+    {
+        arguments.drain(1..=2);
+        arguments.insert(1, "mcp".into());
+    }
+    Cli::parse_from(arguments)
 }
 
 fn init_identity(path: &Path) -> Result<ExitCode, BoxError> {
