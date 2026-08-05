@@ -10,14 +10,12 @@ tags:
 - session-completion
 - unknown-change
 links:
-- prometheus-exec-code-execution-engine-executor-session-complete
-- prometheus-exec-code-execution-engine-completion-status
-- prometheus-exec-code-execution-engine-session-completion
+- adversarial-review-creation-executor-session-complete
 sources:
 - stdin
-timestamp: 2026-08-05T05:07:01.634940+00:00
-created_at: 2026-08-05T05:07:01.632610+00:00
-updated_at: 2026-08-05T05:07:01.634940+00:00
+timestamp: 2026-08-04T11:41:36.866957+00:00
+created_at: 2026-08-04T11:41:36.866867+00:00
+updated_at: 2026-08-04T11:41:36.866957+00:00
 revision: 1
 ---
 
@@ -33,7 +31,7 @@ An executor session completed for the `prometheus-exec-code-execution-engine` ph
 executor session complete | phase: prometheus-exec-code-execution-engine | change: unknown
 ```
 
-This record is equivalent to existing Prometheus execution/code-execution engine completion entries such as [Prometheus Exec Code Execution Engine Executor Session Complete](/prometheus-exec-code-execution-engine-executor-session-complete.md), [Prometheus Exec Code Execution Engine Completion Status](/prometheus-exec-code-execution-engine-completion-status.md), and [Prometheus Exec Code Execution Engine Session Completion](/prometheus-exec-code-execution-engine-session-completion.md).
+This entry follows the same executor completion-record pattern as [Adversarial Review Creation Executor Session Complete](/adversarial-review-creation-executor-session-complete.md).
 
 # Citations
 
