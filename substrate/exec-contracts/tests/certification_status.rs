@@ -51,8 +51,8 @@ fn completed_review() -> CertificationEvidence {
         "judge-review",
         EvidenceDimension::JudgeReview,
         "findingsHash",
-        digest("a5c8a0462e16c71f759c354e55d92c0c32f4f02ffe8d3a4dfb413a9bdbbc8f5f"),
-        digest("6a6c807064cad9c590521adffb9017e934c89080bd75cd107fac90c815b61dba"),
+        digest("44e679387a7073027c2ef2fba38af2297c36feba261c30b640af4cdf8d552d9c"),
+        digest("40bd53a2199cbecd180e6733bd6b89cb2721325b56210ca7e8c5fa09e375c9b2"),
     );
     evidence.environment = "release-1.7.0".into();
     evidence.producer_method = Some("MiniMax-M3 via isolated local REST gateway".into());
