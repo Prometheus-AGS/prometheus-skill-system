@@ -177,6 +177,7 @@ fn contracts_regenerate_checked_in_references_byte_for_byte() {
 
     let references = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../docs/reference/api");
     for name in [
+        "prometheus-exec.mcp.json",
         "prometheus-exec.openapi.json",
         "prometheus-exec.schemas.json",
     ] {

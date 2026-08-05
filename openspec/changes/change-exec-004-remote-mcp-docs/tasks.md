@@ -2,7 +2,7 @@
 
 - [x] 1.1 Extract a reusable local execution facade for submit, status, events, receipt, artifact, and verification without duplicating durable state behavior
 - [x] 1.2 Add `prometheus-exec --mode mcp` with typed rmcp tools, bounded deterministic envelopes, host-owned identity, and no private-key arguments
-- [ ] 1.3 Generate and drift-check MCP schemas and add cross-surface idempotency, event-cursor, artifact-ceiling, and verification fixtures
+- [x] 1.3 Generate and drift-check MCP schemas and add cross-surface idempotency, event-cursor, artifact-ceiling, and verification fixtures
 
 ## 2. Estate-only remote dispatch
 

@@ -694,6 +694,10 @@ fn generate_contracts(output_dir: &Path) -> Result<ExitCode, BoxError> {
         output_dir.join("prometheus-exec.schemas.json"),
         &contract_schemas(),
     )?;
+    write_json(
+        output_dir.join("prometheus-exec.mcp.json"),
+        &mcp::tool_contracts(),
+    )?;
     Ok(ExitCode::SUCCESS)
 }
 

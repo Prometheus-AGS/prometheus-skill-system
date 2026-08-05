@@ -1,0 +1,244 @@
+{
+  "maximumInlineArtifactBytes": 1048576,
+  "schemaVersion": "1",
+  "service": "prometheus-exec",
+  "tools": [
+    {
+      "inputSchema": {
+        "$defs": {
+          "McpRuntime": {
+            "enum": [
+              "wasm-component",
+              "python3",
+              "node",
+              "bash"
+            ],
+            "type": "string"
+          }
+        },
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "properties": {
+          "codeBase64": {
+            "description": "Unpadded base64url code or component bytes.",
+            "type": "string"
+          },
+          "inputs": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "default": {},
+            "description": "Named unpadded base64url input bytes.",
+            "type": "object"
+          },
+          "outputMb": {
+            "default": 10,
+            "format": "uint64",
+            "minimum": 0,
+            "type": "integer"
+          },
+          "runtime": {
+            "$ref": "#/$defs/McpRuntime"
+          },
+          "timeoutMs": {
+            "default": 120000,
+            "format": "uint64",
+            "minimum": 0,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "runtime",
+          "codeBase64"
+        ],
+        "title": "ExecRunParams",
+        "type": "object"
+      },
+      "name": "exec-run",
+      "outputEnvelope": {
+        "failure": {
+          "error": {
+            "code": "string",
+            "message": "string"
+          },
+          "ok": false
+        },
+        "success": {
+          "ok": true,
+          "result": "tool-specific JSON value"
+        }
+      }
+    },
+    {
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "properties": {
+          "runId": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "runId"
+        ],
+        "title": "ExecStatusParams",
+        "type": "object"
+      },
+      "name": "exec-status",
+      "outputEnvelope": {
+        "failure": {
+          "error": {
+            "code": "string",
+            "message": "string"
+          },
+          "ok": false
+        },
+        "success": {
+          "ok": true,
+          "result": "tool-specific JSON value"
+        }
+      }
+    },
+    {
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "properties": {
+          "after": {
+            "default": 0,
+            "format": "uint64",
+            "minimum": 0,
+            "type": "integer"
+          },
+          "runId": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "runId"
+        ],
+        "title": "ExecEventsParams",
+        "type": "object"
+      },
+      "name": "exec-events",
+      "outputEnvelope": {
+        "failure": {
+          "error": {
+            "code": "string",
+            "message": "string"
+          },
+          "ok": false
+        },
+        "success": {
+          "ok": true,
+          "result": "tool-specific JSON value"
+        }
+      }
+    },
+    {
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "properties": {
+          "runId": {
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "runId"
+        ],
+        "title": "ExecStatusParams",
+        "type": "object"
+      },
+      "name": "exec-receipt",
+      "outputEnvelope": {
+        "failure": {
+          "error": {
+            "code": "string",
+            "message": "string"
+          },
+          "ok": false
+        },
+        "success": {
+          "ok": true,
+          "result": "tool-specific JSON value"
+        }
+      }
+    },
+    {
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "properties": {
+          "digest": {
+            "type": "string"
+          },
+          "inlineCeilingBytes": {
+            "default": 262144,
+            "format": "uint",
+            "minimum": 0,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "digest"
+        ],
+        "title": "ExecArtifactParams",
+        "type": "object"
+      },
+      "name": "exec-artifact",
+      "outputEnvelope": {
+        "failure": {
+          "error": {
+            "code": "string",
+            "message": "string"
+          },
+          "ok": false
+        },
+        "success": {
+          "ok": true,
+          "result": "tool-specific JSON value"
+        }
+      }
+    },
+    {
+      "inputSchema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "additionalProperties": false,
+        "properties": {
+          "publicKey": {
+            "type": "string"
+          },
+          "receipt": true,
+          "request": {
+            "default": null
+          }
+        },
+        "required": [
+          "receipt",
+          "publicKey"
+        ],
+        "title": "ExecVerifyParams",
+        "type": "object"
+      },
+      "name": "exec-verify",
+      "outputEnvelope": {
+        "failure": {
+          "error": {
+            "code": "string",
+            "message": "string"
+          },
+          "ok": false
+        },
+        "success": {
+          "ok": true,
+          "result": "tool-specific JSON value"
+        }
+      }
+    }
+  ],
+  "version": "1.7.0"
+}

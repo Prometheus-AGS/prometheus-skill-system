@@ -33,6 +33,36 @@ use crate::{daemon, identity, BoxError};
 const MAX_CODE_BYTES: usize = 8 * 1024 * 1024;
 const MAX_INPUT_BYTES: usize = 16 * 1024 * 1024;
 
+pub fn tool_contracts() -> Value {
+    let tools = [
+        ("exec-run", schemars::schema_for!(ExecRunParams)),
+        ("exec-status", schemars::schema_for!(ExecStatusParams)),
+        ("exec-events", schemars::schema_for!(ExecEventsParams)),
+        ("exec-receipt", schemars::schema_for!(ExecStatusParams)),
+        ("exec-artifact", schemars::schema_for!(ExecArtifactParams)),
+        ("exec-verify", schemars::schema_for!(ExecVerifyParams)),
+    ]
+    .into_iter()
+    .map(|(name, input_schema)| {
+        serde_json::json!({
+            "name": name,
+            "inputSchema": input_schema,
+            "outputEnvelope": {
+                "success": {"ok": true, "result": "tool-specific JSON value"},
+                "failure": {"error": {"code": "string", "message": "string"}, "ok": false}
+            }
+        })
+    })
+    .collect::<Vec<_>>();
+    serde_json::json!({
+        "schemaVersion": "1",
+        "service": "prometheus-exec",
+        "version": env!("CARGO_PKG_VERSION"),
+        "maximumInlineArtifactBytes": DEFAULT_INLINE_ARTIFACT_BYTES,
+        "tools": tools,
+    })
+}
+
 #[derive(Clone, Debug)]
 pub struct McpConfig {
     pub state_dir: PathBuf,
@@ -455,4 +485,196 @@ const fn default_output_mb() -> u64 {
 
 const fn default_inline_ceiling() -> usize {
     256 * 1024
+}
+
+#[cfg(test)]
+mod tests {
+    use std::{collections::BTreeMap, sync::Arc};
+
+    use chrono::Utc;
+    use ed25519_dalek::SigningKey;
+    use prometheus_exec_contracts::{
+        sign_request_ed25519, CapabilityManifest, CodeIdentity, CodeKind, ExecutionLimits,
+        ExecutionProvenance, NamedInput, RequestedTier, RuntimeKind, SignatureAlgorithm,
+        SignedExecRequest, SCHEMA_VERSION,
+    };
+    use prometheus_exec_core::ArtifactStore;
+    use prometheus_exec_service::{ExecutionService, LocalExecutionFacade, RunEventData};
+    use rmcp::handler::server::wrapper::Parameters;
+    use serde_json::Value;
+    use tempfile::tempdir;
+    use uuid::Uuid;
+
+    use super::{ExecArtifactParams, ExecMcpServer, ExecRunParams, ExecVerifyParams, McpRuntime};
+
+    fn fixture() -> (ExecMcpServer, Arc<ExecutionService>) {
+        let directory = tempdir().expect("temporary directory").keep();
+        let service = Arc::new(
+            ExecutionService::open(directory.join("service")).expect("execution service opens"),
+        );
+        let artifacts = Arc::new(
+            ArtifactStore::open(directory.join("artifacts"), 8 * 1024 * 1024)
+                .expect("artifact store opens"),
+        );
+        let facade = LocalExecutionFacade::new(service.clone(), artifacts);
+        (
+            ExecMcpServer::new(facade, SigningKey::from_bytes(&[7; 32]), directory),
+            service,
+        )
+    }
+
+    fn signed_request(server: &ExecMcpServer) -> SignedExecRequest {
+        let request_id = Uuid::new_v4();
+        let upload_pin = format!("upload:{request_id}");
+        let code = server
+            .facade
+            .artifacts()
+            .put_pinned(b"print(42)\n", &upload_pin)
+            .expect("code stored");
+        let input = server
+            .facade
+            .artifacts()
+            .put_pinned(b"{}", &upload_pin)
+            .expect("input stored");
+        let now = Utc::now();
+        let mut request = SignedExecRequest {
+            schema_version: SCHEMA_VERSION.into(),
+            request_id,
+            issued_at: now,
+            queued_at: Some(now),
+            validity_window_secs: 60,
+            tier: RequestedTier::P,
+            code: CodeIdentity {
+                kind: CodeKind::File,
+                hash: code.hash,
+                runtime: RuntimeKind::Python3,
+                toolchain_pin: None,
+            },
+            inputs: vec![NamedInput {
+                name: "payload".into(),
+                hash: input.hash,
+            }],
+            capabilities: CapabilityManifest::default(),
+            limits: ExecutionLimits::default(),
+            targets: Vec::new(),
+            provenance: ExecutionProvenance {
+                harness: Some("mcp-test".into()),
+                ..ExecutionProvenance::default()
+            },
+            signer_key_id: None,
+            sig_alg: SignatureAlgorithm::Ed25519,
+            signature: None,
+        };
+        sign_request_ed25519(&mut request, &server.signing_key).expect("request signed");
+        request
+    }
+
+    #[test]
+    fn run_schema_rejects_private_key_arguments() {
+        let parsed = serde_json::from_value::<ExecRunParams>(serde_json::json!({
+            "runtime": "python3",
+            "codeBase64": "cHJpbnQoNDIp",
+            "privateKey": "forbidden"
+        }));
+        assert!(parsed.is_err());
+        let valid = ExecRunParams {
+            runtime: McpRuntime::Python3,
+            code_base64: "cHJpbnQoNDIp".into(),
+            inputs: BTreeMap::new(),
+            timeout_ms: 1,
+            output_mb: 1,
+        };
+        assert!(serde_json::to_value(super::tool_contracts())
+            .expect("contract serializes")
+            .to_string()
+            .contains("exec-run"));
+        assert_eq!(valid.timeout_ms, 1);
+    }
+
+    #[test]
+    fn shared_facade_preserves_replay_and_event_cursor_semantics() {
+        let (server, service) = fixture();
+        let request = signed_request(&server);
+        let first = server.facade.submit(request.clone()).expect("first submit");
+        let replay = server
+            .facade
+            .submit(request.clone())
+            .expect("replay submit");
+        assert!(!first.replayed);
+        assert!(replay.replayed);
+        assert_eq!(first.record.run_id, replay.record.run_id);
+        service
+            .mark_spawned(request.request_id, &first.record.request_hash)
+            .expect("spawn boundary");
+        service
+            .append_runtime_event(
+                first.record.run_id,
+                "stdout.1",
+                Utc::now(),
+                RunEventData::Stdout {
+                    chunk: "42\n".into(),
+                },
+            )
+            .expect("runtime event");
+        let events = server
+            .facade
+            .events_after(first.record.run_id, 2)
+            .expect("events after cursor");
+        assert_eq!(events.len(), 1);
+        assert_eq!(events[0].sequence, 3);
+    }
+
+    #[tokio::test]
+    async fn artifact_tool_never_truncates_an_oversized_inline_result() {
+        let (server, _) = fixture();
+        let stored = server
+            .facade
+            .artifacts()
+            .put(b"four")
+            .expect("artifact stored");
+        let response = server
+            .exec_artifact(Parameters(ExecArtifactParams {
+                digest: stored.hash.to_string(),
+                inline_ceiling_bytes: 2,
+            }))
+            .await;
+        let value: Value = serde_json::from_str(&response).expect("valid result JSON");
+        assert_eq!(value["ok"], true);
+        assert_eq!(value["result"]["inline"], false);
+        assert_eq!(value["result"]["sizeBytes"], 4);
+        assert!(value["result"]["bytesBase64"].is_null());
+    }
+
+    #[tokio::test]
+    async fn verify_tool_accepts_the_archived_independent_receipt_fixture() {
+        let (server, _) = fixture();
+        let receipt: Value = serde_json::from_str(include_str!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/../../.kbd-orchestrator/phases/prometheus-exec-code-execution-engine/evidence/change-exec-003-tier-w-mobile/receipt.json"
+        )))
+        .expect("receipt fixture");
+        let request: Value = serde_json::from_str(include_str!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/../../.kbd-orchestrator/phases/prometheus-exec-code-execution-engine/evidence/change-exec-003-tier-w-mobile/request.json"
+        )))
+        .expect("request fixture");
+        let public: Value = serde_json::from_str(include_str!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/../../.kbd-orchestrator/phases/prometheus-exec-code-execution-engine/evidence/change-exec-003-tier-w-mobile/public-key.json"
+        )))
+        .expect("public key fixture");
+        let response = server
+            .exec_verify(Parameters(ExecVerifyParams {
+                receipt,
+                public_key: public["publicKey"]
+                    .as_str()
+                    .expect("fixture public key")
+                    .into(),
+                request: Some(request),
+            }))
+            .await;
+        let value: Value = serde_json::from_str(&response).expect("valid result JSON");
+        assert_eq!(value["ok"], true);
+        assert_eq!(value["result"]["valid"], true);
+    }
 }
