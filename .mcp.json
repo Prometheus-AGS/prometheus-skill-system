@@ -3,7 +3,7 @@
     "surreal-memory": {
       "type": "sse",
       "url": "http://localhost:23001/mcp/sse",
-      "description": "Global distributed memory state server — knowledge graph, scoped memory, TaskStreams, mindmaps, Graph-RAG traversal, hybrid search"
+      "description": "Global distributed memory state server \u2014 knowledge graph, scoped memory, TaskStreams, mindmaps, Graph-RAG traversal, hybrid search"
     },
     "sycophancy-correction": {
       "command": "sycophancy-correction",
@@ -12,15 +12,12 @@
     "forge-rs": {
       "type": "http",
       "url": "http://localhost:8943/mcp",
-      "headers": {
-        "Authorization": "Bearer forge-mcp-local-dev-30dfefcc32263a0813ffdbd2"
-      },
-      "description": "Layer 4 code-enrichment engine — forge_enrich, forge_reflect, forge_drift, forge_validate"
+      "description": "Layer 4 code-enrichment engine \u2014 forge_enrich, forge_reflect, forge_drift, forge_validate. Served without auth on loopback (forge mcp --no-auth); the server refuses --no-auth on a non-loopback bind."
     },
     "prometheus-knowledge": {
       "type": "http",
       "url": "http://localhost:8942/mcp",
-      "description": "Karpathy LLM Knowledge Base — knowledge_ingest, knowledge_focus, knowledge_search, knowledge_lint, knowledge_get"
+      "description": "Karpathy LLM Knowledge Base \u2014 knowledge_ingest, knowledge_focus, knowledge_search, knowledge_lint, knowledge_get"
     },
     "liter-llm": {
       "command": "liter-llm",
@@ -31,18 +28,24 @@
         "--config",
         "/Users/gqadonis/.config/liter-llm/liter-llm-proxy.toml"
       ],
-      "description": "Multi-model routing proxy — 22 MCP tools across 140+ providers with per-phase model class routing (default config routes through the local openai-proxy at :8181)"
+      "description": "Multi-model routing proxy \u2014 22 MCP tools across 140+ providers with per-phase model class routing (default config routes through the local openai-proxy at :8181)"
     },
     "tavily": {
       "command": "npx",
-      "args": ["-y", "tavily-mcp"],
+      "args": [
+        "-y",
+        "tavily-mcp"
+      ],
       "env": {
         "TAVILY_API_KEY": "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"
       }
     },
     "sequential-thinking": {
       "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"]
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-sequential-thinking"
+      ]
     }
   }
 }

@@ -31,6 +31,9 @@ pub struct ForgeServer {
     skills_root: std::path::PathBuf,
     project_root: std::path::PathBuf,
     pk_mcp_url: Option<String>,
+    /// Opt-in: serve `/mcp` without bearer auth. Only honoured on a loopback
+    /// bind; see [`ForgeServer::run`].
+    no_auth: bool,
 }
 
 impl ForgeServer {
@@ -64,28 +67,73 @@ impl ForgeServer {
             skills_root: skills_root.into(),
             project_root: project_root.into(),
             pk_mcp_url,
+            no_auth: false,
         }
     }
 
+    /// Serve `/mcp` without bearer auth.
+    ///
+    /// Opt-in and loopback-only: [`ForgeServer::run`] REFUSES to start if this
+    /// is set while bound to anything other than a loopback address. Without
+    /// that refusal the flag would be a foot-gun — `--bind 0.0.0.0 --no-auth`
+    /// publishes an unauthenticated API that reads and writes project files to
+    /// the whole network, and a warning is not enough for that.
+    ///
+    /// The trade-off this accepts on loopback: any LOCAL process can reach the
+    /// endpoint. That is the same posture as the other loopback services in
+    /// this stack, and it is the caller's decision to make — hence opt-in
+    /// rather than default.
+    #[must_use]
+    pub fn with_no_auth(mut self, no_auth: bool) -> Self {
+        self.no_auth = no_auth;
+        self
+    }
+
     pub async fn run(self) -> anyhow::Result<()> {
+        // `--no-auth` is loopback-only, enforced by REFUSING to start rather
+        // than by warning. A warning is the wrong tool here: the failure mode
+        // is an unauthenticated file-reading/writing API published to the
+        // network, and warnings scroll past. Fail closed instead.
+        if self.no_auth && !is_loopback_bind(&self.bind_addr) {
+            anyhow::bail!(
+                "refusing to start: --no-auth is only permitted on a loopback bind, but \
+                 --bind is {}. Without auth this would expose forge_enrich / forge_reflect / \
+                 forge_drift / forge_validate — which read and write project files — to every \
+                 host that can reach this address. Drop --no-auth, or bind 127.0.0.1.",
+                self.bind_addr
+            );
+        }
+
         // An empty or whitespace-only FORGE_MCP_TOKEN would otherwise yield the
         // near-guessable secret `Bearer ` (env var set-but-empty does NOT hit
         // the unset fallback), so treat blank as absent and mint a random token.
-        let token = std::env::var("FORGE_MCP_TOKEN")
-            .ok()
-            .filter(|t| !t.trim().is_empty())
-            .unwrap_or_else(|| {
-                let generated = uuid::Uuid::new_v4().to_string();
-                eprintln!(
-                    "FORGE_MCP_TOKEN not set — generated a random dev token for this session: {}",
-                    generated
-                );
-                eprintln!(
-                    "This value is written to stderr for convenience; set FORGE_MCP_TOKEN in your \
-                     environment (non-empty) to use a stable token and avoid logging it."
-                );
-                generated
-            });
+        //
+        // Skipped entirely under --no-auth: minting a token nobody checks would
+        // print a misleading "here is your token" line for an endpoint that
+        // ignores it.
+        let token = if self.no_auth {
+            None
+        } else {
+            Some(
+                std::env::var("FORGE_MCP_TOKEN")
+                    .ok()
+                    .filter(|t| !t.trim().is_empty())
+                    .unwrap_or_else(|| {
+                        let generated = uuid::Uuid::new_v4().to_string();
+                        eprintln!(
+                            "FORGE_MCP_TOKEN not set — generated a random dev token for this \
+                             session: {}",
+                            generated
+                        );
+                        eprintln!(
+                            "This value is written to stderr for convenience; set \
+                             FORGE_MCP_TOKEN in your environment (non-empty) to use a stable \
+                             token and avoid logging it."
+                        );
+                        generated
+                    }),
+            )
+        };
 
         let state = Arc::new(ServerState {
             skills_root: self.skills_root,
@@ -96,12 +144,26 @@ impl ForgeServer {
         // Bearer auth with a constant-time token comparison (replaces the
         // deprecated ValidateRequestHeaderLayer::bearer, whose check is not
         // constant-time — a timing side channel on the token).
-        let auth_layer = ValidateRequestHeaderLayer::custom(BearerAuth::new(&token));
-
-        let app = Router::new()
-            .route("/mcp", post(handle_mcp).layer(auth_layer))
-            .route("/health", get(health))
-            .with_state(state);
+        //
+        // Two routers rather than an Option<Layer>: axum's layer types differ
+        // between the guarded and unguarded routes, so branching on the route
+        // is simpler than trying to make one layer conditionally inert.
+        let app = match &token {
+            Some(token) => {
+                let auth_layer = ValidateRequestHeaderLayer::custom(BearerAuth::new(token));
+                Router::new().route("/mcp", post(handle_mcp).layer(auth_layer))
+            }
+            None => {
+                tracing::warn!(
+                    "forge-mcp running WITHOUT authentication on {} — any local process can \
+                     call forge_enrich / forge_reflect / forge_drift / forge_validate",
+                    self.bind_addr
+                );
+                Router::new().route("/mcp", post(handle_mcp))
+            }
+        }
+        .route("/health", get(health))
+        .with_state(state);
 
         let addr = format!("{}:{}", self.bind_addr, self.port);
         tracing::info!("forge-mcp listening on {}", addr);
@@ -110,6 +172,29 @@ impl ForgeServer {
         axum::serve(listener, app).await?;
         Ok(())
     }
+}
+
+/// True when `bind_addr` names a loopback interface.
+///
+/// Parsed as an IP rather than string-compared, so the whole 127.0.0.0/8 range
+/// and IPv6 `::1` are recognised — a `--bind 127.0.0.2 --no-auth` is genuinely
+/// loopback and a naive `== "127.0.0.1"` check would reject it. The literal
+/// hostname `localhost` is accepted because it is what callers actually type;
+/// it is not resolved, since a DNS lookup here would let a hosts-file entry
+/// decide whether auth is required.
+fn is_loopback_bind(bind_addr: &str) -> bool {
+    if bind_addr.eq_ignore_ascii_case("localhost") {
+        return true;
+    }
+    // Accept a bracketed IPv6 literal ("[::1]") as well as a bare one.
+    let candidate = bind_addr
+        .strip_prefix('[')
+        .and_then(|rest| rest.strip_suffix(']'))
+        .unwrap_or(bind_addr);
+    candidate
+        .parse::<std::net::IpAddr>()
+        .map(|ip| ip.is_loopback())
+        .unwrap_or(false)
 }
 
 struct ServerState {
@@ -609,5 +694,66 @@ mod tests {
         let mut req = req_with_auth(Some("Bearer "));
         let err = auth.validate(&mut req).unwrap_err();
         assert_eq!(err.status(), StatusCode::UNAUTHORIZED);
+    }
+}
+
+#[cfg(test)]
+mod no_auth_tests {
+    use super::*;
+
+    #[test]
+    fn loopback_forms_are_recognised() {
+        // Not just the literal default: the whole 127.0.0.0/8 range and IPv6
+        // loopback are genuinely local, and a string compare would reject them.
+        for addr in [
+            "127.0.0.1",
+            "127.0.0.2",
+            "127.1.2.3",
+            "::1",
+            "[::1]",
+            "localhost",
+            "LOCALHOST",
+        ] {
+            assert!(is_loopback_bind(addr), "{addr} should be loopback");
+        }
+    }
+
+    #[test]
+    fn non_loopback_forms_are_rejected() {
+        // 0.0.0.0 is the dangerous one --no-auth must never be allowed with.
+        for addr in [
+            "0.0.0.0",
+            "192.168.1.10",
+            "10.0.0.1",
+            "::",
+            "example.com",
+            "",
+        ] {
+            assert!(!is_loopback_bind(addr), "{addr} must NOT count as loopback");
+        }
+    }
+
+    #[tokio::test]
+    async fn no_auth_refuses_to_start_on_non_loopback_bind() {
+        // The guard must FAIL CLOSED, not warn: --bind 0.0.0.0 --no-auth would
+        // otherwise publish an unauthenticated file-writing API to the network.
+        let server = ForgeServer::with_bind_addr(0, "0.0.0.0", ".", ".", None).with_no_auth(true);
+        let err = server.run().await.expect_err("must refuse to start");
+        let msg = err.to_string();
+        assert!(
+            msg.contains("--no-auth"),
+            "error should name the flag: {msg}"
+        );
+        assert!(
+            msg.contains("loopback"),
+            "error should explain the rule: {msg}"
+        );
+    }
+
+    #[test]
+    fn no_auth_defaults_off() {
+        // Auth stays the default; --no-auth is strictly opt-in.
+        let server = ForgeServer::with_bind_addr(0, "127.0.0.1", ".", ".", None);
+        assert!(!server.no_auth);
     }
 }

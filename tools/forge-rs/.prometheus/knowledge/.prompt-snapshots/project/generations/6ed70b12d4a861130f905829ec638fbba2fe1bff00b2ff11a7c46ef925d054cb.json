@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "scope": "project",
+  "generation": "6ed70b12d4a861130f905829ec638fbba2fe1bff00b2ff11a7c46ef925d054cb",
+  "candidateCount": 1,
+  "byteCount": 556,
+  "entries": [
+    {
+      "id": "kimi-desktop-extensibility-executor-session-completion",
+      "title": "Kimi Desktop Extensibility Executor Session Completion",
+      "content": "## Session Record\n\n- Executor session completed.\n- Phase: `kimi-desktop-extensibility`\n- Change status: `unknown`\n\n# Citations\n\n1. stdin",
+      "tags": [
+        "executor-session",
+        "kimi-desktop",
+        "desktop-extensibility",
+        "session-record"
+      ],
+      "links": [],
+      "sources": [
+        "stdin"
+      ],
+      "created_at": "2026-08-05T14:45:45.238753Z",
+      "updated_at": "2026-08-05T14:45:45.238753Z",
+      "revision": 0,
+      "entry_type": "Reference",
+      "description": null,
+      "extra": {}
+    }
+  ]
+}

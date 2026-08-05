@@ -1,9 +1,9 @@
 {
   "phase": "kimi-desktop-extensibility",
-  "updatedAt": "2026-08-05T13:58:08Z",
+  "updatedAt": "2026-08-05T18:37:13Z",
   "completion": {
     "implementation": {
-      "completed": 2,
+      "completed": 3,
       "total": 5
     }
   },
@@ -22,7 +22,9 @@
     },
     {
       "id": "kde-001-mcp-servers",
-      "status": "pending"
+      "status": "completed",
+      "completedAt": "2026-08-05T18:37:13Z",
+      "note": "All 3 servers emitted. forge-rs 401 resolved at source: added opt-in --no-auth to forge-mcp (loopback-only, fails closed) and removed the shared dev token from plist/.mcp.json/port-table."
     },
     {
       "id": "kde-002-session-start",

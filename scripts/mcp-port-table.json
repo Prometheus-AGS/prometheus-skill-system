@@ -15,7 +15,7 @@
       "port": 8942,
       "path": "/mcp",
       "transport": "http",
-      "description": "pk-cherry HTTP MCP — Karpathy LLM Knowledge Base (knowledge_ingest, knowledge_focus, knowledge_search)"
+      "description": "pk-cherry HTTP MCP \u2014 Karpathy LLM Knowledge Base (knowledge_ingest, knowledge_focus, knowledge_search)"
     },
     "forge-rs": {
       "type": "http",
@@ -35,37 +35,52 @@
     "liter-llm": {
       "type": "stdio",
       "command": "liter-llm",
-      "args": ["mcp", "--transport", "stdio", "--config", "${HOME}/.config/liter-llm/liter-llm-proxy.toml"],
+      "args": [
+        "mcp",
+        "--transport",
+        "stdio",
+        "--config",
+        "${HOME}/.config/liter-llm/liter-llm-proxy.toml"
+      ],
       "transport": "stdio",
-      "description": "Multi-model routing proxy — MCP tools across 140+ providers. --config is REQUIRED: liter-llm's ProxyConfig::discover() walks the CWD upward and never searches $HOME, so without it the server starts with ZERO models."
+      "description": "Multi-model routing proxy \u2014 MCP tools across 140+ providers. --config is REQUIRED: liter-llm's ProxyConfig::discover() walks the CWD upward and never searches $HOME, so without it the server starts with ZERO models."
     },
     "sequential-thinking": {
       "type": "stdio",
       "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"],
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-sequential-thinking"
+      ],
       "transport": "stdio",
       "description": "Sequential thinking MCP for structured step-by-step reasoning"
     },
     "tavily": {
       "type": "stdio",
       "command": "npx",
-      "args": ["-y", "tavily-mcp"],
+      "args": [
+        "-y",
+        "tavily-mcp"
+      ],
       "env": {
         "TAVILY_API_KEY": "${TAVILY_API_KEY}"
       },
       "transport": "stdio",
-      "description": "Tavily web search MCP (tavily_search, tavily_extract, tavily_research) — search-first, ranked result aggregation"
+      "description": "Tavily web search MCP (tavily_search, tavily_extract, tavily_research) \u2014 search-first, ranked result aggregation"
     },
     "firecrawl": {
       "type": "stdio",
       "command": "npx",
-      "args": ["-y", "firecrawl-mcp"],
+      "args": [
+        "-y",
+        "firecrawl-mcp"
+      ],
       "env": {
         "FIRECRAWL_API_URL": "https://api.firecrawl.dev",
         "FIRECRAWL_API_KEY": "${FIRECRAWL_API_KEY}"
       },
       "transport": "stdio",
-      "description": "Firecrawl web data pipeline MCP — 13 tools: scrape, crawl, map, extract, search, interact. Uses hosted api.firecrawl.dev (key from FIRECRAWL_API_KEY env). Extraction-first; use for full page content, PDFs, dynamic UIs. Use tavily for search-first discovery."
+      "description": "Firecrawl web data pipeline MCP \u2014 13 tools: scrape, crawl, map, extract, search, interact. Uses hosted api.firecrawl.dev (key from FIRECRAWL_API_KEY env). Extraction-first; use for full page content, PDFs, dynamic UIs. Use tavily for search-first discovery."
     }
   }
 }

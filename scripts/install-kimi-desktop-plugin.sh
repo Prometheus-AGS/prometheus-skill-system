@@ -97,9 +97,62 @@ done < <(find "$REPO_ROOT/skills" -name SKILL.md \
     -not -path "*/tests/*" \
     -not -path "*/fixtures/*" -print0)
 
-python3 - "$STAGE" "$VERSION" "$COUNT" <<'PY'
+python3 - "$STAGE" "$VERSION" "$COUNT" "$REPO_ROOT" <<'PY'
 import json, sys, pathlib
 stage, version, count = pathlib.Path(sys.argv[1]), sys.argv[2], int(sys.argv[3])
+repo_root = pathlib.Path(sys.argv[4])
+
+# --- mcpServers -------------------------------------------------------------
+# Built from scripts/mcp-port-table.json, the pack's source of truth for MCP
+# connectivity — NOT hardcoded. A machine running a service on a different port
+# then gets a correct manifest from one reinstall, which is what goal 4 asks for.
+#
+# The contract was read out of the shipped loader
+# (agent-core/dist/index.mjs -> readMcpServers / McpServerConfigSchema), not
+# inferred from the vendor packages, which turned out to be a biased sample:
+#
+#   url: z.string().url()          -> NO scheme or host restriction. Loopback
+#                                     http:// is accepted; all three vendor
+#                                     packages happening to be remote HTTPS was
+#                                     a coincidence, not a rule.
+#   transport: "http" | "sse"      -> both first-class. surreal-memory's legacy
+#                                     two-channel SSE has a declared transport.
+#   headers, bearerTokenEnvVar     -> authenticated servers ARE expressible.
+#
+# stdio entries are deliberately skipped: normalizePluginMcpServer rejects any
+# command containing "/" or an absolute path, requiring a PATH command or a
+# "./" path inside the plugin root. Shipping shims for them is deferred work
+# (analyze D2), not this change.
+def build_mcp_servers():
+    table = repo_root / "scripts/mcp-port-table.json"
+    if not table.is_file():
+        return None
+    services = json.loads(table.read_text(encoding="utf-8")).get("services", {})
+    out = {}
+    for name, cfg in services.items():
+        kind = cfg.get("type")
+        if kind not in ("http", "sse"):
+            continue          # stdio: needs a shim; out of scope for this change
+        url = cfg.get("url")
+        if not url:
+            continue
+        entry = {"transport": kind, "url": url}
+        # bearerTokenEnvVar names an env var the daimon reads at connect time, so
+        # a token is never written into the manifest — no secret can reach
+        # app-managed state through this path.
+        if cfg.get("authEnvVar"):
+            entry["bearerTokenEnvVar"] = cfg["authEnvVar"]
+        elif cfg.get("requiresAuth"):
+            # Declared as needing auth but with no env var named. Emitting it
+            # anyway would ship an entry guaranteed to 401 on every connect —
+            # a tool that appears in the UI and always fails is worse than an
+            # absent one. forge-rs is in this state today.
+            continue
+        out[name] = entry
+    return out or None
+
+mcp_servers = build_mcp_servers()
+
 manifest = {
     "$schema": "https://kimi.com/schemas/kimi.plugin.schema.json",
     "name": "prometheus-skill-pack",
@@ -146,6 +199,8 @@ manifest = {
     },
     "skills": "./skills/",
 }
+if mcp_servers:
+    manifest["mcpServers"] = mcp_servers
 (stage / "kimi.plugin.json").write_text(
     json.dumps(manifest, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
 (stage / "README.md").write_text(

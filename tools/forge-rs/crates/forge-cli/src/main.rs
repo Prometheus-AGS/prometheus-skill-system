@@ -80,6 +80,11 @@ enum Commands {
         /// Address to bind to (default: 127.0.0.1; use 0.0.0.0 with caution)
         #[arg(long, default_value = "127.0.0.1")]
         bind: String,
+        /// Serve without bearer auth. Loopback binds ONLY — the server refuses
+        /// to start if combined with a non-loopback --bind, because that would
+        /// publish an unauthenticated file-reading/writing API to the network.
+        #[arg(long)]
+        no_auth: bool,
     },
 
     /// Scaffold .forge/ in the current project
@@ -256,17 +261,25 @@ async fn main() -> Result<()> {
             }
         }
 
-        Commands::Mcp { port, bind } => {
+        Commands::Mcp {
+            port,
+            bind,
+            no_auth,
+        } => {
             let server = forge_mcp::ForgeServer::with_bind_addr(
                 port,
                 &bind,
                 &skills_root,
                 &cli.project_root,
                 cli.pk_mcp_url,
-            );
+            )
+            .with_no_auth(no_auth);
             println!("forge-mcp starting on {}:{}...", bind, port);
             println!("   MCP endpoint: http://{}:{}/mcp", bind, port);
             println!("   Health:       http://{}:{}/health", bind, port);
+            if no_auth {
+                println!("   Auth:         DISABLED (--no-auth, loopback only)");
+            }
             server.run().await?;
         }
 
