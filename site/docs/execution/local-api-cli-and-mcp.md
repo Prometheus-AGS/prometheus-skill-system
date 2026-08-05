@@ -77,6 +77,6 @@ For Tier W, use `--runtime wasm-component`, point `--code` at the authorized com
 - `exec-artifact`
 - `exec-verify`
 
-The spawning process authenticates the stdio boundary. Tool arguments never accept a private key; receipts are signed by the configured host identity. MCP calls share the same facade as REST, including request replay and event cursors. Inline artifacts are capped at 1 MiB; larger results return metadata for retrieval instead of expanding an unbounded tool response.
+The spawning process authenticates the stdio boundary. Tool arguments never accept a private key; receipts are signed by the configured host identity. MCP calls share the same facade as REST, including request replay and event cursors. For response-loss reconciliation, preserve and resubmit the same `requestId`, `issuedAt`, and canonical `exec-run` arguments. The service returns the original `runId`, `requestHash`, and receipt with `replayed: true`; a reused ID with a different canonical payload fails as a conflict. If `requestId` and `issuedAt` are omitted, the server creates a one-shot identity and timestamp. Inline artifacts are capped at 1 MiB; larger results return metadata for retrieval instead of expanding an unbounded tool response.
 
 Next: [Remote dispatch and reconciliation](./remote-dispatch-and-reconciliation.md).

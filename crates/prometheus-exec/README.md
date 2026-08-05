@@ -63,6 +63,6 @@ Revision-1 signatures use RFC 8785 canonical JSON with the top-level `signature`
 
 Exit status `0` means every selected cryptographic, semantic, request, and artifact check passed. Status `1` means a structured verification failure. Status `2` means the command or input could not be processed.
 
-The MCP stdio mode exposes `exec-run`, `exec-status`, `exec-events`, `exec-receipt`, `exec-artifact`, and `exec-verify` through the same durable facade. `verify-bundle` validates a portable evidence index without daemon or network state.
+The MCP stdio mode exposes `exec-run`, `exec-status`, `exec-events`, `exec-receipt`, `exec-artifact`, and `exec-verify` through the same durable facade. For response-loss reconciliation, clients send the same `requestId`, `issuedAt`, and canonical arguments again; the tool returns the original run and sets `replayed` to `true`. Reusing an ID with a different canonical payload is rejected. `verify-bundle` validates a portable evidence index without daemon or network state.
 
 Canonical documentation: [Execution overview](/docs/execution/overview-and-use-cases), [local API/CLI/MCP](/docs/execution/local-api-cli-and-mcp), and [operations](/docs/execution/installation-doctor-and-recovery).

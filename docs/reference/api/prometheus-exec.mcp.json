@@ -31,11 +31,29 @@
             "description": "Named unpadded base64url input bytes.",
             "type": "object"
           },
+          "issuedAt": {
+            "default": null,
+            "description": "Stable client issue time used in the signed canonical payload. Omit both\nthis field and `requestId` for a one-shot server-identified submission.",
+            "format": "date-time",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
           "outputMb": {
             "default": 10,
             "format": "uint64",
             "minimum": 0,
             "type": "integer"
+          },
+          "requestId": {
+            "default": null,
+            "description": "Stable client request identity. Resubmit it with the same `issuedAt` and\npayload to recover the original run after response loss.",
+            "format": "uuid",
+            "type": [
+              "string",
+              "null"
+            ]
           },
           "runtime": {
             "$ref": "#/$defs/McpRuntime"

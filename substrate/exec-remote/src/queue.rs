@@ -645,6 +645,22 @@ mod tests {
     use crate::{PeerDispatchState, RemoteError};
 
     #[test]
+    fn unknown_target_is_rejected_before_queue_insertion() {
+        let directory = tempdir().expect("temporary queue");
+        let (mut dispatch, mut enrollment, signing_key) = crate::tests::fixture();
+        enrollment.bindings.remove("endpoint-target");
+        dispatch.enrollment_snapshot_hash = enrollment.snapshot_hash().expect("snapshot hashes");
+        crate::sign_dispatch_ed25519(&mut dispatch, &signing_key).expect("dispatch re-signs");
+        let queue = DispatchQueue::open(directory.path()).expect("queue opens");
+
+        assert!(matches!(
+            queue.accept(dispatch, &enrollment, chrono::Utc::now()),
+            Err(RemoteError::UnknownEndpoint(endpoint)) if endpoint == "endpoint-target"
+        ));
+        assert!(queue.records().expect("queue remains readable").is_empty());
+    }
+
+    #[test]
     fn accept_replay_conflict_restart_and_expiry_are_durable() {
         let directory = tempdir().expect("temporary queue");
         let (dispatch, enrollment, signing_key) = crate::tests::fixture();

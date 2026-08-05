@@ -6,7 +6,7 @@ use std::{
 };
 
 use base64::{engine::general_purpose::URL_SAFE_NO_PAD, Engine as _};
-use chrono::Utc;
+use chrono::{DateTime, Utc};
 use ed25519_dalek::SigningKey;
 use prometheus_exec_contracts::{
     sign_request_ed25519, CapabilityManifest, CodeIdentity, CodeKind, Digest, ExecutionLimits,
@@ -99,9 +99,17 @@ impl From<McpRuntime> for RuntimeKind {
     }
 }
 
-#[derive(Debug, Deserialize, JsonSchema)]
+#[derive(Clone, Debug, Deserialize, JsonSchema)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct ExecRunParams {
+    /// Stable client request identity. Resubmit it with the same `issuedAt` and
+    /// payload to recover the original run after response loss.
+    #[serde(default)]
+    pub request_id: Option<Uuid>,
+    /// Stable client issue time used in the signed canonical payload. Omit both
+    /// this field and `requestId` for a one-shot server-identified submission.
+    #[serde(default)]
+    pub issued_at: Option<DateTime<Utc>>,
     pub runtime: McpRuntime,
     /// Unpadded base64url code or component bytes.
     pub code_base64: String,
@@ -190,8 +198,11 @@ impl ExecMcpServer {
         if params.timeout_ms == 0 || params.output_mb == 0 {
             return Err("timeoutMs and outputMb must be non-zero".into());
         }
+        if params.request_id.is_some() != params.issued_at.is_some() {
+            return Err("requestId and issuedAt must be supplied together".into());
+        }
         let code = decode_bounded("codeBase64", &params.code_base64, MAX_CODE_BYTES)?;
-        let request_id = Uuid::new_v4();
+        let request_id = params.request_id.unwrap_or_else(Uuid::new_v4);
         let upload_pin = format!("upload:{request_id}");
         let stored_code = self
             .facade
@@ -228,7 +239,7 @@ impl ExecMcpServer {
             });
         }
         inputs.sort_by(|left, right| left.name.cmp(&right.name));
-        let now = Utc::now();
+        let now = params.issued_at.unwrap_or_else(Utc::now);
         let mut request = SignedExecRequest {
             schema_version: SCHEMA_VERSION.into(),
             request_id,
@@ -578,6 +589,8 @@ mod tests {
         }));
         assert!(parsed.is_err());
         let valid = ExecRunParams {
+            request_id: None,
+            issued_at: None,
             runtime: McpRuntime::Python3,
             code_base64: "cHJpbnQoNDIp".into(),
             inputs: BTreeMap::new(),
@@ -589,6 +602,68 @@ mod tests {
             .to_string()
             .contains("exec-run"));
         assert_eq!(valid.timeout_ms, 1);
+    }
+
+    #[tokio::test]
+    async fn run_tool_replays_a_client_identified_canonical_request() {
+        let (server, _) = fixture();
+        let request_id = Uuid::new_v4();
+        let issued_at = Utc::now();
+        let params = ExecRunParams {
+            request_id: Some(request_id),
+            issued_at: Some(issued_at),
+            runtime: McpRuntime::Python3,
+            code_base64: "cHJpbnQoNDIp".into(),
+            inputs: BTreeMap::new(),
+            timeout_ms: 1_000,
+            output_mb: 1,
+        };
+
+        let first: Value = serde_json::from_str(&server.exec_run(Parameters(params.clone())).await)
+            .expect("first result JSON");
+        let replay: Value = serde_json::from_str(&server.exec_run(Parameters(params)).await)
+            .expect("replay result JSON");
+
+        assert_eq!(first["ok"], true);
+        assert_eq!(replay["ok"], true);
+        assert_eq!(first["result"]["requestId"], request_id.to_string());
+        assert_eq!(first["result"]["runId"], replay["result"]["runId"]);
+        assert_eq!(
+            first["result"]["requestHash"],
+            replay["result"]["requestHash"]
+        );
+        assert_eq!(first["result"]["replayed"], false);
+        assert_eq!(replay["result"]["replayed"], true);
+    }
+
+    #[tokio::test]
+    async fn run_tool_rejects_same_id_with_a_different_canonical_payload() {
+        let (server, _) = fixture();
+        let request_id = Uuid::new_v4();
+        let issued_at = Utc::now();
+        let params = ExecRunParams {
+            request_id: Some(request_id),
+            issued_at: Some(issued_at),
+            runtime: McpRuntime::Python3,
+            code_base64: "cHJpbnQoNDIp".into(),
+            inputs: BTreeMap::new(),
+            timeout_ms: 1_000,
+            output_mb: 1,
+        };
+        let first: Value = serde_json::from_str(&server.exec_run(Parameters(params.clone())).await)
+            .expect("first result JSON");
+        assert_eq!(first["ok"], true);
+
+        let mut conflict = params;
+        conflict.code_base64 = "cHJpbnQoNDMp".into();
+        let response: Value = serde_json::from_str(&server.exec_run(Parameters(conflict)).await)
+            .expect("conflict result JSON");
+        assert_eq!(response["ok"], false);
+        assert_eq!(response["error"]["code"], "submit_failed");
+        assert!(response["error"]["message"]
+            .as_str()
+            .expect("error message")
+            .contains("already exists with hash"));
     }
 
     #[test]

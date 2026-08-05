@@ -33,6 +33,7 @@ pub fn verify_dispatch(
             "dispatch enrollment snapshot hash does not match".into(),
         ));
     }
+    enrollment.binding(&dispatch.target_endpoint_id)?;
     let binding = enrollment.binding(&dispatch.origin_endpoint_id)?;
     if binding.sig_alg != dispatch.sig_alg || binding.key_id != dispatch.signer_key_id {
         return Err(RemoteError::SignerMismatch(
