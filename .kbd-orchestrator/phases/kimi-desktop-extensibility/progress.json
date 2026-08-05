@@ -1,9 +1,9 @@
 {
   "phase": "kimi-desktop-extensibility",
-  "updatedAt": "2026-08-05T19:34:09Z",
+  "updatedAt": "2026-08-05T19:38:28Z",
   "completion": {
     "implementation": {
-      "completed": 4,
+      "completed": 5,
       "total": 5
     }
   },
@@ -35,7 +35,9 @@
     },
     {
       "id": "kde-005-catalog-budget",
-      "status": "pending"
+      "status": "completed",
+      "completedAt": "2026-08-05T19:38:28Z",
+      "note": "Kimi uses a PER-SKILL cap (LISTING_DESC_MAX=250), not a shared budget \u2014 no curation needed. But 89/145 descriptions (61%) exceed it and are truncated; whenToUse is emitted untruncated and is the escape hatch."
     }
   ]
 }

@@ -173,8 +173,18 @@ Building a desktop integration there would ship dead files.
    loader?** Locally `~/.kimi/plugins` does not exist and our package is not
    visible to the CLI, so they appear separate — but the CLI is 0.29.1 while the
    daimon is 0.5.49, and the docs may describe a newer CLI than is installed.
-3. **Is there a catalog budget?** Codex degrades at ~360 entries. 145 skills are
-   installed on the desktop; whether Kimi truncates descriptions is unmeasured.
+3. ~~Is there a catalog budget?~~ **CLOSED by `kde-005`.** Kimi does NOT behave
+   like Codex: the limit is a **per-skill** cap (`LISTING_DESC_MAX = 250`), not
+   a shared budget, and no cap on skill *count* exists. Adding a skill costs the
+   others nothing, so **no curation is needed** — the Codex
+   `config/codex-catalog.txt` remedy solves a problem this runtime does not
+   have.
+
+   Measured separately, though: **89 of 145 descriptions (61%) exceed 250 chars**
+   (median 278, max 662) and are truncated, losing the trailing trigger guidance
+   the model selects on. `whenToUse` is emitted UNtruncated and is the escape
+   hatch. Rewriting those descriptions is out of scope — see
+   `catalog-budget-finding.md`.
 
 ## Where the manifest lives (corrected after adversarial review)
 
