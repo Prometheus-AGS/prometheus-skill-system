@@ -132,7 +132,7 @@
         "readiness: all required subsystems are ready",
         "tier-p-backend: macOS Seatbelt launcher and runtimes are available",
         "tier-w-backend: Wasmtime 46 cranelift backend is available for desktop without compiling guest bytes",
-        "tier-w-trust: active signed generation 3f71ba5e9b617bea70f40eae55549f9d4e3c0eec5c887ff78ac995dba82e2a95 verifies 1 component(s)",
+        "tier-w-trust: active signed generation 6e28d15f271ed09943cfca21e18f360c72aafaa6d35dbaf9e57266bb01d51953 verifies 1 component(s)",
         "state-reconciliation: 0 records are structurally valid; 0 are in flight",
         "receipt-reconciliation: 0 signed receipt(s) reconcile with 0 run record(s)",
         "artifact-cas: 0 content-addressed blobs verify and reconcile with 0 run record(s)",
@@ -270,7 +270,7 @@
       "label": "Lifecycle hooks",
       "severity": "green",
       "status": "pass",
-      "summary": "active generation 3f71ba5e9b617bea70f40eae55549f9d4e3c0eec5c887ff78ac995dba82e2a95 passed manifest, dispatcher, and 14-target verification",
+      "summary": "active generation 6e28d15f271ed09943cfca21e18f360c72aafaa6d35dbaf9e57266bb01d51953 passed manifest, dispatcher, and 14-target verification",
       "details": [
         "plugin root: /Users/gqadonis/.prometheus/plugins/prometheus-skill-pack"
       ],

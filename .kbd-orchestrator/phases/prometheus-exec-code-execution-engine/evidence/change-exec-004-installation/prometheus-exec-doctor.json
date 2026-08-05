@@ -66,7 +66,7 @@
       "name": "tier-w-trust",
       "status": "pass",
       "required": true,
-      "detail": "active signed generation 3f71ba5e9b617bea70f40eae55549f9d4e3c0eec5c887ff78ac995dba82e2a95 verifies 1 component(s)"
+      "detail": "active signed generation 6e28d15f271ed09943cfca21e18f360c72aafaa6d35dbaf9e57266bb01d51953 verifies 1 component(s)"
     },
     {
       "name": "state-reconciliation",

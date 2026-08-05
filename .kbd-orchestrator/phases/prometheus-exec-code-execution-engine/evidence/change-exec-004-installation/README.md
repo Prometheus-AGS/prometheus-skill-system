@@ -6,7 +6,7 @@ KBD-backed memory, and Sovereign Sync were not invoked.
 
 ## Certified source
 
-- Final product commit: `8d93ecd78ec759f49301782002be75dbf25b5679`
+- Final product commit: `977be80a96f4568d1c30bef6b21071f760b63620`
 - Root merge commit: `477c39bd20e666780d264c1eeadbf405e81ad8ab`
 - Prometheus Exec tested implementation commit: `68f960f26d7aa3aad058042dfb2aa3a73e8b0b29`
 - Knowledge pin: `cea7b9063bd0c8b2fe4c2a59f04e5e1eee87d844`
@@ -39,7 +39,7 @@ the same Memory binary independently could produce different installed bytes.
 - The learning worker has zero pending, processing, retry, submitting,
   accepted, rejected, or dead-letter records and 11 terminal memory receipts.
 - Signed generation
-  `3f71ba5e9b617bea70f40eae55549f9d4e3c0eec5c887ff78ac995dba82e2a95`
+  `6e28d15f271ed09943cfca21e18f360c72aafaa6d35dbaf9e57266bb01d51953`
   was produced from a clean detached worktree at the final product commit.
 - Bundle
   `19bdc79888062f3a07a2ef2dc9cb52b307f1554914955ce701400cfc1b743e2b`

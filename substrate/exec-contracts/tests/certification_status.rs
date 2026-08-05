@@ -53,7 +53,7 @@ fn report() -> ExecutionCertificationReport {
             EvidenceDimension::ArtifactSource,
             "sourceHash",
             digest("ba438895404a23985d5226735b8f362cf3e8044894a1140852ba0992f2fdbe78"),
-            digest("2a709230551c2bd0374582c21a24a50d50779a85492c9d94e0d991fcdc5cec2e"),
+            digest("6e40743daa6cd88d71fd00cc79ebaf127f209b1546391cd21dbca24d72fdb998"),
         ),
         completed(
             "disposable-runtime",
