@@ -162,11 +162,7 @@ impl PeerDispatchState {
     pub const fn is_terminal(self) -> bool {
         matches!(
             self,
-            Self::Applied
-                | Self::Rejected
-                | Self::Expired
-                | Self::Unavailable
-                | Self::PendingEvidence
+            Self::Applied | Self::Rejected | Self::Expired | Self::PendingEvidence
         )
     }
 }

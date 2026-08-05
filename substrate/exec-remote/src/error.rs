@@ -1,4 +1,5 @@
 use thiserror::Error;
+use uuid::Uuid;
 
 #[derive(Debug, Error)]
 pub enum RemoteError {
@@ -16,6 +17,29 @@ pub enum RemoteError {
     SignerMismatch(String),
     #[error("remote dispatch has expired")]
     Expired,
+    #[error("dispatch hash conflict for {dispatch_id}: existing {existing}, supplied {supplied}")]
+    DispatchHashConflict {
+        dispatch_id: Uuid,
+        existing: prometheus_exec_contracts::Digest,
+        supplied: prometheus_exec_contracts::Digest,
+    },
+    #[error("request {request_id} was already accepted as dispatch {existing_dispatch_id}")]
+    RequestReplay {
+        request_id: Uuid,
+        existing_dispatch_id: Uuid,
+    },
+    #[error("dispatch was not found: {0}")]
+    DispatchNotFound(Uuid),
+    #[error("invalid dispatch state transition: {0}")]
+    InvalidTransition(String),
+    #[error("remote queue I/O failed at {path}: {source}")]
+    Io {
+        path: std::path::PathBuf,
+        #[source]
+        source: std::io::Error,
+    },
+    #[error("remote queue segment is corrupt: {0}")]
+    CorruptSegment(String),
 }
 
 pub type Result<T> = std::result::Result<T, RemoteError>;

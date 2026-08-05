@@ -9,6 +9,7 @@
 mod crypto;
 mod error;
 mod model;
+mod queue;
 
 pub use crypto::{sign_dispatch_ed25519, verify_dispatch};
 pub use error::{RemoteError, Result};
@@ -16,6 +17,7 @@ pub use model::{
     EnrollmentBinding, EnrollmentSnapshot, PeerDispatchRecord, PeerDispatchState,
     RemoteDispatchAggregate, SignedRemoteDispatch, REMOTE_SCHEMA_VERSION,
 };
+pub use queue::{AcceptDispatchResult, DispatchQueue, DispatchRecord};
 
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");
 
@@ -39,7 +41,7 @@ mod tests {
         REMOTE_SCHEMA_VERSION,
     };
 
-    fn fixture() -> (SignedRemoteDispatch, EnrollmentSnapshot, SigningKey) {
+    pub(crate) fn fixture() -> (SignedRemoteDispatch, EnrollmentSnapshot, SigningKey) {
         let signing_key = SigningKey::from_bytes(&[11; 32]);
         let target_key = SigningKey::from_bytes(&[12; 32]);
         let now = Utc::now();

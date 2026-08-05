@@ -7,7 +7,7 @@
 ## 2. Estate-only remote dispatch
 
 - [x] 2.1 Create the `exec-remote` 1.7.0 crate, signed envelope/enrollment/aggregate contracts, feature isolation, and dependency-direction enforcement
-- [ ] 2.2 Implement the immutable durable dispatch queue, expiry, same-ID replay/conflict behavior, enrollment/signature checks, and restart reconciliation
+- [x] 2.2 Implement the immutable durable dispatch queue, expiry, same-ID replay/conflict behavior, enrollment/signature checks, and restart reconciliation
 - [ ] 2.3 Implement the injected transport/origin/target flow, local-service execution handoff, verified per-peer receipt return, and mixed-outcome aggregation
 - [ ] 2.4 Add two-disposable-peer dispatch, unknown-endpoint, signer-mismatch, replay, response-loss, offline-resume, expiry, restart, and slow-transport isolation fixtures
 
