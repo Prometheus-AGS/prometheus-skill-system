@@ -7,11 +7,15 @@
 #![forbid(unsafe_code)]
 
 mod event_log;
+mod facade;
 mod http;
 mod ledger;
 mod service;
 
 pub use event_log::{AppendEventResult, RunEvent, RunEventData, RunEventLog, RunEventLogError};
+pub use facade::{
+    ArtifactPayload, LocalExecutionFacade, LocalExecutionFacadeError, DEFAULT_INLINE_ARTIFACT_BYTES,
+};
 pub use http::{
     build_api_router, ApiErrorDetail, ApiErrorEnvelope, ReadinessSnapshot, ReadinessStatus,
     RunResponse, SidecarState, SubsystemReadiness,

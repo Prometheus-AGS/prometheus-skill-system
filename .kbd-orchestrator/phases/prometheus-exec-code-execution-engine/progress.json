@@ -60,7 +60,9 @@
     },
     {
       "id": "change-exec-004-remote-mcp-docs",
-      "status": "pending"
+      "status": "pending",
+      "tasks_done": 1,
+      "tasks_total": 18
     }
   ],
   "sourceTool": "unknown",
