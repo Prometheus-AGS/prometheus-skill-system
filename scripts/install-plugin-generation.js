@@ -276,7 +276,32 @@ function atomicSymlink(directory, name, target) {
   syncDirectory(directory);
 }
 
-function copyEntry(source, destination, durable = true) {
+// An imported submodule carries its OWN KBD lifecycle state, including device
+// and browser test evidence: Playwright traces, .webm screen recordings, and
+// built iOS .app bundles. None of it is read at runtime — nothing in scripts/,
+// shared/scripts/, or hooks/ references a submodule evidence path — but all of
+// it was being copied into every generation and shipped to all 14 targets.
+//
+// Measured on generation 7a88b914: 97M of a 188M payload was
+// skills/imported/prometheus-entity-management/.kbd-orchestrator/.../evidence,
+// including a single 28M Mach-O iOS binary.
+//
+// The match is deliberately PATH-scoped, not name-scoped. This repository's own
+// top-level .kbd-orchestrator/ is load-bearing (waypoints, progress.json, phase
+// plans) and must keep shipping; only evidence under skills/imported/** is
+// disposable. A bare `name === '.kbd-orchestrator'` check would silently drop
+// the active KBD state the pack depends on.
+const IMPORTED_EVIDENCE_RE =
+  /(^|\/)skills\/imported\/[^/]+\/\.kbd-orchestrator\/phases\/[^/]+\/evidence$/;
+
+function isExcludedPayloadEntry(name, sourcePath, repoRoot) {
+  if (name === 'node_modules' || name === 'target' || name === '.git') return true;
+  const relative = path.relative(repoRoot, sourcePath).split(path.sep).join('/');
+  return IMPORTED_EVIDENCE_RE.test(relative);
+}
+
+function copyEntry(source, destination, durable = true, repoRoot = null) {
+  const root = repoRoot ?? source;
   const stat = fs.lstatSync(source);
   if (stat.isSymbolicLink()) {
     ensureDirectory(path.dirname(destination));
@@ -286,8 +311,8 @@ function copyEntry(source, destination, durable = true) {
   if (stat.isDirectory()) {
     ensureDirectory(destination, stat.mode & 0o7777);
     for (const name of fs.readdirSync(source).sort()) {
-      if (name === 'node_modules' || name === 'target' || name === '.git') continue;
-      copyEntry(path.join(source, name), path.join(destination, name), durable);
+      if (isExcludedPayloadEntry(name, path.join(source, name), root)) continue;
+      copyEntry(path.join(source, name), path.join(destination, name), durable, root);
     }
     fs.chmodSync(destination, stat.mode & 0o7777);
     if (durable) syncDirectory(destination);
@@ -1035,7 +1060,11 @@ function install(args) {
   try {
     for (const root of PAYLOAD_ROOTS) {
       const absolute = path.join(source, root);
-      if (fs.existsSync(absolute)) copyEntry(absolute, path.join(staging, root));
+      // Pass `source` (the repo root) explicitly: each PAYLOAD_ROOTS entry is
+      // copied from source/<root>, so letting repoRoot default to the subtree
+      // would make exclusion paths relative to e.g. <repo>/skills and the
+      // skills/imported/** evidence match would never fire.
+      if (fs.existsSync(absolute)) copyEntry(absolute, path.join(staging, root), true, source);
     }
     const skills = collectSkills(path.join(staging, 'skills'));
     if (skills.length === 0) fail('generation contains no installable skills');

@@ -7,7 +7,7 @@
   "runtimeFiles": [
     {
       "path": "scripts/install-plugin-generation.js",
-      "sha256": "6c53cbde5b1aa6195742b2735ecdadc261f455129f53f32f402ef6cef938c28f",
+      "sha256": "dd84ed51494568daab69aa666e480fc4138f621795697bed7f85006a988d2613",
       "mode": "0755"
     },
     {
@@ -133,6 +133,11 @@
     {
       "path": "shared/scripts/lib/waypoint-render.sh",
       "sha256": "fa2863df5681c904f1d90f26a5fd3c2457860962277f04e96539a75b36bf1dd7",
+      "mode": "0755"
+    },
+    {
+      "path": "shared/scripts/liter-llm-api-launch.sh",
+      "sha256": "b3ea3aaabef12e2ea26876f03c13c7b49c29bb6bf9adc357df95d6b1cb8e32e1",
       "mode": "0755"
     },
     {
@@ -306,5 +311,5 @@
       "mode": "0755"
     }
   ],
-  "bundleId": "4cbc51fa55a2f36c566d7334d42f1c998e8668d52d36ea085b13995746687132"
+  "bundleId": "b0144d09d40dca3f6bae4141494e6a2ab1275eee0b9d6fcdd23a1aea52125d77"
 }
