@@ -62,3 +62,7 @@ prometheus-exec contracts --output-dir ../../docs/reference/api
 Revision-1 signatures use RFC 8785 canonical JSON with the top-level `signature` field omitted. Ed25519 uses raw 32-byte public keys and raw 64-byte signatures. P-256 uses compressed SEC1 public keys and fixed-width IEEE P1363 signatures. Binary values are unpadded base64url; key IDs are `<algorithm>:<sha256-of-public-key>`.
 
 Exit status `0` means every selected cryptographic, semantic, request, and artifact check passed. Status `1` means a structured verification failure. Status `2` means the command or input could not be processed.
+
+The MCP stdio mode exposes `exec-run`, `exec-status`, `exec-events`, `exec-receipt`, `exec-artifact`, and `exec-verify` through the same durable facade. `verify-bundle` validates a portable evidence index without daemon or network state.
+
+Canonical documentation: [Execution overview](/docs/execution/overview-and-use-cases), [local API/CLI/MCP](/docs/execution/local-api-cli-and-mcp), and [operations](/docs/execution/installation-doctor-and-recovery).

@@ -48,7 +48,7 @@ The guide is built in layers. Read it top to bottom the first time; use it as a 
 
 | # | Page | What it covers |
 |---|------|----------------|
-| 13 | [Tools Reference](13-tools-reference.md) | forge-rs, prometheus-cli, prometheus-knowledge, liter-llm, surreal-memory-server, and prometheus-rust-auditor |
+| 13 | [Tools Reference](13-tools-reference.md) | forge-rs, prometheus-cli, prometheus-knowledge, liter-llm, surreal-memory-server, prometheus-rust-auditor, and prometheus-exec |
 | 14 | [The Rust Toolchain & Dynamic Generation](14-rust-toolchain.md) | Why Rust, how the binaries are built, and how the pack generates new skills, CLIs, and MCP servers |
 | 15 | [Hooks & Lifecycle](15-hooks-and-lifecycle.md) | Every hook event and script, progress signaling, scope guards, and the immutable-tests rule |
 | 16 | [CLI & Scripts Reference](16-cli-and-scripts.md) | Every installer, validator, and runtime script, plus the npm script surface |

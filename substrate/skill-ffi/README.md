@@ -61,6 +61,8 @@ The pattern decision was recorded **provisional** pending two checks, to be run
 `flutter_rust_bridge` generates from the plain signature, so the marginal cost of
 a new function is the function.
 
+Canonical execution status and deployment boundaries are documented in [Execution architecture](/docs/execution/architecture-and-tiers) and [Platform and evidence status](/docs/execution/platform-and-evidence-status).
+
 ## Build
 
 ```bash

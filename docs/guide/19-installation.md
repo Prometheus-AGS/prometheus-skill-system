@@ -24,16 +24,16 @@ export CARGO_TARGET_DIR="/path/on/internal-ssd/prometheus-target"
 flowchart TD
   Server["Build/test Memory server"] --> Knowledge["Build/test pk, pk-cherry, worker"]
   Knowledge --> Root["Build/test prometheus CLI"]
-  Root --> Binaries["Install + sign five binaries"]
+  Root --> Binaries["Install + sign six binaries"]
   Binaries --> Plugin["Activate immutable plugin generation"]
   Plugin --> Services["Install allowed user services"]
   Services --> Doctors["Run local doctors"]
   Doctors --> Cert["Certify receipts, queues, snapshots, rollback, logs"]
 ```
 
-The five release binaries are `surreal-memory-server`, `pk`, `pk-cherry`, `prometheus-learning-worker`, and `prometheus`. Run `cargo fmt --check`, `cargo check --all-targets`, Clippy with warnings denied, and tests in each workspace before installation.
+The six release binaries are `surreal-memory-server`, `pk`, `pk-cherry`, `prometheus-learning-worker`, `prometheus`, and `prometheus-exec`. Run `cargo fmt --check`, `cargo check --all-targets`, Clippy with warnings denied, and tests in each workspace before installation.
 
-All five executables share the product release version. Verify the installed
+All six executables share the product release version. Verify the installed
 artifacts before loading services:
 
 ```text
@@ -42,11 +42,22 @@ pk 1.7.0
 pk-cherry 1.7.0
 prometheus-learning-worker 1.7.0
 surreal-memory-server 1.7.0
+prometheus-exec 1.7.0
 ```
 
 Each line is the exact output of the corresponding `--version` command. The
 Memory command must exit before logging, configuration, storage, embeddings, or
 network initialization; `-V` is also supported.
+
+Build, sign, atomically install, and read back the execution service separately:
+
+```bash
+bash scripts/install-prometheus-exec.sh --dry-run
+bash scripts/install-prometheus-exec.sh
+bash scripts/install-prometheus-exec-service.sh --dry-run
+```
+
+See [Execution installation, doctor, and recovery](/docs/execution/installation-doctor-and-recovery) before loading the LaunchAgent.
 
 ## Plugin generation
 

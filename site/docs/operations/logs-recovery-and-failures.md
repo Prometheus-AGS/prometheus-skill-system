@@ -27,6 +27,7 @@ Hook and worker logs contain operational metadata and must remain owner-only. Th
 | Plugin verify finds stale path | Hook/target bypasses `current` | Restore stable dispatcher or verified target receipt. |
 | Snapshot pointer invalid | Atomic publication did not complete or path was altered | Repoint to a complete generation or republish. |
 | Doctor warning | Optional/degraded surface | Record explicit release disposition; never relabel as green. |
+| Exec health is live but readiness fails | Sidecar bound before a sandbox, trust, ledger, or CAS subsystem became ready | Read the named readiness subsystem and run the non-mutating [execution doctor](/docs/execution/installation-doctor-and-recovery#non-mutating-doctor). |
+| Exec receipt exists but response was lost | Terminal evidence committed before the caller received it | Read status/events by run ID; do not resubmit with a different request ID. |
 
 Do not erase recovery records to make a doctor green. Repair the active pointer or service state while preserving published generations, terminal receipts, and command evidence.
-

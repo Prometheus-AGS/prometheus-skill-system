@@ -186,9 +186,24 @@ The config defines workspace partitions (actor/mcp/wasm/persistence/runtime/netw
 
 ---
 
+## prometheus-exec
+
+**Purpose.** An optional evidence-producing execution service. It runs native Python/Node/Bash through fail-closed Tier P process isolation or authorized WebAssembly components through deterministic Tier W. Its primary output is a signed receipt bound to request, code, inputs, capabilities, limits, environment, streams, and content-addressed artifacts.
+
+**Surfaces.** The same durable facade backs the mode-`0600` same-user Unix-socket REST API, CLI, and six MCP stdio tools. Embedded desktop/mobile hosts use the estate-free Rust/FFI boundary. Estate-only Tier R dispatch uses enrolled peer identities and per-target immutable queues without coupling local execution to KBD or Sovereign services.
+
+```bash
+prometheus-exec daemon --socket ./exec.sock --state-dir ./state --identity ./identity.json
+prometheus-exec run --socket ./exec.sock --state-dir ./state --identity ./identity.json \
+  --runtime python3 --code ./job.py --format json
+prometheus-exec verify-bundle --index ./execution-evidence.json --format json
+```
+
+See the canonical [Execution section](/docs/execution/overview-and-use-cases) and [OpenAPI 3.1 specification](/openapi/prometheus-exec.openapi.json).
+
 ## A note on the submodule discrepancies
 
-This page documents two intentional skill-pack standardizations that differ from upstream defaults, because a reader cross-checking against the upstream repos will otherwise be confused: surreal-memory runs on **23001** here (upstream default `3000`), and liter-llm's tool/provider counts are cited slightly differently across the repository ("22 MCP tools," "140+"/"142+ providers"). Where a tool has no README — `prometheus-cli` and `prometheus-rust-auditor` — the CLI surface above was reconstructed from `Cargo.toml`, `main.rs`, and the default config, and should be treated as accurate-but-source-derived. The next page explains how all six binaries are built and installed together.
+This page documents two intentional skill-pack standardizations that differ from upstream defaults, because a reader cross-checking against the upstream repos will otherwise be confused: surreal-memory runs on **23001** here (upstream default `3000`), and liter-llm's tool/provider counts are cited slightly differently across the repository ("22 MCP tools," "140+"/"142+ providers"). Where a tool has no README — `prometheus-cli` and `prometheus-rust-auditor` — the CLI surface above was reconstructed from `Cargo.toml`, `main.rs`, and the default config, and should be treated as accurate-but-source-derived. The next page explains how the Rust binaries are built and installed together.
 
 ---
 

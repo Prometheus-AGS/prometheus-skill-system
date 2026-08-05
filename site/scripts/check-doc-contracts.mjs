@@ -165,10 +165,28 @@ for (const decision of [
   'unix-socket-durable-p2p-pairing.md',
   'signed-transactional-plugin-generations.md',
   'local-only-validation-documentation-automation.md',
+  'evidence-producing-execution.md',
+  'two-tier-execution-sandboxing.md',
+  'three-form-execution-deployment.md',
+  'method-independent-execution-certification.md',
 ]) {
   if (!fs.existsSync(path.join(repoRoot, 'docs/decisions', decision))) {
     failures.push(`missing release architecture decision ${decision}`);
   }
+}
+
+for (const readme of [
+  'crates/prometheus-exec/README.md',
+  'substrate/exec-contracts/README.md',
+  'substrate/exec-core/README.md',
+  'substrate/exec-tier-p/README.md',
+  'substrate/exec-tier-w/README.md',
+  'substrate/exec-service/README.md',
+  'substrate/exec-remote/README.md',
+  'substrate/exec-embedded/README.md',
+]) {
+  if (!fs.existsSync(path.join(repoRoot, readme)))
+    failures.push(`missing execution README ${readme}`);
 }
 
 const markdownFiles = directory => {
