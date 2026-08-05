@@ -78,6 +78,7 @@ pub struct ExecMcpServer {
     facade: LocalExecutionFacade,
     signing_key: Arc<SigningKey>,
     plugin_root: PathBuf,
+    runner_socket: PathBuf,
 }
 
 #[derive(Clone, Copy, Debug, Deserialize, JsonSchema)]
@@ -166,6 +167,15 @@ struct RunSummary {
     receipt: Option<ExecutionReceipt>,
 }
 
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+struct ArtifactRetrievalGuidance {
+    transport: &'static str,
+    method: &'static str,
+    socket_path: PathBuf,
+    path: String,
+}
+
 impl RunSummary {
     fn from_record(record: RunRecord, replayed: bool) -> Self {
         Self {
@@ -180,12 +190,18 @@ impl RunSummary {
 }
 
 impl ExecMcpServer {
-    fn new(facade: LocalExecutionFacade, signing_key: SigningKey, plugin_root: PathBuf) -> Self {
+    fn new(
+        facade: LocalExecutionFacade,
+        signing_key: SigningKey,
+        plugin_root: PathBuf,
+        runner_socket: PathBuf,
+    ) -> Self {
         Self {
             tool_router: Self::tool_router(),
             facade,
             signing_key: Arc::new(signing_key),
             plugin_root,
+            runner_socket,
         }
     }
 
@@ -416,12 +432,21 @@ impl ExecMcpServer {
             .min(DEFAULT_INLINE_ARTIFACT_BYTES);
         let facade = self.facade.clone();
         match tokio::task::spawn_blocking(move || facade.artifact(&digest, ceiling)).await {
-            Ok(Ok(payload)) => success(serde_json::json!({
-                "digest": payload.digest,
-                "sizeBytes": payload.size_bytes,
-                "inline": payload.is_inline(),
-                "bytesBase64": payload.bytes.map(|bytes| URL_SAFE_NO_PAD.encode(bytes)),
-            })),
+            Ok(Ok(payload)) => {
+                let retrieval = (!payload.is_inline()).then(|| ArtifactRetrievalGuidance {
+                    transport: "unix-domain-http",
+                    method: "GET",
+                    socket_path: self.runner_socket.clone(),
+                    path: format!("/api/v2/exec/artifacts/{}", payload.digest),
+                });
+                success(serde_json::json!({
+                    "digest": payload.digest,
+                    "sizeBytes": payload.size_bytes,
+                    "inline": payload.is_inline(),
+                    "bytesBase64": payload.bytes.map(|bytes| URL_SAFE_NO_PAD.encode(bytes)),
+                    "retrieval": retrieval,
+                }))
+            }
             Ok(Err(error)) => failure("artifact_failed", error.to_string()),
             Err(error) => failure("artifact_task_failed", error.to_string()),
         }
@@ -482,7 +507,7 @@ pub async fn run(config: McpConfig) -> Result<(), BoxError> {
     };
     let daemon = tokio::spawn(daemon::run(daemon_config));
     wait_for_runner_ready(&socket, &daemon, Duration::from_secs(5)).await?;
-    let server = ExecMcpServer::new(facade, loaded.signing_key, config.plugin_root);
+    let server = ExecMcpServer::new(facade, loaded.signing_key, config.plugin_root, socket);
     let result = server.serve_stdio().await;
     daemon.abort();
     let _ = daemon.await;
@@ -583,6 +608,7 @@ mod tests {
 
     fn fixture() -> (ExecMcpServer, Arc<ExecutionService>) {
         let directory = tempdir().expect("temporary directory").keep();
+        let runner_socket = directory.join(".mcp-runner.sock");
         let service = Arc::new(
             ExecutionService::open(directory.join("service")).expect("execution service opens"),
         );
@@ -592,7 +618,12 @@ mod tests {
         );
         let facade = LocalExecutionFacade::new(service.clone(), artifacts);
         (
-            ExecMcpServer::new(facade, SigningKey::from_bytes(&[7; 32]), directory),
+            ExecMcpServer::new(
+                facade,
+                SigningKey::from_bytes(&[7; 32]),
+                directory,
+                runner_socket,
+            ),
             service,
         )
     }
@@ -816,6 +847,19 @@ mod tests {
         assert_eq!(value["result"]["inline"], false);
         assert_eq!(value["result"]["sizeBytes"], 4);
         assert!(value["result"]["bytesBase64"].is_null());
+        assert_eq!(
+            value["result"]["retrieval"]["transport"],
+            "unix-domain-http"
+        );
+        assert_eq!(value["result"]["retrieval"]["method"], "GET");
+        assert_eq!(
+            value["result"]["retrieval"]["path"],
+            format!("/api/v2/exec/artifacts/{}", stored.hash)
+        );
+        assert!(value["result"]["retrieval"]["socketPath"]
+            .as_str()
+            .expect("socket path")
+            .ends_with("/.mcp-runner.sock"));
     }
 
     #[tokio::test]
