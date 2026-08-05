@@ -29,12 +29,33 @@ A `sovereign-sync` daemon or server must be running:
 sovereign-sync --mode daemon
 ```
 
+Verify it is healthy first — this resolves the transport for you:
+
+```bash
+sovereign-sync --mode status
+```
+
+### Transport: Unix socket by default
+
+The daemon listens on a **Unix domain socket**, NOT loopback TCP. Every REST
+call below needs `--unix-socket "$SOCK"`; a plain `http://127.0.0.1:7892`
+request returns nothing on a healthy node. See [`/sync-status`](../sync-status/SKILL.md)
+for the full transport contract.
+
+```bash
+SOCK="${HOME}/Library/Application Support/prometheus/run/sovereign-sync.sock"  # macOS
+# SOCK="${HOME}/.local/share/prometheus/run/sovereign-sync.sock"               # Linux
+```
+
+Only when the daemon was started with `--tcp` does `http://127.0.0.1:7892`
+apply, and it then also requires the `--token-file` bearer token.
+
 ## Instructions
 
 ### List current peers
 
 ```bash
-curl -s http://127.0.0.1:7892/api/v1/sync/peers | jq .
+curl -s --unix-socket "$SOCK" http://localhost/api/v1/sync/peers | jq .
 ```
 
 Output:
@@ -49,8 +70,12 @@ Output:
 
 ### Find your own node ID
 
+The node ID is exposed as `transport.nodeId` on the status and peers endpoints.
+It is NOT on `/health`, which returns only `{service, status, version}`:
+
 ```bash
-curl -s http://127.0.0.1:7892/health | jq .node_id
+curl -s --unix-socket "$SOCK" http://localhost/api/v1/sync/status \
+  | jq -r .transport.nodeId
 ```
 
 Share this with other devices so they can add you as a peer.
@@ -64,7 +89,7 @@ transport layer.
 For direct peer address addition (when on the same LAN):
 
 ```bash
-curl -s -X POST http://127.0.0.1:7892/api/v1/sync/push \
+curl -s --unix-socket "$SOCK" -X POST http://localhost/api/v1/sync/push \
   -H 'Content-Type: application/json' \
   -d '{"domain": "skill-index"}'
 ```
