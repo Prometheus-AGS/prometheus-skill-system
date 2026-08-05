@@ -1,3 +1,5 @@
+#[cfg(target_os = "macos")]
+use std::process::Command;
 use std::{collections::BTreeMap, fs, path::PathBuf};
 
 use hyper::Method;
@@ -68,7 +70,15 @@ pub async fn inspect(config: DoctorConfig) -> DoctorReport {
     inspect_binary(&mut checks);
     inspect_identity(&config, &mut checks);
     if let Some(definition) = config.service_definition.as_ref() {
-        inspect_service_definition(definition, &mut checks);
+        if let Some(label) = inspect_service_definition(definition, &mut checks) {
+            inspect_service_loaded(&label, &mut checks);
+        } else {
+            fail(
+                &mut checks,
+                "service-loaded-state",
+                "loaded state cannot be checked until the service definition is valid".into(),
+            );
+        }
     }
     let socket_healthy = inspect_socket(&config, &mut checks).await;
     inspect_tier_p(&mut checks);
@@ -135,7 +145,10 @@ fn inspect_identity(config: &DoctorConfig, checks: &mut Vec<DoctorCheck>) {
     }
 }
 
-fn inspect_service_definition(path: &std::path::Path, checks: &mut Vec<DoctorCheck>) {
+fn inspect_service_definition(
+    path: &std::path::Path,
+    checks: &mut Vec<DoctorCheck>,
+) -> Option<String> {
     let result = fs::symlink_metadata(path)
         .map_err(|error| error.to_string())
         .and_then(|metadata| {
@@ -147,16 +160,81 @@ fn inspect_service_definition(path: &std::path::Path, checks: &mut Vec<DoctorChe
             if !text.contains("prometheus-exec") || !text.contains("daemon") {
                 return Err("service definition does not launch prometheus-exec daemon".into());
             }
-            Ok(hash_bytes(&bytes))
+            let label = plist_string(text, "Label")
+                .filter(|label| !label.is_empty())
+                .ok_or_else(|| "service definition has no LaunchAgent Label".to_string())?;
+            Ok((hash_bytes(&bytes), label.to_string()))
         });
     match result {
-        Ok(hash) => pass(
-            checks,
-            "service-definition",
-            format!("{} verifies as {hash}", path.display()),
-        ),
-        Err(error) => fail(checks, "service-definition", error),
+        Ok((hash, label)) => {
+            pass(
+                checks,
+                "service-definition",
+                format!("{} verifies as {hash}", path.display()),
+            );
+            Some(label)
+        }
+        Err(error) => {
+            fail(checks, "service-definition", error);
+            None
+        }
     }
+}
+
+fn plist_string<'a>(text: &'a str, key: &str) -> Option<&'a str> {
+    let marker = format!("<key>{key}</key>");
+    let after_key = text.split_once(&marker)?.1;
+    let after_open = after_key.split_once("<string>")?.1;
+    Some(after_open.split_once("</string>")?.0.trim())
+}
+
+#[cfg(target_os = "macos")]
+fn inspect_service_loaded(label: &str, checks: &mut Vec<DoctorCheck>) {
+    let uid = Command::new("/usr/bin/id")
+        .arg("-u")
+        .output()
+        .ok()
+        .filter(|output| output.status.success())
+        .and_then(|output| String::from_utf8(output.stdout).ok())
+        .map(|value| value.trim().to_string())
+        .filter(|value| !value.is_empty());
+    let Some(uid) = uid else {
+        fail(
+            checks,
+            "service-loaded-state",
+            "unable to resolve the current GUI user ID".into(),
+        );
+        return;
+    };
+    let domain = format!("gui/{uid}/{label}");
+    match Command::new("/bin/launchctl")
+        .args(["print", &domain])
+        .output()
+    {
+        Ok(output) if output.status.success() => pass(
+            checks,
+            "service-loaded-state",
+            format!("{label} is loaded in gui/{uid}"),
+        ),
+        Ok(output) => fail(
+            checks,
+            "service-loaded-state",
+            format!(
+                "{label} is not loaded in gui/{uid}: {}",
+                String::from_utf8_lossy(&output.stderr).trim()
+            ),
+        ),
+        Err(error) => fail(checks, "service-loaded-state", error.to_string()),
+    }
+}
+
+#[cfg(not(target_os = "macos"))]
+fn inspect_service_loaded(_label: &str, checks: &mut Vec<DoctorCheck>) {
+    fail(
+        checks,
+        "service-loaded-state",
+        "LaunchAgent loaded-state diagnosis is available only on macOS".into(),
+    );
 }
 
 fn inspect_mcp_schema(path: &std::path::Path, checks: &mut Vec<DoctorCheck>) {
@@ -678,6 +756,16 @@ fn fail(checks: &mut Vec<DoctorCheck>, name: &str, detail: String) {
 mod tests {
     use super::*;
     use tempfile::tempdir;
+
+    #[test]
+    fn launchagent_label_is_extracted_without_mutation() {
+        let plist = r#"<?xml version="1.0" encoding="UTF-8"?>
+<plist version="1.0"><dict>
+  <key>Label</key><string>ai.prometheus.exec</string>
+</dict></plist>"#;
+        assert_eq!(plist_string(plist, "Label"), Some("ai.prometheus.exec"));
+        assert_eq!(plist_string(plist, "Missing"), None);
+    }
 
     #[test]
     fn tier_w_doctor_probe_does_not_repair_or_populate_trust_state() {

@@ -39,7 +39,7 @@ prometheus-exec doctor \
   --format json
 ```
 
-Doctor reads binary identity, service definition, socket health/readiness and permissions, receipt identity, Tier P/W availability, signed component trust, ledger/receipt/CAS reconciliation, MCP schema parity, and an optional remote queue. Exclusions are applied before check construction. Diagnosis does not install, start, stop, compile, consume, contact excluded services, or rewrite state.
+Doctor reads binary identity, the service definition, the LaunchAgent label's loaded state, socket health/readiness and permissions, receipt identity, Tier P/W availability, signed component trust, ledger/receipt/CAS reconciliation, MCP schema parity, and an optional remote queue. A supplied service definition fails diagnosis if its LaunchAgent is not loaded. Exclusions are applied before check construction. Diagnosis does not install, start, stop, compile, consume, contact excluded services, or rewrite state.
 
 ## Logs and common failures
 
