@@ -724,6 +724,7 @@ mod tests {
     #[cfg(all(feature = "cranelift", feature = "estate"))]
     use crate::{TierWExecutionOutcome, TierWLimits};
 
+    #[cfg(feature = "cranelift")]
     const REFERENCE_COMPONENT: &[u8] = include_bytes!(
         "../../../skills/react/prometheus-entity-skills/entity-graph-optimize/skill.wasm"
     );

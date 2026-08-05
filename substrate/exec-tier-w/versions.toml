@@ -1,6 +1,6 @@
 schema_version = 1
 component_world = "prometheus:component@0.1.0"
-wasmtime = "46.0.0"
+wasmtime = "46.0.2"
 
 [reference_component]
 world = "prometheus:component@0.1.0"

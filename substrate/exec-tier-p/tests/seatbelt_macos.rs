@@ -4,8 +4,9 @@ use std::{collections::BTreeMap, time::Instant};
 
 use chrono::Utc;
 use prometheus_exec_contracts::{
-    hash_bytes, CapabilityManifest, CodeIdentity, CodeKind, ExecutionLimits, ExecutionProvenance,
-    RequestedTier, RunState, RuntimeKind, SignatureAlgorithm, SignedExecRequest,
+    hash_bytes, CapabilityManifest, CodeIdentity, CodeKind, ComponentAuthorization,
+    ComponentAuthorizationMode, ExecutionLimits, ExecutionProvenance, RequestedTier, RunState,
+    RuntimeKind, SignatureAlgorithm, SignedExecRequest,
 };
 use prometheus_exec_core::{ExecutionJob, ExecutionPort};
 use prometheus_exec_tier_p::{SeatbeltConfig, SeatbeltExecutor};
@@ -413,12 +414,49 @@ async fn symlink_artifacts_are_rejected_as_escape_attempts() {
 #[tokio::test]
 async fn wasm_requests_are_rejected_before_any_process_spawn() {
     let executor = SeatbeltExecutor::new(SeatbeltConfig::detect().unwrap());
-    let error = executor
-        .execute(&job(b"not-wasm", RuntimeKind::WasmComponent, 5_000, 1))
-        .await
-        .unwrap_err();
+    let code = b"not-wasm";
+    let component_job = ExecutionJob {
+        request: SignedExecRequest {
+            schema_version: prometheus_exec_contracts::SCHEMA_VERSION.into(),
+            request_id: Uuid::new_v4(),
+            issued_at: Utc::now(),
+            queued_at: None,
+            validity_window_secs: 60,
+            tier: RequestedTier::W,
+            code: CodeIdentity {
+                kind: CodeKind::Component,
+                hash: hash_bytes(code),
+                runtime: RuntimeKind::WasmComponent,
+                toolchain_pin: None,
+            },
+            inputs: Vec::new(),
+            capabilities: CapabilityManifest::default(),
+            limits: ExecutionLimits::default(),
+            targets: Vec::new(),
+            provenance: ExecutionProvenance {
+                component_authorization: Some(ComponentAuthorization {
+                    mode: ComponentAuthorizationMode::HashPin,
+                    world: "prometheus:component@0.1.0".into(),
+                    manifest_hash: None,
+                    generation_id: None,
+                }),
+                ..ExecutionProvenance::default()
+            },
+            signer_key_id: None,
+            sig_alg: SignatureAlgorithm::Ed25519,
+            signature: None,
+        },
+        code: code.to_vec(),
+        inputs: BTreeMap::new(),
+        grants: Vec::new(),
+    }
+    .validate()
+    .unwrap();
+    let error = executor.execute(&component_job).await.unwrap_err();
 
-    assert!(error.to_string().contains("unsupported by Tier P"));
+    assert!(error
+        .to_string()
+        .contains("requested tier does not permit Tier P execution"));
 }
 
 #[tokio::test]

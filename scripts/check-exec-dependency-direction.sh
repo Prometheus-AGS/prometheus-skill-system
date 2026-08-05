@@ -51,8 +51,8 @@ tier_w_path = root / "substrate" / "exec-tier-w" / "Cargo.toml"
 with tier_w_path.open("rb") as stream:
     tier_w = tomllib.load(stream)
 wasmtime = tier_w.get("dependencies", {}).get("wasmtime", {})
-if wasmtime.get("version") != "=46.0.0":
-    errors.append("exec-tier-w: Wasmtime must be pinned exactly to 46.0.0")
+if wasmtime.get("version") != "=46.0.2":
+    errors.append("exec-tier-w: Wasmtime must be pinned exactly to 46.0.2")
 if set(tier_w.get("features", {}).get("mobile", [])) != {"pulley"}:
     errors.append("exec-tier-w: mobile feature must select Pulley")
 if set(tier_w.get("features", {}).get("standalone", [])) != {"cranelift"}:
@@ -72,7 +72,7 @@ with versions_path.open("rb") as stream:
     versions = tomllib.load(stream)
 if versions.get("component_world") != "prometheus:component@0.1.0":
     errors.append("exec-tier-w: component world version is not pinned")
-if versions.get("wasmtime") != "46.0.0":
+if versions.get("wasmtime") != "46.0.2":
     errors.append("exec-tier-w: versions.toml disagrees with Cargo.toml")
 if versions.get("profiles", {}).get("mobile", {}).get("backend") != "pulley":
     errors.append("exec-tier-w: mobile backend must be Pulley")

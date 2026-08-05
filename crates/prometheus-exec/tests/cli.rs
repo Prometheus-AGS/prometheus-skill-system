@@ -13,11 +13,14 @@ use std::{
 
 use assert_cmd::prelude::*;
 #[cfg(target_os = "macos")]
-use base64::{engine::general_purpose::URL_SAFE_NO_PAD, Engine as _};
+use base64::{
+    engine::general_purpose::{STANDARD, URL_SAFE_NO_PAD},
+    Engine as _,
+};
 #[cfg(target_os = "macos")]
 use chrono::Utc;
 #[cfg(target_os = "macos")]
-use ed25519_dalek::SigningKey;
+use ed25519_dalek::{Signer as _, SigningKey};
 use predicates::prelude::*;
 #[cfg(target_os = "macos")]
 use prometheus_exec_contracts::{
@@ -29,8 +32,138 @@ use tempfile::tempdir;
 #[cfg(target_os = "macos")]
 use uuid::Uuid;
 
+#[cfg(target_os = "macos")]
+use serde_json::{json, Map, Value};
+
 fn command() -> Command {
     Command::cargo_bin("prometheus-exec").expect("binary is built")
+}
+
+#[cfg(target_os = "macos")]
+fn canonical_json(value: &Value) -> Vec<u8> {
+    fn sorted(value: &Value) -> Value {
+        match value {
+            Value::Array(values) => Value::Array(values.iter().map(sorted).collect()),
+            Value::Object(values) => {
+                let mut keys: Vec<_> = values.keys().collect();
+                keys.sort_unstable();
+                let mut object = Map::new();
+                for key in keys {
+                    object.insert(key.clone(), sorted(&values[key]));
+                }
+                Value::Object(object)
+            }
+            scalar => scalar.clone(),
+        }
+    }
+
+    let mut bytes = serde_json::to_vec_pretty(&sorted(value)).unwrap();
+    bytes.push(b'\n');
+    bytes
+}
+
+#[cfg(target_os = "macos")]
+fn create_plugin_fixture(plugin_root: &Path) {
+    use std::os::unix::{fs::symlink, fs::PermissionsExt as _};
+
+    const SPKI_PREFIX: &[u8] = &[
+        0x30, 0x2a, 0x30, 0x05, 0x06, 0x03, 0x2b, 0x65, 0x70, 0x03, 0x21, 0x00,
+    ];
+    const NAMESPACE: &str = "prometheus-plugin-generation-v1";
+
+    let signing_key = SigningKey::from_bytes(&[83; 32]);
+    let mut public_der = SPKI_PREFIX.to_vec();
+    public_der.extend_from_slice(signing_key.verifying_key().as_bytes());
+    let signer_key_id = hash_bytes(&public_der)
+        .as_str()
+        .strip_prefix("sha256:")
+        .unwrap()
+        .to_owned();
+    let trust = json!({
+        "schemaVersion": 1,
+        "signers": [{
+            "algorithm": "Ed25519",
+            "keyId": signer_key_id,
+            "publicKey": format!(
+                "-----BEGIN PUBLIC KEY-----\n{}\n-----END PUBLIC KEY-----\n",
+                STANDARD.encode(&public_der)
+            ),
+        }],
+    });
+    let trust_dir = plugin_root.join("trust");
+    fs::create_dir_all(&trust_dir).unwrap();
+    let trust_path = trust_dir.join("allowed-signers.json");
+    fs::write(&trust_path, canonical_json(&trust)).unwrap();
+    fs::set_permissions(&trust_path, fs::Permissions::from_mode(0o600)).unwrap();
+
+    let component = b"fixture component bytes";
+    let component_hash = hash_bytes(component);
+    let mut manifest = json!({
+        "bundleId": "cli-integration-fixture",
+        "files": [{
+            "mode": "0644",
+            "path": "skills/fixture/skill.wasm",
+            "sha256": component_hash.as_str().strip_prefix("sha256:").unwrap(),
+            "size": component.len(),
+            "type": "file",
+        }],
+        "hookRuntime": {"abi": "hook-runtime-v1"},
+        "schemaVersion": 1,
+        "signerKeyId": signer_key_id,
+        "skillIndex": {"entryCount": 1, "sha256": "fixture"},
+        "executionComponent": {"fixture": "cli-integration"},
+        "sourceProvenance": {"fixture": "cli-integration"},
+        "sourceVersion": "1.7.0",
+        "targetPayloads": [],
+    });
+    let source = manifest.as_object().unwrap();
+    let mut identity = Map::new();
+    for key in [
+        "schemaVersion",
+        "sourceVersion",
+        "signerKeyId",
+        "bundleId",
+        "hookRuntime",
+        "sourceProvenance",
+        "skillIndex",
+        "executionComponent",
+        "files",
+        "targetPayloads",
+    ] {
+        identity.insert(key.into(), source[key].clone());
+    }
+    let generation = hash_bytes(&canonical_json(&Value::Object(identity)))
+        .as_str()
+        .strip_prefix("sha256:")
+        .unwrap()
+        .to_owned();
+    manifest["generation"] = Value::String(generation.clone());
+    let manifest_bytes = canonical_json(&manifest);
+    let mut payload = format!("{NAMESPACE}\n").into_bytes();
+    payload.extend_from_slice(&manifest_bytes);
+    let signature = signing_key.sign(&payload);
+    let envelope = json!({
+        "algorithm": "Ed25519",
+        "namespace": NAMESPACE,
+        "schemaVersion": 1,
+        "signature": STANDARD.encode(signature.to_bytes()),
+        "signerKeyId": signer_key_id,
+    });
+    let generation_root = plugin_root.join("generations").join(&generation);
+    let component_path = generation_root.join("skills/fixture/skill.wasm");
+    fs::create_dir_all(component_path.parent().unwrap()).unwrap();
+    fs::write(component_path, component).unwrap();
+    fs::write(generation_root.join("manifest.json"), manifest_bytes).unwrap();
+    fs::write(
+        generation_root.join("manifest.sig.json"),
+        canonical_json(&envelope),
+    )
+    .unwrap();
+    symlink(
+        Path::new("generations").join(generation),
+        plugin_root.join("current"),
+    )
+    .unwrap();
 }
 
 #[cfg(target_os = "macos")]
@@ -223,6 +356,8 @@ fn daemon_run_status_verify_and_doctor_execute_a_real_python_use_case() {
     let identity = directory.path().join("identity.json");
     let socket = directory.path().join("runtime/exec.sock");
     let state = directory.path().join("state");
+    let plugin_root = directory.path().join("plugin");
+    create_plugin_fixture(&plugin_root);
     let code = directory.path().join("use_case.py");
     fs::write(
         &code,
@@ -250,6 +385,8 @@ print(json.dumps(payload, sort_keys=True))
             .arg(&state)
             .args(["--identity"])
             .arg(&identity)
+            .args(["--plugin-root"])
+            .arg(&plugin_root)
             .args(["--artifact-budget-mb", "64"])
             .stdout(Stdio::null())
             .stderr(Stdio::null())
@@ -257,7 +394,7 @@ print(json.dumps(payload, sort_keys=True))
             .unwrap(),
     ));
 
-    wait_until_ready(&mut daemon, &socket, &state, &identity);
+    wait_until_ready(&mut daemon, &socket);
 
     let executed = command()
         .args(["run", "--socket"])
@@ -314,6 +451,8 @@ print(json.dumps(payload, sort_keys=True))
         .arg(&state)
         .args(["--identity"])
         .arg(&identity)
+        .args(["--plugin-root"])
+        .arg(&plugin_root)
         .args(["--format", "json"])
         .assert()
         .success()
@@ -354,13 +493,15 @@ print(json.dumps(payload, sort_keys=True))
             .arg(&state)
             .args(["--identity"])
             .arg(&identity)
+            .args(["--plugin-root"])
+            .arg(&plugin_root)
             .args(["--artifact-budget-mb", "64"])
             .stdout(Stdio::null())
             .stderr(Stdio::null())
             .spawn()
             .unwrap(),
     ));
-    wait_until_ready(&mut restarted, &socket, &state, &identity);
+    wait_until_ready(&mut restarted, &socket);
     command()
         .args(["status", "--socket"])
         .arg(&socket)
@@ -379,13 +520,15 @@ fn privileged_request_becomes_durable_grant_pending_without_spawn() {
     let identity = directory.path().join("identity.json");
     let socket = directory.path().join("runtime/exec.sock");
     let state = directory.path().join("state");
+    let plugin_root = directory.path().join("plugin");
+    create_plugin_fixture(&plugin_root);
     command()
         .args(["init", "--identity"])
         .arg(&identity)
         .assert()
         .success();
-    let mut daemon = spawn_daemon(&socket, &state, &identity);
-    wait_until_ready(&mut daemon, &socket, &state, &identity);
+    let mut daemon = spawn_daemon(&socket, &state, &identity, &plugin_root);
+    wait_until_ready(&mut daemon, &socket);
 
     let identity_value: serde_json::Value =
         serde_json::from_slice(&fs::read(&identity).unwrap()).unwrap();
@@ -466,8 +609,8 @@ fn privileged_request_becomes_durable_grant_pending_without_spawn() {
     assert!(record["terminal"].is_null());
 
     daemon.sigkill();
-    let mut restarted = spawn_daemon(&socket, &state, &identity);
-    wait_until_ready(&mut restarted, &socket, &state, &identity);
+    let mut restarted = spawn_daemon(&socket, &state, &identity, &plugin_root);
+    wait_until_ready(&mut restarted, &socket);
     command()
         .args(["status", "--socket"])
         .arg(&socket)
@@ -493,6 +636,8 @@ fn privileged_request_becomes_durable_grant_pending_without_spawn() {
         .arg(&state)
         .args(["--identity"])
         .arg(&identity)
+        .args(["--plugin-root"])
+        .arg(&plugin_root)
         .args(["--format", "json"])
         .assert()
         .code(1)
@@ -502,7 +647,7 @@ fn privileged_request_becomes_durable_grant_pending_without_spawn() {
 }
 
 #[cfg(target_os = "macos")]
-fn spawn_daemon(socket: &Path, state: &Path, identity: &Path) -> DaemonGuard {
+fn spawn_daemon(socket: &Path, state: &Path, identity: &Path, plugin_root: &Path) -> DaemonGuard {
     DaemonGuard(Some(
         command()
             .args(["daemon", "--socket"])
@@ -511,6 +656,8 @@ fn spawn_daemon(socket: &Path, state: &Path, identity: &Path) -> DaemonGuard {
             .arg(state)
             .args(["--identity"])
             .arg(identity)
+            .args(["--plugin-root"])
+            .arg(plugin_root)
             .args(["--artifact-budget-mb", "64"])
             .stdout(Stdio::null())
             .stderr(Stdio::null())
@@ -544,20 +691,10 @@ fn uds_post_json(socket: &Path, target: &str, body: &[u8]) -> Vec<u8> {
 }
 
 #[cfg(target_os = "macos")]
-fn wait_until_ready(daemon: &mut DaemonGuard, socket: &Path, state: &Path, identity: &Path) {
+fn wait_until_ready(daemon: &mut DaemonGuard, socket: &Path) {
     let deadline = Instant::now() + Duration::from_secs(10);
     loop {
-        let ready = command()
-            .args(["doctor", "--socket"])
-            .arg(socket)
-            .args(["--state-dir"])
-            .arg(state)
-            .args(["--identity"])
-            .arg(identity)
-            .args(["--format", "json"])
-            .output()
-            .unwrap();
-        if ready.status.success() {
+        if uds_get_is_ready(socket) {
             return;
         }
         assert!(Instant::now() < deadline, "daemon did not become ready");
@@ -566,6 +703,29 @@ fn wait_until_ready(daemon: &mut DaemonGuard, socket: &Path, state: &Path, ident
         }
         thread::sleep(Duration::from_millis(50));
     }
+}
+
+#[cfg(target_os = "macos")]
+fn uds_get_is_ready(socket: &Path) -> bool {
+    let Ok(mut stream) = UnixStream::connect(socket) else {
+        return false;
+    };
+    if stream
+        .set_read_timeout(Some(Duration::from_secs(1)))
+        .is_err()
+    {
+        return false;
+    }
+    if write!(
+        stream,
+        "GET /ready HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n"
+    )
+    .is_err()
+    {
+        return false;
+    }
+    let mut response = Vec::new();
+    stream.read_to_end(&mut response).is_ok() && response.starts_with(b"HTTP/1.1 200")
 }
 
 #[cfg(target_os = "macos")]

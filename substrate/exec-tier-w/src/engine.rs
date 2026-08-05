@@ -12,7 +12,7 @@ use crate::authorization::AuthorizedComponent;
 use crate::capabilities::validate_supported_imports;
 use crate::{BackendProfile, ComponentAuthorizer, COMPONENT_WORLD};
 
-pub(crate) const WASMTIME_VERSION: &str = "46.0.0";
+pub(crate) const WASMTIME_VERSION: &str = "46.0.2";
 pub(crate) const EPOCH_TICK_MILLIS: u64 = 10;
 pub(crate) const MAX_WASM_STACK_BYTES: usize = 512 * 1024;
 

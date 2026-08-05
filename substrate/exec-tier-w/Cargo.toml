@@ -34,8 +34,8 @@ serde = { version = "1", features = ["derive"] }
 serde_json = { version = "1", optional = true }
 sha2 = "0.10"
 thiserror = "2"
-wasmtime = { version = "=46.0.0", default-features = false, features = ["component-model", "cranelift", "runtime", "std"] }
-wasmtime-wasi = { version = "=46.0.0", default-features = false, features = ["p2"] }
+wasmtime = { version = "=46.0.2", default-features = false, features = ["component-model", "cranelift", "runtime", "std"] }
+wasmtime-wasi = { version = "=46.0.2", default-features = false, features = ["p2"] }
 
 [dev-dependencies]
 base64 = "0.22"

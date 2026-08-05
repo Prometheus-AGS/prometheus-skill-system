@@ -91,7 +91,7 @@ fn receipt(request_hash: Digest) -> ExecutionReceipt {
         }],
         component: Some(ComponentProvenance {
             authorization: request().provenance.component_authorization.unwrap(),
-            engine_version: "wasmtime 46.0.0".into(),
+            engine_version: "wasmtime 46.0.2".into(),
             backend_profile_hash: digest("cranelift-profile"),
             deterministic_projection_hash: digest("tier-w-projection"),
         }),
