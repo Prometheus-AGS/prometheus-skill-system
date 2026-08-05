@@ -1,0 +1,36 @@
+{
+  "mode": "diff",
+  "verdict": "BLOCK",
+  "judge_model": "MiniMax-M3",
+  "producer_model": "gpt-5.6-sol",
+  "isolation_mode": "rest-gateway:http://localhost:8181/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": "scripts/install-prometheus-exec.sh",
+      "claim": "The strict installer never verifies the selected binary against any expected/certified hash before reporting success.",
+      "evidence": "Acceptance criterion 4.1 requires the installer to \"verify its expected version and hash\"; the script only defines EXPECTED_VERSION, computes BUILD_HASH/STAGED_HASH/INSTALLED_HASH, and compares INSTALLED_HASH to STAGED_HASH, with no expected hash variable, manifest lookup, or comparison to config/prometheus-exec-binary.json.",
+      "suggested_fix": "Load the certified SHA-256 from the committed binary manifest or require PROMETHEUS_EXEC_EXPECTED_SHA256, compare the source/staged/installed hash to it, and fail before install/success output on mismatch."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "crates/prometheus-exec/src/doctor.rs",
+      "claim": "The remote dispatch crate is pulled into the execution binary unconditionally instead of being isolated behind an estate/remote feature boundary.",
+      "evidence": "Acceptance criterion 2.1 requires `exec-remote` to be \"enabled only by the estate feature\" and standalone/bundled-mobile profiles to not select remote dependencies; this file adds an unconditional `use prometheus_exec_remote::DispatchQueue;` and unconditional `inspect_remote_queue` code with no `cfg(feature = \"estate\")` or equivalent guard.",
+      "suggested_fix": "Gate the prometheus-exec-remote dependency, imports, DoctorConfig remote fields, CLI flags, and remote queue inspection behind the estate/remote feature, and ensure non-estate profiles compile without selecting the crate."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "openspec/changes/change-exec-004-remote-mcp-docs/tasks.md",
+      "claim": "The phase-completion acceptance item remains unchecked in the committed task list.",
+      "evidence": "Acceptance criterion 6.3 is listed as `[ ] 6.3 Install/sign/read back the final binary and generation, complete artifact-refiner and distinct-model review, verify/archive the OpenSpec change, and close the KBD phase with reflection`, and the diff hunk for tasks.md contains the same unchecked line.",
+      "suggested_fix": "Complete and archive the 6.3 closure evidence, then update the OpenSpec task to `[x]` in the same committed change."
+    }
+  ],
+  "sycophancy_screen": {
+    "reject_cap": 2,
+    "cap_overridden": false,
+    "cap_default": 2
+  }
+}

@@ -46,6 +46,19 @@ fn pending(
     }
 }
 
+fn completed_review() -> CertificationEvidence {
+    let mut evidence = completed(
+        "judge-review",
+        EvidenceDimension::JudgeReview,
+        "findingsHash",
+        digest("a5c8a0462e16c71f759c354e55d92c0c32f4f02ffe8d3a4dfb413a9bdbbc8f5f"),
+        digest("6a6c807064cad9c590521adffb9017e934c89080bd75cd107fac90c815b61dba"),
+    );
+    evidence.environment = "release-1.7.0".into();
+    evidence.producer_method = Some("MiniMax-M3 via isolated local REST gateway".into());
+    evidence
+}
+
 fn report() -> ExecutionCertificationReport {
     let evidence = [
         completed(
@@ -69,12 +82,7 @@ fn report() -> ExecutionCertificationReport {
             digest("71b03b6bb4ae841fee3076208a8206491d7a6cdbc00b6cdf196f169e1c08ca96"),
             digest("3c888679b62119e2484f5f5d1c0510237ce0e8f9d4e5c800ef46991be4dfab15"),
         ),
-        pending(
-            "judge-review",
-            EvidenceDimension::JudgeReview,
-            EvidenceStatus::PendingReview,
-            "distinct-model review found remediable findings; remediation is in progress",
-        ),
+        completed_review(),
         pending(
             "mobile-size",
             EvidenceDimension::MobileSize,

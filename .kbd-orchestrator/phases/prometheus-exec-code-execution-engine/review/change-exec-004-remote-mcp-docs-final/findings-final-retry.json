@@ -1,0 +1,31 @@
+{
+  "mode": "diff",
+  "verdict": "BLOCK",
+  "judge_model": "MiniMax-M3",
+  "producer_model": "gpt-5.6-sol",
+  "isolation_mode": "rest-gateway:http://localhost:8181/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": "crates/prometheus-exec/src/doctor.rs",
+      "line": 154,
+      "claim": "The service-definition doctor check can falsely pass a plist that does not actually launch prometheus-exec because it verifies raw text substrings instead of parsing ProgramArguments.",
+      "evidence": "Acceptance 4.2 requires doctors to verify the service definition; `inspect_service_definition` only checks `text.contains(\"prometheus-exec\") || text.contains(\"daemon\")` and extracts `Label` with `plist_string` via string splits, so comments or unrelated keys containing those words satisfy `service-definition` without proving the LaunchAgent executes `prometheus-exec daemon`.",
+      "suggested_fix": "Parse the plist with a plist parser or `plutil -extract`, validate the real `Label` and `ProgramArguments` array, and require the executable/arguments to match the configured prometheus-exec daemon invocation."
+    },
+    {
+      "severity": "WARNING",
+      "file": "crates/prometheus-exec/src/mcp.rs",
+      "line": 201,
+      "claim": "A rejected Wasm MCP request can leave uploaded code pinned in the artifact store because authorization happens after `put_pinned` and errors return without rollback.",
+      "evidence": "`build_request` stores code with `facade.artifacts().put_pinned(&code, &upload_pin)` before calling `ComponentAuthorizer::estate(...).authorization_for_bytes(&code)?`; if authorization fails, the function returns `Err` before `LocalExecutionFacade::submit` can transfer or release the upload pin.",
+      "suggested_fix": "Authorize Wasm bytes before pinning them, or wrap the post-pin validation path so every error releases the `upload:{request_id}` pin before returning."
+    }
+  ],
+  "sycophancy_screen": {
+    "reject_cap": 2,
+    "cap_overridden": false,
+    "cap_default": 2
+  }
+}

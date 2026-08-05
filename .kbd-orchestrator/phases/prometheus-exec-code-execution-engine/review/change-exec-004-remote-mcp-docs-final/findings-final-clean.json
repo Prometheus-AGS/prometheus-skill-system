@@ -1,0 +1,39 @@
+{
+  "mode": "diff",
+  "verdict": "BLOCK",
+  "judge_model": "MiniMax-M3",
+  "producer_model": "gpt-5.6-sol",
+  "isolation_mode": "rest-gateway:http://localhost:8181/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": "openspec/changes/change-exec-004-remote-mcp-docs/tasks.md",
+      "line": 35,
+      "claim": "The change does not satisfy all acceptance criteria because phase-completion task 6.3 remains unchecked.",
+      "evidence": "Acceptance criterion 6.3 is explicitly listed as `- [ ] 6.3 Install/sign/read back the final binary and generation, complete artifact-refiner and distinct-model review, verify/archive the OpenSpec change, and close the KBD phase with reflection` while the packet requires the change to satisfy the acceptance criteria.",
+      "suggested_fix": "Complete and mark task 6.3 as done only after the final install/sign/readback, review, OpenSpec archive, and phase closure evidence are committed."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "scripts/install-prometheus-exec.sh",
+      "line": 14,
+      "claim": "The default installer builds with Cargo but then looks for the release binary in the crate-local target directory, which is not where a workspace build normally writes it.",
+      "evidence": "The script sets `SOURCE_BIN=\"${PROMETHEUS_EXEC_SOURCE_BIN:-${REPO_ROOT}/crates/prometheus-exec/target/release/prometheus-exec}\"` but later runs `cargo build --release --manifest-path \"${REPO_ROOT}/crates/prometheus-exec/Cargo.toml\"`; for a workspace member this produces `${REPO_ROOT}/target/release/prometheus-exec`, so the following `[ -f \"$SOURCE_BIN\" ]` check can fail after a successful build.",
+      "suggested_fix": "Default `SOURCE_BIN` to `${REPO_ROOT}/target/release/prometheus-exec` for workspace builds, or set `CARGO_TARGET_DIR` explicitly to `${REPO_ROOT}/crates/prometheus-exec/target` before building."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "crates/prometheus-exec/src/doctor.rs",
+      "line": 136,
+      "claim": "The execution doctor does not verify LaunchAgent loaded state even though the release-distribution requirement requires service definition and loaded state verification when requested.",
+      "evidence": "Requirement `execution-release-distribution`: `Root and component doctor surfaces SHALL verify the execution binary, signature/hash, service definition and loaded state when requested...`; the added `inspect_service_definition` only checks symlink/regular-file status, reads the file, requires it to contain `prometheus-exec` and `daemon`, and hashes it, with no `launchctl` or loaded-state verification.",
+      "suggested_fix": "Add an explicit requested loaded-state check for the configured service label/path, report failure when the service is not loaded, and keep it non-mutating."
+    }
+  ],
+  "sycophancy_screen": {
+    "reject_cap": 2,
+    "cap_overridden": false,
+    "cap_default": 2
+  }
+}
