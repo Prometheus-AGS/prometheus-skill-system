@@ -1,25 +1,35 @@
 {
   "change_id": "kde-001-mcp-servers",
-  "scope": ["scripts/install-kimi-desktop-plugin.sh"],
+  "scope": [
+    "scripts/install-kimi-desktop-plugin.sh",
+    "throwaway probe package under plugin-packages/ (t1, removed on completion)"
+  ],
   "tasks": [
     {
       "id": "t1",
       "title": "Verify the daimon accepts a loopback http:// URL (OQ-A)",
-      "detail": "No vendor package uses a local http:// url — all three are remote HTTPS. Emit a single-server manifest pointing at http://localhost:8942/mcp, restart Kimi Desktop, and confirm the tool appears. If loopback is refused, STOP: record the change as inert and do not ship a manifest field that cannot work.",
+      "detail": "Probe with a SEPARATE throwaway package under plugin-packages/, not by editing the shipping generator \u2014 editing the generator to test it would put an unverified field into the package users have installed. Give the probe a single mcpServers entry pointing at http://localhost:8942/mcp, restart Kimi Desktop, and check whether the tool appears. Remove the probe afterwards.",
       "blocking": true,
       "verify": "Kimi Desktop lists a prometheus-knowledge tool, or a recorded refusal"
     },
     {
       "id": "t2",
       "title": "Determine whether the url form drives surreal-memory's legacy SSE transport",
-      "detail": "surreal-memory answers GET /mcp/sse with an `event: endpoint` pointing at /mcp/messages?sessionId=... — a two-channel session transport. No vendor example exercises this. If the daimon cannot drive it, omit the server and record why.",
+      "detail": "surreal-memory answers GET /mcp/sse with an `event: endpoint` pointing at /mcp/messages?sessionId=... \u2014 a two-channel session transport. No vendor example exercises this. If the daimon cannot drive it, omit the server and record why.",
       "blocking": false,
       "verify": "surreal-memory tools appear in Kimi Desktop, or an omission comment citing the probe"
     },
     {
+      "id": "t2b",
+      "title": "Investigate how vendor url-form servers authenticate before excluding forge-rs",
+      "detail": "github and supabase are authenticated services declared with a bare url and no header field, so the daimon must supply credentials some other way \u2014 an OAuth flow, a per-plugin credential store, or interactive connect. Determine which before concluding a bearer-token server is unusable. Analyze raised this as an explicit suggestion and it was not acted on.",
+      "blocking": false,
+      "verify": "documented mechanism, and a decision on whether forge-rs can use it"
+    },
+    {
       "id": "t3",
       "title": "Emit mcpServers from the generator",
-      "detail": "Add the mcpServers object to the manifest dict in the Python heredoc of install-kimi-desktop-plugin.sh. Include prometheus-knowledge; include surreal-memory only per t2; exclude forge-rs with a comment citing the 401 and the missing auth-header field.",
+      "detail": "Add the mcpServers object to the manifest dict in the Python heredoc of install-kimi-desktop-plugin.sh. Include prometheus-knowledge; include surreal-memory only per t2; exclude forge-rs with a GENERATOR comment citing the 401 and the missing auth-header field. If t4 makes ports config-read, emit the resolved value rather than the literal localhost:8942.",
       "blocking": false,
       "verify": "generated kimi.plugin.json contains the expected mcpServers keys"
     },
@@ -33,9 +43,9 @@
     {
       "id": "t5",
       "title": "Regression: idempotence and payload",
-      "detail": "Delete the installed package, re-run install-skills-flat.sh, confirm restoration with 145 skills and no binary inside the package.",
+      "detail": "Run the MODIFIED script directly first \u2014 bash scripts/install-kimi-desktop-plugin.sh \u2014 since that is what this change edits; install-skills-flat.sh only delegates to it and a green delegate run would not prove the generator works. Then delete the package and re-run install-skills-flat.sh to prove the wiring still restores it.",
       "blocking": false,
-      "verify": "145 skills present; find <pkg> -type f -perm +111 returns no Mach-O"
+      "verify": "direct generator run exits 0 and emits the expected manifest; after deletion the delegating installer restores 145 skills; no Mach-O binary in the package"
     }
   ]
 }

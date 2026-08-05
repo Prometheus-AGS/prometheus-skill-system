@@ -2,9 +2,10 @@
   "stage": "spec",
   "phase": "kimi-desktop-extensibility",
   "backend": "native-kbd",
-  "zeespec_verdict": "n/a (no .zeespec/ for this subject — gate inactive, opt-in)",
-  "changes_created": 3,
+  "zeespec_verdict": "n/a (no .zeespec/ for this subject \u2014 gate inactive, opt-in)",
+  "changes_created": 4,
   "changes": [
+    ".kbd-orchestrator/changes/kde-000-skillinstructions-decision",
     ".kbd-orchestrator/changes/kde-001-mcp-servers",
     ".kbd-orchestrator/changes/kde-002-session-start",
     ".kbd-orchestrator/changes/kde-003-hooks-probe"
@@ -21,10 +22,37 @@
     "kde-002 t1 is blocking: kbd-status presence was verified, suitability was not. It runs on EVERY session, including non-KBD ones."
   ],
   "review_warnings_carried": [
-    "skillInstructions still has no explicit adopt/reject decision (carried unresolved from assess and analyze handoffs).",
-    "The url-form adopt verdict rests on vendor packages whose target runtime (desktop daimon vs CLI) is never established."
+    "kde-001 AC4 excludes forge-rs unconditionally while t2b exists to decide whether it can be included \u2014 AC and task still disagree.",
+    "kde-002 verification gate 2 requires sessionStart present, contradicting spec criterion 3 which permits dropping the change.",
+    "No ordering constraint between kde-003 and kde-001/kde-002, all of which install or remove packages under plugin-packages/.",
+    "The catalog/description-budget open question (OQ-3) is carried from assess and analyze but no change owns it.",
+    "kde-001 AC1 mandates a literal hardcoded URL while t4 may replace ports with config-read values; t4 has no stated ordering vs t3.",
+    "SUGGESTION: kde-003 Approach still describes the sentinel-repeat test its own t3 forbids relying on.",
+    "SUGGESTION: kde-000 AC3 makes success depend on a future review's output, which is outside the change's control.",
+    "SUGGESTION: kde-000 and kde-003 both edit assessment.md with no ordering note \u2014 the same hazard the specs flag for kde-001/002.",
+    "SUGGESTION: kde-001 scope is stated inconsistently across spec.md, tasks.json, and its criteria."
   ],
   "resolved_since_analyze": [
-    "WARNING 'HTTP 200/405 proves a listener, not MCP' — verified by initialize probe; surreal-memory demoted from adopt to conditional as a direct result."
-  ]
+    "WARNING 'HTTP 200/405 proves a listener, not MCP' \u2014 verified by initialize probe; surreal-memory demoted from adopt to conditional as a direct result."
+  ],
+  "adversarial_review": {
+    "rounds": 3,
+    "judge": {
+      "model": "k3",
+      "vendor": "Moonshot"
+    },
+    "verdicts": [
+      "BLOCK",
+      "BLOCK",
+      "PASS"
+    ],
+    "producer": "claude-opus-5",
+    "cross_vendor": true,
+    "criticals_resolved": [
+      "skillInstructions had no adopt/reject decision across three handoffs \u2014 now owned by kde-000",
+      "kde-001 verification gate 3 demanded mcpServers unconditionally, contradicting the spec's explicitly-successful negative outcome",
+      "kde-003 tasks.json scope omitted assessment.md, which its own t4 edits"
+    ]
+  },
+  "note": "Round 3 reached PASS, which is the skill's max of 2 revision rounds. Remaining WARNINGs are carried here rather than revised further, per the max-rounds rule."
 }

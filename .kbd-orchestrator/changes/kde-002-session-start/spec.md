@@ -37,12 +37,22 @@ worse than none.
 1. Generated manifest contains `"sessionStart": {"skill": "kbd-status"}`.
 2. `kbd-status` degrades gracefully outside a KBD project — no error, no
    misleading output.
-3. If it does not degrade gracefully, EITHER the skill is fixed in the same
-   change, OR a different orientation skill is chosen, OR the change is dropped
-   with the finding recorded.
+3. If it does not degrade gracefully, EITHER a different already-suitable skill
+   is chosen, OR the change is dropped with the finding recorded. **Fixing
+   `kbd-status` itself is OUT of scope** — this change edits the generator only,
+   and a skill fix belongs in its own change so it is reviewed and verified on
+   its own terms.
 4. Existing package invariants hold: 145 skills, manifest valid, idempotent.
+
+## Ordering
+
+Apply AFTER `kde-001`. Both edit the same manifest dict in
+`scripts/install-kimi-desktop-plugin.sh`; sequential application avoids a
+silent merge that would drop a field while still producing a valid manifest.
 
 ## Out of scope
 
 - Writing a new orientation skill (if `kbd-status` proves unsuitable, that is a
   separate change, not a silent substitution).
+- Modifying `kbd-status` or any other skill. Declared scope is the generator
+  script; a skill change would escape review under this change's criteria.
