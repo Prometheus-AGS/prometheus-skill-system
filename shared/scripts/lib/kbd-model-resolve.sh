@@ -263,15 +263,27 @@ kbd_complete() {
     # arbitrary text and string-built JSON corrupts on the first quote.
     _body="$(MODEL="$_model" SYS="$_sys" USR="$_usr" MAXT="$_max" python3 <<'PY' 2>/dev/null
 import json, os
-print(json.dumps({
-    "model": os.environ["MODEL"],
+
+model = os.environ["MODEL"]
+body = {
+    "model": model,
     "messages": [
         {"role": "system", "content": os.environ.get("SYS", "")},
         {"role": "user", "content": os.environ.get("USR", "")},
     ],
-    "temperature": 0,
     "max_tokens": int(os.environ.get("MAXT") or 2048),
-}))
+}
+
+# Some reasoning models reject any temperature other than their own required
+# value and fail the whole request with HTTP 400 rather than clamping — Kimi k3
+# returns "invalid temperature: only 1 is allowed for this model". Omitting the
+# field lets those models use their default; everything else still gets an
+# explicit 0, which keeps deterministic roles reproducible.
+FIXED_TEMPERATURE_MODELS = ("k3", "kimi-for-coding", "o1", "o3", "gpt-5")
+if not any(model.startswith(p) for p in FIXED_TEMPERATURE_MODELS):
+    body["temperature"] = 0
+
+print(json.dumps(body))
 PY
 )" || { echo "kbd_complete: failed to build request body" >&2; return 4; }
 

@@ -7,7 +7,7 @@
   "runtimeFiles": [
     {
       "path": "scripts/install-plugin-generation.js",
-      "sha256": "d41146a134321c037f67daf5c79223675d92a0080554d23f2ed344f1c3213ffd",
+      "sha256": "fe7af92b9ed153411ea3fa058bac33ee297af65cd83ca355d04c682391d18de5",
       "mode": "0755"
     },
     {
@@ -107,7 +107,7 @@
     },
     {
       "path": "shared/scripts/lib/kbd-model-resolve.sh",
-      "sha256": "7d2a49229f3337df2887e44d7605c658b94e390b85553896f09a12b7ba7b0d1e",
+      "sha256": "2cd2fee573c5b13cfaa31c202e9675d97234390f4974fc288e898f59d9c94ee7",
       "mode": "0755"
     },
     {
@@ -311,5 +311,5 @@
       "mode": "0755"
     }
   ],
-  "bundleId": "19bdc79888062f3a07a2ef2dc9cb52b307f1554914955ce701400cfc1b743e2b"
+  "bundleId": "ac153d1ea55ca21fd28cd3332d7b6e0eb6b93c734561efd474b2b8b5dc32aa4e"
 }

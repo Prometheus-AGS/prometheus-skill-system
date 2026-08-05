@@ -1,0 +1,41 @@
+{
+  "change_id": "kde-001-mcp-servers",
+  "scope": ["scripts/install-kimi-desktop-plugin.sh"],
+  "tasks": [
+    {
+      "id": "t1",
+      "title": "Verify the daimon accepts a loopback http:// URL (OQ-A)",
+      "detail": "No vendor package uses a local http:// url — all three are remote HTTPS. Emit a single-server manifest pointing at http://localhost:8942/mcp, restart Kimi Desktop, and confirm the tool appears. If loopback is refused, STOP: record the change as inert and do not ship a manifest field that cannot work.",
+      "blocking": true,
+      "verify": "Kimi Desktop lists a prometheus-knowledge tool, or a recorded refusal"
+    },
+    {
+      "id": "t2",
+      "title": "Determine whether the url form drives surreal-memory's legacy SSE transport",
+      "detail": "surreal-memory answers GET /mcp/sse with an `event: endpoint` pointing at /mcp/messages?sessionId=... — a two-channel session transport. No vendor example exercises this. If the daimon cannot drive it, omit the server and record why.",
+      "blocking": false,
+      "verify": "surreal-memory tools appear in Kimi Desktop, or an omission comment citing the probe"
+    },
+    {
+      "id": "t3",
+      "title": "Emit mcpServers from the generator",
+      "detail": "Add the mcpServers object to the manifest dict in the Python heredoc of install-kimi-desktop-plugin.sh. Include prometheus-knowledge; include surreal-memory only per t2; exclude forge-rs with a comment citing the 401 and the missing auth-header field.",
+      "blocking": false,
+      "verify": "generated kimi.plugin.json contains the expected mcpServers keys"
+    },
+    {
+      "id": "t4",
+      "title": "Resolve port hardcoding (OQ-B)",
+      "detail": "Ports 23001/8942 are embedded. Check whether they are user-configurable in the pack's own config; if so, read the value at generation time rather than hardcoding, so a reinstall on a machine with different ports still works (goal 4).",
+      "blocking": false,
+      "verify": "either ports are read from config, or a comment records that they are fixed by contract"
+    },
+    {
+      "id": "t5",
+      "title": "Regression: idempotence and payload",
+      "detail": "Delete the installed package, re-run install-skills-flat.sh, confirm restoration with 145 skills and no binary inside the package.",
+      "blocking": false,
+      "verify": "145 skills present; find <pkg> -type f -perm +111 returns no Mach-O"
+    }
+  ]
+}

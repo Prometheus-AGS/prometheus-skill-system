@@ -1,0 +1,32 @@
+{
+  "stage": "analyze",
+  "phase": "kimi-desktop-extensibility",
+  "artifacts": ["analysis.md", "library-candidates.json"],
+  "summary": "5 candidates: 2 adopt (mcp url transport, sessionStart->kbd-status), 1 defer (stdio shim), 2 reject (npx third-party servers, shipping binaries in-package). The assessment's blocking PATH prerequisite is RESOLVED: kimi-cu ships a shim whose header states the vendor rule verbatim, and 3 of 4 vendor packages use the url form, which sidesteps PATH entirely. change-kde-001 is unblocked.",
+  "key_verdicts": [
+    "ADOPT url-form mcpServers for surreal-memory and prometheus-knowledge",
+    "ADOPT sessionStart with kbd-status",
+    "DEFER stdio shims (both binaries already on PATH)",
+    "REJECT shipping binaries into the plugin package (payload-bloat lesson, 188M->98M)",
+    "BLOCKED: forge-rs returned 401 and the vendor url schema shows no auth-header field"
+  ],
+  "open_questions": [
+    "Can a url-form server requiring a bearer token be used at all from Kimi Desktop?",
+    "Do hooks / systemPrompt fire on the daimon? Still unproven.",
+    "Is there a catalog/description budget at 145 skills?"
+  ],
+  "review_warnings": [
+    "skillInstructions still has no explicit adopt/reject decision despite goal 2 requiring one per extension point — carried from the assess handoff unresolved.",
+    "kbd-status was verified present on disk only; its SUITABILITY as a sessionStart payload is unverified.",
+    "The url-form adopt verdict rests on vendor packages whose target runtime (desktop daimon vs CLI) is never established.",
+    "HTTP 200/405 proves a listener exists, NOT that the endpoint speaks MCP. Spec must verify an actual MCP handshake before emitting these.",
+    "SUGGESTION: investigate how the vendor's own authenticated url servers (github, supabase) handle credentials before concluding bearer-token servers are unusable.",
+    "SUGGESTION: adopted url integrations hardcode localhost ports 23001/8942 with no reinstall-durability argument, which goal 4 requires."
+  ],
+  "adversarial_review": {
+    "rounds": 1,
+    "judge": {"model": "k3", "vendor": "Moonshot", "verdict": "PASS"},
+    "producer": "claude-opus-5",
+    "cross_vendor": true
+  }
+}

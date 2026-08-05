@@ -1,0 +1,30 @@
+{
+  "stage": "spec",
+  "phase": "kimi-desktop-extensibility",
+  "backend": "native-kbd",
+  "zeespec_verdict": "n/a (no .zeespec/ for this subject — gate inactive, opt-in)",
+  "changes_created": 3,
+  "changes": [
+    ".kbd-orchestrator/changes/kde-001-mcp-servers",
+    ".kbd-orchestrator/changes/kde-002-session-start",
+    ".kbd-orchestrator/changes/kde-003-hooks-probe"
+  ],
+  "summary": "3 native-kbd changes, all scoped to scripts/install-kimi-desktop-plugin.sh (the generator) except kde-003 which is a throwaway probe. Resolving the analyze stage's review WARNING changed kde-001 materially: an MCP initialize probe showed the three candidate servers use THREE different transports, and only prometheus-knowledge is confirmed compatible.",
+  "evidence_that_changed_the_spec": {
+    "prometheus-knowledge": "POST /mcp initialize -> real MCP result, serverInfo name+version. CONFIRMED.",
+    "surreal-memory": "POST /mcp/sse returns nothing; GET /mcp/sse emits event:endpoint -> /mcp/messages?sessionId=... Legacy two-channel SSE, no vendor precedent. CONDITIONAL on probe.",
+    "forge-rs": "HTTP 401. No auth-header field exists in any vendor url-form example. EXCLUDED."
+  },
+  "open_questions": [
+    "OQ-A (blocking kde-001 t1): all three vendor url servers are remote HTTPS; does the daimon accept a loopback http:// URL at all? If not, kde-001 is inert and must not ship.",
+    "OQ-B: ports 23001/8942 are hardcoded with no reinstall-durability argument (goal 4).",
+    "kde-002 t1 is blocking: kbd-status presence was verified, suitability was not. It runs on EVERY session, including non-KBD ones."
+  ],
+  "review_warnings_carried": [
+    "skillInstructions still has no explicit adopt/reject decision (carried unresolved from assess and analyze handoffs).",
+    "The url-form adopt verdict rests on vendor packages whose target runtime (desktop daimon vs CLI) is never established."
+  ],
+  "resolved_since_analyze": [
+    "WARNING 'HTTP 200/405 proves a listener, not MCP' — verified by initialize probe; surreal-memory demoted from adopt to conditional as a direct result."
+  ]
+}

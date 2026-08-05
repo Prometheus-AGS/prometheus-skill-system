@@ -208,6 +208,18 @@ install_to_dir() {
 # ~/.codex/skills contributes zero skills to the catalog, silently. Codex also budgets
 # the whole catalog, so the set it gets is curated in config/codex-catalog.txt.
 # Delegated to codex-sync-skills.sh, which is also run on codex session_start.
+# Kimi DESKTOP (/Applications/Kimi.app) is not the same target as Kimi Code.
+# Its daimon runtime reads skills only from inside a plugin package under
+# plugin-packages/, never from a flat skills dir, so install_to_dir cannot serve
+# it. Exits 0 when the app is not installed.
+install_to_kimi_desktop() {
+    if $UNINSTALL; then
+        bash "$REPO_ROOT/scripts/install-kimi-desktop-plugin.sh" --uninstall
+    else
+        bash "$REPO_ROOT/scripts/install-kimi-desktop-plugin.sh"
+    fi
+}
+
 install_to_codex() {
     if $UNINSTALL; then
         bash "$REPO_ROOT/scripts/codex-sync-skills.sh" --uninstall
@@ -263,6 +275,7 @@ if $UNINSTALL; then
     install_to_dir "claude-code"     "$HOME/.claude/skills"
     install_to_dir "opencode"        "$HOME/.opencode/skills"
     install_to_dir "kimi-code"       "$HOME/.kimi-code/skills"
+    install_to_kimi_desktop
     install_to_minimax
     install_to_dir "cursor"          "$HOME/.cursor/skills"
     install_to_codex
@@ -284,6 +297,13 @@ else
         generation=""
         install_failure "plugin generation installation"
     fi
+
+    # Kimi Desktop is NOT covered by the generation installer: that installer
+    # projects skills into flat per-platform directories, and Kimi Desktop's
+    # daimon runtime reads them only from a plugin package. Run it here so a
+    # normal install reaches it. (The uninstall branch above calls the same
+    # function with --uninstall.)
+    install_to_kimi_desktop
 fi
 
 # Deterministic local fixture hook. It is deliberately inert unless both variables

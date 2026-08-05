@@ -1,0 +1,24 @@
+{
+  "stage": "assess",
+  "phase": "kimi-desktop-extensibility",
+  "artifact": "assessment.md",
+  "summary": "Kimi Desktop is a thin Electron shell over the CLI daemon and exposes NO UI/view/theme extension surface — the UI-customization goal is unachievable via the supported plugin API and should not be re-investigated. Real extension points are skills (shipping), mcpServers (highest unclaimed value), sessionStart, and the unproven hooks/systemPrompt. All manifest fields are emitted by scripts/install-kimi-desktop-plugin.sh; the only kimi.plugin.json in-repo belongs to liter-llm, so changes edit the GENERATOR, never a manifest file.",
+  "open_questions": [
+    "Is ~/.local/bin on the daimon's PATH, or are absolute paths accepted in mcpServers? change-kde-001 is blocked until this is answered.",
+    "Do the desktop daimon honour `hooks` and `systemPrompt`? Both are documented for the CLI plugin path and absent from all 12 vendor packages.",
+    "Is there a catalog/description budget at 145 skills, as Codex has at ~360?"
+  ],
+  "review_warnings": [
+    "PATH prerequisite for change-kde-001 is stated but not yet resolved — plan must not schedule 001 before it is.",
+    "The 7 MCP server names are asserted from session knowledge, not evidenced in the review packet; verify each is a real launchable server before emitting it.",
+    "kbd-status was confirmed present by directory listing, but its suitability as a sessionStart payload is unverified.",
+    "skillInstructions is already used by the pack but carries no explicit adopt/reject rationale in the extension-point list."
+  ],
+  "adversarial_review": {
+    "rounds": 2,
+    "judge": {"model": "k3", "vendor": "Moonshot", "round1": "BLOCK", "round2": "PASS"},
+    "critic": {"model": "MiniMax-M3", "vendor": "MiniMax", "round1": "PASS"},
+    "producer": "claude-opus-5",
+    "cross_vendor": true
+  }
+}
