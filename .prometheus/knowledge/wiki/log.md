@@ -1,6 +1,8 @@
 # Update Log
 
 ## 2026-08-05
+* **Ingest**: [Karpathy session 78139eae73c6](/karpathy-session-78139eae73c69787.md)
+* **Ingest**: [Karpathy session 6a40b53c8276](/karpathy-session-6a40b53c8276eb94.md)
 * **Ingest**: [Karpathy session 7beb613b7cb8](/karpathy-session-7beb613b7cb8b93a.md)
 * **Ingest**: [Karpathy session 29d4f247c1e6](/karpathy-session-29d4f247c1e6723c.md)
 * **Creation**: [Prometheus Exec Code Execution Engine Completion Record](/prometheus-exec-code-execution-engine-completion-record.md)
