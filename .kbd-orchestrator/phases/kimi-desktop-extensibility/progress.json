@@ -1,9 +1,9 @@
 {
   "phase": "kimi-desktop-extensibility",
-  "updatedAt": "2026-08-05T18:37:13Z",
+  "updatedAt": "2026-08-05T19:34:09Z",
   "completion": {
     "implementation": {
-      "completed": 3,
+      "completed": 4,
       "total": 5
     }
   },
@@ -28,7 +28,10 @@
     },
     {
       "id": "kde-002-session-start",
-      "status": "pending"
+      "status": "completed",
+      "outcome": "dropped",
+      "completedAt": "2026-08-05T19:34:09Z",
+      "note": "No suitable sessionStart payload exists. kbd-status presumes a KBD project; learn-harness needs detect-surface-tier.sh which is not inside the skill; learn-about-system asks the operator a question and sessionStart takes no arguments. Dropped per AC3 with the finding recorded."
     },
     {
       "id": "kde-005-catalog-budget",

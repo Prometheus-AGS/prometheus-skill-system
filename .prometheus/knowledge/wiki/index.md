@@ -186,6 +186,7 @@
 * [Kimi Desktop Extensibility Executor Complete Status](/kimi-desktop-extensibility-executor-complete-status.md)
 * [Kimi Desktop Extensibility Executor Complete, Unknown Change](/kimi-desktop-extensibility-executor-complete-unknown-change.md)
 * [Kimi Desktop Extensibility Executor Completion Status](/kimi-desktop-extensibility-executor-completion-status.md)
+* [Kimi Desktop Extensibility Executor Session Complete](/kimi-desktop-extensibility-executor-session-complete.md)
 * [Knowledge Assets & Architecture Patterns](/knowledge-assets-architecture.md) - Foundational research on knowledge storage architectures for deep research: knowledge graphs, vector databases, embedding strategies, and retrieval patterns.
 * [Learn Grader Validation Completion Marker Unknown Change](/learn-grader-validation-completion-marker-unknown-change.md)
 * [Learn Grader Validation Execute Completion at 2026-07-16T20:58Z](/learn-grader-validation-execute-completion-at-2026-07-16t20-58z.md)
@@ -317,6 +318,7 @@
 * [Karpathy session 38373f1cce9c](/karpathy-session-38373f1cce9c59d7.md) - Local 1.6.1 hook-to-worker-to-receipt certification record.
 * [Karpathy session 389efa53346e](/karpathy-session-389efa53346e2a07.md)
 * [Karpathy session 3974a3094c9d](/karpathy-session-3974a3094c9d9a73.md)
+* [Karpathy session 3a559c9abb19](/karpathy-session-3a559c9abb19d963.md)
 * [Karpathy session 3be08d211419](/karpathy-session-3be08d21141940be.md)
 * [Karpathy session 40521496d375](/karpathy-session-40521496d375f876.md)
 * [Karpathy session 420965da4aa8](/karpathy-session-420965da4aa8c72f.md)
@@ -328,6 +330,7 @@
 * [Karpathy session 4ea47e791161](/karpathy-session-4ea47e791161bf83.md)
 * [Karpathy session 51e369fef53b](/karpathy-session-51e369fef53bc3a6.md)
 * [Karpathy session 52e9afea06c4](/karpathy-session-52e9afea06c445c2.md)
+* [Karpathy session 5910ca0ad0a0](/karpathy-session-5910ca0ad0a0123b.md)
 * [Karpathy session 5d9fc7a15de8](/karpathy-session-5d9fc7a15de84d5f.md)
 * [Karpathy session 5dbe0228b36a](/karpathy-session-5dbe0228b36ae80b.md)
 * [Karpathy session 5fb851cae9e1](/karpathy-session-5fb851cae9e11b2a.md)
