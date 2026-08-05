@@ -31,5 +31,5 @@
 ## 6. Local certification and phase completion
 
 - [x] 6.1 Run focused format, warnings-denied Clippy, unit/property/integration, dependency, generated-diff, installer/doctor, plugin, OpenAPI, docs, and false-green gates locally
-- [ ] 6.2 Execute and archive redacted real MCP, local Tier P/W, offline verification, response-loss, restart, and disposable remote use cases with explicit external-evidence dispositions
+- [x] 6.2 Execute and archive redacted real MCP, local Tier P/W, offline verification, response-loss, restart, and disposable remote use cases with explicit external-evidence dispositions
 - [ ] 6.3 Install/sign/read back the final binary and generation, complete artifact-refiner and distinct-model review, verify/archive the OpenSpec change, and close the KBD phase with reflection

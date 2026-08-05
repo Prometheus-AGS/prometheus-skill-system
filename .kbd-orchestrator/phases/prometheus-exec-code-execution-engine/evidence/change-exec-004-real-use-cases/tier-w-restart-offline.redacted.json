@@ -1,0 +1,320 @@
+{
+  "doctor": {
+    "checks": [
+      {
+        "detail": "prometheus-exec 1.7.0 sha256:b693cd8df48a6b8634bba9c88b9b7da5a871c5ad919eebf351f89719dc59127b",
+        "name": "binary-identity",
+        "required": true,
+        "status": "pass"
+      },
+      {
+        "detail": "ed25519:dce9ba5dd030c9aee94afc9cd0b43cd822382172dc96775033e43700e3bfec53 is internally consistent",
+        "name": "receipt-identity",
+        "required": true,
+        "status": "pass"
+      },
+      {
+        "detail": "<redacted-temp>/runtime/exec.sock is a mode-0600 Unix socket",
+        "name": "socket-permissions",
+        "required": true,
+        "status": "pass"
+      },
+      {
+        "detail": "same-UID /health request succeeded",
+        "name": "socket-peer-health",
+        "required": true,
+        "status": "pass"
+      },
+      {
+        "detail": "all required subsystems are ready",
+        "name": "readiness",
+        "required": true,
+        "status": "pass"
+      },
+      {
+        "detail": "macOS Seatbelt launcher and runtimes are available",
+        "name": "tier-p-backend",
+        "required": true,
+        "status": "pass"
+      },
+      {
+        "detail": "Wasmtime 46 cranelift backend is available for desktop without compiling guest bytes",
+        "name": "tier-w-backend",
+        "required": true,
+        "status": "pass"
+      },
+      {
+        "detail": "active signed generation 452142507447142fb15ad942f3e99538b32535fd909115dc9050241c4ea0de52 verifies 1 component(s)",
+        "name": "tier-w-trust",
+        "required": true,
+        "status": "pass"
+      },
+      {
+        "detail": "1 records are structurally valid; 0 are in flight",
+        "name": "state-reconciliation",
+        "required": true,
+        "status": "pass"
+      },
+      {
+        "detail": "1 signed receipt(s) reconcile with 1 run record(s)",
+        "name": "receipt-reconciliation",
+        "required": true,
+        "status": "pass"
+      },
+      {
+        "detail": "3 content-addressed blobs verify and reconcile with 1 run record(s)",
+        "name": "artifact-cas",
+        "required": true,
+        "status": "pass"
+      }
+    ],
+    "excluded": [
+      "control.kbd-runtime",
+      "state.kbd-orchestrator",
+      "control.kbd-rollout",
+      "service:sovereign-sync"
+    ],
+    "healthy": true,
+    "version": "1.7.0"
+  },
+  "offlineVerification": {
+    "checks": [
+      {
+        "code": "receipt.invariants",
+        "message": "receipt semantic invariants are valid"
+      },
+      {
+        "code": "receipt.signature",
+        "message": "receipt signature and key identity are valid"
+      },
+      {
+        "code": "request.hash",
+        "message": "receipt matches the supplied request"
+      }
+    ],
+    "failures": [],
+    "receiptHash": "sha256:9f88277253061083d576adb8c866e9e552dd06f4bdc6a76f219b11fae5281dfe",
+    "replay": {
+      "checks": [
+        "transport.receipt-and-request",
+        "request.inputSetHash",
+        "receipt.state",
+        "receipt.stdout",
+        "receipt.stderr",
+        "receipt.artifacts",
+        "receipt.failure",
+        "component.authorization",
+        "component.engineVersion",
+        "component.deterministicProjectionHash",
+        "replay.backend"
+      ],
+      "mismatches": [],
+      "valid": true
+    },
+    "valid": true
+  },
+  "portableBundleVerification": {
+    "checks": [
+      {
+        "code": "index.contract",
+        "message": "evidence index is canonical and internally valid"
+      },
+      {
+        "code": "file.hash",
+        "message": "verified receipt.json"
+      },
+      {
+        "code": "file.hash",
+        "message": "verified request.json"
+      },
+      {
+        "code": "file.hash",
+        "message": "verified environment.json"
+      },
+      {
+        "code": "receipt.signature",
+        "message": "receipt signature and request binding are valid"
+      },
+      {
+        "code": "run.id",
+        "message": "index run ID matches the signed receipt"
+      },
+      {
+        "code": "artifact.index",
+        "message": "every receipt artifact has one indexed bundle file"
+      },
+      {
+        "code": "environment.hash",
+        "message": "receipt environment hash resolves in the bundle"
+      }
+    ],
+    "failures": [],
+    "indexHash": "sha256:4f6112acb913b00b83ba5fd1d6860f8e897e719c00dfd4d5c0eeef3e52e0a776",
+    "receiptHash": "sha256:9f88277253061083d576adb8c866e9e552dd06f4bdc6a76f219b11fae5281dfe",
+    "valid": true
+  },
+  "privateIdentityArchived": false,
+  "run": {
+    "receipt": {
+      "backend": "cranelift",
+      "codeHash": "sha256:ba438895404a23985d5226735b8f362cf3e8044894a1140852ba0992f2fdbe78",
+      "component": {
+        "authorization": {
+          "generationId": "452142507447142fb15ad942f3e99538b32535fd909115dc9050241c4ea0de52",
+          "manifestHash": "sha256:6648d8e257d02db14eb53f7c5a54700aad26ca2ed63f5a887fcea643662474f4",
+          "mode": "signed-generation",
+          "world": "prometheus:component@0.1.0"
+        },
+        "backendProfileHash": "sha256:e967e18c1daa7eb36e0fff0623a5058f34574700717a92ce69735f601041eaf6",
+        "deterministicProjectionHash": "sha256:e046fa042081b99e6acd47da6d1875d0bb9cb0ea8e36cf844db079caf024ab39",
+        "engineVersion": "46.0.2"
+      },
+      "envHash": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "evidenceClass": "verified",
+      "executingDevice": {
+        "keyId": "ed25519:dce9ba5dd030c9aee94afc9cd0b43cd822382172dc96775033e43700e3bfec53",
+        "platform": "desktop-x86_64",
+        "sigAlg": "ed25519"
+      },
+      "exit": {
+        "status": 0
+      },
+      "finishedAt": "2026-08-05T08:16:41.115674Z",
+      "grants": [],
+      "inputSetHash": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "outputs": {
+        "artifacts": [],
+        "stderr": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "stdout": "sha256:f748ed012ee0f3179e36ded52ba31ff90fc97d9daf0cc35bf87e4e25fb2382c4"
+      },
+      "requestHash": "sha256:065200ce4bf0fe9ce88bed4cff245504a79ddda7d45a1bd28d4c870a4a8ff446",
+      "runId": "cf4045ba-7a3d-4be4-a2e3-83337dca3329",
+      "sandboxProfileHash": "sha256:b29e3e9e55bd91c7429fcba846acb1bce7de3e19a2685141c56fd965370e392f",
+      "schemaVersion": "1",
+      "signature": "1mFAAhdgtIYWgVzp0ADPlD8Hs7Ov2hA8ZXFsCZcRSmLQIL-m9YAsTolIDTs3qXnxRt21kt_1--Aw9jZe3l3UBA",
+      "startedAt": "2026-08-05T08:16:41.075940Z",
+      "state": "succeeded",
+      "tier": "w",
+      "usage": {
+        "cpuMs": 0,
+        "fuelConsumed": 25257,
+        "peakMemMb": 2,
+        "wallClockMs": 39
+      }
+    },
+    "replayed": false,
+    "requestHash": "sha256:065200ce4bf0fe9ce88bed4cff245504a79ddda7d45a1bd28d4c870a4a8ff446",
+    "requestId": "9c3aa8be-5988-4190-9ee6-9fe02802784d",
+    "runId": "cf4045ba-7a3d-4be4-a2e3-83337dca3329",
+    "state": "succeeded"
+  },
+  "staleSocketObservedAfterSigkill": true,
+  "statusAfterRestart": {
+    "receipt": {
+      "backend": "cranelift",
+      "codeHash": "sha256:ba438895404a23985d5226735b8f362cf3e8044894a1140852ba0992f2fdbe78",
+      "component": {
+        "authorization": {
+          "generationId": "452142507447142fb15ad942f3e99538b32535fd909115dc9050241c4ea0de52",
+          "manifestHash": "sha256:6648d8e257d02db14eb53f7c5a54700aad26ca2ed63f5a887fcea643662474f4",
+          "mode": "signed-generation",
+          "world": "prometheus:component@0.1.0"
+        },
+        "backendProfileHash": "sha256:e967e18c1daa7eb36e0fff0623a5058f34574700717a92ce69735f601041eaf6",
+        "deterministicProjectionHash": "sha256:e046fa042081b99e6acd47da6d1875d0bb9cb0ea8e36cf844db079caf024ab39",
+        "engineVersion": "46.0.2"
+      },
+      "envHash": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "evidenceClass": "verified",
+      "executingDevice": {
+        "keyId": "ed25519:dce9ba5dd030c9aee94afc9cd0b43cd822382172dc96775033e43700e3bfec53",
+        "platform": "desktop-x86_64",
+        "sigAlg": "ed25519"
+      },
+      "exit": {
+        "status": 0
+      },
+      "finishedAt": "2026-08-05T08:16:41.115674Z",
+      "grants": [],
+      "inputSetHash": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "outputs": {
+        "artifacts": [],
+        "stderr": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "stdout": "sha256:f748ed012ee0f3179e36ded52ba31ff90fc97d9daf0cc35bf87e4e25fb2382c4"
+      },
+      "requestHash": "sha256:065200ce4bf0fe9ce88bed4cff245504a79ddda7d45a1bd28d4c870a4a8ff446",
+      "runId": "cf4045ba-7a3d-4be4-a2e3-83337dca3329",
+      "sandboxProfileHash": "sha256:b29e3e9e55bd91c7429fcba846acb1bce7de3e19a2685141c56fd965370e392f",
+      "schemaVersion": "1",
+      "signature": "1mFAAhdgtIYWgVzp0ADPlD8Hs7Ov2hA8ZXFsCZcRSmLQIL-m9YAsTolIDTs3qXnxRt21kt_1--Aw9jZe3l3UBA",
+      "startedAt": "2026-08-05T08:16:41.075940Z",
+      "state": "succeeded",
+      "tier": "w",
+      "usage": {
+        "cpuMs": 0,
+        "fuelConsumed": 25257,
+        "peakMemMb": 2,
+        "wallClockMs": 39
+      }
+    },
+    "replayed": false,
+    "requestHash": "sha256:065200ce4bf0fe9ce88bed4cff245504a79ddda7d45a1bd28d4c870a4a8ff446",
+    "requestId": "9c3aa8be-5988-4190-9ee6-9fe02802784d",
+    "runId": "cf4045ba-7a3d-4be4-a2e3-83337dca3329",
+    "state": "succeeded"
+  },
+  "statusBeforeRestart": {
+    "receipt": {
+      "backend": "cranelift",
+      "codeHash": "sha256:ba438895404a23985d5226735b8f362cf3e8044894a1140852ba0992f2fdbe78",
+      "component": {
+        "authorization": {
+          "generationId": "452142507447142fb15ad942f3e99538b32535fd909115dc9050241c4ea0de52",
+          "manifestHash": "sha256:6648d8e257d02db14eb53f7c5a54700aad26ca2ed63f5a887fcea643662474f4",
+          "mode": "signed-generation",
+          "world": "prometheus:component@0.1.0"
+        },
+        "backendProfileHash": "sha256:e967e18c1daa7eb36e0fff0623a5058f34574700717a92ce69735f601041eaf6",
+        "deterministicProjectionHash": "sha256:e046fa042081b99e6acd47da6d1875d0bb9cb0ea8e36cf844db079caf024ab39",
+        "engineVersion": "46.0.2"
+      },
+      "envHash": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "evidenceClass": "verified",
+      "executingDevice": {
+        "keyId": "ed25519:dce9ba5dd030c9aee94afc9cd0b43cd822382172dc96775033e43700e3bfec53",
+        "platform": "desktop-x86_64",
+        "sigAlg": "ed25519"
+      },
+      "exit": {
+        "status": 0
+      },
+      "finishedAt": "2026-08-05T08:16:41.115674Z",
+      "grants": [],
+      "inputSetHash": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "outputs": {
+        "artifacts": [],
+        "stderr": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "stdout": "sha256:f748ed012ee0f3179e36ded52ba31ff90fc97d9daf0cc35bf87e4e25fb2382c4"
+      },
+      "requestHash": "sha256:065200ce4bf0fe9ce88bed4cff245504a79ddda7d45a1bd28d4c870a4a8ff446",
+      "runId": "cf4045ba-7a3d-4be4-a2e3-83337dca3329",
+      "sandboxProfileHash": "sha256:b29e3e9e55bd91c7429fcba846acb1bce7de3e19a2685141c56fd965370e392f",
+      "schemaVersion": "1",
+      "signature": "1mFAAhdgtIYWgVzp0ADPlD8Hs7Ov2hA8ZXFsCZcRSmLQIL-m9YAsTolIDTs3qXnxRt21kt_1--Aw9jZe3l3UBA",
+      "startedAt": "2026-08-05T08:16:41.075940Z",
+      "state": "succeeded",
+      "tier": "w",
+      "usage": {
+        "cpuMs": 0,
+        "fuelConsumed": 25257,
+        "peakMemMb": 2,
+        "wallClockMs": 39
+      }
+    },
+    "replayed": false,
+    "requestHash": "sha256:065200ce4bf0fe9ce88bed4cff245504a79ddda7d45a1bd28d4c870a4a8ff446",
+    "requestId": "9c3aa8be-5988-4190-9ee6-9fe02802784d",
+    "runId": "cf4045ba-7a3d-4be4-a2e3-83337dca3329",
+    "state": "succeeded"
+  }
+}

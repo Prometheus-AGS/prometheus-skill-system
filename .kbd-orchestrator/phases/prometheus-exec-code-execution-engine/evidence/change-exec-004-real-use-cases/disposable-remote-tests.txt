@@ -1,0 +1,9 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 10.62s
+     Running tests/disposable_peers.rs (<redacted-cargo-target>/disposable_peers)
+
+running 3 tests
+test unknown_endpoint_signer_mismatch_replay_and_expiry_are_rejected ... ok
+test slow_transport_isolated_from_an_independent_dispatch ... ok
+test response_loss_resumes_offline_without_reexecuting_and_survives_restart ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.67s

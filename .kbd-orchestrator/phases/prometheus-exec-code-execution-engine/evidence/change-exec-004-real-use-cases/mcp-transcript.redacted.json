@@ -1,0 +1,191 @@
+{
+  "artifact": {
+    "bytesBase64": "eyJhbnN3ZXIiOiA0MiwgInN1cmZhY2UiOiAibWNwIn0",
+    "digest": "sha256:68d7c5fe799d692ccb548df2e0fbabcd0566148e5665692753cd4fbb32e695cf",
+    "inline": true,
+    "sizeBytes": 32
+  },
+  "events": [
+    {
+      "eventHash": "sha256:1d28e560df04bead2abfbdd285e30eb088ec763a9aa1ec6df67d193a51aac4cb",
+      "eventId": "run.accepted",
+      "kind": "accepted",
+      "occurredAt": "2026-08-05T08:16:39.187802Z",
+      "requestHash": "sha256:968d2a07c614acdaf644d3ed6b371dbfe637cc823966c6773eb156bc3a2c6c84",
+      "requestId": "c584099e-438e-46ef-8770-7fc95d764239",
+      "runId": "ab952fe2-13f4-4eaf-9b20-3a09b564dbcf",
+      "schemaVersion": "1",
+      "sequence": 1
+    },
+    {
+      "eventHash": "sha256:39e395411098e8557bf1d43e2ed173c71eea766614df244357059f32451522a0",
+      "eventId": "run.started",
+      "kind": "started",
+      "occurredAt": "2026-08-05T08:16:39.301926Z",
+      "previousEventHash": "sha256:1d28e560df04bead2abfbdd285e30eb088ec763a9aa1ec6df67d193a51aac4cb",
+      "runId": "ab952fe2-13f4-4eaf-9b20-3a09b564dbcf",
+      "schemaVersion": "1",
+      "sequence": 2
+    },
+    {
+      "chunk": "{\"answer\": 42, \"surface\": \"mcp\"}\n",
+      "eventHash": "sha256:b0f98b3511b7fba93a2377358d8601faf54f8d62f5a28f8132f4b979dc2e1e86",
+      "eventId": "stdout.1",
+      "kind": "stdout",
+      "occurredAt": "2026-08-05T08:16:39.729117Z",
+      "previousEventHash": "sha256:39e395411098e8557bf1d43e2ed173c71eea766614df244357059f32451522a0",
+      "runId": "ab952fe2-13f4-4eaf-9b20-3a09b564dbcf",
+      "schemaVersion": "1",
+      "sequence": 3
+    },
+    {
+      "chunk": "Error opening /private/var/select/sh: Operation not permitted\nxcode-select: error: unable to read data link at '/var/select/developer_dir', expected symbolic link (Operation not permitted)\n",
+      "eventHash": "sha256:46c6937bb33c7dfa3a547b5d74555405b7ece42fe9753f27352ef9ad5ad3d680",
+      "eventId": "stderr.1",
+      "kind": "stderr",
+      "occurredAt": "2026-08-05T08:16:39.729117Z",
+      "previousEventHash": "sha256:b0f98b3511b7fba93a2377358d8601faf54f8d62f5a28f8132f4b979dc2e1e86",
+      "runId": "ab952fe2-13f4-4eaf-9b20-3a09b564dbcf",
+      "schemaVersion": "1",
+      "sequence": 4
+    },
+    {
+      "eventHash": "sha256:74dfa869d8960b5bffc69a4be765ce45e6100e57cb7862834ec2baba8deb5265",
+      "eventId": "run.completed",
+      "kind": "completed",
+      "occurredAt": "2026-08-05T08:16:39.729117Z",
+      "previousEventHash": "sha256:46c6937bb33c7dfa3a547b5d74555405b7ece42fe9753f27352ef9ad5ad3d680",
+      "receiptHash": "sha256:996f202a80069779b139215bea81751e6e93a2a4e9af00521733e93d3fccc14a",
+      "runId": "ab952fe2-13f4-4eaf-9b20-3a09b564dbcf",
+      "schemaVersion": "1",
+      "sequence": 5,
+      "state": "succeeded"
+    }
+  ],
+  "privateIdentityArchived": false,
+  "protocolVersion": "2025-06-18",
+  "resumedEvents": [
+    {
+      "eventHash": "sha256:39e395411098e8557bf1d43e2ed173c71eea766614df244357059f32451522a0",
+      "eventId": "run.started",
+      "kind": "started",
+      "occurredAt": "2026-08-05T08:16:39.301926Z",
+      "previousEventHash": "sha256:1d28e560df04bead2abfbdd285e30eb088ec763a9aa1ec6df67d193a51aac4cb",
+      "runId": "ab952fe2-13f4-4eaf-9b20-3a09b564dbcf",
+      "schemaVersion": "1",
+      "sequence": 2
+    },
+    {
+      "chunk": "{\"answer\": 42, \"surface\": \"mcp\"}\n",
+      "eventHash": "sha256:b0f98b3511b7fba93a2377358d8601faf54f8d62f5a28f8132f4b979dc2e1e86",
+      "eventId": "stdout.1",
+      "kind": "stdout",
+      "occurredAt": "2026-08-05T08:16:39.729117Z",
+      "previousEventHash": "sha256:39e395411098e8557bf1d43e2ed173c71eea766614df244357059f32451522a0",
+      "runId": "ab952fe2-13f4-4eaf-9b20-3a09b564dbcf",
+      "schemaVersion": "1",
+      "sequence": 3
+    },
+    {
+      "chunk": "Error opening /private/var/select/sh: Operation not permitted\nxcode-select: error: unable to read data link at '/var/select/developer_dir', expected symbolic link (Operation not permitted)\n",
+      "eventHash": "sha256:46c6937bb33c7dfa3a547b5d74555405b7ece42fe9753f27352ef9ad5ad3d680",
+      "eventId": "stderr.1",
+      "kind": "stderr",
+      "occurredAt": "2026-08-05T08:16:39.729117Z",
+      "previousEventHash": "sha256:b0f98b3511b7fba93a2377358d8601faf54f8d62f5a28f8132f4b979dc2e1e86",
+      "runId": "ab952fe2-13f4-4eaf-9b20-3a09b564dbcf",
+      "schemaVersion": "1",
+      "sequence": 4
+    },
+    {
+      "eventHash": "sha256:74dfa869d8960b5bffc69a4be765ce45e6100e57cb7862834ec2baba8deb5265",
+      "eventId": "run.completed",
+      "kind": "completed",
+      "occurredAt": "2026-08-05T08:16:39.729117Z",
+      "previousEventHash": "sha256:46c6937bb33c7dfa3a547b5d74555405b7ece42fe9753f27352ef9ad5ad3d680",
+      "receiptHash": "sha256:996f202a80069779b139215bea81751e6e93a2a4e9af00521733e93d3fccc14a",
+      "runId": "ab952fe2-13f4-4eaf-9b20-3a09b564dbcf",
+      "schemaVersion": "1",
+      "sequence": 5,
+      "state": "succeeded"
+    }
+  ],
+  "run": {
+    "receipt": {
+      "backend": "seatbelt",
+      "codeHash": "sha256:59fe56d2e0de1694e931403d9bc911886f180dd2724e4497c8be55e3fd0ed641",
+      "envHash": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "evidenceClass": "attested",
+      "executingDevice": {
+        "keyId": "ed25519:815978916507907a0649397895d70518e6a87bac6e9a6280581d85246e1c5ea0",
+        "platform": "macos-x86_64",
+        "sigAlg": "ed25519"
+      },
+      "exit": {
+        "status": 0
+      },
+      "finishedAt": "2026-08-05T08:16:39.729117Z",
+      "grants": [],
+      "inputSetHash": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "outputs": {
+        "artifacts": [
+          {
+            "hash": "sha256:68d7c5fe799d692ccb548df2e0fbabcd0566148e5665692753cd4fbb32e695cf",
+            "path": "outputs/mcp-result.json",
+            "sizeBytes": 32
+          }
+        ],
+        "stderr": "sha256:2d750a1402b0e7cdbbe3cdb19ba8bf154bb1c88d48961b9ae17f15fa73a2bcc6",
+        "stdout": "sha256:cad7ce180f8d3443886c36567c01acbdea5beee59f3e8a9142b0c9d9c6a726be"
+      },
+      "requestHash": "sha256:968d2a07c614acdaf644d3ed6b371dbfe637cc823966c6773eb156bc3a2c6c84",
+      "runId": "ab952fe2-13f4-4eaf-9b20-3a09b564dbcf",
+      "sandboxProfileHash": "sha256:e15673c14660c241d6aece9b757b9d21b5475fc049cb37aa6cfec3e59f142d24",
+      "schemaVersion": "1",
+      "signature": "TBSquVolK9MI0RIXW7DJV5E_rAGVxzZC02-sBUj759PME57ZAKCePe_2Ou9Wl-tie8jznJSO-M4bUJXNSHXBBw",
+      "startedAt": "2026-08-05T08:16:39.385330Z",
+      "state": "succeeded",
+      "tier": "p",
+      "toolchainHash": "sha256:179301dcb41ea78accc3fa0048a7e6f6710d891945a751a34addd622020c1818",
+      "usage": {
+        "cpuMs": 70,
+        "fuelConsumed": 0,
+        "peakMemMb": 11,
+        "wallClockMs": 343
+      }
+    },
+    "replayed": false,
+    "requestHash": "sha256:968d2a07c614acdaf644d3ed6b371dbfe637cc823966c6773eb156bc3a2c6c84",
+    "requestId": "c584099e-438e-46ef-8770-7fc95d764239",
+    "runId": "ab952fe2-13f4-4eaf-9b20-3a09b564dbcf",
+    "state": "succeeded"
+  },
+  "serverInfo": {
+    "name": "prometheus-exec",
+    "version": "1.7.0"
+  },
+  "surface": "real-rmcp-stdio",
+  "tools": [
+    "exec-artifact",
+    "exec-events",
+    "exec-receipt",
+    "exec-run",
+    "exec-status",
+    "exec-verify"
+  ],
+  "verification": {
+    "checks": [
+      {
+        "code": "receipt.invariants",
+        "message": "receipt semantic invariants are valid"
+      },
+      {
+        "code": "receipt.signature",
+        "message": "receipt signature and key identity are valid"
+      }
+    ],
+    "failures": [],
+    "receiptHash": "sha256:996f202a80069779b139215bea81751e6e93a2a4e9af00521733e93d3fccc14a",
+    "valid": true
+  }
+}
