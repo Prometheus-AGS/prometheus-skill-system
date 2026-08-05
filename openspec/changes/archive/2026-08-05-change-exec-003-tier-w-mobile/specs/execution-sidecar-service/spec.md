@@ -3,12 +3,20 @@
 ### Requirement: REST and event retrieval
 The sidecar SHALL expose Tier P and Tier W run creation, run status, resumable ordered events, terminal receipt retrieval, artifact retrieval, verified-replay results, `/health`, and `/ready` through versioned APIs backed by the same service layer.
 
+#### Scenario: Event resume
+- **WHEN** a client reconnects with `after=<sequence>`
+- **THEN** it receives only later events in strictly increasing sequence order
+
 #### Scenario: Tier W event resume
 - **WHEN** a Tier W client reconnects with `after=<sequence>`
 - **THEN** it receives only later events in strictly increasing sequence order from the same durable lifecycle used by Tier P
 
 ### Requirement: Non-mutating doctor
 `prometheus-exec doctor` SHALL inspect binary identity, socket permissions, peer credentials, key availability, Tier P and Tier W backend availability, component trust state, state reconciliation, CAS, and readiness without installing, starting, stopping, compiling components, or rewriting service state.
+
+#### Scenario: Missing Seatbelt binary
+- **WHEN** doctor runs on macOS without the configured sandbox executable
+- **THEN** it reports Tier P unavailable and exits non-zero without attempting repair
 
 #### Scenario: Pulley unavailable in mobile profile
 - **WHEN** doctor inspects a mobile build without the required Pulley backend

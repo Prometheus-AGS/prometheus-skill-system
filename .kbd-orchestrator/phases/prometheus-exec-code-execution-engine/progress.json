@@ -8,13 +8,13 @@
   "execute_complete": false,
   "reflect_complete": false,
   "implementation_total": 4,
-  "implementation_completed": 2,
+  "implementation_completed": 3,
   "changes_total": 4,
-  "changes_completed": 2,
+  "changes_completed": 3,
   "completion": {
     "primaryCounter": "implementation",
     "implementation": {
-      "completed": 2,
+      "completed": 3,
       "total": 4,
       "status": "PENDING"
     },
@@ -36,9 +36,10 @@
   },
   "completed_changes": [
     "change-exec-001-contracts-verification",
-    "change-exec-002-tier-p-sidecar"
+    "change-exec-002-tier-p-sidecar",
+    "change-exec-003-tier-w-mobile"
   ],
-  "active_change": "change-exec-003-tier-w-mobile",
+  "active_change": "change-exec-004-remote-mcp-docs",
   "blocked_changes": [],
   "changes": [
     {
@@ -53,7 +54,7 @@
     },
     {
       "id": "change-exec-003-tier-w-mobile",
-      "status": "pending",
+      "status": "completed",
       "tasks_done": 18,
       "tasks_total": 18
     },

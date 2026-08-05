@@ -70,7 +70,7 @@ PROGRESS LEDGER
 
 - [DONE] change-exec-001-contracts-verification — OpenSpec/kbd-apply-equivalent task ledger, local commit 632981a
 - [DONE] change-exec-002-tier-p-sidecar — OpenSpec through kbd-apply, implementation commit `1b8d905`, 86 local tests and three Linux-musl cross-Clippy gates passing
-- [PENDING] change-exec-003-tier-w-mobile — OpenSpec through kbd-apply
+- [DONE] change-exec-003-tier-w-mobile — OpenSpec through kbd-apply, implementation commit `e929449`, 130 local tests, deterministic FRB dispatcher, signed replay evidence, and distinct-model review passing; mobile release size and physical-device evidence remain explicitly pending
 - [PENDING] change-exec-004-remote-mcp-docs — OpenSpec through kbd-apply
 
 OUTPUTS
@@ -79,7 +79,7 @@ OUTPUTS
 
 BLOCKERS
 
-- NONE for change 002 on the certified macOS host. Linux kernel runtime certification is evidence-pending and Windows Tier P is unavailable by design; neither is represented as green.
+- NONE for completed desktop Tier P and Tier W work on the certified macOS host. Linux kernel runtime certification, Windows Tier P, the mobile 12 MiB size gate, and physical-device evidence remain unavailable or pending as recorded; none is represented as green.
 
 REFLECTION HANDOFF
 
