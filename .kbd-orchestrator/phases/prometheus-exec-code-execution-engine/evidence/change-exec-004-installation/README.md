@@ -6,9 +6,9 @@ KBD-backed memory, and Sovereign Sync were not invoked.
 
 ## Certified source
 
-- Final product commit: `9c24a299a37db31d292fb72f9e15ed42199bc935`
+- Final product commit: `147b4a6c8835449f1612d62c6fa46dec698865aa`
 - Root merge commit: `477c39bd20e666780d264c1eeadbf405e81ad8ab`
-- Prometheus Exec tested implementation commit: `d5caec468ce75db58649538557efcd287b98f3d8`
+- Prometheus Exec tested implementation commit: `dfe04fbf6769fb77bbd718cfd6998cf93fe581f3`
 - Knowledge pin: `cea7b9063bd0c8b2fe4c2a59f04e5e1eee87d844`
 - Memory pin: `c8719ace0b8d778acb590250301d541ebae6c3c2`
 - The main merge preserved the previously certified execution Rust tree.
@@ -32,13 +32,14 @@ the same Memory binary independently could produce different installed bytes.
 ## Runtime and distribution
 
 - Prometheus Exec LaunchAgent is loaded, its owner-only Unix socket is mode
-  `0600`, same-UID health succeeds, and all 13 focused doctor checks pass.
+  `0600`, same-UID health succeeds, and all 14 focused doctor checks pass,
+  including explicit LaunchAgent loaded-state verification.
 - Surreal Memory reports full ledger, tokenizer, model-executor, search-index,
   ingestion, and search readiness.
 - The learning worker has zero pending, processing, retry, submitting,
   accepted, rejected, or dead-letter records and 11 terminal memory receipts.
 - Signed generation
-  `42384cb9bdab259bb4b0f324cb0670b5158541f76f63912fde3038155642913a`
+  `778d405f6d4157c921c37c27070e4f3839fb6bdaee1ea6cae516c797848e439f`
   was produced from a clean detached worktree at the final product commit.
 - Bundle
   `19bdc79888062f3a07a2ef2dc9cb52b307f1554914955ce701400cfc1b743e2b`
@@ -70,7 +71,7 @@ the same Memory binary independently could produce different installed bytes.
   3 optional skips.
 - Canonical root doctor fix and refresh modes were run with `--dry-run`;
   both returned no required failures and made no changes.
-- Focused `prometheus-exec doctor --format json`: healthy, 13/13 required
+- Focused `prometheus-exec doctor --format json`: healthy, 14/14 required
   checks pass.
 
 Every doctor invocation excluded these scopes before check construction:

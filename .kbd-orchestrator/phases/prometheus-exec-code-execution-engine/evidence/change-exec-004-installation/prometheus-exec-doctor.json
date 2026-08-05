@@ -12,7 +12,7 @@
       "name": "binary-identity",
       "status": "pass",
       "required": true,
-      "detail": "prometheus-exec 1.7.0 sha256:f756328e3a86385e3d1ca11ace93badd7248b7394f42a170456dc4b987603afe"
+      "detail": "prometheus-exec 1.7.0 sha256:a6b6d50b5e090cc9ea2c95798fdb4bbb8779ac4961fb338da9c180a2bd04ce91"
     },
     {
       "name": "receipt-identity",
@@ -25,6 +25,12 @@
       "status": "pass",
       "required": true,
       "detail": "/Users/gqadonis/Library/LaunchAgents/ai.prometheus.exec.plist verifies as sha256:0db5e62850c6e82b8b1554771d0fb22958c42af1833b9fdd4734619ac8b1898f"
+    },
+    {
+      "name": "service-loaded-state",
+      "status": "pass",
+      "required": true,
+      "detail": "ai.prometheus.exec is loaded in gui/501"
     },
     {
       "name": "socket-permissions",
@@ -60,7 +66,7 @@
       "name": "tier-w-trust",
       "status": "pass",
       "required": true,
-      "detail": "active signed generation 42384cb9bdab259bb4b0f324cb0670b5158541f76f63912fde3038155642913a verifies 1 component(s)"
+      "detail": "active signed generation 778d405f6d4157c921c37c27070e4f3839fb6bdaee1ea6cae516c797848e439f verifies 1 component(s)"
     },
     {
       "name": "state-reconciliation",
