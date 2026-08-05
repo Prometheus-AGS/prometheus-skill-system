@@ -33,7 +33,11 @@ pub struct LocalExecutionSubmission {
 pub trait LocalExecutionHandoff: Send + Sync {
     async fn submit(&self, dispatch: &SignedRemoteDispatch) -> Result<LocalExecutionSubmission>;
 
-    async fn status(
+    /// Wait for the durable local run to reach a terminal state within the
+    /// adapter's request-derived bound. A timeout or still-running result must
+    /// be returned as an error so the target retains its `Running` record for
+    /// later reconciliation instead of emitting an invalid terminal response.
+    async fn await_terminal(
         &self,
         dispatch: &SignedRemoteDispatch,
         run_id: Uuid,
@@ -152,11 +156,17 @@ where
         })?;
         let outcome = self
             .executor
-            .status(&dispatch, run_id)
+            .await_terminal(&dispatch, run_id)
             .await
             .map_err(|error| {
                 RemoteError::Execution(format!("{}: {error}", dispatch.dispatch_id))
             })?;
+        if !outcome.state.is_terminal() {
+            return Err(RemoteError::Execution(format!(
+                "{}: local terminal wait returned nonterminal state {:?}",
+                dispatch.dispatch_id, outcome.state
+            )));
+        }
         if outcome
             .run_id
             .is_some_and(|outcome_id| outcome_id != run_id)
@@ -374,7 +384,7 @@ mod tests {
             })
         }
 
-        async fn status(
+        async fn await_terminal(
             &self,
             dispatch: &SignedRemoteDispatch,
             run_id: Uuid,

@@ -1,0 +1,17 @@
+{
+  "mode": "diff",
+  "verdict": "BLOCK",
+  "judge_model": "MiniMax-M3",
+  "producer_model": "gpt-5.6-sol",
+  "isolation_mode": "rest-gateway:http://localhost:8181/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": "substrate/exec-remote/src/transport.rs",
+      "claim": "Remote target reconciliation cannot preserve a still-running durable local run; a nonterminal `status` result is converted into an invalid peer response instead of a running per-peer state.",
+      "evidence": "Acceptance criterion `execution-remote-dispatch` requires aggregates to preserve `running` target state, and the remediation contract splits `submit`/`status` so duplicate `Running` delivery polls the stored run ID. In `RemoteTarget::receive`, after a record is `Running`, `executor.status(&dispatch, run_id)` is called and its `outcome.state` is immediately passed to `queue.transition(...)` and then `response_from_record(...)`; however `SignedPeerDispatchResponse::validate` rejects any nonterminal state with `if !self.state.is_terminal() { return Err(... \"peer response must carry a terminal state\") }`, and `validate_transition` does not allow `Running -> Running`.",
+      "suggested_fix": "Represent nonterminal status separately: if `status` returns `Running`, leave the durable record running and return a nonterminal status/aggregate response rather than signing a terminal `SignedPeerDispatchResponse`; alternatively poll to a bounded terminal result before constructing a peer response."
+    }
+  ]
+}

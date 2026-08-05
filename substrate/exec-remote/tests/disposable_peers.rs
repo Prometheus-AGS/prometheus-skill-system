@@ -113,7 +113,7 @@ impl LocalExecutionHandoff for CountingExecutor {
         })
     }
 
-    async fn status(
+    async fn await_terminal(
         &self,
         dispatch: &SignedRemoteDispatch,
         run_id: Uuid,
@@ -159,6 +159,33 @@ impl LocalExecutionHandoff for CountingExecutor {
             state: PeerDispatchState::Applied,
             run_id: Some(run_id),
             receipt: Some(receipt),
+            failure: None,
+        })
+    }
+}
+
+struct StillRunningExecutor {
+    submissions: Arc<AtomicUsize>,
+}
+
+#[async_trait]
+impl LocalExecutionHandoff for StillRunningExecutor {
+    async fn submit(&self, _dispatch: &SignedRemoteDispatch) -> Result<LocalExecutionSubmission> {
+        self.submissions.fetch_add(1, Ordering::SeqCst);
+        Ok(LocalExecutionSubmission {
+            run_id: Uuid::new_v4(),
+        })
+    }
+
+    async fn await_terminal(
+        &self,
+        _dispatch: &SignedRemoteDispatch,
+        run_id: Uuid,
+    ) -> Result<LocalExecutionOutcome> {
+        Ok(LocalExecutionOutcome {
+            state: PeerDispatchState::Running,
+            run_id: Some(run_id),
+            receipt: None,
             failure: None,
         })
     }
@@ -300,6 +327,59 @@ fn duplicate_running_delivery_polls_the_durable_run_without_resubmitting() {
             .state,
         PeerDispatchState::Applied
     );
+}
+
+#[test]
+fn premature_terminal_wait_keeps_the_durable_run_reconcilable() {
+    let (dispatch, enrollment, _, target_key) = fixture();
+    let target_dir = tempdir().unwrap();
+    let queue = DispatchQueue::open(target_dir.path()).unwrap();
+    queue
+        .accept_at_target(dispatch.clone(), &enrollment, dispatch.issued_at)
+        .unwrap();
+    queue
+        .transition(
+            dispatch.dispatch_id,
+            PeerDispatchState::Received,
+            None,
+            None,
+            None,
+            dispatch.issued_at,
+        )
+        .unwrap();
+    let run_id = Uuid::new_v4();
+    queue
+        .transition(
+            dispatch.dispatch_id,
+            PeerDispatchState::Running,
+            Some(run_id),
+            None,
+            None,
+            dispatch.issued_at,
+        )
+        .unwrap();
+    let submissions = Arc::new(AtomicUsize::new(0));
+    let target = RemoteTarget::new(
+        TARGET,
+        queue.clone(),
+        enrollment,
+        target_key,
+        Arc::new(StillRunningExecutor {
+            submissions: submissions.clone(),
+        }),
+    )
+    .unwrap();
+
+    let error = futures::executor::block_on(target.receive(dispatch.clone(), Utc::now()))
+        .expect_err("nonterminal wait must not be signed as a terminal peer response");
+
+    assert!(
+        matches!(error, RemoteError::Execution(message) if message.contains("nonterminal state Running"))
+    );
+    let durable = queue.get(dispatch.dispatch_id).unwrap().unwrap();
+    assert_eq!(durable.state, PeerDispatchState::Running);
+    assert_eq!(durable.run_id, Some(run_id));
+    assert_eq!(submissions.load(Ordering::SeqCst), 0);
 }
 
 #[test]

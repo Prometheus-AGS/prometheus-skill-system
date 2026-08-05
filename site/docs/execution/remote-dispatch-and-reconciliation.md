@@ -33,7 +33,7 @@ The enrollment snapshot contains public endpoint/key bindings only. The remote k
 
 ## Durable per-target state
 
-Origin and target queues are private, immutable, and hash-linked. A target persists accepted or rejected state before returning acknowledgement. Expired work becomes a terminal rejection; it does not disappear. Accepted work is submitted once through the local execution facade, so the target's normal request ledger prevents re-execution.
+Origin and target queues are private, immutable, and hash-linked. A target persists accepted or rejected state before returning acknowledgement. Expired work becomes a terminal rejection; it does not disappear. Accepted work is submitted once through the local execution facade, and the resulting durable local `runId` is recorded before a bounded terminal wait. A duplicate `Running` delivery polls that same run instead of submitting again. If the wait returns early, the target keeps the `Running` record for later reconciliation and emits no invalid terminal receipt.
 
 The origin verifies the enrolled target signature before storing a peer response. Aggregate state is derived from target records and may contain a mix of received, running, applied, rejected, expired, unavailable, or pending-evidence targets. The aggregate never replaces peer receipts with a synthetic success.
 
