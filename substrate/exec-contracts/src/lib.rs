@@ -5,6 +5,7 @@
 //! independently verifiable when exported from the Prometheus estate.
 
 mod canonical;
+mod certification;
 mod crypto;
 mod error;
 mod evidence;
@@ -14,6 +15,9 @@ mod schema;
 mod verify;
 
 pub use canonical::{canonical_bytes, canonical_bytes_without, hash_bytes, hash_serializable};
+pub use certification::{
+    CertificationEvidence, EvidenceDimension, EvidenceStatus, ExecutionCertificationReport,
+};
 pub use crypto::{
     key_id, sign_receipt_ed25519, sign_receipt_p256, sign_request_ed25519, sign_request_p256,
     verify_receipt_signature, verify_request_signature, VerificationKey,

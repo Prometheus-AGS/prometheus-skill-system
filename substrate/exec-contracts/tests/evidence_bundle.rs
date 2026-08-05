@@ -102,6 +102,9 @@ fn bundle() -> (tempfile::TempDir, ExecutionEvidenceIndex) {
     let public = key.verifying_key().to_bytes();
     let index = ExecutionEvidenceIndex {
         schema_version: SCHEMA_VERSION.into(),
+        requirement_id: "exec.portable-evidence".into(),
+        run_id,
+        environment: "fixture-offline".into(),
         receipt: indexed("receipt.json", &receipt_bytes),
         request: indexed("request.json", &request_bytes),
         verification_identity: EvidenceIdentity {

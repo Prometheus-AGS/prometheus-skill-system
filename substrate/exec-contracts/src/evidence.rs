@@ -6,6 +6,7 @@ use std::{
 
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
+use uuid::Uuid;
 
 use crate::{
     hash_bytes, verify_receipt, Digest, ExecutionReceipt, SignatureAlgorithm, SignedExecRequest,
@@ -45,6 +46,9 @@ pub struct ArtifactEvidence {
 #[serde(rename_all = "camelCase")]
 pub struct ExecutionEvidenceIndex {
     pub schema_version: String,
+    pub requirement_id: String,
+    pub run_id: Uuid,
+    pub environment: String,
     pub receipt: EvidenceFile,
     pub request: EvidenceFile,
     pub verification_identity: EvidenceIdentity,
@@ -61,6 +65,9 @@ impl ExecutionEvidenceIndex {
                 "unsupported execution-evidence schema: {}",
                 self.schema_version
             ));
+        }
+        if self.requirement_id.trim().is_empty() || self.environment.trim().is_empty() {
+            return Err("requirement ID and environment must be present".into());
         }
         let mut paths = BTreeSet::new();
         for file in self.files() {
@@ -217,6 +224,15 @@ pub fn verify_evidence_bundle(
                 failure.subject,
             );
         }
+    }
+    if receipt.run_id == index.run_id {
+        result.check("run.id", "index run ID matches the signed receipt");
+    } else {
+        result.fail(
+            "run.id",
+            "index run ID does not match the signed receipt",
+            Some(index.run_id.to_string()),
+        );
     }
 
     for artifact in &receipt.outputs.artifacts {

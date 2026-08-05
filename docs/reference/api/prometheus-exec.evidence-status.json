@@ -1,0 +1,71 @@
+{
+  "schemaVersion": "1",
+  "release": "1.7.0",
+  "requirements": {
+    "artifact-source": {
+      "requirementId": "artifact-source",
+      "dimension": "artifact_source",
+      "status": "completed",
+      "environment": "macos-x86_64-disposable",
+      "evidenceProperties": {
+        "sourceHash": "sha256:1111111111111111111111111111111111111111111111111111111111111111"
+      },
+      "bundleIndexHash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "producerMethod": "prometheus-exec"
+    },
+    "disposable-runtime": {
+      "requirementId": "disposable-runtime",
+      "dimension": "disposable_runtime",
+      "status": "completed",
+      "environment": "macos-x86_64-disposable",
+      "evidenceProperties": {
+        "receiptHash": "sha256:2222222222222222222222222222222222222222222222222222222222222222"
+      },
+      "bundleIndexHash": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "producerMethod": "prometheus-exec"
+    },
+    "installed-host": {
+      "requirementId": "installed-host",
+      "dimension": "installed_host",
+      "status": "completed",
+      "environment": "macos-x86_64-disposable",
+      "evidenceProperties": {
+        "binaryHash": "sha256:3333333333333333333333333333333333333333333333333333333333333333"
+      },
+      "bundleIndexHash": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "producerMethod": "prometheus-exec"
+    },
+    "judge-review": {
+      "requirementId": "judge-review",
+      "dimension": "judge_review",
+      "status": "pending_review",
+      "environment": "release-1.7.0",
+      "evidenceProperties": {},
+      "disposition": "distinct judge is temporarily unavailable"
+    },
+    "mobile-size": {
+      "requirementId": "mobile-size",
+      "dimension": "mobile_size",
+      "status": "blocked",
+      "environment": "release-1.7.0",
+      "evidenceProperties": {},
+      "disposition": "measured iOS and Android deltas exceed the 12 MiB gate"
+    },
+    "physical-device": {
+      "requirementId": "physical-device",
+      "dimension": "physical_device",
+      "status": "pending_evidence",
+      "environment": "release-1.7.0",
+      "evidenceProperties": {},
+      "disposition": "no usable physical iOS or Android device is connected"
+    },
+    "remote-deployment": {
+      "requirementId": "remote-deployment",
+      "dimension": "remote_deployment",
+      "status": "pending_evidence",
+      "environment": "release-1.7.0",
+      "evidenceProperties": {},
+      "disposition": "protocol kernel is disposable-runtime certified; production transport is not deployed"
+    }
+  }
+}
