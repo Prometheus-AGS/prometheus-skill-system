@@ -127,6 +127,15 @@ const requiredSidebars = {
     'operations/doctors-and-mac-certification',
     'operations/logs-recovery-and-failures',
   ],
+  executionSidebar: [
+    'execution/overview-and-use-cases',
+    'execution/architecture-and-tiers',
+    'execution/local-api-cli-and-mcp',
+    'execution/remote-dispatch-and-reconciliation',
+    'execution/receipts-verification-and-certification',
+    'execution/installation-doctor-and-recovery',
+    'execution/platform-and-evidence-status',
+  ],
   kbdSidebar: [
     'kbd/operator-controls',
     'kbd/checkpoints-compaction-recovery',
@@ -180,6 +189,7 @@ const driftFiles = [
     'kbd',
     'sovereign-sync',
     'mobile',
+    'execution',
   ].flatMap(directory => markdownFiles(path.join(siteRoot, 'docs', directory))),
   ...['kbd-runtime.md', 'learner-model.md'].map(name =>
     path.join(siteRoot, 'docs/substrate', name)

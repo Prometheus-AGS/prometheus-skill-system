@@ -25,7 +25,7 @@
 ## 5. Canonical APIs and documentation
 
 - [x] 5.1 Extend OpenAPI, generated request/receipt/MCP references, CLI/config tables, platform/evidence status, component hash, target count, and release drift contracts
-- [ ] 5.2 Add the canonical Docusaurus Execution section with local/remote use cases, architecture, APIs, receipts, certification, operations, platform status, and parser-checked Mermaid diagrams
+- [x] 5.2 Add the canonical Docusaurus Execution section with local/remote use cases, architecture, APIs, receipts, certification, operations, platform status, and parser-checked Mermaid diagrams
 - [ ] 5.3 Update the numbered guide, crate READMEs, installation/troubleshooting references, and ADRs for evidence-producing execution, two-tier sandboxing, three-form deployment, and method independence
 
 ## 6. Local certification and phase completion
