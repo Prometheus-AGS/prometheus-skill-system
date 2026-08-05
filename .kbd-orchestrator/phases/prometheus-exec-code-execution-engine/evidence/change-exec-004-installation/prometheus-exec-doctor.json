@@ -1,0 +1,90 @@
+{
+  "healthy": true,
+  "version": "1.7.0",
+  "excluded": [
+    "control.kbd-runtime",
+    "state.kbd-orchestrator",
+    "control.kbd-rollout",
+    "service:sovereign-sync"
+  ],
+  "checks": [
+    {
+      "name": "binary-identity",
+      "status": "pass",
+      "required": true,
+      "detail": "prometheus-exec 1.7.0 sha256:3427774f8cc8cad6076be5aeb23aef9911d767f9072367b768fd830ce3292e05"
+    },
+    {
+      "name": "receipt-identity",
+      "status": "pass",
+      "required": true,
+      "detail": "ed25519:2253d7021a3e014af60a77e2592ddbb8017197e2b1a1b9348f82ab8c7beace72 is internally consistent"
+    },
+    {
+      "name": "service-definition",
+      "status": "pass",
+      "required": true,
+      "detail": "<home>/Library/LaunchAgents/ai.prometheus.exec.plist verifies as sha256:0db5e62850c6e82b8b1554771d0fb22958c42af1833b9fdd4734619ac8b1898f"
+    },
+    {
+      "name": "socket-permissions",
+      "status": "pass",
+      "required": true,
+      "detail": "<home>/.prometheus/run/prometheus-exec.sock is a mode-0600 Unix socket"
+    },
+    {
+      "name": "socket-peer-health",
+      "status": "pass",
+      "required": true,
+      "detail": "same-UID /health request succeeded"
+    },
+    {
+      "name": "readiness",
+      "status": "pass",
+      "required": true,
+      "detail": "all required subsystems are ready"
+    },
+    {
+      "name": "tier-p-backend",
+      "status": "pass",
+      "required": true,
+      "detail": "macOS Seatbelt launcher and runtimes are available"
+    },
+    {
+      "name": "tier-w-backend",
+      "status": "pass",
+      "required": true,
+      "detail": "Wasmtime 46 cranelift backend is available for desktop without compiling guest bytes"
+    },
+    {
+      "name": "tier-w-trust",
+      "status": "pass",
+      "required": true,
+      "detail": "active signed generation 5a5d675963ae2b4b33b81868a88663f7e6efd92008daef083511f08981005873 verifies 1 component(s)"
+    },
+    {
+      "name": "state-reconciliation",
+      "status": "pass",
+      "required": true,
+      "detail": "0 records are structurally valid; 0 are in flight"
+    },
+    {
+      "name": "receipt-reconciliation",
+      "status": "pass",
+      "required": true,
+      "detail": "0 signed receipt(s) reconcile with 0 run record(s)"
+    },
+    {
+      "name": "artifact-cas",
+      "status": "pass",
+      "required": true,
+      "detail": "0 content-addressed blobs verify and reconcile with 0 run record(s)"
+    },
+    {
+      "name": "mcp-schema",
+      "status": "pass",
+      "required": true,
+      "detail": "compiled and checked tool contracts agree at sha256:e6c459fd475fd429a262bec7e127c418f354d293b62ca778f894b33c47a69f2f"
+    }
+  ]
+}

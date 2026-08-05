@@ -1,0 +1,139 @@
+{
+  "summary": {
+    "failed": 0,
+    "warned": 1,
+    "passed": 12,
+    "skipped": 3,
+    "exit_code": 0
+  },
+  "checks": [
+    {
+      "id": "skills.directory",
+      "group": "skills",
+      "label": "Skills directory",
+      "severity": "green",
+      "status": "pass",
+      "summary": "skills/ exists"
+    },
+    {
+      "id": "skills.installed-agents",
+      "group": "skills",
+      "label": "Installed agents",
+      "severity": "green",
+      "status": "pass",
+      "summary": "Detected 9 installed agent(s)"
+    },
+    {
+      "id": "learning.surreal-memory",
+      "group": "learning",
+      "label": "Surreal-memory",
+      "severity": "green",
+      "status": "pass",
+      "summary": "Durable operation ledger is ready at http://127.0.0.1:23001"
+    },
+    {
+      "id": "review.judge-gateway",
+      "group": "review",
+      "label": "Adversarial judge gateway",
+      "severity": "green",
+      "status": "pass",
+      "summary": "Reachable at http://localhost:8181/v1"
+    },
+    {
+      "id": "binaries.manifest",
+      "group": "binaries",
+      "label": "Managed binary manifest",
+      "severity": "green",
+      "status": "pass",
+      "summary": "6/6 managed binaries are executable, hashed, and signed"
+    },
+    {
+      "id": "execution.runtime",
+      "group": "execution",
+      "label": "Prometheus Exec runtime",
+      "severity": "green",
+      "status": "pass",
+      "summary": "binary, service, UDS, readiness, trust, receipts, CAS, and MCP schema verify"
+    },
+    {
+      "id": "services.launch-agents",
+      "group": "services",
+      "label": "Managed LaunchAgents",
+      "severity": "green",
+      "status": "pass",
+      "summary": "4/4 deterministic learning services are installed and loaded"
+    },
+    {
+      "id": "learning.worker",
+      "group": "learning",
+      "label": "Asynchronous learning worker",
+      "severity": "green",
+      "status": "pass",
+      "summary": "worker installed, service loaded, jobs 0/0/9/0, memory 0/0/0/11/0, legacy retry/dead 0/0"
+    },
+    {
+      "id": "learning.snapshots",
+      "group": "learning",
+      "label": "Immutable prompt snapshots",
+      "severity": "green",
+      "status": "pass",
+      "summary": "project/shared/global committed snapshot pointers are valid"
+    },
+    {
+      "id": "hooks.rotation",
+      "group": "hooks",
+      "label": "Hook log rotation",
+      "severity": "green",
+      "status": "pass",
+      "summary": "config installed, service loaded, dependencies ready, hook-log mode 0600"
+    },
+    {
+      "id": "mcp.config",
+      "group": "mcp",
+      "label": "Managed MCP configuration",
+      "severity": "yellow",
+      "status": "skip",
+      "summary": "MCP reconciliation checks are not implemented yet"
+    },
+    {
+      "id": "hooks.lifecycle",
+      "group": "hooks",
+      "label": "Lifecycle hooks",
+      "severity": "green",
+      "status": "pass",
+      "summary": "active generation 5a5d675963ae2b4b33b81868a88663f7e6efd92008daef083511f08981005873 passed manifest, dispatcher, and 14-target verification"
+    },
+    {
+      "id": "hooks.harness-adapters",
+      "group": "hooks",
+      "label": "Installed Codex hook graph",
+      "severity": "green",
+      "status": "pass",
+      "summary": "source, immutable generation, bundle index, and Codex cache agree on 30 pinned hooks"
+    },
+    {
+      "id": "skills.discovery-budget",
+      "group": "skills",
+      "label": "Harness instruction discovery budgets",
+      "severity": "yellow",
+      "status": "warn",
+      "summary": "145 skills, 45041 discovery characters, 0/4 measured harnesses"
+    },
+    {
+      "id": "state.evolver",
+      "group": "state",
+      "label": "Evolver state",
+      "severity": "yellow",
+      "status": "skip",
+      "summary": ".evolver is not initialized"
+    },
+    {
+      "id": "learning.trace-store",
+      "group": "learning",
+      "label": "Trace store",
+      "severity": "yellow",
+      "status": "skip",
+      "summary": "No trace store yet"
+    }
+  ]
+}

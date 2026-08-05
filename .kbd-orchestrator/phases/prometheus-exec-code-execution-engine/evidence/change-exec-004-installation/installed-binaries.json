@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "release": "1.7.0",
+  "destinations": [
+    "<home>/.local/bin",
+    "/usr/local/bin"
+  ],
+  "identicalAcrossDestinations": true,
+  "binaries": [
+    {"name":"prometheus","version":"prometheus 1.7.0","buildSha256":"b49a900f60e9e6f66d35ffb161a3cadd0d3a20ebcad95a7046fa3bafdc3a26d7","installedSha256":"1fcd8ff2bdf405aeaaf8f0a941b6c99c3ac0d37b3a75bca6f551db62e2fe3a09","signature":"verified"},
+    {"name":"pk","version":"pk 1.7.0","buildSha256":"264946f730cd1990ad182f15dd25ded478588f224507b7fceba713a9fa3bbcd3","installedSha256":"74e3a63dac407da5dca8d514717c91a7e040243992abf6f053289e3eac6cdb3f","signature":"verified"},
+    {"name":"pk-cherry","version":"pk-cherry 1.7.0","buildSha256":"ae23e0ab8a8fd789e94ba6d17f3924e05a7b44e2f3c4e55ced67a641a6e50dc2","installedSha256":"37986c6346a4a4b41cad78c74163911d5622deca316cebe9222936ca9a226c49","signature":"verified"},
+    {"name":"prometheus-learning-worker","version":"prometheus-learning-worker 1.7.0","buildSha256":"40b875daf4d8baf3bbba8de9bb54bd7c51fbd378ae006bf7b3bf0adc17870cd5","installedSha256":"983d1071ba2ab0513f5a780bddf3c49d8c2d60cf5234a1a9c0f68cb448e1e38e","signature":"verified"},
+    {"name":"surreal-memory-server","version":"surreal-memory-server 1.7.0","buildSha256":"fcb76f81472fabd87c11729fa2165f1ec81ed3a9c86f200a228f156f9a2d0fff","installedSha256":"605450fc12fceda6e6ad9fdcb057086dbd6019775cb2c85ec2fb6abdd5e3f180","signature":"verified","features":["embedded","local-embeddings"],"backend":"cpu"},
+    {"name":"prometheus-exec","version":"prometheus-exec 1.7.0","buildSha256":"b693cd8df48a6b8634bba9c88b9b7da5a871c5ad919eebf351f89719dc59127b","installedSha256":"3427774f8cc8cad6076be5aeb23aef9911d767f9072367b768fd830ce3292e05","signature":"verified"}
+  ]
+}
