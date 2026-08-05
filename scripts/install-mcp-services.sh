@@ -169,6 +169,7 @@ declare -a DAEMON_LABELS=(
     "ai.prometheus.forge-mcp"
     "ai.prometheus.surface-bridge"
     "ai.prometheus.sovereign-sync"
+    "ai.prometheus.liter-llm-api"
 )
 declare -A DAEMON_PORT=(
     [ai.prometheus.surrealdb-native]=28000
@@ -177,6 +178,10 @@ declare -A DAEMON_PORT=(
     [ai.prometheus.forge-mcp]=8943
     [ai.prometheus.surface-bridge]=7890
     [ai.prometheus.sovereign-sync]=7892
+    # liter-llm gateway. Registers the cross-vendor KBD judges (Kimi k3,
+    # MiniMax-M3) that openai-proxy on :8181 does not know about, so
+    # ~/.prometheus/kbd/models.toml probes :4000 FIRST.
+    [ai.prometheus.liter-llm-api]=4000
 )
 declare -A DAEMON_PATH=(
     [ai.prometheus.surrealdb-native]=/health
@@ -185,6 +190,9 @@ declare -A DAEMON_PATH=(
     [ai.prometheus.forge-mcp]=/mcp
     [ai.prometheus.surface-bridge]=/health
     [ai.prometheus.sovereign-sync]=/health
+    # /v1/* is behind an unconditional Bearer check, so an unauthenticated
+    # probe returns 401 — which still proves the listener is up and parsing.
+    [ai.prometheus.liter-llm-api]=/v1/models
 )
 NUDGE_LABEL="ai.prometheus.prometheus-nudge"
 LEARNING_LABEL="ai.prometheus.learning-worker"

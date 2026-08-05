@@ -1,6 +1,12 @@
 # Update Log
 
 ## 2026-08-05
+* **Creation**: [Prometheus Exec Code Execution Engine Completion Record](/prometheus-exec-code-execution-engine-completion-record.md)
+* **Ingest**: [Karpathy session c652a752c817](/karpathy-session-c652a752c817c4f2.md)
+* **Ingest**: [Karpathy session 0d7d746e32cb](/karpathy-session-0d7d746e32cbcb59.md)
+* **Creation**: [Prometheus Exec Code Execution Engine Session Completion](/prometheus-exec-code-execution-engine-session-completion.md)
+* **Ingest**: [Karpathy session b5528fab301c](/karpathy-session-b5528fab301c7430.md)
+* **Ingest**: [Karpathy session 5d9fc7a15de8](/karpathy-session-5d9fc7a15de84d5f.md)
 * **Ingest**: [Karpathy session 78139eae73c6](/karpathy-session-78139eae73c69787.md)
 * **Ingest**: [Karpathy session 6a40b53c8276](/karpathy-session-6a40b53c8276eb94.md)
 * **Ingest**: [Karpathy session 7beb613b7cb8](/karpathy-session-7beb613b7cb8b93a.md)
