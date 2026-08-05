@@ -7,7 +7,7 @@
   "runtimeFiles": [
     {
       "path": "scripts/install-plugin-generation.js",
-      "sha256": "0253fa1692278e0564fcc441c63d65f39dffca9a5f700ce9856aacb70d1bb55b",
+      "sha256": "fe7af92b9ed153411ea3fa058bac33ee297af65cd83ca355d04c682391d18de5",
       "mode": "0755"
     },
     {
@@ -311,5 +311,5 @@
       "mode": "0755"
     }
   ],
-  "bundleId": "037a68d1bd105f609fecc160c32235b33749668443a6690e56e194e3b518e759"
+  "bundleId": "ac153d1ea55ca21fd28cd3332d7b6e0eb6b93c734561efd474b2b8b5dc32aa4e"
 }
