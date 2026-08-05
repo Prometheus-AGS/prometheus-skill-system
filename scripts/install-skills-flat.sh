@@ -36,14 +36,59 @@ install_failure() {
     return 1
 }
 
+# install_substrate_bin <src> <dst> — copy a freshly built binary into place,
+# verify it byte-for-byte, then re-sign it ad-hoc on macOS.
+#
+# Ordering is load-bearing and must not be rearranged:
+#
+#   1. cp     — `-f` because the destination may be a RUNNING daemon
+#               (surface-bridge, sovereign-sync); writing in place fails with
+#               "Text file busy", so unlink-and-recreate is required.
+#   2. verify — hash the copy while it is still byte-identical to the source.
+#               Signing in step 3 mutates the file, so a post-signing compare
+#               would ALWAYS report a mismatch.
+#   3. sign   — `cp` invalidates the code signature of an ad-hoc/linker-signed
+#               arm64 binary. macOS then SIGKILLs (137) any process that execs
+#               it — and, observed on this codebase, even `cmp` reading it.
+#               `codesign --force --sign -` restores a valid ad-hoc signature.
+#
+# Skipping step 3 leaves an unrunnable binary on disk: a live daemon keeps
+# serving from its already-resident image and only dies on next restart, so
+# the breakage surfaces long after the install that caused it.
+install_substrate_bin() {
+    local component="$1" src="$2" dst="$3"
+
+    if ! cp -f "$src" "$dst" 2>/dev/null; then
+        install_failure "$component binary installation"
+        return $?
+    fi
+
+    verify_installed_binary "$component" "$src" "$dst" || return 1
+
+    if [ "$(uname -s)" = "Darwin" ]; then
+        codesign --force --sign - "$dst" >/dev/null 2>&1 || true
+    fi
+    return 0
+}
+
+# Compare by SHA-256 rather than `cmp`. On macOS, `cmp` reading a
+# freshly-copied ad-hoc-signed arm64 binary is SIGKILLed by the OS, which the
+# shell reports as a failed comparison — a false negative that aborts the whole
+# install even though the two files are provably identical. `shasum` reads the
+# same bytes without tripping that enforcement.
 verify_installed_binary() {
     local component="$1"
     local source_path="$2"
     local installed_path="$3"
 
-    if [[ -f "$source_path" && -x "$installed_path" ]] && cmp -s "$source_path" "$installed_path"; then
-        echo "  ✅ $component: installed artifact matches the local release build"
-        return 0
+    if [[ -f "$source_path" && -x "$installed_path" ]]; then
+        local src_hash dst_hash
+        src_hash=$(shasum -a 256 "$source_path" 2>/dev/null | cut -d' ' -f1)
+        dst_hash=$(shasum -a 256 "$installed_path" 2>/dev/null | cut -d' ' -f1)
+        if [[ -n "$src_hash" && "$src_hash" == "$dst_hash" ]]; then
+            echo "  ✅ $component: installed artifact matches the local release build"
+            return 0
+        fi
     fi
     install_failure "$component post-install verification"
 }
@@ -442,14 +487,10 @@ install_learn_substrate() {
         # Install binary to ~/.local/bin
         local bin_dir="$HOME/.local/bin"
         mkdir -p "$bin_dir"
-        if cp -f "$substrate_dir/learner-model/target/release/learner-model" "$bin_dir/learner-model" 2>/dev/null; then
-            echo "  ✅ learn-substrate: learner-model installed to $bin_dir/learner-model"
-            verify_installed_binary "learner-model" \
-                "$substrate_dir/learner-model/target/release/learner-model" \
-                "$bin_dir/learner-model" || return 1
-        else
-            install_failure "learner-model binary installation" || return 1
-        fi
+        install_substrate_bin "learner-model" \
+            "$substrate_dir/learner-model/target/release/learner-model" \
+            "$bin_dir/learner-model" || return 1
+        echo "  ✅ learn-substrate: learner-model installed to $bin_dir/learner-model"
     else
         install_failure "learn-substrate learner-model build" || return 1
     fi
@@ -460,16 +501,9 @@ install_learn_substrate() {
         echo "  ✅ learn-substrate: surface-bridge built"
         local bin_dir="$HOME/.local/bin"
         mkdir -p "$bin_dir"
-        # -f: if the destination is a currently-running binary (e.g. the
-        # live surface-bridge daemon), a plain cp fails with "Text file
-        # busy"; -f unlinks and recreates instead of writing in place.
-        if cp -f "$substrate_dir/surface-bridge/target/release/surface-bridge" "$bin_dir/surface-bridge" 2>/dev/null; then
-            verify_installed_binary "surface-bridge" \
-                "$substrate_dir/surface-bridge/target/release/surface-bridge" \
-                "$bin_dir/surface-bridge" || return 1
-        else
-            install_failure "surface-bridge binary installation" || return 1
-        fi
+        install_substrate_bin "surface-bridge" \
+            "$substrate_dir/surface-bridge/target/release/surface-bridge" \
+            "$bin_dir/surface-bridge" || return 1
         echo "  ℹ️  learn-substrate: run 'npm run install:daemons' to install/start the surface-bridge service (macOS + Linux)"
     else
         install_failure "learn-substrate surface-bridge build" || return 1
@@ -481,14 +515,10 @@ install_learn_substrate() {
         echo "  ✅ learn-substrate: sovereign-sync built"
         local bin_dir="$HOME/.local/bin"
         mkdir -p "$bin_dir"
-        if cp -f "$substrate_dir/sovereign-sync/target/release/sovereign-sync" "$bin_dir/sovereign-sync" 2>/dev/null; then
-            echo "  ✅ learn-substrate: sovereign-sync installed to $bin_dir/sovereign-sync"
-            verify_installed_binary "sovereign-sync" \
-                "$substrate_dir/sovereign-sync/target/release/sovereign-sync" \
-                "$bin_dir/sovereign-sync" || return 1
-        else
-            install_failure "sovereign-sync binary installation" || return 1
-        fi
+        install_substrate_bin "sovereign-sync" \
+            "$substrate_dir/sovereign-sync/target/release/sovereign-sync" \
+            "$bin_dir/sovereign-sync" || return 1
+        echo "  ✅ learn-substrate: sovereign-sync installed to $bin_dir/sovereign-sync"
     else
         install_failure "learn-substrate sovereign-sync build" || return 1
     fi
