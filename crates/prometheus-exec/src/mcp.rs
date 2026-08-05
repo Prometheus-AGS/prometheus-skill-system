@@ -119,8 +119,10 @@ pub struct ExecRunParams {
     #[serde(default)]
     pub inputs: BTreeMap<String, String>,
     #[serde(default = "default_timeout_ms")]
+    #[schemars(range(min = 1))]
     pub timeout_ms: u64,
     #[serde(default = "default_output_mb")]
+    #[schemars(range(min = 1))]
     pub output_mb: u64,
 }
 
@@ -143,6 +145,7 @@ pub struct ExecEventsParams {
 pub struct ExecArtifactParams {
     pub digest: String,
     #[serde(default = "default_inline_ceiling")]
+    #[schemars(range(min = 1))]
     pub inline_ceiling_bytes: usize,
 }
 
@@ -707,10 +710,15 @@ mod tests {
             timeout_ms: 1,
             output_mb: 1,
         };
-        assert!(serde_json::to_value(super::tool_contracts())
-            .expect("contract serializes")
-            .to_string()
-            .contains("exec-run"));
+        let contract = super::tool_contracts();
+        let run = contract["tools"]
+            .as_array()
+            .expect("tool list")
+            .iter()
+            .find(|tool| tool["name"] == "exec-run")
+            .expect("exec-run contract");
+        assert_eq!(run["inputSchema"]["properties"]["timeoutMs"]["minimum"], 1);
+        assert_eq!(run["inputSchema"]["properties"]["outputMb"]["minimum"], 1);
         assert_eq!(valid.timeout_ms, 1);
     }
 

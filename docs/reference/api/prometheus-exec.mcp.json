@@ -43,7 +43,7 @@
           "outputMb": {
             "default": 10,
             "format": "uint64",
-            "minimum": 0,
+            "minimum": 1,
             "type": "integer"
           },
           "requestId": {
@@ -61,7 +61,7 @@
           "timeoutMs": {
             "default": 120000,
             "format": "uint64",
-            "minimum": 0,
+            "minimum": 1,
             "type": "integer"
           }
         },
@@ -197,7 +197,7 @@
           "inlineCeilingBytes": {
             "default": 262144,
             "format": "uint",
-            "minimum": 0,
+            "minimum": 1,
             "type": "integer"
           }
         },
