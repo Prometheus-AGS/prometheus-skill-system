@@ -25,12 +25,38 @@ Trigger on:
 
 ## Prerequisites
 
-A `sovereign-sync` daemon must be running and in `Connected` or `Idle` state.
-Check first:
+A `sovereign-sync` daemon must be running and reporting state `Ready`. That is
+a rollup over the internal `Connected`/`Syncing`/`Idle` P2P states — the REST
+API surfaces only `Ready`, never those three names.
+
+Check health first — this resolves the transport for you and exits nonzero when
+the node is unreachable:
 
 ```bash
-curl -s http://127.0.0.1:7892/health | jq .state
+sovereign-sync --mode status
 ```
+
+Then confirm the state. Note `/health` returns only `{service, status, version}`
+— the state lives on the sync-status endpoint, not on `/health`:
+
+```bash
+curl -s --unix-socket "$SOCK" http://localhost/api/v1/sync/status \
+  | jq '{node_state, transport: .transport.state, peers: (.peers | length)}'
+```
+
+### Transport: Unix socket by default
+
+The daemon listens on a **Unix domain socket**, NOT loopback TCP, so every REST
+call below needs `--unix-socket "$SOCK"`. See [`/sync-status`](../sync-status/SKILL.md)
+for the full transport contract.
+
+```bash
+SOCK="${HOME}/Library/Application Support/prometheus/run/sovereign-sync.sock"  # macOS
+# SOCK="${HOME}/.local/share/prometheus/run/sovereign-sync.sock"               # Linux
+```
+
+Only when the daemon was started with `--tcp` does `http://127.0.0.1:7892`
+apply, and it then also requires the `--token-file` bearer token.
 
 ## Sync domains
 
@@ -49,7 +75,7 @@ the caller requests. This is enforced structurally in `SyncManifest` via
 ### Push skill index
 
 ```bash
-curl -s -X POST http://127.0.0.1:7892/api/v1/sync/push \
+curl -s --unix-socket "$SOCK" -X POST http://localhost/api/v1/sync/push \
   -H 'Content-Type: application/json' \
   -d '{"domain": "skill-index"}' | jq .
 ```
@@ -57,7 +83,7 @@ curl -s -X POST http://127.0.0.1:7892/api/v1/sync/push \
 ### Push learner model
 
 ```bash
-curl -s -X POST http://127.0.0.1:7892/api/v1/sync/push \
+curl -s --unix-socket "$SOCK" -X POST http://localhost/api/v1/sync/push \
   -H 'Content-Type: application/json' \
   -d '{"domain": "learner-model"}' | jq .
 ```
@@ -68,7 +94,7 @@ For interactive harnesses (Claude Code, Tauri apps), stream push progress
 via the AG-UI endpoint:
 
 ```bash
-curl -s -X POST http://127.0.0.1:7892/api/v1/stream \
+curl -s --unix-socket "$SOCK" -X POST http://localhost/api/v1/stream \
   -H 'Content-Type: application/json' \
   -d '{"kind": "SyncPush", "domain": "skill-index"}' \
   --no-buffer

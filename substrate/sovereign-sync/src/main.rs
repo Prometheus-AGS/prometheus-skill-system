@@ -10,11 +10,11 @@ enum Mode {
     Init,
     /// MCP server over stdio — for Claude Code, Kimi, Codex, OpenCode, BossFang
     Mcp,
-    /// Background P2P sync daemon (HTTP on :7892)
+    /// Background P2P sync daemon (HTTP over a Unix socket; --tcp for loopback)
     Daemon,
-    /// Axum HTTP server with REST API + AG-UI SSE
+    /// Axum HTTP server with REST API + AG-UI SSE (Unix socket; --tcp for loopback)
     Server,
-    /// Check daemon health on localhost without starting a server
+    /// Check daemon health over the resolved transport without starting a server
     Status,
     /// Export a redacted-safe pairing ticket to stdout for explicit transfer
     PairExport,
@@ -42,13 +42,20 @@ struct Cli {
     #[arg(long, help = "Path to config.toml")]
     config: Option<PathBuf>,
 
-    #[arg(long, help = "HTTP port (daemon/server modes)", default_value = "7892")]
+    #[arg(
+        long,
+        help = "Loopback TCP port; applies only with --tcp (daemon/server modes)",
+        default_value = "7892"
+    )]
     port: u16,
 
     #[arg(long, help = "Expose loopback TCP instead of the default Unix socket")]
     tcp: bool,
 
-    #[arg(long, help = "Unix socket path (daemon/server modes)")]
+    #[arg(
+        long,
+        help = "Unix socket path; defaults to <data-local-dir>/prometheus/run/sovereign-sync.sock"
+    )]
     socket: Option<PathBuf>,
 
     #[arg(
