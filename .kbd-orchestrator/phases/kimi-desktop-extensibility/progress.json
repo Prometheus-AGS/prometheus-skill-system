@@ -1,6 +1,6 @@
 {
   "phase": "kimi-desktop-extensibility",
-  "updatedAt": "2026-08-05T19:38:28Z",
+  "updatedAt": "2026-08-05T20:00:35Z",
   "completion": {
     "implementation": {
       "completed": 5,
@@ -39,5 +39,12 @@
       "completedAt": "2026-08-05T19:38:28Z",
       "note": "Kimi uses a PER-SKILL cap (LISTING_DESC_MAX=250), not a shared budget \u2014 no curation needed. But 89/145 descriptions (61%) exceed it and are truncated; whenToUse is emitted untruncated and is the escape hatch."
     }
-  ]
+  ],
+  "stage": "reflect_complete",
+  "goals": {
+    "1": "MET",
+    "2": "PARTIAL",
+    "3": "MET",
+    "4": "MET"
+  }
 }

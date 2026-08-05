@@ -55,7 +55,7 @@ Ranked by whether the pack should adopt them.
 `"skills": "./skills/"` names a directory, so one package carries the whole pack.
 Already implemented in commit `751ff48`: 145 skills installed and verified.
 
-### E2 — `mcpServers` — ADOPT NEXT (highest value remaining)
+### E2 — `mcpServers` — **ADOPTED, shipping** (kde-001)
 
 Used by 4 of 12 vendor packages (`github`, `cloudflare`, `supabase`, `kimi-cu`).
 Reuses the standard MCP schema; stdio servers may reference a command on PATH or
@@ -71,12 +71,17 @@ they cannot execute.
 `interface.mcpOverrides` additionally lets a user enable/disable individual
 servers per plugin, which suits an opt-in posture for the heavier daemons.
 
-### E3 — `sessionStart` — ADOPT (small, high leverage)
+### E3 — `sessionStart` — **REJECTED for now** (kde-002 dropped)
 
-Shape is minimal — `{"skill": "<name>"}` in the `github` package. It names one
-skill to run at session start. The natural candidate is a KBD position/orientation
-skill, giving Kimi Desktop the same "read the waypoint first" discipline the
-other harnesses get from `SessionStart` hooks.
+Shape is minimal — `{"skill": "<name>"}`; `readSessionStart` reads only `skill`,
+so no arguments can be passed.
+
+**Supported by the runtime, but dropped: no suitable payload exists.** It runs on
+EVERY session, and all three candidates failed — `kbd-status` presumes a KBD
+project, `learn-harness` needs a script not shipped inside it, and
+`learn-about-system` asks the operator a question. Re-openable the moment a
+small, argument-free, manifest-only orientation skill exists. See
+`session-start-finding.md`.
 
 ### E4 — `hooks` — **SUPPORTED** (verdict from kde-003)
 
@@ -145,6 +150,17 @@ assess or analyze — found only by reading the loader. `parseManifest` returns
 This may be the Kimi Desktop equivalent of the 147 slash commands the pack ships
 to Claude Code and Codex. No change owns it. Plan should decide whether to
 create one.
+
+### E9 — `interface` — ADOPTED, shipping
+
+Consumed by `parseManifest` via `readInterface`. The pack emits `displayName`,
+`shortDescription`, `longDescription`, `developerName`, `websiteURL`, and
+`category` — how the plugin presents in a list. `iconUrl` and `mcpOverrides` are
+available and unused; neither is load-bearing.
+
+Recorded for completeness: goal 2 asks for a verdict on **every** extension
+point, and this one was being used without ever being decided — the same gap
+that produced `kde-000`.
 
 ### E7 — Marketplace publication — OUT OF SCOPE for now
 

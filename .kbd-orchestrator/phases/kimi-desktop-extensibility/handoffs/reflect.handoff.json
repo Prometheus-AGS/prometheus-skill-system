@@ -1,0 +1,51 @@
+{
+  "stage": "reflect",
+  "phase": "kimi-desktop-extensibility",
+  "artifact": "reflection.md",
+  "changes": "5/5",
+  "goals": {
+    "1_map_extension_points": "MET",
+    "2_verdict_per_point": "PARTIAL — E8 `commands` is deferred, not decided",
+    "3_ui_customization_achievable": "MET — the answer is NO; unachievable via the supported API",
+    "4_reinstall_durable": "MET — durability only; NOT a claim that the integrations function"
+  },
+  "headline": "Kimi Desktop is a thin Electron shell with no UI/view/theme extension surface. The operator's headline request cannot be satisfied through the supported plugin API. Real points are skills, skillInstructions, mcpServers, hooks, commands, interface.",
+  "shipped": [
+    "145 skills + 3 mcpServers in the plugin package, reinstall-durable",
+    "forge-rs auth removed at source: new opt-in --no-auth, loopback-only, fails closed",
+    "hooks SUPPORTED with a DIFFERENT shape than Claude Code (flat array, integer seconds <=600)",
+    "systemPrompt NOT supported and silently ignored — no diagnostic emitted",
+    "catalog limit is a PER-SKILL cap (250), not a shared budget — no curation needed"
+  ],
+  "unverified": [
+    "Kimi Desktop has never been observed CONNECTING to the 3 MCP servers.",
+    "No hook has been observed FIRING. Parsing is not execution.",
+    "surreal-memory shipped despite the spec demoting it to CONDITIONAL on a completed SSE handshake, which was never observed.",
+    "89/145 descriptions exceed the 250-char cap; whether that measurably degrades selection is untested."
+  ],
+  "review_warnings": [
+    "Header tally still reads awkwardly against the per-goal headings ('MET-but-unobserved' is not a heading value).",
+    "Goal 1 and Goal 3 rest on an installed-app file that is not in the repo or the packet, with no captured excerpt committed as evidence.",
+    "forge-rs went EXCLUDED -> shipped between spec and reflect; the transition is explained in the kde-001 commit but not in a handoff.",
+    "SUGGESTION: E3 'rejected for now' is arguably the same deferral shape that made E8 PARTIAL — the standard is applied unevenly.",
+    "SUGGESTION: a third unreconciled count (147 slash commands) joins the earlier 107/150 divergence."
+  ],
+  "adversarial_review": {
+    "rounds": 2,
+    "judge": {"model": "k3", "vendor": "Moonshot"},
+    "verdicts": ["BLOCK", "PASS"],
+    "critical_resolved": "Goal 2 was marked MET while E8 `commands` was explicitly deferred. Downgraded to PARTIAL — recording a question is not answering it.",
+    "producer": "claude-opus-5",
+    "cross_vendor": true
+  },
+  "recommended_next_phase": {
+    "name": "kimi-desktop-runtime-verification",
+    "why": "Everything this phase shipped is schema-valid but unobserved. The loader could answer what is SUPPORTED; only a running app answers what WORKS.",
+    "changes": [
+      "Confirm the 3 MCP servers connect and expose tools in Kimi Desktop",
+      "Declare one hooks entry and confirm the command spawns",
+      "Decide E8 `commands` — closes the goal-2 PARTIAL",
+      "Front-load the 89 over-cap descriptions into their first 250 chars"
+    ]
+  }
+}
