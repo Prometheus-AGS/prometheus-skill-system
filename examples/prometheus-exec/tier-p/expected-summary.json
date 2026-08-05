@@ -1,0 +1,6 @@
+{
+  "count": 3,
+  "ids": ["alpha", "beta", "gamma"],
+  "maxRisk": 15,
+  "totalRisk": 36
+}

@@ -56,13 +56,20 @@ const sidebars = {
   executionSidebar: [
     {
       type: 'category',
-      label: 'Execution',
+      label: 'Dynamic Operations',
       items: [
         'execution/overview-and-use-cases',
+        'execution/choosing-the-right-capability',
+        'execution/closed-loop-architecture',
+        'execution/generating-programs',
         'execution/architecture-and-tiers',
+        'execution/tier-p-native-processes',
+        'execution/tier-w-portable-components',
         'execution/local-api-cli-and-mcp',
         'execution/remote-dispatch-and-reconciliation',
         'execution/receipts-verification-and-certification',
+        'execution/use-case-cookbook',
+        'execution/security-and-trust',
         'execution/installation-doctor-and-recovery',
         'execution/platform-and-evidence-status',
       ],

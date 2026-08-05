@@ -187,7 +187,11 @@ def certify_mcp(binary: Path, plugin_root: Path, root: Path) -> dict[str, Any]:
         if status["state"] != "succeeded":
             raise RuntimeError(f"MCP run failed: {status}")
         events = client.tool("exec-events", {"runId": run_id, "after": 0})
-        resumed = client.tool("exec-events", {"runId": run_id, "after": events[0]["sequence"]})
+        if not events["events"]:
+            raise RuntimeError("MCP event page was unexpectedly empty")
+        resumed = client.tool(
+            "exec-events", {"runId": run_id, "after": events["events"][0]["sequence"]}
+        )
         receipt = client.tool("exec-receipt", {"runId": run_id})
         artifact = receipt["outputs"]["artifacts"][0]
         artifact_result = client.tool(

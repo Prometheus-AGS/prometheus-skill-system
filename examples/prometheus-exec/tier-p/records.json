@@ -1,0 +1,7 @@
+{
+  "records": [
+    { "id": "alpha", "risk": 7 },
+    { "id": "beta", "risk": 14 },
+    { "id": "gamma", "risk": 15 }
+  ]
+}

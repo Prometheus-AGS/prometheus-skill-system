@@ -30,6 +30,21 @@ A generated agent is a **service**, not a delegation. Use it when you need:
 If none of those apply, you want a skill or a subagent instead. See
 [22a · Self-Extending Agents](22a-self-extending-agents.md).
 
+## Native agent versus Dynamic Operations
+
+A generated native agent is a persistent product: its own process, port, model policy, skills engine, protocols, UI, and lifecycle. [Prometheus Exec](/docs/execution/overview-and-use-cases) owns one bounded operation: declared code and inputs enter; ordered events, content-addressed artifacts, and a signed receipt come back.
+
+| Need | Use |
+| --- | --- |
+| A chat UI, A2A endpoint, model routing, or a service that survives the session | `/create-native-agent` |
+| A generated Python, Node, or Bash calculation with OS isolation and an attested receipt | Prometheus Exec Tier P |
+| A portable deterministic Prometheus WIT component | Prometheus Exec Tier W |
+| A persistent agent that sometimes needs evidenced calculations | Native agent plus an explicit Exec adapter for those sub-jobs |
+
+The current generator does not wire Prometheus Exec automatically. Its MCP client is network-oriented, while Exec exposes stdio MCP and private Unix-socket REST. Add a deliberate local adapter when composition is required.
+
+The generator's `librefang-wasm` output is also not a Tier W component. It is a `wasm32-unknown-unknown` core module using the LibreFang Guest ABI. Tier W requires `prometheus:component@0.1.0`; shared domain logic needs separate adapters for the two hosts. The complete decision guide is [Choose a skill, program, operation, or native agent](/docs/execution/choosing-the-right-capability).
+
 ## What Specify asks
 
 Everything is asked before anything is written.

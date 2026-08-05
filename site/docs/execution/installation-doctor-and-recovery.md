@@ -17,6 +17,15 @@ prometheus-exec --version
 
 Expected output is exactly `prometheus-exec 1.7.0`.
 
+Validate the checked documentation examples against the installed binary and active signed generation using disposable state:
+
+```bash
+npm run check:docs-exec-examples
+npm run docs:examples
+```
+
+The first command checks source syntax, expected outputs, relationship semantics, and documentation drift. The second exercises the existing local certification driver and removes its temporary state on exit. Hosted workflows do not run these product examples.
+
 Inspect service installation without changing the machine:
 
 ```bash
@@ -44,6 +53,8 @@ Doctor reads binary identity, the service definition, the LaunchAgent label's lo
 ## Logs and common failures
 
 The LaunchAgent writes standard output and error under the configured Prometheus log directory. Check the JSON doctor result first; it preserves individual failed checks instead of translating empty/error output into success.
+
+Review [Security and trust boundaries](./security-and-trust.md) before changing identity, component trust, socket, or sandbox settings.
 
 | Symptom | Meaning | Action |
 | --- | --- | --- |

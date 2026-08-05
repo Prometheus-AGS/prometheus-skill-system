@@ -13,6 +13,8 @@
     "docs:check": "npm --prefix site run docs:check",
     "docs:sync": "node scripts/docs-sync.mjs",
     "docs:sync:check": "node scripts/docs-sync.mjs --check",
+    "check:docs-exec-examples": "node scripts/check-prometheus-exec-doc-examples.mjs",
+    "docs:examples": "bash scripts/run-prometheus-exec-doc-examples.sh",
     "test:docs-sync": "node scripts/tests/docs-sync.test.mjs",
     "check:workflow-policy": "node scripts/check-workflow-policy.mjs",
     "test:workflow-policy": "bash scripts/tests/test-workflow-policy.sh",
