@@ -181,6 +181,89 @@ pub struct PeerDispatchRecord {
     pub updated_at: DateTime<Utc>,
 }
 
+/// A target-signed terminal response returned to the dispatch origin.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct SignedPeerDispatchResponse {
+    pub schema_version: String,
+    pub dispatch_id: Uuid,
+    pub dispatch_hash: Digest,
+    pub request_hash: Digest,
+    pub endpoint_id: String,
+    pub state: PeerDispatchState,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub run_id: Option<Uuid>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub receipt: Option<ExecutionReceipt>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub failure: Option<String>,
+    pub completed_at: DateTime<Utc>,
+    pub signer_key_id: String,
+    pub sig_alg: SignatureAlgorithm,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub signature: Option<String>,
+}
+
+impl SignedPeerDispatchResponse {
+    pub fn validate(&self) -> Result<()> {
+        if self.schema_version != REMOTE_SCHEMA_VERSION {
+            return Err(RemoteError::InvalidPeerResponse(
+                "unsupported peer response schema".into(),
+            ));
+        }
+        validate_endpoint(&self.endpoint_id)?;
+        if !self.state.is_terminal() {
+            return Err(RemoteError::InvalidPeerResponse(
+                "peer response must carry a terminal state".into(),
+            ));
+        }
+        match self.state {
+            PeerDispatchState::Applied => {
+                let receipt = self.receipt.as_ref().ok_or_else(|| {
+                    RemoteError::InvalidPeerResponse(
+                        "applied peer response requires a receipt".into(),
+                    )
+                })?;
+                if self.run_id != Some(receipt.run_id) || receipt.request_hash != self.request_hash
+                {
+                    return Err(RemoteError::InvalidPeerResponse(
+                        "applied receipt does not match the response run or request".into(),
+                    ));
+                }
+                if self.failure.is_some() {
+                    return Err(RemoteError::InvalidPeerResponse(
+                        "applied peer response cannot carry a failure".into(),
+                    ));
+                }
+            }
+            PeerDispatchState::Rejected
+            | PeerDispatchState::Expired
+            | PeerDispatchState::PendingEvidence => {
+                if self.failure.as_deref().is_none_or(str::is_empty) || self.receipt.is_some() {
+                    return Err(RemoteError::InvalidPeerResponse(
+                        "non-applied terminal response requires a disposition and no receipt"
+                            .into(),
+                    ));
+                }
+            }
+            _ => unreachable!("terminal-state check excludes other variants"),
+        }
+        if self.signer_key_id.is_empty() || self.signature.as_deref().is_none_or(str::is_empty) {
+            return Err(RemoteError::InvalidPeerResponse(
+                "peer response signer key ID and signature must be present".into(),
+            ));
+        }
+        Ok(())
+    }
+
+    pub fn response_hash(&self) -> Result<Digest> {
+        self.validate()?;
+        Ok(prometheus_exec_contracts::hash_bytes(
+            &prometheus_exec_contracts::canonical_bytes_without(self, "signature")?,
+        ))
+    }
+}
+
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct RemoteDispatchAggregate {

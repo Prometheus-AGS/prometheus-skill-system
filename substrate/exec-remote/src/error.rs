@@ -11,6 +11,12 @@ pub enum RemoteError {
     Json(#[from] serde_json::Error),
     #[error("remote signature is invalid: {0}")]
     Signature(String),
+    #[error("remote transport failed: {0}")]
+    Transport(String),
+    #[error("local execution handoff failed: {0}")]
+    Execution(String),
+    #[error("remote peer response is invalid: {0}")]
+    InvalidPeerResponse(String),
     #[error("endpoint is not enrolled: {0}")]
     UnknownEndpoint(String),
     #[error("endpoint signing key does not match enrollment for {0}")]

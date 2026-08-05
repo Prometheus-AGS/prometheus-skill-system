@@ -511,6 +511,7 @@ fn validate_transition(
         }
         PeerDispatchState::Rejected
         | PeerDispatchState::Expired
+        | PeerDispatchState::Unavailable
         | PeerDispatchState::PendingEvidence => {
             if failure.is_none_or(str::is_empty) {
                 return Err(RemoteError::InvalidTransition(format!(

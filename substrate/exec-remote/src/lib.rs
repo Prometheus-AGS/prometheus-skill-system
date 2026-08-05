@@ -10,14 +10,24 @@ mod crypto;
 mod error;
 mod model;
 mod queue;
+#[cfg(feature = "transport")]
+mod transport;
 
-pub use crypto::{sign_dispatch_ed25519, verify_dispatch};
+pub use crypto::{
+    sign_dispatch_ed25519, sign_peer_response_ed25519, verify_dispatch, verify_peer_response,
+};
 pub use error::{RemoteError, Result};
 pub use model::{
     EnrollmentBinding, EnrollmentSnapshot, PeerDispatchRecord, PeerDispatchState,
-    RemoteDispatchAggregate, SignedRemoteDispatch, REMOTE_SCHEMA_VERSION,
+    RemoteDispatchAggregate, SignedPeerDispatchResponse, SignedRemoteDispatch,
+    REMOTE_SCHEMA_VERSION,
 };
 pub use queue::{AcceptDispatchResult, DispatchQueue, DispatchRecord};
+#[cfg(feature = "transport")]
+pub use transport::{
+    aggregate_records, LocalExecutionHandoff, LocalExecutionOutcome, RemoteOrigin, RemoteTarget,
+    RemoteTransport,
+};
 
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");
 
