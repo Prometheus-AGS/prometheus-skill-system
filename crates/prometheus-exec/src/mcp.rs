@@ -204,12 +204,6 @@ impl ExecMcpServer {
         }
         let code = decode_bounded("codeBase64", &params.code_base64, MAX_CODE_BYTES)?;
         let request_id = params.request_id.unwrap_or_else(Uuid::new_v4);
-        let upload_pin = format!("upload:{request_id}");
-        let stored_code = self
-            .facade
-            .artifacts()
-            .put_pinned(&code, &upload_pin)
-            .map_err(|error| error.to_string())?;
         let runtime: RuntimeKind = params.runtime.into();
         let component_authorization = if runtime == RuntimeKind::WasmComponent {
             Some(
@@ -220,7 +214,7 @@ impl ExecMcpServer {
         } else {
             None
         };
-        let mut inputs = Vec::with_capacity(params.inputs.len());
+        let mut decoded_inputs = Vec::with_capacity(params.inputs.len());
         let mut total_input_bytes = 0usize;
         for (name, encoded) in params.inputs {
             if name.is_empty() {
@@ -229,11 +223,31 @@ impl ExecMcpServer {
             let remaining = MAX_INPUT_BYTES.saturating_sub(total_input_bytes);
             let bytes = decode_bounded(&format!("inputs.{name}"), &encoded, remaining)?;
             total_input_bytes = total_input_bytes.saturating_add(bytes.len());
-            let stored = self
-                .facade
-                .artifacts()
-                .put_pinned(&bytes, &upload_pin)
-                .map_err(|error| error.to_string())?;
+            decoded_inputs.push((name, bytes));
+        }
+        let upload_pin = format!("upload:{request_id}");
+        let stored_code = self
+            .facade
+            .artifacts()
+            .put_pinned(&code, &upload_pin)
+            .map_err(|error| error.to_string())?;
+        let mut pinned_hashes = vec![stored_code.hash.clone()];
+        let mut inputs = Vec::with_capacity(decoded_inputs.len());
+        for (name, bytes) in decoded_inputs {
+            let stored = match self.facade.artifacts().put_pinned(&bytes, &upload_pin) {
+                Ok(stored) => stored,
+                Err(error) => {
+                    return Err(rollback_upload_pins(
+                        self.facade.artifacts(),
+                        &pinned_hashes,
+                        &upload_pin,
+                        error.to_string(),
+                    ));
+                }
+            };
+            if !pinned_hashes.contains(&stored.hash) {
+                pinned_hashes.push(stored.hash.clone());
+            }
             inputs.push(NamedInput {
                 name,
                 hash: stored.hash,
@@ -279,8 +293,40 @@ impl ExecMcpServer {
             sig_alg: SignatureAlgorithm::Ed25519,
             signature: None,
         };
-        sign_request_ed25519(&mut request, &self.signing_key).map_err(|error| error.to_string())?;
+        if let Err(error) = sign_request_ed25519(&mut request, &self.signing_key) {
+            return Err(rollback_upload_pins(
+                self.facade.artifacts(),
+                &pinned_hashes,
+                &upload_pin,
+                error.to_string(),
+            ));
+        }
         Ok(request)
+    }
+}
+
+fn rollback_upload_pins(
+    artifacts: &ArtifactStore,
+    hashes: &[Digest],
+    reason: &str,
+    primary: String,
+) -> String {
+    let failures = hashes
+        .iter()
+        .filter_map(|hash| {
+            artifacts
+                .unpin(hash, reason)
+                .err()
+                .map(|error| format!("{hash}: {error}"))
+        })
+        .collect::<Vec<_>>();
+    if failures.is_empty() {
+        primary
+    } else {
+        format!(
+            "{primary}; upload-pin rollback failed: {}",
+            failures.join("; ")
+        )
     }
 }
 
@@ -515,6 +561,7 @@ const fn default_inline_ceiling() -> usize {
 mod tests {
     use std::{collections::BTreeMap, future, sync::Arc, time::Duration};
 
+    use base64::{engine::general_purpose::URL_SAFE_NO_PAD, Engine as _};
     use chrono::Utc;
     use ed25519_dalek::SigningKey;
     use prometheus_exec_contracts::{
@@ -696,6 +743,25 @@ mod tests {
             .as_str()
             .expect("error message")
             .contains("already exists with hash"));
+    }
+
+    #[test]
+    fn rejected_wasm_authorization_does_not_materialize_or_pin_code() {
+        let (server, _) = fixture();
+        let code = b"not-an-authorized-component";
+        let code_hash = prometheus_exec_contracts::hash_bytes(code);
+        let result = server.build_request(ExecRunParams {
+            request_id: None,
+            issued_at: None,
+            runtime: McpRuntime::WasmComponent,
+            code_base64: URL_SAFE_NO_PAD.encode(code),
+            inputs: BTreeMap::new(),
+            timeout_ms: 1_000,
+            output_mb: 1,
+        });
+
+        assert!(result.is_err());
+        assert!(server.facade.artifacts().get(&code_hash).is_err());
     }
 
     #[test]

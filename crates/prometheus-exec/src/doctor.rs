@@ -156,14 +156,17 @@ fn inspect_service_definition(
                 return Err("service definition must be a regular non-symlink file".into());
             }
             let bytes = fs::read(path).map_err(|error| error.to_string())?;
-            let text = std::str::from_utf8(&bytes).map_err(|error| error.to_string())?;
-            if !text.contains("prometheus-exec") || !text.contains("daemon") {
-                return Err("service definition does not launch prometheus-exec daemon".into());
+            let (label, arguments) = parse_launchagent(path)?;
+            let executable = arguments
+                .first()
+                .and_then(|argument| std::path::Path::new(argument).file_name())
+                .and_then(|name| name.to_str());
+            if executable != Some("prometheus-exec")
+                || arguments.get(1).map(String::as_str) != Some("daemon")
+            {
+                return Err("service ProgramArguments must launch prometheus-exec daemon".into());
             }
-            let label = plist_string(text, "Label")
-                .filter(|label| !label.is_empty())
-                .ok_or_else(|| "service definition has no LaunchAgent Label".to_string())?;
-            Ok((hash_bytes(&bytes), label.to_string()))
+            Ok((hash_bytes(&bytes), label))
         });
     match result {
         Ok((hash, label)) => {
@@ -181,11 +184,45 @@ fn inspect_service_definition(
     }
 }
 
-fn plist_string<'a>(text: &'a str, key: &str) -> Option<&'a str> {
-    let marker = format!("<key>{key}</key>");
-    let after_key = text.split_once(&marker)?.1;
-    let after_open = after_key.split_once("<string>")?.1;
-    Some(after_open.split_once("</string>")?.0.trim())
+#[cfg(target_os = "macos")]
+fn parse_launchagent(path: &std::path::Path) -> Result<(String, Vec<String>), String> {
+    let output = Command::new("/usr/bin/plutil")
+        .args(["-convert", "json", "-o", "-"])
+        .arg(path)
+        .output()
+        .map_err(|error| error.to_string())?;
+    if !output.status.success() {
+        return Err(format!(
+            "service definition is not a valid plist: {}",
+            String::from_utf8_lossy(&output.stderr).trim()
+        ));
+    }
+    let value: serde_json::Value =
+        serde_json::from_slice(&output.stdout).map_err(|error| error.to_string())?;
+    let label = value
+        .get("Label")
+        .and_then(serde_json::Value::as_str)
+        .filter(|label| !label.is_empty())
+        .ok_or_else(|| "service definition has no LaunchAgent Label".to_string())?
+        .to_string();
+    let arguments = value
+        .get("ProgramArguments")
+        .and_then(serde_json::Value::as_array)
+        .ok_or_else(|| "service definition has no ProgramArguments array".to_string())?
+        .iter()
+        .map(|value| {
+            value
+                .as_str()
+                .map(str::to_string)
+                .ok_or_else(|| "service ProgramArguments must contain only strings".to_string())
+        })
+        .collect::<Result<Vec<_>, _>>()?;
+    Ok((label, arguments))
+}
+
+#[cfg(not(target_os = "macos"))]
+fn parse_launchagent(_path: &std::path::Path) -> Result<(String, Vec<String>), String> {
+    Err("LaunchAgent definition diagnosis is available only on macOS".into())
 }
 
 #[cfg(target_os = "macos")]
@@ -758,13 +795,42 @@ mod tests {
     use tempfile::tempdir;
 
     #[test]
-    fn launchagent_label_is_extracted_without_mutation() {
-        let plist = r#"<?xml version="1.0" encoding="UTF-8"?>
+    #[cfg(target_os = "macos")]
+    fn service_definition_parses_real_program_arguments_and_rejects_comment_spoofing() {
+        let directory = tempdir().unwrap();
+        let valid = directory.path().join("valid.plist");
+        fs::write(
+            &valid,
+            r#"<?xml version="1.0" encoding="UTF-8"?>
 <plist version="1.0"><dict>
   <key>Label</key><string>ai.prometheus.exec</string>
-</dict></plist>"#;
-        assert_eq!(plist_string(plist, "Label"), Some("ai.prometheus.exec"));
-        assert_eq!(plist_string(plist, "Missing"), None);
+  <key>ProgramArguments</key><array>
+    <string>/tmp/prometheus-exec</string><string>daemon</string>
+  </array>
+</dict></plist>"#,
+        )
+        .unwrap();
+        let mut checks = Vec::new();
+        assert_eq!(
+            inspect_service_definition(&valid, &mut checks),
+            Some("ai.prometheus.exec".into())
+        );
+        assert_eq!(checks[0].status, CheckStatus::Pass);
+
+        let spoofed = directory.path().join("spoofed.plist");
+        fs::write(
+            &spoofed,
+            r#"<?xml version="1.0" encoding="UTF-8"?>
+<!-- prometheus-exec daemon -->
+<plist version="1.0"><dict>
+  <key>Label</key><string>ai.prometheus.exec</string>
+  <key>ProgramArguments</key><array><string>/bin/false</string></array>
+</dict></plist>"#,
+        )
+        .unwrap();
+        checks.clear();
+        assert_eq!(inspect_service_definition(&spoofed, &mut checks), None);
+        assert_eq!(checks[0].status, CheckStatus::Fail);
     }
 
     #[test]
