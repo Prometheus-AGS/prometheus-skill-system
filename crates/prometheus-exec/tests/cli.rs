@@ -299,6 +299,7 @@ fn doctor_failure_is_structured_non_mutating_and_never_false_green() {
     assert_eq!(fs::read_dir(directory.path()).unwrap().count(), 0);
 }
 
+#[cfg(feature = "estate")]
 #[test]
 fn doctor_excludes_remote_queue_before_path_inspection() {
     let directory = tempdir().unwrap();

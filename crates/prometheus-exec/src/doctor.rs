@@ -2,6 +2,7 @@ use std::{collections::BTreeMap, fs, path::PathBuf};
 
 use hyper::Method;
 use prometheus_exec_contracts::{hash_bytes, ReceiptLogSegment};
+#[cfg(feature = "estate")]
 use prometheus_exec_remote::DispatchQueue;
 use prometheus_exec_service::{RunRecord, SpawnStatus};
 use prometheus_exec_tier_w::{ComponentAuthorizer, EngineProfile, TierWEngine};
@@ -17,6 +18,7 @@ pub struct DoctorConfig {
     pub plugin_root: PathBuf,
     pub service_definition: Option<PathBuf>,
     pub mcp_schema: Option<PathBuf>,
+    #[cfg(feature = "estate")]
     pub remote_queue: Option<PathBuf>,
     pub exclusions: Vec<String>,
 }
@@ -78,6 +80,7 @@ pub async fn inspect(config: DoctorConfig) -> DoctorReport {
     if let Some(schema) = config.mcp_schema.as_ref() {
         inspect_mcp_schema(schema, &mut checks);
     }
+    #[cfg(feature = "estate")]
     if selection.selected_remote_queue() {
         if let Some(queue) = config.remote_queue.as_ref() {
             inspect_remote_queue(queue, &mut checks);
@@ -95,6 +98,7 @@ impl DoctorSelection {
         Self { excluded }
     }
 
+    #[cfg(feature = "estate")]
     fn selected_remote_queue(&self) -> bool {
         !self.excluded.iter().any(|scope| {
             matches!(
@@ -184,6 +188,7 @@ fn inspect_mcp_schema(path: &std::path::Path, checks: &mut Vec<DoctorCheck>) {
     }
 }
 
+#[cfg(feature = "estate")]
 fn inspect_remote_queue(path: &std::path::Path, checks: &mut Vec<DoctorCheck>) {
     match DispatchQueue::inspect_read_only(path) {
         Ok(records) => pass(
@@ -686,6 +691,7 @@ mod tests {
             plugin_root: plugin_root.clone(),
             service_definition: None,
             mcp_schema: None,
+            #[cfg(feature = "estate")]
             remote_queue: None,
             exclusions: Vec::new(),
         };
@@ -722,6 +728,7 @@ mod tests {
         assert_eq!(checks[0].status, CheckStatus::Fail);
     }
 
+    #[cfg(feature = "estate")]
     #[tokio::test]
     async fn sovereign_exclusion_prevents_remote_queue_construction() {
         let directory = tempdir().unwrap();

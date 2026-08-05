@@ -124,6 +124,7 @@ enum Command {
         #[arg(long)]
         mcp_schema: Option<PathBuf>,
         /// Optional estate remote queue to inspect without mutation.
+        #[cfg(feature = "estate")]
         #[arg(long)]
         remote_queue: Option<PathBuf>,
         /// Exclude a check ID, group, or service scope before construction.
@@ -288,6 +289,7 @@ async fn run(cli: Cli) -> Result<ExitCode, BoxError> {
             plugin_root,
             service_definition,
             mcp_schema,
+            #[cfg(feature = "estate")]
             remote_queue,
             exclusions,
             format,
@@ -300,6 +302,7 @@ async fn run(cli: Cli) -> Result<ExitCode, BoxError> {
                     plugin_root: plugin_root.unwrap_or(default_plugin_root()?),
                     service_definition,
                     mcp_schema,
+                    #[cfg(feature = "estate")]
                     remote_queue,
                     exclusions,
                 },

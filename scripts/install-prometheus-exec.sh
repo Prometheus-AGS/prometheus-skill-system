@@ -4,6 +4,8 @@ set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 EXPECTED_VERSION="${PROMETHEUS_EXEC_EXPECTED_VERSION:-prometheus-exec 1.7.0}"
+HASH_MANIFEST="${PROMETHEUS_EXEC_HASH_MANIFEST:-${REPO_ROOT}/config/prometheus-exec-binary.json}"
+EXPECTED_BUILD_HASH="${PROMETHEUS_EXEC_EXPECTED_SHA256:-}"
 BIN_DIR="${PROMETHEUS_EXEC_BIN_DIR:-${HOME}/.local/bin}"
 DESTINATION="${BIN_DIR}/prometheus-exec"
 MANIFEST_DIR="${PROMETHEUS_EXEC_MANIFEST_DIR:-${HOME}/.prometheus/install/manifests}"
@@ -52,9 +54,17 @@ verify_signature() {
     "$signer" --verify --strict "$binary" >/dev/null
 }
 
+if [ -z "$EXPECTED_BUILD_HASH" ] && [ -f "$HASH_MANIFEST" ]; then
+    EXPECTED_BUILD_HASH="$(awk -F'"' '/"expectedBuildSha256"/ { print $4; exit }' "$HASH_MANIFEST")"
+fi
+if [[ ! "$EXPECTED_BUILD_HASH" =~ ^[0-9a-f]{64}$ ]]; then
+    echo "prometheus-exec certified build hash is missing or invalid; set PROMETHEUS_EXEC_EXPECTED_SHA256 or update $HASH_MANIFEST" >&2
+    exit 1
+fi
+
 if $DRY_RUN; then
     echo "[dry-run] would build crates/prometheus-exec --release"
-    echo "[dry-run] would verify, stage, sign, atomically install, and read back $DESTINATION"
+    echo "[dry-run] would require source sha256:$EXPECTED_BUILD_HASH, then verify, stage, sign, atomically install, and read back $DESTINATION"
     exit 0
 fi
 
@@ -67,6 +77,11 @@ verify_version "$SOURCE_BIN" || {
     echo "prometheus-exec source version mismatch; expected: $EXPECTED_VERSION" >&2
     exit 1
 }
+BUILD_HASH="$(sha256_file "$SOURCE_BIN")"
+if [ "$BUILD_HASH" != "$EXPECTED_BUILD_HASH" ]; then
+    echo "prometheus-exec source hash mismatch; expected $EXPECTED_BUILD_HASH, got $BUILD_HASH" >&2
+    exit 1
+fi
 
 mkdir -p "$BIN_DIR" "$MANIFEST_DIR" "$BACKUP_DIR"
 chmod 700 "$MANIFEST_DIR" "$BACKUP_DIR"
@@ -79,7 +94,6 @@ cleanup() {
 trap cleanup EXIT INT TERM
 
 install -m 0755 "$SOURCE_BIN" "$STAGED"
-BUILD_HASH="$(sha256_file "$SOURCE_BIN")"
 sign_and_verify "$STAGED" || {
     echo "prometheus-exec staged signature verification failed" >&2
     exit 1
@@ -134,6 +148,7 @@ cat >"$MANIFEST_STAGE" <<EOF
   "schemaVersion": 1,
   "name": "prometheus-exec",
   "version": "$EXPECTED_VERSION",
+  "expectedBuildSha256": "$EXPECTED_BUILD_HASH",
   "source": "$SOURCE_BIN",
   "destination": "$DESTINATION",
   "buildSha256": "$BUILD_HASH",

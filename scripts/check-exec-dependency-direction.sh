@@ -67,6 +67,18 @@ for dependency in ("base64", "ed25519-dalek", "serde_json"):
     if not isinstance(definition, dict) or definition.get("optional") is not True:
         errors.append(f"exec-tier-w: {dependency} must remain optional and estate-only")
 
+binary_manifest_path = root / "crates" / "prometheus-exec" / "Cargo.toml"
+with binary_manifest_path.open("rb") as stream:
+    binary_manifest = tomllib.load(stream)
+remote_dependency = binary_manifest.get("dependencies", {}).get("prometheus-exec-remote", {})
+if not isinstance(remote_dependency, dict) or remote_dependency.get("optional") is not True:
+    errors.append("prometheus-exec: exec-remote must remain an optional dependency")
+estate_features = set(binary_manifest.get("features", {}).get("estate", []))
+if "dep:prometheus-exec-remote" not in estate_features:
+    errors.append("prometheus-exec: estate feature must select exec-remote")
+if "estate" not in set(binary_manifest.get("features", {}).get("default", [])):
+    errors.append("prometheus-exec: release sidecar must default to the estate profile")
+
 versions_path = root / "substrate" / "exec-tier-w" / "versions.toml"
 with versions_path.open("rb") as stream:
     versions = tomllib.load(stream)
