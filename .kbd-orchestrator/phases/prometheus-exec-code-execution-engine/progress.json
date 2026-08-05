@@ -5,27 +5,27 @@
   "childPointer": null,
   "assessment_complete": true,
   "plan_complete": true,
-  "execute_complete": false,
-  "reflect_complete": false,
+  "execute_complete": true,
+  "reflect_complete": true,
   "implementation_total": 4,
-  "implementation_completed": 3,
+  "implementation_completed": 4,
   "changes_total": 4,
-  "changes_completed": 3,
+  "changes_completed": 4,
   "completion": {
     "primaryCounter": "implementation",
     "implementation": {
-      "completed": 3,
+      "completed": 4,
       "total": 4,
-      "status": "PENDING"
+      "status": "COMPLETE"
     },
     "evidence": {
-      "status": "NOT_TRACKED",
-      "summary": null,
+      "status": "COMPLETE",
+      "summary": "Redacted local runtime, installation, signed-generation, doctor, and distinct-model review evidence archived.",
       "blockers": []
     },
     "certification": {
-      "status": "NOT_TRACKED",
-      "summary": null,
+      "status": "COMPLETE",
+      "summary": "Focused Rust and contract gates, docs:check, 14/14 execution doctor, root doctor, OpenSpec verification, and zero-finding MiniMax-M3 review passed locally.",
       "blockers": []
     },
     "publication": {
@@ -37,37 +37,42 @@
   "completed_changes": [
     "change-exec-001-contracts-verification",
     "change-exec-002-tier-p-sidecar",
-    "change-exec-003-tier-w-mobile"
+    "change-exec-003-tier-w-mobile",
+    "change-exec-004-remote-mcp-docs"
   ],
-  "active_change": "change-exec-004-remote-mcp-docs",
+  "active_change": null,
   "blocked_changes": [],
   "changes": [
     {
       "id": "change-exec-001-contracts-verification",
-      "status": "completed"
+      "status": "completed",
+      "implementation_status": "COMPLETE"
     },
     {
       "id": "change-exec-002-tier-p-sidecar",
       "status": "completed",
       "tasks_done": 16,
-      "tasks_total": 16
+      "tasks_total": 16,
+      "implementation_status": "COMPLETE"
     },
     {
       "id": "change-exec-003-tier-w-mobile",
       "status": "completed",
       "tasks_done": 18,
-      "tasks_total": 18
+      "tasks_total": 18,
+      "implementation_status": "COMPLETE"
     },
     {
       "id": "change-exec-004-remote-mcp-docs",
-      "status": "pending",
-      "tasks_done": 17,
-      "tasks_total": 18
+      "status": "completed",
+      "tasks_done": 18,
+      "tasks_total": 18,
+      "implementation_status": "COMPLETE"
     }
   ],
   "sourceTool": "unknown",
   "createdBy": "kbd-new-phase",
   "last_updated_by": "codex",
-  "last_updated": "2026-08-04T18:02:55Z",
-  "updatedAt": "2026-08-04T18:02:55Z"
+  "last_updated": "2026-08-05T12:56:00Z",
+  "updatedAt": "2026-08-05T12:56:00Z"
 }

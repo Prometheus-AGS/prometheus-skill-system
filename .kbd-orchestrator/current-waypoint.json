@@ -1,34 +1,34 @@
 {
   "schemaVersion": "5",
   "generatedBy": "kbd-runtime",
-  "sourceRevision": 2,
+  "sourceRevision": 5,
   "projectId": "6ac090a4-3656-4d83-8eb6-2891508196d5",
-  "runId": "docusaurus-github-pages-site-20260729T012334Z",
+  "runId": "prometheus-exec-code-execution-engine-20260804T104412Z",
   "path": [
-    "docusaurus-github-pages-site"
+    "prometheus-exec-code-execution-engine"
   ],
   "phaseIds": [
-    "docusaurus-github-pages-site"
+    "prometheus-exec-code-execution-engine"
   ],
-  "activePhaseId": "docusaurus-github-pages-site",
+  "activePhaseId": "prometheus-exec-code-execution-engine",
   "phase": "prometheus-exec-code-execution-engine",
   "childPointer": null,
-  "change": "change-exec-002-tier-p-sidecar",
-  "currentTask": "implement Tier P sandboxing, artifact CAS, grants, and sidecar service",
-  "status": "executing",
+  "change": null,
+  "currentTask": null,
+  "status": "completed",
   "completionMetric": "implementation",
-  "implementationCompleted": 1,
+  "implementationCompleted": 4,
   "implementationTotal": 4,
   "planRevision": 2,
-  "revision": 4,
-  "exactNextCommand": "/kbd-execute prometheus-exec-code-execution-engine",
-  "updatedAt": "2026-08-04T11:18:00Z",
+  "revision": 5,
+  "exactNextCommand": "/kbd-new-phase",
+  "updatedAt": "2026-08-05T12:56:00Z",
   "previousPhase": "docusaurus-github-pages-site",
-  "nextPendingChange": "change-exec-002-tier-p-sidecar",
+  "nextPendingChange": null,
   "parentPhase": null,
   "childPhases": [],
-  "certificationStatus": "NOT_TRACKED",
+  "certificationStatus": "COMPLETE",
   "publicationStatus": "NOT_TRACKED",
-  "changesCompleted": 1,
+  "changesCompleted": 4,
   "changesTotal": 4
 }

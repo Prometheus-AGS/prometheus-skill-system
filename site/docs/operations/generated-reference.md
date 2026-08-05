@@ -252,7 +252,7 @@ Commands: `init`, `daemon`, `mcp`, `run`, `status`, `doctor`, `verify`, `verify-
 | `artifact_source` | `completed` | macos-x86_64-disposable | evidence bundle indexed |
 | `disposable_runtime` | `completed` | macos-x86_64-disposable | evidence bundle indexed |
 | `installed_host` | `completed` | macos-x86_64-disposable | evidence bundle indexed |
-| `judge_review` | `pending_review` | release-1.7.0 | distinct judge is temporarily unavailable |
+| `judge_review` | `completed` | release-1.7.0 | evidence bundle indexed |
 | `mobile_size` | `blocked` | release-1.7.0 | measured iOS and Android deltas exceed the 12 MiB gate |
 | `physical_device` | `pending_evidence` | release-1.7.0 | no usable physical iOS or Android device is connected |
 | `remote_deployment` | `pending_evidence` | release-1.7.0 | protocol kernel is disposable-runtime certified; production transport is not deployed |

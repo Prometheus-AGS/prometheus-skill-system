@@ -1,10 +1,10 @@
 POSITION REMINDER — read this as your FIRST tool call every turn
-Phase: docusaurus-github-pages-site
-Step: 8 of 8
+Phase: prometheus-exec-code-execution-engine
+Step: 4 of 4
 Stage: completed
-Next command: /kbd-next-phase
+Next command: /kbd-new-phase
 
 Required signal format (emit BEFORE any tool call):
-  Starting <kbd-skill> — docusaurus-github-pages-site (step 8 of 8)
+  Starting <kbd-skill> — prometheus-exec-code-execution-engine (step 4 of 4)
   [do work]
-  Completed <kbd-skill> — docusaurus-github-pages-site (step 8 of 8)
+  Completed <kbd-skill> — prometheus-exec-code-execution-engine (step 4 of 4)

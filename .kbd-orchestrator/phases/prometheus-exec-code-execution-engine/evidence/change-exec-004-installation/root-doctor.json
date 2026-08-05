@@ -100,7 +100,7 @@
         "pk-cherry: installed sha256 37986c6346a4a4b41cad78c74163911d5622deca316cebe9222936ca9a226c49; source sha256 ae23e0ab8a8fd789e94ba6d17f3924e05a7b44e2f3c4e55ced67a641a6e50dc2; signature valid",
         "prometheus-learning-worker: installed sha256 983d1071ba2ab0513f5a780bddf3c49d8c2d60cf5234a1a9c0f68cb448e1e38e; source sha256 40b875daf4d8baf3bbba8de9bb54bd7c51fbd378ae006bf7b3bf0adc17870cd5; signature valid",
         "surreal-memory-server: installed sha256 605450fc12fceda6e6ad9fdcb057086dbd6019775cb2c85ec2fb6abdd5e3f180; source sha256 fcb76f81472fabd87c11729fa2165f1ec81ed3a9c86f200a228f156f9a2d0fff; signature valid",
-        "prometheus-exec: installed sha256 71b03b6bb4ae841fee3076208a8206491d7a6cdbc00b6cdf196f169e1c08ca96; source sha256 699ea83ec3ec9320d2f2c82def87cb65c1cfc4adfeb491d05d5a28d559bf329d; signature valid"
+        "prometheus-exec: installed sha256 d4fcd01e7a0c4cbb2a6dc9657557c5a0aa3dbd54a21845deefe6a52bc68bcd1c; source sha256 ae70b4d2e128f0f69afe25f21983a84a56c93fba351821f020e4c37976981e4f; signature valid"
       ],
       "optional": false,
       "actions": [
@@ -123,7 +123,7 @@
       "status": "pass",
       "summary": "binary, service, UDS, readiness, trust, receipts, CAS, and MCP schema verify",
       "details": [
-        "binary-identity: prometheus-exec 1.7.0 sha256:71b03b6bb4ae841fee3076208a8206491d7a6cdbc00b6cdf196f169e1c08ca96",
+        "binary-identity: prometheus-exec 1.7.0 sha256:d4fcd01e7a0c4cbb2a6dc9657557c5a0aa3dbd54a21845deefe6a52bc68bcd1c",
         "receipt-identity: ed25519:2253d7021a3e014af60a77e2592ddbb8017197e2b1a1b9348f82ab8c7beace72 is internally consistent",
         "service-definition: /Users/gqadonis/Library/LaunchAgents/ai.prometheus.exec.plist verifies as sha256:0db5e62850c6e82b8b1554771d0fb22958c42af1833b9fdd4734619ac8b1898f",
         "service-loaded-state: ai.prometheus.exec is loaded in gui/501",
@@ -132,11 +132,11 @@
         "readiness: all required subsystems are ready",
         "tier-p-backend: macOS Seatbelt launcher and runtimes are available",
         "tier-w-backend: Wasmtime 46 cranelift backend is available for desktop without compiling guest bytes",
-        "tier-w-trust: active signed generation 6e28d15f271ed09943cfca21e18f360c72aafaa6d35dbaf9e57266bb01d51953 verifies 1 component(s)",
+        "tier-w-trust: active signed generation f10ccceecd2b340ea64eff70316829dd0781c13972b2cc0afa84e75e41e71186 verifies 1 component(s)",
         "state-reconciliation: 0 records are structurally valid; 0 are in flight",
         "receipt-reconciliation: 0 signed receipt(s) reconcile with 0 run record(s)",
         "artifact-cas: 0 content-addressed blobs verify and reconcile with 0 run record(s)",
-        "mcp-schema: compiled and checked tool contracts agree at sha256:641fd1148ede072c767ecc9cf6fb764b90134eab4fe7bc0e3cfd07b901270313"
+        "mcp-schema: compiled and checked tool contracts agree at sha256:856e4248d2ccc7638bed9514e28accf717ae68e9b83fdd8a60f0c0762fd18b0b"
       ],
       "optional": false,
       "actions": []
@@ -270,7 +270,7 @@
       "label": "Lifecycle hooks",
       "severity": "green",
       "status": "pass",
-      "summary": "active generation 6e28d15f271ed09943cfca21e18f360c72aafaa6d35dbaf9e57266bb01d51953 passed manifest, dispatcher, and 14-target verification",
+      "summary": "active generation f10ccceecd2b340ea64eff70316829dd0781c13972b2cc0afa84e75e41e71186 passed manifest, dispatcher, and 14-target verification",
       "details": [
         "plugin root: /Users/gqadonis/.prometheus/plugins/prometheus-skill-pack"
       ],
@@ -295,7 +295,7 @@
       "status": "pass",
       "summary": "source, immutable generation, bundle index, and Codex cache agree on 30 pinned hooks",
       "details": [
-        "bundle: 19bdc79888062f3a07a2ef2dc9cb52b307f1554914955ce701400cfc1b743e2b",
+        "bundle: ac153d1ea55ca21fd28cd3332d7b6e0eb6b93c734561efd474b2b8b5dc32aa4e",
         "No selected command resolves business logic through stable or current."
       ],
       "optional": false,

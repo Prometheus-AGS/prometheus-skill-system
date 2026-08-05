@@ -6,8 +6,9 @@ KBD-backed memory, and Sovereign Sync were not invoked.
 
 ## Certified source
 
-- Final product commit: `977be80a96f4568d1c30bef6b21071f760b63620`
-- Root merge commit: `477c39bd20e666780d264c1eeadbf405e81ad8ab`
+- Final product commit: `7b4e943dfd0299fa51cbd6b7afb3d3f1bfd74571`
+- Root merge commit: `9ac9f45fee732fb7d69c2f9d76717f5431254918`
+- Merged upstream `main`: `a097edb1575e9f4da177e0b4ae9e37e03e7b4698`
 - Prometheus Exec tested implementation commit: `68f960f26d7aa3aad058042dfb2aa3a73e8b0b29`
 - Knowledge pin: `cea7b9063bd0c8b2fe4c2a59f04e5e1eee87d844`
 - Memory pin: `c8719ace0b8d778acb590250301d541ebae6c3c2`
@@ -15,8 +16,13 @@ KBD-backed memory, and Sovereign Sync were not invoked.
   Independent final review then found and drove focused corrections for MCP
   response-loss replay, remote target enrollment, the estate feature boundary,
   strict installer hash certification, execution-time dispatch expiry, live
-  MCP runner readiness, and placeholder certification hashes. Those corrected
-  surfaces were recompiled and checked locally before final installation.
+  MCP runner readiness, and placeholder certification hashes. The converged
+  review then added structured oversized-artifact retrieval guidance, durable
+  already-expired target receipts, submit-once remote reconciliation, bounded
+  terminal polling, target-scoped replay protection, positive MCP limit
+  schemas, pre-decode payload bounds, bounded event pages, and guaranteed event
+  cursor progress. Those corrected surfaces were recompiled and checked
+  locally before final installation.
 
 ## Installed binaries
 
@@ -39,10 +45,10 @@ the same Memory binary independently could produce different installed bytes.
 - The learning worker has zero pending, processing, retry, submitting,
   accepted, rejected, or dead-letter records and 11 terminal memory receipts.
 - Signed generation
-  `6e28d15f271ed09943cfca21e18f360c72aafaa6d35dbaf9e57266bb01d51953`
+  `f10ccceecd2b340ea64eff70316829dd0781c13972b2cc0afa84e75e41e71186`
   was produced from a clean detached worktree at the final product commit.
 - Bundle
-  `19bdc79888062f3a07a2ef2dc9cb52b307f1554914955ce701400cfc1b743e2b`
+  `ac153d1ea55ca21fd28cd3332d7b6e0eb6b93c734561efd474b2b8b5dc32aa4e`
   and all 14 AI-tool target receipts verify.
 - The source, active immutable generation, bundle index, stable dispatchers,
   and installed Codex hook cache agree on all 30 hooks.
@@ -60,7 +66,11 @@ the same Memory binary independently could produce different installed bytes.
   strict installer hash mismatch handling. The final remediation additionally
   passed focused regressions proving execution-time expiry does not invoke the
   executor, a stale Unix socket is not treated as readiness, and the checked
-  certification-status JSON serializes only real archived hashes.
+  certification-status JSON serializes only real archived hashes. The final
+  review regressions also prove target-scoped replay, durable submit-once
+  recovery, bounded remote polling, encoded-size rejection before base64
+  decode, bounded event pages, explicit oversized-event failure, and monotonic
+  pagination cursors.
 - `npm run validate:harness-adapters`: 30 hooks across both harness manifests
   match the merged bundle.
 - `bash scripts/tests/install-policy.test.sh`: strict, best-effort,
@@ -73,6 +83,9 @@ the same Memory binary independently could produce different installed bytes.
   both returned no required failures and made no changes.
 - Focused `prometheus-exec doctor --format json`: healthy, 14/14 required
   checks pass.
+- `npm run docs:check`: deterministic docs sync, workflow policy, OpenAPI,
+  generated examples, 53 Mermaid diagrams, semantic/link/sidebar contracts,
+  public-doc safety, and the Docusaurus production build pass locally.
 
 Every doctor invocation excluded these scopes before check construction:
 
