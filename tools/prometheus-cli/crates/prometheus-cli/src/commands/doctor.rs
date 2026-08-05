@@ -619,6 +619,7 @@ fn write_refresh_manifest(
             "tools/prometheus-knowledge/target/release/pk-cherry",
             "tools/prometheus-knowledge/target/release/prometheus-learning-worker",
             "tools/surreal-memory-server/target/release/surreal-memory-server",
+            "crates/prometheus-exec/target/release/prometheus-exec",
         ]),
         installed_hashes: collect_hashed_paths_from_paths(&[
             local_bin.join("prometheus"),
@@ -626,6 +627,7 @@ fn write_refresh_manifest(
             local_bin.join("pk-cherry"),
             local_bin.join("prometheus-learning-worker"),
             local_bin.join("surreal-memory-server"),
+            local_bin.join("prometheus-exec"),
         ]),
         service_definition_hashes: collect_hashed_paths(&[
             "shared/launchagents/ai.prometheus.surreal-memory-native.plist",
@@ -1823,6 +1825,10 @@ fn check_managed_binaries() -> CheckResult {
             "surreal-memory-server",
             "tools/surreal-memory-server/target/release/surreal-memory-server",
         ),
+        (
+            "prometheus-exec",
+            "crates/prometheus-exec/target/release/prometheus-exec",
+        ),
     ];
     let mut failures = Vec::new();
     let mut details = Vec::new();
@@ -1872,7 +1878,7 @@ fn check_managed_binaries() -> CheckResult {
             CheckStatus::Fail
         },
         summary: if healthy {
-            "5/5 managed binaries are executable, hashed, and signed".into()
+            "6/6 managed binaries are executable, hashed, and signed".into()
         } else {
             format!("{} managed binary defect(s)", failures.len())
         },

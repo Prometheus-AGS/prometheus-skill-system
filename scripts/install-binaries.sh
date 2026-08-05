@@ -32,6 +32,15 @@ info()  { echo "  → $*"; }
 ok()    { echo "  ✅ $*"; }
 fail()  { echo "  ❌ $*" >&2; }
 
+# prometheus-exec has a stricter evidence-producing installation contract than
+# the legacy installers below: version/hash/signature readback is mandatory and
+# replacement is atomic with rollback evidence.
+if $DRY_RUN; then
+    bash "${REPO_ROOT}/scripts/install-prometheus-exec.sh" --dry-run
+else
+    bash "${REPO_ROOT}/scripts/install-prometheus-exec.sh"
+fi
+
 # install_bin <src> <dst> — copy a freshly built binary into place, then
 # re-sign it ad-hoc on macOS. `cp` breaks the code signature of signed arm64
 # binaries and the OS SIGKILLs them on first exec; `codesign --force --sign -`
