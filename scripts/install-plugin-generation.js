@@ -679,7 +679,24 @@ function installLinkTarget(targetRoot, skill, pluginRoot) {
     !(fallback.isSymbolicLink() && isManagedSkillLink(destination, pluginRoot, skill))
   )
     fail(`skill target collision: ${destination}`);
-  const relativeTarget = path.relative(path.dirname(destination), managedTarget);
+  // Link by ABSOLUTE path.
+  //
+  // This previously stored `path.relative(dirname(destination), managedTarget)`.
+  // That is only correct when the platform skills dir sits at a fixed depth
+  // below $HOME, and it does not: ~/.opencode/skills is TWO levels deep, so the
+  // computed "../../.prometheus/plugins/..." resolved against a SIBLING of $HOME
+  // (e.g. ~/.TOOLS/.prometheus/...) instead of $HOME itself. Every one of those
+  // links dangled.
+  //
+  // OpenCode validates each {file:...} command reference at startup and refuses
+  // to boot on the first miss, so 145 dangling links did not degrade OpenCode —
+  // they stopped it from starting at all:
+  //   Error: Configuration is invalid ... bad file reference
+  //
+  // An absolute target is correct at any depth. The generation store lives under
+  // $HOME on every supported platform, so there is no portability argument for
+  // keeping these relative.
+  const relativeTarget = managedTarget;
   const temporary = `${destination}.${process.pid}.tmp`;
   try {
     fs.unlinkSync(temporary);

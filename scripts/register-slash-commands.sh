@@ -110,11 +110,34 @@ for OPENCODE_JSON in OPENCODE_JSONS:
                 cmds["evolve-instincts"] = {**cmds["evolve"], "description": "Cluster ECC instincts into skills (evolve-instincts)"}
             del cmds["evolve"]
 
-        added = skipped = 0
+        added = skipped = dropped = 0
         for skill_name, meta in sorted(skills.items()):
             primary = HOME / ".opencode" / "skills" / skill_name / "SKILL.md"
             fallback = HOME / ".opencode" / "skills" / f"prometheus-{skill_name}" / "SKILL.md"
-            skill_file = primary if primary.exists() else fallback
+            # OpenCode validates every {file:...} reference at STARTUP and refuses
+            # to boot the whole server on the first miss:
+            #   Error: Configuration is invalid ... bad file reference
+            # So a command pointing at a path that does not exist is not a
+            # degraded command — it takes down every OTHER command too.
+            #
+            # The previous form was: primary if primary.exists() else fallback --
+            # which never checked the fallback. Running this before the skills
+            # were installed made primary miss, and it then wrote the
+            # prometheus-<name> path unconditionally — a path that also did not
+            # exist. That produced 147 broken refs out of 148 commands and left
+            # OpenCode unable to start at all.
+            #
+            # Emit ONLY a reference that resolves right now; otherwise drop the
+            # command and say so. A missing command is recoverable; a broken one
+            # is not.
+            if primary.exists():
+                skill_file = primary
+            elif fallback.exists():
+                skill_file = fallback
+            else:
+                cmds.pop(skill_name, None)
+                dropped += 1
+                continue
             wanted_template = f"{{file:{skill_file}}}\n\n\$ARGUMENTS"
             if skill_name in cmds and cmds[skill_name].get("template") == wanted_template:
                 skipped += 1
@@ -124,9 +147,29 @@ for OPENCODE_JSON in OPENCODE_JSONS:
                 "template": wanted_template,
             }
             added += 1
+        # Belt-and-braces: sweep any pre-existing command whose {file:...} target
+        # is gone, regardless of how it got there. One stale entry from an
+        # earlier run is enough to stop OpenCode from starting.
+        #
+        # NOTE: this heredoc is << PYEOF, UNQUOTED, so bash expands the body
+        # before python sees it. Keep this loop free of parentheses-in-comment
+        # and of anything bash would treat as a substitution.
+        stale = []
+        for name in cmds:
+            tpl = cmds[name].get("template", "")
+            if "{file:" not in tpl:
+                continue
+            ref = tpl.split("{file:", 1)[1].split("}", 1)[0]
+            if not Path(ref).exists():
+                stale.append(name)
+        for name in stale:
+            del cmds[name]
+            dropped += 1
+
         print(
             f"  opencode ({OPENCODE_JSON}): added {added}, "
-            f"skipped {skipped} (total {len(cmds)} commands)"
+            f"skipped {skipped}, dropped {dropped} unresolvable "
+            f"(total {len(cmds)} commands)"
         )
 
     config["command"] = cmds
