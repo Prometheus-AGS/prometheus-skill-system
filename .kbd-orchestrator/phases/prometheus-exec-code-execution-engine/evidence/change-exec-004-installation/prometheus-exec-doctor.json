@@ -12,7 +12,7 @@
       "name": "binary-identity",
       "status": "pass",
       "required": true,
-      "detail": "prometheus-exec 1.7.0 sha256:3427774f8cc8cad6076be5aeb23aef9911d767f9072367b768fd830ce3292e05"
+      "detail": "prometheus-exec 1.7.0 sha256:f756328e3a86385e3d1ca11ace93badd7248b7394f42a170456dc4b987603afe"
     },
     {
       "name": "receipt-identity",
@@ -24,13 +24,13 @@
       "name": "service-definition",
       "status": "pass",
       "required": true,
-      "detail": "<home>/Library/LaunchAgents/ai.prometheus.exec.plist verifies as sha256:0db5e62850c6e82b8b1554771d0fb22958c42af1833b9fdd4734619ac8b1898f"
+      "detail": "/Users/gqadonis/Library/LaunchAgents/ai.prometheus.exec.plist verifies as sha256:0db5e62850c6e82b8b1554771d0fb22958c42af1833b9fdd4734619ac8b1898f"
     },
     {
       "name": "socket-permissions",
       "status": "pass",
       "required": true,
-      "detail": "<home>/.prometheus/run/prometheus-exec.sock is a mode-0600 Unix socket"
+      "detail": "/Users/gqadonis/.prometheus/run/prometheus-exec.sock is a mode-0600 Unix socket"
     },
     {
       "name": "socket-peer-health",
@@ -60,7 +60,7 @@
       "name": "tier-w-trust",
       "status": "pass",
       "required": true,
-      "detail": "active signed generation 5a5d675963ae2b4b33b81868a88663f7e6efd92008daef083511f08981005873 verifies 1 component(s)"
+      "detail": "active signed generation 42384cb9bdab259bb4b0f324cb0670b5158541f76f63912fde3038155642913a verifies 1 component(s)"
     },
     {
       "name": "state-reconciliation",
@@ -84,7 +84,7 @@
       "name": "mcp-schema",
       "status": "pass",
       "required": true,
-      "detail": "compiled and checked tool contracts agree at sha256:e6c459fd475fd429a262bec7e127c418f354d293b62ca778f894b33c47a69f2f"
+      "detail": "compiled and checked tool contracts agree at sha256:641fd1148ede072c767ecc9cf6fb764b90134eab4fe7bc0e3cfd07b901270313"
     }
   ]
 }

@@ -1,4 +1,16 @@
 {
+  "schema_version": 1,
+  "contractVersion": "2.0.0",
+  "mode": "diagnose",
+  "selection": {
+    "check": null,
+    "excluded": [
+      "control.kbd-runtime",
+      "state.kbd-orchestrator",
+      "control.kbd-rollout",
+      "service:sovereign-sync"
+    ]
+  },
   "summary": {
     "failed": 0,
     "warned": 1,
@@ -13,7 +25,10 @@
       "label": "Skills directory",
       "severity": "green",
       "status": "pass",
-      "summary": "skills/ exists"
+      "summary": "skills/ exists",
+      "details": [],
+      "optional": false,
+      "actions": []
     },
     {
       "id": "skills.installed-agents",
@@ -21,7 +36,30 @@
       "label": "Installed agents",
       "severity": "green",
       "status": "pass",
-      "summary": "Detected 9 installed agent(s)"
+      "summary": "Detected 9 installed agent(s)",
+      "details": [
+        "Claude Code",
+        "OpenCode",
+        "Cursor",
+        "OpenAI Codex",
+        "Gemini CLI",
+        "Roo Code",
+        "Windsurf",
+        "Amp",
+        "Cline"
+      ],
+      "optional": false,
+      "actions": [
+        {
+          "id": "skills.sync-codex-skills",
+          "description": "Resync the managed Codex skill catalog into the installed Codex runtime.",
+          "safe": true,
+          "reversible": true,
+          "dry_run_only": false,
+          "command_hint": "bash scripts/codex-sync-skills.sh --dry-run",
+          "reason_blocked": null
+        }
+      ]
     },
     {
       "id": "learning.surreal-memory",
@@ -29,7 +67,12 @@
       "label": "Surreal-memory",
       "severity": "green",
       "status": "pass",
-      "summary": "Durable operation ledger is ready at http://127.0.0.1:23001"
+      "summary": "Durable operation ledger is ready at http://127.0.0.1:23001",
+      "details": [
+        "readiness: {\"capabilities\":{\"coordinator\":true,\"ledger\":true,\"model_executor\":true,\"search_index\":true,\"storage\":true,\"tokenizer\":true},\"ingestion_ready\":true,\"search_ready\":true,\"status\":\"ready\"}"
+      ],
+      "optional": false,
+      "actions": []
     },
     {
       "id": "review.judge-gateway",
@@ -37,7 +80,12 @@
       "label": "Adversarial judge gateway",
       "severity": "green",
       "status": "pass",
-      "summary": "Reachable at http://localhost:8181/v1"
+      "summary": "Reachable at http://localhost:8181/v1",
+      "details": [
+        "Adversarial review can resolve a judge distinct from the producer."
+      ],
+      "optional": true,
+      "actions": []
     },
     {
       "id": "binaries.manifest",
@@ -45,7 +93,27 @@
       "label": "Managed binary manifest",
       "severity": "green",
       "status": "pass",
-      "summary": "6/6 managed binaries are executable, hashed, and signed"
+      "summary": "6/6 managed binaries are executable, hashed, and signed",
+      "details": [
+        "prometheus: installed sha256 1fcd8ff2bdf405aeaaf8f0a941b6c99c3ac0d37b3a75bca6f551db62e2fe3a09; source sha256 b49a900f60e9e6f66d35ffb161a3cadd0d3a20ebcad95a7046fa3bafdc3a26d7; signature valid",
+        "pk: installed sha256 74e3a63dac407da5dca8d514717c91a7e040243992abf6f053289e3eac6cdb3f; source sha256 264946f730cd1990ad182f15dd25ded478588f224507b7fceba713a9fa3bbcd3; signature valid",
+        "pk-cherry: installed sha256 37986c6346a4a4b41cad78c74163911d5622deca316cebe9222936ca9a226c49; source sha256 ae23e0ab8a8fd789e94ba6d17f3924e05a7b44e2f3c4e55ced67a641a6e50dc2; signature valid",
+        "prometheus-learning-worker: installed sha256 983d1071ba2ab0513f5a780bddf3c49d8c2d60cf5234a1a9c0f68cb448e1e38e; source sha256 40b875daf4d8baf3bbba8de9bb54bd7c51fbd378ae006bf7b3bf0adc17870cd5; signature valid",
+        "surreal-memory-server: installed sha256 605450fc12fceda6e6ad9fdcb057086dbd6019775cb2c85ec2fb6abdd5e3f180; source sha256 fcb76f81472fabd87c11729fa2165f1ec81ed3a9c86f200a228f156f9a2d0fff; signature valid",
+        "prometheus-exec: installed sha256 f756328e3a86385e3d1ca11ace93badd7248b7394f42a170456dc4b987603afe; source sha256 245701aac3d7c57e59e6fec6e4f9b8f2c7347f442f8211a7aa9fc75b7010f8fd; signature valid"
+      ],
+      "optional": false,
+      "actions": [
+        {
+          "id": "binaries.install-binaries",
+          "description": "Rebuild and reinstall the managed binaries from the pinned source checkout.",
+          "safe": true,
+          "reversible": true,
+          "dry_run_only": false,
+          "command_hint": "bash scripts/install-binaries.sh --dry-run",
+          "reason_blocked": null
+        }
+      ]
     },
     {
       "id": "execution.runtime",
@@ -53,7 +121,24 @@
       "label": "Prometheus Exec runtime",
       "severity": "green",
       "status": "pass",
-      "summary": "binary, service, UDS, readiness, trust, receipts, CAS, and MCP schema verify"
+      "summary": "binary, service, UDS, readiness, trust, receipts, CAS, and MCP schema verify",
+      "details": [
+        "binary-identity: prometheus-exec 1.7.0 sha256:f756328e3a86385e3d1ca11ace93badd7248b7394f42a170456dc4b987603afe",
+        "receipt-identity: ed25519:2253d7021a3e014af60a77e2592ddbb8017197e2b1a1b9348f82ab8c7beace72 is internally consistent",
+        "service-definition: /Users/gqadonis/Library/LaunchAgents/ai.prometheus.exec.plist verifies as sha256:0db5e62850c6e82b8b1554771d0fb22958c42af1833b9fdd4734619ac8b1898f",
+        "socket-permissions: /Users/gqadonis/.prometheus/run/prometheus-exec.sock is a mode-0600 Unix socket",
+        "socket-peer-health: same-UID /health request succeeded",
+        "readiness: all required subsystems are ready",
+        "tier-p-backend: macOS Seatbelt launcher and runtimes are available",
+        "tier-w-backend: Wasmtime 46 cranelift backend is available for desktop without compiling guest bytes",
+        "tier-w-trust: active signed generation 42384cb9bdab259bb4b0f324cb0670b5158541f76f63912fde3038155642913a verifies 1 component(s)",
+        "state-reconciliation: 0 records are structurally valid; 0 are in flight",
+        "receipt-reconciliation: 0 signed receipt(s) reconcile with 0 run record(s)",
+        "artifact-cas: 0 content-addressed blobs verify and reconcile with 0 run record(s)",
+        "mcp-schema: compiled and checked tool contracts agree at sha256:641fd1148ede072c767ecc9cf6fb764b90134eab4fe7bc0e3cfd07b901270313"
+      ],
+      "optional": false,
+      "actions": []
     },
     {
       "id": "services.launch-agents",
@@ -61,7 +146,25 @@
       "label": "Managed LaunchAgents",
       "severity": "green",
       "status": "pass",
-      "summary": "4/4 deterministic learning services are installed and loaded"
+      "summary": "4/4 deterministic learning services are installed and loaded",
+      "details": [
+        "ai.prometheus.surreal-memory-native: loaded from /Users/gqadonis/Library/LaunchAgents/ai.prometheus.surreal-memory-native.plist",
+        "ai.prometheus.pk-cherry: loaded from /Users/gqadonis/Library/LaunchAgents/ai.prometheus.pk-cherry.plist",
+        "ai.prometheus.learning-worker: loaded from /Users/gqadonis/Library/LaunchAgents/ai.prometheus.learning-worker.plist",
+        "ai.prometheus.hooks-logrotate: loaded from /Users/gqadonis/Library/LaunchAgents/ai.prometheus.hooks-logrotate.plist"
+      ],
+      "optional": false,
+      "actions": [
+        {
+          "id": "services.install-mcp-services",
+          "description": "Reload only the managed MCP service definitions owned by this repository.",
+          "safe": true,
+          "reversible": true,
+          "dry_run_only": false,
+          "command_hint": "bash scripts/install-mcp-services.sh --dry-run --exclude sovereign-sync",
+          "reason_blocked": null
+        }
+      ]
     },
     {
       "id": "learning.worker",
@@ -69,7 +172,23 @@
       "label": "Asynchronous learning worker",
       "severity": "green",
       "status": "pass",
-      "summary": "worker installed, service loaded, jobs 0/0/9/0, memory 0/0/0/11/0, legacy retry/dead 0/0"
+      "summary": "worker installed, service loaded, jobs 0/0/9/0, memory 0/0/0/11/0, legacy retry/dead 0/0",
+      "details": [
+        "queue: /Users/gqadonis/.prometheus/learning-queue",
+        "job states: pending/processing/completed/rejected; memory states: pending/submitting/accepted/completed/rejected"
+      ],
+      "optional": false,
+      "actions": [
+        {
+          "id": "services.install-mcp-services",
+          "description": "Install the learning worker and reload its supervised queue service.",
+          "safe": true,
+          "reversible": true,
+          "dry_run_only": false,
+          "command_hint": "bash scripts/install-mcp-services.sh --restart --exclude sovereign-sync",
+          "reason_blocked": null
+        }
+      ]
     },
     {
       "id": "learning.snapshots",
@@ -77,7 +196,24 @@
       "label": "Immutable prompt snapshots",
       "severity": "green",
       "status": "pass",
-      "summary": "project/shared/global committed snapshot pointers are valid"
+      "summary": "project/shared/global committed snapshot pointers are valid",
+      "details": [
+        "project: committed generation 71b099f4f314b205abf26fbc7375034be3502a3a17e9e7e24e60f00f82a5631c",
+        "shared: committed generation 8b9d7694324d5df60eee2b28546e77450615796977c6ce0f627d8f541c006b0b",
+        "global: committed generation f7b2c0f33b4f48bcd225b79de17a30bc555028863091ca1adb3004585a7084bc"
+      ],
+      "optional": false,
+      "actions": [
+        {
+          "id": "manual.publish-prompt-snapshots",
+          "description": "Publish project, shared, and global snapshots with `pk snapshot`.",
+          "safe": false,
+          "reversible": true,
+          "dry_run_only": false,
+          "command_hint": "pk snapshot --scope project --scope shared; pk snapshot --scope global",
+          "reason_blocked": "Snapshot publication requires an explicit knowledge-root choice."
+        }
+      ]
     },
     {
       "id": "hooks.rotation",
@@ -85,7 +221,24 @@
       "label": "Hook log rotation",
       "severity": "green",
       "status": "pass",
-      "summary": "config installed, service loaded, dependencies ready, hook-log mode 0600"
+      "summary": "config installed, service loaded, dependencies ready, hook-log mode 0600",
+      "details": [
+        "logrotate: /usr/local/sbin/logrotate (executable)",
+        "flock: /usr/local/bin/flock (executable)",
+        "30 daily archives, delayed compression, and writer-lock coordination are required."
+      ],
+      "optional": false,
+      "actions": [
+        {
+          "id": "services.install-mcp-services",
+          "description": "Render and load the owner-only hook rotation service.",
+          "safe": true,
+          "reversible": true,
+          "dry_run_only": false,
+          "command_hint": "bash scripts/install-mcp-services.sh --restart --exclude sovereign-sync",
+          "reason_blocked": null
+        }
+      ]
     },
     {
       "id": "mcp.config",
@@ -93,7 +246,22 @@
       "label": "Managed MCP configuration",
       "severity": "yellow",
       "status": "skip",
-      "summary": "MCP reconciliation checks are not implemented yet"
+      "summary": "MCP reconciliation checks are not implemented yet",
+      "details": [
+        "Doctor registry now reserves the mcp group for declarative client config verification."
+      ],
+      "optional": true,
+      "actions": [
+        {
+          "id": "mcp.configure-all-tools",
+          "description": "Reconcile only the managed MCP sections for supported client tools.",
+          "safe": true,
+          "reversible": true,
+          "dry_run_only": false,
+          "command_hint": "bash scripts/configure-mcp-all-tools.sh --dry-run",
+          "reason_blocked": null
+        }
+      ]
     },
     {
       "id": "hooks.lifecycle",
@@ -101,7 +269,22 @@
       "label": "Lifecycle hooks",
       "severity": "green",
       "status": "pass",
-      "summary": "active generation 5a5d675963ae2b4b33b81868a88663f7e6efd92008daef083511f08981005873 passed manifest, dispatcher, and 14-target verification"
+      "summary": "active generation 42384cb9bdab259bb4b0f324cb0670b5158541f76f63912fde3038155642913a passed manifest, dispatcher, and 14-target verification",
+      "details": [
+        "plugin root: /Users/gqadonis/.prometheus/plugins/prometheus-skill-pack"
+      ],
+      "optional": false,
+      "actions": [
+        {
+          "id": "manual.review-hooks",
+          "description": "Review hook ownership and payload integrity before any automatic replacement.",
+          "safe": false,
+          "reversible": false,
+          "dry_run_only": false,
+          "command_hint": null,
+          "reason_blocked": "Doctor must not overwrite unknown hook customizations or local user workflow hooks."
+        }
+      ]
     },
     {
       "id": "hooks.harness-adapters",
@@ -109,7 +292,13 @@
       "label": "Installed Codex hook graph",
       "severity": "green",
       "status": "pass",
-      "summary": "source, immutable generation, bundle index, and Codex cache agree on 30 pinned hooks"
+      "summary": "source, immutable generation, bundle index, and Codex cache agree on 30 pinned hooks",
+      "details": [
+        "bundle: 19bdc79888062f3a07a2ef2dc9cb52b307f1554914955ce701400cfc1b743e2b",
+        "No selected command resolves business logic through stable or current."
+      ],
+      "optional": false,
+      "actions": []
     },
     {
       "id": "skills.discovery-budget",
@@ -117,7 +306,15 @@
       "label": "Harness instruction discovery budgets",
       "severity": "yellow",
       "status": "warn",
-      "summary": "145 skills, 45041 discovery characters, 0/4 measured harnesses"
+      "summary": "145 skills, 45041 discovery characters, 0/4 measured harnesses",
+      "details": [
+        "claude-code discovery budget is not measured",
+        "codex discovery budget is not measured",
+        "opencode discovery budget is not measured",
+        "kimi discovery budget is not measured"
+      ],
+      "optional": false,
+      "actions": []
     },
     {
       "id": "state.evolver",
@@ -125,7 +322,12 @@
       "label": "Evolver state",
       "severity": "yellow",
       "status": "skip",
-      "summary": ".evolver is not initialized"
+      "summary": ".evolver is not initialized",
+      "details": [
+        "Evolution state is optional until an evolution cycle is started."
+      ],
+      "optional": true,
+      "actions": []
     },
     {
       "id": "learning.trace-store",
@@ -133,7 +335,13 @@
       "label": "Trace store",
       "severity": "yellow",
       "status": "skip",
-      "summary": "No trace store yet"
+      "summary": "No trace store yet",
+      "details": [
+        "Trace capture has not yet produced .prometheus/traces."
+      ],
+      "optional": true,
+      "actions": []
     }
-  ]
+  ],
+  "repair_plan": null
 }

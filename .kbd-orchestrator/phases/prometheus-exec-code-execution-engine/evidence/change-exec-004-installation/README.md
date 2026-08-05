@@ -6,13 +6,17 @@ KBD-backed memory, and Sovereign Sync were not invoked.
 
 ## Certified source
 
+- Final product commit: `9c24a299a37db31d292fb72f9e15ed42199bc935`
 - Root merge commit: `477c39bd20e666780d264c1eeadbf405e81ad8ab`
-- Prometheus Exec tested implementation/evidence commit: `73056af9b215847cdc62e89359e6bfb24ad80693`
+- Prometheus Exec tested implementation commit: `d5caec468ce75db58649538557efcd287b98f3d8`
 - Knowledge pin: `cea7b9063bd0c8b2fe4c2a59f04e5e1eee87d844`
 - Memory pin: `c8719ace0b8d778acb590250301d541ebae6c3c2`
-- The prometheus-exec Rust tree is byte-identical between `73056af` and the
-  merge commit. The merge-affected worker and installation surfaces were
-  revalidated separately.
+- The main merge preserved the previously certified execution Rust tree.
+  Independent final review then found and drove focused corrections for MCP
+  response-loss replay, remote target enrollment, the estate feature boundary,
+  strict installer hash certification, execution-time dispatch expiry, live
+  MCP runner readiness, and placeholder certification hashes. Those corrected
+  surfaces were recompiled and checked locally before final installation.
 
 ## Installed binaries
 
@@ -34,8 +38,8 @@ the same Memory binary independently could produce different installed bytes.
 - The learning worker has zero pending, processing, retry, submitting,
   accepted, rejected, or dead-letter records and 11 terminal memory receipts.
 - Signed generation
-  `5a5d675963ae2b4b33b81868a88663f7e6efd92008daef083511f08981005873`
-  was produced from a clean detached worktree at the root merge commit.
+  `42384cb9bdab259bb4b0f324cb0670b5158541f76f63912fde3038155642913a`
+  was produced from a clean detached worktree at the final product commit.
 - Bundle
   `19bdc79888062f3a07a2ef2dc9cb52b307f1554914955ce701400cfc1b743e2b`
   and all 14 AI-tool target receipts verify.
@@ -47,10 +51,15 @@ the same Memory binary independently could produce different installed bytes.
 - Release builds used stable Rust, `RUSTFLAGS=-Dwarnings`, an internal-SSD
   Cargo home, and explicit workspace target directories.
 - `cargo test -p pk-learning-worker`: 14 passed, 0 failed.
-- Prior full prometheus-exec phase certification remains applicable because the
-  Rust tree is unchanged; the real MCP, Tier P, Tier W, response-loss, restart,
-  portable-evidence, and two-peer results are archived in
-  `../change-exec-004-real-use-cases/`.
+- Prior full prometheus-exec phase certification remains archived with the real
+  MCP, Tier P, Tier W, response-loss, restart, portable-evidence, and two-peer
+  results in `../change-exec-004-real-use-cases/`. Final-review corrections add
+  focused passing regressions for MCP same-ID replay/hash conflict, unknown
+  remote targets before queue insertion, non-estate dependency selection, and
+  strict installer hash mismatch handling. The final remediation additionally
+  passed focused regressions proving execution-time expiry does not invoke the
+  executor, a stale Unix socket is not treated as readiness, and the checked
+  certification-status JSON serializes only real archived hashes.
 - `npm run validate:harness-adapters`: 30 hooks across both harness manifests
   match the merged bundle.
 - `bash scripts/tests/install-policy.test.sh`: strict, best-effort,
