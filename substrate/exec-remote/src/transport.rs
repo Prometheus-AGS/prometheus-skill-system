@@ -21,9 +21,23 @@ pub struct LocalExecutionOutcome {
     pub failure: Option<String>,
 }
 
+/// Durable identity returned after the local request ledger has accepted the
+/// canonical request. Repeating `submit` for the same request must return the
+/// same identity without starting a second execution.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct LocalExecutionSubmission {
+    pub run_id: Uuid,
+}
+
 #[async_trait]
 pub trait LocalExecutionHandoff: Send + Sync {
-    async fn execute(&self, dispatch: &SignedRemoteDispatch) -> Result<LocalExecutionOutcome>;
+    async fn submit(&self, dispatch: &SignedRemoteDispatch) -> Result<LocalExecutionSubmission>;
+
+    async fn status(
+        &self,
+        dispatch: &SignedRemoteDispatch,
+        run_id: Uuid,
+    ) -> Result<LocalExecutionOutcome>;
 }
 
 /// Injected transport boundary. The remote crate does not depend on a concrete
@@ -105,7 +119,7 @@ where
             }
         };
         let execution_now = Utc::now();
-        if execution_now > dispatch.expires_at()? {
+        if received.state != PeerDispatchState::Running && execution_now > dispatch.expires_at()? {
             let expired = self.queue.transition(
                 dispatch.dispatch_id,
                 PeerDispatchState::Expired,
@@ -117,21 +131,41 @@ where
             return self.response_from_record(&expired);
         }
         let running = match received.state {
-            PeerDispatchState::Received => self.queue.transition(
-                dispatch.dispatch_id,
-                PeerDispatchState::Running,
-                received.run_id,
-                None,
-                None,
-                now,
-            )?,
+            PeerDispatchState::Received => {
+                let submission = self.executor.submit(&dispatch).await.map_err(|error| {
+                    RemoteError::Execution(format!("{}: {error}", dispatch.dispatch_id))
+                })?;
+                self.queue.transition(
+                    dispatch.dispatch_id,
+                    PeerDispatchState::Running,
+                    Some(submission.run_id),
+                    None,
+                    None,
+                    Utc::now(),
+                )?
+            }
             PeerDispatchState::Running => received,
             _ => unreachable!("target resume normalizes to received or running"),
         };
-        let outcome = self.executor.execute(&dispatch).await.map_err(|error| {
-            RemoteError::Execution(format!("{}: {error}", dispatch.dispatch_id))
+        let run_id = running.run_id.ok_or_else(|| {
+            RemoteError::InvalidTransition("running target record has no local run ID".into())
         })?;
-        let run_id = outcome.run_id.or(running.run_id);
+        let outcome = self
+            .executor
+            .status(&dispatch, run_id)
+            .await
+            .map_err(|error| {
+                RemoteError::Execution(format!("{}: {error}", dispatch.dispatch_id))
+            })?;
+        if outcome
+            .run_id
+            .is_some_and(|outcome_id| outcome_id != run_id)
+        {
+            return Err(RemoteError::InvalidPeerResponse(format!(
+                "local status replaced durable run ID {run_id}"
+            )));
+        }
+        let run_id = Some(run_id);
         if let Some(receipt) = outcome.receipt.as_ref() {
             self.verify_target_receipt(receipt, &dispatch)?;
         }
@@ -317,8 +351,8 @@ mod tests {
     use uuid::Uuid;
 
     use super::{
-        aggregate_records, LocalExecutionHandoff, LocalExecutionOutcome, RemoteOrigin,
-        RemoteTarget, RemoteTransport,
+        aggregate_records, LocalExecutionHandoff, LocalExecutionOutcome, LocalExecutionSubmission,
+        RemoteOrigin, RemoteTarget, RemoteTransport,
     };
     use crate::{
         PeerDispatchRecord, PeerDispatchState, Result, SignedPeerDispatchResponse,
@@ -331,9 +365,21 @@ mod tests {
 
     #[async_trait]
     impl LocalExecutionHandoff for FixtureExecutor {
-        async fn execute(&self, dispatch: &SignedRemoteDispatch) -> Result<LocalExecutionOutcome> {
+        async fn submit(
+            &self,
+            _dispatch: &SignedRemoteDispatch,
+        ) -> Result<LocalExecutionSubmission> {
+            Ok(LocalExecutionSubmission {
+                run_id: Uuid::new_v4(),
+            })
+        }
+
+        async fn status(
+            &self,
+            dispatch: &SignedRemoteDispatch,
+            run_id: Uuid,
+        ) -> Result<LocalExecutionOutcome> {
             let now = Utc::now();
-            let run_id = Uuid::new_v4();
             let mut receipt = ExecutionReceipt {
                 schema_version: SCHEMA_VERSION.into(),
                 run_id,

@@ -1,0 +1,26 @@
+{
+  "mode": "diff",
+  "verdict": "BLOCK",
+  "judge_model": "MiniMax-M3",
+  "producer_model": "gpt-5.6-sol",
+  "isolation_mode": "rest-gateway:http://localhost:8181/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": "openspec/changes/change-exec-004-remote-mcp-docs/tasks.md",
+      "line": 35,
+      "claim": "The change does not satisfy the stated acceptance criteria because phase-completion task 6.3 remains unchecked.",
+      "evidence": "Acceptance criteria section 6 lists `- [ ] 6.3 Install/sign/read back the final binary and generation, complete artifact-refiner and distinct-model review, verify/archive the OpenSpec change, and close the KBD phase with reflection`; the committed tasks file contains the same unchecked item.",
+      "suggested_fix": "Complete and mark task 6.3 as done only after the required install/readback, reviews, OpenSpec archival, and phase closure evidence are committed, or remove it from the required acceptance criteria if it is not in scope."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "substrate/exec-remote/src/transport.rs",
+      "line": 96,
+      "claim": "A duplicate target delivery for a non-terminal `Received` or `Running` dispatch can invoke the local executor again, violating the no-reexecution replay contract.",
+      "evidence": "Acceptance criteria 2.3 and 2.4 require response-loss/replay behavior without re-execution; `RemoteTarget::receive` returns only for terminal records, otherwise accepts `PeerDispatchState::Received | PeerDispatchState::Running => accepted.record`, then still calls `self.executor.execute(&dispatch).await` after the state match.",
+      "suggested_fix": "Persist a local run identity before starting execution and, on duplicate delivery of `Received`/`Running`, return the durable existing state or poll/read the existing local run instead of calling `execute` again."
+    }
+  ]
+}

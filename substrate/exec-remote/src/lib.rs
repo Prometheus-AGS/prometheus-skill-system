@@ -25,8 +25,8 @@ pub use model::{
 pub use queue::{AcceptDispatchResult, DispatchQueue, DispatchRecord};
 #[cfg(feature = "transport")]
 pub use transport::{
-    aggregate_records, LocalExecutionHandoff, LocalExecutionOutcome, RemoteOrigin, RemoteTarget,
-    RemoteTransport,
+    aggregate_records, LocalExecutionHandoff, LocalExecutionOutcome, LocalExecutionSubmission,
+    RemoteOrigin, RemoteTarget, RemoteTransport,
 };
 
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");

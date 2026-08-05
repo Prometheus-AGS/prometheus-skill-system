@@ -563,6 +563,11 @@ fn validate_transition(
         )));
     }
     match next {
+        PeerDispatchState::Running if run_id.is_none() => {
+            return Err(RemoteError::InvalidTransition(
+                "running state requires a local run ID".into(),
+            ));
+        }
         PeerDispatchState::Applied => {
             let receipt = receipt.ok_or_else(|| {
                 RemoteError::InvalidTransition("applied state requires a receipt".into())

@@ -21,9 +21,9 @@ use prometheus_exec_contracts::{
 };
 use prometheus_exec_remote::{
     sign_dispatch_ed25519, sign_peer_response_ed25519, DispatchQueue, EnrollmentBinding,
-    EnrollmentSnapshot, LocalExecutionHandoff, LocalExecutionOutcome, PeerDispatchState,
-    RemoteError, RemoteOrigin, RemoteTarget, RemoteTransport, Result, SignedPeerDispatchResponse,
-    SignedRemoteDispatch, REMOTE_SCHEMA_VERSION,
+    EnrollmentSnapshot, LocalExecutionHandoff, LocalExecutionOutcome, LocalExecutionSubmission,
+    PeerDispatchState, RemoteError, RemoteOrigin, RemoteTarget, RemoteTransport, Result,
+    SignedPeerDispatchResponse, SignedRemoteDispatch, REMOTE_SCHEMA_VERSION,
 };
 use tempfile::tempdir;
 use uuid::Uuid;
@@ -106,10 +106,19 @@ struct CountingExecutor {
 
 #[async_trait]
 impl LocalExecutionHandoff for CountingExecutor {
-    async fn execute(&self, dispatch: &SignedRemoteDispatch) -> Result<LocalExecutionOutcome> {
+    async fn submit(&self, _dispatch: &SignedRemoteDispatch) -> Result<LocalExecutionSubmission> {
         self.calls.fetch_add(1, Ordering::SeqCst);
+        Ok(LocalExecutionSubmission {
+            run_id: Uuid::new_v4(),
+        })
+    }
+
+    async fn status(
+        &self,
+        dispatch: &SignedRemoteDispatch,
+        run_id: Uuid,
+    ) -> Result<LocalExecutionOutcome> {
         let now = Utc::now();
-        let run_id = Uuid::new_v4();
         let mut receipt = ExecutionReceipt {
             schema_version: SCHEMA_VERSION.into(),
             run_id,
@@ -233,6 +242,64 @@ fn response_loss_resumes_offline_without_reexecuting_and_survives_restart() {
     let record = reopened.get(dispatch.dispatch_id).unwrap().unwrap();
     assert_eq!(record.state, PeerDispatchState::Applied);
     assert_eq!(record.receipt.unwrap().request_hash, dispatch.request_hash);
+}
+
+#[test]
+fn duplicate_running_delivery_polls_the_durable_run_without_resubmitting() {
+    let (dispatch, enrollment, _, target_key) = fixture();
+    let target_dir = tempdir().unwrap();
+    let queue = DispatchQueue::open(target_dir.path()).unwrap();
+    queue
+        .accept_at_target(dispatch.clone(), &enrollment, dispatch.issued_at)
+        .unwrap();
+    queue
+        .transition(
+            dispatch.dispatch_id,
+            PeerDispatchState::Received,
+            None,
+            None,
+            None,
+            dispatch.issued_at,
+        )
+        .unwrap();
+    let run_id = Uuid::new_v4();
+    queue
+        .transition(
+            dispatch.dispatch_id,
+            PeerDispatchState::Running,
+            Some(run_id),
+            None,
+            None,
+            dispatch.issued_at,
+        )
+        .unwrap();
+    let submissions = Arc::new(AtomicUsize::new(0));
+    let target = RemoteTarget::new(
+        TARGET,
+        queue.clone(),
+        enrollment,
+        target_key.clone(),
+        Arc::new(CountingExecutor {
+            key: target_key,
+            calls: submissions.clone(),
+        }),
+    )
+    .unwrap();
+
+    let response = futures::executor::block_on(target.receive(dispatch, Utc::now()))
+        .expect("duplicate running delivery reconciles by local run ID");
+
+    assert_eq!(response.state, PeerDispatchState::Applied);
+    assert_eq!(response.run_id, Some(run_id));
+    assert_eq!(submissions.load(Ordering::SeqCst), 0);
+    assert_eq!(
+        queue
+            .get(response.dispatch_id)
+            .unwrap()
+            .expect("terminal target record")
+            .state,
+        PeerDispatchState::Applied
+    );
 }
 
 #[test]
