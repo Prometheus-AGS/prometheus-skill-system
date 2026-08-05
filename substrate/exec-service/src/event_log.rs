@@ -327,9 +327,16 @@ impl RunEventLog {
                     source,
                 })?
                 .len();
-            if events.len() == max_events
-                || response_bytes.saturating_add(encoded_bytes) > max_bytes
-            {
+            if events.len() == max_events {
+                return Ok((events, true));
+            }
+            if response_bytes.saturating_add(encoded_bytes) > max_bytes {
+                if events.is_empty() {
+                    return Err(RunEventLogError::InvalidEvent(format!(
+                        "event {} serialized size {encoded_bytes} exceeds page byte limit {max_bytes}",
+                        event.sequence
+                    )));
+                }
                 return Ok((events, true));
             }
             response_bytes = response_bytes.saturating_add(encoded_bytes);

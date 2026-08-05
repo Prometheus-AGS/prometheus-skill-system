@@ -135,9 +135,10 @@ fn event_log_serializes_concurrent_writers_and_resumes_after_sequence() {
     let (last_page, has_more) = log.events_page_after(run_id, 15, 2, 1024 * 1024).unwrap();
     assert_eq!(last_page[0].sequence, 16);
     assert!(!has_more);
-    let (byte_limited, has_more) = log.events_page_after(run_id, 11, 2, 1).unwrap();
-    assert!(byte_limited.is_empty());
-    assert!(has_more);
+    let error = log
+        .events_page_after(run_id, 11, 2, 1)
+        .expect_err("an oversized first event must not create a stalled cursor");
+    assert!(error.to_string().contains("exceeds page byte limit 1"));
 }
 
 #[test]
