@@ -15,6 +15,7 @@ layers = {
     "exec-tier-w": {"prometheus-exec-contracts", "prometheus-exec-core"},
     "exec-tier-p": {"prometheus-exec-contracts", "prometheus-exec-core"},
     "exec-service": {"prometheus-exec-contracts", "prometheus-exec-core"},
+    "exec-remote": {"prometheus-exec-contracts"},
     "exec-embedded": {
         "prometheus-exec-contracts",
         "prometheus-exec-core",
