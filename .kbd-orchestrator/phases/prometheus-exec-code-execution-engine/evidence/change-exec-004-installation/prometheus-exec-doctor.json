@@ -12,7 +12,7 @@
       "name": "binary-identity",
       "status": "pass",
       "required": true,
-      "detail": "prometheus-exec 1.7.0 sha256:a6b6d50b5e090cc9ea2c95798fdb4bbb8779ac4961fb338da9c180a2bd04ce91"
+      "detail": "prometheus-exec 1.7.0 sha256:71b03b6bb4ae841fee3076208a8206491d7a6cdbc00b6cdf196f169e1c08ca96"
     },
     {
       "name": "receipt-identity",
@@ -66,7 +66,7 @@
       "name": "tier-w-trust",
       "status": "pass",
       "required": true,
-      "detail": "active signed generation 778d405f6d4157c921c37c27070e4f3839fb6bdaee1ea6cae516c797848e439f verifies 1 component(s)"
+      "detail": "active signed generation 3f71ba5e9b617bea70f40eae55549f9d4e3c0eec5c887ff78ac995dba82e2a95 verifies 1 component(s)"
     },
     {
       "name": "state-reconciliation",

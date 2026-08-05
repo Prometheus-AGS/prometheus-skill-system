@@ -12,6 +12,6 @@
     {"name":"pk-cherry","version":"pk-cherry 1.7.0","buildSha256":"ae23e0ab8a8fd789e94ba6d17f3924e05a7b44e2f3c4e55ced67a641a6e50dc2","installedSha256":"37986c6346a4a4b41cad78c74163911d5622deca316cebe9222936ca9a226c49","signature":"verified"},
     {"name":"prometheus-learning-worker","version":"prometheus-learning-worker 1.7.0","buildSha256":"40b875daf4d8baf3bbba8de9bb54bd7c51fbd378ae006bf7b3bf0adc17870cd5","installedSha256":"983d1071ba2ab0513f5a780bddf3c49d8c2d60cf5234a1a9c0f68cb448e1e38e","signature":"verified"},
     {"name":"surreal-memory-server","version":"surreal-memory-server 1.7.0","buildSha256":"fcb76f81472fabd87c11729fa2165f1ec81ed3a9c86f200a228f156f9a2d0fff","installedSha256":"605450fc12fceda6e6ad9fdcb057086dbd6019775cb2c85ec2fb6abdd5e3f180","signature":"verified","features":["embedded","local-embeddings"],"backend":"cpu"},
-    {"name":"prometheus-exec","version":"prometheus-exec 1.7.0","buildSha256":"bcd31f8a0403c65d857b110607975acd5490a88dc962f2d92df320f2304d4dce","installedSha256":"a6b6d50b5e090cc9ea2c95798fdb4bbb8779ac4961fb338da9c180a2bd04ce91","signature":"verified"}
+    {"name":"prometheus-exec","version":"prometheus-exec 1.7.0","buildSha256":"699ea83ec3ec9320d2f2c82def87cb65c1cfc4adfeb491d05d5a28d559bf329d","installedSha256":"71b03b6bb4ae841fee3076208a8206491d7a6cdbc00b6cdf196f169e1c08ca96","signature":"verified"}
   ]
 }

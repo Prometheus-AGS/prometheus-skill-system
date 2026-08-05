@@ -6,9 +6,9 @@ KBD-backed memory, and Sovereign Sync were not invoked.
 
 ## Certified source
 
-- Final product commit: `147b4a6c8835449f1612d62c6fa46dec698865aa`
+- Final product commit: `8d93ecd78ec759f49301782002be75dbf25b5679`
 - Root merge commit: `477c39bd20e666780d264c1eeadbf405e81ad8ab`
-- Prometheus Exec tested implementation commit: `dfe04fbf6769fb77bbd718cfd6998cf93fe581f3`
+- Prometheus Exec tested implementation commit: `68f960f26d7aa3aad058042dfb2aa3a73e8b0b29`
 - Knowledge pin: `cea7b9063bd0c8b2fe4c2a59f04e5e1eee87d844`
 - Memory pin: `c8719ace0b8d778acb590250301d541ebae6c3c2`
 - The main merge preserved the previously certified execution Rust tree.
@@ -39,7 +39,7 @@ the same Memory binary independently could produce different installed bytes.
 - The learning worker has zero pending, processing, retry, submitting,
   accepted, rejected, or dead-letter records and 11 terminal memory receipts.
 - Signed generation
-  `778d405f6d4157c921c37c27070e4f3839fb6bdaee1ea6cae516c797848e439f`
+  `3f71ba5e9b617bea70f40eae55549f9d4e3c0eec5c887ff78ac995dba82e2a95`
   was produced from a clean detached worktree at the final product commit.
 - Bundle
   `19bdc79888062f3a07a2ef2dc9cb52b307f1554914955ce701400cfc1b743e2b`

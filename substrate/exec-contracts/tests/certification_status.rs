@@ -53,7 +53,7 @@ fn report() -> ExecutionCertificationReport {
             EvidenceDimension::ArtifactSource,
             "sourceHash",
             digest("ba438895404a23985d5226735b8f362cf3e8044894a1140852ba0992f2fdbe78"),
-            digest("dec0135c83d49ef00321593fe765f8b170794fe39bdd782d3dea240f4b15d406"),
+            digest("2a709230551c2bd0374582c21a24a50d50779a85492c9d94e0d991fcdc5cec2e"),
         ),
         completed(
             "disposable-runtime",
@@ -66,8 +66,8 @@ fn report() -> ExecutionCertificationReport {
             "installed-host",
             EvidenceDimension::InstalledHost,
             "binaryHash",
-            digest("a6b6d50b5e090cc9ea2c95798fdb4bbb8779ac4961fb338da9c180a2bd04ce91"),
-            digest("77222110eab6b97a3c20901ab79c7fd7dfce51598838dc73f6d3a51bca1d2cca"),
+            digest("71b03b6bb4ae841fee3076208a8206491d7a6cdbc00b6cdf196f169e1c08ca96"),
+            digest("3c888679b62119e2484f5f5d1c0510237ce0e8f9d4e5c800ef46991be4dfab15"),
         ),
         pending(
             "judge-review",
