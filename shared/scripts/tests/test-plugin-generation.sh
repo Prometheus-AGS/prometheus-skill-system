@@ -10,7 +10,9 @@ PLUGIN_ROOT="$TMP/home/.prometheus/plugins/prometheus-skill-pack"
 
 mkdir -p \
   "$SOURCE/skills/example/scripts" \
+  "$SOURCE/skills/react/prometheus-entity-skills/entity-graph-optimize" \
   "$SOURCE/agents" \
+  "$SOURCE/config" \
   "$SOURCE/hooks" \
   "$SOURCE/scripts" \
   "$SOURCE/shared/harnesses" \
@@ -26,6 +28,37 @@ printf '#!/usr/bin/env bash\n' > "$SOURCE/shared/scripts/lib/hook-log.sh"
 printf '#!/usr/bin/env bash\n' > "$SOURCE/shared/scripts/lib/memory-bridge.sh"
 cp "$ROOT/scripts/install-plugin-generation.js" "$SOURCE/scripts/install-plugin-generation.js"
 cp "$ROOT/scripts/generate-harness-adapters.js" "$SOURCE/scripts/generate-harness-adapters.js"
+cp "$ROOT/config/prometheus-exec-component.json" "$SOURCE/config/prometheus-exec-component.json"
+cp "$ROOT/skills/react/prometheus-entity-skills/entity-graph-optimize/skill.wasm" \
+  "$SOURCE/skills/react/prometheus-entity-skills/entity-graph-optimize/skill.wasm"
+node --input-type=module - "$ROOT" <<'NODE'
+import fs from 'node:fs';
+import path from 'node:path';
+
+const root = process.argv[2];
+const descriptor = JSON.parse(
+  fs.readFileSync(path.join(root, 'config/prometheus-exec-component.json'), 'utf8')
+);
+const source = fs.readFileSync(path.join(root, 'substrate/exec-tier-w/src/capabilities.rs'), 'utf8');
+const hostImports = [...source.matchAll(/const [A-Z_]+_IMPORT: &str = "([^"]+)";/g)].map(
+  match => match[1]
+);
+const supported = source.match(/const SUPPORTED_IMPORTS: \[&str; 21\] = \[([\s\S]*?)\n\];/)?.[1];
+const wasiImports = [...(supported ?? '').matchAll(/"(wasi:[^"]+)"/g)].map(match => match[1]);
+const versions = fs.readFileSync(path.join(root, 'substrate/exec-tier-w/versions.toml'), 'utf8');
+if (JSON.stringify(descriptor.capabilities.hostImports) !== JSON.stringify(hostImports)) {
+  throw new Error('published host capability metadata diverges from Tier W');
+}
+if (JSON.stringify(descriptor.capabilities.wasiAdapterImports) !== JSON.stringify(wasiImports)) {
+  throw new Error('published WASI capability metadata diverges from Tier W');
+}
+if (
+  !versions.includes(`component_world = "${descriptor.world}"`) ||
+  !versions.includes(`artifact_sha256 = "${descriptor.sha256}"`)
+) {
+  throw new Error('published component identity diverges from the Tier W version pins');
+}
+NODE
 cp "$ROOT/shared/scripts/hook-runtime-v1.sh" "$SOURCE/shared/scripts/hook-runtime-v1.sh"
 cp "$ROOT/shared/scripts/bootstrap-hook-runtime.sh" "$SOURCE/shared/scripts/bootstrap-hook-runtime.sh"
 cp "$ROOT/shared/harnesses/capabilities.json" "$SOURCE/shared/harnesses/capabilities.json"
@@ -40,8 +73,8 @@ for script in enqueue-learning-job enqueue-memory-operation; do
 done
 chmod +x "$SOURCE/skills/example/scripts/example.sh"
 printf '{}\n' > "$SOURCE/hooks/hooks.json"
-printf '{"name":"prometheus-skill-pack","version":"test"}\n' > "$SOURCE/.claude-plugin/plugin.json"
-printf '{"name":"prometheus-skill-pack","version":"test"}\n' > "$SOURCE/.codex-plugin/plugin.json"
+printf '{"name":"prometheus-skill-pack","version":"1.7.0"}\n' > "$SOURCE/.claude-plugin/plugin.json"
+printf '{"name":"prometheus-skill-pack","version":"1.7.0"}\n' > "$SOURCE/.codex-plugin/plugin.json"
 printf '{"plugins":[]}\n' > "$SOURCE/.agents/plugins/marketplace.json"
 printf '{}\n' > "$SOURCE/.mcp.json"
 node "$SOURCE/scripts/generate-harness-adapters.js" >/dev/null
@@ -71,6 +104,18 @@ PROMETHEUS_PLUGIN_ROOT="$PLUGIN_ROOT" "$PLUGIN_ROOT/runtime/v1/run-hook" \
 [[ -f "$PLUGIN_ROOT/generations/$FIRST_HASH/manifest.sig.json" ]]
 [[ "$(stat -f '%Lp' "$PLUGIN_ROOT/generations/$FIRST_HASH/manifest.sig.json" 2>/dev/null || stat -c '%a' "$PLUGIN_ROOT/generations/$FIRST_HASH/manifest.sig.json")" == 600 ]]
 [[ "$(find "$PLUGIN_ROOT/receipts/$FIRST_HASH" -type f -name '*.json' | wc -l | tr -d ' ')" == 14 ]]
+[[ "$(jq -r '.executionComponent.sha256' "$PLUGIN_ROOT/generations/$FIRST_HASH/manifest.json")" == \
+  "ba438895404a23985d5226735b8f362cf3e8044894a1140852ba0992f2fdbe78" ]]
+[[ "$(jq -r '.executionComponent.world' "$PLUGIN_ROOT/generations/$FIRST_HASH/manifest.json")" == \
+  "prometheus:component@0.1.0" ]]
+for receipt in "$PLUGIN_ROOT/receipts/$FIRST_HASH"/*.json; do
+  [[ "$(jq -r '.body.executionComponentSha256' "$receipt")" == \
+    "ba438895404a23985d5226735b8f362cf3e8044894a1140852ba0992f2fdbe78" ]]
+  [[ "$(jq -r '.body.executionCapabilitySha256' "$receipt")" == \
+    "$(jq -r '.executionComponent.capabilityMetadataSha256' "$PLUGIN_ROOT/generations/$FIRST_HASH/manifest.json")" ]]
+  [[ "$(jq -r '.body.executionComponentIndexSha256' "$receipt")" == \
+    "$(jq -r '.executionComponent.indexSha256' "$PLUGIN_ROOT/generations/$FIRST_HASH/manifest.json")" ]]
+done
 [[ -f "$PLUGIN_ROOT/trust/allowed-signers.json" ]]
 [[ "$(jq '.signers | length' "$PLUGIN_ROOT/trust/allowed-signers.json")" == 1 ]]
 [[ "$(stat -f '%Lp' "$TMP/home/.prometheus/plugin-signing/ed25519-private.pem" 2>/dev/null || stat -c '%a' "$TMP/home/.prometheus/plugin-signing/ed25519-private.pem")" == 600 ]]
@@ -80,6 +125,10 @@ cmp "$PLUGIN_ROOT/generations/$FIRST_HASH/indexes/skills.json" \
   "$PLUGIN_ROOT/generations/$FIRST_HASH/agents/skill-index.json"
 cmp "$PLUGIN_ROOT/generations/$FIRST_HASH/indexes/skills.json" \
   "$PLUGIN_ROOT/stable/skill-index.json"
+cmp "$PLUGIN_ROOT/generations/$FIRST_HASH/indexes/components.json" \
+  "$PLUGIN_ROOT/generations/$FIRST_HASH/agents/component-index.json"
+cmp "$PLUGIN_ROOT/generations/$FIRST_HASH/indexes/components.json" \
+  "$PLUGIN_ROOT/generations/$FIRST_HASH/mobile/component-index.json"
 [[ "$(jq -r '.skillIndexSha256' "$PLUGIN_ROOT/generations/$FIRST_HASH/mobile/parity.json")" == \
     "$(jq -r '.skillIndex.sha256' "$PLUGIN_ROOT/generations/$FIRST_HASH/manifest.json")" ]]
 [[ "$(jq -r '.files[] | select(.path == "shared/scripts/karpathy-hook-dispatch.sh") | .mode' "$PLUGIN_ROOT/generations/$FIRST_HASH/manifest.json")" == "0755" ]]
@@ -109,6 +158,16 @@ cp "$TMP/manifest.sig.json" "$PLUGIN_ROOT/generations/$FIRST_HASH/manifest.sig.j
 node "$INSTALLER" --plugin-root "$PLUGIN_ROOT" --verify >/dev/null
 echo '[PASS] signed generation, canonical index parity, and 14 signed target receipts verify'
 echo '[PASS] manifest-signature tampering fails closed before activation'
+
+COMPONENT="$PLUGIN_ROOT/generations/$FIRST_HASH/skills/react/prometheus-entity-skills/entity-graph-optimize/skill.wasm"
+printf 'tamper' >> "$COMPONENT"
+if node "$INSTALLER" --plugin-root "$PLUGIN_ROOT" --verify >/dev/null 2>&1; then
+  echo '[FAIL] tampered execution component unexpectedly verified' >&2
+  exit 1
+fi
+cp "$SOURCE/skills/react/prometheus-entity-skills/entity-graph-optimize/skill.wasm" "$COMPONENT"
+node "$INSTALLER" --plugin-root "$PLUGIN_ROOT" --verify >/dev/null
+echo '[PASS] execution-component tampering fails closed before activation'
 
 printf '%s\n' '---' 'name: example' 'description: fixture-same-bundle' '---' > \
   "$SOURCE/skills/example/SKILL.md"

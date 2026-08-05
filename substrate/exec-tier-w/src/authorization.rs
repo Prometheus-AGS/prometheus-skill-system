@@ -454,6 +454,7 @@ fn verify_generation_identity(manifest: &Value, generation_id: &str) -> Result<(
         "hookRuntime",
         "sourceProvenance",
         "skillIndex",
+        "executionComponent",
         "files",
         "targetPayloads",
     ] {
@@ -940,6 +941,7 @@ mod tests {
             "schemaVersion": 1,
             "signerKeyId": signer_key_id,
             "skillIndex": {"entryCount": 1, "sha256": "fixture"},
+            "executionComponent": {"fixture": marker},
             "sourceProvenance": {"fixture": marker},
             "sourceVersion": "1.7.0",
             "targetPayloads": [],
@@ -954,6 +956,7 @@ mod tests {
             "hookRuntime",
             "sourceProvenance",
             "skillIndex",
+            "executionComponent",
             "files",
             "targetPayloads",
         ] {
