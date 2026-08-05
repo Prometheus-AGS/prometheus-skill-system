@@ -225,6 +225,17 @@ where
             }
         };
         verify_peer_response(&response, &dispatch, &self.enrollment)?;
+        if let Some(receipt) = response.receipt.as_ref() {
+            let binding = self.enrollment.binding(&response.endpoint_id)?;
+            let key = VerificationKey::from_base64url(binding.sig_alg, &binding.public_key)?;
+            let verification = verify_receipt(receipt, &key, Some(&dispatch.request), None);
+            if !verification.valid {
+                return Err(RemoteError::InvalidPeerResponse(format!(
+                    "peer receipt verification failed: {:?}",
+                    verification.failures
+                )));
+            }
+        }
         let mut current = self
             .queue
             .get(dispatch.dispatch_id)?

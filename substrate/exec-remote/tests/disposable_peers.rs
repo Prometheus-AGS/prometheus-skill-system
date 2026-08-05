@@ -20,10 +20,10 @@ use prometheus_exec_contracts::{
     SCHEMA_VERSION,
 };
 use prometheus_exec_remote::{
-    sign_dispatch_ed25519, DispatchQueue, EnrollmentBinding, EnrollmentSnapshot,
-    LocalExecutionHandoff, LocalExecutionOutcome, PeerDispatchState, RemoteError, RemoteOrigin,
-    RemoteTarget, RemoteTransport, Result, SignedPeerDispatchResponse, SignedRemoteDispatch,
-    REMOTE_SCHEMA_VERSION,
+    sign_dispatch_ed25519, sign_peer_response_ed25519, DispatchQueue, EnrollmentBinding,
+    EnrollmentSnapshot, LocalExecutionHandoff, LocalExecutionOutcome, PeerDispatchState,
+    RemoteError, RemoteOrigin, RemoteTarget, RemoteTransport, Result, SignedPeerDispatchResponse,
+    SignedRemoteDispatch, REMOTE_SCHEMA_VERSION,
 };
 use tempfile::tempdir;
 use uuid::Uuid;
@@ -160,6 +160,25 @@ struct TargetTransport {
     lose_first_response: AtomicBool,
 }
 
+struct InvalidReceiptTransport {
+    target: Arc<RemoteTarget<CountingExecutor>>,
+    target_key: SigningKey,
+}
+
+#[async_trait]
+impl RemoteTransport for InvalidReceiptTransport {
+    async fn deliver(&self, dispatch: SignedRemoteDispatch) -> Result<SignedPeerDispatchResponse> {
+        let mut response = self.target.receive(dispatch, Utc::now()).await?;
+        response
+            .receipt
+            .as_mut()
+            .expect("target fixture returns a receipt")
+            .signature = Some(URL_SAFE_NO_PAD.encode([0_u8; 64]));
+        sign_peer_response_ed25519(&mut response, &self.target_key)?;
+        Ok(response)
+    }
+}
+
 #[async_trait]
 impl RemoteTransport for TargetTransport {
     async fn deliver(&self, dispatch: SignedRemoteDispatch) -> Result<SignedPeerDispatchResponse> {
@@ -214,6 +233,46 @@ fn response_loss_resumes_offline_without_reexecuting_and_survives_restart() {
     let record = reopened.get(dispatch.dispatch_id).unwrap().unwrap();
     assert_eq!(record.state, PeerDispatchState::Applied);
     assert_eq!(record.receipt.unwrap().request_hash, dispatch.request_hash);
+}
+
+#[test]
+fn origin_rejects_a_valid_peer_envelope_with_an_invalid_nested_receipt() {
+    let (dispatch, enrollment, _, target_key) = fixture();
+    let origin_dir = tempdir().unwrap();
+    let target_dir = tempdir().unwrap();
+    let calls = Arc::new(AtomicUsize::new(0));
+    let target = Arc::new(
+        RemoteTarget::new(
+            TARGET,
+            DispatchQueue::open(target_dir.path()).unwrap(),
+            enrollment.clone(),
+            target_key.clone(),
+            Arc::new(CountingExecutor {
+                key: target_key.clone(),
+                calls: calls.clone(),
+            }),
+        )
+        .unwrap(),
+    );
+    let queue = DispatchQueue::open(origin_dir.path()).unwrap();
+    let origin = RemoteOrigin::new(
+        queue,
+        enrollment,
+        Arc::new(InvalidReceiptTransport { target, target_key }),
+    );
+
+    let error = futures::executor::block_on(origin.dispatch(dispatch.clone(), Utc::now()))
+        .expect_err("origin must verify the nested receipt independently");
+
+    assert!(matches!(error, RemoteError::InvalidPeerResponse(_)));
+    assert_eq!(calls.load(Ordering::SeqCst), 1);
+    let record = DispatchQueue::open(origin_dir.path())
+        .unwrap()
+        .get(dispatch.dispatch_id)
+        .unwrap()
+        .unwrap();
+    assert_eq!(record.state, PeerDispatchState::Queued);
+    assert!(record.receipt.is_none());
 }
 
 #[test]
