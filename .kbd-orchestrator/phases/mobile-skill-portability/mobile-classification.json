@@ -1,9 +1,9 @@
 {
   "generated_by": "skills/process/adversarial-review/scripts/classify-mobile-execution.sh",
   "derived": true,
-  "total_skills": 310,
+  "total_skills": 309,
   "script_bearing": 61,
-  "manifest_only": 249,
+  "manifest_only": 248,
   "counts": {
     "E0": 28,
     "E2": 2,
