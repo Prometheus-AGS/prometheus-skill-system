@@ -46,6 +46,10 @@ bash scripts/install-prometheus-exec.sh
 bash scripts/install-prometheus-exec-service.sh --dry-run
 ```
 
+`scripts/install-mcp-services.sh` also installs and starts `ai.prometheus.exec`
+by delegating to the same service installer, so the identity, version, hash, and
+signature checks run either way. Exclude it with `--exclude exec`.
+
 Do not load the service until its binary version, signature, installed hash, identity path, socket path, plugin root, and LaunchAgent plan match the reviewed configuration. Continue with [Execution installation, doctor, and recovery](/docs/execution/installation-doctor-and-recovery).
 
 The root installer is strict by default: any requested build, copy, service, or

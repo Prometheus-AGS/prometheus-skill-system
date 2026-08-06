@@ -14,6 +14,8 @@
 #                             → pk-cherry(:8942) → forge-mcp(:8943) → surface-bridge(:7890)
 #                             → sovereign-sync(:7892);
 #                             plus a nudge timer.
+# Also installs prometheus-exec (ai.prometheus.exec), a Unix-socket daemon with
+# no HTTP port, by delegating to scripts/install-prometheus-exec-service.sh.
 # The bundled SurrealDB binds :28000 and never touches an external instance on :8000.
 #
 # Usage:
@@ -197,6 +199,30 @@ declare -A DAEMON_PATH=(
 NUDGE_LABEL="ai.prometheus.prometheus-nudge"
 LEARNING_LABEL="ai.prometheus.learning-worker"
 ROTATION_LABEL="ai.prometheus.hooks-logrotate"
+
+# prometheus-exec is NOT in DAEMON_LABELS. It is a Unix-socket daemon with no
+# HTTP port, so the port-probing loop above cannot check it, and its install
+# contract is stricter than render_template: it creates a private identity and
+# performs version + hash + signature readback. Both live in its own installer,
+# which this script delegates to rather than duplicating. Excluded via
+# `--exclude exec`, same as any other managed service.
+EXEC_LABEL="ai.prometheus.exec"
+EXEC_INSTALLER="$REPO_ROOT/scripts/install-prometheus-exec-service.sh"
+
+install_exec_service() {
+    service_is_excluded "$EXEC_LABEL" && return 0
+    [ -f "$EXEC_INSTALLER" ] || { echo "  WARN: $EXEC_INSTALLER not found — skipping $EXEC_LABEL" >&2; return 0; }
+    echo "→ $EXEC_LABEL (socket daemon, delegated installer)"
+    local args=()
+    $DRY_RUN && args+=(--dry-run)
+    # A missing/mismatched prometheus-exec binary must not abort the whole
+    # service install — the other daemons are independent of it.
+    if bash "$EXEC_INSTALLER" "${args[@]}"; then
+        echo "  ✓ $EXEC_LABEL loaded"
+    else
+        echo "  WARN: $EXEC_LABEL install failed — run 'bash scripts/install-binaries.sh' first" >&2
+    fi
+}
 
 # ── Shared template rendering (identical __PLACEHOLDER__ map for both OSes) ───
 render_template() {
@@ -440,9 +466,10 @@ macos_install() {
         fi
         echo "  ✓ $label loaded"
     done
+    install_exec_service
 }
 macos_unload() {
-    for label in "${DAEMON_LABELS[@]}" "$NUDGE_LABEL" "$LEARNING_LABEL" "$ROTATION_LABEL"; do
+    for label in "${DAEMON_LABELS[@]}" "$NUDGE_LABEL" "$LEARNING_LABEL" "$ROTATION_LABEL" "$EXEC_LABEL"; do
         service_is_excluded "$label" && continue
         run launchctl bootout "$GUI_DOMAIN/$label" >/dev/null 2>&1 || true
         echo "unloaded $label"

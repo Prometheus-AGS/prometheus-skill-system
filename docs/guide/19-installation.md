@@ -49,13 +49,27 @@ Each line is the exact output of the corresponding `--version` command. The
 Memory command must exit before logging, configuration, storage, embeddings, or
 network initialization; `-V` is also supported.
 
-Build, sign, atomically install, and read back the execution service separately:
+`scripts/install-mcp-services.sh` installs and starts the execution service
+(`ai.prometheus.exec`) along with the other managed daemons, delegating to
+`install-prometheus-exec-service.sh` so the identity, version, hash, and
+signature checks still run. Skip it with `--exclude exec`.
+
+To build, sign, atomically install, and read back the execution service on its
+own — the binary first, then the LaunchAgent:
 
 ```bash
 bash scripts/install-prometheus-exec.sh --dry-run
 bash scripts/install-prometheus-exec.sh
 bash scripts/install-prometheus-exec-service.sh --dry-run
+bash scripts/install-prometheus-exec-service.sh
 ```
+
+`prometheus-exec` is a Unix-socket daemon with no HTTP port. It is pinned to the
+stable toolchain by `crates/prometheus-exec/rust-toolchain.toml` because the
+installer gates on the SHA256 in `config/prometheus-exec-binary.json`, and a
+release binary's hash depends on the exact `rustc`. Build it from inside the
+crate directory — `rust-toolchain.toml` is resolved from the current directory
+and is **not** honored via `cargo build --manifest-path`.
 
 See [Execution installation, doctor, and recovery](/docs/execution/installation-doctor-and-recovery) before loading the LaunchAgent.
 

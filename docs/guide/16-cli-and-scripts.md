@@ -42,12 +42,12 @@ Documented in full on the [Tools Reference](13-tools-reference.md) page; summari
 | Script | Purpose |
 |---|---|
 | `install-plugin-generation.js` | Stage, hash, verify, activate, roll back, or uninstall an immutable 14-target generation. `[--verify] [--rollback] [--uninstall]` |
-| `install-prometheus-exec.sh` | Build/select, version-check, stage, sign, atomically install, and hash-readback `prometheus-exec 1.7.0`. `[--dry-run]` |
-| `install-prometheus-exec-service.sh` | Render and optionally load the private macOS execution LaunchAgent. `[--dry-run] [--no-load]` |
+| `install-prometheus-exec.sh` | Build/select, version-check, stage, sign, atomically install, and hash-readback `prometheus-exec 1.7.0`. Builds from inside the crate dir so `rust-toolchain.toml` is honored. `[--dry-run]` |
+| `install-prometheus-exec-service.sh` | Render and optionally load the private macOS execution LaunchAgent (`ai.prometheus.exec`, socket daemon). Called automatically by `install-mcp-services.sh`. `[--dry-run] [--no-load]` |
 | `install-platforms.ts` | Multi-platform symlink installer for Claude Code, OpenCode, Cursor, Codex, etc. `[--platform] [--scope] [--uninstall] [--list]` |
 | `install.js` | Copy skills to user or project scope |
 | `install-binaries.sh` | Build and install all six tool binaries to `~/.local/bin/` |
-| `install-mcp-services.sh` | Render/reload allowed launchd or systemd user services. Repeatable `--exclude` prevents rendering, restart, or rewrite of a service. `[--unload] [--restart] [--user] [--dry-run] [--exclude]` |
+| `install-mcp-services.sh` | Render/reload allowed launchd or systemd user services, including `ai.prometheus.exec` via its delegated installer. Repeatable `--exclude` prevents rendering, restart, or rewrite of a service. `[--unload] [--restart] [--user] [--dry-run] [--exclude]` |
 | `configure-mcp-all-tools.sh` | Merge `mcp-port-table.json` into each tool's native MCP config (idempotent). `[--dry-run] [--tool]` |
 | `prometheus-services.sh` | Manage MCP services as macOS user LaunchAgents (`install`/`load`/`status`/`doctor`/…) |
 | `register-slash-commands.sh` | Register skills as OpenCode commands and Codex prompt files. `[--uninstall]` |

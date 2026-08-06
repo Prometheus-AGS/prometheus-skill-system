@@ -1,0 +1,18 @@
+# Pin prometheus-exec to stable, matching tools/forge-rs and tools/liter-llm.
+#
+# This crate's installer (scripts/install-prometheus-exec.sh) gates on the
+# SHA256 in config/prometheus-exec-binary.json. That gate is only meaningful if
+# the build is reproducible: a release binary's hash depends on the exact rustc,
+# so an unpinned toolchain makes the pin machine-specific and the gate fails on
+# any host whose default rustc differs. That is exactly what happened before
+# this file existed — a default nightly produced a hash the committed pin could
+# never match, blocking install on a correctly-built binary.
+#
+# stable is sufficient: the crate declares rust-version = "1.94" and neither it
+# nor the substrate/exec-* crates use any nightly-only feature.
+#
+# Changing this channel changes the binary hash. Rebuild and update
+# expectedBuildSha256 in config/prometheus-exec-binary.json in the same commit.
+[toolchain]
+channel = "stable"
+components = ["rustfmt", "clippy"]

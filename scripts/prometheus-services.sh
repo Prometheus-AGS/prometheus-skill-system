@@ -43,7 +43,11 @@ service_is_excluded() {
 
 LABELS=("ai.prometheus.surrealdb-native" "ai.prometheus.surreal-memory-native" "ai.prometheus.pk-cherry" "ai.prometheus.forge-mcp" "ai.prometheus.prometheus-nudge")
 TEMPLATES=("ai.prometheus.surrealdb-native.plist" "ai.prometheus.surreal-memory-native.plist" "ai.prometheus.pk-cherry.plist" "ai.prometheus.forge-mcp.plist" "ai.prometheus.prometheus-nudge.plist")
-DOCTOR_LABELS=("${LABELS[@]}" "ai.prometheus.learning-worker" "ai.prometheus.hooks-logrotate")
+# ai.prometheus.exec is intentionally absent from LABELS/TEMPLATES: it is a
+# socket daemon rendered by scripts/install-prometheus-exec-service.sh, which
+# owns its identity/version/hash contract. It IS reported here so `doctor` and
+# `status` never show a silently-missing execution engine.
+DOCTOR_LABELS=("${LABELS[@]}" "ai.prometheus.learning-worker" "ai.prometheus.hooks-logrotate" "ai.prometheus.exec")
 
 usage() {
     cat <<'EOF'
@@ -262,6 +266,10 @@ status_services() {
     probe "surreal-memory"       "http://localhost:23001/health"
     probe "prometheus-knowledge" "http://localhost:8942/mcp"
     probe "forge-rs"             "http://localhost:8943/mcp"
+    # socket daemon — no HTTP port; a live daemon leaves a socket node
+    local exec_sock="${PROMETHEUS_EXEC_SOCKET:-$PROMETHEUS_HOME/.prometheus/run/prometheus-exec.sock}"
+    printf '%-28s %s %s\n' "prometheus-exec" \
+        "$([ -S "$exec_sock" ] && echo listening || echo down)" "$exec_sock"
     # stdio-only services — no HTTP probe
     printf '%-28s %s\n' "sycophancy-correction" "stdio-only"
     printf '%-28s %s\n' "liter-llm"             "stdio-only"
@@ -280,7 +288,7 @@ doctor_services() {
     echo "PATH: $PROMETHEUS_PATH"
     echo ""
 
-    for bin in surreal prometheus pk pk-cherry prometheus-learning-worker surreal-memory-server logrotate flock curl plutil launchctl; do
+    for bin in surreal prometheus prometheus-exec pk pk-cherry prometheus-learning-worker surreal-memory-server logrotate flock curl plutil launchctl; do
         local found
         found="$(resolve_bin "$bin")"
         printf '%-14s %s\n' "$bin" "${found:-missing}"

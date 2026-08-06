@@ -1,6 +1,14 @@
 # Update Log
 
+## 2026-08-06
+* **Ingest**: [Karpathy session 8c1637b93d36](/karpathy-session-8c1637b93d36591f.md)
+* **Ingest**: [Karpathy session 08e369fa05a7](/karpathy-session-08e369fa05a754ba.md)
+* **Ingest**: [Karpathy session aa57344a8a95](/karpathy-session-aa57344a8a95b9bf.md)
+
 ## 2026-08-05
+* **Ingest**: [Karpathy session 044cc4d6c70e](/karpathy-session-044cc4d6c70eb7d9.md)
+* **Creation**: [Kimi Desktop Extensibility Executor Completion Record](/kimi-desktop-extensibility-executor-completion-record.md)
+* **Ingest**: [Karpathy session 51c79b1ee9ca](/karpathy-session-51c79b1ee9ca4893.md)
 * **Ingest**: [Karpathy session f98b619c4a59](/karpathy-session-f98b619c4a59dcd8.md)
 * **Ingest**: [Karpathy session 7f1a498fce1d](/karpathy-session-7f1a498fce1d5d76.md)
 * **Ingest**: [Karpathy session 3b01060f3b86](/karpathy-session-3b01060f3b86e842.md)

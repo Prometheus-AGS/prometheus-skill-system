@@ -103,6 +103,15 @@ print_row() {
 
     if [ "$url" = "stdio" ]; then
         status="stdio — no HTTP probe"; code="n/a"
+    elif [[ "$url" == unix:* ]]; then
+        # Unix-socket daemon (prometheus-exec): no port to probe. A live daemon
+        # leaves a socket node; test -S distinguishes that from a stale path.
+        local sock="${url#unix:}"
+        if [ -S "$sock" ]; then
+            status="OK (socket)"; code="200"
+        else
+            status="UNREACHABLE"; code="000"
+        fi
     elif [[ "$url" == */mcp ]]; then
         status="$(mcp_probe "$url")"
         code="${status##*\(}"
@@ -140,6 +149,9 @@ print_row "prometheus-knowledge"   "ai.prometheus.pk-cherry"              "http:
 print_row "forge-rs"               "ai.prometheus.forge-mcp"              "http://localhost:8943/mcp"      "Forge code-enrichment MCP"
 print_row "surface-bridge"         "ai.prometheus.surface-bridge"         "http://localhost:7890/health"   "Tier 2 UI MCP App server (native, :7890)"
 print_row "sovereign-sync"         "ai.prometheus.sovereign-sync"         "http://localhost:7892/health"   "P2P CRDT sync + MCP server (native, :7892)"
+
+# Unix-socket daemon — no HTTP port
+print_row "prometheus-exec"        "ai.prometheus.exec"                   "unix:${HOME}/.prometheus/run/prometheus-exec.sock"  "Code execution engine (socket daemon)"
 
 # Stdio-only services — managed by the AI client, not the service manager
 print_row "sycophancy-correction"  "n/a"  "stdio"  "Sycophancy gate (sycophancy-correction)"

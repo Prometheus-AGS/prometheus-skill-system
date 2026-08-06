@@ -10,10 +10,17 @@ The installer is strict by default. It builds or accepts a `prometheus-exec 1.7.
 ## Build and install locally
 
 ```bash
-cargo build --release --manifest-path crates/prometheus-exec/Cargo.toml
+(cd crates/prometheus-exec && cargo build --release)
 bash scripts/install-prometheus-exec.sh
 prometheus-exec --version
 ```
+
+Build from inside the crate directory. `crates/prometheus-exec/rust-toolchain.toml`
+pins the stable toolchain, and `rust-toolchain.toml` is resolved from the current
+directory — it is **not** honored via `cargo build --manifest-path`. Building
+from the repo root uses whatever default toolchain the caller has, producing a
+binary whose SHA256 cannot match `config/prometheus-exec-binary.json` and
+failing the installer's hash gate on an otherwise correct build.
 
 Expected output is exactly `prometheus-exec 1.7.0`.
 

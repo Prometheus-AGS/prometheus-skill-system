@@ -69,7 +69,13 @@ if $DRY_RUN; then
 fi
 
 if [ -z "${PROMETHEUS_EXEC_SOURCE_BIN:-}" ]; then
-    cargo build --release --manifest-path "${REPO_ROOT}/crates/prometheus-exec/Cargo.toml"
+    # Build from INSIDE the crate directory, not via --manifest-path from the
+    # repo root. rust-toolchain.toml is resolved from the current directory and
+    # is NOT affected by --manifest-path, so building from the root silently
+    # uses the caller's default toolchain instead of the crate's pinned stable.
+    # The binary hash depends on rustc, so that divergence makes the
+    # expectedBuildSha256 gate below fail on a correctly-built binary.
+    ( cd "${REPO_ROOT}/crates/prometheus-exec" && cargo build --release )
 fi
 [ -f "$SOURCE_BIN" ] || { echo "prometheus-exec build artifact is missing: $SOURCE_BIN" >&2; exit 1; }
 [ -x "$SOURCE_BIN" ] || { echo "prometheus-exec build artifact is not executable: $SOURCE_BIN" >&2; exit 1; }
