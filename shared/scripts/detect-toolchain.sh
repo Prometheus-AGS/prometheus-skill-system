@@ -80,11 +80,14 @@ check_sovereign_sync_daemon() {
         case "$code" in
             0)
                 STATUS[$key]="ok"
-                VERSION[$key]="healthy on :7892"
+                # `--mode status` is transport-agnostic; it does not tell us
+                # whether the daemon is on a Unix socket (the 1.7.0 default) or
+                # on :7892 (--tcp), so do not claim a specific endpoint here.
+                VERSION[$key]="healthy"
                 ;;
             1)
                 STATUS[$key]="missing"
-                VERSION[$key]="not listening on :7892"
+                VERSION[$key]="not running"
                 ;;
             2)
                 STATUS[$key]="occupied"
@@ -98,10 +101,19 @@ check_sovereign_sync_daemon() {
         return
     fi
 
-    if curl -sf --max-time 2 "http://127.0.0.1:7892/health" 2>/dev/null \
+    # 1.7.0 serves HTTP on a same-user Unix socket by default and binds no TCP
+    # port unless started with --tcp. Probe the socket FIRST; only fall back to
+    # :7892 for an explicitly --tcp-configured instance.
+    local sovereign_sock="${SOVEREIGN_SYNC_SOCKET:-$HOME/Library/Application Support/prometheus/run/sovereign-sync.sock}"
+    if [ -S "$sovereign_sock" ] && curl -sf --max-time 2 --unix-socket "$sovereign_sock" \
+        "http://localhost/health" 2>/dev/null \
         | grep -q '"service"[[:space:]]*:[[:space:]]*"sovereign-sync"'; then
         STATUS[$key]="ok"
-        VERSION[$key]="healthy on :7892"
+        VERSION[$key]="healthy on unix socket"
+    elif curl -sf --max-time 2 "http://127.0.0.1:7892/health" 2>/dev/null \
+        | grep -q '"service"[[:space:]]*:[[:space:]]*"sovereign-sync"'; then
+        STATUS[$key]="ok"
+        VERSION[$key]="healthy on :7892 (--tcp)"
     elif port_open "127.0.0.1" "7892"; then
         STATUS[$key]="occupied"
         VERSION[$key]="port :7892 is occupied by a different service"

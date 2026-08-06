@@ -179,7 +179,11 @@ declare -A DAEMON_PORT=(
     [ai.prometheus.pk-cherry]=8942
     [ai.prometheus.forge-mcp]=8943
     [ai.prometheus.surface-bridge]=7890
-    [ai.prometheus.sovereign-sync]=7892
+    # sovereign-sync 1.7.0 serves HTTP on a same-user Unix socket and binds NO
+    # TCP port unless started with --tcp, which the managed LaunchAgent does not
+    # pass. Probing :7892 therefore always failed, so every run of this script
+    # concluded the service was down and restarted a healthy daemon.
+    [ai.prometheus.sovereign-sync]="unix:$PROMETHEUS_HOME/Library/Application Support/prometheus/run/sovereign-sync.sock"
     # liter-llm gateway. Registers the cross-vendor KBD judges (Kimi k3,
     # MiniMax-M3) that openai-proxy on :8181 does not know about, so
     # ~/.prometheus/kbd/models.toml probes :4000 FIRST.
@@ -213,6 +217,14 @@ install_exec_service() {
     service_is_excluded "$EXEC_LABEL" && return 0
     [ -f "$EXEC_INSTALLER" ] || { echo "  WARN: $EXEC_INSTALLER not found — skipping $EXEC_LABEL" >&2; return 0; }
     echo "→ $EXEC_LABEL (socket daemon, delegated installer)"
+    # Match the reuse-if-healthy contract of the daemons above. The delegated
+    # installer unconditionally boots out and kickstarts, so without this every
+    # run of this script restarts a healthy execution engine.
+    local exec_sock="${PROMETHEUS_EXEC_SOCKET:-$PROMETHEUS_HOME/.prometheus/run/prometheus-exec.sock}"
+    if ! $FORCE_RESTART && check_running_service "$EXEC_LABEL" "unix:$exec_sock" "/health"; then
+        echo "  ↳ reusing running instance — skipping bootstrap"
+        return 0
+    fi
     local args=()
     $DRY_RUN && args+=(--dry-run)
     # A missing/mismatched prometheus-exec binary must not abort the whole

@@ -75,11 +75,39 @@ http_probe() {
     printf '%s' "$code"
 }
 
+# HTTP probe over a Unix socket: "unix:<socket-path>[:<http-path>]".
+# Several 1.7.0 services (sovereign-sync, prometheus-exec) serve HTTP on a
+# same-user Unix socket and bind NO TCP port unless explicitly given --tcp.
+# Probing a TCP port for those reports a healthy service as UNREACHABLE.
+unix_http_probe() {
+    local spec="${1#unix:}" sock path code
+    # Split trailing :/http/path off the socket path (paths contain no colon).
+    case "$spec" in
+        *:/*) sock="${spec%:*}"; path="${spec##*:}" ;;
+        *)    sock="$spec";      path="" ;;
+    esac
+    [ -S "$sock" ] || { printf '000'; return; }
+    # Socket exists but no HTTP path to probe — existence is all we can assert.
+    [ -n "$path" ] || { printf 'socket'; return; }
+    code=$(curl -s -o /dev/null -w '%{http_code}' --unix-socket "$sock" \
+        --connect-timeout 2 --max-time 4 "http://localhost${path}" 2>/dev/null) || code="000"
+    [ -n "$code" ] || code="000"
+    printf '%s' "$code"
+}
+
 mcp_probe() {
     local url="$1" reply code body
+    # A well-formed JSON-RPC 2.0 `initialize`. The `jsonrpc` field and the
+    # protocolVersion/capabilities/clientInfo params are REQUIRED by the MCP
+    # spec: a strict server (forge-mcp) rejects anything less with HTTP 422,
+    # which reads as a broken service when the service is in fact fine. A
+    # lenient server (pk-cherry) accepts a partial body, so a malformed probe
+    # fails inconsistently across servers and hides real outages.
+    # The Accept header is likewise required by streamable-HTTP MCP servers.
     reply=$(curl -sS --connect-timeout 2 --max-time 5 \
         -H 'Content-Type: application/json' \
-        --data '{"method":"initialize","params":{},"id":"prometheus-health"}' \
+        -H 'Accept: application/json, text/event-stream' \
+        --data '{"jsonrpc":"2.0","id":"prometheus-health","method":"initialize","params":{"protocolVersion":"2025-06-18","capabilities":{},"clientInfo":{"name":"prometheus-health","version":"1.0.0"}}}' \
         -w $'\n%{http_code}' "$url" 2>/dev/null) || reply=$'\n000'
     code="${reply##*$'\n'}"
     body="${reply%$'\n'*}"
@@ -104,14 +132,15 @@ print_row() {
     if [ "$url" = "stdio" ]; then
         status="stdio — no HTTP probe"; code="n/a"
     elif [[ "$url" == unix:* ]]; then
-        # Unix-socket daemon (prometheus-exec): no port to probe. A live daemon
-        # leaves a socket node; test -S distinguishes that from a stale path.
-        local sock="${url#unix:}"
-        if [ -S "$sock" ]; then
-            status="OK (socket)"; code="200"
-        else
-            status="UNREACHABLE"; code="000"
-        fi
+        # Unix-socket service. Probes HTTP over the socket when the spec names
+        # a path, else asserts only that the socket node exists.
+        code="$(unix_http_probe "$url")"
+        case "$code" in
+            200|201|204|404|405) status="OK ($code)" ;;
+            socket)              status="OK (socket)"; code="200" ;;
+            000)                 status="UNREACHABLE" ;;
+            *)                   status="HTTP $code" ;;
+        esac
     elif [[ "$url" == */mcp ]]; then
         status="$(mcp_probe "$url")"
         code="${status##*\(}"
@@ -148,9 +177,12 @@ print_row "surreal-memory-ready"   "ai.prometheus.surreal-memory-native"  "http:
 print_row "prometheus-knowledge"   "ai.prometheus.pk-cherry"              "http://localhost:8942/mcp"      "pk-cherry HTTP MCP (Karpathy KB)"
 print_row "forge-rs"               "ai.prometheus.forge-mcp"              "http://localhost:8943/mcp"      "Forge code-enrichment MCP"
 print_row "surface-bridge"         "ai.prometheus.surface-bridge"         "http://localhost:7890/health"   "Tier 2 UI MCP App server (native, :7890)"
-print_row "sovereign-sync"         "ai.prometheus.sovereign-sync"         "http://localhost:7892/health"   "P2P CRDT sync + MCP server (native, :7892)"
 
-# Unix-socket daemon — no HTTP port
+# Unix-socket services. As of 1.7.0 sovereign-sync binds NO TCP port unless
+# started with --tcp; the managed LaunchAgent does not pass it, so probing
+# :7892 reported a perfectly healthy service as UNREACHABLE.
+SOVEREIGN_SOCK="${SOVEREIGN_SYNC_SOCKET:-${HOME}/Library/Application Support/prometheus/run/sovereign-sync.sock}"
+print_row "sovereign-sync"         "ai.prometheus.sovereign-sync"         "unix:${SOVEREIGN_SOCK}:/health"  "P2P CRDT sync + MCP server (unix socket)"
 print_row "prometheus-exec"        "ai.prometheus.exec"                   "unix:${HOME}/.prometheus/run/prometheus-exec.sock"  "Code execution engine (socket daemon)"
 
 # Stdio-only services — managed by the AI client, not the service manager

@@ -66,7 +66,10 @@ if (!got.version.includes('$expected_version')) throw new Error('expected versio
 }
 
 assert_status healthy ok "healthy"
-assert_status missing missing "not listening"
+# `--mode status` is transport-agnostic: sovereign-sync 1.7.0 defaults to a Unix
+# socket and binds :7892 only with --tcp, so these strings must not name a port
+# the check never probed.
+assert_status missing missing "not running"
 assert_status occupied occupied "occupied"
 
 text_output="$(PATH="$BIN:$BASE_PATH" SOVEREIGN_SYNC_FIXTURE=occupied bash "$DETECT")"

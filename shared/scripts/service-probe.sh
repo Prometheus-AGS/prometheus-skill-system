@@ -34,6 +34,31 @@ check_running_service() {
     local url="http://localhost:$port$path"
     local how=""
 
+    # A <port> of the form "unix:<socket-path>" probes HTTP over a Unix socket
+    # instead of TCP. Required for 1.7.0 services that bind no TCP port unless
+    # explicitly given --tcp (sovereign-sync, prometheus-exec): probing a TCP
+    # port for those always fails, so every installer run concludes the service
+    # is down and needlessly restarts a healthy daemon.
+    if [ "${port#unix:}" != "$port" ]; then
+        local sock="${port#unix:}"
+        [ -S "$sock" ] || return 1
+        if command -v curl >/dev/null 2>&1; then
+            local ucode urc
+            ucode=$(curl -s -o /dev/null -w '%{http_code}' --unix-socket "$sock" \
+                --connect-timeout 1 --max-time 2 "http://localhost$path" 2>/dev/null)
+            urc=$?
+            if [ "$urc" -eq 0 ] && [ -n "$ucode" ] && [ "$ucode" != "000" ]; then
+                echo "    ✅ $label already running — HTTP $ucode at unix:$sock$path"
+                return 0
+            fi
+            # Socket exists but did not answer: treat as down so the caller
+            # restarts it rather than reusing a wedged process.
+            return 1
+        fi
+        echo "    ✅ $label already running — socket $sock"
+        return 0
+    fi
+
     if command -v curl >/dev/null 2>&1; then
         local code rc
         code=$(curl -sI -o /dev/null -w '%{http_code}' --connect-timeout 1 --max-time 2 "$url" 2>/dev/null)
