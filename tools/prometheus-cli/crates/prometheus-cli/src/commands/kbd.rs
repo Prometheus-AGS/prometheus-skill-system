@@ -577,19 +577,40 @@ pub async fn run(path: &str, action: Action) -> Result<()> {
                     active_path.commit = git_head(&root);
                 }
             }
-            let state = client.status().await?;
-            let result = client
-                .submit(CommandEnvelope {
-                    schema_version: "2".into(),
-                    project_id: state.project_id,
-                    run_id: state.run_id,
-                    command_id,
-                    frontier: Some(state.frontier),
-                    expected_revision: state.revision,
-                    actor: current_actor(ActorKind::Harness),
-                    command,
-                })
-                .await?;
+            // Resolve the current state locally when the daemon is unreachable,
+            // otherwise this path dies before it can even build an envelope —
+            // the exact failure Codex hit ("signed waypoint remains unchanged
+            // ... the typed mutation endpoint refused the connection").
+            let state = match client.status().await {
+                Ok(state) => state,
+                Err(remote_error) => runtime
+                    .replay()
+                    .with_context(|| format!("control plane unavailable ({remote_error})"))?,
+            };
+            let envelope = CommandEnvelope {
+                schema_version: "2".into(),
+                project_id: state.project_id,
+                run_id: state.run_id,
+                command_id,
+                frontier: Some(state.frontier),
+                expected_revision: state.revision,
+                actor: current_actor(ActorKind::Harness),
+                command,
+            };
+            let result = match client.submit(envelope.clone()).await {
+                Ok(result) => result,
+                Err(failure) if !failure.may_execute_locally() => return Err(failure.into_error()),
+                Err(failure) => {
+                    let ambiguous = matches!(failure, ControlFailure::Ambiguous(_));
+                    let state =
+                        client.execute_locally(envelope, &failure.into_error(), ambiguous)?;
+                    json!({
+                        "state": state,
+                        "committedLocally": true,
+                        "remoteStatusUnknown": ambiguous
+                    })
+                }
+            };
             println!("{}", serde_json::to_string_pretty(&result)?);
             Ok(())
         }
@@ -720,6 +741,14 @@ impl ControlClient {
                 // the write succeeds server-side moments later.
                 .timeout(Duration::from_secs(30))
                 .build()?,
+            // NOTE: sovereign-sync 1.7.0 serves over a Unix socket by default;
+            // TCP :7892 exists only when it is started with an explicit --tcp,
+            // which the managed LaunchAgent does not pass. So under the managed
+            // configuration this endpoint is normally UNREACHABLE — and that is
+            // now a non-event: `submit_fresh` commits through the local runtime
+            // instead. reqwest cannot speak Unix sockets without an extra
+            // dependency; wiring one up is worthwhile so a running daemon is
+            // actually used, but it is no longer required for correctness.
             endpoint: std::env::var("PROMETHEUS_CONTROL_ENDPOINT")
                 .unwrap_or_else(|_| "http://127.0.0.1:7892".into())
                 .trim_end_matches('/')
@@ -777,15 +806,28 @@ impl ControlClient {
             .collect()
     }
 
-    async fn submit(&self, envelope: CommandEnvelope) -> Result<Value> {
+    async fn submit(
+        &self,
+        envelope: CommandEnvelope,
+    ) -> std::result::Result<Value, ControlFailure> {
         // Read-only commands must never touch the platform credential store.
         // Resolve the signer only for an actual mutation, and keep the
         // synchronous OS credential lookup off the async executor.
         let runtime = self.runtime.clone();
-        let signer = tokio::task::spawn_blocking(move || runtime.device_signer())
+        let signer = match tokio::task::spawn_blocking(move || runtime.device_signer())
             .await
-            .context("device signer task failed")??;
-        let signed = SignedCommandEnvelope::sign(envelope, &signer)?;
+            .context("device signer task failed")
+        {
+            Ok(Ok(signer)) => signer,
+            // A missing/locked signer is a local problem, not the daemon's, and
+            // local execution needs the same signer — so this is terminal.
+            Ok(Err(error)) => return Err(ControlFailure::Rejected(error.into())),
+            Err(error) => return Err(ControlFailure::Rejected(error)),
+        };
+        let signed = match SignedCommandEnvelope::sign(envelope, &signer) {
+            Ok(signed) => signed,
+            Err(error) => return Err(ControlFailure::Rejected(error.into())),
+        };
         let response = self
             .http
             .post(format!(
@@ -794,8 +836,19 @@ impl ControlClient {
             ))
             .json(&signed)
             .send()
-            .await?;
-        decode_response(response).await
+            .await
+            .map_err(classify_transport_error)?;
+        let status = response.status();
+        let body = response
+            .text()
+            .await
+            .map_err(|error| ControlFailure::Unreachable(error.into()))?;
+        if !status.is_success() {
+            return Err(classify_status(status, &body));
+        }
+        serde_json::from_str(&body)
+            .context("invalid control-plane JSON response")
+            .map_err(ControlFailure::Rejected)
     }
 
     async fn submit_fresh(
@@ -804,25 +857,153 @@ impl ControlClient {
         actor: Actor,
         command: CommandKind,
     ) -> Result<RuntimeState> {
-        let response = self
-            .submit(CommandEnvelope {
-                schema_version: "2".into(),
-                project_id: state.project_id.clone(),
-                run_id: state.run_id.clone(),
-                command_id: uuid::Uuid::new_v4().to_string(),
-                frontier: Some(state.frontier.clone()),
-                expected_revision: state.revision,
-                actor,
-                command,
-            })
-            .await?;
-        serde_json::from_value(
-            response
-                .get("state")
-                .cloned()
-                .ok_or_else(|| anyhow!("control response omitted committed state"))?,
-        )
-        .context("invalid committed state in control response")
+        // One envelope, reused for both paths. `command_id` is generated ONCE so
+        // the local fallback carries the same idempotency key the daemon would
+        // have seen — if the daemon later replays this journal it recognises the
+        // command instead of double-applying it.
+        let envelope = CommandEnvelope {
+            schema_version: "2".into(),
+            project_id: state.project_id.clone(),
+            run_id: state.run_id.clone(),
+            command_id: uuid::Uuid::new_v4().to_string(),
+            frontier: Some(state.frontier.clone()),
+            expected_revision: state.revision,
+            actor,
+            command,
+        };
+        match self.submit(envelope.clone()).await {
+            Ok(response) => serde_json::from_value(
+                response
+                    .get("state")
+                    .cloned()
+                    .ok_or_else(|| anyhow!("control response omitted committed state"))?,
+            )
+            .context("invalid committed state in control response"),
+            // The daemon adjudicated and said no. Honour it — never launder a
+            // rejection into a local success.
+            Err(failure) if !failure.may_execute_locally() => Err(failure.into_error()),
+            // Execute against the same runtime the daemon itself would have used:
+            // identical journal, identical signing, identical validation, and
+            // mutual exclusion by the same exclusive flock inside
+            // `execute_command`. sovereign-sync is a passive replicator and must
+            // never gate local KBD work.
+            Err(failure) => {
+                let ambiguous = matches!(failure, ControlFailure::Ambiguous(_));
+                self.execute_locally(envelope, &failure.into_error(), ambiguous)
+            }
+        }
+    }
+
+    /// Commit a command through the in-process runtime.
+    ///
+    /// This is the same `Runtime::execute_command` the daemon calls, so the
+    /// durability contract is unchanged: WAL append + fsync, Loro ingest, folded
+    /// checkpoint, all under one exclusive flock. Two CLI processes serialize
+    /// exactly as two daemon requests do.
+    fn execute_locally(
+        &self,
+        envelope: CommandEnvelope,
+        remote_error: &anyhow::Error,
+        ambiguous: bool,
+    ) -> Result<RuntimeState> {
+        if ambiguous {
+            // The command may already be committed in the daemon's journal. The
+            // stable `command_id` makes a later merge idempotent, but say so
+            // rather than implying a clean local-only commit.
+            eprintln!(
+                "control plane status UNKNOWN ({remote_error}); the command may already be \
+                 committed remotely. Committing locally with the same commandId {} — a later \
+                 sync deduplicates on that id. Run `prometheus kbd status` to reconcile.",
+                envelope.command_id
+            );
+        } else {
+            eprintln!(
+                "control plane unreachable ({remote_error}); committing locally via the canonical runtime"
+            );
+        }
+        let result = self
+            .runtime
+            .execute_command(envelope)
+            .context("local runtime rejected the command")?;
+        // `execute_command` records business-logic rejections on the result
+        // rather than as an Err, so that a bad command cannot wedge the log.
+        // Surface that as a failure instead of reporting a phantom success.
+        if let Some(error) = result.apply_error.as_ref() {
+            return Err(anyhow!("local runtime rejected the command: {error}"));
+        }
+        Ok(result.state)
+    }
+}
+
+/// Why a control-plane call did not produce a committed result.
+///
+/// The distinction is load-bearing for local fallback. `Unreachable` means the
+/// daemon never adjudicated the command — nothing was committed anywhere, so
+/// executing it locally is safe and produces exactly the state the daemon would
+/// have produced. `Rejected` means the daemon DID adjudicate and said no (a
+/// revision conflict, an invalid transition, a read-only replica). Retrying a
+/// rejection locally would launder a legitimate "no" into a "yes" and is the
+/// one thing this fallback must never do.
+#[derive(Debug)]
+enum ControlFailure {
+    /// Delivery is provably impossible: the connection was never established, or
+    /// the startup gate refused the route before dispatch (503). The daemon
+    /// cannot have adjudicated this command, so committing locally is safe.
+    Unreachable(anyhow::Error),
+    /// The request may or may not have been committed — a timeout, a reset after
+    /// send, or a non-503 5xx. Safe to retry locally ONLY because the command
+    /// carries a stable `command_id` and the runtime deduplicates on it, but the
+    /// operator is told the remote status is unknown.
+    Ambiguous(anyhow::Error),
+    /// The control plane adjudicated this command and refused it (4xx). Never
+    /// retried locally — that would launder a legitimate "no" into a "yes".
+    Rejected(anyhow::Error),
+}
+
+impl ControlFailure {
+    fn into_error(self) -> anyhow::Error {
+        match self {
+            Self::Unreachable(error) | Self::Ambiguous(error) | Self::Rejected(error) => error,
+        }
+    }
+
+    /// Whether a local commit may proceed. False only for an adjudicated refusal.
+    fn may_execute_locally(&self) -> bool {
+        !matches!(self, Self::Rejected(_))
+    }
+}
+
+/// Classify a transport error by whether delivery is *provably* impossible.
+///
+/// Only a failure to establish the connection proves the daemon never saw the
+/// command. Once bytes are on the wire, a timeout or a reset is AMBIGUOUS: the
+/// daemon may have validated, journaled, fsynced and committed, and only the
+/// response died. Committing locally in that case is still safe — the command
+/// carries the same `command_id`, and `Runtime::execute_command` checks
+/// `state.command_revisions` for that id BEFORE validating the frontier, so a
+/// replay short-circuits to `duplicate: true` with the original revision rather
+/// than double-applying. But the local runtime cannot see a commit that only
+/// exists in the daemon's journal yet, so we surface the ambiguity instead of
+/// silently reconciling it.
+fn classify_transport_error(error: reqwest::Error) -> ControlFailure {
+    if error.is_connect() {
+        return ControlFailure::Unreachable(error.into());
+    }
+    ControlFailure::Ambiguous(error.into())
+}
+
+/// A 503 from the startup gate means the daemon refused the route before any
+/// command was dispatched — unreachability wearing an HTTP status. Any other
+/// 5xx is ambiguous: the daemon may have committed and then failed to respond.
+/// A 4xx is a decision about this command.
+fn classify_status(status: reqwest::StatusCode, body: &str) -> ControlFailure {
+    let error = anyhow!("control plane returned {status}: {body}");
+    if status == reqwest::StatusCode::SERVICE_UNAVAILABLE {
+        ControlFailure::Unreachable(error)
+    } else if status.is_server_error() {
+        ControlFailure::Ambiguous(error)
+    } else {
+        ControlFailure::Rejected(error)
     }
 }
 
@@ -830,7 +1011,7 @@ async fn decode_response<T: serde::de::DeserializeOwned>(response: reqwest::Resp
     let status = response.status();
     let body = response.text().await?;
     if !status.is_success() {
-        return Err(anyhow!("control plane returned {status}: {body}"));
+        return Err(classify_status(status, &body).into_error());
     }
     serde_json::from_str(&body).context("invalid control-plane JSON response")
 }
