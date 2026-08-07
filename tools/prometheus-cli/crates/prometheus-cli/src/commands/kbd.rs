@@ -209,7 +209,7 @@ pub async fn run(path: &str, action: Action) -> Result<()> {
     match action {
         Action::Status { json } => status(&root, &runtime, &client, json).await,
         Action::Conflicts { json } => {
-            let state = client.status().await?;
+            let state = state_or_replay(&client, &runtime).await?;
             if json {
                 println!("{}", serde_json::to_string_pretty(&state.conflicts)?);
             } else if state.conflicts.is_empty() {
@@ -236,7 +236,7 @@ pub async fn run(path: &str, action: Action) -> Result<()> {
             winner_event_id,
             reason,
         } => {
-            let state = client.status().await?;
+            let state = state_or_replay(&client, &runtime).await?;
             let next = client
                 .submit_fresh(
                     &state,
@@ -251,7 +251,7 @@ pub async fn run(path: &str, action: Action) -> Result<()> {
             print_state(&next, false)
         }
         Action::Claims { json } => {
-            let state = client.status().await?;
+            let state = state_or_replay(&client, &runtime).await?;
             let claim_conflicts = state
                 .conflicts
                 .values()
@@ -289,7 +289,7 @@ pub async fn run(path: &str, action: Action) -> Result<()> {
             ttl_seconds,
             holder_id,
         } => {
-            let state = client.status().await?;
+            let state = state_or_replay(&client, &runtime).await?;
             let mut actor = current_actor(ActorKind::Harness);
             if let Some(holder_id) = holder_id {
                 actor.id = holder_id;
@@ -313,7 +313,7 @@ pub async fn run(path: &str, action: Action) -> Result<()> {
             claim_id,
             ttl_seconds,
         } => {
-            let state = client.status().await?;
+            let state = state_or_replay(&client, &runtime).await?;
             let next = client
                 .submit_fresh(
                     &state,
@@ -327,7 +327,7 @@ pub async fn run(path: &str, action: Action) -> Result<()> {
             print_state(&next, false)
         }
         Action::ClaimRelease { claim_id } => {
-            let state = client.status().await?;
+            let state = state_or_replay(&client, &runtime).await?;
             let next = client
                 .submit_fresh(
                     &state,
@@ -341,7 +341,7 @@ pub async fn run(path: &str, action: Action) -> Result<()> {
             if scan {
                 let scanned = scan_submodule_pins(&root)?;
                 for pin in &scanned.pins {
-                    let state = client.status().await?;
+                    let state = state_or_replay(&client, &runtime).await?;
                     if state.submodule_pins.get(&pin.path) == Some(pin) {
                         continue;
                     }
@@ -353,7 +353,7 @@ pub async fn run(path: &str, action: Action) -> Result<()> {
                         )
                         .await?;
                 }
-                let state = client.status().await?;
+                let state = state_or_replay(&client, &runtime).await?;
                 println!(
                     "{}",
                     serde_json::to_string_pretty(&json!({
@@ -363,7 +363,7 @@ pub async fn run(path: &str, action: Action) -> Result<()> {
                     }))?
                 );
             } else {
-                let state = client.status().await?;
+                let state = state_or_replay(&client, &runtime).await?;
                 if json {
                     println!(
                         "{}",
@@ -387,7 +387,11 @@ pub async fn run(path: &str, action: Action) -> Result<()> {
         }
         Action::Pause { reason } => {
             write_emergency_pause(&root, &reason)?;
-            let state = client.status().await.with_context(|| {
+            // The local emergency-pause file is already written above. Failing here
+            // would strand the operator in a half-applied state: paused on disk, with
+            // no durable record. Fall back to local replay so the durable pause can
+            // still be journaled when the daemon is unreachable.
+            let state = state_or_replay(&client, &runtime).await.with_context(|| {
                 "emergency PAUSE is active locally, but durable pause could not reach the control plane"
             })?;
             let legacy = read_waypoint(&root);
@@ -415,7 +419,7 @@ pub async fn run(path: &str, action: Action) -> Result<()> {
             reason,
             exact_next_work,
         } => {
-            let state = client.status().await?;
+            let state = state_or_replay(&client, &runtime).await?;
             let next = client
                 .submit_fresh(
                     &state,
@@ -429,7 +433,7 @@ pub async fn run(path: &str, action: Action) -> Result<()> {
             print_state(&next, false)
         }
         Action::Resume { plan_revision } => {
-            let state = client.status().await?;
+            let state = state_or_replay(&client, &runtime).await?;
             let actor = current_actor(ActorKind::Operator);
             let revision = plan_revision.unwrap_or(state.plan_revision);
             let next = client
@@ -446,7 +450,9 @@ pub async fn run(path: &str, action: Action) -> Result<()> {
         }
         Action::Cancel { reason } => {
             write_emergency_pause(&root, &reason)?;
-            let state = client.status().await.with_context(|| {
+            // Same half-applied hazard as Pause above: the emergency file is already
+            // on disk, so a hard failure here loses the durable cancellation record.
+            let state = state_or_replay(&client, &runtime).await.with_context(|| {
                 "emergency PAUSE is active locally, but durable cancellation could not reach the control plane"
             })?;
             let next = client
@@ -522,7 +528,7 @@ pub async fn run(path: &str, action: Action) -> Result<()> {
                 })
                 .transpose()?
                 .unwrap_or_else(chrono::Utc::now);
-            let state = client.status().await?;
+            let state = state_or_replay(&client, &runtime).await?;
             let events = client.events().await?;
             let projection_time = events
                 .last()
@@ -931,6 +937,27 @@ impl ControlClient {
         if let Some(error) = result.apply_error.as_ref() {
             return Err(anyhow!("local runtime rejected the command: {error}"));
         }
+        // Refresh the compatibility projections the harnesses actually read.
+        //
+        // When the daemon commits, it rewrites `current-waypoint.json` and the phase
+        // `progress.json` files server-side. The local path must do the same, or the
+        // command succeeds in canonical state while every harness keeps reading a stale
+        // waypoint — e.g. `revise --exact-next-work` advances the plan to revision 9
+        // while `current-waypoint.json` still points at revision 7's already-completed
+        // command, sending the next agent to redo finished work.
+        //
+        // Best-effort: a projection-write failure must not turn a durable, committed
+        // command into a reported error. Warn and carry on.
+        if let Err(error) = self
+            .runtime
+            .write_compatibility_projections_from_state(&result.state, chrono::Utc::now())
+        {
+            eprintln!(
+                "warning: command committed at revision {} but compatibility projections \
+                 could not be refreshed ({error}); run `prometheus kbd status` to re-derive them",
+                result.state.revision
+            );
+        }
         Ok(result.state)
     }
 }
@@ -970,6 +997,33 @@ impl ControlFailure {
     /// Whether a local commit may proceed. False only for an adjudicated refusal.
     fn may_execute_locally(&self) -> bool {
         !matches!(self, Self::Rejected(_))
+    }
+}
+
+/// Read current state, falling back to local replay when the daemon is unreachable.
+///
+/// Every mutating action needs the current state first, to build a `CommandEnvelope`
+/// carrying the expected revision and causal frontier. Reading that via a bare
+/// `client.status().await?` makes the daemon a hard dependency of *writes* — the
+/// command dies at the precondition read and never reaches `submit_fresh`, whose
+/// `Unreachable` → `execute_locally` fallback exists precisely so local work is never
+/// gated on a passive replicator.
+///
+/// That is not hypothetical: under the managed configuration sovereign-sync serves over
+/// a Unix socket and TCP :7892 is never bound, so `status()` ALWAYS fails and every
+/// mutation is unreachable. This is the failure Codex hit ("the typed mutation endpoint
+/// refused the connection"), and it silently cost recorded work — a `migrate --apply`
+/// then rebuilt the projections from canonical state that no harness had been able to
+/// write to, resetting a completed change back to PENDING.
+///
+/// Local replay is the same journal the daemon itself would read, so the envelope built
+/// from it is identical to the one the daemon would have produced.
+async fn state_or_replay(client: &ControlClient, runtime: &Runtime) -> Result<RuntimeState> {
+    match client.status().await {
+        Ok(state) => Ok(state),
+        Err(remote_error) => runtime
+            .replay()
+            .with_context(|| format!("control plane unavailable ({remote_error})")),
     }
 }
 

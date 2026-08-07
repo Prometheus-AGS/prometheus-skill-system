@@ -4926,6 +4926,30 @@ impl Runtime {
                     BTreeMap::new(),
                 )?;
             }
+            // Refuse to rewrite projections that are AHEAD of canonical state.
+            //
+            // `write_compatibility_projections_migrating` regenerates every
+            // `generatedBy: "kbd-runtime"` file from replayed state. Any completion that
+            // lives only in the projection would be silently reverted. Bail out before
+            // touching anything and tell the operator exactly which phases disagree —
+            // the backup above is already written, so nothing is lost either way.
+            let ahead = projections_ahead_of_canonical(&kbd_root, &paths, &state);
+            if !ahead.is_empty() {
+                return Err(RuntimeError::InvalidState(format!(
+                    "refusing to migrate: {} phase projection(s) record more completed work \
+                     than canonical state, and rewriting them would silently discard it:\n  {}\n\
+                     This usually means a harness recorded completions while the control plane \
+                     was unreachable. Reconcile first — replay that work through `prometheus kbd \
+                     change`/`task` so canonical state matches — then re-run migrate. \
+                     Backups of the current projections are at: {}",
+                    ahead.len(),
+                    ahead.join("\n  "),
+                    backup_directory
+                        .as_ref()
+                        .map(|path| path.display().to_string())
+                        .unwrap_or_else(|| "(none)".into()),
+                )));
+            }
             self.write_compatibility_projections_migrating()?;
         }
         let backup_manifest = if let Some(backup) = &backup_directory {
@@ -5650,6 +5674,73 @@ fn progress_alias_conflict(progress: &serde_json::Value) -> bool {
             && progress.get(*alias).is_some()
             && progress.get(*canonical) != progress.get(*alias)
     })
+}
+
+/// Per-phase completion counts read out of a legacy `progress.json` projection.
+///
+/// Only the two forms actually written by the KBD skills are consulted: the canonical
+/// `completion.implementation.completed` and the legacy `implementation_completed` /
+/// `changes_completed` aliases.
+fn projection_completed(progress: &serde_json::Value) -> u64 {
+    progress["completion"]["implementation"]["completed"]
+        .as_u64()
+        .or_else(|| progress["implementation_completed"].as_u64())
+        .or_else(|| progress["changes_completed"].as_u64())
+        .unwrap_or(0)
+}
+
+/// Count changes a phase records as COMPLETE in canonical state.
+fn canonical_completed(phase: &Phase) -> u64 {
+    phase
+        .changes
+        .values()
+        .filter(|change| change.status == WorkStatus::Complete)
+        .count() as u64
+}
+
+/// Phases whose on-disk projection records MORE completed work than canonical state.
+///
+/// This is the load-bearing safety check for `migrate_legacy_ledgers(apply = true)`.
+/// Migration rewrites every `generatedBy: "kbd-runtime"` projection from replayed
+/// canonical state. If a harness recorded completions only in the projection — the
+/// documented fallback whenever the control plane is unreachable — that work exists
+/// nowhere else, and rewriting silently reverts it.
+///
+/// This is not hypothetical. On 2026-08-07 a harness archived four OpenSpec changes and
+/// recorded them in `progress.json`; a `migrate --apply` fifteen minutes later rebuilt
+/// the file from canonical state that had never received them, reverting a COMPLETE
+/// change to PENDING while the archives sat on disk. Losing work must never be silent.
+fn projections_ahead_of_canonical(
+    kbd_root: &Path,
+    paths: &[PathBuf],
+    state: &RuntimeState,
+) -> Vec<String> {
+    let mut ahead = Vec::new();
+    for path in paths {
+        let Ok(file) = File::open(path) else { continue };
+        let Ok(progress) = serde_json::from_reader::<_, serde_json::Value>(file) else {
+            continue;
+        };
+        let file_completed = projection_completed(&progress);
+        if file_completed == 0 {
+            continue;
+        }
+        let identity = legacy_phase_identity(kbd_root, path, &progress);
+        // An unknown phase id means canonical state has nothing for it at all, which is
+        // the strongest possible "ahead" signal.
+        let canonical = state
+            .phases
+            .get(&identity.id)
+            .map(canonical_completed)
+            .unwrap_or(0);
+        if file_completed > canonical {
+            ahead.push(format!(
+                "{}: projection records {file_completed} completed, canonical state has {canonical}",
+                identity.id
+            ));
+        }
+    }
+    ahead
 }
 
 fn projection_mismatch_count(kbd_root: &Path) -> u64 {
