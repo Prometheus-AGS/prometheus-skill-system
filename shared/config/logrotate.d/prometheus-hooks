@@ -11,3 +11,21 @@ __PROMETHEUS_HOOK_LOG__ {
     dateformat -%Y%m%d
     sharedscripts
 }
+
+# Service logs written by launchd StandardOutPath/StandardErrorPath. The
+# owning processes hold these files open, so copytruncate is mandatory —
+# moving the file would keep writes flowing into the renamed inode until the
+# next service restart. launchd opens these paths in append mode, so
+# truncating in place after copying is safe.
+__PROMETHEUS_LOGS_GLOB__ {
+    size 10M
+    rotate 14
+    compress
+    delaycompress
+    missingok
+    notifempty
+    copytruncate
+    dateext
+    dateformat -%Y%m%d
+    sharedscripts
+}

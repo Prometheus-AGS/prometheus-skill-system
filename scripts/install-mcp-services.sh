@@ -321,10 +321,12 @@ PY
 
 render_logrotate_config() {
     local output="$1"
-    python3 - "$REPO_ROOT/shared/config/logrotate.d/prometheus-hooks" "$output" "$PROMETHEUS_HOME/.prometheus/hooks.log" <<'PY'
+    python3 - "$REPO_ROOT/shared/config/logrotate.d/prometheus-hooks" "$output" "$PROMETHEUS_HOME/.prometheus/hooks.log" "$PROMETHEUS_HOME/.prometheus/logs/*.log" <<'PY'
 import pathlib, sys
-src, dst, hook_log = map(pathlib.Path, sys.argv[1:])
-text = src.read_text().replace("__PROMETHEUS_HOOK_LOG__", str(hook_log))
+src, dst = pathlib.Path(sys.argv[1]), pathlib.Path(sys.argv[2])
+hook_log, logs_glob = sys.argv[3], sys.argv[4]
+text = src.read_text().replace("__PROMETHEUS_HOOK_LOG__", hook_log)
+text = text.replace("__PROMETHEUS_LOGS_GLOB__", logs_glob)
 dst.parent.mkdir(parents=True, exist_ok=True)
 dst.write_text(text)
 PY
