@@ -11,10 +11,10 @@ links:
 - executor-session-completion-adversarial-review-for-creation
 sources:
 - stdin
-timestamp: 2026-08-06T12:41:13.894051+00:00
-created_at: 2026-08-06T12:41:13.894051+00:00
-updated_at: 2026-08-06T12:41:13.894051+00:00
-revision: 0
+timestamp: 2026-08-06T14:58:57.371660+00:00
+created_at: 2026-08-06T14:58:57.371414+00:00
+updated_at: 2026-08-06T14:58:57.371660+00:00
+revision: 1
 ---
 
 ## Session Record
@@ -23,7 +23,7 @@ revision: 0
 - **Phase:** `kimi-desktop-extensibility`
 - **Change:** unknown
 
-This is a minimal executor-session completion record. A comparable completion-status entry exists for [Executor Session Completion: Adversarial Review for Creation](/executor-session-completion-adversarial-review-for-creation.md).
+Minimal completion-status record for the Kimi desktop extensibility phase. Comparable session-status records include [Executor Session Completion: Adversarial Review for Creation](/executor-session-completion-adversarial-review-for-creation.md).
 
 # Citations
 

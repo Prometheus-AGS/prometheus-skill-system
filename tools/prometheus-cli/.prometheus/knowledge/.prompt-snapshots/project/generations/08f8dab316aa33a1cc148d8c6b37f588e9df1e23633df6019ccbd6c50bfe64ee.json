@@ -1,0 +1,91 @@
+{
+  "schemaVersion": 1,
+  "scope": "project",
+  "generation": "08f8dab316aa33a1cc148d8c6b37f588e9df1e23633df6019ccbd6c50bfe64ee",
+  "candidateCount": 4,
+  "byteCount": 12686,
+  "entries": [
+    {
+      "id": "executor-session-completion-adversarial-review-for-creation",
+      "title": "Executor Session Completion: Adversarial Review for Creation",
+      "content": "## Session Record\n\n- **Status:** executor session complete\n- **Phase:** adversarial-review-for-creation\n- **Change:** unknown\n\n# Citations\n\n1. [1] stdin",
+      "tags": [
+        "executor-session",
+        "adversarial-review",
+        "creation-phase",
+        "session-status"
+      ],
+      "links": [],
+      "sources": [
+        "stdin"
+      ],
+      "created_at": "2026-08-01T15:03:00.811176Z",
+      "updated_at": "2026-08-01T15:03:00.811176Z",
+      "revision": 0,
+      "entry_type": "Reference",
+      "description": null,
+      "extra": {}
+    },
+    {
+      "id": "executor-session-completion-kimi-desktop-extensibility",
+      "title": "Executor Session Completion: Kimi Desktop Extensibility",
+      "content": "## Session Record\n\n- **Status:** executor session complete\n- **Phase:** `kimi-desktop-extensibility`\n- **Change:** unknown\n\nMinimal completion-status record for the Kimi desktop extensibility phase. Comparable session-status records include [Executor Session Completion: Adversarial Review for Creation](/executor-session-completion-adversarial-review-for-creation.md).\n\n# Citations\n\n1. [1] stdin",
+      "tags": [
+        "executor-session",
+        "kimi",
+        "desktop-extensibility",
+        "session-status"
+      ],
+      "links": [
+        "executor-session-completion-adversarial-review-for-creation"
+      ],
+      "sources": [
+        "stdin"
+      ],
+      "created_at": "2026-08-06T14:58:57.371414Z",
+      "updated_at": "2026-08-06T14:58:57.371660Z",
+      "revision": 1,
+      "entry_type": "Reference",
+      "description": null,
+      "extra": {}
+    },
+    {
+      "id": "karpathy-session-067475aa1c8cfa1d",
+      "title": "Karpathy session 067475aa1c8c",
+      "content": "## Delta\n\nAll gates clean: clippy, fmt, and 20 tests passing. Change 2 is complete.\n\n## What changed\n\n`tools/prometheus-cli/.../kbd.rs` — mutations now commit through the local runtime when the daemon can't adjudicate them.\n\nThe mechanism is a three-way classification of control-plane failures, because the two-way split I started with was unsafe:\n\n| Failure | Meaning | Action |\n|---|---|---|\n| **Unreachable** | `is_connect()` or 503 from the startup gate — daemon provably never saw it | Commit locally |\n| **Ambiguous** | Timeout, reset after send, non-503 5xx — may already be committed | Commit locally, **warn that remote status is unknown** |\n| **Rejected** | 4xx — the daemon adjudicated and refused | Propagate. Never retried locally |\n\nAll 10 mutation sites funnel through `submit_fresh`, plus the raw `Action::Command` path Codex was using.\n\n## The judge caught a real defect\n\nI initially classified **every** transport error as \"daemon never saw this\" and wrote that in a comment. That's false for timeouts — a 30-second timeout is precisely when the daemon most likely *did* commit and only the response died. Retrying that blindly is a double-apply risk.\n\nTwo things I verified in `kbd-runtime` rather than assuming:\n\n- **`execute_command` deduplicates on `command_id`** via `state.command_revisions` — and that check runs **before** `validate_command_frontier`, so a replay short-circuits to `duplicate: true` with the original revision. Reusing the id across both attempts is correct.\n- That's what makes the `Ambiguous` path safe: a later merge deduplicates. But the local runtime can't see a commit that exists only in the daemon's journal, so the operator is told to reconcile rather than being handed a false clean result.\n\n## Verified\n\n- `connect-refused` → reaches the runtime and gets a real adjudication. The **installed** binary dies at `Connection refused` and never gets that far — clean before/after.\n- Reads unaffected; revision stayed at `2` — no phantom commits from failed probes.\n- clippy → fmt → clippy (fmt last, per the repo rule), 20 tests pass.\n\n## Two things you should know\n\n**A pre-existing blocker surfaced.** The local commit now reaches the runtime and is refused: `event signer ed25519:e7016c63… is not enrolled`. I checked — **there are no enrollment events in the journal at all**. That's a separate defect, it predates this change, and I didn't paper over it. It means the local path is proven to *reach* adjudication but hasn't yet been proven to *commit*.\n\n**The unix-socket transport is still unfixed.** `reqwest` can't speak unix sockets without a new dependency. With the fallback in place an unreachable daemon is now harmless, so I documented it rather than pretending otherwise — but a running daemon still isn't actually being used under the managed config.\n\nNothing committed. Next would be enrollment (so the local path can complete a real commit), then Change 4 (prune) and Changes 3+5.\n\n## Root Cause\n\nNo explicit root-cause section was captured; preserve this as a session record, not an inferred diagnosis.\n\n## Corrective Actions\n\nReview and promote only reusable findings.\n\n## Session Metadata\n\n- Harness: claude-code\n- Session: cebcfbb5-668f-49de-8c67-ea6fae9d262c\n- Captured: 2026-08-06T12:41:06.932853Z\n- Project: /Users/gqadonis/Projects/prometheus/prometheus-skill-pack/tools/prometheus-cli\n\n## Changed Paths\n\n- ../../.kbd-orchestrator/phases/mobile-skill-portability/mobile-classification.json\n- ../../.prometheus/knowledge/wiki/index.md\n- ../../.prometheus/knowledge/wiki/kimi-desktop-extensibility-executor-completion-record.md\n- ../../.prometheus/knowledge/wiki/log.md\n- .prometheus/knowledge/wiki/index.md\n- .prometheus/knowledge/wiki/log.md\n- crates/prometheus-cli/src/commands/kbd.rs\n- ../../.prometheus/knowledge/wiki/karpathy-session-01bf5edf5a4599ef.md\n- ../../.prometheus/knowledge/wiki/karpathy-session-0431b2e9a944f36a.md\n- ../../.prometheus/knowledge/wiki/karpathy-session-06fb138df2cedd2f.md\n- ../../.prometheus/knowledge/wiki/karpathy-session-1b5d9a7b092377a7.md\n- ../../.prometheus/knowledge/wiki/karpathy-session-273f3645230ec04d.md\n- ../../.prometheus/knowledge/wiki/karpathy-session-75e1eb1f877c92a1.md\n- ../../.prometheus/knowledge/wiki/karpathy-session-7cb86463595c8445.md\n- ../../.prometheus/knowledge/wiki/karpathy-session-807d6bc988e75156.md\n- ../../.prometheus/knowledge/wiki/karpathy-session-8dd550b6748f02f2.md\n- ../../.prometheus/knowledge/wiki/karpathy-session-95cb4c69e3a13c3a.md\n- ../../.prometheus/knowledge/wiki/karpathy-session-b981029e4691b82f.md\n- ../../.prometheus/knowledge/wiki/karpathy-session-d36396632cc9ba19.md\n- ../../.prometheus/knowledge/wiki/karpathy-session-d5fd3a361869707f.md\n- ../../.prometheus/knowledge/wiki/karpathy-session-ed04ff580e446494.md\n- ../../.prometheus/knowledge/wiki/karpathy-session-f4e4ea77b6c4439d.md\n- ../../.prometheus/knowledge/wiki/kimi-desktop-extensibility-executor-completion-unknown-change.md\n- ../../.prometheus/knowledge/wiki/kimi-desktop-extensibility-executor-session-completion.md\n- ../../docs/articles/OUTLINE-loops-that-lie.md\n- ../../docs/decisions/kbd-authority-startup-blast-radius.md\n- .prometheus/knowledge/wiki/karpathy-session-133fe418c30f0bb2.md\n",
+      "tags": [
+        "karpathy",
+        "session-learning"
+      ],
+      "links": [],
+      "sources": [
+        "session:cebcfbb5-668f-49de-8c67-ea6fae9d262c"
+      ],
+      "created_at": "2026-08-06T12:41:10.066042Z",
+      "updated_at": "2026-08-06T12:41:10.066042Z",
+      "revision": 0,
+      "entry_type": "SessionRecord",
+      "description": null,
+      "extra": {}
+    },
+    {
+      "id": "karpathy-session-133fe418c30f0bb2",
+      "title": "Karpathy session 133fe418c30f",
+      "content": "## Delta\n\nAll gates clean: clippy, fmt, and 20 tests passing. Change 2 is complete.\n\n## What changed\n\n`tools/prometheus-cli/.../kbd.rs` — mutations now commit through the local runtime when the daemon can't adjudicate them.\n\nThe mechanism is a three-way classification of control-plane failures, because the two-way split I started with was unsafe:\n\n| Failure | Meaning | Action |\n|---|---|---|\n| **Unreachable** | `is_connect()` or 503 from the startup gate — daemon provably never saw it | Commit locally |\n| **Ambiguous** | Timeout, reset after send, non-503 5xx — may already be committed | Commit locally, **warn that remote status is unknown** |\n| **Rejected** | 4xx — the daemon adjudicated and refused | Propagate. Never retried locally |\n\nAll 10 mutation sites funnel through `submit_fresh`, plus the raw `Action::Command` path Codex was using.\n\n## The judge caught a real defect\n\nI initially classified **every** transport error as \"daemon never saw this\" and wrote that in a comment. That's false for timeouts — a 30-second timeout is precisely when the daemon most likely *did* commit and only the response died. Retrying that blindly is a double-apply risk.\n\nTwo things I verified in `kbd-runtime` rather than assuming:\n\n- **`execute_command` deduplicates on `command_id`** via `state.command_revisions` — and that check runs **before** `validate_command_frontier`, so a replay short-circuits to `duplicate: true` with the original revision. Reusing the id across both attempts is correct.\n- That's what makes the `Ambiguous` path safe: a later merge deduplicates. But the local runtime can't see a commit that exists only in the daemon's journal, so the operator is told to reconcile rather than being handed a false clean result.\n\n## Verified\n\n- `connect-refused` → reaches the runtime and gets a real adjudication. The **installed** binary dies at `Connection refused` and never gets that far — clean before/after.\n- Reads unaffected; revision stayed at `2` — no phantom commits from failed probes.\n- clippy → fmt → clippy (fmt last, per the repo rule), 20 tests pass.\n\n## Two things you should know\n\n**A pre-existing blocker surfaced.** The local commit now reaches the runtime and is refused: `event signer ed25519:e7016c63… is not enrolled`. I checked — **there are no enrollment events in the journal at all**. That's a separate defect, it predates this change, and I didn't paper over it. It means the local path is proven to *reach* adjudication but hasn't yet been proven to *commit*.\n\n**The unix-socket transport is still unfixed.** `reqwest` can't speak unix sockets without a new dependency. With the fallback in place an unreachable daemon is now harmless, so I documented it rather than pretending otherwise — but a running daemon still isn't actually being used under the managed config.\n\nNothing committed. Next would be enrollment (so the local path can complete a real commit), then Change 4 (prune) and Changes 3+5.\n\n## Root Cause\n\nNo explicit root-cause section was captured; preserve this as a session record, not an inferred diagnosis.\n\n## Corrective Actions\n\nReview and promote only reusable findings.\n\n## Session Metadata\n\n- Harness: claude-code\n- Session: cebcfbb5-668f-49de-8c67-ea6fae9d262c\n- Captured: 2026-08-06T12:38:00.752028Z\n- Project: /Users/gqadonis/Projects/prometheus/prometheus-skill-pack/tools/prometheus-cli\n\n## Changed Paths\n\n- ../../.kbd-orchestrator/phases/mobile-skill-portability/mobile-classification.json\n- ../../.prometheus/knowledge/wiki/index.md\n- ../../.prometheus/knowledge/wiki/kimi-desktop-extensibility-executor-completion-record.md\n- ../../.prometheus/knowledge/wiki/log.md\n- crates/prometheus-cli/src/commands/kbd.rs\n- ../../.prometheus/knowledge/wiki/karpathy-session-01bf5edf5a4599ef.md\n- ../../.prometheus/knowledge/wiki/karpathy-session-0431b2e9a944f36a.md\n- ../../.prometheus/knowledge/wiki/karpathy-session-06fb138df2cedd2f.md\n- ../../.prometheus/knowledge/wiki/karpathy-session-1b5d9a7b092377a7.md\n- ../../.prometheus/knowledge/wiki/karpathy-session-273f3645230ec04d.md\n- ../../.prometheus/knowledge/wiki/karpathy-session-75e1eb1f877c92a1.md\n- ../../.prometheus/knowledge/wiki/karpathy-session-7cb86463595c8445.md\n- ../../.prometheus/knowledge/wiki/karpathy-session-807d6bc988e75156.md\n- ../../.prometheus/knowledge/wiki/karpathy-session-8dd550b6748f02f2.md\n- ../../.prometheus/knowledge/wiki/karpathy-session-95cb4c69e3a13c3a.md\n- ../../.prometheus/knowledge/wiki/karpathy-session-b981029e4691b82f.md\n- ../../.prometheus/knowledge/wiki/karpathy-session-d36396632cc9ba19.md\n- ../../.prometheus/knowledge/wiki/karpathy-session-d5fd3a361869707f.md\n- ../../.prometheus/knowledge/wiki/karpathy-session-ed04ff580e446494.md\n- ../../.prometheus/knowledge/wiki/karpathy-session-f4e4ea77b6c4439d.md\n- ../../.prometheus/knowledge/wiki/kimi-desktop-extensibility-executor-completion-unknown-change.md\n- ../../.prometheus/knowledge/wiki/kimi-desktop-extensibility-executor-session-completion.md\n- ../../docs/articles/OUTLINE-loops-that-lie.md\n- ../../docs/decisions/kbd-authority-startup-blast-radius.md\n",
+      "tags": [
+        "karpathy",
+        "session-learning"
+      ],
+      "links": [],
+      "sources": [
+        "session:cebcfbb5-668f-49de-8c67-ea6fae9d262c"
+      ],
+      "created_at": "2026-08-06T12:38:04.451227Z",
+      "updated_at": "2026-08-06T12:38:04.451227Z",
+      "revision": 0,
+      "entry_type": "SessionRecord",
+      "description": null,
+      "extra": {}
+    }
+  ]
+}
