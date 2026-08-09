@@ -1,7 +1,7 @@
 ---
 license: MIT
 name: kbd-init
-version: '1.0.0'
+version: '1.1.0'
 description: >
   Initialize KBD in a project. Auto-discovers project identity, stack, and
   constraints from existing context files (AGENTS.md, CLAUDE.md, README.md,
@@ -28,8 +28,11 @@ then generates two project-specific files:
 2. `.kbd-orchestrator/constraints.md` — project-specific blocking/warning rules derived
    from `AGENTS.md` "Never Do" section and known stack conventions
 
-Does **NOT** modify anything in `.agent/skills/kbd-process-orchestrator/`.
-The skill directory is read-only from the project's perspective.
+The directory containing this `SKILL.md` is the installed `kbd-init` payload.
+Resolve every `references/` and `scripts/` path relative to that directory.
+Never resolve resources through `.agent/`, a source checkout, a plugin cache, or
+another version of the skill. The installed skill directory is read-only from
+the project's perspective.
 
 ## Discovery Algorithm
 
@@ -67,7 +70,26 @@ Derive from package.json `scripts`, Cargo.toml, Makefile, or common conventions:
 - Look for `build`, `test`, `lint`, `dev`, `check` script keys
 - For Next.js: detect port from `pnpm run dev` script or default to 3000
 - For Rust: `cargo check --workspace`, `cargo test --workspace`, `cargo clippy`
-- Prepend environment path fixes as needed (e.g., nvm node path from `.nvmrc`)
+- Read `AGENTS.md`, `CLAUDE.md`, and equivalent project instructions for mandatory
+  command wrappers, environment variables, toolchain selectors, and storage paths.
+- Prepend those requirements to every affected command (for example, an nvm path
+  or a mandatory `CARGO_TARGET_DIR`).
+- Treat a command policy as transitive: apply it to `project.json` command fields,
+  every compiling `command:` in `constraints.md`, and every generated workflow
+  trigger. For chained commands, apply the required prefix to each affected
+  command segment; a prefix on the first `cargo` command does not cover a later
+  `cargo` command after `&&`.
+- Never weaken, omit, or replace a mandatory external path merely because it is
+  unavailable during initialization.
+
+After deriving commands, perform a read-only prerequisite preflight:
+
+1. Check required external roots or mounts for existence and writability.
+2. Do not mount storage, create target directories, or substitute a local path.
+3. If a required path is unavailable, continue generating configuration and mark
+   execution as blocked in the final summary.
+4. If the required command policy was not propagated to every affected command,
+   stop and correct the generated configuration before reporting completion.
 
 ### Step 4: Spec Paths
 
@@ -85,6 +107,14 @@ Read `AGENTS.md` sections:
 - "Never Do" → blocking constraints
 - "Always Do" → derive as warning constraints if they have machine-checkable form
 - "Code Style" → derive as warning constraints
+
+Preserve explicit ownership and path exceptions. Do not infer that a directory is
+disposable solely because it is hidden or named like tool state. Reconcile proposed
+constraints with explicit project rules and existing tracked paths, and scope each
+constraint so it does not contradict a documented exception.
+
+Apply the command environment policy from Step 3 to every compiling `command:` or
+workflow trigger emitted in this file.
 
 If no `AGENTS.md`, use generic constraints from the skill's reference template.
 
@@ -124,7 +154,8 @@ and leave execution as an empty list.
 
 ## Output: `.kbd-orchestrator/project.json`
 
-Generated from `references/schemas/project.template.json` with discovered values:
+Generated from the bundled `references/schemas/project.template.json` with
+discovered values:
 
 ```json
 {
@@ -160,8 +191,29 @@ Generated from `references/schemas/project.template.json` with discovered values
 
 ## Output: `.kbd-orchestrator/constraints.md`
 
-Generated from `references/constraints.md` template, with project-specific
-blocking rules derived from `AGENTS.md` "Never Do" section.
+Generated from the bundled `references/constraints.md` template, with
+project-specific blocking rules derived from `AGENTS.md` "Never Do" section.
+Mandatory command environments apply to every affected command in this file, and
+documented path-ownership exceptions remain explicit.
+
+## Post-generation Validation
+
+After writing both files, run the validator bundled beside this `SKILL.md`:
+
+```bash
+node "<kbd-init-skill-dir>/scripts/kbd-init-validate.mjs" "<project-root>"
+```
+
+Replace `<kbd-init-skill-dir>` with the directory containing this `SKILL.md`; do
+not search another installation. The validator checks JSON readability and
+mandatory Cargo environment propagation. It never writes project files.
+
+- A configuration error is fatal: correct it before emitting the completion
+  progress signal.
+- An unavailable external prerequisite is non-fatal for initialization. Preserve
+  the configured path and report:
+  `initialization complete; execution blocked: required path unavailable: <path>`.
+- When prerequisites are available, report that execution prerequisites are ready.
 
 ## Idempotency
 
@@ -169,6 +221,8 @@ blocking rules derived from `AGENTS.md` "Never Do" section.
   would change and ask for confirmation before overwriting.
 - Using `/kbd-init --force` skips confirmation and overwrites.
 - Running `/kbd-init --dry-run` prints the discovered values without writing files.
+  Apply the same command-policy and prerequisite checks in memory, including the
+  execution-blocked warning when an external path is unavailable.
 
 ## Progress Signals (MANDATORY)
 

@@ -7,7 +7,7 @@
   "runtimeFiles": [
     {
       "path": "scripts/install-plugin-generation.js",
-      "sha256": "fe7af92b9ed153411ea3fa058bac33ee297af65cd83ca355d04c682391d18de5",
+      "sha256": "5a0641687d633aeeb84cb23c0983c1e298bbc27efeeb907329d679b3fc09868b",
       "mode": "0755"
     },
     {
@@ -47,7 +47,7 @@
     },
     {
       "path": "shared/scripts/detect-toolchain.sh",
-      "sha256": "b9505918b6daad97a38948b5ea37220d55a16f92c11b9d470781cfcbff519275",
+      "sha256": "b8ecdef5e819d4c90b357f61c1fd89e363390b992ff1ef5234acd2c96114abee",
       "mode": "0755"
     },
     {
@@ -232,7 +232,7 @@
     },
     {
       "path": "shared/scripts/service-probe.sh",
-      "sha256": "fc63da0e6de8ae58a3b497ec89bc6eeacc455cced64fc27b778540d4bbdf4e5c",
+      "sha256": "5b29f54f46f2fe262afb4f92b95ef0092b2566dc4f482d89f8e656c03bbca3a4",
       "mode": "0755"
     },
     {
@@ -311,5 +311,5 @@
       "mode": "0755"
     }
   ],
-  "bundleId": "ac153d1ea55ca21fd28cd3332d7b6e0eb6b93c734561efd474b2b8b5dc32aa4e"
+  "bundleId": "d339c79a80a2559f062251206afa7acb0a264f2f9aeb1e72da4d8ee298b3604e"
 }

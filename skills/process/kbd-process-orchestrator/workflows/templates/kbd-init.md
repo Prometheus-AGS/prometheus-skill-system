@@ -6,8 +6,10 @@ and `.kbd-orchestrator/constraints.md`.
 
 ## Instructions
 
-Read `.agent/skills/kbd-process-orchestrator/skills/kbd-init/SKILL.md` and
-execute the `/kbd-init` workflow.
+Execute the installed `kbd-init` Agent Skill. Its `SKILL.md`, `references/`, and
+`scripts/` directory form one self-contained payload. Resolve supporting files
+relative to that installed skill only; never use `.agent/`, a source checkout,
+or a versioned plugin cache.
 
 Run the 7-step discovery algorithm:
 
@@ -19,8 +21,10 @@ Run the 7-step discovery algorithm:
 6. VSCode workspace discovery (.code-workspace)
 7. Agent preferences
 
-Generate `.kbd-orchestrator/project.json` from `references/schemas/project.template.json`.
-Generate `.kbd-orchestrator/constraints.md` from `references/constraints.md`.
+Generate `.kbd-orchestrator/project.json` from the installed skill's
+`references/schemas/project.template.json`. Generate
+`.kbd-orchestrator/constraints.md` from its `references/constraints.md`, then run
+its bundled post-generation validator.
 
 If an argument is provided (`$ARGUMENTS`), use it as the project name override.
 

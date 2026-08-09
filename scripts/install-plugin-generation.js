@@ -97,6 +97,8 @@ function parseArgs(argv) {
     rollback: false,
     uninstall: false,
     expectedBundle: null,
+    expectedSourceCommit: null,
+    requireCleanSource: false,
     signingKey: null,
     trustStore: null,
   };
@@ -105,7 +107,9 @@ function parseArgs(argv) {
     if (value === '--verify') args.verify = true;
     else if (value === '--rollback') args.rollback = true;
     else if (value === '--uninstall') args.uninstall = true;
+    else if (value === '--require-clean-source') args.requireCleanSource = true;
     else if (value === '--expected-bundle') args.expectedBundle = argv[++index];
+    else if (value === '--expected-source-commit') args.expectedSourceCommit = argv[++index];
     else if (value === '--source-root') args.sourceRoot = argv[++index];
     else if (value === '--plugin-root') args.pluginRoot = argv[++index];
     else if (value === '--home') args.home = argv[++index];
@@ -126,6 +130,9 @@ function parseArgs(argv) {
   );
   if (args.expectedBundle && !/^[a-f0-9]{64}$/.test(args.expectedBundle)) {
     fail('invalid value for --expected-bundle');
+  }
+  if (args.expectedSourceCommit && !/^[a-f0-9]{40,64}$/.test(args.expectedSourceCommit)) {
+    fail('invalid value for --expected-source-commit');
   }
   return args;
 }
@@ -477,6 +484,22 @@ function sourceProvenance(sourceRoot) {
   return { sourceCommit, sourceTreeState, externalSources };
 }
 
+function validateSourceProvenance(provenance, args, stage) {
+  if (args.expectedSourceCommit && provenance.sourceCommit !== args.expectedSourceCommit) {
+    fail(
+      `source commit mismatch ${stage}: expected ${args.expectedSourceCommit}, ` +
+        `found ${provenance.sourceCommit ?? 'unavailable'} at ${args.sourceRoot}`
+    );
+  }
+  if (args.requireCleanSource && provenance.sourceTreeState !== 'clean') {
+    fail(`source tree is modified ${stage}: ${args.sourceRoot}`);
+  }
+}
+
+function sameExternalSources(left, right) {
+  return canonicalJson(left) === canonicalJson(right);
+}
+
 function stageExecutionComponent(source, staging) {
   const descriptorPath = path.join(source, ...EXEC_COMPONENT_DESCRIPTOR.split('/'));
   if (!fs.existsSync(descriptorPath)) {
@@ -678,12 +701,15 @@ function verifyReleaseManifest(payloadRoot, expectedBundle = null) {
     seen.add(normalized);
     const absolute = path.join(payloadRoot, ...normalized.split('/'));
     const stat = fs.lstatSync(absolute, { throwIfNoEntry: false });
-    if (
-      !stat?.isFile() ||
-      sha256(fs.readFileSync(absolute)) !== entry.sha256 ||
-      modeString(stat.mode) !== entry.mode
-    ) {
-      fail(`release payload verification failed for ${normalized}`);
+    const actualHash = stat?.isFile() ? sha256(fs.readFileSync(absolute)) : 'missing';
+    const actualMode = stat?.isFile() ? modeString(stat.mode) : 'missing';
+    if (!stat?.isFile() || actualHash !== entry.sha256 || actualMode !== entry.mode) {
+      fail(
+        `release payload verification failed for ${normalized}: ` +
+          `expected sha256=${entry.sha256} mode=${entry.mode}; ` +
+          `actual sha256=${actualHash} mode=${actualMode}; ` +
+          `payloadRoot=${payloadRoot}; manifest=${manifestPath}`
+      );
     }
   }
   return release;
@@ -1259,6 +1285,9 @@ function install(args) {
       fail(`required script is missing or not executable: ${script}`);
   }
 
+  const sourceBefore = sourceProvenance(source);
+  validateSourceProvenance(sourceBefore, args, 'before staging');
+
   const generations = path.join(args.pluginRoot, 'generations');
   ensureDirectory(generations);
   const signingIdentity = ensureSigningIdentity(args.signingKey, args.trustStore);
@@ -1296,6 +1325,15 @@ function install(args) {
       fs.readFileSync(path.join(staging, '.claude-plugin/plugin.json'), 'utf8')
     );
     const release = verifyReleaseManifest(staging, args.expectedBundle);
+    const sourceAfter = sourceProvenance(source);
+    validateSourceProvenance(sourceAfter, args, 'after staging');
+    if (
+      sourceAfter.sourceCommit !== sourceBefore.sourceCommit ||
+      sourceAfter.sourceTreeState !== sourceBefore.sourceTreeState ||
+      !sameExternalSources(sourceAfter.externalSources, sourceBefore.externalSources)
+    ) {
+      fail(`source provenance changed while staging payload: ${source}`);
+    }
     const dispatcher = release.runtimeFiles.find(
       entry => entry.path === 'shared/scripts/generated/hook-dispatch-v1.sh'
     );
@@ -1316,7 +1354,7 @@ function install(args) {
       signerKeyId: signingIdentity.keyId,
       bundleId: release.bundleId,
       hookRuntime,
-      sourceProvenance: sourceProvenance(source),
+      sourceProvenance: sourceAfter,
       skillIndex: { sha256: skillIndex.sha256, entryCount: skillIndex.entries.length },
       executionComponent,
       files: collectManifestFiles(staging),

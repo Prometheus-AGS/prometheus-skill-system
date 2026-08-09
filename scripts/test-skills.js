@@ -16,6 +16,7 @@ const allTests = [
   ['Codex artifact consistency', 'node', ['scripts/build-codex-plugin.js', '--check']],
   ['skill collision matrix', 'node', ['scripts/skill-matrix.js', '--ci']],
   ['KBD control-plane fixtures', 'bash', ['scripts/test-kbd-control-plane.sh']],
+  ['kbd-init packaging', 'bash', ['shared/scripts/tests/test-kbd-init-packaging.sh']],
   ['kbd-next-phase packaging', 'bash', ['shared/scripts/tests/test-kbd-next-phase-packaging.sh']],
   [
     'cross-tool payload packaging',
@@ -25,13 +26,24 @@ const allTests = [
   ['PK health hook fixtures', 'bash', ['shared/scripts/tests/test-pk-health.sh']],
   ['Karpathy hook fixtures', 'bash', ['shared/scripts/tests/test-karpathy-dispatch.sh']],
   ['Atomic plugin generation', 'bash', ['shared/scripts/tests/test-plugin-generation.sh']],
+  ['verified updater policy', 'bash', ['scripts/tests/update-skill-pack.test.sh']],
+  [
+    'native plugin refresh policy',
+    'bash',
+    ['scripts/tests/refresh-native-plugin-installs.test.sh'],
+  ],
+  ['installer entrypoint policy', 'bash', ['scripts/tests/test-installer-entrypoints.sh']],
   ['learning basic flow', 'bash', ['tests/learn/integration-basic-flow.sh']],
   ['learning full loop', 'bash', ['tests/learn/integration-full-loop.sh']],
   ['learning KB adapter', 'bash', ['tests/learn/integration-kb.sh']],
   ['learning meta/harness parity', 'bash', ['tests/learn/integration-meta.sh']],
 ];
 
-const skippedKbdTests = new Set(['KBD control-plane fixtures', 'kbd-next-phase packaging']);
+const skippedKbdTests = new Set([
+  'KBD control-plane fixtures',
+  'kbd-init packaging',
+  'kbd-next-phase packaging',
+]);
 const tests =
   process.env.PROMETHEUS_SKIP_KBD === '1'
     ? allTests.filter(([name]) => !skippedKbdTests.has(name))
