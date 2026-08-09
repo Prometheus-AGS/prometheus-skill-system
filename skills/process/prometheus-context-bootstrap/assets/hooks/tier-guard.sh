@@ -1,17 +1,22 @@
 #!/usr/bin/env bash
-# PreToolUse:Bash — block Tier 3 commands outside a milestone phase.
+# PreToolUse:Bash — block Tier 3 commands outside a deliberate release gate.
 #
 # Contract: exit 0 allows, exit 2 blocks and feeds stderr back to the model.
 # Any other exit is a hook error and does not block, so every failure path
 # below exits 0 deliberately. A guard that blocks because jq is missing is
 # worse than one that does not fire.
+#
+# Waypoint schema note (measured across the estate 2026-08-09): `.phase` holds
+# a phase IDENTITY ("uar-uiux-full-migration-2026-08"), not a lifecycle state.
+# `.status` holds the lifecycle ("running", "execute_ready", "completed").
+# An earlier version matched .phase against milestone|release|certify, which no
+# real waypoint could ever satisfy — it blocked Tier 3 unconditionally with no
+# reachable unblock path. Read .status, and provide explicit opt-ins.
 
 set -uo pipefail
 
 input="$(cat 2>/dev/null || true)"
 
-# Extract the command. Prefer jq; fall back to sed so a missing jq degrades
-# to a weaker check rather than to no check at all.
 if command -v jq >/dev/null 2>&1; then
   cmd="$(printf '%s' "$input" | jq -r '.tool_input.command // ""' 2>/dev/null || true)"
 else
@@ -19,37 +24,45 @@ else
 fi
 [[ -n "$cmd" ]] || exit 0
 
+t3='cargo build.*--release|cargo test.*--release|tauri build|flutter build (ios|apk|appbundle)|go test.*-race|wasm-pack test --headless|playwright test'
+printf '%s' "$cmd" | grep -Eq "$t3" || exit 0
+
 root="${CLAUDE_PROJECT_DIR:-$PWD}"
 waypoint="$root/.kbd-orchestrator/current-waypoint.json"
 
-phase="implement"
+# --- explicit opt-ins, checked first: both are deliberate and reversible ---
+[[ "${PROMETHEUS_TIER3:-0}" == "1" ]] && exit 0
+[[ -f "$root/.kbd-orchestrator/tier3.allow" ]] && exit 0
+
+status=""; phase=""
 if [[ -f "$waypoint" ]] && command -v jq >/dev/null 2>&1; then
-  phase="$(jq -r '.phase // "implement"' "$waypoint" 2>/dev/null || echo implement)"
+  status="$(jq -r '.status // ""' "$waypoint" 2>/dev/null || true)"
+  phase="$(jq -r '.phase // ""' "$waypoint" 2>/dev/null || true)"
 fi
 
-# Tier 3: expensive, cache-invalidating, or device-bound.
-t3='cargo build.*--release|cargo test.*--release|tauri build|flutter build (ios|apk|appbundle)|go test.*-race|wasm-pack test --headless|playwright test'
+# Lifecycle states in which Tier 3 is the expected gate rather than a violation.
+if printf '%s' "$status" | grep -qiE '^(completed|complete|release|releasing|certify|certified|milestone|delivery)'; then
+  exit 0
+fi
 
-if printf '%s' "$cmd" | grep -Eq "$t3"; then
-  case "$phase" in
-    milestone|release|certify) exit 0 ;;
-    *)
-      cat >&2 <<EOF
-TIER VIOLATION — this is a Tier 3 command and the current phase is "$phase".
+cat >&2 <<EOF
+TIER VIOLATION — Tier 3 command outside a release gate.
 
   command: $cmd
+  status:  ${status:-<unknown>}
+  phase:   ${phase:-<unknown>}
   source:  $waypoint
 
-Tier 3 runs at milestone or release only. A release build during
+Tier 3 runs at milestone, release, or certification. A release build during
 implementation invalidates the incremental cache and pays full optimization
 for code that is about to change.
 
-Run the Tier 2 equivalent, or set the waypoint phase to "milestone" if this
-genuinely is the gate.
-EOF
-      exit 2
-      ;;
-  esac
-fi
+Run the Tier 2 equivalent instead, or open the gate deliberately:
 
-exit 0
+  PROMETHEUS_TIER3=1 <command>          # one command
+  touch .kbd-orchestrator/tier3.allow   # this session; delete when done
+
+Do not edit the waypoint to get past this — it is the position record, not a
+permission switch.
+EOF
+exit 2

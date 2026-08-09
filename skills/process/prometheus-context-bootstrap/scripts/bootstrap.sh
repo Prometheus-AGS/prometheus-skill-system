@@ -221,6 +221,39 @@ check_markers() {   # file -> exit 2 on corruption
   printf '%s' "$starts"
 }
 
+# Shared v3 detector. Applied to EVERY agent file, not just AGENTS.md.
+# An earlier version checked only AGENTS.md, so a CLAUDE.md carrying the same
+# 45 rule IDs got an @import prepended above it — producing exactly the
+# duplicate-constitution state the AGENTS.md branch exits 2 to prevent.
+is_v3() {
+  local f="$1" sig=0 ids
+  [[ -f "$f" && ! -L "$f" ]] || return 1
+  grep -qE 'THE CONSTITUTION|Prometheus Base Rules Set' "$f" && sig=$((sig+1))
+  ids="$(grep -cE '^\*\*[A-G]-[0-9]+ ·' "$f" 2>/dev/null; :)"
+  [[ "${ids:-0}" -ge 5 ]] && sig=$((sig+1))
+  V3_IDS="${ids:-0}"
+  [[ "$sig" -ge 1 ]]
+}
+
+refuse_v3() {   # file
+  cat >&2 <<EOF
+REFUSED: $1 looks like a Prometheus Base Rules v3 file
+         ($V3_IDS rule IDs found).
+
+Adding the managed region beside it would leave two constitutions in resident
+context, saying overlapping things in different words. That degrades adherence
+to both.
+
+Migrate instead — it archives the original, preserves tool-owned regions,
+reports where every v3 rule lands, and names the project sections a human
+still has to place:
+
+  bash scripts/migrate.sh --path $project_path
+  bash scripts/migrate.sh --path $project_path --apply
+EOF
+  exit 2
+}
+
 # ------------------------------------------------------------------ AGENTS.md --
 agents_file="$project_path/AGENTS.md"
 region_tmp="$(mktemp)"
@@ -244,7 +277,8 @@ elif [[ "$starts" == "1" ]]; then
     record "SPLICE" "AGENTS.md" "managed region updated"
   fi
 else
-  # Exists, unmanaged: append the region, preserve every existing byte.
+  is_v3 "$agents_file" && refuse_v3 "$agents_file"
+
   new_tmp="$region_tmp.app"
   { cat "$agents_file"; printf '\n'; cat "$region_tmp"; } > "$new_tmp"
   [[ "$dry_run" == "1" ]] && { printf '\n--- AGENTS.md (current)\n+++ AGENTS.md (proposed)\n'; diff -u "$agents_file" "$new_tmp" || true; }
@@ -262,7 +296,11 @@ elif [[ ! -e "$claude_file" ]]; then
 elif grep -q '^@AGENTS\.md[[:space:]]*$' "$claude_file" 2>/dev/null; then
   record "SKIP" "CLAUDE.md" "import line present"
 else
-  # Real file with content. Never replace it; prepend the import.
+  # A real CLAUDE.md carrying v3 is the same hazard as a v3 AGENTS.md. Prepending
+  # an import above it loads the new rules AND the old constitution together.
+  is_v3 "$claude_file" && refuse_v3 "$claude_file"
+
+  # Real file with unrelated content. Never replace it; prepend the import.
   new_tmp="$region_tmp.cl"
   { printf '@AGENTS.md\n\n'; cat "$claude_file"; } > "$new_tmp"
   [[ "$dry_run" == "1" ]] && { printf '\n--- CLAUDE.md (current)\n+++ CLAUDE.md (proposed)\n'; diff -u "$claude_file" "$new_tmp" || true; }
@@ -298,15 +336,44 @@ copy_managed "$ASSETS/agents/artifact-critic.md" \
              "artifact-only critic"
 
 # ------------------------------------------------------------------ settings --
+settings_unwired=0
 settings="$project_path/.claude/settings.json"
 if [[ -f "$settings" && "$force" != "1" ]]; then
-  record "SKIP" ".claude/settings.json" "exists; merge hooks by hand or --force"
-  if command -v jq >/dev/null 2>&1; then
-    if ! jq -e '.hooks.PreToolUse' "$settings" >/dev/null 2>&1; then
-      warn "settings.json has no PreToolUse hooks — tier-guard is installed but NOT wired"
-    fi
-    if ! jq -e '.skillListingBudgetFraction' "$settings" >/dev/null 2>&1; then
-      warn "settings.json has no skillListingBudgetFraction — default 1% may drop skill descriptions"
+  # Merge rather than skip. An earlier version skipped, which left four hooks
+  # installed and zero referenced — the prose had been removed and nothing
+  # replaced it. Merge adds only absent keys; existing keys are never touched.
+  if ! command -v jq >/dev/null 2>&1; then
+    record "SKIP" ".claude/settings.json" "exists and jq absent — hooks NOT wired"
+    warn "jq absent: cannot merge hook wiring. Hooks are installed but inert."
+    settings_unwired=1
+  else
+    need_hooks=0; need_budget=0
+    jq -e '.hooks.PreToolUse' "$settings" >/dev/null 2>&1 || need_hooks=1
+    jq -e '.skillListingBudgetFraction' "$settings" >/dev/null 2>&1 || need_budget=1
+    [[ "$no_hooks" == "1" ]] && need_hooks=0
+
+    if [[ "$need_hooks" == "0" && "$need_budget" == "0" ]]; then
+      record "SKIP" ".claude/settings.json" "already wired"
+    elif [[ "$dry_run" == "1" ]]; then
+      record "MERGE" ".claude/settings.json" "would add: $( [[ $need_hooks == 1 ]] && printf 'hooks '; [[ $need_budget == 1 ]] && printf 'skill-budget')"
+    else
+      merged="$settings.tmp.$$"
+      if jq --slurpfile t "$REF/settings.template.json" \
+            --argjson wh "$need_hooks" --argjson wb "$need_budget" '
+            . as $cur
+            | (if $wh == 1 then .hooks = ($t[0].hooks // {}) else . end)
+            | (if $wb == 1 then .skillListingBudgetFraction = ($t[0].skillListingBudgetFraction // 0.02) else . end)
+            | (if ($cur.permissions // null) == null then .permissions = ($t[0].permissions // {}) else . end)
+          ' "$settings" > "$merged" 2>/dev/null && [[ -s "$merged" ]]; then
+        cp "$settings" "$settings.bak.$(date -u +%Y%m%dT%H%M%SZ)"
+        mv -f "$merged" "$settings"
+        record "MERGE" ".claude/settings.json" "added: $( [[ $need_hooks == 1 ]] && printf 'hooks '; [[ $need_budget == 1 ]] && printf 'skill-budget'); .bak kept"
+      else
+        rm -f "$merged"
+        record "SKIP" ".claude/settings.json" "merge failed — hooks NOT wired"
+        warn "settings.json merge failed; hooks are installed but inert"
+        settings_unwired=1
+      fi
     fi
   fi
 else
@@ -397,8 +464,13 @@ fi
 # -------------------------------------------------------------------- gitignore --
 gi="$project_path/.gitignore"
 if [[ -f "$gi" ]] && ! grep -q '^\.prometheus/\.writer\.lock$' "$gi" 2>/dev/null; then
-  [[ "$dry_run" != "1" ]] && printf '\n# prometheus-context-bootstrap\n.prometheus/.writer.lock\n.prometheus/.review-pending\n' >> "$gi"
-  record "SPLICE" ".gitignore" "lock + marker files ignored"
+  [[ "$dry_run" != "1" ]] && printf '\n# prometheus-context-bootstrap\n.prometheus/.writer.lock\n.prometheus/.review-pending\n.claude/settings.json.bak.*\n' >> "$gi"
+  record "SPLICE" ".gitignore" "lock, marker, and settings-backup files ignored"
+elif [[ -f "$gi" ]] && ! grep -q 'settings\.json\.bak' "$gi" 2>/dev/null; then
+  # Earlier runs wrote the block without the backup rule. A settings backup swept
+  # into a commit by a directory-level `git add .claude/` is the defect this closes.
+  [[ "$dry_run" != "1" ]] && printf '.claude/settings.json.bak.*\n' >> "$gi"
+  record "SPLICE" ".gitignore" "added settings-backup rule"
 fi
 
 print_report

@@ -19,10 +19,14 @@ done
 [[ -d "$project_path" ]] || { echo "verify: not a directory: $project_path" >&2; exit 1; }
 project_path="$(cd "$project_path" && pwd)"
 
-pass=0; fail=0; skip=0
+pass=0; fail=0; skip=0; warn=0
 ok()   { printf 'PASS  %-34s %s\n' "$1" "${2:-}"; pass=$((pass+1)); }
 no()   { printf 'FAIL  %-34s %s\n' "$1" "${2:-}"; fail=$((fail+1)); }
 sk()   { printf 'SKIP  %-34s %s\n' "$1" "${2:-}"; skip=$((skip+1)); }
+# WARN is for conditions the repo cannot fix — machine-wide or environment-scoped.
+# Reporting them as FAIL makes every repo red forever, and a gate that always
+# fails stops being read.
+wr()   { printf 'WARN  %-34s %s\n' "$1" "${2:-}"; warn=$((warn+1)); }
 
 echo "Verifying $project_path"
 echo
@@ -41,16 +45,20 @@ else
   fi
 
   words="$(wc -w < "$A" | tr -d ' ')"
+  # Tool-owned regions carried from a migration are not part of the managed
+  # region's budget — they are another tool's contract. Count them separately.
+  carried="$(awk '/<!-- prometheus-base:end -->/{f=1;next} f' "$A" 2>/dev/null | wc -w | tr -d ' ')"
+  managed=$(( words - carried ))
   prof="$(grep -o '<!-- profile: [a-z]* ' "$A" 2>/dev/null | head -1 | awk '{print $3}')"
   prof="${prof:-unknown}"
   case "$prof" in
     lean)  ceiling=900  ;;
     *)     ceiling=1500 ;;
   esac
-  if [[ "$words" -le "$ceiling" ]]; then
-    ok "AGENTS.md size" "$words words (profile $prof, ceiling $ceiling)"
+  if [[ "$managed" -le "$ceiling" ]]; then
+    ok "AGENTS.md size" "$managed managed words (profile $prof, ceiling $ceiling)$( [[ $carried -gt 0 ]] && printf ' + %s carried' "$carried")"
   else
-    no "AGENTS.md size" "$words words exceeds $ceiling for profile $prof — move detail to .claude/rules/"
+    no "AGENTS.md size" "$managed managed words exceeds $ceiling for profile $prof — move detail to .claude/rules/"
   fi
 
   # The scaffold must match the declared profile, or the declaration is a lie.
@@ -76,15 +84,37 @@ else
   fi
 fi
 
-# --- CLAUDE.md reaches AGENTS.md ---
+# --- CLAUDE.md reaches AGENTS.md, and carries no second constitution ---
 C="$project_path/CLAUDE.md"
 if [[ -L "$C" ]]; then
   tgt="$(readlink "$C")"
-  [[ "$tgt" == "AGENTS.md" ]] && ok "CLAUDE.md" "symlink -> AGENTS.md" \
+  [[ "$tgt" == "AGENTS.md" ]] && ok "CLAUDE.md" "symlink -> AGENTS.md (no double load)" \
                               || no "CLAUDE.md" "symlink -> $tgt (expected AGENTS.md)"
 elif [[ -f "$C" ]]; then
-  grep -q '^@AGENTS\.md[[:space:]]*$' "$C" && ok "CLAUDE.md" "imports AGENTS.md" \
-                                           || no "CLAUDE.md" "no @AGENTS.md import line"
+  if grep -q '^@AGENTS\.md[[:space:]]*$' "$C"; then
+    ok "CLAUDE.md" "imports AGENTS.md"
+  else
+    no "CLAUDE.md" "no @AGENTS.md import line"
+  fi
+  # An import above a retained v3 body loads both constitutions at once. This
+  # is the failure the AGENTS.md refusal exists to prevent, reached by the
+  # other entry point — verify it explicitly rather than passing on the import.
+  cids="$(grep -cE '^\*\*[A-G]-[0-9]+ ·' "$C" 2>/dev/null; :)"
+  if [[ "${cids:-0}" -ge 5 ]]; then
+    no "CLAUDE.md has no second constitution" "$cids v3 rule IDs still live — duplicate constitution"
+  else
+    ok "CLAUDE.md has no second constitution" ""
+  fi
+  cw="$(wc -w < "$C" | tr -d ' ')"
+  aw="$(wc -w < "$A" 2>/dev/null | tr -d ' ')"
+  total=$(( ${aw:-0} + cw ))
+  # @import loads at launch, so AGENTS.md is counted twice in the effective load.
+  eff=$(( total + ${aw:-0} ))
+  if [[ "$total" -le 2000 ]]; then
+    ok "combined resident" "$total words (effective ~$eff with double-load)"
+  else
+    no "combined resident" "$total words across both files (effective ~$eff) — CLAUDE.md carries $cw"
+  fi
 else
   no "CLAUDE.md" "absent"
 fi
@@ -122,10 +152,37 @@ elif jq -e . "$S" >/dev/null 2>&1; then
     || no "tier-guard wired" "hook installed but not referenced in settings.json"
   b="$(jq -r '.skillListingBudgetFraction // "unset"' "$S" 2>/dev/null)"
   [[ "$b" == "unset" ]] \
-    && no "skill budget" "unset — 1% default may drop skill descriptions" \
-    || ok "skill budget" "$b"
+    && no "skill budget set" "unset — 1% default may drop skill descriptions" \
+    || ok "skill budget set" "$b"
 else
   no "settings.json parses" "invalid JSON"
+fi
+
+# --- skill budget MEASURED across every scope, never assumed ---
+# A repo-local count is the wrong denominator: user and plugin scopes dominate.
+SB="$(dirname "${BASH_SOURCE[0]}")/skill-budget.sh"
+if [[ ! -x "$SB" ]]; then
+  sk "skill budget measured" "skill-budget.sh not executable — NOT verified"
+elif ! command -v python3 >/dev/null 2>&1; then
+  sk "skill budget measured" "python3 absent — NOT verified"
+else
+  sb_out="$("$SB" --path "$project_path" --json 2>/dev/null || true)"
+  if [[ -z "$sb_out" ]] || ! command -v jq >/dev/null 2>&1; then
+    sk "skill budget measured" "could not parse measurement — NOT verified"
+  else
+    sb_ratio="$(printf '%s' "$sb_out" | jq -r '.ratio // "?"')"
+    sb_n="$(printf '%s' "$sb_out" | jq -r '.skills // 0')"
+    sb_tok="$(printf '%s' "$sb_out" | jq -r '.est_tokens // 0')"
+    sb_bud="$(printf '%s' "$sb_out" | jq -r '.budget_tokens // 0')"
+    if [[ "$(printf '%s' "$sb_out" | jq -r '.over_budget')" == "true" ]]; then
+      sb_repo="$(printf '%s' "$sb_out" | jq -r '.scopes[] | select(.scope=="repo") | .chars')"
+      wr "skill budget measured" "${sb_n} skills, ~${sb_tok} tok vs ~${sb_bud} — ${sb_ratio}x OVER (machine-wide; repo contributes ${sb_repo} chars)"
+    else
+      ok "skill budget measured" "${sb_n} skills, ~${sb_tok} tok of ~${sb_bud}"
+    fi
+    sb_empty="$(printf '%s' "$sb_out" | jq -r '.empty_descriptions // 0')"
+    [[ "$sb_empty" -gt 0 ]] && wr "skills can auto-trigger" "$sb_empty with empty descriptions (machine-wide)"
+  fi
 fi
 
 # --- learning layer ---
@@ -150,7 +207,8 @@ else
 fi
 
 echo
-printf 'PASS %d   FAIL %d   SKIP %d\n' "$pass" "$fail" "$skip"
+printf 'PASS %d   FAIL %d   WARN %d   SKIP %d\n' "$pass" "$fail" "$warn" "$skip"
 [[ "$skip" -gt 0 ]] && echo 'SKIP is not PASS. Those checks did not run.'
+[[ "$warn" -gt 0 ]] && echo 'WARN is a real finding this repo cannot fix on its own. Do not ignore it.'
 [[ "$fail" -gt 0 ]] && exit 1
 exit 0

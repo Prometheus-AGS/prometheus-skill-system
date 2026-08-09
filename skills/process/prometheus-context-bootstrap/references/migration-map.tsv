@@ -1,0 +1,50 @@
+# v3 rule ID	destination	note
+§0	.claude/hooks/reanchor.sh + AGENTS.md "Position and authority"	session bootstrap becomes a hook, not prose
+A-1	AGENTS.md "Scope" + scaffold "Before executing"	think-first is scaffold on non-frontier models
+A-2	AGENTS.md "Evidentiary standard"	verbatim intent, condensed
+A-3	AGENTS.md "Evidentiary standard" (boundary exception)	kept as standing exception
+A-4	AGENTS.md "Scope"	surgical diff
+A-5	AGENTS.md "Evidence over assertion" + scaffold "Do not fabricate"	split: principle resident, mechanics in scaffold
+A-6	AGENTS.md "Evidence over assertion"	verified vs self-reported
+A-7	AGENTS.md "Scope"	preserve behavior
+A-8	AGENTS.md "Phase order"	architecture before code
+A-9	.claude/rules/<stack>.md + .claude/hooks/tier-guard.sh	ENFORCED, no longer advisory
+A-10	.claude/hooks/single-writer.sh + rules-rust.md	ENFORCED
+A-11	AGENTS.md "Scope" (irreversible actions)	
+A-12	structural: human gates in hooks + artifact-critic	
+A-13	scaffold "Self-check before reporting completion"	scaffold only; frontier models supply this
+A-14	AGENTS.md "Architecture" (no hidden state)	
+B-1	AGENTS.md "Architecture" (open standards)	
+B-2	AGENTS.md "Architecture" (feature-based)	
+B-3	AGENTS.md "Architecture" (strict layering)	
+B-4	.claude/rules/typescript.md, rules-flutter.md	layer responsibilities are stack-specific
+B-5	AGENTS.md "Architecture"	UI is a projection of state
+B-6	dropped	language-invariance is implied by having per-stack rules files
+B-7	.claude/rules/<stack>.md	strong typing is a per-language concern
+B-8	AGENTS.md "Architecture" (portability)	
+C-1	.claude/rules/<stack>.md	tier philosophy lives with the ladders
+C-2	AGENTS.md "Evidence over assertion"	
+C-3	AGENTS.md "Scope"	small reviewable changes
+D-1	AGENTS.md "Learning and memory"	
+D-2	AGENTS.md "Learning and memory"	write events
+D-3	AGENTS.md "Learning and memory" + reanchor.sh	hook surfaces recent gotchas
+D-4	AGENTS.md "Learning and memory"	surreal-memory fallback
+D-5	.prometheus/ curation, human-run	noise control is not an agent behavior
+D-6	structural: artifact-critic + human gate	
+E-1	AGENTS.md "Anti-sycophancy" + .claude/hooks/sycophancy-gate.sh	ENFORCED
+E-2	.claude/agents/artifact-critic.md	ENFORCED structurally by subagent isolation
+E-3	AGENTS.md "Anti-sycophancy"	when review is required
+E-4	AGENTS.md "Anti-sycophancy" + artifact-critic	reflection contract
+E-5	.claude/hooks/sycophancy-gate.sh	graceful degradation implemented in the hook
+F-1	AGENTS.md "Skills may be absent"	
+F-2	AGENTS.md "Skills may be absent"	
+F-3	AGENTS.md "Skills may be absent"	
+F-4	.claude/hooks/reanchor.sh	compaction re-anchor is a hook
+F-5	AGENTS.md "Phase order"	M1-first folds into gating expensive work
+G-1	AGENTS.md "Architecture" (verify versions)	
+G-2	structural: .claude/rules/ and project sections	repo rules override base
+G-3	AGENTS.md "Learning and memory" + .prometheus/	auditability
+G-4	rules-rust.md + .claude/hooks/single-writer.sh	worktree coordination
+APPENDIX-A	.claude/rules/rust.md, typescript.md, flutter.md, go.md, python.md	one file per stack, loaded on file read
+APPENDIX-B	.claude/agents/artifact-critic.md	taxonomy moves into the critic that applies it
+APPENDIX-C	.prometheus/ directory itself	the schema becomes the structure

@@ -60,10 +60,16 @@ repo and a Flutter one into a Flutter repo.
 ## Run it
 
 ```bash
+bash scripts/migrate.sh   --path /path/to/project            # report only
+bash scripts/migrate.sh   --path /path/to/project --apply    # archive + migrate
 bash scripts/bootstrap.sh --path /path/to/project --dry-run
 bash scripts/bootstrap.sh --path /path/to/project
 bash scripts/verify.sh    --path /path/to/project
+bash scripts/skill-budget.sh --path /path/to/project
 ```
+
+If the project already carries a Prometheus Base Rules v3 file, start with
+`migrate.sh`. `bootstrap.sh` refuses to run against one — see Migration.
 
 | Flag | Meaning |
 |---|---|
@@ -108,6 +114,110 @@ bash scripts/bootstrap.sh --path . --profile lean
 
 Full procedure and per-model starting assumptions:
 [references/MODEL-PROFILES.md](references/MODEL-PROFILES.md).
+
+## Migration from Base Rules v3
+
+A v3 file is not operator prose. Appending the managed region to one leaves two
+constitutions in resident context, overlapping in substance and differing in
+wording — measured at 3,133 to 4,521 words on the canonical file. That degrades
+adherence to both, so `bootstrap.sh` **exits 2** rather than doing it.
+
+`migrate.sh` handles it in two passes.
+
+**Report** (default, writes nothing). Detects v3 by two independent signals — a
+title match and at least five `**X-N ·**` rule IDs — so a file that merely
+mentions a rule ID is not mistaken for the constitution. Then it maps every
+rule ID in `references/migration-map.tsv` to its destination and reports
+presence, plus every project-added heading.
+
+**Apply** (`--apply`). Archives the original to
+`.prometheus/knowledge/AGENTS.pre-migration-<date>.md`, writes
+`.prometheus/MIGRATION-REPORT.md`, then runs `bootstrap.sh`. Nothing is deleted.
+
+### What a script cannot do
+
+G-2 permits projects to add stricter local rules. Those additions cannot be
+classified mechanically — a script cannot tell a load-bearing client constraint
+from an expired note. So they are **neither carried over nor discarded**. Every
+non-canonical H2 heading is listed in the report with its line number in the
+archive, for a human to place.
+
+Silently keeping them would rebuild the bloat. Silently dropping them would
+lose a rule someone wrote against a real failure. Listing them is the only
+honest option.
+
+### Tool-owned regions travel automatically
+
+Regions written by another tool — `<!-- agent-rules:start v1 -->`,
+`<!-- uiux-routing:start v1 -->`, `<!-- zed-workspace:begin -->` — are
+self-delimited and owned elsewhere, so they are carried into the new
+`AGENTS.md` verbatim, below the managed region, with markers intact. Their
+owning tools can still re-inject over them.
+
+They are reported by region name and excluded from the human-placement list,
+because a heading inside a fenced region is not hand-written prose.
+
+Carried regions are excluded from the managed-region word budget. `verify.sh`
+reports them separately (`1396 managed words + 466 carried`) rather than
+failing a repo for content it does not own.
+
+### Both agent files are handled
+
+If `CLAUDE.md` is a real file that also carries v3 — common, since the two are
+often kept as copies — it is archived alongside `AGENTS.md` and removed, so
+bootstrap can replace it with a symlink. Leaving it in place and prepending an
+import would load the new rules and the old constitution together, and would
+also double-load `AGENTS.md`, since imports resolve at launch.
+
+A symlink avoids both. `verify.sh` checks that no v3 rule IDs survive in
+`CLAUDE.md` and reports the combined resident total across both files.
+
+### Existing settings.json is merged, not skipped
+
+When `.claude/settings.json` exists, the hook wiring and skill budget are
+merged into it with `jq`. Only absent keys are added; existing keys, including
+`mcpServers` and `permissions`, are never overwritten. A timestamped `.bak` is
+kept.
+
+Skipping instead would leave hooks installed and unreferenced — the prose gone
+and nothing enforcing it. Without `jq` the merge cannot run, so it is reported
+as a SKIP with a warning rather than assumed.
+
+### What stops being prose
+
+Several v3 rules become enforcement, which is why they are absent from the new
+file rather than merely condensed:
+
+| v3 | Now enforced by |
+|---|---|
+| A-9 tier discipline | `tier-guard.sh` — exits 2 on a Tier 3 command outside a release gate |
+| A-10 single-writer | `single-writer.sh` |
+| E-1, E-5 sycophancy gate | `sycophancy-gate.sh` |
+| E-2 critic isolation | `artifact-critic.md` subagent |
+| §0, F-4 bootstrap and re-anchor | `reanchor.sh` |
+
+A hook installed but not wired into `settings.json` enforces nothing.
+`verify.sh` checks exactly that.
+
+### Opening the Tier 3 gate
+
+`tier-guard.sh` reads `.status` from the waypoint, not `.phase`. Measured across
+the estate, `.phase` holds a phase identity (`uar-uiux-full-migration-2026-08`)
+and `.status` holds the lifecycle (`running`, `execute_ready`, `completed`).
+An earlier version matched `.phase` against `milestone|release|certify`, which
+no waypoint in the estate could satisfy — it blocked Tier 3 unconditionally
+with no reachable unblock path.
+
+Tier 3 is allowed when `.status` begins with `completed`, `release`, `certify`,
+`milestone`, or `delivery`, or through either explicit opt-in:
+
+```bash
+PROMETHEUS_TIER3=1 cargo build --release   # one command
+touch .kbd-orchestrator/tier3.allow        # this session; delete when done
+```
+
+Both are deliberate and reversible. Editing the waypoint to get past the gate
+is not — it is the position record, not a permission switch.
 
 ## What it writes
 
@@ -169,17 +279,53 @@ only the second measurement will tell you which one you got.
 `settings.json` is written with `skillListingBudgetFraction: 0.02`. At the 1%
 default, a large profile silently drops skill descriptions: the name stays, the
 description vanishes, and auto-triggering stops for whatever was dropped.
-Raising the fraction buys headroom; it is not a fix. Confirm with `/doctor`
-that zero descriptions are dropped, and gate the long tail behind plugins.
+Eviction favours recently used skills, so a newly installed skill scores zero
+and goes dark first — which is what "the skill exists, tested fine, didn't fire"
+actually is.
+
+**Measure it; do not assume it.** A repo-local count is the wrong denominator.
+The budget spans every scope the harness loads, and user plus plugin scopes
+dominate. Measured on one estate 2026-08-09:
+
+| Scope | Skills | Description chars |
+|---|---|---|
+| repo `.claude/skills` | 56 | 13,078 |
+| user `~/.claude/skills` | 916 | 251,125 |
+| plugins `~/.claude/plugins` | 1,295 | 388,816 |
+| **total** | **2,267** | **653,019 (~163,000 tokens)** |
+
+Against a ~4,000-token budget that is **~41x over**. Counting only the 56
+repo-local skills reports ten-fold headroom that does not exist.
+
+```bash
+bash scripts/skill-budget.sh --path .            # human-readable
+bash scripts/skill-budget.sh --path . --json     # machine-readable
+```
+
+Exit 0 within budget, 1 over, 2 could not measure. `verify.sh` runs it and
+reports SKIP — never PASS — when `python3` is absent.
+
+**Raising the fraction does not fix a multiple this large.** At 41x, moving 0.02
+to 0.03 changes nothing that matters. Gate the long tail behind plugins, enable
+one profile at a time, and route by name through a skill router for the rest.
+
+### Parse frontmatter properly
+
+`description: >` is a YAML folded block scalar; the text continues on the lines
+below. `grep -m1 '^description:'` reports a one-character description and is
+simply wrong — a measurement pass built on it will invent dead skills that are
+fine and miss real ones. `skill-budget.sh` uses PyYAML, with a folding fallback
+when it is unavailable.
 
 ## Verification
 
-`scripts/verify.sh` asserts, reporting each as PASS, FAIL, or SKIP:
+`scripts/verify.sh` asserts, reporting each as PASS, FAIL, WARN, or SKIP:
 
 - `AGENTS.md` present, and its marker pair well-formed
 - `CLAUDE.md` resolves to `AGENTS.md`, or contains the import line
 - every file in `.claude/hooks/` is executable
 - `settings.json` parses (SKIP when `jq` is absent, never PASS)
+- the skill-listing budget, measured across repo, user, and plugin scopes
 - `.prometheus/` exists with the five expected entries
 - resident word count against the ceiling for the declared profile
 - the declared profile matches what is actually in the file
@@ -187,6 +333,12 @@ that zero descriptions are dropped, and gate the long tail behind plugins.
 
 SKIP is never counted as PASS. A check that could not run is unverified, and
 reporting it as passing is how a gate becomes decorative.
+
+WARN is separate from FAIL and does not change the exit code. It marks a real
+finding the repo cannot fix on its own — the machine-wide skill budget is the
+case that matters. Reporting it as FAIL would leave every repo permanently red,
+and a gate that always fails stops being read: the same decorative failure by a
+different route.
 
 ## After bootstrap
 
@@ -224,6 +376,7 @@ nobody re-reads it each turn to notice. Run `verify.sh` after any edit under
 - [references/AGENTS.base.md](references/AGENTS.base.md) — the resident invariants
 - [references/AGENTS.scaffold.md](references/AGENTS.scaffold.md) — execution scaffold for non-frontier models
 - [references/MODEL-PROFILES.md](references/MODEL-PROFILES.md) — profile choice and measurement procedure
+- [references/migration-map.tsv](references/migration-map.tsv) — v3 rule ID to destination
 - [references/settings.template.json](references/settings.template.json)
 - [references/rules-rust.md](references/rules-rust.md)
 - [references/rules-typescript.md](references/rules-typescript.md)
