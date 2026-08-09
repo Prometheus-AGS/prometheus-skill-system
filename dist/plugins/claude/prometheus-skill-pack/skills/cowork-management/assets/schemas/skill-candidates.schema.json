@@ -1,0 +1,62 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "skill-candidates/v1",
+  "title": "External skill candidates (cowork discovery)",
+  "description": "Output of discover-skills.sh: external skill repositories that might already cover a capability gap. Deliberately SEPARATE from library-candidates.json — every entry here is unevaluated and carries no adoption verdict, whereas library-candidates entries are the product of an analyze-stage judgement. Merging the two would let an unreviewed search hit read as a vetted decision.",
+  "type": "object",
+  "required": ["schema", "capability", "source", "candidates"],
+  "additionalProperties": false,
+  "properties": {
+    "schema": {
+      "const": "skill-candidates/v1",
+      "description": "Discriminator. Consumers must reject documents whose schema they do not recognise rather than guessing at the shape."
+    },
+    "capability": {
+      "type": "string",
+      "minLength": 1,
+      "description": "The capability that was searched for, verbatim."
+    },
+    "source": {
+      "type": "string",
+      "description": "How the candidates were obtained, e.g. 'cowork search'."
+    },
+    "not_library_candidates": {
+      "type": "string",
+      "description": "Human-facing note restating the separation, so the distinction survives a copy-paste out of context."
+    },
+    "candidates": {
+      "type": "array",
+      "description": "Zero or more search hits. An empty array is a valid, meaningful result: nothing external was found, so building is the remaining option.",
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "repo_url", "verdict", "fit_for_gap", "risks"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string", "pattern": "^cw-[0-9]{3}$" },
+          "name": { "type": "string", "description": "owner/repo" },
+          "kind": { "const": "external-skill" },
+          "repo_url": { "type": "string", "format": "uri" },
+          "registry": { "const": "github" },
+          "stars": {
+            "type": ["integer", "null"],
+            "description": "Popularity signal only. NOT a quality or safety signal, and never sufficient grounds for adoption."
+          },
+          "fit_for_gap": {
+            "type": "string",
+            "description": "The repository's own description. Author-supplied marketing copy, not an assessment."
+          },
+          "verdict": {
+            "const": "unevaluated",
+            "description": "Fixed by construction. Search relevance is not evaluation; a real verdict requires inspection plus `cowork audit` and `cowork verify` after installation."
+          },
+          "evidence": { "type": "string" },
+          "risks": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Required, never empty: every external candidate carries third-party-code risk until audited."
+          }
+        }
+      }
+    }
+  }
+}

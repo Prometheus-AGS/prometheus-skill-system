@@ -1,0 +1,88 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://prometheus-ags.dev/schemas/kbd/library-candidates.schema.json",
+  "title": "KBD Analyze stage — library candidates",
+  "description": "Written by /kbd-analyze to .kbd-orchestrator/phases/<phase>/library-candidates.json. The machine contract the Spec and Plan stages read: which existing libraries/frameworks/skeletons fit each assessment gap, with adopt/adapt/reference/reject verdicts and the evidence behind them. Carries a research_budget block with hard caps so research loops terminate.",
+  "type": "object",
+  "required": ["phase", "generated_at", "candidates"],
+  "properties": {
+    "phase": { "type": "string" },
+    "generated_at": { "type": "string", "format": "date-time" },
+    "research_budget": {
+      "type": "object",
+      "description": "Hard caps that bound the research; analyze stops and reports partial findings rather than exceeding them.",
+      "properties": {
+        "max_queries_per_tier": { "type": "integer", "minimum": 1 },
+        "max_minutes": { "type": "number", "minimum": 0 },
+        "queries_used": { "type": "object" }
+      },
+      "additionalProperties": false
+    },
+    "gaps_addressed": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Assessment gap ids this analysis covers."
+    },
+    "candidates": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "verdict", "fit_for_gap"],
+        "properties": {
+          "id": { "type": "string", "description": "cand-### local id; referenced by plan.md as library: cand-###" },
+          "name": { "type": "string" },
+          "kind": { "enum": ["library", "framework", "skeleton", "pattern", "service"] },
+          "repo_url": { "type": "string" },
+          "registry": { "enum": ["npm", "crates", "pypi", "go", "maven", "none"] },
+          "fit_for_gap": { "type": "string" },
+          "verdict": {
+            "enum": ["adopt", "adapt", "reference", "reject"],
+            "description": "adopt = use as-is; adapt = fork/port/wrap; reference = read for ideas; reject = does not fit"
+          },
+          "coverage_estimate": { "type": "number", "minimum": 0, "maximum": 1 },
+          "license": { "type": "string", "description": "SPDX identifier" },
+          "maintenance": {
+            "type": "object",
+            "properties": {
+              "last_release": { "type": "string" },
+              "stars": { "type": "integer" },
+              "open_issues": { "type": "integer" }
+            },
+            "additionalProperties": true
+          },
+          "evidence": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["tier", "claim"],
+              "properties": {
+                "tier": { "type": "integer", "minimum": 1, "maximum": 4 },
+                "source_url": { "type": "string" },
+                "claim": { "type": "string" }
+              },
+              "additionalProperties": false
+            }
+          },
+          "risks": { "type": "array", "items": { "type": "string" } },
+          "decision_rationale": { "type": "string" }
+        },
+        "additionalProperties": false
+      }
+    },
+    "build_required": {
+      "type": "array",
+      "description": "Gaps with no adoptable candidate — these become build tasks (and, later, capability gaps).",
+      "items": {
+        "type": "object",
+        "required": ["need", "why_no_candidate"],
+        "properties": {
+          "need": { "type": "string" },
+          "why_no_candidate": { "type": "string" },
+          "capability_gap_id": { "type": ["string", "null"] }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

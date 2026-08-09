@@ -1,0 +1,21 @@
+{
+  "grade_id": "eval-kbd-008-flawed-reflect-early",
+  "goal_id": "eval",
+  "concept_id": "kbd-lifecycle",
+  "learner_id": "eval-harness",
+  "graded_at": "2026-07-16T00:00:00Z",
+  "explanation_excerpt": "You can run kbd-reflect any time you want a snapshot of how the phase is going so far — it's a good habit to reflect partway through a long phase, even with several changes still pendi",
+  "scores": {"completeness": 0.2, "accuracy": 0.1, "clarity": 0.85, "misconceptions_absent": 0.0},
+  "overall_score": 0.2875,
+  "gaps": [
+    {"dimension": "misconception", "description": "Claims the closing/reflection stage can be run at any time, including partway through a phase with changes still pending. The stage requires ALL changes to have status DONE, and the stage gate rejects early execution.", "corpus_ref": "MISCONCEPTION: /kbd-reflect can run before all changes are DONE"},
+    {"dimension": "accuracy", "description": "The closing stage is gated on completion, not usable as a mid-phase 'snapshot' or check-in tool.", "corpus_ref": "CLAUDE.md — KBD Lifecycle section"},
+    {"dimension": "completeness", "description": "Omits what the closing stage actually produces: a reflection document with per-goal MET/PARTIAL/NOT MET status, technical debt notes, lessons learned, a recommended next phase, and passage through the sycophancy-correction reflector gate.", "corpus_ref": "skills/process/kbd-reflect/SKILL.md"}
+  ],
+  "transfer_problems": [
+    "A phase has 8 planned changes; progress.json shows 5 marked DONE and 3 still PROPOSED. The operator runs the closing/reflection stage anyway. What happens, and why?",
+    "After the closing stage successfully produces a reflection document, what three categories of information must the report include about each phase goal, and what mechanism checks the reflection itself before it is logged?"
+  ],
+  "passed": false,
+  "pass_threshold": 0.7
+}

@@ -1,0 +1,360 @@
+{{- /*
+  docker_commands.rs.tera — Docker subcommands for the agent management CLI
+  Included as `crates/agent-cli/src/docker.rs` and wired into main.rs.
+  Variables:
+    agent_name     : kebab-case agent name
+    agent_bin_name : snake_case binary name
+    port           : agent server port
+    image_tag      : default Docker image tag
+*/ -}}
+//! docker — Docker management subcommands for {{ agent_name }}.
+//!
+//! Commands:
+//!   {{ agent_name }} docker detect              — detect Docker environment
+//!   {{ agent_name }} docker build [--tag] [--no-cache] [--platform]
+//!   {{ agent_name }} docker up [--detach]       — docker compose up
+//!   {{ agent_name }} docker down [--volumes]    — docker compose down
+//!   {{ agent_name }} docker ps                  — container status
+//!   {{ agent_name }} docker logs [--tail] [-f]  — container logs
+//!   {{ agent_name }} docker push [--registry]   — push image to registry
+//!   {{ agent_name }} docker load                — build and load into Docker Desktop
+//!   {{ agent_name }} docker shell               — open shell in running container
+
+use anyhow::{Context, Result};
+use clap::Subcommand;
+use serde::Deserialize;
+
+// ─── Subcommand definition ────────────────────────────────────────────────────
+
+#[derive(Subcommand)]
+pub enum DockerAction {
+    /// Detect Docker environment (CLI, Docker Desktop, Compose)
+    Detect,
+
+    /// Build the Docker image
+    Build {
+        /// Image tag (default: {{ agent_name }}:latest)
+        #[arg(long, default_value = "{{ image_tag | default(value=agent_name ~ ':latest') }}")]
+        tag: String,
+
+        /// Do not use cache during build
+        #[arg(long)]
+        no_cache: bool,
+
+        /// Target platform (e.g. linux/amd64, linux/arm64)
+        #[arg(long)]
+        platform: Option<String>,
+
+        /// Build and immediately load into Docker Desktop / local daemon
+        #[arg(long)]
+        load: bool,
+    },
+
+    /// Start all services via Docker Compose
+    Up {
+        /// Run in detached mode (background)
+        #[arg(long, short = 'd')]
+        detach: bool,
+
+        /// Build images before starting
+        #[arg(long)]
+        build: bool,
+
+        /// Scale a service: --scale agent=2
+        #[arg(long, value_name = "SERVICE=N")]
+        scale: Vec<String>,
+    },
+
+    /// Stop and remove containers
+    Down {
+        /// Also remove named volumes (destroys persistent data!)
+        #[arg(long)]
+        volumes: bool,
+    },
+
+    /// Show running container status
+    Ps,
+
+    /// Tail container logs
+    Logs {
+        /// Number of lines to show from end
+        #[arg(long, default_value = "50")]
+        tail: String,
+
+        /// Follow log output
+        #[arg(long, short = 'f')]
+        follow: bool,
+
+        /// Service name (default: agent)
+        #[arg(default_value = "agent")]
+        service: String,
+    },
+
+    /// Push image to a registry
+    Push {
+        /// Registry URL prefix (e.g. registry.example.com/myorg)
+        #[arg(long)]
+        registry: Option<String>,
+
+        /// Image tag
+        #[arg(long, default_value = "{{ image_tag | default(value=agent_name ~ ':latest') }}")]
+        tag: String,
+    },
+
+    /// Build image and load into local Docker daemon (Docker Desktop)
+    Load {
+        /// Image tag
+        #[arg(long, default_value = "{{ image_tag | default(value=agent_name ~ ':latest') }}")]
+        tag: String,
+
+        /// Do not use cache
+        #[arg(long)]
+        no_cache: bool,
+    },
+
+    /// Open an interactive shell in the running agent container
+    Shell,
+}
+
+// ─── Docker environment detection ────────────────────────────────────────────
+
+#[derive(Debug, Deserialize)]
+pub struct DockerEnv {
+    pub docker_available:       bool,
+    pub docker_version:         String,
+    pub docker_context:         String,
+    pub docker_desktop:         bool,
+    pub docker_desktop_running: bool,
+    pub compose_available:      bool,
+    pub compose_version:        String,
+    pub buildx_available:       bool,
+    pub platform:               String,
+}
+
+pub fn detect_docker() -> Result<DockerEnv> {
+    // Run the detection script if it exists
+    let script = std::path::Path::new("docker-detect.sh");
+
+    if script.exists() {
+        let output = std::process::Command::new("bash")
+            .arg(script)
+            .output()
+            .context("running docker-detect.sh")?;
+
+        if output.status.success() {
+            return serde_json::from_slice(&output.stdout)
+                .context("parsing docker detection output");
+        }
+    }
+
+    // Fallback: probe directly
+    let docker_available = std::process::Command::new("docker")
+        .arg("info")
+        .output()
+        .map(|o| o.status.success())
+        .unwrap_or(false);
+
+    let docker_version = if docker_available {
+        std::process::Command::new("docker")
+            .args(["version", "--format", "{{.Server.Version}}"])
+            .output()
+            .ok()
+            .and_then(|o| String::from_utf8(o.stdout).ok())
+            .map(|s| s.trim().to_string())
+            .unwrap_or_else(|| "unknown".to_string())
+    } else {
+        String::new()
+    };
+
+    let docker_desktop = cfg!(target_os = "macos") &&
+        std::path::Path::new("/Applications/Docker.app").exists();
+
+    let compose_available = std::process::Command::new("docker")
+        .args(["compose", "version"])
+        .output()
+        .map(|o| o.status.success())
+        .unwrap_or(false);
+
+    Ok(DockerEnv {
+        docker_available,
+        docker_version,
+        docker_context: "default".to_string(),
+        docker_desktop,
+        docker_desktop_running: docker_available && docker_desktop,
+        compose_available,
+        compose_version: String::new(),
+        buildx_available: false,
+        platform: std::env::consts::OS.to_string(),
+    })
+}
+
+// ─── Command handlers ─────────────────────────────────────────────────────────
+
+pub async fn handle(action: DockerAction) -> Result<()> {
+    match action {
+        DockerAction::Detect => {
+            let env = detect_docker()?;
+            println!("Docker Environment Detection");
+            println!("──────────────────────────────");
+            println!("  Docker CLI:        {}", if env.docker_available { format!("✅ v{}", env.docker_version) } else { "❌ not available or daemon not running".to_string() });
+            println!("  Docker Desktop:    {}", if env.docker_desktop { if env.docker_desktop_running { "✅ running" } else { "⚠️  installed but not running" } } else { "not detected" });
+            println!("  Docker Compose:    {}", if env.compose_available { format!("✅ v{}", env.compose_version) } else { "❌ not available".to_string() });
+            println!("  Buildx:            {}", if env.buildx_available { "✅" } else { "❌" });
+            println!("  Active context:    {}", env.docker_context);
+            println!("  Platform:          {}", env.platform);
+
+            if !env.docker_available {
+                println!("\n💡 Install Docker Desktop: https://docs.docker.com/get-docker/");
+            }
+        }
+
+        DockerAction::Build { tag, no_cache, platform, load } => {
+            let env = detect_docker()?;
+            if !env.docker_available {
+                anyhow::bail!("Docker daemon not available. Run `{{ agent_name }} docker detect` for details.");
+            }
+
+            println!("🔨 Building {{ agent_name }} image: {}", tag);
+
+            // Build the React frontend first (must produce frontend/dist/)
+            println!("   Building React frontend…");
+            run_command("npm", &["--prefix", "frontend", "run", "build"])?;
+
+            // Build the Docker image
+            let mut args = vec!["build".to_string(), "-t".to_string(), tag.clone()];
+
+            if no_cache { args.push("--no-cache".to_string()); }
+            if let Some(p) = &platform { args.extend(["--platform".to_string(), p.clone()]); }
+
+            // If Docker Desktop is available and --load requested (or default on Desktop),
+            // add --load to push into the local daemon immediately
+            if load || env.docker_desktop_running {
+                args.push("--load".to_string());
+                println!("   Loading into local Docker daemon (Docker Desktop)…");
+            }
+
+            args.push(".".to_string());
+
+            run_command("docker", &args.iter().map(String::as_str).collect::<Vec<_>>())?;
+
+            println!("\n✅ Image built: {}", tag);
+            if env.docker_desktop_running {
+                println!("   Loaded into Docker Desktop ✅");
+                println!("   Run: {{ agent_name }} docker up --detach");
+                println!("   Or:  docker run -p {{ port }}:{{ port }} --env-file .env {}", tag);
+            }
+        }
+
+        DockerAction::Load { tag, no_cache } => {
+            let env = detect_docker()?;
+            if !env.docker_available {
+                anyhow::bail!("Docker daemon not available.");
+            }
+            if !env.docker_desktop {
+                println!("⚠️  Docker Desktop not detected — building for local daemon anyway.");
+            }
+
+            println!("🔨 Building and loading {} into Docker Desktop…", tag);
+
+            // Build React frontend
+            run_command("npm", &["--prefix", "frontend", "run", "build"])?;
+
+            // Build with --load to push into Docker Desktop's local image store
+            let mut args = vec!["buildx", "build", "--load", "-t", &tag];
+            if no_cache { args.push("--no-cache"); }
+            args.push(".");
+
+            run_command("docker", &args)?;
+
+            println!("✅ Image '{}' loaded into Docker Desktop", tag);
+            println!("   Start with: {{ agent_name }} docker up --detach");
+            println!("   Or browse Docker Desktop → Images → {}", tag);
+        }
+
+        DockerAction::Up { detach, build, scale } => {
+            require_compose()?;
+            let mut args = vec!["compose", "up"];
+            if detach { args.push("--detach"); }
+            if build  { args.push("--build"); }
+            for s in &scale { args.extend(["--scale", s]); }
+            run_command("docker", &args)?;
+            if detach {
+                println!("✅ Services started");
+                println!("   Chat: http://localhost:{{ port }}");
+                println!("   Logs: {{ agent_name }} docker logs -f");
+                println!("   Stop: {{ agent_name }} docker down");
+            }
+        }
+
+        DockerAction::Down { volumes } => {
+            require_compose()?;
+            let mut args = vec!["compose", "down"];
+            if volumes { args.push("--volumes"); }
+            run_command("docker", &args)?;
+            println!("✅ Services stopped");
+        }
+
+        DockerAction::Ps => {
+            require_compose()?;
+            run_command("docker", &["compose", "ps"])?;
+        }
+
+        DockerAction::Logs { tail, follow, service } => {
+            require_compose()?;
+            let mut args = vec!["compose", "logs", "--tail", &tail];
+            if follow { args.push("--follow"); }
+            args.push(&service);
+            run_command("docker", &args)?;
+        }
+
+        DockerAction::Push { registry, tag } => {
+            let env = detect_docker()?;
+            if !env.docker_available {
+                anyhow::bail!("Docker daemon not available.");
+            }
+            let full_tag = if let Some(reg) = &registry {
+                let push_tag = format!("{}/{}", reg.trim_end_matches('/'), tag);
+                println!("🏷️  Tagging {} → {}", tag, push_tag);
+                run_command("docker", &["tag", &tag, &push_tag])?;
+                push_tag
+            } else {
+                tag
+            };
+            println!("📤 Pushing {}…", full_tag);
+            run_command("docker", &["push", &full_tag])?;
+            println!("✅ Pushed: {}", full_tag);
+        }
+
+        DockerAction::Shell => {
+            run_command("docker", &[
+                "compose", "exec", "agent", "/bin/bash"
+            ])?;
+        }
+    }
+    Ok(())
+}
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+fn run_command(cmd: &str, args: &[&str]) -> Result<()> {
+    let status = std::process::Command::new(cmd)
+        .args(args)
+        .status()
+        .with_context(|| format!("running: {} {}", cmd, args.join(" ")))?;
+
+    if !status.success() {
+        anyhow::bail!("`{} {}` exited with status {}", cmd, args.join(" "), status);
+    }
+    Ok(())
+}
+
+fn require_compose() -> Result<()> {
+    let env = detect_docker()?;
+    if !env.compose_available {
+        anyhow::bail!(
+            "Docker Compose not available. Install Docker Desktop or the Compose plugin.\n  \
+             See: https://docs.docker.com/compose/install/"
+        );
+    }
+    Ok(())
+}

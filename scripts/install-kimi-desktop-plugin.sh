@@ -57,7 +57,9 @@ if $UNINSTALL; then
     exit 0
 fi
 
-VERSION="$(python3 -c "import json;print(json.load(open('$REPO_ROOT/package.json'))['version'])" 2>/dev/null || echo "0.0.0")"
+VERSION="$(python3 -c "import json;print(json.load(open('$REPO_ROOT/skill-system.json'))['releaseVersion'])" 2>/dev/null || echo "0.0.0")"
+DIST_SKILLS="$REPO_ROOT/dist/plugins/claude/prometheus-skill-pack/skills"
+[ -d "$DIST_SKILLS" ] || { echo "Generated skill distribution is missing: $DIST_SKILLS" >&2; exit 1; }
 
 if $DRY_RUN; then
     echo "  → [dry-run] would install $PKG_NAME v$VERSION to $DEST"
@@ -88,14 +90,9 @@ PY
     mkdir -p "$STAGE/skills/$name"
     cp -R "$skill_dir/." "$STAGE/skills/$name/"
     COUNT=$((COUNT + 1))
-# Same exclusions as install-skills-flat.sh: imported submodules carry their own
-# lifecycle, and tests/fixtures hold deliberately BROKEN SKILL.md trees used to
-# prove review gates discriminate. Without this prune they install as real,
-# invocable skills.
-done < <(find "$REPO_ROOT/skills" -name SKILL.md \
-    -not -path "*/imported/*" \
-    -not -path "*/tests/*" \
-    -not -path "*/fixtures/*" -print0)
+# The generated distribution is already flattened and includes the two explicit
+# imported-skill roots while excluding fixtures, tests, and duplicate imports.
+done < <(find "$DIST_SKILLS" -mindepth 2 -maxdepth 2 -name SKILL.md -print0)
 
 python3 - "$STAGE" "$VERSION" "$COUNT" "$REPO_ROOT" <<'PY'
 import json, sys, pathlib

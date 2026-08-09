@@ -1,0 +1,93 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "KBD Current Waypoint Compatibility Projection",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "phase",
+    "status",
+    "implementationCompleted",
+    "implementationTotal",
+    "updatedAt"
+  ],
+  "properties": {
+    "schemaVersion": { "const": "5" },
+    "generatedBy": {
+      "type": "string",
+      "description": "kbd-runtime for authoritative replay projections; absent only during legacy shadow mode."
+    },
+    "sourceRevision": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Canonical event revision used to render this projection."
+    },
+    "path": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "phase": { "type": "string", "minLength": 1 },
+    "phaseIds": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "activePhaseId": { "type": ["string", "null"] },
+    "previousPhase": { "type": ["string", "null"] },
+    "change": { "type": ["string", "null"] },
+    "status": {
+      "enum": [
+        "ready",
+        "running",
+        "pause_requested",
+        "paused",
+        "blocked",
+        "completed",
+        "cancelled",
+        "failed",
+        "assessment_ready",
+        "assessed",
+        "analyzed",
+        "plan_complete",
+        "execute_ready",
+        "executing",
+        "reflect_ready",
+        "reflect_complete",
+        "reflected"
+      ]
+    },
+    "currentTask": { "type": ["string", "null"] },
+    "nextPendingChange": { "type": ["string", "null"] },
+    "sourceTool": { "type": ["string", "null"] },
+    "exactNextCommand": { "type": ["string", "null"] },
+    "parentPhase": { "type": ["string", "null"] },
+    "childPhases": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "childPointer": { "type": ["string", "null"] },
+    "backend": { "type": ["string", "null"] },
+    "wave": { "type": ["integer", "null"], "minimum": 0 },
+    "lastCompletedChange": { "type": ["string", "null"] },
+    "completionMetric": { "const": "implementation" },
+    "implementationCompleted": { "type": "integer", "minimum": 0 },
+    "implementationTotal": { "type": "integer", "minimum": 0 },
+    "certificationStatus": { "type": "string" },
+    "publicationStatus": { "type": "string" },
+    "planRevision": { "type": "integer", "minimum": 1 },
+    "revision": { "type": "integer", "minimum": 0 },
+    "updatedAt": { "type": "string", "format": "date-time" }
+  },
+  "allOf": [
+    {
+      "not": {
+        "anyOf": [
+          { "required": ["changes_completed"] },
+          { "required": ["changes_total"] },
+          { "required": ["exact_next_command"] },
+          { "required": ["current_task"] },
+          { "required": ["state_revision"] }
+        ]
+      }
+    }
+  ],
+  "additionalProperties": true
+}

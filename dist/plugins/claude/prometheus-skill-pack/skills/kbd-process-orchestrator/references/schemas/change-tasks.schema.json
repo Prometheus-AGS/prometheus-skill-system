@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://prometheus-ags.dev/schemas/kbd/change-tasks.schema.json",
+  "title": "KBD native-kbd change task ledger",
+  "description": "tasks.json is the SOURCE OF TRUTH for per-task state in the native-kbd spec backend, at .kbd-orchestrator/changes/<change-id>/tasks.json. Designed for one-task-per-turn driving by kbd-apply: nk_mark_done is an atomic jq mutation carrying doneBy/doneAt for the cross-tool ledger. tasks.md is a GENERATED human view regenerated after every mutation — never the source of truth.",
+  "type": "object",
+  "required": ["changeId", "schemaVersion", "tasks"],
+  "properties": {
+    "changeId": { "type": "string" },
+    "schemaVersion": { "const": "1" },
+    "tasks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "title", "done"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Stable explicit task id (e.g. \"1\", \"1.2\", \"verify\"). Unlike OpenSpec's positional ordinals, native ids are explicit and survive reordering."
+          },
+          "title": { "type": "string" },
+          "done": { "type": "boolean" },
+          "doneAt": {
+            "type": ["string", "null"],
+            "description": "ISO-8601 UTC completion timestamp; null until done."
+          },
+          "doneBy": {
+            "type": ["string", "null"],
+            "description": "Tool that completed the task (KBD_TOOL); the cross-tool ledger field."
+          },
+          "files": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Optional declared file touch-set for this task."
+          },
+          "verify": {
+            "type": ["string", "null"],
+            "description": "Optional shell command that must exit 0 for this task to count verified."
+          },
+          "notes": { "type": ["string", "null"] }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

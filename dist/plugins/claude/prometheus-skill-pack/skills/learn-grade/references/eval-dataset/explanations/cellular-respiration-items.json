@@ -1,0 +1,92 @@
+{
+  "domain": "cellular-respiration",
+  "corpus_path": "skills/learn/learn-grade/references/eval-dataset/corpora/cellular-respiration-corpus.json",
+  "items": [
+    {
+      "item_id": "cr-001-strong-full-pathway",
+      "quality_tier": "strong",
+      "explanation_text": "Cellular respiration converts the chemical energy stored in glucose into ATP through four stages. Glycolysis happens first, out in the cytosol rather than the mitochondria, splitting glucose into two pyruvate molecules for a net gain of 2 ATP and 2 NADH — and it doesn't need oxygen to run. If oxygen is available, pyruvate gets oxidized and enters the citric acid cycle in the mitochondrial matrix, which runs twice per glucose (once per pyruvate) and produces 3 NADH, 1 FADH2, and 1 ATP each turn, releasing CO2 along the way. Finally, oxidative phosphorylation happens across the folded inner mitochondrial membrane: NADH and FADH2 feed electrons into the electron transport chain, which pumps protons to build a gradient, and ATP synthase uses that gradient via chemiosmosis to make most of the cell's ATP, with oxygen serving as the final electron acceptor that combines with electrons and protons to form water. Total yield is usually cited around 30-32 ATP per glucose under the modern accounting, a bit lower than the older 36-38 estimate because shuttling NADH's electrons across the mitochondrial membrane costs some efficiency.",
+      "ground_truth": {
+        "scores": {"completeness": 0.95, "accuracy": 1.0, "clarity": 0.88, "misconceptions_absent": 1.0},
+        "misconceptions_present": []
+      },
+      "review_status": "draft"
+    },
+    {
+      "item_id": "cr-002-strong-fermentation",
+      "quality_tier": "strong",
+      "explanation_text": "When oxygen isn't available, cells can't run the electron transport chain, so instead they rely on fermentation to keep glycolysis going. Fermentation doesn't add any extra ATP beyond glycolysis's 2 ATP — its whole job is regenerating NAD+ from the NADH glycolysis produces, so glycolysis has NAD+ to keep using. In animal muscle cells, that means converting pyruvate to lactate (lactic acid fermentation); in yeast, it means converting pyruvate to ethanol and CO2 (alcoholic fermentation). Either way, it's directly downstream of glycolysis, using the same pyruvate glycolysis just made.",
+      "ground_truth": {
+        "scores": {"completeness": 0.85, "accuracy": 1.0, "clarity": 0.9, "misconceptions_absent": 1.0},
+        "misconceptions_present": []
+      },
+      "review_status": "draft"
+    },
+    {
+      "item_id": "cr-003-incomplete-vague-overview",
+      "quality_tier": "incomplete",
+      "explanation_text": "Cellular respiration is how cells break down glucose to get energy. It happens in a few steps and needs oxygen. The mitochondria are involved and ATP comes out at the end.",
+      "ground_truth": {
+        "scores": {"completeness": 0.15, "accuracy": 0.6, "clarity": 0.55, "misconceptions_absent": 1.0},
+        "misconceptions_present": [],
+        "notes": "No stage names, no locations, no ATP counts, no mention of glycolysis not needing oxygen. Extremely thin but not factually wrong per se."
+      },
+      "review_status": "draft"
+    },
+    {
+      "item_id": "cr-004-incomplete-missing-etc-detail",
+      "quality_tier": "incomplete",
+      "explanation_text": "Glucose goes through glycolysis, then the Krebs cycle, then the electron transport chain, and you end up with a bunch of ATP. Oxygen is needed somewhere near the end of the process.",
+      "ground_truth": {
+        "scores": {"completeness": 0.3, "accuracy": 0.65, "clarity": 0.65, "misconceptions_absent": 1.0},
+        "misconceptions_present": [],
+        "notes": "Right stages named in right order, but no locations, no ATP yields, no chemiosmosis mechanism, vague on oxygen's specific role as final electron acceptor forming water."
+      },
+      "review_status": "draft"
+    },
+    {
+      "item_id": "cr-005-flawed-mitochondria-create-energy",
+      "quality_tier": "factually-flawed",
+      "explanation_text": "Mitochondria are the powerhouse of the cell because they generate the energy the cell needs from scratch — they take in glucose and oxygen and essentially manufacture new energy inside the mitochondrial matrix, which is then packaged as ATP for the rest of the cell to use.",
+      "ground_truth": {
+        "scores": {"completeness": 0.4, "accuracy": 0.2, "clarity": 0.82, "misconceptions_absent": 0.0},
+        "misconceptions_present": ["Common misconception: 'mitochondria make energy from scratch'"],
+        "notes": "Directly asserts mitochondria create/generate energy, contradicting conservation of energy — mitochondria convert existing chemical potential energy in glucose, they don't manufacture it."
+      },
+      "review_status": "draft"
+    },
+    {
+      "item_id": "cr-006-flawed-breathing-conflation",
+      "quality_tier": "factually-flawed",
+      "explanation_text": "Cellular respiration is basically just another word for breathing — when you inhale, that's respiration bringing oxygen into your body, and cellular respiration is the same process happening at a smaller scale inside each cell.",
+      "ground_truth": {
+        "scores": {"completeness": 0.35, "accuracy": 0.15, "clarity": 0.85, "misconceptions_absent": 0.0},
+        "misconceptions_present": ["Common misconception: 'cellular respiration is the opposite of breathing'"],
+        "notes": "Conflates cellular respiration (biochemical ATP-production process) with pulmonary breathing (organ-system gas exchange). Breathing supplies inputs/removes outputs for cellular respiration but is not the same process."
+      },
+      "review_status": "draft"
+    },
+    {
+      "item_id": "cr-007-flawed-glycolysis-location",
+      "quality_tier": "factually-flawed",
+      "explanation_text": "The first stage of cellular respiration, glycolysis, takes place inside the mitochondria alongside the Krebs cycle, where the glucose molecule is split and starts getting oxidized before moving on to the electron transport chain in the inner membrane.",
+      "ground_truth": {
+        "scores": {"completeness": 0.5, "accuracy": 0.2, "clarity": 0.85, "misconceptions_absent": 0.0},
+        "misconceptions_present": ["Common misconception: 'glycolysis happens in the mitochondria'"],
+        "notes": "Glycolysis occurs in the cytosol, not the mitochondria. This directly contradicts the corpus."
+      },
+      "review_status": "draft"
+    },
+    {
+      "item_id": "cr-008-flawed-plants-no-respiration",
+      "quality_tier": "factually-flawed",
+      "explanation_text": "Plants get their energy through photosynthesis, converting sunlight directly into usable energy for the cell, so they don't really need cellular respiration the way animals do — that's more of an animal-specific pathway for breaking down food.",
+      "ground_truth": {
+        "scores": {"completeness": 0.4, "accuracy": 0.1, "clarity": 0.8, "misconceptions_absent": 0.0},
+        "misconceptions_present": ["Common misconception: 'plants only do photosynthesis, not cellular respiration'"],
+        "notes": "Plants perform BOTH photosynthesis and cellular respiration; they need respiration around the clock (photosynthesis only in light), and this explanation asserts the opposite."
+      },
+      "review_status": "draft"
+    }
+  ]
+}

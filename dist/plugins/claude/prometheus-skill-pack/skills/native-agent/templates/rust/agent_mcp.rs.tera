@@ -1,0 +1,181 @@
+{{- /*
+  agent_mcp.rs.tera — Lightweight MCP client for the generated agent
+  Variables: (none — generic)
+*/ -}}
+//! agent-mcp — Lightweight MCP client for {{ agent_name }}.
+//!
+//! Connects to configured MCP servers (SSE or stdio transport) and makes their
+//! tools available as callable functions to the agent's LLM.
+
+use agent_core::{McpServerConfig, McpTransport};
+use anyhow::{Context, Result};
+use serde::{Deserialize, Serialize};
+use serde_json::{json, Value};
+use std::collections::HashMap;
+use tracing::{debug, error, info, warn};
+
+// ─── Tool Definition ──────────────────────────────────────────────────────────
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct McpTool {
+    pub name:        String,
+    pub description: String,
+    #[serde(rename = "inputSchema")]
+    pub input_schema: Value,
+    /// Which MCP server provides this tool
+    pub source:      String,
+}
+
+// ─── MCP Client Registry ──────────────────────────────────────────────────────
+
+/// Holds connections to all configured MCP servers and the aggregated tool list.
+pub struct McpRegistry {
+    clients:   HashMap<String, McpClient>,
+    pub tools: Vec<McpTool>,
+}
+
+impl McpRegistry {
+    /// Connect to all enabled MCP servers and load their tool lists.
+    pub async fn connect(servers: &[McpServerConfig]) -> Result<Self> {
+        let mut clients = HashMap::new();
+        let mut tools   = Vec::new();
+
+        for server in servers.iter().filter(|s| s.enabled) {
+            match McpClient::connect(server).await {
+                Ok(client) => {
+                    match client.list_tools().await {
+                        Ok(server_tools) => {
+                            info!(
+                                "Connected to MCP server '{}' — {} tool(s)",
+                                server.name, server_tools.len()
+                            );
+                            for mut tool in server_tools {
+                                tool.source = server.name.clone();
+                                tools.push(tool);
+                            }
+                            clients.insert(server.name.clone(), client);
+                        }
+                        Err(e) => warn!("Failed to list tools from '{}': {}", server.name, e),
+                    }
+                }
+                Err(e) => warn!("Failed to connect to MCP server '{}': {}", server.name, e),
+            }
+        }
+
+        Ok(Self { clients, tools })
+    }
+
+    /// Call a tool by name on the appropriate MCP server.
+    pub async fn call_tool(&self, tool_name: &str, args: Value) -> Result<Value> {
+        let tool = self.tools.iter().find(|t| t.name == tool_name)
+            .ok_or_else(|| anyhow::anyhow!("Tool not found: {}", tool_name))?;
+
+        let client = self.clients.get(&tool.source)
+            .ok_or_else(|| anyhow::anyhow!("MCP server '{}' not connected", tool.source))?;
+
+        client.call_tool(tool_name, args).await
+    }
+
+    /// Format all available tools as OpenAI function definitions for the LLM.
+    pub fn as_openai_tools(&self) -> Vec<Value> {
+        self.tools.iter().map(|t| json!({
+            "type": "function",
+            "function": {
+                "name":        t.name,
+                "description": format!("[{}] {}", t.source, t.description),
+                "parameters":  t.input_schema
+            }
+        })).collect()
+    }
+
+    pub fn tool_names(&self) -> Vec<String> {
+        self.tools.iter().map(|t| t.name.clone()).collect()
+    }
+}
+
+// ─── Individual MCP Client ────────────────────────────────────────────────────
+
+pub struct McpClient {
+    config:  McpServerConfig,
+    http:    reqwest::Client,
+}
+
+impl McpClient {
+    pub async fn connect(config: &McpServerConfig) -> Result<Self> {
+        let http = reqwest::Client::builder()
+            .timeout(std::time::Duration::from_secs(30))
+            .build()?;
+
+        // Probe the server with a ping
+        let client = Self { config: config.clone(), http };
+        client.ping().await?;
+        Ok(client)
+    }
+
+    async fn ping(&self) -> Result<()> {
+        self.rpc("ping", json!({})).await.map(|_| ())
+    }
+
+    /// List all tools exposed by this MCP server.
+    pub async fn list_tools(&self) -> Result<Vec<McpTool>> {
+        let result = self.rpc("tools/list", json!({})).await?;
+        let tools: Vec<McpTool> = serde_json::from_value(
+            result["tools"].clone()
+        ).context("parsing tools/list response")?;
+        Ok(tools)
+    }
+
+    /// Call a tool on this MCP server.
+    pub async fn call_tool(&self, name: &str, arguments: Value) -> Result<Value> {
+        let result = self.rpc("tools/call", json!({
+            "name": name,
+            "arguments": arguments
+        })).await?;
+
+        // Extract text content from MCP response
+        let content = result["content"].as_array()
+            .and_then(|arr| arr.first())
+            .and_then(|c| c["text"].as_str())
+            .map(|s| Value::String(s.to_string()))
+            .unwrap_or(result);
+        Ok(content)
+    }
+
+    /// JSON-RPC 2.0 request.
+    async fn rpc(&self, method: &str, params: Value) -> Result<Value> {
+        match self.config.transport {
+            McpTransport::Sse => self.rpc_http(method, params).await,
+            McpTransport::Stdio => Err(anyhow::anyhow!(
+                "stdio transport not yet supported in embedded mode — use SSE transport"
+            )),
+        }
+    }
+
+    async fn rpc_http(&self, method: &str, params: Value) -> Result<Value> {
+        let payload = json!({
+            "jsonrpc": "2.0",
+            "id":      1,
+            "method":  method,
+            "params":  params
+        });
+
+        let response = self.http
+            .post(&self.config.url)
+            .json(&payload)
+            .send()
+            .await
+            .with_context(|| format!("POST to {}", self.config.url))?;
+
+        if !response.status().is_success() {
+            anyhow::bail!("MCP server returned {}", response.status());
+        }
+
+        let body: Value = response.json().await?;
+
+        if let Some(error) = body.get("error") {
+            anyhow::bail!("MCP error: {}", error);
+        }
+
+        Ok(body["result"].clone())
+    }
+}

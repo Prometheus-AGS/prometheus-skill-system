@@ -1,0 +1,23 @@
+# systemd --user unit — Prometheus forge code-enrichment MCP (native).
+# Mirrors shared/launchagents/ai.prometheus.forge-mcp.plist. Binds :8943.
+# After/Wants (soft) on pk-cherry, which serves bounded knowledge operations.
+[Unit]
+Description=Prometheus forge code-enrichment MCP (native, :8943)
+After=ai.prometheus.pk-cherry.service
+Wants=ai.prometheus.pk-cherry.service
+
+[Service]
+Type=simple
+WorkingDirectory=__PROMETHEUS_ROOT__
+Environment=HOME=__PROMETHEUS_HOME__
+Environment=USER=__PROMETHEUS_USER__
+Environment=PATH=__PROMETHEUS_PATH__
+Environment=PK_MCP_URL=http://localhost:8942/mcp
+ExecStart=__FORGE_BIN__ mcp --port 8943 --project-root __PROMETHEUS_ROOT__ --skills-root __PROMETHEUS_ROOT__ --pk-mcp-url http://localhost:8942/mcp
+Restart=on-failure
+RestartSec=10
+StandardOutput=append:__PROMETHEUS_LOG_DIR__/forge-mcp.stdout.log
+StandardError=append:__PROMETHEUS_LOG_DIR__/forge-mcp.stderr.log
+
+[Install]
+WantedBy=default.target

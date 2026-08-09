@@ -451,7 +451,7 @@ bash scripts/check-mcp-health.sh
 
 ```bash
 # Install to all detected platforms in one command
-bash scripts/install-skills-flat.sh
+./install.sh --profile skills --targets detected
 
 # Check toolchain + service status (works on any platform)
 bash shared/scripts/detect-toolchain.sh
@@ -511,25 +511,16 @@ Full detail, reasoning, and best practices: **[Mobile documentation](site/docs/m
 **New here?** The [5-step Quick Start](docs/QUICK_START.md) gets you to `/learn-goal` working in under 10 minutes.
 
 ```bash
-git clone --recurse-submodules <repo-url>
-cd prometheus-skill-pack
-
-# Build all tools
-bash scripts/check-prerequisites.sh --build-tools
-
-# Install skills to all platforms + configure MCP servers
-bash scripts/install-skills-flat.sh
-
-# macOS service readiness
-bash scripts/prometheus-services.sh install
-bash scripts/prometheus-services.sh load
-
-# Initialize forge in your project
-forge init
-
-# Create your first native agent
-/create-native-agent
+git clone https://github.com/Prometheus-AGS/prometheus-skill-system.git
+cd prometheus-skill-system
+./install.sh
 ```
+
+The recommended `skills` profile initializes the exact imported-skill pins and
+installs signed payloads for every detected client. It does not build binaries,
+change MCP configuration, or install services. Use `./install.sh --profile full`
+for the locally built macOS/Linux system. Release `1.7.0` is the minimum
+supported active umbrella skill-system version.
 
 For the full prerequisite, install, verification, and first-loop walkthrough, see
 [docs/guide/19-installation.md](docs/guide/19-installation.md); for keeping everything current, see
@@ -548,7 +539,7 @@ workflow guide is in [docs/guide/21-contributing.md](docs/guide/21-contributing.
 git clone --recurse-submodules https://github.com/Prometheus-AGS/prometheus-skill-system.git
 cd prometheus-skill-system
 npm install
-bash scripts/install-skills-flat.sh
+./install.sh --profile skills --targets detected
 npm run validate:strict   # must pass before opening a PR
 ```
 

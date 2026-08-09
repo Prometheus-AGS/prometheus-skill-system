@@ -1,0 +1,11 @@
+{
+  "phase": "phase-1-foundation",
+  "previousPhase": null,
+  "change": null,
+  "status": "assessment_ready",
+  "currentTask": "run kbd-assess",
+  "nextPendingChange": null,
+  "sourceTool": "claude-code",
+  "exactNextCommand": "/kbd-assess",
+  "updatedAt": "2026-04-01T00:00:00Z"
+}

@@ -1,0 +1,92 @@
+{{- /*
+  docker_detect.sh.tera — Docker environment detection script
+  Variables: (none — output is environment-independent)
+  Output: JSON to stdout for the specify phase to parse
+*/ -}}
+#!/usr/bin/env bash
+# docker-detect.sh — Detect Docker CLI, Docker Desktop, and build capabilities
+# Called by the native-agent specify phase to determine Docker support options.
+# Output: JSON on stdout
+
+set -euo pipefail
+
+DOCKER_AVAILABLE=false
+DOCKER_DESKTOP=false
+DOCKER_DESKTOP_RUNNING=false
+DOCKER_CONTEXT=""
+DOCKER_VERSION=""
+COMPOSE_AVAILABLE=false
+COMPOSE_VERSION=""
+BUILDX_AVAILABLE=false
+PLATFORM=""
+
+# ─── Detect platform ──────────────────────────────────────────────────────────
+case "$(uname -s)" in
+  Darwin)  PLATFORM="macos" ;;
+  Linux)   PLATFORM="linux" ;;
+  MINGW*|CYGWIN*|MSYS*) PLATFORM="windows" ;;
+  *)       PLATFORM="unknown" ;;
+esac
+
+# ─── Detect Docker CLI ────────────────────────────────────────────────────────
+if command -v docker &>/dev/null; then
+  # Try to contact the Docker daemon (may fail if Docker Desktop is stopped)
+  if docker info &>/dev/null 2>&1; then
+    DOCKER_AVAILABLE=true
+    DOCKER_VERSION=$(docker version --format '{{.Server.Version}}' 2>/dev/null || echo "unknown")
+    DOCKER_CONTEXT=$(docker context show 2>/dev/null || echo "default")
+  fi
+fi
+
+# ─── Detect Docker Desktop ───────────────────────────────────────────────────
+if [ "$PLATFORM" = "macos" ]; then
+  if [ -d "/Applications/Docker.app" ]; then
+    DOCKER_DESKTOP=true
+    # Check if it's actually running
+    if pgrep -x "Docker Desktop" &>/dev/null || pgrep -x "com.docker.backend" &>/dev/null; then
+      DOCKER_DESKTOP_RUNNING=true
+    fi
+  fi
+elif [ "$PLATFORM" = "linux" ]; then
+  # Docker Desktop on Linux installs a specific context
+  if docker context ls 2>/dev/null | grep -q "desktop-linux"; then
+    DOCKER_DESKTOP=true
+    if docker context inspect desktop-linux &>/dev/null 2>&1; then
+      DOCKER_DESKTOP_RUNNING=true
+    fi
+  fi
+elif [ "$PLATFORM" = "windows" ]; then
+  DOCKER_DESKTOP=true
+  if docker info &>/dev/null 2>&1; then
+    DOCKER_DESKTOP_RUNNING=true
+  fi
+fi
+
+# ─── Detect Docker Compose ───────────────────────────────────────────────────
+if docker compose version &>/dev/null 2>&1; then
+  COMPOSE_AVAILABLE=true
+  COMPOSE_VERSION=$(docker compose version --short 2>/dev/null || echo "unknown")
+elif command -v docker-compose &>/dev/null; then
+  COMPOSE_AVAILABLE=true
+  COMPOSE_VERSION=$(docker-compose version --short 2>/dev/null || echo "v1-legacy")
+fi
+
+# ─── Detect Docker Buildx ────────────────────────────────────────────────────
+if docker buildx version &>/dev/null 2>&1; then
+  BUILDX_AVAILABLE=true
+fi
+
+# ─── Output JSON ──────────────────────────────────────────────────────────────
+cat <<EOF
+{
+  "docker_available":         $DOCKER_AVAILABLE,
+  "docker_version":           "$DOCKER_VERSION",
+  "docker_context":           "$DOCKER_CONTEXT",
+  "docker_desktop":           $DOCKER_DESKTOP,
+  "docker_desktop_running":   $DOCKER_DESKTOP_RUNNING,
+  "compose_available":        $COMPOSE_AVAILABLE,
+  "compose_version":          "$COMPOSE_VERSION",
+  "buildx_available":         $BUILDX_AVAILABLE,
+  "platform":                 "$PLATFORM"
+}
+EOF

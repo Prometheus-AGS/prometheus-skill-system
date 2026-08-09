@@ -1,0 +1,30 @@
+# Prometheus skill registry manifest for librefang-wasm-skill.
+# This is the meta-skill manifest read by forge-rs's SkillRegistry.
+# It is NOT the LibreFang skill.toml — that schema is in templates/skill.toml.tera.
+
+[skill]
+name = "librefang-wasm-skill"
+language = "rust"
+version = "1.0.0"
+description = "Generates a Rust crate that compiles to a LibreFang WASM-ABI-compliant skill (cdylib, wasm32-unknown-unknown)."
+author = "Prometheus AGS"
+
+[templates]
+# Order is intentional: the skill.toml.tera depends on tools list also rendered
+# into lib.rs.tera, and host.rs has no template variables (pure boilerplate).
+files = [
+  "Cargo.toml.tera",
+  "src/lib.rs.tera",
+  "src/host.rs.tera",
+  "skill.toml.tera",
+]
+
+[requires]
+# Cargo crates the rendered code depends on. forge-rs surfaces these in the
+# enrichment doc so the implementing agent knows what to add to Cargo.toml
+# (the Cargo.toml.tera already declares them; this is for cross-skill awareness).
+crates = ["serde", "serde_json"]
+# Build tooling assumed present.
+toolchain = ["wasm32-unknown-unknown"]
+# External CLIs used by scripts/.
+binaries = ["wasm-tools"]

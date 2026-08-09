@@ -1,0 +1,22 @@
+{
+  "grade_id": "eval-kbd-005-flawed-progress-json",
+  "goal_id": "eval",
+  "concept_id": "kbd-lifecycle",
+  "learner_id": "eval-harness",
+  "graded_at": "2026-07-16T00:00:00Z",
+  "explanation_excerpt": "The KBD lifecycle is assess, plan, execute, reflect. As each change in the plan gets implemented, the system automatically detects the completed files and updates progress.json in the background, so",
+  "scores": {"completeness": 0.35, "accuracy": 0.3, "clarity": 0.7, "misconceptions_absent": 0.0},
+  "overall_score": 0.34,
+  "gaps": [
+    {"dimension": "misconception", "description": "Claims progress.json is automatically updated in the background. Per corpus, progress.json must be explicitly updated by the executing agent after each change completes.", "corpus_ref": "MISCONCEPTION: progress.json is updated automatically"},
+    {"dimension": "accuracy", "description": "Omits the new-phase stage and treats the optional analyze stage as absent rather than optional, and asserts a non-existent automatic file-detection mechanism.", "corpus_ref": "CLAUDE.md — KBD Lifecycle section"},
+    {"dimension": "completeness", "description": "Missing mandatory progress signaling requirements: reading position-reminder.txt as the first tool call, emitting 'Starting'/'Completed' signals with N of T.", "corpus_ref": "CLAUDE.md — Progress Signaling section"},
+    {"dimension": "completeness", "description": "Missing the assess-to-plan approval gate, OpenSpec backend, artifact-refiner QA gate, and the reflector sycophancy gate.", "corpus_ref": "skills/process/kbd-execute/SKILL.md"}
+  ],
+  "transfer_problems": [
+    "During the execute stage, an agent completes change 4 of 7 but the session is interrupted before any further action is taken. When the session resumes and position-reminder.txt is read, what will it show for changes_completed, and what specific action must have occurred between finishing change 4 and the interruption for the waypoint to correctly reflect 4 completed changes?",
+    "A team wants to skip running the optional analyze stage and go straight from assess to plan. Is this permitted? Separately, the same team wants to run the closing/reflection stage while 2 of 9 planned changes are still IN_PROGRESS. Is this permitted, and what would happen if they tried?"
+  ],
+  "passed": false,
+  "pass_threshold": 0.7
+}

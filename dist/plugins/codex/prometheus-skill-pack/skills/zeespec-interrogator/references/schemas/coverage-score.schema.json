@@ -1,0 +1,51 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Coverage Score",
+  "description": "Per-dimension and aggregate coverage scores from a ZeeSpec interrogation",
+  "type": "object",
+  "required": ["computed_at", "per_dimension", "aggregate_score", "aggregate_status", "go_recommendation"],
+  "properties": {
+    "computed_at": { "type": "string", "format": "date-time" },
+    "per_dimension": {
+      "type": "object",
+      "properties": {
+        "why":   { "$ref": "#/definitions/dimension_score" },
+        "who":   { "$ref": "#/definitions/dimension_score" },
+        "when":  { "$ref": "#/definitions/dimension_score" },
+        "what":  { "$ref": "#/definitions/dimension_score" },
+        "where": { "$ref": "#/definitions/dimension_score" },
+        "how":   { "$ref": "#/definitions/dimension_score" }
+      }
+    },
+    "aggregate_score": { "type": "number", "minimum": 0.0, "maximum": 1.0 },
+    "aggregate_status": {
+      "type": "string",
+      "enum": ["sufficient", "partial", "insufficient"]
+    },
+    "critical_failures": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "go_recommendation": {
+      "type": "string",
+      "enum": ["GO", "CAUTION", "NO-GO"]
+    },
+    "recommendation_reason": { "type": "string" }
+  },
+  "definitions": {
+    "dimension_score": {
+      "type": "object",
+      "required": ["raw_score", "status", "critical_threshold", "critical_threshold_met"],
+      "properties": {
+        "raw_score": { "type": "number", "minimum": 0.0, "maximum": 1.0 },
+        "status": { "type": "string", "enum": ["sufficient", "partial", "insufficient"] },
+        "critical_threshold": { "type": "number" },
+        "critical_threshold_met": { "type": "boolean" },
+        "defined_count": { "type": "integer" },
+        "partial_count": { "type": "integer" },
+        "implicit_count": { "type": "integer" },
+        "skipped": { "type": "boolean", "default": false }
+      }
+    }
+  }
+}

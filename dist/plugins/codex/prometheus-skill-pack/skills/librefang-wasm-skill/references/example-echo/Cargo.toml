@@ -1,0 +1,21 @@
+[package]
+name = "echo"
+version = "0.1.0"
+edition = "2021"
+description = "Echo a JSON payload back to the caller (LibreFang WASM example)"
+authors = ["Prometheus AGS"]
+license = "MIT"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+[profile.release]
+opt-level = "z"
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true

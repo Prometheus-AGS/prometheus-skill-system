@@ -26,7 +26,7 @@
         "--transport",
         "stdio",
         "--config",
-        "/Users/gqadonis/.config/liter-llm/liter-llm-proxy.toml"
+        "${HOME}/.config/liter-llm/liter-llm-proxy.toml"
       ],
       "description": "Multi-model routing proxy \u2014 22 MCP tools across 140+ providers with per-phase model class routing (default config routes through the local openai-proxy at :8181)"
     },
@@ -37,7 +37,7 @@
         "tavily-mcp"
       ],
       "env": {
-        "TAVILY_API_KEY": "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"
+        "TAVILY_API_KEY": "${TAVILY_API_KEY}"
       }
     },
     "sequential-thinking": {

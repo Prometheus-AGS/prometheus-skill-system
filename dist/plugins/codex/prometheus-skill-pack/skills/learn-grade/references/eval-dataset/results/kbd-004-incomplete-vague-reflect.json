@@ -1,0 +1,22 @@
+{
+  "grade_id": "eval-kbd-004-incomplete-vague-reflect",
+  "goal_id": "eval",
+  "concept_id": "kbd-lifecycle",
+  "learner_id": "eval-harness",
+  "graded_at": "2026-07-16T20:08:17Z",
+  "explanation_excerpt": "kbd-new-phase starts things off with a goals file. Then you assess, plan, and execute the changes. At the end you reflect on how it went and figure out what to do next.",
+  "scores": {"completeness": 0.25, "accuracy": 0.75, "clarity": 0.7, "misconceptions_absent": 1.0},
+  "overall_score": 0.675,
+  "gaps": [
+    {"dimension": "completeness", "description": "Omits the optional analyze stage entirely, and gives no detail on what each stage produces or gates on: assess halts for explicit approval; plan detects OpenSpec; execute runs artifact-refiner QA and archives via verify/archive steps; the closing stage requires ALL changes DONE and passes through the reflector sycophancy gate.", "corpus_ref": "CLAUDE.md — KBD Lifecycle section"},
+    {"dimension": "completeness", "description": "No mention of current-waypoint.json, position-reminder.txt, and progress.json (which must be updated explicitly after each change — never automatic).", "corpus_ref": "CLAUDE.md — Waypoint Files section"},
+    {"dimension": "completeness", "description": "No mention of the mandatory progress-signaling protocol (emitting 'Starting'/'Completed' signals with step N of T).", "corpus_ref": "CLAUDE.md — Progress Signaling section"},
+    {"dimension": "clarity", "description": "'figure out what to do next' is vague about what the closing stage actually outputs — a structured reflection document with per-goal MET/PARTIAL/NOT MET status, technical debt, lessons, and a recommended next phase.", "corpus_ref": "skills/process/kbd-reflect/SKILL.md"}
+  ],
+  "transfer_problems": [
+    "A teammate runs the execute stage and, partway through, three changes are marked DONE while two remain IN_PROGRESS. They then invoke the closing/reflection stage directly. What should happen, and why?",
+    "A project has an openspec/ directory at its root. During the plan stage, the operator wants to skip OpenSpec and just write changes informally instead. Is this a valid choice, and what breaks if they do it anyway?"
+  ],
+  "passed": false,
+  "pass_threshold": 0.7
+}

@@ -1,0 +1,90 @@
+{{- /*
+  axum_fragment_handler.rs.tera — Axum handler returning HTML fragments for HTMX
+  Variables:
+    module_name    : snake_case (e.g. "skills")
+    ResourceType   : PascalCase (e.g. "Skill")
+    state_type     : AppState type name
+    template_path  : path to the template directory or renderer
+*/ -}}
+use axum::{
+    extract::{Path, Query, State},
+    response::Html,
+};
+use serde::Deserialize;
+use std::sync::Arc;
+
+use crate::{errors::AppError, state::{{ state_type }}};
+
+// ─── Query params ────────────────────────────────────────────────────────────
+
+#[derive(Deserialize, Default)]
+pub struct {{ ResourceType }}ListQuery {
+    pub query:  Option<String>,
+    pub filter: Option<String>,
+}
+
+// ─── List fragment handler ────────────────────────────────────────────────────
+// Returns an HTML fragment — NOT JSON. HTMX swaps it into the target element.
+// Never return { "data": [...] } here — always return rendered HTML.
+
+pub async fn list_{{ module_name }}_fragment(
+    State(state): State<Arc<{{ state_type }}>>,
+    Query(params): Query<{{ ResourceType }}ListQuery>,
+) -> Result<Html<String>, AppError> {
+    let items = state
+        .{{ module_name }}_service
+        .list(params.query.as_deref(), params.filter.as_deref())
+        .await?;
+
+    // Render HTML inline — use a templating engine (tera, minijinja, askama) in production
+    let html = if items.is_empty() {
+        r#"<div class="text-muted-foreground text-sm py-8 text-center">No items found.</div>"#
+            .to_string()
+    } else {
+        let rows = items
+            .iter()
+            .map(|item| render_{{ module_name }}_row(item))
+            .collect::<Vec<_>>()
+            .join("\n");
+        format!(r#"<ul class="space-y-2">{}</ul>"#, rows)
+    };
+
+    Ok(Html(html))
+}
+
+// ─── Detail fragment handler ──────────────────────────────────────────────────
+
+pub async fn view_{{ module_name }}_fragment(
+    State(state): State<Arc<{{ state_type }}>>,
+    Path(id): Path<uuid::Uuid>,
+) -> Result<Html<String>, AppError> {
+    let item = state.{{ module_name }}_service.get(id).await?;
+    Ok(Html(render_{{ module_name }}_detail(&item)))
+}
+
+// ─── Row/detail renderers ─────────────────────────────────────────────────────
+// In production, replace these with a Tera/Askama template engine call.
+
+fn render_{{ module_name }}_row(item: &impl std::fmt::Debug) -> String {
+    format!(
+        r#"<li class="border rounded p-3 hover:bg-accent cursor-pointer"
+               hx-get="/api/{{ module_name }}/{id}/view"
+               hx-target="#detail-panel"
+               hx-swap="innerHTML"
+               hx-push-url="false">
+            {title}
+           </li>"#,
+        id = "todo-id",       // replace with item.id
+        title = "todo-title", // replace with item.title or similar field
+    )
+}
+
+fn render_{{ module_name }}_detail(item: &impl std::fmt::Debug) -> String {
+    format!(
+        r#"<div class="p-4 space-y-3">
+            <h2 class="text-xl font-semibold">{title}</h2>
+            <!-- TODO: render full item detail -->
+           </div>"#,
+        title = "todo-title", // replace with actual field access
+    )
+}

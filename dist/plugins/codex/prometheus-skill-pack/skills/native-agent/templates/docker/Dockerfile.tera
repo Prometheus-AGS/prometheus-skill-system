@@ -1,0 +1,102 @@
+{{- /*
+  Dockerfile.tera — Multi-stage Docker image for the generated native agent
+  Variables:
+    agent_name     : kebab-case agent name (e.g. "research-agent")
+    agent_bin_name : snake_case binary name (e.g. "research_agent")
+    port           : server port
+    rust_version   : Rust version tag (default: "1" = latest stable)
+*/ -}}
+# syntax=docker/dockerfile:1
+# {{ agent_name }} Dockerfile
+# Multi-stage build: Rust + Node.js builder → minimal Debian runtime
+
+# ─── Stage 1: Dependency cache (Rust) ─────────────────────────────────────────
+# Use cargo-chef to cache Rust dependencies as a separate layer.
+# This means `cargo build` only re-runs when Cargo.toml/Cargo.lock changes,
+# not when source files change.
+FROM rust:{{ rust_version | default(value="1") }}-slim-bookworm AS chef
+
+# Install cargo-chef + build essentials
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    pkg-config libssl-dev ca-certificates && \
+    rm -rf /var/lib/apt/lists/* && \
+    cargo install cargo-chef --locked
+
+WORKDIR /build
+
+# ─── Stage 2: Cargo dependency planner ───────────────────────────────────────
+FROM chef AS planner
+COPY Cargo.toml Cargo.lock ./
+COPY crates/ ./crates/
+RUN cargo chef prepare --recipe-path recipe.json
+
+# ─── Stage 3: Rust builder ────────────────────────────────────────────────────
+FROM chef AS rust-builder
+COPY --from=planner /build/recipe.json recipe.json
+
+# Build dependencies first — this layer is cached until deps change
+RUN cargo chef cook --release --recipe-path recipe.json
+
+# Now build the actual source
+COPY Cargo.toml Cargo.lock ./
+COPY crates/ ./crates/
+RUN cargo build --release -p agent-cli && \
+    # Verify binary exists
+    ls -lh target/release/{{ agent_bin_name }}
+
+# ─── Stage 4: Frontend builder ────────────────────────────────────────────────
+FROM node:22-slim AS frontend-builder
+WORKDIR /frontend
+
+# Install dependencies (cached when package.json/lock unchanged)
+COPY frontend/package.json frontend/package-lock.json* ./
+RUN npm ci --silent
+
+# Build the React app
+COPY frontend/ ./
+RUN npm run build && \
+    # Verify output
+    ls -lh dist/
+
+# ─── Stage 5: Runtime image ───────────────────────────────────────────────────
+# Use Debian bookworm-slim — small but has glibc for our dynamically linked binary.
+# For a fully static binary, compile with RUSTFLAGS="-C target-feature=+crt-static"
+# against musl and use scratch or distroless:static.
+FROM debian:bookworm-slim AS runtime
+
+# Runtime dependencies: TLS certificates + curl for healthcheck
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates curl && \
+    rm -rf /var/lib/apt/lists/*
+
+# Create non-root user for the agent process
+RUN useradd --uid 1001 --gid root --create-home --shell /bin/bash agent
+
+WORKDIR /app
+
+# Copy the Rust binary
+COPY --from=rust-builder --chown=agent:root \
+    /build/target/release/{{ agent_bin_name }} ./{{ agent_bin_name }}
+
+# Copy the React frontend (served as static files by Axum)
+COPY --from=frontend-builder --chown=agent:root \
+    /frontend/dist ./frontend/dist/
+
+# Copy config files (agent.toml and system_prompt.md are required at runtime)
+# These are copied in as defaults; mount volumes to override in production.
+COPY --chown=agent:root agent.toml ./
+COPY --chown=agent:root system_prompt.md ./
+
+# Create skills directory (mount the skill pack here in production)
+RUN mkdir -p /app/skills && chown agent:root /app/skills
+
+USER agent
+
+EXPOSE {{ port }}
+
+# Healthcheck: polls the agent's health endpoint
+HEALTHCHECK --interval=15s --timeout=5s --start-period=10s --retries=3 \
+    CMD curl -f http://localhost:{{ port }}/api/health || exit 1
+
+# Default: start the agent server on 0.0.0.0 so it's reachable from Docker host
+CMD ["./{{ agent_bin_name }}", "start", "--host", "0.0.0.0", "--port", "{{ port }}"]

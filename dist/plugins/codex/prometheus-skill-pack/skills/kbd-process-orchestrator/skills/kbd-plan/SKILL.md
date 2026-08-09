@@ -1,0 +1,175 @@
+---
+license: MIT
+name: kbd-plan
+version: '1.0.0'
+description: >
+  Create a prioritized, ordered change list for the current project phase.
+  Project-agnostic: reads assessment and project constraints to produce
+  an ordered change list. Auto-detects OpenSpec availability and emits
+  appropriate change formats. Bridges with iterative-evolver plan items
+  when running inside an evolution cycle.
+metadata:
+  tags: [process, orchestration, automation]
+---
+
+# /kbd-plan
+
+Run the **Plan** phase of the KBD lifecycle for any project.
+
+## What this does
+
+Reads `.kbd-orchestrator/phases/<phase-name>/assessment.md` and produces an
+ordered list of changes to implement this phase. Refreshes the waypoint so
+every tool knows the exact next step.
+
+Output:
+
+- `.kbd-orchestrator/phases/<phase-name>/plan.md` — ordered change list
+- `.kbd-orchestrator/current-waypoint.md` and `current-waypoint.json` — refreshed
+
+## Analyze inputs (when the Analyze stage ran)
+
+When `.kbd-orchestrator/phases/<phase>/library-candidates.json` exists, read it
+before ordering changes (schema:
+`references/schemas/library-candidates.schema.json`):
+
+- A change addressing a gap whose candidate has verdict `adopt` or `adapt`
+  carries a `library: cand-###` annotation in `plan.md` and, for OpenSpec, the
+  candidate's evidence block in the design doc — the change *reuses* the library
+  rather than rebuilding it.
+- `build_required[]` entries (gaps with no adoptable candidate) become build
+  changes; a `capability_gap_id` (when present) marks a blocked-on dependency.
+
+When no `library-candidates.json` exists (Analyze skipped), plan as before.
+
+## OpenSpec Detection
+
+Before emitting changes, detect the change management backend:
+
+1. **Check for `openspec/` directory** at project root
+2. **Check for `openspec/` directory** inside the skill being developed
+3. **Check `.kbd-orchestrator/project.json`** for `"change_backend": "openspec"`
+
+If any of these exist, emit changes as OpenSpec structures. Otherwise, use
+native KBD change files.
+
+```
+OpenSpec detected?
+  YES → emit /opsx:new <change-id> commands
+      → create openspec/changes/<change-id>/proposal.md
+      → tasks tracked in openspec/changes/<change-id>/tasks.md
+  NO  → create .kbd-orchestrator/changes/<change-id>/change.md
+      → tasks tracked inline with [ ] / [/] / [x] markers
+```
+
+## Evolver Bridge
+
+When this plan is being created as part of an iterative-evolver cycle:
+
+1. **Read evolver plan** — check `.evolver/evolutions/<name>/plan.json`
+2. **Map evolver items to KBD changes** — each evolver plan item becomes one
+   or more KBD changes with a `evolver_item_id` reference
+3. **Write bridge file** — `.kbd-orchestrator/phases/<phase>/evolver-bridge.json`:
+
+```json
+{
+  "evolution_name": "<name>",
+  "evolver_plan_path": ".evolver/evolutions/<name>/plan.json",
+  "item_to_change_map": {
+    "evolver-item-1": ["change-001", "change-002"],
+    "evolver-item-2": ["change-003"]
+  }
+}
+```
+
+This enables the Reflect phase to report back to the evolver with precise
+completion status per plan item.
+
+## Progress Signals (MANDATORY)
+
+**FIRST tool call of every turn:** Read `.kbd-orchestrator/position-reminder.txt` (if it exists) to get the current phase, step N of T, and next command. If that file is absent, read `.kbd-orchestrator/current-waypoint.json`.
+
+Before any other action, emit to plain response text (BEFORE any tool call):
+
+```
+Starting kbd-plan — <phase-name> (step N of T)
+```
+
+When all steps are complete, emit:
+
+```
+Completed kbd-plan — <phase-name> (step N of T)
+```
+
+**How to get N and T (MANDATORY — never estimate):**
+- Read `.kbd-orchestrator/phases/<phase>/progress.json` →
+  `completion.implementation.completed` = N and `.total` = T; fall back to
+  legacy `changes_completed` / `changes_total` only when canonical fields are absent.
+- If `progress.json` is absent, read `current-waypoint.json` →
+  `implementationCompleted` / `implementationTotal`, then legacy aliases.
+
+Use the canonical phase name from the argument or `current-waypoint.json`. Emit to plain response text — no tool call needed.
+
+## How to invoke
+
+1. **Discover project identity** — read `.kbd-orchestrator/project.json` or infer
+2. **Confirm the active phase** — from argument or waypoint
+3. **Load assessment** — from `.kbd-orchestrator/phases/<phase>/assessment.md`
+4. **Read project constraints** — from `AGENTS.md` and project spec files
+5. **Detect change backend** — OpenSpec or native KBD (see OpenSpec Detection)
+6. **Check for evolver bridge** — is this phase driven by an evolution cycle?
+7. **Follow the plan protocol** in `../prompts/plan.md`
+8. **Write plan.md** with ordered change list and recommended agent per change
+9. **Adversarial vet** — unless `--skip-adversarial-review` is passed, run
+   `/adversarial-review --mode artifact plan` on the written plan (see
+   orchestrator `references/integrations/adversarial-review.md`). CRITICAL
+   findings (ordering errors, missing dependencies, untestable criteria) →
+   revise `plan.md` and re-vet (max 2 rounds, then accept with an
+   "Unresolved review findings" section appended). WARNING findings → carry
+   into the stage handoff summary. Vet **before** emitting change
+   structures, so a corrected plan never leaves stale changes behind.
+10. **Emit change structures** via OpenSpec or native KBD
+11. **Write evolver-bridge.json** if evolver plan exists
+12. **Refresh waypoint** files (`current-waypoint.md` and `current-waypoint.json`)
+
+## Examples
+
+```
+/kbd-plan                                # uses active waypoint phase
+/kbd-plan phase-1-foundation             # explicit phase name
+```
+
+## Hook integration
+
+Fire `plan:before` before reading the assessment, `plan:after` after
+writing `plan.md`. Existing Progress Signals are unchanged.
+
+```sh
+. "$KBD_ORCHESTRATOR_ROOT/shared/lib/waypoint.sh"
+. "$KBD_ORCHESTRATOR_ROOT/shared/lib/hooks.sh"
+
+kbd_hooks_fire plan before "$phase" 1 1
+# … draft plan.md …
+kbd_hooks_fire plan after  "$phase" 1 1
+```
+
+See orchestrator `SKILL.md` → "Hooks" for taxonomy and payload.
+
+## Stage gate & handoff
+
+The plan gate requires the assess handoff (walking back across the optional
+analyze/spec stages when they have no handoff). After writing `plan.md`,
+record the handoff that execute reads first:
+
+```sh
+. "$KBD_ORCHESTRATOR_ROOT/shared/lib/stage-gate.sh"
+
+kbd_stage_gate plan || exit 2
+# … draft plan.md …
+# … adversarial vet (step 9) runs here, before the handoff …
+kbd_stage_handoff_write plan "<1–3 sentences: change count, ordering rationale, first change to apply; include any WARNING findings from adversarial review>" plan.md
+```
+
+Phases without a `handoffs/` directory are legacy: the gate warns and passes.
+A deliberate stage skip is recorded with `kbd_stage_handoff_skip <stage>
+"<reason>"`. Schema: `references/schemas/handoff.schema.json`.

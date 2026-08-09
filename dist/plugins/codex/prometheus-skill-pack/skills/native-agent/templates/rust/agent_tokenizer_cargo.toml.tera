@@ -1,0 +1,25 @@
+{{- /*
+  agent_tokenizer_cargo.toml.tera — Cargo.toml for the agent-tokenizer crate.
+  Always emitted by the generator; agent-server consumes it for budget
+  enforcement, and agent-skill optionally calls into it for token counting.
+  Variables:
+    agent_name : kebab-case agent name
+*/ -}}
+[package]
+name        = "agent-tokenizer"
+version     = { workspace = true }
+edition     = { workspace = true }
+authors     = { workspace = true }
+license     = { workspace = true }
+description = "BPE tokenizer wrapper (rustbpe) for {{ agent_name }}"
+
+[dependencies]
+# Karpathy's rustbpe — explicitly chosen over HuggingFace tokenizers (too
+# large) and Python minbpe (too slow). The crate is pure-Rust and works
+# under wasm32-unknown-unknown without features for the count/encode path.
+rustbpe = "0.1"
+
+anyhow  = { workspace = true }
+
+[dev-dependencies]
+# (none — unit tests are gated on TEST_TOKENIZER env var)

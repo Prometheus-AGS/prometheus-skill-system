@@ -1,0 +1,38 @@
+name        = "axum-patterns"
+language    = "rust"
+description = "Axum 0.8 router, middleware, extractor, and state injection patterns"
+version     = "1.0.0"
+
+[[templates]]
+path               = "router.rs.tera"
+output_description = "Axum router scaffold with typed state injection"
+
+[[templates]]
+path               = "app_error.rs.tera"
+output_description = "AppError type implementing IntoResponse"
+
+[[templates]]
+path               = "app_state.rs.tera"
+output_description = "AppState struct with Arc wrapping pattern"
+
+[[templates]]
+path               = "middleware.rs.tera"
+output_description = "Tower middleware via from_fn_with_state"
+
+[[templates]]
+path               = "handler.rs.tera"
+output_description = "Typed handler with State + extractor ordering"
+
+[[triggers]]
+type     = "AlwaysForLanguage"
+language = "rust"
+
+[[triggers]]
+type     = "Keywords"
+keywords = ["axum", "router", "middleware", "handler", "endpoint", "api", "http server", "rest api"]
+
+[[triggers]]
+type     = "Keywords"
+keywords = ["mcp server", "sse", "json-rpc"]
+
+depends_on = ["rust/error-handling"]

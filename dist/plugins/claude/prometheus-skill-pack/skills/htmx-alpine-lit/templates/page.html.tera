@@ -1,0 +1,145 @@
+{{- /*
+  page.html.tera — Full HTMX 2.0.8 + Alpine.js page layout
+  Variables:
+    page_title     : Page title string
+    resource       : Resource name for the initial hx-get (e.g. "skills")
+    base_path      : Server API base path (e.g. "/api/skills")
+    nav_items      : list of { label, href } navigation items
+    has_lit_component : bool — include a Lit web component slot
+    component_tag  : Lit component tag name (e.g. "forge-viewer")
+*/ -}}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{ page_title }}</title>
+
+  <!-- HTMX 2.0.8 — server-driven partial updates -->
+  <script src="https://unpkg.com/htmx.org@2.0.8"
+          integrity="sha384-HGfztofotfshcF7+8n44JQL2oJmowVChPTg48S+jvZoztPfvwD79OC/LTtG6dMp+"
+          crossorigin="anonymous" defer></script>
+
+  <!-- Alpine.js — declarative local behavior -->
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+  {% if has_lit_component -%}
+  <!-- Lit web component -->
+  <script type="module" src="/components/{{ component_tag }}.js"></script>
+  {%- endif %}
+
+  <link rel="stylesheet" href="/styles.css" />
+
+  <!-- HTMX config -->
+  <meta name="htmx-config" content='{"defaultSwapStyle":"innerHTML","requestClass":"htmx-request"}' />
+</head>
+
+<body class="bg-background text-foreground min-h-screen" x-data="appController()">
+
+  <!-- Navigation -->
+  <nav class="border-b px-6 py-3 flex items-center gap-6"
+       x-data="{ open: false }">
+    <a href="/" class="font-semibold">Prometheus AGS</a>
+
+    <!-- Desktop nav -->
+    <div class="hidden md:flex gap-4 ml-auto">
+      {% for item in nav_items -%}
+      <a href="{{ item.href }}"
+         hx-boost="true"
+         class="text-sm text-muted-foreground hover:text-foreground transition-colors">
+        {{ item.label }}
+      </a>
+      {% endfor %}
+    </div>
+
+    <!-- Mobile hamburger -->
+    <button class="md:hidden ml-auto" @click="open = !open">☰</button>
+    <div class="absolute top-14 left-0 right-0 bg-background border-b p-4 md:hidden"
+         x-show="open"
+         x-transition
+         @click.outside="open = false">
+      {% for item in nav_items -%}
+      <a href="{{ item.href }}"
+         class="block py-2 text-sm"
+         @click="open = false">
+        {{ item.label }}
+      </a>
+      {% endfor %}
+    </div>
+  </nav>
+
+  <!-- Main content -->
+  <main class="container mx-auto px-6 py-8">
+
+    <!-- Search / filter bar with Alpine state -->
+    <div x-data="{ query: '', filter: 'all' }" class="mb-6 flex gap-3">
+      <input
+        type="text"
+        x-model="query"
+        placeholder="Search {{ resource }}…"
+        class="input flex-1"
+        hx-get="{{ base_path }}"
+        hx-trigger="input changed delay:300ms"
+        hx-target="#{{ resource }}-list"
+        hx-include="[name='filter']"
+        name="query"
+      />
+      <select
+        x-model="filter"
+        name="filter"
+        class="select"
+        hx-get="{{ base_path }}"
+        hx-trigger="change"
+        hx-target="#{{ resource }}-list"
+        hx-include="[name='query']"
+      >
+        <option value="all">All</option>
+        <option value="active">Active</option>
+        <option value="archived">Archived</option>
+      </select>
+    </div>
+
+    <!-- {{ resource | title }} list — HTMX-managed region -->
+    <div
+      id="{{ resource }}-list"
+      hx-get="{{ base_path }}"
+      hx-trigger="load"
+      class="htmx-indicator space-y-3"
+    >
+      <div class="text-muted-foreground text-sm">Loading {{ resource }}…</div>
+    </div>
+
+    {% if has_lit_component -%}
+    <!-- Lit web component slot -->
+    <{{ component_tag }}
+      class="mt-8 block"
+      x-bind:task-id="selectedId"
+      x-show="selectedId"
+    ></{{ component_tag }}>
+    {%- endif %}
+
+  </main>
+
+  <!-- Global loading indicator -->
+  <div id="global-spinner"
+       class="fixed bottom-4 right-4 bg-primary text-primary-foreground px-3 py-1 rounded text-sm
+              htmx-indicator opacity-0 transition-opacity"
+       style="display: none;">
+    Loading…
+  </div>
+
+  <script>
+    function appController() {
+      return {
+        selectedId: null,
+        // Listen for HTMX events to track selected item
+        init() {
+          document.body.addEventListener('select-item', (e) => {
+            this.selectedId = e.detail?.id ?? null
+          })
+        }
+      }
+    }
+  </script>
+</body>
+</html>

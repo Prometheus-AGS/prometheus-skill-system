@@ -1,0 +1,11 @@
+{
+  "_comment": "Quarantine, not permission. check-invariants.sh exits 3 if an entry here no longer reproduces, forcing removal. An allowlist that never shrinks is a suppressed check.",
+  "known_violations": [
+    {
+      "invariant": "wit-world-version-pinned:knowme:plugin",
+      "reason": "knowme:plugin ONLY. Scoped to the package so this entry cannot cover a version split introduced in any other WIT package. Pre-existing; declared at both 0.1.0 (knowme-plugin.wit) and 1.0.0 (v1/types.wit).",
+      "recorded": "2026-07-31",
+      "recorded_by": "change-msp-004-fabric-integration-skill"
+    }
+  ]
+}

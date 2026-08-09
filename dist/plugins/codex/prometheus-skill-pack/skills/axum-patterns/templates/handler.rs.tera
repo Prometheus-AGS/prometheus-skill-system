@@ -1,0 +1,44 @@
+{{- /*
+  handler.rs.tera — Typed Axum handler with correct extractor ordering
+  Variables:
+    handler_name  : snake_case name of the handler (e.g. "create_post")
+    state_type    : AppState type name
+    method        : HTTP method comment (GET/POST/PUT/DELETE)
+    path          : Route path (e.g. "/api/posts/:id")
+    has_path_id   : bool — whether the handler takes a Path<Uuid> parameter
+    has_body      : bool — whether the handler takes a Json<T> body
+    request_type  : request body type (e.g. "CreatePostRequest")
+    response_type : response type (e.g. "PostResponse")
+    status_code   : response status code (e.g. "StatusCode::OK")
+*/ -}}
+use axum::{
+    extract::{{% if has_path_id %}Path, {% endif %}State},
+    {% if has_body %}http::StatusCode,{% endif %}
+    response::Json,
+};
+use std::sync::Arc;
+use uuid::Uuid;
+
+use crate::{errors::AppError, state::{{ state_type }}};
+{% if has_body %}use super::types::{{ request_type }};{% endif %}
+use super::types::{{ response_type }};
+
+/// {{ method }} {{ path }}
+///
+/// Extractor ordering rule (enforced by Axum):
+///   State → Path → Query → Json (body-consuming extractor always last)
+pub async fn {{ handler_name }}(
+    State(state): State<Arc<{{ state_type }}>>,
+    {% if has_path_id %}Path(id): Path<Uuid>,{% endif %}
+    {% if has_body %}Json(body): Json<{{ request_type }}>,{% endif %}
+) -> Result<{% if status_code != "StatusCode::OK" %}(axum::http::StatusCode, {% endif %}Json<{{ response_type }}>{% if status_code != "StatusCode::OK" %}){% endif %}, AppError> {
+    // TODO: implement handler logic
+    //
+    // Pattern:
+    //   1. Extract and validate inputs
+    //   2. Call service/domain logic via state
+    //   3. Map domain error → AppError
+    //   4. Return typed response
+
+    todo!("implement {{ handler_name }}")
+}

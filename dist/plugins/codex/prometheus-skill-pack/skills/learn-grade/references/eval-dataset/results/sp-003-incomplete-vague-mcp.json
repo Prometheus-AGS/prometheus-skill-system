@@ -1,0 +1,23 @@
+{
+  "grade_id": "eval-sp-003-incomplete-vague-mcp",
+  "goal_id": "eval",
+  "concept_id": "skill-pack",
+  "learner_id": "eval-harness",
+  "graded_at": "2026-07-16T00:00:00Z",
+  "explanation_excerpt": "The skill pack has some MCP servers that help with memory and things. There's surreal-memory for one purpose and Cortex for something similar. You install everything with a script and then the",
+  "scores": {"completeness": 0.15, "accuracy": 0.3, "clarity": 0.35, "misconceptions_absent": 0.0},
+  "overall_score": 0.2,
+  "gaps": [
+    {"dimension": "completeness", "description": "Omits the dual-format distribution model, directory architecture, the skill domain list, agentskills.io compliance requirements, imported skills as submodules, and the docs/guide/ user guide.", "corpus_ref": "CLAUDE.md — Architecture section"},
+    {"dimension": "accuracy", "description": "States Cortex is 'for something similar' to surreal-memory, implying they serve the same purpose. In fact surreal-memory provides a knowledge graph, scoped memory, TaskStreams, Mindmaps, and palace RAG, while Cortex is a simpler project-scoped key-value memory.", "corpus_ref": "MISCONCEPTION: surreal-memory and Cortex are the same system"},
+    {"dimension": "accuracy", "description": "Does not name sycophancy-correction or Dify KB, the other two MCP servers listed in the corpus.", "corpus_ref": "CLAUDE.md — MCP Servers"},
+    {"dimension": "clarity", "description": "Language is vague to the point of being uninformative ('some MCP servers', 'help with memory and things', 'one purpose', 'something similar').", "corpus_ref": "CLAUDE.md — MCP Servers"},
+    {"dimension": "misconception", "description": "Explanation reproduces the known misconception that surreal-memory and Cortex are the same kind of system.", "corpus_ref": "MISCONCEPTION: surreal-memory and Cortex are the same system"}
+  ],
+  "transfer_problems": [
+    "A teammate has just cloned the repo on a machine that already has Kimi Code and Cursor installed, but not Claude Code. They run the standard install script. Which platform-specific directories should now contain the skill files, and what would indicate to them that MiniMax needs different handling than the others?",
+    "A contributor edits a file inside .claude-plugin/skills/ directly, believing that is the source of truth, and is confused when the same content appears to already exist under skills/. Explain what is actually happening on disk and what command would restore the symlinks if they broke it instead."
+  ],
+  "passed": false,
+  "pass_threshold": 0.7
+}

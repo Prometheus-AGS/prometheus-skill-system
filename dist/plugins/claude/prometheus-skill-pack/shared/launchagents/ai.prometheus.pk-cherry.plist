@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>ai.prometheus.pk-cherry</string>
+
+  <key>ProgramArguments</key>
+  <array>
+    <string>__PK_CHERRY_BIN__</string>
+  </array>
+
+  <key>WorkingDirectory</key>
+  <string>__PROMETHEUS_ROOT__</string>
+
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>HOME</key>
+    <string>__PROMETHEUS_HOME__</string>
+    <key>USER</key>
+    <string>__PROMETHEUS_USER__</string>
+    <key>PATH</key>
+    <string>__PROMETHEUS_PATH__</string>
+    <key>PK_BIND</key>
+    <string>127.0.0.1:8942</string>
+    <key>PK_KB_DIR</key>
+    <!-- Serve the PROJECT KB (repo-scoped), matching WorkingDirectory above, so the
+         HTTP/MCP daemon reflects the same KB the pk CLI hooks (pk-ingest-on-reflect,
+         bounded context dispatcher and supervised learning worker) read and write. -->
+    <string>__PROMETHEUS_ROOT__/.prometheus/knowledge</string>
+  </dict>
+
+  <key>RunAtLoad</key>
+  <true/>
+  <key>KeepAlive</key>
+  <true/>
+  <key>ProcessType</key>
+  <string>Background</string>
+
+  <key>StandardOutPath</key>
+  <string>__PROMETHEUS_LOG_DIR__/pk-cherry.stdout.log</string>
+  <key>StandardErrorPath</key>
+  <string>__PROMETHEUS_LOG_DIR__/pk-cherry.stderr.log</string>
+</dict>
+</plist>

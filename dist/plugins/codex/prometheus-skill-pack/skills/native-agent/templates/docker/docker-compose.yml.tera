@@ -1,0 +1,170 @@
+{{- /*
+  docker-compose.yml.tera — Compose file for the native agent + companion services
+  Variables:
+    agent_name            : kebab-case agent name
+    agent_bin_name        : snake_case binary name
+    port                  : agent server port
+    enable_surreal        : bool — include surreal-memory service
+    enable_pk             : bool — include prometheus-knowledge service
+    enable_liter_llm      : bool — include liter-llm service
+    liter_llm_port        : port for liter-llm (default: 11434)
+    surreal_port          : port for surreal-memory (default: 23001)
+    pk_port               : port for prometheus-knowledge (default: 8942)
+    image_tag             : Docker image tag (default: "{{ agent_name }}:latest")
+    compose_project_name  : Docker Compose project name (default: agent_name)
+*/ -}}
+# docker-compose.yml — {{ agent_name }}
+# Usage:
+#   docker compose up -d          # start all services
+#   docker compose down           # stop all services
+#   docker compose logs -f agent  # tail agent logs
+#   docker compose ps             # service status
+
+name: {{ compose_project_name | default(value=agent_name) }}
+
+services:
+
+  # ─── {{ agent_name }} ─────────────────────────────────────────────────────
+  agent:
+    image: {{ image_tag | default(value=agent_name ~ ":latest") }}
+    build:
+      context: .
+      dockerfile: Dockerfile
+      # Pass build args if you need version overrides
+      # args:
+      #   RUST_VERSION: "1.82"
+    container_name: {{ agent_name }}
+    restart: unless-stopped
+    ports:
+      - "{{ port }}:{{ port }}"
+    environment:
+      # Provider API keys — set in .env, never hardcode here
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+      OPENAI_API_KEY:    ${OPENAI_API_KEY:-}
+      RUST_LOG:          ${RUST_LOG:-agent=info,tower_http=info}
+      PORT:              "{{ port }}"
+    env_file:
+      - .env
+    volumes:
+      # Mount agent.toml for runtime config changes without rebuild
+      - ./agent.toml:/app/agent.toml:ro
+      # Mount system_prompt.md for hot-reload without rebuild
+      - ./system_prompt.md:/app/system_prompt.md:ro
+      # Mount the Prometheus skill pack into the container
+      # Set SKILL_PACK_DIR in .env to your local skill pack path
+      - ${SKILL_PACK_DIR:-~/.prometheus/skill-pack/skills}:/app/skills:ro
+      # Persist agent logs and PID files
+      - agent-data:/app/.agent
+    networks:
+      - agent-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:{{ port }}/api/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    {% if enable_surreal or enable_pk or enable_liter_llm -%}
+    depends_on:
+      {% if enable_surreal -%}
+      surreal-memory:
+        condition: service_healthy
+      {% endif -%}
+      {% if enable_pk -%}
+      prometheus-knowledge:
+        condition: service_started
+      {% endif -%}
+      {% if enable_liter_llm -%}
+      liter-llm:
+        condition: service_started
+      {% endif -%}
+    {%- endif %}
+
+{% if enable_surreal %}
+  # ─── surreal-memory ───────────────────────────────────────────────────────
+  # SurrealDB-backed knowledge graph with HNSW vector search.
+  # MCP server exposes 42 tools for cross-session state and Graph-RAG.
+  surreal-memory:
+    image: ghcr.io/prometheus-ags/surreal-memory-server:latest
+    container_name: {{ agent_name }}-surreal-memory
+    restart: unless-stopped
+    ports:
+      - "{{ surreal_port | default(value=23001) }}:23001"
+    environment:
+      SURREAL_DB_PATH: /data/surreal.db
+      RUST_LOG:        "surreal_memory=info"
+    volumes:
+      - surreal-data:/data
+    networks:
+      - agent-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:23001/health"]
+      interval: 20s
+      timeout: 10s
+      retries: 5
+      start_period: 15s
+
+{% endif %}
+{% if enable_pk %}
+  # ─── prometheus-knowledge ─────────────────────────────────────────────────
+  # Karpathy-method knowledge wiki. `pk focus` pulls learned context.
+  # `pk ingest` from `forge reflect` writes iteration data here.
+  prometheus-knowledge:
+    image: ghcr.io/prometheus-ags/prometheus-knowledge-rs:latest
+    container_name: {{ agent_name }}-pk
+    restart: unless-stopped
+    ports:
+      - "{{ pk_port | default(value=8942) }}:8942"
+    environment:
+      PK_KB_DIR:         /data/knowledge
+      PK_COMPILE_MODEL:  ${PK_COMPILE_MODEL:-claude-sonnet-4-6}
+      PK_LINT_MODEL:     ${PK_LINT_MODEL:-qwen2.5-14b}
+      CLOUD_LLM_URL:     ${CLOUD_LLM_URL:-https://api.anthropic.com/v1}
+      CLOUD_LLM_API_KEY: ${ANTHROPIC_API_KEY}
+      RUST_LOG:          "pk=info"
+    volumes:
+      - pk-data:/data
+    networks:
+      - agent-net
+
+{% endif %}
+{% if enable_liter_llm %}
+  # ─── liter-llm ────────────────────────────────────────────────────────────
+  # Multi-provider LLM proxy with 22 MCP tools.
+  # Routes model calls by class: small → local, medium → Groq, frontier → Anthropic.
+  liter-llm:
+    image: ghcr.io/gqadonis/liter-llm:latest
+    container_name: {{ agent_name }}-liter-llm
+    restart: unless-stopped
+    ports:
+      - "{{ liter_llm_port | default(value=11434) }}:11434"
+    environment:
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+      OPENAI_API_KEY:    ${OPENAI_API_KEY:-}
+      GROQ_API_KEY:      ${GROQ_API_KEY:-}
+      RUST_LOG:          "liter_llm=info"
+    volumes:
+      # Mount liter-llm config if you have one
+      - ${LITER_LLM_CONFIG:-/dev/null}:/etc/liter-llm/config.toml:ro
+    networks:
+      - agent-net
+
+{% endif %}
+
+# ─── Volumes ──────────────────────────────────────────────────────────────────
+volumes:
+  agent-data:
+    driver: local
+{% if enable_surreal %}
+  surreal-data:
+    driver: local
+{% endif %}
+{% if enable_pk %}
+  pk-data:
+    driver: local
+{% endif %}
+
+# ─── Networks ─────────────────────────────────────────────────────────────────
+networks:
+  agent-net:
+    driver: bridge
+    name: {{ agent_name }}-net

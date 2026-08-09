@@ -1,0 +1,41 @@
+package prometheus:component@0.1.0;
+
+// prometheus:component — the skill world.
+//
+// Supersedes `uar:skill@0.1.0`, whose entire contract is:
+//
+//   world skill { export run: func(input: string) -> result<string, string>; }
+//
+// SUPERSET, NOT REPLACEMENT. `run` keeps that exact shape — string in, string
+// or error out — so a guest written for `uar:skill` satisfies this world's
+// required export unchanged. Everything added here is optional or imported.
+// Narrowing it would strand the one host that already loads components.
+//
+// Why `result<string, error>` and not `result<string, string>`: the error
+// payload gains a machine-routable `kind` while keeping the human `message`.
+// A host that only wants the string reads `error.message`.
+
+world skill {
+  use types.{error};
+
+  /// Capabilities. A guest importing none of these is a pure function of its
+  /// input — which is what most ported skills will be, and what makes them
+  /// safe to run anywhere.
+  import log;
+  import kv-store;
+  import input;
+  import output;
+  import clock;
+  import random;
+
+  /// The one required export. Input and output are opaque strings by design:
+  /// every skill in this pack already speaks JSON over stdin/stdout, so a
+  /// typed payload here would force a schema on 60 skills that do not share
+  /// one.
+  export run: func(input: string) -> result<string, error>;
+
+  /// Optional self-description, for a host building a catalog without
+  /// executing anything. A guest that does not export it is still valid —
+  /// hosts must treat its absence as "no metadata", never as an error.
+  export describe: func() -> string;
+}

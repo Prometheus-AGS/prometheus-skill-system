@@ -1,0 +1,37 @@
+{{- /*
+  agent_skill_cargo.toml.tera — Cargo.toml for the WASM-target agent-skill crate.
+  Only emitted when target ∈ {"librefang-wasm", "both"}.
+  Variables:
+    agent_name        : kebab-case agent name
+    agent_description : one-line description
+    author            : author string
+*/ -}}
+[package]
+name        = "{{ agent_name }}-skill"
+version     = { workspace = true }
+edition     = { workspace = true }
+authors     = { workspace = true }
+license     = { workspace = true }
+description = "{{ agent_description }} (LibreFang WASM skill)"
+
+# cdylib produces the .wasm artifact loaded by LibreFang's WasmSandbox.
+# DO NOT add "rlib" — wasmtime won't find the required exports.
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+# Domain types shared with agent-server. Only types that compile cleanly under
+# wasm32-unknown-unknown (i.e., no tokio, no reqwest) cross this boundary.
+agent-core = { path = "../agent-core", default-features = false }
+
+serde      = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# Aggressive size optimization. Every byte ships in the .lf-skill.zip and
+# loads on every WasmSandbox::new() call.
+[profile.release]
+opt-level     = "z"
+lto           = true
+codegen-units = 1
+panic         = "abort"
+strip         = true

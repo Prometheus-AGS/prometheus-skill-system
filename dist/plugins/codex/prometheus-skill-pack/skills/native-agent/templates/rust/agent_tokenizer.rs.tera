@@ -1,0 +1,119 @@
+{{- /*
+  agent_tokenizer.rs.tera — Tokenizer crate using Karpathy's rustbpe.
+  Provides context-budget enforcement for agent-server and (optionally) for
+  agent-skill on the WASM side via a stripped-down loader path.
+  Reference: https://github.com/karpathy/rustbpe (the missing tiktoken
+  training code; lightweight, designed for agent runtimes).
+  Variables:
+    agent_name : kebab-case agent name
+*/ -}}
+//! agent-tokenizer — BPE tokenization for {{ agent_name }}.
+//!
+//! Wraps `rustbpe` so the rest of the agent can:
+//!   • count tokens for prompt-budget enforcement
+//!   • truncate context windows precisely (not by char-heuristic)
+//!   • optionally train a domain-specific tokenizer from a corpus
+//!
+//! For larger inference paths, export to tiktoken format and load the
+//! tokenizer there — rustbpe trains, tiktoken serves.
+
+use std::path::Path;
+
+/// A loaded BPE tokenizer ready for encode/decode.
+///
+/// Internally wraps a `rustbpe::Tokenizer`. The wrapper exists so the rest of
+/// the agent imports a stable API regardless of upstream rustbpe changes.
+pub struct Tokenizer {
+    inner: rustbpe::Tokenizer,
+}
+
+impl Tokenizer {
+    /// Load a tokenizer from a `.tiktoken` or rustbpe-native file. The format
+    /// is detected by extension.
+    pub fn load(path: impl AsRef<Path>) -> anyhow::Result<Self> {
+        let path = path.as_ref();
+        let inner = match path.extension().and_then(|e| e.to_str()) {
+            Some("tiktoken") => rustbpe::Tokenizer::from_tiktoken_file(path)?,
+            _ => rustbpe::Tokenizer::from_file(path)?,
+        };
+        Ok(Self { inner })
+    }
+
+    /// Train a new BPE tokenizer from a directory of UTF-8 text files.
+    /// Use this only at agent-build time; runtime should `load` a pretrained
+    /// file from disk.
+    pub fn train_from_dir(
+        corpus_dir: impl AsRef<Path>,
+        vocab_size: usize,
+    ) -> anyhow::Result<Self> {
+        let mut trainer = rustbpe::Trainer::new(vocab_size);
+        for entry in std::fs::read_dir(corpus_dir)? {
+            let entry = entry?;
+            if entry.file_type()?.is_file() {
+                trainer.add_file(entry.path())?;
+            }
+        }
+        Ok(Self {
+            inner: trainer.train()?,
+        })
+    }
+
+    /// Encode text into BPE token IDs.
+    pub fn encode(&self, text: &str) -> Vec<u32> {
+        self.inner.encode(text)
+    }
+
+    /// Decode token IDs back into a UTF-8 string.
+    pub fn decode(&self, tokens: &[u32]) -> String {
+        self.inner.decode(tokens)
+    }
+
+    /// Count tokens without allocating the encoded vector — cheaper for
+    /// budget-checking hot paths.
+    pub fn count(&self, text: &str) -> usize {
+        self.inner.count_tokens(text)
+    }
+
+    /// Truncate `text` so that its encoded form fits in `max_tokens`. Always
+    /// keeps a prefix (i.e., truncates from the tail). Returns the truncated
+    /// string and the actual token count.
+    pub fn truncate_to(&self, text: &str, max_tokens: usize) -> (String, usize) {
+        let tokens = self.encode(text);
+        if tokens.len() <= max_tokens {
+            return (text.to_string(), tokens.len());
+        }
+        let kept = &tokens[..max_tokens];
+        (self.decode(kept), kept.len())
+    }
+}
+
+/// Convenience: a singleton tokenizer for the default model. Lazy-loaded on
+/// first use; safe to call from multiple threads.
+pub fn default_tokenizer() -> anyhow::Result<&'static Tokenizer> {
+    use std::sync::OnceLock;
+    static TOK: OnceLock<Tokenizer> = OnceLock::new();
+    if let Some(t) = TOK.get() {
+        return Ok(t);
+    }
+    let path = std::env::var("{{ agent_name | upper | replace(from="-", to="_") }}_TOKENIZER")
+        .unwrap_or_else(|_| "tokenizers/default.tiktoken".to_string());
+    let t = Tokenizer::load(&path)?;
+    let _ = TOK.set(t);
+    Ok(TOK.get().unwrap())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn count_zero_for_empty() {
+        // Smoke test that doesn't require a tokenizer file — only checks the
+        // empty-string case which any BPE returns 0 for.
+        let path = std::env::var("TEST_TOKENIZER").ok();
+        if let Some(p) = path {
+            let t = Tokenizer::load(p).unwrap();
+            assert_eq!(t.count(""), 0);
+        }
+    }
+}

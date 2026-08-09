@@ -1,0 +1,123 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://prometheus-ags.dev/schemas/pmpo/loop-definition.schema.json",
+  "title": "PMPO outer-loop definition",
+  "description": "Written by /loop-define to .kbd-orchestrator/loops/<name>/loop.json. Defines a standing loop: a goal + feedback sources + termination criteria. /loop-tick runs one cycle (one evolver cycle, which composes zeespec, kbd-analyze, and the KBD execute loop); the human is only consulted at escalation points. The Boris Cherny shape: write the loop once, the framework runs it.",
+  "type": "object",
+  "required": ["name", "goal", "termination", "evolution_name"],
+  "properties": {
+    "name": { "type": "string" },
+    "goal": {
+      "type": "object",
+      "required": ["description", "measurable_criteria"],
+      "properties": {
+        "description": { "type": "string" },
+        "measurable_criteria": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Concrete, checkable conditions that mean the goal is met (e.g. 'all tests pass', 'open bug count == 0')."
+        }
+      },
+      "additionalProperties": false
+    },
+    "feedback_sources": {
+      "type": "array",
+      "description": "What the tick reads between cycles to measure progress.",
+      "items": {
+        "type": "object",
+        "required": ["type"],
+        "properties": {
+          "type": {
+            "enum": [
+              "command", "gh-query", "file", "url",
+              "gh-issues", "commit-history", "sentiment-feed",
+              "telemetry-url", "competitor-scan", "changelog"
+            ]
+          },
+          "run": { "type": "string", "description": "Command/query to run (command, gh-query)." },
+          "path": { "type": "string", "description": "File to read (file)." },
+          "fetch": { "type": "string", "description": "URL to fetch (url)." },
+          "url": { "type": "string", "description": "URL to fetch (url, sentiment-feed, telemetry-url)." },
+          "repo": { "type": "string", "description": "owner/repo for GitHub-backed sources (gh-issues, changelog)." },
+          "repo_path": { "type": "string", "description": "Local filesystem path to a git repo (commit-history)." },
+          "labels": { "type": "array", "items": { "type": "string" }, "description": "Issue labels to filter (gh-issues)." },
+          "state": { "type": "string", "enum": ["open", "closed", "all"], "description": "Issue state filter (gh-issues)." },
+          "since": { "type": "string", "description": "ISO8601 date — collect signals after this date (gh-issues, commit-history)." },
+          "classify_by": { "type": "string", "enum": ["conventional-commits", "llm"], "description": "How to classify commits (commit-history)." },
+          "format": { "type": "string", "enum": ["rss", "json", "csv", "github-releases", "file"], "description": "Feed or changelog format." },
+          "sentiment_field": { "type": "string", "description": "JSON field path containing text to classify (sentiment-feed)." },
+          "headers": { "type": "object", "additionalProperties": { "type": "string" }, "description": "HTTP headers (telemetry-url)." },
+          "jsonpath": { "type": "string", "description": "JSONPath expression to extract value (telemetry-url)." },
+          "direction": { "type": "string", "enum": ["higher-is-better", "lower-is-better", "exact-match"], "description": "Value direction for telemetry interpretation." },
+          "baseline": { "type": "number", "description": "Baseline value for telemetry comparison." },
+          "competitor_ids": { "type": "array", "items": { "type": "string" }, "description": "Specific competitor IDs to scan (competitor-scan)." },
+          "registry_path": { "type": "string", "description": "Path to competitor-registry.json (competitor-scan)." },
+          "since_tag": { "type": "string", "description": "Last known release tag; fetch everything after (changelog)." },
+          "file_path": { "type": "string", "description": "Local CHANGELOG.md path when format=file (changelog)." },
+          "interpret": { "type": "string", "description": "How to read the result: exit-code | count-delta | jsonpath+direction | described condition." },
+          "staleness_ttl_minutes": { "type": "integer", "minimum": 0, "description": "Do not re-fetch if last collected within this many minutes. 0 = always refresh. Defaults vary by type." }
+        }
+      }
+    },
+    "termination": {
+      "type": "object",
+      "required": ["max_ticks"],
+      "properties": {
+        "goal_satisfied": { "type": "boolean", "description": "Terminate when measurable_criteria all hold." },
+        "max_ticks": { "type": "integer", "minimum": 1, "description": "Hard ceiling on cycles." },
+        "max_no_progress_ticks": { "type": "integer", "minimum": 1, "description": "Escalate/stop after this many ticks with no measurable improvement (default 2)." },
+        "budget": {
+          "type": "object",
+          "properties": { "max_minutes_per_tick": { "type": "number", "minimum": 0 } },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "escalation_points": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Conditions that pause the loop and ask the human via pmpo-elicit (e.g. 'zeespec NO-GO', 'capability gap FAILED', 'feedback regression', 'termination decision')."
+    },
+    "cadence": {
+      "type": "object",
+      "properties": {
+        "mode": { "enum": ["manual", "background", "cron"] },
+        "schedule": { "type": ["string", "null"], "description": "Cron expression when mode == cron." }
+      },
+      "additionalProperties": false
+    },
+    "evolution_name": {
+      "type": "string",
+      "description": "The backing iterative-evolver evolution key that /loop-tick runs one cycle of."
+    },
+    "phases": {
+      "type": "array",
+      "description": "Optional. When present, overrides the single-goal model. Each entry is one phase of a kbd-goal multi-phase pipeline. /loop-tick advances through phases in order, gating at human checkpoints.",
+      "items": {
+        "type": "object",
+        "required": ["name", "type", "stopping_condition"],
+        "properties": {
+          "name":               { "type": "string", "description": "Unique phase slug (e.g. ideation, spec, creation)." },
+          "type":               { "enum": ["ideation", "spec", "creation", "deployment"], "description": "Phase type determines which KBD template is loaded." },
+          "stopping_condition": { "type": "string", "description": "Machine-checkable condition that ends this phase. Checked by kbd-goal-evaluator after each turn." },
+          "human_gate":         { "type": "boolean", "default": true, "description": "If true (default), the loop pauses at the end of this phase for human review before advancing." },
+          "status":             { "enum": ["pending", "running", "paused", "complete", "escalated"], "default": "pending" },
+          "token_budget":       { "type": "integer", "minimum": 1, "description": "Token ceiling for this phase specifically. Overrides global termination.budget when set." }
+        },
+        "additionalProperties": false
+      }
+    },
+    "goal_slug": {
+      "type": "string",
+      "description": "Optional. When this loop was created by /kbd-goal, this is the slug that links back to .kbd-orchestrator/goals/<slug>/goal.json. Allows /loop-tick to read and update goal state."
+    },
+    "perspective": {
+      "type": "string",
+      "enum": ["competitive", "trend", "unique-product", "idea-validation", "self-learning", "combined", "auto"],
+      "default": "auto",
+      "description": "Which pmpo-evolver perspective to apply on each tick. 'auto' lets the evolver router decide based on data freshness and feedback signals."
+    }
+  },
+  "additionalProperties": false
+}

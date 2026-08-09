@@ -1,0 +1,17 @@
+{
+  "grade_id": "eval-kbd-002-strong-assess-plan-boundary",
+  "goal_id": "eval",
+  "concept_id": "kbd-lifecycle",
+  "learner_id": "eval-harness",
+  "graded_at": "2026-07-16T20:08:13Z",
+  "explanation_excerpt": "kbd-assess and kbd-plan have a hard boundary between them. kbd-assess only produces assessment.md — a gap report — and explicitly does not write plan.md or any skill/implementation files. It stops at that boundary",
+  "scores": {"completeness": 0.85, "accuracy": 1.0, "clarity": 0.95, "misconceptions_absent": 1.0},
+  "overall_score": 0.95,
+  "gaps": [],
+  "transfer_problems": [
+    "A phase has assessment.md written and approved, but the operator runs the execute stage directly without ever running the plan stage. Using the corpus description of what each stage reads and produces, explain what would go wrong and which required artifact is missing.",
+    "A team's project root contains an openspec/ directory. During the plan stage, the agent instead writes a custom plan.md with its own change-tracking format and skips emitting any proposal commands. Using the corpus's description of the OpenSpec section and the 'OpenSpec is optional' misconception, explain why this violates the lifecycle and what breaks as a result."
+  ],
+  "passed": true,
+  "pass_threshold": 0.7
+}

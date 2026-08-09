@@ -1,0 +1,115 @@
+{
+  "generated_at": "2026-07-16T21:00:00Z",
+  "total_items": 24,
+  "items_missing_results": [],
+  "ground_truth_review_status": {
+    "draft": 24,
+    "reviewed": 0,
+    "caveat": "All ground truth is currently in draft status pending human review per phase-learn-grader-validation assessment.md open question #1. Metrics below should be treated as provisional until ground truth is reviewed."
+  },
+  "misconceptions_absent_binary_classification": {
+    "confusion_matrix": {
+      "tp": 12,
+      "fp": 1,
+      "tn": 11,
+      "fn": 0
+    },
+    "precision": 0.9231,
+    "recall": 1.0,
+    "f1": 0.96,
+    "accuracy": 0.9583,
+    "disagreements": [
+      {
+        "item_id": "sp-003-incomplete-vague-mcp",
+        "gold_misconception_present": false,
+        "grader_misconception_present": true,
+        "quality_tier": "incomplete"
+      }
+    ]
+  },
+  "continuous_dimension_correlations": {
+    "completeness": {
+      "pearson_r": 0.9079,
+      "pearson_p": 0.0,
+      "spearman_r": 0.738,
+      "spearman_p": 0.0,
+      "mean_absolute_error": 0.1571
+    },
+    "accuracy": {
+      "pearson_r": 0.9377,
+      "pearson_p": 0.0,
+      "spearman_r": 0.935,
+      "spearman_p": 0.0,
+      "mean_absolute_error": 0.0771
+    },
+    "clarity": {
+      "pearson_r": 0.6093,
+      "pearson_p": 0.0016,
+      "spearman_r": 0.6245,
+      "spearman_p": 0.0011,
+      "mean_absolute_error": 0.0879
+    }
+  },
+  "worst_5_items_by_mean_absolute_error": [
+    {
+      "item_id": "sp-001-strong-portability",
+      "quality_tier": "strong",
+      "domain": "skill-pack",
+      "mean_abs_error": 0.2733333333333334,
+      "errors": {
+        "completeness": 0.30000000000000004,
+        "accuracy": 0.5,
+        "clarity": 0.020000000000000018,
+        "misconceptions_absent": 0.0
+      }
+    },
+    {
+      "item_id": "kbd-001-strong-full-cycle",
+      "quality_tier": "strong",
+      "domain": "kbd-lifecycle",
+      "mean_abs_error": 0.2333333333333333,
+      "errors": {
+        "completeness": 0.19999999999999996,
+        "accuracy": 0.050000000000000044,
+        "clarity": 0.45,
+        "misconceptions_absent": 0.0
+      }
+    },
+    {
+      "item_id": "sp-002-strong-hooks-and-validate",
+      "quality_tier": "strong",
+      "domain": "skill-pack",
+      "mean_abs_error": 0.22333333333333336,
+      "errors": {
+        "completeness": 0.21999999999999997,
+        "accuracy": 0.4,
+        "clarity": 0.050000000000000044,
+        "misconceptions_absent": 0.0
+      }
+    },
+    {
+      "item_id": "cr-008-flawed-plants-no-respiration",
+      "quality_tier": "factually-flawed",
+      "domain": "cellular-respiration",
+      "mean_abs_error": 0.1666666666666667,
+      "errors": {
+        "completeness": 0.30000000000000004,
+        "accuracy": 0.0,
+        "clarity": 0.20000000000000007,
+        "misconceptions_absent": 0.0
+      }
+    },
+    {
+      "item_id": "sp-003-incomplete-vague-mcp",
+      "quality_tier": "incomplete",
+      "domain": "skill-pack",
+      "mean_abs_error": 0.15000000000000002,
+      "errors": {
+        "completeness": 0.05000000000000002,
+        "accuracy": 0.25000000000000006,
+        "clarity": 0.15000000000000002,
+        "misconceptions_absent": 1.0
+      }
+    }
+  ]
+}

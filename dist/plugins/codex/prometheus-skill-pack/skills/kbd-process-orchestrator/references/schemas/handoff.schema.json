@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://prometheus-ags.dev/schemas/kbd/handoff.schema.json",
+  "title": "KBD stage handoff",
+  "description": "Written to .kbd-orchestrator/phases/<node>/handoffs/<stage>.handoff.json when a lifecycle stage completes (or is explicitly skipped). The next stage's gate (shared/lib/stage-gate.sh kbd_stage_gate) requires the previous stage's handoff to exist. Stage order: assess → analyze → spec → plan → execute → reflect; analyze and spec are optional stages the gate walks back across when absent.",
+  "type": "object",
+  "required": ["stage", "completedAt", "skipped"],
+  "properties": {
+    "stage": {
+      "enum": ["assess", "analyze", "spec", "plan", "execute", "reflect"],
+      "description": "The stage this handoff closes."
+    },
+    "completedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO-8601 UTC completion timestamp."
+    },
+    "outputs": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Artifact paths this stage produced (phase-dir-relative or repo-relative)."
+    },
+    "nextStage": {
+      "type": ["string", "null"],
+      "description": "The following stage in canonical order; null after reflect."
+    },
+    "summaryForNext": {
+      "type": "string",
+      "description": "One-to-three sentences the next stage reads first: what was produced, what is open, what to do with it."
+    },
+    "skipped": {
+      "type": "boolean",
+      "description": "True when the stage was deliberately skipped; the gate passes but the skip is on record."
+    },
+    "skipReason": {
+      "type": ["string", "null"],
+      "description": "Required human reason when skipped is true."
+    }
+  },
+  "additionalProperties": false
+}

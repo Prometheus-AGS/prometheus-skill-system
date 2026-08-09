@@ -1,0 +1,20 @@
+{
+  "grade_id": "eval-sp-001-strong-portability",
+  "goal_id": "eval",
+  "concept_id": "skill-pack",
+  "learner_id": "eval-harness",
+  "graded_at": "2026-07-16T20:12:04Z",
+  "explanation_excerpt": "Skills in this pack follow the agentskills.io spec, which makes them portable across every supported platform — Claude Code, OpenCode, Codex, Kimi, Zed, Cursor, and MiniMax — not just Claude Code. The pack's core skills run entirely",
+  "scores": {"completeness": 0.6, "accuracy": 0.5, "clarity": 0.9, "misconceptions_absent": 1.0},
+  "overall_score": 0.75,
+  "gaps": [
+    {"dimension": "accuracy", "description": "Factual error: claims the two local MCP servers only reach out when a skill's instructions explicitly call for external search. The corpus states these MCP servers are local services that do not themselves perform external search — internet is required only for skills that explicitly perform web research.", "corpus_ref": "MISCONCEPTION: the pack requires internet to function"},
+    {"dimension": "completeness", "description": "Missing coverage of required SKILL.md frontmatter fields and validate vs validate:strict distinction, the full skill domain list, imported skills as Git submodules, the fuller MCP server roster, and hooks/hooks.json canonical-source-vs-symlink handling.", "corpus_ref": "CLAUDE.md — AgentSkills.io Compliance"}
+  ],
+  "transfer_problems": [
+    "A contributor adds a new skill directory under skills/devops/ with a SKILL.md missing the metadata.tags field, then runs npm run validate (not validate:strict) before submission. Explain whether this will catch the omission, and why the correct validation command matters here.",
+    "A teammate edits a file directly inside .claude-plugin/skills/some-skill/SKILL.md instead of under skills/some-skill/SKILL.md, believing both locations are independent copies. Explain what actually happens to the file and why, referencing how .claude-plugin/ relates to skills/."
+  ],
+  "passed": true,
+  "pass_threshold": 0.7
+}

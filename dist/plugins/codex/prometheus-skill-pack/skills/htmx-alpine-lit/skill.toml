@@ -1,0 +1,30 @@
+name        = "htmx-alpine-lit"
+language    = "typescript"
+description = "HTMX 2.0.8 + Alpine.js + Lit web components for server-driven UI and React island embedding"
+version     = "1.0.0"
+
+[[templates]]
+path               = "page.html.tera"
+output_description = "Full HTMX page layout with Alpine.js sidebar and Lit component slot"
+
+[[templates]]
+path               = "lit_component.ts.tera"
+output_description = "Lit web component with reactive properties and HTMX interaction"
+
+[[templates]]
+path               = "alpine_controller.html.tera"
+output_description = "Alpine.js x-data controller for form state and dropdown behavior"
+
+[[templates]]
+path               = "react_island.tsx.tera"
+output_description = "HtmxIsland React component for embedding HTMX content in a React 19 app"
+
+[[templates]]
+path               = "axum_fragment_handler.rs.tera"
+output_description = "Axum handler returning an HTML fragment for HTMX consumption"
+
+[[triggers]]
+type     = "Keywords"
+keywords = ["htmx", "alpine", "alpine.js", "lit", "web component", "server-driven", "html fragment", "artifact viewer", "document viewer"]
+
+depends_on = []

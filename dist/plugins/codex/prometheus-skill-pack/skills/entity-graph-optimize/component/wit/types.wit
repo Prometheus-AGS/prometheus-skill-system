@@ -1,0 +1,34 @@
+package prometheus:component@0.1.0;
+
+// prometheus:component — shared value and error types.
+//
+// Deliberately minimal. Every type here must be expressible by all three guest
+// targets this world supersedes (uar:skill, uar:plugin, knowme:plugin), so a
+// richer type that only one host can carry does not belong.
+
+interface types {
+  /// A failure a guest reports to the host. `kind` is machine-routable;
+  /// `message` is for humans.
+  record error {
+    kind: error-kind,
+    message: string,
+  }
+
+  enum error-kind {
+    /// The input did not parse or violated the guest's contract.
+    invalid-input,
+    /// The guest asked for a capability it was not granted.
+    capability-denied,
+    /// The operation is understood but not implemented by this guest.
+    unsupported,
+    /// The guest failed for a reason it cannot classify.
+    internal,
+  }
+
+  /// A single key/value pair. Used instead of a map because WIT has no map
+  /// type and a list-of-pairs round-trips through every binding generator.
+  record kv {
+    key: string,
+    value: string,
+  }
+}

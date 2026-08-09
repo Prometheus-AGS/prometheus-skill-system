@@ -1,0 +1,83 @@
+{{- /*
+  api.ts.tera — Typed API client for the agent server
+  Variables:
+    agent_name : kebab-case agent name
+*/ -}}
+import { useQuery } from '@tanstack/react-query'
+import { z } from 'zod'
+
+// ─── Response schemas ─────────────────────────────────────────────────────────
+
+const ProviderSchema = z.object({
+  name:   z.string(),
+  models: z.array(z.string()),
+})
+
+const AgentConfigSchema = z.object({
+  default_provider: z.string(),
+  default_model:    z.string(),
+  providers:        z.array(ProviderSchema),
+})
+
+const SkillsSchema = z.object({
+  skills: z.array(z.object({
+    name:        z.string(),
+    description: z.string(),
+  })),
+})
+
+const ToolsSchema = z.object({
+  tools: z.array(z.object({
+    name:        z.string(),
+    description: z.string(),
+    source:      z.string(),
+  })),
+})
+
+// ─── API client ───────────────────────────────────────────────────────────────
+
+const api = {
+  async getConfig() {
+    const res = await fetch('/api/config')
+    if (!res.ok) throw new Error(`Config fetch failed: ${res.status}`)
+    return AgentConfigSchema.parse(await res.json())
+  },
+  async getSkills() {
+    const res = await fetch('/api/skills')
+    if (!res.ok) throw new Error(`Skills fetch failed: ${res.status}`)
+    return SkillsSchema.parse(await res.json())
+  },
+  async getTools() {
+    const res = await fetch('/api/tools')
+    if (!res.ok) throw new Error(`Tools fetch failed: ${res.status}`)
+    return ToolsSchema.parse(await res.json())
+  },
+}
+
+// ─── Hooks ────────────────────────────────────────────────────────────────────
+
+export type AgentConfig = z.infer<typeof AgentConfigSchema>
+
+export function useAgentConfig() {
+  return useQuery({
+    queryKey: ['agent-config'],
+    queryFn:  api.getConfig,
+    staleTime: 60_000,
+  })
+}
+
+export function useSkills() {
+  return useQuery({
+    queryKey: ['skills'],
+    queryFn:  api.getSkills,
+    staleTime: 30_000,
+  })
+}
+
+export function useTools() {
+  return useQuery({
+    queryKey: ['tools'],
+    queryFn:  api.getTools,
+    staleTime: 30_000,
+  })
+}

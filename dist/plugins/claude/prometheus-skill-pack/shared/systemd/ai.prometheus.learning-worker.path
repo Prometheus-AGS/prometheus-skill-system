@@ -1,0 +1,12 @@
+[Unit]
+Description=Watch Prometheus learning queues
+
+[Path]
+PathChanged=__PROMETHEUS_HOME__/.prometheus/learning-queue/pending
+PathChanged=__PROMETHEUS_HOME__/.prometheus/learning-queue/retry
+PathChanged=__PROMETHEUS_HOME__/.prometheus/learning-queue/memory/pending
+PathChanged=__PROMETHEUS_HOME__/.prometheus/learning-queue/memory/retry
+Unit=ai.prometheus.learning-worker.service
+
+[Install]
+WantedBy=default.target

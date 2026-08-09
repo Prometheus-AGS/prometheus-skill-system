@@ -1,0 +1,148 @@
+#!/usr/bin/env python3
+"""
+train_tokenizer.py — Train a BPE tokenizer with rustbpe and export to tiktoken format.
+
+Variables (Tera template):
+  agent_name  : kebab-case project name, used for output file names
+  vocab_size  : integer vocabulary size (default: 8192)
+  corpus_dir  : path to directory of .txt files to train on (default: data/)
+
+Usage (rendered template):
+  python train_tokenizer.py --corpus data/ --vocab-size 8192 --output tokenizers/
+"""
+import argparse
+import base64
+import json
+import pathlib
+import sys
+import time
+
+try:
+    import rustbpe
+except ImportError:
+    print("ERROR: rustbpe not installed. Run: pip install rustbpe", file=sys.stderr)
+    sys.exit(1)
+
+
+AGENT_NAME  = "{{ agent_name }}"
+VOCAB_SIZE  = {{ vocab_size | default(value=8192) }}
+CORPUS_DIR  = pathlib.Path("{{ corpus_dir | default(value='data') }}")
+
+SPECIAL_TOKENS: dict[str, int] = {
+    "<|endoftext|>": VOCAB_SIZE,
+    "<|im_start|>":  VOCAB_SIZE + 1,
+    "<|im_end|>":    VOCAB_SIZE + 2,
+}
+
+
+def iter_corpus(corpus_dir: pathlib.Path):
+    """Yield lines from all .txt files in corpus_dir."""
+    files = sorted(corpus_dir.glob("**/*.txt"))
+    if not files:
+        print(f"ERROR: No .txt files found in {corpus_dir}", file=sys.stderr)
+        sys.exit(1)
+    for f in files:
+        yield from f.open(encoding="utf-8", errors="replace")
+
+
+def train(corpus_dir: pathlib.Path, vocab_size: int) -> rustbpe.Tokenizer:
+    print(f"Training on corpus: {corpus_dir}  vocab_size={vocab_size}")
+    tok = rustbpe.Tokenizer()
+    t0 = time.time()
+    tok.train_from_iterator(
+        iter_corpus(corpus_dir),
+        vocab_size=vocab_size,
+        buffer_size=16384,
+        pattern=None,   # GPT-4 regex (recommended)
+    )
+    elapsed = time.time() - t0
+    print(f"Training done in {elapsed:.1f}s — vocab_size={tok.vocab_size}")
+    return tok
+
+
+def validate_round_trip(tok: rustbpe.Tokenizer, samples: list[str]) -> None:
+    print("Validating round-trip...")
+    for text in samples:
+        decoded = tok.decode(tok.encode(text))
+        if decoded != text:
+            print(f"  FAIL: {text!r} -> {decoded!r}", file=sys.stderr)
+            sys.exit(1)
+    print(f"  OK ({len(samples)} samples)")
+
+
+def export_tiktoken(tok: rustbpe.Tokenizer, output_dir: pathlib.Path) -> pathlib.Path:
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    ranks = {bytes(token): rank for token, rank in tok.get_mergeable_ranks()}
+    lines = [
+        f"{base64.b64encode(token).decode()} {rank}\n"
+        for token, rank in sorted(ranks.items(), key=lambda x: x[1])
+    ]
+
+    tiktoken_path = output_dir / f"{AGENT_NAME}.tiktoken"
+    tiktoken_path.write_text("".join(lines), encoding="ascii")
+
+    meta = {
+        "agent_name":     AGENT_NAME,
+        "vocab_size":     tok.vocab_size,
+        "pattern":        tok.get_pattern(),
+        "special_tokens": SPECIAL_TOKENS,
+    }
+    meta_path = output_dir / "meta.json"
+    meta_path.write_text(json.dumps(meta, indent=2), encoding="utf-8")
+
+    print(f"Exported: {tiktoken_path}  ({tiktoken_path.stat().st_size // 1024} KB)")
+    print(f"Metadata: {meta_path}")
+    return tiktoken_path
+
+
+def check_compression(tok: rustbpe.Tokenizer, corpus_dir: pathlib.Path) -> None:
+    sample_words = 0
+    sample_tokens = 0
+    for i, line in enumerate(iter_corpus(corpus_dir)):
+        if i >= 500:
+            break
+        words = len(line.split())
+        tokens = len(tok.encode(line))
+        sample_words  += words
+        sample_tokens += tokens
+    if sample_words > 0:
+        ratio = sample_tokens / sample_words
+        status = "OK" if ratio < 1.6 else "WARN (> 1.6 — consider larger vocab)"
+        print(f"Compression ratio: {ratio:.2f} tokens/word  [{status}]")
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description="Train BPE tokenizer with rustbpe")
+    parser.add_argument("--corpus",     default=str(CORPUS_DIR), help="Corpus directory")
+    parser.add_argument("--vocab-size", default=VOCAB_SIZE, type=int, help="Vocabulary size")
+    parser.add_argument("--output",     default="tokenizers/", help="Output directory")
+    args = parser.parse_args()
+
+    corpus_dir = pathlib.Path(args.corpus)
+    output_dir = pathlib.Path(args.output)
+
+    if not corpus_dir.is_dir():
+        print(f"ERROR: corpus directory not found: {corpus_dir}", file=sys.stderr)
+        sys.exit(1)
+    if args.vocab_size <= 256:
+        print("ERROR: vocab_size must be > 256 (first 256 are byte tokens)", file=sys.stderr)
+        sys.exit(1)
+
+    tok = train(corpus_dir, args.vocab_size)
+
+    validate_round_trip(tok, [
+        "Hello, world!",
+        "fn main() { println!(\"hi\"); }",
+        "the quick brown fox jumps over the lazy dog",
+        "<|im_start|>user\nHi<|im_end|>",
+    ])
+
+    check_compression(tok, corpus_dir)
+    export_tiktoken(tok, output_dir)
+    print("\nDone. Set env var for runtime:")
+    print(f"  export {AGENT_NAME.upper().replace('-', '_')}_TOKENIZER={output_dir}/{AGENT_NAME}.tiktoken")
+
+
+if __name__ == "__main__":
+    main()

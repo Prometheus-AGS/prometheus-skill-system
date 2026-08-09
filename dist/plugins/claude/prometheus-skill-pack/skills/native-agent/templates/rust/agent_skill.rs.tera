@@ -1,0 +1,98 @@
+{{- /*
+  agent_skill.rs.tera — WASM-target entry point for the generated agent.
+  Compiles to a wasm32-unknown-unknown core module loadable into LibreFang's
+  WasmSandbox. Shares domain types with agent-server via agent-core.
+  Variables:
+    agent_name        : kebab-case agent name
+    agent_description : one-line description
+*/ -}}
+//! {{ agent_name }} — WASM skill entry point.
+//!
+//! Built with: cargo build --target wasm32-unknown-unknown --release -p {{ agent_name }}-skill
+//! Validated with: bash scripts/validate-wasm-abi.sh target/wasm32-unknown-unknown/release/{{ agent_name }}_skill.wasm
+//!
+//! Guest ABI matches `librefang-runtime-wasm/src/sandbox.rs` of the LibreFang
+//! fork. Skill code dispatches on input.tool to a free function per declared
+//! tool. Each tool returns `Result<Value, String>`; errors are surfaced to the
+//! host as `{"error": "..."}` JSON.
+//!
+//! For the full host-call surface and capability reference, see:
+//!   skills/rust/librefang-wasm-skill/references/librefang-host-abi.md
+
+#![allow(clippy::missing_safety_doc)]
+#![cfg(target_arch = "wasm32")]
+
+mod host;
+
+use serde::Deserialize;
+use serde_json::{json, Value};
+
+#[derive(Deserialize)]
+struct Invocation {
+    /// Tool name from skill.toml. Must match an arm in `dispatch`.
+    tool: String,
+    /// Tool input — the kernel has already validated it against input_schema.
+    #[serde(default)]
+    input: Value,
+}
+
+fn dispatch(inv: Invocation) -> Result<Value, String> {
+    match inv.tool.as_str() {
+        // The native-agent generator currently emits a single `chat` tool that
+        // round-trips through the agent's chat pipeline via host KV/agent_send.
+        // Add more tools here as the agent grows; remember to add a matching
+        // [[tools]] entry to skill.toml.
+        "chat" => tool_chat(inv.input),
+        "ping" => tool_ping(inv.input),
+        other  => Err(format!("Unknown tool: {other}")),
+    }
+}
+
+/// Round-trip a chat message. The WASM skill itself doesn't run an LLM; it
+/// hands the message to a sibling agent (the native agent's HTTP service)
+/// via `agent_send` and returns the response. Requires capability:
+/// `AgentMessage("{{ agent_name }}-server")`.
+fn tool_chat(input: Value) -> Result<Value, String> {
+    host::log_info("chat: invoked");
+    let resp = host::agent_send("{{ agent_name }}-server", input)?;
+    Ok(resp)
+}
+
+/// Liveness probe — pure data transformation, no host calls, no capabilities.
+fn tool_ping(input: Value) -> Result<Value, String> {
+    Ok(json!({
+        "agent": "{{ agent_name }}",
+        "input": input,
+        "ts": host::time_now().unwrap_or(0),
+    }))
+}
+
+// ─── Guest ABI ────────────────────────────────────────────────────────────
+
+#[no_mangle]
+pub unsafe extern "C" fn alloc(size: i32) -> i32 {
+    let mut buf: Vec<u8> = Vec::with_capacity(size as usize);
+    let ptr = buf.as_mut_ptr();
+    std::mem::forget(buf);
+    ptr as i32
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn execute(ptr: i32, len: i32) -> i64 {
+    let bytes = std::slice::from_raw_parts(ptr as *const u8, len as usize);
+    let result = match serde_json::from_slice::<Invocation>(bytes) {
+        Ok(inv) => match dispatch(inv) {
+            Ok(v) => v,
+            Err(e) => json!({ "error": e }),
+        },
+        Err(e) => json!({ "error": format!("Invalid invocation JSON: {e}") }),
+    };
+    let out = serde_json::to_vec(&result).unwrap_or_else(|_| b"{}".to_vec());
+    let out_len = out.len() as i32;
+    let out_ptr = alloc(out_len);
+    std::ptr::copy_nonoverlapping(out.as_ptr(), out_ptr as *mut u8, out.len());
+    ((out_ptr as i64) << 32) | (out_len as i64 & 0xFFFF_FFFF)
+}
+
+#[no_mangle]
+pub static SKILL_NAME: &str = "{{ agent_name }}";

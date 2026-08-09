@@ -45,19 +45,19 @@ When `/kbd-init` runs, it:
 ```json
 {
   "name": "HotSeaters",
-  "focus_project_path": "/Users/gqadonis/Projects/midnight/hotseaters",
+  "focus_project_path": "/workspace/hotseaters",
   "workspace": {
-    "workspace_file": "/Users/gqadonis/Projects/midnight/HotSeatersMVP.code-workspace",
+    "workspace_file": "/workspace/HotSeatersMVP.code-workspace",
     "folders": [
       {
-        "path": "/Users/gqadonis/Projects/courtroom/HotSeatersMVP",
+        "path": "/workspace/HotSeatersMVP",
         "role": "reference",
         "purpose": "Legacy spec reference — DocPage*.jsx files contain feature specifications",
         "read_paths": ["src/pages/Doc*.jsx", "src/pages/DocPage*.jsx"],
         "write_access": false
       },
       {
-        "path": "/Users/gqadonis/Projects/midnight/hotseaters",
+        "path": "/workspace/hotseaters",
         "role": "focus",
         "purpose": "Active project — all KBD operations target this directory",
         "write_access": true
@@ -100,8 +100,8 @@ Include in every Roo prompt preamble:
 
 ```
 WORKSPACE CONTEXT:
-- Focus project (read/write): /Users/gqadonis/Projects/midnight/hotseaters
-- Reference project (READ ONLY): /Users/gqadonis/Projects/courtroom/HotSeatersMVP
+- Focus project (read/write): /workspace/hotseaters
+- Reference project (READ ONLY): /workspace/HotSeatersMVP
   Use only for: reading Doc*.jsx spec files to understand feature requirements
   NEVER write to this directory.
 ```

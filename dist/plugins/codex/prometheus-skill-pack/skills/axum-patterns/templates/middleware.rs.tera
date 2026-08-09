@@ -1,0 +1,54 @@
+{{- /*
+  middleware.rs.tera — Tower middleware via from_fn_with_state
+  Variables:
+    middleware_name : snake_case name (e.g. "auth_middleware")
+    state_type      : AppState type name
+*/ -}}
+use axum::{
+    extract::{Request, State},
+    http::StatusCode,
+    middleware::Next,
+    response::{IntoResponse, Response},
+};
+use std::sync::Arc;
+
+use crate::{errors::AppError, state::{{ state_type }}};
+
+/// {{ middleware_name }} — applied to the router via .layer(axum::middleware::from_fn_with_state(...))
+///
+/// Usage:
+/// ```rust
+/// router.layer(axum::middleware::from_fn_with_state(
+///     Arc::clone(&state),
+///     {{ middleware_name }},
+/// ))
+/// ```
+pub async fn {{ middleware_name }}(
+    State(state): State<Arc<{{ state_type }}>>,
+    request: Request,
+    next: Next,
+) -> Result<Response, AppError> {
+    // ── Pre-processing ──────────────────────────────────────────────────────
+    //
+    // Extract what you need from the request before passing it to the next handler.
+    // The request is consumed by `next.run()` — clone headers etc. before calling it.
+
+    let auth_header = request
+        .headers()
+        .get("Authorization")
+        .and_then(|v| v.to_str().ok())
+        .map(str::to_owned);
+
+    // TODO: validate auth_header against state (e.g. JWT verification)
+    if auth_header.is_none() {
+        return Err(AppError::Unauthorized);
+    }
+
+    // ── Pass through ────────────────────────────────────────────────────────
+    let response = next.run(request).await;
+
+    // ── Post-processing ─────────────────────────────────────────────────────
+    // Optionally inspect or modify the response here.
+
+    Ok(response)
+}

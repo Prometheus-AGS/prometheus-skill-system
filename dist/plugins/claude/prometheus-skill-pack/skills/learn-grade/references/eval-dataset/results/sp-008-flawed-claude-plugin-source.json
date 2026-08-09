@@ -1,0 +1,22 @@
+{
+  "grade_id": "eval-sp-008-flawed-claude-plugin-source",
+  "goal_id": "eval",
+  "concept_id": "skill-pack",
+  "learner_id": "eval-harness",
+  "graded_at": "2026-07-16T00:00:00Z",
+  "explanation_excerpt": "If you need to update a skill's hooks or its symlinked structure, the right place to make that edit is directly inside .claude-plugin/ — that's the canonical plugin layout Claude Code actually re",
+  "scores": {"completeness": 0.2, "accuracy": 0.0, "clarity": 0.6, "misconceptions_absent": 0.0},
+  "overall_score": 0.2,
+  "gaps": [
+    {"dimension": "accuracy", "description": "Claims .claude-plugin/ is the canonical layout Claude Code reads from and the place to make edits. .claude-plugin/ contains SYMLINKS to skills/, agents/, and hooks/ — skills/ is the source of truth.", "corpus_ref": "CLAUDE.md — Architecture section"},
+    {"dimension": "accuracy", "description": "For hooks specifically, the canonical source is hooks/hooks.json at the project root, not .claude-plugin/hooks/hooks.json.", "corpus_ref": "MISCONCEPTION: hooks/hooks.json is edited via .claude-plugin/hooks/hooks.json"},
+    {"dimension": "misconception", "description": "Reproduces the known misconception verbatim: '.claude-plugin/ is the source of truth.' skills/ is always the source of truth; .claude-plugin/ is built via npm run build.", "corpus_ref": "MISCONCEPTION: .claude-plugin/ is the source of truth"},
+    {"dimension": "completeness", "description": "Omits that .claude-plugin/ is generated/maintained via npm run build and is a symlink structure, and omits the CI symlink-integrity check.", "corpus_ref": "CLAUDE.md — Architecture section"}
+  ],
+  "transfer_problems": [
+    "A contributor wants to add a new subagent to the pack and also wants Claude Code plugin distribution to see it immediately. Where should the subagent file be created, and what command must be run afterward for .claude-plugin/ to reflect it?",
+    "A teammate reports that editing a file under .claude-plugin/hooks/hooks.json had no effect after a fresh clone with broken symlinks. Explain what likely happened and how to fix it."
+  ],
+  "passed": false,
+  "pass_threshold": 0.7
+}

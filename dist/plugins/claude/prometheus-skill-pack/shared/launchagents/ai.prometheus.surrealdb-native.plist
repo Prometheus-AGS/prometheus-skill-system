@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>ai.prometheus.surrealdb-native</string>
+
+  <!-- Runs SurrealDB natively on 127.0.0.1:28000 (same host port as the former Docker mapping 28000:8000).
+       Data lives at ~/.prometheus/data/surrealdb/database.db (RocksDB directory). -->
+  <key>ProgramArguments</key>
+  <array>
+    <string>__SURREAL_BIN__</string>
+    <string>start</string>
+    <string>--log=info</string>
+    <string>--user=root</string>
+    <string>--pass=root</string>
+    <string>--bind=127.0.0.1:28000</string>
+    <string>rocksdb:__PROMETHEUS_HOME__/.prometheus/data/surrealdb/database.db</string>
+  </array>
+
+  <key>WorkingDirectory</key>
+  <string>__PROMETHEUS_HOME__</string>
+
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>HOME</key>
+    <string>__PROMETHEUS_HOME__</string>
+    <key>USER</key>
+    <string>__PROMETHEUS_USER__</string>
+    <key>PATH</key>
+    <string>__PROMETHEUS_PATH__</string>
+  </dict>
+
+  <key>RunAtLoad</key>
+  <true/>
+  <key>KeepAlive</key>
+  <true/>
+  <key>ProcessType</key>
+  <string>Background</string>
+
+  <!-- Throttle restart to avoid hammering disk on crash loops -->
+  <key>ThrottleInterval</key>
+  <integer>10</integer>
+
+  <key>StandardOutPath</key>
+  <string>__PROMETHEUS_LOG_DIR__/surrealdb-native.stdout.log</string>
+  <key>StandardErrorPath</key>
+  <string>__PROMETHEUS_LOG_DIR__/surrealdb-native.stderr.log</string>
+</dict>
+</plist>

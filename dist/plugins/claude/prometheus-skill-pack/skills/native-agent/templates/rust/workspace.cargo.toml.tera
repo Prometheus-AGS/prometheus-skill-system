@@ -1,0 +1,89 @@
+{{- /*
+  workspace.cargo.toml.tera — Workspace Cargo.toml for generated native agent
+  Variables:
+    agent_name  : kebab-case agent name (e.g. "research-agent")
+    author      : author string
+    target      : "docker" | "librefang-wasm" | "both" (default: "docker")
+                  When "librefang-wasm" or "both", an `agent-skill` crate is
+                  added as a workspace member. agent-tokenizer is always
+                  included for context-budget enforcement.
+*/ -}}
+[workspace]
+members  = [
+    "crates/agent-core",
+    "crates/agent-skills",
+    "crates/agent-mcp",
+    "crates/agent-server",
+    "crates/agent-cli",
+    "crates/agent-tokenizer",
+{% if target == "librefang-wasm" or target == "both" -%}
+    "crates/agent-skill",
+{% endif -%}
+]
+resolver = "2"
+
+[workspace.package]
+version     = "0.1.0"
+edition     = "2021"
+authors     = ["{{ author }}"]
+license     = "MIT"
+description = "{{ agent_name }} — native Prometheus AGS agent"
+
+[workspace.dependencies]
+# Async
+tokio          = { version = "1", features = ["full"] }
+tokio-stream   = { version = "0.1", features = ["sync"] }
+futures        = "0.3"
+async-trait    = "0.1"
+
+# Web
+axum           = { version = "0.8", features = ["macros"] }
+axum-extra     = { version = "0.10", features = ["typed-header"] }
+tower          = "0.5"
+tower-http     = { version = "0.6", features = ["cors", "trace", "fs"] }
+
+# HTTP client (MCP client + liter-llm)
+reqwest        = { version = "0.12", features = ["json", "stream"] }
+
+# Serialization
+serde          = { version = "1", features = ["derive"] }
+serde_json     = "1"
+toml           = "0.8"
+
+# Errors
+anyhow         = "1"
+thiserror      = "2"
+
+# CLI
+clap           = { version = "4", features = ["derive", "env"] }
+
+# Utilities
+uuid           = { version = "1", features = ["v4", "serde"] }
+chrono         = { version = "0.4", features = ["serde"] }
+tracing        = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
+dirs           = "5"
+
+# Allocator (binary entry points only)
+tikv-jemallocator = "0.6"
+
+# Internal crates
+agent-core      = { path = "crates/agent-core" }
+agent-skills    = { path = "crates/agent-skills" }
+agent-mcp       = { path = "crates/agent-mcp" }
+agent-server    = { path = "crates/agent-server" }
+agent-tokenizer = { path = "crates/agent-tokenizer" }
+
+[profile.release]
+strip         = true
+lto           = true
+codegen-units = 1
+
+# When building agent-skill for wasm32-unknown-unknown, override release
+# profile per the WASM-skill build contract. Cargo applies these only to
+# crates marked as the wasm target.
+{% if target == "librefang-wasm" or target == "both" -%}
+[profile.release.package.{{ agent_name }}-skill]
+opt-level     = "z"
+panic         = "abort"
+{% endif %}

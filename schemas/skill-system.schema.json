@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Prometheus-AGS/prometheus-skill-system/schemas/skill-system.schema.json",
+  "title": "Prometheus skill system distribution contract",
+  "type": "object",
+  "required": ["schemaVersion", "name", "releaseVersion", "minimumActiveVersion", "inventory", "imports", "profiles", "targets", "outputs"],
+  "properties": {
+    "schemaVersion": { "const": "prometheus-skill-system-v1" },
+    "name": { "const": "prometheus-skill-pack" },
+    "releaseVersion": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$" },
+    "minimumActiveVersion": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$" },
+    "repository": { "type": "string", "format": "uri" },
+    "targets": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "path", "mode", "detect"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$" },
+          "path": { "type": "string", "pattern": "^\\.[^/]" },
+          "mode": { "enum": ["copy", "symlink"] },
+          "detect": { "type": "array", "items": { "type": "string" } }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": true
+}

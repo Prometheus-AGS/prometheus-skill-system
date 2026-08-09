@@ -12,7 +12,7 @@ const capabilitiesPath = path.join(root, 'shared/harnesses/capabilities.json');
 const contract = JSON.parse(fs.readFileSync(contractPath, 'utf8'));
 const capabilities = JSON.parse(fs.readFileSync(capabilitiesPath, 'utf8'));
 const sourceVersion = String(
-  JSON.parse(fs.readFileSync(path.join(root, '.claude-plugin/plugin.json'), 'utf8')).version
+  JSON.parse(fs.readFileSync(path.join(root, 'skill-system.json'), 'utf8')).releaseVersion
 );
 const failures = [];
 

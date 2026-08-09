@@ -1,0 +1,21 @@
+{
+  "grade_id": "eval-cr-001-strong-full-pathway",
+  "goal_id": "eval",
+  "concept_id": "cellular-respiration",
+  "learner_id": "eval-harness",
+  "graded_at": "2026-07-16T00:00:00Z",
+  "explanation_excerpt": "Cellular respiration converts the chemical energy stored in glucose into ATP through four stages. Glycolysis happens first, out in the cytosol rather than the mitochondria, splitting glucose into two pyruvate mole",
+  "scores": {"completeness": 0.75, "accuracy": 1.0, "clarity": 0.95, "misconceptions_absent": 1.0},
+  "overall_score": 0.925,
+  "gaps": [
+    {"dimension": "completeness", "description": "Missing coverage of anaerobic respiration/fermentation: what happens when oxygen is unavailable, including lactic acid fermentation (muscle cells) and alcoholic fermentation (yeast), and that fermentation's sole purpose is regenerating NAD+ for glycolysis to continue.", "corpus_ref": "OpenStax Biology 2e, Ch. 7.6 — Anaerobic Respiration and Fermentation"},
+    {"dimension": "completeness", "description": "Missing mitochondrial structural detail: the two-membrane organization (smooth outer membrane, folded inner membrane forming cristae) that increases surface area for the electron transport chain, and that the matrix also contains mitochondrial DNA and ribosomes.", "corpus_ref": "Alberts et al., Molecular Biology of the Cell, 6th ed., Ch. 14"},
+    {"dimension": "completeness", "description": "Never states the overall summary reaction (glucose + oxygen -> carbon dioxide + water + ATP), which the corpus presents as the framing equation for the whole process.", "corpus_ref": "OpenStax Biology 2e, Ch. 7 — Overview of Cellular Respiration"}
+  ],
+  "transfer_problems": [
+    "A yeast cell is fermenting in the total absence of oxygen. Using only what fermentation actually regenerates and what it does not produce, predict how many net ATP the cell gains per glucose molecule from glycolysis plus fermentation combined, and explain why the fermentation step itself contributes zero additional ATP.",
+    "A researcher damages the cristae of a cell's mitochondria, reducing the folded surface area of the inner membrane without altering the matrix or outer membrane. Predict which specific stage of cellular respiration is most directly impaired and explain the mechanistic link between cristae surface area and that stage's ATP output."
+  ],
+  "passed": true,
+  "pass_threshold": 0.7
+}

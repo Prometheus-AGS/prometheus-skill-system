@@ -1,0 +1,158 @@
+{
+  "$schema": "./schemas/skill-system.schema.json",
+  "schemaVersion": "prometheus-skill-system-v1",
+  "name": "prometheus-skill-pack",
+  "releaseVersion": "1.7.0",
+  "minimumActiveVersion": "1.7.0",
+  "repository": "https://github.com/Prometheus-AGS/prometheus-skill-system.git",
+  "platforms": {
+    "skills": ["darwin", "linux", "windows-git-bash", "windows-wsl"],
+    "full": ["darwin", "linux"]
+  },
+  "inventory": {
+    "roots": [
+      {
+        "id": "core",
+        "path": "skills",
+        "scan": "recursive",
+        "excludeSegments": ["imported", "tests", "fixtures"]
+      },
+      {
+        "id": "artifact-refiner",
+        "path": "skills/imported/artifact-refiner/skills",
+        "scan": "children",
+        "excludeNames": ["sycophancy-correction"]
+      },
+      {
+        "id": "sycophancy-correction",
+        "path": "skills/imported/sycophancy-correction",
+        "scan": "root"
+      }
+    ],
+    "excludedImports": [
+      {
+        "path": "skills/imported/prometheus-entity-management",
+        "reason": "Its distributed skills are checked into skills/react/prometheus-entity-skills."
+      },
+      {
+        "path": "skills/imported/artifact-refiner/shared/sycophancy-correction",
+        "reason": "The standalone SHA-pinned sycophancy-correction import is canonical."
+      }
+    ]
+  },
+  "imports": [
+    {
+      "id": "artifact-refiner",
+      "path": "skills/imported/artifact-refiner",
+      "repository": "https://github.com/GQAdonis/artifact-refiner-skill.git",
+      "commit": "a0b560b61336b5cc08c85c9739e9196d8585fe96",
+      "requiredFor": ["skills", "full"],
+      "marketplace": true
+    },
+    {
+      "id": "sycophancy-correction",
+      "path": "skills/imported/sycophancy-correction",
+      "repository": "https://github.com/Know-Me-Tools/sycophancy-correction-skill.git",
+      "commit": "bc348fffb4b622c142c1082b281dd2f44b74d37b",
+      "requiredFor": ["skills", "full"],
+      "marketplace": true
+    },
+    {
+      "id": "prometheus-entity-management",
+      "path": "skills/imported/prometheus-entity-management",
+      "repository": "https://github.com/Prometheus-AGS/prometheus-entity-management.git",
+      "commit": "1c40eaa08da210cbe3e20a77c5db211712b5c3a1",
+      "requiredFor": ["full"],
+      "distributed": false
+    },
+    {
+      "id": "cowork-skills",
+      "path": "tools/cowork-skills",
+      "repository": "https://github.com/Prometheus-AGS/cowork-skills.git",
+      "commit": "77edcf8a49237dc9b8f6733e794c48fa4e6da832",
+      "requiredFor": ["full"]
+    },
+    {
+      "id": "disk-space-guardian",
+      "path": "tools/disk-space-guardian",
+      "repository": "https://github.com/Prometheus-AGS/disk-space-guardian.git",
+      "commit": "2d39c2a53485d096dd135feadc617165ea96f48c",
+      "requiredFor": ["full"]
+    },
+    {
+      "id": "liter-llm",
+      "path": "tools/liter-llm",
+      "repository": "https://github.com/Prometheus-AGS/liter-llm.git",
+      "commit": "dc0cabb86b021d4520611d20e430f97458b18f6d",
+      "requiredFor": ["full"]
+    },
+    {
+      "id": "openai-proxy",
+      "path": "tools/openai-proxy",
+      "repository": "https://github.com/Prometheus-AGS/openai-proxy.git",
+      "commit": "7833663d3b46f7467f2017f2cce392c09ec1b7ac",
+      "requiredFor": ["full"]
+    },
+    {
+      "id": "prometheus-knowledge",
+      "path": "tools/prometheus-knowledge",
+      "repository": "https://github.com/Prometheus-AGS/prometheus-knowledge.git",
+      "commit": "cea7b9063bd0c8b2fe4c2a59f04e5e1eee87d844",
+      "requiredFor": ["full"]
+    },
+    {
+      "id": "surreal-memory-server",
+      "path": "tools/surreal-memory-server",
+      "repository": "https://github.com/Prometheus-AGS/surreal-memory-server.git",
+      "commit": "8e45fcb316f2b47efce637aa1db6b4b85846a33b",
+      "requiredFor": ["full"]
+    }
+  ],
+  "profiles": {
+    "skills": {
+      "description": "Install signed skills only; do not build binaries, configure MCP, or install services.",
+      "default": true
+    },
+    "full": {
+      "description": "Initialize every import, build local binaries, configure selected MCP clients, install user services, and run doctors.",
+      "default": false
+    }
+  },
+  "marketplace": {
+    "plugins": [
+      { "name": "prometheus-react-skills", "path": "skills/react/prometheus-entity-skills", "version": "1.5.0", "category": "frontend" },
+      { "name": "prometheus-process-skills", "path": "skills/process", "version": "1.5.1", "category": "productivity" },
+      { "name": "prometheus-devops-skills", "path": "skills/devops", "version": "1.5.0", "category": "devops" },
+      { "name": "prometheus-testing-skills", "path": "skills/testing", "version": "1.5.0", "category": "testing" },
+      { "name": "learn", "path": "skills/learn", "version": "1.5.0", "category": "productivity" },
+      { "name": "prometheus-librefang-skills", "path": "skills/rust/librefang-wasm-skill", "version": "1.5.0", "category": "productivity" },
+      { "name": "cowork-management", "path": "skills/process/cowork-management", "version": "1.0.0", "category": "productivity" },
+      { "name": "disk-space-guardian", "path": "skills/devops/disk-space-guardian", "version": "1.0.0", "category": "devops" },
+      { "name": "prometheus-research-skills", "path": "skills/research", "version": "1.0.0", "category": "productivity" },
+      { "name": "prometheus-research-server", "path": "substrate/prometheus-research", "version": "1.6.0", "category": "productivity" }
+    ]
+  },
+  "targets": [
+    { "id": "claude", "path": ".claude/skills", "mode": "symlink", "detect": [".claude", "command:claude"] },
+    { "id": "opencode", "path": ".opencode/skills", "mode": "symlink", "detect": [".opencode", "command:opencode"] },
+    { "id": "kimi-code", "path": ".kimi-code/skills", "mode": "symlink", "detect": [".kimi-code", "command:kimi"] },
+    { "id": "minimax", "path": ".minimax/skills", "mode": "copy", "detect": [".minimax"] },
+    { "id": "cursor", "path": ".cursor/skills", "mode": "symlink", "detect": [".cursor", "command:cursor"] },
+    { "id": "codex", "path": ".codex/skills", "mode": "copy", "detect": [".codex", "command:codex"] },
+    { "id": "gemini", "path": ".gemini/skills", "mode": "symlink", "detect": [".gemini", "command:gemini"] },
+    { "id": "roo", "path": ".roo/skills", "mode": "symlink", "detect": [".roo"] },
+    { "id": "windsurf", "path": ".windsurf/skills", "mode": "symlink", "detect": [".windsurf", "command:windsurf"] },
+    { "id": "codeium-windsurf", "path": ".codeium/windsurf/skills", "mode": "symlink", "detect": [".codeium/windsurf"] },
+    { "id": "agents", "path": ".agents/skills", "mode": "symlink", "detect": [".agents"] },
+    { "id": "zed-config", "path": ".config/zed/skills", "mode": "symlink", "detect": [".config/zed", "command:zed"] },
+    { "id": "zed", "path": ".zed/skills", "mode": "symlink", "detect": [".zed"] },
+    { "id": "cline", "path": ".cline/skills", "mode": "symlink", "detect": [".cline"] }
+  ],
+  "outputs": {
+    "skillCatalog": "SKILLS.md",
+    "claudeMarketplace": ".claude-plugin/marketplace.json",
+    "codexMarketplace": ".agents/plugins/marketplace.json",
+    "claudePackage": "dist/plugins/claude/prometheus-skill-pack",
+    "codexPackage": "dist/plugins/codex/prometheus-skill-pack"
+  }
+}

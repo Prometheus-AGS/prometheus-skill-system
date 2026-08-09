@@ -1,0 +1,22 @@
+{
+  "grade_id": "eval-kbd-003-incomplete-missing-openspec",
+  "goal_id": "eval",
+  "concept_id": "kbd-lifecycle",
+  "learner_id": "eval-harness",
+  "graded_at": "2026-07-16T00:00:00Z",
+  "explanation_excerpt": "kbd-plan looks at the assessment and figures out what changes need to happen, then writes them down in plan.md in order. Then kbd-execute goes through and does each change one at a t",
+  "scores": {"completeness": 0.3, "accuracy": 0.75, "clarity": 0.8, "misconceptions_absent": 1.0},
+  "overall_score": 0.71,
+  "gaps": [
+    {"dimension": "completeness", "description": "Missing OpenSpec detection and emission — the plan stage detects an openspec/ directory and emits changes in OpenSpec format (proposal.md + tasks.md); this is not optional when openspec/ is present.", "corpus_ref": "CLAUDE.md — OpenSpec section"},
+    {"dimension": "completeness", "description": "Missing the artifact-refiner QA gate that the execute stage runs per completed change, and the verify -> archive archival step for OpenSpec changes.", "corpus_ref": "skills/process/kbd-execute/SKILL.md"},
+    {"dimension": "completeness", "description": "Missing that the execute stage updates progress.json after each change — progress.json is not updated automatically and must be explicitly advanced.", "corpus_ref": "MISCONCEPTION: progress.json is updated automatically"},
+    {"dimension": "completeness", "description": "Missing that the plan stage writes an execute handoff after plan.md and does not itself execute any changes.", "corpus_ref": "skills/process/kbd-plan/SKILL.md"}
+  ],
+  "transfer_problems": [
+    "A phase has no openspec/ directory at the project root. When the plan stage runs, what format should the emitted changes take, and does the absence of OpenSpec change what the plan stage is allowed to do?",
+    "During the execute stage, a change modifies 5 files and is not docs-only. After the change is applied, what two things must happen before execute moves to the next pending change, and what breaks if the agent skips updating progress.json?"
+  ],
+  "passed": true,
+  "pass_threshold": 0.7
+}

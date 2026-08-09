@@ -6,7 +6,9 @@ yarn.lock
 pnpm-lock.yaml
 
 # Build outputs
-dist/
+dist/*
+!dist/plugins/
+!dist/plugins/**
 build/
 *.log
 

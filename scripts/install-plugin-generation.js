@@ -6,6 +6,14 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 
+import {
+  assertMinimumActiveVersion,
+  collectDistributionSkills,
+  compareVersions,
+  readSkillSystem,
+  targetsById,
+} from './lib/skill-system.js';
+
 const TARGETS = [
   '.claude/skills',
   '.opencode/skills',
@@ -43,7 +51,6 @@ const STABLE_SCRIPTS = [
 const STABLE_HELPERS = ['enqueue-learning-job.py', 'enqueue-memory-operation.py'];
 const STABLE_DIRECTORIES = ['lib'];
 const PAYLOAD_ROOTS = [
-  'skills',
   'agents',
   'hooks',
   'shared',
@@ -52,6 +59,7 @@ const PAYLOAD_ROOTS = [
   '.codex-plugin',
   '.agents/plugins',
   '.mcp.json',
+  'skill-system.json',
 ];
 const MANIFEST_SIGNATURE = 'manifest.sig.json';
 const SKILL_INDEX_SCHEMA = 'prometheus-skill-index-v1';
@@ -96,6 +104,9 @@ function parseArgs(argv) {
     verify: false,
     rollback: false,
     uninstall: false,
+    pruneObsolete: false,
+    dryRun: false,
+    targets: 'all',
     expectedBundle: null,
     expectedSourceCommit: null,
     requireCleanSource: false,
@@ -107,6 +118,9 @@ function parseArgs(argv) {
     if (value === '--verify') args.verify = true;
     else if (value === '--rollback') args.rollback = true;
     else if (value === '--uninstall') args.uninstall = true;
+    else if (value === '--prune-obsolete') args.pruneObsolete = true;
+    else if (value === '--dry-run') args.dryRun = true;
+    else if (value === '--targets') args.targets = argv[++index];
     else if (value === '--require-clean-source') args.requireCleanSource = true;
     else if (value === '--expected-bundle') args.expectedBundle = argv[++index];
     else if (value === '--expected-source-commit') args.expectedSourceCommit = argv[++index];
@@ -418,6 +432,22 @@ function readSkillDescription(skillFile) {
 
 function collectSkills(skillsRoot) {
   const skills = [];
+  const immediateSkillDirectories = fs.readdirSync(skillsRoot).sort().filter(name => {
+    const entry = path.join(skillsRoot, name);
+    return fs.lstatSync(entry).isDirectory() && fs.existsSync(path.join(entry, 'SKILL.md'));
+  });
+  if (immediateSkillDirectories.length) {
+    for (const name of immediateSkillDirectories) {
+      const skillFile = path.join(skillsRoot, name, 'SKILL.md');
+      skills.push({
+        name: readSkillName(skillFile),
+        description: readSkillDescription(skillFile),
+        relative: name,
+      });
+    }
+    skills.sort((left, right) => left.name.localeCompare(right.name));
+    return skills;
+  }
   function visit(directory) {
     for (const name of fs.readdirSync(directory).sort()) {
       const entry = path.join(directory, name);
@@ -535,6 +565,8 @@ function stageExecutionComponent(source, staging) {
   ) {
     fail('execution component bytes differ from the checked capability descriptor');
   }
+  const stagedArtifact = path.join(staging, ...sourceRelative.split('/'));
+  if (!fs.existsSync(stagedArtifact)) copyEntry(sourceArtifact, stagedArtifact);
 
   const componentRoot = path.posix.join('components', descriptor.componentId);
   const artifactPath = sourceRelative;
@@ -713,6 +745,17 @@ function verifyReleaseManifest(payloadRoot, expectedBundle = null) {
     }
   }
   return release;
+}
+
+function stageReleaseRuntimeSupport(source, staging) {
+  const file = path.join(source, 'shared/harnesses/generated/release-manifest.json');
+  const release = JSON.parse(fs.readFileSync(file, 'utf8'));
+  for (const entry of release.runtimeFiles ?? []) {
+    const relative = path.posix.normalize(entry.path ?? '');
+    if (!relative.startsWith('skills/')) continue;
+    const destination = path.join(staging, ...relative.split('/'));
+    if (!fs.existsSync(destination)) copyEntry(path.join(source, ...relative.split('/')), destination);
+  }
 }
 
 function verifyGeneration(
@@ -966,8 +1009,8 @@ function copySkill(source, targetRoot, target, skill, generation) {
   syncDirectory(targetRoot);
 }
 
-function installTargets(home, pluginRoot, generationPath, generation, skills) {
-  for (const target of TARGETS) {
+function installTargets(home, pluginRoot, generationPath, generation, skills, targets = TARGETS) {
+  for (const target of targets) {
     const targetRoot = path.join(home, ...target.split('/'));
     for (const skill of skills) {
       if (COPY_TARGETS.has(target))
@@ -995,8 +1038,8 @@ function targetDestination(targetRoot, target, skill, pluginRoot) {
   return path.join(targetRoot, `prometheus-${skill.name}`);
 }
 
-function verifyTargets(home, pluginRoot, generationPath, generation, skills) {
-  for (const target of TARGETS) {
+function verifyTargets(home, pluginRoot, generationPath, generation, skills, targets = TARGETS) {
+  for (const target of targets) {
     const targetRoot = path.join(home, ...target.split('/'));
     for (const skill of skills) {
       const destination = targetDestination(targetRoot, target, skill, pluginRoot);
@@ -1057,8 +1100,9 @@ function targetReceipt(manifest, targetPayload) {
   };
 }
 
-function writeTargetReceipts(pluginRoot, manifest, identity) {
-  for (const targetPayload of manifest.targetPayloads) {
+function writeTargetReceipts(pluginRoot, manifest, identity, targets = TARGETS) {
+  const selected = new Set(targets);
+  for (const targetPayload of manifest.targetPayloads.filter(entry => selected.has(entry.target))) {
     const body = targetReceipt(manifest, targetPayload);
     atomicWrite(
       receiptFile(pluginRoot, manifest.generation, targetPayload.target),
@@ -1068,10 +1112,10 @@ function writeTargetReceipts(pluginRoot, manifest, identity) {
   }
 }
 
-function verifyTargetReceipts(pluginRoot, manifest, trustStorePath) {
-  if (manifest.targetPayloads.length !== TARGETS.length)
-    fail('target receipt matrix is incomplete');
-  for (const targetPayload of manifest.targetPayloads) {
+function verifyTargetReceipts(pluginRoot, manifest, trustStorePath, targets = TARGETS) {
+  if (manifest.targetPayloads.length !== TARGETS.length) fail('target receipt matrix is incomplete');
+  const selected = new Set(targets);
+  for (const targetPayload of manifest.targetPayloads.filter(entry => selected.has(entry.target))) {
     const file = receiptFile(pluginRoot, manifest.generation, targetPayload.target);
     if (!fs.existsSync(file)) fail(`target receipt is missing: ${targetPayload.target}`);
     const receipt = JSON.parse(fs.readFileSync(file, 'utf8'));
@@ -1206,8 +1250,8 @@ function installHookRuntime(pluginRoot, generationPath, manifest, trustStorePath
   verifyHookRuntime(pluginRoot, manifest, trustStorePath);
 }
 
-function uninstall(home, pluginRoot) {
-  for (const target of TARGETS) {
+function uninstall(home, pluginRoot, targets = TARGETS, removePluginRoot = true) {
+  for (const target of targets) {
     const targetRoot = path.join(home, ...target.split('/'));
     if (!fs.existsSync(targetRoot)) continue;
     for (const name of fs.readdirSync(targetRoot)) {
@@ -1224,7 +1268,7 @@ function uninstall(home, pluginRoot) {
     }
     syncDirectory(targetRoot);
   }
-  if (fs.existsSync(pluginRoot)) {
+  if (removePluginRoot && fs.existsSync(pluginRoot)) {
     fs.rmSync(pluginRoot, { recursive: true, force: true });
     syncDirectory(path.dirname(pluginRoot));
   }
@@ -1233,7 +1277,9 @@ function uninstall(home, pluginRoot) {
 
 function verifyActive(
   pluginRoot,
-  trustStorePath = path.join(pluginRoot, 'trust/allowed-signers.json')
+  trustStorePath = path.join(pluginRoot, 'trust/allowed-signers.json'),
+  contract = null,
+  targets = TARGETS
 ) {
   const target = currentTarget(pluginRoot, 'current');
   if (!target) fail('no active plugin generation');
@@ -1241,13 +1287,14 @@ function verifyActive(
   if (!isWithin(path.join(pluginRoot, 'generations'), resolved))
     fail('active pointer escapes generations directory');
   const manifest = verifyGeneration(resolved, path.basename(resolved), trustStorePath);
+  if (contract) assertMinimumActiveVersion(manifest.sourceVersion, contract, 'active generation');
   verifyStableDispatchers(pluginRoot);
   verifyHookRuntime(pluginRoot, manifest, trustStorePath);
-  verifyTargetReceipts(pluginRoot, manifest, trustStorePath);
+  verifyTargetReceipts(pluginRoot, manifest, trustStorePath, targets);
   return manifest;
 }
 
-function rollback(pluginRoot, home, trustStorePath) {
+function rollback(pluginRoot, home, trustStorePath, contract, targets = TARGETS) {
   const active = currentTarget(pluginRoot, 'current');
   const previous = currentTarget(pluginRoot, 'previous');
   if (!active || !previous) fail('rollback requires current and previous generations');
@@ -1255,27 +1302,35 @@ function rollback(pluginRoot, home, trustStorePath) {
   if (!isWithin(path.join(pluginRoot, 'generations'), generationPath))
     fail('previous pointer escapes generations directory');
   const manifest = verifyGeneration(generationPath, path.basename(previous), trustStorePath);
+  assertMinimumActiveVersion(manifest.sourceVersion, contract, 'rollback generation');
   const skills = collectSkills(path.join(generationPath, 'skills'));
   validateBundleIndex(pluginRoot, generationPath, manifest, trustStorePath);
-  installTargets(home, pluginRoot, generationPath, manifest.generation, skills);
-  verifyTargets(home, pluginRoot, generationPath, manifest.generation, skills);
+  installTargets(home, pluginRoot, generationPath, manifest.generation, skills, targets);
+  verifyTargets(home, pluginRoot, generationPath, manifest.generation, skills, targets);
   installHookRuntime(pluginRoot, generationPath, manifest, trustStorePath);
   atomicSymlink(pluginRoot, 'current', previous);
   atomicSymlink(pluginRoot, 'previous', active);
   createStableDispatchers(pluginRoot);
-  verifyTargetReceipts(pluginRoot, manifest, trustStorePath);
+  verifyTargetReceipts(pluginRoot, manifest, trustStorePath, targets);
   return path.basename(previous);
 }
 
 function install(args) {
   const source = args.sourceRoot;
+  const contract = readSkillSystem(source);
+  assertMinimumActiveVersion(contract.releaseVersion, contract, 'source release');
+  const targetDefinitions = targetsById(contract, args.targets);
+  const selectedTargets = targetDefinitions.map(target => target.path);
+  if (canonicalJson(contract.targets.map(target => target.path)) !== canonicalJson(TARGETS)) {
+    fail('distribution contract target paths diverge from the signed target matrix');
+  }
+  const distributionSkills = collectDistributionSkills(source, contract);
   for (const required of [
     'skills',
     'shared/scripts',
     'shared/harnesses/generated/release-manifest.json',
     'hooks',
-    '.claude-plugin',
-    '.codex-plugin',
+    'skill-system.json',
   ]) {
     if (!fs.existsSync(path.join(source, required))) fail(`source payload is missing ${required}`);
   }
@@ -1297,6 +1352,10 @@ function install(args) {
   );
   ensureDirectory(staging);
   try {
+    ensureDirectory(path.join(staging, 'skills'));
+    for (const skill of distributionSkills) {
+      copyEntry(skill.source, path.join(staging, 'skills', skill.name), true, source);
+    }
     for (const root of PAYLOAD_ROOTS) {
       const absolute = path.join(source, root);
       // Pass `source` (the repo root) explicitly: each PAYLOAD_ROOTS entry is
@@ -1305,6 +1364,16 @@ function install(args) {
       // skills/imported/** evidence match would never fire.
       if (fs.existsSync(absolute)) copyEntry(absolute, path.join(staging, root), true, source);
     }
+    for (const [platform, manifest] of [
+      ['claude', '.claude-plugin/plugin.json'],
+      ['codex', '.codex-plugin/plugin.json'],
+    ]) {
+      copyEntry(
+        path.join(source, 'dist/plugins', platform, 'prometheus-skill-pack', manifest),
+        path.join(staging, manifest)
+      );
+    }
+    stageReleaseRuntimeSupport(source, staging);
     const executionComponent = stageExecutionComponent(source, staging);
     const skills = collectSkills(path.join(staging, 'skills'));
     if (skills.length === 0) fail('generation contains no installable skills');
@@ -1321,10 +1390,10 @@ function install(args) {
         entryCount: skillIndex.entries.length,
       })
     );
-    const pluginMetadata = JSON.parse(
-      fs.readFileSync(path.join(staging, '.claude-plugin/plugin.json'), 'utf8')
-    );
     const release = verifyReleaseManifest(staging, args.expectedBundle);
+    if (release.sourceVersion !== contract.releaseVersion) {
+      fail(`release manifest version ${release.sourceVersion} differs from contract ${contract.releaseVersion}`);
+    }
     const sourceAfter = sourceProvenance(source);
     validateSourceProvenance(sourceAfter, args, 'after staging');
     if (
@@ -1350,7 +1419,7 @@ function install(args) {
     };
     const identity = {
       schemaVersion: 1,
-      sourceVersion: String(pluginMetadata.version ?? 'unknown'),
+      sourceVersion: contract.releaseVersion,
       signerKeyId: signingIdentity.keyId,
       bundleId: release.bundleId,
       hookRuntime,
@@ -1380,9 +1449,9 @@ function install(args) {
     }
 
     validateBundleIndex(args.pluginRoot, generationPath, manifest, args.trustStore);
-    installTargets(args.home, args.pluginRoot, generationPath, generation, skills);
-    verifyTargets(args.home, args.pluginRoot, generationPath, generation, skills);
-    writeTargetReceipts(args.pluginRoot, manifest, signingIdentity);
+    installTargets(args.home, args.pluginRoot, generationPath, generation, skills, selectedTargets);
+    verifyTargets(args.home, args.pluginRoot, generationPath, generation, skills, selectedTargets);
+    writeTargetReceipts(args.pluginRoot, manifest, signingIdentity, selectedTargets);
     installHookRuntime(args.pluginRoot, generationPath, manifest, args.trustStore);
     const active = currentTarget(args.pluginRoot, 'current');
     if (active !== `generations/${generation}`) {
@@ -1390,7 +1459,7 @@ function install(args) {
       atomicSymlink(args.pluginRoot, 'current', `generations/${generation}`);
     }
     createStableDispatchers(args.pluginRoot);
-    verifyActive(args.pluginRoot, args.trustStore);
+    verifyActive(args.pluginRoot, args.trustStore, contract, selectedTargets);
     return generation;
   } catch (error) {
     fs.rmSync(staging, { recursive: true, force: true });
@@ -1398,13 +1467,77 @@ function install(args) {
   }
 }
 
+function copyTargetReferencesGeneration(home, generation) {
+  for (const target of COPY_TARGETS) {
+    const targetRoot = path.join(home, ...target.split('/'));
+    if (!fs.existsSync(targetRoot)) continue;
+    for (const name of fs.readdirSync(targetRoot)) {
+      const marker = path.join(targetRoot, name, '.prometheus-generation');
+      if (fs.existsSync(marker) && fs.readFileSync(marker, 'utf8').trim() === generation) {
+        return `${target}/${name}`;
+      }
+    }
+  }
+  return null;
+}
+
+function pruneObsoleteGenerations(args, contract) {
+  const generationsRoot = path.join(args.pluginRoot, 'generations');
+  if (!fs.existsSync(generationsRoot)) return { retired: [], minimumActiveVersion: contract.minimumActiveVersion };
+  const active = path.basename(currentTarget(args.pluginRoot, 'current') ?? '');
+  const previous = path.basename(currentTarget(args.pluginRoot, 'previous') ?? '');
+  const retired = [];
+  for (const generation of fs.readdirSync(generationsRoot).sort()) {
+    if (generation.startsWith('.staging-')) continue;
+    const generationPath = path.join(generationsRoot, generation);
+    if (!fs.lstatSync(generationPath).isDirectory()) continue;
+    const manifest = verifyGeneration(generationPath, generation, args.trustStore);
+    if (compareVersions(manifest.sourceVersion, contract.minimumActiveVersion) >= 0) continue;
+    if (generation === active || generation === previous) {
+      fail(`obsolete generation is selected by ${generation === active ? 'current' : 'previous'}: ${generation}`);
+    }
+    const targetReference = copyTargetReferencesGeneration(args.home, generation);
+    if (targetReference) fail(`obsolete generation is referenced by installed target ${targetReference}`);
+
+    const receiptRoot = path.join(args.pluginRoot, 'receipts', generation);
+    if (fs.existsSync(receiptRoot)) {
+      for (const file of fs.readdirSync(receiptRoot).sort()) {
+        if (!file.endsWith('.json')) continue;
+        const receipt = JSON.parse(fs.readFileSync(path.join(receiptRoot, file), 'utf8'));
+        if (receipt.body?.generation !== generation) fail(`obsolete receipt generation mismatch: ${file}`);
+        verifySignedValue(receipt.body, receipt.signature, args.trustStore);
+      }
+      if (!args.dryRun) fs.rmSync(receiptRoot, { recursive: true, force: true });
+    }
+
+    const bundlesRoot = path.join(args.pluginRoot, 'bundles');
+    if (fs.existsSync(bundlesRoot)) {
+      for (const bundle of fs.readdirSync(bundlesRoot).sort()) {
+        const link = path.join(bundlesRoot, bundle);
+        const stat = fs.lstatSync(link, { throwIfNoEntry: false });
+        if (!stat?.isSymbolicLink()) continue;
+        const resolved = path.resolve(bundlesRoot, fs.readlinkSync(link));
+        if (resolved === generationPath && !args.dryRun) fs.unlinkSync(link);
+      }
+    }
+    if (!args.dryRun) fs.rmSync(generationPath, { recursive: true, force: true });
+    retired.push({ generation, sourceVersion: manifest.sourceVersion, bundleId: manifest.bundleId });
+  }
+  return { retired, minimumActiveVersion: contract.minimumActiveVersion, dryRun: args.dryRun };
+}
+
 const args = parseArgs(process.argv.slice(2));
 assertSafeRoot(args.pluginRoot, args.home);
 try {
+  const contract = readSkillSystem(args.sourceRoot);
+  const selectedTargets = targetsById(contract, args.targets).map(target => target.path);
   let generation;
-  if (args.verify) generation = verifyActive(args.pluginRoot, args.trustStore).generation;
-  else if (args.rollback) generation = rollback(args.pluginRoot, args.home, args.trustStore);
-  else if (args.uninstall) generation = uninstall(args.home, args.pluginRoot);
+  if (args.verify) generation = verifyActive(args.pluginRoot, args.trustStore, contract, selectedTargets).generation;
+  else if (args.rollback) generation = rollback(args.pluginRoot, args.home, args.trustStore, contract, selectedTargets);
+  else if (args.uninstall) {
+    generation = uninstall(args.home, args.pluginRoot, selectedTargets, selectedTargets.length === TARGETS.length);
+  }
+  else if (args.pruneObsolete) generation = JSON.stringify(pruneObsoleteGenerations(args, contract));
   else generation = install(args);
   process.stdout.write(`${generation}\n`);
 } catch (error) {

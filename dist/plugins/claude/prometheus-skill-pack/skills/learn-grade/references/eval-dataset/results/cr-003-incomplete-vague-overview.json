@@ -1,0 +1,26 @@
+{
+  "grade_id": "eval-cr-003-incomplete-vague-overview",
+  "goal_id": "eval",
+  "concept_id": "cellular-respiration",
+  "learner_id": "eval-harness",
+  "graded_at": "2026-07-16T20:05:54Z",
+  "explanation_excerpt": "Cellular respiration is how cells break down glucose to get energy. It happens in a few steps and needs oxygen. The mitochondria are involved and ATP comes out at the end.",
+  "scores": {"completeness": 0.15, "accuracy": 0.6, "clarity": 0.5, "misconceptions_absent": 1.0},
+  "overall_score": 0.5625,
+  "gaps": [
+    {"dimension": "completeness", "description": "Does not name the four stages of cellular respiration (glycolysis, pyruvate oxidation, citric acid cycle, oxidative phosphorylation) — only says 'a few steps'.", "corpus_ref": "OpenStax Biology 2e, Ch. 7 — Overview of Cellular Respiration"},
+    {"dimension": "completeness", "description": "Does not state where glycolysis occurs (cytosol, not mitochondria) or that it proceeds without oxygen and nets 2 ATP + 2 NADH.", "corpus_ref": "OpenStax Biology 2e, Ch. 7.1 — Glycolysis"},
+    {"dimension": "completeness", "description": "No mention of the citric acid cycle location (mitochondrial matrix), its per-turn products (3 NADH, 1 FADH2, 1 ATP/GTP, 2 CO2), or that it runs twice per glucose.", "corpus_ref": "OpenStax Biology 2e, Ch. 7.3 — Citric Acid Cycle"},
+    {"dimension": "completeness", "description": "No mention of the electron transport chain, chemiosmosis, ATP synthase, or oxygen's specific role as the final electron acceptor forming water — 'needs oxygen' is stated with no mechanism.", "corpus_ref": "OpenStax Biology 2e, Ch. 7.4 — Oxidative Phosphorylation"},
+    {"dimension": "completeness", "description": "No quantitative ATP yield given (approximately 30-32 ATP per glucose); 'ATP comes out at the end' gives no numeric or mechanistic detail.", "corpus_ref": "OpenStax Biology 2e, Ch. 7.5 — ATP Yield Accounting"},
+    {"dimension": "completeness", "description": "No mention of anaerobic pathways or fermentation (lactic acid or alcoholic) and their relationship to glycolysis.", "corpus_ref": "OpenStax Biology 2e, Ch. 7.6 — Anaerobic Respiration and Fermentation"},
+    {"dimension": "completeness", "description": "'The mitochondria are involved' does not describe mitochondrial structure (two membranes, cristae, matrix) or which specific stages occur there.", "corpus_ref": "Alberts et al., Molecular Biology of the Cell, 6th ed., Ch. 14"},
+    {"dimension": "clarity", "description": "The explanation is too vague to convey mechanism or sequence — phrases like 'a few steps' and 'ATP comes out at the end' do not communicate which processes occur, where, or in what order.", "corpus_ref": "OpenStax Biology 2e, Ch. 7 — Overview of Cellular Respiration"}
+  ],
+  "transfer_problems": [
+    "A muscle cell is working hard and its local oxygen supply temporarily runs low. Using what you know about where glycolysis occurs and what fermentation's actual biochemical purpose is, explain what happens to pyruvate in this cell and why this allows some ATP production to continue even though oxidative phosphorylation has stalled.",
+    "A researcher measures ATP output per glucose molecule in two different cell types and finds one yields close to 30 ATP while an older textbook claims 36-38 ATP for the same pathway. Using the concepts of NADH shuttle mechanisms and the location of the electron transport chain, explain what could account for this difference in reported yield."
+  ],
+  "passed": false,
+  "pass_threshold": 0.7
+}

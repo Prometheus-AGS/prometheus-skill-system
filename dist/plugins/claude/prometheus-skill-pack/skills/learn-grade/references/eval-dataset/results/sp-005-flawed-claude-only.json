@@ -1,0 +1,21 @@
+{
+  "grade_id": "eval-sp-005-flawed-claude-only",
+  "goal_id": "eval",
+  "concept_id": "skill-pack",
+  "learner_id": "eval-harness",
+  "graded_at": "2026-07-16T00:00:00Z",
+  "explanation_excerpt": "These skills are built specifically for Claude Code's plugin system, so they only really function there — other AI coding tools like Codex or Cursor would need their own separately-written skill files",
+  "scores": {"completeness": 0.2, "accuracy": 0.1, "clarity": 0.75, "misconceptions_absent": 0.0},
+  "overall_score": 0.2625,
+  "gaps": [
+    {"dimension": "accuracy", "description": "Factual error: claims skills only function on Claude Code and require separately-written files per tool. The pack uses the agentskills.io standard, which is explicitly platform-agnostic.", "corpus_ref": "MISCONCEPTION: skills only work on Claude Code"},
+    {"dimension": "completeness", "description": "Missing coverage of the dual-format distribution model: skills/ as the agentskills.io source of truth versus .claude-plugin/ as a Claude Code-specific enhancement layer.", "corpus_ref": "README.md — Overview"},
+    {"dimension": "completeness", "description": "Missing coverage of cross-platform installation mechanics: install-skills-flat.sh installs the same skill directory to all detected platforms without rewriting.", "corpus_ref": "CLAUDE.md — Cross-Platform Installation"}
+  ],
+  "transfer_problems": [
+    "A teammate wants to use the react-entity-crud skill in Cursor instead of Claude Code. Walk through what happens to the underlying SKILL.md file, whether it needs to be rewritten, and what installation step is required.",
+    "Explain why .claude-plugin/ is described as containing symlinks rather than original files, and how this relates to a skill being usable both as a portable agentskills.io skill and as part of the Claude Code plugin distribution simultaneously."
+  ],
+  "passed": false,
+  "pass_threshold": 0.7
+}

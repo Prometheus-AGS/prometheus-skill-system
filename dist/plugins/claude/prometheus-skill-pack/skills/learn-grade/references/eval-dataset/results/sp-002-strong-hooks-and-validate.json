@@ -1,0 +1,20 @@
+{
+  "grade_id": "eval-sp-002-strong-hooks-and-validate",
+  "goal_id": "eval",
+  "concept_id": "skill-pack",
+  "learner_id": "eval-harness",
+  "graded_at": "2026-07-16T20:12:04Z",
+  "explanation_excerpt": "hooks/hooks.json at the project root is the canonical, physical source for hook definitions — .claude-plugin/hooks is only a directory symlink pointing at ../hooks, so editing it directly is a no-op tra",
+  "scores": {"completeness": 0.6, "accuracy": 0.6, "clarity": 0.9, "misconceptions_absent": 1.0},
+  "overall_score": 0.775,
+  "gaps": [
+    {"dimension": "accuracy", "description": "Factual error: calling a direct edit of .claude-plugin/hooks/hooks.json a 'no-op trap' is wrong. It is a directory symlink, so writes through it DO reach the real file — the corpus's concern is CI integrity/consistency, not that edits vanish.", "corpus_ref": "MISCONCEPTION: hooks/hooks.json is edited via .claude-plugin/hooks/hooks.json"},
+    {"dimension": "completeness", "description": "Missing that .claude-plugin/ also symlinks skills/ and agents/ (not just hooks/), and omits that CI validates the hooks symlink integrity on every PR.", "corpus_ref": "CLAUDE.md — Architecture section"}
+  ],
+  "transfer_problems": [
+    "A contributor runs npm run validate before opening a PR for a brand-new skill and it reports 0 errors. They conclude the skill is ready to submit. Using the corpus's distinction between npm run validate and npm run validate:strict, explain why this conclusion is wrong and what could still be missing.",
+    "A teammate is auditing the .claude-plugin/ directory and, seeing that skills/, agents/, and hooks/ are all symlinks, proposes deleting .claude-plugin/ entirely to 'simplify' the repo. Using the corpus's description of the dual-format distribution model, explain what functionality would break and why the symlinks are load-bearing."
+  ],
+  "passed": true,
+  "pass_threshold": 0.7
+}
