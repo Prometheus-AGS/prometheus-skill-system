@@ -204,10 +204,9 @@ install_to_dir() {
     echo "  ✅ $platform_name: $count skills $action"
 }
 
-# Codex CLI (0.144.x) does not traverse symlinked skill directories — a symlink in
-# ~/.codex/skills contributes zero skills to the catalog, silently. Codex also budgets
-# the whole catalog, so the set it gets is curated in config/codex-catalog.txt.
-# Delegated to codex-sync-skills.sh, which is also run on codex session_start.
+# Codex CLI does not traverse symlinked skill directories. The immutable
+# generation installer therefore owns its receipt-bearing real-directory copies.
+# codex-sync-skills.sh remains only as a legacy migration/uninstall utility.
 # Kimi DESKTOP (/Applications/Kimi.app) is not the same target as Kimi Code.
 # Its daimon runtime reads skills only from inside a plugin package under
 # plugin-packages/, never from a flat skills dir, so install_to_dir cannot serve
@@ -223,34 +222,18 @@ install_to_kimi_desktop() {
 install_to_codex() {
     if $UNINSTALL; then
         bash "$REPO_ROOT/scripts/codex-sync-skills.sh" --uninstall
-    else
-        bash "$REPO_ROOT/scripts/codex-sync-skills.sh"
     fi
 
-    # Because Codex gets copies rather than symlinks, they go stale when a skill is
-    # edited. A WatchPaths LaunchAgent re-syncs on any change under skills/.
+    # The former WatchPaths agent used a different ownership marker and competed
+    # with immutable-generation receipts. Retire it on install and uninstall.
     [[ "$(uname -s)" == "Darwin" ]] || return 0
     local label="ai.prometheus.codex-skills-sync"
     local dst="$HOME/Library/LaunchAgents/$label.plist"
     local gui_domain="gui/$(id -u)"
 
-    if $UNINSTALL; then
-        launchctl bootout "$gui_domain/$label" 2>/dev/null || true
-        rm -f "$dst"
-        echo "  ✅ codex: skills-sync agent removed"
-        return 0
-    fi
-
-    mkdir -p "$HOME/Library/LaunchAgents" "$HOME/.prometheus/logs"
-    sed -e "s|__REPO_ROOT__|$REPO_ROOT|g" -e "s|__HOME__|$HOME|g" \
-        "$REPO_ROOT/shared/launchagents/$label.plist" > "$dst"
     launchctl bootout "$gui_domain/$label" 2>/dev/null || true
-    if launchctl bootstrap "$gui_domain" "$dst" 2>/dev/null && \
-       launchctl enable "$gui_domain/$label" 2>/dev/null; then
-        echo "  ✅ codex: skills-sync agent loaded (re-syncs on skill edits)"
-    else
-        install_failure "codex skills-sync LaunchAgent" || return 1
-    fi
+    rm -f "$dst"
+    echo "  ✅ codex: legacy skills-sync agent removed"
 }
 
 # MiniMax requires real directories (not symlinks) plus a _meta.json alongside SKILL.md.

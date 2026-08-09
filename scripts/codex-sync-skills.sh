@@ -168,6 +168,13 @@ for rel in "${CATALOG[@]}"; do
     WANTED="$WANTED$name
 "
 
+    # Immutable-generation copies are canonical and carry their own receipt.
+    # Do not overwrite them with the legacy .prometheus-pack format.
+    if [[ -d "$dest" && -f "$dest/.prometheus-generation" ]]; then
+        say "  — codex: $name is managed by the active immutable generation"
+        continue
+    fi
+
     # Refuse to clobber a directory we do not own (user's own skill, codex builtin).
     if [[ -d "$dest" && ! -f "$dest/$MARKER" ]]; then
         say "  ⚠️  codex: $name exists and is not pack-owned — skipping"

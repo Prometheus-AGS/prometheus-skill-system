@@ -78,6 +78,12 @@ printf '{"name":"prometheus-skill-pack","version":"1.7.0"}\n' > "$SOURCE/.codex-
 printf '{"plugins":[]}\n' > "$SOURCE/.agents/plugins/marketplace.json"
 printf '{}\n' > "$SOURCE/.mcp.json"
 node "$SOURCE/scripts/generate-harness-adapters.js" >/dev/null
+git -C "$SOURCE" init -b main >/dev/null
+git -C "$SOURCE" config user.name "Plugin Generation Fixture"
+git -C "$SOURCE" config user.email "fixture@example.invalid"
+git -C "$SOURCE" add .
+git -C "$SOURCE" commit -m "fixture source" >/dev/null
+SOURCE_COMMIT="$(git -C "$SOURCE" rev-parse HEAD)"
 
 mkdir -p "$TMP/home/.codex/skills/example" "$TMP/home/.minimax/skills/example"
 mkdir -p "$TMP/home/.codex/skills/user-owned"
@@ -91,10 +97,13 @@ printf 'source=legacy\n' > "$TMP/home/.codex/skills/example/.prometheus-pack"
 printf 'stale\n' > "$TMP/home/.minimax/skills/example/SKILL.md"
 printf '{"platform":"minimax"}\n' > "$TMP/home/.minimax/skills/example/_meta.json"
 
-node "$INSTALLER" --source-root "$SOURCE" --plugin-root "$PLUGIN_ROOT" --home "$TMP/home" >/dev/null
+node "$INSTALLER" --source-root "$SOURCE" --plugin-root "$PLUGIN_ROOT" --home "$TMP/home" \
+  --require-clean-source --expected-source-commit "$SOURCE_COMMIT" >/dev/null
 FIRST="$(readlink "$PLUGIN_ROOT/current")"
 FIRST_HASH="${FIRST##*/}"
 [[ -f "$PLUGIN_ROOT/generations/$FIRST_HASH/manifest.json" ]]
+[[ "$(jq -r '.sourceProvenance.sourceCommit' "$PLUGIN_ROOT/generations/$FIRST_HASH/manifest.json")" == "$SOURCE_COMMIT" ]]
+[[ "$(jq -r '.sourceProvenance.sourceTreeState' "$PLUGIN_ROOT/generations/$FIRST_HASH/manifest.json")" == clean ]]
 FIRST_BUNDLE="$(jq -r '.bundleId' "$PLUGIN_ROOT/generations/$FIRST_HASH/manifest.json")"
 [[ "$(readlink "$PLUGIN_ROOT/bundles/$FIRST_BUNDLE")" == "../generations/$FIRST_HASH" ]]
 [[ -x "$PLUGIN_ROOT/runtime/v1/run-hook" ]]
@@ -206,6 +215,14 @@ printf '#!/usr/bin/env bash\nprintf "karpathy-hook-dispatch-b\\n"\n' > "$SOURCE/
 printf '%s\n' '---' 'name: example' 'description: fixture-b' '---' > "$SOURCE/skills/example/SKILL.md"
 chmod +x "$SOURCE/shared/scripts/karpathy-hook-dispatch.sh"
 node "$SOURCE/scripts/generate-harness-adapters.js" >/dev/null
+if node "$INSTALLER" --source-root "$SOURCE" --plugin-root "$PLUGIN_ROOT" \
+  --home "$TMP/home" --require-clean-source --expected-source-commit "$SOURCE_COMMIT" \
+  >"$TMP/dirty.out" 2>"$TMP/dirty.err"; then
+  echo '[FAIL] release installation accepted a modified source tree' >&2
+  exit 1
+fi
+grep -q 'source tree is modified before staging' "$TMP/dirty.err"
+echo '[PASS] release mode pins a clean source commit while development installs remain available'
 node "$INSTALLER" --source-root "$SOURCE" --plugin-root "$PLUGIN_ROOT" --home "$TMP/home" >/dev/null
 SECOND="$(readlink "$PLUGIN_ROOT/current")"
 SECOND_HASH="${SECOND##*/}"

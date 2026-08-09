@@ -214,7 +214,9 @@ function installPlatform(platform: Platform, scope: 'global' | 'project'): void 
   console.log(`\n  Installing to ${platform.name} (${scope})...`);
   console.log(`    Target: ${linkPath}`);
 
-  if (platform.name === 'minimax') {
+  if (scope === 'global') {
+    console.log(`    ✅ Skills managed by the verified immutable generation`);
+  } else if (platform.name === 'minimax') {
     installMinimaxPayloads(targetDir);
   } else if (platform.name === 'codex') {
     syncCodexSkills(targetDir);
@@ -393,8 +395,13 @@ function installPlatform(platform: Platform, scope: 'global' | 'project'): void 
   // via codex-sync-skills.sh (real dirs — Codex ignores symlinked skill dirs).
   if (platform.name === 'codex') {
     try {
-      execSync('npm run build:codex', { cwd: REPO_ROOT, stdio: 'inherit' });
-      console.log(`    ✅ Codex plugin artifacts regenerated (.codex-plugin/, .agents/plugins/)`);
+      const command = scope === 'global' ? 'npm run validate:codex' : 'npm run build:codex';
+      execSync(command, { cwd: REPO_ROOT, stdio: 'inherit' });
+      console.log(
+        scope === 'global'
+          ? `    ✅ Codex plugin artifacts verified`
+          : `    ✅ Codex plugin artifacts regenerated (.codex-plugin/, .agents/plugins/)`
+      );
     } catch (e) {
       console.warn(`    ⚠️  Could not run build:codex: ${e}`);
     }
@@ -406,17 +413,15 @@ function uninstallPlatform(platform: Platform, scope: 'global' | 'project'): voi
     scope === 'global' ? platform.globalSkillsDir : join(process.cwd(), platform.projectSkillsDir);
   const linkPath = join(targetDir, SKILL_NAME);
 
-  if (platform.name === 'minimax') {
+  if (scope === 'global') {
+    removeLegacyBundleLink(targetDir);
+  } else if (platform.name === 'minimax') {
     installMinimaxPayloads(targetDir, true);
     return;
-  }
-
-  if (platform.name === 'codex') {
+  } else if (platform.name === 'codex') {
     syncCodexSkills(targetDir, true);
     return;
-  }
-
-  if (pathExistsOrIsSymlink(linkPath) && isRepoOwnedSymlink(linkPath)) {
+  } else if (pathExistsOrIsSymlink(linkPath) && isRepoOwnedSymlink(linkPath)) {
     try {
       unlinkSync(linkPath);
       console.log(`  ✅ Removed: ${linkPath}`);
@@ -471,6 +476,23 @@ function main(): void {
 
   const action = uninstall ? 'Uninstalling from' : 'Installing to';
   console.log(`\n${action} ${platforms.length} platform(s) (scope: ${scope})\n`);
+
+  if (scope === 'global') {
+    execFileSync(
+      process.execPath,
+      [join(REPO_ROOT, 'scripts', 'build-codex-plugin.js'), '--check'],
+      { stdio: 'inherit' }
+    );
+    const generationInstaller = join(REPO_ROOT, 'scripts', 'install-plugin-generation.js');
+    const generationArgs = [generationInstaller, '--source-root', REPO_ROOT, '--home', HOME];
+    if (uninstall) generationArgs.push('--uninstall');
+    const generation = execFileSync(process.execPath, generationArgs, { encoding: 'utf8' }).trim();
+    console.log(
+      uninstall
+        ? `  ✅ Removed immutable-generation projections`
+        : `  ✅ Activated verified immutable generation: ${generation}`
+    );
+  }
 
   for (const platform of platforms) {
     if (uninstall) {
