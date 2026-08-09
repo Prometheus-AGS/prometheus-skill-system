@@ -5,6 +5,22 @@ const sidebars = {
   // guideSidebar moved to sidebars-guide.js — the guide is served from the
   // canonical ../docs/guide via a separate plugin instance (id: 'guide').
 
+  agentContextSidebar: [
+    {
+      type: 'category',
+      label: 'Agent Context',
+      items: [
+        'agent-context/overview',
+        'agent-context/quick-start',
+        'agent-context/use-cases',
+        'agent-context/model-profiles',
+        'agent-context/harness-support',
+        'agent-context/skill-budget',
+        'agent-context/theory-and-sources',
+      ],
+    },
+  ],
+
   memorySidebar: [
     {
       type: 'category',

@@ -130,6 +130,11 @@ const config = {
             position: 'left',
             label: 'Core',
             items: [
+              {
+                type: 'docSidebar',
+                sidebarId: 'agentContextSidebar',
+                label: 'Agent Context',
+              },
               { type: 'docSidebar', sidebarId: 'memorySidebar', label: 'Memory' },
               {
                 type: 'docSidebar',
@@ -192,6 +197,10 @@ const config = {
               {
                 label: 'Dynamic Operations',
                 to: '/docs/execution/overview-and-use-cases',
+              },
+              {
+                label: 'Agent Context',
+                to: '/docs/agent-context/overview',
               },
               { label: 'Memory', to: '/docs/memory/overview' },
               {
