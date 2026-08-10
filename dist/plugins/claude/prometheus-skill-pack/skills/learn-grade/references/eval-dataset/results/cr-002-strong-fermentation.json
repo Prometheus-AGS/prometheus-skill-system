@@ -1,0 +1,17 @@
+{
+  "grade_id": "eval-cr-002-strong-fermentation",
+  "goal_id": "eval",
+  "concept_id": "cellular-respiration",
+  "learner_id": "eval-harness",
+  "graded_at": "2026-07-16T00:00:00Z",
+  "explanation_excerpt": "When oxygen isn't available, cells can't run the electron transport chain, so instead they rely on fermentation to keep glycolysis going. Fermentation doesn't add any extra ATP beyond glycolysis's ",
+  "scores": {"completeness": 0.85, "accuracy": 1.0, "clarity": 0.95, "misconceptions_absent": 1.0},
+  "overall_score": 0.95,
+  "gaps": [],
+  "transfer_problems": [
+    "A yeast cell is fermenting glucose under anaerobic conditions and a researcher measures its ATP output. If oxygen is suddenly introduced and the cell shifts to aerobic respiration, explain what happens to the NADH that fermentation was previously handling, and why the citric acid cycle and oxidative phosphorylation can now proceed where they couldn't before.",
+    "A muscle cell during intense exercise relies on lactic acid fermentation. Using the fact that oxidative phosphorylation occurs across the inner mitochondrial membrane and requires oxygen as the final electron acceptor, explain why the muscle cell cannot simply run the electron transport chain faster to keep up with ATP demand instead of fermenting."
+  ],
+  "passed": true,
+  "pass_threshold": 0.7
+}

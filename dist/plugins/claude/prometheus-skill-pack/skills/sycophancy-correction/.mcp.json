@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "sycophancy-correction": {
+      "command": "sycophancy-correction",
+      "args": ["--config", "skill.toml"],
+      "env": {
+        "ANTHROPIC_API_KEY": "${ANTHROPIC_API_KEY}",
+        "RUST_LOG": "info"
+      }
+    }
+  }
+}

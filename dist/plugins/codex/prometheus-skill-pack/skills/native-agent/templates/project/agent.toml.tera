@@ -1,0 +1,95 @@
+{{- /*
+  agent.toml.tera — Agent configuration file
+  Variables:
+    agent_name        : kebab-case agent name
+    agent_description : one-line description
+    default_provider  : default provider (anthropic|openai|local)
+    default_model     : default model ID
+    port              : default server port
+    enable_surreal    : bool — add surreal-memory
+    enable_forge      : bool — add forge MCP
+    enable_pk         : bool — add prometheus-knowledge
+    skill_pack_path   : path to prometheus skill pack skills/ directory
+*/ -}}
+# agent.toml — {{ agent_name }} configuration
+# Edit this file to configure providers, models, MCP servers, and skills.
+# Reload a running agent with: {{ agent_name }} skills reload
+
+[agent]
+name             = "{{ agent_name }}"
+description      = "{{ agent_description }}"
+version          = "1.0.0"
+default_provider = "{{ default_provider }}"
+default_model    = "{{ default_model }}"
+port             = {{ port }}
+host             = "127.0.0.1"
+system_prompt_path = "system_prompt.md"
+
+# ─── Providers ────────────────────────────────────────────────────────────────
+# Add providers here. The agent uses liter-llm as a gateway — if liter-llm is
+# running on localhost, point all providers to it:
+#   url = "http://localhost:11434/v1"  (liter-llm)
+#
+# Direct provider URLs also work:
+#   url = "https://api.anthropic.com/v1"  (direct Anthropic)
+
+[providers.anthropic]
+url     = "https://api.anthropic.com/v1"
+key_env = "ANTHROPIC_API_KEY"   # set in .env
+models  = ["claude-sonnet-4-6", "claude-haiku-4-5", "claude-opus-4-6"]
+
+[providers.openai]
+url     = "https://api.openai.com/v1"
+key_env = "OPENAI_API_KEY"
+models  = ["gpt-4o", "gpt-4o-mini", "o1-preview"]
+
+[providers.local]
+url     = "http://localhost:11434/v1"   # Ollama or liter-llm
+key_env = ""
+models  = ["qwen2.5-7b", "mistral-7b", "llama3.1-8b"]
+
+# ─── MCP Servers ──────────────────────────────────────────────────────────────
+# The agent connects to these as a CLIENT — they provide tools to the LLM.
+# Start these services before starting the agent.
+
+{% if enable_forge -%}
+[[mcp_servers]]
+name      = "forge"
+url       = "http://localhost:8943/mcp"
+transport = "sse"
+enabled   = true
+
+{% endif -%}
+{% if enable_surreal -%}
+[[mcp_servers]]
+name      = "surreal-memory"
+url       = "http://localhost:23001/mcp"
+transport = "sse"
+enabled   = true
+
+{% endif -%}
+{% if enable_pk -%}
+[[mcp_servers]]
+name      = "prometheus-knowledge"
+url       = "http://localhost:8942/mcp"
+transport = "sse"
+enabled   = true
+
+{% endif -%}
+
+# Add more MCP servers with: {{ agent_name }} mcp add <name> <url>
+# Or manually:
+# [[mcp_servers]]
+# name      = "my-server"
+# url       = "http://localhost:9000/mcp"
+# transport = "sse"
+# enabled   = true
+
+# ─── Skills ───────────────────────────────────────────────────────────────────
+[skills]
+directories = [
+  {{ '"' }}{{ skill_pack_path }}{{ '"' }},  # Prometheus skill pack
+  "./skills",                 # Local agent skills (create this dir if needed)
+]
+auto_inject = true  # Automatically inject relevant skills into context
+top_k       = 3     # Max skills injected per conversation turn

@@ -4,12 +4,30 @@ This procedure builds, signs, installs, and locally certifies Prometheus 1.7.0. 
 
 ## Prerequisites
 
-Required: Git, Node.js 18+, Rust, `jq`, `curl`, and platform service-manager tools. Clone with submodules:
+The skills profile requires Git and Node.js 18+. Clone normally; the root
+installer initializes the exact required submodule pins:
 
 ```bash
-git clone --recurse-submodules https://github.com/Prometheus-AGS/prometheus-skill-system
+git clone https://github.com/Prometheus-AGS/prometheus-skill-system.git
 cd prometheus-skill-system
+./install.sh
 ```
+
+`./install.sh` interactively highlights `skills`, preselects all detected
+clients, prints the exact mutation summary, and leaves deselected clients
+untouched. Automation can use:
+
+```bash
+./install.sh --profile skills --targets detected --non-interactive --yes
+./install.sh --verify --targets detected --non-interactive
+```
+
+Use `--profile full` on macOS or Linux to initialize all submodules, approve
+prerequisites, build binaries locally, configure MCP for selected clients,
+install user services, and run doctors. Full installation is rejected on
+Windows; the skills profile is certified through Git Bash or WSL. `--best-effort`
+is explicitly non-certifying. Release `1.7.0` is the minimum supported active
+umbrella skill-system release.
 
 Keep Rust caches on an internal SSD:
 
@@ -76,8 +94,8 @@ See [Execution installation, doctor, and recovery](/docs/execution/installation-
 ## Plugin generation
 
 ```bash
-node scripts/install-plugin-generation.js
-node scripts/install-plugin-generation.js --verify
+./install.sh --profile skills --targets all --non-interactive --yes
+./install.sh --verify --targets all --non-interactive
 ```
 
 This validates the manifest, 14 target receipts, copy-versus-symlink modes, stable dispatchers, active/previous pointers, and stale-path absence.

@@ -1,0 +1,112 @@
+---
+name: native-agent
+version: '1.0.0'
+description: >
+  Generates a complete native Rust agent application with Supabase-style management
+  CLI, A2A/AG-UI/A2UI protocol support, React 19 assistant-ui chat frontend,
+  liter-llm model routing, MCP client tools, Prometheus skills engine, Docker
+  multi-stage build, docker-compose with companion services, and Docker Desktop
+  detection + auto-load. Triggered by any request to create a new agent, local
+  agent, or agent binary.
+language: rust
+---
+
+# Native Agent Generator (skill.toml)
+
+# ─── Rust workspace templates ─────────────────────────────────────────────────
+
+[[templates]]
+path               = "rust/workspace.cargo.toml.tera"
+output_description = "Workspace Cargo.toml with all 5 crates + release profile"
+
+[[templates]]
+path               = "rust/agent_core.rs.tera"
+output_description = "Domain types: AgentConfig, Session, A2A types, AG-UI events"
+
+[[templates]]
+path               = "rust/agent_skills.rs.tera"
+output_description = "Skills engine with TF-IDF selection and hot-reload"
+
+[[templates]]
+path               = "rust/agent_mcp.rs.tera"
+output_description = "Lightweight MCP client: connect, list_tools, call_tool"
+
+[[templates]]
+path               = "rust/agent_server.rs.tera"
+output_description = "Axum server: A2A + AG-UI + A2UI + Chat API + static frontend"
+
+[[templates]]
+path               = "rust/agent_cli.rs.tera"
+output_description = "Supabase-style management CLI: start/stop/status/mcp/skills/docker"
+
+# ─── Docker templates ─────────────────────────────────────────────────────────
+
+[[templates]]
+path               = "docker/Dockerfile.tera"
+output_description = "Multi-stage Dockerfile: cargo-chef dep cache + Node.js frontend + slim runtime"
+
+[[templates]]
+path               = "docker/docker-compose.yml.tera"
+output_description = "docker-compose: agent + optional surreal-memory, prometheus-knowledge, liter-llm"
+
+[[templates]]
+path               = "docker/dockerignore.tera"
+output_description = ".dockerignore: excludes target/, node_modules/, .env, runtime state files"
+
+[[templates]]
+path               = "docker/docker_detect.sh.tera"
+output_description = "Docker detection script: CLI, Docker Desktop, Compose, Buildx — JSON output"
+
+[[templates]]
+path               = "docker/docker_commands.rs.tera"
+output_description = "Docker CLI subcommands: detect, build, load, up, down, ps, logs, push, shell"
+
+# ─── Project file templates ───────────────────────────────────────────────────
+
+[[templates]]
+path               = "project/agent.toml.tera"
+output_description = "Agent configuration: providers, models, MCP servers, skills"
+
+[[templates]]
+path               = "project/system_prompt.md.tera"
+output_description = "Agent system prompt (hot-reloadable at runtime)"
+
+[[templates]]
+path               = "project/env_example.tera"
+output_description = ".env.example with all required variables including Docker-specific entries"
+
+# ─── Frontend templates ───────────────────────────────────────────────────────
+
+[[templates]]
+path               = "frontend/package.json.tera"
+output_description = "React 19 + Vite 8 + assistant-ui + TanStack package.json"
+
+[[templates]]
+path               = "frontend/Chat.tsx.tera"
+output_description = "assistant-ui Thread with custom AG-UI SSE streaming adapter"
+
+[[templates]]
+path               = "frontend/ProviderConfig.tsx.tera"
+output_description = "Provider/model selector (shows configured providers only)"
+
+[[templates]]
+path               = "frontend/api.ts.tera"
+output_description = "Typed API client with zod validation for all agent endpoints"
+
+# ─── Triggers ────────────────────────────────────────────────────────────────
+
+[[triggers]]
+type     = "Keywords"
+keywords = [
+  "native agent", "create agent", "new agent", "agent binary",
+  "rust agent", "axum agent", "local agent", "quickie agent",
+  "a2a agent", "ag-ui agent", "assistant-ui", "agent server",
+  "docker agent", "containerize agent"
+]
+
+depends_on = [
+  "rust/axum-patterns",
+  "rust/error-handling",
+  "rust/async-patterns",
+  "rust/mcp-server"
+]

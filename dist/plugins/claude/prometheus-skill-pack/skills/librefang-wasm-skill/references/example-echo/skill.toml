@@ -1,0 +1,19 @@
+[skill]
+name = "echo"
+version = "0.1.0"
+description = "Echo a JSON payload back to the caller."
+author = "Prometheus AGS"
+tags = ["wasm", "example"]
+
+[runtime]
+type = "wasm"
+entry = "echo.wasm"
+
+[[tools]]
+name = "echo"
+description = "Returns the input unchanged, wrapped in {\"echoed\": ...}."
+input_schema = { type = "object", properties = { message = { type = "string" } }, required = ["message"] }
+
+[requirements]
+tools = []
+capabilities = []

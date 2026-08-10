@@ -1,0 +1,62 @@
+# LibreFang skill manifest — read by librefang-skills' SkillManifest deserializer.
+# Reference: librefang/crates/librefang-skills/src/lib.rs (SkillManifest struct).
+
+[skill]
+name = "{{ skill_name }}"
+version = "{{ skill_version | default(value="0.1.0") }}"
+description = "{{ skill_description }}"
+author = "{{ skill_author | default(value="your-name") }}"
+{% if skill_tags -%}
+tags = [{% for t in skill_tags %}"{{ t }}"{% if not loop.last %}, {% endif %}{% endfor %}]
+{% else -%}
+tags = ["wasm", "example"]
+{% endif %}
+
+[runtime]
+type = "wasm"
+# `entry` is resolved relative to the skill directory after install. The
+# packaged zip places <skill_name>.wasm at the skill root.
+entry = "{{ skill_name }}.wasm"
+
+# Tools the skill exposes to the LLM. Each tool's input_schema is enforced
+# by the kernel before `execute` is called. The `name` here MUST match the
+# arm in src/lib.rs's `dispatch` function.
+{% for tool in tools | default(value=[{"name":"echo","description":"Echo input back","input_schema":{"type":"object","properties":{"message":{"type":"string"}},"required":["message"]}}]) %}
+[[tools]]
+name = "{{ tool.name }}"
+description = "{{ tool.description }}"
+input_schema = {{ tool.input_schema | json_encode | safe }}
+{% endfor %}
+
+[requirements]
+# Built-in tools to inject into this skill's host context (rare for WASM).
+tools = []
+# Capabilities the skill needs. Format: "<Variant>(\"<arg>\")" matching
+# librefang_types::Capability. The kernel parses these strings and grants
+# them at sandbox-construction time. Examples:
+#
+#   "FileRead(\"/data/**\")"
+#   "FileWrite(\"/tmp/{{ skill_name }}/*\")"
+#   "NetConnect(\"api.example.com:443\")"
+#   "MemoryRead(\"agent.*\")"
+#   "MemoryWrite(\"agent.scratch.*\")"
+#   "EnvRead(\"OPENAI_API_KEY\")"
+#   "AgentMessage(\"*\")"
+#
+# Deny-by-default: any host_call with an unmatched capability returns
+# {"error": "Capability denied: ..."} to the guest.
+capabilities = [
+{% for cap in capabilities | default(value=[]) %}    "{{ cap }}"{% if not loop.last %},{% endif %}
+{% endfor %}]
+
+# Optional: declare config keys the skill expects from ~/.librefang/config.toml.
+# The kernel validates presence at install time and rejects skills whose
+# required keys are missing.
+{% if config_vars -%}
+{% for cv in config_vars %}
+[[config_vars]]
+key = "{{ cv.key }}"
+description = "{{ cv.description }}"
+{% if cv.default -%}default = "{{ cv.default }}"{% endif %}
+{% endfor -%}
+{% endif %}

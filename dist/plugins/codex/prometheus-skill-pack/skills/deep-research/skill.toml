@@ -1,0 +1,43 @@
+[package]
+name = "deep-research"
+version = "1.0.0"
+description = "Deep research agent with 10-stage pipeline, knowledge graphs, and persistent .research packages"
+authors = ["Prometheus AGS"]
+license = "MIT"
+category = "research"
+tags = ["research", "deep-research", "knowledge-graph", "mcp", "ag-ui", "okf"]
+
+[dependencies]
+"skills/process/kbd-process-orchestrator" = { required = true, version = ">=1.0.0" }
+"skills/process/liter-llm-bridge" = { required = true, version = ">=1.0.0" }
+"skills/process/pmpo-elicit" = { required = false, version = ">=1.0.0" }
+"skills/rust/mcp-server" = { required = false, version = ">=1.0.0" }
+"skills/rust/axum-patterns" = { required = false, version = ">=1.0.0" }
+"skills/htmx/htmx-alpine-lit" = { required = false, version = ">=1.0.0" }
+"tools/surreal-memory-server" = { required = false, version = ">=1.0.0" }
+"skills/imported/sycophancy-correction" = { required = false, version = ">=1.0.0" }
+"skills/learn/learn-grade" = { required = false, version = ">=1.0.0" }
+"skills/learn/learn-plan" = { required = false, version = ">=1.0.0" }
+"skills/document-extraction/kreuzberg" = { required = false, version = ">=1.0.0" }
+
+[scripts]
+validate = "npm run validate:skill skills/research/deep-research"
+run = "bash scripts/run-research.sh"
+export = "bash scripts/export-package.sh"
+
+[mcp]
+server_name = "prometheus-research"
+transport = "stdio"
+# Server binary generated in phase-prometheus-research-binary (deferred)
+
+[ui]
+protocol = "ag-ui"
+# HTMX UI at docs/deep-research/deep-research-ui.html
+
+[features]
+threaded = true
+long_running = true
+feynman_integration = true
+okf_alignment = true
+knowledge_graph = true
+contradiction_detection = true

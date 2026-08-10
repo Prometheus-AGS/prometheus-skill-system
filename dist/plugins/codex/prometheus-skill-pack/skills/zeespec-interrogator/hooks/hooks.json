@@ -1,0 +1,70 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "[ -f \"${ZEESPEC_STATE_DIR:-.zeespec}/subjects/${SUBJECT_NAME:-default}/state.json\" ] && python3 -c \"import json; json.load(open('${ZEESPEC_STATE_DIR:-.zeespec}/subjects/${SUBJECT_NAME:-default}/state.json')); print('✅ state valid')\" 2>&1 || echo '⚠️ state validation skipped' && true"
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "matcher": "interrogator",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT}/scripts/state-checkpoint.sh \"${SUBJECT_NAME:-default}\" interrogate phase_complete 2>&1 || true"
+          },
+          {
+            "type": "command",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT}/scripts/workflow-dispatch.sh \"${SUBJECT_NAME:-default}\" phase_complete interrogate 2>&1 || true"
+          }
+        ]
+      },
+      {
+        "matcher": "scorer",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT}/scripts/state-checkpoint.sh \"${SUBJECT_NAME:-default}\" score phase_complete 2>&1 || true"
+          },
+          {
+            "type": "command",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT}/scripts/workflow-dispatch.sh \"${SUBJECT_NAME:-default}\" phase_complete score 2>&1 || true"
+          }
+        ]
+      },
+      {
+        "matcher": "manifest-writer",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT}/scripts/state-checkpoint.sh \"${SUBJECT_NAME:-default}\" manifest phase_complete 2>&1 || true"
+          },
+          {
+            "type": "command",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT}/scripts/workflow-dispatch.sh \"${SUBJECT_NAME:-default}\" phase_complete manifest 2>&1 || true"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT}/scripts/state-finalize.sh \"${SUBJECT_NAME:-default}\" 2>&1 || true"
+          },
+          {
+            "type": "command",
+            "command": "bash ${CLAUDE_PLUGIN_ROOT}/scripts/workflow-dispatch.sh \"${SUBJECT_NAME:-default}\" interrogation_complete 2>&1 || true"
+          }
+        ]
+      }
+    ]
+  }
+}

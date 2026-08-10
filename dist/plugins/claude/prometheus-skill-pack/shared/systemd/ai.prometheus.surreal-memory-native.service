@@ -1,0 +1,40 @@
+# systemd --user unit — Prometheus surreal-memory MCP server (native).
+# Mirrors shared/launchagents/ai.prometheus.surreal-memory-native.plist.
+# Connects to the native SurrealDB at ws://127.0.0.1:28000; MCP SSE on :23001.
+# After/Wants (soft) on surrealdb so a reused/external :28000 doesn't block start.
+[Unit]
+Description=Prometheus surreal-memory MCP server (native, :23001)
+After=ai.prometheus.surrealdb-native.service
+Wants=ai.prometheus.surrealdb-native.service
+
+[Service]
+Type=simple
+WorkingDirectory=__PROMETHEUS_HOME__
+Environment=HOME=__PROMETHEUS_HOME__
+Environment=USER=__PROMETHEUS_USER__
+Environment=PATH=__PROMETHEUS_PATH__
+Environment=SURREAL_MODE=server
+Environment=SURREAL_ENDPOINT=ws://127.0.0.1:28000
+Environment=SURREAL_USERNAME=root
+Environment=SURREAL_PASSWORD=root
+Environment=SURREAL_NAMESPACE=memory
+Environment=SURREAL_DATABASE=mcp
+Environment=API_PORT=23001
+Environment=MCP_STDIO=false
+Environment=EMBEDDING_PROVIDER=local
+Environment=LOCAL_EMBEDDING_MODEL=BAAI/bge-small-en-v1.5
+Environment=MODEL_CACHE_DIR=__PROMETHEUS_HOME__/.cache/huggingface
+Environment=SURREAL_MAX_CONNECT_RETRIES=10
+Environment=SURREAL_MAX_OPERATION_RETRIES=3
+Environment=SURREAL_BASE_RETRY_DELAY_MS=100
+Environment=SURREAL_MAX_RETRY_DELAY_MS=5000
+Environment=SURREAL_RETRY_JITTER_FACTOR=0.25
+Environment=RUST_LOG=info
+ExecStart=__SURREAL_MEMORY_BIN__
+Restart=on-failure
+RestartSec=10
+StandardOutput=append:__PROMETHEUS_LOG_DIR__/surreal-memory-native.stdout.log
+StandardError=append:__PROMETHEUS_LOG_DIR__/surreal-memory-native.stderr.log
+
+[Install]
+WantedBy=default.target

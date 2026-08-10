@@ -13,6 +13,10 @@
 *.yaml text eol=lf
 *.yml text eol=lf
 
+# Generated native packages preserve canonical payload bytes, including source
+# whitespace that is meaningful to parity checks.
+dist/** -whitespace
+
 # Binary files
 *.png binary
 *.jpg binary

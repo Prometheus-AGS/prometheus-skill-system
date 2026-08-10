@@ -1493,8 +1493,14 @@ fn validate_codex_hook_graph(
             return Some(version);
         }
         None => {
-            failures.push(format!("{label} has no hooks manifest selection"));
-            return Some(version);
+            // Codex rejects the hooks field in native plugin manifests. The
+            // universal signed generation still carries the generated hook
+            // graph for compatibility checks; a native Codex cache does not.
+            if root.join("hooks/codex-hooks.json").is_file() {
+                "hooks/codex-hooks.json"
+            } else {
+                return Some(version);
+            }
         }
     };
     let hooks_path = root.join(hooks_reference);
@@ -1586,7 +1592,7 @@ fn check_harness_adapter_parity() -> CheckResult {
     }
     let source_version = validate_codex_hook_graph(
         source_root,
-        &source_root.join(".codex-plugin/plugin.json"),
+        &source_root.join("dist/plugins/codex/prometheus-skill-pack/.codex-plugin/plugin.json"),
         &bundle,
         expected_hook_count,
         &expected_hooks_sha,

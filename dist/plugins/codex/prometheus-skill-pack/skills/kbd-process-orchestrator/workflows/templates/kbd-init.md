@@ -1,0 +1,32 @@
+# /kbd-init
+
+Initialize KBD for the current project. Auto-discovers project identity, stack,
+constraints, and workspace structure. Generates `.kbd-orchestrator/project.json`
+and `.kbd-orchestrator/constraints.md`.
+
+## Instructions
+
+Execute the installed `kbd-init` Agent Skill. Its `SKILL.md`, `references/`, and
+`scripts/` directory form one self-contained payload. Resolve supporting files
+relative to that installed skill only; never use `.agent/`, a source checkout,
+or a versioned plugin cache.
+
+Run the 7-step discovery algorithm:
+
+1. Project name & description
+2. Technology stack detection
+3. Build / test / lint commands
+4. Spec paths
+5. Constraints (from AGENTS.md "Never Do")
+6. VSCode workspace discovery (.code-workspace)
+7. Agent preferences
+
+Generate `.kbd-orchestrator/project.json` from the installed skill's
+`references/schemas/project.template.json`. Generate
+`.kbd-orchestrator/constraints.md` from its `references/constraints.md`, then run
+its bundled post-generation validator.
+
+If an argument is provided (`$ARGUMENTS`), use it as the project name override.
+
+After init, print the KBD init summary showing focus project, reference folders,
+and next commands to run.

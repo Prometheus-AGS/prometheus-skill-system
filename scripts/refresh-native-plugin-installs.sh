@@ -27,6 +27,13 @@ if [[ -z "$GENERATION" ]]; then
 fi
 KIMI_INSTALLER="${KIMI_INSTALLER:-$REPO_ROOT/scripts/install-kimi-desktop-plugin.sh}"
 
+read -r RELEASE_VERSION MINIMUM_ACTIVE_VERSION < <(node - "$REPO_ROOT/skill-system.json" <<'NODE'
+const fs = require('fs');
+const contract = JSON.parse(fs.readFileSync(process.argv[2], 'utf8'));
+process.stdout.write(`${contract.releaseVersion} ${contract.minimumActiveVersion}\n`);
+NODE
+)
+
 command_available() {
     [[ "$1" == */* ]] && [[ -x "$1" ]] && return 0
     command -v "$1" >/dev/null 2>&1
@@ -70,7 +77,21 @@ if [[ "$active" != "generations/$GENERATION" ]]; then
     echo "refresh-native-plugin-installs: active generation mismatch: ${active:-missing}" >&2
     exit 1
 fi
-compare_kbd_payload "$PLUGIN_ROOT/current/skills/process/kbd-process-orchestrator/skills/kbd-init"
+node - "$PLUGIN_ROOT/current/manifest.json" "$MINIMUM_ACTIVE_VERSION" "$RELEASE_VERSION" <<'NODE'
+const fs = require('fs');
+const [manifestFile, minimum, release] = process.argv.slice(2);
+const version = JSON.parse(fs.readFileSync(manifestFile, 'utf8')).sourceVersion;
+const parts = value => value.split('.').map(Number);
+const compare = (left, right) => {
+  const a = parts(left);
+  const b = parts(right);
+  for (let index = 0; index < 3; index += 1) if (a[index] !== b[index]) return a[index] - b[index];
+  return 0;
+};
+if (compare(version, minimum) < 0) throw new Error(`active generation ${version} is below minimum ${minimum}`);
+if (version !== release) throw new Error(`active generation ${version} is not source release ${release}`);
+NODE
+compare_kbd_payload "$PLUGIN_ROOT/current/skills/kbd-init"
 echo "  ✅ immutable generation payload verified"
 
 if [[ "$(uname -s)" == "Darwin" ]]; then
@@ -108,7 +129,15 @@ for (const row of rows) if (wanted.has(row.id) && row.scope === "user") console.
         "$CLAUDE_BIN" plugin marketplace update prometheus-skill-pack
         while IFS= read -r plugin_id; do
             [[ -n "$plugin_id" ]] || continue
-            "$CLAUDE_BIN" plugin update --scope user "$plugin_id"
+            if $FORCE && [[ "$plugin_id" == "prometheus-skill-pack@prometheus-skill-pack" ]]; then
+                # Same-version package contents are immutable in Claude's cache.
+                # A supported uninstall/install cycle is required to refresh 1.7.0
+                # bytes after the package layout migration.
+                "$CLAUDE_BIN" plugin uninstall --scope user "$plugin_id"
+                "$CLAUDE_BIN" plugin install --scope user "$plugin_id"
+            else
+                "$CLAUDE_BIN" plugin update --scope user "$plugin_id"
+            fi
         done <<< "$installed_affected"
 
         claude_after=""
@@ -123,7 +152,7 @@ const path = require('path');
 const [payload, root] = process.argv.slice(2);
 const rows = JSON.parse(payload);
 const expected = new Map([
-  ['prometheus-skill-pack@prometheus-skill-pack', JSON.parse(fs.readFileSync(path.join(root, '.claude-plugin/plugin.json'))).version],
+  ['prometheus-skill-pack@prometheus-skill-pack', JSON.parse(fs.readFileSync(path.join(root, 'skill-system.json'))).releaseVersion],
   ['prometheus-process-skills@prometheus-skill-pack', JSON.parse(fs.readFileSync(path.join(root, 'skills/process/.claude-plugin/plugin.json'))).version],
 ]);
 for (const [id, version] of expected) {
@@ -149,12 +178,13 @@ const path = require('path');
 const [payload, root] = process.argv.slice(2);
 const rows = JSON.parse(payload);
 const expected = new Map([
-  ['prometheus-skill-pack@prometheus-skill-pack', JSON.parse(fs.readFileSync(path.join(root, '.claude-plugin/plugin.json'))).version],
+  ['prometheus-skill-pack@prometheus-skill-pack', JSON.parse(fs.readFileSync(path.join(root, 'skill-system.json'))).releaseVersion],
   ['prometheus-process-skills@prometheus-skill-pack', JSON.parse(fs.readFileSync(path.join(root, 'skills/process/.claude-plugin/plugin.json'))).version],
 ]);
 for (const [id, version] of expected) {
   const row = rows.find(candidate => candidate.id === id && candidate.scope === 'user');
   if (!row) continue;
+  if (id.startsWith('prometheus-skill-pack@') && row.enabled === false) throw new Error(`${id}: Claude plugin is disabled`);
   if (row.version !== version) throw new Error(`${id}: expected ${version}, found ${row.version}`);
   console.log(`${id}\t${row.installPath}`);
 }
@@ -162,7 +192,7 @@ NODE
         while IFS=$'\t' read -r plugin_id install_path; do
             case "$plugin_id" in
                 prometheus-skill-pack@*)
-                    compare_kbd_payload "$install_path/skills/process/kbd-process-orchestrator/skills/kbd-init"
+                    compare_kbd_payload "$install_path/skills/kbd-init"
                     ;;
                 prometheus-process-skills@*)
                     compare_kbd_payload "$install_path/kbd-process-orchestrator/skills/kbd-init"
@@ -205,7 +235,7 @@ const path = require('path');
 const [payload, root] = process.argv.slice(2);
 const rows = JSON.parse(payload).installed ?? [];
 const expected = new Map([
-  ['prometheus-skill-pack@prometheus-skill-pack', JSON.parse(fs.readFileSync(path.join(root, '.claude-plugin/plugin.json'))).version],
+  ['prometheus-skill-pack@prometheus-skill-pack', JSON.parse(fs.readFileSync(path.join(root, 'skill-system.json'))).releaseVersion],
   ['prometheus-process-skills@prometheus-skill-pack', JSON.parse(fs.readFileSync(path.join(root, 'skills/process/.claude-plugin/plugin.json'))).version],
 ]);
 for (const [id, version] of expected) {
@@ -213,7 +243,9 @@ for (const [id, version] of expected) {
   if (!row?.installed || !row.enabled) throw new Error(`${id}: Codex plugin is not installed and enabled`);
   if (row.version !== version) throw new Error(`${id}: expected ${version}, found ${row.version}`);
   const source = path.resolve(row.source?.path ?? '');
-  const expectedRoot = id.startsWith('prometheus-process-skills@') ? path.join(root, 'skills/process') : root;
+  const expectedRoot = id.startsWith('prometheus-process-skills@')
+    ? path.join(root, 'skills/process')
+    : path.join(root, 'dist/plugins/codex/prometheus-skill-pack');
   if (source !== expectedRoot) throw new Error(`${id}: unexpected local source ${source}`);
 }
 NODE

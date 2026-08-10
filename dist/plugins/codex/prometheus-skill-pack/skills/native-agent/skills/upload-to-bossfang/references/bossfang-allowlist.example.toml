@@ -1,0 +1,30 @@
+# bossfang-allowlist.toml — known-good LibreFang/bossfang deployment URLs.
+#
+# Default location: ~/.config/prometheus-skill-pack/bossfang-allowlist.toml
+# Override location: PROMETHEUS_BOSSFANG_ALLOWLIST env var
+#
+# /upload-to-bossfang refuses to push to any URL whose host:port pair is not
+# listed here, unless --insecure is passed. The file is plain TOML; one
+# [[allowed]] entry per host. Keep this under source control if multiple
+# people on your team need the same allowlist.
+
+[[allowed]]
+host  = "bossfang.example.com"
+port  = 443
+notes = "Production fleet — owned by SRE; rotation key is in 1Password 'bossfang-prod'"
+
+[[allowed]]
+host  = "staging-bossfang.example.com"
+port  = 443
+notes = "Staging — auto-deploys from main"
+
+# An entry for self-hosted dev tunnels (e.g. ngrok). Note the scheme is
+# implicit — the upload script enforces https://, the entry just lists the
+# hostname-port pair.
+[[allowed]]
+host  = "abcd-1234.ngrok-free.app"
+port  = 443
+notes = "Personal dev tunnel — rotate weekly"
+
+# Note: localhost:4545 is built into the script under --insecure and does NOT
+# need to be listed here.

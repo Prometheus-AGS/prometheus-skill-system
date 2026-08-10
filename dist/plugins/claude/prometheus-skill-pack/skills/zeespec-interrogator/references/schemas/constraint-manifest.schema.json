@@ -1,0 +1,151 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Constraint Manifest",
+  "description": "ZeeSpec constraint manifest produced after a completed interrogation cycle",
+  "version": "1.0",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "subject",
+    "interrogation_id",
+    "manifest_generated_at",
+    "coverage",
+    "go_recommendation",
+    "go_rationale",
+    "constraints",
+    "gaps",
+    "blocked_until",
+    "caller_enrichment"
+  ],
+  "properties": {
+    "schema_version": { "type": "string", "const": "1.0" },
+    "subject": { "type": "string" },
+    "subject_description": { "type": "string" },
+    "interrogation_id": { "type": "string" },
+    "manifest_generated_at": { "type": "string", "format": "date-time" },
+    "manifest_status": {
+      "type": "string",
+      "enum": ["complete", "incomplete"],
+      "default": "complete"
+    },
+    "coverage": {
+      "type": "object",
+      "required": ["aggregate_score", "aggregate_status", "per_dimension"],
+      "properties": {
+        "aggregate_score": { "type": "number", "minimum": 0.0, "maximum": 1.0 },
+        "aggregate_status": {
+          "type": "string",
+          "enum": ["sufficient", "partial", "insufficient"]
+        },
+        "critical_failures": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "per_dimension": {
+          "type": "object",
+          "properties": {
+            "why": { "$ref": "#/definitions/dimension_coverage" },
+            "who": { "$ref": "#/definitions/dimension_coverage" },
+            "when": { "$ref": "#/definitions/dimension_coverage" },
+            "what": { "$ref": "#/definitions/dimension_coverage" },
+            "where": { "$ref": "#/definitions/dimension_coverage" },
+            "how": { "$ref": "#/definitions/dimension_coverage" }
+          }
+        }
+      }
+    },
+    "go_recommendation": {
+      "type": "string",
+      "enum": ["GO", "CAUTION", "NO-GO"]
+    },
+    "go_rationale": { "type": "string" },
+    "constraints": {
+      "type": "object",
+      "properties": {
+        "why":   { "type": "array", "items": { "$ref": "#/definitions/constraint" } },
+        "who":   { "type": "array", "items": { "$ref": "#/definitions/constraint" } },
+        "when":  { "type": "array", "items": { "$ref": "#/definitions/constraint" } },
+        "what":  { "type": "array", "items": { "$ref": "#/definitions/constraint" } },
+        "where": { "type": "array", "items": { "$ref": "#/definitions/constraint" } },
+        "how":   { "type": "array", "items": { "$ref": "#/definitions/constraint" } }
+      }
+    },
+    "gaps": {
+      "type": "object",
+      "required": ["critical", "major", "implicit"],
+      "properties": {
+        "critical": { "type": "array", "items": { "$ref": "#/definitions/gap" } },
+        "major":    { "type": "array", "items": { "$ref": "#/definitions/gap" } },
+        "implicit": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "dimension", "question_id", "system_will_decide"],
+            "properties": {
+              "id": { "type": "string" },
+              "dimension": { "type": "string" },
+              "question_id": { "type": "string" },
+              "system_will_decide": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "blocked_until": {
+      "type": "array",
+      "description": "Gap IDs that must be resolved before planning or implementation is safe",
+      "items": { "type": "string" }
+    },
+    "caller_enrichment": {
+      "type": "object",
+      "required": ["caller", "summary_block"],
+      "properties": {
+        "caller": {
+          "type": "string",
+          "enum": ["standalone", "kbd", "iterative-evolver"]
+        },
+        "summary_block": { "type": "string" },
+        "openspec_spec_addition": { "type": ["string", "null"] },
+        "planning_constraints": { "type": ["object", "null"] }
+      }
+    }
+  },
+  "definitions": {
+    "dimension_coverage": {
+      "type": "object",
+      "required": ["score", "status", "critical_threshold", "critical_threshold_met"],
+      "properties": {
+        "score": { "type": "number", "minimum": 0.0, "maximum": 1.0 },
+        "status": { "type": "string", "enum": ["sufficient", "partial", "insufficient"] },
+        "critical_threshold": { "type": "number" },
+        "critical_threshold_met": { "type": "boolean" },
+        "defined_count": { "type": "integer", "minimum": 0 },
+        "partial_count": { "type": "integer", "minimum": 0 },
+        "implicit_count": { "type": "integer", "minimum": 0 },
+        "skipped": { "type": "boolean", "default": false }
+      }
+    },
+    "constraint": {
+      "type": "object",
+      "required": ["id", "source_question_id", "statement", "confidence"],
+      "properties": {
+        "id": { "type": "string" },
+        "source_question_id": { "type": "string" },
+        "statement": { "type": "string" },
+        "confidence": { "type": "string", "enum": ["high", "medium"] }
+      }
+    },
+    "gap": {
+      "type": "object",
+      "required": ["id", "dimension", "question_id", "question"],
+      "properties": {
+        "id": { "type": "string" },
+        "dimension": { "type": "string" },
+        "question_id": { "type": "string" },
+        "question": { "type": "string" },
+        "implicit_implication": { "type": "string" },
+        "partial_gap": { "type": "string" }
+      }
+    }
+  }
+}

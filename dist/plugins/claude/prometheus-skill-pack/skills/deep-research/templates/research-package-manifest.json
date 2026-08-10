@@ -1,0 +1,34 @@
+{
+  "version": "1.0.0",
+  "okf_version": "0.1",
+  "job_id": "",
+  "query": "",
+  "depth": "deep",
+  "created_at": "",
+  "stages_completed": [],
+  "sources_count": 0,
+  "graph_nodes": 0,
+  "graph_edges": 0,
+  "contradictions_detected": 0,
+  "contradictions_resolved": 0,
+  "confidence": null,
+  "verification_status": "unverified",
+  "feynman_grade": null,
+  "citation_style": "APA",
+  "kb_ids": [],
+  "files": {
+    "report": "report.md",
+    "graph": "graph.json",
+    "citations": "citations.json",
+    "contradictions": "contradictions.json",
+    "index": "index.md",
+    "sources_dir": "sources/"
+  },
+  "integrations": {
+    "surreal_memory_used": false,
+    "sycophancy_correction_used": false,
+    "feynman_gate_used": false,
+    "liter_llm_used": false,
+    "pmpo_elicit_used": false
+  }
+}

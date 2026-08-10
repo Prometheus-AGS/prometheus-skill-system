@@ -1,0 +1,19 @@
+[package]
+name = "bdd-cucumber-rs-example-ui"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.88"
+publish = false
+
+[dev-dependencies]
+cucumber = "0.23"
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+thirtyfour = { version = "0.37", optional = true }
+
+[features]
+ui = ["thirtyfour"]
+
+[[test]]
+name = "features"
+harness = false
+required-features = ["ui"]

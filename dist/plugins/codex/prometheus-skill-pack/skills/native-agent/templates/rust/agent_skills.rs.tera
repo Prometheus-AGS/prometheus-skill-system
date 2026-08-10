@@ -1,0 +1,192 @@
+{{- /*
+  agent_skills.rs.tera — Skills engine: discovery, loading, TF-IDF selection
+  Variables: (none — generic implementation)
+*/ -}}
+//! agent-skills — Skill discovery, loading, and TF-IDF selection engine.
+//!
+//! Scans configured directories for `SKILL.md` files, builds a TF-IDF index,
+//! and selects the top-k most relevant skills for a given user message.
+
+use agent_core::SkillEntry;
+use anyhow::{Context, Result};
+use std::collections::HashMap;
+use std::path::Path;
+use tracing::{debug, info, warn};
+use walkdir::WalkDir;
+
+// ─── Registry ────────────────────────────────────────────────────────────────
+
+pub struct SkillRegistry {
+    skills: Vec<SkillEntry>,
+    /// TF-IDF: term → (doc_index → tfidf_score)
+    index:  HashMap<String, HashMap<usize, f32>>,
+}
+
+impl SkillRegistry {
+    /// Load skills from all configured directories.
+    pub fn load(directories: &[String]) -> Result<Self> {
+        let mut skills = Vec::new();
+
+        for dir in directories {
+            let expanded = shellexpand::tilde(dir).to_string();
+            let path = Path::new(&expanded);
+            if !path.exists() {
+                warn!("Skill directory not found: {}", expanded);
+                continue;
+            }
+            load_skills_from_dir(path, &mut skills);
+        }
+
+        info!("Loaded {} skill(s)", skills.len());
+        let index = build_tfidf_index(&skills);
+        Ok(Self { skills, index })
+    }
+
+    /// Select top-k most relevant skills for the given query.
+    pub fn select(&self, query: &str, top_k: usize) -> Vec<&SkillEntry> {
+        if self.skills.is_empty() {
+            return vec![];
+        }
+
+        let query_terms = tokenize(query);
+        let mut scores: HashMap<usize, f32> = HashMap::new();
+
+        for term in &query_terms {
+            if let Some(doc_scores) = self.index.get(term) {
+                for (&doc_idx, &score) in doc_scores {
+                    *scores.entry(doc_idx).or_default() += score;
+                }
+            }
+        }
+
+        let mut ranked: Vec<(usize, f32)> = scores.into_iter().collect();
+        ranked.sort_by(|a, b| b.1.partial_cmp(&a.1).unwrap_or(std::cmp::Ordering::Equal));
+
+        ranked
+            .into_iter()
+            .take(top_k)
+            .filter_map(|(idx, _)| self.skills.get(idx))
+            .collect()
+    }
+
+    /// Format selected skills for injection into the system prompt.
+    pub fn format_for_context(&self, skills: &[&SkillEntry]) -> String {
+        if skills.is_empty() {
+            return String::new();
+        }
+        let mut out = String::from("\n\n## Active Skills\n\n");
+        for skill in skills {
+            out.push_str(&format!("### {}\n{}\n\n", skill.name, skill.description));
+        }
+        out
+    }
+
+    pub fn all(&self) -> &[SkillEntry] {
+        &self.skills
+    }
+
+    pub fn reload(&mut self, directories: &[String]) -> Result<()> {
+        let new = Self::load(directories)?;
+        self.skills = new.skills;
+        self.index  = new.index;
+        Ok(())
+    }
+}
+
+// ─── Internal helpers ─────────────────────────────────────────────────────────
+
+fn load_skills_from_dir(root: &Path, skills: &mut Vec<SkillEntry>) {
+    for entry in WalkDir::new(root)
+        .min_depth(1)
+        .max_depth(4)
+        .into_iter()
+        .filter_map(|e| e.ok())
+        .filter(|e| e.file_name() == "SKILL.md")
+    {
+        let path = entry.path();
+        let content = match std::fs::read_to_string(path) {
+            Ok(c) => c,
+            Err(e) => { warn!("Failed to read {}: {}", path.display(), e); continue; }
+        };
+
+        // Extract name and description from YAML frontmatter
+        let (name, description, keywords) = parse_skill_frontmatter(&content);
+
+        skills.push(SkillEntry {
+            name,
+            description,
+            keywords,
+            path:    path.to_string_lossy().to_string(),
+            content: content.clone(),
+        });
+        debug!("Loaded skill: {}", path.display());
+    }
+}
+
+fn parse_skill_frontmatter(content: &str) -> (String, String, Vec<String>) {
+    let mut name = String::from("unknown");
+    let mut description = String::new();
+    let mut keywords = Vec::new();
+    let mut in_frontmatter = false;
+
+    for (i, line) in content.lines().enumerate() {
+        if i == 0 && line.trim() == "---" { in_frontmatter = true; continue; }
+        if in_frontmatter && line.trim() == "---" { break; }
+        if in_frontmatter {
+            if let Some(rest) = line.strip_prefix("name:") {
+                name = rest.trim().trim_matches('"').to_string();
+            } else if let Some(rest) = line.strip_prefix("description:") {
+                description = rest.trim().to_string();
+            } else if line.trim_start().starts_with("- ") && !description.is_empty() {
+                keywords.push(line.trim_start_matches('-').trim().to_string());
+            }
+        }
+    }
+
+    // Auto-generate keywords from name and description
+    if keywords.is_empty() {
+        keywords = tokenize(&format!("{} {}", name, description));
+    }
+
+    (name, description, keywords)
+}
+
+fn tokenize(text: &str) -> Vec<String> {
+    text.to_lowercase()
+        .split(|c: char| !c.is_alphanumeric())
+        .filter(|s| s.len() > 2)
+        .map(str::to_string)
+        .collect()
+}
+
+fn build_tfidf_index(skills: &[SkillEntry]) -> HashMap<String, HashMap<usize, f32>> {
+    let n = skills.len() as f32;
+    let mut df: HashMap<String, f32> = HashMap::new(); // document frequency
+    let mut tf_map: Vec<HashMap<String, f32>> = Vec::new();
+
+    for skill in skills {
+        let tokens = tokenize(&format!("{} {} {}", skill.name, skill.description, skill.content));
+        let mut tf: HashMap<String, f32> = HashMap::new();
+        let doc_len = tokens.len().max(1) as f32;
+        for token in &tokens {
+            *tf.entry(token.clone()).or_default() += 1.0 / doc_len;
+            df.entry(token.clone()).or_insert(0.0);
+        }
+        for token in tf.keys() {
+            *df.entry(token.clone()).or_default() += 1.0;
+        }
+        tf_map.push(tf);
+    }
+
+    let mut index: HashMap<String, HashMap<usize, f32>> = HashMap::new();
+    for (doc_idx, tf) in tf_map.iter().enumerate() {
+        for (term, &tf_score) in tf {
+            let idf = (n / df[term]).ln() + 1.0;
+            index
+                .entry(term.clone())
+                .or_default()
+                .insert(doc_idx, tf_score * idf);
+        }
+    }
+    index
+}

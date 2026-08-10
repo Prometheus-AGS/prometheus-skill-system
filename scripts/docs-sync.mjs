@@ -11,9 +11,11 @@ const changedBetween = process.argv.indexOf('--changed-between');
 
 const sourceInputs = [
   'package.json',
-  '.claude-plugin/plugin.json',
+  'skill-system.json',
   '.claude-plugin/marketplace.json',
-  '.codex-plugin/plugin.json',
+  '.agents/plugins/marketplace.json',
+  'dist/plugins/claude/prometheus-skill-pack/.claude-plugin/plugin.json',
+  'dist/plugins/codex/prometheus-skill-pack/.codex-plugin/plugin.json',
   'scripts/install-plugin-generation.js',
   'config/prometheus-exec-component.json',
   'crates/prometheus-exec/src/',

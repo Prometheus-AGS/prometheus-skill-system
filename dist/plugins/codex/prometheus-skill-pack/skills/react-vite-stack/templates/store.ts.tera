@@ -1,0 +1,95 @@
+{{- /*
+  store.ts.tera — Zustand 5 store with Immer for UI-only state
+  RULE: Stores own API calls. Stores are the ONLY place fetch/api.* is called.
+        Components NEVER import stores directly — only through hooks.
+  Variables:
+    feature_name  : camelCase (e.g. "posts")
+    FeatureName   : PascalCase (e.g. "Posts")
+    EntityType    : TypeScript type (e.g. "Post")
+    has_create    : bool
+    has_update    : bool
+    has_delete    : bool
+*/ -}}
+import { create } from 'zustand'
+import { immer } from 'zustand/middleware/immer'
+import type { {{ EntityType }} } from '../domain/{{ feature_name }}'
+import { {{ feature_name }}Api } from '../infrastructure/{{ feature_name }}-api'
+
+// ─── State shape ──────────────────────────────────────────────────────────────
+
+interface {{ FeatureName }}State {
+  // Data — prefer entity graph (prometheus-entity-management) for server data.
+  // Use this store only for UI-only state that is NOT server-derived.
+  items: {{ EntityType }}[]
+  selectedId: string | null
+  isLoading: boolean
+  error: string | null
+
+  // Actions — stores own API calls, hooks expose them to components
+  load: () => Promise<void>
+  select: (id: string | null) => void
+  {% if has_create -%}
+  create: (input: Create{{ EntityType }}Input) => Promise<void>
+  {%- endif %}
+  {% if has_update -%}
+  update: (id: string, patch: Partial<{{ EntityType }}>) => Promise<void>
+  {%- endif %}
+  {% if has_delete -%}
+  remove: (id: string) => Promise<void>
+  {%- endif %}
+}
+
+// ─── Store ────────────────────────────────────────────────────────────────────
+// RULES:
+//   ✅ This store calls api.* — it is the ONLY layer that does
+//   ✅ Immer enables direct mutation inside set() callbacks
+//   ❌ Components NEVER import this — they use hooks (use{{ FeatureName }}List, etc.)
+//   ❌ Do NOT cache server data here if it appears in multiple views — use entity graph
+
+export const use{{ FeatureName }}Store = create<{{ FeatureName }}State>()(
+  immer((set, get) => ({
+    items:      [],
+    selectedId: null,
+    isLoading:  false,
+    error:      null,
+
+    load: async () => {
+      set((state) => { state.isLoading = true; state.error = null })
+      try {
+        const items = await {{ feature_name }}Api.list()
+        set((state) => { state.items = items; state.isLoading = false })
+      } catch (e) {
+        set((state) => {
+          state.error = e instanceof Error ? e.message : 'Failed to load'
+          state.isLoading = false
+        })
+      }
+    },
+
+    select: (id) => set((state) => { state.selectedId = id }),
+
+    {% if has_create -%}
+    create: async (input) => {
+      const item = await {{ feature_name }}Api.create(input)
+      set((state) => { state.items.unshift(item) })
+    },
+    {%- endif %}
+
+    {% if has_update -%}
+    update: async (id, patch) => {
+      const updated = await {{ feature_name }}Api.update(id, patch)
+      set((state) => {
+        const idx = state.items.findIndex((i) => i.id === id)
+        if (idx !== -1) state.items[idx] = updated
+      })
+    },
+    {%- endif %}
+
+    {% if has_delete -%}
+    remove: async (id) => {
+      await {{ feature_name }}Api.delete(id)
+      set((state) => { state.items = state.items.filter((i) => i.id !== id) })
+    },
+    {%- endif %}
+  })),
+)

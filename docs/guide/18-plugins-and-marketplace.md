@@ -20,13 +20,24 @@ The generation includes skills, agents, hooks, shared scripts, plugin manifests,
 
 ## Claude Code and OpenCode
 
-`.claude-plugin/plugin.json` describes the Claude plugin surface; `.opencode/plugin.ts` supplies OpenCode-native tools. Both consume payload from the same certified generation. Marketplace slices remain available for incremental adoption, but they do not bypass generation verification.
+Only marketplace manifests live at the repository root. Self-contained native
+packages are generated at `dist/plugins/claude/prometheus-skill-pack` and
+`dist/plugins/codex/prometheus-skill-pack`; every skill is materialized as
+`skills/<skill-name>/` with its scripts, references, templates, assets, and file
+modes intact. Claude auto-discovers its supported hook file. Codex intentionally
+omits hooks and uses the validated interface/default-prompt schema.
+
+The root `skill-system.json` is the machine-readable authority for release and
+minimum-active versions, imports and SHAs, inventory exclusions, profiles,
+targets, projection modes, platform boundaries, marketplaces, and generated
+outputs. `artifact-refiner` and `sycophancy-correction` are adjacent pinned
+entries, not automatic umbrella dependencies.
 
 ## Activation
 
 ```bash
-node scripts/install-plugin-generation.js
-node scripts/install-plugin-generation.js --verify
+./install.sh --profile skills --targets detected
+./install.sh --verify --targets detected --non-interactive
 ```
 
 The installer stages privately, validates all payloads and target receipts, updates `previous`, then atomically switches `current`. Hook registrations point at stable dispatchers, so activation requires no hook rewrite.
@@ -36,7 +47,7 @@ The installer stages privately, validates all payloads and target receipts, upda
 ```bash
 node scripts/install-plugin-generation.js --rollback
 node scripts/install-plugin-generation.js --verify
-node scripts/install-plugin-generation.js --uninstall
+./install.sh --uninstall --targets detected
 ```
 
 Rollback selects the previous complete generation and restores copy targets. Uninstall removes only Prometheus-owned projections carrying valid ownership evidence; unrelated collisions are preserved and reported.

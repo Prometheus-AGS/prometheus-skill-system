@@ -1,0 +1,658 @@
+{
+  "releaseVersion": "1.7.0",
+  "schemaVersion": "prometheus-distribution-skill-index-v1",
+  "skills": [
+    {
+      "name": "actor-model",
+      "path": "skills/actor-model"
+    },
+    {
+      "name": "adversarial-review",
+      "path": "skills/adversarial-review"
+    },
+    {
+      "name": "argocd-multicloud",
+      "path": "skills/argocd-multicloud"
+    },
+    {
+      "name": "artifact-refiner",
+      "path": "skills/artifact-refiner"
+    },
+    {
+      "name": "async-patterns",
+      "path": "skills/async-patterns"
+    },
+    {
+      "name": "axum-patterns",
+      "path": "skills/axum-patterns"
+    },
+    {
+      "name": "bdd-cucumber-js",
+      "path": "skills/bdd-cucumber-js"
+    },
+    {
+      "name": "bdd-cucumber-rs",
+      "path": "skills/bdd-cucumber-rs"
+    },
+    {
+      "name": "bdd-lifecycle-loop",
+      "path": "skills/bdd-lifecycle-loop"
+    },
+    {
+      "name": "bdd-testing",
+      "path": "skills/bdd-testing"
+    },
+    {
+      "name": "bdd-video-proof",
+      "path": "skills/bdd-video-proof"
+    },
+    {
+      "name": "clean-architecture",
+      "path": "skills/clean-architecture"
+    },
+    {
+      "name": "clone-skill",
+      "path": "skills/clone-skill"
+    },
+    {
+      "name": "convert-htmx-pdf",
+      "path": "skills/convert-htmx-pdf"
+    },
+    {
+      "name": "convert-htmx-react",
+      "path": "skills/convert-htmx-react"
+    },
+    {
+      "name": "convert-md-to-htmx",
+      "path": "skills/convert-md-to-htmx"
+    },
+    {
+      "name": "cowork-management",
+      "path": "skills/cowork-management"
+    },
+    {
+      "name": "create-native-agent",
+      "path": "skills/create-native-agent"
+    },
+    {
+      "name": "create-skill",
+      "path": "skills/create-skill"
+    },
+    {
+      "name": "deep-research",
+      "path": "skills/deep-research"
+    },
+    {
+      "name": "design-svg-logo",
+      "path": "skills/design-svg-logo"
+    },
+    {
+      "name": "disk-space-guardian",
+      "path": "skills/disk-space-guardian"
+    },
+    {
+      "name": "entity-audit",
+      "path": "skills/entity-audit"
+    },
+    {
+      "name": "entity-crud-form",
+      "path": "skills/entity-crud-form"
+    },
+    {
+      "name": "entity-crud-page",
+      "path": "skills/entity-crud-page"
+    },
+    {
+      "name": "entity-crud-relations",
+      "path": "skills/entity-crud-relations"
+    },
+    {
+      "name": "entity-crud-table",
+      "path": "skills/entity-crud-table"
+    },
+    {
+      "name": "entity-gc",
+      "path": "skills/entity-gc"
+    },
+    {
+      "name": "entity-gql-hooks",
+      "path": "skills/entity-gql-hooks"
+    },
+    {
+      "name": "entity-gql-setup",
+      "path": "skills/entity-gql-setup"
+    },
+    {
+      "name": "entity-gql-subscription",
+      "path": "skills/entity-gql-subscription"
+    },
+    {
+      "name": "entity-graph-crud",
+      "path": "skills/entity-graph-crud"
+    },
+    {
+      "name": "entity-graph-detect",
+      "path": "skills/entity-graph-detect"
+    },
+    {
+      "name": "entity-graph-graphql",
+      "path": "skills/entity-graph-graphql"
+    },
+    {
+      "name": "entity-graph-init",
+      "path": "skills/entity-graph-init"
+    },
+    {
+      "name": "entity-graph-migrate",
+      "path": "skills/entity-graph-migrate"
+    },
+    {
+      "name": "entity-graph-optimize",
+      "path": "skills/entity-graph-optimize"
+    },
+    {
+      "name": "entity-graph-prisma",
+      "path": "skills/entity-graph-prisma"
+    },
+    {
+      "name": "entity-graph-realtime",
+      "path": "skills/entity-graph-realtime"
+    },
+    {
+      "name": "entity-graph-setup",
+      "path": "skills/entity-graph-setup"
+    },
+    {
+      "name": "entity-perf",
+      "path": "skills/entity-perf"
+    },
+    {
+      "name": "entity-prisma-api",
+      "path": "skills/entity-prisma-api"
+    },
+    {
+      "name": "entity-prisma-generator",
+      "path": "skills/entity-prisma-generator"
+    },
+    {
+      "name": "entity-prisma-migrate",
+      "path": "skills/entity-prisma-migrate"
+    },
+    {
+      "name": "entity-prisma-setup",
+      "path": "skills/entity-prisma-setup"
+    },
+    {
+      "name": "entity-realtime-channel",
+      "path": "skills/entity-realtime-channel"
+    },
+    {
+      "name": "entity-realtime-local-first",
+      "path": "skills/entity-realtime-local-first"
+    },
+    {
+      "name": "entity-realtime-setup",
+      "path": "skills/entity-realtime-setup"
+    },
+    {
+      "name": "entity-realtime-surreal-live",
+      "path": "skills/entity-realtime-surreal-live"
+    },
+    {
+      "name": "error-handling",
+      "path": "skills/error-handling"
+    },
+    {
+      "name": "evolve",
+      "path": "skills/evolve"
+    },
+    {
+      "name": "evolve-analyze",
+      "path": "skills/evolve-analyze"
+    },
+    {
+      "name": "evolve-assess",
+      "path": "skills/evolve-assess"
+    },
+    {
+      "name": "evolve-execute",
+      "path": "skills/evolve-execute"
+    },
+    {
+      "name": "evolve-plan",
+      "path": "skills/evolve-plan"
+    },
+    {
+      "name": "evolve-report",
+      "path": "skills/evolve-report"
+    },
+    {
+      "name": "evolve-status",
+      "path": "skills/evolve-status"
+    },
+    {
+      "name": "extend-skill",
+      "path": "skills/extend-skill"
+    },
+    {
+      "name": "fabric-integration",
+      "path": "skills/fabric-integration"
+    },
+    {
+      "name": "feynman-loop",
+      "path": "skills/feynman-loop"
+    },
+    {
+      "name": "flint-sdk-csharp",
+      "path": "skills/flint-sdk-csharp"
+    },
+    {
+      "name": "flint-sdk-dart",
+      "path": "skills/flint-sdk-dart"
+    },
+    {
+      "name": "flint-sdk-go",
+      "path": "skills/flint-sdk-go"
+    },
+    {
+      "name": "flint-sdk-kotlin",
+      "path": "skills/flint-sdk-kotlin"
+    },
+    {
+      "name": "flint-sdk-swift",
+      "path": "skills/flint-sdk-swift"
+    },
+    {
+      "name": "flint-sdk-ts",
+      "path": "skills/flint-sdk-ts"
+    },
+    {
+      "name": "flutter-rust-ffi",
+      "path": "skills/flutter-rust-ffi"
+    },
+    {
+      "name": "gitops-bootstrap",
+      "path": "skills/gitops-bootstrap"
+    },
+    {
+      "name": "gitops-transform",
+      "path": "skills/gitops-transform"
+    },
+    {
+      "name": "go-base-patterns",
+      "path": "skills/go-base-patterns"
+    },
+    {
+      "name": "htmx-alpine-lit",
+      "path": "skills/htmx-alpine-lit"
+    },
+    {
+      "name": "ideation-mindmap",
+      "path": "skills/ideation-mindmap"
+    },
+    {
+      "name": "iterative-evolver",
+      "path": "skills/iterative-evolver"
+    },
+    {
+      "name": "karpathy-tokenizer",
+      "path": "skills/karpathy-tokenizer"
+    },
+    {
+      "name": "kbd-analyze",
+      "path": "skills/kbd-analyze"
+    },
+    {
+      "name": "kbd-apply",
+      "path": "skills/kbd-apply"
+    },
+    {
+      "name": "kbd-assess",
+      "path": "skills/kbd-assess"
+    },
+    {
+      "name": "kbd-audit",
+      "path": "skills/kbd-audit"
+    },
+    {
+      "name": "kbd-cancel",
+      "path": "skills/kbd-cancel"
+    },
+    {
+      "name": "kbd-child-exit",
+      "path": "skills/kbd-child-exit"
+    },
+    {
+      "name": "kbd-doctor",
+      "path": "skills/kbd-doctor"
+    },
+    {
+      "name": "kbd-evolve",
+      "path": "skills/kbd-evolve"
+    },
+    {
+      "name": "kbd-execute",
+      "path": "skills/kbd-execute"
+    },
+    {
+      "name": "kbd-goal",
+      "path": "skills/kbd-goal"
+    },
+    {
+      "name": "kbd-goal-check",
+      "path": "skills/kbd-goal-check"
+    },
+    {
+      "name": "kbd-init",
+      "path": "skills/kbd-init"
+    },
+    {
+      "name": "kbd-inject-agent-rules",
+      "path": "skills/kbd-inject-agent-rules"
+    },
+    {
+      "name": "kbd-memory-recall",
+      "path": "skills/kbd-memory-recall"
+    },
+    {
+      "name": "kbd-new-child",
+      "path": "skills/kbd-new-child"
+    },
+    {
+      "name": "kbd-new-phase",
+      "path": "skills/kbd-new-phase"
+    },
+    {
+      "name": "kbd-next-child",
+      "path": "skills/kbd-next-child"
+    },
+    {
+      "name": "kbd-next-phase",
+      "path": "skills/kbd-next-phase"
+    },
+    {
+      "name": "kbd-pause",
+      "path": "skills/kbd-pause"
+    },
+    {
+      "name": "kbd-plan",
+      "path": "skills/kbd-plan"
+    },
+    {
+      "name": "kbd-process-orchestrator",
+      "path": "skills/kbd-process-orchestrator"
+    },
+    {
+      "name": "kbd-reflect",
+      "path": "skills/kbd-reflect"
+    },
+    {
+      "name": "kbd-resume",
+      "path": "skills/kbd-resume"
+    },
+    {
+      "name": "kbd-spec",
+      "path": "skills/kbd-spec"
+    },
+    {
+      "name": "kbd-status",
+      "path": "skills/kbd-status"
+    },
+    {
+      "name": "kreuzberg",
+      "path": "skills/kreuzberg"
+    },
+    {
+      "name": "kustomize-overlay",
+      "path": "skills/kustomize-overlay"
+    },
+    {
+      "name": "learn-about-system",
+      "path": "skills/learn-about-system"
+    },
+    {
+      "name": "learn-certify",
+      "path": "skills/learn-certify"
+    },
+    {
+      "name": "learn-goal",
+      "path": "skills/learn-goal"
+    },
+    {
+      "name": "learn-grade",
+      "path": "skills/learn-grade"
+    },
+    {
+      "name": "learn-harness",
+      "path": "skills/learn-harness"
+    },
+    {
+      "name": "learn-kb",
+      "path": "skills/learn-kb"
+    },
+    {
+      "name": "learn-plan",
+      "path": "skills/learn-plan"
+    },
+    {
+      "name": "learn-practice",
+      "path": "skills/learn-practice"
+    },
+    {
+      "name": "learn-retain",
+      "path": "skills/learn-retain"
+    },
+    {
+      "name": "learn-survey",
+      "path": "skills/learn-survey"
+    },
+    {
+      "name": "librefang-wasm-skill",
+      "path": "skills/librefang-wasm-skill"
+    },
+    {
+      "name": "liter-llm-bridge",
+      "path": "skills/liter-llm-bridge"
+    },
+    {
+      "name": "llm-wiki",
+      "path": "skills/llm-wiki"
+    },
+    {
+      "name": "mcp-server",
+      "path": "skills/mcp-server"
+    },
+    {
+      "name": "native-agent",
+      "path": "skills/native-agent"
+    },
+    {
+      "name": "performance",
+      "path": "skills/performance"
+    },
+    {
+      "name": "pmpo-elicit",
+      "path": "skills/pmpo-elicit"
+    },
+    {
+      "name": "pmpo-evolver",
+      "path": "skills/pmpo-evolver"
+    },
+    {
+      "name": "pmpo-outer-loop",
+      "path": "skills/pmpo-outer-loop"
+    },
+    {
+      "name": "pmpo-skill-creator",
+      "path": "skills/pmpo-skill-creator"
+    },
+    {
+      "name": "prometheus-context-bootstrap",
+      "path": "skills/prometheus-context-bootstrap"
+    },
+    {
+      "name": "prometheus-entity-skills",
+      "path": "skills/prometheus-entity-skills"
+    },
+    {
+      "name": "prometheus-rust-auditor",
+      "path": "skills/prometheus-rust-auditor"
+    },
+    {
+      "name": "pyo3-bridge",
+      "path": "skills/pyo3-bridge"
+    },
+    {
+      "name": "react-vite-stack",
+      "path": "skills/react-vite-stack"
+    },
+    {
+      "name": "rebrand-artifact",
+      "path": "skills/rebrand-artifact"
+    },
+    {
+      "name": "refine-a2ui",
+      "path": "skills/refine-a2ui"
+    },
+    {
+      "name": "refine-content",
+      "path": "skills/refine-content"
+    },
+    {
+      "name": "refine-image",
+      "path": "skills/refine-image"
+    },
+    {
+      "name": "refine-logo",
+      "path": "skills/refine-logo"
+    },
+    {
+      "name": "refine-moodboard",
+      "path": "skills/refine-moodboard"
+    },
+    {
+      "name": "refine-status",
+      "path": "skills/refine-status"
+    },
+    {
+      "name": "refine-ui",
+      "path": "skills/refine-ui"
+    },
+    {
+      "name": "refine-validate",
+      "path": "skills/refine-validate"
+    },
+    {
+      "name": "scaffold-react-vite",
+      "path": "skills/scaffold-react-vite"
+    },
+    {
+      "name": "scaffold-react-vite-tauri",
+      "path": "skills/scaffold-react-vite-tauri"
+    },
+    {
+      "name": "stage-01-planner",
+      "path": "skills/stage-01-planner"
+    },
+    {
+      "name": "stage-02-search",
+      "path": "skills/stage-02-search"
+    },
+    {
+      "name": "stage-03-retrieve",
+      "path": "skills/stage-03-retrieve"
+    },
+    {
+      "name": "stage-04-collect",
+      "path": "skills/stage-04-collect"
+    },
+    {
+      "name": "stage-05-verify",
+      "path": "skills/stage-05-verify"
+    },
+    {
+      "name": "stage-06-resolve",
+      "path": "skills/stage-06-resolve"
+    },
+    {
+      "name": "stage-07-graph",
+      "path": "skills/stage-07-graph"
+    },
+    {
+      "name": "stage-08-cite",
+      "path": "skills/stage-08-cite"
+    },
+    {
+      "name": "stage-09-report",
+      "path": "skills/stage-09-report"
+    },
+    {
+      "name": "stage-10-export",
+      "path": "skills/stage-10-export"
+    },
+    {
+      "name": "start-business-build",
+      "path": "skills/start-business-build"
+    },
+    {
+      "name": "sycophancy-correction",
+      "path": "skills/sycophancy-correction"
+    },
+    {
+      "name": "sync-peers",
+      "path": "skills/sync-peers"
+    },
+    {
+      "name": "sync-push",
+      "path": "skills/sync-push"
+    },
+    {
+      "name": "sync-status",
+      "path": "skills/sync-status"
+    },
+    {
+      "name": "tauri-react-vite",
+      "path": "skills/tauri-react-vite"
+    },
+    {
+      "name": "typescript-base-patterns",
+      "path": "skills/typescript-base-patterns"
+    },
+    {
+      "name": "ui-surface",
+      "path": "skills/ui-surface"
+    },
+    {
+      "name": "upload-to-bossfang",
+      "path": "skills/upload-to-bossfang"
+    },
+    {
+      "name": "validate-idea",
+      "path": "skills/validate-idea"
+    },
+    {
+      "name": "validate-skill",
+      "path": "skills/validate-skill"
+    },
+    {
+      "name": "workspace-structure",
+      "path": "skills/workspace-structure"
+    },
+    {
+      "name": "zeespec-interrogate",
+      "path": "skills/zeespec-interrogate"
+    },
+    {
+      "name": "zeespec-interrogator",
+      "path": "skills/zeespec-interrogator"
+    },
+    {
+      "name": "zeespec-score",
+      "path": "skills/zeespec-score"
+    },
+    {
+      "name": "zeespec-status",
+      "path": "skills/zeespec-status"
+    }
+  ]
+}

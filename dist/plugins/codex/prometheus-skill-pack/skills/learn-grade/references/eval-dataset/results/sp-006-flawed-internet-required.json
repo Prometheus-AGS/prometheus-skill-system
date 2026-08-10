@@ -1,0 +1,21 @@
+{
+  "grade_id": "eval-sp-006-flawed-internet-required",
+  "goal_id": "eval",
+  "concept_id": "skill-pack",
+  "learner_id": "eval-harness",
+  "graded_at": "2026-07-16T00:00:00Z",
+  "explanation_excerpt": "Since the pack relies on MCP servers and the underlying model calls, you basically need an internet connection at all times for any of the core skills to function properly — there's no meaningful",
+  "scores": {"completeness": 0.15, "accuracy": 0.1, "clarity": 0.85, "misconceptions_absent": 0.0},
+  "overall_score": 0.275,
+  "gaps": [
+    {"dimension": "accuracy", "description": "Claims the pack requires internet at all times with no offline mode. Core skills work offline and MCP servers are local services; internet is only required for skills that explicitly perform web research.", "corpus_ref": "MISCONCEPTION: the pack requires internet to function"},
+    {"dimension": "completeness", "description": "Missing coverage of which components are local versus which specific skills genuinely need internet, and that Tier 0 learning skills work fully offline with pre-built corpora.", "corpus_ref": "MISCONCEPTION: the pack requires internet to function"},
+    {"dimension": "misconception", "description": "Contains the known misconception that the pack requires internet to function at all times for core skills.", "corpus_ref": "MISCONCEPTION: the pack requires internet to function"}
+  ],
+  "transfer_problems": [
+    "A teammate wants to use the skill pack on a flight with no wifi. Using only the corpus's description of MCP servers and Tier 0 learning skills, explain which capabilities will still work and which will not, and why.",
+    "The corpus lists pmpo-elicit, learn-goal corpus assembly, and content-grounding as needing internet, while surreal-memory and sycophancy-correction are described as local services. Explain what distinguishes these two groups of capabilities."
+  ],
+  "passed": false,
+  "pass_threshold": 0.7
+}

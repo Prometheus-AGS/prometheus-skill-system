@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>ai.prometheus.sovereign-sync</string>
+
+  <key>ProgramArguments</key>
+  <array>
+    <string>__SOVEREIGN_SYNC_BIN__</string>
+    <string>--mode</string>
+    <string>daemon</string>
+  </array>
+
+  <key>WorkingDirectory</key>
+  <string>__PROMETHEUS_HOME__</string>
+
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>HOME</key>
+    <string>__PROMETHEUS_HOME__</string>
+    <key>USER</key>
+    <string>__PROMETHEUS_USER__</string>
+    <key>PATH</key>
+    <string>__PROMETHEUS_PATH__</string>
+    <key>RUST_LOG</key>
+    <string>sovereign_sync=info</string>
+    <key>PROMETHEUS_DEVICE_KEY_FILE</key>
+    <string>__PROMETHEUS_DEVICE_KEY_FILE__</string>
+  </dict>
+
+  <key>RunAtLoad</key>
+  <true/>
+  <key>KeepAlive</key>
+  <true/>
+  <!-- Do not hot-loop on a failure that will not clear on its own.
+
+       KeepAlive=true with no throttle restarts the daemon IMMEDIATELY. When the
+       failure is persistent — a journal lock held by another process, an
+       unwritable path — that is a tight loop: observed 2026-07-28 writing
+       thousands of identical lock-failure lines,
+       lines, which buries any other diagnostic and burns CPU without ever
+       recovering.
+
+       10s is launchd's own default for a reason. A transient crash still
+       restarts promptly; a persistent one leaves a readable log and a machine
+       that is not spinning. -->
+  <key>ThrottleInterval</key>
+  <integer>10</integer>
+  <key>ProcessType</key>
+  <string>Interactive</string>
+
+  <key>StandardOutPath</key>
+  <string>__PROMETHEUS_LOG_DIR__/sovereign-sync.stdout.log</string>
+  <key>StandardErrorPath</key>
+  <string>__PROMETHEUS_LOG_DIR__/sovereign-sync.stderr.log</string>
+</dict>
+</plist>

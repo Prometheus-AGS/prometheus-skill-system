@@ -1,0 +1,13 @@
+# systemd --user timer — fires the nudge oneshot every 4h (StartInterval=14400 parity).
+# Persistent=true catches up a missed run after the machine was asleep/off.
+[Unit]
+Description=Prometheus nudge timer (every 4h)
+
+[Timer]
+OnBootSec=5min
+OnUnitActiveSec=4h
+Persistent=true
+Unit=ai.prometheus.prometheus-nudge.service
+
+[Install]
+WantedBy=timers.target

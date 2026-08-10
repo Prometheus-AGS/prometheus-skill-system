@@ -1,0 +1,153 @@
+//! Safe wrappers around LibreFang's host imports.
+//!
+//! The raw `host_call` and `host_log` imports are unsafe FFI boundaries.
+//! This module hides the unsafety behind typed Rust functions that take and
+//! return `serde_json::Value` (or strings, for log/env helpers).
+//!
+//! Every wrapper returns `Result<T, String>` where the error message comes
+//! either from the host (`{"error": "..."}` payload) or from a JSON
+//! deserialization mismatch on this side.
+//!
+//! Generated; safe to edit, but the `extern "C"` block must keep the exact
+//! signatures expected by `librefang-runtime-wasm/src/sandbox.rs`.
+
+use serde_json::{json, Value};
+
+// ---------------------------------------------------------------------------
+// Raw host imports
+// ---------------------------------------------------------------------------
+
+#[link(wasm_import_module = "librefang")]
+extern "C" {
+    /// RPC dispatch. Send JSON `{"method": "<name>", "params": {...}}`,
+    /// receive JSON `{"ok": ...}` or `{"error": "..."}` packed into i64.
+    fn host_call(req_ptr: i32, req_len: i32) -> i64;
+
+    /// Log a message at the given level. Levels:
+    ///   0 = trace, 1 = debug, 2 = info, 3 = warn, 4 = error.
+    /// Messages longer than 4096 bytes are truncated by the host.
+    fn host_log(level: i32, msg_ptr: i32, msg_len: i32);
+}
+
+// ---------------------------------------------------------------------------
+// Generic dispatch
+// ---------------------------------------------------------------------------
+
+/// Call a host method with the given JSON params. Internal — typed wrappers
+/// below should be preferred in skill code.
+fn call(method: &str, params: Value) -> Result<Value, String> {
+    let req = json!({ "method": method, "params": params });
+    let req_bytes = serde_json::to_vec(&req).map_err(|e| e.to_string())?;
+    let packed = unsafe { host_call(req_bytes.as_ptr() as i32, req_bytes.len() as i32) };
+
+    let out_ptr = (packed >> 32) as i32;
+    let out_len = (packed & 0xFFFF_FFFF) as i32;
+    let resp_bytes =
+        unsafe { std::slice::from_raw_parts(out_ptr as *const u8, out_len as usize) };
+    let resp: Value = serde_json::from_slice(resp_bytes).map_err(|e| e.to_string())?;
+
+    if let Some(err) = resp.get("error").and_then(|e| e.as_str()) {
+        return Err(err.to_string());
+    }
+    resp.get("ok")
+        .cloned()
+        .ok_or_else(|| "Host response missing 'ok' field".to_string())
+}
+
+// ---------------------------------------------------------------------------
+// Logging helpers
+// ---------------------------------------------------------------------------
+
+fn log(level: i32, msg: &str) {
+    let bytes = msg.as_bytes();
+    unsafe { host_log(level, bytes.as_ptr() as i32, bytes.len() as i32) };
+}
+
+#[allow(dead_code)]
+pub fn log_trace(msg: &str) { log(0, msg) }
+#[allow(dead_code)]
+pub fn log_debug(msg: &str) { log(1, msg) }
+#[allow(dead_code)]
+pub fn log_info(msg: &str)  { log(2, msg) }
+#[allow(dead_code)]
+pub fn log_warn(msg: &str)  { log(3, msg) }
+#[allow(dead_code)]
+pub fn log_error(msg: &str) { log(4, msg) }
+
+// ---------------------------------------------------------------------------
+// Typed host-call wrappers
+// ---------------------------------------------------------------------------
+//
+// Each method maps to a capability declared in skill.toml's [requirements].
+// See references/librefang-host-abi.md for the full table.
+
+#[allow(dead_code)]
+pub fn time_now() -> Result<u64, String> {
+    let v = call("time_now", json!({}))?;
+    v.as_u64().ok_or_else(|| "time_now: expected u64".into())
+}
+
+#[allow(dead_code)]
+pub fn fs_read(path: &str) -> Result<String, String> {
+    let v = call("fs_read", json!({ "path": path }))?;
+    v.as_str().map(String::from).ok_or_else(|| "fs_read: expected string".into())
+}
+
+#[allow(dead_code)]
+pub fn fs_write(path: &str, contents: &str) -> Result<(), String> {
+    call("fs_write", json!({ "path": path, "contents": contents })).map(|_| ())
+}
+
+#[allow(dead_code)]
+pub fn fs_list(path: &str) -> Result<Vec<String>, String> {
+    let v = call("fs_list", json!({ "path": path }))?;
+    v.as_array()
+        .map(|a| a.iter().filter_map(|s| s.as_str().map(String::from)).collect())
+        .ok_or_else(|| "fs_list: expected array".into())
+}
+
+#[allow(dead_code)]
+pub fn net_fetch(url: &str, method: &str, body: &str) -> Result<String, String> {
+    let v = call(
+        "net_fetch",
+        json!({ "url": url, "method": method, "body": body }),
+    )?;
+    v.as_str().map(String::from).ok_or_else(|| "net_fetch: expected string".into())
+}
+
+#[allow(dead_code)]
+pub fn shell_exec(cmd: &str, args: Vec<String>) -> Result<String, String> {
+    let v = call("shell_exec", json!({ "cmd": cmd, "args": args }))?;
+    v.as_str().map(String::from).ok_or_else(|| "shell_exec: expected string".into())
+}
+
+#[allow(dead_code)]
+pub fn env_read(var: &str) -> Result<Option<String>, String> {
+    let v = call("env_read", json!({ "var": var }))?;
+    Ok(v.as_str().map(String::from))
+}
+
+#[allow(dead_code)]
+pub fn kv_get(key: &str) -> Result<Option<String>, String> {
+    let v = call("kv_get", json!({ "key": key }))?;
+    if v.is_null() {
+        Ok(None)
+    } else {
+        Ok(v.as_str().map(String::from))
+    }
+}
+
+#[allow(dead_code)]
+pub fn kv_set(key: &str, value: &str) -> Result<(), String> {
+    call("kv_set", json!({ "key": key, "value": value })).map(|_| ())
+}
+
+#[allow(dead_code)]
+pub fn agent_send(agent_id: &str, payload: Value) -> Result<Value, String> {
+    call("agent_send", json!({ "agent_id": agent_id, "payload": payload }))
+}
+
+#[allow(dead_code)]
+pub fn agent_spawn(spec: Value) -> Result<Value, String> {
+    call("agent_spawn", json!({ "spec": spec }))
+}

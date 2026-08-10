@@ -1,0 +1,21 @@
+{
+  "grade_id": "eval-cr-006-flawed-breathing-conflation",
+  "goal_id": "eval",
+  "concept_id": "cellular-respiration",
+  "learner_id": "eval-harness",
+  "graded_at": "2026-07-16T20:39:10Z",
+  "explanation_excerpt": "Cellular respiration is basically just another word for breathing — when you inhale, that's respiration bringing oxygen into your body, and cellular respiration is the same process happening at a s",
+  "scores": {"completeness": 0.1, "accuracy": 0.1, "clarity": 0.75, "misconceptions_absent": 0.0},
+  "overall_score": 0.2375,
+  "gaps": [
+    {"dimension": "misconception", "description": "The explanation directly restates the known misconception that cellular respiration and breathing are the same process at different scales. Breathing (pulmonary respiration) is an organ-system-level gas exchange; cellular respiration is a distinct biochemical process converting glucose and oxygen into ATP.", "corpus_ref": "Common misconception: 'cellular respiration is the opposite of breathing'"},
+    {"dimension": "accuracy", "description": "Factual error: claims inhaling oxygen 'is' respiration and cellular respiration is that same process 'at a smaller scale.' Cellular respiration is a chemical transformation, not gas exchange at any scale.", "corpus_ref": "OpenStax Biology 2e, Ch. 7 — Overview of Cellular Respiration"},
+    {"dimension": "completeness", "description": "No coverage of any actual content of cellular respiration: the overall reaction equation, the four stages, where each occurs, or ATP yield.", "corpus_ref": "OpenStax Biology 2e, Ch. 7 — Overview of Cellular Respiration"}
+  ],
+  "transfer_problems": [
+    "A student places a plant in complete darkness for 48 hours, expecting it to stop all cellular activity since it cannot photosynthesize. Using the fact that plant cells perform cellular respiration continuously in their mitochondria (independent of light), explain what metabolic process is still occurring in the plant's cells and why it must continue regardless of light availability.",
+    "A muscle cell is working under low-oxygen conditions and relies on lactic acid fermentation. Using the four-stage structure of aerobic respiration and the fact that glycolysis occurs in the cytosol without requiring oxygen, explain which of these four stages can still proceed under low oxygen and why fermentation is needed to sustain that stage rather than to produce additional ATP directly."
+  ],
+  "passed": false,
+  "pass_threshold": 0.7
+}

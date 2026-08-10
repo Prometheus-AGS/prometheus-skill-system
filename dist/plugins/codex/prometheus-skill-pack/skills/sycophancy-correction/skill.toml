@@ -1,0 +1,76 @@
+# ╔══════════════════════════════════════════════════════════════╗
+# ║  skill.toml — sycophancy.correction v1.0.0                  ║
+# ║  agentskills.io compliant manifest + runtime config          ║
+# ╚══════════════════════════════════════════════════════════════╝
+
+# ── Skill Identity ─────────────────────────────────────────────────────────────
+
+[skill]
+id          = "sycophancy.correction"
+version     = "1.0.0"
+author      = "Prometheus AGS"
+homepage    = "https://agentskills.io/skills/sycophancy-correction"
+repository  = "https://github.com/prometheus-ags/sycophancy-correction"
+license     = "MIT"
+description = """
+Detects and corrects sycophantic patterns in LLM completions, prompts,
+agent descriptors, and pipeline configurations.
+
+Implements eight canonical heuristics (S-01 through S-08), a PMPO-driven
+execution loop, a priority-ordered hook chain for extensibility, and full
+Cedar governance support.
+"""
+
+# ── Detection ──────────────────────────────────────────────────────────────────
+
+[detection]
+# Disable specific patterns by ID
+disabled_patterns = []
+
+# Multi-sample divergence check settings
+divergence_threshold = 0.35
+sample_n             = 3
+sample_temperature   = 0.7
+
+# Override per-pattern severity: { "S-07" = "high" }
+[detection.severity_overrides]
+# "S-01" = "high"
+
+# ── Correction ────────────────────────────────────────────────────────────────
+
+[correction]
+# Score at or above which correction should be flagged as mandatory for callers
+mandatory_correction_threshold = 0.6
+# Max correction loop passes before surfacing both versions and halting
+max_passes     = 2
+# Score below which a second-pass validation is considered clean
+clean_threshold = 0.10
+
+# ── Hook System ───────────────────────────────────────────────────────────────
+
+[hooks]
+tracing_hook = true   # built-in structured logging hook
+audit_hook   = true   # built-in audit-trail hook
+
+# Paths to external hook shared libraries (future: dynamic loading via libloading)
+external_hooks = []
+
+# ── Audit Trail ───────────────────────────────────────────────────────────────
+
+[audit]
+enabled = true
+# backend = "stdout" | "file" | "surreal_db"
+backend     = "stdout"
+# surreal_dsn = "ws://localhost:8000" (required when backend = "surreal_db")
+
+# ── LLM Provider ─────────────────────────────────────────────────────────────
+# OpenAI-compatible /chat/completions endpoint. Defaults to the local
+# openai-proxy (:8181), which bridges Codex CLI's ChatGPT/OpenAI auth —
+# no separate API key required. Point base_url elsewhere for a different
+# OpenAI-compatible provider.
+
+[llm]
+base_url          = "http://localhost:8181/v1"
+critic_model      = "gpt-5.4-mini"
+rewrite_model     = "gpt-5.5"
+critic_max_tokens = 2048

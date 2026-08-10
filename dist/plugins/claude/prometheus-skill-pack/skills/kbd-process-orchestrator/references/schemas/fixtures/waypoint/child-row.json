@@ -1,0 +1,14 @@
+{
+  "phase": "inner",
+  "previousPhase": null,
+  "change": null,
+  "status": "assessment_ready",
+  "currentTask": "child phase first assess",
+  "nextPendingChange": null,
+  "sourceTool": "claude-code",
+  "exactNextCommand": "/kbd-assess",
+  "parentPhase": "outer",
+  "childPhases": [],
+  "childPointer": null,
+  "updatedAt": "2026-05-27T00:00:00Z"
+}

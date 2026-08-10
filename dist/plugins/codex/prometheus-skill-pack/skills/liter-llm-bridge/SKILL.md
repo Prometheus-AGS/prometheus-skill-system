@@ -1,0 +1,149 @@
+---
+license: MIT
+name: liter-llm-bridge
+version: '0.1.0'
+description: >
+  Harness-agnostic multi-model routing fallback. Builds and configures
+  liter-llm (a Rust LLM proxy with a built-in MCP server) so any harness
+  with MCP support can dispatch each phase of KBD / iterative-evolver /
+  artifact-refiner to the cheapest model that meets the cognitive
+  requirement. Use when the host harness (Claude Code, codex, opencode,
+  cursor, etc.) does not natively support per-skill model selection.
+authors:
+  - 'Prometheus AGS'
+allowed-tools: file_system code_interpreter
+model_routing:
+  policy_source: ".kbd-orchestrator/project.json → model_policy"
+  phases:
+    liter-bridge-install: small
+    liter-bridge-configure: small
+    liter-bridge-route: small
+  routing_reference: "references/mcp-tools.md"
+triggers:
+  keywords:
+    - liter-llm
+    - liter-llm-bridge
+    - install liter-llm
+    - configure liter-llm
+    - multi-model routing
+    - model proxy
+    - mcp model server
+  semantic: >
+    Install liter-llm, detect provider API keys, register the liter-llm
+    MCP server with the active harness, or document how skills should
+    invoke its tools to route per-phase model classes.
+metadata:
+  tags: [process, orchestration, automation]
+---
+
+# liter-llm-bridge
+
+A harness-agnostic fallback for multi-model routing across the KBD pipeline. Builds [liter-llm](https://github.com/GQAdonis/liter-llm) from the user's Rust fork, detects which providers are configured, and registers liter-llm's MCP server with the active harness so skills can dispatch each phase to the cheapest viable model.
+
+## When to Use
+
+Use this skill when:
+
+- The host harness does not support per-skill model selection (most don't, today)
+- A KBD/evolver/refiner phase emits `[MODEL_ROUTING] class=medium ...` and you want it actually honored
+- You want frontier API spend bounded to assess/plan/reflect — everything else routed to local or T4-class models
+
+Skip this skill when:
+
+- The harness already supports model switching per dispatch (e.g., Claude Code with `--model` per subagent, prom-lanes, UAR)
+- You don't have any non-frontier providers configured (in which case there's nothing to route to)
+
+## Workflow
+
+The skill has three slash entry points:
+
+1. **`/liter-llm-bridge install`** — clone, build, install the binary. See `prompts/install.md`.
+2. **`/liter-llm-bridge configure`** — generate/repair model config and register the MCP server. See `prompts/configure.md`.
+3. **`/liter-llm-bridge route`** — document or activate per-phase routing. See `prompts/route.md`.
+
+Run them in order on first setup. After that, only `configure` needs re-running when adding a provider.
+
+### `configure` subcommands — `scripts/configure-models.sh`
+
+```bash
+S="${CLAUDE_PLUGIN_ROOT}/skills/process/liter-llm-bridge/scripts/configure-models.sh"
+
+bash "$S" check                    # report state; change nothing
+bash "$S" repair                   # add ONLY the missing mandatory pieces
+bash "$S" add-provider glm-coding  # local-proxy|kimi|minimax|qwen|glm|glm-coding|kimi-coding
+bash "$S" verify                   # live 1-token completion per role
+bash "$S" migrate                  # retire the legacy config.toml
+```
+
+Two files own the configuration, and **neither is a script**:
+
+| File | Owns |
+|---|---|
+| `~/.prometheus/kbd/models.toml` | role → model **name** (KBD) |
+| `~/.config/liter-llm/liter-llm-proxy.toml` | name → provider + `base_url` + `${KEY}` (liter-llm) |
+
+Secrets never enter the TOML: keys live in `~/.prometheus/kbd/secrets.env` (0600) and
+are referenced as `${VAR}`.
+
+> **Never edit a plugin cache.** Files under `~/.claude/plugins/cache/...` (and the
+> Codex equivalent) are overwritten by the next install, and the edit is invisible to
+> git. A previous session "fixed" model routing that way and the change silently
+> vanished. Change the two config files above, or edit the repo and run
+> `bash scripts/update-skill-pack.sh --force`.
+
+### Three contracts that will bite you
+
+1. **liter-llm never searches `$HOME`.** `ProxyConfig::discover()` walks the CWD
+   upward for `liter-llm-proxy.toml`. Always pass `--config <abs path>`, or the
+   server starts with **zero models**.
+2. **`/v1/*` requires a Bearer token unconditionally.** A config with no
+   `[general] master_key` and no `[[keys]]` answers **401 to everything**,
+   `/v1/models` included.
+3. **`[security].outbound_policy` defaults to `deny_private`,** which **refuses
+   loopback** — so any `localhost` `base_url` fails until it is set to `"off"` or an
+   explicit allowlist.
+
+`configure check` tests all three and names whichever is broken.
+
+## Architecture
+
+```
+KBD/evolver/refiner phase
+        │
+        ▼
+[MODEL_ROUTING] class=medium model=...
+        │
+        ▼
+   harness hook  ──→  liter-llm MCP server  ──→  provider (Anthropic / OpenAI / Groq / Ollama / vLLM / ...)
+        │                  (stdio transport)
+        ▼
+    response
+```
+
+liter-llm exposes MCP tools for model routing, virtual API keys, rate limits, cost tracking, response caching, and an OpenAPI spec at `/openapi.json`.
+
+> **There is no `liter-llm complete` CLI subcommand and no MCP `complete` tool.** The
+> binary ships exactly two subcommands, `api` and `mcp` — it is a proxy *server*. The
+> MCP chat tool is named `chat`. Shell callers should speak OpenAI REST to
+> `POST /v1/chat/completions` at the resolved gateway. Earlier revisions of these docs
+> taught `liter-llm complete --model frontier`; because callers only checked that the
+> *binary* existed, the failure surfaced as "liter-llm unavailable" rather than as the
+> CLI-contract mismatch it was.
+
+## Fallback Semantics
+
+- **No provider configured for a class** → route falls through to the host model. Emit warning. Do not fail the phase.
+- **Class downgrade attempted** (e.g., a `frontier`-required phase tries to run on a `small` model) → emit `MODEL MISMATCH` and stop. The cheap-runs-frontier-work case is the dangerous silent failure and is never allowed.
+- **liter-llm not installed but skill invoked** → run `/liter-llm-bridge install` first, do not partial-configure.
+
+## References
+
+- `prompts/install.md` — build + install workflow
+- `prompts/configure.md` — provider detection, harness registration
+- `prompts/route.md` — invocation contract, hook templates
+- `references/provider-env-vars.md` — canonical list of provider env vars (Anthropic, OpenAI, Groq, Together, Mistral, Cohere, Ollama, vLLM, etc.)
+- `references/mcp-tools.md` — the 22 tools liter-llm exposes via stdio MCP
+
+## Source
+
+The bridge expects the user's Rust fork: `https://github.com/GQAdonis/liter-llm.git`. The fork's `liter-llm-cli` crate provides the binary, and `liter-llm mcp --transport stdio` starts the MCP server.

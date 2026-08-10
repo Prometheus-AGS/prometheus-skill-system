@@ -13,7 +13,7 @@ An upgrade moves three independently certified repositories plus installed host 
 7. Generate the excluded doctor/refresh plan; inspect it before any repair.
 8. Install/sign binaries, activate the plugin generation, and reload only allowed services.
 9. Run the full local health and certification matrix.
-10. Push in dependency order. Use GitHub checks only as final environment parity and Pages deployment.
+10. Push in dependency order. All validation remains local; hosted automation is not release evidence.
 
 ```mermaid
 flowchart LR
@@ -33,8 +33,9 @@ Do not advance a root gitlink until its dependency commit passes its local gates
 ## Plugin upgrade and rollback
 
 ```bash
-node scripts/install-plugin-generation.js
-node scripts/install-plugin-generation.js --verify
+git pull --ff-only
+./install.sh --profile skills --targets detected --non-interactive --yes
+./install.sh --verify --targets detected --non-interactive
 ```
 
 Activation keeps `previous`. If installed-host certification fails:
@@ -45,6 +46,14 @@ node scripts/install-plugin-generation.js --verify
 ```
 
 Do not patch an active generation or a copied target by hand.
+
+The umbrella generation, enabled Claude/Codex umbrella plugins, and target
+receipts must never select a release below `1.7.0`. For the one-time cache
+migration use `scripts/migrate-skill-system-1.7.0.sh`: it performs a clean
+checkout activation, supported native refresh, rollback-on-refresh-failure,
+Claude prune, receipt-aware generation prune, and writes a migration receipt
+under `~/.prometheus/migrations/`. Unsigned or referenced legacy generations
+are refused rather than deleted.
 
 ## Service refresh
 

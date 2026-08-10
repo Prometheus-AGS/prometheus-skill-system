@@ -1,0 +1,30 @@
+{
+  "schemaVersion": "5",
+  "__description": "Canonical compatibility projection for the active KBD waypoint. Writers emit camelCase only. Legacy snake_case aliases are accepted by migration readers but are never written.",
+
+  "path": [],
+  "__path_note": "Canonical arbitrary-depth position chain. SELECTED-VS-ENTERED INVARIANT: when path[]'s trailing token equals childPointer the child is SELECTED (not entered) and /kbd-new-child adds a SIBLING; when childPointer is null/cleared the deepest path[] node is ENTERED and /kbd-new-child NESTS under it. Descent = set path[] + clear childPointer (/kbd-child-exit --enter). See SKILL.md 'Nested phases'.",
+
+  "phase": "<phase-name>",
+  "previousPhase": null,
+  "change": null,
+  "status": "assessment_ready",
+  "currentTask": "<short imperative>",
+  "nextPendingChange": null,
+  "sourceTool": "<tool-name>",
+  "exactNextCommand": "<slash command>",
+
+  "parentPhase": null,
+  "childPhases": [],
+  "childPointer": null,
+
+  "backend": null,
+  "wave": null,
+  "lastCompletedChange": null,
+  "completionMetric": "implementation",
+  "implementationCompleted": 0,
+  "implementationTotal": 0,
+  "certificationStatus": "NOT_TRACKED",
+  "publicationStatus": "NOT_TRACKED",
+  "updatedAt": "<ISO-8601 UTC>"
+}

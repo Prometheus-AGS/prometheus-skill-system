@@ -6,47 +6,46 @@ Get from zero to your first `/learn-goal` session in under 10 minutes.
 
 ## Prerequisites
 
-Three things must be installed before you start:
+Two things must be installed for the recommended skills-only profile:
 
 | Tool | Minimum | Install |
 |------|---------|---------|
-| **Rust** | stable (1.75+) | `curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs \| sh` |
 | **Node.js** | 18+ | https://nodejs.org |
 | **Git** | any recent | https://git-scm.com |
 
 ---
 
-## Step 1 — Clone (with submodules)
+## Step 1 — Clone
 
 ```bash
-git clone --recurse-submodules https://github.com/Prometheus-AGS/prometheus-skill-system.git
+git clone https://github.com/Prometheus-AGS/prometheus-skill-system.git
 cd prometheus-skill-system
 ```
 
-> **Already cloned without `--recurse-submodules`?**
-> ```bash
-> git submodule init && git submodule update
-> ```
+The installer initializes and verifies the exact imported-skill commits itself.
 
 ---
 
 ## Step 2 — Install
 
-One script installs skills to all detected platforms (Claude Code, Kimi, OpenCode, etc.)
-and builds the Rust tool binaries (`forge`, `pk-watcher`, `sovereign-sync`):
+The default profile highlights `skills`, preselects detected clients, displays
+the exact mutation set, and asks for confirmation:
 
 ```bash
-bash scripts/install-skills-flat.sh
+./install.sh
 ```
 
-This takes 2–5 minutes on first run (Rust compilation). Subsequent runs are fast.
+This profile does not build binaries, install services, or change MCP configuration.
+For the complete macOS/Linux system use `./install.sh --profile full`. Windows is
+supported for `skills` through Git Bash or WSL. The minimum supported active
+umbrella release is `1.7.0`.
 
 ---
 
 ## Step 3 — Verify
 
 ```bash
-bash shared/scripts/detect-toolchain.sh
+./install.sh --verify --targets detected --non-interactive
 ```
 
 Every row should show ✓ or a version number. If `forge` shows `MISSING`, the Rust

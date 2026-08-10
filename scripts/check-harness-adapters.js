@@ -9,7 +9,7 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const read = relative => JSON.parse(fs.readFileSync(path.join(root, relative), 'utf8'));
 const contract = read('shared/harnesses/hook-contract.json');
 const release = read('shared/harnesses/generated/release-manifest.json');
-const plugin = read('.codex-plugin/plugin.json');
+const plugin = read('dist/plugins/codex/prometheus-skill-pack/.codex-plugin/plugin.json');
 const manifests = {
   'claude-code': read('hooks/hooks.json'),
   codex: read('hooks/codex-hooks.json'),
@@ -27,8 +27,8 @@ function sha256(value) {
 const contractHooks = contract.events.flatMap(group => group.hooks);
 const ids = new Set(contractHooks.map(hook => hook.id));
 if (ids.size !== contractHooks.length) failures.push('hook contract contains duplicate ids');
-if (plugin.hooks !== './hooks/codex-hooks.json') {
-  failures.push(`Codex plugin loads ${plugin.hooks}, not the generated Codex manifest`);
+if (plugin.hooks !== undefined) {
+  failures.push('Codex native package must omit the rejected hooks field');
 }
 
 const releaseDispatcher = release.runtimeFiles.find(

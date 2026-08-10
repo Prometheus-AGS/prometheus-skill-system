@@ -1,0 +1,143 @@
+{{- /*
+  Chat.tsx.tera — assistant-ui chat component with AG-UI SSE streaming
+  Variables:
+    agent_name : kebab-case agent name
+    port       : agent server port
+*/ -}}
+import { useCallback, useRef, useState } from 'react'
+import {
+  AssistantRuntimeProvider,
+  Thread,
+  useExternalStoreRuntime,
+  type ChatModelAdapter,
+  type AppendMessage,
+  type ThreadMessage,
+} from '@assistant-ui/react'
+import { useAgentConfig } from '../lib/api'
+import { ProviderConfig } from './ProviderConfig'
+import { SkillsPanel } from './SkillsPanel'
+
+// ─── AG-UI Streaming Adapter ──────────────────────────────────────────────────
+// Connects assistant-ui to the agent's AG-UI SSE endpoint.
+
+const createAguiAdapter = (model: string, provider: string): ChatModelAdapter => ({
+  async *run({ messages, abortSignal }) {
+    const lastUser = [...messages].reverse().find(m => m.role === 'user')
+    if (!lastUser) return
+
+    const content = lastUser.content
+      .filter(p => p.type === 'text')
+      .map(p => (p as { type: 'text'; text: string }).text)
+      .join('\n')
+
+    // Step 1: Start a run via AG-UI
+    const runRes = await fetch('/agui/run', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({
+        model,
+        provider,
+        messages: [{ role: 'user', content }],
+      }),
+      signal: abortSignal,
+    })
+    const { run_id } = await runRes.json()
+
+    // Step 2: Stream AG-UI events via SSE
+    const evtSource = new EventSource(`/agui/events/${run_id}`)
+    let fullText = ''
+
+    try {
+      for await (const event of readSse(evtSource, abortSignal)) {
+        const data = JSON.parse(event.data ?? '{}')
+
+        if (data.type === 'agui.text.delta') {
+          fullText += data.delta ?? ''
+          yield { content: [{ type: 'text', text: fullText }] }
+        }
+        if (data.type === 'agui.run.complete' || data.type === 'agui.run.error') {
+          break
+        }
+      }
+    } finally {
+      evtSource.close()
+    }
+  },
+})
+
+/** Async generator over EventSource messages */
+async function* readSse(
+  evtSource: EventSource,
+  signal: AbortSignal
+): AsyncGenerator<MessageEvent> {
+  const queue: MessageEvent[] = []
+  let resolve: (() => void) | null = null
+
+  evtSource.onmessage = (e) => {
+    queue.push(e)
+    resolve?.()
+  }
+
+  while (!signal.aborted) {
+    if (queue.length > 0) {
+      yield queue.shift()!
+    } else {
+      await new Promise<void>((res) => { resolve = res })
+      resolve = null
+    }
+  }
+}
+
+// ─── Chat Component ───────────────────────────────────────────────────────────
+
+export function Chat() {
+  const { data: config } = useAgentConfig()
+  const [model,    setModel]    = useState(config?.default_model    ?? 'claude-sonnet-4-6')
+  const [provider, setProvider] = useState(config?.default_provider ?? 'anthropic')
+
+  const adapter   = useRef(createAguiAdapter(model, provider))
+  adapter.current = createAguiAdapter(model, provider) // update on model/provider change
+
+  const runtime = useExternalStoreRuntime({
+    messages: [],
+    isRunning: false,
+    onNew: useCallback(
+      async (message: AppendMessage) => {
+        // The adapter handles sending to the agent
+      },
+      []
+    ),
+    convertMessage: (m: ThreadMessage) => m,
+    adapters: { chat: adapter.current },
+  })
+
+  return (
+    <AssistantRuntimeProvider runtime={runtime}>
+      <div className="flex h-screen flex-col bg-background">
+        {/* Header */}
+        <header className="border-b px-4 py-3 flex items-center justify-between">
+          <div>
+            <h1 className="font-semibold text-sm">{{ agent_name }}</h1>
+            <p className="text-xs text-muted-foreground">{model}</p>
+          </div>
+          <ProviderConfig
+            currentModel={model}
+            currentProvider={provider}
+            onModelChange={setModel}
+            onProviderChange={setProvider}
+          />
+        </header>
+
+        {/* Main chat area */}
+        <div className="flex flex-1 overflow-hidden">
+          <div className="flex-1 overflow-hidden">
+            <Thread />
+          </div>
+
+          {/* Skills panel (collapsible) */}
+          <SkillsPanel />
+        </div>
+      </div>
+    </AssistantRuntimeProvider>
+  )
+}

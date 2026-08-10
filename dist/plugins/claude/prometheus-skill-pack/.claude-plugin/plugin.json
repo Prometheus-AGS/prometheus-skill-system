@@ -1,0 +1,22 @@
+{
+  "author": {
+    "name": "Travis James",
+    "url": "https://travisjames.ai"
+  },
+  "description": "Complete Prometheus skill system: process orchestration, React, GitOps, testing, research, learning, and portable agent tooling.",
+  "homepage": "https://github.com/Prometheus-AGS/prometheus-skill-system",
+  "keywords": [
+    "agent-skills",
+    "process-orchestration",
+    "react",
+    "gitops",
+    "testing",
+    "research"
+  ],
+  "license": "MIT",
+  "mcpServers": "./.mcp.json",
+  "name": "prometheus-skill-pack",
+  "repository": "https://github.com/Prometheus-AGS/prometheus-skill-system",
+  "skills": "./skills",
+  "version": "1.7.0"
+}

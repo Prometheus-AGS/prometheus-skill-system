@@ -1,0 +1,124 @@
+{{- /*
+  lit_component.ts.tera — Lit 3 web component
+  Variables:
+    component_tag  : kebab-case element name (e.g. "forge-viewer")
+    ComponentClass : PascalCase class name (e.g. "ForgeViewer")
+    properties     : list of { name, type, attr } property objects
+    api_endpoint   : server endpoint to fetch data from
+*/ -}}
+import { LitElement, html, css, nothing } from 'lit'
+import { customElement, property, state } from 'lit/decorators.js'
+import { when } from 'lit/directives/when.js'
+import { unsafeHTML } from 'lit/directives/unsafe-html.js'
+
+/**
+ * <{{ component_tag }}> — {{ ComponentClass }}
+ *
+ * Usage:
+ *   <{{ component_tag }} {% for prop in properties %}{{ prop.attr }}="value" {% endfor %}></{{ component_tag }}>
+ *
+ * Events dispatched:
+ *   - 'select-item' with detail: { id: string } — when user selects an item
+ */
+@customElement('{{ component_tag }}')
+export class {{ ComponentClass }} extends LitElement {
+  static styles = css`
+    :host {
+      display: block;
+      font-family: var(--font-sans, system-ui, sans-serif);
+    }
+
+    .loading {
+      color: var(--color-muted-foreground, #71717a);
+      font-size: 0.875rem;
+      padding: 1rem;
+    }
+
+    .error {
+      color: var(--color-destructive, #ef4444);
+      font-size: 0.875rem;
+      padding: 1rem;
+    }
+
+    .content {
+      /* Component-scoped styles — no Tailwind classes inside Lit shadow DOM */
+      padding: 1rem;
+    }
+  `
+
+  // ─── Properties (reflect from HTML attributes) ──────────────────────────
+  {% for prop in properties -%}
+  @property({ type: {{ prop.type }}, attribute: '{{ prop.attr }}' })
+  {{ prop.name }}: {{ prop.type }} {% if prop.type == "String" %}= ''{% elif prop.type == "Number" %}= 0{% elif prop.type == "Boolean" %}= false{% endif %}
+
+  {% endfor %}
+
+  // ─── Internal state ──────────────────────────────────────────────────────
+  @state() private _data: unknown = null
+  @state() private _loading = false
+  @state() private _error: string | null = null
+
+  // ─── Lifecycle ───────────────────────────────────────────────────────────
+  override async updated(changed: Map<string, unknown>) {
+    // Re-fetch when key properties change
+    if ({% for prop in properties %}changed.has('{{ prop.name }}'){% if not loop.last %} || {% endif %}{% endfor %}) {
+      await this._fetchData()
+    }
+  }
+
+  private async _fetchData() {
+    if (!this.{% if properties %}{{ properties[0].name }}{% else %}id{% endif %}) return
+
+    this._loading = true
+    this._error = null
+
+    try {
+      const res = await fetch(`{{ api_endpoint }}/${this.{% if properties %}{{ properties[0].name }}{% else %}id{% endif %}`)
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      this._data = await res.json()
+    } catch (e) {
+      this._error = e instanceof Error ? e.message : 'Failed to load'
+    } finally {
+      this._loading = false
+    }
+  }
+
+  private _handleSelect(id: string) {
+    this.dispatchEvent(new CustomEvent('select-item', {
+      detail: { id },
+      bubbles: true,   // bubbles out of shadow DOM
+      composed: true,  // crosses shadow DOM boundary
+    }))
+  }
+
+  // ─── Render ──────────────────────────────────────────────────────────────
+  override render() {
+    if (this._loading) {
+      return html`<div class="loading">Loading…</div>`
+    }
+
+    if (this._error) {
+      return html`
+        <div class="error">
+          Error: ${this._error}
+          <button @click=${this._fetchData}>Retry</button>
+        </div>
+      `
+    }
+
+    if (!this._data) return nothing
+
+    return html`
+      <div class="content">
+        <!-- TODO: render _data -->
+        <pre>${JSON.stringify(this._data, null, 2)}</pre>
+      </div>
+    `
+  }
+}
+
+declare global {
+  interface HTMLElementTagNameMap {
+    '{{ component_tag }}': {{ ComponentClass }}
+  }
+}

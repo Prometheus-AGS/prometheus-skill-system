@@ -1,0 +1,84 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://prometheus-ags.dev/schemas/kbd/position.schema.json",
+  "title": "KBD unified position model",
+  "description": "Compatibility projection at .kbd-orchestrator/position.json. It is usable only when sourceRevision equals the canonical waypoint/runtime revision; filesystem timestamps are not causal authority.",
+  "type": "object",
+  "required": ["schemaVersion", "sourceRevision", "updatedAt", "cursor", "root"],
+  "properties": {
+    "schemaVersion": { "const": "1" },
+    "generatedBy": {
+      "type": "string",
+      "description": "Projection writer identity. kbd-runtime is the only authoritative writer."
+    },
+    "sourceRevision": { "type": "integer", "minimum": 0 },
+    "updatedAt": { "type": "string", "format": "date-time" },
+    "cursor": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Flattened active path: [phase[, child][, change][, task:done/total]]. Render joined with › ."
+    },
+    "root": { "$ref": "#/$defs/phaseNode" }
+  },
+  "$defs": {
+    "progress": {
+      "type": "object",
+      "required": ["done", "total"],
+      "description": "Implementation completion only. Evidence, certification, and publication never alter these values.",
+      "properties": {
+        "done": { "type": "integer", "minimum": 0 },
+        "total": { "type": "integer", "minimum": 0 }
+      },
+      "additionalProperties": false
+    },
+    "phaseNode": {
+      "type": "object",
+      "required": ["type", "id", "status", "progress", "children"],
+      "properties": {
+        "type": { "const": "phase" },
+        "id": { "type": "string" },
+        "canonicalId": { "type": "string" },
+        "status": {
+          "type": "string",
+          "description": "Waypoint status for the active node; 'inactive' or 'active-parent' for others."
+        },
+        "progress": { "$ref": "#/$defs/progress" },
+        "children": {
+          "type": "array",
+          "items": {
+            "oneOf": [
+              { "$ref": "#/$defs/phaseNode" },
+              { "$ref": "#/$defs/changeNode" }
+            ]
+          }
+        },
+        "annotations": {
+          "type": "array",
+          "description": "Read-only ingest of foreign state (.evolver/, .zeespec/) — annotate, don't migrate.",
+          "items": {
+            "type": "object",
+            "required": ["source", "ref", "summary"],
+            "properties": {
+              "source": { "type": "string" },
+              "ref": { "type": "string" },
+              "summary": { "type": "string" }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "changeNode": {
+      "type": "object",
+      "required": ["type", "id", "status", "progress"],
+      "properties": {
+        "type": { "const": "change" },
+        "id": { "type": "string" },
+        "status": { "type": "string" },
+        "progress": { "$ref": "#/$defs/progress" }
+      },
+      "additionalProperties": false
+    }
+  }
+}

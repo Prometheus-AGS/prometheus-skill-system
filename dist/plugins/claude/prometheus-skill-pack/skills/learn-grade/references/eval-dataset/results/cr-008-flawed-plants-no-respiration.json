@@ -1,0 +1,21 @@
+{
+  "grade_id": "eval-cr-008-flawed-plants-no-respiration",
+  "goal_id": "eval",
+  "concept_id": "cellular-respiration",
+  "learner_id": "eval-harness",
+  "graded_at": "2026-07-16T00:00:00Z",
+  "explanation_excerpt": "Plants get their energy through photosynthesis, converting sunlight directly into usable energy for the cell, so they don't really need cellular respiration the way animals do — that's more of an animal-",
+  "scores": {"completeness": 0.1, "accuracy": 0.1, "clarity": 0.6, "misconceptions_absent": 0.0},
+  "overall_score": 0.2,
+  "gaps": [
+    {"dimension": "misconception", "description": "States plants 'don't really need cellular respiration' and calls it 'an animal-specific pathway' — the textbook misconception that plants only photosynthesize. Plants perform both photosynthesis and cellular respiration around the clock, just like animal cells.", "corpus_ref": "Common misconception: 'plants only do photosynthesis, not cellular respiration'"},
+    {"dimension": "accuracy", "description": "Claims photosynthesis converts sunlight 'directly into usable energy for the cell.' Photosynthesis produces glucose (stored chemical energy), not directly usable cellular energy; ATP is the cell's usable energy currency.", "corpus_ref": "OpenStax Biology 2e, Ch. 7 — Overview of Cellular Respiration"},
+    {"dimension": "completeness", "description": "Omits the entire cellular respiration process for any organism: no mention of glycolysis, the citric acid cycle, oxidative phosphorylation, or ATP yield.", "corpus_ref": "OpenStax Biology 2e, Ch. 7 — Overview of Cellular Respiration"}
+  ],
+  "transfer_problems": [
+    "A biologist removes all light sources from a room containing a healthy potted plant but keeps the temperature and CO2 levels constant. Using the four stages of cellular respiration, explain whether the plant's cells can still produce ATP overnight, and identify which organelle carries out this process.",
+    "A student is told a plant cell's mitochondria were experimentally disabled while its chloroplasts remained fully functional. Using the concept of chemiosmosis and the electron transport chain's location, predict what would happen to the plant's ability to power cellular activities such as active transport and biosynthesis."
+  ],
+  "passed": false,
+  "pass_threshold": 0.7
+}

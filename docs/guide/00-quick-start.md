@@ -11,8 +11,14 @@ sidebar_label: Quick Start
 ```bash
 git clone https://github.com/Prometheus-AGS/prometheus-skill-system
 cd prometheus-skill-system
-bash scripts/install-skills-flat.sh
+./install.sh
 ```
+
+The recommended skills-only profile initializes pinned imports and installs the
+signed `1.7.0` distribution into detected clients. `1.7.0` is the minimum
+supported active umbrella release. Use `./install.sh --profile full` on macOS or
+Linux when you also want locally built binaries, MCP configuration, services,
+and doctors.
 
 ## Try a skill
 

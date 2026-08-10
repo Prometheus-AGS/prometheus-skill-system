@@ -1,0 +1,133 @@
+{
+  "__description": "Built-in KBD orchestrator hooks. All entries in this file are tagged layer=builtin at load time. The 'report-progress' entry is the default reporter; a project can replace it by shipping a mode='override' entry covering '*:*' in .kbd-orchestrator/hooks-config.json.",
+  "hooks": [
+    {
+      "id": "report-progress",
+      "event": "*:*",
+      "mode": "augment",
+      "description": "Default reporter — emits the canonical KBD long-run progress signal for phases and tasks, and a compact fallback line for other hook kinds.",
+      "action": {
+        "type": "command",
+        "command": "if [ \"$KBD_HOOK_EDGE\" = \"before\" ]; then verb=Starting; else verb=Completed; fi; if [ \"$KBD_HOOK_KIND\" = \"phase\" ]; then printf '%s phase %s out of %s:  %s\\n' \"$verb\" \"$KBD_HOOK_INDEX\" \"$KBD_HOOK_TOTAL\" \"$KBD_HOOK_NAME\" >&2; elif [ \"$KBD_HOOK_KIND\" = \"task\" ]; then printf '%s task %s out of %s:   %s\\n' \"$verb\" \"$KBD_HOOK_INDEX\" \"$KBD_HOOK_TOTAL\" \"$KBD_HOOK_NAME\" >&2; else printf '%s %s %s out of %s: %s\\n' \"$verb\" \"$KBD_HOOK_KIND\" \"$KBD_HOOK_INDEX\" \"$KBD_HOOK_TOTAL\" \"$KBD_HOOK_NAME\" >&2; fi",
+        "timeout": 5,
+        "on_failure": "ignore"
+      }
+    },
+    {
+      "id": "kbd-memory-log",
+      "event": "*:*",
+      "mode": "augment",
+      "description": "Mirror every hook fire into surreal-memory (default-on when endpoint is reachable; no-op otherwise). Captures only structured KBD_HOOK_* values — no third-party stderr.",
+      "action": {
+        "type": "command",
+        "command": "\"${KBD_ORCHESTRATOR_ROOT:-$HOME/.claude/skills/kbd-process-orchestrator}/shared/lib/memory-log.sh\"",
+        "timeout": 5,
+        "on_failure": "ignore"
+      }
+    },
+    {
+      "id": "auto-memory-recall",
+      "event": "assess:before",
+      "mode": "augment",
+      "description": "Populate prior-context.md from surreal-memory before each /kbd-assess. Composes with on_failure: ignore so a missing memory endpoint never blocks assess.",
+      "action": {
+        "type": "command",
+        "command": "\"${KBD_ORCHESTRATOR_ROOT:-$HOME/.claude/skills/kbd-process-orchestrator}/skills/kbd-memory-recall/kbd-memory-recall.sh\" \"$KBD_HOOK_NAME\"",
+        "timeout": 30,
+        "on_failure": "ignore"
+      }
+    },
+    {
+      "id": "legacy-phase-complete",
+      "event": "on_phase_complete",
+      "action": {
+        "type": "command",
+        "command": "echo '[kbd-orchestrator] Phase complete — run /kbd-reflect to generate reflection report, then /kbd-new-phase to start next phase'"
+      }
+    },
+    {
+      "id": "legacy-change-complete",
+      "event": "on_change_complete",
+      "action": {
+        "type": "command",
+        "command": "echo '[kbd-orchestrator] Change complete — record it with prometheus kbd change transition --status complete, then run /opsx:verify + /opsx:archive (if OpenSpec)'"
+      }
+    },
+    {
+      "id": "legacy-assessment-complete",
+      "event": "on_assessment_complete",
+      "action": {
+        "type": "command",
+        "command": "echo '[kbd-orchestrator] Assessment written — run /kbd-plan to generate change list'"
+      }
+    },
+    {
+      "id": "legacy-plan-complete",
+      "event": "on_plan_complete",
+      "action": {
+        "type": "command",
+        "command": "echo '[kbd-orchestrator] Plan written — run /kbd-execute to select backend and dispatch'"
+      }
+    },
+    {
+      "id": "legacy-cross-tool-handoff",
+      "event": "on_cross_tool_handoff",
+      "action": {
+        "type": "command",
+        "command": "echo '[kbd-orchestrator] Cross-tool handoff — receiving tool should read current-waypoint.json and progress.json before starting'"
+      }
+    },
+    {
+      "id": "legacy-blocker-detected",
+      "event": "on_blocker_detected",
+      "action": {
+        "type": "command",
+        "command": "echo '[kbd-orchestrator] Blocker detected — record it with prometheus kbd blocker record; compatibility projections refresh from the runtime'"
+      }
+    },
+    {
+      "id": "legacy-reflection-complete",
+      "event": "on_reflection_complete",
+      "action": {
+        "type": "command",
+        "command": "echo '[kbd-orchestrator] Reflection complete — waypoint advanced to next phase, run /kbd-new-phase <name> to begin'"
+      }
+    },
+    {
+      "id": "memory-task-stream",
+      "event": "execute:before",
+      "mode": "augment",
+      "description": "Open a surreal-memory task stream for the phase at execute start (best-effort; outbox-buffered when the endpoint is down).",
+      "action": {
+        "type": "command",
+        "command": "src=\"${KBD_ORCHESTRATOR_ROOT:-$HOME/.claude/skills/kbd-process-orchestrator}/../../../shared/scripts/lib/memory-bridge.sh\"; [ -f \"$src\" ] && . \"$src\" && mem_create_task_stream \"kbd:${KBD_PROJECT_NAME:-prometheus-skill-pack}:${KBD_HOOK_NAME}\" || true",
+        "timeout": 6,
+        "on_failure": "ignore"
+      }
+    },
+    {
+      "id": "memory-reflection-writeback",
+      "event": "reflect:end",
+      "mode": "augment",
+      "description": "Persist the accepted phase reflection (Delta + Corrective Actions) to surreal-memory, scoped global vs project. Skips rejected reflections.",
+      "action": {
+        "type": "command",
+        "command": "\"${KBD_ORCHESTRATOR_ROOT:-$HOME/.claude/skills/kbd-process-orchestrator}/../../../shared/scripts/memory-writeback.sh\" </dev/null || true",
+        "timeout": 8,
+        "on_failure": "ignore"
+      }
+    },
+    {
+      "id": "pk-ingest-on-reflect",
+      "event": "reflect:end",
+      "mode": "augment",
+      "description": "Ingest the reflection into prometheus-knowledge at reflect time so learnings are available within the session, not only at Stop. No-op when pk is absent.",
+      "action": {
+        "type": "command",
+        "command": "command -v pk >/dev/null 2>&1 && pk ingest >/dev/null 2>&1 || true",
+        "timeout": 10,
+        "on_failure": "ignore"
+      }
+    }
+  ]
+}

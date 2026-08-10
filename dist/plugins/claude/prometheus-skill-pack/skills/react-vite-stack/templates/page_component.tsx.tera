@@ -1,0 +1,63 @@
+{{- /*
+  page_component.tsx.tera — Page component enforcing NO direct store access
+  RULE: Components compose hooks. Components NEVER import stores or call fetch() directly.
+  Variables:
+    feature_name   : camelCase (e.g. "posts")
+    FeatureName    : PascalCase (e.g. "Posts")
+    EntityType     : TypeScript type name (e.g. "Post")
+    show_table     : bool — include a TanStack Table
+    show_form      : bool — include a create form
+    route_path     : TanStack Router path (e.g. "/posts")
+*/ -}}
+import { createFileRoute } from '@tanstack/react-router'
+{% if show_table -%}
+import { use{{ FeatureName }}List } from '../hooks/use{{ FeatureName }}List'
+import { {{ FeatureName }}Table } from '../components/{{ FeatureName }}Table'
+{%- endif %}
+{% if show_form -%}
+import { use{{ FeatureName }}Mutations } from '../hooks/use{{ FeatureName }}Mutations'
+import { {{ FeatureName }}Form } from '../components/{{ FeatureName }}Form'
+{%- endif %}
+import { LoadingSpinner } from '@/components/ui/loading-spinner'
+import { ErrorDisplay } from '@/components/ui/error-display'
+
+// ─── Route ───────────────────────────────────────────────────────────────────
+
+export const Route = createFileRoute('{{ route_path }}')({
+  component: {{ FeatureName }}Page,
+})
+
+// ─── Page component ───────────────────────────────────────────────────────────
+// This component:
+//   ✅ Composes hooks
+//   ✅ Passes data and callbacks to child components as props
+//   ❌ NEVER imports stores (use{{ FeatureName }}Store, etc.)
+//   ❌ NEVER calls fetch() or api.* directly
+//   ❌ NEVER uses useEffect for data fetching
+
+function {{ FeatureName }}Page() {
+  {% if show_table -%}
+  const { items, isLoading, error, refetch } = use{{ FeatureName }}List()
+  {%- endif %}
+  {% if show_form -%}
+  const { create, isCreating } = use{{ FeatureName }}Mutations()
+  {%- endif %}
+
+  if (isLoading) return <LoadingSpinner />
+  if (error) return <ErrorDisplay error={error} onRetry={refetch} />
+
+  return (
+    <div className="container mx-auto py-6 space-y-6">
+      <header className="flex items-center justify-between">
+        <h1 className="text-2xl font-semibold tracking-tight">{{ FeatureName }}</h1>
+        {% if show_form -%}
+        <{{ FeatureName }}Form onSubmit={create} isSubmitting={isCreating} />
+        {%- endif %}
+      </header>
+
+      {% if show_table -%}
+      <{{ FeatureName }}Table items={items ?? []} />
+      {%- endif %}
+    </div>
+  )
+}

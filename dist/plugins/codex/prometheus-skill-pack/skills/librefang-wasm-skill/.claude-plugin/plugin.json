@@ -1,0 +1,11 @@
+{
+  "name": "prometheus-librefang-skills",
+  "description": "Package native agents as LibreFang/bossfang WASM skills, upload them to a bossfang URL with SSRF-guarded /upload-to-bossfang, and chain ideation→deploy with /start-business-build. Includes the librefang-wasm-skill template, native-agent --target librefang-wasm support, and the headline orchestrator.",
+  "version": "1.5.0",
+  "author": {
+    "name": "Travis James",
+    "url": "https://travisjames.ai"
+  },
+  "license": "MIT",
+  "keywords": ["librefang", "bossfang", "wasm", "wasmtime", "agent-os", "ssrf-guard", "deploy"]
+}

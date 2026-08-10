@@ -1,0 +1,65 @@
+{{- /*
+  feature_hook.ts.tera — Custom hook bridging component and store
+  RULE: Hooks orchestrate. Hooks CAN read stores. Hooks NEVER call fetch() directly.
+  Hooks translate store state into component-ready values and expose typed callbacks.
+  Variables:
+    feature_name  : camelCase (e.g. "posts")
+    FeatureName   : PascalCase (e.g. "Posts")
+    EntityType    : TypeScript type (e.g. "Post")
+    uses_entity   : bool — uses prometheus-entity-management hook
+    uses_store    : bool — reads from a Zustand store
+*/ -}}
+{% if uses_entity -%}
+import { useEntityView } from '@prometheus-ags/prometheus-entity-management'
+import type { {{ EntityType }} } from '../domain/{{ feature_name }}'
+{%- endif %}
+{% if uses_store -%}
+import { use{{ FeatureName }}Store } from '../stores/{{ feature_name }}-store'
+{%- endif %}
+
+// ─── Hook ─────────────────────────────────────────────────────────────────────
+// This hook:
+//   ✅ Reads from entity graph or Zustand store
+//   ✅ Transforms store state into component-ready shape
+//   ✅ Returns typed callbacks (no raw dispatch/setState exposed)
+//   ❌ NEVER calls fetch() or api.* directly (that lives in the store)
+//   ❌ NEVER has useEffect for data fetching
+
+export interface Use{{ FeatureName }}ListResult {
+  items: {{ EntityType }}[] | undefined
+  isLoading: boolean
+  error: Error | null
+  refetch: () => void
+}
+
+export function use{{ FeatureName }}List(): Use{{ FeatureName }}ListResult {
+  {% if uses_entity -%}
+  const { items, isLoading, error, refetch } = useEntityView<{{ EntityType }}, {{ EntityType }}>({
+    type: '{{ FeatureName }}',
+    queryKey: ['{{ feature_name }}'],
+    fetch: (params) => api.{{ feature_name }}.list(params),
+    normalize: (row) => ({ id: row.id, data: row }),
+  })
+
+  return { items, isLoading, error: error ?? null, refetch }
+  {%- else if uses_store -%}
+  const { items, isLoading, error, load } = use{{ FeatureName }}Store(
+    (s) => ({
+      items:     s.items,
+      isLoading: s.isLoading,
+      error:     s.error,
+      load:      s.load,
+    }),
+  )
+
+  // Trigger initial load if needed
+  // useEffect(() => { load() }, [load]) — prefer entity hooks over this pattern
+
+  return {
+    items,
+    isLoading,
+    error: error ? new Error(error) : null,
+    refetch: load,
+  }
+  {%- endif %}
+}

@@ -1,0 +1,72 @@
+{{- /*
+  router.rs.tera — Axum 0.8 router scaffold with typed state injection
+  Variables:
+    module_name   : snake_case name of this router module (e.g. "posts")
+    state_type    : name of the AppState struct (e.g. "AppState")
+    resource_name : PascalCase resource name (e.g. "Post")
+    base_path     : API base path (e.g. "/api/posts")
+*/ -}}
+use axum::{
+    Router,
+    extract::{Path, State},
+    http::StatusCode,
+    response::Json,
+    routing::{delete, get, post, put},
+};
+use std::sync::Arc;
+use uuid::Uuid;
+
+use crate::{
+    errors::AppError,
+    state::{{ state_type }},
+};
+use super::types::{Create{{ resource_name }}Request, {{ resource_name }}Response, Update{{ resource_name }}Request};
+
+/// Mount all {{ module_name }} routes onto an Axum router.
+pub fn router() -> Router<Arc<{{ state_type }}>> {
+    Router::new()
+        .route("{{ base_path }}",            get(list_{{ module_name }}).post(create_{{ module_name }}))
+        .route("{{ base_path }}/:id",        get(get_{{ module_name }}).put(update_{{ module_name }}).delete(delete_{{ module_name }}))
+}
+
+// ─── Handlers ────────────────────────────────────────────────────────────────
+
+async fn list_{{ module_name }}(
+    State(state): State<Arc<{{ state_type }}>>,
+) -> Result<Json<Vec<{{ resource_name }}Response>>, AppError> {
+    let items = state.{{ module_name }}_service.list().await?;
+    Ok(Json(items))
+}
+
+async fn get_{{ module_name }}(
+    State(state): State<Arc<{{ state_type }}>>,
+    Path(id): Path<Uuid>,
+) -> Result<Json<{{ resource_name }}Response>, AppError> {
+    let item = state.{{ module_name }}_service.get(id).await?;
+    Ok(Json(item))
+}
+
+async fn create_{{ module_name }}(
+    State(state): State<Arc<{{ state_type }}>>,
+    Json(body): Json<Create{{ resource_name }}Request>,
+) -> Result<(StatusCode, Json<{{ resource_name }}Response>), AppError> {
+    let item = state.{{ module_name }}_service.create(body).await?;
+    Ok((StatusCode::CREATED, Json(item)))
+}
+
+async fn update_{{ module_name }}(
+    State(state): State<Arc<{{ state_type }}>>,
+    Path(id): Path<Uuid>,
+    Json(body): Json<Update{{ resource_name }}Request>,
+) -> Result<Json<{{ resource_name }}Response>, AppError> {
+    let item = state.{{ module_name }}_service.update(id, body).await?;
+    Ok(Json(item))
+}
+
+async fn delete_{{ module_name }}(
+    State(state): State<Arc<{{ state_type }}>>,
+    Path(id): Path<Uuid>,
+) -> Result<StatusCode, AppError> {
+    state.{{ module_name }}_service.delete(id).await?;
+    Ok(StatusCode::NO_CONTENT)
+}

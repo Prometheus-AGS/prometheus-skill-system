@@ -1,0 +1,71 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Interrogation State",
+  "description": "Master state for a ZeeSpec interrogation session",
+  "type": "object",
+  "required": [
+    "interrogation_id",
+    "subject_name",
+    "caller",
+    "started_at",
+    "updated_at",
+    "status",
+    "phases_completed"
+  ],
+  "properties": {
+    "interrogation_id": { "type": "string" },
+    "subject_name": { "type": "string" },
+    "subject_description": { "type": "string" },
+    "caller": {
+      "type": "string",
+      "enum": ["standalone", "kbd", "iterative-evolver"]
+    },
+    "caller_context": {
+      "type": "object",
+      "properties": {
+        "phase": { "type": "string" },
+        "change_id": { "type": "string" },
+        "proposal_path": { "type": "string" }
+      }
+    },
+    "started_at": { "type": "string", "format": "date-time" },
+    "updated_at": { "type": "string", "format": "date-time" },
+    "finalized_at": { "type": ["string", "null"], "format": "date-time" },
+    "status": {
+      "type": "string",
+      "enum": ["running", "complete", "incomplete", "abandoned"]
+    },
+    "phases_completed": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": ["interrogate", "score", "manifest", "persist"]
+      }
+    },
+    "dimensions_requested": {
+      "type": "array",
+      "items": { "type": "string", "enum": ["what", "where", "who", "when", "why", "how"] }
+    },
+    "coverage_threshold": {
+      "type": "number",
+      "minimum": 0.0,
+      "maximum": 1.0,
+      "default": 0.70
+    },
+    "interrogation_record": { "type": "object" },
+    "coverage_score": { "type": "object" },
+    "manifest_path": { "type": "string" },
+    "checkpoints": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "checkpoint_id": { "type": "string" },
+          "phase": { "type": "string" },
+          "timestamp": { "type": "string", "format": "date-time" }
+        }
+      }
+    },
+    "workflow_triggers": { "type": "array" }
+  }
+}

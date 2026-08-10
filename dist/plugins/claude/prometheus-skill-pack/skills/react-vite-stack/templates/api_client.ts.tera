@@ -1,0 +1,80 @@
+{{- /*
+  api_client.ts.tera — Typed API client called ONLY from stores or entity hooks
+  RULE: Components never call this. Hooks never call this. ONLY stores call this.
+  Variables:
+    feature_name   : camelCase (e.g. "posts")
+    FeatureName    : PascalCase (e.g. "Posts")
+    EntityType     : TypeScript type (e.g. "Post")
+    base_path      : API base path (e.g. "/api/posts")
+    has_create     : bool
+    has_update     : bool
+    has_delete     : bool
+*/ -}}
+import { z } from 'zod'
+import type { {{ EntityType }} } from '../domain/{{ feature_name }}'
+{% if has_create -%}
+import type { Create{{ EntityType }}Input } from '../domain/{{ feature_name }}'
+{%- endif %}
+
+// ─── Response schemas ─────────────────────────────────────────────────────────
+// Validate ALL server responses at the trust boundary.
+
+const {{ FeatureName }}Schema = z.object({
+  id:        z.string(),
+  // TODO: add fields matching the {{ EntityType }} type
+  createdAt: z.string().datetime(),
+  updatedAt: z.string().datetime(),
+})
+
+const {{ FeatureName }}ListSchema = z.array({{ FeatureName }}Schema)
+
+// ─── Client ───────────────────────────────────────────────────────────────────
+// This module is:
+//   ✅ The ONLY place network calls are made for this feature
+//   ✅ Validates all responses with zod — never trust raw server data
+//   ❌ Never imported by components or hooks — only by stores
+
+export const {{ feature_name }}Api = {
+  async list(): Promise<{{ EntityType }}[]> {
+    const res = await fetch('{{ base_path }}')
+    if (!res.ok) throw new Error(`{{ FeatureName }} list failed: ${res.status}`)
+    return {{ FeatureName }}ListSchema.parse(await res.json())
+  },
+
+  async get(id: string): Promise<{{ EntityType }}> {
+    const res = await fetch(`{{ base_path }}/${id}`)
+    if (!res.ok) throw new Error(`{{ FeatureName }} get failed: ${res.status}`)
+    return {{ FeatureName }}Schema.parse(await res.json())
+  },
+
+  {% if has_create -%}
+  async create(input: Create{{ EntityType }}Input): Promise<{{ EntityType }}> {
+    const res = await fetch('{{ base_path }}', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(input),
+    })
+    if (!res.ok) throw new Error(`{{ FeatureName }} create failed: ${res.status}`)
+    return {{ FeatureName }}Schema.parse(await res.json())
+  },
+  {%- endif %}
+
+  {% if has_update -%}
+  async update(id: string, patch: Partial<{{ EntityType }}>): Promise<{{ EntityType }}> {
+    const res = await fetch(`{{ base_path }}/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(patch),
+    })
+    if (!res.ok) throw new Error(`{{ FeatureName }} update failed: ${res.status}`)
+    return {{ FeatureName }}Schema.parse(await res.json())
+  },
+  {%- endif %}
+
+  {% if has_delete -%}
+  async delete(id: string): Promise<void> {
+    const res = await fetch(`{{ base_path }}/${id}`, { method: 'DELETE' })
+    if (!res.ok) throw new Error(`{{ FeatureName }} delete failed: ${res.status}`)
+  },
+  {%- endif %}
+}

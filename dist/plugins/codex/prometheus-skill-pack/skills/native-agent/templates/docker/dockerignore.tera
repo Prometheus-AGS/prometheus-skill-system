@@ -1,0 +1,54 @@
+{{- /*
+  dockerignore.tera — .dockerignore for the generated native agent
+  Variables: (none)
+*/ -}}
+# Rust build artifacts
+target/
+**/*.rs.bk
+
+# Frontend build artifacts and dev dependencies
+frontend/node_modules/
+frontend/dist/
+frontend/.cache/
+
+# Environment files (NEVER include in image)
+.env
+.env.*
+!.env.example
+
+# Runtime state files
+.agent.pid
+.agent.log
+.agent/
+
+# Development tools
+.forge/
+.zeespec/
+.evolver/
+.refiner/
+
+# Version control
+.git/
+.gitmodules
+**/.gitignore
+
+# Editor artifacts
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+
+# Documentation (not needed in image)
+*.md
+!agent.toml
+!system_prompt.md
+
+# Test artifacts
+**/target/debug/
+**/*.test
