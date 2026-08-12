@@ -30,6 +30,33 @@ async function copyDirectory(src, dest) {
   }
 }
 
+/**
+ * Record WHICH commit this generation was built from, and WHERE that repo is.
+ *
+ * Without this, nothing on the machine can answer "are my installed skills
+ * current?" — which is how a July-dated `kbd-assess` shadowed the repo for 25
+ * days and cost a phase's canonical state. `shared/scripts/skills-freshness.sh`
+ * reads these two files; they are the whole input to that check.
+ *
+ * Failure to stamp is reported, never fatal: a missing stamp degrades the
+ * freshness check to "indeterminate", which is honest. Failing the install
+ * because provenance could not be written would be worse than the drift.
+ */
+async function stampProvenance() {
+  const current = path.join(homedir(), '.prometheus/plugins/prometheus-skill-pack/current');
+  try {
+    const sha = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: rootDir })
+      .toString()
+      .trim();
+    await fs.writeFile(path.join(current, '.source-commit'), `${sha}\n`, 'utf8');
+    await fs.writeFile(path.join(current, '.source-repo'), `${rootDir}\n`, 'utf8');
+    console.log(`   provenance: ${sha.slice(0, 8)} from ${rootDir}`);
+  } catch (err) {
+    console.warn(`   ⚠ could not stamp provenance: ${err.message}`);
+    console.warn('     freshness checks will report "indeterminate" until the next install.');
+  }
+}
+
 async function installSkills(scope) {
   console.log(`📦 Installing Prometheus Skill Pack to ${scope} scope\n`);
 
@@ -38,6 +65,7 @@ async function installSkills(scope) {
     execFileSync(process.execPath, [installer, '--source-root', rootDir, '--home', homedir()], {
       stdio: 'inherit',
     });
+    await stampProvenance();
     console.log('✅ Verified immutable generation installed to all supported user targets.');
     return;
   }
