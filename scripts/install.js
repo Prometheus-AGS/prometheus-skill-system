@@ -43,13 +43,20 @@ async function copyDirectory(src, dest) {
  * because provenance could not be written would be worse than the drift.
  */
 async function stampProvenance() {
-  const current = path.join(homedir(), '.prometheus/plugins/prometheus-skill-pack/current');
+  // BESIDE the generation, never inside it.
+  //
+  // The first cut of this wrote into `current/`. That directory is a
+  // content-addressed, signed generation: `manifest.json` lists every payload
+  // file, and `install-plugin-generation.js --verify` fails on any file it does
+  // not know about. Two provenance stamps broke the real integrity seal in
+  // order to feed a freshness check — trading a strong guarantee for a weak one.
+  const pluginRoot = path.join(homedir(), '.prometheus/plugins/prometheus-skill-pack');
   try {
     const sha = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: rootDir })
       .toString()
       .trim();
-    await fs.writeFile(path.join(current, '.source-commit'), `${sha}\n`, 'utf8');
-    await fs.writeFile(path.join(current, '.source-repo'), `${rootDir}\n`, 'utf8');
+    await fs.writeFile(path.join(pluginRoot, '.source-commit'), `${sha}\n`, 'utf8');
+    await fs.writeFile(path.join(pluginRoot, '.source-repo'), `${rootDir}\n`, 'utf8');
     console.log(`   provenance: ${sha.slice(0, 8)} from ${rootDir}`);
   } catch (err) {
     console.warn(`   ⚠ could not stamp provenance: ${err.message}`);
@@ -66,7 +73,15 @@ async function installSkills(scope) {
       stdio: 'inherit',
     });
     await stampProvenance();
-    console.log('✅ Verified immutable generation installed to all supported user targets.');
+
+    // The gate runs HERE, as the install's own last step, so "install ran" and
+    // "install is correct" are the same statement. Previously this printed a
+    // checkmark that described the generation, not whether any tool could
+    // actually find the skills.
+    execFileSync(process.execPath, [path.join(rootDir, 'scripts/verify-skill-install.js')], {
+      stdio: 'inherit',
+    });
+    console.log('✅ All skills verified current at every target.');
     return;
   }
 

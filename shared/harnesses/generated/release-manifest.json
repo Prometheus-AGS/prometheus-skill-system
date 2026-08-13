@@ -7,7 +7,7 @@
   "runtimeFiles": [
     {
       "path": "scripts/install-plugin-generation.js",
-      "sha256": "ad2f7bb0c8fe83462d17e7478aabe9e93e1479fc9b7756c5bf4cb18ac93e5085",
+      "sha256": "ada8aa3c6c773f3d08c94b96f51ba6c54f4d1bd660ef145e8e7a6d347ab4d62c",
       "mode": "0755"
     },
     {
@@ -236,6 +236,11 @@
       "mode": "0755"
     },
     {
+      "path": "shared/scripts/skills-freshness.sh",
+      "sha256": "9978307deb1699892083603506b0c49aeacaab95939842f20f1eb080a5fb82db",
+      "mode": "0755"
+    },
+    {
       "path": "shared/scripts/subagent-checkpoint-fallback.sh",
       "sha256": "0fa72bd9815677a3a071c3ba1d6da8e054cc779e3b4b6d61e5f99dc484f6abfa",
       "mode": "0755"
@@ -311,5 +316,5 @@
       "mode": "0755"
     }
   ],
-  "bundleId": "53f44468095394d5808cedfee7268c927dbf43f270d62cda4c5703e3da62f4b8"
+  "bundleId": "fdcc255b8fe463fe234fd98d70dbc655cfe2f2c69e16e2fc45c5a4642c11a27e"
 }

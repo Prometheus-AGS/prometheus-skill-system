@@ -909,6 +909,69 @@ function currentTarget(pluginRoot, name) {
     : null;
 }
 
+// Collisions recorded during a run, reported together at the end.
+//
+// WHY THIS EXISTS (2026-08-13). When something the installer does not own holds
+// a skill's canonical name, placement silently diverts to `prometheus-<name>`
+// and `targetDestination()` then re-derives the SAME fallback — so
+// `verifyTargets()` validates the renamed path and the run prints
+// "Verified immutable generation installed to all supported user targets."
+//
+// The install succeeds by its own definition while the skill is unreachable at
+// the name every tool searches. An operator shipped believing all skills were
+// available; a Codex session blocked because `deep-research` was not where it
+// looked. Declining to clobber a foreign file is correct. Doing so while
+// reporting success is not.
+//
+// Renaming is now recorded and reported, and the process exits non-zero.
+const COLLISIONS = [];
+
+function recordCollision(targetRoot, skill, occupant) {
+  // Label the target by its path relative to $HOME (".claude/skills"), not by
+  // basename — every target's basename is "skills".
+  const target = path.relative(os.homedir(), targetRoot) || targetRoot;
+  let detail = 'unknown';
+  try {
+    const st = fs.lstatSync(occupant);
+    if (st.isSymbolicLink()) detail = `symlink -> ${fs.readlinkSync(occupant)}`;
+    else if (st.isDirectory())
+      detail = fs.existsSync(path.join(occupant, '.git'))
+        ? 'foreign git checkout'
+        : 'unowned directory';
+    else detail = 'file';
+    detail += `, mtime ${st.mtime.toISOString().slice(0, 10)}`;
+  } catch {
+    /* occupant vanished between checks — report what we know */
+  }
+  COLLISIONS.push({ target, skill: skill.name, path: occupant, detail });
+}
+
+// Fail the run if any skill could not be placed at its canonical name.
+//
+// `--allow-fallback` permits the rename for a genuine third-party conflict, but
+// still exits non-zero: a renamed skill is unreachable at the name tools search,
+// so the run must never read as success.
+function assertNoCollisions(allowFallback) {
+  if (COLLISIONS.length === 0) return;
+  const label = allowFallback ? 'RENAMED (--allow-fallback)' : 'COLLISION';
+  process.stderr.write(
+    `\ninstall-plugin-generation: ${COLLISIONS.length} skill(s) could not be installed at their canonical name.\n` +
+      `These skills are on disk under a "prometheus-" prefix and are NOT reachable\n` +
+      `at the name tools search for.\n\n`
+  );
+  for (const c of COLLISIONS) {
+    process.stderr.write(`  ${label}  ~/${c.target}/${c.skill}\n`);
+    process.stderr.write(`            occupied by: ${c.detail}\n`);
+    process.stderr.write(`            installed as: prometheus-${c.skill}\n`);
+  }
+  process.stderr.write(
+    `\nRemediation — move each occupant aside, then reinstall:\n` +
+      COLLISIONS.map((c) => `  mv ~/${c.target}/${c.skill}{,.foreign-$(date +%Y%m%d)}`).join('\n') +
+      `\n  node scripts/install.js --scope user\n\n`
+  );
+  fail(`${COLLISIONS.length} skill(s) not installed at canonical name`);
+}
+
 function isManagedSkillLink(destination, pluginRoot, skill) {
   const resolved = path.resolve(path.dirname(destination), fs.readlinkSync(destination));
   if (isWithin(pluginRoot, resolved)) return true;
@@ -927,6 +990,7 @@ function installLinkTarget(targetRoot, skill, pluginRoot) {
     existing &&
     !(existing.isSymbolicLink() && isManagedSkillLink(destination, pluginRoot, skill))
   ) {
+    recordCollision(targetRoot, skill, destination);
     destination = path.join(targetRoot, `prometheus-${skill.name}`);
   }
   const fallback = fs.lstatSync(destination, { throwIfNoEntry: false });
@@ -983,8 +1047,10 @@ function isManagedCopy(destination, target) {
 function copySkill(source, targetRoot, target, skill, generation) {
   ensureDirectory(targetRoot);
   let destination = path.join(targetRoot, skill.name);
-  if (fs.existsSync(destination) && !isManagedCopy(destination, target))
+  if (fs.existsSync(destination) && !isManagedCopy(destination, target)) {
+    recordCollision(targetRoot, skill, destination);
     destination = path.join(targetRoot, `prometheus-${skill.name}`);
+  }
   if (fs.existsSync(destination) && !isManagedCopy(destination, target)) {
     fail(`skill target collision: ${destination}`);
   }
@@ -1307,6 +1373,7 @@ function rollback(pluginRoot, home, trustStorePath, contract, targets = TARGETS)
   validateBundleIndex(pluginRoot, generationPath, manifest, trustStorePath);
   installTargets(home, pluginRoot, generationPath, manifest.generation, skills, targets);
   verifyTargets(home, pluginRoot, generationPath, manifest.generation, skills, targets);
+  assertNoCollisions(false);
   installHookRuntime(pluginRoot, generationPath, manifest, trustStorePath);
   atomicSymlink(pluginRoot, 'current', previous);
   atomicSymlink(pluginRoot, 'previous', active);
@@ -1451,6 +1518,7 @@ function install(args) {
     validateBundleIndex(args.pluginRoot, generationPath, manifest, args.trustStore);
     installTargets(args.home, args.pluginRoot, generationPath, generation, skills, selectedTargets);
     verifyTargets(args.home, args.pluginRoot, generationPath, generation, skills, selectedTargets);
+    assertNoCollisions(Boolean(args.allowFallback));
     writeTargetReceipts(args.pluginRoot, manifest, signingIdentity, selectedTargets);
     installHookRuntime(args.pluginRoot, generationPath, manifest, args.trustStore);
     const active = currentTarget(args.pluginRoot, 'current');

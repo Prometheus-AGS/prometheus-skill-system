@@ -78,7 +78,9 @@
     "build:distribution": "node scripts/generate-skill-system-distribution.js",
     "check:distribution": "node scripts/generate-skill-system-distribution.js --check && node scripts/tests/skill-system-distribution.test.mjs",
     "generate:skills-index": "node scripts/generate-skills-index.js",
-    "check:skills-index": "node scripts/generate-skills-index.js --check"
+    "check:skills-index": "node scripts/generate-skills-index.js --check",
+    "verify:skills": "node scripts/verify-skill-install.js",
+    "test:verify-skills": "node scripts/tests/verify-skill-install.test.mjs"
   },
   "keywords": [
     "claude-code",
