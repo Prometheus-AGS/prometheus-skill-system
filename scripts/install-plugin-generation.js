@@ -1549,6 +1549,39 @@ function copyTargetReferencesGeneration(home, generation) {
   return null;
 }
 
+/**
+ * Identity-only verification, for deciding whether a generation may be RETIRED.
+ *
+ * Deliberately weaker than verifyGeneration(): it proves the manifest belongs to
+ * this directory and has not been edited, but says nothing about who produced it
+ * or whether it satisfies the current payload schema. That is sufficient to
+ * retire a generation and never sufficient to activate one, so this must only
+ * ever be called from the prune path.
+ */
+function verifyGenerationIdentity(generationPath, expectedName) {
+  const manifestPath = path.join(generationPath, 'manifest.json');
+  if (!fs.existsSync(manifestPath)) fail(`generation has no manifest: ${generationPath}`);
+  const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+  const identity = {
+    schemaVersion: manifest.schemaVersion,
+    sourceVersion: manifest.sourceVersion,
+    signerKeyId: manifest.signerKeyId,
+    bundleId: manifest.bundleId,
+    hookRuntime: manifest.hookRuntime,
+    sourceProvenance: manifest.sourceProvenance,
+    skillIndex: manifest.skillIndex,
+    executionComponent: manifest.executionComponent,
+    files: manifest.files,
+    targetPayloads: manifest.targetPayloads,
+  };
+  const digest = sha256(canonicalJson(identity));
+  if (manifest.generation !== digest || expectedName !== digest)
+    fail(`generation identity mismatch: ${generationPath}`);
+  if (typeof manifest.sourceVersion !== 'string' || manifest.sourceVersion.length === 0)
+    fail(`generation has no sourceVersion: ${generationPath}`);
+  return manifest;
+}
+
 function pruneObsoleteGenerations(args, contract) {
   const generationsRoot = path.join(args.pluginRoot, 'generations');
   if (!fs.existsSync(generationsRoot)) return { retired: [], minimumActiveVersion: contract.minimumActiveVersion };
@@ -1559,7 +1592,30 @@ function pruneObsoleteGenerations(args, contract) {
     if (generation.startsWith('.staging-')) continue;
     const generationPath = path.join(generationsRoot, generation);
     if (!fs.lstatSync(generationPath).isDirectory()) continue;
-    const manifest = verifyGeneration(generationPath, generation, args.trustStore);
+    // Verify identity first, and only identity.
+    //
+    // This loop used to call the full verifyGeneration() on EVERY generation
+    // before deciding whether it was even a prune candidate, which broke the
+    // prune twice over:
+    //
+    //   1. Unsigned generations abort it. Those predate manifest signing and are
+    //      by construction the oldest ones -- exactly what the prune exists to
+    //      remove. So the prune aborted on its own targets and could never
+    //      delete anything.
+    //   2. Generations predating the executionComponent field abort it too, and
+    //      12 of them here are current-version generations the prune would have
+    //      skipped a line later anyway. They were being held to today's schema
+    //      for no reason at all.
+    //
+    // Full verification answers "may this be activated?". Deletion asks a
+    // different and weaker question, and the identity digest answers it: it
+    // proves the manifest describes this directory and has not been edited.
+    // Everything that makes deletion safe is checked below -- not current, not
+    // previous, not referenced by an installed target, receipts individually
+    // signature-verified before removal. Something that cannot be activated and
+    // is referenced by nothing is garbage, and declining to collect it is not a
+    // security property.
+    const manifest = verifyGenerationIdentity(generationPath, generation);
     if (compareVersions(manifest.sourceVersion, contract.minimumActiveVersion) >= 0) continue;
     if (generation === active || generation === previous) {
       fail(`obsolete generation is selected by ${generation === active ? 'current' : 'previous'}: ${generation}`);

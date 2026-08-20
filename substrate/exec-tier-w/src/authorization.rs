@@ -383,11 +383,27 @@ fn verify_generation_components(generation: &VerifiedGeneration) -> Result<usize
         let raw_hash = required_string(entry, "sha256")?;
         let component_hash = Digest::parse(format!("sha256:{raw_hash}"))
             .map_err(|error| unauthorized(format!("component digest is invalid: {error}")))?;
-        if !observed.insert(component_hash.clone()) {
-            return Err(unauthorized(
-                "component digest is duplicated in the active generation manifest",
-            ));
-        }
+        // A digest recurring across paths is not a duplicate component -- it is
+        // the SAME component packaged at several paths, which is exactly what
+        // the distribution generator produces: entity-graph-optimize/skill.wasm
+        // ships at its canonical path, inside the entity-skills bundle, and
+        // standalone. Three paths, one artifact, byte-identical.
+        //
+        // Treating that as an authorization failure took Tier W offline for
+        // every generation built from dist/ (verified: those manifests carry 3
+        // .wasm entries with 1 distinct digest, while older source-tree
+        // manifests carried 5 entries with 5 digests and passed).
+        //
+        // The property worth defending is that a digest resolves to ONE
+        // unambiguous artifact. Identical bytes at several paths satisfy that;
+        // differing bytes under one digest would be a real collision.
+        //
+        // So dedupe the COUNT but never the verification: every packaged path is
+        // still hashed below. Skipping verification for repeat paths would let a
+        // tampered second copy through, which is a worse bug than the one being
+        // fixed -- the regression test tampers with the second of three copies
+        // precisely to hold this line honest.
+        let first_occurrence = observed.insert(component_hash.clone());
         let size = entry
             .get("size")
             .and_then(Value::as_u64)
@@ -399,7 +415,9 @@ fn verify_generation_components(generation: &VerifiedGeneration) -> Result<usize
             &component_hash,
             Some(size),
         )?;
-        component_count += 1;
+        if first_occurrence {
+            component_count += 1;
+        }
     }
     Ok(component_count)
 }
@@ -554,23 +572,42 @@ fn verify_component_entry(
         .get("files")
         .and_then(Value::as_array)
         .ok_or_else(|| unauthorized("generation manifest has no files array"))?;
-    let mut matches = files.iter().filter(|entry| {
-        entry.get("sha256").and_then(Value::as_str) == Some(raw_hash)
-            && entry
-                .get("path")
-                .and_then(Value::as_str)
-                .is_some_and(|path| path.ends_with(".wasm"))
-    });
-    let Some(entry) = matches.next() else {
+    // A digest may legitimately appear at several packaged paths -- the
+    // distribution generator copies one skill.wasm to three locations. Verify
+    // EVERY one of them rather than authorizing on the first match: if only the
+    // first were hashed, tampering with any other copy would go undetected,
+    // which is a worse hole than the "duplicate digest" rejection this replaced.
+    let entries: Vec<&Value> = files
+        .iter()
+        .filter(|entry| {
+            entry.get("sha256").and_then(Value::as_str) == Some(raw_hash)
+                && entry
+                    .get("path")
+                    .and_then(Value::as_str)
+                    .is_some_and(|path| path.ends_with(".wasm"))
+        })
+        .collect();
+    if entries.is_empty() {
         return Err(unauthorized(format!(
             "component {component_hash} is absent from the active signed generation"
         )));
-    };
-    if matches.next().is_some() {
-        return Err(unauthorized(
-            "component digest is duplicated in the active generation manifest",
-        ));
     }
+    for entry in entries {
+        verify_single_component_entry(generation_root, entry, component_hash, component_size)?;
+    }
+    Ok(())
+}
+
+/// Verify one packaged copy of a component: its manifest entry shape, its path
+/// safety, its declared size, and that the installed bytes hash to the expected
+/// digest.
+#[cfg(feature = "estate")]
+fn verify_single_component_entry(
+    generation_root: &Path,
+    entry: &Value,
+    component_hash: &Digest,
+    component_size: Option<usize>,
+) -> Result<(), TierWError> {
     if entry.get("type").and_then(Value::as_str) != Some("file") {
         return Err(unauthorized(
             "component manifest entry is not a regular file",
@@ -917,6 +954,153 @@ mod tests {
         let trust_path = trust_dir.join("allowed-signers.json");
         fs::write(&trust_path, canonical_pretty_json(&trust).unwrap()).unwrap();
         fs::set_permissions(&trust_path, fs::Permissions::from_mode(0o600)).unwrap();
+    }
+
+    #[cfg(all(unix, feature = "estate"))]
+    #[test]
+    fn one_component_packaged_at_several_paths_stays_authorized() {
+        // Regression: Tier W went offline for every generation built from dist/.
+        //
+        // The distribution generator ships entity-graph-optimize/skill.wasm at
+        // three paths -- its canonical location, inside the entity-skills
+        // bundle, and standalone -- all byte-identical. Authorization walked the
+        // manifest's files array and rejected any repeated .wasm digest as a
+        // "duplicated component", so correct packaging read as tampering and
+        // /ready reported tier-w-trust failed indefinitely.
+        //
+        // One artifact at several paths is one component. Verified against the
+        // installed manifests: the failing generations carried 3 .wasm entries
+        // with 1 distinct digest, while older source-tree generations carried 5
+        // entries with 5 digests and authorized fine.
+        let fixture = tempfile::tempdir().unwrap();
+        let plugin_root = fixture.path().join("plugin");
+        fs::create_dir_all(plugin_root.join("generations")).unwrap();
+        let signing_key = SigningKey::from_bytes(&[71; 32]);
+        write_trust_store(&plugin_root, &signing_key);
+        let paths = [
+            "skills/entity-graph-optimize/skill.wasm",
+            "skills/prometheus-entity-skills/entity-graph-optimize/skill.wasm",
+            "skills/react/prometheus-entity-skills/entity-graph-optimize/skill.wasm",
+        ];
+        let generation = write_generation_multipath(
+            &plugin_root,
+            &signing_key,
+            REFERENCE_COMPONENT,
+            "multipath",
+            &paths,
+        );
+        activate(&plugin_root, &generation);
+        let authorizer = ComponentAuthorizer::estate(&plugin_root);
+
+        let inspection = authorizer
+            .inspect()
+            .expect("one component at three paths must authorize");
+        assert_eq!(
+            inspection.mode,
+            ComponentAuthorizationMode::SignedGeneration
+        );
+        // Counted once, not three times: it is a single component.
+        assert_eq!(inspection.component_count, 1);
+
+        // The dedup must not weaken tampering detection. Rewriting any one of
+        // the packaged copies still has to fail, because the bytes no longer
+        // match the digest the manifest declares.
+        let tampered = plugin_root
+            .join("generations")
+            .join(&generation)
+            .join(paths[1]);
+        fs::write(tampered, b"tampered").unwrap();
+        assert!(matches!(
+            authorizer.inspect(),
+            Err(TierWError::ComponentUnauthorized(_))
+        ));
+    }
+
+    #[cfg(all(unix, feature = "estate"))]
+    /// Same as `write_generation`, but packages the component at several paths.
+    ///
+    /// This is what the distribution generator actually emits: one artifact,
+    /// byte-identical, copied to its canonical path, into a bundle, and
+    /// standalone. Used to pin the regression where that shape was rejected as a
+    /// "duplicated" component digest.
+    #[cfg(all(unix, feature = "estate"))]
+    fn write_generation_multipath(
+        plugin_root: &Path,
+        signing_key: &SigningKey,
+        component_bytes: &[u8],
+        marker: &str,
+        paths: &[&str],
+    ) -> String {
+        let signer_key_id = raw_sha256(&public_der(signing_key));
+        let component_hash = Digest::from_bytes(component_bytes);
+        let raw_component_hash = component_hash.as_str().strip_prefix("sha256:").unwrap();
+        let files: Vec<Value> = paths
+            .iter()
+            .map(|path| {
+                json!({
+                    "mode": "0644",
+                    "path": path,
+                    "sha256": raw_component_hash,
+                    "size": component_bytes.len(),
+                    "type": "file",
+                })
+            })
+            .collect();
+        let mut manifest = json!({
+            "bundleId": "fixture-bundle",
+            "files": files,
+            "hookRuntime": {"abi": "hook-runtime-v1"},
+            "schemaVersion": 1,
+            "signerKeyId": signer_key_id,
+            "skillIndex": {"entryCount": 1, "sha256": "fixture"},
+            "executionComponent": {"fixture": marker},
+            "sourceProvenance": {"fixture": marker},
+            "sourceVersion": "1.7.0",
+            "targetPayloads": [],
+        });
+        let object = manifest.as_object().unwrap();
+        let mut identity = Map::new();
+        for key in [
+            "schemaVersion",
+            "sourceVersion",
+            "signerKeyId",
+            "bundleId",
+            "hookRuntime",
+            "sourceProvenance",
+            "skillIndex",
+            "executionComponent",
+            "files",
+            "targetPayloads",
+        ] {
+            identity.insert(key.into(), object[key].clone());
+        }
+        let generation = raw_sha256(&canonical_pretty_json(&Value::Object(identity)).unwrap());
+        manifest["generation"] = Value::String(generation.clone());
+        let canonical_manifest = canonical_pretty_json(&manifest).unwrap();
+        let mut payload = format!("{SIGNATURE_NAMESPACE}\n").into_bytes();
+        payload.extend_from_slice(&canonical_manifest);
+        let signature = signing_key.sign(&payload);
+        let envelope = json!({
+            "algorithm": "Ed25519",
+            "namespace": SIGNATURE_NAMESPACE,
+            "schemaVersion": 1,
+            "signature": STANDARD.encode(signature.to_bytes()),
+            "signerKeyId": signer_key_id,
+        });
+
+        let generation_root = plugin_root.join("generations").join(&generation);
+        for path in paths {
+            let component_path = generation_root.join(path);
+            fs::create_dir_all(component_path.parent().unwrap()).unwrap();
+            fs::write(component_path, component_bytes).unwrap();
+        }
+        fs::write(generation_root.join("manifest.json"), canonical_manifest).unwrap();
+        fs::write(
+            generation_root.join("manifest.sig.json"),
+            canonical_pretty_json(&envelope).unwrap(),
+        )
+        .unwrap();
+        generation
     }
 
     #[cfg(all(unix, feature = "estate"))]
