@@ -3,11 +3,14 @@ license: MIT
 name: iterative-evolver
 version: '1.0.0'
 description: >
-  Use this skill for any iterative evolution scenario — assessing current
-  state, analyzing the landscape, planning improvements, executing changes,
-  and reflecting on results. Works across any domain: software, business,
-  product, research, content, operations, compliance, or any area requiring
-  iterative improvement against goals.
+  Domain-agnostic PMPO improvement loop: Assess -> Analyze -> Plan -> Execute ->
+  Reflect over any subject (software, product, business, research, operations).
+  Use when the user wants to improve or evolve something over repeated passes,
+  asks "make this better", "iterate on this", "evolve this", or when a target
+  needs assessing before changes are planned. Do NOT use for a single scoped
+  code change (just make it), for standing always-on automation with
+  termination criteria (see pmpo-outer-loop), or for gathering a missing fact
+  mid-stage (see pmpo-elicit).
 allowed-tools: file_system web_search code_interpreter browser tavily sequential_thinking memory
 model_routing:
   policy_source: ".kbd-orchestrator/project.json → model_policy"

@@ -121,6 +121,20 @@ class SkillValidator {
         );
       }
 
+      // Description quality — the only signal the model has at selection time.
+      //
+      // A skill is selected by reading its description and nothing else, and in
+      // this pack descriptions compete for a fixed catalog budget (see
+      // config/codex-catalog.txt): the more skills we ship, the shorter every
+      // description is rendered. So a description that states a capability but
+      // no trigger is not merely unhelpful, it spends budget that a sibling
+      // skill could have used. Full guidance: docs/skill-authoring-guide.md
+      //
+      // Deliberately a WARNING even in strict mode. Most existing descriptions
+      // predate this rule; promoting it to an error would fail the build for
+      // the whole corpus at once rather than letting it be paid down.
+      this.checkDescriptionQuality(skillName, frontmatter.description);
+
       // In strict mode: license, version, metadata.tags are required (errors).
       // In standard mode: warn on missing license only (forward-compat).
       if (this.strict) {
@@ -309,6 +323,49 @@ class SkillValidator {
       }
     } catch (error) {
       this.addWarning(skillName, `Could not validate scripts: ${error.message}`);
+    }
+  }
+
+  /**
+   * Check that a description tells the model WHEN to fire, not just what the
+   * skill does. See docs/skill-authoring-guide.md for the required shape.
+   */
+  checkDescriptionQuality(skillName, description) {
+    if (typeof description !== 'string' || description.trim().length === 0) {
+      return; // absence is already an AJV schema error
+    }
+
+    const text = description.trim();
+
+    if (!/\buse\s+(this\s+)?when\b/i.test(text)) {
+      this.addWarning(
+        skillName,
+        'Description has no trigger clause. Add "Use when <situation>, or when ' +
+          'the user mentions \"<keyword>\"" so the model knows when to select it ' +
+          '(docs/skill-authoring-guide.md)'
+      );
+    }
+
+    if (!/\bdo\s+not\s+use\b|\bdon'?t\s+use\b/i.test(text)) {
+      this.addWarning(
+        skillName,
+        'Description has no exclusion clause. Add "Do NOT use for <case> ' +
+          '(see <other-skill>)" so neighbouring skills stop competing for the ' +
+          'same prompt (docs/skill-authoring-guide.md)'
+      );
+    }
+
+    // Marketing adjectives match no real user prompt and consume shared budget.
+    const filler = text.match(
+      /\b(comprehensive|powerful|enterprise[- ]grade|production[- ]ready|robust|seamless|cutting[- ]edge)\b/gi
+    );
+    if (filler) {
+      this.addWarning(
+        skillName,
+        `Description contains filler that matches no user prompt: ${[
+          ...new Set(filler.map(f => f.toLowerCase())),
+        ].join(', ')}`
+      );
     }
   }
 
