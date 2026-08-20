@@ -4,6 +4,16 @@
 
 set -euo pipefail
 
+# Observability: emit a start/end record to ~/.prometheus/hooks.log so this
+# hook is visible to `doctor` and to latency analysis. The library no-ops when
+# the log directory is not writable, and never changes this script's exit code.
+HOOK_LOG_LIB="${PROMETHEUS_PLUGIN_ROOT:-$HOME/.prometheus/plugins/prometheus-skill-pack}/shared/scripts/lib/hook-log.sh"
+# shellcheck source=/dev/null
+[ -f "$HOOK_LOG_LIB" ] && . "$HOOK_LOG_LIB"
+command -v hook_log_start >/dev/null 2>&1 && hook_log_start "SubagentStop" "log-reflection.sh"
+command -v hook_log_end >/dev/null 2>&1 && trap 'hook_log_end $?' EXIT
+
+
 STATE_FILE="evolution_state.json"
 LOG_FILE="evolution_log.md"
 DECISIONS_FILE="decisions.md"

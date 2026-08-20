@@ -2201,3 +2201,57 @@ build time (§5), and the Companion-independent parts of the extension model
 (§8). Pillars 5 (Companion/Tauri) and 6 (Mobile/Flutter), and the six HMA
 skills, are recorded as explicit non-goals in
 `docs/audits/2026-08-20-review-scope-decisions.md`.
+
+### 18.6 §6 remedies re-scoped after measurement (2026-08-20)
+
+§6 was acted on by measuring the running system rather than by applying the
+remedy list. Four of its items were **withdrawn on evidence**:
+
+**R6.1 (extract inline `bash -c` scripts) — withdrawn.** See §18.3: the hook
+files are generated from one template, so the copy-paste hazard does not exist.
+
+**W6.3 second claim (the no-matcher `SubagentStop` group "fires for every
+subagent, defeating the per-role design") — withdrawn; the claim is backwards.**
+That group is a deliberate catch-all, documented at
+`docs/guide/15-hooks-and-lifecycle.md:113`: *"The fallback matcher guarantees
+that even an unrecognized subagent gets a checkpoint — no role falls through
+silently."* It runs `subagent-checkpoint-fallback.sh`, which writes one line to
+**stderr** and always exits 0. Live hook telemetry confirms the intended
+behaviour: the fallback fired 7 times while role-scoped hooks fired 5, i.e. it
+runs *in addition to* a matched role, not instead of it. Removing it would
+reintroduce the silent-drop bug it was added to fix
+(`docs/plans/2026-04-29-change-006-karpathy-loop-hooks.md:236`).
+
+**R6.5 (anchor the subagent matchers as `^planner$`) — withdrawn as unsafe.**
+The five matchers (`assessor`, `analyst`, `planner`, `executor`, `reflector`)
+name agents shipped by the `iterative-evolver` plugin, not by this repo. Two
+facts are needed to anchor them safely — whether Claude Code evaluates the
+matcher anchored, and whether a plugin-provided subagent's `agent_type` is bare
+(`planner`) or namespaced (`iterative-evolver:planner`) — and **neither is
+documented**. Meanwhile the live log proves the current form works: a
+`SubagentStop[executor]` record exists for the plugin-provided `executor`.
+Anchoring on an undocumented comparison would risk silently disabling 15 hooks
+to defend against a hypothetical rename. Left as-is deliberately.
+
+**R6.3 (cache the dispatcher SHA for 60s) — withdrawn as a bad trade.**
+Measured on this machine: `shasum -a 256` over the 5152-byte dispatcher costs
+**~14 ms**. Real hook telemetry from `~/.prometheus/hooks.log` shows the actual
+cost centres are elsewhere by three orders of magnitude:
+
+| hook | script | max ms |
+|---|---|---|
+| SubagentStop[executor] | `evaluate-session.sh` | **16408** |
+| SessionStart | `pk-health.sh` | **7856** |
+| SessionStart | `memory-outbox-flush.sh` | 1181 |
+
+Caching 14 ms while trading away per-invocation bundle-integrity verification is
+the wrong trade. (`pk-health.sh` is already throttled to one run per 24 h, so its
+7.9 s is a daily cost, not a per-session one.)
+
+**R6.7 (add a structured hook-result log) — already shipped.**
+`shared/scripts/lib/hook-log.sh` has written JSONL records
+(`{ts, hook, script, pid, session_id, exit_code, duration_ms}`) to
+`~/.prometheus/hooks.log` for some time; the file holds live data and shows **0
+non-zero exits**. The genuine gap is *adoption*: only **16 of 36**
+`shared/scripts/*.sh` source the library, so the remaining hooks are invisible
+to it. That, not the absence of a logger, is what to fix.

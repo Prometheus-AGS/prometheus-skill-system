@@ -3,6 +3,16 @@
 set -u
 umask 077
 
+# Observability: emit a start/end record to ~/.prometheus/hooks.log so this
+# hook is visible to `doctor` and to latency analysis. The library no-ops when
+# the log directory is not writable, and never changes this script's exit code.
+HOOK_LOG_LIB="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/lib/hook-log.sh"
+# shellcheck source=/dev/null
+[ -f "$HOOK_LOG_LIB" ] && . "$HOOK_LOG_LIB"
+command -v hook_log_start >/dev/null 2>&1 && hook_log_start "SessionStart" "kbd-harness-adapter.sh"
+command -v hook_log_end >/dev/null 2>&1 && trap 'hook_log_end $?' EXIT
+
+
 EVENT="${1:-status}"
 HARNESS="${2:-${PROMETHEUS_HARNESS:-unknown}}"
 
