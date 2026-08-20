@@ -2255,3 +2255,59 @@ the wrong trade. (`pk-health.sh` is already throttled to one run per 24 h, so it
 non-zero exits**. The genuine gap is *adoption*: only **16 of 36**
 `shared/scripts/*.sh` source the library, so the remaining hooks are invisible
 to it. That, not the absence of a logger, is what to fix.
+
+### 18.7 Generation hygiene: what the cleanup actually found (2026-08-20)
+
+`~/.prometheus` held **27 generations / 2.1 GB**, and `prometheus doctor` exited
+1 on `execution.runtime`. The initial hypothesis -- that accumulated generations
+were causing the Tier W failure -- was **wrong**, and saying so matters, because
+the disk cleanup and the outage turned out to be unrelated problems that merely
+looked like one.
+
+**Three distinct defects, found in order:**
+
+1. **The prune could never delete anything.** `--prune-obsolete` called the full
+   `verifyGeneration()` on every generation *before* deciding whether it was even
+   a prune candidate. It therefore aborted on (a) unsigned generations -- which
+   predate manifest signing and are by construction the oldest, i.e. exactly its
+   targets -- and (b) generations predating the `executionComponent` field, 12 of
+   which were current-version and would have been skipped one line later anyway.
+   Fixed by verifying identity only; identity proves the manifest describes its
+   directory unedited, which is what deletion actually requires. Every gate that
+   makes deletion safe (not current, not previous, not referenced by an installed
+   target, receipts signature-verified before removal) is unchanged. Reclaimed
+   **375 MB** by retiring the two obsolete v1.6.x generations.
+
+2. **Tier W was rejecting correct packaging as tampering.** This was the real
+   cause of the doctor failure, and it had nothing to do with stale generations
+   -- a fresh daemon on a pruned plugin root reproduced it exactly.
+   `verify_generation_components()` walked the manifest `files` array and
+   rejected any repeated `.wasm` digest, but the distribution generator ships
+   `entity-graph-optimize/skill.wasm` at **three** byte-identical paths. One
+   artifact, three packaged copies, one digest.
+
+   The signature is visible across installed generations: those built from
+   `dist/` carry 3 `.wasm` entries with **1** distinct digest and fail; older
+   source-tree generations carry 5 entries with 5 digests and pass.
+
+   Fixed by deduplicating the component *count* while verifying *every* packaged
+   path. An intermediate version of the fix skipped repeat paths, and the new
+   regression test caught it -- tampering with the second of three copies went
+   undetected, a strictly worse hole than the bug being fixed.
+
+3. **Abandoned staging directories were never reaped.** `.staging-<pid>-<rand>`
+   dirs are renamed into place on success, so a surviving one is a dead
+   installer's partial work. The prune skipped every `.staging-` entry
+   unconditionally, so they accumulated; one had been abandoned since
+   2026-08-05. Now reaped when the owning pid is gone, and deliberately *not*
+   when it is alive -- that would corrupt a concurrent install.
+
+**Outcome:** 25 generations / 1.7 GB, `current` and `previous` intact,
+`/ready` reports `ready: true` with all seven subsystems green including
+`tier-w-trust` (Tier W had been down since 2026-08-14), and `prometheus doctor`
+exits 0.
+
+**The generalizable lesson:** a hygiene tool that refuses to run on the mess it
+exists to clean up is worse than no tool, because its silence reads as "nothing
+to do." Both the prune and the staging reaper failed that way, and in both cases
+the guard was applying an *activation*-strength check to a *deletion* decision.
