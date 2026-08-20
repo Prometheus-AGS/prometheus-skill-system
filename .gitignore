@@ -101,3 +101,5 @@ site/docs-catalog/
 
 # Evolver runtime state — machine-local, regenerated per run.
 .evolver/
+
+# sccache/cargo local build caches are machine-specific

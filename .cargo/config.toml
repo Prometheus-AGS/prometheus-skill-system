@@ -1,0 +1,44 @@
+# Repo-wide Cargo configuration.
+#
+# Cargo discovers this by walking up from the crate being built, so it applies
+# to every workspace under crates/, substrate/, and tools/ without any of them
+# having to opt in. Submodules that ship their own .cargo/config.toml (currently
+# tools/liter-llm and tools/surreal-memory-server) still win for their own
+# builds -- the closest config to the crate takes precedence.
+
+[build]
+# sccache was already installed on this machine but nothing pointed at it:
+# `sccache --show-stats` reported 0 compile requests. Caching is per-crate and
+# content-addressed, so it survives `cargo clean` and is shared across the 46
+# independent lockfiles in this repo -- which is exactly the case it helps most,
+# since the same serde/tokio/clap builds are otherwise repeated per workspace.
+rustc-wrapper = "sccache"
+
+# Linker: deliberately NOT overridden.
+#
+# The review recommends mold/zld (neither is installed here) or a fast linker
+# generally. lld IS installed, so it was tried and measured:
+#
+#   surface-bridge relink : 1.92s with lld vs 1.72s with the default ld
+#   prometheus-cli relink : 2m25s with lld vs 2m29s with the default ld
+#
+# That is noise, in one case slightly worse -- Apple's ld64 is already fast on
+# arm64. Worse, ld64.lld emits a "has version 26.5.0, which is newer than target
+# minimum" warning for every object in libring/libpsm, which adds a page of
+# linker noise to every release build of binaries we code-sign and ship.
+# No measurable win, real added noise: not adopted. Revisit only with a
+# measurement showing otherwise.
+
+[profile.dev]
+# Full debug info is the single largest contributor to dev-profile link time and
+# target/ size. Level 1 keeps line numbers -- enough for a backtrace -- without
+# emitting full DWARF for every dependency.
+debug = 1
+# Unpacked debug info avoids the dsymutil step on macOS.
+split-debuginfo = "unpacked"
+
+[profile.dev.package."*"]
+# Dependencies change rarely and are not what we debug. Optimizing them while
+# leaving our own crates at opt-level 0 makes tests materially faster without
+# slowing down the edit-compile loop for first-party code.
+opt-level = 2
