@@ -182,6 +182,11 @@ async fn build_report(options: &DoctorOptions) -> DoctorReport {
         };
     }
 
+    run_check!(
+        "services.plist-hardening",
+        "services",
+        check_plist_hardening()
+    );
     run_check!("skills.directory", "skills", check_skills_directory());
     run_check!(
         "skills.installed-agents",
@@ -779,6 +784,114 @@ fn command_stdout(command: &[&str]) -> Option<String> {
     }
     let stdout = String::from_utf8(output.stdout).ok()?;
     Some(stdout.trim().to_string())
+}
+
+/// Assert that every LaunchAgent template which restarts on failure also carries
+/// a `ThrottleInterval`.
+///
+/// `KeepAlive` without a throttle respawns a failed job immediately. When the
+/// failure is persistent -- an unwritable path, a bound port, a missing binary --
+/// that is a tight loop that burns CPU and buries every other diagnostic. Worse,
+/// launchd treats a job restarting more than ~5 times in 10s as misbehaving and
+/// can stop respawning it, at which point `KeepAlive` is silently meaningless
+/// and the service is simply gone while the install still reports success.
+///
+/// This was observed on 2026-07-28 (see the comment in
+/// ai.prometheus.sovereign-sync.plist) and is checked here so the fix cannot
+/// regress the next time a plist is added by copy-paste.
+fn check_plist_hardening() -> CheckResult {
+    let dir = Path::new("shared/launchagents");
+    if !dir.exists() {
+        return CheckResult {
+            id: "services.plist-hardening".into(),
+            group: "services".into(),
+            label: "LaunchAgent restart throttling".into(),
+            severity: Severity::Yellow,
+            status: CheckStatus::Skip,
+            summary: "shared/launchagents/ not present in this working directory".into(),
+            details: vec![],
+            optional: true,
+            actions: vec![],
+        };
+    }
+
+    let mut unthrottled: Vec<String> = Vec::new();
+    let mut checked = 0usize;
+
+    if let Ok(entries) = fs::read_dir(dir) {
+        for entry in entries.flatten() {
+            let path = entry.path();
+            if path.extension().and_then(|e| e.to_str()) != Some("plist") {
+                continue;
+            }
+            let Ok(body) = fs::read_to_string(&path) else {
+                continue;
+            };
+            // Only jobs that ask to be restarted can hot-loop. Timer- and
+            // watch-triggered jobs (StartInterval / WatchPaths / calendar) have
+            // no KeepAlive and are correctly out of scope.
+            if !body.contains("<key>KeepAlive</key>") {
+                continue;
+            }
+            checked += 1;
+            if !body.contains("<key>ThrottleInterval</key>") {
+                unthrottled.push(
+                    path.file_name()
+                        .and_then(|n| n.to_str())
+                        .unwrap_or("<unknown>")
+                        .to_string(),
+                );
+            }
+        }
+    }
+
+    if unthrottled.is_empty() {
+        CheckResult {
+            id: "services.plist-hardening".into(),
+            group: "services".into(),
+            label: "LaunchAgent restart throttling".into(),
+            severity: Severity::Green,
+            status: CheckStatus::Pass,
+            summary: format!("{checked} restarting LaunchAgents all set ThrottleInterval"),
+            details: vec![],
+            optional: false,
+            actions: vec![],
+        }
+    } else {
+        unthrottled.sort();
+        CheckResult {
+            id: "services.plist-hardening".into(),
+            group: "services".into(),
+            label: "LaunchAgent restart throttling".into(),
+            severity: Severity::Yellow,
+            status: CheckStatus::Fail,
+            summary: format!(
+                "{} of {checked} restarting LaunchAgents have no ThrottleInterval",
+                unthrottled.len()
+            ),
+            details: unthrottled
+                .iter()
+                .map(|f| format!("{f}: KeepAlive is set but ThrottleInterval is not"))
+                .collect(),
+            optional: false,
+            actions: vec![RepairAction {
+                id: "manual.review-hooks".into(),
+                description:
+                    "Add <key>ThrottleInterval</key><integer>10</integer> to each listed plist, \
+                     mirroring ai.prometheus.sovereign-sync.plist."
+                        .into(),
+                safe: false,
+                reversible: true,
+                dry_run_only: false,
+                command_hint: None,
+                reason_blocked: Some(
+                    "Editing a service template is a deliberate change; doctor reports it rather \
+                     than rewriting launchd definitions."
+                        .into(),
+                ),
+            }],
+        }
+    }
 }
 
 fn check_skills_directory() -> CheckResult {
