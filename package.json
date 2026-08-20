@@ -26,6 +26,7 @@
     "validate": "node scripts/validate-skills.js --exclude-submodules",
     "validate:skill": "node scripts/validate-skills.js",
     "validate:strict": "node scripts/validate-skills.js --strict --exclude-submodules",
+    "validate:plugins": "node scripts/validate-plugin-manifests.js",
     "validate:signals": "node scripts/validate-progress-signals.js",
     "test:adversarial-fixtures": "bash skills/process/adversarial-review/tests/run-fixture-suite.sh",
     "test:reject-cap": "bash skills/process/adversarial-review/tests/test-reject-cap-override.sh",

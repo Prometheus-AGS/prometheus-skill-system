@@ -1,0 +1,191 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Prometheus-AGS/prometheus-skill-system/schemas/plugin.schema.json",
+  "title": "Prometheus plugin manifest",
+  "description": "Schema for a .claude-plugin/plugin.json manifest. Derived from the manifests actually shipped in this repo, not from an idealized spec: every property here appears in at least one real plugin.json. additionalProperties stays true because Claude Code and Codex both tolerate forward-compatible keys, and a plugin should not fail to load because it declares something a newer host understands.",
+  "type": "object",
+  "required": [
+    "name",
+    "description",
+    "version"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "Optional pointer back to this file."
+    },
+    "name": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+      "maxLength": 64,
+      "description": "Lowercase kebab-case identifier. Must match the marketplace entry that references this plugin."
+    },
+    "displayName": {
+      "type": "string",
+      "maxLength": 120,
+      "description": "Human-facing name. Falls back to `name` when absent."
+    },
+    "description": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1024,
+      "description": "What the plugin provides. Shown during plugin discovery, so the same trigger-wording guidance that applies to skill descriptions applies here: see docs/skill-authoring-guide.md."
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+(?:[-+].+)?$",
+      "description": "Semver. Note that plugin versions in this repo have drifted from the pack version (pack 1.7.0 vs several plugins still at 1.5.x); reconcile on release."
+    },
+    "license": {
+      "type": "string",
+      "description": "SPDX identifier, e.g. MIT."
+    },
+    "author": {
+      "oneOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "object",
+          "required": [
+            "name"
+          ],
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "email": {
+              "type": "string"
+            },
+            "url": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": true
+        }
+      ],
+      "description": "Both the string and object forms appear in this repo; both are accepted."
+    },
+    "homepage": {
+      "type": "string"
+    },
+    "repository": {
+      "oneOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string"
+            },
+            "url": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": true
+        }
+      ]
+    },
+    "keywords": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Discovery keywords."
+    },
+    "skills": {
+      "description": "Skill directories this plugin contributes. Two forms ship in this repo and both are valid: an array of relative directory paths, or a single string path to a SKILL.md (used by single-skill plugins such as tools/openai-proxy). Paths use forward slashes only. Leading './' is conventional but not required -- skills/imported/prometheus-entity-management uses bare relative paths.",
+      "oneOf": [
+        {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[^\\\\\\\\]+$"
+          }
+        },
+        {
+          "type": "string",
+          "pattern": "^[^\\\\\\\\]+$"
+        }
+      ]
+    },
+    "mcpServers": {
+      "description": "MCP servers this plugin registers. Either an inline map keyed by server name, or a string path to a .mcp.json file (the form used by iterative-evolver and openai-proxy).",
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "command": {
+                "type": "string"
+              },
+              "args": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "env": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string"
+                }
+              },
+              "url": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": true
+          }
+        },
+        {
+          "type": "string"
+        }
+      ]
+    },
+    "compatibility": {
+      "description": "Host/runtime compatibility. Free-text in most manifests; prometheus-entity-skills uses a structured object instead. Both are accepted.",
+      "oneOf": [
+        {
+          "type": "string",
+          "maxLength": 500
+        },
+        {
+          "type": "object",
+          "properties": {
+            "platforms": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "languages": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "frameworks": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "additionalProperties": true
+        }
+      ]
+    },
+    "hooks": {
+      "type": "string",
+      "description": "Path to a hooks manifest. NOTE: Claude Code auto-loads hooks/hooks.json from the plugin root, so declaring that same default path here makes plugin load fail with 'Duplicate hooks file detected'. Only set this for a non-default location. See CLAUDE.md."
+    }
+  },
+  "additionalProperties": true
+}
