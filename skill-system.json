@@ -45,7 +45,7 @@
       "id": "artifact-refiner",
       "path": "skills/imported/artifact-refiner",
       "repository": "https://github.com/GQAdonis/artifact-refiner-skill.git",
-      "commit": "a0b560b61336b5cc08c85c9739e9196d8585fe96",
+      "commit": "dbc49d78748005177626b559a931d16864f1c9a4",
       "requiredFor": ["skills", "full"],
       "marketplace": true
     },

@@ -33,7 +33,7 @@ This is the "extension without bloating the core" path, and it is the answer to
   "skills": "./skills",
   "source": {
     "repo": "GQAdonis/artifact-refiner-skill",
-    "sha": "a0b560b61336b5cc08c85c9739e9196d8585fe96",
+    "sha": "dbc49d78748005177626b559a931d16864f1c9a4",
     "source": "github"
   },
   "strict": false
