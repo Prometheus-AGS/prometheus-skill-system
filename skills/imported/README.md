@@ -15,10 +15,49 @@ Imported skills via git submodules allow:
 
 ### artifact-refiner
 
-- **Repository**: git@github.com:GQAdonis/artifact-refiner-skill.git
+- **Repository**: https://github.com/GQAdonis/artifact-refiner-skill.git
 - **Description**: PMPO-driven artifact refinement engine for logos, UI components, A2UI specs, images, content, and code
 - **Version**: 1.1.0
 - **Type**: Complete plugin package (includes agents, hooks, scripts)
+- **Notes**: The Tauri scaffold inside artifact-refiner is a *generic* scaffold for any Vite/React app. It supports web, PWA, Tauri desktop, and Tauri mobile as deployment targets. **Tauri-mobile support in the scaffold is not the parent project's decision** — see "Parent project mobile decision" below.
+
+### prometheus-entity-management
+
+- **Repository**: https://github.com/Prometheus-AGS/prometheus-entity-management.git
+  (imported under the skill name `prometheus-entity-management`)
+- **Description**: Normalized, globally-reactive entity graph store for React, with bindings for Tauri, Flutter/Riverpod, Svelte, Solid, and more
+- **Version**: 3.0.0-alpha
+- **Type**: TypeScript library + Tauri plugin + Flutter/Riverpod binding
+- **Notes**: This project ships **Tauri plugin support** by design (the entity-graph has a Rust core that runs as a Tauri command). The Tauri-mobile research and device-lane docs inside the imported source (`.research/v3-tauri-mobile-plugin/`, `release/tauri-mobile-device-lane.md`) describe the *project's own* Tauri-mobile plugin development, not a recommendation that the parent prometheus-skill-pack adopt Tauri mobile. See "Parent project mobile decision" below.
+
+## Parent project mobile decision (read before touching imported skills)
+
+The **prometheus-skill-pack's** mobile stack is:
+
+- **Tauri = desktop only.** Tauri 2.0 mobile is **not** in scope for the parent project.
+- **Mobile = Flutter + Rust over FFI** via `flutter_rust_bridge`. Same Rust substrate crates as desktop, separate Flutter shell. 1Password and AppFlowy pattern.
+- **Never Capacitor.** Web-wrappers (Capacitor, Cordova, Ionic) add a web layer and latency for no architectural benefit.
+
+This is the parent's decision, recorded in the architecture review
+`docs/audits/2026-08-20-skill-pack-architecture-review.md` §14 (resolved
+2026-08-20). It does **not** retroactively change the imported skills'
+internal Tauri-mobile references, because those references are about
+the imported skills' own scope:
+
+- `artifact-refiner` ships a **generic Tauri scaffold** that supports
+  web, PWA, Tauri desktop, and Tauri mobile as deployment targets. The
+  scaffold is a tool the user can point at any of those targets; the
+  *parent project* uses the desktop variant.
+- `prometheus-entity-management` is a project that ships a **Tauri
+  plugin** (the entity-graph has a Rust core that runs as a Tauri
+  command). Its Tauri-mobile research and device-lane docs are part
+  of that plugin's own development — not a recommendation that the
+  parent project adopt Tauri mobile.
+
+If you intend to **use** one of the imported Tauri-mobile artifacts
+from this skill pack, you are explicitly opting into the imported
+project's scope. The parent's `Prometheus Mobile` (Pillar 6) is a
+separate Flutter shell, not a Tauri-mobile build.
 
 ## Managing Imported Skills
 
