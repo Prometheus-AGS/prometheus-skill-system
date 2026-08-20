@@ -2,7 +2,7 @@
 name: prometheus-skill-pack
 version: 1.7.0
 skill_count: 163
-commit: b7c035b630ced99e57978d3e1c3d6eb102fa3952
+commit: 0093bcccc3595ee4857451b470cc3804aa01d195
 type: collection
 license: MIT
 description: >
