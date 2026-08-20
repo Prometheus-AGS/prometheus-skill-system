@@ -1,0 +1,78 @@
+{
+  "mode": "decision",
+  "verdict": "BLOCK",
+  "judge_model": "k3",
+  "producer_model": "gpt-5",
+  "isolation_mode": "rest-gateway:http://localhost:4000/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": "Falsifier",
+      "claim": "Falsifier #1 passes under the null hypothesis that Compass adds no value, so it can never reject a worthless integration.",
+      "evidence": "The test is 'preserve answer correctness while reducing the median source/context bytes gathered by at least 20%'. Correctness is preserved by default if Compass does nothing, and byte reduction is near-guaranteed because the chosen tasks \u2014 'architecture, impact, and call-path tasks' \u2014 are exactly what Compass's graph queries are purpose-built to compress. The original intent asks whether Compass 'may improve AI code generation'; the falsifier measures non-harm plus compression, never improvement. The byte baseline (naive full-file read? agentic grep?) is also undefined, making the 20% threshold unmeasurable as written.",
+      "suggested_fix": "Define the comparison baseline and task corpus, and add an improvement arm (e.g. correctness/completeness score vs. baseline on a task set that includes tasks outside Compass's strengths), not just a non-harm arm."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "Decision / original_intent",
+      "claim": "The decision delegates its own justification to adversarial review, but the packet itself states the justifying evidence does not exist, and the review cannot supply it.",
+      "evidence": "The intent requires phase creation only if 'an adversarial review concludes that the idea is justified and explains why', yet the document states 'No evidence currently justifies installing Compass for every user' and 'Value qualification: MISSING \u2014 no Skill Pack-owned matched evaluation'. The decision asks the review to 'accept the narrower proposition' on a value claim the document admits is unproven. Meanwhile the pilot that would generate the missing evidence is unscoped: no named repositories, no task count, no correctness metric, and the evaluation harness itself is listed as MISSING. The gate condition is therefore unsatisfiable from this packet \u2014 approval would rest on the same absence of evidence the document reports.",
+      "suggested_fix": "Either run the pilot as a pre-phase assessment (no phase commitment) with a defined protocol, or explicitly state that the review is approving only the pilot's design, not the integration's justification."
+    },
+    {
+      "severity": "WARNING",
+      "file": "Falsifier",
+      "claim": "Falsifiers #3, #4, and #5 are design constraints, not falsifiers \u2014 they are satisfiable by construction and cannot trigger on evidence.",
+      "evidence": "'The integration requires mutating a generation-owned skill root... or silently falling back to a source build' and 'Version/capability drift cannot be detected before installing guidance' are properties the implementers control; a phase would simply be designed to comply, so these conditions exist to look rigorous rather than to be checked. Only #1 and #2 test anything about reality, and #1 is compromised (see above).",
+      "suggested_fix": "Move #3\u2013#5 to an acceptance-criteria section and keep the falsifier list to conditions about external reality (pilot outcome, upstream artifact availability, measured resource cost)."
+    },
+    {
+      "severity": "WARNING",
+      "file": "Decision / Alternatives considered",
+      "claim": "The proposition bundles Skill Pack-owned binary distribution into the required design without engaging the cheaper option that solves the only reproduced blocker.",
+      "evidence": "The reproduced failure is that 'compass install --user' cannot write guidance into symlinked skill roots \u2014 a guidance-ownership problem. But the proposition requires 'a Skill Pack-owned, checksum-verified binary channel', a new 139 MB native distribution surface with a platform matrix. The middle option \u2014 pack-owned adapter payload plus user/system-installed Compass with capability detection \u2014 is not named; the closest alternative (#4, documentation-only) is dismissed with an unmeasured 'fragmentation' claim. Binary-channel ownership is never shown to be necessary to resolve the documented conflict.",
+      "suggested_fix": "Separate the two requirements and evaluate adapter-only integration against the binary-channel design on cost and maintenance burden before bundling them."
+    },
+    {
+      "severity": "WARNING",
+      "file": "What this rests on / Assumptions",
+      "claim": "Capability and artifact claims rest on a version that was never executed, and a cheaply checkable assumption about the release matrix was not checked.",
+      "evidence": "The document asserts Compass 0.3.7 has 'release artifacts documented for macOS, Linux, and Windows' and builds capability claims on the 0.3.7 source, but 'Compass 0.3.7 source build: UNKNOWN \u2014 ... was not built'; only the 0.3.6 binary ran. The assumption that 'release archives and checksums remain available for the supported OS/architecture matrix' is verifiable now (fetch the release manifest and checksum files) and was not verified \u2014 architecture coverage (ARM vs x86) is unexamined.",
+      "suggested_fix": "Check the upstream release page/checksums for the full target matrix before committing to a binary-channel design, and rerun capability inspection on the actual pinned version."
+    },
+    {
+      "severity": "WARNING",
+      "file": "Decision (missing prior-decision reconciliation)",
+      "claim": "Prior decisions covering toolchain management and installer pipelines overlap this proposal's scope and are not acknowledged or reconciled.",
+      "evidence": "prior_decisions includes 'cowork-cli-integration-planning-phase-goals' tagged 'toolchain-management, installer-pipeline, skill-pack' and codex-plugin verify-and-publish decisions covering distribution/CI. The proposition creates a new native-binary installation channel in the same installer/toolchain domain without stating whether it extends, duplicates, or contradicts that earlier work.",
+      "suggested_fix": "Cite the relevant prior decisions and state whether the Compass channel is a new surface or an application of the existing toolchain-management design."
+    },
+    {
+      "severity": "WARNING",
+      "file": "Assumptions",
+      "claim": "An assumption presumes the pilot's outcome, inverting the gate's logic.",
+      "evidence": "'At least two representative Skill Pack consumer repositories will show a material reduction in context gathered...' asserts as a premise exactly what falsifier #1 is supposed to test. If the pilot result is already assumed, the go/no-go gate is decorative.",
+      "suggested_fix": "Reword as a hypothesis to be tested, or drop it from assumptions."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "Falsifier",
+      "claim": "Falsifier #2's thresholds have no stated source, unlike #1's, and are bound to a single test machine.",
+      "evidence": "#1 explicitly annotates 'The 20% threshold is a decision policy...'; #2 offers 'five minutes, 1 GiB of peak additional disk' on 'the supported local test machine' with no rationale for those numbers and no second machine, so the resource gate is both arbitrary and single-sample.",
+      "suggested_fix": "State the basis for the time/disk limits and require at least two distinct machines or a defined hardware envelope."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "Decision / What this rests on",
+      "claim": "The cost of being wrong about the binary channel \u2014 ongoing maintenance of a multi-platform native distribution surface \u2014 is never estimated.",
+      "evidence": "Costs discussed are one-time (download size, init CPU/disk). The recurring burden of tracking an 'independent release cadence', checksum verification, rollback receipts, and a platform matrix is listed as MISSING functionality but never priced as an ongoing obligation the Skill Pack would assume.",
+      "suggested_fix": "Add a maintenance-cost estimate (release tracking, checksum updates, drift detection) to the decision's cost side before committing to channel ownership."
+    }
+  ],
+  "sycophancy_screen": {
+    "reject_cap": 2,
+    "cap_overridden": false,
+    "cap_default": 2
+  }
+}

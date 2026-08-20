@@ -1,0 +1,50 @@
+{
+  "mode": "decision",
+  "verdict": "PASS",
+  "judge_model": "k3",
+  "producer_model": "gpt-5",
+  "isolation_mode": "rest-gateway:http://localhost:4000/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "WARNING",
+      "file": "Decision / Falsifier",
+      "claim": "The decision demands pilot evidence as the sole trigger for revisiting, but declines to authorize, staff, or time-box any vehicle for producing that evidence, making the falsifier potentially untriggerable and the 'no' effectively permanent by default.",
+      "evidence": "The decision states 'A pre-phase, non-product pilot must establish that benefit' and 'The pilot itself is not sufficient reason to create an implementation phase,' while the falsifier says 'Revisit the no-phase decision only when all of the following external evidence exists.' No owner, budget, timeframe, or even a periodic re-check is named anywhere in the document; the prior decisions packet contains no entry that owns running such a pilot. The word 'external' further contradicts the requirement that the evaluation be 'Skill Pack-owned matched evaluation' \u2014 it is ambiguous whose job the evidence is.",
+      "suggested_fix": "Name who is expected to run the pre-phase pilot (or explicitly state the decision is 'never, unless an external party volunteers evidence'), and add either a scheduled re-evaluation date or a concrete trigger event so the deferral cannot silently become permanent."
+    },
+    {
+      "severity": "WARNING",
+      "file": "Falsifier / Adversarial review findings addressed",
+      "claim": "The document claims engineering acceptance constraints were moved out of the falsifier, but falsifier condition 4 (adapter-only prototype) is exactly such a constraint, contradicting the stated fix and muddying what the falsifier is measuring.",
+      "evidence": "Under 'Adversarial review findings addressed': 'Installer safety and capability drift were moved out of the falsifier; they remain future acceptance constraints.' Yet falsifier condition 4 requires 'A separate adapter-only prototype proves that a manually installed Compass can be detected and used without mutating generation-owned roots' as part of the 'all of the following' gate \u2014 an engineering feasibility check, not evidence of user value. A perfect pilot showing large benefit would fail to trigger revisiting if no one built the prototype.",
+      "suggested_fix": "Move condition 4 out of the falsifier into the same 'future acceptance constraints' category the document claims to have established, so the falsifier gates purely on demonstrated benefit."
+    },
+    {
+      "severity": "WARNING",
+      "file": "Assumptions",
+      "claim": "The assumption that existing Compass users 'can continue using project-local Compass integrations independently of the Skill Pack' is stated as fact but was never tested \u2014 no project initialization was performed in this assessment.",
+      "evidence": "The assumption reads 'Users who already install Compass can continue using project-local Compass integrations independently of the Skill Pack while qualification is absent,' but 'Build health' states 'its dirty working tree was read only; no build, graph, or generated state was created,' and the only executed Compass commands were 'help, capability JSON, and installation dry-run.' Project init (`compass init` writing `.compass/`) is described as potentially consuming 'substantial CPU, disk, and time' \u2014 i.e., known only from documentation, not observation. This assumption is load-bearing: it is the safety valve that makes the no-integration decision low-cost for current users.",
+      "suggested_fix": "Either run `compass init` on one throwaway project to confirm project-local usage works on the managed machines, or downgrade the assumption to 'believed but unverified' and note it in the falsifier as a cheap check."
+    },
+    {
+      "severity": "WARNING",
+      "file": "Falsifier, condition 3",
+      "claim": "Condition 3 ('the result holds across tasks both inside and outside Compass's strongest graph-query cases') has no threshold, metric, or definition of 'holds,' making it unfalsifiable in practice and a loophole that can be invoked to reject any pilot result.",
+      "evidence": "Conditions 1\u20132 define concrete thresholds (ten-percentage-point correctness gain, 30% context reduction, 20% time reduction, at least two of three named repositories), but condition 3 specifies no per-task-category criterion: it is undefined whether each of the five task types must independently meet the condition-2 thresholds, or merely show non-regression, or something else. As written, a reviewer can always argue the result did not 'hold' on some task slice.",
+      "suggested_fix": "Define 'holds' operationally, e.g. 'no task category shows a correctness regression beyond X points, and the aggregate thresholds in condition 2 are computed across the full mixed corpus.'"
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "What this rests on / binary size evidence",
+      "claim": "The 139 MB binary figure that drives the 'NOT SUITABLE' default-install verdict and much of the cost reasoning comes from a single macOS ARM64 binary, and the decision itself admits the release artifact matrix was not verified.",
+      "evidence": "'The installed macOS ARM64 Compass 0.3.6 binary runs... but is 139 MB' and 'this assessment did not verify every release artifact and architecture.' The falsifier defers artifact-matrix verification to 'a later decision,' but the size figure is used now as a load-bearing cost argument against integration (alternatives 1 and 6 both cite binary size/release coupling).",
+      "suggested_fix": "Cheap to check now: download or inspect the published 0.3.7 release artifacts and record per-platform sizes, or explicitly scope the 139 MB claim to 'macOS ARM64, 0.3.6' wherever it is used as a cost argument."
+    }
+  ],
+  "sycophancy_screen": {
+    "reject_cap": 2,
+    "cap_overridden": false,
+    "cap_default": 2
+  }
+}
