@@ -30,6 +30,23 @@
   <true/>
   <key>KeepAlive</key>
   <true/>
+  <!-- Do not hot-loop on a failure that will not clear on its own.
+
+       KeepAlive=true with no throttle restarts the daemon IMMEDIATELY. When the
+       failure is persistent — an unwritable path, a port already bound, a
+       missing binary — that is a tight loop: observed 2026-07-28 on
+       sovereign-sync writing thousands of identical lock-failure lines, which
+       buries any other diagnostic and burns CPU without ever recovering.
+
+       Worse, launchd treats a job that respawns more than 5 times in 10s as
+       misbehaving and may stop respawning it, at which point KeepAlive is
+       silently meaningless.
+
+       10s is launchd's own default for a reason. A transient crash still
+       restarts promptly; a persistent one leaves a readable log and a machine
+       that is not spinning. -->
+  <key>ThrottleInterval</key>
+  <integer>10</integer>
   <key>ProcessType</key>
   <string>Background</string>
 

@@ -39,7 +39,8 @@ set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 ACTION="install"
-PROMETHEUS_USER="${PROMETHEUS_USER:-$(id -un)}"
+# shellcheck source=../config/defaults.env
+. "$REPO_ROOT/config/defaults.env"   # PROMETHEUS_USER and friends, single source
 DRY_RUN=false
 FORCE_RESTART=false
 RENDER_ONLY_DIR=""

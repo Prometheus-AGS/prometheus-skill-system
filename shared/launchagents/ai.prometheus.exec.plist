@@ -24,6 +24,12 @@
     <key>SuccessfulExit</key>
     <false/>
   </dict>
+  <!-- The dictionary form already suppresses restarts after a clean exit, but a
+       crash still respawns immediately. Without a throttle, a persistent crash
+       (unwritable socket path, stale identity file) is a tight loop, and
+       launchd may stop respawning a job that restarts >5 times in 10s. -->
+  <key>ThrottleInterval</key>
+  <integer>10</integer>
   <key>ProcessType</key>
   <string>Background</string>
   <key>StandardOutPath</key>

@@ -3,6 +3,8 @@
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+# shellcheck source=../config/defaults.env
+. "$REPO_ROOT/config/defaults.env"   # PROMETHEUS_USER and friends, single source
 EXEC_BIN="${PROMETHEUS_EXEC_BIN:-${HOME}/.local/bin/prometheus-exec}"
 EXEC_ROOT="${PROMETHEUS_EXEC_ROOT:-${HOME}/.prometheus/exec}"
 EXEC_SOCKET="${PROMETHEUS_EXEC_SOCKET:-${HOME}/.prometheus/run/prometheus-exec.sock}"

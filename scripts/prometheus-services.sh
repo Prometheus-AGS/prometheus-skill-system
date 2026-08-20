@@ -7,7 +7,12 @@ REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 ACTION="${1:-}"
 shift || true
 
-PROMETHEUS_USER="${PROMETHEUS_USER:-gqadonis}"
+# Identity defaults come from config/defaults.env so the three installer scripts
+# cannot drift apart again. This previously hard-coded a personal username as the
+# default and then enforced the match below, which meant the script refused to
+# run for any other operator.
+# shellcheck source=../config/defaults.env
+. "$REPO_ROOT/config/defaults.env"
 ALLOW_USER_OVERRIDE=false
 EXCLUDED_SERVICES=""
 
@@ -51,7 +56,7 @@ DOCTOR_LABELS=("${LABELS[@]}" "ai.prometheus.learning-worker" "ai.prometheus.hoo
 
 usage() {
     cat <<'EOF'
-Usage: scripts/prometheus-services.sh <command> [--user gqadonis] [--exclude service]
+Usage: scripts/prometheus-services.sh <command> [--user <account>] [--exclude service]
 
 Commands:
   install   Render LaunchAgent plists into ~/Library/LaunchAgents
