@@ -3,11 +3,13 @@ license: MIT
 name: pmpo-outer-loop
 version: '1.0.0'
 description: >
-  Define and run a standing outer loop — a goal plus feedback sources plus
-  termination criteria — that repeatedly drives PMPO/KBD cycles and only
-  escalates to the human at declared decision points. The Boris Cherny shape:
-  write the loop once, the framework discovers, researches, executes, and
-  reports until the goal is met.
+  Defines a standing outer loop — goal, feedback sources, termination criteria —
+  that repeatedly drives PMPO/KBD cycles and only escalates at declared decision
+  points. Use when the user wants work to keep running unattended, mentions
+  "outer loop", "standing loop", "run until", "autonomous loop", or asks to be
+  interrupted only at specific checkpoints. Do NOT use for one bounded
+  improvement pass (see iterative-evolver) or for the tactical per-change KBD
+  cycle (see kbd-process-orchestrator).
 metadata:
   tags: [process, orchestration, automation]
 ---

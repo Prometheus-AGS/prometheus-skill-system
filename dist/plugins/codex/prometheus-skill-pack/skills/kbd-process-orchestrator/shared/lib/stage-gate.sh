@@ -78,6 +78,44 @@ _sg_index() {
   return 1
 }
 
+# Refuse when the phase being worked is not the phase canonical state considers
+# active. Returns 0 when they agree OR when the question is genuinely
+# unanswerable (no waypoint at all — a pre-KBD tree), 2 on a real mismatch.
+#
+# Unanswerable and disagreeing are deliberately different: blocking every repo
+# that has never run KBD would make the gate unusable, while passing a real
+# mismatch is the bug this exists to stop.
+_sg_assert_canonical_phase() { # <stage> <phase_dir>
+  local stage="$1" phase_dir="$2" root wp active worked
+
+  # Derive the root FROM THE PHASE DIR, not from $PWD.
+  #
+  # `_sg_root` walks up from the working directory. When KBD_PHASE_DIR points at
+  # a sandbox outside the cwd — which is exactly how the existing suite drives
+  # this — that walk escapes the sandbox and finds an unrelated repo's waypoint,
+  # producing a phantom mismatch against a phase the caller never named.
+  # Anchoring to the phase dir keeps the comparison within one tree.
+  root="${phase_dir%/.kbd-orchestrator/phases/*}"
+  [ "$root" = "$phase_dir" ] && root="$(_sg_root)"
+  [ -n "$root" ] || return 0
+
+  wp="$root/.kbd-orchestrator/current-waypoint.json"
+  [ -f "$wp" ] || return 0
+
+  active="$(jq -r '.activePhaseId // empty' "$wp" 2>/dev/null)"
+  [ -n "$active" ] || return 0          # projection predates activePhaseId
+
+  worked="$(basename "$phase_dir")"
+  [ "$worked" = "$active" ] && return 0
+
+  printf 'kbd_stage_gate: %s blocked — canonical state disagrees.\n' "$stage" >&2
+  printf '  working phase : %s\n  canonical     : %s\n' "$worked" "$active" >&2
+  printf 'Artifacts written now would belong to a phase the runtime does not consider active.\n' >&2
+  printf 'Remediation:\n  prometheus kbd --path . phase activate --command-id "activate-%s:$(date +%%Y%%m%%d)" --id %s\n' \
+    "$worked" "$worked" >&2
+  return 2
+}
+
 kbd_stage_gate() {
   local stage="${1:-}"
   local idx
@@ -87,15 +125,36 @@ kbd_stage_gate() {
   }
   local phase_dir
   phase_dir="$(_sg_phase_dir "${2:-}")" || {
-    printf 'kbd_stage_gate: warn: no phase dir resolvable — gate skipped\n' >&2
-    return 0
+    # WAS: warn + return 0. A gate whose failure branch passes is not a gate.
+    printf 'kbd_stage_gate: %s blocked — no phase directory resolvable.\n' "$stage" >&2
+    printf 'Remediation: activate a phase first:\n  prometheus kbd --path . phase activate --command-id "activate-<phase>:$(date +%%Y%%m%%d)" --id <phase>\n' >&2
+    return 2
   }
+
+  # Canonical state must agree with the phase being worked.
+  #
+  # This check did not exist before 2026-08-12. On that date an agent authored a
+  # whole phase — assess, analyze, spec, plan — while `activePhaseId` still named
+  # a DIFFERENT, already-closed phase. Every stage passed. A second harness then
+  # read the stale position projection and stalled for three cycles.
+  #
+  # `_sg_phase_dir` resolves from the waypoint's `.phase`, so without this the
+  # gate reads whatever the projection says and never asks whether canonical
+  # state agrees. Note this runs BEFORE the index-0 shortcut: opening a phase is
+  # precisely when canonical state must exist, so `assess` is not exempt.
+  _sg_assert_canonical_phase "$stage" "$phase_dir" || return 2
+
   [ "$idx" -eq 0 ] && return 0
 
-  # Legacy mode: phase predates handoffs entirely.
+  # A missing handoffs/ used to disable the gate as "legacy". But every NEW phase
+  # also lacks handoffs/ until something writes one, so that exempted exactly the
+  # phases most at risk. Create it and continue: absence is not evidence of a
+  # pre-handoff phase, and the per-stage checks below still apply.
   if [ ! -d "$phase_dir/handoffs" ]; then
-    printf 'kbd_stage_gate: warn: %s has no handoffs/ — legacy phase, gate disabled\n' "$phase_dir" >&2
-    return 0
+    mkdir -p "$phase_dir/handoffs" 2>/dev/null || {
+      printf 'kbd_stage_gate: %s blocked — cannot create %s/handoffs\n' "$stage" "$phase_dir" >&2
+      return 2
+    }
   fi
 
   local i prev handoff

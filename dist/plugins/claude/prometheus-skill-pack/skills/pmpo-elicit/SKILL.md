@@ -3,10 +3,12 @@ license: MIT
 name: pmpo-elicit
 version: '1.0.0'
 description: >
-  Ask-or-research elicitation primitive for the PMPO lifecycle. When any stage
-  detects missing information, pmpo-elicit asks the user for the answer or its
-  source — and always offers to research it autonomously from minimal hints —
-  recording the answer with provenance instead of silently guessing.
+  Ask-or-research primitive that resolves a missing fact mid-lifecycle and
+  records it with provenance instead of guessing. Use when a stage is blocked on
+  unknown information, when the user says "I don't know, find out", or when a
+  decision needs a fact nobody has supplied. Do NOT use to run an improvement
+  loop (see iterative-evolver) or to define standing automation (see
+  pmpo-outer-loop).
 metadata:
   tags: [process, orchestration, automation]
 ---

@@ -25,10 +25,23 @@ export KBD_PHASE_DIR="$PHASE_DIR"
 kbd_stage_gate assess || fail "test 1 — assess gate must pass with no handoffs"
 pass "assess gate passes as first stage"
 
-# Test 2: legacy mode — no handoffs/ dir at all → warn + pass for later stages
-out="$(kbd_stage_gate plan 2>&1)" || fail "test 2 — legacy mode must pass"
-echo "$out" | grep -q 'legacy phase' || fail "test 2 — expected legacy warning, got: $out"
-pass "legacy phase (no handoffs/) warns and passes"
+# Test 2: no handoffs/ dir → the directory is CREATED and the normal rules apply.
+#
+# CONTRACT CHANGE, 2026-08-12. This test previously asserted "legacy mode —
+# warn + pass". That exemption keyed on a condition every NEW phase also meets
+# (a fresh phase has no handoffs/ until something writes one), so it disabled
+# the gate for precisely the phases most at risk. It contributed to an incident
+# where a full phase was authored against stale canonical state.
+#
+# New behaviour: create handoffs/ and fall through. Here `plan` then blocks on
+# the genuinely missing `assess` handoff — a real rule, not a blanket bypass.
+out="$(kbd_stage_gate plan 2>&1)"
+rc=$?
+[ "$rc" -eq 2 ] || fail "test 2 — expected rc=2 (missing assess handoff), got rc=$rc"
+[ -d "$PHASE_DIR/handoffs" ] || fail "test 2 — handoffs/ should have been created"
+echo "$out" | grep -q 'Remediation: run /kbd-assess first' \
+  || fail "test 2 — expected assess remediation, got: $out"
+pass "absent handoffs/ is created, not treated as a bypass"
 
 # Test 3: handoffs/ exists but assess handoff missing → plan gate blocks rc=2
 mkdir -p "$PHASE_DIR/handoffs"

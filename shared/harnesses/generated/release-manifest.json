@@ -17,7 +17,7 @@
     },
     {
       "path": "shared/scripts/bootstrap-hook-runtime.sh",
-      "sha256": "59fc8faf02597a9d311dba9be38ad6237579db4314692ea49ca556b11f223a58",
+      "sha256": "a5e7a2c2aa57ea42df8de97b14846114e542cf768c53c90f553f493cb66b10e7",
       "mode": "0755"
     },
     {
@@ -37,7 +37,7 @@
     },
     {
       "path": "shared/scripts/detect-project-context.sh",
-      "sha256": "462a65fc0f566421b0b77c2c17a6372f3bee01de4d4004dccae3c0ac649e7561",
+      "sha256": "07ff7be3bf0621ef65b83a3ca7e0d1400dcac137ec2b282bcc60d70c715d43ca",
       "mode": "0755"
     },
     {
@@ -87,7 +87,7 @@
     },
     {
       "path": "shared/scripts/kbd-harness-adapter.sh",
-      "sha256": "71d8ee282440025361f165932b3f292734230d94954fe017e1cec5723e6673c9",
+      "sha256": "b60bb4174a68b342a29dacf2f10a264b581d526b94fdb6c20af74293473ae1fc",
       "mode": "0755"
     },
     {
@@ -267,7 +267,7 @@
     },
     {
       "path": "shared/scripts/write-position-reminder.sh",
-      "sha256": "48c26f943efaf52ab91e64af756912fb80cf335e3131af9f96a3501860940a88",
+      "sha256": "f180a1cdeab22ca2a3ff239268c9dc22f61344748e39e6259a92925e8652d8ef",
       "mode": "0755"
     },
     {
@@ -282,12 +282,12 @@
     },
     {
       "path": "skills/process/iterative-evolver/scripts/log-reflection.sh",
-      "sha256": "0e5b38fb132548450879a7ce2a9143a7ed9632d623de0d567b0687add3bbf87d",
+      "sha256": "23e143b8c27681601054d9b77d4e99d8412d1a68878c0777244061ad043c3ed0",
       "mode": "0755"
     },
     {
       "path": "skills/process/iterative-evolver/scripts/state-checkpoint.sh",
-      "sha256": "7c3c81d4fc55c404dc84bc45239576466ea7eadde63121ac4dad68d2cb5aa67c",
+      "sha256": "a0385c0c6a3fc2e6a4873f0a50f8c1308b5284fe1de93bab1508786e42bd4526",
       "mode": "0755"
     },
     {
@@ -307,14 +307,14 @@
     },
     {
       "path": "skills/process/iterative-evolver/scripts/validate-state.sh",
-      "sha256": "765dac7582eb035a4dccd9995dcae6649bd2a483cf40a5d23369153a8ed786e5",
+      "sha256": "18020a792a7420ce8244ecf085c50b4e0ae2a280eba25651a8342bd975c13936",
       "mode": "0755"
     },
     {
       "path": "skills/process/iterative-evolver/scripts/workflow-dispatch.sh",
-      "sha256": "3569609ee62d4ed23079015f5b3aac04e9f1f0795882fe1a4fb8c5e070425d19",
+      "sha256": "82b2c12cf924043b79a41b522507b59677c6fec01437f3aecd1f1960edf21837",
       "mode": "0755"
     }
   ],
-  "bundleId": "fdcc255b8fe463fe234fd98d70dbc655cfe2f2c69e16e2fc45c5a4642c11a27e"
+  "bundleId": "007c951db7b1298b9c2673c229d4e160867eb14f2f890754d10234ad1f9084ec"
 }
