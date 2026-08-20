@@ -121,7 +121,7 @@
   "marketplace": {
     "plugins": [
       { "name": "prometheus-react-skills", "path": "skills/react/prometheus-entity-skills", "version": "1.5.0", "category": "frontend" },
-      { "name": "prometheus-process-skills", "path": "skills/process", "version": "1.5.1", "category": "productivity" },
+      { "name": "prometheus-process-skills", "path": "skills/process", "version": "1.5.2", "category": "productivity" },
       { "name": "prometheus-devops-skills", "path": "skills/devops", "version": "1.5.0", "category": "devops" },
       { "name": "prometheus-testing-skills", "path": "skills/testing", "version": "1.5.0", "category": "testing" },
       { "name": "learn", "path": "skills/learn", "version": "1.5.0", "category": "productivity" },

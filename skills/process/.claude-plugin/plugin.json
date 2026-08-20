@@ -1,7 +1,7 @@
 {
   "name": "prometheus-process-skills",
   "description": "KBD process orchestration, strategic evolution (pmpo-evolver: 5 perspectives + Darwin idea validation), goal tracking (kbd-goal/kbd-goal-check), outer loop, elicit, and PMPO skill creation",
-  "version": "1.5.1",
+  "version": "1.5.2",
   "author": {
     "name": "Travis James",
     "url": "https://travisjames.ai"
@@ -22,5 +22,13 @@
     "./pmpo-skill-creator",
     "./zeespec-interrogator"
   ],
-  "keywords": ["process", "orchestration", "pmpo", "kbd", "evolution", "pmpo-evolver", "goal-tracking"]
+  "keywords": [
+    "process",
+    "orchestration",
+    "pmpo",
+    "kbd",
+    "evolution",
+    "pmpo-evolver",
+    "goal-tracking"
+  ]
 }
