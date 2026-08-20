@@ -1588,8 +1588,35 @@ function pruneObsoleteGenerations(args, contract) {
   const active = path.basename(currentTarget(args.pluginRoot, 'current') ?? '');
   const previous = path.basename(currentTarget(args.pluginRoot, 'previous') ?? '');
   const retired = [];
+  const reapedStaging = [];
   for (const generation of fs.readdirSync(generationsRoot).sort()) {
-    if (generation.startsWith('.staging-')) continue;
+    // Reap abandoned staging directories.
+    //
+    // Staging dirs are named `.staging-<pid>-<random>` and are renamed into
+    // place on success, so one that still exists is a partial install whose
+    // process died before completing. Nothing ever removed them: this loop used
+    // to skip every `.staging-` entry unconditionally, so they accumulated
+    // silently (one here had been abandoned since 2026-08-05).
+    //
+    // Reap only when the owning pid is gone. A staging dir belonging to a LIVE
+    // process is a concurrent install and must be left alone -- deleting it
+    // would corrupt that run. An unparseable name is left alone too.
+    if (generation.startsWith('.staging-')) {
+      const owner = Number.parseInt(generation.split('-')[1] ?? '', 10);
+      if (!Number.isInteger(owner) || owner <= 0) continue;
+      let alive = true;
+      try {
+        process.kill(owner, 0);
+      } catch (error) {
+        alive = error.code === 'EPERM';
+      }
+      if (alive) continue;
+      if (!args.dryRun) {
+        fs.rmSync(path.join(generationsRoot, generation), { recursive: true, force: true });
+      }
+      reapedStaging.push(generation);
+      continue;
+    }
     const generationPath = path.join(generationsRoot, generation);
     if (!fs.lstatSync(generationPath).isDirectory()) continue;
     // Verify identity first, and only identity.
@@ -1647,7 +1674,12 @@ function pruneObsoleteGenerations(args, contract) {
     if (!args.dryRun) fs.rmSync(generationPath, { recursive: true, force: true });
     retired.push({ generation, sourceVersion: manifest.sourceVersion, bundleId: manifest.bundleId });
   }
-  return { retired, minimumActiveVersion: contract.minimumActiveVersion, dryRun: args.dryRun };
+  return {
+    retired,
+    reapedStaging,
+    minimumActiveVersion: contract.minimumActiveVersion,
+    dryRun: args.dryRun,
+  };
 }
 
 const args = parseArgs(process.argv.slice(2));
