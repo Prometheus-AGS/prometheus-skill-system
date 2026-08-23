@@ -48,7 +48,7 @@ const TARGETS = [
   '.codex/skills',
   '.gemini/skills',
   '.roo/skills',
-  '.windsurf/skills',
+  '.devin/skills',
   '.codeium/windsurf/skills',
   '.agents/skills',
   '.config/zed/skills',
