@@ -99,10 +99,10 @@ const PLATFORMS: Platform[] = [
     supportsPlugins: false,
   },
   {
-    name: 'windsurf',
-    globalSkillsDir: join(HOME, '.windsurf', 'skills'),
-    projectSkillsDir: '.windsurf/skills',
-    description: 'Windsurf Cascade',
+    name: 'devin',
+    globalSkillsDir: join(HOME, '.devin', 'skills'),
+    projectSkillsDir: '.devin/skills',
+    description: 'Devin',
     supportsPlugins: false,
   },
   {

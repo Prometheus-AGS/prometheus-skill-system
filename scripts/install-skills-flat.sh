@@ -264,7 +264,7 @@ if $UNINSTALL; then
     install_to_codex
     install_to_dir "gemini"          "$HOME/.gemini/skills"
     install_to_dir "roo"             "$HOME/.roo/skills"
-    install_to_dir "windsurf"        "$HOME/.windsurf/skills"
+    install_to_dir "devin"           "$HOME/.devin/skills"
     install_to_dir "windsurf-legacy" "$HOME/.codeium/windsurf/skills"
     install_to_dir "amp"             "$HOME/.agents/skills"
     install_to_dir "zed"             "$HOME/.config/zed/skills"

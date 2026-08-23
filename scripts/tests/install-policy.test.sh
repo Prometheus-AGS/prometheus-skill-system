@@ -16,6 +16,7 @@ prepare_home() {
         "$test_home/.codex" \
         "$test_home/.gemini" \
         "$test_home/.roo" \
+        "$test_home/.devin" \
         "$test_home/.codeium/windsurf" \
         "$test_home/.agents" \
         "$test_home/.config/zed" \

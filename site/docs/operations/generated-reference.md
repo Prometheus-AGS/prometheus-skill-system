@@ -117,7 +117,7 @@ Plugin targets: **14**
 | `.codex/skills` | verified copy |
 | `.gemini/skills` | symlink |
 | `.roo/skills` | symlink |
-| `.windsurf/skills` | symlink |
+| `.devin/skills` | symlink |
 | `.codeium/windsurf/skills` | symlink |
 | `.agents/skills` | symlink |
 | `.config/zed/skills` | symlink |
