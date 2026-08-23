@@ -65,7 +65,7 @@
   "completion": {
     "primaryCounter": "implementation",
     "implementation": {
-      "completed": 2,
+      "completed": 3,
       "total": 6,
       "status": "IN_PROGRESS"
     },
@@ -180,14 +180,36 @@
     },
     {
       "id": "change-drift-403-routine-artifacts",
-      "status": "pending",
-      "implementation_status": "PENDING",
+      "status": "verified",
+      "implementation_status": "COMPLETE",
       "backend": "openspec",
       "sequence": 4,
       "title": "Session logs, .devin/, .openspec-target (C-02 scan)",
       "dependsOn": [],
       "specPath": "openspec/changes/change-drift-403-routine-artifacts/",
-      "blockingDecision": "1.3/1.4 \u2014 .devin/ and .openspec-target: tracked or ignored?"
+      "blockingDecision": "1.3/1.4 \u2014 .devin/ and .openspec-target: tracked or ignored?",
+      "certification_status": "PASS",
+      "tasks_total": 7,
+      "tasks_complete": 7,
+      "commits": [
+        "dcfeb92",
+        "1005a1f",
+        "a6e3c93"
+      ],
+      "review": {
+        "judge": "k3",
+        "producer": "claude-opus-5",
+        "cross_model_check": "verified-distinct",
+        "rounds": 2,
+        "round1": "BLOCK (2 CRITICAL/2 WARNING) against a packet the producer built wrong",
+        "round2": "PASS (2 WARNING)",
+        "anti_theater": "PASS score=0.0 strictness=strict"
+      },
+      "decisions": {
+        ".devin/": "TRACKED (already implemented by c401)",
+        ".agents/skills/.openspec-target": "TRACKED, outside C-01 \u2014 OpenSpec shared-root ownership marker"
+      },
+      "c02_scan": "re-run 2026-08-23, 0 hits, 8/8 positive control + negative line"
     },
     {
       "id": "change-drift-404-harness-completeness",

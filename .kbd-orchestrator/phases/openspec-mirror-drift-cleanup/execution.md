@@ -109,3 +109,31 @@ preconditions to starting:
 - **C-05** bash 3.2 under launchd — c404 if it ships shell.
 - Every change editing a checker ships a **negative fixture before** the passing run.
 - One commit per change. The 98 files are never reverted wholesale.
+
+## Phase debt recorded during c403
+
+1. **pk emits duplicate session records.** Session `9db42325` produced two wiki
+   pages 4 seconds apart (`karpathy-session-3841ee7d13011f2c`,
+   `karpathy-session-3c67e1717b254152`), byte-identical apart from id/timestamps,
+   plus two index entries and two log lines. Corpus is otherwise clean (176
+   records, 0 duplicate groups), so this is a one-off. Owned by
+   `prometheus-knowledge-rs` (`pk-librarian`) per CLAUDE.md's 2026-07-01
+   ownership split — **not fixable in this repo**. Needs an upstream issue.
+
+2. **pk rewrites `created_at` on modification.**
+   `kimi-desktop-extensibility-executor-completion-unknown-change.md` had
+   `created_at` moved 2026-08-07 → 2026-08-20 while `revision` stayed 1, and
+   `log.md` recorded the event as "Creation" for a file that already existed.
+   Same upstream owner (`pk-store`/`pk-core`). OKF v0.1 states no `created_at`
+   immutability rule, so this is a quality issue rather than a conformance
+   failure.
+
+3. **`build-review-packet.sh:196` uses `git diff HEAD`** — empty for committed
+   work. First hit in c400 (5 spurious CRITICALs), hit again in c403. Every
+   review of committed work needs a hand-built packet. Fix: build from
+   `git show <sha>` / `git diff <base>..<head>` and fail loudly on an unexpectedly
+   empty diff for a committed target.
+
+4. **`pk lint` hangs.** `pk lint --json` in this repo did not return within 120s
+   and was killed. Not investigated — noted so a later phase does not put it in
+   a gate. `pk doctor --json` returns promptly (5 pass / 1 fail).
