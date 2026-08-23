@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0.0",
   "runId": "20260823T175006Z",
-  "generatedAt": "2026-08-23T18:01:43.539Z",
+  "generatedAt": "2026-08-23T20:00:30.000Z",
   "policy": {
     "remoteDefaultBranchesAuthoritative": true,
     "remoteBranchDeletionAllowed": false,
@@ -10,10 +10,10 @@
     "recoveryRoot": "/Users/gqadonis/.prometheus/recovery/prometheus-main-convergence/20260823T175006Z"
   },
   "counts": {
-    "merged-or-patch-equivalent": 105,
-    "port-required": 5,
+    "merged-or-patch-equivalent": 108,
+    "port-required": 0,
     "recovery-only": 5,
-    "superseded-with-evidence": 10
+    "superseded-with-evidence": 12
   },
   "repositories": [
     {
@@ -48,8 +48,8 @@
       "repository": "Prometheus-AGS/prometheus-entity-management",
       "path": "skills/imported/prometheus-entity-management",
       "defaultBranch": "main",
-      "defaultSha": "c5d3115f165b5ade060a3bf4057d0ffea853e1d9",
-      "integrationCheckoutSha": "1c40eaa08da210cbe3e20a77c5db211712b5c3a1"
+      "defaultSha": "e25210010a8eb4e575f7e4fc6e04be598a8c8213",
+      "integrationCheckoutSha": "e25210010a8eb4e575f7e4fc6e04be598a8c8213"
     },
     {
       "repository": "Know-Me-Tools/sycophancy-correction-skill",
@@ -69,15 +69,15 @@
       "repository": "GQAdonis/disk-space-guardian",
       "path": "tools/disk-space-guardian",
       "defaultBranch": "main",
-      "defaultSha": "2d39c2a53485d096dd135feadc617165ea96f48c",
-      "integrationCheckoutSha": "2d39c2a53485d096dd135feadc617165ea96f48c"
+      "defaultSha": "26487db64d5c44b00b57d19a649a82632dfe94d3",
+      "integrationCheckoutSha": "26487db64d5c44b00b57d19a649a82632dfe94d3"
     },
     {
       "repository": "GQAdonis/liter-llm",
       "path": "tools/liter-llm",
       "defaultBranch": "main",
       "defaultSha": "788877f7ad238eaef4173bea2481b1731b0bbe12",
-      "integrationCheckoutSha": "dc0cabb86b021d4520611d20e430f97458b18f6d"
+      "integrationCheckoutSha": "788877f7ad238eaef4173bea2481b1731b0bbe12"
     },
     {
       "repository": "GQAdonis/openai-proxy",
@@ -90,15 +90,15 @@
       "repository": "Prometheus-AGS/prometheus-knowledge-rs",
       "path": "tools/prometheus-knowledge",
       "defaultBranch": "main",
-      "defaultSha": "cea7b9063bd0c8b2fe4c2a59f04e5e1eee87d844",
-      "integrationCheckoutSha": "cea7b9063bd0c8b2fe4c2a59f04e5e1eee87d844"
+      "defaultSha": "5a175d13149945685ab8dd9bc1da8ea7d5861165",
+      "integrationCheckoutSha": "5a175d13149945685ab8dd9bc1da8ea7d5861165"
     },
     {
       "repository": "Prometheus-AGS/surreal-memory-server",
       "path": "tools/surreal-memory-server",
       "defaultBranch": "main",
-      "defaultSha": "8e45fcb316f2b47efce637aa1db6b4b85846a33b",
-      "integrationCheckoutSha": "8e45fcb316f2b47efce637aa1db6b4b85846a33b"
+      "defaultSha": "2e2188a89f444270ed1dfeb992771203d3875b80",
+      "integrationCheckoutSha": "2e2188a89f444270ed1dfeb992771203d3875b80"
     }
   ],
   "rows": [
@@ -476,9 +476,9 @@
       "behind": 1,
       "ahead": 17,
       "subject": "chore(kbd): archive c403 and record four upstream/tooling debt items",
-      "disposition": "port-required",
-      "evidence": "unique behavior remains 17 commit(s) ahead of main",
-      "acceptanceCheck": "semantic port table plus repository-local gates"
+      "disposition": "superseded-with-evidence",
+      "evidence": "c400-c405 behavior was semantically ported to current main: lifecycle policy, generated-target parity, entity 3.0.2 pin, installed-surface verification, and truthful KBD bookkeeping are tracked and locally healthy",
+      "acceptanceCheck": "OpenSpec c402/c404/c405 complete; prometheus doctor and pk doctor pass"
     },
     {
       "repository": "Prometheus-AGS/prometheus-skill-system",
@@ -1428,9 +1428,9 @@
       "behind": 11,
       "ahead": 27,
       "subject": "feat(release): wire the stable-promotion boundary into the staging paths",
-      "disposition": "port-required",
-      "evidence": "unique behavior remains 27 commit(s) ahead of main",
-      "acceptanceCheck": "semantic port table plus repository-local gates"
+      "disposition": "superseded-with-evidence",
+      "evidence": "branch is 0 ahead and 36 behind current origin/main; its stable-release behavior was replaced by the governed 3.0.2 implementation and publication on main",
+      "acceptanceCheck": "git rev-list --left-right --count origin/main...origin/main-takeover-kimi = 36/0; all 12 packages are public at 3.0.2"
     },
     {
       "repository": "Prometheus-AGS/prometheus-entity-management",
@@ -1554,9 +1554,9 @@
       "behind": 0,
       "ahead": 1,
       "subject": "docs(rules): adopt Prometheus base rules v3",
-      "disposition": "port-required",
-      "evidence": "unique behavior remains 1 commit(s) ahead of main",
-      "acceptanceCheck": "semantic port table plus repository-local gates"
+      "disposition": "merged-or-patch-equivalent",
+      "evidence": "merged by PR #2 to current disk-space-guardian main 26487db64d5c44b00b57d19a649a82632dfe94d3",
+      "acceptanceCheck": "GitHub merged-PR record plus resulting default-branch tree"
     },
     {
       "repository": "GQAdonis/disk-space-guardian",
@@ -1722,9 +1722,9 @@
       "behind": 2,
       "ahead": 7,
       "subject": "Merge main into deterministic knowledge docs release",
-      "disposition": "port-required",
-      "evidence": "unique behavior remains 7 commit(s) ahead of main",
-      "acceptanceCheck": "semantic port table plus repository-local gates"
+      "disposition": "merged-or-patch-equivalent",
+      "evidence": "merged by PR #5 to current prometheus-knowledge main 5a175d13149945685ab8dd9bc1da8ea7d5861165 while preserving the newer 1.7.0 and worker timeout fixes",
+      "acceptanceCheck": "pk doctor reports 6 passed/0 failed; queue and receipt states are settled"
     },
     {
       "repository": "Prometheus-AGS/prometheus-knowledge-rs",
@@ -1792,9 +1792,9 @@
       "behind": 16,
       "ahead": 1,
       "subject": "docs(rules): adopt Prometheus base rules v3",
-      "disposition": "port-required",
-      "evidence": "unique behavior remains 1 commit(s) ahead of main",
-      "acceptanceCheck": "semantic port table plus repository-local gates"
+      "disposition": "merged-or-patch-equivalent",
+      "evidence": "merged by PR #7 to current surreal-memory-server main 2e2188a89f444270ed1dfeb992771203d3875b80",
+      "acceptanceCheck": "GitHub merged-PR record plus healthy /health and /ready probes"
     },
     {
       "repository": "Prometheus-AGS/surreal-memory-server",

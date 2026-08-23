@@ -121,3 +121,13 @@ re-pin the parent to the merged commit and 2.2 clears.
 
 **c405 remains blocked until then**, because `require_clean_source` reads plain
 `git status --porcelain` on the parent.
+
+## D-11 · Final current-main resolution (2026-08-23)
+
+The stale PR #22/release-branch topology was replaced by a current-main
+implementation. The coordinated npm set is published at stable `3.0.2`, and the
+entity-management default branch now resolves to `e252100`, including generated
+site and packed-API parity. The parent pins that exact commit. `origin/main`
+contains the pin, the submodule checkout is clean, and no behavior is dependent
+on the obsolete `main-takeover-kimi` branch. This supersedes D-6's waiting state
+and clears c402/c405 without preserving obsolete topology.
