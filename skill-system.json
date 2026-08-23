@@ -45,7 +45,7 @@
       "id": "artifact-refiner",
       "path": "skills/imported/artifact-refiner",
       "repository": "https://github.com/GQAdonis/artifact-refiner-skill.git",
-      "commit": "dbc49d78748005177626b559a931d16864f1c9a4",
+      "commit": "45bba081ac1dcdc896f090e7e4bd23e38294bfb1",
       "requiredFor": ["skills", "full"],
       "marketplace": true
     },
@@ -61,42 +61,42 @@
       "id": "prometheus-entity-management",
       "path": "skills/imported/prometheus-entity-management",
       "repository": "https://github.com/Prometheus-AGS/prometheus-entity-management.git",
-      "commit": "1c40eaa08da210cbe3e20a77c5db211712b5c3a1",
+      "commit": "de8fabd8eef5fae26ab70ccb45572472954ba7cf",
       "requiredFor": ["full"],
       "distributed": false
     },
     {
       "id": "cowork-skills",
       "path": "tools/cowork-skills",
-      "repository": "https://github.com/Prometheus-AGS/cowork-skills.git",
+      "repository": "https://github.com/GQAdonis/cowork-skills.git",
       "commit": "77edcf8a49237dc9b8f6733e794c48fa4e6da832",
       "requiredFor": ["full"]
     },
     {
       "id": "disk-space-guardian",
       "path": "tools/disk-space-guardian",
-      "repository": "https://github.com/Prometheus-AGS/disk-space-guardian.git",
-      "commit": "2d39c2a53485d096dd135feadc617165ea96f48c",
+      "repository": "https://github.com/GQAdonis/disk-space-guardian.git",
+      "commit": "86853b4e5df572650579be49c59f745b4854e6d3",
       "requiredFor": ["full"]
     },
     {
       "id": "liter-llm",
       "path": "tools/liter-llm",
-      "repository": "https://github.com/Prometheus-AGS/liter-llm.git",
-      "commit": "dc0cabb86b021d4520611d20e430f97458b18f6d",
+      "repository": "https://github.com/GQAdonis/liter-llm.git",
+      "commit": "788877f7ad238eaef4173bea2481b1731b0bbe12",
       "requiredFor": ["full"]
     },
     {
       "id": "openai-proxy",
       "path": "tools/openai-proxy",
-      "repository": "https://github.com/Prometheus-AGS/openai-proxy.git",
+      "repository": "https://github.com/GQAdonis/openai-proxy.git",
       "commit": "7833663d3b46f7467f2017f2cce392c09ec1b7ac",
       "requiredFor": ["full"]
     },
     {
       "id": "prometheus-knowledge",
       "path": "tools/prometheus-knowledge",
-      "repository": "https://github.com/Prometheus-AGS/prometheus-knowledge.git",
+      "repository": "https://github.com/Prometheus-AGS/prometheus-knowledge-rs.git",
       "commit": "cea7b9063bd0c8b2fe4c2a59f04e5e1eee87d844",
       "requiredFor": ["full"]
     },
@@ -104,7 +104,7 @@
       "id": "surreal-memory-server",
       "path": "tools/surreal-memory-server",
       "repository": "https://github.com/Prometheus-AGS/surreal-memory-server.git",
-      "commit": "8e45fcb316f2b47efce637aa1db6b4b85846a33b",
+      "commit": "6a03ee5338b8435e4730c0207cf13c8106d86a16",
       "requiredFor": ["full"]
     }
   ],
@@ -133,20 +133,20 @@
     ]
   },
   "targets": [
-    { "id": "claude", "path": ".claude/skills", "mode": "symlink", "detect": [".claude", "command:claude"] },
-    { "id": "opencode", "path": ".opencode/skills", "mode": "symlink", "detect": [".opencode", "command:opencode"] },
-    { "id": "kimi-code", "path": ".kimi-code/skills", "mode": "symlink", "detect": [".kimi-code", "command:kimi"] },
-    { "id": "minimax", "path": ".minimax/skills", "mode": "copy", "detect": [".minimax"] },
-    { "id": "cursor", "path": ".cursor/skills", "mode": "symlink", "detect": [".cursor", "command:cursor"] },
-    { "id": "codex", "path": ".codex/skills", "mode": "copy", "detect": [".codex", "command:codex"] },
-    { "id": "gemini", "path": ".gemini/skills", "mode": "symlink", "detect": [".gemini", "command:gemini"] },
-    { "id": "roo", "path": ".roo/skills", "mode": "symlink", "detect": [".roo"] },
-    { "id": "devin", "path": ".devin/skills", "mode": "symlink", "detect": [".devin", ".windsurf", "command:devin", "command:windsurf"] },
-    { "id": "codeium-windsurf", "path": ".codeium/windsurf/skills", "mode": "symlink", "detect": [".codeium/windsurf"] },
-    { "id": "agents", "path": ".agents/skills", "mode": "symlink", "detect": [".agents"] },
-    { "id": "zed-config", "path": ".config/zed/skills", "mode": "symlink", "detect": [".config/zed", "command:zed"] },
-    { "id": "zed", "path": ".zed/skills", "mode": "symlink", "detect": [".zed"] },
-    { "id": "cline", "path": ".cline/skills", "mode": "symlink", "detect": [".cline"] }
+    { "id": "claude", "path": ".claude/skills", "mode": "symlink", "sourceTreeLifecycle": "install-only", "detect": [".claude", "command:claude"] },
+    { "id": "opencode", "path": ".opencode/skills", "mode": "symlink", "sourceTreeLifecycle": "required", "detect": [".opencode", "command:opencode"] },
+    { "id": "kimi-code", "path": ".kimi-code/skills", "mode": "symlink", "sourceTreeLifecycle": "install-only", "detect": [".kimi-code", "command:kimi"] },
+    { "id": "minimax", "path": ".minimax/skills", "mode": "copy", "sourceTreeLifecycle": "install-only", "detect": [".minimax"] },
+    { "id": "cursor", "path": ".cursor/skills", "mode": "symlink", "sourceTreeLifecycle": "required", "detect": [".cursor", "command:cursor"] },
+    { "id": "codex", "path": ".codex/skills", "mode": "copy", "sourceTreeLifecycle": "required", "detect": [".codex", "command:codex"] },
+    { "id": "gemini", "path": ".gemini/skills", "mode": "symlink", "sourceTreeLifecycle": "install-only", "detect": [".gemini", "command:gemini"] },
+    { "id": "roo", "path": ".roo/skills", "mode": "symlink", "sourceTreeLifecycle": "install-only", "detect": [".roo"] },
+    { "id": "devin", "path": ".devin/skills", "mode": "symlink", "sourceTreeLifecycle": "required", "detect": [".devin", ".windsurf", "command:devin", "command:windsurf"] },
+    { "id": "codeium-windsurf", "path": ".codeium/windsurf/skills", "mode": "symlink", "sourceTreeLifecycle": "install-only", "detect": [".codeium/windsurf"] },
+    { "id": "agents", "path": ".agents/skills", "mode": "symlink", "sourceTreeLifecycle": "required", "detect": [".agents"] },
+    { "id": "zed-config", "path": ".config/zed/skills", "mode": "symlink", "sourceTreeLifecycle": "install-only", "detect": [".config/zed", "command:zed"] },
+    { "id": "zed", "path": ".zed/skills", "mode": "symlink", "sourceTreeLifecycle": "install-only", "detect": [".zed"] },
+    { "id": "cline", "path": ".cline/skills", "mode": "symlink", "sourceTreeLifecycle": "install-only", "detect": [".cline"] }
   ],
   "outputs": {
     "skillCatalog": "SKILLS.md",

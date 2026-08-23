@@ -935,6 +935,13 @@ plugin marketplace add` / `codex plugin add|remove|list` (not `install`/`details
 — those are *Claude* plugin verbs). Codex also reads the legacy
 `.claude-plugin/marketplace.json`.
 
+The target matrix in `skill-system.json` explicitly separates repository-owned
+source trees (`sourceTreeLifecycle: required`) from destinations created only
+during installation (`install-only`). Distribution validation and both
+installers reject an omitted policy or a missing/empty required tree, while an
+absent install-only tree is valid. This prevents a deleted harness mirror from
+being mistaken for an intentionally unmaterialized destination.
+
 ### Codex does not follow symlinked skill directories
 
 `install-skills-flat.sh` symlinks skills into every platform's skill dir. **Codex silently

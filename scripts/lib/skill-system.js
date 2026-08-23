@@ -11,10 +11,30 @@ export function readSkillSystem(sourceRoot) {
   if (!Array.isArray(contract.targets) || contract.targets.length !== 14) {
     throw new Error('distribution contract must declare the canonical 14 targets');
   }
+  assertTargetSourceTrees(sourceRoot, contract);
   if (compareVersions(contract.releaseVersion, contract.minimumActiveVersion) < 0) {
     throw new Error('releaseVersion cannot be below minimumActiveVersion');
   }
   return contract;
+}
+
+export function assertTargetSourceTrees(sourceRoot, contract) {
+  const allowed = new Set(['required', 'install-only']);
+  for (const target of contract.targets ?? []) {
+    if (!allowed.has(target.sourceTreeLifecycle)) {
+      throw new Error(
+        `target ${target.id ?? '<missing>'} must declare sourceTreeLifecycle as required or install-only`
+      );
+    }
+    if (target.sourceTreeLifecycle !== 'required') continue;
+    const tree = path.join(sourceRoot, target.path);
+    if (!fs.existsSync(tree) || !fs.statSync(tree).isDirectory()) {
+      throw new Error(`required target source tree is missing: ${target.id} (${target.path})`);
+    }
+    if (fs.readdirSync(tree).length === 0) {
+      throw new Error(`required target source tree is empty: ${target.id} (${target.path})`);
+    }
+  }
 }
 
 export function compareVersions(left, right) {

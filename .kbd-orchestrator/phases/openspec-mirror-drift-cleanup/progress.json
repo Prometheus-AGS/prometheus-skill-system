@@ -147,18 +147,18 @@
     },
     {
       "id": "change-drift-402-entity-mgmt-submodule",
-      "status": "blocked",
-      "implementation_status": "BLOCKED",
+      "status": "verified",
+      "implementation_status": "COMPLETE",
       "backend": "openspec",
       "sequence": 3,
       "title": "Decide the entity-management submodule pin",
       "dependsOn": [],
       "specPath": "openspec/changes/change-drift-402-entity-mgmt-submodule/",
       "blockingDecision": "1.1 \u2014 publish-and-pin (needs the submodule owner) or restore the pin? Task 1.0 re-measures first: the facts moved twice during planning.",
-      "certification_status": "PENDING",
-      "commit": "1d60be8",
+      "certification_status": "PASS",
+      "commit": "de8fabd",
       "tasks_total": 8,
-      "tasks_complete": 5,
+      "tasks_complete": 8,
       "decision": "PUBLISH (owner, 2026-08-23) \u2014 they own every submodule, so publish the work rather than rewind a checkout holding 27 commits. Option B was also mechanically impossible: git derives the pointer diff from the checkout.",
       "shipped": {
         "repo": "Prometheus-AGS/prometheus-entity-management",
@@ -171,7 +171,8 @@
           "a08ee67 the wiring, added by a concurrent session mid-change"
         ]
       },
-      "blockedOn": "PR #22 merging. Then re-pin the parent to the merged commit; criterion 2.2 clears and c405 unblocks.",
+      "blockedOn": null,
+      "resolution": "PR #22 merged to authoritative main; PR #24 then separated stable direct publication from RC staging. Parent pin and import metadata now resolve to de8fabd.",
       "hazards": [
         "A concurrent session was editing the file live (mtime 69s, diff grew 4->7 lines). Sampled 55s + node --check before committing; authorship stated in the messages.",
         "First commit landed on a DETACHED HEAD and would have been unreachable. Caught, verified strict ancestry, fast-forwarded the branch.",
@@ -213,8 +214,8 @@
     },
     {
       "id": "change-drift-404-harness-completeness",
-      "status": "pending",
-      "implementation_status": "PENDING",
+      "status": "verified",
+      "implementation_status": "COMPLETE",
       "backend": "openspec",
       "sequence": 5,
       "title": "Prevention: normalizer + per-harness completeness",
@@ -225,7 +226,11 @@
         "change-drift-403-routine-artifacts"
       ],
       "specPath": "openspec/changes/change-drift-404-harness-completeness/",
-      "blockingDecision": "1.0 \u2014 does this repo need a normalizer at all, having no internal:true invariant?"
+      "blockingDecision": null,
+      "certification_status": "PASS",
+      "tasks_total": 10,
+      "tasks_complete": 10,
+      "resolution": "Every target declares required or install-only lifecycle metadata. The shared contract loader rejects omitted policies and missing or empty required trees; fixture validation is read-only and idempotent. No normalizer is needed because no generated target-tree invariant exists."
     },
     {
       "id": "change-drift-405-reinstall-verify",
@@ -290,8 +295,5 @@
     "allowed-tools: Bash(openspec:*) is narrower than the git/npm commands the same skills mandate \u2014 upstream's, arrived with 1.10.0.",
     "c403 scope reduced: .devin/ is not an undecided artifact \u2014 it is the renamed Windsurf tree, tracked in c401."
   ],
-  "blockedChanges": [
-    "change-drift-402-entity-mgmt-submodule (PR #22)",
-    "change-drift-405-reinstall-verify (depends on c402)"
-  ]
+  "blockedChanges": []
 }
