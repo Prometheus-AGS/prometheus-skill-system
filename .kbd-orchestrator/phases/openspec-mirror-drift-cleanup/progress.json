@@ -1,6 +1,6 @@
 {
   "phase": "openspec-mirror-drift-cleanup",
-  "status": "execution_ready",
+  "status": "executing",
   "previousPhase": null,
   "seededFrom": {
     "manualEntry": true,
@@ -86,42 +86,71 @@
       "status": "pending",
       "implementation_status": "PENDING",
       "backend": "openspec",
-      "sequence": 1
+      "sequence": 1,
+      "title": "Adopt the OpenSpec 1.10.0 harness upgrade",
+      "dependsOn": [],
+      "specPath": "openspec/changes/change-drift-400-openspec-110-upgrade/"
     },
     {
       "id": "change-drift-401-windsurf-harness",
       "status": "pending",
       "implementation_status": "PENDING",
       "backend": "openspec",
-      "sequence": 2
+      "sequence": 2,
+      "title": "Decide .windsurf/skills \u2014 regenerate or retire",
+      "dependsOn": [],
+      "specPath": "openspec/changes/change-drift-401-windsurf-harness/",
+      "blockingDecision": "1.1 \u2014 regenerate .windsurf/skills, or retire Windsurf and remove skill-system.json:144?"
     },
     {
       "id": "change-drift-402-entity-mgmt-submodule",
       "status": "pending",
       "implementation_status": "PENDING",
       "backend": "openspec",
-      "sequence": 3
+      "sequence": 3,
+      "title": "Decide the entity-management submodule pin",
+      "dependsOn": [],
+      "specPath": "openspec/changes/change-drift-402-entity-mgmt-submodule/",
+      "blockingDecision": "1.1 \u2014 publish-and-pin (needs the submodule owner) or restore the pin? Task 1.0 re-measures first: the facts moved twice during planning."
     },
     {
       "id": "change-drift-403-routine-artifacts",
       "status": "pending",
       "implementation_status": "PENDING",
       "backend": "openspec",
-      "sequence": 4
+      "sequence": 4,
+      "title": "Session logs, .devin/, .openspec-target (C-02 scan)",
+      "dependsOn": [],
+      "specPath": "openspec/changes/change-drift-403-routine-artifacts/",
+      "blockingDecision": "1.3/1.4 \u2014 .devin/ and .openspec-target: tracked or ignored?"
     },
     {
       "id": "change-drift-404-harness-completeness",
       "status": "pending",
       "implementation_status": "PENDING",
       "backend": "openspec",
-      "sequence": 5
+      "sequence": 5,
+      "title": "Prevention: normalizer + per-harness completeness",
+      "dependsOn": [
+        "change-drift-400-openspec-110-upgrade",
+        "change-drift-401-windsurf-harness",
+        "change-drift-402-entity-mgmt-submodule",
+        "change-drift-403-routine-artifacts"
+      ],
+      "specPath": "openspec/changes/change-drift-404-harness-completeness/",
+      "blockingDecision": "1.0 \u2014 does this repo need a normalizer at all, having no internal:true invariant?"
     },
     {
       "id": "change-drift-405-reinstall-verify",
       "status": "pending",
       "implementation_status": "PENDING",
       "backend": "openspec",
-      "sequence": 6
+      "sequence": 6,
+      "title": "Land, reinstall, verify on the installed surface",
+      "dependsOn": [
+        "change-drift-404-harness-completeness"
+      ],
+      "specPath": "openspec/changes/change-drift-405-reinstall-verify/"
     }
   ],
   "deviations": [],
@@ -155,5 +184,17 @@
       "suggestion": 3
     },
     "allApplied": true
-  }
+  },
+  "execution_dispatched": true,
+  "executionPath": ".kbd-orchestrator/phases/openspec-mirror-drift-cleanup/execution.md",
+  "runtimeMode": {
+    "mode": "live-runtime-signer-not-enrolled",
+    "note": "Unlike the HMA repo (legacy mode), this repository has a live runtime. Typed registration fails with 'event signer ed25519:e7016c63... is not enrolled'. `prometheus kbd` exposes no enrollment subcommand, and enrolling a signing identity is an authorization boundary, not a workaround. progress.json is canonical for this phase. `prometheus kbd status` still points at a stale completed run (docusaurus-github-pages-site-...)."
+  },
+  "executionPreconditions": [
+    "98 dirty files, md5 71445c7240ee3b3c359371cf7435781b \u2014 unchanged since the phase opened; the tree is the input",
+    "update-skill-pack.sh calls require_clean_source 5 times; commit between stages or a later check aborts",
+    "It runs git pull --ff-only, so c405 must execute on main (local 6de8181 vs origin c0d2de1)",
+    "The submodule's pointer and worktree state moved twice during planning \u2014 c402 task 1.0 re-measures"
+  ]
 }

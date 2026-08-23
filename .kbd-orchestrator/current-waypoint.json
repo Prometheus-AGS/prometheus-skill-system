@@ -14,15 +14,15 @@
   "phase": "openspec-mirror-drift-cleanup",
   "childPointer": null,
   "change": "change-drift-400-openspec-110-upgrade",
-  "currentTask": null,
-  "status": "execution_ready",
+  "currentTask": "c400 task 1.1 — verify the 30 command/workflow files carry the same upgrade",
+  "status": "executing",
   "completionMetric": "implementation",
   "implementationCompleted": 0,
   "implementationTotal": 6,
   "planRevision": 2,
   "revision": 4,
-  "exactNextCommand": "/kbd-execute openspec-mirror-drift-cleanup",
-  "updatedAt": "2026-08-23T14:02:00Z",
+  "exactNextCommand": "/kbd-apply openspec-mirror-drift-cleanup change-drift-400-openspec-110-upgrade",
+  "updatedAt": "2026-08-23T14:33:26Z",
   "previousPhase": "kimi-desktop-extensibility",
   "nextPendingChange": "change-drift-400-openspec-110-upgrade",
   "parentPhase": null,
@@ -31,6 +31,6 @@
   "publicationStatus": "NOT_TRACKED",
   "changesCompleted": 0,
   "changesTotal": 6,
-  "stage": "plan_complete",
-  "nextCommand": "/kbd-execute openspec-mirror-drift-cleanup"
+  "stage": "executing",
+  "nextCommand": "/kbd-apply openspec-mirror-drift-cleanup change-drift-400-openspec-110-upgrade"
 }
