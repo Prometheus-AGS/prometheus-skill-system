@@ -20,10 +20,26 @@ Patterns: `sk-[A-Za-z0-9_-]{16,}`, `api[_-]?key`, `bearer <token>`, `token=`,
 **Result: 0 files with hits.**
 
 **POSITIVE CONTROL (required — c301's lesson).** A scan that only ever passes
-proves nothing. The same pattern was run against a synthetic file carrying one
-planted secret per class; it matched **5/5**. The zero-hit result is therefore
-meaningful rather than vacuous. Had the control failed, the scan would have been
-treated as not-run.
+proves nothing. Round 1 of this control exercised only 5 of the 8 documented
+pattern classes and was recorded as "5/5" — the adversarial judge (k3) caught the
+inconsistency between the 8-class pattern list and the 5-case control. **Corrected
+and re-run at full coverage: 8/8**, one planted secret per class —
+
+| # | class | result |
+|---|---|---|
+| 1 | `sk-…` provider key | MATCH |
+| 2 | `api[_-]?key` | MATCH |
+| 3 | `bearer <token>` | MATCH |
+| 4 | `token=` | MATCH |
+| 5 | `secret[_-]?key` | MATCH |
+| 6 | `ghp_…` GitHub PAT | MATCH |
+| 7 | `AKIA…` AWS key id | MATCH |
+| 8 | `-----BEGIN … PRIVATE KEY` | MATCH |
+
+A ninth, deliberately innocent line was **not** matched, so the pattern is not
+merely matching everything. The zero-hit result on the real candidate set is
+therefore meaningful in both directions. Had the control failed, the scan would
+have been treated as not-run.
 
 **Manual read.** Both untracked session records were read in full (58 lines each).
 Content is a PR-merge narrative — SHAs, file paths, gate names. No credentials.
@@ -95,3 +111,44 @@ would mean reimplementing OpenSpec's tool-selection state. Not worth it for a
 directory carrying a marker, which is correct — the other five roots
 (`.claude`, `.codex`, `.kimi-code`, `.opencode`, `.devin`) are single-tool, and
 `writeSharedSkillTarget()` returns early when `sharingRoot.length < 2`.
+
+## D-10 — Adversarial review (cross-model, two rounds)
+
+Judge `k3` vs producer `claude-opus-5`, `cross_model_check: verified-distinct`,
+gateway `http://localhost:4000/v1` — a real cross-model review, live since the
+PR #55 resolver fix.
+
+**Round 1: BLOCK, 2 CRITICAL + 2 WARNING — against a packet this session built
+wrong.** The round-1 `git show` passed the same sha twice (a literal `dcfeb92`
+plus a subshell resolving to `dcfeb92`) and applied a pathspec, so the docs commit
+`1005a1f` was absent and `dcfeb92`'s file list was filtered. The judge correctly
+reported that the two session records did not appear in the diff. Ground truth,
+re-verified: both are tracked in `dcfeb92`, and `git status --porcelain --
+.prometheus` is empty. **The finding was right about the packet and wrong about
+the tree, and the packet was my error, not the judge's.**
+
+**Round 2 on the corrected packet (both commits, unfiltered): PASS, 2 WARNING.**
+Anti-theater gate: `PASS (score=0.0, strictness=strict)`.
+
+Disposition:
+
+| # | Finding | Disposition |
+|---|---|---|
+| F1 | session records absent from diff | **Packet defect, fixed.** Tree was always correct. |
+| F2 | duplicate records committed knowingly | **Rejected — wrong venue.** See below. |
+| F3 | `created_at` rewritten 08-07 → 08-20 | **Real, upstream.** Arrived from pk; this change only staged it. OKF v0.1 states no `created_at` immutability rule. |
+| F4 | packet diff source unreliable | **Upheld.** c400 defect, second concrete instance. |
+| F5 | control listed 8 classes, exercised 5 | **Upheld and fixed** — now 8/8 (D-7). |
+
+**Why F2 was rejected rather than fixed.** The judge proposed deleting one record
+plus its index/log lines, calling it "a one-file delete, not a follow-up project."
+That is wrong *here* because those files are not this repo's to edit. CLAUDE.md
+records an ownership split decided 2026-07-01: `index.md`/`log.md` maintenance,
+body cross-links, and Citations are owned by **`pk-librarian` in
+`prometheus-knowledge-rs`**. The duplicate is a pk *ingest* defect — session
+`9db42325` emitted twice, 4 seconds apart. Hand-deleting here would edit another
+repo's artifacts and would likely be re-emitted on the next pk run.
+
+Scope check before rejecting: **176 karpathy records, ZERO body-identical
+duplicate groups.** This is a one-off, not rot. Correct venue is a
+prometheus-knowledge-rs issue; recorded as phase debt.

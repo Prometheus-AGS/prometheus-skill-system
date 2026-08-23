@@ -1,0 +1,31 @@
+{
+  "mode": "diff",
+  "verdict": "PASS",
+  "judge_model": "k3",
+  "producer_model": "claude-opus-5",
+  "isolation_mode": "rest-gateway:http://localhost:8181/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "WARNING",
+      "file": "scripts/build-review-packet.sh",
+      "line": 196,
+      "claim": "The review-packet builder still uses `git diff HEAD`, which produces an empty diff for already-committed work and can silently omit the changes under review.",
+      "evidence": "Packet `diff_source` states: \"Root cause of the empty-diff class remains build-review-packet.sh's `git diff HEAD` (c400 defect, unfixed).\" The producer correction also identifies `build-review-packet.sh:196` as the source.",
+      "suggested_fix": "Build packets from the target commit range, e.g. `git show --stat --patch <sha>` for single commits or `git diff <base>..<head>`, and fail if the requested committed target yields an empty diff unexpectedly."
+    },
+    {
+      "severity": "WARNING",
+      "file": "openspec/changes/change-drift-403-routine-artifacts/design.md",
+      "line": 17,
+      "claim": "The recorded C-02 positive control is internally inconsistent because it lists eight secret-pattern classes but claims only a 5/5 control with one planted secret per class.",
+      "evidence": "D-7 lists patterns for `sk-`, `api[_-]?key`, `bearer <token>`, `token=`, `secret[_-]?key`, `ghp_\u2026`, `AKIA\u2026`, and private keys, then states: \"one planted secret per class; it matched 5/5.\" Acceptance criteria 1.1 and 2.1 require the positive control to prove the scan pattern fires.",
+      "suggested_fix": "Either add positive-control fixtures for every listed pattern class and record the matching count accordingly, or narrow the documented pattern list to the five classes actually controlled."
+    }
+  ],
+  "sycophancy_screen": {
+    "reject_cap": 2,
+    "cap_overridden": false,
+    "cap_default": 2
+  }
+}
