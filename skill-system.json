@@ -61,7 +61,7 @@
       "id": "prometheus-entity-management",
       "path": "skills/imported/prometheus-entity-management",
       "repository": "https://github.com/Prometheus-AGS/prometheus-entity-management.git",
-      "commit": "de8fabd8eef5fae26ab70ccb45572472954ba7cf",
+      "commit": "6c0e9051c6faa0873767ba51e1eed342a37b5145",
       "requiredFor": ["full"],
       "distributed": false
     },
