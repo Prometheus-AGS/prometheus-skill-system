@@ -15,14 +15,14 @@
   "childPointer": null,
   "change": null,
   "currentTask": null,
-  "status": "assessment_ready",
+  "status": "plan_ready",
   "completionMetric": "implementation",
   "implementationCompleted": 0,
   "implementationTotal": 0,
   "planRevision": 2,
   "revision": 4,
-  "exactNextCommand": "/kbd-assess openspec-mirror-drift-cleanup",
-  "updatedAt": "2026-08-23T12:37:13Z",
+  "exactNextCommand": "/kbd-plan openspec-mirror-drift-cleanup",
+  "updatedAt": "2026-08-23T12:45:27Z",
   "previousPhase": "kimi-desktop-extensibility",
   "nextPendingChange": null,
   "parentPhase": null,
@@ -31,6 +31,6 @@
   "publicationStatus": "NOT_TRACKED",
   "changesCompleted": 0,
   "changesTotal": 0,
-  "stage": "assessment_ready",
-  "nextCommand": "/kbd-assess openspec-mirror-drift-cleanup"
+  "stage": "assessment_complete",
+  "nextCommand": "/kbd-plan openspec-mirror-drift-cleanup"
 }
