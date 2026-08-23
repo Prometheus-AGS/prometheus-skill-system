@@ -1,0 +1,57 @@
+{
+  "mode": "diff",
+  "verdict": "BLOCK",
+  "judge_model": "k3",
+  "producer_model": "claude-opus-5",
+  "isolation_mode": "rest-gateway:http://localhost:4000/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": "skills/imported/prometheus-entity-management",
+      "claim": "Submodule pointer is committed in a dirty state (`04a945e...-dirty`), recording a tree that does not exist upstream and cannot be checked out cleanly by anyone else.",
+      "evidence": "Diff hunk: `-Subproject commit 1c40eaa08da210cbe3e20a77c5db211712b5c3a1` / `+Subproject commit 04a945e5078a68e79f11c4bf4d44b2a38917112d-dirty`. The `-dirty` suffix means the submodule had uncommitted local changes when the parent repo staged it.",
+      "suggested_fix": "Commit/clean the submodule's working tree, push it, then re-stage the clean commit pointer; or revert the submodule pointer entirely since it is out of scope for this change."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": ".windsurf/skills/openspec-apply-change/SKILL.md",
+      "claim": "The change contains 16 file deletions under `.windsurf/`, violating acceptance criterion 1.2 ('Confirm no file outside .agent/.agents/.cursor/.opencode is in this change') and 2.1 ('zero modified files under the four harness trees' scope).",
+      "evidence": "Diff deletes `.windsurf/skills/openspec-*/SKILL.md` (8 files) and `.windsurf/workflows/opsx-*.md` (8 files). `.windsurf` is not one of the four harness trees named in criteria 1.2/2.1 or in 'What Changes' ('40 SKILL.md mirrors + 30 command/workflow files across .agent, .agents, .cursor, .opencode').",
+      "suggested_fix": "Split the `.windsurf` deletions into their own change with its own justification, or revert them; the deletion of the entire vendored OpenSpec Windsurf surface is a separate decision from the 1.3.1\u21921.10.0 mirror upgrade."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": ".prometheus/knowledge/wiki/index.md",
+      "claim": "The change includes edits to `.prometheus/knowledge/wiki/` (index.md, log.md, and a timestamp rewrite of kimi-desktop-extensibility-executor-completion-unknown-change.md), which are outside the declared scope and violate criterion 1.2.",
+      "evidence": "Criteria 1.2/2.1 restrict the change to `.agent/.agents/.cursor/.opencode`; the diff's first three hunks touch only `.prometheus/knowledge/wiki/*`, none of which is a harness mirror tree.",
+      "suggested_fix": "Remove the wiki churn from this commit; it is autonomous agent bookkeeping unrelated to the OpenSpec 1.10.0 mirror adoption."
+    },
+    {
+      "severity": "CRITICAL",
+      "claim": "The diff contains none of the 70 files the change exists to adopt \u2014 zero files under `.agent/`, `.agents/`, `.cursor/`, or `.opencode` are modified, so the stated purpose (generatedBy 1.3.1\u21921.10.0 upgrade adoption) is not implemented at all.",
+      "evidence": "'What Changes': 'Adopt 70 modified files: 40 SKILL.md mirrors + 30 command/workflow files across .agent, .agents, .cursor, .opencode.' The diff's only skill/workflow content is deletions in `.windsurf/` still stamped `generatedBy: \"1.3.1\"`; no added/modified file carries 1.10.0 content, `--store`, `allowed-tools`, or schemas/view features, so criteria 1.1, 1.3, and 2.2 cannot be satisfied by this diff.",
+      "suggested_fix": "Include the actual 70 upgraded mirror files from the four harness trees in this commit, or re-scope the change description to match what is actually being committed."
+    },
+    {
+      "severity": "CRITICAL",
+      "claim": "Deleting the Windsurf OpenSpec skills/workflows outright is a regression of the harness surface with no replacement, contradicting the change's stated intent of *upgrading* vendored trees.",
+      "evidence": "All 16 `.windsurf` hunks are `deleted file mode 100644` with no corresponding additions. The phase target is 'change-drift-400-openspec-110-upgrade' and 'Why' says 'An openspec update rewrote the vendored harness trees... Adopting it deliberately' \u2014 deletion is not adoption, and nothing in the acceptance criteria authorizes removing the Windsurf mirror.",
+      "suggested_fix": "If the Windsurf mirror should track 1.10.0, regenerate it via the openspec update path; if Windsurf support is being dropped, that decision needs its own change and documentation."
+    },
+    {
+      "severity": "WARNING",
+      "file": ".prometheus/knowledge/wiki/index.md",
+      "claim": "New index/log entries link to `karpathy-session-3841ee7d13011f2c.md` and `karpathy-session-3c67e1717b254152.md`, but those files are not added anywhere in the diff, leaving dangling wiki links.",
+      "evidence": "index.md adds `* [Karpathy session 3841ee7d1301](/karpathy-session-3841ee7d13011f2c.md)` and `* [Karpathy session 3c67e1717b25](/karpathy-session-3c67e1717b254152.md)`; log.md adds matching Ingest entries; no `diff --git` for either target file exists in the packet.",
+      "suggested_fix": "Either include the session files in the commit or drop the index/log entries."
+    },
+    {
+      "severity": "WARNING",
+      "file": ".prometheus/knowledge/wiki/log.md",
+      "claim": "log.md records '**Creation**: Kimi Desktop Extensibility Executor Completion, Unknown Change' but the diff shows that file already existed (index db0394e) and was only re-timestamped \u2014 the log entry misdescribes the event.",
+      "evidence": "The hunk for `kimi-desktop-extensibility-executor-completion-unknown-change.md` is a modification (`index db0394e..08bafbe 100644`) changing only timestamps and one sentence, while log.md lists it as a new Creation under 2026-08-20.",
+      "suggested_fix": "Correct the log entry to reflect an update, or revert the cosmetic timestamp churn."
+    }
+  ]
+}
