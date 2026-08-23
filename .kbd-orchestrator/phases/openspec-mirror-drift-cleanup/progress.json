@@ -1,0 +1,58 @@
+{
+  "phase": "openspec-mirror-drift-cleanup",
+  "status": "assessment_ready",
+  "previousPhase": null,
+  "seededFrom": {
+    "manualEntry": true,
+    "createdBy": "session following PR #55 (c0d2de1)",
+    "trigger": "update-skill-pack.sh refuses a dirty source tree; 98 uncommitted files block the reinstall that would ship the merged preflight-models.sh fix",
+    "relatedWork": {
+      "repo": "hybrid-mobile-architecture-src",
+      "phase": "hma-companion-consumer-integration",
+      "change": "c300-openspec-mirror-repair",
+      "note": "Same external cause (openspec update rewriting vendored mirrors), DIFFERENT local impact: HMA enforces metadata.internal: true so its gate went red; this repo has no such check, so its mirrors are merely stale."
+    },
+    "gitCommit": "9b328ad"
+  },
+  "startedAt": "2026-08-23T12:36:06Z",
+  "startedBy": "travis (via session)",
+  "activeChange": null,
+  "implementation_total": 0,
+  "implementation_completed": 0,
+  "changes_total": 0,
+  "changes_completed": 0,
+  "completedChanges": 0,
+  "totalChanges": 0,
+  "assessment_complete": false,
+  "plan_complete": false,
+  "execute_complete": false,
+  "reflect_complete": false,
+  "assessmentMethod": {
+    "adversarialReview": true,
+    "crossModelAvailable": true,
+    "note": "Cross-model judging works as of PR #55: judge k3 vs producer claude-opus-5, verified-distinct, gateway http://localhost:4000/v1. Requires CLAUDE_PLUGIN_ROOT exported until goal 6 reinstalls the fixed script."
+  },
+  "workingTreeInventory": {
+    "totalDirty": 98,
+    "concerns": [
+      {"id": "A", "kind": "mechanical", "files": 70, "detail": "OpenSpec mirror churn, generatedBy 1.3.1 -> 1.10.0, across .agent (20), .agents (10), .cursor (20), .opencode (20)"},
+      {"id": "B", "kind": "decision", "files": 20, "detail": ".windsurf/skills deleted entirely (0 dirs on disk, 1 at HEAD); .windsurf/workflows survives. Is Windsurf still a supported harness?"},
+      {"id": "C", "kind": "decision", "files": 1, "detail": "submodule skills/imported/prometheus-entity-management 1c40eaa..55dc8dc — four upstream release-gate commits"},
+      {"id": "-", "kind": "routine", "files": 7, "detail": "3 modified .prometheus session logs, 4 untracked (.devin/, .agents/skills/.openspec-target, 2 karpathy-session wiki files)"}
+    ]
+  },
+  "keyFinding": "The tree is three unrelated concerns, not one drift. Committing them together would bury two real decisions (Windsurf support, submodule adoption) inside a mechanical version bump.",
+  "completion": {
+    "primaryCounter": "implementation",
+    "implementation": {"completed": 0, "total": 0, "status": "NOT_STARTED"},
+    "evidence": {"status": "PENDING", "blockers": [], "gates": []},
+    "certification": {"status": "PENDING", "blockers": [], "note": "Local-only. No CI."}
+  },
+  "changes": [],
+  "deviations": [],
+  "out_of_scope": [
+    "The preflight-models.sh fix itself — merged as c0d2de1 (PR #55).",
+    "The HMA repo — clean at 1d26aa6, unaffected.",
+    "prometheus-companion."
+  ]
+}
