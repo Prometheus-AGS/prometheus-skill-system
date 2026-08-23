@@ -336,16 +336,21 @@ install_cowork() {
     if [ -d "${cli_dir}" ]; then
         # Path A — source build
         info "Building cowork from source (tools/cowork-skills)..."
-        if ! $DRY_RUN; then
-            (cd "${cli_dir}" && cargo build --release 2>&1 | tail -3)
-        else
+        if $DRY_RUN; then
             info "[dry-run] would run cargo build --release in ${cli_dir}"
+            return
+        elif (cd "${cli_dir}" && cargo build --release 2>&1 | tail -3); then
+            if [ -x "${cli_dir}/target/release/cowork" ] && [ -x "${cli_dir}/target/release/co" ]; then
+                install_bin "${cli_dir}/target/release/cowork" "${BIN_DIR}/cowork"
+                install_bin "${cli_dir}/target/release/co"     "${BIN_DIR}/co"
+                ok "cowork → ${BIN_DIR}/cowork"
+                ok "co     → ${BIN_DIR}/co"
+                return
+            fi
+            fail "cowork source build completed without both binaries; falling through to release download"
+        else
+            fail "cowork source build failed; falling through to release download"
         fi
-        install_bin "${cli_dir}/target/release/cowork" "${BIN_DIR}/cowork"
-        install_bin "${cli_dir}/target/release/co"     "${BIN_DIR}/co"
-        ok "cowork → ${BIN_DIR}/cowork"
-        ok "co     → ${BIN_DIR}/co"
-        return
     fi
 
     # Path B — download from GitHub Releases
@@ -417,15 +422,17 @@ install_dsg() {
     if [ -f "${dsg_dir}/Cargo.toml" ]; then
         # Path A — source build
         info "Building dsg from source (tools/disk-space-guardian)..."
-        (cd "${dsg_dir}" && cargo build --release 2>&1 | tail -3)
-        local dsg_bin
-        dsg_bin="$(find "${dsg_dir}/target/release" -maxdepth 1 -name "dsg" -type f 2>/dev/null | head -1)"
-        if [ -n "${dsg_bin}" ]; then
-            install_bin "${dsg_bin}" "${BIN_DIR}/dsg"
-            ok "dsg → ${BIN_DIR}/dsg"
-            return
-        else
+        if (cd "${dsg_dir}" && cargo build --release 2>&1 | tail -3); then
+            local dsg_bin
+            dsg_bin="$(find "${dsg_dir}/target/release" -maxdepth 1 -name "dsg" -type f 2>/dev/null | head -1)"
+            if [ -n "${dsg_bin}" ]; then
+                install_bin "${dsg_bin}" "${BIN_DIR}/dsg"
+                ok "dsg → ${BIN_DIR}/dsg"
+                return
+            fi
             fail "dsg binary not found after source build; falling through to download"
+        else
+            fail "dsg source build failed; falling through to download"
         fi
     fi
 

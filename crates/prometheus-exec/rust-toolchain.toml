@@ -8,11 +8,12 @@
 # this file existed — a default nightly produced a hash the committed pin could
 # never match, blocking install on a correctly-built binary.
 #
-# stable is sufficient: the crate declares rust-version = "1.94" and neither it
-# nor the substrate/exec-* crates use any nightly-only feature.
+# Pin an exact stable release. A floating `stable` channel advances whenever
+# rustup updates it, changing the release binary while the committed hash stays
+# fixed and making a clean install fail despite unchanged source.
 #
 # Changing this channel changes the binary hash. Rebuild and update
 # expectedBuildSha256 in config/prometheus-exec-binary.json in the same commit.
 [toolchain]
-channel = "stable"
+channel = "1.97.1"
 components = ["rustfmt", "clippy"]
