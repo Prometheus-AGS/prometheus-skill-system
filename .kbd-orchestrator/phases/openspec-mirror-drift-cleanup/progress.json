@@ -1,6 +1,6 @@
 {
   "phase": "openspec-mirror-drift-cleanup",
-  "status": "plan_ready",
+  "status": "execution_ready",
   "previousPhase": null,
   "seededFrom": {
     "manualEntry": true,
@@ -16,15 +16,15 @@
   },
   "startedAt": "2026-08-23T12:36:06Z",
   "startedBy": "travis (via session)",
-  "activeChange": null,
-  "implementation_total": 0,
+  "activeChange": "change-drift-400-openspec-110-upgrade",
+  "implementation_total": 6,
   "implementation_completed": 0,
-  "changes_total": 0,
+  "changes_total": 6,
   "changes_completed": 0,
   "completedChanges": 0,
-  "totalChanges": 0,
+  "totalChanges": 6,
   "assessment_complete": true,
-  "plan_complete": false,
+  "plan_complete": true,
   "execute_complete": false,
   "reflect_complete": false,
   "assessmentMethod": {
@@ -66,8 +66,8 @@
     "primaryCounter": "implementation",
     "implementation": {
       "completed": 0,
-      "total": 0,
-      "status": "NOT_STARTED"
+      "total": 6,
+      "status": "IN_PROGRESS"
     },
     "evidence": {
       "status": "PENDING",
@@ -80,7 +80,50 @@
       "note": "Local-only. No CI."
     }
   },
-  "changes": [],
+  "changes": [
+    {
+      "id": "change-drift-400-openspec-110-upgrade",
+      "status": "pending",
+      "implementation_status": "PENDING",
+      "backend": "openspec",
+      "sequence": 1
+    },
+    {
+      "id": "change-drift-401-windsurf-harness",
+      "status": "pending",
+      "implementation_status": "PENDING",
+      "backend": "openspec",
+      "sequence": 2
+    },
+    {
+      "id": "change-drift-402-entity-mgmt-submodule",
+      "status": "pending",
+      "implementation_status": "PENDING",
+      "backend": "openspec",
+      "sequence": 3
+    },
+    {
+      "id": "change-drift-403-routine-artifacts",
+      "status": "pending",
+      "implementation_status": "PENDING",
+      "backend": "openspec",
+      "sequence": 4
+    },
+    {
+      "id": "change-drift-404-harness-completeness",
+      "status": "pending",
+      "implementation_status": "PENDING",
+      "backend": "openspec",
+      "sequence": 5
+    },
+    {
+      "id": "change-drift-405-reinstall-verify",
+      "status": "pending",
+      "implementation_status": "PENDING",
+      "backend": "openspec",
+      "sequence": 6
+    }
+  ],
   "deviations": [],
   "out_of_scope": [
     "The preflight-models.sh fix itself \u2014 merged as c0d2de1 (PR #55).",
@@ -97,6 +140,19 @@
       "critical": 0,
       "warning": 3,
       "suggestion": 1
+    },
+    "allApplied": true
+  },
+  "planPath": ".kbd-orchestrator/phases/openspec-mirror-drift-cleanup/plan.md",
+  "backend": "openspec",
+  "planReview": {
+    "verdict": "BLOCK -> resolved",
+    "judge": "k3",
+    "crossModel": "verified-distinct",
+    "findings": {
+      "critical": 1,
+      "warning": 2,
+      "suggestion": 3
     },
     "allApplied": true
   }

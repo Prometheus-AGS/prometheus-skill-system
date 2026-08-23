@@ -1,0 +1,52 @@
+{
+  "mode": "artifact",
+  "verdict": "BLOCK",
+  "judge_model": "k3",
+  "producer_model": "claude-opus-5",
+  "isolation_mode": "rest-gateway:http://localhost:4000/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": "plan.md",
+      "claim": "c402 acceptance bullets contradict each other: under option B the submodule's 52 dirty files are left untouched, yet `git status --porcelain` on the submodule path is required to be empty.",
+      "evidence": "Acceptance: '`git status --porcelain -- skills/imported/prometheus-entity-management` is empty' AND 'The submodule's own 52 dirty files are **not** touched by this change'. `git checkout -- <submodule>` restores only the parent's pointer; the submodule worktree still has 52 dirty files, and `git status --porcelain` reports a submodule with modified tracked content as dirty (e.g. ` m path`) even when the pointer matches. Under option B the empty-porcelain criterion is therefore likely unachievable as written, blocking execute or forcing silent relaxation of the criterion.",
+      "suggested_fix": "Either scope the porcelain check to the pointer only (e.g. `git diff HEAD --submodule=short -- <path>` empty, or `git status --porcelain --ignore-submodules=dirty -- <path>`), or add a task under option B to commit/stash/clean the submodule's 52 dirty files with an explicit decision recorded."
+    },
+    {
+      "severity": "WARNING",
+      "file": "plan.md",
+      "claim": "c400's commit-message requirement drops the `generatedBy` version bump that goal 2 explicitly mandates.",
+      "evidence": "Goal 2: 'Commit concern A as its own change, with the `generatedBy` version bump stated in the message so the next reader knows an external tool wrote it'. c400 acceptance requires only 'The commit body names `--store`, `allowed-tools`, `schemas`/`view`' \u2014 no criterion or task mentions the 1.3.1 \u2192 1.10.0 `generatedBy` bump.",
+      "suggested_fix": "Add to c400 acceptance: 'Commit message states the `generatedBy` bump 1.3.1 \u2192 1.10.0 and attributes the diff to `openspec update`.'"
+    },
+    {
+      "severity": "WARNING",
+      "file": "plan.md",
+      "claim": "c401 option B removes `skill-system.json:144` but assigns no task to check or regenerate the artifacts/scripts that consume `skill-system.json`.",
+      "evidence": "The file tree contains `scripts/generate-skill-system-distribution.js`, `scripts/install-system.js`, `scripts/skill-matrix.js`, and c404 itself plans to derive the harness list by 'reading that file'. c401's tasks cover only the decision and reference-grep; nothing verifies that removing the windsurf entry leaves generated distribution output and installers consistent \u2014 the same drift class this phase exists to clean up.",
+      "suggested_fix": "Add a c401 task: enumerate consumers of `skill-system.json` (at minimum the generator and install scripts), run/regenerate as needed, and assert `git status` clean afterwards."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "plan.md",
+      "claim": "c401 cites C-03 as the reason `skill-system.json:144` must be removed under option B, but C-03 governs Codex plugin surface docs, not Windsurf harness state.",
+      "evidence": "Constraints: 'C-03 \u2014 A change that alters the Codex plugin surface (manifest fields, marketplace schema, MCP servers, hooks, install flow) must update `docs/codex-plugin.md`'. c401 states 'or the manifest keeps promising a tree that will not exist (**C-03**)'. The consistency argument is valid; the constraint citation is not.",
+      "suggested_fix": "Justify the manifest edit on internal-consistency grounds and separately note which docs (e.g. README/CLAUDE.md harness lists) need updating if Windsurf is retired."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "plan.md",
+      "claim": "c405's sequence omits the push step that `git pull --ff-only` presupposes.",
+      "evidence": "Step 1: 'Land c400\u2013c404 to `main` (local `main` is `6de8181`; `origin/main` is `c0d2de1`)' followed by step 2: '`git checkout main && git pull --ff-only`'. A fast-forward pull only brings local main up to origin; if the six changes were landed locally, nothing reaches origin without an explicit push, and the later acceptance '`git ls-remote` confirms `main` carries all six changes' would fail.",
+      "suggested_fix": "Insert an explicit `git push origin main` (or PR-merge step) between landing and the ff-only pull."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "plan.md",
+      "claim": "c405 acceptance says ls-remote must confirm 'all six changes', but c405 is itself the landing/verification change and may have nothing of its own on main.",
+      "evidence": "c405 tasks are checkout, pull, reinstall, verify \u2014 no commit-producing task is listed; acceptance: '`git ls-remote` confirms `main` carries all six changes'. If c405 lands no commits, the criterion as written can never pass.",
+      "suggested_fix": "Reword to 'main carries c400\u2013c404 plus any c405 change artifacts', or explicitly state what c405 commits (e.g. its OpenSpec change folder and delta)."
+    }
+  ]
+}
