@@ -1,0 +1,38 @@
+{
+  "mode": "artifact",
+  "verdict": "PASS",
+  "judge_model": "k3",
+  "producer_model": "claude-opus-5",
+  "isolation_mode": "rest-gateway:http://localhost:4000/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "WARNING",
+      "file": "assessment.md",
+      "claim": "Goal 5 asks for a normalizer plus a per-harness completeness assertion, but the recommended change set silently drops the normalizer and only proposes the assertion.",
+      "evidence": "Goals #5: \"A normalizer plus a per-harness completeness assertion stops `openspec update` from silently dropping a whole tree.\" Assessment \u00a74 c404: \"Prevention: per-harness completeness assertion, so a tree cannot vanish unnoticed\" \u2014 and \u00a75's open question scopes only the assertion (\"assert only that declared harnesses are non-empty, or full per-harness expected counts\"), with no explanation for dropping the normalizer half of the goal.",
+      "suggested_fix": "Either include the normalizer in c404's scope or explicitly state in \u00a74/\u00a75 why the normalizer component is rejected or deferred (e.g., no contract check exists here to normalize for), so the plan stage does not have to guess."
+    },
+    {
+      "severity": "WARNING",
+      "file": "assessment.md",
+      "claim": "Goal 6's second acceptance criterion \u2014 a run through `~/.claude/skills/...` reporting `status: ok` without `CLAUDE_PLUGIN_ROOT` exported \u2014 is absent from the recommended change set.",
+      "evidence": "Goals #6: \"Then reinstall and verify the live installed `preflight-models.sh` contains `resolver_missing`, and that a run through `~/.claude/skills/...` reports `status: ok` without `CLAUDE_PLUGIN_ROOT` exported.\" Assessment \u00a74 c405 covers only the first half: \"Land to `main`, `update-skill-pack.sh`, verify `resolver_missing` is live.\" The integration-level check that reproduces the original failure condition (no `CLAUDE_PLUGIN_ROOT`) is never carried into any recommended change.",
+      "suggested_fix": "Extend c405 to include the installed-surface run without `CLAUDE_PLUGIN_ROOT` asserting `status: ok`, since that is the end-to-end proof the phase exists to deliver."
+    },
+    {
+      "severity": "WARNING",
+      "file": "assessment.md",
+      "claim": "The assessment asserts a \"standing authorization to always commit `.prometheus/` session logs\" that appears nowhere in the goals, constraints, or prior handoffs, and blanket-committing logs could conflict with constraint C-02.",
+      "evidence": "Assessment \u00a72 Routine: \"The standing authorization to always commit `.prometheus/` session logs applies.\" No such authorization is stated in `goals` or `constraints`; meanwhile C-02 requires \"No API keys, tokens, or passwords in tracked files,\" and session logs are exactly the class of artifact that can capture secret values without review.",
+      "suggested_fix": "Cite the source of the standing authorization or downgrade it to a proposal; in either case require a secrets scan of the 3 session-log files before committing, per C-02."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "assessment.md",
+      "claim": "The diff stat for concern A covers `.opencode` broadly, but `.opencode` also contains non-mirror files (package.json, package-lock.json, plugin.ts, tsconfig.json), so the \"70 files are all OpenSpec mirror\" characterization is not established by the quoted command.",
+      "evidence": "Assessment \u00a71.1 quotes `git diff --stat -- .agent .agents .cursor .opencode` \u2192 \"70 files changed\" and concludes all 70 are the mirror upgrade, but the file tree shows `./.opencode/package.json`, `./.opencode/plugin.ts`, `./.opencode/tools`, etc. Only one example file (`.cursor/skills/openspec-explore/SKILL.md`) was actually inspected line-by-line; the composition of the other 69 files is inferred.",
+      "suggested_fix": "List the 70 changed paths (or at least the non-`skills/` subset under `.opencode`) so c400's \"adopt the mirror upgrade\" commit does not silently sweep in unrelated tool artifacts."
+    }
+  ]
+}

@@ -77,7 +77,7 @@
     "build:codex": "node scripts/generate-skill-system-distribution.js",
     "validate:codex": "node scripts/generate-skill-system-distribution.js --check",
     "build:distribution": "node scripts/generate-skill-system-distribution.js",
-    "check:distribution": "node scripts/generate-skill-system-distribution.js --check && node scripts/tests/skill-system-distribution.test.mjs",
+    "check:distribution": "node scripts/generate-skill-system-distribution.js --check && node scripts/tests/source-tree-lifecycle.test.mjs && node scripts/tests/skill-system-distribution.test.mjs",
     "generate:skills-index": "node scripts/generate-skills-index.js",
     "check:skills-index": "node scripts/generate-skills-index.js --check",
     "verify:skills": "node scripts/verify-skill-install.js",

@@ -1,0 +1,32 @@
+{
+  "mode": "diff",
+  "verdict": "PASS",
+  "judge_model": "k3",
+  "producer_model": "claude-opus-5",
+  "isolation_mode": "rest-gateway:http://localhost:4000/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "WARNING",
+      "file": ".agent/skills/openspec-archive-change/SKILL.md",
+      "line": 4,
+      "claim": "The declared `allowed-tools: Bash(openspec:*)` pattern does not cover the non-openspec Bash commands the same files mandate, so any harness that enforces the allowlist will block or prompt on the skill's own required steps.",
+      "evidence": "Frontmatter adds `allowed-tools: Bash(openspec:*)`, yet step 5 instructs `mkdir -p \"<planningHome.changesDir>/archive\"` and `mv \"<changeRoot>\" \"<planningHome.changesDir>/archive/<target-name>\"`; the same mismatch exists in openspec-bulk-archive-change step 8c (`mkdir -p` / `mv`). Neither `mkdir` nor `mv` matches `Bash(openspec:*)`.",
+      "suggested_fix": "Extend the key to cover the mandated commands (e.g. `allowed-tools: Bash(openspec:*), Bash(mkdir:*), Bash(mv:*)`) or document explicitly that the target harnesses (.agent/.cursor/.opencode/.agents) treat allowed-tools as advisory metadata rather than an enforced boundary."
+    },
+    {
+      "severity": "WARNING",
+      "file": ".agent/skills/openspec-apply-change/SKILL.md",
+      "claim": "Acceptance criterion 1.1's conditional branch (\"if they differ in kind, split them out and record the finding\") is only partially satisfied: the commit itself states the 30 command/workflow files differ in kind from the skills, yet they were deliberately kept in the same commit with no split.",
+      "evidence": "Criterion 1.1: \"Verify the 30 command/workflow files carry the same upgrade as the skills; if they differ in kind, split them out and record the finding\". Commit body: \"they are a different artifact shape: no generatedBy and no allowed-tools, with name/id/category frontmatter instead. Same generator run, different file kind \u2014 so they stay in one change\". The finding was recorded (design.md D-1) but the split the criterion's conditional prescribes was not performed; the author reinterpreted \"differ in kind\" to mean upgrade content rather than artifact kind.",
+      "suggested_fix": "Either split the 30 command/workflow files into a second commit as the criterion literally directs, or amend criterion 1.1 in the change artifacts to state that \"differ in kind\" refers to the upgrade payload, not file shape, so the recorded interpretation is auditable."
+    },
+    {
+      "severity": "WARNING",
+      "file": ".agent/skills/openspec-continue-change/SKILL.md",
+      "claim": "The scope and constraint assertions backing blocking criteria 1.2 and 2.4 (and the 40-mirror generatedBy bump behind 1.3/2.2) are verifiable from the packet for only 3 of the 70 files; the remaining 67 files' paths and content rest solely on commit-message claims.",
+      "evidence": "The diff is cut off mid-hunk of the third file: \"diff --git a/.agent/skills/openspec-continue-change/SKILL.md b/.age [TRUNCATED \u2014 690398 bytes, capped at 40000]\". Claims \"Scope is exactly the four harness trees\" and \"no .claude-plugin/*, .mcp.json, hooks/hooks.json or build-codex-plugin.js is in this change\" cannot be checked against the actual file list because no diff-stat or name-only listing of the 70 files is included. C-01 is a blocking constraint whose non-trigger is asserted, not shown.",
+      "suggested_fix": "Include `git show --stat` or `--name-only` output for the full 70-file commit in the review packet so the four-tree scope and the absence of C-01 sources are independently checkable rather than self-attested."
+    }
+  ]
+}

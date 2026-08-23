@@ -19,10 +19,14 @@ npm run validate:codex    # CI guard: fails if artifacts are stale or invalid (n
 ```
 
 `build:codex` is idempotent (byte-stable). `validate:codex` (`--check`) detects
-drift and validates required fields + `./`-in-root paths. It runs in CI
-(`.github/workflows/validate.yml`) so stale/invalid committed artifacts fail the
-build, and `npx tsx scripts/install-platforms.ts` regenerates the artifacts as
-part of installing the `codex` platform.
+drift and validates required fields + `./`-in-root paths. This is a mandatory
+local gate; hosted workflows do not build or validate the package.
+
+Every target in `skill-system.json` also declares `sourceTreeLifecycle`.
+Repository-owned harness mirrors are `required` and must be present and
+populated. Destinations materialized only during installation are
+`install-only` and may be absent from the source checkout. The shared contract
+loader enforces this before distribution generation or installation begins.
 
 ### Distribution & env
 

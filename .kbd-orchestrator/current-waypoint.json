@@ -5,32 +5,32 @@
   "projectId": "6ac090a4-3656-4d83-8eb6-2891508196d5",
   "runId": "docusaurus-github-pages-site-20260729T012334Z",
   "path": [
-    "docusaurus-github-pages-site"
+    "openspec-mirror-drift-cleanup"
   ],
   "phaseIds": [
-    "docusaurus-github-pages-site"
+    "openspec-mirror-drift-cleanup"
   ],
-  "activePhaseId": "docusaurus-github-pages-site",
-  "phase": "kimi-desktop-extensibility",
+  "activePhaseId": "openspec-mirror-drift-cleanup",
+  "phase": "openspec-mirror-drift-cleanup",
   "childPointer": null,
-  "change": "change-exec-002-tier-p-sidecar",
-  "currentTask": "implement Tier P sandboxing, artifact CAS, grants, and sidecar service",
+  "change": "change-drift-405-reinstall-verify",
+  "currentTask": "c405 — merge, reinstall, and verify the installed surfaces",
   "status": "executing",
   "completionMetric": "implementation",
   "implementationCompleted": 5,
-  "implementationTotal": 5,
+  "implementationTotal": 6,
   "planRevision": 2,
   "revision": 4,
-  "exactNextCommand": "/kbd-execute prometheus-exec-code-execution-engine",
-  "updatedAt": "2026-08-05T20:00:35Z",
-  "previousPhase": "docusaurus-github-pages-site",
-  "nextPendingChange": "change-exec-002-tier-p-sidecar",
+  "exactNextCommand": "/kbd-apply openspec-mirror-drift-cleanup change-drift-405-reinstall-verify",
+  "updatedAt": "2026-08-23T18:35:00Z",
+  "previousPhase": "kimi-desktop-extensibility",
+  "nextPendingChange": "change-drift-405-reinstall-verify",
   "parentPhase": null,
   "childPhases": [],
   "certificationStatus": "NOT_TRACKED",
   "publicationStatus": "NOT_TRACKED",
-  "changesCompleted": 1,
-  "changesTotal": 4,
-  "stage": "reflect_complete",
-  "nextCommand": "/kbd-next-phase"
+  "changesCompleted": 5,
+  "changesTotal": 6,
+  "stage": "executing",
+  "nextCommand": "/kbd-apply openspec-mirror-drift-cleanup change-drift-405-reinstall-verify"
 }

@@ -16,9 +16,9 @@ links:
 - kimi-desktop-extensibility-executor-complete-unknown-change
 sources:
 - stdin
-timestamp: 2026-08-07T13:47:48.798338+00:00
-created_at: 2026-08-07T13:47:48.797429+00:00
-updated_at: 2026-08-07T13:47:48.798338+00:00
+timestamp: 2026-08-20T12:04:03.575952+00:00
+created_at: 2026-08-20T12:04:03.575377+00:00
+updated_at: 2026-08-20T12:04:03.575952+00:00
 revision: 1
 ---
 
@@ -34,7 +34,7 @@ An executor session completed for the `kimi-desktop-extensibility` phase.
 executor session complete | phase: kimi-desktop-extensibility | change: unknown
 ```
 
-This entry is equivalent to existing records for the same phase and change classification, including [Kimi Desktop Extensibility Executor Completion Status](/kimi-desktop-extensibility-executor-completion-status.md), [Kimi Desktop Extensibility Executor Session Complete](/kimi-desktop-extensibility-executor-session-complete.md), [Kimi Desktop Extensibility Executor Completed With Unknown Change](/kimi-desktop-extensibility-executor-completed-with-unknown-change.md), [Kimi Desktop Extensibility Executor Complete Status](/kimi-desktop-extensibility-executor-complete-status.md), and [Kimi Desktop Extensibility Executor Complete, Unknown Change](/kimi-desktop-extensibility-executor-complete-unknown-change.md).
+This record is equivalent to existing completion records for the same phase and change classification, including [Kimi Desktop Extensibility Executor Completion Status](/kimi-desktop-extensibility-executor-completion-status.md), [Kimi Desktop Extensibility Executor Session Complete](/kimi-desktop-extensibility-executor-session-complete.md), [Kimi Desktop Extensibility Executor Completed With Unknown Change](/kimi-desktop-extensibility-executor-completed-with-unknown-change.md), [Kimi Desktop Extensibility Executor Complete Status](/kimi-desktop-extensibility-executor-complete-status.md), and [Kimi Desktop Extensibility Executor Complete, Unknown Change](/kimi-desktop-extensibility-executor-complete-unknown-change.md).
 
 # Citations
 

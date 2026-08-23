@@ -79,7 +79,7 @@
       "skills": "./skills",
       "source": {
         "repo": "GQAdonis/artifact-refiner-skill",
-        "sha": "dbc49d78748005177626b559a931d16864f1c9a4",
+        "sha": "45bba081ac1dcdc896f090e7e4bd23e38294bfb1",
         "source": "github"
       },
       "strict": false

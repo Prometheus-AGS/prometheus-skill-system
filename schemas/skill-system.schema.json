@@ -15,11 +15,12 @@
       "minItems": 1,
       "items": {
         "type": "object",
-        "required": ["id", "path", "mode", "detect"],
+        "required": ["id", "path", "mode", "sourceTreeLifecycle", "detect"],
         "properties": {
           "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$" },
           "path": { "type": "string", "pattern": "^\\.[^/]" },
           "mode": { "enum": ["copy", "symlink"] },
+          "sourceTreeLifecycle": { "enum": ["required", "install-only"] },
           "detect": { "type": "array", "items": { "type": "string" } }
         },
         "additionalProperties": false

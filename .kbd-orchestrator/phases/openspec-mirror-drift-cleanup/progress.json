@@ -1,0 +1,299 @@
+{
+  "phase": "openspec-mirror-drift-cleanup",
+  "status": "executing",
+  "previousPhase": null,
+  "seededFrom": {
+    "manualEntry": true,
+    "createdBy": "session following PR #55 (c0d2de1)",
+    "trigger": "update-skill-pack.sh refuses a dirty source tree; 98 uncommitted files block the reinstall that would ship the merged preflight-models.sh fix",
+    "relatedWork": {
+      "repo": "hybrid-mobile-architecture-src",
+      "phase": "hma-companion-consumer-integration",
+      "change": "c300-openspec-mirror-repair",
+      "note": "Same external cause (openspec update rewriting vendored mirrors), DIFFERENT local impact: HMA enforces metadata.internal: true so its gate went red; this repo has no such check, so its mirrors are merely stale."
+    },
+    "gitCommit": "9b328ad"
+  },
+  "startedAt": "2026-08-23T12:36:06Z",
+  "startedBy": "travis (via session)",
+  "activeChange": null,
+  "implementation_total": 6,
+  "implementation_completed": 2,
+  "changes_total": 6,
+  "changes_completed": 2,
+  "completedChanges": 2,
+  "totalChanges": 6,
+  "assessment_complete": true,
+  "plan_complete": true,
+  "execute_complete": false,
+  "reflect_complete": false,
+  "assessmentMethod": {
+    "adversarialReview": true,
+    "crossModelAvailable": true,
+    "note": "Cross-model judging works as of PR #55: judge k3 vs producer claude-opus-5, verified-distinct, gateway http://localhost:4000/v1. Requires CLAUDE_PLUGIN_ROOT exported until goal 6 reinstalls the fixed script."
+  },
+  "workingTreeInventory": {
+    "totalDirty": 98,
+    "concerns": [
+      {
+        "id": "A",
+        "kind": "mechanical",
+        "files": 70,
+        "detail": "OpenSpec mirror churn, generatedBy 1.3.1 -> 1.10.0, across .agent (20), .agents (10), .cursor (20), .opencode (20)"
+      },
+      {
+        "id": "B",
+        "kind": "decision",
+        "files": 20,
+        "detail": ".windsurf/skills deleted entirely (0 dirs on disk, 1 at HEAD); .windsurf/workflows survives. Is Windsurf still a supported harness?"
+      },
+      {
+        "id": "C",
+        "kind": "decision",
+        "files": 1,
+        "detail": "submodule skills/imported/prometheus-entity-management 1c40eaa..55dc8dc \u2014 four upstream release-gate commits"
+      },
+      {
+        "id": "-",
+        "kind": "routine",
+        "files": 7,
+        "detail": "3 modified .prometheus session logs, 4 untracked (.devin/, .agents/skills/.openspec-target, 2 karpathy-session wiki files)"
+      }
+    ]
+  },
+  "keyFinding": "The tree is three unrelated concerns, not one drift. Committing them together would bury two real decisions (Windsurf support, submodule adoption) inside a mechanical version bump.",
+  "completion": {
+    "primaryCounter": "implementation",
+    "implementation": {
+      "completed": 3,
+      "total": 6,
+      "status": "IN_PROGRESS"
+    },
+    "evidence": {
+      "status": "PENDING",
+      "blockers": [],
+      "gates": []
+    },
+    "certification": {
+      "status": "PENDING",
+      "blockers": [],
+      "note": "Local-only. No CI."
+    }
+  },
+  "changes": [
+    {
+      "id": "change-drift-400-openspec-110-upgrade",
+      "status": "merged",
+      "implementation_status": "COMPLETE",
+      "backend": "openspec",
+      "sequence": 1,
+      "title": "Adopt the OpenSpec 1.10.0 harness upgrade",
+      "dependsOn": [],
+      "specPath": "openspec/changes/change-drift-400-openspec-110-upgrade/",
+      "certification_status": "VERIFIED",
+      "commit": "1d9608f",
+      "reviewCommit": "db0ebff",
+      "archived": true,
+      "promotedSpec": "openspec/specs/harness-mirror-currency/",
+      "tasks_total": 7,
+      "tasks_complete": 7,
+      "finding": "Task 1.1 measured: the 30 command/workflow files DO carry the same upgrade but are a different artifact shape (no generatedBy, no allowed-tools). Version claim scoped to the 40 skills.",
+      "qa": {
+        "gates": "C-01 asserted \u2014 no C-01 source in the change",
+        "adversarialReview": {
+          "verdict": "PASS",
+          "judge": "k3",
+          "crossModel": "verified-distinct",
+          "findings": {
+            "critical": 0,
+            "warning": 3
+          },
+          "toolingDefect": "First packet was built with `git diff HEAD` and captured the UNCOMMITTED c401/c402 remainder, producing 5 CRITICALs about files not in this change. Preserved as findings.stale-packet.json; re-dispatched against `git show`."
+        }
+      }
+    },
+    {
+      "id": "change-drift-401-windsurf-harness",
+      "status": "merged",
+      "implementation_status": "COMPLETE",
+      "backend": "openspec",
+      "sequence": 2,
+      "title": "Decide .windsurf/skills \u2014 regenerate or retire",
+      "dependsOn": [],
+      "specPath": "openspec/changes/change-drift-401-windsurf-harness/",
+      "blockingDecision": "1.1 \u2014 regenerate .windsurf/skills, or retire Windsurf and remove skill-system.json:144?",
+      "certification_status": "VERIFIED",
+      "commit": "086e92b",
+      "reviewCommit": "4eb43cd",
+      "archived": true,
+      "promotedSpec": "openspec/specs/harness-declaration-integrity/",
+      "tasks_total": 9,
+      "tasks_complete": 9,
+      "decision": "OPTION C \u2014 accept the rename (user, 2026-08-23). Neither plan option fit: OpenSpec 1.10.0 renamed windsurf->devin ('Also accepted: windsurf (now devin)'), .devin/ holds an identical 10-skill set, and git detects the 10 opsx-* workflow moves as renames. Option A was impossible; option B would have discarded a live harness.",
+      "kept": "The 9 KBD-authored .windsurf/workflows (kbd-assess, kbd-plan, ...). OpenSpec never owned them.",
+      "qa": {
+        "adversarialReview": {
+          "verdict": "BLOCK -> resolved",
+          "judge": "k3",
+          "crossModel": "verified-distinct",
+          "findings": {
+            "critical": 3,
+            "warning": 2
+          },
+          "headline": "All 3 criticals were about BOOKKEEPING: five criteria marked [x] that were not satisfied as written. The work stood; the ledger misrepresented it. Third instance across two repos after HMA c302/c304.",
+          "allApplied": true
+        }
+      }
+    },
+    {
+      "id": "change-drift-402-entity-mgmt-submodule",
+      "status": "verified",
+      "implementation_status": "COMPLETE",
+      "backend": "openspec",
+      "sequence": 3,
+      "title": "Decide the entity-management submodule pin",
+      "dependsOn": [],
+      "specPath": "openspec/changes/change-drift-402-entity-mgmt-submodule/",
+      "blockingDecision": "1.1 \u2014 publish-and-pin (needs the submodule owner) or restore the pin? Task 1.0 re-measures first: the facts moved twice during planning.",
+      "certification_status": "PASS",
+      "commit": "de8fabd",
+      "tasks_total": 8,
+      "tasks_complete": 8,
+      "decision": "PUBLISH (owner, 2026-08-23) \u2014 they own every submodule, so publish the work rather than rewind a checkout holding 27 commits. Option B was also mechanically impossible: git derives the pointer diff from the checkout.",
+      "shipped": {
+        "repo": "Prometheus-AGS/prometheus-entity-management",
+        "pr": 22,
+        "branch": "main-takeover-kimi",
+        "head": "a08ee67",
+        "commits": 27,
+        "newCommits": [
+          "1f3a427 stable-promotion authority boundary (was uncommitted)",
+          "a08ee67 the wiring, added by a concurrent session mid-change"
+        ]
+      },
+      "blockedOn": null,
+      "resolution": "PR #22 merged to authoritative main; PR #24 then separated stable direct publication from RC staging. Parent pin and import metadata now resolve to de8fabd.",
+      "hazards": [
+        "A concurrent session was editing the file live (mtime 69s, diff grew 4->7 lines). Sampled 55s + node --check before committing; authorship stated in the messages.",
+        "First commit landed on a DETACHED HEAD and would have been unreachable. Caught, verified strict ancestry, fast-forwarded the branch.",
+        "HTTPS push rejected for lack of `workflow` scope; pushed over SSH like the parent. Stored remote unchanged."
+      ]
+    },
+    {
+      "id": "change-drift-403-routine-artifacts",
+      "status": "verified",
+      "implementation_status": "COMPLETE",
+      "backend": "openspec",
+      "sequence": 4,
+      "title": "Session logs, .devin/, .openspec-target (C-02 scan)",
+      "dependsOn": [],
+      "specPath": "openspec/changes/change-drift-403-routine-artifacts/",
+      "blockingDecision": "1.3/1.4 \u2014 .devin/ and .openspec-target: tracked or ignored?",
+      "certification_status": "PASS",
+      "tasks_total": 7,
+      "tasks_complete": 7,
+      "commits": [
+        "dcfeb92",
+        "1005a1f",
+        "a6e3c93"
+      ],
+      "review": {
+        "judge": "k3",
+        "producer": "claude-opus-5",
+        "cross_model_check": "verified-distinct",
+        "rounds": 2,
+        "round1": "BLOCK (2 CRITICAL/2 WARNING) against a packet the producer built wrong",
+        "round2": "PASS (2 WARNING)",
+        "anti_theater": "PASS score=0.0 strictness=strict"
+      },
+      "decisions": {
+        ".devin/": "TRACKED (already implemented by c401)",
+        ".agents/skills/.openspec-target": "TRACKED, outside C-01 \u2014 OpenSpec shared-root ownership marker"
+      },
+      "c02_scan": "re-run 2026-08-23, 0 hits, 8/8 positive control + negative line"
+    },
+    {
+      "id": "change-drift-404-harness-completeness",
+      "status": "verified",
+      "implementation_status": "COMPLETE",
+      "backend": "openspec",
+      "sequence": 5,
+      "title": "Prevention: normalizer + per-harness completeness",
+      "dependsOn": [
+        "change-drift-400-openspec-110-upgrade",
+        "change-drift-401-windsurf-harness",
+        "change-drift-402-entity-mgmt-submodule",
+        "change-drift-403-routine-artifacts"
+      ],
+      "specPath": "openspec/changes/change-drift-404-harness-completeness/",
+      "blockingDecision": null,
+      "certification_status": "PASS",
+      "tasks_total": 10,
+      "tasks_complete": 10,
+      "resolution": "Every target declares required or install-only lifecycle metadata. The shared contract loader rejects omitted policies and missing or empty required trees; fixture validation is read-only and idempotent. No normalizer is needed because no generated target-tree invariant exists."
+    },
+    {
+      "id": "change-drift-405-reinstall-verify",
+      "status": "pending",
+      "implementation_status": "PENDING",
+      "backend": "openspec",
+      "sequence": 6,
+      "title": "Land, reinstall, verify on the installed surface",
+      "dependsOn": [
+        "change-drift-404-harness-completeness"
+      ],
+      "specPath": "openspec/changes/change-drift-405-reinstall-verify/"
+    }
+  ],
+  "deviations": [],
+  "out_of_scope": [
+    "The preflight-models.sh fix itself \u2014 merged as c0d2de1 (PR #55).",
+    "The HMA repo \u2014 clean at 1d26aa6, unaffected.",
+    "prometheus-companion."
+  ],
+  "assessmentPath": ".kbd-orchestrator/phases/openspec-mirror-drift-cleanup/assessment.md",
+  "adversarialReview": {
+    "verdict": "PASS",
+    "judge": "k3",
+    "producer": "claude-opus-5",
+    "crossModel": "verified-distinct",
+    "findings": {
+      "critical": 0,
+      "warning": 3,
+      "suggestion": 1
+    },
+    "allApplied": true
+  },
+  "planPath": ".kbd-orchestrator/phases/openspec-mirror-drift-cleanup/plan.md",
+  "backend": "openspec",
+  "planReview": {
+    "verdict": "BLOCK -> resolved",
+    "judge": "k3",
+    "crossModel": "verified-distinct",
+    "findings": {
+      "critical": 1,
+      "warning": 2,
+      "suggestion": 3
+    },
+    "allApplied": true
+  },
+  "execution_dispatched": true,
+  "executionPath": ".kbd-orchestrator/phases/openspec-mirror-drift-cleanup/execution.md",
+  "runtimeMode": {
+    "mode": "live-runtime-signer-not-enrolled",
+    "note": "Unlike the HMA repo (legacy mode), this repository has a live runtime. Typed registration fails with 'event signer ed25519:e7016c63... is not enrolled'. `prometheus kbd` exposes no enrollment subcommand, and enrolling a signing identity is an authorization boundary, not a workaround. progress.json is canonical for this phase. `prometheus kbd status` still points at a stale completed run (docusaurus-github-pages-site-...)."
+  },
+  "executionPreconditions": [
+    "98 dirty files, md5 71445c7240ee3b3c359371cf7435781b \u2014 unchanged since the phase opened; the tree is the input",
+    "update-skill-pack.sh calls require_clean_source 5 times; commit between stages or a later check aborts",
+    "It runs git pull --ff-only, so c405 must execute on main (local 6de8181 vs origin c0d2de1)",
+    "The submodule's pointer and worktree state moved twice during planning \u2014 c402 task 1.0 re-measures"
+  ],
+  "debtFound": [
+    "validate:codex (C-01 Codex distribution gate) fails on a PRISTINE tree: 'generated output is stale: dist/plugins/claude/prometheus-skill-pack'. Pre-existing, not caused by c400. c401 option B may collide with it.",
+    "build-review-packet.sh:196 uses `git diff HEAD`, so a change reviewed after being committed is invisible to the packet. Will mislead every commit-then-review flow.",
+    "allowed-tools: Bash(openspec:*) is narrower than the git/npm commands the same skills mandate \u2014 upstream's, arrived with 1.10.0.",
+    "c403 scope reduced: .devin/ is not an undecided artifact \u2014 it is the renamed Windsurf tree, tracked in c401."
+  ],
+  "blockedChanges": []
+}

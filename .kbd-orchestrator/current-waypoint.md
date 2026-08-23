@@ -1,12 +1,13 @@
 # Current KBD Waypoint
 
-- Phase: `prometheus-exec-code-execution-engine`
+- Phase: `openspec-mirror-drift-cleanup`
 - Status: executing
-- Completed implementation changes: 1 of 4
-- Next change: `change-exec-002-tier-p-sidecar`
-- Re-entry: `/kbd-execute prometheus-exec-code-execution-engine`
-- Source baseline: `fa7cae63b114a43283e672b3006f1a3a6a81acd2`
+- Completed implementation changes: 5 of 6
+- Next change: `change-drift-405-reinstall-verify`
+- Re-entry: `/kbd-apply openspec-mirror-drift-cleanup change-drift-405-reinstall-verify`
+- Source baseline: `c0d2de16c5b8836870099fce4603131ab192bf85`
 
-The portable contracts, algorithm-agile signatures, offline verifier, and
-receipt-segment format are complete. Tier P now builds on that fixed evidence
-boundary; Wasmtime 46 remains the canonical component-host line for Tier W.
+The OpenSpec mirror upgrade, Devin rename, entity-management convergence,
+routine-artifact classification, and explicit source-tree lifecycle gate are
+complete. The remaining change merges the clean integration branch, reinstalls
+the generated surfaces and changed services, and verifies the installed state.
