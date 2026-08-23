@@ -16,12 +16,12 @@
   },
   "startedAt": "2026-08-23T12:36:06Z",
   "startedBy": "travis (via session)",
-  "activeChange": "change-drift-400-openspec-110-upgrade",
+  "activeChange": null,
   "implementation_total": 6,
-  "implementation_completed": 0,
+  "implementation_completed": 1,
   "changes_total": 6,
-  "changes_completed": 0,
-  "completedChanges": 0,
+  "changes_completed": 1,
+  "completedChanges": 1,
   "totalChanges": 6,
   "assessment_complete": true,
   "plan_complete": true,
@@ -65,7 +65,7 @@
   "completion": {
     "primaryCounter": "implementation",
     "implementation": {
-      "completed": 0,
+      "completed": 1,
       "total": 6,
       "status": "IN_PROGRESS"
     },
@@ -83,13 +83,34 @@
   "changes": [
     {
       "id": "change-drift-400-openspec-110-upgrade",
-      "status": "pending",
-      "implementation_status": "PENDING",
+      "status": "merged",
+      "implementation_status": "COMPLETE",
       "backend": "openspec",
       "sequence": 1,
       "title": "Adopt the OpenSpec 1.10.0 harness upgrade",
       "dependsOn": [],
-      "specPath": "openspec/changes/change-drift-400-openspec-110-upgrade/"
+      "specPath": "openspec/changes/change-drift-400-openspec-110-upgrade/",
+      "certification_status": "VERIFIED",
+      "commit": "1d9608f",
+      "reviewCommit": "db0ebff",
+      "archived": true,
+      "promotedSpec": "openspec/specs/harness-mirror-currency/",
+      "tasks_total": 7,
+      "tasks_complete": 7,
+      "finding": "Task 1.1 measured: the 30 command/workflow files DO carry the same upgrade but are a different artifact shape (no generatedBy, no allowed-tools). Version claim scoped to the 40 skills.",
+      "qa": {
+        "gates": "C-01 asserted \u2014 no C-01 source in the change",
+        "adversarialReview": {
+          "verdict": "PASS",
+          "judge": "k3",
+          "crossModel": "verified-distinct",
+          "findings": {
+            "critical": 0,
+            "warning": 3
+          },
+          "toolingDefect": "First packet was built with `git diff HEAD` and captured the UNCOMMITTED c401/c402 remainder, producing 5 CRITICALs about files not in this change. Preserved as findings.stale-packet.json; re-dispatched against `git show`."
+        }
+      }
     },
     {
       "id": "change-drift-401-windsurf-harness",
@@ -196,5 +217,10 @@
     "update-skill-pack.sh calls require_clean_source 5 times; commit between stages or a later check aborts",
     "It runs git pull --ff-only, so c405 must execute on main (local 6de8181 vs origin c0d2de1)",
     "The submodule's pointer and worktree state moved twice during planning \u2014 c402 task 1.0 re-measures"
+  ],
+  "debtFound": [
+    "validate:codex (C-01 Codex distribution gate) fails on a PRISTINE tree: 'generated output is stale: dist/plugins/claude/prometheus-skill-pack'. Pre-existing, not caused by c400. c401 option B may collide with it.",
+    "build-review-packet.sh:196 uses `git diff HEAD`, so a change reviewed after being committed is invisible to the packet. Will mislead every commit-then-review flow.",
+    "allowed-tools: Bash(openspec:*) is narrower than the git/npm commands the same skills mandate \u2014 upstream's, arrived with 1.10.0."
   ]
 }
