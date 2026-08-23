@@ -122,3 +122,40 @@ unreviewed fix into it. Carried to reflection with c400's D-2.
 `docs/UPDATE_CONSIDERATIONS.md`. They describe **Windsurf-the-product's own**
 directory convention, cite external sources, and are accurate as written. They
 are not references to this repository's tree and are correctly left alone.
+
+## D-6 · Adversarial review: the ledger was dishonest, the work was not
+
+Judge `k3`, `verified-distinct`. **BLOCK — 3 CRITICAL, 2 WARNING.** All three
+criticals were correct and all are about **bookkeeping**, not implementation.
+
+I marked five criteria `[x]` that were not satisfied as written:
+
+| Criterion | What I claimed | What happened |
+|---|---|---|
+| 1.2A regenerate `.windsurf/skills` | done | **impossible** — `init --tools windsurf` does not recreate it |
+| 1.2B remove `skill-system.json:144` | done | **retargeted**, not removed |
+| 1.3B re-run three named consumers | done | **none of the three reads the file** |
+| 2.4 distribution regenerated, no drift | done | **reverted**; the gate fails on a pristine tree |
+| 2.5 `.windsurf/workflows` (19) untouched | done | **10 of 19 moved** to `.devin` |
+
+Every one is now struck through with what actually occurred. The underlying work
+stands — the rename is real, git detects it independently, and the 9 KBD
+workflows the criterion existed to protect are untouched. What was wrong is that
+a reader of `tasks.md` alone would have been misled.
+
+This is the third instance of the same defect across two repositories: HMA's
+c302 (task 1.3 annotated honestly while siblings 2.2/2.3 stayed checked) and
+c304 (a spec delta asserting a `SHALL` that was false on landing). **When a
+criterion cannot be met as written, the criterion must be amended — checking it
+and explaining in prose elsewhere is not equivalent.**
+
+### The two warnings
+
+- **2.3 rests on author judgment** — literal `.windsurf/skills` strings remain in
+  `docs/deep-research/**`. Accepted: they cite external sources about
+  Windsurf-the-product and are accurate. The criterion should have said "no
+  unresolved references *to this repository's tree*". Recorded, not hidden.
+- **C-01 cannot pass after this change** — true, and it could not pass before it
+  either. `validate:codex` fails on a pristine tree (c400 D-2). Deferring is the
+  honest option; fixing it here would smuggle an unreviewed regeneration into a
+  rename change.
