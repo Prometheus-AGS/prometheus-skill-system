@@ -18,10 +18,10 @@
   "startedBy": "travis (via session)",
   "activeChange": null,
   "implementation_total": 6,
-  "implementation_completed": 1,
+  "implementation_completed": 2,
   "changes_total": 6,
-  "changes_completed": 1,
-  "completedChanges": 1,
+  "changes_completed": 2,
+  "completedChanges": 2,
   "totalChanges": 6,
   "assessment_complete": true,
   "plan_complete": true,
@@ -65,7 +65,7 @@
   "completion": {
     "primaryCounter": "implementation",
     "implementation": {
-      "completed": 1,
+      "completed": 2,
       "total": 6,
       "status": "IN_PROGRESS"
     },
@@ -114,14 +114,36 @@
     },
     {
       "id": "change-drift-401-windsurf-harness",
-      "status": "pending",
-      "implementation_status": "PENDING",
+      "status": "merged",
+      "implementation_status": "COMPLETE",
       "backend": "openspec",
       "sequence": 2,
       "title": "Decide .windsurf/skills \u2014 regenerate or retire",
       "dependsOn": [],
       "specPath": "openspec/changes/change-drift-401-windsurf-harness/",
-      "blockingDecision": "1.1 \u2014 regenerate .windsurf/skills, or retire Windsurf and remove skill-system.json:144?"
+      "blockingDecision": "1.1 \u2014 regenerate .windsurf/skills, or retire Windsurf and remove skill-system.json:144?",
+      "certification_status": "VERIFIED",
+      "commit": "086e92b",
+      "reviewCommit": "4eb43cd",
+      "archived": true,
+      "promotedSpec": "openspec/specs/harness-declaration-integrity/",
+      "tasks_total": 9,
+      "tasks_complete": 9,
+      "decision": "OPTION C \u2014 accept the rename (user, 2026-08-23). Neither plan option fit: OpenSpec 1.10.0 renamed windsurf->devin ('Also accepted: windsurf (now devin)'), .devin/ holds an identical 10-skill set, and git detects the 10 opsx-* workflow moves as renames. Option A was impossible; option B would have discarded a live harness.",
+      "kept": "The 9 KBD-authored .windsurf/workflows (kbd-assess, kbd-plan, ...). OpenSpec never owned them.",
+      "qa": {
+        "adversarialReview": {
+          "verdict": "BLOCK -> resolved",
+          "judge": "k3",
+          "crossModel": "verified-distinct",
+          "findings": {
+            "critical": 3,
+            "warning": 2
+          },
+          "headline": "All 3 criticals were about BOOKKEEPING: five criteria marked [x] that were not satisfied as written. The work stood; the ledger misrepresented it. Third instance across two repos after HMA c302/c304.",
+          "allApplied": true
+        }
+      }
     },
     {
       "id": "change-drift-402-entity-mgmt-submodule",
@@ -221,6 +243,7 @@
   "debtFound": [
     "validate:codex (C-01 Codex distribution gate) fails on a PRISTINE tree: 'generated output is stale: dist/plugins/claude/prometheus-skill-pack'. Pre-existing, not caused by c400. c401 option B may collide with it.",
     "build-review-packet.sh:196 uses `git diff HEAD`, so a change reviewed after being committed is invisible to the packet. Will mislead every commit-then-review flow.",
-    "allowed-tools: Bash(openspec:*) is narrower than the git/npm commands the same skills mandate \u2014 upstream's, arrived with 1.10.0."
+    "allowed-tools: Bash(openspec:*) is narrower than the git/npm commands the same skills mandate \u2014 upstream's, arrived with 1.10.0.",
+    "c403 scope reduced: .devin/ is not an undecided artifact \u2014 it is the renamed Windsurf tree, tracked in c401."
   ]
 }
