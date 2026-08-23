@@ -41,16 +41,52 @@ CACHE=""
 CONFIG="${LITER_LLM_CONFIG:-$HOME/.config/liter-llm/liter-llm-proxy.toml}"
 
 # Role resolution comes from the shared library so precedence lives in one place.
+#
+# The library is found by walking UP from this script until `shared/scripts/lib/`
+# appears, rather than by a fixed number of `../`. The depth differs between the
+# two layouts this script ships in:
+#
+#   source    skills/process/adversarial-review/scripts  -> 4 levels to the root
+#   installed skills/adversarial-review/scripts          -> 3 levels (install
+#                                                           flattens `process/`)
+#
+# A hardcoded `../../../../` is correct in the source tree and silently wrong in
+# the installed one, where it resolves to `generations/shared/...` — a path that
+# does not exist. The lookup then fell through, RESOLVE_LIB stayed empty, and the
+# preflight reported `no_gateway`: it never learned the gateway candidates or the
+# Bearer token, so every review in a whole KBD phase ran same-model while the
+# operator chased a nonexistent expired credential. Walking up cannot be wrong
+# about the depth, and survives any future change to the installed layout.
 RESOLVE_LIB=""
-for _cand_lib in \
-  "$(cd "$(dirname "$0")" && pwd)/../../../../shared/scripts/lib/kbd-model-resolve.sh" \
-  "${CLAUDE_PLUGIN_ROOT:-}/shared/scripts/lib/kbd-model-resolve.sh" \
-  "${PLUGIN_ROOT:-}/shared/scripts/lib/kbd-model-resolve.sh"; do
-  if [ -n "$_cand_lib" ] && [ -f "$_cand_lib" ]; then RESOLVE_LIB="$_cand_lib"; break; fi
+_lib_dir="$(cd "$(dirname "$0")" && pwd -P)"
+while [ "$_lib_dir" != "/" ]; do
+  if [ -f "$_lib_dir/shared/scripts/lib/kbd-model-resolve.sh" ]; then
+    RESOLVE_LIB="$_lib_dir/shared/scripts/lib/kbd-model-resolve.sh"
+    break
+  fi
+  _lib_dir="$(dirname "$_lib_dir")"
 done
+if [ -z "$RESOLVE_LIB" ]; then
+  # Explicit roots, for layouts the walk cannot reach (e.g. a consumer that
+  # copies the script elsewhere and points these at the pack).
+  for _cand_lib in \
+    "${CLAUDE_PLUGIN_ROOT:-}/shared/scripts/lib/kbd-model-resolve.sh" \
+    "${PLUGIN_ROOT:-}/shared/scripts/lib/kbd-model-resolve.sh"; do
+    if [ -n "$_cand_lib" ] && [ -f "$_cand_lib" ]; then RESOLVE_LIB="$_cand_lib"; break; fi
+  done
+fi
+unset _lib_dir
 if [ -n "$RESOLVE_LIB" ]; then
   # shellcheck source=/dev/null
   . "$RESOLVE_LIB"
+else
+  # Distinguish "the resolver is missing" from "the gateway is down". Both used
+  # to surface as `no_gateway`, which sent the operator to the wrong repair. This
+  # warns and continues rather than exiting: no caller branches on `no_gateway`
+  # today (checked), but preflight is advisory by contract and must never block
+  # a phase.
+  printf '[preflight] WARN resolver_missing: kbd-model-resolve.sh not found by upward walk from %s, nor at ${CLAUDE_PLUGIN_ROOT}/${PLUGIN_ROOT}. Role and gateway resolution are UNAVAILABLE — a subsequent "no_gateway" is a lookup failure, not necessarily a down gateway.\n' \
+    "$(cd "$(dirname "$0")" && pwd -P)" >&2
 fi
 
 # Resolve the three roles up front so the report can state, per role, both the
