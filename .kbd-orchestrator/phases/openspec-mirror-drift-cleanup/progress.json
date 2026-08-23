@@ -1,6 +1,6 @@
 {
   "phase": "openspec-mirror-drift-cleanup",
-  "status": "executing",
+  "status": "execute_complete",
   "previousPhase": null,
   "seededFrom": {
     "manualEntry": true,
@@ -18,14 +18,14 @@
   "startedBy": "travis (via session)",
   "activeChange": null,
   "implementation_total": 6,
-  "implementation_completed": 2,
+  "implementation_completed": 6,
   "changes_total": 6,
-  "changes_completed": 2,
-  "completedChanges": 2,
+  "changes_completed": 6,
+  "completedChanges": 6,
   "totalChanges": 6,
   "assessment_complete": true,
   "plan_complete": true,
-  "execute_complete": false,
+  "execute_complete": true,
   "reflect_complete": false,
   "assessmentMethod": {
     "adversarialReview": true,
@@ -65,17 +65,24 @@
   "completion": {
     "primaryCounter": "implementation",
     "implementation": {
-      "completed": 3,
+      "completed": 6,
       "total": 6,
-      "status": "IN_PROGRESS"
+      "status": "COMPLETE"
     },
     "evidence": {
-      "status": "PENDING",
+      "status": "PASS",
       "blockers": [],
-      "gates": []
+      "gates": [
+        "update-skill-pack --force",
+        "installed preflight without CLAUDE_PLUGIN_ROOT",
+        "prometheus doctor",
+        "pk doctor",
+        "managed service health",
+        "distinct liter-llm judge completions"
+      ]
     },
     "certification": {
-      "status": "PENDING",
+      "status": "PASS",
       "blockers": [],
       "note": "Local-only. No CI."
     }
@@ -234,15 +241,19 @@
     },
     {
       "id": "change-drift-405-reinstall-verify",
-      "status": "pending",
-      "implementation_status": "PENDING",
+      "status": "verified",
+      "implementation_status": "COMPLETE",
       "backend": "openspec",
       "sequence": 6,
       "title": "Land, reinstall, verify on the installed surface",
       "dependsOn": [
         "change-drift-404-harness-completeness"
       ],
-      "specPath": "openspec/changes/change-drift-405-reinstall-verify/"
+      "specPath": "openspec/changes/change-drift-405-reinstall-verify/",
+      "certification_status": "PASS",
+      "tasks_total": 8,
+      "tasks_complete": 8,
+      "resolution": "Installed immutable generation d6e04d80da3a7aaddd9a158d22e1b200032e70259178a071df1795bc001c8257 across all targets; installed adversarial preflight works with CLAUDE_PLUGIN_ROOT unset; doctors, managed services, distinct judges, snapshots, queue, and receipt flows are healthy."
     }
   ],
   "deviations": [],

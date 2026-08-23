@@ -1,13 +1,15 @@
 # Current KBD Waypoint
 
 - Phase: `openspec-mirror-drift-cleanup`
-- Status: executing
-- Completed implementation changes: 5 of 6
-- Next change: `change-drift-405-reinstall-verify`
-- Re-entry: `/kbd-apply openspec-mirror-drift-cleanup change-drift-405-reinstall-verify`
-- Source baseline: `c0d2de16c5b8836870099fce4603131ab192bf85`
+- Status: execute complete
+- Completed implementation changes: 6 of 6
+- Next change: none
+- Re-entry: `/kbd-reflect openspec-mirror-drift-cleanup`
+- Source baseline: protected `main` after final convergence merge
 
 The OpenSpec mirror upgrade, Devin rename, entity-management convergence,
-routine-artifact classification, and explicit source-tree lifecycle gate are
-complete. The remaining change merges the clean integration branch, reinstalls
-the generated surfaces and changed services, and verifies the installed state.
+routine-artifact classification, explicit source-tree lifecycle gate, and final
+installed-surface verification are complete. Local doctors, managed services,
+two distinct liter-llm judges, and the Karpathy queue/snapshot/receipt flows are
+healthy. Reflection is the only remaining KBD lifecycle action; no implementation
+change remains.
