@@ -141,7 +141,7 @@
     { "id": "codex", "path": ".codex/skills", "mode": "copy", "detect": [".codex", "command:codex"] },
     { "id": "gemini", "path": ".gemini/skills", "mode": "symlink", "detect": [".gemini", "command:gemini"] },
     { "id": "roo", "path": ".roo/skills", "mode": "symlink", "detect": [".roo"] },
-    { "id": "windsurf", "path": ".windsurf/skills", "mode": "symlink", "detect": [".windsurf", "command:windsurf"] },
+    { "id": "devin", "path": ".devin/skills", "mode": "symlink", "detect": [".devin", ".windsurf", "command:devin", "command:windsurf"] },
     { "id": "codeium-windsurf", "path": ".codeium/windsurf/skills", "mode": "symlink", "detect": [".codeium/windsurf"] },
     { "id": "agents", "path": ".agents/skills", "mode": "symlink", "detect": [".agents"] },
     { "id": "zed-config", "path": ".config/zed/skills", "mode": "symlink", "detect": [".config/zed", "command:zed"] },
