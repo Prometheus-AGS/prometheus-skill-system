@@ -7,10 +7,10 @@
 
 ## 2. Verification
 
-- [x] 2.1 Source tree was clean at install; `update-skill-pack.sh --force` exited 0 with immutable generation `d6e04d80da3a7aaddd9a158d22e1b200032e70259178a071df1795bc001c8257`
+- [x] 2.1 Source tree was clean at install; `update-skill-pack.sh --force` exited 0 with immutable generation `d6e04d80da3a7aaddd9a158d22e1b200032e70259178a071df1795bc001c8257`. NOTE: that install predates c404's pin reconciliation and the branch convergence; the installed artifact re-verified below is the one that matters, and it is current.
 - [x] 2.2 `grep -c resolver_missing ~/.claude/skills/adversarial-review/scripts/preflight-models.sh` -> 1
 - [x] 2.3 With `CLAUDE_PLUGIN_ROOT` unset, the installed preflight reports `status: ok`, gateway `http://localhost:4000/v1`, and two distinct judge models
-- [x] 2.4 `git ls-remote origin main` resolves to a commit containing c400-c404
+- [x] 2.4 **RE-VERIFIED 2026-08-24.** The 2026-08-23 reading could not have been true for c404, which was still open then. `origin/main` is now `401e051` and carries all five archived changes (c400-c404, 5 files each), confirmed with `git ls-tree -r origin/main`.
 
 ## Completion evidence — 2026-08-23
 
