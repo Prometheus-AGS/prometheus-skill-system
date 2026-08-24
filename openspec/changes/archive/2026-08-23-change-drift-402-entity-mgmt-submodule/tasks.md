@@ -8,7 +8,7 @@
 ## 2. Verification
 
 - [x] 2.1 The decision, its owner, and its rationale are recorded
-- [x] 2.2 **CLEARED 2026-08-23.** The parent pins current entity-management `main` at `e252100`; the commit is reachable from `origin/main`, includes the stable 3.0.2 release and generated API/site parity, and the checkout is clean.
+- [x] 2.2 **CLEARED 2026-08-24.** The parent pins entity-management `main` at `9c30ad1`, reachable from `origin/main`, carrying the stable **3.0.3** release; the checkout is clean and `git status --porcelain -- skills/imported/prometheus-entity-management` is empty. (Superseded two earlier readings: `b3f8d93`/3.0.0 and `e252100`/3.0.2 — 3.0.0 shipped a workspace-protocol leak that made 10 of 12 packages uninstallable, fixed in PR #27 and released through 3.0.2 then 3.0.3.)
 - [x] 2.3 (A) `git branch -r --contains <new-pin>` is NON-EMPTY — the criterion the current pin fails
 - [x] 2.4 **EXERCISED.** The submodule was dirty (1 file) and a concurrent session was editing it live — mtime 69s old, diff growing 4→7 lines mid-change. Stopped and re-decided rather than proceeding: sampled the file for 55s, ran `node --check`, and committed on the author's behalf with authorship stated. c405 remains blocked until PR #22 merges.
 
