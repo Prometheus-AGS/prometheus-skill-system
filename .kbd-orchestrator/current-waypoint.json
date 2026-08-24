@@ -13,16 +13,16 @@
   "activePhaseId": "openspec-mirror-drift-cleanup",
   "phase": "openspec-mirror-drift-cleanup",
   "childPointer": null,
-  "change": "change-drift-405-reinstall-verify",
-  "currentTask": "All six changes implemented; reflection is next",
-  "status": "execute_complete",
+  "change": null,
+  "currentTask": "phase complete — 6/6 reflected",
+  "status": "reflected",
   "completionMetric": "implementation",
   "implementationCompleted": 6,
   "implementationTotal": 6,
   "planRevision": 2,
   "revision": 5,
-  "exactNextCommand": "/kbd-reflect openspec-mirror-drift-cleanup",
-  "updatedAt": "2026-08-23T19:58:30Z",
+  "exactNextCommand": "/kbd-new-phase kbd-control-plane-recovery",
+  "updatedAt": "2026-08-24T12:06:24Z",
   "previousPhase": "kimi-desktop-extensibility",
   "nextPendingChange": null,
   "parentPhase": null,
@@ -32,5 +32,5 @@
   "changesCompleted": 6,
   "changesTotal": 6,
   "stage": "execute_complete",
-  "nextCommand": "/kbd-reflect openspec-mirror-drift-cleanup"
+  "nextCommand": "/kbd-new-phase kbd-control-plane-recovery"
 }
