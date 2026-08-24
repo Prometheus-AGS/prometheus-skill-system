@@ -61,7 +61,7 @@
       "id": "prometheus-entity-management",
       "path": "skills/imported/prometheus-entity-management",
       "repository": "https://github.com/Prometheus-AGS/prometheus-entity-management.git",
-      "commit": "d7e884053efeaeb2bab7e13f41649ef9fb7cb649",
+      "commit": "9c30ad18b8140a94f7815d5d8c9727d1158e54e1",
       "requiredFor": ["full"],
       "distributed": false
     },
@@ -76,7 +76,7 @@
       "id": "disk-space-guardian",
       "path": "tools/disk-space-guardian",
       "repository": "https://github.com/GQAdonis/disk-space-guardian.git",
-      "commit": "86853b4e5df572650579be49c59f745b4854e6d3",
+      "commit": "26487db64d5c44b00b57d19a649a82632dfe94d3",
       "requiredFor": ["full"]
     },
     {
@@ -97,14 +97,14 @@
       "id": "prometheus-knowledge",
       "path": "tools/prometheus-knowledge",
       "repository": "https://github.com/Prometheus-AGS/prometheus-knowledge-rs.git",
-      "commit": "cea7b9063bd0c8b2fe4c2a59f04e5e1eee87d844",
+      "commit": "5a175d13149945685ab8dd9bc1da8ea7d5861165",
       "requiredFor": ["full"]
     },
     {
       "id": "surreal-memory-server",
       "path": "tools/surreal-memory-server",
       "repository": "https://github.com/Prometheus-AGS/surreal-memory-server.git",
-      "commit": "6a03ee5338b8435e4730c0207cf13c8106d86a16",
+      "commit": "2e2188a89f444270ed1dfeb992771203d3875b80",
       "requiredFor": ["full"]
     }
   ],
