@@ -137,3 +137,62 @@ preconditions to starting:
 4. **`pk lint` hangs.** `pk lint --json` in this repo did not return within 120s
    and was killed. Not investigated — noted so a later phase does not put it in
    a gate. `pk doctor --json` returns promptly (5 pass / 1 fail).
+
+## Re-install verification (2026-08-24) — and a pre-existing failure I did NOT introduce
+
+`bash scripts/update-skill-pack.sh --force` re-run on a clean `main` at `019c3fe`.
+**Exit 0**, all five steps green, source tree still clean afterwards.
+
+Generation advanced `d6e04d8… → 3be66a5…` — expected, since the tree moved past
+the 2026-08-23 install. All **14/14 targets** carry a signed receipt with
+`status: verified`, 163 skills, and identical content hashes:
+
+`.agents`, `.claude`, `.cline`, `.codeium/windsurf`, `.codex`, `.config/zed`,
+`.cursor`, `.devin`, `.gemini`, `.kimi-code`, `.minimax`, `.opencode`, `.roo`,
+`.zed` — every supported environment.
+
+The phase's payoff survives the reinstall: the installed
+`preflight-models.sh` is **byte-identical** to source (`cmp`), and with
+`CLAUDE_PLUGIN_ROOT` unset reports `status: ok`, gateway `:4000`,
+`distinct_models: 2`, `config_defects: []`.
+
+Gates after install: `validate:codex` exit 0, `source-tree-lifecycle` PASS,
+`skill-system-distribution` PASS, working tree clean (idempotent).
+
+### The failing doctor check is NOT from this install
+
+`prometheus doctor` reports **1 failing required check**, and `pk doctor` reports
+5 passed / 1 failed (`learning-queue`, 6 unsettled records). c405's ledger claimed
+doctor exited 0 on 2026-08-23, so this looks like a regression. **It is not.**
+
+Root cause: `prometheus doctor` probes `http://127.0.0.1:7892/api/v1/kbd/.../diagnostics`
+— an address **hardcoded in the `prometheus` binary** (confirmed via `strings`,
+adjacent to "KBD daemon diagnostics are unreachable"). Nothing listens there.
+`prometheus-exec` (pid 54437) is `state = running` but serves a **Unix socket**,
+`~/.prometheus/run/prometheus-exec.sock`, not TCP. `7892` appears in no config file.
+
+Evidence it predates the install:
+
+| Fact | Value |
+|---|---|
+| `prometheus-exec` binary mtime | 2026-08-23 **15:41** |
+| `prometheus-learning-worker` mtime | 2026-08-23 **15:41** |
+| exec service process start | 2026-08-23 **15:45** |
+| the 6 pending records | 2026-08-24 **03:39–03:55** |
+| this install ran | 2026-08-24 **06:58** |
+
+Every artifact predates the install; the installer touches neither binary.
+
+**Not fixed here, deliberately.** The worker (`run-once`) exits 0 but drains
+nothing — it cannot settle records without the control plane. There is no
+`prometheus` subcommand to start it (`kbd` has no serve/daemon; `prometheus exec`
+is not a subcommand), and no launchd job provides it. Starting an undocumented
+daemon or hand-editing the queue would be guessing at another component's
+contract. This is also the likely origin of the `event signer … is not enrolled`
+errors that made every `kbd-apply` fall back to the file ledger throughout this
+phase.
+
+**Scope is bounded and the skill install is healthy**: `plugin-generation` and
+`stable-dispatchers` both PASS, as do `hooks-log-path`, `prompt-snapshots`, and
+`kb-scoping`. Only the asynchronous learning pipeline is affected. `prometheus kbd
+status` still reads local state fine.
