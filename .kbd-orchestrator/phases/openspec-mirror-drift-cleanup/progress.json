@@ -1,6 +1,6 @@
 {
   "phase": "openspec-mirror-drift-cleanup",
-  "status": "execute_complete",
+  "status": "complete",
   "previousPhase": null,
   "seededFrom": {
     "manualEntry": true,
