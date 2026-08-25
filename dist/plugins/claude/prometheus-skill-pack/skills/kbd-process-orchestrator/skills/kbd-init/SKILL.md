@@ -155,13 +155,14 @@ and leave execution as an empty list.
 ## Output: `.kbd-orchestrator/project.json`
 
 Generated from the bundled `references/schemas/project.template.json` with
-discovered values:
+discovered values and conforming to the bundled writer contract in
+`references/schemas/project.schema.json`:
 
 ```json
 {
   "name": "<discovered project name>",
   "description": "<discovered one-line description>",
-  "active_phase": null,
+  "activePhase": null,
   "focus_project_path": "<absolute path to focus project root>",
   "spec_paths": ["<discovered spec paths>"],
   "openspec_available": true,
@@ -254,4 +255,5 @@ Use the project name from the argument or the discovered project name. Emit to p
 Run `/kbd-status` to confirm KBD is correctly initialized, then:
 
 - `/kbd-new-phase <name>` to start the first phase, OR
-- `/kbd-assess` if a phase is already defined in `active_phase`
+- `/kbd-assess` if a phase is already defined in `activePhase` (readers also
+  accept the legacy `active_phase` alias)

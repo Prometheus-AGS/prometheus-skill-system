@@ -1,0 +1,9 @@
+---
+description: Show the causal KBD audit trail and current ownership
+---
+
+Read `skills/kbd-audit/SKILL.md` and execute the /kbd-audit workflow.
+
+Pass any arguments provided after the command to the skill as context.
+
+Arguments: $ARGUMENTS

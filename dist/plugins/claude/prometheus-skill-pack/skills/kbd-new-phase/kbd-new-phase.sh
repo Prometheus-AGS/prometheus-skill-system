@@ -46,6 +46,36 @@ fi
 
 now="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 
+# Runtime-authority mode records phase creation and activation as typed events.
+# A terminal run must first roll forward through the operator-signed runtime
+# command; compatibility projections are never hand-edited here.
+KBD_ORCHESTRATOR_ROOT="${KBD_ORCHESTRATOR_ROOT:-$HOME/.claude/skills/kbd-process-orchestrator}"
+runtime_lib="$KBD_ORCHESTRATOR_ROOT/shared/lib/runtime-authority.sh"
+if [[ -f "$runtime_lib" ]]; then
+  # shellcheck source=/dev/null
+  . "$runtime_lib"
+fi
+runtime_authoritative=false
+if command -v kbd_runtime_authoritative >/dev/null 2>&1 && kbd_runtime_authoritative "."; then
+  runtime_authoritative=true
+  command -v prometheus >/dev/null 2>&1 || die "prometheus CLI is required for runtime-authority mode"
+  runtime_state="$(prometheus kbd --path . status --json)" \
+    || die "could not read canonical runtime status"
+  lifecycle="$(printf '%s' "$runtime_state" | jq -r '.lifecycle // ""')"
+  current_run_id="$(printf '%s' "$runtime_state" | jq -r '.runId // ""')"
+  case "$lifecycle" in
+    completed|cancelled|failed)
+      [[ -n "$current_run_id" ]] || die "terminal runtime status omitted runId"
+      successor_run_id="${name}-$(date -u +%Y%m%dT%H%M%SZ)"
+      prometheus kbd --path . run start \
+        --run-id "$successor_run_id" \
+        --reason "start phase $name after terminal run $current_run_id" \
+        --exact-next-work "/kbd-new-phase $name" >/dev/null \
+        || die "could not start successor run $successor_run_id"
+      ;;
+  esac
+fi
+
 # ---------- 1. Phase directory + goals.md ----------
 mkdir -p "$phase_dir"
 
@@ -59,15 +89,7 @@ mkdir -p "$phase_dir"
 } > "$phase_dir/goals.md.tmp"
 mv -f "$phase_dir/goals.md.tmp" "$phase_dir/goals.md"
 
-# Runtime-authority mode records phase creation and activation as typed events.
-# Compatibility JSON is rendered by kbd-runtime and must never be edited here.
-KBD_ORCHESTRATOR_ROOT="${KBD_ORCHESTRATOR_ROOT:-$HOME/.claude/skills/kbd-process-orchestrator}"
-runtime_lib="$KBD_ORCHESTRATOR_ROOT/shared/lib/runtime-authority.sh"
-if [[ -f "$runtime_lib" ]]; then
-  # shellcheck source=/dev/null
-  . "$runtime_lib"
-fi
-if command -v kbd_runtime_authoritative >/dev/null 2>&1 && kbd_runtime_authoritative "."; then
+if [[ "$runtime_authoritative" == true ]]; then
   prometheus kbd --path . phase create \
     --command-id "phase-create:${name}" \
     --id "$name" --title "$name" >/dev/null
@@ -183,7 +205,7 @@ mv -f "$wp.tmp" "$wp"
 
 # ---------- 4. project.json activePhase flip ----------
 if [[ -f "$pj" ]]; then
-  jq --arg phase "$name" --arg now "$now" '.activePhase = $phase | .updatedAt = $now' "$pj" > "$pj.tmp"
+  jq --arg phase "$name" --arg now "$now" 'del(.active_phase) | .activePhase = $phase | .updatedAt = $now' "$pj" > "$pj.tmp"
   mv -f "$pj.tmp" "$pj"
 else
   warn "$pj missing — writing a minimal project identity so KBD can keep project state isolated"

@@ -7,7 +7,7 @@ description: >
   phase's reflection. Reads the "Recommended Next Phase" section of
   reflection.md, initializes the new phase directory with goals.md and a
   skeleton progress.json, updates current-waypoint.json to point to
-  /kbd-assess, and updates project.json active_phase.
+  /kbd-assess, and updates project.json activePhase.
 metadata:
   tags: [process, orchestration, automation]
 ---
@@ -24,7 +24,8 @@ Seed and initialize the next KBD phase from the previous phase's reflection.
    - `goals.md` — seeded goals from the reflection
    - `progress.json` — skeleton (all complete flags false)
 4. Updates `current-waypoint.json`: stage → `assess_pending`, next → `/kbd-assess`
-5. Updates `project.json` `active_phase` field
+5. Updates `project.json` `activePhase` and removes the legacy `active_phase`
+   alias
 6. Outputs a confirmation banner with seeded content preview
 
 ## When to use

@@ -119,7 +119,7 @@ tags = ["{{ skill_tag | default(value="example") }}"]
 
 [runtime]
 type = "wasm"
-entry = "{{ skill_name }}.wasm"
+entry = "{{ skill_name | replace(from="-", to="_") }}.wasm"
 
 [[tools]]
 # Each tool the skill exposes to the LLM. Names must be unique within the skill.
@@ -143,8 +143,12 @@ after every `cargo build --target wasm32-unknown-unknown --release`.
 
 ```bash
 cargo build --target wasm32-unknown-unknown --release
-bash scripts/validate-wasm-abi.sh target/wasm32-unknown-unknown/release/{{ skill_name }}.wasm
+bash scripts/validate-wasm-abi.sh target/wasm32-unknown-unknown/release/{{ skill_name | replace(from="-", to="_") }}.wasm
 ```
+
+Cargo converts hyphens in package names to underscores in the emitted library
+artifact. A skill named `weather-check` therefore builds and packages
+`weather_check.wasm`; keep the manifest `entry` aligned with that filename.
 
 If `wasm-tools` is not installed: `cargo install wasm-tools` (or `brew install wasm-tools`).
 

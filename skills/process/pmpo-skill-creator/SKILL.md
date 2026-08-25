@@ -9,6 +9,15 @@ description: >
   lifecycle hooks, and workflow triggers. Supports three modes: create (from scratch),
   clone (adapt existing skill to new domain), and extend (add capabilities to existing skill).
 allowed-tools: code_interpreter file_system
+model_routing:
+  policy_source: ".kbd-orchestrator/project.json → model_policy"
+  phases:
+    creator-specify: frontier
+    creator-plan: frontier
+    creator-execute: tiered
+    creator-reflect: frontier
+    creator-persist: small
+  routing_reference: "references/model-routing.md"
 metadata:
   tags: [process, orchestration, automation]
 ---
@@ -16,6 +25,10 @@ metadata:
 # PMPO Skill Creator
 
 A PMPO-driven generator for production-ready Agent Skills. Creates complete skill packages with full lifecycle support — state management, domain adapters, phase controllers, hooks, schemas, sub-skills, and multi-platform distribution.
+
+Model selection follows `references/model-routing.md`. When a project has no
+model policy, use the documented frontier fallback rather than inventing a
+provider-specific model mapping.
 
 ## Creation Modes
 

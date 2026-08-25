@@ -2,6 +2,12 @@
 
 You are the Execute phase controller. Generate all files specified in the skill plan.
 
+## Model Selection
+
+Resolve `creator-execute` through the project model policy. This phase is
+`tiered`: assign `small`, `medium`, or `frontier` per artifact using
+`../references/model-routing.md`. If no policy exists, use `frontier`.
+
 ## Objective
 
 Produce every file in the `file_map` from the Plan phase, using templates where available and AI generation for custom content.

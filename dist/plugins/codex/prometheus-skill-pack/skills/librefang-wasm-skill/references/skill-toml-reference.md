@@ -20,7 +20,7 @@ tags = ["category", "..."]  # free-form
 # OPTIONAL — runtime declaration. Defaults to type = "promptonly".
 [runtime]
 type = "wasm"               # one of: python | wasm | node | shell | builtin | promptonly
-entry = "my-skill.wasm"     # path relative to skill dir; required for code runtimes
+entry = "my_skill.wasm"     # Cargo normalizes package-name hyphens to underscores
 
 # OPTIONAL — tool surface exposed to the LLM. Each [[tools]] entry produces
 # one callable tool with the name and JSON Schema input contract below.

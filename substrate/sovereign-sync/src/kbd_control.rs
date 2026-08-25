@@ -619,6 +619,7 @@ impl KbdControlPlane {
     pub async fn submit(&self, envelope: CommandEnvelope) -> io::Result<CommittedCommand> {
         let runtime = Arc::clone(&self.runtime);
         tokio::task::spawn_blocking(move || {
+            let projection_command = envelope.command.clone();
             let result = runtime
                 .execute_command(envelope)
                 .map_err(|error| io::Error::other(error.to_string()))?;
@@ -632,7 +633,11 @@ impl KbdControlPlane {
                 .map(|event| event.timestamp)
                 .ok_or_else(|| io::Error::other("committed event is missing from journal"))?;
             let projection_error = runtime
-                .write_compatibility_projections_from_state(&result.state, timestamp)
+                .write_compatibility_projections_from_state_for_command(
+                    &result.state,
+                    timestamp,
+                    &projection_command,
+                )
                 .err()
                 .map(|error| error.to_string());
             Ok(CommittedCommand {

@@ -15,18 +15,27 @@ tags = ["wasm", "example"]
 [runtime]
 type = "wasm"
 # `entry` is resolved relative to the skill directory after install. The
-# packaged zip places <skill_name>.wasm at the skill root.
-entry = "{{ skill_name }}.wasm"
+# Cargo normalizes hyphens in package names to underscores in library artifact
+# filenames; the packaged zip preserves that emitted filename at its root.
+entry = "{{ skill_name | replace(from="-", to="_") }}.wasm"
 
 # Tools the skill exposes to the LLM. Each tool's input_schema is enforced
 # by the kernel before `execute` is called. The `name` here MUST match the
 # arm in src/lib.rs's `dispatch` function.
-{% for tool in tools | default(value=[{"name":"echo","description":"Echo input back","input_schema":{"type":"object","properties":{"message":{"type":"string"}},"required":["message"]}}]) %}
+{% set configured_tools = tools | default(value=[]) %}
+{% if configured_tools | length == 0 %}
+[[tools]]
+name = "echo"
+description = "Echo input back"
+input_schema = { type = "object", properties = { message = { type = "string" } }, required = ["message"] }
+{% else %}
+{% for tool in configured_tools %}
 [[tools]]
 name = "{{ tool.name }}"
 description = "{{ tool.description }}"
 input_schema = {{ tool.input_schema | json_encode | safe }}
 {% endfor %}
+{% endif %}
 
 [requirements]
 # Built-in tools to inject into this skill's host context (rare for WASM).

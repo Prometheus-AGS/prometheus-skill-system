@@ -101,7 +101,7 @@ test_forge_package_librefang() {
         return
     fi
 
-    local wasm_path="${agent_dir}/target/wasm32-unknown-unknown/release/librefang-wasm-skill.wasm"
+    local wasm_path="${agent_dir}/target/wasm32-unknown-unknown/release/librefang_wasm_skill.wasm"
     if [[ ! -f "$wasm_path" ]]; then
         if [[ ! -f "${agent_dir}/Cargo.toml" ]]; then
             echo "    ⚠️  librefang WASM source is not included in this checkout — skipping"

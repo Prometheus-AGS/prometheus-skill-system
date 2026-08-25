@@ -180,7 +180,7 @@ Save the full tool response to `.kbd-orchestrator/phases/<phase>/sycophancy/refl
 
 After writing, advance the waypoint to the next phase:
 
-- Set `.kbd-orchestrator/current-waypoint.json` → `active_phase` = next phase name
+- Set `.kbd-orchestrator/current-waypoint.json` → `phase` = next phase name
 - Set `next_pending_change` = null (plan not yet created)
 - Set `exact_next_command` = `/kbd-assess <next-phase-name>`
 - Commit: `git add .kbd-orchestrator && git commit -m "kbd: phase reflect complete — <phase-name>"`

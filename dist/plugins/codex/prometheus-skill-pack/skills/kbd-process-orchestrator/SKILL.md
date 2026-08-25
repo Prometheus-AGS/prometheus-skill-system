@@ -266,7 +266,8 @@ KBD maintains a resumable return point for the current phase.
   - `.kbd-orchestrator/current-waypoint.md`
   - `.kbd-orchestrator/current-waypoint.json`
 - Minimum fields:
-  - `active_phase` — current phase name
+  - `activePhase` — current phase name (`active_phase` is accepted only as a
+    legacy read fallback)
   - `backend` — selected execution backend
   - `last_completed_change` — last archived/completed change ID
   - `next_pending_change` — next change to start
@@ -399,7 +400,9 @@ integration provides, and the entity schema are in
 > **IMPORTANT — project.json is GENERATED, not shipped.**
 > `.kbd-orchestrator/project.json` is always created by `/kbd-init` using auto-discovery.
 > It lives in the project repository, not in this skill directory.
-> The skill only ships the template: `references/schemas/project.template.json`.
+> The skill ships the generation template at
+> `references/schemas/project.template.json` and the writer contract at
+> `references/schemas/project.schema.json`.
 > Never commit project-specific values into the skill files.
 
 ### Ongoing workflow

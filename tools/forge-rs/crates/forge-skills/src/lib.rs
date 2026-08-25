@@ -372,4 +372,24 @@ mod tests {
         let sorted = topological_sort(skills, &registry.skills);
         assert_eq!(sorted.len(), 2);
     }
+
+    #[test]
+    fn librefang_manifest_template_normalizes_hyphenated_cargo_artifact_name() {
+        let template = Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("../../../../skills/rust/librefang-wasm-skill/templates/skill.toml.tera");
+        let mut tera = Tera::default();
+        tera.add_template_file(&template, Some("librefang-skill"))
+            .unwrap();
+        let mut context = tera::Context::new();
+        context.insert("skill_name", "weather-check");
+        context.insert("skill_version", "0.1.0");
+        context.insert("skill_description", "Weather check");
+        context.insert("skill_author", "Prometheus");
+        context.insert("skill_tags", &vec!["wasm"]);
+        context.insert("tools", &Vec::<serde_json::Value>::new());
+        context.insert("capabilities", &Vec::<String>::new());
+        let rendered = tera.render("librefang-skill", &context).unwrap();
+        assert!(rendered.contains("entry = \"weather_check.wasm\""));
+        assert!(!rendered.contains("entry = \"weather-check.wasm\""));
+    }
 }

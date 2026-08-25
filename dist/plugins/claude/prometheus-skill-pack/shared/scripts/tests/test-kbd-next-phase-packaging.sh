@@ -96,6 +96,15 @@ assert waypoint["exactNextCommand"] == "/kbd-assess phase-two"
 assert "stage" not in waypoint
 assert "exact_next_command" not in waypoint
 PY
+python3 - "${PROJECT_ROOT}/.kbd-orchestrator/project.json" <<'PY'
+import json
+import sys
+
+project = json.load(open(sys.argv[1]))
+assert project["activePhase"] == "phase-two"
+assert "active_phase" not in project
+assert project["name"] == "packaging-test"
+PY
 pass "bundled helper runs successfully from an isolated installed-plugin layout"
 
 (

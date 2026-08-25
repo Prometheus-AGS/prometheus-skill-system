@@ -992,6 +992,7 @@ async fn main() -> Result<()> {
                                 status: kbd_runtime::WorkStatus::Pending,
                                 stages: BTreeMap::new(),
                                 changes: BTreeMap::new(),
+                                legacy_completion_baseline: None,
                                 legacy_read_only: false,
                             },
                         },

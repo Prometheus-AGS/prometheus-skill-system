@@ -182,14 +182,11 @@ if [[ ! -f "$LAS_SKILL" ]]; then
 else
   pass "learn-about-system: SKILL.md exists"
 
-  # Validate via npm (lenient mode — tolerate minor warnings)
-  VALIDATE_OUT="$(cd "$REPO_ROOT" && npm run validate:skill skills/learn/learn-about-system 2>&1 || true)"
-  if echo "$VALIDATE_OUT" | grep -q "All skills valid"; then
+  # Validate via npm; warnings are allowed, but the command must succeed.
+  if VALIDATE_OUT="$(cd "$REPO_ROOT" && npm run validate:skill skills/learn/learn-about-system 2>&1)"; then
     pass "learn-about-system: validate:skill passes"
-  elif echo "$VALIDATE_OUT" | grep -qi "0 error"; then
-    pass "learn-about-system: validate:skill passes (0 errors)"
   else
-    fail "learn-about-system" "npm run validate:skill did not confirm success"
+    fail "learn-about-system" "npm run validate:skill failed: $VALIDATE_OUT"
   fi
 
   # Routing keyword checks
@@ -213,13 +210,10 @@ if [[ ! -f "$LH_SKILL" ]]; then
 else
   pass "learn-harness: SKILL.md exists"
 
-  VALIDATE_OUT="$(cd "$REPO_ROOT" && npm run validate:skill skills/learn/learn-harness 2>&1 || true)"
-  if echo "$VALIDATE_OUT" | grep -q "All skills valid"; then
+  if VALIDATE_OUT="$(cd "$REPO_ROOT" && npm run validate:skill skills/learn/learn-harness 2>&1)"; then
     pass "learn-harness: validate:skill passes"
-  elif echo "$VALIDATE_OUT" | grep -qi "0 error"; then
-    pass "learn-harness: validate:skill passes (0 errors)"
   else
-    fail "learn-harness" "npm run validate:skill did not confirm success"
+    fail "learn-harness" "npm run validate:skill failed: $VALIDATE_OUT"
   fi
 fi
 
@@ -261,14 +255,11 @@ for skill in "${LEARN_SKILLS[@]}"; do
   SKILL_FILE="$REPO_ROOT/skills/learn/${skill}/SKILL.md"
   if [[ -f "$SKILL_FILE" ]]; then
     FOUND=$((FOUND + 1))
-    # Run validation; don't abort on minor warnings
-    VAL_OUT="$(cd "$REPO_ROOT" && npm run validate:skill "skills/learn/${skill}" 2>&1 || true)"
-    if echo "$VAL_OUT" | grep -q "All skills valid"; then
+    # Run validation; warnings do not change the successful exit status.
+    if VAL_OUT="$(cd "$REPO_ROOT" && npm run validate:skill "skills/learn/${skill}" 2>&1)"; then
       log "  [OK]   ${skill}: valid"
-    elif echo "$VAL_OUT" | grep -qi "0 error"; then
-      log "  [OK]   ${skill}: valid (0 errors)"
     else
-      log "  [WARN] ${skill}: validation result unclear"
+      log "  [WARN] ${skill}: validation failed"
     fi
   else
     log "  [MISSING] ${skill}: SKILL.md not found"

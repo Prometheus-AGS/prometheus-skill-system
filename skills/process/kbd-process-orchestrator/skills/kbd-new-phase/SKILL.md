@@ -104,8 +104,9 @@ Or, step-by-step:
 8. Rewrite `.kbd-orchestrator/current-waypoint.json` atomically. Existing
    unknown fields pass through; if the file is malformed, abort with a
    clear error and **do not** modify any on-disk state.
-9. Update `.kbd-orchestrator/project.json` `activePhase` atomically; warn
-   and continue if the file is absent (run `/kbd-init` later).
+9. Update `.kbd-orchestrator/project.json` `activePhase` atomically, deleting
+   the legacy `active_phase` alias; warn and continue if the file is absent
+   (run `/kbd-init` later).
 10. Source `shared/lib/waypoint.sh` and `shared/lib/hooks.sh` from
    `$KBD_ORCHESTRATOR_ROOT`, then call
    `kbd_hooks_fire phase before "$name" 1 1`. If the hooks subsystem is

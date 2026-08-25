@@ -24,7 +24,12 @@ pub fn run(path: &str) -> Result<()> {
         println!("\n  {} KBD Waypoint", "▸".cyan());
         println!(
             "    Phase: {}",
-            wp["active_phase"].as_str().unwrap_or("—").bold()
+            wp["phase"]
+                .as_str()
+                .or_else(|| wp["activePhaseId"].as_str())
+                .or_else(|| wp["active_phase"].as_str())
+                .unwrap_or("—")
+                .bold()
         );
         println!(
             "    Next:  {}",

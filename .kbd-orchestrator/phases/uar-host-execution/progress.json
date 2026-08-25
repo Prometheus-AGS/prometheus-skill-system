@@ -10,13 +10,14 @@
   "reflection_complete": false,
   "changes_total": 16,
   "changes_completed": 16,
-  "implementation_total": 0,
-  "implementation_completed": 0,
+  "implementation_total": 16,
+  "implementation_completed": 16,
   "completion": {
     "primaryCounter": "implementation",
     "implementation": {
       "completed": 16,
-      "total": 16
+      "total": 16,
+      "status": "COMPLETE"
     },
     "evidence": {
       "status": "NOT_TRACKED",
