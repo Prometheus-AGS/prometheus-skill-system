@@ -5015,7 +5015,7 @@ impl Runtime {
                         blockers: Vec::new(),
                     },
                 );
-                self.import_legacy_state(
+                state = self.import_legacy_state(
                     Actor::operator("kbd-migration", "prometheus-cli"),
                     state.revision,
                     format!("legacy-import-v2-{}", state.run_id),
