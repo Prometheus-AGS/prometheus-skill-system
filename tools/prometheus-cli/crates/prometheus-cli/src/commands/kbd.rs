@@ -242,7 +242,7 @@ pub async fn run(path: &str, action: Action) -> Result<()> {
             winner_event_id,
             reason,
         } => {
-            let state = state_or_replay(&client, &runtime).await?;
+            let state = state_or_initialize(&client, &runtime).await?;
             let next = client
                 .submit_fresh(
                     &state,
@@ -295,7 +295,7 @@ pub async fn run(path: &str, action: Action) -> Result<()> {
             ttl_seconds,
             holder_id,
         } => {
-            let state = state_or_replay(&client, &runtime).await?;
+            let state = state_or_initialize(&client, &runtime).await?;
             let mut actor = current_actor(ActorKind::Harness);
             if let Some(holder_id) = holder_id {
                 actor.id = holder_id;
@@ -319,7 +319,7 @@ pub async fn run(path: &str, action: Action) -> Result<()> {
             claim_id,
             ttl_seconds,
         } => {
-            let state = state_or_replay(&client, &runtime).await?;
+            let state = state_or_initialize(&client, &runtime).await?;
             let next = client
                 .submit_fresh(
                     &state,
@@ -333,7 +333,7 @@ pub async fn run(path: &str, action: Action) -> Result<()> {
             print_state(&next, false)
         }
         Action::ClaimRelease { claim_id } => {
-            let state = state_or_replay(&client, &runtime).await?;
+            let state = state_or_initialize(&client, &runtime).await?;
             let next = client
                 .submit_fresh(
                     &state,
@@ -347,7 +347,7 @@ pub async fn run(path: &str, action: Action) -> Result<()> {
             if scan {
                 let scanned = scan_submodule_pins(&root)?;
                 for pin in &scanned.pins {
-                    let state = state_or_replay(&client, &runtime).await?;
+                    let state = state_or_initialize(&client, &runtime).await?;
                     if state.submodule_pins.get(&pin.path) == Some(pin) {
                         continue;
                     }
@@ -359,7 +359,7 @@ pub async fn run(path: &str, action: Action) -> Result<()> {
                         )
                         .await?;
                 }
-                let state = state_or_replay(&client, &runtime).await?;
+                let state = state_or_initialize(&client, &runtime).await?;
                 println!(
                     "{}",
                     serde_json::to_string_pretty(&json!({
@@ -397,7 +397,7 @@ pub async fn run(path: &str, action: Action) -> Result<()> {
             exact_next_work,
             json,
         } => {
-            let state = state_or_replay(&client, &runtime).await?;
+            let state = state_or_initialize(&client, &runtime).await?;
             let next = client
                 .submit_fresh(
                     &state,
@@ -418,7 +418,9 @@ pub async fn run(path: &str, action: Action) -> Result<()> {
             // would strand the operator in a half-applied state: paused on disk, with
             // no durable record. Fall back to local replay so the durable pause can
             // still be journaled when the daemon is unreachable.
-            let state = state_or_replay(&client, &runtime).await.with_context(|| {
+            let state = state_or_initialize(&client, &runtime)
+                .await
+                .with_context(|| {
                 "emergency PAUSE is active locally, but durable pause could not reach the control plane"
             })?;
             let legacy = read_waypoint(&root);
@@ -446,7 +448,7 @@ pub async fn run(path: &str, action: Action) -> Result<()> {
             reason,
             exact_next_work,
         } => {
-            let state = state_or_replay(&client, &runtime).await?;
+            let state = state_or_initialize(&client, &runtime).await?;
             let next = client
                 .submit_fresh(
                     &state,
@@ -460,7 +462,7 @@ pub async fn run(path: &str, action: Action) -> Result<()> {
             print_state(&next, false)
         }
         Action::Resume { plan_revision } => {
-            let state = state_or_replay(&client, &runtime).await?;
+            let state = state_or_initialize(&client, &runtime).await?;
             let actor = current_actor(ActorKind::Operator);
             let revision = plan_revision.unwrap_or(state.plan_revision);
             let next = client
@@ -479,7 +481,9 @@ pub async fn run(path: &str, action: Action) -> Result<()> {
             write_emergency_pause(&root, &reason)?;
             // Same half-applied hazard as Pause above: the emergency file is already
             // on disk, so a hard failure here loses the durable cancellation record.
-            let state = state_or_replay(&client, &runtime).await.with_context(|| {
+            let state = state_or_initialize(&client, &runtime)
+                .await
+                .with_context(|| {
                 "emergency PAUSE is active locally, but durable cancellation could not reach the control plane"
             })?;
             let next = client
@@ -610,16 +614,7 @@ pub async fn run(path: &str, action: Action) -> Result<()> {
                     active_path.commit = git_head(&root);
                 }
             }
-            // Resolve the current state locally when the daemon is unreachable,
-            // otherwise this path dies before it can even build an envelope —
-            // the exact failure Codex hit ("signed waypoint remains unchanged
-            // ... the typed mutation endpoint refused the connection").
-            let state = match client.status().await {
-                Ok(state) => state,
-                Err(remote_error) => runtime
-                    .replay()
-                    .with_context(|| format!("control plane unavailable ({remote_error})"))?,
-            };
+            let state = state_or_initialize(&client, &runtime).await?;
             let envelope = CommandEnvelope {
                 schema_version: "2".into(),
                 project_id: state.project_id,
@@ -671,13 +666,19 @@ async fn status(
                     "phase": string_field(&legacy, &["phase"]),
                     "status": string_field(&legacy, &["status", "stage"]),
                     "exactNextWork": string_field(&legacy, &["exactNextCommand", "exact_next_command"]),
-                    "runtimeInitialized": false
+                    "runtimeInitialized": false,
+                    "initializationRequired": true,
+                    "initializationAction": "run the intended typed mutation; initialization is automatic",
+                    "runtimePath": runtime.runtime_root().display().to_string()
                 });
                 if json_output {
                     println!("{}", serde_json::to_string_pretty(&output)?);
                 } else {
                     eprintln!("Control plane unavailable: {remote_error}");
-                    println!("KBD mode: legacy (run `prometheus kbd migrate --apply`)");
+                    println!(
+                        "KBD mode: legacy (the first typed mutation initializes automatically)"
+                    );
+                    println!("Runtime: {}", runtime.runtime_root().display());
                     println!("Phase: {}", output["phase"].as_str().unwrap_or("unknown"));
                     println!("Status: {}", output["status"].as_str().unwrap_or("unknown"));
                 }
@@ -708,9 +709,10 @@ fn print_state(state: &RuntimeState, json_output: bool) -> Result<()> {
 }
 
 fn ensure_runtime(root: &Path, runtime: &Runtime) -> Result<RuntimeState> {
-    let state = runtime.replay()?;
-    if state.revision > 0 {
-        return Ok(state);
+    match runtime.replay() {
+        Ok(state) if state.revision > 0 => return Ok(state),
+        Ok(_) | Err(RuntimeError::NotInitialized) => {}
+        Err(error) => return Err(error.into()),
     }
     let waypoint = read_waypoint(root);
     let project_id = runtime
@@ -1059,6 +1061,61 @@ async fn state_or_replay(client: &ControlClient, runtime: &Runtime) -> Result<Ru
     }
 }
 
+/// Resolve the state required to construct a mutation envelope.
+///
+/// Registration deliberately establishes identity without inventing a run. If no signed
+/// runtime event exists yet, the first mutation crosses that boundary under operator
+/// authority using the same legacy-aware initializer as migration. Read-only commands
+/// continue to use `state_or_replay` so inspecting status never creates history.
+async fn state_or_initialize(client: &ControlClient, runtime: &Runtime) -> Result<RuntimeState> {
+    let remote_error = match client.status().await {
+        Ok(state) if state.revision > 0 => return Ok(state),
+        Ok(_) => None,
+        Err(error) => Some(error),
+    };
+    match runtime.replay() {
+        Ok(state) if state.revision > 0 => Ok(state),
+        Ok(_) | Err(RuntimeError::NotInitialized) => {
+            let initialized =
+                ensure_runtime(runtime.project_root(), runtime).with_context(|| {
+                    format!(
+                        "initialize canonical KBD runtime at {} before typed mutation; \
+                         registration succeeded but no signed run exists",
+                        runtime.runtime_root().display()
+                    )
+                })?;
+            let inventory = runtime.migrate_legacy_ledgers(false).with_context(|| {
+                format!(
+                    "inspect legacy KBD ledgers before the first typed mutation at {}",
+                    runtime.runtime_root().display()
+                )
+            })?;
+            if initialized.phases.is_empty() && inventory.progress_files > 0 {
+                runtime.migrate_legacy_ledgers(true).with_context(|| {
+                    format!(
+                        "import legacy KBD ledgers before the first typed mutation at {}",
+                        runtime.runtime_root().display()
+                    )
+                })?;
+                runtime.replay().with_context(|| {
+                    format!(
+                        "replay initialized KBD runtime at {} after legacy import",
+                        runtime.runtime_root().display()
+                    )
+                })
+            } else {
+                Ok(initialized)
+            }
+        }
+        Err(error) => match remote_error {
+            Some(remote_error) => {
+                Err(error).with_context(|| format!("control plane unavailable ({remote_error})"))
+            }
+            None => Err(error.into()),
+        },
+    }
+}
+
 /// Classify a transport error by whether delivery is *provably* impossible.
 ///
 /// Only a failure to establish the connection proves the daemon never saw the
@@ -1327,6 +1384,42 @@ mod tests {
     use super::*;
     use kbd_runtime::{CommandResult, EVENT_SCHEMA_VERSION};
     use tempfile::tempdir;
+
+    #[test]
+    fn ensure_runtime_initializes_from_legacy_once() {
+        let fixture = tempdir().unwrap();
+        let root = fixture.path();
+        fs::create_dir_all(root.join(".kbd-orchestrator")).unwrap();
+        fs::write(
+            root.join(".kbd-orchestrator/current-waypoint.json"),
+            serde_json::to_vec_pretty(&json!({
+                "phase": "legacy-phase",
+                "status": "executing",
+                "exactNextCommand": "/kbd-execute legacy-phase",
+                "planRevision": 7
+            }))
+            .unwrap(),
+        )
+        .unwrap();
+        let runtime = Runtime::open(root);
+        assert_eq!(runtime.replay().unwrap().revision, 0);
+
+        let initialized = ensure_runtime(root, &runtime).unwrap();
+        assert_eq!(initialized.revision, 1);
+        assert_eq!(initialized.lifecycle, LifecycleState::Running);
+        assert_eq!(initialized.plan_revision, 7);
+        assert_eq!(
+            initialized.exact_next_work.as_deref(),
+            Some("/kbd-execute legacy-phase")
+        );
+        assert!(initialized.run_id.starts_with("legacy-phase-"));
+        assert_eq!(runtime.events().unwrap().len(), 1);
+
+        let reopened = ensure_runtime(root, &runtime).unwrap();
+        assert_eq!(reopened.revision, initialized.revision);
+        assert_eq!(reopened.run_id, initialized.run_id);
+        assert_eq!(runtime.events().unwrap().len(), 1);
+    }
 
     fn committed_successor(root: &Path) -> (Runtime, CommandResult) {
         fs::create_dir_all(root.join(".kbd-orchestrator")).unwrap();
