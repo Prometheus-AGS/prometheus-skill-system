@@ -128,6 +128,16 @@ fn detect_launchd(label: &str) -> bool {
         .unwrap_or(false)
 }
 
+fn detect_systemd_user(unit: &str) -> bool {
+    std::process::Command::new("systemctl")
+        .args(["--user", "is-active", "--quiet", unit])
+        .stdout(std::process::Stdio::null())
+        .stderr(std::process::Stdio::null())
+        .status()
+        .map(|s| s.success())
+        .unwrap_or(false)
+}
+
 fn detect_binary(name: &str) -> bool {
     std::process::Command::new("which")
         .arg(name)
@@ -153,15 +163,24 @@ fn is_stale(binary_mtime: SystemTime, source_commit_time: SystemTime) -> bool {
 /// Locate the skill-pack repo root.
 /// Prefers PROMETHEUS_SKILL_PACK_ROOT env; falls back to walking up from the current exe.
 fn repo_root() -> Option<PathBuf> {
+    fn is_repo_root(path: &Path) -> bool {
+        path.join("skills/imported/artifact-refiner").exists()
+    }
+
     if let Ok(env_path) = std::env::var("PROMETHEUS_SKILL_PACK_ROOT") {
         let p = PathBuf::from(env_path);
-        if p.join("skills/imported/artifact-refiner").exists() {
+        if is_repo_root(&p) {
             return Some(p);
+        }
+    }
+    if let Ok(current_dir) = std::env::current_dir() {
+        if let Some(root) = current_dir.ancestors().find(|path| is_repo_root(path)) {
+            return Some(root.to_path_buf());
         }
     }
     std::env::current_exe().ok().and_then(|p| {
         p.ancestors()
-            .find(|a| a.join("skills/imported/artifact-refiner").exists())
+            .find(|path| is_repo_root(path))
             .map(|p| p.to_path_buf())
     })
 }
@@ -316,6 +335,35 @@ fn detect_template_forge_mcp() -> ComponentStatus {
     }
 }
 
+fn detect_control_plane_service() -> ComponentStatus {
+    let registered = if cfg!(target_os = "macos") {
+        detect_launchd("ai.prometheus.sovereign-sync")
+    } else if cfg!(target_os = "linux") {
+        detect_systemd_user("ai.prometheus.sovereign-sync.service")
+    } else {
+        false
+    };
+    let installed_binary = bin_dir().join("sovereign-sync");
+    let binary = if installed_binary.is_file() {
+        installed_binary
+    } else {
+        PathBuf::from("sovereign-sync")
+    };
+    let healthy = std::process::Command::new(binary)
+        .args(["--mode", "status", "--format", "json"])
+        .stdout(std::process::Stdio::null())
+        .stderr(std::process::Stdio::null())
+        .status()
+        .map(|s| s.success())
+        .unwrap_or(false);
+
+    if registered && healthy {
+        ComponentStatus::Ok
+    } else {
+        ComponentStatus::Missing
+    }
+}
+
 fn install_template_forge_binaries() -> Result<()> {
     let repo_root = std::env::var("PROMETHEUS_SKILL_PACK_ROOT")
         .map(std::path::PathBuf::from)
@@ -443,6 +491,54 @@ fn install_pk_cherry() -> Result<()> {
 fn install_liter_llm() -> Result<()> {
     let root = repo_root().ok_or_else(|| anyhow::anyhow!("could not locate repo root"))?;
     cargo_build_and_install(&root.join("tools/liter-llm"), "liter-llm-cli", "liter-llm")
+}
+
+fn managed_service_installer_args(dry_run: bool, restart: bool) -> Vec<&'static str> {
+    let mut args = Vec::new();
+    if dry_run {
+        args.push("--dry-run");
+    }
+    if restart {
+        args.push("--restart");
+    }
+    args
+}
+
+fn managed_service_action(
+    full: bool,
+    check: bool,
+    dry_run: bool,
+    rebuild: bool,
+    approved: bool,
+) -> Option<(bool, bool)> {
+    if !full || check {
+        None
+    } else if dry_run {
+        Some((true, rebuild))
+    } else if approved {
+        Some((false, rebuild))
+    } else {
+        None
+    }
+}
+
+fn install_managed_services(dry_run: bool, restart: bool) -> Result<()> {
+    let root = repo_root().ok_or_else(|| anyhow::anyhow!("could not locate repo root"))?;
+    let installer = root.join("scripts/install-mcp-services.sh");
+    anyhow::ensure!(
+        installer.is_file(),
+        "managed-service installer not found: {}",
+        installer.display()
+    );
+
+    let status = std::process::Command::new("bash")
+        .arg(&installer)
+        .args(managed_service_installer_args(dry_run, restart))
+        .current_dir(&root)
+        .status()
+        .with_context(|| format!("failed to run {}", installer.display()))?;
+    anyhow::ensure!(status.success(), "managed-service installation failed");
+    Ok(())
 }
 
 /// Best-effort `launchctl kickstart -k gui/<uid>/<label>`.
@@ -592,7 +688,13 @@ fn prompt_yes(label: &str) -> bool {
     matches!(line.trim().to_lowercase().as_str(), "y" | "yes")
 }
 
-pub fn run(non_interactive: bool, dry_run: bool, check: bool, rebuild: bool) -> Result<()> {
+pub fn run(
+    full: bool,
+    non_interactive: bool,
+    dry_run: bool,
+    check: bool,
+    rebuild: bool,
+) -> Result<()> {
     // --rebuild implies --non-interactive (locked decision: rebuild is automation).
     let non_interactive = non_interactive || rebuild;
 
@@ -605,6 +707,12 @@ pub fn run(non_interactive: bool, dry_run: bool, check: bool, rebuild: bool) -> 
         println!(
             "  {}",
             "(--rebuild — forcing rebuild of all binary components)".cyan()
+        );
+    }
+    if full {
+        println!(
+            "  {}",
+            "(--full — including managed services and the KBD control plane)".cyan()
         );
     }
     println!();
@@ -630,14 +738,37 @@ pub fn run(non_interactive: bool, dry_run: bool, check: bool, rebuild: bool) -> 
             _ => {}
         }
     }
+    let control_plane_status = full.then(detect_control_plane_service);
+    if let Some(status) = control_plane_status {
+        println!(
+            "  {} KBD control plane (sovereign-sync managed service) — {}",
+            status.icon(),
+            status.label().dimmed()
+        );
+        if matches!(
+            status,
+            ComponentStatus::Missing | ComponentStatus::NotInstalled
+        ) {
+            missing_count += 1;
+        }
+    }
     let gap_count = missing_count + stale_count;
     println!();
 
     if gap_count == 0 && !rebuild {
-        println!(
-            "{}",
-            "✨ All components healthy — nothing to do.".green().bold()
-        );
+        if full {
+            println!(
+                "{}",
+                "✨ All components healthy — managed definitions will be reconciled."
+                    .green()
+                    .bold()
+            );
+        } else {
+            println!(
+                "{}",
+                "✨ All components healthy — nothing to do.".green().bold()
+            );
+        }
     } else if gap_count > 0 {
         println!(
             "  {} gap(s) detected: {} missing, {} stale.",
@@ -649,11 +780,17 @@ pub fn run(non_interactive: bool, dry_run: bool, check: bool, rebuild: bool) -> 
 
     // --check exits before installing. --rebuild bypasses the "all healthy" short-circuit
     // so it can force installs even on a clean system.
-    if check || (gap_count == 0 && !rebuild) {
-        let pairs: Vec<_> = statuses
+    if check || (gap_count == 0 && !rebuild && !full) {
+        let mut pairs: Vec<_> = statuses
             .iter()
             .map(|(c, s)| (c.id.to_string(), *s))
             .collect();
+        if full {
+            pairs.push((
+                "control-plane-service".to_string(),
+                control_plane_status.expect("full setup has a control-plane status"),
+            ));
+        }
         write_setup_state(&pairs)?;
         return Ok(());
     }
@@ -710,6 +847,35 @@ pub fn run(non_interactive: bool, dry_run: bool, check: bool, rebuild: bool) -> 
                 }
                 None => {} // ComponentInstaller::None — unreachable here (filtered above)
             }
+        }
+    }
+
+    if full {
+        let before = control_plane_status.expect("full setup has a control-plane status");
+        let approved = if dry_run {
+            false
+        } else {
+            non_interactive || prompt_yes("managed services, including the KBD control plane")
+        };
+        let action = managed_service_action(full, check, dry_run, rebuild, approved);
+        if dry_run {
+            println!("  {} managed services: dry-run", "▸".dimmed());
+        }
+        if let Some((service_dry_run, restart)) = action {
+            install_managed_services(service_dry_run, restart)?;
+        }
+
+        let after = if dry_run {
+            before
+        } else {
+            detect_control_plane_service()
+        };
+        final_states.push(("control-plane-service".to_string(), after));
+        let attempted_install = matches!(action, Some((false, _)));
+        if attempted_install && !matches!(after, ComponentStatus::Ok) {
+            anyhow::bail!(
+                "KBD control-plane service is not both registered and healthy after setup"
+            );
         }
     }
 
@@ -798,5 +964,54 @@ mod tests {
         for status in statuses {
             assert!(!status.label().is_empty());
         }
+    }
+
+    #[test]
+    fn managed_service_args_preserve_dry_run_and_restart() {
+        assert_eq!(
+            managed_service_installer_args(false, false),
+            Vec::<&str>::new()
+        );
+        assert_eq!(
+            managed_service_installer_args(true, false),
+            vec!["--dry-run"]
+        );
+        assert_eq!(
+            managed_service_installer_args(false, true),
+            vec!["--restart"]
+        );
+        assert_eq!(
+            managed_service_installer_args(true, true),
+            vec!["--dry-run", "--restart"]
+        );
+    }
+
+    #[test]
+    fn managed_services_are_opt_in_and_checks_never_install() {
+        assert_eq!(
+            managed_service_action(false, false, false, false, true),
+            None
+        );
+        assert_eq!(managed_service_action(true, true, false, false, true), None);
+        assert_eq!(
+            managed_service_action(true, false, false, false, false),
+            None
+        );
+    }
+
+    #[test]
+    fn managed_service_action_covers_preview_install_and_rebuild() {
+        assert_eq!(
+            managed_service_action(true, false, true, false, false),
+            Some((true, false))
+        );
+        assert_eq!(
+            managed_service_action(true, false, false, false, true),
+            Some((false, false))
+        );
+        assert_eq!(
+            managed_service_action(true, false, false, true, true),
+            Some((false, true))
+        );
     }
 }

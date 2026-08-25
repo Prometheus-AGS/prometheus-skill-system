@@ -231,6 +231,9 @@ enum Commands {
 
     /// Detect machine setup gaps and interactively install missing components
     Setup {
+        /// Include managed background services, including the KBD control plane
+        #[arg(long)]
+        full: bool,
         /// Assume yes to all install prompts (CI/automation mode)
         #[arg(long)]
         non_interactive: bool,
@@ -1247,10 +1250,11 @@ async fn main() -> Result<()> {
             }
         },
         Commands::Setup {
+            full,
             non_interactive,
             dry_run,
             check,
             rebuild,
-        } => commands::setup::run(non_interactive, dry_run, check, rebuild),
+        } => commands::setup::run(full, non_interactive, dry_run, check, rebuild),
     }
 }

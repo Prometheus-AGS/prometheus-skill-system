@@ -519,8 +519,13 @@ cd prometheus-skill-system
 The recommended `skills` profile initializes the exact imported-skill pins and
 installs signed payloads for every detected client. It does not build binaries,
 change MCP configuration, or install services. Use `./install.sh --profile full`
-for the locally built macOS/Linux system. Release `1.7.0` is the minimum
-supported active umbrella skill-system version.
+for the locally built macOS/Linux system; `npm run setup:full` is its package
+alias, and an installed CLI can use `prometheus setup --full` to include managed
+services in component setup. Full setup installs `ai.prometheus.sovereign-sync`
+(`ai.prometheus.sovereign-sync.service` on Linux). Its daemon mode hosts the KBD
+control plane. Plain `npm run setup` remains a prerequisite-only command, and
+plain `prometheus setup` remains daemon-free.
+Release `1.7.0` is the minimum supported active umbrella skill-system version.
 
 For the full prerequisite, install, verification, and first-loop walkthrough, see
 [docs/guide/19-installation.md](docs/guide/19-installation.md); for keeping everything current, see
