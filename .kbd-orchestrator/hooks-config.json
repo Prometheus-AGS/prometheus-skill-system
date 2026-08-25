@@ -57,7 +57,7 @@
       "enabled": false,
       "action": {
         "type": "command",
-        "command": "echo '[kbd] Reminder: check .kbd-orchestrator/project.json active_phase before assessing'",
+        "command": "echo '[kbd] Reminder: check .kbd-orchestrator/project.json activePhase before assessing'",
         "timeout": 3,
         "on_failure": "ignore"
       }

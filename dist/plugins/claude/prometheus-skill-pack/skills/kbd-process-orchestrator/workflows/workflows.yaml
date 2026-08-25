@@ -27,7 +27,7 @@ workflows:
     args:
       - name: phase
         optional: true
-        description: "Phase name to assess (default: active_phase from project.json)"
+        description: "Phase name to assess (default: activePhase from project.json)"
     skill: skills/kbd-assess/SKILL.md
     prompt_file: prompts/assess.md
 
@@ -36,7 +36,7 @@ workflows:
     args:
       - name: phase
         optional: true
-        description: "Phase to plan (default: active_phase from project.json)"
+        description: "Phase to plan (default: activePhase from project.json)"
     skill: skills/kbd-plan/SKILL.md
     prompt_file: prompts/plan.md
 
@@ -45,7 +45,7 @@ workflows:
     args:
       - name: phase
         optional: true
-        description: "Phase to execute (default: active_phase)"
+        description: "Phase to execute (default: activePhase)"
     skill: skills/kbd-execute/SKILL.md
     prompt_file: prompts/execute.md
 
@@ -54,7 +54,7 @@ workflows:
     args:
       - name: phase
         optional: true
-        description: "Phase to reflect on (default: active_phase)"
+        description: "Phase to reflect on (default: activePhase)"
     skill: skills/kbd-reflect/SKILL.md
     prompt_file: prompts/reflect.md
 
@@ -117,7 +117,7 @@ workflows:
     args:
       - name: phase
         optional: true
-        description: "Phase name (default: active_phase)"
+        description: "Phase name (default: activePhase)"
     skill: null
     prompt_file: null
 

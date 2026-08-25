@@ -13,12 +13,14 @@ SOURCE_KBD="$REPO_ROOT/skills/process/kbd-process-orchestrator/skills/kbd-init"
 PLUGIN_ROOT="$TEST_HOME/.prometheus/plugins/prometheus-skill-pack"
 mkdir -p "$FAKE_BIN" "$PLUGIN_ROOT/generations/$GENERATION/skills/process/kbd-process-orchestrator/skills"
 cp -R "$SOURCE_KBD" "$PLUGIN_ROOT/generations/$GENERATION/skills/process/kbd-process-orchestrator/skills/kbd-init"
+cp -R "$SOURCE_KBD" "$PLUGIN_ROOT/generations/$GENERATION/skills/kbd-init"
+printf '{"sourceVersion":"1.7.0"}\n' > "$PLUGIN_ROOT/generations/$GENERATION/manifest.json"
 ln -s "generations/$GENERATION" "$PLUGIN_ROOT/current"
 
 UMBRELLA_INSTALL="$TEST_HOME/native/umbrella"
 PROCESS_INSTALL="$TEST_HOME/native/process"
-mkdir -p "$UMBRELLA_INSTALL/skills/process/kbd-process-orchestrator/skills" "$PROCESS_INSTALL/kbd-process-orchestrator/skills"
-cp -R "$SOURCE_KBD" "$UMBRELLA_INSTALL/skills/process/kbd-process-orchestrator/skills/kbd-init"
+mkdir -p "$UMBRELLA_INSTALL/skills" "$PROCESS_INSTALL/kbd-process-orchestrator/skills"
+cp -R "$SOURCE_KBD" "$UMBRELLA_INSTALL/skills/kbd-init"
 cp -R "$SOURCE_KBD" "$PROCESS_INSTALL/kbd-process-orchestrator/skills/kbd-init"
 
 cat > "$TMP_ROOT/claude-before.json" <<JSON
@@ -30,7 +32,7 @@ JSON
 cat > "$TMP_ROOT/claude-after.json" <<JSON
 [
   {"id":"prometheus-skill-pack@prometheus-skill-pack","scope":"user","version":"1.7.0","installPath":"$UMBRELLA_INSTALL"},
-  {"id":"prometheus-process-skills@prometheus-skill-pack","scope":"user","version":"1.5.1","installPath":"$PROCESS_INSTALL"}
+  {"id":"prometheus-process-skills@prometheus-skill-pack","scope":"user","version":"1.5.2","installPath":"$PROCESS_INSTALL"}
 ]
 JSON
 
@@ -54,6 +56,13 @@ fi
 if [[ "$*" == "plugin marketplace update prometheus-skill-pack" ]]; then
   exit 0
 fi
+if [[ "$*" == "plugin uninstall --scope user prometheus-skill-pack@prometheus-skill-pack" ]]; then
+  exit 0
+fi
+if [[ "$*" == "plugin install --scope user prometheus-skill-pack@prometheus-skill-pack" ]]; then
+  touch "${PROMETHEUS_NATIVE_TEST_UPDATED:?}"
+  exit 0
+fi
 if [[ "$*" == plugin\ update\ --scope\ user\ * ]]; then
   touch "${PROMETHEUS_NATIVE_TEST_UPDATED:?}"
   exit 0
@@ -75,8 +84,8 @@ if [[ "$*" == plugin\ add\ *\ --json ]]; then
 fi
 if [[ "$*" == "plugin list --json" ]]; then
   printf '{"installed":[
-    {"pluginId":"prometheus-skill-pack@prometheus-skill-pack","version":"1.7.0","installed":true,"enabled":true,"source":{"path":"%s"}},
-    {"pluginId":"prometheus-process-skills@prometheus-skill-pack","version":"1.5.1","installed":true,"enabled":true,"source":{"path":"%s/skills/process"}}
+    {"pluginId":"prometheus-skill-pack@prometheus-skill-pack","version":"1.7.0","installed":true,"enabled":true,"source":{"path":"%s/dist/plugins/codex/prometheus-skill-pack"}},
+    {"pluginId":"prometheus-process-skills@prometheus-skill-pack","version":"1.5.2","installed":true,"enabled":true,"source":{"path":"%s/skills/process"}}
   ]}\n' "${PROMETHEUS_NATIVE_TEST_REPO:?}" "${PROMETHEUS_NATIVE_TEST_REPO:?}"
   exit 0
 fi
@@ -111,18 +120,23 @@ export PROMETHEUS_NATIVE_TEST_BEFORE="$TMP_ROOT/claude-before.json"
 export PROMETHEUS_NATIVE_TEST_AFTER="$TMP_ROOT/claude-after.json"
 export PROMETHEUS_NATIVE_TEST_REPO="$REPO_ROOT"
 
-HOME="$TEST_HOME" \
-PROMETHEUS_CLAUDE_BIN="$FAKE_BIN/claude" \
-PROMETHEUS_CODEX_BIN="$FAKE_BIN/codex" \
-PROMETHEUS_KIMI_INSTALLER="$FAKE_BIN/kimi-installer" \
-PROMETHEUS_CLAUDE_LIST_DELAY_SECONDS=0 \
-bash "$REPO_ROOT/scripts/refresh-native-plugin-installs.sh" \
-  --source-root "$REPO_ROOT" --generation "$GENERATION" --force \
-  >"$TMP_ROOT/refresh.out" 2>"$TMP_ROOT/refresh.err"
+if ! HOME="$TEST_HOME" \
+  PROMETHEUS_CLAUDE_BIN="$FAKE_BIN/claude" \
+  PROMETHEUS_CODEX_BIN="$FAKE_BIN/codex" \
+  PROMETHEUS_KIMI_INSTALLER="$FAKE_BIN/kimi-installer" \
+  PROMETHEUS_CLAUDE_LIST_DELAY_SECONDS=0 \
+  bash "$REPO_ROOT/scripts/refresh-native-plugin-installs.sh" \
+    --source-root "$REPO_ROOT" --generation "$GENERATION" --force \
+    >"$TMP_ROOT/refresh.out" 2>"$TMP_ROOT/refresh.err"; then
+  cat "$TMP_ROOT/refresh.out"
+  cat "$TMP_ROOT/refresh.err" >&2
+  exit 1
+fi
 
 [[ ! -e "$TEST_HOME/Library/LaunchAgents/ai.prometheus.codex-skills-sync.plist" ]]
 grep -Fq 'claude plugin marketplace update prometheus-skill-pack' "$LOG"
-grep -Fq 'claude plugin update --scope user prometheus-skill-pack@prometheus-skill-pack' "$LOG"
+grep -Fq 'claude plugin uninstall --scope user prometheus-skill-pack@prometheus-skill-pack' "$LOG"
+grep -Fq 'claude plugin install --scope user prometheus-skill-pack@prometheus-skill-pack' "$LOG"
 grep -Fq 'claude plugin update --scope user prometheus-process-skills@prometheus-skill-pack' "$LOG"
 grep -Fq 'codex plugin marketplace list --json' "$LOG"
 grep -Fq 'codex plugin add prometheus-skill-pack@prometheus-skill-pack --json' "$LOG"
@@ -142,6 +156,8 @@ MISSING_HOME="$TMP_ROOT/missing-home"
 MISSING_PLUGIN="$MISSING_HOME/.prometheus/plugins/prometheus-skill-pack"
 mkdir -p "$MISSING_PLUGIN/generations/$GENERATION/skills/process/kbd-process-orchestrator/skills"
 cp -R "$SOURCE_KBD" "$MISSING_PLUGIN/generations/$GENERATION/skills/process/kbd-process-orchestrator/skills/kbd-init"
+cp -R "$SOURCE_KBD" "$MISSING_PLUGIN/generations/$GENERATION/skills/kbd-init"
+printf '{"sourceVersion":"1.7.0"}\n' > "$MISSING_PLUGIN/generations/$GENERATION/manifest.json"
 ln -s "generations/$GENERATION" "$MISSING_PLUGIN/current"
 HOME="$MISSING_HOME" \
 PROMETHEUS_CLAUDE_BIN="$TMP_ROOT/missing-claude" \

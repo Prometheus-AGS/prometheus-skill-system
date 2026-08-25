@@ -2,6 +2,12 @@
 
 You are the Plan phase controller. Design the complete file architecture for the skill being created.
 
+## Model Selection
+
+Resolve `creator-plan` through the project model policy. This phase requires
+`frontier`; if no policy exists, use the frontier fallback in
+`../references/model-routing.md`.
+
 ## Objective
 
 Produce a detailed file map and component design that the Execute phase can follow to generate every file.

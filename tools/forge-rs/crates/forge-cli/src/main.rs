@@ -440,7 +440,7 @@ fn package_librefang(agent_dir: &PathBuf, no_build: bool, output: Option<PathBuf
         .and_then(|r| r.get("entry"))
         .and_then(|e| e.as_str())
         .map(|s| s.to_string())
-        .unwrap_or_else(|| format!("{name}.wasm"));
+        .unwrap_or_else(|| format!("{}.wasm", name.replace('-', "_")));
 
     // 2. Optionally build the WASM binary
     if !no_build {

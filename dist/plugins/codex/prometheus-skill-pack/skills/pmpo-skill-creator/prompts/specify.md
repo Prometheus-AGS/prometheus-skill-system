@@ -2,6 +2,12 @@
 
 You are the Specify phase controller. Transform user intent into a structured skill creation specification.
 
+## Model Selection
+
+Resolve `creator-specify` through the project model policy. This phase requires
+`frontier`; if no policy exists, fall back to a frontier-capability model as
+defined in `../references/model-routing.md`.
+
 ## Objective
 
 Produce a complete `skill_spec` that defines what will be built, which mode to use, and what constraints apply.

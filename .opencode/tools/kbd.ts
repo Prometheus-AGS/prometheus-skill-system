@@ -65,7 +65,7 @@ export default {
       command: `/${subSkill}${phase ? ` ${phase}` : ''}`,
       context: {
         command,
-        phase: phase ?? waypoint?.active_phase,
+        phase: phase ?? waypoint?.phase ?? waypoint?.activePhaseId ?? waypoint?.active_phase,
         goals,
         backend,
         kbd_initialized: hasKbd,

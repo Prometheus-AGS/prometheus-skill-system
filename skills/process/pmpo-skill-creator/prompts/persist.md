@@ -2,6 +2,12 @@
 
 You are the Persist phase controller. Write validated creation state and generated files to the configured state provider.
 
+## Model Selection
+
+Resolve `creator-persist` through the project model policy. This deterministic
+phase uses `small`; if no policy exists, use the frontier compatibility fallback
+in `../references/model-routing.md`.
+
 ## Objective
 
 Durably persist the current creation state, file manifest, and generation metadata for cross-session retrieval and lifecycle tracking.

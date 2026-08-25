@@ -2,6 +2,7 @@ node_modules
 target
 .claude
 .agent
+.clinerules
 .codex/skills
 .cursor
 .kbd-orchestrator

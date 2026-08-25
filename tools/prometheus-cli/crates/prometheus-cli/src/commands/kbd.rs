@@ -3,7 +3,7 @@ use kbd_runtime::{
     registry::{scan_submodule_pins, ProjectRegistry},
     rollout::{RolloutObservation, RolloutTracker},
     Actor, ActorKind, Checkpoint, ClaimMode, CommandEnvelope, CommandKind, Event, LifecycleState,
-    Runtime, RuntimeError, RuntimeState, SignedCommandEnvelope,
+    ProjectionScope, Runtime, RuntimeError, RuntimeState, SignedCommandEnvelope,
 };
 use serde_json::{json, Value};
 use std::collections::BTreeSet;
@@ -954,6 +954,7 @@ impl ControlClient {
                 "control plane unreachable ({remote_error}); committing locally via the canonical runtime"
             );
         }
+        let projection_command = envelope.command.clone();
         let result = self
             .runtime
             .execute_command(envelope)
@@ -977,7 +978,11 @@ impl ControlClient {
         // command into a reported error. Warn and carry on.
         if let Err(error) = self
             .runtime
-            .write_compatibility_projections_from_state(&result.state, chrono::Utc::now())
+            .write_compatibility_projections_from_state_for_command(
+                &result.state,
+                chrono::Utc::now(),
+                &projection_command,
+            )
         {
             eprintln!(
                 "warning: command committed at revision {} but compatibility projections \
@@ -1298,7 +1303,11 @@ fn project_successor_and_release_pause(
     state: &RuntimeState,
 ) -> Result<()> {
     runtime
-        .write_compatibility_projections_from_state(state, chrono::Utc::now())
+        .write_compatibility_projections_from_state_scoped(
+            state,
+            chrono::Utc::now(),
+            &ProjectionScope::GlobalOnly,
+        )
         .with_context(|| {
             format!(
                 "successor run {} committed at revision {}, but projections failed; PAUSE remains active",

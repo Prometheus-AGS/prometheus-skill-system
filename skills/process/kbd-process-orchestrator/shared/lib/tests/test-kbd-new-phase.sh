@@ -196,4 +196,18 @@ mk_sandbox() {
   grep -q 'phase activate' "$PROMETHEUS_LOG" || fail "14e: phase activate missing"
 ) && pass "non-terminal runtime → no rollover"
 
-printf '\nall kbd-new-phase smoke tests passed (14/14)\n'
+# --- Test 15: mixed-history project metadata converges to activePhase ---
+( mk_sandbox
+  mkdir -p .kbd-orchestrator
+  jq -n '{name:"mixed-history", active_phase:"old-phase", activePhase:"newer-phase", custom:true}' \
+    > .kbd-orchestrator/project.json
+  "$SCRIPT" canonical-phase >/dev/null 2>&1 || fail "15a: mixed-history update should succeed"
+  jq -e '
+    .activePhase == "canonical-phase" and
+    has("active_phase") == false and
+    .custom == true
+  ' .kbd-orchestrator/project.json >/dev/null \
+    || fail "15b: writer did not converge to activePhase-only metadata"
+) && pass "mixed-history project metadata → activePhase only"
+
+printf '\nall kbd-new-phase smoke tests passed (15/15)\n'

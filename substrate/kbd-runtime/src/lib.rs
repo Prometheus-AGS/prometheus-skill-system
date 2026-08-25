@@ -454,6 +454,20 @@ pub struct Stage {
     pub status: WorkStatus,
 }
 
+/// Aggregate implementation history imported from a legacy phase ledger.
+///
+/// Legacy ledgers sometimes retained only N/N counters while their change rows
+/// were absent or incomplete. Keeping the baseline in canonical state lets
+/// later change events contribute deltas without erasing that history.
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+pub struct LegacyCompletionBaseline {
+    pub completed: u64,
+    pub total: u64,
+    #[serde(default)]
+    pub imported_change_statuses: BTreeMap<String, WorkStatus>,
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
 pub struct Phase {
@@ -465,6 +479,8 @@ pub struct Phase {
     pub status: WorkStatus,
     pub stages: BTreeMap<String, Stage>,
     pub changes: BTreeMap<String, Change>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub legacy_completion_baseline: Option<LegacyCompletionBaseline>,
     pub legacy_read_only: bool,
 }
 
@@ -1127,10 +1143,25 @@ pub struct MigrationSummary {
     pub invalid_files: u64,
     pub alias_conflicts: u64,
     pub legacy_read_only_phases: u64,
+    #[serde(default)]
+    pub phase_reconciliations: Vec<MigrationPhaseReconciliation>,
     pub stale_projections: u64,
     pub unreplayable_history: bool,
     pub backup_directory: Option<PathBuf>,
     pub backup_manifest: Option<PathBuf>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+pub struct MigrationPhaseReconciliation {
+    pub phase_id: String,
+    pub source: String,
+    pub source_completed: u64,
+    pub source_total: u64,
+    pub derived_completed: u64,
+    pub derived_total: u64,
+    pub resulting_completed: u64,
+    pub resulting_total: u64,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
@@ -1356,6 +1387,53 @@ pub enum CommandKind {
     SubmodulePinSet {
         pin: SubmodulePin,
     },
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum ProjectionScope {
+    AllPhases,
+    GlobalOnly,
+    Phases(BTreeSet<String>),
+}
+
+impl ProjectionScope {
+    pub fn for_command(state: &RuntimeState, command: &CommandKind) -> Self {
+        let phase_id = match command {
+            CommandKind::PhaseDefine { phase } => Some(phase.id.as_str()),
+            CommandKind::PhaseTransition { phase_id, .. }
+            | CommandKind::StageEnter { phase_id, .. }
+            | CommandKind::StageTransition { phase_id, .. }
+            | CommandKind::ChangeRegister { phase_id, .. }
+            | CommandKind::ChangeTransition { phase_id, .. }
+            | CommandKind::TaskRegister { phase_id, .. }
+            | CommandKind::TaskTransition { phase_id, .. } => Some(phase_id.as_str()),
+            CommandKind::CompletionSet { .. } => return Self::AllPhases,
+            _ => None,
+        };
+        let Some(phase_id) = phase_id else {
+            return Self::GlobalOnly;
+        };
+        let mut phases = BTreeSet::new();
+        let mut cursor = Some(phase_id);
+        while let Some(id) = cursor {
+            if !phases.insert(id.to_string()) {
+                break;
+            }
+            cursor = state
+                .phases
+                .get(id)
+                .and_then(|phase| phase.parent_phase_id.as_deref());
+        }
+        Self::Phases(phases)
+    }
+
+    fn includes_phase(&self, phase_id: &str) -> bool {
+        match self {
+            Self::AllPhases => true,
+            Self::GlobalOnly => false,
+            Self::Phases(phases) => phases.contains(phase_id),
+        }
+    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
@@ -2231,17 +2309,15 @@ impl KbdStateV2 {
     }
 
     fn recalculate_implementation(&mut self) {
-        let total = self
-            .phases
-            .values()
-            .map(|phase| phase.changes.len() as u64)
-            .sum();
-        let completed = self
-            .phases
-            .values()
-            .flat_map(|phase| phase.changes.values())
-            .filter(|change| change.implementation_status.is_complete())
-            .count() as u64;
+        let (completed, total) = self.phases.values().map(phase_implementation_counts).fold(
+            (0_u64, 0_u64),
+            |(completed, total), phase| {
+                (
+                    completed.saturating_add(phase.0),
+                    total.saturating_add(phase.1),
+                )
+            },
+        );
         let status = if total > 0 && completed == total {
             WorkStatus::Complete
         } else if self
@@ -2267,6 +2343,47 @@ impl KbdStateV2 {
             },
         );
     }
+}
+
+fn phase_implementation_counts(phase: &Phase) -> (u64, u64) {
+    let derived_completed = phase
+        .changes
+        .values()
+        .filter(|change| change.implementation_status.is_complete())
+        .count() as u64;
+    let derived_total = phase.changes.len() as u64;
+    let Some(baseline) = phase.legacy_completion_baseline.as_ref() else {
+        return (derived_completed, derived_total);
+    };
+
+    let imported_initial_completed = baseline
+        .imported_change_statuses
+        .values()
+        .filter(|status| status.is_complete())
+        .count() as i128;
+    let imported_current_completed = baseline
+        .imported_change_statuses
+        .keys()
+        .filter_map(|id| phase.changes.get(id))
+        .filter(|change| change.implementation_status.is_complete())
+        .count() as i128;
+    let new_changes = phase
+        .changes
+        .iter()
+        .filter(|(id, _)| !baseline.imported_change_statuses.contains_key(*id));
+    let mut new_total = 0_u64;
+    let mut new_completed = 0_u64;
+    for (_, change) in new_changes {
+        new_total = new_total.saturating_add(1);
+        new_completed += u64::from(change.implementation_status.is_complete());
+    }
+
+    let total = baseline.total.saturating_add(new_total);
+    let completed = (baseline.completed as i128 + imported_current_completed
+        - imported_initial_completed
+        + new_completed as i128)
+        .clamp(0, total as i128) as u64;
+    (completed, total)
 }
 
 fn validate_device_record(device: &DeviceRecord, revision: u64) -> Result<()> {
@@ -4515,7 +4632,7 @@ impl Runtime {
     }
 
     pub fn write_compatibility_projections(&self) -> Result<()> {
-        self.write_compatibility_projections_inner(false)
+        self.write_compatibility_projections_inner(false, &ProjectionScope::AllPhases)
     }
 
     /// Projection during an explicit, backed-up migration.
@@ -4525,10 +4642,14 @@ impl Runtime {
     /// point of the operation. The routine path stays strict because it runs
     /// unattended on every transition.
     fn write_compatibility_projections_migrating(&self) -> Result<()> {
-        self.write_compatibility_projections_inner(true)
+        self.write_compatibility_projections_inner(true, &ProjectionScope::AllPhases)
     }
 
-    fn write_compatibility_projections_inner(&self, migrating: bool) -> Result<()> {
+    fn write_compatibility_projections_inner(
+        &self,
+        migrating: bool,
+        scope: &ProjectionScope,
+    ) -> Result<()> {
         fs::create_dir_all(self.journal_root())?;
         let lock = OpenOptions::new()
             .create(true)
@@ -4546,7 +4667,12 @@ impl Runtime {
             .last()
             .map(|event| event.timestamp)
             .ok_or(RuntimeError::NotInitialized)?;
-        self.write_compatibility_projections_from_state_inner(&state, projection_time, migrating)
+        self.write_compatibility_projections_from_state_inner(
+            &state,
+            projection_time,
+            migrating,
+            scope,
+        )
     }
 
     /// Render revision-stamped compatibility files from already committed
@@ -4557,7 +4683,31 @@ impl Runtime {
         state: &RuntimeState,
         projection_time: DateTime<Utc>,
     ) -> Result<()> {
-        self.write_compatibility_projections_from_state_inner(state, projection_time, false)
+        self.write_compatibility_projections_from_state_inner(
+            state,
+            projection_time,
+            false,
+            &ProjectionScope::AllPhases,
+        )
+    }
+
+    pub fn write_compatibility_projections_from_state_scoped(
+        &self,
+        state: &RuntimeState,
+        projection_time: DateTime<Utc>,
+        scope: &ProjectionScope,
+    ) -> Result<()> {
+        self.write_compatibility_projections_from_state_inner(state, projection_time, false, scope)
+    }
+
+    pub fn write_compatibility_projections_from_state_for_command(
+        &self,
+        state: &RuntimeState,
+        projection_time: DateTime<Utc>,
+        command: &CommandKind,
+    ) -> Result<()> {
+        let scope = ProjectionScope::for_command(state, command);
+        self.write_compatibility_projections_from_state_inner(state, projection_time, false, &scope)
     }
 
     fn write_compatibility_projections_from_state_inner(
@@ -4565,6 +4715,7 @@ impl Runtime {
         state: &KbdStateV2,
         projection_time: DateTime<Utc>,
         migrating: bool,
+        scope: &ProjectionScope,
     ) -> Result<()> {
         if state.revision == 0 {
             return Err(RuntimeError::NotInitialized);
@@ -4680,6 +4831,9 @@ impl Runtime {
         let warned_lock = WARNED.get_or_init(|| std::sync::Mutex::new(HashSet::new()));
 
         for phase in state.phases.values() {
+            if !scope.includes_phase(&phase.id) {
+                continue;
+            }
             let phase_dir = phase_projection_directory(&kbd_root, state, phase)?;
             let progress_path = phase_dir.join("progress.json");
             // Poisoned lock is not a reason to fail a projection: fall back to
@@ -4734,10 +4888,16 @@ impl Runtime {
                 &progress_path,
                 &phase_progress_projection(state, phase, projection_time),
             )?;
-            atomic_text(
-                &phase_dir.join("tasks.md"),
-                &phase_tasks_projection(state, phase),
-            )?;
+            let tasks_path = phase_dir.join("tasks.md");
+            if phase
+                .changes
+                .values()
+                .any(|change| !change.tasks.is_empty())
+            {
+                atomic_text(&tasks_path, &phase_tasks_projection(state, phase))?;
+            } else if runtime_owned_empty_tasks_projection(&tasks_path) {
+                fs::remove_file(&tasks_path)?;
+            }
         }
 
         let position = serde_json::json!({
@@ -4881,11 +5041,25 @@ impl Runtime {
                 });
             }
         }
+        let backup_manifest = if let Some(backup) = &backup_directory {
+            let path = backup.join("manifest.json");
+            let backup_manifest = MigrationBackupManifest {
+                schema_version: "1".into(),
+                project_id: project_id.clone(),
+                created_at: Utc::now(),
+                files: backup_entries,
+            };
+            atomic_json(&path, &serde_json::to_value(backup_manifest)?)?;
+            Some(path)
+        } else {
+            None
+        };
         let mut migrated = 0;
         let mut uncertain = 0;
         let mut invalid = 0;
         let mut alias_conflicts = 0;
         let mut legacy_read_only_phases = 0;
+        let mut phase_reconciliations = Vec::new();
         let mut phases = BTreeMap::new();
         for path in &paths {
             let progress: serde_json::Value = match serde_json::from_reader(File::open(path)?) {
@@ -4895,25 +5069,45 @@ impl Runtime {
                     continue;
                 }
             };
-            let file_alias_conflict = progress_alias_conflict(&progress);
-            alias_conflicts += u64::from(file_alias_conflict);
             let file_uncertain = progress_uncertain_rows(&progress);
             uncertain += file_uncertain;
             if progress["schemaVersion"] != "2" {
                 migrated += 1;
             }
             let identity = legacy_phase_identity(&kbd_root, path, &progress);
+            let derived_phase = legacy_phase(&identity.id, &progress, file_uncertain > 0, None);
+            let (derived_completed, derived_total) = phase_implementation_counts(&derived_phase);
+            let counts = legacy_completion_resolution(&progress, derived_completed, derived_total);
+            invalid += u64::from(counts.invalid);
+            alias_conflicts += u64::from(counts.conflict);
             let mut phase = legacy_phase(
                 &identity.id,
                 &progress,
-                file_uncertain > 0 || file_alias_conflict,
+                file_uncertain > 0 || counts.invalid || counts.conflict,
+                Some((counts.completed, counts.total)),
             );
             phase.slug = identity.slug;
             phase.parent_phase_id = identity.parent_phase_id;
+            let (resulting_completed, resulting_total) = phase_implementation_counts(&phase);
+            phase_reconciliations.push(MigrationPhaseReconciliation {
+                phase_id: identity.id,
+                source: counts.source,
+                source_completed: counts.completed,
+                source_total: counts.total,
+                derived_completed,
+                derived_total,
+                resulting_completed,
+                resulting_total,
+            });
             legacy_read_only_phases += u64::from(phase.legacy_read_only);
-            phases.insert(identity.id, phase);
+            phases.insert(phase.id.clone(), phase);
         }
         if apply {
+            if invalid > 0 || alias_conflicts > 0 {
+                return Err(RuntimeError::InvalidState(format!(
+                    "refusing to migrate: {invalid} progress file(s) contain invalid, incomplete, or out-of-range counters and {alias_conflicts} contain conflicting counters; backups were written before validation"
+                )));
+            }
             let waypoint = fs::read(kbd_root.join("current-waypoint.json"))
                 .ok()
                 .and_then(|bytes| serde_json::from_slice::<serde_json::Value>(&bytes).ok())
@@ -4990,15 +5184,12 @@ impl Runtime {
                     .into_iter()
                     .map(|dimension| (dimension, Completion::not_tracked()))
                     .collect::<BTreeMap<_, _>>();
-                let completed = phases
+                let (completed, total) = phases
                     .values()
-                    .flat_map(|phase| phase.changes.values())
-                    .filter(|change| change.implementation_status.is_complete())
-                    .count() as u64;
-                let total = phases
-                    .values()
-                    .map(|phase| phase.changes.len() as u64)
-                    .sum();
+                    .map(phase_implementation_counts)
+                    .fold((0_u64, 0_u64), |(completed, total), phase| {
+                        (completed + phase.0, total + phase.1)
+                    });
                 completion.insert(
                     CompletionDimension::Implementation,
                     Completion {
@@ -5015,7 +5206,7 @@ impl Runtime {
                         blockers: Vec::new(),
                     },
                 );
-                self.import_legacy_state(
+                state = self.import_legacy_state(
                     Actor::operator("kbd-migration", "prometheus-cli"),
                     state.revision,
                     format!("legacy-import-v2-{}", state.run_id),
@@ -5052,19 +5243,6 @@ impl Runtime {
             }
             self.write_compatibility_projections_migrating()?;
         }
-        let backup_manifest = if let Some(backup) = &backup_directory {
-            let path = backup.join("manifest.json");
-            let backup_manifest = MigrationBackupManifest {
-                schema_version: "1".into(),
-                project_id: project_id.clone(),
-                created_at: Utc::now(),
-                files: backup_entries,
-            };
-            atomic_json(&path, &serde_json::to_value(backup_manifest)?)?;
-            Some(path)
-        } else {
-            None
-        };
         Ok(MigrationSummary {
             project_id,
             progress_files: paths.len() as u64,
@@ -5073,6 +5251,7 @@ impl Runtime {
             invalid_files: invalid,
             alias_conflicts,
             legacy_read_only_phases,
+            phase_reconciliations,
             stale_projections: projection_mismatch_count(&kbd_root),
             unreplayable_history: self.events_path().exists() && self.replay().is_err(),
             backup_directory,
@@ -5280,12 +5459,7 @@ fn phase_progress_projection(
     phase: &Phase,
     updated_at: DateTime<Utc>,
 ) -> serde_json::Value {
-    let completed = phase
-        .changes
-        .values()
-        .filter(|change| change.implementation_status.is_complete())
-        .count() as u64;
-    let total = phase.changes.len() as u64;
+    let (completed, total) = phase_implementation_counts(phase);
     let implementation_status = if total > 0 && completed == total {
         WorkStatus::Complete
     } else if phase
@@ -5352,19 +5526,15 @@ fn phase_progress_projection(
         .values()
         .filter(|candidate| candidate.parent_phase_id.as_deref() == Some(phase.id.as_str()))
         .map(|child| {
-            let completed = child
-                .changes
-                .values()
-                .filter(|change| change.implementation_status.is_complete())
-                .count() as u64;
+            let (completed, total) = phase_implementation_counts(child);
             (
                 child.slug.clone(),
                 serde_json::json!({
                     "status": legacy_change_status(&child.status),
                     "changes_completed": completed,
-                    "changes_total": child.changes.len(),
+                    "changes_total": total,
                     "implementation_completed": completed,
-                    "implementation_total": child.changes.len(),
+                    "implementation_total": total,
                     "certification_status": "NOT_TRACKED",
                     "handoff": serde_json::Value::Null,
                     "completed_at": serde_json::Value::Null
@@ -5447,7 +5617,6 @@ fn phase_tasks_projection(state: &RuntimeState, phase: &Phase) -> String {
     for change in ordered_changes(phase) {
         output.push_str(&format!("## {} — {}\n\n", change.id, change.title));
         if change.tasks.is_empty() {
-            output.push_str("- [ ] No tasks registered\n\n");
             continue;
         }
         for task in ordered_tasks(change) {
@@ -5464,12 +5633,20 @@ fn phase_tasks_projection(state: &RuntimeState, phase: &Phase) -> String {
     output
 }
 
+fn runtime_owned_empty_tasks_projection(path: &Path) -> bool {
+    let Ok(content) = fs::read_to_string(path) else {
+        return false;
+    };
+    content.starts_with("<!-- generated by kbd-runtime; source revision ")
+        && !content.lines().any(|line| {
+            let line = line.trim_start();
+            (line.starts_with("- [x]") || line.starts_with("- [ ]"))
+                && line != "- [ ] No tasks registered"
+        })
+}
+
 fn position_phase_node(state: &RuntimeState, phase: &Phase) -> serde_json::Value {
-    let completed = phase
-        .changes
-        .values()
-        .filter(|change| change.implementation_status.is_complete())
-        .count() as u64;
+    let (completed, total) = phase_implementation_counts(phase);
     let mut children = state
         .phases
         .values()
@@ -5494,7 +5671,7 @@ fn position_phase_node(state: &RuntimeState, phase: &Phase) -> serde_json::Value
         "id": phase.slug,
         "canonicalId": phase.id,
         "status": work_status_name(&phase.status),
-        "progress": {"done": completed, "total": phase.changes.len()},
+        "progress": {"done": completed, "total": total},
         "children": children,
         "annotations": []
     })
@@ -5644,7 +5821,12 @@ fn legacy_tasks(row: &serde_json::Value) -> BTreeMap<String, Task> {
         .collect()
 }
 
-fn legacy_phase(phase_id: &str, progress: &serde_json::Value, mut legacy_read_only: bool) -> Phase {
+fn legacy_phase(
+    phase_id: &str,
+    progress: &serde_json::Value,
+    mut legacy_read_only: bool,
+    recorded_counts: Option<(u64, u64)>,
+) -> Phase {
     let rows = match legacy_changes(progress) {
         Some(serde_json::Value::Array(rows)) => rows
             .iter()
@@ -5699,11 +5881,23 @@ fn legacy_phase(phase_id: &str, progress: &serde_json::Value, mut legacy_read_on
             )
         })
         .collect::<BTreeMap<_, _>>();
-    let status = if !changes.is_empty()
-        && changes
-            .values()
-            .all(|change| change.implementation_status.is_complete())
-    {
+    let derived_completed = changes
+        .values()
+        .filter(|change| change.implementation_status.is_complete())
+        .count() as u64;
+    let derived_total = changes.len() as u64;
+    let (completed, total) = recorded_counts.unwrap_or((derived_completed, derived_total));
+    let legacy_completion_baseline = (completed, total)
+        .ne(&(derived_completed, derived_total))
+        .then(|| LegacyCompletionBaseline {
+            completed,
+            total,
+            imported_change_statuses: changes
+                .iter()
+                .map(|(id, change)| (id.clone(), change.implementation_status.clone()))
+                .collect(),
+        });
+    let status = if total > 0 && completed == total {
         WorkStatus::Complete
     } else if changes
         .values()
@@ -5730,7 +5924,81 @@ fn legacy_phase(phase_id: &str, progress: &serde_json::Value, mut legacy_read_on
         status,
         stages: BTreeMap::new(),
         changes,
+        legacy_completion_baseline,
         legacy_read_only,
+    }
+}
+
+#[derive(Debug, Clone)]
+struct LegacyCountResolution {
+    source: String,
+    completed: u64,
+    total: u64,
+    invalid: bool,
+    conflict: bool,
+}
+
+fn legacy_completion_resolution(
+    progress: &serde_json::Value,
+    derived_completed: u64,
+    derived_total: u64,
+) -> LegacyCountResolution {
+    let implementation = progress
+        .get("completion")
+        .and_then(|completion| completion.get("implementation"));
+    let candidates = [
+        (
+            "completion.implementation",
+            implementation.and_then(|value| value.get("completed")),
+            implementation.and_then(|value| value.get("total")),
+        ),
+        (
+            "implementation_*",
+            progress.get("implementation_completed"),
+            progress.get("implementation_total"),
+        ),
+        (
+            "changes_*",
+            progress.get("changes_completed"),
+            progress.get("changes_total"),
+        ),
+    ];
+    let mut present = Vec::new();
+    let mut invalid = false;
+    for (source, completed, total) in candidates {
+        if completed.is_none() && total.is_none() {
+            continue;
+        }
+        let Some(completed) = completed.and_then(serde_json::Value::as_u64) else {
+            invalid = true;
+            continue;
+        };
+        let Some(total) = total.and_then(serde_json::Value::as_u64) else {
+            invalid = true;
+            continue;
+        };
+        if completed > total {
+            invalid = true;
+            continue;
+        }
+        present.push((source, completed, total));
+    }
+    let conflict = present.first().is_some_and(|first| {
+        present
+            .iter()
+            .skip(1)
+            .any(|value| value.1 != first.1 || value.2 != first.2)
+    });
+    let (source, completed, total) = present
+        .first()
+        .map(|(source, completed, total)| ((*source).to_string(), *completed, *total))
+        .unwrap_or_else(|| ("derivedRows".to_string(), derived_completed, derived_total));
+    LegacyCountResolution {
+        source,
+        completed,
+        total,
+        invalid,
+        conflict,
     }
 }
 
@@ -5763,19 +6031,6 @@ fn legacy_changes(progress: &serde_json::Value) -> Option<&serde_json::Value> {
     }
 }
 
-fn progress_alias_conflict(progress: &serde_json::Value) -> bool {
-    [
-        ("implementation_completed", "changes_completed"),
-        ("implementation_total", "changes_total"),
-    ]
-    .iter()
-    .any(|(canonical, alias)| {
-        progress.get(*canonical).is_some()
-            && progress.get(*alias).is_some()
-            && progress.get(*canonical) != progress.get(*alias)
-    })
-}
-
 /// Per-phase completion counts read out of a legacy `progress.json` projection.
 ///
 /// Only the two forms actually written by the KBD skills are consulted: the canonical
@@ -5791,11 +6046,7 @@ fn projection_completed(progress: &serde_json::Value) -> u64 {
 
 /// Count changes a phase records as COMPLETE in canonical state.
 fn canonical_completed(phase: &Phase) -> u64 {
-    phase
-        .changes
-        .values()
-        .filter(|change| change.status == WorkStatus::Complete)
-        .count() as u64
+    phase_implementation_counts(phase).0
 }
 
 /// Phases whose on-disk projection records MORE completed work than canonical state.
@@ -6848,6 +7099,7 @@ mod tests {
                     status: WorkStatus::InProgress,
                     stages: BTreeMap::new(),
                     changes: BTreeMap::new(),
+                    legacy_completion_baseline: None,
                     legacy_read_only: false,
                 },
             )
@@ -7228,6 +7480,7 @@ mod tests {
                     status: WorkStatus::Pending,
                     stages: BTreeMap::new(),
                     changes: BTreeMap::new(),
+                    legacy_completion_baseline: None,
                     legacy_read_only: false,
                 },
             },
@@ -7275,6 +7528,7 @@ mod tests {
                             status: WorkStatus::Pending,
                             stages: BTreeMap::new(),
                             changes: BTreeMap::new(),
+                            legacy_completion_baseline: None,
                             legacy_read_only: false,
                         },
                     },
@@ -7444,6 +7698,7 @@ mod tests {
             status: WorkStatus::InProgress,
             stages: BTreeMap::new(),
             changes: BTreeMap::new(),
+            legacy_completion_baseline: None,
             legacy_read_only: false,
         };
         let with_phase = runtime
@@ -7875,7 +8130,6 @@ mod tests {
         );
     }
 
-    #[test]
     /// `position-reminder.txt` is regenerated by the runtime, not hand-authored.
     ///
     /// Regression guard for 2026-08-12: the file had no writer at all, so it
@@ -7972,6 +8226,207 @@ mod tests {
     }
 
     #[test]
+    fn migration_reconciles_all_legacy_counter_shapes_by_precedence() {
+        let dir = tempdir().unwrap();
+        let phases = dir.path().join(".kbd-orchestrator/phases");
+        let fixtures = [
+            (
+                "nested",
+                r#"{"completion":{"implementation":{"completed":4,"total":9}},"changes":[]}"#,
+                "completion.implementation",
+                4,
+                9,
+            ),
+            (
+                "implementation",
+                r#"{"implementation_completed":3,"implementation_total":5,"changes":[{"id":"known","status":"DONE"}]}"#,
+                "implementation_*",
+                3,
+                5,
+            ),
+            (
+                "changes",
+                r#"{"changes_completed":2,"changes_total":7,"changes":[]}"#,
+                "changes_*",
+                2,
+                7,
+            ),
+        ];
+        for (phase, body, _, _, _) in fixtures {
+            let phase_dir = phases.join(phase);
+            fs::create_dir_all(&phase_dir).unwrap();
+            fs::write(phase_dir.join("progress.json"), body).unwrap();
+        }
+
+        let runtime = Runtime::open(dir.path());
+        let check = runtime.migrate_legacy_ledgers(false).unwrap();
+        assert_eq!(check.phase_reconciliations.len(), fixtures.len());
+        for (phase, _, source, completed, total) in fixtures {
+            let row = check
+                .phase_reconciliations
+                .iter()
+                .find(|row| row.phase_id == phase)
+                .unwrap();
+            assert_eq!(row.source, source);
+            assert_eq!((row.source_completed, row.source_total), (completed, total));
+            assert_eq!(
+                (row.resulting_completed, row.resulting_total),
+                (completed, total)
+            );
+        }
+
+        runtime.migrate_legacy_ledgers(true).unwrap();
+        let state = runtime.replay().unwrap();
+        assert_eq!(phase_implementation_counts(&state.phases["nested"]), (4, 9));
+        assert_eq!(
+            phase_implementation_counts(&state.phases["implementation"]),
+            (3, 5)
+        );
+        assert_eq!(
+            phase_implementation_counts(&state.phases["changes"]),
+            (2, 7)
+        );
+        assert_eq!(
+            state.completion[&CompletionDimension::Implementation].completed,
+            9
+        );
+        assert_eq!(
+            state.completion[&CompletionDimension::Implementation].total,
+            21
+        );
+    }
+
+    #[test]
+    fn migrated_aggregate_baseline_survives_canonical_change_deltas() {
+        let dir = tempdir().unwrap();
+        let phase_dir = dir.path().join(".kbd-orchestrator/phases/aggregate");
+        fs::create_dir_all(&phase_dir).unwrap();
+        fs::write(
+            phase_dir.join("progress.json"),
+            r#"{"changes_completed":3,"changes_total":5}"#,
+        )
+        .unwrap();
+        let runtime = Runtime::open(dir.path());
+        runtime.migrate_legacy_ledgers(true).unwrap();
+        let migrated = runtime.replay().unwrap();
+        assert_eq!(
+            phase_implementation_counts(&migrated.phases["aggregate"]),
+            (3, 5)
+        );
+        assert!(migrated.phases["aggregate"]
+            .legacy_completion_baseline
+            .is_some());
+
+        let changed = runtime
+            .register_change(
+                actor(ActorKind::Operator, "migration-test"),
+                MutationContext {
+                    expected_revision: migrated.revision,
+                    command_id: "new-complete-change".into(),
+                },
+                "aggregate",
+                Change {
+                    id: "new-change".into(),
+                    title: "New canonical change".into(),
+                    sequence: 1,
+                    status: WorkStatus::Complete,
+                    implementation_status: WorkStatus::Complete,
+                    tasks: BTreeMap::new(),
+                },
+            )
+            .unwrap();
+        assert_eq!(
+            phase_implementation_counts(&changed.phases["aggregate"]),
+            (4, 6)
+        );
+        assert_eq!(
+            changed.completion[&CompletionDimension::Implementation].completed,
+            4
+        );
+        assert_eq!(
+            changed.completion[&CompletionDimension::Implementation].total,
+            6
+        );
+    }
+
+    #[test]
+    fn migration_refuses_invalid_incomplete_conflicting_and_out_of_range_counters() {
+        for (name, body) in [
+            (
+                "incomplete",
+                r#"{"implementation_completed":1,"changes":[]}"#,
+            ),
+            (
+                "conflicting",
+                r#"{"implementation_completed":1,"implementation_total":2,"changes_completed":0,"changes_total":2,"changes":[]}"#,
+            ),
+            (
+                "out-of-range",
+                r#"{"changes_completed":3,"changes_total":2,"changes":[]}"#,
+            ),
+            (
+                "invalid-type",
+                r#"{"changes_completed":"1","changes_total":2,"changes":[]}"#,
+            ),
+        ] {
+            let dir = tempdir().unwrap();
+            let phase_dir = dir.path().join(".kbd-orchestrator/phases").join(name);
+            fs::create_dir_all(&phase_dir).unwrap();
+            fs::write(phase_dir.join("progress.json"), body).unwrap();
+            let runtime = Runtime::open(dir.path());
+            let result = runtime.migrate_legacy_ledgers(true);
+            assert!(
+                matches!(result, Err(RuntimeError::InvalidState(_))),
+                "{name}"
+            );
+            let backups = runtime.root.join("migration-backups");
+            assert!(
+                backups.exists() && fs::read_dir(backups).unwrap().next().is_some(),
+                "{name}: validation must happen after backup"
+            );
+            let manifest_count = fs::read_dir(runtime.root.join("migration-backups"))
+                .unwrap()
+                .filter_map(std::result::Result::ok)
+                .filter(|entry| entry.path().join("manifest.json").is_file())
+                .count();
+            assert_eq!(manifest_count, 1, "{name}: backup manifest missing");
+            assert_eq!(
+                runtime.replay().unwrap().revision,
+                0,
+                "{name}: apply mutated state"
+            );
+        }
+    }
+
+    #[test]
+    fn empty_task_projection_removes_only_runtime_owned_placeholders() {
+        for (name, tasks, should_exist) in [
+            (
+                "runtime-owned",
+                "<!-- generated by kbd-runtime; source revision 1 -->\n# Tasks\n\n- [ ] No tasks registered\n",
+                false,
+            ),
+            ("user-authored", "# My notes\n\nKeep this file.\n", true),
+        ] {
+            let dir = tempdir().unwrap();
+            let phase_dir = dir.path().join(".kbd-orchestrator/phases").join(name);
+            fs::create_dir_all(&phase_dir).unwrap();
+            fs::write(
+                phase_dir.join("progress.json"),
+                format!(
+                    r#"{{"phase":"{name}","changes_completed":0,"changes_total":0,"changes":[]}}"#
+                ),
+            )
+            .unwrap();
+            fs::write(phase_dir.join("tasks.md"), tasks).unwrap();
+            Runtime::open(dir.path())
+                .migrate_legacy_ledgers(true)
+                .unwrap();
+            assert_eq!(phase_dir.join("tasks.md").exists(), should_exist, "{name}");
+        }
+    }
+
+    #[test]
     fn projections_are_atomic_canonical_and_replayable() {
         let dir = tempdir().unwrap();
         let kbd = dir.path().join(".kbd-orchestrator");
@@ -8020,9 +8475,7 @@ mod tests {
         assert_eq!(position["sourceRevision"], 2);
         assert_eq!(position["frontier"][runtime.replica_id()], 2);
         assert_eq!(runtime.replay().unwrap().revision, 2);
-        assert!(fs::read_to_string(kbd.join("phases/phase-x/tasks.md"))
-            .unwrap()
-            .contains("source revision 2"));
+        assert!(!kbd.join("phases/phase-x/tasks.md").exists());
 
         let first_waypoint = fs::read(kbd.join("current-waypoint.json")).unwrap();
         let first_progress = fs::read(kbd.join("phases/phase-x/progress.json")).unwrap();
@@ -8037,6 +8490,140 @@ mod tests {
             fs::read(kbd.join("phases/phase-x/progress.json")).unwrap()
         );
         assert_eq!(first_position, fs::read(kbd.join("position.json")).unwrap());
+    }
+
+    #[test]
+    fn routine_projection_scopes_target_ancestors_and_global_commands() {
+        let dir = tempdir().unwrap();
+        let runtime = Runtime::open(dir.path());
+        let operator = actor(ActorKind::Operator, "projection-scope");
+        let mut state = runtime
+            .initialize("project", "run", operator.clone())
+            .unwrap();
+        for (id, parent) in [
+            ("parent", None),
+            ("child", Some("parent")),
+            ("unrelated", None),
+        ] {
+            state = runtime
+                .define_phase(
+                    operator.clone(),
+                    MutationContext {
+                        expected_revision: state.revision,
+                        command_id: format!("define-{id}"),
+                    },
+                    Phase {
+                        id: id.into(),
+                        slug: id.into(),
+                        title: id.into(),
+                        parent_phase_id: parent.map(str::to_owned),
+                        status: WorkStatus::Pending,
+                        stages: BTreeMap::new(),
+                        changes: BTreeMap::new(),
+                        legacy_completion_baseline: None,
+                        legacy_read_only: false,
+                    },
+                )
+                .unwrap();
+        }
+        runtime
+            .write_compatibility_projections_from_state(&state, Utc::now())
+            .unwrap();
+        let progress_revision = |path: &Path| -> u64 {
+            serde_json::from_reader::<_, serde_json::Value>(File::open(path).unwrap()).unwrap()
+                ["sourceRevision"]
+                .as_u64()
+                .unwrap()
+        };
+        let kbd = dir.path().join(".kbd-orchestrator/phases");
+        let parent = kbd.join("parent/progress.json");
+        let child = kbd.join("parent/children/child/progress.json");
+        let unrelated = kbd.join("unrelated/progress.json");
+        assert_eq!(progress_revision(&unrelated), 4);
+
+        let command = CommandKind::ChangeRegister {
+            phase_id: "child".into(),
+            change: Change {
+                id: "change-a".into(),
+                title: "Change A".into(),
+                sequence: 0,
+                status: WorkStatus::Pending,
+                implementation_status: WorkStatus::Pending,
+                tasks: BTreeMap::new(),
+            },
+        };
+        state = runtime
+            .execute_command(CommandEnvelope {
+                schema_version: "2".into(),
+                project_id: state.project_id.clone(),
+                run_id: state.run_id.clone(),
+                command_id: "register-child-change".into(),
+                frontier: Some(state.frontier.clone()),
+                expected_revision: state.revision,
+                actor: operator.clone(),
+                command: command.clone(),
+            })
+            .unwrap()
+            .state;
+        runtime
+            .write_compatibility_projections_from_state_for_command(&state, Utc::now(), &command)
+            .unwrap();
+        assert_eq!(progress_revision(&child), 5);
+        assert_eq!(progress_revision(&parent), 5);
+        assert_eq!(progress_revision(&unrelated), 4);
+
+        let lifecycle = CommandKind::LifecycleTransition {
+            to: LifecycleState::Running,
+            reason: "start".into(),
+        };
+        state = runtime
+            .execute_command(CommandEnvelope {
+                schema_version: "2".into(),
+                project_id: state.project_id.clone(),
+                run_id: state.run_id.clone(),
+                command_id: "start-run".into(),
+                frontier: Some(state.frontier.clone()),
+                expected_revision: state.revision,
+                actor: operator.clone(),
+                command: lifecycle.clone(),
+            })
+            .unwrap()
+            .state;
+        runtime
+            .write_compatibility_projections_from_state_for_command(&state, Utc::now(), &lifecycle)
+            .unwrap();
+        assert_eq!(progress_revision(&child), 5);
+        assert_eq!(progress_revision(&parent), 5);
+        assert_eq!(progress_revision(&unrelated), 4);
+        let waypoint: serde_json::Value = serde_json::from_reader(
+            File::open(dir.path().join(".kbd-orchestrator/current-waypoint.json")).unwrap(),
+        )
+        .unwrap();
+        assert_eq!(waypoint["sourceRevision"], 6);
+
+        let completion = CommandKind::CompletionSet {
+            dimension: CompletionDimension::Evidence,
+            completion: Completion::not_tracked(),
+        };
+        state = runtime
+            .execute_command(CommandEnvelope {
+                schema_version: "2".into(),
+                project_id: state.project_id.clone(),
+                run_id: state.run_id.clone(),
+                command_id: "set-evidence".into(),
+                frontier: Some(state.frontier.clone()),
+                expected_revision: state.revision,
+                actor: operator,
+                command: completion.clone(),
+            })
+            .unwrap()
+            .state;
+        runtime
+            .write_compatibility_projections_from_state_for_command(&state, Utc::now(), &completion)
+            .unwrap();
+        assert_eq!(progress_revision(&child), 7);
+        assert_eq!(progress_revision(&parent), 7);
+        assert_eq!(progress_revision(&unrelated), 7);
     }
 
     #[test]
@@ -8363,7 +8950,7 @@ mod tests {
     }
 
     #[test]
-    fn every_repository_ledger_shape_migrates_in_a_recoverable_copy() {
+    fn every_repository_ledger_shape_is_audited_before_recoverable_migration() {
         let repository = Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
         let source_root = repository.join(".kbd-orchestrator");
         if !source_root.exists() {
@@ -8387,6 +8974,20 @@ mod tests {
         let check = runtime.migrate_legacy_ledgers(false).unwrap();
         assert_eq!(check.progress_files, source_ledgers.len() as u64);
         assert_eq!(check.invalid_files, 0);
+        if check.alias_conflicts > 0 {
+            assert!(matches!(
+                runtime.migrate_legacy_ledgers(true),
+                Err(RuntimeError::InvalidState(_))
+            ));
+            let backups = runtime.root.join("migration-backups");
+            assert!(fs::read_dir(&backups).unwrap().any(|entry| {
+                entry
+                    .ok()
+                    .is_some_and(|entry| entry.path().join("manifest.json").is_file())
+            }));
+            assert_eq!(runtime.replay().unwrap().revision, 0);
+            return;
+        }
         let applied = runtime.migrate_legacy_ledgers(true).unwrap();
         assert_eq!(
             applied.migrated_progress_files,
@@ -8400,9 +9001,20 @@ mod tests {
             &mut migrated_ledgers,
         )
         .unwrap();
+        let migrated_root = dir.path().join(".kbd-orchestrator");
+        let mut protected_legacy_files = 0_u64;
         for ledger in migrated_ledgers {
             let value: serde_json::Value =
-                serde_json::from_reader(File::open(ledger).unwrap()).unwrap();
+                serde_json::from_reader(File::open(&ledger).unwrap()).unwrap();
+            if value["generatedBy"] != "kbd-runtime" {
+                let relative = ledger.strip_prefix(&migrated_root).unwrap();
+                assert_eq!(
+                    fs::read(&ledger).unwrap(),
+                    fs::read(source_root.join(relative)).unwrap()
+                );
+                protected_legacy_files += u64::from(value["schemaVersion"] != "2");
+                continue;
+            }
             assert_eq!(value["schemaVersion"], "2");
             let rows = value["changes"].as_array().unwrap();
             let ids = rows
@@ -8416,7 +9028,7 @@ mod tests {
                 .migrate_legacy_ledgers(false)
                 .unwrap()
                 .migrated_progress_files,
-            0
+            protected_legacy_files
         );
     }
 }

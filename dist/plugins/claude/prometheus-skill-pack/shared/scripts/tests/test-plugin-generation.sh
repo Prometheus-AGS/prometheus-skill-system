@@ -20,7 +20,14 @@ mkdir -p \
   "$SOURCE/shared/scripts/tests/fixtures" \
   "$SOURCE/.claude-plugin" \
   "$SOURCE/.codex-plugin" \
-  "$SOURCE/.agents/plugins"
+  "$SOURCE/.opencode/skills" \
+  "$SOURCE/.cursor/skills" \
+  "$SOURCE/.codex/skills" \
+  "$SOURCE/.devin/skills" \
+  "$SOURCE/.agents/skills" \
+  "$SOURCE/.agents/plugins" \
+  "$SOURCE/dist/plugins/claude/prometheus-skill-pack/.claude-plugin" \
+  "$SOURCE/dist/plugins/codex/prometheus-skill-pack/.codex-plugin"
 printf '%s\n' '---' 'name: example' 'description: fixture' '---' > "$SOURCE/skills/example/SKILL.md"
 printf '#!/usr/bin/env bash\nprintf "example\\n"\n' > "$SOURCE/skills/example/scripts/example.sh"
 printf 'fixture\n' > "$SOURCE/shared/scripts/tests/fixtures/example.txt"
@@ -28,7 +35,12 @@ printf '#!/usr/bin/env bash\n' > "$SOURCE/shared/scripts/lib/hook-log.sh"
 printf '#!/usr/bin/env bash\n' > "$SOURCE/shared/scripts/lib/memory-bridge.sh"
 cp "$ROOT/scripts/install-plugin-generation.js" "$SOURCE/scripts/install-plugin-generation.js"
 cp "$ROOT/scripts/generate-harness-adapters.js" "$SOURCE/scripts/generate-harness-adapters.js"
+jq '.inventory.roots = [{"path":"skills","scan":"recursive"}] | .imports = []' \
+  "$ROOT/skill-system.json" > "$SOURCE/skill-system.json"
 cp "$ROOT/config/prometheus-exec-component.json" "$SOURCE/config/prometheus-exec-component.json"
+for required_tree in .opencode/skills .cursor/skills .codex/skills .devin/skills .agents/skills; do
+  printf 'fixture source tree\n' > "$SOURCE/$required_tree/.fixture"
+done
 cp "$ROOT/skills/react/prometheus-entity-skills/entity-graph-optimize/skill.wasm" \
   "$SOURCE/skills/react/prometheus-entity-skills/entity-graph-optimize/skill.wasm"
 node --input-type=module - "$ROOT" <<'NODE'
@@ -73,8 +85,10 @@ for script in enqueue-learning-job enqueue-memory-operation; do
 done
 chmod +x "$SOURCE/skills/example/scripts/example.sh"
 printf '{}\n' > "$SOURCE/hooks/hooks.json"
-printf '{"name":"prometheus-skill-pack","version":"1.7.0"}\n' > "$SOURCE/.claude-plugin/plugin.json"
-printf '{"name":"prometheus-skill-pack","version":"1.7.0"}\n' > "$SOURCE/.codex-plugin/plugin.json"
+printf '{"name":"prometheus-skill-pack","version":"1.7.0"}\n' > \
+  "$SOURCE/dist/plugins/claude/prometheus-skill-pack/.claude-plugin/plugin.json"
+printf '{"name":"prometheus-skill-pack","version":"1.7.0"}\n' > \
+  "$SOURCE/dist/plugins/codex/prometheus-skill-pack/.codex-plugin/plugin.json"
 printf '{"plugins":[]}\n' > "$SOURCE/.agents/plugins/marketplace.json"
 printf '{}\n' > "$SOURCE/.mcp.json"
 node "$SOURCE/scripts/generate-harness-adapters.js" >/dev/null
@@ -292,7 +306,7 @@ echo '[PASS] unresolved target collisions reject the candidate without moving ac
 
 for target in \
   .claude/skills .opencode/skills .kimi-code/skills .minimax/skills .cursor/skills \
-  .codex/skills .gemini/skills .roo/skills .windsurf/skills .codeium/windsurf/skills \
+  .codex/skills .gemini/skills .roo/skills .devin/skills .codeium/windsurf/skills \
   .agents/skills .config/zed/skills .zed/skills .cline/skills; do
   [[ -f "$TMP/home/$target/example/SKILL.md" ]]
 done

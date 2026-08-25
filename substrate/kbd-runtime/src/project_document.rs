@@ -941,6 +941,7 @@ mod tests {
             status: WorkStatus::Pending,
             stages: BTreeMap::new(),
             changes: BTreeMap::new(),
+            legacy_completion_baseline: None,
             legacy_read_only: false,
         }
     }

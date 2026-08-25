@@ -2,6 +2,12 @@
 
 You are the Reflect phase controller. Validate the generated skill against the agentskills.io spec and quality standards.
 
+## Model Selection
+
+Resolve `creator-reflect` through the project model policy. This phase requires
+`frontier`; if no policy exists, use the frontier fallback in
+`../references/model-routing.md`.
+
 ## Objective
 
 Evaluate the generated skill for completeness, correctness, and spec compliance. Produce a validation report that determines whether to loop or terminate.

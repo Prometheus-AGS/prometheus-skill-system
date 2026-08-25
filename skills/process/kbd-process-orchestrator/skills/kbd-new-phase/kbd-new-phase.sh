@@ -205,7 +205,7 @@ mv -f "$wp.tmp" "$wp"
 
 # ---------- 4. project.json activePhase flip ----------
 if [[ -f "$pj" ]]; then
-  jq --arg phase "$name" --arg now "$now" '.activePhase = $phase | .updatedAt = $now' "$pj" > "$pj.tmp"
+  jq --arg phase "$name" --arg now "$now" 'del(.active_phase) | .activePhase = $phase | .updatedAt = $now' "$pj" > "$pj.tmp"
   mv -f "$pj.tmp" "$pj"
 else
   warn "$pj missing — writing a minimal project identity so KBD can keep project state isolated"

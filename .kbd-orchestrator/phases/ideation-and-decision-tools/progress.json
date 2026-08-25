@@ -9,9 +9,9 @@
   "execution_dispatched": false,
   "reflection_complete": false,
   "changes_total": 9,
-  "changes_completed": 3,
-  "implementation_total": 0,
-  "implementation_completed": 0,
+  "changes_completed": 9,
+  "implementation_total": 9,
+  "implementation_completed": 9,
   "completion": {
     "primaryCounter": "implementation",
     "implementation": {
@@ -36,15 +36,15 @@
     }
   },
   "changes": [
-    "change-idt-001",
-    "change-idt-002",
-    "change-idt-003",
-    "change-idt-004",
-    "change-idt-005",
-    "change-idt-006",
-    "change-idt-007",
-    "change-idt-008",
-    "change-idt-009"
+    { "id": "change-idt-001", "status": "DONE", "implementation_status": "COMPLETE" },
+    { "id": "change-idt-002", "status": "DONE", "implementation_status": "COMPLETE" },
+    { "id": "change-idt-003", "status": "DONE", "implementation_status": "COMPLETE" },
+    { "id": "change-idt-004", "status": "DONE", "implementation_status": "COMPLETE" },
+    { "id": "change-idt-005", "status": "DONE", "implementation_status": "COMPLETE" },
+    { "id": "change-idt-006", "status": "DONE", "implementation_status": "COMPLETE" },
+    { "id": "change-idt-007", "status": "DONE", "implementation_status": "COMPLETE" },
+    { "id": "change-idt-008", "status": "DONE", "implementation_status": "COMPLETE" },
+    { "id": "change-idt-009", "status": "DONE", "implementation_status": "COMPLETE" }
   ],
   "stage": "reflect_complete"
 }

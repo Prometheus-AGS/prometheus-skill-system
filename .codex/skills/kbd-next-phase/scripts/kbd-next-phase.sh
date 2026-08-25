@@ -15,7 +15,7 @@
 #   .kbd-orchestrator/phases/<new-phase>/progress.json     (skeleton)
 #   .kbd-orchestrator/current-waypoint.json                (updated)
 #   .kbd-orchestrator/current-waypoint.md                  (updated)
-#   .kbd-orchestrator/project.json                         (active_phase updated)
+#   .kbd-orchestrator/project.json                         (activePhase updated)
 
 set -euo pipefail
 
@@ -292,7 +292,7 @@ jq \
 ' "$WAYPOINT_JSON" > "$WAYPOINT_JSON.tmp"
 mv -f "$WAYPOINT_JSON.tmp" "$WAYPOINT_JSON"
 
-# ── Update project.json active_phase ─────────────────────────────────────
+# ── Update project.json activePhase ──────────────────────────────────────
 if [[ -f "$PROJECT_JSON" ]]; then
   jq --arg phase "$NEW_PHASE" --arg now "$TIMESTAMP" '
     del(.active_phase) |
