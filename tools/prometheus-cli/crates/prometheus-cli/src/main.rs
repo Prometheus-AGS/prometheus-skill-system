@@ -379,6 +379,11 @@ enum KbdAction {
         #[arg(long)]
         json: bool,
     },
+    /// Start a successor run after the current run reaches a terminal lifecycle
+    Run {
+        #[command(subcommand)]
+        action: KbdRunAction,
+    },
     /// Gracefully checkpoint and pause the run
     Pause {
         #[arg(long)]
@@ -459,6 +464,21 @@ enum KbdAction {
     Blocker {
         #[command(subcommand)]
         action: KbdBlockerAction,
+    },
+}
+
+#[derive(Subcommand)]
+enum KbdRunAction {
+    /// Start one causally ordered successor run
+    Start {
+        #[arg(long)]
+        run_id: String,
+        #[arg(long)]
+        reason: String,
+        #[arg(long)]
+        exact_next_work: Option<String>,
+        #[arg(long)]
+        json: bool,
     },
 }
 
@@ -888,6 +908,19 @@ async fn main() -> Result<()> {
                 KbdAction::Submodules { scan, json } => {
                     commands::kbd::Action::Submodules { scan, json }
                 }
+                KbdAction::Run { action } => match action {
+                    KbdRunAction::Start {
+                        run_id,
+                        reason,
+                        exact_next_work,
+                        json,
+                    } => commands::kbd::Action::RunStart {
+                        run_id,
+                        reason,
+                        exact_next_work,
+                        json,
+                    },
+                },
                 KbdAction::Pause { reason } => commands::kbd::Action::Pause { reason },
                 KbdAction::Revise {
                     reason,
@@ -1252,5 +1285,49 @@ async fn main() -> Result<()> {
             check,
             rebuild,
         } => commands::setup::run(non_interactive, dry_run, check, rebuild),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn parses_terminal_run_start_command() {
+        let cli = Cli::try_parse_from([
+            "prometheus",
+            "kbd",
+            "run",
+            "start",
+            "--run-id",
+            "run-b",
+            "--reason",
+            "new work",
+            "--exact-next-work",
+            "/kbd-new-phase",
+            "--json",
+        ])
+        .unwrap();
+
+        let Commands::Kbd {
+            action:
+                KbdAction::Run {
+                    action:
+                        KbdRunAction::Start {
+                            run_id,
+                            reason,
+                            exact_next_work,
+                            json,
+                        },
+                },
+            ..
+        } = cli.command
+        else {
+            panic!("expected kbd run start");
+        };
+        assert_eq!(run_id, "run-b");
+        assert_eq!(reason, "new work");
+        assert_eq!(exact_next_work.as_deref(), Some("/kbd-new-phase"));
+        assert!(json);
     }
 }

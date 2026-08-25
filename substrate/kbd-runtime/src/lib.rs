@@ -604,6 +604,10 @@ pub enum EventKind {
         initial_state: LifecycleState,
         exact_next_work: Option<String>,
         plan_revision: u64,
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        previous_run_id: Option<String>,
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        reason: Option<String>,
     },
     LifecycleTransition {
         from: LifecycleState,
@@ -1243,6 +1247,11 @@ fn remote_command_signable_bytes(
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(tag = "type", content = "payload", rename_all = "snake_case")]
 pub enum CommandKind {
+    RunStart {
+        run_id: String,
+        reason: String,
+        exact_next_work: Option<String>,
+    },
     Pause {
         checkpoint: Checkpoint,
     },
@@ -1615,11 +1624,50 @@ impl KbdStateV2 {
                 initial_state,
                 exact_next_work,
                 plan_revision,
+                previous_run_id,
+                reason,
             } => {
-                if self.revision != 0 {
-                    return Err(RuntimeError::AlreadyInitialized);
+                if self.revision == 0 {
+                    if previous_run_id.is_some() || reason.is_some() {
+                        return Err(RuntimeError::InvalidState(
+                            "initial run cannot declare a previous run or rollover reason".into(),
+                        ));
+                    }
+                    self.project_id.clone_from(&event.project_id);
+                } else {
+                    if event.actor.kind != ActorKind::Operator {
+                        return Err(RuntimeError::InvalidState(
+                            "only an operator may start a successor run".into(),
+                        ));
+                    }
+                    if !self.lifecycle.is_terminal()
+                        || previous_run_id.as_deref() != Some(self.run_id.as_str())
+                        || event.run_id.trim().is_empty()
+                        || event.run_id == self.run_id
+                        || reason
+                            .as_deref()
+                            .is_none_or(|value| value.trim().is_empty())
+                        || *initial_state != LifecycleState::Ready
+                        || *plan_revision != 1
+                        || event.project_id != self.project_id
+                        || self.conflicts.values().any(|conflict| {
+                            conflict.kind == ConflictKind::Lifecycle
+                                && conflict.resolved_by_event_id.is_none()
+                        })
+                    {
+                        return Err(RuntimeError::InvalidState(
+                            "successor run requires a terminal lifecycle, a new runId, the current previousRunId, a reason, ready state, plan revision 1, and no unresolved lifecycle conflict".into(),
+                        ));
+                    }
+                    let defaults = Self::default();
+                    self.checkpoint = None;
+                    self.active_path = defaults.active_path;
+                    self.phases = defaults.phases;
+                    self.completion = defaults.completion;
+                    self.decisions = defaults.decisions;
+                    self.blockers = defaults.blockers;
+                    self.claims = defaults.claims;
                 }
-                self.project_id.clone_from(&event.project_id);
                 self.run_id.clone_from(&event.run_id);
                 self.lifecycle = initial_state.clone();
                 self.exact_next_work.clone_from(exact_next_work);
@@ -3717,6 +3765,8 @@ impl Runtime {
                 initial_state: LifecycleState::Ready,
                 exact_next_work: None,
                 plan_revision: 1,
+                previous_run_id: None,
+                reason: None,
             },
         )
     }
@@ -3753,6 +3803,8 @@ impl Runtime {
                 initial_state,
                 exact_next_work,
                 plan_revision: plan_revision.max(1),
+                previous_run_id: None,
+                reason: None,
             },
         )
     }
@@ -3851,12 +3903,6 @@ impl Runtime {
                 current: state.project_id,
             });
         }
-        if envelope.run_id != state.run_id {
-            return Err(RuntimeError::RunMismatch {
-                supplied: envelope.run_id,
-                current: state.run_id,
-            });
-        }
         if let Some(committed_revision) = state.command_revisions.get(&envelope.command_id).copied()
         {
             let mut state = state;
@@ -3869,12 +3915,18 @@ impl Runtime {
                 apply_error: None,
             });
         }
+        if envelope.run_id != state.run_id {
+            return Err(RuntimeError::RunMismatch {
+                supplied: envelope.run_id,
+                current: state.run_id,
+            });
+        }
         validate_command_frontier(&state, &envelope)?;
         validate_claim_write(&state, &envelope.actor, &envelope.command)?;
         self.validate_replica_write(&state, &envelope.actor, &envelope.command)?;
         let kind = prepare_command_event(&state, &envelope.actor, &envelope.command)?;
         let project_id = state.project_id.clone();
-        let run_id = state.run_id.clone();
+        let run_id = command_event_run_id(&state, &envelope.command).to_owned();
         let command_id = envelope.command_id;
         let next = self.append_unchecked(
             state,
@@ -3919,25 +3971,26 @@ impl Runtime {
                 current: state.project_id.clone(),
             });
         }
+        if state.command_revisions.contains_key(&envelope.command_id) {
+            return Err(RuntimeError::DuplicateCommand(envelope.command_id));
+        }
         if envelope.run_id != state.run_id {
             return Err(RuntimeError::RunMismatch {
                 supplied: envelope.run_id,
                 current: state.run_id.clone(),
             });
         }
-        if state.command_revisions.contains_key(&envelope.command_id) {
-            return Err(RuntimeError::DuplicateCommand(envelope.command_id));
-        }
         validate_command_frontier(state, &envelope)?;
         validate_claim_write(state, &envelope.actor, &envelope.command)?;
         self.validate_replica_write(state, &envelope.actor, &envelope.command)?;
         let kind = prepare_command_event(state, &envelope.actor, &envelope.command)?;
+        let run_id = command_event_run_id(state, &envelope.command).to_owned();
         let replica_head = state.replica_heads.get(&self.replica_id);
         let mut event = Event {
             schema_version: EVENT_SCHEMA_VERSION.into(),
             project_id: state.project_id.clone(),
             replica_id: self.replica_id.clone(),
-            run_id: state.run_id.clone(),
+            run_id,
             event_id: Uuid::new_v4().to_string(),
             command_id: Some(envelope.command_id),
             revision: state.frontier.derived_revision().saturating_add(1),
@@ -5980,25 +6033,26 @@ pub fn prepare_host_signed_event(
             current: state.project_id.clone(),
         });
     }
+    if state.command_revisions.contains_key(&envelope.command_id) {
+        return Err(RuntimeError::DuplicateCommand(envelope.command_id));
+    }
     if envelope.run_id != state.run_id {
         return Err(RuntimeError::RunMismatch {
             supplied: envelope.run_id,
             current: state.run_id.clone(),
         });
     }
-    if state.command_revisions.contains_key(&envelope.command_id) {
-        return Err(RuntimeError::DuplicateCommand(envelope.command_id));
-    }
     validate_command_frontier(state, &envelope)?;
     validate_claim_write(state, &envelope.actor, &envelope.command)?;
     validate_replica_write_state(state, &envelope.actor, &envelope.command)?;
     let kind = prepare_command_event(state, &envelope.actor, &envelope.command)?;
+    let run_id = command_event_run_id(state, &envelope.command).to_owned();
     let replica_head = state.replica_heads.get(replica_id);
     let mut event = Event {
         schema_version: EVENT_SCHEMA_VERSION.into(),
         project_id: state.project_id.clone(),
         replica_id: replica_id.into(),
-        run_id: state.run_id.clone(),
+        run_id,
         event_id: Uuid::new_v4().to_string(),
         command_id: Some(envelope.command_id),
         revision: state.frontier.derived_revision().saturating_add(1),
@@ -6224,7 +6278,8 @@ fn command_scope(command: &CommandKind) -> Option<String> {
         | CommandKind::DeviceEnroll { .. }
         | CommandKind::DeviceRevoke { .. }
         | CommandKind::DeviceRotate { .. } => return None,
-        CommandKind::Pause { .. }
+        CommandKind::RunStart { .. }
+        | CommandKind::Pause { .. }
         | CommandKind::Cancel { .. }
         | CommandKind::LifecycleTransition { .. }
         | CommandKind::Resume { .. }
@@ -6265,6 +6320,13 @@ fn command_scope(command: &CommandKind) -> Option<String> {
     })
 }
 
+fn command_event_run_id<'a>(state: &'a RuntimeState, command: &'a CommandKind) -> &'a str {
+    match command {
+        CommandKind::RunStart { run_id, .. } => run_id,
+        _ => &state.run_id,
+    }
+}
+
 fn prepare_command_event(
     state: &RuntimeState,
     actor: &Actor,
@@ -6278,6 +6340,42 @@ fn prepare_command_event(
         }
     };
     Ok(match command {
+        CommandKind::RunStart {
+            run_id,
+            reason,
+            exact_next_work,
+        } => {
+            if actor.kind != ActorKind::Operator {
+                return Err(RuntimeError::InvalidState(
+                    "only an operator may start a successor run".into(),
+                ));
+            }
+            require_reason(reason)?;
+            if !state.lifecycle.is_terminal() {
+                return Err(RuntimeError::InvalidState(
+                    "successor run requires a terminal lifecycle".into(),
+                ));
+            }
+            if run_id.trim().is_empty() || run_id == &state.run_id {
+                return Err(RuntimeError::InvalidState(
+                    "successor runId must be non-empty and differ from the current runId".into(),
+                ));
+            }
+            if state.conflicts.values().any(|conflict| {
+                conflict.kind == ConflictKind::Lifecycle && conflict.resolved_by_event_id.is_none()
+            }) {
+                return Err(RuntimeError::InvalidState(
+                    "resolve lifecycle conflicts before starting a successor run".into(),
+                ));
+            }
+            EventKind::RunInitialized {
+                initial_state: LifecycleState::Ready,
+                exact_next_work: exact_next_work.clone(),
+                plan_revision: 1,
+                previous_run_id: Some(state.run_id.clone()),
+                reason: Some(reason.clone()),
+            }
+        }
         CommandKind::Pause { checkpoint } => {
             require_reason(&checkpoint.reason)?;
             let mut checkpoint = checkpoint.clone();
@@ -7280,6 +7378,226 @@ mod tests {
             )
             .unwrap();
         assert_eq!(cancelled.lifecycle, LifecycleState::Cancelled);
+    }
+
+    #[test]
+    fn terminal_successor_run_resets_run_state_and_preserves_project_audit() {
+        let dir = tempdir().unwrap();
+        let runtime = Runtime::open(dir.path());
+        let operator = actor(ActorKind::Operator, "codex");
+        let initialized = runtime
+            .initialize("project", "run-a", operator.clone())
+            .unwrap();
+        let device_key_ids = initialized.devices.keys().cloned().collect::<Vec<_>>();
+        let phase = Phase {
+            id: "phase-a".into(),
+            slug: "phase-a".into(),
+            title: "Phase A".into(),
+            parent_phase_id: None,
+            status: WorkStatus::InProgress,
+            stages: BTreeMap::new(),
+            changes: BTreeMap::new(),
+            legacy_read_only: false,
+        };
+        let with_phase = runtime
+            .append(
+                operator.clone(),
+                initialized.revision,
+                EventKind::PhaseDefined { phase },
+            )
+            .unwrap();
+        let with_path = runtime
+            .append(
+                operator.clone(),
+                with_phase.revision,
+                EventKind::ActivePathChanged {
+                    active_path: ActivePath {
+                        phase_path: vec!["phase-a".into()],
+                        phase_id: Some("phase-a".into()),
+                        ..ActivePath::default()
+                    },
+                    exact_next_work: Some("finish phase A".into()),
+                },
+            )
+            .unwrap();
+        let with_completion = runtime
+            .append(
+                operator.clone(),
+                with_path.revision,
+                EventKind::CompletionUpdated {
+                    dimension: CompletionDimension::Implementation,
+                    completion: Completion {
+                        completed: 1,
+                        total: 1,
+                        status: WorkStatus::Complete,
+                        summary: Some("done".into()),
+                        blockers: Vec::new(),
+                    },
+                },
+            )
+            .unwrap();
+        let with_decision = runtime
+            .append(
+                operator.clone(),
+                with_completion.revision,
+                EventKind::DecisionRecorded {
+                    decision: Decision {
+                        id: "decision-a".into(),
+                        summary: "preserve audit".into(),
+                        plan_revision: 1,
+                        supersedes: None,
+                    },
+                },
+            )
+            .unwrap();
+        let with_blocker = runtime
+            .append(
+                operator.clone(),
+                with_decision.revision,
+                EventKind::BlockerRecorded {
+                    blocker: Blocker {
+                        id: "blocker-a".into(),
+                        summary: "old blocker".into(),
+                        resolved: false,
+                        resolution: None,
+                    },
+                },
+            )
+            .unwrap();
+        let with_claim = runtime
+            .append(
+                operator.clone(),
+                with_blocker.revision,
+                EventKind::ClaimAcquired {
+                    claim_id: "claim-a".into(),
+                    scope: "phase:phase-a".into(),
+                    holder_id: operator.id.clone(),
+                    mode: ClaimMode::Exclusive,
+                    expires_at: Utc::now() + chrono::Duration::minutes(5),
+                    monotonic_token: 1,
+                },
+            )
+            .unwrap();
+        let pin = SubmodulePin {
+            path: "crates/child".into(),
+            child_project_id: Uuid::new_v4().to_string(),
+            gitlink_sha: "a".repeat(40),
+        };
+        let with_pin = runtime
+            .append(
+                operator.clone(),
+                with_claim.revision,
+                EventKind::SubmodulePinRecorded { pin: pin.clone() },
+            )
+            .unwrap();
+        let cancelled = runtime
+            .append(
+                operator.clone(),
+                with_pin.revision,
+                EventKind::LifecycleTransition {
+                    from: LifecycleState::Ready,
+                    to: LifecycleState::Cancelled,
+                    reason: "old run is terminal".into(),
+                },
+            )
+            .unwrap();
+        let rollover = CommandEnvelope {
+            schema_version: EVENT_SCHEMA_VERSION.into(),
+            project_id: "project".into(),
+            run_id: "run-a".into(),
+            command_id: "start-run-b".into(),
+            frontier: Some(cancelled.frontier.clone()),
+            expected_revision: cancelled.revision,
+            actor: operator,
+            command: CommandKind::RunStart {
+                run_id: "run-b".into(),
+                reason: "begin successor work".into(),
+                exact_next_work: Some("/kbd-new-phase".into()),
+            },
+        };
+
+        let result = runtime.execute_command(rollover.clone()).unwrap();
+        assert!(!result.duplicate);
+        let state = result.state;
+        assert_eq!(state.project_id, "project");
+        assert_eq!(state.run_id, "run-b");
+        assert_eq!(state.lifecycle, LifecycleState::Ready);
+        assert_eq!(state.plan_revision, 1);
+        assert_eq!(state.exact_next_work.as_deref(), Some("/kbd-new-phase"));
+        assert!(state.checkpoint.is_none());
+        assert_eq!(state.active_path, ActivePath::default());
+        assert!(state.phases.is_empty());
+        assert!(state
+            .completion
+            .values()
+            .all(|completion| completion == &Completion::not_tracked()));
+        assert!(state.decisions.is_empty());
+        assert!(state.blockers.is_empty());
+        assert!(state.claims.is_empty());
+        assert_eq!(state.submodule_pins.get(&pin.path), Some(&pin));
+        assert_eq!(
+            state.devices.keys().cloned().collect::<Vec<_>>(),
+            device_key_ids
+        );
+        assert!(!state.operator_key_ids.is_empty());
+        assert_eq!(state.revision, cancelled.revision + 1);
+        assert_eq!(runtime.events().unwrap().len() as u64, state.revision);
+        assert_eq!(runtime.replay().unwrap(), state);
+
+        let duplicate = runtime.execute_command(rollover).unwrap();
+        assert!(duplicate.duplicate);
+        assert_eq!(duplicate.committed_revision, state.revision);
+        assert_eq!(runtime.events().unwrap().len() as u64, state.revision);
+    }
+
+    #[test]
+    fn successor_run_rejects_non_terminal_lifecycle_and_non_operator_actor() {
+        let dir = tempdir().unwrap();
+        let runtime = Runtime::open(dir.path());
+        let initialized = runtime
+            .initialize("project", "run-a", actor(ActorKind::Operator, "codex"))
+            .unwrap();
+        let command = |actor: Actor| CommandEnvelope {
+            schema_version: EVENT_SCHEMA_VERSION.into(),
+            project_id: "project".into(),
+            run_id: "run-a".into(),
+            command_id: format!("start-run-b-{}", actor.id),
+            frontier: Some(initialized.frontier.clone()),
+            expected_revision: initialized.revision,
+            actor,
+            command: CommandKind::RunStart {
+                run_id: "run-b".into(),
+                reason: "begin successor work".into(),
+                exact_next_work: None,
+            },
+        };
+
+        let error = runtime
+            .execute_command(command(actor(ActorKind::Operator, "codex")))
+            .unwrap_err();
+        assert!(error.to_string().contains("terminal"));
+
+        let cancelled = runtime
+            .append(
+                actor(ActorKind::Operator, "codex"),
+                initialized.revision,
+                EventKind::LifecycleTransition {
+                    from: LifecycleState::Ready,
+                    to: LifecycleState::Cancelled,
+                    reason: "old run is terminal".into(),
+                },
+            )
+            .unwrap();
+        let error = runtime
+            .execute_command(CommandEnvelope {
+                frontier: Some(cancelled.frontier),
+                expected_revision: cancelled.revision,
+                actor: actor(ActorKind::Harness, "harness"),
+                command_id: "start-run-b-harness".into(),
+                ..command(actor(ActorKind::Harness, "harness"))
+            })
+            .unwrap_err();
+        assert!(error.to_string().contains("operator"));
     }
 
     #[test]

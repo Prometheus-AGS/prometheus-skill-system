@@ -6207,6 +6207,7 @@ dependencies = [
  "serde_json",
  "sha2 0.10.9",
  "sycophancy-core",
+ "tempfile",
  "tokio 1.52.0",
  "toml",
  "tracing",

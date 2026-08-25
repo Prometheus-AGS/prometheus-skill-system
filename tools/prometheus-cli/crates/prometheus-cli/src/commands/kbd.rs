@@ -58,6 +58,12 @@ pub enum Action {
         scan: bool,
         json: bool,
     },
+    RunStart {
+        run_id: String,
+        reason: String,
+        exact_next_work: Option<String>,
+        json: bool,
+    },
     Pause {
         reason: String,
     },
@@ -384,6 +390,27 @@ pub async fn run(path: &str, action: Action) -> Result<()> {
                 }
             }
             Ok(())
+        }
+        Action::RunStart {
+            run_id,
+            reason,
+            exact_next_work,
+            json,
+        } => {
+            let state = state_or_replay(&client, &runtime).await?;
+            let next = client
+                .submit_fresh(
+                    &state,
+                    current_actor(ActorKind::Operator),
+                    CommandKind::RunStart {
+                        run_id,
+                        reason,
+                        exact_next_work,
+                    },
+                )
+                .await?;
+            project_successor_and_release_pause(&root, &runtime, &next)?;
+            print_state(&next, json)
         }
         Action::Pause { reason } => {
             write_emergency_pause(&root, &reason)?;
@@ -1263,4 +1290,119 @@ fn release_pause_valve(root: &Path) -> Result<()> {
         fs::rename(path, audit)?;
     }
     Ok(())
+}
+
+fn project_successor_and_release_pause(
+    root: &Path,
+    runtime: &Runtime,
+    state: &RuntimeState,
+) -> Result<()> {
+    runtime
+        .write_compatibility_projections_from_state(state, chrono::Utc::now())
+        .with_context(|| {
+            format!(
+                "successor run {} committed at revision {}, but projections failed; PAUSE remains active",
+                state.run_id, state.revision
+            )
+        })?;
+    release_pause_valve(root).with_context(|| {
+        format!(
+            "successor run {} committed and projected at revision {}, but PAUSE could not be released",
+            state.run_id, state.revision
+        )
+    })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use kbd_runtime::{CommandResult, EVENT_SCHEMA_VERSION};
+    use tempfile::tempdir;
+
+    fn committed_successor(root: &Path) -> (Runtime, CommandResult) {
+        fs::create_dir_all(root.join(".kbd-orchestrator")).unwrap();
+        let runtime = Runtime::open(root);
+        let operator = Actor::operator("operator", "test");
+        let initialized = runtime
+            .initialize("project", "run-a", operator.clone())
+            .unwrap();
+        let cancelled = runtime
+            .execute_command(CommandEnvelope {
+                schema_version: EVENT_SCHEMA_VERSION.into(),
+                project_id: "project".into(),
+                run_id: "run-a".into(),
+                command_id: "cancel-run-a".into(),
+                frontier: Some(initialized.frontier),
+                expected_revision: initialized.revision,
+                actor: operator.clone(),
+                command: CommandKind::Cancel {
+                    reason: "terminal".into(),
+                },
+            })
+            .unwrap();
+        let successor = runtime
+            .execute_command(CommandEnvelope {
+                schema_version: EVENT_SCHEMA_VERSION.into(),
+                project_id: "project".into(),
+                run_id: "run-a".into(),
+                command_id: "start-run-b".into(),
+                frontier: Some(cancelled.state.frontier.clone()),
+                expected_revision: cancelled.state.revision,
+                actor: operator,
+                command: CommandKind::RunStart {
+                    run_id: "run-b".into(),
+                    reason: "new work".into(),
+                    exact_next_work: Some("/kbd-new-phase".into()),
+                },
+            })
+            .unwrap();
+        (runtime, successor)
+    }
+
+    #[test]
+    fn successor_projection_precedes_pause_release() {
+        let fixture = tempdir().unwrap();
+        let root = fixture.path();
+        let pause = root.join(".kbd-orchestrator/PAUSE");
+        fs::create_dir_all(pause.parent().unwrap()).unwrap();
+        fs::write(&pause, "cancelled").unwrap();
+        let (runtime, successor) = committed_successor(root);
+
+        project_successor_and_release_pause(root, &runtime, &successor.state).unwrap();
+
+        let waypoint: Value = serde_json::from_reader(
+            fs::File::open(root.join(".kbd-orchestrator/current-waypoint.json")).unwrap(),
+        )
+        .unwrap();
+        assert_eq!(waypoint["runId"], "run-b");
+        assert_eq!(waypoint["status"], "ready");
+        assert_eq!(waypoint["implementationCompleted"], 0);
+        assert_eq!(waypoint["implementationTotal"], 0);
+        assert!(!pause.exists());
+        assert!(fs::read_dir(root.join(".kbd-orchestrator"))
+            .unwrap()
+            .filter_map(|entry| entry.ok())
+            .any(|entry| entry
+                .file_name()
+                .to_string_lossy()
+                .starts_with("PAUSE.released.")));
+    }
+
+    #[test]
+    fn projection_failure_keeps_pause_active_after_successor_commit() {
+        let fixture = tempdir().unwrap();
+        let root = fixture.path();
+        let pause = root.join(".kbd-orchestrator/PAUSE");
+        fs::create_dir_all(pause.parent().unwrap()).unwrap();
+        fs::write(&pause, "cancelled").unwrap();
+        let (runtime, successor) = committed_successor(root);
+        fs::create_dir(root.join(".kbd-orchestrator/current-waypoint.json")).unwrap();
+
+        let error = project_successor_and_release_pause(root, &runtime, &successor.state)
+            .expect_err("projection failure must stop PAUSE release");
+
+        assert!(error.to_string().contains("PAUSE remains active"));
+        assert!(pause.is_file());
+        assert_eq!(runtime.replay().unwrap().run_id, "run-b");
+    }
 }

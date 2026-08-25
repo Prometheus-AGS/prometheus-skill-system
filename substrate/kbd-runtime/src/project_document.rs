@@ -413,7 +413,6 @@ pub fn fold_project_events(events: &[Event]) -> Result<KbdStateV2> {
     let mut state = KbdStateV2::default();
     let mut authority_frontier = CausalFrontier::empty();
     let mut authority_heads = BTreeMap::new();
-    let mut run_ids = HashSet::new();
     for event in ordered {
         let replica_id = event_replica_id(event);
         let lamport = event_lamport(event);
@@ -426,7 +425,6 @@ pub fn fold_project_events(events: &[Event]) -> Result<KbdStateV2> {
                 lamport,
             },
         );
-        run_ids.insert(event.run_id.clone());
         if losers.contains(&event.event_id)
             || matches!(event.kind, EventKind::ConflictResolved { .. })
         {
@@ -452,11 +450,6 @@ pub fn fold_project_events(events: &[Event]) -> Result<KbdStateV2> {
     state.replica_heads = authority_heads;
     state.revision = state.frontier.derived_revision();
     state.conflicts = conflicts;
-    if run_ids.len() > 1 {
-        let frontier = serde_jcs::to_vec(&state.frontier)
-            .map_err(|error| RuntimeError::InvalidState(error.to_string()))?;
-        state.run_id = format!("merge:{:x}", Sha256::digest(frontier));
-    }
     Ok(state)
 }
 
@@ -856,11 +849,27 @@ mod tests {
         actor: Actor,
         signer: &DeviceSigner,
     ) -> Event {
+        signed_branch_event_for_run(
+            project_id, "run-a", replica_id, event_id, frontier, kind, actor, signer,
+        )
+    }
+
+    #[allow(clippy::too_many_arguments)]
+    fn signed_branch_event_for_run(
+        project_id: &str,
+        run_id: &str,
+        replica_id: &str,
+        event_id: &str,
+        frontier: CausalFrontier,
+        kind: EventKind,
+        actor: Actor,
+        signer: &DeviceSigner,
+    ) -> Event {
         let mut event = Event {
             schema_version: EVENT_SCHEMA_VERSION.into(),
             project_id: project_id.into(),
             replica_id: replica_id.into(),
-            run_id: "run-a".into(),
+            run_id: run_id.into(),
             event_id: event_id.into(),
             command_id: Some(format!("command-{event_id}")),
             revision: frontier.derived_revision().saturating_add(1),
@@ -937,6 +946,161 @@ mod tests {
     }
 
     #[test]
+    fn sequential_successor_run_ids_fold_as_valid_history() {
+        let fixture = tempdir().unwrap();
+        let document = ProjectDocument::open(fixture.path().join("document"), "project-a");
+        let operator = Actor::operator("operator-a", "test");
+        let signer = DeviceSigner::generate();
+        let genesis = signed_branch_event_for_run(
+            "project-a",
+            "run-a",
+            "origin",
+            "genesis",
+            CausalFrontier::empty(),
+            EventKind::RunInitialized {
+                initial_state: crate::LifecycleState::Ready,
+                exact_next_work: None,
+                plan_revision: 1,
+                previous_run_id: None,
+                reason: None,
+            },
+            operator.clone(),
+            &signer,
+        );
+        let after_genesis = advance_frontier(CausalFrontier::empty(), &genesis);
+        let cancelled = signed_branch_event_for_run(
+            "project-a",
+            "run-a",
+            "origin",
+            "cancelled",
+            after_genesis,
+            EventKind::LifecycleTransition {
+                from: crate::LifecycleState::Ready,
+                to: crate::LifecycleState::Cancelled,
+                reason: "old run complete".into(),
+            },
+            operator.clone(),
+            &signer,
+        );
+        let after_cancelled = advance_frontier(genesis.frontier.clone(), &genesis);
+        let after_cancelled = advance_frontier(after_cancelled, &cancelled);
+        let successor = signed_branch_event_for_run(
+            "project-a",
+            "run-b",
+            "origin",
+            "successor",
+            after_cancelled,
+            EventKind::RunInitialized {
+                initial_state: crate::LifecycleState::Ready,
+                exact_next_work: Some("/kbd-new-phase".into()),
+                plan_revision: 1,
+                previous_run_id: Some("run-a".into()),
+                reason: Some("new work".into()),
+            },
+            operator,
+            &signer,
+        );
+
+        document
+            .ingest_events(&[genesis, cancelled, successor])
+            .unwrap();
+        let state = document.fold().unwrap();
+        assert_eq!(state.run_id, "run-b");
+        assert_eq!(state.lifecycle, crate::LifecycleState::Ready);
+        assert_eq!(state.exact_next_work.as_deref(), Some("/kbd-new-phase"));
+        assert!(state.conflicts.is_empty());
+        assert_eq!(document.events().unwrap().len(), 3);
+    }
+
+    #[test]
+    fn concurrent_successor_runs_create_a_lifecycle_conflict_without_synthetic_run_id() {
+        let fixture = tempdir().unwrap();
+        let document = ProjectDocument::open(fixture.path().join("document"), "project-a");
+        let operator = Actor::operator("operator-a", "test");
+        let signer = DeviceSigner::generate();
+        let genesis = signed_branch_event_for_run(
+            "project-a",
+            "run-a",
+            "origin",
+            "genesis",
+            CausalFrontier::empty(),
+            EventKind::RunInitialized {
+                initial_state: crate::LifecycleState::Ready,
+                exact_next_work: None,
+                plan_revision: 1,
+                previous_run_id: None,
+                reason: None,
+            },
+            operator.clone(),
+            &signer,
+        );
+        let after_genesis = advance_frontier(CausalFrontier::empty(), &genesis);
+        let cancelled = signed_branch_event_for_run(
+            "project-a",
+            "run-a",
+            "origin",
+            "cancelled",
+            after_genesis,
+            EventKind::LifecycleTransition {
+                from: crate::LifecycleState::Ready,
+                to: crate::LifecycleState::Cancelled,
+                reason: "old run complete".into(),
+            },
+            operator.clone(),
+            &signer,
+        );
+        let mut rollover_frontier = CausalFrontier::empty();
+        rollover_frontier = advance_frontier(rollover_frontier, &genesis);
+        rollover_frontier = advance_frontier(rollover_frontier, &cancelled);
+        let run_b = signed_branch_event_for_run(
+            "project-a",
+            "run-b",
+            "replica-b",
+            "successor-b",
+            rollover_frontier.clone(),
+            EventKind::RunInitialized {
+                initial_state: crate::LifecycleState::Ready,
+                exact_next_work: None,
+                plan_revision: 1,
+                previous_run_id: Some("run-a".into()),
+                reason: Some("work B".into()),
+            },
+            operator.clone(),
+            &signer,
+        );
+        let run_c = signed_branch_event_for_run(
+            "project-a",
+            "run-c",
+            "replica-c",
+            "successor-c",
+            rollover_frontier,
+            EventKind::RunInitialized {
+                initial_state: crate::LifecycleState::Ready,
+                exact_next_work: None,
+                plan_revision: 1,
+                previous_run_id: Some("run-a".into()),
+                reason: Some("work C".into()),
+            },
+            operator,
+            &signer,
+        );
+
+        document
+            .ingest_events(&[genesis, cancelled, run_b, run_c])
+            .unwrap();
+        let state = document.fold().unwrap();
+        assert!(matches!(state.run_id.as_str(), "run-b" | "run-c"));
+        assert!(!state.run_id.starts_with("merge:"));
+        let conflict = state
+            .conflicts
+            .values()
+            .find(|conflict| conflict.kind == ConflictKind::Lifecycle)
+            .expect("concurrent rollovers must remain visible");
+        assert_eq!(conflict.candidates.len(), 2);
+        assert!(conflict.resolved_by_event_id.is_none());
+    }
+
+    #[test]
     fn divergent_phases_union_conflicts_stay_visible_and_resolution_is_authoritative() {
         let fixture = tempdir().unwrap();
         let operator = Actor::operator("operator-a", "test");
@@ -953,6 +1117,8 @@ mod tests {
                 initial_state: crate::LifecycleState::Ready,
                 exact_next_work: None,
                 plan_revision: 1,
+                previous_run_id: None,
+                reason: None,
             },
             operator.clone(),
             &operator_signer,
@@ -1085,6 +1251,8 @@ mod tests {
                 initial_state: crate::LifecycleState::Ready,
                 exact_next_work: None,
                 plan_revision: 1,
+                previous_run_id: None,
+                reason: None,
             },
             operator.clone(),
             &operator_signer,
@@ -1189,6 +1357,8 @@ mod tests {
                 initial_state: crate::LifecycleState::Ready,
                 exact_next_work: None,
                 plan_revision: 1,
+                previous_run_id: None,
+                reason: None,
             },
             operator.clone(),
             &operator_signer,
@@ -1274,6 +1444,8 @@ mod tests {
                 initial_state: crate::LifecycleState::Ready,
                 exact_next_work: None,
                 plan_revision: 1,
+                previous_run_id: None,
+                reason: None,
             },
             operator.clone(),
             &operator_signer,
