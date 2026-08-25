@@ -22,16 +22,19 @@ counterpart to `/kbd-next-phase`.
 1. Parses arguments — `<name>` plus zero or more `[goals…]`.
 2. Validates the name (kebab-case, no path traversal, no slashes).
 3. Refuses if `.kbd-orchestrator/phases/<name>/` already exists.
-4. Creates the phase directory and writes `goals.md` + `progress.json`
+4. In runtime-authority mode, reads canonical status. If the lifecycle is
+   `completed`, `cancelled`, or `failed`, starts exactly one operator-signed
+   successor run before creating the requested phase.
+5. Creates the phase directory and writes `goals.md` + `progress.json`
    atomically (temp file + `mv`).
-5. Flips `current-waypoint.json`: `previousPhase ← prior phase`,
+6. Flips `current-waypoint.json`: `previousPhase ← prior phase`,
    `phase ← <name>`, `status ← assessment_ready`, …; preserves unknown
    fields untouched.
-6. Updates `.kbd-orchestrator/project.json` `activePhase` (warns if absent).
-7. Sources `shared/lib/hooks.sh` and fires `phase:before` exactly once for
+7. Updates `.kbd-orchestrator/project.json` `activePhase` (warns if absent).
+8. Sources `shared/lib/hooks.sh` and fires `phase:before` exactly once for
    the new phase (best-effort — phase persists even if hooks subsystem is
    unavailable).
-8. Emits the canonical Progress Signals and a confirmation banner.
+9. Emits the canonical Progress Signals and a confirmation banner.
 
 ## When to use
 
@@ -88,22 +91,26 @@ Or, step-by-step:
 1. Parse `$ARGUMENTS` → `name` + `goals[]`.
 2. Validate `name` against `^[a-z0-9][a-z0-9._-]*$`; refuse `..`, `/`.
 3. Refuse if `.kbd-orchestrator/phases/<name>/` exists.
-4. `mkdir -p .kbd-orchestrator/phases/<name>`.
-5. Write `phases/<name>/goals.md` atomically (`# Goals` heading + bullets,
+4. When runtime authority is active, run `prometheus kbd status --json`. For
+   terminal lifecycle state, run `prometheus kbd run start` with a unique run
+   ID, a reason naming the prior run, and `/kbd-new-phase <name>` as exact next
+   work. The CLI commits and projects the successor before releasing `PAUSE`.
+5. `mkdir -p .kbd-orchestrator/phases/<name>`.
+6. Write `phases/<name>/goals.md` atomically (`# Goals` heading + bullets,
    or `# Goals` + TBD stub when no goals supplied).
-6. Write `phases/<name>/progress.json` atomically with the canonical field
+7. Write `phases/<name>/progress.json` atomically with the canonical field
    set (see `references/schemas/current-waypoint.template.json` and the
    "Nested phases" section of the orchestrator `SKILL.md`).
-7. Rewrite `.kbd-orchestrator/current-waypoint.json` atomically. Existing
+8. Rewrite `.kbd-orchestrator/current-waypoint.json` atomically. Existing
    unknown fields pass through; if the file is malformed, abort with a
    clear error and **do not** modify any on-disk state.
-8. Update `.kbd-orchestrator/project.json` `activePhase` atomically; warn
+9. Update `.kbd-orchestrator/project.json` `activePhase` atomically; warn
    and continue if the file is absent (run `/kbd-init` later).
-9. Source `shared/lib/waypoint.sh` and `shared/lib/hooks.sh` from
+10. Source `shared/lib/waypoint.sh` and `shared/lib/hooks.sh` from
    `$KBD_ORCHESTRATOR_ROOT`, then call
    `kbd_hooks_fire phase before "$name" 1 1`. If the hooks subsystem is
    unavailable, emit one stderr warning and continue.
-10. Print the confirmation banner: phase name, `goals.md` path, and
+11. Print the confirmation banner: phase name, `goals.md` path, and
     `Next: /kbd-assess <name>`.
 
 ## Examples

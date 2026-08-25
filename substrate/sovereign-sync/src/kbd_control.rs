@@ -724,6 +724,65 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn successor_run_commit_refreshes_daemon_projections() {
+        let project = tempdir().unwrap();
+        let runtime = Arc::new(Runtime::open(project.path()));
+        let project_id = runtime.project_manifest(true).unwrap().unwrap().project_id;
+        let operator = Actor::operator("operator-a", "test");
+        let initialized = runtime
+            .initialize(project_id.clone(), "run-a", operator.clone())
+            .unwrap();
+        let cancelled = runtime
+            .append(
+                operator.clone(),
+                initialized.revision,
+                kbd_runtime::EventKind::LifecycleTransition {
+                    from: kbd_runtime::LifecycleState::Ready,
+                    to: kbd_runtime::LifecycleState::Cancelled,
+                    reason: "old run complete".into(),
+                },
+            )
+            .unwrap();
+        let control = KbdControlPlane::from_runtime(runtime.clone())
+            .await
+            .unwrap();
+        let committed = control
+            .submit(CommandEnvelope {
+                schema_version: "2".into(),
+                project_id,
+                run_id: "run-a".into(),
+                command_id: "start-run-b".into(),
+                frontier: Some(cancelled.frontier),
+                expected_revision: cancelled.revision,
+                actor: operator,
+                command: CommandKind::RunStart {
+                    run_id: "run-b".into(),
+                    reason: "new work".into(),
+                    exact_next_work: Some("/kbd-new-phase".into()),
+                },
+            })
+            .await
+            .unwrap();
+
+        assert!(committed.projection_error.is_none());
+        assert_eq!(committed.result.state.run_id, "run-b");
+        assert!(committed.result.state.phases.is_empty());
+        let waypoint: serde_json::Value = serde_json::from_reader(
+            std::fs::File::open(
+                project
+                    .path()
+                    .join(".kbd-orchestrator/current-waypoint.json"),
+            )
+            .unwrap(),
+        )
+        .unwrap();
+        assert_eq!(waypoint["runId"], "run-b");
+        assert_eq!(waypoint["status"], "ready");
+        assert_eq!(waypoint["implementationCompleted"], 0);
+        assert_eq!(waypoint["implementationTotal"], 0);
+    }
+
+    #[tokio::test]
     async fn daemon_router_preserves_recovered_read_only_classification() {
         let data_root = tempdir().unwrap();
         let project_id = Uuid::new_v4().to_string();

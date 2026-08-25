@@ -141,4 +141,59 @@ mk_sandbox() {
     || fail "12: unknown waypoint keys not preserved"
 ) && pass "unknown waypoint keys preserved through rewrite"
 
-printf '\nall kbd-new-phase smoke tests passed (12/12)\n'
+# --- Test 13: terminal canonical run rolls once before phase creation ---
+( mk_sandbox
+  mkdir -p mock-root/shared/lib mock-bin
+  printf '%s\n' 'kbd_runtime_authoritative() { return 0; }' \
+    > mock-root/shared/lib/runtime-authority.sh
+  printf '%s\n' \
+    '#!/usr/bin/env bash' \
+    'printf "%s\n" "$*" >> "$PROMETHEUS_LOG"' \
+    'case " $* " in' \
+    '  *" status --json "*) printf "{\"lifecycle\":\"%s\",\"runId\":\"run-a\"}\n" "$MOCK_LIFECYCLE" ;;' \
+    'esac' \
+    > mock-bin/prometheus
+  chmod +x mock-bin/prometheus
+  export PROMETHEUS_LOG="$SANDBOX/prometheus.log"
+  export MOCK_LIFECYCLE="cancelled"
+  PATH="$SANDBOX/mock-bin:$PATH" \
+    KBD_ORCHESTRATOR_ROOT="$SANDBOX/mock-root" \
+    "$SCRIPT" successor-phase >/dev/null 2>&1 || fail "13a: terminal rollover should succeed"
+  [[ "$(wc -l < "$PROMETHEUS_LOG" | tr -d ' ')" == "4" ]] \
+    || fail "13b: expected status, rollover, create, activate commands"
+  sed -n '1p' "$PROMETHEUS_LOG" | grep -q 'status --json' \
+    || fail "13c: status must be read first"
+  sed -n '2p' "$PROMETHEUS_LOG" | grep -Eq \
+    'run start --run-id successor-phase-[0-9]{8}T[0-9]{6}Z .*--exact-next-work /kbd-new-phase successor-phase' \
+    || fail "13d: successor run must commit before phase creation"
+  sed -n '3p' "$PROMETHEUS_LOG" | grep -q 'phase create' \
+    || fail "13e: phase create must follow rollover"
+  sed -n '4p' "$PROMETHEUS_LOG" | grep -q 'phase activate' \
+    || fail "13f: phase activation missing"
+) && pass "terminal runtime → one successor run before phase create + activate"
+
+# --- Test 14: non-terminal canonical run creates phase without rollover ---
+( mk_sandbox
+  mkdir -p mock-root/shared/lib mock-bin
+  printf '%s\n' 'kbd_runtime_authoritative() { return 0; }' \
+    > mock-root/shared/lib/runtime-authority.sh
+  printf '%s\n' \
+    '#!/usr/bin/env bash' \
+    'printf "%s\n" "$*" >> "$PROMETHEUS_LOG"' \
+    'case " $* " in' \
+    '  *" status --json "*) printf "{\"lifecycle\":\"%s\",\"runId\":\"run-a\"}\n" "$MOCK_LIFECYCLE" ;;' \
+    'esac' \
+    > mock-bin/prometheus
+  chmod +x mock-bin/prometheus
+  export PROMETHEUS_LOG="$SANDBOX/prometheus.log"
+  export MOCK_LIFECYCLE="ready"
+  PATH="$SANDBOX/mock-bin:$PATH" \
+    KBD_ORCHESTRATOR_ROOT="$SANDBOX/mock-root" \
+    "$SCRIPT" ordinary-phase >/dev/null 2>&1 || fail "14a: non-terminal phase create should succeed"
+  grep -q 'status --json' "$PROMETHEUS_LOG" || fail "14b: canonical status missing"
+  ! grep -q 'run start' "$PROMETHEUS_LOG" || fail "14c: non-terminal run must not roll over"
+  grep -q 'phase create' "$PROMETHEUS_LOG" || fail "14d: phase create missing"
+  grep -q 'phase activate' "$PROMETHEUS_LOG" || fail "14e: phase activate missing"
+) && pass "non-terminal runtime → no rollover"
+
+printf '\nall kbd-new-phase smoke tests passed (14/14)\n'
