@@ -6,6 +6,7 @@
   "scripts": {
     "check-prereqs": "bash scripts/check-prerequisites.sh",
     "setup": "bash scripts/check-prerequisites.sh --install",
+    "setup:full": "./install.sh --profile full",
     "build-tools": "bash scripts/check-prerequisites.sh --build-tools",
     "doctor": "RUSTUP_TOOLCHAIN=stable cargo run --manifest-path tools/prometheus-cli/Cargo.toml -- doctor --exclude control.kbd-runtime --exclude state.kbd-orchestrator --exclude control.kbd-rollout --exclude service:sovereign-sync",
     "doctor:fix": "RUSTUP_TOOLCHAIN=stable cargo run --manifest-path tools/prometheus-cli/Cargo.toml -- doctor --fix --dry-run --exclude control.kbd-runtime --exclude state.kbd-orchestrator --exclude control.kbd-rollout --exclude service:sovereign-sync",

@@ -29,6 +29,24 @@ Windows; the skills profile is certified through Git Bash or WSL. `--best-effort
 is explicitly non-certifying. Release `1.7.0` is the minimum supported active
 umbrella skill-system release.
 
+The equivalent explicit full-system entrypoints are:
+
+```bash
+./install.sh --profile full
+npm run setup:full
+prometheus setup --full
+```
+
+The first two run the canonical full-profile installer. The
+`prometheus setup --full` command extends CLI component setup with the same
+managed-service installer. On macOS that installer loads
+`ai.prometheus.sovereign-sync`; on Linux it loads
+`ai.prometheus.sovereign-sync.service`. The daemon runs
+`sovereign-sync --mode daemon`, hosts the KBD control plane backed by
+`kbd-runtime`, and serves its local API over a same-user Unix socket. Plain
+`./install.sh`, the ordinary npm `setup` script, and plain `prometheus setup`
+remain daemon-free.
+
 Keep Rust caches on an internal SSD:
 
 ```bash

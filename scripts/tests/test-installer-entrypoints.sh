@@ -33,4 +33,23 @@ if rg -n 'launchctl bootstrap.*codex-skills-sync|skills-sync agent loaded' \
 fi
 grep -Fq 'legacy skills-sync agent removed' "$REPO_ROOT/scripts/install-skills-flat.sh"
 
+node - "$REPO_ROOT/package.json" "$REPO_ROOT/scripts/install-system.js" <<'NODE'
+const fs = require('fs');
+const pkg = JSON.parse(fs.readFileSync(process.argv[2], 'utf8'));
+const installer = fs.readFileSync(process.argv[3], 'utf8');
+if (pkg.scripts.setup !== 'bash scripts/check-prerequisites.sh --install') {
+  throw new Error('plain npm setup must remain prerequisite-only');
+}
+if (pkg.scripts['setup:full'] !== './install.sh --profile full') {
+  throw new Error('npm setup:full must delegate to the canonical full-profile installer');
+}
+const serviceDelegations = installer.match(/scripts\/install-mcp-services\.sh/g) ?? [];
+if (serviceDelegations.length !== 1) {
+  throw new Error(`full installer must delegate to managed services exactly once; found ${serviceDelegations.length}`);
+}
+if (!installer.includes("!args.verify && !args.uninstall && profile === 'full'")) {
+  throw new Error('managed services are not guarded by the explicit full profile');
+}
+NODE
+
 echo "PASS: global entrypoints use immutable generations and legacy Codex ownership is preserved"
