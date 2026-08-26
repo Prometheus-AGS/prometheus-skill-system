@@ -1,6 +1,23 @@
 # Update Log
 
 ## 2026-08-26
+* **Ingest**: [Karpathy session 966b689ee59c](/karpathy-session-966b689ee59cdc76.md)
+* **Ingest**: [Karpathy session 3b076ebad57d](/karpathy-session-3b076ebad57d6811.md)
+* **Ingest**: [Karpathy session a5b09fe0cbe0](/karpathy-session-a5b09fe0cbe09414.md)
+* **Ingest**: [Karpathy session 9b0fa0851c93](/karpathy-session-9b0fa0851c936fb7.md)
+* **Ingest**: [Karpathy session 7dad4347dc7d](/karpathy-session-7dad4347dc7da1dd.md)
+* **Ingest**: [Karpathy session ad1f8ff3de2b](/karpathy-session-ad1f8ff3de2b61c3.md)
+* **Ingest**: [Karpathy session 816108bf1adb](/karpathy-session-816108bf1adba151.md)
+* **Ingest**: [Karpathy session 27e6e64b8b96](/karpathy-session-27e6e64b8b961dd1.md)
+* **Ingest**: [Karpathy session 3a86580c526e](/karpathy-session-3a86580c526e8a47.md)
+* **Ingest**: [Karpathy session 33f87f2d8886](/karpathy-session-33f87f2d8886c38d.md)
+* **Ingest**: [Karpathy session a5e7a522889f](/karpathy-session-a5e7a522889fc26e.md)
+* **Ingest**: [Karpathy session c4707e1c05fa](/karpathy-session-c4707e1c05fa510c.md)
+* **Ingest**: [Karpathy session 86e485b2eac6](/karpathy-session-86e485b2eac6f5fe.md)
+* **Ingest**: [Karpathy session 5ccb1839beec](/karpathy-session-5ccb1839beec80fc.md)
+* **Ingest**: [Karpathy session 12a16adb4103](/karpathy-session-12a16adb4103181d.md)
+* **Ingest**: [Karpathy session f8f0e6845e8b](/karpathy-session-f8f0e6845e8bd9f4.md)
+* **Ingest**: [Karpathy session ae8d059b5867](/karpathy-session-ae8d059b586708f9.md)
 * **Creation**: [Doctor Learning-Worker Stall Traced to an Expired Auth Credential](/doctor-learning-worker-stall-expired-credential.md)
 
 ## 2026-08-20
