@@ -1,5 +1,8 @@
 # Update Log
 
+## 2026-08-26
+* **Creation**: [Doctor Learning-Worker Stall Traced to an Expired Auth Credential](/doctor-learning-worker-stall-expired-credential.md)
+
 ## 2026-08-20
 * **Ingest**: [Karpathy session 3c67e1717b25](/karpathy-session-3c67e1717b254152.md)
 * **Ingest**: [Karpathy session 3841ee7d1301](/karpathy-session-3841ee7d13011f2c.md)

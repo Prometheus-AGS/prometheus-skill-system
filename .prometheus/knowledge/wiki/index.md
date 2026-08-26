@@ -117,6 +117,7 @@
 * [Cowork CLI Integration Planning Phase Goals](/cowork-cli-integration-planning-phase-goals.md) - Phase:** `cowork-integration` - **Project:** unspecified - **KBD root:** `/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.claude/worktrees/charming-diffie-309eef` - **Captured:** `2026-07-03T21:15:09Z` - **Source context:** `manual:cowork-integration`
 * [Deep Research + Feynman Learning Integration](/deep-research-feynman-integration.md) - Research into how deep research combines with Feynman learning skills, Karpathy LLM wiki patterns, and learning loop integration.
 * [Deep Research Skill Landscape](/deep-research-skill-landscape.md) - Comprehensive survey of existing deep research agents and skills, including GPT Researcher, LangGraph ODR, MiroThinker, and other implementations in the ecosystem.
+* [Doctor Learning-Worker Stall Traced to an Expired Auth Credential](/doctor-learning-worker-stall-expired-credential.md) - A `prometheus doctor` failure was traced to an expired credential, not a missing worker; the offered "safe" repair would not have fixed it.
 * [Docusaurus GitHub Pages Executor Session Complete Status](/docusaurus-github-pages-executor-session-complete-status.md)
 * [Docusaurus GitHub Pages Executor Session Completion](/docusaurus-github-pages-executor-session-completion.md)
 * [Docusaurus GitHub Pages Executor Session Status](/docusaurus-github-pages-executor-session-status.md)
