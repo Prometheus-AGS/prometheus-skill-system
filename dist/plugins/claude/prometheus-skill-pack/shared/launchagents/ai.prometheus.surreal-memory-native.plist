@@ -55,8 +55,22 @@
     <string>local</string>
     <key>LOCAL_EMBEDDING_MODEL</key>
     <string>BAAI/bge-small-en-v1.5</string>
+    <key>LOCAL_EMBEDDING_MODEL_REVISION</key>
+    <string>5c38ec7c405ec4b44b94cc5a9bb96e735b38267a</string>
+    <key>LOCAL_EMBEDDING_DIMENSIONS</key>
+    <string>384</string>
+    <key>LOCAL_EMBEDDING_BACKEND</key>
+    <string>__LOCAL_EMBEDDING_BACKEND__</string>
+    <key>LOCAL_EMBEDDING_DEVICE</key>
+    <string>__LOCAL_EMBEDDING_DEVICE__</string>
+    <key>LOCAL_EMBEDDING_EXECUTOR</key>
+    <string>__SURREAL_MLX_EXECUTOR__</string>
     <key>MODEL_CACHE_DIR</key>
     <string>__PROMETHEUS_HOME__/.cache/huggingface</string>
+    <key>HF_HUB_CACHE</key>
+    <string>__PROMETHEUS_HOME__/.cache/huggingface/hub</string>
+    <key>SURREAL_EXECUTOR_STARTUP_MS</key>
+    <string>120000</string>
 
     <!-- Retry / reconnection config -->
     <key>SURREAL_MAX_CONNECT_RETRIES</key>

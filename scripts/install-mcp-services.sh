@@ -242,7 +242,7 @@ render_template() {
     local src="$1" output="$2"
     [ -f "$src" ] || { echo "Template not found: $src" >&2; return 1; }
 
-    local pk_cherry_bin forge_bin docker_bin surreal_bin surreal_memory_bin surface_bridge_bin sovereign_sync_bin learning_worker_bin logrotate_bin flock_bin
+    local pk_cherry_bin forge_bin docker_bin surreal_bin surreal_memory_bin surreal_mlx_executor surface_bridge_bin sovereign_sync_bin learning_worker_bin logrotate_bin flock_bin
     pk_cherry_bin="$(resolve_bin pk-cherry)";  [ -n "$pk_cherry_bin" ] || pk_cherry_bin="$BIN_FALLBACK_DIR/pk-cherry"
     forge_bin="$(resolve_bin forge)";          [ -n "$forge_bin" ]     || forge_bin="$BIN_FALLBACK_DIR/forge"
     docker_bin="$(resolve_bin docker)";        [ -n "$docker_bin" ]    || docker_bin="/usr/local/bin/docker"
@@ -250,6 +250,12 @@ render_template() {
     surreal_memory_bin="$(resolve_bin surreal-memory-server)"
     [ -n "$surreal_memory_bin" ] || surreal_memory_bin="$REPO_ROOT/tools/surreal-memory-server/target/release/surreal-memory-server"
     [ -f "$surreal_memory_bin" ] || surreal_memory_bin="$BIN_FALLBACK_DIR/surreal-memory-server"
+    surreal_mlx_executor="$(resolve_bin surreal-memory-mlx-executor)"
+    [ -n "$surreal_mlx_executor" ] || surreal_mlx_executor="$BIN_FALLBACK_DIR/surreal-memory-mlx-executor"
+    local local_embedding_backend="${PROMETHEUS_LOCAL_EMBEDDING_BACKEND:-mlx}"
+    local local_embedding_device="${PROMETHEUS_LOCAL_EMBEDDING_DEVICE:-auto}"
+    case "$local_embedding_backend" in candle|mlx) ;; *) echo "PROMETHEUS_LOCAL_EMBEDDING_BACKEND must be candle or mlx" >&2; return 1 ;; esac
+    case "$local_embedding_device" in auto|cpu) ;; *) echo "PROMETHEUS_LOCAL_EMBEDDING_DEVICE must be auto or cpu" >&2; return 1 ;; esac
     surface_bridge_bin="$(resolve_bin surface-bridge)"; [ -n "$surface_bridge_bin" ] || surface_bridge_bin="$BIN_FALLBACK_DIR/surface-bridge"
     sovereign_sync_bin="$(resolve_bin sovereign-sync)"; [ -n "$sovereign_sync_bin" ] || sovereign_sync_bin="$BIN_FALLBACK_DIR/sovereign-sync"
     learning_worker_bin="$(resolve_bin prometheus-learning-worker)"; [ -n "$learning_worker_bin" ] || learning_worker_bin="$BIN_FALLBACK_DIR/prometheus-learning-worker"
@@ -270,7 +276,8 @@ render_template() {
     PROMETHEUS_USER="$PROMETHEUS_USER" PROMETHEUS_HOME="$PROMETHEUS_HOME" \
     PROMETHEUS_ROOT="$REPO_ROOT" PROMETHEUS_LOG_DIR="$LOG_DIR" PROMETHEUS_PATH="$PROMETHEUS_PATH" \
     PK_CHERRY_BIN="$pk_cherry_bin" FORGE_BIN="$forge_bin" DOCKER_BIN="$docker_bin" \
-    SURREAL_BIN="$surreal_bin" SURREAL_MEMORY_BIN="$surreal_memory_bin" SURFACE_BRIDGE_BIN="$surface_bridge_bin" \
+    SURREAL_BIN="$surreal_bin" SURREAL_MEMORY_BIN="$surreal_memory_bin" SURREAL_MLX_EXECUTOR="$surreal_mlx_executor" \
+    LOCAL_EMBEDDING_BACKEND="$local_embedding_backend" LOCAL_EMBEDDING_DEVICE="$local_embedding_device" SURFACE_BRIDGE_BIN="$surface_bridge_bin" \
     SOVEREIGN_SYNC_BIN="$sovereign_sync_bin" LEARNING_WORKER_BIN="$learning_worker_bin" \
     LOGROTATE_BIN="$logrotate_bin" FLOCK_BIN="$flock_bin" \
     python3 - "$src" "$output" <<'PY'
@@ -308,6 +315,9 @@ for k, env in {
     "__DOCKER_BIN__":         "DOCKER_BIN",
     "__SURREAL_BIN__":        "SURREAL_BIN",
     "__SURREAL_MEMORY_BIN__": "SURREAL_MEMORY_BIN",
+    "__SURREAL_MLX_EXECUTOR__": "SURREAL_MLX_EXECUTOR",
+    "__LOCAL_EMBEDDING_BACKEND__": "LOCAL_EMBEDDING_BACKEND",
+    "__LOCAL_EMBEDDING_DEVICE__": "LOCAL_EMBEDDING_DEVICE",
     "__SURFACE_BRIDGE_BIN__": "SURFACE_BRIDGE_BIN",
     "__SOVEREIGN_SYNC_BIN__": "SOVEREIGN_SYNC_BIN",
     "__LEARNING_WORKER_BIN__": "LEARNING_WORKER_BIN",
@@ -336,6 +346,11 @@ PY
 
 if [ -n "$RENDER_ONLY_DIR" ]; then
     mkdir -p "$RENDER_ONLY_DIR"
+    if ! service_is_excluded surreal-memory-native; then
+        render_template \
+            "$REPO_ROOT/shared/launchagents/ai.prometheus.surreal-memory-native.plist" \
+            "$RENDER_ONLY_DIR/ai.prometheus.surreal-memory-native.plist"
+    fi
     if ! service_is_excluded sovereign-sync; then
         render_template \
             "$REPO_ROOT/shared/launchagents/ai.prometheus.sovereign-sync.plist" \
