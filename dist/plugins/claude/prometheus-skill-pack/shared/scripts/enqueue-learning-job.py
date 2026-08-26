@@ -39,6 +39,37 @@ def first(payload: dict[str, object], *keys: str) -> str:
     return ""
 
 
+def last_assistant_uuid(transcript_path: str, tail_bytes: int = 262_144) -> str:
+    """Return the uuid of the last assistant-authored JSONL record, or "".
+
+    Only reads the tail of the file (bounded, not the whole transcript) since
+    assistant lines recur every few lines in practice and this runs on every
+    hook firing.
+    """
+    try:
+        path = Path(transcript_path)
+        size = path.stat().st_size
+        with open(path, "rb") as handle:
+            if size > tail_bytes:
+                handle.seek(size - tail_bytes)
+            chunk = handle.read()
+    except OSError:
+        return ""
+    for raw_line in reversed(chunk.split(b"\n")):
+        raw_line = raw_line.strip()
+        if not raw_line:
+            continue
+        try:
+            obj = json.loads(raw_line)
+        except (json.JSONDecodeError, UnicodeDecodeError):
+            continue
+        if isinstance(obj, dict) and obj.get("type") == "assistant":
+            uuid = obj.get("uuid")
+            if uuid:
+                return str(uuid)
+    return ""
+
+
 def sync_directory(directory: Path) -> None:
     descriptor = os.open(directory, os.O_RDONLY)
     try:
@@ -69,12 +100,23 @@ def main() -> int:
         payload, "session_id", "sessionId", "conversation_id", "conversationId"
     ) or os.environ.get("CLAUDE_SESSION_ID") or os.environ.get("CODEX_THREAD_ID") or "unknown"
     transcript_path = first(payload, "transcript_path", "transcriptPath")
-    # Transcript length is the turn cursor: it advances once per completed turn
-    # and is identical for the twin hooks that fire for the same turn.
-    try:
-        transcript_bytes = str(Path(transcript_path).stat().st_size) if transcript_path else ""
-    except OSError:
-        transcript_bytes = ""
+    # The turn cursor anchors identity to the last assistant-authored line in
+    # the transcript, not raw file size. Raw size was tried first and does not
+    # hold: many OTHER hooks (cost notices, pk context, sycophancy gate, ...)
+    # append `attachment`/`system` lines to the SAME transcript in the ~1s
+    # window between the twin `stop` and `executor_complete` Karpathy hooks
+    # firing for one turn, so the byte count moves between the two captures
+    # in the common case, not just an edge case — each such append produced a
+    # distinct identity hash and therefore a duplicate wiki record with
+    # identical Delta content. No new assistant line is written in that
+    # window, so its uuid is stable across both hook firings for one turn and
+    # still advances for a genuinely new turn.
+    turn_cursor = last_assistant_uuid(transcript_path) if transcript_path else ""
+    if not turn_cursor:
+        try:
+            turn_cursor = str(Path(transcript_path).stat().st_size) if transcript_path else ""
+        except OSError:
+            turn_cursor = ""
     payload_digest = hashlib.sha256(raw).hexdigest()
     # ~keep The turn identity deliberately EXCLUDES `event` and `payload_digest`.
     # Claude Code fires both `stop` and `subagent-executor-karpathy-learning`
@@ -83,11 +125,11 @@ def main() -> int:
     # and their payloads are structurally identical (same keys, sessionId,
     # transcriptPath), differing only in the event name. Including either field
     # made every turn unique, so the queue emitted one wiki record per hook per
-    # turn. Keying on the transcript position instead collapses the twins and
-    # still distinguishes genuinely different turns, because `transcript_bytes`
-    # grows monotonically as the session advances.
+    # turn. Keying on `turn_cursor` instead collapses the twins and still
+    # distinguishes genuinely different turns, because it advances only when a
+    # new assistant message is written.
     identity = "\0".join(
-        (harness, session_id, str(project_root), transcript_path, transcript_bytes)
+        (harness, session_id, str(project_root), transcript_path, turn_cursor)
     ).encode()
     event_id = hashlib.sha256(identity).hexdigest()
 
