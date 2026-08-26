@@ -102,5 +102,38 @@ else
   fail "duplicate delivery is idempotent across durable states"
 fi
 
+# Revert line: restore `event` or `payload_digest` to the `identity` tuple in
+# enqueue-learning-job.py to make this test fail.
+# ~keep Claude Code fires stop AND executor_complete for the SAME turn with
+# structurally identical payloads (measured ~1:1, 549 vs 548, across all
+# recorded sessions). Both must collapse to one job, or the worker writes two
+# near-identical wiki records per turn.
+mkdir -p "$TMP/twin"
+printf 'line one\n' > "$TMP/twin-transcript.jsonl"
+twin_payload="$(printf '{"session_id":"twin-session","cwd":"%s","transcript_path":"%s"}' \
+  "$TMP/project" "$TMP/twin-transcript.jsonl")"
+for ev in stop executor_complete; do
+  printf '%s' "$twin_payload" | HOME="$TMP/home" PATH="$TMP/bin:$PATH" \
+    PROMETHEUS_LEARNING_QUEUE="$TMP/twin" "$DISPATCH" "$ev" claude-code
+done
+twin_jobs="$(find "$TMP/twin/pending" -type f -name '*.json' | wc -l | tr -d ' ')"
+if [ "$twin_jobs" = 1 ]; then
+  pass "stop and executor_complete for one turn collapse to a single job"
+else
+  fail "stop and executor_complete for one turn collapse to a single job (got $twin_jobs)"
+fi
+
+# Revert line: drop `transcript_bytes` from the `identity` tuple to make this
+# test fail (all turns would collapse into one job).
+printf 'line two\n' >> "$TMP/twin-transcript.jsonl"
+printf '%s' "$twin_payload" | HOME="$TMP/home" PATH="$TMP/bin:$PATH" \
+  PROMETHEUS_LEARNING_QUEUE="$TMP/twin" "$DISPATCH" stop claude-code
+next_jobs="$(find "$TMP/twin/pending" -type f -name '*.json' | wc -l | tr -d ' ')"
+if [ "$next_jobs" = 2 ]; then
+  pass "a genuinely later turn still enqueues its own job"
+else
+  fail "a genuinely later turn still enqueues its own job (got $next_jobs)"
+fi
+
 printf '\nPASS=%d FAIL=%d\n' "$PASS" "$FAIL"
 [ "$FAIL" -eq 0 ]

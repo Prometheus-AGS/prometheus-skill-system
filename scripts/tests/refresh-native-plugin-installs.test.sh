@@ -56,10 +56,10 @@ fi
 if [[ "$*" == "plugin marketplace update prometheus-skill-pack" ]]; then
   exit 0
 fi
-if [[ "$*" == "plugin uninstall --scope user prometheus-skill-pack@prometheus-skill-pack" ]]; then
+if [[ "$*" == plugin\ uninstall\ --scope\ user\ * ]]; then
   exit 0
 fi
-if [[ "$*" == "plugin install --scope user prometheus-skill-pack@prometheus-skill-pack" ]]; then
+if [[ "$*" == plugin\ install\ --scope\ user\ * ]]; then
   touch "${PROMETHEUS_NATIVE_TEST_UPDATED:?}"
   exit 0
 fi
@@ -137,7 +137,8 @@ fi
 grep -Fq 'claude plugin marketplace update prometheus-skill-pack' "$LOG"
 grep -Fq 'claude plugin uninstall --scope user prometheus-skill-pack@prometheus-skill-pack' "$LOG"
 grep -Fq 'claude plugin install --scope user prometheus-skill-pack@prometheus-skill-pack' "$LOG"
-grep -Fq 'claude plugin update --scope user prometheus-process-skills@prometheus-skill-pack' "$LOG"
+grep -Fq 'claude plugin uninstall --scope user prometheus-process-skills@prometheus-skill-pack' "$LOG"
+grep -Fq 'claude plugin install --scope user prometheus-process-skills@prometheus-skill-pack' "$LOG"
 grep -Fq 'codex plugin marketplace list --json' "$LOG"
 grep -Fq 'codex plugin add prometheus-skill-pack@prometheus-skill-pack --json' "$LOG"
 grep -Fq 'codex plugin add prometheus-process-skills@prometheus-skill-pack --json' "$LOG"

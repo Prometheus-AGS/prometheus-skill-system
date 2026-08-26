@@ -67,8 +67,8 @@ Commands:
   logs      Tail recent service logs
 
 Managed LaunchAgents:
-  ai.prometheus.surrealdb-native       SurrealDB 3.2.0 native binary on 127.0.0.1:28000
-  ai.prometheus.surreal-memory-native  Native surreal-memory-server -> SurrealDB 3.2.0 (port 23001)
+  ai.prometheus.surrealdb-native       SurrealDB 3.2.4 native binary on 127.0.0.1:28000
+  ai.prometheus.surreal-memory-native  Native surreal-memory-server -> SurrealDB 3.2.4 (port 23001)
   ai.prometheus.pk-cherry              pk-cherry HTTP MCP for Karpathy KB (port 8942)
   ai.prometheus.forge-mcp              Forge code-enrichment MCP (port 8943)
   ai.prometheus.prometheus-nudge       Periodic self-learning nudge (every 4h, cron-style)
@@ -138,19 +138,25 @@ ensure_dirs() {
 render_template() {
     local template="$1"
     local output="$2"
-    local pk_cherry_bin forge_bin docker_bin surreal_bin surreal_memory_bin
+    local pk_cherry_bin forge_bin docker_bin surreal_bin surreal_memory_bin surreal_mlx_executor
 
     pk_cherry_bin="$(resolve_bin pk-cherry)"
     forge_bin="$(resolve_bin forge)"
     docker_bin="$(resolve_bin docker)"
     surreal_bin="$(resolve_bin surreal)"
     surreal_memory_bin="$(resolve_bin surreal-memory-server)"
+    surreal_mlx_executor="$(resolve_bin surreal-memory-mlx-executor)"
 
     [ -n "$pk_cherry_bin" ] || pk_cherry_bin="/usr/local/bin/pk-cherry"
     [ -n "$forge_bin" ] || forge_bin="/usr/local/bin/forge"
     [ -n "$docker_bin" ] || docker_bin="/usr/local/bin/docker"
     [ -n "$surreal_bin" ] || surreal_bin="/usr/local/bin/surreal"
     [ -n "$surreal_memory_bin" ] || surreal_memory_bin="/usr/local/bin/surreal-memory-server"
+    [ -n "$surreal_mlx_executor" ] || surreal_mlx_executor="/usr/local/bin/surreal-memory-mlx-executor"
+    local local_embedding_backend="${PROMETHEUS_LOCAL_EMBEDDING_BACKEND:-mlx}"
+    local local_embedding_device="${PROMETHEUS_LOCAL_EMBEDDING_DEVICE:-auto}"
+    case "$local_embedding_backend" in candle|mlx) ;; *) echo "PROMETHEUS_LOCAL_EMBEDDING_BACKEND must be candle or mlx" >&2; return 1 ;; esac
+    case "$local_embedding_device" in auto|cpu) ;; *) echo "PROMETHEUS_LOCAL_EMBEDDING_DEVICE must be auto or cpu" >&2; return 1 ;; esac
 
     python3 - "$REPO_ROOT/shared/launchagents/$template" "$output" <<PY
 import pathlib
@@ -170,6 +176,9 @@ replacements = {
     "__DOCKER_BIN__": "$docker_bin",
     "__SURREAL_BIN__": "$surreal_bin",
     "__SURREAL_MEMORY_BIN__": "$surreal_memory_bin",
+    "__SURREAL_MLX_EXECUTOR__": "$surreal_mlx_executor",
+    "__LOCAL_EMBEDDING_BACKEND__": "$local_embedding_backend",
+    "__LOCAL_EMBEDDING_DEVICE__": "$local_embedding_device",
 }
 for key, value in replacements.items():
     text = text.replace(key, value)

@@ -247,6 +247,74 @@ fi
 # which hard-fails compile_error! on any non-Apple target); `cuda` requires an
 # NVIDIA GPU. Select the right accelerator instead of hardcoding `metal`.
 if [ -f "${REPO_ROOT}/tools/surreal-memory-server/Cargo.toml" ]; then
+    SM_MLX_DIR="${REPO_ROOT}/tools/surreal-memory-server/executors/mlx"
+    if [ "$(uname -s)" = "Darwin" ] && [ "$(uname -m)" = "arm64" ] && \
+       [ -f "${SM_MLX_DIR}/Package.swift" ]; then
+        info "Building surreal-memory MLX executor..."
+        if ! $DRY_RUN; then
+            swift build --package-path "${SM_MLX_DIR}" -c release \
+                --product surreal-memory-mlx-executor
+        else
+            info "[dry-run] would build surreal-memory-mlx-executor with SwiftPM"
+        fi
+        SM_MLX_BIN="${SM_MLX_DIR}/.build/release/surreal-memory-mlx-executor"
+        SM_MLX_BUNDLE="${SM_MLX_DIR}/.build/release/mlx-swift_Cmlx.bundle"
+        if ! $DRY_RUN && [ ! -x "${SM_MLX_BIN}" ]; then
+            fail "surreal-memory-mlx-executor binary not found after build"
+            exit 1
+        fi
+        if ! $DRY_RUN && [ ! -f "${SM_MLX_BUNDLE}/Contents/Resources/default.metallib" ]; then
+            fail "MLX default.metallib resource bundle not found after build"
+            exit 1
+        fi
+        if ! $DRY_RUN; then
+            MODEL_CACHE_DIR="${MODEL_CACHE_DIR:-${HOME}/.cache/huggingface}" \
+            LOCAL_EMBEDDING_MODEL="BAAI/bge-small-en-v1.5" \
+            LOCAL_EMBEDDING_MODEL_REVISION="5c38ec7c405ec4b44b94cc5a9bb96e735b38267a" \
+                "${SM_MLX_BIN}" --prefetch
+        else
+            info "[dry-run] would prefetch and warm the pinned BGE snapshot"
+        fi
+        install_bin "${SM_MLX_BIN}" "${BIN_DIR}/surreal-memory-mlx-executor"
+        if ! $DRY_RUN; then
+            ditto "${SM_MLX_BUNDLE}" "${BIN_DIR}/mlx-swift_Cmlx.bundle"
+        fi
+        ok "surreal-memory-mlx-executor → ${BIN_DIR}/surreal-memory-mlx-executor"
+        if [ -w /usr/local/bin ] || [ "$(id -u)" = "0" ]; then
+            install_bin "${SM_MLX_BIN}" "/usr/local/bin/surreal-memory-mlx-executor"
+            if ! $DRY_RUN; then
+                ditto "${SM_MLX_BUNDLE}" "/usr/local/bin/mlx-swift_Cmlx.bundle"
+            fi
+            ok "surreal-memory-mlx-executor → /usr/local/bin/surreal-memory-mlx-executor"
+        else
+            fail "/usr/local/bin is not writable; MLX deployment requires both installed copies"
+            exit 1
+        fi
+        if ! $DRY_RUN; then
+            cmp -s "${BIN_DIR}/surreal-memory-mlx-executor" \
+                "/usr/local/bin/surreal-memory-mlx-executor" || {
+                fail "installed MLX executor copies differ"
+                exit 1
+            }
+            codesign --verify "${BIN_DIR}/surreal-memory-mlx-executor"
+            codesign --verify "/usr/local/bin/surreal-memory-mlx-executor"
+            cmp -s "${SM_MLX_BUNDLE}/Contents/Resources/default.metallib" \
+                "${BIN_DIR}/mlx-swift_Cmlx.bundle/Contents/Resources/default.metallib" || {
+                fail "user-local MLX default.metallib differs from the staged resource"
+                exit 1
+            }
+            cmp -s "${SM_MLX_BUNDLE}/Contents/Resources/default.metallib" \
+                "/usr/local/bin/mlx-swift_Cmlx.bundle/Contents/Resources/default.metallib" || {
+                fail "system MLX default.metallib differs from the staged resource"
+                exit 1
+            }
+            MODEL_CACHE_DIR="${MODEL_CACHE_DIR:-${HOME}/.cache/huggingface}" \
+            LOCAL_EMBEDDING_MODEL="BAAI/bge-small-en-v1.5" \
+            LOCAL_EMBEDDING_MODEL_REVISION="5c38ec7c405ec4b44b94cc5a9bb96e735b38267a" \
+                "/usr/local/bin/surreal-memory-mlx-executor" --smoke
+        fi
+    fi
+
     info "Building surreal-memory-server..."
     SM_FEATURES="embedded,local-embeddings"
     if [ "$(uname -s)" = "Darwin" ]; then

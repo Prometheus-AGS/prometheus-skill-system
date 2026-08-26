@@ -129,10 +129,10 @@ for (const row of rows) if (wanted.has(row.id) && row.scope === "user") console.
         "$CLAUDE_BIN" plugin marketplace update prometheus-skill-pack
         while IFS= read -r plugin_id; do
             [[ -n "$plugin_id" ]] || continue
-            if $FORCE && [[ "$plugin_id" == "prometheus-skill-pack@prometheus-skill-pack" ]]; then
+            if $FORCE; then
                 # Same-version package contents are immutable in Claude's cache.
-                # A supported uninstall/install cycle is required to refresh 1.7.0
-                # bytes after the package layout migration.
+                # A supported uninstall/install cycle is required for every
+                # affected plugin whose source bytes may have changed.
                 "$CLAUDE_BIN" plugin uninstall --scope user "$plugin_id"
                 "$CLAUDE_BIN" plugin install --scope user "$plugin_id"
             else

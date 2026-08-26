@@ -83,7 +83,7 @@
       "id": "liter-llm",
       "path": "tools/liter-llm",
       "repository": "https://github.com/GQAdonis/liter-llm.git",
-      "commit": "788877f7ad238eaef4173bea2481b1731b0bbe12",
+      "commit": "c5c6caac617eb931cd5009146a70831422ec236c",
       "requiredFor": ["full"]
     },
     {
@@ -97,14 +97,14 @@
       "id": "prometheus-knowledge",
       "path": "tools/prometheus-knowledge",
       "repository": "https://github.com/Prometheus-AGS/prometheus-knowledge-rs.git",
-      "commit": "5a175d13149945685ab8dd9bc1da8ea7d5861165",
+      "commit": "a4c2606602ec9dc65da2e8e21d4c0f25f522845f",
       "requiredFor": ["full"]
     },
     {
       "id": "surreal-memory-server",
       "path": "tools/surreal-memory-server",
       "repository": "https://github.com/Prometheus-AGS/surreal-memory-server.git",
-      "commit": "2e2188a89f444270ed1dfeb992771203d3875b80",
+      "commit": "53662ff8048b9230b26c403c6fd84200c6c159f7",
       "requiredFor": ["full"]
     }
   ],
