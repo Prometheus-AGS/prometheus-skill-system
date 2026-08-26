@@ -252,7 +252,14 @@ render_template() {
     [ -f "$surreal_memory_bin" ] || surreal_memory_bin="$BIN_FALLBACK_DIR/surreal-memory-server"
     surreal_mlx_executor="$(resolve_bin surreal-memory-mlx-executor)"
     [ -n "$surreal_mlx_executor" ] || surreal_mlx_executor="$BIN_FALLBACK_DIR/surreal-memory-mlx-executor"
-    local local_embedding_backend="${PROMETHEUS_LOCAL_EMBEDDING_BACKEND:-mlx}"
+    # MLX (Apple's ML framework) only runs on Apple Silicon — it has no x86_64
+    # implementation, Metal or otherwise. Defaulting to "mlx" unconditionally
+    # crash-loops surreal-memory-native on Intel Macs ("resolve MLX embedding
+    # executor ... No such file or directory"), since the executor is a Swift
+    # package that cannot even build there. Default by arch; still overridable.
+    local default_embedding_backend="candle"
+    [ "$(uname -s)" = "Darwin" ] && [ "$(uname -m)" = "arm64" ] && default_embedding_backend="mlx"
+    local local_embedding_backend="${PROMETHEUS_LOCAL_EMBEDDING_BACKEND:-$default_embedding_backend}"
     local local_embedding_device="${PROMETHEUS_LOCAL_EMBEDDING_DEVICE:-auto}"
     case "$local_embedding_backend" in candle|mlx) ;; *) echo "PROMETHEUS_LOCAL_EMBEDDING_BACKEND must be candle or mlx" >&2; return 1 ;; esac
     case "$local_embedding_device" in auto|cpu) ;; *) echo "PROMETHEUS_LOCAL_EMBEDDING_DEVICE must be auto or cpu" >&2; return 1 ;; esac
