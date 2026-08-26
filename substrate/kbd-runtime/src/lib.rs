@@ -5105,7 +5105,10 @@ impl Runtime {
         if apply {
             if invalid > 0 || alias_conflicts > 0 {
                 return Err(RuntimeError::InvalidState(format!(
-                    "refusing to migrate: {invalid} progress file(s) contain invalid, incomplete, or out-of-range counters and {alias_conflicts} contain conflicting counters; backups were written before validation"
+                    "refusing to migrate: {invalid} progress file(s) contain invalid, incomplete, or out-of-range counters and {alias_conflicts} contain conflicting counters; backups were written before validation. \
+                     Run `prometheus kbd migrate --check` and compare sourceCompleted against derivedCompleted for each phase: they must agree. \
+                     Reconcile every phase ledger so its counters match its per-change implementation_status rows, then re-run --apply. \
+                     Migrating a disagreement would freeze the recorded counter into an immutable baseline that no later transition can correct."
                 )));
             }
             let waypoint = fs::read(kbd_root.join("current-waypoint.json"))
@@ -5983,12 +5986,29 @@ fn legacy_completion_resolution(
         }
         present.push((source, completed, total));
     }
-    let conflict = present.first().is_some_and(|first| {
+    let counter_conflict = present.first().is_some_and(|first| {
         present
             .iter()
             .skip(1)
             .any(|value| value.1 != first.1 || value.2 != first.2)
     });
+    // A recorded counter that contradicts the per-change rows is just as
+    // untrustworthy as two recorded counters contradicting each other. Left
+    // undetected, the stale counter wins silently and is frozen into an
+    // immutable `LegacyCompletionBaseline`, pinning the phase at the wrong
+    // count with no recovery path. Treat it as a conflict so the existing
+    // refuse-to-apply guard and `legacy_read_only` marking both engage.
+    //
+    // Only a row set that actually covers the phase can contradict a counter.
+    // Legacy ledgers routinely carry a phase-level count alongside an empty or
+    // partial `changes` array — there the rows are silent rather than
+    // disagreeing, and the recorded counter is the only evidence available. We
+    // therefore require the row count to match the recorded total before
+    // trusting the rows to contradict the recorded completion.
+    let derived_conflict = present.first().is_some_and(|first| {
+        derived_total > 0 && first.2 == derived_total && first.1 != derived_completed
+    });
+    let conflict = counter_conflict || derived_conflict;
     let (source, completed, total) = present
         .first()
         .map(|(source, completed, total)| ((*source).to_string(), *completed, *total))
@@ -8223,6 +8243,77 @@ mod tests {
         assert!(!migrated.legacy_read_only);
         assert_eq!(migrated.changes.len(), 2);
         assert_eq!(migrated.changes["C-001"].title, "First planned change");
+    }
+
+    #[test]
+    fn migration_refuses_a_counter_that_contradicts_complete_change_rows() {
+        // Real-world shape: the phase counter says 1 of 7 while five of the
+        // seven rows are recorded complete. Migrating that silently freezes
+        // `completed: 1` into a baseline no later transition can undo.
+        let dir = tempdir().unwrap();
+        let phase_dir = dir.path().join(".kbd-orchestrator/phases/stale-counter");
+        fs::create_dir_all(&phase_dir).unwrap();
+        fs::write(
+            phase_dir.join("progress.json"),
+            r#"{
+                "changes_completed": 1,
+                "changes_total": 7,
+                "changes": [
+                    {"id":"change-1","status":"PENDING"},
+                    {"id":"change-2","status":"DONE"},
+                    {"id":"change-3","status":"DONE"},
+                    {"id":"change-4","status":"DONE"},
+                    {"id":"change-5","status":"PENDING"},
+                    {"id":"change-6","status":"DONE"},
+                    {"id":"change-7","status":"DONE"}
+                ]
+            }"#,
+        )
+        .unwrap();
+
+        let runtime = Runtime::open(dir.path());
+
+        // --check still reports, and now surfaces the disagreement as a conflict.
+        let check = runtime.migrate_legacy_ledgers(false).unwrap();
+        assert_eq!(check.alias_conflicts, 1);
+        let row = &check.phase_reconciliations[0];
+        assert_eq!((row.source_completed, row.source_total), (1, 7));
+        assert_eq!((row.derived_completed, row.derived_total), (5, 7));
+
+        // --apply must refuse rather than bake the stale counter into a baseline.
+        let error = runtime
+            .migrate_legacy_ledgers(true)
+            .unwrap_err()
+            .to_string();
+        assert!(
+            error.contains("conflicting counters"),
+            "expected a refusal naming the conflict, got: {error}"
+        );
+    }
+
+    #[test]
+    fn migration_accepts_a_counter_when_change_rows_do_not_cover_the_phase() {
+        // A counter alongside an empty or partial row set is ordinary legacy
+        // data: the rows are silent, not contradicting, so migration proceeds.
+        let dir = tempdir().unwrap();
+        let phase_dir = dir.path().join(".kbd-orchestrator/phases/sparse-rows");
+        fs::create_dir_all(&phase_dir).unwrap();
+        fs::write(
+            phase_dir.join("progress.json"),
+            r#"{"changes_completed": 3, "changes_total": 7, "changes": []}"#,
+        )
+        .unwrap();
+
+        let runtime = Runtime::open(dir.path());
+        let check = runtime.migrate_legacy_ledgers(false).unwrap();
+        assert_eq!(check.alias_conflicts, 0);
+        runtime.migrate_legacy_ledgers(true).unwrap();
+
+        let state = runtime.replay().unwrap();
+        assert_eq!(
+            phase_implementation_counts(&state.phases["sparse-rows"]),
+            (3, 7)
+        );
     }
 
     #[test]
