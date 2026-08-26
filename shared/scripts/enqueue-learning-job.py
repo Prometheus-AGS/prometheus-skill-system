@@ -69,9 +69,25 @@ def main() -> int:
         payload, "session_id", "sessionId", "conversation_id", "conversationId"
     ) or os.environ.get("CLAUDE_SESSION_ID") or os.environ.get("CODEX_THREAD_ID") or "unknown"
     transcript_path = first(payload, "transcript_path", "transcriptPath")
+    # Transcript length is the turn cursor: it advances once per completed turn
+    # and is identical for the twin hooks that fire for the same turn.
+    try:
+        transcript_bytes = str(Path(transcript_path).stat().st_size) if transcript_path else ""
+    except OSError:
+        transcript_bytes = ""
     payload_digest = hashlib.sha256(raw).hexdigest()
+    # ~keep The turn identity deliberately EXCLUDES `event` and `payload_digest`.
+    # Claude Code fires both `stop` and `subagent-executor-karpathy-learning`
+    # (`executor_complete`) for the same turn — measured 549 vs 548 across all
+    # recorded sessions, i.e. ~1:1 on ordinary turns with no subagent involved —
+    # and their payloads are structurally identical (same keys, sessionId,
+    # transcriptPath), differing only in the event name. Including either field
+    # made every turn unique, so the queue emitted one wiki record per hook per
+    # turn. Keying on the transcript position instead collapses the twins and
+    # still distinguishes genuinely different turns, because `transcript_bytes`
+    # grows monotonically as the session advances.
     identity = "\0".join(
-        (harness, event, session_id, str(project_root), transcript_path, payload_digest)
+        (harness, session_id, str(project_root), transcript_path, transcript_bytes)
     ).encode()
     event_id = hashlib.sha256(identity).hexdigest()
 
