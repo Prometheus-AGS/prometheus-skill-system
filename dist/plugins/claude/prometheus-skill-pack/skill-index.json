@@ -315,6 +315,10 @@
       "path": "skills/kbd-audit"
     },
     {
+      "name": "kbd-bottleneck-detector",
+      "path": "skills/kbd-bottleneck-detector"
+    },
+    {
       "name": "kbd-cancel",
       "path": "skills/kbd-cancel"
     },

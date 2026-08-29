@@ -1,0 +1,101 @@
+{
+  "changes": [
+    {
+      "blockers": [],
+      "id": "repair-kbd-memory-rest-contract",
+      "implementation_status": "IN_PROGRESS",
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "status": "IN_PROGRESS",
+      "tasks_done": 0,
+      "tasks_total": 0,
+      "title": "Make KBD memory logging and recall use the installed surreal-memory service contract"
+    },
+    {
+      "blockers": [],
+      "id": "harden-uiux-routing-discovery",
+      "implementation_status": "PENDING",
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "status": "PENDING",
+      "tasks_done": 0,
+      "tasks_total": 0,
+      "title": "Make UI/UX routing existing-target-first and capability-aware"
+    },
+    {
+      "blockers": [],
+      "id": "add-kbd-registry-prune",
+      "implementation_status": "PENDING",
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "status": "PENDING",
+      "tasks_done": 0,
+      "tasks_total": 0,
+      "title": "Add explicit recoverable cleanup for missing KBD replica registrations"
+    },
+    {
+      "blockers": [],
+      "id": "reconcile-kbd-control-plane-projections",
+      "implementation_status": "PENDING",
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "status": "PENDING",
+      "tasks_done": 0,
+      "tasks_total": 0,
+      "title": "Preserve historical evidence while removing compatibility artifacts from live discovery and refreshing installed surfaces"
+    }
+  ],
+  "changes_completed": 0,
+  "changes_total": 4,
+  "children": {
+    "bottleneck-evaluator-and-detector": {
+      "certification_status": "NOT_TRACKED",
+      "changes_completed": 4,
+      "changes_total": 4,
+      "completed_at": null,
+      "handoff": null,
+      "implementation_completed": 4,
+      "implementation_total": 4,
+      "status": "DONE"
+    }
+  },
+  "completion": {
+    "certification": {
+      "blockers": [],
+      "status": "COMPLETE",
+      "summary": "Protected local certification gate passed"
+    },
+    "evidence": {
+      "blockers": [],
+      "status": "COMPLETE",
+      "summary": "Local lifecycle, recovery, contention, latency, review, and distribution evidence passed"
+    },
+    "implementation": {
+      "completed": 0,
+      "status": "PENDING",
+      "total": 4
+    },
+    "primaryCounter": "implementation",
+    "publication": {
+      "blockers": [],
+      "status": "PENDING",
+      "summary": null
+    }
+  },
+  "conflictCount": 0,
+  "derivedRevision": 117,
+  "frontier": {
+    "4bca58c3-e70b-48c9-a555-60bc16d3d025": 117
+  },
+  "generatedBy": "kbd-runtime",
+  "implementation_completed": 0,
+  "implementation_total": 4,
+  "last_updated": "2026-08-29T18:04:41.950770Z",
+  "last_updated_by": "kbd-runtime",
+  "migrationStatus": null,
+  "parentPhase": null,
+  "phase": "kbd-control-plane-recovery",
+  "phaseId": "kbd-control-plane-recovery",
+  "schemaVersion": "2",
+  "sourceRevision": 117
+}

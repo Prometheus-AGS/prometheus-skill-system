@@ -135,6 +135,11 @@ if [[ -f "$runtime_lib" ]]; then
   # shellcheck source=/dev/null
   . "$runtime_lib"
 fi
+bottleneck_lib="$KBD_ORCHESTRATOR_ROOT/shared/lib/bottleneck-guard.sh"
+if [[ -f "$bottleneck_lib" ]]; then
+  # shellcheck source=/dev/null
+  . "$bottleneck_lib"
+fi
 if command -v kbd_runtime_authoritative >/dev/null 2>&1 && kbd_runtime_authoritative "."; then
   runtime_state="$(kbd_runtime_status_json ".")" || die "runtime status unavailable"
   parent_id="$(printf '%s' "$runtime_state" | jq -r '.activePath.phaseId // empty')"
@@ -143,6 +148,12 @@ if command -v kbd_runtime_authoritative >/dev/null 2>&1 && kbd_runtime_authorita
   prometheus kbd --path . phase create \
     --command-id "phase-create:${child_runtime_id}" \
     --id "$child_runtime_id" --slug "$name" --title "$name" --parent "$parent_id" >/dev/null
+  guard_enabled=false
+  if command -v kbd_bottleneck_active >/dev/null 2>&1 && kbd_bottleneck_active; then
+    guard_enabled=true
+    kbd_bottleneck_evaluate phase before "$child_runtime_id" 1 >/dev/null \
+      || die "child phase start precommit evaluation blocked"
+  fi
   ancestor_args=()
   while IFS= read -r ancestor; do
     [[ -n "$ancestor" ]] || continue
@@ -152,6 +163,14 @@ if command -v kbd_runtime_authoritative >/dev/null 2>&1 && kbd_runtime_authorita
     --command-id "phase-activate:${child_runtime_id}" \
     --id "$child_runtime_id" "${ancestor_args[@]}" \
     --exact-next-work "/kbd-assess ${child_label}" >/dev/null
+  prometheus kbd --path . phase transition \
+    --command-id "phase-start:${child_runtime_id}" \
+    --id "$child_runtime_id" --status in-progress >/dev/null
+  if [[ "$guard_enabled" == true ]]; then
+    guard_output="$(kbd_bottleneck_evaluate phase before "$child_runtime_id" 0)" \
+      || die "child phase start postcommit evaluation blocked"
+    kbd_bottleneck_print_signal "$guard_output"
+  fi
   hooks_lib="$KBD_ORCHESTRATOR_ROOT/shared/lib/hooks.sh"
   if [[ -f "$hooks_lib" ]]; then
     # shellcheck source=/dev/null

@@ -265,6 +265,19 @@
       ]
     },
     {
+      "event": "TaskCompleted",
+      "harnesses": ["claude-code"],
+      "description": "Block only inconsistent completion of canonical KBD tasks",
+      "groupId": "taskcompleted:kbd-receipt",
+      "hooks": [
+        {
+          "id": "taskcompleted-kbd-receipt",
+          "target": "shared/scripts/kbd-task-completed-gate.sh",
+          "timeout": 1000
+        }
+      ]
+    },
+    {
       "event": "PreCompact",
       "matcher": "*",
       "description": "Bounded canonical KBD pre-compaction checkpoint",

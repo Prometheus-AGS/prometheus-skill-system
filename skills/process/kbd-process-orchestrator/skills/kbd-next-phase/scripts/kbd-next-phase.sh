@@ -209,24 +209,46 @@ if [[ -f "$runtime_lib" ]]; then
   # shellcheck source=/dev/null
   . "$runtime_lib"
 fi
+bottleneck_lib="$SKILL_ROOT/shared/lib/bottleneck-guard.sh"
+if [[ -f "$bottleneck_lib" ]]; then
+  # shellcheck source=/dev/null
+  . "$bottleneck_lib"
+fi
 if command -v kbd_runtime_authoritative >/dev/null 2>&1 &&
    kbd_runtime_authoritative "$PROJECT_ROOT"; then
-  mutation="$(kbd_runtime_mutation_args "$PROJECT_ROOT" "phase-create:${NEW_PHASE}")"
-  revision="$(printf '%s\n' "$mutation" | sed -n '1p')"
-  lease_id="$(printf '%s\n' "$mutation" | sed -n '3p')"
-  fencing_token="$(printf '%s\n' "$mutation" | sed -n '4p')"
+  export KBD_BOTTLENECK_PATH="$PROJECT_ROOT"
+  guard_enabled=false
+  if command -v kbd_bottleneck_active >/dev/null 2>&1 && kbd_bottleneck_active; then
+    guard_enabled=true
+    kbd_bottleneck_evaluate phase after "$CURRENT_PHASE" 1 >/dev/null \
+      || { echo "[kbd-next-phase] current phase completion precommit blocked" >&2; exit 1; }
+  fi
+  prometheus kbd --path "$PROJECT_ROOT" phase transition \
+    --command-id "phase-complete:${CURRENT_PHASE}" \
+    --id "$CURRENT_PHASE" --status complete >/dev/null
+  if [[ "$guard_enabled" == true ]]; then
+    completed_guard="$(kbd_bottleneck_evaluate phase after "$CURRENT_PHASE" 0)" \
+      || { echo "[kbd-next-phase] current phase completion postcommit blocked" >&2; exit 1; }
+  fi
   prometheus kbd --path "$PROJECT_ROOT" phase create \
-    --expected-revision "$revision" --command-id "phase-create:${NEW_PHASE}" \
-    --lease-id "$lease_id" --fencing-token "$fencing_token" \
+    --command-id "phase-create:${NEW_PHASE}" \
     --id "$NEW_PHASE" --title "$NEW_PHASE" >/dev/null
-  mutation="$(kbd_runtime_mutation_args "$PROJECT_ROOT" "phase-activate:${NEW_PHASE}")"
-  revision="$(printf '%s\n' "$mutation" | sed -n '1p')"
-  lease_id="$(printf '%s\n' "$mutation" | sed -n '3p')"
-  fencing_token="$(printf '%s\n' "$mutation" | sed -n '4p')"
+  if [[ "$guard_enabled" == true ]]; then
+    kbd_bottleneck_evaluate phase before "$NEW_PHASE" 1 >/dev/null \
+      || { echo "[kbd-next-phase] next phase start precommit blocked" >&2; exit 1; }
+  fi
   prometheus kbd --path "$PROJECT_ROOT" phase activate \
-    --expected-revision "$revision" --command-id "phase-activate:${NEW_PHASE}" \
-    --lease-id "$lease_id" --fencing-token "$fencing_token" \
+    --command-id "phase-activate:${NEW_PHASE}" \
     --id "$NEW_PHASE" --exact-next-work "/kbd-assess ${NEW_PHASE}" >/dev/null
+  prometheus kbd --path "$PROJECT_ROOT" phase transition \
+    --command-id "phase-start:${NEW_PHASE}" \
+    --id "$NEW_PHASE" --status in-progress >/dev/null
+  if [[ "$guard_enabled" == true ]]; then
+    starting_guard="$(kbd_bottleneck_evaluate phase before "$NEW_PHASE" 0)" \
+      || { echo "[kbd-next-phase] next phase start postcommit blocked" >&2; exit 1; }
+    kbd_bottleneck_print_signal "$completed_guard"
+    kbd_bottleneck_print_signal "$starting_guard"
+  fi
   printf '\nCompleted kbd-next-phase — %s ready for /kbd-assess\n' "$NEW_PHASE"
   printf '  phase: %s\n' "$NEW_PHASE"
   printf '  goals: %s\n' "$NEW_PHASE_DIR/goals.md"

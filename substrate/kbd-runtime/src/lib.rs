@@ -557,6 +557,114 @@ pub struct Blocker {
     pub resolution: Option<String>,
 }
 
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord)]
+#[serde(rename_all = "snake_case")]
+pub enum BoundaryKind {
+    Task,
+    Phase,
+    Zeespec,
+}
+
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "snake_case")]
+pub enum BoundaryEdge {
+    Before,
+    After,
+}
+
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "snake_case")]
+pub enum BoundaryOutcome {
+    Pass,
+    Repaired,
+    Blocked,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+pub struct BoundaryReceipt {
+    pub id: String,
+    pub boundary: BoundaryKind,
+    pub edge: BoundaryEdge,
+    pub subject: String,
+    pub phase_id: Option<String>,
+    pub change_id: Option<String>,
+    pub task_id: Option<String>,
+    pub source_revision: u64,
+    pub position: String,
+    pub exact_signal: String,
+    pub outcome: BoundaryOutcome,
+    #[serde(default)]
+    pub findings: Vec<String>,
+    #[serde(default)]
+    pub repaired_projections: Vec<String>,
+    pub observed_at: DateTime<Utc>,
+}
+
+impl BoundaryReceipt {
+    fn obligation_key(&self) -> String {
+        format!("{:?}:{}", self.boundary, self.subject).to_ascii_lowercase()
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+pub struct BoundaryObligation {
+    pub key: String,
+    pub receipt_id: String,
+    pub boundary: BoundaryKind,
+    pub subject: String,
+    pub source_revision: u64,
+    pub exact_signal: String,
+}
+
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord)]
+#[serde(rename_all = "snake_case")]
+pub enum GateKind {
+    CompilerCheck,
+    Integration,
+    Certification,
+}
+
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "snake_case")]
+pub enum GateOutcome {
+    Passed,
+    Failed,
+    Blocked,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+pub struct GateRun {
+    pub id: String,
+    pub kind: GateKind,
+    pub scope: String,
+    pub phase_id: Option<String>,
+    pub source_revision: u64,
+    pub executable: String,
+    pub command_sha256: String,
+    pub worktree: String,
+    pub target_dir: Option<String>,
+    pub sccache_available: bool,
+    pub started_at: DateTime<Utc>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+pub struct GateReceipt {
+    pub gate_id: String,
+    pub kind: GateKind,
+    pub scope: String,
+    pub phase_id: Option<String>,
+    pub source_revision: u64,
+    pub outcome: GateOutcome,
+    pub exit_code: Option<i32>,
+    pub duration_ms: u64,
+    pub finished_at: DateTime<Utc>,
+    pub summary: String,
+}
+
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
 pub enum ClaimMode {
@@ -716,6 +824,15 @@ pub enum EventKind {
     BlockerCleared {
         blocker_id: String,
         resolution: String,
+    },
+    BoundaryReceiptRecorded {
+        receipt: BoundaryReceipt,
+    },
+    GateStarted {
+        gate: GateRun,
+    },
+    GateFinished {
+        receipt: GateReceipt,
     },
     ClaimAcquired {
         claim_id: String,
@@ -1018,6 +1135,10 @@ pub struct KbdStateV2 {
     pub replica_heads: BTreeMap<String, ReplicaHead>,
     pub last_event_id: Option<String>,
     pub last_event_hash: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub last_event_at: Option<DateTime<Utc>>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub phase_definition_order: Vec<String>,
     pub lifecycle: LifecycleState,
     pub plan_revision: u64,
     pub checkpoint: Option<Checkpoint>,
@@ -1027,6 +1148,14 @@ pub struct KbdStateV2 {
     pub completion: BTreeMap<CompletionDimension, Completion>,
     pub decisions: BTreeMap<String, Decision>,
     pub blockers: BTreeMap<String, Blocker>,
+    #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
+    pub boundary_obligations: BTreeMap<String, BoundaryObligation>,
+    #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
+    pub latest_boundary_receipts: BTreeMap<String, BoundaryReceipt>,
+    #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
+    pub active_gates: BTreeMap<String, GateRun>,
+    #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
+    pub latest_gate_receipts: BTreeMap<String, GateReceipt>,
     #[serde(default)]
     pub claims: BTreeMap<String, ClaimRecord>,
     #[serde(default)]
@@ -1363,6 +1492,15 @@ pub enum CommandKind {
         blocker_id: String,
         resolution: String,
     },
+    BoundaryReceiptRecord {
+        receipt: BoundaryReceipt,
+    },
+    GateStart {
+        gate: GateRun,
+    },
+    GateFinish {
+        receipt: GateReceipt,
+    },
     DeviceEnroll {
         device: DeviceRecord,
     },
@@ -1415,6 +1553,9 @@ impl ProjectionScope {
             | CommandKind::ChangeTransition { phase_id, .. }
             | CommandKind::TaskRegister { phase_id, .. }
             | CommandKind::TaskTransition { phase_id, .. } => Some(phase_id.as_str()),
+            CommandKind::BoundaryReceiptRecord { receipt } => receipt.phase_id.as_deref(),
+            CommandKind::GateStart { gate } => gate.phase_id.as_deref(),
+            CommandKind::GateFinish { receipt } => receipt.phase_id.as_deref(),
             CommandKind::CompletionSet { .. } => return Self::AllPhases,
             _ => None,
         };
@@ -1479,6 +1620,8 @@ impl Default for KbdStateV2 {
             replica_heads: BTreeMap::new(),
             last_event_id: None,
             last_event_hash: None,
+            last_event_at: None,
+            phase_definition_order: Vec::new(),
             lifecycle: LifecycleState::Ready,
             plan_revision: 1,
             checkpoint: None,
@@ -1488,6 +1631,10 @@ impl Default for KbdStateV2 {
             completion,
             decisions: BTreeMap::new(),
             blockers: BTreeMap::new(),
+            boundary_obligations: BTreeMap::new(),
+            latest_boundary_receipts: BTreeMap::new(),
+            active_gates: BTreeMap::new(),
+            latest_gate_receipts: BTreeMap::new(),
             claims: BTreeMap::new(),
             submodule_pins: BTreeMap::new(),
             replica_view: None,
@@ -1752,6 +1899,10 @@ impl KbdStateV2 {
                     self.completion = defaults.completion;
                     self.decisions = defaults.decisions;
                     self.blockers = defaults.blockers;
+                    self.boundary_obligations = defaults.boundary_obligations;
+                    self.latest_boundary_receipts = defaults.latest_boundary_receipts;
+                    self.active_gates = defaults.active_gates;
+                    self.latest_gate_receipts = defaults.latest_gate_receipts;
                     self.claims = defaults.claims;
                 }
                 self.run_id.clone_from(&event.run_id);
@@ -1812,6 +1963,11 @@ impl KbdStateV2 {
                         "legacy workflow state has already been imported".into(),
                     ));
                 }
+                for phase_id in phases.keys() {
+                    if !self.phase_definition_order.contains(phase_id) {
+                        self.phase_definition_order.push(phase_id.clone());
+                    }
+                }
                 self.phases.clone_from(phases);
                 self.active_path.clone_from(active_path);
                 self.completion.clone_from(completion);
@@ -1845,6 +2001,7 @@ impl KbdStateV2 {
                         )));
                     }
                 }
+                self.phase_definition_order.push(phase.id.clone());
                 self.phases.insert(phase.id.clone(), phase.clone());
             }
             EventKind::PhaseTransitioned { phase_id, from, to } => {
@@ -2008,6 +2165,98 @@ impl KbdStateV2 {
                 blocker.resolved = true;
                 blocker.resolution = Some(resolution.clone());
             }
+            EventKind::BoundaryReceiptRecorded { receipt } => {
+                if receipt.id.trim().is_empty()
+                    || receipt.subject.trim().is_empty()
+                    || receipt.position.trim().is_empty()
+                    || receipt.exact_signal.trim().is_empty()
+                    || receipt.source_revision >= event.revision
+                {
+                    return Err(RuntimeError::InvalidState(
+                        "boundary receipt requires identity, position, signal, and an earlier source revision".into(),
+                    ));
+                }
+                let key = receipt.obligation_key();
+                match receipt.edge {
+                    BoundaryEdge::Before => {
+                        if receipt.outcome != BoundaryOutcome::Blocked {
+                            if self.boundary_obligations.contains_key(&key) {
+                                return Err(RuntimeError::WorkItemExists {
+                                    kind: "boundary obligation",
+                                    id: key,
+                                });
+                            }
+                            self.boundary_obligations.insert(
+                                key.clone(),
+                                BoundaryObligation {
+                                    key: key.clone(),
+                                    receipt_id: receipt.id.clone(),
+                                    boundary: receipt.boundary,
+                                    subject: receipt.subject.clone(),
+                                    source_revision: receipt.source_revision,
+                                    exact_signal: receipt.exact_signal.clone(),
+                                },
+                            );
+                        }
+                    }
+                    BoundaryEdge::After => {
+                        let obligation = self.boundary_obligations.get(&key);
+                        if receipt.outcome != BoundaryOutcome::Blocked && obligation.is_none() {
+                            return Err(RuntimeError::InvalidState(format!(
+                                "boundary {} completed without a matching start receipt",
+                                receipt.subject
+                            )));
+                        }
+                        if receipt.outcome != BoundaryOutcome::Blocked {
+                            self.boundary_obligations.remove(&key);
+                        }
+                    }
+                }
+                self.latest_boundary_receipts.insert(key, receipt.clone());
+            }
+            EventKind::GateStarted { gate } => {
+                if gate.id.trim().is_empty()
+                    || gate.scope.trim().is_empty()
+                    || gate.executable.trim().is_empty()
+                    || gate.command_sha256.len() != 64
+                    || gate.source_revision >= event.revision
+                {
+                    return Err(RuntimeError::InvalidState(
+                        "gate start requires identity, scope, executable, command digest, and an earlier source revision".into(),
+                    ));
+                }
+                if self.active_gates.contains_key(&gate.id) {
+                    return Err(RuntimeError::WorkItemExists {
+                        kind: "active gate",
+                        id: gate.id.clone(),
+                    });
+                }
+                self.active_gates.insert(gate.id.clone(), gate.clone());
+            }
+            EventKind::GateFinished { receipt } => {
+                let active = self.active_gates.get(&receipt.gate_id).ok_or_else(|| {
+                    RuntimeError::WorkItemNotFound {
+                        kind: "active gate",
+                        id: receipt.gate_id.clone(),
+                    }
+                })?;
+                if active.kind != receipt.kind
+                    || active.scope != receipt.scope
+                    || active.phase_id != receipt.phase_id
+                    || active.source_revision != receipt.source_revision
+                    || receipt.finished_at < active.started_at
+                {
+                    return Err(RuntimeError::InvalidState(format!(
+                        "gate receipt {} does not match its signed start",
+                        receipt.gate_id
+                    )));
+                }
+                self.active_gates.remove(&receipt.gate_id);
+                self.latest_gate_receipts.insert(
+                    format!("{:?}:{}", receipt.kind, receipt.scope).to_ascii_lowercase(),
+                    receipt.clone(),
+                );
+            }
             EventKind::ClaimAcquired {
                 claim_id,
                 scope,
@@ -2169,6 +2418,7 @@ impl KbdStateV2 {
         self.revision = self.frontier.derived_revision();
         self.last_event_id = Some(event.event_id.clone());
         self.last_event_hash = Some(event.integrity_hash.clone());
+        self.last_event_at = Some(event.timestamp);
         if let Some(command_id) = event.command_id.as_ref() {
             self.command_revisions
                 .insert(command_id.clone(), event.revision);
@@ -2957,6 +3207,37 @@ impl Runtime {
         Self::finish_authority_open(runtime)
     }
 
+    /// Open an existing canonical runtime for a bounded read-only snapshot.
+    ///
+    /// This deliberately avoids registry mutation, journal-tail recovery, and
+    /// Loro reconciliation. Callers must use it only for non-mutating checks
+    /// such as a guard precommit evaluation; every typed mutation continues to
+    /// use `open_canonical` and its full recovery contract.
+    pub fn open_canonical_snapshot(project_root: impl AsRef<Path>) -> Result<Self> {
+        let project_root = fs::canonicalize(project_root.as_ref())?;
+        let manifest = read_project_manifest(&project_root)?.ok_or_else(|| {
+            RuntimeError::InvalidState(format!(
+                "project {} has no identity manifest",
+                project_root.display()
+            ))
+        })?;
+        let registration = registry::ProjectRegistry::open()
+            .lookup_path(&project_root)?
+            .ok_or_else(|| {
+                RuntimeError::InvalidState(format!(
+                    "project {} is not registered",
+                    project_root.display()
+                ))
+            })?;
+        Ok(Self {
+            root: canonical_runtime_root(&manifest.project_id),
+            project_root,
+            replica_id: registration.replica_id,
+            key_storage: KeyStorage::PlatformCredentialStore,
+            read_only: registration.read_only,
+        })
+    }
+
     /// Open a canonical runtime beneath an explicit application-data root.
     /// This is used by hermetic tests and managed/headless deployments.
     pub fn open_canonical_at(
@@ -3714,6 +3995,15 @@ impl Runtime {
             // A pre-1.7 checkpoint has no cryptographically bound operator-key
             // projection. Replay the signed event stream once to derive it,
             // then the next checkpoint will persist the binding.
+            return Ok(None);
+        }
+        if checkpoint.state.revision > 0
+            && (checkpoint.state.last_event_at.is_none()
+                || checkpoint.state.phase_definition_order.len() < checkpoint.state.phases.len())
+        {
+            // Boundary evaluation needs event time and PhaseDefined order, but
+            // old signed checkpoints predate both folded projections. Replay
+            // once; the next typed command persists the upgraded checkpoint.
             return Ok(None);
         }
         Ok(Some(checkpoint.state))
@@ -4986,6 +5276,13 @@ impl Runtime {
         if state.revision == 0 {
             return Err(RuntimeError::NotInitialized);
         }
+        // The routine detector path should be a handful of bounded reads, not
+        // a full shadow-tree render. Typed commands stamp every projection that
+        // can affect the active phase path with the canonical revision. Only a
+        // missing/stale marker escalates to the exhaustive comparison below.
+        if self.active_projection_markers_are_current(state)? {
+            return Ok(Vec::new());
+        }
         let comparison_root =
             std::env::temp_dir().join(format!("prometheus-kbd-shadow-{}", Uuid::new_v4()));
         let comparison_runtime = Self {
@@ -5004,6 +5301,16 @@ impl Runtime {
         for expected in expected_paths {
             let relative = expected.strip_prefix(&expected_root).unwrap_or(&expected);
             let actual = actual_root.join(relative);
+            // A legacy progress ledger without the runtime ownership marker is
+            // historical evidence, not a derived projection. It is deliberately
+            // excluded from automatic drift repair; the typed migration path is
+            // responsible for reconciling it before ownership can transfer.
+            if relative.file_name().and_then(|name| name.to_str()) == Some("progress.json")
+                && actual.exists()
+                && !projection_is_writable(&actual, false)
+            {
+                continue;
+            }
             if fs::read(&expected).ok() != fs::read(&actual).ok() {
                 mismatches.push(relative.to_path_buf());
             }
@@ -5011,6 +5318,65 @@ impl Runtime {
         let _ = fs::remove_dir_all(&comparison_root);
         mismatches.sort();
         Ok(mismatches)
+    }
+
+    fn active_projection_markers_are_current(&self, state: &KbdStateV2) -> Result<bool> {
+        let kbd_root = self.project_root.join(".kbd-orchestrator");
+        for relative in ["current-waypoint.json", "position.json"] {
+            let path = kbd_root.join(relative);
+            let Ok(value) = fs::read(&path)
+                .map_err(RuntimeError::from)
+                .and_then(|bytes| serde_json::from_slice::<serde_json::Value>(&bytes).map_err(RuntimeError::from))
+            else {
+                return Ok(false);
+            };
+            if value.get("generatedBy").and_then(serde_json::Value::as_str) != Some("kbd-runtime")
+                || value.get("sourceRevision").and_then(serde_json::Value::as_u64)
+                    != Some(state.revision)
+            {
+                return Ok(false);
+            }
+        }
+
+        let reminder = fs::read_to_string(kbd_root.join("position-reminder.txt"))
+            .unwrap_or_default();
+        if !reminder.contains(&format!("GENERATED BY kbd-runtime at revision {},", state.revision)) {
+            return Ok(false);
+        }
+
+        for phase_id in &state.active_path.phase_path {
+            let Some(phase) = state.phases.get(phase_id) else {
+                return Ok(false);
+            };
+            let phase_dir = phase_projection_directory(&kbd_root, state, phase)?;
+            let progress_path = phase_dir.join("progress.json");
+            let Ok(progress) = fs::read(&progress_path)
+                .map_err(RuntimeError::from)
+                .and_then(|bytes| serde_json::from_slice::<serde_json::Value>(&bytes).map_err(RuntimeError::from))
+            else {
+                return Ok(false);
+            };
+            // Manually authored progress ledgers remain historical evidence and
+            // are excluded from automatic repair, exactly as in the exhaustive
+            // comparison path below.
+            if progress.get("generatedBy").and_then(serde_json::Value::as_str)
+                == Some("kbd-runtime")
+                && progress.get("sourceRevision").and_then(serde_json::Value::as_u64)
+                    != Some(state.revision)
+            {
+                return Ok(false);
+            }
+            if phase.changes.values().any(|change| !change.tasks.is_empty()) {
+                let tasks = fs::read_to_string(phase_dir.join("tasks.md")).unwrap_or_default();
+                if !tasks.starts_with(&format!(
+                    "<!-- generated by kbd-runtime; source revision {} -->",
+                    state.revision
+                )) {
+                    return Ok(false);
+                }
+            }
+        }
+        Ok(true)
     }
 
     pub fn migrate_legacy_ledgers(&self, apply: bool) -> Result<MigrationSummary> {
@@ -5666,6 +6032,9 @@ fn phase_tasks_projection(state: &RuntimeState, phase: &Phase) -> String {
             ));
         }
         output.push('\n');
+    }
+    if output.ends_with("\n\n") {
+        output.pop();
     }
     output
 }
@@ -6668,6 +7037,12 @@ fn command_scope(command: &CommandKind) -> Option<String> {
         CommandKind::DecisionRecord { decision } => format!("decision:{}", decision.id),
         CommandKind::BlockerRecord { blocker } => format!("blocker:{}", blocker.id),
         CommandKind::BlockerClear { blocker_id, .. } => format!("blocker:{blocker_id}"),
+        CommandKind::BoundaryReceiptRecord { receipt } => format!(
+            "boundary:{:?}:{:?}:{}",
+            receipt.boundary, receipt.edge, receipt.subject
+        ),
+        CommandKind::GateStart { gate } => format!("gate:{}", gate.scope),
+        CommandKind::GateFinish { receipt } => format!("gate:{}", receipt.scope),
         CommandKind::SubmodulePinSet { pin } => format!("submodule:{}", pin.path),
     })
 }
@@ -6906,6 +7281,29 @@ fn prepare_command_event(
         } => EventKind::BlockerCleared {
             blocker_id: blocker_id.clone(),
             resolution: resolution.clone(),
+        },
+        CommandKind::BoundaryReceiptRecord { receipt } => {
+            if receipt.source_revision != state.revision {
+                return Err(RuntimeError::RevisionConflict {
+                    expected: receipt.source_revision,
+                    actual: state.revision,
+                });
+            }
+            EventKind::BoundaryReceiptRecorded {
+                receipt: receipt.clone(),
+            }
+        }
+        CommandKind::GateStart { gate } => {
+            if gate.source_revision != state.revision {
+                return Err(RuntimeError::RevisionConflict {
+                    expected: gate.source_revision,
+                    actual: state.revision,
+                });
+            }
+            EventKind::GateStarted { gate: gate.clone() }
+        }
+        CommandKind::GateFinish { receipt } => EventKind::GateFinished {
+            receipt: receipt.clone(),
         },
         CommandKind::DeviceEnroll { device } => {
             if actor.kind != ActorKind::Operator {

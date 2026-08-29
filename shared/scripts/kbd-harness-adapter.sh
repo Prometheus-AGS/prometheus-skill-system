@@ -65,17 +65,13 @@ fi
 
 render_reanchor() {
   [[ -n "$PROJECT_ID" ]] || return 0
-  command -v curl >/dev/null 2>&1 || return 0
   command -v jq >/dev/null 2>&1 || return 0
-  local data_root token_file token endpoint status reanchor
-  data_root="$(runtime_data_root)"
-  token_file="${PROMETHEUS_CONTROL_TOKEN_FILE:-$data_root/prometheus/kbd/projects/$PROJECT_ID/control-token}"
-  [[ -f "$token_file" ]] || return 0
-  token="$(tr -d '\r\n' <"$token_file")"
-  endpoint="${PROMETHEUS_CONTROL_ENDPOINT:-http://127.0.0.1:7892}"
-  status="$(curl --silent --show-error --fail --max-time 0.18 \
-    -H "Authorization: Bearer $token" \
-    "$endpoint/api/v1/kbd/projects/$PROJECT_ID/status" 2>/dev/null || true)"
+  command -v prometheus >/dev/null 2>&1 || return 0
+  local status reanchor
+  # The CLI follows the managed same-user Unix socket and falls back to the
+  # signed local journal. A hard-coded TCP probe silently produced no re-anchor
+  # under the default Unix-only service configuration.
+  status="$(prometheus kbd --path "$PROJECT_ROOT" status --json 2>/dev/null || true)"
   [[ -n "$status" ]] || return 0
   reanchor="$(printf '%s' "$status" | jq -r '
     "KBD REANCHOR (committed revision \(.revision), plan \(.planRevision))\n" +
@@ -83,7 +79,15 @@ render_reanchor() {
     "Active path: " +
       ([.activePath.phaseId, .activePath.stageId, .activePath.changeId, .activePath.taskId]
        | map(select(. != null and . != "")) | join(" → ")) + "\n" +
-    "Exact next work: \(.exactNextWork // "not recorded")"
+    "Exact next work: \(.exactNextWork // "not recorded")\n" +
+    "Outstanding boundaries: " +
+      ((.outstandingBoundaryObligations // .boundaryObligations // {}) | to_entries
+       | if length == 0 then "none"
+         else map(.value.exactSignal // .key) | join(" | ") end) + "\n" +
+    "Latest gate: " +
+      ([.latestGateReceipts[]?] | sort_by(.finishedAt // "") | last
+       | if . == null then "none"
+         else "\(.kind) \(.scope): \(.outcome) in \(.durationMs)ms" end)
   ' 2>/dev/null || true)"
   # The renderer is deliberately far below the 1,200-token contract. The
   # 4,800-character hard ceiling remains as a deterministic final guard.

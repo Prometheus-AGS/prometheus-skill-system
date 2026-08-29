@@ -97,14 +97,14 @@
       "id": "prometheus-knowledge",
       "path": "tools/prometheus-knowledge",
       "repository": "https://github.com/Prometheus-AGS/prometheus-knowledge-rs.git",
-      "commit": "a4c2606602ec9dc65da2e8e21d4c0f25f522845f",
+      "commit": "f664cb81e9d94d30ff1e6e6fcd8dc414fec918ed",
       "requiredFor": ["full"]
     },
     {
       "id": "surreal-memory-server",
       "path": "tools/surreal-memory-server",
       "repository": "https://github.com/Prometheus-AGS/surreal-memory-server.git",
-      "commit": "53662ff8048b9230b26c403c6fd84200c6c159f7",
+      "commit": "e5f48916048a8e26d3ace83c44746b8105f0696c",
       "requiredFor": ["full"]
     }
   ],

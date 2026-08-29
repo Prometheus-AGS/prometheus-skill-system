@@ -1,0 +1,50 @@
+{
+  "mode": "artifact",
+  "verdict": "PASS",
+  "judge_model": "k3",
+  "producer_model": "gpt-5.6-sol",
+  "isolation_mode": "rest-gateway:http://localhost:4000/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "WARNING",
+      "file": "plan.md",
+      "claim": "Round 1 is labeled \"parallel-safe\" but changes 1 and 2 both write the same generated distribution artifacts, so parallel execution would conflict on shared outputs.",
+      "evidence": "Change 1 scope includes \"generated distributions\" and its Details say \"Update every memory contract reference and the packaged outputs\"; change 2 scope also lists \"generated distributions\". Under C-01 each must regenerate `.codex-plugin/plugin.json` / `.agents/plugins/marketplace.json`, which are single shared files. The plan itself concedes this by stating \"this session will apply them sequentially to keep one dirty worktree\", contradicting the \"parallel-safe\" label.",
+      "suggested_fix": "Either drop the \"parallel-safe\" claim or restructure so distribution regeneration is owned exclusively by change 4, with changes 1 and 2 editing only generator sources."
+    },
+    {
+      "severity": "WARNING",
+      "file": "plan.md",
+      "claim": "Change 1 and change 2 do not commit to running `npm run validate:codex` within their own change; validation appears only in change 4, which would violate C-01's per-change requirement.",
+      "evidence": "C-01: \"after touching `.claude-plugin/*` ... `npm run validate:codex` MUST pass\". Changes 1 and 2 both list \"generated distributions\" in scope, but only change 4's Details mention \"Regenerate distributions twice for byte identity, validate them\". If changes 1 and 2 hand-edit or regenerate outputs without in-change validation, each is BLOCKED at the QA gate.",
+      "suggested_fix": "Add to changes 1 and 2 acceptance criteria: \"`npm run validate:codex` passes (no drift) after this change's regeneration, outputs committed.\""
+    },
+    {
+      "severity": "WARNING",
+      "file": "plan.md",
+      "claim": "The plan embeds specific facts not evidenced anywhere in the packet: the canonical service port `127.0.0.1:23001` and the existence of a \"duplicate top-level `parent::child` directory\".",
+      "evidence": "Change 1 Details: \"the same canonical local `127.0.0.1:23001` default used by the installed service\" \u2014 the assess handoff says only \"Memory discovery and REST routes are obsolete\" with no port. Change 4 Details reference a \"duplicate top-level `parent::child` directory\" \u2014 the file tree shows `.kbd-orchestrator/backups`, `.kbd-orchestrator/phases`, etc., but no such directory. If either fact is wrong, downstream execution targets the wrong endpoint or a nonexistent path.",
+      "suggested_fix": "Add a pre-execution verification step in each change: confirm the installed service's actual bound port (e.g. via the service config or `lsof`) before editing `memory.sh`, and confirm the duplicate directory path exists before writing the move/receipt step."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "plan.md",
+      "claim": "No change explicitly allocates doc updates required by C-03 for surface-affecting work.",
+      "evidence": "C-03 requires `docs/codex-plugin.md` (and CLAUDE.md where relevant) be updated in the same change that alters hooks, install flow, or the plugin surface. Change 1 edits \"skill references\" and generated distributions; change 2 edits the \"injected agent-rule template\" and distributions \u2014 neither lists `docs/codex-plugin.md` or CLAUDE.md in scope. If either touches hook/install surface, the QA gate blocks it.",
+      "suggested_fix": "Add `docs/codex-plugin.md`/CLAUDE.md to the scope of changes 1 and 2, or state explicitly why C-03 does not apply to each."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "plan.md",
+      "claim": "Shell script changes lack a bash 3.2 compatibility check despite C-05 and the presence of launchagent infrastructure in the repo.",
+      "evidence": "C-05 requires any script invocable by launchd to avoid `mapfile`/`declare -A` and be tested with `/bin/bash`. Change 1 modifies `skills/process/kbd-process-orchestrator/shared/lib/memory.sh` and \"shell orchestration\"; the file tree shows `./shared/launchagents` exists. The plan's test criteria mention only \"smoke tests ... against a fake canonical server\".",
+      "suggested_fix": "Add to change 1 acceptance criteria: \"memory.sh and touched orchestration scripts pass `/bin/bash <script>` smoke execution (bash 3.2 compatible) if reachable from launchd agents.\""
+    }
+  ],
+  "sycophancy_screen": {
+    "reject_cap": 2,
+    "cap_overridden": false,
+    "cap_default": 2
+  }
+}

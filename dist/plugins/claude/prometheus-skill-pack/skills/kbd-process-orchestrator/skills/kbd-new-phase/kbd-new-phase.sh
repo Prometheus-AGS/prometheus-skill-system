@@ -55,6 +55,11 @@ if [[ -f "$runtime_lib" ]]; then
   # shellcheck source=/dev/null
   . "$runtime_lib"
 fi
+bottleneck_lib="$KBD_ORCHESTRATOR_ROOT/shared/lib/bottleneck-guard.sh"
+if [[ -f "$bottleneck_lib" ]]; then
+  # shellcheck source=/dev/null
+  . "$bottleneck_lib"
+fi
 runtime_authoritative=false
 if command -v kbd_runtime_authoritative >/dev/null 2>&1 && kbd_runtime_authoritative "."; then
   runtime_authoritative=true
@@ -93,9 +98,23 @@ if [[ "$runtime_authoritative" == true ]]; then
   prometheus kbd --path . phase create \
     --command-id "phase-create:${name}" \
     --id "$name" --title "$name" >/dev/null
+  guard_enabled=false
+  if command -v kbd_bottleneck_active >/dev/null 2>&1 && kbd_bottleneck_active; then
+    guard_enabled=true
+    kbd_bottleneck_evaluate phase before "$name" 1 >/dev/null \
+      || die "phase start precommit evaluation blocked"
+  fi
   prometheus kbd --path . phase activate \
     --command-id "phase-activate:${name}" \
     --id "$name" --exact-next-work "/kbd-assess $name" >/dev/null
+  prometheus kbd --path . phase transition \
+    --command-id "phase-start:${name}" \
+    --id "$name" --status in-progress >/dev/null
+  if [[ "$guard_enabled" == true ]]; then
+    guard_output="$(kbd_bottleneck_evaluate phase before "$name" 0)" \
+      || die "phase start postcommit evaluation blocked"
+    kbd_bottleneck_print_signal "$guard_output"
+  fi
   printf '\nCompleted kbd-new-phase — %s ready for /kbd-assess\n' "$name"
   printf '  phase:  %s\n' "$name"
   printf '  goals:  %s\n' "$phase_dir/goals.md"

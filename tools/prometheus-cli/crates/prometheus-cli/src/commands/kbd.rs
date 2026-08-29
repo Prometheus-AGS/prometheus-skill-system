@@ -2,14 +2,18 @@ use anyhow::{anyhow, Context, Result};
 use kbd_runtime::{
     registry::{scan_submodule_pins, ProjectRegistry},
     rollout::{RolloutObservation, RolloutTracker},
-    Actor, ActorKind, Checkpoint, ClaimMode, CommandEnvelope, CommandKind, Event, LifecycleState,
-    ProjectionScope, Runtime, RuntimeError, RuntimeState, SignedCommandEnvelope,
+    Actor, ActorKind, Blocker, BoundaryEdge, BoundaryKind, BoundaryOutcome, BoundaryReceipt,
+    Checkpoint, ClaimMode, CommandEnvelope, CommandKind, Event, GateKind, GateOutcome, GateReceipt,
+    GateRun, LifecycleState, ProjectionScope, Runtime, RuntimeError, RuntimeState,
+    SignedCommandEnvelope, WorkStatus,
 };
 use serde_json::{json, Value};
+use sha2::{Digest, Sha256};
 use std::collections::BTreeSet;
 use std::fs;
 use std::path::{Path, PathBuf};
-use std::time::Duration;
+use std::process::Command;
+use std::time::{Duration, Instant};
 
 use super::control_transport::{ControlResponse, ControlTransport, TransportFailure};
 
@@ -102,6 +106,19 @@ pub enum Action {
         successful: bool,
     },
     RolloutPromote,
+    GuardEvaluate {
+        boundary: BoundaryKind,
+        edge: BoundaryEdge,
+        subject: String,
+        json: bool,
+        repair_projections: bool,
+        precommit: bool,
+    },
+    GateRun {
+        kind: GateKind,
+        scope: String,
+        command: Vec<String>,
+    },
     Command {
         command_id: String,
         command: CommandKind,
@@ -212,7 +229,17 @@ pub async fn run(path: &str, action: Action) -> Result<()> {
         action => action,
     };
     let root = find_project_root(Path::new(path))?;
-    let runtime = Runtime::open_canonical(&root)?;
+    let runtime = if matches!(
+        &action,
+        Action::GuardEvaluate {
+            precommit: true,
+            ..
+        }
+    ) {
+        Runtime::open_canonical_snapshot(&root)?
+    } else {
+        Runtime::open_canonical(&root)?
+    };
     let client = ControlClient::new(&runtime)?;
     match action {
         Action::Status { json } => status(&root, &runtime, &client, json).await,
@@ -607,6 +634,32 @@ pub async fn run(path: &str, action: Action) -> Result<()> {
             );
             Ok(())
         }
+        Action::GuardEvaluate {
+            boundary,
+            edge,
+            subject,
+            json,
+            repair_projections,
+            precommit,
+        } => {
+            guard_evaluate(
+                &root,
+                &runtime,
+                &client,
+                boundary,
+                edge,
+                &subject,
+                json,
+                repair_projections,
+                precommit,
+            )
+            .await
+        }
+        Action::GateRun {
+            kind,
+            scope,
+            command,
+        } => gate_run(&root, &runtime, &client, kind, &scope, &command).await,
         Action::Command {
             command_id,
             mut command,
@@ -649,6 +702,754 @@ pub async fn run(path: &str, action: Action) -> Result<()> {
         | Action::Replicas { .. }
         | Action::Adopt { .. } => unreachable!("registry actions return before project open"),
     }
+}
+
+struct GuardContext {
+    phase_id: Option<String>,
+    change_id: Option<String>,
+    task_id: Option<String>,
+    ordinal: usize,
+    total: usize,
+    name: String,
+    position: String,
+    valid: bool,
+}
+
+fn guard_context(
+    state: &RuntimeState,
+    boundary: BoundaryKind,
+    subject: &str,
+) -> GuardContext {
+    let active_phase_id = state.active_path.phase_id.clone();
+    let phase_path = state
+        .active_path
+        .phase_path
+        .iter()
+        .filter_map(|phase_id| state.phases.get(phase_id))
+        .map(|phase| phase.slug.clone())
+        .collect::<Vec<_>>();
+
+    match boundary {
+        BoundaryKind::Phase => {
+            let selected_phase = state.phases.get(subject).or_else(|| {
+                state
+                    .phases
+                    .values()
+                    .find(|phase| phase.slug == subject || phase.title == subject)
+            });
+            let parent = selected_phase.and_then(|phase| phase.parent_phase_id.as_deref());
+            let ordered = state
+                .phase_definition_order
+                .iter()
+                .filter(|phase_id| {
+                    state
+                        .phases
+                        .get(*phase_id)
+                        .is_some_and(|phase| phase.parent_phase_id.as_deref() == parent)
+                })
+                .cloned()
+                .collect::<Vec<_>>();
+            let phase_id = selected_phase
+                .map(|phase| phase.id.clone())
+                .unwrap_or_else(|| subject.to_owned());
+            let ordinal = ordered
+                .iter()
+                .position(|candidate| candidate == &phase_id)
+                .unwrap_or(0)
+                + 1;
+            let name = selected_phase
+                .map(|phase| phase.title.clone())
+                .unwrap_or_else(|| subject.to_owned());
+            let position = selected_phase
+                .map(|_| {
+                    let mut ids = Vec::new();
+                    let mut cursor = Some(phase_id.as_str());
+                    while let Some(id) = cursor {
+                        let Some(phase) = state.phases.get(id) else {
+                            break;
+                        };
+                        ids.push(phase.slug.clone());
+                        cursor = phase.parent_phase_id.as_deref();
+                    }
+                    ids.reverse();
+                    ids.join(" › ")
+                })
+                .unwrap_or_else(|| phase_path.join(" › "));
+            GuardContext {
+                phase_id: selected_phase.map(|_| phase_id),
+                change_id: None,
+                task_id: None,
+                ordinal,
+                total: ordered.len().max(1),
+                name,
+                position,
+                valid: selected_phase.is_some(),
+            }
+        }
+        BoundaryKind::Task => {
+            let phase_id = active_phase_id.clone();
+            let phase = phase_id.as_ref().and_then(|id| state.phases.get(id));
+            let mut matches = Vec::new();
+            for change in phase.into_iter().flat_map(|phase| phase.changes.values()) {
+                for task in change.tasks.values() {
+                    if task.id == subject || task.title == subject {
+                        matches.push((change.id.clone(), task.id.clone()));
+                    }
+                }
+            }
+            let (change_id, task_id) = if matches.len() == 1 {
+                let (change_id, task_id) = matches.remove(0);
+                (Some(change_id), Some(task_id))
+            } else {
+                (None, None)
+            };
+            let change = change_id
+                .as_ref()
+                .and_then(|id| phase.and_then(|phase| phase.changes.get(id)));
+            let mut tasks = change
+                .map(|change| change.tasks.values().collect::<Vec<_>>())
+                .unwrap_or_default();
+            tasks.sort_by(|left, right| {
+                left.sequence
+                    .cmp(&right.sequence)
+                    .then_with(|| left.id.cmp(&right.id))
+            });
+            let selected_id = task_id.clone().unwrap_or_else(|| subject.to_owned());
+            let ordinal = tasks
+                .iter()
+                .position(|task| task.id == selected_id || task.title == subject)
+                .unwrap_or(0)
+                + 1;
+            let name = tasks
+                .iter()
+                .find(|task| task.id == selected_id || task.title == subject)
+                .map(|task| task.title.clone())
+                .unwrap_or_else(|| subject.to_owned());
+            let mut position = phase_path;
+            if let Some(change_id) = &change_id {
+                position.push(change_id.clone());
+            }
+            position.push(selected_id.clone());
+            let valid = task_id.is_some() && change_id.is_some();
+            GuardContext {
+                phase_id,
+                change_id,
+                task_id,
+                ordinal,
+                total: tasks.len().max(1),
+                name,
+                position: position.join(" › "),
+                valid,
+            }
+        }
+        BoundaryKind::Zeespec => {
+            let phases = ["interrogate", "score", "manifest"];
+            let ordinal = phases
+                .iter()
+                .position(|phase| *phase == subject)
+                .unwrap_or(0)
+                + 1;
+            let mut position = phase_path;
+            position.push(format!("zeespec:{subject}"));
+            GuardContext {
+                phase_id: active_phase_id,
+                change_id: None,
+                task_id: None,
+                ordinal,
+                total: phases.len(),
+                name: subject.to_owned(),
+                position: position.join(" › "),
+                valid: phases.contains(&subject),
+            }
+        }
+    }
+}
+
+fn digest_strings(parts: &[&str]) -> String {
+    let mut hasher = Sha256::new();
+    for part in parts {
+        hasher.update(part.as_bytes());
+        hasher.update([0]);
+    }
+    format!("{:x}", hasher.finalize())
+}
+
+fn recovery_receipt(
+    root: &Path,
+    boundary: BoundaryKind,
+    edge: BoundaryEdge,
+    subject: &str,
+    error: &anyhow::Error,
+) {
+    let recovery_root = root.join(".kbd-orchestrator/recovery/bottleneck");
+    if fs::create_dir_all(&recovery_root).is_err() {
+        return;
+    }
+    let id = digest_strings(&[
+        &format!("{boundary:?}"),
+        &format!("{edge:?}"),
+        subject,
+        &error.to_string(),
+    ]);
+    let target = recovery_root.join(format!("{id}.json"));
+    let temp = recovery_root.join(format!(".{id}.tmp"));
+    let body = json!({
+        "schemaVersion": "1",
+        "outcome": "blocked",
+        "boundary": format!("{boundary:?}").to_ascii_lowercase(),
+        "edge": format!("{edge:?}").to_ascii_lowercase(),
+        "subject": subject,
+        "error": error.to_string(),
+        "observedAt": chrono::Utc::now(),
+        "canonicalMutation": false
+    });
+    if fs::write(
+        &temp,
+        format!(
+            "{}\n",
+            serde_json::to_string_pretty(&body).unwrap_or_default()
+        ),
+    )
+    .is_ok()
+    {
+        let _ = fs::rename(temp, target);
+    }
+}
+
+async fn record_guard_blocker(
+    client: &ControlClient,
+    state: &RuntimeState,
+    receipt: &BoundaryReceipt,
+) -> Result<RuntimeState> {
+    let blocker_id = format!("bottleneck-{}", receipt.id);
+    if state.blockers.contains_key(&blocker_id) {
+        return Ok(state.clone());
+    }
+    client
+        .submit_fresh(
+            state,
+            current_actor(ActorKind::Harness),
+            CommandKind::BlockerRecord {
+                blocker: Blocker {
+                    id: blocker_id,
+                    summary: format!(
+                        "{:?} {:?} boundary {} blocked: {}",
+                        receipt.boundary,
+                        receipt.edge,
+                        receipt.subject,
+                        receipt.findings.join("; ")
+                    ),
+                    resolved: false,
+                    resolution: None,
+                },
+            },
+        )
+        .await
+}
+
+async fn clear_guard_blockers(
+    client: &ControlClient,
+    state: &RuntimeState,
+    receipt: &BoundaryReceipt,
+) -> Result<RuntimeState> {
+    let marker = format!(
+        "{:?} {:?} boundary {} blocked:",
+        receipt.boundary, receipt.edge, receipt.subject
+    );
+    let blocker_ids = state
+        .blockers
+        .values()
+        .filter(|blocker| {
+            !blocker.resolved
+                && blocker.id.starts_with("bottleneck-")
+                && blocker.summary.starts_with(&marker)
+        })
+        .map(|blocker| blocker.id.clone())
+        .collect::<Vec<_>>();
+    let mut current = state.clone();
+    for blocker_id in blocker_ids {
+        current = client
+            .submit_fresh(
+                &current,
+                current_actor(ActorKind::Harness),
+                CommandKind::BlockerClear {
+                    blocker_id,
+                    resolution: format!(
+                        "boundary {} passed at source revision {}",
+                        receipt.subject, receipt.source_revision
+                    ),
+                },
+            )
+            .await?;
+    }
+    Ok(current)
+}
+
+#[allow(clippy::too_many_arguments)]
+async fn guard_evaluate(
+    root: &Path,
+    runtime: &Runtime,
+    client: &ControlClient,
+    boundary: BoundaryKind,
+    edge: BoundaryEdge,
+    subject: &str,
+    json_output: bool,
+    repair_projections: bool,
+    precommit: bool,
+) -> Result<()> {
+    // Boundary evaluation is a hot-path local reconciliation. The signed local
+    // journal is canonical; sovereign-sync passively replicates it and must not
+    // add a control-plane round trip to every task/checkpoint boundary.
+    let state = match runtime.replay_authority() {
+        Ok(state) => state,
+        Err(error) => {
+            let error = anyhow!(error);
+            recovery_receipt(root, boundary, edge, subject, &error);
+            return Err(error);
+        }
+    };
+    let projection_time = state
+        .last_event_at
+        .ok_or_else(|| anyhow!("cannot evaluate boundaries before KBD initialization"))?;
+    let context = guard_context(&state, boundary, subject);
+    let label = if boundary == BoundaryKind::Task {
+        "task"
+    } else {
+        "phase"
+    };
+    let verb = if edge == BoundaryEdge::Before {
+        "Starting"
+    } else {
+        "Completed"
+    };
+    let exact_signal = format!(
+        "{verb} {label} {} out of {}: {}",
+        context.ordinal, context.total, context.name
+    );
+    let obligation_key = format!("{boundary:?}:{subject}").to_ascii_lowercase();
+    let mut findings = Vec::new();
+    if !context.valid {
+        findings.push(format!(
+            "{boundary:?} subject {subject} is not a unique canonical work item"
+        ));
+    }
+    if edge == BoundaryEdge::Before && state.boundary_obligations.contains_key(&obligation_key) {
+        findings.push(format!(
+            "boundary {subject} already has an outstanding start receipt"
+        ));
+    }
+    if edge == BoundaryEdge::After && !state.boundary_obligations.contains_key(&obligation_key) {
+        findings.push(format!("boundary {subject} has no matching start receipt"));
+    }
+
+    let mismatches =
+        runtime.compatibility_projection_mismatches_from_state(&state, projection_time)?;
+    let mut repaired = Vec::new();
+    if !mismatches.is_empty() {
+        if repair_projections {
+            let source_revision = state.revision;
+            runtime.write_compatibility_projections_from_state(&state, projection_time)?;
+            let after = runtime.replay()?;
+            if after.revision != source_revision {
+                return Err(anyhow!(
+                    "projection repair changed canonical revision from {source_revision} to {}",
+                    after.revision
+                ));
+            }
+            let remaining =
+                runtime.compatibility_projection_mismatches_from_state(&state, projection_time)?;
+            if !remaining.is_empty() {
+                findings.push(format!(
+                    "{} projection mismatch(es) remain after repair",
+                    remaining.len()
+                ));
+            } else {
+                repaired = mismatches
+                    .iter()
+                    .map(|path| path.display().to_string())
+                    .collect();
+            }
+        } else {
+            findings.push(format!(
+                "{} compatibility projection(s) differ from canonical revision {}",
+                mismatches.len(),
+                state.revision
+            ));
+        }
+    }
+
+    let outcome = if !findings.is_empty() {
+        BoundaryOutcome::Blocked
+    } else if !repaired.is_empty() {
+        BoundaryOutcome::Repaired
+    } else {
+        BoundaryOutcome::Pass
+    };
+    let receipt_id = digest_strings(&[
+        &state.project_id,
+        &state.run_id,
+        &context.position,
+        context.phase_id.as_deref().unwrap_or_default(),
+        context.change_id.as_deref().unwrap_or_default(),
+        context.task_id.as_deref().unwrap_or_default(),
+        &format!("{boundary:?}"),
+        &format!("{edge:?}"),
+        subject,
+        &state.revision.to_string(),
+    ]);
+    let receipt = BoundaryReceipt {
+        id: receipt_id.clone(),
+        boundary,
+        edge,
+        subject: subject.to_owned(),
+        phase_id: context.phase_id,
+        change_id: context.change_id,
+        task_id: context.task_id,
+        source_revision: state.revision,
+        position: context.position,
+        exact_signal: exact_signal.clone(),
+        outcome,
+        findings: findings.clone(),
+        repaired_projections: repaired.clone(),
+        observed_at: chrono::Utc::now(),
+    };
+
+    let mut committed_state = if precommit {
+        state.clone()
+    } else {
+        client
+            .submit_fresh(
+                &state,
+                current_actor(ActorKind::Harness),
+                CommandKind::BoundaryReceiptRecord {
+                    receipt: receipt.clone(),
+                },
+            )
+            .await?
+    };
+    if outcome == BoundaryOutcome::Blocked {
+        committed_state = record_guard_blocker(client, &committed_state, &receipt).await?;
+    } else if !precommit {
+        committed_state = clear_guard_blockers(client, &committed_state, &receipt).await?;
+    }
+    let revision = committed_state.revision;
+    let output = json!({
+        "outcome": format!("{outcome:?}").to_ascii_lowercase(),
+        "authoritativeRevision": revision,
+        "sourceRevision": state.revision,
+        "position": receipt.position,
+        "findings": findings,
+        "outstandingObligations": committed_state.boundary_obligations,
+        "exactSignal": exact_signal,
+        "repairedProjections": repaired,
+        "receiptId": (!precommit).then_some(receipt_id),
+        "precommit": precommit
+    });
+    if json_output {
+        println!("{}", serde_json::to_string_pretty(&output)?);
+    } else {
+        println!("{exact_signal}");
+        println!("Position: {} @ revision {revision}", receipt.position);
+    }
+    if outcome == BoundaryOutcome::Blocked {
+        return Err(anyhow!(
+            "boundary evaluation blocked: {}",
+            receipt.findings.join("; ")
+        ));
+    }
+    Ok(())
+}
+
+fn rust_processes() -> Vec<String> {
+    let output = Command::new("ps").args(["-axo", "pid=,command="]).output();
+    let Ok(output) = output else {
+        return Vec::new();
+    };
+    String::from_utf8_lossy(&output.stdout)
+        .lines()
+        .filter(|line| {
+            let mut fields = line.split_whitespace();
+            let _pid = fields.next();
+            fields
+                .next()
+                .and_then(|command| Path::new(command).file_name())
+                .and_then(|command| command.to_str())
+                .is_some_and(|command| matches!(command, "cargo" | "rustc"))
+        })
+        .map(str::trim)
+        .map(str::to_owned)
+        .collect()
+}
+
+fn command_available(command: &str) -> bool {
+    std::env::var_os("PATH").is_some_and(|path| {
+        std::env::split_paths(&path)
+            .map(|directory| directory.join(command))
+            .any(|candidate| candidate.is_file())
+    })
+}
+
+fn phase_ready_for_gate(state: &RuntimeState, scope: &str) -> bool {
+    state
+        .active_path
+        .phase_id
+        .as_ref()
+        .and_then(|phase_id| state.phases.get(phase_id))
+        .is_some_and(|phase| {
+            !phase.changes.is_empty()
+                && phase.changes.values().all(|change| {
+                    change.id == scope || change.implementation_status == WorkStatus::Complete
+                })
+        })
+}
+
+fn missing_certification_receipts(state: &RuntimeState) -> Vec<String> {
+    // Certification runs immediately before the active phase's completion edge.
+    // Its own phase obligation is therefore expected to remain open until the
+    // certification gate passes and the completion transition can be recorded.
+    let active_phase_obligation = state
+        .active_path
+        .phase_id
+        .as_ref()
+        .map(|phase_id| format!("phase:{phase_id}").to_ascii_lowercase());
+    let mut missing = state
+        .boundary_obligations
+        .keys()
+        .filter(|key| active_phase_obligation.as_ref() != Some(*key))
+        .map(|key| format!("outstanding boundary {key}"))
+        .collect::<Vec<_>>();
+    if let Some(phase) = state
+        .active_path
+        .phase_id
+        .as_ref()
+        .and_then(|phase_id| state.phases.get(phase_id))
+    {
+        for task in phase
+            .changes
+            .values()
+            .flat_map(|change| change.tasks.values())
+        {
+            if task.status != WorkStatus::Complete {
+                continue;
+            }
+            let key = format!("task:{}", task.id).to_ascii_lowercase();
+            let complete = state
+                .latest_boundary_receipts
+                .get(&key)
+                .is_some_and(|receipt| {
+                    receipt.edge == BoundaryEdge::After
+                        && matches!(
+                            receipt.outcome,
+                            BoundaryOutcome::Pass | BoundaryOutcome::Repaired
+                        )
+                });
+            if !complete {
+                missing.push(format!(
+                    "completed task {} has no valid kbd-apply receipt",
+                    task.id
+                ));
+            }
+        }
+        let integrated = state.latest_gate_receipts.values().any(|receipt| {
+            receipt.phase_id.as_ref() == Some(&phase.id)
+                && receipt.kind == GateKind::Integration
+                && receipt.outcome == GateOutcome::Passed
+        });
+        if !integrated {
+            missing.push(format!("phase {} has no passed integration gate", phase.id));
+        }
+    }
+    if state.blockers.values().any(|blocker| !blocker.resolved) {
+        missing.push("canonical state contains unresolved blockers".to_owned());
+    }
+    if !state.active_gates.is_empty() {
+        missing.push(format!(
+            "{} gate(s) have no finish receipt",
+            state.active_gates.len()
+        ));
+    }
+    missing
+}
+
+async fn finish_gate(
+    client: &ControlClient,
+    state: &RuntimeState,
+    gate: &GateRun,
+    outcome: GateOutcome,
+    exit_code: Option<i32>,
+    duration_ms: u64,
+    summary: String,
+) -> Result<RuntimeState> {
+    let receipt = GateReceipt {
+        gate_id: gate.id.clone(),
+        kind: gate.kind,
+        scope: gate.scope.clone(),
+        phase_id: gate.phase_id.clone(),
+        source_revision: gate.source_revision,
+        outcome,
+        exit_code,
+        duration_ms,
+        finished_at: chrono::Utc::now(),
+        summary,
+    };
+    client
+        .submit_fresh(
+            state,
+            current_actor(ActorKind::Harness),
+            CommandKind::GateFinish { receipt },
+        )
+        .await
+}
+
+async fn gate_run(
+    root: &Path,
+    runtime: &Runtime,
+    client: &ControlClient,
+    kind: GateKind,
+    scope: &str,
+    command: &[String],
+) -> Result<()> {
+    if command.is_empty() {
+        return Err(anyhow!("kbd gate run requires an argv command after --"));
+    }
+    let state = state_or_replay(client, runtime).await?;
+    let command_parts = command.iter().map(String::as_str).collect::<Vec<_>>();
+    let command_sha256 = digest_strings(&command_parts);
+    let gate_id = digest_strings(&[
+        &state.project_id,
+        &state.run_id,
+        &format!("{kind:?}"),
+        scope,
+        &state.revision.to_string(),
+        &command_sha256,
+    ]);
+    let executable = Path::new(&command[0])
+        .file_name()
+        .and_then(|name| name.to_str())
+        .unwrap_or(&command[0])
+        .to_owned();
+    let is_rust = matches!(executable.as_str(), "cargo" | "rustc");
+    let gate = GateRun {
+        id: gate_id.clone(),
+        kind,
+        scope: scope.to_owned(),
+        phase_id: state.active_path.phase_id.clone(),
+        source_revision: state.revision,
+        executable,
+        command_sha256,
+        worktree: fs::canonicalize(root)
+            .unwrap_or_else(|_| root.to_path_buf())
+            .display()
+            .to_string(),
+        target_dir: Some(
+            std::env::var("CARGO_TARGET_DIR")
+                .unwrap_or_else(|_| root.join("target").display().to_string()),
+        ),
+        sccache_available: std::env::var("RUSTC_WRAPPER")
+            .is_ok_and(|value| value.contains("sccache"))
+            || command_available("sccache"),
+        started_at: chrono::Utc::now(),
+    };
+    let started = client
+        .submit_fresh(
+            &state,
+            current_actor(ActorKind::Harness),
+            CommandKind::GateStart { gate: gate.clone() },
+        )
+        .await?;
+
+    let blocked_reason = if matches!(kind, GateKind::Integration | GateKind::Certification)
+        && !phase_ready_for_gate(&state, scope)
+    {
+        Some("implementation is incomplete for the active phase".to_owned())
+    } else {
+        let active_rust = is_rust.then(rust_processes).unwrap_or_default();
+        if !active_rust.is_empty() {
+            Some(format!(
+                "another Cargo/rustc process is active: {}",
+                active_rust.join(" | ")
+            ))
+        } else if kind == GateKind::Certification {
+            let missing = missing_certification_receipts(&state);
+            (!missing.is_empty()).then(|| {
+                format!(
+                    "certification receipts are incomplete: {}",
+                    missing.join("; ")
+                )
+            })
+        } else {
+            None
+        }
+    };
+    if let Some(reason) = blocked_reason {
+        let finished = finish_gate(
+            client,
+            &started,
+            &gate,
+            GateOutcome::Blocked,
+            None,
+            0,
+            reason.clone(),
+        )
+        .await?;
+        println!(
+            "{}",
+            serde_json::to_string_pretty(&json!({
+                "gateId": gate_id,
+                "outcome": "blocked",
+                "reason": reason,
+                "revision": finished.revision
+            }))?
+        );
+        return Err(anyhow!("gate blocked"));
+    }
+
+    let timer = Instant::now();
+    let status = Command::new(&command[0]).args(&command[1..]).status();
+    let duration_ms = timer.elapsed().as_millis().min(u64::MAX as u128) as u64;
+    let (outcome, exit_code, summary) = match status {
+        Ok(status) if status.success() => (
+            GateOutcome::Passed,
+            status.code(),
+            format!("{} gate passed", format!("{kind:?}").to_ascii_lowercase()),
+        ),
+        Ok(status) => (
+            GateOutcome::Failed,
+            status.code(),
+            format!("command exited with {}", status.code().unwrap_or(-1)),
+        ),
+        Err(error) => (
+            GateOutcome::Failed,
+            None,
+            format!("command failed to start: {error}"),
+        ),
+    };
+    let current = state_or_replay(client, runtime).await?;
+    let finished = finish_gate(
+        client,
+        &current,
+        &gate,
+        outcome,
+        exit_code,
+        duration_ms,
+        summary.clone(),
+    )
+    .await?;
+    println!(
+        "{}",
+        serde_json::to_string_pretty(&json!({
+            "gateId": gate_id,
+            "outcome": format!("{outcome:?}").to_ascii_lowercase(),
+            "exitCode": exit_code,
+            "durationMs": duration_ms,
+            "summary": summary,
+            "revision": finished.revision
+        }))?
+    );
+    if outcome != GateOutcome::Passed {
+        return Err(anyhow!("gate failed"));
+    }
+    Ok(())
 }
 
 async fn status(
@@ -762,17 +1563,11 @@ impl ControlClient {
         let manifest = runtime
             .project_manifest(false)?
             .ok_or_else(|| anyhow!("missing .prometheus/project.json"))?;
-        let project_id = runtime
-            .replay()
-            .ok()
-            .filter(|state| state.revision > 0)
-            .map(|state| state.project_id)
-            .unwrap_or(manifest.project_id);
         Ok(Self {
             // A command that validates and fsyncs the journal can legitimately
             // take longer than the old two-second timeout after daemon startup.
             transport: ControlTransport::new(Duration::from_secs(30))?,
-            project_id,
+            project_id: manifest.project_id,
             runtime: runtime.clone(),
         })
     }

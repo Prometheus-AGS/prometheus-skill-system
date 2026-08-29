@@ -1,0 +1,55 @@
+{
+  "mode": "artifact",
+  "verdict": "PASS",
+  "judge_model": "k3",
+  "producer_model": "gpt-5.6-sol",
+  "isolation_mode": "rest-gateway:http://localhost:4000/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "WARNING",
+      "file": "assessment.md",
+      "line": 13,
+      "claim": "The presentation/A2UI finding names the external UAR target files but never identifies which in-repo routing artifact encodes the obsolete 'proposed future path' or the missing resolve-existing-target-first rule, so the plan stage cannot scope the change.",
+      "evidence": "\"The routing instructions do not require callers to resolve an existing incumbent target before invoking Impeccable\" \u2014 no file path for these routing instructions is given; the only cited routing file (`skills/process/kbd-process-orchestrator/skills/kbd-inject-agent-rules/references/template-uiux-routing.md`) is discussed solely in the ux-designer finding, leaving it ambiguous whether the presentation routing defect lives in the same file or elsewhere.",
+      "suggested_fix": "Name the exact file(s) containing the presentation/A2UI routing instructions that reference `/frontend/src/features/presentation`, and state whether they are the same template-uiux-routing.md or a separate artifact."
+    },
+    {
+      "severity": "WARNING",
+      "file": "assessment.md",
+      "line": 25,
+      "claim": "The memory-documentation gap cites stale endpoints but no document paths, forcing the plan stage to re-discover which docs must change across a large `docs/` tree and skill SKILL.md files.",
+      "evidence": "\"Memory documentation still describes `/healthz`, `/api/entities`, and `find_relevant`, which no longer match the server's REST contract\" \u2014 no file is identified; the packet tree lists dozens of candidates under `docs/` plus per-skill documentation, and none is named.",
+      "suggested_fix": "List the concrete files (e.g. specific docs/*.md or skill references) that mention `/healthz`, `/api/entities`, or `find_relevant`."
+    },
+    {
+      "severity": "WARNING",
+      "file": "assessment.md",
+      "line": 17,
+      "claim": "The historical-projection finding references a canonical record and a duplicate compatibility directory without stating their repository root, and neither location is verifiable against the packet file tree.",
+      "evidence": "\"the canonical nested child record is retained under `openspec-mirror-drift-cleanup/children/sovereign-sync-service-reliability`, while a duplicate top-level compatibility directory contains only the old memory-unreachable stub\" \u2014 the tree shows both `./.kbd-orchestrator/changes` and `./openspec/changes` as unexpanded directories; the assessment never says which store holds the record or where the duplicate top-level directory lives, and 'the existing evidence backup area' in ASSESSMENT COMPLETE is also unnamed.",
+      "suggested_fix": "Give absolute or repo-relative roots for the canonical record, the duplicate directory, and the evidence backup area (presumably `.kbd-orchestrator/backups`)."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "assessment.md",
+      "line": 12,
+      "claim": "The verdict label 'STUB' mischaracterizes the memory write/recall transport, which is implemented but targets obsolete endpoints; this risks the plan stage treating it as a greenfield implementation rather than an endpoint/payload migration.",
+      "evidence": "\"KBD memory write/recall transport: **STUB** \u2014 `memory-log.sh` posts an object-shaped legacy payload to `/api/entities`, while `kbd-memory-recall.sh` posts to `/api/find_relevant`\" \u2014 a script that posts real payloads to real (but wrong) routes is mislabeled as a stub, and BUILD HEALTH separately confirms a fallback stub exists, making the two uses of 'stub' collide.",
+      "suggested_fix": "Relabel the transport as OBSOLETE/MISALIGNED and reserve 'stub' for the fallback path, so the plan distinguishes client-migration work from fallback-removal work."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "assessment.md",
+      "line": 11,
+      "claim": "The endpoint-discovery finding states the symptom (no canonical local default in `shared/lib/memory.sh`) but does not assess where a default should come from (env var, config file, or hardcoded localhost port), leaving the remediation shape undefined.",
+      "evidence": "\"`shared/lib/memory.sh` has no canonical local default, so a healthy default installation is reported unavailable unless a tool-list hint, environment variable, or project config happens to be present\" \u2014 the assessment never identifies which of these three hint sources currently exists in the repo (e.g. `config/defaults.env` is in the tree but is not examined) or what the correct default (`127.0.0.1:23001`) should be wired to.",
+      "suggested_fix": "State which discovery sources exist today and name the intended canonical default and its home (e.g. `config/defaults.env`)."
+    }
+  ],
+  "sycophancy_screen": {
+    "reject_cap": 2,
+    "cap_overridden": false,
+    "cap_default": 2
+  }
+}

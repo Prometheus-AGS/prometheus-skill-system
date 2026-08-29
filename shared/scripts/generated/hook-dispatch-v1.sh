@@ -118,6 +118,9 @@ case "$HOOK_ID" in
   'stop-karpathy-learning')
     run_bundle_script 'shared/scripts/karpathy-hook-dispatch.sh' 'stop' "$HARNESS"
     ;;
+  'taskcompleted-kbd-receipt')
+    run_bundle_script 'shared/scripts/kbd-task-completed-gate.sh'
+    ;;
   'precompact-kbd-control')
     run_bundle_script 'shared/scripts/kbd-harness-adapter.sh' 'pre_compact' "$HARNESS"
     ;;

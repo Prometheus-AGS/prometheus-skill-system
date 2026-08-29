@@ -1,0 +1,17 @@
+{
+  "allowedWritePaths": [
+    ".kbd-orchestrator/phases/kbd-control-plane-recovery/children/bottleneck-evaluator-and-detector/**",
+    "substrate/kbd-runtime/**",
+    "tools/prometheus-cli/**",
+    "skills/process/kbd-process-orchestrator/**",
+    "skills/process/zeespec-interrogator/**",
+    "shared/harnesses/**",
+    "shared/scripts/**",
+    "scripts/**",
+    "hooks/**",
+    "dist/plugins/**"
+  ],
+  "deniedPaths": [],
+  "inheritsConstraints": true,
+  "__note": "Edit allowedWritePaths to widen the child loop's write surface. .kbd-orchestrator/** and SCRATCHPAD.md are always allowed. Enforced advisorily by check-child-scope.sh."
+}

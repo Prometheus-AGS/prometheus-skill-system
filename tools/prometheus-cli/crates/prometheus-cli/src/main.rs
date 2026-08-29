@@ -433,6 +433,16 @@ enum KbdAction {
         #[command(subcommand)]
         action: KbdRolloutAction,
     },
+    /// Evaluate canonical task, phase, and ZeeSpec boundaries
+    Guard {
+        #[command(subcommand)]
+        action: KbdGuardAction,
+    },
+    /// Run a compiler, integration, or certification gate with signed receipts
+    Gate {
+        #[command(subcommand)]
+        action: KbdGateAction,
+    },
     /// Create, activate, or transition a canonical phase
     Phase {
         #[command(subcommand)]
@@ -467,6 +477,87 @@ enum KbdAction {
     Blocker {
         #[command(subcommand)]
         action: KbdBlockerAction,
+    },
+}
+
+#[derive(Clone, clap::ValueEnum)]
+enum KbdBoundaryKind {
+    Task,
+    Phase,
+    Zeespec,
+}
+
+impl From<KbdBoundaryKind> for kbd_runtime::BoundaryKind {
+    fn from(value: KbdBoundaryKind) -> Self {
+        match value {
+            KbdBoundaryKind::Task => Self::Task,
+            KbdBoundaryKind::Phase => Self::Phase,
+            KbdBoundaryKind::Zeespec => Self::Zeespec,
+        }
+    }
+}
+
+#[derive(Clone, clap::ValueEnum)]
+enum KbdBoundaryEdge {
+    Before,
+    After,
+}
+
+impl From<KbdBoundaryEdge> for kbd_runtime::BoundaryEdge {
+    fn from(value: KbdBoundaryEdge) -> Self {
+        match value {
+            KbdBoundaryEdge::Before => Self::Before,
+            KbdBoundaryEdge::After => Self::After,
+        }
+    }
+}
+
+#[derive(Clone, clap::ValueEnum)]
+enum KbdGateKind {
+    CompilerCheck,
+    Integration,
+    Certification,
+}
+
+impl From<KbdGateKind> for kbd_runtime::GateKind {
+    fn from(value: KbdGateKind) -> Self {
+        match value {
+            KbdGateKind::CompilerCheck => Self::CompilerCheck,
+            KbdGateKind::Integration => Self::Integration,
+            KbdGateKind::Certification => Self::Certification,
+        }
+    }
+}
+
+#[derive(Subcommand)]
+enum KbdGuardAction {
+    /// Evaluate one precommit or postcommit lifecycle boundary
+    Evaluate {
+        #[arg(long, value_enum)]
+        boundary: KbdBoundaryKind,
+        #[arg(long, value_enum)]
+        edge: KbdBoundaryEdge,
+        #[arg(long)]
+        subject: String,
+        #[arg(long)]
+        json: bool,
+        #[arg(long)]
+        repair_projections: bool,
+        #[arg(long, hide = true)]
+        precommit: bool,
+    },
+}
+
+#[derive(Subcommand)]
+enum KbdGateAction {
+    /// Run argv directly and record a signed gate start and finish
+    Run {
+        #[arg(long, value_enum)]
+        kind: KbdGateKind,
+        #[arg(long)]
+        scope: String,
+        #[arg(last = true, required = true)]
+        command: Vec<String>,
     },
 }
 
@@ -973,6 +1064,34 @@ async fn main() -> Result<()> {
                         successful: !failed,
                     },
                     KbdRolloutAction::Promote => commands::kbd::Action::RolloutPromote,
+                },
+                KbdAction::Guard { action } => match action {
+                    KbdGuardAction::Evaluate {
+                        boundary,
+                        edge,
+                        subject,
+                        json,
+                        repair_projections,
+                        precommit,
+                    } => commands::kbd::Action::GuardEvaluate {
+                        boundary: boundary.into(),
+                        edge: edge.into(),
+                        subject,
+                        json,
+                        repair_projections,
+                        precommit,
+                    },
+                },
+                KbdAction::Gate { action } => match action {
+                    KbdGateAction::Run {
+                        kind,
+                        scope,
+                        command,
+                    } => commands::kbd::Action::GateRun {
+                        kind: kind.into(),
+                        scope,
+                        command,
+                    },
                 },
                 KbdAction::Phase { action } => match action {
                     KbdPhaseAction::Create {

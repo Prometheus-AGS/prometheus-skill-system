@@ -48,10 +48,21 @@ function validateContract() {
   if (contract.schemaVersion !== 'hook-contract-v1') failures.push('unsupported hook contract');
   if (contract.dispatcherAbi !== 'hook-runtime-v1') failures.push('unsupported dispatcher ABI');
   const ids = new Set();
+  const supportedHarnesses = new Set(contract.harnesses ?? []);
   for (const group of contract.events ?? []) {
     if (!group.event || !Array.isArray(group.hooks) || group.hooks.length === 0) {
       failures.push('hook contract contains an empty or unnamed event group');
       continue;
+    }
+    if (group.harnesses !== undefined) {
+      if (
+        !Array.isArray(group.harnesses) ||
+        group.harnesses.length === 0 ||
+        new Set(group.harnesses).size !== group.harnesses.length ||
+        group.harnesses.some(harness => !supportedHarnesses.has(harness))
+      ) {
+        failures.push(`${group.event}: harness filter is empty, duplicated, or unsupported`);
+      }
     }
     for (const hook of group.hooks) {
       if (!/^[a-z0-9-]+$/.test(hook.id ?? '')) failures.push(`unsafe hook id: ${hook.id}`);
@@ -210,6 +221,7 @@ exec "$runner" --bundle "$1" --hook "$2" --harness "$3"`;
 function renderHooks(bundleId, harness) {
   const hooks = {};
   for (const group of contract.events) {
+    if (group.harnesses !== undefined && !group.harnesses.includes(harness)) continue;
     const emitted = {
       hooks: group.hooks.map(hook => {
         const value = {

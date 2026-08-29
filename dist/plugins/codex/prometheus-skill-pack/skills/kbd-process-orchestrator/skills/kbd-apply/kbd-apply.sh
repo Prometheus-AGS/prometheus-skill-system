@@ -51,6 +51,10 @@ if [ -f "$KBD_ORCHESTRATOR_ROOT/shared/lib/runtime-authority.sh" ]; then
   # shellcheck source=/dev/null
   . "$KBD_ORCHESTRATOR_ROOT/shared/lib/runtime-authority.sh" 2>/dev/null || true
 fi
+if [ -f "$KBD_ORCHESTRATOR_ROOT/shared/lib/bottleneck-guard.sh" ]; then
+  # shellcheck source=/dev/null
+  . "$KBD_ORCHESTRATOR_ROOT/shared/lib/bottleneck-guard.sh" 2>/dev/null || true
+fi
 
 WP=".kbd-orchestrator/current-waypoint.json"
 
@@ -432,6 +436,8 @@ runtime_task_transition() {
       --title "$title" --sequence "$sequence" >/dev/null || return 1
   fi
 
+  [ "$status" = "register-only" ] && return 0
+
   command_id="apply:task-${status}:${phase}:${change}:${task_id}"
   prometheus kbd --path . task transition \
     --command-id "$command_id" \
@@ -472,14 +478,36 @@ case "$cmd" in
     # begin-task <change> <id> <i> <n> <title...>
     change="${1:-}"; id="${2:-}"; i="${3:-1}"; n="${4:-1}"; shift 4 || true; title="$*"
     [ -n "$change" ] && [ -n "$id" ] || die "usage: begin-task <change> <id> <i> <n> <title>"
+    runtime_task_transition "$change" "$id" "$title" "$i" "register-only" \
+      || die "failed to register canonical task boundary"
+    guard_enabled=0
+    if command -v kbd_bottleneck_active >/dev/null 2>&1 && kbd_bottleneck_active; then
+      guard_enabled=1
+      kbd_bottleneck_evaluate task before "$id" 1 >/dev/null \
+        || die "canonical task start precommit evaluation blocked"
+    fi
     runtime_task_transition "$change" "$id" "$title" "$i" "in-progress" \
       || die "failed to commit canonical task start"
+    if [ "$guard_enabled" = "1" ]; then
+      guard_output="$(kbd_bottleneck_evaluate task before "$id" 0)" \
+        || die "canonical task start postcommit evaluation blocked"
+    fi
     fire task before "$change:$id" "$i" "$n"
-    printf 'Starting task %s out of %s:   %s\n' "$i" "$n" "$title" ;;
+    if [ "$guard_enabled" = "1" ]; then
+      kbd_bottleneck_print_signal "$guard_output"
+    else
+      printf 'Starting task %s out of %s:   %s\n' "$i" "$n" "$title"
+    fi ;;
 
   end-task)
     change="${1:-}"; id="${2:-}"; i="${3:-1}"; n="${4:-1}"; shift 4 || true; title="$*"
     [ -n "$change" ] && [ -n "$id" ] || die "usage: end-task <change> <id> <i> <n> <title>"
+    guard_enabled=0
+    if command -v kbd_bottleneck_active >/dev/null 2>&1 && kbd_bottleneck_active; then
+      guard_enabled=1
+      kbd_bottleneck_evaluate task after "$id" 1 >/dev/null \
+        || die "canonical task completion precommit evaluation blocked"
+    fi
     b_mark_done "$change" "$id"
     runtime_task_transition "$change" "$id" "$title" "$i" "complete" \
       || die "failed to commit canonical task completion"
@@ -490,7 +518,13 @@ case "$cmd" in
     # completion live (CF-5). Best-effort; never aborts the driver.
     command -v kbd_position_sync >/dev/null 2>&1 && { kbd_position_sync || true; }
     fire task after "$change:$id" "$i" "$n"
-    printf 'Completed task %s out of %s:   %s\n' "$i" "$n" "$title"
+    if [ "$guard_enabled" = "1" ]; then
+      guard_output="$(kbd_bottleneck_evaluate task after "$id" 0)" \
+        || die "canonical task completion postcommit evaluation blocked"
+      kbd_bottleneck_print_signal "$guard_output"
+    else
+      printf 'Completed task %s out of %s:   %s\n' "$i" "$n" "$title"
+    fi
     if [ "${rem:-0}" -gt 0 ]; then
       pending_titles="$(b_remaining_titles "$change" | paste -sd ' | ' -)"
       pending_preview="${pending_titles:-unknown}"

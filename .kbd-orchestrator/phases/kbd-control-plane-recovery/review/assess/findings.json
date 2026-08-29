@@ -1,0 +1,47 @@
+{
+  "mode": "artifact",
+  "verdict": "BLOCK",
+  "judge_model": "k3",
+  "producer_model": "gpt-5.6-sol",
+  "isolation_mode": "rest-gateway:http://localhost:4000/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": "assessment.md",
+      "line": 14,
+      "claim": "The assessment asserts an existing incumbent implementation target that the packet explicitly marks as nonexistent.",
+      "evidence": "Assessment states: \"The incumbent workspace is `frontend/src/features/skills/ui/a2ui-library-page.tsx`, backed by `frontend/src/platform/entities/a2ui-library`\" \u2014 but `cited_paths` reports \"MISSING  frontend/src/features/skills/ui/a2ui-library-page.tsx\", and the file_tree contains no `frontend/` path whatsoever. The claim that this target is known and resolvable is contradicted by the packet.",
+      "suggested_fix": "Either verify the file's actual existence and correct cited_paths, or reclassify the incumbent target as unresolved and state that no confirmed implementation target exists in the inspected tree. Do not present a MISSING path as the known incumbent workspace."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "assessment.md",
+      "line": 30,
+      "claim": "Goal-progress status for the presentation/A2UI goal is derived from the same contradicted existence claim, so a plan built on it will target a file that does not exist.",
+      "evidence": "GOAL PROGRESS states: \"Resolve presentation and A2UI context targets before Impeccable: **PARTIAL** \u2014 the actual incumbent target is known, but the routing contract does not enforce resolution.\" The 'incumbent target is known' premise rests on the MISSING `frontend/src/features/skills/ui/a2ui-library-page.tsx` path (cited_paths, file_tree contradiction).",
+      "suggested_fix": "Downgrade or re-scope this goal status to reflect that the incumbent target is unverified/missing, so the plan stage must first establish the real target location rather than assume it."
+    },
+    {
+      "severity": "WARNING",
+      "file": "assessment.md",
+      "line": 15,
+      "claim": "The ux-designer finding rests on external landscape claims that cannot be verified from anything in the packet.",
+      "evidence": "\"attributes it to Anthropic even though it is absent from the active catalog and no such skill exists in the official Anthropic skills repository\" \u2014 neither an 'active catalog' file nor the Anthropic skills repository is present in the file_tree or cited_paths, and the claim is not tied to any inspectable repo artifact (e.g. `config/codex-catalog.txt` contents are not quoted).",
+      "suggested_fix": "Cite the specific catalog file(s) searched (with the negative-search evidence, e.g. grep result), and mark the external Anthropic-repo claim as externally verified at assessment time with date/source, or remove it."
+    },
+    {
+      "severity": "WARNING",
+      "file": "assessment.md",
+      "line": 17,
+      "claim": "The registry-hygiene gap does not identify where the registry or its CLI lives, so the plan stage cannot target the prune operation.",
+      "evidence": "\"the canonical registry contains 21 replica paths that no longer exist across six project IDs... The CLI can list and register projects but offers no backup-bearing, explicit prune operation\" \u2014 no registry file path, no CLI binary/script path, and no crate/module (e.g. under `substrate/sovereign-sync` or `tools/`) is named. The other findings cite concrete script paths; this one cites none.",
+      "suggested_fix": "Name the registry store file and the implementing crate/CLI entry point (path in file_tree) so the plan can scope the prune operation and its focused test."
+    }
+  ],
+  "sycophancy_screen": {
+    "reject_cap": 2,
+    "cap_overridden": false,
+    "cap_default": 2
+  }
+}

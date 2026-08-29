@@ -159,8 +159,8 @@ mk_sandbox() {
   PATH="$SANDBOX/mock-bin:$PATH" \
     KBD_ORCHESTRATOR_ROOT="$SANDBOX/mock-root" \
     "$SCRIPT" successor-phase >/dev/null 2>&1 || fail "13a: terminal rollover should succeed"
-  [[ "$(wc -l < "$PROMETHEUS_LOG" | tr -d ' ')" == "4" ]] \
-    || fail "13b: expected status, rollover, create, activate commands"
+  [[ "$(wc -l < "$PROMETHEUS_LOG" | tr -d ' ')" == "5" ]] \
+    || fail "13b: expected status, rollover, create, activate, transition commands"
   sed -n '1p' "$PROMETHEUS_LOG" | grep -q 'status --json' \
     || fail "13c: status must be read first"
   sed -n '2p' "$PROMETHEUS_LOG" | grep -Eq \
@@ -170,6 +170,8 @@ mk_sandbox() {
     || fail "13e: phase create must follow rollover"
   sed -n '4p' "$PROMETHEUS_LOG" | grep -q 'phase activate' \
     || fail "13f: phase activation missing"
+  sed -n '5p' "$PROMETHEUS_LOG" | grep -q 'phase transition' \
+    || fail "13g: phase start transition missing"
 ) && pass "terminal runtime → one successor run before phase create + activate"
 
 # --- Test 14: non-terminal canonical run creates phase without rollover ---

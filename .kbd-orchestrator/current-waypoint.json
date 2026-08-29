@@ -1,37 +1,31 @@
 {
-  "schemaVersion": "5",
-  "generatedBy": "kbd-runtime",
-  "sourceRevision": 5,
-  "derivedRevision": 5,
-  "projectId": "6ac090a4-3656-4d83-8eb6-2891508196d5",
-  "runId": "docusaurus-github-pages-site-20260729T012334Z",
-  "path": [
-    "openspec-mirror-drift-cleanup"
-  ],
-  "phaseIds": [
-    "openspec-mirror-drift-cleanup"
-  ],
-  "activePhaseId": "openspec-mirror-drift-cleanup",
-  "phase": "openspec-mirror-drift-cleanup",
-  "childPointer": null,
+  "activePhaseId": "kbd-control-plane-recovery",
   "change": null,
-  "currentTask": "phase complete — 6/6 reflected",
-  "status": "reflected",
+  "childPointer": null,
   "completionMetric": "implementation",
-  "implementationCompleted": 6,
-  "implementationTotal": 6,
-  "planRevision": 2,
-  "revision": 5,
-  "exactNextCommand": "/kbd-new-phase kbd-control-plane-recovery",
-  "updatedAt": "2026-08-24T12:06:24Z",
-  "previousPhase": "kimi-desktop-extensibility",
-  "nextPendingChange": null,
-  "parentPhase": null,
-  "childPhases": [],
-  "certificationStatus": "PASS",
-  "publicationStatus": "COMPLETE",
-  "changesCompleted": 6,
-  "changesTotal": 6,
-  "stage": "execute_complete",
-  "nextCommand": "/kbd-new-phase kbd-control-plane-recovery"
+  "conflictCount": 0,
+  "currentTask": null,
+  "derivedRevision": 117,
+  "exactNextCommand": "/kbd-apply repair-kbd-memory-rest-contract",
+  "frontier": {
+    "4bca58c3-e70b-48c9-a555-60bc16d3d025": 117
+  },
+  "generatedBy": "kbd-runtime",
+  "implementationCompleted": 5,
+  "implementationTotal": 9,
+  "path": [
+    "kbd-control-plane-recovery"
+  ],
+  "phase": "kbd-control-plane-recovery",
+  "phaseIds": [
+    "kbd-control-plane-recovery"
+  ],
+  "planRevision": 3,
+  "projectId": "6ac090a4-3656-4d83-8eb6-2891508196d5",
+  "revision": 117,
+  "runId": "sovereign-sync-service-reliability-20260829",
+  "schemaVersion": "5",
+  "sourceRevision": 117,
+  "status": "ready",
+  "updatedAt": "2026-08-29T18:04:41.950770Z"
 }

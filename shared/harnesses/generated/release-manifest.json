@@ -3,7 +3,7 @@
   "sourceVersion": "1.7.0",
   "contractSchemaVersion": "hook-contract-v1",
   "dispatcherAbi": "hook-runtime-v1",
-  "contractSha256": "90134122da71285bc0deba2d645536211417aa0ee71fdb48ebb43e2bfc4e3fa5",
+  "contractSha256": "37795169325a638201421a6aeed741603699099fd45609bf044fe005eddd4f45",
   "runtimeFiles": [
     {
       "path": "scripts/install-plugin-generation.js",
@@ -12,7 +12,7 @@
     },
     {
       "path": "shared/harnesses/hook-contract.json",
-      "sha256": "fc63f6fb4f59e7c6025db4c93a43980a3083a850e724eeccdd4044921cf03928",
+      "sha256": "ea33ae961da1788076b570ffb046e2578fa611c32837cb15109160446b535896",
       "mode": "0644"
     },
     {
@@ -67,7 +67,7 @@
     },
     {
       "path": "shared/scripts/generated/hook-dispatch-v1.sh",
-      "sha256": "70d49794121f60cf6a6deb22c225ba59ff74cee0803aaf599a4e58bb410e57ac",
+      "sha256": "eadd6cf6701eb8bfcc275fe2e967039f5becc06c9881decad237ad2f35c87384",
       "mode": "0755"
     },
     {
@@ -87,7 +87,7 @@
     },
     {
       "path": "shared/scripts/kbd-harness-adapter.sh",
-      "sha256": "b60bb4174a68b342a29dacf2f10a264b581d526b94fdb6c20af74293473ae1fc",
+      "sha256": "8425ccc397e794449694bc04ce1ab9de4c6212e706b71bd5dd01553b08988c5d",
       "mode": "0755"
     },
     {
@@ -98,6 +98,11 @@
     {
       "path": "shared/scripts/kbd-phase-status.sh",
       "sha256": "7b254f9ed990c5dd0d51ba80e64517646bfd0b2133a07e85c645366e2e69491e",
+      "mode": "0755"
+    },
+    {
+      "path": "shared/scripts/kbd-task-completed-gate.sh",
+      "sha256": "5a1faf5a3e4c8592f6509b418f8584757797cfa80f2cd12e54580174dbda2f50",
       "mode": "0755"
     },
     {
@@ -316,5 +321,5 @@
       "mode": "0755"
     }
   ],
-  "bundleId": "24e1b958fdd412e1fb37ad3ab1245b45d1c7d64f13cad52cf801fc51e1b4878b"
+  "bundleId": "a76e4233f51ef3236b36248a6a9ba3338b7a1321bef13979c3d72d285ef6e96c"
 }

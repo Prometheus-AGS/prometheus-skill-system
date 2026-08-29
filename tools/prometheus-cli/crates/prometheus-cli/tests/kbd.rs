@@ -293,3 +293,425 @@ fn first_typed_mutation_without_legacy_phase_creates_one_ready_run() {
         1
     );
 }
+
+fn require_success(output: &Output, operation: &str) {
+    assert!(
+        output.status.success(),
+        "{operation} failed\nstdout:\n{}\nstderr:\n{}",
+        stdout(output),
+        stderr(output)
+    );
+}
+
+fn create_receipt_fixture() -> KbdFixture {
+    let fixture = KbdFixture::registered_without_legacy_phase();
+    require_success(
+        &fixture.command(&[
+            "phase",
+            "create",
+            "--command-id",
+            "receipt-phase-create",
+            "--id",
+            "receipt-phase",
+            "--title",
+            "Receipt phase",
+        ]),
+        "create phase",
+    );
+    require_success(
+        &fixture.command(&[
+            "phase",
+            "activate",
+            "--command-id",
+            "receipt-phase-activate",
+            "--id",
+            "receipt-phase",
+        ]),
+        "activate phase",
+    );
+    require_success(
+        &fixture.command(&[
+            "phase",
+            "transition",
+            "--command-id",
+            "receipt-phase-start",
+            "--id",
+            "receipt-phase",
+            "--status",
+            "in-progress",
+        ]),
+        "start phase",
+    );
+    require_success(
+        &fixture.command(&[
+            "change",
+            "register",
+            "--command-id",
+            "receipt-change-register",
+            "--phase",
+            "receipt-phase",
+            "--id",
+            "receipt-change",
+            "--title",
+            "Receipt change",
+            "--sequence",
+            "1",
+        ]),
+        "register change",
+    );
+    require_success(
+        &fixture.command(&[
+            "task",
+            "register",
+            "--command-id",
+            "receipt-task-register",
+            "--phase",
+            "receipt-phase",
+            "--change",
+            "receipt-change",
+            "--id",
+            "task-1",
+            "--title",
+            "Canonical integration task",
+            "--sequence",
+            "1",
+        ]),
+        "register task",
+    );
+    fixture
+}
+
+#[test]
+fn boundary_receipts_projection_repair_and_gate_receipts_complete_end_to_end() {
+    let fixture = create_receipt_fixture();
+
+    let before_precommit = fixture.command(&[
+        "guard",
+        "evaluate",
+        "--boundary",
+        "task",
+        "--edge",
+        "before",
+        "--subject",
+        "task-1",
+        "--json",
+        "--repair-projections",
+        "--precommit",
+    ]);
+    require_success(&before_precommit, "precommit task start");
+    let revision_before_start = fixture.runtime.replay().expect("replay precommit").revision;
+
+    require_success(
+        &fixture.command(&[
+            "task",
+            "transition",
+            "--command-id",
+            "receipt-task-start",
+            "--phase",
+            "receipt-phase",
+            "--change",
+            "receipt-change",
+            "--id",
+            "task-1",
+            "--status",
+            "in-progress",
+        ]),
+        "start task",
+    );
+    let before = fixture.command(&[
+        "guard",
+        "evaluate",
+        "--boundary",
+        "task",
+        "--edge",
+        "before",
+        "--subject",
+        "task-1",
+        "--json",
+        "--repair-projections",
+    ]);
+    require_success(&before, "record task start receipt");
+    let before_json: serde_json::Value =
+        serde_json::from_slice(&before.stdout).expect("parse start receipt JSON");
+    assert!(matches!(
+        before_json["outcome"].as_str(),
+        Some("pass" | "repaired")
+    ));
+    assert_eq!(
+        before_json["exactSignal"],
+        "Starting task 1 out of 1: Canonical integration task"
+    );
+    assert!(before_json["authoritativeRevision"].as_u64().unwrap() > revision_before_start);
+    assert_eq!(
+        fixture.runtime.replay().unwrap().boundary_obligations.len(),
+        1
+    );
+
+    let after_precommit = fixture.command(&[
+        "guard",
+        "evaluate",
+        "--boundary",
+        "task",
+        "--edge",
+        "after",
+        "--subject",
+        "task-1",
+        "--json",
+        "--repair-projections",
+        "--precommit",
+    ]);
+    require_success(&after_precommit, "precommit task completion");
+    require_success(
+        &fixture.command(&[
+            "task",
+            "transition",
+            "--command-id",
+            "receipt-task-complete",
+            "--phase",
+            "receipt-phase",
+            "--change",
+            "receipt-change",
+            "--id",
+            "task-1",
+            "--status",
+            "complete",
+        ]),
+        "complete task",
+    );
+
+    fs::write(
+        fixture
+            .project_root
+            .join(".kbd-orchestrator/current-waypoint.json"),
+        "{}\n",
+    )
+    .expect("corrupt compatibility projection");
+    let source_revision = fixture.runtime.replay().unwrap().revision;
+    let after = fixture.command(&[
+        "guard",
+        "evaluate",
+        "--boundary",
+        "task",
+        "--edge",
+        "after",
+        "--subject",
+        "task-1",
+        "--json",
+        "--repair-projections",
+    ]);
+    require_success(&after, "record completion receipt and repair projection");
+    let after_json: serde_json::Value =
+        serde_json::from_slice(&after.stdout).expect("parse completion receipt JSON");
+    assert_eq!(after_json["outcome"], "repaired");
+    assert_eq!(after_json["sourceRevision"], source_revision);
+    assert_eq!(after_json["authoritativeRevision"], source_revision + 1);
+    assert_eq!(
+        after_json["exactSignal"],
+        "Completed task 1 out of 1: Canonical integration task"
+    );
+    assert!(fixture
+        .runtime
+        .replay()
+        .unwrap()
+        .boundary_obligations
+        .is_empty());
+
+    require_success(
+        &fixture.command(&[
+            "gate",
+            "run",
+            "--kind",
+            "integration",
+            "--scope",
+            "receipt-phase",
+            "--",
+            "/usr/bin/true",
+        ]),
+        "run integration gate",
+    );
+    require_success(
+        &fixture.command(&[
+            "gate",
+            "run",
+            "--kind",
+            "certification",
+            "--scope",
+            "receipt-phase",
+            "--",
+            "/usr/bin/true",
+        ]),
+        "run certification gate",
+    );
+    let state = fixture.runtime.replay().expect("replay certified state");
+    assert!(state.active_gates.is_empty());
+    assert!(state.latest_gate_receipts.values().any(|receipt| {
+        receipt.kind == kbd_runtime::GateKind::Integration
+            && receipt.outcome == kbd_runtime::GateOutcome::Passed
+    }));
+    assert!(state.latest_gate_receipts.values().any(|receipt| {
+        receipt.kind == kbd_runtime::GateKind::Certification
+            && receipt.outcome == kbd_runtime::GateOutcome::Passed
+    }));
+}
+
+#[test]
+fn duplicate_missing_and_rust_contention_boundaries_fail_closed() {
+    let fixture = create_receipt_fixture();
+    require_success(
+        &fixture.command(&[
+            "task",
+            "transition",
+            "--command-id",
+            "blocked-task-start",
+            "--phase",
+            "receipt-phase",
+            "--change",
+            "receipt-change",
+            "--id",
+            "task-1",
+            "--status",
+            "in-progress",
+        ]),
+        "start blocked task fixture",
+    );
+    let missing = fixture.command(&[
+        "guard",
+        "evaluate",
+        "--boundary",
+        "task",
+        "--edge",
+        "after",
+        "--subject",
+        "task-1",
+        "--json",
+        "--repair-projections",
+    ]);
+    assert!(!missing.status.success());
+    let after_missing = fixture.runtime.replay().expect("replay missing boundary");
+    assert!(after_missing.boundary_obligations.is_empty());
+    assert_eq!(
+        after_missing.phases["receipt-phase"].changes["receipt-change"].tasks["task-1"].status,
+        WorkStatus::InProgress
+    );
+    assert!(after_missing
+        .blockers
+        .values()
+        .any(|blocker| !blocker.resolved));
+
+    let before = fixture.command(&[
+        "guard",
+        "evaluate",
+        "--boundary",
+        "task",
+        "--edge",
+        "before",
+        "--subject",
+        "task-1",
+        "--json",
+        "--repair-projections",
+    ]);
+    require_success(&before, "record first start boundary");
+    let duplicate = fixture.command(&[
+        "guard",
+        "evaluate",
+        "--boundary",
+        "task",
+        "--edge",
+        "before",
+        "--subject",
+        "task-1",
+        "--json",
+        "--repair-projections",
+    ]);
+    assert!(!duplicate.status.success());
+    assert_eq!(
+        fixture
+            .runtime
+            .replay()
+            .expect("replay duplicate boundary")
+            .boundary_obligations
+            .len(),
+        1
+    );
+
+    let rust_gate = fixture.command(&[
+        "gate",
+        "run",
+        "--kind",
+        "compiler-check",
+        "--scope",
+        "receipt-change",
+        "--",
+        "cargo",
+        "--version",
+    ]);
+    assert!(!rust_gate.status.success());
+    assert!(stdout(&rust_gate).contains("another Cargo/rustc process is active"));
+    let state = fixture.runtime.replay().expect("replay blocked Rust gate");
+    assert!(state.active_gates.is_empty());
+    assert!(state.latest_gate_receipts.values().any(|receipt| {
+        receipt.kind == kbd_runtime::GateKind::CompilerCheck
+            && receipt.outcome == kbd_runtime::GateOutcome::Blocked
+    }));
+}
+
+#[test]
+fn ambiguous_signed_authority_writes_only_an_atomic_recovery_receipt() {
+    let fixture = create_receipt_fixture();
+    let journal_before = fs::read(fixture.runtime.events_path()).expect("read signed journal");
+    let pointer: serde_json::Value = serde_json::from_slice(
+        &fs::read(fixture.runtime.runtime_root().join("checkpoints/current.json"))
+            .expect("read checkpoint pointer"),
+    )
+    .expect("parse checkpoint pointer");
+    let checkpoint = pointer["checkpoint"]
+        .as_str()
+        .expect("checkpoint filename");
+    fs::write(
+        fixture
+            .runtime
+            .runtime_root()
+            .join("checkpoints")
+            .join(checkpoint),
+        "{}\n",
+    )
+    .expect("corrupt signed folded checkpoint");
+
+    let evaluation = fixture.command(&[
+        "guard",
+        "evaluate",
+        "--boundary",
+        "task",
+        "--edge",
+        "before",
+        "--subject",
+        "task-1",
+        "--json",
+        "--precommit",
+        "--repair-projections",
+    ]);
+    assert!(!evaluation.status.success());
+    assert_eq!(
+        fs::read(fixture.runtime.events_path()).expect("reread signed journal"),
+        journal_before,
+        "ambiguous authority must not mutate the canonical journal"
+    );
+
+    let recovery_root = fixture
+        .project_root
+        .join(".kbd-orchestrator/recovery/bottleneck");
+    let receipts = fs::read_dir(&recovery_root)
+        .expect("recovery receipt directory")
+        .collect::<Result<Vec<_>, _>>()
+        .expect("read recovery receipts");
+    assert_eq!(receipts.len(), 1);
+    let receipt: serde_json::Value = serde_json::from_slice(
+        &fs::read(receipts[0].path()).expect("read recovery receipt"),
+    )
+    .expect("parse recovery receipt");
+    assert_eq!(receipt["outcome"], "blocked");
+    assert_eq!(receipt["canonicalMutation"], false);
+    assert!(fs::read_dir(recovery_root)
+        .unwrap()
+        .all(|entry| !entry.unwrap().file_name().to_string_lossy().starts_with('.')));
+}

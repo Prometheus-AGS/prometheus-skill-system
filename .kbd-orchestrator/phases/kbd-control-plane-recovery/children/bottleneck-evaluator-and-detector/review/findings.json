@@ -1,0 +1,63 @@
+{
+  "mode": "skill",
+  "verdict": "PASS",
+  "judge_model": "k3",
+  "producer_model": "gpt-5.6-sol",
+  "isolation_mode": "rest-gateway:http://localhost:4000/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "WARNING",
+      "file": "SKILL.md",
+      "line": 33,
+      "claim": "The skill orders the agent to run `adversarial-review` and `sycophancy-correction` but neither is bundled, pathed, or given any invocation syntax, so the step cannot be followed as written.",
+      "evidence": "SKILL.md line 33-34: \"run `adversarial-review` once and screen its findings with `sycophancy-correction`\"; script_inventory lists only `scripts/kbd-bottleneck-detector.sh` and file_tree contains no other executable or reference defining these commands.",
+      "suggested_fix": "State the resolved path or command for each tool (e.g. a repo-relative binary or sibling skill), and define the expected input/output of the screening step."
+    },
+    {
+      "severity": "WARNING",
+      "file": "SKILL.md",
+      "line": 31,
+      "claim": "The skill expands adversarial review beyond the terminal-only triggers the intent specified, adding mid-lifecycle triggers the intent never asked for.",
+      "evidence": "original_intent: \"terminal-only adversarial review with sycophancy screening\"; SKILL.md lines 31-33: \"At phase or child completion, on ambiguous canonical authority, or after the same violation twice at one revision, run `adversarial-review` once\" \u2014 the second and third triggers are not terminal events.",
+      "suggested_fix": "Either restrict review to phase/child completion per the intent, or get the intent updated to sanction the additional triggers."
+    },
+    {
+      "severity": "WARNING",
+      "file": "SKILL.md",
+      "line": 36,
+      "claim": "\"An unavailable or unresolved review blocks certification\" contradicts the repo constraint that a missing screening binary degrades gracefully (log skip and pass), leaving the agent with two irreconcilable failure policies.",
+      "evidence": "constraints (\"When QA is skipped\"): \"When the `sycophancy-correction`/artifact-refiner binary is absent, the gate logs the skip and passes (graceful degradation)\"; SKILL.md line 36: \"An unavailable or unresolved review blocks certification, not implementation.\"",
+      "suggested_fix": "Align the skill's unavailability policy with the constraint (skip-and-log with a recorded skip), or explicitly state which contexts block and which degrade."
+    },
+    {
+      "severity": "WARNING",
+      "file": "SKILL.md",
+      "line": 4,
+      "claim": "The packet's parsed frontmatter shows the description collapsed to the literal folded-scalar marker \">\" and tags hoisted out of metadata, so any consumer parsing the frontmatter the same way sees an empty trigger description and no tags.",
+      "evidence": "frontmatter field: `\"description\": \">\"`, `\"metadata\": {}`, `\"tags\": \"[process, orchestration, recovery]\"` as a top-level string, versus the nested `metadata: tags:` structure in SKILL.md lines 4-8.",
+      "suggested_fix": "Use a single-line (or double-quoted) description string and verify metadata nesting survives the actual loader's parser; confirm the real runtime parses the folded scalar correctly."
+    },
+    {
+      "severity": "WARNING",
+      "file": "SKILL.md",
+      "line": 34,
+      "claim": "\"One regeneration is allowed\" has no defined object \u2014 regeneration of the review, of the projections, or of the receipts \u2014 making the instruction unactionable and its limit unenforceable.",
+      "evidence": "SKILL.md line 34: \"One regeneration is allowed when the screening score is at least `0.4` or reports a high/critical pattern.\" No prior sentence establishes anything labeled a \"regeneration\".",
+      "suggested_fix": "Name the artifact being regenerated and the command that performs it (e.g. \"re-run `repair` once\")."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "SKILL.md",
+      "line": 24,
+      "claim": "The agent is told to \"use the exact progress signal returned by the command\" but the output schema of `status`/`evaluate` (field names, the `blocked` encoding) is documented nowhere in the packet.",
+      "evidence": "SKILL.md line 24-25: \"Treat `blocked` as a real lifecycle blocker and use the exact progress signal returned by the command.\" references/receipt-contract.md is scoped to receipts, not command output, and no example output is shown.",
+      "suggested_fix": "Add a short example of `status`/`evaluate` output, or point to the contract section that defines the progress-signal fields."
+    }
+  ],
+  "sycophancy_screen": {
+    "reject_cap": 1,
+    "cap_overridden": true,
+    "cap_default": 2
+  }
+}

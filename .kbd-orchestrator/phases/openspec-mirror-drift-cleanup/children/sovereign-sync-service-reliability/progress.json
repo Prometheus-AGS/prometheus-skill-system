@@ -1,57 +1,57 @@
 {
-  "changes": [
-    {
-      "blockers": [],
-      "id": "repair-sovereign-sync-kbd-availability",
-      "implementation_status": "COMPLETE",
-      "last_task_completed": "Clarify that KBD runtime authority is hosted by sovereign-sync and verify live doctor health plus the unreachable-diagnostic wording regression pass.",
-      "next_task_pending": null,
-      "status": "DONE",
-      "tasks_done": 3,
-      "tasks_total": 3,
-      "title": "Keep managed KBD available across degraded startup and restarts"
-    }
-  ],
-  "changes_completed": 1,
-  "changes_total": 1,
-  "children": {},
-  "completion": {
-    "certification": {
-      "blockers": [],
-      "status": "PENDING",
-      "summary": null
-    },
-    "evidence": {
-      "blockers": [],
-      "status": "PENDING",
-      "summary": null
-    },
-    "implementation": {
-      "completed": 1,
-      "status": "COMPLETE",
-      "total": 1
-    },
-    "primaryCounter": "implementation",
-    "publication": {
-      "blockers": [],
-      "status": "PENDING",
-      "summary": null
-    }
+  "schemaVersion": "2",
+  "generatedBy": "kbd-runtime",
+  "sourceRevision": 112,
+  "derivedRevision": 112,
+  "frontier": {
+    "4bca58c3-e70b-48c9-a555-60bc16d3d025": 112
   },
   "conflictCount": 0,
-  "derivedRevision": 25,
-  "frontier": {
-    "4bca58c3-e70b-48c9-a555-60bc16d3d025": 25
-  },
-  "generatedBy": "kbd-runtime",
-  "implementation_completed": 1,
-  "implementation_total": 1,
-  "last_updated": "2026-08-29T12:38:13.693412Z",
-  "last_updated_by": "kbd-runtime",
-  "migrationStatus": null,
-  "parentPhase": "openspec-mirror-drift-cleanup",
   "phase": "sovereign-sync-service-reliability",
   "phaseId": "openspec-mirror-drift-cleanup::sovereign-sync-service-reliability",
-  "schemaVersion": "2",
-  "sourceRevision": 25
+  "parentPhase": "openspec-mirror-drift-cleanup",
+  "last_updated": "2026-08-29T18:03:06.927798Z",
+  "last_updated_by": "kbd-runtime",
+  "changes_total": 1,
+  "changes_completed": 1,
+  "implementation_total": 1,
+  "implementation_completed": 1,
+  "completion": {
+    "primaryCounter": "implementation",
+    "implementation": {
+      "completed": 1,
+      "total": 1,
+      "status": "COMPLETE"
+    },
+    "evidence": {
+      "status": "COMPLETE",
+      "summary": "Local lifecycle, recovery, contention, latency, review, and distribution evidence passed",
+      "blockers": []
+    },
+    "certification": {
+      "status": "COMPLETE",
+      "summary": "Protected local certification gate passed",
+      "blockers": []
+    },
+    "publication": {
+      "status": "PENDING",
+      "summary": null,
+      "blockers": []
+    }
+  },
+  "changes": [
+    {
+      "id": "repair-sovereign-sync-kbd-availability",
+      "title": "Keep managed KBD available across degraded startup and restarts",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 3,
+      "tasks_done": 3,
+      "last_task_completed": "Clarify that KBD runtime authority is hosted by sovereign-sync and verify live doctor health plus the unreachable-diagnostic wording regression pass.",
+      "next_task_pending": null,
+      "blockers": []
+    }
+  ],
+  "children": {},
+  "migrationStatus": null
 }

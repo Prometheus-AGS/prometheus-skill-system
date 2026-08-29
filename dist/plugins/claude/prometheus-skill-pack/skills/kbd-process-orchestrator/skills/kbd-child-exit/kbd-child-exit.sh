@@ -35,6 +35,11 @@ if [[ -f "$KBD_ORCHESTRATOR_ROOT/shared/lib/runtime-authority.sh" ]]; then
   . "$KBD_ORCHESTRATOR_ROOT/shared/lib/runtime-authority.sh"
   kbd_runtime_authoritative "." && runtime_avail=1
 fi
+bottleneck_avail=0
+if [[ -f "$KBD_ORCHESTRATOR_ROOT/shared/lib/bottleneck-guard.sh" ]]; then
+  . "$KBD_ORCHESTRATOR_ROOT/shared/lib/bottleneck-guard.sh"
+  kbd_bottleneck_active && bottleneck_avail=1
+fi
 
 now="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 
@@ -113,7 +118,16 @@ if [[ "$runtime_avail" == "1" ]]; then
   runtime_state="$(kbd_runtime_status_json ".")" || die "runtime status unavailable"
   path_count="$(printf '%s' "$runtime_state" | jq -r '.activePath.phasePath | length')"
   [[ "$path_count" -gt 1 ]] || die "runtime is not inside a child phase"
+  child_runtime_id="$(printf '%s' "$runtime_state" | jq -r '.activePath.phaseId // empty')"
+  [[ -n "$child_runtime_id" ]] || die "runtime omitted active child phase"
   parent_id="$(printf '%s' "$runtime_state" | jq -r '.activePath.phasePath[-2]')"
+  if [[ "$bottleneck_avail" == "1" ]]; then
+    kbd_bottleneck_evaluate phase after "$child_runtime_id" 1 >/dev/null \
+      || die "child phase completion precommit evaluation blocked"
+  fi
+  prometheus kbd --path . phase transition \
+    --command-id "phase-complete:${child_runtime_id}" \
+    --id "$child_runtime_id" --status complete >/dev/null
   ancestor_args=()
   while IFS= read -r ancestor; do
     [[ -n "$ancestor" ]] || continue
@@ -123,6 +137,11 @@ if [[ "$runtime_avail" == "1" ]]; then
     --command-id "phase-exit:${child_name}" \
     --id "$parent_id" "${ancestor_args[@]}" \
     --exact-next-work "/kbd-status" >/dev/null
+  if [[ "$bottleneck_avail" == "1" ]]; then
+    guard_output="$(kbd_bottleneck_evaluate phase after "$child_runtime_id" 0)" \
+      || die "child phase completion postcommit evaluation blocked"
+    kbd_bottleneck_print_signal "$guard_output"
+  fi
   [[ "$hooks_avail" == "1" ]] &&
     kbd_hooks_fire child after "$child_name" "$depth" "$depth" ||
     warn "child:after hook fire failed"

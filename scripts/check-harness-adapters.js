@@ -42,11 +42,14 @@ if (!/^[a-f0-9]{64}$/.test(release.bundleId ?? '')) {
 }
 
 for (const [harness, manifest] of Object.entries(manifests)) {
+  const harnessHooks = contract.events
+    .filter(group => group.harnesses === undefined || group.harnesses.includes(harness))
+    .flatMap(group => group.hooks);
   const emitted = Object.values(manifest.hooks ?? {}).flatMap(groups =>
     groups.flatMap(group => group.hooks ?? [])
   );
-  if (emitted.length !== contractHooks.length) {
-    failures.push(`${harness}: expected ${contractHooks.length} hooks, found ${emitted.length}`);
+  if (emitted.length !== harnessHooks.length) {
+    failures.push(`${harness}: expected ${harnessHooks.length} hooks, found ${emitted.length}`);
   }
   for (const hook of emitted) {
     const command = hook.command ?? '';
@@ -77,9 +80,13 @@ for (const hook of contractHooks) {
     failures.push(`dispatcher omits contract hook: ${hook.id}`);
   }
   for (const [harness, manifest] of Object.entries(manifests)) {
+    const group = contract.events.find(candidate => candidate.hooks.some(entry => entry.id === hook.id));
+    const expected = group.harnesses === undefined || group.harnesses.includes(harness);
     const serialized = JSON.stringify(manifest);
-    if (!serialized.includes(`'${hook.id}' '${harness}'`)) {
+    if (expected && !serialized.includes(`'${hook.id}' '${harness}'`)) {
       failures.push(`${harness}: manifest omits contract hook: ${hook.id}`);
+    } else if (!expected && serialized.includes(`'${hook.id}' '${harness}'`)) {
+      failures.push(`${harness}: manifest emitted filtered hook: ${hook.id}`);
     }
   }
 }
@@ -106,5 +113,12 @@ if (failures.length) {
 }
 
 console.log(
-  `Harness runtime parity: ${contractHooks.length} hooks × 2 manifests → bundle ${release.bundleId}`
+  `Harness runtime parity: ${Object.entries(manifests)
+    .map(([harness, manifest]) => {
+      const count = Object.values(manifest.hooks ?? {}).flatMap(groups =>
+        groups.flatMap(group => group.hooks ?? [])
+      ).length;
+      return `${harness}=${count}`;
+    })
+    .join(', ')} → bundle ${release.bundleId}`
 );
