@@ -6192,10 +6192,14 @@ name = "prometheus-cli"
 version = "1.7.0"
 dependencies = [
  "anyhow",
+ "bytes 1.11.1",
  "chrono",
  "clap",
  "colored",
  "dirs 5.0.1",
+ "http-body-util",
+ "hyper 1.9.0",
+ "hyper-util",
  "kbd-runtime",
  "octocrab",
  "prometheus-agents",

@@ -11,6 +11,8 @@ use std::fs;
 use std::path::{Path, PathBuf};
 use std::time::Duration;
 
+use super::control_transport::{ControlResponse, ControlTransport, TransportFailure};
+
 pub enum Action {
     Status {
         json: bool,
@@ -750,8 +752,7 @@ fn ensure_runtime(root: &Path, runtime: &Runtime) -> Result<RuntimeState> {
 }
 
 struct ControlClient {
-    http: reqwest::Client,
-    endpoint: String,
+    transport: ControlTransport,
     project_id: String,
     runtime: Runtime,
 }
@@ -768,26 +769,9 @@ impl ControlClient {
             .map(|state| state.project_id)
             .unwrap_or(manifest.project_id);
         Ok(Self {
-            http: reqwest::Client::builder()
-                // 2s was too aggressive: a command that validates and fsyncs
-                // the journal can legitimately take longer, especially right
-                // after a daemon restart,
-                // producing a client-side "operation timed out" even though
-                // the write succeeds server-side moments later.
-                .timeout(Duration::from_secs(30))
-                .build()?,
-            // NOTE: sovereign-sync 1.7.0 serves over a Unix socket by default;
-            // TCP :7892 exists only when it is started with an explicit --tcp,
-            // which the managed LaunchAgent does not pass. So under the managed
-            // configuration this endpoint is normally UNREACHABLE — and that is
-            // now a non-event: `submit_fresh` commits through the local runtime
-            // instead. reqwest cannot speak Unix sockets without an extra
-            // dependency; wiring one up is worthwhile so a running daemon is
-            // actually used, but it is no longer required for correctness.
-            endpoint: std::env::var("PROMETHEUS_CONTROL_ENDPOINT")
-                .unwrap_or_else(|_| "http://127.0.0.1:7892".into())
-                .trim_end_matches('/')
-                .to_string(),
+            // A command that validates and fsyncs the journal can legitimately
+            // take longer than the old two-second timeout after daemon startup.
+            transport: ControlTransport::new(Duration::from_secs(30))?,
             project_id,
             runtime: runtime.clone(),
         })
@@ -795,43 +779,35 @@ impl ControlClient {
 
     async fn status(&self) -> Result<RuntimeState> {
         let response = self
-            .http
-            .get(format!(
-                "{}/api/v1/kbd/projects/{}/status",
-                self.endpoint, self.project_id
-            ))
-            .send()
+            .transport
+            .get(&format!("/api/v1/kbd/projects/{}/status", self.project_id))
             .await?;
-        decode_response(response).await
+        decode_response(response)
     }
 
     async fn events(&self) -> Result<Vec<Event>> {
         let response = self
-            .http
-            .get(format!(
-                "{}/api/v1/kbd/projects/{}/events",
-                self.endpoint, self.project_id
-            ))
-            .send()
+            .transport
+            .get(&format!("/api/v1/kbd/projects/{}/events", self.project_id))
             .await?;
-        decode_response(response).await
+        decode_response(response)
     }
 
     async fn audit_events(&self) -> Result<Vec<Event>> {
         let response = self
-            .http
-            .get(format!(
-                "{}/api/v1/kbd/projects/{}/audit",
-                self.endpoint, self.project_id
-            ))
-            .send()
+            .transport
+            .get(&format!("/api/v1/kbd/projects/{}/audit", self.project_id))
             .await?;
-        let status = response.status();
-        let body = response.text().await?;
-        if !status.is_success() {
-            return Err(anyhow!("control plane returned {status}: {body}"));
+        if !response.status.is_success() {
+            return Err(anyhow!(
+                "control plane returned {}: {}",
+                response.status,
+                response.body
+            ));
         }
-        body.lines()
+        response
+            .body
+            .lines()
             .filter(|line| !line.trim().is_empty())
             .enumerate()
             .map(|(index, line)| {
@@ -864,24 +840,17 @@ impl ControlClient {
             Err(error) => return Err(ControlFailure::Rejected(error.into())),
         };
         let response = self
-            .http
-            .post(format!(
-                "{}/api/v1/kbd/projects/{}/commands",
-                self.endpoint, self.project_id
-            ))
-            .json(&signed)
-            .send()
+            .transport
+            .post_json(
+                &format!("/api/v1/kbd/projects/{}/commands", self.project_id),
+                &signed,
+            )
             .await
-            .map_err(classify_transport_error)?;
-        let status = response.status();
-        let body = response
-            .text()
-            .await
-            .map_err(|error| ControlFailure::Unreachable(error.into()))?;
-        if !status.is_success() {
-            return Err(classify_status(status, &body));
+            .map_err(classify_transport_failure)?;
+        if !response.status.is_success() {
+            return Err(classify_status(response.status, &response.body));
         }
-        serde_json::from_str(&body)
+        serde_json::from_str(&response.body)
             .context("invalid control-plane JSON response")
             .map_err(ControlFailure::Rejected)
     }
@@ -1128,20 +1097,20 @@ async fn state_or_initialize(client: &ControlClient, runtime: &Runtime) -> Resul
 /// than double-applying. But the local runtime cannot see a commit that only
 /// exists in the daemon's journal yet, so we surface the ambiguity instead of
 /// silently reconciling it.
-fn classify_transport_error(error: reqwest::Error) -> ControlFailure {
-    if error.is_connect() {
-        return ControlFailure::Unreachable(error.into());
+fn classify_transport_failure(failure: TransportFailure) -> ControlFailure {
+    match failure {
+        TransportFailure::Unreachable(error) => ControlFailure::Unreachable(error),
+        TransportFailure::Ambiguous(error) => ControlFailure::Ambiguous(error),
     }
-    ControlFailure::Ambiguous(error.into())
 }
 
 /// A 503 from the startup gate means the daemon refused the route before any
 /// command was dispatched — unreachability wearing an HTTP status. Any other
 /// 5xx is ambiguous: the daemon may have committed and then failed to respond.
 /// A 4xx is a decision about this command.
-fn classify_status(status: reqwest::StatusCode, body: &str) -> ControlFailure {
+fn classify_status(status: hyper::StatusCode, body: &str) -> ControlFailure {
     let error = anyhow!("control plane returned {status}: {body}");
-    if status == reqwest::StatusCode::SERVICE_UNAVAILABLE {
+    if status == hyper::StatusCode::SERVICE_UNAVAILABLE {
         ControlFailure::Unreachable(error)
     } else if status.is_server_error() {
         ControlFailure::Ambiguous(error)
@@ -1150,13 +1119,11 @@ fn classify_status(status: reqwest::StatusCode, body: &str) -> ControlFailure {
     }
 }
 
-async fn decode_response<T: serde::de::DeserializeOwned>(response: reqwest::Response) -> Result<T> {
-    let status = response.status();
-    let body = response.text().await?;
-    if !status.is_success() {
-        return Err(classify_status(status, &body).into_error());
+fn decode_response<T: serde::de::DeserializeOwned>(response: ControlResponse) -> Result<T> {
+    if !response.status.is_success() {
+        return Err(classify_status(response.status, &response.body).into_error());
     }
-    serde_json::from_str(&body).context("invalid control-plane JSON response")
+    serde_json::from_str(&response.body).context("invalid control-plane JSON response")
 }
 
 async fn audit(

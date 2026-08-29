@@ -196,6 +196,14 @@ impl KbdProjectRouter {
                     success = opened.is_ok(),
                     "KBD authority startup project open completed"
                 );
+                if let Err(error) = &opened {
+                    tracing::warn!(
+                        startup_phase = "project_open",
+                        project_id,
+                        %error,
+                        "KBD authority startup project is unavailable"
+                    );
+                }
                 Ok::<_, io::Error>((project_id, opened))
             });
         }
@@ -830,6 +838,38 @@ mod tests {
             .await
             .unwrap();
         assert!(authority.replica_view.is_none());
+    }
+
+    #[tokio::test]
+    async fn failed_registered_project_does_not_hide_healthy_authorities() {
+        let fixture = tempdir().unwrap();
+        let data_root = fixture.path().join("data");
+        let healthy_path = fixture.path().join("healthy");
+        let stale_path = fixture.path().join("stale");
+        std::fs::create_dir_all(&healthy_path).unwrap();
+        std::fs::create_dir_all(&stale_path).unwrap();
+        let healthy = Runtime::open_canonical_at(&healthy_path, &data_root).unwrap();
+        let healthy_project_id = healthy.project_manifest(false).unwrap().unwrap().project_id;
+        let stale = Runtime::open_canonical_at(&stale_path, &data_root).unwrap();
+        let stale_project_id = stale.project_manifest(false).unwrap().unwrap().project_id;
+        drop(healthy);
+        drop(stale);
+        std::fs::remove_dir_all(&stale_path).unwrap();
+
+        let router = KbdProjectRouter::open_registered_at(&data_root)
+            .await
+            .unwrap();
+
+        assert_eq!(router.startup_counts(), (2, 1, 1));
+        assert!(router.control(&healthy_project_id).is_ok());
+        assert!(router.control(&stale_project_id).is_err());
+        let routes = router.routes().unwrap();
+        assert!(routes
+            .iter()
+            .any(|route| route.project_id == healthy_project_id && route.ready));
+        assert!(routes.iter().any(|route| {
+            route.project_id == stale_project_id && !route.ready && route.error.is_some()
+        }));
     }
 
     #[tokio::test]

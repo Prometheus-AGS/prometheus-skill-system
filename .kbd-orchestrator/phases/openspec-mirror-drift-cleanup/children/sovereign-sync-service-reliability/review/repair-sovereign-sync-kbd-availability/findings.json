@@ -1,0 +1,71 @@
+{
+  "mode": "diff",
+  "verdict": "BLOCK",
+  "judge_model": "k3",
+  "producer_model": "gpt-5",
+  "isolation_mode": "rest-gateway:http://localhost:4000/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": "tools/prometheus-cli/crates/prometheus-cli/src/commands/mod.rs",
+      "line": 3,
+      "claim": "The diff declares `mod control_transport;` and imports `ControlTransport`/`ControlResponse`/`TransportFailure` from it in doctor.rs and kbd.rs, but no `control_transport.rs` file appears anywhere in the packet \u2014 if this packet is the complete change, the crate does not compile.",
+      "evidence": "mod.rs hunk adds `mod control_transport;`; doctor.rs adds `use super::control_transport::ControlTransport;`; kbd.rs adds `use super::control_transport::{ControlResponse, ControlTransport, TransportFailure};` \u2014 yet the diff contains no `diff --git` entry creating `tools/prometheus-cli/crates/prometheus-cli/src/commands/control_transport.rs`. Criterion 1.1 ('Add managed Unix-socket HTTP transport') is checked but its artifact is absent from the change.",
+      "suggested_fix": "Include `control_transport.rs` (with the Unix-socket default transport, PROMETHEUS_CONTROL_ENDPOINT override, and GET/POST tests) in the change, or verify it is already committed and rebase the packet so the change is self-contained."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": ".kbd-orchestrator/position.json",
+      "line": 1,
+      "claim": "The position.json rewrite silently drops the entire tracked phase tree \u2014 ~40 phases including PENDING ones (cowork-integration, goal-loop-support, phase-codex-plugin-implementation, phase-bdd-video-proof, machine-installation-2026-05-25, etc.) \u2014 collapsing root progress from done 142/total 194 to done 0/total 1, and nothing in the acceptance criteria or 'What Changes' authorizes deleting that orchestration state.",
+      "evidence": "position.json hunk removes 2300+ lines of phase/change nodes and leaves only `openspec-mirror-drift-cleanup` with one child; root.progress changes from {\"done\": 142, \"total\": 194} to {\"done\": 0, \"total\": 1}. The new position-reminder.txt states the counter is 'a PROJECT-WIDE roll-up across every phase in canonical state' and reports '0 of 1 (implementation, ALL phases)', confirming the other phases are gone from canonical state, not merely hidden. The change scope lists only transport, signer, partial-authority, and child/stage-gate seam repairs.",
+      "suggested_fix": "Restore the full phase tree in the canonical journal/projection, or if this pruning is an intentional migration, document it in the change and verify every consumer of position.json tolerates the missing phases."
+    },
+    {
+      "severity": "WARNING",
+      "file": ".kbd-orchestrator/current-waypoint.json",
+      "line": 1,
+      "claim": "current-waypoint.json removes eight previously-present keys (`stage`, `nextCommand`, `certificationStatus`, `publicationStatus`, `previousPhase`, `nextPendingChange`, `parentPhase`, `childPhases`, `changesCompleted/changesTotal`) while keeping schemaVersion \"5\", so any hook or script reading those fields now gets absent values with no schema signal.",
+      "evidence": "The waypoint hunk deletes `\"stage\": \"execute_complete\"`, `\"nextCommand\": \"/kbd-new-phase kbd-control-plane-recovery\"`, `\"certificationStatus\": \"PASS\"`, `\"publicationStatus\": \"COMPLETE\"`, `\"previousPhase\"`, `\"childPhases\": []`, etc., yet emits `\"schemaVersion\": \"5\"` unchanged. The repo contains waypoint consumers (e.g. scripts/check-waypoint-staleness.sh, scripts/validate-kbd-state.js) whose field expectations cannot be confirmed from this packet.",
+      "suggested_fix": "Either bump schemaVersion and migrate consumers, or verify every reader of the removed fields tolerates their absence; also note criterion 5.1 requires restoring exact next command `/kbd-new-phase kbd-control-plane-recovery`, which the current `exactNextCommand` (`/kbd-assess ...`) does not yet reflect."
+    },
+    {
+      "severity": "WARNING",
+      "file": "skills/process/kbd-process-orchestrator/skills/kbd-new-child/kbd-new-child.sh",
+      "line": 129,
+      "claim": "`child_label=\"$(kbd_node_chain ...)\"` was moved above the point where `runtime_lib` (`shared/lib/runtime-authority.sh`) is located and sourced, so if `kbd_node_chain` is defined in that library the script now dies with command-not-found under `set -e` before ever reaching activation.",
+      "evidence": "The hunk inserts the `kbd_node_chain` call immediately after the scope.json write (line ~129) and before `runtime_lib=\"$KBD_ORCHESTRATOR_ROOT/shared/lib/runtime-authority.sh\"`; the previous call site at line ~230 was safely after that block. The diff does not include the definition of `kbd_node_chain`, so availability at the new call site is unverifiable \u2014 and criterion 3.1 only claims syntax check plus child creation passed, which would not exercise a runtime-authority-sourced helper if that path wasn't taken.",
+      "suggested_fix": "Confirm `kbd_node_chain` is defined in the script header or an earlier-sourced library; if it lives in runtime-authority.sh, move the helper into the script or source the lib before computing the label, and add a test that exercises the runtime-authority branch of child creation."
+    },
+    {
+      "severity": "WARNING",
+      "file": "substrate/kbd-runtime/src/lib.rs",
+      "line": 3083,
+      "claim": "If `~/.config/sovereign-sync/device-key.json` exists but is corrupt or unreadable, `load_device_key` returns an error that now propagates with no fallback to the platform credential store, regressing every managed-canonical runtime that previously signed successfully.",
+      "evidence": "In the device signer selection: `if let Some(path) = managed_device_key_path().filter(|path| path.is_file()) { return load_device_key(&path); }` \u2014 the `return` short-circuits before `KeyStorage::PlatformCredentialStore => self.platform_device_signer()`. A stale or malformed file (e.g. partial write, old enrollment) hard-fails signing instead of falling back to the identity that worked before this change.",
+      "suggested_fix": "On `load_device_key` failure for the discovered managed path, log the error and fall through to `platform_device_signer()`, or validate the key against the enrolled daemon identity before committing to it."
+    },
+    {
+      "severity": "WARNING",
+      "file": "substrate/sovereign-sync/src/rest_api.rs",
+      "line": 355,
+      "claim": "Replacing the startup `bail!` on failed project opens with a `warn!` removes the only retry mechanism: a transient open failure (e.g. volume not yet mounted at boot) now leaves that project's routes permanently unavailable until a manual daemon restart, whereas launchd previously restarted the service and retried.",
+      "evidence": "rest_api.rs hunk replaces `anyhow::bail!(\"{failed} registered local authorit{} failed to open\", ...)` with a `warn!(... \"healthy project routes remain available\")` and proceeds to `Ok::<_, anyhow::Error>(kbd_projects)`; no re-open or reconciliation loop for failed registrations is added anywhere in the diff. Criterion 5.1 explicitly retains 'stale-registry' as a residual risk.",
+      "suggested_fix": "Add a periodic or on-demand re-open attempt for failed registrations (e.g. retry on first route access or a background reconciler), or document the restart-to-recover requirement in the operator-facing log message."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "substrate/kbd-runtime/src/lib.rs",
+      "line": 7486,
+      "claim": "The new discovery test covers only PlatformCredentialStore with custom vs managed roots; it never asserts that a LegacyRuntimeFile runtime under the managed root is excluded, and it silently skips its positive assertion when `dirs_next::data_local_dir()` returns None.",
+      "evidence": "`managed_device_key_discovery_is_limited_to_the_default_canonical_data_root` builds both fixtures with `key_storage: KeyStorage::PlatformCredentialStore` and wraps the managed-root assertion in `if let Some(data_root) = dirs_next::data_local_dir()`, so in an environment without a data dir the test passes having asserted only the negative case.",
+      "suggested_fix": "Add a LegacyRuntimeFile + managed-root case, and fail loudly (or construct a synthetic root) when `data_local_dir()` is None instead of skipping."
+    }
+  ],
+  "sycophancy_screen": {
+    "reject_cap": 2,
+    "cap_overridden": false,
+    "cap_default": 2
+  }
+}

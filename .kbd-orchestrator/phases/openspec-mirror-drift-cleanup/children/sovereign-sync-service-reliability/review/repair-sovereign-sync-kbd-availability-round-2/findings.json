@@ -1,0 +1,55 @@
+{
+  "mode": "diff",
+  "verdict": "PASS",
+  "judge_model": "k3",
+  "producer_model": "gpt-5",
+  "isolation_mode": "rest-gateway:http://localhost:4000/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "WARNING",
+      "file": "tools/prometheus-cli/crates/prometheus-cli/Cargo.toml",
+      "line": 28,
+      "claim": "The member crate declares bytes, http-body-util, hyper, and hyper-util via `.workspace = true`, but no diff hunk adds these crates to any `[workspace.dependencies]` section \u2014 the root `tools/prometheus-cli/Cargo.toml` hunk adds them only as plain `[dependencies]`, which does not create workspace-inheritable dependencies.",
+      "evidence": "Hunk `tools/prometheus-cli/crates/prometheus-cli/Cargo.toml` adds `bytes.workspace = true`, `http-body-util.workspace = true`, `hyper.workspace = true`, `hyper-util.workspace = true`; the only other manifest hunk (`tools/prometheus-cli/Cargo.toml`) adds `bytes = \"1\"`, `http-body-util = \"0.1\"`, `hyper = { version = \"1\", ... }`, `hyper-util = { version = \"0.1\", ... }` under the root package's own `[dependencies]`. Cargo errors with 'dependency was not found in workspace dependencies' unless `[workspace.dependencies]` already listed all four crates before this change.",
+      "suggested_fix": "Add `bytes`, `http-body-util`, `hyper`, and `hyper-util` to the workspace root's `[workspace.dependencies]` (and reference them from the root package via `.workspace = true`), then regenerate the lockfile."
+    },
+    {
+      "severity": "WARNING",
+      "file": "substrate/kbd-runtime/src/lib.rs",
+      "line": 3084,
+      "claim": "The new managed device-key discovery path loads signing-identity material from `~/.config/sovereign-sync/device-key.json` with only an `is_file()` check, bypassing the broad-permission/symlink hardening that the explicit-path flow is tested to enforce.",
+      "evidence": "The visible `load_device_key` body (line 289) is just `signer_from_stored(serde_json::from_reader(File::open(path)?)?)` with no permission or symlink validation, and the new branch is `managed_device_key_path().filter(|path| path.is_file())` followed directly by `load_device_key(&path)`; meanwhile the existing test `explicit_headless_device_key_rejects_broad_permissions_and_symlinks` proves the codebase treats unhardened key-file loading as unacceptable for the explicit path.",
+      "suggested_fix": "Apply the same validation used for the explicit key path (reject symlinks, require owner-only 0o600 permissions) in the managed discovery branch before calling `load_device_key`."
+    },
+    {
+      "severity": "WARNING",
+      "file": "dist/plugins/codex/prometheus-skill-pack/skills/kbd-new-child/kbd-new-child.sh",
+      "line": 129,
+      "claim": "The standalone `skills/kbd-new-child` distribution copies (both claude and codex) are edited, but the diff contains no corresponding standalone source edit under `skills/` \u2014 only the nested `skills/process/kbd-process-orchestrator/skills/kbd-new-child/kbd-new-child.sh` source is changed \u2014 so either a standalone source now drifts from its generated output or the dist copies were hand-edited and the next generator run will silently revert them.",
+      "evidence": "Diff edits four dist copies of kbd-new-child.sh (`dist/plugins/{claude,codex}/prometheus-skill-pack/skills/kbd-new-child/...` and `.../skills/kbd-process-orchestrator/skills/kbd-new-child/...`) but exactly one source file (`skills/process/kbd-process-orchestrator/skills/kbd-new-child/kbd-new-child.sh`); constraint C-01/C-04 requires generated artifacts to stay in sync with their sources and regeneration to be idempotent.",
+      "suggested_fix": "Identify the source the standalone `skills/kbd-new-child` dist copy is generated from; edit that source (or confirm the generator flattens the nested copy into both locations) and regenerate so source-to-output mapping is verifiably in sync."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "tools/prometheus-cli/crates/prometheus-cli/src/commands/control_transport.rs",
+      "line": 76,
+      "claim": "`post_json` maps a local request-serialization failure to `TransportFailure::Unreachable`, misclassifying a client-side bug as a daemon reachability signal.",
+      "evidence": "`serde_json::to_vec(value).context(\"serialize control-plane request\").map(Bytes::from).map_err(TransportFailure::Unreachable)?` \u2014 `classify_transport_failure` then converts `Unreachable` into `ControlFailure::Unreachable`, which the callers treat as 'daemon down' and trigger local-commit fallback behavior.",
+      "suggested_fix": "Return a plain `anyhow::Error` (or a separate `ControlFailure::Rejected`) for serialization failures instead of routing them through the transport-failure classification."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "substrate/kbd-runtime/src/lib.rs",
+      "line": 7486,
+      "claim": "Criterion 1.3 ('verify managed and custom-root signer tests pass') is only partially evidenced: the added test exercises the `uses_managed_canonical_data_root` predicate but never verifies that a managed-root runtime actually loads the shared managed key in preference to the platform credential store, nor that a corrupt managed key fails loudly instead of falling back to a divergent identity.",
+      "evidence": "Test `managed_device_key_discovery_is_limited_to_the_default_canonical_data_root` only asserts `uses_managed_canonical_data_root()` true/false for two constructed `Runtime` values; no test covers the `device_signer` branch `managed_device_key_path().filter(...).map(load_device_key)` added at lines ~3081\u20133090.",
+      "suggested_fix": "Add a test that stages a key file at the managed path (behind a home-dir override) and asserts `device_signer` returns that signer for a managed root and ignores it for a custom root."
+    }
+  ],
+  "sycophancy_screen": {
+    "reject_cap": 2,
+    "cap_overridden": false,
+    "cap_default": 2
+  }
+}

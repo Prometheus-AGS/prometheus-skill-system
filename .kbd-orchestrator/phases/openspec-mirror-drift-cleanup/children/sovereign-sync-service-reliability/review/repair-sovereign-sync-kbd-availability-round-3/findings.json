@@ -1,0 +1,41 @@
+{
+  "mode": "diff",
+  "verdict": "BLOCK",
+  "judge_model": "k3",
+  "producer_model": "gpt-5",
+  "isolation_mode": "rest-gateway:http://localhost:4000/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": "openspec/changes",
+      "claim": "Acceptance criterion 5.1 (validate and archive the OpenSpec change, then write the execute handoff retaining stale-registry and historical-projection risks with next command `/kbd-new-phase kbd-control-plane-recovery`) is not satisfied: the criterion is still marked `[ ]` and the diff contains no openspec archive or handoff artifacts.",
+      "evidence": "acceptance_criteria section 5: `- [ ] 5.1 Validate and archive the OpenSpec change, then write an execute handoff...` \u2014 the only unchecked criterion, and no diff hunk touches `openspec/` or any handoff file.",
+      "suggested_fix": "Complete the archival + handoff step (or split it into an explicit follow-up change) before this change is treated as done; per the constraints, archiving requires the QA gate to pass."
+    },
+    {
+      "severity": "WARNING",
+      "file": "tools/prometheus-cli/crates/prometheus-cli/src/commands/control_transport.rs",
+      "line": 158,
+      "claim": "An explicitly configured `SOVEREIGN_SYNC_SOCKET` is silently ignored whenever the socket file does not exist at that instant (e.g. during a supervised launchd restart), downgrading the transport to TCP `http://127.0.0.1:7892`, which the managed daemon does not serve \u2014 the opposite of what the operator configured.",
+      "evidence": "`default_target()`: `let socket = std::env::var_os(\"SOVEREIGN_SYNC_SOCKET\")...; if let Some(socket) = socket.filter(|path| is_socket(path)) { return Target::Unix(socket); }` then unconditionally `Target::Http(\"http://127.0.0.1:7892\".into())`. The removed comment in kbd.rs confirms the managed daemon does not listen on TCP: \"TCP :7892 exists only when it is started with an explicit --tcp, which the managed LaunchAgent does not pass.\"",
+      "suggested_fix": "When `SOVEREIGN_SYNC_SOCKET` is set, always select `Target::Unix` and let the connect failure surface as `TransportFailure::Unreachable` (which already triggers the local-commit fallback in `submit_fresh`); only apply the `is_socket` existence filter to the discovered default path."
+    },
+    {
+      "severity": "WARNING",
+      "file": "substrate/kbd-runtime/src/lib.rs",
+      "line": 3087,
+      "claim": "If the managed key file `~/.config/sovereign-sync/device-key.json` exists but is corrupt or unreadable, `device_signer()` now hard-fails instead of falling back to the platform credential store, introducing a new total-signing-outage mode in a change whose stated purpose is KBD availability.",
+      "evidence": "New hunk: `if let Some(path) = managed_device_key_path().filter(|path| path.is_file()) { return load_device_key(&path); }` \u2014 the `?` inside `load_device_key` (`serde_json::from_reader(File::open(path)?)?`) propagates any IO/parse error, and the `match self.key_storage { ... PlatformCredentialStore => self.platform_device_signer() }` fallback below is never reached on error.",
+      "suggested_fix": "On `load_device_key` failure for the discovered managed path, log a warning and fall through to `self.platform_device_signer()` (or at least make the error message explicitly name the managed path and the recovery action of deleting/fixing it)."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "tools/prometheus-cli/crates/prometheus-cli/src/commands/control_transport.rs",
+      "line": 218,
+      "claim": "The Unix-socket response body is collected with no size bound (`response.into_body().collect().await`), so a malfunctioning local daemon can make the CLI buffer unbounded memory within the 30s timeout window.",
+      "evidence": "`request_unix`: `.collect().await.map_err(...)?.to_bytes()` with no `content-length` sanity check or cap, unlike any size-limited decode elsewhere in the client.",
+      "suggested_fix": "Cap the collected body (e.g. check `content-length` header and/or abort collection past a few MB) before `to_bytes()`."
+    }
+  ]
+}

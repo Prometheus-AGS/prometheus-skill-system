@@ -1,0 +1,11 @@
+{
+  "stage": "reflect",
+  "completedAt": "2026-08-29T12:38:13Z",
+  "outputs": [
+    "reflection.md"
+  ],
+  "nextStage": null,
+  "summaryForNext": "The shutdown claim was not reproduced, but transport, authority loading, signer identity, and embedded-runtime diagnostics were repaired and locally certified. Parent should resume control-plane recovery for stale registry cleanup, historical projection reconciliation, and startup replay observability.",
+  "skipped": false,
+  "skipReason": null
+}

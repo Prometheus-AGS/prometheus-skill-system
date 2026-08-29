@@ -12,6 +12,8 @@ use std::path::PathBuf;
 use std::process::{Command, Stdio};
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
+use super::control_transport::ControlTransport;
+
 #[derive(Debug, Clone, Default)]
 pub struct DoctorOptions {
     pub json: bool,
@@ -1205,7 +1207,7 @@ async fn check_kbd_control_plane() -> CheckResult {
         return CheckResult {
             id: "control.kbd-runtime".into(),
             group: "control".into(),
-            label: "KBD journal control plane".into(),
+            label: "KBD runtime authority (hosted by sovereign-sync)".into(),
             severity: Severity::Yellow,
             status: CheckStatus::Skip,
             summary: "project identity is not initialized".into(),
@@ -1227,25 +1229,31 @@ async fn check_kbd_control_plane() -> CheckResult {
                 .flatten()
                 .map(|manifest| manifest.project_id)
         });
+    enum ProbeFailure {
+        Transport(anyhow::Error),
+        Response(String, String),
+        Invalid(anyhow::Error),
+    }
+
     let result = async {
-        let project_id = project_id.ok_or_else(|| anyhow::anyhow!("missing project id"))?;
-        let endpoint = std::env::var("PROMETHEUS_CONTROL_ENDPOINT")
-            .unwrap_or_else(|_| "http://127.0.0.1:7892".into());
-        let response = reqwest::Client::builder()
-            .timeout(std::time::Duration::from_secs(2))
-            .build()?
-            .get(format!(
-                "{}/api/v1/kbd/projects/{project_id}/diagnostics",
-                endpoint.trim_end_matches('/')
-            ))
-            .send()
-            .await?;
-        let status = response.status();
-        let body = response.text().await?;
-        if !status.is_success() {
-            anyhow::bail!("{status}: {body}");
+        let project_id = project_id
+            .ok_or_else(|| anyhow::anyhow!("missing project id"))
+            .map_err(ProbeFailure::Transport)?;
+        let transport =
+            ControlTransport::new(Duration::from_secs(2)).map_err(ProbeFailure::Transport)?;
+        let response = transport
+            .get(&format!("/api/v1/kbd/projects/{project_id}/diagnostics"))
+            .await
+            .map_err(ProbeFailure::Transport)?;
+        if !response.status.is_success() {
+            return Err(ProbeFailure::Response(
+                response.status.to_string(),
+                response.body,
+            ));
         }
-        Ok::<serde_json::Value, anyhow::Error>(serde_json::from_str(&body)?)
+        serde_json::from_str::<serde_json::Value>(&response.body)
+            .map_err(anyhow::Error::from)
+            .map_err(ProbeFailure::Invalid)
     }
     .await;
 
@@ -1271,7 +1279,7 @@ async fn check_kbd_control_plane() -> CheckResult {
             CheckResult {
                 id: "control.kbd-runtime".into(),
                 group: "control".into(),
-                label: "KBD journal control plane".into(),
+                label: "KBD runtime authority (hosted by sovereign-sync)".into(),
                 severity: if healthy {
                     Severity::Green
                 } else {
@@ -1336,20 +1344,64 @@ async fn check_kbd_control_plane() -> CheckResult {
                 actions: vec![],
             }
         }
-        Err(error) => CheckResult {
-            id: "control.kbd-runtime".into(),
-            group: "control".into(),
-            label: "KBD journal control plane".into(),
-            severity: Severity::Yellow,
-            status: CheckStatus::Warn,
-            summary: "KBD daemon diagnostics are unreachable".into(),
-            details: vec![
-                error.to_string(),
-                "No direct compatibility-file fallback was used.".into(),
-            ],
-            optional: false,
-            actions: vec![],
-        },
+        Err(ProbeFailure::Transport(error)) => kbd_control_unreachable(error),
+        Err(ProbeFailure::Response(status, body)) => kbd_control_response_failure(&status, &body),
+        Err(ProbeFailure::Invalid(error)) => kbd_control_invalid_response(error),
+    }
+}
+
+fn kbd_control_unreachable(error: anyhow::Error) -> CheckResult {
+    CheckResult {
+        id: "control.kbd-runtime".into(),
+        group: "control".into(),
+        label: "KBD runtime authority (hosted by sovereign-sync)".into(),
+        severity: Severity::Yellow,
+        status: CheckStatus::Warn,
+        summary: "KBD authority diagnostics are temporarily unreachable through sovereign-sync"
+            .into(),
+        details: vec![
+            error.to_string(),
+            "`kbd-runtime` is an embedded library, not a standalone service.".into(),
+            "Check the supervised `ai.prometheus.sovereign-sync` service and its private Unix socket."
+                .into(),
+            "No direct compatibility-file fallback was used.".into(),
+        ],
+        optional: false,
+        actions: vec![],
+    }
+}
+
+fn kbd_control_response_failure(status: &str, body: &str) -> CheckResult {
+    CheckResult {
+        id: "control.kbd-runtime".into(),
+        group: "control".into(),
+        label: "KBD runtime authority (hosted by sovereign-sync)".into(),
+        severity: Severity::Yellow,
+        status: CheckStatus::Warn,
+        summary: format!(
+            "sovereign-sync is reachable but KBD authority diagnostics returned {status}"
+        ),
+        details: vec![
+            body.into(),
+            "`kbd-runtime` is an embedded library, not a standalone service.".into(),
+            "No direct compatibility-file fallback was used.".into(),
+        ],
+        optional: false,
+        actions: vec![],
+    }
+}
+
+fn kbd_control_invalid_response(error: anyhow::Error) -> CheckResult {
+    CheckResult {
+        id: "control.kbd-runtime".into(),
+        group: "control".into(),
+        label: "KBD runtime authority (hosted by sovereign-sync)".into(),
+        severity: Severity::Yellow,
+        status: CheckStatus::Warn,
+        summary: "sovereign-sync returned an invalid KBD authority diagnostics response".into(),
+        details: vec![error.to_string()],
+        optional: false,
+        actions: vec![],
     }
 }
 
@@ -2604,5 +2656,31 @@ fn check_managed_hooks() -> CheckResult {
                     .into(),
             ),
         }],
+    }
+}
+
+#[cfg(test)]
+mod kbd_control_tests {
+    use super::{kbd_control_response_failure, kbd_control_unreachable};
+
+    #[test]
+    fn unreachable_diagnostics_name_sovereign_sync_as_the_runtime_host() {
+        let result = kbd_control_unreachable(anyhow::anyhow!("socket unavailable"));
+
+        assert!(result.label.contains("hosted by sovereign-sync"));
+        assert!(result.summary.contains("through sovereign-sync"));
+        assert!(result
+            .details
+            .iter()
+            .any(|detail| detail.contains("not a standalone service")));
+    }
+
+    #[test]
+    fn reachable_http_failure_is_not_reported_as_transport_unreachable() {
+        let result = kbd_control_response_failure("503 Service Unavailable", "initializing");
+
+        assert!(result.summary.contains("sovereign-sync is reachable"));
+        assert!(result.summary.contains("503 Service Unavailable"));
+        assert!(!result.summary.contains("temporarily unreachable"));
     }
 }

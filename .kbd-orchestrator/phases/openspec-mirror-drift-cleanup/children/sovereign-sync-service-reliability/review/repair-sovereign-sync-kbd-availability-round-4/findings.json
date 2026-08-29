@@ -1,0 +1,39 @@
+{
+  "mode": "diff",
+  "verdict": "PASS",
+  "judge_model": "k3",
+  "producer_model": "gpt-5",
+  "isolation_mode": "rest-gateway:http://localhost:4000/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "WARNING",
+      "file": "substrate/sovereign-sync/src/rest_api.rs",
+      "line": 354,
+      "claim": "Replacing the startup `bail!` with a `warn!` changes the client-visible failure mode for projects that failed to open: previously the daemon never served those routes so clients saw connection-refused/503 (classified `Unreachable`, triggering the documented local-commit fallback in `submit_fresh`); now the gate opens and the per-project route response for a `ready=false` project decides the outcome, and that handler is not in this change.",
+      "evidence": "rest_api.rs hunk replaces `anyhow::bail!(\"{failed} registered local authorit\u2026 failed to open\")` with `warn!(\u2026)` and returns `Ok(kbd_projects)`; kbd.rs `classify_status` maps only 503 to `ControlFailure::Unreachable` (fallback-eligible) while any 4xx becomes `Rejected` and non-503 5xx becomes `Ambiguous` \u2014 both of which block the local-commit fallback. The kbd_control.rs test only asserts `route.ready == false && route.error.is_some()`; nothing in the diff shows the command endpoint returning 503 for a non-ready route.",
+      "suggested_fix": "Ensure the per-project command/status endpoints return 503 (not 404/500) for routes where `ready == false`, so `classify_status` keeps the failed project in the `Unreachable` fallback class exactly as before; add a test asserting the HTTP status for a non-ready project route."
+    },
+    {
+      "severity": "WARNING",
+      "file": "skills/process/kbd-process-orchestrator/shared/lib/stage-gate.sh",
+      "line": 109,
+      "claim": "The basename fallback for `worked` is defeated under `set -e`: a failing `jq` inside a standalone assignment's command substitution exits the script with jq's status before `[ -n \"$worked\" ] || worked=\u2026` runs, and `2>/dev/null` suppresses the evidence, so a corrupt/unparseable `progress.json` (or missing `jq`) kills the gate silently instead of falling back.",
+      "evidence": "Hunk: `worked=\"$(jq -r '.phaseId // .phase // empty' \"$phase_dir/progress.json\" 2>/dev/null)\"` followed by `[ -n \"$worked\" ] || worked=\"$(basename \"$phase_dir\")\"` \u2014 the fallback line is unreachable when the substitution command exits non-zero under `set -e`, which these launchd-invoked orchestration scripts (C-05 scope) commonly run with.",
+      "suggested_fix": "Make the substitution failure non-fatal: `worked=\"$(jq -r '.phaseId // .phase // empty' \"$phase_dir/progress.json\" 2>/dev/null || true)\"` (apply to the two dist copies as well), so the basename fallback actually executes."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "tools/prometheus-cli/crates/prometheus-cli/src/commands/control_transport.rs",
+      "line": 1,
+      "claim": "Several imports are only used inside `#[cfg(unix)]` code paths but are not themselves cfg-gated, so a non-unix (Windows) build with clippy `-D warnings` (required by acceptance criterion 4.2) fails on unused imports.",
+      "evidence": "`use bytes::Bytes;` is fine, but `use http_body_util::{BodyExt, Full};`, `use hyper::{\u2026, Request, \u2026};`, `use hyper_util::rt::TokioIo;`, and `use std::path::PathBuf;` are only referenced in `request_unix`/`is_socket`/`Target::Unix`, all of which are `#[cfg(unix)]`; only `use tokio::net::UnixStream;` is gated. The repo ships systemd units (`./shared/systemd`) so non-macOS builds are in scope.",
+      "suggested_fix": "Gate the unix-only imports with `#[cfg(unix)]` (or `cfg_attr`) to match the gated code that uses them."
+    }
+  ],
+  "sycophancy_screen": {
+    "reject_cap": 2,
+    "cap_overridden": false,
+    "cap_default": 2
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "mode": "artifact",
+  "verdict": "PASS",
+  "judge_model": "k3",
+  "producer_model": "gpt-5.6-sol",
+  "isolation_mode": "rest-gateway:http://localhost:4000/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "WARNING",
+      "file": "plan.md",
+      "line": 28,
+      "claim": "Goal 'Return control to the parent phase and resume its exact next command' has no corresponding work or command in the plan.",
+      "evidence": "Goals list 'Return control to the parent phase and resume its exact next command' as a phase goal, but the plan's only command is '/opsx:new repair-sovereign-sync-kbd-availability' and no change detail or acceptance criterion identifies the parent's next command, records it, or schedules its resumption. The scope cuts mention returning the projection-migration 'resolution decision to the parent `openspec-mirror-drift-cleanup` phase' but never address resuming the parent's exact next command.",
+      "suggested_fix": "Add an explicit completion step (or acceptance item) that captures the parent phase's exact next command from `.kbd-orchestrator/current-waypoint.json`/position state and schedules its resumption after the change archives."
+    },
+    {
+      "severity": "WARNING",
+      "file": "plan.md",
+      "line": 16,
+      "claim": "The change detail 'repair the child-runtime orchestration seams encountered during recovery' is unbounded and untestable \u2014 it names no files, no seams, and no acceptance criterion covers it.",
+      "evidence": "Details states 'repair the child-runtime orchestration seams encountered during recovery' but the artifact cites zero file paths (`cited_paths: \"(no file paths cited in this artifact)\"`), and the Acceptance line enumerates only tests/clippy/formatting/protected tests/distribution validation/restarts/socket health/signed mutations \u2014 nothing that defines what a repaired 'seam' means or how it is verified.",
+      "suggested_fix": "Enumerate the concrete seams (e.g., specific files under `substrate/kbd-runtime`, `substrate/sovereign-sync`, or orchestration skills) discovered during recovery, each with its own verifiable acceptance criterion."
+    },
+    {
+      "severity": "WARNING",
+      "file": "plan.md",
+      "line": 17,
+      "claim": "Acceptance criteria do not cover constraint C-05 (bash 3.2 compatibility) despite the change exercising launchd restart paths, nor C-03 (docs update) despite scope touching skills and generated distributions.",
+      "evidence": "Constraint C-05: 'Any script that can be invoked by a launchd agent (macOS /bin/bash is 3.2) must avoid mapfile / declare -A. Test with /bin/bash script.sh' \u2014 the plan requires 'two launchd restarts' and repair of 'orchestration seams' but no acceptance item tests touched scripts under /bin/bash. Constraint C-03 requires docs/codex-plugin.md updates when the plugin surface changes; scope includes 'KBD orchestration skills | generated distributions' yet neither Details nor Acceptance mentions docs sync.",
+      "suggested_fix": "Add acceptance items: any launchd-invoked script touched by the change passes under `/bin/bash` (3.2), and \u2014 if skill/distribution sources are edited \u2014 docs/codex-plugin.md (and CLAUDE.md Codex section where relevant) updated per C-03 alongside the C-01 regeneration already covered."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "plan.md",
+      "line": 9,
+      "claim": "Scope is expressed only as subsystem names with no concrete file paths, forcing the execute stage to rediscover locations the assess stage presumably already identified.",
+      "evidence": "Scope line reads 'kbd runtime | sovereign-sync REST/router | prometheus CLI | KBD orchestration skills | generated distributions' and `cited_paths` confirms no file paths are cited anywhere, even though the file tree contains the matching concrete roots (`substrate/kbd-runtime`, `substrate/sovereign-sync`, `tools/prometheus-cli`, `scripts/build-codex-plugin.js`).",
+      "suggested_fix": "Cite the concrete directories/files from the assessment so execute has an unambiguous work surface."
+    }
+  ],
+  "sycophancy_screen": {
+    "reject_cap": 2,
+    "cap_overridden": false,
+    "cap_default": 2
+  }
+}

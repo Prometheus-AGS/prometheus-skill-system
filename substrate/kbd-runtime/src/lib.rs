@@ -289,6 +289,14 @@ fn load_device_key(path: &Path) -> Result<DeviceSigner> {
     signer_from_stored(serde_json::from_reader(File::open(path)?)?)
 }
 
+fn managed_device_key_path() -> Option<PathBuf> {
+    dirs_next::home_dir().map(|home| {
+        home.join(".config")
+            .join("sovereign-sync")
+            .join("device-key.json")
+    })
+}
+
 pub fn ensure_device_key_file(path: &Path) -> Result<DeviceSigner> {
     if path.exists() {
         return load_device_key(path);
@@ -3070,10 +3078,36 @@ impl Runtime {
         if let Some(path) = std::env::var_os("PROMETHEUS_DEVICE_KEY_FILE") {
             return load_device_key(Path::new(&path));
         }
+        // The managed sovereign-sync service and interactive KBD clients must
+        // sign as the same enrolled device. The installer places that shared
+        // same-user key here and injects the explicit environment variable into
+        // launchd; shells do not inherit launchd's environment, so discover the
+        // existing key for canonical runtimes before creating/using a separate
+        // per-project credential-store identity.
+        if self.uses_managed_canonical_data_root() {
+            if let Some(path) = managed_device_key_path().filter(|path| path.is_file()) {
+                return load_device_key(&path).map_err(|error| {
+                    RuntimeError::InvalidState(format!(
+                        "managed sovereign-sync device key {} is unusable: {error}; repair or remove the user-local key and reinstall/restart sovereign-sync",
+                        path.display()
+                    ))
+                });
+            }
+        }
         match self.key_storage {
             KeyStorage::LegacyRuntimeFile => self.legacy_file_device_signer(),
             KeyStorage::PlatformCredentialStore => self.platform_device_signer(),
         }
+    }
+
+    fn uses_managed_canonical_data_root(&self) -> bool {
+        self.key_storage == KeyStorage::PlatformCredentialStore
+            && dirs_next::data_local_dir()
+                .map(|root| {
+                    self.root
+                        .starts_with(root.join("prometheus").join("kbd").join("projects"))
+                })
+                .unwrap_or(false)
     }
 
     fn legacy_file_device_signer(&self) -> Result<DeviceSigner> {
@@ -7451,6 +7485,27 @@ mod tests {
         assert_eq!(created.key_id(), reopened.key_id());
         #[cfg(unix)]
         assert_eq!(fs::metadata(&path).unwrap().permissions().mode() & 0o077, 0);
+    }
+
+    #[test]
+    fn managed_device_key_discovery_is_limited_to_the_default_canonical_data_root() {
+        let fixture = tempdir().unwrap();
+        let custom = Runtime {
+            root: fixture.path().join("projects/project-a"),
+            project_root: fixture.path().join("checkout"),
+            replica_id: "replica-a".into(),
+            key_storage: KeyStorage::PlatformCredentialStore,
+            read_only: false,
+        };
+        assert!(!custom.uses_managed_canonical_data_root());
+
+        if let Some(data_root) = dirs_next::data_local_dir() {
+            let managed = Runtime {
+                root: data_root.join("prometheus/kbd/projects/project-a"),
+                ..custom
+            };
+            assert!(managed.uses_managed_canonical_data_root());
+        }
     }
 
     #[cfg(unix)]

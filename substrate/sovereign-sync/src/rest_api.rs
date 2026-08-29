@@ -351,10 +351,13 @@ impl AppState {
             if let Some(gate) = &authority_startup {
                 gate.set_project_progress(total, opened, failed).await;
             }
+            require_usable_kbd_authority_set(opened, failed)?;
             if failed != 0 {
-                anyhow::bail!(
-                    "{failed} registered local authorit{} failed to open",
-                    if failed == 1 { "y" } else { "ies" }
+                warn!(
+                    failed_projects = failed,
+                    opened_projects = opened,
+                    project_total = total,
+                    "some registered KBD authorities failed to open; healthy project routes remain available"
                 );
             }
             Ok::<_, anyhow::Error>(kbd_projects)
@@ -568,6 +571,32 @@ impl AppState {
             .expect("presence map lock poisoned")
             .get(project_id)
             .cloned()
+    }
+}
+
+fn require_usable_kbd_authority_set(opened: usize, failed: usize) -> anyhow::Result<()> {
+    if opened == 0 && failed != 0 {
+        anyhow::bail!(
+            "all {failed} registered local KBD {} failed to open",
+            if failed == 1 {
+                "authority"
+            } else {
+                "authorities"
+            }
+        );
+    }
+    Ok(())
+}
+
+#[cfg(test)]
+mod authority_startup_tests {
+    use super::require_usable_kbd_authority_set;
+
+    #[test]
+    fn all_failed_authorities_block_startup_but_partial_failure_does_not() {
+        assert!(require_usable_kbd_authority_set(0, 2).is_err());
+        assert!(require_usable_kbd_authority_set(1, 2).is_ok());
+        assert!(require_usable_kbd_authority_set(0, 0).is_ok());
     }
 }
 

@@ -1,0 +1,47 @@
+{
+  "mode": "diff",
+  "verdict": "PASS",
+  "judge_model": "k3",
+  "producer_model": "gpt-5",
+  "isolation_mode": "rest-gateway:http://localhost:4000/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "WARNING",
+      "file": "tools/prometheus-cli/crates/prometheus-cli/src/commands/control_transport.rs",
+      "line": 170,
+      "claim": "The default target probe flips the client to a TCP endpoint the managed daemon never serves whenever the socket file is momentarily absent (e.g. launchd unlink/bind during a supervised restart), and the resulting errors are then misattributed to 127.0.0.1:7892 instead of the missing socket.",
+      "evidence": "In `default_target()` the code explicitly protects only the *explicit* socket case \u2014 'An explicit socket is an operator contract, including while the supervised daemon is between unlink/bind during a restart. Preserve that target...' \u2014 but the default managed path still does `socket.filter(|path| is_socket(path))` and falls through to `Target::Http(\"http://127.0.0.1:7892\")`. The removed comment in kbd.rs confirms 'TCP :7892 exists only when it is started with an explicit --tcp, which the managed LaunchAgent does not pass'. The same unlink/bind race the comment guards against therefore still applies to the default discovery path, producing misleading 'connection refused 7892' diagnostics (or worse, silently talking to any unrelated listener on 7892) exactly during the restart windows this change claims to make safe ('KBD must remain usable across restarts').",
+      "suggested_fix": "For the default managed path, return Target::Unix at the well-known socket path unconditionally (as is done for SOVEREIGN_SYNC_SOCKET) and let the connect failure classify as Unreachable; only use the TCP default when no managed install is detectable at all."
+    },
+    {
+      "severity": "WARNING",
+      "file": "tools/prometheus-cli/crates/prometheus-cli/src/commands/doctor.rs",
+      "line": 1332,
+      "claim": "All error outcomes of the diagnostics probe \u2014 including a reachable daemon that answers with a non-2xx status \u2014 are reported as 'temporarily unreachable through sovereign-sync', misdirecting operators during an incident.",
+      "evidence": "The async block bails with `anyhow::bail!(\"{}: {}\", response.status, response.body)` for non-success responses, and the single `Err(error) => kbd_control_unreachable(error)` arm maps that into a CheckResult whose summary is 'KBD authority diagnostics are temporarily unreachable through sovereign-sync' with details 'Check the supervised ai.prometheus.sovereign-sync service and its private Unix socket.' A daemon that is up but returning 4xx/5xx is thus reported as unreachable, undercutting criterion 1.4's goal of accurate hosting guidance.",
+      "suggested_fix": "Distinguish transport failure from HTTP failure: keep kbd_control_unreachable for connect/timeout errors and emit a separate 'daemon reachable but diagnostics endpoint returned <status>' result for non-success responses."
+    },
+    {
+      "severity": "WARNING",
+      "file": "substrate/kbd-runtime/src/lib.rs",
+      "line": 3086,
+      "claim": "The auto-discovered managed device key is loaded with only an is_file() check, while the same module establishes permission-broadness and symlink rejection as the security posture for device key files \u2014 nothing in the new path shows those checks applying to the managed key.",
+      "evidence": "New code: `managed_device_key_path().filter(|path| path.is_file())` then `load_device_key(&path)`; `is_file()` follows symlinks. In the same file the test `explicit_headless_device_key_rejects_broad_permissions_and_symlinks` demonstrates that broad permissions and symlinks are rejected for the explicit key path. If that validation lives in the explicit-env handling rather than inside `load_device_key`/`signer_from_stored`, the new managed discovery path silently bypasses it and will sign with a key file that would be rejected when passed explicitly.",
+      "suggested_fix": "Route the managed path through the same validation used for explicit key files (or move the permission/symlink checks into load_device_key so both paths share them), and add a regression test mirroring explicit_headless_device_key_rejects_broad_permissions_and_symlinks for the managed discovery path."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "tools/prometheus-cli/crates/prometheus-cli/src/commands/control_transport.rs",
+      "line": 1,
+      "claim": "On non-Unix targets the `anyhow!` macro import is unused, which trips unused_imports under the change's own `clippy -D warnings` requirement.",
+      "evidence": "`use anyhow::{anyhow, Context, Result};` is unconditional, but every `anyhow!(...)` call site is inside `#[cfg(unix)]` code (`request_unix`, `Target::Unix` arm). The other Unix-only imports (Full, Request, TokioIo, PathBuf, UnixStream) are individually cfg-gated; `anyhow` is not. Criterion 4.2 requires clippy with warnings denied.",
+      "suggested_fix": "Gate the macro import (`#[cfg(unix)] use anyhow::anyhow;`) or fully-qualify the macro at call sites."
+    }
+  ],
+  "sycophancy_screen": {
+    "reject_cap": 2,
+    "cap_overridden": false,
+    "cap_default": 2
+  }
+}

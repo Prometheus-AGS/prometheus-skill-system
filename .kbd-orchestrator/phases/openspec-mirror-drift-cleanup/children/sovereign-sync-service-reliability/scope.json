@@ -1,0 +1,17 @@
+{
+  "allowedWritePaths": [
+    ".kbd-orchestrator/phases/openspec-mirror-drift-cleanup/children/sovereign-sync-service-reliability/**",
+    "substrate/kbd-runtime/src/lib.rs",
+    "substrate/sovereign-sync/src/kbd_control.rs",
+    "substrate/sovereign-sync/src/rest_api.rs",
+    "tools/prometheus-cli/Cargo.toml",
+    "tools/prometheus-cli/crates/prometheus-cli/Cargo.toml",
+    "tools/prometheus-cli/crates/prometheus-cli/src/commands/**",
+    "skills/process/kbd-process-orchestrator/skills/kbd-new-child/kbd-new-child.sh",
+    "skills/process/kbd-process-orchestrator/shared/lib/stage-gate.sh",
+    "dist/plugins/**"
+  ],
+  "deniedPaths": [],
+  "inheritsConstraints": true,
+  "__note": "Edit allowedWritePaths to widen the child loop's write surface. .kbd-orchestrator/** and SCRATCHPAD.md are always allowed. Enforced advisorily by check-child-scope.sh."
+}

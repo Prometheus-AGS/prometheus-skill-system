@@ -1,0 +1,42 @@
+{
+  "mode": "diff",
+  "verdict": "PASS",
+  "judge_model": "k3",
+  "producer_model": "gpt-5",
+  "isolation_mode": "rest-gateway:http://localhost:4000/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "WARNING",
+      "file": "substrate/sovereign-sync/src/rest_api.rs",
+      "line": 355,
+      "claim": "Removing the startup bail means the all-registrations-failed case (failed == total, opened == 0) now leaves a healthy-socket daemon serving zero project routes, and nothing in the packet establishes that missing-project lookups return 503 rather than 4xx.",
+      "evidence": "The hunk replaces `anyhow::bail!(\"{failed} registered local authorit... failed to open\")` with a `warn!` and falls through to `Ok(kbd_projects)` unconditionally, including when `opened == 0`. In tools/prometheus-cli/.../kbd.rs, `classify_status` maps any non-503 4xx to `ControlFailure::Rejected` (\"A 4xx is a decision about this command\"), which suppresses the local-commit fallback that the previous connect-refused behavior (`Unreachable`) triggered. Criterion 2.1 only covers partial failure; the total-failure path is a behavior change with no fallback and no test.",
+      "suggested_fix": "Either retain a hard failure when `opened == 0 && failed != 0`, or verify/adjust the route handler so unknown/not-ready projects return 503 (Unreachable \u2192 local commit) instead of 404/4xx (Rejected), and add a regression test for the total-failure case."
+    },
+    {
+      "severity": "WARNING",
+      "file": "substrate/sovereign-sync/src/kbd_control.rs",
+      "line": 843,
+      "claim": "The partial-availability regression test exercises KbdProjectRouter directly, not the HTTP startup gate the CLI actually traverses, so criterion 2.1's \"healthy routes remain writable\" and 4.3's post-restart signed mutations are unproven at the REST layer.",
+      "evidence": "The new test `failed_registered_project_does_not_hide_healthy_authorities` asserts on `router.startup_counts()`, `router.control(...)`, and `router.routes()`, but rest_api.rs still calls `gate.set_project_progress(total, opened, failed)` before the (now removed) bail, and no test or hunk in the packet shows the gate becoming ready while `failed != 0`. If the gate holds routes at 503 under partial failure, healthy routes are unreachable in practice despite the router-level test passing.",
+      "suggested_fix": "Add an HTTP-level test (or extend an existing rest_api test) that starts the app with one healthy and one stale registration and asserts a signed command to the healthy project succeeds and the stale project returns the expected status."
+    },
+    {
+      "severity": "WARNING",
+      "file": "skills/process/kbd-process-orchestrator/shared/lib/stage-gate.sh",
+      "line": 109,
+      "claim": "The stage gate swallows jq failures and silently falls back to basename comparison, so a corrupt progress.json whose real phaseId would mismatch the active phase can pass the canonical-state check.",
+      "evidence": "`worked=\"$(jq -r '.phaseId // .phase // empty' \"$phase_dir/progress.json\" 2>/dev/null || true)\"` followed by `[ -n \"$worked\" ] || worked=\"$(basename \"$phase_dir\")\"`. If progress.json is malformed (or jq is absent), the error is discarded and the gate compares basename against `.activePhaseId`; when the basename happens to match, the gate passes despite unreadable canonical state, and when it doesn't, the operator gets a misleading \"canonical state disagrees\" instead of a corruption diagnostic. Same hunk in all four copies (dist claude/codex \u00d72).",
+      "suggested_fix": "Distinguish 'file missing' from 'jq failed': if progress.json exists but jq exits non-zero, emit a distinct error (e.g. `kbd_stage_gate: %s blocked \u2014 progress.json unreadable`) and fail closed instead of falling back."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "tools/prometheus-cli/crates/prometheus-cli/src/commands/control_transport.rs",
+      "line": 112,
+      "claim": "A Unix-socket timeout during the connect phase is classified Ambiguous, so mutations that provably never reached the daemon forgo the local-commit fallback precisely during supervised restarts, the scenario criterion 4.3 targets.",
+      "evidence": "The Unix arm wraps the entire `request_unix(...)` (connect + handshake + request) in one `tokio::time::timeout`, and elapsed maps to `TransportFailure::Ambiguous` \u2192 `ControlFailure::Ambiguous` in kbd.rs, blocking the `Unreachable` local-commit path. A connect-phase stall (socket file present, accept backlog full mid-restart) cannot have dispatched the command but is treated as possibly-committed.",
+      "suggested_fix": "Apply the timeout in stages (connect vs. send/recv) so connect timeouts classify as Unreachable while post-send timeouts remain Ambiguous."
+    }
+  ]
+}

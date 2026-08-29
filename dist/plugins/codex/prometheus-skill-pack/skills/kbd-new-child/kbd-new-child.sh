@@ -126,6 +126,8 @@ jq -n --arg child "$child_dir" '
 }' > "$child_dir/scope.json.tmp"
 mv -f "$child_dir/scope.json.tmp" "$child_dir/scope.json"
 
+child_label="$(kbd_node_chain "${cur_tokens[@]}" "$name")"
+
 # Runtime-authority mode persists the child relationship and active hierarchy
 # as typed events; progress and waypoint files remain generated projections.
 runtime_lib="$KBD_ORCHESTRATOR_ROOT/shared/lib/runtime-authority.sh"
@@ -227,7 +229,6 @@ fi
 # levels, childPhases lives only on the parent node's progress.json + path[].
 parent_chain="$(printf '%s ' "${cur_tokens[@]}")"; parent_chain="${parent_chain% }"
 new_path="$(jq -cn --argjson base "$(printf '%s' "$parent_chain" | jq -R 'split(" ")')" --arg n "$name" '$base + [$n]')"
-child_label="$(kbd_node_chain "${cur_tokens[@]}" "$name")"
 if [[ "$cur_depth" -eq 1 ]]; then
   jq --argjson path "$new_path" --argjson cp "$new_children" --arg ptr "$name" --arg label "$child_label" --arg now "$now" '
     .path             = $path |

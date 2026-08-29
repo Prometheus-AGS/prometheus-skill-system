@@ -105,7 +105,15 @@ _sg_assert_canonical_phase() { # <stage> <phase_dir>
   active="$(jq -r '.activePhaseId // empty' "$wp" 2>/dev/null)"
   [ -n "$active" ] || return 0          # projection predates activePhaseId
 
-  worked="$(basename "$phase_dir")"
+  worked=""
+  if [ -f "$phase_dir/progress.json" ]; then
+    if ! worked="$(jq -r '.phaseId // .phase // empty' "$phase_dir/progress.json" 2>/dev/null)"; then
+      printf 'kbd_stage_gate: %s blocked — %s/progress.json is unreadable.\n' \
+        "$stage" "$phase_dir" >&2
+      return 2
+    fi
+  fi
+  [ -n "$worked" ] || worked="$(basename "$phase_dir")"
   [ "$worked" = "$active" ] && return 0
 
   printf 'kbd_stage_gate: %s blocked — canonical state disagrees.\n' "$stage" >&2
