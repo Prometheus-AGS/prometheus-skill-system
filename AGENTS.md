@@ -49,6 +49,70 @@ must run on the local development machine.
 - If a legacy test workflow starts automatically, cancel it when authorized and
   continue locally. Its result is not validation evidence.
 
+## Immutable Implementation-First and Integration-Only Policy (HIGHEST PRECEDENCE)
+
+This is the repository's immutable operating theory. It supersedes every
+conflicting workflow, skill, plan, testing convention, and lower section in this
+file. It may be changed only by an explicit repository-owner instruction that
+directly names this policy.
+
+### Complete the implementation before testing
+
+- Deliver the complete, coherent implementation for the active specification or
+  phase before authoring, modifying, or running tests. Do not use red/green,
+  test-first, or per-edit test loops against an intentionally incomplete codebase.
+- Read specifications and existing protected integration scenarios as requirements,
+  then implement the production path in batches. A test failure caused only by a
+  known unimplemented requirement is not useful evidence.
+- During implementation, use static reasoning and code inspection. If compiler
+  feedback is genuinely necessary, wait until the current coherent edit batch is
+  complete and run one narrowly targeted check.
+- After implementation is complete, run the smallest relevant full-integration
+  gate, fix failures in batches, and run the applicable final integration gate once
+  more before commit, push, release, or phase completion.
+
+### Full integration tests are the only accepted test evidence
+
+- Acceptance evidence must exercise a production entry point and the real
+  collaborating components across their actual process, network, filesystem,
+  database, protocol, or UI boundaries. Tests that replace the behavior under
+  specification with mocks or stubs are not full integration tests.
+- Do not add unit tests, module-local `#[cfg(test)]` suites, isolated function or
+  class tests, mock-only tests, or component snapshots as delivery evidence.
+  Existing unit tests may remain for legacy compatibility, but they are not
+  acceptance gates and their results must not be cited as proof of completion.
+- Do not use a broad test command that implicitly runs unit tests when a targeted
+  integration-test command is available. For Rust, prefer
+  `cargo test -p <package> --test <integration-target>` after implementation; do
+  not use bare `cargo test` as the normal gate.
+- Protected BDD scenarios remain immutable executable specifications. They are run
+  only after the implementation covers the specification and again at final local
+  certification when applicable.
+
+### Rust build-speed, lock, and disk discipline
+
+- Do not run `cargo build`, `cargo test`, `cargo clippy`, or a workspace-wide
+  `cargo check` during ordinary implementation. Batch the code first.
+- When intermediate compiler feedback is indispensable, use one package-scoped
+  `cargo check -p <package>` (or an exact `--manifest-path`) without
+  `--workspace` or `--all-targets`. `cargo check` is a compiler diagnostic, not
+  test evidence.
+- Only one Cargo/rustc build process may operate on the development machine at a
+  time. Check for any active local build before starting, reuse or wait for it,
+  and never dispatch competing Rust builds from agents, terminals, worktrees, or
+  other repositories.
+- Reserve full-workspace, all-target, release, Clippy, and full-integration builds
+  for the completed implementation's final local certification or for producing a
+  specifically requested artifact. Combine edits and fix failures in batches to
+  minimize relinks and lock reacquisition.
+- Keep separate default `target/` directories per Cargo workspace/worktree to
+  isolate build locks. Share compiled work across them through `sccache`; do not
+  point concurrent worktrees at one shared Cargo target directory.
+- Repository Cargo profiles must favor fast iteration and small artifacts: no dev
+  or test debug payloads, incremental compilation enabled, high parallel codegen
+  units, and automatic global-cache cleanup. Production/release optimization is
+  deferred to the final build.
+
 ## Agent Tool Freedom and Certification Integrity
 
 - Bash, Python, Edit, Write, and other mutation tools remain unrestricted.

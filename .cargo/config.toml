@@ -14,6 +14,16 @@
 # since the same serde/tokio/clap builds are otherwise repeated per workspace.
 rustc-wrapper = "sccache"
 
+# Keep final artifacts in Cargo's default workspace-local target directory, but
+# move bulky intermediate artifacts under CARGO_HOME. The manifest-path hash
+# isolates every workspace/worktree, preventing them from contending for one
+# artifact-directory lock. sccache still provides cross-workspace reuse.
+build-dir = "{cargo-cache-home}/build-cache/{workspace-path-hash}"
+
+# Do not cap build.jobs here. The repository policy permits only one Cargo build
+# process at a time, so that one process should be free to use the machine. A jobs
+# cap reduces its throughput without preventing inter-process target-dir locks.
+
 # Linker: deliberately NOT overridden.
 #
 # The review recommends mold/zld (neither is installed here) or a fast linker
@@ -30,15 +40,37 @@ rustc-wrapper = "sccache"
 # measurement showing otherwise.
 
 [profile.dev]
-# Full debug info is the single largest contributor to dev-profile link time and
-# target/ size. Level 1 keeps line numbers -- enough for a backtrace -- without
-# emitting full DWARF for every dependency.
-debug = 1
-# Unpacked debug info avoids the dsymutil step on macOS.
-split-debuginfo = "unpacked"
+# Debug payloads materially increase target/ size and link work. Development in
+# this repository uses integration evidence after implementation, not interactive
+# debugging artifacts; enable debuginfo temporarily per command when required.
+debug = 0
+split-debuginfo = "off"
+
+# Cargo's dev default is incremental with 256 codegen units. Keep those choices
+# explicit: incremental state costs disk but materially shortens the batched
+# rebuilds that dominate development, while high codegen parallelism favors
+# compile speed over runtime optimization.
+incremental = true
+codegen-units = 256
 
 [profile.dev.package."*"]
 # Dependencies change rarely and are not what we debug. Optimizing them while
 # leaving our own crates at opt-level 0 makes tests materially faster without
 # slowing down the edit-compile loop for first-party code.
 opt-level = 2
+
+[profile.test]
+# Full integration tests run only after implementation. Reuse the fast dev shape
+# and omit debug payloads from the typically much larger test artifacts.
+debug = 0
+split-debuginfo = "off"
+incremental = true
+codegen-units = 256
+
+[profile.test.package."*"]
+opt-level = 2
+
+[cache]
+# Cargo's stable automatic GC covers the global registry/git cache (not target/
+# build artifacts). Make the documented daily cleanup cadence explicit.
+auto-clean-frequency = "1 day"
