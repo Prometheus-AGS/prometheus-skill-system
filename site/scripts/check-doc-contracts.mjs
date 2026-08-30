@@ -30,8 +30,17 @@ for (const [label, file] of [
   ['root lockfile', path.join(repoRoot, 'package-lock.json')],
   ['site package', path.join(siteRoot, 'package.json')],
   ['site lockfile', path.join(siteRoot, 'package-lock.json')],
-  ['Claude plugin', path.join(repoRoot, '.claude-plugin/plugin.json')],
-  ['Codex plugin', path.join(repoRoot, '.codex-plugin/plugin.json')],
+  [
+    'Claude plugin',
+    path.join(
+      repoRoot,
+      'dist/plugins/claude/prometheus-skill-pack/.claude-plugin/plugin.json'
+    ),
+  ],
+  [
+    'Codex plugin',
+    path.join(repoRoot, 'dist/plugins/codex/prometheus-skill-pack/.codex-plugin/plugin.json'),
+  ],
 ]) {
   if (json(file).version !== release) failures.push(`${label} is not version ${release}`);
 }

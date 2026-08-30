@@ -131,7 +131,12 @@ const sidebars = {
     {
       type: 'category',
       label: 'Control Plane',
-      items: ['kbd/control-plane', 'kbd/tokens-and-authentication', 'kbd/bash-mutation-guard'],
+      items: [
+        'kbd/control-plane',
+        'kbd/control-plane-recovery',
+        'kbd/tokens-and-authentication',
+        'kbd/bash-mutation-guard',
+      ],
     },
     {
       type: 'category',

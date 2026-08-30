@@ -6,22 +6,24 @@ sidebar_label: Control Plane
 
 # Canonical KBD Control Plane
 
-The canonical KBD runtime is an event-sourced control plane shared by the CLI,
-Sovereign Sync REST and MCP surfaces, and native harness adapters. It replaces
-the old model in which multiple tools could independently edit
+The canonical KBD runtime is a local, event-sourced authority used directly by
+the CLI and native harness adapters. Sovereign Sync can replicate that state
+when sharing is explicitly enabled, but it is not in the ordinary command path.
+This replaces the old model in which multiple tools could independently edit
 `progress.json`, `position.json`, or `current-waypoint.json`.
 
 ## Authority model
 
 ```mermaid
 flowchart LR
-    H["Claude Code, Codex, OpenCode, Kimi"] -->|"typed command"| C["Sovereign Sync control API"]
-    CLI["prometheus kbd"] -->|"typed command"| C
-    C -->|"exclusive replica flock + fsync"| E["Replica write-ahead journal"]
+    H["Claude Code, Codex, OpenCode, Kimi"] -->|"typed command"| R["Local KBD runtime"]
+    CLI["prometheus kbd"] -->|"typed command"| R
+    R -->|"exclusive replica flock + fsync"| E["Replica write-ahead journal"]
     E -->|"import + fsync"| L["project.loro grow-only event map"]
     L --> S["Deterministic KbdStateV2 fold"]
     S --> P["Atomic compatibility projections"]
     P --> F["progress.json / waypoint / position"]
+    L -. "explicit --sharing only" .-> SS["Sovereign Sync sidecar"]
 ```
 
 The per-project Loro document is authoritative. Replica journals are durable
@@ -33,6 +35,12 @@ readers and older skills, but a direct file edit cannot:
 - revise a plan;
 - enroll a device;
 - satisfy an expected-revision check.
+
+Plain setup and ordinary `--full` setup keep all current and legacy
+Sovereign Sync service identities stopped and disabled. Use `--full --sharing`
+only when another enrolled machine must receive the local journal. A stopped
+sidecar therefore cannot block local status, typed mutations, boundaries,
+memory recall, or certification.
 
 ## Immutable project identity
 
@@ -154,6 +162,12 @@ key material to shell or browser code.
 - shared/exclusive CRDT claims with scope, TTL, holder, replica, and monotonic token;
 - device trust records;
 - command-to-revision idempotency records.
+- outstanding before/after boundary obligations and the latest gate summary.
+
+Boundary receipts bind phase and task ordinals to the authoritative source
+revision. Their stable identity makes retries harmless and prevents a stale
+projection or direct `/opsx:apply` invocation from claiming completion without
+the corresponding KBD receipt. See [Control-plane recovery](./control-plane-recovery).
 
 Use the CLI to inspect it:
 

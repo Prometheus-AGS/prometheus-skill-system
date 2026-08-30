@@ -102,4 +102,8 @@ site/docs-catalog/
 # Evolver runtime state — machine-local, regenerated per run.
 .evolver/
 
+# OpenCode loop sessions are resumable machine-local state, not source. A loop
+# may create or delete these records without dirtying the repository.
+.opencode/opencode-loop/*.json
+
 # sccache/cargo local build caches are machine-specific

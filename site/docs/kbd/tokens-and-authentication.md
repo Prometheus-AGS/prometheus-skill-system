@@ -26,6 +26,11 @@ Every KBD mutation POST must additionally carry a schema-v2
 
 ## Device signing keys
 
+Ordinary local setup provisions the runtime device identity used by
+`prometheus kbd`; it does not require a running synchronization daemon. The
+following initialization command is for a machine that is explicitly being
+enrolled for sharing.
+
 Initialize the device key through Sovereign Sync:
 
 ```bash
@@ -133,7 +138,8 @@ reports zero removals and creates no additional backup.
 Rollback restores registry membership; it does not reconstruct a deleted
 checkout and must never remove the retained runtime tree.
 
-1. Stop `sovereign-sync` so it cannot reopen or rewrite the registry.
+1. If sharing is enabled, stop `sovereign-sync` so it cannot reopen or rewrite
+   the registry. With the default local-only profile it is already disabled.
 2. Read `receipt.json` and compare the live registry SHA-256 with
    `plannedRegistrySha256`. A match proves that operation's atomic replacement
    completed. If the live hash matches `backupSha256`, the pre-change bytes are
@@ -144,8 +150,8 @@ checkout and must never remove the retained runtime tree.
 4. Follow the operation's `ROLLBACK.md`: acquire the exclusive `registry.lock`,
    restore the exact backup bytes through an atomic same-directory replacement,
    fsync the registry directory, and then release the lock.
-5. Restart `sovereign-sync`, then verify both machine registration and project
-   authority:
+5. Restart `sovereign-sync` only if sharing was enabled, then verify machine
+   registration and local project authority:
 
    ```bash
    prometheus kbd --path "$PROJECT_ROOT" projects --json | jq .

@@ -528,6 +528,22 @@ default; enable it only for cross-machine sharing with
 prerequisite-only command, and plain `prometheus setup` remains daemon-free.
 Release `1.7.0` is the minimum supported active umbrella skill-system version.
 
+### KBD is local-first; sharing is optional
+
+KBD reads and mutates its signed local event journal directly. It does not need
+`sovereign-sync`, a REST control plane, or a continuously running daemon for
+ordinary phase, task, checkpoint, memory, or waypoint work. Plain full setup
+stops and disables both current and legacy Sovereign Sync service identities;
+only the explicit `--sharing` profile starts the passive replication sidecar.
+
+The recovered workflow also records idempotent before/after boundary receipts,
+restores exact progress after compaction, repairs only derived projections, and
+keeps memory writes non-blocking. Implementation is completed before testing;
+acceptance evidence comes from local full-integration gates, with Cargo builds
+serialized machine-wide to avoid lock contention and waste. See
+[KBD local recovery and refresh](site/docs/kbd/control-plane-recovery.md) for the
+architecture, rationale, and operator procedure.
+
 For the full prerequisite, install, verification, and first-loop walkthrough, see
 [docs/guide/19-installation.md](docs/guide/19-installation.md); for keeping everything current, see
 [docs/guide/20-updating.md](docs/guide/20-updating.md).

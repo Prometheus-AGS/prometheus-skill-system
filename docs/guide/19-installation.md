@@ -63,20 +63,35 @@ export CARGO_HOME="$HOME/.cargo"
 export CARGO_TARGET_DIR="/path/on/internal-ssd/prometheus-target"
 ```
 
+Use a separate target directory for each workspace or worktree. Let `sccache`
+share reusable compilation while each target directory keeps its own Cargo
+lock. Before starting any Rust command, confirm that no other Cargo or `rustc`
+process is active anywhere on the machine.
+
 ## Build order
 
 ```mermaid
 flowchart TD
-  Server["Build/test Memory server"] --> Knowledge["Build/test pk, pk-cherry, worker"]
-  Knowledge --> Root["Build/test prometheus CLI"]
+  Implement["Complete coherent implementation"] --> Server["Build affected Memory components"]
+  Server --> Knowledge["Build affected knowledge/worker components"]
+  Knowledge --> Root["Build affected prometheus CLI"]
   Root --> Binaries["Install + sign six binaries"]
   Binaries --> Plugin["Activate immutable plugin generation"]
   Plugin --> Services["Install allowed user services"]
-  Services --> Doctors["Run local doctors"]
-  Doctors --> Cert["Certify receipts, queues, snapshots, rollback, logs"]
+  Services --> Integration["Run smallest full-integration gate"]
+  Integration --> Doctors["Run local doctors"]
+  Doctors --> Cert["Final local certification"]
 ```
 
-The six release binaries are `surreal-memory-server`, `pk`, `pk-cherry`, `prometheus-learning-worker`, `prometheus`, and `prometheus-exec`. Run `cargo fmt --check`, `cargo check --all-targets`, Clippy with warnings denied, and tests in each workspace before installation.
+The six release binaries are `surreal-memory-server`, `pk`, `pk-cherry`,
+`prometheus-learning-worker`, `prometheus`, and `prometheus-exec`. Complete the
+production implementation before authoring, modifying, or running tests. During
+implementation, use inspection and static reasoning; if compiler feedback is
+indispensable, wait for a coherent edit batch and run one package-scoped
+`cargo check`. Do not run workspace-wide, all-target, Clippy, or per-edit Rust
+loops. After the implementation is complete, run the smallest applicable full
+integration target and then the final local certification. Unit and mock-only
+tests are not acceptance evidence.
 
 All six executables share the product release version. Verify the installed
 artifacts before loading services:
@@ -126,6 +141,27 @@ See [Execution installation, doctor, and recovery](/docs/execution/installation-
 ```
 
 This validates the manifest, 14 target receipts, copy-versus-symlink modes, stable dispatchers, active/previous pointers, and stale-path absence.
+
+## Refresh an existing machine after source changes
+
+Build only affected native components first, then refresh services and all
+detected harnesses from one generated distribution:
+
+```bash
+npm run build:distribution
+npm run validate:harness-adapters
+bash scripts/install-mcp-services.sh --restart
+bash scripts/install-skills-flat.sh
+npm run verify:skills
+npm run validate:codex
+npx tsc -p .opencode/tsconfig.json --noEmit --pretty false
+```
+
+The service installer disables Sovereign Sync unless sharing was explicitly
+selected. The skill installer activates one immutable generation and configures
+every detected supported client; an absent client configuration is reported as
+skipped rather than silently created. Run the health checks and doctors below
+after workers finish processing any accepted queue item.
 
 ## Services with explicit exclusions
 

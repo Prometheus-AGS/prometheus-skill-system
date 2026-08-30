@@ -13,7 +13,11 @@ export CARGO_HOME=/path/to/cargo-home
 export CARGO_TARGET_DIR=/path/on/internal-ssd/prometheus-target
 ```
 
-Build and test the server first, then knowledge/worker tools, then the root CLI. Install and sign these binaries:
+Complete the production implementation first. Then build only the affected
+server, knowledge/worker, and root CLI components in dependency order. Do not
+start a Rust command while another Cargo or `rustc` process is active on the
+machine. Use separate target directories per workspace/worktree and `sccache`
+for shared reusable compilation. Install and sign these binaries:
 
 - `surreal-memory-server`
 - `pk`
@@ -74,6 +78,12 @@ bash scripts/install-mcp-services.sh --exclude sovereign-sync
 
 Always inspect the dry-run plan first. Excluded services are not rendered, installed, restarted, or rewritten.
 
+Sovereign Sync is excluded by default from ordinary operation: KBD uses its
+signed local runtime directly. Plain full setup stops and disables current and
+legacy service identities. Select `--sharing` only when cross-machine
+replication is intended. See [KBD control-plane recovery](/docs/kbd/control-plane-recovery)
+for the rationale and the post-repair refresh sequence.
+
 Success means every requested artifact was byte-verified (and executability was
 verified for binaries), the active signed plugin generation passed trust and
 receipt verification, and each requested service passed its post-install check.
@@ -86,13 +96,13 @@ Repository skills live under `.agents/skills/`; Codex discovery uses `.codex/ski
 ## Upgrade order
 
 1. Back up active/previous generation pointers, receipts, snapshots, and queue state.
-2. Build and certify the Memory server.
-3. Build and certify knowledge tools and worker.
-4. Build the root CLI and run local doctors with exclusions.
-5. Activate and verify the plugin generation.
-6. Reload allowed user services.
-7. Certify receipts, queues, snapshots, logs, rollback, and stale-path absence.
-8. Push server, knowledge, then root branches.
+2. Complete the coherent implementation without per-edit test loops.
+3. Build and install only affected native components, serialized machine-wide.
+4. Activate and verify one immutable plugin generation for detected harnesses.
+5. Reload allowed user services; leave Sovereign Sync disabled without sharing.
+6. Run the smallest applicable local full-integration gate.
+7. Run doctors and certify receipts, queues, snapshots, logs, rollback, and stale-path absence.
+8. Push only after final local certification.
 
 Push only after local certification. Hosted automation may synchronize
 deterministic documentation and package/deploy Pages; it never confirms runtime,

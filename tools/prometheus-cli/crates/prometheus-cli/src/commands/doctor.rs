@@ -1143,6 +1143,28 @@ async fn check_judge_gateway() -> CheckResult {
                     actions: vec![],
                 };
             }
+            if status == reqwest::StatusCode::UNAUTHORIZED {
+                let health_base = base.strip_suffix("/v1").unwrap_or(base);
+                let health_url = format!("{health_base}/health");
+                if let Ok(health) = client.get(&health_url).send().await {
+                    if health.status().is_success() {
+                        return CheckResult {
+                            id: "review.judge-gateway".into(),
+                            group: "review".into(),
+                            label: "Adversarial judge gateway".into(),
+                            severity: Severity::Green,
+                            status: CheckStatus::Pass,
+                            summary: format!("Reachable at {}", base),
+                            details: vec![
+                                "The public health endpoint passed; the model endpoint correctly requires authentication."
+                                    .into(),
+                            ],
+                            optional: true,
+                            actions: vec![],
+                        };
+                    }
+                }
+            }
             return CheckResult {
                 id: "review.judge-gateway".into(),
                 group: "review".into(),
@@ -1863,6 +1885,13 @@ fn check_harness_adapter_parity() -> CheckResult {
         .map(|events| {
             events
                 .iter()
+                .filter(|event| {
+                    event["harnesses"].as_array().is_none_or(|harnesses| {
+                        harnesses
+                            .iter()
+                            .any(|harness| harness.as_str() == Some("codex"))
+                    })
+                })
                 .filter_map(|event| event["hooks"].as_array())
                 .map(Vec::len)
                 .sum()
