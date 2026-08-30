@@ -71,6 +71,46 @@ function sanitizedMcp() {
   return mcp;
 }
 
+function packagedContract() {
+  return {
+    ...contract,
+    inventory: {
+      roots: [{ id: 'packaged', path: 'skills', scan: 'children' }],
+      excludedImports: [],
+    },
+    imports: [],
+    targets: contract.targets.map(target => ({
+      ...target,
+      sourceTreeLifecycle: 'install-only',
+    })),
+  };
+}
+
+function packagedExecutionDescriptor() {
+  const descriptor = JSON.parse(
+    fs.readFileSync(path.join(sourceRoot, 'config/prometheus-exec-component.json'), 'utf8')
+  );
+  return {
+    ...descriptor,
+    release: contract.releaseVersion,
+    sourcePath: 'skills/entity-graph-optimize/skill.wasm',
+  };
+}
+
+function copySignedSkillRuntimeFiles(root) {
+  const release = JSON.parse(
+    fs.readFileSync(
+      path.join(sourceRoot, 'shared/harnesses/generated/release-manifest.json'),
+      'utf8'
+    )
+  );
+  for (const entry of release.runtimeFiles ?? []) {
+    const relative = path.posix.normalize(entry.path ?? '');
+    if (!relative.startsWith('skills/')) continue;
+    copy(path.join(sourceRoot, ...relative.split('/')), path.join(root, ...relative.split('/')));
+  }
+}
+
 function materializePackage(root, platform) {
   for (const skill of skills) copy(skill.source, path.join(root, 'skills', skill.name));
   write(root, '.mcp.json', sanitizedMcp());
@@ -83,6 +123,23 @@ function materializePackage(root, platform) {
     write(root, '.claude-plugin/plugin.json', baseManifest());
     copy(path.join(sourceRoot, 'hooks/hooks.json'), path.join(root, 'hooks/hooks.json'));
     copy(path.join(sourceRoot, 'shared'), path.join(root, 'shared'));
+    copySignedSkillRuntimeFiles(root);
+    copy(
+      path.join(sourceRoot, 'scripts/install-plugin-generation.js'),
+      path.join(root, 'scripts/install-plugin-generation.js')
+    );
+    copy(
+      path.join(sourceRoot, 'scripts/lib/skill-system.js'),
+      path.join(root, 'scripts/lib/skill-system.js')
+    );
+    write(root, 'package.json', {
+      name: '@prometheus-ags/prometheus-skill-pack-payload',
+      version: contract.releaseVersion,
+      private: true,
+      type: 'module',
+    });
+    write(root, 'skill-system.json', packagedContract());
+    write(root, 'config/prometheus-exec-component.json', packagedExecutionDescriptor());
   } else {
     write(root, '.codex-plugin/plugin.json', {
       ...baseManifest(),

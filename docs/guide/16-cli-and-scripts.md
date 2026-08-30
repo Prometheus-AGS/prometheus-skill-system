@@ -18,7 +18,7 @@ Documented in full on the [Tools Reference](13-tools-reference.md) page; summari
 
 ## The npm script surface
 
-`package.json` (v1.7.0, ES module) is the most common entry point.
+`package.json` (v1.8.0, ES module) is the most common entry point.
 
 | Command | What it does |
 |---|---|

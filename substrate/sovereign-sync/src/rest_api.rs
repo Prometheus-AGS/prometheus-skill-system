@@ -2504,7 +2504,7 @@ pub fn openapi_document() -> serde_json::Value {
         "openapi": "3.1.0",
         "info": {
             "title": "Sovereign Sync API",
-            "version": "1.7.0",
+            "version": env!("CARGO_PKG_VERSION"),
             "description": "Signed, replay-safe resource synchronization over a same-user Unix socket by default."
         },
         "paths": {

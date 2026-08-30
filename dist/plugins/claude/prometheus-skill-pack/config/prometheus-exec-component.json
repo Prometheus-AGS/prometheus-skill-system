@@ -1,0 +1,58 @@
+{
+  "capabilities": {
+    "hostImports": [
+      "prometheus:component/types@0.1.0",
+      "prometheus:component/log@0.1.0",
+      "prometheus:component/kv-store@0.1.0",
+      "prometheus:component/input@0.1.0",
+      "prometheus:component/output@0.1.0",
+      "prometheus:component/clock@0.1.0",
+      "prometheus:component/random@0.1.0"
+    ],
+    "wasiAdapterImports": [
+      "wasi:io/poll@0.2.9",
+      "wasi:clocks/monotonic-clock@0.2.9",
+      "wasi:io/error@0.2.9",
+      "wasi:io/streams@0.2.9",
+      "wasi:cli/stdout@0.2.9",
+      "wasi:cli/stderr@0.2.9",
+      "wasi:cli/stdin@0.2.9",
+      "wasi:cli/environment@0.2.9",
+      "wasi:cli/exit@0.2.9",
+      "wasi:cli/terminal-input@0.2.9",
+      "wasi:cli/terminal-output@0.2.9",
+      "wasi:cli/terminal-stdin@0.2.9",
+      "wasi:cli/terminal-stdout@0.2.9",
+      "wasi:cli/terminal-stderr@0.2.9"
+    ]
+  },
+  "componentId": "entity-graph-optimize",
+  "profiles": {
+    "desktop": {
+      "backend": "cranelift",
+      "jit": true,
+      "trust": "signed-generation"
+    },
+    "mobile": {
+      "backend": "pulley",
+      "jit": false,
+      "trust": "bundled-hash-pins"
+    },
+    "portableReplay": {
+      "backend": "pulley",
+      "jit": false,
+      "trust": "receipt-bound"
+    },
+    "standalone": {
+      "backend": "cranelift",
+      "jit": true,
+      "trust": "explicit-hash-pins"
+    }
+  },
+  "release": "1.8.0",
+  "schemaVersion": 1,
+  "sha256": "ba438895404a23985d5226735b8f362cf3e8044894a1140852ba0992f2fdbe78",
+  "sizeBytes": 55798,
+  "sourcePath": "skills/entity-graph-optimize/skill.wasm",
+  "world": "prometheus:component@0.1.0"
+}

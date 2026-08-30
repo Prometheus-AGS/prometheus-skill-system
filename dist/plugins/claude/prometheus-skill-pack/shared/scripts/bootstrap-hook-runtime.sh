@@ -49,11 +49,11 @@ mkdir -p "$PLUGIN_ROOT"
 #
 # Fix: record the holder's PID inside the lock. A lock whose holder is gone is
 # stale by definition and is broken immediately. A live holder is waited on, but
-# only briefly — bootstrapping is fast, and a genuinely concurrent bootstrap
-# converges in well under a second.
+# for at most one installer transaction. A cold immutable generation installs
+# all target receipts and can legitimately take tens of seconds on a busy host.
 LOCK_PID_FILE="$LOCK/pid"
 acquired=false
-for _ in $(seq 1 50); do
+for _ in $(seq 1 600); do
   if mkdir "$LOCK" 2>/dev/null; then
     printf '%s\n' "$$" >"$LOCK_PID_FILE" 2>/dev/null || true
     acquired=true

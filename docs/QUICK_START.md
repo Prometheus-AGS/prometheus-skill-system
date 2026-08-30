@@ -38,7 +38,7 @@ the exact mutation set, and asks for confirmation:
 This profile does not build binaries, install services, or change MCP configuration.
 For the complete macOS/Linux system use `./install.sh --profile full`. Windows is
 supported for `skills` through Git Bash or WSL. The minimum supported active
-umbrella release is `1.7.0`.
+umbrella release is `1.8.0`.
 
 ---
 

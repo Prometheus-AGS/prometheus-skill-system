@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "sourceVersion": "1.7.0",
+  "sourceVersion": "1.8.0",
   "contractSchemaVersion": "hook-contract-v1",
   "dispatcherAbi": "hook-runtime-v1",
   "contractSha256": "37795169325a638201421a6aeed741603699099fd45609bf044fe005eddd4f45",
   "runtimeFiles": [
     {
       "path": "scripts/install-plugin-generation.js",
-      "sha256": "562c84181c78057ceec1521d340f2abee26e732367c3531ca1740cebcb544ff6",
+      "sha256": "1850314e6f9dce8a2650ec321c3a9bbd505c44dd4312d4cd620d9235aef5a393",
       "mode": "0755"
     },
     {
@@ -17,7 +17,7 @@
     },
     {
       "path": "shared/scripts/bootstrap-hook-runtime.sh",
-      "sha256": "a5e7a2c2aa57ea42df8de97b14846114e542cf768c53c90f553f493cb66b10e7",
+      "sha256": "e7376dc1702a7069f9da3c4cb8033272a942167015e1336326248f5c95e42128",
       "mode": "0755"
     },
     {
@@ -321,5 +321,5 @@
       "mode": "0755"
     }
   ],
-  "bundleId": "d5da8b01bc07baf1cb45843f4a2d7bb8e3229d8c521329e8b86c87643a4f3cd7"
+  "bundleId": "f122a0e0f4515f8cce07d60c0e410c707d0b2e1be54221cd64ca8e768ae859d7"
 }

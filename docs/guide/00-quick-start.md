@@ -15,7 +15,7 @@ cd prometheus-skill-system
 ```
 
 The recommended skills-only profile initializes pinned imports and installs the
-signed `1.7.0` distribution into detected clients. `1.7.0` is the minimum
+signed `1.8.0` distribution into detected clients. `1.8.0` is the minimum
 supported active umbrella release. Use `./install.sh --profile full` on macOS or
 Linux when you also want locally built binaries, MCP configuration, services,
 and doctors.

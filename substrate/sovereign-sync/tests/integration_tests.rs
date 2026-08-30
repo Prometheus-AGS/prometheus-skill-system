@@ -57,7 +57,7 @@ fn generated_openapi_tracks_v2_route_constants_and_rust_schemas() {
         assert!(document["paths"].get(route).is_some(), "missing {route}");
     }
     assert_eq!(document["openapi"], "3.1.0");
-    assert_eq!(document["info"]["version"], "1.7.0");
+    assert_eq!(document["info"]["version"], "1.8.0");
     assert!(document["components"]["schemas"]["SignedSyncPushRequest"].is_object());
     let request: SignedSyncPushRequest = serde_json::from_value(
         document["components"]["examples"]["SignedPushRequest"]["value"].clone(),

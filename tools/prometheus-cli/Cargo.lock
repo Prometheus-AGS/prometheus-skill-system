@@ -6162,7 +6162,7 @@ dependencies = [
 
 [[package]]
 name = "prometheus-agents"
-version = "1.7.0"
+version = "1.8.0"
 dependencies = [
  "anyhow",
  "chrono",
@@ -6176,7 +6176,7 @@ dependencies = [
 
 [[package]]
 name = "prometheus-cedar"
-version = "1.7.0"
+version = "1.8.0"
 dependencies = [
  "anyhow",
  "cedar-policy 4.9.1",
@@ -6189,7 +6189,7 @@ dependencies = [
 
 [[package]]
 name = "prometheus-cli"
-version = "1.7.0"
+version = "1.8.0"
 dependencies = [
  "anyhow",
  "bytes 1.11.1",
@@ -6222,7 +6222,7 @@ dependencies = [
 
 [[package]]
 name = "prometheus-learn"
-version = "1.7.0"
+version = "1.8.0"
 dependencies = [
  "anyhow",
  "chrono",

@@ -33,6 +33,7 @@ enum OutputFormat {
 #[derive(Parser, Debug)]
 #[command(
     name = "sovereign-sync",
+    version,
     about = "P2P CRDT sync for prometheus-skill-pack"
 )]
 struct Cli {

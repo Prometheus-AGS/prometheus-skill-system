@@ -2,8 +2,8 @@
   "$schema": "./schemas/skill-system.schema.json",
   "schemaVersion": "prometheus-skill-system-v1",
   "name": "prometheus-skill-pack",
-  "releaseVersion": "1.7.0",
-  "minimumActiveVersion": "1.7.0",
+  "releaseVersion": "1.8.0",
+  "minimumActiveVersion": "1.8.0",
   "repository": "https://github.com/Prometheus-AGS/prometheus-skill-system.git",
   "platforms": {
     "skills": ["darwin", "linux", "windows-git-bash", "windows-wsl"],
@@ -97,14 +97,14 @@
       "id": "prometheus-knowledge",
       "path": "tools/prometheus-knowledge",
       "repository": "https://github.com/Prometheus-AGS/prometheus-knowledge-rs.git",
-      "commit": "f664cb81e9d94d30ff1e6e6fcd8dc414fec918ed",
+      "commit": "98f1699d1724bc509e80055b2349a02c4c683ede",
       "requiredFor": ["full"]
     },
     {
       "id": "surreal-memory-server",
       "path": "tools/surreal-memory-server",
       "repository": "https://github.com/Prometheus-AGS/surreal-memory-server.git",
-      "commit": "e5f48916048a8e26d3ace83c44746b8105f0696c",
+      "commit": "592948bf5f349e4d08273e231f2a6f5b7bd6617f",
       "requiredFor": ["full"]
     }
   ],

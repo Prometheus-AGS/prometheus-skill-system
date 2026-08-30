@@ -384,7 +384,26 @@ pub fn fold_project_events(events: &[Event]) -> Result<KbdStateV2> {
                 selected
             },
         );
-    let losers = conflicts
+    // Resolution changes the authoritative projection, so it must be applied
+    // before loser selection and folding. A resolution is valid only when it
+    // names an existing candidate and causally observes the complete candidate
+    // set; an operator cannot adjudicate a branch it has not seen.
+    for (conflict_id, (resolution, winner_event_id, reason)) in &resolutions {
+        let Some(conflict) = conflicts.get_mut(conflict_id) else {
+            continue;
+        };
+        if resolution_covers_conflict(resolution, conflict)
+            && conflict
+                .candidates
+                .iter()
+                .any(|candidate| candidate.event_id == *winner_event_id)
+        {
+            conflict.winner_event_id = winner_event_id.clone();
+            conflict.resolved_by_event_id = Some(resolution.event_id.clone());
+            conflict.resolution_reason = Some(reason.clone());
+        }
+    }
+    let direct_losers = conflicts
         .values()
         .flat_map(|conflict| {
             conflict
@@ -394,6 +413,14 @@ pub fn fold_project_events(events: &[Event]) -> Result<KbdStateV2> {
                 .map(|candidate| candidate.event_id.clone())
         })
         .collect::<HashSet<_>>();
+    let mut losers = direct_losers.clone();
+    for event in events {
+        if events.iter().any(|candidate| {
+            direct_losers.contains(&candidate.event_id) && event_observes(event, candidate)
+        }) {
+            losers.insert(event.event_id.clone());
+        }
+    }
 
     let mut state = KbdStateV2::default();
     let mut authority_frontier = CausalFrontier::empty();
@@ -439,10 +466,12 @@ pub fn fold_project_events(events: &[Event]) -> Result<KbdStateV2> {
         let Some(conflict) = conflicts.get_mut(&conflict_id) else {
             continue;
         };
-        if conflict
-            .candidates
-            .iter()
-            .any(|candidate| candidate.event_id == winner_event_id)
+        if conflict.resolved_by_event_id.is_none()
+            && resolution_covers_conflict(resolution, conflict)
+            && conflict
+                .candidates
+                .iter()
+                .any(|candidate| candidate.event_id == winner_event_id)
         {
             conflict.winner_event_id = winner_event_id;
             conflict.resolved_by_event_id = Some(resolution.event_id.clone());
@@ -454,6 +483,16 @@ pub fn fold_project_events(events: &[Event]) -> Result<KbdStateV2> {
     state.revision = state.frontier.derived_revision();
     state.conflicts = conflicts;
     Ok(state)
+}
+
+fn resolution_covers_conflict(resolution: &Event, conflict: &ConflictRecord) -> bool {
+    conflict.candidates.iter().all(|candidate| {
+        if candidate.replica_id.is_empty() || candidate.replica_id == "legacy" {
+            resolution.revision > candidate.lamport
+        } else {
+            resolution.frontier.lamport(&candidate.replica_id) >= candidate.lamport
+        }
+    })
 }
 
 fn detect_conflicts(events: &[Event]) -> Result<BTreeMap<String, ConflictRecord>> {

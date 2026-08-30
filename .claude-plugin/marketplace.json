@@ -11,7 +11,7 @@
       "description": "Complete Prometheus skill system: process orchestration, React, GitOps, testing, research, learning, and portable agent tooling.",
       "name": "prometheus-skill-pack",
       "source": "./dist/plugins/claude/prometheus-skill-pack",
-      "version": "1.7.0"
+      "version": "1.8.0"
     },
     {
       "category": "frontend",
@@ -96,5 +96,5 @@
       "strict": false
     }
   ],
-  "version": "1.7.0"
+  "version": "1.8.0"
 }

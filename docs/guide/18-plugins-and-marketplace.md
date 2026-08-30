@@ -1,6 +1,6 @@
 # 18 · Plugins and Immutable Distribution
 
-Prometheus 1.7.0 distributes one certified source tree as harness-native plugins and as a verified 14-target AgentSkills generation. The generation is content-addressed; host paths never point at a mutable staging directory or a hardcoded release version.
+Prometheus 1.8.0 distributes one certified source tree as harness-native plugins and as a verified 14-target AgentSkills generation. The generation is content-addressed; host paths never point at a mutable staging directory or a hardcoded release version.
 
 ## Packaging model
 
@@ -16,7 +16,7 @@ flowchart TD
   Generation --> Stable["Stable hook dispatchers"]
 ```
 
-The generation includes skills, agents, hooks, shared scripts, plugin manifests, and MCP configuration. The manifest records every file hash and mode plus the expected target projection. Installation verifies the complete generation before activation.
+The generation includes skills, agents, hooks, shared scripts, plugin manifests, and MCP configuration. The Claude package also carries its verified installer, ESM support library, flattened distribution contract, and execution descriptor so a cold hook bootstrap never depends on repository-only files. The manifest records every file hash and mode plus the expected target projection. Installation verifies the complete generation before activation.
 
 ## Claude Code and OpenCode
 

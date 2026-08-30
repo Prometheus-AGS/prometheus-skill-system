@@ -17,6 +17,7 @@ use uuid::Uuid;
 
 use project_document::ProjectDocument;
 
+mod authority;
 pub mod project_document;
 pub mod registry;
 pub mod rollout;
@@ -29,7 +30,7 @@ mod live_migration_proof;
 pub const EVENT_SCHEMA_VERSION: &str = "2";
 pub const AUDIT_GIT_REF: &str = "refs/heads/audit/kbd";
 const COMPATIBILITY_PROJECTION_CONTRACT_VERSION: u64 = 2;
-const FOLDED_CHECKPOINT_SCHEMA_VERSION: &str = "2";
+const FOLDED_CHECKPOINT_SCHEMA_VERSION: &str = "3";
 
 fn unresolved_conflict_count(state: &KbdStateV2) -> usize {
     state
@@ -300,11 +301,10 @@ fn load_device_key(path: &Path) -> Result<DeviceSigner> {
 }
 
 fn managed_device_key_path() -> Option<PathBuf> {
-    dirs_next::home_dir().map(|home| {
-        home.join(".config")
-            .join("sovereign-sync")
-            .join("device-key.json")
-    })
+    std::env::var_os("XDG_CONFIG_HOME")
+        .map(PathBuf::from)
+        .or_else(|| dirs_next::home_dir().map(|home| home.join(".config")))
+        .map(|config| config.join("sovereign-sync").join("device-key.json"))
 }
 
 pub fn ensure_device_key_file(path: &Path) -> Result<DeviceSigner> {
@@ -1670,128 +1670,7 @@ impl KbdStateV2 {
     }
 
     pub(crate) fn verify_and_apply_device_authority(&mut self, event: &Event) -> Result<()> {
-        let bootstrap = self.revision == 0;
-        if bootstrap
-            && (!matches!(event.kind, EventKind::RunInitialized { .. })
-                || event.actor.kind != ActorKind::Operator)
-        {
-            return Err(RuntimeError::InvalidState(
-                "the first signed event must initialize the run under operator authority".into(),
-            ));
-        }
-        event.verify_signature(&self.devices, bootstrap)?;
-        if event.integrity_hash != event.calculate_hash()? {
-            return Err(RuntimeError::Integrity {
-                revision: event.revision,
-            });
-        }
-
-        if event.schema_version != "1" && !bootstrap && event.actor.kind == ActorKind::Operator {
-            let signer_key_id =
-                event
-                    .signer_key_id
-                    .as_deref()
-                    .ok_or_else(|| RuntimeError::Signature {
-                        revision: event.revision,
-                        reason: "operator event is missing signerKeyId".into(),
-                    })?;
-            if !self.operator_key_ids.contains(signer_key_id) {
-                return Err(RuntimeError::InvalidState(
-                    "operator event requires an active operator signing key".into(),
-                ));
-            }
-        }
-
-        if event.schema_version != "1" && bootstrap {
-            let key_id = event
-                .signer_key_id
-                .clone()
-                .ok_or_else(|| RuntimeError::Signature {
-                    revision: event.revision,
-                    reason: "missing bootstrap signerKeyId".into(),
-                })?;
-            let public_key =
-                event
-                    .signer_public_key
-                    .clone()
-                    .ok_or_else(|| RuntimeError::Signature {
-                        revision: event.revision,
-                        reason: "missing bootstrap signerPublicKey".into(),
-                    })?;
-            self.devices.insert(
-                key_id.clone(),
-                DeviceRecord {
-                    device_id: event.actor.device.clone(),
-                    key_id: key_id.clone(),
-                    public_key,
-                    status: DeviceStatus::Active,
-                    enrolled_at_revision: event.revision,
-                    revoked_at_revision: None,
-                },
-            );
-            self.operator_key_ids.insert(key_id);
-        }
-
-        match &event.kind {
-            EventKind::DeviceEnrolled { device } => {
-                if event.actor.kind != ActorKind::Operator {
-                    return Err(RuntimeError::InvalidState(
-                        "only an operator may enroll a device".into(),
-                    ));
-                }
-                if self.devices.contains_key(&device.key_id) {
-                    return Err(RuntimeError::WorkItemExists {
-                        kind: "device key",
-                        id: device.key_id.clone(),
-                    });
-                }
-                validate_device_record(device, event.revision)?;
-                self.devices.insert(device.key_id.clone(), device.clone());
-            }
-            EventKind::DeviceRevoked { key_id, .. } => {
-                if event.actor.kind != ActorKind::Operator {
-                    return Err(RuntimeError::InvalidState(
-                        "only an operator may revoke a device".into(),
-                    ));
-                }
-                let device =
-                    self.devices
-                        .get_mut(key_id)
-                        .ok_or_else(|| RuntimeError::WorkItemNotFound {
-                            kind: "device key",
-                            id: key_id.clone(),
-                        })?;
-                device.status = DeviceStatus::Revoked;
-                device.revoked_at_revision = Some(event.revision);
-                self.operator_key_ids.remove(key_id);
-            }
-            EventKind::DeviceKeyRotated {
-                previous_key_id,
-                replacement,
-            } => {
-                if event.actor.kind != ActorKind::Operator {
-                    return Err(RuntimeError::InvalidState(
-                        "only an operator may rotate a device key".into(),
-                    ));
-                }
-                validate_device_record(replacement, event.revision)?;
-                let previous = self.devices.get_mut(previous_key_id).ok_or_else(|| {
-                    RuntimeError::WorkItemNotFound {
-                        kind: "device key",
-                        id: previous_key_id.clone(),
-                    }
-                })?;
-                previous.status = DeviceStatus::Revoked;
-                previous.revoked_at_revision = Some(event.revision);
-                self.devices
-                    .insert(replacement.key_id.clone(), replacement.clone());
-                if self.operator_key_ids.remove(previous_key_id) {
-                    self.operator_key_ids.insert(replacement.key_id.clone());
-                }
-            }
-            _ => {}
-        }
-        Ok(())
+        authority::verify_and_apply(self, event)
     }
 
     fn apply_internal(&mut self, event: &Event, validate_envelope: bool) -> Result<()> {
@@ -3370,8 +3249,39 @@ impl Runtime {
     }
 
     pub fn device_signer(&self) -> Result<DeviceSigner> {
+        let state = self.fold_authority_events(&self.events()?)?;
+        self.device_signer_for_requirement(
+            &state,
+            if state.revision == 0 {
+                authority::SignerRequirement::Bootstrap
+            } else {
+                authority::SignerRequirement::ActiveDevice
+            },
+        )
+    }
+
+    fn device_signer_for_actor(&self, state: &KbdStateV2, actor: &Actor) -> Result<DeviceSigner> {
+        self.device_signer_for_requirement(
+            state,
+            authority::SignerRequirement::for_actor(state, actor),
+        )
+    }
+
+    fn device_signer_for_requirement(
+        &self,
+        state: &KbdStateV2,
+        requirement: authority::SignerRequirement,
+    ) -> Result<DeviceSigner> {
         if let Some(path) = std::env::var_os("PROMETHEUS_DEVICE_KEY_FILE") {
-            return load_device_key(Path::new(&path));
+            let signer = load_device_key(Path::new(&path))?;
+            if requirement.accepts(state, signer.key_id()) {
+                return Ok(signer);
+            }
+            return Err(RuntimeError::InvalidState(format!(
+                "explicit PROMETHEUS_DEVICE_KEY_FILE signer {} is not the journal's {}",
+                signer.key_id(),
+                requirement.label()
+            )));
         }
         // The managed sovereign-sync service and interactive KBD clients must
         // sign as the same enrolled device. The installer places that shared
@@ -3381,28 +3291,52 @@ impl Runtime {
         // per-project credential-store identity.
         if self.uses_managed_canonical_data_root() {
             if let Some(path) = managed_device_key_path().filter(|path| path.is_file()) {
-                return load_device_key(&path).map_err(|error| {
+                let signer = load_device_key(&path).map_err(|error| {
                     RuntimeError::InvalidState(format!(
                         "managed sovereign-sync device key {} is unusable: {error}; repair or remove the user-local key and reinstall/restart sovereign-sync",
                         path.display()
                     ))
-                });
+                })?;
+                if requirement.accepts(state, signer.key_id()) {
+                    return Ok(signer);
+                }
             }
         }
-        match self.key_storage {
-            KeyStorage::LegacyRuntimeFile => self.legacy_file_device_signer(),
-            KeyStorage::PlatformCredentialStore => self.platform_device_signer(),
+
+        let signer = match self.key_storage {
+            KeyStorage::LegacyRuntimeFile if state.revision == 0 => {
+                Some(self.legacy_file_device_signer()?)
+            }
+            KeyStorage::LegacyRuntimeFile => {
+                let path = self.device_key_path();
+                path.is_file().then(|| load_device_key(&path)).transpose()?
+            }
+            KeyStorage::PlatformCredentialStore if state.revision == 0 => {
+                Some(self.platform_device_signer()?)
+            }
+            KeyStorage::PlatformCredentialStore => self.platform_device_signer_existing()?,
+        };
+        if let Some(signer) = signer.filter(|signer| requirement.accepts(state, signer.key_id())) {
+            return Ok(signer);
         }
+        Err(RuntimeError::InvalidState(format!(
+            "no discoverable key satisfies the journal's {}; enroll or restore an existing key before writing",
+            requirement.label()
+        )))
     }
 
     fn uses_managed_canonical_data_root(&self) -> bool {
-        self.key_storage == KeyStorage::PlatformCredentialStore
-            && dirs_next::data_local_dir()
-                .map(|root| {
-                    self.root
-                        .starts_with(root.join("prometheus").join("kbd").join("projects"))
-                })
-                .unwrap_or(false)
+        if self.key_storage != KeyStorage::PlatformCredentialStore {
+            return false;
+        }
+        let configured = std::env::var_os("PROMETHEUS_DATA_DIR").map(PathBuf::from);
+        configured
+            .into_iter()
+            .chain(dirs_next::data_local_dir())
+            .any(|root| {
+                self.root
+                    .starts_with(root.join("prometheus").join("kbd").join("projects"))
+            })
     }
 
     fn legacy_file_device_signer(&self) -> Result<DeviceSigner> {
@@ -3453,6 +3387,27 @@ impl Runtime {
         }
     }
 
+    fn platform_device_signer_existing(&self) -> Result<Option<DeviceSigner>> {
+        #[cfg(any(target_os = "macos", target_os = "linux", target_os = "windows"))]
+        {
+            fs::create_dir_all(&self.root)?;
+            let lock = OpenOptions::new()
+                .create(true)
+                .truncate(false)
+                .read(true)
+                .write(true)
+                .open(self.root.join("key-storage.lock"))?;
+            lock.lock_exclusive()?;
+            let result = self.platform_device_signer_existing_locked();
+            FileExt::unlock(&lock)?;
+            result
+        }
+        #[cfg(not(any(target_os = "macos", target_os = "linux", target_os = "windows")))]
+        {
+            Ok(None)
+        }
+    }
+
     #[cfg(any(target_os = "macos", target_os = "linux", target_os = "windows"))]
     fn platform_device_signer_locked(&self) -> Result<DeviceSigner> {
         let manifest = read_project_manifest(&self.project_root)?.ok_or_else(|| {
@@ -3478,6 +3433,26 @@ impl Runtime {
             }
             Err(error) => Err(RuntimeError::InvalidState(format!(
                 "cannot read device key from OS credential store: {error}; configure an existing mode-0600 PROMETHEUS_DEVICE_KEY_FILE for a headless host"
+            ))),
+        }
+    }
+
+    #[cfg(any(target_os = "macos", target_os = "linux", target_os = "windows"))]
+    fn platform_device_signer_existing_locked(&self) -> Result<Option<DeviceSigner>> {
+        let manifest = read_project_manifest(&self.project_root)?.ok_or_else(|| {
+            RuntimeError::InvalidState(
+                "canonical key storage requires .prometheus/project.json".into(),
+            )
+        })?;
+        let account = format!("{}:{}", manifest.project_id, device_identity());
+        let entry = keyring::Entry::new("prometheus-kbd-device", &account).map_err(|error| {
+            RuntimeError::InvalidState(format!("cannot open OS credential store: {error}"))
+        })?;
+        match entry.get_secret() {
+            Ok(secret) => Ok(Some(signer_from_stored(serde_json::from_slice(&secret)?)?)),
+            Err(keyring::Error::NoEntry) => Ok(None),
+            Err(error) => Err(RuntimeError::InvalidState(format!(
+                "cannot read device key from OS credential store: {error}; unlock or repair the credential store before writing"
             ))),
         }
     }
@@ -3550,6 +3525,7 @@ impl Runtime {
     }
 
     pub fn migrate_v1_journal(&self) -> Result<Option<JournalMigrationSummary>> {
+        self.ensure_writable_replica()?;
         self.migrate_v1_journal_inner(None)
     }
 
@@ -3891,10 +3867,17 @@ impl Runtime {
     /// Replay only authoritative event state. This deliberately omits local
     /// git/submodule decoration so readiness checks cannot block on a checkout.
     pub fn replay_authority(&self) -> Result<RuntimeState> {
-        if let Some(state) = self.load_folded_checkpoint()? {
-            return Ok(state);
-        }
-        self.fold_authority_events(&self.events()?)
+        let authoritative = self.fold_authority_events(&self.events()?)?;
+        // Checkpoints are local acceleration/audit material, never authority.
+        // A valid signature from an arbitrary local key cannot prove that the
+        // embedded state was derived from the signed event source, so replay
+        // always folds that source and only treats an equivalent checkpoint as
+        // a verified cache hit.
+        let _cache_matches = matches!(
+            self.load_folded_checkpoint(),
+            Ok(Some(ref cached)) if cached == &authoritative
+        );
+        Ok(authoritative)
     }
 
     pub fn replay(&self) -> Result<RuntimeState> {
@@ -3924,7 +3907,7 @@ impl Runtime {
                 )
             })?
             .import_updates(updates)?;
-        self.persist_folded_checkpoint(&state)?;
+        let _ = self.persist_folded_checkpoint_with_signer(&state, None);
         self.decorate_replica_view(&mut state);
         Ok((inserted, state))
     }
@@ -3948,13 +3931,22 @@ impl Runtime {
         Ok(format!("sha256:{:x}", digest.finalize()))
     }
 
-    fn persist_folded_checkpoint(&self, state: &RuntimeState) -> Result<PathBuf> {
+    fn persist_folded_checkpoint_with_signer(
+        &self,
+        state: &RuntimeState,
+        signer: Option<&DeviceSigner>,
+    ) -> Result<Option<PathBuf>> {
         if state.revision == 0 {
             return Err(RuntimeError::NotInitialized);
         }
+        // Cache refresh must never create or rediscover authority. Event
+        // origination passes its already-selected signer; replicated imports
+        // without a local signer simply skip the cache and remain replayable.
+        let Some(signer) = signer else {
+            return Ok(None);
+        };
         let mut authoritative = state.clone();
         authoritative.replica_view = None;
-        let signer = self.device_signer()?;
         let mut checkpoint = SignedFoldedCheckpoint {
             schema_version: FOLDED_CHECKPOINT_SCHEMA_VERSION.into(),
             event_count: authoritative.revision,
@@ -3987,7 +3979,7 @@ impl Runtime {
             &directory.join("current.json"),
             &serde_json::to_value(pointer)?,
         )?;
-        Ok(path)
+        Ok(Some(path))
     }
 
     fn load_folded_checkpoint(&self) -> Result<Option<RuntimeState>> {
@@ -4052,20 +4044,6 @@ impl Runtime {
         let active = read_event_file(&self.events_path())?;
         if active.len() <= retain_active {
             return Ok(None);
-        }
-        let checkpoint_count = fs::read_dir(self.checkpoint_dir())?
-            .filter_map(std::result::Result::ok)
-            .filter(|entry| {
-                entry
-                    .file_name()
-                    .to_string_lossy()
-                    .starts_with("checkpoint-")
-            })
-            .count();
-        if checkpoint_count < 2 {
-            return Err(RuntimeError::InvalidState(
-                "journal compaction requires at least two signed checkpoints".into(),
-            ));
         }
         let split = active.len() - retain_active;
         let archived = &active[..split];
@@ -4133,7 +4111,7 @@ impl Runtime {
             }),
         )?;
         let state = self.fold_authority_events(&self.events()?)?;
-        self.persist_folded_checkpoint(&state)?;
+        let _ = self.persist_folded_checkpoint_with_signer(&state, None);
         File::open(&directory)?.sync_all()?;
         Ok(Some(JournalArchiveSummary {
             segment,
@@ -4242,6 +4220,7 @@ impl Runtime {
         exact_next_work: Option<String>,
         plan_revision: u64,
     ) -> Result<RuntimeState> {
+        self.ensure_writable_replica()?;
         fs::create_dir_all(self.journal_root())?;
         let lock = OpenOptions::new()
             .create(true)
@@ -4447,32 +4426,33 @@ impl Runtime {
         self.validate_replica_write(state, &envelope.actor, &envelope.command)?;
         let kind = prepare_command_event(state, &envelope.actor, &envelope.command)?;
         let run_id = command_event_run_id(state, &envelope.command).to_owned();
-        let replica_head = state.replica_heads.get(&self.replica_id);
-        let mut event = Event {
-            schema_version: EVENT_SCHEMA_VERSION.into(),
-            project_id: state.project_id.clone(),
-            replica_id: self.replica_id.clone(),
+        let (event, _, _) = self.prepare_originated_event(
+            state,
+            state.project_id.clone(),
             run_id,
-            event_id: Uuid::new_v4().to_string(),
-            command_id: Some(envelope.command_id),
-            revision: state.frontier.derived_revision().saturating_add(1),
-            expected_revision: state.revision,
-            lamport: state.frontier.next_lamport(&self.replica_id),
-            frontier: state.frontier.clone(),
-            causal_parent: replica_head.map(|head| head.event_id.clone()),
-            actor_id: envelope.actor.id.clone(),
-            actor: envelope.actor,
-            timestamp: Utc::now(),
+            envelope.actor,
+            envelope.command_id,
             kind,
-            previous_hash: replica_head.map(|head| head.integrity_hash.clone()),
-            migration_provenance: None,
-            integrity_hash: String::new(),
-            signer_key_id: None,
-            signer_public_key: None,
-            signature: None,
-        };
-        event.seal(&self.device_signer()?)?;
+        )?;
         Ok(event)
+    }
+
+    /// Sign a remote command with a key that is both discoverable locally and
+    /// eligible for the command actor in the supplied authoritative state.
+    pub fn sign_command_envelope(
+        &self,
+        state: &KbdStateV2,
+        envelope: CommandEnvelope,
+    ) -> Result<SignedCommandEnvelope> {
+        self.ensure_writable_replica()?;
+        if envelope.project_id != state.project_id {
+            return Err(RuntimeError::ProjectMismatch {
+                supplied: envelope.project_id,
+                current: state.project_id.clone(),
+            });
+        }
+        let signer = self.device_signer_for_actor(state, &envelope.actor)?;
+        SignedCommandEnvelope::sign(envelope, &signer)
     }
 
     fn ensure_writable_replica(&self) -> Result<()> {
@@ -4828,13 +4808,43 @@ impl Runtime {
     #[allow(clippy::too_many_arguments)]
     fn append_unchecked(
         &self,
-        mut state: RuntimeState,
+        state: RuntimeState,
         project_id: String,
         run_id: String,
         actor: Actor,
         command_id: String,
         kind: EventKind,
     ) -> Result<RuntimeState> {
+        let (event, mut state, checkpoint_signer) =
+            self.prepare_originated_event(&state, project_id, run_id, actor, command_id, kind)?;
+        fs::create_dir_all(self.journal_root())?;
+        let mut file = OpenOptions::new()
+            .create(true)
+            .append(true)
+            .open(self.events_path())?;
+        serde_json::to_writer(&mut file, &event)?;
+        file.write_all(b"\n")?;
+        file.sync_data()?;
+        File::open(self.journal_root())?.sync_all()?;
+        if let Some(document) = self.project_document() {
+            document.ingest_events(std::slice::from_ref(&event))?;
+        }
+        let _ = self.persist_folded_checkpoint_with_signer(&state, Some(&checkpoint_signer));
+        self.decorate_replica_view(&mut state);
+        Ok(state)
+    }
+
+    #[allow(clippy::too_many_arguments)]
+    fn prepare_originated_event(
+        &self,
+        state: &RuntimeState,
+        project_id: String,
+        run_id: String,
+        actor: Actor,
+        command_id: String,
+        kind: EventKind,
+    ) -> Result<(Event, RuntimeState, DeviceSigner)> {
+        self.ensure_writable_replica()?;
         let replica_head = state.replica_heads.get(&self.replica_id);
         let mut event = Event {
             schema_version: EVENT_SCHEMA_VERSION.into(),
@@ -4849,7 +4859,7 @@ impl Runtime {
             frontier: state.frontier.clone(),
             causal_parent: replica_head.map(|head| head.event_id.clone()),
             actor_id: actor.id.clone(),
-            actor,
+            actor: actor.clone(),
             timestamp: Utc::now(),
             kind,
             previous_hash: replica_head.map(|head| head.integrity_hash.clone()),
@@ -4859,24 +4869,11 @@ impl Runtime {
             signer_public_key: None,
             signature: None,
         };
-        let signer = self.device_signer()?;
+        let signer = self.device_signer_for_actor(state, &actor)?;
         event.seal(&signer)?;
-        state.apply(&event)?;
-        fs::create_dir_all(self.journal_root())?;
-        let mut file = OpenOptions::new()
-            .create(true)
-            .append(true)
-            .open(self.events_path())?;
-        serde_json::to_writer(&mut file, &event)?;
-        file.write_all(b"\n")?;
-        file.sync_data()?;
-        File::open(self.journal_root())?.sync_all()?;
-        if let Some(document) = self.project_document() {
-            document.ingest_events(std::slice::from_ref(&event))?;
-        }
-        self.persist_folded_checkpoint(&state)?;
-        self.decorate_replica_view(&mut state);
-        Ok(state)
+        let mut next = state.clone();
+        next.apply(&event)?;
+        Ok((event, next, signer))
     }
 
     pub fn transition(
@@ -5430,6 +5427,9 @@ impl Runtime {
     }
 
     pub fn migrate_legacy_ledgers(&self, apply: bool) -> Result<MigrationSummary> {
+        if apply {
+            self.ensure_writable_replica()?;
+        }
         let project_root = &self.project_root;
         let manifest = self.project_manifest(apply)?;
         let project_id = manifest

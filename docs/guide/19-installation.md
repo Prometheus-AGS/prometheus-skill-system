@@ -1,6 +1,6 @@
 # 19 · Installation
 
-This procedure builds, signs, installs, and locally certifies Prometheus 1.7.0. The canonical deployment is native user services on macOS or systemd user services on Linux; containers remain optional development packaging.
+This procedure builds, signs, installs, and locally certifies Prometheus 1.8.0. The canonical deployment is native user services on macOS or systemd user services on Linux; containers remain optional development packaging.
 
 ## Prerequisites
 
@@ -26,7 +26,7 @@ Use `--profile full` on macOS or Linux to initialize all submodules, approve
 prerequisites, build binaries locally, configure MCP for selected clients,
 install user services, and run doctors. Full installation is rejected on
 Windows; the skills profile is certified through Git Bash or WSL. `--best-effort`
-is explicitly non-certifying. Release `1.7.0` is the minimum supported active
+is explicitly non-certifying. Release `1.8.0` is the minimum supported active
 umbrella skill-system release.
 
 The equivalent explicit full-system entrypoints are:
@@ -93,15 +93,17 @@ loops. After the implementation is complete, run the smallest applicable full
 integration target and then the final local certification. Unit and mock-only
 tests are not acceptance evidence.
 
-All six executables share the product release version. Verify the installed
-artifacts before loading services:
+The affected 1.8.0 binaries advance together; independently certified
+`prometheus-exec` remains at its own 1.7.0 release. Verify installed artifacts
+before loading services:
 
 ```text
-prometheus 1.7.0
-pk 1.7.0
-pk-cherry 1.7.0
-prometheus-learning-worker 1.7.0
-surreal-memory-server 1.7.0
+prometheus 1.8.0
+pk 1.8.0
+pk-cherry 1.8.0
+prometheus-learning-worker 1.8.0
+surreal-memory-server 1.8.0
+sovereign-sync 1.8.0
 prometheus-exec 1.7.0
 ```
 

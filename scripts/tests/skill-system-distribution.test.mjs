@@ -10,8 +10,8 @@ const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), '../.
 const contract = readSkillSystem(root);
 const skills = collectDistributionSkills(root, contract);
 
-assert.equal(contract.releaseVersion, '1.7.0');
-assert.equal(contract.minimumActiveVersion, '1.7.0');
+assert.equal(contract.releaseVersion, '1.8.0');
+assert.equal(contract.minimumActiveVersion, '1.8.0');
 assert.equal(contract.targets.length, 14);
 assert.equal(new Set(skills.map(skill => skill.name)).size, skills.length);
 assert(skills.some(skill => skill.name === 'artifact-refiner'));
@@ -41,7 +41,10 @@ function digestTree(directory, relative = '') {
 
 for (const platform of ['claude', 'codex']) {
   const packageRoot = path.join(root, 'dist/plugins', platform, contract.name);
-  const installedNames = fs.readdirSync(path.join(packageRoot, 'skills')).sort();
+  const packagedSkills = path.join(packageRoot, 'skills');
+  const installedNames = fs.readdirSync(packagedSkills)
+    .filter(name => fs.existsSync(path.join(packagedSkills, name, 'SKILL.md')))
+    .sort();
   assert.deepEqual(installedNames, skills.map(skill => skill.name).sort());
   for (const skill of skills) {
     assert.deepEqual(digestTree(path.join(packageRoot, 'skills', skill.name)), digestTree(skill.source), `${platform}/${skill.name}`);

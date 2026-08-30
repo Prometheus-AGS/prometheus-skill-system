@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "release": "1.8.0",
+  "ownedSurfaces": [
+    { "path": "package.json", "pattern": "\\\"version\\\": \\\"1.8.0\\\"" },
+    { "path": "package-lock.json", "pattern": "\\\"version\\\": \\\"1.8.0\\\"" },
+    { "path": "skill-system.json", "pattern": "\\\"releaseVersion\\\": \\\"1.8.0\\\"" },
+    { "path": "skill-system.json", "pattern": "\\\"minimumActiveVersion\\\": \\\"1.8.0\\\"" },
+    { "path": "config/prometheus-exec-component.json", "pattern": "\\\"release\\\": \\\"1.8.0\\\"" },
+    { "path": "tools/prometheus-cli/Cargo.toml", "pattern": "version = \\\"1.8.0\\\"" },
+    { "path": "substrate/sovereign-sync/Cargo.toml", "pattern": "version = \\\"1.8.0\\\"" },
+    { "path": "tools/prometheus-knowledge/Cargo.toml", "pattern": "version = \\\"1.8.0\\\"" },
+    { "path": "tools/surreal-memory-server/Cargo.toml", "pattern": "version = \\\"1.8.0\\\"" },
+    { "path": "tools/surreal-memory-server/openapi/surreal-memory-v2.openapi.json", "pattern": "\\\"version\\\": \\\"1.8.0\\\"" }
+  ],
+  "intentionalExemptions": [
+    { "surface": "kbd-runtime", "version": "0.1.0", "reason": "internal protocol crate" },
+    { "surface": "surreal-memory library", "version": "0.1.0", "reason": "independently versioned embeddable crate" },
+    { "surface": "prometheus-exec", "version": "1.7.0", "reason": "independently certified binary and API" },
+    { "surface": "adjacent marketplace plugins", "version": "owned", "reason": "plugin releases do not cascade with the umbrella" }
+  ]
+}

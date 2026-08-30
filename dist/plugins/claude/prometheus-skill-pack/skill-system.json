@@ -1,0 +1,250 @@
+{
+  "$schema": "./schemas/skill-system.schema.json",
+  "imports": [],
+  "inventory": {
+    "excludedImports": [],
+    "roots": [
+      {
+        "id": "packaged",
+        "path": "skills",
+        "scan": "children"
+      }
+    ]
+  },
+  "marketplace": {
+    "plugins": [
+      {
+        "category": "frontend",
+        "name": "prometheus-react-skills",
+        "path": "skills/react/prometheus-entity-skills",
+        "version": "1.5.0"
+      },
+      {
+        "category": "productivity",
+        "name": "prometheus-process-skills",
+        "path": "skills/process",
+        "version": "1.5.2"
+      },
+      {
+        "category": "devops",
+        "name": "prometheus-devops-skills",
+        "path": "skills/devops",
+        "version": "1.5.0"
+      },
+      {
+        "category": "testing",
+        "name": "prometheus-testing-skills",
+        "path": "skills/testing",
+        "version": "1.5.0"
+      },
+      {
+        "category": "productivity",
+        "name": "learn",
+        "path": "skills/learn",
+        "version": "1.5.0"
+      },
+      {
+        "category": "productivity",
+        "name": "prometheus-librefang-skills",
+        "path": "skills/rust/librefang-wasm-skill",
+        "version": "1.5.0"
+      },
+      {
+        "category": "productivity",
+        "name": "cowork-management",
+        "path": "skills/process/cowork-management",
+        "version": "1.0.0"
+      },
+      {
+        "category": "devops",
+        "name": "disk-space-guardian",
+        "path": "skills/devops/disk-space-guardian",
+        "version": "1.0.0"
+      },
+      {
+        "category": "productivity",
+        "name": "prometheus-research-skills",
+        "path": "skills/research",
+        "version": "1.0.0"
+      },
+      {
+        "category": "productivity",
+        "name": "prometheus-research-server",
+        "path": "substrate/prometheus-research",
+        "version": "1.6.0"
+      }
+    ]
+  },
+  "minimumActiveVersion": "1.8.0",
+  "name": "prometheus-skill-pack",
+  "outputs": {
+    "claudeMarketplace": ".claude-plugin/marketplace.json",
+    "claudePackage": "dist/plugins/claude/prometheus-skill-pack",
+    "codexMarketplace": ".agents/plugins/marketplace.json",
+    "codexPackage": "dist/plugins/codex/prometheus-skill-pack",
+    "skillCatalog": "SKILLS.md"
+  },
+  "platforms": {
+    "full": [
+      "darwin",
+      "linux"
+    ],
+    "skills": [
+      "darwin",
+      "linux",
+      "windows-git-bash",
+      "windows-wsl"
+    ]
+  },
+  "profiles": {
+    "full": {
+      "default": false,
+      "description": "Initialize every import, build local binaries, configure selected MCP clients, install user services, and run doctors."
+    },
+    "skills": {
+      "default": true,
+      "description": "Install signed skills only; do not build binaries, configure MCP, or install services."
+    }
+  },
+  "releaseVersion": "1.8.0",
+  "repository": "https://github.com/Prometheus-AGS/prometheus-skill-system.git",
+  "schemaVersion": "prometheus-skill-system-v1",
+  "targets": [
+    {
+      "detect": [
+        ".claude",
+        "command:claude"
+      ],
+      "id": "claude",
+      "mode": "symlink",
+      "path": ".claude/skills",
+      "sourceTreeLifecycle": "install-only"
+    },
+    {
+      "detect": [
+        ".opencode",
+        "command:opencode"
+      ],
+      "id": "opencode",
+      "mode": "symlink",
+      "path": ".opencode/skills",
+      "sourceTreeLifecycle": "install-only"
+    },
+    {
+      "detect": [
+        ".kimi-code",
+        "command:kimi"
+      ],
+      "id": "kimi-code",
+      "mode": "symlink",
+      "path": ".kimi-code/skills",
+      "sourceTreeLifecycle": "install-only"
+    },
+    {
+      "detect": [
+        ".minimax"
+      ],
+      "id": "minimax",
+      "mode": "copy",
+      "path": ".minimax/skills",
+      "sourceTreeLifecycle": "install-only"
+    },
+    {
+      "detect": [
+        ".cursor",
+        "command:cursor"
+      ],
+      "id": "cursor",
+      "mode": "symlink",
+      "path": ".cursor/skills",
+      "sourceTreeLifecycle": "install-only"
+    },
+    {
+      "detect": [
+        ".codex",
+        "command:codex"
+      ],
+      "id": "codex",
+      "mode": "copy",
+      "path": ".codex/skills",
+      "sourceTreeLifecycle": "install-only"
+    },
+    {
+      "detect": [
+        ".gemini",
+        "command:gemini"
+      ],
+      "id": "gemini",
+      "mode": "symlink",
+      "path": ".gemini/skills",
+      "sourceTreeLifecycle": "install-only"
+    },
+    {
+      "detect": [
+        ".roo"
+      ],
+      "id": "roo",
+      "mode": "symlink",
+      "path": ".roo/skills",
+      "sourceTreeLifecycle": "install-only"
+    },
+    {
+      "detect": [
+        ".devin",
+        ".windsurf",
+        "command:devin",
+        "command:windsurf"
+      ],
+      "id": "devin",
+      "mode": "symlink",
+      "path": ".devin/skills",
+      "sourceTreeLifecycle": "install-only"
+    },
+    {
+      "detect": [
+        ".codeium/windsurf"
+      ],
+      "id": "codeium-windsurf",
+      "mode": "symlink",
+      "path": ".codeium/windsurf/skills",
+      "sourceTreeLifecycle": "install-only"
+    },
+    {
+      "detect": [
+        ".agents"
+      ],
+      "id": "agents",
+      "mode": "symlink",
+      "path": ".agents/skills",
+      "sourceTreeLifecycle": "install-only"
+    },
+    {
+      "detect": [
+        ".config/zed",
+        "command:zed"
+      ],
+      "id": "zed-config",
+      "mode": "symlink",
+      "path": ".config/zed/skills",
+      "sourceTreeLifecycle": "install-only"
+    },
+    {
+      "detect": [
+        ".zed"
+      ],
+      "id": "zed",
+      "mode": "symlink",
+      "path": ".zed/skills",
+      "sourceTreeLifecycle": "install-only"
+    },
+    {
+      "detect": [
+        ".cline"
+      ],
+      "id": "cline",
+      "mode": "symlink",
+      "path": ".cline/skills",
+      "sourceTreeLifecycle": "install-only"
+    }
+  ]
+}

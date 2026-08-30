@@ -48,7 +48,8 @@ node scripts/install-plugin-generation.js --verify
 Do not patch an active generation or a copied target by hand.
 
 The umbrella generation, enabled Claude/Codex umbrella plugins, and target
-receipts must never select a release below `1.7.0`. For the one-time cache
+receipts must never select a release below `1.8.0`. The historical one-time
+1.7 migration remains available for machines upgrading from older layouts. For that
 migration use `scripts/migrate-skill-system-1.7.0.sh`: it performs a clean
 checkout activation, supported native refresh, rollback-on-refresh-failure,
 Claude prune, receipt-aware generation prune, and writes a migration receipt

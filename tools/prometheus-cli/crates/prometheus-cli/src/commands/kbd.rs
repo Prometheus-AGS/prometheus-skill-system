@@ -4,8 +4,7 @@ use kbd_runtime::{
     rollout::{RolloutObservation, RolloutTracker},
     Actor, ActorKind, Blocker, BoundaryEdge, BoundaryKind, BoundaryOutcome, BoundaryReceipt,
     Checkpoint, ClaimMode, CommandEnvelope, CommandKind, Event, GateKind, GateOutcome, GateReceipt,
-    GateRun, LifecycleState, ProjectionScope, Runtime, RuntimeError, RuntimeState,
-    SignedCommandEnvelope, WorkStatus,
+    GateRun, LifecycleState, ProjectionScope, Runtime, RuntimeError, RuntimeState, WorkStatus,
 };
 use serde_json::{json, Value};
 use sha2::{Digest, Sha256};
@@ -1709,19 +1708,21 @@ impl ControlClient {
         // Resolve the signer only for an actual mutation, and keep the
         // synchronous OS credential lookup off the async executor.
         let runtime = self.runtime.clone();
-        let signer = match tokio::task::spawn_blocking(move || runtime.device_signer())
-            .await
-            .context("device signer task failed")
+        let signing_state = self
+            .runtime
+            .replay_authority()
+            .map_err(|error| ControlFailure::Rejected(error.into()))?;
+        let signed = match tokio::task::spawn_blocking(move || {
+            runtime.sign_command_envelope(&signing_state, envelope)
+        })
+        .await
+        .context("device signer task failed")
         {
-            Ok(Ok(signer)) => signer,
+            Ok(Ok(signed)) => signed,
             // A missing/locked signer is a local problem, not the daemon's, and
             // local execution needs the same signer — so this is terminal.
             Ok(Err(error)) => return Err(ControlFailure::Rejected(error.into())),
             Err(error) => return Err(ControlFailure::Rejected(error)),
-        };
-        let signed = match SignedCommandEnvelope::sign(envelope, &signer) {
-            Ok(signed) => signed,
-            Err(error) => return Err(ControlFailure::Rejected(error.into())),
         };
         let response = self
             .transport
