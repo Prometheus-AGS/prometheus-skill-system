@@ -1,16 +1,17 @@
 {
   "schemaVersion": "2",
   "generatedBy": "kbd-runtime",
-  "sourceRevision": 112,
-  "derivedRevision": 112,
+  "projectionContractVersion": 2,
+  "sourceRevision": 375,
+  "derivedRevision": 375,
   "frontier": {
-    "4bca58c3-e70b-48c9-a555-60bc16d3d025": 112
+    "4bca58c3-e70b-48c9-a555-60bc16d3d025": 375
   },
   "conflictCount": 0,
   "phase": "sovereign-sync-service-reliability",
   "phaseId": "openspec-mirror-drift-cleanup::sovereign-sync-service-reliability",
   "parentPhase": "openspec-mirror-drift-cleanup",
-  "last_updated": "2026-08-29T18:03:06.927798Z",
+  "last_updated": "2026-08-30T12:03:42.375384Z",
   "last_updated_by": "kbd-runtime",
   "changes_total": 1,
   "changes_completed": 1,
@@ -25,12 +26,12 @@
     },
     "evidence": {
       "status": "COMPLETE",
-      "summary": "Local lifecycle, recovery, contention, latency, review, and distribution evidence passed",
+      "summary": "Operator disposition recorded; strict OpenSpec verification passed; main spec synchronized; change archived on 2026-08-30.",
       "blockers": []
     },
     "certification": {
       "status": "COMPLETE",
-      "summary": "Protected local certification gate passed",
+      "summary": "Final local integration, release, protected-test, OpenSpec, harness, documentation, and receipt-identity certification passed.",
       "blockers": []
     },
     "publication": {

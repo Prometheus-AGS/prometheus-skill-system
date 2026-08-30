@@ -1,0 +1,80 @@
+{
+  "schemaVersion": "1",
+  "observedAt": "2026-08-30T03:47:44Z",
+  "sourceCommit": "d1e48927d61370727dbde734d3da4938f235d6b8",
+  "canonicalSourceRevision": 297,
+  "phase": "kbd-control-plane-recovery",
+  "task": "3.1",
+  "recovery": {
+    "initialOutageWindow": "2026-08-29T22:09Z/2026-08-29T22:12Z",
+    "initialSymptoms": [
+      "SurrealDB health on 127.0.0.1:28000 timed out",
+      "surreal-memory health on 127.0.0.1:23001 timed out",
+      "service logs reported transaction conflicts, resource busy responses, and bounded query timeouts"
+    ],
+    "action": "launchctl kickstart -k gui/501/ai.prometheus.surrealdb-native",
+    "previousDatabasePid": 2833,
+    "recoveredDatabasePid": 84253,
+    "memoryServicePid": 2829,
+    "finalDatabaseHealthHttp": 200,
+    "finalMemoryHealthHttp": 200,
+    "finalMemoryReadyHttp": 200,
+    "finalReadyCapabilities": [
+      "coordinator",
+      "ledger",
+      "model_executor",
+      "search_index",
+      "storage",
+      "tokenizer"
+    ],
+    "sharingPlaneRequired": false,
+    "sovereignSyncLoaded": false
+  },
+  "writeProbe": {
+    "script": "/Users/gqadonis/.codex/skills/kbd-process-orchestrator/shared/lib/memory-log.sh",
+    "route": "POST http://127.0.0.1:23001/api/v1/entities",
+    "entityName": "6ac090a4-3656-4d83-8eb6-2891508196d5/kbd-control-plane-recovery/task/after/6/2026-08-30T03:47:44Z",
+    "entityType": "kbd_lifecycle_event",
+    "writerExitStatus": 0,
+    "writerDiagnosticBytes": 0,
+    "expectedObservation": {
+      "kind": "task",
+      "edge": "after",
+      "index": 6,
+      "total": 10,
+      "phase": "kbd-control-plane-recovery",
+      "sourceTool": "codex",
+      "project": "6ac090a4-3656-4d83-8eb6-2891508196d5",
+      "ts": "2026-08-30T03:47:44Z"
+    }
+  },
+  "readbackProbe": {
+    "route": "GET http://127.0.0.1:23001/api/v1/entities/search?q=kbd_lifecycle_event",
+    "httpStatus": 200,
+    "exactEntityMatches": 1,
+    "entityTypeMatched": true,
+    "observationDecodedAndMatched": true
+  },
+  "recallProbe": {
+    "script": "/Users/gqadonis/.codex/skills/kbd-memory-recall/kbd-memory-recall.sh",
+    "digest": ".kbd-orchestrator/phases/kbd-control-plane-recovery/prior-context.md",
+    "beforeSha256": "c9c0102048996caae4fd4185df5022b16b26e4dd16daad3c4c81166bcf2d9ded",
+    "afterSha256": "ab6704af3afbaa8161f1a16fa21df7f85e27f6ccdd6f0c61b0295f76e1144230",
+    "lineCount": 15,
+    "nonUnreachableDigest": true,
+    "sameProjectPhaseMatches": 5,
+    "recalledKinds": {
+      "task": 5
+    },
+    "stubPatternsPresent": false
+  },
+  "retentionAndCleanup": {
+    "entityDisposition": "retained as explicit certification evidence",
+    "serverRetentionDays": 365,
+    "temporarySearchFilesRemaining": 0,
+    "temporaryDigestFilesRemaining": 0,
+    "secretBearingOutputStored": false,
+    "canonicalRuntimeMutatedByProbe": false
+  },
+  "hostedValidationUsed": false
+}

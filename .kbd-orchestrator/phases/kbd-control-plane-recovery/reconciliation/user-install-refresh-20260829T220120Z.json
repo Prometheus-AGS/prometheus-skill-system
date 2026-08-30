@@ -1,0 +1,76 @@
+{
+  "schemaVersion": "kbd-user-install-refresh-receipt-v1",
+  "recordedAt": "2026-08-29T22:01:20Z",
+  "changeId": "reconcile-kbd-control-plane-projections",
+  "taskId": "4",
+  "taskTitle": "2.2 Refresh repository-managed user skill installations through the owned installer, verify source/install parity for touched skills, and prove user-owned collisions remain untouched.",
+  "installer": {
+    "command": "npm run install:user",
+    "implementation": "scripts/install.js --scope user",
+    "previousGeneration": "4b4b504191ffb82b81846fdebde7ee1bf93e7ae5618db9e7cb93c1fa983e020f",
+    "activeGeneration": "4158951e90c675b037a01b401a8a6c299e9b684b0e13f21c47bd8cc8a0eaef8d",
+    "bundleId": "a76e4233f51ef3236b36248a6a9ba3338b7a1321bef13979c3d72d285ef6e96c",
+    "sourceVersion": "1.7.0",
+    "sourceCommit": "d1e48927d61370727dbde734d3da4938f235d6b8",
+    "sourceTreeState": "modified",
+    "exitStatus": 0
+  },
+  "placementVerification": {
+    "command": "node scripts/verify-skill-install.js --json",
+    "skills": 164,
+    "targets": 14,
+    "checked": 2296,
+    "failures": 0,
+    "exitStatus": 0
+  },
+  "collisionSafety": {
+    "priorInstallableSkills": 163,
+    "refreshedInstallableSkills": 164,
+    "newCanonicalSkills": [
+      "kbd-bottleneck-detector"
+    ],
+    "newCanonicalSkillPreexistingAtTargets": 0,
+    "liveCanonicalCollisions": 0,
+    "foreignTreeDigestContract": "Across all 14 target roots, exclude canonical pack names and installer metadata; hash every remaining top-level entry recursively using target-relative path, object type, POSIX mode, and file bytes or symlink-target bytes.",
+    "before": {
+      "topLevelEntries": 1548,
+      "objects": 12201,
+      "bytes": 113490605,
+      "sha256": "24084bd95449ac78fe0dea0278f4705dae00a558d5f749299c644ce3e910ca35"
+    },
+    "after": {
+      "topLevelEntries": 1548,
+      "objects": 12201,
+      "bytes": 113490605,
+      "sha256": "24084bd95449ac78fe0dea0278f4705dae00a558d5f749299c644ce3e910ca35"
+    },
+    "foreignContentUnchanged": true
+  },
+  "touchedSkillParity": {
+    "digestContract": "Deterministic tree SHA-256 over relative path, object type, POSIX mode, and file bytes or symlink-target bytes; installer receipts are excluded from copy targets.",
+    "surfaces": [
+      "source",
+      "active signed generation",
+      "Codex copy target",
+      "MiniMax copy target"
+    ],
+    "skills": {
+      "adversarial-review": "1c134831aa936399231416f2377b8dd259d3630d07d81a797e2fdc6f3bc9f927",
+      "kbd-apply": "3b5915eecf001f8eb8022878b4faeaa1c11c11c895458b5b456d5d4eb0b8c277",
+      "kbd-bottleneck-detector": "f8f8708b30021a8377f564824d6f1d88ee05a615abc1850c557322092839e90a",
+      "kbd-inject-agent-rules": "d4e7afa5622b13003235666dd4b273aa47e8afb9862f48d062f2c18851b9cf0b",
+      "kbd-memory-recall": "16a13977cf8f22d496eb164bc49ce828bbca08f5c146470dda316870d5f8d975",
+      "kbd-process-orchestrator": "a1d247aa98cb5469ee1e7330978bdde915b9e59f2f61399421af8dab2684387d"
+    },
+    "allParity": true,
+    "symlinkTargetsCoveredByExhaustivePlacementVerification": 12
+  },
+  "validation": [
+    {
+      "command": "git diff --check",
+      "exitStatus": 0
+    }
+  ],
+  "hostedValidationUsed": false,
+  "outcome": "pass"
+}

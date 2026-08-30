@@ -12,7 +12,7 @@
 #
 # Daemons (dependency order): surrealdb-native(:28000) → surreal-memory-native(:23001)
 #                             → pk-cherry(:8942) → forge-mcp(:8943) → surface-bridge(:7890)
-#                             → sovereign-sync(:7892);
+#                             → optional sovereign-sync sharing service;
 #                             plus a nudge timer.
 # Also installs prometheus-exec (ai.prometheus.exec), a Unix-socket daemon with
 # no HTTP port, by delegating to scripts/install-prometheus-exec-service.sh.
@@ -20,6 +20,7 @@
 #
 # Usage:
 #   bash scripts/install-mcp-services.sh [--unload] [--restart] [--learning-recovery]
+#       [--sharing]
 #       [--user <username>] [--dry-run] [--render-only <directory>]
 #       [--exclude <service> ...]
 #
@@ -29,6 +30,8 @@
 #   --learning-recovery
 #                 Install only pk-cherry, the learning worker, and hook rotation.
 #                 This mode never initializes, renders, stops, or starts sovereign-sync.
+#   --sharing     Explicitly install/start sovereign-sync for cross-machine sharing.
+#                 Without this flag the control plane is stopped and disabled.
 #   --user <u>    Target a different user (requires matching uid / privileges)
 #   --render-only <directory>
 #                 Render non-excluded managed service definitions and exit
@@ -45,6 +48,7 @@ DRY_RUN=false
 FORCE_RESTART=false
 RENDER_ONLY_DIR=""
 LEARNING_RECOVERY=false
+SHARING=false
 EXCLUDED_SERVICES=""
 
 while [ "$#" -gt 0 ]; do
@@ -53,6 +57,7 @@ while [ "$#" -gt 0 ]; do
         --restart)  FORCE_RESTART=true; shift ;;
         --dry-run)  DRY_RUN=true; shift ;;
         --learning-recovery) LEARNING_RECOVERY=true; shift ;;
+        --sharing) SHARING=true; shift ;;
         --exclude)
             [ "$#" -ge 2 ] || { echo "Missing value for --exclude" >&2; exit 2; }
             EXCLUDED_SERVICES="$EXCLUDED_SERVICES${2#service:}
@@ -68,6 +73,13 @@ while [ "$#" -gt 0 ]; do
         *)          echo "Unknown argument: $1" >&2; exit 2 ;;
     esac
 done
+
+# Local KBD is authoritative and daemon-free. The sharing daemon is deliberately
+# absent unless the operator opts in for this invocation.
+if ! $SHARING && [ "$ACTION" != "unload" ]; then
+    EXCLUDED_SERVICES="$EXCLUDED_SERVICES"'sovereign-sync
+'
+fi
 
 service_is_excluded() {
     local name="${1#ai.prometheus.}"
@@ -405,7 +417,68 @@ reload_scheduled_launch_agent() {
     launchctl enable "$GUI_DOMAIN/$label"
 }
 
+disable_optional_control_plane_macos() {
+    local label disabled_registry
+    for label in ai.prometheus.sovereign-sync com.prometheusags.sovereign-sync; do
+        if $DRY_RUN; then
+            echo "[dry-run] launchctl disable $GUI_DOMAIN/$label"
+            echo "[dry-run] launchctl bootout $GUI_DOMAIN/$label"
+        else
+            launchctl disable "$GUI_DOMAIN/$label" >/dev/null 2>&1 || true
+            launchctl bootout "$GUI_DOMAIN/$label" >/dev/null 2>&1 || true
+            disabled_registry="$(launchctl print-disabled "$GUI_DOMAIN" 2>/dev/null || true)"
+            printf '%s' "$disabled_registry" | grep -Fq "\"$label\" => disabled" || {
+                echo "ERROR: failed to disable $label" >&2
+                return 1
+            }
+            if launchctl print "$GUI_DOMAIN/$label" >/dev/null 2>&1; then
+                echo "ERROR: $label is still loaded after bootout" >&2
+                return 1
+            fi
+        fi
+        echo "→ $label disabled (enable explicitly with --sharing)"
+    done
+}
+
+disable_optional_control_plane_linux() {
+    local unit active_state enabled_state
+    for unit in ai.prometheus.sovereign-sync.service com.prometheusags.sovereign-sync.service; do
+        if $DRY_RUN; then
+            echo "[dry-run] systemctl --user disable --now $unit"
+            echo "→ ${unit%.service} disabled (enable explicitly with --sharing)"
+            continue
+        fi
+        systemctl --user disable --now "$unit" >/dev/null 2>&1 || true
+        active_state="$(systemctl --user is-active "$unit" 2>/dev/null || true)"
+        enabled_state="$(systemctl --user is-enabled "$unit" 2>/dev/null || true)"
+        case "$active_state" in inactive|unknown|'') ;; *)
+            echo "ERROR: $unit remains $active_state after disable" >&2
+            return 1 ;;
+        esac
+        case "$enabled_state" in disabled|masked|not-found|'') ;; *)
+            echo "ERROR: $unit remains $enabled_state after disable" >&2
+            return 1 ;;
+        esac
+        echo "→ ${unit%.service} disabled (enable explicitly with --sharing)"
+    done
+}
+
+ensure_optional_sharing_binary() {
+    local sovereign_sync_bin
+    $SHARING || return 0
+    [ "$ACTION" = "install" ] || return 0
+    [ -z "$RENDER_ONLY_DIR" ] || return 0
+    sovereign_sync_bin="$(resolve_bin sovereign-sync)"
+    [ -n "$sovereign_sync_bin" ] && return 0
+    if $DRY_RUN; then
+        echo "[dry-run] install optional sovereign-sync sharing binary"
+        return 0
+    fi
+    bash "$REPO_ROOT/scripts/install-sovereign-sync-sharing.sh"
+}
+
 macos_install() {
+    ensure_optional_sharing_binary
     $DRY_RUN || mkdir -p "$LAUNCH_AGENTS_DIR" "$LOG_DIR" "$KNOWLEDGE_DIR" \
         "$PROMETHEUS_HOME/.prometheus/logrotate" \
         "$PROMETHEUS_HOME/.prometheus/learning-queue/pending" \
@@ -418,6 +491,9 @@ macos_install() {
     if ! $DRY_RUN; then
         render_logrotate_config "$PROMETHEUS_HOME/.prometheus/logrotate/prometheus-hooks.conf"
         chmod 700 "$PROMETHEUS_HOME/.prometheus" "$PROMETHEUS_HOME/.prometheus/logrotate" "$PROMETHEUS_HOME/.prometheus/learning-queue"
+    fi
+    if ! $SHARING && ! $LEARNING_RECOVERY; then
+        disable_optional_control_plane_macos
     fi
     if $LEARNING_RECOVERY; then
         local recovery_labels=("ai.prometheus.pk-cherry" "$LEARNING_LABEL" "$ROTATION_LABEL")
@@ -518,6 +594,10 @@ macos_unload() {
 # ════════════════════════════════════════════════════════════════════════════
 linux_install() {
     command -v systemctl >/dev/null 2>&1 || { echo "systemctl not found — systemd required on Linux." >&2; exit 1; }
+    ensure_optional_sharing_binary
+    if ! $SHARING && ! $LEARNING_RECOVERY; then
+        disable_optional_control_plane_linux
+    fi
     $DRY_RUN || mkdir -p "$SYSTEMD_USER_DIR" "$LOG_DIR" "$KNOWLEDGE_DIR" \
         "$PROMETHEUS_HOME/.prometheus/logrotate" "$PROMETHEUS_HOME/.prometheus/learning-queue/pending" \
         "$PROMETHEUS_HOME/.prometheus/learning-queue/retry" "$PROMETHEUS_HOME/.prometheus/learning-queue/memory/pending" \

@@ -6,6 +6,7 @@
 # Usage:
 #   bash scripts/install-binaries.sh
 #   bash scripts/install-binaries.sh --dry-run
+#   bash scripts/install-binaries.sh --sharing   # also build the optional sync daemon
 
 set -euo pipefail
 
@@ -13,10 +14,12 @@ REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 BIN_DIR="${HOME}/.local/bin"
 mkdir -p "${BIN_DIR}"
 DRY_RUN=false
+SHARING=false
 
 while [ "$#" -gt 0 ]; do
     case "$1" in
         --dry-run) DRY_RUN=true; shift ;;
+        --sharing) SHARING=true; shift ;;
         --help|-h)
             sed -n '1,12p' "$0" | sed 's/^# \{0,1\}//'
             exit 0
@@ -111,7 +114,9 @@ else
 fi
 
 # ── 4. Learning substrate binaries ───────────────────────────────────────────
-for substrate_bin in learner-model surface-bridge sovereign-sync; do
+substrate_bins=(learner-model surface-bridge)
+$SHARING && substrate_bins+=(sovereign-sync)
+for substrate_bin in "${substrate_bins[@]}"; do
     substrate_manifest="${REPO_ROOT}/substrate/${substrate_bin}/Cargo.toml"
     if [ ! -f "$substrate_manifest" ]; then
         info "skip ${substrate_bin} (manifest not found)"
@@ -594,5 +599,6 @@ fi
 
 echo ""
 echo "✨ All binaries installed to ${BIN_DIR}"
-echo "   Next: bash scripts/install-mcp-services.sh   # (re)install + start launchd/systemd daemons"
+echo "   Next: bash scripts/install-mcp-services.sh   # install local daemons; control plane stays disabled"
+echo "   Sharing only: bash scripts/install-binaries.sh --sharing && bash scripts/install-mcp-services.sh --sharing"
 echo "   Then: prometheus setup --check               # verify full system health"

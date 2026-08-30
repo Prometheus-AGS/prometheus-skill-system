@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-08-30T11:52:58Z",
+  "phase": "kbd-control-plane-recovery",
+  "change": "reconcile-kbd-control-plane-projections",
+  "disposition": {
+    "decision": "accept-remediation-and-clear-blocker",
+    "operatorStatement": "Accept the round-2 remediation and clear the blocker",
+    "blockerId": "adversarial-review-round2-reconcile-projections",
+    "blockerClearedAtRevision": 361,
+    "resolution": "Repository owner explicitly accepted the completed round-2 remediation and authorized clearing this blocker on 2026-08-30."
+  },
+  "runtimeUpdates": {
+    "evidenceReopenedAtRevision": 362,
+    "waypointRevisedAtRevision": 363,
+    "planRevision": 13,
+    "exactNextWork": "Run strict OpenSpec verification and archive reconcile-kbd-control-plane-projections, then certify and close kbd-control-plane-recovery."
+  },
+  "reviewEvidence": {
+    "round2Verdict": "BLOCK",
+    "sycophancyScreen": "PASS",
+    "sycophancyScore": 0.0,
+    "productionFindingsRemediated": true,
+    "unresolvedRuntimeConflicts": 0
+  },
+  "hostedValidationUsed": false
+}

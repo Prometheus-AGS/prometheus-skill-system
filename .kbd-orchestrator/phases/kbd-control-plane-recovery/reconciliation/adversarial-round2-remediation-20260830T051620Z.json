@@ -1,0 +1,100 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-08-30T05:16:20Z",
+  "change": "reconcile-kbd-control-plane-projections",
+  "canonicalRevision": 357,
+  "controlPlane": {
+    "policy": "optional-sharing-only",
+    "localRuntimeAuthoritative": true,
+    "canonicalLabel": "ai.prometheus.sovereign-sync",
+    "legacyLabel": "com.prometheusags.sovereign-sync",
+    "canonicalDisabled": true,
+    "legacyDisabled": true,
+    "canonicalLoaded": false,
+    "legacyLoaded": false,
+    "processRunning": false,
+    "explicitEnableFlag": "--sharing"
+  },
+  "round2Review": {
+    "verdict": "BLOCK",
+    "sycophancyScreen": "PASS",
+    "sycophancyScore": 0.0,
+    "boundedReviewRoundsExhausted": true,
+    "findings": [
+      "projection conflict count and closure evidence diverged",
+      "Linux doctor could hide an enabled or failed inactive service",
+      "non-sharing installation lacked a disabled-state postcondition",
+      "sharing entrypoints did not guarantee binary installation"
+    ],
+    "productionFindingsRemediated": true,
+    "independentDispositionPending": true
+  },
+  "conflictReplay": {
+    "foldedCheckpointSchemaVersion": 2,
+    "unresolvedConflictCount": 0,
+    "resolutions": [
+      {
+        "conflictId": "conflict:85137e7a093fdf1a1bcd1458e764d5ff579d763f4ed801d57f80cd83ffac4437",
+        "resolutionEventId": "4099714b-7348-4e3d-8f45-39c31649ead9"
+      },
+      {
+        "conflictId": "conflict:b4ba1c71452249659a517666ac3cca63f97b81d30684584076dc6526dc7c7591",
+        "resolutionEventId": "a2e01c6e-54e0-41bb-a371-aaecf738ec41"
+      }
+    ]
+  },
+  "integrationGates": [
+    {
+      "id": "5b1f6c49b1e46d5e315a1ec64e5b78f105ee90e8f0a5604264c49a16ba5f1061",
+      "revision": 351,
+      "passed": 7,
+      "failed": 0
+    },
+    {
+      "id": "0c12667955f8c6a3de92de7fcce15d2afe75e3ff3fea778f8843c40a25de4eaa",
+      "revision": 355,
+      "passed": 7,
+      "failed": 0
+    }
+  ],
+  "releaseGates": [
+    {
+      "id": "8c2c13878c7863a8884a7c9ab2f1cad3ed82c9e8f7dce20320c5d69dfc52f067",
+      "revision": 353
+    },
+    {
+      "id": "88acb6de4be6cc7273b81a207f71d8d4af0d1ec029fc5fd3405ba2076e3cc748",
+      "revision": 357
+    }
+  ],
+  "installedCli": {
+    "path": "/Users/gqadonis/.local/bin/prometheus",
+    "version": "1.7.0",
+    "sha256": "bc2950ded5691ba938cfdcafd0943baa79b5acb393a0398567f7324a6ef0fca9",
+    "backup": "/Users/gqadonis/.local/bin/prometheus.pre-fold-checkpoint-v2-20260830T0012Z",
+    "signatureVerified": true
+  },
+  "generation": {
+    "harnessBundleSha256": "d5da8b01bc07baf1cb45843f4a2d7bb8e3229d8c521329e8b86c87643a4f3cd7",
+    "distributionSha256": "039c35893ac2bf808ba90b8bfdcfed41137907807d83efcc95afc1cd1f9ff3d1",
+    "userInstallGenerationSha256": "1c2b0ee0e707cd91d2ced82c11ff90a5bdb9d7a0038716556bfcef59fa72ff47",
+    "userPlacementsCurrent": 2296,
+    "userPlacementsTotal": 2296
+  },
+  "validation": {
+    "integrationScenariosPassed": 7,
+    "docsSyncClean": true,
+    "strictSkillValidationPassed": true,
+    "harnessValidationPassed": true,
+    "codexDistributionValidationPassed": true,
+    "shellSyntaxPassed": true,
+    "diffCheckPassed": true,
+    "hostedValidationUsed": false
+  },
+  "closure": {
+    "implementationComplete": true,
+    "certificationBlocked": true,
+    "blocker": "adversarial-review-round2-reconcile-projections",
+    "reason": "The two-round review cap is exhausted; an independent review disposition is still required before certification or archive."
+  }
+}

@@ -1,0 +1,63 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-08-30T12:01:17Z",
+  "phase": "kbd-control-plane-recovery",
+  "canonicalRevision": 374,
+  "receiptIdentityRepair": {
+    "problem": "Certification indexed title-keyed KBD boundary receipts by task id, hiding valid receipt pairs when subject and taskId differed.",
+    "resolution": "Certification now matches typed receipt taskId, phaseId, task boundary, completion edge, and pass/repaired outcome.",
+    "integrationCoverage": "The external CLI integration scenario records a title-based subject whose taskId is task-1 and completes certification end to end."
+  },
+  "gates": {
+    "integration": {
+      "id": "c944880d22209f4fee813a4e8c4afc06c97b2aaeb2f47a536529cde0c9378f22",
+      "revision": 370,
+      "passed": 7,
+      "failed": 0
+    },
+    "release": {
+      "id": "ff5b5aeb95ed656b8233c6b5cc02c1468a44b29538847bbe720c8dc426cd425e",
+      "revision": 372,
+      "outcome": "passed"
+    },
+    "certification": {
+      "id": "7475f5308e08e3c60cc4f270885dda71e331cbe23fa46e5637bc04e14f77dc50",
+      "revision": 374,
+      "passed": 7,
+      "failed": 0,
+      "outcome": "passed"
+    }
+  },
+  "installedCli": {
+    "path": "/Users/gqadonis/.local/bin/prometheus",
+    "version": "1.7.0",
+    "sha256": "c2932f7e2a0ec2b4b4e446aeb5477e14b73846e0502915eb88ec2f5b8f48cfb1",
+    "backup": "/Users/gqadonis/.local/bin/prometheus.pre-certification-receipt-identity-20260830T120054Z",
+    "signatureVerified": true
+  },
+  "localValidation": {
+    "harnessBundle": "d5da8b01bc07baf1cb45843f4a2d7bb8e3229d8c521329e8b86c87643a4f3cd7",
+    "harnessValidationPassed": true,
+    "codexDistributionValidationPassed": true,
+    "strictSkillValidationPassed": true,
+    "docsSyncClean": true,
+    "openSpecStrictSpecsPassed": 33,
+    "protectedTestsChanged": 0,
+    "shellSyntaxPassed": true,
+    "diffCheckPassed": true,
+    "hostedValidationUsed": false
+  },
+  "controlPlane": {
+    "canonicalDisabled": true,
+    "legacyDisabled": true,
+    "canonicalLoaded": false,
+    "legacyLoaded": false,
+    "processRunning": false,
+    "doctorRequiredChecksPassed": true,
+    "localRuntimeAuthoritative": true
+  },
+  "canonicalIntegrity": {
+    "unresolvedBlockers": 0,
+    "unresolvedConflicts": 0
+  }
+}

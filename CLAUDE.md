@@ -889,7 +889,7 @@ The learn domain adds a Feynman-Spine learning and education capability to the s
 - **`storage-provider`** — `StorageProvider` and `CrdtEngine` traits; `LocalDirAdapter` (default); `SyncManifest` + `SyncDomain` + `PrivacyClass` (structural KB-content privacy enforcement); `IrohDocsAdapter` for P2P-backed storage
 - **`learner-model`** — Loro 1.13 CRDT learner model (mastery per concept, FSRS-6 cards, gap records); simplified FSRS-6 scheduler; JSON-RPC `stdin`/`stdout` interface; PFA mastery update (`mastery_new = mastery_old + 0.3 × (score - mastery_old)` at ≥5 observations)
 - **`surface-bridge`** — Axum HTTP server on `127.0.0.1:7890`; routes: `/health`, `/mcp/detect-surface-tier`, `/mcp/render-ui-intent`, `/mcp/collect-response`; installed as a macOS launchd service via `install-skills-flat.sh`
-- **`sovereign-sync`** — P2P CRDT sync daemon, MCP server, and REST API on `127.0.0.1:7892`; iroh 1.0 + iroh-gossip 0.101 for QUIC P2P transport; Loro 1.13 for CRDT merge; rmcp 1.8 for MCP server (stdio); redb 2 for persistence; AG-UI SSE endpoint for Tauri/web clients; modes: `--mode mcp|daemon|server`; launchd service via `install-skills-flat.sh`
+- **`sovereign-sync`** — Optional P2P CRDT sharing daemon, MCP server, and REST API; iroh 1.0 + iroh-gossip 0.101 for QUIC P2P transport; Loro 1.13 for CRDT merge; rmcp 1.8 for MCP server (stdio); redb 2 for persistence; AG-UI SSE endpoint for Tauri/web clients; modes: `--mode mcp|daemon|server`. It is stopped and disabled by default. Build/register it only with `install-skills-flat.sh --sharing` or `prometheus setup --full --sharing`; ordinary KBD uses the signed local runtime directly.
 - **`sovereign-client`** — Rust SDK for `sovereign-sync` REST API + AG-UI SSE; reqwest 0.12 + eventsource-stream 0.2; `SovereignClient::new(base_url)` entry point
 - **`prometheus-research`** — Background deep-research daemon (v1.6.0); HTTP server on `127.0.0.1:7891`; 5 MCP tools (research_start/status/cancel/export, render_component); AG-UI SSE event stream; A2UI component registry with 8 server-rendered HTMX fragments; HTMX 2.0.8 + htmx-ext-sse 2.2.2 + Alpine.js 3.14.8 vendored; launchd auto-start via `com.prometheus.research.plist`; installed by `scripts/install-binaries.sh`
 
@@ -936,13 +936,15 @@ Four adapter prefixes for `learn-kb add` and `learn-goal --kb`:
 /learn-kb add dify:my-legal-kb
 /learn-kb add local:/path/to/clinical-protocols
 
-# Build and install substrate (Rust + launchd)
+# Build and install local substrate (Rust; no KBD control plane)
 bash scripts/install-skills-flat.sh
 
 # Check substrate status
 bash shared/scripts/detect-toolchain.sh
 
-# Check sovereign-sync P2P status
+# Optional sharing workflow: build, enable, then inspect sovereign-sync
+bash scripts/install-skills-flat.sh --sharing
+prometheus setup --full --sharing
 /sync-status
 
 # Manage P2P peers
@@ -998,6 +1000,11 @@ guide: [`docs/codex-plugin.md`](docs/codex-plugin.md). Codex verbs are `codex
 plugin marketplace add` / `codex plugin add|remove|list` (not `install`/`details`
 — those are *Claude* plugin verbs). Codex also reads the legacy
 `.claude-plugin/marketplace.json`.
+
+Codex and ordinary `prometheus setup --full` use the signed local KBD runtime;
+they do not require an always-on control plane. `ai.prometheus.sovereign-sync`
+stays stopped and disabled unless the operator explicitly runs
+`prometheus setup --full --sharing` for cross-machine replication.
 
 The target matrix in `skill-system.json` explicitly separates repository-owned
 source trees (`sourceTreeLifecycle: required`) from destinations created only

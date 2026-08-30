@@ -1,0 +1,23 @@
+{
+  "artifact_type": "content",
+  "variants": [
+    {
+      "name": "control-plane-reconciliation-change-qa",
+      "file": ".refiner/artifacts/reconcile-kbd-control-plane-projections/dist/qa-report.md",
+      "format": "markdown",
+      "description": "Deterministic artifact-refiner QA report for reconcile-kbd-control-plane-projections"
+    }
+  ],
+  "validation": {
+    "preview_status": "pass",
+    "has_console_errors": false,
+    "has_request_failures": false,
+    "notes": [
+      "No browser preview is required for this runtime, installer, documentation, and reconciliation change.",
+      "Ten machine-readable reconciliation receipts parse successfully and cover distribution, installation, memory, registry, daemon-free KBD, and protected-test boundaries.",
+      "Artifact refinement corrected Codex installation documentation and refreshed two stale generated documentation references before convergence.",
+      "Final committed-state protection and parent certification remain required before push."
+    ]
+  },
+  "generated_at": "2026-08-30T04:08:09Z"
+}

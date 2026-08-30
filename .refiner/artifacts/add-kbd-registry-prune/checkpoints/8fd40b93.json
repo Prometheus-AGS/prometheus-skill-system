@@ -1,0 +1,44 @@
+{
+  "refinement_id": "92101d69-c3fe-490c-ac05-2499d3aa6d37",
+  "artifact_name": "add-kbd-registry-prune",
+  "artifact_type": "content",
+  "content_type": "direct:content",
+  "started_at": "2026-08-29T21:39:11Z",
+  "updated_at": "2026-08-29T21:39:11Z",
+  "current_iteration": 1,
+  "max_iterations": 5,
+  "goals": [
+    "Verify the complete registry-prune change against the OpenSpec contract and KBD QA constraints",
+    "Persist deterministic change-completion evidence without claiming deferred parent certification"
+  ],
+  "constraints": [
+    "C-01",
+    "C-02",
+    "C-03",
+    "C-04",
+    "C-05",
+    "SPEC-REGISTRY-PRUNE"
+  ],
+  "phases_completed": [
+    "specify",
+    "plan",
+    "execute",
+    "reflect",
+    "persist"
+  ],
+  "convergence_status": "running",
+  "iteration_history": [
+    {
+      "iteration": 1,
+      "blocking_satisfied": 4,
+      "blocking_violated": 0,
+      "high_satisfied": 2,
+      "high_violated": 0,
+      "decision": "terminate",
+      "artifact": ".refiner/artifacts/add-kbd-registry-prune/dist/qa-report.md"
+    }
+  ],
+  "workflow_triggers": [],
+  "checkpoints": [],
+  "prior_cycle_id": null
+}

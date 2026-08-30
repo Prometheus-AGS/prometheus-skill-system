@@ -1,0 +1,69 @@
+{
+  "schemaVersion": "1",
+  "kind": "daemon-free-kbd-live-certification",
+  "recordedAt": "2026-08-30T04:01:34Z",
+  "phaseId": "kbd-control-plane-recovery",
+  "changeId": "reconcile-kbd-control-plane-projections",
+  "taskId": "8-local",
+  "openspecTask": "3.3",
+  "localOnly": true,
+  "hostedValidationUsed": false,
+  "controlPlane": {
+    "launchdLabel": "ai.prometheus.sovereign-sync",
+    "loadedBefore": false,
+    "loadedAfter": false,
+    "disabledBefore": true,
+    "disabledAfter": true,
+    "processRunningBefore": false,
+    "processRunningAfter": false
+  },
+  "installation": {
+    "defaultRenderSovereignFiles": 0,
+    "sharingRenderSovereignFiles": 2,
+    "sharingRenderFiles": [
+      "ai.prometheus.sovereign-sync.plist",
+      "ai.prometheus.sovereign-sync.service"
+    ],
+    "defaultBinaryDryRunSovereignBuildMentions": 0,
+    "sharingFlagExposedBy": [
+      "scripts/install-mcp-services.sh --help",
+      "scripts/install-system.js --help",
+      "prometheus setup --help",
+      "scripts/install-binaries.sh --help"
+    ],
+    "defaultRenderLogSha256": "787d60e8f888cc5c3d6c16f568e11011f4deda84b004fec0d7ae1c5f827dfcae",
+    "sharingRenderLogSha256": "0aa062bd649a634bd4b1b5a41202703e79bcf3e6ecc5679c66489662da4a1962",
+    "defaultBinaryDryRunLogSha256": "a1a6dbc4265c68543c5a3a2efefe3292adcec7890d9ff823ca2c0ce74aa80d67"
+  },
+  "runtime": {
+    "statusExitStatus": 0,
+    "statusStderrBytes": 0,
+    "statusUnavailableWarningMatches": 0,
+    "doctorExitStatus": 0,
+    "doctorStderrBytes": 0,
+    "doctorCheck": {
+      "id": "control.kbd-runtime",
+      "status": "skip",
+      "optional": true,
+      "summary": "disabled by default; local KBD runtime is authoritative"
+    },
+    "doctorJsonSha256": "6331ed0f9a82d16d5c45d9f2c6b3b40f14429f02f48d9c1658f5d29985f1c111"
+  },
+  "typedMutation": {
+    "kind": "decision-record",
+    "commandId": "task-8-local-daemon-free-decision-20260830",
+    "decisionId": "daemon-free-kbd-certification-20260830",
+    "preRevision": 309,
+    "postRevision": 310,
+    "exitStatus": 0,
+    "stderrBytes": 0,
+    "unavailableWarningMatches": 0,
+    "foldedReadback": true,
+    "statusJsonSha256": "89d37e5bc6cea57f4b5009f1b1ae45d5605d698f2490cbdf2d23aa554fb2cde0"
+  },
+  "staticValidation": [
+    "bash -n scripts/install-mcp-services.sh scripts/install-binaries.sh scripts/install-skills-flat.sh shared/scripts/detect-toolchain.sh",
+    "node --check scripts/install-system.js",
+    "git diff --check"
+  ]
+}

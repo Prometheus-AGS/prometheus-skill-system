@@ -1,0 +1,55 @@
+{
+  "mode": "diff",
+  "verdict": "BLOCK",
+  "judge_model": "k3",
+  "producer_model": "gpt-5.6-sol",
+  "isolation_mode": "rest-gateway:http://localhost:4000/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": ".kbd-orchestrator/phases/kbd-control-plane-recovery/review/harden-uiux-routing-discovery/findings-final.json",
+      "line": 3,
+      "claim": "The latest committed adversarial verdict for the target change is BLOCK (including a CRITICAL finding), yet the same diff marks the change DONE/COMPLETE, advances the waypoint past it, and contains no subsequent PASS verdict artifact \u2014 the review loop was closed by editing resolution.md, not by a passing re-review.",
+      "evidence": "findings-final.json (new in this diff) carries `\"verdict\": \"BLOCK\"` with a CRITICAL C-01 finding and explicitly warns: 'The canonical tracker marks harden-uiux-routing-discovery DONE/COMPLETE even though the latest committed adversarial verdict for it is BLOCK and no passing re-review receipt exists.' The diff nonetheless sets progress.json `\"id\": \"harden-uiux-routing-discovery\", \"status\": \"DONE\", \"tasks_done\": 6` and current-waypoint.json `\"exactNextCommand\": \"/kbd-apply add-kbd-registry-prune\"`. resolution.md answers the BLOCK with a 'Final-round policy correction' section, but no findings file with `\"verdict\": \"PASS\"` exists anywhere in the review directory \u2014 rejection-final.md is only the sycophancy screen (`[adv-gate] PASS (score=0.0...)`), not a judge verdict.",
+      "suggested_fix": "Run the adversarial re-review against the final packet and commit a findings artifact with verdict PASS before the DONE status and waypoint advance are kept; otherwise revert the tracker/position to reflect the open BLOCK."
+    },
+    {
+      "severity": "WARNING",
+      "file": ".kbd-orchestrator/constraints.md",
+      "line": 8,
+      "claim": "The diff rewrites constraint C-01 in the same commit that was BLOCKED under the previous text, and even the amended text is violated if this phase commit is pushed: generator-consumed skill sources (skills/process/**) are committed with no regenerated distribution outputs while the named reconciliation change is still pending.",
+      "evidence": "findings-final.json's CRITICAL finding documents that repair-kbd-memory-rest-contract was archived after editing generator-consumed sources with no regeneration, breaching the then-current C-01; the resolution ('Final-round policy correction') responds by amending C-01 to add the deferral provision rather than regenerating. The amended C-01 itself states outputs must be regenerated 'before the owning parent phase completes or any phase commit is pushed' and that a deferral which 'reaches commit/push without regenerated outputs is a violation' \u2014 yet this diff touches skills/process/kbd-process-orchestrator/** while the file tree's distribution targets (.claude-plugin/skills, .agents/skills, .codex/skills, skill-system.json) are untouched and `reconcile-kbd-control-plane-projections` remains an empty pending section in phases/kbd-control-plane-recovery/tasks.md.",
+      "suggested_fix": "Land the C-01 policy amendment as its own change before the blocked work; and do not push any phase commit containing the edited skill sources until reconcile-kbd-control-plane-projections has run the double-generation + drift validators, or regenerate and commit the outputs here."
+    },
+    {
+      "severity": "WARNING",
+      "file": "skills/process/kbd-process-orchestrator/shared/lib/memory-log.sh",
+      "line": 76,
+      "claim": "resolution.md dismisses the twice-raised empty-URL finding by claiming an explicit `[[ -n \"$url\" ]] || exit 0` 'immediately before curl', but no such guard appears in the committed hunk \u2014 in MCP-only mode (kbd_memory_available succeeds with an intentionally empty URL) the POST to \"$url/api/v1/entities\" still fires and emits a spurious 'mirror write failed' diagnostic on every hook.",
+      "evidence": "resolution.md: 'The repeated empty-URL warning remains disproved by the explicit `[[ -n \"$url\" ]] || exit 0` immediately before curl.' The memory-log.sh hunk (@@ -45,29 +49,34) shows, in order: payload construction, `if [[ -z \"$payload\" ]] ... exit 0`, then directly `if ! curl --noproxy '127.0.0.1,localhost,::1' -fs ... \"$url/api/v1/entities\" ...; then printf 'kbd-memory-log: mirror write failed; lifecycle continues'`. No URL guard is present between the payload check and the curl, and memory.sh documents that MCP-only mode leaves `_KBD_MEMORY_URL` empty: 'shell callers intentionally receive an empty REST URL in this mode.'",
+      "suggested_fix": "Add `[[ -n \"$url\" ]] || exit 0` after `url=\"$(kbd_memory_url)\"` in memory-log.sh (mirroring kbd-memory-recall.sh's guard), or correct resolution.md to point at the actual guard location and add a regression scenario for MCP-only mode."
+    },
+    {
+      "severity": "WARNING",
+      "file": ".kbd-orchestrator/phases/kbd-control-plane-recovery/review/harden-uiux-routing-discovery/rejection-round-2.md",
+      "line": 1,
+      "claim": "The round-2 sycophancy receipt, backfilled in response to the empty-file finding, duplicates round 1's score byte-for-byte even though it screened a different, larger packet, and the round-2 findings artifact records no score \u2014 the receipt appears copied rather than measured.",
+      "evidence": "rejection.md (round 1) and the newly populated rejection-round-2.md both contain exactly `[adv-gate] PASS (score=0.01785714365541935, strictness=strict)`. Round 2's packet (packet-round-2.json) embeds a substantially larger diff than round 1's, and findings-round-2.json's `sycophancy_screen` block contains only `reject_cap`/`cap_overridden`/`cap_default` \u2014 no score to corroborate the backfilled value. findings-final.json had flagged the zero-byte receipt; the fix populated it with round 1's number.",
+      "suggested_fix": "Re-run the screen on the round-2 packet and record its actual score, or annotate the receipt with the command/timestamp that produced it so the two rounds are distinguishable."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "openspec/changes/archive/2026-08-29-repair-kbd-memory-rest-contract/execution.md",
+      "line": 60,
+      "claim": "The archived execution evidence describes scenario 6 (canonical local service discovery) as part of the default `9/9` run, but the committed test harness gates scenario 6 behind KBD_MEMORY_LIVE_PROBE, so the persisted evidence no longer matches the harness's default behavior.",
+      "evidence": "execution.md Task 2.2 lists '6. Canonical installed local service discovery through production recall' among the nine scenarios and records `/bin/bash .../test-memory.sh` \u2192 `9/9` with no mention of the opt-in gate; the committed test-memory.sh wraps scenario 6 in `if [[ \"${KBD_MEMORY_LIVE_PROBE:-0}\" == \"1\" ]]` with an else-branch `skip:` print, and the harden refinement log separately records 'hermetic 9/9; live 10/10'.",
+      "suggested_fix": "Add a one-line amendment note to the archived execution.md (or the phase-level evidence) recording that scenario 6 became an opt-in live probe during adversarial remediation, so the archived numbers are interpretable against the final harness."
+    }
+  ],
+  "sycophancy_screen": {
+    "reject_cap": 2,
+    "cap_overridden": false,
+    "cap_default": 2
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "mode": "diff",
+  "verdict": "BLOCK",
+  "judge_model": "gpt-5.6-sol",
+  "producer_model": "openai/gpt-5",
+  "isolation_mode": "harness-native",
+  "cross_model_check": "same-family-fallback",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": ".kbd-orchestrator/phases/kbd-control-plane-recovery/progress.json",
+      "claim": "The canonical projections remain contradictory and still schedule tasks that the acceptance checklist declares complete, so projection reconciliation has not actually completed.",
+      "evidence": "Acceptance criteria 3.3 and 3.4 are checked complete, and tasks.md marks the daemon-free replacement as COMPLETE and task 3.4 as COMPLETE. However progress.json records tasks_done 9 of 10, implementation_status PENDING, and next_task_pending as the superseded 'Restart sovereign-sync twice' task; current-waypoint.json simultaneously instructs 'Run task 3.4' even though that task is already complete.",
+      "suggested_fix": "Record a canonical supersession/completion transition for the replaced 3.3 task, regenerate every waypoint/progress/task projection from one revision, and verify the next command points to review or phase transition rather than completed work."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "scripts/install-mcp-services.sh",
+      "line": 441,
+      "claim": "The new default-disable behavior stops sovereign-sync during --learning-recovery even though that mode explicitly promises never to stop or alter it.",
+      "evidence": "The option documentation says --learning-recovery 'never initializes, renders, stops, or starts sovereign-sync'. In macos_install, disable_optional_control_plane_macos runs whenever SHARING is false before the subsequent `if $LEARNING_RECOVERY` branch; linux_install likewise executes `systemctl --user disable --now ai.prometheus.sovereign-sync.service` whenever SHARING is false.",
+      "suggested_fix": "Skip all sovereign-sync disable/bootout behavior when LEARNING_RECOVERY is true, or enter the learning-recovery branch before applying the default sharing-service policy."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "scripts/check-mcp-health.sh",
+      "line": 171,
+      "claim": "The health check silently classifies a failed sovereign-sync service as intentionally disabled, masking an explicitly enabled sharing-service failure.",
+      "evidence": "print_optional_sovereign_row groups the service state `failed` with `not loaded`, `not installed`, and `inactive`, emitting status `DISABLED (optional)` instead of delegating to print_row. The added sharing scenario requires sovereign-sync to be installed and started when explicitly selected, but this branch cannot distinguish that failed installation from an intentional disabled state.",
+      "suggested_fix": "Treat `failed` as unhealthy, and determine intentional disablement from the service manager's enabled/disabled state rather than equating every inactive state with an operator opt-out."
+    },
+    {
+      "severity": "WARNING",
+      "file": "tools/prometheus-cli/crates/prometheus-cli/src/commands/setup.rs",
+      "line": 878,
+      "claim": "Non-sharing full setup reports the control plane as NotInstalled without checking its actual post-action state, so it can claim daemon-free success when no disable action occurred.",
+      "evidence": "control_plane_status is populated only when sharing is true; the managed-service installer runs only when managed_service_action returns Some; afterward `after` is hard-coded to ComponentStatus::NotInstalled whenever sharing is false. Thus dry runs, declined prompts, or any no-action path never verify whether an existing sovereign-sync service remains active, despite acceptance criterion 3.3 and the added ordinary-full-setup scenario requiring it to be stopped and disabled.",
+      "suggested_fix": "Detect the real service state before and after non-sharing full setup, report no mutation when the action is skipped, and require the final state to be stopped and disabled after an approved installation action."
+    }
+  ],
+  "checked_classes": [],
+  "sycophancy_screen": {
+    "reject_cap": 2,
+    "cap_overridden": false,
+    "cap_default": 2
+  }
+}

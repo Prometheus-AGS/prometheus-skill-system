@@ -1,0 +1,64 @@
+{
+  "schemaVersion": "1",
+  "recordedAt": "2026-08-29T21:51:00Z",
+  "compatibilityProjection": {
+    "path": ".kbd-orchestrator/phases/openspec-mirror-drift-cleanup::sovereign-sync-service-reliability",
+    "exists": false,
+    "visibleInTopLevelFilesystemDiscovery": false
+  },
+  "topLevelFilesystemDiscovery": {
+    "matchingEntries": [
+      ".kbd-orchestrator/phases/openspec-mirror-drift-cleanup"
+    ]
+  },
+  "productionMigrationDiscovery": {
+    "command": "prometheus kbd --path . migrate --check",
+    "journalMigrationRequired": false,
+    "matchingPhaseIds": [
+      "openspec-mirror-drift-cleanup::sovereign-sync-service-reliability",
+      "openspec-mirror-drift-cleanup"
+    ],
+    "canonicalChildCount": 1,
+    "invalidFiles": 0,
+    "aliasConflicts": 0,
+    "backupDirectory": null
+  },
+  "signedStatusDiscovery": {
+    "command": "prometheus kbd --path . status --json",
+    "authoritativeRevision": 270,
+    "matchingPhaseIds": [
+      "openspec-mirror-drift-cleanup",
+      "openspec-mirror-drift-cleanup::sovereign-sync-service-reliability"
+    ],
+    "canonicalChildCount": 1,
+    "canonicalChild": {
+      "id": "openspec-mirror-drift-cleanup::sovereign-sync-service-reliability",
+      "parentPhaseId": "openspec-mirror-drift-cleanup",
+      "slug": "sovereign-sync-service-reliability"
+    }
+  },
+  "preservedBackup": {
+    "path": ".kbd-orchestrator/backups/compatibility-projections/20260829T214439Z/openspec-mirror-drift-cleanup::sovereign-sync-service-reliability",
+    "readable": true,
+    "treeSha256": "d2c3cdf352169be84dd4816e7096c4dc9213246f6f525fd45139164af6e5696c",
+    "fileCount": 1,
+    "totalBytes": 65
+  },
+  "moveReceipt": {
+    "path": ".kbd-orchestrator/phases/kbd-control-plane-recovery/reconciliation/compatibility-projection-20260829T214439Z.json",
+    "readable": true,
+    "sha256": "c609b9c31016a8a1b9d14da5e6674aa54c7ee09fc47f1bb7f3eeca2ff7efb86c"
+  },
+  "canonicalTarget": {
+    "path": ".kbd-orchestrator/phases/openspec-mirror-drift-cleanup/children/sovereign-sync-service-reliability",
+    "readable": true,
+    "currentTreeSha256": "dc57127add203d453b86f837208ea9391093b1875697fd12f39ca880661a287c",
+    "fileCount": 39,
+    "totalBytes": 540743,
+    "projectionRevision": 261,
+    "moveTimeTreeSha256Before": "53f77f26f35925256a630d4d0b76e7f7f426e37e512283777ff38642418e2f51",
+    "moveTimeTreeSha256After": "53f77f26f35925256a630d4d0b76e7f7f426e37e512283777ff38642418e2f51",
+    "currentHashDifferenceReason": "After the evidence move, the detector replayed the runtime-owned progress.json and tasks.md projections at signed source revision 261. The move receipt retains the equal before/after hash proving the move itself changed no canonical file."
+  },
+  "outcome": "pass"
+}

@@ -521,10 +521,11 @@ installs signed payloads for every detected client. It does not build binaries,
 change MCP configuration, or install services. Use `./install.sh --profile full`
 for the locally built macOS/Linux system; `npm run setup:full` is its package
 alias, and an installed CLI can use `prometheus setup --full` to include managed
-services in component setup. Full setup installs `ai.prometheus.sovereign-sync`
-(`ai.prometheus.sovereign-sync.service` on Linux). Its daemon mode hosts the KBD
-control plane. Plain `npm run setup` remains a prerequisite-only command, and
-plain `prometheus setup` remains daemon-free.
+local services in component setup. KBD itself is daemon-free and commits to its
+signed local runtime. The `ai.prometheus.sovereign-sync` service is disabled by
+default; enable it only for cross-machine sharing with
+`prometheus setup --full --sharing`. Plain `npm run setup` remains a
+prerequisite-only command, and plain `prometheus setup` remains daemon-free.
 Release `1.7.0` is the minimum supported active umbrella skill-system version.
 
 For the full prerequisite, install, verification, and first-loop walkthrough, see

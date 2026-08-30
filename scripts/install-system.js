@@ -23,6 +23,7 @@ function parseArgs(argv) {
     verify: false,
     uninstall: false,
     bestEffort: false,
+    sharing: false,
     home: os.homedir(),
   };
   for (let index = 0; index < argv.length; index += 1) {
@@ -37,6 +38,7 @@ function parseArgs(argv) {
     else if (value === '--verify') args.verify = true;
     else if (value === '--uninstall') args.uninstall = true;
     else if (value === '--best-effort') args.bestEffort = true;
+    else if (value === '--sharing') args.sharing = true;
     else if (value === '--help' || value === '-h') args.help = true;
     else fail(`unknown argument: ${value}`);
   }
@@ -45,6 +47,7 @@ function parseArgs(argv) {
   if (args.profile && !['skills', 'full'].includes(args.profile)) fail('--profile must be skills or full');
   if (args.verify && args.uninstall) fail('--verify and --uninstall are mutually exclusive');
   if (args.bestEffort && args.verify) fail('--best-effort cannot certify --verify');
+  if (args.sharing && args.profile && args.profile !== 'full') fail('--sharing requires --profile full');
   return args;
 }
 
@@ -57,7 +60,8 @@ function help() {
     `  --dry-run                   Display exact planned mutations only\n` +
     `  --verify                    Verify the selected installed surfaces\n` +
     `  --uninstall                 Remove only receipt-owned selected surfaces\n` +
-    `  --best-effort               Continue after failures; never reports certification\n`);
+    `  --best-effort               Continue after failures; never reports certification\n` +
+    `  --sharing                   Enable optional sovereign-sync sharing (full profile only)\n`);
 }
 
 function commandExists(command) {
@@ -176,7 +180,9 @@ function configureFull(args, targets, contract) {
   }
   run('bash', [path.join(args.sourceRoot, 'scripts/check-prerequisites.sh'), '--build-tools'], { cwd: args.sourceRoot });
   const mcpTargets = targets.filter(target => ['claude', 'codex', 'opencode', 'kimi-code'].includes(target.id));
-  run('bash', [path.join(args.sourceRoot, 'scripts/install-mcp-services.sh')], { cwd: args.sourceRoot });
+  const serviceArgs = [path.join(args.sourceRoot, 'scripts/install-mcp-services.sh')];
+  if (args.sharing) serviceArgs.push('--sharing');
+  run('bash', serviceArgs, { cwd: args.sourceRoot });
   const mcpNames = new Map([['claude', 'claude-code'], ['codex', 'codex'], ['opencode', 'opencode'], ['kimi-code', 'kimi-code']]);
   for (const target of mcpTargets) {
     run('bash', [path.join(args.sourceRoot, 'scripts/configure-mcp-all-tools.sh'), '--tool', mcpNames.get(target.id)], { cwd: args.sourceRoot });
@@ -210,6 +216,7 @@ async function main() {
     `  imports: ${args.verify || args.uninstall ? 'none' : imports.join(', ')}`,
     `  plugin root: ${path.join(args.home, '.prometheus/plugins/prometheus-skill-pack')}`,
     `  certification: ${args.bestEffort ? 'disabled (--best-effort)' : 'required'}`,
+    `  sharing control plane: ${args.sharing ? 'enabled' : 'disabled'}`,
   ];
   let approved = true;
   if (args.verify) process.stdout.write(`${summary.join('\n')}\n`);

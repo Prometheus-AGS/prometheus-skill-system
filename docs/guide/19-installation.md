@@ -37,15 +37,24 @@ npm run setup:full
 prometheus setup --full
 ```
 
+Use the sharing profile only when this machine should exchange state with a
+peer:
+
+```bash
+npm run setup:sharing
+prometheus setup --full --sharing
+```
+
 The first two run the canonical full-profile installer. The
 `prometheus setup --full` command extends CLI component setup with the same
-managed-service installer. On macOS that installer loads
-`ai.prometheus.sovereign-sync`; on Linux it loads
-`ai.prometheus.sovereign-sync.service`. The daemon runs
-`sovereign-sync --mode daemon`, hosts the KBD control plane backed by
-`kbd-runtime`, and serves its local API over a same-user Unix socket. Plain
-`./install.sh`, the ordinary npm `setup` script, and plain `prometheus setup`
-remain daemon-free.
+managed-service installer while leaving the KBD control plane stopped and
+disabled. KBD commands use the signed local `kbd-runtime` journal directly.
+When cross-machine sharing is actually required, run
+`prometheus setup --full --sharing`; that explicit profile loads
+`ai.prometheus.sovereign-sync` on macOS or
+`ai.prometheus.sovereign-sync.service` on Linux. The daemon passively replicates
+local KBD state over a same-user Unix socket and is not required for ordinary
+KBD work.
 
 Keep Rust caches on an internal SSD:
 

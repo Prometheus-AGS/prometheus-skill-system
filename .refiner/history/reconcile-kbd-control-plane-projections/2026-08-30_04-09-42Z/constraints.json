@@ -1,0 +1,77 @@
+{
+  "artifact_type": "content",
+  "constraints": [
+    {
+      "id": "C-01",
+      "description": "Generated artifacts must be synchronized deterministically before parent certification, commit, or push.",
+      "severity": "blocking",
+      "type": "technical",
+      "validation": {
+        "requires_code_execution": true,
+        "validation_method": "Require two byte-identical distribution runs, current generated-output validation, and repository-owned install parity."
+      }
+    },
+    {
+      "id": "C-02",
+      "description": "No committed API key, token, password, or private key may be introduced.",
+      "severity": "blocking",
+      "type": "technical",
+      "validation": {
+        "requires_code_execution": true,
+        "validation_method": "Scan added diff lines for recognized credential and private-key patterns without printing candidate values."
+      }
+    },
+    {
+      "id": "C-03",
+      "description": "Codex and operator documentation must describe the daemon-free default and explicit sharing profile.",
+      "severity": "blocking",
+      "type": "semantic",
+      "validation": {
+        "requires_code_execution": true,
+        "validation_method": "Inspect docs/codex-plugin.md, the CLAUDE.md Codex section, public installation guides, and generated documentation sync."
+      }
+    },
+    {
+      "id": "C-04",
+      "description": "Distribution generation must remain byte-idempotent and generated plugin surfaces must not be hand-edited.",
+      "severity": "blocking",
+      "type": "technical",
+      "validation": {
+        "requires_code_execution": true,
+        "validation_method": "Require matching aggregate hashes over path, mode, and bytes from two repository-owned generation passes."
+      }
+    },
+    {
+      "id": "C-05",
+      "description": "Modified macOS shell entrypoints must remain compatible with /bin/bash and avoid unsupported Bash 4-only constructs on launchd paths.",
+      "severity": "high",
+      "type": "technical",
+      "validation": {
+        "requires_code_execution": true,
+        "validation_method": "Run /bin/bash syntax checks and inspect modified service paths for mapfile or associative arrays."
+      }
+    },
+    {
+      "id": "SPEC-RECONCILIATION",
+      "description": "Compatibility evidence is preserved outside live discovery; generated and installed surfaces agree; memory, registry, and signed local KBD behavior are certified without an always-on control plane.",
+      "severity": "blocking",
+      "type": "technical",
+      "validation": {
+        "requires_code_execution": true,
+        "validation_method": "Validate all reconciliation receipts and require current daemon-free launchd/process state plus completed signed task boundaries."
+      }
+    }
+  ],
+  "global_rules": [
+    "Complete implementation before validation",
+    "Use only local full-integration and contract evidence",
+    "Do not use hosted CI",
+    "Keep sovereign-sync stopped unless sharing is explicitly requested"
+  ],
+  "termination_conditions": [
+    "No blocking constraint remains violated",
+    "Every reconciliation receipt parses and proves its claimed boundary",
+    "Documentation sync is current",
+    "The QA report exists and the artifact manifest validates"
+  ]
+}

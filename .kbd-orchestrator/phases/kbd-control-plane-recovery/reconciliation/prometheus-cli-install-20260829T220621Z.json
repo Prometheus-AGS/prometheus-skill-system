@@ -1,0 +1,61 @@
+{
+  "schemaVersion": "kbd-prometheus-cli-install-receipt-v1",
+  "recordedAt": "2026-08-29T22:06:21Z",
+  "changeId": "reconcile-kbd-control-plane-projections",
+  "taskId": "5",
+  "taskTitle": "2.3 Build and install the tested release CLI binary with post-install version/hash verification.",
+  "priorIntegrationEvidence": {
+    "change": "add-kbd-registry-prune",
+    "command": "cargo test --manifest-path tools/prometheus-cli/Cargo.toml -p prometheus-cli --test kbd",
+    "externalScenariosPassed": 7,
+    "releaseSha256RecordedAfterTests": "f64fb91fd7545deab248f4226ba9b8943a6bd78d790675d997e36ddf836454d3",
+    "currentReleaseMatchesTestedArtifact": true
+  },
+  "machinePreflight": {
+    "cargoOrRustcProcesses": 0,
+    "sccacheAvailable": true,
+    "sccachePath": "/opt/homebrew/bin/sccache",
+    "sccacheVersion": "0.16.0",
+    "rustCacheHitRate": "23.43%"
+  },
+  "build": {
+    "command": "prometheus kbd --path . gate run --kind compiler-check --scope reconcile-kbd-control-plane-projections:prometheus-cli-release -- cargo build --manifest-path tools/prometheus-cli/Cargo.toml -p prometheus-cli --release",
+    "worktree": "/Users/gqadonis/Projects/prometheus/prometheus-skill-pack",
+    "manifest": "tools/prometheus-cli/Cargo.toml",
+    "package": "prometheus-cli",
+    "profile": "release",
+    "targetDirectory": "/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/tools/prometheus-cli/target",
+    "artifact": "/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/tools/prometheus-cli/target/release/prometheus",
+    "gateId": "e06e6559e77b8b99f7198a0aa14ccce2d932b047cc636eb9507d9d1446b2fb0f",
+    "sourceRevision": 287,
+    "finishedRevision": 289,
+    "durationMs": 951,
+    "exitStatus": 0,
+    "outcome": "passed",
+    "version": "prometheus 1.7.0",
+    "sha256": "f64fb91fd7545deab248f4226ba9b8943a6bd78d790675d997e36ddf836454d3",
+    "sizeBytes": 15533984
+  },
+  "installation": {
+    "destination": "/Users/gqadonis/.local/bin/prometheus",
+    "previousSha256": "9ea614a394e4cdc284e9170f703fdc97fc43a976fb2baacc0090202190cbcc1c",
+    "method": "Copy to a single-use destination-directory staging path, verify version/hash/signature, then atomically rename over the installed path.",
+    "builtSha256": "f64fb91fd7545deab248f4226ba9b8943a6bd78d790675d997e36ddf836454d3",
+    "installedSha256": "f64fb91fd7545deab248f4226ba9b8943a6bd78d790675d997e36ddf836454d3",
+    "byteIdentical": true,
+    "version": "prometheus 1.7.0",
+    "sizeBytes": 15533984,
+    "resolvedCommandPath": "/Users/gqadonis/.local/bin/prometheus",
+    "codeSignature": "valid ad-hoc linker signature",
+    "exitStatus": 0
+  },
+  "postInstallReadback": {
+    "commandSurface": "prometheus kbd projects --help",
+    "pruneMissingPresent": true,
+    "applyPresent": true,
+    "codesignStrictVerification": "pass",
+    "gitDiffCheck": "pass"
+  },
+  "hostedValidationUsed": false,
+  "outcome": "pass"
+}

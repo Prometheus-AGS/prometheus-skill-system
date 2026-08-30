@@ -83,6 +83,78 @@ or commit. REST routes and multi-project MCP calls use the declared project
 UUID. No project-path or bearer-token environment variable selects the active
 project.
 
+## Maintain missing registry entries
+
+Removed worktrees and temporary checkouts can leave registrations whose paths
+no longer exist. Inventory them first; dry run is the default and leaves the
+registry byte-for-byte unchanged:
+
+```bash
+PROJECT_ROOT="/path/to/project"
+
+prometheus kbd --path "$PROJECT_ROOT" projects \
+  --prune-missing --json | jq .
+```
+
+Review every `candidates[]` path and project ID. A network mount or removable
+volume that is temporarily unavailable also looks absent, so restore or mount
+it before applying. The command propagates filesystem metadata errors rather
+than treating an unreadable path as proof that it is missing.
+
+Apply only after reviewing that inventory:
+
+```bash
+prometheus kbd --path "$PROJECT_ROOT" projects \
+  --prune-missing --apply --json | tee registry-prune-report.json
+```
+
+`--apply` without `--prune-missing` is rejected. Apply takes the exclusive
+registry lock and evaluates paths again, so a checkout that reappeared after
+dry run is retained. A successful mutation removes only the absent registration
+keys. It never deletes project runtime directories, journals, checkpoints, or
+an existing replica that shares the same project UUID.
+
+The JSON report contains `backupPath`, `backupSha256`, `checksumPath`, and
+`receiptPath`. All point into one timestamped
+`registry-maintenance-backups/<operation-id>/` directory. That directory holds:
+
+| File | Recovery purpose |
+|---|---|
+| `registry.json` | Exact pre-change registry bytes |
+| `registry.sha256` | SHA-256 integrity record for the backup |
+| `receipt.json` | Removed entries, retained count, source hash, and planned post-change registry hash |
+| `ROLLBACK.md` | Paths and ordered manual recovery instructions for this operation |
+
+Retain the directory. Repeating the apply after all missing entries are removed
+reports zero removals and creates no additional backup.
+
+### Roll back an applied prune
+
+Rollback restores registry membership; it does not reconstruct a deleted
+checkout and must never remove the retained runtime tree.
+
+1. Stop `sovereign-sync` so it cannot reopen or rewrite the registry.
+2. Read `receipt.json` and compare the live registry SHA-256 with
+   `plannedRegistrySha256`. A match proves that operation's atomic replacement
+   completed. If the live hash matches `backupSha256`, the pre-change bytes are
+   already present. If it matches neither value, stop and preserve all files for
+   audit instead of guessing.
+3. Verify the backed-up `registry.json` against `registry.sha256` using the
+   platform SHA-256 tool.
+4. Follow the operation's `ROLLBACK.md`: acquire the exclusive `registry.lock`,
+   restore the exact backup bytes through an atomic same-directory replacement,
+   fsync the registry directory, and then release the lock.
+5. Restart `sovereign-sync`, then verify both machine registration and project
+   authority:
+
+   ```bash
+   prometheus kbd --path "$PROJECT_ROOT" projects --json | jq .
+   prometheus kbd --path "$PROJECT_ROOT" status --json | jq .
+   prometheus doctor --check control.kbd-runtime
+   ```
+
+Keep the backup and receipt as audit evidence after recovery.
+
 ## Network boundary
 
 The HTTP server must remain loopback-only while non-KBD routes have no request

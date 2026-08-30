@@ -58,6 +58,18 @@ Capabilities become available **on a new Codex session** after install. Personal
 scope: `~/.agents/plugins/marketplace.json`. Codex also reads the legacy
 `.claude-plugin/marketplace.json`, so the pack was already partially Codex-visible.
 
+Codex installation and ordinary `prometheus setup --full` use the signed local
+KBD runtime and keep `ai.prometheus.sovereign-sync` stopped and disabled. Enable
+that optional replication service only for an intentional cross-machine sharing
+workflow:
+
+```bash
+prometheus setup --full --sharing
+```
+
+The sharing daemon is not a prerequisite for plugin skills, hooks, MCP servers,
+`prometheus kbd status`, or typed KBD mutations.
+
 ## Hooks — interactive, non-managed trust (change-005)
 
 `plugin.json.hooks → ./hooks/codex-hooks.json`. Codex and Claude manifests are

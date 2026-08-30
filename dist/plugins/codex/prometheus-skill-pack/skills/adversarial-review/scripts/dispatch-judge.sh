@@ -134,29 +134,34 @@ fi
 echo "[MODEL_ROUTING] phase=adv-review-judge class=frontier model=$JUDGE_MODEL producer=$PRODUCER" >&2
 
 # --- build prompts ------------------------------------------------------------
-SYSTEM_PROMPT="$(cat "$MANDATE")"
+# Review packets routinely exceed macOS ARG_MAX. Keep every large value in a
+# private temporary directory: environment variables and curl's inline
+# --data-binary argument both count against the same process-launch limit.
+_judge_tmp="$(mktemp -d)" || { echo "[judge] ERROR: cannot create temporary directory" >&2; exit 4; }
+cleanup_judge_tmp() { rm -rf "$_judge_tmp"; }
+trap cleanup_judge_tmp EXIT HUP INT TERM
+
+SYSTEM_PROMPT_FILE="$_judge_tmp/system-prompt.md"
+REQ_BODY_FILE="$_judge_tmp/request.json"
+RAW_FILE="$_judge_tmp/raw-completion.txt"
+cp "$MANDATE" "$SYSTEM_PROMPT_FILE" || { echo "[judge] ERROR: cannot stage mandate" >&2; exit 4; }
 if [ -n "$FEEDBACK" ] && [ -f "$FEEDBACK" ]; then
-  SYSTEM_PROMPT="$SYSTEM_PROMPT
-
-## Previous report rejected — address this feedback
-
-$(cat "$FEEDBACK")"
+  printf '\n\n## Previous report rejected — address this feedback\n\n' >> "$SYSTEM_PROMPT_FILE"
+  cat "$FEEDBACK" >> "$SYSTEM_PROMPT_FILE"
 fi
-USER_PROMPT="$(cat "$PACKET")"
 
 # --- dispatch (fresh context: the judge sees ONLY mandate + packet) -----------
-# The request body is assembled by python3, not by shell interpolation: the
-# packet contains arbitrary source text (quotes, backslashes, newlines) and any
-# string-built JSON would corrupt on the first awkward diff.
-REQ_BODY="$(JUDGE_MODEL="$JUDGE_MODEL" SYS="$SYSTEM_PROMPT" USR="$USER_PROMPT" python3 <<'PY'
-import json, os
+# Assemble the request from file paths, not shell interpolation or environment
+# variables. The packet may contain arbitrary source text and can be megabytes.
+python3 - "$JUDGE_MODEL" "$SYSTEM_PROMPT_FILE" "$PACKET" "$REQ_BODY_FILE" <<'PY'
+import json, sys
 
-model = os.environ["JUDGE_MODEL"]
+model, system_path, packet_path, output_path = sys.argv[1:]
 body = {
     "model": model,
     "messages": [
-        {"role": "system", "content": os.environ.get("SYS", "")},
-        {"role": "user", "content": os.environ.get("USR", "")},
+        {"role": "system", "content": open(system_path, encoding="utf-8").read()},
+        {"role": "user", "content": open(packet_path, encoding="utf-8").read()},
     ],
 }
 
@@ -174,9 +179,10 @@ FIXED_TEMPERATURE_MODELS = ("k3", "kimi-for-coding", "o1", "o3", "gpt-5")
 if not any(model.startswith(p) for p in FIXED_TEMPERATURE_MODELS):
     body["temperature"] = 0
 
-print(json.dumps(body))
+with open(output_path, "w", encoding="utf-8") as handle:
+    json.dump(body, handle)
 PY
-)" || { echo "[judge] ERROR: failed to build request body" >&2; exit 4; }
+[ -s "$REQ_BODY_FILE" ] || { echo "[judge] ERROR: failed to build request body" >&2; exit 4; }
 
 # liter-llm requires a Bearer token on every /v1/* route (a config with no
 # master_key answers 401 to everything); openai-proxy ignores the value but still
@@ -211,15 +217,13 @@ _max_attempts="${ADV_JUDGE_RETRIES:-3}"
 _attempt=1
 
 while : ; do
-  _resp_file="$(mktemp)"
+  _resp_file="$_judge_tmp/response.${_attempt}.json"
   HTTP_CODE="$(curl -s --max-time "$_timeout" \
     -o "$_resp_file" -w '%{http_code}' \
     --noproxy '*' \
     "$JUDGE_BASE_URL/chat/completions" \
     -H 'content-type: application/json' -H "$AUTH_HEADER" \
-    --data-binary "$REQ_BODY" 2>/dev/null)" || HTTP_CODE="000"
-  RESPONSE="$(cat "$_resp_file" 2>/dev/null)"
-  rm -f "$_resp_file"
+    --data-binary "@$REQ_BODY_FILE" 2>/dev/null)" || HTTP_CODE="000"
 
   # 000 = curl gave up locally. 502/503/504 with a Network/timeout body = the
   # gateway gave up on the upstream. Treat both as "needs more time".
@@ -227,9 +231,7 @@ while : ; do
   if [ "$HTTP_CODE" = "000" ]; then
     _retryable=1
   elif [ "$HTTP_CODE" = "502" ] || [ "$HTTP_CODE" = "503" ] || [ "$HTTP_CODE" = "504" ]; then
-    case "$RESPONSE" in
-      *Network*|*network*|*timeout*|*Timeout*|*timed\ out*) _retryable=1 ;;
-    esac
+    if grep -Eiq 'Network|timeout|timed out' "$_resp_file" 2>/dev/null; then _retryable=1; fi
   fi
 
   if [ "$_retryable" -eq 0 ]; then
@@ -257,12 +259,12 @@ case "$HTTP_CODE" in
     echo "[judge] ERROR: gateway rejected the credential (HTTP $HTTP_CODE) at $JUDGE_BASE_URL." >&2
     echo "[judge]        liter-llm requires [general] master_key (or [[keys]]) and a matching" >&2
     echo "[judge]        Bearer token. Repair with: /liter-llm-bridge configure" >&2
-    echo "[judge]        body: $(printf '%s' "$RESPONSE" | head -c 200)" >&2
+    echo "[judge]        body: $(head -c 200 "$_resp_file" 2>/dev/null)" >&2
     exit 3
     ;;
   *)
     echo "[judge] ERROR: gateway returned HTTP $HTTP_CODE at $JUDGE_BASE_URL" >&2
-    echo "[judge]        body: $(printf '%s' "$RESPONSE" | head -c 200)" >&2
+    echo "[judge]        body: $(head -c 200 "$_resp_file" 2>/dev/null)" >&2
     exit 3
     ;;
 esac
@@ -270,10 +272,10 @@ esac
 # Surface the endpoint's own error text. A silent empty completion here reads as
 # "the judge found nothing", which is the most dangerous possible failure mode
 # for a review gate — it turns an outage into a false all-clear.
-RAW="$(RESPONSE="$RESPONSE" python3 <<'PY'
-import json, os, sys
+python3 - "$_resp_file" "$RAW_FILE" <<'PY'
+import json, sys
 try:
-    data = json.loads(os.environ.get("RESPONSE", ""))
+    data = json.load(open(sys.argv[1], encoding="utf-8"))
 except Exception:
     sys.exit(1)
 if isinstance(data, dict) and data.get("error"):
@@ -282,20 +284,22 @@ if isinstance(data, dict) and data.get("error"):
     print(f"[judge-endpoint-error] {msg}", file=sys.stderr)
     sys.exit(1)
 try:
-    print(data["choices"][0]["message"]["content"])
+    content = data["choices"][0]["message"]["content"]
 except Exception:
     sys.exit(1)
+with open(sys.argv[2], "w", encoding="utf-8") as handle:
+    handle.write(content)
 PY
-)" || {
+if [ $? -ne 0 ] || [ ! -s "$RAW_FILE" ]; then
   echo "[judge] WARN: judge returned no usable completion — unavailable (exit 3)" >&2
   exit 3
-}
+fi
 
 # --- normalize + shape-check the findings -------------------------------------
-FINDINGS="$(ADV_RAW="$RAW" JUDGE_MODEL="$JUDGE_MODEL" MODE="$MODE" \
-  PRODUCER="$PRODUCER" JUDGE_BASE_URL="$JUDGE_BASE_URL" python3 <<'PY'
+FINDINGS="$(JUDGE_MODEL="$JUDGE_MODEL" MODE="$MODE" \
+  PRODUCER="$PRODUCER" JUDGE_BASE_URL="$JUDGE_BASE_URL" python3 - "$RAW_FILE" <<'PY'
 import json, os, re, sys
-raw = os.environ.get("ADV_RAW", "")
+raw = open(sys.argv[1], encoding="utf-8").read()
 
 def extract(text):
     try:

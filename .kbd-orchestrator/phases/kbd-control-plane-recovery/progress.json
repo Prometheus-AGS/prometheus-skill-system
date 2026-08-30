@@ -1,101 +1,102 @@
 {
-  "changes": [
-    {
-      "blockers": [],
-      "id": "repair-kbd-memory-rest-contract",
-      "implementation_status": "IN_PROGRESS",
-      "last_task_completed": null,
-      "next_task_pending": null,
-      "status": "IN_PROGRESS",
-      "tasks_done": 0,
-      "tasks_total": 0,
-      "title": "Make KBD memory logging and recall use the installed surreal-memory service contract"
-    },
-    {
-      "blockers": [],
-      "id": "harden-uiux-routing-discovery",
-      "implementation_status": "PENDING",
-      "last_task_completed": null,
-      "next_task_pending": null,
-      "status": "PENDING",
-      "tasks_done": 0,
-      "tasks_total": 0,
-      "title": "Make UI/UX routing existing-target-first and capability-aware"
-    },
-    {
-      "blockers": [],
-      "id": "add-kbd-registry-prune",
-      "implementation_status": "PENDING",
-      "last_task_completed": null,
-      "next_task_pending": null,
-      "status": "PENDING",
-      "tasks_done": 0,
-      "tasks_total": 0,
-      "title": "Add explicit recoverable cleanup for missing KBD replica registrations"
-    },
-    {
-      "blockers": [],
-      "id": "reconcile-kbd-control-plane-projections",
-      "implementation_status": "PENDING",
-      "last_task_completed": null,
-      "next_task_pending": null,
-      "status": "PENDING",
-      "tasks_done": 0,
-      "tasks_total": 0,
-      "title": "Preserve historical evidence while removing compatibility artifacts from live discovery and refreshing installed surfaces"
-    }
-  ],
-  "changes_completed": 0,
-  "changes_total": 4,
-  "children": {
-    "bottleneck-evaluator-and-detector": {
-      "certification_status": "NOT_TRACKED",
-      "changes_completed": 4,
-      "changes_total": 4,
-      "completed_at": null,
-      "handoff": null,
-      "implementation_completed": 4,
-      "implementation_total": 4,
-      "status": "DONE"
-    }
-  },
-  "completion": {
-    "certification": {
-      "blockers": [],
-      "status": "COMPLETE",
-      "summary": "Protected local certification gate passed"
-    },
-    "evidence": {
-      "blockers": [],
-      "status": "COMPLETE",
-      "summary": "Local lifecycle, recovery, contention, latency, review, and distribution evidence passed"
-    },
-    "implementation": {
-      "completed": 0,
-      "status": "PENDING",
-      "total": 4
-    },
-    "primaryCounter": "implementation",
-    "publication": {
-      "blockers": [],
-      "status": "PENDING",
-      "summary": null
-    }
+  "schemaVersion": "2",
+  "generatedBy": "kbd-runtime",
+  "projectionContractVersion": 2,
+  "sourceRevision": 380,
+  "derivedRevision": 380,
+  "frontier": {
+    "4bca58c3-e70b-48c9-a555-60bc16d3d025": 380
   },
   "conflictCount": 0,
-  "derivedRevision": 117,
-  "frontier": {
-    "4bca58c3-e70b-48c9-a555-60bc16d3d025": 117
-  },
-  "generatedBy": "kbd-runtime",
-  "implementation_completed": 0,
-  "implementation_total": 4,
-  "last_updated": "2026-08-29T18:04:41.950770Z",
-  "last_updated_by": "kbd-runtime",
-  "migrationStatus": null,
-  "parentPhase": null,
   "phase": "kbd-control-plane-recovery",
   "phaseId": "kbd-control-plane-recovery",
-  "schemaVersion": "2",
-  "sourceRevision": 117
+  "parentPhase": null,
+  "last_updated": "2026-08-30T12:04:35.535153Z",
+  "last_updated_by": "kbd-runtime",
+  "changes_total": 4,
+  "changes_completed": 4,
+  "implementation_total": 4,
+  "implementation_completed": 4,
+  "completion": {
+    "primaryCounter": "implementation",
+    "implementation": {
+      "completed": 4,
+      "total": 4,
+      "status": "COMPLETE"
+    },
+    "evidence": {
+      "status": "COMPLETE",
+      "summary": "Operator disposition recorded; strict OpenSpec verification passed; main spec synchronized; change archived on 2026-08-30.",
+      "blockers": []
+    },
+    "certification": {
+      "status": "COMPLETE",
+      "summary": "Final local integration, release, protected-test, OpenSpec, harness, documentation, and receipt-identity certification passed.",
+      "blockers": []
+    },
+    "publication": {
+      "status": "PENDING",
+      "summary": null,
+      "blockers": []
+    }
+  },
+  "changes": [
+    {
+      "id": "repair-kbd-memory-rest-contract",
+      "title": "Make KBD memory logging and recall use the installed surreal-memory service contract",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 6,
+      "tasks_done": 6,
+      "last_task_completed": "2.2 Run the memory smoke suite, `/bin/bash` 3.2 syntax/execution checks for touched scripts, strict skill validation, and `git diff --check`, recording exact local results.",
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "harden-uiux-routing-discovery",
+      "title": "Make UI/UX routing existing-target-first and capability-aware",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 6,
+      "tasks_done": 6,
+      "last_task_completed": "2.3 Run strict skill validation and `git diff --check`, recording exact local results.",
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "add-kbd-registry-prune",
+      "title": "Add explicit recoverable cleanup for missing KBD replica registrations",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 6,
+      "tasks_done": 6,
+      "last_task_completed": "2.3 Run Rust formatting, clippy with warnings denied, focused/full affected crate tests, release builds, protected-test verification, and `git diff --check`, recording exact local results.",
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "reconcile-kbd-control-plane-projections",
+      "title": "Preserve historical evidence while removing compatibility artifacts from live discovery and refreshing installed surfaces",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 10,
+      "tasks_done": 10,
+      "last_task_completed": "3.4 Run protected-test verification and `git diff --check`, then record all local commands/results in the phase evidence without using hosted CI.",
+      "next_task_pending": null,
+      "blockers": []
+    }
+  ],
+  "children": {
+    "bottleneck-evaluator-and-detector": {
+      "status": "DONE",
+      "changes_completed": 4,
+      "changes_total": 4,
+      "implementation_completed": 4,
+      "implementation_total": 4,
+      "certification_status": "NOT_TRACKED",
+      "handoff": null,
+      "completed_at": null
+    }
+  },
+  "migrationStatus": null
 }

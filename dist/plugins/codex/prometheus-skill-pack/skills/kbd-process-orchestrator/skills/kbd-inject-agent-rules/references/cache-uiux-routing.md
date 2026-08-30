@@ -19,7 +19,7 @@ Last fetched: 2026-05-27
 - Vercel React Native Skills
 - Vercel Web Design Guidelines
 - Anthropic frontend-design
-- Anthropic ux-designer
+- **ux-designer (optional)** — community or project-provided; consult only when the active catalog contains it, record its configured source, and do not infer Anthropic provenance from the name.
 
 ## Tier 3 — Pre-work research
 

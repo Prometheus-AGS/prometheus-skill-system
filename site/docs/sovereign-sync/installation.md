@@ -8,11 +8,13 @@ sidebar_label: Installation
 
 ## Automatic installation
 
-Install the compiled tools, then render and start the managed services:
+Sovereign Sync is optional. Install and start it only when cross-machine
+sharing is required:
 
 ```bash
 bash scripts/check-prerequisites.sh --install --build-tools
-bash scripts/install-mcp-services.sh
+bash scripts/install-binaries.sh --sharing
+bash scripts/install-mcp-services.sh --sharing
 ```
 
 What the installer does for sovereign-sync:
@@ -23,6 +25,10 @@ What the installer does for sovereign-sync:
 3. renders `ai.prometheus.sovereign-sync` for launchd or systemd;
 4. starts the daemon on a same-user Unix-domain socket;
 5. reuses an already-running service instead of double-starting it.
+
+Without `--sharing`, the managed-service installer stops and disables any
+existing sovereign-sync service. Ordinary KBD commands continue against the
+signed local runtime without a daemon.
 
 The P2P identity/group secret, project/replica identities, and each KBD device
 key are different values. Pair machines with export/import tickets; never copy

@@ -1,4 +1,4 @@
-use kbd_runtime::{EventKind, Runtime, RuntimeError, WorkStatus};
+use kbd_runtime::{registry::ProjectRegistry, EventKind, Runtime, RuntimeError, WorkStatus};
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::process::{Command, Output};
@@ -120,6 +120,87 @@ fn runtime_is_uninitialized(runtime: &Runtime) -> bool {
 }
 
 #[test]
+fn projects_prune_missing_enforces_apply_authority_and_reports_human_and_json_evidence() {
+    let fixture = KbdFixture::registered_without_legacy_phase();
+    let stale_checkout = fixture._temp.path().join("stale-checkout");
+    fs::create_dir_all(stale_checkout.join(".prometheus"))
+        .expect("create stale checkout manifest directory");
+    fs::copy(
+        fixture.project_root.join(".prometheus/project.json"),
+        stale_checkout.join(".prometheus/project.json"),
+    )
+    .expect("copy declared project identity");
+
+    let registry = ProjectRegistry::open_at(&fixture.data_root);
+    let stale = registry
+        .register_existing(&stale_checkout)
+        .expect("register checkout that will become stale");
+    let registry_before = fs::read(registry.registry_path()).expect("read registry before prune");
+    fs::remove_dir_all(&stale_checkout).expect("remove registered checkout");
+
+    let invalid_apply = fixture.command(&["projects", "--apply"]);
+    assert!(!invalid_apply.status.success());
+    assert!(stderr(&invalid_apply).contains("--prune-missing"));
+    assert_eq!(
+        fs::read(registry.registry_path()).expect("read registry after rejected apply"),
+        registry_before
+    );
+
+    let human_dry_run = fixture.command(&["projects", "--prune-missing"]);
+    assert!(human_dry_run.status.success(), "{}", stderr(&human_dry_run));
+    let human_dry_run = stdout(&human_dry_run);
+    assert!(human_dry_run.contains("Registry prune dry run"));
+    assert!(human_dry_run.contains("Candidates: 1"));
+    assert!(human_dry_run.contains(&stale.path));
+    assert!(human_dry_run.contains("Removed: 0"));
+    assert!(human_dry_run.contains("--prune-missing --apply"));
+    assert_eq!(
+        fs::read(registry.registry_path()).expect("read registry after human dry run"),
+        registry_before
+    );
+
+    let json_dry_run = fixture.command(&["projects", "--prune-missing", "--json"]);
+    assert!(json_dry_run.status.success(), "{}", stderr(&json_dry_run));
+    let json_dry_run: serde_json::Value =
+        serde_json::from_slice(&json_dry_run.stdout).expect("parse dry-run report");
+    assert_eq!(json_dry_run["applyRequested"], false);
+    assert_eq!(json_dry_run["applied"], false);
+    assert_eq!(json_dry_run["candidates"][0]["path"], stale.path);
+    assert_eq!(json_dry_run["removed"].as_array().unwrap().len(), 0);
+
+    let json_apply = fixture.command(&["projects", "--prune-missing", "--apply", "--json"]);
+    assert!(json_apply.status.success(), "{}", stderr(&json_apply));
+    let json_apply: serde_json::Value =
+        serde_json::from_slice(&json_apply.stdout).expect("parse apply report");
+    assert_eq!(json_apply["applyRequested"], true);
+    assert_eq!(json_apply["applied"], true);
+    assert_eq!(json_apply["removed"][0]["path"], stale.path);
+    for field in ["backupPath", "backupSha256", "checksumPath", "receiptPath"] {
+        assert!(
+            json_apply[field]
+                .as_str()
+                .is_some_and(|value| !value.is_empty()),
+            "missing apply evidence field {field}"
+        );
+    }
+    assert!(Path::new(json_apply["backupPath"].as_str().unwrap()).is_file());
+    assert!(Path::new(json_apply["checksumPath"].as_str().unwrap()).is_file());
+    assert!(Path::new(json_apply["receiptPath"].as_str().unwrap()).is_file());
+
+    let repeated_human_apply = fixture.command(&["projects", "--prune-missing", "--apply"]);
+    assert!(
+        repeated_human_apply.status.success(),
+        "{}",
+        stderr(&repeated_human_apply)
+    );
+    let repeated_human_apply = stdout(&repeated_human_apply);
+    assert!(repeated_human_apply.contains("Registry prune apply"));
+    assert!(repeated_human_apply.contains("Candidates: 0"));
+    assert!(repeated_human_apply.contains("Removed: 0"));
+    assert!(repeated_human_apply.contains("No registry changes were required."));
+}
+
+#[test]
 fn first_typed_mutation_initializes_and_imports_registered_legacy_project_once() {
     let fixture = KbdFixture::registered_but_uninitialized();
 
@@ -160,6 +241,11 @@ fn first_typed_mutation_initializes_and_imports_registered_legacy_project_once()
         stdout(&first),
         stderr(&first)
     );
+    assert!(
+        !stderr(&first).contains("control plane"),
+        "ordinary typed mutations must not probe or warn about the optional control plane: {}",
+        stderr(&first)
+    );
 
     let after_first = fixture.runtime.replay().expect("replay first mutation");
     assert_eq!(after_first.revision, 3);
@@ -188,6 +274,11 @@ fn first_typed_mutation_initializes_and_imports_registered_legacy_project_once()
         "complete",
     ]);
     assert!(second.status.success(), "{}", stderr(&second));
+    assert!(
+        !stderr(&second).contains("control plane"),
+        "successive local mutations must remain daemon-free: {}",
+        stderr(&second)
+    );
 
     let after_second = fixture.runtime.replay().expect("replay second mutation");
     assert_eq!(after_second.revision, 4);
@@ -393,7 +484,7 @@ fn boundary_receipts_projection_repair_and_gate_receipts_complete_end_to_end() {
         "--edge",
         "before",
         "--subject",
-        "task-1",
+        "Canonical integration task",
         "--json",
         "--repair-projections",
         "--precommit",
@@ -426,7 +517,7 @@ fn boundary_receipts_projection_repair_and_gate_receipts_complete_end_to_end() {
         "--edge",
         "before",
         "--subject",
-        "task-1",
+        "Canonical integration task",
         "--json",
         "--repair-projections",
     ]);
@@ -455,7 +546,7 @@ fn boundary_receipts_projection_repair_and_gate_receipts_complete_end_to_end() {
         "--edge",
         "after",
         "--subject",
-        "task-1",
+        "Canonical integration task",
         "--json",
         "--repair-projections",
         "--precommit",
@@ -495,7 +586,7 @@ fn boundary_receipts_projection_repair_and_gate_receipts_complete_end_to_end() {
         "--edge",
         "after",
         "--subject",
-        "task-1",
+        "Canonical integration task",
         "--json",
         "--repair-projections",
     ]);
@@ -660,13 +751,16 @@ fn ambiguous_signed_authority_writes_only_an_atomic_recovery_receipt() {
     let fixture = create_receipt_fixture();
     let journal_before = fs::read(fixture.runtime.events_path()).expect("read signed journal");
     let pointer: serde_json::Value = serde_json::from_slice(
-        &fs::read(fixture.runtime.runtime_root().join("checkpoints/current.json"))
-            .expect("read checkpoint pointer"),
+        &fs::read(
+            fixture
+                .runtime
+                .runtime_root()
+                .join("checkpoints/current.json"),
+        )
+        .expect("read checkpoint pointer"),
     )
     .expect("parse checkpoint pointer");
-    let checkpoint = pointer["checkpoint"]
-        .as_str()
-        .expect("checkpoint filename");
+    let checkpoint = pointer["checkpoint"].as_str().expect("checkpoint filename");
     fs::write(
         fixture
             .runtime
@@ -705,13 +799,14 @@ fn ambiguous_signed_authority_writes_only_an_atomic_recovery_receipt() {
         .collect::<Result<Vec<_>, _>>()
         .expect("read recovery receipts");
     assert_eq!(receipts.len(), 1);
-    let receipt: serde_json::Value = serde_json::from_slice(
-        &fs::read(receipts[0].path()).expect("read recovery receipt"),
-    )
-    .expect("parse recovery receipt");
+    let receipt: serde_json::Value =
+        serde_json::from_slice(&fs::read(receipts[0].path()).expect("read recovery receipt"))
+            .expect("parse recovery receipt");
     assert_eq!(receipt["outcome"], "blocked");
     assert_eq!(receipt["canonicalMutation"], false);
-    assert!(fs::read_dir(recovery_root)
+    assert!(fs::read_dir(recovery_root).unwrap().all(|entry| !entry
         .unwrap()
-        .all(|entry| !entry.unwrap().file_name().to_string_lossy().starts_with('.')));
+        .file_name()
+        .to_string_lossy()
+        .starts_with('.')));
 }

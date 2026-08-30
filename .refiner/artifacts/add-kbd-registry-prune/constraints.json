@@ -1,0 +1,75 @@
+{
+  "artifact_type": "content",
+  "constraints": [
+    {
+      "id": "C-01",
+      "description": "Generated artifacts must be reconciled by the named parent-phase owner before certification, commit, or push.",
+      "severity": "blocking",
+      "type": "technical",
+      "validation": {
+        "requires_code_execution": true,
+        "validation_method": "Confirm the change names reconcile-kbd-control-plane-projections and does not claim distribution certification."
+      }
+    },
+    {
+      "id": "C-02",
+      "description": "No committed secrets may be introduced by the change.",
+      "severity": "blocking",
+      "type": "technical",
+      "validation": {
+        "requires_code_execution": true,
+        "validation_method": "Inspect every changed registry-prune source, integration, documentation, and OpenSpec surface for credential material."
+      }
+    },
+    {
+      "id": "C-03",
+      "description": "Operator documentation and exhaustive CLI references must match the new command surface.",
+      "severity": "blocking",
+      "type": "semantic",
+      "validation": {
+        "requires_code_execution": true,
+        "validation_method": "Compare documented commands with the clap hierarchy and apply authority constraint."
+      }
+    },
+    {
+      "id": "C-04",
+      "description": "Generator behavior must remain idempotent and generated plugin surfaces must not be hand-edited.",
+      "severity": "high",
+      "type": "technical",
+      "validation": {
+        "requires_code_execution": true,
+        "validation_method": "Confirm this change does not alter a generator or generated plugin surface; retain the parent reconciliation gate."
+      }
+    },
+    {
+      "id": "C-05",
+      "description": "Launchd-reachable shell scripts must remain compatible with macOS Bash 3.2.",
+      "severity": "high",
+      "type": "technical",
+      "validation": {
+        "requires_code_execution": false,
+        "validation_method": "Confirm the change modifies no launchd-reachable shell script."
+      }
+    },
+    {
+      "id": "SPEC-REGISTRY-PRUNE",
+      "description": "Dry run is byte-immutable; apply re-evaluates under lock, preserves runtime history and valid registrations, writes rollback evidence before mutation, and is idempotent.",
+      "severity": "blocking",
+      "type": "technical",
+      "validation": {
+        "requires_code_execution": true,
+        "validation_method": "Inspect the implementation and require the two external runtime scenarios plus the external CLI binary scenario to pass."
+      }
+    }
+  ],
+  "global_rules": [
+    "Implementation-first and full-integration-only evidence",
+    "All validation is local",
+    "No parent-phase certification, commit, or push before projection reconciliation"
+  ],
+  "termination_conditions": [
+    "No blocking constraint is violated",
+    "The QA report exists and the artifact manifest validates",
+    "OpenSpec strict verification passes"
+  ]
+}

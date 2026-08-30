@@ -1,0 +1,34 @@
+{
+  "schemaVersion": "1",
+  "recordedAt": "2026-08-29T21:44:39Z",
+  "reason": "Preserve the duplicate top-level child compatibility projection outside live phase discovery without changing the canonical nested child record.",
+  "source": {
+    "path": ".kbd-orchestrator/phases/openspec-mirror-drift-cleanup::sovereign-sync-service-reliability",
+    "treeSha256": "d2c3cdf352169be84dd4816e7096c4dc9213246f6f525fd45139164af6e5696c",
+    "fileCount": 1,
+    "totalBytes": 65,
+    "files": [
+      {
+        "path": "prior-context.md",
+        "sha256": "c9c0102048996caae4fd4185df5022b16b26e4dd16daad3c4c81166bcf2d9ded",
+        "bytes": 65
+      }
+    ]
+  },
+  "destination": {
+    "path": ".kbd-orchestrator/backups/compatibility-projections/20260829T214439Z/openspec-mirror-drift-cleanup::sovereign-sync-service-reliability",
+    "treeSha256": "d2c3cdf352169be84dd4816e7096c4dc9213246f6f525fd45139164af6e5696c",
+    "fileCount": 1,
+    "totalBytes": 65
+  },
+  "canonicalTarget": {
+    "phaseId": "openspec-mirror-drift-cleanup::sovereign-sync-service-reliability",
+    "path": ".kbd-orchestrator/phases/openspec-mirror-drift-cleanup/children/sovereign-sync-service-reliability",
+    "treeSha256Before": "53f77f26f35925256a630d4d0b76e7f7f426e37e512283777ff38642418e2f51",
+    "treeSha256After": "53f77f26f35925256a630d4d0b76e7f7f426e37e512283777ff38642418e2f51",
+    "fileCount": 39,
+    "totalBytes": 540743,
+    "unchanged": true
+  },
+  "digestContract": "SHA-256 over each regular file in sorted relative-path order as relative path bytes, NUL, lowercase file SHA-256 hex, and newline."
+}

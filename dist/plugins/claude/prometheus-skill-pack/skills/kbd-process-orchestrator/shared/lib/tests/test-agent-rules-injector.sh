@@ -87,7 +87,10 @@ EOF
   "$SCRIPT" --target CLAUDE.md --dry-run >/dev/null || fail "7a"
   after="$(cat CLAUDE.md)"
   [[ "$before" == "$after" ]] || fail "7b: --dry-run modified the file"
-) && pass "--dry-run modifies nothing"
+  [[ ! -e AGENTS.md ]] || fail "7c: missing-target fixture already exists"
+  "$SCRIPT" --pack uiux-routing --target AGENTS.md --dry-run >/dev/null || fail "7d"
+  [[ ! -e AGENTS.md ]] || fail "7e: --dry-run created a missing target"
+) && pass "--dry-run preserves existing targets and leaves missing targets absent"
 
 # Test 8: --target both writes identical content into CLAUDE.md and AGENTS.md
 ( SANDBOX="$(mktemp -d)"; cd "$SANDBOX"; trap 'rm -rf "$SANDBOX"' EXIT
@@ -146,4 +149,30 @@ EOF
   echo "$out" | grep -qiF -- "--pack must be" || fail "13b: expected pack error: $out"
 ) && pass "invalid --pack value rejected"
 
-printf '\nall agent-rules-injector smoke tests passed (13/13)\n'
+# Test 14: uiux-routing replaces only its managed fence and is idempotent
+( SANDBOX="$(mktemp -d)"; cd "$SANDBOX"; trap 'rm -rf "$SANDBOX"' EXIT
+  printf '# Project contract\n\nBefore fence.  Keep tabs:\tA\tB\n' > prefix.snapshot
+  printf '\nAfter fence.  Keep trailing spaces:  \nFinal line.\n' > suffix.snapshot
+  {
+    cat prefix.snapshot
+    printf '%s\n' \
+      '<!-- uiux-routing:start v1 -->' \
+      'stale managed content' \
+      '<!-- uiux-routing:end -->'
+    cat suffix.snapshot
+  } > CLAUDE.md
+  {
+    cat prefix.snapshot
+    cat "$SKILL_ROOT/skills/kbd-inject-agent-rules/references/template-uiux-routing.md"
+    cat suffix.snapshot
+  } > expected.snapshot
+
+  "$SCRIPT" --pack uiux-routing --target CLAUDE.md >/dev/null || fail "14a: first refresh failed"
+  cmp -s CLAUDE.md expected.snapshot || fail "14b: bytes outside the managed fence changed"
+  cp CLAUDE.md first-run.snapshot
+
+  "$SCRIPT" --pack uiux-routing --target CLAUDE.md >/dev/null || fail "14c: second refresh failed"
+  cmp -s CLAUDE.md first-run.snapshot || fail "14d: second refresh was not byte-identical"
+) && pass "uiux-routing preserves surrounding bytes and is second-run idempotent"
+
+printf '\nall agent-rules-injector full-integration scenarios passed (14/14)\n'

@@ -12,6 +12,7 @@ pub enum ComponentStatus {
     SkippedDocker,
     SkippedLaunchd,
     Installed,
+    Disabled,
     NotInstalled,
     Stale,
 }
@@ -19,7 +20,11 @@ pub enum ComponentStatus {
 impl ComponentStatus {
     fn icon(&self) -> colored::ColoredString {
         match self {
-            Self::Ok | Self::SkippedDocker | Self::SkippedLaunchd | Self::Installed => "✅".green(),
+            Self::Ok
+            | Self::SkippedDocker
+            | Self::SkippedLaunchd
+            | Self::Installed
+            | Self::Disabled => "✅".green(),
             Self::Missing | Self::NotInstalled => "❌".red(),
             Self::Stale => "⚠️ ".yellow(),
         }
@@ -32,6 +37,7 @@ impl ComponentStatus {
             Self::SkippedDocker => "running (Docker)",
             Self::SkippedLaunchd => "running (launchd)",
             Self::Installed => "installed",
+            Self::Disabled => "disabled (optional)",
             Self::NotInstalled => "not installed",
             Self::Stale => "stale (source newer than binary)",
         }
@@ -364,6 +370,93 @@ fn detect_control_plane_service() -> ComponentStatus {
     }
 }
 
+/// Desired ordinary-setup state: the optional sharing service is stopped and
+/// explicitly disabled, or it has no managed definition at all.
+fn detect_daemon_free_control_plane() -> ComponentStatus {
+    if cfg!(target_os = "macos") {
+        let labels = [
+            "ai.prometheus.sovereign-sync",
+            "com.prometheusags.sovereign-sync",
+        ];
+        if labels.iter().any(|label| detect_launchd(label)) {
+            return detect_control_plane_service();
+        }
+
+        let launch_agents = dirs::home_dir()
+            .unwrap_or_default()
+            .join("Library/LaunchAgents");
+        if labels
+            .iter()
+            .all(|label| !launch_agents.join(format!("{label}.plist")).is_file())
+        {
+            return ComponentStatus::Disabled;
+        }
+
+        let uid = std::process::Command::new("id")
+            .arg("-u")
+            .output()
+            .ok()
+            .filter(|output| output.status.success())
+            .map(|output| String::from_utf8_lossy(&output.stdout).trim().to_string())
+            .unwrap_or_default();
+        let disabled = std::process::Command::new("launchctl")
+            .args(["print-disabled", &format!("gui/{uid}")])
+            .output()
+            .ok()
+            .filter(|output| output.status.success())
+            .map(|output| {
+                let registry = String::from_utf8_lossy(&output.stdout);
+                labels
+                    .iter()
+                    .all(|label| registry.contains(&format!("\"{label}\" => disabled")))
+            })
+            .unwrap_or(false);
+        return if disabled {
+            ComponentStatus::Disabled
+        } else {
+            ComponentStatus::Missing
+        };
+    }
+
+    if cfg!(target_os = "linux") {
+        let units = [
+            "ai.prometheus.sovereign-sync.service",
+            "com.prometheusags.sovereign-sync.service",
+        ];
+        let installed = units.iter().copied().filter(|unit| {
+            std::process::Command::new("systemctl")
+                .args(["--user", "cat", unit])
+                .stdout(std::process::Stdio::null())
+                .stderr(std::process::Stdio::null())
+                .status()
+                .map(|status| status.success())
+                .unwrap_or(false)
+        });
+        let installed: Vec<_> = installed.collect();
+        if installed.is_empty() {
+            return ComponentStatus::Disabled;
+        }
+        if units.iter().any(|unit| detect_systemd_user(unit)) {
+            return detect_control_plane_service();
+        }
+        let all_disabled = installed.iter().all(|unit| {
+            std::process::Command::new("systemctl")
+                .args(["--user", "is-enabled", unit])
+                .output()
+                .ok()
+                .map(|output| String::from_utf8_lossy(&output.stdout).trim().to_string())
+                .is_some_and(|state| matches!(state.as_str(), "disabled" | "masked" | "not-found"))
+        });
+        return if all_disabled {
+            ComponentStatus::Disabled
+        } else {
+            ComponentStatus::Missing
+        };
+    }
+
+    ComponentStatus::Disabled
+}
+
 fn install_template_forge_binaries() -> Result<()> {
     let repo_root = std::env::var("PROMETHEUS_SKILL_PACK_ROOT")
         .map(std::path::PathBuf::from)
@@ -493,13 +586,20 @@ fn install_liter_llm() -> Result<()> {
     cargo_build_and_install(&root.join("tools/liter-llm"), "liter-llm-cli", "liter-llm")
 }
 
-fn managed_service_installer_args(dry_run: bool, restart: bool) -> Vec<&'static str> {
+fn managed_service_installer_args(
+    dry_run: bool,
+    restart: bool,
+    sharing: bool,
+) -> Vec<&'static str> {
     let mut args = Vec::new();
     if dry_run {
         args.push("--dry-run");
     }
     if restart {
         args.push("--restart");
+    }
+    if sharing {
+        args.push("--sharing");
     }
     args
 }
@@ -522,7 +622,7 @@ fn managed_service_action(
     }
 }
 
-fn install_managed_services(dry_run: bool, restart: bool) -> Result<()> {
+fn install_managed_services(dry_run: bool, restart: bool, sharing: bool) -> Result<()> {
     let root = repo_root().ok_or_else(|| anyhow::anyhow!("could not locate repo root"))?;
     let installer = root.join("scripts/install-mcp-services.sh");
     anyhow::ensure!(
@@ -533,7 +633,7 @@ fn install_managed_services(dry_run: bool, restart: bool) -> Result<()> {
 
     let status = std::process::Command::new("bash")
         .arg(&installer)
-        .args(managed_service_installer_args(dry_run, restart))
+        .args(managed_service_installer_args(dry_run, restart, sharing))
         .current_dir(&root)
         .status()
         .with_context(|| format!("failed to run {}", installer.display()))?;
@@ -690,6 +790,7 @@ fn prompt_yes(label: &str) -> bool {
 
 pub fn run(
     full: bool,
+    sharing: bool,
     non_interactive: bool,
     dry_run: bool,
     check: bool,
@@ -712,7 +813,13 @@ pub fn run(
     if full {
         println!(
             "  {}",
-            "(--full — including managed services and the KBD control plane)".cyan()
+            "(--full — including managed local services; KBD remains daemon-free)".cyan()
+        );
+    }
+    if sharing {
+        println!(
+            "  {}",
+            "(--sharing — enabling the optional sovereign-sync sharing service)".cyan()
         );
     }
     println!();
@@ -738,17 +845,30 @@ pub fn run(
             _ => {}
         }
     }
-    let control_plane_status = full.then(detect_control_plane_service);
+    let control_plane_status = full.then(|| {
+        if sharing {
+            detect_control_plane_service()
+        } else {
+            detect_daemon_free_control_plane()
+        }
+    });
     if let Some(status) = control_plane_status {
         println!(
-            "  {} KBD control plane (sovereign-sync managed service) — {}",
+            "  {} {} — {}",
             status.icon(),
+            if sharing {
+                "KBD sharing service (sovereign-sync)"
+            } else {
+                "Optional KBD sharing service (daemon-free target)"
+            },
             status.label().dimmed()
         );
-        if matches!(
-            status,
-            ComponentStatus::Missing | ComponentStatus::NotInstalled
-        ) {
+        if sharing
+            && matches!(
+                status,
+                ComponentStatus::Missing | ComponentStatus::NotInstalled
+            )
+        {
             missing_count += 1;
         }
     }
@@ -855,26 +975,38 @@ pub fn run(
         let approved = if dry_run {
             false
         } else {
-            non_interactive || prompt_yes("managed services, including the KBD control plane")
+            non_interactive
+                || prompt_yes(if sharing {
+                    "managed services and the optional sovereign-sync sharing service"
+                } else {
+                    "managed local services (sovereign-sync will be disabled)"
+                })
         };
         let action = managed_service_action(full, check, dry_run, rebuild, approved);
         if dry_run {
             println!("  {} managed services: dry-run", "▸".dimmed());
         }
         if let Some((service_dry_run, restart)) = action {
-            install_managed_services(service_dry_run, restart)?;
+            install_managed_services(service_dry_run, restart, sharing)?;
         }
 
-        let after = if dry_run {
+        let attempted_install = matches!(action, Some((false, _)));
+        let after = if dry_run || action.is_none() {
             before
-        } else {
+        } else if sharing {
             detect_control_plane_service()
+        } else {
+            detect_daemon_free_control_plane()
         };
         final_states.push(("control-plane-service".to_string(), after));
-        let attempted_install = matches!(action, Some((false, _)));
-        if attempted_install && !matches!(after, ComponentStatus::Ok) {
+        if sharing && attempted_install && !matches!(after, ComponentStatus::Ok) {
             anyhow::bail!(
                 "KBD control-plane service is not both registered and healthy after setup"
+            );
+        }
+        if !sharing && attempted_install && !matches!(after, ComponentStatus::Disabled) {
+            anyhow::bail!(
+                "optional sovereign-sync service is not both stopped and disabled after setup"
             );
         }
     }
@@ -958,6 +1090,7 @@ mod tests {
             ComponentStatus::SkippedDocker,
             ComponentStatus::SkippedLaunchd,
             ComponentStatus::Installed,
+            ComponentStatus::Disabled,
             ComponentStatus::NotInstalled,
             ComponentStatus::Stale,
         ];
@@ -969,20 +1102,24 @@ mod tests {
     #[test]
     fn managed_service_args_preserve_dry_run_and_restart() {
         assert_eq!(
-            managed_service_installer_args(false, false),
+            managed_service_installer_args(false, false, false),
             Vec::<&str>::new()
         );
         assert_eq!(
-            managed_service_installer_args(true, false),
+            managed_service_installer_args(true, false, false),
             vec!["--dry-run"]
         );
         assert_eq!(
-            managed_service_installer_args(false, true),
+            managed_service_installer_args(false, true, false),
             vec!["--restart"]
         );
         assert_eq!(
-            managed_service_installer_args(true, true),
+            managed_service_installer_args(true, true, false),
             vec!["--dry-run", "--restart"]
+        );
+        assert_eq!(
+            managed_service_installer_args(false, false, true),
+            vec!["--sharing"]
         );
     }
 

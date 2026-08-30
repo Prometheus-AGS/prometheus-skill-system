@@ -47,7 +47,7 @@
     },
     {
       "path": "shared/scripts/detect-toolchain.sh",
-      "sha256": "b8ecdef5e819d4c90b357f61c1fd89e363390b992ff1ef5234acd2c96114abee",
+      "sha256": "9662c75b22df156b3c88c1413f0f7f4884f0bf12c3b850130a01fe2aa1eac1de",
       "mode": "0755"
     },
     {
@@ -321,5 +321,5 @@
       "mode": "0755"
     }
   ],
-  "bundleId": "a76e4233f51ef3236b36248a6a9ba3338b7a1321bef13979c3d72d285ef6e96c"
+  "bundleId": "d5da8b01bc07baf1cb45843f4a2d7bb8e3229d8c521329e8b86c87643a4f3cd7"
 }

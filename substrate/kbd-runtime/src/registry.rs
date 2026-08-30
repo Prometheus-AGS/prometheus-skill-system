@@ -137,6 +137,52 @@ pub struct RegistrationOutcome {
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
+pub struct MissingRegistration {
+    pub path: String,
+    pub project_id: String,
+    pub replica_id: String,
+    pub kind: ReplicaKind,
+    pub read_only: bool,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+pub struct RegistryPruneReport {
+    pub apply_requested: bool,
+    pub applied: bool,
+    pub evaluated_at: DateTime<Utc>,
+    pub registry_path: String,
+    pub retained_registrations: usize,
+    pub candidates: Vec<MissingRegistration>,
+    pub removed: Vec<MissingRegistration>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub backup_path: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub backup_sha256: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub checksum_path: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub receipt_path: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+pub struct RegistryPruneReceipt {
+    pub schema_version: String,
+    pub operation_id: String,
+    pub prepared_at: DateTime<Utc>,
+    pub registry_path: String,
+    pub runtime_root: String,
+    pub backup_path: String,
+    pub backup_sha256: String,
+    pub checksum_path: String,
+    pub planned_registry_sha256: String,
+    pub removed: Vec<MissingRegistration>,
+    pub retained_registrations: usize,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
 pub struct SubmoduleScanResult {
     pub parent_path: String,
     pub pins: Vec<SubmodulePin>,
@@ -283,6 +329,161 @@ impl ProjectRegistry {
         let lock = self.open_lock()?;
         lock.lock_exclusive()?;
         let result = self.load_or_create_locked();
+        FileExt::unlock(&lock)?;
+        result
+    }
+
+    /// Inventory replica registrations whose recorded paths do not exist.
+    ///
+    /// This is the dry-run maintenance boundary: it takes a shared registry
+    /// lock and never creates or rewrites `registry.json`. Metadata errors are
+    /// returned instead of being treated as proof that a registration is
+    /// missing, so cleanup always fails closed.
+    pub fn inventory_missing(&self) -> Result<RegistryPruneReport> {
+        fs::create_dir_all(&self.root)?;
+        let lock = self.open_lock()?;
+        lock.lock_shared()?;
+        let result = (|| {
+            let registry_path = self.registry_path();
+            let (mut candidates, retained_registrations) = if registry_path.exists() {
+                let document = self.load_existing_locked()?;
+                let retained_registrations = document.replicas.len();
+                (missing_registrations(&document)?, retained_registrations)
+            } else {
+                (Vec::new(), 0)
+            };
+            candidates.sort_by(|left, right| left.path.cmp(&right.path));
+            Ok(RegistryPruneReport {
+                apply_requested: false,
+                applied: false,
+                evaluated_at: Utc::now(),
+                registry_path: path_key(&registry_path)?,
+                retained_registrations,
+                candidates,
+                removed: Vec::new(),
+                backup_path: None,
+                backup_sha256: None,
+                checksum_path: None,
+                receipt_path: None,
+            })
+        })();
+        FileExt::unlock(&lock)?;
+        result
+    }
+
+    /// Inventory or explicitly apply removal of registrations whose paths are
+    /// absent when evaluated under the registry lock.
+    pub fn prune_missing(&self, apply: bool) -> Result<RegistryPruneReport> {
+        if !apply {
+            return self.inventory_missing();
+        }
+
+        fs::create_dir_all(&self.root)?;
+        let lock = self.open_lock()?;
+        lock.lock_exclusive()?;
+        let result = (|| {
+            let evaluated_at = Utc::now();
+            let registry_path = self.registry_path();
+            let registry_path_string = path_key(&registry_path)?;
+            if !registry_path.exists() {
+                return Ok(RegistryPruneReport {
+                    apply_requested: true,
+                    applied: false,
+                    evaluated_at,
+                    registry_path: registry_path_string,
+                    retained_registrations: 0,
+                    candidates: Vec::new(),
+                    removed: Vec::new(),
+                    backup_path: None,
+                    backup_sha256: None,
+                    checksum_path: None,
+                    receipt_path: None,
+                });
+            }
+
+            let mut document = self.load_existing_locked()?;
+            let mut candidates = missing_registrations(&document)?;
+            candidates.sort_by(|left, right| left.path.cmp(&right.path));
+            if candidates.is_empty() {
+                return Ok(RegistryPruneReport {
+                    apply_requested: true,
+                    applied: false,
+                    evaluated_at,
+                    registry_path: registry_path_string,
+                    retained_registrations: document.replicas.len(),
+                    candidates,
+                    removed: Vec::new(),
+                    backup_path: None,
+                    backup_sha256: None,
+                    checksum_path: None,
+                    receipt_path: None,
+                });
+            }
+
+            for candidate in &candidates {
+                document.replicas.remove(&candidate.path);
+            }
+
+            let original_bytes = fs::read(&registry_path)?;
+            let backup_sha256 = format!("{:x}", Sha256::digest(&original_bytes));
+            let planned_registry_sha256 =
+                format!("{:x}", Sha256::digest(registry_document_bytes(&document)?));
+            let operation_id = format!(
+                "{}-{}",
+                evaluated_at.format("%Y%m%dT%H%M%S%.fZ"),
+                Uuid::new_v4()
+            );
+            let backup_root = self
+                .root
+                .join("registry-maintenance-backups")
+                .join(&operation_id);
+            fs::create_dir_all(&backup_root)?;
+            let backup_path = backup_root.join("registry.json");
+            let checksum_path = backup_root.join("registry.sha256");
+            let receipt_path = backup_root.join("receipt.json");
+            let rollback_path = backup_root.join("ROLLBACK.md");
+
+            write_new_bytes(&backup_path, &original_bytes)?;
+            write_new_bytes(
+                &checksum_path,
+                format!("{backup_sha256}  registry.json\n").as_bytes(),
+            )?;
+            let receipt = RegistryPruneReceipt {
+                schema_version: "1".into(),
+                operation_id,
+                prepared_at: evaluated_at,
+                registry_path: registry_path_string.clone(),
+                runtime_root: path_key(&self.root.join("projects"))?,
+                backup_path: path_key(&backup_path)?,
+                backup_sha256: backup_sha256.clone(),
+                checksum_path: path_key(&checksum_path)?,
+                planned_registry_sha256,
+                removed: candidates.clone(),
+                retained_registrations: document.replicas.len(),
+            };
+            write_json_file(&receipt_path, &receipt)?;
+            write_registry_prune_rollback(&rollback_path, &receipt)?;
+            File::open(&backup_root)?.sync_all()?;
+            if let Some(parent) = backup_root.parent() {
+                File::open(parent)?.sync_all()?;
+            }
+
+            self.write_locked(&document)?;
+
+            Ok(RegistryPruneReport {
+                apply_requested: true,
+                applied: true,
+                evaluated_at,
+                registry_path: registry_path_string,
+                retained_registrations: document.replicas.len(),
+                candidates: candidates.clone(),
+                removed: candidates,
+                backup_path: Some(path_key(&backup_path)?),
+                backup_sha256: Some(backup_sha256),
+                checksum_path: Some(path_key(&checksum_path)?),
+                receipt_path: Some(path_key(&receipt_path)?),
+            })
+        })();
         FileExt::unlock(&lock)?;
         result
     }
@@ -769,8 +970,7 @@ impl ProjectRegistry {
             options.mode(0o600);
         }
         let mut file = options.open(&temporary)?;
-        serde_json::to_writer_pretty(&mut file, document)?;
-        file.write_all(b"\n")?;
+        file.write_all(&registry_document_bytes(document)?)?;
         file.sync_all()?;
         fs::rename(&temporary, &path)?;
         File::open(&self.root)?.sync_all()?;
@@ -1052,6 +1252,77 @@ fn duplicate_candidates(
     }
     candidates.sort_by(|left, right| left.path.cmp(&right.path));
     candidates
+}
+
+fn missing_registrations(document: &RegistryDocument) -> Result<Vec<MissingRegistration>> {
+    let mut missing = Vec::new();
+    for (path, registration) in &document.replicas {
+        if !Path::new(path).try_exists()? {
+            missing.push(MissingRegistration {
+                path: path.clone(),
+                project_id: registration.project_id.clone(),
+                replica_id: registration.replica_id.clone(),
+                kind: registration.kind.clone(),
+                read_only: registration.read_only,
+            });
+        }
+    }
+    Ok(missing)
+}
+
+fn registry_document_bytes(document: &RegistryDocument) -> Result<Vec<u8>> {
+    let mut bytes = serde_json::to_vec_pretty(document)?;
+    bytes.push(b'\n');
+    Ok(bytes)
+}
+
+fn write_new_bytes(path: &Path, bytes: &[u8]) -> Result<()> {
+    if let Some(parent) = path.parent() {
+        fs::create_dir_all(parent)?;
+    }
+    let mut options = OpenOptions::new();
+    options.create_new(true).write(true);
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::OpenOptionsExt;
+        options.mode(0o600);
+    }
+    let mut file = options.open(path)?;
+    file.write_all(bytes)?;
+    file.sync_all()?;
+    Ok(())
+}
+
+fn write_registry_prune_rollback(path: &Path, receipt: &RegistryPruneReceipt) -> Result<()> {
+    let instructions = format!(
+        "# Registry prune rollback\n\n\
+         Operation: `{operation_id}`\n\n\
+         This directory contains write-ahead evidence prepared before the registry mutation. \
+         Compare the current registry SHA-256 with `{planned_registry_sha256}` to determine \
+         whether the atomic replacement completed.\n\n\
+         1. Stop `sovereign-sync` so no process can reopen or rewrite the registry.\n\
+         2. Verify `{backup_path}` against `{checksum_path}`. The expected SHA-256 is \
+         `{backup_sha256}`.\n\
+         3. Acquire the exclusive lock at `{lock_path}`.\n\
+         4. Restore the exact backup bytes from `{backup_path}` to `{registry_path}` using \
+         an atomic same-directory replacement, then fsync the registry directory.\n\
+         5. Release the lock, restart `sovereign-sync`, and verify registry and service health.\n\n\
+         Do not remove `{runtime_root}`. Registry pruning never deletes runtime directories, \
+         journals, or checkpoints.\n",
+        operation_id = receipt.operation_id,
+        planned_registry_sha256 = receipt.planned_registry_sha256,
+        backup_path = receipt.backup_path,
+        checksum_path = receipt.checksum_path,
+        backup_sha256 = receipt.backup_sha256,
+        lock_path = Path::new(&receipt.registry_path)
+            .parent()
+            .unwrap_or_else(|| Path::new("."))
+            .join("registry.lock")
+            .display(),
+        registry_path = receipt.registry_path,
+        runtime_root = receipt.runtime_root,
+    );
+    write_new_bytes(path, instructions.as_bytes())
 }
 
 fn canonical_existing_path(path: &Path) -> Result<PathBuf> {

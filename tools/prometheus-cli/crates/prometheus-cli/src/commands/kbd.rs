@@ -1,6 +1,6 @@
 use anyhow::{anyhow, Context, Result};
 use kbd_runtime::{
-    registry::{scan_submodule_pins, ProjectRegistry},
+    registry::{scan_submodule_pins, ProjectRegistry, RegistryPruneReport},
     rollout::{RolloutObservation, RolloutTracker},
     Actor, ActorKind, Blocker, BoundaryEdge, BoundaryKind, BoundaryOutcome, BoundaryReceipt,
     Checkpoint, ClaimMode, CommandEnvelope, CommandKind, Event, GateKind, GateOutcome, GateReceipt,
@@ -23,6 +23,8 @@ pub enum Action {
     },
     Projects {
         json: bool,
+        prune_missing: bool,
+        apply: bool,
     },
     Register {
         path: String,
@@ -127,26 +129,39 @@ pub enum Action {
 
 pub async fn run(path: &str, action: Action) -> Result<()> {
     let action = match action {
-        Action::Projects { json } => {
+        Action::Projects {
+            json,
+            prune_missing,
+            apply,
+        } => {
             let registry = ProjectRegistry::open();
-            let document = registry.load()?;
-            if json {
-                println!("{}", serde_json::to_string_pretty(&document)?);
+            if prune_missing {
+                let report = registry.prune_missing(apply)?;
+                if json {
+                    println!("{}", serde_json::to_string_pretty(&report)?);
+                } else {
+                    print_registry_prune_report(&report);
+                }
             } else {
-                println!("Machine: {}", document.machine_id);
-                for (path, replica) in document.replicas {
-                    let access = if replica.read_only {
-                        format!(
-                            "  read-only ({})",
-                            replica.read_only_reason.as_deref().unwrap_or("policy")
-                        )
-                    } else {
-                        String::new()
-                    };
-                    println!(
-                        "{}  {}  {}  {:?}{}",
-                        replica.project_id, replica.replica_id, path, replica.kind, access
-                    );
+                let document = registry.load()?;
+                if json {
+                    println!("{}", serde_json::to_string_pretty(&document)?);
+                } else {
+                    println!("Machine: {}", document.machine_id);
+                    for (path, replica) in document.replicas {
+                        let access = if replica.read_only {
+                            format!(
+                                "  read-only ({})",
+                                replica.read_only_reason.as_deref().unwrap_or("policy")
+                            )
+                        } else {
+                            String::new()
+                        };
+                        println!(
+                            "{}  {}  {}  {:?}{}",
+                            replica.project_id, replica.replica_id, path, replica.kind, access
+                        );
+                    }
                 }
             }
             return Ok(());
@@ -686,7 +701,7 @@ pub async fn run(path: &str, action: Action) -> Result<()> {
                 Err(failure) => {
                     let ambiguous = matches!(failure, ControlFailure::Ambiguous(_));
                     let state =
-                        client.execute_locally(envelope, &failure.into_error(), ambiguous)?;
+                        client.execute_locally(envelope, Some(&failure.into_error()), ambiguous)?;
                     json!({
                         "state": state,
                         "committedLocally": true,
@@ -704,6 +719,50 @@ pub async fn run(path: &str, action: Action) -> Result<()> {
     }
 }
 
+fn print_registry_prune_report(report: &RegistryPruneReport) {
+    let mode = if report.apply_requested {
+        "apply"
+    } else {
+        "dry run"
+    };
+    println!("Registry prune {mode}");
+    println!("Registry: {}", report.registry_path);
+    println!("Candidates: {}", report.candidates.len());
+    for candidate in &report.candidates {
+        println!(
+            "Candidate: {}  {}  {}  {:?}{}",
+            candidate.project_id,
+            candidate.replica_id,
+            candidate.path,
+            candidate.kind,
+            if candidate.read_only {
+                "  read-only"
+            } else {
+                ""
+            }
+        );
+    }
+    println!("Removed: {}", report.removed.len());
+    println!("Retained registrations: {}", report.retained_registrations);
+    if !report.apply_requested {
+        println!("No changes applied. Re-run with --prune-missing --apply to remove candidates.");
+    } else if !report.applied {
+        println!("No registry changes were required.");
+    }
+    if let Some(path) = &report.backup_path {
+        println!("Backup: {path}");
+    }
+    if let Some(checksum) = &report.backup_sha256 {
+        println!("Backup SHA-256: {checksum}");
+    }
+    if let Some(path) = &report.checksum_path {
+        println!("Checksum: {path}");
+    }
+    if let Some(path) = &report.receipt_path {
+        println!("Receipt: {path}");
+    }
+}
+
 struct GuardContext {
     phase_id: Option<String>,
     change_id: Option<String>,
@@ -715,11 +774,7 @@ struct GuardContext {
     valid: bool,
 }
 
-fn guard_context(
-    state: &RuntimeState,
-    boundary: BoundaryKind,
-    subject: &str,
-) -> GuardContext {
+fn guard_context(state: &RuntimeState, boundary: BoundaryKind, subject: &str) -> GuardContext {
     let active_phase_id = state.active_path.phase_id.clone();
     let phase_path = state
         .active_path
@@ -1232,17 +1287,16 @@ fn missing_certification_receipts(state: &RuntimeState) -> Vec<String> {
             if task.status != WorkStatus::Complete {
                 continue;
             }
-            let key = format!("task:{}", task.id).to_ascii_lowercase();
-            let complete = state
-                .latest_boundary_receipts
-                .get(&key)
-                .is_some_and(|receipt| {
-                    receipt.edge == BoundaryEdge::After
-                        && matches!(
-                            receipt.outcome,
-                            BoundaryOutcome::Pass | BoundaryOutcome::Repaired
-                        )
-                });
+            let complete = state.latest_boundary_receipts.values().any(|receipt| {
+                receipt.boundary == BoundaryKind::Task
+                    && receipt.phase_id.as_deref() == Some(phase.id.as_str())
+                    && receipt.task_id.as_deref() == Some(task.id.as_str())
+                    && receipt.edge == BoundaryEdge::After
+                    && matches!(
+                        receipt.outcome,
+                        BoundaryOutcome::Pass | BoundaryOutcome::Repaired
+                    )
+            });
             if !complete {
                 missing.push(format!(
                     "completed task {} has no valid kbd-apply receipt",
@@ -1477,7 +1531,9 @@ async fn status(
                 if json_output {
                     println!("{}", serde_json::to_string_pretty(&output)?);
                 } else {
-                    eprintln!("Control plane unavailable: {remote_error}");
+                    if client.remote_enabled {
+                        eprintln!("Control plane unavailable: {remote_error}");
+                    }
                     println!(
                         "KBD mode: legacy (the first typed mutation initializes automatically)"
                     );
@@ -1556,6 +1612,7 @@ struct ControlClient {
     transport: ControlTransport,
     project_id: String,
     runtime: Runtime,
+    remote_enabled: bool,
 }
 
 impl ControlClient {
@@ -1569,10 +1626,24 @@ impl ControlClient {
             transport: ControlTransport::new(Duration::from_secs(30))?,
             project_id: manifest.project_id,
             runtime: runtime.clone(),
+            // Ordinary KBD work is local-first. sovereign-sync is an optional
+            // passive sharing service and must never become a command-path
+            // dependency merely because a stale socket or service exists.
+            remote_enabled: std::env::var("PROMETHEUS_KBD_CONTROL_PLANE")
+                .is_ok_and(|value| matches!(value.as_str(), "1" | "true" | "yes")),
         })
     }
 
     async fn status(&self) -> Result<RuntimeState> {
+        if !self.remote_enabled {
+            return match self.runtime.replay() {
+                Ok(state) if state.revision > 0 => Ok(state),
+                Ok(_) | Err(RuntimeError::NotInitialized) => {
+                    Err(RuntimeError::NotInitialized.into())
+                }
+                Err(error) => Err(error.into()),
+            };
+        }
         let response = self
             .transport
             .get(&format!("/api/v1/kbd/projects/{}/status", self.project_id))
@@ -1581,6 +1652,10 @@ impl ControlClient {
     }
 
     async fn events(&self) -> Result<Vec<Event>> {
+        if !self.remote_enabled {
+            self.runtime.replay()?;
+            return Ok(self.runtime.events()?);
+        }
         let response = self
             .transport
             .get(&format!("/api/v1/kbd/projects/{}/events", self.project_id))
@@ -1589,6 +1664,10 @@ impl ControlClient {
     }
 
     async fn audit_events(&self) -> Result<Vec<Event>> {
+        if !self.remote_enabled {
+            self.runtime.replay()?;
+            return Ok(self.runtime.events()?);
+        }
         let response = self
             .transport
             .get(&format!("/api/v1/kbd/projects/{}/audit", self.project_id))
@@ -1616,6 +1695,16 @@ impl ControlClient {
         &self,
         envelope: CommandEnvelope,
     ) -> std::result::Result<Value, ControlFailure> {
+        if !self.remote_enabled {
+            let state = self
+                .execute_locally(envelope, None, false)
+                .map_err(ControlFailure::Rejected)?;
+            return Ok(json!({
+                "state": state,
+                "committedLocally": true,
+                "controlPlane": "disabled"
+            }));
+        }
         // Read-only commands must never touch the platform credential store.
         // Resolve the signer only for an actual mutation, and keep the
         // synchronous OS credential lookup off the async executor.
@@ -1688,7 +1777,7 @@ impl ControlClient {
             // never gate local KBD work.
             Err(failure) => {
                 let ambiguous = matches!(failure, ControlFailure::Ambiguous(_));
-                self.execute_locally(envelope, &failure.into_error(), ambiguous)
+                self.execute_locally(envelope, Some(&failure.into_error()), ambiguous)
             }
         }
     }
@@ -1702,10 +1791,11 @@ impl ControlClient {
     fn execute_locally(
         &self,
         envelope: CommandEnvelope,
-        remote_error: &anyhow::Error,
+        remote_error: Option<&anyhow::Error>,
         ambiguous: bool,
     ) -> Result<RuntimeState> {
         if ambiguous {
+            let remote_error = remote_error.expect("ambiguous remote execution has an error");
             // The command may already be committed in the daemon's journal. The
             // stable `command_id` makes a later merge idempotent, but say so
             // rather than implying a clean local-only commit.
@@ -1715,7 +1805,7 @@ impl ControlClient {
                  sync deduplicates on that id. Run `prometheus kbd status` to reconcile.",
                 envelope.command_id
             );
-        } else {
+        } else if let Some(remote_error) = remote_error {
             eprintln!(
                 "control plane unreachable ({remote_error}); committing locally via the canonical runtime"
             );

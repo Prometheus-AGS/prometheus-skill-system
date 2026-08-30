@@ -1,0 +1,68 @@
+{
+  "mode": "diff",
+  "verdict": "BLOCK",
+  "judge_model": "k3",
+  "producer_model": "gpt-5.6-sol",
+  "isolation_mode": "rest-gateway:http://localhost:4000/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": ".kbd-orchestrator/current-waypoint.json",
+      "line": 9,
+      "claim": "The regenerated waypoint, position-reminder, and progress state are mutually contradictory: `exactNextCommand` points at `harden-uiux-routing-discovery`, which the same diff marks DONE/COMPLETE, so the next orchestrator step re-enters an already-completed change instead of the third pending change.",
+      "evidence": "current-waypoint.json sets `\"exactNextCommand\": \"/kbd-apply harden-uiux-routing-discovery\"` and position-reminder.txt says `Next command: /kbd-apply harden-uiux-routing-discovery`, while `.kbd-orchestrator/phases/kbd-control-plane-recovery/progress.json` marks `harden-uiux-routing-discovery` `\"status\": \"DONE\", \"tasks_done\": 6, \"tasks_total\": 6` and position.json marks the same change `\"status\": \"COMPLETE\"`. A third change (\"Preserve historical evidence while removing compatibility artifacts\u2026\") remains pending in the same progress.json.",
+      "suggested_fix": "Regenerate or correct the waypoint/position-reminder so `exactNextCommand` names the first change whose status is not DONE in `phases/kbd-control-plane-recovery/progress.json`."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "openspec/changes/repair-kbd-memory-rest-contract/tasks.md",
+      "claim": "The `repair-kbd-memory-rest-contract` OpenSpec change is deleted with all six tasks still unchecked (`- [ ]`), while the phase tracker simultaneously claims the change is DONE with tasks_done 6/6, and the deletion discards the `kbd-memory-integration` capability spec delta with no corresponding merge into `openspec/specs/` visible in the diff.",
+      "evidence": "Deleted tasks.md shows every task (`1.1`\u2013`2.2`) as `- [ ]`; deleted `specs/kbd-memory-integration/spec.md` defines the new capability; the diff contains no addition under `openspec/specs/`. Meanwhile progress.json records `\"id\": \"repair-kbd-memory-rest-contract\", \"status\": \"DONE\", \"tasks_done\": 6, \"tasks_total\": 6` with `last_task_completed` citing task 2.2.",
+      "suggested_fix": "Either archive the change per OpenSpec convention with tasks checked off and the capability spec merged into `openspec/specs/kbd-memory-integration/`, or correct the tracker to reflect the actual state."
+    },
+    {
+      "severity": "WARNING",
+      "file": "skills/process/kbd-process-orchestrator/shared/lib/memory-log.sh",
+      "line": 75,
+      "claim": "In MCP-only mode `kbd_memory_available` now returns success with an intentionally empty `_KBD_MEMORY_URL`, but memory-log.sh issues the POST to `\"$url/api/v1/entities\"` with no visible empty-URL guard, turning every hook fire into a malformed-URL curl failure and a spurious 'mirror write failed' diagnostic.",
+      "evidence": "memory.sh: the `create_entity` fallback sets `_KBD_MEMORY_OK=0` and returns 0 while `_KBD_MEMORY_URL` was reset to `\"\"` at probe start, and the comment states 'shell callers intentionally receive an empty REST URL in this mode'. The memory-log.sh diff shows the curl to `\"$url/api/v1/entities\"` (and the failure branch printing `kbd-memory-log: mirror write failed; lifecycle continues`) with no `[[ -n \"$url\" ]]` check anywhere in the visible hunk; kbd-memory-recall.sh does have such a guard (`if [[ -z \"$url\" ]]`), showing the pattern was needed.",
+      "suggested_fix": "Add an explicit empty-URL no-op (`[[ -n \"$url\" ]] || exit 0`) in memory-log.sh after resolving `kbd_memory_url`."
+    },
+    {
+      "severity": "WARNING",
+      "file": "skills/process/kbd-process-orchestrator/skills/kbd-memory-recall/kbd-memory-recall.sh",
+      "line": 63,
+      "claim": "A reachable service whose search route fails at the HTTP level (e.g. 404 from a removed route regression) is reported with the 'memory endpoint unreachable' stub, conflating contract regressions with transport failure despite the design goal of keeping them distinguishable.",
+      "evidence": "`curl -fsS ... \"$url/api/v1/entities/search\"` failing for any reason (including HTTP 4xx/5xx from a reachable host) takes the branch `write_recall_stub '<!-- memory endpoint unreachable; no prior context retrieved -->'`; only a JSON parse failure gets the distinct 'invalid' stub. The deleted design.md decision 4 required route/payload failures to be 'no longer silently indistinguishable from an offline service', and the updated SKILL.md promises an 'atomic diagnostic stub' for HTTP errors distinct from the unreachable case.",
+      "suggested_fix": "Separate curl transport failure from HTTP status failure (e.g. capture the status code) and emit a distinct stub/diagnostic for reachable-but-erroring search responses."
+    },
+    {
+      "severity": "WARNING",
+      "file": "skills/process/kbd-process-orchestrator/skills/kbd-inject-agent-rules/SKILL.md",
+      "claim": "Skill sources consumed by the plugin/distribution generators were edited without any regenerated output in the diff, risking a C-01 generated-artifact drift violation.",
+      "evidence": "Constraint C-01: 'Any change that edits a source consumed by a generator must regenerate + commit the outputs.' The diff edits `skills/process/kbd-process-orchestrator/**` (SKILL.md, references, scripts, tests) while the file tree contains `.claude-plugin/skills`, `.agents/plugins/marketplace.json`, and generators such as `scripts/build-codex-plugin.js` / `scripts/generate-skill-system-distribution.js`; no `.claude-plugin/*` or other generated output is touched in the diff, and no `npm run validate:codex` result is recorded.",
+      "suggested_fix": "Run the distribution/codex generators and commit the refreshed outputs, or include the `validate:codex` pass evidence showing no drift."
+    },
+    {
+      "severity": "WARNING",
+      "file": "openspec/changes/harden-uiux-routing-discovery/tasks.md",
+      "claim": "Acceptance criteria 2.2 and 2.3 require recorded execution evidence (UAR incumbent A2UI dry-run with unchanged worktree status; 'recording exact local results' of strict skill validation and `git diff --check`), but the diff contains no evidence artifact \u2014 only checked checkboxes.",
+      "evidence": "Criterion 2.2: 'Dry-run the refreshed pack against a temporary target and resolve the UAR incumbent A2UI page through Impeccable read-only, verifying the UAR worktree status is unchanged.' Criterion 2.3: 'Run strict skill validation and `git diff --check`, recording exact local results.' No log, evidence file, or recorded output appears anywhere in the diff; the only change is `- [ ]` \u2192 `- [x]`.",
+      "suggested_fix": "Commit the recorded local results (validation output, `git diff --check` result, UAR worktree-status before/after) as an evidence file in the change directory, or cite their committed location."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "skills/process/kbd-process-orchestrator/shared/lib/memory.sh",
+      "line": 22,
+      "claim": "`kbd_memory_rest_base()` is added as an alias for `kbd_memory_url()` but nothing in the diff calls it, leaving dead public API surface in a sourced shell library.",
+      "evidence": "`kbd_memory_rest_base() { kbd_memory_url; }` is introduced, while all consumers shown (memory-log.sh, kbd-memory-recall.sh, and the header usage comment) use `kbd_memory_url`.",
+      "suggested_fix": "Remove the alias or migrate callers to it so the library exposes a single canonical accessor."
+    }
+  ],
+  "sycophancy_screen": {
+    "reject_cap": 2,
+    "cap_overridden": false,
+    "cap_default": 2
+  }
+}

@@ -1,0 +1,51 @@
+{
+  "refinement_id": "1ac64ac1-92a6-4c4d-b99c-eeec37890c05",
+  "artifact_name": "reconcile-kbd-control-plane-projections",
+  "artifact_type": "content",
+  "content_type": "direct:content",
+  "started_at": "2026-08-30T04:08:09Z",
+  "updated_at": "2026-08-30T04:09:41Z",
+  "current_iteration": 1,
+  "max_iterations": 5,
+  "goals": [
+    "Verify the complete reconciliation change against the OpenSpec contract and KBD QA constraints",
+    "Repair any blocking artifact or documentation drift before verification and archive"
+  ],
+  "constraints": [
+    "C-01",
+    "C-02",
+    "C-03",
+    "C-04",
+    "C-05",
+    "SPEC-RECONCILIATION"
+  ],
+  "phases_completed": [
+    "specify",
+    "plan",
+    "execute",
+    "reflect",
+    "persist"
+  ],
+  "convergence_status": "running",
+  "iteration_history": [
+    {
+      "iteration": 1,
+      "blocking_satisfied": 5,
+      "blocking_violated": 0,
+      "high_satisfied": 1,
+      "high_violated": 0,
+      "decision": "terminate",
+      "artifact": ".refiner/artifacts/reconcile-kbd-control-plane-projections/dist/qa-report.md"
+    }
+  ],
+  "workflow_triggers": [],
+  "checkpoints": [
+    {
+      "checkpoint_id": "be3436a7",
+      "phase": "specify",
+      "iteration": 1,
+      "timestamp": "2026-08-30T04:09:41Z"
+    }
+  ],
+  "prior_cycle_id": null
+}

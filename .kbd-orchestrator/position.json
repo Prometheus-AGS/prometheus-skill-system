@@ -1,160 +1,161 @@
 {
+  "schemaVersion": "1",
+  "generatedBy": "kbd-runtime",
+  "projectionContractVersion": 2,
+  "sourceRevision": 380,
+  "derivedRevision": 380,
+  "frontier": {
+    "4bca58c3-e70b-48c9-a555-60bc16d3d025": 380
+  },
   "conflictCount": 0,
+  "updatedAt": "2026-08-30T12:04:35.535153Z",
   "cursor": [
     "kbd-control-plane-recovery",
-    "execute"
+    "reflect"
   ],
-  "derivedRevision": 117,
-  "frontier": {
-    "4bca58c3-e70b-48c9-a555-60bc16d3d025": 117
-  },
-  "generatedBy": "kbd-runtime",
   "root": {
-    "annotations": [],
+    "type": "phase",
+    "id": "6ac090a4-3656-4d83-8eb6-2891508196d5",
+    "status": "ready",
+    "progress": {
+      "done": 9,
+      "total": 9
+    },
     "children": [
       {
-        "annotations": [],
+        "type": "phase",
+        "id": "kbd-control-plane-recovery",
         "canonicalId": "kbd-control-plane-recovery",
+        "status": "COMPLETE",
+        "progress": {
+          "done": 4,
+          "total": 4
+        },
         "children": [
           {
-            "annotations": [],
-            "canonicalId": "kbd-control-plane-recovery::bottleneck-evaluator-and-detector",
-            "children": [
-              {
-                "id": "add-boundary-gate-runtime",
-                "progress": {
-                  "done": 0,
-                  "total": 0
-                },
-                "status": "COMPLETE",
-                "type": "change"
-              },
-              {
-                "id": "wire-lifecycle-detector",
-                "progress": {
-                  "done": 0,
-                  "total": 0
-                },
-                "status": "COMPLETE",
-                "type": "change"
-              },
-              {
-                "id": "package-terminal-review",
-                "progress": {
-                  "done": 0,
-                  "total": 0
-                },
-                "status": "COMPLETE",
-                "type": "change"
-              },
-              {
-                "id": "certify-and-return",
-                "progress": {
-                  "done": 0,
-                  "total": 0
-                },
-                "status": "COMPLETE",
-                "type": "change"
-              }
-            ],
+            "type": "phase",
             "id": "bottleneck-evaluator-and-detector",
+            "canonicalId": "kbd-control-plane-recovery::bottleneck-evaluator-and-detector",
+            "status": "COMPLETE",
             "progress": {
               "done": 4,
               "total": 4
             },
-            "status": "COMPLETE",
-            "type": "phase"
-          },
-          {
-            "id": "repair-kbd-memory-rest-contract",
-            "progress": {
-              "done": 0,
-              "total": 0
-            },
-            "status": "IN_PROGRESS",
-            "type": "change"
-          },
-          {
-            "id": "harden-uiux-routing-discovery",
-            "progress": {
-              "done": 0,
-              "total": 0
-            },
-            "status": "PENDING",
-            "type": "change"
-          },
-          {
-            "id": "add-kbd-registry-prune",
-            "progress": {
-              "done": 0,
-              "total": 0
-            },
-            "status": "PENDING",
-            "type": "change"
-          },
-          {
-            "id": "reconcile-kbd-control-plane-projections",
-            "progress": {
-              "done": 0,
-              "total": 0
-            },
-            "status": "PENDING",
-            "type": "change"
-          }
-        ],
-        "id": "kbd-control-plane-recovery",
-        "progress": {
-          "done": 0,
-          "total": 4
-        },
-        "status": "IN_PROGRESS",
-        "type": "phase"
-      },
-      {
-        "annotations": [],
-        "canonicalId": "openspec-mirror-drift-cleanup",
-        "children": [
-          {
-            "annotations": [],
-            "canonicalId": "openspec-mirror-drift-cleanup::sovereign-sync-service-reliability",
             "children": [
               {
-                "id": "repair-sovereign-sync-kbd-availability",
-                "progress": {
-                  "done": 3,
-                  "total": 3
-                },
+                "type": "change",
+                "id": "add-boundary-gate-runtime",
                 "status": "COMPLETE",
-                "type": "change"
+                "progress": {
+                  "done": 0,
+                  "total": 0
+                }
+              },
+              {
+                "type": "change",
+                "id": "wire-lifecycle-detector",
+                "status": "COMPLETE",
+                "progress": {
+                  "done": 0,
+                  "total": 0
+                }
+              },
+              {
+                "type": "change",
+                "id": "package-terminal-review",
+                "status": "COMPLETE",
+                "progress": {
+                  "done": 0,
+                  "total": 0
+                }
+              },
+              {
+                "type": "change",
+                "id": "certify-and-return",
+                "status": "COMPLETE",
+                "progress": {
+                  "done": 0,
+                  "total": 0
+                }
               }
             ],
-            "id": "sovereign-sync-service-reliability",
+            "annotations": []
+          },
+          {
+            "type": "change",
+            "id": "repair-kbd-memory-rest-contract",
+            "status": "COMPLETE",
             "progress": {
-              "done": 1,
-              "total": 1
-            },
-            "status": "PENDING",
-            "type": "phase"
+              "done": 6,
+              "total": 6
+            }
+          },
+          {
+            "type": "change",
+            "id": "harden-uiux-routing-discovery",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 6,
+              "total": 6
+            }
+          },
+          {
+            "type": "change",
+            "id": "add-kbd-registry-prune",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 6,
+              "total": 6
+            }
+          },
+          {
+            "type": "change",
+            "id": "reconcile-kbd-control-plane-projections",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 10,
+              "total": 10
+            }
           }
         ],
+        "annotations": []
+      },
+      {
+        "type": "phase",
         "id": "openspec-mirror-drift-cleanup",
+        "canonicalId": "openspec-mirror-drift-cleanup",
+        "status": "PENDING",
         "progress": {
           "done": 0,
           "total": 0
         },
-        "status": "PENDING",
-        "type": "phase"
+        "children": [
+          {
+            "type": "phase",
+            "id": "sovereign-sync-service-reliability",
+            "canonicalId": "openspec-mirror-drift-cleanup::sovereign-sync-service-reliability",
+            "status": "PENDING",
+            "progress": {
+              "done": 1,
+              "total": 1
+            },
+            "children": [
+              {
+                "type": "change",
+                "id": "repair-sovereign-sync-kbd-availability",
+                "status": "COMPLETE",
+                "progress": {
+                  "done": 3,
+                  "total": 3
+                }
+              }
+            ],
+            "annotations": []
+          }
+        ],
+        "annotations": []
       }
     ],
-    "id": "6ac090a4-3656-4d83-8eb6-2891508196d5",
-    "progress": {
-      "done": 5,
-      "total": 9
-    },
-    "status": "ready",
-    "type": "phase"
-  },
-  "schemaVersion": "1",
-  "sourceRevision": 117,
-  "updatedAt": "2026-08-29T18:04:41.950770Z"
+    "annotations": []
+  }
 }

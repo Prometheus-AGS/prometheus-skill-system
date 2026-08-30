@@ -86,8 +86,13 @@ check_sovereign_sync_daemon() {
                 VERSION[$key]="healthy"
                 ;;
             1)
-                STATUS[$key]="missing"
-                VERSION[$key]="not running"
+                if [[ "${PROMETHEUS_SHARING:-0}" =~ ^(1|true|yes)$ ]]; then
+                    STATUS[$key]="missing"
+                    VERSION[$key]="sharing requested but not running"
+                else
+                    STATUS[$key]="disabled"
+                    VERSION[$key]="optional; enable only for sharing"
+                fi
                 ;;
             2)
                 STATUS[$key]="occupied"
@@ -118,8 +123,8 @@ check_sovereign_sync_daemon() {
         STATUS[$key]="occupied"
         VERSION[$key]="port :7892 is occupied by a different service"
     else
-        STATUS[$key]="missing"
-        VERSION[$key]="not listening on :7892"
+        STATUS[$key]="disabled"
+        VERSION[$key]="optional; enable only for sharing"
     fi
 }
 
@@ -205,6 +210,9 @@ else
             occupied)
                 printf "  ⚠️  %-28s %s\n" "$label" "${VERSION[$key]:-occupied}"
                 ;;
+            disabled)
+                printf "  ⏸️  %-28s %s\n" "$label" "${VERSION[$key]:-optional}"
+                ;;
             *)
                 printf "  ℹ️  %-28s missing%s\n" "$label" "${hint:+ — $hint}"
                 ;;
@@ -249,7 +257,7 @@ else
     item "forge-rs"             "forge-rs (:8943)"
     item "prometheus-knowledge" "prometheus-knowledge (:8942)"
     item "surface-bridge"  "surface-bridge (:7890)" "install: bash scripts/install-skills-flat.sh"
-    item "sovereign-sync-daemon" "sovereign-sync daemon (:7892)" "run: sovereign-sync --mode daemon"
+    item "sovereign-sync-daemon" "sovereign-sync sharing daemon" "enable: prometheus setup --full --sharing"
 
     echo ""
     echo "═══════════════════════════════════════════════════════════"

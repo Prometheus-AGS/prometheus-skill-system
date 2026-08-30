@@ -28,6 +28,16 @@ mod live_migration_proof;
 
 pub const EVENT_SCHEMA_VERSION: &str = "2";
 pub const AUDIT_GIT_REF: &str = "refs/heads/audit/kbd";
+const COMPATIBILITY_PROJECTION_CONTRACT_VERSION: u64 = 2;
+const FOLDED_CHECKPOINT_SCHEMA_VERSION: &str = "2";
+
+fn unresolved_conflict_count(state: &KbdStateV2) -> usize {
+    state
+        .conflicts
+        .values()
+        .filter(|conflict| conflict.resolved_by_event_id.is_none())
+        .count()
+}
 
 #[derive(Debug, Error)]
 pub enum RuntimeError {
@@ -404,6 +414,10 @@ pub enum WorkStatus {
 impl WorkStatus {
     fn is_complete(&self) -> bool {
         matches!(self, Self::Complete)
+    }
+
+    fn is_terminal(&self) -> bool {
+        matches!(self, Self::Complete | Self::Cancelled)
     }
 }
 
@@ -1197,7 +1211,7 @@ impl SignedFoldedCheckpoint {
     }
 
     fn verify(&self) -> Result<()> {
-        if self.schema_version != "1"
+        if self.schema_version != FOLDED_CHECKPOINT_SCHEMA_VERSION
             || self.frontier_hash != frontier_hash(&self.state.frontier)?
             || self.event_count != self.state.revision
             || !verify_ed25519_signature(
@@ -2545,7 +2559,7 @@ impl KbdStateV2 {
             return Ok(());
         }
         change.implementation_status =
-            if change.tasks.values().all(|task| task.status.is_complete()) {
+            if change.tasks.values().all(|task| task.status.is_terminal()) {
                 WorkStatus::Complete
             } else if change
                 .tasks
@@ -3942,7 +3956,7 @@ impl Runtime {
         authoritative.replica_view = None;
         let signer = self.device_signer()?;
         let mut checkpoint = SignedFoldedCheckpoint {
-            schema_version: "1".into(),
+            schema_version: FOLDED_CHECKPOINT_SCHEMA_VERSION.into(),
             event_count: authoritative.revision,
             frontier_hash: frontier_hash(&authoritative.frontier)?,
             last_event_hash: authoritative.last_event_hash.clone(),
@@ -3990,6 +4004,13 @@ impl Runtime {
         let checkpoint_path = self.checkpoint_dir().join(pointer.checkpoint);
         let checkpoint: SignedFoldedCheckpoint =
             serde_json::from_reader(File::open(checkpoint_path)?)?;
+        if checkpoint.schema_version != FOLDED_CHECKPOINT_SCHEMA_VERSION {
+            // Fold semantics are versioned independently from the event and
+            // pointer envelopes. A previous checkpoint remains valid audit
+            // material, but it must never bypass replay after the fold
+            // algorithm changes.
+            return Ok(None);
+        }
         checkpoint.verify()?;
         if checkpoint.state.revision > 0 && checkpoint.state.operator_key_ids.is_empty() {
             // A pre-1.7 checkpoint has no cryptographically bound operator-key
@@ -5077,10 +5098,11 @@ impl Runtime {
         let waypoint = serde_json::json!({
             "schemaVersion": "5",
             "generatedBy": "kbd-runtime",
+            "projectionContractVersion": COMPATIBILITY_PROJECTION_CONTRACT_VERSION,
             "sourceRevision": state.revision,
             "derivedRevision": state.revision,
             "frontier": state.frontier,
-            "conflictCount": state.conflicts.len(),
+            "conflictCount": unresolved_conflict_count(state),
             "projectId": state.project_id,
             "runId": state.run_id,
             "path": phase_path,
@@ -5227,10 +5249,11 @@ impl Runtime {
         let position = serde_json::json!({
             "schemaVersion": "1",
             "generatedBy": "kbd-runtime",
+            "projectionContractVersion": COMPATIBILITY_PROJECTION_CONTRACT_VERSION,
             "sourceRevision": state.revision,
             "derivedRevision": state.revision,
             "frontier": state.frontier,
-            "conflictCount": state.conflicts.len(),
+            "conflictCount": unresolved_conflict_count(state),
             "updatedAt": projection_time,
             "cursor": active_cursor(state),
             "root": {
@@ -5326,21 +5349,32 @@ impl Runtime {
             let path = kbd_root.join(relative);
             let Ok(value) = fs::read(&path)
                 .map_err(RuntimeError::from)
-                .and_then(|bytes| serde_json::from_slice::<serde_json::Value>(&bytes).map_err(RuntimeError::from))
+                .and_then(|bytes| {
+                    serde_json::from_slice::<serde_json::Value>(&bytes).map_err(RuntimeError::from)
+                })
             else {
                 return Ok(false);
             };
             if value.get("generatedBy").and_then(serde_json::Value::as_str) != Some("kbd-runtime")
-                || value.get("sourceRevision").and_then(serde_json::Value::as_u64)
+                || value
+                    .get("projectionContractVersion")
+                    .and_then(serde_json::Value::as_u64)
+                    != Some(COMPATIBILITY_PROJECTION_CONTRACT_VERSION)
+                || value
+                    .get("sourceRevision")
+                    .and_then(serde_json::Value::as_u64)
                     != Some(state.revision)
             {
                 return Ok(false);
             }
         }
 
-        let reminder = fs::read_to_string(kbd_root.join("position-reminder.txt"))
-            .unwrap_or_default();
-        if !reminder.contains(&format!("GENERATED BY kbd-runtime at revision {},", state.revision)) {
+        let reminder =
+            fs::read_to_string(kbd_root.join("position-reminder.txt")).unwrap_or_default();
+        if !reminder.contains(&format!(
+            "GENERATED BY kbd-runtime at revision {},",
+            state.revision
+        )) {
             return Ok(false);
         }
 
@@ -5352,21 +5386,37 @@ impl Runtime {
             let progress_path = phase_dir.join("progress.json");
             let Ok(progress) = fs::read(&progress_path)
                 .map_err(RuntimeError::from)
-                .and_then(|bytes| serde_json::from_slice::<serde_json::Value>(&bytes).map_err(RuntimeError::from))
+                .and_then(|bytes| {
+                    serde_json::from_slice::<serde_json::Value>(&bytes).map_err(RuntimeError::from)
+                })
             else {
                 return Ok(false);
             };
             // Manually authored progress ledgers remain historical evidence and
             // are excluded from automatic repair, exactly as in the exhaustive
             // comparison path below.
-            if progress.get("generatedBy").and_then(serde_json::Value::as_str)
+            if progress
+                .get("generatedBy")
+                .and_then(serde_json::Value::as_str)
                 == Some("kbd-runtime")
-                && progress.get("sourceRevision").and_then(serde_json::Value::as_u64)
-                    != Some(state.revision)
             {
-                return Ok(false);
+                if progress
+                    .get("projectionContractVersion")
+                    .and_then(serde_json::Value::as_u64)
+                    != Some(COMPATIBILITY_PROJECTION_CONTRACT_VERSION)
+                    || progress
+                        .get("sourceRevision")
+                        .and_then(serde_json::Value::as_u64)
+                        != Some(state.revision)
+                {
+                    return Ok(false);
+                }
             }
-            if phase.changes.values().any(|change| !change.tasks.is_empty()) {
+            if phase
+                .changes
+                .values()
+                .any(|change| !change.tasks.is_empty())
+            {
                 let tasks = fs::read_to_string(phase_dir.join("tasks.md")).unwrap_or_default();
                 if !tasks.starts_with(&format!(
                     "<!-- generated by kbd-runtime; source revision {} -->",
@@ -5882,7 +5932,7 @@ fn phase_progress_projection(
             let tasks_done = change
                 .tasks
                 .values()
-                .filter(|task| task.status.is_complete())
+                .filter(|task| task.status.is_terminal())
                 .count() as u64;
             let ordered = ordered_tasks(change);
             let last_task_completed = ordered
@@ -5892,7 +5942,7 @@ fn phase_progress_projection(
                 .map(|task| task.title.clone());
             let next_task_pending = ordered
                 .iter()
-                .find(|task| !task.status.is_complete())
+                .find(|task| !task.status.is_terminal())
                 .map(|task| task.title.clone());
             serde_json::json!({
                 "id": change.id,
@@ -5948,10 +5998,11 @@ fn phase_progress_projection(
     serde_json::json!({
         "schemaVersion": "2",
         "generatedBy": "kbd-runtime",
+        "projectionContractVersion": COMPATIBILITY_PROJECTION_CONTRACT_VERSION,
         "sourceRevision": state.revision,
         "derivedRevision": state.revision,
         "frontier": state.frontier,
-        "conflictCount": state.conflicts.len(),
+        "conflictCount": unresolved_conflict_count(state),
         "phase": phase.slug,
         "phaseId": phase.id,
         "parentPhase": phase.parent_phase_id,
@@ -6023,7 +6074,7 @@ fn phase_tasks_projection(state: &RuntimeState, phase: &Phase) -> String {
             continue;
         }
         for task in ordered_tasks(change) {
-            let marker = if task.status.is_complete() { "x" } else { " " };
+            let marker = if task.status.is_terminal() { "x" } else { " " };
             output.push_str(&format!(
                 "- [{marker}] {} — {} ({})\n",
                 task.id,
@@ -6063,7 +6114,7 @@ fn position_phase_node(state: &RuntimeState, phase: &Phase) -> serde_json::Value
         let done = change
             .tasks
             .values()
-            .filter(|task| task.status.is_complete())
+            .filter(|task| task.status.is_terminal())
             .count() as u64;
         serde_json::json!({
             "type": "change",

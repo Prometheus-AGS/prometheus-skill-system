@@ -1,0 +1,77 @@
+{
+  "mode": "diff",
+  "verdict": "BLOCK",
+  "judge_model": "k3",
+  "producer_model": "gpt-5.6-sol",
+  "isolation_mode": "rest-gateway:http://localhost:4000/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": ".kbd-orchestrator/current-waypoint.json",
+      "line": 9,
+      "claim": "The committed waypoint instructs the operator to apply a change that the same commit records as DONE, creating contradictory canonical state.",
+      "evidence": "current-waypoint.json sets \"exactNextCommand\": \"/kbd-apply harden-uiux-routing-discovery\" and position-reminder.txt repeats \"Next command: /kbd-apply harden-uiux-routing-discovery\", while .kbd-orchestrator/phases/kbd-control-plane-recovery/progress.json in the same diff sets harden-uiux-routing-discovery to \"status\": \"DONE\", \"implementation_status\": \"COMPLETE\", and position.json marks it \"status\": \"COMPLETE\". The next pending change in the phase list is the third entry, so the generated pointer is stale.",
+      "suggested_fix": "Regenerate position after marking the change complete so exactNextCommand points at the next PENDING change (or the phase transition command), and re-run the runtime's state validation before committing."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "skills/process/kbd-process-orchestrator/shared/lib/tests/test-memory.sh",
+      "line": 240,
+      "claim": "Scenario 6 hard-depends on a real surreal-memory service running at http://127.0.0.1:23001, so the test suite fails in any environment where that local service is not installed and healthy (CI, fresh clones, other contributors).",
+      "evidence": "The scenario unsets all overrides and runs the production recall script, then asserts `assert_not_contains \"$digest\" 'memory endpoint unreachable' 'canonical local service was not discovered'` and `assert_not_contains \"$digest\" 'invalid; no prior context'`. With no live service at the hardcoded `$_KBD_MEMORY_DEFAULT_URL=\"http://127.0.0.1:23001\"` (memory.sh), the digest is the unreachable stub and the test fails. The replaced 6-test suite was fully hermetic (fake/stub only); the new suite is not.",
+      "suggested_fix": "Either spin the fake server on 127.0.0.1:23001 for scenario 6 (skipping if the port is occupied by a real service), or gate scenario 6 behind an explicit opt-in env var so the default suite stays hermetic."
+    },
+    {
+      "severity": "WARNING",
+      "file": "skills/process/kbd-process-orchestrator/skills/kbd-apply/kbd-apply.sh",
+      "line": 513,
+      "claim": "The task-completion guard path now passes \"$title\" to kbd_bottleneck_evaluate, but the hunk shows no assignment of $title in that branch; if it is unset or empty the precommit/postcommit evaluations run against an empty subject (or abort under nounset).",
+      "evidence": "Hunk @@ -505,7 +510,7 introduces `kbd_bottleneck_evaluate task after \"$title\" 1` and hunk @@ -519,7 +524,7 introduces `kbd_bottleneck_evaluate task after \"$title\" 0`; the visible context only shows `b_mark_done \"$change\" \"$id\"` and `fire task after \"$change:$id\"` \u2014 the completion command takes change+id, not a title, and no derivation of $title appears in either hunk.",
+      "suggested_fix": "Resolve the task title from the canonical task list (the same lookup the start path uses) before evaluating, and fail loudly if it cannot be resolved."
+    },
+    {
+      "severity": "WARNING",
+      "file": "skills/process/kbd-process-orchestrator/skills/kbd-apply/kbd-apply.sh",
+      "line": 486,
+      "claim": "The added comment claims titles are \"canonical, unique task subjects,\" but task titles are formulaic and repeat across changes within a phase, recreating the same guard-resolution ambiguity the change claims to eliminate.",
+      "evidence": "The comment says \"Titles are canonical, unique task subjects\", yet the two openspec changes in this very diff contain near-templated titles \u2014 repair-kbd-memory-rest-contract task 2.2 \"Run the memory smoke suite, `/bin/bash` 3.2 syntax/execution checks for touched scripts, strict skill validation, and `git diff --check`, recording exact local results.\" and harden-uiux-routing-discovery task 2.3 \"Run strict skill validation and `git diff --check`, recording exact local results.\" Two changes in one phase can easily share a title like \"Run tests\", making title-keyed guard resolution ambiguous again. The receipt/fire identity is also now split: guard evaluates by title while `fire task before/after \"$change:$id\"` still uses ids.",
+      "suggested_fix": "Pass a composite, guaranteed-unique subject (e.g. \"$change:$id\" or \"$change/$title\") to the guard so resolution cannot collide across changes in the active phase."
+    },
+    {
+      "severity": "WARNING",
+      "file": "openspec/changes/repair-kbd-memory-rest-contract/proposal.md",
+      "claim": "This diff ships the entire repair-kbd-memory-rest-contract implementation and deletes its openspec change directory, while the packet's acceptance criteria and target cover only harden-uiux-routing-discovery \u2014 the memory contract rewrite lands with no stated or verifiable criteria.",
+      "evidence": "The diff rewrites shared/lib/memory.sh, shared/lib/memory-log.sh, kbd-memory-recall.sh, test-memory.sh, memory-integration.md, memory-retention.md, and the orchestrator SKILL.md memory section (all repair-kbd-memory-rest-contract scope per its deleted proposal.md), deletes openspec/changes/repair-kbd-memory-rest-contract/* (5 files), and bumps that change to DONE in progress.json \u2014 yet every acceptance criterion in the packet concerns the uiux-routing template/roster/injector. The target field is \"harden-uiux-routing-discovery\".",
+      "suggested_fix": "Land the two changes as separate commits each with their own criteria, or include the repair change's spec requirements (the deleted spec.md ADDED Requirements) in this packet so the memory rewrite is reviewable."
+    },
+    {
+      "severity": "WARNING",
+      "file": "skills/process/kbd-process-orchestrator/skills/kbd-inject-agent-rules/kbd-inject-agent-rules.sh",
+      "claim": "Canonical skill sources were edited but no synced distribution copies or generated skill artifacts are updated in the same diff, risking drift across the repo's multi-harness skill distribution.",
+      "evidence": "The diff modifies files under skills/process/kbd-process-orchestrator/ (SKILL.md, scripts, references, tests), while the file tree shows distribution targets (.claude-plugin/skills, .agents/skills, .claude/skills, .cursor/skills, .codex/skills, skill-system.json) and generator scripts (scripts/generate-skill-system-distribution.js, scripts/codex-sync-skills.sh, scripts/install-skills-flat.sh, scripts/generate-commands.js) \u2014 none of whose outputs appear in this diff.",
+      "suggested_fix": "Re-run the skill distribution/sync generators and commit the regenerated copies, or demonstrate that distribution is deferred to the announced reconciliation change and that no validation gate checks drift in the interim."
+    },
+    {
+      "severity": "WARNING",
+      "file": "skills/process/kbd-process-orchestrator/shared/lib/memory-log.sh",
+      "line": 76,
+      "claim": "In MCP-only mode (create_entity available, no REST origin), memory-log.sh now emits a 'mirror write failed' diagnostic on every hook fire because the curl POST is issued unconditionally with an empty URL.",
+      "evidence": "The hunk replaces the silent `curl ... || true` with `if ! curl ... \"$url/api/v1/entities\"; then printf 'kbd-memory-log: mirror write failed; lifecycle continues' >&2; fi`, and memory.sh explicitly documents that MCP-only mode leaves the URL empty: \"shell callers intentionally receive an empty REST URL in this mode.\" No guard skipping the write when $url is empty is visible in the hunk.",
+      "suggested_fix": "Skip the POST (and the diagnostic) when kbd_memory_url is empty, mirroring the early stub path already present in kbd-memory-recall.sh."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "skills/process/kbd-process-orchestrator/shared/lib/memory.sh",
+      "line": 60,
+      "claim": "The --noproxy list entry '[::1]' will not match IPv6 loopback, because curl matches no_proxy entries against the bare host token, so proxied environments would still route ::1 traffic through the proxy.",
+      "evidence": "All three scripts use `curl --noproxy '127.0.0.1,localhost,[::1]'`; libcurl strips brackets from the URL host before comparing against the no_proxy list, so the bracketed entry never matches. ",
+      "suggested_fix": "Use `--noproxy '127.0.0.1,localhost,::1'` (or drop the IPv6 entry since the default endpoint is 127.0.0.1)."
+    }
+  ],
+  "sycophancy_screen": {
+    "reject_cap": 2,
+    "cap_overridden": false,
+    "cap_default": 2
+  }
+}

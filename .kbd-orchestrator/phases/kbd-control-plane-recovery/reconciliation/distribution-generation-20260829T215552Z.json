@@ -1,0 +1,65 @@
+{
+  "schemaVersion": "kbd-distribution-generation-receipt-v1",
+  "recordedAt": "2026-08-29T21:55:52Z",
+  "changeId": "reconcile-kbd-control-plane-projections",
+  "taskId": "3",
+  "taskTitle": "2.1 Generate shared Codex/plugin distributions twice, prove identical tracked hashes, and run npm run validate:codex plus strict source validation locally.",
+  "generator": {
+    "command": "npm run build:distribution",
+    "implementation": "scripts/generate-skill-system-distribution.js",
+    "generatedSkillsPerPlatform": 164,
+    "passes": 2,
+    "exitStatuses": [
+      0,
+      0
+    ]
+  },
+  "trackedOutputDigest": {
+    "algorithm": "sha256",
+    "contract": "Sort Git-tracked output paths bytewise; for each path hash path, POSIX mode, and SHA-256 of file bytes or symlink-target bytes; hash the resulting manifest.",
+    "pass1": "2a1e7eed67212a4af4661a4a2a928a75f5b896107bf42971e9c07c152240ec17",
+    "pass2": "2a1e7eed67212a4af4661a4a2a928a75f5b896107bf42971e9c07c152240ec17",
+    "identical": true,
+    "trackedFiles": 2339,
+    "outputs": {
+      "dist/plugins/claude/prometheus-skill-pack": {
+        "trackedFiles": 1227,
+        "bytes": 5145503
+      },
+      "dist/plugins/codex/prometheus-skill-pack": {
+        "trackedFiles": 1110,
+        "bytes": 4659107
+      },
+      ".claude-plugin/marketplace.json": {
+        "trackedFiles": 1,
+        "bytes": 2690
+      },
+      ".agents/plugins/marketplace.json": {
+        "trackedFiles": 1,
+        "bytes": 4818
+      }
+    }
+  },
+  "validation": [
+    {
+      "command": "npm run validate:codex",
+      "exitStatus": 0,
+      "result": "generated outputs match a fresh isolated materialization"
+    },
+    {
+      "command": "npm run validate:strict",
+      "exitStatus": 0,
+      "result": "strict source validation passed; advisory description warnings remained non-fatal"
+    },
+    {
+      "command": "git diff --check -- dist/plugins/claude/prometheus-skill-pack dist/plugins/codex/prometheus-skill-pack .claude-plugin/marketplace.json .agents/plugins/marketplace.json",
+      "exitStatus": 0,
+      "result": "no whitespace errors in generated outputs"
+    }
+  ],
+  "workingTree": {
+    "modifiedTrackedOutputFiles": 44,
+    "hostedValidationUsed": false
+  },
+  "outcome": "pass"
+}

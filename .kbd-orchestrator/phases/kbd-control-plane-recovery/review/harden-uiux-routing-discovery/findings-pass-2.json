@@ -1,0 +1,39 @@
+{
+  "mode": "diff",
+  "verdict": "PASS",
+  "judge_model": "k3",
+  "producer_model": "gpt-5.6-sol",
+  "isolation_mode": "rest-gateway:http://localhost:4000/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "WARNING",
+      "file": ".kbd-orchestrator/constraints.md",
+      "line": 10,
+      "claim": "The change rewrites constraint C-01 to permit batched/deferred regeneration and then immediately relies on that new allowance to defer its own generator-consumed source edits, and the amended text is internally contradictory: the new deferral clause permits in-phase batching while the final sentence states 'a deferral that ... reaches commit/push without regenerated outputs is a violation,' which read literally prohibits committing this very diff (skill sources under skills/process/kbd-process-orchestrator/** are edited; no .claude-plugin/.agents generated outputs are regenerated anywhere in the packet).",
+      "evidence": "Diff hunk in .kbd-orchestrator/constraints.md replacing 'Any change that edits a source consumed by a generator must regenerate + commit the outputs' with the named-reconciliation-change batching language, combined with .refiner/artifacts/harden-uiux-routing-discovery/refinement_log.md row 'C-01 ... IN-PHASE BATCH / OPEN' and openspec/changes/harden-uiux-routing-discovery/execution.md task 2.3 ('Distribution regeneration and installed-surface parity remain explicitly owned by the later parent change reconcile-kbd-control-plane-projections') \u2014 both of which are compliant only under the constraint text introduced by this same diff.",
+      "suggested_fix": "Land the C-01 amendment in its own change (or ratify it independently) before any change relies on it, and resolve the contradiction by scoping the commit/push prohibition explicitly to phase-certification or distribution commits, e.g. 'a deferral that reaches a phase-certification or distribution commit/push without regenerated outputs is a violation.'"
+    },
+    {
+      "severity": "WARNING",
+      "file": ".kbd-orchestrator/current-waypoint.json",
+      "line": 10,
+      "claim": "Canonical state marks harden-uiux-routing-discovery COMPLETE and advances exactNextCommand to '/kbd-apply add-kbd-registry-prune', directly contradicting the change's own persisted evidence, which states '/kbd-apply harden-uiux-routing-discovery remains the correct resumable command until required review, verification, and archival finish' \u2014 and the change is indeed not archived (openspec/changes/harden-uiux-routing-discovery/ is still active while only repair-kbd-memory-rest-contract was moved to archive/). An agent following the canonical waypoint will skip this change's remaining adversarial re-review, OpenSpec verification, and archival.",
+      "evidence": "current-waypoint.json sets \"exactNextCommand\": \"/kbd-apply add-kbd-registry-prune\" and phases/kbd-control-plane-recovery/progress.json sets harden-uiux-routing-discovery \"status\": \"DONE\" with changes_completed: 2, while openspec/changes/harden-uiux-routing-discovery/execution.md ('Adversarial review remediation' section) and .refiner/artifacts/harden-uiux-routing-discovery/refinement_log.md ('Verdict: ... Proceed to the bounded adversarial re-review, OpenSpec verification, and archival') both assert the change is not finished.",
+      "suggested_fix": "Either complete review/verification/archival for harden-uiux-routing-discovery before advancing the waypoint, or keep exactNextCommand pointed at /kbd-apply harden-uiux-routing-discovery and the change status non-DONE until its remaining gates finish; make the execution evidence and the canonical ledger agree."
+    },
+    {
+      "severity": "WARNING",
+      "file": "skills/process/adversarial-review/scripts/build-review-packet.sh",
+      "line": 201,
+      "claim": "The new review-receipt exclusion silently no-ops if PHASE or TARGET is empty or unset \u2014 REVIEW_PATH interpolates to '.kbd-orchestrator/phases//review/...', a pathspec that matches nothing, with no validation and no post-check that anything was actually excluded \u2014 reintroducing the recursive re-review failure the change exists to fix, with no diagnostic.",
+      "evidence": "Hunk: REVIEW_PATH=\".kbd-orchestrator/phases/$PHASE/review/$TARGET\" followed by git diff/show invocations with \":(exclude)$REVIEW_PATH/**\" and 2>/dev/null plus '|| true' on the primary diff path; there is no guard that PHASE/TARGET are non-empty in diff mode and no verification that the exclusion matched any path.",
+      "suggested_fix": "In diff mode, fail fast when PHASE or TARGET is empty (e.g. '[ -n \"$PHASE\" ] && [ -n \"$TARGET\" ] || exit 2'), and after building diff.patch optionally verify exclusion by checking that no diff header references $REVIEW_PATH, warning or exiting if one appears."
+    }
+  ],
+  "sycophancy_screen": {
+    "reject_cap": 2,
+    "cap_overridden": false,
+    "cap_default": 2
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 1,
+  "change": "reconcile-kbd-control-plane-projections",
+  "canonicalRevision": 338,
+  "controlPlane": {
+    "policy": "optional-sharing-only",
+    "canonicalLabel": "ai.prometheus.sovereign-sync",
+    "legacyLabel": "com.prometheusags.sovereign-sync",
+    "canonicalDisabled": true,
+    "legacyDisabled": true,
+    "canonicalLoaded": false,
+    "legacyLoaded": false,
+    "processRunning": false
+  },
+  "integrationGates": [
+    {
+      "id": "68e5834dd8ee9fd14bb7805dcfd47c86b8580c8f6842ca57279666b1f1e3549e",
+      "revision": 332,
+      "passed": 7,
+      "failed": 0
+    },
+    {
+      "id": "db30c26357d7e5d6340026b1ca4f2a63a435a45348f21dfd15f2ca89be314f8f",
+      "revision": 336,
+      "passed": 7,
+      "failed": 0
+    }
+  ],
+  "releaseGates": [
+    "f7544db7dbd5fe856ada07b468b95b0725dd68060bd4242ed3ddbbd3ed2d5c76",
+    "8d1e905f182ee96e0e0fbb0aff95f167a23dd3fd3453fed87b453b2168af03e1"
+  ],
+  "installedCli": {
+    "path": "/Users/gqadonis/.local/bin/prometheus",
+    "version": "1.7.0",
+    "sha256": "9261de2b753a8db613ac9d57c2ee42d267ef97ff9d1c33933f16f799d89cf5b4",
+    "backup": "/Users/gqadonis/.local/bin/prometheus.pre-projection-contract-20260830T044658Z",
+    "signatureVerified": true
+  },
+  "projectionReplay": {
+    "sourceRevision": 338,
+    "resultRevision": 338,
+    "projectionContractVersion": 2,
+    "repairedFileCount": 7,
+    "tasksDone": 10,
+    "tasksTotal": 10,
+    "nextTaskPending": null,
+    "manualProjectionRefused": ".kbd-orchestrator/phases/openspec-mirror-drift-cleanup/progress.json"
+  },
+  "generation": {
+    "harnessSha256": "9fa1414cc7d200d59709e9fbec169f13f91b96e1f004891a408e599263199644",
+    "distributionSha256": "039c35893ac2bf808ba90b8bfdcfed41137907807d83efcc95afc1cd1f9ff3d1",
+    "userPlacementsCurrent": 2296,
+    "userPlacementsTotal": 2296
+  },
+  "hostedValidationUsed": false
+}

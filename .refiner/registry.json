@@ -1,0 +1,17 @@
+{
+  "artifacts": {
+    "add-kbd-registry-prune": {
+      "path": ".refiner/artifacts/add-kbd-registry-prune",
+      "artifact_type": "content",
+      "content_type": "direct:content",
+      "updated_at": "2026-08-29T21:40:49Z",
+      "finalized_at": "2026-08-29T21:40:49Z"
+    },
+    "reconcile-kbd-control-plane-projections": {
+      "path": ".refiner/artifacts/reconcile-kbd-control-plane-projections",
+      "artifact_type": "content",
+      "content_type": "direct:content",
+      "updated_at": "2026-08-30T04:49:08Z"
+    }
+  }
+}

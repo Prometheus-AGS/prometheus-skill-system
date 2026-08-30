@@ -1,0 +1,22 @@
+{
+  "artifact_type": "content",
+  "variants": [
+    {
+      "name": "registry-prune-change-qa",
+      "file": ".refiner/artifacts/add-kbd-registry-prune/dist/qa-report.md",
+      "format": "markdown",
+      "description": "Deterministic artifact-refiner QA report for add-kbd-registry-prune"
+    }
+  ],
+  "validation": {
+    "preview_status": "pass",
+    "has_console_errors": false,
+    "has_request_failures": false,
+    "notes": [
+      "No browser preview is required for this code-and-documentation change.",
+      "External integration, compiler, release, protected-test, OpenSpec, public-docs, and diff evidence is recorded in the change execution artifact.",
+      "Generated distribution reconciliation remains revision-bound to reconcile-kbd-control-plane-projections before parent certification."
+    ]
+  },
+  "generated_at": "2026-08-29T21:39:11Z"
+}

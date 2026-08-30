@@ -110,7 +110,7 @@ echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc
 ls ~/.claude/skills/ | grep learn
 ```
 
-**MCP services not running** — On macOS, surface-bridge (port 7890) and sovereign-sync
+**MCP services not running** — On macOS, surface-bridge (port 7890)
 (port 7892) are launchd services. Start them with:
 ```bash
 bash scripts/prometheus-services.sh load
@@ -118,8 +118,8 @@ bash scripts/prometheus-services.sh status
 ```
 On Linux, use systemd:
 ```bash
-systemctl --user start prometheus-surface-bridge prometheus-sovereign-sync
-systemctl --user status prometheus-surface-bridge prometheus-sovereign-sync
+systemctl --user start prometheus-surface-bridge
+systemctl --user status prometheus-surface-bridge
 ```
 
 ---

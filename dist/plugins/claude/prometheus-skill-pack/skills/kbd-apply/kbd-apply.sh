@@ -483,13 +483,18 @@ case "$cmd" in
     guard_enabled=0
     if command -v kbd_bottleneck_active >/dev/null 2>&1 && kbd_bottleneck_active; then
       guard_enabled=1
-      kbd_bottleneck_evaluate task before "$id" 1 >/dev/null \
+      # OpenSpec task ordinals repeat in every change. The canonical guard
+      # resolves within the active phase, so a bare numeric id becomes
+      # ambiguous as soon as a second change registers task "1". Titles are
+      # canonically resolved task subjects (duplicates fail closed) and still fold back to the typed
+      # change/task ids in the signed receipt.
+      kbd_bottleneck_evaluate task before "$title" 1 >/dev/null \
         || die "canonical task start precommit evaluation blocked"
     fi
     runtime_task_transition "$change" "$id" "$title" "$i" "in-progress" \
       || die "failed to commit canonical task start"
     if [ "$guard_enabled" = "1" ]; then
-      guard_output="$(kbd_bottleneck_evaluate task before "$id" 0)" \
+      guard_output="$(kbd_bottleneck_evaluate task before "$title" 0)" \
         || die "canonical task start postcommit evaluation blocked"
     fi
     fire task before "$change:$id" "$i" "$n"
@@ -505,7 +510,7 @@ case "$cmd" in
     guard_enabled=0
     if command -v kbd_bottleneck_active >/dev/null 2>&1 && kbd_bottleneck_active; then
       guard_enabled=1
-      kbd_bottleneck_evaluate task after "$id" 1 >/dev/null \
+      kbd_bottleneck_evaluate task after "$title" 1 >/dev/null \
         || die "canonical task completion precommit evaluation blocked"
     fi
     b_mark_done "$change" "$id"
@@ -519,7 +524,7 @@ case "$cmd" in
     command -v kbd_position_sync >/dev/null 2>&1 && { kbd_position_sync || true; }
     fire task after "$change:$id" "$i" "$n"
     if [ "$guard_enabled" = "1" ]; then
-      guard_output="$(kbd_bottleneck_evaluate task after "$id" 0)" \
+      guard_output="$(kbd_bottleneck_evaluate task after "$title" 0)" \
         || die "canonical task completion postcommit evaluation blocked"
       kbd_bottleneck_print_signal "$guard_output"
     else

@@ -231,9 +231,12 @@ enum Commands {
 
     /// Detect machine setup gaps and interactively install missing components
     Setup {
-        /// Include managed background services, including the KBD control plane
+        /// Include managed local background services (the KBD control plane remains disabled)
         #[arg(long)]
         full: bool,
+        /// Enable the optional sovereign-sync service for cross-machine sharing
+        #[arg(long, requires = "full")]
+        sharing: bool,
         /// Assume yes to all install prompts (CI/automation mode)
         #[arg(long)]
         non_interactive: bool,
@@ -337,6 +340,12 @@ enum KbdAction {
     Projects {
         #[arg(long)]
         json: bool,
+        /// Inventory registrations whose checkout path no longer exists
+        #[arg(long)]
+        prune_missing: bool,
+        /// Apply missing-registration pruning after a locked re-evaluation
+        #[arg(long, requires = "prune_missing")]
+        apply: bool,
     },
     /// Register a checkout that already declares .prometheus/project.json
     Register { path: String },
@@ -954,7 +963,15 @@ async fn main() -> Result<()> {
             };
             let action = match action {
                 KbdAction::Status { json } => commands::kbd::Action::Status { json },
-                KbdAction::Projects { json } => commands::kbd::Action::Projects { json },
+                KbdAction::Projects {
+                    json,
+                    prune_missing,
+                    apply,
+                } => commands::kbd::Action::Projects {
+                    json,
+                    prune_missing,
+                    apply,
+                },
                 KbdAction::Register { path } => commands::kbd::Action::Register { path },
                 KbdAction::Replicas { project_id, json } => {
                     commands::kbd::Action::Replicas { project_id, json }
@@ -1404,11 +1421,12 @@ async fn main() -> Result<()> {
         },
         Commands::Setup {
             full,
+            sharing,
             non_interactive,
             dry_run,
             check,
             rebuild,
-        } => commands::setup::run(full, non_interactive, dry_run, check, rebuild),
+        } => commands::setup::run(full, sharing, non_interactive, dry_run, check, rebuild),
     }
 }
 

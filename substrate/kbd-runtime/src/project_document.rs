@@ -384,21 +384,6 @@ pub fn fold_project_events(events: &[Event]) -> Result<KbdStateV2> {
                 selected
             },
         );
-    for (conflict_id, (resolution, winner_event_id, reason)) in resolutions {
-        let Some(conflict) = conflicts.get_mut(&conflict_id) else {
-            continue;
-        };
-        if conflict
-            .candidates
-            .iter()
-            .any(|candidate| candidate.event_id == winner_event_id)
-        {
-            conflict.winner_event_id = winner_event_id;
-            conflict.resolved_by_event_id = Some(resolution.event_id.clone());
-            conflict.resolution_reason = Some(reason);
-        }
-    }
-
     let losers = conflicts
         .values()
         .flat_map(|conflict| {
@@ -444,6 +429,24 @@ pub fn fold_project_events(events: &[Event]) -> Result<KbdStateV2> {
             }
             let conflict = fold_error_conflict(event, &error.to_string())?;
             conflicts.insert(conflict.id.clone(), conflict);
+        }
+    }
+    // Fold-error conflicts are discovered only while applying the causally
+    // ordered stream, after ordinary concurrent-event conflicts have already
+    // been detected. Apply operator resolutions after that pass so a signed
+    // resolution can adjudicate either conflict class during every replay.
+    for (conflict_id, (resolution, winner_event_id, reason)) in resolutions {
+        let Some(conflict) = conflicts.get_mut(&conflict_id) else {
+            continue;
+        };
+        if conflict
+            .candidates
+            .iter()
+            .any(|candidate| candidate.event_id == winner_event_id)
+        {
+            conflict.winner_event_id = winner_event_id;
+            conflict.resolved_by_event_id = Some(resolution.event_id.clone());
+            conflict.resolution_reason = Some(reason);
         }
     }
     state.frontier = authority_frontier;

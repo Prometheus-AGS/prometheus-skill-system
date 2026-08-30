@@ -377,10 +377,11 @@ The executing tool MUST read these files and apply constraints when verifying wo
 
 ## Surreal-Memory Integration
 
-**Default-on when reachable.** When the surreal-memory MCP endpoint is detected,
-KBD mirrors every hook fire into the store as a `kbd_lifecycle_event` entity and
-exposes `/kbd-memory-recall` for prior-work retrieval; it cleanly no-ops when the
-endpoint is unreachable. Built-in hooks: `kbd-memory-log` (`*:*`) and
+**Default-on when reachable.** When the configured or canonical local
+surreal-memory service passes `GET /health`, KBD mirrors every hook fire through
+the canonical entity REST API and exposes `/kbd-memory-recall` through entity
+search; it cleanly no-ops when the service is unreachable. Built-in hooks:
+`kbd-memory-log` (`*:*`) and
 `auto-memory-recall` (`assess:before`). **Detection contract, what the
 integration provides, and the entity schema are in
 [`references/memory-integration.md`](references/memory-integration.md).**

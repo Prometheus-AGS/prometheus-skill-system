@@ -12,25 +12,23 @@ Every KBD hook fire produces one entity:
 
 | Field | Type | Meaning |
 |---|---|---|
-| `entityType` | string | Always `"kbd_lifecycle_event"`. |
-| `entityId` | string | `<project>/<phase>/<kind>/<edge>/<index>/<ts>` — deterministic, idempotent on retry. |
-| `observations[0].kind` | string | `phase` / `child` / `plan` / `execute` / `reflect` / `task` / `assess`. |
-| `observations[0].edge` | string | `before` / `after`. |
-| `observations[0].name` | string | Active item's canonical name (phase name, change id, task title). |
-| `observations[0].index` | integer | 1-based index within the containing loop. |
-| `observations[0].total` | integer | Loop total. |
-| `observations[0].phasePath` | string | Rendered chain (`parent › child`). |
-| `observations[0].sourceTool` | string | Tool that emitted the event (claude-code, codex, …). |
-| `observations[0].project` | string | Project name from `project.json`. |
-| `observations[0].ts` | string | ISO-8601 UTC timestamp. |
+| `name` | string | `<project>/<phase>/<kind>/<edge>/<index>/<ts>` — stable for the same hook fire. |
+| `entity_type` | string | Always `"kbd_lifecycle_event"`. |
+| `observations` | array of strings | One compact JSON lifecycle observation. The installed entity contract does not accept object-valued observations. |
+| decoded observation `kind` | string | `phase` / `child` / `plan` / `execute` / `reflect` / `task` / `assess`. |
+| decoded observation `edge` | string | `before` / `after`. |
+| decoded observation `name` | string | Active item's canonical name (phase name, change id, task title). |
+| decoded observation `index` | integer | 1-based index within the containing loop. |
+| decoded observation `total` | integer | Loop total. |
+| decoded observation `phase` | string | Root phase identifier. |
+| decoded observation `phasePath` | string | Rendered chain (`parent › child`). |
+| decoded observation `sourceTool` | string | Tool that emitted the event (claude-code, codex, …). |
+| decoded observation `project` | string | Project identifier from optional `project.json`, otherwise the signed waypoint. |
+| decoded observation `ts` | string | ISO-8601 UTC timestamp. |
 
-Two relations always present:
-
-- `<entityId> --fires-in--> phase:<phase>`
-- `<entityId> --belongs-to--> project:<project>`
-
-Unknown observation fields MUST be tolerated by readers. New fields can be
-added in later changes; removed fields require a new `entityType`.
+The shell writer creates no graph relations. Project and phase ownership live
+inside the encoded observation and entity name. Readers tolerate additional
+observation fields and legacy object observations during migration.
 
 ## Retention
 
@@ -44,26 +42,37 @@ added in later changes; removed fields require a new `entityType`.
 
 ## Relevance ordering for recall
 
-`/kbd-memory-recall` queries `find_relevant`. When the server doesn't impose
-an explicit ordering, consumers should rank results by:
+`/kbd-memory-recall` retrieves the lifecycle-event class through canonical
+entity search and ranks decoded observations locally by:
 
 1. **Same `project`** (highest — same codebase, same constraints).
-2. **Same `kind`** (events of the same type, e.g. `plan:before` matches `plan:before`).
-3. **Phase-name pattern match** (longest common substring or token overlap).
-4. **Recency** (newer first).
+2. **Token overlap** with the active phase, goals, and assessment.
+3. **Recency** (newer first).
+4. **Entity name and observation index** as stable tie-breakers.
 
-Cross-project recall (relaxing #1) is opt-in via a `--cross-project` flag on
-`/kbd-memory-recall`; default off so phase planning stays focused.
+The top five observations are rendered. Cross-project candidates remain
+eligible but rank after same-project candidates; no undocumented CLI flag is
+required.
+
+## Canonical local HTTP contract
+
+- Availability: `GET <origin>/health`
+- Lifecycle write: `POST <origin>/api/v1/entities`
+- Lifecycle recall: `GET <origin>/api/v1/entities/search?q=kbd_lifecycle_event`
+
+MCP discovery URLs such as `<origin>/mcp/sse` are normalized to `<origin>`
+before these REST paths are appended.
 
 ## Probe + endpoint discovery
 
-`kbd_memory_available()` (in `shared/lib/memory.sh`) probes in this order
-and returns the first success:
+`kbd_memory_available()` (in `shared/lib/memory.sh`) resolves and probes in
+this order:
 
-1. Calling agent's tool list contains `create_entity` → MCP-mode.
-2. `$UAR_MEMORY_MCP_URL` → HTTP HEAD/healthz.
-3. `$KBD_MEMORY_MCP_URL` → HTTP HEAD/healthz.
-4. `.kbd-orchestrator/memory.config.json` → `mcpEndpoint` field.
+1. `$UAR_MEMORY_MCP_URL`, then `$KBD_MEMORY_MCP_URL`.
+2. `.kbd-orchestrator/memory.config.json` → `restEndpoint`, then legacy `mcpEndpoint`.
+3. Canonical local default `http://127.0.0.1:23001`.
+4. Normalize an HTTP(S) value to its origin and probe `GET <origin>/health` with bounded timeouts.
+5. If no REST origin is reachable but the calling agent advertises `create_entity`, report MCP-only availability without exposing a fabricated HTTP URL.
 
 A negative probe is cached for the lifetime of the calling process; a new
 process re-probes. There is no on-disk staleness cache to manage.
@@ -82,8 +91,8 @@ process re-probes. There is no on-disk staleness cache to manage.
 
 | Knob | Effect |
 |---|---|
-| `UAR_MEMORY_MCP_URL` / `KBD_MEMORY_MCP_URL` | Endpoint URL (HTTP). |
-| `.kbd-orchestrator/memory.config.json` `mcpEndpoint` | Alternative to the env var. |
+| `UAR_MEMORY_MCP_URL` / `KBD_MEMORY_MCP_URL` | Explicit HTTP(S) service or MCP-transport URL; normalized to its origin. |
+| `.kbd-orchestrator/memory.config.json` `restEndpoint` | Preferred project REST service URL. |
+| `.kbd-orchestrator/memory.config.json` `mcpEndpoint` | Legacy project discovery URL; normalized to the REST origin. |
 | Project hook entry `id: "auto-memory-recall"` `enabled: false` | Disable automatic recall on assess:before. |
 | Project hook entry `id: "kbd-memory-log"` `enabled: false` | Disable event mirroring entirely. |
-| `--cross-project` (CLI flag on `/kbd-memory-recall`, future) | Expand recall beyond the current project. |

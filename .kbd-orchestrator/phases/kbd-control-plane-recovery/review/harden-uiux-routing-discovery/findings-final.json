@@ -1,0 +1,36 @@
+{
+  "mode": "diff",
+  "verdict": "BLOCK",
+  "judge_model": "k3",
+  "producer_model": "gpt-5.6-sol",
+  "isolation_mode": "rest-gateway:http://localhost:4000/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": "openspec/changes/archive/2026-08-29-repair-kbd-memory-rest-contract/proposal.md",
+      "claim": "The repair-kbd-memory-rest-contract change is archived in this diff after editing generator-consumed skill sources without regenerating or committing any distribution outputs, breaching constraint C-01 with no sanctioned deferral path.",
+      "evidence": "C-01: 'Any change that edits a source consumed by a generator must regenerate + commit the outputs... a violation marks the change BLOCKED.' The diff edits skills/process/kbd-process-orchestrator/** (SKILL.md, references, shell scripts, tests) and simultaneously renames openspec/changes/repair-kbd-memory-rest-contract/* into openspec/changes/archive/. The file tree shows skill-distribution generators (scripts/generate-skill-system-distribution.js, scripts/codex-sync-skills.sh, scripts/install-skills-flat.sh) and distribution targets (.claude-plugin/skills, .agents/skills, .codex/skills, .cursor/skills, skill-system.json), none of which are touched in the diff. The change's own refinement log (.refiner/artifacts/repair-kbd-memory-rest-contract/refinement_log.md) records C-01 as 'DEFERRED / NON-BLOCKING', but the constraints document contains no deferral provision, and the QA-skip provisions ('fewer than 3 files modified, documentation-only changes, or --skip-qa') do not apply to a 20+ file code change.",
+      "suggested_fix": "Either amend the constraints to explicitly permit batched regeneration under reconcile-kbd-control-plane-projections, or run the skill distribution generators and commit the outputs before the archived change is treated as closed."
+    },
+    {
+      "severity": "WARNING",
+      "file": ".kbd-orchestrator/phases/kbd-control-plane-recovery/progress.json",
+      "claim": "The canonical tracker marks harden-uiux-routing-discovery DONE/COMPLETE even though the latest committed adversarial verdict for it is BLOCK and no passing re-review receipt exists; the resolution document itself records re-review, verification, and archival as still pending.",
+      "evidence": "progress.json sets harden-uiux-routing-discovery to \"status\": \"DONE\", \"implementation_status\": \"COMPLETE\", \"tasks_done\": 6/6, and position.json mirrors \"status\": \"COMPLETE\". But the newest committed review artifact in the same diff, review/harden-uiux-routing-discovery/findings-round-2.json, carries \"verdict\": \"BLOCK\" with two CRITICAL findings, review/harden-uiux-routing-discovery/rejection-round-2.md is committed empty (index e69de29), and resolution.md states 'Proceed to the bounded adversarial re-review, OpenSpec verification, and archival' \u2014 i.e., the mandatory re-review had not produced a PASS when the tracker was set DONE.",
+      "suggested_fix": "Only transition the change to DONE/COMPLETE after the re-review verdict artifact shows PASS (or record the BLOCK-to-DONE transition with an explicit signed override receipt in the review directory)."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": ".kbd-orchestrator/phases/kbd-control-plane-recovery/review/harden-uiux-routing-discovery/rejection-round-2.md",
+      "claim": "A zero-byte rejection-round-2.md is committed as the round-2 gate receipt while round 1's receipt contains the sycophancy-screen result, leaving the round-2 screen outcome undocumented in the expected location.",
+      "evidence": "The diff adds rejection-round-2.md with index e69de29 (the well-known empty-blob hash), whereas rejection.md for round 1 contains '[adv-gate] PASS (score=...)'. The round-2 screen score exists only inside findings-round-2.json's sycophancy_screen block, not in the receipt file that the naming convention reserves for it.",
+      "suggested_fix": "Either populate rejection-round-2.md with the round-2 gate result or remove the empty file so the review directory contains only meaningful receipts."
+    }
+  ],
+  "sycophancy_screen": {
+    "reject_cap": 2,
+    "cap_overridden": false,
+    "cap_default": 2
+  }
+}

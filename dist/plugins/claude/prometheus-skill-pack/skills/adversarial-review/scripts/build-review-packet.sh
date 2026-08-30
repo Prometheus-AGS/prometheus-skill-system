@@ -173,6 +173,10 @@ esac
 
 # --- mode-specific content ----------------------------------------------------
 if [ "$MODE" = "diff" ]; then
+  [ -n "$PHASE" ] && [ -n "$TARGET" ] || {
+    echo "[packet] ERROR: diff mode requires non-empty --phase and --target" >&2
+    exit 2
+  }
   CHANGE_DIR=""
   for cand in "$KBD_ROOT/changes/$TARGET" "$REPO_ROOT/openspec/changes/$TARGET"; do
     [ -d "$cand" ] && { CHANGE_DIR="$cand"; break; }
@@ -192,14 +196,27 @@ if [ "$MODE" = "diff" ]; then
   if [ -n "$CHANGE_DIR" ] && [ -f "$CHANGE_DIR/files.txt" ]; then
     cp "$CHANGE_DIR/files.txt" "$FILES_LIST"
   fi
+  # Review receipts are audit evidence about earlier candidate snapshots, not
+  # part of the candidate itself. Including them makes re-review recursive: a
+  # corrected packet sees the prior BLOCK and can refuse solely because it has
+  # not yet produced its own later PASS. Exclude only this target's review
+  # directory; resolution and execution evidence elsewhere remain reviewable.
+  REVIEW_PATH=".kbd-orchestrator/phases/$PHASE/review/$TARGET"
   if [ -s "$FILES_LIST" ]; then
-    ( cd "$REPO_ROOT" && git diff HEAD -- $(cat "$FILES_LIST") 2>/dev/null ) > "$WORK/diff.patch" || true
+    ( cd "$REPO_ROOT" && git diff HEAD -- $(cat "$FILES_LIST") \
+      ":(exclude)$REVIEW_PATH/**" 2>/dev/null ) > "$WORK/diff.patch" || true
   else
-    ( cd "$REPO_ROOT" && git diff HEAD 2>/dev/null ) > "$WORK/diff.patch" || true
+    ( cd "$REPO_ROOT" && git diff HEAD -- . \
+      ":(exclude)$REVIEW_PATH/**" 2>/dev/null ) > "$WORK/diff.patch" || true
   fi
   [ -s "$WORK/diff.patch" ] || \
-    ( cd "$REPO_ROOT" && git show --patch HEAD 2>/dev/null ) > "$WORK/diff.patch" || true
+    ( cd "$REPO_ROOT" && git show --patch HEAD -- . \
+      ":(exclude)$REVIEW_PATH/**" 2>/dev/null ) > "$WORK/diff.patch" || true
   [ -s "$WORK/diff.patch" ] || { echo "[packet] ERROR: no diff content resolvable for $TARGET" >&2; exit 2; }
+  if grep -Fq "diff --git a/$REVIEW_PATH/" "$WORK/diff.patch"; then
+    echo "[packet] ERROR: recursive review receipt leaked into diff packet" >&2
+    exit 2
+  fi
 elif [ "$MODE" = "skill" ]; then
   # ---- skill mode: manifest-level review of a generated SKILL.md tree --------
   SKILL_MD="$TARGET/SKILL.md"

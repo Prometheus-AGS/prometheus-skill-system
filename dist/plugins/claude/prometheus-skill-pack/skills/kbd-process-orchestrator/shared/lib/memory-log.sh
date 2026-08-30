@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # shared/lib/memory-log.sh — wrapper invoked by the kbd-memory-log hook.
 #
-# Mirrors each hook fire into surreal-memory as a structured entity. No-ops
-# silently when the memory endpoint is unreachable.
+# Mirrors each hook fire into surreal-memory as a structured entity. Memory
+# failures emit one bounded diagnostic and never fail the lifecycle hook.
 
 set -euo pipefail
 
@@ -12,13 +12,18 @@ KBD_ORCHESTRATOR_ROOT="${KBD_ORCHESTRATOR_ROOT:-$HOME/.claude/skills/kbd-process
 
 kbd_memory_available || exit 0
 url="$(kbd_memory_url)"
+# MCP-only availability has no shell REST origin and requires no mirror attempt.
 [[ -n "$url" ]] || exit 0
 command -v jq >/dev/null 2>&1 || exit 0
 command -v curl >/dev/null 2>&1 || exit 0
 
 project="unknown"
 if [[ -f .kbd-orchestrator/project.json ]]; then
-  project="$(jq -r '.project // "unknown"' .kbd-orchestrator/project.json 2>/dev/null || echo unknown)"
+  project="$(jq -r '.project // .projectId // "unknown"' \
+    .kbd-orchestrator/project.json 2>/dev/null || echo unknown)"
+elif [[ -f .kbd-orchestrator/current-waypoint.json ]]; then
+  project="$(jq -r '.project // .projectId // "unknown"' \
+    .kbd-orchestrator/current-waypoint.json 2>/dev/null || echo unknown)"
 fi
 
 # Extract first segment of phase path for the relation target.
@@ -45,29 +50,34 @@ payload="$(jq -c -n \
   --arg srcTool   "${KBD_HOOK_SOURCE_TOOL:-unknown}" \
   --arg ts        "${KBD_HOOK_STARTED_AT:-}" '
   {
-    entityType: "kbd_lifecycle_event",
-    entityId:   $eid,
-    observations: [{
-      kind:       $kind,
-      edge:       $edge,
-      name:       $name,
-      index:      $index,
-      total:      $total,
-      phasePath:  $phasePath,
-      sourceTool: $srcTool,
-      project:    $project,
-      ts:         $ts
-    }],
-    relations: [
-      { from: $eid, to: ("phase:"   + $phase),   label: "fires-in" },
-      { from: $eid, to: ("project:" + $project), label: "belongs-to" }
-    ]
+    name:        $eid,
+    entity_type: "kbd_lifecycle_event",
+    observations: [({
+      kind:        $kind,
+      edge:        $edge,
+      name:        $name,
+      index:       $index,
+      total:       $total,
+      phase:       $phase,
+      phasePath:   $phasePath,
+      sourceTool:  $srcTool,
+      project:     $project,
+      ts:          $ts
+    } | tojson)]
   }
-')"
+' 2>/dev/null || true)"
 
-curl -fsS -X POST --max-time 3 \
+if [[ -z "$payload" ]]; then
+  printf 'kbd-memory-log: could not encode mirror payload; lifecycle continues\n' >&2
+  exit 0
+fi
+
+if ! curl --noproxy '127.0.0.1,localhost,::1' -fs \
+  --connect-timeout 1 --max-time 3 -X POST \
   -H 'content-type: application/json' \
   -d "$payload" \
-  "$url/api/entities" >/dev/null 2>&1 || true
+  "$url/api/v1/entities" >/dev/null 2>&1; then
+  printf 'kbd-memory-log: mirror write failed; lifecycle continues\n' >&2
+fi
 
 exit 0

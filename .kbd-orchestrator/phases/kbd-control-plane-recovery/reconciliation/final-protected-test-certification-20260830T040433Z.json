@@ -1,0 +1,39 @@
+{
+  "schemaVersion": "1",
+  "kind": "final-protected-test-certification",
+  "recordedAt": "2026-08-30T04:04:33Z",
+  "phaseId": "kbd-control-plane-recovery",
+  "changeId": "reconcile-kbd-control-plane-projections",
+  "taskId": "9",
+  "openspecTask": "3.4",
+  "localOnly": true,
+  "hostedValidationUsed": false,
+  "git": {
+    "head": "d1e48927d61370727dbde734d3da4938f235d6b8",
+    "protectedBaseline": "1a3ada30aef2287fd0c962fc6c5dee692f333faa"
+  },
+  "commands": [
+    {
+      "argv": ["npm", "run", "check:protected-tests"],
+      "exitStatus": 0,
+      "stdoutSha256": "a72161bc9289f370b17a185faf476e95e759cd3c400317081c05550a950658a6",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "result": {
+        "status": "ok",
+        "baseCommit": "1a3ada30aef2287fd0c962fc6c5dee692f333faa",
+        "candidateCommit": "d1e48927d61370727dbde734d3da4938f235d6b8",
+        "protectedChanges": 0
+      }
+    },
+    {
+      "argv": ["git", "diff", "--check"],
+      "exitStatus": 0,
+      "stdoutBytes": 0,
+      "stderrBytes": 0,
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "finalCommittedStateCertificationDeferred": true,
+  "deferredReason": "Repository policy requires the final protected-test integrity check against committed Git state immediately before push; this task records the required pre-archive local gate and the parent-phase certification will repeat it after the final commit is created."
+}

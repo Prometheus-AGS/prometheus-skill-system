@@ -81,6 +81,7 @@ prometheus kbd --path "/path/to/project" status --json
 | Command | Purpose |
 |---|---|
 | `status [--json]` | Lifecycle, revision, plan, checkpoint, active path, and completion |
+| `projects [--json] [--prune-missing [--apply]]` | List registered replicas or explicitly inventory/apply recoverable cleanup of missing checkout paths |
 | `pause --reason <text>` | Create the emergency valve and durable checkpoint |
 | `revise --reason <text> [--exact-next-work <text>]` | Append immutable plan revision N+1 |
 | `resume [--plan-revision <n>]` | Validate checkpoint and resume |
@@ -94,6 +95,17 @@ prometheus kbd --path "/path/to/project" status --json
 Full runbooks: [KBD control plane](/docs/kbd/control-plane),
 [tokens](/docs/kbd/tokens-and-authentication), and
 [operator controls](/docs/kbd/operator-controls).
+
+Registry maintenance keeps the KBD-global `--path` option before the `projects`
+subcommand and the maintenance flags after it:
+
+```bash
+prometheus kbd --path "/path/to/project" projects --prune-missing --json
+prometheus kbd --path "/path/to/project" projects --prune-missing --apply --json
+```
+
+See [Identity & Authentication](/docs/kbd/tokens-and-authentication#maintain-missing-registry-entries)
+for backup evidence and rollback behavior.
 
 ### The MCP port table
 

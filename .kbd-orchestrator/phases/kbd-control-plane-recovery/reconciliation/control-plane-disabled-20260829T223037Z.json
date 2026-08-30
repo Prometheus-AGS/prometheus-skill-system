@@ -1,0 +1,46 @@
+{
+  "schemaVersion": "1",
+  "observedAt": "2026-08-29T22:30:37Z",
+  "sourceCommit": "d1e48927d61370727dbde734d3da4938f235d6b8",
+  "canonicalRevision": 297,
+  "planRevision": 7,
+  "decision": {
+    "ordinaryKbdAuthority": "signed local kbd-runtime journal",
+    "sharingService": "sovereign-sync",
+    "default": "stopped-and-disabled",
+    "explicitEnablement": [
+      "prometheus setup --full --sharing",
+      "bash scripts/install-mcp-services.sh --sharing"
+    ]
+  },
+  "liveService": {
+    "platform": "macos",
+    "label": "ai.prometheus.sovereign-sync",
+    "loaded": false,
+    "disabled": true,
+    "processPresent": false
+  },
+  "signedPlanRepair": {
+    "cancelledTaskId": "8",
+    "replacementTaskId": "8-local",
+    "replacementTitle": "3.3 Keep sovereign-sync stopped and disabled, make its installation explicit to sharing workflows, then verify ordinary prometheus kbd status and typed mutations use the local signed runtime without unavailable-authority warnings."
+  },
+  "integrationEvidence": {
+    "rustCommand": "RUSTC_WRAPPER=$(command -v sccache || true) CARGO_TARGET_DIR=/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/tools/prometheus-cli/target cargo test --manifest-path tools/prometheus-cli/Cargo.toml -p prometheus-cli --test kbd",
+    "rustResult": "7 passed; 0 failed",
+    "installerDefaultRender": "sovereign-sync launchd and systemd definitions absent",
+    "installerSharingRender": "sovereign-sync launchd and systemd definitions present",
+    "sourceKbdStatus": "success with no control-plane, unreachable, or sovereign-sync diagnostic",
+    "doctor": "control.kbd-runtime returned optional=true and status=skip while disabled",
+    "releaseBuild": "cargo build --manifest-path tools/prometheus-cli/Cargo.toml --release -p prometheus-cli; exit 0 in 2m41s",
+    "installedVersion": "prometheus 1.7.0",
+    "installedSha256": "be620476158488051809d7bfddba2746327cce773ae46373c57682a674ba78a8",
+    "installedKbdStatus": "success with no optional-control-plane warning"
+  },
+  "rollback": {
+    "previousBinary": "/Users/gqadonis/.local/bin/prometheus.pre-daemon-free-20260829T223037Z",
+    "serviceDefinitionPreserved": true,
+    "serviceCanBeReenabledOnlyExplicitly": true
+  },
+  "hostedValidationUsed": false
+}

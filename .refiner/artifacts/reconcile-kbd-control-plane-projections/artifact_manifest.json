@@ -1,0 +1,24 @@
+{
+  "artifact_type": "content",
+  "variants": [
+    {
+      "name": "control-plane-reconciliation-change-qa",
+      "file": ".refiner/artifacts/reconcile-kbd-control-plane-projections/dist/qa-report.md",
+      "format": "markdown",
+      "description": "Deterministic artifact-refiner QA report for reconcile-kbd-control-plane-projections"
+    }
+  ],
+  "validation": {
+    "preview_status": "pass",
+    "has_console_errors": false,
+    "has_request_failures": false,
+    "notes": [
+      "No browser preview is required for this runtime, installer, documentation, and reconciliation change.",
+      "Twelve machine-readable reconciliation receipts parse successfully and cover distribution, installation, memory, registry, daemon-free KBD, both adversarial remediation rounds, and protected-test boundaries.",
+      "The second refinement cycle verified canonical and legacy service disablement, learning-recovery isolation, failed-service reporting, actual setup post-state detection, projection replay, conflict adjudication, and folded-checkpoint invalidation.",
+      "Artifact refinement corrected Codex installation documentation and refreshed generated documentation and distribution surfaces before convergence.",
+      "The bounded round-2 review blocker requires an independent disposition before OpenSpec archive, final committed-state protection, parent certification, commit, or push."
+    ]
+  },
+  "generated_at": "2026-08-30T04:50:00Z"
+}

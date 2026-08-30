@@ -1,0 +1,61 @@
+{
+  "mode": "diff",
+  "verdict": "BLOCK",
+  "judge_model": "gpt-5.6-sol",
+  "producer_model": "openai/gpt-5",
+  "isolation_mode": "harness-native",
+  "cross_model_check": "same-family-fallback",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": ".kbd-orchestrator/phases/kbd-control-plane-recovery/progress.json",
+      "line": 10,
+      "claim": "The regenerated projections certify completion while reporting unresolved conflicts and while the waypoint says mandatory review, strict verification, and archival remain outstanding.",
+      "evidence": "progress.json has conflictCount=2, changes_completed=4/4, evidence/certification COMPLETE with empty blockers, and marks reconcile-kbd-control-plane-projections DONE. The same-revision current-waypoint.json also has conflictCount=2 and exactNextCommand='Complete bounded adversarial and sycophancy review ... then run strict OpenSpec verification and archive.' No reconcile execution/evidence artifact in the packet records the claimed backup receipt, double-generation hashes, installed parity, live probes, or exact final local gate results.",
+      "suggested_fix": "Keep the change and certification pending, surface the two conflicts as blockers, persist the required execution and receipt evidence, then regenerate all projections only after a passing adversarial review and strict OpenSpec verification."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "tools/prometheus-cli/crates/prometheus-cli/src/commands/doctor.rs",
+      "line": 1240,
+      "claim": "On Linux, a failed or enabled-but-inactive sovereign-sync service is incorrectly reported as a healthy optional skip.",
+      "evidence": "service_active is derived solely from `systemctl --user is-active`; failed and inactive units return non-success. When PROMETHEUS_KBD_CONTROL_PLANE is unset, line 1240 immediately returns Green/Skip without checking `is-failed` or `is-enabled`. This launders precisely the failed/enabled-unavailable states that scripts/check-mcp-health.sh was changed to report as unhealthy.",
+      "suggested_fix": "Before returning the disabled-by-default skip, inspect both canonical and legacy units with `is-failed` and `is-enabled`. Skip only when every installed identity is disabled/masked/not-found; return Warn/Fail for failed or enabled-but-inactive services."
+    },
+    {
+      "severity": "WARNING",
+      "file": "scripts/install-mcp-services.sh",
+      "line": 427,
+      "claim": "Canonical and legacy disablement is asserted even when the stop/disable operations fail.",
+      "evidence": "Both macOS `launchctl disable`/`bootout` and Linux `systemctl --user disable --now` discard failures with `|| true`, then unconditionally print that each identity is disabled. Direct full-profile installation can therefore succeed and claim the daemon-free post-state without establishing it; only the separate CLI setup path performs a later detector check.",
+      "suggested_fix": "Tolerate only explicit not-found states. Re-query both canonical and legacy identities after mutation and fail the installer unless each is stopped and disabled/masked/not-installed."
+    },
+    {
+      "severity": "WARNING",
+      "file": "scripts/install-system.js",
+      "line": 183,
+      "claim": "The advertised full-profile sharing workflow starts/registers the service without visibly installing the sovereign-sync binary on a clean host.",
+      "evidence": "configureFull only adds `--sharing` to install-mcp-services.sh. The packet separately gates sovereign-sync compilation behind `--sharing` in install-binaries.sh and install-skills-flat.sh, but neither is invoked here; prometheus CLI setup likewise only invokes install-mcp-services.sh. This does not substantiate the specification that `--full --sharing` installs and starts the optional service.",
+      "suggested_fix": "Make each documented sharing entry point invoke the sharing-aware binary installer before service registration, or fail early with a precise prerequisite and update documentation. Add a clean-home full-integration scenario proving build, registration, start, socket health, and canonical/legacy state."
+    }
+  ],
+  "checked_classes": [
+    "projection consistency",
+    "evidence-preserving compatibility projection reconciliation",
+    "learning-recovery isolation",
+    "canonical and legacy service disablement",
+    "failed-service health reporting",
+    "setup post-state detection",
+    "optional-sharing-only semantics",
+    "direct local KBD availability",
+    "registry-prune recoverability",
+    "distribution idempotency and installed parity evidence",
+    "lifecycle and certification integrity",
+    "destructive behavior and security regressions"
+  ],
+  "sycophancy_screen": {
+    "reject_cap": 2,
+    "cap_overridden": false,
+    "cap_default": 2
+  }
+}

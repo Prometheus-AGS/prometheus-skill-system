@@ -1203,6 +1203,127 @@ async fn check_judge_gateway() -> CheckResult {
 }
 
 async fn check_kbd_control_plane() -> CheckResult {
+    let explicitly_enabled = std::env::var("PROMETHEUS_KBD_CONTROL_PLANE")
+        .is_ok_and(|value| matches!(value.as_str(), "1" | "true" | "yes"));
+    let service_active = if cfg!(target_os = "macos") {
+        let uid = command_stdout(&["id", "-u"]).unwrap_or_else(|| "0".into());
+        [
+            "ai.prometheus.sovereign-sync",
+            "com.prometheusags.sovereign-sync",
+        ]
+        .iter()
+        .any(|label| {
+            Command::new("launchctl")
+                .args(["print", &format!("gui/{uid}/{label}")])
+                .stdout(Stdio::null())
+                .stderr(Stdio::null())
+                .status()
+                .is_ok_and(|status| status.success())
+        })
+    } else if cfg!(target_os = "linux") {
+        [
+            "ai.prometheus.sovereign-sync.service",
+            "com.prometheusags.sovereign-sync.service",
+        ]
+        .iter()
+        .any(|unit| {
+            Command::new("systemctl")
+                .args(["--user", "is-active", unit])
+                .stdout(Stdio::null())
+                .stderr(Stdio::null())
+                .status()
+                .is_ok_and(|status| status.success())
+        })
+    } else {
+        false
+    };
+    let intentionally_disabled = if cfg!(target_os = "macos") {
+        let uid = command_stdout(&["id", "-u"]).unwrap_or_else(|| "0".into());
+        let home = dirs::home_dir().unwrap_or_default();
+        let disabled_registry = Command::new("launchctl")
+            .args(["print-disabled", &format!("gui/{uid}")])
+            .output()
+            .ok()
+            .filter(|output| output.status.success())
+            .map(|output| String::from_utf8_lossy(&output.stdout).into_owned())
+            .unwrap_or_default();
+        [
+            "ai.prometheus.sovereign-sync",
+            "com.prometheusags.sovereign-sync",
+        ]
+        .iter()
+        .all(|label| {
+            let installed = home
+                .join("Library/LaunchAgents")
+                .join(format!("{label}.plist"))
+                .is_file();
+            !installed || disabled_registry.contains(&format!("\"{label}\" => disabled"))
+        })
+    } else if cfg!(target_os = "linux") {
+        [
+            "ai.prometheus.sovereign-sync.service",
+            "com.prometheusags.sovereign-sync.service",
+        ]
+        .iter()
+        .all(|unit| {
+            let installed = Command::new("systemctl")
+                .args(["--user", "cat", unit])
+                .stdout(Stdio::null())
+                .stderr(Stdio::null())
+                .status()
+                .is_ok_and(|status| status.success());
+            if !installed {
+                return true;
+            }
+            let failed = Command::new("systemctl")
+                .args(["--user", "is-failed", "--quiet", unit])
+                .stdout(Stdio::null())
+                .stderr(Stdio::null())
+                .status()
+                .is_ok_and(|status| status.success());
+            let enabled = Command::new("systemctl")
+                .args(["--user", "is-enabled", unit])
+                .output()
+                .ok()
+                .map(|output| String::from_utf8_lossy(&output.stdout).trim().to_string())
+                .unwrap_or_default();
+            !failed && matches!(enabled.as_str(), "disabled" | "masked" | "not-found")
+        })
+    } else {
+        true
+    };
+    if !explicitly_enabled && !service_active && intentionally_disabled {
+        return CheckResult {
+            id: "control.kbd-runtime".into(),
+            group: "control".into(),
+            label: "Optional KBD sharing service (sovereign-sync)".into(),
+            severity: Severity::Green,
+            status: CheckStatus::Skip,
+            summary: "disabled by default; local KBD runtime is authoritative".into(),
+            details: vec![
+                "Ordinary KBD commands read and commit the signed local journal directly.".into(),
+                "Enable sovereign-sync only for cross-machine sharing with `prometheus setup --full --sharing`.".into(),
+            ],
+            optional: true,
+            actions: vec![],
+        };
+    }
+    if !explicitly_enabled && !service_active {
+        return CheckResult {
+            id: "control.kbd-runtime".into(),
+            group: "control".into(),
+            label: "Optional KBD sharing service (sovereign-sync)".into(),
+            severity: Severity::Yellow,
+            status: CheckStatus::Warn,
+            summary: "sharing service is failed or enabled but unavailable".into(),
+            details: vec![
+                "Ordinary KBD remains available through the signed local runtime.".into(),
+                "Disable the service for daemon-free operation, or repair it only when cross-machine sharing is intended.".into(),
+            ],
+            optional: true,
+            actions: vec![],
+        };
+    }
     if !Path::new(".prometheus/project.json").exists() {
         return CheckResult {
             id: "control.kbd-runtime".into(),
@@ -1340,7 +1461,7 @@ async fn check_kbd_control_plane() -> CheckResult {
                         diagnostics["integrity"]["eventCount"].as_u64().unwrap_or(0)
                     ),
                 ],
-                optional: false,
+                optional: true,
                 actions: vec![],
             }
         }
@@ -1366,7 +1487,7 @@ fn kbd_control_unreachable(error: anyhow::Error) -> CheckResult {
                 .into(),
             "No direct compatibility-file fallback was used.".into(),
         ],
-        optional: false,
+        optional: true,
         actions: vec![],
     }
 }
@@ -1386,7 +1507,7 @@ fn kbd_control_response_failure(status: &str, body: &str) -> CheckResult {
             "`kbd-runtime` is an embedded library, not a standalone service.".into(),
             "No direct compatibility-file fallback was used.".into(),
         ],
-        optional: false,
+        optional: true,
         actions: vec![],
     }
 }
@@ -1400,7 +1521,7 @@ fn kbd_control_invalid_response(error: anyhow::Error) -> CheckResult {
         status: CheckStatus::Warn,
         summary: "sovereign-sync returned an invalid KBD authority diagnostics response".into(),
         details: vec![error.to_string()],
-        optional: false,
+        optional: true,
         actions: vec![],
     }
 }

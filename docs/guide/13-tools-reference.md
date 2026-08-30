@@ -90,6 +90,7 @@ prometheus skill lint [--json]
 prometheus skill budget --harness <name> [--budget-chars N] [--json]
 prometheus skill eval --harness <name> [--corpus <file> --trace <file> --json]
 prometheus kbd --path <project> status [--json]
+prometheus kbd --path <project> projects [--json] [--prune-missing [--apply]]
 prometheus kbd --path <project> <pause|revise|resume|cancel>
 prometheus kbd --path <project> <audit|watch|migrate|rollout>
 prometheus kbd --path <project> <phase|stage|change|task|completion|decision|blocker>

@@ -122,15 +122,21 @@ print_signal_complete() {
 print_signal_start
 
 for t in "${targets[@]}"; do
+  source_t="$t"
   if [[ ! -f "$t" ]]; then
-    # Create empty file so we can append cleanly
-    : > "$t"
+    if [[ "$dry_run" == "1" ]]; then
+      # Preview a new target against an empty source without creating it.
+      source_t="/dev/null"
+    else
+      # Create empty file so we can append cleanly.
+      : > "$t"
+    fi
   fi
 
   # grep -c always outputs an integer; under set -e, no-match (exit 1) would
   # abort, so we use the trailing : sentinel to make the subshell exit 0.
-  starts="$(grep -cF "$START_MARK" "$t" 2>/dev/null; :)"
-  ends="$(grep -cF "$END_MARK"     "$t" 2>/dev/null; :)"
+  starts="$(grep -cF "$START_MARK" "$source_t" 2>/dev/null; :)"
+  ends="$(grep -cF "$END_MARK"     "$source_t" 2>/dev/null; :)"
 
   if [[ "$starts" -gt 1 ]]; then
     die "$t contains $starts start markers — refuse to write; dedupe by hand"
@@ -159,24 +165,24 @@ for t in "${targets[@]}"; do
         if (in_block && $0 == end) { in_block = 0; next }
         if (!in_block) print
       }
-    ' "$t" > "$tmp"
+    ' "$source_t" > "$tmp"
     rm -f "$block_file"
   else
     # First write: append with a separating blank line if file is non-empty.
     {
-      cat "$t"
-      if [[ -s "$t" ]] && [[ "$(tail -c1 "$t" | wc -l | tr -d ' ')" == "0" ]]; then printf '\n'; fi
-      [[ -s "$t" ]] && printf '\n'
+      cat "$source_t"
+      if [[ -s "$source_t" ]] && [[ "$(tail -c1 "$source_t" | wc -l | tr -d ' ')" == "0" ]]; then printf '\n'; fi
+      [[ -s "$source_t" ]] && printf '\n'
       printf '%s\n' "$new_block"
     } > "$tmp"
   fi
 
   if [[ "$dry_run" == "1" ]]; then
-    if cmp -s "$t" "$tmp"; then
+    if cmp -s "$source_t" "$tmp"; then
       printf '%s: no change\n' "$t"
     else
       printf -- '--- %s (current)\n+++ %s (proposed)\n' "$t" "$t"
-      diff -u "$t" "$tmp" || true
+      diff -u "$source_t" "$tmp" || true
     fi
     rm -f "$tmp"
     continue

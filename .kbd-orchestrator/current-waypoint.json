@@ -1,31 +1,32 @@
 {
-  "activePhaseId": "kbd-control-plane-recovery",
-  "change": null,
-  "childPointer": null,
-  "completionMetric": "implementation",
-  "conflictCount": 0,
-  "currentTask": null,
-  "derivedRevision": 117,
-  "exactNextCommand": "/kbd-apply repair-kbd-memory-rest-contract",
-  "frontier": {
-    "4bca58c3-e70b-48c9-a555-60bc16d3d025": 117
-  },
+  "schemaVersion": "5",
   "generatedBy": "kbd-runtime",
-  "implementationCompleted": 5,
-  "implementationTotal": 9,
+  "projectionContractVersion": 2,
+  "sourceRevision": 380,
+  "derivedRevision": 380,
+  "frontier": {
+    "4bca58c3-e70b-48c9-a555-60bc16d3d025": 380
+  },
+  "conflictCount": 0,
+  "projectId": "6ac090a4-3656-4d83-8eb6-2891508196d5",
+  "runId": "sovereign-sync-service-reliability-20260829",
   "path": [
     "kbd-control-plane-recovery"
   ],
-  "phase": "kbd-control-plane-recovery",
   "phaseIds": [
     "kbd-control-plane-recovery"
   ],
-  "planRevision": 3,
-  "projectId": "6ac090a4-3656-4d83-8eb6-2891508196d5",
-  "revision": 117,
-  "runId": "sovereign-sync-service-reliability-20260829",
-  "schemaVersion": "5",
-  "sourceRevision": 117,
+  "activePhaseId": "kbd-control-plane-recovery",
+  "phase": "kbd-control-plane-recovery",
+  "childPointer": null,
+  "change": null,
+  "currentTask": null,
   "status": "ready",
-  "updatedAt": "2026-08-29T18:04:41.950770Z"
+  "completionMetric": "implementation",
+  "implementationCompleted": 9,
+  "implementationTotal": 9,
+  "planRevision": 14,
+  "revision": 380,
+  "exactNextCommand": "Run final local certification for kbd-control-plane-recovery, close its phase boundary, commit, and push.",
+  "updatedAt": "2026-08-30T12:04:35.535153Z"
 }

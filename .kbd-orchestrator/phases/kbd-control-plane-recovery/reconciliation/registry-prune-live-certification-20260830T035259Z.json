@@ -1,0 +1,69 @@
+{
+  "schemaVersion": "1",
+  "observedAt": "2026-08-30T03:54:07Z",
+  "sourceCommit": "d1e48927d61370727dbde734d3da4938f235d6b8",
+  "canonicalSourceRevision": 303,
+  "phase": "kbd-control-plane-recovery",
+  "task": "3.2",
+  "registry": {
+    "path": "/Users/gqadonis/Library/Application Support/prometheus/kbd/registry.json",
+    "beforeSha256": "fc83b06c3f9f36f5dcfefe445b22675c7e03fd6094f112132cc4a482559096ca",
+    "beforeBytes": 31730,
+    "immediatePostApplySha256": "08077a0e7fcf935e4eb969d8d317b6f29d72cfdf4a0dcb240b636adb0e1b2ea0",
+    "immediatePostApplyBytes": 16316,
+    "postStatusRefreshSha256": "ee2b3741ce2f680ad374c210560dd46920aaf8549c351d15fe2917b8c29c5bdf",
+    "initialRegistrations": 56,
+    "retainedRegistrations": 28
+  },
+  "dryRun": {
+    "applyRequested": false,
+    "applied": false,
+    "candidateCount": 28,
+    "removedCount": 0,
+    "registryBytesUnchanged": true,
+    "candidatePathsStillAbsent": 28,
+    "candidateKinds": {
+      "ci": 5,
+      "recovered": 1,
+      "standalone": 8,
+      "worktree": 14
+    }
+  },
+  "apply": {
+    "applyRequested": true,
+    "applied": true,
+    "removedCount": 28,
+    "retainedRegistrations": 28,
+    "backupPath": "/Users/gqadonis/Library/Application Support/prometheus/kbd/registry-maintenance-backups/20260830T035259.528471Z-20076fd3-17c0-4229-b8e3-fb4ec44c13af/registry.json",
+    "backupSha256": "fc83b06c3f9f36f5dcfefe445b22675c7e03fd6094f112132cc4a482559096ca",
+    "backupBytes": 31730,
+    "checksumPath": "/Users/gqadonis/Library/Application Support/prometheus/kbd/registry-maintenance-backups/20260830T035259.528471Z-20076fd3-17c0-4229-b8e3-fb4ec44c13af/registry.sha256",
+    "checksumFileSha256": "450ab23a424e4359c3002ef7c5828b67c137616916e815699499810e717d710c",
+    "checksumMatchesBackup": true,
+    "receiptPath": "/Users/gqadonis/Library/Application Support/prometheus/kbd/registry-maintenance-backups/20260830T035259.528471Z-20076fd3-17c0-4229-b8e3-fb4ec44c13af/receipt.json",
+    "receiptSha256": "601ca3c03a9cb713a97c1e46c2bc4805dfeda4136c4bf7846bc339ad577b7ad1"
+  },
+  "runtimePreservation": {
+    "runtimeDirectoryCountBefore": 42,
+    "runtimeDirectoryCountAfter": 42,
+    "runtimeDirectoryNamesSha256Before": "63adbf264ef7627a74da46fa89777dc1939a75eda39d508a3f02aef96f26c79e",
+    "runtimeDirectoryNamesSha256After": "63adbf264ef7627a74da46fa89777dc1939a75eda39d508a3f02aef96f26c79e",
+    "uniqueRetainedProjects": 27,
+    "missingRetainedRuntimeDirectories": 0,
+    "activeProjectId": "6ac090a4-3656-4d83-8eb6-2891508196d5",
+    "activeProjectRegistrationPreserved": true,
+    "activeRuntimeReadableAtRevision": 303
+  },
+  "idempotentSecondApply": {
+    "candidateCount": 0,
+    "removedCount": 0,
+    "applied": false,
+    "retainedRegistrations": 28,
+    "registrySha256Before": "ee2b3741ce2f680ad374c210560dd46920aaf8549c351d15fe2917b8c29c5bdf",
+    "registrySha256After": "ee2b3741ce2f680ad374c210560dd46920aaf8549c351d15fe2917b8c29c5bdf",
+    "createdBackup": false,
+    "createdReceipt": false
+  },
+  "runtimeDataDeleted": false,
+  "hostedValidationUsed": false
+}
