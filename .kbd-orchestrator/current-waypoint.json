@@ -2,10 +2,10 @@
   "schemaVersion": "5",
   "generatedBy": "kbd-runtime",
   "projectionContractVersion": 2,
-  "sourceRevision": 380,
-  "derivedRevision": 380,
+  "sourceRevision": 382,
+  "derivedRevision": 382,
   "frontier": {
-    "4bca58c3-e70b-48c9-a555-60bc16d3d025": 380
+    "4bca58c3-e70b-48c9-a555-60bc16d3d025": 382
   },
   "conflictCount": 0,
   "projectId": "6ac090a4-3656-4d83-8eb6-2891508196d5",
@@ -25,8 +25,8 @@
   "completionMetric": "implementation",
   "implementationCompleted": 9,
   "implementationTotal": 9,
-  "planRevision": 14,
-  "revision": 380,
-  "exactNextCommand": "Run final local certification for kbd-control-plane-recovery, close its phase boundary, commit, and push.",
-  "updatedAt": "2026-08-30T12:04:35.535153Z"
+  "planRevision": 15,
+  "revision": 382,
+  "exactNextCommand": null,
+  "updatedAt": "2026-08-30T12:06:36.039907Z"
 }

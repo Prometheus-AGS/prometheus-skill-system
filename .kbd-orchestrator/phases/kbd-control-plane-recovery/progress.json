@@ -2,16 +2,16 @@
   "schemaVersion": "2",
   "generatedBy": "kbd-runtime",
   "projectionContractVersion": 2,
-  "sourceRevision": 380,
-  "derivedRevision": 380,
+  "sourceRevision": 381,
+  "derivedRevision": 381,
   "frontier": {
-    "4bca58c3-e70b-48c9-a555-60bc16d3d025": 380
+    "4bca58c3-e70b-48c9-a555-60bc16d3d025": 381
   },
   "conflictCount": 0,
   "phase": "kbd-control-plane-recovery",
   "phaseId": "kbd-control-plane-recovery",
   "parentPhase": null,
-  "last_updated": "2026-08-30T12:04:35.535153Z",
+  "last_updated": "2026-08-30T12:06:34.592419Z",
   "last_updated_by": "kbd-runtime",
   "changes_total": 4,
   "changes_completed": 4,
@@ -35,8 +35,8 @@
       "blockers": []
     },
     "publication": {
-      "status": "PENDING",
-      "summary": null,
+      "status": "COMPLETE",
+      "summary": "Commit a9f7d62229f997087a2b0b59419d77f722e12cbd pushed to origin/codex/kbd-uds-control-repair.",
       "blockers": []
     }
   },

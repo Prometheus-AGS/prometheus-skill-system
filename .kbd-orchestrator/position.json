@@ -2,13 +2,13 @@
   "schemaVersion": "1",
   "generatedBy": "kbd-runtime",
   "projectionContractVersion": 2,
-  "sourceRevision": 380,
-  "derivedRevision": 380,
+  "sourceRevision": 382,
+  "derivedRevision": 382,
   "frontier": {
-    "4bca58c3-e70b-48c9-a555-60bc16d3d025": 380
+    "4bca58c3-e70b-48c9-a555-60bc16d3d025": 382
   },
   "conflictCount": 0,
-  "updatedAt": "2026-08-30T12:04:35.535153Z",
+  "updatedAt": "2026-08-30T12:06:36.039907Z",
   "cursor": [
     "kbd-control-plane-recovery",
     "reflect"
