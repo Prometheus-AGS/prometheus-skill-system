@@ -2145,6 +2145,57 @@ function rollbackLocked(pluginRoot, home, trustStorePath, contract, targets) {
   return path.basename(previous);
 }
 
+/**
+ * Refuse to install hooks whose executable this host cannot resolve.
+ *
+ * Exec-form hooks name a bare executable that the HARNESS resolves through
+ * PATH. That is not a new dependency class for this pack -- `.mcp.json` already
+ * spawns `npx` the same way -- but the failure mode is much worse. If the name
+ * does not resolve, the harness's spawn fails before `hook-entry.mjs` executes
+ * a single line, so there is no JSON envelope, no error code, and no hint: all
+ * 31 hooks simply stop running, silently.
+ *
+ * The scenario this exists for is macOS. A GUI-launched application inherits
+ * launchd's environment rather than a shell's, and `nvm`, `fnm`, and `asdf` all
+ * put `node` somewhere only a shell knows about. A Mac that installed the pack
+ * from a terminal can still fail to dispatch a single hook when the harness is
+ * started from the Dock.
+ *
+ * Resolvability is tested, not behaviour: only `error` is inspected, because a
+ * non-zero exit still proves the executable was found and started.
+ */
+function assertHookExecutablesResolvable(source) {
+  const configured = path.join(source, 'hooks/hooks.json');
+  if (!fs.existsSync(configured)) return;
+  const config = JSON.parse(fs.readFileSync(configured, 'utf8'));
+  const executables = new Set();
+  for (const groups of Object.values(config.hooks ?? {})) {
+    for (const group of groups) {
+      for (const hook of group.hooks ?? []) {
+        // Only exec form resolves through PATH. A shell-form entry is the
+        // shell's problem, and an absolute path is resolved by the path itself.
+        if (!Array.isArray(hook.args) || !hook.command) continue;
+        if (path.isAbsolute(hook.command)) continue;
+        executables.add(hook.command);
+      }
+    }
+  }
+  for (const executable of executables) {
+    if (!spawnSync(executable, ['--version'], { shell: false }).error) continue;
+    fail(
+      [
+        `the generated hooks spawn ${JSON.stringify(executable)}, which cannot be resolved here`,
+        '  every hook would fail before any of this pack runs, with no error of its own',
+        `  detail: ${executable} is not on PATH for this process`,
+        '  remediation: put it on PATH for the environment the harness starts in.',
+        "    macOS launches from the Dock inherit launchd's environment, not a shell's,",
+        '    so a version manager such as nvm, fnm, or asdf needs either a system-wide',
+        '    install or `launchctl setenv PATH` for the harness to see it.',
+      ].join('\n')
+    );
+  }
+}
+
 function install(args) {
   const source = args.sourceRoot;
   const contract = readSkillSystem(source);
@@ -2194,6 +2245,8 @@ function install(args) {
     }
     if (!executable) fail(`required script is not executable: ${script}`);
   }
+
+  assertHookExecutablesResolvable(source);
 
   const sourceBefore = sourceProvenance(source);
   validateSourceProvenance(sourceBefore, args, 'before staging');
@@ -2558,6 +2611,7 @@ function pruneObsoleteGenerations(args, contract) {
  * `scripts/tests/` may import this.
  */
 export const __testing = {
+  assertHookExecutablesResolvable,
   breadcrumbFile,
   installHookDispatcher,
   canonicalJson,

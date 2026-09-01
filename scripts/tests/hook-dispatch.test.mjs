@@ -448,6 +448,59 @@ check('a payload with no dispatcher is not an error', () => {
   );
 });
 
+// ---------------------------------------------------------------------------
+// The generated hooks must name an executable this host can resolve
+// ---------------------------------------------------------------------------
+
+function sourceWithHookCommand(name, command, execForm = true) {
+  const source = path.join(workspace, name);
+  fs.mkdirSync(path.join(source, 'hooks'), { recursive: true });
+  const hook = execForm
+    ? { type: 'command', command, args: ['${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs'] }
+    : { type: 'command', command };
+  fs.writeFileSync(
+    path.join(source, 'hooks/hooks.json'),
+    `${JSON.stringify({ hooks: { SessionStart: [{ hooks: [hook] }] } }, null, 2)}\n`
+  );
+  return source;
+}
+
+check('an unresolvable hook executable is refused at install, not at run time', () => {
+  // The failure this prevents is silent: the harness spawn fails before any of
+  // this pack executes, so nothing of ours is left to report it.
+  const source = sourceWithHookCommand('unresolvable', 'definitely-not-on-path-9f3a');
+  assert.throws(
+    () => __testing.assertHookExecutablesResolvable(source),
+    error => /cannot be resolved here/.test(error.message) && /launchd/.test(error.message),
+    'the failure must name the executable and the macOS PATH scenario'
+  );
+});
+
+check('the executable the real hooks name resolves on this host', () => {
+  // Against the committed artifact, not a fixture: if `node` stops resolving
+  // here, this is where it is noticed.
+  assert.doesNotThrow(() => __testing.assertHookExecutablesResolvable(repoRoot));
+});
+
+check('resolvability is tested, not behaviour', () => {
+  // `--version` on an arbitrary executable may exit non-zero. That still proves
+  // it was found and started, which is the only question being asked.
+  const source = sourceWithHookCommand('nonzero-exit', process.execPath);
+  assert.doesNotThrow(() => __testing.assertHookExecutablesResolvable(source));
+});
+
+check('shell-form and absolute-path entries are left alone', () => {
+  // A shell form entry is the shell's problem, and an absolute path is resolved
+  // by the path itself rather than by PATH.
+  const shellForm = sourceWithHookCommand('shell-form', 'definitely-not-on-path-9f3a', false);
+  assert.doesNotThrow(() => __testing.assertHookExecutablesResolvable(shellForm));
+  const absolute = sourceWithHookCommand(
+    'absolute',
+    path.join(workspace, 'no-such-binary-here')
+  );
+  assert.doesNotThrow(() => __testing.assertHookExecutablesResolvable(absolute));
+});
+
 fs.rmSync(workspace, { recursive: true, force: true });
 
 process.stdout.write(`hook-dispatch: ${results.length} checks passed\n`);
