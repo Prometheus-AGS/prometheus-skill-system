@@ -47,6 +47,11 @@ coverage/
 .env.local
 .env.*.local
 .claude/
+crates/prometheus-hook/target/
+# Prebuilt hook dispatchers are produced per target by the release matrix and
+# placed here at package time; they are payload artifacts, not sources.
+bin/*/prometheus-hook
+bin/*/prometheus-hook.exe
 tools/prometheus-cli/target/
 tools/forge-rs/target/
 tools/surreal-memory-server/target/

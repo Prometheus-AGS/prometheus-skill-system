@@ -5,7 +5,16 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash -c 'runner=\"$HOME/.prometheus/plugins/prometheus-skill-pack/runtime/v1/run-hook\"\nif [[ ! -x \"$runner\" ]] || ! \"$runner\" --bundle \"$1\" --resolve-only >/dev/null 2>&1; then\n  plugin_root=\"${CLAUDE_PLUGIN_ROOT:-${PLUGIN_ROOT:-}}\"\n  bootstrap=\"$plugin_root/shared/scripts/bootstrap-hook-runtime.sh\"\n  if [[ -z \"$plugin_root\" || ! -x \"$bootstrap\" ]]; then\n    printf '\"'\"'{\"status\":\"NOT_ACTIVATED\",\"bundle\":\"%s\"}\\n'\"'\"' \"$1\" >&2\n    exit 78\n  fi\n  bash \"$bootstrap\" --source-root \"$plugin_root\" --expected-bundle \"$1\" || exit\nfi\nexec \"$runner\" --bundle \"$1\" --hook \"$2\" --harness \"$3\"' prometheus-hook 'f122a0e0f4515f8cce07d60c0e410c707d0b2e1be54221cd64ca8e768ae859d7' 'sessionstart-kbd-control' 'codex'",
+            "command": "node",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs",
+              "--bundle",
+              "e5eafe433141b9814db1ad7936b4cef13ece29c0b9efe3fe6711c148d324f091",
+              "--hook",
+              "sessionstart-kbd-control",
+              "--harness",
+              "codex"
+            ],
             "timeout": 1000
           }
         ],
@@ -17,7 +26,16 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash -c 'runner=\"$HOME/.prometheus/plugins/prometheus-skill-pack/runtime/v1/run-hook\"\nif [[ ! -x \"$runner\" ]] || ! \"$runner\" --bundle \"$1\" --resolve-only >/dev/null 2>&1; then\n  plugin_root=\"${CLAUDE_PLUGIN_ROOT:-${PLUGIN_ROOT:-}}\"\n  bootstrap=\"$plugin_root/shared/scripts/bootstrap-hook-runtime.sh\"\n  if [[ -z \"$plugin_root\" || ! -x \"$bootstrap\" ]]; then\n    printf '\"'\"'{\"status\":\"NOT_ACTIVATED\",\"bundle\":\"%s\"}\\n'\"'\"' \"$1\" >&2\n    exit 78\n  fi\n  bash \"$bootstrap\" --source-root \"$plugin_root\" --expected-bundle \"$1\" || exit\nfi\nexec \"$runner\" --bundle \"$1\" --hook \"$2\" --harness \"$3\"' prometheus-hook 'f122a0e0f4515f8cce07d60c0e410c707d0b2e1be54221cd64ca8e768ae859d7' 'sessionstart-kbd-open' 'codex'",
+            "command": "node",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs",
+              "--bundle",
+              "e5eafe433141b9814db1ad7936b4cef13ece29c0b9efe3fe6711c148d324f091",
+              "--hook",
+              "sessionstart-kbd-open",
+              "--harness",
+              "codex"
+            ],
             "timeout": 30000
           }
         ],
@@ -29,17 +47,44 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash -c 'runner=\"$HOME/.prometheus/plugins/prometheus-skill-pack/runtime/v1/run-hook\"\nif [[ ! -x \"$runner\" ]] || ! \"$runner\" --bundle \"$1\" --resolve-only >/dev/null 2>&1; then\n  plugin_root=\"${CLAUDE_PLUGIN_ROOT:-${PLUGIN_ROOT:-}}\"\n  bootstrap=\"$plugin_root/shared/scripts/bootstrap-hook-runtime.sh\"\n  if [[ -z \"$plugin_root\" || ! -x \"$bootstrap\" ]]; then\n    printf '\"'\"'{\"status\":\"NOT_ACTIVATED\",\"bundle\":\"%s\"}\\n'\"'\"' \"$1\" >&2\n    exit 78\n  fi\n  bash \"$bootstrap\" --source-root \"$plugin_root\" --expected-bundle \"$1\" || exit\nfi\nexec \"$runner\" --bundle \"$1\" --hook \"$2\" --harness \"$3\"' prometheus-hook 'f122a0e0f4515f8cce07d60c0e410c707d0b2e1be54221cd64ca8e768ae859d7' 'sessionstart-detect-project-context' 'codex'",
+            "command": "node",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs",
+              "--bundle",
+              "e5eafe433141b9814db1ad7936b4cef13ece29c0b9efe3fe6711c148d324f091",
+              "--hook",
+              "sessionstart-detect-project-context",
+              "--harness",
+              "codex"
+            ],
             "timeout": 15000
           },
           {
             "type": "command",
-            "command": "bash -c 'runner=\"$HOME/.prometheus/plugins/prometheus-skill-pack/runtime/v1/run-hook\"\nif [[ ! -x \"$runner\" ]] || ! \"$runner\" --bundle \"$1\" --resolve-only >/dev/null 2>&1; then\n  plugin_root=\"${CLAUDE_PLUGIN_ROOT:-${PLUGIN_ROOT:-}}\"\n  bootstrap=\"$plugin_root/shared/scripts/bootstrap-hook-runtime.sh\"\n  if [[ -z \"$plugin_root\" || ! -x \"$bootstrap\" ]]; then\n    printf '\"'\"'{\"status\":\"NOT_ACTIVATED\",\"bundle\":\"%s\"}\\n'\"'\"' \"$1\" >&2\n    exit 78\n  fi\n  bash \"$bootstrap\" --source-root \"$plugin_root\" --expected-bundle \"$1\" || exit\nfi\nexec \"$runner\" --bundle \"$1\" --hook \"$2\" --harness \"$3\"' prometheus-hook 'f122a0e0f4515f8cce07d60c0e410c707d0b2e1be54221cd64ca8e768ae859d7' 'sessionstart-memory-outbox-flush' 'codex'",
+            "command": "node",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs",
+              "--bundle",
+              "e5eafe433141b9814db1ad7936b4cef13ece29c0b9efe3fe6711c148d324f091",
+              "--hook",
+              "sessionstart-memory-outbox-flush",
+              "--harness",
+              "codex"
+            ],
             "timeout": 10000
           },
           {
             "type": "command",
-            "command": "bash -c 'runner=\"$HOME/.prometheus/plugins/prometheus-skill-pack/runtime/v1/run-hook\"\nif [[ ! -x \"$runner\" ]] || ! \"$runner\" --bundle \"$1\" --resolve-only >/dev/null 2>&1; then\n  plugin_root=\"${CLAUDE_PLUGIN_ROOT:-${PLUGIN_ROOT:-}}\"\n  bootstrap=\"$plugin_root/shared/scripts/bootstrap-hook-runtime.sh\"\n  if [[ -z \"$plugin_root\" || ! -x \"$bootstrap\" ]]; then\n    printf '\"'\"'{\"status\":\"NOT_ACTIVATED\",\"bundle\":\"%s\"}\\n'\"'\"' \"$1\" >&2\n    exit 78\n  fi\n  bash \"$bootstrap\" --source-root \"$plugin_root\" --expected-bundle \"$1\" || exit\nfi\nexec \"$runner\" --bundle \"$1\" --hook \"$2\" --harness \"$3\"' prometheus-hook 'f122a0e0f4515f8cce07d60c0e410c707d0b2e1be54221cd64ca8e768ae859d7' 'sessionstart-pk-health' 'codex'",
+            "command": "node",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs",
+              "--bundle",
+              "e5eafe433141b9814db1ad7936b4cef13ece29c0b9efe3fe6711c148d324f091",
+              "--hook",
+              "sessionstart-pk-health",
+              "--harness",
+              "codex"
+            ],
             "timeout": 8000
           }
         ]
@@ -50,7 +95,16 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash -c 'runner=\"$HOME/.prometheus/plugins/prometheus-skill-pack/runtime/v1/run-hook\"\nif [[ ! -x \"$runner\" ]] || ! \"$runner\" --bundle \"$1\" --resolve-only >/dev/null 2>&1; then\n  plugin_root=\"${CLAUDE_PLUGIN_ROOT:-${PLUGIN_ROOT:-}}\"\n  bootstrap=\"$plugin_root/shared/scripts/bootstrap-hook-runtime.sh\"\n  if [[ -z \"$plugin_root\" || ! -x \"$bootstrap\" ]]; then\n    printf '\"'\"'{\"status\":\"NOT_ACTIVATED\",\"bundle\":\"%s\"}\\n'\"'\"' \"$1\" >&2\n    exit 78\n  fi\n  bash \"$bootstrap\" --source-root \"$plugin_root\" --expected-bundle \"$1\" || exit\nfi\nexec \"$runner\" --bundle \"$1\" --hook \"$2\" --harness \"$3\"' prometheus-hook 'f122a0e0f4515f8cce07d60c0e410c707d0b2e1be54221cd64ca8e768ae859d7' 'prompt-karpathy-learning' 'codex'"
+            "command": "node",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs",
+              "--bundle",
+              "e5eafe433141b9814db1ad7936b4cef13ece29c0b9efe3fe6711c148d324f091",
+              "--hook",
+              "prompt-karpathy-learning",
+              "--harness",
+              "codex"
+            ]
           }
         ]
       }
@@ -60,31 +114,85 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash -c 'runner=\"$HOME/.prometheus/plugins/prometheus-skill-pack/runtime/v1/run-hook\"\nif [[ ! -x \"$runner\" ]] || ! \"$runner\" --bundle \"$1\" --resolve-only >/dev/null 2>&1; then\n  plugin_root=\"${CLAUDE_PLUGIN_ROOT:-${PLUGIN_ROOT:-}}\"\n  bootstrap=\"$plugin_root/shared/scripts/bootstrap-hook-runtime.sh\"\n  if [[ -z \"$plugin_root\" || ! -x \"$bootstrap\" ]]; then\n    printf '\"'\"'{\"status\":\"NOT_ACTIVATED\",\"bundle\":\"%s\"}\\n'\"'\"' \"$1\" >&2\n    exit 78\n  fi\n  bash \"$bootstrap\" --source-root \"$plugin_root\" --expected-bundle \"$1\" || exit\nfi\nexec \"$runner\" --bundle \"$1\" --hook \"$2\" --harness \"$3\"' prometheus-hook 'f122a0e0f4515f8cce07d60c0e410c707d0b2e1be54221cd64ca8e768ae859d7' 'posttool-validate-evolution-state' 'codex'"
+            "command": "node",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs",
+              "--bundle",
+              "e5eafe433141b9814db1ad7936b4cef13ece29c0b9efe3fe6711c148d324f091",
+              "--hook",
+              "posttool-validate-evolution-state",
+              "--harness",
+              "codex"
+            ]
           },
           {
             "type": "command",
-            "command": "bash -c 'runner=\"$HOME/.prometheus/plugins/prometheus-skill-pack/runtime/v1/run-hook\"\nif [[ ! -x \"$runner\" ]] || ! \"$runner\" --bundle \"$1\" --resolve-only >/dev/null 2>&1; then\n  plugin_root=\"${CLAUDE_PLUGIN_ROOT:-${PLUGIN_ROOT:-}}\"\n  bootstrap=\"$plugin_root/shared/scripts/bootstrap-hook-runtime.sh\"\n  if [[ -z \"$plugin_root\" || ! -x \"$bootstrap\" ]]; then\n    printf '\"'\"'{\"status\":\"NOT_ACTIVATED\",\"bundle\":\"%s\"}\\n'\"'\"' \"$1\" >&2\n    exit 78\n  fi\n  bash \"$bootstrap\" --source-root \"$plugin_root\" --expected-bundle \"$1\" || exit\nfi\nexec \"$runner\" --bundle \"$1\" --hook \"$2\" --harness \"$3\"' prometheus-hook 'f122a0e0f4515f8cce07d60c0e410c707d0b2e1be54221cd64ca8e768ae859d7' 'posttool-validate-gitops-write' 'codex'",
+            "command": "node",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs",
+              "--bundle",
+              "e5eafe433141b9814db1ad7936b4cef13ece29c0b9efe3fe6711c148d324f091",
+              "--hook",
+              "posttool-validate-gitops-write",
+              "--harness",
+              "codex"
+            ],
             "timeout": 10000
           },
           {
             "type": "command",
-            "command": "bash -c 'runner=\"$HOME/.prometheus/plugins/prometheus-skill-pack/runtime/v1/run-hook\"\nif [[ ! -x \"$runner\" ]] || ! \"$runner\" --bundle \"$1\" --resolve-only >/dev/null 2>&1; then\n  plugin_root=\"${CLAUDE_PLUGIN_ROOT:-${PLUGIN_ROOT:-}}\"\n  bootstrap=\"$plugin_root/shared/scripts/bootstrap-hook-runtime.sh\"\n  if [[ -z \"$plugin_root\" || ! -x \"$bootstrap\" ]]; then\n    printf '\"'\"'{\"status\":\"NOT_ACTIVATED\",\"bundle\":\"%s\"}\\n'\"'\"' \"$1\" >&2\n    exit 78\n  fi\n  bash \"$bootstrap\" --source-root \"$plugin_root\" --expected-bundle \"$1\" || exit\nfi\nexec \"$runner\" --bundle \"$1\" --hook \"$2\" --harness \"$3\"' prometheus-hook 'f122a0e0f4515f8cce07d60c0e410c707d0b2e1be54221cd64ca8e768ae859d7' 'posttool-scope-record' 'codex'",
+            "command": "node",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs",
+              "--bundle",
+              "e5eafe433141b9814db1ad7936b4cef13ece29c0b9efe3fe6711c148d324f091",
+              "--hook",
+              "posttool-scope-record",
+              "--harness",
+              "codex"
+            ],
             "timeout": 5000
           },
           {
             "type": "command",
-            "command": "bash -c 'runner=\"$HOME/.prometheus/plugins/prometheus-skill-pack/runtime/v1/run-hook\"\nif [[ ! -x \"$runner\" ]] || ! \"$runner\" --bundle \"$1\" --resolve-only >/dev/null 2>&1; then\n  plugin_root=\"${CLAUDE_PLUGIN_ROOT:-${PLUGIN_ROOT:-}}\"\n  bootstrap=\"$plugin_root/shared/scripts/bootstrap-hook-runtime.sh\"\n  if [[ -z \"$plugin_root\" || ! -x \"$bootstrap\" ]]; then\n    printf '\"'\"'{\"status\":\"NOT_ACTIVATED\",\"bundle\":\"%s\"}\\n'\"'\"' \"$1\" >&2\n    exit 78\n  fi\n  bash \"$bootstrap\" --source-root \"$plugin_root\" --expected-bundle \"$1\" || exit\nfi\nexec \"$runner\" --bundle \"$1\" --hook \"$2\" --harness \"$3\"' prometheus-hook 'f122a0e0f4515f8cce07d60c0e410c707d0b2e1be54221cd64ca8e768ae859d7' 'posttool-write-position-reminder' 'codex'",
+            "command": "node",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs",
+              "--bundle",
+              "e5eafe433141b9814db1ad7936b4cef13ece29c0b9efe3fe6711c148d324f091",
+              "--hook",
+              "posttool-write-position-reminder",
+              "--harness",
+              "codex"
+            ],
             "timeout": 5000
           },
           {
             "type": "command",
-            "command": "bash -c 'runner=\"$HOME/.prometheus/plugins/prometheus-skill-pack/runtime/v1/run-hook\"\nif [[ ! -x \"$runner\" ]] || ! \"$runner\" --bundle \"$1\" --resolve-only >/dev/null 2>&1; then\n  plugin_root=\"${CLAUDE_PLUGIN_ROOT:-${PLUGIN_ROOT:-}}\"\n  bootstrap=\"$plugin_root/shared/scripts/bootstrap-hook-runtime.sh\"\n  if [[ -z \"$plugin_root\" || ! -x \"$bootstrap\" ]]; then\n    printf '\"'\"'{\"status\":\"NOT_ACTIVATED\",\"bundle\":\"%s\"}\\n'\"'\"' \"$1\" >&2\n    exit 78\n  fi\n  bash \"$bootstrap\" --source-root \"$plugin_root\" --expected-bundle \"$1\" || exit\nfi\nexec \"$runner\" --bundle \"$1\" --hook \"$2\" --harness \"$3\"' prometheus-hook 'f122a0e0f4515f8cce07d60c0e410c707d0b2e1be54221cd64ca8e768ae859d7' 'posttool-sycophancy-artifact' 'codex'",
+            "command": "node",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs",
+              "--bundle",
+              "e5eafe433141b9814db1ad7936b4cef13ece29c0b9efe3fe6711c148d324f091",
+              "--hook",
+              "posttool-sycophancy-artifact",
+              "--harness",
+              "codex"
+            ],
             "timeout": 35000
           },
           {
             "type": "command",
-            "command": "bash -c 'runner=\"$HOME/.prometheus/plugins/prometheus-skill-pack/runtime/v1/run-hook\"\nif [[ ! -x \"$runner\" ]] || ! \"$runner\" --bundle \"$1\" --resolve-only >/dev/null 2>&1; then\n  plugin_root=\"${CLAUDE_PLUGIN_ROOT:-${PLUGIN_ROOT:-}}\"\n  bootstrap=\"$plugin_root/shared/scripts/bootstrap-hook-runtime.sh\"\n  if [[ -z \"$plugin_root\" || ! -x \"$bootstrap\" ]]; then\n    printf '\"'\"'{\"status\":\"NOT_ACTIVATED\",\"bundle\":\"%s\"}\\n'\"'\"' \"$1\" >&2\n    exit 78\n  fi\n  bash \"$bootstrap\" --source-root \"$plugin_root\" --expected-bundle \"$1\" || exit\nfi\nexec \"$runner\" --bundle \"$1\" --hook \"$2\" --harness \"$3\"' prometheus-hook 'f122a0e0f4515f8cce07d60c0e410c707d0b2e1be54221cd64ca8e768ae859d7' 'posttool-memory-writeback' 'codex'",
+            "command": "node",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs",
+              "--bundle",
+              "e5eafe433141b9814db1ad7936b4cef13ece29c0b9efe3fe6711c148d324f091",
+              "--hook",
+              "posttool-memory-writeback",
+              "--harness",
+              "codex"
+            ],
             "timeout": 8000
           }
         ],
@@ -96,11 +204,29 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash -c 'runner=\"$HOME/.prometheus/plugins/prometheus-skill-pack/runtime/v1/run-hook\"\nif [[ ! -x \"$runner\" ]] || ! \"$runner\" --bundle \"$1\" --resolve-only >/dev/null 2>&1; then\n  plugin_root=\"${CLAUDE_PLUGIN_ROOT:-${PLUGIN_ROOT:-}}\"\n  bootstrap=\"$plugin_root/shared/scripts/bootstrap-hook-runtime.sh\"\n  if [[ -z \"$plugin_root\" || ! -x \"$bootstrap\" ]]; then\n    printf '\"'\"'{\"status\":\"NOT_ACTIVATED\",\"bundle\":\"%s\"}\\n'\"'\"' \"$1\" >&2\n    exit 78\n  fi\n  bash \"$bootstrap\" --source-root \"$plugin_root\" --expected-bundle \"$1\" || exit\nfi\nexec \"$runner\" --bundle \"$1\" --hook \"$2\" --harness \"$3\"' prometheus-hook 'f122a0e0f4515f8cce07d60c0e410c707d0b2e1be54221cd64ca8e768ae859d7' 'subagent-assessor-checkpoint' 'codex'"
+            "command": "node",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs",
+              "--bundle",
+              "e5eafe433141b9814db1ad7936b4cef13ece29c0b9efe3fe6711c148d324f091",
+              "--hook",
+              "subagent-assessor-checkpoint",
+              "--harness",
+              "codex"
+            ]
           },
           {
             "type": "command",
-            "command": "bash -c 'runner=\"$HOME/.prometheus/plugins/prometheus-skill-pack/runtime/v1/run-hook\"\nif [[ ! -x \"$runner\" ]] || ! \"$runner\" --bundle \"$1\" --resolve-only >/dev/null 2>&1; then\n  plugin_root=\"${CLAUDE_PLUGIN_ROOT:-${PLUGIN_ROOT:-}}\"\n  bootstrap=\"$plugin_root/shared/scripts/bootstrap-hook-runtime.sh\"\n  if [[ -z \"$plugin_root\" || ! -x \"$bootstrap\" ]]; then\n    printf '\"'\"'{\"status\":\"NOT_ACTIVATED\",\"bundle\":\"%s\"}\\n'\"'\"' \"$1\" >&2\n    exit 78\n  fi\n  bash \"$bootstrap\" --source-root \"$plugin_root\" --expected-bundle \"$1\" || exit\nfi\nexec \"$runner\" --bundle \"$1\" --hook \"$2\" --harness \"$3\"' prometheus-hook 'f122a0e0f4515f8cce07d60c0e410c707d0b2e1be54221cd64ca8e768ae859d7' 'subagent-assessor-dispatch' 'codex'"
+            "command": "node",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs",
+              "--bundle",
+              "e5eafe433141b9814db1ad7936b4cef13ece29c0b9efe3fe6711c148d324f091",
+              "--hook",
+              "subagent-assessor-dispatch",
+              "--harness",
+              "codex"
+            ]
           }
         ],
         "matcher": "assessor"
@@ -109,11 +235,29 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash -c 'runner=\"$HOME/.prometheus/plugins/prometheus-skill-pack/runtime/v1/run-hook\"\nif [[ ! -x \"$runner\" ]] || ! \"$runner\" --bundle \"$1\" --resolve-only >/dev/null 2>&1; then\n  plugin_root=\"${CLAUDE_PLUGIN_ROOT:-${PLUGIN_ROOT:-}}\"\n  bootstrap=\"$plugin_root/shared/scripts/bootstrap-hook-runtime.sh\"\n  if [[ -z \"$plugin_root\" || ! -x \"$bootstrap\" ]]; then\n    printf '\"'\"'{\"status\":\"NOT_ACTIVATED\",\"bundle\":\"%s\"}\\n'\"'\"' \"$1\" >&2\n    exit 78\n  fi\n  bash \"$bootstrap\" --source-root \"$plugin_root\" --expected-bundle \"$1\" || exit\nfi\nexec \"$runner\" --bundle \"$1\" --hook \"$2\" --harness \"$3\"' prometheus-hook 'f122a0e0f4515f8cce07d60c0e410c707d0b2e1be54221cd64ca8e768ae859d7' 'subagent-analyst-checkpoint' 'codex'"
+            "command": "node",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs",
+              "--bundle",
+              "e5eafe433141b9814db1ad7936b4cef13ece29c0b9efe3fe6711c148d324f091",
+              "--hook",
+              "subagent-analyst-checkpoint",
+              "--harness",
+              "codex"
+            ]
           },
           {
             "type": "command",
-            "command": "bash -c 'runner=\"$HOME/.prometheus/plugins/prometheus-skill-pack/runtime/v1/run-hook\"\nif [[ ! -x \"$runner\" ]] || ! \"$runner\" --bundle \"$1\" --resolve-only >/dev/null 2>&1; then\n  plugin_root=\"${CLAUDE_PLUGIN_ROOT:-${PLUGIN_ROOT:-}}\"\n  bootstrap=\"$plugin_root/shared/scripts/bootstrap-hook-runtime.sh\"\n  if [[ -z \"$plugin_root\" || ! -x \"$bootstrap\" ]]; then\n    printf '\"'\"'{\"status\":\"NOT_ACTIVATED\",\"bundle\":\"%s\"}\\n'\"'\"' \"$1\" >&2\n    exit 78\n  fi\n  bash \"$bootstrap\" --source-root \"$plugin_root\" --expected-bundle \"$1\" || exit\nfi\nexec \"$runner\" --bundle \"$1\" --hook \"$2\" --harness \"$3\"' prometheus-hook 'f122a0e0f4515f8cce07d60c0e410c707d0b2e1be54221cd64ca8e768ae859d7' 'subagent-analyst-dispatch' 'codex'"
+            "command": "node",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs",
+              "--bundle",
+              "e5eafe433141b9814db1ad7936b4cef13ece29c0b9efe3fe6711c148d324f091",
+              "--hook",
+              "subagent-analyst-dispatch",
+              "--harness",
+              "codex"
+            ]
           }
         ],
         "matcher": "analyst"
@@ -122,11 +266,29 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash -c 'runner=\"$HOME/.prometheus/plugins/prometheus-skill-pack/runtime/v1/run-hook\"\nif [[ ! -x \"$runner\" ]] || ! \"$runner\" --bundle \"$1\" --resolve-only >/dev/null 2>&1; then\n  plugin_root=\"${CLAUDE_PLUGIN_ROOT:-${PLUGIN_ROOT:-}}\"\n  bootstrap=\"$plugin_root/shared/scripts/bootstrap-hook-runtime.sh\"\n  if [[ -z \"$plugin_root\" || ! -x \"$bootstrap\" ]]; then\n    printf '\"'\"'{\"status\":\"NOT_ACTIVATED\",\"bundle\":\"%s\"}\\n'\"'\"' \"$1\" >&2\n    exit 78\n  fi\n  bash \"$bootstrap\" --source-root \"$plugin_root\" --expected-bundle \"$1\" || exit\nfi\nexec \"$runner\" --bundle \"$1\" --hook \"$2\" --harness \"$3\"' prometheus-hook 'f122a0e0f4515f8cce07d60c0e410c707d0b2e1be54221cd64ca8e768ae859d7' 'subagent-planner-checkpoint' 'codex'"
+            "command": "node",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs",
+              "--bundle",
+              "e5eafe433141b9814db1ad7936b4cef13ece29c0b9efe3fe6711c148d324f091",
+              "--hook",
+              "subagent-planner-checkpoint",
+              "--harness",
+              "codex"
+            ]
           },
           {
             "type": "command",
-            "command": "bash -c 'runner=\"$HOME/.prometheus/plugins/prometheus-skill-pack/runtime/v1/run-hook\"\nif [[ ! -x \"$runner\" ]] || ! \"$runner\" --bundle \"$1\" --resolve-only >/dev/null 2>&1; then\n  plugin_root=\"${CLAUDE_PLUGIN_ROOT:-${PLUGIN_ROOT:-}}\"\n  bootstrap=\"$plugin_root/shared/scripts/bootstrap-hook-runtime.sh\"\n  if [[ -z \"$plugin_root\" || ! -x \"$bootstrap\" ]]; then\n    printf '\"'\"'{\"status\":\"NOT_ACTIVATED\",\"bundle\":\"%s\"}\\n'\"'\"' \"$1\" >&2\n    exit 78\n  fi\n  bash \"$bootstrap\" --source-root \"$plugin_root\" --expected-bundle \"$1\" || exit\nfi\nexec \"$runner\" --bundle \"$1\" --hook \"$2\" --harness \"$3\"' prometheus-hook 'f122a0e0f4515f8cce07d60c0e410c707d0b2e1be54221cd64ca8e768ae859d7' 'subagent-planner-dispatch' 'codex'"
+            "command": "node",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs",
+              "--bundle",
+              "e5eafe433141b9814db1ad7936b4cef13ece29c0b9efe3fe6711c148d324f091",
+              "--hook",
+              "subagent-planner-dispatch",
+              "--harness",
+              "codex"
+            ]
           }
         ],
         "matcher": "planner"
@@ -135,24 +297,69 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash -c 'runner=\"$HOME/.prometheus/plugins/prometheus-skill-pack/runtime/v1/run-hook\"\nif [[ ! -x \"$runner\" ]] || ! \"$runner\" --bundle \"$1\" --resolve-only >/dev/null 2>&1; then\n  plugin_root=\"${CLAUDE_PLUGIN_ROOT:-${PLUGIN_ROOT:-}}\"\n  bootstrap=\"$plugin_root/shared/scripts/bootstrap-hook-runtime.sh\"\n  if [[ -z \"$plugin_root\" || ! -x \"$bootstrap\" ]]; then\n    printf '\"'\"'{\"status\":\"NOT_ACTIVATED\",\"bundle\":\"%s\"}\\n'\"'\"' \"$1\" >&2\n    exit 78\n  fi\n  bash \"$bootstrap\" --source-root \"$plugin_root\" --expected-bundle \"$1\" || exit\nfi\nexec \"$runner\" --bundle \"$1\" --hook \"$2\" --harness \"$3\"' prometheus-hook 'f122a0e0f4515f8cce07d60c0e410c707d0b2e1be54221cd64ca8e768ae859d7' 'subagent-executor-karpathy-learning' 'codex'"
+            "command": "node",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs",
+              "--bundle",
+              "e5eafe433141b9814db1ad7936b4cef13ece29c0b9efe3fe6711c148d324f091",
+              "--hook",
+              "subagent-executor-karpathy-learning",
+              "--harness",
+              "codex"
+            ]
           },
           {
             "type": "command",
-            "command": "bash -c 'runner=\"$HOME/.prometheus/plugins/prometheus-skill-pack/runtime/v1/run-hook\"\nif [[ ! -x \"$runner\" ]] || ! \"$runner\" --bundle \"$1\" --resolve-only >/dev/null 2>&1; then\n  plugin_root=\"${CLAUDE_PLUGIN_ROOT:-${PLUGIN_ROOT:-}}\"\n  bootstrap=\"$plugin_root/shared/scripts/bootstrap-hook-runtime.sh\"\n  if [[ -z \"$plugin_root\" || ! -x \"$bootstrap\" ]]; then\n    printf '\"'\"'{\"status\":\"NOT_ACTIVATED\",\"bundle\":\"%s\"}\\n'\"'\"' \"$1\" >&2\n    exit 78\n  fi\n  bash \"$bootstrap\" --source-root \"$plugin_root\" --expected-bundle \"$1\" || exit\nfi\nexec \"$runner\" --bundle \"$1\" --hook \"$2\" --harness \"$3\"' prometheus-hook 'f122a0e0f4515f8cce07d60c0e410c707d0b2e1be54221cd64ca8e768ae859d7' 'subagent-executor-validate-state' 'codex'"
+            "command": "node",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs",
+              "--bundle",
+              "e5eafe433141b9814db1ad7936b4cef13ece29c0b9efe3fe6711c148d324f091",
+              "--hook",
+              "subagent-executor-validate-state",
+              "--harness",
+              "codex"
+            ]
           },
           {
             "type": "command",
-            "command": "bash -c 'runner=\"$HOME/.prometheus/plugins/prometheus-skill-pack/runtime/v1/run-hook\"\nif [[ ! -x \"$runner\" ]] || ! \"$runner\" --bundle \"$1\" --resolve-only >/dev/null 2>&1; then\n  plugin_root=\"${CLAUDE_PLUGIN_ROOT:-${PLUGIN_ROOT:-}}\"\n  bootstrap=\"$plugin_root/shared/scripts/bootstrap-hook-runtime.sh\"\n  if [[ -z \"$plugin_root\" || ! -x \"$bootstrap\" ]]; then\n    printf '\"'\"'{\"status\":\"NOT_ACTIVATED\",\"bundle\":\"%s\"}\\n'\"'\"' \"$1\" >&2\n    exit 78\n  fi\n  bash \"$bootstrap\" --source-root \"$plugin_root\" --expected-bundle \"$1\" || exit\nfi\nexec \"$runner\" --bundle \"$1\" --hook \"$2\" --harness \"$3\"' prometheus-hook 'f122a0e0f4515f8cce07d60c0e410c707d0b2e1be54221cd64ca8e768ae859d7' 'subagent-executor-checkpoint' 'codex'"
+            "command": "node",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs",
+              "--bundle",
+              "e5eafe433141b9814db1ad7936b4cef13ece29c0b9efe3fe6711c148d324f091",
+              "--hook",
+              "subagent-executor-checkpoint",
+              "--harness",
+              "codex"
+            ]
           },
           {
             "type": "command",
-            "command": "bash -c 'runner=\"$HOME/.prometheus/plugins/prometheus-skill-pack/runtime/v1/run-hook\"\nif [[ ! -x \"$runner\" ]] || ! \"$runner\" --bundle \"$1\" --resolve-only >/dev/null 2>&1; then\n  plugin_root=\"${CLAUDE_PLUGIN_ROOT:-${PLUGIN_ROOT:-}}\"\n  bootstrap=\"$plugin_root/shared/scripts/bootstrap-hook-runtime.sh\"\n  if [[ -z \"$plugin_root\" || ! -x \"$bootstrap\" ]]; then\n    printf '\"'\"'{\"status\":\"NOT_ACTIVATED\",\"bundle\":\"%s\"}\\n'\"'\"' \"$1\" >&2\n    exit 78\n  fi\n  bash \"$bootstrap\" --source-root \"$plugin_root\" --expected-bundle \"$1\" || exit\nfi\nexec \"$runner\" --bundle \"$1\" --hook \"$2\" --harness \"$3\"' prometheus-hook 'f122a0e0f4515f8cce07d60c0e410c707d0b2e1be54221cd64ca8e768ae859d7' 'subagent-executor-evaluate-session' 'codex'",
+            "command": "node",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs",
+              "--bundle",
+              "e5eafe433141b9814db1ad7936b4cef13ece29c0b9efe3fe6711c148d324f091",
+              "--hook",
+              "subagent-executor-evaluate-session",
+              "--harness",
+              "codex"
+            ],
             "timeout": 30000
           },
           {
             "type": "command",
-            "command": "bash -c 'runner=\"$HOME/.prometheus/plugins/prometheus-skill-pack/runtime/v1/run-hook\"\nif [[ ! -x \"$runner\" ]] || ! \"$runner\" --bundle \"$1\" --resolve-only >/dev/null 2>&1; then\n  plugin_root=\"${CLAUDE_PLUGIN_ROOT:-${PLUGIN_ROOT:-}}\"\n  bootstrap=\"$plugin_root/shared/scripts/bootstrap-hook-runtime.sh\"\n  if [[ -z \"$plugin_root\" || ! -x \"$bootstrap\" ]]; then\n    printf '\"'\"'{\"status\":\"NOT_ACTIVATED\",\"bundle\":\"%s\"}\\n'\"'\"' \"$1\" >&2\n    exit 78\n  fi\n  bash \"$bootstrap\" --source-root \"$plugin_root\" --expected-bundle \"$1\" || exit\nfi\nexec \"$runner\" --bundle \"$1\" --hook \"$2\" --harness \"$3\"' prometheus-hook 'f122a0e0f4515f8cce07d60c0e410c707d0b2e1be54221cd64ca8e768ae859d7' 'subagent-executor-dispatch' 'codex'"
+            "command": "node",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs",
+              "--bundle",
+              "e5eafe433141b9814db1ad7936b4cef13ece29c0b9efe3fe6711c148d324f091",
+              "--hook",
+              "subagent-executor-dispatch",
+              "--harness",
+              "codex"
+            ]
           }
         ],
         "matcher": "executor"
@@ -161,20 +368,56 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash -c 'runner=\"$HOME/.prometheus/plugins/prometheus-skill-pack/runtime/v1/run-hook\"\nif [[ ! -x \"$runner\" ]] || ! \"$runner\" --bundle \"$1\" --resolve-only >/dev/null 2>&1; then\n  plugin_root=\"${CLAUDE_PLUGIN_ROOT:-${PLUGIN_ROOT:-}}\"\n  bootstrap=\"$plugin_root/shared/scripts/bootstrap-hook-runtime.sh\"\n  if [[ -z \"$plugin_root\" || ! -x \"$bootstrap\" ]]; then\n    printf '\"'\"'{\"status\":\"NOT_ACTIVATED\",\"bundle\":\"%s\"}\\n'\"'\"' \"$1\" >&2\n    exit 78\n  fi\n  bash \"$bootstrap\" --source-root \"$plugin_root\" --expected-bundle \"$1\" || exit\nfi\nexec \"$runner\" --bundle \"$1\" --hook \"$2\" --harness \"$3\"' prometheus-hook 'f122a0e0f4515f8cce07d60c0e410c707d0b2e1be54221cd64ca8e768ae859d7' 'subagent-reflector-sycophancy' 'codex'",
+            "command": "node",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs",
+              "--bundle",
+              "e5eafe433141b9814db1ad7936b4cef13ece29c0b9efe3fe6711c148d324f091",
+              "--hook",
+              "subagent-reflector-sycophancy",
+              "--harness",
+              "codex"
+            ],
             "timeout": 35000
           },
           {
             "type": "command",
-            "command": "bash -c 'runner=\"$HOME/.prometheus/plugins/prometheus-skill-pack/runtime/v1/run-hook\"\nif [[ ! -x \"$runner\" ]] || ! \"$runner\" --bundle \"$1\" --resolve-only >/dev/null 2>&1; then\n  plugin_root=\"${CLAUDE_PLUGIN_ROOT:-${PLUGIN_ROOT:-}}\"\n  bootstrap=\"$plugin_root/shared/scripts/bootstrap-hook-runtime.sh\"\n  if [[ -z \"$plugin_root\" || ! -x \"$bootstrap\" ]]; then\n    printf '\"'\"'{\"status\":\"NOT_ACTIVATED\",\"bundle\":\"%s\"}\\n'\"'\"' \"$1\" >&2\n    exit 78\n  fi\n  bash \"$bootstrap\" --source-root \"$plugin_root\" --expected-bundle \"$1\" || exit\nfi\nexec \"$runner\" --bundle \"$1\" --hook \"$2\" --harness \"$3\"' prometheus-hook 'f122a0e0f4515f8cce07d60c0e410c707d0b2e1be54221cd64ca8e768ae859d7' 'subagent-reflector-log' 'codex'"
+            "command": "node",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs",
+              "--bundle",
+              "e5eafe433141b9814db1ad7936b4cef13ece29c0b9efe3fe6711c148d324f091",
+              "--hook",
+              "subagent-reflector-log",
+              "--harness",
+              "codex"
+            ]
           },
           {
             "type": "command",
-            "command": "bash -c 'runner=\"$HOME/.prometheus/plugins/prometheus-skill-pack/runtime/v1/run-hook\"\nif [[ ! -x \"$runner\" ]] || ! \"$runner\" --bundle \"$1\" --resolve-only >/dev/null 2>&1; then\n  plugin_root=\"${CLAUDE_PLUGIN_ROOT:-${PLUGIN_ROOT:-}}\"\n  bootstrap=\"$plugin_root/shared/scripts/bootstrap-hook-runtime.sh\"\n  if [[ -z \"$plugin_root\" || ! -x \"$bootstrap\" ]]; then\n    printf '\"'\"'{\"status\":\"NOT_ACTIVATED\",\"bundle\":\"%s\"}\\n'\"'\"' \"$1\" >&2\n    exit 78\n  fi\n  bash \"$bootstrap\" --source-root \"$plugin_root\" --expected-bundle \"$1\" || exit\nfi\nexec \"$runner\" --bundle \"$1\" --hook \"$2\" --harness \"$3\"' prometheus-hook 'f122a0e0f4515f8cce07d60c0e410c707d0b2e1be54221cd64ca8e768ae859d7' 'subagent-reflector-checkpoint' 'codex'"
+            "command": "node",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs",
+              "--bundle",
+              "e5eafe433141b9814db1ad7936b4cef13ece29c0b9efe3fe6711c148d324f091",
+              "--hook",
+              "subagent-reflector-checkpoint",
+              "--harness",
+              "codex"
+            ]
           },
           {
             "type": "command",
-            "command": "bash -c 'runner=\"$HOME/.prometheus/plugins/prometheus-skill-pack/runtime/v1/run-hook\"\nif [[ ! -x \"$runner\" ]] || ! \"$runner\" --bundle \"$1\" --resolve-only >/dev/null 2>&1; then\n  plugin_root=\"${CLAUDE_PLUGIN_ROOT:-${PLUGIN_ROOT:-}}\"\n  bootstrap=\"$plugin_root/shared/scripts/bootstrap-hook-runtime.sh\"\n  if [[ -z \"$plugin_root\" || ! -x \"$bootstrap\" ]]; then\n    printf '\"'\"'{\"status\":\"NOT_ACTIVATED\",\"bundle\":\"%s\"}\\n'\"'\"' \"$1\" >&2\n    exit 78\n  fi\n  bash \"$bootstrap\" --source-root \"$plugin_root\" --expected-bundle \"$1\" || exit\nfi\nexec \"$runner\" --bundle \"$1\" --hook \"$2\" --harness \"$3\"' prometheus-hook 'f122a0e0f4515f8cce07d60c0e410c707d0b2e1be54221cd64ca8e768ae859d7' 'subagent-reflector-dispatch' 'codex'"
+            "command": "node",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs",
+              "--bundle",
+              "e5eafe433141b9814db1ad7936b4cef13ece29c0b9efe3fe6711c148d324f091",
+              "--hook",
+              "subagent-reflector-dispatch",
+              "--harness",
+              "codex"
+            ]
           }
         ],
         "matcher": "reflector"
@@ -183,7 +426,16 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash -c 'runner=\"$HOME/.prometheus/plugins/prometheus-skill-pack/runtime/v1/run-hook\"\nif [[ ! -x \"$runner\" ]] || ! \"$runner\" --bundle \"$1\" --resolve-only >/dev/null 2>&1; then\n  plugin_root=\"${CLAUDE_PLUGIN_ROOT:-${PLUGIN_ROOT:-}}\"\n  bootstrap=\"$plugin_root/shared/scripts/bootstrap-hook-runtime.sh\"\n  if [[ -z \"$plugin_root\" || ! -x \"$bootstrap\" ]]; then\n    printf '\"'\"'{\"status\":\"NOT_ACTIVATED\",\"bundle\":\"%s\"}\\n'\"'\"' \"$1\" >&2\n    exit 78\n  fi\n  bash \"$bootstrap\" --source-root \"$plugin_root\" --expected-bundle \"$1\" || exit\nfi\nexec \"$runner\" --bundle \"$1\" --hook \"$2\" --harness \"$3\"' prometheus-hook 'f122a0e0f4515f8cce07d60c0e410c707d0b2e1be54221cd64ca8e768ae859d7' 'subagent-fallback-checkpoint' 'codex'"
+            "command": "node",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs",
+              "--bundle",
+              "e5eafe433141b9814db1ad7936b4cef13ece29c0b9efe3fe6711c148d324f091",
+              "--hook",
+              "subagent-fallback-checkpoint",
+              "--harness",
+              "codex"
+            ]
           }
         ]
       }
@@ -193,7 +445,16 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash -c 'runner=\"$HOME/.prometheus/plugins/prometheus-skill-pack/runtime/v1/run-hook\"\nif [[ ! -x \"$runner\" ]] || ! \"$runner\" --bundle \"$1\" --resolve-only >/dev/null 2>&1; then\n  plugin_root=\"${CLAUDE_PLUGIN_ROOT:-${PLUGIN_ROOT:-}}\"\n  bootstrap=\"$plugin_root/shared/scripts/bootstrap-hook-runtime.sh\"\n  if [[ -z \"$plugin_root\" || ! -x \"$bootstrap\" ]]; then\n    printf '\"'\"'{\"status\":\"NOT_ACTIVATED\",\"bundle\":\"%s\"}\\n'\"'\"' \"$1\" >&2\n    exit 78\n  fi\n  bash \"$bootstrap\" --source-root \"$plugin_root\" --expected-bundle \"$1\" || exit\nfi\nexec \"$runner\" --bundle \"$1\" --hook \"$2\" --harness \"$3\"' prometheus-hook 'f122a0e0f4515f8cce07d60c0e410c707d0b2e1be54221cd64ca8e768ae859d7' 'stop-karpathy-learning' 'codex'"
+            "command": "node",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs",
+              "--bundle",
+              "e5eafe433141b9814db1ad7936b4cef13ece29c0b9efe3fe6711c148d324f091",
+              "--hook",
+              "stop-karpathy-learning",
+              "--harness",
+              "codex"
+            ]
           }
         ]
       }
@@ -203,7 +464,16 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash -c 'runner=\"$HOME/.prometheus/plugins/prometheus-skill-pack/runtime/v1/run-hook\"\nif [[ ! -x \"$runner\" ]] || ! \"$runner\" --bundle \"$1\" --resolve-only >/dev/null 2>&1; then\n  plugin_root=\"${CLAUDE_PLUGIN_ROOT:-${PLUGIN_ROOT:-}}\"\n  bootstrap=\"$plugin_root/shared/scripts/bootstrap-hook-runtime.sh\"\n  if [[ -z \"$plugin_root\" || ! -x \"$bootstrap\" ]]; then\n    printf '\"'\"'{\"status\":\"NOT_ACTIVATED\",\"bundle\":\"%s\"}\\n'\"'\"' \"$1\" >&2\n    exit 78\n  fi\n  bash \"$bootstrap\" --source-root \"$plugin_root\" --expected-bundle \"$1\" || exit\nfi\nexec \"$runner\" --bundle \"$1\" --hook \"$2\" --harness \"$3\"' prometheus-hook 'f122a0e0f4515f8cce07d60c0e410c707d0b2e1be54221cd64ca8e768ae859d7' 'precompact-kbd-control' 'codex'",
+            "command": "node",
+            "args": [
+              "${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs",
+              "--bundle",
+              "e5eafe433141b9814db1ad7936b4cef13ece29c0b9efe3fe6711c148d324f091",
+              "--hook",
+              "precompact-kbd-control",
+              "--harness",
+              "codex"
+            ],
             "timeout": 1000
           }
         ],

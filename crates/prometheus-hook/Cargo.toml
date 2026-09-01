@@ -1,0 +1,25 @@
+[package]
+name = "prometheus-hook"
+version = "1.8.0"
+edition = "2021"
+rust-version = "1.94"
+license = "MIT"
+description = "Shell-free hot-path hook dispatcher for the Prometheus skill pack"
+
+# Deliberately NOT a subcommand of `prometheus-exec`.
+#
+# Task 4.4 ships one dispatcher per target in the plugin payload. `prometheus-exec`
+# links wasmtime, hyper, and rmcp; six copies of that would add roughly a gigabyte
+# to a payload where 97MB of stray evidence was previously treated as a defect,
+# and every PreToolUse would pay wasmtime's startup. This crate exists to be
+# small and to start fast: two dependencies, no async runtime, no proc macros.
+[dependencies]
+sha2 = "0.10"
+serde_json = "1"
+
+[profile.release]
+opt-level = "z"
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true

@@ -1,0 +1,141 @@
+{
+  "schemaVersion": 1,
+  "legId": "windows-junction",
+  "host": {
+    "platform": "win32",
+    "arch": "x64",
+    "node": "v24.20.0"
+  },
+  "capabilities": {
+    "symlinkFile": false,
+    "symlinkDirectory": false,
+    "junction": true,
+    "hardlink": true,
+    "executableBit": false,
+    "posixModes": false,
+    "directoryLinkStrategy": "junction",
+    "fileLinkStrategy": "copy",
+    "shell": {
+      "available": true,
+      "command": "bash",
+      "digestTool": "sha256sum"
+    }
+  },
+  "identity": {
+    "bundleId": "e5eafe433141b9814db1ad7936b4cef13ece29c0b9efe3fe6711c148d324f091",
+    "goldenPayloadDigest": "eb5271efd4c8fe85ca4eb7574189191a16b2898d9b2b8ce312f4466cea484591",
+    "releaseManifestSchemaVersion": 2,
+    "dispatcherInterpreter": "bash"
+  },
+  "degradations": [
+    {
+      "path": "alias",
+      "intended": "symlink",
+      "realized": "copy"
+    },
+    {
+      "path": "note-link",
+      "intended": "symlink",
+      "realized": "copy"
+    }
+  ],
+  "checks": [
+    {
+      "name": "generated artifacts",
+      "command": "C:\\Program Files\\nodejs\\node.exe scripts/generate-harness-adapters.js --check",
+      "exitCode": 0,
+      "outputSha256": "bcbc91a25c1d858293527f0ed79e1c606bd67aea4cec93cede1f671ef232f836",
+      "excerpt": [
+        "Verified bundle e5eafe433141… with 31 hooks for Claude Code and Codex."
+      ]
+    },
+    {
+      "name": "harness runtime parity",
+      "command": "C:\\Program Files\\nodejs\\node.exe scripts/check-harness-adapters.js",
+      "exitCode": 0,
+      "outputSha256": "fd07ed88fa805d76c4c2a9c638c2478bb96669524c23fefdc6be20798dca92d3",
+      "excerpt": [
+        "Harness runtime parity: claude-code=31, codex=30 → bundle e5eafe433141…"
+      ]
+    },
+    {
+      "name": "workflow policy",
+      "command": "C:\\Program Files\\nodejs\\node.exe scripts/check-workflow-policy.mjs",
+      "exitCode": 0,
+      "outputSha256": "5b520541d6a6dead5671d645c8b2007da0207f05d88380439f8dd6002df95a93",
+      "excerpt": [
+        "Workflow policy passed: hosted automation is documentation-only."
+      ]
+    },
+    {
+      "name": "host capability probing",
+      "command": "C:\\Program Files\\nodejs\\node.exe scripts/tests/host-capability-probing.test.mjs",
+      "exitCode": 0,
+      "outputSha256": "d36acb9f801f399a40e9ccb4cac7405a53a83a3c376931ce272d22411493e23d",
+      "excerpt": [
+        "host-capability-probing: 12 checks passed",
+        "  ok   probe executes inside the store root",
+        "…",
+        "  ok   the realized link satisfies the link assertion the runtime makes",
+        "  ok   the ladder chose the strongest available primitive",
+        "  host: directoryLinkStrategy=junction executableBit=false posixModes=false"
+      ]
+    },
+    {
+      "name": "owner-restricted key protection",
+      "command": "C:\\Program Files\\nodejs\\node.exe scripts/tests/owner-restricted-key-protection.test.mjs",
+      "exitCode": 0,
+      "outputSha256": "5f722d5ffc0d46c0a02500d195b56dd9170de975a513c264510e192252875e9d",
+      "excerpt": [
+        "owner-restricted-key-protection: 12 checks passed",
+        "  ok   POSIX: mode 0600 owned by the running user passes",
+        "…",
+        "  ok   Windows: remediation is reported and never applied",
+        "  ok   Windows: the predicate dispatches here on probed capability, not on platform",
+        "  SKIP POSIX real-file dispatch -- this volume reports no POSIX mode semantics, so the mode assertion is not the applicable one"
+      ]
+    },
+    {
+      "name": "portable generation identity",
+      "command": "C:\\Program Files\\nodejs\\node.exe scripts/tests/portable-generation-identity.test.mjs",
+      "exitCode": 0,
+      "outputSha256": "a29c7917dc62811ee284770adcf8df0060fe647b4e779305d47c012e2564a7f6",
+      "excerpt": [
+        "portable-generation-identity: 11 checks passed",
+        "  ok   the payload digest matches the cross-host golden value",
+        "…",
+        "  SKIP differing umask -- this volume has no POSIX mode semantics; the umask leg belongs to Linux and macOS",
+        "  SKIP unsupported entry type -- no mkfifo on this host; a device or socket entry cannot be created to be rejected",
+        "  host: win32, digest eb5271efd4c8…"
+      ]
+    },
+    {
+      "name": "activation pointer",
+      "command": "C:\\Program Files\\nodejs\\node.exe scripts/tests/activation-pointer.test.mjs",
+      "exitCode": 0,
+      "outputSha256": "13238f6ba7ee57cb245ad4b1e5ff840afc109914260b2cc8633b7461c6994031",
+      "excerpt": [
+        "activation-pointer: 18 checks passed",
+        "  ok   a verbatim candidate is contained by an ordinary parent",
+        "…",
+        "  ok   the payload ladder skips the junction and survives the rename",
+        "  ok   a pointer that does not name a generation is refused on write and on read",
+        "  SKIP verbatim plugin root through the shell -- msys2 cannot represent a verbatim path; the Node and Rust surfaces carry that guard"
+      ]
+    },
+    {
+      "name": "shell-free hook dispatch",
+      "command": "C:\\Program Files\\nodejs\\node.exe scripts/tests/hook-dispatch.test.mjs",
+      "exitCode": 0,
+      "outputSha256": "e8747d75fdd7d66b4030b142bdc12ab6045728513aa290bcb52bf8c7f3e7a89a",
+      "excerpt": [
+        "hook-dispatch: 20 checks passed",
+        "  ok   a hook whose executable is a script shim is refused",
+        "…",
+        "  ok   a candidate the manifest does not call executable is never run",
+        "  ok   a payload with no dispatcher is not an error",
+        "  SKIP missing digest tool -- both sha256sum and shasum live in /usr/bin on msys2 and cannot be taken off PATH without removing bash itself"
+      ]
+    }
+  ]
+}

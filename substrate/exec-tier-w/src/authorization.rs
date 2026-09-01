@@ -315,13 +315,70 @@ fn verify_active_generation(
     })
 }
 
+/// Reduce a Windows verbatim path to its ordinary spelling.
+///
+/// `std::fs::canonicalize` ALWAYS returns `\\?\C:\...` on Windows, and
+/// `fs::read_link` returns it for a junction, whose substitute name is stored as
+/// `\??\C:\...`. The two spellings of one path are not equal to `Path`:
+/// `Prefix::VerbatimDisk('C')` and `Prefix::Disk('C')` are different components,
+/// so a containment check comparing one against the other rejects every valid
+/// bundle. Normalizing never widens the check -- a path outside the store is
+/// outside it in either spelling.
+#[cfg(feature = "estate")]
+fn strip_verbatim_prefix(path: &Path) -> PathBuf {
+    let text = path.to_string_lossy();
+    if let Some(rest) = text.strip_prefix(r"\\?\UNC\") {
+        return PathBuf::from(format!(r"\\{rest}"));
+    }
+    if let Some(rest) = text.strip_prefix(r"\\?\") {
+        return PathBuf::from(rest);
+    }
+    path.to_path_buf()
+}
+
+/// Read the activation pointer, preferring the pointer FILE over the link.
+///
+/// The installer writes `pointers/current` holding `generations/<sha256>` and
+/// swaps it by rename, because no atomic directory-link swap exists on Windows.
+/// The link beside it is a convenience that may be a symlink, a junction, or
+/// absent entirely.
+///
+/// Reading the link alone could never work on Windows: a junction's `read_link`
+/// returns an ABSOLUTE substitute name, and `generation_from_pointer` rejects an
+/// absolute pointer outright, so estate authorization failed on every Windows
+/// host before the pointer file was consulted first.
+#[cfg(feature = "estate")]
+fn read_activation_pointer(plugin_root: &Path) -> Result<PathBuf, TierWError> {
+    let pointer_file = plugin_root.join("pointers").join("current");
+    if let Ok(text) = fs::read_to_string(&pointer_file) {
+        let target = text.lines().next().unwrap_or("").trim();
+        if !target.is_empty() {
+            return Ok(PathBuf::from(target));
+        }
+    }
+    // A store written before the pointer file existed carries only the link.
+    let link = fs::read_link(plugin_root.join("current"))
+        .map_err(|error| unauthorized(format!("active generation pointer is invalid: {error}")))?;
+    if link.is_relative() {
+        return Ok(link);
+    }
+    // An absolute link -- a junction, or a symlink created with an absolute
+    // target -- is reduced back to the `generations/<id>` form the pointer
+    // grammar accepts, but only when it genuinely lies inside this store.
+    let resolved = strip_verbatim_prefix(&link);
+    let generations = strip_verbatim_prefix(&plugin_root.join("generations"));
+    let relative = resolved
+        .strip_prefix(&generations)
+        .map_err(|_| unauthorized("active generation pointer escapes the plugin store"))?;
+    Ok(Path::new("generations").join(relative))
+}
+
 #[cfg(feature = "estate")]
 fn verify_generation(plugin_root: &Path) -> Result<VerifiedGeneration, TierWError> {
     let plugin_root = plugin_root
         .canonicalize()
         .map_err(|error| unauthorized(format!("plugin root is unavailable: {error}")))?;
-    let target = fs::read_link(plugin_root.join("current"))
-        .map_err(|error| unauthorized(format!("active generation pointer is invalid: {error}")))?;
+    let target = read_activation_pointer(&plugin_root)?;
     let generation_id = generation_from_pointer(&target)?;
     let generation_root = plugin_root.join("generations").join(&generation_id);
     let canonical_generation = generation_root
@@ -331,7 +388,9 @@ fn verify_generation(plugin_root: &Path) -> Result<VerifiedGeneration, TierWErro
         .join("generations")
         .canonicalize()
         .map_err(|error| unauthorized(format!("generation store is unavailable: {error}")))?;
-    if !canonical_generation.starts_with(&canonical_generations) {
+    if !strip_verbatim_prefix(&canonical_generation)
+        .starts_with(strip_verbatim_prefix(&canonical_generations))
+    {
         return Err(unauthorized("active generation escapes the plugin store"));
     }
 

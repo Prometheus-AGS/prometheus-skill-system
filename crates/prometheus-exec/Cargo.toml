@@ -34,6 +34,16 @@ tempfile = "3"
 tokio = { version = "1", features = ["io-util", "macros", "net", "process", "rt-multi-thread", "signal", "sync", "time"] }
 uuid = { version = "1", features = ["serde", "v4"] }
 
+# Windows security-descriptor reads for the owner-only signing-key gate.
+# GetNamedSecurityInfoW / ConvertSidToStringSidW only; no ACL is ever written.
+[target.'cfg(windows)'.dependencies]
+windows-sys = { version = "0.59", features = [
+  "Win32_Foundation",
+  "Win32_Security",
+  "Win32_Security_Authorization",
+  "Win32_System_Threading",
+] }
+
 [dev-dependencies]
 assert_cmd = "2"
 predicates = "3"

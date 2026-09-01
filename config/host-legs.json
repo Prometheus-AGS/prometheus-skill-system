@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "description": "Hosts that must agree on bundle identity before an activation change ships. A leg's id is DERIVED from what the host's filesystem can actually do, never from what it claims to be, so a Windows host cannot pass as the Developer-Mode leg by asserting it.",
+  "required": [
+    {
+      "id": "linux",
+      "platform": "linux",
+      "directoryLinkStrategy": "symlink",
+      "why": "the reference host: real symlinks, real permission bits"
+    },
+    {
+      "id": "macos",
+      "platform": "darwin",
+      "directoryLinkStrategy": "symlink",
+      "why": "POSIX with a different filesystem and a different umask default"
+    },
+    {
+      "id": "windows-symlink",
+      "platform": "win32",
+      "directoryLinkStrategy": "symlink",
+      "why": "Windows with Developer Mode enabled, where directory symlinks are permitted"
+    },
+    {
+      "id": "windows-junction",
+      "platform": "win32",
+      "directoryLinkStrategy": "junction",
+      "why": "Windows with Developer Mode disabled. The hardest leg and the default one: symlink creation raises EPERM, so activation must descend to junctions, and no passing result may come from an elevated configuration."
+    }
+  ]
+}

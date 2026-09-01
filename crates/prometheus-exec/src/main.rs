@@ -1,5 +1,6 @@
 mod daemon;
 mod doctor;
+mod file_security;
 mod identity;
 mod mcp;
 mod uds_client;
@@ -168,6 +169,16 @@ enum Command {
         #[arg(long)]
         output_dir: PathBuf,
     },
+    /// Report one file's security descriptor as JSON, changing nothing.
+    ///
+    /// The installer's owner-only key gate needs a locale-independent read of a
+    /// Windows DACL, and Node has no ACL API. This emits owner and trustee
+    /// security identifiers as strings so the caller never compares display
+    /// names, and it never applies a remediation.
+    InspectFileSecurity {
+        #[arg(long)]
+        path: PathBuf,
+    },
 }
 
 #[derive(Clone, Copy, Debug, ValueEnum)]
@@ -333,6 +344,10 @@ async fn run(cli: Cli) -> Result<ExitCode, BoxError> {
             format,
         } => verify_bundle_command(&index, root.as_deref(), format),
         Command::Contracts { output_dir } => generate_contracts(&output_dir),
+        Command::InspectFileSecurity { path } => {
+            println!("{}", file_security::inspect(&path)?);
+            Ok(ExitCode::SUCCESS)
+        }
     }
 }
 
