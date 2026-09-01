@@ -4,17 +4,23 @@ import crypto from 'node:crypto';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 import { collectDistributionSkills, readSkillSystem } from './lib/skill-system.js';
 
-const sourceRoot = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
+const sourceRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const check = process.argv.includes('--check');
 const contract = readSkillSystem(sourceRoot);
 const skills = collectDistributionSkills(sourceRoot, contract);
 
 function canonical(value) {
   if (Array.isArray(value)) return value.map(canonical);
-  if (value && typeof value === 'object') return Object.fromEntries(Object.keys(value).sort().map(key => [key, canonical(value[key])]));
+  if (value && typeof value === 'object')
+    return Object.fromEntries(
+      Object.keys(value)
+        .sort()
+        .map(key => [key, canonical(value[key])])
+    );
   return value;
 }
 
@@ -52,7 +58,8 @@ function baseManifest() {
   return {
     name: contract.name,
     version: contract.releaseVersion,
-    description: 'Complete Prometheus skill system: process orchestration, React, GitOps, testing, research, learning, and portable agent tooling.',
+    description:
+      'Complete Prometheus skill system: process orchestration, React, GitOps, testing, research, learning, and portable agent tooling.',
     author: { name: 'Travis James', url: 'https://travisjames.ai' },
     homepage: 'https://github.com/Prometheus-AGS/prometheus-skill-system',
     repository: 'https://github.com/Prometheus-AGS/prometheus-skill-system',
@@ -66,8 +73,10 @@ function baseManifest() {
 function sanitizedMcp() {
   const mcp = JSON.parse(fs.readFileSync(path.join(sourceRoot, '.mcp.json'), 'utf8'));
   const serialized = JSON.stringify(mcp);
-  if (serialized.includes(sourceRoot) || serialized.includes(os.homedir())) throw new Error('MCP template contains a machine-specific path');
-  if (/tvly-[A-Za-z0-9_-]{12,}/.test(serialized)) throw new Error('MCP template contains a literal Tavily credential');
+  if (serialized.includes(sourceRoot) || serialized.includes(os.homedir()))
+    throw new Error('MCP template contains a machine-specific path');
+  if (/tvly-[A-Za-z0-9_-]{12,}/.test(serialized))
+    throw new Error('MCP template contains a literal Tavily credential');
   return mcp;
 }
 
@@ -146,31 +155,35 @@ function materializePackage(root, platform) {
       interface: {
         displayName: 'Prometheus Skill Pack',
         shortDescription: 'Portable Prometheus skills for agentic software work.',
-        longDescription: 'A self-contained distribution of Prometheus process, engineering, research, learning, and quality skills.',
+        longDescription:
+          'A self-contained distribution of Prometheus process, engineering, research, learning, and quality skills.',
         developerName: 'Travis James',
         category: 'productivity',
         capabilities: ['skills', 'mcp'],
-        defaultPrompt: 'Use the Prometheus skill system to select and apply the most relevant installed skill for this task.',
-        websiteURL: 'https://github.com/Prometheus-AGS/prometheus-skill-system'
-      }
+        defaultPrompt:
+          'Use the Prometheus skill system to select and apply the most relevant installed skill for this task.',
+        websiteURL: 'https://github.com/Prometheus-AGS/prometheus-skill-system',
+      },
     });
   }
 }
 
 function marketplaceEntries(platform) {
-  const localSource = entry => platform === 'claude'
-    ? `./${entry.path}`
-    : { source: 'local', path: `./${entry.path}` };
+  const localSource = entry =>
+    platform === 'claude' ? `./${entry.path}` : { source: 'local', path: `./${entry.path}` };
   const policy = { installation: 'AVAILABLE', authentication: 'ON_INSTALL' };
   const umbrella = {
     name: contract.name,
-    source: platform === 'claude'
-      ? `./${contract.outputs.claudePackage}`
-      : { source: 'local', path: `./${contract.outputs.codexPackage}` },
+    source:
+      platform === 'claude'
+        ? `./${contract.outputs.claudePackage}`
+        : { source: 'local', path: `./${contract.outputs.codexPackage}` },
     version: contract.releaseVersion,
     description: baseManifest().description,
     category: 'productivity',
-    ...(platform === 'codex' ? { policy: { installation: 'INSTALLED_BY_DEFAULT', authentication: 'ON_INSTALL' } } : {}),
+    ...(platform === 'codex'
+      ? { policy: { installation: 'INSTALLED_BY_DEFAULT', authentication: 'ON_INSTALL' } }
+      : {}),
   };
   const adjacent = contract.marketplace.plugins.map(entry => ({
     name: entry.name,
@@ -179,27 +192,30 @@ function marketplaceEntries(platform) {
     category: entry.category,
     ...(platform === 'codex' ? { policy } : {}),
   }));
-  const imports = contract.imports.filter(entry => entry.marketplace).map(entry => {
-    const name = entry.id;
-    if (platform === 'claude') return {
-      name,
-      source: {
-        source: 'github',
-        repo: entry.repository.replace(/^https:\/\/github\.com\//, '').replace(/\.git$/, ''),
-        sha: entry.commit,
-      },
-      strict: false,
-      skills: name === 'artifact-refiner' ? './skills' : './',
-      category: 'productivity',
-    };
-    return {
-      name,
-      source: { source: 'local', path: `./${entry.path}` },
-      category: 'productivity',
-      policy,
-      metadata: { repository: entry.repository, sha: entry.commit },
-    };
-  });
+  const imports = contract.imports
+    .filter(entry => entry.marketplace)
+    .map(entry => {
+      const name = entry.id;
+      if (platform === 'claude')
+        return {
+          name,
+          source: {
+            source: 'github',
+            repo: entry.repository.replace(/^https:\/\/github\.com\//, '').replace(/\.git$/, ''),
+            sha: entry.commit,
+          },
+          strict: false,
+          skills: name === 'artifact-refiner' ? './skills' : './',
+          category: 'productivity',
+        };
+      return {
+        name,
+        source: { source: 'local', path: `./${entry.path}` },
+        category: 'productivity',
+        policy,
+        metadata: { repository: entry.repository, sha: entry.commit },
+      };
+    });
   return [umbrella, ...adjacent, ...imports];
 }
 
@@ -232,8 +248,14 @@ function collect(root, relative = '') {
     const stat = fs.lstatSync(absolute);
     if (stat.isDirectory()) entries.push(...collect(root, child));
     else {
-      const bytes = stat.isSymbolicLink() ? Buffer.from(fs.readlinkSync(absolute)) : fs.readFileSync(absolute);
-      entries.push({ path: child.split(path.sep).join('/'), mode: (stat.mode & 0o7777).toString(8), sha256: crypto.createHash('sha256').update(bytes).digest('hex') });
+      const bytes = stat.isSymbolicLink()
+        ? Buffer.from(fs.readlinkSync(absolute))
+        : fs.readFileSync(absolute);
+      entries.push({
+        path: child.split(path.sep).join('/'),
+        mode: (stat.mode & 0o7777).toString(8),
+        sha256: crypto.createHash('sha256').update(bytes).digest('hex'),
+      });
     }
   }
   return entries;
@@ -242,7 +264,12 @@ function collect(root, relative = '') {
 const temporary = fs.mkdtempSync(path.join(os.tmpdir(), 'prometheus-distribution.'));
 try {
   materialize(temporary);
-  const outputPaths = [contract.outputs.claudePackage, contract.outputs.codexPackage, contract.outputs.claudeMarketplace, contract.outputs.codexMarketplace];
+  const outputPaths = [
+    contract.outputs.claudePackage,
+    contract.outputs.codexPackage,
+    contract.outputs.claudeMarketplace,
+    contract.outputs.codexMarketplace,
+  ];
   if (check) {
     for (const output of outputPaths) {
       const expected = fs.lstatSync(path.join(temporary, output)).isDirectory()
@@ -250,9 +277,12 @@ try {
         : fs.readFileSync(path.join(temporary, output));
       const actualPath = path.join(sourceRoot, output);
       const actual = fs.existsSync(actualPath)
-        ? (fs.lstatSync(actualPath).isDirectory() ? collect(actualPath) : fs.readFileSync(actualPath))
+        ? fs.lstatSync(actualPath).isDirectory()
+          ? collect(actualPath)
+          : fs.readFileSync(actualPath)
         : null;
-      if (JSON.stringify(expected) !== JSON.stringify(actual)) throw new Error(`generated output is stale: ${output}`);
+      if (JSON.stringify(expected) !== JSON.stringify(actual))
+        throw new Error(`generated output is stale: ${output}`);
     }
   } else {
     for (const output of outputPaths) {

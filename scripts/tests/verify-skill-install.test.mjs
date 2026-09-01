@@ -17,8 +17,9 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
 
-const REPO = path.resolve(path.dirname(new URL(import.meta.url).pathname), '../..');
+const REPO = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const GATE = path.join(REPO, 'scripts/verify-skill-install.js');
 const PLUGIN_ROOT = path.join(os.homedir(), '.prometheus/plugins/prometheus-skill-pack');
 const GEN = path.join(PLUGIN_ROOT, 'current/skills');

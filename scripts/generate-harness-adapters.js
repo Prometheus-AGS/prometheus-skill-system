@@ -5,6 +5,10 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { probeFilesystemCapabilities } from './lib/capabilities.js';
+import { shellOnlyExecutableError } from './lib/hook-config.js';
+import { readIngestOracle } from './lib/payload-manifest.js';
+
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const check = process.argv.includes('--check');
 const contractPath = path.join(root, 'shared/harnesses/hook-contract.json');
@@ -36,9 +40,37 @@ function sha256(value) {
   return crypto.createHash('sha256').update(value).digest('hex');
 }
 
-function modeString(mode) {
-  return (mode & 0o7777).toString(8).padStart(4, '0');
+// Bundle identity must not depend on the host that generated it.
+//
+// This file used to record a full permission mode per runtime file. That folded
+// the authoring host's umask into `bundleId`, and made the identity flatly
+// unreproducible on Windows, where libuv reports 0o444 or 0o666 for every file
+// and nothing else. Schema 2 records a normalized executable bit taken from
+// git's index -- the only authority that is the same on every host -- and falls
+// back to the filesystem only where the filesystem can actually answer.
+const hostCapabilities = probeFilesystemCapabilities(root);
+const oracle = readIngestOracle(root);
+
+function executableOf(relative) {
+  const recorded = oracle?.get(relative);
+  if (recorded) return recorded.type === 'file' && recorded.executable;
+  if (hostCapabilities.executableBit) {
+    const stat = fs.statSync(path.join(root, ...relative.split('/')), { throwIfNoEntry: false });
+    return Boolean(stat) && (stat.mode & 0o100) !== 0;
+  }
+  failures.push(
+    `no portable executable-bit authority for ${relative}: this volume cannot observe an ` +
+      'executable bit and the file is not tracked by git'
+  );
+  return false;
 }
+
+// The one interpreter the dispatcher may be launched with. The runtime
+// allowlists the same value, so widening this needs both to change.
+const DISPATCHER_INTERPRETER = 'bash';
+
+// Path of the exec-form entry point, relative to the plugin root.
+const HOOK_ENTRY = 'scripts/hook-entry.mjs';
 
 function shellQuote(value) {
   return `'${String(value).replaceAll("'", `'"'"'`)}'`;
@@ -73,7 +105,11 @@ function validateContract() {
       }
       if (hook.target) {
         const normalized = path.posix.normalize(hook.target);
-        if (normalized !== hook.target || normalized.startsWith('../') || path.isAbsolute(normalized)) {
+        if (
+          normalized !== hook.target ||
+          normalized.startsWith('../') ||
+          path.isAbsolute(normalized)
+        ) {
           failures.push(`${hook.id}: target escapes the bundle: ${hook.target}`);
         } else if (!fs.existsSync(path.join(root, ...normalized.split('/')))) {
           failures.push(`${hook.id}: target is missing: ${hook.target}`);
@@ -161,7 +197,7 @@ function collectFiles(directory, relativeRoot, result) {
     if (stat.isDirectory()) collectFiles(absolute, relative, result);
     else if (stat.isFile()) {
       const bytes = fs.readFileSync(absolute);
-      result.push({ path: relative, sha256: sha256(bytes), mode: modeString(stat.mode) });
+      result.push({ path: relative, sha256: sha256(bytes), executable: executableOf(relative) });
     }
   }
 }
@@ -174,48 +210,81 @@ function releaseIdentity(dispatcher) {
     'skills/process/iterative-evolver/scripts',
     runtimeFiles
   );
+  // scripts/lib/*.js are load-bearing for the installer -- it will not start
+  // without them -- so they belong in the identity that pins the runtime.
   for (const relative of [
+    'scripts/hook-entry.mjs',
     'scripts/install-plugin-generation.js',
+    'scripts/lib/capabilities.js',
+    'scripts/lib/jcs.js',
+    'scripts/lib/key-protection.js',
+    'scripts/lib/payload-manifest.js',
+    'scripts/lib/skill-system.js',
     'shared/harnesses/hook-contract.json',
   ]) {
     const absolute = path.join(root, ...relative.split('/'));
-    const stat = fs.statSync(absolute);
     runtimeFiles.push({
       path: relative,
       sha256: sha256(fs.readFileSync(absolute)),
-      mode: modeString(stat.mode),
+      executable: executableOf(relative),
     });
   }
   runtimeFiles.push({
     path: 'shared/scripts/generated/hook-dispatch-v1.sh',
     sha256: sha256(dispatcher),
-    mode: '0755',
+    executable: true,
   });
   runtimeFiles.sort((left, right) => left.path.localeCompare(right.path));
   return {
-    schemaVersion: 1,
+    schemaVersion: 2,
     sourceVersion,
     contractSchemaVersion: contract.schemaVersion,
     dispatcherAbi: contract.dispatcherAbi,
+    // Naming the interpreter in the identity is what lets the runtime stop
+    // depending on a filesystem executable bit. A shebang is a request the
+    // kernel may decline -- on a volume with no permission bits it always
+    // does -- whereas this is a signed statement about how the dispatcher is
+    // launched, and the runtime allowlists it before use.
+    dispatcherInterpreter: DISPATCHER_INTERPRETER,
     contractSha256: sha256(canonicalJson(contract)),
     runtimeFiles,
   };
 }
 
-function hookCommand(bundleId, hookId, harness) {
-  const runner = '$HOME/.prometheus/plugins/prometheus-skill-pack/runtime/v1/run-hook';
-  const body = `runner="${runner}"
-if [[ ! -x "$runner" ]] || ! "$runner" --bundle "$1" --resolve-only >/dev/null 2>&1; then
-  plugin_root="\${CLAUDE_PLUGIN_ROOT:-\${PLUGIN_ROOT:-}}"
-  bootstrap="$plugin_root/shared/scripts/bootstrap-hook-runtime.sh"
-  if [[ -z "$plugin_root" || ! -x "$bootstrap" ]]; then
-    printf '{"status":"NOT_ACTIVATED","bundle":"%s"}\\n' "$1" >&2
-    exit 78
-  fi
-  bash "$bootstrap" --source-root "$plugin_root" --expected-bundle "$1" || exit
-fi
-exec "$runner" --bundle "$1" --hook "$2" --harness "$3"`;
-  return `bash -c ${shellQuote(body)} prometheus-hook ${shellQuote(bundleId)} ${shellQuote(hookId)} ${shellQuote(harness)}`;
+/**
+ * Exec-form invocation for one hook.
+ *
+ * `command` plus `args` is spawned directly with no shell on any platform, and
+ * the harness substitutes path placeholders into both as plain strings. That
+ * removes the entire class of quoting defects the previous shell form carried:
+ * a plugin root containing backslashes, `$`, or backticks now reaches the
+ * entry point verbatim because nothing tokenizes it.
+ *
+ * It also fixes a Windows defect the shell form could not. Shell form is handed
+ * to `sh -c` on POSIX and to POWERSHELL on Windows whenever Git Bash is absent,
+ * so 31 entries of `bash -c '<multi-line bash>'` worked there only by accident
+ * of Git Bash being installed.
+ *
+ * `command` is `node` rather than the compiled dispatcher because `hooks.json`
+ * is ONE file shared by every host, the harness exposes no platform
+ * placeholder, and a binary cannot bootstrap itself. `node` is a real
+ * executable everywhere and is already a hard dependency of bootstrap; the
+ * compiled dispatcher still owns the hot path, `hook-entry.mjs` execs it as
+ * soon as it exists.
+ */
+function hookInvocation(bundleId, hookId, harness) {
+  return {
+    command: 'node',
+    args: [
+      `\${CLAUDE_PLUGIN_ROOT}/${HOOK_ENTRY}`,
+      '--bundle',
+      bundleId,
+      '--hook',
+      hookId,
+      '--harness',
+      harness,
+    ],
+  };
 }
 
 function renderHooks(bundleId, harness) {
@@ -224,10 +293,12 @@ function renderHooks(bundleId, harness) {
     if (group.harnesses !== undefined && !group.harnesses.includes(harness)) continue;
     const emitted = {
       hooks: group.hooks.map(hook => {
-        const value = {
-          type: 'command',
-          command: hookCommand(bundleId, hook.id, harness),
-        };
+        const { command, args } = hookInvocation(bundleId, hook.id, harness);
+        // Asserted on every emitted entry, not just the ones that look
+        // suspicious, so it cannot silently stop being true.
+        const shellOnly = shellOnlyExecutableError(command);
+        if (shellOnly) failures.push(`${harness}/${hook.id}: ${shellOnly}`);
+        const value = { type: 'command', command, args };
         if (hook.timeout !== undefined) value.timeout = hook.timeout;
         return value;
       }),
@@ -243,13 +314,32 @@ function renderHooks(bundleId, harness) {
 function emit(relative, content, mode = 0o644) {
   const absolute = path.join(root, ...relative.split('/'));
   const next = typeof content === 'string' ? content : `${JSON.stringify(content, null, 2)}\n`;
+  const wantExecutable = (mode & 0o111) !== 0;
   if (check) {
     if (!fs.existsSync(absolute) || fs.readFileSync(absolute, 'utf8') !== next) {
       failures.push(`generated artifact is stale: ${relative}`);
       return;
     }
-    if ((fs.statSync(absolute).mode & 0o7777) !== mode) {
-      failures.push(`generated artifact mode is stale: ${relative}`);
+    // On a volume that records permission bits, assert the exact mode as before.
+    // On one that does not, assert the executable INTENT against git's index --
+    // the same authority the release identity uses -- instead of asserting a
+    // mode the filesystem is structurally incapable of reporting.
+    if (hostCapabilities.posixModes) {
+      if ((fs.statSync(absolute).mode & 0o7777) !== mode) {
+        failures.push(`generated artifact mode is stale: ${relative}`);
+      }
+    } else {
+      const recorded = oracle?.get(relative);
+      if (!recorded) {
+        failures.push(
+          `generated artifact is untracked, so its mode cannot be verified: ${relative}`
+        );
+      } else if (recorded.executable !== wantExecutable) {
+        failures.push(
+          `generated artifact executable bit is stale: ${relative} ` +
+            `(recorded ${recorded.executable}, expected ${wantExecutable})`
+        );
+      }
     }
     return;
   }
@@ -290,9 +380,7 @@ emit('shared/harnesses/generated/kimi-hooks.json', {
         native,
         {
           command: `bash ${
-            normalized === 'prompt' || normalized === 'stop'
-              ? learningDispatcher
-              : controlAdapter
+            normalized === 'prompt' || normalized === 'stop' ? learningDispatcher : controlAdapter
           } ${normalized.replace(/[A-Z]/g, character => `_${character.toLowerCase()}`)} kimi`,
           ...(normalized === 'prompt' || normalized === 'stop' ? {} : { timeoutMs: 1000 }),
         },

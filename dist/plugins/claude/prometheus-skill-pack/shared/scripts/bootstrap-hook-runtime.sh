@@ -22,6 +22,16 @@ done
   exit 78
 }
 
+# Cold-path scripts declare their dependencies. Reaching this point already
+# proves a shell exists, so what is left to check is the tools this script
+# and the runner it launches actually call.
+for tool in awk node; do
+  command -v "$tool" >/dev/null 2>&1 || {
+    printf '{"status":"NOT_ACTIVATED","reason":"missing dependency: %s"}\n' "$tool" >&2
+    exit 78
+  }
+done
+
 RELEASE_MANIFEST="$SOURCE_ROOT/shared/harnesses/generated/release-manifest.json"
 INSTALLER="$SOURCE_ROOT/scripts/install-plugin-generation.js"
 [[ -f "$RELEASE_MANIFEST" && -f "$INSTALLER" ]] || {
@@ -90,14 +100,25 @@ $acquired || {
 trap 'rm -rf "$LOCK" 2>/dev/null || true' EXIT
 
 RUNNER="$PLUGIN_ROOT/runtime/v1/run-hook"
-if [[ -x "$RUNNER" ]] && "$RUNNER" --bundle "$EXPECTED_BUNDLE" --resolve-only >/dev/null 2>&1; then
+# The runner resolves through `pointers/bundles/<id>`, falling back to the
+# legacy `bundles/<id>` link, so this probe covers a store written by either
+# installer generation.
+# Launched by explicit interpreter, not by its executable bit. The runner is a
+# copy of a payload entry the manifest records as executable, and a volume
+# that cannot represent that bit must not be able to veto running it.
+if [[ -f "$RUNNER" ]] && bash "$RUNNER" --bundle "$EXPECTED_BUNDLE" --resolve-only >/dev/null 2>&1; then
   exit 0
 fi
 
+# The installer guards the same store with the same lock, at this same path.
+# Two mutexes over one store is not mutual exclusion, and re-acquiring this
+# one from a child would deadlock against its own parent -- so the lock is
+# declared held for the duration of the call.
+PROMETHEUS_STORE_LOCK_HELD=1 \
 node "$INSTALLER" \
   --source-root "$SOURCE_ROOT" \
   --plugin-root "$PLUGIN_ROOT" \
   --home "$HOME" \
   --expected-bundle "$EXPECTED_BUNDLE" >/dev/null
 
-"$RUNNER" --bundle "$EXPECTED_BUNDLE" --resolve-only >/dev/null
+bash "$RUNNER" --bundle "$EXPECTED_BUNDLE" --resolve-only >/dev/null

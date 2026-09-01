@@ -2,10 +2,11 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 import { readSkillSystem } from '../lib/skill-system.js';
 
-const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), '../..');
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const canonical = JSON.parse(fs.readFileSync(path.join(root, 'skill-system.json'), 'utf8'));
 
 function fixture(mutator = () => {}) {

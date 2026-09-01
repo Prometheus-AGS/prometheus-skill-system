@@ -3,10 +3,11 @@ import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
 
 import { collectDistributionSkills, readSkillSystem } from '../lib/skill-system.js';
 
-const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), '../..');
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const contract = readSkillSystem(root);
 const skills = collectDistributionSkills(root, contract);
 
