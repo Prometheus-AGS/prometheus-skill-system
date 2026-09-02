@@ -29,6 +29,7 @@ import {
   readSkillSystem,
   targetsById,
 } from './lib/skill-system.js';
+import { parseSkillFrontmatter } from './lib/skill-frontmatter.js';
 import { POINTER_PATTERN, isWithin } from './lib/store-paths.js';
 
 /**
@@ -809,16 +810,10 @@ function readSkillName(skillFile) {
 }
 
 function readSkillDescription(skillFile) {
-  const text = fs.readFileSync(skillFile, 'utf8').replace(/\r\n/g, '\n');
-  const frontmatter = text.match(/^---\n([\s\S]*?)\n---/)?.[1] ?? '';
-  const inline = frontmatter.match(/^description:\s*(?![>|])['"]?([^'"\n]+)['"]?\s*$/m);
-  if (inline) return inline[1].replace(/\s+/g, ' ').trim();
-  const folded = frontmatter.match(/^description:\s*[>|][-+]?\s*\n((?:[ \t]+\S[^\n]*\n?)+)/m);
-  return (folded?.[1] ?? '')
-    .split('\n')
-    .map(line => line.trim())
-    .filter(Boolean)
-    .join(' ');
+  // Shared with generate-skills-index.js. Both files parsed this independently
+  // and both mis-read a folded `description: >` as the literal string ">",
+  // which fed searchText and made those skills undiscoverable.
+  return parseSkillFrontmatter(fs.readFileSync(skillFile, 'utf8')).description;
 }
 
 function collectSkills(skillsRoot) {

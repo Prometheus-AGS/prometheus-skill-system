@@ -219,6 +219,7 @@ function releaseIdentity(dispatcher) {
     'scripts/lib/jcs.js',
     'scripts/lib/key-protection.js',
     'scripts/lib/payload-manifest.js',
+    'scripts/lib/skill-frontmatter.js',
     'scripts/lib/skill-system.js',
     'shared/harnesses/hook-contract.json',
   ]) {

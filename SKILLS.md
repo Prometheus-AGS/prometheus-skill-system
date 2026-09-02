@@ -2,7 +2,7 @@
 name: prometheus-skill-pack
 version: 1.7.0
 skill_count: 168
-commit: 49c296aa58a22ca1c170f8f89358a660fd695695
+commit: 935e230cc3e1c464b9941dc9a7a232d99e39bbc6
 type: collection
 license: MIT
 description: >
@@ -167,84 +167,84 @@ This checks: Node, Rust/Cargo, Go, Docker, surreal-memory, and all Prometheus bi
 
 | Skill | Description |
 | --- | --- |
-| `clean-architecture` | > |
+| `clean-architecture` | CLEAN architecture patterns common to all languages in the Prometheus AGS stack. Defines the four-layer model (Domain → Application → Infrastructure → Interface), dependency inversion rules, trait/interface boundaries, and how the pattern maps to Rust crates, Flutter features, React feature slices, and Go packages. Apply across all languages to ensure consistent layering and testability. |
 
 ### DevOps (6 skills)
 
 | Skill | Description |
 | --- | --- |
-| `argocd-multicloud` | > |
-| `disk-space-guardian` | > |
+| `argocd-multicloud` | Installs, configures, and manages ArgoCD as a multi-cloud GitOps control plane on GKE, with AKS and EKS registered as remote cluster destinations. Covers: fresh ArgoCD installation with --insecure mode behind Envoy Gateway, wildcard TLS certificate setup, cluster registration via argocd CLI, App-of-Apps root application creation, ArgoCD ApplicationSet authoring for cross-cluster fan-out delivery, ArgoCD project isolation per client/environment, RBAC configuration, and Dex OIDC SSO wiring. Use when setting up ArgoCD for the first time or adding remote clusters to an existing control plane. |
+| `disk-space-guardian` | Intelligent, safety-first disk space management for developer workstations. Scans and safely removes stale Rust target/, Node node_modules, Python __pycache__, Go module cache, Docker layers, Xcode DerivedData, and Homebrew caches using the dsg CLI. Defaults to dry-run; moves artifacts to system Trash, never rm. |
 | `fabric-integration` | Enforce the cross-repository fabric version invariants (Loro minor, wasmtime major, iroh floor, WIT world pinning) so a drift that would surface as a merge error, a cache miss, or a component that will not instantiate fails at check time instead. |
-| `gitops-bootstrap` | > |
-| `gitops-transform` | > |
-| `kustomize-overlay` | > |
+| `gitops-bootstrap` | Scaffolds a complete multi-cloud GitOps CI/CD system from scratch following the TJ-CICD-001 standard. Detects target cloud environments (GKE, AKS, EKS — any combination), creates the GitOps repository structure (base / cloud / environment Kustomize overlays), generates GitHub Actions workflows with keyless OIDC authentication per cloud, creates ArgoCD Application CRs or ApplicationSets, and registers remote clusters with an ArgoCD control plane on GKE. Use when a project has no existing GitOps pipeline and needs one built from the ground up. |
+| `gitops-transform` | Detects and transforms existing GitHub Actions workflows and Kubernetes deployment configurations to the TJ-CICD-001 multi-cloud GitOps standard. Analyzes the current CI stack (registry provider, auth mechanism, deploy strategy, target cloud) and produces a diff-based transformation plan before making any changes. Handles: raw kubectl deploy workflows, Helm-based deploys, single-cloud workflows missing multi-cloud support, static credential auth (service account keys, access key IDs) needing OIDC migration, and workflows that deploy directly instead of committing to a GitOps repo. Use when a project has existing CI/CD that needs upgrading or modernizing. |
+| `kustomize-overlay` | Generates a complete three-dimensional Kustomize overlay structure (base / cloud / environment) for a new or existing service following TJ-CICD-001. Creates cloud-specific annotation patches for GKE Workload Identity, Azure Workload Identity, and EKS IRSA. Validates existing overlays for structural compliance and repair broken overlay chains. Use when adding a new service to the GitOps repository, adding a new cloud target to an existing service, or auditing and repairing existing Kustomize structures. |
 
 ### Document Extraction (1 skill)
 
 | Skill | Description |
 | --- | --- |
-| `kreuzberg` | >- |
+| `kreuzberg` | Extract text, tables, metadata, and images from 91+ document formats (PDF, Office, images, HTML, email, archives, academic) using Kreuzberg. Use when writing code that calls Kreuzberg APIs in Python, Node.js/TypeScript, Rust, or CLI. Covers installation, extraction (sync/async), configuration (OCR, chunking, output format), batch processing, error handling, and plugins. |
 
 ### Documentation (1 skill)
 
 | Skill | Description |
 | --- | --- |
-| `llm-wiki` | > |
+| `llm-wiki` | Operate a persistent, LLM-maintained knowledge wiki through pk: ingest sources into OKF-formatted wiki pages (with index/log maintenance), query the wiki and file good answers back as pages, and lint for contradictions, orphans, stale claims, and missing cross-references. Use when asked to add knowledge to the wiki, ingest a document or conversation, answer from the knowledge base with citations, or health-check the wiki. |
 
 ### Flint (6 skills)
 
 | Skill | Description |
 | --- | --- |
-| `flint-sdk-csharp` | > |
-| `flint-sdk-dart` | > |
-| `flint-sdk-go` | > |
-| `flint-sdk-kotlin` | > |
-| `flint-sdk-swift` | > |
-| `flint-sdk-ts` | > |
+| `flint-sdk-csharp` | Install and use the Flint Realtime Fabric C#/.NET SDK (FlintSdk). Covers NuGet / project reference setup, SpineClient configuration, channel subscriptions, and event publishing for .NET 8+ applications. |
+| `flint-sdk-dart` | Install and use the Flint Realtime Fabric Dart/Flutter SDK (frf_dart). Generated from Rust FFI via flutter_rust_bridge 2.11.1. Covers pub.dev installation, SpineClient setup, channel subscriptions, and event publishing for Flutter and Dart applications. |
+| `flint-sdk-go` | Install and use the Flint Realtime Fabric Go SDK (github.com/prometheusags/frf/sdks/go). Covers SpineClient setup, channel subscriptions, event publishing, ack handling, and Connect-RPC transport configuration for Go services. |
+| `flint-sdk-kotlin` | Install and use the Flint Realtime Fabric Kotlin/Android SDK (frf-kotlin). Covers Gradle integration, SpineClient setup, channel subscriptions, and event publishing for Android and JVM applications via JNI bridge. |
+| `flint-sdk-swift` | Install and use the Flint Realtime Fabric Swift SDK (FrfClient). Covers Swift Package Manager integration, SpineClient setup, channel subscriptions, and event publishing for iOS (16+) and macOS (13+) applications. |
+| `flint-sdk-ts` | Install and use the Flint Realtime Fabric TypeScript/JavaScript SDK (@prometheusags/frf-sdk). Covers SpineClient setup, channel subscriptions, event publishing, ack handling, and Connect-RPC transport configuration for browser and Node.js environments. |
 
 ### Flutter (1 skill)
 
 | Skill | Description |
 | --- | --- |
-| `flutter-rust-ffi` | > |
+| `flutter-rust-ffi` | Flutter + Rust FFI architecture for Prometheus AGS mobile and desktop apps using flutter_rust_bridge v2 and Riverpod 2.6. Covers the gen_ui_core shared Rust crate, bridge code generation, Riverpod provider wiring to Rust async functions, FFI thread safety, and bidirectional embedding patterns (React 19 embedding Flutter, Flutter embedding React via WebView). Use when building any Prometheus hybrid mobile app. |
 
 ### Go (1 skill)
 
 | Skill | Description |
 | --- | --- |
-| `go-base-patterns` | > |
+| `go-base-patterns` | Canonical Go 1.22 patterns for Prometheus AGS projects. Covers error handling with %w wrapping, context propagation, interface-based dependency injection, structured logging with slog, module layout (cmd/internal/pkg), table-driven tests, and idiomatic Go patterns used across Prometheus infrastructure tooling and MCP servers. |
 
 ### HTMX (1 skill)
 
 | Skill | Description |
 | --- | --- |
-| `htmx-alpine-lit` | > |
+| `htmx-alpine-lit` | HTMX 2.0.8 + Alpine.js + Lit component system for Prometheus AGS server-driven UI. Covers HTMX request/response patterns, Alpine.js x-data controllers, Lit web components, server-side fragment rendering, and the HTMX-in-React embedding pattern for interactive content islands inside React 19 host apps. Use when building server-driven dashboards, document viewers, interactive artifact displays, or HTMX islands embedded in React applications. |
 
 ### Imported (21 skills)
 
 | Skill | Description |
 | --- | --- |
-| `artifact-refiner` | > |
-| `convert-htmx-pdf` | > |
-| `convert-htmx-react` | > |
-| `convert-md-to-htmx` | > |
-| `design-svg-logo` | > |
-| `rebrand-artifact` | > |
-| `refine-a2ui` | > |
-| `refine-content` | > |
-| `refine-image` | > |
-| `refine-logo` | > |
+| `artifact-refiner` | Use this skill when creating or iteratively refining artifacts (logos, UI components, A2UI specifications, images, or content) using structured PMPO orchestration with explicit constraints, deterministic execution, and persistent artifact state. |
+| `convert-htmx-pdf` | Convert a branded HTML/HTMX artifact into a paginated, print-correct PDF via headless Chromium — with embedded fonts, a running header and page numbers, pagination discipline that prevents orphaned pages and split components, and a verification loop that proves the output before it ships. |
+| `convert-htmx-react` | Convert an HTMX + Alpine.js HTML artifact into a React TSX component ready for the scaffold-react-vite pipeline. Mechanical transforms run via a Node script; HTMX/Alpine constructs requiring judgment are surfaced as a sidecar markdown for review. |
+| `convert-md-to-htmx` | Convert a Markdown document into a self-contained branded HTMX artifact via the deterministic markdown-it pipeline with frontmatter support, semantic HTML wrapping, and brand-CSS injection. |
+| `design-svg-logo` | Lightweight SVG logo creation for ideation. Mode-switching between LLM-suggested SVG (with strict parseability + XSS validation) and a deterministic Minijinja placeholder. Exports PNG raster set when `rsvg-convert` is available. |
+| `rebrand-artifact` | Swap one brand's tokens for another's inside a TSX artifact. Mechanical AST rewrite swaps matching hex literals; regenerates the brand-vars CSS via template-forge. WCAG contrast is reported, not gated. |
+| `refine-a2ui` | Quick-start A2UI specification refinement. Use when the user wants to create or refine A2UI (Artifact-to-UI) protocol specifications. |
+| `refine-content` | Quick-start content and Markdown refinement. Use when the user wants to refine blog posts, documentation, README files, or other written content. |
+| `refine-image` | Quick-start image artifact refinement. Use when the user wants to create or refine image assets, thumbnails, or visual content. |
+| `refine-logo` | Quick-start logo and brand system refinement. Use when the user wants to create or refine a logo, brand identity, icons, wordmarks, or favicon sets. |
 | `refine-mcp-ui` | Refine an MCP-UI resource — a ui:// resource carrying an A2UI surface, delivered over MCP tool results. Use for MCP server UI, agent tool output rendering, or cross-transport UI parity with AG-UI and Flutter hosts. |
-| `refine-moodboard` | > |
-| `refine-status` | > |
-| `refine-ui` | > |
-| `refine-validate` | > |
+| `refine-moodboard` | Synthesize a single-file HTMX moodboard from a use-case brief. LLM-primary (the LLM produces structured JSON; a Minijinja template renders the HTML). Falls back to placeholder mode when the inference proxy is unreachable. |
+| `refine-status` | Check the current status of an active artifact refinement session. Shows iteration count, constraint satisfaction, and convergence progress. |
+| `refine-ui` | Quick-start React/HTML UI component refinement. Use when the user wants to create or refine UI components, design systems, or interactive interfaces. |
+| `refine-validate` | Run all validation checks on the current refinement state. Validates schemas, file integrity, constraint satisfaction, and completeness. |
 | `scaffold-flutter-a2ui` | Layer an A2UI rendering host onto a Flutter project, with a parity test asserting the same output as the web and MCP-UI hosts. Use for mobile agent UI, cross-platform A2UI rendering, or Flutter surfaces driven by agent output. |
-| `scaffold-react-vite` | > |
-| `scaffold-react-vite-a2ui` | > |
-| `scaffold-react-vite-agui` | > |
-| `scaffold-react-vite-tauri` | > |
+| `scaffold-react-vite` | Convert a refined React TSX artifact into a buildable Vite 8 + React 19 + TypeScript + Tailwind v4 + shadcn-on-Base-UI project with kebab-case file names and feature-based clean architecture. Optionally wrap the project in a self-contained Rust + Axum binary that embeds the dist via rust-embed and serves the SPA from a single executable. |
+| `scaffold-react-vite-a2ui` | Layer an A2UI rendering host onto a scaffolded Vite/React project. Adds a zustand store that reduces the A2UI message stream into surface state, a hook and component that render it via the upstream `@a2ui/react` renderer, and a mock message source so the app runs without an agent. The generated app renders agent-described UI under `pnpm dev` with no second process. The mock source is development-only; production needs a real message transport. |
+| `scaffold-react-vite-agui` | Layer an AG-UI agent host onto a scaffolded Vite/React project. Adds a zustand store that consumes the AG-UI event stream, a hook and panel that render it, and a Vite dev-server SSE endpoint backed by a mock agent. The generated app streams agent responses under `pnpm dev` with no second process. The mock endpoint is development-only; production needs a real backend implementing the same contract. |
+| `scaffold-react-vite-tauri` | Wrap a scaffolded Vite/React project in a Tauri 2 shell. Tauri 2 supports desktop (macOS/Windows/Linux) + mobile (iOS + Android) from the same source. The Vite dist is served by Tauri's WebView; the React app's responsive primitives (useBreakpoint, ResponsiveShell) drive form-factor switching automatically. |
 | `sycophancy-correction` | Detect and correct sycophantic patterns in prompts, completions, agent descriptors, pipeline configs, and PMPO Reflect outputs. Use when an artifact is overly agreeable, ungrounded, structurally flattering, or insufficiently critical. |
 
 ### Learn (15 skills)
@@ -271,155 +271,155 @@ This checks: Node, Rust/Cargo, Go, Docker, surreal-memory, and all Prometheus bi
 
 | Skill | Description |
 | --- | --- |
-| `adversarial-review` | > |
+| `adversarial-review` | Isolated, cross-model adversarial review of KBD artifacts and change diffs. Dispatches a fresh-context LLM judge over an OpenAI-compatible REST gateway (openai-proxy or `liter-llm api`) with an explicit mandate to find problems — the model that produced an artifact or change is never the model that reviews it. Runs as a pipeline stage inside kbd-assess/analyze/plan (artifact mode) and kbd-execute's per-change QA gate (diff mode). Findings are severity-bucketed (CRITICAL/WARNING/SUGGESTION) and the judge's own report is screened by sycophancy-correction before it is surfaced. |
 | `clone-skill` | Clone an existing Agent Skill and adapt it for a new domain. Preserves architecture while replacing domain-specific content. |
-| `cowork-management` | > |
-| `create-native-agent` | > |
+| `cowork-management` | Install, update, and manage AI coding agent skills across 20+ platforms using the cowork CLI. Covers Claude Code, Codex, OpenCode, Kimi Code, Zed, Cursor, Windsurf, GitHub Copilot, and more. Also manages prometheus-skill-pack updates, toolchain health checks, and disk-space reclamation via dsg delegation. |
+| `create-native-agent` | Generate a complete native Rust agent application with Supabase-style CLI, A2A/AG-UI/A2UI protocol support, React 19 assistant-ui chat frontend, liter-llm model routing, MCP client tools, and the Prometheus skills engine. One command scaffolds a runnable multi-protocol agent binary. |
 | `create-skill` | Create a new Agent Skill from scratch using PMPO orchestration. Generates a complete skill package with all required files. |
-| `evolve` | > |
-| `evolve-analyze` | > |
-| `evolve-assess` | > |
-| `evolve-execute` | > |
-| `evolve-plan` | > |
-| `evolve-report` | > |
-| `evolve-status` | > |
+| `evolve` | Run a full iterative evolution cycle — Assess, Analyze, Plan, Execute, and Reflect. Auto-detects domain or prompts for it. Use for any subject that needs iterative improvement against goals. |
+| `evolve-analyze` | Run only the Analyze phase — research the external landscape for competitors, trends, opportunities, and threats. Requires an existing assessment or goals. |
+| `evolve-assess` | Run only the Assess phase — evaluate current state against goals. Produces a structured assessment without creating plans or making changes. |
+| `evolve-execute` | Run only the Execute phase — carry out a previously created improvement plan. For software domain evolutions, delegates to kbd-process-orchestrator as the inner loop for fine-grained task execution with OpenSpec detection and artifact-refiner QA. Requires an existing plan.json. |
+| `evolve-plan` | Run only the Plan phase — create a prioritized improvement plan. Requires an existing assessment and optionally an analysis. |
+| `evolve-report` | Generate an evolution report from current state data. Produces a human-readable markdown report summarizing the full evolution cycle. Aggregates KBD phase results and artifact-refiner QA metrics when available. Optionally refines the report through artifact-refiner content refinement. |
+| `evolve-status` | Check the current status of an evolution cycle. Shows iteration count, goal alignment, phase completion, and convergence status. |
 | `extend-skill` | Add new capabilities to an existing Agent Skill without breaking current functionality. Non-destructive additions only. |
 | `ideation-mindmap` | Stage-zero onramp for /start-business-build. Takes a one-line business concept and generates a 6-branch concept mindmap via surreal-memory, structuring raw ideas into actionable branches ready for zeespec constraint capture. |
-| `iterative-evolver` | > |
-| `kbd-analyze` | > |
-| `kbd-apply` | > |
-| `kbd-assess` | > |
-| `kbd-audit` | > |
-| `kbd-bottleneck-detector` | > |
-| `kbd-cancel` | > |
-| `kbd-child-exit` | > |
+| `iterative-evolver` | Domain-agnostic PMPO improvement loop: Assess -> Analyze -> Plan -> Execute -> Reflect over any subject (software, product, business, research, operations). Use when the user wants to improve or evolve something over repeated passes, asks "make this better", "iterate on this", "evolve this", or when a target needs assessing before changes are planned. Do NOT use for a single scoped code change (just make it), for standing always-on automation with termination criteria (see pmpo-outer-loop), or for gathering a missing fact mid-stage (see pmpo-elicit). |
+| `kbd-analyze` | Run the Analyze stage of the KBD lifecycle: research the engineering landscape — existing open-source libraries, frameworks, and skeletons that fit the assessed gaps, plus stack discovery when none is specified — and write the candidate set that the Spec and Plan stages consume. |
+| `kbd-apply` | KBD-owned spec-apply driver. Wraps a spec backend (OpenSpec; Spec Kit via the speckit adapter) and drives it ONE task at a time, so KBD stays the source of truth: every task boundary fires KBD hooks, emits a plain-text position signal, and syncs progress.json and the waypoint. Replaces the broken pattern of handing the turn to a bare /opsx:apply that runs outside KBD. |
+| `kbd-assess` | Assess the current project codebase against the active phase goals. Project-agnostic: reads AGENTS.md, spec files, and codebase to produce a structured assessment. Works for any technology stack or language. |
+| `kbd-audit` | Audit the exact KBD position, lifecycle history, plan revision, ownership, blockers, and uncommitted work without mutating the run. |
+| `kbd-bottleneck-detector` | Evaluate or repair canonical KBD task, phase, and ZeeSpec boundaries. Use when progress receipts, projections, or build gates may be stale, or when the user mentions "bottleneck detector". Do NOT use for creating or advancing phases (see kbd-new-child and kbd-next-phase). |
+| `kbd-cancel` | Gracefully cancel the active KBD run while preserving its checkpoint and immutable audit history. |
+| `kbd-child-exit` | Exit the active KBD child loop: write its handoff-out, roll its progress up to the parent node, pop the position path, and return control to the parent. The --enter companion descends into a selected child so new children nest under it. |
 | `kbd-doctor` | Diagnose Prometheus substrate health and orchestrate safe doctor runs through the compiled `prometheus doctor` CLI. Use when the user asks for doctor, health checks, repair planning, refresh planning, or recovery of KBD learning-loop infrastructure. |
-| `kbd-evolve` | > |
-| `kbd-execute` | > |
-| `kbd-goal` | > |
-| `kbd-goal-check` | > |
-| `kbd-init` | > |
-| `kbd-inject-agent-rules` | > |
-| `kbd-memory-recall` | > |
-| `kbd-new-child` | > |
-| `kbd-new-phase` | > |
-| `kbd-next-child` | > |
-| `kbd-next-phase` | > |
-| `kbd-pause` | > |
-| `kbd-plan` | > |
-| `kbd-process-orchestrator` | > |
-| `kbd-reflect` | > |
-| `kbd-resume` | > |
-| `kbd-spec` | > |
-| `kbd-status` | > |
-| `liter-llm-bridge` | > |
-| `native-agent` | > |
-| `pmpo-elicit` | > |
+| `kbd-evolve` | Domain-landscape-first evolution for KBD projects. Unlike /kbd-next-phase (which advances the next planned phase), /kbd-evolve surveys the external landscape of the project's problem domain, identifies the highest-impact improvement opportunities against configurable criteria, and produces a ranked evolution brief that /kbd-new-phase or /kbd-process-orchestrator can consume as the seed for the next phase. |
+| `kbd-execute` | Select an execution backend for the active KBD phase, write canonical phase execution state, dispatch the phase to the appropriate tool or OpenSpec, and maintain KBD as the source of truth. Supports multi-tool handoff via progress.json protocol. Integrates artifact-refiner QA per completed change. |
+| `kbd-goal` | Platform-agnostic goal-driven iterative loop. State a goal; KBD orchestrates Ideation → Specification → Creation phases autonomously until the goal is met, a budget is exhausted, or human approval is needed. Works identically on Claude Code, Codex CLI, OpenCode, Kimi Code, and Zed — routing to each platform's native /goal primitive where available, implementing the evaluator pattern where not. |
+| `kbd-goal-check` | Kimi Code goal-condition evaluator skill. After each Kimi turn, checks whether the active phase's stopping condition has been met. Returns PASS (with evidence) or CONTINUE (with next action from TASKS.md). Implements the maker≠evaluator pattern on Kimi Code, where /goal next is a queue (not a condition-based loop) and requires an external evaluator. |
+| `kbd-init` | Initialize KBD in a project. Auto-discovers project identity, stack, and constraints from existing context files (AGENTS.md, CLAUDE.md, README.md, package.json, Cargo.toml, pyproject.toml, etc.) and generates .kbd-orchestrator/project.json and .kbd-orchestrator/constraints.md. Run this once per project before any other KBD command. |
+| `kbd-inject-agent-rules` | Idempotently inject the agent-rules or UI/UX-routing managed pack into a target project's CLAUDE.md and/or AGENTS.md. Re-runnable — overwrites only the selected fenced region; everything else is byte-preserved. Supports --refresh to re-validate cached source URLs, and --dry-run for a target-file diff preview. |
+| `kbd-memory-recall` | Query surreal-memory for prior similar KBD work and write a markdown digest at .kbd-orchestrator/phases/<phase>/prior-context.md. Used as planning input before /kbd-assess. Auto-invoked via the assess:before hook; degrades gracefully when the memory endpoint is unreachable. |
+| `kbd-new-child` | Create a child phase inside the currently-active top-level phase. Mirrors /kbd-new-phase but writes into phases/<parent>/children/<child>/, appends the new child to childPhases[], moves childPointer to it, and fires child:before. Use to split a parent phase into scoped sub-processes. |
+| `kbd-new-phase` | Manually create a new top-level KBD phase. Accepts <name> [goals…] and initialises the phase directory, waypoint, project.json activePhase, and fires phase:before. Use this when no prior reflection exists (e.g. very first phase of a new project), when pivoting away from /kbd-next-phase's suggestion, or when initialising state by hand. |
+| `kbd-next-child` | Advance childPointer to the next entry in childPhases[], or jump to a named child directly. Fires child:after for the closing child and child:before for the new active child. Refuses to advance past the last child (suggesting /kbd-reflect + /kbd-next-phase instead). |
+| `kbd-next-phase` | Continue to the next KBD phase, automatically seeded from the previous phase's reflection. Reads the "Recommended Next Phase" section of reflection.md, initializes the new phase directory with goals.md and a skeleton progress.json, updates current-waypoint.json to point to /kbd-assess, and updates project.json activePhase. |
+| `kbd-pause` | Gracefully pause the active KBD run, checkpoint its exact position, and prevent every harness from steering execution until an operator resumes it. |
+| `kbd-plan` | Create a prioritized, ordered change list for the current project phase. Project-agnostic: reads assessment and project constraints to produce an ordered change list. Auto-detects OpenSpec availability and emits appropriate change formats. Bridges with iterative-evolver plan items when running inside an evolution cycle. |
+| `kbd-process-orchestrator` | The Universal Knowledge-Based Development (KBD) process orchestrator. Drives the full iterative PMPO lifecycle for ANY project — Assess → Analyze → Plan → Execute (backend dispatch) → Reflect — at every granularity level: global phases, OpenSpec changes, and artifact-level QA. Implements the process defined in TJ-KBD-UNIVERSAL-001. Coordinates execution across multiple AI tools (Claude Code, Codex, OpenCode, Kimi, and compatible adapters) using the append-only KBD runtime as the shared control plane. |
+| `kbd-reflect` | Generate the phase reflection report after all changes in the phase are complete. Seeds the next phase's planning inputs. Aggregates artifact-refiner QA results and reports back to iterative-evolver when running inside an evolution cycle. |
+| `kbd-resume` | Resume a paused KBD run after validating its checkpoint and plan revision. |
+| `kbd-spec` | Run the Spec stage of the KBD lifecycle: turn an assessment and analysis into concrete, ordered changes — native-kbd specs (spec.md + tasks.json + verification.md) or OpenSpec proposals — gated by ZeeSpec requirements coverage when present. |
+| `kbd-status` | Show current KBD process status — active phase, change inventory, goal completion, and next recommended action. Reads progress.json to surface work completed by all tools (Antigravity, Roo, Cursor, Cline, Codex, etc.) |
+| `liter-llm-bridge` | Harness-agnostic multi-model routing fallback. Builds and configures liter-llm (a Rust LLM proxy with a built-in MCP server) so any harness with MCP support can dispatch each phase of KBD / iterative-evolver / artifact-refiner to the cheapest model that meets the cognitive requirement. Use when the host harness (Claude Code, codex, opencode, cursor, etc.) does not natively support per-skill model selection. |
+| `native-agent` | Generates a complete, production-ready native Rust agent application with a Supabase-style management CLI. The generated agent binary embeds an Axum HTTP server supporting A2A, AG-UI, and A2UI protocols, a React 19 assistant-ui chat frontend, liter-llm provider routing, simple MCP client tool integration, the Prometheus skill pack selection engine, and full Docker support with Docker Desktop auto-detection and image loading. One command scaffolds a runnable, configurable, containerizable multi-protocol agent. |
+| `pmpo-elicit` | Ask-or-research primitive that resolves a missing fact mid-lifecycle and records it with provenance instead of guessing. Use when a stage is blocked on unknown information, when the user says "I don't know, find out", or when a decision needs a fact nobody has supplied. Do NOT use to run an improvement loop (see iterative-evolver) or to define standing automation (see pmpo-outer-loop). |
 | `pmpo-evolver` | Strategy router for evolving released products — routes to one of five evolution perspectives (competitive, trend, unique-product, idea-validation, self-learning) and orchestrates the full PMPO loop per perspective |
-| `pmpo-outer-loop` | > |
-| `pmpo-skill-creator` | > |
-| `prometheus-context-bootstrap` | > |
+| `pmpo-outer-loop` | Defines a standing outer loop — goal, feedback sources, termination criteria — that repeatedly drives PMPO/KBD cycles and only escalates at declared decision points. Use when the user wants work to keep running unattended, mentions "outer loop", "standing loop", "run until", "autonomous loop", or asks to be interrupted only at specific checkpoints. Do NOT use for one bounded improvement pass (see iterative-evolver) or for the tactical per-change KBD cycle (see kbd-process-orchestrator). |
+| `pmpo-skill-creator` | Use this skill to create, clone, or extend Agent Skills using PMPO orchestration. Generates complete, production-ready skills with agentskills.io spec compliance, Claude Code plugin/marketplace support, OpenCode tools compatibility, state management, lifecycle hooks, and workflow triggers. Supports three modes: create (from scratch), clone (adapt existing skill to new domain), and extend (add capabilities to existing skill). |
+| `prometheus-context-bootstrap` | Scaffold the Prometheus agent structure into a new or existing project — a portable AGENTS.md carrying compaction-surviving invariants, CLAUDE.md pointing at it, path-scoped rules per detected stack, deterministic hooks for tier discipline and single-writer builds, .prometheus append-only learning, and a skill-budget-safe settings.json. Profile-aware for mixed model fleets: includes an execution scaffold by default for non-frontier models, omits it only when measured. Creates what is absent, splices a marked region into what exists, and never overwrites operator prose. |
 | `start-business-build` | Top-level orchestrator that takes a one-line business concept ("track competitor pricing", "summarize support tickets nightly") and chains every Prometheus pipeline stage end-to-end — ideation expansion, zeespec constraint capture, iterative-evolver assess+plan, OpenSpec change generation, forge enrich, AI implementation dispatch, forge reflect, pk ingest — and optionally finishes by packaging the result as a LibreFang WASM skill and offering /upload-to-bossfang. Single command from concept to deployable skill. |
 | `upload-to-bossfang` | Upload a packaged .lf-skill.zip to a running LibreFang/bossfang instance via its /skills/install REST endpoint. Validates the URL with a deny-by-default SSRF guard (rejects private IPs, non-http schemes, and unallowlisted hosts unless --insecure is passed for explicit local-dev use). Auto-discovers the zip in cwd, redacts the BOSSFANG_TOKEN bearer auth from all logs, and verifies the install by GETting the skill manifest after upload. Use after `forge package-librefang` produces a zip and you want to deploy it to a remote bossfang. |
 | `validate-idea` | Staged idea validation for product evolution — three gates from plausibility to specification using the Darwin Gödel Machine pattern, with Archive of Stepping Stones persistence |
 | `validate-skill` | Validate any Agent Skill against the agentskills.io specification and quality standards. Reports compliance issues and suggestions. |
-| `zeespec-interrogate` | > |
-| `zeespec-interrogator` | > |
-| `zeespec-score` | > |
-| `zeespec-status` | > |
+| `zeespec-interrogate` | Run a full ZeeSpec 5W1H interrogation on a named subject. Asks 10 questions per dimension (Why, Who, When, What, Where, How), scores coverage, and produces a constraint manifest with a GO/CAUTION/NO-GO recommendation. |
+| `zeespec-interrogator` | Zachman Framework-based specification interrogation skill. Applies the ZeeSpec 5W1H method (What, Where, Who, When, Why, How) across 6 dimensions x 10 questions to surface undefined system constraints before planning or implementation begins. Invoked standalone for ideation-layer GO/NO-GO decisions, or triggered automatically by kbd-process-orchestrator and iterative-evolver when spec coverage falls below threshold. Produces a structured constraint manifest consumed by the calling process. |
+| `zeespec-score` | Score and report coverage on an existing ZeeSpec interrogation record. Reads the recorded answers from state and produces a coverage-score.json with per-dimension scores and a GO/CAUTION/NO-GO recommendation without re-running the interrogation. |
+| `zeespec-status` | Show current ZeeSpec interrogation progress for a named subject. Displays which dimensions have been completed, current coverage scores if available, and the manifest path if the interrogation is complete. Read-only — does not modify state. |
 
 ### Python (1 skill)
 
 | Skill | Description |
 | --- | --- |
-| `pyo3-bridge` | > |
+| `pyo3-bridge` | PyO3 0.22 Rust-to-Python bridging patterns for Prometheus AGS. Covers exposing Rust functions and types to Python via #[pyfunction] and #[pyclass], the maturin build workflow, GIL management, async bridge patterns via pyo3-asyncio, and the primary use case: generating skill executor code in Python that calls into Rust crates (forge-rs, pk-librarian, surreal-memory) for use in Dify and custom skill servers. |
 
 ### React (29 skills)
 
 | Skill | Description |
 | --- | --- |
-| `entity-audit` | > |
-| `entity-crud-form` | > |
-| `entity-crud-page` | > |
-| `entity-crud-relations` | > |
-| `entity-crud-table` | > |
-| `entity-gc` | > |
-| `entity-gql-hooks` | > |
-| `entity-gql-setup` | > |
-| `entity-gql-subscription` | > |
-| `entity-graph-crud` | > |
+| `entity-audit` | Slash command /entity-audit — run full codebase audit against @prometheus-ags/prometheus-entity-management CLAUDE.md rules: component/store boundaries, hook I/O, registerSchema coverage, JSDoc on public hooks, and realtime/list patterns. Produces a severitized report using references/audit-checklist.md. |
+| `entity-crud-form` | Build EntityFormSheet and EntityDetailSheet configurations from FieldDescriptor arrays: field types, enum options, readonly/create/edit flags, custom editControl/render, and wiring to useEntityCRUD buffers and actions. |
+| `entity-crud-page` | Scaffold a full CRUD page (list, create, edit, detail, delete) using useEntityCRUD with EntityTable, EntityDetailSheet, and EntityFormSheet. Enforces Components → Hooks → Stores: page composes only; useXxxCRUD hook wraps library CRUD; API module holds fetch/mutations. |
+| `entity-crud-relations` | Register EntitySchema graphs with registerSchema: belongsTo, hasMany, manyToMany, listKeyPrefix alignment, invalidateTargetLists, globalListKeys, and verification that cascadeInvalidation matches list query keys. |
+| `entity-crud-table` | Build EntityTable views with column helpers (textColumn, numberColumn, enumColumn, etc.), SortHeader, selectionColumn, and meta.entityMeta for filters; sync sorting and search with useEntityView via UseEntityViewResult. |
+| `entity-gc` | Slash command /entity-gc — design application-level eviction for @prometheus-ags/prometheus-entity-management: removeEntity for stale entities, clearPatch for UI overlays, list refresh after bulk delete, route-based cleanup, and policies for long-lived sessions. Notes library has no automatic GC yet. |
+| `entity-gql-hooks` | Slash command /entity-gql-hooks — produce typed useGQLEntity, useGQLList, useGQLMutation wrappers for concrete GraphQL documents; wire queryKey, getItems, getPagination, sideDescriptors, and invalidateLists for @prometheus-ags/prometheus-entity-management. |
+| `entity-gql-setup` | Slash command /entity-gql-setup — scaffold createGQLClient (GQLClientConfig), authentication headers, and EntityDescriptor sets from GraphQL SDL or introspection. Aligns paths and extractId with normalizeGQLResponse behavior in `@prometheus-ags/prometheus-entity-management`. |
+| `entity-gql-subscription` | Slash command /entity-gql-subscription — connect GraphQL subscriptions via graphql-ws (or compatible) to either GQLClient.subscribe/useGQLSubscription with EntityDescriptors, or createGraphQLSubscriptionAdapter + RealtimeManager for coalesced ChangeSet delivery. |
+| `entity-graph-crud` | Generate complete CRUD screens for any entity type using @prometheus-ags/prometheus-entity-management hooks and UI components. Analyzes entity shape, produces column definitions (TanStack Table + entityMeta), FieldDescriptor-based forms, EntityDetailSheet / EntityFormSheet wiring, and registerSchema + cascade invalidation—all strictly following Components → Hooks → Stores → APIs data flow. |
 | `entity-graph-detect` | Static analysis pass to infer EntityType definitions, id fields, and relation hints from TypeScript, Prisma, GraphQL SDL, OpenAPI, and API routes—outputs entity_manifest JSON aligned with shared schemas. |
-| `entity-graph-graphql` | > |
+| `entity-graph-graphql` | Set up the GraphQL layer for @prometheus-ags/prometheus-entity-management: GQLClient, EntityDescriptor trees, response normalization into the Zustand entity graph, and typed hooks (useGQLEntity, useGQLList, useGQLMutation, useGQLSubscription). Supports schema-driven descriptor generation from .graphql files or introspection of a running endpoint. Sub-skills cover setup, hook codegen patterns, and wiring subscriptions through graphql-ws plus RealtimeManager. |
 | `entity-graph-init` | Bootstrap @prometheus-ags/prometheus-entity-management in a React app—install dependency, configureEngine, optional schema registration stubs, and a minimal useEntity/useEntityList proof while enforcing Components → Hooks → Graph layering. |
 | `entity-graph-migrate` | Phased migration from TanStack Query, Apollo, Redux, or SWR to @prometheus-ags/prometheus-entity-management—strangler patterns, query-key mapping, SSR hydration, and rollback-aware PR slices. |
-| `entity-graph-optimize` | > |
-| `entity-graph-prisma` | > |
-| `entity-graph-realtime` | > |
+| `entity-graph-optimize` | Audit existing @prometheus-ags/prometheus-entity-management integrations for architectural violations (components→hooks→stores), performance issues (Zustand selectors, subscription churn), missing cascade/schema registration, and memory growth. Sub-skills: full CLAUDE.md audit, render/subscriber analysis, and eviction/GC strategies using graph APIs. |
+| `entity-graph-prisma` | Analyze schema.prisma and integrate Prisma-backed APIs with @prometheus-ags/prometheus-entity-management: TypeScript entity shapes, registerSchema relation graphs, createPrismaEntityConfig for REST list/detail/CRUD, toPrismaWhere/toPrismaOrderBy from FilterSpec, Next.js App Router CRUD routes, and migration from ad-hoc Prisma calls to the library’s adapter patterns. Optional prisma-entity-graph-generator for codegen. |
+| `entity-graph-realtime` | Add realtime synchronization to an existing @prometheus-ags/prometheus-entity-management setup: detect the push source (WebSocket, Supabase Realtime, Convex, GraphQL subscriptions, ElectricSQL+PGlite), configure RealtimeManager, normalize inbound traffic to ChangeSet/EntityChange, tune the 16ms coalescing window or flushInterval 0, and wire channel subscriptions with correct cleanup and list invalidation. |
 | `entity-graph-setup` | Analyze a React/Vite/Next.js codebase and introduce @prometheus-ags/prometheus-entity-management from scratch—detect legacy data layers, infer entity types, emit schema registrations, and produce phased migration plans without breaking architecture rules. |
-| `entity-perf` | > |
-| `entity-prisma-api` | > |
-| `entity-prisma-generator` | > |
-| `entity-prisma-migrate` | > |
-| `entity-prisma-setup` | > |
-| `entity-realtime-channel` | > |
-| `entity-realtime-local-first` | > |
-| `entity-realtime-setup` | > |
-| `entity-realtime-surreal-live` | > |
-| `prometheus-entity-skills` | > |
-| `react-vite-stack` | > |
+| `entity-perf` | Slash command /entity-perf — analyze re-render patterns, Zustand selector granularity, duplicate fetches (dedupe keys), realtime flush settings, and list virtualization opportunities for @prometheus-ags/prometheus-entity-management apps. |
+| `entity-prisma-api` | Slash command /entity-prisma-api — scaffold Next.js App Router API routes with Prisma Client for list/detail/create/update/delete, decoding where/orderBy JSON from createPrismaEntityConfig list fetchers with allowlisted filters. |
+| `entity-prisma-generator` | Slash command /entity-prisma-generator — add a Prisma generator package (prisma-entity-graph-generator pattern) to emit entity graph configs and registration from DMMF; configure prisma schema generator block, output path, and post-generate typecheck. |
+| `entity-prisma-migrate` | Slash command /entity-prisma-migrate — refactor existing manual Prisma + fetch + useState patterns to @prometheus-ags/prometheus-entity-management hooks driven by createPrismaEntityConfig, registerSchema, and useEntityView/useEntityCRUD while preserving API routes and auth. |
+| `entity-prisma-setup` | Slash command /entity-prisma-setup — analyze schema.prisma, generate TypeScript entity types, createPrismaEntityConfig modules, registerSchema bootstrap, and align REST list/detail shapes with @prometheus-ags/prometheus-entity-management adapters. |
+| `entity-realtime-channel` | Add or adjust RealtimeManager channel subscriptions: ChannelConfig per EntityType, optional normalize on register(), SubscriptionConfig label and replayOnConnect, and affectedListKeys in ChangeSet for list refresh. |
+| `entity-realtime-local-first` | Wire ElectricSQL shape streams and PGlite with createElectricAdapter (SyncAdapter): ElectricTableConfig, shapeStream subscription, PGlite listen path into ChangeSet, useLocalFirst and usePGliteQuery for reads, and sync-complete UX. |
+| `entity-realtime-setup` | Greenfield RealtimeManager wiring: getRealtimeManager options (flushInterval, onStatusChange, onChangeReceived), instantiate the chosen adapter factory, register ChannelConfig entries, store UnsubscribeFn for cleanup, and document SSR/client-only boundaries. |
+| `entity-realtime-surreal-live` | Wire SurrealDB LIVE SELECT subscriptions into a Prometheus entity graph via createSurrealLiveAdapter. Covers select-then-live seeding, CREATE/UPDATE/DELETE action mapping, reconnect with exponential backoff, and optional checkpoint-based replay on reconnect. |
+| `prometheus-entity-skills` | Full-stack entity management skill suite for React applications using @prometheus-ags/prometheus-entity-management. Covers setup, CRUD screens, GraphQL integration, Prisma backend, realtime sync, and performance optimization. Use when building entity-driven admin UIs, data management dashboards, or any React app with relational entity graphs. |
+| `react-vite-stack` | Canonical React 19 + Vite 8 stack for Prometheus AGS frontend projects. Covers TanStack Router (file-based routing), TanStack Query (server state), TanStack React-Table (data grids), Zustand 5 (client state), shadcn/ui + Tailwind 4 (component system), and @prometheus-ags/prometheus-entity-management (normalized entity graph). Always use .tsx for React components. Use when scaffolding or extending any Prometheus AGS frontend application. |
 
 ### Research (11 skills)
 
 | Skill | Description |
 | --- | --- |
-| `deep-research` | > |
-| `stage-01-planner` | > |
-| `stage-02-search` | > |
-| `stage-03-retrieve` | > |
-| `stage-04-collect` | > |
-| `stage-05-verify` | > |
-| `stage-06-resolve` | > |
-| `stage-07-graph` | > |
-| `stage-08-cite` | > |
-| `stage-09-report` | > |
-| `stage-10-export` | > |
+| `deep-research` | 10-stage deep research pipeline: Planner → Search → Retrieve → Collect → Verify → Resolve → Graph → Cite → Report → Export. Produces persistent .research packages (OKF-aligned knowledge assets) with citations, confidence scores, knowledge graphs, and contradiction tracking. Integrates with surreal-memory, liter-llm, sycophancy-correction, and Feynman learning skills. Supersedes disposable report generation with structured knowledge infrastructure. |
+| `stage-01-planner` | Deep research Stage 01 — Planner. Decomposes a research query into structured sub-questions, a search strategy, and a token budget. Produces the research plan that drives all subsequent stages. |
+| `stage-02-search` | Deep research Stage 02 — Search. Executes web searches for each sub-question from the research plan. Deduplicates URLs, filters low-quality domains, and produces a ranked source list for Stage 03 retrieval. |
+| `stage-03-retrieve` | Deep research Stage 03 — Retrieve. Fetches full page content for each source URL from Stage 02 and chunks it into retrievable segments. Handles PDF, HTML, and structured data formats. Outputs content chunks for Stage 04 indexing. |
+| `stage-04-collect` | Deep research Stage 04 — Collect. Indexes content chunks from Stage 03 into surreal-memory as ResearchSource entities. Extracts key claims per chunk for downstream verification and graph building. |
+| `stage-05-verify` | Deep research Stage 05 — Verify. Scores each source for credibility using a 5-dimension rubric. Applies sycophancy-correction bias detection to source framing. Filters low-credibility sources before graph building. |
+| `stage-06-resolve` | Deep research Stage 06 — Resolve. Detects contradictions between source claims and resolves them using structured strategies (authority, recency, consensus). Escalates to pmpo-elicit when contradictions cannot be resolved autonomously. |
+| `stage-07-graph` | Deep research Stage 07 — Graph. Builds a knowledge graph in surreal-memory from verified sources and resolved claims. Creates entities for topics, claims, and sources, with typed relations between them. Exports graph.json for the .research package. |
+| `stage-08-cite` | Deep research Stage 08 — Cite. Generates formatted citations for all verified sources used in resolved claims. Assigns per-citation confidence scores. Supports APA 7, MLA 9, Chicago 17, IEEE, and Vancouver styles. |
+| `stage-09-report` | Deep research Stage 09 — Report. Synthesizes all resolved claims, citations, and graph data into an OKF-compliant research report. Passes the draft through the Feynman quality gate (learn-grade) before delivery. Confidence score is computed from source credibility and claim resolution confidence. |
+| `stage-10-export` | Deep research Stage 10 — Export. Assembles the complete .research package from all stage outputs. Writes manifest.json (OKF + Prometheus extensions), index.md, and all data files. Optionally ingests the package into surreal-memory palace. |
 
 ### Rust (10 skills)
 
 | Skill | Description |
 | --- | --- |
-| `actor-model` | > |
-| `async-patterns` | > |
-| `axum-patterns` | > |
-| `error-handling` | > |
+| `actor-model` | Tokio-native actor model pattern for Prometheus AGS projects. Implements actors as tokio tasks communicating via mpsc channels with a typed message enum, enabling safe concurrent state management without shared locks. Used in UAR session management, pk-librarian event broadcasting, and parking-lot scheduler design. Use when a component needs to own state exclusively while serving concurrent callers. |
+| `async-patterns` | Canonical async Rust patterns for Prometheus AGS projects. Covers tokio task spawning, Arc<RwLock<T>> vs parking_lot::Mutex selection, blocking guard prevention, broadcast channels, graceful shutdown, and structured concurrency. Use whenever writing async code in any Prometheus Fabric crate. |
+| `axum-patterns` | Axum 0.8 router, middleware, extractor, and state injection patterns for Prometheus AGS projects. Enforces the canonical Axum structure: typed state via Extension/State extractors, Tower middleware composition, structured error types, and Axum-native SSE for MCP servers. Use when building any Axum HTTP service, MCP server, or API gateway in the Prometheus stack. |
+| `error-handling` | Canonical Rust error handling for Prometheus AGS projects. Enforces the thiserror/anyhow boundary: thiserror for library crate errors (typed, composable), anyhow for application code (ergonomic, context-rich). Includes #[cold] error path annotation, no unwrap/expect in non-test code, and structured error propagation via the ? operator. |
 | `karpathy-tokenizer` | Train GPT-style BPE tokenizers with rustbpe (Karpathy), export to tiktoken for fast Rust inference, and integrate with agent-tokenizer for prompt-budget enforcement. |
 | `librefang-wasm-skill` | Generate a LibreFang WASM-ABI-compliant skill in Rust. Produces a cdylib crate that exports the required Guest ABI (alloc, execute, memory) and a host_call bridge wrapping LibreFang's capability-checked host functions (fs_*, net_fetch, kv_*, agent_*, time_now, env_read, shell_exec). Includes a skill.toml manifest matching librefang-skills' SkillManifest schema. Use when building a portable, sandboxed skill that runs inside a librefang/bossfang Agent OS instance via WasmSkillSandbox, or when packaging a Prometheus native-agent for upload to a bossfang URL. |
-| `mcp-server` | > |
-| `performance` | > |
+| `mcp-server` | Canonical Axum MCP server pattern for Prometheus AGS projects. Implements the MCP protocol as JSON-RPC 2.0 over HTTP POST /mcp with optional SSE event stream at GET /events. Covers tool registration, handler dispatch, SSE fan-out via broadcast, and stdio transport for Claude Desktop integration. Use when building any new MCP-enabled service in the Prometheus stack. |
+| `performance` | Production-grade Rust performance primitives for Prometheus AGS projects. Covers jemalloc global allocator, #[cold]/#[inline(never)] for error paths, MaybeUninit for zero-cost initialization, std::mem::take for ownership without clone, Arc placement discipline, parking_lot over std::sync, and SIMD-aware buffer patterns. Apply when writing hot paths, server binaries, or inference-adjacent code. |
 | `prometheus-rust-auditor` | Staged autonomous Rust code quality remediation pipeline for Prometheus AGS projects. Runs Clippy enforcement, formatting checks, dependency policy, workspace inventory, partition-based architectural invariant audits, and CI generation. Use when auditing a Rust workspace, remediating code quality issues, or generating CI workflows. |
-| `workspace-structure` | > |
+| `workspace-structure` | Canonical Rust workspace layout for Prometheus AGS multi-crate projects. Enforces resolver=2, workspace-level dependency versions, domain-driven crate separation (*-core / *-store / *-librarian / *-mcp / *-cli), feature flag discipline, and release profile settings. Use when scaffolding any new Prometheus Rust workspace. |
 
 ### Tauri (1 skill)
 
 | Skill | Description |
 | --- | --- |
-| `tauri-react-vite` | > |
+| `tauri-react-vite` | Tauri 2 + React 19 + Vite 8 desktop application pattern for Prometheus AGS. Covers the Tauri command API, IPC invoke() pattern, Rust sidecar or plugin integration, Flutter WebView embedding within Tauri, secure window configuration, and the gen_ui_core Rust crate sharing between Tauri backend and flutter_rust_bridge. Use when building any Prometheus desktop application. |
 
 ### Testing (5 skills)
 
 | Skill | Description |
 | --- | --- |
-| `bdd-cucumber-js` | > |
-| `bdd-cucumber-rs` | > |
-| `bdd-lifecycle-loop` | > |
-| `bdd-testing` | > |
-| `bdd-video-proof` | > |
+| `bdd-cucumber-js` | Author, run, and maintain BDD integration tests using cucumber-js 13 with Gherkin, playwright-bdd for browser-driven scenarios, and tsx for TypeScript. Use when writing behavior tests, E2E tests, integration tests, feature files, or step definitions in any Node/TypeScript project. |
+| `bdd-cucumber-rs` | Author, run, and maintain BDD integration tests in Rust using the cucumber 0.23 crate with async World, tokio + reqwest for HTTP scenarios, and thirtyfour for browser-driven scenarios. Use when writing behavior tests, integration tests, feature files, or step definitions for any Rust crate or workspace. |
+| `bdd-lifecycle-loop` | Codifies the create → run → triage → maintain workflow for BDD test suites. Includes outside-in scenario authoring, flake-budget enforcement wrapping cucumber's --retry-tag-filter primitive, an immutable-tests CI guard, and a visual-baseline refresh workflow with paper trail. Use when standing up a new BDD suite, growing an existing suite past 100 scenarios, or when flakiness starts eroding trust in CI. |
+| `bdd-testing` | DEPRECATED alias — use bdd-cucumber-js instead. This skill is retained as a redirect so downstream projects that reference "bdd-testing" by name continue to work. |
+| `bdd-video-proof` | Assemble a signed certification bundle from a cucumber test run — cucumber JSON report, MP4 videos (ffmpeg-remuxed from Playwright WebM), screenshot manifest, and a SHA-256 manifest keyed to the git commit. Two modes: local bundle under docs/certifications/<module>/<sha>/, or IPFS-pinned. Use when producing release evidence, reviewer-facing test proof, or audit trails. |
 
 ### TypeScript (1 skill)
 
 | Skill | Description |
 | --- | --- |
-| `typescript-base-patterns` | > |
+| `typescript-base-patterns` | Canonical TypeScript 6 patterns for Prometheus AGS projects. Covers strict type discipline (no any, no @ts-ignore), discriminated unions for domain modeling, Result types for error handling, branded types for IDs, zod for runtime validation, and module organization. Applies to all TypeScript code: React, MCP servers, Mastra agents, and Node.js scripts. |
 ## Imported Skills (Git Submodules)
 
 | Skill                   | Description                                                                   |

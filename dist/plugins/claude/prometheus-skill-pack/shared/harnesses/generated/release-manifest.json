@@ -13,7 +13,7 @@
     },
     {
       "path": "scripts/install-plugin-generation.js",
-      "sha256": "2f30768b81e2be63c1f64384e691cd3ea9692da79f6180bed6146ea39aad7fb9",
+      "sha256": "2cafc423dcc916bac987a750173424cd1659cf9313e9ce3272ee4246772ca449",
       "executable": true
     },
     {
@@ -34,6 +34,11 @@
     {
       "path": "scripts/lib/payload-manifest.js",
       "sha256": "90f55b438777148452a199e7222dd53767938927ee04ef200c28728ad3088421",
+      "executable": false
+    },
+    {
+      "path": "scripts/lib/skill-frontmatter.js",
+      "sha256": "940763a8902666ab359b2256286d5ebdda81641f724307b82183247c60e61608",
       "executable": false
     },
     {
@@ -352,5 +357,5 @@
       "executable": true
     }
   ],
-  "bundleId": "a7386f7cd85698dfe09041d443647e81b31736904f93c4774c6d3b9eee784c1d"
+  "bundleId": "b85ed099b1f45cba9a71c9a4851752841fc00f3db9094263153e7dfeddcc4e65"
 }

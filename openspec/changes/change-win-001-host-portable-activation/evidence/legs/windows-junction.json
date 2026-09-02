@@ -22,7 +22,7 @@
     }
   },
   "identity": {
-    "bundleId": "a7386f7cd85698dfe09041d443647e81b31736904f93c4774c6d3b9eee784c1d",
+    "bundleId": "b85ed099b1f45cba9a71c9a4851752841fc00f3db9094263153e7dfeddcc4e65",
     "goldenPayloadDigest": "eb5271efd4c8fe85ca4eb7574189191a16b2898d9b2b8ce312f4466cea484591",
     "releaseManifestSchemaVersion": 2,
     "dispatcherInterpreter": "bash"
@@ -44,18 +44,18 @@
       "name": "generated artifacts",
       "command": "C:\\Program Files\\nodejs\\node.exe scripts/generate-harness-adapters.js --check",
       "exitCode": 0,
-      "outputSha256": "daecbe8c82e337c22fada87448b4dd7b6173e53af99f1b44d9a52b0672ceb345",
+      "outputSha256": "321b81403c6fc938f1989183b2ea0b6889208d28acd2a2c5fc82151b4c87798c",
       "excerpt": [
-        "Verified bundle a7386f7cd856… with 31 hooks for Claude Code and Codex."
+        "Verified bundle b85ed099b1f4… with 31 hooks for Claude Code and Codex."
       ]
     },
     {
       "name": "harness runtime parity",
       "command": "C:\\Program Files\\nodejs\\node.exe scripts/check-harness-adapters.js",
       "exitCode": 0,
-      "outputSha256": "cd20d65ff35876c97abb1f236441d6c3cd5799e5ed8e86e08956c7391d46c030",
+      "outputSha256": "47160e99b45b0e2c0e6b52d3f230c998eacb705ab1af4bfce587313c14659b18",
       "excerpt": [
-        "Harness runtime parity: claude-code=31, codex=30 → bundle a7386f7cd856…"
+        "Harness runtime parity: claude-code=31, codex=30 → bundle b85ed099b1f4…"
       ]
     },
     {

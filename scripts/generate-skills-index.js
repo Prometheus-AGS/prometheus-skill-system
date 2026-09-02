@@ -22,6 +22,8 @@ import fs from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+
+import { parseFrontmatter } from './lib/skill-frontmatter.js';
 import { collectDistributionSkills, readSkillSystem } from './lib/skill-system.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -42,29 +44,11 @@ function readFrontmatter(file) {
   raw = raw.replace(/^﻿/, '').replace(/\r\n/g, '\n');
   const m = raw.match(/^---\n([\s\S]*?)\n---/);
   if (!m) return null;
-  const block = m[1];
-
-  const name =
-    (block.match(/^name:\s*['"]?([^'"\n]+?)['"]?\s*$/m) || [])[1] ||
-    path.basename(path.dirname(file));
-
-  // description may be inline or a `>`/`|` folded block.
-  let description = '';
-  const inline = block.match(/^description:\s*(?![>|])['"]?([^\n]+?)['"]?\s*$/m);
-  if (inline) {
-    description = inline[1];
-  } else {
-    const folded = block.match(/^description:\s*[>|][-+]?\s*\n((?:[ \t]+\S[^\n]*\n?)+)/m);
-    if (folded) {
-      description = folded[1]
-        .split('\n')
-        .map(l => l.trim())
-        .filter(Boolean)
-        .join(' ');
-    }
-  }
+  // Shared with install-plugin-generation.js so the two cannot drift again.
+  const parsed = parseFrontmatter(m[1]);
+  const name = parsed.name || path.basename(path.dirname(file));
   // Collapse to a single table-safe line.
-  description = description.replace(/\s+/g, ' ').replace(/\|/g, '\\|').trim();
+  const description = parsed.description.replace(/\|/g, '\\|');
   return { name: name.trim(), description };
 }
 
@@ -82,7 +66,10 @@ function collect() {
   }
   return [...byCategory.entries()]
     .sort(([left], [right]) => left.localeCompare(right))
-    .map(([category, entries]) => ({ category, skills: entries.sort((left, right) => left.name.localeCompare(right.name)) }));
+    .map(([category, entries]) => ({
+      category,
+      skills: entries.sort((left, right) => left.name.localeCompare(right.name)),
+    }));
 }
 
 function titleCase(slug) {
