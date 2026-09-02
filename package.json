@@ -91,9 +91,10 @@
     "test:key-protection": "node scripts/tests/owner-restricted-key-protection.test.mjs",
     "test:generation-identity": "node scripts/tests/portable-generation-identity.test.mjs",
     "test:skill-frontmatter": "node scripts/tests/skill-frontmatter.test.mjs",
+    "test:validate-line-endings": "node scripts/tests/validate-skills-line-endings.test.mjs",
     "test:activation-pointer": "node scripts/tests/activation-pointer.test.mjs",
     "test:hook-dispatch": "node scripts/tests/hook-dispatch.test.mjs",
-    "test:host-portable-activation": "npm run test:host-capability-probing && npm run test:key-protection && npm run test:generation-identity && npm run test:activation-pointer && npm run test:hook-dispatch && npm run test:skill-frontmatter",
+    "test:host-portable-activation": "npm run test:host-capability-probing && npm run test:key-protection && npm run test:generation-identity && npm run test:activation-pointer && npm run test:hook-dispatch && npm run test:skill-frontmatter && npm run test:validate-line-endings",
     "verify:host-leg": "node scripts/verify-host-leg.mjs",
     "verify:host-matrix": "node scripts/compare-host-legs.mjs",
     "verify:host-matrix:gate": "node scripts/compare-host-legs.mjs --require-all"

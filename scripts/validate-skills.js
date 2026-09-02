@@ -256,11 +256,27 @@ class SkillValidator {
   }
 
   parseFrontmatter(content) {
+    // Normalize line endings and strip a BOM before matching.
+    //
+    // The regex anchors on `\n`, so a file checked out with CRLF begins
+    // `---\r\n` and does not match. The failure surfaces as the deeply
+    // misleading "SKILL.md must have YAML frontmatter" for a file that plainly
+    // has it, which is what it reported for all 210 skills carried by
+    // submodules on Windows.
+    //
+    // Those submodules set core.autocrlf=true and ship no .gitattributes, and a
+    // submodule inherits neither the parent's config nor its attributes -- so
+    // git stores LF and materializes CRLF, and this validator was unusable
+    // against every one of them. `install-plugin-generation.js` and
+    // `generate-skills-index.js` already normalize first; this did not.
+    const normalized = String(content ?? '')
+      .replace(/^\uFEFF/, '')
+      .replace(/\r\n/g, '\n');
     const frontmatterRegex = /^---\n([\s\S]*?)\n---\n([\s\S]*)$/;
-    const match = content.match(frontmatterRegex);
+    const match = normalized.match(frontmatterRegex);
 
     if (!match) {
-      return { frontmatter: null, body: content };
+      return { frontmatter: null, body: normalized };
     }
 
     try {
@@ -268,7 +284,7 @@ class SkillValidator {
       const body = match[2];
       return { frontmatter, body };
     } catch (error) {
-      return { frontmatter: null, body: content };
+      return { frontmatter: null, body: normalized };
     }
   }
 
