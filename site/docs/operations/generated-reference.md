@@ -208,7 +208,7 @@ Maximum inline artifact bytes: **1048576**
 
 ## Prometheus Exec CLI/config flags
 
-Commands: `init`, `daemon`, `mcp`, `run`, `status`, `doctor`, `verify`, `verify-bundle`, `contracts`
+Commands: `init`, `daemon`, `mcp`, `run`, `status`, `doctor`, `verify`, `verify-bundle`, `contracts`, `inspect-file-security`
 
 - `--artifact-budget-mb`
 - `--artifacts`
@@ -222,6 +222,7 @@ Commands: `init`, `daemon`, `mcp`, `run`, `status`, `doctor`, `verify`, `verify-
 - `--mcp-schema`
 - `--output-dir`
 - `--output-mb`
+- `--path`
 - `--plugin-root`
 - `--public-key`
 - `--receipt`
