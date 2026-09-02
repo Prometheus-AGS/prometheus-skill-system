@@ -24,6 +24,9 @@ tokio = { version = "1", features = ["rt", "sync"] }
 tokio-stream = "0.1"
 
 [dev-dependencies]
+# wire_compat.rs asserts this crate's delta encoding decodes byte-for-byte as a
+# sovereign-sync envelope. Dev-only: nothing in kbd-mobile's lib depends on it.
+sovereign-sync = { path = "../sovereign-sync" }
 tempfile = "3"
 tokio = { version = "1", features = ["macros", "rt-multi-thread", "time"] }
 uuid = { version = "1", features = ["v4"] }

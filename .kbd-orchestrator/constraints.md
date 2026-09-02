@@ -18,6 +18,14 @@ the applicable drift validators before phase certification. A deferral that
 crosses the parent-phase boundary, omits the named owner, or reaches parent-phase
 certification, final commit, or push without regenerated outputs is a violation.
 
+Also generator inputs, from the integration contract (v1.0.0) onward:
+`shared/launchagents/*.plist` and `shared/systemd/*.service|.timer|.path` feed
+`shared/services.manifest.json` via `scripts/generate-service-manifest.mjs`
+(seam 3 of `docs/integration-contract.md`). Any change that edits, adds, or
+deletes one of those templates MUST regenerate the manifest and pass
+`npm run check:services-manifest` in the same change. The manifest is generated;
+hand-editing it is a violation.
+
 Specifically: after touching `.claude-plugin/*`, `.mcp.json`,
 `hooks/hooks.json`, or `scripts/build-codex-plugin.js`, `npm run validate:codex`
 MUST pass (no drift, valid manifest + marketplace) in the same change because

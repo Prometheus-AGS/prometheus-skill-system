@@ -49,6 +49,8 @@
     "validate:kbd-state": "node scripts/validate-kbd-state.js",
     "validate:kbd-writers": "node scripts/check-kbd-direct-writers.js",
     "validate:harness-adapters": "node scripts/check-harness-adapters.js",
+    "generate:services-manifest": "node scripts/generate-service-manifest.mjs",
+    "check:services-manifest": "node scripts/generate-service-manifest.mjs --check",
     "generate:harness-adapters": "node scripts/generate-harness-adapters.js",
     "validate:skill-evals": "node scripts/check-skill-evals.js",
     "test:clean-install-parity": "bash shared/scripts/tests/test-clean-install-parity.sh",

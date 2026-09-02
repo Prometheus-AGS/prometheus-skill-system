@@ -1,5 +1,6 @@
 pub mod audit;
 pub mod build;
+pub mod contract;
 mod control_transport;
 pub mod doctor;
 pub mod evolve;

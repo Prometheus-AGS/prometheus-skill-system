@@ -1,0 +1,46 @@
+{
+  "changeId": "change-cpc-002-skill-ffi-kbd-mobile-split",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Remove the kbd-mobile path dependency and the KBD-sync API from skill-ffi; add the empty reserved kbd-sync feature",
+      "done": true,
+      "doneAt": "2026-09-02T13:34:35Z",
+      "doneBy": "claude-code",
+      "files": [
+        "substrate/skill-ffi/Cargo.toml",
+        "substrate/skill-ffi/src/api.rs",
+        "substrate/skill-ffi/src/lib.rs"
+      ],
+      "verify": "cargo metadata --manifest-path substrate/skill-ffi/Cargo.toml --format-version 1 --all-features | jq -e '[.packages[].name] | inside([\"kbd-mobile\",\"sovereign-sync\",\"iroh\",\"iroh-gossip\"]) | not'",
+      "notes": null
+    },
+    {
+      "id": "2",
+      "title": "Move mobile_wire_is_byte_compatible_with_sovereign_sync to substrate/kbd-mobile/tests/wire_compat.rs with a sovereign-sync dev-dependency; remove it from domain_sync.rs",
+      "done": true,
+      "doneAt": "2026-09-02T13:36:25Z",
+      "doneBy": "claude-code",
+      "files": [
+        "substrate/kbd-mobile/Cargo.toml",
+        "substrate/kbd-mobile/tests/wire_compat.rs",
+        "substrate/sovereign-sync/tests/domain_sync.rs"
+      ],
+      "verify": "cargo test --manifest-path substrate/kbd-mobile/Cargo.toml --test wire_compat",
+      "notes": null
+    },
+    {
+      "id": "3",
+      "title": "Regenerate frb_generated.rs at flutter_rust_bridge =2.12.0 and run the FFI round-trip test target",
+      "done": true,
+      "doneAt": "2026-09-02T14:13:28Z",
+      "doneBy": "claude-code",
+      "files": [
+        "substrate/skill-ffi/src/frb_generated.rs"
+      ],
+      "verify": "cargo test --manifest-path substrate/skill-ffi/Cargo.toml --test ffi_roundtrip",
+      "notes": null
+    }
+  ]
+}

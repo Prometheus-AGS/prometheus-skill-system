@@ -39,7 +39,7 @@ flutter_rust_bridge::frb_generated_boilerplate!(
     default_rust_auto_opaque = RustAutoOpaqueMoi,
 );
 pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_VERSION: &str = "2.12.0";
-pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = -1613829733;
+pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = -244474607;
 
 // Section: executor
 
@@ -376,247 +376,6 @@ fn wire__crate__api__exec_verify_impl(
         },
     )
 }
-fn wire__crate__api__kbd_mobile_attach_delta_signature_impl(
-    port_: flutter_rust_bridge::for_generated::MessagePort,
-    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
-    rust_vec_len_: i32,
-    data_len_: i32,
-) {
-    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec, _, _>(
-        flutter_rust_bridge::for_generated::TaskInfo {
-            debug_name: "kbd_mobile_attach_delta_signature",
-            port: Some(port_),
-            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
-        },
-        move || {
-            let message = unsafe {
-                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
-                    ptr_,
-                    rust_vec_len_,
-                    data_len_,
-                )
-            };
-            let mut deserializer =
-                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
-            let api_prepared_json = <String>::sse_decode(&mut deserializer);
-            let api_signer_public_key = <String>::sse_decode(&mut deserializer);
-            let api_signature_base64 = <String>::sse_decode(&mut deserializer);
-            deserializer.end();
-            move |context| {
-                transform_result_sse::<_, crate::api::SkillError>((move || {
-                    let output_ok = crate::api::kbd_mobile_attach_delta_signature(
-                        api_prepared_json,
-                        api_signer_public_key,
-                        api_signature_base64,
-                    )?;
-                    Ok(output_ok)
-                })())
-            }
-        },
-    )
-}
-fn wire__crate__api__kbd_mobile_capabilities_impl(
-    port_: flutter_rust_bridge::for_generated::MessagePort,
-    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
-    rust_vec_len_: i32,
-    data_len_: i32,
-) {
-    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec, _, _>(
-        flutter_rust_bridge::for_generated::TaskInfo {
-            debug_name: "kbd_mobile_capabilities",
-            port: Some(port_),
-            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
-        },
-        move || {
-            let message = unsafe {
-                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
-                    ptr_,
-                    rust_vec_len_,
-                    data_len_,
-                )
-            };
-            let mut deserializer =
-                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
-            deserializer.end();
-            move |context| {
-                transform_result_sse::<_, ()>((move || {
-                    let output_ok = Result::<_, ()>::Ok(crate::api::kbd_mobile_capabilities())?;
-                    Ok(output_ok)
-                })())
-            }
-        },
-    )
-}
-fn wire__crate__api__kbd_mobile_commit_prepared_impl(
-    port_: flutter_rust_bridge::for_generated::MessagePort,
-    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
-    rust_vec_len_: i32,
-    data_len_: i32,
-) {
-    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec, _, _>(
-        flutter_rust_bridge::for_generated::TaskInfo {
-            debug_name: "kbd_mobile_commit_prepared",
-            port: Some(port_),
-            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
-        },
-        move || {
-            let message = unsafe {
-                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
-                    ptr_,
-                    rust_vec_len_,
-                    data_len_,
-                )
-            };
-            let mut deserializer =
-                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
-            let api_project_id = <String>::sse_decode(&mut deserializer);
-            let api_replica_id = <String>::sse_decode(&mut deserializer);
-            let api_project_updates = <Vec<u8>>::sse_decode(&mut deserializer);
-            let api_prepared_json = <String>::sse_decode(&mut deserializer);
-            let api_signature_base64 = <String>::sse_decode(&mut deserializer);
-            deserializer.end();
-            move |context| {
-                transform_result_sse::<_, crate::api::SkillError>((move || {
-                    let output_ok = crate::api::kbd_mobile_commit_prepared(
-                        api_project_id,
-                        api_replica_id,
-                        api_project_updates,
-                        api_prepared_json,
-                        api_signature_base64,
-                    )?;
-                    Ok(output_ok)
-                })())
-            }
-        },
-    )
-}
-fn wire__crate__api__kbd_mobile_import_signed_delta_impl(
-    port_: flutter_rust_bridge::for_generated::MessagePort,
-    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
-    rust_vec_len_: i32,
-    data_len_: i32,
-) {
-    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec, _, _>(
-        flutter_rust_bridge::for_generated::TaskInfo {
-            debug_name: "kbd_mobile_import_signed_delta",
-            port: Some(port_),
-            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
-        },
-        move || {
-            let message = unsafe {
-                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
-                    ptr_,
-                    rust_vec_len_,
-                    data_len_,
-                )
-            };
-            let mut deserializer =
-                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
-            let api_project_id = <String>::sse_decode(&mut deserializer);
-            let api_replica_id = <String>::sse_decode(&mut deserializer);
-            let api_project_updates = <Vec<u8>>::sse_decode(&mut deserializer);
-            let api_signed_delta = <Vec<u8>>::sse_decode(&mut deserializer);
-            deserializer.end();
-            move |context| {
-                transform_result_sse::<_, crate::api::SkillError>((move || {
-                    let output_ok = crate::api::kbd_mobile_import_signed_delta(
-                        api_project_id,
-                        api_replica_id,
-                        api_project_updates,
-                        api_signed_delta,
-                    )?;
-                    Ok(output_ok)
-                })())
-            }
-        },
-    )
-}
-fn wire__crate__api__kbd_mobile_prepare_command_impl(
-    port_: flutter_rust_bridge::for_generated::MessagePort,
-    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
-    rust_vec_len_: i32,
-    data_len_: i32,
-) {
-    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec, _, _>(
-        flutter_rust_bridge::for_generated::TaskInfo {
-            debug_name: "kbd_mobile_prepare_command",
-            port: Some(port_),
-            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
-        },
-        move || {
-            let message = unsafe {
-                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
-                    ptr_,
-                    rust_vec_len_,
-                    data_len_,
-                )
-            };
-            let mut deserializer =
-                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
-            let api_project_id = <String>::sse_decode(&mut deserializer);
-            let api_replica_id = <String>::sse_decode(&mut deserializer);
-            let api_project_updates = <Vec<u8>>::sse_decode(&mut deserializer);
-            let api_command_json = <String>::sse_decode(&mut deserializer);
-            let api_signer_key_id = <String>::sse_decode(&mut deserializer);
-            let api_signer_public_key = <String>::sse_decode(&mut deserializer);
-            deserializer.end();
-            move |context| {
-                transform_result_sse::<_, crate::api::SkillError>((move || {
-                    let output_ok = crate::api::kbd_mobile_prepare_command(
-                        api_project_id,
-                        api_replica_id,
-                        api_project_updates,
-                        api_command_json,
-                        api_signer_key_id,
-                        api_signer_public_key,
-                    )?;
-                    Ok(output_ok)
-                })())
-            }
-        },
-    )
-}
-fn wire__crate__api__kbd_mobile_prepare_delta_impl(
-    port_: flutter_rust_bridge::for_generated::MessagePort,
-    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
-    rust_vec_len_: i32,
-    data_len_: i32,
-) {
-    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec, _, _>(
-        flutter_rust_bridge::for_generated::TaskInfo {
-            debug_name: "kbd_mobile_prepare_delta",
-            port: Some(port_),
-            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
-        },
-        move || {
-            let message = unsafe {
-                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
-                    ptr_,
-                    rust_vec_len_,
-                    data_len_,
-                )
-            };
-            let mut deserializer =
-                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
-            let api_project_id = <String>::sse_decode(&mut deserializer);
-            let api_replica_id = <String>::sse_decode(&mut deserializer);
-            let api_project_updates = <Vec<u8>>::sse_decode(&mut deserializer);
-            let api_signer_key_id = <String>::sse_decode(&mut deserializer);
-            deserializer.end();
-            move |context| {
-                transform_result_sse::<_, crate::api::SkillError>((move || {
-                    let output_ok = crate::api::kbd_mobile_prepare_delta(
-                        api_project_id,
-                        api_replica_id,
-                        api_project_updates,
-                        api_signer_key_id,
-                    )?;
-                    Ok(output_ok)
-                })())
-            }
-        },
-    )
-}
 fn wire__crate__api__list_indexed_skills_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
@@ -830,20 +589,6 @@ impl SseDecode for i32 {
     }
 }
 
-impl SseDecode for crate::api::KbdMobileCommitPayload {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
-        let mut var_eventJson = <String>::sse_decode(deserializer);
-        let mut var_stateJson = <String>::sse_decode(deserializer);
-        let mut var_projectUpdates = <Vec<u8>>::sse_decode(deserializer);
-        return crate::api::KbdMobileCommitPayload {
-            event_json: var_eventJson,
-            state_json: var_stateJson,
-            project_updates: var_projectUpdates,
-        };
-    }
-}
-
 impl SseDecode for Vec<String> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
@@ -989,24 +734,11 @@ fn pde_ffi_dispatcher_primary_impl(
         7 => wire__crate__api__exec_run_impl(port, ptr, rust_vec_len, data_len),
         8 => wire__crate__api__exec_status_impl(port, ptr, rust_vec_len, data_len),
         9 => wire__crate__api__exec_verify_impl(port, ptr, rust_vec_len, data_len),
-        10 => wire__crate__api__kbd_mobile_attach_delta_signature_impl(
-            port,
-            ptr,
-            rust_vec_len,
-            data_len,
-        ),
-        11 => wire__crate__api__kbd_mobile_capabilities_impl(port, ptr, rust_vec_len, data_len),
-        12 => wire__crate__api__kbd_mobile_commit_prepared_impl(port, ptr, rust_vec_len, data_len),
-        13 => {
-            wire__crate__api__kbd_mobile_import_signed_delta_impl(port, ptr, rust_vec_len, data_len)
-        }
-        14 => wire__crate__api__kbd_mobile_prepare_command_impl(port, ptr, rust_vec_len, data_len),
-        15 => wire__crate__api__kbd_mobile_prepare_delta_impl(port, ptr, rust_vec_len, data_len),
-        16 => wire__crate__api__list_indexed_skills_impl(port, ptr, rust_vec_len, data_len),
-        17 => wire__crate__api__list_skills_impl(port, ptr, rust_vec_len, data_len),
-        18 => wire__crate__api__run_skill_impl(port, ptr, rust_vec_len, data_len),
-        19 => wire__crate__api__search_indexed_skills_impl(port, ptr, rust_vec_len, data_len),
-        20 => wire__crate__api__world_version_impl(port, ptr, rust_vec_len, data_len),
+        10 => wire__crate__api__list_indexed_skills_impl(port, ptr, rust_vec_len, data_len),
+        11 => wire__crate__api__list_skills_impl(port, ptr, rust_vec_len, data_len),
+        12 => wire__crate__api__run_skill_impl(port, ptr, rust_vec_len, data_len),
+        13 => wire__crate__api__search_indexed_skills_impl(port, ptr, rust_vec_len, data_len),
+        14 => wire__crate__api__world_version_impl(port, ptr, rust_vec_len, data_len),
         _ => unreachable!(),
     }
 }
@@ -1045,28 +777,6 @@ impl flutter_rust_bridge::IntoIntoDart<FrbWrapper<BTreeMap<String, Vec<u8>>>>
     }
 }
 
-// Codec=Dco (DartCObject based), see doc to use other codecs
-impl flutter_rust_bridge::IntoDart for crate::api::KbdMobileCommitPayload {
-    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
-        [
-            self.event_json.into_into_dart().into_dart(),
-            self.state_json.into_into_dart().into_dart(),
-            self.project_updates.into_into_dart().into_dart(),
-        ]
-        .into_dart()
-    }
-}
-impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
-    for crate::api::KbdMobileCommitPayload
-{
-}
-impl flutter_rust_bridge::IntoIntoDart<crate::api::KbdMobileCommitPayload>
-    for crate::api::KbdMobileCommitPayload
-{
-    fn into_into_dart(self) -> crate::api::KbdMobileCommitPayload {
-        self
-    }
-}
 // Codec=Dco (DartCObject based), see doc to use other codecs
 impl flutter_rust_bridge::IntoDart for crate::api::SkillDescriptor {
     fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
@@ -1157,15 +867,6 @@ impl SseEncode for i32 {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
         serializer.cursor.write_i32::<NativeEndian>(self).unwrap();
-    }
-}
-
-impl SseEncode for crate::api::KbdMobileCommitPayload {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
-        <String>::sse_encode(self.event_json, serializer);
-        <String>::sse_encode(self.state_json, serializer);
-        <Vec<u8>>::sse_encode(self.project_updates, serializer);
     }
 }
 

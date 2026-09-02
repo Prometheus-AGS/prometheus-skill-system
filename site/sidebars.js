@@ -134,6 +134,7 @@ const sidebars = {
       items: [
         'kbd/control-plane',
         'kbd/control-plane-recovery',
+        'kbd/integration-contract',
         'kbd/tokens-and-authentication',
         'kbd/bash-mutation-guard',
       ],
