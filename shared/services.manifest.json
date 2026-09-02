@@ -1,0 +1,555 @@
+{
+  "$schema": "https://prometheus-ags.dev/schemas/services.manifest.json",
+  "contractVersion": "1.0.0",
+  "generatedBy": "scripts/generate-service-manifest.mjs",
+  "note": "GENERATED — do not hand-edit. Regenerate after any change to shared/launchagents/*.plist or shared/systemd/* (constraint C-01). Placeholders such as __PROMETHEUS_ROOT__ are substituted at install time.",
+  "services": [
+    {
+      "label": "ai.prometheus.codex-skills-sync",
+      "program": "/bin/bash",
+      "args": [
+        "__REPO_ROOT__/scripts/codex-sync-skills.sh",
+        "--quiet"
+      ],
+      "binding": null,
+      "platforms": {
+        "darwin": {
+          "source": "shared/launchagents/ai.prometheus.codex-skills-sync.plist",
+          "schedule": {
+            "runAtLoad": true,
+            "startInterval": 120,
+            "watchPaths": [
+              "__REPO_ROOT__/skills",
+              "__REPO_ROOT__/config/codex-catalog.txt"
+            ]
+          },
+          "restart": {
+            "keepAlive": null,
+            "throttleInterval": null,
+            "processType": "Background"
+          },
+          "logs": {
+            "stdout": "__HOME__/.prometheus/logs/codex-skills-sync.log",
+            "stderr": "__HOME__/.prometheus/logs/codex-skills-sync.log"
+          },
+          "workingDirectory": null
+        },
+        "linux": null
+      }
+    },
+    {
+      "label": "ai.prometheus.exec",
+      "program": "__PROMETHEUS_EXEC_BIN__",
+      "args": [
+        "daemon",
+        "--socket",
+        "__PROMETHEUS_EXEC_SOCKET__",
+        "--state-dir",
+        "__PROMETHEUS_EXEC_STATE__",
+        "--identity",
+        "__PROMETHEUS_EXEC_IDENTITY__",
+        "--plugin-root",
+        "__PROMETHEUS_PLUGIN_ROOT__"
+      ],
+      "binding": null,
+      "platforms": {
+        "darwin": {
+          "source": "shared/launchagents/ai.prometheus.exec.plist",
+          "schedule": {
+            "runAtLoad": true,
+            "startInterval": null,
+            "watchPaths": null
+          },
+          "restart": {
+            "keepAlive": {
+              "SuccessfulExit": false
+            },
+            "throttleInterval": 10,
+            "processType": "Background"
+          },
+          "logs": {
+            "stdout": "__PROMETHEUS_LOG_DIR__/prometheus-exec.stdout.log",
+            "stderr": "__PROMETHEUS_LOG_DIR__/prometheus-exec.stderr.log"
+          },
+          "workingDirectory": null
+        },
+        "linux": null
+      }
+    },
+    {
+      "label": "ai.prometheus.forge-mcp",
+      "program": "__FORGE_BIN__",
+      "args": [
+        "mcp",
+        "--port",
+        "8943",
+        "--project-root",
+        "__PROMETHEUS_ROOT__",
+        "--skills-root",
+        "__PROMETHEUS_ROOT__",
+        "--pk-mcp-url",
+        "http://localhost:8942/mcp",
+        "--no-auth"
+      ],
+      "binding": {
+        "kind": "tcp",
+        "value": 8942
+      },
+      "platforms": {
+        "darwin": {
+          "source": "shared/launchagents/ai.prometheus.forge-mcp.plist",
+          "schedule": {
+            "runAtLoad": true,
+            "startInterval": null,
+            "watchPaths": null
+          },
+          "restart": {
+            "keepAlive": true,
+            "throttleInterval": 10,
+            "processType": "Background"
+          },
+          "logs": {
+            "stdout": "__PROMETHEUS_LOG_DIR__/forge-mcp.stdout.log",
+            "stderr": "__PROMETHEUS_LOG_DIR__/forge-mcp.stderr.log"
+          },
+          "workingDirectory": "__PROMETHEUS_ROOT__"
+        },
+        "linux": [
+          {
+            "source": "shared/systemd/ai.prometheus.forge-mcp.service",
+            "kind": "service",
+            "restart": {
+              "restart": "on-failure",
+              "restartSec": 10,
+              "type": "simple"
+            },
+            "timer": null,
+            "watch": null,
+            "description": "Prometheus forge code-enrichment MCP (native, :8943)"
+          }
+        ]
+      }
+    },
+    {
+      "label": "ai.prometheus.hooks-logrotate",
+      "program": "/bin/bash",
+      "args": [
+        "__PROMETHEUS_ROOT__/shared/scripts/rotate-hooks-log.sh"
+      ],
+      "binding": null,
+      "platforms": {
+        "darwin": {
+          "source": "shared/launchagents/ai.prometheus.hooks-logrotate.plist",
+          "schedule": {
+            "runAtLoad": false,
+            "startInterval": null,
+            "watchPaths": null
+          },
+          "restart": {
+            "keepAlive": null,
+            "throttleInterval": null,
+            "processType": null
+          },
+          "logs": {
+            "stdout": "__PROMETHEUS_LOG_DIR__/hooks-logrotate.stdout.log",
+            "stderr": "__PROMETHEUS_LOG_DIR__/hooks-logrotate.stderr.log"
+          },
+          "workingDirectory": null
+        },
+        "linux": [
+          {
+            "source": "shared/systemd/ai.prometheus.hooks-logrotate.service",
+            "kind": "service",
+            "restart": {
+              "restart": null,
+              "restartSec": null,
+              "type": "oneshot"
+            },
+            "timer": null,
+            "watch": null,
+            "description": "Rotate Prometheus hook logs under writer lock"
+          },
+          {
+            "source": "shared/systemd/ai.prometheus.hooks-logrotate.timer",
+            "kind": "timer",
+            "restart": null,
+            "timer": {
+              "onBootSec": null,
+              "onUnitActiveSec": null,
+              "persistent": true,
+              "unit": "ai.prometheus.hooks-logrotate.service"
+            },
+            "watch": null,
+            "description": "Daily Prometheus hook-log rotation"
+          }
+        ]
+      }
+    },
+    {
+      "label": "ai.prometheus.learning-worker",
+      "program": "__LEARNING_WORKER_BIN__",
+      "args": [
+        "run-once"
+      ],
+      "binding": null,
+      "platforms": {
+        "darwin": {
+          "source": "shared/launchagents/ai.prometheus.learning-worker.plist",
+          "schedule": {
+            "runAtLoad": true,
+            "startInterval": 300,
+            "watchPaths": [
+              "__PROMETHEUS_HOME__/.prometheus/learning-queue/pending",
+              "__PROMETHEUS_HOME__/.prometheus/learning-queue/retry",
+              "__PROMETHEUS_HOME__/.prometheus/learning-queue/memory/pending",
+              "__PROMETHEUS_HOME__/.prometheus/learning-queue/memory/retry"
+            ]
+          },
+          "restart": {
+            "keepAlive": null,
+            "throttleInterval": 10,
+            "processType": "Background"
+          },
+          "logs": {
+            "stdout": "__PROMETHEUS_LOG_DIR__/learning-worker.stdout.log",
+            "stderr": "__PROMETHEUS_LOG_DIR__/learning-worker.stderr.log"
+          },
+          "workingDirectory": "__PROMETHEUS_ROOT__"
+        },
+        "linux": [
+          {
+            "source": "shared/systemd/ai.prometheus.learning-worker.path",
+            "kind": "path",
+            "restart": null,
+            "timer": null,
+            "watch": {
+              "pathModified": null,
+              "unit": "ai.prometheus.learning-worker.service"
+            },
+            "description": "Watch Prometheus learning queues"
+          },
+          {
+            "source": "shared/systemd/ai.prometheus.learning-worker.service",
+            "kind": "service",
+            "restart": {
+              "restart": null,
+              "restartSec": null,
+              "type": "oneshot"
+            },
+            "timer": null,
+            "watch": null,
+            "description": "Prometheus asynchronous learning worker"
+          },
+          {
+            "source": "shared/systemd/ai.prometheus.learning-worker.timer",
+            "kind": "timer",
+            "restart": null,
+            "timer": {
+              "onBootSec": "1min",
+              "onUnitActiveSec": "5min",
+              "persistent": true,
+              "unit": "ai.prometheus.learning-worker.service"
+            },
+            "watch": null,
+            "description": "Retry Prometheus learning queues"
+          }
+        ]
+      }
+    },
+    {
+      "label": "ai.prometheus.liter-llm-api",
+      "program": "__PROMETHEUS_ROOT__/shared/scripts/liter-llm-api-launch.sh",
+      "args": [],
+      "binding": null,
+      "platforms": {
+        "darwin": {
+          "source": "shared/launchagents/ai.prometheus.liter-llm-api.plist",
+          "schedule": {
+            "runAtLoad": true,
+            "startInterval": null,
+            "watchPaths": null
+          },
+          "restart": {
+            "keepAlive": true,
+            "throttleInterval": 10,
+            "processType": "Background"
+          },
+          "logs": {
+            "stdout": "__PROMETHEUS_LOG_DIR__/liter-llm-api.stdout.log",
+            "stderr": "__PROMETHEUS_LOG_DIR__/liter-llm-api.stderr.log"
+          },
+          "workingDirectory": "__PROMETHEUS_ROOT__"
+        },
+        "linux": null
+      }
+    },
+    {
+      "label": "ai.prometheus.pk-cherry",
+      "program": "__PK_CHERRY_BIN__",
+      "args": [],
+      "binding": null,
+      "platforms": {
+        "darwin": {
+          "source": "shared/launchagents/ai.prometheus.pk-cherry.plist",
+          "schedule": {
+            "runAtLoad": true,
+            "startInterval": null,
+            "watchPaths": null
+          },
+          "restart": {
+            "keepAlive": true,
+            "throttleInterval": 10,
+            "processType": "Background"
+          },
+          "logs": {
+            "stdout": "__PROMETHEUS_LOG_DIR__/pk-cherry.stdout.log",
+            "stderr": "__PROMETHEUS_LOG_DIR__/pk-cherry.stderr.log"
+          },
+          "workingDirectory": "__PROMETHEUS_ROOT__"
+        },
+        "linux": [
+          {
+            "source": "shared/systemd/ai.prometheus.pk-cherry.service",
+            "kind": "service",
+            "restart": {
+              "restart": "on-failure",
+              "restartSec": 10,
+              "type": "simple"
+            },
+            "timer": null,
+            "watch": null,
+            "description": "Prometheus pk-cherry knowledge MCP (native, :8942)"
+          }
+        ]
+      }
+    },
+    {
+      "label": "ai.prometheus.prometheus-nudge",
+      "program": "/bin/bash",
+      "args": [
+        "__PROMETHEUS_ROOT__/scripts/scheduled/periodic-nudge.sh"
+      ],
+      "binding": null,
+      "platforms": {
+        "darwin": {
+          "source": "shared/launchagents/ai.prometheus.prometheus-nudge.plist",
+          "schedule": {
+            "runAtLoad": false,
+            "startInterval": 14400,
+            "watchPaths": null
+          },
+          "restart": {
+            "keepAlive": null,
+            "throttleInterval": null,
+            "processType": null
+          },
+          "logs": {
+            "stdout": "__PROMETHEUS_LOG_DIR__/prometheus-nudge.stdout.log",
+            "stderr": "__PROMETHEUS_LOG_DIR__/prometheus-nudge.stderr.log"
+          },
+          "workingDirectory": "__PROMETHEUS_ROOT__"
+        },
+        "linux": [
+          {
+            "source": "shared/systemd/ai.prometheus.prometheus-nudge.service",
+            "kind": "service",
+            "restart": {
+              "restart": null,
+              "restartSec": null,
+              "type": "oneshot"
+            },
+            "timer": null,
+            "watch": null,
+            "description": "Prometheus periodic self-learning nudge (oneshot)"
+          },
+          {
+            "source": "shared/systemd/ai.prometheus.prometheus-nudge.timer",
+            "kind": "timer",
+            "restart": null,
+            "timer": {
+              "onBootSec": "5min",
+              "onUnitActiveSec": "4h",
+              "persistent": true,
+              "unit": "ai.prometheus.prometheus-nudge.service"
+            },
+            "watch": null,
+            "description": "Prometheus nudge timer (every 4h)"
+          }
+        ]
+      }
+    },
+    {
+      "label": "ai.prometheus.sovereign-sync",
+      "program": "__SOVEREIGN_SYNC_BIN__",
+      "args": [
+        "--mode",
+        "daemon"
+      ],
+      "binding": null,
+      "platforms": {
+        "darwin": {
+          "source": "shared/launchagents/ai.prometheus.sovereign-sync.plist",
+          "schedule": {
+            "runAtLoad": true,
+            "startInterval": null,
+            "watchPaths": null
+          },
+          "restart": {
+            "keepAlive": true,
+            "throttleInterval": 10,
+            "processType": "Interactive"
+          },
+          "logs": {
+            "stdout": "__PROMETHEUS_LOG_DIR__/sovereign-sync.stdout.log",
+            "stderr": "__PROMETHEUS_LOG_DIR__/sovereign-sync.stderr.log"
+          },
+          "workingDirectory": "__PROMETHEUS_HOME__"
+        },
+        "linux": [
+          {
+            "source": "shared/systemd/ai.prometheus.sovereign-sync.service",
+            "kind": "service",
+            "restart": {
+              "restart": "on-failure",
+              "restartSec": 10,
+              "type": "simple"
+            },
+            "timer": null,
+            "watch": null,
+            "description": "Prometheus sovereign-sync P2P CRDT daemon and MCP server (:7892)"
+          }
+        ]
+      }
+    },
+    {
+      "label": "ai.prometheus.surface-bridge",
+      "program": "__SURFACE_BRIDGE_BIN__",
+      "args": [],
+      "binding": null,
+      "platforms": {
+        "darwin": {
+          "source": "shared/launchagents/ai.prometheus.surface-bridge.plist",
+          "schedule": {
+            "runAtLoad": true,
+            "startInterval": null,
+            "watchPaths": null
+          },
+          "restart": {
+            "keepAlive": true,
+            "throttleInterval": 10,
+            "processType": "Background"
+          },
+          "logs": {
+            "stdout": "__PROMETHEUS_LOG_DIR__/surface-bridge.stdout.log",
+            "stderr": "__PROMETHEUS_LOG_DIR__/surface-bridge.stderr.log"
+          },
+          "workingDirectory": "__PROMETHEUS_ROOT__"
+        },
+        "linux": [
+          {
+            "source": "shared/systemd/ai.prometheus.surface-bridge.service",
+            "kind": "service",
+            "restart": {
+              "restart": "on-failure",
+              "restartSec": 10,
+              "type": "simple"
+            },
+            "timer": null,
+            "watch": null,
+            "description": "Prometheus surface-bridge Tier-2 UI MCP App server (native, :7890)"
+          }
+        ]
+      }
+    },
+    {
+      "label": "ai.prometheus.surreal-memory-native",
+      "program": "__SURREAL_MEMORY_BIN__",
+      "args": [],
+      "binding": null,
+      "platforms": {
+        "darwin": {
+          "source": "shared/launchagents/ai.prometheus.surreal-memory-native.plist",
+          "schedule": {
+            "runAtLoad": true,
+            "startInterval": null,
+            "watchPaths": null
+          },
+          "restart": {
+            "keepAlive": true,
+            "throttleInterval": 10,
+            "processType": "Background"
+          },
+          "logs": {
+            "stdout": "__PROMETHEUS_LOG_DIR__/surreal-memory-native.stdout.log",
+            "stderr": "__PROMETHEUS_LOG_DIR__/surreal-memory-native.stderr.log"
+          },
+          "workingDirectory": "__PROMETHEUS_HOME__"
+        },
+        "linux": [
+          {
+            "source": "shared/systemd/ai.prometheus.surreal-memory-native.service",
+            "kind": "service",
+            "restart": {
+              "restart": "on-failure",
+              "restartSec": 10,
+              "type": "simple"
+            },
+            "timer": null,
+            "watch": null,
+            "description": "Prometheus surreal-memory MCP server (native, :23001)"
+          }
+        ]
+      }
+    },
+    {
+      "label": "ai.prometheus.surrealdb-native",
+      "program": "__SURREAL_BIN__",
+      "args": [
+        "start",
+        "--log=info",
+        "--user=root",
+        "--pass=root",
+        "--bind=127.0.0.1:28000",
+        "rocksdb:__PROMETHEUS_HOME__/.prometheus/data/surrealdb/database.db"
+      ],
+      "binding": {
+        "kind": "tcp",
+        "value": 28000
+      },
+      "platforms": {
+        "darwin": {
+          "source": "shared/launchagents/ai.prometheus.surrealdb-native.plist",
+          "schedule": {
+            "runAtLoad": true,
+            "startInterval": null,
+            "watchPaths": null
+          },
+          "restart": {
+            "keepAlive": true,
+            "throttleInterval": 10,
+            "processType": "Background"
+          },
+          "logs": {
+            "stdout": "__PROMETHEUS_LOG_DIR__/surrealdb-native.stdout.log",
+            "stderr": "__PROMETHEUS_LOG_DIR__/surrealdb-native.stderr.log"
+          },
+          "workingDirectory": "__PROMETHEUS_HOME__"
+        },
+        "linux": [
+          {
+            "source": "shared/systemd/ai.prometheus.surrealdb-native.service",
+            "kind": "service",
+            "restart": {
+              "restart": "on-failure",
+              "restartSec": 10,
+              "type": "simple"
+            },
+            "timer": null,
+            "watch": null,
+            "description": "Prometheus SurrealDB (native, :28000)"
+          }
+        ]
+      }
+    }
+  ]
+}

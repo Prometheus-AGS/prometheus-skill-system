@@ -174,18 +174,6 @@ fn mobile_search_uses_shared_deterministic_selection() {
     assert_eq!(selected[0].id, "rust-review");
 }
 
-#[test]
-fn kbd_mobile_capabilities_expose_the_restricted_security_boundary() {
-    let capabilities: serde_json::Value = serde_json::from_str(&kbd_mobile_capabilities()).unwrap();
-    assert_eq!(capabilities["signedEvents"], true);
-    assert_eq!(capabilities["claims"], true);
-    assert_eq!(capabilities["adjudications"], true);
-    assert_eq!(capabilities["git"], false);
-    assert_eq!(capabilities["adoption"], false);
-    assert_eq!(capabilities["submoduleScan"], false);
-    assert_eq!(capabilities["auditBranchWrite"], false);
-}
-
 #[tokio::test(flavor = "multi_thread")]
 async fn exec_ffi_returns_values_preserves_interruptions_and_never_accepts_private_keys() {
     let directory = tempdir().unwrap();

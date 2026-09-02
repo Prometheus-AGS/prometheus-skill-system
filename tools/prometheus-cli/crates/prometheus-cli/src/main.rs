@@ -116,6 +116,15 @@ enum Commands {
         path: String,
     },
 
+    /// Read and validate the open integration contract (docs/integration-contract.md)
+    Contract {
+        /// Project path
+        #[arg(short, long, default_value = ".")]
+        path: String,
+        #[command(subcommand)]
+        action: ContractAction,
+    },
+
     /// Control and audit the canonical KBD runtime
     Kbd {
         /// Project path (walks upward to find .kbd-orchestrator)
@@ -249,6 +258,21 @@ enum Commands {
         /// Force rebuild of all binary components from source (implies --non-interactive)
         #[arg(long)]
         rebuild: bool,
+    },
+}
+
+#[derive(Subcommand)]
+enum ContractAction {
+    /// Print the contract version, the discovered control endpoint, and the service manifest
+    Show {
+        /// Emit JSON
+        #[arg(long)]
+        json: bool,
+    },
+    /// Validate a connected skill package declaration (skill-package.json)
+    Validate {
+        /// Path to the declaration
+        file: String,
     },
 }
 
@@ -954,6 +978,10 @@ async fn main() -> Result<()> {
             .await
         }
         Commands::Status { path } => commands::status::run(&path),
+        Commands::Contract { path, action } => match action {
+            ContractAction::Show { json } => commands::contract::show(&path, json),
+            ContractAction::Validate { file } => commands::contract::validate(&file),
+        },
         Commands::Kbd { path, action } => {
             let typed_command = |mutation: KbdMutationArgs, command: kbd_runtime::CommandKind| {
                 commands::kbd::Action::Command {

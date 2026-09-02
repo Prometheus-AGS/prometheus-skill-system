@@ -1092,6 +1092,40 @@ manifest and all 14 target receipts. A bundle-ID-only refresh does not alter hoo
 matchers, trust semantics, or the repository policy that keeps Bash and Python
 unrestricted during agent work.
 
+## Integration Contract — how this pack is extended
+
+This pack is an open-source **skill collection** and is complete on its own:
+every skill works with nothing else installed. Capability the pack does not
+provide — cross-machine sync, a supervisor that guarantees services are running,
+a remote control plane — belongs in a separate repository that integrates
+through the versioned contract in [`docs/integration-contract.md`](docs/integration-contract.md)
+(operator summary: [`site/docs/kbd/integration-contract.md`](site/docs/kbd/integration-contract.md)).
+
+Two rules govern every change in this repository:
+
+1. **The pack never depends on an extension** — no build-time dependency, no
+   install-time requirement, no runtime assumption. Extensions depend on the
+   pack, never the reverse.
+2. **Capability is discovered, never assumed** — when an extension is absent the
+   pack behaves exactly as it does today and emits **no warning, no
+   degraded-mode notice, and no error**. Absence is the normal case.
+
+The contract has four seams: control-endpoint discovery (the CLI transport
+chain), hook bundle extension points (`run-hook --bundle`, namespaced per
+package), the generated service manifest, and the connected skill package
+declaration (`skill-package.json`).
+
+```bash
+prometheus contract show --json                      # version, endpoint (or absent), manifest
+prometheus contract validate skill-package.json      # validate an extension's declaration
+npm run generate:services-manifest                   # regenerate after editing a plist or unit
+npm run check:services-manifest                      # C-01 drift gate
+```
+
+`shared/services.manifest.json` is **generated** from `shared/launchagents/*.plist`
+and `shared/systemd/*`. Editing one of those templates without regenerating the
+manifest in the same change violates constraint C-01.
+
 ## Karpathy LLM Wiki (pk) — Open Knowledge Format Adoption
 
 The "Karpathy LLM wiki" pattern — an LLM-maintained, persistent, interlinked

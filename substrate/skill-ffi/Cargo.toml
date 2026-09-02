@@ -11,9 +11,14 @@ unexpected_cfgs = { level = "warn", check-cfg = ["cfg(frb_expand)"] }
 [lib]
 crate-type = ["cdylib", "staticlib", "rlib"]
 
+[features]
+# Reserved, intentionally empty. The KBD mobile-sync surface moved to the
+# Companion (change-cpc-002); the name is kept so a consumer's feature list is
+# stable across the move. Enabling it adds nothing in this repository.
+kbd-sync = []
+
 [dependencies]
 flutter_rust_bridge = "=2.12.0"
-kbd-mobile = { path = "../kbd-mobile" }
 kbd-runtime = { path = "../kbd-runtime" }
 prometheus-skill-index = { path = "../skill-index" }
 serde = { version = "1", features = ["derive"] }

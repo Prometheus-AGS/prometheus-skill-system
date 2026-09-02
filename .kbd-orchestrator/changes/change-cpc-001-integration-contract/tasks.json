@@ -1,0 +1,72 @@
+{
+  "changeId": "change-cpc-001-integration-contract",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Write docs/integration-contract.md v1.0 with the four seams and the versioning rule",
+      "done": true,
+      "doneAt": "2026-09-02T12:34:40Z",
+      "doneBy": "claude-code",
+      "files": [
+        "docs/integration-contract.md"
+      ],
+      "verify": null,
+      "notes": null
+    },
+    {
+      "id": "2",
+      "title": "Add scripts/generate-service-manifest.mjs and generate shared/services.manifest.json; wire npm scripts generate:services-manifest and check:services-manifest; document the C-01 input rule in constraints.md",
+      "done": true,
+      "doneAt": "2026-09-02T12:57:06Z",
+      "doneBy": "claude-code",
+      "files": [
+        "scripts/generate-service-manifest.mjs",
+        "shared/services.manifest.json",
+        "package.json",
+        ".kbd-orchestrator/constraints.md"
+      ],
+      "verify": "node scripts/generate-service-manifest.mjs --check",
+      "notes": null
+    },
+    {
+      "id": "3",
+      "title": "Add shared/schemas/skill-package.schema.json and prometheus contract show|validate commands",
+      "done": true,
+      "doneAt": "2026-09-02T13:01:18Z",
+      "doneBy": "claude-code",
+      "files": [
+        "shared/schemas/skill-package.schema.json",
+        "tools/prometheus-cli/crates/prometheus-cli/src/commands/contract.rs",
+        "tools/prometheus-cli/crates/prometheus-cli/src/main.rs"
+      ],
+      "verify": null,
+      "notes": null
+    },
+    {
+      "id": "4",
+      "title": "Add process-level CLI integration test tests/contract.rs covering absent endpoint, discovered endpoint, and declaration validation",
+      "done": true,
+      "doneAt": "2026-09-02T13:05:05Z",
+      "doneBy": "claude-code",
+      "files": [
+        "tools/prometheus-cli/crates/prometheus-cli/tests/contract.rs"
+      ],
+      "verify": "cargo test --manifest-path tools/prometheus-cli/Cargo.toml -p prometheus-cli --test contract",
+      "notes": null
+    },
+    {
+      "id": "5",
+      "title": "Publish site/docs/kbd/integration-contract.md and the CLAUDE.md pointer; run plugin and index drift checks",
+      "done": true,
+      "doneAt": "2026-09-02T13:20:44Z",
+      "doneBy": "claude-code",
+      "files": [
+        "site/docs/kbd/integration-contract.md",
+        "CLAUDE.md"
+      ],
+      "verify": "npm run validate:codex && npm run check:skills-index",
+      "notes": null
+    }
+  ]
+}
