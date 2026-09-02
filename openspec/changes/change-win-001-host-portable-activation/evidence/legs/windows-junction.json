@@ -22,7 +22,7 @@
     }
   },
   "identity": {
-    "bundleId": "e5eafe433141b9814db1ad7936b4cef13ece29c0b9efe3fe6711c148d324f091",
+    "bundleId": "a7386f7cd85698dfe09041d443647e81b31736904f93c4774c6d3b9eee784c1d",
     "goldenPayloadDigest": "eb5271efd4c8fe85ca4eb7574189191a16b2898d9b2b8ce312f4466cea484591",
     "releaseManifestSchemaVersion": 2,
     "dispatcherInterpreter": "bash"
@@ -44,18 +44,18 @@
       "name": "generated artifacts",
       "command": "C:\\Program Files\\nodejs\\node.exe scripts/generate-harness-adapters.js --check",
       "exitCode": 0,
-      "outputSha256": "bcbc91a25c1d858293527f0ed79e1c606bd67aea4cec93cede1f671ef232f836",
+      "outputSha256": "daecbe8c82e337c22fada87448b4dd7b6173e53af99f1b44d9a52b0672ceb345",
       "excerpt": [
-        "Verified bundle e5eafe433141… with 31 hooks for Claude Code and Codex."
+        "Verified bundle a7386f7cd856… with 31 hooks for Claude Code and Codex."
       ]
     },
     {
       "name": "harness runtime parity",
       "command": "C:\\Program Files\\nodejs\\node.exe scripts/check-harness-adapters.js",
       "exitCode": 0,
-      "outputSha256": "fd07ed88fa805d76c4c2a9c638c2478bb96669524c23fefdc6be20798dca92d3",
+      "outputSha256": "cd20d65ff35876c97abb1f236441d6c3cd5799e5ed8e86e08956c7391d46c030",
       "excerpt": [
-        "Harness runtime parity: claude-code=31, codex=30 → bundle e5eafe433141…"
+        "Harness runtime parity: claude-code=31, codex=30 → bundle a7386f7cd856…"
       ]
     },
     {
@@ -127,13 +127,13 @@
       "name": "shell-free hook dispatch",
       "command": "C:\\Program Files\\nodejs\\node.exe scripts/tests/hook-dispatch.test.mjs",
       "exitCode": 0,
-      "outputSha256": "e8747d75fdd7d66b4030b142bdc12ab6045728513aa290bcb52bf8c7f3e7a89a",
+      "outputSha256": "825cfa1f5431ff201255b8f7a52bcf973095ca62e202bef5acfac18f1e618a1c",
       "excerpt": [
-        "hook-dispatch: 20 checks passed",
+        "hook-dispatch: 24 checks passed",
         "  ok   a hook whose executable is a script shim is refused",
         "…",
-        "  ok   a candidate the manifest does not call executable is never run",
-        "  ok   a payload with no dispatcher is not an error",
+        "  ok   resolvability is tested, not behaviour",
+        "  ok   shell-form and absolute-path entries are left alone",
         "  SKIP missing digest tool -- both sha256sum and shasum live in /usr/bin on msys2 and cannot be taken off PATH without removing bash itself"
       ]
     }

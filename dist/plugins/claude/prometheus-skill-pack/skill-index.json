@@ -531,6 +531,10 @@
       "path": "skills/refine-logo"
     },
     {
+      "name": "refine-mcp-ui",
+      "path": "skills/refine-mcp-ui"
+    },
+    {
       "name": "refine-moodboard",
       "path": "skills/refine-moodboard"
     },
@@ -547,8 +551,20 @@
       "path": "skills/refine-validate"
     },
     {
+      "name": "scaffold-flutter-a2ui",
+      "path": "skills/scaffold-flutter-a2ui"
+    },
+    {
       "name": "scaffold-react-vite",
       "path": "skills/scaffold-react-vite"
+    },
+    {
+      "name": "scaffold-react-vite-a2ui",
+      "path": "skills/scaffold-react-vite-a2ui"
+    },
+    {
+      "name": "scaffold-react-vite-agui",
+      "path": "skills/scaffold-react-vite-agui"
     },
     {
       "name": "scaffold-react-vite-tauri",
