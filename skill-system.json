@@ -45,7 +45,7 @@
       "id": "artifact-refiner",
       "path": "skills/imported/artifact-refiner",
       "repository": "https://github.com/GQAdonis/artifact-refiner-skill.git",
-      "commit": "45bba081ac1dcdc896f090e7e4bd23e38294bfb1",
+      "commit": "18d000f3e46952418f682159b227dbf71ce61dcb",
       "requiredFor": ["skills", "full"],
       "marketplace": true
     },
@@ -61,7 +61,7 @@
       "id": "prometheus-entity-management",
       "path": "skills/imported/prometheus-entity-management",
       "repository": "https://github.com/Prometheus-AGS/prometheus-entity-management.git",
-      "commit": "9c30ad18b8140a94f7815d5d8c9727d1158e54e1",
+      "commit": "d1588d8c93cc267774d1911e8bd53bd3918a7f12",
       "requiredFor": ["full"],
       "distributed": false
     },
