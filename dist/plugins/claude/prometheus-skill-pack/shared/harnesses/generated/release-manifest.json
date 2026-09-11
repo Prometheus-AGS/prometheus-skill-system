@@ -28,7 +28,7 @@
     },
     {
       "path": "scripts/lib/key-protection.js",
-      "sha256": "b6eda7f3faaa54b829c33ad1a3a2eb9071039244db00d445f15a8ad04e85677d",
+      "sha256": "7cb00e1ce8f1f053393715014f497e40de0ce67ee5b362bf16f8e231e24ed1c2",
       "executable": false
     },
     {
@@ -88,7 +88,7 @@
     },
     {
       "path": "shared/scripts/enqueue-memory-operation.py",
-      "sha256": "2b42c3a7e0a3174dc4fab96d1261f9a7ef917141ea23cd293cb1399f24655aa3",
+      "sha256": "21b6ed992528e1a5a002e2d5dffe670a022f311b4017726323f77af2b2b1759c",
       "executable": true
     },
     {
@@ -233,22 +233,22 @@
     },
     {
       "path": "shared/scripts/scheduled/ai.prometheus.mem0-compress.plist",
-      "sha256": "4595cbbeef97cafdd53fb29fe8fb31d47fb122644bf99db057b87c521d76778a",
+      "sha256": "d0ea556ca06ed754483999b5c421f18a00c17d2b5d03b1f5f666793f264efd75",
       "executable": false
     },
     {
       "path": "shared/scripts/scheduled/ai.prometheus.pk-lint.plist",
-      "sha256": "c4d2aba5804534bf2198ae7c9ecdc2c308b0b5df38561fae2b4015add3e572ae",
+      "sha256": "c7bc528da9f0d59f334a9096d2e7099cd8132d0d5768fb5ba90f6eae8e0e748d",
       "executable": false
     },
     {
       "path": "shared/scripts/scheduled/mem0-compress.cron",
-      "sha256": "4778fc760cf690476783b7996b3a3993abde5552906a0350cc9e603bda1949de",
+      "sha256": "1e12fd61bf48fa24f1a40b3880fd23f8a8d2f3967ec3c426a5429bd0a18635b0",
       "executable": false
     },
     {
       "path": "shared/scripts/scheduled/pk-lint.cron",
-      "sha256": "ba1964198894aad2f264c3fdc35ab9797c3acb3cd109e4d00d682407d57b530b",
+      "sha256": "bf73b49aefe085594f939d93467b36e017ae4d4dab3e0f72639665275c28a7d5",
       "executable": false
     },
     {
@@ -352,5 +352,5 @@
       "executable": true
     }
   ],
-  "bundleId": "a7386f7cd85698dfe09041d443647e81b31736904f93c4774c6d3b9eee784c1d"
+  "bundleId": "bf2c785097f5770a1f5e1b560812460af4e0bf89839a6e393a10b80127d2ce5b"
 }

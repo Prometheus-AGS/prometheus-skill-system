@@ -174,7 +174,7 @@ export function prometheusExecInspector(binary) {
   return function inspect(keyPath) {
     const result = spawnSync(
       binary,
-      ['inspect-file-security', '--path', keyPath, '--format', 'json'],
+      ['inspect-file-security', '--path', keyPath],
       { encoding: 'utf8', shell: false }
     );
     if (result.error || result.status !== 0) {
