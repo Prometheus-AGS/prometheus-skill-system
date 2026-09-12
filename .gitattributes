@@ -14,8 +14,10 @@
 *.yml text eol=lf
 
 # Generated native packages preserve canonical payload bytes, including source
-# whitespace that is meaningful to parity checks.
-dist/** -whitespace
+# whitespace that is meaningful to parity checks. `-text` also stops checkout
+# from converting their line endings (core.autocrlf), so a Windows working tree
+# holds the committed bytes and `npm run build:distribution` rewrites nothing.
+dist/** -text -whitespace
 
 # Binary files
 *.png binary

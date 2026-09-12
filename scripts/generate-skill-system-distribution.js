@@ -6,6 +6,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { canonicalBytes } from './lib/canonical-bytes.js';
 import { collectDistributionSkills, readSkillSystem } from './lib/skill-system.js';
 
 const sourceRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -42,7 +43,7 @@ function copy(source, destination) {
     fs.symlinkSync(fs.readlinkSync(source), destination);
   } else if (stat.isFile()) {
     fs.mkdirSync(path.dirname(destination), { recursive: true });
-    fs.copyFileSync(source, destination);
+    fs.writeFileSync(destination, canonicalBytes(source));
     fs.chmodSync(destination, stat.mode & 0o7777);
   }
 }
@@ -250,7 +251,7 @@ function collect(root, relative = '') {
     else {
       const bytes = stat.isSymbolicLink()
         ? Buffer.from(fs.readlinkSync(absolute))
-        : fs.readFileSync(absolute);
+        : canonicalBytes(absolute);
       entries.push({
         path: child.split(path.sep).join('/'),
         mode: (stat.mode & 0o7777).toString(8),
