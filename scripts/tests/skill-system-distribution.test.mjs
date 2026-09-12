@@ -5,6 +5,7 @@ import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
+import { canonicalBytes } from '../lib/canonical-bytes.js';
 import { collectDistributionSkills, readSkillSystem } from '../lib/skill-system.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
@@ -29,7 +30,7 @@ function digestTree(directory, relative = '') {
     const stat = fs.lstatSync(absolute);
     if (stat.isDirectory()) result.push(...digestTree(directory, child));
     else {
-      const bytes = stat.isSymbolicLink() ? Buffer.from(fs.readlinkSync(absolute)) : fs.readFileSync(absolute);
+      const bytes = stat.isSymbolicLink() ? Buffer.from(fs.readlinkSync(absolute)) : canonicalBytes(absolute);
       result.push({
         path: child.split(path.sep).join('/'),
         mode: stat.mode & 0o7777,
