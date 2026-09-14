@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://prometheus-ags.dev/schemas/thread-sources.schema.json",
+  "title": "Thread sources",
+  "description": "What one worker actually fetched. The merge unions these by canonical URL into sources/registry.json and sources/url-list.json in their existing stage 02/04 shapes, so the fold needs no change to the driver's validators.",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": ["id", "url", "fetched_at"],
+    "additionalProperties": false,
+    "properties": {
+      "id": {
+        "type": "string",
+        "pattern": "^[0-9a-f]{8}$",
+        "description": "First 8 hex of sha256(canonical_url). Canonicalisation uses the same shared helper as stage 02's dedupe, so the two rules cannot drift."
+      },
+      "url": { "type": "string", "minLength": 1 },
+      "title": { "type": "string" },
+      "fetched_at": { "type": "string", "format": "date-time" },
+      "chunk_ids": { "type": "array", "items": { "type": "string", "pattern": "^chunk-[0-9]+$" } }
+    }
+  }
+}

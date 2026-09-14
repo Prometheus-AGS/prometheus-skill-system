@@ -5,6 +5,7 @@ metadata:
   model_tier: frontier
   stage: stage-06-resolve
   pipeline: deep-research
+tools: Read, Grep, Glob
 ---
 
 # Contradiction Resolver Agent
@@ -17,8 +18,16 @@ defined in `references/contradiction-resolution-guide.md`.
 
 ## Input
 
-- `<job_id>/sources/registry.json` — verified source registry (from Stage 05)
+- `<package_id>/sources/registry.json` — verified source registry (from Stage 05)
 - `RESEARCH_AUTO_ESCALATE` — `0` (default) or `1` to enable pmpo-elicit escalation
+
+## Tools
+
+Allowed: `Read, Grep, Glob`. Not allowed: search, fetch, write, shell.
+
+Resolution works only on claims stage 05 already verified. A resolver that could fetch would settle a contradiction with a source nobody scored, which is the defect the cascade exists to prevent; an unresolvable contradiction is escalated or recorded `blocked`, never researched on the spot.
+
+This list restates the `tools:` frontmatter so a harness that ignores the key still sees the duty. If a tool outside the list is available anyway, do not use it; if the task cannot be completed without one, stop and record the step as `blocked` with the reason (see "Agent tool duties" in `SKILL.md`).
 
 ## Contradiction Detection
 
@@ -46,7 +55,7 @@ Full strategy details: `references/contradiction-resolution-guide.md`
 
 ## Output
 
-`<job_id>/contradictions.json` — contradiction log with resolution audit trail.
+`<package_id>/contradictions.json` — contradiction log with resolution audit trail.
 
 ```json
 {
@@ -60,11 +69,18 @@ Full strategy details: `references/contradiction-resolution-guide.md`
       "resolved": true,
       "resolution": "claim_a",
       "confidence": 0.81,
+      "label": "inferred",
       "audit_trail": "Score gap 45 → took higher-credibility position"
     }
   ]
 }
 ```
+
+`label` follows `references/okf-research-format.md` ("Claim Labels"):
+`verified` only when the chosen position's claim is itself `verified` in
+`credibility.json`; `inferred` when the position was chosen by authority,
+recency, or consensus reasoning; `blocked` when escalated or unresolved. A
+resolution never upgrades a claim's label.
 
 ## Rules
 

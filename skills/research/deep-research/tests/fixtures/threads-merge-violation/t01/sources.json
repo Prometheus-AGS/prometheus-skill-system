@@ -1,0 +1,4 @@
+[
+  {"id":"s1","url":"https://example.org/Guide/","title":"Guide","fetched_at":"2026-09-09T00:00:00Z","chunk_ids":["chunk-1"]},
+  {"id":"s2","url":"https://example.org/only-t01","title":"Only t01","fetched_at":"2026-09-09T00:00:00Z","chunk_ids":["chunk-2"]}
+]

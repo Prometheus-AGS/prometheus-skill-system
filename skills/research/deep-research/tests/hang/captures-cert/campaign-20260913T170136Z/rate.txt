@@ -1,0 +1,4 @@
+runs=60
+hangs=0
+failure_rate=0/60
+scenario=full-run timeout=90s completed_utc=2026-09-13T17:29:30Z

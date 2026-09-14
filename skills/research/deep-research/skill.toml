@@ -1,6 +1,6 @@
 [package]
 name = "deep-research"
-version = "1.0.0"
+version = "1.1.0"
 description = "Deep research agent with 10-stage pipeline, knowledge graphs, and persistent .research packages"
 authors = ["Prometheus AGS"]
 license = "MIT"
@@ -28,7 +28,7 @@ export = "bash scripts/export-package.sh"
 [mcp]
 server_name = "prometheus-research"
 transport = "stdio"
-# Server binary generated in phase-prometheus-research-binary (deferred)
+# Server binary: substrate/prometheus-research (built and installed by scripts/install-binaries.sh)
 
 [ui]
 protocol = "ag-ui"
