@@ -1,0 +1,45 @@
+{
+  "verified_sources": [
+    {
+      "url": "https://arxiv.org/abs/2401.00001",
+      "credibility_score": 88,
+      "flags": [],
+      "claims": [
+        {"text": "Hybrid search improves recall by 12% on the benchmark", "label": "verified", "evidence": "c1: \"hybrid search raised recall@10 from 0.71 to 0.83, a 12-point gain\""},
+        {"text": "The index build takes 40 ms per 1,000 vectors", "label": "verified", "evidence": "c1: \"build time: 40 ms / 1k vectors\""}
+      ]
+    },
+    {
+      "url": "https://example.org/blog/vector-search",
+      "credibility_score": 52,
+      "flags": ["partial_evidence:author_expertise,citation_depth,publication_recency"],
+      "claims": [
+        {"text": "hybrid search improves recall by 12% on the benchmark.", "label": "unverified", "evidence": null},
+        {"text": "Adoption is growing across the industry", "label": "unverified", "evidence": null}
+      ]
+    },
+    {
+      "url": "https://old.edu/archive/vectors",
+      "credibility_score": 61,
+      "flags": [],
+      "claims": [
+        {"text": "Index build takes 400 ms per 1,000 vectors", "label": "verified", "evidence": "c3: \"build: 400ms per 1000 vectors on 2016 hardware\""}
+      ]
+    }
+  ],
+  "filtered_sources": [
+    {
+      "url": "https://medium.com/@someone/vectors-are-cool",
+      "credibility_score": 31,
+      "flags": ["low_quality_domain"],
+      "claims": [{"text": "Everyone should use vector search", "label": "unverified", "evidence": null}],
+      "filter_reason": "score 31 below threshold 40"
+    }
+  ],
+  "credibility_scores": {
+    "https://arxiv.org/abs/2401.00001": 88,
+    "https://example.org/blog/vector-search": 52,
+    "https://old.edu/archive/vectors": 61,
+    "https://medium.com/@someone/vectors-are-cool": 31
+  }
+}

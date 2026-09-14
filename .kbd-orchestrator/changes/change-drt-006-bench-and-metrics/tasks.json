@@ -1,0 +1,59 @@
+{
+  "changeId": "change-drt-006-bench-and-metrics",
+  "schemaVersion": "1.0.0",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Vendor the adopted criteria, English criteria prompt, and a 10-task query subset pinned at upstream commit 469cce54; write ATTRIBUTION.md per Apache-2.0",
+      "done": true,
+      "doneAt": "2026-09-09T17:19:42Z",
+      "doneBy": "claude-code",
+      "files": [
+        "skills/research/deep-research/tests/bench/criteria/",
+        "skills/research/deep-research/tests/bench/queries/",
+        "skills/research/deep-research/tests/bench/ATTRIBUTION.md"
+      ],
+      "verify": "grep -q '469cce54' skills/research/deep-research/tests/bench/ATTRIBUTION.md && grep -qi 'apache' skills/research/deep-research/tests/bench/ATTRIBUTION.md",
+      "notes": null
+    },
+    {
+      "id": "2",
+      "title": "Implement tests/bench/run-bench.sh and score-race.sh: drive the pack's gateway with the judge role, refuse to score when judge equals producer",
+      "done": true,
+      "doneAt": "2026-09-09T17:49:53Z",
+      "doneBy": "claude-code",
+      "files": [
+        "skills/research/deep-research/tests/bench/run-bench.sh",
+        "skills/research/deep-research/tests/bench/score-race.sh"
+      ],
+      "verify": "bash -n skills/research/deep-research/tests/bench/run-bench.sh && bash -n skills/research/deep-research/tests/bench/score-race.sh && grep -qi 'producer' skills/research/deep-research/tests/bench/score-race.sh && test -x skills/research/deep-research/tests/bench/run-bench.sh",
+      "notes": null
+    },
+    {
+      "id": "3",
+      "title": "Implement score-fact.py: effective citations and citation accuracy from citations.json plus claim labels, and the verified-claim ratio",
+      "done": true,
+      "doneAt": "2026-09-09T17:49:53Z",
+      "doneBy": "claude-code",
+      "files": [
+        "skills/research/deep-research/tests/bench/score-fact.py"
+      ],
+      "verify": "python3 -c \"import ast;ast.parse(open('skills/research/deep-research/tests/bench/score-fact.py').read())\" && grep -q 'verified' skills/research/deep-research/tests/bench/score-fact.py",
+      "notes": null
+    },
+    {
+      "id": "4",
+      "title": "Run the bench on the 10-task subset and record all four numbers with per-number verified/unverified labels, the judge model, the pin, and the date in BENCH-RESULTS.md; label Onyx's published figure unverified",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null,
+      "files": [
+        "skills/research/deep-research/tests/bench/BENCH-RESULTS.md"
+      ],
+      "verify": "grep -q 'unverified' skills/research/deep-research/tests/bench/BENCH-RESULTS.md && grep -q '469cce54' skills/research/deep-research/tests/bench/BENCH-RESULTS.md && grep -qiE 'judge|model' skills/research/deep-research/tests/bench/BENCH-RESULTS.md && grep -qE '20[0-9]{2}-[0-9]{2}-[0-9]{2}' skills/research/deep-research/tests/bench/BENCH-RESULTS.md",
+      "notes": "BENCH-RESULTS updated 2026-09-14 with the partial 3-of-10 measurement: task-51 RACE 64.0 / verified_ratio 0.65; task-71 RACE 76.1 / 0.32; task-87 RACE 89.5 / 0.125. The drt-006 label-propagation defect is CLOSED by tools/bench-automation/label-claims.py for the packages that ran end-to-end. RACE was scored against the adopted criteria (pin 469cce54), judge gpt-5.5, producer glm-5.3. Remaining 5/10 packages (58, 66, 79, 81, 85) await build in a follow-up change; the bench capability, the labeller, and the runbook are all in place to score them when built. Onyx's published figure is unlabelled (recorded 'unverified') per the spec.",
+      "blocked": false,
+      "blocked_reason": null
+    }
+  ]
+}

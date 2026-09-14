@@ -5,9 +5,9 @@ set -euo pipefail
 # Logs the export path and optionally ingests into the palace.
 
 JOB_ID="${RESEARCH_JOB_ID:-unknown}"
-PACKAGE_PATH="${RESEARCH_PACKAGE_PATH:-}"
+OUTPUT_DIR="${RESEARCH_OUTPUT_DIR:-$HOME/.prometheus/research}"
+PACKAGE_PATH="${RESEARCH_PACKAGE_PATH:-$OUTPUT_DIR/${RESEARCH_PACKAGE_ID:-$JOB_ID}}"
 INGEST_PALACE="${RESEARCH_INGEST_PALACE:-0}"
-OUTPUT_DIR="${RESEARCH_OUTPUT_DIR:-$HOME/.research-jobs}"
 
 NOW=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 
@@ -30,10 +30,10 @@ echo "$NOW | $JOB_ID | $PACKAGE_PATH" >> "$EXPORT_LOG"
 # Optionally ingest report into palace (palace_ingest is an MCP tool — cannot call directly from bash)
 # Instead, emit a marker file that run-research.sh or the skill can detect
 if [[ "$INGEST_PALACE" == "1" ]]; then
-  REPORT_FILE="$OUTPUT_DIR/$JOB_ID/report.md"
-  MANIFEST_FILE="$OUTPUT_DIR/$JOB_ID/manifest.json"
+  REPORT_FILE="$PACKAGE_PATH/report.md"
+  MANIFEST_FILE="$PACKAGE_PATH/manifest.json"
   if [[ -f "$REPORT_FILE" ]]; then
-    INGEST_MARKER="$OUTPUT_DIR/$JOB_ID/.palace-ingest-requested"
+    INGEST_MARKER="$PACKAGE_PATH/.palace-ingest-requested"
     echo "$NOW" > "$INGEST_MARKER"
     echo "[post-export] Palace ingest requested. Marker written: $INGEST_MARKER"
     echo "[post-export] The skill will call palace_ingest with report.md and manifest.json"

@@ -1,0 +1,14 @@
+{
+  "schema_version": "1.0.0",
+  "depth": "deep",
+  "total_word_budget": 6000,
+  "sections": [
+    {
+      "section_id": "s01",
+      "title": "{{section_title}}",
+      "sub_question": "{{the plan.md sub-question this section answers}}",
+      "claim_ids": ["claim-{{content-addressed-id}}"],
+      "word_budget": 1200
+    }
+  ]
+}

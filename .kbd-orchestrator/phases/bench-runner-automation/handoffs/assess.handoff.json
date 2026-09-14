@@ -1,0 +1,11 @@
+{
+  "stage": "assess",
+  "completedAt": "2026-09-14T10:51:38Z",
+  "outputs": [
+    "assessment.md"
+  ],
+  "nextStage": "analyze",
+  "summaryForNext": "This child automates the G5 bench run that has been blocking the parent at 90%. The 9 remaining tasks (58,66,71,75,79,81,83,85,87) need full deep packages; the agent-driven pilot (task-51) scored RACE 64.0 but verified_claim_ratio=0.0 because claims lack labels. The design has 4 bounded components: (1) a RESEARCH_STAGE_RUNNER command that uses the liter-llm gateway as the stage agent, (2) an evidence labeller that adds verified/unverified labels to claims before bench, (3) a multi-task orchestrator that drives all 10 packages end-to-end with gateway retry/backoff, (4) a bench runbook fixing the nested→flat layout and producing per-task BENCH-RESULTS entries. Output is the completion of drt-006 task 4 and the parent G5 → MET (90% → 100%). Backend: native-bash/python against the existing gateway + scripts; no new services.",
+  "skipped": false,
+  "skipReason": null
+}

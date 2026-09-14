@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://prometheus-ags.dev/schemas/thread-claims.schema.json",
+  "title": "Thread claims",
+  "description": "What one worker asserts, each claim carrying the verbatim span that makes stage 05's 'read before you label' rule mechanically checkable rather than a matter of judgement.",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": ["id", "text", "source_id", "quote", "chunk_id", "thread_id"],
+    "additionalProperties": false,
+    "properties": {
+      "id": {
+        "type": "string",
+        "pattern": "^claim-[0-9a-f]{16}$",
+        "description": "claim- + sha256(\"<package_id>:<normalised text>\")[:16] — the rule already used by build-graph.sh and detect-contradictions.sh (change-rah-010), reused rather than reinvented."
+      },
+      "text": { "type": "string", "minLength": 1 },
+      "source_id": { "type": "string", "pattern": "^[0-9a-f]{8}$" },
+      "quote": {
+        "type": "string",
+        "minLength": 1,
+        "description": "Verbatim, at most 40 words, and present in the named chunk. The word cap is enforced by the validator, which JSON Schema cannot express."
+      },
+      "chunk_id": { "type": "string", "pattern": "^chunk-[0-9]+$" },
+      "thread_id": { "type": "string", "pattern": "^t[0-9]{2,}$" }
+    }
+  }
+}
