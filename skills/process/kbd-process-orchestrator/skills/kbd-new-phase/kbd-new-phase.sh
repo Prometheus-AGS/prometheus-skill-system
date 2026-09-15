@@ -186,6 +186,11 @@ if [[ -f "$wp" ]]; then
     .parentPhase      = null |
     .childPhases      = [] |
     .childPointer     = null |
+    # A new top-level phase resets the position chain to itself. Without this the
+    # PRIOR phase chain survives the flip, and an explicit stale path[] beats the
+    # correct synthesis in _kbd_path_from_waypoint (see test-waypoint-path.sh §4
+    # vs §6) — so position.json renders this phase under the previous phase names.
+    .path             = [$phase] |
     .completionMetric = "implementation" |
     .implementationCompleted = 0 |
     .implementationTotal = 0 |
@@ -210,6 +215,7 @@ else
       parentPhase: null,
       childPhases: [],
       childPointer: null,
+      path: [$phase],
       completionMetric: "implementation",
       implementationCompleted: 0,
       implementationTotal: 0,

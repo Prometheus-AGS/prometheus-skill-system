@@ -303,6 +303,7 @@ jq \
   .exactNextCommand = ("/kbd-assess " + $phase) |
   .change = null |
   .nextPendingChange = null |
+  .path = [$phase] |
   .completionMetric = "implementation" |
   .implementationCompleted = 0 |
   .implementationTotal = 0 |
