@@ -101,7 +101,26 @@ case "${next}" in
         ;;
 esac
 
-# --- Check 3: do the two next-command fields agree? -------------------------
+# --- Check 3: does path[] still name the active phase? ----------------------
+# `_kbd_path_from_waypoint` PREFERS an explicit path[] over synthesizing one from
+# .phase, so a path[] left over from a previous phase silently wins. position.json
+# is built from that chain, which makes kbd-status render the current phase's
+# progress under the PREVIOUS phase's names — accurate numbers, wrong labels.
+path_head=$(jq -r '(.path // []) | if length == 0 then "" else .[0] end' "${WAYPOINT}")
+path_json=$(jq -c '.path // []' "${WAYPOINT}")
+if [ -n "${phase}" ] && [ "${path_json}" != "[]" ] && [ "${path_head}" != "${phase}" ]; then
+    bad "path[] does not start with the active phase"
+    note "  phase:  ${phase}"
+    note "  path[]: ${path_json}"
+    note "  A top-level phase flip must reset path[] to [<phase>]; a stale chain"
+    note "  beats synthesis and mislabels every position projection."
+elif [ "${path_json}" = "[]" ]; then
+    ok "path[] absent — synthesized from .phase (valid)"
+else
+    ok "path[] starts with the active phase"
+fi
+
+# --- Check 4: do the two next-command fields agree? -------------------------
 if [ -n "${next}" ] && [ -n "${exact}" ] && [ "${next}" != "${exact}" ]; then
     bad "next and exactNextCommand DISAGREE"
     note "  next:             ${next}"
