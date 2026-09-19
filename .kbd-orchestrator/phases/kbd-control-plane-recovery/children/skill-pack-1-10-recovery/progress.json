@@ -2,17 +2,17 @@
   "schemaVersion": "2",
   "generatedBy": "kbd-runtime",
   "projectionContractVersion": 2,
-  "sourceRevision": 1231,
-  "derivedRevision": 1231,
+  "sourceRevision": 1233,
+  "derivedRevision": 1233,
   "frontier": {
     "4bca58c3-e70b-48c9-a555-60bc16d3d025": 1186,
-    "575138ba-385e-449d-89f7-cf4d793b34f9": 45
+    "575138ba-385e-449d-89f7-cf4d793b34f9": 47
   },
   "conflictCount": 0,
   "phase": "skill-pack-1-10-recovery",
   "phaseId": "skill-pack-1-10-recovery",
   "parentPhase": "kbd-control-plane-recovery",
-  "last_updated": "2026-09-19T17:16:54.408219Z",
+  "last_updated": "2026-09-19T17:28:57.273165Z",
   "last_updated_by": "kbd-runtime",
   "changes_total": 1,
   "changes_completed": 0,
@@ -48,9 +48,9 @@
       "status": "IN_PROGRESS",
       "implementation_status": "IN_PROGRESS",
       "tasks_total": 6,
-      "tasks_done": 4,
-      "last_task_completed": "Integrate unique recovered work onto current origin main",
-      "next_task_pending": "Run local integration certification and finalize release artifacts",
+      "tasks_done": 5,
+      "last_task_completed": "Run local integration certification and finalize release artifacts",
+      "next_task_pending": "Merge, tag, publish, redeploy, and verify Skill Pack 1.10.0",
       "blockers": []
     }
   ],

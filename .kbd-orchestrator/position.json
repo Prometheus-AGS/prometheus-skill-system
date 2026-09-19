@@ -2,14 +2,14 @@
   "schemaVersion": "1",
   "generatedBy": "kbd-runtime",
   "projectionContractVersion": 2,
-  "sourceRevision": 1231,
-  "derivedRevision": 1231,
+  "sourceRevision": 1233,
+  "derivedRevision": 1233,
   "frontier": {
     "4bca58c3-e70b-48c9-a555-60bc16d3d025": 1186,
-    "575138ba-385e-449d-89f7-cf4d793b34f9": 45
+    "575138ba-385e-449d-89f7-cf4d793b34f9": 47
   },
   "conflictCount": 0,
-  "updatedAt": "2026-09-19T17:16:54.408219Z",
+  "updatedAt": "2026-09-19T17:28:57.273165Z",
   "cursor": [
     "kbd-control-plane-recovery",
     "skill-pack-1-10-recovery"
@@ -355,7 +355,7 @@
                 "id": "release-skill-pack-1-10-recovery",
                 "status": "IN_PROGRESS",
                 "progress": {
-                  "done": 4,
+                  "done": 5,
                   "total": 6
                 }
               }
