@@ -70,7 +70,7 @@
     <key>HF_HUB_CACHE</key>
     <string>__PROMETHEUS_HOME__/.cache/huggingface/hub</string>
     <key>SURREAL_EXECUTOR_STARTUP_MS</key>
-    <string>120000</string>
+    <string>300000</string>
 
     <!-- Retry / reconnection config -->
     <key>SURREAL_MAX_CONNECT_RETRIES</key>
