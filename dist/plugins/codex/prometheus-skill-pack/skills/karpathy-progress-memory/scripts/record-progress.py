@@ -425,10 +425,25 @@ def memory_write(
 
     pk_error = "pk executable unavailable" if result.returncode == 127 else f"pk exited {result.returncode}"
 
-    enqueue = os.environ.get("KPM_MEMORY_ENQUEUE")
-    if enqueue is None:
-        enqueue = str(Path(__file__).resolve().parents[4] / "shared" / "scripts" / "enqueue-memory-operation.py")
-    enqueue_path = Path(enqueue)
+    configured_enqueue = os.environ.get("KPM_MEMORY_ENQUEUE")
+    enqueue_candidates = (
+        [Path(configured_enqueue)]
+        if configured_enqueue
+        else [
+            root / "shared" / "scripts" / "enqueue-memory-operation.py",
+            Path(__file__).resolve().parents[4]
+            / "shared"
+            / "scripts"
+            / "enqueue-memory-operation.py",
+            Path.home()
+            / ".prometheus"
+            / "plugins"
+            / "prometheus-skill-pack"
+            / "stable"
+            / "enqueue-memory-operation.py",
+        ]
+    )
+    enqueue_path = next((path for path in enqueue_candidates if path.is_file()), enqueue_candidates[0])
     if enqueue_path.is_file():
         arguments = json.dumps(
             {"content": record, "user_id": project_id},
@@ -451,7 +466,8 @@ def memory_write(
             }
         fallback_error = f"outbox enqueue exited {fallback.returncode}"
     else:
-        fallback_error = f"enqueue script unavailable: {enqueue_path}"
+        attempted = ", ".join(str(path) for path in enqueue_candidates)
+        fallback_error = f"enqueue script unavailable; checked: {attempted}"
     return {
         "transport": "none",
         "status": "degraded",
@@ -567,15 +583,21 @@ def main() -> int:
                     raise ProgressError(
                         f"existing progress receipt for {event['eventId']} has no durable event snapshot"
                     )
-                if not prior.get("complete"):
+                prior_memory = prior.get("memory")
+                prior_degraded = (
+                    isinstance(prior_memory, dict)
+                    and prior_memory.get("status") == "degraded"
+                )
+                if not prior.get("complete") or prior_degraded:
                     record = markdown_record(prior_event)
                     memory = memory_write(root, prior_event, record, project_id)
+                    delivery_complete = memory["status"] != "degraded"
                     receipt = write_receipt(
                         root,
                         prior_event,
                         bool(prior.get("sessionLogAppended")),
                         memory,
-                        complete=True,
+                        complete=delivery_complete,
                     )
                     status = "recorded" if memory["status"] == "accepted" else memory["status"]
                     print(
@@ -614,7 +636,14 @@ def main() -> int:
             if os.environ.get("KPM_TEST_CRASH_BEFORE_MEMORY") == "1":
                 os._exit(74)
             memory = memory_write(root, event, record, project_id)
-            receipt = write_receipt(root, event, appended, memory, complete=True)
+            delivery_complete = memory["status"] != "degraded"
+            receipt = write_receipt(
+                root,
+                event,
+                appended,
+                memory,
+                complete=delivery_complete,
+            )
             if os.environ.get("KPM_TEST_CRASH_AFTER_PK") == "1":
                 os._exit(75)
             status = "recorded" if memory["status"] == "accepted" else memory["status"]

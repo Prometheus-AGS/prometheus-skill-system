@@ -7,6 +7,7 @@ import hashlib
 import json
 import os
 from pathlib import Path
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -347,6 +348,103 @@ printf '{"accepted":true}\n'
         assert elapsed < 2, f"hung pk exceeded fixed bound: {elapsed:.2f}s"
         assert len(list((queue / "memory/pending").glob("*.json"))) == 2
 
+        installed_home = fixture / "installed-home"
+        installed_recorder = (
+            installed_home
+            / ".codex/skills/karpathy-progress-memory/scripts/record-progress.py"
+        )
+        installed_recorder.parent.mkdir(parents=True)
+        shutil.copy2(RECORDER, installed_recorder)
+        stable_enqueue = (
+            installed_home
+            / ".prometheus/plugins/prometheus-skill-pack/stable/enqueue-memory-operation.py"
+        )
+        installed_event = fixture / "installed-layout-event.json"
+        installed_event.write_text(
+            json.dumps(event("progress-installed-layout-0001", "phase", commit)),
+            encoding="utf-8",
+        )
+        installed_degraded = run(
+            [
+                sys.executable,
+                str(installed_recorder),
+                "--project-root",
+                str(project),
+                "--input",
+                str(installed_event),
+            ],
+            project,
+            {
+                **common_env,
+                "HOME": str(installed_home),
+                "KPM_TEST_PK_FAIL": "1",
+            },
+        )
+        require(installed_degraded, "record degraded standalone installed skill layout")
+        degraded_result = json.loads(installed_degraded.stdout)
+        assert degraded_result["status"] == "degraded", degraded_result
+        degraded_receipt = json.loads(
+            Path(degraded_result["receipt"]).read_text(encoding="utf-8")
+        )
+        assert degraded_receipt["complete"] is False, degraded_receipt
+        degraded_receipt["complete"] = True
+        Path(degraded_result["receipt"]).write_text(
+            json.dumps(degraded_receipt),
+            encoding="utf-8",
+        )
+
+        stable_enqueue.parent.mkdir(parents=True)
+        shutil.copy2(
+            ROOT / "shared/scripts/enqueue-memory-operation.py",
+            stable_enqueue,
+        )
+        installed_replay = run(
+            [
+                sys.executable,
+                str(installed_recorder),
+                "--project-root",
+                str(project),
+                "--input",
+                str(installed_event),
+            ],
+            project,
+            {
+                **common_env,
+                "HOME": str(installed_home),
+                "KPM_TEST_PK_FAIL": "1",
+            },
+        )
+        require(installed_replay, "recover installed-layout delivery through stable outbox")
+        installed_result = json.loads(installed_replay.stdout)
+        assert installed_result["status"] == "queued", installed_result
+        assert installed_result["memory"]["transport"] == "outbox", installed_result
+        assert installed_result["recoveredPendingDelivery"] is True, installed_result
+        assert len(list((queue / "memory/pending").glob("*.json"))) == 3
+        recovered_receipt = json.loads(
+            Path(installed_result["receipt"]).read_text(encoding="utf-8")
+        )
+        assert recovered_receipt["complete"] is True, recovered_receipt
+
+        installed_duplicate = run(
+            [
+                sys.executable,
+                str(installed_recorder),
+                "--project-root",
+                str(project),
+                "--input",
+                str(installed_event),
+            ],
+            project,
+            {
+                **common_env,
+                "HOME": str(installed_home),
+                "KPM_TEST_PK_FAIL": "1",
+            },
+        )
+        require(installed_duplicate, "replay recovered installed-layout delivery")
+        assert json.loads(installed_duplicate.stdout)["status"] == "duplicate"
+        assert len(list((queue / "memory/pending").glob("*.json"))) == 3
+
         secret_tokens = [
             "gh" + "p_abcdefghijklmnopqrstuvwxyz123456",
             "xo" + "xb-1234567890-abcdefghijklmnop",
@@ -405,10 +503,10 @@ printf '{"accepted":true}\n'
         projections_after = tree_digest(project / ".kbd-orchestrator")
         assert projections_after == projections_before, "recorder mutated a generated KBD projection"
         receipts = list(project.joinpath(".prometheus/progress-memory-receipts").glob("*.json"))
-        assert len(receipts) == 7, f"expected seven durable receipts, found {len(receipts)}"
+        assert len(receipts) == 8, f"expected eight durable receipts, found {len(receipts)}"
 
-        print("progress-memory integration: 12 scenarios passed")
-        print("covered: run-scoped identity, dynamic-state replay, concurrency, pre/post-pk crash, bounded timeout, secret rejection, outage, restart, mismatch, projection non-mutation")
+        print("progress-memory integration: 13 scenarios passed")
+        print("covered: run-scoped identity, dynamic-state replay, concurrency, pre/post-pk crash, bounded timeout, secret rejection, outage, installed-layout fallback, restart, mismatch, projection non-mutation")
     return 0
 
 

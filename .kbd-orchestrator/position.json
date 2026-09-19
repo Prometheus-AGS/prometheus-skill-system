@@ -2,14 +2,14 @@
   "schemaVersion": "1",
   "generatedBy": "kbd-runtime",
   "projectionContractVersion": 2,
-  "sourceRevision": 1233,
-  "derivedRevision": 1233,
+  "sourceRevision": 1261,
+  "derivedRevision": 1261,
   "frontier": {
-    "4bca58c3-e70b-48c9-a555-60bc16d3d025": 1186,
+    "4bca58c3-e70b-48c9-a555-60bc16d3d025": 1214,
     "575138ba-385e-449d-89f7-cf4d793b34f9": 47
   },
   "conflictCount": 0,
-  "updatedAt": "2026-09-19T17:28:57.273165Z",
+  "updatedAt": "2026-09-19T19:28:44.049214Z",
   "cursor": [
     "kbd-control-plane-recovery",
     "skill-pack-1-10-recovery"
@@ -19,7 +19,7 @@
     "id": "6ac090a4-3656-4d83-8eb6-2891508196d5",
     "status": "ready",
     "progress": {
-      "done": 41,
+      "done": 42,
       "total": 46
     },
     "children": [
@@ -346,17 +346,17 @@
             "canonicalId": "skill-pack-1-10-recovery",
             "status": "IN_PROGRESS",
             "progress": {
-              "done": 0,
+              "done": 1,
               "total": 1
             },
             "children": [
               {
                 "type": "change",
                 "id": "release-skill-pack-1-10-recovery",
-                "status": "IN_PROGRESS",
+                "status": "COMPLETE",
                 "progress": {
-                  "done": 5,
-                  "total": 6
+                  "done": 7,
+                  "total": 7
                 }
               }
             ],
