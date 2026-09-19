@@ -33,7 +33,7 @@
        KeepAlive=true with no throttle restarts the daemon IMMEDIATELY. When the
        failure is persistent — an unwritable path, a port already bound, a
        missing binary — that is a tight loop: observed 2026-07-28 on
-       sovereign-sync writing thousands of identical lock-failure lines, which
+       a crashed sibling service writing thousands of identical lock-failure lines, which
        buries any other diagnostic and burns CPU without ever recovering.
 
        Worse, launchd treats a job that respawns more than 5 times in 10s as

@@ -11,16 +11,19 @@
 #   Linux → shared/systemd/*.service     → ~/.config/systemd/user/     → systemctl --user
 #
 # Daemons (dependency order): surrealdb-native(:28000) → surreal-memory-native(:23001)
-#                             → pk-cherry(:8942) → forge-mcp(:8943) → surface-bridge(:7890)
-#                             → optional sovereign-sync sharing service;
+#                             → pk-cherry(:8942) → forge-mcp(:8943) → surface-bridge(:7890);
 #                             plus a nudge timer.
 # Also installs prometheus-exec (ai.prometheus.exec), a Unix-socket daemon with
 # no HTTP port, by delegating to scripts/install-prometheus-exec-service.sh.
 # The bundled SurrealDB binds :28000 and never touches an external instance on :8000.
 #
+# Sharing, CRDT replication, P2P discovery, and cross-machine sync moved to
+# prometheus-companion (change-cpc-004, change-cpc-009, D-02). This installer
+# never builds, renders, or manages that daemon; it lives in and is installed
+# by the Companion's own installer.
+#
 # Usage:
 #   bash scripts/install-mcp-services.sh [--unload] [--restart] [--learning-recovery]
-#       [--sharing]
 #       [--user <username>] [--dry-run] [--render-only <directory>]
 #       [--exclude <service> ...]
 #
@@ -29,9 +32,6 @@
 #   --restart     Reload managed definitions and restart services even when healthy
 #   --learning-recovery
 #                 Install only pk-cherry, the learning worker, and hook rotation.
-#                 This mode never initializes, renders, stops, or starts sovereign-sync.
-#   --sharing     Explicitly install/start sovereign-sync for cross-machine sharing.
-#                 Without this flag the control plane is stopped and disabled.
 #   --user <u>    Target a different user (requires matching uid / privileges)
 #   --render-only <directory>
 #                 Render non-excluded managed service definitions and exit
@@ -48,7 +48,6 @@ DRY_RUN=false
 FORCE_RESTART=false
 RENDER_ONLY_DIR=""
 LEARNING_RECOVERY=false
-SHARING=false
 EXCLUDED_SERVICES=""
 
 while [ "$#" -gt 0 ]; do
@@ -57,7 +56,6 @@ while [ "$#" -gt 0 ]; do
         --restart)  FORCE_RESTART=true; shift ;;
         --dry-run)  DRY_RUN=true; shift ;;
         --learning-recovery) LEARNING_RECOVERY=true; shift ;;
-        --sharing) SHARING=true; shift ;;
         --exclude)
             [ "$#" -ge 2 ] || { echo "Missing value for --exclude" >&2; exit 2; }
             EXCLUDED_SERVICES="$EXCLUDED_SERVICES${2#service:}
@@ -73,13 +71,6 @@ while [ "$#" -gt 0 ]; do
         *)          echo "Unknown argument: $1" >&2; exit 2 ;;
     esac
 done
-
-# Local KBD is authoritative and daemon-free. The sharing daemon is deliberately
-# absent unless the operator opts in for this invocation.
-if ! $SHARING && [ "$ACTION" != "unload" ]; then
-    EXCLUDED_SERVICES="$EXCLUDED_SERVICES"'sovereign-sync
-'
-fi
 
 service_is_excluded() {
     local name="${1#ai.prometheus.}"
@@ -130,52 +121,6 @@ resolve_bin() {
 
 run() { if $DRY_RUN; then echo "[dry-run] $*"; else "$@"; fi; }
 
-ensure_sovereign_config() {
-    local config_path="$PROMETHEUS_HOME/.config/sovereign-sync/config.toml"
-    local device_key_path="$PROMETHEUS_HOME/.config/sovereign-sync/device-key.json"
-    if $DRY_RUN; then
-        echo "[dry-run] ensure sovereign-sync operator namespace in $config_path"
-        return
-    fi
-    python3 - "$config_path" <<'PY'
-import os
-import pathlib
-import re
-import secrets
-import sys
-
-path = pathlib.Path(sys.argv[1])
-path.parent.mkdir(parents=True, exist_ok=True)
-text = path.read_text() if path.exists() else ""
-operator = secrets.token_hex(32)
-assignment = f'operator_id = "{operator}"'
-
-match = re.search(r'(?m)^operator_id\s*=\s*"([^"]*)"\s*$', text)
-if match and match.group(1).strip():
-    os.chmod(path, 0o600)
-    raise SystemExit(0)
-if match:
-    text = text[:match.start()] + assignment + text[match.end():]
-elif re.search(r'(?m)^\[node\]\s*$', text):
-    text = re.sub(r'(?m)^(\[node\]\s*)$', rf'\1\n{assignment}', text, count=1)
-else:
-    prefix = f"[node]\n{assignment}\n"
-    text = prefix + ("\n" + text if text else "")
-
-temporary = path.with_name(path.name + ".tmp")
-temporary.write_text(text.rstrip() + "\n")
-os.chmod(temporary, 0o600)
-os.replace(temporary, path)
-PY
-    local sovereign_sync_bin
-    sovereign_sync_bin="$(resolve_bin sovereign-sync)"
-    [ -n "$sovereign_sync_bin" ] || sovereign_sync_bin="$BIN_FALLBACK_DIR/sovereign-sync"
-    "$sovereign_sync_bin" --mode init --config "$config_path" >/dev/null
-    chmod 600 "$device_key_path"
-    echo "  ✓ sovereign-sync operator namespace configured"
-    echo "  ✓ sovereign-sync headless device key configured"
-}
-
 # ── Daemons in dependency order: label | probe-port | probe-path ─────────────
 declare -a DAEMON_LABELS=(
     "ai.prometheus.surrealdb-native"
@@ -183,7 +128,6 @@ declare -a DAEMON_LABELS=(
     "ai.prometheus.pk-cherry"
     "ai.prometheus.forge-mcp"
     "ai.prometheus.surface-bridge"
-    "ai.prometheus.sovereign-sync"
     "ai.prometheus.liter-llm-api"
 )
 declare -A DAEMON_PORT=(
@@ -192,11 +136,6 @@ declare -A DAEMON_PORT=(
     [ai.prometheus.pk-cherry]=8942
     [ai.prometheus.forge-mcp]=8943
     [ai.prometheus.surface-bridge]=7890
-    # sovereign-sync 1.7.0 serves HTTP on a same-user Unix socket and binds NO
-    # TCP port unless started with --tcp, which the managed LaunchAgent does not
-    # pass. Probing :7892 therefore always failed, so every run of this script
-    # concluded the service was down and restarted a healthy daemon.
-    [ai.prometheus.sovereign-sync]="unix:$PROMETHEUS_HOME/Library/Application Support/prometheus/run/sovereign-sync.sock"
     # liter-llm gateway. Registers the cross-vendor KBD judges (Kimi k3,
     # MiniMax-M3) that openai-proxy on :8181 does not know about, so
     # ~/.prometheus/kbd/models.toml probes :4000 FIRST.
@@ -208,7 +147,6 @@ declare -A DAEMON_PATH=(
     [ai.prometheus.pk-cherry]=/mcp
     [ai.prometheus.forge-mcp]=/mcp
     [ai.prometheus.surface-bridge]=/health
-    [ai.prometheus.sovereign-sync]=/health
     # /v1/* is behind an unconditional Bearer check, so an unauthenticated
     # probe returns 401 — which still proves the listener is up and parsing.
     [ai.prometheus.liter-llm-api]=/v1/models
@@ -254,7 +192,7 @@ render_template() {
     local src="$1" output="$2"
     [ -f "$src" ] || { echo "Template not found: $src" >&2; return 1; }
 
-    local pk_cherry_bin forge_bin docker_bin surreal_bin surreal_memory_bin surreal_mlx_executor surface_bridge_bin sovereign_sync_bin learning_worker_bin logrotate_bin flock_bin
+    local pk_cherry_bin forge_bin docker_bin surreal_bin surreal_memory_bin surreal_mlx_executor surface_bridge_bin learning_worker_bin logrotate_bin flock_bin
     pk_cherry_bin="$(resolve_bin pk-cherry)";  [ -n "$pk_cherry_bin" ] || pk_cherry_bin="$BIN_FALLBACK_DIR/pk-cherry"
     forge_bin="$(resolve_bin forge)";          [ -n "$forge_bin" ]     || forge_bin="$BIN_FALLBACK_DIR/forge"
     docker_bin="$(resolve_bin docker)";        [ -n "$docker_bin" ]    || docker_bin="/usr/local/bin/docker"
@@ -276,7 +214,6 @@ render_template() {
     case "$local_embedding_backend" in candle|mlx) ;; *) echo "PROMETHEUS_LOCAL_EMBEDDING_BACKEND must be candle or mlx" >&2; return 1 ;; esac
     case "$local_embedding_device" in auto|cpu) ;; *) echo "PROMETHEUS_LOCAL_EMBEDDING_DEVICE must be auto or cpu" >&2; return 1 ;; esac
     surface_bridge_bin="$(resolve_bin surface-bridge)"; [ -n "$surface_bridge_bin" ] || surface_bridge_bin="$BIN_FALLBACK_DIR/surface-bridge"
-    sovereign_sync_bin="$(resolve_bin sovereign-sync)"; [ -n "$sovereign_sync_bin" ] || sovereign_sync_bin="$BIN_FALLBACK_DIR/sovereign-sync"
     learning_worker_bin="$(resolve_bin prometheus-learning-worker)"; [ -n "$learning_worker_bin" ] || learning_worker_bin="$BIN_FALLBACK_DIR/prometheus-learning-worker"
     logrotate_bin="$(resolve_bin logrotate)"
     if [ -z "$logrotate_bin" ]; then
@@ -290,14 +227,12 @@ render_template() {
     fi
     flock_bin="$(resolve_bin flock)"; [ -n "$flock_bin" ] || flock_bin="/usr/bin/flock"
 
-    local device_key_file="$PROMETHEUS_HOME/.config/sovereign-sync/device-key.json"
-    PROMETHEUS_DEVICE_KEY_FILE="$device_key_file" \
     PROMETHEUS_USER="$PROMETHEUS_USER" PROMETHEUS_HOME="$PROMETHEUS_HOME" \
     PROMETHEUS_ROOT="$REPO_ROOT" PROMETHEUS_LOG_DIR="$LOG_DIR" PROMETHEUS_PATH="$PROMETHEUS_PATH" \
     PK_CHERRY_BIN="$pk_cherry_bin" FORGE_BIN="$forge_bin" DOCKER_BIN="$docker_bin" \
     SURREAL_BIN="$surreal_bin" SURREAL_MEMORY_BIN="$surreal_memory_bin" SURREAL_MLX_EXECUTOR="$surreal_mlx_executor" \
     LOCAL_EMBEDDING_BACKEND="$local_embedding_backend" LOCAL_EMBEDDING_DEVICE="$local_embedding_device" SURFACE_BRIDGE_BIN="$surface_bridge_bin" \
-    SOVEREIGN_SYNC_BIN="$sovereign_sync_bin" LEARNING_WORKER_BIN="$learning_worker_bin" \
+    LEARNING_WORKER_BIN="$learning_worker_bin" \
     LOGROTATE_BIN="$logrotate_bin" FLOCK_BIN="$flock_bin" \
     python3 - "$src" "$output" <<'PY'
 import os, pathlib, sys
@@ -338,11 +273,9 @@ for k, env in {
     "__LOCAL_EMBEDDING_BACKEND__": "LOCAL_EMBEDDING_BACKEND",
     "__LOCAL_EMBEDDING_DEVICE__": "LOCAL_EMBEDDING_DEVICE",
     "__SURFACE_BRIDGE_BIN__": "SURFACE_BRIDGE_BIN",
-    "__SOVEREIGN_SYNC_BIN__": "SOVEREIGN_SYNC_BIN",
     "__LEARNING_WORKER_BIN__": "LEARNING_WORKER_BIN",
     "__LOGROTATE_BIN__": "LOGROTATE_BIN",
     "__FLOCK_BIN__": "FLOCK_BIN",
-    "__PROMETHEUS_DEVICE_KEY_FILE__": "PROMETHEUS_DEVICE_KEY_FILE",
 }.items():
     text = text.replace(k, escape_value(os.environ[env]))
 dst.write_text(text)
@@ -369,14 +302,6 @@ if [ -n "$RENDER_ONLY_DIR" ]; then
         render_template \
             "$REPO_ROOT/shared/launchagents/ai.prometheus.surreal-memory-native.plist" \
             "$RENDER_ONLY_DIR/ai.prometheus.surreal-memory-native.plist"
-    fi
-    if ! service_is_excluded sovereign-sync; then
-        render_template \
-            "$REPO_ROOT/shared/launchagents/ai.prometheus.sovereign-sync.plist" \
-            "$RENDER_ONLY_DIR/ai.prometheus.sovereign-sync.plist"
-        render_template \
-            "$REPO_ROOT/shared/systemd/ai.prometheus.sovereign-sync.service" \
-            "$RENDER_ONLY_DIR/ai.prometheus.sovereign-sync.service"
     fi
     render_template "$REPO_ROOT/shared/launchagents/$LEARNING_LABEL.plist" "$RENDER_ONLY_DIR/$LEARNING_LABEL.plist"
     render_template "$REPO_ROOT/shared/launchagents/$ROTATION_LABEL.plist" "$RENDER_ONLY_DIR/$ROTATION_LABEL.plist"
@@ -417,68 +342,7 @@ reload_scheduled_launch_agent() {
     launchctl enable "$GUI_DOMAIN/$label"
 }
 
-disable_optional_control_plane_macos() {
-    local label disabled_registry
-    for label in ai.prometheus.sovereign-sync com.prometheusags.sovereign-sync; do
-        if $DRY_RUN; then
-            echo "[dry-run] launchctl disable $GUI_DOMAIN/$label"
-            echo "[dry-run] launchctl bootout $GUI_DOMAIN/$label"
-        else
-            launchctl disable "$GUI_DOMAIN/$label" >/dev/null 2>&1 || true
-            launchctl bootout "$GUI_DOMAIN/$label" >/dev/null 2>&1 || true
-            disabled_registry="$(launchctl print-disabled "$GUI_DOMAIN" 2>/dev/null || true)"
-            printf '%s' "$disabled_registry" | grep -Fq "\"$label\" => disabled" || {
-                echo "ERROR: failed to disable $label" >&2
-                return 1
-            }
-            if launchctl print "$GUI_DOMAIN/$label" >/dev/null 2>&1; then
-                echo "ERROR: $label is still loaded after bootout" >&2
-                return 1
-            fi
-        fi
-        echo "→ $label disabled (enable explicitly with --sharing)"
-    done
-}
-
-disable_optional_control_plane_linux() {
-    local unit active_state enabled_state
-    for unit in ai.prometheus.sovereign-sync.service com.prometheusags.sovereign-sync.service; do
-        if $DRY_RUN; then
-            echo "[dry-run] systemctl --user disable --now $unit"
-            echo "→ ${unit%.service} disabled (enable explicitly with --sharing)"
-            continue
-        fi
-        systemctl --user disable --now "$unit" >/dev/null 2>&1 || true
-        active_state="$(systemctl --user is-active "$unit" 2>/dev/null || true)"
-        enabled_state="$(systemctl --user is-enabled "$unit" 2>/dev/null || true)"
-        case "$active_state" in inactive|unknown|'') ;; *)
-            echo "ERROR: $unit remains $active_state after disable" >&2
-            return 1 ;;
-        esac
-        case "$enabled_state" in disabled|masked|not-found|'') ;; *)
-            echo "ERROR: $unit remains $enabled_state after disable" >&2
-            return 1 ;;
-        esac
-        echo "→ ${unit%.service} disabled (enable explicitly with --sharing)"
-    done
-}
-
-ensure_optional_sharing_binary() {
-    local sovereign_sync_bin
-    $SHARING || return 0
-    [ "$ACTION" = "install" ] || return 0
-    [ -z "$RENDER_ONLY_DIR" ] || return 0
-    sovereign_sync_bin="$(resolve_bin sovereign-sync)"
-    [ -n "$sovereign_sync_bin" ] && return 0
-    if $DRY_RUN; then
-        echo "[dry-run] install optional sovereign-sync sharing binary"
-        return 0
-    fi
-    bash "$REPO_ROOT/scripts/install-sovereign-sync-sharing.sh"
-}
-
 macos_install() {
-    ensure_optional_sharing_binary
     $DRY_RUN || mkdir -p "$LAUNCH_AGENTS_DIR" "$LOG_DIR" "$KNOWLEDGE_DIR" \
         "$PROMETHEUS_HOME/.prometheus/logrotate" \
         "$PROMETHEUS_HOME/.prometheus/learning-queue/pending" \
@@ -491,9 +355,6 @@ macos_install() {
     if ! $DRY_RUN; then
         render_logrotate_config "$PROMETHEUS_HOME/.prometheus/logrotate/prometheus-hooks.conf"
         chmod 700 "$PROMETHEUS_HOME/.prometheus" "$PROMETHEUS_HOME/.prometheus/logrotate" "$PROMETHEUS_HOME/.prometheus/learning-queue"
-    fi
-    if ! $SHARING && ! $LEARNING_RECOVERY; then
-        disable_optional_control_plane_macos
     fi
     if $LEARNING_RECOVERY; then
         local recovery_labels=("ai.prometheus.pk-cherry" "$LEARNING_LABEL" "$ROTATION_LABEL")
@@ -594,10 +455,6 @@ macos_unload() {
 # ════════════════════════════════════════════════════════════════════════════
 linux_install() {
     command -v systemctl >/dev/null 2>&1 || { echo "systemctl not found — systemd required on Linux." >&2; exit 1; }
-    ensure_optional_sharing_binary
-    if ! $SHARING && ! $LEARNING_RECOVERY; then
-        disable_optional_control_plane_linux
-    fi
     $DRY_RUN || mkdir -p "$SYSTEMD_USER_DIR" "$LOG_DIR" "$KNOWLEDGE_DIR" \
         "$PROMETHEUS_HOME/.prometheus/logrotate" "$PROMETHEUS_HOME/.prometheus/learning-queue/pending" \
         "$PROMETHEUS_HOME/.prometheus/learning-queue/retry" "$PROMETHEUS_HOME/.prometheus/learning-queue/memory/pending" \
@@ -681,8 +538,8 @@ linux_unload() {
 }
 
 case "$OS/$ACTION" in
-    macos/install) $LEARNING_RECOVERY || service_is_excluded sovereign-sync || ensure_sovereign_config; macos_install ;;
+    macos/install) macos_install ;;
     macos/unload)  macos_unload ;;
-    linux/install) $LEARNING_RECOVERY || service_is_excluded sovereign-sync || ensure_sovereign_config; linux_install ;;
+    linux/install) linux_install ;;
     linux/unload)  linux_unload ;;
 esac

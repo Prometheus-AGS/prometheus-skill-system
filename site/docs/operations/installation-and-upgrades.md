@@ -72,17 +72,17 @@ learning-worker and hook-log-rotation user services. The service installer
 accepts repeatable exclusions:
 
 ```bash
-bash scripts/install-mcp-services.sh --dry-run --exclude sovereign-sync
-bash scripts/install-mcp-services.sh --exclude sovereign-sync
+bash scripts/install-mcp-services.sh --dry-run
+bash scripts/install-mcp-services.sh
 ```
 
 Always inspect the dry-run plan first. Excluded services are not rendered, installed, restarted, or rewritten.
 
-Sovereign Sync is excluded by default from ordinary operation: KBD uses its
-signed local runtime directly. Plain full setup stops and disables current and
-legacy service identities. Select `--sharing` only when cross-machine
-replication is intended. See [KBD control-plane recovery](/docs/kbd/control-plane-recovery)
-for the rationale and the post-repair refresh sequence.
+KBD uses its signed local runtime directly. Cross-machine replication is an
+optional extension installed by `prometheus-companion`; this repository's
+installers do not build or manage it. See
+[KBD control-plane recovery](/docs/kbd/control-plane-recovery) for the rationale
+and post-repair refresh sequence.
 
 Success means every requested artifact was byte-verified (and executability was
 verified for binaries), the active signed plugin generation passed trust and
@@ -99,7 +99,7 @@ Repository skills live under `.agents/skills/`; Codex discovery uses `.codex/ski
 2. Complete the coherent implementation without per-edit test loops.
 3. Build and install only affected native components, serialized machine-wide.
 4. Activate and verify one immutable plugin generation for detected harnesses.
-5. Reload allowed user services; leave Sovereign Sync disabled without sharing.
+5. Reload the pack's managed user services.
 6. Run the smallest applicable local full-integration gate.
 7. Run doctors and certify receipts, queues, snapshots, logs, rollback, and stale-path absence.
 8. Push only after final local certification.

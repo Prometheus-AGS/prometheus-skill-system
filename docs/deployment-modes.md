@@ -12,9 +12,9 @@ The prometheus-skill-pack operates across four progressive capability tiers. Eac
 | Sycophancy correction gate | NO | YES | YES | YES |
 | surface-bridge Tier 2 UI (iframe) | NO | NO | YES | YES |
 | FSRS-6 spaced retrieval (learner-model) | NO | NO | YES | YES |
-| sovereign-sync P2P CRDT replication | NO | NO | NO | YES |
-| iroh QUIC transport | NO | NO | NO | YES |
-| AG-UI SSE streaming endpoint | NO | NO | NO | YES |
+| Companion P2P CRDT extension | NO | NO | NO | EXTERNAL |
+| Companion iroh QUIC transport | NO | NO | NO | EXTERNAL |
+| Companion AG-UI SSE endpoint | NO | NO | NO | EXTERNAL |
 
 ## Mode Descriptions
 
@@ -71,21 +71,23 @@ The learn domain skills (`/feynman-loop`, `/learn-goal`, `/learn-retain`, etc.) 
 
 ### Mode 3 — P2P
 
-**Requires:** Mode 2 + sovereign-sync daemon
+**Requires:** Mode 2 + a separately installed `prometheus-companion`
 
-The sovereign-sync daemon (`127.0.0.1:7892`) adds iroh QUIC P2P transport for cross-device CRDT synchronization. Learner model state, skill indices, and custom knowledge bases replicate automatically between peers.
+The Companion adds iroh QUIC P2P transport for cross-device CRDT
+synchronization. It owns its process, service definition, and sync skills; the
+skill pack discovers its optional endpoint through the open integration
+contract.
 
 ```bash
-# Daemon starts via launchd (macOS) / systemd (Linux) after install-skills-flat.sh
-sovereign-sync --mode daemon
+# Run from the prometheus-companion checkout
+bash scripts/install-companion-service.sh
+bash scripts/install-skill-package.sh
 
-# Check status
-curl -s http://127.0.0.1:7892/health | jq .
-/sync-status
-/sync-peers
+# Confirm that the pack discovered the optional endpoint
+prometheus contract show --json
 ```
 
-AG-UI SSE events stream at `http://127.0.0.1:7892/events` for Tauri clients.
+The Companion documents its AG-UI and P2P endpoints in its own repository.
 
 ## Choosing a Mode
 

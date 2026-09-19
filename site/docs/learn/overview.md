@@ -7,7 +7,7 @@ sidebar_label: Overview
 # Learn Domain — Feynman-Spine
 
 The Learn domain implements a complete learning and education capability using the
-**Feynman-Spine** methodology. It spans 15 skills across 4 architectural layers.
+**Feynman-Spine** methodology. It spans 12 skills across 4 architectural layers.
 
 ## The learning arc
 
@@ -30,9 +30,9 @@ The Learn domain implements a complete learning and education capability using t
 | `/learn-about-system` | Prometheus stack meta-learning |
 | `/learn-harness` | Harness detection + capability map |
 | `/ui-surface` | Cross-harness UI rendering primitive |
-| `/sync-status` | Check P2P sync status |
-| `/sync-peers` | Manage P2P peers |
-| `/sync-push` | Push CRDT domains to peers |
+
+The optional `/sync-status`, `/sync-peers`, and `/sync-push` skills are
+distributed by `prometheus-companion`, which owns cross-machine replication.
 
 ## Core invariants
 

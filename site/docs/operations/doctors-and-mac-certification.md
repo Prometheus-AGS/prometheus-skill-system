@@ -12,7 +12,7 @@ prometheus doctor --json \
   --exclude control.kbd-runtime \
   --exclude state.kbd-orchestrator \
   --exclude control.kbd-rollout \
-  --exclude service:sovereign-sync
+  --exclude remote-queue
 ```
 
 Selection happens before excluded checks are constructed or executed. The report’s `selection` object records the requested check filter and exclusions.
@@ -24,7 +24,7 @@ prometheus doctor --json --refresh --dry-run \
   --exclude control.kbd-runtime \
   --exclude state.kbd-orchestrator \
   --exclude control.kbd-rollout \
-  --exclude service:sovereign-sync
+  --exclude remote-queue
 ```
 
 Review every action. Apply only safe, reversible, in-scope actions with explicit confirmation.
@@ -37,8 +37,8 @@ Run and archive redacted output for:
 - `pk doctor --json`;
 - `codex doctor --json`;
 - `cowork doctor`, `cowork toolchain status`, and `cowork toolchain check`;
-- `scripts/prometheus-services.sh doctor --exclude sovereign-sync`;
-- `scripts/check-mcp-health.sh --json --exclude sovereign-sync`;
+- `scripts/prometheus-services.sh doctor`;
+- `scripts/check-mcp-health.sh --json`;
 - `prometheus learning status --json`;
 - root smoke tests and `pk` health fixtures.
 
@@ -60,4 +60,3 @@ flowchart TD
 ## Certification evidence
 
 Required checks must be green. Every warning needs a written disposition. Archive exact command, exit code, commit, timestamp, sanitized environment, and report path. Run `scripts/certify-memory-operations.sh --long-memory` separately because it intentionally writes a certification memory; doctor remains diagnostic.
-

@@ -22,7 +22,6 @@ const sourceInputs = [
   'substrate/exec-contracts/src/',
   'substrate/exec-service/src/',
   'docs/reference/api/',
-  'substrate/sovereign-sync/src/',
   'substrate/learner-model/src/',
   'substrate/skill-index/',
   'skills/',
@@ -95,14 +94,6 @@ function rustFields(source, name) {
   }));
 }
 
-function rustVariants(source, name) {
-  return rustBlock(source, `pub enum ${name} {`)
-    .split('\n')
-    .map(line => line.trim().match(/^([A-Z][A-Za-z0-9_]*)[,]?$/)?.[1])
-    .filter(Boolean)
-    .map(value => value.replace(/([a-z0-9])([A-Z])/g, '$1_$2').toLowerCase());
-}
-
 function routeReference(source) {
   const constants = new Map(
     [...source.matchAll(/pub const\s+([A-Z0-9_]+):\s*&str\s*=\s*"([^"]+)";/g)].map(match => [
@@ -166,17 +157,10 @@ function table(headers, rows) {
 }
 
 const pkg = json('package.json');
-const restSource = read('substrate/sovereign-sync/src/rest_api.rs');
-const mainSource = read('substrate/sovereign-sync/src/main.rs');
 const pluginSource = read('scripts/install-plugin-generation.js');
 const execModelSource = read('substrate/exec-contracts/src/model.rs');
 const execHttpSource = read('substrate/exec-service/src/http.rs');
 const execMainSource = read('crates/prometheus-exec/src/main.rs');
-const routes = routeReference(restSource);
-const requestFields = rustFields(restSource, 'SignedSyncPushRequest');
-const receiptFields = rustFields(restSource, 'PushReceipt');
-const states = rustVariants(restSource, 'PushLocalState');
-const flags = cliFlags(mainSource);
 const targets = pluginTargets(pluginSource);
 const execRoutes = routeReference(execHttpSource);
 const execRequestFields = rustFields(execModelSource, 'SignedExecRequest');
@@ -199,35 +183,6 @@ Skill definitions: **${skillFiles.length}**
 
 Plugin targets: **${targets.length}**
 
-## HTTP routes
-
-${table(
-  ['Method', 'Route'],
-  routes.map(item => [`\`${item.method}\``, `\`${item.route}\``])
-)}
-
-## SignedSyncPushRequest schema
-
-${table(
-  ['Field', 'Rust type'],
-  requestFields.map(item => [`\`${item.name}\``, `\`${item.type}\``])
-)}
-
-## PushReceipt schema
-
-${table(
-  ['Field', 'Rust type'],
-  receiptFields.map(item => [`\`${item.name}\``, `\`${item.type}\``])
-)}
-
-## Push local states
-
-${states.map(state => `- \`${state}\``).join('\n')}
-
-## Sovereign Sync CLI/config reference
-
-${flags.map(flag => `- \`${flag}\``).join('\n')}
-
 ## Plugin target matrix
 
 ${table(
@@ -240,8 +195,6 @@ ${table(
 ${table(
   ['Capability', 'Code-backed status'],
   [
-    ['Local transport', 'Unix socket by default; loopback TCP is explicit and token-authenticated'],
-    ['Sync push', 'Signed v2 request with durable exact-replay receipt'],
     ['Learner model', 'Loro immutable evidence with deterministic derived-state fold'],
     ['Plugin distribution', 'Ed25519-signed generation, shared index, and 14 signed receipts'],
     ['Validation', 'Local certification; hosted automation limited to docs sync and Pages'],

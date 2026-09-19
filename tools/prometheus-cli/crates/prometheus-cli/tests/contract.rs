@@ -154,7 +154,10 @@ fn contract_validate_accepts_a_conforming_declaration() {
         String::from_utf8_lossy(&output.stderr)
     );
     let stdout = String::from_utf8_lossy(&output.stdout);
-    assert!(stdout.contains("valid: prometheus-companion 0.1.0"), "{stdout}");
+    assert!(
+        stdout.contains("valid: prometheus-companion 0.1.0"),
+        "{stdout}"
+    );
 }
 
 #[test]

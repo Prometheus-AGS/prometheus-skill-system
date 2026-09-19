@@ -313,12 +313,12 @@ fn doctor_excludes_remote_queue_before_path_inspection() {
         .arg(directory.path().join("identity.json"))
         .args(["--remote-queue"])
         .arg(&remote)
-        .args(["--exclude", "service:sovereign-sync", "--format", "json"])
+        .args(["--exclude", "remote-queue", "--format", "json"])
         .output()
         .unwrap();
     assert_eq!(output.status.code(), Some(1));
     let payload: serde_json::Value = serde_json::from_slice(&output.stdout).unwrap();
-    assert_eq!(payload["excluded"][0], "service:sovereign-sync");
+    assert_eq!(payload["excluded"][0], "remote-queue");
     assert!(payload["checks"]
         .as_array()
         .unwrap()

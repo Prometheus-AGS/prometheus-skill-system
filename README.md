@@ -522,19 +522,19 @@ change MCP configuration, or install services. Use `./install.sh --profile full`
 for the locally built macOS/Linux system; `npm run setup:full` is its package
 alias, and an installed CLI can use `prometheus setup --full` to include managed
 local services in component setup. KBD itself is daemon-free and commits to its
-signed local runtime. The `ai.prometheus.sovereign-sync` service is disabled by
-default; enable it only for cross-machine sharing with
-`prometheus setup --full --sharing`. Plain `npm run setup` remains a
-prerequisite-only command, and plain `prometheus setup` remains daemon-free.
+signed local runtime. Cross-machine replication is owned and installed by
+`prometheus-companion`; the pack does not install or manage that extension.
+Plain `npm run setup` remains a prerequisite-only command, and plain
+`prometheus setup` remains daemon-free.
 Release `1.7.0` is the minimum supported active umbrella skill-system version.
 
 ### KBD is local-first; sharing is optional
 
 KBD reads and mutates its signed local event journal directly. It does not need
-`sovereign-sync`, a REST control plane, or a continuously running daemon for
-ordinary phase, task, checkpoint, memory, or waypoint work. Plain full setup
-stops and disables both current and legacy Sovereign Sync service identities;
-only the explicit `--sharing` profile starts the passive replication sidecar.
+a REST control plane or a continuously running daemon for ordinary phase, task,
+checkpoint, memory, or waypoint work. When installed separately, the Companion
+can discover this contract and add cross-machine replication without changing
+the pack's local authority.
 
 The recovered workflow also records idempotent before/after boundary receipts,
 restores exact progress after compaction, repairs only derived projections, and

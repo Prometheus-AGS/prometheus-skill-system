@@ -55,8 +55,8 @@ fn discover(root: &Path) -> (Option<String>, &'static str) {
             }
             return (None, "absent");
         }
-        if let Some(path) = dirs::data_local_dir()
-            .map(|base| base.join("prometheus/run/sovereign-sync.sock"))
+        if let Some(path) =
+            dirs::data_local_dir().map(|base| base.join("prometheus/run/sovereign-sync.sock"))
         {
             if path.exists() {
                 return (Some(path.to_string_lossy().into_owned()), "default:socket");
@@ -121,9 +121,12 @@ fn parse_semver(value: &str) -> Option<(u64, u64, u64)> {
 
 fn is_kebab(value: &str) -> bool {
     !value.is_empty()
-        && value
-            .split('-')
-            .all(|seg| !seg.is_empty() && seg.chars().all(|c| c.is_ascii_lowercase() || c.is_ascii_digit()))
+        && value.split('-').all(|seg| {
+            !seg.is_empty()
+                && seg
+                    .chars()
+                    .all(|c| c.is_ascii_lowercase() || c.is_ascii_digit())
+        })
 }
 
 /// `prometheus contract validate <skill-package.json>`
