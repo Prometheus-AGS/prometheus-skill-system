@@ -17,7 +17,7 @@ kbd_bottleneck_active() {
 }
 
 kbd_bottleneck_evaluate() {
-  # kbd_bottleneck_evaluate <task|phase|zeespec> <before|after> <subject> <precommit 0|1>
+  # kbd_bottleneck_evaluate <task|change|phase|zeespec> <before|after> <subject> <precommit 0|1>
   local boundary="$1" edge="$2" subject="$3" precommit="${4:-0}"
   local root="${KBD_BOTTLENECK_PATH:-.}"
   kbd_bottleneck_available || return 2

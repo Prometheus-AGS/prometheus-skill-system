@@ -243,9 +243,6 @@ enum Commands {
         /// Include managed local background services (the KBD control plane remains disabled)
         #[arg(long)]
         full: bool,
-        /// Enable the optional sovereign-sync service for cross-machine sharing
-        #[arg(long, requires = "full")]
-        sharing: bool,
         /// Assume yes to all install prompts (CI/automation mode)
         #[arg(long)]
         non_interactive: bool,
@@ -516,6 +513,7 @@ enum KbdAction {
 #[derive(Clone, clap::ValueEnum)]
 enum KbdBoundaryKind {
     Task,
+    Change,
     Phase,
     Zeespec,
 }
@@ -524,6 +522,7 @@ impl From<KbdBoundaryKind> for kbd_runtime::BoundaryKind {
     fn from(value: KbdBoundaryKind) -> Self {
         match value {
             KbdBoundaryKind::Task => Self::Task,
+            KbdBoundaryKind::Change => Self::Change,
             KbdBoundaryKind::Phase => Self::Phase,
             KbdBoundaryKind::Zeespec => Self::Zeespec,
         }
@@ -1449,12 +1448,11 @@ async fn main() -> Result<()> {
         },
         Commands::Setup {
             full,
-            sharing,
             non_interactive,
             dry_run,
             check,
             rebuild,
-        } => commands::setup::run(full, sharing, non_interactive, dry_run, check, rebuild),
+        } => commands::setup::run(full, non_interactive, dry_run, check, rebuild).await,
     }
 }
 

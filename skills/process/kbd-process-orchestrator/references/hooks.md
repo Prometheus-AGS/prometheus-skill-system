@@ -9,7 +9,7 @@ the default) entries.
 
 **Canonical event form**: `<kind>:<edge>`, where
 
-- `kind` ∈ `phase` | `child` | `plan` | `execute` | `reflect` | `task` | `assess` | `*`
+- `kind` ∈ `phase` | `child` | `change` | `plan` | `execute` | `reflect` | `task` | `assess` | `*`
 - `edge` ∈ `before` | `after` | `*`
 
 **Legacy alias compatibility** (kept working — no migration required):
@@ -55,7 +55,7 @@ A project can replace this wholesale with a single `mode: "override"` entry cove
 
 | Variable | Meaning |
 |---|---|
-| `KBD_HOOK_KIND` | phase / child / plan / execute / reflect / task / assess |
+| `KBD_HOOK_KIND` | phase / child / change / plan / execute / reflect / task / assess |
 | `KBD_HOOK_EDGE` | before / after |
 | `KBD_HOOK_NAME` | active item's canonical name |
 | `KBD_HOOK_INDEX` | 1-based index in the containing loop (default 1) |
@@ -96,4 +96,3 @@ operator-facing observability.
 
 Set `KBD_HOOK_DEBUG=1` in the environment to log every event-name
 normalisation to stderr (`[hooks] normalised <orig> → <canonical>`).
-

@@ -117,17 +117,24 @@ waypoint_render() {
   [ -f "$wp" ] || return 0
   jq empty "$wp" 2>/dev/null || return 0
 
-  local phase child change status last next why
+  local phase child change status last next why next_change next_task
   phase="$(_wr_get "$wp" phase phase)"
   [ -n "$phase" ] || return 0
   child="$(_wr_get "$wp" childPointer child_pointer)"
   change="$(_wr_get "$wp" change active_change)"
+  [ -n "$change" ] || change="$(jq -r '.nextChange // empty' "$wp" 2>/dev/null)"
   status="$(_wr_get "$wp" status stage)"
-  last="$(_wr_get "$wp" currentTask current_task)"
-  [ -n "$last" ] || last="$(_wr_get "$wp" lastCompleted last_completed)"
-  next="$(_wr_get "$wp" exactNextCommand exact_next_command)"
-  next="$(_wr_normalize_next_command "$next" "$change")"
+  last="$(_wr_get "$wp" lastCompleted last_completed)"
+  next_change="$(jq -r '.nextChange // .change // .active_change // empty' "$wp" 2>/dev/null)"
+  next_task="$(jq -r '.nextTask // .currentTask // .current_task // empty' "$wp" 2>/dev/null)"
+  next=""
+  if [ -n "$next_change" ] && [ -n "$next_task" ]; then
+    next="change $next_change, task $next_task"
+  elif [ -n "$next_change" ]; then
+    next="change $next_change"
+  fi
   why="$(_wr_get "$wp" nextAction next_action)"
+  [ -n "$why" ] || why="$(_wr_get "$wp" exactNextCommand exact_next_command)"
 
   # Runtime projections are revision-bound views, never independent ledgers.
   # Use a phase projection only when it was generated from the same canonical

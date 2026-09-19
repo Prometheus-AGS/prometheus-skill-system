@@ -575,6 +575,7 @@ pub struct Blocker {
 #[serde(rename_all = "snake_case")]
 pub enum BoundaryKind {
     Task,
+    Change,
     Phase,
     Zeespec,
 }
@@ -1867,6 +1868,9 @@ impl KbdStateV2 {
                 self.decisions.clone_from(decisions);
                 self.blockers.clone_from(blockers);
                 self.recalculate_implementation();
+                if let Some(phase_id) = self.active_path.phase_id.clone() {
+                    self.synchronize_active_work_cursor(&phase_id);
+                }
             }
             EventKind::PhaseDefined { phase } => {
                 if phase.slug.is_empty()
@@ -1909,18 +1913,22 @@ impl KbdStateV2 {
                 phase.status = to.clone();
             }
             EventKind::StageEntered { phase_id, stage } => {
-                let phase = self.phase_mut(phase_id)?;
-                if phase.stages.contains_key(&stage.id) {
-                    return Err(RuntimeError::WorkItemExists {
-                        kind: "stage",
-                        id: stage.id.clone(),
-                    });
+                {
+                    let phase = self.phase_mut(phase_id)?;
+                    if phase.stages.contains_key(&stage.id) {
+                        return Err(RuntimeError::WorkItemExists {
+                            kind: "stage",
+                            id: stage.id.clone(),
+                        });
+                    }
+                    phase.stages.insert(stage.id.clone(), stage.clone());
                 }
-                phase.stages.insert(stage.id.clone(), stage.clone());
+                self.active_path.phase_path = self.phase_chain(phase_id)?;
                 self.active_path.phase_id = Some(phase_id.clone());
                 self.active_path.stage_id = Some(stage.id.clone());
                 self.active_path.change_id = None;
                 self.active_path.task_id = None;
+                self.synchronize_active_work_cursor(phase_id);
             }
             EventKind::StageTransitioned {
                 phase_id,
@@ -1955,6 +1963,7 @@ impl KbdStateV2 {
                 }
                 phase.changes.insert(change.id.clone(), change.clone());
                 self.recalculate_implementation();
+                self.synchronize_active_work_cursor(phase_id);
             }
             EventKind::ChangeTransitioned {
                 phase_id,
@@ -1973,6 +1982,7 @@ impl KbdStateV2 {
                 change.status = to.clone();
                 change.implementation_status = to.clone();
                 self.recalculate_implementation();
+                self.synchronize_active_work_cursor(phase_id);
             }
             EventKind::TaskRegistered {
                 phase_id,
@@ -1989,6 +1999,7 @@ impl KbdStateV2 {
                 change.tasks.insert(task.id.clone(), task.clone());
                 self.recalculate_change(phase_id, change_id)?;
                 self.recalculate_implementation();
+                self.synchronize_active_work_cursor(phase_id);
             }
             EventKind::TaskTransitioned {
                 phase_id,
@@ -2012,6 +2023,7 @@ impl KbdStateV2 {
                 }
                 self.recalculate_change(phase_id, change_id)?;
                 self.recalculate_implementation();
+                self.synchronize_active_work_cursor(phase_id);
             }
             EventKind::ActivePathChanged {
                 active_path,
@@ -2019,6 +2031,9 @@ impl KbdStateV2 {
             } => {
                 self.validate_active_path(active_path)?;
                 self.active_path.clone_from(active_path);
+                if let Some(phase_id) = self.active_path.phase_id.clone() {
+                    self.synchronize_active_work_cursor(&phase_id);
+                }
                 self.exact_next_work.clone_from(exact_next_work);
             }
             EventKind::CompletionUpdated {
@@ -2346,6 +2361,112 @@ impl KbdStateV2 {
                 kind: "task",
                 id: task_id.to_string(),
             })
+    }
+
+    fn phase_chain(&self, phase_id: &str) -> Result<Vec<String>> {
+        let mut chain = Vec::new();
+        let mut cursor = Some(phase_id);
+        let mut seen = BTreeSet::new();
+        while let Some(id) = cursor {
+            if !seen.insert(id.to_owned()) {
+                return Err(RuntimeError::InvalidState(format!(
+                    "phase parent chain is cyclic at {id}"
+                )));
+            }
+            let phase = self
+                .phases
+                .get(id)
+                .ok_or_else(|| RuntimeError::WorkItemNotFound {
+                    kind: "phase",
+                    id: id.to_owned(),
+                })?;
+            chain.push(id.to_owned());
+            cursor = phase.parent_phase_id.as_deref();
+        }
+        chain.reverse();
+        Ok(chain)
+    }
+
+    fn derive_next_work_for_phase(&self, phase_id: &str) -> (Option<String>, Option<String>) {
+        let Some(phase) = self.phases.get(phase_id) else {
+            return (None, None);
+        };
+        let mut changes = phase
+            .changes
+            .values()
+            .filter(|change| !change.implementation_status.is_terminal())
+            .collect::<Vec<_>>();
+        changes.sort_by(|left, right| {
+            left.sequence
+                .cmp(&right.sequence)
+                .then_with(|| left.id.cmp(&right.id))
+        });
+        let change = changes
+            .iter()
+            .copied()
+            .find(|change| {
+                change.implementation_status == WorkStatus::InProgress
+                    || change
+                        .tasks
+                        .values()
+                        .any(|task| task.status == WorkStatus::InProgress)
+            })
+            .or_else(|| {
+                changes
+                    .iter()
+                    .copied()
+                    .find(|change| change.implementation_status == WorkStatus::Blocked)
+            })
+            .or_else(|| changes.first().copied());
+        let Some(change) = change else {
+            return (None, None);
+        };
+
+        let mut tasks = change
+            .tasks
+            .values()
+            .filter(|task| !task.status.is_terminal())
+            .collect::<Vec<_>>();
+        tasks.sort_by(|left, right| {
+            left.sequence
+                .cmp(&right.sequence)
+                .then_with(|| left.id.cmp(&right.id))
+        });
+        let task = tasks
+            .iter()
+            .copied()
+            .find(|task| task.status == WorkStatus::InProgress)
+            .or_else(|| {
+                tasks
+                    .iter()
+                    .copied()
+                    .find(|task| task.status == WorkStatus::Blocked)
+            })
+            .or_else(|| tasks.first().copied())
+            .map(|task| task.id.clone());
+
+        (Some(change.id.clone()), task)
+    }
+
+    fn derive_next_work(&self) -> (Option<String>, Option<String>) {
+        let Some(phase_id) = self
+            .active_path
+            .phase_id
+            .as_ref()
+            .or_else(|| self.active_path.phase_path.last())
+        else {
+            return (None, None);
+        };
+        self.derive_next_work_for_phase(phase_id)
+    }
+
+    fn synchronize_active_work_cursor(&mut self, phase_id: &str) {
+        if self.active_path.phase_id.as_deref() != Some(phase_id) {
+            return;
+        }
+        let (change_id, task_id) = self.derive_next_work_for_phase(phase_id);
+        self.active_path.change_id = change_id;
+        self.active_path.task_id = task_id;
     }
 
     fn validate_active_path(&self, path: &ActivePath) -> Result<()> {
@@ -5082,6 +5203,10 @@ impl Runtime {
             .first()
             .cloned()
             .unwrap_or_else(|| state.project_id.clone());
+        let active_phase = phase_path
+            .last()
+            .cloned()
+            .unwrap_or_else(|| waypoint_phase.clone());
         let child_pointer = if phase_path.len() > 1 {
             phase_path.last().cloned()
         } else {
@@ -5092,6 +5217,12 @@ impl Runtime {
             .get(&CompletionDimension::Implementation)
             .cloned()
             .unwrap_or_else(Completion::not_tracked);
+        let (derived_change, derived_task) = state.derive_next_work();
+        // `active_path` is only as fresh as the last explicit ActivePathSet, so
+        // fall back to the derivation rather than publishing null while work is
+        // open. Observed: `change: null` for 200 revisions with a task running.
+        let waypoint_change = derived_change.clone();
+        let waypoint_task = derived_task.clone();
         let waypoint = serde_json::json!({
             "schemaVersion": "5",
             "generatedBy": "kbd-runtime",
@@ -5102,20 +5233,29 @@ impl Runtime {
             "conflictCount": unresolved_conflict_count(state),
             "projectId": state.project_id,
             "runId": state.run_id,
-            "path": phase_path,
-            "phaseIds": phase_path_ids,
+            "path": phase_path.clone(),
+            "phaseIds": phase_path_ids.clone(),
             "activePhaseId": active_phase_id,
-            "phase": waypoint_phase,
+            "activePhase": active_phase.clone(),
+            "phase": waypoint_phase.clone(),
+            "parentPhase": phase_path.first().cloned(),
             "childPointer": child_pointer,
-            "change": state.active_path.change_id,
-            "currentTask": state.active_path.task_id,
+            "change": waypoint_change,
+            "currentTask": waypoint_task,
             "status": lifecycle_name(&state.lifecycle),
             "completionMetric": "implementation",
             "implementationCompleted": implementation.completed,
             "implementationTotal": implementation.total,
             "planRevision": state.plan_revision,
             "revision": state.revision,
+            // Operator prose, as last recorded. It states intent and can name a
+            // change that later work has superseded, so it is NOT a work
+            // selector. `nextChange` below is.
             "exactNextCommand": state.exact_next_work,
+            // Derived every projection from task state, like change status.
+            // This is the field to select work from.
+            "nextChange": derived_change,
+            "nextTask": derived_task,
             "updatedAt": projection_time
         });
         atomic_json(&kbd_root.join("current-waypoint.json"), &waypoint)?;
@@ -5137,12 +5277,27 @@ impl Runtime {
         // is purely derived, so unconditional regeneration is correct and a
         // refuse-to-clobber rule here would reintroduce exactly the staleness
         // it is meant to prevent.
+        let next_work_line = match (&derived_change, &derived_task) {
+            (Some(change), Some(task)) => {
+                format!("Next work: change {change}, task {task} (derived from task state)\n")
+            }
+            (Some(change), None) => {
+                format!("Next work: change {change} (derived from task state)\n")
+            }
+            _ => String::new(),
+        };
+        let position = if phase_path.is_empty() {
+            waypoint_phase.clone()
+        } else {
+            phase_path.join(" › ")
+        };
         let reminder = format!(
             "POSITION REMINDER — read this as your FIRST tool call every turn\n\
-             Phase: {phase}\n\
+             Position: {position}\n\
              Stage: {status}\n\
              Project-wide progress: {done} of {total} (implementation, ALL phases)\n\
-             Next command: {next}\n\
+             {next_work}\
+             Operator note (intent, NOT a work selector — may name superseded work): {next}\n\
              \n\
              GENERATED BY kbd-runtime at revision {rev}, {ts}.\n\
              Do NOT hand-edit: this file is rewritten on every canonical phase\n\
@@ -5152,12 +5307,13 @@ impl Runtime {
              The counter above is a PROJECT-WIDE roll-up across every phase in\n\
              canonical state. It is NOT this phase's progress. `completion` is\n\
              held on runtime state, not per phase, so a phase-scoped number is\n\
-             not available here. For THIS phase read\n\
-             phases/{phase}/progress.json, where changes[] is authoritative.\n",
-            phase = waypoint_phase,
+             not available here. For THIS phase read the active phase's\n\
+             revision-bound progress.json, where changes[] is authoritative.\n",
+            position = position,
             status = lifecycle_name(&state.lifecycle),
             done = implementation.completed,
             total = implementation.total,
+            next_work = next_work_line,
             next = state
                 .exact_next_work
                 .as_deref()
@@ -8941,6 +9097,155 @@ mod tests {
         assert_eq!(
             changed.completion[&CompletionDimension::Implementation].total,
             6
+        );
+    }
+
+    /// Reproduces the 2026-09-18 live defect: completing every task of a change
+    /// advanced `progress.json` but left the waypoint naming the finished
+    /// change, because `exact_next_work` is stored and only plan revisions or an
+    /// explicit `set_active_path` rewrite it. An agent taking the change id from
+    /// the waypoint would re-apply completed work.
+    ///
+    /// Drives task transitions ONLY — no `set_active_path`, no `revise` — which
+    /// is exactly the path the folds ignore.
+    #[test]
+    fn waypoint_next_work_follows_task_completion_without_an_explicit_path_set() {
+        let dir = tempdir().unwrap();
+        let kbd = dir.path().join(".kbd-orchestrator");
+        let runtime = Runtime::open(dir.path());
+        let mut state = runtime
+            .initialize("project", "run", actor(ActorKind::Operator, "codex"))
+            .unwrap();
+
+        state = runtime
+            .define_phase(
+                actor(ActorKind::Operator, "codex"),
+                MutationContext {
+                    expected_revision: state.revision,
+                    command_id: "define-phase".into(),
+                },
+                Phase {
+                    id: "web".into(),
+                    slug: "web".into(),
+                    title: "Web".into(),
+                    parent_phase_id: None,
+                    status: WorkStatus::InProgress,
+                    stages: BTreeMap::new(),
+                    changes: BTreeMap::new(),
+                    legacy_completion_baseline: None,
+                    legacy_read_only: false,
+                },
+            )
+            .unwrap();
+
+        for (sequence, id) in [(1_u64, "web-01"), (2, "web-02")] {
+            state = runtime
+                .register_change(
+                    actor(ActorKind::Operator, "codex"),
+                    MutationContext {
+                        expected_revision: state.revision,
+                        command_id: format!("register-{id}"),
+                    },
+                    "web",
+                    Change {
+                        id: id.into(),
+                        title: format!("Change {id}"),
+                        sequence,
+                        status: WorkStatus::Pending,
+                        implementation_status: WorkStatus::Pending,
+                        tasks: BTreeMap::new(),
+                    },
+                )
+                .unwrap();
+            state = runtime
+                .register_task(
+                    actor(ActorKind::Operator, "codex"),
+                    MutationContext {
+                        expected_revision: state.revision,
+                        command_id: format!("task-{id}"),
+                    },
+                    "web",
+                    id,
+                    Task {
+                        id: "1".into(),
+                        title: "Only task".into(),
+                        sequence: 1,
+                        status: WorkStatus::Pending,
+                        summary: None,
+                    },
+                )
+                .unwrap();
+        }
+
+        // The operator's last recorded intent names the FIRST change, and is
+        // never rewritten below — as in the live project, where a plan revision
+        // set it 169 revisions before the symptom.
+        state = runtime
+            .set_active_path(
+                actor(ActorKind::Operator, "codex"),
+                MutationContext {
+                    expected_revision: state.revision,
+                    command_id: "initial-path".into(),
+                },
+                ActivePath {
+                    phase_path: vec!["web".into()],
+                    phase_id: Some("web".into()),
+                    ..ActivePath::default()
+                },
+                Some("/kbd-apply web-01".into()),
+            )
+            .unwrap();
+
+        for to in [WorkStatus::InProgress, WorkStatus::Complete] {
+            state = runtime
+                .transition_task(
+                    actor(ActorKind::Harness, "codex"),
+                    MutationContext {
+                        expected_revision: state.revision,
+                        command_id: format!("web-01-{to:?}"),
+                    },
+                    "web",
+                    "web-01",
+                    "1",
+                    to,
+                    None,
+                )
+                .unwrap();
+        }
+
+        assert_eq!(
+            state.phases["web"].changes["web-01"].implementation_status,
+            WorkStatus::Complete,
+            "precondition: task completion must derive change status"
+        );
+
+        runtime.write_compatibility_projections().unwrap();
+
+        let waypoint: serde_json::Value =
+            serde_json::from_reader(File::open(kbd.join("current-waypoint.json")).unwrap())
+                .unwrap();
+        assert_eq!(
+            waypoint["nextChange"], "web-02",
+            "next change must follow task state, not the stored operator string"
+        );
+        assert_eq!(waypoint["nextTask"], "1");
+        assert_eq!(
+            waypoint["change"], "web-02",
+            "a null active change must fall back to the derivation while work is open"
+        );
+        assert_eq!(
+            waypoint["exactNextCommand"], "/kbd-apply web-01",
+            "the operator's own words are preserved verbatim"
+        );
+
+        let reminder = fs::read_to_string(kbd.join("position-reminder.txt")).unwrap();
+        assert!(
+            reminder.contains("Next work: change web-02, task 1"),
+            "reminder must name derived work: {reminder}"
+        );
+        assert!(
+            reminder.contains("NOT a work selector"),
+            "reminder must mark the operator note as non-authoritative: {reminder}"
         );
     }
 

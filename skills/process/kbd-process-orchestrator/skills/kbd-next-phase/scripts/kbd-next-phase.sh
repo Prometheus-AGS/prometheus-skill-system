@@ -38,6 +38,14 @@ KBD_DIR="${PROJECT_ROOT}/.kbd-orchestrator"
 WAYPOINT_JSON="${KBD_DIR}/current-waypoint.json"
 WAYPOINT_MD="${KBD_DIR}/current-waypoint.md"
 PROJECT_JSON="${KBD_DIR}/project.json"
+KBD_ORCHESTRATOR_ROOT="${KBD_ORCHESTRATOR_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd -P)}"
+export KBD_ORCHESTRATOR_ROOT
+hooks_avail=0
+if [[ -f "$KBD_ORCHESTRATOR_ROOT/shared/lib/hooks.sh" ]]; then
+  # shellcheck source=/dev/null
+  . "$KBD_ORCHESTRATOR_ROOT/shared/lib/hooks.sh"
+  hooks_avail=1
+fi
 
 # ── Validate waypoint exists ──────────────────────────────────────────────
 if [[ ! -f "$WAYPOINT_JSON" ]]; then
@@ -48,7 +56,7 @@ if [[ ! -f "$WAYPOINT_JSON" ]]; then
 fi
 
 # ── Read current waypoint ─────────────────────────────────────────────────
-CURRENT_PHASE="$(python3 -c "import json; d=json.load(open('$WAYPOINT_JSON')); print(d.get('phase','unknown'))" 2>/dev/null || echo "unknown")"
+CURRENT_PHASE="$(python3 -c "import json; d=json.load(open('$WAYPOINT_JSON')); print(d.get('activePhaseId') or d.get('activePhase') or d.get('phase') or 'unknown')" 2>/dev/null || echo "unknown")"
 # Read the terminal marker from `stage` OR `status` OR `project.json` — the
 # waypoint carries the same concept under different keys across generations,
 # and reflect writes the terminal state to project.json (status: reflected)
@@ -217,18 +225,32 @@ fi
 if command -v kbd_runtime_authoritative >/dev/null 2>&1 &&
    kbd_runtime_authoritative "$PROJECT_ROOT"; then
   export KBD_BOTTLENECK_PATH="$PROJECT_ROOT"
+  canonical_state="$(kbd_runtime_status_json "$PROJECT_ROOT")" \
+    || { echo "[kbd-next-phase] canonical status read failed" >&2; exit 1; }
+  current_phase_status="$(printf '%s' "$canonical_state" | jq -r --arg phase "$CURRENT_PHASE" '.phases[$phase].status // "missing"')"
+  [[ "$current_phase_status" != "missing" ]] \
+    || { echo "[kbd-next-phase] current phase '$CURRENT_PHASE' is absent from canonical state" >&2; exit 1; }
   guard_enabled=false
   if command -v kbd_bottleneck_active >/dev/null 2>&1 && kbd_bottleneck_active; then
     guard_enabled=true
-    kbd_bottleneck_evaluate phase after "$CURRENT_PHASE" 1 >/dev/null \
-      || { echo "[kbd-next-phase] current phase completion precommit blocked" >&2; exit 1; }
   fi
-  prometheus kbd --path "$PROJECT_ROOT" phase transition \
-    --command-id "phase-complete:${CURRENT_PHASE}" \
-    --id "$CURRENT_PHASE" --status complete >/dev/null
-  if [[ "$guard_enabled" == true ]]; then
-    completed_guard="$(kbd_bottleneck_evaluate phase after "$CURRENT_PHASE" 0)" \
-      || { echo "[kbd-next-phase] current phase completion postcommit blocked" >&2; exit 1; }
+  completed_guard=""
+  if [[ "$current_phase_status" != "complete" ]]; then
+    if [[ "$guard_enabled" == true ]]; then
+      kbd_bottleneck_evaluate phase after "$CURRENT_PHASE" 1 >/dev/null \
+        || { echo "[kbd-next-phase] current phase completion precommit blocked" >&2; exit 1; }
+    fi
+    prometheus kbd --path "$PROJECT_ROOT" phase transition \
+      --command-id "phase-complete:${CURRENT_PHASE}" \
+      --id "$CURRENT_PHASE" --status complete >/dev/null
+    if [[ "$guard_enabled" == true ]]; then
+      completed_guard="$(kbd_bottleneck_evaluate phase after "$CURRENT_PHASE" 0)" \
+        || { echo "[kbd-next-phase] current phase completion postcommit blocked" >&2; exit 1; }
+    fi
+    if [[ "$hooks_avail" == 1 ]]; then
+      (cd "$PROJECT_ROOT" && kbd_hooks_fire phase after "$CURRENT_PHASE" 1 1) \
+        || echo "[kbd-next-phase] phase completion hook failed" >&2
+    fi
   fi
   prometheus kbd --path "$PROJECT_ROOT" phase create \
     --command-id "phase-create:${NEW_PHASE}" \
@@ -246,7 +268,7 @@ if command -v kbd_runtime_authoritative >/dev/null 2>&1 &&
   if [[ "$guard_enabled" == true ]]; then
     starting_guard="$(kbd_bottleneck_evaluate phase before "$NEW_PHASE" 0)" \
       || { echo "[kbd-next-phase] next phase start postcommit blocked" >&2; exit 1; }
-    kbd_bottleneck_print_signal "$completed_guard"
+    [[ -z "$completed_guard" ]] || kbd_bottleneck_print_signal "$completed_guard"
     kbd_bottleneck_print_signal "$starting_guard"
   fi
   printf '\nCompleted kbd-next-phase — %s ready for /kbd-assess\n' "$NEW_PHASE"

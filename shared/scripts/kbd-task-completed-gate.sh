@@ -32,12 +32,28 @@ state="$(prometheus kbd --path "$project_root" status --json 2>/dev/null || true
 result="$(printf '%s' "$state" | jq -c \
   --arg task "$task_id" --arg subject "$task_subject" '
   .activePath.phaseId as $phase
-  | [.phases[$phase].changes[]?.tasks[]?
-      | select(.id == $task or .title == $subject)] as $matches
+  | .activePath.changeId as $active_change
+  | (if ($task | contains("/")) then ($task | split("/"))
+     elif ($subject | contains("/")) then ($subject | split("/"))
+     else [] end) as $qualified
+  | [
+      .phases[$phase].changes[]? as $change
+      | $change.tasks[]?
+      | select(
+          if ($qualified | length) == 2 then
+            $change.id == $qualified[0] and .id == $qualified[1]
+          elif ($active_change // "") != "" and $task != "" then
+            $change.id == $active_change and .id == $task
+          else
+            .id == $task or .title == $subject
+          end
+        )
+      | . + {canonicalChangeId: $change.id}
+    ] as $matches
   | if ($matches | length) == 0 then {tracked:false}
-    elif ($matches | length) > 1 then {tracked:true, valid:false, reason:"ambiguous canonical task title"}
+    elif ($matches | length) > 1 then {tracked:true, valid:false, reason:"ambiguous canonical task subject; use change-id/task-id"}
     else $matches[0] as $selected
-      | ("task:" + ($selected.id | ascii_downcase)) as $key
+      | ("task:" + $selected.canonicalChangeId + "/" + $selected.id | ascii_downcase) as $key
       | (.latestBoundaryReceipts[$key] // null) as $receipt
       | {
           tracked: true,
@@ -47,6 +63,7 @@ result="$(printf '%s' "$state" | jq -c \
             and $receipt.edge == "after"
             and ($receipt.outcome == "pass" or $receipt.outcome == "repaired")
           ),
+          changeId: $selected.canonicalChangeId,
           taskId: $selected.id,
           status: $selected.status,
           receiptId: ($receipt.id // null),
@@ -62,7 +79,8 @@ valid="$(printf '%s' "$result" | jq -r '.valid // false')"
 [ "$valid" = "true" ] && exit 0
 
 reason="$(printf '%s' "$result" | jq -r '.reason // "inconsistent canonical KBD completion"')"
+canonical_change="$(printf '%s' "$result" | jq -r '.changeId // "unknown"')"
 canonical_id="$(printf '%s' "$result" | jq -r '.taskId // "unknown"')"
-printf 'KBD completion blocked for task %s: %s. Complete it through /kbd-apply so the signed after receipt is recorded.\n' \
-  "$canonical_id" "$reason" >&2
+printf 'KBD completion blocked for task %s/%s: %s. Complete it through /kbd-apply so the signed after receipt is recorded.\n' \
+  "$canonical_change" "$canonical_id" "$reason" >&2
 exit 2

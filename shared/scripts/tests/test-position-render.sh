@@ -26,6 +26,15 @@ assert_empty() { # <label> <value>
   fi
 }
 
+assert_not_contains() { # <label> <haystack> <needle>
+  if printf '%s' "$2" | grep -qF "$3"; then
+    FAIL=$((FAIL + 1))
+    printf 'FAIL: %s — unexpectedly contained %q\nOUTPUT:\n%s\n' "$1" "$3" "$2" >&2
+  else
+    PASS=$((PASS + 1))
+  fi
+}
+
 TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
 
@@ -36,7 +45,10 @@ cat > "$TMP/repo/.kbd-orchestrator/current-waypoint.json" <<'EOF'
   "phase": "phase-x",
   "status": "execute_ready",
   "change": "change-002-demo",
-  "currentTask": "implement the demo",
+  "currentTask": "stale-current-task",
+  "lastCompleted": "draft the demo",
+  "nextChange": "change-002-demo",
+  "nextTask": "implement the demo",
   "exactNextCommand": "/kbd-apply change-002-demo",
   "exact_next_command": "/stale-snake-command",
   "next_action": "because the plan ordered it second",
@@ -62,8 +74,8 @@ assert_contains "sentinel close" "$OUT" '<!-- /prometheus-position -->'
 assert_contains "breadcrumb phase+change" "$OUT" 'Position: phase-x › change-002-demo › tasks 1/3'
 assert_contains "status" "$OUT" 'status: execute_ready'
 assert_contains "progress fraction" "$OUT" 'Progress: changes 1/6'
-assert_contains "last line" "$OUT" 'Last: implement the demo'
-assert_contains "camelCase wins over snake" "$OUT" 'Next: /kbd-apply change-002-demo'
+assert_contains "last line" "$OUT" 'Last: draft the demo'
+assert_contains "derived next work wins over operator text" "$OUT" 'Next: change change-002-demo, task implement the demo'
 
 # 2. Render from a nested directory (walk-up)
 mkdir -p "$TMP/repo/src/deep"
@@ -85,12 +97,12 @@ fi
 # 5. snake_case fallback when camelCase absent
 mkdir -p "$TMP/snake/.kbd-orchestrator/phases/p1"
 cat > "$TMP/snake/.kbd-orchestrator/current-waypoint.json" <<'EOF'
-{ "phase": "p1", "stage": "plan_ready", "exact_next_command": "/kbd-plan p1", "current_task": "draft plan" }
+{ "phase": "p1", "stage": "plan_ready", "exact_next_command": "/kbd-plan p1", "last_completed": "draft plan" }
 EOF
 OUT="$(cd "$TMP/snake" && source "$LIB" && waypoint_render)"
 assert_contains "snake status fallback" "$OUT" 'status: plan_ready'
-assert_contains "snake next fallback" "$OUT" 'Next: /kbd-plan p1'
 assert_contains "snake last fallback" "$OUT" 'Last: draft plan'
+assert_not_contains "operator text is not snake next fallback" "$OUT" 'Next: /kbd-plan p1'
 
 # 6. No orchestrator → silent, exit 0
 mkdir -p "$TMP/bare"
@@ -149,29 +161,33 @@ for s in execute_ready planned executing assessment_ready plan_ready in_progress
     FAIL=$((FAIL + 1)); echo "FAIL: '$s' should NOT be terminal" >&2; else PASS=$((PASS + 1)); fi
 done
 
-# 12. Bare OpenSpec and Spec Kit next commands are normalized back to /kbd-apply
+# 12. Backend commands remain operator notes and cannot override derived work
 mkdir -p "$TMP/repo3/.kbd-orchestrator/phases/p3"
 cat > "$TMP/repo3/.kbd-orchestrator/current-waypoint.json" <<'EOF'
 {
   "phase": "p3",
   "status": "execute_ready",
   "change": "change-123-demo",
+  "nextChange": "change-123-demo",
   "exactNextCommand": "/opsx:apply"
 }
 EOF
 OUT="$(cd "$TMP/repo3" && source "$LIB" && waypoint_render)"
-assert_contains "bare openspec normalized" "$OUT" 'Next: /kbd-apply change-123-demo'
+assert_contains "openspec note does not select work" "$OUT" 'Next: change change-123-demo'
+assert_not_contains "openspec command stays out of next" "$OUT" '/opsx:apply'
 
 cat > "$TMP/repo3/.kbd-orchestrator/current-waypoint.json" <<'EOF'
 {
   "phase": "p3",
   "status": "execute_ready",
   "change": "change-123-demo",
+  "nextChange": "feature-x",
   "exactNextCommand": "/speckit.implement feature-x"
 }
 EOF
 OUT="$(cd "$TMP/repo3" && source "$LIB" && waypoint_render)"
-assert_contains "speckit normalized" "$OUT" 'Next: /kbd-apply feature-x'
+assert_contains "speckit note does not select work" "$OUT" 'Next: change feature-x'
+assert_not_contains "speckit command stays out of next" "$OUT" '/speckit.implement feature-x'
 
 echo "---"
 echo "PASS=$PASS FAIL=$FAIL"

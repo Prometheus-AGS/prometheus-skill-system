@@ -1,0 +1,88 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://prometheus-ags.dev/schemas/karpathy-progress-event-v1.json",
+  "title": "Karpathy Progress Memory Event",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "eventId",
+    "observedAt",
+    "runId",
+    "boundary",
+    "status",
+    "phaseId",
+    "taskClass",
+    "elapsedHours",
+    "touchedFiles",
+    "verification",
+    "commitSha",
+    "blocker",
+    "exactNextWork"
+  ],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "eventId": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9._:-]{8,128}$"
+    },
+    "observedAt": { "type": "string", "format": "date-time" },
+    "runId": { "type": "string", "minLength": 1, "maxLength": 200 },
+    "boundary": { "enum": ["task", "change", "phase"] },
+    "status": {
+      "enum": ["in_progress", "complete", "blocked", "cancelled"]
+    },
+    "phaseId": { "type": "string", "minLength": 1, "maxLength": 160 },
+    "changeId": { "type": ["string", "null"], "maxLength": 200 },
+    "taskId": { "type": ["string", "null"], "maxLength": 200 },
+    "taskClass": {
+      "enum": ["product", "research", "evidence", "integration", "release"]
+    },
+    "elapsedHours": { "type": "number", "minimum": 0, "maximum": 1000 },
+    "touchedFiles": {
+      "type": "array",
+      "maxItems": 500,
+      "items": { "type": "string", "minLength": 1, "maxLength": 1000 },
+      "uniqueItems": true
+    },
+    "verification": {
+      "type": "array",
+      "maxItems": 100,
+      "items": {
+        "type": "object",
+        "required": ["command", "exitCode", "summary"],
+        "properties": {
+          "command": { "type": "string", "minLength": 1, "maxLength": 2000 },
+          "exitCode": { "type": "integer", "minimum": 0, "maximum": 255 },
+          "summary": { "type": "string", "maxLength": 4000 }
+        },
+        "additionalProperties": false
+      }
+    },
+    "commitSha": {
+      "type": ["string", "null"],
+      "pattern": "^[0-9a-fA-F]{7,64}$"
+    },
+    "blocker": { "type": ["string", "null"], "maxLength": 4000 },
+    "exactNextWork": { "type": ["string", "null"], "maxLength": 4000 }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "boundary": { "const": "task" } } },
+      "then": {
+        "required": ["changeId", "taskId"],
+        "properties": {
+          "changeId": { "type": "string", "minLength": 1 },
+          "taskId": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "boundary": { "const": "change" } } },
+      "then": {
+        "required": ["changeId"],
+        "properties": { "changeId": { "type": "string", "minLength": 1 } }
+      }
+    }
+  ],
+  "additionalProperties": false
+}

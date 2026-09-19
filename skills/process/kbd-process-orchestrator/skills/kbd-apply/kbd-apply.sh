@@ -480,26 +480,49 @@ case "$cmd" in
     [ -n "$change" ] && [ -n "$id" ] || die "usage: begin-task <change> <id> <i> <n> <title>"
     runtime_task_transition "$change" "$id" "$title" "$i" "register-only" \
       || die "failed to register canonical task boundary"
+    read -r before_tot before_comp before_rem < <(b_progress "$change" 2>/dev/null || echo "$n 0 $n")
+    change_start=0
+    [ "${before_comp:-0}" -eq 0 ] && change_start=1
     guard_enabled=0
     if command -v kbd_bottleneck_active >/dev/null 2>&1 && kbd_bottleneck_active; then
       guard_enabled=1
-      # OpenSpec task ordinals repeat in every change. The canonical guard
-      # resolves within the active phase, so a bare numeric id becomes
-      # ambiguous as soon as a second change registers task "1". Titles are
-      # canonically resolved task subjects (duplicates fail closed) and still fold back to the typed
-      # change/task ids in the signed receipt.
-      kbd_bottleneck_evaluate task before "$title" 1 >/dev/null \
+      change_key="change:$(printf '%s' "$change" | tr '[:upper:]' '[:lower:]')"
+      canonical_state="$(kbd_runtime_status_json ".")" \
+        || die "failed to read canonical boundary obligations"
+      if printf '%s' "$canonical_state" | jq -e --arg key "$change_key" '.boundaryObligations[$key]' >/dev/null 2>&1; then
+        change_start=0
+      else
+        change_start=1
+        kbd_bottleneck_evaluate change before "$change" 1 >/dev/null \
+          || die "canonical change start precommit evaluation blocked"
+      fi
+      # OpenSpec task ordinals and standard task titles repeat across changes.
+      # Qualify the canonical subject so the guard resolves the exact typed
+      # change/task pair and records a distinct boundary obligation.
+      kbd_bottleneck_evaluate task before "$change/$id" 1 >/dev/null \
         || die "canonical task start precommit evaluation blocked"
     fi
     runtime_task_transition "$change" "$id" "$title" "$i" "in-progress" \
       || die "failed to commit canonical task start"
     if [ "$guard_enabled" = "1" ]; then
-      guard_output="$(kbd_bottleneck_evaluate task before "$title" 0)" \
+      if [ "$change_start" = "1" ]; then
+        change_guard_output="$(kbd_bottleneck_evaluate change before "$change" 0)" \
+          || die "canonical change start postcommit evaluation blocked"
+      fi
+      task_guard_output="$(kbd_bottleneck_evaluate task before "$change/$id" 0)" \
         || die "canonical task start postcommit evaluation blocked"
+    fi
+    if [ "$change_start" = "1" ]; then
+      if [ "$guard_enabled" = "1" ]; then
+        kbd_bottleneck_print_signal "$change_guard_output"
+      else
+        printf 'Starting change 1 out of 1:   %s\n' "$change"
+      fi
+      fire change before "$change" 1 1
     fi
     fire task before "$change:$id" "$i" "$n"
     if [ "$guard_enabled" = "1" ]; then
-      kbd_bottleneck_print_signal "$guard_output"
+      kbd_bottleneck_print_signal "$task_guard_output"
     else
       printf 'Starting task %s out of %s:   %s\n' "$i" "$n" "$title"
     fi ;;
@@ -507,11 +530,18 @@ case "$cmd" in
   end-task)
     change="${1:-}"; id="${2:-}"; i="${3:-1}"; n="${4:-1}"; shift 4 || true; title="$*"
     [ -n "$change" ] && [ -n "$id" ] || die "usage: end-task <change> <id> <i> <n> <title>"
+    read -r before_tot before_comp before_rem < <(b_progress "$change" 2>/dev/null || echo "$n $((i - 1)) 1")
+    final_task=0
+    [ "${before_rem:-1}" -eq 1 ] && final_task=1
     guard_enabled=0
     if command -v kbd_bottleneck_active >/dev/null 2>&1 && kbd_bottleneck_active; then
       guard_enabled=1
-      kbd_bottleneck_evaluate task after "$title" 1 >/dev/null \
+      kbd_bottleneck_evaluate task after "$change/$id" 1 >/dev/null \
         || die "canonical task completion precommit evaluation blocked"
+      if [ "$final_task" = "1" ]; then
+        kbd_bottleneck_evaluate change after "$change" 1 >/dev/null \
+          || die "canonical change completion precommit evaluation blocked"
+      fi
     fi
     b_mark_done "$change" "$id"
     runtime_task_transition "$change" "$id" "$title" "$i" "complete" \
@@ -522,13 +552,27 @@ case "$cmd" in
     # Re-derive the unified position model so the breadcrumb tracks task
     # completion live (CF-5). Best-effort; never aborts the driver.
     command -v kbd_position_sync >/dev/null 2>&1 && { kbd_position_sync || true; }
-    fire task after "$change:$id" "$i" "$n"
     if [ "$guard_enabled" = "1" ]; then
-      guard_output="$(kbd_bottleneck_evaluate task after "$title" 0)" \
+      task_guard_output="$(kbd_bottleneck_evaluate task after "$change/$id" 0)" \
         || die "canonical task completion postcommit evaluation blocked"
-      kbd_bottleneck_print_signal "$guard_output"
+      if [ "$final_task" = "1" ]; then
+        change_guard_output="$(kbd_bottleneck_evaluate change after "$change" 0)" \
+          || die "canonical change completion postcommit evaluation blocked"
+      fi
+      kbd_bottleneck_print_signal "$task_guard_output"
     else
       printf 'Completed task %s out of %s:   %s\n' "$i" "$n" "$title"
+    fi
+    # Completion hooks run only after both the canonical transition and its
+    # signed after-boundary receipt succeed.
+    fire task after "$change:$id" "$i" "$n"
+    if [ "$final_task" = "1" ]; then
+      if [ "$guard_enabled" = "1" ]; then
+        kbd_bottleneck_print_signal "$change_guard_output"
+      else
+        printf 'Completed change 1 out of 1:   %s\n' "$change"
+      fi
+      fire change after "$change" 1 1
     fi
     if [ "${rem:-0}" -gt 0 ]; then
       pending_titles="$(b_remaining_titles "$change" | paste -sd ' | ' -)"
