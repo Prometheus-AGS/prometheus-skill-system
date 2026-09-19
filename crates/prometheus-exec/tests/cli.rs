@@ -64,6 +64,11 @@ fn canonical_json(value: &Value) -> Vec<u8> {
 
 #[cfg(target_os = "macos")]
 fn create_plugin_fixture(plugin_root: &Path) {
+    create_plugin_fixture_with_schema(plugin_root, 1);
+}
+
+#[cfg(target_os = "macos")]
+fn create_plugin_fixture_with_schema(plugin_root: &Path, schema_version: u64) {
     use std::os::unix::{fs::symlink, fs::PermissionsExt as _};
 
     const SPKI_PREFIX: &[u8] = &[
@@ -108,7 +113,7 @@ fn create_plugin_fixture(plugin_root: &Path) {
             "type": "file",
         }],
         "hookRuntime": {"abi": "hook-runtime-v1"},
-        "schemaVersion": 1,
+        "schemaVersion": schema_version,
         "signerKeyId": signer_key_id,
         "skillIndex": {"entryCount": 1, "sha256": "fixture"},
         "executionComponent": {"fixture": "cli-integration"},
@@ -132,20 +137,32 @@ fn create_plugin_fixture(plugin_root: &Path) {
     ] {
         identity.insert(key.into(), source[key].clone());
     }
-    let generation = hash_bytes(&canonical_json(&Value::Object(identity)))
+    let identity = Value::Object(identity);
+    let generation_bytes = if schema_version == 1 {
+        canonical_json(&identity)
+    } else {
+        serde_jcs::to_vec(&identity).unwrap()
+    };
+    let generation = hash_bytes(&generation_bytes)
         .as_str()
         .strip_prefix("sha256:")
         .unwrap()
         .to_owned();
     manifest["generation"] = Value::String(generation.clone());
     let manifest_bytes = canonical_json(&manifest);
+    let signed_manifest = if schema_version == 1 {
+        manifest_bytes.clone()
+    } else {
+        serde_jcs::to_vec(&manifest).unwrap()
+    };
     let mut payload = format!("{NAMESPACE}\n").into_bytes();
-    payload.extend_from_slice(&manifest_bytes);
+    payload.extend_from_slice(&signed_manifest);
     let signature = signing_key.sign(&payload);
     let envelope = json!({
         "algorithm": "Ed25519",
         "namespace": NAMESPACE,
-        "schemaVersion": 1,
+        "schemaVersion": if schema_version == 1 { 1 } else { 2 },
+        "canonicalization": if schema_version == 1 { Value::Null } else { Value::String("RFC8785".into()) },
         "signature": STANDARD.encode(signature.to_bytes()),
         "signerKeyId": signer_key_id,
     });
@@ -297,6 +314,71 @@ fn doctor_failure_is_structured_non_mutating_and_never_false_green() {
         .stdout(predicate::str::contains("socket-permissions"))
         .stdout(predicate::str::contains("state-reconciliation"));
     assert_eq!(fs::read_dir(directory.path()).unwrap().count(), 0);
+}
+
+#[cfg(all(target_os = "macos", feature = "estate"))]
+#[test]
+fn doctor_accepts_portable_schema_two_generation_identity() {
+    let directory = tempdir().unwrap();
+    let plugin_root = directory.path().join("plugin");
+    create_plugin_fixture_with_schema(&plugin_root, 2);
+    let inspect = |plugin_root: &Path| {
+        let output = command()
+            .args(["doctor", "--socket"])
+            .arg(directory.path().join("exec.sock"))
+            .args(["--state-dir"])
+            .arg(directory.path().join("state"))
+            .args(["--identity"])
+            .arg(directory.path().join("identity.json"))
+            .args(["--plugin-root"])
+            .arg(plugin_root)
+            .args(["--format", "json"])
+            .output()
+            .unwrap();
+        serde_json::from_slice::<serde_json::Value>(&output.stdout).unwrap()
+    };
+    let payload = inspect(&plugin_root);
+    let trust = payload["checks"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|check| check["name"] == "tier-w-trust")
+        .expect("doctor must report Tier W trust");
+    assert_eq!(trust["status"], "pass", "{payload}");
+    assert!(trust["detail"]
+        .as_str()
+        .is_some_and(|detail| detail.contains("active signed generation")));
+
+    let generation = fs::read_link(plugin_root.join("current")).unwrap();
+    let manifest_path = plugin_root.join(generation).join("manifest.json");
+    let mut manifest: Value = serde_json::from_slice(&fs::read(&manifest_path).unwrap()).unwrap();
+    manifest["unsignedExtra"] = Value::String("tampered".into());
+    fs::write(&manifest_path, canonical_json(&manifest)).unwrap();
+    let tampered = inspect(&plugin_root);
+    let tampered_trust = tampered["checks"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|check| check["name"] == "tier-w-trust")
+        .expect("doctor must report Tier W trust");
+    assert_eq!(tampered_trust["status"], "fail", "{tampered}");
+    assert!(tampered_trust["detail"]
+        .as_str()
+        .is_some_and(|detail| detail.contains("signature verification failed")));
+
+    let unsupported_root = directory.path().join("unsupported-plugin");
+    create_plugin_fixture_with_schema(&unsupported_root, 3);
+    let unsupported = inspect(&unsupported_root);
+    let unsupported_trust = unsupported["checks"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|check| check["name"] == "tier-w-trust")
+        .expect("doctor must report Tier W trust");
+    assert_eq!(unsupported_trust["status"], "fail", "{unsupported}");
+    assert!(unsupported_trust["detail"]
+        .as_str()
+        .is_some_and(|detail| detail.contains("schema 3 is unsupported")));
 }
 
 #[cfg(feature = "estate")]

@@ -2,24 +2,26 @@
   "schemaVersion": "1",
   "generatedBy": "kbd-runtime",
   "projectionContractVersion": 2,
-  "sourceRevision": 1261,
-  "derivedRevision": 1261,
+  "sourceRevision": 1263,
+  "derivedRevision": 1263,
   "frontier": {
-    "4bca58c3-e70b-48c9-a555-60bc16d3d025": 1214,
+    "4bca58c3-e70b-48c9-a555-60bc16d3d025": 1216,
     "575138ba-385e-449d-89f7-cf4d793b34f9": 47
   },
   "conflictCount": 0,
-  "updatedAt": "2026-09-19T19:28:44.049214Z",
+  "updatedAt": "2026-09-19T19:41:16.274100Z",
   "cursor": [
     "kbd-control-plane-recovery",
-    "skill-pack-1-10-recovery"
+    "skill-pack-1-10-recovery",
+    "release-skill-pack-1-10-recovery",
+    "recovery-8"
   ],
   "root": {
     "type": "phase",
     "id": "6ac090a4-3656-4d83-8eb6-2891508196d5",
     "status": "ready",
     "progress": {
-      "done": 42,
+      "done": 41,
       "total": 46
     },
     "children": [
@@ -346,17 +348,17 @@
             "canonicalId": "skill-pack-1-10-recovery",
             "status": "IN_PROGRESS",
             "progress": {
-              "done": 1,
+              "done": 0,
               "total": 1
             },
             "children": [
               {
                 "type": "change",
                 "id": "release-skill-pack-1-10-recovery",
-                "status": "COMPLETE",
+                "status": "IN_PROGRESS",
                 "progress": {
                   "done": 7,
-                  "total": 7
+                  "total": 8
                 }
               }
             ],

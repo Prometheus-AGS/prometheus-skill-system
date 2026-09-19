@@ -1644,15 +1644,33 @@ fn read_json_for_doctor(
     }
 }
 
-fn collect_hook_commands(value: &serde_json::Value, commands: &mut Vec<String>) {
+#[derive(Debug)]
+struct HookCommand {
+    executable: String,
+    arguments: Vec<String>,
+}
+
+fn collect_hook_commands(value: &serde_json::Value, commands: &mut Vec<HookCommand>) {
     match value {
         serde_json::Value::Object(object) => {
-            for (key, child) in object {
-                if key == "command" {
-                    if let Some(command) = child.as_str() {
-                        commands.push(command.to_string());
-                    }
-                }
+            if let Some(executable) = object.get("command").and_then(serde_json::Value::as_str) {
+                let arguments = object
+                    .get("args")
+                    .and_then(serde_json::Value::as_array)
+                    .map(|values| {
+                        values
+                            .iter()
+                            .filter_map(serde_json::Value::as_str)
+                            .map(str::to_owned)
+                            .collect()
+                    })
+                    .unwrap_or_default();
+                commands.push(HookCommand {
+                    executable: executable.to_owned(),
+                    arguments,
+                });
+            }
+            for child in object.values() {
                 collect_hook_commands(child, commands);
             }
         }
@@ -1669,7 +1687,7 @@ fn validate_codex_hook_graph(
     root: &Path,
     plugin_manifest: &Path,
     expected_bundle: &str,
-    expected_hook_count: usize,
+    expected_hook_ids: &BTreeSet<String>,
     expected_hooks_sha: &str,
     label: &str,
     failures: &mut Vec<String>,
@@ -1716,27 +1734,44 @@ fn validate_codex_hook_graph(
     }
     let mut commands = Vec::new();
     collect_hook_commands(&hooks, &mut commands);
-    if commands.len() != expected_hook_count {
+    if commands.len() != expected_hook_ids.len() {
         failures.push(format!(
-            "{label} exposes {} hook commands; expected {expected_hook_count}",
-            commands.len()
+            "{label} exposes {} hook commands; expected {}",
+            commands.len(),
+            expected_hook_ids.len()
         ));
     }
+    let mut actual_hook_ids = BTreeSet::new();
     for (index, command) in commands.iter().enumerate() {
-        let invalid = !command.contains("runtime/v1/run-hook")
-            || !command.contains("bootstrap-hook-runtime.sh")
-            || !command.contains("--bundle")
-            || !command.contains(expected_bundle)
-            || !command.contains("--harness")
-            || !command.contains("'codex'")
-            || command.contains("/stable/")
-            || command.contains("/current/");
+        let hook_id = command.arguments.get(4).map(String::as_str);
+        let invalid = command.executable != "node"
+            || command.arguments.len() != 7
+            || command.arguments.first().map(String::as_str)
+                != Some("${CLAUDE_PLUGIN_ROOT}/scripts/hook-entry.mjs")
+            || command.arguments.get(1).map(String::as_str) != Some("--bundle")
+            || command.arguments.get(2).map(String::as_str) != Some(expected_bundle)
+            || command.arguments.get(3).map(String::as_str) != Some("--hook")
+            || hook_id.is_none_or(|value| !expected_hook_ids.contains(value))
+            || command.arguments.get(5).map(String::as_str) != Some("--harness")
+            || command.arguments.get(6).map(String::as_str) != Some("codex")
+            || command
+                .arguments
+                .iter()
+                .any(|argument| argument.contains("/stable/") || argument.contains("/current/"));
+        if let Some(hook_id) = hook_id {
+            actual_hook_ids.insert(hook_id.to_owned());
+        }
         if invalid {
             failures.push(format!(
                 "{label} hook command {} is not pinned to bundle {expected_bundle}",
                 index + 1
             ));
         }
+    }
+    if &actual_hook_ids != expected_hook_ids {
+        failures.push(format!(
+            "{label} hook identities differ from the generated hook contract"
+        ));
     }
     Some(version)
 }
@@ -1767,7 +1802,7 @@ fn check_harness_adapter_parity() -> CheckResult {
     {
         failures.push("release manifest does not select hook-runtime-v1".into());
     }
-    let expected_hook_count = contract
+    let expected_hook_ids: BTreeSet<String> = contract
         .as_ref()
         .and_then(|value| value["events"].as_array())
         .map(|events| {
@@ -1781,11 +1816,13 @@ fn check_harness_adapter_parity() -> CheckResult {
                     })
                 })
                 .filter_map(|event| event["hooks"].as_array())
-                .map(Vec::len)
-                .sum()
+                .flatten()
+                .filter_map(|hook| hook["id"].as_str())
+                .map(str::to_owned)
+                .collect()
         })
         .unwrap_or_default();
-    if expected_hook_count == 0 {
+    if expected_hook_ids.is_empty() {
         failures.push("hook contract contains no hooks".into());
     }
     let source_hooks = source_root.join("hooks/codex-hooks.json");
@@ -1797,7 +1834,7 @@ fn check_harness_adapter_parity() -> CheckResult {
         source_root,
         &source_root.join("dist/plugins/codex/prometheus-skill-pack/.codex-plugin/plugin.json"),
         &bundle,
-        expected_hook_count,
+        &expected_hook_ids,
         &expected_hooks_sha,
         "source",
         &mut failures,
@@ -1814,7 +1851,7 @@ fn check_harness_adapter_parity() -> CheckResult {
                     &active,
                     &active.join(".codex-plugin/plugin.json"),
                     &bundle,
-                    expected_hook_count,
+                    &expected_hook_ids,
                     &expected_hooks_sha,
                     "active immutable generation",
                     &mut failures,
@@ -1870,7 +1907,7 @@ fn check_harness_adapter_parity() -> CheckResult {
                 &cache_root,
                 &cache_root.join(".codex-plugin/plugin.json"),
                 &bundle,
-                expected_hook_count,
+                &expected_hook_ids,
                 &expected_hooks_sha,
                 "Codex native cache",
                 &mut failures,
@@ -1896,7 +1933,8 @@ fn check_harness_adapter_parity() -> CheckResult {
         },
         summary: if failures.is_empty() {
             format!(
-                "source, immutable generation, bundle index, and Codex cache agree on {expected_hook_count} pinned hooks"
+                "source, immutable generation, bundle index, and Codex cache agree on {} pinned hooks",
+                expected_hook_ids.len()
             )
         } else {
             format!("{} installed hook graph defect(s)", failures.len())
