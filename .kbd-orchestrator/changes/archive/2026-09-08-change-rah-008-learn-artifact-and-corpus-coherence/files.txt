@@ -1,0 +1,16 @@
+skills/learn/feynman-loop/SKILL.md
+skills/learn/feynman-loop/scripts/write-artifact.sh
+skills/learn/learn-retain/SKILL.md
+skills/learn/learn-certify/SKILL.md
+skills/learn/learn-grade/SKILL.md
+skills/learn/learn-grade/references/eval-dataset/HARNESS.md
+skills/learn/learn-grade/references/eval-dataset/EVAL-RESULTS.md
+skills/learn/learn-grade/references/eval-dataset/metrics-summary.json
+shared/scripts/content-grounding-kb.sh
+skills/learn/learn-goal/scripts/content-grounding-kb.sh
+skills/learn/learn-kb/scripts/content-grounding-kb.sh
+skills/learn/tests/learn-coherence.sh
+skills/learn/tests/fixtures/kb-local/vectors.md
+skills/learn/tests/fixtures/kb-local/matrices.txt
+skills/learn/tests/fixtures/kb-local/authored-corpus.json
+openspec/specs/learn-model-coherence/spec.md

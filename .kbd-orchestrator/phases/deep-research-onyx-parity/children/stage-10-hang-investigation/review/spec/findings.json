@@ -1,0 +1,17 @@
+{
+  "mode": "artifact",
+  "verdict": "PASS",
+  "judge_model": "MiniMax-M3",
+  "producer_model": "glm-5.3",
+  "isolation_mode": "rest-gateway:http://localhost:4000/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [],
+  "checked_classes": [
+    "..."
+  ],
+  "sycophancy_screen": {
+    "reject_cap": 2,
+    "cap_overridden": false,
+    "cap_default": 2
+  }
+}

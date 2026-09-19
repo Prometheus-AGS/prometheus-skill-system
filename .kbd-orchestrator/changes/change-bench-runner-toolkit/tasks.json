@@ -1,0 +1,66 @@
+{
+  "changeId": "change-bench-runner-toolkit",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Implement run-stage.sh: gateway candidates probe (liter-llm :4000 then openai-proxy :8181 per models.toml); per-stage prompt assembly from skills/research/deep-research/skills/stage-NN-name/SKILL.md + package state; chat-completions POST with retry/backoff (3 attempts exponential 1s/4s/16s, per-attempt 600s timeout); content extraction; artifact write per stage contract; stage-aware timeouts (frontier stages 01/05/06/07/09=600s, others=300s); bash 3.2 compatible (C-05); set -euo pipefail",
+      "done": false,
+      "files": [
+        "skills/research/deep-research/scripts/run-stage.sh"
+      ],
+      "verify": "bash -n skills/research/deep-research/scripts/run-stage.sh && /bin/bash -n skills/research/deep-research/scripts/run-stage.sh && test -x skills/research/deep-research/scripts/run-stage.sh && grep -q 'litellm\\|localhost:4000\\|localhost:8181' skills/research/deep-research/scripts/run-stage.sh && grep -qE 'sleep [0-9]+|backoff|retry' skills/research/deep-research/scripts/run-stage.sh",
+      "notes": null
+    },
+    {
+      "id": "2",
+      "title": "Implement label-claims.py: idempotent Python; reads sources/registry.json + sources/credibility.json + sources/chunk-NN.json; per-claim adds verified|partial|unverified based on credibility_score (>=70 verified, 40-69 partial, <40 unverified), source tier (primary-statistical > secondary-analysis-of-primary > primary-research-institute > primary-government > primary-policy-research > secondary-analysis), quote-presence in chunks; writes updated registry.json in place and emits sources/label-summary.json with counts",
+      "done": false,
+      "files": [
+        "skills/research/deep-research/scripts/label-claims.py"
+      ],
+      "verify": "bash -n skills/research/deep-research/scripts/label-claims.py && python3 -c 'import ast,sys;ast.parse(open(\"skills/research/deep-research/scripts/label-claims.py\").read())' && test -x skills/research/deep-research/scripts/label-claims.py",
+      "notes": null
+    },
+    {
+      "id": "3",
+      "title": "Implement run-bench-suite.sh: reads tests/bench/queries/subset-10.jsonl; for each task id invokes run-research.sh + run-stage.sh + label-claims.py + detect-contradictions.sh + build-graph.sh + citations generator; retry/backoff per task on transient failures; SKIP+log on permanent; watchdog per task 40 min; writes each package to /Users/gqadonis/.prometheus/research/bench-g5/<task-id>/<slug>-<id>/; idempotent (skip if manifest.json + report.md both present)",
+      "done": false,
+      "files": [
+        "tools/bench-automation/run-bench-suite.sh"
+      ],
+      "verify": "bash -n tools/bench-automation/run-bench-suite.sh && /bin/bash -n tools/bench-automation/run-bench-suite.sh && test -x tools/bench-automation/run-bench-suite.sh && grep -q 'RESEARCH_STAGE_RUNNER' tools/bench-automation/run-bench-suite.sh && grep -q 'label-claims' tools/bench-automation/run-bench-suite.sh",
+      "notes": null
+    },
+    {
+      "id": "4",
+      "title": "Implement bench-runbook.sh: symlink <bench-g5>/task-<id> to the package's run-research slug-dir; invoke KBD_PRODUCER_MODEL=glm-5.3 bash tests/bench/run-bench.sh --packages <bench-g5>; per scored task append a row to tests/bench/BENCH-RESULTS.md with task id, RACE, effective_citations, citation_accuracy, verified_claim_ratio, label; emit bench-summary.json with the 10-task array",
+      "done": false,
+      "files": [
+        "tools/bench-automation/bench-runbook.sh"
+      ],
+      "verify": "bash -n tools/bench-automation/bench-runbook.sh && /bin/bash -n tools/bench-automation/bench-runbook.sh && test -x tools/bench-automation/bench-runbook.sh && grep -qE 'score-race|score-fact' tools/bench-automation/bench-runbook.sh",
+      "notes": null
+    },
+    {
+      "id": "5",
+      "title": "Implement README.md: how to run one task end-to-end (commands), how to run the suite (run-bench-suite.sh), output layout (<bench-g5>/<task-id>/<slug>-<id>/), retry semantics, where the BENCH-RESULTS row appears",
+      "done": false,
+      "files": [
+        "tools/bench-automation/README.md"
+      ],
+      "verify": "test -s tools/bench-automation/README.md && grep -q 'run-bench-suite\\|run-stage\\|label-claims' tools/bench-automation/README.md",
+      "notes": null
+    },
+    {
+      "id": "6",
+      "title": "Integration smoke: run task-58 end-to-end through the toolkit; verify the runner + labeller + orchestrator produce a package that scores; verify the verified_claim_ratio is > 0 for task-58 specifically (drt-006 known gap closed); record the result in the change evidence",
+      "done": false,
+      "files": [
+        "tools/bench-automation/README.md"
+      ],
+      "verify": "KBD_PRODUCER_MODEL=glm-5.3 bash tools/bench-automation/run-bench-suite.sh --tasks 58 2>&1 | tail -3 && KBD_PRODUCER_MODEL=glm-5.3 bash skills/research/deep-research/tests/bench/score-fact.py --package /Users/gqadonis/.prometheus/research/bench-g5/task-58/ 2>&1 | jq -r '.verified_claim_ratio' | grep -v '^0'",
+      "notes": null
+    }
+  ]
+}

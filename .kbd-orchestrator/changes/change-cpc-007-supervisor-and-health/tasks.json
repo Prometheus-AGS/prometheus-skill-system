@@ -1,0 +1,80 @@
+{
+  "changeId": "change-cpc-007-supervisor-and-health",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Port the HMA health aggregator template into crates/prometheus-substrate/src/health.rs",
+      "done": true,
+      "doneAt": "2026-09-03T12:57:44Z",
+      "doneBy": "claude-code",
+      "files": [
+        "crates/prometheus-substrate/src/health.rs"
+      ],
+      "verify": null,
+      "notes": null
+    },
+    {
+      "id": "2",
+      "title": "Implement supervisor.rs (manifest adoption, probes, restart via launchctl/systemctl, backoff with named failures) and services.rs REST route",
+      "done": true,
+      "doneAt": "2026-09-03T14:21:47Z",
+      "doneBy": "claude-code",
+      "files": [
+        "crates/prometheus-substrate/src/supervisor.rs",
+        "crates/prometheus-substrate/src/services.rs",
+        "crates/sovereign-sync/src/rest_api.rs"
+      ],
+      "verify": null,
+      "notes": null
+    },
+    {
+      "id": "3",
+      "title": "Render the Companion launchd plist per HMA launchagent-supervisor and add the installer path",
+      "done": true,
+      "doneAt": "2026-09-03T14:58:10Z",
+      "doneBy": "claude-code",
+      "files": [
+        "shared/launchd/ai.prometheus.companion.plist.tmpl",
+        "scripts/install-companion-service.sh"
+      ],
+      "verify": "plutil -lint shared/launchd/ai.prometheus.companion.plist.tmpl",
+      "notes": null
+    },
+    {
+      "id": "4",
+      "title": "Drive the tray from the aggregator; amend spec §16.4 and §25.2",
+      "done": true,
+      "doneAt": "2026-09-03T15:17:30Z",
+      "doneBy": "claude-code",
+      "files": [
+        "src-tauri/src/tray.rs",
+        "docs/00-architecture-and-implementation-plan.md"
+      ],
+      "verify": null,
+      "notes": null
+    },
+    {
+      "id": "5",
+      "title": "Write the supervision integration test: adopt installed services, kill one, observe restart through the REST surface",
+      "done": true,
+      "doneAt": "2026-09-03T15:44:26Z",
+      "doneBy": "claude-code",
+      "files": [
+        "crates/prometheus-substrate/tests/supervision.rs"
+      ],
+      "verify": "cargo test -p prometheus-substrate --features headless --test supervision",
+      "notes": null
+    },
+    {
+      "id": "6",
+      "title": "Run the Companion audit gate",
+      "done": true,
+      "doneAt": "2026-09-03T16:17:52Z",
+      "doneBy": "claude-code",
+      "files": [],
+      "verify": "bash scripts/audit-all.sh",
+      "notes": null
+    }
+  ]
+}

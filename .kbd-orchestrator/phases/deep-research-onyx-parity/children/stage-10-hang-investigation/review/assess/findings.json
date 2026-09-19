@@ -1,0 +1,44 @@
+{
+  "mode": "artifact",
+  "verdict": "PASS",
+  "judge_model": "MiniMax-M3",
+  "producer_model": "k3",
+  "isolation_mode": "rest-gateway:http://localhost:4000/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "WARNING",
+      "file": "assessment.md",
+      "claim": "The artifact disputes handoff claims and cites handoff data, but the packet declares prior_handoffs as null \u2014 the source of handoff claims is undeclared.",
+      "evidence": "Packet metadata `prior_handoffs: null`, but artifact contains: \"Handoff inaccuracy corrected by reading: the claim that driver-contract.sh:309 and :326 'call the live gateway' is false\"; \"the handoff reports 3/4 tasks done with RACE blocked on the very hang this child investigates\"; \"Other suites (per handoff, not re-run): merge-threads 17/17, report-assembly 14/14...\"; \"scoring-graph.sh... per the handoff\".",
+      "suggested_fix": "Either populate prior_handoffs in the packet metadata, or have the assessment cite its source for each handoff-claim (path or filename)."
+    },
+    {
+      "severity": "WARNING",
+      "file": "assessment.md",
+      "claim": "Many specific file:line citations (run-research.sh:478, driver-contract.sh:309, build-review-packet.sh line 919, etc.) refer to files that are not present in the packet's file_tree and exist only in the uncommitted branch \u2014 claims are unverifiable from the packet alone.",
+      "evidence": "file_tree shows `scripts/` directory with no run-research.sh, driver-contract.sh, build-review-packet.sh, scoring-graph.sh, detect-contradictions.sh, merge-threads.sh, check-research-package.sh, dispatch-judge.sh, write-provenance.sh, or export-package.sh. The artifact cites these throughout (e.g., \"run-research.sh:478 \u2192 review_report at :340\", \"driver-contract.sh:309 and :326\", \"build-review-packet.sh (919 lines)\").",
+      "suggested_fix": "Either commit the branch before producing the assessment so the file_tree reflects the assessed state, or have the assessment annotate each file:line claim with its branch/commit provenance."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "assessment.md",
+      "claim": "The cited_paths metadata is wrong \u2014 the field says no file paths are cited, but the artifact cites many.",
+      "evidence": "Packet metadata `cited_paths: \"(no file paths cited in this artifact)\"`, but the artifact contains dozens of file:line references.",
+      "suggested_fix": "Update cited_paths to list the actual cited files or remove the misleading entry."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "assessment.md",
+      "claim": "The CONSTRAINT CHECK section explicitly evaluates only C-01 and C-02; the constraints list also includes C-03 (docs updated with surface changes), C-04 (generators idempotent), and C-05 (bash 3.2 compatible).",
+      "evidence": "The CONSTRAINT CHECK section begins with C-01 and C-02 and stops; C-03, C-04, C-05 from the constraints list are not addressed.",
+      "suggested_fix": "Either explicitly note that C-03/C-04/C-05 are not relevant to this child investigation phase, or briefly evaluate them."
+    }
+  ],
+  "checked_classes": [],
+  "sycophancy_screen": {
+    "reject_cap": 2,
+    "cap_overridden": false,
+    "cap_default": 2
+  }
+}

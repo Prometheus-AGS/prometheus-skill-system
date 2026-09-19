@@ -1,0 +1,63 @@
+{
+  "mode": "diff",
+  "verdict": "BLOCK",
+  "judge_model": "k3",
+  "producer_model": "claude-fable-5-1",
+  "isolation_mode": "rest-gateway:http://localhost:4000/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": "skills/research/deep-research/scripts/run-research.sh",
+      "line": 210,
+      "claim": "A successfully resumed run never clears checkpoint.json's `.blocked`, so the final provenance sidecar of a completed run still prints a stale `**Blocked:** stage NN: ...` line next to its PASS/PASS WITH NOTES verdict, and the checkpoint self-contradicts (status \"complete\" with a blocked object).",
+      "evidence": "`block()` and `finish()` set `.blocked = {stage, reason}`, and no `cp_set` anywhere resets `.blocked = null` \u2014 the resume skip path and the stage-completion path (`cp_set '.stages_completed += [$s] | .status = \"running\"'`) leave it intact. `write-provenance.sh` computes `BLOCKED=\"$(q 'if .blocked then \"stage \" + ...')\"` unconditionally from that field. On the tested resume-from-04 happy path (first run blocked at 05, resume exits 0), the final sidecar reads `Verification: PASS WITH NOTES` and `Blocked: stage 05: stage runner exited 9` simultaneously.",
+      "suggested_fix": "Clear the field when the run recovers: add `.blocked = null` to the `cp_set` that records a stage complete (and to the stage-10 completion `cp_set`), or have `write-provenance.sh` print the blocked line only when `status == \"blocked\"`."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "skills/research/deep-research/scripts/run-research.sh",
+      "line": 296,
+      "claim": "A post-stage or post-export hook failure at stage 10 permanently wedges the run: stage 10 stays in `stages_completed` after the block, so every later `--resume` skips it, status stays \"blocked\", and `finish()` forces exit 1 forever even though all artifacts validate.",
+      "evidence": "The stage-10 branch does `cp_set '.stages_completed += [\"10\"] | .status = \"complete\" ...'` and then `fire_hook post-stage || block 10 ...` / `fire_hook post-export || block 10 ...` without removing \"10\" (unlike the export-failure path, which does `.stages_completed -= [\"10\"]`). On resume, `jq -e '.stages_completed | index(\"10\")'` succeeds, `validate_stage 10` passes, the stage is skipped, the loop ends with status still \"blocked\", and `finish()` rewrites exit 0 to 1 (`case \"$st\" in complete) ;; awaiting_stage) rc=3 ;; *) rc=1`). No code path ever sets status back to running/complete, so the run can never finish. As a side effect the already-exported manifest keeps its pre-hook verdict while the rewritten sidecar reads BLOCKED, violating the spec's own requirement that manifest and sidecar verdicts agree.",
+      "suggested_fix": "On hook failure at stage 10, also roll back `.stages_completed -= [\"10\"]`, `.status` and `.completed_at` before blocking (mirroring the export-failure rollback), or make the resume skip path re-fire hooks / reset status when the checkpoint is blocked but fully validated."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "skills/research/deep-research/scripts/export-package.sh",
+      "line": 165,
+      "claim": "`completed_at` is defaulted (to now, or null) without ever being appended to the `defaulted` list, so the thin-package scenario's \"stderr lists every defaulted field\" requirement is not met.",
+      "evidence": "The exporter computes `\"completed_at\": cp.get(\"completed_at\", now if \"10\" in stages else None)` directly instead of via the `get()` helper that records defaults, and no `defaulted.append(\"completed_at\")` exists anywhere in the script. The spec added in this same diff (`openspec/specs/research-pipeline-execution/spec.md`, \"Export from a thin package\": \"THEN manifest.json still validates AND stderr lists every defaulted field\") and the manifest requirement (\"a value no artifact provides SHALL be ... named on stderr as defaulted by the exporter\") are therefore violated for a checkpoint-less package, where `completed_at` is emitted as null but never named.",
+      "suggested_fix": "Route `completed_at` through the `get()` helper (or explicitly `defaulted.append(\"completed_at\")` when `cp.get(\"completed_at\")` is absent/None) before emitting the manifest."
+    },
+    {
+      "severity": "WARNING",
+      "file": "skills/research/deep-research/scripts/run-research.sh",
+      "line": 192,
+      "claim": "In checkpoint mode a failed interim sidecar write is only logged as a warning and the driver still exits 3, so an awaiting-stage run can be left with no sidecar at all despite the spec mandating one.",
+      "evidence": "`finish()` handles rc==3 with `bash write-provenance.sh \"$PKG\" --interim ... || log \"WARNING: interim provenance sidecar could not be written: ...\"` and then `exit 3`. The spec added in this diff states \"A run awaiting a stage in checkpoint mode SHALL write an interim sidecar that is not BLOCKED\"; the driver's own comment two lines later calls the sidecar \"a gate: a run without one is not a delivered run\" but enforces that only on the non-interim path.",
+      "suggested_fix": "Treat interim-sidecar failure like the final-sidecar failure: record it in the checkpoint (e.g. a note) and/or exit non-zero instead of 3, so the missing sidecar is visible rather than silently absent."
+    },
+    {
+      "severity": "WARNING",
+      "file": "skills/research/deep-research/tests/driver-contract.sh",
+      "line": 0,
+      "claim": "No scenario exercises a failing hook, even though the spec mandates \"A hook exiting non-zero SHALL block the stage\" and records each hook's exit code \u2014 the exact path that contains the stage-10 resume wedge is untested.",
+      "evidence": "The six scenarios (full-run, shallow-depth, resume-from-04, failing-05, invalid-05-blocks-06, direct-scale, hooks-fired) all use hooks that exit 0; `hooks-fired` asserts `([.hook_log[]|select(.exit!=0)]|length)==0` and no negative control makes `post-stage.sh`/`post-export.sh`/`pre-research.sh` fail to assert the run blocks and recovers on resume. The spec requirement \"All four hooks fire at defined points\" includes the non-zero-exit-blocks-the-stage clause, which has no test coverage.",
+      "suggested_fix": "Add a scenario that forces a hook failure (e.g. a `RESEARCH_HOOK_LOG` pointing at an unwritable path is not enough \u2014 inject failure via a stub hook directory or env knob), assert the stage is marked blocked with the hook named, and assert a subsequent `--resume` can still reach `complete`."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "skills/research/deep-research/hooks/pre-research.sh",
+      "line": 52,
+      "claim": "The package-id regex is duplicated inline in pre-research.sh instead of reusing `package_id_is_valid` from the new shared library, creating a drift risk between the two validators.",
+      "evidence": "`shared/scripts/lib/slug.sh` exports `package_id_is_valid` with grep -E `'^[a-z0-9]+(-[a-z0-9]+){0,4}-[0-9]{8}-[0-9a-f]{4}$'`, while pre-research.sh re-encodes the same pattern as a bash `=~` regex literal; the hook already sources the library on the derivation path, so it could source it (when present) and call the function on the validation path as well. Nothing in the diff uses `package_id_is_valid` at all.",
+      "suggested_fix": "Source `lib/slug.sh` when available and call `package_id_is_valid \"$PACKAGE_ID\"`, keeping the inline regex only as the documented no-lib fallback (or dropping the fallback, since the derivation path already hard-fails without the library)."
+    }
+  ],
+  "sycophancy_screen": {
+    "reject_cap": 2,
+    "cap_overridden": false,
+    "cap_default": 2
+  }
+}

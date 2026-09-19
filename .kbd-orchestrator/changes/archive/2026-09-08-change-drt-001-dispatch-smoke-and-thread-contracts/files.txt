@@ -1,0 +1,15 @@
+skills/research/deep-research/tests/dispatch-smoke.sh
+skills/research/deep-research/tests/thread-contracts.sh
+skills/research/deep-research/tests/fixtures/thread-smoke/worker.sh
+skills/research/deep-research/tests/fixtures/thread-artifacts/index.json
+skills/research/deep-research/tests/fixtures/thread-artifacts/t01/brief.json
+skills/research/deep-research/tests/fixtures/thread-artifacts/t01/sources.json
+skills/research/deep-research/tests/fixtures/thread-artifacts/t01/claims.json
+skills/research/deep-research/tests/fixtures/thread-artifacts/t01/dossier.md
+skills/research/deep-research/tests/fixtures/thread-artifacts/t01/reflections.md
+skills/research/deep-research/tests/fixtures/thread-artifacts/t01/chunks/chunk-1.json
+skills/research/deep-research/references/thread-contracts.md
+skills/research/deep-research/references/schemas/thread-brief.schema.json
+skills/research/deep-research/references/schemas/thread-index.schema.json
+skills/research/deep-research/templates/thread-brief.json
+skills/research/deep-research/templates/dossier.md

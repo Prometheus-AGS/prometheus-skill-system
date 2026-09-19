@@ -1,0 +1,38 @@
+{
+  "changeId": "change-cpc-012-pack-sync-skills-removal",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Remove skills/learn/sync-* and regenerate the skills index",
+      "done": true,
+      "doneAt": "2026-09-04T01:21:32Z",
+      "doneBy": "claude-code",
+      "files": [
+        "skills/learn/sync-status/",
+        "skills/learn/sync-peers/",
+        "skills/learn/sync-push/"
+      ],
+      "verify": "npm run generate:skills-index && npm run check:skills-index",
+      "notes": null
+    },
+    {
+      "id": "2",
+      "title": "Update .claude-plugin marketplace and plugin entries, config/codex-catalog.txt, rebuild the Codex mirror, and update docs/codex-plugin.md and CLAUDE.md",
+      "done": true,
+      "doneAt": "2026-09-04T01:25:14Z",
+      "doneBy": "claude-code",
+      "files": [
+        ".claude-plugin/marketplace.json",
+        ".claude-plugin/plugin.json",
+        "config/codex-catalog.txt",
+        ".codex-plugin/plugin.json",
+        ".agents/plugins/marketplace.json",
+        "docs/codex-plugin.md",
+        "CLAUDE.md"
+      ],
+      "verify": "npm run build:codex && npm run validate:codex",
+      "notes": null
+    }
+  ]
+}

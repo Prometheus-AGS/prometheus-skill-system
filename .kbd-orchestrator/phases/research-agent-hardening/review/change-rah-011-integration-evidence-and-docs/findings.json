@@ -1,0 +1,39 @@
+{
+  "mode": "diff",
+  "verdict": "BLOCK",
+  "judge_model": "k3",
+  "producer_model": "claude-opus-5",
+  "isolation_mode": "rest-gateway:http://localhost:4000/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": "docs/research-agent-hardening-evidence.md",
+      "line": 246,
+      "claim": "The C-01 reconciliation evidence does not show a second run of the distribution generator: the `build:distribution` row has '\u2014' in the 'After run 2' column, so the required run-twice/byte-identical proof is recorded for only one of the two generators.",
+      "evidence": "Constraint C-01: 'The reconciliation change must run the generator twice, prove byte-identical tracked hashes.' The evidence table under 'C-01 generator idempotence' shows `generate:skills-index` with three identical hashes (before / run 1 / run 2) but `build:distribution` with only 'before' and 'after run 1' and '\u2014' for run 2. Round-1 finding 2's disposition claims 'Both generators run twice with sha256 before/after... dist tree identical,' which the recorded table contradicts. 'Before == after run 1' proves no drift against the committed tree, not that the generator is idempotent across two runs.",
+      "suggested_fix": "Run `npm run build:distribution` a second time, record the post-run-2 hash in place of the '\u2014', or correct the table/disposition text to state exactly what was run."
+    },
+    {
+      "severity": "WARNING",
+      "file": "skills/learn/feynman-loop/tests/learn-coherence.sh",
+      "line": 1,
+      "claim": "The relocation repair remains non-reproducible from the diff: the suite and fixtures appear as new files, but the diff contains no deletion hunk for the original `skills/learn/tests/learn-coherence.sh` (or any old fixtures), so the claim that the category-level copy no longer exists cannot be verified from this packet.",
+      "evidence": "Round-1 finding 5 flagged 'fixtures absent, old-path deletion absent'; the disposition says 'Accepted in part, fixed... Fixtures now listed' \u2014 and the fixtures are now in the diff \u2014 but the old-path deletion is still absent. The diff shows `new file mode 100755` for the suite and three `new file mode 100644` fixtures with no corresponding `deleted file` hunks. If the old `skills/learn/tests/learn-coherence.sh` were still tracked, `validate:strict` would still fail with 'tests: SKILL.md is required but not found' at the category level, contradicting the recorded PASS.",
+      "suggested_fix": "Include the deletion of `skills/learn/tests/learn-coherence.sh` (and any old fixtures) in the diff/files.txt, or state explicitly in the evidence that the old path was never committed and why no deletion hunk exists."
+    },
+    {
+      "severity": "WARNING",
+      "file": "docs/research-agent-hardening-evidence.md",
+      "line": 265,
+      "claim": "The certification record reports `npm run validate:strict` as 'PASS (145 skills)' while the same change's regenerated SKILLS.md asserts 161 distributed skills, an unexplained 16-skill discrepancy inside a document whose purpose is auditable certification evidence.",
+      "evidence": "Evidence \u00a73 'Validators and C-01 reconciliation' table: '`npm run validate:strict` | PASS (145 skills)'. SKILLS.md hunk: `skill_count: 161` and '**161 distributed skills** across 18 categories.' The two numbers may measure different sets (source-tree skills vs. distributed index), but the evidence document never says so, leaving the certification record internally unreconciled.",
+      "suggested_fix": "Annotate the validate:strict row with what its skill count enumerates (e.g. source-tree skill directories) and why it legitimately differs from the distributed index count."
+    }
+  ],
+  "sycophancy_screen": {
+    "reject_cap": 2,
+    "cap_overridden": false,
+    "cap_default": 2
+  }
+}

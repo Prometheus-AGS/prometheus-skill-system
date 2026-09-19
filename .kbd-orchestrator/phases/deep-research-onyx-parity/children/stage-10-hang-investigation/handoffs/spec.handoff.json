@@ -1,0 +1,12 @@
+{
+  "stage": "spec",
+  "completedAt": "2026-09-12T18:13:42Z",
+  "outputs": [
+    ".kbd-orchestrator/changes/change-drt-008-hang-capture-harness/spec.md",
+    ".kbd-orchestrator/changes/change-drt-009-stage10-hang-fix-and-certification/spec.md"
+  ],
+  "nextStage": "plan",
+  "summaryForNext": "2 native-kbd changes; zeespec: n/a (no .zeespec, gate inactive). change-drt-008-hang-capture-harness (D2 harness + D1 instrumentation; goals 1-2; no deps; driver-contract.sh untouched) -> change-drt-009-stage10-hang-fix-and-certification (Goal-4 machine-checked diagnosis-review gate — same-model fallback explicitly does NOT satisfy it, unreachable judge means BLOCKED and no fix; D3 conditional extraction of build-review-packet.sh heredocs with out-of-Scope escalation branch; D1 N-run certification with machine-countable | run rows, N = ceil(ln 0.01 / ln(1-p)) floor 10). Ordering: drt-008 fully before drt-009; within drt-009, task 1 gates tasks 2-3. Adversarial review: round 1 BLOCK (harness-native same-model after 2 transient gateway shape-failures) — 1 CRITICAL + 6 WARNING + 1 SUGGESTION, ALL verified legitimate and revised (gate now machine-evidence; escalation branch; failable verify strings; timeout attribution corrected to external wrapper; extraction precedent re-cited as nine verifiable .sh/.py companions + drt-006 five fixed; C-01 owner named = phase-close distribution change to spec at plan; build_required semantics dispositioned intentional; orphan + dating-method hooks added). Round 2 PASS: judge MiniMax-M3 vs producer glm-5.3, rest-gateway, verified-distinct, zero findings; sycophancy gate PASS score 0.0 strict. CAVEAT carried: round-2 checked_classes is a literal ... placeholder, not the mandated enumeration — recorded, not laundered. Producer-model label corrected k3 -> glm-5.3 (prior label was the handoff-in assumption). TOOLING BUG for plan to slot: build-review-packet.sh --target spec cannot resolve a CHILD phase (CHANGES_ROOT drops /children/<child>); bridged in-scope via phase-local symlink dir .kbd-orchestrator/phases/deep-research-onyx-parity/changes/. Child scope widened at spec time: + skills/research/deep-research/** and skills/process/adversarial-review/**. Open for plan: scoring-graph.sh pre-existing stall joins-scope decision (default no); C-01 phase-close distribution change; child-phase packet fix.",
+  "skipped": false,
+  "skipReason": null
+}

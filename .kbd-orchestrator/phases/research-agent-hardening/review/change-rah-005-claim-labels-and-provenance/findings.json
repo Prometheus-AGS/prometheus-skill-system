@@ -1,0 +1,62 @@
+{
+  "mode": "diff",
+  "verdict": "BLOCK",
+  "judge_model": "k3",
+  "producer_model": "claude-fable-5-1",
+  "isolation_mode": "rest-gateway:http://localhost:4000/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": "skills/research/deep-research/scripts/check-research-package.sh",
+      "line": 296,
+      "claim": "The python package-mode loader prints a FAIL line for invalid JSON but never sets the exit-code variable, so a package with a corrupt graph.json, citations.json, contradictions.json, or sources/credibility.json exits 0 \u2014 the label gate silently passes on unparseable evidence.",
+      "evidence": "In the second python heredoc: `def load(name): ... except Exception as e: print(f\"[check-research-package] FAIL  {name} is not valid JSON: {e}\", file=sys.stderr); return \"BAD\"` \u2014 it bypasses `fail()` (the only function that sets `rc = 1`). The sentinel is then swallowed: `elif graph == \"BAD\": pass`, and for the other files `isinstance(cit, dict)` / `isinstance(con, dict)` / `isinstance(cred, dict)` are simply False, so `sys.exit(rc)` runs with `rc == 0` and the shell `|| FAIL=1` never fires. The jq fallback path (`check_labels_jq`) handles the same condition correctly with `bad \"graph.json is not valid JSON\"`, proving the intent.",
+      "suggested_fix": "Have load() call fail() (or set a nonlocal rc) before returning \"BAD\", or treat \"BAD\" returns at each call site as failures (`elif graph == \"BAD\": rc = 1`)."
+    },
+    {
+      "severity": "WARNING",
+      "file": "skills/research/deep-research/scripts/check-research-package.sh",
+      "line": 300,
+      "claim": "NOTEs emitted inside the python package-mode block never propagate to the shell NOTES flag, so the final result can be reported as PASS even though a NOTE (a downgraded or tolerated check) was printed.",
+      "evidence": "The heredoc defines `def note(msg): print(f\"[check-research-package] NOTE  {msg}\")` \u2014 it only prints. Callers include `note(\"graph.json is the legacy {nodes, edges} shape ... accepted until change-rah-010 lands\")` and `note(f\"no graph claims; derivation uses {len(claims)} labelled claim(s) from sources/credibility.json\")`. The shell epilogue decides solely on `$NOTES`: `if [ \"$NOTES\" -ne 0 ]; then ... PASS WITH NOTES; else ... PASS`. The script header promises notes are 'never a false PASS', and the shell-side note() does set NOTES=1, so the two paths disagree for identical conditions.",
+      "suggested_fix": "Have the python block exit with a distinct status (e.g. 3) when any note() fired and set NOTES=1 in the shell wrapper, or emit notes on a channel the shell reads back."
+    },
+    {
+      "severity": "WARNING",
+      "file": "skills/research/deep-research/references/okf-research-format.md",
+      "line": 100,
+      "claim": "The normative prose table and the 'same rule as jq' disagree on the status when claims exist but none carries a label: the prose says `unverified`, the jq/python rule derives `partial`.",
+      "evidence": "Prose: '| `unverified` | stage 05 is not in `stages_completed`, or the claim set is empty, or no claim carries a label |'. The jq rule tests only `((labels | length) == 0)`, but `labels` is `[claimset[] | .label]`, so a claim set of unlabelled claims yields `[null, ...]` with length > 0 and falls into the `partial` branch (`critical[] | select(.label != \"verified\")`). The python port has the same behavior (`labels = [c.get(\"label\") for c in claims]`; `not labels` is False). The document declares both the prose and the rule normative, so a conforming implementation cannot satisfy both.",
+      "suggested_fix": "Change the rule's first condition to also match when every label is null (e.g. `([labels[] | select(. == null)] | length) == (labels | length)`), or delete 'or no claim carries a label' from the prose row."
+    },
+    {
+      "severity": "WARNING",
+      "file": "skills/research/deep-research/scripts/export-package.sh",
+      "line": 87,
+      "claim": "export-package.sh fabricates empty graph.json, citations.json, and contradictions.json when the stage artifacts are missing, without recording the fabrication in the `defaulted:` line \u2014 contradicting the script's own contract that a thin package is 'never silently complete' and masking missing stage-07/08/06 artifacts from downstream presence checks.",
+      "evidence": "`[ -f \"$PKG_DIR/graph.json\" ] || echo '{\"topics\":[],\"claims\":[],\"relations\":[]}' > \"$PKG_DIR/graph.json\"` (and the same for citations/contradictions) runs before the python block, and no corresponding entry is appended to `defaulted` \u2014 contrast with the header comment: 'values that no artifact provides are emitted as null/0/false and named in a `[export-package] defaulted:` line on stderr'. After fabrication, `check-research-package.sh --package`'s `files.graph present` check passes against fabricated content and `claims_count` silently becomes 0.",
+      "suggested_fix": "Log the fabrication (append e.g. `graph.json(fabricated)` to the defaulted list or emit a `[export-package] WARN`), or refuse to export when stage artifacts are absent."
+    },
+    {
+      "severity": "WARNING",
+      "file": "skills/research/deep-research/agents/report-synthesizer.md",
+      "line": 20,
+      "claim": "The diff renames the report synthesizer's inputs to `<package_id>/...` while the stage skills edited in the same change still write `<job_id>/...`, and the spec states the two are not the same directory \u2014 the pipeline docs now disagree about where graph.json/citations.json/contradictions.json live.",
+      "evidence": "report-synthesizer.md now reads `<package_id>/graph.json`, `<package_id>/citations.json`, `<package_id>/contradictions.json`; but stage-07-graph/SKILL.md (this diff) still says 'Write `<job_id>/graph.json`', stage-05-verify/SKILL.md says 'emit `<job_id>/sources/credibility.json`', and stage-06-resolve/SKILL.md writes `contradictions.json` under the job id. research-package-spec.md (this diff) is explicit: 'The daemon's own job id (`job-<epoch>-<uuid8>`) is recorded in the manifest as `job_id` ... it is not the directory name.'",
+      "suggested_fix": "Sweep the stage-05..09 skills in this change to use `<package_id>/` (or a neutral `<package>/`) consistently, since the package directory is the normative location."
+    },
+    {
+      "severity": "WARNING",
+      "file": "skills/research/deep-research/tests/fixtures",
+      "claim": "The derivation acceptance scenario \u2014 'a fixture has one blocked critical claim \u2192 derived and declared package label are both partial' \u2014 is exercised by no fixture in the change; the two fixtures cover only the all-verified path and the missing-label schema failure.",
+      "evidence": "Acceptance criteria, Requirement 'The package label is derived', Scenario 'Derivation': 'WHEN a fixture has one `blocked` critical claim THEN the derived and declared package label are both `partial`.' The verify block runs only `package-labelled` (all critical claims verified, derives `verified`) and `package-unlabelled` (fails schema validation on a missing `label` before derivation matters). The only `partial` derivation exercised anywhere comes from the stage-runner fixture's stage 09, which derives `partial` via the absent Feynman gate \u2014 a different branch of the rule than a blocked critical claim.",
+      "suggested_fix": "Add a third fixture (or a stage-runner knob such as FIXTURE_BLOCKED_CRITICAL=1) whose graph has one `blocked` claim with `critical: true` and whose declared `verification_status` is `partial`, and assert the drift check agrees."
+    }
+  ],
+  "sycophancy_screen": {
+    "reject_cap": 2,
+    "cap_overridden": false,
+    "cap_default": 2
+  }
+}

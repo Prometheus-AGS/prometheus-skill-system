@@ -1,0 +1,64 @@
+{
+  "mode": "diff",
+  "verdict": "BLOCK",
+  "judge_model": "k3",
+  "producer_model": "claude-fable-5-1",
+  "isolation_mode": "rest-gateway:http://localhost:4000/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": "skills/research/deep-research/scripts/run-research.sh",
+      "claim": "A shallow-depth run can never succeed: the shallow stage set contains no stage 10, so checkpoint status never becomes \"complete\" or \"awaiting_stage\", and the finish trap converts the normal exit 0 into exit 1 and records the fully-completed run as blocked with a BLOCKED provenance sidecar.",
+      "evidence": "planned_stages() returns \"01 02 03 04 05\" for depth=shallow (matching the stage-contracts.md table \"01 to 05 for shallow\"), but only the stage-10 branch ever sets .status=\"complete\"; after the loop `exit 0` hits finish(), which forces `rc=1` for any status other than complete/awaiting_stage and writes `.status=\"blocked\", reason=\"driver exited with status 1\"`. Spec requirement: \"A run whose checkpoint status is neither complete nor awaiting_stage SHALL never exit 0\" makes this failure unconditional for a documented depth.",
+      "suggested_fix": "Either include stages 09/10 (report/export) in the shallow stage set, or mark the run complete when the last planned stage validates (e.g. after the loop, if all of STAGES are in stages_completed, set status=complete, write the sidecar, and run export)."
+    },
+    {
+      "severity": "WARNING",
+      "file": "skills/research/deep-research/scripts/run-research.sh",
+      "claim": "The driver never fires post-export.sh itself; it hardcodes a hook_log entry and RESEARCH_HOOK_LOG marker with exit 0, so the recorded exit code is fabricated and the recorded hook order (post-stage 10 before post-export) is the reverse of the real firing order if export-package.sh fires post-export during the export.",
+      "evidence": "Stage-10 branch: `cp_set '.hook_log += [{hook:\"post-export\", exit:0, at:$ts}]'` and `printf '%s post-export exit=0\\n' >> \"$RESEARCH_HOOK_LOG\"` run after export-package.sh has already executed; the comment admits \"post-export already fired inside export-package.sh\". The spec requires each hook firing be recorded in checkpoint.json.hook_log \"with its exit code\" \u2014 a real exit code is never captured, and if export-package.sh does not fire the hook the logs claim it did.",
+      "suggested_fix": "Have the driver fire hooks/post-export.sh via fire_hook after stage 10 validates (capturing the real exit code), or capture the hook's actual exit status from export-package.sh instead of hardcoding 0."
+    },
+    {
+      "severity": "WARNING",
+      "file": "skills/research/deep-research/hooks/post-stage.sh",
+      "claim": "When jq is absent but a driver-owned checkpoint.json exists, the else branch overwrites checkpoint.json with the minimal legacy record, silently destroying stages_completed, status, hook_log, and blocked state.",
+      "evidence": "`if command -v jq &>/dev/null && [[ -f \"$CHECKPOINT_FILE\" ]]; then jq ... else cat > \"$CHECKPOINT_FILE\" <<EOF { \"job_id\": ... }` \u2014 the else fires on jq-missing even when the file exists, despite the comment \"never replace it\" for driver checkpoints.",
+      "suggested_fix": "Guard the create branch with `[[ ! -f \"$CHECKPOINT_FILE\" ]]` and skip annotation (with a stderr note) when jq is unavailable."
+    },
+    {
+      "severity": "WARNING",
+      "file": "skills/research/deep-research/tests/driver-contract.sh",
+      "claim": "The full-run sidecar assertion cannot distinguish PASS from PASS WITH NOTES, and the actual verdict for the fixture full run is PASS WITH NOTES (no adversarial review), so the asserted \"PASS verdict\" is vacuous.",
+      "evidence": "`assert \"sidecar exists with a PASS verdict\" grep -Eq 'Verification:\\*\\* PASS'` \u2014 the regex also matches \"Verification:** PASS WITH NOTES\". write-provenance.sh sets PASS WITH NOTES when `$SCALE = full`, REVIEW=\"not run\", and stage 09 completed, which is exactly the full-run fixture state.",
+      "suggested_fix": "Assert the exact verdict line, e.g. `test \"$(verdict)\" = \"PASS WITH NOTES\"` (or make the fixture record an adversarial review so PASS is genuinely expected)."
+    },
+    {
+      "severity": "WARNING",
+      "file": "skills/research/deep-research/scripts/run-research.sh",
+      "claim": "The mandated provenance sidecar is dropped silently on the interim path (`|| true`) and only logged on the final exit path without affecting the exit code, violating the change's own constraint of \"no silent `|| true` on a gate\" and the spec requirement of a sidecar on every exit.",
+      "evidence": "finish(): `bash \"$SCRIPT_DIR/write-provenance.sh\" \"$PKG\" --interim >/dev/null 2>&1 || true` and `bash \"$SCRIPT_DIR/write-provenance.sh\" \"$PKG\" >/dev/null 2>&1 || log \"provenance sidecar could not be written\"` \u2014 a successful run can exit 0 with no sidecar. Constraints section: \"no silent `|| true` on a gate\"; spec: \"The driver SHALL write <slug>.provenance.md on success, on a block, and on interruption.\"",
+      "suggested_fix": "Treat a provenance-write failure as a block (non-zero exit) on all paths, or at minimum on the interim path mirror the final path's stderr log; never `|| true`."
+    },
+    {
+      "severity": "WARNING",
+      "file": "skills/research/deep-research/scripts/run-research.sh",
+      "claim": "ledger_append and ledger_ensure silently no-op when plan.md does not exist, so hook results, block reasons, and notes are silently lost, and the promised \"driver writes plan.md with task ledger / verification log / decision log\" (What Changes, and scope item templates/research-plan.md) is never implemented \u2014 the driver only appends to a plan.md the stage-01 runner happened to write.",
+      "evidence": "`ledger_ensure() { local plan=\"$PKG/plan.md\"; [ -f \"$plan\" ] || return 0; ... }` and `ledger_append() { ... [ -f \"$plan\" ] || return 0; ... }` return success without writing anything; no template research-plan.md is created in the diff.",
+      "suggested_fix": "Create plan.md (from a template) when absent before appending ledger sections, or emit a stderr warning when a ledger write is skipped."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "skills/research/deep-research/hooks/pre-research.sh",
+      "claim": "The pre-research hook blesses non-conforming package directories by falling back to JOB_ID as the directory name with only a stderr note, while the spec mandates every research package be named <slug>-<yyyymmdd>-<4hex>.",
+      "evidence": "spec.md: \"Every research package SHALL be a directory named `<slug>-<yyyymmdd>-<4hex>`\"; pre-research.sh: `if [[ -z \"$PACKAGE_ID\" ]]; then PACKAGE_ID=\"$JOB_ID\"; echo \"... NOTE ...\"` and `mkdir -p \"$OUTPUT_DIR/$PACKAGE_ID\"` with no pattern check on the fallback.",
+      "suggested_fix": "Generate a conforming package id (via shared/scripts/lib/slug.sh package_id_new) instead of using the raw job id, or reject the call when RESEARCH_PACKAGE_ID is absent."
+    }
+  ],
+  "sycophancy_screen": {
+    "reject_cap": 2,
+    "cap_overridden": false,
+    "cap_default": 2
+  }
+}

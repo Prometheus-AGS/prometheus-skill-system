@@ -1,0 +1,281 @@
+{
+  "phase": "deep-research-onyx-parity",
+  "generated_at": "2026-09-08",
+  "research_budget": {
+    "tiers_used": [
+      "tier1_github_and_local_tree",
+      "tier2_direct_source_read"
+    ],
+    "tiers_skipped": [
+      "tier3_registry_health",
+      "tier4_web_comparison"
+    ],
+    "tier3_skip_reason": "No new runtime package needed a maintenance check; the one adopted external artifact (deep_research_bench) was health-checked directly via the GitHub API instead.",
+    "tier4_skip_reason": "Tiers 1 and 2 answered every decision question at source.",
+    "queries": 15,
+    "minutes": 19,
+    "cap_hit": false
+  },
+  "gaps_addressed": [
+    "G1",
+    "G2",
+    "G3",
+    "G4",
+    "G5"
+  ],
+  "candidates": [
+    {
+      "id": "tokio-sync",
+      "name": "tokio (Semaphore, JoinSet, time::timeout)",
+      "kind": "library",
+      "repo_url": "https://github.com/tokio-rs/tokio",
+      "registry": "crates.io",
+      "fit_for_gap": [
+        "G1",
+        "G4"
+      ],
+      "verdict": "adopt",
+      "coverage_estimate": 0.9,
+      "license": "MIT",
+      "maintenance": "healthy; already a direct dependency",
+      "evidence": [
+        "substrate/prometheus-research/Cargo.toml:25 \u2014 tokio = { version = \"1\", features = [\"full\"] } already present",
+        "grep for Semaphore/JoinSet in substrate/*/src returns nothing: the primitives are available but unused",
+        "\"full\" includes sync::Semaphore, task::JoinSet, and time::timeout \u2014 the exact set the scheduler needs"
+      ],
+      "risks": [
+        "None material. Adds no dependency; the scheduler is new code against an already-compiled API."
+      ],
+      "decision_rationale": "Bounded concurrency with per-task timeout and kill needs no new crate. This removes the main technical argument for the report's proposed workspace split as a precondition."
+    },
+    {
+      "id": "harness-subagents",
+      "name": "In-session harness subagents (Agent/Workflow primitives)",
+      "kind": "pattern",
+      "repo_url": null,
+      "registry": null,
+      "fit_for_gap": [
+        "G1"
+      ],
+      "verdict": "adopt-provisional",
+      "coverage_estimate": 0.5,
+      "license": "n/a",
+      "maintenance": "harness-provided",
+      "evidence": [
+        "skills/research/deep-research/agents/*.md already carry tools: frontmatter on four agents",
+        "skills/research/deep-research/SKILL.md:260 documents Agent tool duties",
+        "NOT established in-repo: parallel subagent dispatch. No pack artifact documents a fan-out primitive; sequential Agent-tool dispatch is all that is citable."
+      ],
+      "risks": [
+        "tools: enforcement is advisory on Kimi/OpenCode/Cursor, so the director's no-search rule is not guaranteed there. Mitigation is the deterministic merge gate (see merge-threads candidate), not the frontmatter.",
+        "Parallelism is unproven on this path. Gated by D-03a: the first thread change must smoke-test concurrent dispatch of two workers before the scheduler depends on it."
+      ],
+      "decision_rationale": "Fastest path to a working director/worker loop with zero new infrastructure. Ship first; process-level workers second."
+    },
+    {
+      "id": "process-workers",
+      "name": "Process-level workers via existing spawn.rs / daemon.rs",
+      "kind": "in-tree",
+      "repo_url": null,
+      "registry": null,
+      "fit_for_gap": [
+        "G1",
+        "G4"
+      ],
+      "verdict": "adopt",
+      "coverage_estimate": 0.85,
+      "license": "n/a",
+      "maintenance": "in-tree, shipped in change-rah-004",
+      "evidence": [
+        "substrate/prometheus-research/src/job/spawn.rs:76 \u2014 std::process::Command::new already spawns a harness",
+        "substrate/prometheus-research/src/job/daemon.rs:235,249,572 \u2014 spawn_harness, env inheritance, exit mapping, cancel all exist",
+        "Proven end to end by the predecessor's rah-011 evidence run: a headless child drove all seven stages autonomously"
+      ],
+      "risks": [
+        "BLOCKED by carried-in defect D-A until the launchd plist gains a PATH: under the installed service the daemon cannot resolve any harness binary, so no worker can spawn.",
+        "Fixing D-A triggers constraint C-01 (regenerate shared/services.manifest.json and pass check:services-manifest in the same change)."
+      ],
+      "decision_rationale": "True isolation and kill-on-timeout, which Onyx's Python threadpool explicitly cannot do. Required for exhaustive depth. Extends code that already works."
+    },
+    {
+      "id": "merge-threads",
+      "name": "Deterministic thread merge (our own content-addressed claim ids)",
+      "kind": "build",
+      "repo_url": null,
+      "registry": null,
+      "fit_for_gap": [
+        "G1",
+        "G2"
+      ],
+      "verdict": "build",
+      "coverage_estimate": 1.0,
+      "license": "n/a",
+      "maintenance": "n/a",
+      "evidence": [
+        "Onyx's analogue is a pure function: backend/onyx/chat/citation_utils.py::collapse_citations, keyed by document_id, no LLM",
+        "The pack already emits content-addressed claim ids shared by build-graph.sh and detect-contradictions.sh (change-rah-010)",
+        "Stage 02/03/04 validators in run-research.sh consume registry.json, url-list.json, and chunk-<n>.json shapes the merge can emit unchanged"
+      ],
+      "risks": [
+        "The merge is also the enforcement point for the director's no-search rule on advisory harnesses; if it is lenient, that invariant is unenforced everywhere."
+      ],
+      "decision_rationale": "Reimplement the mechanism against our own id scheme rather than adopting Onyx code. Keying on canonical URL plus the existing claim hash preserves the stage contract, so the driver's validators pass on merged output without modification."
+    },
+    {
+      "id": "onyx-budgets",
+      "name": "Onyx's cycle and wall-clock constants as starting values",
+      "kind": "reference",
+      "repo_url": "https://github.com/onyx-dot-app/onyx",
+      "registry": null,
+      "fit_for_gap": [
+        "G4"
+      ],
+      "verdict": "adopt-values-only",
+      "coverage_estimate": 0.8,
+      "license": "NOASSERTION \u2014 see risks",
+      "maintenance": "active; 31975 stars, pushed 2026-09-08",
+      "evidence": [
+        "dr_loop.py:97,100 \u2014 MAX_ORCHESTRATOR_CYCLES = 8, MAX_ORCHESTRATOR_CYCLES_REASONING = 4",
+        "dr_loop.py:85 \u2014 DEEP_RESEARCH_FORCE_REPORT_SECONDS = 30 * 60",
+        "dr_loop.py:80 \u2014 MAX_FINAL_REPORT_TOKENS = 20000",
+        "research_agent.py:91 \u2014 RESEARCH_AGENT_FORCE_REPORT_SECONDS = 12 * 60",
+        "research_agent.py:269,280 \u2014 MAX_RESEARCH_CYCLES bounds the worker loop"
+      ],
+      "risks": [
+        "GitHub reports the Onyx licence as NOASSERTION, so it cannot be assumed permissive. Numeric constants and mechanisms are ideas and safe to reimplement; verbatim reuse of Onyx prompt strings needs a licence check first (decision D-08).",
+        "The values are single-valued in Onyx; the pack has three depths and must derive per-depth budgets rather than copying one number."
+      ],
+      "decision_rationale": "Every cited constant was verified in Onyx source rather than taken from the comparison report. They are a calibrated starting point from a system with real usage, to be tuned per depth."
+    },
+    {
+      "id": "onyx-parallel-cap",
+      "name": "Onyx's <=3 parallel-agent rule",
+      "kind": "reference",
+      "repo_url": "https://github.com/onyx-dot-app/onyx",
+      "registry": null,
+      "fit_for_gap": [
+        "G1",
+        "G4"
+      ],
+      "verdict": "adopt-and-improve",
+      "coverage_estimate": 1.0,
+      "license": "NOASSERTION",
+      "maintenance": "active",
+      "evidence": [
+        "orchestration_layer.py:88,116,181,197 \u2014 the <=3 rule appears four times in prompt prose",
+        "research_agent.py:82,666 \u2014 parallelism runs through run_functions_tuples_in_parallel with no arity limit",
+        "No code-level cap exists anywhere in the deep_research module"
+      ],
+      "risks": [
+        "None from adopting. The risk is in copying the approach: a prompt-stated cap is unenforceable, which is why Onyx repeats it four times."
+      ],
+      "decision_rationale": "This is where the pack can be strictly better than the system it is learning from, at no extra cost: hold the cap in the scheduler (tokio Semaphore) so a model that ignores an instruction cannot exceed it."
+    },
+    {
+      "id": "uar-native-runner",
+      "name": "NativeRunner on UAR kernel + liter-llm",
+      "kind": "in-tree",
+      "repo_url": null,
+      "registry": null,
+      "fit_for_gap": [
+        "G1"
+      ],
+      "verdict": "reject",
+      "coverage_estimate": 0.0,
+      "license": "n/a",
+      "maintenance": "n/a",
+      "evidence": [
+        "universal-agent-runtime workspace members are [\".\", \"tools/uar-jwt-proxy\", \"tools/mcp-server-fetch\"]; crates/ holds exactly one entry, prometheus-skill-system, which is this pack's own submodule at ad5c82c",
+        "grep -rl \"UAR-REM\" over the entire UAR tree returns nothing: the remediation identifier the report gates this on does not exist",
+        "liter-llm 1.18.2 IS available (versions.toml:20, Cargo.toml:504, vendored submodule checked out) \u2014 but availability of one half does not make the design viable"
+      ],
+      "risks": [
+        "Rejecting is the low-risk call. Adopting would build on a kernel that does not exist and a remediation ticket that cannot be located."
+      ],
+      "decision_rationale": "Rejected on evidence, not deferred pending UAR-REM-002, because that identifier does not exist. Revisit only if a UAR kernel crate appears and its correctness status is verifiable."
+    },
+    {
+      "id": "workspace-split",
+      "name": "Four-crate split of prometheus-research (report drt-000)",
+      "kind": "refactor",
+      "repo_url": null,
+      "registry": null,
+      "fit_for_gap": [],
+      "verdict": "defer",
+      "coverage_estimate": 0.0,
+      "license": "n/a",
+      "maintenance": "n/a",
+      "evidence": [
+        "substrate/prometheus-research/Cargo.toml has no [workspace] stanza: one [lib] + [[bin]]",
+        "The scheduler needs no new dependency (see tokio-sync), removing the main technical motivation for splitting first",
+        "CLAUDE.md constrains the machine to one Cargo build at a time, making a large restructure expensive to iterate on"
+      ],
+      "risks": [
+        "Deferring risks a larger split later. Accepted: splitting now is restructuring ahead of evidence, and no phase goal requires it."
+      ],
+      "decision_rationale": "The report's revision puts this first. Nothing in the five goals needs it. Revisit after threading lands if compile time or dependency bleed becomes a measured problem."
+    },
+    {
+      "id": "deep-research-bench",
+      "name": "DeepResearch Bench (RACE criteria, judge prompts, query set)",
+      "kind": "dataset+harness",
+      "repo_url": "https://github.com/Ayanami0730/deep_research_bench",
+      "registry": null,
+      "fit_for_gap": [
+        "G5"
+      ],
+      "verdict": "adopt",
+      "coverage_estimate": 0.6,
+      "license": "Apache-2.0",
+      "maintenance": "827 stars, last pushed 2026-05-11; the reference implementation of the benchmark Onyx's standing is quoted against",
+      "evidence": [
+        "gh api repos/Ayanami0730/deep_research_bench -> license Apache-2.0, 827 stars, pushed 2026-05-11",
+        "Ships data/criteria_data/criteria.jsonl and data/prompt_data/query.jsonl (the 100-task set)",
+        "Ships prompt/criteria_prompt_en.py and criteria_prompt_zh.py plus deepresearch_bench_race.py (the RACE scorer)",
+        "Apache-2.0 is permissive, unlike Onyx's NOASSERTION: the judge prompts and criteria can be reused directly with attribution",
+        "Pinned for adoption at commit 469cce54ea7f6a63c163d3d9fec879cf289ec484 (2026-05-11), so the RACE number is reproducible against a fixed criteria set"
+      ],
+      "risks": [
+        "Python; the pack's suites are bash and Rust. Adopt the criteria, prompts, and query subset as data; do not adopt the Python runner wholesale.",
+        "Covers RACE only. FACT (effective citations, citation accuracy) and the pack's own verified-claim ratio still need building \u2014 hence coverage 0.6, not 1.0.",
+        "The scorer needs a judge model; the pack routes judge=k3 (preflight ok, 2 distinct models), so judge != producer holds.",
+        "Repo has been quiet ~4 months (last push 2026-05-11). For a benchmark this is closer to a feature than a defect \u2014 a moving rubric would make scores incomparable across runs \u2014 but it does mean no upstream fixes. Adopt at the pinned SHA and re-evaluate only if the published leaderboard moves to a newer criteria revision."
+      ],
+      "decision_rationale": "Corrects a build-by-default: G5 originally had no candidate. Adopting the criteria and judge prompts under Apache-2.0 makes our RACE number comparable to the published figure Onyx is ranked by, which is the entire point of G5. Building our own rubric instead would produce a number that cannot be compared to anything.",
+      "pinned_commit": "469cce54ea7f6a63c163d3d9fec879cf289ec484"
+    },
+    {
+      "id": "multipass-report",
+      "name": "Multi-pass report assembly (outline -> parallel sections -> assemble -> edit)",
+      "kind": "build",
+      "repo_url": null,
+      "registry": null,
+      "fit_for_gap": [
+        "G3"
+      ],
+      "verdict": "build",
+      "coverage_estimate": 1.0,
+      "license": "n/a",
+      "maintenance": "n/a",
+      "evidence": [
+        "Onyx offers no adoptable alternative: its final report is a single call capped at MAX_FINAL_REPORT_TOKENS = 20000 (dr_loop.py:80) over a history that construct_message_history truncates, which is the failure mode G3 exists to avoid",
+        "The pack has no eval-harness or report-assembly skill to reuse: ls -d skills/*/eval-harness returns nothing",
+        "The invariant that makes this work (cited claim ids must be a subset of assigned claim ids) depends on the pack's own content-addressed claim ids from change-rah-010, which no external library knows about"
+      ],
+      "risks": [
+        "Build-only means no external validation of the design. Mitigation: the claim-set invariant is mechanically checkable by the assembler, so correctness does not rest on prose review.",
+        "Parallel section writers multiply token cost; the outline must assign claims tightly or sections overlap."
+      ],
+      "decision_rationale": "Explicitly evaluated rather than defaulted. No adoptable alternative exists in Onyx or in the pack, and the binding invariant is specific to our claim-id scheme, so this is a genuine build. Recording the verdict with its reasoning so spec does not re-litigate it."
+    }
+  ],
+  "build_required": [
+    "research-director and research-worker agent definitions with tools: allowlists (G1)",
+    "Thread scheduler with a code-enforced concurrency cap, per-thread timeout and kill (G1, G4)",
+    "Thread artifact tree: brief.json, dossier.md, reflections.md, sources.json, claims.json with verbatim quote spans (G1, G2)",
+    "Deterministic merge emitting stage 02/03/04 artifacts in their existing shapes (G1)",
+    "Stage 09 split: outline, parallel section writers, assembler with a claim-set invariant, coherence editor (G3)",
+    "Budgets in checkpoint.json with force-complete paths and a ledger row per dispatch including failures (G4)",
+    "FACT metrics (effective citations, citation accuracy) and verified-claim ratio, layered on the adopted RACE criteria (G5)"
+  ]
+}

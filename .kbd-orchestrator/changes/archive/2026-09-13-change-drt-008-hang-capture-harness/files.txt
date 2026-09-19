@@ -1,0 +1,3 @@
+skills/research/deep-research/tests/hang/run-hang-capture.sh
+skills/research/deep-research/tests/hang/HANG-CAPTURE.md
+.refiner/artifacts/change-drt-008-hang-capture-harness/refinement_log.md

@@ -1,0 +1,48 @@
+{
+  "mode": "diff",
+  "verdict": "PASS",
+  "judge_model": "glm-5.3",
+  "producer_model": "glm-5.3",
+  "isolation_mode": "harness-native",
+  "cross_model_check": "same-model-collision",
+  "review_round": 4,
+  "rounds_note": "Rounds 1-3 BLOCK (packet-assembly defect found by round 1; teardown-depth, evidence-table, semantics, false-comment, tree-artifact findings round 2; replace-vs-merge regression + 3 fixes round 3). Round 4: zero CRITICAL findings. Gateway dispatch unavailable this round (exit 3: completions endpoint timed out 3x, 900-3600s; /v1/models healthy) \u2014 harness-native fresh-context subagent per the designed exit-3 fallback; same-model-collision recorded honestly.",
+  "findings": [
+    {
+      "severity": "WARNING",
+      "file": "skills/research/deep-research/tests/hang/run-hang-capture.sh",
+      "line": 197,
+      "claim": "The round-4 merge fix's sort -un destroys the root-first file invariant that kill_recorded_tree relies on, so the post-hang teardown can walk and re-walk from the wrong root.",
+      "evidence": "kill_recorded_tree parses the pid file positionally (sed -n 1p) and every other writer keeps the driver root on line 1; the sort -un merge makes line 1 the lowest PID instead. TERM/KILL of the recorded list itself is unaffected because all merged PIDs remain in the recorded set.",
+      "suggested_fix": "Preserve root-first ordering in the merged file, or pass the root PID as a second argument to kill_recorded_tree."
+    },
+    {
+      "severity": "WARNING",
+      "file": "skills/research/deep-research/tests/hang/run-hang-capture.sh",
+      "line": 183,
+      "claim": "The per-tick snapshot refresh replaces rather than accumulates the recorded list, so a PID that reparents mid-run is silently dropped one tick later and is unreachable by teardown.",
+      "evidence": "The per-tick writer overwrites last.pid with only the currently-walkable set; the function's own header comment promises the recorded list reaches reparented children. Pre-existing since round 2; the never-replace principle was applied only to the post-capture refresh.",
+      "suggested_fix": "Accumulate per tick (merge previous file + current walk), keeping the root-first convention."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "skills/research/deep-research/tests/hang/HANG-CAPTURE.md",
+      "line": 43,
+      "claim": "The caveats note documents only clean-perturbed as the post-hang label, omitting failed-perturbed from the round-4 label vocabulary.",
+      "evidence": "The script emits failed/failed-perturbed as well as clean/clean-perturbed; the evidence-pack note defines only the latter.",
+      "suggested_fix": "Amend the note to name both post-hang labels."
+    }
+  ],
+  "checked_classes": [
+    "round-3 fix #1 (replace-vs-merge) \u2014 merge present and preserving all pre-capture PIDs; only ordering invariant broken (finding 1)",
+    "round-3 fix #2 (hang duration) \u2014 DUR captured at timeout instant in the hang branch; clean/failed rows compute post-wait",
+    "round-3 fix #3 (scratch delegation) \u2014 documented in HANG-CAPTURE.md",
+    "round-3 fix #4 (failed label) \u2014 RESULT taxonomy now clean|failed with -perturbed suffixes",
+    "acceptance criteria \u2014 all task verifies pass against the working tree; no orphaned driver processes; driver-contract.sh untouched by this change"
+  ],
+  "sycophancy_screen": {
+    "reject_cap": 2,
+    "cap_overridden": false,
+    "cap_default": 2
+  }
+}

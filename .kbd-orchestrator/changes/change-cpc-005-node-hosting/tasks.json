@@ -1,0 +1,67 @@
+{
+  "changeId": "change-cpc-005-node-hosting",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Implement crates/prometheus-substrate/src/node.rs (setup-hook spawn, startup router first, app.manage state) and paths.rs (dirs_next + PROMETHEUS_DATA_DIR)",
+      "done": true,
+      "doneAt": "2026-09-03T10:26:19Z",
+      "doneBy": "claude-code",
+      "files": [
+        "crates/prometheus-substrate/src/node.rs",
+        "crates/prometheus-substrate/src/paths.rs",
+        "src-tauri/src/lib.rs"
+      ],
+      "verify": null,
+      "notes": null
+    },
+    {
+      "id": "2",
+      "title": "Add the headless entry point and identity.rs (keychain readability probe, PROMETHEUS_DEVICE_KEY_FILE fail-closed path)",
+      "done": true,
+      "doneAt": "2026-09-03T10:45:04Z",
+      "doneBy": "claude-code",
+      "files": [
+        "crates/prometheus-substrate/src/bin/prometheus-companion-headless.rs",
+        "crates/prometheus-substrate/src/identity.rs"
+      ],
+      "verify": null,
+      "notes": null
+    },
+    {
+      "id": "3",
+      "title": "Amend spec \u00a715, \u00a74.1, and the socket allocation; correct \u00a725.1 process-count text",
+      "done": true,
+      "doneAt": "2026-09-03T10:46:59Z",
+      "doneBy": "claude-code",
+      "files": [
+        "docs/00-architecture-and-implementation-plan.md"
+      ],
+      "verify": null,
+      "notes": null
+    },
+    {
+      "id": "4",
+      "title": "Write the two-process continuity integration test: pack daemon writes at revision N, Companion headless node reads and appends; assert revision, frontier, signed audit export, receipt set, and run history before and after",
+      "done": true,
+      "doneAt": "2026-09-03T10:59:30Z",
+      "doneBy": "claude-code",
+      "files": [
+        "crates/prometheus-substrate/tests/continuity.rs"
+      ],
+      "verify": "cargo test -p prometheus-substrate --features headless --test continuity",
+      "notes": null
+    },
+    {
+      "id": "5",
+      "title": "Run the Companion audit gate",
+      "done": true,
+      "doneAt": "2026-09-03T00:00:00Z",
+      "doneBy": "claude-code",
+      "files": [],
+      "verify": "bash scripts/audit-all.sh",
+      "notes": null
+    }
+  ]
+}

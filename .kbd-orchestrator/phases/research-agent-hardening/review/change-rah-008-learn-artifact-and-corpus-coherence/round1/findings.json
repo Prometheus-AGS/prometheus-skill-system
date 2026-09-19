@@ -1,0 +1,87 @@
+{
+  "mode": "diff",
+  "verdict": "BLOCK",
+  "judge_model": "k3",
+  "producer_model": "claude-fable-5-1",
+  "isolation_mode": "rest-gateway:http://localhost:4000/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": "skills/learn/learn-grade/references/eval-dataset/EVAL-RESULTS.md",
+      "line": 100,
+      "claim": "Acceptance task 5 ('Re-run the eval against the reviewed truth with the new corpus shape; record the post-change baseline and any metric movement') is marked complete ([x]) but was never performed \u2014 the truth is still draft, the run is recorded BLOCKED, and the regression-test 'pass' compares unchanged results/ against an unchanged baseline, so it proves nothing about the new corpus shape.",
+      "evidence": "EVAL-RESULTS.md: 'Live re-run of the 24 items against the new corpus shape | **BLOCKED** \u2014 ground truth is still `draft: 24, reviewed: 0`'; metrics-summary.json post_change_baseline status 'blocked', metric_movement null; verification.md acceptance criterion: 'The eval regression test passes against the reviewed truth with the new corpus shape, and any metric change is recorded rather than tuned away'; tasks.json header shows '- [x] 5'. The declared dependency change-rah-007 ('operator review ... has not landed') is itself incomplete, so the change is certifying against an unmet dependency.",
+      "suggested_fix": "Un-check task 5 and record the change verdict as BLOCKED per the provenance enum until rah-007 task 2 lands, then regenerate baseline-snapshot.json from reviewed truth, re-run with normalized corpora, and record real metric movement."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "skills/learn/feynman-loop/scripts/write-artifact.sh",
+      "line": 80,
+      "claim": "The new path-traversal guard validates artifact_id and concept_id but leaves GOAL_ID as an unchecked path component, so `--goal-id ../../outside` still escapes the artifact store even though the spec scenario promises the script 'writes nothing outside the goal's artifact store'.",
+      "evidence": "The new case statements check only `$ARTIFACT_ID/$CONCEPT_ID` and `$ARTIFACT_ID$CONCEPT_ID`; ARTIFACTS_DIR is then built as `\"${LEARN_HOME}/goals/${GOAL_ID}/artifacts/${CONCEPT_ID}\"` with GOAL_ID interpolated raw, and `mkdir -p` will happily create `goals/../../outside/...`. The integration test only probes concept_id traversal ('../escape'), never goal_id.",
+      "suggested_fix": "Apply the same separator/dot-segment case check to GOAL_ID before constructing ARTIFACTS_DIR, and add a test assertion that a traversal goal_id is refused."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "skills/learn/learn-grade/SKILL.md",
+      "line": 95,
+      "claim": "learn-grade Step 1 instructs the grader to derive key_points/misconceptions itself for 1.0.0 corpora ('derive them the same way before grading'), directly contradicting the spec authored in this same change that mandates '--normalize ... never by a second derivation'.",
+      "evidence": "learn-grade/SKILL.md hunk: 'A corpus whose sources lack either field is an older shape (`schema_version` 1.0.0): derive them the same way before grading and note it in the grade narrative.' vs openspec/specs/learn-model-coherence/spec.md: 'A corpus at the older shape SHALL be brought to this shape by the same script's `--normalize` mode, never by a second derivation.' HARNESS.md correctly routes through --normalize, so the two docs in the same diff disagree.",
+      "suggested_fix": "Change Step 1 to direct the grader to run `content-grounding-kb.sh --normalize <corpus> --output <tmp>` and grade against the normalized file, matching HARNESS.md and the spec."
+    },
+    {
+      "severity": "WARNING",
+      "file": "skills/learn/tests/learn-coherence.sh",
+      "line": 145,
+      "claim": "The 'no skill still documents the old flat or hyphenated artifact paths' gate uses an unquoted `--include=*.sh`, which glob-expands in the caller's cwd (repo root contains install.sh), silently narrowing the grep to files named install.sh and skipping every real .sh file whenever the test is run from a directory containing any .sh file.",
+      "evidence": "`bash -c '! grep -rn \"...\" \"$1/skills/learn\" --include=SKILL.md --include=*.sh --exclude-dir=tests'` \u2014 `*.sh` is unquoted inside the bash -c string and expands against the process cwd, not $ROOT; from repo root it becomes `--include=install.sh`, making the .sh half of the gate vacuous.",
+      "suggested_fix": "Quote the pattern: `--include='*.sh'` (or pass it as an argument), and add a positive control proving write-artifact.sh was actually scanned."
+    },
+    {
+      "severity": "WARNING",
+      "file": "skills/learn/learn-kb/scripts/content-grounding-kb.sh",
+      "line": 11,
+      "claim": "The wrapper execs `bash` from PATH, so the test's '/bin/bash 3.2' parity run re-dispatches the shared script to whatever bash is first on PATH \u2014 the spec scenario 'byte-identical output, under /bin/bash 3.2 as well' and constraint C-05's '/bin/bash script.sh' testing rule are not actually exercised for the shared script.",
+      "evidence": "Wrapper: `exec bash \"${_root}/shared/scripts/content-grounding-kb.sh\" \"$@\"`; test: `check \"wrapper resolves under /bin/bash 3.2\" /bin/bash \"$WRAP_KB\" ...` \u2014 only the 16-line wrapper runs under /bin/bash; the shared script (all the real logic) runs under PATH bash.",
+      "suggested_fix": "Exec with the same interpreter that invoked the wrapper (e.g. `exec /bin/bash ...` or re-exec via \"$BASH\"), or have the test invoke the shared script directly under /bin/bash."
+    },
+    {
+      "severity": "WARNING",
+      "file": "skills/learn/tests/learn-coherence.sh",
+      "line": 118,
+      "claim": "The test asserts write-artifact.sh stdout contains `.concept_id == \"c1\"`, but the script's documented success contract is `{\"ok\":true,\"path\":\"...\"}` and no hunk in this diff adds concept_id to the success output; if the unchanged tail prints only ok+path, the new integration gate fails as written.",
+      "evidence": "Test: `check \"write-artifact.sh exits ok\" jq -e '.ok == true and .concept_id == \"c1\"' <<<\"$OUT1\"`; write-artifact.sh header (both old and new): '# Exits 0 and prints {\"ok\":true,\"path\":\"...\"} on success.' \u2014 the diff's last hunk ends at `mkdir -p \"$ARTIFACTS_DIR\"` with no change to the success print.",
+      "suggested_fix": "Either emit concept_id in the success JSON and update the header comment, or relax the assertion to ok+path and derive concept_id from the path."
+    },
+    {
+      "severity": "WARNING",
+      "file": "skills/learn/tests/learn-coherence.sh",
+      "line": 107,
+      "claim": "The 'authored key_points kept verbatim' normalize check is order-dependent and vacuous at N=0: it compares the authored-only subset of the original against the first N key_points of the normalized corpus (where every source now has key_points), which only holds if the authored sources happen to lead the array, and trivially passes ([] == []) when the eval corpus has no authored key_points at all.",
+      "evidence": "`diff <(jq -c '[.sources[] | select(has(\"key_points\")) | .key_points]' $EVAL_CORPUS) <(jq -c '[.sources[] | select(.key_points != null) | .key_points] | .[0:($2|tonumber)]' normalized.json)` \u2014 after normalization all 12 sources satisfy `.key_points != null`, so the slice assumes positional alignment that nothing guarantees.",
+      "suggested_fix": "Join on source_ref: compare `.sources[] | select(has(\"key_points\")) | {source_ref, key_points}` between original and normalized sorted by source_ref, and fail if the count is zero so the check is never vacuous."
+    },
+    {
+      "severity": "WARNING",
+      "file": "openspec/specs/learn-model-coherence/spec.md",
+      "line": 90,
+      "claim": "The spec asserts present-tense SHALLs for behavior owned by change-rah-009 (add_gap/add_session/resolve_gap persistence, fifth-observation mastery, FSRS difficulty, learn-practice calling add_session), but rah-009 is not a declared dependency of this change (deps: rah-005, rah-007) and learn-practice is not touched in this diff, so the 'current truth' spec may describe unlanded behavior.",
+      "evidence": "spec.md 'Skills call the write paths' requires learn-practice to name add_session \u2014 no learn-practice file appears in the diff; acceptance criteria 'Depends on: change-rah-007-eval-ground-truth-review, change-rah-005-claim-labels-and-provenance' (no rah-009); verification.md says 'openspec validate passes with both new capabilities' while this diff adds only one spec.",
+      "suggested_fix": "Either sequence this change after rah-009 (add the dependency), or mark the rah-009-owned requirements as delta/pending until that change lands."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "shared/scripts/content-grounding-kb.sh",
+      "line": 60,
+      "claim": "subject_to_slug now has two implementations (sourced lib/slug.sh when present, inline fallback otherwise), so the same input can produce different corpus_id slugs between a repo checkout and an installed layout that ships the script without lib/, undermining the 'one grounding script' byte-parity goal across environments.",
+      "evidence": "`if [ -f \"$_slug_lib\" ]; then . \"$_slug_lib\" else subject_to_slug() { ... sed 's/[^a-z0-9]\\{1,\\}/-/g' ... } fi` \u2014 the inline fallback even uses a different sed expression than the pre-change inline version (`\\+` \u2192 `\\{1,\\}`), showing the two paths can drift.",
+      "suggested_fix": "Make the wrapper/test assert the lib and fallback produce identical slugs for a probe string, or fail loudly when the lib is expected but absent."
+    }
+  ],
+  "sycophancy_screen": {
+    "reject_cap": 2,
+    "cap_overridden": false,
+    "cap_default": 2
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "stage": "plan",
+  "completedAt": "2026-09-12T18:30:45Z",
+  "outputs": [
+    "plan.md"
+  ],
+  "nextStage": "execute",
+  "summaryForNext": "3 changes, strictly serial: change-drt-008-hang-capture-harness first (no deps; goals 1-2), then change-drt-009-stage10-hang-fix-and-certification (goals 3-4; its Goal-4 gate consumes 008's evidence), then change-drt-011-phase-close-distribution-regen (C-01 owner, authored this stage). change-drt-010-child-phase-packet-resolution CUT to a standalone post-child change by round-1 CRITICAL (scope smuggling). Plan review: round 1 BLOCK revised; round 2 BLOCK accepted at the 2-round cap — plan.md carries an Unresolved review findings section (3 CRITICALs verbatim with Execute dispositions: p=0 -> Clopper-Pearson bound; C-01 ownership lives in the change specs, invisible to plan packets; zero-hang -> BLOCKED + one K-doubling). WARNINGs carried: K-loop ambiguity (Execute: full K when no hang, capture-then-continue when hung), escalated-branch destination (drt-009 spec), correlation detection reactive-only. First change to apply: change-drt-008, task 1 via kbd-apply begin-task.",
+  "skipped": false,
+  "skipReason": null
+}

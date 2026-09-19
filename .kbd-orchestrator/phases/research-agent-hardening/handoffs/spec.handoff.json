@@ -1,0 +1,11 @@
+{
+  "stage": "spec",
+  "completedAt": "2026-09-04T06:13:34Z",
+  "outputs": [
+    ".kbd-orchestrator/changes/change-rah-001-compile-baseline-and-timestamps/spec.md"
+  ],
+  "nextStage": "plan",
+  "summaryForNext": "11 native-kbd changes (backend native-kbd, same rationale as control-plane-to-companion: review packet and kbd-apply read .kbd-orchestrator/changes); zeespec: n/a (no .zeespec). Dependency order: 001 -> 002 -> 003 -> {004, 005}; 005 -> {006, 010}; 007 -> 008 -> 009; 011 last. Adversarial review PASS 0/7/4, all findings applied by regeneration (review/spec/disposition.md). WARNINGs carried: hook firing points (rah-003), verifier-before-reviewer (rah-006), C-01 reconciliation owned by rah-011, cargo-gated tasks may record BLOCKED while pid 57647 runs. Operator task inside rah-007 (ground-truth review) must precede rah-008. OpenSpec capabilities research-pipeline-execution (rah-002/003/004/005/006/010) and learn-model-coherence (rah-008/009) are authored during execution. Changes: change-rah-001-compile-baseline-and-timestamps change-rah-002-research-package-contract change-rah-003-stage-contract-driver change-rah-004-daemon-job-execution change-rah-005-claim-labels-and-provenance change-rah-006-agent-duties-and-report-review change-rah-007-eval-ground-truth-review change-rah-008-learn-artifact-and-corpus-coherence change-rah-009-learner-model-write-paths-and-fsrs change-rah-010-source-scoring-and-graph change-rah-011-integration-evidence-and-docs ",
+  "skipped": false,
+  "skipReason": null
+}

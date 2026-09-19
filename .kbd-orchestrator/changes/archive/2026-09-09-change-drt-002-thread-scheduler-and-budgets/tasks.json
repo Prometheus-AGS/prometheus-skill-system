@@ -1,0 +1,66 @@
+{
+  "changeId": "change-drt-002-thread-scheduler-and-budgets",
+  "schemaVersion": "1.0.0",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Implement src/threads.rs: Semaphore-bounded scheduler over JoinSet with per-task time::timeout and kill; the cap is a constructor argument",
+      "done": true,
+      "doneAt": "2026-09-09T10:18:59Z",
+      "doneBy": "claude-code",
+      "files": [
+        "substrate/prometheus-research/src/threads.rs",
+        "substrate/prometheus-research/src/lib.rs"
+      ],
+      "verify": "grep -q 'Semaphore' substrate/prometheus-research/src/threads.rs && grep -q 'JoinSet' substrate/prometheus-research/src/threads.rs",
+      "notes": null
+    },
+    {
+      "id": "2",
+      "title": "Add the `threads run --package <dir> --max-parallel N` subcommand",
+      "done": true,
+      "doneAt": "2026-09-09T10:20:59Z",
+      "doneBy": "claude-code",
+      "files": [
+        "substrate/prometheus-research/src/main.rs"
+      ],
+      "verify": "grep -q 'max-parallel\\|max_parallel' substrate/prometheus-research/src/main.rs",
+      "notes": null
+    },
+    {
+      "id": "3",
+      "title": "Add the budgets object to checkpoint.json with force-complete at job, director, and thread level; starting values from analysis D-07",
+      "done": true,
+      "doneAt": "2026-09-09T10:22:57Z",
+      "doneBy": "claude-code",
+      "files": [
+        "substrate/prometheus-research/src/job/checkpoint.rs"
+      ],
+      "verify": "grep -q 'budget' substrate/prometheus-research/src/job/checkpoint.rs",
+      "notes": null
+    },
+    {
+      "id": "4",
+      "title": "Write tests/thread-scheduler.sh with fixture workers covering complete, partial, failed, timeout, and a cap test that over-subscribes and asserts peak concurrency never exceeds the cap",
+      "done": true,
+      "doneAt": "2026-09-09T10:26:47Z",
+      "doneBy": "claude-code",
+      "files": [
+        "skills/research/deep-research/tests/thread-scheduler.sh",
+        "skills/research/deep-research/tests/fixtures/thread-workers/"
+      ],
+      "verify": "bash skills/research/deep-research/tests/thread-scheduler.sh",
+      "notes": null
+    },
+    {
+      "id": "5",
+      "title": "Run the integration gate: cargo check, then the scheduler suite, with the Cargo slot free",
+      "done": true,
+      "doneAt": "2026-09-09T10:33:08Z",
+      "doneBy": "claude-code",
+      "files": [],
+      "verify": "test -z \"$(pgrep -x cargo)\" && (cd substrate/prometheus-research && cargo check -p prometheus-research) && bash skills/research/deep-research/tests/thread-scheduler.sh",
+      "notes": null
+    }
+  ]
+}

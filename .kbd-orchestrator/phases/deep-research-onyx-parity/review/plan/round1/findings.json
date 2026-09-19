@@ -1,0 +1,36 @@
+{
+  "mode": "artifact",
+  "verdict": "PASS",
+  "judge_model": "k3",
+  "producer_model": "claude-opus-5",
+  "isolation_mode": "rest-gateway:http://localhost:4000/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "WARNING",
+      "file": "plan.md",
+      "claim": "drt-007 is mapped to goal G4 (budgets and failure semantics), but its described scope \u2014 the launchd plist PATH fix and the stub-driver reinstall \u2014 has no relationship to budgets, force-complete paths, or dispatch ledgers, and no change summary in the plan ever mentions G4's 'ledger row for every dispatch including partial and failed threads' or 'force-complete paths'.",
+      "evidence": "Plan header for drt-007: '**Goals:** G1, G4' and goal coverage row 'G4 Budgets | drt-002, drt-007', while drt-007's body says only 'Repairs the two defects the predecessor's evidence run found: the launchd plist that sets no PATH ... and the installed generation shipping a stub driver', and drt-002's body mentions only 'The scheduler ... Enforces the concurrency cap'. Goals file G4: 'cycle and wall-clock budgets at job, director, and thread level with force-complete paths, and a ledger row for every dispatch including partial and failed threads'.",
+      "suggested_fix": "Either drop G4 from drt-007's goal list and name the change(s)/task(s) that implement force-complete paths and the dispatch ledger explicitly in drt-002's summary, or state in the plan which existing predecessor surface already provides the ledger so G4's second half is demonstrably covered."
+    },
+    {
+      "severity": "WARNING",
+      "file": "plan.md",
+      "claim": "The plan's 'What must not drift during execution' section omits the two binding constraints both handoffs explicitly carried forward for drt-007: the C-01 byte-identical regeneration proof in the same change for the D-B generated-artifact desync, and the C-05 bash 3.2 compatibility requirement for the launchd-invoked plist/scripts work.",
+      "evidence": "analyze.handoff.json summaryForNext: '(2) D-B is itself a C-01 generated-artifact desync requiring byte-identical regeneration proof in the same change.'; assess.handoff.json summaryForNext: 'fixing D-A/D-B triggers C-01 same-change regeneration and C-05 bash 3.2'. The plan's drift section lists only stage-number stability, no new crate in Cargo.toml, NOASSERTION licensing, and bench token cost \u2014 neither C-01 nor C-05 appears anywhere in plan.md.",
+      "suggested_fix": "Add to the drift section (or to drt-007's summary) that the D-B repair must regenerate the installed generation with byte-identical tracked hashes in the same change per C-01, and that any script the plist invokes must be bash 3.2 clean per C-05, so the executor does not treat drt-007 as a plain reinstall."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "plan.md",
+      "claim": "The round table never states drt-004's dependency on drt-001, even though the spec-stage dependency graph records '004 <- 001' and drt-004 folds threads into artifact shapes that drt-001 freezes; R3's 'Why together' column cites only the run-research.sh editor ordering.",
+      "evidence": "spec.handoff.json: '004 <- 001'; plan.md R3 row: 'First of the three `run-research.sh` editors. Owns the merge that drt-003 wires and drt-005's citation numbering resolves against' \u2014 no mention of drt-001, unlike the R2, R4, R5, and R6 rows which all state their dependencies.",
+      "suggested_fix": "Annotate the R3 row with 'Depends on drt-001's frozen thread artifact contracts' so the table is a complete rendering of the spec-stage dependency graph."
+    }
+  ],
+  "sycophancy_screen": {
+    "reject_cap": 2,
+    "cap_overridden": false,
+    "cap_default": 2
+  }
+}

@@ -1,0 +1,78 @@
+{
+  "changeId": "change-drt-004-deterministic-merge",
+  "schemaVersion": "1.0.0",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Implement scripts/merge-threads.sh: union sources by canonical URL into the existing stage 02/04 shapes, copy chunks into the stage 03 shape, union claims by content-addressed id keeping every provenance tuple, rewrite markers and emit citation-map.json",
+      "done": true,
+      "doneAt": "2026-09-09T13:17:00Z",
+      "doneBy": "claude-code",
+      "files": [
+        "skills/research/deep-research/scripts/merge-threads.sh"
+      ],
+      "verify": "bash -n skills/research/deep-research/scripts/merge-threads.sh && grep -q 'citation-map' skills/research/deep-research/scripts/merge-threads.sh",
+      "notes": null
+    },
+    {
+      "id": "2",
+      "title": "Make the merge refuse, as CRITICAL, any dossier source absent from that thread's sources.json",
+      "done": true,
+      "doneAt": "2026-09-09T13:17:16Z",
+      "doneBy": "claude-code",
+      "files": [
+        "skills/research/deep-research/scripts/merge-threads.sh"
+      ],
+      "verify": "grep -qi 'critical' skills/research/deep-research/scripts/merge-threads.sh",
+      "notes": null
+    },
+    {
+      "id": "3",
+      "title": "Extract canonical URL normalisation into the shared lib so stage 02 and the merge cannot drift",
+      "done": true,
+      "doneAt": "2026-09-09T13:18:30Z",
+      "doneBy": "claude-code",
+      "files": [
+        "shared/scripts/lib/",
+        "skills/research/deep-research/scripts/run-research.sh"
+      ],
+      "verify": "grep -q 'canonical' skills/research/deep-research/scripts/merge-threads.sh",
+      "notes": null
+    },
+    {
+      "id": "4",
+      "title": "Write tests/merge-threads.sh with overlapping sources and duplicate claims; assert determinism by hash across two runs, assert the unmodified driver validators pass on merged output, assert one citation number per document, assert the no-search violation fails",
+      "done": true,
+      "doneAt": "2026-09-09T13:22:46Z",
+      "doneBy": "claude-code",
+      "files": [
+        "skills/research/deep-research/tests/merge-threads.sh",
+        "skills/research/deep-research/tests/fixtures/threads-merge/"
+      ],
+      "verify": "bash skills/research/deep-research/tests/merge-threads.sh | tee /dev/stderr | grep -qE '[1-9][0-9]* passed, 0 failed'",
+      "notes": null
+    },
+    {
+      "id": "5",
+      "title": "Run the integration gate: merge suite plus the unmodified driver contract suite",
+      "done": true,
+      "doneAt": "2026-09-09T13:25:51Z",
+      "doneBy": "claude-code",
+      "files": [],
+      "verify": "bash skills/research/deep-research/tests/merge-threads.sh && ( unset KBD_PRODUCER_MODEL; bash skills/research/deep-research/tests/driver-contract.sh )",
+      "notes": null
+    },
+    {
+      "id": "6",
+      "title": "Regenerate the distribution after editing run-research.sh and pass check:distribution and validate:codex in this change (C-01; a desynced driver is defect D-B)",
+      "done": true,
+      "doneAt": "2026-09-09T14:06:34Z",
+      "doneBy": "claude-code",
+      "files": [
+        "dist/"
+      ],
+      "verify": "test -f skills/research/deep-research/scripts/merge-threads.sh && npm run check:distribution && npm run validate:codex",
+      "notes": null
+    }
+  ]
+}

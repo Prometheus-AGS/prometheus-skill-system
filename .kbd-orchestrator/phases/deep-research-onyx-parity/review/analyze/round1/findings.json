@@ -1,0 +1,36 @@
+{
+  "mode": "artifact",
+  "verdict": "PASS",
+  "judge_model": "k3",
+  "producer_model": "claude-opus-5",
+  "isolation_mode": "rest-gateway:http://localhost:4000/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "WARNING",
+      "file": "library-candidates.json",
+      "claim": "Gaps G3 and G5 have no build-vs-adopt evaluation: every candidate's fit_for_gap covers only G1, G2, and G4, yet gaps_addressed claims all of G1\u2013G5 are addressed.",
+      "evidence": "fit_for_gap values: tokio-sync [G1,G4], harness-subagents [G1], process-workers [G1,G4], merge-threads [G1,G2], onyx-budgets [G4], onyx-parallel-cap [G1,G4], uar-native-runner [G1], workspace-split []. No candidate maps to G3 (stage 09 multi-pass report split) or G5 (benchmark harness). Both appear only in build_required (\"Stage 09 split...\" and \"Benchmark harness reporting RACE...\"), so the analysis silently defaults to BUILD for two of five goals without evaluating any adoptable alternative (e.g., an existing deep-research eval/RACE harness for G5, or an existing report-assembly/coherence pattern for G3).",
+      "suggested_fix": "Either add candidate entries for G3 and G5 with explicit verdicts (even if the verdict is 'build, no adoptable alternative exists, because X'), or narrow gaps_addressed to the gaps actually evaluated."
+    },
+    {
+      "severity": "WARNING",
+      "file": "analysis.md",
+      "claim": "The analysis silently drops a question the assess handoff explicitly deferred to this stage: whether a D-B republish triggers the C-03 docs constraint.",
+      "evidence": "assess.handoff.json summaryForNext: \"whether a D-B republish also triggers a docs constraint is deferred to analyze.\" analysis.md D-09 commits to fixing D-B in this phase (\"Fix in this phase\") but mentions only C-01 and C-05; the string \"C-03\" appears nowhere in analysis.md or library-candidates.json, and D-B's docs surface (docs/codex-plugin.md, CLAUDE.md Codex CLI section per constraint C-03) is never analyzed.",
+      "suggested_fix": "Add a D-B row to \u00a73 or the process-workers candidate risks stating whether republishing the driver touches the Codex plugin surface and therefore whether C-03 doc updates are required in the same change."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "analysis.md",
+      "claim": "Open question 5 asserts a numeric Onyx constant (\"caps intermediate reports at 10K with a comment that ~5K is empirically better\") that appears nowhere in the verified-claims table of \u00a71.1, in an artifact whose stated method is source verification of every load-bearing constant.",
+      "evidence": "\u00a71.1 verifies MAX_FINAL_REPORT_TOKENS = 20000 (dr_loop.py:80) but contains no intermediate-report token cap entry; \u00a74 item 5 introduces the 10K/~5K figures with no file:line citation. Given V4's rule that unverified numbers must not enter the plan as fact, this number could propagate unlabeled.",
+      "suggested_fix": "Either cite the Onyx source line for the intermediate cap and add it to the \u00a71.1 table, or mark the 10K/~5K figures as unverified pending source confirmation."
+    }
+  ],
+  "sycophancy_screen": {
+    "reject_cap": 2,
+    "cap_overridden": false,
+    "cap_default": 2
+  }
+}

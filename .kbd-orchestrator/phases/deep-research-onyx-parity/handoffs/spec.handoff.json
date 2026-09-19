@@ -1,0 +1,11 @@
+{
+  "stage": "spec",
+  "completedAt": "2026-09-08T13:49:23Z",
+  "outputs": [
+    ".kbd-orchestrator/changes/change-drt-001-dispatch-smoke-and-thread-contracts/spec.md"
+  ],
+  "nextStage": "plan",
+  "summaryForNext": "7 native-kbd changes, 35 tasks, ZeeSpec: n/a (no .zeespec, gate inactive). Order: drt-001 (dispatch smoke + thread contracts) is FIRST and is a real decision point — if concurrent in-session dispatch cannot be demonstrated, D-03a's fallback applies, strategy B becomes primary and drt-007 moves ahead of drt-002/003. drt-007 (install-surface repair) is independent and can run in parallel from the start; it unblocks process-level workers. Dependency graph is acyclic: 001 <- none; 002 <- 001; 004 <- 001; 005 <- 001,004; 003 <- 001,002,004; 006 <- 002,003,004,005; 007 <- none. Adversarial review ran two rounds over the whole set, 15 findings, ALL accepted, none rejected. Three were structural: (1) the dispatch runtime was underspecified — a Rust Semaphore cannot cap in-session subagent dispatch, so the phase now names TWO runtimes and scopes the code-enforced cap to process workers only, with strategy A's bound stated honestly as advisory-plus-merge-gate; (2) analysis D-11b was WRONG that the plist edit triggers a services-manifest regeneration — the generator reads only shared/launchagents and shared/systemd, corrected as D-11c, and the real gap (a launchd service the manifest does not track) is raised as an open question rather than fixed as a side effect; (3) all seven tasks.json used an envelope the driver cannot read, now matched to the proven format. WARNINGS carried to plan: drt-001's outcome may re-plan the phase; a bench run costs real gateway tokens and the 10-task subset is indicative not leaderboard-grade; Onyx is NOASSERTION licensed so no prompt string may be copied verbatim.",
+  "skipped": false,
+  "skipReason": null
+}

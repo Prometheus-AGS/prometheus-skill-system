@@ -1,0 +1,66 @@
+{
+  "changeId": "change-cpc-006-discovery-and-pairing",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Confirm the operator's versions.toml pins include iroh-mdns-address-lookup and iroh-mainline-address-lookup 0.5.0 (staged by change-cpc-003), then add both crates; confirm they resolve against iroh 1.0.3 (stop and record if not)",
+      "done": true,
+      "doneAt": "2026-09-03T11:19:50Z",
+      "doneBy": "claude-code",
+      "files": [
+        "crates/sovereign-sync/Cargo.toml"
+      ],
+      "verify": "grep -q 'iroh-mainline-address-lookup' versions.toml && grep -q 'iroh-mdns-address-lookup' versions.toml",
+      "notes": null
+    },
+    {
+      "id": "2",
+      "title": "Wire lookups into P2PNode endpoint builder with [discovery] config defaults mdns=true, dht=false",
+      "done": true,
+      "doneAt": "2026-09-03T11:27:22Z",
+      "doneBy": "claude-code",
+      "files": [
+        "crates/sovereign-sync/src/p2p.rs",
+        "crates/sovereign-sync/src/config.rs"
+      ],
+      "verify": null,
+      "notes": null
+    },
+    {
+      "id": "3",
+      "title": "Add QR ticket encoding in the Companion and correct spec §14 Noise text and the §25.2 iroh row",
+      "done": true,
+      "doneAt": "2026-09-03T11:36:59Z",
+      "doneBy": "claude-code",
+      "files": [
+        "crates/prometheus-substrate/src/pairing.rs",
+        "docs/00-architecture-and-implementation-plan.md"
+      ],
+      "verify": "! grep -qi noise docs/00-architecture-and-implementation-plan.md",
+      "notes": null
+    },
+    {
+      "id": "4",
+      "title": "Write the two-endpoint discovery integration test with started endpoints and empty bootstrap",
+      "done": true,
+      "doneAt": "2026-09-03T12:16:44Z",
+      "doneBy": "claude-code",
+      "files": [
+        "crates/sovereign-sync/tests/discovery.rs"
+      ],
+      "verify": "cargo test -p sovereign-sync --test discovery -- default_config_registers_no_mainline_lookup dht_opt_in_registers_mainline_lookup unauthorized_peer_is_rejected lan_peers_discover_without_bootstrap",
+      "notes": null
+    },
+    {
+      "id": "5",
+      "title": "Run the Companion audit gate",
+      "done": true,
+      "doneAt": "2026-09-03T12:44:53Z",
+      "doneBy": "claude-code",
+      "files": [],
+      "verify": "bash scripts/audit-all.sh",
+      "notes": null
+    }
+  ]
+}

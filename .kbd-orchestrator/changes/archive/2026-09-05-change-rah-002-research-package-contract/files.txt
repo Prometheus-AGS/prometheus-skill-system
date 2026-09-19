@@ -1,0 +1,17 @@
+skills/research/deep-research/references/research-package-spec.md
+skills/research/deep-research/references/schemas/research-manifest.schema.json
+skills/research/deep-research/references/a2ui-components.md
+skills/research/deep-research/templates/research-package-manifest.json
+skills/research/deep-research/SKILL.md
+skills/research/deep-research/skill.toml
+skills/research/deep-research/scripts/export-package.sh
+skills/research/deep-research/scripts/check-research-package.sh
+skills/research/deep-research/hooks/pre-research.sh
+skills/research/deep-research/hooks/post-stage.sh
+skills/research/deep-research/hooks/on-contradiction.sh
+skills/research/deep-research/hooks/post-export.sh
+skills/research/deep-research/agents/report-synthesizer.md
+substrate/prometheus-research/src/config.rs
+substrate/prometheus-research/src/job/checkpoint.rs
+substrate/prometheus-research/src/main.rs
+openspec/specs/research-pipeline-execution/spec.md

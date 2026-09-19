@@ -1,0 +1,8 @@
+.kbd-orchestrator/changes/change-drt-011-phase-close-distribution-regen/
+.refiner/artifacts/change-drt-011-phase-close-distribution-regen/refinement_log.md
+dist/plugins/claude/prometheus-skill-pack/skills/deep-research/tests/hang/run-hang-capture.sh
+dist/plugins/codex/prometheus-skill-pack/skills/deep-research/tests/hang/run-hang-capture.sh
+dist/plugins/claude/prometheus-skill-pack/skills/deep-research/tests/hang/DIAGNOSIS.md
+dist/plugins/claude/prometheus-skill-pack/skills/deep-research/tests/hang/FIX-CERTIFICATION.md
+dist/plugins/codex/prometheus-skill-pack/skills/deep-research/tests/hang/DIAGNOSIS.md
+dist/plugins/codex/prometheus-skill-pack/skills/deep-research/tests/hang/FIX-CERTIFICATION.md

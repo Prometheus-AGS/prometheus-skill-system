@@ -1,0 +1,64 @@
+{
+  "mode": "artifact",
+  "verdict": "BLOCK",
+  "judge_model": "k3",
+  "producer_model": "claude-opus-5",
+  "isolation_mode": "rest-gateway:http://localhost:4000/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": "change-drt-007-install-surface-repair/spec.md",
+      "claim": "The spec's ADDED Requirements and verification.md re-impose the exact C-01 manifest obligation the same spec's What Changes section explicitly corrects as wrong, and no task or verify command implements it.",
+      "evidence": "What Changes states: 'the research plist lives at substrate/prometheus-research/... and is **not** an input... So C-01's manifest obligation does **not** apply, and running the generator here would change nothing' and 'this corrects analysis D-11b'. Yet the same spec's ADDED Requirements include '### Requirement: The generated manifest stays in sync ... WHEN the plist gains its PATH entry THEN `npm run generate:services-manifest` is run, `npm run check:services-manifest` passes'. verification.md doubles down: '**C-01 applies twice here.** The plist edit forces a services-manifest regeneration ... (analysis D-11b)' and lists '`shared/services.manifest.json` is regenerated and `npm run check:services-manifest` passes in this change (C-01)' as an acceptance criterion \u2014 but the verify block contains no `check:services-manifest` command and no task in tasks.json regenerates the manifest (task 2's verify only confirms the plist is NOT a manifest input). Execution inherits a self-contradictory gate: the change cannot both honour the correction and satisfy the stated criterion.",
+      "suggested_fix": "Delete the 'generated manifest stays in sync' requirement and the manifest-regeneration acceptance criterion from verification.md, or scope them to 'proven unnecessary by task 2's check' so the criterion is the negative assertion the correction actually makes."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "change-drt-005-multipass-report/tasks.json",
+      "claim": "Task 1 instructs the outline to pre-assign citation numbers, contradicting the spec's explicit single-numbering-authority rule.",
+      "evidence": "spec.md What Changes: '**Citation numbers are not assigned here.** drt-004's merge is the single numbering authority and writes `citation-map.json`; the outline carries claim ids only ... Two numbering authorities would drift (adversarial round-1 finding 7).' Task 1 title: 'Author agents/outline-architect.md and the report-outline schema and template: sections to sub-questions to claim ids, word budget per section, citation numbers pre-assigned'. An executor following the task title reintroduces the second numbering authority the spec exists to prevent, and nothing in the task's verify (`grep '^tools:'` + schema parse) would catch it.",
+      "suggested_fix": "Reword task 1 to '...word budget per section, claim ids only (citation numbers are assigned solely by drt-004's merge)'."
+    },
+    {
+      "severity": "WARNING",
+      "file": "change-drt-004-deterministic-merge/tasks.json",
+      "claim": "Task 3 edits files outside the change's declared Scope.",
+      "evidence": "spec.md Scope lists only `scripts/merge-threads.sh`, `tests/merge-threads.sh`, `tests/fixtures/threads-merge/`, and `references/stage-contracts.md`. Task 3 ('Extract canonical URL normalisation into the shared lib') declares files `shared/scripts/lib/` and `skills/research/deep-research/scripts/run-research.sh`, neither of which appears in Scope. The scope list is the boundary the refinement gate checks a change against; executing task 3 as written escapes it.",
+      "suggested_fix": "Add `shared/scripts/lib/` (or the specific new lib file) and `scripts/run-research.sh` to the spec's Scope."
+    },
+    {
+      "severity": "WARNING",
+      "file": "change-drt-003-director-worker-agents/tasks.json",
+      "claim": "The C-01 skills-index regeneration target `SKILLS.md` is in task files but absent from Scope in both drt-003 and drt-005.",
+      "evidence": "drt-003 task 4 and drt-005 task 6 both declare `\"files\": [\"SKILLS.md\"]` (skills-index regeneration per C-01). Neither spec's Scope lists `SKILLS.md` \u2014 drt-003 Scope is limited to `skills/research/deep-research/...` paths, drt-005's likewise. Same out-of-scope pattern as the drt-004 finding, applied to the C-01-mandated regeneration target.",
+      "suggested_fix": "Add `SKILLS.md` to the Scope of drt-003 and drt-005."
+    },
+    {
+      "severity": "WARNING",
+      "file": "change-drt-007-install-surface-repair/verification.md",
+      "claim": "The 'stale install is visible before it fails' requirement has no behavioral gate; the only stub-detection check is a grep, and the smoke test exercises only the fixed-driver path.",
+      "evidence": "Requirement: 'WHEN the resolved driver lacks the stage-contract markers THEN the daemon reports it as stale with both paths and sizes'. Task 3's verify is `grep -qi 'driver' substrate/prometheus-research/src/job/daemon.rs && cargo check -p prometheus-research` \u2014 a source grep, not behavior. Task 5's smoke test 'render[s] and install[s] the plist, bootstrap[s] the service ... assert a non-null harness_pid' against the repaired driver, so the stub path (the exact D-B defect: a 1920-byte stub with zero `--resume`/`checkpoint` markers) is never run through the new self-check. The phase's own convention elsewhere (drt-005, drt-007 criterion corrections) is negative controls; here the negative case is untested.",
+      "suggested_fix": "Extend installed-service-smoke.sh (or add a second fixture) to install a marker-less stub driver and assert the daemon's health output reports it stale with both paths and sizes."
+    },
+    {
+      "severity": "WARNING",
+      "file": "change-drt-001-dispatch-smoke-and-thread-contracts/tasks.json",
+      "claim": "All seven drt-* tasks.json files use a different envelope schema (`change_id`, no `schemaVersion`, no `done` fields) from the repo's established change-tasks format.",
+      "evidence": "Every other change in the packet (e.g. change-cpc-001, change-elicit-001) uses `\"changeId\": ...`, `\"schemaVersion\": \"1\"`, and per-task `done`/`doneAt`/`doneBy` fields \u2014 the schema whose definition was itself a delivered task ('Write change-tasks.schema.json' in change-001-native-kbd-backend). The drt-001..007 files instead use `\"change_id\"` with no `schemaVersion` and no completion fields. If the native-kbd backend or `/kbd-apply` validates against change-tasks.schema.json, these files fail or silently skip state tracking before execution starts.",
+      "suggested_fix": "Reconcile the drt tasks.json envelope with change-tasks.schema.json (rename `change_id`\u2192`changeId`, add `schemaVersion`, add completion fields) or record in the phase why this phase's schema diverges."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "change-drt-001-dispatch-smoke-and-thread-contracts/verification.md",
+      "claim": "The bash-3.2 acceptance criterion covers 'the suite' but the verify block runs only dispatch-smoke.sh under /bin/bash, not thread-contracts.sh.",
+      "evidence": "Acceptance criteria: 'The suite passes under `/bin/bash` (3.2) as well as bash 5.' Verify block: `/bin/bash .../dispatch-smoke.sh` is present, but thread-contracts.sh is run only under `bash`. Sibling changes (drt-002, drt-003, drt-004, drt-005) each run every suite script under `/bin/bash`; drt-001 is the lone inconsistency with the claim 'Every acceptance criterion above maps to a command here'.",
+      "suggested_fix": "Add `/bin/bash skills/research/deep-research/tests/thread-contracts.sh` to the verify block."
+    }
+  ],
+  "sycophancy_screen": {
+    "reject_cap": 2,
+    "cap_overridden": false,
+    "cap_default": 2
+  }
+}

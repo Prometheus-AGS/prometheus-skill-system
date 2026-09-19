@@ -1,0 +1,55 @@
+{
+  "mode": "diff",
+  "verdict": "BLOCK",
+  "judge_model": "k3",
+  "producer_model": "claude-fable-5-1",
+  "isolation_mode": "rest-gateway:http://localhost:8181/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": "skills/research/deep-research/scripts/export-package.sh",
+      "line": 285,
+      "claim": "A failing post-export hook is reported as success because the script captures the exit status of `!` instead of the hook command.",
+      "evidence": "The hunk says `if ! RESEARCH_PACKAGE_PATH=... bash \"$HOOK_DIR/post-export.sh\"; then rc=$? ... exit \"$rc\"; fi`; in bash, `$?` inside the `then` branch is the status of the negation (`0`), not the hook's non-zero status, violating the acceptance constraint that touched scripts keep non-zero exit on failure and no silent gate swallowing.",
+      "suggested_fix": "Run the hook without `!`, capture its status immediately, and exit that value, e.g. `RESEARCH_PACKAGE_PATH=... bash \"$HOOK_DIR/post-export.sh\"; rc=$?; if [ \"$rc\" -ne 0 ]; then ... exit \"$rc\"; fi` with `set +e`/`set -e` around the call if needed."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "skills/research/deep-research/scripts/check-research-package.sh",
+      "line": 31,
+      "claim": "The required jq fallback is not implemented; the check requires python3 and uses a Python structural fallback when `jsonschema` is unavailable.",
+      "evidence": "Acceptance task 5 and the What Changes section require `python3 jsonschema with jq fallback`, but the script exits if `python3` is missing (`command -v python3 ... || { bad \"python3 is required\"; exit 1; }`) and its `except ImportError:` fallback is still Python code, with no jq invocation.",
+      "suggested_fix": "Implement the specified jq-based fallback for key-set/type validation, or update the acceptance contract if Python-only fallback is intended."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "skills/research/deep-research/scripts/check-research-package.sh",
+      "line": 109,
+      "claim": "The drift check does not enforce the required byte-for-byte identity between the SKILL.md manifest example and the normative spec example.",
+      "evidence": "OpenSpec requires `The manifest.json example in SKILL.md SHALL be byte-for-byte the example in the spec`, but the script compares parsed JSON objects with `json.load(...); sys.exit(0 if a==b else 1)`, which ignores whitespace, ordering, and formatting differences.",
+      "suggested_fix": "Compare the extracted JSON block files byte-for-byte with `cmp -s \"$TMP/skill-example.json\" \"$TMP/spec-example.json\"` before or in addition to JSON semantic validation."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "skills/research/deep-research/references/schemas/research-manifest.schema.json",
+      "line": 21,
+      "claim": "The schema does not enforce the specified package slug limit of at most five hyphenated words.",
+      "evidence": "The new OpenSpec and research-package-spec both require package ids as `<slug>-<yyyymmdd>-<4hex>` where the slug is at most five lowercase hyphenated words, but the schema pattern is `^[a-z0-9]+(-[a-z0-9]+)*-[0-9]{8}-[0-9a-f]{4}$`, which accepts any number of slug components such as `a-b-c-d-e-f-20260905-a1f3`.",
+      "suggested_fix": "Constrain the slug prefix in the schema, e.g. `^[a-z0-9]+(-[a-z0-9]+){0,4}-[0-9]{8}-[0-9a-f]{4}$`, or a stricter lowercase-word pattern if digits are not allowed in slug words."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "skills/research/deep-research/hooks/pre-research.sh",
+      "line": 40,
+      "claim": "The pre-research hook still creates the output directory using `JOB_ID`, not the required `<slug>-<yyyymmdd>-<4hex>` package directory name.",
+      "evidence": "The package contract added in `openspec/specs/research-pipeline-execution/spec.md` says every research package directory SHALL be named `<slug>-<yyyymmdd>-<4hex>` and the normative spec says the daemon job id is not the directory name, but the hook still runs `mkdir -p \"$OUTPUT_DIR/$JOB_ID\"` and echoes that path.",
+      "suggested_fix": "Derive or receive the package id separately from the daemon job id and create `$OUTPUT_DIR/$PACKAGE_ID`; keep `JOB_ID` only as manifest/checkpoint metadata."
+    }
+  ],
+  "sycophancy_screen": {
+    "reject_cap": 2,
+    "cap_overridden": false,
+    "cap_default": 2
+  }
+}

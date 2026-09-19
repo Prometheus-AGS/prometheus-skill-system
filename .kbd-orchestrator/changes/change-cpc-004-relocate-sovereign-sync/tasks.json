@@ -1,0 +1,88 @@
+{
+  "changeId": "change-cpc-004-relocate-sovereign-sync",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Copy sovereign-sync, sovereign-client, kbd-mobile, and storage-provider/src/iroh_docs.rs into crates/ with source-commit READMEs; add workspace members",
+      "done": true,
+      "doneAt": "2026-09-02T20:10:47Z",
+      "doneBy": "claude-code",
+      "files": [
+        "Cargo.toml",
+        "crates/sovereign-sync/",
+        "crates/sovereign-client/",
+        "crates/kbd-mobile/",
+        "crates/iroh-docs-adapter/"
+      ],
+      "verify": null,
+      "notes": null
+    },
+    {
+      "id": "2",
+      "title": "Replace path deps with git-rev pack deps; make all pins exact",
+      "done": true,
+      "doneAt": "2026-09-02T20:17:44Z",
+      "doneBy": "claude-code",
+      "files": [
+        "crates/sovereign-sync/Cargo.toml",
+        "crates/sovereign-client/Cargo.toml",
+        "crates/kbd-mobile/Cargo.toml",
+        "crates/iroh-docs-adapter/Cargo.toml"
+      ],
+      "verify": null,
+      "notes": null
+    },
+    {
+      "id": "3",
+      "title": "Remove unwrap() from library code with typed errors across the relocated crates (Companion AGENTS.md §17); enforce with clippy unwrap_used on --lib",
+      "done": true,
+      "doneAt": "2026-09-03T09:05:25Z",
+      "doneBy": "claude-code",
+      "files": [
+        "crates/sovereign-sync/src/",
+        "crates/sovereign-client/src/",
+        "crates/kbd-mobile/src/",
+        "crates/iroh-docs-adapter/src/"
+      ],
+      "verify": "cargo clippy -p sovereign-sync -p sovereign-client -p kbd-mobile -p iroh-docs-adapter --lib -- -D clippy::unwrap_used",
+      "notes": null
+    },
+    {
+      "id": "4",
+      "title": "Port and run the integration test targets",
+      "done": true,
+      "doneAt": "2026-09-03T09:20:15Z",
+      "doneBy": "claude-code",
+      "files": [
+        "crates/sovereign-sync/tests/integration_tests.rs",
+        "crates/sovereign-sync/tests/domain_sync.rs",
+        "crates/kbd-mobile/tests/wire_compat.rs"
+      ],
+      "verify": "cargo test -p sovereign-sync --test integration_tests && cargo test -p sovereign-sync --test domain_sync && cargo test -p kbd-mobile --test wire_compat",
+      "notes": null
+    },
+    {
+      "id": "5",
+      "title": "Prove a signed command from the pack's installed prometheus CLI over the socket to the Companion-built daemon",
+      "done": true,
+      "doneAt": "2026-09-03T09:25:27Z",
+      "doneBy": "claude-code",
+      "files": [
+        "crates/sovereign-sync/tests/cli_socket_contract.rs"
+      ],
+      "verify": "cargo test -p sovereign-sync --test cli_socket_contract",
+      "notes": null
+    },
+    {
+      "id": "6",
+      "title": "Run the Companion audit gate",
+      "done": true,
+      "doneAt": "2026-09-03T10:18:07Z",
+      "doneBy": "claude-code",
+      "files": [],
+      "verify": "bash scripts/audit-all.sh",
+      "notes": null
+    }
+  ]
+}

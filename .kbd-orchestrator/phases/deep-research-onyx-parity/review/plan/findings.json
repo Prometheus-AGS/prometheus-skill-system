@@ -1,0 +1,36 @@
+{
+  "mode": "artifact",
+  "verdict": "BLOCK",
+  "judge_model": "k3",
+  "producer_model": "claude-opus-5",
+  "isolation_mode": "rest-gateway:http://localhost:4000/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": "plan.md",
+      "claim": "The plan treats the driver desync as a C-01 generated-artifact event only for drt-007, but drt-003, drt-004, and drt-005 all edit the same source (`run-research.sh`) after drt-007 re-synchronizes it, and the plan names no reconciliation change and states no in-change regeneration requirement for those three editors.",
+      "evidence": "The plan's drift section asserts: \"drt-007's D-B repair is a C-01 event, not a plain reinstall. The installed generation is generated output out of sync with its source, so the repair must regenerate it, prove byte-identical tracked hashes across two runs, and pass `check:distribution` and `validate:codex` in the same change.\" By that same framing, the source of that generated output is `run-research.sh`, and the ordering table states \"Three changes edit `run-research.sh`: drt-003, drt-004, drt-005\" \u2014 all scheduled in R3\u2013R5, after drt-007's R1 repair re-synchronizes the surface. C-01 requires that when several sibling changes edit the same generated surface, \"a parent phase may name one later reconciliation change to batch this work ... every earlier change must identify that reconciliation change in persisted execution evidence.\" No reconciliation owner is named anywhere in the plan (drt-006 is scoped to benchmarks only), so each of drt-003/004/005 will either re-desync tracked generated output or hit the C-01 gate BLOCKED at validation.",
+      "suggested_fix": "Either state in the drift section that drt-003/004/005 must each regenerate the installed generation and pass `check:distribution`/`validate:codex` in-change, or name a single reconciliation change (e.g. drt-006 or a new final change) and require drt-003/004/005 to identify it in their persisted execution evidence per C-01."
+    },
+    {
+      "severity": "WARNING",
+      "file": "plan.md",
+      "claim": "C-05 (bash 3.2 compatibility for launchd-invoked scripts) is scoped only to drt-007, but drt-003, drt-004, and drt-005 heavily edit `run-research.sh`, the script the launchd daemon drives, and the plan extends no such requirement to them.",
+      "evidence": "The drift section says: \"C-05 applies to drt-007. `install-binaries.sh` and anything the plist invokes run under launchd, where macOS `/bin/bash` is 3.2: no `mapfile`, no `declare -A`.\" The goals context (D-A) establishes that `com.prometheus.research.plist` runs the research daemon that resolves and executes the pipeline driver; `run-research.sh` is exactly the script in that invocation chain and is edited by three later changes, yet the plan's only C-05 mention covers the installer.",
+      "suggested_fix": "Extend the C-05 drift note to cover drt-003/004/005: any bash added to `run-research.sh` or scripts it invokes under the daemon must be bash 3.2 compatible and tested with `/bin/bash`."
+    },
+    {
+      "severity": "WARNING",
+      "file": "plan.md",
+      "claim": "The assess stage's open question of whether the D-B republish triggers a docs constraint (C-03) was deferred to analyze, never resolved there, and is silently absent from the plan even though drt-007 alters the install flow.",
+      "evidence": "assess.handoff.json: \"whether a D-B republish also triggers a docs constraint is deferred to analyze.\" analyze.handoff.json's summaryForNext resolves the services-manifest question (D-11c) and C-01/C-05 but never mentions C-03 or docs. The plan's drift section for drt-007 lists C-01 and C-05 obligations but no determination on `docs/codex-plugin.md` / CLAUDE.md, despite drt-007 modifying `scripts/install-binaries.sh` and the launchd plist \u2014 install flow, which C-03 enumerates (\"install flow\") as a docs-triggering surface.",
+      "suggested_fix": "Add an explicit determination to the plan: either drt-007's install-flow change requires `docs/codex-plugin.md` and CLAUDE.md updates in the same change, or a stated reason C-03 does not bind (e.g. the surface is the native-kbd installer, not the Codex plugin install flow)."
+    }
+  ],
+  "sycophancy_screen": {
+    "reject_cap": 2,
+    "cap_overridden": false,
+    "cap_default": 2
+  }
+}

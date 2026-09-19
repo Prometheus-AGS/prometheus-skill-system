@@ -1,0 +1,57 @@
+{
+  "mode": "artifact",
+  "verdict": "PASS",
+  "judge_model": "k3",
+  "producer_model": "claude-fable-5-1",
+  "isolation_mode": "rest-gateway:http://localhost:4000/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "WARNING",
+      "file": "plan.md",
+      "claim": "The certification change 011 declares a hard dependency on 010 while the plan simultaneously states 010 may be deferred to a successor phase and the phase still certifies \u2014 the two statements cannot both hold.",
+      "evidence": "Change 11: \"Depends on: change-rah-004, change-rah-006, change-rah-009, change-rah-010\" and \"011 is last by definition\"; but SCOPE CUTS: \"If 001 to 009 consume the phase, 010 moves to a successor and the phase still certifies against G1 to G4.\" Under the fallback branch, 011's stated preconditions are unsatisfiable, so the executor either blocks at the phase gate or must improvise a dependency drop the plan never authorizes.",
+      "suggested_fix": "Make 011's dependency on 010 conditional in the change list (e.g. \"Depends on: ... change-rah-010 (only if 010 is not deferred)\") and state explicitly which evidence sections of docs/research-agent-hardening-evidence.md are skipped when G5 slips."
+    },
+    {
+      "severity": "WARNING",
+      "file": "plan.md",
+      "claim": "G3's required plan file acting as task ledger and verification log has no implementation coverage in any change's Details \u2014 it appears only as a library-pattern reference.",
+      "evidence": "Goal G3 requires \"a plan file that acts as task ledger and verification log.\" Change 003's Details enumerate \"runs stages ... validates every stage's artifacts, fires all four hooks ..., honours --resume, --check-tools, --scale, gates 06 on 05, and writes the provenance sidecar from an exit trap\" \u2014 no ledger. The only ledger mention is 003's library line \"cand-003 (Feynman CLI patterns: slug rule, sidecar, plan ledger, scale gate)\", which is an attribution, not a task. Change 005's Details likewise omit it.",
+      "suggested_fix": "Add an explicit task in change-rah-003 (or 005) Details: driver writes/updates the per-run plan ledger file and check-research-package.sh or tests/driver-contract.sh asserts it."
+    },
+    {
+      "severity": "WARNING",
+      "file": "plan.md",
+      "claim": "The headless hook policy \u2014 explicitly handed off from analyze as an open spec/plan decision \u2014 is never resolved in the plan, leaving G1's \"daemon ... fire the existing hooks\" requirement unaddressed for the daemon execution path.",
+      "evidence": "analyze.handoff.json: \"Open for spec/plan: headless hook policy.\" Change 004's Details cover \"Real clap argument, harness resolution from PATH with blocked on absence, checkpoint mirroring into SSE, research_export validating the manifest\" \u2014 no statement on whether daemon-spawned headless jobs fire the four hooks that 003 fires in the foreground driver.",
+      "suggested_fix": "State in change-rah-004 Details whether the daemon path fires hooks (directly or via the real driver it invokes) and add a corresponding assertion to tests/job_execution.rs, or record an explicit deferral decision."
+    },
+    {
+      "severity": "WARNING",
+      "file": "plan.md",
+      "claim": "Change 009's FSRS scheduler replacement is work outside all five goals, contradicting the plan's own claim that it \"adds nothing outside the five goals.\"",
+      "evidence": "Goal G2 scopes learner-model to \"add_gap and add_session write paths plus certified_at\"; no goal or quoted assessment defect mentions FSRS or scheduling. Yet change 009 includes \"a live FSRS scheduler,\" \"the FSRS replacement,\" and a \"cargo tree ... adopt-or-port decision,\" while SCOPE CUTS asserts \"this plan repairs contracts before adding capability and adds nothing outside the five goals.\" The work traces to an analyze decision (rs-fsrs adopt) but not to any goal or assessment finding.",
+      "suggested_fix": "Either tie the FSRS replacement explicitly to G2's learn-certify session gate as a required mechanism, or split it into a clearly-marked optional task within 009 so the phase can certify without it."
+    },
+    {
+      "severity": "WARNING",
+      "file": "plan.md",
+      "claim": "Changes 002 and 003 touch \"hooks,\" but the plan never states whether the top-level hooks/hooks.json is among them; if it is, C-01 requires `npm run validate:codex` to pass in the same change, and no change lists it.",
+      "evidence": "Change 002 Details: \"move hooks and daemon to ~/.prometheus/research/\" with scope \"hooks\"; change 003 scope includes \"hooks.\" Constraint C-01: \"after touching .claude-plugin/*, .mcp.json, hooks/hooks.json, or scripts/build-codex-plugin.js, npm run validate:codex MUST pass ... in the same change\" \u2014 and C-01 forbids deferring this across the phase via the 011 reconciliation (which also omits validate:codex, listing only \"validate:strict, openspec validate, check:distribution, check-harness-adapters.js, and check:services-manifest\").",
+      "suggested_fix": "In changes 002/003, name the exact hook files moved/edited; if hooks/hooks.json is affected, add `npm run validate:codex` to that change's acceptance commands, and add it to 011's final certification list regardless."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "plan.md",
+      "claim": "Change 001's acceptance deliverable \"record the compile baseline for both crates\" does not state where the baseline is recorded, making its acceptance check ambiguous.",
+      "evidence": "Change 001 Details: \"Task 1 is the phase's first gate: both cargo check commands run only when pgrep -x cargo is empty\" \u2014 the destination artifact for the recorded baseline (file path, format) is unspecified, so an executor cannot objectively prove the gate passed.",
+      "suggested_fix": "Name the baseline artifact (e.g. .kbd-orchestrator/changes/change-rah-001/evidence/compile-baseline.txt) and require it in the change's persisted execution evidence."
+    }
+  ],
+  "sycophancy_screen": {
+    "reject_cap": 2,
+    "cap_overridden": false,
+    "cap_default": 2
+  }
+}

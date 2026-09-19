@@ -1,0 +1,42 @@
+{
+  "changeId": "change-drt-009-stage10-hang-fix-and-certification",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Goal-4 gate: distill the diagnosis brief (tests/hang/DIAGNOSIS.md) from HANG-CAPTURE.md and pass adversarial review with machine evidence \u2014 build-review-packet.sh --mode decision on the brief; findings at review/diagnosis/findings.json must show a judge DISTINCT from the producer (cross_model_check verified-distinct or judge_model != producer_model); sycophancy screen PASS with explicit --findings (counter-key adv-review-...-diagnosis); if no distinct judge is reachable, record BLOCKED with the reason and stop \u2014 the same-model fallback does not satisfy Goal 4; max 2 revise rounds then accept with an Unresolved review findings section",
+      "done": true,
+      "doneAt": "2026-09-13T16:59:37Z",
+      "doneBy": "claude-code",
+      "files": [
+        "skills/research/deep-research/tests/hang/DIAGNOSIS.md"
+      ],
+      "verify": "test -s skills/research/deep-research/tests/hang/DIAGNOSIS.md && jq -e '(.cross_model_check == \"verified-distinct\") or ((.judge_model // \"\") != (.producer_model // \"\"))' .kbd-orchestrator/phases/deep-research-onyx-parity/children/stage-10-hang-investigation/review/diagnosis/findings.json >/dev/null && grep -q 'adv-gate] PASS' .kbd-orchestrator/phases/deep-research-onyx-parity/children/stage-10-hang-investigation/review/diagnosis/rejection.md && grep -qi 'verdict' skills/research/deep-research/tests/hang/DIAGNOSIS.md",
+      "notes": "Unblocked 2026-09-13 after service recovery (liter-llm gateway restarted via launchctl kickstart; was wedged LISTEN-but-000). Review ran 2 rounds, judge MiniMax-M3 vs producer glm-5.3, verified-distinct, both BLOCK; accepted at the spec 2-round cap with the Unresolved section in DIAGNOSIS.md (CRITICAL 2 goals-delivery objection dispositioned against the plan terminal disposition). Sycophancy gate PASS 0.018 strict."
+    },
+    {
+      "id": "2",
+      "title": "Apply the fix the reviewed diagnosis warrants, within Scope only: extraction branch \u2014 extract the implicated embedded Python programs of build-review-packet.sh (anchors :141 :259 :298 :363 :406 :459 :537 :655 :720; non-Python :568 only if implicated) to sibling .py companions byte-identically (HERE-relative, exec or explicit exit-code forwarding per the detect-contradictions.sh callback precedent); elsewhere branch \u2014 fix an in-Scope file the diagnosis names; if the diagnosis names an out-of-Scope file (e.g. driver-contract.sh), record branch: escalated and stop \u2014 a new change is specced at plan; record the branch on a 'branch: extraction|elsewhere|escalated|none|none' line in FIX-CERTIFICATION.md (written by task 3)",
+      "done": true,
+      "doneAt": "2026-09-13T17:00:56Z",
+      "doneBy": "claude-code",
+      "files": [
+        "skills/process/adversarial-review/scripts/build-review-packet.sh"
+      ],
+      "verify": "bash -n skills/process/adversarial-review/scripts/build-review-packet.sh",
+      "notes": "branch: none \u2014 the reviewed diagnosis (accepted with unresolved findings at the 2-round cap) warrants NO product fix: no confirmed hang site (extraction void), no diagnosis naming any file (elsewhere/escalated void). Delivered instead, per the diagnosis Decision: the --xtrace diagnostic mode on tests/hang/run-hang-capture.sh (buffering-defeat instrumentation for the next recurrence; usage note records that assertion counts are unreliable under xtrace because the fixture captures child stderr into assertion files \u2014 observed 3/12, recorded). build-review-packet.sh untouched (verify confirms)."
+    },
+    {
+      "id": "3",
+      "title": "Certify per D1 and record FIX-CERTIFICATION.md: a 'branch: extraction|elsewhere|escalated|none|none' line; N = ceil(ln 0.01 / ln(1-p)) from drt-008's measured rate p (floor 10) with p labelled verified or inferred; the consecutive-clean-run table with one machine-countable row per pass each beginning '| run' (each run preceded by the same scoped cleanup); the empty byte-diff per extracted program if the extraction branch ran; and one full driver-contract suite run at its full count; any gate that cannot run is recorded BLOCKED with its reason",
+      "done": true,
+      "doneAt": "2026-09-13T17:40:58Z",
+      "doneBy": "claude-code",
+      "files": [
+        "skills/research/deep-research/tests/hang/FIX-CERTIFICATION.md"
+      ],
+      "verify": "test -s skills/research/deep-research/tests/hang/FIX-CERTIFICATION.md && grep -qE 'branch: *(extraction|elsewhere|escalated|none)' skills/research/deep-research/tests/hang/FIX-CERTIFICATION.md && grep -qiE 'N *=|consecutive' skills/research/deep-research/tests/hang/FIX-CERTIFICATION.md && grep -qiE 'measured|inferred' skills/research/deep-research/tests/hang/FIX-CERTIFICATION.md && test \"$(grep -cE '^\\| *run ' skills/research/deep-research/tests/hang/FIX-CERTIFICATION.md)\" -ge 10",
+      "notes": null
+    }
+  ]
+}

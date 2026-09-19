@@ -1,0 +1,55 @@
+{
+  "mode": "diff",
+  "verdict": "BLOCK",
+  "judge_model": "k3",
+  "producer_model": "claude-fable-5-1",
+  "isolation_mode": "rest-gateway:http://localhost:4000/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": "skills/learn/learn-practice/SKILL.md",
+      "line": 207,
+      "claim": "learn-practice records sessions with `learner_id: $GOAL_ID` while learn-grade and learn-certify read/write the model with `$LEARNER_ID`, so the practice sessions learn-certify's Gate 2 counts will be stored under a different learner document and the breadth gate can never pass (or cross-learner contamination if goal IDs collide across learners).",
+      "evidence": "In the learn-practice hunk both `add_session` examples use `--arg learner_id \"$GOAL_ID\"`; the learn-certify hunk uses `--arg learner_id \"$LEARNER_ID\"` for `set_certified` and `get_concept`, and learn-grade uses `$LEARNER_ID` for `add_gap`. The spec requirement 'Skills call the write paths' and Gate 2 ('Sessions are written by learn-practice's `add_session` calls, so a concept practised without them fails this gate') assume one shared model keyed by the same id; the test uses a single `learner` id (`did:plc:rpc-roundtrip`) throughout.",
+      "suggested_fix": "Use `$LEARNER_ID` in both learn-practice `add_session` calls, or state explicitly that goal-id and learner-id are the same key everywhere and make all three skills consistent."
+    },
+    {
+      "severity": "WARNING",
+      "file": "skills/learn/learn-practice/SKILL.md",
+      "line": 216,
+      "claim": "The closing `add_session` example omits `started_at`; because `store::add_session` wholesale replaces the prior record (`retain` + `push`) and `main.rs` defaults a missing `started_at` to now, the recorded session's start is restamped to the close time, destroying the session's real start time and its `started_at` ordering.",
+      "evidence": "learn-practice hunk close call passes only `learner_id, session_id, session_type, skills_called, concepts_touched, ended_at` \u2014 no `started_at`. `main.rs`: `let started_at = match parse_timestamp(&params[\"started_at\"])` where absent means `Utc::now()`. `store.rs` `add_session`: `model.sessions.retain(|s| s.session_id != id); model.sessions.push(session);` \u2014 full replacement, no field-level merge. The paragraph directly below the example even warns 'Pass an explicit `started_at` ... otherwise the binary stamps the current time on each call', contradicting the example.",
+      "suggested_fix": "Either include `started_at` (captured from the open call) in the close example, or make `store::add_session` preserve the existing record's `started_at` when replacing."
+    },
+    {
+      "severity": "WARNING",
+      "file": "skills/learn/learn-grade/SKILL.md",
+      "line": 240,
+      "claim": "The skill instructs keeping the returned `gap_id` in the grade file so a later passing grade can call `resolve_gap({learner_id, gap_id})`, but the write-grade.sh payload schema shown in the same file has no `gap_id` field on gap entries, so the id is never persisted and the documented resolve flow is unactionable.",
+      "evidence": "learn-grade hunk: 'the reply carries the `gap_id` to keep in the grade file' and 'A gap closed by a later passing grade is marked with `resolve_gap` (`{learner_id, gap_id}`)', yet the Step 8 payload shows gap entries as only `{dimension, description, corpus_ref, label}` with no `gap_id`.",
+      "suggested_fix": "Add `gap_id` to the gap entry schema in the write-grade.sh payload (populated from the `add_gap` reply), or drop the resolve_gap instruction."
+    },
+    {
+      "severity": "WARNING",
+      "file": "substrate/learner-model/src/main.rs",
+      "line": 381,
+      "claim": "`parse_timestamp` treats any non-string JSON value (number, object, array) as 'absent' and silently substitutes `Utc::now()`, so a malformed `certified_at`, `started_at`, or `ended_at` is accepted instead of returning an error \u2014 a silent failure at the JSON-RPC boundary that contradicts the spec's error-reply guarantees.",
+      "evidence": "`fn parse_timestamp(value: &Value) -> ... { match value.as_str() { None => Ok(Utc::now()), ... } }` \u2014 `Value::as_str()` returns `None` for every non-string type, not just missing/null. E.g. `{\"method\":\"set_certified\",\"params\":{\"certified_at\": 12345}}` stamps now rather than erroring, while the spec says bad input produces an `error` reply and the README says 'A response is either the result or `{\"error\": ...}`'.",
+      "suggested_fix": "Distinguish missing/null (`value.is_null()` \u2192 now) from present-but-wrong-type (`!value.is_string()` \u2192 Err)."
+    },
+    {
+      "severity": "WARNING",
+      "file": "skills/learn/learn-practice/SKILL.md",
+      "line": 200,
+      "claim": "The open-session example pipes the binary reply through `jq -r '.session_id'` without checking for an `error` reply; on error SESSION_ID becomes the literal string \"null\", and the closing call then sends `session_id: \"null\"`, which `main.rs` accepts as a valid non-empty id and creates a phantom session.",
+      "evidence": "learn-practice hunk: `SESSION_ID=$(jq -nc ... | learner-model | jq -r '.session_id')` with no error check; `main.rs` `add_session`: `params[\"session_id\"].as_str().filter(|s| !s.is_empty())` \u2014 the string \"null\" passes this filter. Unlike learn-grade's documented availability rule ('an absent binary or an `error` reply is logged'), the practice examples have no such handling for the session calls.",
+      "suggested_fix": "Capture the raw reply, assert `.error` is absent and `.session_id` is a non-empty string before proceeding, and document the degraded path when the binary is unavailable."
+    }
+  ],
+  "sycophancy_screen": {
+    "reject_cap": 2,
+    "cap_overridden": false,
+    "cap_default": 2
+  }
+}

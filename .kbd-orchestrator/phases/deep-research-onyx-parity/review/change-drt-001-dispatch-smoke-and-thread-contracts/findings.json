@@ -1,0 +1,31 @@
+{
+  "mode": "diff",
+  "verdict": "BLOCK",
+  "judge_model": "k3",
+  "producer_model": "claude-opus-5",
+  "isolation_mode": "rest-gateway:http://localhost:8181/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": "skills/research/deep-research/tests/thread-contracts.sh",
+      "line": 50,
+      "claim": "The contract validation gate only schema-validates brief.json and index.json, leaving the other worker artifacts without schema validation despite the requirement that every worker artifact validate against its named schema.",
+      "evidence": "Acceptance criterion: \"Every artifact a worker writes SHALL validate against the schema named in `thread-contracts.md`\"; `thread-contracts.sh` only calls `validate` for `$FIX/t01/brief.json` and `$FIX/index.json`, while `thread-contracts.md` defines worker artifacts including `dossier.md`, `reflections.md`, `sources.json`, `claims.json`, and `chunks/chunk-<n>.json`.",
+      "suggested_fix": "Add schemas and validation calls for sources.json, claims.json, chunk artifacts, and any other structured worker artifacts, or revise the acceptance contract so only brief/index are schema-backed."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "skills/research/deep-research/tests/dispatch-smoke.sh",
+      "line": 127,
+      "claim": "`--with-harness` reports a missing real harness as BLOCKED but still exits successfully, allowing an unrun gate to be treated as passed.",
+      "evidence": "The `elif [ -z \"$HARNESS\" ]` branch only echoes \"BLOCKED - no harness binary on PATH\" and does not increment `FAIL` or exit non-zero; the script later exits with `[ \"$FAIL\" -eq 0 ]`. Acceptance constraints say \"A command that cannot run is recorded BLOCKED with the reason, never skipped silently\" and \"A gate that could not run is recorded BLOCKED with the reason, never described as passed.\"",
+      "suggested_fix": "In the missing-harness branch, either `exit 2` immediately or increment `FAIL`/set a blocked status so the script cannot finish with exit 0 when `--with-harness` was requested."
+    }
+  ],
+  "sycophancy_screen": {
+    "reject_cap": 2,
+    "cap_overridden": false,
+    "cap_default": 2
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "stage": "analyze",
+  "completedAt": "2026-09-12T17:10:02Z",
+  "outputs": [
+    ".kbd-orchestrator/phases/deep-research-onyx-parity/children/stage-10-hang-investigation/analysis.md",
+    ".kbd-orchestrator/phases/deep-research-onyx-parity/children/stage-10-hang-investigation/library-candidates.json"
+  ],
+  "nextStage": "spec",
+  "summaryForNext": "Adversarial review PASS (harness-native judge k3; cross_model_check same-model-collision after liter-llm dispatch exit 3 — harness-native path sanctioned by user 2026-09-11). No CRITICAL findings; zero revision rounds. Sycophancy gate PASS score 0.0 strictness strict — GOTCHA: check-findings-sycophancy.sh silently skips (WARN, exit 0) unless --findings is passed explicitly; always invoke with --findings <findings.json> --counter-key adv-review-<phase>-<child>. Carried WARNINGs: (1) library-candidates build_required lists cand-2 and cand-3 with capability_gap_id null, contradicting schema description (gaps with no adoptable candidate) — reconcile semantics before spec stage; (2) analyze packet .cited_paths omitted driver-contract.sh and run-research.sh so packet-only reviewers cannot verify highest-stakes claims (judge verified anchors accurate via direct repo reads); assess WARNINGs inherited: packet prior_handoffs null, file:line citations absent from file_tree. SUGGESTION: cand-1 N>=10 consecutive-pass proof needs an independence justification — the (2/3)^10 bound is optimistic under correlated failures; size N from measured failure rate. Final candidates: cand-1-proof-standard (adopt, high — N-run statistical proof standard for the ~1-in-3 intermittent defect); cand-2-diagnosis-harness (adopt, high — instrumented repeat-run of driver-contract.sh --scenario full-run to capture the exact blocking command); cand-3-heredoc-extraction (conditional, medium — extract the 10 embedded heredocs, 9 of them python3, from build-review-packet.sh ONLY IF cand-2 confirms the hang site there). Decisions D1/D2 ADOPT, D3 CONDITIONAL (decision-log.md). Six prior theories disproved; disconfirming checks on call chain, heredoc count, and write-provenance.sh path all failed to falsify the structural-suspect lead. Open questions: measured failure rate to size N; whether stage-10 input sizes cross the ~64KB subprocess PIPE buffer threshold; cand-3 becomes void if the hang isolates outside build-review-packet.sh. Next stage: spec.",
+  "skipped": false,
+  "skipReason": null
+}

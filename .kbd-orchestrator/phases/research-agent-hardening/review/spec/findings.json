@@ -1,0 +1,92 @@
+{
+  "mode": "artifact",
+  "verdict": "PASS",
+  "judge_model": "k3",
+  "producer_model": "claude-fable-5-1",
+  "isolation_mode": "rest-gateway:http://localhost:4000/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "WARNING",
+      "file": "change-rah-005-claim-labels-and-provenance/verification.md",
+      "claim": "The negative-control fixture `package-unlabelled` is exercised by the verification commands but is not in the change's Scope or any task's files list, so the change as scoped may not create the file its own gate requires.",
+      "evidence": "verification.md runs `! bash skills/research/deep-research/scripts/check-research-package.sh --package skills/research/deep-research/tests/fixtures/package-unlabelled`, but the spec's Scope lists only `skills/research/deep-research/tests/fixtures/package-labelled` and tasks.json task 3 files contain only the check script and `package-labelled`.",
+      "suggested_fix": "Add `skills/research/deep-research/tests/fixtures/package-unlabelled` to the Scope list and to task 3's files array."
+    },
+    {
+      "severity": "WARNING",
+      "file": "change-rah-004-daemon-job-execution/tasks.json",
+      "claim": "Task 2 (\"Mirror the driver checkpoint into the daemon checkpoint and SSE; map child exit to complete, blocked, failed\") has `\"verify\": null`, leaving a core behavior of the change with no per-task verification.",
+      "evidence": "tasks.json task 2: `\"verify\": null` \u2014 every other task in the eleven-change artifact carries a verify command; the mirroring behavior is only indirectly covered by task 4's test, which is gated on `pgrep -x cargo` being empty and may be recorded BLOCKED.",
+      "suggested_fix": "Give task 2 a concrete verify (e.g. a grep for the SSE emission call sites plus the job_execution test) or fold it into task 4."
+    },
+    {
+      "severity": "WARNING",
+      "file": "change-rah-003-stage-contract-driver/spec.md",
+      "claim": "Goal G1 requires the driver to \"fire the existing hooks,\" but the spec only wires `post-stage.sh`; no firing point is specified for `pre-research.sh`, `on-contradiction.sh`, or `post-export.sh` anywhere in the eleven changes.",
+      "evidence": "G1: \"prometheus-research daemon and run-research.sh actually execute every pipeline stage and fire the existing hooks.\" change-rah-003 What Changes says only \"after every stage validates the stage's required artifacts against `stage-contracts.md` and fires `post-stage.sh`\"; change-rah-002 edits all four hooks' output root but assigns no firing point to the other three.",
+      "suggested_fix": "Specify in change-rah-003 when pre-research.sh, on-contradiction.sh, and post-export.sh fire (run start, stage 06 contradiction, stage 10 completion) and add a driver-contract scenario asserting each fired."
+    },
+    {
+      "severity": "WARNING",
+      "file": "change-rah-006-agent-duties-and-report-review/spec.md",
+      "claim": "Goal G4's element \"verifier completes before reviewer\" has no corresponding requirement or scenario in any change; change-rah-006 covers tool allowlists and post-stage-09 review but never establishes the verifier-before-reviewer ordering it names as a defect.",
+      "evidence": "change-rah-006 Why: \"nothing orders verifier before reviewer\", yet its three ADDED Requirements are \"The synthesizer cannot invent a source\", \"The report is judged before delivery\", and \"Judge absence is visible\" \u2014 none states or tests that the verifier completes before the reviewer runs.",
+      "suggested_fix": "Add a requirement (likely in change-rah-003's stage ordering or change-rah-006) that the review step is refused or records `blocked` if the stage-05 verification artifact is missing or invalid."
+    },
+    {
+      "severity": "WARNING",
+      "file": "change-rah-004-daemon-job-execution/verification.md",
+      "claim": "The acceptance criterion \"`prometheus-research --mode server` starts under the launchd plist and `/health` answers\" is untestable as written: no verify command starts the server, so the `curl` gate fails unless a daemon happens to be running already.",
+      "evidence": "The verify block contains only `curl -s http://127.0.0.1:7891/health | jq -e '.status == \"ok\"'` with no preceding launchctl/kickstart or server-start command, while the header states \"Every acceptance criterion above maps to a command here\" and the criterion is parenthesized \"(manual, recorded)\" \u2014 a manual step contradicting the all-commands contract.",
+      "suggested_fix": "Add the launchd kickstart/start command to the verify block (and a stop/cleanup), or move the criterion explicitly to a recorded-manual-steps section outside `verify`."
+    },
+    {
+      "severity": "WARNING",
+      "file": "change-rah-004-daemon-job-execution/verification.md",
+      "claim": "Acceptance criteria require the existing test targets `mcp_tools` and `sse_stream` to keep passing, but the packet confirms only `tests/job_lifecycle.rs` exists; the other two targets are unverified and `cargo test --test mcp_tools --test sse_stream` hard-fails if either is absent.",
+      "evidence": "cited_paths confirms `tests/job_lifecycle.rs -> substrate/prometheus-research/tests/job_lifecycle.rs` EXISTS; neither `mcp_tools.rs` nor `sse_stream.rs` appears in the file tree or cited_paths, yet change-rah-004 and change-rah-011 both gate on `cargo test -p prometheus-research --test job_lifecycle --test mcp_tools --test sse_stream`.",
+      "suggested_fix": "Confirm the two test files exist during execution task 1 of change-rah-004 and record the listing in Evidence; if absent, drop or create them explicitly."
+    },
+    {
+      "severity": "WARNING",
+      "file": "change-rah-011-integration-evidence-and-docs/tasks.json",
+      "claim": "C-01 generated-artifact hygiene is addressed only for the skills index: changes 002\u2013009 edit SKILL.md and skill.toml surfaces while the file tree shows skill-consuming generators (`scripts/generate-harness-adapters.js`, `scripts/generate-skill-system-distribution.js`, populated `.claude/skills`, `.agents/skills`, `.cursor/skills` mirrors), yet no change names a reconciliation change and change-rah-011 regenerates only `skills-index.json`.",
+      "evidence": "C-01: \"every earlier change must identify that reconciliation change in persisted execution evidence\" \u2014 no spec or tasks.json mentions harness adapters or skill-system distribution regeneration; change-rah-011 task 3 verify is only `npm run generate:skills-index && npm run check:skills-index`.",
+      "suggested_fix": "Either state in each skill-editing change why its edited files are not generator inputs, or name change-rah-011 as the reconciliation change and add the applicable generator runs plus drift checks (e.g. `check-harness-adapters.js`) to its certification."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "change-rah-002-research-package-contract/spec.md",
+      "claim": "The drift-check scenario (\"any field mismatch exits non-zero\") is unattainable under the documented jq fallback, which checks only required keys, so the requirement silently degrades whenever python3 `jsonschema` is not importable.",
+      "evidence": "What Changes: \"validates ... with python3 `jsonschema` when importable, else a jq required-keys check; exits non-zero on drift\" versus Scenario: \"any field mismatch exits non-zero with the failing path named\" \u2014 a mismatch in a non-required field passes under the fallback.",
+      "suggested_fix": "Scope the requirement to the jsonschema path and record the fallback's reduced strength as PASS WITH NOTES, or make the jq fallback compare the full key set, not just required keys."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "change-rah-002-research-package-contract/spec.md",
+      "claim": "The `--ingest-palace` flag added to `export-package.sh` is justified by no goal or assessment finding quoted in the packet \u2014 a possible scope smuggle.",
+      "evidence": "What Changes: \"rewrite `scripts/export-package.sh` to emit every schema field from real package state ... and to accept `--ingest-palace`\"; neither the goals (G1\u2013G5) nor the cited analysis decisions (D-02, D-03, D-13) mention palace ingestion.",
+      "suggested_fix": "Cite the assessment/analysis decision that requires `--ingest-palace`, or drop it from this change."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "change-rah-009-learner-model-write-paths-and-fsrs/tasks.json",
+      "claim": "Task 1's verify (`test -z \"$(pgrep -x cargo)\"`) does not verify that `cargo tree` ran or that the adopt-vs-port decision was recorded, and task 3's verify (grep count of 'difficulty' > 1) does not demonstrate that `difficulty` is actually read and updated.",
+      "evidence": "tasks.json task 1 verify: `\"test -z \\\"$(pgrep -x cargo)\\\"\"`; task 3 verify: `\"test \\\"$(grep -c 'difficulty' substrate/learner-model/src/fsrs.rs)\\\" -gt 1\"` \u2014 both pass without the task's deliverable existing.",
+      "suggested_fix": "Verify task 1 by checking the recorded weights/decision in README.md or Evidence; let task 3 rely on the rpc_roundtrip difficulty-delta assertion rather than a grep count."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "change-rah-001-compile-baseline-and-timestamps/verification.md",
+      "claim": "All eleven verification.md files instruct \"Mark each gate PASS, FAIL, or BLOCKED\", but the constraints define the provenance label enum as `PASS | PASS WITH NOTES | BLOCKED` \u2014 `FAIL` is not a permitted label.",
+      "evidence": "Constraints section in every spec: \"Verification labels are `verified | unverified | blocked | inferred` on claims and `PASS | PASS WITH NOTES | BLOCKED` on provenance\"; Evidence sections: \"Mark each gate PASS, FAIL, or BLOCKED.\"",
+      "suggested_fix": "Align the Evidence instruction with the constraint enum (a failing gate is recorded as a failed run with the provenance label BLOCKED or as PASS WITH NOTES only where notes apply), or amend the constraint text."
+    }
+  ],
+  "sycophancy_screen": {
+    "reject_cap": 2,
+    "cap_overridden": false,
+    "cap_default": 2
+  }
+}

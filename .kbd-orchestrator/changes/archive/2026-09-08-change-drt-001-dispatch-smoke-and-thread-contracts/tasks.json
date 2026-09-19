@@ -1,0 +1,68 @@
+{
+  "changeId": "change-drt-001-dispatch-smoke-and-thread-contracts",
+  "schemaVersion": "1.0.0",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Write tests/dispatch-smoke.sh and its fixture: dispatch two workers, assert both complete, assert wall-clock overlap, assert neither sees the other's scratch marker",
+      "done": true,
+      "doneAt": "2026-09-08T00:00:00Z",
+      "doneBy": "claude-code",
+      "files": [
+        "skills/research/deep-research/tests/dispatch-smoke.sh",
+        "skills/research/deep-research/tests/fixtures/thread-smoke/"
+      ],
+      "verify": "bash skills/research/deep-research/tests/dispatch-smoke.sh",
+      "notes": null
+    },
+    {
+      "id": "2",
+      "title": "RUN the smoke test and record the verdict. If dispatch is serial or isolation fails, STOP and record that D-03a's fallback applies (strategy B becomes primary, drt-007 becomes blocking)",
+      "done": true,
+      "doneAt": "2026-09-08T00:00:00Z",
+      "doneBy": "claude-code",
+      "files": [],
+      "verify": "bash skills/research/deep-research/tests/dispatch-smoke.sh && echo 'D-03a: strategy A confirmed'",
+      "notes": null
+    },
+    {
+      "id": "3",
+      "title": "Author references/thread-contracts.md with the normative shapes for brief, dossier, reflections, sources, claims (with the verbatim quote span) and threads/index.json",
+      "done": true,
+      "doneAt": "2026-09-08T00:00:00Z",
+      "doneBy": "claude-code",
+      "files": [
+        "skills/research/deep-research/references/thread-contracts.md"
+      ],
+      "verify": "grep -q 'quote' skills/research/deep-research/references/thread-contracts.md && grep -q 'threads/index.json' skills/research/deep-research/references/thread-contracts.md",
+      "notes": null
+    },
+    {
+      "id": "4",
+      "title": "Write the two JSON schemas and the two templates; validate the fixture artifacts against them",
+      "done": true,
+      "doneAt": "2026-09-08T00:00:00Z",
+      "doneBy": "claude-code",
+      "files": [
+        "skills/research/deep-research/references/schemas/thread-brief.schema.json",
+        "skills/research/deep-research/references/schemas/thread-index.schema.json",
+        "skills/research/deep-research/templates/thread-brief.json",
+        "skills/research/deep-research/templates/dossier.md"
+      ],
+      "verify": "python3 -c \"import json;[json.load(open(p)) for p in ['skills/research/deep-research/references/schemas/thread-brief.schema.json','skills/research/deep-research/references/schemas/thread-index.schema.json','skills/research/deep-research/templates/thread-brief.json']]\"",
+      "notes": null
+    },
+    {
+      "id": "5",
+      "title": "Write tests/thread-contracts.sh: validate the fixture thread artifacts against their schemas and assert every claim's verbatim quote is non-empty and traceable to a source in the same thread's sources.json",
+      "done": true,
+      "doneAt": "2026-09-08T00:00:00Z",
+      "doneBy": "claude-code",
+      "files": [
+        "skills/research/deep-research/tests/thread-contracts.sh"
+      ],
+      "verify": "bash skills/research/deep-research/tests/thread-contracts.sh",
+      "notes": null
+    }
+  ]
+}

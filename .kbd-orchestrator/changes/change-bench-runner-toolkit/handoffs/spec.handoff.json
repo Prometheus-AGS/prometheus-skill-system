@@ -1,0 +1,11 @@
+{
+  "stage": "spec",
+  "completedAt": "2026-09-14T10:59:47Z",
+  "outputs": [
+    "spec.md"
+  ],
+  "nextStage": "plan",
+  "summaryForNext": "One change (change-bench-runner-toolkit) for the design: stage runner (gateway-driven, no agent loop), evidence labeller (closes the drt-006 verified_claim_ratio=0.0 gap), multi-task orchestrator (all 10 tasks), bench runbook (nested->flat layout fix + BENCH-RESULTS append). Backend native-bash/python against the existing gateway + scripts; no new services. Implementation-first, local-only, bash 3.2, KBD_PRODUCER_MODEL=glm-5.3. Integration smoke: task-58 end-to-end + verified_claim_ratio > 0.",
+  "skipped": false,
+  "skipReason": null
+}

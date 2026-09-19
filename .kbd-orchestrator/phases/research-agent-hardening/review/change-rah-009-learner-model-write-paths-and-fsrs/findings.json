@@ -1,0 +1,22 @@
+{
+  "mode": "diff",
+  "verdict": "BLOCK",
+  "judge_model": "k3",
+  "producer_model": "claude-fable-5-1",
+  "isolation_mode": "rest-gateway:http://localhost:8181/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": "substrate/learner-model/src/main.rs",
+      "claim": "add_gap accepts a present non-string label instead of refusing labels outside the verified|inferred vocabulary.",
+      "evidence": "The learn-model-coherence spec says `add_gap SHALL refuse ... a label outside verified | inferred with an error reply`; the add_gap dispatch matches `params[\"label\"].as_str()` and treats `None | Some(\"\") => None`, so `{\"label\":123}` or `{\"label\":true}` is accepted as if the label were absent.",
+      "suggested_fix": "Inspect the raw JSON value: accept missing/null/empty string only as absent, accept strings `verified` or `inferred`, and return an error for any other present value or string."
+    }
+  ],
+  "sycophancy_screen": {
+    "reject_cap": 2,
+    "cap_overridden": false,
+    "cap_default": 2
+  }
+}

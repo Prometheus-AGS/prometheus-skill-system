@@ -1,0 +1,55 @@
+{
+  "mode": "diff",
+  "verdict": "BLOCK",
+  "judge_model": "k3",
+  "producer_model": "claude-fable-5-1",
+  "isolation_mode": "rest-gateway:http://localhost:4000/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": "substrate/prometheus-research/src/job/daemon.rs",
+      "line": 160,
+      "claim": "User-controlled `depth` and `citation_style` from the REST/MCP entry points are embedded unquoted into a shell command line that the harness is instructed to execute, giving a caller shell-injection into a bypassPermissions session.",
+      "evidence": "build_prompt constructs the driver line as `--depth {} --citation-style {}` (no shell_quote, unlike query/output_root), and canonical_depth/canonical_citation_style explicitly pass unknown values through unchanged ('an unknown value is passed through unchanged so the driver refuses it visibly' \u2014 also restated in references/headless-execution.md 'Value normalisation'). Nothing in the packet shows REST/MCP validating these fields, so `POST /api/v1/jobs` with depth `deep; <arbitrary command>` lands verbatim in a `bash ...` line the harness (claude -p --permission-mode bypassPermissions, or the test fixture's `eval \"$CMD\"`) is told to run.",
+      "suggested_fix": "Reject non-canonical depth/citation_style at the daemon (or entry point) with a blocked job and a clear reason instead of passing them through, and shell_quote every interpolated value in the driver line."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "substrate/prometheus-research/src/job/spawn.rs",
+      "line": 78,
+      "claim": "After spawning the daemon, spawn_job unconditionally rewrites the checkpoint with `status = \"running\"`, racing the daemon child and resurrecting jobs that already reached a terminal state into a permanently stuck `running` status.",
+      "evidence": "New hunk: `let mut updated = checkpoint::read(&job_id)?; match child { Ok(c) => { updated.pid = Some(c.id()); updated.status = \"running\".to_string(); } ... } checkpoint::write(&updated)?;`. The daemon child starts executing as soon as spawn() returns; its no-harness path (finish_blocked, exercised by the empty-PATH test) or its initial `cp.status = \"running\"; cp.harness = ...; save()` can complete before the parent's read/write. If the daemon wrote `blocked` and exited, the parent's write overwrites it with `running` and nothing remains to update the job again \u2014 the outcome recorded per the spec ('Absence is blocked, not a crash') is silently lost.",
+      "suggested_fix": "Only transition `pending` -> `running` (compare-and-set on read status), or write the pid into the checkpoint before/atomically with the spawn, and never overwrite a status the daemon has already advanced."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "substrate/prometheus-research/src/job/daemon.rs",
+      "line": 600,
+      "claim": "The cancel path is a check-then-act race: `mirror` can overwrite a `cancelled` status written by research_cancel/DELETE between the poll-loop check and mirror's checkpoint write, silently dropping the cancellation.",
+      "evidence": "The loop reads `checkpoint::read(job_id)` and checks `current.status == \"cancelled\"` before calling mirror; mirror then performs up to N sequential `sink.status(cp).await` HTTP POSTs (one per newly completed stage) before `save(cp)?` rewrites the whole checkpoint with `cp.status = \"running\"`. A cancel landing during that window is clobbered, the next poll reads `running`, and the job continues to harness exit, after which the final-state mapping overwrites `cancelled` with complete/blocked/failed. There is no locking or compare-and-swap on the checkpoint file.",
+      "suggested_fix": "Re-read the checkpoint immediately before every write and abort/merge if the on-disk status is `cancelled`, or guard checkpoint writes with a lock/compare-and-swap so the daemon never overwrites a status it did not write."
+    },
+    {
+      "severity": "WARNING",
+      "file": "substrate/prometheus-research/src/http_server/sse.rs",
+      "line": 81,
+      "claim": "The new POST /api/v1/jobs/{id}/events ingest endpoint accepts and broadcasts arbitrary AG-UI events with no authentication or validation beyond the job_id match, so any local process can inject forged agent.status/agent.error events into any job's SSE stream and surface bridge.",
+      "evidence": "ingest_handler deserializes `Json<AguiEvent>`, checks only `event_job_id(&event) != job_id`, then `state.broadcast.send(...)` and forwards to the surface bridge. The doc comment describes it as a trusted channel for the daemon but the packet shows no shared secret, token, or payload sanity check; the daemon's RESEARCH_EVENT_SINK is just a URL.",
+      "suggested_fix": "Require a shared token (e.g. an env-provided secret header) on ingest, or at minimum validate event shape against the job's known state before broadcasting."
+    },
+    {
+      "severity": "WARNING",
+      "file": "substrate/prometheus-research/src/job/daemon.rs",
+      "line": 300,
+      "claim": "find_package_dir trusts any directory under the shared output root whose checkpoint.json merely contains `stages_planned` or `package_id` plus a matching job_id, so a stale or foreign package written by an earlier run with the same job_id (or a crafted file) is adopted as this job's package and exported.",
+      "evidence": "`let is_package = v.get(\"stages_planned\").is_some() || v.get(\"package_id\").is_some(); if is_package && v.get(\"job_id\").and_then(|j| j.as_str()) == Some(job_id) { return Some(dir); }` \u2014 RESEARCH_OUTPUT_DIR is shared across runs and nothing scopes the search to packages created after this job started (no started_at/mtime comparison), and package_dir then flows into research_export's validate_package.",
+      "suggested_fix": "Require the package checkpoint's recorded job start time (or the package dir mtime) to be at or after the job's started_at, or have the driver record a per-run nonce the daemon generates and passes via the environment."
+    }
+  ],
+  "sycophancy_screen": {
+    "reject_cap": 2,
+    "cap_overridden": false,
+    "cap_default": 2
+  }
+}

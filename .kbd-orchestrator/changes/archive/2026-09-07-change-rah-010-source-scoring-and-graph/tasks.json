@@ -1,0 +1,62 @@
+{
+  "changeId": "change-rah-010-source-scoring-and-graph",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Write score-sources.py with renormalisation and sensitivity; make verify-sources.sh delegate; document sensitivity.json in stage 05 and the package spec and schema",
+      "done": true,
+      "doneAt": "2026-09-06T23:24:54Z",
+      "doneBy": "claude-code",
+      "files": [
+        "skills/research/deep-research/scripts/score-sources.py",
+        "skills/research/deep-research/scripts/verify-sources.sh",
+        "skills/research/deep-research/skills/stage-05-verify/SKILL.md",
+        "skills/research/deep-research/references/research-package-spec.md",
+        "skills/research/deep-research/references/schemas/research-manifest.schema.json"
+      ],
+      "verify": "python3 skills/research/deep-research/scripts/score-sources.py --help >/dev/null",
+      "notes": null
+    },
+    {
+      "id": "2",
+      "title": "Rewrite build-graph.sh for the spec shape with content-addressed claims, labels, and contradicts relations",
+      "done": true,
+      "doneAt": "2026-09-06T23:25:18Z",
+      "doneBy": "claude-code",
+      "files": [
+        "skills/research/deep-research/scripts/build-graph.sh",
+        "skills/research/deep-research/skills/stage-07-graph/SKILL.md"
+      ],
+      "verify": "grep -q 'contradicts' skills/research/deep-research/scripts/build-graph.sh",
+      "notes": null
+    },
+    {
+      "id": "3",
+      "title": "Add the semantic path to detect-contradictions.sh through kbd_complete with inferred and blocked labels",
+      "done": true,
+      "doneAt": "2026-09-06T23:25:38Z",
+      "doneBy": "claude-code",
+      "files": [
+        "skills/research/deep-research/scripts/detect-contradictions.sh",
+        "skills/research/deep-research/skills/stage-06-resolve/SKILL.md"
+      ],
+      "verify": "grep -q 'kbd_complete' skills/research/deep-research/scripts/detect-contradictions.sh",
+      "notes": null
+    },
+    {
+      "id": "4",
+      "title": "Write tests/scoring-graph.sh with the sparse-registry and duplicate-claims fixtures and run it",
+      "done": true,
+      "doneAt": "2026-09-06T23:59:27Z",
+      "doneBy": "claude-code",
+      "files": [
+        "skills/research/deep-research/tests/scoring-graph.sh",
+        "skills/research/deep-research/tests/fixtures/registry-sparse.json",
+        "skills/research/deep-research/tests/fixtures/claims-duplicate.json"
+      ],
+      "verify": "bash skills/research/deep-research/tests/scoring-graph.sh",
+      "notes": null
+    }
+  ]
+}

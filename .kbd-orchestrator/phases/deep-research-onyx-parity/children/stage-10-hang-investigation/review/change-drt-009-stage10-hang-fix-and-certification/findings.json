@@ -1,0 +1,69 @@
+{
+  "mode": "diff",
+  "verdict": "PASS",
+  "judge_model": "glm-5.3",
+  "producer_model": "glm-5.3",
+  "isolation_mode": "harness-native",
+  "cross_model_check": "same-model-collision",
+  "review_round": 3,
+  "rounds_note": "Round 1: gateway MiniMax-M3 verified-distinct, BLOCK (5 findings, fixed). Round 2: gateway shape-failed twice on the 70KB packet under load 300-400 (findings.json momentarily stale from round 1); harness-native round 2 BLOCK (6 findings, fixed incl. recorded scope amendment). Round 3: harness-native PASS \u2014 0 CRITICAL, 4 WARNING + 1 SUGGESTION, each remediated with traceability in refinement_log.md. The Goal-4 distinct-judge requirement lives on the DIAGNOSIS review (review/diagnosis/findings.json: MiniMax-M3 verified-distinct), not this per-change diff gate; this gate's fallback chain per the adversarial-review contract.",
+  "findings": [
+    {
+      "severity": "WARNING",
+      "file": "skills/research/deep-research/tests/hang/FIX-CERTIFICATION.md",
+      "line": 4,
+      "claim": "The certification record cites a campaign directory that does not exist (165957Z vs actual 170136Z), and the artifacts-not-committed parenthetical was contradicted by the staged rate.txt/summary.tsv.",
+      "evidence": "ls captures-cert shows only campaign-20260913T170136Z; durations match the inlined 60-row table.",
+      "suggested_fix": "Correct the campaign ID; restate the artifacts claim.",
+      "disposition": "remediated (refinement_log round-3 section)"
+    },
+    {
+      "severity": "WARNING",
+      "file": ".kbd-orchestrator/changes/change-drt-009-stage10-hang-fix-and-certification/spec.md",
+      "line": 94,
+      "claim": "The round-3 scope amendment ends with a false provenance claim \u2014 no decision-log entry existed.",
+      "evidence": "grep over decision-log.md returned zero matches pre-remediation.",
+      "suggested_fix": "Add the amendment entry or fix the pointer.",
+      "disposition": "remediated (decision-log entry added 2026-09-13; stale task-1 BLOCKED line refreshed)"
+    },
+    {
+      "severity": "WARNING",
+      "file": "skills/research/deep-research/tests/hang/DIAGNOSIS.md",
+      "line": 143,
+      "claim": "The round-3 disposition paragraph misnumbers and mis-severities the round-2 findings it dispositiones (#3/#4 vs actual #3/#6/#8), and 're-extraction verified below' dangles.",
+      "evidence": "findings.json array order; no extraction output below the paragraph. The underlying fix is genuine (re-running the extractor yields 4 assumptions).",
+      "suggested_fix": "Renumber; cite the extraction inline.",
+      "disposition": "remediated"
+    },
+    {
+      "severity": "WARNING",
+      "file": ".kbd-orchestrator/changes/change-drt-009-stage10-hang-fix-and-certification/spec.md",
+      "line": 90,
+      "claim": "The scope amendment legalizes only instrumentation, but the RC=124 hang-row recording change is a second, non-instrumentation edit to the same out-of-Scope file.",
+      "evidence": "refinement_log round-2 item 3 vs the amendment's instrumentation-only wording.",
+      "suggested_fix": "Enumerate the RC=124 change in the amendment.",
+      "disposition": "remediated (amendment extended)"
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "skills/research/deep-research/tests/hang/FIX-CERTIFICATION.md",
+      "line": 17,
+      "claim": "Load claim 300-400 inaccurate; recorded values span 210.80-492.94.",
+      "evidence": "awk over summary.tsv field 6.",
+      "suggested_fix": "Restate the recorded range.",
+      "disposition": "remediated (211-493)"
+    }
+  ],
+  "checked_classes": [
+    "scope legality \u2014 amendment now enumerates the full delta to run-hang-capture.sh",
+    "evidence integrity \u2014 campaign ID, staged artifacts, load range all corrected",
+    "provenance \u2014 decision-log entry exists and matches the spec pointer",
+    "decision-artifact parse \u2014 assumptions extract as 4 items (verified by the reviewer independently)",
+    "Goal-4 ordering \u2014 distinct-judge diagnosis findings + screen record now inside the diff scope and cited in DIAGNOSIS.md"
+  ],
+  "sycophancy_screen": {
+    "reject_cap": 2,
+    "cap_overridden": false,
+    "cap_default": 2
+  }
+}

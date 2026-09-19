@@ -1,0 +1,85 @@
+{
+  "mode": "diff",
+  "verdict": "BLOCK",
+  "judge_model": "k3",
+  "producer_model": "claude-fable-5-1",
+  "isolation_mode": "rest-gateway:http://localhost:8181/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": "skills/research/deep-research/references/schemas/research-manifest.schema.json",
+      "claim": "The required research manifest schema was not added.",
+      "evidence": "Acceptance criterion/task 1 requires `Write research-manifest.schema.json from the spec`; the diff contains references to `skills/research/deep-research/references/schemas/research-manifest.schema.json` but no added file diff for it.",
+      "suggested_fix": "Add `skills/research/deep-research/references/schemas/research-manifest.schema.json` with the draft 2020-12 schema matching the normative spec."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "skills/research/deep-research/scripts/check-research-package.sh",
+      "claim": "The required drift-check script was not added.",
+      "evidence": "Acceptance criterion/task 5 requires `Write scripts/check-research-package.sh`; the diff adds calls and documentation for `skills/research/deep-research/scripts/check-research-package.sh` but contains no added file diff for it.",
+      "suggested_fix": "Add `skills/research/deep-research/scripts/check-research-package.sh` implementing SKILL.md/example/export validation and A2UI parity checks."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "skills/research/deep-research/references/a2ui-components.md",
+      "claim": "The required A2UI component reference document was not added.",
+      "evidence": "Acceptance criterion/task 4 requires `add references/a2ui-components.md`; the diff updates SKILL.md component text but contains no added file diff for `skills/research/deep-research/references/a2ui-components.md`.",
+      "suggested_fix": "Add `skills/research/deep-research/references/a2ui-components.md` with the eight real component prop schemas."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "openspec/specs/research-pipeline-execution/spec.md",
+      "claim": "The required OpenSpec capability was not added.",
+      "evidence": "Acceptance criterion/task 6 requires `Author openspec/specs/research-pipeline-execution/spec.md`; the diff contains no added file diff under `openspec/specs/research-pipeline-execution/spec.md`.",
+      "suggested_fix": "Add the OpenSpec spec covering package layout, manifest schema, output root, and driver contract."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "skills/research/deep-research/templates/research-package-manifest.json",
+      "claim": "The obsolete manifest template was not deleted.",
+      "evidence": "Acceptance criteria under What Changes require `Delete templates/research-package-manifest.json`; the diff contains no deletion for `skills/research/deep-research/templates/research-package-manifest.json`.",
+      "suggested_fix": "Delete `skills/research/deep-research/templates/research-package-manifest.json`."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "skills/research/deep-research/scripts/export-package.sh",
+      "claim": "The script swallows post-export hook failures despite the no-silent-failure constraint.",
+      "evidence": "The final hunk runs `bash \"$HOOK_DIR/post-export.sh\" || log \"post-export hook exited non-zero\"`, while the change constraints state: `Every script touched keeps set -euo pipefail semantics and non-zero exit on failure; no silent || true on a gate.`",
+      "suggested_fix": "Remove the `|| log ...` swallow or explicitly propagate the hook failure with a non-zero exit."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "skills/research/deep-research/scripts/export-package.sh",
+      "claim": "The jsonschema-unavailable fallback does not compare declared field types as required.",
+      "evidence": "The fallback only computes `missing = [k for k in schema[\"required\"] if k not in manifest]` and `extra = [k for k in manifest if k not in schema[\"properties\"]]`; acceptance criteria require the fallback to compare `each declared type against the schema's properties` and exit non-zero on type mismatch.",
+      "suggested_fix": "Implement type validation for every manifest field in the fallback path, or delegate to the required `check-research-package.sh` jq fallback."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "skills/research/deep-research/agents/report-synthesizer.md",
+      "claim": "The report synthesizer input paths are only partially migrated from job_id to package_id.",
+      "evidence": "The hunk changes only `<job_id>/plan.json` to `<package_id>/plan.md`, while the immediately following inputs remain `<job_id>/graph.json`, `<job_id>/citations.json`, and `<job_id>/contradictions.json`; acceptance task 4 says to `point report-synthesizer.md at plan.md`, and task 1/What Changes make the package directory `<package_id>` the normative layout.",
+      "suggested_fix": "Change the remaining artifact inputs to `<package_id>/graph.json`, `<package_id>/citations.json`, and `<package_id>/contradictions.json`."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "skills/research/deep-research/references/research-package-spec.md",
+      "claim": "The source tree grep requirement for `.research-jobs` is not satisfied.",
+      "evidence": "The updated spec adds `The legacy root ~/.research-jobs/ is not read by anything after change-rah-002`, while the ADDED Requirement says: `WHEN the source tree is searched for .research-jobs THEN the only hits are the legacy-path notice in daemon status output and its test`.",
+      "suggested_fix": "Remove or rephrase `.research-jobs` outside the daemon legacy notice and its test, or update the acceptance requirement if docs are intended to be allowed."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "substrate/prometheus-research/src/job/checkpoint.rs",
+      "claim": "An extra `.research-jobs` source hit was introduced outside the permitted daemon status notice and test.",
+      "evidence": "The `legacy_output_root` implementation contains `.join(\".research-jobs\") // legacy root; never read, only named in status output`, while the ADDED Requirement allows only the legacy-path notice in daemon status output and its test.",
+      "suggested_fix": "Centralize the literal in the permitted status notice/test or adjust the grep requirement; otherwise this file will fail the specified grep gate."
+    }
+  ],
+  "sycophancy_screen": {
+    "reject_cap": 2,
+    "cap_overridden": false,
+    "cap_default": 2
+  }
+}

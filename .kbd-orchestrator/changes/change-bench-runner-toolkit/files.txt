@@ -1,0 +1,5 @@
+skills/research/deep-research/scripts/run-stage.sh
+skills/research/deep-research/scripts/label-claims.py
+tools/bench-automation/run-bench-suite.sh
+tools/bench-automation/bench-runbook.sh
+tools/bench-automation/README.md

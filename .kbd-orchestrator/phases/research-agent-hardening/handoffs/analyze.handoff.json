@@ -1,0 +1,12 @@
+{
+  "stage": "analyze",
+  "completedAt": "2026-09-04T01:25:28Z",
+  "outputs": [
+    "analysis.md",
+    "library-candidates.json"
+  ],
+  "nextStage": "spec",
+  "summaryForNext": "11 candidates, 13 build items. Adopt: harness-driven stages with a contract-enforcing run-research.sh driver (option B), daemon --daemon-job spawns a headless harness (option C), daemon-native Rust pipeline rejected; OpenSpec capabilities research-pipeline-execution and learn-model-coherence at spec; research-package-spec.md normative with research-manifest.schema.json validated by jsonschema crate and python jsonschema (jq fallback), drift-check script instead of a generator; output root ~/.prometheus/research/ with 28 legacy ~/.research-jobs dirs left in place; rs-fsrs 1.2.1 adopt, fsrs-rs reference; chrono 0.4; tools: frontmatter on research agents; adversarial-review gets a research target; Feynman CLI labels/sidecar/ledger/slug/scoring ported as patterns (MIT). Adversarial review PASS with 3 WARNINGs and 2 SUGGESTIONs, all addressed in analysis.md. Open for spec/plan: headless hook policy; rs-fsrs dependency weight via cargo tree; cargo check on prometheus-research and learner-model still blocked by an 11h prometheus-substrate test (pid 57647) so every Rust adopt verdict is conditional and the check is plan task 1; ground-truth review before G2 then re-baseline. Canonical stage NOT entered or completed: the runtime position is held by a concurrent headless session executing control-plane-to-companion; operator decision pending.",
+  "skipped": false,
+  "skipReason": null
+}
