@@ -1,0 +1,50 @@
+{
+  "mode": "artifact",
+  "verdict": "PASS",
+  "judge_model": "k3",
+  "producer_model": "claude-opus-5",
+  "isolation_mode": "rest-gateway:http://localhost:4000/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "WARNING",
+      "file": "assessment.md",
+      "claim": "The preamble asserts 'Nothing under this repo resolves those paths' for universal-agent-runtime, but the packet's own path resolution maps `universal-agent-runtime/versions.toml` to an in-repo file, `substrate/exec-tier-w/versions.toml`, so V1's AVAILABLE verdict can be misread as in-repo-verified.",
+      "evidence": "Assessment preamble: 'Nothing under this repo resolves those paths, and the pack has no dependency on UAR.' cited_paths: `EXISTS   universal-agent-runtime/versions.toml  -> substrate/exec-tier-w/versions.toml`. A downstream reader following the resolved path would read the wrong `versions.toml` and could treat the `liter_llm = \"1.18.2\"` pin (V1) as confirmed against this repository when it was only checked on an unverifiable external checkout.",
+      "suggested_fix": "Add an explicit note that `substrate/exec-tier-w/versions.toml` exists in this repo and is NOT the UAR pin, and that V1 remains external-checkout evidence until analyze re-verifies at the UAR root."
+    },
+    {
+      "severity": "WARNING",
+      "file": "assessment.md",
+      "claim": "The \u00a73 constraint-impact table prescribes npm commands that appear nowhere in the constraints or anywhere else in the packet, so the plan stage will propagate possibly-nonexistent acceptance commands.",
+      "evidence": "\u00a73 rows prescribe `npm run generate:services-manifest` and `npm run check:distribution`. The constraints name only the generator `scripts/generate-service-manifest.mjs`, the validator `npm run check:services-manifest`, and `npm run validate:codex`; `check:distribution` and `generate:services-manifest` are unverifiable and contradict the constraint text, which states regeneration is done via the generator script plus `npm run check:services-manifest`.",
+      "suggested_fix": "Verify script names against package.json and align the table with the constraint wording: regeneration via `scripts/generate-service-manifest.mjs` (or the actual npm alias), validated by `npm run check:services-manifest`; drop or substantiate `check:distribution`."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "assessment.md",
+      "claim": "The header's claim that goals.md says '10 archived' and is stale is contradicted by the goals text in the packet, which already reports 11/11.",
+      "evidence": "Assessment header: 'This phase's `goals.md` says \"10 archived\" because it was written before rah-007 was descoped and archived later the same day; the goals text is stale.' Goals packet: 'closed 2026-09-08 with 5/5 goals MET, 11/11 changes implemented and archived (rah-007 descoped and archived later the same day)' plus a 'Resolved since this file was written' paragraph. The correction corrects an already-corrected file.",
+      "suggested_fix": "Drop the stale-count correction or restate it as agreement with the current goals.md count (11/11)."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "assessment.md",
+      "claim": "The goals flag 'the rule not to go three levels deep' as a trade-off for early decision, but the assessment's open questions for analyze never surface it.",
+      "evidence": "goals.md: 'Trade-offs the report flags for early decision: ... and the rule not to go three levels deep.' \u00a74 questions 1-8 cover the native runner, scheduler placement, workspace split, token ceiling, advisory enforcement, D-A/D-B ownership, bench scope, and the eval-dataset caveat, but no question addresses topology depth, leaving analyze without an assessment position on a goals-mandated early decision.",
+      "suggested_fix": "Add a question (or a stated default) on whether director\u2192worker is the hard depth ceiling and how the merge stage enforces it."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "assessment.md",
+      "claim": "The D-B constraint row lists only C-01, but republishing the plugin generation alters the shipped plugin surface, which under C-03 also requires same-change docs updates that the plan will not know to include.",
+      "evidence": "\u00a73 D-B row: 'Constraint triggered: C-01 \u2014 plugin surfaces are generated / Same-change requirement: Pass `npm run check:distribution` and `npm run validate:codex`.' Constraints C-03: 'A change that alters the Codex plugin surface (manifest fields, marketplace schema, MCP servers, hooks, install flow) must update `docs/codex-plugin.md` and, where relevant, the CLAUDE.md \"Codex CLI Integration\" section in the same change.' Replacing a 1920-byte stub driver with the 30718-byte current driver changes the installed plugin behaviour and install surface; the row omits C-03.",
+      "suggested_fix": "Either add C-03 to the D-B row or state explicitly why republishing the driver does not alter the documented plugin surface."
+    }
+  ],
+  "sycophancy_screen": {
+    "reject_cap": 2,
+    "cap_overridden": false,
+    "cap_default": 2
+  }
+}

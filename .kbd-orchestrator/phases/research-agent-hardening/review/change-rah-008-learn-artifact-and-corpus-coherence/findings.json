@@ -1,0 +1,47 @@
+{
+  "mode": "diff",
+  "verdict": "BLOCK",
+  "judge_model": "k3",
+  "producer_model": "claude-fable-5-1",
+  "isolation_mode": "rest-gateway:http://localhost:4000/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": "skills/learn/learn-grade/references/eval-dataset/EVAL-RESULTS.md",
+      "line": 100,
+      "claim": "Acceptance criterion 5 ('Re-run the eval against the reviewed truth with the new corpus shape; record the post-change baseline') and the verification criterion 'The eval regression test passes against the reviewed truth with the new corpus shape' are not satisfied \u2014 the re-run is recorded as BLOCKED because the declared dependency change-rah-007's operator review 'has not landed', yet task 5 is marked [x] complete.",
+      "evidence": "The new EVAL-RESULTS.md section states: 'Live re-run of the 24 items against the new corpus shape | **BLOCKED** \u2014 ground truth is still `draft: 24, reviewed: 0` ... the operator review (rah-007 task 2, `REVIEW-SHEET.md`) has not landed', and 'grader-regression-test.sh ... OK \u2014 24 items match baseline ... (unchanged, because no result was regenerated)'. The regression-test 'pass' is vacuous (it compares files nothing regenerated), the change header declares 'Depends on: change-rah-007-eval-ground-truth-review', and tasks.json shows '- [x] 5 Re-run the eval against the reviewed truth...'. metrics-summary.json likewise records `\"status\": \"blocked\"`. The change ships as complete while its own spec requirement ('The pre-change baseline is captured': snapshot regenerated from reviewed truth before a corpus-shape change re-runs the eval) is unmet \u2014 baseline-snapshot.json remains at generated_at 2026-07-16, before any review exists.",
+      "suggested_fix": "Either land rah-007 task 2 (operator review) first and actually run the eval per HARNESS.md with normalized corpora, or mark task 5 and the change incomplete/BLOCKED rather than [x]; do not claim the acceptance criterion via a vacuous regression-test pass on unchanged files."
+    },
+    {
+      "severity": "WARNING",
+      "file": "skills/learn/learn-grade/references/eval-dataset/HARNESS.md",
+      "line": 14,
+      "claim": "HARNESS.md asserts all three eval corpora carry no key_points/misconceptions arrays, directly contradicting the shipped test and EVAL-RESULTS.md, which both state cellular-respiration-corpus.json contains authored key_points that --normalize must preserve.",
+      "evidence": "HARNESS.md: 'The three eval corpora are authored at schema 1.0.0 and carry `is_misconception` and `content_summary` without those two arrays.' But learn-coherence.sh asserts `AUTHORED_N=$(jq '[.sources[] | select(has(\"key_points\"))] | length' \"$EVAL_CORPUS\")` with check 'the eval corpus has authored key_points to protect (count > 0)', and EVAL-RESULTS.md says normalize brings the corpus to 1.1.0 'with authored `key_points[]` kept'. One of these statements is false as shipped.",
+      "suggested_fix": "Correct HARNESS.md to state that the corpora are schema 1.0.0 and lack the arrays on most sources but that some sources carry authored key_points[] which normalization must keep verbatim (or fix the corpus/test if the doc is right)."
+    },
+    {
+      "severity": "WARNING",
+      "file": "shared/scripts/content-grounding-kb.sh",
+      "line": 510,
+      "claim": "run_normalize silently drops every per-source field other than the eight it rebuilds, so normalizing an eval corpus loses data such as per-source concept_id that learn-grade's own SKILL.md explicitly permits.",
+      "evidence": "run_normalize extracts only source_ref, source_type, confidence, is_misconception, content_summary, key_points, misconceptions and re-emits via append_source; any other per-source key is discarded. learn-grade/SKILL.md (this diff) says: '`concept_id` may be present on the corpus or on individual sources'. The header comment promises only that 'corpus identity fields (corpus_id, subject, concept_id, ...) are kept' \u2014 top-level only \u2014 so per-source extras vanish without warning, and the spec's normalize scenario ('keeps the corpus identity fields') does not cover source-level fields.",
+      "suggested_fix": "Merge the original source object with the rebuilt fields (e.g. `. + {key_points: ..., misconceptions: ...}` per source) instead of reconstructing from scratch, or log an explicit warning listing dropped per-source keys."
+    },
+    {
+      "severity": "WARNING",
+      "file": "skills/learn/learn-certify/SKILL.md",
+      "line": 276,
+      "claim": "learn-certify still hardcodes `~/.prometheus/learn/...` for the artifact evidence path and goal tree with no mention of PROMETHEUS_LEARN_HOME, so under the documented override it reads a different store than write-artifact.sh writes, breaking the 'one artifact path' requirement the change exists to establish.",
+      "evidence": "The spec's 'One artifact path' requirement defines `<learn-home>` as '`~/.prometheus/learn` or `PROMETHEUS_LEARN_HOME`'; write-artifact.sh implements `LEARN_HOME=\"${PROMETHEUS_LEARN_HOME:-${HOME}/.prometheus/learn}\"` and feynman-loop/SKILL.md documents the override. learn-certify/SKILL.md's evidence step and directory tree use only `~/.prometheus/learn/goals/<goal-id>/artifacts/<concept-id>/` with no override note, so with PROMETHEUS_LEARN_HOME set learn-certify's documented path resolves nothing that write-artifact.sh wrote.",
+      "suggested_fix": "State in learn-certify/SKILL.md (and learn-retain's path references) that all `~/.prometheus/learn` paths are `${PROMETHEUS_LEARN_HOME:-~/.prometheus/learn}`, matching feynman-loop and the spec."
+    }
+  ],
+  "sycophancy_screen": {
+    "reject_cap": 2,
+    "cap_overridden": false,
+    "cap_default": 2
+  }
+}

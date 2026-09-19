@@ -1,0 +1,70 @@
+{
+  "changeId": "change-drt-007-install-surface-repair",
+  "schemaVersion": "1.0.0",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Add EnvironmentVariables with a __PROMETHEUS_PATH__ placeholder to the research plist template, matching the shared/launchagents convention, and extend the sed in install-binaries.sh to substitute it",
+      "done": true,
+      "doneAt": "2026-09-08T22:45:58Z",
+      "doneBy": "claude-code",
+      "files": [
+        "substrate/prometheus-research/com.prometheus.research.plist",
+        "scripts/install-binaries.sh"
+      ],
+      "verify": "grep -q 'PROMETHEUS_PATH' substrate/prometheus-research/com.prometheus.research.plist && grep -q 'PROMETHEUS_PATH' scripts/install-binaries.sh",
+      "notes": null
+    },
+    {
+      "id": "2",
+      "title": "Confirm by command that the research plist is NOT a services-manifest input (generate-service-manifest.mjs reads only shared/launchagents and shared/systemd), record the correction to analysis D-11b in the spec, and raise the migration question rather than silently moving the file",
+      "done": true,
+      "doneAt": "2026-09-08T22:47:05Z",
+      "doneBy": "claude-code",
+      "files": [
+        ".kbd-orchestrator/changes/change-drt-007-install-surface-repair/spec.md"
+      ],
+      "verify": "grep -q 'shared/launchagents' scripts/generate-service-manifest.mjs && ! grep -q 'prometheus-research' shared/services.manifest.json",
+      "notes": null
+    },
+    {
+      "id": "3",
+      "title": "Add a daemon self-check reporting the resolved harness path and driver path with sizes, so a stale install is visible before a job is started",
+      "done": true,
+      "doneAt": "2026-09-08T22:50:06Z",
+      "doneBy": "claude-code",
+      "files": [
+        "substrate/prometheus-research/src/job/daemon.rs"
+      ],
+      "verify": "grep -qi 'driver' substrate/prometheus-research/src/job/daemon.rs && test -z \"$(pgrep -x cargo)\" && (cd substrate/prometheus-research && cargo check -p prometheus-research)",
+      "notes": null
+    },
+    {
+      "id": "4",
+      "title": "Republish the plugin generation so the installed driver matches the repo; prove the generator idempotent and pass the drift validators (C-01)",
+      "done": false,
+      "doneAt": "2026-09-08T22:57:23Z",
+      "doneBy": "claude-code",
+      "files": [],
+      "verify": "npm run check:distribution && npm run validate:codex",
+      "notes": null,
+      "blocked": true,
+      "blocked_reason": "The C-01 half is DONE and verified (release manifest + distribution regenerated, all five drift validators pass, both generators proven idempotent). The REPUBLISH is blocked: install-plugin-generation.js refuses with '15 skill(s) not installed at canonical name', all 14 named blockers being artifact-refiner submodule skills installed under foreign names. deep-research is not among them. Clearing them means moving 14 skill directories this phase does not own \u2014 an operator decision, not a side effect of a PATH repair. The installed driver is therefore still the 1920-byte stub; RESEARCH_DRIVER is the working override and task 3's self-check now makes the stale state visible at /health before a job runs."
+    },
+    {
+      "id": "5",
+      "title": "Write tests/installed-service-smoke.sh: render and install the plist, bootstrap under launchd, start a fixture job, assert a non-null harness_pid; AND install a marker-less stub driver fixture and assert the daemon health output reports it stale with both paths and sizes; then record the repair against D-A and D-B",
+      "done": true,
+      "doneAt": "2026-09-08T23:00:18Z",
+      "doneBy": "claude-code",
+      "files": [
+        "skills/research/deep-research/tests/installed-service-smoke.sh",
+        "skills/research/deep-research/tests/fixtures/stub-driver/",
+        "docs/research-agent-hardening-evidence.md",
+        "site/docs/substrate/prometheus-research.md"
+      ],
+      "verify": "SMOKE_LAUNCHD=1 bash skills/research/deep-research/tests/installed-service-smoke.sh && grep -q 'D-A' docs/research-agent-hardening-evidence.md",
+      "notes": null
+    }
+  ]
+}

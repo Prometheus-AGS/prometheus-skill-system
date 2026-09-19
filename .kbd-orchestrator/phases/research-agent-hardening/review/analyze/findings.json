@@ -1,0 +1,56 @@
+{
+  "mode": "artifact",
+  "verdict": "PASS",
+  "judge_model": "k3",
+  "producer_model": "claude-fable-5-1",
+  "isolation_mode": "rest-gateway:http://localhost:4000/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "WARNING",
+      "file": "analysis.md",
+      "line": 118,
+      "claim": "The analysis reverses the assessment's ordering of the eval ground-truth review, scheduling it after G2 instead of before G2 with no rationale.",
+      "evidence": "assess.handoff.json summaryForNext lists 'eval ground-truth review before G2' as an open question for analyze; analysis.md open question 4 instead states 'Plan should include a re-baseline task after G2, and the ground truth should be human-reviewed at the same time (assessment open question 5)'. If the ground truth is defective, G2's corpus-schema change would be implemented and re-baselined against unreviewed truth.",
+      "suggested_fix": "Either schedule the human ground-truth review before the G2 change (matching the assessment) or state explicitly why post-G2 review is safe."
+    },
+    {
+      "severity": "WARNING",
+      "file": "analysis.md",
+      "line": 42,
+      "claim": "The verdict says the template, SKILL.md example, and export-package.sh are 'regenerated from' research-package-spec.md, but no generator is evaluated as a candidate or listed in build_required, creating a C-01 ambiguity.",
+      "evidence": "Section 2.2: 'the template, the SKILL.md example, and export-package.sh are regenerated from it.' build_required contains only 'research-manifest.schema.json plus regeneration of the template, SKILL.md example, and export-package.sh from research-package-spec.md' with no generator script. Constraint C-01 requires any generator to exist, be idempotent (C-04), and have outputs regenerated in the same change; if these files are actually hand-synced, the word 'regenerated' is misleading and the assessed multi-shape manifest drift can recur.",
+      "suggested_fix": "Decide and state whether a generator script is built (add it to build_required and cover idempotency) or whether the three files are hand-edited against the normative spec with a drift check."
+    },
+    {
+      "severity": "WARNING",
+      "file": "analysis.md",
+      "line": 116,
+      "claim": "Analyze completed adopt verdicts that add compile dependencies to two crates whose compile health the assess stage declared UNKNOWN and a blocking precondition for analyze.",
+      "evidence": "assess.handoff.json: 'compile health of prometheus-research and learner-model is UNKNOWN and is a blocking precondition for analyze (cargo was busy at both attempts).' Analysis.md open question 3 defers: 'Plan must schedule the check as the first task of the first G1 change,' while sections 2.2, 2.7, and 2.9 adopt jsonschema 0.53, rs-fsrs 1.2.1, and chrono 0.4 into those exact crates. If either crate fails to compile today, the dependency verdicts and the option scoring in 2.1 may rest on a false baseline.",
+      "suggested_fix": "Record explicitly in the analysis that all Rust-crate adopt verdicts are conditional on the compile check, or block analyze completion until the check runs."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "library-candidates.json",
+      "line": 0,
+      "claim": "cand-006 (jsonschema crate 0.53) is adopted with no maintenance check, unlike the other adopted external crates.",
+      "evidence": "cand-006's maintenance block contains only '\"last_release\": \"0.53.0\"' and its sole evidence is a tier-3 cargo search hit (which even quotes the registry typo 'JSON schema validaton library'); cand-001, cand-002, and cand-007 each include stars and an updated date. There is no staleness or maintainer-activity signal for a crate being added to the daemon's compile graph.",
+      "suggested_fix": "Add a tier-1 or tier-2 evidence entry (repo activity, release cadence, dependents count) for the jsonschema crate before spec."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "analysis.md",
+      "line": 46,
+      "claim": "The output-root consolidation to ~/.prometheus/research/ has no migration or coexistence story for anything already written under ~/.research-jobs/.",
+      "evidence": "Section 2.3: 'Moving two Rust constants and four hook defaults is cheaper than moving the documented user-facing path, and RESEARCH_OUTPUT_DIR stays as the override.' The assessment found four hooks and the daemon defaulting to ~/.research-jobs/; the analysis never states whether existing directories there are migrated, ignored, or orphaned. It is likely empty because --daemon-job never ran, but the hooks could have written there independently and the analysis does not check.",
+      "suggested_fix": "Add one sentence stating the expected state of ~/.research-jobs/ (verified empty, or migrate/ignore) so plan does not have to rediscover it."
+    }
+  ],
+  "checked_classes": [],
+  "sycophancy_screen": {
+    "reject_cap": 2,
+    "cap_overridden": false,
+    "cap_default": 2
+  }
+}

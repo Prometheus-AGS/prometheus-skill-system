@@ -1,0 +1,43 @@
+{
+  "changeId": "change-cpc-008-sync-skills-plugin",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Create Companion skills/sync-status|sync-peers|sync-push and skill-package.json; rewrite endpoint references",
+      "done": true,
+      "doneAt": "2026-09-03T22:59:41Z",
+      "doneBy": "claude-code",
+      "files": [
+        "skills/sync-status/SKILL.md",
+        "skills/sync-peers/SKILL.md",
+        "skills/sync-push/SKILL.md",
+        "skill-package.json"
+      ],
+      "verify": "prometheus contract validate skill-package.json",
+      "notes": null
+    },
+    {
+      "id": "2",
+      "title": "Add the Companion installer step that registers the MCP stdio binary and skills per the declaration",
+      "done": true,
+      "doneAt": "2026-09-04T00:25:29Z",
+      "doneBy": "claude-code",
+      "files": [
+        "scripts/install-skill-package.sh"
+      ],
+      "verify": "bash scripts/install-skill-package.sh --dry-run",
+      "notes": null
+    },
+    {
+      "id": "3",
+      "title": "Run the Companion audit gate",
+      "done": true,
+      "doneAt": "2026-09-04T00:27:32Z",
+      "doneBy": "claude-code",
+      "files": [],
+      "verify": "bash scripts/audit-all.sh",
+      "notes": null
+    }
+  ]
+}

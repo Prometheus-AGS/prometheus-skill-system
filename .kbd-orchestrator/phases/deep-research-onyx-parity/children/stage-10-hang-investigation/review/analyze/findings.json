@@ -1,0 +1,60 @@
+{
+  "mode": "artifact",
+  "verdict": "PASS",
+  "judge_model": "k3",
+  "producer_model": "k3",
+  "isolation_mode": "harness-native",
+  "cross_model_check": "same-model-collision",
+  "checked_classes": [
+    "build-vs-adopt blind spots",
+    "candidates listed but never evaluated",
+    "stale or unverifiable claims",
+    "missing solution category",
+    "recommendations contradicting assessment or constraints"
+  ],
+  "findings": [
+    {
+      "severity": "WARNING",
+      "claim": "build_required lists cand-2 (verdict=adopt) and cand-3 (verdict=adapt), but library-candidates.schema.json describes build_required as 'Gaps with no adoptable candidate'. Both entries are themselves adoptable candidates and carry capability_gap_id: null, so the array contradicts the schema's stated semantics and will mis-feed downstream capability-gap derivation.",
+      "evidence": "artifact lines 239-252 (build_required block duplicating cand-2/cand-3 with capability_gap_id null); skills/process/kbd-process-orchestrator/references/schemas/library-candidates.schema.json build_required description: 'Gaps with no adoptable candidate \u2014 these become build tasks (and, later, capability gaps)'",
+      "file": "library-candidates.json",
+      "line": 1
+    },
+    {
+      "severity": "SUGGESTION",
+      "claim": "cand-2's call-chain notation mixes fully-qualified 'file:line' anchors with bare ':line' anchors, leaving several hops unverifiable without guessing which file each bare line number belongs to.",
+      "evidence": "artifact cand-2 evidence: 'run-research.sh:478 -> review_report :340 -> sync_report_status :364 -> write-provenance.sh :365 -> build-review-packet.sh :367 -> judge dispatch :372-377'. Direct verification confirms the anchors are accurate (run-research.sh :364-377, :470-480), but only after resolving each bare ':line' against the preceding filename by hand.",
+      "file": "analysis.md",
+      "line": 1
+    },
+    {
+      "severity": "SUGGESTION",
+      "claim": "cand-3's Tier-4 evidence (docs.python.org subprocess page, stackoverflow.com/questions/68327635, tey.sh/TIL/002_subprocess_pipe_deadlocks) documents the Python-parent subprocess.Popen PIPE deadlock, not the bash heredoc invocation pattern actually used in build-review-packet.sh. The pipe-buffer mechanism is analogous, but no cited source addresses bash heredoc stdin feeding or the ~64 KB pipe-buffer threshold in that context.",
+      "evidence": "artifact cand-3 evidence tiers all tier-4 and all Python-subprocess-specific; build-review-packet.sh uses 'python3 - <args> >out 2>err <<PY' at lines 141, 259, 298, 363, 406, 459, 537, 655 and 'python3 <<PY' at line 720 (verified by direct grep).",
+      "file": "library-candidates.json",
+      "line": 1
+    },
+    {
+      "severity": "SUGGESTION",
+      "claim": "The packet's cited_paths and file_tree omit run-research.sh and driver-contract.sh even though cand-2's central claims depend on them (dispatch preference :372-375, stub heredoc :288, RESEARCH_ADV_DIR :309/:326). A reviewer restricted to packet content cannot verify the highest-stakes claims; verification here required direct repo reads outside the packet.",
+      "evidence": "packet.json .cited_paths listing (driver-contract.sh and run-research.sh absent; assessment.md, goals.md, build-review-packet.sh, dispatch-judge.sh, library-candidates.json present); direct repo reads confirm the cited anchors are accurate (driver-contract.sh :280-330, run-research.sh :360-377).",
+      "file": "analysis.md",
+      "line": 1
+    },
+    {
+      "severity": "SUGGESTION",
+      "claim": "cand-1's N-run proof still lacks a concrete independence test. The producer acknowledges the correlation caveat ((2/3)^10 bound optimistic under correlated failures), but no method for establishing run-to-run independence (e.g., varying stage-10 input sizes, interleaving known-good runs, or checking for shared state between iterations) is specified, so the 'measured-rate re-sizing' step has an unbounded input.",
+      "evidence": "artifact cand-1 risks: 'independence unproven, (2/3)^10 bound optimistic under correlation; measure true rate first' \u2014 caveat stated but no operationalization; Goal 3 section (artifact lines ~120-160) restates the gate without an independence protocol.",
+      "file": "analysis.md",
+      "line": 1
+    }
+  ],
+  "disconfirming": "Falsification attempts that failed: (a) cand-2's call chain was fully verified against run-research.sh (:364-377 dispatch preference, :470-480 stage gating) and driver-contract.sh (:280-330 stub construction) \u2014 accurate; (b) cand-3's '~10 python3 heredocs' claim was confirmed by direct inventory: exactly 10 heredocs, 9 of them python3 (lines 141, 259, 298, 363, 406, 459, 537, 655, 720) plus one cat heredoc (:568) \u2014 prior-round doubt about the count is void; (c) write-provenance.sh stale-path suspicion dissolved \u2014 the script exists at skills/research/deep-research/scripts/write-provenance.sh and is invoked from run-research.sh's own directory.",
+  "confidence": "moderate",
+  "what_would_change_this": "A WARNING on build_required semantics would be downgraded if kbd-process-orchestrator's downstream consumer is shown to tolerate candidates-with-verdict in build_required (i.e., the schema description is stale, not the artifact). Verdict would move to BLOCK if any cand-2 call-chain anchor were found to point at the wrong file or wrong line, or if the heredoc inventory were shown to materially differ from the artifact's claim.",
+  "sycophancy_screen": {
+    "reject_cap": 2,
+    "cap_overridden": false,
+    "cap_default": 2
+  }
+}

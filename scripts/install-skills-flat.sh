@@ -6,7 +6,6 @@
 #   ./scripts/install-skills-flat.sh                # all platforms + integrations
 #   ./scripts/install-skills-flat.sh --skills-only  # payloads only; no builds/MCP changes
 #   ./scripts/install-skills-flat.sh --best-effort  # development mode; report failures and continue
-#   ./scripts/install-skills-flat.sh --sharing      # also build/register optional sovereign-sync
 #   ./scripts/install-skills-flat.sh --uninstall    # remove all
 
 set -euo pipefail
@@ -15,7 +14,6 @@ REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 UNINSTALL=false
 SKILLS_ONLY=false
 BEST_EFFORT=false
-SHARING=false
 FAILED_COMPONENTS=0
 
 for arg in "$@"; do
@@ -23,7 +21,6 @@ for arg in "$@"; do
         --uninstall) UNINSTALL=true ;;
         --skills-only) SKILLS_ONLY=true ;;
         --best-effort) BEST_EFFORT=true ;;
-        --sharing) SHARING=true ;;
         *) echo "Unknown argument: $arg" >&2; exit 2 ;;
     esac
 done
@@ -45,7 +42,7 @@ install_failure() {
 # Ordering is load-bearing and must not be rearranged:
 #
 #   1. cp     — `-f` because the destination may be a RUNNING daemon
-#               (surface-bridge, sovereign-sync); writing in place fails with
+#               (surface-bridge); writing in place fails with
 #               "Text file busy", so unlink-and-recreate is required.
 #   2. verify — hash the copy while it is still byte-identical to the source.
 #               Signing in step 3 mutates the file, so a post-signing compare
@@ -515,48 +512,9 @@ install_learn_substrate() {
         install_failure "learn-substrate surface-bridge build" || return 1
     fi
 
-    if $SHARING; then
-        # Build/register sovereign-sync only for an explicit sharing install.
-        echo "  Building optional substrate/sovereign-sync..."
-        if cargo build --release --manifest-path "$substrate_dir/sovereign-sync/Cargo.toml" 2>/dev/null; then
-            echo "  ✅ learn-substrate: sovereign-sync built"
-            local bin_dir="$HOME/.local/bin"
-            mkdir -p "$bin_dir"
-            install_substrate_bin "sovereign-sync" \
-                "$substrate_dir/sovereign-sync/target/release/sovereign-sync" \
-                "$bin_dir/sovereign-sync" || return 1
-            echo "  ✅ learn-substrate: sovereign-sync installed to $bin_dir/sovereign-sync"
-        else
-            install_failure "learn-substrate sovereign-sync build" || return 1
-        fi
-
-        local claude_mcp="$HOME/.claude/mcp-servers.json"
-        if [[ -f "$claude_mcp" ]]; then
-        node - "$claude_mcp" <<'JS'
-const fs = require('fs');
-const path = process.argv[1];
-const config = JSON.parse(fs.readFileSync(path, 'utf8'));
-const entry = {
-    command: process.env.HOME + '/.local/bin/sovereign-sync',
-    args: ['--mode', 'mcp'],
-    env: { RUST_LOG: 'sovereign_sync=warn' }
-};
-let changed = false;
-if (!config['sovereign-sync']) { config['sovereign-sync'] = entry; changed = true; }
-if (changed) {
-    const bak = path + '.bak.' + Date.now();
-    fs.copyFileSync(path, bak);
-    fs.writeFileSync(path, JSON.stringify(config, null, 2) + '\n', 'utf8');
-    console.log('  ✅ claude: mcp-servers.json updated with sovereign-sync');
-} else {
-    console.log('  ✅ claude: sovereign-sync already in mcp-servers.json');
-}
-JS
-        fi
-        echo "  ℹ️  learn-substrate: run 'npm run install:daemons -- --sharing' to start sharing"
-    else
-        echo "  ℹ️  learn-substrate: sovereign-sync skipped (enable only with --sharing)"
-    fi
+    # sovereign-sync relocated to prometheus-companion (change-cpc-004,
+    # change-cpc-009, D-02). The Companion builds and registers its own MCP
+    # binary through its own installer; the pack no longer builds it.
 }
 
 if ! install_learn_substrate; then

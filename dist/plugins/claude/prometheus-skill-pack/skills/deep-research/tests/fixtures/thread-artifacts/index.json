@@ -1,0 +1,30 @@
+{
+  "schema_version": "1.0.0",
+  "package_id": "fixture-thread-artifacts-20260908-0001",
+  "director_cycles": 1,
+  "budget_hit": false,
+  "threads": [
+    {
+      "thread_id": "t01",
+      "task": "Investigate reported production failure modes of Qdrant above 10M vectors",
+      "status": "complete",
+      "cycle": 1,
+      "started_at": "2026-09-08T12:01:00Z",
+      "ended_at": "2026-09-08T12:09:22Z",
+      "sources_count": 1,
+      "claims_count": 1,
+      "reason": null
+    },
+    {
+      "thread_id": "t02",
+      "task": "Compare snapshot and restore behaviour across versions",
+      "status": "timeout",
+      "cycle": 1,
+      "started_at": "2026-09-08T12:01:00Z",
+      "ended_at": "2026-09-08T12:13:00Z",
+      "sources_count": 0,
+      "claims_count": 0,
+      "reason": "exceeded the 12 minute thread budget; no dossier was produced"
+    }
+  ]
+}

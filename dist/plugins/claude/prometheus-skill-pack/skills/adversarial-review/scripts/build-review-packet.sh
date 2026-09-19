@@ -7,6 +7,7 @@
 # Usage:
 #   build-review-packet.sh --mode diff     --phase <phase> --target <change-id>       [--out <path>]
 #   build-review-packet.sh --mode artifact --phase <phase> --target assess|analyze|spec|plan [--out <path>]
+#   build-review-packet.sh --mode artifact --target research --package <package-dir> [--phase <phase>] [--out <path>]
 #   build-review-packet.sh --mode skill    --target <skill-dir>     [--intent <file>] [--out <path>]
 #   build-review-packet.sh --mode agent    --target <workspace-dir> [--intent <file>] [--out <path>]
 #   build-review-packet.sh --mode decision --target <decision.md>    [--intent <file>] [--out <path>]
@@ -27,6 +28,13 @@
 #                   (Si/Hashimoto/Yang 2025), so the packet carries what is
 #                   claimed, what it rests on, what would falsify it, and what
 #                   was already decided on this topic.
+#   artifact/research — review a deep-research REPORT before delivery
+#                   (change-rah-006). --package names the research package
+#                   directory; --phase is optional because a research run is
+#                   not a KBD phase. The packet carries report.md, the
+#                   <slug>.provenance.md sidecar, plan.md, and the run's goals
+#                   (query, depth, scale, sub-questions). Fields are capped
+#                   and truncation is recorded, as for the creation modes.
 #
 # Both creation modes are MANIFEST-LEVEL. They record what each file is and does,
 # never its full body. A generated Cargo workspace does not fit in a judge's
@@ -36,15 +44,16 @@
 # bash 3.2 compatible (no mapfile, no declare -A). No LLM calls (class=small).
 set -uo pipefail
 
-MODE="" PHASE="" TARGET="" OUT="" INTENT=""
+MODE="" PHASE="" TARGET="" OUT="" INTENT="" PACKAGE=""
 while [ $# -gt 0 ]; do
   case "$1" in
-    --mode)   MODE="${2:-}"; shift 2 ;;
-    --phase)  PHASE="${2:-}"; shift 2 ;;
-    --target) TARGET="${2:-}"; shift 2 ;;
-    --intent) INTENT="${2:-}"; shift 2 ;;
-    --out)    OUT="${2:-}"; shift 2 ;;
-    *) echo "usage: $0 --mode diff|artifact|skill|agent|decision [--phase <phase>] --target <id|stage|path> [--intent <file>] [--out <path>]" >&2; exit 1 ;;
+    --mode)    MODE="${2:-}"; shift 2 ;;
+    --phase)   PHASE="${2:-}"; shift 2 ;;
+    --target)  TARGET="${2:-}"; shift 2 ;;
+    --intent)  INTENT="${2:-}"; shift 2 ;;
+    --package) PACKAGE="${2:-}"; shift 2 ;;
+    --out)     OUT="${2:-}"; shift 2 ;;
+    *) echo "usage: $0 --mode diff|artifact|skill|agent|decision [--phase <phase>] --target <id|stage|path> [--package <dir>] [--intent <file>] [--out <path>]" >&2; exit 1 ;;
   esac
 done
 case "$MODE" in
@@ -52,10 +61,20 @@ case "$MODE" in
   *) echo "[packet] ERROR: --mode must be diff, artifact, skill, agent, or decision" >&2; exit 1 ;;
 esac
 [ -n "$TARGET" ] || { echo "[packet] ERROR: --target is required" >&2; exit 1; }
-case "$MODE" in
-  diff|artifact)
-    [ -n "$PHASE" ] || { echo "[packet] ERROR: --phase is required for --mode $MODE" >&2; exit 1; } ;;
-esac
+# The research target reviews a package on disk, not a KBD stage: --phase is
+# optional there (a research run is not a phase) and --package is required.
+RESEARCH_TARGET=0
+[ "$MODE" = "artifact" ] && [ "$TARGET" = "research" ] && RESEARCH_TARGET=1
+if [ "$RESEARCH_TARGET" -eq 1 ]; then
+  [ -n "$PACKAGE" ] || { echo "[packet] ERROR: --package <dir> is required for --target research" >&2; exit 1; }
+  [ -d "$PACKAGE" ] || { echo "[packet] ERROR: research package not found: $PACKAGE" >&2; exit 2; }
+  PACKAGE="$(cd "$PACKAGE" && pwd)"
+else
+  case "$MODE" in
+    diff|artifact)
+      [ -n "$PHASE" ] || { echo "[packet] ERROR: --phase is required for --mode $MODE" >&2; exit 1; } ;;
+  esac
+fi
 
 find_kbd_root() {
   local d="$PWD"
@@ -66,6 +85,14 @@ find_kbd_root() {
   return 1
 }
 KBD_ROOT="$(find_kbd_root 2>/dev/null || true)"
+if [ "$RESEARCH_TARGET" -eq 1 ]; then
+  # A research package is reviewed where it lives; a KBD root is used when
+  # present (constraints, producer record) and simply absent otherwise.
+  PHASE_DIR=""
+  if [ -n "$KBD_ROOT" ] && [ -n "$PHASE" ] && [ -d "$KBD_ROOT/phases/$PHASE" ]; then
+    PHASE_DIR="$KBD_ROOT/phases/$PHASE"
+  fi
+else
 case "$MODE" in
   diff|artifact)
     # Phase-scoped modes cannot proceed without the phase they review.
@@ -95,6 +122,7 @@ case "$MODE" in
     [ -f "$TARGET" ] || { echo "[packet] ERROR: --target must be an existing FILE for --mode decision: $TARGET" >&2; exit 2; }
     ;;
 esac
+fi
 
 echo "[MODEL_ROUTING] phase=adv-review-packet class=small" >&2
 
@@ -166,6 +194,8 @@ case "$MODE" in
   decision)    TREE_ROOT="$(cd "$(dirname "$TARGET")" && pwd)" ;;
   *)           TREE_ROOT="$REPO_ROOT" ;;
 esac
+# A research package is its own tree: the judge should see what the run produced.
+[ "$RESEARCH_TARGET" -eq 1 ] && TREE_ROOT="$PACKAGE"
 # Top 2 levels, pruning bulk dirs. Deterministic (sorted).
 ( cd "$TREE_ROOT" && find . -maxdepth 2 \
     -not -path '*/node_modules*' -not -path '*/.git*' -not -path '*/target*' \
@@ -480,6 +510,76 @@ PY
     cp "$INTENT" "$WORK/intent.md"
   fi
 
+elif [ "$RESEARCH_TARGET" -eq 1 ]; then
+  # ---- artifact/research: a deep-research report before delivery ------------
+  # The judge sees the report, the provenance sidecar the driver wrote from the
+  # checkpoint, and the plan with its task ledger and verification log. All three
+  # are REQUIRED: a report without its sidecar cannot be judged for honesty, and a
+  # report without its plan cannot be judged for coverage. Missing → exit 2.
+  RPT="$PACKAGE/report.md"
+  [ -f "$RPT" ] || { echo "[packet] ERROR: no report.md in $PACKAGE" >&2; exit 2; }
+  PROV=""
+  for cand in "$PACKAGE"/*.provenance.md; do [ -f "$cand" ] && { PROV="$cand"; break; }; done
+  [ -n "$PROV" ] || { echo "[packet] ERROR: no <slug>.provenance.md in $PACKAGE (the driver writes it on every exit path)" >&2; exit 2; }
+  PLAN="$PACKAGE/plan.md"
+  [ -f "$PLAN" ] || { echo "[packet] ERROR: no plan.md in $PACKAGE" >&2; exit 2; }
+  { echo "===== report.md ====="; cat "$RPT"; echo; } >> "$WORK/artifact.md"
+  { echo "===== $(basename "$PROV") ====="; cat "$PROV"; echo; } >> "$WORK/artifact.md"
+  { echo "===== plan.md ====="; cat "$PLAN"; echo; } >> "$WORK/artifact.md"
+  cp "$RPT" "$WORK/research_report.md"
+  cp "$PROV" "$WORK/research_provenance.md"
+  cp "$PLAN" "$WORK/research_plan.md"
+
+  # Goals of the run: the query and its parameters from checkpoint.json, and the
+  # sub-questions stage 01 committed to. This is what "coverage" is judged
+  # against, so a failure here fails the packet: a judge with an empty goals
+  # field would score coverage against nothing and could only return PASS.
+  if ! python3 - "$PACKAGE" > "$WORK/goals.md" 2>"$WORK/goals.err" <<'PY'
+import json, os, re, sys
+pkg = sys.argv[1]
+cp = {}
+try:
+    cp = json.load(open(os.path.join(pkg, "checkpoint.json")))
+except Exception:
+    pass
+print("# Goals of this research run\n")
+print("- **Query:** %s" % (cp.get("query") or "(not recorded in checkpoint.json)"))
+for k in ("depth", "scale", "citation_style"):
+    if cp.get(k) is not None:
+        print("- **%s:** %s" % (k, cp[k]))
+if cp.get("kb_ids"):
+    print("- **Knowledge bases:** %s" % ", ".join(cp["kb_ids"]))
+if cp.get("stages_completed") is not None:
+    print("- **Stages completed:** %s" % " ".join(cp["stages_completed"]))
+text = open(os.path.join(pkg, "plan.md"), encoding="utf-8", errors="replace").read()
+m = re.search(r"^## Sub-questions\s*$\n(.*?)(?=^## |\Z)", text, re.M | re.S)
+subs = [l.strip()[2:] for l in (m.group(1).splitlines() if m else []) if l.strip().startswith("- ")]
+print("\n## Sub-questions the report must answer\n")
+print("\n".join("- " + s for s in subs) if subs else "- (plan.md has no sub-question bullets)")
+PY
+  then
+    echo "[packet] ERROR: goals extraction failed for $PACKAGE: $(tail -1 "$WORK/goals.err")" >&2
+    exit 2
+  fi
+  [ -s "$WORK/goals.md" ] || { echo "[packet] ERROR: goals extraction produced nothing for $PACKAGE" >&2; exit 2; }
+
+  # What CRITICAL means for a report. The artifact mandate is written for KBD
+  # stage artifacts; this field tells the judge which classes apply here.
+  cat > "$WORK/review_focus.md" <<'MD'
+Review target: a deep-research report before delivery. Hunt for:
+- A claim in the executive summary or evidence table with no label, or a
+  `verified` label whose row cites no source (invented or orphan citation).
+- A sub-question from plan.md the report never answers, without saying so.
+- A contradiction the provenance or plan records as unresolved that the report
+  presents as settled.
+- A `verification_status` in the report frontmatter the provenance sidecar does
+  not support (for example `verified` while the sidecar says BLOCKED or reports
+  a skipped gate).
+- Numbers, dates, or quotes in the report that the evidence table does not carry.
+CRITICAL = a reader acting on the report would be misled; WARNING = a weakness
+the reader should know; SUGGESTION = optional improvement.
+MD
+  FOUND=1
 else
   # artifact mode: TARGET selects the stage artifact set.
   case "$TARGET" in
@@ -487,7 +587,7 @@ else
     analyze) ARTS="analysis.md library-candidates.json" ;;
     plan)    ARTS="plan.md" ;;
     spec)    ARTS="" ;;   # handled below: spec artifacts live outside PHASE_DIR
-    *) echo "[packet] ERROR: artifact --target must be assess|analyze|spec|plan" >&2; exit 1 ;;
+    *) echo "[packet] ERROR: artifact --target must be assess|analyze|spec|plan|research (research needs --package)" >&2; exit 1 ;;
   esac
 
   # Initialised BEFORE the spec block below, which sets it. A later `FOUND=0`
@@ -616,7 +716,7 @@ fi
 # and the script would still exit 0 with an empty packet. Assign, then check.
 PACKET=""
 ASSEMBLE_RC=0
-PACKET="$(MODE="$MODE" PHASE="$PHASE" TARGET="$TARGET" PRODUCER="$PRODUCER" WORK="$WORK" \
+PACKET="$(MODE="$MODE" PHASE="$PHASE" TARGET="$TARGET" PRODUCER="$PRODUCER" WORK="$WORK" PACKAGE="$PACKAGE" \
 python3 <<'PY'
 import json, os, re, sys
 
@@ -677,8 +777,23 @@ else:
     # file_tree stops at depth 2; this answers path claims at any depth.
     packet["cited_paths"] = slurp("cited_paths.txt")
     packet["prior_handoffs"] = slurp("handoffs.md")
+    if packet["target"] == "research":
+        # The three files as separate fields, so the cap below applies per file
+        # and a long report cannot crowd the sidecar or the plan out of the packet.
+        packet["package_dir"] = os.environ.get("PACKAGE", "")
+        packet["research_report"] = slurp("research_report.md")
+        packet["research_provenance"] = slurp("research_provenance.md")
+        packet["research_plan"] = slurp("research_plan.md")
+        packet["review_focus"] = slurp("review_focus.md")
+        # `artifact` duplicates the three files under the artifact-mandate field
+        # name; it is dropped so the cap is applied once per file, not twice.
+        # (No apostrophes in this block: it sits inside a $(...) substitution,
+        # where bash pre-parses the heredoc and an unmatched quote is fatal.)
+        packet.pop("artifact", None)
+        packet.pop("cited_paths", None)
+        packet.pop("prior_handoffs", None)
 
-# --- per-field cap, recorded in the packet (creation modes) -------------------
+# --- per-field cap, recorded in the packet (creation modes, research target) --
 # A judge sizes its attention to what it receives. If a packet were silently
 # truncated, the judge would return a verdict on material it never saw and the
 # artifact would record that verdict as if it covered everything — a PASS that
@@ -687,7 +802,7 @@ else:
 # The cap is per FIELD, not per packet. One oversized field (a 4000-line SKILL.md)
 # must not crowd out the small fields that carry the most signal per byte
 # (frontmatter, the MCP server list, the validator verdict).
-if mode in ("skill", "agent", "decision"):
+if mode in ("skill", "agent", "decision") or packet["target"] == "research":
     try:
         cap = int(os.environ.get("PACKET_FIELD_CAP_BYTES", "") or 40000)
     except ValueError:

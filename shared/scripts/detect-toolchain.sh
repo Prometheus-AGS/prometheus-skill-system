@@ -66,65 +66,28 @@ port_open() {
     (exec 3<>"/dev/tcp/$host/$port") >/dev/null 2>&1
 }
 
-check_sovereign_sync_daemon() {
-    local key="sovereign-sync-daemon"
-    local output=""
-    local code=0
+# An optional, external control-plane extension (integration contract seam 1,
+# D-02). The pack never installs, starts, or bundles this binary — it only
+# probes whether something is answering on the discovered endpoint, the same
+# order `prometheus contract show` and the pack CLI's own transport use.
+# Absence is the correct default, not a gap.
+check_control_plane_extension() {
+    local key="control-plane-extension"
 
-    if command -v sovereign-sync >/dev/null 2>&1; then
-        set +e
-        output=$(sovereign-sync --mode status --format json 2>/dev/null)
-        code=$?
-        set -e
-
-        case "$code" in
-            0)
-                STATUS[$key]="ok"
-                # `--mode status` is transport-agnostic; it does not tell us
-                # whether the daemon is on a Unix socket (the 1.7.0 default) or
-                # on :7892 (--tcp), so do not claim a specific endpoint here.
-                VERSION[$key]="healthy"
-                ;;
-            1)
-                if [[ "${PROMETHEUS_SHARING:-0}" =~ ^(1|true|yes)$ ]]; then
-                    STATUS[$key]="missing"
-                    VERSION[$key]="sharing requested but not running"
-                else
-                    STATUS[$key]="disabled"
-                    VERSION[$key]="optional; enable only for sharing"
-                fi
-                ;;
-            2)
-                STATUS[$key]="occupied"
-                VERSION[$key]="port :7892 is occupied by a different service"
-                ;;
-            *)
-                STATUS[$key]="missing"
-                VERSION[$key]="status command failed"
-                ;;
-        esac
-        return
-    fi
-
-    # 1.7.0 serves HTTP on a same-user Unix socket by default and binds no TCP
-    # port unless started with --tcp. Probe the socket FIRST; only fall back to
-    # :7892 for an explicitly --tcp-configured instance.
-    local sovereign_sock="${SOVEREIGN_SYNC_SOCKET:-$HOME/Library/Application Support/prometheus/run/sovereign-sync.sock}"
-    if [ -S "$sovereign_sock" ] && curl -sf --max-time 2 --unix-socket "$sovereign_sock" \
-        "http://localhost/health" 2>/dev/null \
-        | grep -q '"service"[[:space:]]*:[[:space:]]*"sovereign-sync"'; then
+    local control_sock="${SOVEREIGN_SYNC_SOCKET:-$HOME/Library/Application Support/prometheus/run/sovereign-sync.sock}"
+    if [ -S "$control_sock" ] && curl -sf --max-time 2 --unix-socket "$control_sock" \
+        "http://localhost/health" >/dev/null 2>&1; then
         STATUS[$key]="ok"
-        VERSION[$key]="healthy on unix socket"
-    elif curl -sf --max-time 2 "http://127.0.0.1:7892/health" 2>/dev/null \
-        | grep -q '"service"[[:space:]]*:[[:space:]]*"sovereign-sync"'; then
+        VERSION[$key]="connected via unix socket"
+    elif curl -sf --max-time 2 "http://127.0.0.1:7892/health" >/dev/null 2>&1; then
         STATUS[$key]="ok"
-        VERSION[$key]="healthy on :7892 (--tcp)"
+        VERSION[$key]="connected via :7892 (--tcp)"
     elif port_open "127.0.0.1" "7892"; then
         STATUS[$key]="occupied"
         VERSION[$key]="port :7892 is occupied by a different service"
     else
         STATUS[$key]="disabled"
-        VERSION[$key]="optional; enable only for sharing"
+        VERSION[$key]="optional; not connected"
     fi
 }
 
@@ -165,7 +128,7 @@ check_http "surreal-memory"          "http://localhost:23001/health"
 check_http "forge-rs"                "http://localhost:8943/mcp"
 check_http "prometheus-knowledge"    "http://localhost:8942/mcp"
 check_http "surface-bridge"          "http://127.0.0.1:7890/health"
-check_sovereign_sync_daemon
+check_control_plane_extension
 
 # ── WASM target ───────────────────────────────────────────────────────────────
 if command -v rustup >/dev/null 2>&1; then
@@ -186,7 +149,7 @@ fi
 if $JSON_MODE; then
     echo "{"
     first=true
-    for key in node npm git rustc cargo rustup go docker kimi mmx claude forge pk liter-llm prometheus prometheus-rust-auditor sycophancy-correction learner-model cowork dsg surreal-memory forge-rs prometheus-knowledge surface-bridge sovereign-sync-daemon wasm32; do
+    for key in node npm git rustc cargo rustup go docker kimi mmx claude forge pk liter-llm prometheus prometheus-rust-auditor sycophancy-correction learner-model cowork dsg surreal-memory forge-rs prometheus-knowledge surface-bridge control-plane-extension wasm32; do
         [[ -n "${STATUS[$key]:-}" ]] || continue
         $first || echo ","
         first=false
@@ -257,7 +220,7 @@ else
     item "forge-rs"             "forge-rs (:8943)"
     item "prometheus-knowledge" "prometheus-knowledge (:8942)"
     item "surface-bridge"  "surface-bridge (:7890)" "install: bash scripts/install-skills-flat.sh"
-    item "sovereign-sync-daemon" "sovereign-sync sharing daemon" "enable: prometheus setup --full --sharing"
+    item "control-plane-extension" "control-plane extension (optional)"
 
     echo ""
     echo "═══════════════════════════════════════════════════════════"

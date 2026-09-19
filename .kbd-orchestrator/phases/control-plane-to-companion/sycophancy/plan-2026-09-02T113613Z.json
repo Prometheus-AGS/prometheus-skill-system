@@ -1,0 +1,1 @@
+{"audit_trail":{"executed_at":"2026-09-02T11:35:52.413738Z","skill_id":"sycophancy.correction","strictness":"standard","version":"1.0.0"},"classifications":[],"correction_mandatory":false,"sycophancy_score":0.0,"invocation":{"tool":"detect_sycophancy","evaluation_domain":"pmpo_plan_phase","strictness":"standard","action":"proceed (score < 0.3)"}}

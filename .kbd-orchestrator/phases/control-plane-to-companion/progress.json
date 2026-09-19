@@ -1,0 +1,190 @@
+{
+  "schemaVersion": "2",
+  "generatedBy": "kbd-runtime",
+  "projectionContractVersion": 2,
+  "sourceRevision": 1186,
+  "derivedRevision": 1186,
+  "frontier": {
+    "4bca58c3-e70b-48c9-a555-60bc16d3d025": 1186
+  },
+  "conflictCount": 0,
+  "phase": "control-plane-to-companion",
+  "phaseId": "control-plane-to-companion",
+  "parentPhase": null,
+  "last_updated": "2026-09-19T15:41:44.853555Z",
+  "last_updated_by": "kbd-runtime",
+  "changes_total": 13,
+  "changes_completed": 9,
+  "implementation_total": 13,
+  "implementation_completed": 9,
+  "completion": {
+    "primaryCounter": "implementation",
+    "implementation": {
+      "completed": 9,
+      "total": 13,
+      "status": "IN_PROGRESS"
+    },
+    "evidence": {
+      "status": "COMPLETE",
+      "summary": "Operator disposition recorded; strict OpenSpec verification passed; main spec synchronized; change archived on 2026-08-30.",
+      "blockers": []
+    },
+    "certification": {
+      "status": "COMPLETE",
+      "summary": "Final local integration, release, protected-test, OpenSpec, harness, documentation, and receipt-identity certification passed.",
+      "blockers": []
+    },
+    "publication": {
+      "status": "COMPLETE",
+      "summary": "Commit a9f7d62229f997087a2b0b59419d77f722e12cbd pushed to origin/codex/kbd-uds-control-repair.",
+      "blockers": []
+    }
+  },
+  "changes": [
+    {
+      "id": "change-cpc-001-integration-contract",
+      "title": "Publish the open integration contract",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 5,
+      "tasks_done": 5,
+      "last_task_completed": "Publish site/docs/kbd/integration-contract.md and the CLAUDE.md pointer; run plugin and index drift checks",
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-cpc-002-skill-ffi-kbd-mobile-split",
+      "title": "Remove skill-ffi dependency on kbd-mobile",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 3,
+      "tasks_done": 3,
+      "last_task_completed": "Regenerate frb_generated.rs at flutter_rust_bridge =2.12.0 and run the FFI round-trip test target",
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-cpc-003-companion-workspace",
+      "title": "Companion workspace and substrate crate",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 6,
+      "tasks_done": 6,
+      "last_task_completed": "Record scaffold audit-gate listing and run cargo check + audit-all",
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-cpc-004-relocate-sovereign-sync",
+      "title": "Relocate sovereign-sync crates",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 6,
+      "tasks_done": 6,
+      "last_task_completed": "Run the Companion audit gate",
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-cpc-005-node-hosting",
+      "title": "Host the node in-process with headless preset",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 5,
+      "tasks_done": 5,
+      "last_task_completed": "Run the Companion audit gate",
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-cpc-006-discovery-and-pairing",
+      "title": "mDNS and Mainline lookup with pairing",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 5,
+      "tasks_done": 5,
+      "last_task_completed": "Run the Companion audit gate",
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-cpc-007-supervisor-and-health",
+      "title": "Supervisor and health aggregator",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 6,
+      "tasks_done": 6,
+      "last_task_completed": "Run the Companion audit gate",
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-cpc-008-sync-skills-plugin",
+      "title": "Companion sync skills plugin",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 3,
+      "tasks_done": 2,
+      "last_task_completed": "Run the Companion audit gate",
+      "next_task_pending": "Add the Companion installer step that registers the MCP stdio binary and skills per the declaration",
+      "blockers": []
+    },
+    {
+      "id": "change-cpc-012-pack-sync-skills-removal",
+      "title": "Remove sync skills from the pack",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 2,
+      "tasks_done": 2,
+      "last_task_completed": "Update .claude-plugin marketplace and plugin entries, config/codex-catalog.txt, rebuild the Codex mirror, and update docs/codex-plugin.md and CLAUDE.md",
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-cpc-009-pack-removal",
+      "title": "Remove relocated crates and daemon wiring",
+      "status": "IN_PROGRESS",
+      "implementation_status": "IN_PROGRESS",
+      "tasks_total": 3,
+      "tasks_done": 2,
+      "last_task_completed": "Re-derive and record the footprint; delete substrate/sovereign-sync, sovereign-client, kbd-mobile, storage-provider iroh_docs.rs and its feature; retire the four sovereign-sync OpenSpec main specs with a decision record; delete docs/SOVEREIGN_SYNC_TESTING.md; cut the estate-feature dependency in prometheus-exec/exec-remote",
+      "next_task_pending": "Update site/docs, docs/codex-plugin.md, and CLAUDE.md; regenerate plugin surfaces; run validate:codex and the footprint check",
+      "blockers": []
+    },
+    {
+      "id": "change-cpc-010-kbd-state-migration",
+      "title": "Migrate unmarked projections",
+      "status": "PENDING",
+      "implementation_status": "PENDING",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-cpc-011-integration-evidence",
+      "title": "Two-process integration evidence",
+      "status": "PENDING",
+      "implementation_status": "PENDING",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-cpc-013-pack-certification-without-companion",
+      "title": "Certify the pack without the Companion",
+      "status": "PENDING",
+      "implementation_status": "PENDING",
+      "tasks_total": 0,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": null,
+      "blockers": []
+    }
+  ],
+  "children": {},
+  "migrationStatus": null
+}

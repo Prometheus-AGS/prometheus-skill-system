@@ -111,5 +111,15 @@
         "misconceptions_absent": 1.0
       }
     }
-  ]
+  ],
+  "post_change_baseline": {
+    "change": "change-rah-008-learn-artifact-and-corpus-coherence",
+    "recorded_at": "2026-09-07",
+    "status": "blocked",
+    "reason": "ground truth still draft (24 of 24); rah-007 D-15 forbids a baseline against unreviewed labels; operator review pending",
+    "corpus_schema_after_change": "1.1.0 (key_points[] and misconceptions[] per source; harness normalizes 1.0.0 corpora via content-grounding-kb.sh --normalize)",
+    "regression_test": "grader-regression-test.sh OK — 24 items match baseline (results/ unchanged)",
+    "baseline_snapshot_status": "unchanged pre-change reference (generated_at 2026-07-16T22:00:00Z)",
+    "metric_movement": null
+  }
 }

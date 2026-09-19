@@ -1,0 +1,18 @@
+{
+  "changeId": "change-drt-011-phase-close-distribution-regen",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Run the distribution generator twice, prove byte-identical outputs (recorded hashes), and pass npm run check:distribution, npm run validate:codex, and npm run check:skills-index locally; record hashes, dates, and results in verification.md Evidence",
+      "done": true,
+      "doneAt": "2026-09-13T18:28:22Z",
+      "doneBy": "claude-code",
+      "files": [
+        "dist/plugins/"
+      ],
+      "verify": "npm run check:distribution && npm run validate:codex && npm run check:skills-index",
+      "notes": null
+    }
+  ]
+}

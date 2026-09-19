@@ -1,0 +1,88 @@
+{
+  "mode": "diff",
+  "verdict": "BLOCK",
+  "judge_model": "k3",
+  "producer_model": "claude-opus-5",
+  "isolation_mode": "rest-gateway:http://localhost:4000/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": "substrate/prometheus-research/src/job/daemon.rs",
+      "claim": "The new 831-line module is never wired into the crate: the diff contains no hunk adding `pub mod daemon;` to `src/job/mod.rs`, no `--daemon-job` dispatch in main, and no `spawn::spawn_job` it describes, while `health.rs` and `http_server/mod.rs` hunks call `crate::job::daemon::self_check()` \u2014 as presented the crate cannot compile (an undeclared file is not a module in Rust).",
+      "evidence": "daemon.rs doc header: \"`spawn::spawn_job` writes the job checkpoint and re-executes this binary with `--daemon-job`\"; health.rs hunk calls `crate::job::daemon::self_check()`; the diff touches neither `src/job/mod.rs` nor any main/spawn file.",
+      "suggested_fix": "Include the hunks adding `pub mod daemon;` to `src/job/mod.rs`, the `--daemon-job` arg handling in the binary entry point, and any `spawn.rs` changes, or demonstrate they already exist."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "substrate/prometheus-research/src/http_server/mod.rs",
+      "claim": "The hunk adds a route `.route(\"/api/v1/jobs/{id}/events\", post(sse::ingest_handler))` but no hunk in the diff adds `ingest_handler` to `sse.rs`; if it does not already exist this is a compile error, and if it does exist the new POST route's authorization (the RESEARCH_EVENT_TOKEN header check the daemon relies on) is entirely unreviewable.",
+      "evidence": "mod.rs hunk: `.route(\"/api/v1/jobs/{id}/events\", post(sse::ingest_handler))` with no corresponding `sse.rs` change in the packet; daemon.rs sends events with `x-research-event-token` but the validating side is absent from the diff.",
+      "suggested_fix": "Include the `sse::ingest_handler` implementation hunk showing token validation and 401/403 on mismatch."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "skills/research/deep-research/tests/installed-service-smoke.sh",
+      "claim": "The delivered test does not perform the core of task 5: it never installs the plist, never bootstraps under launchd, never starts a fixture job, and never asserts a non-null `harness_pid` \u2014 its own header states \"the live launchd service is never touched\".",
+      "evidence": "Acceptance criterion task 5: \"render and install the plist, bootstrap under launchd, start a fixture job, assert a non-null harness_pid\"; verification criterion: \"A job started against the launchd-installed service reaches a running harness with a non-null `harness_pid`\". The script only renders the plist into $TMP and curls /health on a manually spawned daemon.",
+      "suggested_fix": "Add a launchd leg (or record the gate BLOCKED with the reason per the change's own provenance rules) that bootstraps the rendered plist, starts a fixture job, and asserts `harness_pid` is non-null."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "scripts/install-binaries.sh",
+      "claim": "Task 4 (\"Republish the plugin generation so the installed driver matches the repo\") is checked `[x]` in the acceptance criteria, but the packet's own spec records the republish as BLOCKED and the installed driver as still the 1920-byte stub, and the diff contains no republished plugin artifact \u2014 the criterion is unsatisfied while being reported complete.",
+      "evidence": "Spec section \"Task 4 outcome: C-01 satisfied, the republish itself BLOCKED (pre-existing)\": \"the installed driver at ~/.claude/skills/deep-research/scripts/run-research.sh is still the 1920-byte stub... D-B is mitigated and made visible, not yet repaired.\" Tasks list shows `- [x] 4 Republish the plugin generation...`. The diff has no change under `.claude-plugin/` or any installed-generation surface.",
+      "suggested_fix": "Un-check task 4 and record it BLOCKED per the packet's own provenance enum, or land the republish; do not certify the change with the criterion marked complete."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "docs/research-agent-hardening-evidence.md",
+      "claim": "Two declared deliverables are absent from the diff: `docs/research-agent-hardening-evidence.md` (an explicit acceptance criterion: \"Both defects are recorded as repaired ... against the original findings\") and `site/docs/substrate/prometheus-research.md` (listed in Scope).",
+      "evidence": "Scope in acceptance criteria lists both files; verification criteria require the evidence-doc recording; neither path appears in the diff.",
+      "suggested_fix": "Add the evidence-doc hunk recording the D-A/D-B repair status (including D-B's blocked state) and the site docs update, or remove them from Scope with justification."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "scripts/install-binaries.sh",
+      "claim": "The diff removes the documented `--sharing` flag and the `sovereign-sync` build from the installer \u2014 a behavior regression outside the change's declared Scope, with no acceptance criterion covering it and `substrate/sovereign-sync` still present in the tree.",
+      "evidence": "Hunks removing `--sharing) SHARING=true`, `$SHARING && substrate_bins+=(sovereign-sync)`, the usage comment, and the \"Sharing only\" next-steps line; the change spec's Scope lists only the plist sed extension for this file; file tree retains `./substrate/sovereign-sync`.",
+      "suggested_fix": "Revert the `--sharing` removal, or move it to its own change with a criterion and a sweep for callers of `install-binaries.sh --sharing`."
+    },
+    {
+      "severity": "WARNING",
+      "file": "skills/research/deep-research/tests/installed-service-smoke.sh",
+      "line": 144,
+      "claim": "Section 3 rebinds the same port immediately after `kill \"$DPID\"` with no wait for the old listener to die, so the second daemon can fail with EADDRINUSE and flake the entire section.",
+      "evidence": "End of section 2: `kill \"$DPID\" 2>/dev/null; DPID=\"\"; sleep 1` \u2014 the sleep precedes the kill in the hunk ordering (`kill \"$DPID\" 2>/dev/null; DPID=\"\"; sleep 1` appears before section 3 but the kill is asynchronous; the process may not have exited or released the socket when section 3 spawns on the same `$PORT`).",
+      "suggested_fix": "After kill, `wait \"$DPID\" 2>/dev/null` or poll until the port refuses connections before starting the next daemon; or use a second port."
+    },
+    {
+      "severity": "WARNING",
+      "file": "skills/research/deep-research/tests/installed-service-smoke.sh",
+      "line": 78,
+      "claim": "The check \"the granted PATH resolves a harness (claude or codex)\" fails hard on any machine without a harness installed, contradicting the script's own stated policy that \"a gate that cannot run is BLOCKED (exit 2), never reported as a pass\" \u2014 environment absence should be a precondition, not a FAIL.",
+      "evidence": "The script exits 2 for missing python3/plist/stub/binary but treats missing claude/codex as a test failure; sections 1 and 3 both require a harness on the rendered PATH.",
+      "suggested_fix": "Probe for claude/codex on the rendered PATH up front and `exit 2` (BLOCKED) when absent, before running assertions that depend on one."
+    },
+    {
+      "severity": "WARNING",
+      "file": "substrate/prometheus-research/src/job/daemon.rs",
+      "line": 130,
+      "claim": "`self_check()` reports the harness without a size, but the requirement's scenario demands the daemon report \"both paths and sizes\" for the stale-driver case and task 3 says \"the resolved harness path and driver path with sizes\".",
+      "evidence": "daemon.rs: harness json is `{ \"status\", \"name\", \"path\" }` \u2014 no `size_bytes`; acceptance scenario: \"reports it as stale with both paths and sizes\".",
+      "suggested_fix": "Add `size_bytes` (from `std::fs::metadata`) to the harness entry, or narrow the criterion text to the driver only."
+    },
+    {
+      "severity": "WARNING",
+      "file": "acceptance_criteria",
+      "claim": "The verification section retains the retracted claim \"C-01 applies twice here. The plist edit forces a services-manifest regeneration ... (analysis D-11b)\", directly contradicting the same packet's task-2 correction that D-11b was wrong; following the verify text literally would demand a no-op manifest regeneration and mis-record the C-01 basis.",
+      "evidence": "Verification section: \"**C-01 applies twice here.** The plist edit forces a services-manifest regeneration\"; spec section \"Task 2 finding\": \"Analysis D-11b asserted that editing the research plist forces a shared/services.manifest.json regeneration under C-01. That was wrong.\"",
+      "suggested_fix": "Strike the stale paragraph from the verification section so the recorded evidence basis matches the settled D-11c correction."
+    }
+  ],
+  "sycophancy_screen": {
+    "reject_cap": 2,
+    "cap_overridden": false,
+    "cap_default": 2
+  }
+}

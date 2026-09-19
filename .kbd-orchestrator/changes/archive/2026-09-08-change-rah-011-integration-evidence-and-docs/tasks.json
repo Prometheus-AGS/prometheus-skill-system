@@ -1,0 +1,65 @@
+{
+  "changeId": "change-rah-011-integration-evidence-and-docs",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Run the shallow evidence query through the driver in a harness session; record package path, sidecar verdict, review findings, and check result in docs/research-agent-hardening-evidence.md",
+      "done": true,
+      "doneAt": "2026-09-08T06:38:48Z",
+      "doneBy": "claude-code",
+      "files": [
+        "docs/research-agent-hardening-evidence.md"
+      ],
+      "verify": "test -f docs/research-agent-hardening-evidence.md && grep -q 'Verification:' docs/research-agent-hardening-evidence.md",
+      "notes": null
+    },
+    {
+      "id": "2",
+      "title": "Run the same query through the daemon and record research_export output",
+      "done": true,
+      "doneAt": "2026-09-08T11:21:58Z",
+      "doneBy": "claude-code",
+      "files": [
+        "docs/research-agent-hardening-evidence.md"
+      ],
+      "verify": "grep -q 'research_export' docs/research-agent-hardening-evidence.md",
+      "notes": null
+    },
+    {
+      "id": "3",
+      "title": "Update site docs, SKILL.md versions, CHANGELOG.md, SKILLS.md; regenerate the skills index",
+      "done": true,
+      "doneAt": "2026-09-08T11:40:32Z",
+      "doneBy": "claude-code",
+      "files": [
+        "skills/research/deep-research/SKILL.md",
+        "skills/learn/feynman-loop/SKILL.md",
+        "skills/learn/learn-grade/SKILL.md",
+        "skills/learn/learn-retain/SKILL.md",
+        "skills/learn/learn-certify/SKILL.md",
+        "skills/learn/learn-practice/SKILL.md",
+        "site/docs/research/deep-research.md",
+        "site/docs/learn/feynman-loop.md",
+        "CHANGELOG.md",
+        "SKILLS.md",
+        "skills-index.json"
+      ],
+      "verify": "npm run generate:skills-index && npm run check:skills-index",
+      "notes": null
+    },
+    {
+      "id": "4",
+      "title": "Final local certification: every suite from changes 003 to 010 plus validate:strict, openspec validate, and the C-01 reconciliation checks (check:distribution, check-harness-adapters.js, check:services-manifest); record results",
+      "done": true,
+      "doneAt": "2026-09-08T11:59:36Z",
+      "doneBy": "claude-code",
+      "files": [
+        "docs/research-agent-hardening-evidence.md"
+      ],
+      "verify": "( unset KBD_PRODUCER_MODEL; bash skills/research/deep-research/tests/driver-contract.sh ) && bash skills/research/deep-research/tests/scoring-graph.sh && bash skills/learn/feynman-loop/tests/learn-coherence.sh && ( export KBD_PRODUCER_MODEL=\"${KBD_PRODUCER_MODEL:-claude-opus-5}\"; bash skills/process/adversarial-review/tests/run-fixture-suite.sh ) && npm run validate:strict && npm run check:skills-index && openspec validate --specs && npm run check:distribution && node scripts/check-harness-adapters.js && npm run check:services-manifest",
+      "notes": null,
+      "verify_note": "Corrected at archive time. The original chained all four suites in one shell, which cannot pass: driver-contract asserts the no-producer refusal path and requires KBD_PRODUCER_MODEL unset, while the adversarial fixture suite Group A requires it set to prove judge != producer. Each is now run in a subshell with the environment it specifies. Every gate passes individually; see docs/research-agent-hardening-evidence.md section 3."
+    }
+  ]
+}

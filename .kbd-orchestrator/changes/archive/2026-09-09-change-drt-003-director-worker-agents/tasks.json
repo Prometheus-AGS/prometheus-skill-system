@@ -1,0 +1,77 @@
+{
+  "changeId": "change-drt-003-director-worker-agents",
+  "schemaVersion": "1.0.0",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Author agents/research-director.md: tools Read/Grep/Glob/Write only, cycle loop, brief dispatch, dossier reading, coverage+gap ledger append, never searches",
+      "done": true,
+      "doneAt": "2026-09-09T14:16:12Z",
+      "doneBy": "claude-code",
+      "files": [
+        "skills/research/deep-research/agents/research-director.md"
+      ],
+      "verify": "grep -q '^tools:' skills/research/deep-research/agents/research-director.md && ! grep -E '^tools:.*(WebSearch|WebFetch)' skills/research/deep-research/agents/research-director.md",
+      "notes": null
+    },
+    {
+      "id": "2",
+      "title": "Author agents/research-worker.md: tools WebSearch/WebFetch/Read/Write, writes only under threads/<tid>/, reflection before every search after the first, stop conditions, dossier rule written from the mechanism not from Onyx prose",
+      "done": true,
+      "doneAt": "2026-09-09T14:17:29Z",
+      "doneBy": "claude-code",
+      "files": [
+        "skills/research/deep-research/agents/research-worker.md"
+      ],
+      "verify": "grep -E '^tools:.*WebSearch' skills/research/deep-research/agents/research-worker.md && grep -q 'reflection' skills/research/deep-research/agents/research-worker.md",
+      "notes": null
+    },
+    {
+      "id": "3",
+      "title": "Wire stage 02 in run-research.sh to invoke BOTH the scheduler and the merge (never one without the other); document the two-level rule and why a third level is refused in SKILL.md",
+      "done": true,
+      "doneAt": "2026-09-09T14:20:26Z",
+      "doneBy": "claude-code",
+      "files": [
+        "skills/research/deep-research/scripts/run-research.sh",
+        "skills/research/deep-research/SKILL.md"
+      ],
+      "verify": "grep -q 'threads run' skills/research/deep-research/scripts/run-research.sh && grep -q 'merge-threads' skills/research/deep-research/scripts/run-research.sh",
+      "notes": null
+    },
+    {
+      "id": "4",
+      "title": "Regenerate the skills index for the SKILL.md edit and run the driver contract suite unchanged (C-01)",
+      "done": true,
+      "doneAt": "2026-09-09T14:23:14Z",
+      "doneBy": "claude-code",
+      "files": [
+        "SKILLS.md"
+      ],
+      "verify": "test -f skills/research/deep-research/agents/research-director.md && test -f skills/research/deep-research/agents/research-worker.md && npm run check:skills-index",
+      "notes": null
+    },
+    {
+      "id": "5",
+      "title": "Run the integration gate: driver contract suite plus strict validation of the edited skill",
+      "done": true,
+      "doneAt": "2026-09-09T14:23:59Z",
+      "doneBy": "claude-code",
+      "files": [],
+      "verify": "test -f skills/research/deep-research/agents/research-director.md && test -f skills/research/deep-research/agents/research-worker.md && grep -q 'threads run' skills/research/deep-research/scripts/run-research.sh && test -z \"$(pgrep -x cargo)\" && ( unset KBD_PRODUCER_MODEL; bash skills/research/deep-research/tests/driver-contract.sh ) && npm run validate:strict skills/research/deep-research",
+      "notes": null
+    },
+    {
+      "id": "6",
+      "title": "Regenerate the distribution after editing run-research.sh and pass check:distribution and validate:codex in this change (C-01; a desynced driver is defect D-B)",
+      "done": true,
+      "doneAt": "2026-09-09T14:25:41Z",
+      "doneBy": "claude-code",
+      "files": [
+        "dist/"
+      ],
+      "verify": "test -f skills/research/deep-research/agents/research-director.md && npm run check:distribution && npm run validate:codex",
+      "notes": null
+    }
+  ]
+}

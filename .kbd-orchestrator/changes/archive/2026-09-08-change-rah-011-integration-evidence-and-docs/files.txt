@@ -1,0 +1,17 @@
+docs/research-agent-hardening-evidence.md
+site/docs/research/deep-research.md
+site/docs/substrate/prometheus-research.md
+site/docs/learn/feynman-loop.md
+site/sidebars.js
+skills/research/deep-research/SKILL.md
+skills/learn/feynman-loop/SKILL.md
+skills/learn/learn-grade/SKILL.md
+skills/learn/learn-retain/SKILL.md
+skills/learn/learn-certify/SKILL.md
+skills/learn/learn-practice/SKILL.md
+skills/learn/feynman-loop/tests/learn-coherence.sh
+skills/learn/feynman-loop/tests/fixtures/kb-local/vectors.md
+skills/learn/feynman-loop/tests/fixtures/kb-local/matrices.txt
+skills/learn/feynman-loop/tests/fixtures/kb-local/authored-corpus.json
+CHANGELOG.md
+SKILLS.md

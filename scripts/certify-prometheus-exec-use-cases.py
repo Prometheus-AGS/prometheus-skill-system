@@ -335,7 +335,7 @@ def certify_tier_w(binary: Path, plugin_root: Path, component: Path, root: Path)
             "--exclude",
             "control.kbd-rollout",
             "--exclude",
-            "service:sovereign-sync",
+            "remote-queue",
             "--format",
             "json",
         ]

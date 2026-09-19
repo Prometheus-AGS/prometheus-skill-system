@@ -240,7 +240,6 @@ async fn build_report(options: &DoctorOptions) -> DoctorReport {
     );
     run_check!("state.evolver", "state", check_evolver_state());
     run_check!("learning.trace-store", "learning", check_trace_store());
-    scope_repair_actions(options, &mut checks);
 
     let failed = checks
         .iter()
@@ -304,23 +303,6 @@ fn check_selected(options: &DoctorOptions, id: &str, group: &str) -> bool {
 fn service_excluded(options: &DoctorOptions, service: &str) -> bool {
     let scope = format!("service:{service}");
     options.exclude.iter().any(|excluded| excluded == &scope)
-}
-
-fn scope_repair_actions(options: &DoctorOptions, checks: &mut [CheckResult]) {
-    if !service_excluded(options, "sovereign-sync") {
-        return;
-    }
-    for action in checks
-        .iter_mut()
-        .flat_map(|check| check.actions.iter_mut())
-        .filter(|action| action.id.starts_with("services."))
-    {
-        if let Some(command_hint) = action.command_hint.as_mut() {
-            if !command_hint.contains("--exclude sovereign-sync") {
-                command_hint.push_str(" --exclude sovereign-sync");
-            }
-        }
-    }
 }
 
 fn render_human(report: &DoctorReport, options: &DoctorOptions) {
@@ -574,9 +556,6 @@ fn run_safe_action(options: &DoctorOptions, action: &RepairAction) -> Result<()>
         }
         "services.install-mcp-services" => {
             command.arg("scripts/install-mcp-services.sh");
-            if service_excluded(options, "sovereign-sync") {
-                command.args(["--exclude", "sovereign-sync"]);
-            }
         }
         "mcp.configure-all-tools" => {
             command.arg("scripts/configure-mcp-all-tools.sh");
@@ -654,13 +633,7 @@ fn write_refresh_manifest(
             "shared/launchagents/ai.prometheus.exec.plist",
         ]),
         catalog_hash: hash_file("config/codex-catalog.txt"),
-        mcp_health_snapshot: command_stdout(&[
-            "bash",
-            "scripts/check-mcp-health.sh",
-            "--json",
-            "--exclude",
-            "sovereign-sync",
-        ]),
+        mcp_health_snapshot: command_stdout(&["bash", "scripts/check-mcp-health.sh", "--json"]),
         surreal_memory_readiness: command_stdout(&["curl", "-fsS", "http://127.0.0.1:23001/ready"]),
         plugin_generation: command_stdout(&[
             "node",
@@ -690,7 +663,13 @@ fn collect_execution_status(home: &Path) -> Option<String> {
         .arg(home.join(".prometheus/exec/identity.json"))
         .args(["--plugin-root"])
         .arg(home.join(".prometheus/plugins/prometheus-skill-pack"))
-        .args(["--exclude", "service:sovereign-sync", "--format", "json"])
+        // "remote-queue" (not "service:sovereign-sync" — that scope was retired
+        // in prometheus-exec's own doctor.rs, change-cpc-009 task 1; sovereign-sync
+        // never lived in this repo's execution engine). This manifest-collection
+        // context has no remote-queue transport configured, so the remote-queue
+        // check would otherwise fail on a condition this snapshot isn't set up
+        // to satisfy — unrelated to what state the queue check itself reports.
+        .args(["--exclude", "remote-queue", "--format", "json"])
         .output()
         .ok()?;
     (!output.stdout.is_empty()).then(|| String::from_utf8_lossy(&output.stdout).into_owned())
@@ -799,7 +778,7 @@ fn command_stdout(command: &[&str]) -> Option<String> {
 /// and the service is simply gone while the install still reports success.
 ///
 /// This was observed on 2026-07-28 (see the comment in
-/// ai.prometheus.sovereign-sync.plist) and is checked here so the fix cannot
+/// ai.prometheus.surface-bridge.plist) and is checked here so the fix cannot
 /// regress the next time a plist is added by copy-paste.
 fn check_plist_hardening() -> CheckResult {
     let dir = Path::new("shared/launchagents");
@@ -880,7 +859,7 @@ fn check_plist_hardening() -> CheckResult {
                 id: "manual.review-hooks".into(),
                 description:
                     "Add <key>ThrottleInterval</key><integer>10</integer> to each listed plist, \
-                     mirroring ai.prometheus.sovereign-sync.plist."
+                     mirroring ai.prometheus.surface-bridge.plist."
                         .into(),
                 safe: false,
                 reversible: true,
@@ -1224,123 +1203,27 @@ async fn check_judge_gateway() -> CheckResult {
     }
 }
 
+/// The Companion is an optional extension (D-02): the pack never installs it,
+/// never assumes a specific service label for it, and stays silent — never a
+/// warning — when its control endpoint is not discovered. This mirrors
+/// `contract::report`'s own invariant exactly (see that module's header) and
+/// deliberately shares its discovery order via `ControlTransport`, rather than
+/// checking for a launchd/systemd service this repository does not install.
 async fn check_kbd_control_plane() -> CheckResult {
-    let explicitly_enabled = std::env::var("PROMETHEUS_KBD_CONTROL_PLANE")
-        .is_ok_and(|value| matches!(value.as_str(), "1" | "true" | "yes"));
-    let service_active = if cfg!(target_os = "macos") {
-        let uid = command_stdout(&["id", "-u"]).unwrap_or_else(|| "0".into());
-        [
-            "ai.prometheus.sovereign-sync",
-            "com.prometheusags.sovereign-sync",
-        ]
-        .iter()
-        .any(|label| {
-            Command::new("launchctl")
-                .args(["print", &format!("gui/{uid}/{label}")])
-                .stdout(Stdio::null())
-                .stderr(Stdio::null())
-                .status()
-                .is_ok_and(|status| status.success())
-        })
-    } else if cfg!(target_os = "linux") {
-        [
-            "ai.prometheus.sovereign-sync.service",
-            "com.prometheusags.sovereign-sync.service",
-        ]
-        .iter()
-        .any(|unit| {
-            Command::new("systemctl")
-                .args(["--user", "is-active", unit])
-                .stdout(Stdio::null())
-                .stderr(Stdio::null())
-                .status()
-                .is_ok_and(|status| status.success())
-        })
-    } else {
-        false
-    };
-    let intentionally_disabled = if cfg!(target_os = "macos") {
-        let uid = command_stdout(&["id", "-u"]).unwrap_or_else(|| "0".into());
-        let home = dirs::home_dir().unwrap_or_default();
-        let disabled_registry = Command::new("launchctl")
-            .args(["print-disabled", &format!("gui/{uid}")])
-            .output()
-            .ok()
-            .filter(|output| output.status.success())
-            .map(|output| String::from_utf8_lossy(&output.stdout).into_owned())
-            .unwrap_or_default();
-        [
-            "ai.prometheus.sovereign-sync",
-            "com.prometheusags.sovereign-sync",
-        ]
-        .iter()
-        .all(|label| {
-            let installed = home
-                .join("Library/LaunchAgents")
-                .join(format!("{label}.plist"))
-                .is_file();
-            !installed || disabled_registry.contains(&format!("\"{label}\" => disabled"))
-        })
-    } else if cfg!(target_os = "linux") {
-        [
-            "ai.prometheus.sovereign-sync.service",
-            "com.prometheusags.sovereign-sync.service",
-        ]
-        .iter()
-        .all(|unit| {
-            let installed = Command::new("systemctl")
-                .args(["--user", "cat", unit])
-                .stdout(Stdio::null())
-                .stderr(Stdio::null())
-                .status()
-                .is_ok_and(|status| status.success());
-            if !installed {
-                return true;
-            }
-            let failed = Command::new("systemctl")
-                .args(["--user", "is-failed", "--quiet", unit])
-                .stdout(Stdio::null())
-                .stderr(Stdio::null())
-                .status()
-                .is_ok_and(|status| status.success());
-            let enabled = Command::new("systemctl")
-                .args(["--user", "is-enabled", unit])
-                .output()
-                .ok()
-                .map(|output| String::from_utf8_lossy(&output.stdout).trim().to_string())
-                .unwrap_or_default();
-            !failed && matches!(enabled.as_str(), "disabled" | "masked" | "not-found")
-        })
-    } else {
-        true
-    };
-    if !explicitly_enabled && !service_active && intentionally_disabled {
+    let contract = super::contract::report(".");
+    if contract.endpoint.is_none() {
         return CheckResult {
             id: "control.kbd-runtime".into(),
             group: "control".into(),
-            label: "Optional KBD sharing service (sovereign-sync)".into(),
+            label: "Optional control-plane extension".into(),
             severity: Severity::Green,
             status: CheckStatus::Skip,
-            summary: "disabled by default; local KBD runtime is authoritative".into(),
+            summary: "no control endpoint discovered; local KBD runtime is authoritative".into(),
             details: vec![
                 "Ordinary KBD commands read and commit the signed local journal directly.".into(),
-                "Enable sovereign-sync only for cross-machine sharing with `prometheus setup --full --sharing`.".into(),
-            ],
-            optional: true,
-            actions: vec![],
-        };
-    }
-    if !explicitly_enabled && !service_active {
-        return CheckResult {
-            id: "control.kbd-runtime".into(),
-            group: "control".into(),
-            label: "Optional KBD sharing service (sovereign-sync)".into(),
-            severity: Severity::Yellow,
-            status: CheckStatus::Warn,
-            summary: "sharing service is failed or enabled but unavailable".into(),
-            details: vec![
-                "Ordinary KBD remains available through the signed local runtime.".into(),
-                "Disable the service for daemon-free operation, or repair it only when cross-machine sharing is intended.".into(),
+                "A control-plane extension (integration contract seam 1) is optional; \
+                 the pack works fully without one."
+                    .into(),
             ],
             optional: true,
             actions: vec![],
@@ -1350,7 +1233,7 @@ async fn check_kbd_control_plane() -> CheckResult {
         return CheckResult {
             id: "control.kbd-runtime".into(),
             group: "control".into(),
-            label: "KBD runtime authority (hosted by sovereign-sync)".into(),
+            label: "KBD runtime authority (via discovered control endpoint)".into(),
             severity: Severity::Yellow,
             status: CheckStatus::Skip,
             summary: "project identity is not initialized".into(),
@@ -1422,7 +1305,7 @@ async fn check_kbd_control_plane() -> CheckResult {
             CheckResult {
                 id: "control.kbd-runtime".into(),
                 group: "control".into(),
-                label: "KBD runtime authority (hosted by sovereign-sync)".into(),
+                label: "KBD runtime authority (via discovered control endpoint)".into(),
                 severity: if healthy {
                     Severity::Green
                 } else {
@@ -1493,19 +1376,22 @@ async fn check_kbd_control_plane() -> CheckResult {
     }
 }
 
+/// A control endpoint WAS discovered (`contract.endpoint.is_some()` — the
+/// caller already returned early otherwise) but connecting to it failed. That
+/// is a real problem worth a warning: something advertised itself as present
+/// and is not answering, which is different from nothing being configured.
 fn kbd_control_unreachable(error: anyhow::Error) -> CheckResult {
     CheckResult {
         id: "control.kbd-runtime".into(),
         group: "control".into(),
-        label: "KBD runtime authority (hosted by sovereign-sync)".into(),
+        label: "KBD runtime authority (via discovered control endpoint)".into(),
         severity: Severity::Yellow,
         status: CheckStatus::Warn,
-        summary: "KBD authority diagnostics are temporarily unreachable through sovereign-sync"
-            .into(),
+        summary: "a control endpoint was discovered but is not answering".into(),
         details: vec![
             error.to_string(),
             "`kbd-runtime` is an embedded library, not a standalone service.".into(),
-            "Check the supervised `ai.prometheus.sovereign-sync` service and its private Unix socket."
+            "Check the extension providing the control endpoint (see `prometheus contract show`)."
                 .into(),
             "No direct compatibility-file fallback was used.".into(),
         ],
@@ -1518,11 +1404,11 @@ fn kbd_control_response_failure(status: &str, body: &str) -> CheckResult {
     CheckResult {
         id: "control.kbd-runtime".into(),
         group: "control".into(),
-        label: "KBD runtime authority (hosted by sovereign-sync)".into(),
+        label: "KBD runtime authority (via discovered control endpoint)".into(),
         severity: Severity::Yellow,
         status: CheckStatus::Warn,
         summary: format!(
-            "sovereign-sync is reachable but KBD authority diagnostics returned {status}"
+            "the discovered control endpoint answered, but KBD authority diagnostics returned {status}"
         ),
         details: vec![
             body.into(),
@@ -1538,10 +1424,12 @@ fn kbd_control_invalid_response(error: anyhow::Error) -> CheckResult {
     CheckResult {
         id: "control.kbd-runtime".into(),
         group: "control".into(),
-        label: "KBD runtime authority (hosted by sovereign-sync)".into(),
+        label: "KBD runtime authority (via discovered control endpoint)".into(),
         severity: Severity::Yellow,
         status: CheckStatus::Warn,
-        summary: "sovereign-sync returned an invalid KBD authority diagnostics response".into(),
+        summary:
+            "the discovered control endpoint returned an invalid KBD authority diagnostics response"
+                .into(),
         details: vec![error.to_string()],
         optional: true,
         actions: vec![],
@@ -2286,7 +2174,7 @@ fn check_execution_runtime(options: &DoctorOptions) -> CheckResult {
         for exclusion in &options.exclude {
             command.args(["--exclude", exclusion]);
         }
-        if remote_queue.is_dir() && !service_excluded(options, "sovereign-sync") {
+        if remote_queue.is_dir() && !service_excluded(options, "remote-queue") {
             command.args(["--remote-queue"]).arg(&remote_queue);
         }
         match command.output() {
@@ -2814,11 +2702,12 @@ mod kbd_control_tests {
     use super::{kbd_control_response_failure, kbd_control_unreachable};
 
     #[test]
-    fn unreachable_diagnostics_name_sovereign_sync_as_the_runtime_host() {
+    fn unreachable_diagnostics_name_the_discovered_endpoint_not_a_specific_service() {
         let result = kbd_control_unreachable(anyhow::anyhow!("socket unavailable"));
 
-        assert!(result.label.contains("hosted by sovereign-sync"));
-        assert!(result.summary.contains("through sovereign-sync"));
+        assert!(result.label.contains("discovered control endpoint"));
+        assert!(!result.label.to_lowercase().contains("sovereign"));
+        assert!(result.summary.contains("discovered but is not answering"));
         assert!(result
             .details
             .iter()
@@ -2829,8 +2718,10 @@ mod kbd_control_tests {
     fn reachable_http_failure_is_not_reported_as_transport_unreachable() {
         let result = kbd_control_response_failure("503 Service Unavailable", "initializing");
 
-        assert!(result.summary.contains("sovereign-sync is reachable"));
+        assert!(result
+            .summary
+            .contains("discovered control endpoint answered"));
         assert!(result.summary.contains("503 Service Unavailable"));
-        assert!(!result.summary.contains("temporarily unreachable"));
+        assert!(!result.summary.contains("is not answering"));
     }
 }

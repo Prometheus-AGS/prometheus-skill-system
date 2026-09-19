@@ -31,8 +31,10 @@ depth: {{depth}}
 
 ## Evidence Table
 
-| Claim | Source | Credibility | Confidence |
-|-------|--------|-------------|------------|
+Labels: `verified` (source fetched and supports the exact statement), `unverified` (cited, not checked), `blocked` (check attempted, could not complete), `inferred` (the report's own inference). Critical claims are marked with `*`.
+
+| Claim | Label | Source | Credibility | Confidence |
+|-------|-------|--------|-------------|------------|
 {{evidence_table_rows}}
 
 ---

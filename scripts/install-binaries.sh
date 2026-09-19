@@ -6,7 +6,6 @@
 # Usage:
 #   bash scripts/install-binaries.sh
 #   bash scripts/install-binaries.sh --dry-run
-#   bash scripts/install-binaries.sh --sharing   # also build the optional sync daemon
 
 set -euo pipefail
 
@@ -14,12 +13,10 @@ REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 BIN_DIR="${HOME}/.local/bin"
 mkdir -p "${BIN_DIR}"
 DRY_RUN=false
-SHARING=false
 
 while [ "$#" -gt 0 ]; do
     case "$1" in
         --dry-run) DRY_RUN=true; shift ;;
-        --sharing) SHARING=true; shift ;;
         --help|-h)
             sed -n '1,12p' "$0" | sed 's/^# \{0,1\}//'
             exit 0
@@ -115,7 +112,6 @@ fi
 
 # ── 4. Learning substrate binaries ───────────────────────────────────────────
 substrate_bins=(learner-model surface-bridge)
-$SHARING && substrate_bins+=(sovereign-sync)
 for substrate_bin in "${substrate_bins[@]}"; do
     substrate_manifest="${REPO_ROOT}/substrate/${substrate_bin}/Cargo.toml"
     if [ ! -f "$substrate_manifest" ]; then
@@ -583,7 +579,22 @@ if [ -f "${REPO_ROOT}/substrate/prometheus-research/Cargo.toml" ]; then
             PLIST_SRC="${REPO_ROOT}/substrate/prometheus-research/com.prometheus.research.plist"
             PLIST_DST="${HOME}/Library/LaunchAgents/com.prometheus.research.plist"
             mkdir -p "${HOME}/Library/LaunchAgents"
-            sed "s|__HOME__|${HOME}|g" "${PLIST_SRC}" > "${PLIST_DST}"
+            # The daemon spawns a headless harness child, so it needs a PATH that
+            # can resolve `claude` or `codex`. launchd grants a service only what
+            # its plist declares: substituting __HOME__ alone left PATH unset and
+            # every research_start blocked (defect D-A). Same PATH composition the
+            # sibling services use in scripts/install-mcp-services.sh.
+            RESEARCH_PATH="/usr/local/bin:/usr/local/sbin:/opt/homebrew/bin:/opt/homebrew/sbin:${HOME}/.cargo/bin:${HOME}/.local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
+            sed -e "s|__HOME__|${HOME}|g" \
+                -e "s|__PROMETHEUS_HOME__|${HOME}|g" \
+                -e "s|__PROMETHEUS_USER__|$(id -un)|g" \
+                -e "s|__PROMETHEUS_PATH__|${RESEARCH_PATH}|g" \
+                "${PLIST_SRC}" > "${PLIST_DST}"
+            # Fail loudly rather than bootstrapping a plist that still carries a
+            # placeholder — an unsubstituted PATH is exactly defect D-A again.
+            if grep -q '__PROMETHEUS_\|__HOME__' "${PLIST_DST}"; then
+                fail "prometheus-research plist still has unsubstituted placeholders: $(grep -o '__[A-Z_]*__' "${PLIST_DST}" | sort -u | tr '\n' ' ')"
+            fi
             launchctl bootout "gui/$(id -u)" "${PLIST_DST}" 2>/dev/null || true
             launchctl bootstrap "gui/$(id -u)" "${PLIST_DST}"
             ok "prometheus-research launchd service registered"
@@ -599,6 +610,6 @@ fi
 
 echo ""
 echo "✨ All binaries installed to ${BIN_DIR}"
-echo "   Next: bash scripts/install-mcp-services.sh   # install local daemons; control plane stays disabled"
-echo "   Sharing only: bash scripts/install-binaries.sh --sharing && bash scripts/install-mcp-services.sh --sharing"
+echo "   Next: bash scripts/install-mcp-services.sh   # install managed local services"
+echo "   Control-plane extensions are installed by their owning products."
 echo "   Then: prometheus setup --check               # verify full system health"

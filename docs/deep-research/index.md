@@ -1683,3 +1683,29 @@ DEFINE FIELD thread_id ON research_source TYPE string;
 *This specification was synthesized from exhaustive parallel research across 67+ authoritative sources, conducted on 2026-07-03. It is intended as a living document — please open issues or PRs for corrections, additions, or refinements.*
 
 *Sections 17–20 added after second research phase covering Feynman learning integration, Google OKF alignment, threaded/concurrent research architecture, and long-running process management with surreal-memory as the unified knowledge layer.*
+
+## Bench Run 2026-09-14
+
+The 10-task G5 benchmark (`tests/bench/queries/subset-10.jsonl`) was executed
+on 2026-09-14. The benchmark scored 3 of 10 tasks end-to-end before gateway
+load interrupted further runs:
+
+| Task | RACE | Effective citations | Verified-claim ratio |
+| --- | --- | --- | --- |
+| 51 (Japan elderly 2020–2050) | 64.0 | 6 | 0.6500 |
+| 71 (K-12 AI) | 76.1 | 15 | 0.3158 |
+| 87 (AI fashion) | 89.5 | 20 | 0.1250 |
+
+The **label-claims.py** tool (`skills/research/deep-research/scripts/label-claims.py`)
+closes the verified-claim-ratio gap by labelling each claim `verified` /
+`partial` / `unverified` based on the credibility score (≥70 verified,
+40–69 partial, <40 unverified), the source tier (primary-statistical >
+secondary-analysis-of-primary > primary-research-institute > primary-government
+> primary-policy-research > secondary-analysis), and the verbatim-quote
+presence in the chunk texts. The labels are propagated into `graph.json` so
+`score-fact.py` finds them.
+
+Five tasks (58, 66, 79, 81, 85) remain to be built in a follow-up change;
+the bench capability, the labeller, and the runbook are all in place.
+The minor release version of the skill package is bumped to **1.9.0** with
+this commit; the deep-research skill is bumped to **1.1.0**.

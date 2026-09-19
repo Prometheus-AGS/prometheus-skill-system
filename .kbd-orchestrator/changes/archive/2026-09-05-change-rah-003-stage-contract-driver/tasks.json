@@ -1,0 +1,75 @@
+{
+  "changeId": "change-rah-003-stage-contract-driver",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Write references/stage-contracts.md and shared/scripts/lib/slug.sh; make content-grounding-kb.sh source the shared slug helper",
+      "done": true,
+      "doneAt": "2026-09-05T15:49:23Z",
+      "doneBy": "claude-code",
+      "files": [
+        "skills/research/deep-research/references/stage-contracts.md",
+        "shared/scripts/lib/slug.sh",
+        "shared/scripts/content-grounding-kb.sh"
+      ],
+      "verify": "test -f shared/scripts/lib/slug.sh && grep -q 'slug.sh' shared/scripts/content-grounding-kb.sh",
+      "notes": null
+    },
+    {
+      "id": "2",
+      "title": "Rewrite run-research.sh: slug, package dir, plan.md ledger, RESEARCH_STAGE_RUNNER or checkpoint mode, per-stage artifact validation, all four hooks at their defined points, checkpoint, --resume, --check-tools, --scale, stage 06 gated on stage 05",
+      "done": true,
+      "doneAt": "2026-09-05T17:39:11Z",
+      "doneBy": "claude-code",
+      "files": [
+        "skills/research/deep-research/scripts/run-research.sh",
+        "skills/research/deep-research/templates/research-plan.md",
+        "skills/research/deep-research/hooks/post-stage.sh",
+        "skills/research/deep-research/hooks/pre-research.sh",
+        "skills/research/deep-research/hooks/on-contradiction.sh",
+        "skills/research/deep-research/hooks/post-export.sh"
+      ],
+      "verify": "bash -n skills/research/deep-research/scripts/run-research.sh && for h in pre-research post-stage on-contradiction post-export; do grep -q \"fire_hook $h\" skills/research/deep-research/scripts/run-research.sh || exit 1; done && bash skills/research/deep-research/scripts/run-research.sh --check-tools >/dev/null",
+      "notes": "verify rewritten: the driver invokes hooks through fire_hook <name>, not by literal hooks/<name>.sh paths; the grep now checks the four fire_hook call sites, which is the wiring the task requires"
+    },
+    {
+      "id": "3",
+      "title": "Write write-provenance.sh and wire it into the driver's exit trap",
+      "done": true,
+      "doneAt": "2026-09-05T17:39:35Z",
+      "doneBy": "claude-code",
+      "files": [
+        "skills/research/deep-research/scripts/write-provenance.sh",
+        "skills/research/deep-research/scripts/run-research.sh"
+      ],
+      "verify": "grep -q 'write-provenance.sh' skills/research/deep-research/scripts/run-research.sh && grep -q 'trap' skills/research/deep-research/scripts/run-research.sh",
+      "notes": null
+    },
+    {
+      "id": "4",
+      "title": "Write tests/driver-contract.sh with the fixture stage runner: full run, resume from 04, failing 05 gives BLOCKED sidecar, direct scale runs six stages, invalid 05 blocks 06, hooks-fired asserts all four hook markers in order",
+      "done": true,
+      "doneAt": "2026-09-05T17:44:44Z",
+      "doneBy": "claude-code",
+      "files": [
+        "skills/research/deep-research/tests/driver-contract.sh",
+        "skills/research/deep-research/tests/fixtures/stage-runner.sh"
+      ],
+      "verify": "bash skills/research/deep-research/tests/driver-contract.sh",
+      "notes": null
+    },
+    {
+      "id": "5",
+      "title": "Add driver requirements to the OpenSpec capability and validate",
+      "done": true,
+      "doneAt": "2026-09-05T20:47:11Z",
+      "doneBy": "claude-code",
+      "files": [
+        "openspec/specs/research-pipeline-execution/spec.md"
+      ],
+      "verify": "openspec validate --specs",
+      "notes": null
+    }
+  ]
+}

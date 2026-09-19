@@ -26,9 +26,7 @@ impl Default for ResearchConfig {
                 surface_bridge_url: "http://127.0.0.1:7890".to_string(),
             },
             jobs: JobsConfig {
-                job_dir: dirs_next::home_dir()
-                    .unwrap_or_else(|| PathBuf::from("."))
-                    .join(".research-jobs"),
+                job_dir: crate::job::checkpoint::output_root(),
             },
         }
     }

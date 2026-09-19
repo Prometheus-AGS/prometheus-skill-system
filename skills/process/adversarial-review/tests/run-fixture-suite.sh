@@ -11,8 +11,9 @@
 #   A  live judge — flawed → BLOCK + verified-distinct; clean → PASS
 #   B  fail-closed — each creator with KBD_PRODUCER_MODEL unset → exit 2
 #   C  retry bound — repeated CRITICALs stop at the cap for both creators
+#   D  research target — the report packet carries report, sidecar, plan; refuses thin packages
 #
-# Groups B and C make NO judge calls; only Group A does. See --help for the
+# Groups B, C, and D make NO judge calls; only Group A does. See --help for the
 # judge-call ceiling and why this suite is on-demand rather than per-commit.
 #
 # Exit: 0 all assertions held · 1 an assertion failed · 2 setup/preconditions
@@ -30,14 +31,14 @@ trap 'rm -rf "$WORK"' EXIT
 # `$GROUPS` expanded to the first GID ("20"). The suite then matched no group,
 # ran zero assertions, and reported "the gate discriminates" — a false green in
 # the very tool whose job is to catch false greens.
-RUN_GROUPS="ABC"
+RUN_GROUPS="ABCD"
 while [ $# -gt 0 ]; do
   case "$1" in
-    --groups) RUN_GROUPS="${2:-ABC}"; shift 2 ;;
+    --groups) RUN_GROUPS="${2:-ABCD}"; shift 2 ;;
     --help|-h)
       sed -n '2,20p' "$0" | sed 's/^# \{0,1\}//'
       exit 0 ;;
-    *) echo "usage: $0 [--groups ABC]" >&2; exit 2 ;;
+    *) echo "usage: $0 [--groups ABCD]" >&2; exit 2 ;;
   esac
 done
 
@@ -324,9 +325,29 @@ JSON
   fi
 }
 
+# ─────────────────────────────────────────────────────────────────────────────
+# Group D — the research packet target (change-rah-006). No judge calls: the
+# assertions are about what the packet carries and refuses, not about a verdict.
+# ─────────────────────────────────────────────────────────────────────────────
+run_group_d() {
+  echo ""
+  echo "── Group D: does the research target pack what a report judge needs? (no judge calls)"
+  if [ -f "$HERE/test-research-target.sh" ]; then
+    if bash "$HERE/test-research-target.sh" > "$WORK/research-target.log" 2>&1; then
+      ok "test-research-target.sh: $(tail -1 "$WORK/research-target.log" | tr -d '=' | sed 's/^ *//')"
+    else
+      bad "test-research-target.sh failed:"
+      sed 's/^/     /' "$WORK/research-target.log"
+    fi
+  else
+    bad "test-research-target.sh not found"
+  fi
+}
+
 case "$RUN_GROUPS" in *A*) run_group_a ;; esac
 case "$RUN_GROUPS" in *B*) run_group_b ;; esac
 case "$RUN_GROUPS" in *C*) run_group_c ;; esac
+case "$RUN_GROUPS" in *D*) run_group_d ;; esac
 
 echo ""
 echo "=== FIXTURE SUITE ==="
@@ -339,7 +360,7 @@ echo ""
 # the GROUPS collision above hid itself. Refuse to claim a verdict we did not earn.
 if [ "$((PASS + FAIL))" -eq 0 ]; then
   echo "  ❌ NO ASSERTIONS RAN — nothing was proven"
-  echo "     Check --groups (valid: A, B, C, or any combination such as ABC)."
+  echo "     Check --groups (valid: A, B, C, D, or any combination such as ABCD)."
   exit 2
 fi
 if [ "$FAIL" -eq 0 ]; then

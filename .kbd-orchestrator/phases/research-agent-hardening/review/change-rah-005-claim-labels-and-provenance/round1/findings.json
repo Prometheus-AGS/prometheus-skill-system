@@ -1,0 +1,93 @@
+{
+  "mode": "diff",
+  "verdict": "BLOCK",
+  "judge_model": "k3",
+  "producer_model": "claude-fable-5-1",
+  "isolation_mode": "rest-gateway:http://localhost:4000/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": "skills/research/deep-research/scripts/check-research-package.sh",
+      "line": 13,
+      "claim": "Both scripts and the spec require references/schemas/research-manifest.schema.json, but this diff never adds it, so the first acceptance command exits 1 with 'schema missing'.",
+      "evidence": "check-research-package.sh sets SCHEMA=\"$SKILL_DIR/references/schemas/research-manifest.schema.json\" and does `[ -f \"$SCHEMA\" ] || { bad \"schema missing: $SCHEMA\"; exit 1; }`; export-package.sh does `json.load(open(os.environ[\"SCHEMA\"]))` which raises an uncaught FileNotFoundError (only ImportError is caught). The diff adds only research-graph.schema.json. The spec diff shows the pre-change spec was format_version 1.0.0 with `<job_id>.research/` layout, so no prior change landed the 2.0.0 schema, and the change's only declared dependency is change-rah-003. The acceptance criterion 'check-research-package.sh --package <labelled fixture> exits 0' cannot pass.",
+      "suggested_fix": "Add references/schemas/research-manifest.schema.json (format_version 2.0.0, full properties/required matching the spec example) in this change."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "skills/research/deep-research/scripts/export-package.sh",
+      "claim": "The diff rewrites export-package.sh and creates tests/fixtures/stage-runner.sh, neither of which appears in the change's declared Scope of files it may create, edit, or delete.",
+      "evidence": "The acceptance_criteria Scope list includes scripts/check-research-package.sh, the fixtures package-labelled and package-unlabelled, the references, stage skills, agents, and learn files \u2014 but not scripts/export-package.sh and not tests/fixtures/stage-runner.sh. The diff replaces export-package.sh's CLI (positional JOB_ID/OUTPUT_DIR replaced by package dir + --output-root) and its entire manifest format, and adds stage-runner.sh (a fixture for rah-003's driver-contract tests).",
+      "suggested_fix": "Either move the export-package.sh rewrite and stage-runner.sh into the scope of the owning change (or amend this change's scope explicitly), or split them into a separate change."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "skills/research/deep-research/scripts/check-research-package.sh",
+      "line": 50,
+      "claim": "The documented jq structural fallback can never pass: it wraps the candidate value in an array before calling index(), so every enum and type check reports a spurious violation.",
+      "evidence": "In validate_manifest_jq: `select(($d.enum | index([$v])) == null)` and `select( ($ts | index([$t])) == null and (($t == \"integer\" and ($ts | index([\"number\"])) != null) | not) )`. jq's `index(x)` searches for an element equal to x; `index([$v])` searches the enum array for an element equal to the array [$v], which never matches scalar enums like [\"verified\",\"partial\",\"unverified\"]. The sibling code in the same change (write-artifact.sh: `labels | index($l)`) uses the correct unwrapped form, confirming this is a slip. Any machine without python3, or any run with CHECK_RESEARCH_PACKAGE_NO_PYTHON=1, gets FAIL on every typed/enum field.",
+      "suggested_fix": "Change `index([$v])` to `index($v)`, `index([$t])` to `index($t)`, and `index([\"number\"])` to `index(\"number\")`."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "skills/research/deep-research/scripts/check-research-package.sh",
+      "line": 105,
+      "claim": "The advertised no-python3 degradation path is unreachable in practice: contract mode's extract_json_block is python3-only, contract step 3 invokes export-package.sh which hard-requires python3, and package mode's files-existence loop and all three validation heredocs call python3 unconditionally.",
+      "evidence": "The header and validate_manifest_jq comment promise 'fallback when python3 is absent ... PASS WITH NOTES', and CHECK_RESEARCH_PACKAGE_NO_PYTHON=1 exists to exercise it. But `extract_json_block() { MARK=\"$2\" python3 - \"$1\" <<'PY' ... }` fails without python3, producing the false failure 'SKILL.md has no manifest.json example block'; `f=$(python3 -c '...' \"$PKG/manifest.json\" \"$key\")` under `set -euo pipefail` aborts the script outright; `bash \"$HERE/export-package.sh\" \"$FX\"` fails because that script's manifest builder is a python3 heredoc.",
+      "suggested_fix": "Either declare python3 a hard dependency (check `command -v python3` up front and delete the jq fallback and the NO_PYTHON knob), or reimplement extract_json_block and the files loop in jq/sed and gate the export-fixture step on HAVE_PY."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "skills/research/deep-research/scripts/check-research-package.sh",
+      "line": 262,
+      "claim": "The negative-fixture scenario requires the check to exit non-zero 'naming the claim id', but the failure output identifies the claim only as claims/1 or claims[1] and never prints the id claim-002.",
+      "evidence": "Acceptance scenario: 'WHEN a fixture package has one claim without a label THEN check-research-package.sh exits non-zero naming the claim id.' The jsonschema path prints `graph.json {'/'.join(str(p) for p in e.path)}: {e.message}` \u2192 'claims/1: \\'label\\' is a required property'; the structural fallback prints `graph.json claims[{i}] missing {k}`. Neither includes c.get('id'). The scenario is only partially satisfied.",
+      "suggested_fix": "Include the claim id in both messages, e.g. `graph.json claims[{i}] ({c.get('id')}) missing label`, and print e.path plus the offending entry's id in the jsonschema loop."
+    },
+    {
+      "severity": "WARNING",
+      "file": "skills/research/deep-research/references/okf-research-format.md",
+      "line": 100,
+      "claim": "The normative prose table says `verified` requires `misconceptions_absent == 1.0`, but neither the documented jq rule nor the Python derivation in check-research-package.sh checks misconceptions_absent, so a package with misconceptions present derives to 'verified'.",
+      "evidence": "Table row: '| `verified` | every critical claim is `verified`, no claim is `blocked` or `unverified`, the Feynman gate was used and passed (`feynman_grade \u2265 0.7`, `misconceptions_absent == 1.0`), and the adversarial review ran without a CRITICAL finding |'. The jq rule below it and the Python derivation (`(grade or 0) < 0.7` is the only gate-quality check) omit misconceptions_absent entirely, and the doc declares the drift check recomputes with this rule.",
+      "suggested_fix": "Add a misconceptions_absent condition to the jq rule and the Python derivation (reading it from checkpoint.json or report frontmatter), or remove it from the prose table."
+    },
+    {
+      "severity": "WARNING",
+      "file": "skills/research/deep-research/scripts/export-package.sh",
+      "line": 88,
+      "claim": "export-package.sh silently gains a hard python3 dependency with no availability check, dying with 'python3: command not found' on machines without it, and its header documents no such requirement.",
+      "evidence": "The previous implementation was pure bash/coreutils; the new one builds the manifest and index.md inside `PKG_DIR=... python3 - <<'PY'` with no `command -v python3` guard. The header comment documents inputs and bash 3.2 compatibility but not python3. The sibling check script at least probes for python3; this one does not.",
+      "suggested_fix": "Add `command -v python3 >/dev/null 2>&1 || die 'python3 is required'` near the top, and document the dependency in the header."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "skills/research/deep-research/scripts/export-package.sh",
+      "line": 205,
+      "claim": "Dead no-op loop left in the manifest builder.",
+      "evidence": "`for k in (\"integrations\",):\n    pass` \u2014 a leftover that does nothing and reads like an unfinished edit.",
+      "suggested_fix": "Delete the two lines."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "skills/research/deep-research/tests/fixtures/package-unlabelled/checkpoint.json",
+      "claim": "The unlabelled negative fixture is a copy of the labelled fixture that still says 'Labelled fixture' / 'labelled fixture query' / 'job-0-labelled' in its checkpoint, report, plan, and provenance, which will confuse failure output when the negative test fires.",
+      "evidence": "package-unlabelled/checkpoint.json: `\"job_id\": \"job-0-labelled\", \"query\": \"labelled fixture query about vector databases\"`; report.md and plan.md titled 'Labelled fixture'; only the package_id fields say 'unlabelled'.",
+      "suggested_fix": "Rename the fixture's job_id, query, and titles to 'unlabelled fixture'."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "skills/learn/feynman-loop/scripts/write-artifact.sh",
+      "line": 64,
+      "claim": "A verification entry that is not an object (e.g. a bare string) makes jq error out under set -e, so the script exits non-zero without emitting the documented {\"ok\":false,\"error\":...} refusal JSON.",
+      "evidence": "`[.verification[] | select((.label|type) != \"string\" or ...)]` \u2014 indexing `.label` on a string raises 'Cannot index string' in jq; the failure occurs inside `VALIDATION_ERROR=$(echo \"$ARTIFACT_JSON\" | jq -r '...')`, and set -e terminates the script before the `if [ -n \"$VALIDATION_ERROR\" ]` block can print the structured error.",
+      "suggested_fix": "Guard with a type check first, e.g. `select((type) != \"object\" or (.label|type) != \"string\" or ...)`, so malformed entries produce the documented error message."
+    }
+  ],
+  "sycophancy_screen": {
+    "reject_cap": 2,
+    "cap_overridden": false,
+    "cap_default": 2
+  }
+}

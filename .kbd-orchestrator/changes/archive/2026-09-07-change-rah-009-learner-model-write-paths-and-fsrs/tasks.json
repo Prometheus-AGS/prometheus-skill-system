@@ -1,0 +1,71 @@
+{
+  "changeId": "change-rah-009-learner-model-write-paths-and-fsrs",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "OPTIONAL (no goal requires it; skip with a recorded reason if the phase budget is short): run cargo tree for rs-fsrs and fsrs-rs in a scratch manifest when no cargo build is active; record both dependency counts and the adopt-or-port decision under a 'FSRS dependency decision' heading in README.md",
+      "done": true,
+      "doneAt": "2026-09-07T01:33:42Z",
+      "doneBy": "claude-code",
+      "files": [
+        "substrate/learner-model/README.md"
+      ],
+      "verify": "grep -q 'FSRS dependency decision' substrate/learner-model/README.md && grep -Eq 'rs-fsrs.*(adopt|port|skipped)' substrate/learner-model/README.md",
+      "notes": null
+    },
+    {
+      "id": "2",
+      "title": "Add add_gap, add_session, set_certified dispatch; certified_at on ConceptState; fold gaps and sessions in store.rs",
+      "done": true,
+      "doneAt": "2026-09-07T01:34:06Z",
+      "doneBy": "claude-code",
+      "files": [
+        "substrate/learner-model/src/main.rs",
+        "substrate/learner-model/src/store.rs",
+        "substrate/learner-model/src/types.rs"
+      ],
+      "verify": "grep -q '\"add_gap\"' substrate/learner-model/src/main.rs && grep -q 'certified_at' substrate/learner-model/src/types.rs",
+      "notes": null
+    },
+    {
+      "id": "3",
+      "title": "OPTIONAL (paired with task 1): replace the FSRS stub per task 1's decision so difficulty is read and updated; proven by the difficulty-delta assertion in task 5's rpc_roundtrip test, not by inspection; if skipped, the assertion is omitted and the skip recorded",
+      "done": true,
+      "doneAt": "2026-09-07T01:34:25Z",
+      "doneBy": "claude-code",
+      "files": [
+        "substrate/learner-model/Cargo.toml",
+        "substrate/learner-model/src/fsrs.rs"
+      ],
+      "verify": null,
+      "notes": null
+    },
+    {
+      "id": "4",
+      "title": "Update learn-grade, learn-practice, learn-certify to call the new methods",
+      "done": true,
+      "doneAt": "2026-09-07T01:34:45Z",
+      "doneBy": "claude-code",
+      "files": [
+        "skills/learn/learn-grade/SKILL.md",
+        "skills/learn/learn-practice/SKILL.md",
+        "skills/learn/learn-certify/SKILL.md"
+      ],
+      "verify": "grep -q 'add_session' skills/learn/learn-practice/SKILL.md && grep -q 'set_certified' skills/learn/learn-certify/SKILL.md",
+      "notes": null
+    },
+    {
+      "id": "5",
+      "title": "Write tests/rpc_roundtrip.rs driving the built binary; run it when no cargo build is active",
+      "done": true,
+      "doneAt": "2026-09-07T01:35:09Z",
+      "doneBy": "claude-code",
+      "files": [
+        "substrate/learner-model/tests/rpc_roundtrip.rs"
+      ],
+      "verify": "test -z \"$(pgrep -x cargo)\" && cd substrate/learner-model && cargo test -p learner-model --test rpc_roundtrip",
+      "notes": null
+    }
+  ]
+}

@@ -45,6 +45,8 @@ waypoint_load() {
       "currentTask="        + (.currentTask        // ""),
       "nextPendingChange="  + (.nextPendingChange  // ""),
       "sourceTool="         + (.sourceTool         // ""),
+      "nextChange="         + (.nextChange         // ""),
+      "nextTask="           + (.nextTask           // ""),
       "exactNextCommand="   + (.exactNextCommand   // ""),
       "parentPhase="        + (.parentPhase        // ""),
       "childPhases="        + ((.childPhases       // []) | join(",")),

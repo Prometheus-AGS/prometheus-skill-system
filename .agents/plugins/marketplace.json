@@ -21,7 +21,7 @@
         "path": "./dist/plugins/codex/prometheus-skill-pack",
         "source": "local"
       },
-      "version": "1.8.0"
+      "version": "1.10.0"
     },
     {
       "category": "frontend",
@@ -47,7 +47,7 @@
         "path": "./skills/process",
         "source": "local"
       },
-      "version": "1.5.2"
+      "version": "1.6.0"
     },
     {
       "category": "devops",
@@ -86,7 +86,7 @@
         "path": "./skills/learn",
         "source": "local"
       },
-      "version": "1.5.0"
+      "version": "1.6.0"
     },
     {
       "category": "productivity",
@@ -138,7 +138,7 @@
         "path": "./skills/research",
         "source": "local"
       },
-      "version": "1.0.0"
+      "version": "1.1.0"
     },
     {
       "category": "productivity",
@@ -151,7 +151,7 @@
         "path": "./substrate/prometheus-research",
         "source": "local"
       },
-      "version": "1.6.0"
+      "version": "1.7.0"
     },
     {
       "category": "productivity",
@@ -186,5 +186,5 @@
       }
     }
   ],
-  "version": "1.8.0"
+  "version": "1.10.0"
 }

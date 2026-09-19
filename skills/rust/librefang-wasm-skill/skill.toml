@@ -5,7 +5,7 @@
 [skill]
 name = "librefang-wasm-skill"
 language = "rust"
-version = "1.0.0"
+version = "1.1.0"
 description = "Generates a Rust crate that compiles to a LibreFang WASM-ABI-compliant skill (cdylib, wasm32-unknown-unknown)."
 author = "Prometheus AGS"
 

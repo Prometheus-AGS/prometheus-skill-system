@@ -1,0 +1,145 @@
+{
+  "schemaVersion": "2",
+  "generatedBy": "kbd-runtime",
+  "projectionContractVersion": 2,
+  "sourceRevision": 1186,
+  "derivedRevision": 1186,
+  "frontier": {
+    "4bca58c3-e70b-48c9-a555-60bc16d3d025": 1186
+  },
+  "conflictCount": 0,
+  "phase": "deep-research-onyx-parity",
+  "phaseId": "deep-research-onyx-parity",
+  "parentPhase": null,
+  "last_updated": "2026-09-19T15:41:44.853555Z",
+  "last_updated_by": "kbd-runtime",
+  "changes_total": 7,
+  "changes_completed": 7,
+  "implementation_total": 7,
+  "implementation_completed": 7,
+  "completion": {
+    "primaryCounter": "implementation",
+    "implementation": {
+      "completed": 7,
+      "total": 7,
+      "status": "COMPLETE"
+    },
+    "evidence": {
+      "status": "COMPLETE",
+      "summary": "Operator disposition recorded; strict OpenSpec verification passed; main spec synchronized; change archived on 2026-08-30.",
+      "blockers": []
+    },
+    "certification": {
+      "status": "COMPLETE",
+      "summary": "Final local integration, release, protected-test, OpenSpec, harness, documentation, and receipt-identity certification passed.",
+      "blockers": []
+    },
+    "publication": {
+      "status": "COMPLETE",
+      "summary": "Commit a9f7d62229f997087a2b0b59419d77f722e12cbd pushed to origin/codex/kbd-uds-control-repair.",
+      "blockers": []
+    }
+  },
+  "changes": [
+    {
+      "id": "change-drt-001-dispatch-smoke-and-thread-contracts",
+      "title": "Prove concurrent subagent dispatch, then freeze the thread artifact contracts",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 5,
+      "tasks_done": 5,
+      "last_task_completed": "Write tests/thread-contracts.sh: validate the fixture thread artifacts against their schemas and assert every claim's verbatim quote is non-empty and traceable to a source in the same thread's sources.json",
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-drt-007-install-surface-repair",
+      "title": "Repair the two install-surface defects the predecessor's evidence run found",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 5,
+      "tasks_done": 5,
+      "last_task_completed": "Write tests/installed-service-smoke.sh: render and install the plist, bootstrap under launchd, start a fixture job, assert a non-null harness_pid; AND install a marker-less stub driver fixture and assert the daemon health output reports it stale with both paths and sizes; then record the repair against D-A and D-B",
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-drt-002-thread-scheduler-and-budgets",
+      "title": "Bounded thread scheduler with a code-enforced concurrency cap and budgets at every level",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 5,
+      "tasks_done": 5,
+      "last_task_completed": "Run the integration gate: cargo check, then the scheduler suite, with the Cargo slot free",
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-drt-004-deterministic-merge",
+      "title": "Fold threads back into the existing stage 02/03/04 artifacts, deterministically",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 6,
+      "tasks_done": 5,
+      "last_task_completed": "Regenerate the distribution after editing run-research.sh and pass check:distribution and validate:codex in this change (C-01; a desynced driver is defect D-B)",
+      "next_task_pending": "Implement scripts/merge-threads.sh: union sources by canonical URL into the existing stage 02/04 shapes, chunks into stage 03, claims by content-addressed id, and write citation-map.json",
+      "blockers": []
+    },
+    {
+      "id": "change-drt-003-director-worker-agents",
+      "title": "A director that cannot search and workers that cannot see each other",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 6,
+      "tasks_done": 5,
+      "last_task_completed": "Run the integration gate: driver contract suite plus strict validation of the edited skill",
+      "next_task_pending": "Regenerate the distribution after editing run-research.sh and pass check:distribution and validate:codex in this change (C-01; a desynced driver is defect D-B)",
+      "blockers": []
+    },
+    {
+      "id": "change-drt-005-multipass-report",
+      "title": "Split stage 09 into outline, parallel sections, assembly, and edit, bound by a claim-set invariant",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 6,
+      "tasks_done": 6,
+      "last_task_completed": "Regenerate the skills index for the SKILL.md edit and run the integration gate",
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-drt-006-bench-and-metrics",
+      "title": "Make \"on par with Onyx\" falsifiable: adopt the RACE criteria, build FACT and verified-claim ratio",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 1,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": "Vendor the adopted criteria, English criteria prompt, and a 10-task query subset pinned at upstream commit 469cce54; write ATTRIBUTION.md per Apache-2.0",
+      "blockers": []
+    }
+  ],
+  "children": {
+    "bench-runner-automation": {
+      "status": "PENDING",
+      "changes_completed": 0,
+      "changes_total": 0,
+      "implementation_completed": 0,
+      "implementation_total": 0,
+      "certification_status": "NOT_TRACKED",
+      "handoff": null,
+      "completed_at": null
+    },
+    "stage-10-hang-investigation": {
+      "status": "DONE",
+      "changes_completed": 3,
+      "changes_total": 3,
+      "implementation_completed": 3,
+      "implementation_total": 3,
+      "certification_status": "NOT_TRACKED",
+      "handoff": null,
+      "completed_at": null
+    }
+  },
+  "migrationStatus": null
+}

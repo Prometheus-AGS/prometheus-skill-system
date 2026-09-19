@@ -1,0 +1,57 @@
+{
+  "mode": "diff",
+  "verdict": "BLOCK",
+  "judge_model": "k3",
+  "producer_model": "claude-fable-5-1",
+  "isolation_mode": "rest-gateway:http://localhost:4000/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": "skills/research/deep-research/references/okf-research-format.md",
+      "claim": "The Verification Status Rules table and the normative jq rule in the same file disagree on packages with a non-critical `unverified` claim: the table's `verified` row requires \"no claim is `blocked` or `unverified`\", but the jq (and both reimplementations in check-research-package.sh) only demote for critical non-`verified` claims or any `blocked` claim, deriving `verified` anyway.",
+      "evidence": "Table: \"`verified` | every critical claim is `verified`, no claim is `blocked` or `unverified`, ...\"; jq in the same hunk: `elif ([critical[] | select(.label != \"verified\")] | length) > 0 or ([claimset[] | select(.label == \"blocked\")] | length) > 0 ... then \"partial\" else \"verified\" end`. A claim set with all critical claims `verified` plus one non-critical `unverified` claim matches no table row (the `partial` row also omits this case), yet the drift check \u2014 which \"recomputes it and fails when the declared value differs\" \u2014 derives `verified`. A synthesizer following the table cannot pick any status the checker will accept.",
+      "suggested_fix": "Align the two statements: either add `or ([claimset[] | select(.label == \"unverified\")] | length) > 0` to the jq/checker `partial` branch, or change the table's `verified` row to \"no claim is `blocked` and no critical claim is `unverified`\"."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "skills/research/deep-research/scripts/run-research.sh",
+      "claim": "A clean full-scale run self-blocks at stage 10: report.md frontmatter is written at stage 09 (when the derivation can yield at most `partial`, since `integrations.adversarial_review_used` is still false for scale==\"full\"), the only post-review mutation is `lower_report_status` (verified\u2192partial, never raises), but export derives the manifest's `verification_status` from the post-review checkpoint \u2014 so a run with a passing Feynman gate and a PASS review yields manifest `verified` vs report `partial`, and check-research-package.sh's report\u2194manifest agreement check fails validate_stage 10.",
+      "evidence": "run-research.sh: `lower_report_status` only rewrites `verification_status: verified` \u2192 `partial`; stage 10 runs `review_report` then `export-package.sh` then `validate_stage 10` \u2192 `check-research-package.sh --package` \u2192 block 10 on failure. check-research-package.sh python block: `report.md verification_status=... but manifest ...` \u2192 FAIL on mismatch. okf-research-format.md derivation: `verified` requires `($c.scale == \"full\" and ($c.integrations.adversarial_review_used | not))` to be false, i.e. is unreachable at stage-09 write time for full runs. No scenario in driver-contract.sh exercises this because fixtures/stage-runner.sh stage 09 hardcodes `feynman_grade: null` / `verification_status: partial`, keeping every fixture derived at `partial`.",
+      "suggested_fix": "After a non-BLOCK review (or inside export-package.sh), rewrite report.md `verification_status` to the value derived from the final checkpoint before validate_stage 10 runs, and add a driver-contract scenario where the gates pass (feynman_grade 0.8, misconceptions_absent 1.0, judge PASS) asserting the run completes with `verified`."
+    },
+    {
+      "severity": "WARNING",
+      "file": "skills/process/adversarial-review/scripts/build-review-packet.sh",
+      "claim": "The goals extraction for the research target swallows all failure (`python3 ... > \"$WORK/goals.md\" 2>/dev/null <<'PY' || true`): if python3 errors, the redirection still creates an empty goals.md, the packet builds with an empty `goals` field, and the judge silently loses the query and sub-questions it needs to assess coverage.",
+      "evidence": "The hunk `python3 - \"$PACKAGE\" > \"$WORK/goals.md\" 2>/dev/null <<'PY' || true` followed by the packet comment \"Goals of the run ... This is what 'coverage' is judged against.\" The change's own constraint states: \"Every script touched keeps set -euo pipefail semantics and non-zero exit on failure; no silent `|| true` on a gate.\"",
+      "suggested_fix": "Fail closed (exit 2) when the goals extraction fails, or record an explicit `goals_error` field in the packet so the judge knows coverage cannot be assessed."
+    },
+    {
+      "severity": "WARNING",
+      "file": "skills/research/deep-research/tests/fixtures/stage-runner.sh",
+      "claim": "The `lower_report_status` path is never exercised: the fixture stage 09 always writes `verification_status: partial`, so the review-critical assertion \"report frontmatter lowered to partial\" and the review-unavailable/review-without-verify `partial` assertions all pass even if the lowering code in run-research.sh is deleted outright.",
+      "evidence": "fixtures/stage-runner.sh stage 09: `printf -- '---\\n...\\nverification_status: partial\\n...'` unconditionally; driver-contract.sh review-critical asserts `test \"$(report_status)\" = \"partial\"` \u2014 true before the review ever runs.",
+      "suggested_fix": "Add a fixture knob (e.g. FIXTURE_REPORT_STATUS=verified) so at least one scenario writes `verified` at stage 09 and asserts it is lowered to `partial` by a CRITICAL verdict, a refused review, or an unavailable judge."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "skills/research/deep-research/scripts/run-research.sh",
+      "claim": "A recorded review refusal or judge-unavailable block is terminal: on resume the driver will re-run and repair stage 05, but the idempotency guard `(.review != null) or (.blocked_review != null)` skips re-judging forever, so a transiently-refused package can never reach `verified` even after the verification artifact is restored.",
+      "evidence": "run-research.sh `review_report`: `if jq -e '(.review != null) or (.blocked_review != null)' \"$CP\"; then log \"report review already recorded; not re-judging\"; return 0; fi`, combined with the derivation clause `(($c.blocked_review // null) != null)` \u2192 `partial`; driver-contract.sh review-without-verify enshrines \"resume does not re-judge a recorded review\".",
+      "suggested_fix": "Allow re-judging when `blocked_review` is set and `validate_stage 05` now passes (clear `blocked_review` on successful re-review), or document the permanence explicitly in SKILL.md's verifier-before-reviewer rule."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "skills/research/deep-research/scripts/run-research.sh",
+      "claim": "The `SLUG=\"${PACKAGE_ID%-[0-9]...}\"` recomputation immediately after package resolution is dead code \u2014 it is neither exported nor referenced anywhere else in the driver (write-provenance.sh computes its own SLUG).",
+      "evidence": "run-research.sh hunk: `SLUG=\"${PACKAGE_ID%-[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]-[0-9a-f][0-9a-f][0-9a-f][0-9a-f]}\"` appears once, directly above the `export RESEARCH_PACKAGE_ID=...` line, with no later use of `$SLUG`.",
+      "suggested_fix": "Delete the line, or export it if stage runners are meant to consume it."
+    }
+  ],
+  "sycophancy_screen": {
+    "reject_cap": 2,
+    "cap_overridden": false,
+    "cap_default": 2
+  }
+}

@@ -76,9 +76,10 @@ http_probe() {
 }
 
 # HTTP probe over a Unix socket: "unix:<socket-path>[:<http-path>]".
-# Several 1.7.0 services (sovereign-sync, prometheus-exec) serve HTTP on a
-# same-user Unix socket and bind NO TCP port unless explicitly given --tcp.
-# Probing a TCP port for those reports a healthy service as UNREACHABLE.
+# prometheus-exec (and an optional external control-plane extension, when
+# installed) serve HTTP on a same-user Unix socket and bind NO TCP port unless
+# explicitly given --tcp. Probing a TCP port for those reports a healthy
+# service as UNREACHABLE.
 unix_http_probe() {
     local spec="${1#unix:}" sock path code
     # Split trailing :/http/path off the socket path (paths contain no colon).
@@ -164,82 +165,28 @@ print_row() {
     fi
 }
 
-print_optional_sovereign_row() {
-    local name="sovereign-sync" label="ai.prometheus.sovereign-sync"
-    local legacy_label="com.prometheusags.sovereign-sync"
-    local url="$1" desc="Optional P2P sharing service (disabled by default)" svc legacy_svc enabled_state
-    local disabled_registry legacy_enabled_state
+# An optional, external control-plane extension (integration contract seam 1,
+# D-02). The pack never installs or registers this service under any
+# launchd/systemd label, so unlike print_row this never reports a "service
+# state" — only whether the discovered endpoint answers, via the same
+# unix_http_probe helper every other unix: entry in this table uses. Absence
+# is the correct default, reported as DISABLED (optional), never a failure.
+print_optional_control_plane_row() {
+    local name="control-plane-extension" url="$1"
+    local desc="Optional control-plane extension (connected only when installed)"
     service_is_excluded "$name" && return 0
-    svc="$(service_state "$label" 2>/dev/null || echo 'n/a')"
-    legacy_svc="$(service_state "$legacy_label" 2>/dev/null || echo 'n/a')"
-    case "$svc" in
-        "not loaded"|"not installed"|inactive) ;;
-        *) legacy_svc="not loaded" ;;
-    esac
-    case "$legacy_svc" in
-        "not loaded"|"not installed"|inactive) ;;
-        *) svc="$legacy_svc (legacy label)" ;;
-    esac
 
-    # Inactive is optional only when the operator actually disabled the unit or
-    # no managed definition exists. A failed or enabled-but-inactive sharing
-    # service is unhealthy and must never be laundered as an intentional opt-out.
-    if [ "$OS" = "macos" ]; then
-        disabled_registry="$(launchctl print-disabled "$GUI_DOMAIN" 2>/dev/null || true)"
-        if printf '%s' "$disabled_registry" | grep -Fq '"ai.prometheus.sovereign-sync" => disabled' \
-            && printf '%s' "$disabled_registry" | grep -Fq '"com.prometheusags.sovereign-sync" => disabled'; then
-            enabled_state="disabled"
-        elif [ -f "${HOME}/Library/LaunchAgents/${label}.plist" ] \
-            || [ -f "${HOME}/Library/LaunchAgents/${legacy_label}.plist" ]; then
-            enabled_state="enabled"
-        else
-            enabled_state="not installed"
-        fi
-    elif [ "$OS" = "linux" ]; then
-        enabled_state="$(systemctl --user is-enabled "${label}.service" 2>/dev/null || true)"
-        legacy_enabled_state="$(systemctl --user is-enabled "${legacy_label}.service" 2>/dev/null || true)"
-        case "$legacy_enabled_state" in
-            enabled|enabled-runtime|linked|linked-runtime) enabled_state="$legacy_enabled_state (legacy label)" ;;
-        esac
-        [ -n "$enabled_state" ] || enabled_state="not installed"
+    local code status
+    code="$(unix_http_probe "$url")"
+    case "$code" in
+        200|201|204|404|405|socket) status="OK" ;;
+        *)                          status="DISABLED (optional)" ;;
+    esac
+    if $JSON_MODE; then
+        printf '{"name":"%s","url":"%s","status":"%s"}\n' "$name" "$url" "$status"
     else
-        enabled_state="unknown"
+        printf '%-30s  %-32s  %-20s  %s\n' "$name" "n/a" "$status" "$desc"
     fi
-
-    case "$svc" in
-        failed|failed\ *)
-            if $JSON_MODE; then
-                printf '{"name":"%s","label":"%s","service":"%s","url":"%s","status":"%s"}\n' \
-                    "$name" "$label" "$svc" "$url" "FAILED"
-            else
-                printf '%-30s  %-32s  %-20s  %s\n' \
-                    "$name" "$svc" "FAILED" "$desc"
-            fi
-            ;;
-        "not loaded"|"not installed"|inactive)
-            case "$enabled_state" in
-                disabled|masked|"not installed"|not-found)
-                    if $JSON_MODE; then
-                        printf '{"name":"%s","label":"%s","service":"%s","url":"%s","status":"%s"}\n' \
-                            "$name" "$label" "$svc" "$url" "DISABLED (optional)"
-                    else
-                        printf '%-30s  %-32s  %-20s  %s\n' \
-                            "$name" "$svc" "DISABLED (optional)" "$desc"
-                    fi
-                    ;;
-                *)
-                    if $JSON_MODE; then
-                        printf '{"name":"%s","label":"%s","service":"%s","url":"%s","status":"%s"}\n' \
-                            "$name" "$label" "$svc" "$url" "UNAVAILABLE (enabled sharing service)"
-                    else
-                        printf '%-30s  %-32s  %-20s  %s\n' \
-                            "$name" "$svc" "UNAVAILABLE (enabled)" "$desc"
-                    fi
-                    ;;
-            esac
-            ;;
-        *) print_row "$name" "$label" "$url" "$desc" ;;
-    esac
 }
 
 if ! $JSON_MODE; then
@@ -256,11 +203,11 @@ print_row "prometheus-knowledge"   "ai.prometheus.pk-cherry"              "http:
 print_row "forge-rs"               "ai.prometheus.forge-mcp"              "http://localhost:8943/mcp"      "Forge code-enrichment MCP"
 print_row "surface-bridge"         "ai.prometheus.surface-bridge"         "http://localhost:7890/health"   "Tier 2 UI MCP App server (native, :7890)"
 
-# Unix-socket services. As of 1.7.0 sovereign-sync binds NO TCP port unless
-# started with --tcp; the managed LaunchAgent does not pass it, so probing
-# :7892 reported a perfectly healthy service as UNREACHABLE.
-SOVEREIGN_SOCK="${SOVEREIGN_SYNC_SOCKET:-${HOME}/Library/Application Support/prometheus/run/sovereign-sync.sock}"
-print_optional_sovereign_row "unix:${SOVEREIGN_SOCK}:/health"
+# Unix-socket services, plus the optional control-plane extension (D-02):
+# discovered the same way `prometheus contract show` and the pack CLI's own
+# transport do — this repo never installs it or binds a specific TCP port for it.
+CONTROL_PLANE_SOCK="${SOVEREIGN_SYNC_SOCKET:-${HOME}/Library/Application Support/prometheus/run/sovereign-sync.sock}"
+print_optional_control_plane_row "unix:${CONTROL_PLANE_SOCK}:/health"
 print_row "prometheus-exec"        "ai.prometheus.exec"                   "unix:${HOME}/.prometheus/run/prometheus-exec.sock"  "Code execution engine (socket daemon)"
 
 # Stdio-only services — managed by the AI client, not the service manager

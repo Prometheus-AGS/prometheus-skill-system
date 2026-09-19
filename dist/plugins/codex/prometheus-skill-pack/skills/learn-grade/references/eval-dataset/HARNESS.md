@@ -7,6 +7,28 @@ process is reproducible and auditable, and exactly where the eval
 invocation deviates from the live Feynman-loop invocation in
 `learn-grade/SKILL.md`.
 
+## Corpus shape
+
+learn-grade reads `sources[].key_points[]` and `sources[].misconceptions[]`
+(the shape `shared/scripts/content-grounding-kb.sh` emits, `schema_version`
+1.1.0, change-rah-008). The three eval corpora are authored at schema 1.0.0:
+every source carries `is_misconception` and `content_summary`, none carries
+`misconceptions[]`, and only some carry an authored `key_points[]` (7 of 12 in
+`cellular-respiration-corpus.json`; 0 of 18 and 0 of 16 in the two meta-corpora).
+Before grading an item, normalize its corpus through the one grounding script
+rather than re-deriving the fields by hand — normalization derives the missing
+arrays and keeps the authored `key_points[]` verbatim, so the eval grades
+against exactly what the live loop would see:
+
+```bash
+bash shared/scripts/content-grounding-kb.sh \
+  --normalize <item.corpus_path> \
+  --output /tmp/eval-corpus/<item_id>.json
+```
+
+and pass the normalized file as `corpus_path`. The eval corpus files
+themselves are not rewritten; the harness normalizes at invocation time.
+
 ## Per-item invocation
 
 For each item in `index.json`, an agent is given:
@@ -23,9 +45,8 @@ Follow the SKILL.md's Step 3 four-dimension rubric exactly:
 - completeness (0-1, continuous)
 - accuracy (0-1, continuous; single factual error caps it below 0.7)
 - clarity (0-1, continuous)
-- misconceptions_absent (binary 0.0 or 1.0 — 1.0 only if NO
-  misconception from corpus sources[].content_summary where
-  is_misconception:true appears in the explanation)
+- misconceptions_absent (binary 0.0 or 1.0 — 1.0 only if NO entry of
+  corpus sources[].misconceptions[] appears in the explanation)
 
 Apply Step 5's anti-sycophancy check to the draft grade narrative.
 Produce Step 6's gaps array for any dimension scoring below 0.7.

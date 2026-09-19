@@ -1,6 +1,9 @@
 use crate::{
     fsrs::{next_review, Rating},
-    types::{ConceptState, FSRSCard, LearnerModel, ObservationRecord},
+    types::{
+        ConceptState, FSRSCard, GapRecord, GapSeverity, LearnerModel, ObservationRecord,
+        SessionRecord,
+    },
 };
 use chrono::{DateTime, Utc};
 use std::collections::HashMap;
@@ -21,6 +24,8 @@ pub enum StoreError {
         learner_id: String,
         concept_id: String,
     },
+    #[error("Gap not found for learner {learner_id}: {gap_id}")]
+    GapNotFound { learner_id: String, gap_id: String },
 }
 
 /// Typed facade over `StorageProvider` + `CrdtEngine` for learner model documents.
@@ -202,6 +207,134 @@ impl<S: StorageProvider, C: CrdtEngine> LearnerModelStore<S, C> {
         self.save(&model).await?;
         Ok(updated_card)
     }
+
+    /// Record a knowledge gap for a concept (learn-grade). Append-only; the
+    /// generated `gap_id` is returned so a later pass can `resolve_gap` it.
+    #[allow(clippy::too_many_arguments)]
+    pub async fn add_gap(
+        &self,
+        learner_id: &str,
+        concept_id: &str,
+        description: &str,
+        severity: Option<GapSeverity>,
+        source_skill: &str,
+        source_evidence: Option<String>,
+        label: Option<String>,
+        detected_at: DateTime<Utc>,
+    ) -> Result<String, StoreError> {
+        let mut model = self.load(learner_id).await?;
+        if !model.concepts.contains_key(concept_id) {
+            return Err(StoreError::ConceptNotFound {
+                learner_id: learner_id.to_string(),
+                concept_id: concept_id.to_string(),
+            });
+        }
+        let gap_id = Uuid::new_v4().to_string();
+        model.gaps.insert(
+            gap_id.clone(),
+            GapRecord {
+                gap_id: gap_id.clone(),
+                concept_id: concept_id.to_string(),
+                description: description.to_string(),
+                severity,
+                detected_at,
+                resolved_at: None,
+                source_skill: source_skill.to_string(),
+                source_evidence,
+                label,
+            },
+        );
+        model.updated_at = detected_at;
+        self.save(&model).await?;
+        Ok(gap_id)
+    }
+
+    /// Mark a gap closed. Returns `GapNotFound` for an unknown id.
+    pub async fn resolve_gap(
+        &self,
+        learner_id: &str,
+        gap_id: &str,
+        resolved_at: DateTime<Utc>,
+    ) -> Result<(), StoreError> {
+        let mut model = self.load(learner_id).await?;
+        let gap = model
+            .gaps
+            .get_mut(gap_id)
+            .ok_or_else(|| StoreError::GapNotFound {
+                learner_id: learner_id.to_string(),
+                gap_id: gap_id.to_string(),
+            })?;
+        gap.resolved_at = Some(resolved_at);
+        model.updated_at = resolved_at;
+        self.save(&model).await
+    }
+
+    /// Record a learning session. A session with an id the model already holds
+    /// replaces that record (an `ended_at` update), never duplicates it. With
+    /// `preserve_start`, the existing record's `started_at` survives the
+    /// replacement so a closing call need not repeat the opening timestamp.
+    pub async fn add_session(
+        &self,
+        learner_id: &str,
+        mut session: SessionRecord,
+        preserve_start: bool,
+    ) -> Result<String, StoreError> {
+        let mut model = self.load(learner_id).await?;
+        let id = session.session_id.clone();
+        if preserve_start {
+            if let Some(existing) = model.sessions.iter().find(|s| s.session_id == id) {
+                session.started_at = existing.started_at;
+            }
+        }
+        model.updated_at = session.ended_at.unwrap_or(session.started_at);
+        model.sessions.retain(|s| s.session_id != id);
+        model.sessions.push(session);
+        fold_sessions(&mut model.sessions);
+        self.save(&model).await?;
+        Ok(id)
+    }
+
+    /// Record that a concept's checkpoint credential was issued (learn-certify).
+    pub async fn set_certified(
+        &self,
+        learner_id: &str,
+        concept_id: &str,
+        certified_at: DateTime<Utc>,
+    ) -> Result<(), StoreError> {
+        let mut model = self.load(learner_id).await?;
+        let concept =
+            model
+                .concepts
+                .get_mut(concept_id)
+                .ok_or_else(|| StoreError::ConceptNotFound {
+                    learner_id: learner_id.to_string(),
+                    concept_id: concept_id.to_string(),
+                })?;
+        concept.certified_at = Some(certified_at);
+        model.updated_at = certified_at;
+        self.save(&model).await
+    }
+}
+
+/// Sessions are a list in the document (schema `sessions: array`), so a merge
+/// can carry the same session from two devices. Deduplicate by id, keeping the
+/// record with the later `ended_at`, and order by `started_at` then id so every
+/// replica folds to the same list.
+pub fn fold_sessions(sessions: &mut Vec<SessionRecord>) {
+    let mut by_id: HashMap<String, SessionRecord> = HashMap::new();
+    for s in sessions.drain(..) {
+        match by_id.get(&s.session_id) {
+            Some(existing) if existing.ended_at >= s.ended_at => {}
+            _ => {
+                by_id.insert(s.session_id.clone(), s);
+            }
+        }
+    }
+    let mut folded: Vec<SessionRecord> = by_id.into_values().collect();
+    folded.sort_by(|a, b| {
+        (a.started_at, a.session_id.as_str()).cmp(&(b.started_at, b.session_id.as_str()))
+    });
+    *sessions = folded;
 }
 
 /// Recompute all derived concept state from immutable, uniquely keyed evidence.
@@ -252,6 +385,14 @@ fn normalize_model(model: &mut LearnerModel) -> bool {
         }
         fold_concept(concept);
     }
+    // Gaps are keyed by id already; make the key and the record agree. Sessions
+    // are folded so load, save, and CRDT import all converge on one list.
+    for (id, gap) in &mut model.gaps {
+        if gap.gap_id.is_empty() {
+            gap.gap_id = id.clone();
+        }
+    }
+    fold_sessions(&mut model.sessions);
     model.schema_version = "1.1.0".into();
     legacy
 }
@@ -355,6 +496,7 @@ mod tests {
                     last_review: None,
                 },
                 fsrs_prior: None,
+                certified_at: None,
             },
         );
         LearnerModel {

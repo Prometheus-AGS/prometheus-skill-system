@@ -1,0 +1,11 @@
+{
+  "stage": "assess",
+  "completedAt": "2026-09-02T04:21:49Z",
+  "outputs": [
+    "assessment.md"
+  ],
+  "nextStage": "analyze",
+  "summaryForNext": "All six goals NOT MET; the control-plane node already exists as substrate/sovereign-sync 1.8.0 (axum+loro+iroh+rmcp) so the work is re-hosting under Companion governance, not construction. Three decisions gate everything: (1) Goal 3 Kademlia/DHT contradicts Companion spec §25.2 and HMA peer-crdt.md pairing doctrine; (2) Goal 2 authority-in-Companion conflicts with HMA compatibility/prometheus-control-plane.json lifecycle=prometheus; (7) the sovereign-sync path-dep closure (kbd-runtime, storage-provider, learner-model, skill-index) and prometheus-cli->kbd-runtime invert dependency direction if moved. Also open: pairing design mismatch (spec says Noise, daemon uses ticket+group_secret), REST/MCP/SSE surface vs Tauri IPC, Companion Appendix A stale (iroh 0.30 vs 1.0.2, no superworkspace), data-root path resolution under a Tauri process, 7 unmarked progress.json projections. Adversarial review WARNINGs carried: name-based footprint is 33 non-doc + 42 doc files (re-derive before planning); domain_sync two-node baseline is 4 async tests, the wire-compat test is single-process; Companion phase docs-review-for-build-assessment is assessed on disk but its runtime never recorded the transition. Review isolation was harness-native (both gateway judges quota-exhausted); round-2 CRITICAL appended verbatim under Unresolved review findings.",
+  "skipped": false,
+  "skipReason": null
+}

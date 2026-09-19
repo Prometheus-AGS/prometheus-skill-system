@@ -1,0 +1,174 @@
+{
+  "generated_at": "2026-09-06T23:21:56Z",
+  "default_weights": {
+    "domain_authority": 0.25,
+    "author_expertise": 0.2,
+    "citation_depth": 0.2,
+    "publication_recency": 0.2,
+    "factual_verifiability": 0.15
+  },
+  "profiles": [
+    {
+      "id": "balanced",
+      "label": "Balanced",
+      "description": "Every dimension weighted equally.",
+      "weights": {
+        "domain_authority": 0.2,
+        "author_expertise": 0.2,
+        "citation_depth": 0.2,
+        "publication_recency": 0.2,
+        "factual_verifiability": 0.2
+      }
+    },
+    {
+      "id": "authority_heavy",
+      "label": "Authority heavy",
+      "description": "Stresses domain authority and author expertise over freshness.",
+      "weights": {
+        "domain_authority": 0.35,
+        "author_expertise": 0.3,
+        "citation_depth": 0.15,
+        "publication_recency": 0.1,
+        "factual_verifiability": 0.1
+      }
+    },
+    {
+      "id": "recency_heavy",
+      "label": "Recency heavy",
+      "description": "Stresses publication recency for fast-moving topics.",
+      "weights": {
+        "domain_authority": 0.15,
+        "author_expertise": 0.1,
+        "citation_depth": 0.15,
+        "publication_recency": 0.45,
+        "factual_verifiability": 0.15
+      }
+    },
+    {
+      "id": "methodology_heavy",
+      "label": "Methodology heavy",
+      "description": "Stresses citation depth and factual verifiability over popularity.",
+      "weights": {
+        "domain_authority": 0.1,
+        "author_expertise": 0.1,
+        "citation_depth": 0.35,
+        "publication_recency": 0.1,
+        "factual_verifiability": 0.35
+      }
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://example.org/a",
+      "base_rank": 1,
+      "base_score": 31,
+      "rank_range": 0,
+      "score_range": 28,
+      "stability": "stable",
+      "profile_ranks": [
+        {
+          "profile_id": "balanced",
+          "rank": 1,
+          "score": 25,
+          "applied_weights": {
+            "domain_authority": 0.5,
+            "factual_verifiability": 0.5
+          }
+        },
+        {
+          "profile_id": "authority_heavy",
+          "rank": 1,
+          "score": 39,
+          "applied_weights": {
+            "domain_authority": 0.7778,
+            "factual_verifiability": 0.2222
+          }
+        },
+        {
+          "profile_id": "recency_heavy",
+          "rank": 1,
+          "score": 25,
+          "applied_weights": {
+            "domain_authority": 0.5,
+            "factual_verifiability": 0.5
+          }
+        },
+        {
+          "profile_id": "methodology_heavy",
+          "rank": 1,
+          "score": 11,
+          "applied_weights": {
+            "domain_authority": 0.2222,
+            "factual_verifiability": 0.7778
+          }
+        }
+      ],
+      "drivers": [
+        "missing evidence for author_expertise, citation_depth, publication_recency; the remaining weights are renormalised, so profiles that lean on them swing this rank",
+        "weak on factual_verifiability"
+      ]
+    },
+    {
+      "url": "https://example.org/b",
+      "base_rank": 2,
+      "base_score": 31,
+      "rank_range": 0,
+      "score_range": 28,
+      "stability": "stable",
+      "profile_ranks": [
+        {
+          "profile_id": "balanced",
+          "rank": 2,
+          "score": 25,
+          "applied_weights": {
+            "domain_authority": 0.5,
+            "factual_verifiability": 0.5
+          }
+        },
+        {
+          "profile_id": "authority_heavy",
+          "rank": 2,
+          "score": 39,
+          "applied_weights": {
+            "domain_authority": 0.7778,
+            "factual_verifiability": 0.2222
+          }
+        },
+        {
+          "profile_id": "recency_heavy",
+          "rank": 2,
+          "score": 25,
+          "applied_weights": {
+            "domain_authority": 0.5,
+            "factual_verifiability": 0.5
+          }
+        },
+        {
+          "profile_id": "methodology_heavy",
+          "rank": 2,
+          "score": 11,
+          "applied_weights": {
+            "domain_authority": 0.2222,
+            "factual_verifiability": 0.7778
+          }
+        }
+      ],
+      "drivers": [
+        "missing evidence for author_expertise, citation_depth, publication_recency; the remaining weights are renormalised, so profiles that lean on them swing this rank",
+        "weak on factual_verifiability"
+      ]
+    }
+  ],
+  "summary": {
+    "stable": 2,
+    "sensitive": 0,
+    "volatile": 0,
+    "top_source": "https://example.org/a",
+    "top_source_stable": true
+  },
+  "basis": [
+    "Each profile reruns the same dimension signals with a different weight vector and the same per-source missing-evidence renormalisation.",
+    "stable: the rank never moves across profiles; sensitive: it moves by at most two places; volatile: it moves further and should be inspected before the order is treated as decisive.",
+    "Sycophancy penalties are preserved across profiles."
+  ]
+}

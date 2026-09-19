@@ -1,0 +1,81 @@
+{
+  "changeId": "change-cpc-003-companion-workspace",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Add root Cargo.toml workspace and crates/prometheus-substrate with desktop/headless features",
+      "done": true,
+      "doneAt": "2026-09-02T16:40:00Z",
+      "doneBy": "claude-code",
+      "files": [
+        "Cargo.toml",
+        "crates/prometheus-substrate/Cargo.toml",
+        "crates/prometheus-substrate/src/lib.rs",
+        "src-tauri/Cargo.toml"
+      ],
+      "verify": null,
+      "notes": null
+    },
+    {
+      "id": "2",
+      "title": "Add git-rev dependencies on kbd-runtime, storage-provider, learner-model, skill-index at the pack commit that includes change-cpc-002",
+      "done": true,
+      "doneAt": "2026-09-02T16:40:00Z",
+      "doneBy": "claude-code",
+      "files": [
+        "crates/prometheus-substrate/Cargo.toml"
+      ],
+      "verify": "grep -c 'rev = ' crates/prometheus-substrate/Cargo.toml && ! grep -q 'path = \"../../' crates/prometheus-substrate/Cargo.toml",
+      "notes": null
+    },
+    {
+      "id": "3",
+      "title": "Stage the proposed versions.toml pins in docs/decisions/versions-pins-proposal.md for the operator's human edit; record the operator's commit in the change notes",
+      "done": true,
+      "doneAt": "2026-09-02T14:17:12Z",
+      "doneBy": "claude-code",
+      "files": [
+        "docs/decisions/versions-pins-proposal.md"
+      ],
+      "verify": null,
+      "notes": null
+    },
+    {
+      "id": "4",
+      "title": "Rewrite docs/00-architecture-and-implementation-plan.md Appendix A for git-rev consumption and correct iroh 0.30 -> 1.0.3, rmcp 0.1 -> 1.8",
+      "done": true,
+      "doneAt": "2026-09-02T14:18:52Z",
+      "doneBy": "claude-code",
+      "files": [
+        "docs/00-architecture-and-implementation-plan.md"
+      ],
+      "verify": null,
+      "notes": null
+    },
+    {
+      "id": "5",
+      "title": "Initialize openspec in the Companion, mirror this change as its first entry, and reconcile the docs-review-for-build-assessment runtime stage with the on-disk assess artifacts",
+      "done": true,
+      "doneAt": "2026-09-02T14:23:22Z",
+      "doneBy": "claude-code",
+      "files": [
+        "openspec/config.yaml",
+        "openspec/changes/change-cpc-003-companion-workspace/proposal.md",
+        ".kbd-orchestrator/phases/docs-review-for-build-assessment/progress.json"
+      ],
+      "verify": "prometheus kbd --path . status --json | jq -e '.phases[\"docs-review-for-build-assessment\"] | tostring | test(\"assess\") and (test(\"\\\"ready\\\"\") | not)'  # adjust to the runtime schema at execution: assert the assess stage of that phase is complete, not ready",
+      "notes": null
+    },
+    {
+      "id": "6",
+      "title": "Record the scaffold audit-gate listing (git ls-tree 773aa5e scripts/) as evidence, run the two narrowly targeted cargo check diagnostics and the audit gate",
+      "done": true,
+      "doneAt": "2026-09-02T16:40:00Z",
+      "doneBy": "claude-code",
+      "files": [],
+      "verify": "git ls-tree --name-only 773aa5e scripts/ | grep -c audit && bash scripts/audit-all.sh",
+      "notes": null
+    }
+  ]
+}

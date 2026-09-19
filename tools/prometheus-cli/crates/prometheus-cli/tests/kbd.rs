@@ -749,27 +749,15 @@ fn duplicate_missing_and_rust_contention_boundaries_fail_closed() {
 #[test]
 fn ambiguous_signed_authority_writes_only_an_atomic_recovery_receipt() {
     let fixture = create_receipt_fixture();
-    let journal_before = fs::read(fixture.runtime.events_path()).expect("read signed journal");
-    let pointer: serde_json::Value = serde_json::from_slice(
-        &fs::read(
-            fixture
-                .runtime
-                .runtime_root()
-                .join("checkpoints/current.json"),
-        )
-        .expect("read checkpoint pointer"),
-    )
-    .expect("parse checkpoint pointer");
-    let checkpoint = pointer["checkpoint"].as_str().expect("checkpoint filename");
-    fs::write(
-        fixture
-            .runtime
-            .runtime_root()
-            .join("checkpoints")
-            .join(checkpoint),
-        "{}\n",
-    )
-    .expect("corrupt signed folded checkpoint");
+    let journal_path = fixture.runtime.events_path();
+    let journal_before = fs::read(&journal_path).expect("read signed journal");
+    let document_path = fixture
+        .runtime
+        .project_document()
+        .expect("canonical project document")
+        .path();
+    fs::write(&document_path, b"not-a-loro-project-document")
+        .expect("corrupt canonical project document");
 
     let evaluation = fixture.command(&[
         "guard",
@@ -786,7 +774,7 @@ fn ambiguous_signed_authority_writes_only_an_atomic_recovery_receipt() {
     ]);
     assert!(!evaluation.status.success());
     assert_eq!(
-        fs::read(fixture.runtime.events_path()).expect("reread signed journal"),
+        fs::read(&journal_path).expect("reread signed journal"),
         journal_before,
         "ambiguous authority must not mutate the canonical journal"
     );
@@ -809,4 +797,418 @@ fn ambiguous_signed_authority_writes_only_an_atomic_recovery_receipt() {
         .file_name()
         .to_string_lossy()
         .starts_with('.')));
+}
+
+#[test]
+fn canonical_position_survives_task_advancement_child_exit_and_restart() {
+    let fixture = KbdFixture::registered_without_legacy_phase();
+    for (id, title, parent) in [
+        ("root-phase", "Root phase", None),
+        ("child-phase", "Child phase", Some("root-phase")),
+    ] {
+        let mut args = vec![
+            "phase",
+            "create",
+            "--command-id",
+            if parent.is_some() {
+                "continuity-child-create"
+            } else {
+                "continuity-root-create"
+            },
+            "--id",
+            id,
+            "--title",
+            title,
+        ];
+        if let Some(parent) = parent {
+            args.extend(["--parent", parent]);
+        }
+        require_success(&fixture.command(&args), "create continuity phase");
+    }
+    require_success(
+        &fixture.command(&[
+            "phase",
+            "activate",
+            "--command-id",
+            "continuity-child-activate",
+            "--id",
+            "child-phase",
+            "--ancestor",
+            "root-phase",
+            "--exact-next-work",
+            "/kbd-apply change-a",
+        ]),
+        "activate child phase",
+    );
+    require_success(
+        &fixture.command(&[
+            "phase",
+            "transition",
+            "--command-id",
+            "continuity-child-start",
+            "--id",
+            "child-phase",
+            "--status",
+            "in-progress",
+        ]),
+        "start child phase",
+    );
+
+    for (change, sequence) in [("change-a", "1"), ("change-b", "2")] {
+        require_success(
+            &fixture.command(&[
+                "change",
+                "register",
+                "--command-id",
+                &format!("continuity-register-{change}"),
+                "--phase",
+                "child-phase",
+                "--id",
+                change,
+                "--title",
+                &format!("Change {change}"),
+                "--sequence",
+                sequence,
+            ]),
+            "register continuity change",
+        );
+        require_success(
+            &fixture.command(&[
+                "task",
+                "register",
+                "--command-id",
+                &format!("continuity-task-{change}"),
+                "--phase",
+                "child-phase",
+                "--change",
+                change,
+                "--id",
+                "1",
+                "--title",
+                "Repeated task title",
+                "--sequence",
+                "1",
+            ]),
+            "register repeated task identity",
+        );
+    }
+
+    require_success(
+        &fixture.command(&[
+            "guard",
+            "evaluate",
+            "--boundary",
+            "change",
+            "--edge",
+            "before",
+            "--subject",
+            "change-a",
+            "--json",
+            "--repair-projections",
+            "--precommit",
+        ]),
+        "precommit change start",
+    );
+    let start_precommit = fixture.command(&[
+        "guard",
+        "evaluate",
+        "--boundary",
+        "task",
+        "--edge",
+        "before",
+        "--subject",
+        "change-a/1",
+        "--json",
+        "--repair-projections",
+        "--precommit",
+    ]);
+    require_success(&start_precommit, "precommit qualified repeated task");
+    require_success(
+        &fixture.command(&[
+            "task",
+            "transition",
+            "--command-id",
+            "continuity-task-a-start",
+            "--phase",
+            "child-phase",
+            "--change",
+            "change-a",
+            "--id",
+            "1",
+            "--status",
+            "in-progress",
+        ]),
+        "start first repeated task",
+    );
+    require_success(
+        &fixture.command(&[
+            "guard",
+            "evaluate",
+            "--boundary",
+            "change",
+            "--edge",
+            "before",
+            "--subject",
+            "change-a",
+            "--json",
+            "--repair-projections",
+        ]),
+        "record change start",
+    );
+    require_success(
+        &fixture.command(&[
+            "guard",
+            "evaluate",
+            "--boundary",
+            "task",
+            "--edge",
+            "before",
+            "--subject",
+            "change-a/1",
+            "--json",
+            "--repair-projections",
+        ]),
+        "record qualified repeated task start",
+    );
+    require_success(
+        &fixture.command(&[
+            "guard",
+            "evaluate",
+            "--boundary",
+            "task",
+            "--edge",
+            "after",
+            "--subject",
+            "change-a/1",
+            "--json",
+            "--repair-projections",
+            "--precommit",
+        ]),
+        "precommit qualified repeated task completion",
+    );
+    require_success(
+        &fixture.command(&[
+            "guard",
+            "evaluate",
+            "--boundary",
+            "change",
+            "--edge",
+            "after",
+            "--subject",
+            "change-a",
+            "--json",
+            "--repair-projections",
+            "--precommit",
+        ]),
+        "precommit change completion",
+    );
+    require_success(
+        &fixture.command(&[
+            "task",
+            "transition",
+            "--command-id",
+            "continuity-task-a-complete",
+            "--phase",
+            "child-phase",
+            "--change",
+            "change-a",
+            "--id",
+            "1",
+            "--status",
+            "complete",
+        ]),
+        "complete first repeated task",
+    );
+    require_success(
+        &fixture.command(&[
+            "guard",
+            "evaluate",
+            "--boundary",
+            "task",
+            "--edge",
+            "after",
+            "--subject",
+            "change-a/1",
+            "--json",
+            "--repair-projections",
+        ]),
+        "record qualified repeated task completion",
+    );
+    require_success(
+        &fixture.command(&[
+            "guard",
+            "evaluate",
+            "--boundary",
+            "change",
+            "--edge",
+            "after",
+            "--subject",
+            "change-a",
+            "--json",
+            "--repair-projections",
+        ]),
+        "record change completion",
+    );
+    assert!(fixture
+        .runtime
+        .replay()
+        .expect("replay completed change boundary")
+        .latest_boundary_receipts
+        .values()
+        .any(|receipt| {
+            receipt.boundary == kbd_runtime::BoundaryKind::Change
+                && receipt.change_id.as_deref() == Some("change-a")
+                && receipt.edge == kbd_runtime::BoundaryEdge::After
+        }));
+
+    let restarted = fixture.command(&["status", "--json"]);
+    require_success(&restarted, "read canonical position after CLI restart");
+    let restarted: serde_json::Value =
+        serde_json::from_slice(&restarted.stdout).expect("parse restarted status");
+    assert_eq!(
+        restarted["activePath"]["phasePath"],
+        serde_json::json!(["root-phase", "child-phase"])
+    );
+    assert_eq!(restarted["activePath"]["changeId"], "change-b");
+    assert_eq!(restarted["activePath"]["taskId"], "1");
+    assert_eq!(restarted["exactNextWork"], "/kbd-apply change-a");
+
+    let waypoint_path = fixture
+        .project_root
+        .join(".kbd-orchestrator/current-waypoint.json");
+    let waypoint: serde_json::Value =
+        serde_json::from_slice(&fs::read(&waypoint_path).expect("read waypoint"))
+            .expect("parse waypoint");
+    assert_eq!(waypoint["activePhase"], "child-phase");
+    assert_eq!(waypoint["parentPhase"], "root-phase");
+    assert_eq!(waypoint["nextChange"], "change-b");
+    assert_eq!(waypoint["nextTask"], "1");
+    assert_eq!(waypoint["exactNextCommand"], "/kbd-apply change-a");
+    let reminder = fs::read_to_string(
+        fixture
+            .project_root
+            .join(".kbd-orchestrator/position-reminder.txt"),
+    )
+    .expect("read position reminder");
+    assert!(reminder.contains("root-phase › child-phase"), "{reminder}");
+    assert!(
+        reminder.contains("Next work: change change-b, task 1"),
+        "{reminder}"
+    );
+
+    require_success(
+        &fixture.command(&[
+            "phase",
+            "activate",
+            "--command-id",
+            "continuity-exit-child",
+            "--id",
+            "root-phase",
+            "--exact-next-work",
+            "/kbd-status",
+        ]),
+        "reset active path to top-level phase",
+    );
+    let exited = fixture.runtime.replay().expect("replay child exit");
+    assert_eq!(exited.active_path.phase_path, vec!["root-phase"]);
+    assert_eq!(exited.active_path.change_id, None);
+    assert_eq!(exited.active_path.task_id, None);
+
+    require_success(
+        &fixture.command(&[
+            "phase",
+            "activate",
+            "--command-id",
+            "continuity-resume-child",
+            "--id",
+            "child-phase",
+            "--ancestor",
+            "root-phase",
+            "--exact-next-work",
+            "/kbd-status",
+        ]),
+        "resume child phase",
+    );
+    let resumed_human = fixture.command(&["status"]);
+    require_success(&resumed_human, "render resumed human status");
+    let rendered = stdout(&resumed_human);
+    assert!(
+        rendered.contains("Position: root-phase › child-phase › change-b › 1"),
+        "{rendered}"
+    );
+    assert!(
+        rendered.contains("Next work: change change-b, task 1"),
+        "{rendered}"
+    );
+    assert!(
+        rendered.contains("Operator note: /kbd-status"),
+        "{rendered}"
+    );
+
+    require_success(
+        &fixture.command(&[
+            "guard",
+            "evaluate",
+            "--boundary",
+            "task",
+            "--edge",
+            "before",
+            "--subject",
+            "change-b:1",
+            "--json",
+            "--repair-projections",
+            "--precommit",
+        ]),
+        "resolve colon-qualified repeated task",
+    );
+    for (status, command_id) in [
+        ("in-progress", "continuity-task-b-start"),
+        ("complete", "continuity-task-b-complete"),
+    ] {
+        require_success(
+            &fixture.command(&[
+                "task",
+                "transition",
+                "--command-id",
+                command_id,
+                "--phase",
+                "child-phase",
+                "--change",
+                "change-b",
+                "--id",
+                "1",
+                "--status",
+                status,
+            ]),
+            "transition second repeated task without receipt",
+        );
+    }
+    require_success(
+        &fixture.command(&[
+            "gate",
+            "run",
+            "--kind",
+            "integration",
+            "--scope",
+            "child-phase",
+            "--",
+            "/usr/bin/true",
+        ]),
+        "record integration gate before certification",
+    );
+    let certification = fixture.command(&[
+        "gate",
+        "run",
+        "--kind",
+        "certification",
+        "--scope",
+        "child-phase",
+        "--",
+        "/usr/bin/true",
+    ]);
+    assert!(!certification.status.success());
+    assert!(
+        format!("{}{}", stdout(&certification), stderr(&certification))
+            .contains("completed task change-b/1 has no valid kbd-apply receipt")
+    );
 }

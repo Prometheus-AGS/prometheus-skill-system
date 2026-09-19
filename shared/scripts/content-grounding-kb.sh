@@ -13,14 +13,33 @@
 #     --output /path/to/kb-corpus.json \
 #     [--include-misconceptions]
 #
+#   content-grounding-kb.sh --normalize <corpus.json> --output <out.json>
+#     Re-emit an existing corpus (any schema) through the same source builder,
+#     so every source gains key_points[] / misconceptions[]; corpus identity
+#     fields (corpus_id, subject, concept_id, ...) are kept. Used by the
+#     learn-grade eval harness on its schema-1.0.0 corpora.
+#
 # --kb flag forms:
 #   dify:<kb-name>          Query a Dify knowledge base by name
 #   palace:<palace-id>      Query a surreal-memory palace by ID
 #   local:<directory-path>  Ingest local .md/.txt/.json files
 #
+# Every emitted source carries (change-rah-008; the shape learn-grade reads):
+#   source_ref, source_type, confidence, is_misconception, content_summary,
+#   key_points[]      — the sentences of content_summary, unless the KB entry
+#                       already carries an authored key_points[] (kept as is)
+#   misconceptions[]  — [content_summary] when is_misconception is true, else []
+#                       (or the entry's authored misconceptions[] when present)
+#
+# This is the one grounding script. skills/learn/learn-goal/scripts/ and
+# skills/learn/learn-kb/scripts/ hold thin wrappers that exec this file.
+#
+# Environment:
+#   CONTENT_GROUNDING_BUILD_AT   override built_at (tests; keeps output byte-stable)
+#
 # Exit codes:
 #   0 — success (full or partial)
-#   1 — fatal error (bad args, missing credentials, unwritable output)
+#   1 — fatal error (bad args, missing credentials, unwritable output, no jq)
 
 set -euo pipefail
 
@@ -32,20 +51,46 @@ log_info()  { echo "[content-grounding-kb] INFO:  $*" >&2; }
 log_warn()  { echo "[content-grounding-kb] WARN:  $*" >&2; }
 log_error() { echo "[content-grounding-kb] ERROR: $*" >&2; }
 
-subject_to_slug() {
-  local input="$1"
-  echo "$input" \
-    | tr '[:upper:]' '[:lower:]' \
-    | sed 's/[^a-z0-9]\+/-/g' \
-    | sed 's/^-//; s/-$//'
-}
+# jq builds every source object (key_points derivation, escaping) and parses
+# every adapter response; without it no corpus can be built.
+if ! command -v jq >/dev/null 2>&1; then
+  log_error "jq is required"
+  echo '{"status":"error","message":"jq is required by content-grounding-kb.sh"}'
+  exit 1
+fi
+
+# Slug helpers live in shared/scripts/lib/slug.sh (change-rah-003). The shared
+# library is sourced when it sits next to this script; the inline definition
+# covers an installed layout that carries the script without lib/.
+_slug_lib="$(cd "$(dirname "${BASH_SOURCE[0]}")" 2>/dev/null && pwd)/lib/slug.sh"
+if [ -f "$_slug_lib" ]; then
+  # shellcheck source=shared/scripts/lib/slug.sh
+  . "$_slug_lib"
+else
+  subject_to_slug() {
+    printf '%s\n' "$1" \
+      | tr '[:upper:]' '[:lower:]' \
+      | sed 's/[^a-z0-9]\{1,\}/-/g' \
+      | sed 's/^-//; s/-$//'
+  }
+fi
 
 iso_now() {
+  if [[ -n "${CONTENT_GROUNDING_BUILD_AT:-}" ]]; then
+    printf '%s\n' "$CONTENT_GROUNDING_BUILD_AT"
+    return
+  fi
   date -u +"%Y-%m-%dT%H:%M:%SZ" 2>/dev/null || date +"%Y-%m-%dT%H:%M:%SZ"
 }
 
 # Append a source entry (JSON object) to the NDJSON accumulator file.
 # Args: sources_file source_ref source_type confidence is_misconception content_summary
+#       [key_points_json] [misconceptions_json]
+# The two optional arguments are JSON arrays carried over from a KB entry that
+# already authored them; when absent or not arrays they are derived:
+# key_points = sentences of content_summary; misconceptions = [content_summary]
+# for a misconception entry, [] otherwise. jq does the escaping, so a summary
+# containing quotes, backslashes, or newlines is still valid JSON.
 append_source() {
   local sources_file="$1"
   local source_ref="$2"
@@ -53,13 +98,40 @@ append_source() {
   local confidence="$4"
   local is_misconception="$5"
   local content_summary="$6"
+  local key_points_json="${7:-}"
+  local misconceptions_json="${8:-}"
 
-  local escaped_ref; escaped_ref=$(printf '%s' "$source_ref"      | sed 's/"/\\"/g')
-  local escaped_sum; escaped_sum=$(printf '%s' "$content_summary" | sed 's/"/\\"/g')
+  case "$confidence" in
+    ''|*[!0-9.]*) confidence="0.75" ;;
+  esac
+  case "$is_misconception" in
+    true|false) ;;
+    *) is_misconception="false" ;;
+  esac
+  [[ -n "$key_points_json" ]] || key_points_json='null'
+  [[ -n "$misconceptions_json" ]] || misconceptions_json='null'
 
-  cat >> "$sources_file" <<EOF
-{"source_ref":"${escaped_ref}","source_type":"${source_type}","confidence":${confidence},"is_misconception":${is_misconception},"content_summary":"${escaped_sum}"}
-EOF
+  jq -cn \
+    --arg ref "$source_ref" \
+    --arg type "$source_type" \
+    --argjson conf "$confidence" \
+    --argjson mis "$is_misconception" \
+    --arg summary "$content_summary" \
+    --argjson kp "$key_points_json" \
+    --argjson mc "$misconceptions_json" '
+    def sentences:
+      [ splits("(?<=[.!?])\\s+") | gsub("\\s+"; " ") | gsub("^ | $"; "") | select(length > 0) ];
+    def authored($v): if ($v | type) == "array"
+      then [ $v[] | select(type == "string") | select(length > 0) ] else null end;
+    {
+      source_ref: $ref,
+      source_type: $type,
+      confidence: $conf,
+      is_misconception: $mis,
+      content_summary: $summary,
+      key_points: (authored($kp) // ($summary | sentences)),
+      misconceptions: (authored($mc) // (if $mis then [$summary] else [] end))
+    }' >> "$sources_file"
 }
 
 source_count() {
@@ -107,9 +179,11 @@ LEVEL="practitioner"
 BUDGET_SOURCES=5
 OUTPUT=""
 INCLUDE_MISCONCEPTIONS=false
+NORMALIZE_FILE=""
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
+    --normalize)                 NORMALIZE_FILE="$2";  shift 2 ;;
     --kb)                        KB_ID="$2";           shift 2 ;;
     --subject)                   SUBJECT="$2";         shift 2 ;;
     --level)                     LEVEL="$2";           shift 2 ;;
@@ -126,6 +200,20 @@ done
 # ---------------------------------------------------------------------------
 # Validate required arguments
 # ---------------------------------------------------------------------------
+
+if [[ -n "$NORMALIZE_FILE" ]]; then
+  if [[ ! -f "$NORMALIZE_FILE" ]] || ! jq -e '(.sources | type) == "array"' "$NORMALIZE_FILE" >/dev/null 2>&1; then
+    log_error "--normalize needs a readable corpus JSON with a sources array: ${NORMALIZE_FILE}"
+    echo "{\"status\":\"error\",\"message\":\"--normalize: not a corpus file: ${NORMALIZE_FILE}\"}"
+    exit 1
+  fi
+  # Identity comes from the file unless the caller overrides it.
+  [[ -n "$KB_ID" ]]   || KB_ID="$(jq -r '.kb_source // empty' "$NORMALIZE_FILE")"
+  [[ -n "$KB_ID" ]]   || KB_ID="local:${NORMALIZE_FILE}"
+  [[ -n "$SUBJECT" ]] || SUBJECT="$(jq -r '.subject // empty' "$NORMALIZE_FILE")"
+  [[ -n "$SUBJECT" ]] || SUBJECT="$(basename "$NORMALIZE_FILE" .json)"
+  LEVEL="$(jq -r --arg d "$LEVEL" '.target_level // $d' "$NORMALIZE_FILE")"
+fi
 
 if [[ -z "$KB_ID" ]]; then
   log_error "--kb is required (e.g. --kb dify:my-kb or --kb palace:my-palace-id)"
@@ -161,11 +249,12 @@ if [[ ! -d "$OUTPUT_DIR" ]]; then
   fi
 fi
 
-# Parse --kb prefix
+# Parse --kb prefix (normalize mode reads a file, not a KB, so no prefix check)
 KB_TYPE="${KB_ID%%:*}"
 KB_VALUE="${KB_ID#*:}"
+[[ -z "$NORMALIZE_FILE" ]] || KB_TYPE="normalize"
 
-if [[ "$KB_TYPE" == "$KB_VALUE" ]]; then
+if [[ "$KB_TYPE" != "normalize" ]] && [[ "$KB_TYPE" == "$KB_VALUE" ]]; then
   # No colon found — treat as unknown
   log_error "--kb must be prefixed with dify:, palace:, or local: (got: ${KB_ID})"
   echo "{\"status\":\"error\",\"message\":\"--kb must be prefixed with dify:, palace:, or local:\"}"
@@ -173,7 +262,7 @@ if [[ "$KB_TYPE" == "$KB_VALUE" ]]; then
 fi
 
 case "$KB_TYPE" in
-  dify|palace|local) ;;
+  dify|palace|local|normalize) ;;
   *)
     log_error "Unknown --kb type '${KB_TYPE}' — must be one of: dify, palace, local"
     echo "{\"status\":\"error\",\"message\":\"Unknown --kb type: ${KB_TYPE}\"}"
@@ -184,11 +273,15 @@ esac
 SUBJECT_SLUG="$(subject_to_slug "$SUBJECT")"
 KB_SLUG="$(subject_to_slug "$KB_ID")"
 CORPUS_ID="${KB_SLUG}-${SUBJECT_SLUG}"
+if [[ -n "$NORMALIZE_FILE" ]]; then
+  CORPUS_ID="$(jq -r --arg d "$CORPUS_ID" '.corpus_id // $d' "$NORMALIZE_FILE")"
+fi
 BUILD_AT="$(iso_now)"
 
 # Temp accumulator
 SOURCES_TMP="$(mktemp /tmp/content-grounding-kb-sources-XXXXXX.ndjson)"
-trap 'rm -f "$SOURCES_TMP"' EXIT
+NORMALIZE_EXTRAS_FILE=""
+trap 'rm -f "$SOURCES_TMP" ${NORMALIZE_EXTRAS_FILE:+"$NORMALIZE_EXTRAS_FILE"}' EXIT
 
 # ---------------------------------------------------------------------------
 # Privacy guard — run before any adapter logic
@@ -226,11 +319,6 @@ run_dify_adapter() {
 
   if [[ -z "$response" ]]; then
     log_warn "Dify returned empty response for kb='${kb_name}'"
-    return
-  fi
-
-  if ! command -v jq >/dev/null 2>&1; then
-    log_warn "jq not available — cannot parse Dify response"
     return
   fi
 
@@ -302,11 +390,6 @@ run_palace_adapter() {
     return
   fi
 
-  if ! command -v jq >/dev/null 2>&1; then
-    log_warn "jq not available — cannot parse palace response"
-    return
-  fi
-
   while IFS= read -r item; do
     budget_reached && break
     local ref score summary
@@ -372,34 +455,33 @@ run_local_adapter() {
       json)
         # If the file matches the grounding-corpus schema (has a sources array),
         # unpack individual source entries; otherwise treat the file itself as a source.
-        if command -v jq >/dev/null 2>&1; then
-          local has_sources
-          has_sources="$(jq -r 'if (.sources | type) == "array" then "yes" else "no" end' \
-                         "$filepath" 2>/dev/null || echo "no")"
+        local has_sources
+        has_sources="$(jq -r 'if (.sources | type) == "array" then "yes" else "no" end' \
+                       "$filepath" 2>/dev/null || echo "no")"
 
-          if [[ "$has_sources" == "yes" ]]; then
-            log_info "  ~ ${filename}: grounding-corpus schema detected — extracting inner sources"
-            while IFS= read -r inner_item; do
-              budget_reached && break
-              local iref itype iconf imisco isum
-              iref="$(echo "$inner_item"   | jq -r '.source_ref  // "local-source"')"
-              itype="$(echo "$inner_item"  | jq -r '.source_type // "mcp_filesystem"')"
-              iconf="$(echo "$inner_item"  | jq -r '.confidence  // 0.75')"
-              imisco="$(echo "$inner_item" | jq -r '.is_misconception // false')"
-              isum="$(echo "$inner_item"   | jq -r '.content_summary // "" | .[0:500]')"
-              [[ -z "$isum" ]] && isum="Corpus entry from ${filename}"
-              append_source "$SOURCES_TMP" "${iref}" "${itype}" "${iconf}" "${imisco}" "${isum}"
-              log_info "  + corpus-entry from ${filename}: ${iref}"
-            done < <(jq -c '.sources[]? // empty' "$filepath" 2>/dev/null)
-            file_count=$((file_count + 1))
-            continue
-          else
-            summary="$(jq -r '.content_summary // .content // .summary // "" | .[0:500]' \
-                        "$filepath" 2>/dev/null || echo "")"
-            [[ -z "$summary" ]] && summary="$(head -c 500 "$filepath" 2>/dev/null || echo "")"
-          fi
+        if [[ "$has_sources" == "yes" ]]; then
+          log_info "  ~ ${filename}: grounding-corpus schema detected — extracting inner sources"
+          while IFS= read -r inner_item; do
+            budget_reached && break
+            local iref itype iconf imisco isum ikp imc
+            iref="$(echo "$inner_item"   | jq -r '.source_ref  // "local-source"')"
+            itype="$(echo "$inner_item"  | jq -r '.source_type // "mcp_filesystem"')"
+            iconf="$(echo "$inner_item"  | jq -r '.confidence  // 0.75')"
+            imisco="$(echo "$inner_item" | jq -r '.is_misconception // false')"
+            isum="$(echo "$inner_item"   | jq -r '.content_summary // "" | .[0:500]')"
+            # Authored key_points / misconceptions travel through unchanged.
+            ikp="$(echo "$inner_item"    | jq -c '.key_points // null')"
+            imc="$(echo "$inner_item"    | jq -c '.misconceptions // null')"
+            [[ -z "$isum" ]] && isum="Corpus entry from ${filename}"
+            append_source "$SOURCES_TMP" "${iref}" "${itype}" "${iconf}" "${imisco}" "${isum}" "${ikp}" "${imc}"
+            log_info "  + corpus-entry from ${filename}: ${iref}"
+          done < <(jq -c '.sources[]? // empty' "$filepath" 2>/dev/null)
+          file_count=$((file_count + 1))
+          continue
         else
-          summary="$(head -c 500 "$filepath" 2>/dev/null || echo "")"
+          summary="$(jq -r '.content_summary // .content // .summary // "" | .[0:500]' \
+                      "$filepath" 2>/dev/null || echo "")"
+          [[ -z "$summary" ]] && summary="$(head -c 500 "$filepath" 2>/dev/null || echo "")"
         fi
         source_type="mcp_filesystem"
         confidence="0.75"
@@ -427,9 +509,41 @@ run_local_adapter() {
 }
 
 # ---------------------------------------------------------------------------
+# Normalize: re-emit every source of an existing corpus through append_source
+# (no budget: a corpus is normalized whole, never truncated)
+# ---------------------------------------------------------------------------
+run_normalize() {
+  local file="$1"
+  log_info "Normalize: re-emitting sources of '${file}' at schema 1.1.0 ..."
+  local extras_tmp; extras_tmp="$(mktemp "${TMPDIR:-/tmp}/content-grounding-kb-extras-XXXXXX.ndjson")"
+  while IFS= read -r inner_item; do
+    local iref itype iconf imisco isum ikp imc
+    iref="$(echo "$inner_item"   | jq -r '.source_ref  // "local-source"')"
+    itype="$(echo "$inner_item"  | jq -r '.source_type // "mcp_filesystem"')"
+    iconf="$(echo "$inner_item"  | jq -r '.confidence  // 0.75')"
+    imisco="$(echo "$inner_item" | jq -r '.is_misconception // false')"
+    isum="$(echo "$inner_item"   | jq -r '.content_summary // ""')"
+    ikp="$(echo "$inner_item"    | jq -c '.key_points // null')"
+    imc="$(echo "$inner_item"    | jq -c '.misconceptions // null')"
+    [[ -z "$isum" ]] && isum="Corpus entry ${iref}"
+    append_source "$SOURCES_TMP" "${iref}" "${itype}" "${iconf}" "${imisco}" "${isum}" "${ikp}" "${imc}"
+    # Per-source fields this builder does not own (a KB's own concept_id, tags,
+    # ...) survive normalization instead of being dropped silently. The rebuilt
+    # fields win on conflict, so key_points/misconceptions stay authoritative.
+    printf '%s\n' "$inner_item" \
+      | jq -c 'del(.source_ref, .source_type, .confidence, .is_misconception,
+                   .content_summary, .key_points, .misconceptions)' >> "$extras_tmp"
+  done < <(jq -c '.sources[]? // empty' "$file")
+  NORMALIZE_EXTRAS_FILE="$extras_tmp"
+}
+
+# ---------------------------------------------------------------------------
 # Dispatch to adapter
 # ---------------------------------------------------------------------------
 case "$KB_TYPE" in
+  normalize)
+    run_normalize "$NORMALIZE_FILE"
+    ;;
   dify)
     run_dify_adapter "$KB_VALUE"
     ;;
@@ -445,6 +559,7 @@ esac
 # Assemble corpus JSON
 # ---------------------------------------------------------------------------
 FINAL_COUNT="$(source_count "$SOURCES_TMP")"
+[[ -z "$NORMALIZE_FILE" ]] || BUDGET_SOURCES="$FINAL_COUNT"
 log_info "Collected ${FINAL_COUNT} sources (budget: ${BUDGET_SOURCES})"
 
 SOURCES_JSON="["
@@ -462,18 +577,39 @@ if [[ -f "$SOURCES_TMP" ]] && [[ -s "$SOURCES_TMP" ]]; then
 fi
 SOURCES_JSON+="]"
 
-cat > "$OUTPUT" <<EOF
-{
-  "corpus_id": "${CORPUS_ID}",
-  "subject": "${SUBJECT}",
-  "target_level": "${LEVEL}",
-  "schema_version": "1.0.0",
-  "built_at": "${BUILD_AT}",
-  "kb_source": "${KB_ID}",
-  "privacy_mode": true,
-  "sources": ${SOURCES_JSON}
-}
-EOF
+# Normalize mode: fold each source's preserved extra fields back under the
+# rebuilt object, position by position (the two files were written in lockstep).
+if [[ -n "$NORMALIZE_EXTRAS_FILE" ]] && [[ -s "$NORMALIZE_EXTRAS_FILE" ]]; then
+  SOURCES_JSON="$(jq -c --argjson rebuilt "$SOURCES_JSON" -n \
+    '[inputs] as $extras
+     | [ $rebuilt | to_entries[] | ($extras[.key] // {}) + .value ]' \
+    "$NORMALIZE_EXTRAS_FILE")"
+fi
+
+# In normalize mode the input's other top-level fields (concept_id, maintainer,
+# ...) are kept; the fields below override them.
+EXTRA_JSON='{}'
+if [[ -n "$NORMALIZE_FILE" ]]; then
+  EXTRA_JSON="$(jq -c 'del(.sources)' "$NORMALIZE_FILE")"
+fi
+
+jq -n \
+  --argjson extra "$EXTRA_JSON" \
+  --arg corpus_id "$CORPUS_ID" \
+  --arg subject "$SUBJECT" \
+  --arg level "$LEVEL" \
+  --arg built_at "$BUILD_AT" \
+  --arg kb_source "$KB_ID" \
+  --argjson sources "$SOURCES_JSON" '$extra + {
+    corpus_id: $corpus_id,
+    subject: $subject,
+    target_level: $level,
+    schema_version: "1.1.0",
+    built_at: $built_at,
+    kb_source: $kb_source,
+    privacy_mode: true,
+    sources: $sources
+  }' > "$OUTPUT"
 
 log_info "KB corpus written to: ${OUTPUT}"
 

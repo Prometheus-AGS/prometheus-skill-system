@@ -1,0 +1,39 @@
+{
+  "mode": "diff",
+  "verdict": "BLOCK",
+  "judge_model": "k3",
+  "producer_model": "claude-fable-5-1",
+  "isolation_mode": "rest-gateway:http://localhost:8181/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": "skills/research/deep-research/scripts/score-sources.py",
+      "line": 427,
+      "claim": "The scorer writes `applied_weights` instead of the required `appliedWeights` field.",
+      "evidence": "Acceptance criterion ADDED Requirement: \"Missing evidence is not a zero\" says `appliedWeights` records the renormalised vector; the diff writes `\"applied_weights\": applied` in score-sources.py and tests assert `.applied_weights`.",
+      "suggested_fix": "Emit the field name required by the acceptance criteria (`appliedWeights`) consistently in score-sources.py, docs, schema examples, and tests, or update the accepted contract before implementation."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "skills/research/deep-research/scripts/build-graph.sh",
+      "line": 158,
+      "claim": "Contradiction entries with explicit claim ids not already present in the graph can crash graph construction.",
+      "evidence": "In the contradictions loop, `ida = a.get(\"id\") or claim_id(scope, ta)` and `idb = b.get(\"id\") or claim_id(scope, tb)`, but the missing-claim repair calls `upsert(txt, ...)`, which inserts under the computed hash id, not the explicit `cid`; the subsequent `claims[ida][\"contradicts\"]` and `claims[idb][\"contradicts\"]` dereference can KeyError when the explicit id is not already present. The package spec also says the older `claim-NNN` form still validates for packages written before change-rah-010.",
+      "suggested_fix": "When a contradiction supplies an explicit id, insert the synthetic claim under that exact id or normalize legacy ids before dereferencing."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "skills/research/deep-research/tests/fixtures/package-labelled/manifest.json",
+      "line": 1,
+      "claim": "The diff creates files outside the allowed change scope.",
+      "evidence": "The acceptance packet Scope lists the files this change may create/edit/delete and includes only `tests/fixtures/registry-sparse.json` and `tests/fixtures/claims-duplicate.json` under fixtures; the diff adds `tests/fixtures/package-labelled/manifest.json` and `tests/fixtures/package-labelled/sensitivity.json`.",
+      "suggested_fix": "Remove these out-of-scope fixture edits or amend the change scope before including them."
+    }
+  ],
+  "sycophancy_screen": {
+    "reject_cap": 2,
+    "cap_overridden": false,
+    "cap_default": 2
+  }
+}

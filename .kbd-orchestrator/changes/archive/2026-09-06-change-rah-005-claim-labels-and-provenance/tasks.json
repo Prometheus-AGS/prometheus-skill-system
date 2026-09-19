@@ -1,0 +1,68 @@
+{
+  "changeId": "change-rah-005-claim-labels-and-provenance",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Define the label enum, graph.json schema with claim labels, and the package derivation rule in okf-research-format.md and research-package-spec.md",
+      "done": true,
+      "doneAt": "2026-09-05T23:51:29Z",
+      "doneBy": "claude-code",
+      "files": [
+        "skills/research/deep-research/references/okf-research-format.md",
+        "skills/research/deep-research/references/research-package-spec.md",
+        "skills/research/deep-research/references/schemas/research-graph.schema.json"
+      ],
+      "verify": "grep -q 'inferred' skills/research/deep-research/references/okf-research-format.md && test -f skills/research/deep-research/references/schemas/research-graph.schema.json",
+      "notes": null
+    },
+    {
+      "id": "2",
+      "title": "Update stage 05 to 09 skills, the three agents, and the report template to emit and consume labels; port the verifier rules with attribution",
+      "done": true,
+      "doneAt": "2026-09-05T23:56:46Z",
+      "doneBy": "claude-code",
+      "files": [
+        "skills/research/deep-research/skills/stage-05-verify/SKILL.md",
+        "skills/research/deep-research/skills/stage-06-resolve/SKILL.md",
+        "skills/research/deep-research/skills/stage-07-graph/SKILL.md",
+        "skills/research/deep-research/skills/stage-08-cite/SKILL.md",
+        "skills/research/deep-research/skills/stage-09-report/SKILL.md",
+        "skills/research/deep-research/agents/source-verifier.md",
+        "skills/research/deep-research/agents/contradiction-resolver.md",
+        "skills/research/deep-research/agents/report-synthesizer.md",
+        "skills/research/deep-research/templates/report-template.md"
+      ],
+      "verify": "grep -lq 'blocked' skills/research/deep-research/skills/stage-0[5-9]-*/SKILL.md",
+      "notes": null
+    },
+    {
+      "id": "3",
+      "title": "Extend check-research-package.sh to validate claim labels and the derivation rule; add a labelled fixture package and the unlabelled negative fixture",
+      "done": true,
+      "doneAt": "2026-09-06T07:40:19Z",
+      "doneBy": "claude-code",
+      "files": [
+        "skills/research/deep-research/scripts/check-research-package.sh",
+        "skills/research/deep-research/tests/fixtures/package-labelled",
+        "skills/research/deep-research/tests/fixtures/package-unlabelled"
+      ],
+      "verify": "bash skills/research/deep-research/scripts/check-research-package.sh --package skills/research/deep-research/tests/fixtures/package-labelled && ! bash skills/research/deep-research/scripts/check-research-package.sh --package skills/research/deep-research/tests/fixtures/package-unlabelled",
+      "notes": null
+    },
+    {
+      "id": "4",
+      "title": "feynman-loop write-artifact.sh requires verification and provenance blocks; document in SKILL.md; learn-grade gaps carry label",
+      "done": true,
+      "doneAt": "2026-09-06T07:43:15Z",
+      "doneBy": "claude-code",
+      "files": [
+        "skills/learn/feynman-loop/scripts/write-artifact.sh",
+        "skills/learn/feynman-loop/SKILL.md",
+        "skills/learn/learn-grade/SKILL.md"
+      ],
+      "verify": "! bash skills/learn/feynman-loop/scripts/write-artifact.sh --goal-id fixture --artifact-json '{\"artifact_id\":\"x\",\"concept_id\":\"c\"}' 2>/dev/null",
+      "notes": null
+    }
+  ]
+}

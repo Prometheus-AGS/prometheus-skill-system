@@ -1,0 +1,11 @@
+{
+  "stage": "plan",
+  "completedAt": "2026-09-04T07:28:34Z",
+  "outputs": [
+    "plan.md"
+  ],
+  "nextStage": "execute",
+  "summaryForNext": "11 changes in 7 rounds; first to apply: change-rah-001-compile-baseline-and-timestamps (cargo-gated) in parallel with change-rah-007-eval-ground-truth-review (operator gate). Ordering: package contract (002) then driver (003) gate all research work; label vocabulary (005) and operator review (007) gate the learn work; 011 last as C-01 reconciliation with a conditional dependency on 010. Adversarial review PASS 0/5/1, all applied (plan.md ADVERSARIAL REVIEW table; specs regenerated for 001, 004, 009, 011). WARNINGs carried to execute: daemon hook policy is KBD_HOOKS_DISABLED in the headless child with hook-marker assertions; FSRS tasks in 009 are optional; validate:codex runs at 011. Blockers: cargo-gated tasks record BLOCKED while pid 57647 runs; /kbd-apply is refused until the operator reactivates this phase (companion executor holds the runtime position).",
+  "skipped": false,
+  "skipReason": null
+}

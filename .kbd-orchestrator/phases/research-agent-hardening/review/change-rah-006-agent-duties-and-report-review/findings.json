@@ -1,0 +1,47 @@
+{
+  "mode": "diff",
+  "verdict": "BLOCK",
+  "judge_model": "k3",
+  "producer_model": "claude-fable-5-1",
+  "isolation_mode": "rest-gateway:http://localhost:4000/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": "skills/process/adversarial-review/assets/reviewer-mandate-artifact.md",
+      "line": 47,
+      "claim": "The judge mandate instructs the reviewer to flag `verified` frontmatter while the sidecar says `Adversarial review: not run`, but the driver guarantees exactly that state in every packet for a gate-passing run, so a real judge following the mandate must return a CRITICAL finding on every clean verified-track run and no such run can ever end `verified`.",
+      "evidence": "The added mandate bullet reads: \"A `verification_status` in the report frontmatter the sidecar does not support (`verified` while the sidecar says BLOCKED, a skipped gate, or `Adversarial review: not run`).\" In run-research.sh `review_report`, the order is: write interim sidecar (`write-provenance.sh \"$PKG\" --interim`), build the packet from the current report.md, dispatch the judge, and only AFTER the verdict call `sync_report_status` to rewrite the frontmatter. write-provenance.sh emits `Adversarial review: not run` whenever `.review` is null and `.blocked_review` is null \u2014 which is necessarily true at packet-build time. okf-research-format.md explicitly states stage 09's value is provisional (\"Stage 09 cannot know the review outcome\") and the fixture stage-runner writes `verification_status: verified` provisionally when the gate passes. So the judge always sees frontmatter `verified` beside a sidecar saying `Adversarial review: not run` \u2014 the exact combination the mandate classifies as a report-honesty defect. The fixture judge (tests/fixtures/judge.sh) never applies the mandate, which is why `review-clean-verified` passes in tests while a mandate-following judge could never produce that outcome.",
+      "suggested_fix": "Either lower the frontmatter to `partial` BEFORE building the packet (call sync_report_status with the pre-review derivation, or have stage 09 write `partial` whenever the review has not yet run), or remove `Adversarial review: not run` from the mandate's mismatch examples and state explicitly that the provisional pre-review value is expected and not a finding."
+    },
+    {
+      "severity": "WARNING",
+      "file": "skills/research/deep-research/tests/driver-contract.sh",
+      "line": 38,
+      "claim": "Every scenario injects RESEARCH_JUDGE_CMD, so the production judge path \u2014 dispatch-judge.sh's CLI contract and its producer-model requirements \u2014 is never exercised, and the driver never sets any producer identity (e.g. KBD_PRODUCER_MODEL) for the packet build or dispatch.",
+      "evidence": "run_driver always sets `RESEARCH_JUDGE_CMD=\"$JUDGE\"` (the fixture), so the `bash \"$ADV_DIR/scripts/dispatch-judge.sh\" --mode artifact --packet ... --out ...` branch in run-research.sh is dead code in every test. Meanwhile test-research-target.sh explicitly needs `export KBD_PRODUCER_MODEL=\"fixture/producer\"`, and run-fixture-suite.sh Group B documents fail-closed behavior when KBD_PRODUCER_MODEL is unset \u2014 yet the driver exports no producer model anywhere, so if dispatch-judge.sh enforces producer/judge distinctness (the `verified-distinct` cross-model check the fixture fakes), production dispatch fails closed and is recorded only as `blocked: judge unavailable`, indistinguishable from a missing gateway.",
+      "suggested_fix": "Add one scenario that runs the real build-review-packet.sh plus a stubbed-but-real-CLI dispatch-judge.sh (argument shape and producer handling), and have the driver record the run's producer model in checkpoint.json and pass it (e.g. KBD_PRODUCER_MODEL) when invoking the review tooling; record dispatch-exit-2 (refusal) separately from judge-unavailable in blocked_review."
+    },
+    {
+      "severity": "WARNING",
+      "file": "skills/research/deep-research/scripts/run-research.sh",
+      "line": 142,
+      "claim": "validate_stage 09's frontmatter checks grep the entire report.md rather than the frontmatter block, so a report whose body contains `type: research-report` or `verification_status: partial` at column 0 (e.g. in a quoted example or code fence) passes the stage-09 contract without valid frontmatter.",
+      "evidence": "`grep -q '^type: research-report' \"$PKG/report.md\"` and `grep -Eq '^verification_status: (verified|partial|unverified)$' \"$PKG/report.md\"` scan the whole file; only the opening `---` is anchored (`head -1`). This is the gate that decides whether the report is judged and exported, and sync_report_status's awk only rewrites the first `verification_status:` inside the frontmatter \u2014 so a false-pass here also means the derived status is never written where the drift check reads it.",
+      "suggested_fix": "Extract the frontmatter block (between the first `---` and the next `---`) and run the type/verification_status greps against that block only, the same way check-research-package.sh's python parses frontmatter with a bounded regex."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "skills/research/deep-research/scripts/write-provenance.sh",
+      "line": 32,
+      "claim": "The sidecar filename is derived by stripping a hard-coded `-yyyymmdd-4hex` suffix from the package id, while run-research.sh delegates id generation to `package_id_new` in shared/scripts/lib/slug.sh when present, so any format divergence between the library and the hard-coded pattern silently produces a sidecar name that mismatches manifest `files.provenance`.",
+      "evidence": "write-provenance.sh: `SLUG=\"${PACKAGE_ID%-[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]-[0-9a-f][0-9a-f][0-9a-f][0-9a-f]}\"`; run-research.sh prefers `PACKAGE_ID=\"$(package_id_new \"$SLUG\")\"` from slug.sh and only falls back to the inline `slug-date-4hex` form when the library is absent. slug.sh is not in this packet, so the coupling is unverifiable here; a mismatch surfaces only as a validate_stage 10 drift failure at export time.",
+      "suggested_fix": "Record the provenance filename (or the slug) in checkpoint.json at package creation and have write-provenance.sh read it, instead of re-deriving the slug from the id format in a second place."
+    }
+  ],
+  "sycophancy_screen": {
+    "reject_cap": 2,
+    "cap_overridden": false,
+    "cap_default": 2
+  }
+}

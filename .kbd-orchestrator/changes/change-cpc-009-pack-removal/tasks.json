@@ -1,0 +1,100 @@
+{
+  "changeId": "change-cpc-009-pack-removal",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Re-derive and record the footprint; delete substrate/sovereign-sync, sovereign-client, kbd-mobile, storage-provider iroh_docs.rs and its feature; retire the four sovereign-sync OpenSpec main specs with a decision record; delete docs/SOVEREIGN_SYNC_TESTING.md; cut the estate-feature dependency in prometheus-exec/exec-remote",
+      "done": true,
+      "doneAt": "2026-09-04T06:12:49Z",
+      "doneBy": "claude-code",
+      "files": [
+        "substrate/sovereign-sync/",
+        "substrate/sovereign-client/",
+        "substrate/kbd-mobile/",
+        "substrate/storage-provider/src/iroh_docs.rs",
+        "substrate/storage-provider/Cargo.toml",
+        "openspec/specs/sovereign-sync-daemon-health/",
+        "openspec/specs/sovereign-sync-ci/",
+        "openspec/specs/iroh-docs-adapter/",
+        "openspec/specs/mcp-client-pool/",
+        "docs/decisions/sovereign-sync-relocated-to-companion.md",
+        "docs/SOVEREIGN_SYNC_TESTING.md",
+        "crates/prometheus-exec/",
+        "substrate/exec-remote/"
+      ],
+      "verify": "test -f docs/decisions/sovereign-sync-relocated-to-companion.md && ! test -d openspec/specs/sovereign-sync-daemon-health && ! test -d openspec/specs/sovereign-sync-ci && ! test -d openspec/specs/iroh-docs-adapter && ! test -d openspec/specs/mcp-client-pool",
+      "notes": null
+    },
+    {
+      "id": "2",
+      "title": "Remove --sharing from the four installers, delete install-sovereign-sync-sharing.sh, the plist, and the systemd unit; update the four dependent plists; regenerate services.manifest.json",
+      "done": true,
+      "doneAt": "2026-09-04T07:15:51Z",
+      "doneBy": "claude-code",
+      "files": [
+        "scripts/install-binaries.sh",
+        "scripts/install-skills-flat.sh",
+        "scripts/install-mcp-services.sh",
+        "scripts/install-system.js",
+        "scripts/install-sovereign-sync-sharing.sh",
+        "shared/launchagents/ai.prometheus.sovereign-sync.plist",
+        "shared/systemd/ai.prometheus.sovereign-sync.service",
+        "shared/launchagents/ai.prometheus.forge-mcp.plist",
+        "shared/launchagents/ai.prometheus.liter-llm-api.plist",
+        "shared/launchagents/ai.prometheus.pk-cherry.plist",
+        "shared/launchagents/ai.prometheus.surface-bridge.plist",
+        "shared/services.manifest.json"
+      ],
+      "verify": "node scripts/generate-service-manifest.mjs --check",
+      "notes": null
+    },
+    {
+      "id": "3",
+      "title": "Repoint probes and CLI (doctor.rs, setup.rs, control_transport.rs) to optional contract discovery with no warning when absent; add the doctor test case; update shell tests",
+      "done": true,
+      "doneAt": "2026-09-05T00:21:33Z",
+      "doneBy": "claude-code",
+      "files": [
+        "shared/scripts/detect-toolchain.sh",
+        "shared/scripts/service-probe.sh",
+        "scripts/check-mcp-health.sh",
+        "tools/prometheus-cli/crates/prometheus-cli/src/commands/doctor.rs",
+        "tools/prometheus-cli/crates/prometheus-cli/src/commands/setup.rs",
+        "tools/prometheus-cli/crates/prometheus-cli/src/commands/control_transport.rs",
+        "tools/prometheus-cli/crates/prometheus-cli/tests/doctor.rs",
+        "shared/scripts/tests/"
+      ],
+      "verify": "cargo test --manifest-path tools/prometheus-cli/Cargo.toml -p prometheus-cli --test doctor && bash shared/scripts/tests/test-service-exclusions.sh",
+      "notes": null
+    },
+    {
+      "id": "4",
+      "title": "Update site/docs, docs/codex-plugin.md, and CLAUDE.md; regenerate plugin surfaces; run validate:codex and the footprint check",
+      "done": false,
+      "doneAt": null,
+      "doneBy": null,
+      "files": [
+        "site/docs/",
+        "docs/codex-plugin.md",
+        "CLAUDE.md",
+        ".claude-plugin/",
+        "docs/guide/",
+        "site/scripts/",
+        "tools/cowork-skills/"
+      ],
+      "verify": "npm run validate:codex && npm run check:skills-index && test -z \"$(grep -rnE 'sovereign-sync|sovereign_sync' . --exclude-dir=.git --exclude-dir=node_modules --exclude-dir=target --exclude-dir=.kbd-orchestrator --exclude-dir=.prometheus --exclude-dir=.refiner --exclude-dir=dist --exclude-dir=memory --exclude-dir=archive | grep -vE 'sovereign-sync\\.sock|SOVEREIGN_SYNC_SOCKET|sovereign-sync/device-key\\.json' | grep -vE '^\\./(docs/(integration-contract\\.md|decisions/|audits/|releases/|reports/)|CHANGELOG\\.md)')\"",
+      "notes": null
+    },
+    {
+      "id": "5",
+      "title": "Prove the pack operates without the Companion on this repo: status and one typed mutation",
+      "done": false,
+      "doneAt": null,
+      "doneBy": null,
+      "files": [],
+      "verify": "prometheus kbd --path . status --json | jq -e '.revision' && prometheus kbd --path . stage enter --command-id cpc-009-proof-$(date +%s) --phase control-plane-to-companion --id cpc-009-proof --title proof",
+      "notes": null
+    }
+  ]
+}

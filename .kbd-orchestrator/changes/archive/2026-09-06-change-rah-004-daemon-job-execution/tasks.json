@@ -1,0 +1,63 @@
+{
+  "changeId": "change-rah-004-daemon-job-execution",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Add --daemon-job to Cli and implement the handler: harness resolution, headless spawn with the deep-research prompt, blocked when absent; write references/headless-execution.md",
+      "done": true,
+      "doneAt": "2026-09-06T21:31:05Z",
+      "doneBy": "claude-code",
+      "files": [
+        "substrate/prometheus-research/src/main.rs",
+        "substrate/prometheus-research/src/job/spawn.rs",
+        "substrate/prometheus-research/src/job/mod.rs",
+        "skills/research/deep-research/references/headless-execution.md"
+      ],
+      "verify": "grep -q 'daemon_job\\|daemon-job' substrate/prometheus-research/src/main.rs && test -f skills/research/deep-research/references/headless-execution.md",
+      "notes": null
+    },
+    {
+      "id": "2",
+      "title": "Mirror the driver checkpoint into the daemon checkpoint and SSE; map child exit to complete, blocked, failed",
+      "done": true,
+      "doneAt": "2026-09-06T21:32:10Z",
+      "doneBy": "claude-code",
+      "files": [
+        "substrate/prometheus-research/src/job/checkpoint.rs",
+        "substrate/prometheus-research/src/http_server/sse.rs",
+        "substrate/prometheus-research/src/job/mod.rs"
+      ],
+      "verify": "grep -q 'AguiEvent::AgentStatus' substrate/prometheus-research/src/job/daemon.rs && grep -q 'AguiEvent::AgentError' substrate/prometheus-research/src/job/daemon.rs && grep -Eq '\"blocked\"|Blocked' substrate/prometheus-research/src/job/daemon.rs",
+      "notes": [
+        "verify target moved from src/job/mod.rs to src/job/daemon.rs: the handler was implemented as its own module (spec scope amendment); recorded 2026-09-06 during apply"
+      ]
+    },
+    {
+      "id": "3",
+      "title": "Adopt the jsonschema crate and implement research_export with schema validation",
+      "done": true,
+      "doneAt": "2026-09-06T21:33:04Z",
+      "doneBy": "claude-code",
+      "files": [
+        "substrate/prometheus-research/Cargo.toml",
+        "substrate/prometheus-research/src/mcp_server/mod.rs"
+      ],
+      "verify": "! grep -q 'change-prb-007' substrate/prometheus-research/src/mcp_server/mod.rs",
+      "notes": null
+    },
+    {
+      "id": "4",
+      "title": "Write tests/job_execution.rs with the fake harness fixture: complete path, blocked path, export validation; run it when no other cargo build is active",
+      "done": true,
+      "doneAt": "2026-09-06T22:01:53Z",
+      "doneBy": "claude-code",
+      "files": [
+        "substrate/prometheus-research/tests/job_execution.rs",
+        "substrate/prometheus-research/tests/fixtures/fake-claude.sh"
+      ],
+      "verify": "test -z \"$(pgrep -x cargo)\" && cd substrate/prometheus-research && cargo test -p prometheus-research --test job_execution",
+      "notes": null
+    }
+  ]
+}

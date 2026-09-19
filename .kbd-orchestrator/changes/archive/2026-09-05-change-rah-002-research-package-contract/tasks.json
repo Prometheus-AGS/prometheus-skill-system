@@ -1,0 +1,90 @@
+{
+  "changeId": "change-rah-002-research-package-contract",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Write research-manifest.schema.json from the spec; make the spec normative (no .research suffix, plan.md, package dir naming); delete the template",
+      "done": true,
+      "doneAt": "2026-09-05T13:45:48Z",
+      "doneBy": "claude-code",
+      "files": [
+        "skills/research/deep-research/references/schemas/research-manifest.schema.json",
+        "skills/research/deep-research/references/research-package-spec.md",
+        "skills/research/deep-research/templates/research-package-manifest.json"
+      ],
+      "verify": "test -f skills/research/deep-research/references/schemas/research-manifest.schema.json && ! test -f skills/research/deep-research/templates/research-package-manifest.json",
+      "notes": null
+    },
+    {
+      "id": "2",
+      "title": "Rewrite export-package.sh to emit every schema field from package state and accept --ingest-palace; make the SKILL.md example schema-valid",
+      "done": true,
+      "doneAt": "2026-09-05T13:45:50Z",
+      "doneBy": "claude-code",
+      "files": [
+        "skills/research/deep-research/scripts/export-package.sh",
+        "skills/research/deep-research/SKILL.md"
+      ],
+      "verify": "! grep -n 'feynman_grade: null\\|\"graph_nodes\": 0\\|contradictions_resolved: 0' skills/research/deep-research/scripts/export-package.sh",
+      "notes": null
+    },
+    {
+      "id": "3",
+      "title": "Unify the output root to ~/.prometheus/research/ in the four hooks and the daemon; add the legacy-path notice to daemon status",
+      "done": true,
+      "doneAt": "2026-09-05T13:48:52Z",
+      "doneBy": "claude-code",
+      "files": [
+        "skills/research/deep-research/hooks/pre-research.sh",
+        "skills/research/deep-research/hooks/post-stage.sh",
+        "skills/research/deep-research/hooks/on-contradiction.sh",
+        "skills/research/deep-research/hooks/post-export.sh",
+        "substrate/prometheus-research/src/config.rs",
+        "substrate/prometheus-research/src/job/checkpoint.rs",
+        "substrate/prometheus-research/src/main.rs"
+      ],
+      "verify": "! grep -rn 'research-jobs' skills/research/deep-research/hooks && test \"$(grep -rn 'research-jobs' substrate/prometheus-research/src | grep -vc 'legacy')\" = 0",
+      "notes": null
+    },
+    {
+      "id": "4",
+      "title": "Fix skill.toml comment, SKILL.md version and component table, add references/a2ui-components.md, point report-synthesizer.md at plan.md",
+      "done": true,
+      "doneAt": "2026-09-05T14:02:59Z",
+      "doneBy": "claude-code",
+      "files": [
+        "skills/research/deep-research/skill.toml",
+        "skills/research/deep-research/SKILL.md",
+        "skills/research/deep-research/references/a2ui-components.md",
+        "skills/research/deep-research/agents/report-synthesizer.md"
+      ],
+      "verify": "test -f skills/research/deep-research/references/a2ui-components.md && ! grep -q 'deferred' skills/research/deep-research/skill.toml && ! grep -q 'plan.json' skills/research/deep-research/agents/report-synthesizer.md",
+      "notes": null
+    },
+    {
+      "id": "5",
+      "title": "Write scripts/check-research-package.sh (python3 jsonschema with jq fallback) and run it",
+      "done": true,
+      "doneAt": "2026-09-05T14:04:41Z",
+      "doneBy": "claude-code",
+      "files": [
+        "skills/research/deep-research/scripts/check-research-package.sh"
+      ],
+      "verify": "bash skills/research/deep-research/scripts/check-research-package.sh",
+      "notes": null
+    },
+    {
+      "id": "6",
+      "title": "Author openspec/specs/research-pipeline-execution/spec.md (package layout, manifest, output root) and run openspec validate",
+      "done": true,
+      "doneAt": "2026-09-05T14:06:02Z",
+      "doneBy": "claude-code",
+      "files": [
+        "openspec/specs/research-pipeline-execution/spec.md"
+      ],
+      "verify": "openspec validate --specs 2>/dev/null || openspec validate",
+      "notes": null
+    }
+  ]
+}

@@ -97,6 +97,47 @@ by coincidence.
    sits on top of it. That's explicitly out of scope per this phase's
    `goals.md` non-goals.
 
+## Post-change baseline — change-rah-008 (2026-09-07)
+
+change-rah-008 changed the corpus shape learn-grade reads: every source now
+carries `key_points[]` and `misconceptions[]` (schema 1.1.0, emitted by the one
+grounding script `shared/scripts/content-grounding-kb.sh`), and the eval
+harness normalizes its schema-1.0.0 corpora through that script's `--normalize`
+mode before grading (see HARNESS.md "Corpus shape"). The `results/` files were
+graded before this change against the old shape.
+
+| Item | Result |
+|---|---|
+| Live re-run of the 24 items against the new corpus shape | **BLOCKED** — ground truth is still `draft: 24, reviewed: 0`; change-rah-007's rule (D-15) forbids recording a baseline against unreviewed labels, and the operator review (rah-007 task 2, `REVIEW-SHEET.md`) has not landed |
+| `grader-regression-test.sh` (deterministic snapshot compare of `results/` vs `baseline-snapshot.json`) | `OK — 24 items match baseline, no regressions` (run 2026-09-07; unchanged, because no result was regenerated) |
+| `baseline-snapshot.json` | Unchanged (`generated_at` 2026-07-16T22:00:00Z). It remains the pre-change reference; it is **not** a post-change baseline |
+| Metric movement | None measured. No number in this file or `metrics-summary.json` was re-tuned |
+| Corpus normalization | `learn-coherence.sh` proves `--normalize` brings `corpora/cellular-respiration-corpus.json` (12 sources, 5 misconceptions) to the 1.1.0 shape with authored `key_points[]` kept and the file itself untouched |
+
+To finish this item once rah-007 task 2 lands: regenerate `baseline-snapshot.json`
+from the reviewed truth (pre-change reference), re-run the 24 items per
+HARNESS.md with normalized corpora, run `compute-eval-metrics.py`, and record
+the movement here beside the reviewed pre-change numbers.
+
+## Ground-truth review: descoped 2026-09-08
+
+The 24-item human review (change-rah-007 tasks 2–3) was **descoped**, not
+completed and not deferred. Nothing consumes this baseline: it is in no build
+target, no certification gate, and no CI workflow, and its only consumer is a
+documentation paragraph in `learn-grade/SKILL.md`, which is now marked
+provisional.
+
+**Every number in this file was computed against draft ground truth and remains
+provisional.** `index.json` reports `draft: 24, reviewed: 0`. The one false
+positive behind the 0.96 F1 (`sp-003-incomplete-vague-mcp`, the sole misconception
+flip) has never been adjudicated, so the headline figure rests on an unchecked
+label.
+
+`REVIEW-SHEET.md`, the items, the corpora, the results, and
+`compute-eval-metrics.py` are unchanged on disk. If learn-grade's accuracy is
+ever cited externally or becomes safety-critical, do the review then and
+re-baseline; the sheet is ready to fill.
+
 ## Artifacts in this directory
 
 | File | Purpose |

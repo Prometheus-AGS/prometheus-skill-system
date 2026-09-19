@@ -1,0 +1,42 @@
+{
+  "changeId": "change-drt-008-hang-capture-harness",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Implement tests/hang/run-hang-capture.sh: loop driver-contract.sh --scenario full-run for all --runs K (default 12; capture-and-continue on hang, --stop-on-hang opt-in); per-run scoped pre-run cleanup (kill prior PID trees, reset scratch), timeout (default 90s), timestamped logs, run record (duration, exit, assertions, load average); on timeout capture ps tree + macOS sample stacks + output-volume observation BEFORE scoped teardown",
+      "done": true,
+      "doneAt": "2026-09-13T12:54:30Z",
+      "doneBy": "claude-code",
+      "files": [
+        "skills/research/deep-research/tests/hang/run-hang-capture.sh"
+      ],
+      "verify": "bash -n skills/research/deep-research/tests/hang/run-hang-capture.sh && test -x skills/research/deep-research/tests/hang/run-hang-capture.sh && grep -q -- '--runs' skills/research/deep-research/tests/hang/run-hang-capture.sh && grep -qE 'sample|spindump' skills/research/deep-research/tests/hang/run-hang-capture.sh && grep -qiE 'cleanup|kill' skills/research/deep-research/tests/hang/run-hang-capture.sh",
+      "notes": null
+    },
+    {
+      "id": "2",
+      "title": "Execute the capture campaign (all K runs executed; a hang is captured and the campaign continues, post-capture runs marked perturbed) and write HANG-CAPTURE.md: per-run table (duration, exit, assertions, load), measured failure rate hangs/K, and on the first hang the exact blocked command with its captured stack and the output-volume observation against the ~64 KB pipe-buffer hypothesis",
+      "done": true,
+      "doneAt": "2026-09-13T13:13:23Z",
+      "doneBy": "claude-code",
+      "files": [
+        "skills/research/deep-research/tests/hang/HANG-CAPTURE.md"
+      ],
+      "verify": "test -s skills/research/deep-research/tests/hang/HANG-CAPTURE.md && grep -qiE 'failure rate|hangs/' skills/research/deep-research/tests/hang/HANG-CAPTURE.md && grep -qiE 'blocked command|no hang' skills/research/deep-research/tests/hang/HANG-CAPTURE.md",
+      "notes": null
+    },
+    {
+      "id": "3",
+      "title": "Goal-2 dating: establish pre-existing vs introduced and first appearance for the isolated hang site, naming the method on a method: line (commit-pass | merge-base | uncommitted-only) with its evidence and limitations; state explicitly that committed history cannot date code that exists only in this phase's uncommitted tree",
+      "done": true,
+      "doneAt": "2026-09-13T13:13:49Z",
+      "doneBy": "claude-code",
+      "files": [
+        "skills/research/deep-research/tests/hang/HANG-CAPTURE.md"
+      ],
+      "verify": "grep -qEi 'pre-existing|introduced' skills/research/deep-research/tests/hang/HANG-CAPTURE.md && grep -qi 'uncommitted' skills/research/deep-research/tests/hang/HANG-CAPTURE.md && grep -qiE 'method: *(commit-pass|merge-base|uncommitted-only)' skills/research/deep-research/tests/hang/HANG-CAPTURE.md",
+      "notes": null
+    }
+  ]
+}

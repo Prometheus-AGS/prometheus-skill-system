@@ -1,0 +1,59 @@
+{
+  "schemaVersion": "2",
+  "generatedBy": "kbd-runtime",
+  "projectionContractVersion": 2,
+  "sourceRevision": 1233,
+  "derivedRevision": 1233,
+  "frontier": {
+    "4bca58c3-e70b-48c9-a555-60bc16d3d025": 1186,
+    "575138ba-385e-449d-89f7-cf4d793b34f9": 47
+  },
+  "conflictCount": 0,
+  "phase": "skill-pack-1-10-recovery",
+  "phaseId": "skill-pack-1-10-recovery",
+  "parentPhase": "kbd-control-plane-recovery",
+  "last_updated": "2026-09-19T17:28:57.273165Z",
+  "last_updated_by": "kbd-runtime",
+  "changes_total": 1,
+  "changes_completed": 0,
+  "implementation_total": 1,
+  "implementation_completed": 0,
+  "completion": {
+    "primaryCounter": "implementation",
+    "implementation": {
+      "completed": 0,
+      "total": 1,
+      "status": "PENDING"
+    },
+    "evidence": {
+      "status": "COMPLETE",
+      "summary": "Operator disposition recorded; strict OpenSpec verification passed; main spec synchronized; change archived on 2026-08-30.",
+      "blockers": []
+    },
+    "certification": {
+      "status": "COMPLETE",
+      "summary": "Final local integration, release, protected-test, OpenSpec, harness, documentation, and receipt-identity certification passed.",
+      "blockers": []
+    },
+    "publication": {
+      "status": "COMPLETE",
+      "summary": "Commit a9f7d62229f997087a2b0b59419d77f722e12cbd pushed to origin/codex/kbd-uds-control-repair.",
+      "blockers": []
+    }
+  },
+  "changes": [
+    {
+      "id": "release-skill-pack-1-10-recovery",
+      "title": "Recover, release, and redeploy Prometheus Skill Pack 1.10.0",
+      "status": "IN_PROGRESS",
+      "implementation_status": "IN_PROGRESS",
+      "tasks_total": 6,
+      "tasks_done": 5,
+      "last_task_completed": "Run local integration certification and finalize release artifacts",
+      "next_task_pending": "Merge, tag, publish, redeploy, and verify Skill Pack 1.10.0",
+      "blockers": []
+    }
+  ],
+  "children": {},
+  "migrationStatus": null
+}

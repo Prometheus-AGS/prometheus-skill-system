@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://prometheus-ags.dev/schemas/report-outline.schema.json",
+  "title": "Report outline",
+  "description": "Maps report sections to sub-questions and to the claim ids each section may cite. Carries claim ids ONLY: citation numbers are assigned solely by merge-threads.sh in citation-map.json, and the assembler resolves ids to numbers at assembly time. Two numbering authorities would drift.",
+  "type": "object",
+  "required": ["schema_version", "depth", "total_word_budget", "sections"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": { "type": "string", "pattern": "^1\\." },
+    "depth": { "enum": ["shallow", "deep", "exhaustive"] },
+    "total_word_budget": { "type": "integer", "minimum": 1 },
+    "sections": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["section_id", "title", "sub_question", "claim_ids", "word_budget"],
+        "additionalProperties": false,
+        "properties": {
+          "section_id": {
+            "type": "string",
+            "pattern": "^s[0-9]{2,}$",
+            "description": "Path component for report/sections/<section_id>.md. No slashes, never . or .."
+          },
+          "title": { "type": "string", "minLength": 1 },
+          "sub_question": {
+            "type": "string",
+            "minLength": 1,
+            "description": "The plan.md sub-question this section answers."
+          },
+          "claim_ids": {
+            "type": "array",
+            "minItems": 0,
+            "items": { "type": "string", "pattern": "^claim-" },
+            "description": "The ONLY claims this section may cite. The assembler diffs cited against assigned and fails on anything outside this set."
+          },
+          "word_budget": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 3000,
+            "description": "Target length. Capped at 3000 so no single generation call is asked for the whole report — the ceiling this change exists to remove."
+          }
+        }
+      }
+    }
+  }
+}

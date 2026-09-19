@@ -9,7 +9,8 @@ TOPIC="${RESEARCH_CONTRADICTION_TOPIC:-unknown}"
 CLAIM_A="${RESEARCH_CONTRADICTION_CLAIM_A:-}"
 CLAIM_B="${RESEARCH_CONTRADICTION_CLAIM_B:-}"
 AUTO_ESCALATE="${RESEARCH_AUTO_ESCALATE:-0}"
-OUTPUT_DIR="${RESEARCH_OUTPUT_DIR:-$HOME/.research-jobs}"
+OUTPUT_DIR="${RESEARCH_OUTPUT_DIR:-$HOME/.prometheus/research}"
+PKG_DIR="${RESEARCH_PACKAGE_PATH:-$OUTPUT_DIR/${RESEARCH_PACKAGE_ID:-$JOB_ID}}"
 CLAUDE_PLUGIN_ROOT="${CLAUDE_PLUGIN_ROOT:-}"
 
 NOW=$(date -u +%Y-%m-%dT%H:%M:%SZ)
@@ -18,8 +19,9 @@ echo "[on-contradiction] Contradiction detected in job $JOB_ID on topic: $TOPIC"
 echo "[on-contradiction]   Claim A: ${CLAIM_A:0:80}..."
 echo "[on-contradiction]   Claim B: ${CLAIM_B:0:80}..."
 
-# Append to contradiction log
-CONTRA_LOG="$OUTPUT_DIR/$JOB_ID/contradiction-events.log"
+# Append to the package's contradiction event log
+mkdir -p "$PKG_DIR"
+CONTRA_LOG="$PKG_DIR/contradiction-events.log"
 echo "$NOW | $TOPIC | A=$CLAIM_A | B=$CLAIM_B" >> "$CONTRA_LOG"
 
 # Optionally escalate via pmpo-elicit (only when AUTO_ESCALATE=1 and script exists)
@@ -28,7 +30,7 @@ if [[ "$AUTO_ESCALATE" == "1" ]] && [[ -n "$CLAUDE_PLUGIN_ROOT" ]]; then
   if [[ -x "$ELICIT_SCRIPT" ]]; then
     echo "[on-contradiction] Escalating to pmpo-elicit..."
     bash "$ELICIT_SCRIPT" \
-      "$OUTPUT_DIR/$JOB_ID/elicitations/contra-$(date +%s)" \
+      "$PKG_DIR/elicitations/contra-$(date +%s)" \
       "Contradiction on '$TOPIC': Claim A says '$CLAIM_A', Claim B says '$CLAIM_B'. Which position should the research take?" \
       "high" "deep-research-stage-06" \
       "$CLAIM_A" "$CLAIM_B"

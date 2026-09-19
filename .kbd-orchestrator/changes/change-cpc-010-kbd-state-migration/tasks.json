@@ -1,0 +1,51 @@
+{
+  "changeId": "change-cpc-010-kbd-state-migration",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Implement adopt-or-archive in kbd-runtime with per-file receipts and a dry-run; expose it in the CLI",
+      "done": false,
+      "doneAt": null,
+      "doneBy": null,
+      "files": [
+        "substrate/kbd-runtime/src/lib.rs",
+        "substrate/kbd-runtime/src/live_migration_proof.rs",
+        "tools/prometheus-cli/crates/prometheus-cli/src/commands/kbd.rs"
+      ],
+      "verify": null,
+      "notes": null
+    },
+    {
+      "id": "2",
+      "title": "Add the process-level migration case to the CLI kbd test target",
+      "done": false,
+      "doneAt": null,
+      "doneBy": null,
+      "files": [
+        "tools/prometheus-cli/crates/prometheus-cli/tests/kbd.rs"
+      ],
+      "verify": "cargo test --manifest-path tools/prometheus-cli/Cargo.toml -p prometheus-cli --test kbd",
+      "notes": null
+    },
+    {
+      "id": "3",
+      "title": "Run the migration on the seven files, commit receipts, verify frontier/revision unchanged and the refusal loop quiet",
+      "done": false,
+      "doneAt": null,
+      "doneBy": null,
+      "files": [
+        ".kbd-orchestrator/phases/ideation-and-decision-tools/progress.json",
+        ".kbd-orchestrator/phases/kimi-desktop-extensibility/progress.json",
+        ".kbd-orchestrator/phases/mobile-skill-portability/progress.json",
+        ".kbd-orchestrator/phases/openspec-mirror-drift-cleanup/progress.json",
+        ".kbd-orchestrator/phases/prometheus-exec-code-execution-engine/progress.json",
+        ".kbd-orchestrator/phases/uar-frontend-workspace-repair/progress.json",
+        ".kbd-orchestrator/phases/uar-host-execution/progress.json",
+        ".kbd-orchestrator/archives/"
+      ],
+      "verify": "prometheus kbd --path . status --json | jq -r '.revision,.frontier' > /tmp/before && prometheus kbd --path . migrate --projections && prometheus kbd --path . status --json | jq -r '.revision,.frontier' | diff - /tmp/before && test $(ls .kbd-orchestrator/archives/*.receipt.json 2>/dev/null | wc -l) -ge 7 && ( prometheus kbd --path . stage enter --command-id cpc-010-proof-$(date +%s) --phase control-plane-to-companion --id cpc-010-proof --title proof 2>&1 | grep -c 'refusing to overwrite' | grep -q '^0$' )",
+      "notes": null
+    }
+  ]
+}

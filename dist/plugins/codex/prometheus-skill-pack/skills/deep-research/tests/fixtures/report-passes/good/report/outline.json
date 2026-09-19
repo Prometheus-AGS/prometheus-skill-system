@@ -1,0 +1,7 @@
+{"schema_version":"1.0.0","depth":"deep","total_word_budget":2400,
+ "sections":[
+  {"section_id":"s01","title":"Collection ceilings","sub_question":"What limits apply?",
+   "claim_ids":["claim-aaaa1111","claim-bbbb2222"],"word_budget":1200},
+  {"section_id":"s02","title":"Disputed figures","sub_question":"Where do sources disagree?",
+   "claim_ids":["claim-cccc3333"],"word_budget":1200}
+ ]}

@@ -1,0 +1,55 @@
+{
+  "mode": "diff",
+  "verdict": "BLOCK",
+  "judge_model": "k3",
+  "producer_model": "claude-opus-5",
+  "isolation_mode": "rest-gateway:http://localhost:4000/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": "skills/research/deep-research/tests/installed-service-smoke.sh",
+      "line": 176,
+      "claim": "The only test leg that exercises the acceptance scenario 'a job started against the launchd-installed service reaches a running harness with a non-null harness_pid' is opt-in via SMOKE_LAUNCHD=1, so the recorded verification path never proves the primary acceptance criterion.",
+      "evidence": "Smoke test section 4: `if [ \"${SMOKE_LAUNCHD:-0}\" != \"1\" ]; then echo \"  skip - launchd leg not requested...\"`. The acceptance criteria's verify block runs `bash skills/research/deep-research/tests/installed-service-smoke.sh` with no SMOKE_LAUNCHD=1, and the evidence doc's D-A row ('Proven by ... installed-service-smoke.sh: the rendered plist is valid, its PATH is non-empty and resolves claude, and a negative control...') cites only the non-launchd sections. Requirement 'The daemon can resolve a harness under launchd' scenario 'Installed service spawns a worker' (non-null harness_pid) is therefore satisfied only on a path the recorded evidence does not show running.",
+      "suggested_fix": "Either run and record the launchd leg (SMOKE_LAUNCHD=1) as part of this change's evidence, or record criterion 1 as BLOCKED with the reason per the change's own rule that 'a gate that could not run is recorded BLOCKED, never described as passed'."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "docs/research-agent-hardening-evidence.md",
+      "line": 155,
+      "claim": "The change's verification document states as an acceptance criterion that 'Both defects are recorded as repaired', but the diff records D-B as 'VISIBLE, not yet repaired' and leaves the original D-B defect table row as 'Open', so the stated criterion is not met.",
+      "evidence": "Acceptance criteria: 'Both defects are recorded as repaired in docs/research-agent-hardening-evidence.md, against the original findings.' Diff evidence table: '| **D-B** | **VISIBLE, not yet repaired** | ... The installed driver itself is **still the 1920-byte stub**' and the defects table keeps D-B '**Open.**'. Task 4 is `[!]` BLOCKED (a permitted state), but the criterion text was never reconciled with that disposition.",
+      "suggested_fix": "Rewrite the criterion to match the recorded outcome (D-A repaired, D-B made visible with republish blocked on the 14 foreign artifact-refiner installs), or carry the republish into a named successor change and cite it here."
+    },
+    {
+      "severity": "WARNING",
+      "file": "skills/research/deep-research/tests/installed-service-smoke.sh",
+      "line": 210,
+      "claim": "The launchd leg's comment claims the harness_pid assertion 'works on any binary version', but harness_pid is recorded by the new daemon.rs added in this same change, so the installed binary the plist actually launches may be incapable of setting it, producing a FAIL unrelated to the D-A repair.",
+      "evidence": "Comment: 'The harness_pid assertion below is the one that actually proves D-A, and it works on any binary version.' Yet `cp.harness_pid = Some(child.id())` is set only in the newly added substrate/prometheus-research/src/job/daemon.rs `run()`, and the test itself acknowledges the plist runs the INSTALLED binary at ~/.local/bin ('which may predate this change and therefore expose no `execution` field'). A binary old enough to lack the self-check plausibly lacks this harness_pid recording too.",
+      "suggested_fix": "Gate the harness_pid assertion on the installed binary supporting the daemon-job execution path (or reinstall the binary as a precondition), and remove the 'works on any binary version' claim."
+    },
+    {
+      "severity": "WARNING",
+      "file": "substrate/prometheus-research/src/http_server/mod.rs",
+      "line": 28,
+      "claim": "The RESEARCH_EVENT_TOKEN warning is emitted from inside run_server (i.e. the process already started via `--mode server`), yet advises the operator to 'start via `--mode server`', which is self-contradictory and misleading.",
+      "evidence": "`tracing::warn!(\"RESEARCH_EVENT_TOKEN is unset: daemon events cannot reach the SSE stream (set it, or start via `--mode server`)\")` inside `pub async fn run_server(...)`; the adjacent comment says the token is 'set by main() before the runtime starts', so reaching this warning means --mode server already failed to set it.",
+      "suggested_fix": "Rephrase to state the actual consequence and remediation, e.g. 'RESEARCH_EVENT_TOKEN unset: all job-event ingest will be refused; set it in the service environment before starting'."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "scripts/install-binaries.sh",
+      "line": 600,
+      "claim": "The new fail-loud placeholder guard only greps for `__PROMETHEUS_`, so a regression that drops the `__HOME__` substitution (the exact failure the guard's comment says it exists to prevent) would pass silently.",
+      "evidence": "`if grep -q '__PROMETHEUS_' \"${PLIST_DST}\"; then fail ...` \u2014 the smoke test's equivalent check guards both patterns: `grep -q \"__PROMETHEUS_\\|__HOME__\"`. The installer comment claims 'an unsubstituted PATH is exactly defect D-A again', but an unsubstituted `__HOME__` would also produce a broken plist and is not caught.",
+      "suggested_fix": "Extend the guard to `grep -q '__PROMETHEUS_\\|__HOME__'` (and include `__HOME__` in the reported placeholder list) to match the smoke test."
+    }
+  ],
+  "sycophancy_screen": {
+    "reject_cap": 2,
+    "cap_overridden": false,
+    "cap_default": 2
+  }
+}

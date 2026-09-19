@@ -1,0 +1,662 @@
+{
+  "phase": "control-plane-to-companion",
+  "generated_at": "2026-09-02T08:00:00Z",
+  "research_budget": {
+    "max_queries_per_tier": 8,
+    "max_minutes": 20,
+    "queries_used": {
+      "tier1": 8,
+      "tier2": 6,
+      "tier3": 8,
+      "tier4": 0
+    }
+  },
+  "gaps_addressed": [
+    "G6",
+    "G7",
+    "Q1",
+    "Q2",
+    "gap-1",
+    "gap-11",
+    "gap-12",
+    "gap-13",
+    "gap-2",
+    "gap-3",
+    "gap-4",
+    "gap-6",
+    "gap-7",
+    "gap-8",
+    "spec-17"
+  ],
+  "candidates": [
+    {
+      "id": "cand-001",
+      "name": "sovereign-sync (substrate/sovereign-sync 1.8.0)",
+      "kind": "library",
+      "repo_url": "https://github.com/Prometheus-AGS/prometheus-skill-system",
+      "registry": "none",
+      "fit_for_gap": "gap-6: the Axum control-plane node the Companion must host",
+      "verdict": "adapt",
+      "coverage_estimate": 0.8,
+      "license": "MIT",
+      "maintenance": {
+        "last_release": "1.8.0 (2026-08-30)"
+      },
+      "evidence": [
+        {
+          "tier": 1,
+          "source_url": "substrate/sovereign-sync/src/rest_api.rs",
+          "claim": "axum 0.8 router with health/ready, sync, per-project KBD, signed commands, SSE, AG-UI; rest_api.rs is 3,834 lines of the crate's 9,360 total"
+        },
+        {
+          "tier": 1,
+          "source_url": "substrate/sovereign-sync/tests/domain_sync.rs",
+          "claim": "tests/domain_sync.rs: library-level regression only; node fixture binds an iroh endpoint that is never started (lines 113-121) and envelopes are handed to the peer by function call in one process (183-185); not the G6 two-process gate"
+        }
+      ],
+      "risks": [
+        "written for launchd with --token-file bearer auth; Companion \u00a717 mandates Stronghold",
+        "unwrap() and non-exact pins must be removed for Companion AGENTS.md \u00a715/\u00a717",
+        "no port or socket allocated in Companion spec"
+      ],
+      "decision_rationale": "Moves in full to the Companion (operator D-02) and is re-hosted as a library spawned from the Tauri setup hook; --mode mcp moves with it and the Companion owns its registration."
+    },
+    {
+      "id": "cand-002",
+      "name": "kbd-runtime (substrate/kbd-runtime)",
+      "kind": "library",
+      "repo_url": "https://github.com/Prometheus-AGS/prometheus-skill-system",
+      "registry": "none",
+      "fit_for_gap": "gap-2: KBD runtime authority location",
+      "verdict": "adopt",
+      "coverage_estimate": 1.0,
+      "license": "MIT",
+      "evidence": [
+        {
+          "tier": 1,
+          "source_url": "substrate/kbd-runtime/src/lib.rs",
+          "claim": "KbdStateV2, ed25519 SignedCommandEnvelope, journal WAL, projections; zero substrate deps"
+        },
+        {
+          "tier": 2,
+          "source_url": "/Users/gqadonis/Projects/hybrid-mobile-architecture-src/compatibility/prometheus-control-plane.json",
+          "claim": "lifecycle: prometheus, canonicalState: signed-loro-event-map, compatibilityProjections: read-only"
+        }
+      ],
+      "risks": [
+        "carries keyring =3.6.3 into the Companion graph; pin it in Companion versions.toml"
+      ],
+      "decision_rationale": "Stays in the open-source pack as the local signed KBD authority the CLI needs; the Companion consumes it by git rev (cand-016). HMA prometheus-control-plane.json stays valid."
+    },
+    {
+      "id": "cand-003",
+      "name": "iroh-mainline-address-lookup (Mainline/Kademlia DHT address lookup for iroh 1.x)",
+      "kind": "library",
+      "repo_url": "https://github.com/n0-computer/iroh-address-lookups",
+      "registry": "crates",
+      "fit_for_gap": "gap-1 / Q2: Kademlia-style discovery that does not violate pairing-not-discovery doctrine",
+      "verdict": "adopt",
+      "coverage_estimate": 0.9,
+      "license": "MIT OR Apache-2.0",
+      "maintenance": {
+        "last_release": "0.5.0 (2026-08-18, per review); depends on iroh ^1.0.0, builds against locked 1.0.3",
+        "iroh_resolved": "1.0.3 in sovereign-sync Cargo.lock"
+      },
+      "evidence": [
+        {
+          "tier": 2,
+          "source_url": "https://docs.iroh.computer/concepts/discovery",
+          "claim": "four discovery services: DNS (default), Pkarr, Local (mDNS), DHT (Mainline); Local and DHT disabled by default"
+        },
+        {
+          "tier": 2,
+          "source_url": "https://docs.rs/iroh/latest/iroh/address_lookup/index.html",
+          "claim": "1.x: mDNS and Mainline DHT are available in separate crates, added via Endpoint::builder().address_lookup(), callable multiple times"
+        },
+        {
+          "tier": 3,
+          "source_url": "https://crates.io/api/v1/crates/iroh",
+          "claim": "iroh 1.1.0, 2.1M downloads, updated 2026-08-25"
+        },
+        {
+          "tier": 1,
+          "source_url": "~/.cargo/registry/src/*/iroh-1.0.3/src/address_lookup.rs#L47-51",
+          "claim": "names the separate crates iroh-mdns-address-lookup and iroh-mainline-address-lookup"
+        }
+      ],
+      "risks": [
+        "publishes signed pkarr records (relay URL, direct addresses, keyed by EndpointId) to the public BitTorrent DHT; recommended off by default with per-operator opt-in",
+        "Companion spec \u00a725.2 'no DHT gossip tax' row must be amended to state the opt-in"
+      ],
+      "decision_rationale": "A DHT for address lookup of already-trusted EndpointIds satisfies Goal 3 while admission stays Ed25519 pairing per Companion spec \u00a725.2 and HMA peer-crdt.md."
+    },
+    {
+      "id": "cand-004",
+      "name": "iroh-mdns-address-lookup (local-network lookup for iroh 1.x; swarm-discovery based)",
+      "kind": "library",
+      "repo_url": "https://github.com/n0-computer/iroh-address-lookups",
+      "registry": "crates",
+      "fit_for_gap": "gap-1: zero-config LAN discovery between the operator's own machines",
+      "verdict": "adopt",
+      "coverage_estimate": 0.9,
+      "license": "Apache-2.0",
+      "maintenance": {
+        "last_release": "0.5.0 (2026-08-18, per review); depends on iroh ^1.0.0 and swarm-discovery ^0.6 (0.6.3, 2026-06-30)"
+      },
+      "evidence": [
+        {
+          "tier": 2,
+          "source_url": "https://docs.iroh.computer/connecting/local-discovery",
+          "claim": "Local discovery is not enabled by default; broadcasts presence and exchanges dialing info on the LAN without a relay"
+        },
+        {
+          "tier": 3,
+          "source_url": "https://crates.io/api/v1/crates/swarm-discovery",
+          "claim": "365k downloads, 168k recent, updated 2026-06-30"
+        }
+      ],
+      "risks": [
+        "multicast may be blocked on corporate networks; keep bootstrap list as fallback"
+      ],
+      "decision_rationale": "Covers the common two-machines-on-one-LAN case with no relay or DHT round trip."
+    },
+    {
+      "id": "cand-005",
+      "name": "libp2p-kad",
+      "kind": "library",
+      "repo_url": "https://github.com/libp2p/rust-libp2p",
+      "registry": "crates",
+      "fit_for_gap": "gap-1: literal Kademlia DHT",
+      "verdict": "reject",
+      "coverage_estimate": 0.0,
+      "license": "MIT",
+      "evidence": [
+        {
+          "tier": 2,
+          "source_url": "prometheus-companion/docs/00-architecture-and-implementation-plan.md#L183",
+          "claim": "forbidden-dependency table: libp2p directly | Sovereign-sync already uses Iroh; the Companion consumes sovereign-sync"
+        },
+        {
+          "tier": 2,
+          "source_url": "prometheus-companion/docs/00-architecture-and-implementation-plan.md#L3702",
+          "claim": "\u00a725.2 tradeoff: Iroh over libp2p, no DHT gossip tax"
+        }
+      ],
+      "risks": [
+        "second transport stack beside iroh",
+        "forbidden by the Companion spec dependency table (L183)"
+      ],
+      "decision_rationale": "Forbidden by the Companion spec's dependency table and a second transport stack beside iroh; HMA names libp2p only in research notes, not rules."
+    },
+    {
+      "id": "cand-006",
+      "name": "iroh-gossip",
+      "kind": "library",
+      "repo_url": "https://github.com/n0-computer/iroh-gossip",
+      "registry": "crates",
+      "fit_for_gap": "gap-1: membership and update broadcast",
+      "verdict": "adopt",
+      "coverage_estimate": 1.0,
+      "license": "MIT OR Apache-2.0",
+      "maintenance": {
+        "last_release": "0.101.0 (2026-06-15)"
+      },
+      "evidence": [
+        {
+          "tier": 1,
+          "source_url": "substrate/sovereign-sync/src/p2p.rs",
+          "claim": "already in use: blake3-derived topic from group_secret, NeighborUp/Down membership, raised message cap for Loro bundles"
+        },
+        {
+          "tier": 3,
+          "source_url": "https://crates.io/api/v1/crates/iroh-gossip",
+          "claim": "585k downloads, updated 2026-06-15"
+        }
+      ],
+      "risks": [],
+      "decision_rationale": "Already the membership layer; no change."
+    },
+    {
+      "id": "cand-007",
+      "name": "clawdesk embedded gateway in Tauri setup",
+      "kind": "pattern",
+      "repo_url": "https://github.com/clawdesk/clawdesk",
+      "registry": "none",
+      "fit_for_gap": "gap-6: precedent for hosting an HTTP server inside a Tauri process with tray health",
+      "verdict": "reference",
+      "coverage_estimate": 0.5,
+      "license": "MIT",
+      "maintenance": {
+        "last_release": "last push 2026-03-23",
+        "stars": 3
+      },
+      "evidence": [
+        {
+          "tier": 1,
+          "source_url": "https://github.com/clawdesk/clawdesk/blob/main/crates/clawdesk-tauri/src/lib.rs",
+          "claim": "lines 527-620: setup hook spawns clawdesk_gateway on localhost:18789, tray get_gateway_health/refresh_gateway_health, graceful skip when the store fails to open"
+        },
+        {
+          "tier": 2,
+          "source_url": "https://tauri.app/learn/splashscreen",
+          "claim": "tauri::async_runtime::spawn from setup and app.manage for shared state is the documented mechanism"
+        }
+      ],
+      "risks": [
+        "low stars, five months since last push; pattern only, no code reuse"
+      ],
+      "decision_rationale": "Proves the in-process pattern is workable; read for structure, do not depend on it."
+    },
+    {
+      "id": "cand-008",
+      "name": "know-me gen_ui_server_axum AG-UI run/events SSE split",
+      "kind": "pattern",
+      "repo_url": "/Users/gqadonis/Projects/know-me/know-me-system/rust/crates/gen_ui_server_axum",
+      "registry": "none",
+      "fit_for_gap": "gap-6: AG-UI SSE contract shape",
+      "verdict": "reference",
+      "coverage_estimate": 0.3,
+      "evidence": [
+        {
+          "tier": 1,
+          "source_url": "rust/crates/gen_ui_server_axum/src/lib.rs",
+          "claim": "POST /chat/runs -> {run_id, events_url}; GET events stream with 15s keep-alive, terminal-event break, Lagged -> transport_error; no auth middleware"
+        }
+      ],
+      "risks": [
+        "no auth boundary; desktop there uses Tauri IPC, not this server"
+      ],
+      "decision_rationale": "Cleanest SSE shape seen; add the auth layer it lacks."
+    },
+    {
+      "id": "cand-009",
+      "name": "graph-explorer single workspace and surface_parity test",
+      "kind": "pattern",
+      "repo_url": "/Users/gqadonis/Projects/graph-explorer",
+      "registry": "none",
+      "fit_for_gap": "Q1: workspace layout; G6: desktop/mobile parity test shape",
+      "verdict": "reference",
+      "coverage_estimate": 0.4,
+      "evidence": [
+        {
+          "tier": 1,
+          "source_url": "/Users/gqadonis/Projects/graph-explorer/Cargo.toml",
+          "claim": "one workspace with desktop as a member; no hand-mirrored [patch] table"
+        },
+        {
+          "tier": 1,
+          "source_url": "rust/crates/tauri-plugin-gen-ui/tests/surface_parity.rs",
+          "claim": "asserts desktop and mobile answer identically through one core"
+        }
+      ],
+      "risks": [],
+      "decision_rationale": "The layout HMA's tray scaffold prescribes, proven in an active repo (last commit 2026-09-01)."
+    },
+    {
+      "id": "cand-010",
+      "name": "HMA health-aggregator template + launchagent-supervisor skill",
+      "kind": "skeleton",
+      "repo_url": "/Users/gqadonis/Projects/hybrid-mobile-architecture-src",
+      "registry": "none",
+      "fit_for_gap": "gap-12 / G4: typed five-state health aggregator and launchd hygiene",
+      "verdict": "adopt",
+      "coverage_estimate": 0.6,
+      "evidence": [
+        {
+          "tier": 1,
+          "source_url": "assets/templates/tauri-tray/health-aggregator/",
+          "claim": "tokio-only template crate; five states Healthy/Degraded/Down/Paused/Starting from one aggregator"
+        },
+        {
+          "tier": 1,
+          "source_url": "skills/launchagent-supervisor/SKILL.md",
+          "claim": "ThrottleInterval >= 15, KeepAlive dictionary, PID-file lock, one installer, rendered plist via render-supervisor-plist.sh"
+        }
+      ],
+      "risks": [
+        "docs/06-tauri-tray-app-spec.md cites Companion files that do not exist yet"
+      ],
+      "decision_rationale": "Prescribed by the doctrine the Companion follows; the supervisor actor around it is build work."
+    },
+    {
+      "id": "cand-011",
+      "name": "tauri-plugin-autostart",
+      "kind": "library",
+      "repo_url": "https://github.com/tauri-apps/plugins-workspace",
+      "registry": "crates",
+      "fit_for_gap": "G4: start Companion at login",
+      "verdict": "reject",
+      "coverage_estimate": 0.2,
+      "license": "Apache-2.0 OR MIT",
+      "maintenance": {
+        "last_release": "2.5.1 (2025-10-27)"
+      },
+      "evidence": [
+        {
+          "tier": 3,
+          "source_url": "https://crates.io/api/v1/crates/tauri-plugin-autostart",
+          "claim": "4.6M downloads; login-item plist without KeepAlive/ThrottleInterval"
+        },
+        {
+          "tier": 1,
+          "source_url": "/Users/gqadonis/Projects/hybrid-mobile-architecture-src/skills/launchagent-supervisor/SKILL.md",
+          "claim": "bare KeepAlive without ThrottleInterval causes crash-loop amnesia; never hand-write a plist"
+        }
+      ],
+      "risks": [
+        "no crash restart; contradicts Companion spec \u00a725.1 where launchd restarts the app"
+      ],
+      "decision_rationale": "Login-start only; cannot be the outer restart authority."
+    },
+    {
+      "id": "cand-012",
+      "name": "tauri-plugin-stronghold",
+      "kind": "library",
+      "repo_url": "https://github.com/tauri-apps/plugins-workspace",
+      "registry": "crates",
+      "fit_for_gap": "spec-17: operator credentials and provider keys",
+      "verdict": "adopt",
+      "coverage_estimate": 0.8,
+      "license": "Apache-2.0 OR MIT",
+      "maintenance": {
+        "last_release": "2.3.2 (2026-08-31)"
+      },
+      "evidence": [
+        {
+          "tier": 2,
+          "source_url": "prometheus-companion/docs/00-architecture-and-implementation-plan.md \u00a717",
+          "claim": "keys via tauri-plugin-stronghold only; never in PEM, PGlite, logs, URLs"
+        },
+        {
+          "tier": 3,
+          "source_url": "https://crates.io/api/v1/crates/tauri-plugin-stronghold",
+          "claim": "348k downloads, updated 2026-08-31"
+        }
+      ],
+      "risks": [
+        "scope is operator/provider credentials only; the device key is held by kbd-runtime via keyring (cand-013)",
+        "vault unlock UX is irrelevant to the headless preset, which has no vault"
+      ],
+      "decision_rationale": "Spec-mandated; scope limited to operator credentials, not the device key."
+    },
+    {
+      "id": "cand-013",
+      "name": "keyring =3.6.3 (incumbent in kbd-runtime)",
+      "kind": "library",
+      "repo_url": "https://github.com/open-source-cooperative/keyring-rs",
+      "registry": "crates",
+      "fit_for_gap": "spec-17 / gap-8: OS credential store already holding the canonical device key prometheus-kbd-device",
+      "verdict": "adopt",
+      "coverage_estimate": 1.0,
+      "license": "MIT OR Apache-2.0",
+      "maintenance": {
+        "last_release": "4.2.0 (2026-08-29) on crates.io; kbd-runtime pins =3.6.3"
+      },
+      "evidence": [
+        {
+          "tier": 1,
+          "source_url": "substrate/kbd-runtime/Cargo.toml#L29-35",
+          "claim": "keyring = \"=3.6.3\" with apple-native / sync-secret-service+crypto-rust / windows-native per platform"
+        },
+        {
+          "tier": 1,
+          "source_url": "substrate/kbd-runtime/src/lib.rs#L2973,L3419,L3448",
+          "claim": "Canonical runtimes use the host credential store; keyring::Entry::new(\"prometheus-kbd-device\", account); PROMETHEUS_DEVICE_KEY_FILE for headless hosts"
+        },
+        {
+          "tier": 3,
+          "source_url": "https://crates.io/api/v1/crates/keyring",
+          "claim": "22.9M downloads, updated 2026-08-29"
+        }
+      ],
+      "risks": [
+        "macOS backend is the legacy login keychain with a per-item application ACL (keyring-3.6.3/src/macos.rs:33,58,70): a different signed binary reading prometheus-kbd-device triggers an allow prompt; headless hosts must use PROMETHEUS_DEVICE_KEY_FILE",
+        "must be pinned in Companion versions.toml (human edit); do not add keyring 4.x beside it"
+      ],
+      "decision_rationale": "Grep-the-consumer's-manifest: the incumbent was already chosen; the work is continuity between binaries, not selection."
+    },
+    {
+      "id": "cand-014",
+      "name": "spake2 (RustCrypto PAKEs)",
+      "kind": "library",
+      "repo_url": "https://github.com/RustCrypto/PAKEs",
+      "registry": "crates",
+      "fit_for_gap": "gap-13: 6-digit code pairing UX from Companion spec \u00a714",
+      "verdict": "reference",
+      "coverage_estimate": 0.5,
+      "license": "MIT OR Apache-2.0",
+      "maintenance": {
+        "last_release": "0.4.0 (2026-01-25); 0.5.0-pre.0 published"
+      },
+      "evidence": [
+        {
+          "tier": 3,
+          "source_url": "https://crates.io/api/v1/crates/spake2",
+          "claim": "1.2M downloads, updated 2026-01-25"
+        },
+        {
+          "tier": 1,
+          "source_url": "https://github.com/clawdesk/clawdesk/blob/main/crates/clawdesk-discovery/Cargo.toml",
+          "claim": "clawdesk-discovery: mDNS/DNS-SD service advertisement and SPAKE2 pairing"
+        }
+      ],
+      "risks": [
+        "adds a second key-exchange next to iroh's TLS; only needed if short-code pairing is v1"
+      ],
+      "decision_rationale": "Spec stage decides whether QR-encoded tickets suffice or a PAKE short code is required."
+    },
+    {
+      "id": "cand-015",
+      "name": "snow (Noise protocol)",
+      "kind": "library",
+      "repo_url": "https://github.com/mcginty/snow",
+      "registry": "crates",
+      "fit_for_gap": "gap-13: the Noise handshake the Companion spec attributes to sovereign-sync",
+      "verdict": "reject",
+      "coverage_estimate": 0.0,
+      "license": "Apache-2.0 OR MIT",
+      "evidence": [
+        {
+          "tier": 1,
+          "source_url": "substrate/sovereign-sync/src",
+          "claim": "grep -il noise over src and Cargo.toml returns nothing; peers authenticate by EndpointId over iroh QUIC/TLS 1.3"
+        }
+      ],
+      "risks": [
+        "would duplicate transport authentication already provided by iroh"
+      ],
+      "decision_rationale": "The spec's Noise attribution is a documentation error to correct, not a dependency to add."
+    },
+    {
+      "id": "cand-016",
+      "name": "Cargo git dependency pinned by rev for skill-pack crates",
+      "kind": "pattern",
+      "registry": "none",
+      "fit_for_gap": "gap-7: the Companion consumes the pack's open crates (kbd-runtime, storage-provider, learner-model, skill-index) by git rev; direction is Companion-to-pack only (operator decision D-02, option D)",
+      "verdict": "adopt",
+      "coverage_estimate": 0.9,
+      "evidence": [
+        {
+          "tier": 1,
+          "source_url": "tools/prometheus-cli/Cargo.toml#L52",
+          "claim": "prometheus-cli -> kbd-runtime path dep must remain local"
+        },
+        {
+          "tier": 1,
+          "source_url": "prometheus-companion/docs/00-architecture-and-implementation-plan.md Appendix A.2",
+          "claim": "spec assumes ../<name> path deps into a superworkspace that does not exist"
+        }
+      ],
+      "risks": [
+        "rev bumps become an explicit Companion change each time the pack releases",
+        "developer [patch] to local checkouts must not be committed as default"
+      ],
+      "decision_rationale": "The pack never depends on the Companion; the paid product consumes the open-source crates it needs, pinned by rev. Hand-mirrored [patch] (cand-017) stays rejected for the Companion workspace."
+    },
+    {
+      "id": "cand-017",
+      "name": "Separate Tauri workspace with hand-mirrored [patch] table (know-me pattern)",
+      "kind": "pattern",
+      "repo_url": "/Users/gqadonis/Projects/know-me/know-me-system/desktop/src-tauri/Cargo.toml",
+      "registry": "none",
+      "fit_for_gap": "Q1: workspace layout",
+      "verdict": "reject",
+      "coverage_estimate": 0.0,
+      "evidence": [
+        {
+          "tier": 1,
+          "source_url": "desktop/src-tauri/Cargo.toml",
+          "claim": "duplicates the [patch] table by hand because patches do not cross workspace boundaries; documented source of desktop-breaks-while-cargo-check-is-green"
+        }
+      ],
+      "risks": [
+        "two lockfiles drift"
+      ],
+      "decision_rationale": "graph-explorer's single workspace avoids the failure this pattern documents."
+    },
+    {
+      "id": "cand-018",
+      "name": "dirs_next + PROMETHEUS_DATA_DIR resolution inside the hosted node",
+      "kind": "pattern",
+      "registry": "none",
+      "fit_for_gap": "gap-8: shared state paths must match the launchd daemon",
+      "verdict": "adopt",
+      "coverage_estimate": 0.8,
+      "evidence": [
+        {
+          "tier": 2,
+          "source_url": "https://tauri.app/reference/javascript/api/namespacepath",
+          "claim": "Tauri app_data_dir/app_config_dir resolve to the platform directory joined with the bundle identifier"
+        },
+        {
+          "tier": 1,
+          "source_url": "substrate/kbd-runtime/src/lib.rs#L303-308,L2979-2982",
+          "claim": "PROMETHEUS_DATA_DIR -> dirs_next::data_local_dir() -> temp_dir()/prometheus-data; managed device-key file fallback is XDG_CONFIG_HOME or ~/.config/sovereign-sync/device-key.json; canonical key is the OS credential store"
+        }
+      ],
+      "risks": [
+        "a sandboxed (App Store) build would not resolve the same paths",
+        "credential-store item access is per signing identity; needs the continuity check in build_required"
+      ],
+      "decision_rationale": "Never route shared node state through Tauri's path resolver."
+    },
+    {
+      "id": "cand-019",
+      "name": "Companion substrate headless feature preset",
+      "kind": "pattern",
+      "registry": "none",
+      "fit_for_gap": "G6: host one node of the two-process harness without a window or vault unlock",
+      "verdict": "adopt",
+      "coverage_estimate": 0.7,
+      "evidence": [
+        {
+          "tier": 2,
+          "source_url": "prometheus-companion/docs/00-architecture-and-implementation-plan.md#L4019",
+          "claim": "headless = [\"client\", \"executor\", \"knowledge\", \"skills\", ...] preset; \u00a74.2 feature-gates desktop, mobile, headless"
+        }
+      ],
+      "risks": [
+        "preset is specified, not implemented; Appendix A must be rewritten for the chosen ownership option first"
+      ],
+      "decision_rationale": "The spec's own answer to running the node without the GUI."
+    },
+    {
+      "id": "cand-020",
+      "name": "sovereign-sync --mode mcp stdio shim proxying to the node socket",
+      "kind": "pattern",
+      "registry": "none",
+      "fit_for_gap": "gap-6 / G5: stdio MCP shim in the pack; superseded by relocating --mode mcp with sovereign-sync (D-12 amended under D-02)",
+      "verdict": "reject",
+      "coverage_estimate": 0.6,
+      "evidence": [
+        {
+          "tier": 1,
+          "source_url": "substrate/sovereign-sync/src/main.rs#L11,L244",
+          "claim": "MCP server over stdio for Claude Code, Kimi, Codex, OpenCode, BossFang; serve_stdio"
+        },
+        {
+          "tier": 1,
+          "source_url": "scripts/install-skills-flat.sh#L541-552",
+          "claim": "registers sovereign-sync --mode mcp into user-level mcp-servers.json on substrate install"
+        },
+        {
+          "tier": 1,
+          "source_url": "substrate/sovereign-sync/src/mcp_client_pool.rs",
+          "claim": "existing MCP forwarding and UAR_SKILL_SERVICE_URL passthrough already implement the proxy shape"
+        },
+        {
+          "tier": 2,
+          "source_url": "prometheus-companion/docs/00-architecture-and-implementation-plan.md#L269",
+          "claim": "stdio MCPs remain stdio because they are spawned by the AI client, not by the Companion"
+        }
+      ],
+      "risks": [
+        "keeps a small binary in the pack, which must be reconciled with Goal 2's 'replacing the sovereign-sync daemon'",
+        "alternative is dropping MCP mode and updating installers and sync-* skills"
+      ],
+      "decision_rationale": "No paid-product proxy belongs in the open-source pack; the Companion ships and registers its own MCP stdio binary. Retained as the rejected alternative."
+    }
+  ],
+  "build_required": [
+    {
+      "need": "G7 open integration contract published by the pack: versioned control-endpoint discovery in the CLI transport chain (PROMETHEUS_CONTROL_ENDPOINT / socket), hook bundle extension points, a service manifest derived from the LaunchAgent and systemd templates that a supervisor can adopt, and the connected-skill-package declaration; the Companion is the first consumer and the sync-* skills the first worked example",
+      "why_no_candidate": "repository-specific contract design; the seams exist implicitly but nothing versions or documents them",
+      "capability_gap_id": null
+    },
+    {
+      "need": "Supervisor actor per Companion spec \u00a716 that adopts existing pack services where they run (launchctl kickstart / systemctl --user, health probes, configuration) around the HMA health aggregator; only the Companion's own node runs in-process",
+      "why_no_candidate": "no crate supervises heterogeneous adopted local services with typed health; every retry branch must trace to a named failure per Companion AGENTS.md \u00a70.2",
+      "capability_gap_id": null
+    },
+    {
+      "need": "G6 harness: two real node processes launched through production entry points, locally: a Companion binary built with the headless preset plus a second instance, on separate data roots; assert address lookup, real gossip join, a signed KBD command submitted via the prometheus CLI transport chain on one node and observed on the other, and the supervisor health surface; domain_sync.rs remains the library regression beneath it",
+      "why_no_candidate": "domain_sync.rs never starts its iroh endpoints and hands envelopes by function call in one process; policy forbids hosted CI as evidence",
+      "capability_gap_id": null
+    },
+    {
+      "need": "Companion-absent full certification of the pack: every kbd-* skill, the CLI, hooks, and all services certify with no Companion installed and no warning emitted",
+      "why_no_candidate": "gate, not a library; the 2026-08-29 daemon-free certification is the baseline to extend",
+      "capability_gap_id": null
+    },
+    {
+      "need": "Relocate the three sync-* skills into the Companion's skill plugin, and move --mode mcp with sovereign-sync so the Companion owns its mcp-servers.json registration; remove --sharing, the sharing LaunchAgent and systemd unit, and the sovereign-sync build from install-binaries.sh, install-skills-flat.sh, install-mcp-services.sh, install-sovereign-sync-sharing.sh, install-system.js",
+      "why_no_candidate": "repository surgery on both sides; the G5 footprint list is the input",
+      "capability_gap_id": null
+    },
+    {
+      "need": "skill-ffi / kbd-mobile split: kbd-mobile moves; skill-ffi drops or feature-gates its kbd-mobile dependency so no pack crate imports a paid crate, and mobile_wire_is_byte_compatible_with_sovereign_sync moves with kbd-mobile",
+      "why_no_candidate": "dependency surgery dictated by the licensing boundary",
+      "capability_gap_id": null
+    },
+    {
+      "need": "Continuity check between daemon binary and Companion binary: same data root and journal, and access to keychain item prometheus-kbd-device; remedies are ACL trust for the GUI node, PROMETHEUS_DEVICE_KEY_FILE for headless hosts, or one-time re-enrollment",
+      "why_no_candidate": "keyring 3.6.3's legacy login-keychain backend prompts per binary; no library abstracts this",
+      "capability_gap_id": null
+    },
+    {
+      "need": "G5 footprint re-derivation at plan write time: grep -rl -E 'sovereign-sync|sovereign_sync' over scripts, shared, skills/learn, skills/process, tools/prometheus-cli/crates, hooks, manifests (33 non-doc files at assess; 20 in scripts and shared alone) and docs (42), with a per-file decision: remove, or repoint to the discovered endpoint",
+      "why_no_candidate": "repository-specific removal; the list decays",
+      "capability_gap_id": null
+    },
+    {
+      "need": "Adopt-or-archive migration for the seven phase progress.json files lacking generatedBy: kbd-runtime (G5)",
+      "why_no_candidate": "runtime-specific projection semantics; kbd-runtime owns the refusal loop and migration proofs",
+      "capability_gap_id": null
+    },
+    {
+      "need": "Companion root workspace, crates/prometheus-substrate, first OpenSpec change, versions.toml pins including keyring =3.6.3 and iroh 1.0.x (human edit)",
+      "why_no_candidate": "repository scaffolding under Companion governance; HMA scaffold-tauri-tray.sh provides the shape only",
+      "capability_gap_id": null
+    },
+    {
+      "need": "Companion spec amendments: \u00a715 surface (Tauri events for UI, SSE external), \u00a716.4/\u00a725.2 adopted external services plus one in-process node, \u00a725.2 Iroh-over-libp2p row stating DHT opt-in, \u00a74.1 MCP list, \u00a714 Noise correction, port/socket allocation, Appendix A rewrite for git-rev consumption of pack crates",
+      "why_no_candidate": "specification work; Companion AGENTS.md \u00a70.7 forbids silent scope change",
+      "capability_gap_id": null
+    },
+    {
+      "need": "Pairing UX (QR ticket, optional spake2 short code, operator approval)",
+      "why_no_candidate": "UX plus a documentation fix; spake2 is referenced only if short-code pairing is v1",
+      "capability_gap_id": null
+    }
+  ]
+}

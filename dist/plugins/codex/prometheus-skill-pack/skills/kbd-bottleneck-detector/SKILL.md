@@ -13,6 +13,23 @@ metadata:
 
 # /kbd-bottleneck-detector
 
+## Progress Signals (MANDATORY)
+
+Before running the detector, emit:
+
+```text
+Starting kbd-bottleneck-detector — <status|evaluate|repair> <boundary>
+```
+
+After the detector returns, emit its actual outcome:
+
+```text
+Completed kbd-bottleneck-detector — <pass|blocked|repaired|pending_review>
+```
+
+Use the boundary and outcome returned by the detector. A blocked or pending
+review result completes the detector operation without completing the boundary.
+
 Use the bundled adapter for deterministic local checks:
 
 ```bash

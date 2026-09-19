@@ -56,6 +56,15 @@ tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 # Random ID generation
 uuid = { version = "1", features = ["v4"] }
 
+# Timestamps (same pin as substrate/learner-model)
+chrono = { version = "0.4", features = ["serde"] }
+
+# Manifest validation for research_export against
+# skills/research/deep-research/references/schemas/research-manifest.schema.json
+# (embedded at build time). No remote or file $ref resolution: the schema is
+# self-contained, and the default features would pull a TLS stack for nothing.
+jsonschema = { version = "0.50", default-features = false }
+
 [target.'cfg(unix)'.dependencies]
 nix = { version = "0.29", features = ["signal", "process"] }
 

@@ -86,10 +86,13 @@ echo "[PASS] copy installer preserves collisions and installs a complete namespa
 
 cmp -s "$REPO_ROOT/shared/scripts/content-grounding.sh" \
   "$REPO_ROOT/skills/learn/learn-goal/scripts/content-grounding.sh"
-cmp -s "$REPO_ROOT/shared/scripts/content-grounding-kb.sh" \
-  "$REPO_ROOT/skills/learn/learn-goal/scripts/content-grounding-kb.sh"
-cmp -s "$REPO_ROOT/shared/scripts/content-grounding-kb.sh" \
-  "$REPO_ROOT/skills/learn/learn-kb/scripts/content-grounding-kb.sh"
+for wrapper in \
+  "$REPO_ROOT/skills/learn/learn-goal/scripts/content-grounding-kb.sh" \
+  "$REPO_ROOT/skills/learn/learn-kb/scripts/content-grounding-kb.sh"; do
+  grep -q 'shared/scripts/content-grounding-kb.sh' "$wrapper"
+  grep -q 'exec "${BASH:-bash}"' "$wrapper"
+  ! grep -q 'curl\|append_source' "$wrapper"
+done
 cmp -s "$REPO_ROOT/shared/scripts/detect-surface-tier.sh" \
   "$REPO_ROOT/skills/learn/ui-surface/scripts/detect-surface-tier.sh"
 cmp -s "$REPO_ROOT/docs/learn/meta-corpus/kbd-lifecycle-corpus.json" \

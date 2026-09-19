@@ -35,10 +35,10 @@ check_running_service() {
     local how=""
 
     # A <port> of the form "unix:<socket-path>" probes HTTP over a Unix socket
-    # instead of TCP. Required for 1.7.0 services that bind no TCP port unless
-    # explicitly given --tcp (sovereign-sync, prometheus-exec): probing a TCP
-    # port for those always fails, so every installer run concludes the service
-    # is down and needlessly restarts a healthy daemon.
+    # instead of TCP. Required for services that bind no TCP port unless
+    # explicitly given --tcp (prometheus-exec): probing a TCP port for those
+    # always fails, so every installer run concludes the service is down and
+    # needlessly restarts a healthy daemon.
     if [ "${port#unix:}" != "$port" ]; then
         local sock="${port#unix:}"
         [ -S "$sock" ] || return 1

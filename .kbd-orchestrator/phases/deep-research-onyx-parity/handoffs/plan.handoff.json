@@ -1,0 +1,11 @@
+{
+  "stage": "plan",
+  "completedAt": "2026-09-08T14:00:21Z",
+  "outputs": [
+    "plan.md"
+  ],
+  "nextStage": "execute",
+  "summaryForNext": "7 changes, 38 tasks, 6 rounds. First command: /kbd-apply change-drt-001-dispatch-smoke-and-thread-contracts. Ordering is driven by three real constraints, not style: (1) drt-002 and drt-007 both edit substrate/prometheus-research and both run cargo, so they are in different rounds and never overlap (one Cargo build machine-wide); (2) drt-003, drt-004, drt-005 all edit run-research.sh, so they are strictly sequential with drt-004 first because it owns the merge the other two consume; (3) drt-001 is a decision point, not setup. R1 pairs drt-001 with drt-007 because they share no file and no dependency, and drt-007 unblocks process workers. BRANCH: if drt-001 task 2 shows in-session parallel dispatch is unavailable, D-03a fires — harness-subagents drops to reject, drt-007 becomes blocking rather than parallel, drt-003's director is re-scoped to process-spawning, and the order becomes 001 -> 007 -> 002 -> unchanged. This is planned, not improvised. Adversarial review: two rounds, 6 findings, ALL accepted, none rejected. Round 1 caught a wrong goal mapping (drt-007 was credited with G4 but contains no budget, force-complete, or ledger; verified by grep; G4 is drt-002 alone) and it was corrected in the spec as well as the plan. Round 2 caught the most consequential issue of the stage: run-research.sh is a DISTRIBUTED artifact, so drt-003/004/005 each desync dist after drt-007 re-syncs it — leaving that would recreate defect D-B while fixing it. Every editor now regenerates in its own change (rule in the plan, all three specs, their verify blocks, and one new task each: 35 -> 38 tasks); there is deliberately no end-of-phase reconciliation change. C-05 extended to the same three. C-03 determined not to bind for drt-007 (installer implementation, not plugin surface) unless the repair widens to a version bump. WARNINGS for execute: a bench run costs real gateway tokens and the 10-task subset is indicative not leaderboard-grade; Onyx is NOASSERTION so no prompt string copied verbatim; no new crate may enter Cargo.toml in drt-002.",
+  "skipped": false,
+  "skipReason": null
+}

@@ -409,17 +409,16 @@ prometheus-skill-pack/
 │       ├── learn-certify/  # OB 3.0 / W3C VC certification
 │       ├── learn-kb/       # KB registry + adapter management
 │       ├── learn-about-system/ # Prometheus stack meta-learning
-│       ├── learn-harness/  # Harness detection + capability map
-│       ├── sync-status/    # P2P sync node status
-│       ├── sync-peers/     # P2P peer management
-│       └── sync-push/      # Push CRDT domain to peers
+│       └── learn-harness/  # Harness detection + capability map
+│
+│   # sync-status, sync-peers, sync-push moved to prometheus-companion
+│   # (change-cpc-008/cpc-012, D-02): the pack is fully functional without
+│   # them; they exist only when the Companion is installed and running.
 │
 ├── substrate/              # Rust crates for learn domain and research
 │   ├── storage-provider/   # StorageProvider + CrdtEngine traits + SyncManifest
 │   ├── learner-model/      # CRDT learner model + FSRS-6 scheduler
 │   ├── surface-bridge/     # Axum MCP App server (Tier 2 UI)
-│   ├── sovereign-sync/     # P2P CRDT daemon + MCP server + REST API (v1.5.0)
-│   ├── sovereign-client/   # Rust SDK for sovereign-sync REST + SSE
 │   └── prometheus-research/ # HTTP+MCP research server on :7891 with AG-UI SSE (v1.6.0)
 │
 ├── shared/                 # Shared resources across all skills
@@ -879,7 +878,7 @@ The learn domain adds a Feynman-Spine learning and education capability to the s
 
 | Layer | Location | Purpose |
 |---|---|---|
-| **A — Substrate** | `substrate/` | Rust crates: storage-provider, learner-model, surface-bridge, sovereign-sync, sovereign-client, prometheus-research |
+| **A — Substrate** | `substrate/` | Rust crates: storage-provider, learner-model, surface-bridge, prometheus-research |
 | **B — UI primitive** | `skills/learn/ui-surface` | Cross-harness rendering via surface tier detection |
 | **C — Learning skills** | `skills/learn/` | 12 skills composing the full learning arc |
 | **D — KB adapters** | `shared/scripts/content-grounding-kb.sh` | Privacy-safe custom knowledge base integration |
@@ -889,8 +888,6 @@ The learn domain adds a Feynman-Spine learning and education capability to the s
 - **`storage-provider`** — `StorageProvider` and `CrdtEngine` traits; `LocalDirAdapter` (default); `SyncManifest` + `SyncDomain` + `PrivacyClass` (structural KB-content privacy enforcement); `IrohDocsAdapter` for P2P-backed storage
 - **`learner-model`** — Loro 1.13 CRDT learner model (mastery per concept, FSRS-6 cards, gap records); simplified FSRS-6 scheduler; JSON-RPC `stdin`/`stdout` interface; PFA mastery update (`mastery_new = mastery_old + 0.3 × (score - mastery_old)` at ≥5 observations)
 - **`surface-bridge`** — Axum HTTP server on `127.0.0.1:7890`; routes: `/health`, `/mcp/detect-surface-tier`, `/mcp/render-ui-intent`, `/mcp/collect-response`; installed as a macOS launchd service via `install-skills-flat.sh`
-- **`sovereign-sync`** — Optional P2P CRDT sharing daemon, MCP server, and REST API; iroh 1.0 + iroh-gossip 0.101 for QUIC P2P transport; Loro 1.13 for CRDT merge; rmcp 1.8 for MCP server (stdio); redb 2 for persistence; AG-UI SSE endpoint for Tauri/web clients; modes: `--mode mcp|daemon|server`. It is stopped and disabled by default. Build/register it only with `install-skills-flat.sh --sharing` or `prometheus setup --full --sharing`; ordinary KBD uses the signed local runtime directly.
-- **`sovereign-client`** — Rust SDK for `sovereign-sync` REST API + AG-UI SSE; reqwest 0.12 + eventsource-stream 0.2; `SovereignClient::new(base_url)` entry point
 - **`prometheus-research`** — Background deep-research daemon (v1.6.0); HTTP server on `127.0.0.1:7891`; 5 MCP tools (research_start/status/cancel/export, render_component); AG-UI SSE event stream; A2UI component registry with 8 server-rendered HTMX fragments; HTMX 2.0.8 + htmx-ext-sse 2.2.2 + Alpine.js 3.14.8 vendored; launchd auto-start via `com.prometheus.research.plist`; installed by `scripts/install-binaries.sh`
 
 ### Surface Tier Degradation Contract
@@ -942,23 +939,9 @@ bash scripts/install-skills-flat.sh
 # Check substrate status
 bash shared/scripts/detect-toolchain.sh
 
-# Optional sharing workflow: build, enable, then inspect sovereign-sync
-bash scripts/install-skills-flat.sh --sharing
-prometheus setup --full --sharing
-/sync-status
-
-# Manage P2P peers
-/sync-peers
-
-# Push a sync domain to peers
-/sync-push skill-index
-/sync-push learner-model
-
-# Start sovereign-sync daemon manually (port 7892)
-sovereign-sync --mode daemon
-
-# Check daemon health
-curl -s http://127.0.0.1:7892/health | jq .
+# /sync-status, /sync-peers, /sync-push moved to prometheus-companion
+# (change-cpc-008/cpc-012) — they ship from and run against the Companion,
+# not the pack. See prometheus-companion's skills/ for current usage.
 ```
 
 ### Mastery Criterion
@@ -1002,9 +985,8 @@ plugin marketplace add` / `codex plugin add|remove|list` (not `install`/`details
 `.claude-plugin/marketplace.json`.
 
 Codex and ordinary `prometheus setup --full` use the signed local KBD runtime;
-they do not require an always-on control plane. `ai.prometheus.sovereign-sync`
-stays stopped and disabled unless the operator explicitly runs
-`prometheus setup --full --sharing` for cross-machine replication.
+they do not require an always-on control plane. Cross-machine replication is an
+optional extension installed and managed by `prometheus-companion`.
 
 The target matrix in `skill-system.json` explicitly separates repository-owned
 source trees (`sourceTreeLifecycle: required`) from destinations created only

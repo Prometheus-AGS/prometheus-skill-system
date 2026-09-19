@@ -1,0 +1,39 @@
+{
+  "mode": "diff",
+  "verdict": "BLOCK",
+  "judge_model": "k3",
+  "producer_model": "claude-opus-5",
+  "isolation_mode": "rest-gateway:http://localhost:8181/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": "skills/research/deep-research/tests/dispatch-smoke.sh",
+      "line": 78,
+      "claim": "The smoke test does not assert the required scratch-state isolation between workers.",
+      "evidence": "Acceptance criteria require that when two workers are dispatched, \"neither SHALL observe the other's scratch state\" and the scenario says \"neither file contains the other's marker\"; the implemented checks only grep each worker's received task/environment and never create or test sibling scratch files, while the fixture worker explicitly says filesystem isolation is \"the wrong question\" in skills/research/deep-research/tests/fixtures/thread-smoke/worker.sh.",
+      "suggested_fix": "Have each worker create a per-thread scratch marker and attempt/report whether it can observe the sibling marker, then fail dispatch-smoke.sh if either worker observes the other's scratch state."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "skills/research/deep-research/tests/dispatch-smoke.sh",
+      "line": 106,
+      "claim": "The optional real-harness gate masks child harness failures with `|| true`.",
+      "evidence": "The acceptance constraints state: \"Every script touched keeps `set -euo pipefail` semantics and non-zero exit on failure; no silent `|| true` on a gate.\" In the `--with-harness` path, both `claude ... || true` and `codex exec ... || true` suppress failures, and `wait \"$Q1\" || true; wait \"$Q2\" || true` suppresses failed child exits.",
+      "suggested_fix": "Remove the `|| true` suppressions, capture child exit statuses, and add explicit failing checks for non-zero harness exits and missing/incorrect outputs."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "skills/research/deep-research/tests/thread-contracts.sh",
+      "line": 42,
+      "claim": "Schema validation can pass without actually validating the JSON schemas when Python `jsonschema` is unavailable.",
+      "evidence": "Acceptance requires `brief.json` and `index.json` to \"validate against their schemas\"; the fallback in `validate()` catches `ImportError` and only asserts top-level required keys, ignoring schema constraints such as `additionalProperties: false`, `thread_id` patterns, enum values, nested required fields, and conditional `reason` requirements.",
+      "suggested_fix": "Treat missing `jsonschema` as BLOCKED/non-zero, vendor/use a project-local validator, or implement complete schema validation instead of a required-key fallback."
+    }
+  ],
+  "sycophancy_screen": {
+    "reject_cap": 2,
+    "cap_overridden": false,
+    "cap_default": 2
+  }
+}

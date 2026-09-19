@@ -1,3 +1,4 @@
+use chrono::Datelike as _;
 use prometheus_research::job::{cancel::cancel_job, checkpoint, spawn::spawn_job};
 
 fn unique_job_prefix(label: &str) -> String {
@@ -22,6 +23,43 @@ fn creates_checkpoint_on_start() {
     let _ = std::fs::remove_dir_all(checkpoint::job_dir(&job_id));
 }
 
+/// A job started through the production path carries real timestamps: both
+/// `started_at` and `last_updated_at` parse as RFC 3339 and fall within 60 s
+/// of this test's own clock. This is the regression gate for the fabricated
+/// `1970-01-01T00:00:SSZ` and hardcoded `2026-07-08T00:00:00Z` values that
+/// every checkpoint carried before change-rah-001.
+#[test]
+fn spawned_job_timestamps_are_current_rfc3339() {
+    let prefix = unique_job_prefix("ts");
+    let before = chrono::Utc::now();
+    let job_id = spawn_job(&format!("query for {prefix}"), "shallow", 3, "apa").unwrap();
+    let after = chrono::Utc::now();
+
+    let cp = checkpoint::read(&job_id).unwrap();
+    let _ = std::fs::remove_dir_all(checkpoint::job_dir(&job_id));
+
+    for (field, value) in [
+        ("started_at", &cp.started_at),
+        ("last_updated_at", &cp.last_updated_at),
+    ] {
+        let parsed = chrono::DateTime::parse_from_rfc3339(value)
+            .unwrap_or_else(|e| panic!("{field} {value:?} is not RFC 3339: {e}"))
+            .with_timezone(&chrono::Utc);
+        assert!(
+            parsed.year() > 1970,
+            "{field} {value:?} is the fabricated epoch-relative timestamp"
+        );
+        let skew = (parsed - before)
+            .num_seconds()
+            .abs()
+            .max((after - parsed).num_seconds().abs());
+        assert!(
+            skew <= 60,
+            "{field} {value:?} is {skew}s away from the test clock window {before}..{after}"
+        );
+    }
+}
+
 /// Writing a checkpoint then reading it back via checkpoint::read returns the same fields.
 #[test]
 fn status_reads_checkpoint() {
@@ -37,11 +75,12 @@ fn status_reads_checkpoint() {
         stage_name: "synthesis".into(),
         progress: 42,
         pid: None,
-        started_at: "2026-07-08T00:00:00Z".into(),
-        last_updated_at: "2026-07-08T00:00:00Z".into(),
+        started_at: checkpoint::now_rfc3339(),
+        last_updated_at: checkpoint::now_rfc3339(),
         tokens_used: 1234,
         sources_found: 7,
-        output_dir: format!("~/.research-jobs/{job_id}/"),
+        output_dir: format!("~/.prometheus/research/{job_id}/"),
+        ..Default::default()
     };
     checkpoint::write(&cp).unwrap();
 
@@ -70,11 +109,12 @@ fn cancel_updates_checkpoint_to_cancelled() {
         stage_name: "planner".into(),
         progress: 10,
         pid: None,
-        started_at: "2026-07-08T00:00:00Z".into(),
-        last_updated_at: "2026-07-08T00:00:00Z".into(),
+        started_at: checkpoint::now_rfc3339(),
+        last_updated_at: checkpoint::now_rfc3339(),
         tokens_used: 0,
         sources_found: 0,
-        output_dir: format!("~/.research-jobs/{job_id}/"),
+        output_dir: format!("~/.prometheus/research/{job_id}/"),
+        ..Default::default()
     };
     checkpoint::write(&cp).unwrap();
 

@@ -32,6 +32,25 @@ achieve), `prior_handoffs` (what earlier stages concluded), `constraints`
 - Scope smuggling: changes unrelated to any goal or assessment finding.
 - Changes that violate `constraints`.
 
+### target = research (research_report, research_provenance, research_plan)
+The packet carries the three files as separate fields plus `goals` (the query,
+its parameters, and the sub-questions the plan committed to) and
+`review_focus`. Verification already happened (stage 05 and the verifier
+agent); you are the reviewer, and you never verify sources yourself.
+- A claim in the executive summary or evidence table with no label, or a
+  `verified` row that cites no source: an invented or orphan citation.
+- A sub-question in `goals` the report never answers without saying so.
+- A contradiction the provenance sidecar or plan ledger records as unresolved
+  that the report presents as settled.
+- A `verification_status` in the report frontmatter the sidecar does not
+  support (`verified` while the sidecar says BLOCKED or records a skipped or
+  failed Feynman gate). The sidecar you receive is interim and says
+  `Adversarial review: pending`: you are that review, so a pending review is
+  expected and is never a finding. The frontmatter value you see is the
+  pre-review derivation; the driver rewrites it from your verdict afterwards.
+- Numbers, dates, or quotes in the prose that the evidence table does not carry.
+- `file` in a finding is `report.md`, the sidecar name, or `plan.md`.
+
 ## Rules
 
 - Judge only what is in the packet. Do not assume unstated intent.
@@ -53,7 +72,7 @@ achieve), `prior_handoffs` (what earlier stages concluded), `constraints`
   "findings": [
     {
       "severity": "CRITICAL | WARNING | SUGGESTION",
-      "file": "assessment.md | analysis.md | library-candidates.json | plan.md",
+      "file": "assessment.md | analysis.md | library-candidates.json | plan.md | report.md | <slug>.provenance.md",
       "line": 0,
       "claim": "one-sentence statement of the defect",
       "evidence": "the quote/omission/contradiction that proves it",

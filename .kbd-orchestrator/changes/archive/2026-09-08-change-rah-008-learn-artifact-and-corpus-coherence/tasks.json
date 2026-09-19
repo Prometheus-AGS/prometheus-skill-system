@@ -1,0 +1,75 @@
+{
+  "changeId": "change-rah-008-learn-artifact-and-corpus-coherence",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Unify the artifact path in write-artifact.sh and the three SKILL.md files",
+      "done": true,
+      "doneAt": "2026-09-07T09:58:28Z",
+      "doneBy": "claude-code",
+      "files": [
+        "skills/learn/feynman-loop/scripts/write-artifact.sh",
+        "skills/learn/feynman-loop/SKILL.md",
+        "skills/learn/learn-retain/SKILL.md",
+        "skills/learn/learn-certify/SKILL.md"
+      ],
+      "verify": "grep -q 'artifacts/<concept-id>/' skills/learn/learn-retain/SKILL.md && grep -q 'artifacts/<concept-id>/' skills/learn/learn-certify/SKILL.md && grep -q 'artifacts/<concept-id>/' skills/learn/feynman-loop/SKILL.md",
+      "notes": null
+    },
+    {
+      "id": "2",
+      "title": "Emit key_points[] and misconceptions[] from the shared grounding script; convert the two copies to wrappers; update learn-grade Step 1 and remove the HARNESS.md workaround",
+      "done": true,
+      "doneAt": "2026-09-07T10:26:58Z",
+      "doneBy": "claude-code",
+      "files": [
+        "shared/scripts/content-grounding-kb.sh",
+        "skills/learn/learn-goal/scripts/content-grounding-kb.sh",
+        "skills/learn/learn-kb/scripts/content-grounding-kb.sh",
+        "skills/learn/learn-grade/SKILL.md",
+        "skills/learn/learn-grade/references/eval-dataset/HARNESS.md"
+      ],
+      "verify": "grep -q 'key_points' shared/scripts/content-grounding-kb.sh && test \"$(wc -l < skills/learn/learn-goal/scripts/content-grounding-kb.sh)\" -lt 20",
+      "notes": null
+    },
+    {
+      "id": "3",
+      "title": "Write skills/learn/tests/learn-coherence.sh with the fixture KB and run it",
+      "done": true,
+      "doneAt": "2026-09-07T10:31:37Z",
+      "doneBy": "claude-code",
+      "files": [
+        "skills/learn/tests/learn-coherence.sh",
+        "skills/learn/tests/fixtures/kb-local"
+      ],
+      "verify": "bash skills/learn/tests/learn-coherence.sh",
+      "notes": null
+    },
+    {
+      "id": "4",
+      "title": "Author openspec/specs/learn-model-coherence/spec.md and validate",
+      "done": true,
+      "doneAt": "2026-09-07T10:32:06Z",
+      "doneBy": "claude-code",
+      "files": [
+        "openspec/specs/learn-model-coherence/spec.md"
+      ],
+      "verify": "openspec validate --specs",
+      "notes": null
+    },
+    {
+      "id": "5",
+      "title": "Re-run the eval against the reviewed truth with the new corpus shape; record the post-change baseline and any metric movement in EVAL-RESULTS.md",
+      "done": true,
+      "doneAt": "2026-09-07T10:35:20Z",
+      "doneBy": "claude-code",
+      "files": [
+        "skills/learn/learn-grade/references/eval-dataset/baseline-snapshot.json",
+        "skills/learn/learn-grade/references/eval-dataset/metrics-summary.json"
+      ],
+      "verify": "bash skills/learn/learn-grade/references/eval-dataset/grader-regression-test.sh",
+      "notes": null
+    }
+  ]
+}

@@ -1,0 +1,87 @@
+{
+  "mode": "decision",
+  "verdict": "BLOCK",
+  "judge_model": "MiniMax-M3",
+  "producer_model": "glm-5.3",
+  "isolation_mode": "rest-gateway:http://localhost:4000/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": "decision_fields.assumptions",
+      "line": 0,
+      "claim": "The structured `decision_fields.assumptions` field is empty despite the document containing a load-bearing '## Assumptions' section \u2014 the parsed decision has no formally captured assumptions.",
+      "evidence": "`decision_fields.missing_fields` lists `assumptions`; `decision_fields.assumptions` is `[]`; the document body lists three numbered assumptions but they are not propagated into the decision record. Per the review mandate, absence of stated assumptions is a CRITICAL finding in its own right, not a formatting problem.",
+      "suggested_fix": "Re-emit the decision packet with `decision_fields.assumptions` populated from the three document items, or attach the document's assumption block as the canonical assumptions list."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "decision_document / Decision + Consequences",
+      "line": 0,
+      "claim": "The decision reframes an *unidentified* intermittent defect as 'not reproducible on current tree' and ships with Goal 1 and Goal 2 explicitly BLOCKED \u2014 i.e., the change certifies a rate but does not deliver the originating goal (identify a cause, prevent recurrence by fix).",
+      "evidence": "\"Goal 1: BLOCKED (bounded 0/38; no command to name). Goal 2: BLOCKED (no site to date; uncommitted-only boundary recorded in HANG-CAPTURE.md).\" and \"Fix task: no branch selectable \u2014 extraction void \u2026 elsewhere/escalated void.\" A 0/38 result gives only an upper 95% bound of ~7.6%; that is not evidence of absence, only evidence the rate is below that bound. The original cause may still be latent. 'Not reproducible on current tree' overstates what the data supports.",
+      "suggested_fix": "Either (a) escalate the original 2026-09-09 observation through a method that can actually capture the offending command (e.g. `stdbuf -oL -eL` or `unbuffer` to defeat block buffering on kill, line-buffered tee to a tmpfs, periodic stack sampler) so Goal 1 can be closed for real, or (b) restate the decision as 'rate-bounded below ~7.6%, cause unknown' and not as 'not reproducible.'"
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "decision_document / Falsifier",
+      "line": 0,
+      "claim": "The falsifier is unfalsifiable in the failure mode that matters most: if the hang recurs but the harness again cannot name a blocked command (exactly what happened in the 2026-09-09 case), the falsifier does not trigger and the decision survives.",
+      "evidence": "Falsifier: \"Any hang \u2026 with the harness's live capture (ps tree, sample stacks, output volumes) naming a blocked command.\" The author has already conceded the 2026-09-09 capture could not name a command ('the zero-assertions reading is unsound'). A future recurrence with the same diagnostic blind spot would falsify the *claim* (hang present, rate > bound) without falsifying the falsifier. The falsifier therefore tests the harness, not the decision.",
+      "suggested_fix": "Make any hang during the certification window a falsifier regardless of whether a command is named; treat 'hang recurs but harness blind' as a finding that voids certification independently of root-cause identification."
+    },
+    {
+      "severity": "WARNING",
+      "file": "decision_document / Falsifier + Certification sizing",
+      "line": 0,
+      "claim": "The decision contradicts itself on the size of the certification campaign: the Falsifier paragraph and Consequences paragraph say '55+ further trials' and '0/93', while the Certification sizing section says N = 60, i.e. total = 98.",
+      "evidence": "\"the certification campaign itself adds 55+ further trials\" and \"0/38 (now 0/93 after certification)\" vs. \"N = ceil(\u2026) = 59, rounded up to N = 60 for margin.\" 38 + 55 = 93; 38 + 60 = 98. The two figures cannot both be the campaign size; one is stale from the pre-correction round-1 math.",
+      "suggested_fix": "Pick one N, restate the totals (campaign size, post-cert total, target 95% upper bound 3/N) consistently across Falsifier, Consequences, and the alternatives rationale."
+    },
+    {
+      "severity": "WARNING",
+      "file": "decision_document / Certification sizing",
+      "line": 0,
+      "claim": "The \u03b1 = 0.01 used inside the Clopper-Pearson extension has no stated justification \u2014 why this significance level and not 0.05 or 0.001?",
+      "evidence": "\"N = ceil( ln(0.01) / ln(1-p_ub) ) = ceil( 4.60517 / 0.078835 ) = 59\". The 0.01 is asserted without rationale; the resulting target rate (upper 95% bound after the campaign) is implicit and unstated. A reviewer cannot judge whether 60 runs is too few or too many without knowing what upper rate the campaign is meant to certify against.",
+      "suggested_fix": "State the target upper rate being certified (e.g. <3% with 95% confidence), derive N from that, and justify the target against the cost-of-recurrence framing."
+    },
+    {
+      "severity": "WARNING",
+      "file": "decision_document / Cost of being wrong, and reversibility",
+      "line": 0,
+      "claim": "Reversibility is judged as 'fully reversible' on the strength of the tripwire, but the tripwire itself is shown to be diagnostic-blind in the very case it must catch.",
+      "evidence": "\"Exposure is a flaky stage-10 in future deep runs (time cost, no data corruption, fully reversible)\" \u2014 but the 2026-09-09 incident is the proof that the tripwire *cannot currently capture a command*, and no fix to that capture gap is proposed. If the next recurrence is also undiagnosable, the recovery path is: (1) hang recurs, (2) harness fails to name command, (3) falsifier doesn't fire, (4) certification stands, (5) user-facing flake repeats. The decision's reversibility story requires the tripwire to work; the tripwire is not shown to work.",
+      "suggested_fix": "Either fix the capture gap (line-buffered or unbuffered tee, stack sampler on a tighter cadence) before claiming reversibility, or restate reversibility as conditional on the tripwire capturing the next occurrence."
+    },
+    {
+      "severity": "WARNING",
+      "file": "decision_document / Alternatives considered",
+      "line": 0,
+      "claim": "The set of considered alternatives omits the only one that could plausibly unblock Goals 1 and 2: instrumenting the capture pipeline to defeat block buffering so the next hang *can* be diagnosed.",
+      "evidence": "Alternatives: commit-pass+investigate, unbounded-campaign, block-until-recurrence, N-run-certification. The document itself diagnoses why the 2026-09-09 capture was unusable ('block-buffered stdout to a file is lost on external-timeout kill') yet never considers the obvious remediation (force line buffering, tee to tmpfs, sample on a timer, capture into a process that flushes on signal). This is the alternative that would let the change actually deliver its originating goal.",
+      "suggested_fix": "Add 'fix the capture gap (stdbuf/unbuffer/line-buffered tee) before the next campaign' as a considered alternative; if rejected, state why."
+    },
+    {
+      "severity": "WARNING",
+      "file": "decision_document / Assumptions (1)",
+      "line": 0,
+      "claim": "Assumption 1 conflates 'representative conditions' with 'rate-bounded' \u2014 the 38 runs may be representative of the *current* tree but cannot certify anything about the original 2026-09-09 tree, which the document admits is different.",
+      "evidence": "\"the tree changed between observation and campaign (the campaign tests the current tree, which is what certification can certify).\" The author knows the test population is the wrong one for the original incident, then proceeds as if 0/38 bounds the rate of the original defect. It bounds the rate of any defect present in the *current* tree under the tested workload, which is a different and weaker claim.",
+      "suggested_fix": "State the assumption as 'the original 2026-09-09 hang, if it was caused by tree code, would still be reproducible in the current tree at a rate above the bound N^-1' \u2014 and justify why this is plausible for an intermittent tree-code defect."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "decision_document / Consequences (tasks ledger amendment)",
+      "line": 0,
+      "claim": "Adding `branch: none` to the tasks-ledger vocabulary as a post-review amendment is a schema change that downstream automation (constraint C-01 generators, branch-validators) may not accept.",
+      "evidence": "\"the tasks ledger's branch vocabulary gains `none` for this outcome (post-review amendment, recorded in the decision log).\" Constraints C-01/C-04/C-05 imply generators and validators read this ledger; introducing a new branch value in a diagnosis document rather than in a schema change risks drift between the producer's ledger and the validator's allowed set.",
+      "suggested_fix": "Land the vocabulary extension through the appropriate schema/generator change with a regeneration commit, not as a side-effect of a hang-diagnosis."
+    }
+  ],
+  "sycophancy_screen": {
+    "reject_cap": 2,
+    "cap_overridden": false,
+    "cap_default": 2
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "mode": "artifact",
+  "verdict": "PASS",
+  "judge_model": "k3",
+  "producer_model": "claude-opus-5",
+  "isolation_mode": "rest-gateway:http://localhost:4000/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "WARNING",
+      "file": "assessment.md",
+      "claim": "Section 0's V1\u2013V3 verdicts cite evidence paths under `universal-agent-runtime/` that do not exist in this repository as cited, so the line-precise evidence is unverifiable and downstream stages referencing those paths will not find them.",
+      "evidence": "V1 cites `universal-agent-runtime/versions.toml:20`, `Cargo.toml:504`, and a workspace `exclude` list; V2 claims a grep 'over the entire UAR tree' and `universal-agent-runtime/.kbd-orchestrator/phases/`; V3 cites `universal-agent-runtime/.gitmodules` and workspace members `tools/uar-jwt-proxy`, `tools/mcp-server-fetch`. The packet's file tree contains no `universal-agent-runtime` directory or any of those files, and cited_paths resolves `universal-agent-runtime/versions.toml` to `substrate/exec-tier-w/versions.toml` \u2014 a different path than the one quoted with a line number.",
+      "suggested_fix": "State the actual location of the UAR checkout for each citation (e.g., whether it is `substrate/exec-tier-w`, an external sibling checkout, or a submodule) so the V1\u2013V3 evidence is reproducible by analyze/plan."
+    },
+    {
+      "severity": "WARNING",
+      "file": "assessment.md",
+      "line": 7,
+      "claim": "The header's predecessor provenance contradicts the goals packet on change archival status.",
+      "evidence": "Assessment header: 'Predecessor: research-agent-hardening, closed 2026-09-08, 5/5 goals MET, 11/11 changes archived'. Goals context: 'closed 2026-09-08 with 5/5 goals MET, 11/11 changes implemented, 10 archived.' 11/11 archived vs 10 archived cannot both be true.",
+      "suggested_fix": "Correct the header to match the phase record (10 archived, 1 implemented-but-unarchived) or cite the source for the 11/11 figure."
+    },
+    {
+      "severity": "WARNING",
+      "file": "assessment.md",
+      "claim": "The assessment endorses fixing carried-in defects D-A and D-B (open question 6) without surfacing the blocking constraints those fixes trigger, so a plan built from it risks BLOCKED changes.",
+      "evidence": "D-A's fix is described in the goals as editing `shared/launchagents/com.prometheus.research.plist` (a `__PROMETHEUS_PATH__` placeholder plus substitution in `scripts/install-binaries.sh`); constraint C-01 states any change that 'edits, adds, or deletes one of those templates MUST regenerate the manifest and pass `npm run check:services-manifest` in the same change.' D-B touches installed plugin generation, where C-01 requires `npm run validate:codex` in the same change. Additionally, open question 2 floats 'Bash driver fan-out' in `run-research.sh`, which runs under the launchd daemon, without noting C-05 (bash 3.2: no `mapfile`/`declare -A`). None of C-01, C-04, or C-05 is mentioned anywhere in the assessment.",
+      "suggested_fix": "Add a constraints-impact note: D-A requires same-change regeneration of `shared/services.manifest.json`; D-B requires `npm run validate:codex`; any bash fan-out under launchd must be bash 3.2 compatible."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "assessment.md",
+      "claim": "The assessment omits the predecessor's outstanding rah-007/rah-008 eval work even though the goals packet flags it as touching the same surfaces as G5.",
+      "evidence": "Goals context: 'rah-007 tasks 2\u20133 await the operator's review of 24 ground-truth eval items, and the eval re-baseline rah-008 owes is blocked behind it.' The assessment's \u00a73 lists only D-A and D-B as carried-in items, and \u00a74 question 7 (bench scope) never acknowledges that an eval re-baseline is already pending against surfaces G5 will measure.",
+      "suggested_fix": "Add one line in \u00a73 or \u00a74 noting rah-007/rah-008 status so analyze does not double-book the eval surface or build G5's harness ignorant of the pending re-baseline."
+    }
+  ],
+  "sycophancy_screen": {
+    "reject_cap": 2,
+    "cap_overridden": false,
+    "cap_default": 2
+  }
+}

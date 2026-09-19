@@ -31,6 +31,10 @@
       "items": { "type": "string", "minLength": 1 }
     },
     "activePhaseId": { "type": ["string", "null"] },
+    "activePhase": {
+      "type": ["string", "null"],
+      "description": "Slug of the final active phase in path. phase remains the root compatibility slug."
+    },
     "previousPhase": { "type": ["string", "null"] },
     "change": { "type": ["string", "null"] },
     "status": {
@@ -57,7 +61,18 @@
     "currentTask": { "type": ["string", "null"] },
     "nextPendingChange": { "type": ["string", "null"] },
     "sourceTool": { "type": ["string", "null"] },
-    "exactNextCommand": { "type": ["string", "null"] },
+    "nextChange": {
+      "type": ["string", "null"],
+      "description": "Next nonterminal change derived from canonical task state at sourceRevision."
+    },
+    "nextTask": {
+      "type": ["string", "null"],
+      "description": "Next nonterminal task derived from canonical task state at sourceRevision."
+    },
+    "exactNextCommand": {
+      "type": ["string", "null"],
+      "description": "Stored operator intent. It may be stale and must never select executable work."
+    },
     "parentPhase": { "type": ["string", "null"] },
     "childPhases": {
       "type": "array",

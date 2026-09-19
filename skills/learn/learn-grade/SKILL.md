@@ -1,7 +1,7 @@
 ---
 name: learn-grade
 description: External, source-grounded, anti-sycophantic grader for the Feynman learning loop. Checks explanations against the teaching corpus, identifies gaps, generates novel transfer problems, and updates the learner model. Routes through sycophancy-correction to prevent pedagogical flattery.
-version: '1.0.0'
+version: '1.1.0'
 license: MIT
 metadata:
   author: prometheus-skill-pack
@@ -22,12 +22,20 @@ the learner's own words.
 The grader is called as a sub-step by feynman-loop, learn-practice, learn-retain, and
 learn-certify. It is not typically invoked directly by the user — though it may be.
 
-**Empirical accuracy** (measured in `phase-learn-grader-validation`, superseding the
-original 60–70% assessed-confidence estimate): misconception detection F1 0.96
-(recall 1.0), accuracy-dimension correlation r=0.94, completeness-dimension
-correlation r=0.91, clarity-dimension correlation r=0.61. See
+**Provisional accuracy** (measured in `phase-learn-grader-validation` against
+**draft, unreviewed ground truth** — treat as indicative, not established):
+misconception detection F1 0.96 (recall 1.0), accuracy-dimension correlation
+r=0.94, completeness-dimension correlation r=0.91, clarity-dimension correlation
+r=0.61.
+
+All 24 ground-truth items are `review_status: draft`; none has been through human
+review (`index.json` reports `draft: 24, reviewed: 0`). The single false positive
+behind the 0.96 figure is one unadjudicated item, so the headline number rests on
+labels nobody has checked. These figures supersede the original 60–70%
+assessed-confidence estimate, but they are not a measured result and must not be
+cited as one. See
 [`references/eval-dataset/EVAL-RESULTS.md`](references/eval-dataset/EVAL-RESULTS.md)
-for the full methodology, numbers, and known limitations.
+for the methodology, the numbers, and the known limitations.
 
 ## When to invoke
 
@@ -59,15 +67,25 @@ for the full methodology, numbers, and known limitations.
 
 ### Step 1 — Load corpus
 
-Read the corpus JSON from `--corpus-path`. The expected shape matches the output of
-the bundled `learn-goal/scripts/content-grounding.sh`:
+Read the corpus JSON from `--corpus-path`. The shape is what
+`shared/scripts/content-grounding-kb.sh` writes (learn-goal and learn-kb call it
+through thin wrappers; `schema_version` 1.1.0, change-rah-008):
 
 ```json
 {
-  "concept_id": "string",
+  "corpus_id": "string",
+  "subject": "string",
+  "target_level": "string",
+  "schema_version": "1.1.0",
+  "built_at": "ISO datetime",
+  "kb_source": "local:<path> | dify:<kb> | palace:<id>",
+  "privacy_mode": true,
   "sources": [
     {
       "source_ref": "string",
+      "source_type": "mcp_filesystem | dify_kb | palace_rag | known_misconception",
+      "confidence": 0.75,
+      "is_misconception": false,
       "content_summary": "string",
       "key_points": ["string"],
       "misconceptions": ["string"]
@@ -75,6 +93,25 @@ the bundled `learn-goal/scripts/content-grounding.sh`:
   ]
 }
 ```
+
+Every source carries `key_points[]` and `misconceptions[]`. `key_points` are
+the sentences of `content_summary` unless the KB entry authored its own list;
+`misconceptions` holds the misconception text for a source flagged
+`is_misconception: true` and is `[]` otherwise. Step 3's `misconceptions_absent`
+reads `sources[].misconceptions[]`; Step 7 draws transfer problems from
+`sources[].key_points[]`. A corpus whose sources lack either field is an older
+shape (`schema_version` 1.0.0). Do not derive the fields by hand: bring the
+file to the current shape through the same script and grade the result, so
+there is exactly one derivation:
+
+```bash
+bash "${CLAUDE_PLUGIN_ROOT:-.}/shared/scripts/content-grounding-kb.sh" \
+  --normalize "${CORPUS_PATH}" \
+  --output "${CORPUS_PATH%.json}.normalized.json"
+```
+
+Note the normalization in the grade narrative. `concept_id` may be present on
+the corpus or on individual sources when a KB tags them; it is not required.
 
 ### Step 2 — Semantic search
 
@@ -133,11 +170,52 @@ For each dimension scoring below 0.7, produce a GapRecord:
 {
   "dimension": "completeness|accuracy|clarity|misconception",
   "description": "What is missing or wrong — specific, not vague",
-  "corpus_ref": "source_ref value from the relevant corpus source"
+  "corpus_ref": "source_ref value from the relevant corpus source",
+  "label": "verified|inferred"
 }
 ```
 
+`label` says how the gap was established, using the vocabulary shared with
+deep-research (`skills/research/deep-research/references/okf-research-format.md`):
+`verified` when the gap is grounded in a `corpus_ref` the grader read (a
+missing key point, a stated misconception), `inferred` when the grader judged
+the gap without a corpus reference (a clarity gap, a reasoning gap). A
+`verified` label requires a non-empty `corpus_ref`. The label travels with the
+gap into the learner model and into the feynman-loop artifact's `verification`
+block, so a loop that closes can show which of its scores rest on the corpus.
+
 Gaps are returned to the calling skill to target the next Feynman iteration.
+
+Each gap is also written to the learner model, so learn-certify and a later
+grading pass can see which gaps are still open. Call `add_gap` once per gap;
+the reply carries the `gap_id` to keep in the grade file:
+
+```bash
+jq -nc \
+  --arg learner_id "$LEARNER_ID" \
+  --arg concept_id "$CONCEPT_ID" \
+  --arg description "$GAP_DESCRIPTION" \
+  --arg severity "$GAP_SEVERITY" \
+  --arg corpus_ref "$GAP_CORPUS_REF" \
+  --arg label "$GAP_LABEL" \
+  '{method:"add_gap",params:{
+    learner_id:$learner_id,
+    concept_id:$concept_id,
+    description:$description,
+    severity:$severity,
+    source_skill:"learn-grade",
+    source_evidence:$corpus_ref,
+    label:$label
+  }}' | learner-model
+```
+
+`severity` maps the dimension: `misconception` → `misconception`, `accuracy`
+or `completeness` → `major`, `clarity` → `minor`. The returned `gap_id` is
+stored on the gap entry in the grade file (schema below); when a later grade of
+the same concept passes, each open `gap_id` from the previous grade file is
+closed with `resolve_gap` (`{learner_id, gap_id}`). The same availability rule
+as Step 8 applies: an absent binary or an `error` reply is logged, the entry's
+`gap_id` is `null`, and the grade file remains the primary output.
 
 ### Step 7 — Generate transfer problems
 
@@ -199,9 +277,11 @@ bash "<directory-containing-this-SKILL.md>/scripts/write-grade.sh" \
   "overall_score": 0.0,
   "gaps": [
     {
+      "gap_id": "uuid returned by the learner model's add_gap, or null when the write failed",
       "dimension": "completeness|accuracy|clarity|misconception",
       "description": "string",
-      "corpus_ref": "source_ref from corpus"
+      "corpus_ref": "source_ref from corpus",
+      "label": "verified|inferred"
     }
   ],
   "transfer_problems": ["string", "string"],

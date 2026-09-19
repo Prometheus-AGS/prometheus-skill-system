@@ -138,12 +138,31 @@ phase is fired by `/kbd-new-phase` / `/kbd-next-phase`, not here.
 ```sh
 . "$KBD_ORCHESTRATOR_ROOT/shared/lib/waypoint.sh"
 . "$KBD_ORCHESTRATOR_ROOT/shared/lib/hooks.sh"
+. "$KBD_ORCHESTRATOR_ROOT/shared/lib/bottleneck-guard.sh"
 
 kbd_hooks_fire reflect before "$phase" 1 1
 # … write reflection.md …
 kbd_hooks_fire reflect after  "$phase" 1 1
+export KBD_BOTTLENECK_PATH="${KBD_BOTTLENECK_PATH:-.}"
+guard_enabled=0
+if kbd_bottleneck_active; then
+  guard_enabled=1
+  kbd_bottleneck_evaluate phase after "$phase" 1 >/dev/null || exit 1
+fi
+prometheus kbd --path . phase transition \
+  --command-id "reflect-complete:$phase" \
+  --id "$phase" --status complete || exit 1
+if [ "$guard_enabled" = "1" ]; then
+  kbd_bottleneck_evaluate phase after "$phase" 0 >/dev/null || exit 1
+fi
 kbd_hooks_fire phase   after  "$phase" 1 1   # canonical phase-end boundary
 ```
+
+Both phase guard evaluations and the phase transition must succeed before
+`phase:after` fires. This ordering prevents a rejected or partial reflection
+from producing a completion memory record. `/kbd-next-phase` reads canonical
+phase status and skips this terminal transition and completion hook when
+reflection has already completed the phase.
 
 See orchestrator `SKILL.md` → "Hooks" for taxonomy and payload.
 

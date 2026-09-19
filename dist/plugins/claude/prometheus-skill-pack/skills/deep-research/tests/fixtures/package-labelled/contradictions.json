@@ -1,0 +1,1 @@
+{"contradictions":[{"id":"contra-001","topic":"latency","claim_a":{"id":"claim-001","text":"A","source":"src-a","credibility":80},"claim_b":{"id":"claim-002","text":"B","source":"src-b","credibility":70},"strategy_tried":"source_authority","resolved":true,"resolution":"claim_a","confidence":0.7,"label":"inferred","audit_trail":"fixture"}]}

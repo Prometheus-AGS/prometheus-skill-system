@@ -1,0 +1,10 @@
+substrate/prometheus-research/com.prometheus.research.plist
+substrate/prometheus-research/src/job/daemon.rs
+substrate/prometheus-research/src/http_server/health.rs
+substrate/prometheus-research/src/http_server/mod.rs
+scripts/install-binaries.sh
+skills/research/deep-research/tests/installed-service-smoke.sh
+skills/research/deep-research/tests/fixtures/stub-driver/run-research.sh
+shared/harnesses/generated/release-manifest.json
+docs/research-agent-hardening-evidence.md
+site/docs/substrate/prometheus-research.md

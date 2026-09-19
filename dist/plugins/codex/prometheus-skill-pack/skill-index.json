@@ -1,5 +1,5 @@
 {
-  "releaseVersion": "1.8.0",
+  "releaseVersion": "1.10.0",
   "schemaVersion": "prometheus-distribution-skill-index-v1",
   "skills": [
     {
@@ -293,6 +293,10 @@
     {
       "name": "iterative-evolver",
       "path": "skills/iterative-evolver"
+    },
+    {
+      "name": "karpathy-progress-memory",
+      "path": "skills/karpathy-progress-memory"
     },
     {
       "name": "karpathy-tokenizer",
@@ -617,18 +621,6 @@
     {
       "name": "sycophancy-correction",
       "path": "skills/sycophancy-correction"
-    },
-    {
-      "name": "sync-peers",
-      "path": "skills/sync-peers"
-    },
-    {
-      "name": "sync-push",
-      "path": "skills/sync-push"
-    },
-    {
-      "name": "sync-status",
-      "path": "skills/sync-status"
     },
     {
       "name": "tauri-react-vite",

@@ -1,0 +1,443 @@
+{
+  "phase": "research-agent-hardening",
+  "generated_at": "2026-09-03T23:58:00Z",
+  "research_budget": {
+    "max_queries_per_tier": 8,
+    "max_minutes": 20,
+    "queries_used": {
+      "tier1": 6,
+      "tier2": 2,
+      "tier3": 5,
+      "tier4": 0
+    }
+  },
+  "gaps_addressed": [
+    "G1-execution-model",
+    "G1-daemon-job",
+    "G1-manifest-validation",
+    "G1-output-root",
+    "G1-timestamps",
+    "G2-fsrs",
+    "G2-artifact-path",
+    "G2-corpus-schema",
+    "G2-learner-model-rpcs",
+    "G3-labels-provenance-ledger-resume",
+    "G3-slug",
+    "G4-tool-allowlists",
+    "G4-report-review",
+    "G5-scoring-graph"
+  ],
+  "candidates": [
+    {
+      "id": "cand-001",
+      "name": "rs-fsrs 1.2.1",
+      "kind": "library",
+      "repo_url": "https://github.com/open-spaced-repetition/rs-fsrs",
+      "registry": "crates",
+      "fit_for_gap": "G2-fsrs: replace the stub scheduler in substrate/learner-model/src/fsrs.rs that never reads difficulty",
+      "verdict": "adopt",
+      "coverage_estimate": 0.9,
+      "license": "MIT",
+      "maintenance": {
+        "last_release": "1.2.1",
+        "stars": 50,
+        "updated": "2026-09-01"
+      },
+      "evidence": [
+        {
+          "tier": 1,
+          "source_url": "https://github.com/open-spaced-repetition/rs-fsrs",
+          "claim": "Scheduler-only Rust FSRS from the same organisation as fsrs-rs; 50 stars, updated 2026-09-01"
+        },
+        {
+          "tier": 3,
+          "source_url": "https://crates.io/crates/rs-fsrs",
+          "claim": "cargo search reports rs-fsrs 1.2.1, 'Rust-based Scheduler for FSRS'"
+        },
+        {
+          "tier": 2,
+          "source_url": "https://github.com/open-spaced-repetition/fsrs-rs/blob/main/_autodocs/api-reference-fsrs.md",
+          "claim": "Sibling crate exposes next_states(Option<MemoryState>, desired_retention, days_elapsed) returning stability, difficulty, interval per rating; the same model maps onto FSRSCard"
+        }
+      ],
+      "risks": [
+        "Dependency weight not confirmed by cargo tree; verdict is inferred from crate descriptions",
+        "API parity with fsrs-rs assumed from shared organisation; confirm at spec"
+      ],
+      "decision_rationale": "Scheduler-only fits the learner-model binary and the pack's build-speed policy; fsrs-rs ships an optimizer with a machine-learning backend the binary does not need."
+    },
+    {
+      "id": "cand-002",
+      "name": "fsrs-rs 6.6.2",
+      "kind": "library",
+      "repo_url": "https://github.com/open-spaced-repetition/fsrs-rs",
+      "registry": "crates",
+      "fit_for_gap": "G2-fsrs: optimizer for a later parameter-training phase",
+      "verdict": "reference",
+      "coverage_estimate": 1.0,
+      "license": "BSD-3-Clause",
+      "maintenance": {
+        "last_release": "6.6.2",
+        "stars": 414,
+        "updated": "2026-09-02"
+      },
+      "evidence": [
+        {
+          "tier": 1,
+          "source_url": "https://github.com/open-spaced-repetition/fsrs-rs",
+          "claim": "414 stars, updated 2026-09-02, 'FSRS for Rust, including Optimizer and Scheduler'"
+        },
+        {
+          "tier": 2,
+          "source_url": "https://github.com/open-spaced-repetition/fsrs-rs/blob/main/_autodocs/quick-reference.md",
+          "claim": "FSRS::default() and FSRS::new(&params); MemoryState has public stability and difficulty"
+        }
+      ],
+      "risks": [
+        "Optimizer pulls a machine-learning backend; too heavy for the learner-model binary this phase"
+      ],
+      "decision_rationale": "Canonical implementation and the documented API reference; not adopted now because the scheduler alone is needed."
+    },
+    {
+      "id": "cand-003",
+      "name": "Feynman CLI research workflow (prompts/deepresearch.md, .feynman/agents/*.md, SYSTEM.md)",
+      "kind": "pattern",
+      "repo_url": "https://github.com/companion-inc/feynman",
+      "registry": "none",
+      "fit_for_gap": "G3-labels-provenance-ledger-resume, G3-slug, G4-tool-allowlists, G5-scoring-graph, G1-execution-model",
+      "verdict": "adapt",
+      "coverage_estimate": 0.7,
+      "license": "MIT",
+      "maintenance": {
+        "last_release": "0.3.47",
+        "source": "/Users/gqadonis/Projects/references/feynman/package.json"
+      },
+      "evidence": [
+        {
+          "tier": 1,
+          "source_url": "/Users/gqadonis/Projects/references/feynman/prompts/deepresearch.md",
+          "claim": "Seven-stage prompt with required artifacts, scale gate, file-based subagent handoff, verifier-before-reviewer, post-edit grep proof, and a provenance sidecar template"
+        },
+        {
+          "tier": 1,
+          "source_url": "/Users/gqadonis/Projects/references/feynman/.feynman/agents/writer.md",
+          "claim": "Writer agent frontmatter tools allowlist contains no web or fetch tools; verifier gets web_search and fetch_content back"
+        },
+        {
+          "tier": 1,
+          "source_url": "/Users/gqadonis/Projects/references/feynman/AGENTS.md",
+          "claim": "Label vocabulary verified/unverified/blocked/inferred; slug rule of at most five words with generic names banned"
+        },
+        {
+          "tier": 1,
+          "source_url": "/Users/gqadonis/Projects/references/feynman/src/rank/paper-rank.ts",
+          "claim": "combineSignals drops unavailable signals from the weight denominator and stores appliedWeights; SCORE_SENSITIVITY_PROFILES classify rank stability (survey, not re-read)"
+        },
+        {
+          "tier": 1,
+          "source_url": "/Users/gqadonis/Projects/references/feynman/src/workbench/claims.ts",
+          "claim": "Claim id is sha256(scope:normalised text) truncated to 16 hex; status escalates on merge (survey, not re-read)"
+        }
+      ],
+      "risks": [
+        "Prompts are written for Pi tool names; every tool reference must be re-mapped to the pack's harness tools",
+        "The rank code is TypeScript; porting to python3 must be verified against a fixture, not assumed"
+      ],
+      "decision_rationale": "MIT-licensed, prose-level mechanisms that map onto the pack's existing stage skills without a runtime dependency."
+    },
+    {
+      "id": "cand-004",
+      "name": "Headless harness execution (claude -p, codex exec)",
+      "kind": "pattern",
+      "registry": "none",
+      "fit_for_gap": "G1-daemon-job: implement --daemon-job by spawning a headless harness running the deep-research driver",
+      "verdict": "adapt",
+      "coverage_estimate": 0.8,
+      "evidence": [
+        {
+          "tier": 1,
+          "source_url": "ps output on this machine, 2026-09-03",
+          "claim": "A claude -p --input-format stream-json process was executing the control-plane-to-companion phase during this analyze"
+        },
+        {
+          "tier": 1,
+          "source_url": "CLAUDE.md, Codex hooks section",
+          "claim": "codex exec --dangerously-bypass-hook-trust is documented as a vetted headless automation path with verified hook firing"
+        }
+      ],
+      "risks": [
+        "A headless child inherits operator hooks; the spec must scope which hooks a research child may fire",
+        "Harness binary presence is an environment fact; absence must produce a blocked job, not a crash"
+      ],
+      "decision_rationale": "Reuses stage skills verbatim and gives the daemon background execution without reimplementing integrations in Rust."
+    },
+    {
+      "id": "cand-005",
+      "name": "python3 jsonschema 4.26",
+      "kind": "library",
+      "repo_url": "https://github.com/python-jsonschema/jsonschema",
+      "registry": "pypi",
+      "fit_for_gap": "G1-manifest-validation: validate manifest.json from the shell driver",
+      "verdict": "adopt",
+      "coverage_estimate": 1.0,
+      "license": "MIT",
+      "maintenance": {
+        "last_release": "4.26.0"
+      },
+      "evidence": [
+        {
+          "tier": 3,
+          "source_url": "python3 -c 'import jsonschema' on this machine",
+          "claim": "jsonschema 4.26.0 importable"
+        },
+        {
+          "tier": 1,
+          "source_url": "skills/research/deep-research/scripts/detect-contradictions.sh",
+          "claim": "Stage scripts already require python3, so no new runtime is introduced"
+        }
+      ],
+      "risks": [
+        "Not guaranteed on every install; the driver must degrade to a jq required-keys check when the import fails"
+      ],
+      "decision_rationale": "Zero new runtime; graceful degradation keeps the driver usable without pip."
+    },
+    {
+      "id": "cand-006",
+      "name": "jsonschema crate 0.53",
+      "kind": "library",
+      "repo_url": "https://github.com/Stranger6667/jsonschema",
+      "registry": "crates",
+      "fit_for_gap": "G1-manifest-validation: validate manifest.json inside prometheus-research before research_export returns",
+      "verdict": "adopt",
+      "coverage_estimate": 1.0,
+      "license": "MIT",
+      "maintenance": {
+        "last_release": "rust-v0.53.0 (2026-09-02)",
+        "stars": 812,
+        "pushed": "2026-09-03"
+      },
+      "evidence": [
+        {
+          "tier": 3,
+          "source_url": "https://crates.io/crates/jsonschema",
+          "claim": "cargo search reports jsonschema 0.53.0, 'JSON schema validaton library'"
+        },
+        {
+          "tier": 1,
+          "source_url": "https://github.com/Stranger6667/jsonschema",
+          "claim": "812 stars, pushed 2026-09-03, release rust-v0.53.0 on 2026-09-02, MIT"
+        }
+      ],
+      "risks": [
+        "Adds a compile dependency to the daemon; acceptable because the daemon already carries axum, rmcp, and reqwest"
+      ],
+      "decision_rationale": "One schema file, two validators, same result in Rust and shell."
+    },
+    {
+      "id": "cand-007",
+      "name": "async-openai 0.41.3 (daemon-native pipeline)",
+      "kind": "library",
+      "repo_url": "https://github.com/64bit/async-openai",
+      "registry": "crates",
+      "fit_for_gap": "G1-execution-model: option A, reimplement the pipeline in Rust",
+      "verdict": "reject",
+      "coverage_estimate": 0.3,
+      "license": "MIT",
+      "maintenance": {
+        "last_release": "0.41.3",
+        "stars": 2002,
+        "updated": "2026-09-03"
+      },
+      "evidence": [
+        {
+          "tier": 1,
+          "source_url": "https://github.com/64bit/async-openai",
+          "claim": "2002 stars, updated 2026-09-03; a capable client"
+        },
+        {
+          "tier": 3,
+          "source_url": "https://crates.io/crates/async-openai",
+          "claim": "async-openai 0.41.3"
+        },
+        {
+          "tier": 1,
+          "source_url": "substrate/prometheus-research/Cargo.toml",
+          "claim": "The daemon already has reqwest 0.12 with json; a client crate is not the missing piece"
+        }
+      ],
+      "risks": [
+        "Rejected on scope, not quality: option A scored 15 of 25 against 21 for the harness-driven options"
+      ],
+      "decision_rationale": "A daemon-native pipeline duplicates every integration the stage skills already declare; the gateway is already reachable with reqwest if a Rust-side call is ever needed."
+    },
+    {
+      "id": "cand-008",
+      "name": "adversarial-review skill (pack, skills/process/adversarial-review)",
+      "kind": "pattern",
+      "registry": "none",
+      "fit_for_gap": "G4-report-review: cross-model judgement of report.md before delivery",
+      "verdict": "adopt",
+      "coverage_estimate": 0.85,
+      "license": "MIT",
+      "evidence": [
+        {
+          "tier": 1,
+          "source_url": "skills/process/adversarial-review/SKILL.md",
+          "claim": "Artifact mode packs an artifact, goals, handoffs, constraints and producer_model; dispatch-judge.sh falls back from judge to critic on collision"
+        },
+        {
+          "tier": 1,
+          "source_url": ".kbd-orchestrator/phases/research-agent-hardening/review/assess/findings.json",
+          "claim": "Verified working this session: judge k3 over liter-llm gateway, cross_model_check verified-distinct"
+        }
+      ],
+      "risks": [
+        "--mode artifact accepts only assess, analyze, plan targets; a research target must be added to build-review-packet.sh"
+      ],
+      "decision_rationale": "The pack's one rigorous adversarial mechanism, with a test suite; wiring cost is one packet builder case."
+    },
+    {
+      "id": "cand-009",
+      "name": "ajv-cli 5.0.0",
+      "kind": "library",
+      "repo_url": "https://github.com/ajv-validator/ajv-cli",
+      "registry": "npm",
+      "fit_for_gap": "G1-manifest-validation from shell",
+      "verdict": "reject",
+      "coverage_estimate": 1.0,
+      "license": "MIT",
+      "maintenance": {
+        "last_release": "5.0.0"
+      },
+      "evidence": [
+        {
+          "tier": 3,
+          "source_url": "npm view ajv-cli version",
+          "claim": "ajv-cli 5.0.0; ajv 8.20.0"
+        },
+        {
+          "tier": 1,
+          "source_url": "package.json",
+          "claim": "ajv is not a declared dependency of the pack"
+        }
+      ],
+      "risks": [
+        "Would make bash hooks depend on a Node package that is not installed with the pack"
+      ],
+      "decision_rationale": "python3 is already required by the stage scripts; adding Node to the hook path is a second runtime for no gain."
+    },
+    {
+      "id": "cand-010",
+      "name": "kbd_complete (shared/scripts/lib/kbd-model-resolve.sh)",
+      "kind": "pattern",
+      "registry": "none",
+      "fit_for_gap": "G5-scoring-graph: semantic contradiction detection and any other script-side model call",
+      "verdict": "adopt",
+      "coverage_estimate": 1.0,
+      "license": "MIT",
+      "evidence": [
+        {
+          "tier": 1,
+          "source_url": "shared/scripts/lib/kbd-model-resolve.sh:253",
+          "claim": "kbd_complete <model> <system> <user> [max_tokens] speaks OpenAI REST to the resolved gateway, builds the body in python3, and returns non-zero with a reason instead of an empty reply"
+        }
+      ],
+      "risks": [
+        "Requires a reachable gateway; the driver must label the stage blocked when kbd_complete returns 3"
+      ],
+      "decision_rationale": "Incumbent; adversarial-review already depends on it."
+    },
+    {
+      "id": "cand-011",
+      "name": "chrono 0.4",
+      "kind": "library",
+      "repo_url": "https://github.com/chronotope/chrono",
+      "registry": "crates",
+      "fit_for_gap": "G1-timestamps: replace the hand-rolled chrono_now() in checkpoint.rs and mcp_server/mod.rs",
+      "verdict": "adopt",
+      "coverage_estimate": 1.0,
+      "license": "MIT OR Apache-2.0",
+      "evidence": [
+        {
+          "tier": 1,
+          "source_url": "substrate/learner-model/Cargo.toml",
+          "claim": "learner-model already pins chrono 0.4 with serde; same pin keeps the substrate consistent"
+        },
+        {
+          "tier": 1,
+          "source_url": "substrate/prometheus-research/src/job/checkpoint.rs:60",
+          "claim": "chrono_now() formats 1970-01-01T00:00:{secs%60}Z; the comment says 'without chrono dependency'"
+        }
+      ],
+      "risks": [],
+      "decision_rationale": "The defect exists because the dependency was avoided; adopting the pin the sibling crate already uses removes it."
+    }
+  ],
+  "build_required": [
+    {
+      "need": "Stage-contract driver: run-research.sh that verifies each stage's required artifacts, fires hooks, writes checkpoint.json, honours --resume, enforces verifier-before-reviewer ordering and the scale gate, and writes <slug>.provenance.md on every exit path",
+      "why_no_candidate": "Pack-specific contract; Feynman CLI's equivalent is prompt prose, not a script",
+      "capability_gap_id": "G1-execution-model"
+    },
+    {
+      "need": "--daemon-job clap argument and handler in prometheus-research that spawns the headless harness and tracks the child",
+      "why_no_candidate": "Daemon-specific glue over cand-004",
+      "capability_gap_id": "G1-daemon-job"
+    },
+    {
+      "need": "research-manifest.schema.json plus regeneration of the template, SKILL.md example, and export-package.sh from research-package-spec.md; one output root ~/.prometheus/research/",
+      "why_no_candidate": "Contract repair",
+      "capability_gap_id": "G1-manifest-validation"
+    },
+    {
+      "need": "OpenSpec capabilities research-pipeline-execution and learn-model-coherence",
+      "why_no_candidate": "Authored at spec stage; no capability covers these surfaces today",
+      "capability_gap_id": null
+    },
+    {
+      "need": "Unified learn artifact path artifacts/<concept-id>/<artifact-id>.json across feynman-loop, learn-retain, learn-certify",
+      "why_no_candidate": "Contract repair",
+      "capability_gap_id": "G2-artifact-path"
+    },
+    {
+      "need": "content-grounding-kb.sh emits key_points[] and misconceptions[]; single copy under shared/scripts with thin wrappers",
+      "why_no_candidate": "Contract repair",
+      "capability_gap_id": "G2-corpus-schema"
+    },
+    {
+      "need": "learner-model RPCs add_gap, add_session, set_certified; certified_at on ConceptState; store fold for gaps and sessions",
+      "why_no_candidate": "Types exist; only dispatch and fold are missing",
+      "capability_gap_id": "G2-learner-model-rpcs"
+    },
+    {
+      "need": "Claim-level labels in graph.json and the report evidence table; plan.md task ledger, verification log, decision log maintained by the driver; feynman-loop artifact verification and provenance blocks",
+      "why_no_candidate": "Pattern port from cand-003; pack-specific schemas",
+      "capability_gap_id": "G3-labels-provenance-ledger-resume"
+    },
+    {
+      "need": "shared/scripts/lib/slug.sh from subject_to_slug; package directory <slug>-<yyyymmdd>-<4hex>",
+      "why_no_candidate": "Incumbent function relocated",
+      "capability_gap_id": "G3-slug"
+    },
+    {
+      "need": "tools: frontmatter on the four research agents with documented advisory degradation on non-Claude harnesses",
+      "why_no_candidate": "Harness convention, no library",
+      "capability_gap_id": "G4-tool-allowlists"
+    },
+    {
+      "need": "research target for build-review-packet.sh --mode artifact",
+      "why_no_candidate": "One case in an existing script",
+      "capability_gap_id": "G4-report-review"
+    },
+    {
+      "need": "score-sources.py with available-signal weight renormalisation and sensitivity.json; build-graph.sh with content-addressed claim ids, contradicts edges, and the spec's topics/claims/relations shape; semantic contradiction detection via kbd_complete",
+      "why_no_candidate": "Algorithms ported from cand-003 into python3; no numeric library needed",
+      "capability_gap_id": "G5-scoring-graph"
+    },
+    {
+      "need": "scripts/check-research-package.sh: validates the SKILL.md manifest example and a fresh export-package.sh output against research-manifest.schema.json; wired into local certification so hand-synced files cannot drift",
+      "why_no_candidate": "Drift check chosen over a generator to keep C-01 and C-04 out of scope",
+      "capability_gap_id": "G1-manifest-validation"
+    }
+  ]
+}

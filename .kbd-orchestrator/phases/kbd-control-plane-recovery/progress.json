@@ -2,16 +2,17 @@
   "schemaVersion": "2",
   "generatedBy": "kbd-runtime",
   "projectionContractVersion": 2,
-  "sourceRevision": 381,
-  "derivedRevision": 381,
+  "sourceRevision": 1233,
+  "derivedRevision": 1233,
   "frontier": {
-    "4bca58c3-e70b-48c9-a555-60bc16d3d025": 381
+    "4bca58c3-e70b-48c9-a555-60bc16d3d025": 1186,
+    "575138ba-385e-449d-89f7-cf4d793b34f9": 47
   },
   "conflictCount": 0,
   "phase": "kbd-control-plane-recovery",
   "phaseId": "kbd-control-plane-recovery",
   "parentPhase": null,
-  "last_updated": "2026-08-30T12:06:34.592419Z",
+  "last_updated": "2026-09-19T17:28:57.273165Z",
   "last_updated_by": "kbd-runtime",
   "changes_total": 4,
   "changes_completed": 4,
@@ -93,6 +94,16 @@
       "changes_total": 4,
       "implementation_completed": 4,
       "implementation_total": 4,
+      "certification_status": "NOT_TRACKED",
+      "handoff": null,
+      "completed_at": null
+    },
+    "skill-pack-1-10-recovery": {
+      "status": "IN_PROGRESS",
+      "changes_completed": 0,
+      "changes_total": 1,
+      "implementation_completed": 0,
+      "implementation_total": 1,
       "certification_status": "NOT_TRACKED",
       "handoff": null,
       "completed_at": null

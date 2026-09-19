@@ -1,0 +1,46 @@
+{
+  "mode": "diff",
+  "verdict": "BLOCK",
+  "judge_model": "gpt-5.5",
+  "producer_model": "glm-5.3",
+  "isolation_mode": "rest-gateway:http://localhost:4000/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": ".kbd-orchestrator/changes/change-drt-011-phase-close-distribution-regen/dist-manifest.txt",
+      "claim": "The change does not actually include the regenerated 405-file distribution it claims to reconcile; it commits a manifest of expected dist changes while the packet contains only sampled dist hunks.",
+      "evidence": "Acceptance criteria require regenerated outputs committed for C-01; dist-manifest.txt lists 405 dist changes including paths such as `A  dist/plugins/claude/prometheus-skill-pack/skills/deep-research/tests/hang/HANG-CAPTURE.md` and `A  dist/plugins/claude/prometheus-skill-pack/skills/deep-research/scripts/export-package.py`, but the packet's actual `diff --git` hunks include only DIAGNOSIS.md, FIX-CERTIFICATION.md, and run-hang-capture.sh for the claude/codex trees plus scaffolding, not the listed 405 generated outputs.",
+      "suggested_fix": "Commit the full regenerated `dist/plugins/**` tree changes, not only `dist-manifest.txt` and sampled files, or reduce the claims to the outputs actually present and rerun the drift checks."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "dist/plugins/claude/prometheus-skill-pack/skills/deep-research/tests/hang/run-hang-capture.sh",
+      "line": 254,
+      "claim": "The hang-capture harness exits successfully even when it detects hangs or failed runs, silently masking the failure for any caller that relies on exit status.",
+      "evidence": "The script increments `HANGS`, records `RESULT=\"HANG\"`, and sets `RC=124` on timeout, but after writing `rate.txt` it unconditionally executes `exit 0`; the same file comment states `non-zero exit on failure`, and verification.md records the known issue as `harness exits 0 on hangs/failures`.",
+      "suggested_fix": "Exit non-zero when `HANGS > 0` or any run result is `failed`, unless an explicit recorder-only flag is supplied."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "dist/plugins/codex/prometheus-skill-pack/skills/deep-research/tests/hang/run-hang-capture.sh",
+      "line": 254,
+      "claim": "The codex-distributed hang-capture harness has the same silent-success behavior on hangs and failed runs.",
+      "evidence": "The codex copy is added with identical content: it sets `RESULT=\"HANG\"` and `RC=124` for a timeout, then unconditionally writes the summary and executes `exit 0`.",
+      "suggested_fix": "Apply the same non-zero-on-hang/non-zero-on-failure exit behavior to the codex copy by regenerating from a fixed source."
+    },
+    {
+      "severity": "WARNING",
+      "file": ".refiner/artifacts/change-drt-011-phase-close-distribution-regen/refinement_log.md",
+      "line": 6,
+      "claim": "The refinement log preserves an obsolete determinism hash that contradicts the corrected verification evidence.",
+      "evidence": "refinement_log.md says `Idempotency proven by the identical-hash double run` with aggregate hash `bda1fc97\u2026`, while verification.md records the corrected full-tree hash as `cbc3725f6308f75b2e230b8711da278ea089bf3d` and says the `bda1fc97\u2026` hash only covered a partial file-type set.",
+      "suggested_fix": "Update the refinement log to the full-tree `cbc3725f...` hash or explicitly mark the old partial hash as superseded."
+    }
+  ],
+  "sycophancy_screen": {
+    "reject_cap": 2,
+    "cap_overridden": false,
+    "cap_default": 2
+  }
+}

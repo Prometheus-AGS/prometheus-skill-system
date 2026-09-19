@@ -1,0 +1,64 @@
+{
+  "mode": "artifact",
+  "verdict": "PASS",
+  "judge_model": "k3",
+  "producer_model": "claude-fable-5-1",
+  "isolation_mode": "rest-gateway:http://localhost:4000/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "WARNING",
+      "file": "plan.md",
+      "claim": "change-cpc-008's acceptance criterion asserts on `mcp-servers.json`, a file that does not exist anywhere in the tree and that no change in the plan creates, and the plan simultaneously declares harness re-pointing out of scope.",
+      "evidence": "Change 8 details: \"install proves `/sync-status` reaches the Companion socket and `mcp-servers.json` names the Companion binary.\" cited_paths: \"MISSING  mcp-servers.json\". Scope cuts: \"Harness registrations on user machines are re-pointed by the Companion installer, which is outside this phase's control.\" No change's scope lists creating `mcp-servers.json`.",
+      "suggested_fix": "Either name the change that creates/owns `mcp-servers.json` in change-cpc-008's scope, or replace the criterion with an assertion against a file the plan actually produces (e.g. the Companion installer's own MCP registration output)."
+    },
+    {
+      "severity": "WARNING",
+      "file": "plan.md",
+      "claim": "change-cpc-009 omits the decision record for the four retired OpenSpec main specs that the spec-stage handoff explicitly assigned to it.",
+      "evidence": "spec.handoff.json: \"the retired OpenSpec main specs (sovereign-sync-daemon-health, sovereign-sync-ci, iroh-docs-adapter, mcp-client-pool) need a decision record in 009\". Plan change 10 (change-cpc-009) scope says only \"OpenSpec main specs\" under deletions and its details mention only the footprint criterion (\"Carries a round-2 review CRITICAL verbatim (footprint criterion)\") with no decision-record deliverable.",
+      "suggested_fix": "Add the retirement decision record to change-cpc-009's scope/details as a named deliverable with a verify step."
+    },
+    {
+      "severity": "WARNING",
+      "file": "plan.md",
+      "claim": "The goal and constraint requiring that existing signed KBD state (project.loro, receipts, run history) migrate intact have no acceptance criterion covering receipts or run history; the plan only verifies projections and frontier/revision.",
+      "evidence": "Goal: \"existing signed KBD state (project.loro, receipts, run history) migrates intact\". Constraint: \"A migration that discards evidence is a failure.\" Change 10 covers \"seven progress.json files\" and proves \"the frontier and revision are unchanged\"; change 5's continuity test \"asserts revision and frontier before and after an append\". No change asserts receipt or run-history survival across the daemon-to-Companion transition.",
+      "suggested_fix": "Add an explicit receipt/run-history continuity assertion to change-cpc-005's continuity test or change-cpc-010's migration verification."
+    },
+    {
+      "severity": "WARNING",
+      "file": "plan.md",
+      "claim": "change-cpc-011 delivers a signed KBD command through the pack CLI's production path but declares no dependency on change-cpc-009, the change that repoints the CLI to contract discovery; correct sequencing rests only on round order, not declared dependencies.",
+      "evidence": "Change 11: \"Depends on: change-cpc-005, change-cpc-006, change-cpc-007\" and its harness includes \"a signed KBD command via the pack CLI observed on the other node\". Change 9 is where the CLI is repointed: \"repoint probes and the CLI to optional contract discovery\". Goal 6 requires evidence \"through production entry points\", which is the post-repoint CLI.",
+      "suggested_fix": "Add change-cpc-009 (or change-cpc-001, if the discovery transport actually lands there) to change-cpc-011's dependency list, or state explicitly that the harness drives the CLI against an explicit endpoint without the repoint."
+    },
+    {
+      "severity": "WARNING",
+      "file": "plan.md",
+      "claim": "change-cpc-001 publishes hook bundle extension points \u2014 a hooks-surface contract \u2014 but its scope assigns no docs/codex-plugin.md or CLAUDE.md update and no `npm run validate:codex` run, leaving C-01/C-03 obligations unassigned if the contract touches `hooks/hooks.json`.",
+      "evidence": "Change 1: \"Publish the open integration contract (G7): control-endpoint discovery, hook bundle extension points ...\" with \"Scope: docs | generator script | CLI subcommand | JSON schema | site docs (pack)\" \u2014 no docs/codex-plugin.md, no CLAUDE.md. Constraint C-01: \"after touching ... `hooks/hooks.json` ... `npm run validate:codex` MUST pass in the same change\"; C-03 requires docs/codex-plugin.md for hooks-surface changes.",
+      "suggested_fix": "State in change-cpc-001 whether hook extension points modify hooks/hooks.json; if yes, add validate:codex and the C-03 doc updates to the same change; if no, say so explicitly so downstream execution doesn't drift into an unvalidated hooks edit."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "plan.md",
+      "claim": "change-cpc-011's complexity fields contradict each other, making model routing ambiguous.",
+      "evidence": "Change 11 lists \"Est. complexity: M\" alongside \"Complexity score: High\" and \"Model class: frontier\".",
+      "suggested_fix": "Reconcile to one value (frontier/High per the two-process harness, or M/medium)."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "plan.md",
+      "claim": "The effort summary is self-contradictory: it claims one frontier-class evidence change but lists two, and mislabels change 9 (pack removal) as an evidence change.",
+      "evidence": "\"Effort: eight rounds with three frontier-class changes (4, 5, 7) and one frontier-class evidence change (11, 9).\" The change list marks 4, 5, 7, 9, and 11 all as frontier; 9's scope is deletions, not evidence.",
+      "suggested_fix": "Correct the count and attribution (five frontier-class changes: 4, 5, 7, 9, 11; evidence changes: 11, 13)."
+    }
+  ],
+  "sycophancy_screen": {
+    "reject_cap": 2,
+    "cap_overridden": false,
+    "cap_default": 2
+  }
+}

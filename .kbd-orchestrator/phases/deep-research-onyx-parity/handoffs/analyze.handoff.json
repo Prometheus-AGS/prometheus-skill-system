@@ -1,0 +1,12 @@
+{
+  "stage": "analyze",
+  "completedAt": "2026-09-08T13:14:02Z",
+  "outputs": [
+    "analysis.md",
+    "library-candidates.json"
+  ],
+  "nextStage": "spec",
+  "summaryForNext": "10 candidates evaluated across all five gaps; 4 adopt, 1 adopt-provisional, 2 build, 1 adopt-values-only, 1 reject, 1 defer. Key verdicts: the scheduler needs NO new dependency (tokio full already provides Semaphore/JoinSet/timeout), which removes the technical case for the report's proposed workspace split as a precondition (deferred). Onyx's constants were verified at source, not taken from the comparison report, and one finding is exploitable: Onyx's <=3 parallel cap is PROMPT-ONLY, stated four times with no code cap, so enforcing it in the scheduler makes us strictly better at zero cost. G5 changed from build to adopt: deep_research_bench is Apache-2.0 and ships the RACE criteria, judge prompts, and query set, pinned at 469cce54. G3 stays build with reasoning recorded. Native/UAR runner REJECTED: UAR has one crate and it is our own submodule, and UAR-REM-002 does not exist. WARNINGS carried forward: (1) parallel in-session subagent dispatch is NOT established in-repo, so strategy A is provisional and the first thread change must smoke-test concurrent dispatch before the scheduler depends on it (D-03a); if it fails, strategy B becomes primary and D-A's launchd PATH fix becomes blocking. (2) D-B is itself a C-01 generated-artifact desync requiring byte-identical regeneration proof in the same change. (3) Onyx is NOASSERTION licensed: reimplement mechanisms, never copy prompt strings verbatim without a licence check. Open for spec: depth-ceiling enforcement, per-depth budgets, dossier cap 10K vs ~5K, bench composition.",
+  "skipped": false,
+  "skipReason": null
+}

@@ -313,8 +313,6 @@ fn doctor_exclusions_are_applied_before_kbd_checks_execute() {
             "state.kbd-orchestrator",
             "--exclude",
             "control.kbd-rollout",
-            "--exclude",
-            "service:sovereign-sync",
         ])
         .output()
         .expect("run filtered doctor");
@@ -334,46 +332,8 @@ fn doctor_exclusions_are_applied_before_kbd_checks_execute() {
     assert!(checks.iter().all(|check| check["group"] == "skills"));
     assert_eq!(
         payload["selection"]["excluded"].as_array().map(Vec::len),
-        Some(4)
+        Some(3)
     );
-}
-
-#[test]
-fn sovereign_exclusion_is_propagated_to_service_repairs() {
-    let (project_root, home_dir) = prepared_environment("doctor-service-exclusion");
-    let output = base_command(&project_root, &home_dir)
-        .args([
-            "doctor",
-            "--json",
-            "--refresh",
-            "--exclude",
-            "control.kbd-runtime",
-            "--exclude",
-            "state.kbd-orchestrator",
-            "--exclude",
-            "control.kbd-rollout",
-            "--exclude",
-            "service:sovereign-sync",
-        ])
-        .output()
-        .expect("run scoped refresh plan");
-    let payload: serde_json::Value = serde_json::from_slice(&output.stdout).expect("refresh JSON");
-    let safe_actions = payload["repair_plan"]["safe_actions"]
-        .as_array()
-        .expect("safe actions");
-    let service_actions = safe_actions.iter().filter(|action| {
-        action["id"]
-            .as_str()
-            .is_some_and(|id| id.starts_with("services."))
-    });
-    for action in service_actions {
-        assert!(
-            action["command_hint"]
-                .as_str()
-                .is_some_and(|hint| hint.contains("--exclude sovereign-sync")),
-            "service repair must preserve sovereign exclusion: {action}"
-        );
-    }
 }
 
 #[cfg(unix)]
@@ -411,7 +371,7 @@ fn execution_doctor_receives_exclusions_before_optional_remote_configuration() {
             "--exclude",
             "control.kbd-rollout",
             "--exclude",
-            "service:sovereign-sync",
+            "service:remote-queue",
         ])
         .output()
         .expect("run execution doctor");
@@ -421,6 +381,50 @@ fn execution_doctor_receives_exclusions_before_optional_remote_configuration() {
         String::from_utf8_lossy(&output.stderr)
     );
     let invoked = fs::read_to_string(arguments).unwrap();
-    assert!(invoked.contains("service:sovereign-sync"));
-    assert!(!invoked.contains("--remote-queue"));
+    assert!(invoked.contains("service:remote-queue"));
+    assert!(!invoked.contains(" --remote-queue "));
+}
+
+/// change-cpc-009: the pack must be complete and silent about the Companion
+/// when it is absent (D-02) — no service name, no warning, exit 0.
+///
+/// Reproduces "the Companion is absent" for real, not by mocking the check:
+/// no `PROMETHEUS_CONTROL_ENDPOINT`, no `SOVEREIGN_SYNC_SOCKET`, and `HOME`
+/// pointed at a fresh directory with no control socket ever created under it,
+/// so `contract::report`'s own discovery chain (which this check now shares —
+/// see `check_kbd_control_plane`'s doc comment) genuinely finds nothing.
+#[test]
+fn control_plane_check_is_silent_when_the_companion_is_absent() {
+    let (project_root, home_dir) = prepared_environment("doctor-no-companion");
+
+    let output = base_command(&project_root, &home_dir)
+        .env_remove("PROMETHEUS_CONTROL_ENDPOINT")
+        .env_remove("SOVEREIGN_SYNC_SOCKET")
+        .args(["doctor", "--json", "--check", "control"])
+        .output()
+        .expect("run control-only doctor");
+
+    assert!(
+        output.status.success(),
+        "doctor must exit 0 with no Companion installed: {}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+    let payload: serde_json::Value =
+        serde_json::from_slice(&output.stdout).expect("doctor should emit JSON");
+    let checks = payload["checks"].as_array().expect("checks array");
+    let control_plane_check = checks
+        .iter()
+        .find(|check| check["id"] == "control.kbd-runtime")
+        .expect("control.kbd-runtime check must run");
+
+    assert_eq!(control_plane_check["status"], "skip");
+    let rendered = control_plane_check.to_string();
+    assert!(
+        !rendered.to_lowercase().contains("sovereign"),
+        "no item may mention sovereign-sync when the Companion is absent: {rendered}"
+    );
+    assert!(
+        !rendered.to_lowercase().contains("warn"),
+        "an absent, optional extension must not be reported as a warning: {rendered}"
+    );
 }

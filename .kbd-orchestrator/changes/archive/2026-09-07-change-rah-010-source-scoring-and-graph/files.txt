@@ -1,0 +1,14 @@
+skills/research/deep-research/scripts/score-sources.py
+skills/research/deep-research/scripts/verify-sources.sh
+skills/research/deep-research/scripts/build-graph.sh
+skills/research/deep-research/scripts/detect-contradictions.sh
+skills/research/deep-research/skills/stage-05-verify/SKILL.md
+skills/research/deep-research/skills/stage-06-resolve/SKILL.md
+skills/research/deep-research/skills/stage-07-graph/SKILL.md
+skills/research/deep-research/references/research-package-spec.md
+skills/research/deep-research/references/schemas/research-manifest.schema.json
+skills/research/deep-research/tests/scoring-graph.sh
+skills/research/deep-research/tests/fixtures/registry-sparse.json
+skills/research/deep-research/tests/fixtures/claims-duplicate.json
+skills/research/deep-research/tests/fixtures/package-labelled/sensitivity.json
+skills/research/deep-research/tests/fixtures/package-labelled/manifest.json

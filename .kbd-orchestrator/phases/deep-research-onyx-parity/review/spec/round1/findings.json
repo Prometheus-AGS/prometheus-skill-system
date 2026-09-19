@@ -1,0 +1,71 @@
+{
+  "mode": "artifact",
+  "verdict": "BLOCK",
+  "judge_model": "k3",
+  "producer_model": "claude-opus-5",
+  "isolation_mode": "rest-gateway:http://localhost:4000/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": "change-drt-003-director-worker-agents/spec.md",
+      "claim": "drt-003 rewires stage 02 to the scheduler with no dependency on drt-004's merge, and its own task-3 gate explicitly permits the wiring to omit the merge, leaving stage 02 unable to produce its contract artifacts if executed before drt-004.",
+      "evidence": "drt-003 declares 'Depends on: change-drt-001-..., change-drt-002-...' only, while task 3 ('Wire stage 02 in run-research.sh to invoke the scheduler instead of searching inline') is gated by `grep -q 'threads run\\|merge-threads'` \u2014 the alternation passes with `threads run` alone. The merge that folds threads/ back into the stage 02/03/04 shapes lives in drt-004, which itself declares 'Depends on: change-drt-001' only. Goal G1 requires 'stage contracts, stage numbers, and driver validators unchanged'; an execution order of drt-003 before drt-004 satisfies every declared dependency and every gate while stage 02 emits threads/ and no sources/registry.json.",
+      "suggested_fix": "Add change-drt-004 to drt-003's Depends on, or change the task-3 gate to require both `threads run` and `merge-threads` so stage 02 cannot be wired halfway."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "change-drt-006-bench-and-metrics/spec.md",
+      "claim": "drt-006's bench run requires the threaded pipeline to exist in order to measure Onyx parity, but it declares no dependency on drt-002 (scheduler) or drt-003 (director/worker agents), so the plan permits scoring the old sequential pipeline.",
+      "evidence": "drt-006 declares 'Depends on: change-drt-004-deterministic-merge, change-drt-005-multipass-report'. Neither of those transitively reaches drt-002 or drt-003 (drt-004 depends only on drt-001; drt-005 only on drt-001). Task 4 is 'Run the bench on the 10-task subset and record all four numbers' \u2014 a run executed at that point exercises the pre-phase pipeline, and the RACE/FACT numbers recorded in BENCH-RESULTS.md would be measuring the wrong system while being presented as the parity verdict for G5.",
+      "suggested_fix": "Add change-drt-002-thread-scheduler-and-budgets and change-drt-003-director-worker-agents to drt-006's Depends on."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "change-drt-002-thread-scheduler-and-budgets/spec.md",
+      "claim": "The spec set never reconciles who dispatches workers: drt-002's code-enforced cap assumes the Rust scheduler spawns workers, while drt-001's smoke test and drt-003's director agent assume in-session Agent-tool dispatch \u2014 a Rust Semaphore cannot cap in-session dispatches, so the phase's central requirement is unenforceable as specified under strategy A.",
+      "evidence": "drt-002: 'The cap is a constructor argument, never a prompt instruction' enforced via 'Semaphore-bounded scheduler over JoinSet' in `substrate/prometheus-research/src/threads.rs`, exposed as `prometheus-research threads run`. drt-001 tests 'parallel in-session subagent dispatch' (D-03a) as the thing the scheduler depends on. drt-003's director is a harness agent file (`agents/research-director.md` with `tools:` frontmatter) that 'dispatches briefs', and drt-003 says 'Stage 02 in run-research.sh invokes the scheduler instead of searching inline' \u2014 but a Rust binary cannot invoke the Agent tool, and an in-session director's dispatches are not subject to the Rust Semaphore. If workers are in-session, the cap is again prompt-only (the exact Onyx defect D-02 claims to beat); if workers are process-level spawns, drt-001's in-session smoke test proves nothing the scheduler relies on and drt-003's `tools:`-frontmatter agents are decorative.",
+      "suggested_fix": "State explicitly in drt-002 (and align drt-001/drt-003) which runtime the scheduler drives: either the scheduler spawns harness CLI processes per thread (making drt-001's smoke test a portability check on that spawn path, not on Agent-tool dispatch), or the director dispatches in-session and the cap requirement is rewritten to name its actual enforcement point."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "change-drt-007-install-surface-repair/verification.md",
+      "claim": "The acceptance criterion that constitutes the entire D-A fix \u2014 a job under the launchd-installed service reaching a running harness with non-null harness_pid \u2014 has no command in the verify block, violating the file's own mapping rule.",
+      "evidence": "Acceptance criterion 1: 'A job started against the launchd-installed service reaches a running harness with a non-null harness_pid, rather than blocked: no harness binary on PATH.' The verify block contains only `npm run generate:services-manifest`, `npm run check:services-manifest`, `npm run check:distribution`, `npm run validate:codex`, and `cargo test -p prometheus-research` \u2014 none installs the plist, starts the service, or starts a job. The header states 'Every acceptance criterion above maps to a command here.' Task 5 ('Reinstall and verify under launchd that a job reaches a running harness') is gated only by `grep -q 'D-A' docs/research-agent-hardening-evidence.md && grep -q 'PROMETHEUS_PATH\\|resolved' site/docs/...` \u2014 documentation greps, not a launchd run. The change can pass every gate while the daemon still cannot resolve a harness.",
+      "suggested_fix": "Add a verify command that reinstalls from the rendered plist, bootstraps the service, starts a fixture job, and asserts a non-null harness_pid (or record the criterion BLOCKED with the reason)."
+    },
+    {
+      "severity": "WARNING",
+      "file": "change-drt-001-dispatch-smoke-and-thread-contracts/verification.md",
+      "claim": "The thread-contract acceptance criteria (fixture artifacts validate against their schemas; every claim carries a non-empty verbatim quote traceable to a listed source) have no validating command anywhere in the change.",
+      "evidence": "The verify block contains only the two dispatch-smoke runs (`bash .../dispatch-smoke.sh`, `/bin/bash .../dispatch-smoke.sh`). Task 4's gate is `python3 -c \"import json;[json.load(open(p)) for p in [...schemas and template...]]\"` \u2014 that parses the schema files themselves; it never validates a fixture `brief.json` or `index.json` against them, and nothing checks the per-claim `quote` requirement of the 'Thread artifacts have one shape' requirement. The header claims 'Every acceptance criterion above maps to a command here.'",
+      "suggested_fix": "Add a jsonschema validation command over the fixture thread artifacts plus a quote-traceability check to the verify block, or fold both into dispatch-smoke.sh."
+    },
+    {
+      "severity": "WARNING",
+      "file": "change-drt-003-director-worker-agents/verification.md",
+      "claim": "drt-003 and drt-005 edit run-research.sh \u2014 the launchd-invoked driver \u2014 but neither verify block includes a /bin/bash (3.2) run, contrary to the C-05 constraint bullet both specs carry.",
+      "evidence": "Both specs state: 'Scripts that launchd may invoke stay bash 3.2 compatible (constraint C-05): no mapfile, no declare -A; test under /bin/bash.' drt-003 task 3 and drt-005 task 4 both edit `skills/research/deep-research/scripts/run-research.sh`, which the daemon executes. drt-003's verify block is `driver-contract.sh`, `validate:strict`, `check:skills-index`; drt-005's adds `/bin/bash` only for `report-assembly.sh`, not for the edited driver. drt-001, drt-002, and drt-004 all include `/bin/bash` runs of their suites, showing the convention was intended.",
+      "suggested_fix": "Add `/bin/bash skills/research/deep-research/tests/driver-contract.sh` (which exercises run-research.sh) to both verify blocks."
+    },
+    {
+      "severity": "WARNING",
+      "file": "change-drt-005-multipass-report/spec.md",
+      "claim": "drt-005's outline-architect pre-assigns citation numbers while drt-004's merge is the authority that 'rewrites per-thread citation markers into global numbers and writes citation-map.json' \u2014 two numbering authorities with no dependency edge and no stated reconciliation.",
+      "evidence": "drt-005: outline.json carries 'a word budget per section and citation numbers already assigned'; it declares 'Depends on: change-drt-001' only. drt-004: 'rewrites per-thread citation markers into global numbers and writes citation-map.json' and drt-005's own requirement 'Labels survive sectioning' requires markers to resolve through citations.json. In a threaded run the global numbers exist only after the merge; if the outline assigns its own numbers, section output and citation-map.json can diverge silently, and the assembler's orphan-marker gate would then be checking against whichever numbering it happened to read.",
+      "suggested_fix": "Either declare drt-005 dependent on drt-004 with the outline consuming citation-map.json's numbering, or state explicitly that outline-assigned numbers are symbolic ids resolved to merge numbers at assembly time."
+    },
+    {
+      "severity": "WARNING",
+      "file": "change-drt-007-install-surface-repair/spec.md",
+      "claim": "The asserted C-01 obligation to regenerate shared/services.manifest.json rests on the research plist being a generator input, but the constraint text names only shared/launchagents/*.plist and shared/systemd/* as inputs, and the edited template lives at substrate/prometheus-research/com.prometheus.research.plist.",
+      "evidence": "Constraint C-01: 'shared/launchagents/*.plist and shared/systemd/*.service|.timer|.path feed shared/services.manifest.json via scripts/generate-service-manifest.mjs (seam 3 of docs/integration-contract.md).' The spec's 'What Changes' asserts 'C-01 obligation (analysis D-11b): shared/services.manifest.json is generated from the plist templates, so this change regenerates it.' If the generator reads only the shared/ directories, regenerating it after editing the substrate template is a no-op that proves nothing about the actual fix \u2014 and conversely, if the manifest does include the research daemon, C-01's documented input list is wrong. The packet contains no evidence resolving which is true.",
+      "suggested_fix": "Verify against scripts/generate-service-manifest.mjs whether the research plist is an input; if it is not, drop the manifest tasks and state why, and if it is, correct the constraint/integration-contract input list."
+    }
+  ],
+  "sycophancy_screen": {
+    "reject_cap": 2,
+    "cap_overridden": false,
+    "cap_default": 2
+  }
+}

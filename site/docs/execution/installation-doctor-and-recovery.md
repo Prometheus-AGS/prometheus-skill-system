@@ -51,7 +51,7 @@ prometheus-exec doctor \
   --plugin-root "$HOME/.prometheus/plugins/prometheus-skill-pack" \
   --service-definition "$HOME/Library/LaunchAgents/ai.prometheus.exec.plist" \
   --mcp-schema ./docs/reference/api/prometheus-exec.mcp.json \
-  --exclude service:sovereign-sync \
+  --exclude remote-queue \
   --format json
 ```
 

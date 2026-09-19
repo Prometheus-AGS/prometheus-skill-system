@@ -1,0 +1,61 @@
+{
+  "changeId": "change-rah-006-agent-duties-and-report-review",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Add tools: frontmatter and restated allowlists to the four agents; document advisory degradation in SKILL.md",
+      "done": true,
+      "doneAt": "2026-09-06T15:48:12Z",
+      "doneBy": "claude-code",
+      "files": [
+        "skills/research/deep-research/agents/research-planner.md",
+        "skills/research/deep-research/agents/source-verifier.md",
+        "skills/research/deep-research/agents/contradiction-resolver.md",
+        "skills/research/deep-research/agents/report-synthesizer.md",
+        "skills/research/deep-research/SKILL.md"
+      ],
+      "verify": "for f in skills/research/deep-research/agents/*.md; do grep -q '^tools:' \"$f\" || exit 1; done; ! grep -A3 '^tools:' skills/research/deep-research/agents/report-synthesizer.md | grep -qi 'search\\|fetch'",
+      "notes": null
+    },
+    {
+      "id": "2",
+      "title": "Add the research target to build-review-packet.sh and document it",
+      "done": true,
+      "doneAt": "2026-09-06T15:58:46Z",
+      "doneBy": "claude-code",
+      "files": [
+        "skills/process/adversarial-review/scripts/build-review-packet.sh",
+        "skills/process/adversarial-review/SKILL.md",
+        "skills/process/adversarial-review/references/output-contract.md"
+      ],
+      "verify": "grep -q 'research' skills/process/adversarial-review/scripts/build-review-packet.sh",
+      "notes": null
+    },
+    {
+      "id": "3",
+      "title": "Driver runs adversarial-review between stage 09 and 10 only after stage 05 validates, with BLOCKED, WARNING, judge-unavailable, and review-refused handling; extend driver-contract.sh with a fixture judge and the review-without-verify scenario",
+      "done": true,
+      "doneAt": "2026-09-06T17:13:50Z",
+      "doneBy": "claude-code",
+      "files": [
+        "skills/research/deep-research/scripts/run-research.sh",
+        "skills/research/deep-research/tests/driver-contract.sh"
+      ],
+      "verify": "bash skills/research/deep-research/tests/driver-contract.sh --scenario review-critical && bash skills/research/deep-research/tests/driver-contract.sh --scenario review-without-verify",
+      "notes": null
+    },
+    {
+      "id": "4",
+      "title": "Add test-research-target.sh to the adversarial-review suite and run the fixture suite",
+      "done": true,
+      "doneAt": "2026-09-06T17:42:16Z",
+      "doneBy": "claude-code",
+      "files": [
+        "skills/process/adversarial-review/tests/test-research-target.sh"
+      ],
+      "verify": "bash skills/process/adversarial-review/tests/test-research-target.sh && bash skills/process/adversarial-review/tests/run-fixture-suite.sh",
+      "notes": null
+    }
+  ]
+}

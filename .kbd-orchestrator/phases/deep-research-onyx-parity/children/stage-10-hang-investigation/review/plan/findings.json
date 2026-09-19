@@ -1,0 +1,91 @@
+{
+  "mode": "artifact",
+  "verdict": "BLOCK",
+  "judge_model": "MiniMax-M3",
+  "producer_model": "glm-5.3",
+  "isolation_mode": "rest-gateway:http://localhost:4000/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": "plan.md",
+      "line": 0,
+      "claim": "The certification formula N = ceil(ln 0.01 / ln(1-p)) is mathematically undefined when p=0, and the plan's zero-hang branch does not resolve it.",
+      "evidence": "drate-009 task 3 says: 'N = ceil(ln 0.01 / ln(1-p)) \u2265 10 consecutive clean full-run passes'. Plan scope-cuts: 'If drt-008's campaign yields zero hangs in K runs, p is bounded (0/K), not measured (~1/3); drt-009 must then size N from the bound with an `inferred` label'. With p=0, ln(1-p)=ln(1)=0 and the formula divides by zero, so 'size N from the bound' has no defined meaning.",
+      "suggested_fix": "Explicitly state the zero-hang branch: e.g. treat observed hangs as a binomial and use a one-sided upper confidence bound on p (e.g. rule-of-three or Wilson interval) to size N; or set N to a fixed maximum and require K to grow until \u22651 hang is observed before certification. Do not leave the formula undefined for the case the scope cuts explicitly call out."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "plan.md",
+      "line": 0,
+      "claim": "drate-008 violates C-01 because it does not name drate-011 as its reconciliation-change owner, even though drate-008 adds files under a regenerated surface.",
+      "evidence": "drate-008 scope: 'tests (new `skills/research/deep-research/tests/hang/` only; no existing file edited)'. C-01: 'every earlier change must identify that reconciliation change in persisted execution evidence, and none may claim distribution certification in the interim.' Skills/** is consumed by `scripts/generate-skill-system-distribution.js`, `scripts/generate-skills-index.js`, `scripts/build-marketplace.js` (all in file_tree). The plan only attributes C-01 ownership via 'change-drt-009's Constraints named this change as owner'; drate-008's C-01 obligation is unrecorded.",
+      "suggested_fix": "Add to drate-008 (and drate-009's) constraints the explicit line: 'C-01 reconciliation owner: change-drt-011-phase-close-distribution-regen; this change MUST NOT claim distribution certification in the interim.'"
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "plan.md",
+      "line": 0,
+      "claim": "Goal 1 has no defined path when drate-008 observes zero hangs in K runs.",
+      "evidence": "Goal 1: 'Identify by evidence the exact command in stage 10 that blocks, with a reproducible trace'. Plan scope-cut: 'If drt-008's campaign yields zero hangs in K runs, p is bounded (0/K) ... the plan surfaces this rather than assuming the hang will cooperate.' The plan addresses p sizing (Goal 3) and addresses Goal 2 dating, but says nothing about how Goal 1 is satisfied when no hang is observed. A zero-hang campaign yields no command, no stack, and no trace.",
+      "suggested_fix": "Define the zero-hang branch for Goal 1: either increase K (and bound), instrument a deterministic reproduction path (e.g. targeted load, larger inputs to cross the ~64KB PIPE threshold flagged in the analyze handoff), or escalate the child as unable to satisfy Goal 1 and require parent-phase guidance. Without this, the plan admits the possibility that the child completes with Goal 1 unmet."
+    },
+    {
+      "severity": "WARNING",
+      "file": "plan.md",
+      "line": 0,
+      "claim": "drate-008 'loop driver-contract.sh --scenario full-run up to K=12 (or first hang)' is ambiguous between stopping at the first hang (which captures evidence but prevents rate estimation) and always running K=12 (which sizes p but delays capture).",
+      "evidence": "drate-008 details: 'loop `driver-contract.sh --scenario full-run` up to K=12 (or first hang) with scoped PID-only cleanup ... HANG-CAPTURE.md carries the run table, hangs/K rate, the captured command/stack if hung'. If execution halts at the first hang, the run table has K=1 (or smaller), so 'hangs/K rate' is undefined; if it runs all K=12, you get a rate but lose early capture discipline the rest of the sentence implies.",
+      "suggested_fix": "Specify the loop semantics: e.g. 'run all K=12 captures unconditionally for rate estimation; on any hang, capture ps tree/sample stacks BEFORE the next iteration's teardown so the artifact is preserved across the full run.' Or 'run all K=12 with a run-table row per iteration, each row carries hang/no-hang, and the captured stack for any hung iteration is preserved.'"
+    },
+    {
+      "severity": "WARNING",
+      "file": "plan.md",
+      "line": 0,
+      "claim": "drate-009 task 2 'escalated' branch has no defined destination.",
+      "evidence": "drate-009 task 2: 'applies the fix the reviewed diagnosis warrants within Scope \u2014 extraction branch (byte-identical companions), elsewhere branch (in-Scope), or `escalated` when the diagnosis names an out-of-Scope file.' 'Escalated' to whom / what? The plan gives no owner, no fallback task, no BLOCKED state for the escalation case.",
+      "suggested_fix": "Define the escalation: e.g. 'if the diagnosis names an out-of-Scope file, the change goes BLOCKED with the offending file path recorded in tests/hang/DIAGNOSIS.md; parent phase must spawn a separate change.' This matches the BLOCKED-on-unreachable-judge pattern already used in task 1."
+    },
+    {
+      "severity": "WARNING",
+      "file": "plan.md",
+      "line": 0,
+      "claim": "drate-009 task 3 only detects run-to-run correlation reactively, after it has already mis-sized N.",
+      "evidence": "drate-009 task 3: 'if a failure pattern suggests run-to-run correlation (shared-state residue the cleanup missed), that is recorded and the certification gate goes BLOCKED rather than being retried away.' The analyze handoff explicitly warned 'cand-1 N>=10 consecutive-pass proof needs an independence justification \u2014 the (2/3)^10 bound is optimistic under correlated failures; size N from measured failure rate.' A reactive-only gate means N is computed on a (2/3)^10 optimistic assumption; correlation is detected only after it manifests, by which point the streak math is already invalid.",
+      "suggested_fix": "Either (a) instrument per-run state snapshots so correlation can be detected proactively between consecutive runs (compare file mtimes, env, temp dirs), or (b) pre-commit to a stronger independence story (fresh process tree, randomized order, isolated state) before sizing N. Make the gate proactive, not just reactive."
+    },
+    {
+      "severity": "WARNING",
+      "file": "plan.md",
+      "line": 0,
+      "claim": "drate-009 'extraction branch (byte-identical companions)' is unexplained.",
+      "evidence": "drate-009 task 2: 'extraction branch (byte-identical companions)'. The plan does not define what 'byte-identical companions' means \u2014 is it that the extracted .sh and .py files are byte-identical to the original heredoc bodies? That the companion file pairs (.sh + .py for each extracted block) are byte-identical between siblings? That post-extraction, the original file's behaviour is byte-identical? The intent is unclear, and 'companions' is used twice (here and in scope cuts) without a single definition.",
+      "suggested_fix": "State explicitly: 'extraction splits each of the 9 python3 heredocs into a `build-review-packet.<step>.sh` script and a `build-review-packet.<step>.py` companion, with each .py file byte-identical to the heredoc body it replaced, and `build-review-packet.sh` calling them by absolute path. The 10th non-python heredoc is split similarly into a `.sh` only.'"
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "plan.md",
+      "line": 0,
+      "claim": "K=12 budget is not justified against the ~1-in-3 intermittent failure rate from the assess handoff.",
+      "evidence": "drate-008 details: 'loop ... up to K=12 (or first hang)'. Assess handoff: 'hang is intermittent (~1 in 3 runs)'. With p\u22481/3, K=12 gives expected ~4 hangs (95% CI roughly 1\u20137); K=12 also gives only ~64% chance of seeing \u22651 hang. The plan should justify why K=12 (not, say, K=20 or K=30) and acknowledge the probability of zero observed hangs.",
+      "suggested_fix": "Either justify K=12 (e.g. wall-clock budget) or raise K and explicitly state the probability mass of the zero-hang branch the plan already admits."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "plan.md",
+      "line": 0,
+      "claim": "C-05 (bash 3.2 compatibility) is not addressed for the new test-harness script drate-008 introduces.",
+      "evidence": "C-05: 'Any script that can be invoked by a launchd agent (macOS /bin/bash is 3.2) must avoid `mapfile` / `declare -A`.' drate-008 adds a new script under `skills/research/deep-research/tests/hang/`. The plan does not note whether the script may be launchd-invoked, nor constrain it to bash 3.2 idioms.",
+      "suggested_fix": "Add a constraint on drate-008: 'New harness script MUST be POSIX/bash-3.2 compatible (no `mapfile`, no `declare -A`, no `${var,,}`); verified by `/bin/bash skills/research/deep-research/tests/hang/<harness>.sh --dry-run` on macOS or a bash 3.2 container.'"
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "plan.md",
+      "line": 0,
+      "claim": "drate-009 review/diagnosis/findings.json is referenced without a pinned absolute path.",
+      "evidence": "drate-009 task 1: '`review/diagnosis/findings.json` records `cross_model_check: verified-distinct`'. cited_paths lists 'EXISTS review/diagnosis/findings.json -> 154 matches' across `.kbd-orchestrator/assessments/...`, `.kbd-orchestrator/phases/adversarial-review-for-creation/review/analyze/findings.json`, etc. The phase/child-specific path (e.g. `.kbd-orchestrator/phases/deep-research-onyx-parity/children/stage-10-hang-investigation/review/diagnosis/findings.json`) is not stated.",
+      "suggested_fix": "Pin the path explicitly in drate-009's scope or constraints, e.g. 'review/diagnosis/findings.json MUST live at `.kbd-orchestrator/phases/deep-research-onyx-parity/children/stage-10-hang-investigation/review/diagnosis/findings.json`.'"
+    }
+  ],
+  "checked_classes": []
+}

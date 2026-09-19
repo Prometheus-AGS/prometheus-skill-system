@@ -1,0 +1,41 @@
+{
+  "changeId": "change-cpc-011-integration-evidence",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Write the Companion two-process harness (headless + second instance, separate roots) covering discovery, gossip join, signed command via prometheus kbd, services surface",
+      "done": false,
+      "doneAt": null,
+      "doneBy": null,
+      "files": [
+        "crates/prometheus-substrate/tests/two_node.rs"
+      ],
+      "verify": "cargo test -p prometheus-substrate --features headless --test two_node",
+      "notes": null
+    },
+    {
+      "id": "2",
+      "title": "Update Companion installation and contract-consumption docs; record results",
+      "done": false,
+      "doneAt": null,
+      "doneBy": null,
+      "files": [
+        "docs/00-architecture-and-implementation-plan.md",
+        "docs/installation.md"
+      ],
+      "verify": null,
+      "notes": null
+    },
+    {
+      "id": "3",
+      "title": "Run the Companion audit gate",
+      "done": false,
+      "doneAt": null,
+      "doneBy": null,
+      "files": [],
+      "verify": "bash scripts/audit-all.sh",
+      "notes": null
+    }
+  ]
+}

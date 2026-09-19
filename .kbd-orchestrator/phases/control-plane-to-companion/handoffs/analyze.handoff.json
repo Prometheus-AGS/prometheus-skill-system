@@ -1,0 +1,12 @@
+{
+  "stage": "analyze",
+  "completedAt": "2026-09-02T10:27:23Z",
+  "outputs": [
+    "analysis.md",
+    "library-candidates.json"
+  ],
+  "nextStage": "spec",
+  "summaryForNext": "OPERATOR DECISION D-02 FINAL (option D, product boundary): the pack is open source and complete on its own; the Companion is the paid control and extension framework. STAYS: skills, hooks, run-hook bundles, the prometheus CLI, kbd-runtime (local signed authority; Loro is its journal format), skill-index, learner-model, storage-provider trait and local adapters, skill-ffi, exec-*, research, surface-bridge, and every service where it runs with its launchd/systemd template. MOVES: sovereign-sync in full including --mode mcp, sovereign-client, storage-provider iroh_docs adapter, kbd-mobile, the sharing plist and systemd unit, the --sharing install path, and the three sync-* skills (become the Companion skill plugin, first third-party-extension example). The pack never depends on the Companion; the Companion consumes pack crates by git rev; skill-ffi drops or feature-gates kbd-mobile. Capability is discovered at runtime, never assumed; no degrade-to-inert. HMA prometheus-control-plane.json stays valid. NEW GOAL G7: the pack publishes an open versioned integration contract (CLI transport discovery, hook bundle extension points, service manifest from the LaunchAgent/systemd templates, connected-skill-package declaration); first spec design item. Supervision: the Companion adopts services where they run (spec §18.5.9) and runs only its own node in-process; spec §16.4/§25.2 amended accordingly. G6 adds a Companion-absent full certification of the pack. 20 candidates (9 adopt, 1 adapt, 5 reference, 5 reject), 12 build items. Technical decisions unchanged: iroh-mainline-address-lookup + iroh-mdns-address-lookup (build against locked iroh 1.0.3, DHT publication off by default), keyring =3.6.3 incumbent with keychain-ACL continuity (GUI prompt, PROMETHEUS_DEVICE_KEY_FILE headless), dirs_next paths, headless-hosted two-process G6 harness (domain_sync.rs is a library regression, not the gate), root workspace crates/<name> + src-tauri. Open for spec: Companion child-phase ownership (assessment Q3), contract shape (G7), timer-service dispositions. Review isolation was harness-native for both rounds (gateway judges quota-exhausted); round-2 CRITICALs fixed and carried verbatim under Unresolved review findings; option D post-dates the review and was not re-vetted.",
+  "skipped": false,
+  "skipReason": null
+}

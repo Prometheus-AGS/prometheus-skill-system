@@ -132,8 +132,9 @@ function render(categories) {
  * read git. A consumer (UAR, and especially a phone) must never shell out to
  * git: on mobile there is no git and no .git directory to read.
  */
-function stampProvenance(text, commit, skillCount) {
+function stampProvenance(text, commit, skillCount, releaseVersion) {
   const fields = {
+    version: releaseVersion,
     commit,
     skill_count: String(skillCount),
   };
@@ -196,7 +197,7 @@ const generated = render(categories);
 const current = fs.readFileSync(TARGET, 'utf8');
 const skillTotal = categories.reduce((n, c) => n + c.skills.length, 0);
 let next = rebuild(current, generated);
-next = stampProvenance(next, packCommit(), skillTotal);
+next = stampProvenance(next, packCommit(), skillTotal, readSkillSystem(REPO).releaseVersion);
 next = next.replace(/^generated_at: .*\n/m, '');
 next = next.replace(
   /A comprehensive, enterprise-grade skill collection[^\n]*\n/,

@@ -1,0 +1,30 @@
+{
+  "changeId": "change-cpc-014-tui-json-command-leak",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Remove ~/.config/opencode/tui.json from OPENCODE_JSONS in scripts/register-slash-commands.sh and add an install-mode sweep that strips any pre-existing \"command\" key from tui.json while preserving other keys",
+      "done": false,
+      "doneAt": null,
+      "doneBy": null,
+      "files": [
+        "scripts/register-slash-commands.sh"
+      ],
+      "verify": "bash scripts/register-slash-commands.sh && python3 -c \"import json; d=json.load(open('$HOME/.config/opencode/tui.json')); assert 'command' not in d, 'command key leaked into tui.json'; print('tui.json clean, keys:', list(d.keys()))\"",
+      "notes": "Live ~/.config/opencode/tui.json was already cleaned on 2026-09-10 during incident repair; this change prevents re-pollution."
+    },
+    {
+      "id": "2",
+      "title": "Verify: run the script on a machine with a polluted tui.json, assert tui.json afterwards has no \"command\" key, both opencode.json files still receive commands, and opencode boots",
+      "done": false,
+      "doneAt": null,
+      "doneBy": null,
+      "files": [
+        "scripts/register-slash-commands.sh"
+      ],
+      "verify": "bash scripts/register-slash-commands.sh && opencode --version",
+      "notes": null
+    }
+  ]
+}

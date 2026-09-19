@@ -210,16 +210,13 @@ function releaseIdentity(dispatcher) {
     'skills/process/iterative-evolver/scripts',
     runtimeFiles
   );
-  // scripts/lib/*.js are load-bearing for the installer -- it will not start
-  // without them -- so they belong in the identity that pins the runtime.
+  // scripts/lib/*.js are load-bearing for the installer and hook entry point.
+  // Collect the directory instead of maintaining an import list that can drift
+  // whenever either entry point gains a module dependency.
+  collectFiles(path.join(root, 'scripts/lib'), 'scripts/lib', runtimeFiles);
   for (const relative of [
     'scripts/hook-entry.mjs',
     'scripts/install-plugin-generation.js',
-    'scripts/lib/capabilities.js',
-    'scripts/lib/jcs.js',
-    'scripts/lib/key-protection.js',
-    'scripts/lib/payload-manifest.js',
-    'scripts/lib/skill-system.js',
     'shared/harnesses/hook-contract.json',
   ]) {
     const absolute = path.join(root, ...relative.split('/'));

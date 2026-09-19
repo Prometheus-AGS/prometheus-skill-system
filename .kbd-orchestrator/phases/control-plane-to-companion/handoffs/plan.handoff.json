@@ -1,0 +1,11 @@
+{
+  "stage": "plan",
+  "completedAt": "2026-09-02T12:21:34Z",
+  "outputs": [
+    "plan.md"
+  ],
+  "nextStage": "execute",
+  "summaryForNext": "13 changes registered in plan order (sequence 1-13), 8 rounds; first change to apply: change-cpc-001-integration-contract. Ordering: contract and pack dependency cut first (001, 002, 010 parallel), then the Companion workspace (003, BLOCKED on the operator's versions.toml pins), relocation (004), hosting and discovery (005, 006), supervision and the skill plugin (007, 008), pack removal (012 then 009), evidence last (011 needs 009; 013 needs 009 and 010). Parallel means independent; one Cargo build machine-wide, so Rust changes run sequentially. Cross-repo rule: pack run owns the phase, Companion changes execute in the Companion checkout and mirror to its openspec, no change edits both repos. Adversarial review: k3 cross-model, verified-distinct, PASS with 5 WARNINGs folded in (mcp-servers.json ownership in 008, retirement decision record in 009, receipt and run-history continuity assertion in 005, 011 depends on 009, hooks surface documented-only in 001). Operator gates: versions.toml pins (003 and any crate-adding change), licensing of relocated code (004), timer-service disposition (007), short-code pairing v1 (006).",
+  "skipped": false,
+  "skipReason": null
+}

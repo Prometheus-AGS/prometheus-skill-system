@@ -1,0 +1,85 @@
+{
+  "mode": "diff",
+  "verdict": "BLOCK",
+  "judge_model": "k3",
+  "producer_model": "claude-opus-5",
+  "isolation_mode": "rest-gateway:http://localhost:4000/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": "docs/research-agent-hardening-evidence.md",
+      "line": 197,
+      "claim": "The Cargo suites mandated by verification.md (`cargo test -p prometheus-research --test job_execution --test job_lifecycle --test mcp_tools --test sse_stream` and `cargo test -p learner-model --test rpc_roundtrip`) are not recorded anywhere in the evidence \u2014 neither as passed nor as BLOCKED \u2014 yet task 4 requires 'every suite from changes 003 to 010' and the verification doc states a gate that cannot run 'is recorded BLOCKED with the reason, never skipped silently.'",
+      "evidence": "verification.md verify block line 5: `test -z \"$(pgrep -x cargo)\" && (cd substrate/prometheus-research && cargo test ...) && (cd substrate/learner-model && cargo test -p learner-model --test rpc_roundtrip)`; evidence doc section 3 lists only four bash suites (driver-contract, scoring-graph, learn-coherence, adversarial-review) and seven npm/openspec validators, then declares 'certification passes' with no cargo entry. The rah-004 daemon and rah-009 learner-model suites are exactly the cargo suites omitted.",
+      "suggested_fix": "Run the cargo suites (or record them BLOCKED with the pgrep-cargo reason) and add the results to section 3 before claiming certification."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "docs/research-agent-hardening-evidence.md",
+      "line": 213,
+      "claim": "The C-01 reconciliation mandate \u2014 'The reconciliation change must run the generator twice, prove byte-identical tracked hashes' \u2014 is not evidenced: the doc records only `check:skills-index PASS` and a single `build:distribution` run, with no twice-run byte-identical hash proof for the skills-index generator this change exists to reconcile.",
+      "evidence": "Constraint C-01: 'The reconciliation change must run the generator twice, prove byte-identical tracked hashes, and run the applicable drift validators before phase certification.' Evidence doc section 'Validators and C-01 reconciliation' contains one row per drift validator and the prose 'Regenerated with npm run build:distribution' \u2014 no generator-twice run, no hash comparison.",
+      "suggested_fix": "Run `npm run generate:skills-index` twice, record the byte-identical hash comparison (e.g. sha256 before/after), and add it to the evidence table."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "site/docs/substrate/prometheus-research.md",
+      "line": 1,
+      "claim": "Two files are edited/created outside the change's declared scope: `site/docs/substrate/prometheus-research.md` and `skills/learn/feynman-loop/tests/learn-coherence.sh` appear in the diff but in neither the spec's 'Files this change may create, edit, or delete' list.",
+      "evidence": "The change spec Scope lists exactly twelve files (six SKILL.md files, `site/docs/research/deep-research.md`, `site/docs/learn/feynman-loop.md`, CHANGELOG.md, SKILLS.md, skills-index.json, docs/research-agent-hardening-evidence.md); the diff contains hunks for `site/docs/substrate/prometheus-research.md` and the new `skills/learn/feynman-loop/tests/learn-coherence.sh`, which are not in that list, and the scope was never amended.",
+      "suggested_fix": "Amend the change scope to include both files (with the relocation rationale for the test), or move the substrate-doc content into the in-scope `site/docs/research/deep-research.md`."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "skills/research/deep-research/SKILL.md",
+      "claim": "Requirement 'Docs describe what exists' is only partially satisfied: the docs site never describes the driver, the four research labels, or the provenance sidecar, because the in-scope site page `site/docs/research/deep-research.md` is not touched in the diff while the research package format was rewritten (`.research` suffix dropped, format_version 2.0.0, sidecar added) \u2014 leaving the site's research page stale against the very changes this phase shipped.",
+      "evidence": "Scenario text: 'the docs site SHALL describe the driver, labels, sidecar, and daemon execution.' The diff updates only `site/docs/learn/feynman-loop.md` (learn artifacts) and the out-of-scope substrate page (daemon execution only). `site/docs/research/deep-research.md` is named in the change's Scope but has no hunk, and the CHANGELOG records 'The .research package suffix is dropped' \u2014 a surface change any existing site research page would still describe.",
+      "suggested_fix": "Update `site/docs/research/deep-research.md` in this change to cover the stage-contract driver, the verified/unverified/blocked/inferred vocabulary, the provenance sidecar, and the suffixless package layout."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "skills/learn/feynman-loop/tests/learn-coherence.sh",
+      "line": 22,
+      "claim": "The recorded relocation of the learn-coherence suite is not reproducible from the diff: the suite requires fixtures at `$HERE/fixtures/kb-local` (vectors.md, matrices.txt, authored-corpus.json, the kb:eigen/quoted entries) but no fixture files appear in the diff, and the deletion of the old `skills/learn/tests/` location \u2014 whose continued existence would re-trigger the recorded validate:strict failure 'tests: SKILL.md is required but not found' \u2014 is also absent.",
+      "evidence": "New file sets `FIXTURE_KB=\"$HERE/fixtures/kb-local\"` and reads `\"$FIXTURE_KB/authored-corpus.json\"` and `\"$FIXTURE_KB/vectors.md\"`; the diff adds only the .sh file. Evidence doc: 'change-rah-008 placed learn-coherence.sh at skills/learn/tests/ ... Relocated to skills/learn/feynman-loop/tests/' \u2014 a relocation must show the old path deleted; no deletion hunk exists, so either the old copy remains (validate:strict fails again) or the diff is incomplete relative to the recorded 58-passed run.",
+      "suggested_fix": "Include the fixture files and the deletion of `skills/learn/tests/` in the change, then re-run validate:strict and the suite to confirm the recorded results."
+    },
+    {
+      "severity": "WARNING",
+      "file": "docs/research-agent-hardening-evidence.md",
+      "line": 110,
+      "claim": "The daemon acceptance scenario names `research_start` as the entry point, but the evidence starts the job via raw `POST /api/v1/jobs` with only an asserted, unproven equivalence ('the same path research_start uses'), so the MCP tool path itself is not exercised.",
+      "evidence": "Scenario: 'WHEN the same query is started through `research_start`'; evidence section 2: 'started through the daemon's REST job API (`POST /api/v1/jobs`, the same path `research_start` uses)'. Only `research_export` is shown invoked over MCP stdio.",
+      "suggested_fix": "Invoke `research_start` over MCP stdio for the recorded run, or add evidence (e.g. a code-path trace) proving POST /api/v1/jobs and research_start are identical."
+    },
+    {
+      "severity": "WARNING",
+      "file": "SKILLS.md",
+      "line": 3,
+      "claim": "Version identity is inconsistent across artifacts edited in this same change: SKILLS.md frontmatter declares the pack `version: 1.8.0` and the substrate site doc labels the daemon '(v1.8.0)', while CHANGELOG.md keeps all new entries under `[Unreleased]` (no 1.8.0 section) and deep-research SKILL.md states the daemon binary is 'crate version 0.1.0, the value /health reports'.",
+      "evidence": "SKILLS.md hunk: `-version: 1.7.0` / `+version: 1.8.0`; site/docs/substrate/prometheus-research.md hunk: `(v1.7.0)` \u2192 `(v1.8.0)`; CHANGELOG.md hunk adds entries only under `## [Unreleased]` above `## [1.7.0]`; skills/research/deep-research/SKILL.md hunk: 'a Rust binary (crate version 0.1.0, the value /health reports)'.",
+      "suggested_fix": "Either add a `## [1.8.0]` CHANGELOG section matching the SKILLS.md bump, or defer the version bump; and reconcile the daemon's documented version with the 0.1.0 crate version the SKILL.md now asserts."
+    },
+    {
+      "severity": "WARNING",
+      "file": "SKILLS.md",
+      "line": 246,
+      "claim": "The regenerated skills index commits distribution-surface changes belonging to other work \u2014 removal of `sync-peers`, `sync-push`, `sync-status` and addition of `kbd-bottleneck-detector` \u2014 with no corresponding CHANGELOG entry in this change, so the release notes do not describe the shipped index.",
+      "evidence": "SKILLS.md hunks: 'Learn (15 skills)' \u2192 '(12 skills)' removing the three sync-* rows; 'Process (55)' \u2192 '(56)' adding `kbd-bottleneck-detector`. CHANGELOG.md's Unreleased section documents only research/learn-skill changes and never mentions the sync skill removal or the new kbd skill; the evidence doc attributes the deletions to an unnamed 'companion migration'.",
+      "suggested_fix": "Add CHANGELOG entries (Removed: sync-peers/sync-push/sync-status from the distributed index; Added: kbd-bottleneck-detector) or reference the companion change that owns them."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "skills-index.json",
+      "claim": "The declared scope lists `skills-index.json`, but no such file appears in the diff or the repository file tree \u2014 the skills index is SKILLS.md \u2014 so the scope references a non-existent artifact.",
+      "evidence": "Scope bullet '- `skills-index.json`'; the diff regenerates only SKILLS.md (marked 'GENERATED by scripts/generate-skills-index.js'), and the file tree contains no `skills-index.json`.",
+      "suggested_fix": "Correct the scope to name SKILLS.md as the generated skills index."
+    }
+  ],
+  "sycophancy_screen": {
+    "reject_cap": 2,
+    "cap_overridden": false,
+    "cap_default": 2
+  }
+}

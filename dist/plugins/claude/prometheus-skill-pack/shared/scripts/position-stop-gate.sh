@@ -56,8 +56,9 @@ CAP_FILE="${HOME}/.prometheus/position-stop-advisories.txt"
 ADVISORY_LOG="${HOME}/.prometheus/position-stop-advisories.log"
 STATE_REVISION="$(jq -r '
   .revision // .stateRevision // .state_revision //
-  ([.phase // "", .status // .stage // "", .change // .active_change // "",
-    .exactNextCommand // .exact_next_command // ""] | @tsv)
+  ([.activePhaseId // .phase // "", .status // .stage // "",
+    .nextChange // .change // .active_change // "",
+    .nextTask // .currentTask // .current_task // ""] | @tsv)
 ' "$WP" 2>/dev/null || true)"
 [ -n "$STATE_REVISION" ] || finish
 STATE_FPRINT="$(printf '%s' "$STATE_REVISION" | cksum 2>/dev/null | awk '{print $1}')"

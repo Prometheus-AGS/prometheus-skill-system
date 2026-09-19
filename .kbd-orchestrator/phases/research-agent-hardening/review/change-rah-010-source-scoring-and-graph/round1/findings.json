@@ -1,0 +1,98 @@
+{
+  "mode": "diff",
+  "verdict": "BLOCK",
+  "judge_model": "k3",
+  "producer_model": "claude-fable-5-1",
+  "isolation_mode": "rest-gateway:http://localhost:4000/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": "skills/research/deep-research/scripts/score-sources.py",
+      "line": 162,
+      "claim": "parse_date() can never parse the \"%Y-%m\" and \"%Y\" formats it explicitly lists, because it slices the input by len(fmt) (format-directive length) instead of the rendered length, so sources with year-only or year-month publication dates silently lose the recency signal.",
+      "evidence": "for fmt in (\"%Y-%m-%d\", ..., \"%Y-%m\", \"%Y\"): return dt.datetime.strptime(s[: len(fmt) + (2 if \"%Y-%m-%dT\" in fmt else 0)], fmt).date() \u2014 len(\"%Y-%m\") is 5 but the rendered value is 7 chars, so s[:5] of \"2026-09\" is \"2026-\" and strptime raises; the regex fallback r\"(\\d{4})-(\\d{2})-(\\d{2})\" requires day precision, so \"2026-09\" and \"2026\" both return None and sig_publication_recency reports the signal unavailable. The change's own central requirement (\"Missing evidence is not a zero\") makes this silent degradation, not a crash, so nothing will surface it.",
+      "suggested_fix": "Slice by the rendered length per format ({'%Y-%m-%d': 10, '%Y-%m': 7, '%Y': 4} and 19/20 for the datetime forms), or try strptime on progressively truncated input with explicit lengths, and add a fixture case with published: \"2026\" to tests/scoring-graph.sh."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "skills/research/deep-research/references/research-package-spec.md",
+      "claim": "The change introduces claim-<16 hex> content-addressed ids and new mandatory claim fields (label, critical, confidence, sources, contradicts, evidence) but never updates references/schemas/research-graph.schema.json, while asserting both that the old claim-NNN form 'still validates' and that the new graph.json validates against that schema.",
+      "evidence": "The diff adds only research-manifest.schema.json; research-graph.schema.json is untouched and outside the change scope, yet the spec says 'check-research-package.sh --package validates graph.json against schemas/research-graph.schema.json' and 'The older claim-NNN form still validates for packages written before change-rah-010', stage-07 SKILL.md names the schema as the graph_json contract, and tests/scoring-graph.sh runs jsonschema validation of the new graph against that file. If the pre-existing schema (from change-rah-005) pins an id pattern like claim-\\d{3} or lacks the new required fields, both acceptance criteria (tests/scoring-graph.sh passes; check-research-package.sh validates the new graph.json shape) fail.",
+      "suggested_fix": "Update research-graph.schema.json in this change to accept both claim id forms and to require label/critical/confidence/sources/contradicts on claims, or demonstrate in verification evidence that the existing schema already accepts the new shape."
+    },
+    {
+      "severity": "WARNING",
+      "file": "skills/research/deep-research/references/research-package-spec.md",
+      "claim": "The normative statement that sensitivity.json is 'listed in the manifest as files.sensitivity when present' has no implementation in this change: the manifest writer export-package.sh is neither edited nor in the change scope, yet tests/scoring-graph.sh asserts the property on a manifest written by that script.",
+      "evidence": "Spec: 'Written by stage 05 (scripts/score-sources.py) beside credibility.json, and listed in the manifest as files.sensitivity when present.' Test: assert \"manifest lists sensitivity.json\" jq -e '.files.sensitivity==\"sensitivity.json\"' \"$P/manifest.json\" after running export-package.sh. The change scope lists only score-sources.py, verify-sources.sh, build-graph.sh, detect-contradictions.sh, three SKILL.md files, the spec, the manifest schema, and tests \u2014 export-package.sh is absent, so nothing in the diff can make it emit files.sensitivity unless it already auto-discovers the file, which the packet does not show.",
+      "suggested_fix": "Include export-package.sh in the change and add files.sensitivity emission (the schema already permits it as an optional property), or cite the existing auto-discovery behavior in verification evidence."
+    },
+    {
+      "severity": "WARNING",
+      "file": "skills/research/deep-research/tests/fixtures/package-labelled/manifest.json",
+      "claim": "The package-labelled fixture is created by this diff with only manifest.json and sensitivity.json, but its manifest.files declares report.md, provenance, plan.md, graph.json, citations.json, contradictions.json, index.md, and sources/, and the acceptance criteria require check-research-package.sh --package to pass on this fixture.",
+      "evidence": "Both fixture files are 'new file mode' in this diff (no other files under tests/fixtures/package-labelled/ appear anywhere in the diff), while the manifest's files object lists nine artifacts; the spec states 'the drift check compares' report.md frontmatter values and the sidecar verdict against the manifest \u2014 impossible with no report.md present.",
+      "suggested_fix": "Add the remaining fixture files (report.md, provenance sidecar, plan.md, graph.json, citations.json, contradictions.json, index.md, sources/) so the package satisfies the directory structure the spec declares, or show that check-research-package.sh --package does not verify declared files exist."
+    },
+    {
+      "severity": "WARNING",
+      "file": "skills/research/deep-research/scripts/detect-contradictions.sh",
+      "line": 200,
+      "claim": "A judge response that is unparseable or lacks '\"contradicts\": true' is silently treated as 'no contradiction' with no entry recorded, contradicting the script's own contract that an unchecked contradiction stays visible rather than silently absent.",
+      "evidence": "Header comment: 'an unchecked contradiction is visible (and fires on-contradiction.sh) rather than silently absent'; but on exit 0 with malformed output the code does `verdict = json.loads(m.group(0)) if m else {}` / `except ValueError: verdict = {}`, then only records an entry `if verdict.get(\"contradicts\") is True` \u2014 otherwise the pair vanishes from the output while detection.semantic.status stays \"inferred\" and pairs_checked counts it as checked.",
+      "suggested_fix": "When the judge exits 0 but its output cannot be parsed into a verdict, record the pair with label \"blocked\", resolved: false, and an audit_trail naming the parse failure (mirroring the gateway-down path), and set detection.semantic.status accordingly."
+    },
+    {
+      "severity": "WARNING",
+      "file": "skills/research/deep-research/scripts/build-graph.sh",
+      "line": 121,
+      "claim": "A claim labeled verified without any recorded evidence keeps its verified label and gets a synthetic prose string injected into the evidence field, so it still counts as verified when verification_status is recomputed \u2014 masking the data-quality gap the spec says evidence is meant to enforce.",
+      "evidence": "\"# A verified or blocked claim must carry evidence; when the label came without any, say so rather than leave the field empty.\" followed by c[\"evidence\"] = f\"{c['label']} label recorded in credibility.json without a passage; re-read the source before treating this as verified\" \u2014 the label is not downgraded to unverified, while the spec's derivation rule ('verified: every critical claim is verified') and check-research-package.sh's recomputation consume the label, not the evidence text.",
+      "suggested_fix": "Downgrade such claims to unverified (or record the gap in a separate field such as evidence_missing: true) so the verification_status derivation does not count evidence-free verified labels as verified."
+    },
+    {
+      "severity": "WARNING",
+      "file": "skills/research/deep-research/references/schemas/research-manifest.schema.json",
+      "line": 22,
+      "claim": "The schema accepts format_version 1.x even though the normative prose states 1.x manifests 'do not validate'.",
+      "evidence": "Spec: 'Manifests with format_version 1.x predate the schema and do not validate.' Schema: \"format_version\": { \"type\": \"string\", \"pattern\": \"^[0-9]+\\\\.[0-9]+\\\\.[0-9]+$\" } \u2014 \"1.0.0\" satisfies this pattern, so a 1.x manifest with all required fields validates; nothing enforces >= 2.0.0.",
+      "suggested_fix": "Either tighten the schema (e.g. \"const\": \"2.0.0\" or pattern \"^2\\\\.\") or correct the prose to say 1.x manifests merely predate the schema."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "skills/research/deep-research/skills/stage-05-verify/SKILL.md",
+      "claim": "The worked example's final score is arithmetically wrong: with the listed signals and renormalised weights the scorer yields 71, not 72.",
+      "evidence": "0.70\u00d70.3125 + 0.60\u00d70.25 + 1.00\u00d70.25 + 0.75\u00d70.1875 = 0.759375 \u2192 round(75.9375) = 76, minus the -5 sycophancy penalty = 71, but the example prints 'credibility_score: 72 \u2192 RETAINED'.",
+      "suggested_fix": "Change the example to 71, or adjust one signal value so the documented result matches the scorer's round(value*100) - penalty computation."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "skills/research/deep-research/references/research-package-spec.md",
+      "claim": "The spec says sensitivity.json is written 'beside credibility.json' but the directory tree, verify-sources.sh, and stage-05 SKILL.md all place it at the package root, two levels away from sources/credibility.json.",
+      "evidence": "Spec tree shows '\u2514\u2500\u2500 sensitivity.json' at package root and '\u2502   \u2514\u2500\u2500 credibility.json' under sources/; verify-sources.sh writes --sensitivity \"$TARGET/sensitivity.json\" and --out \"$TARGET/sources/credibility.json\"; the prose sentence 'Written by stage 05 (scripts/score-sources.py) beside credibility.json' contradicts both.",
+      "suggested_fix": "Reword to 'at the package root, alongside manifest.json'."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "skills/research/deep-research/scripts/build-graph.sh",
+      "line": 30,
+      "claim": "Under set -e, a malformed checkpoint.json makes the script abort instead of falling back to the directory basename, because the jq extraction is the final command of an && chain.",
+      "evidence": "[ -f \"$PKG/checkpoint.json\" ] && command -v jq >/dev/null 2>&1 && PKG_ID=\"$(jq -r '.package_id // \"\"' \"$PKG/checkpoint.json\")\" \u2014 if checkpoint.json exists but is invalid JSON, jq exits non-zero and, being the last command of the && list, triggers set -e termination before the basename fallback on the next line is reached. The identical pattern exists in detect-contradictions.sh.",
+      "suggested_fix": "Guard the extraction, e.g. PKG_ID=\"$(jq -r '.package_id // \"\"' \"$PKG/checkpoint.json\" 2>/dev/null || true)\" inside an if statement, so corrupt checkpoints degrade to the basename fallback."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "skills/research/deep-research/scripts/detect-contradictions.sh",
+      "line": 116,
+      "claim": "Contradiction entries sourced only from the registry emit \"credibility\": null, while the spec's contradictions.json contract shows credibility as an integer and documents no nullable case.",
+      "evidence": "entry() copies a[\"credibility\"] verbatim; registry-sourced claims are added via add(t, s.get(\"url\"), scores.get(s.get(\"url\")), \"unverified\"), which is None whenever credibility.json lacks the URL \u2014 producing \"credibility\": null in output versus the spec example's \"claim_a\": { ..., \"credibility\": 85 }.",
+      "suggested_fix": "Default the score (e.g. 50, matching build-graph.sh's neutral prior) or document credibility as nullable in the spec's contradictions.json section."
+    }
+  ],
+  "sycophancy_screen": {
+    "reject_cap": 2,
+    "cap_overridden": false,
+    "cap_default": 2
+  }
+}

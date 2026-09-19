@@ -1,0 +1,10 @@
+{
+  "allowedWritePaths": [
+    ".kbd-orchestrator/phases/deep-research-onyx-parity/children/stage-10-hang-investigation/**",
+    "skills/research/deep-research/**",
+    "skills/process/adversarial-review/**"
+  ],
+  "deniedPaths": [],
+  "inheritsConstraints": true,
+  "__note": "Edit allowedWritePaths to widen the child loop's write surface. .kbd-orchestrator/** and SCRATCHPAD.md are always allowed. Enforced advisorily by check-child-scope.sh. Widened 2026-09-12 at kbd-spec: the execute stage must write the hang harness under skills/research/deep-research/tests/hang/ and, conditionally on the reviewed diagnosis, extract heredocs in skills/process/adversarial-review/scripts/build-review-packet.sh (the stage-10 call chain's packet builder, invoked from run-research.sh review_report)."
+}

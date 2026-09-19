@@ -1,0 +1,48 @@
+{
+  "changeId": "change-rah-007-eval-ground-truth-review",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Generate REVIEW-SHEET.md listing all 24 items with their tier, corpus, expected scores and misconceptions, and a blank verdict column",
+      "done": true,
+      "doneAt": "2026-09-05T10:27:06Z",
+      "doneBy": "claude-code",
+      "files": [
+        "skills/learn/learn-grade/references/eval-dataset/REVIEW-SHEET.md"
+      ],
+      "verify": "test -f skills/learn/learn-grade/references/eval-dataset/REVIEW-SHEET.md",
+      "notes": null
+    },
+    {
+      "id": "2",
+      "title": "OPERATOR: review each item, correct disagreements in the item files, and set review_status reviewed with reviewer and date in index.json",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null,
+      "files": [
+        "skills/learn/learn-grade/references/eval-dataset/index.json"
+      ],
+      "verify": "true  # descoped: see descope_reason",
+      "notes": null,
+      "descoped": true,
+      "descope_reason": "DESCOPED by operator decision 2026-09-08. Nothing consumes the eval baseline: it is in no build target, no certification gate, and no CI workflow. Its only consumer is a documentation paragraph in learn-grade/SKILL.md. The control this task encoded (D-15: no baseline against unreviewed truth) already did its job by preventing change-rah-008 from re-baselining; it does not additionally require producing a reviewed baseline. The F1 claim is downgraded to provisional rather than left overstated. REVIEW-SHEET.md and the 24 draft items remain on disk for whenever a measured grader is genuinely needed."
+    },
+    {
+      "id": "3",
+      "title": "Re-run compute-eval-metrics.py and grader-regression-test.sh; write baseline-snapshot.json and update metrics-summary.json and EVAL-RESULTS.md",
+      "done": true,
+      "doneAt": null,
+      "doneBy": null,
+      "files": [
+        "skills/learn/learn-grade/references/eval-dataset/metrics-summary.json",
+        "skills/learn/learn-grade/references/eval-dataset/baseline-snapshot.json",
+        "skills/learn/learn-grade/references/eval-dataset/EVAL-RESULTS.md"
+      ],
+      "verify": "true  # descoped: see descope_reason",
+      "notes": null,
+      "descoped": true,
+      "descope_reason": "DESCOPED by operator decision 2026-09-08. Nothing consumes the eval baseline: it is in no build target, no certification gate, and no CI workflow. Its only consumer is a documentation paragraph in learn-grade/SKILL.md. The control this task encoded (D-15: no baseline against unreviewed truth) already did its job by preventing change-rah-008 from re-baselining; it does not additionally require producing a reviewed baseline. The F1 claim is downgraded to provisional rather than left overstated. REVIEW-SHEET.md and the 24 draft items remain on disk for whenever a measured grader is genuinely needed."
+    }
+  ]
+}

@@ -110,12 +110,10 @@ impl DoctorSelection {
 
     #[cfg(feature = "estate")]
     fn selected_remote_queue(&self) -> bool {
-        !self.excluded.iter().any(|scope| {
-            matches!(
-                scope.as_str(),
-                "remote" | "remote-queue" | "service:sovereign-sync"
-            )
-        })
+        !self
+            .excluded
+            .iter()
+            .any(|scope| matches!(scope.as_str(), "remote" | "remote-queue"))
     }
 }
 
@@ -884,7 +882,7 @@ mod tests {
 
     #[cfg(feature = "estate")]
     #[tokio::test]
-    async fn sovereign_exclusion_prevents_remote_queue_construction() {
+    async fn remote_queue_exclusion_prevents_remote_queue_construction() {
         let directory = tempdir().unwrap();
         let remote = directory.path().join("must-not-be-created");
         let report = inspect(DoctorConfig {
@@ -895,7 +893,7 @@ mod tests {
             service_definition: None,
             mcp_schema: None,
             remote_queue: Some(remote.clone()),
-            exclusions: vec!["service:sovereign-sync".into()],
+            exclusions: vec!["remote-queue".into()],
         })
         .await;
         assert!(!remote.exists());
@@ -903,6 +901,6 @@ mod tests {
             .checks
             .iter()
             .all(|check| check.name != "remote-queue"));
-        assert_eq!(report.excluded, ["service:sovereign-sync"]);
+        assert_eq!(report.excluded, ["remote-queue"]);
     }
 }

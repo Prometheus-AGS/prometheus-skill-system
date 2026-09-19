@@ -128,6 +128,14 @@ if [[ "$runtime_avail" == "1" ]]; then
   prometheus kbd --path . phase transition \
     --command-id "phase-complete:${child_runtime_id}" \
     --id "$child_runtime_id" --status complete >/dev/null
+  if [[ "$bottleneck_avail" == "1" ]]; then
+    guard_output="$(kbd_bottleneck_evaluate phase after "$child_runtime_id" 0)" \
+      || die "child phase completion postcommit evaluation blocked"
+    kbd_bottleneck_print_signal "$guard_output"
+  fi
+  [[ "$hooks_avail" == "1" ]] &&
+    kbd_hooks_fire phase after "$child_runtime_id" "$depth" "$depth" ||
+    warn "phase:after hook fire failed"
   ancestor_args=()
   while IFS= read -r ancestor; do
     [[ -n "$ancestor" ]] || continue
@@ -137,11 +145,6 @@ if [[ "$runtime_avail" == "1" ]]; then
     --command-id "phase-exit:${child_name}" \
     --id "$parent_id" "${ancestor_args[@]}" \
     --exact-next-work "/kbd-status" >/dev/null
-  if [[ "$bottleneck_avail" == "1" ]]; then
-    guard_output="$(kbd_bottleneck_evaluate phase after "$child_runtime_id" 0)" \
-      || die "child phase completion postcommit evaluation blocked"
-    kbd_bottleneck_print_signal "$guard_output"
-  fi
   [[ "$hooks_avail" == "1" ]] &&
     kbd_hooks_fire child after "$child_name" "$depth" "$depth" ||
     warn "child:after hook fire failed"

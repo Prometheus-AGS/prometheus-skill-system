@@ -1,0 +1,71 @@
+{
+  "sources": [
+    {
+      "url": "https://arxiv.org/abs/2401.00001",
+      "entity_id": "src-arxiv",
+      "author": "A. Researcher",
+      "author_credentials": "Department of Computer Science, Example University",
+      "published": "2026-06-01",
+      "references": [
+        "doi:10.1000/1",
+        "doi:10.1000/2",
+        "doi:10.1000/3",
+        "doi:10.1000/4",
+        "doi:10.1000/5"
+      ],
+      "claims": [
+        "Hybrid search improves recall by 12% on the benchmark",
+        "The index build takes 40 ms per 1,000 vectors"
+      ],
+      "chunk_ids": [
+        "c1"
+      ]
+    },
+    {
+      "url": "https://example.org/blog/vector-search",
+      "entity_id": "src-blog",
+      "claims": [
+        "Hybrid search improves recall by 12% on the benchmark",
+        "Adoption is growing across the industry"
+      ],
+      "chunk_ids": [
+        "c2"
+      ]
+    },
+    {
+      "url": "https://old.edu/archive/vectors",
+      "entity_id": "src-old",
+      "author": "B. Emeritus",
+      "published": "2016-03-01",
+      "references": [],
+      "claims": [
+        "Index build takes 400 ms per 1,000 vectors"
+      ],
+      "chunk_ids": [
+        "c3"
+      ]
+    },
+    {
+      "url": "https://medium.com/@someone/vectors-are-cool",
+      "entity_id": "src-medium",
+      "published": "2026-08-01",
+      "claims": [
+        "Everyone should use vector search"
+      ],
+      "chunk_ids": [
+        "c4"
+      ]
+    },
+    {
+      "url": "https://standards.gov/report-2024",
+      "entity_id": "src-gov-year",
+      "published": "2024",
+      "claims": [
+        "The 2024 survey counted 1,200 deployments"
+      ],
+      "chunk_ids": [
+        "c5"
+      ]
+    }
+  ]
+}

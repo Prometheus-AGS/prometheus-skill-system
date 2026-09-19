@@ -1,0 +1,17 @@
+skills/research/deep-research/scripts/run-research.sh
+skills/research/deep-research/scripts/write-provenance.sh
+skills/research/deep-research/references/stage-contracts.md
+skills/research/deep-research/templates/research-plan.md
+skills/research/deep-research/hooks/pre-research.sh
+skills/research/deep-research/hooks/post-stage.sh
+skills/research/deep-research/hooks/on-contradiction.sh
+skills/research/deep-research/hooks/post-export.sh
+skills/research/deep-research/tests/driver-contract.sh
+skills/research/deep-research/tests/fixtures/stage-runner.sh
+shared/scripts/lib/slug.sh
+shared/scripts/content-grounding-kb.sh
+skills/learn/learn-goal/scripts/content-grounding-kb.sh
+skills/learn/learn-kb/scripts/content-grounding-kb.sh
+openspec/specs/research-pipeline-execution/spec.md
+skills/research/deep-research/SKILL.md
+skills/research/deep-research/scripts/export-package.sh

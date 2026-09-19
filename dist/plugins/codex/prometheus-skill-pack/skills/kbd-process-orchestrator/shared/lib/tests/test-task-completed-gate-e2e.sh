@@ -37,22 +37,22 @@ if printf '%s' "$payload" | "$GATE" >/dev/null 2>&1; then
   exit 1
 fi
 
-kbd guard evaluate --boundary task --edge before --subject gate-task --json --precommit --repair-projections
-kbd guard evaluate --boundary task --edge before --subject gate-task --json --repair-projections
+kbd guard evaluate --boundary task --edge before --subject gate-change/gate-task --json --precommit --repair-projections
+kbd guard evaluate --boundary task --edge before --subject gate-change/gate-task --json --repair-projections
 kbd task transition --command-id gate-task-finish --phase gate-phase --change gate-change --id gate-task --status complete
 if printf '%s' "$payload" | "$GATE" >/dev/null 2>&1; then
   printf 'FAIL: task without signed after receipt was not blocked\n' >&2
   exit 1
 fi
 
-kbd guard evaluate --boundary task --edge after --subject gate-task --json --precommit --repair-projections
-kbd guard evaluate --boundary task --edge after --subject gate-task --json --repair-projections
+kbd guard evaluate --boundary task --edge after --subject gate-change/gate-task --json --precommit --repair-projections
+kbd guard evaluate --boundary task --edge after --subject gate-change/gate-task --json --repair-projections
 printf '%s' "$payload" | "$GATE" >/dev/null
 
 status="$(prometheus kbd --path "$SANDBOX" status --json)"
 printf '%s' "$status" | jq -e '
   .phases["gate-phase"].changes["gate-change"].tasks["gate-task"].status == "complete" and
-  .latestBoundaryReceipts["task:gate-task"].edge == "after" and
+  .latestBoundaryReceipts["task:gate-change/gate-task"].edge == "after" and
   (.outstandingBoundaryObligations | length) == 0
 ' >/dev/null
 

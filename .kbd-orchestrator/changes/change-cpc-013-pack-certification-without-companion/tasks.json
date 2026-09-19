@@ -1,0 +1,33 @@
+{
+  "changeId": "change-cpc-013-pack-certification-without-companion",
+  "schemaVersion": "1",
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Write scripts/certify-without-companion.sh and run it, recording certification.log",
+      "done": false,
+      "doneAt": null,
+      "doneBy": null,
+      "files": [
+        "scripts/certify-without-companion.sh"
+      ],
+      "verify": "bash scripts/certify-without-companion.sh && test \"$(grep -ci 'companion\\|sovereign' certification.log)\" = 0",
+      "notes": null
+    },
+    {
+      "id": "2",
+      "title": "Update installation, updating, and release docs; run docs drift checks",
+      "done": false,
+      "doneAt": null,
+      "doneBy": null,
+      "files": [
+        "site/docs/operations/installation-and-upgrades.md",
+        "docs/guide/19-installation.md",
+        "docs/guide/20-updating.md",
+        "CHANGELOG.md"
+      ],
+      "verify": "npm run validate:codex",
+      "notes": null
+    }
+  ]
+}

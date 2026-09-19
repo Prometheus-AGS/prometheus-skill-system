@@ -12,7 +12,7 @@ the Prometheus stack itself.
 ## Trigger phrases
 
 - "how does the kbd lifecycle work?"
-- "explain sovereign sync to me"
+- "explain the optional Companion control plane to me"
 - "teach me about the learn domain"
 - `/learn-about-system --area kbd`
 
@@ -23,7 +23,7 @@ the Prometheus stack itself.
 | `kbd` | KBD lifecycle (assess → analyze → plan → execute → reflect) |
 | `skills` | How skills are structured, discovered, and invoked |
 | `harness` | Harness detection and surface tier system |
-| `substrate` | Rust crates (learner-model, surface-bridge, sovereign-sync) |
+| `substrate` | Rust crates (learner-model, surface-bridge, prometheus-research) |
 | `pmpo` | PMPO meta-prompting orchestration philosophy |
 | `learn` | The Learn domain itself |
 

@@ -38,6 +38,42 @@
       }
     },
     {
+      "id": "karpathy-progress-task-boundary",
+      "event": "task:after",
+      "mode": "augment",
+      "description": "Persist a completed canonical task boundary to session history and project-scoped memory.",
+      "action": {
+        "type": "command",
+        "command": "script=\"${KBD_ORCHESTRATOR_ROOT:-$HOME/.claude/skills/kbd-process-orchestrator}/../karpathy-progress-memory/scripts/record-progress.py\"; python3 \"$script\" --project-root \"$PWD\" --from-hook --boundary task",
+        "timeout": 15,
+        "on_failure": "warn"
+      }
+    },
+    {
+      "id": "karpathy-progress-change-boundary",
+      "event": "change:after",
+      "mode": "augment",
+      "description": "Persist a completed canonical change boundary to session history and project-scoped memory.",
+      "action": {
+        "type": "command",
+        "command": "script=\"${KBD_ORCHESTRATOR_ROOT:-$HOME/.claude/skills/kbd-process-orchestrator}/../karpathy-progress-memory/scripts/record-progress.py\"; python3 \"$script\" --project-root \"$PWD\" --from-hook --boundary change",
+        "timeout": 15,
+        "on_failure": "warn"
+      }
+    },
+    {
+      "id": "karpathy-progress-phase-boundary",
+      "event": "phase:after",
+      "mode": "augment",
+      "description": "Persist a completed canonical phase boundary to session history and project-scoped memory.",
+      "action": {
+        "type": "command",
+        "command": "script=\"${KBD_ORCHESTRATOR_ROOT:-$HOME/.claude/skills/kbd-process-orchestrator}/../karpathy-progress-memory/scripts/record-progress.py\"; python3 \"$script\" --project-root \"$PWD\" --from-hook --boundary phase",
+        "timeout": 15,
+        "on_failure": "warn"
+      }
+    },
+    {
       "id": "legacy-phase-complete",
       "event": "on_phase_complete",
       "action": {

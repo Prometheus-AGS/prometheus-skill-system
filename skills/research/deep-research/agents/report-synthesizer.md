@@ -5,6 +5,7 @@ metadata:
   model_tier: frontier
   stage: stage-09-report
   pipeline: deep-research
+tools: Read, Write, Edit, Grep, Glob
 ---
 
 # Report Synthesizer Agent
@@ -17,10 +18,18 @@ delivery.
 
 ## Input
 
-- `<job_id>/plan.json` — Stage 01 research plan with sub-questions
-- `<job_id>/graph.json` — knowledge graph (topics, claims, relations)
-- `<job_id>/citations.json` — formatted citations
-- `<job_id>/contradictions.json` — contradiction log
+- `<package_id>/plan.md` — Stage 01 research plan (Markdown) with sub-questions, task ledger, verification log, decision log
+- `<package_id>/graph.json` — knowledge graph (topics, claims, relations)
+- `<package_id>/citations.json` — formatted citations
+- `<package_id>/contradictions.json` — contradiction log
+
+## Tools
+
+Allowed: `Read, Write, Edit, Grep, Glob`. Not allowed: search, fetch, shell.
+
+The synthesizer writes `report.md` from `graph.json`, `citations.json`, and `contradictions.json` and nothing else. It has no search and no fetch tool, so it cannot invent a source: every citation in the report must already exist in `citations.json` with a label. A gap in the evidence is reported as a gap, not filled.
+
+This list restates the `tools:` frontmatter so a harness that ignores the key still sees the duty. If a tool outside the list is available anyway, do not use it; if the task cannot be completed without one, stop and record the step as `blocked` with the reason (see "Agent tool duties" in `SKILL.md`).
 
 ## Report Structure
 
@@ -53,8 +62,18 @@ When `learn-grade` is unavailable, skip the gate and record `feynman_gate_used: 
 
 ## Writing Rules
 
+0. **Every claim carries its label.** The evidence table has a `Label` column copied
+   from `graph.json`; a claim you infer yourself is `inferred` and says so inline.
+   `verified`, `confirmed`, and `checked` describe only `verified` claims. Claims in
+   the executive summary and Key Finding headlines are `critical` and must already be
+   marked so in `graph.json`. Every `blocked` and `unverified` claim is named in
+   Limitations and Gaps. `verification_status` in the frontmatter is derived with the
+   rule in `references/okf-research-format.md`, never chosen. (Rules adapted from
+   Feynman CLI's system prompt and verifier, companion-inc/feynman, MIT.)
+
 1. **Every factual claim must have a citation.** Use inline citation markers `[N]` with
-   the corresponding entry in the References section.
+   the corresponding entry in the References section. No orphan markers (a `[N]` with
+   no reference) and no orphan references (an entry no marker cites).
 
 2. **Do not present unresolved contradictions as settled.** State both positions and note
    that resolution was not possible.

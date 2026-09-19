@@ -1,0 +1,99 @@
+{
+  "mode": "artifact",
+  "verdict": "BLOCK",
+  "judge_model": "k3",
+  "producer_model": "claude-fable-5-1",
+  "isolation_mode": "rest-gateway:http://localhost:4000/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": "change-cpc-009-pack-removal/spec.md",
+      "claim": "change-cpc-009 edits and deletes generator inputs (shared/launchagents/*.plist, shared/systemd/*) that feed shared/services.manifest.json (created by change-cpc-001) but never regenerates the manifest nor names a reconciliation change, violating C-01.",
+      "evidence": "cpc-001 creates 'scripts/generate-service-manifest.mjs' generating 'shared/services.manifest.json' from 'shared/launchagents/*.plist' and 'shared/systemd/*'. cpc-009's Scope includes deleting 'shared/launchagents/ai.prometheus.sovereign-sync.plist', editing four other plists, and deleting the systemd unit, but neither its Scope nor any task lists 'shared/services.manifest.json' or a 'check:services-manifest' run. C-01: 'Any source consumed by a generator must have its generated outputs regenerated and committed before the owning parent phase completes... A deferral that... omits the named owner... is a violation.' No reconciliation change is named anywhere in the artifact.",
+      "suggested_fix": "Add manifest regeneration + 'node scripts/generate-service-manifest.mjs --check' to cpc-009 tasks and verification, or name a reconciliation change per C-01 with the required persisted evidence."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "change-cpc-009-pack-removal/spec.md",
+      "claim": "Deleting substrate/kbd-mobile breaks skill-ffi's manifest: change-cpc-002 gates kbd-mobile behind an optional 'kbd-sync' cargo feature but never removes the path dependency, and cpc-009's Scope omits substrate/skill-ffi/Cargo.toml, so the pack will not resolve after the directory is deleted.",
+      "evidence": "cpc-002: 'Gate the kbd-mobile API surface in skill-ffi behind a `kbd-sync` cargo feature that is off by default' and task 1 'gate kbd-mobile imports... and drop the default dependency' (drop the default, i.e. make it optional \u2014 the path dep remains in the manifest). cpc-009 task 1 deletes 'substrate/kbd-mobile/' with Scope listing only 'substrate/skill-ffi/' nowhere; cargo fails to load a workspace member whose manifest has a path dependency on a non-existent directory even when the feature is disabled.",
+      "suggested_fix": "Either have cpc-002 fully remove the kbd-mobile dependency from skill-ffi's Cargo.toml (feature as pure no-op stub), or add substrate/skill-ffi/Cargo.toml to cpc-009's Scope with a task removing the feature and dep."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "change-cpc-008-sync-skills-plugin/spec.md",
+      "claim": "cpc-008 and cpc-009 alter the Codex plugin surface (marketplace entries, MCP server registration, install flow) but neither includes docs/codex-plugin.md in Scope, violating C-03.",
+      "evidence": "C-03: 'A change that alters the Codex plugin surface (manifest fields, marketplace schema, MCP servers, hooks, install flow) must update docs/codex-plugin.md and, where relevant, the CLAUDE.md section in the same change.' cpc-008 edits '.claude-plugin/marketplace.json', 'config/codex-catalog.txt', and stops MCP registration of sovereign-sync; its Scope has no docs file at all. cpc-009 removes '--sharing' from four installers and edits '.claude-plugin/' but its Scope lists only 'site/docs/' and 'CLAUDE.md' \u2014 docs/codex-plugin.md appears in no change in the phase.",
+      "suggested_fix": "Add docs/codex-plugin.md (and CLAUDE.md for cpc-008) to the Scope and tasks of cpc-008 and cpc-009."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "change-cpc-003-companion-workspace/spec.md",
+      "claim": "change-cpc-003 declares 'Depends on: none' but its own task 2 and open question require change-cpc-002 to have landed first \u2014 an undeclared ordering dependency.",
+      "evidence": "Header: '**Depends on:** none'. Task 2: 'Add git-rev dependencies on kbd-runtime, storage-provider, learner-model, skill-index at the pack commit that includes change-cpc-002'. Open Questions: 'Exact pack commit to pin: the one that lands change-cpc-002.'",
+      "suggested_fix": "Set Depends on to change-cpc-002-skill-ffi-kbd-mobile-split (or reword the pin target if the intent is any later pack commit)."
+    },
+    {
+      "severity": "WARNING",
+      "file": "change-cpc-009-pack-removal/spec.md",
+      "claim": "The footprint acceptance scenario is self-contradictory: the grep is scoped to directories that cannot contain the expected results.",
+      "evidence": "'WHEN `grep -rl -E 'sovereign-sync|sovereign_sync'` runs over scripts, shared, skills, tools/prometheus-cli/crates, hooks, and manifests THEN it returns only `docs/integration-contract.md` and files under `docs/decisions/`' \u2014 docs/ is not among the searched paths, so those files can never be returned; as written the criterion either always fails or is vacuous depending on interpretation.",
+      "suggested_fix": "Either grep the whole repo and whitelist the two docs paths, or restrict the expectation to zero matches in the listed directories."
+    },
+    {
+      "severity": "WARNING",
+      "file": "change-cpc-004-relocate-sovereign-sync/spec.md",
+      "claim": "The no-unwrap acceptance check cannot distinguish test code: `grep -v '#[cfg(test)]'` only filters lines that literally contain the attribute, not unwrap() calls inside cfg(test) modules.",
+      "evidence": "Verification: '`grep -rn 'unwrap()' crates/ | grep -v '#\\[cfg(test)\\]'` is empty' \u2014 an unwrap() on any line inside a `#[cfg(test)] mod tests { ... }` block does not carry the attribute on its own line, so legitimate test unwraps will fail the gate (or the gate is interpreted loosely and is unverifiable as written).",
+      "suggested_fix": "Use a scoped check (e.g. clippy lint, or grep limited to non-test files / with -B context filtering) and state it precisely."
+    },
+    {
+      "severity": "WARNING",
+      "file": "change-cpc-002-skill-ffi-kbd-mobile-split/verification.md",
+      "claim": "Verify-command blocks omit acceptance criteria that the constraints declare to be the gate, across multiple changes.",
+      "evidence": "Constraints: 'the verify commands in verification.md are the gate'. cpc-002 acceptance requires the cargo-metadata absence check and 'substrate/kbd-mobile/tests/wire_compat.rs passes in isolation', but its verify block is only 'cargo test ... --test ffi_roundtrip'. cpc-004 acceptance requires domain_sync (4 tests), wire_compat, the unwrap grep, and audit-all.sh; verify block has only integration_tests and cli_socket_contract. cpc-001 acceptance requires 'npm run validate:codex and npm run check:skills-index still pass'; verify block omits both. cpc-009 acceptance requires test-service-exclusions.sh and a kbd status + typed mutation; verify block omits them.",
+      "suggested_fix": "Promote every acceptance-criterion command into the verify block of each change, or demote them from acceptance criteria explicitly."
+    },
+    {
+      "severity": "WARNING",
+      "file": "change-cpc-009-pack-removal/tasks.json",
+      "claim": "Acceptance criteria require new integration-test cases in test files that are absent from Scope and from every task's files list.",
+      "evidence": "cpc-009 verification: 'cargo test ... --test doctor passes with a case asserting no sovereign-sync item' \u2014 no task lists tools/prometheus-cli/crates/prometheus-cli/tests/doctor.rs. cpc-010 verification: '--test kbd passes including the new migration case' \u2014 neither task lists tests/kbd.rs (Scope covers only kbd-runtime sources, kbd.rs command, and the seven progress.json files).",
+      "suggested_fix": "Add the respective tests/*.rs files to Scope and to the implementing tasks."
+    },
+    {
+      "severity": "WARNING",
+      "file": "change-cpc-003-companion-workspace/verification.md",
+      "claim": "Companion-repo verification gates depend on scripts (audit-all.sh, audit-deps.sh) that no task in the phase creates or edits; if absent from the 14-line scaffold, every Companion change's gate is impossible.",
+      "evidence": "cited_paths: 'MISSING audit-all.sh' and 'MISSING audit-deps.sh'. cpc-003 task 6 verify is 'bash scripts/audit-all.sh' and the Pins scenario requires 'audit-deps.sh passes', yet no Scope in cpc-003..cpc-007 or cpc-011 lists scripts/audit-all.sh or scripts/audit-deps.sh. The spec's own Why says the Companion 'is a 14-line Tauri scaffold'.",
+      "suggested_fix": "State explicitly that the scaffold ships these scripts, or add their creation to cpc-003's Scope/tasks."
+    },
+    {
+      "severity": "WARNING",
+      "file": "change-cpc-008-sync-skills-plugin/spec.md",
+      "claim": "Assessment Q3 (which repo's KBD run owns cross-repo work) was handed to spec as open and is never resolved; cpc-008 is declared Repository: prometheus-companion while its task 3 performs pack-side edits with pack tooling.",
+      "evidence": "goals: 'Which repo's KBD run owns the cross-repo work: open for spec (assessment Q3).' No change or section in the artifact answers it. cpc-008 header: '**Repository:** `prometheus-companion`', but task 3: 'Pack: remove skills/learn/sync-*, regenerate skills index, update .claude-plugin/* ... run validate:codex' with verify 'npm run validate:codex' \u2014 pack-repo work under a Companion-repo change.",
+      "suggested_fix": "Resolve Q3 in the spec (e.g. split cpc-008 into a pack-side change and a Companion-side change, or declare the owning run and cross-repo evidence rules)."
+    },
+    {
+      "severity": "WARNING",
+      "file": "change-cpc-002-skill-ffi-kbd-mobile-split/tasks.json",
+      "claim": "Moving mobile_wire_is_byte_compatible_with_sovereign_sync into substrate/kbd-mobile/tests/ inverts the dev-dependency direction, but substrate/kbd-mobile/Cargo.toml is not in Scope or any task.",
+      "evidence": "cpc-002 task 2: 'Move mobile_wire_is_byte_compatible_with_sovereign_sync to substrate/kbd-mobile/tests/wire_compat.rs' with files limited to 'substrate/kbd-mobile/tests/wire_compat.rs' and 'substrate/sovereign-sync/tests/domain_sync.rs'. A test asserting byte compatibility with sovereign-sync's wire format needs sovereign-sync (or its types) as a dev-dependency of kbd-mobile; that manifest edit has no home in the change.",
+      "suggested_fix": "Add substrate/kbd-mobile/Cargo.toml to task 2's files and the change Scope."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "change-cpc-003-companion-workspace/tasks.json",
+      "claim": "Task 3 lists versions.toml in its files while the phase constraints and the spec itself state agents are denied editing versions.toml (human edit only).",
+      "evidence": "Task 3: 'Prepare the versions.toml [pins] and [decisions] block for the operator's human edit' with 'files': ['versions.toml']. Goals constraints: 'Companion's versions.toml [pins] is empty and Edit(versions.toml) is denied to agents there; new crate pins are a human edit.'",
+      "suggested_fix": "Point the task's files at the staging location for the proposed pins (e.g. change notes) and leave versions.toml to the operator's recorded edit."
+    }
+  ],
+  "sycophancy_screen": {
+    "reject_cap": 2,
+    "cap_overridden": false,
+    "cap_default": 2
+  }
+}

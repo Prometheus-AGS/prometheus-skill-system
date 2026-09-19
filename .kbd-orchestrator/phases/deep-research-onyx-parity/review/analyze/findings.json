@@ -1,0 +1,36 @@
+{
+  "mode": "artifact",
+  "verdict": "PASS",
+  "judge_model": "k3",
+  "producer_model": "claude-opus-5",
+  "isolation_mode": "rest-gateway:http://localhost:4000/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "WARNING",
+      "file": "analysis.md",
+      "claim": "The constraint analysis for defect D-B is incomplete: D-12 evaluates only whether the republish triggers C-03 (docs) and never addresses C-01's generated-artifact sync obligation, even though D-B is precisely a generated output (the installed plugin generation's stub driver, 1920 vs 30718 bytes) that is out of sync with its source.",
+      "evidence": "D-09 states 'C-01 requires same-change manifest regeneration' only in connection with D-A's launchd plist edit; D-12 reasons exclusively about C-03 ('Does a D-B republish trigger C-03? No, provided the fix is regeneration only'). C-01 requires that a regeneration 'run the generator twice, prove byte-identical tracked hashes, and run the applicable drift validators' \u2014 and, if the republish touches `.claude-plugin/*`, that `npm run validate:codex` MUST pass in the same change. Neither obligation is recorded for D-B anywhere in the artifact.",
+      "suggested_fix": "Extend D-09 or D-12 to state explicitly that the D-B fix is a C-01 regeneration event: rerun the plugin-generation generator, prove byte-identical output, run the drift validators, and run `npm run validate:codex` in the same change if the regenerated surface includes `.claude-plugin/*`."
+    },
+    {
+      "severity": "WARNING",
+      "file": "analysis.md",
+      "claim": "The load-bearing claim underlying dispatch strategy A and decision D-03 \u2014 'This harness exposes a Workflow tool with agent(), parallel(), and pipeline() primitives plus a documented concurrency guideline' \u2014 carries no verifiable evidence anywhere in the packet.",
+      "evidence": "In library-candidates.json, the `harness-subagents` candidate's other two evidence bullets cite repo paths (`skills/research/deep-research/agents/*.md`, `SKILL.md:260`), but the Workflow-tool bullet cites no file, doc, or configuration. If the harness does not in fact expose these primitives, Option A's justification ('Zero new infrastructure ... Fastest path to a working director/worker loop') and the 'harness-native first' ordering in D-03 are unfounded.",
+      "suggested_fix": "Cite the harness documentation or config that defines the Workflow tool, or re-gate Option A behind an explicit smoke-test change that proves agent()/parallel() dispatch works before the scheduler is planned against it."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "library-candidates.json",
+      "claim": "The deep_research_bench adoption is unpinned: the candidate adopts 'the criteria, judge prompts, and a query subset as data' without naming a commit or tag, so the G5 RACE number would not be reproducible, and the repo's last push (2026-05-11, ~3 months before this analysis) is recorded without any staleness assessment.",
+      "evidence": "`deep-research-bench` candidate: `\"maintenance\": \"827 stars, last pushed 2026-05-11; the reference implementation...\"` with no commit pin, and D-10 / \u00a72.5 say only 'a query subset'. G5's stated purpose is to make parity 'falsifiable rather than asserted' \u2014 a floating data snapshot undermines that.",
+      "suggested_fix": "Pin the adopted criteria/query data to a specific commit SHA in the plan, and record whether the three-month-quiet repo affects confidence in the judge prompts."
+    }
+  ],
+  "sycophancy_screen": {
+    "reject_cap": 2,
+    "cap_overridden": false,
+    "cap_default": 2
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://prometheus-ags.dev/schemas/thread-brief.schema.json",
+  "title": "Research thread brief",
+  "description": "The only input a research worker receives. No plan, no sibling dossier, no chat history: a worker that needs anything beyond this has been briefed badly.",
+  "type": "object",
+  "required": ["thread_id", "task", "budget"],
+  "additionalProperties": false,
+  "properties": {
+    "thread_id": {
+      "type": "string",
+      "pattern": "^t[0-9]{2,}$",
+      "description": "Matches the thread directory name. A path component: no separators, never . or .."
+    },
+    "task": {
+      "type": "string",
+      "minLength": 20,
+      "description": "One or two self-contained sentences. Self-contained is the requirement, not the style: the worker has no other context."
+    },
+    "must_cover": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "description": "Checklist the worker answers against before it may stop."
+    },
+    "avoid": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "description": "Ground a sibling thread already covered. The director can populate this because it has read the other dossiers; the worker still receives only this brief, so isolation holds."
+    },
+    "recency_months": { "type": "integer", "minimum": 1 },
+    "excluded_domains": { "type": "array", "items": { "type": "string" } },
+    "budget": {
+      "type": "object",
+      "required": ["cycles", "minutes"],
+      "additionalProperties": false,
+      "properties": {
+        "cycles": { "type": "integer", "minimum": 1, "maximum": 32 },
+        "minutes": { "type": "integer", "minimum": 1, "maximum": 120 },
+        "max_sources": { "type": "integer", "minimum": 1 }
+      },
+      "description": "The scheduler enforces minutes by killing the process; the worker honours cycles and max_sources itself."
+    }
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "mode": "artifact",
+  "verdict": "PASS",
+  "judge_model": "k3",
+  "producer_model": "claude-fable-5-1",
+  "isolation_mode": "rest-gateway:http://localhost:4000/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "WARNING",
+      "file": "assessment.md",
+      "claim": "The goals list \"four incompatible manifest.json shapes\" as a survey finding to confirm, but the assessment reports only three shapes and never reconciles the missing fourth.",
+      "evidence": "Goals: \"four incompatible `manifest.json` shapes\" under survey-only findings to confirm. Artifact: \"Manifest schema: [PARTIAL]\" enumerates exactly three sources (research-package-spec.md int, template array, export-package.sh omits the field), and GOAL PROGRESS G1 says \"three manifest shapes\" \u2014 the discrepancy with the goal's count of four is never explained.",
+      "suggested_fix": "Either identify the fourth manifest shape (e.g. a fourth writer/reader such as the daemon's config.rs or checkpoint.rs) or explicitly state that the survey count was wrong and three is the verified number."
+    },
+    {
+      "severity": "WARNING",
+      "file": "assessment.md",
+      "claim": "Open question 4 invites analyze to descope G5, a stated goal, and its rationale contradicts the assessment's own G5 findings.",
+      "evidence": "Artifact: \"Whether G5 belongs in this phase or a successor; it is the only goal with no correctness defect behind it.\" But the goals define G5 as in-scope (\"G5 Scoring: source credibility uses available-signal weight renormalization...\"), and the assessment itself marks G5 NOT MET with three [MISSING] items (weight renormalization, content-addressed claim IDs, contradicts edges) \u2014 missing required features are defects against the goal.",
+      "suggested_fix": "Remove the descoping framing or reframe it strictly as a sequencing question; goal membership is not the assess stage's to re-open, and the 'no defect' rationale is unsupported."
+    },
+    {
+      "severity": "WARNING",
+      "file": "assessment.md",
+      "claim": "Compile health of the Rust crates G1 must modify is unverified, yet the assessment asserts the daemon compiles on survey-only evidence.",
+      "evidence": "BUILD HEALTH: \"build check: UNKNOWN \u2014 ... `cargo check -p prometheus-research` was not run\" immediately followed by \"the daemon compiles per the survey (tests exist and are described as real)\". G1 requires fixing spawn.rs and checkpoint.rs in this crate; existence of test files does not demonstrate compilation.",
+      "suggested_fix": "Either run `cargo check -p prometheus-research` and `cargo check -p learner-model` before closing assess, or downgrade the compiles claim to UNKNOWN and add it to OPEN QUESTIONS FOR ANALYZE as a blocking precondition, not a footnote."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "assessment.md",
+      "claim": "Several verified findings have no corresponding goal, creating scope-smuggling risk when the plan stage selects work.",
+      "evidence": "The 'Documentation drift (cross-cutting)' section (skill.toml:31 stale deferral note, SKILL.md:199 broken link, SKILL.md:107 version mismatch, A2UI component name mismatch) and 'Loop control in feynman-loop (depth cap, recursion floor, escalation, three-criterion closure): [STUB]' map to none of G1\u2013G5; the goals mention no documentation or loop-control requirement.",
+      "suggested_fix": "Tag each orphan finding with the goal it serves (e.g. doc drift under C-03 compliance for G1 surface changes) or explicitly mark it 'deferred \u2014 out of phase scope' so plan cannot absorb it silently."
+    }
+  ],
+  "sycophancy_screen": {
+    "reject_cap": 2,
+    "cap_overridden": false,
+    "cap_default": 2
+  }
+}

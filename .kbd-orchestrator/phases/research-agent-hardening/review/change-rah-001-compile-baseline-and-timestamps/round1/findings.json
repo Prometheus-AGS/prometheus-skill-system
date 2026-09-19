@@ -1,0 +1,23 @@
+{
+  "mode": "diff",
+  "verdict": "BLOCK",
+  "judge_model": "k3",
+  "producer_model": "claude-fable-5-1",
+  "isolation_mode": "rest-gateway:http://localhost:8181/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": "substrate/prometheus-research/Cargo.lock",
+      "line": 1,
+      "claim": "The change edits a file outside the acceptance criteria's allowed scope.",
+      "evidence": "The acceptance criteria Scope lists only `substrate/prometheus-research/Cargo.toml`, `src/job/checkpoint.rs`, `src/job/spawn.rs`, `src/mcp_server/mod.rs`, and `tests/job_lifecycle.rs` as files this change may create/edit/delete, but the diff modifies `substrate/prometheus-research/Cargo.lock`.",
+      "suggested_fix": "Either update the change scope to include `substrate/prometheus-research/Cargo.lock` or remove the lockfile modification if lockfiles are not intended to be updated in this change."
+    }
+  ],
+  "sycophancy_screen": {
+    "reject_cap": 2,
+    "cap_overridden": false,
+    "cap_default": 2
+  }
+}

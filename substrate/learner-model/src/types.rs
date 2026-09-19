@@ -41,6 +41,11 @@ pub struct ConceptState {
     /// Immutable scheduling seed used to derive `fsrs_card` after every merge.
     #[serde(default)]
     pub fsrs_prior: Option<FSRSCard>,
+    /// Set by learn-certify (`set_certified`) when the concept's checkpoint
+    /// credential was issued; `None` until then. Read by the final-certification
+    /// gate. CRDT merge: LWW.
+    #[serde(default)]
+    pub certified_at: Option<DateTime<Utc>>,
 }
 
 /// A single scored observation of learner performance on a concept.
@@ -148,9 +153,15 @@ pub struct GapRecord {
     pub source_skill: String,
     /// Source reference from grounding corpus that identifies this gap.
     pub source_evidence: Option<String>,
+    /// How the gap was established (learn-grade, change-rah-005): `verified`
+    /// when grounded in a corpus reference the grader read, `inferred` when
+    /// judged without one. Absent on records written before the field existed.
+    #[serde(default)]
+    pub label: Option<String>,
 }
 
-/// A learning session record.
+/// A learning session record. Appended by `add_session`; deduplicated by
+/// `session_id` and ordered by `started_at` on every fold.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SessionRecord {
     pub session_id: String,
@@ -158,6 +169,10 @@ pub struct SessionRecord {
     pub ended_at: Option<DateTime<Utc>>,
     pub skills_called: Vec<String>,
     pub concepts_touched: Vec<String>,
+    /// `practice`, `feynman`, `retain`, or another skill-defined tag; learn-certify
+    /// counts `practice` sessions per concept for its breadth gate.
+    #[serde(default)]
+    pub session_type: Option<String>,
 }
 
 /// Cold-start seed output from learn-survey.
@@ -234,6 +249,7 @@ mod tests {
                     last_review: None,
                 },
                 fsrs_prior: None,
+                certified_at: None,
             },
         );
 

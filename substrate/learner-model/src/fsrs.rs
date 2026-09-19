@@ -1,22 +1,22 @@
-//! Minimal FSRS-6 stub for spaced-repetition scheduling.
+//! FSRS scheduling for spaced repetition, through the `rs-fsrs` crate
+//! (change-rah-009; README "FSRS dependency decision").
 //!
-//! This module implements a simplified version of the FSRS-6 algorithm.
-//! A production deployment should integrate the `fsrs-rs` crate for the
-//! full parameter-fitted algorithm. This stub is API-compatible and sufficient
-//! for integration testing and cold-start scheduling.
+//! This module is an adapter. The card this crate persists (`FSRSCard`) is
+//! mapped to `rs_fsrs::Card`, the scheduler computes the next state with the
+//! crate's default parameters (FSRS-5, 19 weights, request retention 0.9,
+//! short-term scheduler on, fuzz off), and the result is mapped back. Every
+//! review reads and updates `difficulty` through FSRS's mean-reversion rule,
+//! which the previous stub never did.
 //!
-//! # FSRS-6 Simplified Formula
-//!
-//! - Stability (`s`): days until 90% retention
-//! - Difficulty (`d`): [1,10], LWW-merged
-//! - Interval: next review in `s * growth_factor` days
-//! - Lapses increase stability decay
+//! The scheduler is deterministic for a given (card, rating, now): the same
+//! observation set folds to the same card on every replica (`store::fold_concept`).
 
 use crate::types::{CardState, FSRSCard};
-use chrono::{DateTime, Duration, Utc};
+use chrono::{DateTime, Utc};
+use rs_fsrs::{Card, State, FSRS};
 use serde::{Deserialize, Serialize};
 
-/// Rating for an FSRS review answer, matching FSRS-6 conventions.
+/// Rating for an FSRS review answer, matching FSRS conventions.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum Rating {
@@ -30,153 +30,151 @@ pub enum Rating {
     Easy = 4,
 }
 
-/// Compute the next review schedule given a card, a rating, and the current time.
-///
-/// Returns a new `FSRSCard` with updated state, stability, and due date.
-/// The input card is not mutated.
-///
-/// # Simplified FSRS-6 Parameters Used
-///
-/// | Rating | Stability multiplier | State transition |
-/// |--------|----------------------|-----------------|
-/// | Again  | × 0.5 (lapse)       | → Relearning    |
-/// | Hard   | × 0.9               | → Review        |
-/// | Good   | × 1.2               | → Review        |
-/// | Easy   | × 1.5               | → Review        |
-///
-/// Stability minimum is clamped at 0.1 days.
-/// Interval minimum is 1 day.
-pub fn next_review(card: &FSRSCard, rating: Rating, now: DateTime<Utc>) -> FSRSCard {
-    let mut next = card.clone();
-    next.last_review = Some(now);
-    next.reps += 1;
-
-    let interval_days: i64 = match rating {
-        Rating::Again => {
-            next.lapses += 1;
-            next.state = CardState::Relearning;
-            1
+impl From<Rating> for rs_fsrs::Rating {
+    fn from(r: Rating) -> Self {
+        match r {
+            Rating::Again => rs_fsrs::Rating::Again,
+            Rating::Hard => rs_fsrs::Rating::Hard,
+            Rating::Good => rs_fsrs::Rating::Good,
+            Rating::Easy => rs_fsrs::Rating::Easy,
         }
-        Rating::Hard => {
-            next.state = CardState::Review;
-            ((card.stability * 0.8) as i64).max(1)
-        }
-        Rating::Good => {
-            next.state = CardState::Review;
-            (card.stability as i64).max(1)
-        }
-        Rating::Easy => {
-            next.state = CardState::Review;
-            ((card.stability * 1.3) as i64).max(1)
-        }
-    };
-
-    // Stability growth (simplified FSRS-6 multipliers)
-    next.stability = match rating {
-        Rating::Again => card.stability * 0.5,
-        Rating::Hard => card.stability * 0.9,
-        Rating::Good => card.stability * 1.2,
-        Rating::Easy => card.stability * 1.5,
     }
-    .max(0.1);
+}
 
-    next.due = now + Duration::days(interval_days);
-    next
+fn to_state(s: &CardState) -> State {
+    match s {
+        CardState::New => State::New,
+        CardState::Learning => State::Learning,
+        CardState::Review => State::Review,
+        CardState::Relearning => State::Relearning,
+    }
+}
+
+fn from_state(s: State) -> CardState {
+    match s {
+        State::New => CardState::New,
+        State::Learning => CardState::Learning,
+        State::Review => CardState::Review,
+        State::Relearning => CardState::Relearning,
+    }
+}
+
+fn to_rs_card(card: &FSRSCard, now: DateTime<Utc>) -> Card {
+    // A card that was never reviewed has no last_review; rs-fsrs computes
+    // elapsed days from it only for non-New states, so `now` is a safe stand-in.
+    let last_review = card.last_review.unwrap_or(now);
+    let elapsed_days = match card.state {
+        CardState::New => 0,
+        _ => (now - last_review).num_days().max(0),
+    };
+    let scheduled_days = match card.last_review {
+        Some(lr) => (card.due - lr).num_days().max(0),
+        None => 0,
+    };
+    Card {
+        due: card.due,
+        stability: card.stability,
+        difficulty: card.difficulty,
+        elapsed_days,
+        scheduled_days,
+        reps: i32::try_from(card.reps).unwrap_or(i32::MAX),
+        lapses: i32::try_from(card.lapses).unwrap_or(i32::MAX),
+        state: to_state(&card.state),
+        last_review,
+    }
+}
+
+fn from_rs_card(card: &Card) -> FSRSCard {
+    FSRSCard {
+        stability: card.stability,
+        difficulty: card.difficulty,
+        due: card.due,
+        state: from_state(card.state),
+        reps: u32::try_from(card.reps).unwrap_or(0),
+        lapses: u32::try_from(card.lapses).unwrap_or(0),
+        last_review: Some(card.last_review),
+    }
+}
+
+/// Compute the next review schedule given a card, a rating, and the review time.
+///
+/// Returns a new `FSRSCard`; the input is not mutated. `stability`,
+/// `difficulty`, `due`, `state`, `reps`, `lapses`, and `last_review` all come
+/// from the scheduler.
+pub fn next_review(card: &FSRSCard, rating: Rating, now: DateTime<Utc>) -> FSRSCard {
+    let scheduled = FSRS::default().next(to_rs_card(card, now), now, rating.into());
+    from_rs_card(&scheduled.card)
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use chrono::Duration;
 
-    fn new_card() -> FSRSCard {
+    fn new_card(now: DateTime<Utc>) -> FSRSCard {
         FSRSCard {
-            stability: 4.0,
+            stability: 1.0,
             difficulty: 5.0,
-            due: Utc::now(),
-            state: CardState::Review,
-            reps: 3,
+            due: now,
+            state: CardState::New,
+            reps: 0,
             lapses: 0,
             last_review: None,
         }
     }
 
     #[test]
-    fn again_triggers_lapse_and_relearning_state() {
-        let card = new_card();
+    fn again_triggers_lapse_after_a_review() {
         let now = Utc::now();
-        let next = next_review(&card, Rating::Again, now);
-
-        assert_eq!(next.state, CardState::Relearning);
-        assert_eq!(next.lapses, card.lapses + 1);
-        assert_eq!(next.reps, card.reps + 1);
-        // stability decays
-        assert!(next.stability < card.stability);
-        // next review is tomorrow
-        let delta = next.due - now;
-        assert_eq!(delta.num_days(), 1);
+        let first = next_review(&new_card(now), Rating::Good, now);
+        let later = now + Duration::days(3);
+        let next = next_review(&first, Rating::Again, later);
+        assert_eq!(next.lapses, first.lapses + 1);
+        assert_eq!(next.reps, first.reps + 1);
+        assert!(next.stability < first.stability, "a lapse lowers stability");
+        assert_eq!(next.last_review, Some(later));
     }
 
     #[test]
-    fn hard_moves_to_review_with_shorter_interval() {
-        let card = new_card();
+    fn difficulty_is_read_and_updated_on_every_review() {
         let now = Utc::now();
-        let next = next_review(&card, Rating::Hard, now);
-
-        assert_eq!(next.state, CardState::Review);
-        assert_eq!(next.lapses, card.lapses);
-        // Interval ≈ stability * 0.8 = 3 days
-        let delta = next.due - now;
-        assert!(delta.num_days() >= 1);
-        assert!(delta.num_days() <= (card.stability * 0.8 + 1.0) as i64);
+        let card = new_card(now);
+        let good = next_review(&card, Rating::Good, now);
+        let hard = next_review(&card, Rating::Hard, now);
+        assert_ne!(
+            good.difficulty, hard.difficulty,
+            "rating changes difficulty"
+        );
+        assert!(
+            hard.difficulty > good.difficulty,
+            "Hard is harder than Good"
+        );
+        let again = next_review(&good, Rating::Again, now + Duration::days(2));
+        assert!(
+            again.difficulty > good.difficulty,
+            "a lapse raises difficulty"
+        );
+        assert!((1.0..=10.0).contains(&again.difficulty));
     }
 
     #[test]
-    fn good_stays_in_review_with_same_interval() {
-        let card = new_card();
+    fn easy_is_more_stable_than_good() {
         let now = Utc::now();
-        let next = next_review(&card, Rating::Good, now);
-
-        assert_eq!(next.state, CardState::Review);
-        let delta = next.due - now;
-        assert_eq!(delta.num_days(), card.stability as i64);
+        let card = new_card(now);
+        let good = next_review(&card, Rating::Good, now);
+        let easy = next_review(&card, Rating::Easy, now);
+        assert!(easy.stability > good.stability);
+        assert!(easy.due >= good.due);
     }
 
     #[test]
-    fn easy_extends_interval_and_stability() {
-        let card = new_card();
+    fn reps_always_increment_and_state_leaves_new() {
         let now = Utc::now();
-        let next = next_review(&card, Rating::Easy, now);
-
-        assert_eq!(next.state, CardState::Review);
-        assert!(next.stability > card.stability);
-        let delta = next.due - now;
-        assert!(delta.num_days() >= card.stability as i64);
-    }
-
-    #[test]
-    fn stability_minimum_is_0_1() {
-        let mut card = new_card();
-        card.stability = 0.1;
-        let now = Utc::now();
-        let next = next_review(&card, Rating::Again, now);
-        assert!(next.stability >= 0.1);
-    }
-
-    #[test]
-    fn last_review_is_set_to_now() {
-        let card = new_card();
-        let now = Utc::now();
-        let next = next_review(&card, Rating::Good, now);
-        assert_eq!(next.last_review, Some(now));
-    }
-
-    #[test]
-    fn reps_always_increments() {
-        let card = new_card();
-        let now = Utc::now();
+        let card = new_card(now);
         for rating in [Rating::Again, Rating::Hard, Rating::Good, Rating::Easy] {
             let next = next_review(&card, rating, now);
             assert_eq!(next.reps, card.reps + 1);
+            assert_ne!(next.state, CardState::New);
         }
     }
 }

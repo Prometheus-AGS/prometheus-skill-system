@@ -53,27 +53,6 @@ REMINDER="$ROOT/.kbd-orchestrator/position-reminder.txt"
 
 [[ -f "$WAYPOINT" ]] || { echo "[write-position-reminder] no waypoint found" >&2; exit 0; }
 
-normalize_next_command() {
-  local next="${1:-}" change="${2:-}" remainder=""
-  case "$next" in
-    "/opsx:apply")
-      [[ -n "$change" ]] && { printf '/kbd-apply %s' "$change"; return 0; }
-      ;;
-    "/opsx:apply "*)
-      remainder="${next#"/opsx:apply "}"
-      [[ -n "$remainder" ]] && { printf '/kbd-apply %s' "$remainder"; return 0; }
-      ;;
-    "/speckit.implement")
-      [[ -n "$change" ]] && { printf '/kbd-apply %s' "$change"; return 0; }
-      ;;
-    "/speckit.implement "*)
-      remainder="${next#"/speckit.implement "}"
-      [[ -n "$remainder" ]] && { printf '/kbd-apply %s' "$remainder"; return 0; }
-      ;;
-  esac
-  printf '%s' "$next"
-}
-
 # Gate on the PostToolUse payload (if any): only regenerate when the file the
 # tool just wrote is the waypoint or the active phase's progress.json.
 INPUT="$(cat 2>/dev/null || true)"
@@ -94,10 +73,19 @@ if [[ -n "$INPUT" ]] && command -v jq >/dev/null 2>&1; then
 fi
 
 PHASE=$(jq -r '.phase // "unknown"' "$WAYPOINT" 2>/dev/null) || PHASE="unknown"
+POSITION=$(jq -r 'if ((.path // []) | length) > 0 then (.path | join(" › ")) else (.activePhase // .phase // "unknown") end' "$WAYPOINT" 2>/dev/null) || POSITION="$PHASE"
 STAGE=$(jq -r '.stage // .status // "unknown"' "$WAYPOINT" 2>/dev/null) || STAGE="unknown"
-NEXT_CMD=$(jq -r '.exact_next_command // .exactNextCommand // "unknown"' "$WAYPOINT" 2>/dev/null) || NEXT_CMD="unknown"
-CHANGE_ID=$(jq -r '.change // .active_change // empty' "$WAYPOINT" 2>/dev/null) || CHANGE_ID=""
-NEXT_CMD="$(normalize_next_command "$NEXT_CMD" "$CHANGE_ID")"
+NEXT_CHANGE=$(jq -r '.nextChange // .change // .active_change // empty' "$WAYPOINT" 2>/dev/null) || NEXT_CHANGE=""
+NEXT_TASK=$(jq -r '.nextTask // .currentTask // .current_task // empty' "$WAYPOINT" 2>/dev/null) || NEXT_TASK=""
+OPERATOR_NOTE=$(jq -r '.exact_next_command // .exactNextCommand // empty' "$WAYPOINT" 2>/dev/null) || OPERATOR_NOTE=""
+NEXT_WORK=""
+if [[ -n "$NEXT_CHANGE" && -n "$NEXT_TASK" ]]; then
+  NEXT_WORK="change $NEXT_CHANGE, task $NEXT_TASK"
+elif [[ -n "$NEXT_CHANGE" ]]; then
+  NEXT_WORK="change $NEXT_CHANGE"
+else
+  NEXT_WORK="none derived"
+fi
 CHANGES_COMPLETED=$(jq -r '.implementationCompleted // .implementation_completed // .changesCompleted // .changes_completed // 0' "$WAYPOINT" 2>/dev/null) || CHANGES_COMPLETED=0
 CHANGES_TOTAL=$(jq -r '.implementationTotal // .implementation_total // .changesTotal // .changes_total // 0' "$WAYPOINT" 2>/dev/null) || CHANGES_TOTAL=0
 
@@ -119,12 +107,13 @@ esac
 if [[ "$SUSPENDED" == "true" ]]; then
 cat > "$REMINDER" <<EOF
 POSITION REMINDER — operator pause advisory recorded
-Phase: $PHASE
+Position: $POSITION
 Step: $CHANGES_COMPLETED of $CHANGES_TOTAL
 Stage: $STAGE
-Recorded next command: $NEXT_CMD
+Recorded next work: $NEXT_WORK
+Operator note: ${OPERATOR_NOTE:-none recorded}
 
-Confirm operator intent before advancing the recorded next command. Tools remain
+Confirm operator intent before advancing the recorded next work. Tools remain
 available; the exclusive journal transaction lock governs concurrent writes.
 EOF
 echo "[write-position-reminder] wrote suspended reminder $REMINDER" >&2
@@ -133,10 +122,11 @@ fi
 
 cat > "$REMINDER" <<EOF
 POSITION REMINDER — read this as your FIRST tool call every turn
-Phase: $PHASE
+Position: $POSITION
 Step: $CHANGES_COMPLETED of $CHANGES_TOTAL
 Stage: $STAGE
-Next command: $NEXT_CMD
+Next work: $NEXT_WORK
+Operator note (intent only): ${OPERATOR_NOTE:-none recorded}
 
 Required signal format (emit BEFORE any tool call):
   Starting <kbd-skill> — $PHASE (step $CHANGES_COMPLETED of $CHANGES_TOTAL)

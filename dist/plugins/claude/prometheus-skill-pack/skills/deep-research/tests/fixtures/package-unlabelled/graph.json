@@ -1,0 +1,50 @@
+{
+ "topics": [
+  {
+   "id": "topic-001",
+   "name": "hybrid search",
+   "claims": [
+    "claim-001",
+    "claim-002"
+   ]
+  }
+ ],
+ "claims": [
+  {
+   "id": "claim-001",
+   "text": "Vector databases now ship hybrid search",
+   "label": "verified",
+   "critical": true,
+   "confidence": 0.85,
+   "sources": [
+    "src-a"
+   ],
+   "contradicts": [],
+   "evidence": "chunk-1: \"hybrid search is now available in all major vector databases\""
+  },
+  {
+   "id": "claim-002",
+   "text": "Adoption is growing",
+   "critical": false,
+   "confidence": 0.6,
+   "sources": [
+    "src-a",
+    "src-b"
+   ],
+   "contradicts": [],
+   "evidence": "inferred from claim-001 and the release cadence in src-b"
+  }
+ ],
+ "relations": [
+  {
+   "from": "claim-001",
+   "to": "src-a",
+   "type": "cites"
+  },
+  {
+   "from": "claim-002",
+   "to": "src-b",
+   "type": "supports"
+  }
+ ]
+}

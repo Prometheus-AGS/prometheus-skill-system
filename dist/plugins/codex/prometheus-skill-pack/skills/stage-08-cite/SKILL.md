@@ -55,7 +55,16 @@ Store citations in surreal-memory and write `citations.json` to the package.
 4. **Store in surreal-memory** — `add_memory(content=<citation>, user_id=<job_id>)`
    for cross-session citation retrieval.
 
-5. **Write `citations.json`** — emit the full citation list with confidence scores.
+5. **Label each citation** — copy the label of the claim(s) the citation
+   supports from `graph.json`. When one citation supports several claims, take
+   the weakest label in the order `blocked` > `unverified` > `inferred` >
+   `verified`. A citation with no supporting claim is an orphan and is removed;
+   a claim with a citation marker but no entry in `citations.json` is an orphan
+   marker and is fixed before Stage 09 (rule adapted from Feynman CLI's
+   verifier, companion-inc/feynman, MIT).
+
+6. **Write `citations.json`** — emit the full citation list with confidence
+   scores and labels.
 
 ## Integration
 

@@ -2,8 +2,14 @@
 set -euo pipefail
 
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"
+KBD_ORCHESTRATOR_ROOT="$root"
+export KBD_ORCHESTRATOR_ROOT
 # shellcheck source=/dev/null
 . "$root/shared/lib/progress.sh"
+if [[ -f "$root/shared/lib/hooks.sh" ]]; then
+  # shellcheck source=/dev/null
+  . "$root/shared/lib/hooks.sh"
+fi
 
 case "${1:-}" in
   --mark-implementation-complete)

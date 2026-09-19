@@ -1,0 +1,71 @@
+{
+  "mode": "diff",
+  "verdict": "PASS",
+  "judge_model": "k3",
+  "producer_model": "claude-fable-5-1",
+  "isolation_mode": "rest-gateway:http://localhost:4000/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "WARNING",
+      "file": "substrate/prometheus-research/src/http_server/mod.rs",
+      "line": 22,
+      "claim": "std::env::set_var is called from within the running multi-threaded tokio runtime, which is unsound per Rust std docs (and a hard error in edition 2024) because any other thread concurrently calling getenv races the mutation.",
+      "evidence": "run_server() hunk: `std::env::set_var(\"RESEARCH_EVENT_SINK\", ...)` and `std::env::set_var(\"RESEARCH_EVENT_TOKEN\", ...)` execute inside `run_server(port, cfg).await` dispatched from `#[tokio::main]` in main.rs, after the multi-thread runtime has spawned workers; reqwest/hyper/axum code on other threads may read the environment (e.g. proxy detection) concurrently.",
+      "suggested_fix": "Set both variables in main() before the tokio runtime starts (or pass sink/token through AppState as explicit fields instead of ambient env), so no env mutation happens after threads exist."
+    },
+    {
+      "severity": "WARNING",
+      "file": "substrate/prometheus-research/src/job/spawn.rs",
+      "line": 67,
+      "claim": "If opening daemon.log fails, spawn_job returns Err via `?` after the checkpoint was written, leaving a zombie job stuck in `pending` forever, while the adjacent spawn-failure branch was deliberately changed to record `failed` \u2014 the two failure paths are inconsistent.",
+      "evidence": "spawn.rs hunk: `checkpoint::write(&cp)?;` runs first, then `.open(dir.join(\"daemon.log\"))?` and `log.try_clone()?` propagate errors without updating the checkpoint, whereas the `Err(e) =>` spawn branch writes `status = \"failed\"` with the reason. The change's own comment says a job whose daemon never started must not show as pending/running, but the log-open path does exactly that.",
+      "suggested_fix": "Wrap the log-open/spawn sequence so any post-checkpoint error marks the checkpoint `failed` with the reason (same as the spawn-failure branch), or open the log before writing the checkpoint."
+    },
+    {
+      "severity": "WARNING",
+      "file": "substrate/prometheus-research/src/job/daemon.rs",
+      "line": 386,
+      "claim": "On detecting an operator cancel, save() rewrites the whole checkpoint file from the daemon's in-memory copy, clobbering every field the operator's cancel path may have set except `status` and `error` (tokens_used, sources_found, stage, progress, output_dir all revert to the daemon's stale values).",
+      "evidence": "daemon.rs `fn save`: on `on_disk.status == \"cancelled\"` it copies only `on_disk.error` into `cp` and then calls `checkpoint::write(cp)?`, overwriting the file the operator wrote with the daemon's older snapshot of all other fields.",
+      "suggested_fix": "On the cancelled path, write back `on_disk` with only the daemon-contributed fields merged in (pid, harness, package_dir), or skip the write entirely since the job is already terminal on disk."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "substrate/prometheus-research/src/mcp_server/mod.rs",
+      "line": 262,
+      "claim": "validate_package joins the manifest-supplied `files.report` onto the package dir without constraining it, so an absolute path or `../` traversal escapes the package and research_export will return and bless an arbitrary file path as `report_path`/`output_path`.",
+      "evidence": "`let report_path = dir.join(report);` \u2014 in Rust, `Path::join` with an absolute path replaces the base entirely, and `..` segments are not resolved; the only check is `report_path.is_file()`. Manifest content derives in part from fetched web data.",
+      "suggested_fix": "Reject `report` values that are absolute or contain `..` components (e.g. `Path::new(report).components().any(|c| matches!(c, Component::ParentDir | Component::RootDir | Component::Prefix(_)))`)."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "substrate/prometheus-research/src/job/daemon.rs",
+      "line": 648,
+      "claim": "When a package directory was found but its checkpoint cannot be read at harness exit, the job is failed with the message 'without producing a package under <root>', which misstates what happened and sends the operator hunting for a missing package that exists.",
+      "evidence": "In run(), `final_state = package_dir.as_deref().and_then(read_package_state)` collapses 'package found but checkpoint unreadable' and 'no package found' into the same `None` arm whose message is `harness {exit_text} without producing a package under {}`.",
+      "suggested_fix": "Match on `(package_dir.is_some(), final_state)` and emit a distinct error for the unreadable-checkpoint case naming the package dir."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "substrate/prometheus-research/tests/job_execution.rs",
+      "line": 246,
+      "claim": "The broadcast event collector exits permanently on the first Lagged error, silently dropping every later event, which turns a slow CI machine into a flaky 'no agent.status for stage N' failure that looks like a daemon bug.",
+      "evidence": "`while let Ok(ev) = rx.recv().await { ... }` \u2014 `recv()` returns `Err(RecvError::Lagged)` when the receiver falls behind the 1024-slot channel, and the loop treats that as end-of-stream instead of continuing.",
+      "suggested_fix": "`match rx.recv().await { Ok(ev) => push, Err(RecvError::Lagged(_)) => continue, Err(RecvError::Closed) => break }`."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "substrate/prometheus-research/src/http_server/sse.rs",
+      "line": 88,
+      "claim": "The ingest token is compared with a plain `!=` string comparison and read fresh from the environment on every request; the comparison is not constant-time, and re-reading the env per request makes the accepted token silently change if anything mutates the process env.",
+      "evidence": "ingest_handler: `let expected = std::env::var(\"RESEARCH_EVENT_TOKEN\").unwrap_or_default();` then `if expected.is_empty() || presented != expected`. Low practical risk on loopback, but the token is the only thing standing between a local process and event-stream forgery.",
+      "suggested_fix": "Capture the token once into AppState at startup (which also removes finding-coupled env dependence) and compare with a constant-time equality (e.g. subtle crate or ring::constant_time)."
+    }
+  ],
+  "sycophancy_screen": {
+    "reject_cap": 2,
+    "cap_overridden": false,
+    "cap_default": 2
+  }
+}

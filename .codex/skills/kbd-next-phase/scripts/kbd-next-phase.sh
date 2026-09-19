@@ -38,6 +38,14 @@ KBD_DIR="${PROJECT_ROOT}/.kbd-orchestrator"
 WAYPOINT_JSON="${KBD_DIR}/current-waypoint.json"
 WAYPOINT_MD="${KBD_DIR}/current-waypoint.md"
 PROJECT_JSON="${KBD_DIR}/project.json"
+KBD_ORCHESTRATOR_ROOT="${KBD_ORCHESTRATOR_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd -P)}"
+export KBD_ORCHESTRATOR_ROOT
+hooks_avail=0
+if [[ -f "$KBD_ORCHESTRATOR_ROOT/shared/lib/hooks.sh" ]]; then
+  # shellcheck source=/dev/null
+  . "$KBD_ORCHESTRATOR_ROOT/shared/lib/hooks.sh"
+  hooks_avail=1
+fi
 
 # ── Validate waypoint exists ──────────────────────────────────────────────
 if [[ ! -f "$WAYPOINT_JSON" ]]; then
@@ -48,7 +56,7 @@ if [[ ! -f "$WAYPOINT_JSON" ]]; then
 fi
 
 # ── Read current waypoint ─────────────────────────────────────────────────
-CURRENT_PHASE="$(python3 -c "import json; d=json.load(open('$WAYPOINT_JSON')); print(d.get('phase','unknown'))" 2>/dev/null || echo "unknown")"
+CURRENT_PHASE="$(python3 -c "import json; d=json.load(open('$WAYPOINT_JSON')); print(d.get('activePhaseId') or d.get('activePhase') or d.get('phase') or 'unknown')" 2>/dev/null || echo "unknown")"
 # Read the terminal marker from `stage` OR `status` OR `project.json` — the
 # waypoint carries the same concept under different keys across generations,
 # and reflect writes the terminal state to project.json (status: reflected)
@@ -209,24 +217,60 @@ if [[ -f "$runtime_lib" ]]; then
   # shellcheck source=/dev/null
   . "$runtime_lib"
 fi
+bottleneck_lib="$SKILL_ROOT/shared/lib/bottleneck-guard.sh"
+if [[ -f "$bottleneck_lib" ]]; then
+  # shellcheck source=/dev/null
+  . "$bottleneck_lib"
+fi
 if command -v kbd_runtime_authoritative >/dev/null 2>&1 &&
    kbd_runtime_authoritative "$PROJECT_ROOT"; then
-  mutation="$(kbd_runtime_mutation_args "$PROJECT_ROOT" "phase-create:${NEW_PHASE}")"
-  revision="$(printf '%s\n' "$mutation" | sed -n '1p')"
-  lease_id="$(printf '%s\n' "$mutation" | sed -n '3p')"
-  fencing_token="$(printf '%s\n' "$mutation" | sed -n '4p')"
+  export KBD_BOTTLENECK_PATH="$PROJECT_ROOT"
+  canonical_state="$(kbd_runtime_status_json "$PROJECT_ROOT")" \
+    || { echo "[kbd-next-phase] canonical status read failed" >&2; exit 1; }
+  current_phase_status="$(printf '%s' "$canonical_state" | jq -r --arg phase "$CURRENT_PHASE" '.phases[$phase].status // "missing"')"
+  [[ "$current_phase_status" != "missing" ]] \
+    || { echo "[kbd-next-phase] current phase '$CURRENT_PHASE' is absent from canonical state" >&2; exit 1; }
+  guard_enabled=false
+  if command -v kbd_bottleneck_active >/dev/null 2>&1 && kbd_bottleneck_active; then
+    guard_enabled=true
+  fi
+  completed_guard=""
+  if [[ "$current_phase_status" != "complete" ]]; then
+    if [[ "$guard_enabled" == true ]]; then
+      kbd_bottleneck_evaluate phase after "$CURRENT_PHASE" 1 >/dev/null \
+        || { echo "[kbd-next-phase] current phase completion precommit blocked" >&2; exit 1; }
+    fi
+    prometheus kbd --path "$PROJECT_ROOT" phase transition \
+      --command-id "phase-complete:${CURRENT_PHASE}" \
+      --id "$CURRENT_PHASE" --status complete >/dev/null
+    if [[ "$guard_enabled" == true ]]; then
+      completed_guard="$(kbd_bottleneck_evaluate phase after "$CURRENT_PHASE" 0)" \
+        || { echo "[kbd-next-phase] current phase completion postcommit blocked" >&2; exit 1; }
+    fi
+    if [[ "$hooks_avail" == 1 ]]; then
+      (cd "$PROJECT_ROOT" && kbd_hooks_fire phase after "$CURRENT_PHASE" 1 1) \
+        || echo "[kbd-next-phase] phase completion hook failed" >&2
+    fi
+  fi
   prometheus kbd --path "$PROJECT_ROOT" phase create \
-    --expected-revision "$revision" --command-id "phase-create:${NEW_PHASE}" \
-    --lease-id "$lease_id" --fencing-token "$fencing_token" \
+    --command-id "phase-create:${NEW_PHASE}" \
     --id "$NEW_PHASE" --title "$NEW_PHASE" >/dev/null
-  mutation="$(kbd_runtime_mutation_args "$PROJECT_ROOT" "phase-activate:${NEW_PHASE}")"
-  revision="$(printf '%s\n' "$mutation" | sed -n '1p')"
-  lease_id="$(printf '%s\n' "$mutation" | sed -n '3p')"
-  fencing_token="$(printf '%s\n' "$mutation" | sed -n '4p')"
+  if [[ "$guard_enabled" == true ]]; then
+    kbd_bottleneck_evaluate phase before "$NEW_PHASE" 1 >/dev/null \
+      || { echo "[kbd-next-phase] next phase start precommit blocked" >&2; exit 1; }
+  fi
   prometheus kbd --path "$PROJECT_ROOT" phase activate \
-    --expected-revision "$revision" --command-id "phase-activate:${NEW_PHASE}" \
-    --lease-id "$lease_id" --fencing-token "$fencing_token" \
+    --command-id "phase-activate:${NEW_PHASE}" \
     --id "$NEW_PHASE" --exact-next-work "/kbd-assess ${NEW_PHASE}" >/dev/null
+  prometheus kbd --path "$PROJECT_ROOT" phase transition \
+    --command-id "phase-start:${NEW_PHASE}" \
+    --id "$NEW_PHASE" --status in-progress >/dev/null
+  if [[ "$guard_enabled" == true ]]; then
+    starting_guard="$(kbd_bottleneck_evaluate phase before "$NEW_PHASE" 0)" \
+      || { echo "[kbd-next-phase] next phase start postcommit blocked" >&2; exit 1; }
+    [[ -z "$completed_guard" ]] || kbd_bottleneck_print_signal "$completed_guard"
+    kbd_bottleneck_print_signal "$starting_guard"
+  fi
   printf '\nCompleted kbd-next-phase — %s ready for /kbd-assess\n' "$NEW_PHASE"
   printf '  phase: %s\n' "$NEW_PHASE"
   printf '  goals: %s\n' "$NEW_PHASE_DIR/goals.md"
@@ -281,6 +325,7 @@ jq \
   .exactNextCommand = ("/kbd-assess " + $phase) |
   .change = null |
   .nextPendingChange = null |
+  .path = [$phase] |
   .completionMetric = "implementation" |
   .implementationCompleted = 0 |
   .implementationTotal = 0 |

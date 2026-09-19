@@ -1,7 +1,7 @@
 ---
 name: learn-certify
 description: Certification endpoint for the Feynman learning loop. Runs prerequisite gates (feynman-artifacts, practice results, capstone), emits an Open Badges 3.0 / W3C Verifiable Credential self-issued JSON-LD signed with did-plc, and detects anomalous mastery trajectories via an integrity guardrail.
-version: '1.0.0'
+version: '1.1.0'
 license: MIT
 metadata:
   author: prometheus-skill-pack
@@ -34,7 +34,10 @@ Exactly one of `--checkpoint` or `--final` must be provided.
 
 Gate check for a single concept.
 
-1. Load concept state from `~/.prometheus/learn/goals/<goal-id>/learner-model.json`
+1. Load concept state through the learner-model binary:
+   `{"method":"get_concept","params":{"learner_id":"<learner-id>","concept_id":"<concept-id>"}}`.
+   The reply carries `mastery`, `certified_at`, `observations`, this concept's
+   `gaps`, and the `sessions` that touched it.
 2. Verify all three mastery criteria met:
    - `learn-grade` passed: `overall_score >= 0.7` and no active misconceptions
    - Transfer problems solved: transfer scores in artifact `>= 0.7`
@@ -42,7 +45,21 @@ Gate check for a single concept.
 3. If any criterion fails: report which checks failed and stop. Do NOT issue.
 4. Run the integrity guardrail (see below) against this concept's observations.
 5. Emit a checkpoint badge (OB 3.0 assertion scoped to the concept).
-6. Update learner-model: set `certified_at: <ISO datetime>` on the concept entry.
+6. Update the learner model with `set_certified`; the binary stamps
+   `certified_at` on the concept and echoes it back:
+
+   ```bash
+   jq -nc \
+     --arg learner_id "$LEARNER_ID" \
+     --arg concept_id "$CONCEPT_ID" \
+     '{method:"set_certified",params:{
+       learner_id:$learner_id,
+       concept_id:$concept_id
+     }}' | learner-model
+   ```
+
+   An `error` reply (unknown concept, binary absent) aborts issuance: a
+   credential must not exist without the `certified_at` that Gate 1 reads.
 7. Write the checkpoint credential to
    `~/.prometheus/learn/goals/<goal-id>/checkpoints/<concept-id>-credential.json`.
 
@@ -59,12 +76,17 @@ Full goal certification. Run prerequisite gates in order — stop and report if
 any gate fails. Do NOT issue until all gates pass.
 
 **Gate 1 — All concepts certified**
-Every concept in `curriculum.json` must have `certified_at` set in the
-learner-model. If any concept is missing, list the uncertified concepts and stop.
+Every concept in `curriculum.json` must have a non-null `certified_at` in the
+learner model (`load` returns `concepts.<id>.certified_at`; it is set only by
+`set_certified`). If any concept is missing, list the uncertified concepts and
+stop.
 
 **Gate 2 — Practice breadth**
-The learner-model observations must show at least 2 distinct `learn-practice`
-sessions per concept. Count by unique `session_id` values tagged `type: practice`.
+The learner model's `sessions` list must hold at least 2 distinct sessions per
+concept with `session_type: "practice"` whose `concepts_touched` includes the
+concept. Count unique `session_id` values; a session reported twice (open and
+close) is one record. Sessions are written by learn-practice's `add_session`
+calls, so a concept practised without them fails this gate.
 
 **Gate 3 — Retention breadth**
 All concepts must have `retention_passed: true` in their artifact entries.
@@ -141,8 +163,10 @@ Emit valid JSON-LD. Populate every field from the learner-model and artifacts.
 - `<learner-did>`: read from `~/.prometheus/learn/did.txt`; if absent, use
   `did:plc:self-issued-<goal-id>`
 - `<subject>` and `<target_level>`: read from goal's `curriculum.json`
-- `evidence` array: one entry per concept; populate from artifact files in
-  `~/.prometheus/learn/goals/<goal-id>/artifacts/<concept-id>/`
+- `evidence` array: one entry per concept; populate from the most recent
+  artifact file (latest `closed_at`) in
+  `<learn-home>/goals/<goal-id>/artifacts/<concept-id>/` — the path
+  feynman-loop's `write-artifact.sh` writes and learn-retain globs
 
 ## Integrity guardrail
 
@@ -189,32 +213,51 @@ The credential is self-issued: learner = issuer = subject via did-plc. This mean
 
 ## Learner-model schema (relevant fields)
 
+As returned by the binary's `load` (`substrate/learner-model/README.md` is the
+full reference):
+
 ```json
 {
-  "goal_id": "<goal-id>",
+  "schema_version": "1.1.0",
+  "learner_id": "<learner-id>",
   "concepts": {
     "<concept-id>": {
-      "mastery_score": 0.85,
+      "mastery": 0.85,
       "certified_at": null,
-      "retention_passed": true,
-      "observations": [
-        {
+      "observations": {
+        "<observation-id>": {
           "timestamp": "<ISO>",
-          "session_id": "<uuid>",
-          "type": "practice",
-          "mastery_score": 0.72
+          "score": 0.72,
+          "source_skill": "learn-practice"
         }
-      ]
+      }
     }
-  }
+  },
+  "gaps": {
+    "<gap-id>": { "concept_id": "<concept-id>", "resolved_at": null, "label": "verified" }
+  },
+  "sessions": [
+    {
+      "session_id": "<uuid>",
+      "session_type": "practice",
+      "started_at": "<ISO>",
+      "ended_at": "<ISO>",
+      "skills_called": ["learn-practice", "learn-grade"],
+      "concepts_touched": ["<concept-id>"]
+    }
+  ]
 }
 ```
+
+`retention_passed` and transfer scores are read from the feynman artifact, not
+from the learner model. The integrity guardrail's `mastery_score` series is the
+concept's `mastery` as recomputed after each observation.
 
 ## Error handling
 
 | Condition | Action |
 |---|---|
-| `learner-model.json` absent | Abort: print path and instruct user to run `/learn-goal` |
+| `learner-model` binary absent, or `load` returns `error` | Abort: print the error and instruct user to run `/learn-goal` (which seeds the model) |
 | `curriculum.json` absent | Abort: print path and instruct user to run `/learn-plan` |
 | Gate fails | Print which gate failed, what is missing, and which skill to run next |
 | `evidence` array would be empty | Abort: print concept IDs missing artifacts |
@@ -224,14 +267,22 @@ The credential is self-issued: learner = issuer = subject via did-plc. This mean
 
 ```
 ~/.prometheus/learn/goals/<goal-id>/
-├── learner-model.json          # source of truth for mastery state
 ├── curriculum.json             # concept list, capstone_required flag
 ├── credential.json             # final credential (written by --final)
 ├── capstone.md                 # free-form synthesis (if required)
 ├── did.txt                     # optional: learner DID
 ├── artifacts/
 │   └── <concept-id>/
-│       └── feynman-artifact.json
+│       └── <artifact-id>.json      # written by feynman-loop write-artifact.sh
 └── checkpoints/
     └── <concept-id>-credential.json
 ```
+
+Mastery state is not a file in this tree: it is the learner-model document the
+`learner-model` binary stores under its data directory (default
+`~/.prometheus/learn/`), read with `load` and `get_concept`.
+
+Every `~/.prometheus/learn` path in this skill is `<learn-home>`, which is
+`${PROMETHEUS_LEARN_HOME:-~/.prometheus/learn}` — the same resolution
+feynman-loop's `write-artifact.sh` performs, so all three skills read and write
+one store even when the override is set.

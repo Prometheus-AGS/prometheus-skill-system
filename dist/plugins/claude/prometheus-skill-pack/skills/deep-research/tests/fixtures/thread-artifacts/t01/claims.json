@@ -1,0 +1,10 @@
+[
+  {
+    "id": "claim-9f86d081884c7d65",
+    "text": "Qdrant needs roughly 1.5 times the raw vector size in RAM when HNSW is held fully in memory.",
+    "source_id": "a1b2c3d4",
+    "quote": "plan for approximately 1.5x the raw vector footprint in RAM",
+    "chunk_id": "chunk-1",
+    "thread_id": "t01"
+  }
+]

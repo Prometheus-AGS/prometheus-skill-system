@@ -16,7 +16,7 @@ harness supports and what capabilities are available.
 | Surface tier (0/1/2) | MCP tool availability check |
 | AskUserQuestion | Claude Code-specific tool presence |
 | surface-bridge | HTTP health check at 127.0.0.1:7890 |
-| sovereign-sync | HTTP health check at 127.0.0.1:7892 |
+| control-plane extension | Integration-contract endpoint discovery |
 | surreal-memory | REST health check |
 | sycophancy-correction | Binary presence check |
 
@@ -39,7 +39,7 @@ Output example:
 ```
 Harness: Claude Code
 Surface tier: 1 (AskUserQuestion available)
-sovereign-sync: running on :7892
+control-plane-extension: disabled (optional)
 surreal-memory: running
 sycophancy-correction: binary found
 ```

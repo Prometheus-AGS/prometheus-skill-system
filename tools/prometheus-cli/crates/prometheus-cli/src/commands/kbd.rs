@@ -840,22 +840,74 @@ fn guard_context(state: &RuntimeState, boundary: BoundaryKind, subject: &str) ->
                 valid: selected_phase.is_some(),
             }
         }
+        BoundaryKind::Change => {
+            let phase_id = active_phase_id.clone();
+            let phase = phase_id.as_ref().and_then(|id| state.phases.get(id));
+            let matches = phase
+                .into_iter()
+                .flat_map(|phase| phase.changes.values())
+                .filter(|change| change.id == subject || change.title == subject)
+                .collect::<Vec<_>>();
+            let selected = (matches.len() == 1).then(|| matches[0]);
+            let mut changes = phase
+                .map(|phase| phase.changes.values().collect::<Vec<_>>())
+                .unwrap_or_default();
+            changes.sort_by(|left, right| {
+                left.sequence
+                    .cmp(&right.sequence)
+                    .then_with(|| left.id.cmp(&right.id))
+            });
+            let selected_id = selected
+                .map(|change| change.id.clone())
+                .unwrap_or_else(|| subject.to_owned());
+            let ordinal = changes
+                .iter()
+                .position(|change| change.id == selected_id)
+                .unwrap_or(0)
+                + 1;
+            let name = selected
+                .map(|change| change.title.clone())
+                .unwrap_or_else(|| subject.to_owned());
+            let mut position = phase_path;
+            position.push(selected_id.clone());
+            GuardContext {
+                phase_id,
+                change_id: selected.map(|_| selected_id),
+                task_id: None,
+                ordinal,
+                total: changes.len().max(1),
+                name,
+                position: position.join(" › "),
+                valid: selected.is_some(),
+            }
+        }
         BoundaryKind::Task => {
             let phase_id = active_phase_id.clone();
             let phase = phase_id.as_ref().and_then(|id| state.phases.get(id));
-            let mut matches = Vec::new();
-            for change in phase.into_iter().flat_map(|phase| phase.changes.values()) {
-                for task in change.tasks.values() {
-                    if task.id == subject || task.title == subject {
-                        matches.push((change.id.clone(), task.id.clone()));
-                    }
-                }
-            }
-            let (change_id, task_id) = if matches.len() == 1 {
-                let (change_id, task_id) = matches.remove(0);
+            let qualified = subject.split_once('/').or_else(|| subject.split_once(':'));
+            let qualified_match = qualified.and_then(|(change_id, task_id)| {
+                phase
+                    .and_then(|phase| phase.changes.get(change_id))
+                    .and_then(|change| change.tasks.get(task_id))
+                    .map(|task| (change_id.to_owned(), task.id.clone()))
+            });
+            let (change_id, task_id) = if let Some((change_id, task_id)) = qualified_match {
                 (Some(change_id), Some(task_id))
             } else {
-                (None, None)
+                let mut matches = Vec::new();
+                for change in phase.into_iter().flat_map(|phase| phase.changes.values()) {
+                    for task in change.tasks.values() {
+                        if task.id == subject || task.title == subject {
+                            matches.push((change.id.clone(), task.id.clone()));
+                        }
+                    }
+                }
+                if matches.len() == 1 {
+                    let (change_id, task_id) = matches.remove(0);
+                    (Some(change_id), Some(task_id))
+                } else {
+                    (None, None)
+                }
             };
             let change = change_id
                 .as_ref()
@@ -1066,10 +1118,11 @@ async fn guard_evaluate(
         .last_event_at
         .ok_or_else(|| anyhow!("cannot evaluate boundaries before KBD initialization"))?;
     let context = guard_context(&state, boundary, subject);
-    let label = if boundary == BoundaryKind::Task {
-        "task"
-    } else {
-        "phase"
+    let label = match boundary {
+        BoundaryKind::Task => "task",
+        BoundaryKind::Change => "change",
+        BoundaryKind::Phase => "phase",
+        BoundaryKind::Zeespec => "zeespec stage",
     };
     let verb = if edge == BoundaryEdge::Before {
         "Starting"
@@ -1278,29 +1331,28 @@ fn missing_certification_receipts(state: &RuntimeState) -> Vec<String> {
         .as_ref()
         .and_then(|phase_id| state.phases.get(phase_id))
     {
-        for task in phase
-            .changes
-            .values()
-            .flat_map(|change| change.tasks.values())
-        {
-            if task.status != WorkStatus::Complete {
-                continue;
-            }
-            let complete = state.latest_boundary_receipts.values().any(|receipt| {
-                receipt.boundary == BoundaryKind::Task
-                    && receipt.phase_id.as_deref() == Some(phase.id.as_str())
-                    && receipt.task_id.as_deref() == Some(task.id.as_str())
-                    && receipt.edge == BoundaryEdge::After
-                    && matches!(
-                        receipt.outcome,
-                        BoundaryOutcome::Pass | BoundaryOutcome::Repaired
-                    )
-            });
-            if !complete {
-                missing.push(format!(
-                    "completed task {} has no valid kbd-apply receipt",
-                    task.id
-                ));
+        for change in phase.changes.values() {
+            for task in change.tasks.values() {
+                if task.status != WorkStatus::Complete {
+                    continue;
+                }
+                let complete = state.latest_boundary_receipts.values().any(|receipt| {
+                    receipt.boundary == BoundaryKind::Task
+                        && receipt.phase_id.as_deref() == Some(phase.id.as_str())
+                        && receipt.change_id.as_deref() == Some(change.id.as_str())
+                        && receipt.task_id.as_deref() == Some(task.id.as_str())
+                        && receipt.edge == BoundaryEdge::After
+                        && matches!(
+                            receipt.outcome,
+                            BoundaryOutcome::Pass | BoundaryOutcome::Repaired
+                        )
+                });
+                if !complete {
+                    missing.push(format!(
+                        "completed task {}/{} has no valid kbd-apply receipt",
+                        change.id, task.id
+                    ));
+                }
             }
         }
         let integrated = state.latest_gate_receipts.values().any(|receipt| {
@@ -1557,6 +1609,43 @@ fn print_state(state: &RuntimeState, json_output: bool) -> Result<()> {
         "Lifecycle: {:?}  plan revision {}",
         state.lifecycle, state.plan_revision
     );
+    let phase_ids = if state.active_path.phase_path.is_empty() {
+        state
+            .active_path
+            .phase_id
+            .iter()
+            .cloned()
+            .collect::<Vec<_>>()
+    } else {
+        state.active_path.phase_path.clone()
+    };
+    let mut cursor = phase_ids
+        .iter()
+        .filter_map(|phase_id| state.phases.get(phase_id))
+        .map(|phase| phase.slug.clone())
+        .collect::<Vec<_>>();
+    cursor.extend(
+        [
+            state.active_path.stage_id.as_ref(),
+            state.active_path.change_id.as_ref(),
+            state.active_path.task_id.as_ref(),
+        ]
+        .into_iter()
+        .flatten()
+        .cloned(),
+    );
+    if !cursor.is_empty() {
+        println!("Position: {}", cursor.join(" › "));
+    }
+    if let Some(change) = state.active_path.change_id.as_deref() {
+        match state.active_path.task_id.as_deref() {
+            Some(task) => println!("Next work: change {change}, task {task}"),
+            None => println!("Next work: change {change}"),
+        }
+    }
+    if let Some(intent) = state.exact_next_work.as_deref() {
+        println!("Operator note: {intent}");
+    }
     if let Some(checkpoint) = &state.checkpoint {
         println!("Checkpoint: {}", checkpoint.reason);
         if let Some(next) = &checkpoint.exact_next_work {
@@ -2235,7 +2324,7 @@ fn project_successor_and_release_pause(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use kbd_runtime::{CommandResult, EVENT_SCHEMA_VERSION};
+    use kbd_runtime::{Change, CommandResult, Phase, Task, EVENT_SCHEMA_VERSION};
     use tempfile::tempdir;
 
     #[test]
@@ -2359,5 +2448,67 @@ mod tests {
         assert!(error.to_string().contains("PAUSE remains active"));
         assert!(pause.is_file());
         assert_eq!(runtime.replay().unwrap().run_id, "run-b");
+    }
+
+    #[test]
+    fn qualified_task_subject_disambiguates_repeated_task_ids_and_titles() {
+        let mut state = RuntimeState::default();
+        state.active_path.phase_id = Some("phase".into());
+        state.active_path.phase_path = vec!["phase".into()];
+        let repeated_title = "Confirm dependency completion";
+        let changes = ["change-a", "change-b"]
+            .into_iter()
+            .map(|change_id| {
+                let task = Task {
+                    id: "1".into(),
+                    title: repeated_title.into(),
+                    sequence: 1,
+                    status: WorkStatus::Pending,
+                    summary: None,
+                };
+                (
+                    change_id.into(),
+                    Change {
+                        id: change_id.into(),
+                        title: change_id.into(),
+                        sequence: 1,
+                        status: WorkStatus::Pending,
+                        implementation_status: WorkStatus::Pending,
+                        tasks: [(task.id.clone(), task)].into_iter().collect(),
+                    },
+                )
+            })
+            .collect();
+        state.phases.insert(
+            "phase".into(),
+            Phase {
+                id: "phase".into(),
+                slug: "phase".into(),
+                title: "phase".into(),
+                parent_phase_id: None,
+                status: WorkStatus::InProgress,
+                stages: Default::default(),
+                changes,
+                legacy_completion_baseline: None,
+                legacy_read_only: false,
+            },
+        );
+
+        assert!(!guard_context(&state, BoundaryKind::Task, repeated_title).valid);
+        let context = guard_context(&state, BoundaryKind::Task, "change-b/1");
+        assert!(context.valid);
+        assert_eq!(context.change_id.as_deref(), Some("change-b"));
+        assert_eq!(context.task_id.as_deref(), Some("1"));
+        assert_eq!(context.name, repeated_title);
+        assert_eq!(context.position, "phase › change-b › 1");
+
+        let change = guard_context(&state, BoundaryKind::Change, "change-b");
+        assert!(change.valid);
+        assert_eq!(change.phase_id.as_deref(), Some("phase"));
+        assert_eq!(change.change_id.as_deref(), Some("change-b"));
+        assert_eq!(change.task_id, None);
+        assert_eq!(change.ordinal, 2);
+        assert_eq!(change.total, 2);
+        assert_eq!(change.position, "phase › change-b");
     }
 }

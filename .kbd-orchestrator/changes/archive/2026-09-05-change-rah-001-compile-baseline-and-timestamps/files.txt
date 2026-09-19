@@ -1,0 +1,9 @@
+substrate/learner-model/src
+substrate/prometheus-research/Cargo.lock
+substrate/prometheus-research/Cargo.toml
+substrate/prometheus-research/src
+substrate/prometheus-research/src/job/checkpoint.rs
+substrate/prometheus-research/src/job/spawn.rs
+substrate/prometheus-research/src/mcp_server/mod.rs
+substrate/prometheus-research/tests/job_lifecycle.rs
+.kbd-orchestrator/changes/change-rah-001-compile-baseline-and-timestamps/evidence/compile-baseline.txt

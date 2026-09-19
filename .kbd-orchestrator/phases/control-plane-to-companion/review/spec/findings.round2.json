@@ -1,0 +1,64 @@
+{
+  "mode": "artifact",
+  "verdict": "BLOCK",
+  "judge_model": "k3",
+  "producer_model": "claude-fable-5-1",
+  "isolation_mode": "rest-gateway:http://localhost:4000/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": "change-cpc-009-pack-removal/spec.md",
+      "claim": "The whole-repo footprint acceptance criterion will fail on tracked files that are neither in the allowed match set nor in the change's declared scope.",
+      "evidence": "The criterion requires that `grep -rl -E 'sovereign-sync|sovereign_sync' . --exclude-dir=.git --exclude-dir=node_modules --exclude-dir=target --exclude-dir=.kbd-orchestrator` matches only `docs/integration-contract.md` or `docs/decisions/`, but the packet's own file tree contains `docs/SOVEREIGN_SYNC_TESTING.md`, `memory/project_sovereign_sync_plan.md`, and (per cited_paths) archived OpenSpec proposals such as `openspec/changes/archive/2026-06-29-change-hardening-002-sovereign-sync-ci/proposal.md` and `...-001-iroh-docs-share-import/proposal.md`, none of which are excluded by the grep and none of which appear in the change's Scope (which lists only `site/docs/`, `docs/codex-plugin.md`, `CLAUDE.md` on the docs side). `CHANGELOG.md` and `.mcp.json` (sovereign-sync served `--mode mcp`) are also plausible content matches and are likewise out of scope. Execution must either edit out-of-scope files or fail the gate.",
+      "suggested_fix": "Either extend the grep's exclusion/allow list (archives, CHANGELOG history, memory/) with justification, or add the affected paths (`docs/`, `memory/`, `openspec/changes/archive/`, `.mcp.json` if registered) to Scope and the task file lists."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "change-cpc-006-discovery-and-pairing/tasks.json",
+      "claim": "change-cpc-006 adds two brand-new crate dependencies with exact pins via agent edits, with no human pin-edit step, violating the carried constraint that new crate pins in the Companion are a human edit.",
+      "evidence": "Task 1: 'Add iroh-mdns-address-lookup and iroh-mainline-address-lookup 0.5.0' editing `crates/sovereign-sync/Cargo.toml` directly, with no operator step. The goals' constraints state: 'Companion's `versions.toml` `[pins]` is empty and `Edit(versions.toml)` is denied to agents there; new crate pins are a human edit.' change-cpc-003 honored this by staging pins in `docs/decisions/versions-pins-proposal.md` and blocking until the operator's edit ('The change stays BLOCKED until the operator's edit lands'), but its staged list (iroh 1.0.3, iroh-gossip 0.101, loro 1.13, keyring, axum, rmcp, redb, stronghold) omits both lookup crates. change-cpc-005 likewise introduces `dirs_next` with no pin step.",
+      "suggested_fix": "Add the two lookup crates (and any other new deps introduced in cpc-005/006/007) to the operator-staged pins proposal in change-cpc-003, or add an equivalent operator-pin task and BLOCKED gate to each change that introduces new dependencies."
+    },
+    {
+      "severity": "WARNING",
+      "file": "verification.md",
+      "claim": "Multiple verification.md verify blocks omit commands for stated acceptance criteria, contradicting each spec's own rule that 'every acceptance criterion below has a command in verification.md's verify block'.",
+      "evidence": "cpc-001: criteria include 'twice produces byte-identical' and '--check ... non-zero after touching a template', but the verify block runs `--check` only once. cpc-005: criterion 'Headless start without key file exits non-zero with the documented message; ls of the data root shows no new files' has no command (verify block is only `--test continuity` and audit-all). cpc-006: criterion 'Default config registers no Mainline lookup ... dht = true registers it' has no command. cpc-010: criteria 'A typed stage transition after migration emits no refusing to overwrite line' and the actual (non-dry-run) migration with seven receipts have no commands. cpc-012: criteria '`ls skills/learn | grep sync-` is empty' and 'No reference to the three skills remains in .claude-plugin, config/codex-catalog.txt, docs/codex-plugin.md' have no grep commands in the verify block.",
+      "suggested_fix": "Add the missing commands to each verify block (e.g., double-run with hash comparison, touched-template drift run, fail-closed headless run, post-migration transition, reference greps) or narrow the acceptance criteria to what is actually verified."
+    },
+    {
+      "severity": "WARNING",
+      "file": "change-cpc-003-companion-workspace/spec.md",
+      "claim": "The load-bearing claim that the Companion scaffold ships the audit gate used by every Companion change is unverifiable from the packet and is contradicted by the packet's own path check.",
+      "evidence": "The spec states 'The scaffold does ship its audit gate (`scripts/audit-all.sh`, `audit-deps.sh`, and the other eight, commit 773aa5e), which every Companion change uses as its gate', and six changes gate on `bash scripts/audit-all.sh` exiting 0. cited_paths reports `MISSING audit-all.sh`, `MISSING scripts/audit-all.sh`, `MISSING audit-deps.sh`, and `MISSING scaffold-tauri-tray.sh`. The file tree covers only the pack repo, so the packet contains no evidence the gate exists in the Companion at all.",
+      "suggested_fix": "Record scaffold verification (directory listing of the Companion checkout at commit 773aa5e) as execution evidence in cpc-003 before any later Companion change relies on the gate, or add a fallback gate definition."
+    },
+    {
+      "severity": "WARNING",
+      "file": "change-cpc-003-companion-workspace/tasks.json",
+      "claim": "The runtime-reconciliation verify command does not test the condition its requirement and scenario specify.",
+      "evidence": "The requirement scenario reads: 'WHEN `prometheus kbd --path <companion> status --json` runs THEN the assess stage for that phase [`docs-review-for-build-assessment`] is complete, not `ready`', but the task 5 verify and the verification.md block run `prometheus kbd --path . status --json | jq -e '.completion'`, which checks top-level completion truthiness and would pass without the specific phase's assess stage being recorded.",
+      "suggested_fix": "Use a query that asserts the specific phase and stage, e.g. `jq -e '.phases[\"docs-review-for-build-assessment\"].stages.assess == \"complete\"'` (adjusted to the actual status schema)."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "change-cpc-011-integration-evidence/spec.md",
+      "claim": "The same capabilities are declared '(new)' in two different changes.",
+      "evidence": "`control-plane-evidence` (new) appears in both change-cpc-011 and change-cpc-013; `pack-open-core` (new) appears in both change-cpc-009 and change-cpc-012. Whichever change lands second cannot add an already-added capability.",
+      "suggested_fix": "Declare each capability as new in exactly one change and reference it as existing in the other."
+    },
+    {
+      "severity": "SUGGESTION",
+      "file": "change-cpc-002-skill-ffi-kbd-mobile-split/verification.md",
+      "claim": "The asserted FFI round-trip test count is unsupported by the assessment handoff in the packet.",
+      "evidence": "verification.md states 'The FFI round-trip integration target passes with the same assertions on returned values (7 tests at assess time)', but the assess handoff in the packet quantifies only the domain_sync baseline ('4 async tests') and the wire-compat test; no source for '7' appears in any packet section.",
+      "suggested_fix": "Cite where the count of 7 was observed, or replace it with 'all tests in the target' so the evidence criterion does not embed an unverifiable number."
+    }
+  ],
+  "sycophancy_screen": {
+    "reject_cap": 2,
+    "cap_overridden": false,
+    "cap_default": 2
+  }
+}
