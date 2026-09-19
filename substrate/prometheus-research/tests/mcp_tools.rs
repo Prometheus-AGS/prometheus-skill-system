@@ -49,6 +49,7 @@ fn research_status_returns_stage_fields() {
         tokens_used: 8192,
         sources_found: 12,
         output_dir: format!("~/.research-jobs/{job_id}/"),
+        ..Default::default()
     };
     checkpoint::write(&cp).unwrap();
 
@@ -83,6 +84,7 @@ fn research_cancel_returns_cancelled_true() {
         tokens_used: 512,
         sources_found: 2,
         output_dir: format!("~/.research-jobs/{job_id}/"),
+        ..Default::default()
     };
     checkpoint::write(&cp).unwrap();
 

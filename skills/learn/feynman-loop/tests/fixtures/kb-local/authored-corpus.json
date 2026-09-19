@@ -1,0 +1,29 @@
+{
+  "corpus_id": "fixture-authored",
+  "subject": "linear algebra",
+  "schema_version": "1.0.0",
+  "sources": [
+    {
+      "source_ref": "kb:eigen",
+      "source_type": "mcp_filesystem",
+      "confidence": 0.9,
+      "is_misconception": false,
+      "content_summary": "An eigenvector keeps its direction under the map. The eigenvalue is the scale factor.",
+      "key_points": ["eigenvectors keep direction", "eigenvalue is the scale factor"]
+    },
+    {
+      "source_ref": "kb:misconception-bigger-is-more-important",
+      "source_type": "known_misconception",
+      "confidence": 0.6,
+      "is_misconception": true,
+      "content_summary": "A vector with a larger norm is always the more important one."
+    },
+    {
+      "source_ref": "kb:quoted \"summary\"",
+      "source_type": "mcp_filesystem",
+      "confidence": 0.7,
+      "is_misconception": false,
+      "content_summary": "Summaries may contain \"quotes\", back\\slashes, and a trailing question? Yes."
+    }
+  ]
+}

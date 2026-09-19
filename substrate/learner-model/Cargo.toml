@@ -23,6 +23,10 @@ async-trait = "0.1"
 tokio = { version = "1", features = ["full"] }
 shellexpand = "3"
 uuid = { version = "1", features = ["v4"] }
+# Spaced-repetition scheduling (change-rah-009, README "FSRS dependency
+# decision"): scheduler-only, adds no crate that is not already in this tree.
+# fsrs-rs (the optimiser) would pull the burn ML stack and is not adopted.
+rs-fsrs = "1.2.1"
 
 [dev-dependencies]
 tokio = { version = "1", features = ["full"] }

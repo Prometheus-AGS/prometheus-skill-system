@@ -40,6 +40,13 @@ const sidebars = {
         'knowledge-learning/migration-and-troubleshooting',
       ],
     },
+    {
+      type: 'category',
+      label: 'Research',
+      items: [
+        'research/deep-research',
+      ],
+    },
   ],
 
   pluginDistributionSidebar: [

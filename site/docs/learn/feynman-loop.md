@@ -41,6 +41,47 @@ A Feynman loop is closed when **all three** conditions hold:
 
 Self-reported fluency ("I feel like I understand this") never satisfies any condition.
 
+## The artifact a closed loop writes
+
+Closing a loop writes one artifact, and every learn skill reads it from the same
+place:
+
+```
+<learn-home>/goals/<goal-id>/artifacts/<concept-id>/<artifact-id>.json
+```
+
+`<learn-home>` is `${PROMETHEUS_LEARN_HOME:-~/.prometheus/learn}`.
+`learn-retain` globs `artifacts/<concept-id>/*.json` for the most recent
+artifact (latest `closed_at`); `learn-certify` reads the same concept directory
+for its evidence entries.
+
+`write-artifact.sh` refuses an artifact that cannot say how it was checked. Two
+blocks are required:
+
+- **`verification`** — exactly one entry per transfer score, each with a label
+  from the four-value vocabulary shared with deep-research
+  (`verified | unverified | blocked | inferred`) and non-empty evidence.
+- **`provenance`** — the grade file and corpus path the scores came from.
+
+A self-reported score is `unverified` and never satisfies mastery criterion 2.
+
+## What the learner model records
+
+The `learner-model` binary carries the write paths the loop needs, so nothing a
+later skill reads is a value no earlier skill wrote:
+
+| Method | Written by | Read by |
+|---|---|---|
+| `add_observation` | `learn-grade`, `learn-practice` | mastery estimate |
+| `add_gap` / `resolve_gap` | `learn-grade` | the next iteration's targets |
+| `add_session` | `learn-practice` (open and close) | `learn-certify` practice-breadth gate |
+| `set_certified` | `learn-certify` | `learn-certify` concept gate |
+
+Mastery holds at the seeded prior until the fifth observation, then follows
+`mastery_new = mastery_old + 0.3 × (score − mastery_old)`. Spaced-repetition
+scheduling runs through FSRS, so `difficulty` is read and updated on every
+review.
+
 ## Trigger phrases
 
 - "teach me X"

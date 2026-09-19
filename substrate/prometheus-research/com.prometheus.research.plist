@@ -10,6 +10,20 @@
     <string>--mode</string>
     <string>server</string>
   </array>
+  <key>EnvironmentVariables</key>
+  <dict>
+    <!-- launchd gives a service only what its plist grants. Without PATH the
+         daemon inherits the bare default and cannot resolve `claude` or `codex`,
+         so `research_start` blocks with "no harness binary on PATH" even when
+         both are installed (defect D-A, found by the change-rah-011 evidence
+         run). __PROMETHEUS_PATH__ matches the shared/launchagents convention. -->
+    <key>HOME</key>
+    <string>__PROMETHEUS_HOME__</string>
+    <key>USER</key>
+    <string>__PROMETHEUS_USER__</string>
+    <key>PATH</key>
+    <string>__PROMETHEUS_PATH__</string>
+  </dict>
   <key>RunAtLoad</key>
   <true/>
   <key>KeepAlive</key>

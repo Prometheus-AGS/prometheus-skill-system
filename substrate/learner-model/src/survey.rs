@@ -39,6 +39,7 @@ pub fn seed_from_survey(seed: &LearnerModelSeed) -> LearnerModel {
                     last_review: None,
                 },
                 fsrs_prior: None,
+                certified_at: None,
             };
 
             (prior.concept_id.clone(), concept)

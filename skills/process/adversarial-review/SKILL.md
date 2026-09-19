@@ -110,9 +110,27 @@ against reviewed inputs:
 | `assess` | `assessment.md` | missed gaps; claims unsupported by the codebase |
 | `analyze` | `analysis.md`, `library-candidates.json` | build-vs-adopt blind spots; uninspected candidates; stale landscape |
 | `plan` | `plan.md` | wrong ordering; missing dependencies; untestable or ambiguous change criteria |
+| `research` | `report.md`, `<slug>.provenance.md`, `plan.md` of a deep-research package | invented or orphan citations; unanswered sub-questions; contradictions presented as settled; a frontmatter `verification_status` the sidecar does not support |
 
 Packet contents: the artifact(s), phase `goals.md`, prior-stage handoff
 summaries, constraints, `producer_model`.
+
+The `research` target is the one artifact target that is not a KBD stage: it
+takes `--package <dir>` instead of `--phase`, its `goals` are the run's query,
+parameters, and sub-questions (read from `checkpoint.json` and `plan.md`), the
+three files travel as separate fields (`research_report`,
+`research_provenance`, `research_plan`) so the per-field cap applies to each,
+`review_focus` names the failure classes, and `packet.truncation` is always
+recorded. A package missing any of the three files is refused with exit 2.
+The deep-research driver (`run-research.sh`) builds this packet between stage
+09 and stage 10, after stage 05 verification has validated and never in the
+same dispatch as it; see the "verifier before reviewer" rule in
+`skills/research/deep-research/SKILL.md`.
+
+```bash
+build-review-packet.sh --mode artifact --target research --package ~/.prometheus/research/<package_id> --out review/packet.json
+dispatch-judge.sh      --mode artifact --packet review/packet.json --out review/findings.json
+```
 
 ### `--mode skill` / `--mode agent` — generated artifacts (creation gate)
 
