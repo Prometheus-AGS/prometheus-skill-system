@@ -14,4 +14,4 @@
 
 - [x] 3.1 Pass strict OpenSpec and skill validation.
 - [x] 3.2 Pass affected KBD runtime, CLI, hooks, position, and distribution integration targets locally.
-- [ ] 3.3 Record commands, exit codes, observed counts, critic findings, and commit hash in the recovery evidence.
+- [x] 3.3 Record commands, exit codes, observed counts, critic findings, and commit hash in the recovery evidence.
