@@ -60,7 +60,19 @@ stage=""
 if $LOAD; then
     uid="$(id -u)"
     launchctl bootout "gui/${uid}/ai.prometheus.exec" >/dev/null 2>&1 || true
-    launchctl bootstrap "gui/${uid}" "$LAUNCH_AGENT"
+    for _ in 1 2 3 4 5 6 7 8 9 10; do
+        if ! launchctl print "gui/${uid}/ai.prometheus.exec" >/dev/null 2>&1; then
+            break
+        fi
+        sleep 0.1
+    done
+    if ! launchctl bootstrap "gui/${uid}" "$LAUNCH_AGENT"; then
+        # launchd can report the label absent before its prior registration is
+        # fully released. Match the managed-service installer and retry once
+        # after the asynchronous bootout settles.
+        sleep 1
+        launchctl bootstrap "gui/${uid}" "$LAUNCH_AGENT"
+    fi
     launchctl kickstart -k "gui/${uid}/ai.prometheus.exec"
     launchctl print "gui/${uid}/ai.prometheus.exec" >/dev/null
 fi

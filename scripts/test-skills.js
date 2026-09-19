@@ -28,6 +28,11 @@ const allTests = [
   ['Atomic plugin generation', 'bash', ['shared/scripts/tests/test-plugin-generation.sh']],
   ['verified updater policy', 'bash', ['scripts/tests/update-skill-pack.test.sh']],
   [
+    'prometheus-exec service restart policy',
+    'bash',
+    ['scripts/tests/install-prometheus-exec-service.test.sh'],
+  ],
+  [
     'native plugin refresh policy',
     'bash',
     ['scripts/tests/refresh-native-plugin-installs.test.sh'],
