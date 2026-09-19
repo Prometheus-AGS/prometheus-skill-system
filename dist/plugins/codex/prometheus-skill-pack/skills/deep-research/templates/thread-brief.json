@@ -1,0 +1,9 @@
+{
+  "thread_id": "{{thread_id}}",
+  "task": "{{task}}",
+  "must_cover": ["{{coverage_point}}"],
+  "avoid": ["{{ground_a_sibling_already_covered}}"],
+  "recency_months": 18,
+  "excluded_domains": [],
+  "budget": { "cycles": 8, "minutes": 12, "max_sources": 12 }
+}

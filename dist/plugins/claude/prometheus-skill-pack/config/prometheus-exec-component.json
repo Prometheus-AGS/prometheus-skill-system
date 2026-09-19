@@ -49,7 +49,7 @@
       "trust": "explicit-hash-pins"
     }
   },
-  "release": "1.8.0",
+  "release": "1.10.0",
   "schemaVersion": 1,
   "sha256": "ba438895404a23985d5226735b8f362cf3e8044894a1140852ba0992f2fdbe78",
   "sizeBytes": 55798,

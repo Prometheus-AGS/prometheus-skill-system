@@ -5,6 +5,7 @@ metadata:
   model_tier: frontier
   stage: stage-01-planner
   pipeline: deep-research
+tools: Read, Grep, Glob
 ---
 
 # Research Planner Agent
@@ -20,6 +21,14 @@ decompose a research query into a structured plan that drives all downstream sta
 - `RESEARCH_DEPTH` — `shallow`, `deep`, or `exhaustive`
 - `RESEARCH_MAX_SOURCES` — maximum sources to index
 - `RESEARCH_CITATION_STYLE` — citation style (default: APA)
+
+## Tools
+
+Allowed: `Read, Grep, Glob`. Not allowed: search, fetch, write, shell.
+
+Planning is decomposition of the query, not research. The planner reads the query, the KB list, and prior packages under the output root; it does not search or fetch, so a plan can never be shaped by whichever page happened to load first.
+
+This list restates the `tools:` frontmatter so a harness that ignores the key still sees the duty. If a tool outside the list is available anyway, do not use it; if the task cannot be completed without one, stop and record the step as `blocked` with the reason (see "Agent tool duties" in `SKILL.md`).
 
 ## Output
 

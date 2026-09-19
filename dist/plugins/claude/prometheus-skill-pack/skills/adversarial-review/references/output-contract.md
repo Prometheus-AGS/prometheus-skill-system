@@ -56,6 +56,24 @@ The bounded revise loop is deliberate: like the sycophancy gates' 2-rejection
 soft cap, it prevents an infinite loop while guaranteeing the failure is
 **visible** (never silently accepted).
 
+### Artifact mode, `research` target (deep-research driver, between stage 09 and 10)
+
+The caller is `skills/research/deep-research/scripts/run-research.sh`, which
+records the outcome in `checkpoint.json` (`review`, `blocked_review`) and the
+`<slug>.provenance.md` sidecar; stage 10 always exports so the run is auditable.
+
+| Outcome | Effect |
+|---|---|
+| `BLOCK` (any CRITICAL) | sidecar `Verification: BLOCKED` with `Blocked: adversarial review: N CRITICAL finding(s)`; report frontmatter `verification_status` lowered to `partial`; package exports with `verification_status: partial` |
+| WARNING | appended to the sidecar under `Review warnings`; verdict unchanged |
+| SUGGESTION | kept in `review/findings.json` only |
+| judge unavailable (no gateway, dispatch exit 3, or the fixture judge exits non-zero) | sidecar `Adversarial review: blocked: judge unavailable`; frontmatter lowered to `partial`; the package label cannot be `verified` |
+| review refused (stage 05 artifact missing or invalid at review time) | no judge call; sidecar `Adversarial review: blocked: review refused, stage 05 verification missing or invalid`; frontmatter lowered to `partial` |
+
+`review/packet.json` and `review/findings.json` are written inside the
+package. Verification and review never run in one dispatch: the judge only
+ever sees a report whose sources stage 05 already scored.
+
 ## Severity calibration
 
 - `CRITICAL` — proceeding uncorrected produces defective output: shipped bug,

@@ -1951,7 +1951,10 @@ function resolveBundleIndex(pluginRoot, bundleId, label) {
   }
   if (!isWithin(generations, resolved)) fail(`${label} escapes generations: ${bundleId}`);
   const realized = fs.realpathSync(resolved);
-  if (!isWithin(generations, realized)) fail(`${label} escapes generations: ${bundleId}`);
+  const realizedGenerations = fs.realpathSync(generations);
+  if (!isWithin(realizedGenerations, realized)) {
+    fail(`${label} escapes generations: ${bundleId}`);
+  }
   return realized;
 }
 
@@ -2618,6 +2621,7 @@ export const __testing = {
   readPointer,
   recoverPendingLinks,
   replaceConvenienceLink,
+  resolveBundleIndex,
   setActivationPointer,
   withStoreLock,
   writePointer,

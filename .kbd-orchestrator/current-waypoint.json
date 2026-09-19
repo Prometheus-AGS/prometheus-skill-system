@@ -2,31 +2,34 @@
   "schemaVersion": "5",
   "generatedBy": "kbd-runtime",
   "projectionContractVersion": 2,
-  "sourceRevision": 382,
-  "derivedRevision": 382,
+  "sourceRevision": 1231,
+  "derivedRevision": 1231,
   "frontier": {
-    "4bca58c3-e70b-48c9-a555-60bc16d3d025": 382
+    "4bca58c3-e70b-48c9-a555-60bc16d3d025": 1186,
+    "575138ba-385e-449d-89f7-cf4d793b34f9": 45
   },
   "conflictCount": 0,
   "projectId": "6ac090a4-3656-4d83-8eb6-2891508196d5",
   "runId": "sovereign-sync-service-reliability-20260829",
   "path": [
-    "kbd-control-plane-recovery"
+    "kbd-control-plane-recovery",
+    "skill-pack-1-10-recovery"
   ],
   "phaseIds": [
-    "kbd-control-plane-recovery"
+    "kbd-control-plane-recovery",
+    "skill-pack-1-10-recovery"
   ],
-  "activePhaseId": "kbd-control-plane-recovery",
+  "activePhaseId": "skill-pack-1-10-recovery",
   "phase": "kbd-control-plane-recovery",
-  "childPointer": null,
+  "childPointer": "skill-pack-1-10-recovery",
   "change": null,
   "currentTask": null,
   "status": "ready",
   "completionMetric": "implementation",
-  "implementationCompleted": 9,
-  "implementationTotal": 9,
-  "planRevision": 15,
-  "revision": 382,
-  "exactNextCommand": null,
-  "updatedAt": "2026-08-30T12:06:36.039907Z"
+  "implementationCompleted": 41,
+  "implementationTotal": 46,
+  "planRevision": 16,
+  "revision": 1231,
+  "exactNextCommand": "release-skill-pack-1-10-recovery/recovery-2",
+  "updatedAt": "2026-09-19T17:16:54.408219Z"
 }

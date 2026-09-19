@@ -7,6 +7,59 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.10.0] - 2026-09-19
+
+### Added
+
+- `karpathy-progress-memory`, a standalone process skill that records successful
+  KBD task, change, and phase boundaries as bounded, secret-free, idempotent
+  events. It validates canonical identity, appends chronological project
+  history, submits through project-scoped `pk`, and queues a durable outbox
+  operation when the memory service is unavailable.
+- Deep-research stage contracts, resumable checkpoints, package manifests,
+  provenance sidecars, four-state claim labels, source scoring, contradiction
+  detection, and headless daemon job execution.
+- Learner-model gap, session, certification, and FSRS write paths plus one
+  artifact contract shared by teaching, retention, grading, and certification.
+- OpenSpec capability deltas for KBD progress continuity, research pipeline
+  execution, and learner-model coherence.
+
+### Changed
+
+- KBD now derives the current and next change/task from canonical task state.
+  Stored `exactNextCommand` text remains visible as historical operator intent
+  and no longer selects work.
+- Task completion and bottleneck evaluation carry qualified change/task
+  subjects, so duplicate task IDs cannot resolve to the wrong change.
+- Phase, child-phase, change, task, restart, and resume transitions regenerate
+  consistent JSON, Markdown, status, and reminder projections.
+- Process skills are version 1.6.0, research skills 1.1.0, the research server
+  1.7.0, and learn 1.6.0.
+- The research package uses one output root and plain package directories under
+  `~/.prometheus/research`.
+
+### Removed
+
+- Migrated sovereign-sync skills, service installers, and stale pack-owned
+  companion references. The pack no longer depends on the retired companion
+  surfaces.
+- Redundant recovery backups, prompt snapshots, and transient captures whose
+  information was already preserved in canonical project history.
+
+### Fixed
+
+- KBD could retain a completed task as its apparent next command for hundreds
+  of revisions while the canonical journal had advanced. Context compression
+  or restart then made the real position difficult to recover. Cursor folding,
+  rendering, reanchoring, and durable progress receipts now agree on the same
+  canonical position.
+- Deep-research previously emitted stage completion without executing work,
+  accepted invalid stage artifacts, and could format checkpoint timestamps in
+  1970. Stage execution and boundary validation now fail closed.
+- Research daemon jobs previously received an undefined `--daemon-job` flag.
+- Learn skills previously disagreed on artifact paths and consumed grounding
+  fields that the grounding script did not emit.
+
 ## [1.7.0] - 2026-08-03
 
 ### Added

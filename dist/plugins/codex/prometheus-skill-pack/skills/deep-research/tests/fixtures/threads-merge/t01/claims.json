@@ -1,0 +1,4 @@
+[
+  {"id":"claim-aaaa111122223333","text":"The guide recommends batching writes.","source_id":"s1","quote":"batch your writes","chunk_id":"chunk-1","thread_id":"t01"},
+  {"id":"claim-bbbb444455556666","text":"Only t01 found this.","source_id":"s2","quote":"unique to t01","chunk_id":"chunk-2","thread_id":"t01"}
+]

@@ -1,0 +1,190 @@
+{
+  "schemaVersion": "2",
+  "generatedBy": "kbd-runtime",
+  "projectionContractVersion": 2,
+  "sourceRevision": 1186,
+  "derivedRevision": 1186,
+  "frontier": {
+    "4bca58c3-e70b-48c9-a555-60bc16d3d025": 1186
+  },
+  "conflictCount": 0,
+  "phase": "research-agent-hardening",
+  "phaseId": "research-agent-hardening",
+  "parentPhase": null,
+  "last_updated": "2026-09-19T15:41:44.853555Z",
+  "last_updated_by": "kbd-runtime",
+  "changes_total": 13,
+  "changes_completed": 13,
+  "implementation_total": 13,
+  "implementation_completed": 13,
+  "completion": {
+    "primaryCounter": "implementation",
+    "implementation": {
+      "completed": 13,
+      "total": 13,
+      "status": "COMPLETE"
+    },
+    "evidence": {
+      "status": "COMPLETE",
+      "summary": "Operator disposition recorded; strict OpenSpec verification passed; main spec synchronized; change archived on 2026-08-30.",
+      "blockers": []
+    },
+    "certification": {
+      "status": "COMPLETE",
+      "summary": "Final local integration, release, protected-test, OpenSpec, harness, documentation, and receipt-identity certification passed.",
+      "blockers": []
+    },
+    "publication": {
+      "status": "COMPLETE",
+      "summary": "Commit a9f7d62229f997087a2b0b59419d77f722e12cbd pushed to origin/codex/kbd-uds-control-repair.",
+      "blockers": []
+    }
+  },
+  "changes": [
+    {
+      "id": "change-cpc-008-sync-skills-plugin",
+      "title": "change-cpc-008-sync-skills-plugin",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 1,
+      "tasks_done": 1,
+      "last_task_completed": "Add the Companion installer step that registers the MCP stdio binary and skills per the declaration",
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-cpc-009-pack-removal",
+      "title": "change-cpc-009-pack-removal",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 2,
+      "tasks_done": 2,
+      "last_task_completed": "Repoint probes and CLI (doctor.rs, setup.rs, control_transport.rs) to optional contract discovery with no warning when absent; add the doctor test case; update shell tests",
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-rah-001-compile-baseline-and-timestamps",
+      "title": "change-rah-001-compile-baseline-and-timestamps",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 3,
+      "tasks_done": 3,
+      "last_task_completed": "Extend tests/job_lifecycle.rs: start a job through the production path and assert both timestamps parse as RFC 3339 within 60 s of now",
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-rah-002-research-package-contract",
+      "title": "change-rah-002-research-package-contract",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 6,
+      "tasks_done": 6,
+      "last_task_completed": "Author openspec/specs/research-pipeline-execution/spec.md (package layout, manifest, output root) and run openspec validate",
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-rah-003-stage-contract-driver",
+      "title": "change-rah-003-stage-contract-driver",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 5,
+      "tasks_done": 5,
+      "last_task_completed": "Add driver requirements to the OpenSpec capability and validate",
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-rah-004-daemon-job-execution",
+      "title": "change-rah-004-daemon-job-execution",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 4,
+      "tasks_done": 4,
+      "last_task_completed": "Write tests/job_execution.rs with the fake harness fixture: complete path, blocked path, export validation; run it when no other cargo build is active",
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-rah-005-claim-labels-and-provenance",
+      "title": "change-rah-005-claim-labels-and-provenance",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 4,
+      "tasks_done": 4,
+      "last_task_completed": "feynman-loop write-artifact.sh requires verification and provenance blocks; document in SKILL.md; learn-grade gaps carry label",
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-rah-006-agent-duties-and-report-review",
+      "title": "change-rah-006-agent-duties-and-report-review",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 4,
+      "tasks_done": 4,
+      "last_task_completed": "Add test-research-target.sh to the adversarial-review suite and run the fixture suite",
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-rah-007-eval-ground-truth-review",
+      "title": "change-rah-007-eval-ground-truth-review",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 1,
+      "tasks_done": 1,
+      "last_task_completed": "Generate REVIEW-SHEET.md listing all 24 items with tier, corpus, expected scores and misconceptions, and a blank verdict column",
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-rah-008-learn-artifact-and-corpus-coherence",
+      "title": "change-rah-008-learn-artifact-and-corpus-coherence",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 5,
+      "tasks_done": 5,
+      "last_task_completed": "Re-run the eval against the reviewed truth with the new corpus shape; record the post-change baseline and any metric movement in EVAL-RESULTS.md",
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-rah-009-learner-model-write-paths-and-fsrs",
+      "title": "change-rah-009-learner-model-write-paths-and-fsrs",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 5,
+      "tasks_done": 5,
+      "last_task_completed": "Write tests/rpc_roundtrip.rs driving the built binary; run it when no cargo build is active",
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-rah-010-source-scoring-and-graph",
+      "title": "change-rah-010-source-scoring-and-graph",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 4,
+      "tasks_done": 4,
+      "last_task_completed": "Write tests/scoring-graph.sh with the sparse-registry and duplicate-claims fixtures and run it",
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-rah-011-integration-evidence-and-docs",
+      "title": "change-rah-011-integration-evidence-and-docs",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 4,
+      "tasks_done": 4,
+      "last_task_completed": "Final local certification: every suite from changes 003 to 010 plus validate:strict, openspec validate, and the C-01 reconciliation checks (check:distribution, check-harness-adapters.js, check:services-manifest); record results",
+      "next_task_pending": null,
+      "blockers": []
+    }
+  ],
+  "children": {},
+  "migrationStatus": null
+}

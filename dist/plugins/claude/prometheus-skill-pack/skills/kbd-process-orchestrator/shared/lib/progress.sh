@@ -134,12 +134,16 @@ kbd_progress_mark_implementation_complete() {
       printf 'kbd-progress: active phase is required\n' >&2
       return 1
     }
-    prometheus kbd --path "$root" change transition \
+    if ! prometheus kbd --path "$root" change transition \
       --command-id "implementation-complete:${phase}:${change_id}" \
       --phase "$phase" \
-      --id "$change_id" \
-      --status complete >/dev/null
-    return $?
+      --id "$change_id" --status complete >/dev/null; then
+      return 1
+    fi
+    if command -v kbd_hooks_fire >/dev/null 2>&1; then
+      (cd "$root" && kbd_hooks_fire change after "$change_id" 1 1) || true
+    fi
+    return 0
   fi
   tmp="$(mktemp "${file}.XXXXXX")" || return 1
   if ! jq --arg id "$change_id" '

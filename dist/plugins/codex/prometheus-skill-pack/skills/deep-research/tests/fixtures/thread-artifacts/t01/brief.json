@@ -1,0 +1,9 @@
+{
+  "thread_id": "t01",
+  "task": "Investigate reported production failure modes of Qdrant above 10M vectors, including memory pressure and snapshot restore, from 2025 onward.",
+  "must_cover": ["failure symptoms", "root causes", "mitigations"],
+  "avoid": ["pricing"],
+  "recency_months": 18,
+  "excluded_domains": ["reddit.com"],
+  "budget": { "cycles": 8, "minutes": 12, "max_sources": 12 }
+}

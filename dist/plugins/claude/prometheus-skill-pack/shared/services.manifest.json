@@ -379,49 +379,6 @@
       }
     },
     {
-      "label": "ai.prometheus.sovereign-sync",
-      "program": "__SOVEREIGN_SYNC_BIN__",
-      "args": [
-        "--mode",
-        "daemon"
-      ],
-      "binding": null,
-      "platforms": {
-        "darwin": {
-          "source": "shared/launchagents/ai.prometheus.sovereign-sync.plist",
-          "schedule": {
-            "runAtLoad": true,
-            "startInterval": null,
-            "watchPaths": null
-          },
-          "restart": {
-            "keepAlive": true,
-            "throttleInterval": 10,
-            "processType": "Interactive"
-          },
-          "logs": {
-            "stdout": "__PROMETHEUS_LOG_DIR__/sovereign-sync.stdout.log",
-            "stderr": "__PROMETHEUS_LOG_DIR__/sovereign-sync.stderr.log"
-          },
-          "workingDirectory": "__PROMETHEUS_HOME__"
-        },
-        "linux": [
-          {
-            "source": "shared/systemd/ai.prometheus.sovereign-sync.service",
-            "kind": "service",
-            "restart": {
-              "restart": "on-failure",
-              "restartSec": 10,
-              "type": "simple"
-            },
-            "timer": null,
-            "watch": null,
-            "description": "Prometheus sovereign-sync P2P CRDT daemon and MCP server (:7892)"
-          }
-        ]
-      }
-    },
-    {
       "label": "ai.prometheus.surface-bridge",
       "program": "__SURFACE_BRIDGE_BIN__",
       "args": [],

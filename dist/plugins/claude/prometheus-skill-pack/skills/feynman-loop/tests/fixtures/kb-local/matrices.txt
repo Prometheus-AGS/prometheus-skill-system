@@ -1,0 +1,1 @@
+A matrix represents a linear map once bases are fixed. Matrix multiplication composes maps, so it is associative but not commutative! Does every square matrix have an inverse? No: only those with non-zero determinant.

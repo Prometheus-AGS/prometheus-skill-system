@@ -329,8 +329,8 @@ checkout and warn when outside the configured root. See `skills/kbd-status/SKILL
 ## Hooks
 
 KBD ships an extensible hook surface fired around every lifecycle boundary:
-each skill fires `<kind>:<edge>` events (`kind` ∈ phase/child/plan/execute/
-reflect/task/assess/spec/analyze, `edge` ∈ before/after), and any project can
+each skill fires `<kind>:<edge>` events (`kind` ∈ phase/child/change/plan/
+execute/reflect/task/assess/spec/analyze, `edge` ∈ before/after), and any project can
 plug in *augment* or *override* entries via `.kbd-orchestrator/hooks-config.json`.
 The built-in `report-progress` reporter writes `starting/ending <kind> <name>`
 to stderr — telemetry, NOT the user-facing guarantee (that is the plain-text

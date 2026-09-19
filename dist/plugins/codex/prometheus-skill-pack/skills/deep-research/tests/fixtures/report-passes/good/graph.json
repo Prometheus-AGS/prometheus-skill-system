@@ -1,0 +1,5 @@
+{"claims":[
+ {"id":"claim-aaaa1111","label":"verified","text":"Standard tier caps at ten million vectors.","source_id":"src-aaa"},
+ {"id":"claim-bbbb2222","label":"inferred","text":"The cap is likely a soft quota.","source_id":"src-bbb"},
+ {"id":"claim-cccc3333","label":"unverified","text":"A vendor blog cites a higher ceiling.","source_id":"src-ccc"}
+],"relations":[]}

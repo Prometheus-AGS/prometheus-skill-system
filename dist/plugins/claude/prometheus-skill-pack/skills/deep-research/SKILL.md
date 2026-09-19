@@ -2,13 +2,15 @@
 name: deep-research
 description: >
   10-stage deep research pipeline: Planner → Search → Retrieve → Collect →
-  Verify → Resolve → Graph → Cite → Report → Export. Produces persistent
-  .research packages (OKF-aligned knowledge assets) with citations, confidence
-  scores, knowledge graphs, and contradiction tracking. Integrates with
+  Verify → Resolve → Graph → Cite → Report → Export. Driven by a stage-contract
+  driver that validates every stage's artifacts, checkpoints each boundary, and
+  resumes. Produces persistent research packages (OKF-aligned knowledge assets)
+  with labelled claims, a provenance sidecar, citations, confidence scores,
+  knowledge graphs, and contradiction tracking. Integrates with
   surreal-memory, liter-llm, sycophancy-correction, and Feynman learning skills.
   Supersedes disposable report generation with structured knowledge infrastructure.
 license: MIT
-version: '1.0.0'
+version: '1.1.0'
 allowed-tools: file_system web_search code_interpreter sequential_thinking memory browser tavily firecrawl
 model_routing:
   policy_source: liter-llm-bridge
@@ -98,14 +100,15 @@ Do NOT use for:
 ```
 
 **Depth levels:**
-- `shallow` — Stages 1-5, ~20 sources, ~30 min
+- `shallow` — Stages 01 02 03 04 05 09 10 (no resolve, graph, or cite), ~20 sources, ~30 min; still produces a validated package
 - `deep` (default) — All 10 stages, ~50 sources, ~60 min
 - `exhaustive` — All 10 stages with extended search, ~100+ sources, ~2 hr
 
 ## Background Execution (prometheus-research)
 
-`prometheus-research` is a Rust binary (v1.6.0) that runs the deep-research
-pipeline as a persistent background server with real-time progress streaming.
+`prometheus-research` is a Rust binary (crate version 0.1.0, the value `/health`
+reports) that runs the deep-research pipeline as a persistent background server
+with real-time progress streaming.
 It ships with `prometheus-skill-pack` and is installed by
 `scripts/install-binaries.sh`.
 
@@ -181,18 +184,20 @@ es.onmessage = (e) => console.log(JSON.parse(e.data));
 
 ### A2UI component endpoints
 
-Eight pre-built HTMX fragments are served at `/components/{name}`:
+Eight pre-built HTMX fragments are served at `/components/{name}`. The names
+below are exactly the keys registered in `substrate/prometheus-research/src/a2ui/registry.rs`;
+`check-research-package.sh` compares this table against the registry.
 
 | Component | Purpose |
 |-----------|---------|
-| `progress-bar` | Stage progress ring |
-| `source-card` | Individual source with credibility score |
-| `citation-list` | Formatted citation list |
-| `graph-view` | Knowledge graph minimap |
-| `contradiction-panel` | Contradiction log with resolution status |
-| `stage-timeline` | 10-stage execution timeline |
-| `confidence-meter` | Overall confidence score gauge |
-| `export-card` | Download / copy `.research` package |
+| `graph_view` | Knowledge graph minimap |
+| `source_list` | Sources with credibility scores |
+| `contradiction_panel` | Contradiction log with resolution status |
+| `progress_ring` | Stage progress ring |
+| `media_card` | Media attachment card (image, video, audio, document) |
+| `stage_timeline` | 10-stage execution timeline |
+| `markdown_viewer` | Rendered Markdown (report and plan) |
+| `citation_list` | Formatted citation list |
 
 Each endpoint accepts `?job_id=<id>` and returns a self-contained HTMX fragment
 for `hx-swap-oob` injection. See
@@ -252,20 +257,174 @@ QUERY
   .research package on disk
 ```
 
-## .research Package Format
+### Agent tool duties
 
-Output packages follow OKF v0.1 with Prometheus research extensions.
+Each research agent declares a `tools:` allowlist in its frontmatter and
+restates it in a `## Tools` section of its prompt, so the duty is visible
+both to harnesses that enforce the key and to harnesses that ignore it.
+
+| Agent | Stage | Allowed | Never | Why |
+|---|---|---|---|---|
+| `research-planner` | 01 | Read, Grep, Glob | search, fetch, write | a plan shaped by whichever page loaded first is not a plan |
+| `source-verifier` | 05 | Read, Grep, Glob, WebFetch, WebSearch | write | the only agent that fetches: it must read what it labels |
+| `contradiction-resolver` | 06 | Read, Grep, Glob | search, fetch, write | resolves only claims stage 05 scored; never settles a dispute with an unscored source |
+| `report-synthesizer` | 09 | Read, Write, Edit, Grep, Glob | search, fetch | cannot invent a source: every citation must already be in `citations.json` |
+
+**Verifier before reviewer.** Verification (stage 05 and the verifier agent)
+always precedes review (adversarial-review of the report, run by the driver
+between stage 09 and stage 10), and the two never run in one dispatch. The
+driver refuses the review when `sources/credibility.json` is missing or
+invalid and records `blocked: review refused, stage 05 verification missing
+or invalid` in the provenance sidecar; such a package cannot be labelled
+`verified`. A recorded verdict is final, but a blocked review (refused, or
+judge unavailable) is retried on `--resume`, after the driver has re-run any
+stage whose artifact stopped validating, so a repaired package can still end
+`verified`. After the review the driver rewrites the report's
+`verification_status` to the value the documented rule derives
+(`check-research-package.sh --derive`), which stage 10 copies into the
+manifest.
+
+**Advisory degradation.** `tools:` is enforced by Claude Code and Codex
+subagent dispatch. Kimi, OpenCode, Cursor, and a bare model call ignore the
+key; there the `## Tools` section is the only guard, and it is advisory. A
+report produced under an advisory harness is not less valid, but a citation
+that is not in `citations.json` is a CRITICAL review finding regardless of
+how it got there, so the review step (not the allowlist) is the gate that
+holds on every harness. When an agent cannot complete its step without a
+tool outside its list, it records the step as `blocked` with the reason
+rather than reaching for the tool.
+
+## Threaded execution: two levels, never three
+
+Stages 02–04 can run as a **constrained director** dispatching **isolated
+workers**. Set `RESEARCH_THREADED=1`; the director writes
+`threads/<tid>/brief.json`, and stage 02 then runs the bounded scheduler and the
+deterministic merge together.
+
+| Level | Agent | Tools | Sees |
+|---|---|---|---|
+| 1 | `research-director` | `Read, Grep, Glob, Write` — **no search or fetch** | the plan, every returned dossier |
+| 2 | `research-worker` | `WebSearch, WebFetch, Read, Write` under `threads/<tid>/` only | its own brief, and nothing else |
+
+**The director cannot search.** A director with search tools starts answering the
+question instead of decomposing it: once it has read three pages it has a
+hypothesis, and every brief it writes afterwards is shaped by whichever page
+loaded first. Removing the tools forces the alternative — a brief self-contained
+enough that someone else can look for you.
+
+**Workers cannot see each other.** A worker receives its brief and nothing else:
+no plan, no chat history, no sibling dossier. A small context on one question
+stays accurate; a worker carrying the whole run drifts toward what the
+orchestrator already believes. The director compensates by writing an `avoid`
+field — it has read the other dossiers, so it can steer a new thread off covered
+ground without showing that thread any sibling content.
+
+### Why a third level is refused
+
+A worker never dispatches sub-workers. A new angle becomes another
+director-dispatched thread in the next cycle.
+
+The whole design rests on one property: **every source in the package was fetched
+by exactly one identified thread.** That is what makes the merge deterministic,
+makes citations attributable, and makes the no-search rule checkable at all. A
+sub-worker's fetches would belong to no thread in the ledger, so the property
+fails — and with it the merge's ability to attribute anything.
+
+It is also enforced rather than merely stated. `merge-threads.sh` refuses, as a
+CRITICAL failure, any dossier source absent from that thread's `sources.json`.
+That single check catches a searching director and a sub-dispatching worker
+alike, because both produce the same symptom: a cited source with no thread that
+fetched it. The `tools:` allowlist is the intent; the merge is the enforcement,
+which matters because a harness may ignore frontmatter.
+
+Depth is bounded structurally, not by a prompt asking politely for two levels.
+
+### Environment
+
+| Variable | Default | Effect |
+|---|---|---|
+| `RESEARCH_THREADED` | `0` | `1` runs stage 02 threaded |
+| `RESEARCH_MAX_PARALLEL` | `3` | hard concurrency cap, enforced by a semaphore |
+| `RESEARCH_THREAD_SECONDS` | `1800` | per-thread wall clock; exceeding it kills the worker |
+| `RESEARCH_JOB_SECONDS` | `1800` | whole-run wall clock for dispatch |
+
+Unset, the pipeline runs exactly as before. Stage numbers and their artifact
+contracts are unchanged either way — threading changes how stages 02–04 are
+produced, never what they must satisfy.
+
+## Research Package Format
+
+Output packages follow OKF v0.1 with Prometheus research extensions. The
+normative contract is [references/research-package-spec.md](references/research-package-spec.md)
+and the machine schema is
+[references/schemas/research-manifest.schema.json](references/schemas/research-manifest.schema.json);
+this section is a copy that `scripts/check-research-package.sh` checks against them.
+
+**Location:** `${RESEARCH_OUTPUT_DIR:-~/.prometheus/research}/<package_id>/`, where
+`<package_id>` is `<slug>-<yyyymmdd>-<4hex>` (slug: at most five lowercase words from the
+query). There is no `.research` suffix; the directory is the package.
 
 **Directory layout:**
 ```
-<job_id>/
-  manifest.json        # OKF metadata + research extensions
-  index.md             # Human-readable entry point
-  sources/             # Raw collected sources (one JSON per source)
-  graph.json           # Knowledge graph export
-  citations.json       # Citation list with confidence scores
-  contradictions.json  # Contradiction log (resolved + unresolved)
-  report.md            # Final synthesis (OKF frontmatter)
+<package_id>/
+  manifest.json          # Schema-validated metadata and provenance
+  index.md               # Human-readable entry point
+  report.md              # Final synthesis (OKF frontmatter)
+  <slug>.provenance.md   # Provenance sidecar, written on every exit path
+  plan.md                # Stage 01 plan; task ledger, verification log, decision log
+  checkpoint.json        # Driver checkpoint (stages completed, timestamps)
+  sources/               # url-list.json, chunk-<n>.json, registry.json, credibility.json
+  graph.json             # Knowledge graph (topics, claims, relations)
+  citations.json         # Citation list with confidence scores and labels
+  contradictions.json    # Contradiction log (resolved + unresolved)
+```
+
+**`manifest.json` (literal, schema-valid example):**
+```json
+{
+  "format": "research-package",
+  "format_version": "2.0.0",
+  "okf_type": "research-session",
+  "package_id": "vector-db-rag-20260905-a1f3",
+  "job_id": "job-1788000774-ffa477f9",
+  "query": "Current state of vector databases for production RAG systems",
+  "depth": "deep",
+  "scale": "full",
+  "created_at": "2026-09-05T10:00:00Z",
+  "completed_at": "2026-09-05T11:02:14Z",
+  "stages_completed": ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10"],
+  "sources_count": 31,
+  "claims_count": 87,
+  "confidence": 0.74,
+  "verification_status": "verified",
+  "verification_verdict": "PASS WITH NOTES",
+  "feynman_grade": 0.82,
+  "feynman_gate_used": true,
+  "misconceptions_absent": 1.0,
+  "contradictions_detected": 4,
+  "contradictions_resolved": 3,
+  "contradictions_unresolved": 1,
+  "surreal_memory_used": true,
+  "sycophancy_correction_used": true,
+  "adversarial_review_used": true,
+  "citation_style": "APA",
+  "kb_ids": [],
+  "model_routing": {
+    "01": "frontier", "02": "medium", "03": "medium", "04": "medium",
+    "05": "frontier", "06": "frontier", "07": "frontier", "08": "small",
+    "09": "frontier", "10": "small"
+  },
+  "files": {
+    "report": "report.md",
+    "provenance": "vector-db-rag.provenance.md",
+    "plan": "plan.md",
+    "graph": "graph.json",
+    "citations": "citations.json",
+    "contradictions": "contradictions.json",
+    "index": "index.md",
+    "sources_dir": "sources/"
+  }
+}
 ```
 
 **`report.md` frontmatter (OKF v0.1 + extensions):**
@@ -273,17 +432,23 @@ Output packages follow OKF v0.1 with Prometheus research extensions.
 ---
 type: research-report
 title: <query title>
+query: <query>
 date: <ISO 8601>
 confidence: <0.0–1.0>
 verification_status: verified | partial | unverified
-sources_count: <n>
 feynman_grade: <0.0–1.0 or null>
+sources_count: <n>
 contradictions_resolved: <n>
+package_id: <package_id>
+job_id: <job_id>
 okf_version: '0.1'
 ---
 ```
 
-For full format spec, see [references/research-package-spec.md](references/research-package-spec.md).
+Validate any package with:
+```bash
+bash skills/research/deep-research/scripts/check-research-package.sh --package ~/.prometheus/research/<package_id>
+```
 
 ## Integration Guide
 

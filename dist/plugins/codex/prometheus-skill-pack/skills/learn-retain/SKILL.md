@@ -1,7 +1,7 @@
 ---
 name: learn-retain
 description: Spaced repetition review skill for the Feynman learning loop. Reads the FSRS due queue from the learner-model crate, surfaces review prompts via ui-surface, grades retention via learn-grade at a 0.6 threshold, and updates FSRSCard state. Prevents knowledge decay after feynman-loop and learn-practice.
-version: '1.0.0'
+version: '1.1.0'
 license: MIT
 metadata:
   author: prometheus-skill-pack
@@ -42,10 +42,17 @@ Take up to `--max-cards` (default 5) concepts from the sorted due list.
 
 **a. Load artifact**
 
-Load the most recent Feynman artifact for the concept:
+Load the most recent Feynman artifact for the concept from the goal's
+artifact store (`<learn-home>/goals/<goal-id>/`, where `<learn-home>` is
+`${PROMETHEUS_LEARN_HOME:-~/.prometheus/learn}` — the path feynman-loop's
+`write-artifact.sh` writes and learn-certify reads):
 ```
-artifacts/<concept-id>-*.json
+artifacts/<concept-id>/*.json
 ```
+"Most recent" is the file with the latest `closed_at`; when several share it,
+the lexically last `artifact_id` (its suffix is a unix timestamp). An empty
+directory means the concept has no closed loop yet: skip it and report it in
+the session summary rather than reviewing against nothing.
 
 **b. Surface review prompt via ui-surface**
 

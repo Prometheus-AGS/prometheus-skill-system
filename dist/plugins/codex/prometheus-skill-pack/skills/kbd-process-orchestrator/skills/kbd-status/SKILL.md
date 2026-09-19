@@ -182,9 +182,13 @@ Last updated by: claude-code (2026-05-27T00:00:00Z)
   [stage · date]`). Advanced users scan and move on.
 - **`--explain`** — expands each decision-log header into its full
   TL;DR / Why / Alternatives / Learn-more block, and appends a "what happens
-  next and why" narrative derived from the waypoint's `exactNextCommand` and
-  the current stage. Beginners see *what* was decided, *why*, and *what to
-  learn*.
+  next and why" narrative. Take the *what* from the waypoint's `nextChange` /
+  `nextTask`, which are derived from task state on every projection, falling
+  back to the first non-`DONE` entry in the active phase's `progress.json`
+  `changes[]`. `exactNextCommand` supplies only the *why*: it is stored operator
+  intent that a plan revision or an explicit path change rewrites, and nothing
+  else does, so it can name work that later changes superseded. Never narrate it
+  as the next step. Beginners see *what* was decided, *why*, and *what to learn*.
 
 The default verbosity is set by `ux_profile` in `project.json`
 (`"beginner"` → `--explain` on by default; `"advanced"` → dense). `ux_profile`

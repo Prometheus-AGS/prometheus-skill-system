@@ -1,0 +1,80 @@
+{
+  "schemaVersion": "2",
+  "generatedBy": "kbd-runtime",
+  "projectionContractVersion": 2,
+  "sourceRevision": 1186,
+  "derivedRevision": 1186,
+  "frontier": {
+    "4bca58c3-e70b-48c9-a555-60bc16d3d025": 1186
+  },
+  "conflictCount": 0,
+  "phase": "stage-10-hang-investigation",
+  "phaseId": "deep-research-onyx-parity::stage-10-hang-investigation",
+  "parentPhase": "deep-research-onyx-parity",
+  "last_updated": "2026-09-19T15:41:44.853555Z",
+  "last_updated_by": "kbd-runtime",
+  "changes_total": 3,
+  "changes_completed": 3,
+  "implementation_total": 3,
+  "implementation_completed": 3,
+  "completion": {
+    "primaryCounter": "implementation",
+    "implementation": {
+      "completed": 3,
+      "total": 3,
+      "status": "COMPLETE"
+    },
+    "evidence": {
+      "status": "COMPLETE",
+      "summary": "Operator disposition recorded; strict OpenSpec verification passed; main spec synchronized; change archived on 2026-08-30.",
+      "blockers": []
+    },
+    "certification": {
+      "status": "COMPLETE",
+      "summary": "Final local integration, release, protected-test, OpenSpec, harness, documentation, and receipt-identity certification passed.",
+      "blockers": []
+    },
+    "publication": {
+      "status": "COMPLETE",
+      "summary": "Commit a9f7d62229f997087a2b0b59419d77f722e12cbd pushed to origin/codex/kbd-uds-control-repair.",
+      "blockers": []
+    }
+  },
+  "changes": [
+    {
+      "id": "change-drt-008-hang-capture-harness",
+      "title": "Instrumented repeat-run capture harness (goals 1-2)",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 3,
+      "tasks_done": 3,
+      "last_task_completed": "Goal-2 dating entry",
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-drt-009-stage10-hang-fix-and-certification",
+      "title": "Review-gated fix and N-run certification (goals 3-4)",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 3,
+      "tasks_done": 3,
+      "last_task_completed": "N-run certification and FIX-CERTIFICATION.md",
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "change-drt-011-phase-close-distribution-regen",
+      "title": "C-01 distribution reconciliation",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 1,
+      "tasks_done": 1,
+      "last_task_completed": "Regenerate dist twice (hash-identical) + 3 checks PASS",
+      "next_task_pending": null,
+      "blockers": []
+    }
+  ],
+  "children": {},
+  "migrationStatus": null
+}

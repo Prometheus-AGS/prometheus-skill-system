@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "sourceVersion": "1.8.0",
+  "sourceVersion": "1.10.0",
   "contractSchemaVersion": "hook-contract-v1",
   "dispatcherAbi": "hook-runtime-v1",
   "dispatcherInterpreter": "bash",
@@ -13,12 +13,27 @@
     },
     {
       "path": "scripts/install-plugin-generation.js",
-      "sha256": "2f30768b81e2be63c1f64384e691cd3ea9692da79f6180bed6146ea39aad7fb9",
+      "sha256": "0c6de653ede8a9cd3ac55ccec04e3f512e75377c4852e75943b72aa372f274c9",
       "executable": true
+    },
+    {
+      "path": "scripts/lib/canonical-bytes.js",
+      "sha256": "ebdc759bb45f1af6c2c0726ffe8a2281a0a64062ce9d1dc7d861fc37493aafe1",
+      "executable": false
     },
     {
       "path": "scripts/lib/capabilities.js",
       "sha256": "916cb31bd532fa749291820b8c4f107a9eb4bea57a2443209c235f45541fe453",
+      "executable": false
+    },
+    {
+      "path": "scripts/lib/golden-payload.js",
+      "sha256": "98d8d29532f6f8e63295414bca1dd74912428126002248074dd7d8e2fa1a61ed",
+      "executable": false
+    },
+    {
+      "path": "scripts/lib/hook-config.js",
+      "sha256": "9e8b3ee3c6db885387c7cd3b60cb2c7586399334c029be416277908f04d4a8fb",
       "executable": false
     },
     {
@@ -42,6 +57,11 @@
       "executable": false
     },
     {
+      "path": "scripts/lib/store-paths.js",
+      "sha256": "2c3b79239480936d89b0b560be36468b312cb7ee799e0b768e3bd2ffd698db6d",
+      "executable": false
+    },
+    {
       "path": "shared/harnesses/hook-contract.json",
       "sha256": "ea33ae961da1788076b570ffb046e2578fa611c32837cb15109160446b535896",
       "executable": false
@@ -58,7 +78,7 @@
     },
     {
       "path": "shared/scripts/content-grounding-kb.sh",
-      "sha256": "4be387a2d3976228380a28c755106a5c93ada6b2c2d6565aba29b2584471419b",
+      "sha256": "f799db2914aa255a601cc4f7c3753d67e8bfc171e37734ca4219b63b0e6f04b9",
       "executable": true
     },
     {
@@ -78,7 +98,7 @@
     },
     {
       "path": "shared/scripts/detect-toolchain.sh",
-      "sha256": "9662c75b22df156b3c88c1413f0f7f4884f0bf12c3b850130a01fe2aa1eac1de",
+      "sha256": "521a3af27242bbc82e48d4fb178cf14cd20b8e03aca1559609d9603696539cbe",
       "executable": true
     },
     {
@@ -133,7 +153,12 @@
     },
     {
       "path": "shared/scripts/kbd-task-completed-gate.sh",
-      "sha256": "5a1faf5a3e4c8592f6509b418f8584757797cfa80f2cd12e54580174dbda2f50",
+      "sha256": "443df66de08affe7fa37ff6cc984627fe74f481de46d4ff78dca1ee2d7016c1d",
+      "executable": true
+    },
+    {
+      "path": "shared/scripts/lib/canonical-url.sh",
+      "sha256": "98d56ea600c6df1a4a86ece4a8bad04625e0ae13e7f8d708a6946c97bd87b32f",
       "executable": true
     },
     {
@@ -162,13 +187,18 @@
       "executable": false
     },
     {
+      "path": "shared/scripts/lib/slug.sh",
+      "sha256": "f01fe9bfa2ff1c22542d1da4d6369c4ef142690da741897ac302224c63f4047b",
+      "executable": false
+    },
+    {
       "path": "shared/scripts/lib/sycophancy.sh",
       "sha256": "f274b3238fa913960001bb84c719bc749355f273d924eea391235b7694fb9cc4",
       "executable": false
     },
     {
       "path": "shared/scripts/lib/waypoint-render.sh",
-      "sha256": "fa2863df5681c904f1d90f26a5fd3c2457860962277f04e96539a75b36bf1dd7",
+      "sha256": "3cd58792ac554e22f9c263d165775fb2f6f9ef99828938e84a7e1dfe0db9df82",
       "executable": true
     },
     {
@@ -213,7 +243,7 @@
     },
     {
       "path": "shared/scripts/position-stop-gate.sh",
-      "sha256": "ff052e1ca53e0a46b3c1b7a8870371f3a84546152f47613e0993c9cc5b5aaae7",
+      "sha256": "574595878fac0a94d8041b94366ee595faf5a0ce7913121670520711a4a68108",
       "executable": true
     },
     {
@@ -268,7 +298,7 @@
     },
     {
       "path": "shared/scripts/service-probe.sh",
-      "sha256": "5b29f54f46f2fe262afb4f92b95ef0092b2566dc4f482d89f8e656c03bbca3a4",
+      "sha256": "8bca923ac53affd576388683f50caae5422caf0194ac8f1132b2e0de85b3f68b",
       "executable": true
     },
     {
@@ -303,7 +333,7 @@
     },
     {
       "path": "shared/scripts/write-position-reminder.sh",
-      "sha256": "f180a1cdeab22ca2a3ff239268c9dc22f61344748e39e6259a92925e8652d8ef",
+      "sha256": "f8a3fc8cce61c84f88f441857363b54410b38188f43396a8c488270796bc4424",
       "executable": true
     },
     {
@@ -352,5 +382,5 @@
       "executable": true
     }
   ],
-  "bundleId": "bf2c785097f5770a1f5e1b560812460af4e0bf89839a6e393a10b80127d2ce5b"
+  "bundleId": "b852b4a2e0337ffb0a59a6c0abfbfe6464129ceb4a1a6cbb4b1d9fd9b0a7df9b"
 }

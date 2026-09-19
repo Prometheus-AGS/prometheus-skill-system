@@ -1,6 +1,6 @@
 {
   "name": "prometheus-skill-pack-docs",
-  "version": "1.7.0",
+  "version": "1.10.0",
   "private": true,
   "scripts": {
     "start": "docusaurus start",
@@ -14,10 +14,9 @@
     "write-heading-ids": "docusaurus write-heading-ids",
     "generate:catalog": "node scripts/generate-skills-catalog.mjs",
     "generate:api-examples": "node scripts/generate-api-examples.mjs",
-    "generate:sovereign-openapi": "node scripts/generate-sovereign-openapi.mjs",
     "check:public-docs": "node scripts/check-public-docs.mjs",
     "check:openapi": "node scripts/check-openapi.mjs",
-    "check:sovereign-openapi": "node scripts/check-sovereign-openapi.mjs && node scripts/generate-sovereign-openapi.mjs --check",
+    "check:sovereign-openapi": "node scripts/check-sovereign-openapi.mjs",
     "check:exec-openapi": "node scripts/check-exec-openapi.mjs",
     "check:exec-examples": "npm --prefix .. run check:docs-exec-examples",
     "check:api-examples": "node scripts/generate-api-examples.mjs --check",

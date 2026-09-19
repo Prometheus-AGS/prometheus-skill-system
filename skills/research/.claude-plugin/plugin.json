@@ -1,6 +1,6 @@
 {
   "name": "prometheus-research-skills",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Deep-research workflow with source verification, contradiction resolution, knowledge graphs, and cited report synthesis.",
   "author": {
     "name": "Prometheus AGS"

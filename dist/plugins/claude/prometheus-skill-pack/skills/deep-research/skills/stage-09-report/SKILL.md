@@ -49,13 +49,24 @@ represents the evidence without gaps or misconceptions. Re-synthesize on failure
    `confidence` field in OKF frontmatter.
 
 2. **Structure the report** — using `templates/report-template.md`:
-   - Executive summary (150–300 words)
-   - Key findings (one section per resolved claim topic)
-   - Evidence table (claims × sources × credibility)
-   - Contradictions section (what was disputed and how resolved)
-   - Limitations and gaps
+   - Executive summary (150–300 words); every claim it states is `critical`
+   - Key findings (one section per resolved claim topic); their headline claims are `critical`
+   - Evidence table (claim × label × source × credibility × confidence); the
+     label column is copied from `graph.json`, never assigned here except
+     `inferred` for the report's own inferences, which must say so inline
+   - Contradictions section (what was disputed and how resolved, with each
+     entry's label)
+   - Limitations and gaps, including every `blocked` and `unverified` claim by
+     name so the reader sees what was not checked
    - Conclusion
    - References (formatted citations from Stage 08)
+   Word rule: `verified`, `confirmed`, and `checked` may describe only claims
+   whose label is `verified`; inferences are marked as inferences in the prose
+   (adapted from Feynman CLI's system prompt, companion-inc/feynman, MIT).
+
+2a. **Derive `verification_status`** with the rule in
+   `references/okf-research-format.md` ("Verification Status Rules") over
+   `graph.json` and `checkpoint.json`. Write the derived value; never choose it.
 
 3. **Apply Feynman quality gate** (unless `skip_feynman=true`):
    - Call `learn-grade` with the draft report and a grading rubric derived
@@ -66,7 +77,7 @@ represents the evidence without gaps or misconceptions. Re-synthesize on failure
 
 4. **Write OKF frontmatter** — populate all required + Prometheus extension fields.
 
-5. **Write report** — emit `<job_id>/report.md`.
+5. **Write report** — emit `<package_id>/report.md`.
 
 ## Integration
 
@@ -90,3 +101,35 @@ contradictions_resolved: 3
 okf_version: '0.1'
 ---
 ```
+
+## Multi-pass assembly (full scale)
+
+Added by change-drt-005. At `--scale full` with a `report/outline.json` present,
+stage 09 runs as four passes instead of one call:
+
+1. **`outline-architect`** maps sections to sub-questions to claim ids, with a
+   word budget per section capped at 3000.
+2. **`section-writer`** (several, in parallel) each write one section from
+   **only** their assigned claims.
+3. **`assemble-report.sh`** concatenates and enforces the invariants.
+4. **`coherence-editor`** writes the summary and smooths transitions, then the
+   assembler **re-runs** to prove the edit only removed.
+
+One context holding all the evidence *and* generating all the prose degrades as
+a report grows. Splitting them removes that ceiling; the claim-set invariant is
+what stops accuracy drifting with the added length:
+
+| Check | Failure it prevents |
+|---|---|
+| claim-set drift | a section citing outside its assignment, so the evidence base is whatever each writer reached for |
+| missing reference | a citation resolving to no claim |
+| label misuse | "confirms" over an `inferred` claim — authoritative-sounding and unsupported |
+| editor may only remove | an added citation at the point where prose reads most fluently |
+
+**Citation numbers come from one authority.** `merge-threads.sh` assigns them in
+`citation-map.json`; the outline carries claim ids only and the assembler
+resolves ids to numbers at assembly time. Two authorities would drift the first
+time a source was added.
+
+`--scale direct` keeps the single-call `report-synthesizer` path: a short report
+has no ceiling to remove, so extra passes would cost without buying accuracy.

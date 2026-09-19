@@ -1,0 +1,5 @@
+{
+  "url": "https://qdrant.tech/documentation/guides/administration/",
+  "chunk_id": "chunk-1",
+  "text": "When sizing a cluster, plan for approximately 1.5x the raw vector footprint in RAM if the HNSW index is kept fully in memory. Snapshot restore requires additional headroom during the copy."
+}

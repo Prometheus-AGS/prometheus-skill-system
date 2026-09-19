@@ -2,26 +2,285 @@
   "schemaVersion": "1",
   "generatedBy": "kbd-runtime",
   "projectionContractVersion": 2,
-  "sourceRevision": 382,
-  "derivedRevision": 382,
+  "sourceRevision": 1231,
+  "derivedRevision": 1231,
   "frontier": {
-    "4bca58c3-e70b-48c9-a555-60bc16d3d025": 382
+    "4bca58c3-e70b-48c9-a555-60bc16d3d025": 1186,
+    "575138ba-385e-449d-89f7-cf4d793b34f9": 45
   },
   "conflictCount": 0,
-  "updatedAt": "2026-08-30T12:06:36.039907Z",
+  "updatedAt": "2026-09-19T17:16:54.408219Z",
   "cursor": [
     "kbd-control-plane-recovery",
-    "reflect"
+    "skill-pack-1-10-recovery"
   ],
   "root": {
     "type": "phase",
     "id": "6ac090a4-3656-4d83-8eb6-2891508196d5",
     "status": "ready",
     "progress": {
-      "done": 9,
-      "total": 9
+      "done": 41,
+      "total": 46
     },
     "children": [
+      {
+        "type": "phase",
+        "id": "control-plane-to-companion",
+        "canonicalId": "control-plane-to-companion",
+        "status": "IN_PROGRESS",
+        "progress": {
+          "done": 9,
+          "total": 13
+        },
+        "children": [
+          {
+            "type": "change",
+            "id": "change-cpc-001-integration-contract",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 5,
+              "total": 5
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-cpc-002-skill-ffi-kbd-mobile-split",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 3,
+              "total": 3
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-cpc-003-companion-workspace",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 6,
+              "total": 6
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-cpc-004-relocate-sovereign-sync",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 6,
+              "total": 6
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-cpc-005-node-hosting",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 5,
+              "total": 5
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-cpc-006-discovery-and-pairing",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 5,
+              "total": 5
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-cpc-007-supervisor-and-health",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 6,
+              "total": 6
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-cpc-008-sync-skills-plugin",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 2,
+              "total": 3
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-cpc-012-pack-sync-skills-removal",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 2,
+              "total": 2
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-cpc-009-pack-removal",
+            "status": "IN_PROGRESS",
+            "progress": {
+              "done": 2,
+              "total": 3
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-cpc-010-kbd-state-migration",
+            "status": "PENDING",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-cpc-011-integration-evidence",
+            "status": "PENDING",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-cpc-013-pack-certification-without-companion",
+            "status": "PENDING",
+            "progress": {
+              "done": 0,
+              "total": 0
+            }
+          }
+        ],
+        "annotations": []
+      },
+      {
+        "type": "phase",
+        "id": "deep-research-onyx-parity",
+        "canonicalId": "deep-research-onyx-parity",
+        "status": "IN_PROGRESS",
+        "progress": {
+          "done": 7,
+          "total": 7
+        },
+        "children": [
+          {
+            "type": "phase",
+            "id": "bench-runner-automation",
+            "canonicalId": "bench-runner-automation",
+            "status": "PENDING",
+            "progress": {
+              "done": 0,
+              "total": 0
+            },
+            "children": [],
+            "annotations": []
+          },
+          {
+            "type": "phase",
+            "id": "stage-10-hang-investigation",
+            "canonicalId": "deep-research-onyx-parity::stage-10-hang-investigation",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 3,
+              "total": 3
+            },
+            "children": [
+              {
+                "type": "change",
+                "id": "change-drt-008-hang-capture-harness",
+                "status": "COMPLETE",
+                "progress": {
+                  "done": 3,
+                  "total": 3
+                }
+              },
+              {
+                "type": "change",
+                "id": "change-drt-009-stage10-hang-fix-and-certification",
+                "status": "COMPLETE",
+                "progress": {
+                  "done": 3,
+                  "total": 3
+                }
+              },
+              {
+                "type": "change",
+                "id": "change-drt-011-phase-close-distribution-regen",
+                "status": "COMPLETE",
+                "progress": {
+                  "done": 1,
+                  "total": 1
+                }
+              }
+            ],
+            "annotations": []
+          },
+          {
+            "type": "change",
+            "id": "change-drt-001-dispatch-smoke-and-thread-contracts",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 5,
+              "total": 5
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-drt-007-install-surface-repair",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 5,
+              "total": 5
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-drt-002-thread-scheduler-and-budgets",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 5,
+              "total": 5
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-drt-004-deterministic-merge",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 5,
+              "total": 6
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-drt-003-director-worker-agents",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 5,
+              "total": 6
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-drt-005-multipass-report",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 6,
+              "total": 6
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-drt-006-bench-and-metrics",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 0,
+              "total": 1
+            }
+          }
+        ],
+        "annotations": []
+      },
       {
         "type": "phase",
         "id": "kbd-control-plane-recovery",
@@ -76,6 +335,28 @@
                 "progress": {
                   "done": 0,
                   "total": 0
+                }
+              }
+            ],
+            "annotations": []
+          },
+          {
+            "type": "phase",
+            "id": "skill-pack-1-10-recovery",
+            "canonicalId": "skill-pack-1-10-recovery",
+            "status": "IN_PROGRESS",
+            "progress": {
+              "done": 0,
+              "total": 1
+            },
+            "children": [
+              {
+                "type": "change",
+                "id": "release-skill-pack-1-10-recovery",
+                "status": "IN_PROGRESS",
+                "progress": {
+                  "done": 4,
+                  "total": 6
                 }
               }
             ],
@@ -151,6 +432,136 @@
               }
             ],
             "annotations": []
+          }
+        ],
+        "annotations": []
+      },
+      {
+        "type": "phase",
+        "id": "research-agent-hardening",
+        "canonicalId": "research-agent-hardening",
+        "status": "IN_PROGRESS",
+        "progress": {
+          "done": 13,
+          "total": 13
+        },
+        "children": [
+          {
+            "type": "change",
+            "id": "change-cpc-008-sync-skills-plugin",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 1,
+              "total": 1
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-cpc-009-pack-removal",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 2,
+              "total": 2
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-rah-001-compile-baseline-and-timestamps",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 3,
+              "total": 3
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-rah-002-research-package-contract",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 6,
+              "total": 6
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-rah-003-stage-contract-driver",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 5,
+              "total": 5
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-rah-004-daemon-job-execution",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 4,
+              "total": 4
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-rah-005-claim-labels-and-provenance",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 4,
+              "total": 4
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-rah-006-agent-duties-and-report-review",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 4,
+              "total": 4
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-rah-007-eval-ground-truth-review",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 1,
+              "total": 1
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-rah-008-learn-artifact-and-corpus-coherence",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 5,
+              "total": 5
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-rah-009-learner-model-write-paths-and-fsrs",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 5,
+              "total": 5
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-rah-010-source-scoring-and-graph",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 4,
+              "total": 4
+            }
+          },
+          {
+            "type": "change",
+            "id": "change-rah-011-integration-evidence-and-docs",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 4,
+              "total": 4
+            }
           }
         ],
         "annotations": []

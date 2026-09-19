@@ -1,7 +1,7 @@
 ---
 name: feynman-loop
 description: The core Feynman learning cycle for prometheus-skill-pack. Maps Feynman's explain-grade-gap-relearn cycle to the PMPO lifecycle. Supports vertical recursion (child loops on gap concepts), horizontal escalation (novice→peer→skeptic audiences), recursion floor guards, and all three mastery closure criteria.
-version: '1.0.0'
+version: '1.1.0'
 license: MIT
 metadata:
   author: prometheus-skill-pack
@@ -206,7 +206,11 @@ bash "${FEYNMAN_LOOP_DIR}/scripts/write-artifact.sh" \
 ```
 
 Artifact schema written to
-`~/.prometheus/learn/goals/<goal-id>/artifacts/<artifact-id>.json`:
+`~/.prometheus/learn/goals/<goal-id>/artifacts/<concept-id>/<artifact-id>.json`
+(the one artifact path: learn-retain globs `artifacts/<concept-id>/*.json` for
+the most recent artifact and learn-certify reads the `artifacts/<concept-id>/`
+directory, so all three skills resolve the same file; `PROMETHEUS_LEARN_HOME`
+overrides `~/.prometheus/learn` for tests):
 
 ```json
 {
@@ -218,7 +222,17 @@ Artifact schema written to
   "explanation_text": "string",
   "grade_id": "string",
   "overall_score": 0.0,
-  "transfer_scores": [0.0, 0.0],
+  "transfer_scores": [0.85, 0.7],
+  "verification": [
+    { "label": "verified", "evidence": "grade-<id>.json transfer_problems[0], scored 0.85 against corpus_ref <ref>" },
+    { "label": "inferred", "evidence": "grade-<id>.json transfer_problems[1], scored 0.7; grader inferred correctness without a corpus_ref" }
+  ],
+  "provenance": {
+    "grade_file": "/absolute/path/to/goals/<goal-id>/grades/grade-<id>.json",
+    "corpus_path": "/absolute/path/to/corpus.json",
+    "grader": "learn-grade",
+    "graded_at": "ISO datetime"
+  },
   "retention_scheduled": true,
   "child_loops": ["artifact_id"],
   "closed_at": "ISO datetime"
@@ -226,6 +240,18 @@ Artifact schema written to
 ```
 
 `artifact_id` is generated as `artifact-<concept-id>-<audience>-<depth>-<unix-timestamp>`.
+
+`verification` has exactly one entry per transfer score. Its `label` uses the
+four-value vocabulary shared with deep-research
+(`skills/research/deep-research/references/okf-research-format.md`):
+`verified` when the grader scored the answer against a corpus `key_point` or
+`corpus_ref` it read, `inferred` when the grader judged correctness without a
+corpus reference, `blocked` when grading could not complete (grader
+unavailable, corpus missing), `unverified` when the score was recorded without
+grading. `provenance` names the grade file and corpus the scores came from.
+`write-artifact.sh` refuses an artifact that lacks either block, so a loop
+cannot close on an unexplained score; a self-reported score is `unverified`
+and never satisfies mastery criterion 2.
 
 ## Handoff
 
@@ -257,5 +283,5 @@ curriculum or invoke `/learn-certify` to close the goal.
 skills/learn/feynman-loop/
 ├── SKILL.md              — this file
 └── scripts/
-    └── write-artifact.sh — writes artifact JSON to ~/.prometheus/learn/goals/<goal-id>/artifacts/
+    └── write-artifact.sh — writes artifact JSON to ~/.prometheus/learn/goals/<goal-id>/artifacts/<concept-id>/
 ```
