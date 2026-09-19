@@ -33,6 +33,11 @@ const allTests = [
     ['scripts/tests/install-prometheus-exec-service.test.sh'],
   ],
   [
+    'managed memory service startup policy',
+    'bash',
+    ['scripts/tests/install-mcp-services.test.sh'],
+  ],
+  [
     'native plugin refresh policy',
     'bash',
     ['scripts/tests/refresh-native-plugin-installs.test.sh'],
