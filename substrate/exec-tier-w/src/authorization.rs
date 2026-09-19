@@ -402,7 +402,6 @@ fn verify_generation(plugin_root: &Path) -> Result<VerifiedGeneration, TierWErro
     )?;
     let manifest: Value = serde_json::from_slice(&manifest_bytes)
         .map_err(|error| unauthorized(format!("generation manifest is invalid JSON: {error}")))?;
-    let canonical_manifest = canonical_pretty_json(&manifest)?;
     verify_generation_identity(&manifest, &generation_id)?;
     let signer_key_id = required_string(&manifest, "signerKeyId")?;
 
@@ -414,6 +413,7 @@ fn verify_generation(plugin_root: &Path) -> Result<VerifiedGeneration, TierWErro
     )?;
     let signature: Value = serde_json::from_slice(&signature_bytes)
         .map_err(|error| unauthorized(format!("generation signature is invalid JSON: {error}")))?;
+    let canonical_manifest = signed_manifest_bytes(&manifest, &signature)?;
     verify_signature_envelope(&plugin_root, &signature, signer_key_id, &canonical_manifest)?;
     Ok(VerifiedGeneration {
         root: canonical_generation,
@@ -421,6 +421,27 @@ fn verify_generation(plugin_root: &Path) -> Result<VerifiedGeneration, TierWErro
         generation_id,
         manifest_hash: Digest::from_bytes(&canonical_manifest),
     })
+}
+
+#[cfg(feature = "estate")]
+fn signed_manifest_bytes(manifest: &Value, envelope: &Value) -> Result<Vec<u8>, TierWError> {
+    match envelope.get("schemaVersion").and_then(Value::as_u64) {
+        Some(1) => canonical_pretty_json(manifest),
+        Some(2) if envelope.get("canonicalization").and_then(Value::as_str) == Some("RFC8785") => {
+            serde_jcs::to_vec(manifest).map_err(|error| {
+                unauthorized(format!(
+                    "generation manifest cannot be canonicalized: {error}"
+                ))
+            })
+        }
+        Some(2) => Err(unauthorized(
+            "generation signature canonicalization is unsupported",
+        )),
+        Some(version) => Err(unauthorized(format!(
+            "generation signature schema {version} is unsupported"
+        ))),
+        None => Err(unauthorized("generation signature envelope is invalid")),
+    }
 }
 
 #[cfg(feature = "estate")]
@@ -540,7 +561,22 @@ fn verify_generation_identity(manifest: &Value, generation_id: &str) -> Result<(
             .ok_or_else(|| unauthorized(format!("generation manifest omits {key}")))?;
         identity.insert(key.into(), value.clone());
     }
-    let computed = raw_sha256(&canonical_pretty_json(&Value::Object(identity))?);
+    let identity = Value::Object(identity);
+    let identity_bytes = match manifest.get("schemaVersion").and_then(Value::as_u64) {
+        Some(1) => canonical_pretty_json(&identity)?,
+        Some(2) => serde_jcs::to_vec(&identity).map_err(|error| {
+            unauthorized(format!(
+                "generation identity cannot be canonicalized: {error}"
+            ))
+        })?,
+        Some(version) => {
+            return Err(unauthorized(format!(
+                "generation manifest schema {version} is unsupported"
+            )))
+        }
+        None => return Err(unauthorized("generation manifest omits schemaVersion")),
+    };
+    let computed = raw_sha256(&identity_bytes);
     if computed != generation_id {
         return Err(unauthorized("generation identity hash is invalid"));
     }
@@ -554,8 +590,10 @@ fn verify_signature_envelope(
     manifest_signer: &str,
     canonical_manifest: &[u8],
 ) -> Result<(), TierWError> {
-    if envelope.get("schemaVersion").and_then(Value::as_u64) != Some(1)
-        || envelope.get("namespace").and_then(Value::as_str) != Some(SIGNATURE_NAMESPACE)
+    if !matches!(
+        envelope.get("schemaVersion").and_then(Value::as_u64),
+        Some(1 | 2)
+    ) || envelope.get("namespace").and_then(Value::as_str) != Some(SIGNATURE_NAMESPACE)
         || envelope.get("algorithm").and_then(Value::as_str) != Some("Ed25519")
     {
         return Err(unauthorized("generation signature envelope is invalid"));

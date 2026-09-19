@@ -5,6 +5,8 @@ use std::path::{Path, PathBuf};
 use std::process::Command;
 use std::time::{SystemTime, UNIX_EPOCH};
 
+use sha2::{Digest as _, Sha256};
+
 fn unique_temp_dir(label: &str) -> PathBuf {
     let nanos = SystemTime::now()
         .duration_since(UNIX_EPOCH)
@@ -20,6 +22,10 @@ fn write_file(path: &Path, contents: &str) {
         fs::create_dir_all(parent).expect("create parent directory");
     }
     fs::write(path, contents).expect("write file");
+}
+
+fn sha256(bytes: &[u8]) -> String {
+    format!("{:x}", Sha256::digest(bytes))
 }
 
 fn collect_paths(root: &Path) -> BTreeSet<String> {
@@ -138,6 +144,201 @@ fn doctor_json_mode_emits_versioned_schema() {
         !stdout.contains('\u{1b}'),
         "doctor --json must not contain ANSI escapes; payload: {stdout}"
     );
+}
+
+#[cfg(unix)]
+fn structured_hook_fixture(label: &str, hooks: &serde_json::Value) -> (PathBuf, PathBuf) {
+    use std::os::unix::fs::symlink;
+
+    let repository = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("../../../..")
+        .canonicalize()
+        .expect("repository root");
+    let project = unique_temp_dir(&format!("{label}-project"));
+    let home = unique_temp_dir(&format!("{label}-home"));
+    for relative in [
+        "shared/harnesses/generated/release-manifest.json",
+        "shared/harnesses/hook-contract.json",
+        "dist/plugins/codex/prometheus-skill-pack/.codex-plugin/plugin.json",
+    ] {
+        let destination = project.join(relative);
+        fs::create_dir_all(destination.parent().unwrap()).expect("fixture parent");
+        fs::copy(repository.join(relative), destination).expect("copy fixture source");
+    }
+    write_file(
+        &project.join("hooks/codex-hooks.json"),
+        &format!("{}\n", serde_json::to_string_pretty(hooks).unwrap()),
+    );
+    let plugin_root = home.join(".prometheus/plugins/prometheus-skill-pack");
+    let generation = "fixture-generation";
+    let generation_root = plugin_root.join("generations").join(generation);
+    let release: serde_json::Value = serde_json::from_slice(
+        &fs::read(project.join("shared/harnesses/generated/release-manifest.json"))
+            .expect("release manifest"),
+    )
+    .expect("release manifest JSON");
+    let bundle = release["bundleId"].as_str().expect("bundle id");
+    let source_plugin =
+        project.join("dist/plugins/codex/prometheus-skill-pack/.codex-plugin/plugin.json");
+    let plugin: serde_json::Value =
+        serde_json::from_slice(&fs::read(&source_plugin).expect("source plugin"))
+            .expect("source plugin JSON");
+    let version = plugin["version"].as_str().expect("plugin version");
+    let runner = b"fixture runner\n";
+
+    fs::create_dir_all(generation_root.join("hooks")).expect("generation hooks");
+    fs::create_dir_all(generation_root.join(".codex-plugin")).expect("generation plugin");
+    fs::copy(
+        project.join("hooks/codex-hooks.json"),
+        generation_root.join("hooks/codex-hooks.json"),
+    )
+    .expect("copy hooks");
+    fs::copy(
+        &source_plugin,
+        generation_root.join(".codex-plugin/plugin.json"),
+    )
+    .expect("copy plugin");
+    write_file(
+        &generation_root.join("manifest.json"),
+        &format!(
+            "{{\"bundleId\":\"{bundle}\",\"hookRuntime\":{{\"runnerSha256\":\"{}\"}}}}\n",
+            sha256(runner)
+        ),
+    );
+    write_file(
+        &plugin_root.join("runtime/v1/run-hook"),
+        std::str::from_utf8(runner).unwrap(),
+    );
+    fs::create_dir_all(plugin_root.join("bundles")).expect("bundle index");
+    symlink(
+        Path::new("generations").join(generation),
+        plugin_root.join("current"),
+    )
+    .expect("active generation");
+    symlink(
+        Path::new("../generations").join(generation),
+        plugin_root.join("bundles").join(bundle),
+    )
+    .expect("bundle generation");
+    let cache = home
+        .join(".codex/plugins/cache/prometheus-skill-pack/prometheus-skill-pack")
+        .join(version)
+        .join(".codex-plugin/plugin.json");
+    fs::create_dir_all(cache.parent().unwrap()).expect("Codex cache");
+    fs::copy(source_plugin, cache).expect("copy Codex plugin cache");
+
+    (project, home)
+}
+
+#[cfg(unix)]
+fn run_hook_doctor(project: &Path, home: &Path) -> std::process::Output {
+    Command::new(env!("CARGO_BIN_EXE_prometheus"))
+        .current_dir(project)
+        .env("HOME", home)
+        .args(["doctor", "--json", "--check", "hooks.harness-adapters"])
+        .output()
+        .expect("run hook graph doctor")
+}
+
+fn first_hook_args_mut(value: &mut serde_json::Value) -> Option<&mut Vec<serde_json::Value>> {
+    match value {
+        serde_json::Value::Object(object) => {
+            if object.get("command").and_then(serde_json::Value::as_str) == Some("node") {
+                return object
+                    .get_mut("args")
+                    .and_then(serde_json::Value::as_array_mut);
+            }
+            object.values_mut().find_map(first_hook_args_mut)
+        }
+        serde_json::Value::Array(values) => values.iter_mut().find_map(first_hook_args_mut),
+        _ => None,
+    }
+}
+
+#[cfg(unix)]
+#[test]
+fn doctor_accepts_generated_structured_codex_hook_graph() {
+    let repository = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("../../../..")
+        .canonicalize()
+        .expect("repository root");
+    let hooks: serde_json::Value = serde_json::from_slice(
+        &fs::read(repository.join("hooks/codex-hooks.json")).expect("source hooks"),
+    )
+    .expect("source hooks JSON");
+    let (project, home) = structured_hook_fixture("doctor-structured-codex", &hooks);
+
+    let output = run_hook_doctor(&project, &home);
+
+    assert!(
+        output.status.success(),
+        "hook graph doctor failed:\nstdout={}\nstderr={}",
+        String::from_utf8_lossy(&output.stdout),
+        String::from_utf8_lossy(&output.stderr)
+    );
+    let payload: serde_json::Value = serde_json::from_slice(&output.stdout).expect("doctor JSON");
+    assert_eq!(payload["summary"]["failed"], 0);
+    assert_eq!(payload["checks"][0]["id"], "hooks.harness-adapters");
+}
+
+#[cfg(unix)]
+#[test]
+fn doctor_rejects_unpinned_structured_codex_hook_graphs() {
+    let repository = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("../../../..")
+        .canonicalize()
+        .expect("repository root");
+    let original: serde_json::Value = serde_json::from_slice(
+        &fs::read(repository.join("hooks/codex-hooks.json")).expect("source hooks"),
+    )
+    .expect("source hooks JSON");
+
+    for (label, mutate) in [
+        "wrong-entry",
+        "wrong-hook-id",
+        "mutable-runtime",
+        "duplicate-hook-flag",
+    ]
+    .into_iter()
+    .enumerate()
+    {
+        let mut hooks = original.clone();
+        let args = first_hook_args_mut(&mut hooks).expect("first hook arguments");
+        match mutate {
+            "wrong-entry" => {
+                args[0] = serde_json::Value::String(
+                    "${CLAUDE_PLUGIN_ROOT}/unexpected/scripts/hook-entry.mjs".into(),
+                )
+            }
+            "wrong-hook-id" => {
+                let position = args
+                    .iter()
+                    .position(|value| value.as_str() == Some("--hook"))
+                    .unwrap();
+                args[position + 1] = serde_json::Value::String("fabricated-hook".into());
+            }
+            "mutable-runtime" => args.push(serde_json::Value::String("/stable/unpinned".into())),
+            "duplicate-hook-flag" => {
+                args.push(serde_json::Value::String("--hook".into()));
+                args.push(serde_json::Value::String("fabricated-hook".into()));
+            }
+            _ => unreachable!(),
+        }
+        let (project, home) = structured_hook_fixture(&format!("doctor-invalid-{label}"), &hooks);
+        let output = run_hook_doctor(&project, &home);
+        assert!(!output.status.success(), "invalid case {mutate} passed");
+        let payload: serde_json::Value =
+            serde_json::from_slice(&output.stdout).expect("doctor JSON");
+        assert_eq!(payload["summary"]["failed"], 1, "{mutate}: {payload}");
+        assert!(
+            payload["checks"][0]["details"]
+                .as_array()
+                .is_some_and(|details| details.iter().any(|detail| detail
+                    .as_str()
+                    .is_some_and(|text| text.contains("not pinned")))),
+            "{mutate}: {payload}"
+        );
+    }
 }
 
 #[test]
