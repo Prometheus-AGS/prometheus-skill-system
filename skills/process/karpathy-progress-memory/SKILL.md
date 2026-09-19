@@ -30,6 +30,23 @@ project-scoped knowledge store through `pk ingest`. If `pk` or its backing
 service is unavailable, the same bounded record enters the existing durable
 memory outbox. This degraded state is reported and does not block later work.
 
+## Progress Signals (MANDATORY)
+
+Before recording a boundary, emit:
+
+```text
+Starting karpathy-progress-memory — <task|change|phase> <qualified identity>
+```
+
+After the recorder returns, emit its actual result:
+
+```text
+Completed karpathy-progress-memory — <recorded|queued|degraded|duplicate>
+```
+
+Use the canonical boundary and identity from the validated event. Never print
+`recorded` when the command returned a queued or degraded result.
+
 ## Automatic boundary use
 
 KBD invokes the recorder after successful task, change, and phase transitions.

@@ -14,7 +14,7 @@ PLUGIN_ROOT="$TEST_HOME/.prometheus/plugins/prometheus-skill-pack"
 mkdir -p "$FAKE_BIN" "$PLUGIN_ROOT/generations/$GENERATION/skills/process/kbd-process-orchestrator/skills"
 cp -R "$SOURCE_KBD" "$PLUGIN_ROOT/generations/$GENERATION/skills/process/kbd-process-orchestrator/skills/kbd-init"
 cp -R "$SOURCE_KBD" "$PLUGIN_ROOT/generations/$GENERATION/skills/kbd-init"
-printf '{"sourceVersion":"1.7.0"}\n' > "$PLUGIN_ROOT/generations/$GENERATION/manifest.json"
+printf '{"sourceVersion":"1.10.0"}\n' > "$PLUGIN_ROOT/generations/$GENERATION/manifest.json"
 ln -s "generations/$GENERATION" "$PLUGIN_ROOT/current"
 
 UMBRELLA_INSTALL="$TEST_HOME/native/umbrella"
@@ -31,8 +31,8 @@ cat > "$TMP_ROOT/claude-before.json" <<JSON
 JSON
 cat > "$TMP_ROOT/claude-after.json" <<JSON
 [
-  {"id":"prometheus-skill-pack@prometheus-skill-pack","scope":"user","version":"1.7.0","installPath":"$UMBRELLA_INSTALL"},
-  {"id":"prometheus-process-skills@prometheus-skill-pack","scope":"user","version":"1.5.2","installPath":"$PROCESS_INSTALL"}
+  {"id":"prometheus-skill-pack@prometheus-skill-pack","scope":"user","version":"1.10.0","installPath":"$UMBRELLA_INSTALL"},
+  {"id":"prometheus-process-skills@prometheus-skill-pack","scope":"user","version":"1.6.0","installPath":"$PROCESS_INSTALL"}
 ]
 JSON
 
@@ -84,8 +84,8 @@ if [[ "$*" == plugin\ add\ *\ --json ]]; then
 fi
 if [[ "$*" == "plugin list --json" ]]; then
   printf '{"installed":[
-    {"pluginId":"prometheus-skill-pack@prometheus-skill-pack","version":"1.7.0","installed":true,"enabled":true,"source":{"path":"%s/dist/plugins/codex/prometheus-skill-pack"}},
-    {"pluginId":"prometheus-process-skills@prometheus-skill-pack","version":"1.5.2","installed":true,"enabled":true,"source":{"path":"%s/skills/process"}}
+    {"pluginId":"prometheus-skill-pack@prometheus-skill-pack","version":"1.10.0","installed":true,"enabled":true,"source":{"path":"%s/dist/plugins/codex/prometheus-skill-pack"}},
+    {"pluginId":"prometheus-process-skills@prometheus-skill-pack","version":"1.6.0","installed":true,"enabled":true,"source":{"path":"%s/skills/process"}}
   ]}\n' "${PROMETHEUS_NATIVE_TEST_REPO:?}" "${PROMETHEUS_NATIVE_TEST_REPO:?}"
   exit 0
 fi
@@ -158,7 +158,7 @@ MISSING_PLUGIN="$MISSING_HOME/.prometheus/plugins/prometheus-skill-pack"
 mkdir -p "$MISSING_PLUGIN/generations/$GENERATION/skills/process/kbd-process-orchestrator/skills"
 cp -R "$SOURCE_KBD" "$MISSING_PLUGIN/generations/$GENERATION/skills/process/kbd-process-orchestrator/skills/kbd-init"
 cp -R "$SOURCE_KBD" "$MISSING_PLUGIN/generations/$GENERATION/skills/kbd-init"
-printf '{"sourceVersion":"1.7.0"}\n' > "$MISSING_PLUGIN/generations/$GENERATION/manifest.json"
+printf '{"sourceVersion":"1.10.0"}\n' > "$MISSING_PLUGIN/generations/$GENERATION/manifest.json"
 ln -s "generations/$GENERATION" "$MISSING_PLUGIN/current"
 HOME="$MISSING_HOME" \
 PROMETHEUS_CLAUDE_BIN="$TMP_ROOT/missing-claude" \

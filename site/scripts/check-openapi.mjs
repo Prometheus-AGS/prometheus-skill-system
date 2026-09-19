@@ -4,8 +4,15 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const siteRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const repoRoot = path.resolve(siteRoot, '..');
 const specPath = path.join(siteRoot, 'static/openapi/surreal-memory-v2.openapi.json');
 const spec = JSON.parse(fs.readFileSync(specPath, 'utf8'));
+const releaseMatrix = JSON.parse(
+  fs.readFileSync(path.join(repoRoot, 'config/release-version-matrix.json'), 'utf8')
+);
+const memoryRelease = releaseMatrix.intentionalExemptions.find(
+  entry => entry.surface === 'surreal-memory-server submodule'
+)?.version;
 const failures = [];
 
 const requireValue = (condition, message) => {
@@ -29,7 +36,10 @@ const payloadHash = payload =>
     .digest('hex');
 
 requireValue(spec.openapi === '3.1.0', 'OpenAPI version must be 3.1.0');
-requireValue(spec.info?.version === '1.7.0', 'OpenAPI release version must be 1.7.0');
+requireValue(
+  spec.info?.version === memoryRelease,
+  `OpenAPI release version must be ${memoryRelease ?? 'declared in the release matrix'}`
+);
 for (const route of [
   '/health',
   '/ready',

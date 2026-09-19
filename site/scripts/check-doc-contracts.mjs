@@ -10,10 +10,16 @@ const require = createRequire(import.meta.url);
 const sidebars = require(path.join(siteRoot, 'sidebars.js'));
 const configSource = fs.readFileSync(path.join(siteRoot, 'docusaurus.config.js'), 'utf8');
 const failures = [];
-const release = '1.7.0';
 
 const json = file => JSON.parse(fs.readFileSync(file, 'utf8'));
 const text = file => fs.readFileSync(file, 'utf8');
+const releaseMatrix = json(path.join(repoRoot, 'config/release-version-matrix.json'));
+const release = releaseMatrix.release;
+const exemptionVersion = surface =>
+  releaseMatrix.intentionalExemptions.find(entry => entry.surface === surface)?.version;
+const knowledgeRelease = exemptionVersion('prometheus-knowledge submodule');
+const memoryRelease = exemptionVersion('surreal-memory-server submodule');
+const execRelease = exemptionVersion('prometheus-exec');
 const sitePackage = json(path.join(siteRoot, 'package.json'));
 const cargoTableVersion = (file, table) => {
   const source = text(file);
@@ -71,32 +77,46 @@ if (
   failures.push(`SKILLS.md is not version ${release}`);
 }
 
-for (const [label, file, table] of [
+for (const [label, file, table, expected] of [
   [
     'Prometheus CLI workspace',
     path.join(repoRoot, 'tools/prometheus-cli/Cargo.toml'),
     'workspace.package',
+    release,
   ],
   [
     'Knowledge workspace',
     path.join(repoRoot, 'tools/prometheus-knowledge/Cargo.toml'),
     'workspace.package',
+    knowledgeRelease,
   ],
   [
     'Memory server package',
     path.join(repoRoot, 'tools/surreal-memory-server/Cargo.toml'),
     'package',
+    memoryRelease,
   ],
-  ['Prometheus Exec binary', path.join(repoRoot, 'crates/prometheus-exec/Cargo.toml'), 'package'],
+  [
+    'Prometheus Exec binary',
+    path.join(repoRoot, 'crates/prometheus-exec/Cargo.toml'),
+    'package',
+    execRelease,
+  ],
   [
     'Prometheus Exec contracts',
     path.join(repoRoot, 'substrate/exec-contracts/Cargo.toml'),
     'package',
+    execRelease,
   ],
-  ['Prometheus Exec service', path.join(repoRoot, 'substrate/exec-service/Cargo.toml'), 'package'],
+  [
+    'Prometheus Exec service',
+    path.join(repoRoot, 'substrate/exec-service/Cargo.toml'),
+    'package',
+    execRelease,
+  ],
 ]) {
-  if (cargoTableVersion(file, table) !== release) {
-    failures.push(`${label} is not version ${release}`);
+  if (cargoTableVersion(file, table) !== expected) {
+    failures.push(`${label} is not version ${expected}`);
   }
 }
 
@@ -110,11 +130,11 @@ for (const crate of [
   'pk-event-store',
 ]) {
   const dependency = new RegExp(
-    `^${crate}\\s*=\\s*\\{[^\\n]*version\\s*=\\s*"${release.replaceAll('.', '\\.')}"`,
+    `^${crate}\\s*=\\s*\\{[^\\n]*version\\s*=\\s*"${knowledgeRelease.replaceAll('.', '\\.')}"`,
     'm'
   );
   if (!dependency.test(knowledgeManifest)) {
-    failures.push(`Knowledge dependency ${crate} is not pinned to ${release}`);
+    failures.push(`Knowledge dependency ${crate} is not pinned to ${knowledgeRelease}`);
   }
 }
 
@@ -290,24 +310,24 @@ for (const file of driftFiles) {
 }
 
 const rootSpec = path.join(siteRoot, 'static/openapi/surreal-memory-v2.openapi.json');
-if (json(rootSpec).info?.version !== release)
-  failures.push(`Memory OpenAPI is not version ${release}`);
+if (json(rootSpec).info?.version !== memoryRelease)
+  failures.push(`Memory OpenAPI is not version ${memoryRelease}`);
 const sovereignSpec = path.join(siteRoot, 'static/openapi/sovereign-sync-v2.openapi.json');
-if (!fs.existsSync(sovereignSpec) || json(sovereignSpec).info?.version !== release) {
-  failures.push(`Sovereign Sync OpenAPI is not version ${release}`);
+if (!fs.existsSync(sovereignSpec)) {
+  failures.push('Sovereign Sync OpenAPI snapshot is missing');
 }
 const execReferenceSpec = path.join(repoRoot, 'docs/reference/api/prometheus-exec.openapi.json');
 const execSiteSpec = path.join(siteRoot, 'static/openapi/prometheus-exec.openapi.json');
 if (
   !fs.existsSync(execSiteSpec) ||
-  json(execSiteSpec).info?.version !== release ||
+  json(execSiteSpec).info?.version !== execRelease ||
   JSON.stringify(json(execSiteSpec)) !== JSON.stringify(json(execReferenceSpec))
 ) {
-  failures.push('Prometheus Exec OpenAPI is missing, stale, or not version 1.7.0');
+  failures.push(`Prometheus Exec OpenAPI is missing, stale, or not version ${execRelease}`);
 }
 const execBinary = json(path.join(repoRoot, 'config/prometheus-exec-binary.json'));
-if (execBinary.expectedVersion !== `prometheus-exec ${release}`) {
-  failures.push(`Prometheus Exec installation manifest is not version ${release}`);
+if (execBinary.expectedVersion !== `prometheus-exec ${execRelease}`) {
+  failures.push(`Prometheus Exec installation manifest is not version ${execRelease}`);
 }
 const execComponent = json(path.join(repoRoot, 'config/prometheus-exec-component.json'));
 const componentBytes = fs.readFileSync(path.join(repoRoot, execComponent.sourcePath));

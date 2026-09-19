@@ -63,8 +63,8 @@ HOME="$TEST_HOME" node "$PAYLOAD/scripts/install-plugin-generation.js" \
 
 receipt_count="$(find "$PLUGIN_ROOT/receipts/$GENERATION" -type f -name '*.json' | wc -l | tr -d ' ')"
 test "$receipt_count" = 14
-test "$(node -p 'require(process.argv[1]).sourceVersion' "$PLUGIN_ROOT/current/manifest.json")" = "1.8.0"
-test "$(node -p 'require(process.argv[1]).version' "$PAYLOAD/.claude-plugin/plugin.json")" = "1.8.0"
+test "$(node -p 'require(process.argv[1]).sourceVersion' "$PLUGIN_ROOT/current/manifest.json")" = "1.10.0"
+test "$(node -p 'require(process.argv[1]).version' "$PAYLOAD/.claude-plugin/plugin.json")" = "1.10.0"
 
 if rg -q 'NOT_ACTIVATED' "$FIXTURE/first.err" "$FIXTURE/second.err"; then
   printf 'marketplace bootstrap unexpectedly reported NOT_ACTIVATED\n' >&2

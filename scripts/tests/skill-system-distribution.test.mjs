@@ -12,8 +12,8 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
 const contract = readSkillSystem(root);
 const skills = collectDistributionSkills(root, contract);
 
-assert.equal(contract.releaseVersion, '1.8.0');
-assert.equal(contract.minimumActiveVersion, '1.8.0');
+assert.equal(contract.releaseVersion, '1.10.0');
+assert.equal(contract.minimumActiveVersion, '1.10.0');
 assert.equal(contract.targets.length, 14);
 assert.equal(new Set(skills.map(skill => skill.name)).size, skills.length);
 assert(skills.some(skill => skill.name === 'artifact-refiner'));

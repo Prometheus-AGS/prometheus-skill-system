@@ -42,6 +42,19 @@ check('a verbatim candidate is contained by an ordinary parent', () => {
   assert.equal(isWithin('\\\\?\\C:\\store', '\\\\?\\C:\\store'), true);
 });
 
+check('Windows drive and UNC paths use Windows containment rules on every host', () => {
+  assert.equal(isWithin('C:\\store', 'c:/store/generations/abc'), true);
+  assert.equal(
+    isWithin('\\\\server\\share\\store', '\\\\?\\UNC\\server\\share\\store\\generations\\abc'),
+    true
+  );
+  assert.equal(
+    isWithin('\\\\server\\share\\store', '\\\\server\\other-share\\store\\generations\\abc'),
+    false
+  );
+  assert.equal(isWithin('C:\\store', 'D:\\store\\generations\\abc'), false);
+});
+
 check('normalization does not widen the guard', () => {
   // The whole risk of stripping a prefix is that it turns a real escape into an
   // accepted path. It must not: an escape is an escape in either spelling.
@@ -446,6 +459,60 @@ check('a pointer that does not name a generation is refused on write and on read
   fs.writeFileSync(path.join(store.root, 'pointers/current'), '../../etc\n');
   assert.throws(() => __testing.readPointer(store.root, 'current'));
 });
+
+if (capabilities.symlinkDirectory) {
+  check('activation and pointer rollback work through a symlinked store root', () => {
+    const store = twoGenerationStore('realpath-parent');
+    const bundleId = 'c'.repeat(64);
+    fs.mkdirSync(path.join(store.root, 'pointers/bundles'), { recursive: true });
+    fs.writeFileSync(
+      path.join(store.root, 'pointers/bundles', bundleId),
+      `generations/${store.first}\n`
+    );
+    const alias = path.join(workspace, 'realpath-parent-alias');
+    fs.symlinkSync(store.root, alias, 'dir');
+
+    __testing.setActivationPointer(
+      alias,
+      'current',
+      `generations/${store.first}`,
+      `generations/${store.first}`
+    );
+    assert.equal(__testing.readPointer(alias, 'current'), `generations/${store.first}`);
+    assert.equal(fs.readFileSync(path.join(alias, 'current', 'marker'), 'utf8'), store.first);
+
+    __testing.setActivationPointer(
+      alias,
+      'previous',
+      `generations/${store.first}`,
+      `generations/${store.first}`
+    );
+    __testing.setActivationPointer(
+      alias,
+      'current',
+      `generations/${store.second}`,
+      `generations/${store.second}`
+    );
+    assert.equal(fs.readFileSync(path.join(alias, 'current', 'marker'), 'utf8'), store.second);
+
+    // Exercise the same two durable pointer swaps used by rollbackLocked. The
+    // alias must remain a valid store root while both the authoritative files
+    // and convenience links exchange generations.
+    const active = __testing.readPointer(alias, 'current');
+    const previous = __testing.readPointer(alias, 'previous');
+    __testing.setActivationPointer(alias, 'current', previous, previous);
+    __testing.setActivationPointer(alias, 'previous', active, active);
+    assert.equal(fs.readFileSync(path.join(alias, 'current', 'marker'), 'utf8'), store.first);
+    assert.equal(fs.readFileSync(path.join(alias, 'previous', 'marker'), 'utf8'), store.second);
+    assert.equal(fs.readdirSync(path.join(alias, 'pointers/.pending')).length, 0);
+    assert.equal(
+      __testing.resolveBundleIndex(alias, bundleId, 'bundle index'),
+      fs.realpathSync(path.join(store.root, 'generations', store.first))
+    );
+  });
+} else {
+  skip('symlinked store ancestor', 'no directory symlink primitive on this volume');
+}
 
 fs.rmSync(workspace, { recursive: true, force: true });
 

@@ -180,6 +180,17 @@ ARTIFACT_JSON=$(jq -n --arg goal_id "$TEST_GOAL_ID" '{
   explanation_text: "A vector is an ordered list of numbers that has both magnitude and direction.",
   gaps_identified: [],
   overall_score: 0.75,
+  transfer_scores: [0.75],
+  verification: [
+    {
+      label: "verified",
+      evidence: "grade-vectors-001.json transfer_problems[0] against the sample corpus"
+    }
+  ],
+  provenance: {
+    grade_file: "grade-vectors-001.json",
+    corpus_path: "sample-corpus.json"
+  },
   passed: true,
   created_at: "2026-06-28T00:00:00Z"
 }')
@@ -198,7 +209,7 @@ fi
 
 # ── Step 7: Verify artifact file exists with overall_score ────────────────────
 
-ARTIFACT_PATH="${HOME}/.prometheus/learn/goals/${TEST_GOAL_ID}/artifacts/feynman-vectors-001.json"
+ARTIFACT_PATH="${HOME}/.prometheus/learn/goals/${TEST_GOAL_ID}/artifacts/vectors/feynman-vectors-001.json"
 
 if [[ ! -f "$ARTIFACT_PATH" ]]; then
   echo "[FAIL] artifact file not found at: $ARTIFACT_PATH" >&2

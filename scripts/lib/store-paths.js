@@ -58,11 +58,15 @@ export function stripVerbatimPrefix(value) {
  * either string.
  */
 export function isWithin(parent, candidate) {
-  const normalizedParent = path.resolve(stripVerbatimPrefix(parent));
-  const normalizedCandidate = path.resolve(stripVerbatimPrefix(candidate));
-  const relative = path.relative(normalizedParent, normalizedCandidate);
+  const strippedParent = stripVerbatimPrefix(parent);
+  const strippedCandidate = stripVerbatimPrefix(candidate);
+  const windowsForm = value => /^[A-Za-z]:[\\/]/.test(value) || value.startsWith('\\\\');
+  const paths = windowsForm(strippedParent) || windowsForm(strippedCandidate) ? path.win32 : path;
+  const normalizedParent = paths.resolve(strippedParent);
+  const normalizedCandidate = paths.resolve(strippedCandidate);
+  const relative = paths.relative(normalizedParent, normalizedCandidate);
   return (
     relative === '' ||
-    (!relative.startsWith(`..${path.sep}`) && relative !== '..' && !path.isAbsolute(relative))
+    (!relative.startsWith(`..${paths.sep}`) && relative !== '..' && !paths.isAbsolute(relative))
   );
 }

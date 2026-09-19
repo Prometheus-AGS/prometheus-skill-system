@@ -24,4 +24,19 @@ if bash "$REPO_ROOT/scripts/install-binaries.sh" --sharing --dry-run >/dev/null 
     exit 1
 fi
 
-echo "Companion-owned service definitions are absent from pack installers: PASS"
+if [[ -e "$REPO_ROOT/site/scripts/generate-sovereign-openapi.mjs" ]]; then
+    echo "pack docs retained a generator coupled to the Companion-owned crate" >&2
+    exit 1
+fi
+
+if jq -e '.scripts | has("generate:sovereign-openapi")' "$REPO_ROOT/site/package.json" >/dev/null; then
+    echo "pack docs retained a Companion-owned OpenAPI generation command" >&2
+    exit 1
+fi
+
+if rg -q 'substrate/sovereign-sync/Cargo.toml' "$REPO_ROOT/site"; then
+    echo "pack docs still reference the removed sovereign-sync crate manifest" >&2
+    exit 1
+fi
+
+echo "Companion-owned services and generators are absent from the pack: PASS"

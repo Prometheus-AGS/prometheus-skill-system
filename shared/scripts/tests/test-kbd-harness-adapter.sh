@@ -31,17 +31,14 @@ grep -q '^lifecycle=pause_requested$' "$TEST_ROOT/.kbd-orchestrator/PAUSE"
 
 rm "$TEST_ROOT/.kbd-orchestrator/PAUSE"
 mkdir -p "$TEST_ROOT/bin"
-cat >"$TEST_ROOT/bin/curl" <<'MOCK'
+cat >"$TEST_ROOT/bin/prometheus" <<'MOCK'
 #!/usr/bin/env bash
 printf '%s\n' '{"revision":42,"planRevision":7,"lifecycle":"paused","activePath":{"phaseId":"phase-a","stageId":"audit","changeId":"change-a","taskId":"task-a"},"exactNextWork":"Review the committed architecture decision"}'
 MOCK
-chmod +x "$TEST_ROOT/bin/curl"
-printf 'test-control-token-with-at-least-thirty-two-characters\n' >"$TEST_ROOT/control-token"
+chmod +x "$TEST_ROOT/bin/prometheus"
 REANCHOR="$(
   cd "$TEST_ROOT"
-  PATH="$TEST_ROOT/bin:$PATH" \
-    PROMETHEUS_CONTROL_TOKEN_FILE="$TEST_ROOT/control-token" \
-    bash "$ADAPTER" post_compact codex
+  PATH="$TEST_ROOT/bin:$PATH" bash "$ADAPTER" post_compact codex
 )"
 [[ "$REANCHOR" == *"committed revision 42"* ]]
 [[ "$REANCHOR" == *"phase-a → audit → change-a → task-a"* ]]

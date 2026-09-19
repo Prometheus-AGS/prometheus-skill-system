@@ -15,6 +15,7 @@ mkdir -p \
   "$SOURCE/config" \
   "$SOURCE/hooks" \
   "$SOURCE/scripts" \
+  "$SOURCE/scripts/lib" \
   "$SOURCE/shared/harnesses" \
   "$SOURCE/shared/scripts/lib" \
   "$SOURCE/shared/scripts/tests/fixtures" \
@@ -35,6 +36,8 @@ printf '#!/usr/bin/env bash\n' > "$SOURCE/shared/scripts/lib/hook-log.sh"
 printf '#!/usr/bin/env bash\n' > "$SOURCE/shared/scripts/lib/memory-bridge.sh"
 cp "$ROOT/scripts/install-plugin-generation.js" "$SOURCE/scripts/install-plugin-generation.js"
 cp "$ROOT/scripts/generate-harness-adapters.js" "$SOURCE/scripts/generate-harness-adapters.js"
+cp "$ROOT/scripts/hook-entry.mjs" "$SOURCE/scripts/hook-entry.mjs"
+cp "$ROOT/scripts/lib/"*.js "$SOURCE/scripts/lib/"
 jq '.inventory.roots = [{"path":"skills","scan":"recursive"}] | .imports = []' \
   "$ROOT/skill-system.json" > "$SOURCE/skill-system.json"
 cp "$ROOT/config/prometheus-exec-component.json" "$SOURCE/config/prometheus-exec-component.json"
@@ -85,9 +88,10 @@ for script in enqueue-learning-job enqueue-memory-operation; do
 done
 chmod +x "$SOURCE/skills/example/scripts/example.sh"
 printf '{}\n' > "$SOURCE/hooks/hooks.json"
-printf '{"name":"prometheus-skill-pack","version":"1.7.0"}\n' > \
+RELEASE_VERSION="$(jq -r '.releaseVersion' "$SOURCE/skill-system.json")"
+printf '{"name":"prometheus-skill-pack","version":"%s"}\n' "$RELEASE_VERSION" > \
   "$SOURCE/dist/plugins/claude/prometheus-skill-pack/.claude-plugin/plugin.json"
-printf '{"name":"prometheus-skill-pack","version":"1.7.0"}\n' > \
+printf '{"name":"prometheus-skill-pack","version":"%s"}\n' "$RELEASE_VERSION" > \
   "$SOURCE/dist/plugins/codex/prometheus-skill-pack/.codex-plugin/plugin.json"
 printf '{"plugins":[]}\n' > "$SOURCE/.agents/plugins/marketplace.json"
 printf '{}\n' > "$SOURCE/.mcp.json"
@@ -154,7 +158,7 @@ cmp "$PLUGIN_ROOT/generations/$FIRST_HASH/indexes/components.json" \
   "$PLUGIN_ROOT/generations/$FIRST_HASH/mobile/component-index.json"
 [[ "$(jq -r '.skillIndexSha256' "$PLUGIN_ROOT/generations/$FIRST_HASH/mobile/parity.json")" == \
     "$(jq -r '.skillIndex.sha256' "$PLUGIN_ROOT/generations/$FIRST_HASH/manifest.json")" ]]
-[[ "$(jq -r '.files[] | select(.path == "shared/scripts/karpathy-hook-dispatch.sh") | .mode' "$PLUGIN_ROOT/generations/$FIRST_HASH/manifest.json")" == "0755" ]]
+[[ "$(jq -r '.files[] | select(.path == "shared/scripts/karpathy-hook-dispatch.sh") | .executable' "$PLUGIN_ROOT/generations/$FIRST_HASH/manifest.json")" == "true" ]]
 for script in karpathy-hook-dispatch detect-project-context memory-outbox-flush pk-health; do
   [[ "$(readlink "$PLUGIN_ROOT/stable/$script.sh")" == "../current/shared/scripts/$script.sh" ]]
   cmp "$SOURCE/shared/scripts/$script.sh" "$PLUGIN_ROOT/stable/$script.sh"
@@ -280,7 +284,7 @@ grep -q 'description: fixture$' "$TMP/home/.codex/skills/example/SKILL.md"
 grep -q 'description: fixture$' "$TMP/home/.minimax/skills/example/SKILL.md"
 echo '[PASS] pointer rollback restores the previous verified generation'
 
-chmod -x "$SOURCE/shared/scripts/pk-health.sh"
+git -C "$SOURCE" update-index --chmod=-x shared/scripts/pk-health.sh
 if node "$INSTALLER" --source-root "$SOURCE" --plugin-root "$PLUGIN_ROOT" --home "$TMP/home" >/dev/null 2>&1; then
   echo '[FAIL] invalid generation unexpectedly activated' >&2
   exit 1
@@ -288,7 +292,7 @@ fi
 [[ "$(readlink "$PLUGIN_ROOT/current")" == "$FIRST" ]]
 echo '[PASS] invalid script modes cannot replace the active generation'
 
-chmod +x "$SOURCE/shared/scripts/pk-health.sh"
+git -C "$SOURCE" update-index --chmod=+x shared/scripts/pk-health.sh
 mkdir -p "$SOURCE/skills/collision" \
   "$TMP/home/.claude/skills/collision" \
   "$TMP/home/.claude/skills/prometheus-collision"
