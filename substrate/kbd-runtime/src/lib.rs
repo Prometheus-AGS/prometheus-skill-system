@@ -8682,10 +8682,10 @@ mod tests {
     }
 
     #[test]
-    fn tampered_folded_checkpoint_is_rejected() {
+    fn tampered_folded_checkpoint_cannot_override_authoritative_replay() {
         let project = tempdir().unwrap();
         let runtime = Runtime::open(project.path());
-        runtime
+        let initialized = runtime
             .initialize(
                 "project-tamper",
                 "run-tamper",
@@ -8703,9 +8703,13 @@ mod tests {
         atomic_json(&path, &checkpoint).unwrap();
 
         assert!(matches!(
-            runtime.replay_authority(),
+            runtime.load_folded_checkpoint(),
             Err(RuntimeError::InvalidState(message)) if message.contains("checkpoint")
         ));
+        assert_eq!(
+            runtime.replay_authority().unwrap(),
+            authority_state(initialized)
+        );
     }
 
     #[test]
