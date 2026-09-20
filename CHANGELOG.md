@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `prometheus-context-bootstrap --layout v4`: Prometheus Rules Architecture v4. Seeds `rules/src/`
+  (constitution with v3 §A verbatim plus A-15…A-17, a named skill-routing table, seven stack rule files,
+  four domain rule files), the `rules/build.sh` generator with `--check`, `scripts/check-file-lines.sh`
+  (500-line limit with an allowlist), `scripts/check-architecture.sh` (feature-based clean-architecture
+  edges for React, Rust and Flutter, kebab-case names in React packages), the `file-lines-guard` and
+  `build-guard` hooks, and a `commit-msg` hook for `Assisted-by` / no `Signed-off-by`. `verify.sh` detects
+  the layout and runs v4 checks. Opt-in: without the flag both scripts behave exactly as before.
+
 ### Fixed
 
 - `prometheus-context-bootstrap` no longer installs `deny: Edit(.kbd-orchestrator/**)`.

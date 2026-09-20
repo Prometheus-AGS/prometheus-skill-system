@@ -19,6 +19,12 @@ done
 [[ -d "$project_path" ]] || { echo "verify: not a directory: $project_path" >&2; exit 1; }
 project_path="$(cd "$project_path" && pwd)"
 
+# Layout v4 has different invariants (CLAUDE.md is the real file and carries the rule IDs), so it has its
+# own checks. Any other project runs the checks below exactly as before.
+if grep -q 'prometheus-rules: v4' "$project_path/CLAUDE.md" 2>/dev/null; then
+  exec "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/verify-v4.sh" "$project_path"
+fi
+
 pass=0; fail=0; skip=0; warn=0
 ok()   { printf 'PASS  %-34s %s\n' "$1" "${2:-}"; pass=$((pass+1)); }
 no()   { printf 'FAIL  %-34s %s\n' "$1" "${2:-}"; fail=$((fail+1)); }

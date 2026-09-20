@@ -93,6 +93,45 @@ If the project already carries a Prometheus Base Rules v3 file, start with
 | 1 | Usage error, or path is not a directory |
 | 2 | Refused: corrupt marker pair in an agent file |
 
+## Layout v4 — Prometheus Rules Architecture v4 (opt-in)
+
+```bash
+bash scripts/bootstrap.sh --path . --layout v4 --stacks rust,typescript-react,flutter
+bash scripts/verify.sh    --path .          # detects the layout from the CLAUDE.md header
+```
+
+Five layers, one source. `rules/src/` is the only place rules are edited; `rules/build.sh` renders it and
+`rules/build.sh --check` fails on drift or a budget breach.
+
+| Layer | Rendered to | Loaded |
+|---|---|---|
+| 0 Constitution | `CLAUDE.md` — at most 120 lines and 12,500 characters; v3 §A A-1…A-14 verbatim plus A-15 (the human certifies), A-16 (reproducer before report), A-17 (plan mode default); a project block; a named skill-routing table. `AGENTS.md` and `GEMINI.md` are symlinks to it | every turn, every subagent |
+| 1 Path rules | `.claude/rules/*.md`, every one with `paths:`; the same text in nested `AGENTS.md` files listed in `rules/build.conf` for harnesses without glob rules | when a matching file is read |
+| 2 Skills | routed **by name** from the Layer 0 table; install commands in `docs/skill-routing.md` | on invocation |
+| 3 Reference | `.prometheus/`, `versions.toml`, `docs/`, `tasks/todo.md` | at bootstrap, before a subsystem |
+| 4 Hooks | the four existing hooks, plus `file-lines-guard`, `build-guard`, `.githooks/commit-msg`, `scripts/check-file-lines.sh`, `scripts/check-architecture.sh` | mechanically |
+
+The placement test for every rule: *would it change behaviour on an edit that does not touch its domain?*
+Yes → Layer 0. Only with a `.rs` file open → Layer 1. A procedure → a skill. A fact about this repo →
+Layer 3. Machine-checkable → a hook, and delete the prose.
+
+Three structure rules ship in the v4 sources and are enforced, not advised: **feature-based clean
+architecture in every layer** (React `Component → Hook → Store → Service`; Flutter `presentation → domain ←
+data`; Rust services `interface → application → domain ← infrastructure`; no cross-feature imports),
+**kebab-case file names in React packages**, and **no code file over 500 lines** — partition by
+responsibility into a sub-directory with a thin entry point; exemptions only through
+`rules/line-limit-allowlist.txt`, for generated and vendored files.
+
+What differs from the default layout, on purpose: `CLAUDE.md` is the real file and the other names link
+to it (the reverse of the default); the rule IDs live in `CLAUDE.md`, which the default `verify.sh` would
+reject as a second constitution; there are no profiles, because v3 §A verbatim replaces the condensed base
+and its execution scaffold. `--layout v4` on a project that already has agent files first copies them to
+`.prometheus/knowledge/*.pre-v4-<date>.md`; moving their project-specific rules into `rules/src/project/`
+is a human step. Seeded files are never overwritten without `--force`.
+
+Not provided: a `UserPromptSubmit` knowledge-focus hook and a `Stop` reflection hook. Both appear in the v4
+design as existing; neither exists as a hook (`knowledge_focus` and `forge_reflect` are MCP tools).
+
 ## Profiles
 
 `AGENTS.md` is per repository, not per model. When Opus 5, Kimi, MiniMax, and

@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+# A-15 · The human certifies.
+#
+#   - An agent never adds Signed-off-by or Co-Authored-By. Those are a human's statement.
+#   - An agent commit with meaningful generated content carries  Assisted-by: AGENT:MODEL [tools]
+#
+# Human commits are untouched: the rules apply only when an agent environment is detected.
+# Enable once per clone:  git config core.hooksPath .githooks
+set -uo pipefail
+
+msg_file="$1"
+ASSISTED_THRESHOLD=20   # added lines above which an agent commit must say who assisted
+
+agent=""
+[[ -n "${PROMETHEUS_AGENT:-}" ]] && agent="$PROMETHEUS_AGENT"          # explicit, e.g. codex:gpt-5.6-sol
+[[ -z "$agent" && -n "${CLAUDECODE:-}" ]] && agent="claude-code"        # set by Claude Code in its shells
+[[ -z "$agent" && -n "${CODEX_SANDBOX:-}${CODEX_SANDBOX_NETWORK_DISABLED:-}" ]] && agent="codex"   # best effort
+[[ -n "$agent" ]] || exit 0
+
+body="$(grep -v '^#' "$msg_file")"
+
+if printf '%s\n' "$body" | grep -Eiq '^(Signed-off-by|Co-Authored-By):'; then
+  cat >&2 <<EOF
+commit-msg: rejected (A-15). This commit is being made by an agent ($agent) and its message contains
+Signed-off-by or Co-Authored-By. A human certifies; an agent does not. Remove the trailer.
+EOF
+  exit 1
+fi
+
+added="$(git diff --cached --numstat 2>/dev/null | awk '$1 ~ /^[0-9]+$/ { n += $1 } END { print n + 0 }')"
+if (( added > ASSISTED_THRESHOLD )) && ! printf '%s\n' "$body" | grep -Eq '^Assisted-by: [^[:space:]:]+:[^[:space:]]+'; then
+  cat >&2 <<EOF
+commit-msg: rejected (A-15). Agent commit ($agent) adds $added lines and has no Assisted-by trailer.
+Add, as the last paragraph of the message:
+
+    Assisted-by: AGENT:MODEL [tools]
+
+for example   Assisted-by: claude-code:claude-fable-5-1 [Bash Edit Write]
+EOF
+  exit 1
+fi
+exit 0
