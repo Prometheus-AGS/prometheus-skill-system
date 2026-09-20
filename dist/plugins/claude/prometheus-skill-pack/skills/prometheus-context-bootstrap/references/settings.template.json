@@ -18,8 +18,7 @@
       "Read(./.env)",
       "Read(./**/.env)",
       "Read(./**/*.pem)",
-      "Edit(versions.toml)",
-      "Edit(.kbd-orchestrator/**)"
+      "Edit(versions.toml)"
     ],
     "additionalDirectories": []
   },

@@ -347,6 +347,28 @@ if [[ -f "$settings" && "$force" != "1" ]]; then
     warn "jq absent: cannot merge hook wiring. Hooks are installed but inert."
     settings_unwired=1
   else
+    # Releases up to 1.10.0 shipped `deny: Edit(.kbd-orchestrator/**)`. KBD stage
+    # artifacts (assessment, analysis, plan, reflection, ledgers) and kbd-init's
+    # own outputs are agent-written Markdown, so that rule blocked the lifecycle
+    # it was meant to protect: bootstrap told the operator to run /kbd-init next,
+    # and /kbd-init could no longer write. Remove exactly that entry and nothing
+    # else. Narrower, hand-written rules are the operator's and stay untouched.
+    if jq -e '(.permissions.deny // []) | index("Edit(.kbd-orchestrator/**)")' "$settings" >/dev/null 2>&1; then
+      if [[ "$dry_run" == "1" ]]; then
+        record "REPAIR" ".claude/settings.json" "would remove legacy deny Edit(.kbd-orchestrator/**)"
+      else
+        repaired="$settings.tmp.$$"
+        if jq '.permissions.deny |= map(select(. != "Edit(.kbd-orchestrator/**)"))' "$settings" > "$repaired" 2>/dev/null && [[ -s "$repaired" ]]; then
+          cp "$settings" "$settings.bak.$(date -u +%Y%m%dT%H%M%SZ)"
+          mv -f "$repaired" "$settings"
+          record "REPAIR" ".claude/settings.json" "removed legacy deny Edit(.kbd-orchestrator/**); .bak kept"
+        else
+          rm -f "$repaired"
+          warn "could not remove legacy deny Edit(.kbd-orchestrator/**) — KBD stages will be blocked until it is removed by hand"
+        fi
+      fi
+    fi
+
     need_hooks=0; need_budget=0
     jq -e '.hooks.PreToolUse' "$settings" >/dev/null 2>&1 || need_hooks=1
     jq -e '.skillListingBudgetFraction' "$settings" >/dev/null 2>&1 || need_budget=1

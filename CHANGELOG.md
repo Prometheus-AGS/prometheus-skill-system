@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- `prometheus-context-bootstrap` no longer installs `deny: Edit(.kbd-orchestrator/**)`.
+  The rule blocked `/kbd-init` and every KBD stage skill from writing their
+  artifacts. `bootstrap.sh` removes the legacy entry from existing projects
+  (`REPAIR`), and `verify.sh` fails any project whose deny list covers the whole
+  directory so the rule cannot return unnoticed.
+
 ## [1.10.0] - 2026-09-19
 
 ### Added

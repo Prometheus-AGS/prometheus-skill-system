@@ -150,6 +150,17 @@ elif jq -e . "$S" >/dev/null 2>&1; then
   jq -e '.hooks.PreToolUse' "$S" >/dev/null 2>&1 \
     && ok "tier-guard wired" "" \
     || no "tier-guard wired" "hook installed but not referenced in settings.json"
+  # KBD stage artifacts and kbd-init outputs are agent-written. A deny rule that
+  # covers the whole directory blocks the lifecycle outright; 1.10.0 shipped one.
+  kbd_blanket="$(jq -r '(.permissions.deny // [])[] | select(test("^(Edit|Write|MultiEdit|NotebookEdit)\\((\\./)?\\.kbd-orchestrator(/\\*\\*?)?/?\\)$"))' "$S" 2>/dev/null)"
+  kbd_narrow="$(jq -r '(.permissions.deny // [])[] | select(test("\\.kbd-orchestrator"))' "$S" 2>/dev/null | grep -vxF "$kbd_blanket" || true)"
+  if [[ -n "$kbd_blanket" ]]; then
+    no "KBD artifacts writable" "deny rule covers all of .kbd-orchestrator ($(printf '%s' "$kbd_blanket" | tr '\n' ' ')) — /kbd-init and every stage skill are blocked; remove it"
+  elif [[ -n "$kbd_narrow" ]]; then
+    wr "KBD artifacts writable" "$(printf '%s\n' "$kbd_narrow" | wc -l | tr -d ' ') narrower deny rule(s) under .kbd-orchestrator — confirm no stage skill writes those paths"
+  else
+    ok "KBD artifacts writable" ""
+  fi
   b="$(jq -r '.skillListingBudgetFraction // "unset"' "$S" 2>/dev/null)"
   [[ "$b" == "unset" ]] \
     && no "skill budget set" "unset — 1% default may drop skill descriptions" \

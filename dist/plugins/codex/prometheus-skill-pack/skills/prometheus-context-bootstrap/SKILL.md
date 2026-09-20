@@ -190,6 +190,21 @@ Skipping instead would leave hooks installed and unreferenced — the prose gone
 and nothing enforcing it. Without `jq` the merge cannot run, so it is reported
 as a SKIP with a warning rather than assumed.
 
+### `.kbd-orchestrator/` is never denied
+
+The settings template does not deny edits under `.kbd-orchestrator/`, and must
+not. KBD stage artifacts — `assessment.md`, `analysis.md`, `plan.md`,
+`reflection.md`, defect ledgers — and the two files `/kbd-init` owns are
+agent-written. Releases up to 1.10.0 shipped `deny: Edit(.kbd-orchestrator/**)`,
+which blocked `/kbd-init` and every stage skill in the same breath as telling
+the operator to run `/kbd-init` next.
+
+`bootstrap.sh` now removes exactly that entry from an existing `settings.json`
+(reported as `REPAIR`, `.bak` kept). `verify.sh` fails a repo whose deny list
+covers the whole directory and warns on narrower rules, which stay the
+operator's to keep or drop. The runtime-owned JSON is protected by convention
+and by the typed `prometheus kbd` commands, not by a permission rule.
+
 ### What stops being prose
 
 Several v3 rules become enforcement, which is why they are absent from the new
