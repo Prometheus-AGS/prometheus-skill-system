@@ -56,6 +56,7 @@ stack_line="${resolved[*]:-}"
 printf 'Starting prometheus-context-bootstrap — %s (layout: v4; stacks: %s)\n' "$project_path" "${stack_line:-none}"
 
 declare -a REPORT
+SEEDED=" "      # space-separated relative paths written in THIS run; a SKIPped file is the project's own
 record() { REPORT+=("$(printf '%-8s %-46s %s' "$1" "$2" "$3")"); }
 
 seed() {   # src dest [mode]
@@ -65,6 +66,7 @@ seed() {   # src dest [mode]
   [[ "$dry_run" == "1" ]] && return 0
   mkdir -p "$(dirname "$dest")"
   cp "$src" "$dest"
+  SEEDED="$SEEDED$rel "
   [[ -n "$mode" ]] && chmod "$mode" "$dest"
   return 0
 }
@@ -75,7 +77,8 @@ while IFS= read -r f; do
   rel="${f#"$SRC"/}"
   seed "$f" "rules/src/$rel"
 done < <(find "$SRC" -type f -name '*.md' | sort)
-if [[ "$dry_run" != "1" && -f "$project_path/rules/src/constitution.md" ]]; then
+# Only a constitution seeded by this run gets the project name; an existing one is never touched.
+if [[ "$dry_run" != "1" && "$SEEDED" == *" rules/src/constitution.md "* ]]; then
   python3 - "$project_path/rules/src/constitution.md" "$name" <<'PY'
 import sys
 path, name = sys.argv[1], sys.argv[2]
@@ -117,7 +120,7 @@ if [[ "$no_hooks" == "1" ]]; then
 elif ! command -v jq >/dev/null 2>&1; then
   record "SKIP" ".claude/settings.json" "jq absent — hooks installed but NOT wired"
 elif [[ "$dry_run" == "1" ]]; then
-  record "MERGE" ".claude/settings.json" "would wire file-lines-guard and build-guard"
+  record "MERGE" ".claude/settings.json" "would wire every installed hook that is not wired yet"
 else
   mkdir -p "$(dirname "$settings")"
   [[ -f "$settings" ]] || cp "$SKILL_ROOT/references/settings.template.json" "$settings"
@@ -127,10 +130,16 @@ else
         if ([.hooks[$event][]?.hooks[]?.command // ""] | any(test($script))) then .
         else .hooks[$event] = ((.hooks[$event] // []) + [{matcher: $matcher, hooks: [{type: "command", command: ("${CLAUDE_PROJECT_DIR}/.claude/hooks/" + $script)}]}]) end;
       .hooks //= {}
+      | wire("PreToolUse"; "Bash"; "tier-guard.sh")
       | wire("PreToolUse"; "Bash"; "build-guard.sh")
+      | wire("PostToolUse"; "Edit|Write"; "single-writer.sh")
       | wire("PostToolUse"; "Edit|Write"; "file-lines-guard.sh")
+      | wire("Stop"; ""; "sycophancy-gate.sh")
+      | wire("SessionStart"; ""; "reanchor.sh")
+      | wire("PreCompact"; ""; "reanchor.sh")
+      | .hooks |= with_entries(.value |= map(if .matcher == "" then del(.matcher) else . end))
     ' "$settings" > "$merged" 2>/dev/null && [[ -s "$merged" ]]; then
-    mv -f "$merged" "$settings"; record "MERGE" ".claude/settings.json" "file-lines-guard and build-guard wired"
+    mv -f "$merged" "$settings"; record "MERGE" ".claude/settings.json" "every installed hook wired (existing entries kept)"
   else
     rm -f "$merged"; record "SKIP" ".claude/settings.json" "merge failed — new hooks NOT wired"
   fi
