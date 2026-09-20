@@ -20,15 +20,12 @@
       "description": "Karpathy LLM Knowledge Base \u2014 knowledge_ingest, knowledge_focus, knowledge_search, knowledge_lint, knowledge_get"
     },
     "liter-llm": {
-      "command": "liter-llm",
+      "command": "bash",
       "args": [
-        "mcp",
-        "--transport",
-        "stdio",
-        "--config",
-        "${HOME}/.config/liter-llm/liter-llm-proxy.toml"
+        "-c",
+        "set -a; [ -f \"$HOME/.prometheus/kbd/secrets.env\" ] && . \"$HOME/.prometheus/kbd/secrets.env\"; set +a; exec liter-llm mcp --transport stdio --config \"$HOME/.config/liter-llm/liter-llm-proxy.toml\""
       ],
-      "description": "Multi-model routing proxy \u2014 22 MCP tools across 140+ providers with per-phase model class routing (default config routes through the local openai-proxy at :8181)"
+      "description": "Multi-model routing proxy \u2014 22 MCP tools across 140+ providers with per-phase model class routing (default config routes through the local openai-proxy at :8181). Launched through bash so the gateway secrets file (~/.prometheus/kbd/secrets.env, 0600) is sourced first: the proxy config interpolates the master key and refuses to start when it is empty."
     },
     "tavily": {
       "command": "npx",
