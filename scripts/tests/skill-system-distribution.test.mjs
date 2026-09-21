@@ -57,6 +57,19 @@ for (const platform of ['claude', 'codex']) {
   assert(!/tvly-[A-Za-z0-9_-]{12,}/.test(serialized));
 }
 
+// Every file the packaged hooks.json tells the harness to run must ship in the payload. When one is
+// missing, EVERY hook dies with MODULE_NOT_FOUND before any of our code runs, so nothing inside the
+// hook can report or recover from it — it can only be caught here, at packaging time.
+const claudePackageRoot = path.join(root, 'dist/plugins/claude', contract.name);
+const packagedHooks = fs.readFileSync(path.join(claudePackageRoot, 'hooks/hooks.json'), 'utf8');
+const hookTargets = [...new Set([...packagedHooks.matchAll(/\$\{CLAUDE_PLUGIN_ROOT\}\/([^"]+)/g)].map(match => match[1]))];
+assert(hookTargets.length > 0, 'packaged hooks.json references no ${CLAUDE_PLUGIN_ROOT} path');
+for (const target of hookTargets) {
+  const packaged = path.join(claudePackageRoot, ...target.split('/'));
+  assert(fs.existsSync(packaged), `hooks.json references ${target}, which is missing from the claude payload`);
+  assert.deepEqual(fs.readFileSync(packaged), canonicalBytes(path.join(root, ...target.split('/'))), `${target} differs from source`);
+}
+
 const codexManifest = JSON.parse(fs.readFileSync(path.join(root, contract.outputs.codexPackage, '.codex-plugin/plugin.json')));
 assert.equal(codexManifest.skills, './skills');
 assert.equal(codexManifest.hooks, undefined);
