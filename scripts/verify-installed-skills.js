@@ -5,7 +5,9 @@ import { homedir } from 'os';
 import { basename, dirname, join, relative, resolve } from 'path';
 import { fileURLToPath } from 'url';
 
-const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+const repoRoot = resolve(
+  process.env.VERIFY_REPO_ROOT || resolve(dirname(fileURLToPath(import.meta.url)), '..')
+);
 const skillsRoot = join(repoRoot, 'skills');
 const args = process.argv.slice(2);
 const jsonOutput = args.includes('--json');
@@ -14,7 +16,7 @@ const requestedPlatform = (() => {
   return index >= 0 ? args[index + 1] : null;
 })();
 
-const home = homedir();
+const home = resolve(process.env.VERIFY_HOME || homedir());
 const platforms = [
   ['claude-code', join(home, '.claude', 'skills')],
   ['opencode', join(home, '.opencode', 'skills')],
@@ -45,6 +47,7 @@ function collectSkills() {
       const path = join(dir, entry.name);
       const rel = relative(skillsRoot, path).split('\\').join('/');
       if (rel === 'imported' || rel.startsWith('imported/')) continue;
+      if (entry.isDirectory() && (entry.name === 'tests' || entry.name === 'fixtures')) continue;
       if (entry.isDirectory()) walk(path);
       else if (entry.name === 'SKILL.md') {
         found.push({ name: parseName(path) || basename(dir), dir });

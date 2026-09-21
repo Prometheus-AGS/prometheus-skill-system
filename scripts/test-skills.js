@@ -43,6 +43,11 @@ const allTests = [
     ['scripts/tests/refresh-native-plugin-installs.test.sh'],
   ],
   ['installer entrypoint policy', 'bash', ['scripts/tests/test-installer-entrypoints.sh']],
+  [
+    'installed skill verifier fixture policy',
+    'node',
+    ['scripts/tests/verify-installed-skills.test.mjs'],
+  ],
   ['learning basic flow', 'bash', ['tests/learn/integration-basic-flow.sh']],
   ['learning full loop', 'bash', ['tests/learn/integration-full-loop.sh']],
   ['learning KB adapter', 'bash', ['tests/learn/integration-kb.sh']],
