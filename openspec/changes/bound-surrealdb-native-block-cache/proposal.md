@@ -8,6 +8,8 @@ to 36.6 GB and durable operation queries stalled for minutes.
 
 - Set the documented `SURREAL_ROCKSDB_BLOCK_CACHE_SIZE` environment variable to
   1 GiB in both managed native service templates.
+- Include the SurrealDB definition in render-only output and start a reloaded
+  RunAtLoad launch agent exactly once.
 - Regenerate the service manifest and redeploy the managed services.
 - Verify the deployed SurrealDB log reports the bounded cache and the durable
   learning queue resumes.
@@ -28,4 +30,5 @@ None.
 The block cache may perform more disk reads than the dynamic half-memory
 default. Other SurrealDB allocations remain outside this limit, but bounding
 the cache removes the observed 33.3 GB reservation that increased host memory
-pressure.
+pressure. Removing the redundant kick relies on launchd's documented
+RunAtLoad bootstrap behavior already declared by each affected job.

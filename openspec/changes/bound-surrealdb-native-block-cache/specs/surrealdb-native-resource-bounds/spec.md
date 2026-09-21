@@ -20,3 +20,12 @@ service restart.
 #### Scenario: The skill pack is reinstalled
 - **WHEN** service templates are rendered for launchd or systemd
 - **THEN** both installed service definitions retain the same explicit cache limit
+
+#### Scenario: Service definitions are rendered without installation
+- **WHEN** the service installer runs in render-only mode
+- **THEN** its output includes the SurrealDB launch-agent definition
+- **AND** that definition contains the explicit block-cache limit
+
+#### Scenario: A RunAtLoad launch agent is reloaded
+- **WHEN** the installer boots out and bootstraps a managed RunAtLoad job
+- **THEN** it does not immediately kill and kickstart that newly started process

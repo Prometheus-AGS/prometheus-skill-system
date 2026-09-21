@@ -298,6 +298,11 @@ PY
 
 if [ -n "$RENDER_ONLY_DIR" ]; then
     mkdir -p "$RENDER_ONLY_DIR"
+    if ! service_is_excluded surrealdb-native; then
+        render_template \
+            "$REPO_ROOT/shared/launchagents/ai.prometheus.surrealdb-native.plist" \
+            "$RENDER_ONLY_DIR/ai.prometheus.surrealdb-native.plist"
+    fi
     if ! service_is_excluded surreal-memory-native; then
         render_template \
             "$REPO_ROOT/shared/launchagents/ai.prometheus.surreal-memory-native.plist" \
@@ -332,7 +337,6 @@ reload_launch_agent() {
         launchctl bootstrap "$GUI_DOMAIN" "$plist"
     fi
     launchctl enable "$GUI_DOMAIN/$label"
-    launchctl kickstart -k "$GUI_DOMAIN/$label"
 }
 
 reload_scheduled_launch_agent() {
