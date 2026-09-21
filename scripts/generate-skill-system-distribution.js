@@ -121,6 +121,24 @@ function copySignedSkillRuntimeFiles(root) {
   }
 }
 
+// Every file hooks.json tells the harness to run must ship with it. When one is missing, every hook
+// event dies with MODULE_NOT_FOUND before any pack code runs, so it can only be prevented here.
+// Derived from hooks.json rather than listed by hand: the list that was kept by hand is how
+// scripts/hook-entry.mjs came to be referenced but never packaged.
+function copyHookTargets(root) {
+  const hooks = fs.readFileSync(path.join(sourceRoot, 'hooks/hooks.json'), 'utf8');
+  const targets = new Set(
+    [...hooks.matchAll(/\$\{CLAUDE_PLUGIN_ROOT\}\/([^"]+)/g)].map(match => path.posix.normalize(match[1]))
+  );
+  for (const target of [...targets].sort()) {
+    if (target.startsWith('../') || path.posix.isAbsolute(target))
+      throw new Error(`hooks.json references a path outside the plugin root: ${target}`);
+    const source = path.join(sourceRoot, ...target.split('/'));
+    if (!fs.existsSync(source)) throw new Error(`hooks.json references a missing file: ${target}`);
+    copy(source, path.join(root, ...target.split('/')));
+  }
+}
+
 function materializePackage(root, platform) {
   for (const skill of skills) copy(skill.source, path.join(root, 'skills', skill.name));
   write(root, '.mcp.json', sanitizedMcp());
@@ -132,6 +150,7 @@ function materializePackage(root, platform) {
   if (platform === 'claude') {
     write(root, '.claude-plugin/plugin.json', baseManifest());
     copy(path.join(sourceRoot, 'hooks/hooks.json'), path.join(root, 'hooks/hooks.json'));
+    copyHookTargets(root);
     copy(path.join(sourceRoot, 'shared'), path.join(root, 'shared'));
     copySignedSkillRuntimeFiles(root);
     copy(
