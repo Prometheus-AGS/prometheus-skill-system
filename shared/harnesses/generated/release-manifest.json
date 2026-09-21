@@ -27,6 +27,11 @@
       "executable": false
     },
     {
+      "path": "scripts/lib/checkout-bytes.js",
+      "sha256": "534e6bdbed10a1fca71905f8959114e78848030d4ba6625a4275fff46e7e9d03",
+      "executable": false
+    },
+    {
       "path": "scripts/lib/golden-payload.js",
       "sha256": "98d8d29532f6f8e63295414bca1dd74912428126002248074dd7d8e2fa1a61ed",
       "executable": false
@@ -382,5 +387,5 @@
       "executable": true
     }
   ],
-  "bundleId": "b852b4a2e0337ffb0a59a6c0abfbfe6464129ceb4a1a6cbb4b1d9fd9b0a7df9b"
+  "bundleId": "35e2ecbe4e2930effb273a69cddebf0e9faef6ce508228e652d192011e8545d6"
 }
