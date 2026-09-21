@@ -9,7 +9,7 @@ to 36.6 GB and durable operation queries stalled for minutes.
 - Set the documented `SURREAL_ROCKSDB_BLOCK_CACHE_SIZE` environment variable to
   1 GiB in both managed native service templates.
 - Include the SurrealDB definition in render-only output and start a reloaded
-  RunAtLoad launch agent exactly once.
+  RunAtLoad launch agent exactly once after its previous process exits.
 - Regenerate the service manifest and redeploy the managed services.
 - Verify the deployed SurrealDB log reports the bounded cache and the durable
   learning queue resumes.

@@ -28,4 +28,5 @@ service restart.
 
 #### Scenario: A RunAtLoad launch agent is reloaded
 - **WHEN** the installer boots out and bootstraps a managed RunAtLoad job
-- **THEN** it does not immediately kill and kickstart that newly started process
+- **THEN** it waits for the previous process to exit within a bounded interval
+- **AND** it does not immediately kill and kickstart that newly started process

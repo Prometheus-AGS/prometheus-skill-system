@@ -323,13 +323,21 @@ fi
 # ════════════════════════════════════════════════════════════════════════════
 reload_launch_agent() {
     local label="$1" plist="$2"
+    local previous_pid=""
+    previous_pid="$(launchctl print "$GUI_DOMAIN/$label" 2>/dev/null | awk '/pid =/ { print $3; exit }' || true)"
     launchctl bootout "$GUI_DOMAIN/$label" >/dev/null 2>&1 || true
-    for _ in 1 2 3 4 5 6 7 8 9 10; do
-        if ! launchctl print "$GUI_DOMAIN/$label" >/dev/null 2>&1; then
+    for _ in $(seq 1 300); do
+        if ! launchctl print "$GUI_DOMAIN/$label" >/dev/null 2>&1 && \
+            { [ -z "$previous_pid" ] || ! kill -0 "$previous_pid" 2>/dev/null; }; then
             break
         fi
         sleep 0.1
     done
+    if launchctl print "$GUI_DOMAIN/$label" >/dev/null 2>&1 || \
+        { [ -n "$previous_pid" ] && kill -0 "$previous_pid" 2>/dev/null; }; then
+        echo "Timed out waiting for $label to stop before bootstrap" >&2
+        return 1
+    fi
     if ! launchctl bootstrap "$GUI_DOMAIN" "$plist"; then
         # launchd may need a short interval after bootout before the label can
         # be registered again, even after it disappears from `print`.

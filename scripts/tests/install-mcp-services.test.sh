@@ -48,5 +48,9 @@ if grep -q 'kickstart -k' <<<"$reload_body"; then
     echo 'reload_launch_agent restarts a newly bootstrapped RunAtLoad job' >&2
     exit 1
 fi
+if ! grep -q 'kill -0.*previous_pid' <<<"$reload_body"; then
+    echo 'reload_launch_agent does not wait for the previous process to exit' >&2
+    exit 1
+fi
 
 echo 'PASS: managed memory services render bounded startup contracts'
