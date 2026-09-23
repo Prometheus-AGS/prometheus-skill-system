@@ -26,4 +26,31 @@ if actual != expected:
     )
 PY
 
-echo 'PASS: managed memory service allows five minutes for cold MLX startup'
+python3 - "$TMP_ROOT/rendered/ai.prometheus.surrealdb-native.plist" <<'PY'
+import plistlib
+import sys
+from pathlib import Path
+
+path = Path(sys.argv[1])
+with path.open("rb") as handle:
+    plist = plistlib.load(handle)
+
+actual = plist["EnvironmentVariables"].get("SURREAL_ROCKSDB_BLOCK_CACHE_SIZE")
+expected = "1073741824"
+if actual != expected:
+    raise SystemExit(
+        f"expected rendered SURREAL_ROCKSDB_BLOCK_CACHE_SIZE={expected}, got {actual!r}"
+    )
+PY
+
+reload_body="$(sed -n '/^reload_launch_agent()/,/^}/p' "$REPO_ROOT/scripts/install-mcp-services.sh")"
+if grep -q 'kickstart -k' <<<"$reload_body"; then
+    echo 'reload_launch_agent restarts a newly bootstrapped RunAtLoad job' >&2
+    exit 1
+fi
+if ! grep -q 'kill -0.*previous_pid' <<<"$reload_body"; then
+    echo 'reload_launch_agent does not wait for the previous process to exit' >&2
+    exit 1
+fi
+
+echo 'PASS: managed memory services render bounded startup contracts'

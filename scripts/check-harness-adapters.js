@@ -6,6 +6,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { probeFilesystemCapabilities } from './lib/capabilities.js';
+import { checkoutConversions, describeCheckoutConversions } from './lib/checkout-bytes.js';
 import { shellOnlyExecutableError } from './lib/hook-config.js';
 import { readIngestOracle } from './lib/payload-manifest.js';
 
@@ -43,6 +44,30 @@ if (!releaseDispatcher || releaseDispatcher.sha256 !== sha256(dispatcher)) {
 }
 if (!/^[a-f0-9]{64}$/.test(release.bundleId ?? '')) {
   failures.push('release manifest has no valid bundle identity');
+}
+
+// Every other runtime file is bound by its bytes on disk. Those must be the
+// bytes git stores: a manifest hashed from a line-ending-converted checkout is a
+// statement about that host, and payload verification fails everywhere else.
+const runtimeOnDisk = [];
+for (const entry of release.runtimeFiles ?? []) {
+  if (entry === releaseDispatcher) continue;
+  const absolute = path.join(root, ...entry.path.split('/'));
+  if (!fs.existsSync(absolute)) {
+    failures.push(`release manifest names a missing runtime file: ${entry.path}`);
+    continue;
+  }
+  runtimeOnDisk.push({ path: entry.path, bytes: fs.readFileSync(absolute), sha256: entry.sha256 });
+}
+const conversions = checkoutConversions(root, runtimeOnDisk);
+failures.push(...describeCheckoutConversions(conversions));
+const converted = new Set(conversions.map(conversion => conversion.path));
+for (const file of runtimeOnDisk) {
+  if (!converted.has(file.path) && sha256(file.bytes) !== file.sha256) {
+    failures.push(
+      `release manifest is stale for ${file.path}; run npm run generate:harness-adapters`
+    );
+  }
 }
 
 for (const [harness, manifest] of Object.entries(manifests)) {

@@ -2,6 +2,16 @@
 
 # Line endings
 * text=auto
+
+# Release runtime payload. scripts/generate-harness-adapters.js pins every file
+# under these trees into the release manifest by the sha256 of its bytes, so a
+# checkout must reproduce the git blob byte-for-byte on every host; otherwise
+# bundleId becomes a function of core.autocrlf (see commit 49c296aa). text=auto
+# still leaves binaries alone, and the leading **/ also covers the dist/ copies.
+# The generator refuses to hash a checkout that violates this.
+**/shared/scripts/** text=auto eol=lf
+**/skills/process/iterative-evolver/scripts/** text=auto eol=lf
+
 *.sh text eol=lf
 *.bash text eol=lf
 *.md text eol=lf
@@ -12,6 +22,11 @@
 *.jsx text eol=lf
 *.yaml text eol=lf
 *.yml text eol=lf
+*.mjs text eol=lf
+*.cjs text eol=lf
+*.py text eol=lf
+*.plist text eol=lf
+*.cron text eol=lf
 
 # Generated native packages preserve canonical payload bytes, including source
 # whitespace that is meaningful to parity checks. `-text` also stops checkout

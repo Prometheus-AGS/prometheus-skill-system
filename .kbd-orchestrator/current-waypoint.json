@@ -2,10 +2,10 @@
   "schemaVersion": "5",
   "generatedBy": "kbd-runtime",
   "projectionContractVersion": 2,
-  "sourceRevision": 1263,
-  "derivedRevision": 1263,
+  "sourceRevision": 1292,
+  "derivedRevision": 1292,
   "frontier": {
-    "4bca58c3-e70b-48c9-a555-60bc16d3d025": 1216,
+    "4bca58c3-e70b-48c9-a555-60bc16d3d025": 1245,
     "575138ba-385e-449d-89f7-cf4d793b34f9": 47
   },
   "conflictCount": 0,
@@ -24,16 +24,16 @@
   "phase": "kbd-control-plane-recovery",
   "parentPhase": "kbd-control-plane-recovery",
   "childPointer": "skill-pack-1-10-recovery",
-  "change": "release-skill-pack-1-10-recovery",
-  "currentTask": "recovery-8",
+  "change": null,
+  "currentTask": null,
   "status": "ready",
   "completionMetric": "implementation",
-  "implementationCompleted": 41,
+  "implementationCompleted": 42,
   "implementationTotal": 46,
   "planRevision": 16,
-  "revision": 1263,
+  "revision": 1292,
   "exactNextCommand": "release-skill-pack-1-10-recovery/recovery-2",
-  "nextChange": "release-skill-pack-1-10-recovery",
-  "nextTask": "recovery-8",
-  "updatedAt": "2026-09-19T19:41:16.274100Z"
+  "nextChange": null,
+  "nextTask": null,
+  "updatedAt": "2026-09-21T07:07:44.881522Z"
 }

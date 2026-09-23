@@ -30,6 +30,10 @@
     <string>__PROMETHEUS_USER__</string>
     <key>PATH</key>
     <string>__PROMETHEUS_PATH__</string>
+    <!-- SurrealDB otherwise reserves roughly half of host memory for RocksDB.
+         Keep its block cache bounded while AI tools coexist. -->
+    <key>SURREAL_ROCKSDB_BLOCK_CACHE_SIZE</key>
+    <string>1073741824</string>
   </dict>
 
   <key>RunAtLoad</key>

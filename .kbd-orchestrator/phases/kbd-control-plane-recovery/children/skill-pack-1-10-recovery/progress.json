@@ -2,28 +2,28 @@
   "schemaVersion": "2",
   "generatedBy": "kbd-runtime",
   "projectionContractVersion": 2,
-  "sourceRevision": 1263,
-  "derivedRevision": 1263,
+  "sourceRevision": 1292,
+  "derivedRevision": 1292,
   "frontier": {
-    "4bca58c3-e70b-48c9-a555-60bc16d3d025": 1216,
+    "4bca58c3-e70b-48c9-a555-60bc16d3d025": 1245,
     "575138ba-385e-449d-89f7-cf4d793b34f9": 47
   },
   "conflictCount": 0,
   "phase": "skill-pack-1-10-recovery",
   "phaseId": "skill-pack-1-10-recovery",
   "parentPhase": "kbd-control-plane-recovery",
-  "last_updated": "2026-09-19T19:41:16.274100Z",
+  "last_updated": "2026-09-21T07:07:44.881522Z",
   "last_updated_by": "kbd-runtime",
   "changes_total": 1,
-  "changes_completed": 0,
+  "changes_completed": 1,
   "implementation_total": 1,
-  "implementation_completed": 0,
+  "implementation_completed": 1,
   "completion": {
     "primaryCounter": "implementation",
     "implementation": {
-      "completed": 0,
+      "completed": 1,
       "total": 1,
-      "status": "PENDING"
+      "status": "COMPLETE"
     },
     "evidence": {
       "status": "COMPLETE",
@@ -45,12 +45,12 @@
     {
       "id": "release-skill-pack-1-10-recovery",
       "title": "Recover, release, and redeploy Prometheus Skill Pack 1.10.0",
-      "status": "IN_PROGRESS",
-      "implementation_status": "IN_PROGRESS",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
       "tasks_total": 8,
-      "tasks_done": 7,
-      "last_task_completed": "Repair installed progress-memory outbox resolution and replay degraded boundary",
-      "next_task_pending": "Repair installed runtime health and doctor verification",
+      "tasks_done": 8,
+      "last_task_completed": "Repair installed runtime health and doctor verification",
+      "next_task_pending": null,
       "blockers": []
     }
   ],

@@ -6,6 +6,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { probeFilesystemCapabilities } from './lib/capabilities.js';
+import { checkoutConversions, describeCheckoutConversions } from './lib/checkout-bytes.js';
 import { shellOnlyExecutableError } from './lib/hook-config.js';
 import { readIngestOracle } from './lib/payload-manifest.js';
 
@@ -187,6 +188,10 @@ esac
 `;
 }
 
+// Every runtime file hashed from disk, kept so its bytes can be checked against
+// what git stores before any of them is allowed into the identity.
+const diskRuntimeFiles = [];
+
 function collectFiles(directory, relativeRoot, result) {
   if (!fs.existsSync(directory)) return;
   for (const name of fs.readdirSync(directory).sort()) {
@@ -197,6 +202,7 @@ function collectFiles(directory, relativeRoot, result) {
     if (stat.isDirectory()) collectFiles(absolute, relative, result);
     else if (stat.isFile()) {
       const bytes = fs.readFileSync(absolute);
+      diskRuntimeFiles.push({ path: relative, bytes });
       result.push({ path: relative, sha256: sha256(bytes), executable: executableOf(relative) });
     }
   }
@@ -219,10 +225,11 @@ function releaseIdentity(dispatcher) {
     'scripts/install-plugin-generation.js',
     'shared/harnesses/hook-contract.json',
   ]) {
-    const absolute = path.join(root, ...relative.split('/'));
+    const bytes = fs.readFileSync(path.join(root, ...relative.split('/')));
+    diskRuntimeFiles.push({ path: relative, bytes });
     runtimeFiles.push({
       path: relative,
-      sha256: sha256(fs.readFileSync(absolute)),
+      sha256: sha256(bytes),
       executable: executableOf(relative),
     });
   }
@@ -353,6 +360,13 @@ if (failures.length) {
 
 const dispatcher = renderDispatcher();
 const identity = releaseIdentity(dispatcher);
+// Refuse before anything is written. Hashes taken from a converted checkout
+// describe this host rather than the commit, and every other host rejects them.
+failures.push(...describeCheckoutConversions(checkoutConversions(root, diskRuntimeFiles)));
+if (failures.length) {
+  console.error(failures.join('\n'));
+  process.exit(1);
+}
 const bundleId = sha256(canonicalJson(identity));
 const releaseManifest = { ...identity, bundleId };
 const claudeHooks = renderHooks(bundleId, 'claude-code');
