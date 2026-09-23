@@ -1268,6 +1268,18 @@ async fn guard_evaluate(
 }
 
 fn rust_processes() -> Vec<String> {
+    #[cfg(windows)]
+    {
+        let Ok(output) = Command::new("tasklist.exe").args(["/FO", "CSV", "/NH"]).output() else {
+            return Vec::new();
+        };
+        return String::from_utf8_lossy(&output.stdout).lines()
+            .filter(|line| line.split(',').next().is_some_and(|name|
+                matches!(name.trim_matches('"').to_ascii_lowercase().as_str(), "cargo.exe" | "rustc.exe")))
+            .map(str::to_owned).collect();
+    }
+    #[cfg(not(windows))]
+    {
     let output = Command::new("ps").args(["-axo", "pid=,command="]).output();
     let Ok(output) = output else {
         return Vec::new();
@@ -1286,14 +1298,11 @@ fn rust_processes() -> Vec<String> {
         .map(str::trim)
         .map(str::to_owned)
         .collect()
+    }
 }
 
 fn command_available(command: &str) -> bool {
-    std::env::var_os("PATH").is_some_and(|path| {
-        std::env::split_paths(&path)
-            .map(|directory| directory.join(command))
-            .any(|candidate| candidate.is_file())
-    })
+    crate::host::find_executable(command).is_some()
 }
 
 fn phase_ready_for_gate(state: &RuntimeState, scope: &str) -> bool {
