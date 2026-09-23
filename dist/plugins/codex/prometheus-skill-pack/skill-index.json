@@ -507,6 +507,10 @@
       "path": "skills/prometheus-rust-auditor"
     },
     {
+      "name": "prometheus-rust-workspace",
+      "path": "skills/prometheus-rust-workspace"
+    },
+    {
       "name": "pyo3-bridge",
       "path": "skills/pyo3-bridge"
     },

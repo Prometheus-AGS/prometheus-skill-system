@@ -31,12 +31,16 @@ Evolution loop: Compile, Evaluate, Optimize, Promote.
 Running a phase out of order is a quality failure, not a shortcut. Name the
 phase you are in. Do not execute before a plan exists.
 
-## Verification tiers
+## Verification boundaries
 
-Tier 0 every edit. Tier 1 unit complete. Tier 2 phase completion. Tier 3
-milestone or release only. Running a tier before its point is a violation, not
-diligence. Per-stack commands live in `.claude/rules/`, loaded when a matching
-file is read.
+Finish a coherent implementation set before testing it. During implementation,
+use static inspection and reasoning; use a narrow compiler check only when it is
+required to unblock progress. At a completed change or phase boundary, run the
+smallest integration gate that exercises the real production path and its real
+collaborators. Unit, mock-only, filtered-function, and per-edit tests are not
+completion evidence. Run broad integration and release gates only at the final
+applicable boundary. Per-stack commands live in `.claude/rules/`, loaded only
+when a matching file is read.
 
 <!-- prometheus-base:stacks -->
 
@@ -54,7 +58,7 @@ silently.
 ## Evidence over assertion
 
 Show the command and its output, the test result, or the artifact. "Looks done"
-is not done. Report what was actually run and at which tier. If a check could
+is not done. Report what was actually run and at which boundary. If a check could
 not run, say which claims are therefore unverified. An unverified claim reported
 as verified is worse than no check at all.
 
@@ -121,7 +125,7 @@ hurts the author's own position.
 
 ## Done
 
-A task is done when its stated exit criteria pass at the current tier, not when
+A task is done when its stated integration exit criteria pass at the applicable boundary, not when
 the output looks plausible. Before declaring completion: remove anything added
 that was not requested, confirm each guard traces to an observed problem or a
 real boundary, and summarize what changed, how it was verified, and what remains

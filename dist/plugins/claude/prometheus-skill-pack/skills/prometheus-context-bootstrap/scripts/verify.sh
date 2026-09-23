@@ -19,6 +19,12 @@ done
 [[ -d "$project_path" ]] || { echo "verify: not a directory: $project_path" >&2; exit 1; }
 project_path="$(cd "$project_path" && pwd)"
 
+# Layout v4 has different invariants (CLAUDE.md is the real file and carries the rule IDs), so it has its
+# own checks. Any other project runs the checks below exactly as before.
+if grep -q 'prometheus-rules: v4' "$project_path/CLAUDE.md" 2>/dev/null; then
+  exec "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/verify-v4.sh" "$project_path"
+fi
+
 pass=0; fail=0; skip=0; warn=0
 ok()   { printf 'PASS  %-34s %s\n' "$1" "${2:-}"; pass=$((pass+1)); }
 no()   { printf 'FAIL  %-34s %s\n' "$1" "${2:-}"; fail=$((fail+1)); }
@@ -150,6 +156,17 @@ elif jq -e . "$S" >/dev/null 2>&1; then
   jq -e '.hooks.PreToolUse' "$S" >/dev/null 2>&1 \
     && ok "tier-guard wired" "" \
     || no "tier-guard wired" "hook installed but not referenced in settings.json"
+  # KBD stage artifacts and kbd-init outputs are agent-written. A deny rule that
+  # covers the whole directory blocks the lifecycle outright; 1.10.0 shipped one.
+  kbd_blanket="$(jq -r '(.permissions.deny // [])[] | select(test("^(Edit|Write|MultiEdit|NotebookEdit)\\((\\./)?\\.kbd-orchestrator(/\\*\\*?)?/?\\)$"))' "$S" 2>/dev/null)"
+  kbd_narrow="$(jq -r '(.permissions.deny // [])[] | select(test("\\.kbd-orchestrator"))' "$S" 2>/dev/null | grep -vxF "$kbd_blanket" || true)"
+  if [[ -n "$kbd_blanket" ]]; then
+    no "KBD artifacts writable" "deny rule covers all of .kbd-orchestrator ($(printf '%s' "$kbd_blanket" | tr '\n' ' ')) — /kbd-init and every stage skill are blocked; remove it"
+  elif [[ -n "$kbd_narrow" ]]; then
+    wr "KBD artifacts writable" "$(printf '%s\n' "$kbd_narrow" | wc -l | tr -d ' ') narrower deny rule(s) under .kbd-orchestrator — confirm no stage skill writes those paths"
+  else
+    ok "KBD artifacts writable" ""
+  fi
   b="$(jq -r '.skillListingBudgetFraction // "unset"' "$S" 2>/dev/null)"
   [[ "$b" == "unset" ]] \
     && no "skill budget set" "unset — 1% default may drop skill descriptions" \

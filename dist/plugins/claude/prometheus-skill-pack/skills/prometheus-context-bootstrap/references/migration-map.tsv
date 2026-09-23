@@ -8,7 +8,7 @@ A-5	AGENTS.md "Evidence over assertion" + scaffold "Do not fabricate"	split: pri
 A-6	AGENTS.md "Evidence over assertion"	verified vs self-reported
 A-7	AGENTS.md "Scope"	preserve behavior
 A-8	AGENTS.md "Phase order"	architecture before code
-A-9	.claude/rules/<stack>.md + .claude/hooks/tier-guard.sh	ENFORCED, no longer advisory
+A-9	.claude/rules/<stack>.md + .claude/hooks/tier-guard.sh	integration boundaries plus a final-artifact guard
 A-10	.claude/hooks/single-writer.sh + rules-rust.md	ENFORCED
 A-11	AGENTS.md "Scope" (irreversible actions)	
 A-12	structural: human gates in hooks + artifact-critic	
@@ -22,7 +22,7 @@ B-5	AGENTS.md "Architecture"	UI is a projection of state
 B-6	dropped	language-invariance is implied by having per-stack rules files
 B-7	.claude/rules/<stack>.md	strong typing is a per-language concern
 B-8	AGENTS.md "Architecture" (portability)	
-C-1	.claude/rules/<stack>.md	tier philosophy lives with the ladders
+C-1	.claude/rules/<stack>.md	change and phase integration gates live with each stack
 C-2	AGENTS.md "Evidence over assertion"	
 C-3	AGENTS.md "Scope"	small reviewable changes
 D-1	AGENTS.md "Learning and memory"	

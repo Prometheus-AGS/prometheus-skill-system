@@ -168,7 +168,7 @@ asked for the same behavior is redundant and was not carried over.
 
 | v3 ID | Enforced by |
 |---|---|
-| A-9 tier discipline | \`.claude/hooks/tier-guard.sh\` |
+| A-9 final-artifact discipline | \`.claude/hooks/tier-guard.sh\` |
 | A-10 single-writer | \`.claude/hooks/single-writer.sh\` |
 | E-1, E-5 sycophancy gate | \`.claude/hooks/sycophancy-gate.sh\` |
 | E-2 critic isolation | \`.claude/agents/artifact-critic.md\` |

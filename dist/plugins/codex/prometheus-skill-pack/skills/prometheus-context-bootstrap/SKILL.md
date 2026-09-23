@@ -4,7 +4,7 @@ description: >
   Scaffold the Prometheus agent structure into a new or existing project — a
   portable AGENTS.md carrying compaction-surviving invariants, CLAUDE.md
   pointing at it, path-scoped rules per detected stack, deterministic hooks for
-  tier discipline and single-writer builds, .prometheus append-only learning,
+  phase-gated integration verification and single-writer builds, .prometheus append-only learning,
   and a skill-budget-safe settings.json. Profile-aware for mixed model fleets:
   includes an execution scaffold by default for non-frontier models, omits it
   only when measured. Creates what is absent, splices a marked region into what
@@ -57,11 +57,12 @@ This skill does not reimplement work that already exists in the pack.
 | `.kbd-orchestrator/project.json`, `constraints.md` | `kbd-init` | Bootstrap writes a waypoint stub only. Run `/kbd-init` after. |
 | Karpathy + Claude Code rule packs in agent files | `kbd-inject-agent-rules` | Same `<!-- pack:start v1 -->` marker contract, different pack name. Both regions coexist in one file. |
 | Sycophancy detection | `sycophancy-correction` | The installed Stop hook calls it and degrades to exit 0 when the binary is absent. |
+| Rust skill routing and Cargo timing | `prometheus-rust-workspace` | Bootstrap emits a compact path rule that loads this skill only for Rust work. |
 
 It carries its own marker splice rather than calling
 `kbd-inject-agent-rules --pack prometheus-base` for one reason: that script
 renders a static cached template, while this region is generated per project
-from detected stacks. A static pack cannot carry a Rust tier ladder into a Rust
+from detected stacks. A static pack cannot carry a Rust integration gate into a Rust
 repo and a Flutter one into a Flutter repo.
 
 ## Run it
@@ -92,6 +93,45 @@ If the project already carries a Prometheus Base Rules v3 file, start with
 | 0 | Plan applied, or dry run completed |
 | 1 | Usage error, or path is not a directory |
 | 2 | Refused: corrupt marker pair in an agent file |
+
+## Layout v4 — Prometheus Rules Architecture v4 (opt-in)
+
+```bash
+bash scripts/bootstrap.sh --path . --layout v4 --stacks rust,typescript-react,flutter
+bash scripts/verify.sh    --path .          # detects the layout from the CLAUDE.md header
+```
+
+Five layers, one source. `rules/src/` is the only place rules are edited; `rules/build.sh` renders it and
+`rules/build.sh --check` fails on drift or a budget breach.
+
+| Layer | Rendered to | Loaded |
+|---|---|---|
+| 0 Constitution | `CLAUDE.md` — at most 120 lines and 12,500 characters; v3 §A A-1…A-14 verbatim plus A-15 (the human certifies), A-16 (reproducer before report), A-17 (plan mode default); a project block; a named skill-routing table. `AGENTS.md` and `GEMINI.md` are symlinks to it | every turn, every subagent |
+| 1 Path rules | `.claude/rules/*.md`, every one with `paths:`; the same text in nested `AGENTS.md` files listed in `rules/build.conf` for harnesses without glob rules | when a matching file is read |
+| 2 Skills | routed **by name** from the Layer 0 table; install commands in `docs/skill-routing.md` | on invocation |
+| 3 Reference | `.prometheus/`, `versions.toml`, `docs/`, `tasks/todo.md` | at bootstrap, before a subsystem |
+| 4 Hooks | the four existing hooks, plus `file-lines-guard`, `build-guard`, `.githooks/commit-msg`, `scripts/check-file-lines.sh`, `scripts/check-architecture.sh` | mechanically |
+
+The placement test for every rule: *would it change behaviour on an edit that does not touch its domain?*
+Yes → Layer 0. Only with a `.rs` file open → Layer 1. A procedure → a skill. A fact about this repo →
+Layer 3. Machine-checkable → a hook, and delete the prose.
+
+Three structure rules ship in the v4 sources and are enforced, not advised: **feature-based clean
+architecture in every layer** (React `Component → Hook → Store → Service`; Flutter `presentation → domain ←
+data`; Rust services `interface → application → domain ← infrastructure`; no cross-feature imports),
+**kebab-case file names in React packages**, and **no code file over 500 lines** — partition by
+responsibility into a sub-directory with a thin entry point; exemptions only through
+`rules/line-limit-allowlist.txt`, for generated and vendored files.
+
+What differs from the default layout, on purpose: `CLAUDE.md` is the real file and the other names link
+to it (the reverse of the default); the rule IDs live in `CLAUDE.md`, which the default `verify.sh` would
+reject as a second constitution; there are no profiles, because v3 §A verbatim replaces the condensed base
+and its execution scaffold. `--layout v4` on a project that already has agent files first copies them to
+`.prometheus/knowledge/*.pre-v4-<date>.md`; moving their project-specific rules into `rules/src/project/`
+is a human step. Seeded files are never overwritten without `--force`.
+
+Not provided: a `UserPromptSubmit` knowledge-focus hook and a `Stop` reflection hook. Both appear in the v4
+design as existing; neither exists as a hook (`knowledge_focus` and `forge_reflect` are MCP tools).
 
 ## Profiles
 
@@ -190,6 +230,21 @@ Skipping instead would leave hooks installed and unreferenced — the prose gone
 and nothing enforcing it. Without `jq` the merge cannot run, so it is reported
 as a SKIP with a warning rather than assumed.
 
+### `.kbd-orchestrator/` is never denied
+
+The settings template does not deny edits under `.kbd-orchestrator/`, and must
+not. KBD stage artifacts — `assessment.md`, `analysis.md`, `plan.md`,
+`reflection.md`, defect ledgers — and the two files `/kbd-init` owns are
+agent-written. Releases up to 1.10.0 shipped `deny: Edit(.kbd-orchestrator/**)`,
+which blocked `/kbd-init` and every stage skill in the same breath as telling
+the operator to run `/kbd-init` next.
+
+`bootstrap.sh` now removes exactly that entry from an existing `settings.json`
+(reported as `REPAIR`, `.bak` kept). `verify.sh` fails a repo whose deny list
+covers the whole directory and warns on narrower rules, which stay the
+operator's to keep or drop. The runtime-owned JSON is protected by convention
+and by the typed `prometheus kbd` commands, not by a permission rule.
+
 ### What stops being prose
 
 Several v3 rules become enforcement, which is why they are absent from the new
@@ -197,7 +252,7 @@ file rather than merely condensed:
 
 | v3 | Now enforced by |
 |---|---|
-| A-9 tier discipline | `tier-guard.sh` — exits 2 on a Tier 3 command outside a release gate |
+| A-9 final-artifact discipline | `tier-guard.sh` — exits 2 on release, cross-platform bundle, race, or broad browser commands outside a final gate |
 | A-10 single-writer | `single-writer.sh` |
 | E-1, E-5 sycophancy gate | `sycophancy-gate.sh` |
 | E-2 critic isolation | `artifact-critic.md` subagent |
@@ -206,16 +261,16 @@ file rather than merely condensed:
 A hook installed but not wired into `settings.json` enforces nothing.
 `verify.sh` checks exactly that.
 
-### Opening the Tier 3 gate
+### Opening the final-artifact gate
 
 `tier-guard.sh` reads `.status` from the waypoint, not `.phase`. Measured across
 the estate, `.phase` holds a phase identity (`uar-uiux-full-migration-2026-08`)
 and `.status` holds the lifecycle (`running`, `execute_ready`, `completed`).
 An earlier version matched `.phase` against `milestone|release|certify`, which
-no waypoint in the estate could satisfy — it blocked Tier 3 unconditionally
+no waypoint in the estate could satisfy — it blocked final artifact commands unconditionally
 with no reachable unblock path.
 
-Tier 3 is allowed when `.status` begins with `completed`, `release`, `certify`,
+Final artifact commands are allowed when `.status` begins with `completed`, `release`, `certify`,
 `milestone`, or `delivery`, or through either explicit opt-in:
 
 ```bash
@@ -274,7 +329,7 @@ observed failures is not a decision a script should make.
 To act on it, run the reduction by hand and measure:
 
 1. `/context` first. Record resident tokens.
-2. Move tier ladders, taxonomies, and schemas into `.claude/rules/` and skills.
+2. Move stack-specific gates, taxonomies, and schemas into `.claude/rules/` and skills.
 3. For each remaining line, ask whether removing it would cause a mistake.
 4. `/context` again. Re-run a fixed task set. Compare pass rate, not feel.
 
