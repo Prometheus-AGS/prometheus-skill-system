@@ -13,7 +13,21 @@ use std::path::Path;
 /// Creates a symlink from the agent's skills directory to the skill pack source.
 /// Uses symlinks by default for single-source-of-truth development.
 pub fn install_to_agent(agent: &AgentConfig, source: &Path, name: &str) -> Result<()> {
+    install_to_agent_with_copy(agent, source, name, cfg!(windows))
+}
+
+/// Copies are required on Windows, where symlink creation may require elevation.
+pub fn install_to_agent_with_copy(agent: &AgentConfig, source: &Path, name: &str, copy: bool) -> Result<()> {
     let target = agent.global_skills_dir.join(name);
+    anyhow::ensure!(Path::new(name).components().count() == 1 && name != "." && name != "..", "Invalid skill directory name");
+
+    if copy || cfg!(windows) {
+        copy_install(source, &target)?;
+        if agent.kind == AgentKind::OpenCode && source.join(".opencode/tools").is_dir() {
+            if let Some(directory) = &agent.tools_dir { copy_install(&source.join(".opencode/tools"), &directory.join(name))?; }
+        }
+        return Ok(());
+    }
 
     // Ensure parent directory exists
     if let Some(parent) = target.parent() {
@@ -64,6 +78,30 @@ pub fn install_to_agent(agent: &AgentConfig, source: &Path, name: &str) -> Resul
         }
     }
 
+    Ok(())
+}
+
+fn copy_install(source: &Path, target: &Path) -> Result<()> {
+    let source = source.canonicalize()?;
+    if let Some(parent) = target.parent() {
+        fs::create_dir_all(parent)?;
+        anyhow::ensure!(!parent.canonicalize()?.starts_with(&source), "Cannot install a skill inside its source directory");
+    }
+    anyhow::ensure!(!target.exists() && target.symlink_metadata().is_err(),
+        "{} already exists; preserving its contents. Uninstall explicitly before replacing it.", target.display());
+    copy_tree(&source, target)
+}
+
+fn copy_tree(source: &Path, target: &Path) -> Result<()> {
+    fs::create_dir_all(target)?;
+    for entry in fs::read_dir(source)? {
+        let entry = entry?;
+        let kind = entry.file_type()?;
+        anyhow::ensure!(!kind.is_symlink(), "Copy installation requires regular files: {}", entry.path().display());
+        let destination = target.join(entry.file_name());
+        if kind.is_dir() { copy_tree(&entry.path(), &destination)?; }
+        else if kind.is_file() { fs::copy(entry.path(), destination)?; }
+    }
     Ok(())
 }
 

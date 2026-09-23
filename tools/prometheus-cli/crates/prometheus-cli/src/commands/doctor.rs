@@ -112,6 +112,7 @@ pub struct ExecutionPlan {
 }
 
 pub async fn run(options: DoctorOptions) -> Result<()> {
+    if crate::host::is_managed() { return crate::host::doctor(&options); }
     if (options.fix || options.refresh) && options.yes && !options.dry_run {
         let preflight_report = build_report(&options).await;
         let execution = execute_safe_actions(&options, &preflight_report)?;

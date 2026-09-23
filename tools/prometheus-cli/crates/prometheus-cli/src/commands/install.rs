@@ -8,7 +8,7 @@ pub async fn run(
     source: &str,
     agent_filter: Option<&str>,
     local: bool,
-    _no_symlink: bool,
+    no_symlink: bool,
     _plugin: bool,
 ) -> Result<()> {
     println!("{}", "🔥 Installing skill pack...".bold());
@@ -26,18 +26,20 @@ pub async fn run(
 
         if repo_dir.exists() {
             println!("  Updating cached repo...");
-            Command::new("git")
+            let output = Command::new("git")
                 .args(["pull", "--ff-only"])
                 .current_dir(&repo_dir)
                 .output()
                 .context("git pull failed")?;
+            anyhow::ensure!(output.status.success(), "git pull failed: {}", String::from_utf8_lossy(&output.stderr));
         } else {
             println!("  Cloning {}...", source);
             let url = format!("https://github.com/{}.git", source);
-            Command::new("git")
+            let output = Command::new("git")
                 .args(["clone", "--depth", "1", &url, &repo_dir.to_string_lossy()])
                 .output()
                 .context("git clone failed")?;
+            anyhow::ensure!(output.status.success(), "git clone failed: {}", String::from_utf8_lossy(&output.stderr));
         }
         repo_dir
     } else {
@@ -76,13 +78,20 @@ pub async fn run(
         scope
     );
 
+    let mut failures = Vec::new();
     for agent in &agents {
+        let mut agent = agent.clone();
+        if local {
+            agent.global_skills_dir = std::env::current_dir()?.join(agent.project_skills_dir);
+            if agent.tools_dir.is_some() { agent.tools_dir = Some(std::env::current_dir()?.join(".opencode/tools")); }
+        }
         print!("  {} {}... ", "→".dimmed(), agent.kind.display_name());
-        match platforms::install_to_agent(agent, &source_path, &skill_name) {
+        match platforms::install_to_agent_with_copy(&agent, &source_path, &skill_name, no_symlink || crate::host::is_managed()) {
             Ok(()) => println!("{}", "✅".green()),
-            Err(e) => println!("{} {}", "❌".red(), e),
+            Err(e) => { println!("{} {}", "❌".red(), e); failures.push(agent.kind.name()); }
         }
     }
+    anyhow::ensure!(failures.is_empty(), "Installation failed for: {}", failures.join(", "));
 
     println!("\n{}", "✨ Installation complete".green().bold());
     Ok(())
