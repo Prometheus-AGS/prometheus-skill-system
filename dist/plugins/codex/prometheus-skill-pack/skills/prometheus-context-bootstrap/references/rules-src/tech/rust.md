@@ -6,25 +6,46 @@ paths: ['**/*.rs', '**/Cargo.toml', '**/Cargo.lock', '**/clippy.toml']
 
 Loaded when a Rust file is read. Not resident.
 
-| Tier | Commands |
-|---|---|
-| T0 every edit | `cargo check -p <crate>`; `cargo clippy -p <crate> --no-deps -- -D warnings` |
-| T1 unit complete | `cargo test -p <crate> <module_or_test>` — the just-written unit only |
-| T2 phase complete | `cargo test --workspace`; `cargo build` (dev); doc tests if a public API changed |
-| T3 milestone only | `cargo build --release`; cross-compiles; vendored native builds; feature-flag matrix; e2e |
+Load `prometheus-rust-workspace` before Rust implementation, review, refactoring, or
+architecture work. It routes installed skills and owns Cargo timing; loading a skill
+does not authorize immediate command execution.
+
+Use `rust-best-practices` for general Rust work, `rust-async-patterns` for Tokio,
+async I/O, concurrency, or cancellation, and `rust-mcp-server-generator` for Rust
+MCP servers and transports. Project dependency pins and protocol versions win over
+skill examples.
+
+## Phase-gated integration verification
+
+- Batch related edits and use static reasoning or rust-analyzer during implementation.
+- Run one consolidated Cargo validation batch after a meaningful production path is
+  complete at a change or phase boundary. Use a narrow compiler check earlier only
+  when compiler feedback is required to unblock progress or the user requests it.
+- Start with the smallest integration target that exercises the completed public
+  entry point and real collaborators. Unit, module-local, mock-only, and filtered
+  function tests do not count as completion evidence.
+- Escalate only when the change or diagnostics cross package boundaries. Reserve
+  broad, release, cross-compile, feature-matrix, Miri, fuzzing, coverage, benchmark,
+  and documentation commands for a final boundary or explicit request.
+- After failure, read all diagnostics, batch fixes, and rerun only the smallest
+  integration command that can confirm the completed behavior.
+- Run formatting once at a coherent boundary and avoid unrelated churn.
+- Report commands, results, intentional deferrals, and any remaining integration gate.
 
 ## Hard rules
 
-- Never `--release` during implementation; never cross-compile before T2 passes; one build profile per session.
-- Scope T0 to the touched crate. Workspace-wide checks on every edit are waste.
+- Never `--release` during implementation; never cross-compile before the affected integration gate passes; one build profile per session.
+- Do not use `--all-features` unless the project supports combined features or the user requests it.
 - Never `panic = "abort"` on a profile that ships through `flutter_rust_bridge` — it needs unwinding.
 
 ## Build concurrency (A-10, G-4)
 
-Within one target directory, single-writer — serialize; the `build-guard` hook blocks a second cargo
-process on the same manifest. Across worktrees with separate `CARGO_TARGET_DIR` and a **shared**
-`CARGO_HOME`, run check, build, test and clippy in parallel; serialize only `cargo fetch`, `update`, `add`.
-Never give an agent its own `CARGO_HOME`: the fingerprint includes that path and forces full recompiles.
+Within one workspace or target directory, serialize every Cargo command; the `build-guard` hook blocks a
+second compile on the same manifest. Before an expensive command, account for any Cargo process already
+running. Across isolated worktrees, keep separate default target directories and a shared `CARGO_HOME`;
+serialize dependency-mutating commands such as `cargo fetch`, `update`, and `add`. Do not create extra
+target directories merely to bypass ordinary lock contention, and never run `cargo clean` unless cleanup
+is the requested task.
 
 ## Structure — feature-based, inside Rust too
 

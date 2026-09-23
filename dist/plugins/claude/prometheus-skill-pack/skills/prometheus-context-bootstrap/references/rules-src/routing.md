@@ -16,7 +16,7 @@ Delete the rows for stacks this project does not use.
 ## Process
 | When | Invoke | Status | Install / notes |
 |---|---|---|---|
-| plan, TDD, subagent-driven work | `superpowers` | check | `npx skills add obra/superpowers` |
+| planning or subagent-driven work | `superpowers` | check | `npx skills add obra/superpowers` |
 | before a PR: interrogate the change | `grill-me` | check | `npx skills add mattpocock/skills@grill-me` |
 | phase lifecycle or position | `kbd-status`, `kbd-assess`, `kbd-analyze`, `kbd-plan`, `kbd-execute`, `kbd-reflect` | check | Prometheus skill pack |
 | phase completion, before delivery, before a lesson becomes a rule | `adversarial-review` | check | Prometheus skill pack; say which judge ran |
@@ -49,7 +49,10 @@ Delete the rows for stacks this project does not use.
 ## Rust, WASM and Tauri
 | When | Invoke | Status | Install / notes |
 |---|---|---|---|
-| any crate work | `prometheus-rust-workspace` | check | house skill; until it exists, `rust.md` is the skill |
+| any crate work and Cargo timing | `prometheus-rust-workspace` | present | house router; loads specialized skills only when relevant |
+| general Rust implementation and review | `rust-best-practices` | check | `npx skills add https://github.com/apollographql/skills --skill rust-best-practices` |
+| Tokio, async I/O, concurrency, cancellation | `rust-async-patterns` | check | `npx skills add https://github.com/wshobson/agents --skill rust-async-patterns` |
+| Rust MCP servers and transports | `rust-mcp-server-generator` | check | `npx skills add https://github.com/github/awesome-copilot --skill rust-mcp-server-generator` |
 | post-implementation review of Rust | `prometheus-rust-auditor` | check | Prometheus skill pack |
 | Tauri 2 | `tauri-v2` | check | house skill; no community skill with traction |
 

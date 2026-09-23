@@ -4,7 +4,7 @@ description: >
   Scaffold the Prometheus agent structure into a new or existing project — a
   portable AGENTS.md carrying compaction-surviving invariants, CLAUDE.md
   pointing at it, path-scoped rules per detected stack, deterministic hooks for
-  tier discipline and single-writer builds, .prometheus append-only learning,
+  phase-gated integration verification and single-writer builds, .prometheus append-only learning,
   and a skill-budget-safe settings.json. Profile-aware for mixed model fleets:
   includes an execution scaffold by default for non-frontier models, omits it
   only when measured. Creates what is absent, splices a marked region into what
@@ -57,11 +57,12 @@ This skill does not reimplement work that already exists in the pack.
 | `.kbd-orchestrator/project.json`, `constraints.md` | `kbd-init` | Bootstrap writes a waypoint stub only. Run `/kbd-init` after. |
 | Karpathy + Claude Code rule packs in agent files | `kbd-inject-agent-rules` | Same `<!-- pack:start v1 -->` marker contract, different pack name. Both regions coexist in one file. |
 | Sycophancy detection | `sycophancy-correction` | The installed Stop hook calls it and degrades to exit 0 when the binary is absent. |
+| Rust skill routing and Cargo timing | `prometheus-rust-workspace` | Bootstrap emits a compact path rule that loads this skill only for Rust work. |
 
 It carries its own marker splice rather than calling
 `kbd-inject-agent-rules --pack prometheus-base` for one reason: that script
 renders a static cached template, while this region is generated per project
-from detected stacks. A static pack cannot carry a Rust tier ladder into a Rust
+from detected stacks. A static pack cannot carry a Rust integration gate into a Rust
 repo and a Flutter one into a Flutter repo.
 
 ## Run it
@@ -251,7 +252,7 @@ file rather than merely condensed:
 
 | v3 | Now enforced by |
 |---|---|
-| A-9 tier discipline | `tier-guard.sh` — exits 2 on a Tier 3 command outside a release gate |
+| A-9 final-artifact discipline | `tier-guard.sh` — exits 2 on release, cross-platform bundle, race, or broad browser commands outside a final gate |
 | A-10 single-writer | `single-writer.sh` |
 | E-1, E-5 sycophancy gate | `sycophancy-gate.sh` |
 | E-2 critic isolation | `artifact-critic.md` subagent |
@@ -260,16 +261,16 @@ file rather than merely condensed:
 A hook installed but not wired into `settings.json` enforces nothing.
 `verify.sh` checks exactly that.
 
-### Opening the Tier 3 gate
+### Opening the final-artifact gate
 
 `tier-guard.sh` reads `.status` from the waypoint, not `.phase`. Measured across
 the estate, `.phase` holds a phase identity (`uar-uiux-full-migration-2026-08`)
 and `.status` holds the lifecycle (`running`, `execute_ready`, `completed`).
 An earlier version matched `.phase` against `milestone|release|certify`, which
-no waypoint in the estate could satisfy — it blocked Tier 3 unconditionally
+no waypoint in the estate could satisfy — it blocked final artifact commands unconditionally
 with no reachable unblock path.
 
-Tier 3 is allowed when `.status` begins with `completed`, `release`, `certify`,
+Final artifact commands are allowed when `.status` begins with `completed`, `release`, `certify`,
 `milestone`, or `delivery`, or through either explicit opt-in:
 
 ```bash
@@ -328,7 +329,7 @@ observed failures is not a decision a script should make.
 To act on it, run the reduction by hand and measure:
 
 1. `/context` first. Record resident tokens.
-2. Move tier ladders, taxonomies, and schemas into `.claude/rules/` and skills.
+2. Move stack-specific gates, taxonomies, and schemas into `.claude/rules/` and skills.
 3. For each remaining line, ask whether removing it would cause a mistake.
 4. `/context` again. Re-run a fixed task set. Compare pass rate, not feel.
 

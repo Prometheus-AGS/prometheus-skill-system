@@ -35,7 +35,7 @@ S-03, S-04 and S-08 are the loop-corrupting ones: they poison the memory that pr
 
 1. **Reproduce** — a failing test, a command and its output, or a script. No reproducer, no bug.
 2. **Fix in the same session** as the diagnosis, at the root cause, with the smallest diff (A-4).
-3. **Verify** at the tier the change warrants (A-9), and say which tier ran (A-6).
+3. **Verify** at the smallest integration boundary the completed change warrants (A-9), and name that boundary (A-6).
 4. **Classify** — what kind of defect, and what let it through.
 5. **Hand off** — a postmortem in `.prometheus/postmortems/` (symptom → root cause → fix → prevention) when
    it is worth remembering; a note for the owning repository when an upstream tool caused it.

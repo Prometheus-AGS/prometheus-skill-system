@@ -392,10 +392,11 @@ if [[ -f "$wp" ]]; then
 else
   put "$wp" "{
   \"phase\": \"spec\",
+  \"status\": \"ready\",
   \"task\": null,
   \"waypoint\": \"bootstrap\",
   \"updated\": \"${today}\",
-  \"note\": \"Authoritative for position. tier-guard.sh reads .phase — set it to milestone before Tier 3.\"
+  \"note\": \"Authoritative for position. tier-guard.sh reads .status; final artifact commands require a completed or release boundary.\"
 }
 "
   record "CREATE" ".kbd-orchestrator/current-waypoint.json" "position authority"

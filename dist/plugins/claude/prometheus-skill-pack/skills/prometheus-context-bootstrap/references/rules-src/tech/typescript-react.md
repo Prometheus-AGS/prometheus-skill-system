@@ -6,14 +6,14 @@ paths: ['**/*.ts', '**/*.tsx', '**/*.mts', '**/package.json', '**/tsconfig*.json
 
 Loaded when a TypeScript file is read. Not resident.
 
-| Tier | Commands |
-|---|---|
-| T0 every edit | `tsc --noEmit` (Bun and esbuild strip types without checking them — `tsc` is the gate); ESLint or Biome on the touched file |
-| T1 unit complete | `vitest run <file>` (or `bun test <file>`) — watch mode is the inner loop, not a gate |
-| T2 phase complete | full `vitest run`; `vite build` or `next build`; `scripts/check-file-lines.sh`; `scripts/check-architecture.sh` |
-| T3 milestone only | Playwright e2e; visual regression; bundle-size gate |
+Batch implementation until a production path is complete. Use a narrow type check earlier only when it
+is needed to unblock work. At a completed change boundary, run the smallest browser, API, process, or
+build integration that exercises the real entry point and collaborators. Unit, component-only, snapshot,
+and per-edit tests are not completion evidence. Reserve broad end-to-end, visual, bundle, architecture,
+and file-size gates for the final applicable phase or release boundary.
 
-Cache `.tsbuildinfo`. Keep e2e to the flows where failure costs money.
+Bun and esbuild strip types without checking them; when a type gate is warranted, use `tsc --noEmit`.
+Cache `.tsbuildinfo`. Keep end-to-end coverage to complete flows where failure costs money.
 
 ## Layering (B-3, B-4) — `Component → Hook → Store → Service → External`
 

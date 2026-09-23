@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# PreToolUse:Bash — block Tier 3 commands outside a deliberate release gate.
+# PreToolUse:Bash — block final artifact commands outside a deliberate release gate.
 #
 # Contract: exit 0 allows, exit 2 blocks and feeds stderr back to the model.
 # Any other exit is a hook error and does not block, so every failure path
@@ -10,7 +10,7 @@
 # a phase IDENTITY ("uar-uiux-full-migration-2026-08"), not a lifecycle state.
 # `.status` holds the lifecycle ("running", "execute_ready", "completed").
 # An earlier version matched .phase against milestone|release|certify, which no
-# real waypoint could ever satisfy — it blocked Tier 3 unconditionally with no
+# real waypoint could ever satisfy — it blocked release commands unconditionally with no
 # reachable unblock path. Read .status, and provide explicit opt-ins.
 
 set -uo pipefail
@@ -40,24 +40,25 @@ if [[ -f "$waypoint" ]] && command -v jq >/dev/null 2>&1; then
   phase="$(jq -r '.phase // ""' "$waypoint" 2>/dev/null || true)"
 fi
 
-# Lifecycle states in which Tier 3 is the expected gate rather than a violation.
+# Lifecycle states in which final artifact production is expected.
 if printf '%s' "$status" | grep -qiE '^(completed|complete|release|releasing|certify|certified|milestone|delivery)'; then
   exit 0
 fi
 
 cat >&2 <<EOF
-TIER VIOLATION — Tier 3 command outside a release gate.
+FINAL ARTIFACT GATE — release command outside a completed change or release boundary.
 
   command: $cmd
   status:  ${status:-<unknown>}
   phase:   ${phase:-<unknown>}
   source:  $waypoint
 
-Tier 3 runs at milestone, release, or certification. A release build during
+Release and cross-platform artifact commands run at milestone, release, or certification. A release build during
 implementation invalidates the incremental cache and pays full optimization
 for code that is about to change.
 
-Run the Tier 2 equivalent instead, or open the gate deliberately:
+Finish the coherent implementation and run the smallest relevant integration gate,
+or open the final-artifact gate deliberately:
 
   PROMETHEUS_TIER3=1 <command>          # one command
   touch .kbd-orchestrator/tier3.allow   # this session; delete when done

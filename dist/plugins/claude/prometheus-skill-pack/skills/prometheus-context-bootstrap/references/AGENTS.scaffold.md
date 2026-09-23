@@ -41,13 +41,13 @@ rename adjacent symbols while making an unrelated change.
 
 Match the file's existing conventions over your own defaults.
 
-### One thing at a time
+### Complete coherent sets
 
-Complete one edit and its cheap check before starting the next. Do not batch
-several unrelated changes into one pass and verify at the end — when it fails
-you will not know which change caused it.
+Batch related implementation work until a meaningful production path is complete.
+Do not interrupt every edit with a build or test. Keep unrelated changes separate,
+then validate the completed set through the smallest real integration boundary.
 
-Do not start a second subsystem while the first is unverified.
+Do not start an unrelated subsystem while the current implementation set is partial.
 
 ### Stop conditions
 
