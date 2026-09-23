@@ -2078,10 +2078,10 @@ fn check_trace_store() -> CheckResult {
 }
 
 fn check_managed_binaries() -> CheckResult {
-    use std::os::unix::fs::PermissionsExt;
-
     let home = dirs::home_dir().unwrap_or_else(|| PathBuf::from("/"));
-    let bin_dir = home.join(".local/bin");
+    let bin_dir = std::env::var_os("PROMETHEUS_COMMAND_DIRECTORY")
+        .map(PathBuf::from)
+        .unwrap_or_else(|| home.join(".local/bin"));
     let binaries = [
         (
             "prometheus",
@@ -2108,10 +2108,8 @@ fn check_managed_binaries() -> CheckResult {
     let mut failures = Vec::new();
     let mut details = Vec::new();
     for (name, source) in binaries {
-        let installed = bin_dir.join(name);
-        let executable = fs::metadata(&installed).ok().is_some_and(|metadata| {
-            metadata.is_file() && metadata.permissions().mode() & 0o111 != 0
-        });
+        let installed = bin_dir.join(format!("{name}{}", std::env::consts::EXE_SUFFIX));
+        let executable = is_executable(&installed);
         let Some(installed_hash) = hash_path(&installed) else {
             failures.push(format!("{name} is missing from {}", bin_dir.display()));
             continue;
@@ -2439,14 +2437,18 @@ fn check_learning_worker() -> CheckResult {
 }
 
 fn check_hook_log_rotation() -> CheckResult {
+    #[cfg(unix)]
     use std::os::unix::fs::PermissionsExt;
     let home = dirs::home_dir().unwrap_or_else(|| PathBuf::from("/"));
     let root = home.join(".prometheus");
     let log = root.join("hooks.log");
     let config = root.join("logrotate/prometheus-hooks.conf");
+    #[cfg(unix)]
     let mode = fs::metadata(&log)
         .ok()
         .map(|metadata| metadata.permissions().mode() & 0o777);
+    #[cfg(not(unix))]
+    let mode: Option<u32> = None;
     let plist = home.join("Library/LaunchAgents/ai.prometheus.hooks-logrotate.plist");
     let logrotate = configured_rotation_dependency(
         &plist,
@@ -2566,10 +2568,19 @@ fn configured_rotation_dependency(plist: &Path, key: &str, fallbacks: &[&str]) -
 }
 
 fn is_executable(path: &Path) -> bool {
+    #[cfg(unix)]
     use std::os::unix::fs::PermissionsExt;
     fs::metadata(path)
         .ok()
-        .is_some_and(|metadata| metadata.is_file() && metadata.permissions().mode() & 0o111 != 0)
+        .is_some_and(|metadata| {
+            if !metadata.is_file() {
+                return false;
+            }
+            #[cfg(unix)]
+            { metadata.permissions().mode() & 0o111 != 0 }
+            #[cfg(not(unix))]
+            { true }
+        })
 }
 
 fn dependency_detail(name: &str, path: Option<&Path>, ready: bool) -> String {
