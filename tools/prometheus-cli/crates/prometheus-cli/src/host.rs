@@ -25,7 +25,7 @@ pub fn launch_if_needed() -> Result<Option<i32>> {
     let config: BTreeMap<String, String> = serde_json::from_slice(
         &std::fs::read(host.configuration).context("Open The Boss to restore its CLI configuration")?
     )?;
-    let allowed = ["PROMETHEUS_PACK_ROOT", "PROMETHEUS_COMMAND_DIRECTORY", "PROMETHEUS_SERVICE_DIRECTORY",
+    let allowed = ["PROMETHEUS_PACK_ROOT", "PROMETHEUS_COMMAND_DIRECTORY", "PROMETHEUS_SERVICE_DIRECTORY", "PROMETHEUS_SERVICE_MODE",
         "LITER_LLM_BASE_URL", "LITER_LLM_MASTER_KEY", "LITER_LLM_CONFIG",
         "PROMETHEUS_KBD_JUDGE_MODEL", "PROMETHEUS_KBD_CRITIC_MODEL", "SURREAL_MEMORY_URL", "SURREAL_MEMORY_TOKEN"];
     let mut command = Command::new(&exe);
@@ -68,6 +68,8 @@ pub fn doctor(options: &crate::commands::doctor::DoctorOptions) -> Result<()> {
 pub fn setup(full: bool, check: bool, dry_run: bool, rebuild: bool) -> Result<()> {
     ensure!(!rebuild, "The Boss supplies prebuilt tools. Update the application instead of rebuilding installed binaries.");
     if !full || check { return run_mini("doctor.mjs", &["--human"]); }
+    ensure!(std::env::var("PROMETHEUS_SERVICE_MODE").as_deref() == Ok("managed"),
+        "External services are configured in The Boss; their lifecycle belongs to their operator.");
     let directory = std::env::var("PROMETHEUS_SERVICE_DIRECTORY").context("Configure services in The Boss first")?;
     ensure!(PathBuf::from(&directory).join(".env").is_file(), "Use The Boss Settings > Prometheus > Setup and Start to initialize credentials first.");
     if dry_run {
