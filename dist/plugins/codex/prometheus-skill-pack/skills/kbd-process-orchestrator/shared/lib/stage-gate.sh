@@ -18,10 +18,10 @@
 #
 #   kbd_stage_gate <stage> [phase-dir]
 #       Verify the previous stage completed (handoff exists, possibly
-#       skipped:true). Return 0 when satisfied or in legacy mode (phase has
-#       no handoffs/ directory at all — warns once to stderr). Return 2 with
-#       an exact remediation command on stderr when a required handoff is
-#       missing.
+#       skipped:true). Return 0 when satisfied. Return 2 with remediation
+#       on stderr when the phase cannot be resolved, canonical phase views
+#       disagree, or a required predecessor handoff is missing. A missing
+#       handoffs/ directory does not bypass required predecessors.
 #
 #   kbd_stage_handoff_write <stage> <summary> [output-file ...] [phase-dir]
 #       Atomically write handoffs/<stage>.handoff.json for the active phase.

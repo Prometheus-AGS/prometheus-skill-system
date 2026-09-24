@@ -38,6 +38,7 @@
     "previousPhase": { "type": ["string", "null"] },
     "change": { "type": ["string", "null"] },
     "status": {
+      "description": "Legacy lifecycle alias in runtime projections; shadow inputs may contain stage-like values.",
       "enum": [
         "ready",
         "running",
@@ -58,6 +59,9 @@
         "reflected"
       ]
     },
+    "lifecycle": { "type": "string", "description": "Canonical run lifecycle, distinct from active stage." },
+    "stageId": { "type": ["string", "null"], "description": "Active canonical stage ID; null when no stage is active." },
+    "stageStatus": { "type": ["string", "null"], "description": "Active stage status, separate from run lifecycle." },
     "currentTask": { "type": ["string", "null"] },
     "nextPendingChange": { "type": ["string", "null"] },
     "sourceTool": { "type": ["string", "null"] },
@@ -73,7 +77,7 @@
       "type": ["string", "null"],
       "description": "Stored operator intent. It may be stale and must never select executable work."
     },
-    "parentPhase": { "type": ["string", "null"] },
+    "parentPhase": { "type": ["string", "null"], "description": "Immediate parent slug; null for top-level phases." },
     "childPhases": {
       "type": "array",
       "items": { "type": "string", "minLength": 1 }

@@ -1,6 +1,6 @@
 {
   "name": "prometheus-process-skills",
-  "description": "KBD process orchestration, strategic evolution (pmpo-evolver: 5 perspectives + Darwin idea validation), goal tracking (kbd-goal/kbd-goal-check), outer loop, elicit, and PMPO skill creation",
+  "description": "KBD process orchestration, portable agent teams, strategic evolution, goal tracking, outer loop, elicit, and PMPO skill creation",
   "version": "1.6.0",
   "author": {
     "name": "Travis James",
@@ -8,6 +8,10 @@
   },
   "license": "MIT",
   "skills": [
+    "./agent-team-creator",
+    "./agent-team-manage",
+    "./agent-team-models",
+    "./agent-team-handoff",
     "./ideation-mindmap",
     "./iterative-evolver",
     "./karpathy-progress-memory",

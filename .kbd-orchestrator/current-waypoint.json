@@ -2,12 +2,12 @@
   "schemaVersion": "5",
   "generatedBy": "kbd-runtime",
   "projectionContractVersion": 2,
-  "sourceRevision": 1333,
-  "derivedRevision": 1333,
+  "sourceRevision": 1351,
+  "derivedRevision": 1351,
   "frontier": {
     "4bca58c3-e70b-48c9-a555-60bc16d3d025": 1245,
     "575138ba-385e-449d-89f7-cf4d793b34f9": 47,
-    "fc9532db-b37e-4bb6-b679-5cc3ed76ea01": 41
+    "fc9532db-b37e-4bb6-b679-5cc3ed76ea01": 59
   },
   "conflictCount": 0,
   "projectId": "6ac090a4-3656-4d83-8eb6-2891508196d5",
@@ -23,19 +23,19 @@
   "phase": "agent-team-creator",
   "parentPhase": null,
   "childPointer": null,
-  "change": "agent-team-creator",
-  "currentTask": "1.1",
+  "change": null,
+  "currentTask": null,
   "status": "ready",
   "lifecycle": "ready",
   "stageId": "execute",
   "stageStatus": "IN_PROGRESS",
   "completionMetric": "implementation",
-  "implementationCompleted": 43,
+  "implementationCompleted": 44,
   "implementationTotal": 48,
   "planRevision": 16,
-  "revision": 1333,
+  "revision": 1351,
   "exactNextCommand": "/kbd-assess agent-team-creator",
-  "nextChange": "agent-team-creator",
-  "nextTask": "1.1",
-  "updatedAt": "2026-09-24T15:56:23.640062Z"
+  "nextChange": null,
+  "nextTask": null,
+  "updatedAt": "2026-09-24T16:50:31.961389Z"
 }

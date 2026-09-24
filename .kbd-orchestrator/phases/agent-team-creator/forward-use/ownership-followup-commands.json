@@ -1,0 +1,28 @@
+[
+  {
+    "argv": [
+      "node",
+      "/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.worktrees/agent-team-creator/skills/process/agent-team-creator/scripts/cli.mjs",
+      "guide",
+      "--input",
+      "/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.worktrees/agent-team-creator/.scratch/agent-team-forward-use/ownership-followup-initial.request.json"
+    ],
+    "cwd": "/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.worktrees/agent-team-creator/.scratch/agent-team-forward-use",
+    "exitCode": 0,
+    "stdout": "ownership-followup-initial.stdout.json",
+    "stderr": "ownership-followup-initial.stderr.json"
+  },
+  {
+    "argv": [
+      "node",
+      "/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.worktrees/agent-team-creator/skills/process/agent-team-creator/scripts/cli.mjs",
+      "guide",
+      "--input",
+      "/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.worktrees/agent-team-creator/.scratch/agent-team-forward-use/ownership-followup-complete.request.json"
+    ],
+    "cwd": "/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.worktrees/agent-team-creator/.scratch/agent-team-forward-use",
+    "exitCode": 0,
+    "stdout": "ownership-followup-complete.stdout.json",
+    "stderr": "ownership-followup-complete.stderr.json"
+  }
+]

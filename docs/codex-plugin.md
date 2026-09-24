@@ -1,141 +1,75 @@
 # Codex Plugin & Marketplace
 
-The skill-pack ships a **Codex CLI/desktop plugin** in parity with its Claude-Code
-plugin. All Codex artifacts are **generated** from the canonical Claude sources —
-never hand-edit them.
+The Codex package is generated from `skill-system.json` and the collected skill inventory. It shares skill content with the Claude package while retaining its own native manifest. Do not hand-edit generated payloads or marketplace entries.
 
-| Generated artifact | From | Emitted by |
-|---|---|---|
-| `.codex-plugin/plugin.json` | `.claude-plugin/plugin.json` (+ `interface` block) | `scripts/build-codex-plugin.js` |
-| `.agents/plugins/marketplace.json` | `.claude-plugin/marketplace.json` (source→`{source,path}`, +`policy`) | `scripts/build-codex-plugin.js` |
-| MCP servers | `.mcp.json` (referenced by pointer — Codex reads the `mcpServers`-wrapper form as-is) | — |
-| Hooks | `shared/harnesses/hook-contract.json` | `scripts/generate-harness-adapters.js` → `hooks/codex-hooks.json` |
+| Artifact | Source | Generator |
+| --- | --- | --- |
+| `dist/plugins/codex/prometheus-skill-pack/.codex-plugin/plugin.json` | Distribution contract and inventory | `scripts/generate-skill-system-distribution.js` |
+| `.agents/plugins/marketplace.json` | Contract marketplace entries, imports and package paths | Same generator |
+| Packaged `skills/` and `skill-index.json` | Collected skill source directories | Same generator |
+| Packaged `.mcp.json` | Root MCP template, checked for machine paths and literal credentials | Same generator |
 
-## Build / validate
+The current manifest exposes `skills: "./skills"`, `mcpServers: "./.mcp.json"` and the Codex `interface` metadata. It has no `hooks` or native-team `agents` field. The compatibility wrapper `scripts/build-codex-plugin.js` delegates to the distribution generator and explicitly rejects a manifest containing `hooks`.
 
-```bash
-npm run build:codex       # regenerate .codex-plugin/plugin.json + .agents/plugins/marketplace.json
-npm run validate:codex    # CI guard: fails if artifacts are stale or invalid (no write)
+## Local generation and installation
+
+```sh
+npm run build:codex
+npm run validate:codex
 ```
 
-`build:codex` is idempotent (byte-stable). `validate:codex` (`--check`) detects
-drift and validates required fields + `./`-in-root paths. This is a mandatory
-local gate; hosted workflows do not build or validate the package.
+These commands generate and check the shared distribution locally. `validate:codex` checks drift without writing. It does not certify an installed Codex version, authenticate MCP servers or run agents. Hosted test workflows are not a validation path.
 
-Every target in `skill-system.json` also declares `sourceTreeLifecycle`.
-Repository-owned harness mirrors are `required` and must be present and
-populated. Destinations materialized only during installation are
-`install-only` and may be absent from the source checkout. The shared contract
-loader enforces this before distribution generation or installation begins.
+Every target in `skill-system.json` declares `sourceTreeLifecycle`. Required repository trees must exist and be populated; install-only destinations may be absent until installation. The generated marketplace points to packaged payloads and adjacent plugin sources. Curated user-skill catalog selection in `config/codex-catalog.txt` is separate from the full packaged inventory.
 
-### Distribution & env
+The repository recorded these installation verbs with codex-cli 0.144.1; inspect the installed CLI's help before using them with a different release:
 
-- **External publish:** `CODEX_MARKETPLACE_SOURCE=git-subdir CODEX_MARKETPLACE_REF=main npm run build:codex`
-  emits `source.{source:"git-subdir",url,ref,path}` per plugin (needs a pushed
-  commit). Default is `local` (in-repo dogfood, byte-stable).
-- **MCP env provisioning:** `bash scripts/codex-provision-mcp-env.sh` writes
-  `[shell_environment_policy] inherit = "all"` to `~/.codex/config.toml` so Codex
-  forwards your shell env (keys/tokens) to the plugin's MCP servers. It persists
-  **no secret values**. Fallback for a stubborn server: an inline
-  `[mcp_servers.<name>] env = { KEY = "…" }` block in `~/.codex/config.toml`
-  (0600, user-local) — as done for `tavily_web` this cycle.
-
-## Install (verified against codex-cli 0.144.1)
-
-```bash
-# repo-local dogfood (reads .agents/plugins/marketplace.json)
+```sh
 codex plugin marketplace add .
-codex plugin add prometheus-skill-pack@prometheus-skill-pack   # umbrella (INSTALLED_BY_DEFAULT)
-# or a domain pack, e.g.:
-codex plugin add learn@prometheus-skill-pack
-
-codex plugin list          # 11 plugins resolve to their subdirs
-codex mcp list             # the 7 MCP servers register from the plugin's .mcp.json
-codex doctor               # health
+codex plugin add prometheus-skill-pack@prometheus-skill-pack
+codex plugin list
+codex mcp list
 ```
 
-Capabilities become available **on a new Codex session** after install. Personal
-scope: `~/.agents/plugins/marketplace.json`. Codex also reads the legacy
-`.claude-plugin/marketplace.json`, so the pack was already partially Codex-visible.
+Start a new native session as required by the installed tool. Installation and MCP discovery do not establish successful authentication or execution. Provision credentials through environment references or user-local native configuration; never commit secret values. The packaged MCP template must remain portable and free of machine-specific paths.
 
-Codex installation and ordinary `prometheus setup --full` use the signed local
-KBD runtime and keep `ai.prometheus.sovereign-sync` stopped and disabled. Enable
-that optional replication service only for an intentional cross-machine sharing
-workflow:
+Ordinary `prometheus setup --full` uses the signed local KBD runtime. Optional cross-machine replication is managed separately by `prometheus-companion`; it is not a prerequisite for these skill procedures or typed KBD mutations.
 
-```bash
-prometheus setup --full --sharing
-```
+## Agent-team skills and native agent exports
 
-The sharing daemon is not a prerequisite for plugin skills, hooks, MCP servers,
-`prometheus kbd status`, or typed KBD mutations.
+The process plugin source roster includes `agent-team-creator`,
+`agent-team-manage`, `agent-team-models` and `agent-team-handoff`. The distribution
+generator collects these skill directories into plugin payloads; the curated
+Codex catalog is a separate source selection. Update source rosters and catalog
+configuration, then regenerate through the existing local distribution commands.
+Do not edit generated manifests, marketplace entries or copied runtime modules.
 
-## Hooks — interactive, non-managed trust (change-005)
+Installing these procedures makes the team workflow available. It does not
+create native agents. The creator's compiled `scripts/cli.mjs` runs with Node.js
+22+ and no TypeScript installation. Its `export` command stages
+`.codex/agents/<name>.toml` with native `name`, `description` and
+`developer_instructions`, plus any supplied role overrides. Team native options
+become a proposed `.codex/config.toml`; the exporter never merges that proposal
+into the live project. Existing output directories and filename collisions fail.
 
-`plugin.json.hooks → ./hooks/codex-hooks.json`. Codex and Claude manifests are
-generated separately from one declarative hook contract while retaining the
-same PascalCase event schema (`SessionStart`, `PreToolUse`, …).
+Review the staged files and their source/version receipts before installation.
+The native agent format is [source-verified](https://learn.chatgpt.com/docs/agent-configuration/subagents);
+this does not certify the installed Codex version or a live invocation. Codex
+plugin skill support does not establish an `agents` plugin manifest field, so
+the exporter uses standalone native agent files. Claude and Kimi have separately
+verified agent-plugin layouts; their artifacts are not Codex manifests.
 
-Each generated command embeds an immutable bundle ID. It first resolves that ID
-through `~/.prometheus/plugins/prometheus-skill-pack/runtime/v1/run-hook`; if the
-bundle has not been activated, it uses the native plugin payload exposed through
-`${PLUGIN_ROOT}` to perform a hash-verified bootstrap. Hook business logic never
-resolves through the mutable `stable` or `current` projections.
+The [agent-team reference](agent-teams.md) covers JSON requests, model constraints,
+task ownership, accepted handoffs and optional memory. KBD-linked tasks complete
+through canonical KBD commands and recorded receipts, not by editing progress
+projections or treating a local team status as canonical completion.
 
-Publishing a new signed plugin generation deterministically refreshes that
-embedded bundle ID in both `hooks/hooks.json` and `hooks/codex-hooks.json`.
-Those files must change together, and the active-generation manifest plus all
-14 target receipts must identify the same bundle before activation. A bundle-ID
-refresh changes provenance, not hook event names, matchers, trust behavior, or
-the unrestricted Bash/Python tool policy.
+## Hook evidence is version-scoped
 
-**Trust is independent of install.** Plugin-bundled hooks are *non-managed*:
-an interactive `codex` session shows a one-time trust prompt before running them.
-Consequences:
+The earlier change-cpd-006 experiment recorded plugin-hook behavior with codex-cli 0.144.1. That historical evidence does not describe the current generated package, whose manifest advertises skills and MCP and excludes `hooks`. Do not add a rejected field or claim hook firing from current plugin installation. Other generated hook artifacts retain their own installation and receipt contracts; they are not proof that the Codex plugin consumes them.
 
-- Installing/enabling the plugin does **not** run its hooks until trusted.
-- **Firing is verified** (change-cpd-006, codex-cli 0.144.1): a `SessionStart`
-  hook fires and writes to `${PLUGIN_DATA}`. It can be exercised **headlessly**
-  via `codex exec --dangerously-bypass-hook-trust` (built for vetted automation) —
-  it is *not* interactive-only. Evidence:
-  `.kbd-orchestrator/phases/phase-codex-plugin-distribution-and-ci/references/hook-trust-verification.md`.
-- **Portability:** bootstrap uses `${CLAUDE_PLUGIN_ROOT:-$PLUGIN_ROOT}` so the
-  generated command can acquire its pinned bundle under both harnesses.
-  Codex provides `PLUGIN_ROOT` / `PLUGIN_DATA`, not `CLAUDE_PLUGIN_ROOT`.
-- Distinct from the earlier `config.toml [hooks]` snake_case attempt (which
-  silently never fired). The plugin `hooks.json` path is the working one.
+## Updating the distribution
 
-## MCP servers — env provisioning (change-004)
+Edit the skill sources and the relevant source inventory, domain roster or curated catalog. Release metadata and output paths belong to `skill-system.json`. Regenerate locally, inspect the payload diff and run the planned local validation gates before publication. Native installation or live service testing requires separate evidence; a clean generation check is not that evidence.
 
-The 7 servers register from the shared `.mcp.json` (which already carries this
-repo's `${VAR:-default}` fallbacks and the forge bearer-token / liter-llm proxy
-config / tavily fixes). `codex doctor` warns when a server's env var is unset;
-provide keys via the environment or `~/.codex/config.toml` — **never commit
-secrets**. (See the tavily name-collision note in CLAUDE.md for a Codex MCP gotcha.)
-
-## Parity checklist vs the Claude-Code plugin
-
-| Component | Claude | Codex | Status |
-|---|---|---|---|
-| Plugin manifest | `.claude-plugin/plugin.json` | `.codex-plugin/plugin.json` (+`interface`) | ✅ generated |
-| Marketplace | `.claude-plugin/marketplace.json` (`source:"."`) | `.agents/plugins/marketplace.json` (`source.{source,path}`+`policy`) | ✅ generated, 11 plugins |
-| Skills | 30 curated (array) | same 30 (array); budget curated via `config/codex-catalog.txt`; real dirs via `codex-sync-skills.sh` (Codex ignores symlinks) | ✅ |
-| MCP | `.mcp.json` (7) | same `.mcp.json` via pointer | ✅ 7 register |
-| Hooks | generated `hooks/hooks.json` (managed) | generated `hooks/codex-hooks.json` (non-managed, interactive trust) | ✅ bundle-pinned |
-| Apps (`.app.json`) | — | — | n/a (no connectors yet) |
-
-## Publishing checklist
-
-1. Bump `version` in `.claude-plugin/plugin.json` (source of truth).
-2. `npm run build:codex` — regenerate; `npm run validate:codex` — assert clean.
-3. `codex plugin marketplace add .` + `codex plugin add …` smoke test; `codex doctor`.
-4. Commit `.codex-plugin/`, `.agents/plugins/`, `scripts/build-codex-plugin.js`.
-5. For external distribution, switch a plugin's marketplace `source` to `git-subdir`/`git`.
-
-## UAR compatibility (change-008)
-
-UAR consumes this repo as a git submodule and ingests the `skills/<domain>/<name>/SKILL.md`
-tree directly (`$UAR_BUILTIN_SKILLS_DIR`). The Codex artifacts live at repo root
-(`.codex-plugin/`, `.agents/`) and **do not touch `skills/`** — verified: this
-phase produced zero changes under `skills/` and did not regenerate `.codex/`.
-UAR submodule ingestion is therefore unaffected.
+UAR can ingest the source `skills/<domain>/<name>/SKILL.md` tree through its configured built-in skills directory. The four agent-team procedures remain normal skills in that tree. Ingesting those skills does not register exported UAR agents or start an execution loop; service registration is a separate operation described in the [team reference](agent-teams.md).

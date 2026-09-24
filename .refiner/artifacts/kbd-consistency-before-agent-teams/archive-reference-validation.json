@@ -1,0 +1,8 @@
+{
+  "at": "2026-09-24T16:49:14.040Z",
+  "reason": "Archive moved specification files; references now point at the actual archived artifacts. Prior review receipts are unchanged.",
+  "ok": true,
+  "status": "valid",
+  "errors": [],
+  "warnings": []
+}

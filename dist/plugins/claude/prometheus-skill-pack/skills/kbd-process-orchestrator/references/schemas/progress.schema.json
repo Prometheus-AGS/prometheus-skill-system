@@ -71,8 +71,32 @@
     "completion": {
       "type": "object",
       "required": ["primaryCounter", "implementation"],
-      "description": "Independent completion dimensions. Only implementation contributes to the KBD N/N change counter.",
+      "description": "Phase-scoped completion: implementation is local to this phase; dimensions without phase evidence are NOT_TRACKED. Run evidence appears only in runCompletion.",
       "properties": {
+        "primaryCounter": { "const": "implementation" },
+        "implementation": { "$ref": "#/$defs/countDimension" },
+        "evidence": { "$ref": "#/$defs/statusDimension" },
+        "certification": { "$ref": "#/$defs/statusDimension" },
+        "publication": { "$ref": "#/$defs/statusDimension" }
+      },
+      "additionalProperties": false
+    },
+    "completionScopes": {
+      "type": "object",
+      "required": ["completion", "runCompletion"],
+      "properties": {
+        "completion": { "const": "phase" },
+        "runCompletion": { "const": "run" }
+      },
+      "additionalProperties": false
+    },
+    "runCompletion": {
+      "type": "object",
+      "description": "Preserved run-wide completion. These values do not certify this phase.",
+      "required": ["scope", "runId", "primaryCounter", "implementation", "evidence", "certification", "publication"],
+      "properties": {
+        "scope": { "const": "run" },
+        "runId": { "type": "string" },
         "primaryCounter": { "const": "implementation" },
         "implementation": { "$ref": "#/$defs/countDimension" },
         "evidence": { "$ref": "#/$defs/statusDimension" },
@@ -179,7 +203,7 @@
   "$defs": {
     "dimensionStatus": {
       "type": "string",
-      "enum": ["NOT_TRACKED", "NOT_REQUIRED", "PENDING", "IN_PROGRESS", "COMPLETE", "BLOCKED"]
+      "enum": ["NOT_TRACKED", "NOT_REQUIRED", "PENDING", "IN_PROGRESS", "COMPLETE", "BLOCKED", "SKIPPED"]
     },
     "statusDimension": {
       "type": "object",

@@ -141,14 +141,15 @@ class SkillValidator {
         if (!frontmatter.license) {
           this.addError(skillName, 'Strict: missing required field: license');
         }
-        if (!frontmatter.version) {
+        if (!frontmatter.version && !frontmatter.metadata?.version) {
           this.addError(skillName, 'Strict: missing required field: version');
         }
         const tags = frontmatter.metadata?.tags;
-        if (!tags || !Array.isArray(tags) || tags.length === 0) {
+        const validTags = Array.isArray(tags) ? tags.length > 0 : typeof tags === 'string' && tags.trim().length > 0;
+        if (!validTags) {
           this.addError(
             skillName,
-            'Strict: missing required field: metadata.tags (must be non-empty array)'
+            'Strict: missing required field: metadata.tags (must be a non-empty string or legacy array)'
           );
         }
       } else {

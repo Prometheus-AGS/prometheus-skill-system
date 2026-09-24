@@ -234,7 +234,12 @@ os_list() {
 os_progress() {
   local change="$1" js
   js="$(_os_apply_json "$change")" || return 1
-  printf '%s' "$js" | jq -r '.progress | "\(.total) \(.complete) \(.remaining)"'
+  printf '%s' "$js" | jq -er '.progress |
+    if type == "object" and
+       ([.total, .complete, .remaining] | all(type == "number" and . >= 0 and floor == .)) and
+       .complete + .remaining == .total
+    then "\(.total) \(.complete) \(.remaining)"
+    else error("invalid backend progress; no completion may be inferred") end'
 }
 
 os_mark_done() {
@@ -478,9 +483,10 @@ case "$cmd" in
     # begin-task <change> <id> <i> <n> <title...>
     change="${1:-}"; id="${2:-}"; i="${3:-1}"; n="${4:-1}"; shift 4 || true; title="$*"
     [ -n "$change" ] && [ -n "$id" ] || die "usage: begin-task <change> <id> <i> <n> <title>"
+    progress_output="$(b_progress "$change")" || die "failed to read backend task progress"
+    read -r before_tot before_comp before_rem <<< "$progress_output"
     runtime_task_transition "$change" "$id" "$title" "$i" "register-only" \
       || die "failed to register canonical task boundary"
-    read -r before_tot before_comp before_rem < <(b_progress "$change" 2>/dev/null || echo "$n 0 $n")
     change_start=0
     [ "${before_comp:-0}" -eq 0 ] && change_start=1
     guard_enabled=0
@@ -530,7 +536,8 @@ case "$cmd" in
   end-task)
     change="${1:-}"; id="${2:-}"; i="${3:-1}"; n="${4:-1}"; shift 4 || true; title="$*"
     [ -n "$change" ] && [ -n "$id" ] || die "usage: end-task <change> <id> <i> <n> <title>"
-    read -r before_tot before_comp before_rem < <(b_progress "$change" 2>/dev/null || echo "$n $((i - 1)) 1")
+    progress_output="$(b_progress "$change")" || die "failed to read backend task progress"
+    read -r before_tot before_comp before_rem <<< "$progress_output"
     final_task=0
     [ "${before_rem:-1}" -eq 1 ] && final_task=1
     guard_enabled=0
@@ -547,7 +554,8 @@ case "$cmd" in
     runtime_task_transition "$change" "$id" "$title" "$i" "complete" \
       || die "failed to commit canonical task completion"
     # Recompute progress from the backend so the count is authoritative.
-    read -r tot comp rem < <(b_progress "$change" 2>/dev/null || echo "$n $i 0")
+    progress_output="$(b_progress "$change")" || die "failed to refresh backend progress after task mutation"
+    read -r tot comp rem <<< "$progress_output"
     sync_progress "$change" "${comp:-$i}" "${tot:-$n}"
     # Re-derive the unified position model so the breadcrumb tracks task
     # completion live (CF-5). Best-effort; never aborts the driver.

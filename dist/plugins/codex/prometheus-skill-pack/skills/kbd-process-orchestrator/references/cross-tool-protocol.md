@@ -1,48 +1,51 @@
 # Cross-Tool Reporting Protocol
 
-> Extracted from the orchestrator SKILL.md. The contract any dispatched AI tool (Roo, Cursor, Cline, Codex, etc.) follows when executing a KBD change.
+The contract for every tool executing a KBD-owned change is the same: read
+canonical status, use typed lifecycle commands, and drive each task through
+`kbd-apply`. The append-only runtime journal is authoritative. Progress and
+waypoint files are generated views, never a coordination database to hand-edit.
 
 ## Completion dimensions
 
-All tools MUST treat `completion.implementation` as the KBD N/N counter.
-`changes_completed/changes_total` are exact legacy aliases of that dimension.
-Evidence, certification, authorization, external/time-bound gates, and
-publication are recorded independently and never reopen implemented code.
+Use the active phase's `completion.implementation` for its N/N counter;
+`changes_completed/changes_total` are compatibility aliases. Run-wide totals
+belong to `runCompletion` and do not certify the active phase. Evidence,
+certification, authorization, external/time-bound gates, and publication remain
+independent. A receiving tool must not infer a code gap from pending evidence
+when implementation is complete, or claim phase certification from run totals.
 
-Before handing work to another tool, run
-`scripts/kbd-validate-progress.sh <progress.json>`. A receiving tool must not
-infer a code gap from unchecked evidence tasks when
-`implementation_status: COMPLETE`.
+## Start and task boundaries
 
-When an AI tool (Roo, Cursor, Cline, Codex, etc.) is dispatched to execute a
-KBD change, it MUST follow this protocol:
+1. Read the waypoint, canonical runtime status, the active phase plan, and the
+   selected change spec. Resolve pending work from canonical tasks rather than
+   blindly replaying `exactNextCommand`.
+2. Register missing work through typed `prometheus kbd change register` and
+   `task register` commands using the plan's IDs and sequence.
+3. Run `kbd-apply begin-task <change> <id> <i> <n> <title>` before each task.
+   Derive i/n from the actual task surface; do not invent totals.
+4. Implement exactly that task, then run `kbd-apply end-task` with the same
+   task identity. The driver records canonical state, regenerates projections,
+   and emits task hooks and progress signals. Never increment counters manually.
 
-### On Start of a Change
+## Change completion
 
-1. Read `.kbd-orchestrator/current-waypoint.json`
-2. Read the change spec (OpenSpec or `.kbd-orchestrator/changes/<id>/change.md`)
-3. Update `progress.json`: set status → `IN_PROGRESS`, `started_by` → `<tool-name>`
-4. Update waypoint: `last_updated_by` → `<tool-name>`
+1. Record implementation completion through a typed KBD change transition
+   once the implementation is complete. The compatibility completion helper
+   delegates to the runtime for generated ledgers; it is not permission to
+   edit JSON. Pending evidence never reopens implemented work.
+2. Run the applicable QA and independent review gates, recording actual
+   completion outcomes through typed commands. Keep phase-scoped evidence
+   distinct from run-wide completion.
+3. Use `kbd-apply verify` then `kbd-apply archive`. OpenSpec and native
+   backends both stay behind this driver; never invoke bare OpenSpec apply.
+4. Review and commit the intended artifacts and projections under project
+   policy. Git provides review/history, not a lock for concurrent writers.
 
-### During Execution (on each task completion)
+## Blockers and handoff
 
-1. Update `progress.json`: increment `tasks_done`, update `last_task_completed` and `next_task_pending`
-2. Commit the progress file to git: `git add .kbd-orchestrator && git commit -m "kbd: progress update [<tool>] <change-id> task N/M"`
-
-### On Change Completion
-
-1. Atomically mark implementation complete with
-   `scripts/kbd-validate-progress.sh --mark-implementation-complete <progress.json> <change-id>`.
-   Set legacy `status → DONE` only when the overall change lifecycle is also
-   complete; pending evidence remains in its independent dimension.
-2. If OpenSpec: run `/opsx:verify` then `/opsx:archive`
-3. If native KBD: move change to `.kbd-orchestrator/changes/archive/<date>-<id>/`
-4. Update waypoint: advance `last_completed_change` and `next_pending_change`
-5. Commit all state: `git add .kbd-orchestrator && git commit -m "kbd: change complete [<tool>] <change-id>"`
-6. **Echo the KBD hook**: `echo '[kbd] Change complete — run /kbd-assess or /kbd-reflect as appropriate'`
-
-### On Blocker
-
-1. Update `progress.json`: set status → `BLOCKED`, add to `blockers` array
-2. Update waypoint: set `fallback_command` to describe the blocker
-3. Commit: `git add .kbd-orchestrator && git commit -m "kbd: blocked [<tool>] <change-id>"`
+Record blockers with `prometheus kbd blocker record` and clear resolved ones
+with `blocker clear`. Retain the pending work and report the blocker rather
+than writing status arrays or fallback commands into projections. Include the
+canonical phase/change/task IDs and evidence locations in the handoff. Before
+handoff, inspect current status and the consistency checks required by the
+project; do not claim checks that have not run.

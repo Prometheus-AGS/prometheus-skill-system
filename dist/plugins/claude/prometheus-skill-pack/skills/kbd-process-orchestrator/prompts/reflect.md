@@ -45,7 +45,7 @@ See `references/model-routing.md` for the full routing contract.
 Before running reflect, verify all changes in this phase are complete:
 
 - `progress.json` shows all changes as `DONE`
-- If OpenSpec: all changes show `/opsx:verify` and `/opsx:archive` complete
+- If OpenSpec: all changes show `kbd-apply verify` and `kbd-apply archive` complete
 - If native KBD: all change directories have been moved to `archive/`
 
 If any changes are `BLOCKED`, note them explicitly and proceed with reflection on what was completed.
@@ -86,7 +86,7 @@ Format as bullet points suitable for adding to a Knowledge Item (KI).
 
 Assess how well the multi-tool workflow functioned:
 
-- Were `progress.json` updates made reliably?
+- Were typed task transitions and their progress projections recorded reliably?
 - Were there any gaps where state was lost between tools?
 - What handoff notes worked well? What was unclear?
 - Recommendations for improving the cross-tool protocol.
@@ -178,9 +178,8 @@ Save the full tool response to `.kbd-orchestrator/phases/<phase>/sycophancy/refl
 
 **Caveat:** The sycophancy-correction skill's `AnthropicClient` is currently stubbed — rewrite outputs are placeholder text until that integration lands. Until then, treat `correction_mode: rewrite` output as advisory, not final. Pattern detection and scoring are fully functional.
 
-After writing, advance the waypoint to the next phase:
-
-- Set `.kbd-orchestrator/current-waypoint.json` → `phase` = next phase name
-- Set `next_pending_change` = null (plan not yet created)
-- Set `exact_next_command` = `/kbd-assess <next-phase-name>`
-- Commit: `git add .kbd-orchestrator && git commit -m "kbd: phase reflect complete — <phase-name>"`
+After writing, record the reflect stage through typed `prometheus kbd stage`
+commands and write its handoff. When advancing is authorized, use
+`/kbd-next-phase` to activate the next phase and generate its projections.
+Never hand-edit the waypoint or advance it merely because reflection was
+written. Review and commit only the intended artifacts under project policy.

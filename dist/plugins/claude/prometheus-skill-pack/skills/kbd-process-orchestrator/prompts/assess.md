@@ -149,8 +149,7 @@ ASSESSMENT COMPLETE
 
 Write output to `.kbd-orchestrator/phases/<phase-name>/assessment.md`.
 
-After writing, update `.kbd-orchestrator/phases/<phase>/progress.json`:
-
-- Set `assessment_complete: true`
-- Set `last_updated_by` to the executing tool name
-- Set `last_updated` to current ISO timestamp
+Record the assessment lifecycle through typed `prometheus kbd stage enter`
+and `stage transition` commands, and write the assess handoff through
+`kbd_stage_handoff_write`. The runtime regenerates progress and waypoint
+projections. Never set assessment flags or timestamps in generated JSON.

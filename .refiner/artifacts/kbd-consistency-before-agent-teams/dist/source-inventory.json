@@ -20,19 +20,19 @@
     "sha256": "aa2a1c83bc6d598217c1c9c903b7fe7fb33adad22593e21876fe8455ca90e0cb"
   },
   {
-    "file": "openspec/changes/kbd-consistency-before-agent-teams/design.md",
+    "file": "openspec/changes/archive/2026-09-24-kbd-consistency-before-agent-teams/design.md",
     "bytes": 5621,
     "sha256": "2882818a8c0c9c73176074f7858d9941fd6b10835cfb701004684b015746441c"
   },
   {
-    "file": "openspec/changes/kbd-consistency-before-agent-teams/specs/kbd-phase-consistency/spec.md",
+    "file": "openspec/changes/archive/2026-09-24-kbd-consistency-before-agent-teams/specs/kbd-phase-consistency/spec.md",
     "bytes": 4798,
     "sha256": "21fc86b7a8a1e772685613c7cfdbd59ce7f67cda9eed885e7abd831483be45d3"
   },
   {
-    "file": "openspec/changes/kbd-consistency-before-agent-teams/tasks.md",
+    "file": "openspec/changes/archive/2026-09-24-kbd-consistency-before-agent-teams/tasks.md",
     "bytes": 522,
-    "sha256": "dc6e334fc096af180a7b27a7de58678528027df9e80e865ba54dba587a36732b"
+    "sha256": "b8455e2e6675eaa3c3672c60e7a02190abcd37cac4ea87d7d0622bcf99280807"
   },
   {
     "file": "skills/process/kbd-process-orchestrator/SKILL.md",

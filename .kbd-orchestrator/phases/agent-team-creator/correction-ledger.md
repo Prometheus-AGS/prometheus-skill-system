@@ -1,6 +1,6 @@
 # Consistency correction ledger
 
-Phase: agent-team-creator. Change: kbd-consistency-before-agent-teams. Status: source corrections and integration verification complete; deterministic QA and independent cumulative review PASS. Commit/archive follows; distribution certification remains deferred to team task 2.1.
+Phase: agent-team-creator. Change: kbd-consistency-before-agent-teams. Status: source corrections and integration verification complete; deterministic QA and independent cumulative review PASS. Prerequisite archived and committed; final distribution reconciliation and deterministic checks completed in team tasks 2.1/3.1.
 
 | Observed conflict | Resolution contract | Evidence boundary |
 |---|---|---|
@@ -21,3 +21,5 @@ No historic event journal, archived spec, other product repository, installed ca
 Plan review's remaining cardinality ambiguity was resolved by reading actual registration: each project has two changes and seven tasks, fourteen task records across the two project UUIDs. The original review finding remains in review/plan/findings.json.
 
 Additional verified corrections: backend progress errors fail visibly; canonical creation failure precedes local goals; Execute dispatch cannot satisfy Reflect. Independent review receipts retain all rejected rounds and their dispositions.
+
+Final team corrections: standard AgentSkills metadata accepted without dropping legacy compatibility; mini packaging checks understand source caches and skill-relative resources; optional manifest objects reject null; guided creation resolves output ownership before returning a ready team. Both independent team reviews PASS on round2. Both changes verified and archived. Publication and reflection are subsequent phase postconditions, not inferred from N/N implementation. Archived QA references were updated and revalidated.
