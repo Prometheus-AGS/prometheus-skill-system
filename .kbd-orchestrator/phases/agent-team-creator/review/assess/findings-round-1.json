@@ -1,0 +1,47 @@
+{
+  "mode": "artifact",
+  "verdict": "BLOCK",
+  "judge_model": "gpt-5.5",
+  "producer_model": "gpt-6",
+  "isolation_mode": "rest-gateway:http://localhost:4000/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": "assessment.md",
+      "line": 0,
+      "claim": "The assessment bases required process-correction work on specific files and helpers that are not present in the provided file tree.",
+      "evidence": "The artifact claims: \"Runtime phase creation bypasses compatibility metadata and lifecycle hooks. The runtime-authority branch of mini scripts/kbd-new-phase.mjs returns before flipProjectActivePhase and hooksFire; the corresponding full helper also exits early.\" The provided file tree lists many scripts, but no `scripts/kbd-new-phase.mjs`, and it does not expose a separate `mini` repository tree.",
+      "suggested_fix": "Either provide the missing repository/file evidence in the packet or restate this as an unverified prior-observation requiring Analyze verification before planning repairs."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "assessment.md",
+      "line": 0,
+      "claim": "The assessment cites stale-instruction conflicts in paths that are absent from the packet, making downstream planning likely to target non-existent or unverified files.",
+      "evidence": "The artifact says: \"Full KBD prompts/assess.md asks for assessment_complete writes and references/cross-tool-protocol.md prescribes direct progress/waypoint edits\". The file tree contains neither `prompts/assess.md` nor `references/cross-tool-protocol.md`.",
+      "suggested_fix": "Replace these with verified paths from the provided tree or mark them as external/unverified evidence that must be located before any implementation plan includes edits."
+    },
+    {
+      "severity": "WARNING",
+      "file": "assessment.md",
+      "line": 0,
+      "claim": "The assessment claims coverage of both Docusaurus sites without identifying the second site in the available tree.",
+      "evidence": "The goal requires \"update ... both Docusaurus sites\" and the artifact states: \"Documentation / sites | PARTIAL | Both sites and catalogs exist\". The provided file tree shows a single `./site` Docusaurus-looking directory and no second site path.",
+      "suggested_fix": "Name both site roots and assess each separately, or record the second site as missing/unlocated."
+    },
+    {
+      "severity": "WARNING",
+      "file": "assessment.md",
+      "line": 0,
+      "claim": "The assessment asserts two-repository/full-vs-mini conclusions that cannot be checked against the single provided file tree.",
+      "evidence": "The artifact says: \"This is a source-based assessment of the two isolated worktrees\" and repeatedly refers to \"Full\" and \"Mini\" behavior, including \"Mini uses the installed shared runtime\" and \"Mini constraints tests-for-new-features\". The packet supplies only one file tree rooted at `.` and no separate mini/full repository trees.",
+      "suggested_fix": "Separate findings by repository with explicit roots, or qualify all mini/full claims not evidenced by the packet as pending verification."
+    }
+  ],
+  "sycophancy_screen": {
+    "reject_cap": 2,
+    "cap_overridden": false,
+    "cap_default": 2
+  }
+}

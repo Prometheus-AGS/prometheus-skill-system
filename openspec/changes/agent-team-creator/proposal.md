@@ -1,3 +1,5 @@
+> DRAFT — written before KBD assessment. Not an approved stage output; re-evaluate through Assess, Analyze, Spec and Plan before implementation.
+
 ## Why
 Users need help choosing an agent team and carrying work between coding harnesses. Existing skills lack a shared, inspectable team definition and durable handoff workflow.
 

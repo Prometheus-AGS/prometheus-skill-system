@@ -1,3 +1,5 @@
+> DRAFT — written before KBD assessment. Not an approved stage output; re-evaluate through Assess, Analyze, Spec and Plan before implementation.
+
 ## 1. Guided team contract and portable runtime
 - [ ] 1.1 Implement guidance, manifest validation, task ownership, model selection, handoff and memory outbox.
 ## 2. Native harness exports

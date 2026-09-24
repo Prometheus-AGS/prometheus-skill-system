@@ -1,3 +1,5 @@
+> DRAFT — written before KBD assessment. Not an approved stage output; re-evaluate through Assess, Analyze, Spec and Plan before implementation.
+
 ## Context
 Harnesses differ in configuration, agent discovery, team capabilities and permissions.
 

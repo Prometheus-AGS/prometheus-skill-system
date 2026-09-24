@@ -1,0 +1,48 @@
+{
+  "schemaVersion": "2",
+  "generatedBy": "kbd-runtime",
+  "projectionContractVersion": 2,
+  "sourceRevision": 1300,
+  "derivedRevision": 1300,
+  "frontier": {
+    "4bca58c3-e70b-48c9-a555-60bc16d3d025": 1245,
+    "575138ba-385e-449d-89f7-cf4d793b34f9": 47,
+    "fc9532db-b37e-4bb6-b679-5cc3ed76ea01": 8
+  },
+  "conflictCount": 0,
+  "phase": "agent-team-creator",
+  "phaseId": "agent-team-creator",
+  "parentPhase": null,
+  "last_updated": "2026-09-24T14:31:23.733580Z",
+  "last_updated_by": "kbd-runtime",
+  "changes_total": 0,
+  "changes_completed": 0,
+  "implementation_total": 0,
+  "implementation_completed": 0,
+  "completion": {
+    "primaryCounter": "implementation",
+    "implementation": {
+      "completed": 0,
+      "total": 0,
+      "status": "PENDING"
+    },
+    "evidence": {
+      "status": "COMPLETE",
+      "summary": "Operator disposition recorded; strict OpenSpec verification passed; main spec synchronized; change archived on 2026-08-30.",
+      "blockers": []
+    },
+    "certification": {
+      "status": "COMPLETE",
+      "summary": "Final local integration, release, protected-test, OpenSpec, harness, documentation, and receipt-identity certification passed.",
+      "blockers": []
+    },
+    "publication": {
+      "status": "COMPLETE",
+      "summary": "Commit a9f7d62229f997087a2b0b59419d77f722e12cbd pushed to origin/codex/kbd-uds-control-repair.",
+      "blockers": []
+    }
+  },
+  "changes": [],
+  "children": {},
+  "migrationStatus": null
+}

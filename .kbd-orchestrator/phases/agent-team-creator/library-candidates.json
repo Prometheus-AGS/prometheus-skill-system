@@ -1,0 +1,319 @@
+{
+  "phase": "agent-team-creator",
+  "generated_at": "2026-09-24T14:24:58.408Z",
+  "research_budget": {
+    "max_queries_per_tier": 8,
+    "max_minutes": 20,
+    "queries_used": {
+      "tier1": 1,
+      "tier2": 1,
+      "tier3": 2,
+      "tier4": 0
+    }
+  },
+  "gaps_addressed": [
+    "process-conflicts",
+    "team-runtime",
+    "native-fidelity",
+    "memory-models",
+    "packaging",
+    "documentation-sites"
+  ],
+  "candidates": [
+    {
+      "id": "cand-001",
+      "name": "Existing KBD canonical runtime and helper postconditions",
+      "kind": "pattern",
+      "registry": "none",
+      "verdict": "adapt",
+      "fit_for_gap": "process-conflicts",
+      "decision_rationale": "Fix the actual producer and helper early returns; preserve canonical run evidence.",
+      "evidence": [
+        {
+          "tier": 1,
+          "source_url": "https://github.com/Prometheus-AGS/prometheus-skill-system",
+          "claim": "Local substrate/kbd-runtime/src/lib.rs reads run completion while building phase projection; mini runtime-authority helper returns before metadata/hook postconditions."
+        }
+      ],
+      "risks": [
+        "Installed CLI may predate source correction; no global binary replacement authorized."
+      ]
+    },
+    {
+      "id": "cand-002",
+      "name": "TypeScript 7.0.2",
+      "kind": "library",
+      "registry": "npm",
+      "repo_url": "https://github.com/microsoft/TypeScript",
+      "license": "Apache-2.0",
+      "verdict": "adopt",
+      "fit_for_gap": "team-runtime",
+      "decision_rationale": "User specified TypeScript 7; .mts/NodeNext emits self-contained .mjs.",
+      "evidence": [
+        {
+          "tier": 2,
+          "source_url": "https://github.com/microsoft/typescript/tree/v7.0.2",
+          "claim": "NodeNext requires explicit file extensions; .mts supported."
+        },
+        {
+          "tier": 3,
+          "source_url": "https://www.npmjs.com/package/typescript/v/7.0.2",
+          "claim": "npm verified exact version and Node engine."
+        }
+      ],
+      "risks": [
+        "Do not upgrade full root compiler implicitly."
+      ]
+    },
+    {
+      "id": "cand-003",
+      "name": "Mini platform and Karpathy modules",
+      "kind": "pattern",
+      "registry": "none",
+      "verdict": "adapt",
+      "fit_for_gap": "memory-models",
+      "evidence": [
+        {
+          "tier": 1,
+          "source_url": "https://github.com/Prometheus-AGS/prometheus-skills-mini",
+          "claim": "lib/platform and lib/karpathy provide atomic writes, locks, shell-free delivery and durable receipts."
+        }
+      ],
+      "risks": [
+        "Canonical KBD boundary validation cannot be bypassed for arbitrary team messages.",
+        "Packaged runtime cannot import repo-root modules."
+      ]
+    },
+    {
+      "id": "cand-004",
+      "name": "Existing skill-system inventories and plugin generators",
+      "kind": "pattern",
+      "registry": "none",
+      "verdict": "adopt",
+      "fit_for_gap": "packaging",
+      "evidence": [
+        {
+          "tier": 1,
+          "source_url": "https://github.com/Prometheus-AGS/prometheus-skill-system",
+          "claim": "Full recursive inventory and mini child inventory copy complete skill directories."
+        }
+      ],
+      "risks": [
+        "Mini native target declarations exceed verified home-copy paths.",
+        "Native plugins differ by harness."
+      ]
+    },
+    {
+      "id": "cand-006",
+      "name": "liter-llm 1.18.2 at c5c6caac617eb931cd5009146a70831422ec236c",
+      "kind": "service",
+      "registry": "none",
+      "license": "MIT",
+      "repo_url": "https://github.com/GQAdonis/liter-llm",
+      "verdict": "adapt",
+      "fit_for_gap": "memory-models",
+      "maintenance": {
+        "inspected_commit": "c5c6caac617eb931cd5009146a70831422ec236c",
+        "catalog_fetched": "2026-08-25"
+      },
+      "evidence": [
+        {
+          "tier": 1,
+          "source_url": "https://github.com/GQAdonis/liter-llm/blob/c5c6caac617eb931cd5009146a70831422ec236c/schemas/catalog.json",
+          "claim": "Versioned provider/model catalog exposes optional per-token pricing, capabilities, modalities and limits with provenance; Cargo version 1.18.2, catalog provenance 1.18.1."
+        }
+      ],
+      "risks": [
+        "Available aliases and catalog IDs need explicit mapping.",
+        "Prices may be stale or absent; strength tiers need operator policy."
+      ],
+      "decision_rationale": "Reuse existing gateway and adapt its catalog into team policy; do not rebuild model routing."
+    },
+    {
+      "id": "cand-007",
+      "name": "Reuse existing pinned Docusaurus sites (no new framework adoption)",
+      "kind": "framework",
+      "registry": "npm",
+      "verdict": "adopt",
+      "fit_for_gap": "documentation-sites",
+      "repo_url": "https://github.com/facebook/docusaurus",
+      "evidence": [
+        {
+          "tier": 1,
+          "claim": "Both site/package.json files pin 3.10.2; full guide/sidebar discovery and mini explicit navigation/category mapping inspected."
+        }
+      ],
+      "risks": [
+        "Both sites must build; generated catalogs must remain synchronized."
+      ],
+      "decision_rationale": "Retain both existing 3.10.2 sites; inspect and extend their current source/generator/build flows."
+    },
+    {
+      "id": "cand-008",
+      "name": "Codex",
+      "kind": "pattern",
+      "registry": "none",
+      "verdict": "reference",
+      "fit_for_gap": "native-fidelity",
+      "evidence": [
+        {
+          "tier": 2,
+          "source_url": "https://learn.chatgpt.com/docs/agent-configuration/subagents",
+          "claim": "Standalone TOML agents; no verified plugin agents field; installed-version compatibility required."
+        }
+      ],
+      "risks": [
+        "Standalone TOML agents; no verified plugin agents field; installed-version compatibility required."
+      ],
+      "decision_rationale": "Reference the native contract, not a common invented schema."
+    },
+    {
+      "id": "cand-009",
+      "name": "Claude Code",
+      "kind": "pattern",
+      "registry": "none",
+      "verdict": "reference",
+      "fit_for_gap": "native-fidelity",
+      "evidence": [
+        {
+          "tier": 2,
+          "source_url": "https://code.claude.com/docs/en/sub-agents",
+          "claim": "Markdown subagents differ from experimental Agent Teams; plugin agent fields have limitations."
+        }
+      ],
+      "risks": [
+        "Markdown subagents differ from experimental Agent Teams; plugin agent fields have limitations."
+      ],
+      "decision_rationale": "Reference the native contract, not a common invented schema."
+    },
+    {
+      "id": "cand-010",
+      "name": "Copilot CLI",
+      "kind": "pattern",
+      "registry": "none",
+      "verdict": "reference",
+      "fit_for_gap": "native-fidelity",
+      "evidence": [
+        {
+          "tier": 2,
+          "source_url": "https://docs.github.com/en/copilot/concepts/agents/copilot-cli/fleet",
+          "claim": "Custom agents and Fleet exist; no universal static team manifest."
+        }
+      ],
+      "risks": [
+        "Custom agents and Fleet exist; no universal static team manifest."
+      ],
+      "decision_rationale": "Reference the native contract, not a common invented schema."
+    },
+    {
+      "id": "cand-011",
+      "name": "OpenCode",
+      "kind": "pattern",
+      "registry": "none",
+      "verdict": "reference",
+      "fit_for_gap": "native-fidelity",
+      "evidence": [
+        {
+          "tier": 2,
+          "source_url": "https://opencode.ai/docs/agents/",
+          "claim": "Deployed singular agent/permission/prompt differs from development v2."
+        }
+      ],
+      "risks": [
+        "Deployed singular agent/permission/prompt differs from development v2."
+      ],
+      "decision_rationale": "Reference the native contract, not a common invented schema."
+    },
+    {
+      "id": "cand-012",
+      "name": "Kimi Code",
+      "kind": "pattern",
+      "registry": "none",
+      "verdict": "reference",
+      "fit_for_gap": "native-fidelity",
+      "evidence": [
+        {
+          "tier": 2,
+          "source_url": "https://github.com/MoonshotAI/kimi-code/blob/main/docs/en/customization/agents.md",
+          "claim": "Current .kimi-code Markdown agent schema; model is not a role frontmatter option."
+        }
+      ],
+      "risks": [
+        "Current .kimi-code Markdown agent schema; model is not a role frontmatter option."
+      ],
+      "decision_rationale": "Reference the native contract, not a common invented schema."
+    },
+    {
+      "id": "cand-013",
+      "name": "MiniMax Code CLI",
+      "kind": "pattern",
+      "registry": "none",
+      "verdict": "reference",
+      "fit_for_gap": "native-fidelity",
+      "evidence": [
+        {
+          "tier": 2,
+          "source_url": "https://github.com/MiniMax-AI/minimax-code/blob/main/packages/tui/src/cli/contract.ts",
+          "claim": "mcode exec lacks agent selector; canonical agent files are under the active user data directory."
+        }
+      ],
+      "risks": [
+        "mcode exec lacks agent selector; canonical agent files are under the active user data directory."
+      ],
+      "decision_rationale": "Reference the native contract, not a common invented schema."
+    },
+    {
+      "id": "cand-014",
+      "name": "DeepSeek Harness",
+      "kind": "pattern",
+      "registry": "none",
+      "verdict": "reference",
+      "fit_for_gap": "native-fidelity",
+      "evidence": [
+        {
+          "tier": 2,
+          "source_url": "https://github.com/deepseek-ai/deepseek-harness/blob/master/packages/experimental/agent-team/README.md",
+          "claim": "Cordis presets and explicitly experimental teams; flat shared-cwd coordination."
+        }
+      ],
+      "risks": [
+        "Cordis presets and explicitly experimental teams; flat shared-cwd coordination."
+      ],
+      "decision_rationale": "Reference the native contract, not a common invented schema."
+    },
+    {
+      "id": "cand-015",
+      "name": "UAR and BossFang",
+      "kind": "pattern",
+      "registry": "none",
+      "verdict": "reference",
+      "fit_for_gap": "native-fidelity",
+      "evidence": [
+        {
+          "tier": 2,
+          "source_url": "https://github.com/Prometheus-AGS/universal-agent-runtime",
+          "claim": "Unresolved: discovery registry is not execution registration. Direct local API/schema inspection required before adapter spec acceptance."
+        }
+      ],
+      "risks": [
+        "Unresolved: discovery registry is not execution registration. Direct local API/schema inspection required before adapter spec acceptance."
+      ],
+      "decision_rationale": "Research pending; do not invent or claim a native team endpoint."
+    }
+  ],
+  "build_required": [
+    {
+      "need": "Guided role discovery and a portable team/handoff contract",
+      "why_no_candidate": "Existing packages provide component patterns but no verified complete implementation of the requested eight-harness workflow in the two repositories."
+    },
+    {
+      "need": "Native adapters and team model-policy mapping over liter-llm",
+      "why_no_candidate": "liter-llm provides routing and catalog metadata, but does not provide the requested native agent configuration and team/role/skill/task binding workflow."
+    },
+    {
+      "need": "Resolve UAR/BossFang execution registration and definition contracts before implementing or certifying its adapter",
+      "why_no_candidate": "Discovery routes alone do not establish accepted execution definitions; spec must name exact structs/routes/version or explicit unsupported behavior without pretending parity.",
+      "capability_gap_id": "uar-bossfang-native-contract"
+    }
+  ]
+}
