@@ -1,0 +1,172 @@
+[
+  {
+    "file": ".kbd-orchestrator/constraints.md",
+    "bytes": 3749,
+    "sha256": "13b4a478549c11e69aa3c2fdba583a54654ff4b0cd0756de1a97dbc3aead5a44"
+  },
+  {
+    "file": ".kbd-orchestrator/current-waypoint.json",
+    "bytes": 1191,
+    "sha256": "1b6ffc3e41aba373484e06cf48467bf71a4dfa79ed9c277cc8ff9e0c8033685d"
+  },
+  {
+    "file": ".kbd-orchestrator/position-reminder.txt",
+    "bytes": 988,
+    "sha256": "409e8bf2b7e4ff3a16359f70a4172db581b8266c4ee1c161fbf9e5f75d62584e"
+  },
+  {
+    "file": ".kbd-orchestrator/position.json",
+    "bytes": 16076,
+    "sha256": "aa2a1c83bc6d598217c1c9c903b7fe7fb33adad22593e21876fe8455ca90e0cb"
+  },
+  {
+    "file": "openspec/changes/kbd-consistency-before-agent-teams/design.md",
+    "bytes": 5621,
+    "sha256": "2882818a8c0c9c73176074f7858d9941fd6b10835cfb701004684b015746441c"
+  },
+  {
+    "file": "openspec/changes/kbd-consistency-before-agent-teams/specs/kbd-phase-consistency/spec.md",
+    "bytes": 4798,
+    "sha256": "21fc86b7a8a1e772685613c7cfdbd59ce7f67cda9eed885e7abd831483be45d3"
+  },
+  {
+    "file": "openspec/changes/kbd-consistency-before-agent-teams/tasks.md",
+    "bytes": 522,
+    "sha256": "dc6e334fc096af180a7b27a7de58678528027df9e80e865ba54dba587a36732b"
+  },
+  {
+    "file": "skills/process/kbd-process-orchestrator/SKILL.md",
+    "bytes": 22940,
+    "sha256": "8bf3c871ad491e908029b827018fee325979b8532ac4b3f7da9ac04e194f1832"
+  },
+  {
+    "file": "skills/process/kbd-process-orchestrator/prompts/assess.md",
+    "bytes": 5845,
+    "sha256": "76d8feaa8224370de79b7ee2f118c2bf99acc111e6bd002e3a11e7bc23e5aa13"
+  },
+  {
+    "file": "skills/process/kbd-process-orchestrator/prompts/execute.md",
+    "bytes": 11526,
+    "sha256": "2cc9c518ff6129af3743ebbb8167263030bb89d96051a1ff9ca431498d879117"
+  },
+  {
+    "file": "skills/process/kbd-process-orchestrator/prompts/plan.md",
+    "bytes": 5970,
+    "sha256": "1e7bf27b87e4d853b313f25f463d147d898d8dca5fc1b1a703e0039edebaa69b"
+  },
+  {
+    "file": "skills/process/kbd-process-orchestrator/prompts/reflect.md",
+    "bytes": 7596,
+    "sha256": "0e871b975ccb4867cb26cf12bb4616132ef1d0cfbf0e11248d7e85a1e7381bfd"
+  },
+  {
+    "file": "skills/process/kbd-process-orchestrator/references/cross-tool-handoff.md",
+    "bytes": 2486,
+    "sha256": "c632aeadca720e2aaafaa11ab4a9583c2214bf8ac8a8dca9270d96e17bca6e50"
+  },
+  {
+    "file": "skills/process/kbd-process-orchestrator/references/cross-tool-protocol.md",
+    "bytes": 2825,
+    "sha256": "beff9800001d559e3b270cbdfe5121a08f800bed1fded69783810131d251c18f"
+  },
+  {
+    "file": "skills/process/kbd-process-orchestrator/references/domain/kbd.md",
+    "bytes": 5906,
+    "sha256": "7970cdfd340f8f7d8b93fea1cb2cac051ed8beb6fe7fe45c84156964b0c48661"
+  },
+  {
+    "file": "skills/process/kbd-process-orchestrator/references/integrations/artifact-refiner.md",
+    "bytes": 3878,
+    "sha256": "a3b7c88941553b726f09a5ad6707c767fae8ae9c420dff3ac1eecd8936260e81"
+  },
+  {
+    "file": "skills/process/kbd-process-orchestrator/references/model-routing.md",
+    "bytes": 4346,
+    "sha256": "e482c23dc5ccc8695688be009c03f5d91580957f6fb52592df578c74cd07c838"
+  },
+  {
+    "file": "skills/process/kbd-process-orchestrator/references/schemas/current-waypoint.schema.json",
+    "bytes": 4007,
+    "sha256": "32f415bc363beb42f21c4494a41508c43425b120f72581a9bb42893f1712c0de"
+  },
+  {
+    "file": "skills/process/kbd-process-orchestrator/references/schemas/current-waypoint.template.json",
+    "bytes": 1689,
+    "sha256": "554bcd10c50d7843afb5d5e1c2625ccffb1ae66f12b3c1065ed338f89368568c"
+  },
+  {
+    "file": "skills/process/kbd-process-orchestrator/references/schemas/progress.schema.json",
+    "bytes": 8854,
+    "sha256": "d808d400b92254086008ee2e5c32657bf2464f78d2fd7d19f7bd950ae4728695"
+  },
+  {
+    "file": "skills/process/kbd-process-orchestrator/references/spec-backend-interface.md",
+    "bytes": 5781,
+    "sha256": "1653743f28bfc3b56e2ffe3b6cb5332eb126d39e5ddcd007b8b9827876674a2c"
+  },
+  {
+    "file": "skills/process/kbd-process-orchestrator/shared/lib/stage-gate.sh",
+    "bytes": 9344,
+    "sha256": "cd0aa68ea2fb7b5170a3e42900cea96bdc6c0d683ab2a017fe2530a010721eef"
+  },
+  {
+    "file": "skills/process/kbd-process-orchestrator/skills/kbd-apply/kbd-apply.sh",
+    "bytes": 26397,
+    "sha256": "128606940935ea059fde157c717755c2b2f010283683a2f8c36b1c757715e946"
+  },
+  {
+    "file": "skills/process/kbd-process-orchestrator/skills/kbd-assess/SKILL.md",
+    "bytes": 5828,
+    "sha256": "5ab6686c8f30e973f8dfc05858671f3776ccb87515082c6bfc032ee332b228e4"
+  },
+  {
+    "file": "skills/process/kbd-process-orchestrator/skills/kbd-execute/SKILL.md",
+    "bytes": 11681,
+    "sha256": "e37a3bf1e7c55f8175bf6638648fdeac8502132bbb9476b1332400436f9551ff"
+  },
+  {
+    "file": "skills/process/kbd-process-orchestrator/skills/kbd-init/SKILL.md",
+    "bytes": 10417,
+    "sha256": "89dc98ac2bf5afbc5b0e32e015a57e8be47d8e52c74516b26445493e046a0dda"
+  },
+  {
+    "file": "skills/process/kbd-process-orchestrator/skills/kbd-new-phase/SKILL.md",
+    "bytes": 5826,
+    "sha256": "dcb84b7c7f5c1b9dc9d82198a40a5c618b3759f3609f447e9a8e13b7549e7978"
+  },
+  {
+    "file": "skills/process/kbd-process-orchestrator/skills/kbd-new-phase/kbd-new-phase.sh",
+    "bytes": 10875,
+    "sha256": "39963dab23d8a1a4726548c0fdfe3fca9b2c64f6f8799cc372ef8c7ce70fd2f8"
+  },
+  {
+    "file": "skills/process/kbd-process-orchestrator/skills/kbd-plan/SKILL.md",
+    "bytes": 7059,
+    "sha256": "a7b0ffcda13c5bd3af49bc1ed5c83d3673562bb4f68e32fcf690caa014b3a34e"
+  },
+  {
+    "file": "skills/process/kbd-process-orchestrator/skills/kbd-reflect/SKILL.md",
+    "bytes": 7347,
+    "sha256": "769a73fa65acf5ee10c2dbf82cbb17dac0b4cff2fe3dc1237b09f0a6b480397e"
+  },
+  {
+    "file": "substrate/kbd-runtime/src/lib.rs",
+    "bytes": 382350,
+    "sha256": "0fc5b0de961bef2cf7823b73533941f8a5eaca059949e0948bdf1ee7d2da84cd"
+  },
+  {
+    "file": "substrate/kbd-runtime/tests/phase_scope.rs",
+    "bytes": 13323,
+    "sha256": "acef080e763266d06031a09aae7a7efdf9ed0c1f799893f31606e16e8e80ef28"
+  },
+  {
+    "file": "scripts/tests/kbd-phase-consistency.integration.test.mjs",
+    "bytes": 16385,
+    "sha256": "4f46abc82df45de7a3b85c049d1024d2cab40835350bcee992c51ed8115592d6"
+  },
+  {
+    "file": ".gitignore",
+    "bytes": 3121,
+    "sha256": "672c4aaf63a9222fa434bcb8344b50bee79568cfb2109e8ba81af88320ac4061"
+  }
+]

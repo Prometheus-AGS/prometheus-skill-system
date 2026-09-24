@@ -60,3 +60,12 @@ The second review returned BLOCK on task cardinality. Original finding is retain
   "checked_classes": []
 }
 ```
+
+## Execution correction — backend progress failure
+Task 1.1 end-task reproduced a false final-change message when the global OpenSpec launcher failed. Actual canonical tasks 2.1 and 3.1 remain pending. Verification task 2.1 includes the minimal root-cause fix in both existing apply drivers before integration authoring, plus real process coverage with an actual OpenSpec success and missing-backend failure. No new phase, task count, service or dependency. Original hook receipt is retained as historical evidence; it is not acceptance or certification. Final cumulative review covers this amendment.
+
+## QA corrections discovered at the completed-change boundary
+The adapter progress contract now rejects missing, negative, non-integer or inconsistent counts instead of manufacturing completion. Mini stage-gate remediation names its real Node API. Mini compatibility run reproduced a stale expectation in lib/doctor/skills.test.mjs: it demanded overwriting user edits after commit d3fa2b5 explicitly changed production to preserve them. This unprotected legacy compatibility assertion is aligned with that committed behavior (preserved bytes and continued drift); no full-pack protected test is edited and no acceptance gate is removed. Mini distribution mirrors are regenerated now to satisfy its per-change compatibility gate; final phase reconciliation still belongs to team task 2.1. Whole-tree constraint scans also match pre-existing source and archived review text; change-scope provenance is recorded, with no global cleanup or blanket clean claim.
+
+## Independent review round1 correction
+Preserve unrelated tracked phase histories by restoring their baseline files through Git, never rewriting canonical events; automatic projection refreshes from shared state are outside this delivery scope. Execute dispatch records execution.md and execute-dispatch.json only. The completion handoff for Reflect is emitted after the entire phase execution and its required QA/review/archive gates, not when dispatch is prepared. Existing premature receipt is retained as historical dispatch evidence with completion:false. Task3.1 stays IN_PROGRESS through this review.

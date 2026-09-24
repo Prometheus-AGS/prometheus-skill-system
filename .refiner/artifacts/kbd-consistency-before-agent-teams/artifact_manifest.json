@@ -1,0 +1,55 @@
+{
+  "artifact_type": "content",
+  "generated_at": "2026-09-24T15:37:45.731Z",
+  "variants": [
+    {
+      "name": "consistency-correction",
+      "files": [
+        "dist/source-inventory.json",
+        "dist/verification.json",
+        "../../../.kbd-orchestrator/constraints.md",
+        "../../../.kbd-orchestrator/current-waypoint.json",
+        "../../../.kbd-orchestrator/position-reminder.txt",
+        "../../../.kbd-orchestrator/position.json",
+        "../../../openspec/changes/kbd-consistency-before-agent-teams/design.md",
+        "../../../openspec/changes/kbd-consistency-before-agent-teams/specs/kbd-phase-consistency/spec.md",
+        "../../../openspec/changes/kbd-consistency-before-agent-teams/tasks.md",
+        "../../../skills/process/kbd-process-orchestrator/SKILL.md",
+        "../../../skills/process/kbd-process-orchestrator/prompts/assess.md",
+        "../../../skills/process/kbd-process-orchestrator/prompts/execute.md",
+        "../../../skills/process/kbd-process-orchestrator/prompts/plan.md",
+        "../../../skills/process/kbd-process-orchestrator/prompts/reflect.md",
+        "../../../skills/process/kbd-process-orchestrator/references/cross-tool-handoff.md",
+        "../../../skills/process/kbd-process-orchestrator/references/cross-tool-protocol.md",
+        "../../../skills/process/kbd-process-orchestrator/references/domain/kbd.md",
+        "../../../skills/process/kbd-process-orchestrator/references/integrations/artifact-refiner.md",
+        "../../../skills/process/kbd-process-orchestrator/references/model-routing.md",
+        "../../../skills/process/kbd-process-orchestrator/references/schemas/current-waypoint.schema.json",
+        "../../../skills/process/kbd-process-orchestrator/references/schemas/current-waypoint.template.json",
+        "../../../skills/process/kbd-process-orchestrator/references/schemas/progress.schema.json",
+        "../../../skills/process/kbd-process-orchestrator/references/spec-backend-interface.md",
+        "../../../skills/process/kbd-process-orchestrator/shared/lib/stage-gate.sh",
+        "../../../skills/process/kbd-process-orchestrator/skills/kbd-apply/kbd-apply.sh",
+        "../../../skills/process/kbd-process-orchestrator/skills/kbd-assess/SKILL.md",
+        "../../../skills/process/kbd-process-orchestrator/skills/kbd-execute/SKILL.md",
+        "../../../skills/process/kbd-process-orchestrator/skills/kbd-init/SKILL.md",
+        "../../../skills/process/kbd-process-orchestrator/skills/kbd-new-phase/SKILL.md",
+        "../../../skills/process/kbd-process-orchestrator/skills/kbd-new-phase/kbd-new-phase.sh",
+        "../../../skills/process/kbd-process-orchestrator/skills/kbd-plan/SKILL.md",
+        "../../../skills/process/kbd-process-orchestrator/skills/kbd-reflect/SKILL.md",
+        "../../../substrate/kbd-runtime/src/lib.rs",
+        "../../../substrate/kbd-runtime/tests/phase_scope.rs",
+        "../../../scripts/tests/kbd-phase-consistency.integration.test.mjs",
+        "../../../.gitignore"
+      ],
+      "format": "source-and-evidence",
+      "description": "Current source and verification evidence; source files are referenced in place to avoid duplicate authority."
+    }
+  ],
+  "validation": {
+    "notes": [
+      "Source references are real working-tree files. dist holds inventory and evidence.",
+      "Independent review is pending; this manifest does not certify publication."
+    ]
+  }
+}

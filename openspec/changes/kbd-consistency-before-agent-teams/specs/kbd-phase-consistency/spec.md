@@ -5,6 +5,9 @@ Runtime-authoritative and legacy phase creation SHALL update project activePhase
 #### Scenario: Runtime phase creation
 - **WHEN** a new phase is created through the production helper with canonical runtime authority
 - **THEN** canonical active phase and project activePhase agree, unrelated project fields survive, and a real configured hook observes the new phase exactly once
+#### Scenario: Canonical registration rejects creation
+- **WHEN** canonical phase creation rejects the requested identity
+- **THEN** the helper emits no success, writes no local goals artifact for that rejected attempt and does not update project activePhase or invoke the phase hook
 #### Scenario: Invalid project configuration
 - **WHEN** existing project JSON is malformed
 - **THEN** creation fails before creating a phase or mutating state
@@ -35,6 +38,9 @@ Current KBD instructions SHALL route mutations through typed commands, execution
 #### Scenario: Missing predecessor
 - **WHEN** a required stage handoff is missing
 - **THEN** instructions describe the actual failure and remediation, not an automatic legacy exemption
+#### Scenario: Execution dispatch is not completion
+- **WHEN** execution.md and the dispatch contract are prepared while phase work remains pending
+- **THEN** Execute remains active and its completion handoff is deferred until every phase change finishes implementation, QA, independent review and verification/archive
 #### Scenario: Completion report
 - **WHEN** a tool reports phase completion
 - **THEN** it uses phase-local state, separates implementation from evidence, and does not edit generated projections
@@ -47,3 +53,12 @@ Current instructions SHALL require completed production before integration evide
 #### Scenario: Documentation-only change
 - **WHEN** a full-pack change contains only documentation
 - **THEN** it is not exempt from the current QA/adversarial-review requirements
+
+### Requirement: Apply boundaries require real backend progress
+The apply driver SHALL refuse task boundary mutation when backend progress cannot be read. It SHALL NOT substitute synthetic completed or remaining counts.
+#### Scenario: Backend launcher fails
+- **WHEN** the configured OpenSpec launcher fails before begin-task or end-task
+- **THEN** the driver exits nonzero before marking task state or firing completion hooks, preserving pending work
+#### Scenario: Backend fails after task mutation
+- **WHEN** task mutation succeeds but refreshed progress cannot be read
+- **THEN** the driver reports the read failure and does not fabricate final change completion

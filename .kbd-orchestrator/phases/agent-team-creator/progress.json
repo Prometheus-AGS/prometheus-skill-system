@@ -2,29 +2,58 @@
   "schemaVersion": "2",
   "generatedBy": "kbd-runtime",
   "projectionContractVersion": 2,
-  "sourceRevision": 1304,
-  "derivedRevision": 1304,
+  "sourceRevision": 1328,
+  "derivedRevision": 1328,
   "frontier": {
     "4bca58c3-e70b-48c9-a555-60bc16d3d025": 1245,
     "575138ba-385e-449d-89f7-cf4d793b34f9": 47,
-    "fc9532db-b37e-4bb6-b679-5cc3ed76ea01": 12
+    "fc9532db-b37e-4bb6-b679-5cc3ed76ea01": 36
   },
   "conflictCount": 0,
   "phase": "agent-team-creator",
   "phaseId": "agent-team-creator",
   "parentPhase": null,
-  "last_updated": "2026-09-24T14:49:58.158746Z",
+  "last_updated": "2026-09-24T15:20:14.040786Z",
   "last_updated_by": "kbd-runtime",
-  "changes_total": 0,
+  "changes_total": 2,
   "changes_completed": 0,
-  "implementation_total": 0,
+  "implementation_total": 2,
   "implementation_completed": 0,
   "completion": {
     "primaryCounter": "implementation",
     "implementation": {
       "completed": 0,
-      "total": 0,
+      "total": 2,
       "status": "PENDING"
+    },
+    "evidence": {
+      "status": "NOT_TRACKED",
+      "summary": null,
+      "blockers": []
+    },
+    "certification": {
+      "status": "NOT_TRACKED",
+      "summary": null,
+      "blockers": []
+    },
+    "publication": {
+      "status": "NOT_TRACKED",
+      "summary": null,
+      "blockers": []
+    }
+  },
+  "completionScopes": {
+    "completion": "phase",
+    "runCompletion": "run"
+  },
+  "runCompletion": {
+    "scope": "run",
+    "runId": "sovereign-sync-service-reliability-20260829",
+    "primaryCounter": "implementation",
+    "implementation": {
+      "completed": 42,
+      "total": 48,
+      "status": "IN_PROGRESS"
     },
     "evidence": {
       "status": "COMPLETE",
@@ -42,7 +71,30 @@
       "blockers": []
     }
   },
-  "changes": [],
+  "changes": [
+    {
+      "id": "kbd-consistency-before-agent-teams",
+      "title": "kbd-consistency-before-agent-teams",
+      "status": "IN_PROGRESS",
+      "implementation_status": "IN_PROGRESS",
+      "tasks_total": 3,
+      "tasks_done": 2,
+      "last_task_completed": "Add and run production integration scenarios, validate OpenSpec and reconcile generated surfaces or declare final owner.",
+      "next_task_pending": "Run deterministic QA and independent cumulative diff review, resolve findings, record correction ledger and commit.",
+      "blockers": []
+    },
+    {
+      "id": "agent-team-creator",
+      "title": "agent-team-creator",
+      "status": "PENDING",
+      "implementation_status": "PENDING",
+      "tasks_total": 4,
+      "tasks_done": 0,
+      "last_task_completed": null,
+      "next_task_pending": "Implement the shared TypeScript 7 runtime, guided/expert creation, eight native exports with recorded source/schema/live verification or explicit unverified/limited status, task lifecycle, model policy and discovery, handoffs and optional memory integrations.",
+      "blockers": []
+    }
+  ],
   "children": {},
   "migrationStatus": null
 }

@@ -24,7 +24,7 @@ Expected: <model from policy.registry.frontier.<active_environment>>
 Re-invoke via prom-lanes/UAR with the correct model.
 ```
 
-Each change in the output below MUST be annotated with a `Complexity score` and `Model class` (see `references/model-routing.md` for scoring rules) so `/opsx:apply` can route to the cheapest viable model without re-scoring.
+Each change in the output below MUST be annotated with a `Complexity score` and `Model class` (see `references/model-routing.md` for scoring rules) so `/kbd-apply` can route to the cheapest viable model without re-scoring.
 
 See `references/model-routing.md` for the full routing contract.
 
@@ -124,8 +124,9 @@ If the `sycophancy-correction` MCP skill is available, invoke `detect_sycophancy
 
 Write output to `.kbd-orchestrator/phases/<phase-name>/plan.md`.
 
-After writing, refresh the waypoint:
-
-- Update `.kbd-orchestrator/current-waypoint.json` → `next_pending_change` = first change ID
-- Set `exact_next_command` to the first `/opsx:new` or change creation command
-- Update `.kbd-orchestrator/current-waypoint.md` with the same data
+After writing, register the ordered changes and tasks through typed
+`prometheus kbd change register` and `task register` commands, and record the
+plan stage through `stage enter` / `stage transition`. The runtime regenerates
+the progress and waypoint projections. Resolve the next task from canonical
+pending work; `exactNextCommand` is context, not authority to repeat stale work.
+Never edit generated waypoint fields directly.

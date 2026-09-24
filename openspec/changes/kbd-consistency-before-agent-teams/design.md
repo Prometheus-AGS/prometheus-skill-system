@@ -23,3 +23,11 @@ After all production corrections are implemented: real Runtime public API → jo
 
 ## Risks
 Installed CLI versions may lag source; report the exact binary under test and avoid global installation. Source documentation has generated mirrors; editing mirrors directly would reintroduce drift. Legacy shadow behavior remains supported and requires coverage.
+
+## Verification-discovered correction
+Actual task 1.1 completion encountered a broken global OpenSpec shim. Both apply drivers catch progress failure and synthesize remaining=1/0, emitting false change completion. Canonical tasks remain pending. Task 2.1 includes correcting this observed failure before authoring its integration scenarios: require actual backend progress before mutations, propagate errors, and never synthesize completion. Scope adds mini scripts/kbd-apply.mjs and full existing kbd-apply.sh. Use repository-local OpenSpec in this session; do not modify the global launcher.
+
+## QA refinement
+Validate OpenSpec progress shape before any inferred completion. Mini remediation text uses Node stageHandoffSkip, never the unavailable Bash helper. Preserve the already-committed user-edit ownership behavior in mini doctor; reconcile its stale unprotected compatibility assertion without altering repair production semantics. Regenerate mini distribution after source changes.
+
+Review refinement: write local goals after successful canonical create/activate/start. On rejected create, no authored phase goals or metadata/hook success is produced. Already committed canonical events are not rolled back if a later separate command fails.
