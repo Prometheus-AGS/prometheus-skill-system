@@ -2,29 +2,29 @@
   "schemaVersion": "2",
   "generatedBy": "kbd-runtime",
   "projectionContractVersion": 2,
-  "sourceRevision": 1328,
-  "derivedRevision": 1328,
+  "sourceRevision": 1333,
+  "derivedRevision": 1333,
   "frontier": {
     "4bca58c3-e70b-48c9-a555-60bc16d3d025": 1245,
     "575138ba-385e-449d-89f7-cf4d793b34f9": 47,
-    "fc9532db-b37e-4bb6-b679-5cc3ed76ea01": 36
+    "fc9532db-b37e-4bb6-b679-5cc3ed76ea01": 41
   },
   "conflictCount": 0,
   "phase": "agent-team-creator",
   "phaseId": "agent-team-creator",
   "parentPhase": null,
-  "last_updated": "2026-09-24T15:20:14.040786Z",
+  "last_updated": "2026-09-24T15:56:23.640062Z",
   "last_updated_by": "kbd-runtime",
   "changes_total": 2,
-  "changes_completed": 0,
+  "changes_completed": 1,
   "implementation_total": 2,
-  "implementation_completed": 0,
+  "implementation_completed": 1,
   "completion": {
     "primaryCounter": "implementation",
     "implementation": {
-      "completed": 0,
+      "completed": 1,
       "total": 2,
-      "status": "PENDING"
+      "status": "IN_PROGRESS"
     },
     "evidence": {
       "status": "NOT_TRACKED",
@@ -51,7 +51,7 @@
     "runId": "sovereign-sync-service-reliability-20260829",
     "primaryCounter": "implementation",
     "implementation": {
-      "completed": 42,
+      "completed": 43,
       "total": 48,
       "status": "IN_PROGRESS"
     },
@@ -75,12 +75,12 @@
     {
       "id": "kbd-consistency-before-agent-teams",
       "title": "kbd-consistency-before-agent-teams",
-      "status": "IN_PROGRESS",
-      "implementation_status": "IN_PROGRESS",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
       "tasks_total": 3,
-      "tasks_done": 2,
-      "last_task_completed": "Add and run production integration scenarios, validate OpenSpec and reconcile generated surfaces or declare final owner.",
-      "next_task_pending": "Run deterministic QA and independent cumulative diff review, resolve findings, record correction ledger and commit.",
+      "tasks_done": 3,
+      "last_task_completed": "Run deterministic QA and independent cumulative diff review, resolve findings, record correction ledger and commit.",
+      "next_task_pending": null,
       "blockers": []
     },
     {

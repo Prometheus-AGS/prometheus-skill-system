@@ -3,4 +3,4 @@
 ## 2. Verify the completed correction
 - [x] 2.1 Add and run production integration scenarios, validate OpenSpec and reconcile generated surfaces or declare final owner.
 ## 3. Review and preserve evidence
-- [ ] 3.1 Run deterministic QA and independent cumulative diff review, resolve findings, record correction ledger and commit.
+- [x] 3.1 Run deterministic QA and independent cumulative diff review, resolve findings, record correction ledger and commit.
