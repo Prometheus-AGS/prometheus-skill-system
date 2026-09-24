@@ -1,0 +1,24 @@
+{
+  "mode": "artifact",
+  "verdict": "BLOCK",
+  "judge_model": "gpt-5.5",
+  "producer_model": "gpt-6",
+  "isolation_mode": "rest-gateway:http://localhost:4000/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": "plan.md",
+      "line": 0,
+      "claim": "The plan gives contradictory task cardinality, so Execute cannot register unambiguous canonical KBD tasks/progress totals.",
+      "evidence": "The opening states \"Two changes, seven tasks per repository,\" but the ordered changes list only seven task bullets total: three under `kbd-consistency-before-agent-teams` (`Task 1.1`, `Task 2.1`, `Task 3.1`) and four under `agent-team-creator` (`Task 1.1` through `Task 4.1`). This conflicts with the same paragraph's requirement that \"Canonical tasks are registered at Execute\" and the execution section's \"One task is active per change.\"",
+      "suggested_fix": "State the exact canonical task list and totals for Execute: either seven total deduplicated cross-repository tasks, or fourteen per-repository tasks with distinct IDs/owners for full and mini."
+    }
+  ],
+  "checked_classes": [],
+  "sycophancy_screen": {
+    "reject_cap": 2,
+    "cap_overridden": false,
+    "cap_default": 2
+  }
+}

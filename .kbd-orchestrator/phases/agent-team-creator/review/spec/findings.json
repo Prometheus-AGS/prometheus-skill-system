@@ -1,0 +1,31 @@
+{
+  "mode": "artifact",
+  "verdict": "PASS",
+  "judge_model": "gpt-5.5",
+  "producer_model": "gpt-6",
+  "isolation_mode": "rest-gateway:http://localhost:4000/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "WARNING",
+      "file": "openspec/changes/agent-team-creator/specs/agent-team-management/spec.md",
+      "line": 0,
+      "claim": "The agent-team distribution requirement omits marketplace updates even though the phase goals require them.",
+      "evidence": "Goals require: \"update skills, agents, plugins, marketplaces, repository docs and both Docusaurus sites\". The spec's distribution requirement only says: \"Both packages SHALL ship identical runtime source and compiled artifacts authored in TypeScript 7, four AgentSkills-compliant procedures, supported native agent/plugin packaging, and updated repository and Docusaurus documentation.\" No requirement or scenario names marketplace artifacts.",
+      "suggested_fix": "Add marketplace artifacts to the Portable skills and distribution requirement and final certification scenario, including generated marketplace regeneration/validation where applicable."
+    },
+    {
+      "severity": "WARNING",
+      "file": "openspec/changes/agent-team-creator/tasks.md",
+      "line": 0,
+      "claim": "The implementation task requires \"eight verified native exports\" even though the design requires unavailable native CLIs to be reported as unverified rather than passed.",
+      "evidence": "Task 1.1 says: \"Implement the shared TypeScript 7 runtime, guided/expert creation, eight verified native exports...\" but the design risk states: \"Unavailable native CLIs must be reported as unverified, not passed.\" The verification section also scopes native validation to \"native schemas where installed.\"",
+      "suggested_fix": "Change the task wording to require eight export implementations with verification recorded where native tooling/schemas are available, and explicit unverified/limited status otherwise."
+    }
+  ],
+  "sycophancy_screen": {
+    "reject_cap": 2,
+    "cap_overridden": false,
+    "cap_default": 2
+  }
+}

@@ -2,18 +2,18 @@
   "schemaVersion": "2",
   "generatedBy": "kbd-runtime",
   "projectionContractVersion": 2,
-  "sourceRevision": 1300,
-  "derivedRevision": 1300,
+  "sourceRevision": 1304,
+  "derivedRevision": 1304,
   "frontier": {
     "4bca58c3-e70b-48c9-a555-60bc16d3d025": 1245,
     "575138ba-385e-449d-89f7-cf4d793b34f9": 47,
-    "fc9532db-b37e-4bb6-b679-5cc3ed76ea01": 8
+    "fc9532db-b37e-4bb6-b679-5cc3ed76ea01": 12
   },
   "conflictCount": 0,
   "phase": "agent-team-creator",
   "phaseId": "agent-team-creator",
   "parentPhase": null,
-  "last_updated": "2026-09-24T14:31:23.733580Z",
+  "last_updated": "2026-09-24T14:49:58.158746Z",
   "last_updated_by": "kbd-runtime",
   "changes_total": 0,
   "changes_completed": 0,

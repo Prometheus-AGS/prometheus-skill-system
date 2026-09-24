@@ -1,0 +1,1 @@
+Spec review PASS with two warnings: marketplace coverage added explicitly; native export verification wording now distinguishes source/schema/live verification and unverified tooling. Original findings preserved.

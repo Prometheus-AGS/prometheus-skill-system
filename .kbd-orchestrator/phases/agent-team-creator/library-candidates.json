@@ -290,15 +290,20 @@
       "fit_for_gap": "native-fidelity",
       "evidence": [
         {
-          "tier": 2,
-          "source_url": "https://github.com/Prometheus-AGS/universal-agent-runtime",
-          "claim": "Unresolved: discovery registry is not execution registration. Direct local API/schema inspection required before adapter spec acceptance."
+          "tier": 1,
+          "source_url": "https://github.com/Prometheus-AGS/universal-agent-runtime/blob/ba12845138104d3c8c3b8bca8bc7c5be24004e91/src/uar/domain/artifact.rs",
+          "claim": "Runtime AgentArtifact accepted by POST /api/agents; runs require full artifact. Separate from BossFang descriptor."
+        },
+        {
+          "tier": 1,
+          "source_url": "https://github.com/Prometheus-AGS/librefang/blob/c719a4d683e4d3fb42e436f812e0193f865c9d2c/crates/librefang-api/src/routes/agents/lifecycle.rs",
+          "claim": "POST /api/agents accepts manifest_toml; Hands install/activate provides a separate native multi-agent package lifecycle."
         }
       ],
       "risks": [
-        "Unresolved: discovery registry is not execution registration. Direct local API/schema inspection required before adapter spec acceptance."
+        "Source verified, live acceptance unverified. No atomic cross-agent registration. Preserve originals for lossless round trips."
       ],
-      "decision_rationale": "Research pending; do not invent or claim a native team endpoint."
+      "decision_rationale": "Native contracts resolved in uar-bossfang-contracts.md; implement distinct adapters and report source-only validation."
     }
   ],
   "build_required": [
@@ -309,11 +314,6 @@
     {
       "need": "Native adapters and team model-policy mapping over liter-llm",
       "why_no_candidate": "liter-llm provides routing and catalog metadata, but does not provide the requested native agent configuration and team/role/skill/task binding workflow."
-    },
-    {
-      "need": "Resolve UAR/BossFang execution registration and definition contracts before implementing or certifying its adapter",
-      "why_no_candidate": "Discovery routes alone do not establish accepted execution definitions; spec must name exact structs/routes/version or explicit unsupported behavior without pretending parity.",
-      "capability_gap_id": "uar-bossfang-native-contract"
     }
   ]
 }
