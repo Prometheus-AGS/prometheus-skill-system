@@ -41,6 +41,13 @@ if [[ -f "$wp" ]]; then
     || die "malformed waypoint at $wp — fix by hand before retrying (no files were modified)"
 fi
 
+# Existing project configuration must be one object before any runtime mutation.
+project_json=""
+if [[ -e "$pj" ]]; then
+  project_json="$(jq -ces 'if length == 1 and (.[0] | type == "object") then .[0] else error("expected one JSON object") end' "$pj" 2>/dev/null)" \
+    || die "malformed project at $pj — expected a JSON object; fix by hand before retrying (no files were modified)"
+fi
+
 # Refuse name collisions BEFORE creating any on-disk state.
 [[ -e "$phase_dir" ]] && die "phase already exists: $phase_dir (try /kbd-next-phase or pick another name)"
 
@@ -81,19 +88,6 @@ if command -v kbd_runtime_authoritative >/dev/null 2>&1 && kbd_runtime_authorita
   esac
 fi
 
-# ---------- 1. Phase directory + goals.md ----------
-mkdir -p "$phase_dir"
-
-{
-  printf '# Goals\n\n'
-  if [[ ${#goals[@]} -gt 0 ]]; then
-    for g in "${goals[@]}"; do printf -- '- %s\n' "$g"; done
-  else
-    printf -- '<!-- TBD: enumerate goals before /kbd-assess -->\n'
-  fi
-} > "$phase_dir/goals.md.tmp"
-mv -f "$phase_dir/goals.md.tmp" "$phase_dir/goals.md"
-
 if [[ "$runtime_authoritative" == true ]]; then
   prometheus kbd --path . phase create \
     --command-id "phase-create:${name}" \
@@ -115,13 +109,24 @@ if [[ "$runtime_authoritative" == true ]]; then
       || die "phase start postcommit evaluation blocked"
     kbd_bottleneck_print_signal "$guard_output"
   fi
-  printf '\nCompleted kbd-new-phase — %s ready for /kbd-assess\n' "$name"
-  printf '  phase:  %s\n' "$name"
-  printf '  goals:  %s\n' "$phase_dir/goals.md"
-  printf '  Next:   /kbd-assess %s\n' "$name"
-  exit 0
 fi
 
+# Author local goals only after canonical creation and activation succeed.
+# ---------- 1. Phase directory + goals.md ----------
+mkdir -p "$phase_dir"
+
+{
+  printf '# Goals\n\n'
+  if [[ ${#goals[@]} -gt 0 ]]; then
+    for g in "${goals[@]}"; do printf -- '- %s\n' "$g"; done
+  else
+    printf -- '<!-- TBD: enumerate goals before /kbd-assess -->\n'
+  fi
+} > "$phase_dir/goals.md.tmp"
+mv -f "$phase_dir/goals.md.tmp" "$phase_dir/goals.md"
+
+
+if [[ "$runtime_authoritative" == false ]]; then
 # ---------- 2. progress.json ----------
 source_tool=""
 if [[ -f "$wp" ]]; then
@@ -227,10 +232,11 @@ else
     }' > "$wp.tmp"
 fi
 mv -f "$wp.tmp" "$wp"
+fi
 
 # ---------- 4. project.json activePhase flip ----------
-if [[ -f "$pj" ]]; then
-  jq --arg phase "$name" --arg now "$now" 'del(.active_phase) | .activePhase = $phase | .updatedAt = $now' "$pj" > "$pj.tmp"
+if [[ -n "$project_json" ]]; then
+  printf '%s\n' "$project_json" | jq --arg phase "$name" --arg now "$now" 'del(.active_phase) | .activePhase = $phase | .updatedAt = $now' > "$pj.tmp"
   mv -f "$pj.tmp" "$pj"
 else
   warn "$pj missing — writing a minimal project identity so KBD can keep project state isolated"
@@ -260,8 +266,20 @@ if [[ -f "$hooks_lib" && -f "$waypoint_lib" ]]; then
   . "$waypoint_lib"
   # shellcheck source=/dev/null
   . "$hooks_lib"
+  hook_status="$(_kbd_hooks_status_path)"
+  failed_before=0
+  if [[ -f "$hook_status" ]]; then
+    failed_before="$(jq -er '.failedRuns // 0 | numbers' "$hook_status" 2>/dev/null || printf '0')"
+  fi
   if ! kbd_hooks_fire phase before "$name" 1 1; then
     warn "phase:before hook fire failed (phase still created)"
+  fi
+  # warn/ignore hooks may fail without making the dispatcher return nonzero.
+  if [[ -f "$hook_status" ]]; then
+    failed_after="$(jq -er '.failedRuns // 0 | numbers' "$hook_status" 2>/dev/null || printf '0')"
+    if [[ "$failed_after" -gt "$failed_before" ]]; then
+      warn "phase:before hook command failed — see $hook_status (phase still created)"
+    fi
   fi
 else
   warn "hooks subsystem unavailable at $KBD_ORCHESTRATOR_ROOT/shared/lib/ (phase still created)"

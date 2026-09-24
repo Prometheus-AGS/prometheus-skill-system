@@ -30,7 +30,9 @@ counterpart to `/kbd-next-phase`.
 6. Flips `current-waypoint.json`: `previousPhase ← prior phase`,
    `phase ← <name>`, `status ← assessment_ready`, …; preserves unknown
    fields untouched.
-7. Updates `.kbd-orchestrator/project.json` `activePhase` (warns if absent).
+7. Updates `.kbd-orchestrator/project.json` `activePhase` after canonical
+   activation, removes only legacy `active_phase`, and preserves unrelated
+   keys. If absent, bootstraps minimal project identity and active-phase metadata.
 8. Sources `shared/lib/hooks.sh` and fires `phase:before` exactly once for
    the new phase (best-effort — phase persists even if hooks subsystem is
    unavailable).

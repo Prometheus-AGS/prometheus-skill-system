@@ -2,27 +2,59 @@
   "schemaVersion": "1",
   "generatedBy": "kbd-runtime",
   "projectionContractVersion": 2,
-  "sourceRevision": 1292,
-  "derivedRevision": 1292,
+  "sourceRevision": 1356,
+  "derivedRevision": 1356,
   "frontier": {
     "4bca58c3-e70b-48c9-a555-60bc16d3d025": 1245,
-    "575138ba-385e-449d-89f7-cf4d793b34f9": 47
+    "575138ba-385e-449d-89f7-cf4d793b34f9": 47,
+    "fc9532db-b37e-4bb6-b679-5cc3ed76ea01": 64
   },
   "conflictCount": 0,
-  "updatedAt": "2026-09-21T07:07:44.881522Z",
+  "updatedAt": "2026-09-24T16:56:09.655434Z",
   "cursor": [
-    "kbd-control-plane-recovery",
-    "skill-pack-1-10-recovery"
+    "agent-team-creator",
+    "reflect"
   ],
   "root": {
     "type": "phase",
     "id": "6ac090a4-3656-4d83-8eb6-2891508196d5",
     "status": "ready",
     "progress": {
-      "done": 42,
-      "total": 46
+      "done": 44,
+      "total": 48
     },
     "children": [
+      {
+        "type": "phase",
+        "id": "agent-team-creator",
+        "canonicalId": "agent-team-creator",
+        "status": "COMPLETE",
+        "progress": {
+          "done": 2,
+          "total": 2
+        },
+        "children": [
+          {
+            "type": "change",
+            "id": "kbd-consistency-before-agent-teams",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 3,
+              "total": 3
+            }
+          },
+          {
+            "type": "change",
+            "id": "agent-team-creator",
+            "status": "COMPLETE",
+            "progress": {
+              "done": 4,
+              "total": 4
+            }
+          }
+        ],
+        "annotations": []
+      },
       {
         "type": "phase",
         "id": "control-plane-to-companion",

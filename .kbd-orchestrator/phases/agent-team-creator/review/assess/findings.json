@@ -1,0 +1,31 @@
+{
+  "mode": "artifact",
+  "verdict": "BLOCK",
+  "judge_model": "gpt-5.5",
+  "producer_model": "gpt-6",
+  "isolation_mode": "rest-gateway:http://localhost:4000/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": "assessment.md",
+      "line": 0,
+      "claim": "The assessment contradicts the packet's authoritative constraints by treating QA skip exemptions as stale text that current policy removed.",
+      "evidence": "Assessment conflict #6 says: \"Full .kbd-orchestrator/constraints.md still describes documentation/file-count QA exemptions; current kbd-execute and adversarial-review explicitly remove them.\" The packet constraints explicitly include those exemptions: \"## When QA is skipped ... changes with fewer than 3 files modified, documentation-only changes, or `--skip-qa`. Skips are logged, not silent.\"",
+      "suggested_fix": "Revise the conflict to match the supplied constraints, or include concrete packet evidence that supersedes them; do not direct downstream work to remove or weaken the documented QA-skip behavior based on an unsupported claim."
+    },
+    {
+      "severity": "WARNING",
+      "file": "assessment.md",
+      "line": 0,
+      "claim": "The assessment misses a goal-level gap analysis for committing and pushing isolated branches.",
+      "evidence": "Goals require: \"Validate locally, commit and push isolated branches; modify only the two skill repositories.\" The assessment covers validation as unknown and repository scope in conflict #8, but it contains no corresponding finding or gap for commit/push readiness, branch isolation, publication sequencing, or evidence required before push.",
+      "suggested_fix": "Add an explicit assessment item for branch isolation and commit/push readiness, including what evidence is missing before isolated branches may be committed and pushed."
+    }
+  ],
+  "sycophancy_screen": {
+    "reject_cap": 2,
+    "cap_overridden": false,
+    "cap_default": 2
+  }
+}

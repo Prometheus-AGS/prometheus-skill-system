@@ -103,7 +103,7 @@ for (i, t) in enumerate(tasks where not t.done):
     emit  "Starting task <i> of <p.total>: <t.title>"        # plain-text guarantee
     <implement exactly task t — self or single delegated agent>
     backend.mark_done(change, t.id)
-    sync progress.json (tasks_done++) + refresh waypoint
+    record typed task transition; runtime regenerates progress/waypoint views
     kbd_hooks_fire task after  "<change>:<t.id>" i p.total
     emit  "Completed task <i> of <p.total>: <t.title>"
 # final task fires on_change_complete via index==total sentinel

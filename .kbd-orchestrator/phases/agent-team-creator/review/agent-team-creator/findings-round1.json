@@ -1,0 +1,18 @@
+{
+  "mode": "diff",
+  "verdict": "BLOCK",
+  "judge_model": "gpt-5.5",
+  "producer_model": "gpt-6",
+  "isolation_mode": "rest-gateway:http://localhost:4000/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": "skills/process/agent-team-creator/runtime/src/validation.mts",
+      "line": 58,
+      "claim": "Manifest validation accepts null for optional object fields that the schema requires to be objects, so invalid manifests pass validation and are silently treated as absent configuration.",
+      "evidence": "The runtime checks optional objects with truthiness (`if (r.modelPolicy)`, `if (r.native)`, `if (t.modelPolicy)`, `if (t.skillPolicies)`, `if (t.native)`) in `validateTeam`, so `null` skips validation; the added `skills/process/agent-team-creator/schemas/team.schema.json` defines `modelPolicy` as `#/$defs/policy` object, `skillPolicies` as an object, `native` as an object, and role `native` as an object.",
+      "suggested_fix": "Validate optional object fields with `!== undefined` and reject null via the existing `object(...)`/`policy(...)` helpers, e.g. `if (r.modelPolicy !== undefined) policy(r.modelPolicy, ...)` and `if (r.native !== undefined) for (...) Object.entries(object(r.native, ...))`."
+    }
+  ]
+}

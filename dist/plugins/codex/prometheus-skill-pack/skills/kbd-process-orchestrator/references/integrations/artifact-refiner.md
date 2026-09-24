@@ -10,21 +10,27 @@ KBD invokes `artifact-refiner` as the **Quality Assurance engine** for each Open
 
 KBD PhaseRefiner RoleEntry Point**Execute** (per-change QA)Validate and refine a completed change's code artifacts`/refine-code`**Execute** (per-change verification)Validate constraints without refinement`/refine-validate`**Reflect** (constraint audit)Check for remaining violations across all changes`/refine-validate`
 
-KBD invokes refiner **per completed change**, after the executing tool marks the change `DONE` in `progress.json` and before `/opsx:verify` or archiving.
+KBD invokes refiner **per implemented change**, after a typed KBD change
+transition records implementation completion. Evidence, certification, and
+publication remain independent. QA and independent adversarial review must
+finish before driver verification and archival.
 
 ---
 
 ## Artifact Lifecycle in KBD Context
 
 ```
-change DONE in progress.json
+implementation complete through typed KBD transition
   → /refine-code "<change-id>" (artifact-refiner)
       → checks blocking constraints from .kbd-orchestrator/constraints.md
       → iterates until constraints pass or max_iterations reached
       → writes refinement_log.md to .refiner/artifacts/<change-id>/
-  → /opsx:verify (if OpenSpec)
-  → /opsx:archive
-  → progress.json updated: completed_by = "artifact-refiner"
+  → independent adversarial-review diff-mode gate
+      → BLOCK: record certification blocked through typed KBD commands; fix and re-review
+      → PASS: retain the local review receipt
+  → kbd-apply verify
+  → kbd-apply archive
+  → canonical lifecycle transitions regenerate progress and waypoint views
 ```
 
 ---
@@ -51,7 +57,7 @@ workflow_triggers:
   - event: on_refinement_complete
     action:
       type: command
-      target: "echo '[kbd] artifact-refiner complete for <change-id> — proceed to /opsx:verify'"
+      target: "echo '[kbd] artifact-refiner complete for <change-id> — proceed to independent adversarial review'"
 ```
 
 ---
@@ -62,7 +68,9 @@ After refinement, KBD checks:
 
 - `.refiner/artifacts/<change-id>/refinement_log.md` — pass/fail history
 - Blocking constraint status — all PASS required before archiving
-- If any constraint FAIL remains → mark change `BLOCKED` in `progress.json`
+- If any constraint FAIL remains → record certification blocked through typed
+  KBD commands; keep implementation completion intact, fix, then rerun QA and
+  independent review. Never hand-edit generated progress/waypoint files.
 
 ---
 
@@ -78,8 +86,11 @@ Never define constraints independently in the refiner invocation. Always source 
 
 ---
 
-## When NOT to Use
+## Review coverage
 
-- For trivial 1-file changes with low risk: run the constraint check commands manually
-- When the project has no `.kbd-orchestrator/constraints.md`: use the generic constraint template from `references/constraints.md`
-- `artifact-refiner` is most valuable for changes with 3+ files or complex TypeScript
+File count and documentation-only changes do not exempt work from review.
+QA and independent adversarial review cover the cumulative diff since the
+last accepted local receipt. A skip may permit development to continue, but
+records `pending_review`; final local certification requires a completed
+receipt or explicit signed waiver. If project constraints are absent, use the
+generic template in `references/constraints.md` as the starting point.

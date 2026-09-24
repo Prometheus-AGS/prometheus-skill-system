@@ -11,6 +11,22 @@
       "path": "skills/adversarial-review"
     },
     {
+      "name": "agent-team-creator",
+      "path": "skills/agent-team-creator"
+    },
+    {
+      "name": "agent-team-handoff",
+      "path": "skills/agent-team-handoff"
+    },
+    {
+      "name": "agent-team-manage",
+      "path": "skills/agent-team-manage"
+    },
+    {
+      "name": "agent-team-models",
+      "path": "skills/agent-team-models"
+    },
+    {
       "name": "argocd-multicloud",
       "path": "skills/argocd-multicloud"
     },
@@ -557,6 +573,18 @@
     {
       "name": "refine-validate",
       "path": "skills/refine-validate"
+    },
+    {
+      "name": "rust-async-patterns",
+      "path": "skills/rust-async-patterns"
+    },
+    {
+      "name": "rust-best-practices",
+      "path": "skills/rust-best-practices"
+    },
+    {
+      "name": "rust-mcp-server-generator",
+      "path": "skills/rust-mcp-server-generator"
     },
     {
       "name": "scaffold-flutter-a2ui",

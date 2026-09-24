@@ -1,0 +1,100 @@
+{
+  "schemaVersion": "2",
+  "generatedBy": "kbd-runtime",
+  "projectionContractVersion": 2,
+  "sourceRevision": 1356,
+  "derivedRevision": 1356,
+  "frontier": {
+    "4bca58c3-e70b-48c9-a555-60bc16d3d025": 1245,
+    "575138ba-385e-449d-89f7-cf4d793b34f9": 47,
+    "fc9532db-b37e-4bb6-b679-5cc3ed76ea01": 64
+  },
+  "conflictCount": 0,
+  "phase": "agent-team-creator",
+  "phaseId": "agent-team-creator",
+  "parentPhase": null,
+  "last_updated": "2026-09-24T16:56:09.655434Z",
+  "last_updated_by": "kbd-runtime",
+  "changes_total": 2,
+  "changes_completed": 2,
+  "implementation_total": 2,
+  "implementation_completed": 2,
+  "completion": {
+    "primaryCounter": "implementation",
+    "implementation": {
+      "completed": 2,
+      "total": 2,
+      "status": "COMPLETE"
+    },
+    "evidence": {
+      "status": "NOT_TRACKED",
+      "summary": null,
+      "blockers": []
+    },
+    "certification": {
+      "status": "NOT_TRACKED",
+      "summary": null,
+      "blockers": []
+    },
+    "publication": {
+      "status": "NOT_TRACKED",
+      "summary": null,
+      "blockers": []
+    }
+  },
+  "completionScopes": {
+    "completion": "phase",
+    "runCompletion": "run"
+  },
+  "runCompletion": {
+    "scope": "run",
+    "runId": "sovereign-sync-service-reliability-20260829",
+    "primaryCounter": "implementation",
+    "implementation": {
+      "completed": 44,
+      "total": 48,
+      "status": "IN_PROGRESS"
+    },
+    "evidence": {
+      "status": "COMPLETE",
+      "summary": "Operator disposition recorded; strict OpenSpec verification passed; main spec synchronized; change archived on 2026-08-30.",
+      "blockers": []
+    },
+    "certification": {
+      "status": "COMPLETE",
+      "summary": "Final local integration, release, protected-test, OpenSpec, harness, documentation, and receipt-identity certification passed.",
+      "blockers": []
+    },
+    "publication": {
+      "status": "COMPLETE",
+      "summary": "Commit a9f7d62229f997087a2b0b59419d77f722e12cbd pushed to origin/codex/kbd-uds-control-repair.",
+      "blockers": []
+    }
+  },
+  "changes": [
+    {
+      "id": "kbd-consistency-before-agent-teams",
+      "title": "kbd-consistency-before-agent-teams",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 3,
+      "tasks_done": 3,
+      "last_task_completed": "Run deterministic QA and independent cumulative diff review, resolve findings, record correction ledger and commit.",
+      "next_task_pending": null,
+      "blockers": []
+    },
+    {
+      "id": "agent-team-creator",
+      "title": "agent-team-creator",
+      "status": "DONE",
+      "implementation_status": "COMPLETE",
+      "tasks_total": 4,
+      "tasks_done": 4,
+      "last_task_completed": "Run deterministic QA and independent cumulative diff review; resolve findings, verify/archive changes, commit and push both branches, and reflect through KBD.",
+      "next_task_pending": null,
+      "blockers": []
+    }
+  ],
+  "children": {},
+  "migrationStatus": null
+}

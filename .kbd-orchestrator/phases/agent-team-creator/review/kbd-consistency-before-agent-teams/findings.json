@@ -1,0 +1,22 @@
+{
+  "mode": "diff",
+  "verdict": "PASS",
+  "judge_model": "gpt-5.5",
+  "producer_model": "gpt-6",
+  "isolation_mode": "rest-gateway:http://localhost:4000/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [],
+  "checked_classes": [
+    "Spec violations — checked acceptance requirements for phase creation postconditions, scoped phase/run projection, stage/lifecycle distinction, generated-state guidance, QA/review coverage, and apply backend-progress validation; the main and paired diffs include corresponding source changes and evidence, with generated-surface deferral explicitly named as allowed by C-01.",
+    "Correctness — checked new runtime projection logic, full Bash and mini Node phase helpers, full Bash and mini Node apply-driver progress handling, and added integration tests for obvious inverted conditions or synthetic fallback regressions; no concrete defect was provable from the packet.",
+    "Regressions — checked prior round dispositions for unrelated phase projection rewrites and premature execute handoff; the current diff restores scope via recorded baseline restoration and replaces the completion handoff with an incomplete dispatch artifact.",
+    "Security — checked for committed private verification fixtures and secrets; .scratch is ignored in both repositories and generated test signer material is confined to scratch fixtures, with no committed secret value evident in tracked diffs.",
+    "Constraint breaches — checked C-01 generated-artifact deferral, C-02 secrets, C-03/C-04 Codex-surface triggers, C-05 bash compatibility-relevant edits, mini no-shell/no-Python rules, forbidden instruction tooling, and line-limit risk; no packet-proven blocking breach remains.",
+    "Silent failure — checked that apply-driver backend progress failures no longer fall back to synthetic counts and that hook failures are reported without claiming success; no remaining swallowed failure was evident from the supplied diff."
+  ],
+  "sycophancy_screen": {
+    "reject_cap": 2,
+    "cap_overridden": false,
+    "cap_default": 2
+  }
+}

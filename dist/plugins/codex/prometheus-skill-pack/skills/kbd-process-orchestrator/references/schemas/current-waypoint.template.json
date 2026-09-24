@@ -1,27 +1,23 @@
 {
   "schemaVersion": "5",
   "__description": "Canonical compatibility projection for the active KBD waypoint. Writers emit camelCase only. Legacy snake_case aliases are accepted by migration readers but are never written.",
-
   "path": [],
   "__path_note": "Canonical arbitrary-depth position chain. SELECTED-VS-ENTERED INVARIANT: when path[]'s trailing token equals childPointer the child is SELECTED (not entered) and /kbd-new-child adds a SIBLING; when childPointer is null/cleared the deepest path[] node is ENTERED and /kbd-new-child NESTS under it. Descent = set path[] + clear childPointer (/kbd-child-exit --enter). See SKILL.md 'Nested phases'.",
-
   "phase": "<phase-name>",
   "activePhase": "<deepest-active-phase-name>",
   "activePhaseId": "<deepest-active-phase-id>",
   "previousPhase": null,
   "change": null,
-  "status": "assessment_ready",
+  "status": "ready",
   "currentTask": "<short imperative>",
   "nextPendingChange": null,
   "sourceTool": "<tool-name>",
   "nextChange": "<derived-change-id>",
   "nextTask": "<derived-task-id>",
   "exactNextCommand": "<stored operator intent; never a work selector>",
-
   "parentPhase": null,
   "childPhases": [],
   "childPointer": null,
-
   "backend": null,
   "wave": null,
   "lastCompletedChange": null,
@@ -30,5 +26,9 @@
   "implementationTotal": 0,
   "certificationStatus": "NOT_TRACKED",
   "publicationStatus": "NOT_TRACKED",
-  "updatedAt": "<ISO-8601 UTC>"
+  "updatedAt": "<ISO-8601 UTC>",
+  "lifecycle": "ready",
+  "stageId": "assess",
+  "stageStatus": "IN_PROGRESS",
+  "__completion_note": "Waypoint completion counters are run-wide compatibility summaries; read active phase progress for phase-local implementation and scoped runCompletion."
 }

@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "stage": "assess",
+  "recordedAt": "2026-09-24T14:17:13.424Z",
+  "sources": [
+    {
+      "id": "project",
+      "scope": "project",
+      "commit": "428591586b006d7a3bd465d0297501cb4c6edbb3",
+      "baseline": "e57421a86fae08ac4d1e3a625a213cf3f3eb98bc",
+      "branch": "codex/agent-team-creator",
+      "dirty": true,
+      "files": [
+        {
+          "path": "AGENTS.md",
+          "sha256": "08e45166af15080358fdeee364c2c0c95b37fb0fa1d6fa2bca23539f0c703c12"
+        },
+        {
+          "path": ".kbd-orchestrator/constraints.md",
+          "sha256": "5d0aefc41690df6b367b57336c1a89c91144ab95778e8b27767c61e9222aec48"
+        },
+        {
+          "path": "skill-system.json",
+          "sha256": "4fc3b35c894d85040a46d2f117ba1e2296b650ddff88406ea970b10eadfcfa2a"
+        },
+        {
+          "path": "substrate/kbd-runtime/src/lib.rs",
+          "sha256": "86e341e63b525c8cf990fcc33f75d1f71c60d58cf46152ac2472864233aebdbd"
+        }
+      ]
+    }
+  ],
+  "registrySources": [],
+  "registryStatus": "No source registry configured; no private/team log sources selected.",
+  "sync": "origin/main fetched before worktree creation; installed pk has no sources subcommand; no log repository configured."
+}

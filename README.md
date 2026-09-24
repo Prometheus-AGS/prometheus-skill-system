@@ -22,7 +22,7 @@ governed, audited, and reproducible.
 
 ## 📚 Documentation
 
-The complete, official product documentation lives in **[`docs/guide/`](docs/guide/README.md)** — 24 linked
+The complete, official product documentation lives in **[`docs/guide/`](docs/guide/README.md)** — linked
 pages covering every skill, tool, CLI, MCP server, hook, and script individually and collectively, with
 flow, sequence, and C4 diagrams throughout. This README is the quick tour; the guide is the manual.
 
@@ -33,6 +33,7 @@ flow, sequence, and C4 diagrams throughout. This README is the quick tour; the g
 | Understand the loops | [Loop Architecture](docs/guide/03-loop-architecture.md) · [Four-Layer Pipeline](docs/guide/04-four-layer-pipeline.md) |
 | Know the substrate | [MCP Servers](docs/guide/05-mcp-substrate.md) · [Memory & Learning](docs/guide/06-memory-and-learning.md) · [Sycophancy Correction](docs/guide/07-sycophancy-correction.md) |
 | Browse every skill | [Skills Overview](docs/guide/08-skills-overview.md) · [Process Skills](docs/guide/09-process-skills.md) · [Language Skills](docs/guide/10-language-skills.md) · [Artifact Refiner](docs/guide/11-artifact-refiner.md) · [Native Agent Generator](docs/guide/12-native-agent-generator.md) |
+| Coordinate agents | [Agent teams guide](docs/guide/24-agent-teams.md) · [Requests, exports and ownership](docs/agent-teams.md) |
 | Reference the engine room | [Tools](docs/guide/13-tools-reference.md) · [Rust Toolchain](docs/guide/14-rust-toolchain.md) · [Hooks & Lifecycle](docs/guide/15-hooks-and-lifecycle.md) · [CLI & Scripts](docs/guide/16-cli-and-scripts.md) |
 | Install, run, contribute | [Platform Support](docs/guide/17-platform-support.md) · [Plugins & Marketplace](docs/guide/18-plugins-and-marketplace.md) · [Installation](docs/guide/19-installation.md) · [Updating](docs/guide/20-updating.md) · [Contributing](docs/guide/21-contributing.md) |
 | See why it matters | [Advantages & Impact](docs/guide/22-advantages-and-impact.md) · [Glossary & Sources](docs/guide/23-glossary.md) |
@@ -83,6 +84,28 @@ Every piece of work flows through four layers. Each layer feeds the next.
 ```
 
 ---
+
+## Agent Teams
+
+Use `agent-team-creator` to turn an outcome into the smallest useful team. Start
+with one implementer, then add a specialist or independent reviewer when their
+work justifies the extra context and cost. Assign file ownership, inputs and
+deliverables before parallel edits. `agent-team-manage` records tasks and
+dependencies; `agent-team-models` evaluates explicit model policies;
+`agent-team-handoff` transfers ownership after destination acceptance.
+
+The shared Node.js 22+ runtime stages native definitions for UAR, Codex, Claude
+Code, Copilot, Kimi Code, MiniMax, OpenCode and DeepSeek Harness, plus BossFang
+registration artifacts. Export does not install plugins, register service agents
+or start execution. Native options and opaque files retain source/version
+receipts, while collisions and existing output directories fail explicitly.
+KBD-linked work retains canonical KBD identity and completion authority.
+
+All four skills ship through the process plugin and normal skill distribution.
+Their compiled runtime needs no TypeScript installation or resident memory
+service. See the [guide](docs/guide/24-agent-teams.md) for the novice flow and
+[request reference](docs/agent-teams.md) for exact JSON examples, model and
+memory limits, and the distinction between skill distribution and native teams.
 
 ## Native Agent Generator
 
@@ -442,7 +465,7 @@ bash scripts/check-mcp-health.sh
 | **Kimi Code CLI** | ✅ | ✅ `~/.kimi-code/config.toml` | — |
 | **MiniMax / Mavis** | ✅ `_meta.json` | ✅ `~/.minimax/mcp/mcp.json` | — |
 | **OpenCode** | ✅ | ✅ `opencode.json` plugin | ✅ `.opencode/plugin.ts` |
-| **Codex CLI** | ✅ | ✅ `.codex/config.toml` | — |
+| **Codex CLI** | ✅ | ✅ `.codex/config.toml` | ✅ generated `.codex-plugin/plugin.json` |
 | **Cursor** | ✅ | — | — |
 | **Windsurf** | ✅ | — | — |
 | **Gemini CLI** | ✅ | — | — |
