@@ -57,6 +57,12 @@ api_key = "sk-proxy-local"
 base_url = "http://localhost:8181/v1"
 fallbacks = ["kbd-judge"]
 
+[[models]]
+name = "kbd-backup"
+provider_model = "openai/gpt-5.4"
+api_key = "sk-proxy-local"
+base_url = "http://localhost:8181/v1"
+
 # Catch-all: any openai/* model reference goes through the local proxy.
 [[aliases]]
 pattern = "openai/*"

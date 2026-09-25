@@ -33,7 +33,28 @@ candidates = ["http://localhost:8181/v1", "http://localhost:4000/v1"]
 generator = "kbd-frontier"   # the producer; not dispatched, only compared against
 critic    = "kbd-critic"     # MUST differ from generator
 judge     = "kbd-judge"
+backup    = "kbd-backup"
+
+[role_identities]
+critic_gateway_connection_id = "full-pack:local-gateway"
+critic_provider_connection_id = "full-pack:local-proxy"
+critic_provider_id = "openai"
+critic_model_id = "gpt-5.5"
+judge_gateway_connection_id = "full-pack:local-gateway"
+judge_provider_connection_id = "full-pack:local-proxy"
+judge_provider_id = "openai"
+judge_model_id = "gpt-5.6-sol"
+backup_gateway_connection_id = "full-pack:local-gateway"
+backup_provider_connection_id = "full-pack:local-proxy"
+backup_provider_id = "openai"
+backup_model_id = "gpt-5.4"
 ```
+
+Aliases select a gateway route. Collision checks use the canonical
+provider-connection/provider/model triple, so two aliases that resolve to the
+same model still collide. A judge collision or unavailable alias selects the
+configured backup only when its canonical identity is distinct; otherwise the
+review remains pending.
 
 ## Resolution order
 

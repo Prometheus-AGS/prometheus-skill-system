@@ -137,6 +137,7 @@ trap "rm -rf '$WORK'" EXIT
 # judge!=producer collision check. Sources, in order: progress.json,
 # KBD_PRODUCER_MODEL, ANTHROPIC_MODEL, "unknown".
 PRODUCER=""
+PRODUCER_IDENTITY=""
 if [ -n "$PHASE_DIR" ]; then
   PRODUCER="$(python3 - "$PHASE_DIR/progress.json" <<'PY' 2>/dev/null || true
 import json, sys
@@ -147,11 +148,34 @@ except Exception:
     pass
 PY
 )"
+  PRODUCER_IDENTITY="$(python3 - "$PHASE_DIR/progress.json" <<'PY' 2>/dev/null || true
+import json, sys
+try:
+    identity = json.load(open(sys.argv[1])).get("producer_identity") or {}
+    if all(identity.get(key) for key in ("providerConnectionId", "providerId", "modelId")):
+        print(json.dumps(identity, separators=(",", ":")))
+except Exception:
+    pass
+PY
+)"
 fi
 [ -n "$PRODUCER" ] || PRODUCER="${KBD_PRODUCER_MODEL:-${ANTHROPIC_MODEL:-}}"
 # Harness-provided identifiers, before giving up. CLAUDE_MODEL / CLAUDECODE_MODEL
 # are set by some Claude Code builds; CLAUDE_CODE_MODEL by others.
 [ -n "$PRODUCER" ] || PRODUCER="${CLAUDE_MODEL:-${CLAUDE_CODE_MODEL:-${CLAUDECODE_MODEL:-}}}"
+if [ -z "$PRODUCER_IDENTITY" ] && [ -n "${KBD_PRODUCER_PROVIDER_CONNECTION_ID:-}" ] \
+  && [ -n "${KBD_PRODUCER_PROVIDER_ID:-}" ] && [ -n "${KBD_PRODUCER_MODEL_ID:-}" ]; then
+  PRODUCER_IDENTITY="$(PROVIDER_CONNECTION_ID="$KBD_PRODUCER_PROVIDER_CONNECTION_ID" \
+    PROVIDER_ID="$KBD_PRODUCER_PROVIDER_ID" MODEL_ID="$KBD_PRODUCER_MODEL_ID" python3 <<'PY'
+import json, os
+print(json.dumps({
+    "providerConnectionId": os.environ["PROVIDER_CONNECTION_ID"],
+    "providerId": os.environ["PROVIDER_ID"],
+    "modelId": os.environ["MODEL_ID"],
+}, separators=(",", ":")))
+PY
+)"
+fi
 
 # "unknown" is not a harmless default: the judge's collision check compares
 # candidate != producer, so an unknown producer makes it pass TRIVIALLY. Every one
@@ -716,7 +740,7 @@ fi
 # and the script would still exit 0 with an empty packet. Assign, then check.
 PACKET=""
 ASSEMBLE_RC=0
-PACKET="$(MODE="$MODE" PHASE="$PHASE" TARGET="$TARGET" PRODUCER="$PRODUCER" WORK="$WORK" PACKAGE="$PACKAGE" \
+PACKET="$(MODE="$MODE" PHASE="$PHASE" TARGET="$TARGET" PRODUCER="$PRODUCER" PRODUCER_IDENTITY="$PRODUCER_IDENTITY" WORK="$WORK" PACKAGE="$PACKAGE" \
 python3 <<'PY'
 import json, os, re, sys
 
@@ -737,6 +761,8 @@ packet = {
     "constraints": slurp("constraints.md"),
     "file_tree": slurp("file_tree.txt"),
 }
+if os.environ.get("PRODUCER_IDENTITY"):
+    packet["producer_identity"] = json.loads(os.environ["PRODUCER_IDENTITY"])
 mode = packet["mode"]
 if mode == "diff":
     packet["diff"] = slurp("diff.patch")

@@ -58,6 +58,13 @@ base_url = "https://api.z.ai/api/paas/v4"
 # ~/.prometheus/kbd/models.toml — point a role at it
 [roles]
 judge = "kbd-judge"
+backup = "kbd-backup"
+
+[role_identities]
+judge_gateway_connection_id = "full-pack:local-gateway"
+judge_provider_connection_id = "full-pack:local-proxy"
+judge_provider_id = "zai"
+judge_model_id = "glm-4.7"
 ```
 
 A pinned role takes precedence over auto-detection. Full precedence, highest first:

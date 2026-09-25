@@ -97,30 +97,66 @@ import json, sys
 print(json.load(open(sys.argv[1])).get("producer_model") or "unknown")
 PY
 )"
+PRODUCER_IDENTITY="$(python3 - "$PACKET" <<'PY' 2>/dev/null || true
+import json, sys
+identity = json.load(open(sys.argv[1])).get("producer_identity") or {}
+if all(identity.get(key) for key in ("providerConnectionId", "providerId", "modelId")):
+    print(json.dumps([identity["providerConnectionId"], identity["providerId"], identity["modelId"]], separators=(",", ":")))
+PY
+)"
 
-# Resolve judge, then critic as the collision escape hatch: an imperfect-tier
-# DIFFERENT model beats a same-model self-grade.
-JUDGE_MODEL=""
+# Served aliases select transport routes. Canonical identity tuples alone decide
+# whether judge, critic, backup and producer are actually different models.
+JUDGE_MODEL=""; CRITIC_MODEL=""; BACKUP_MODEL=""
+JUDGE_IDENTITY=""; CRITIC_IDENTITY=""; BACKUP_IDENTITY=""
 if command -v kbd_resolve_role >/dev/null 2>&1; then
   JUDGE_MODEL="$(kbd_resolve_role judge 2>/dev/null || true)"
-  _alt_model="$(kbd_resolve_role critic 2>/dev/null || true)"
+  CRITIC_MODEL="$(kbd_resolve_role critic 2>/dev/null || true)"
+  BACKUP_MODEL="$(kbd_resolve_role backup 2>/dev/null || true)"
+  JUDGE_IDENTITY="$(kbd_resolve_role_identity judge 2>/dev/null || true)"
+  CRITIC_IDENTITY="$(kbd_resolve_role_identity critic 2>/dev/null || true)"
+  BACKUP_IDENTITY="$(kbd_resolve_role_identity backup 2>/dev/null || true)"
 fi
 [ -n "$JUDGE_MODEL" ] || JUDGE_MODEL="kbd-judge"
 
-# Loose comparison: producer may be a bare id or provider/model.
-_same_model() {
-  [ "${1##*/}" = "${2##*/}" ]
+JUDGE_AUTH_TOKEN="$(kbd_gateway_auth 2>/dev/null || printf '%s' "${LITER_LLM_MASTER_KEY:-${OPENAI_API_KEY:-sk-local}}")"
+AVAILABLE_MODELS="$(curl -s --max-time 5 --noproxy '*' "$JUDGE_BASE_URL/models" \
+  -H "Authorization: Bearer $JUDGE_AUTH_TOKEN" 2>/dev/null | \
+  python3 -c 'import json,sys
+try: body=json.load(sys.stdin)
+except Exception: raise SystemExit
+for model in body.get("data") or []:
+    if isinstance(model,dict) and model.get("id"): print(model["id"])' 2>/dev/null || true
+)"
+_alias_available() {
+  [ -n "$1" ] || return 1
+  if [ -n "$AVAILABLE_MODELS" ]; then
+    printf '%s\n' "$AVAILABLE_MODELS" | grep -Fxq "$1"
+  elif command -v kbd_model_declared >/dev/null 2>&1; then
+    kbd_model_declared "$1"
+  else
+    return 0
+  fi
 }
 
-if _same_model "$JUDGE_MODEL" "$PRODUCER"; then
-  if [ -n "${_alt_model:-}" ] && ! _same_model "$_alt_model" "$PRODUCER"; then
-    echo "[judge] NOTE: judge model matched producer — switching to '$_alt_model'" >&2
-    JUDGE_MODEL="$_alt_model"
+_judge_collision=0
+[ -n "$JUDGE_IDENTITY" ] || _judge_collision=1
+[ -n "$JUDGE_IDENTITY" ] && [ "$JUDGE_IDENTITY" = "$CRITIC_IDENTITY" ] && _judge_collision=1
+[ -n "$JUDGE_IDENTITY" ] && [ "$JUDGE_IDENTITY" = "$PRODUCER_IDENTITY" ] && _judge_collision=1
+if [ "$_judge_collision" -eq 1 ] || ! _alias_available "$JUDGE_MODEL"; then
+  if [ -n "$BACKUP_IDENTITY" ] && [ "$BACKUP_IDENTITY" != "$CRITIC_IDENTITY" ] \
+    && [ "$BACKUP_IDENTITY" != "$PRODUCER_IDENTITY" ] && _alias_available "$BACKUP_MODEL"; then
+    echo "[judge] NOTE: judge collision, missing identity, or unavailability detected — switching to backup '$BACKUP_MODEL'" >&2
+    JUDGE_MODEL="$BACKUP_MODEL"
+    JUDGE_IDENTITY="$BACKUP_IDENTITY"
   else
-    echo "[judge] WARN: JUDGE_MODEL_COLLISION — every configured model matches producer" >&2
-    echo "[judge]       ($PRODUCER); proceeding same-model. Configure a second provider" >&2
-    echo "[judge]       to restore the cross-model guarantee." >&2
+    echo "[judge] WARN: JUDGE_MODEL_COLLISION — no distinct available backup is configured" >&2
+    echo "[judge]       Review remains pending; refusing to claim independent judgment." >&2
+    exit 4
   fi
+fi
+if [ -z "$JUDGE_IDENTITY" ] || [ -z "$PRODUCER_IDENTITY" ]; then
+  echo "[judge] WARN: canonical judge/producer identity is incomplete; independence is degraded" >&2
 fi
 
 # A producer of "unknown" makes the collision check pass trivially — every one of
@@ -296,8 +332,8 @@ if [ $? -ne 0 ] || [ ! -s "$RAW_FILE" ]; then
 fi
 
 # --- normalize + shape-check the findings -------------------------------------
-FINDINGS="$(JUDGE_MODEL="$JUDGE_MODEL" MODE="$MODE" \
-  PRODUCER="$PRODUCER" JUDGE_BASE_URL="$JUDGE_BASE_URL" python3 - "$RAW_FILE" <<'PY'
+FINDINGS="$(JUDGE_MODEL="$JUDGE_MODEL" JUDGE_IDENTITY="$JUDGE_IDENTITY" MODE="$MODE" \
+  PRODUCER="$PRODUCER" PRODUCER_IDENTITY="$PRODUCER_IDENTITY" JUDGE_BASE_URL="$JUDGE_BASE_URL" python3 - "$RAW_FILE" <<'PY'
 import json, os, re, sys
 raw = open(sys.argv[1], encoding="utf-8").read()
 
@@ -344,10 +380,12 @@ for f in data.get("findings") or []:
 producer = os.environ.get("PRODUCER", "unknown")
 judge = os.environ["JUDGE_MODEL"]
 endpoint = os.environ.get("JUDGE_BASE_URL", "")
+judge_identity = json.loads(os.environ["JUDGE_IDENTITY"]) if os.environ.get("JUDGE_IDENTITY") else None
+producer_identity = json.loads(os.environ["PRODUCER_IDENTITY"]) if os.environ.get("PRODUCER_IDENTITY") else None
 
-if producer == "unknown":
+if not judge_identity or not producer_identity:
     cross = "unverified-producer-unknown"
-elif judge.rsplit("/", 1)[-1] == producer.rsplit("/", 1)[-1]:
+elif judge_identity == producer_identity:
     cross = "same-model-collision"
 else:
     cross = "verified-distinct"
@@ -361,6 +399,14 @@ out = {
     "cross_model_check": cross,
     "findings": findings,
 }
+if judge_identity:
+    out["judge_identity"] = {
+        "providerConnectionId": judge_identity[0], "providerId": judge_identity[1], "modelId": judge_identity[2]
+    }
+if producer_identity:
+    out["producer_identity"] = {
+        "providerConnectionId": producer_identity[0], "providerId": producer_identity[1], "modelId": producer_identity[2]
+    }
 # A zero-finding report must carry its due-diligence trail (mandate rule);
 # the anti-theater gate rejects empty findings without checked_classes.
 checked = data.get("checked_classes")
