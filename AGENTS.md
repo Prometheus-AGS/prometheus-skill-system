@@ -89,29 +89,37 @@ directly names this policy.
   only after the implementation covers the specification and again at final local
   certification when applicable.
 
-### Rust build-speed, lock, and disk discipline
+### Rust development skills and phase gates
 
-- Do not run `cargo build`, `cargo test`, `cargo clippy`, or a workspace-wide
-  `cargo check` during ordinary implementation. Batch the code first.
-- When intermediate compiler feedback is indispensable, use one package-scoped
-  `cargo check -p <package>` (or an exact `--manifest-path`) without
-  `--workspace` or `--all-targets`. `cargo check` is a compiler diagnostic, not
-  test evidence.
+- For any Rust or Cargo task, load `prometheus-rust-workspace` first. It routes to
+  the minimum relevant installed skills and keeps its detailed catalog out of the
+  resident context. Use `rust-best-practices` for general Rust work,
+  `rust-async-patterns` for Tokio/concurrency, and `rust-mcp-server-generator` for
+  Rust MCP server or transport work. Project dependency pins always win over
+  generator examples.
+- Skill activation provides static guidance; it does not authorize immediate
+  command execution. Finish every planned production change in the phase, then run
+  one consolidated integration batch at the final phase boundary. A task/change
+  boundary, reviewer request, or available check command does not authorize earlier
+  verification. Use an intermediate package-scoped compiler check only when an
+  observed compiler error blocks further implementation.
+- Start with the smallest integration target that exercises the real production path
+  and collaborators. Unit, module-local, mock-only, and filtered function tests do
+  not count as completion evidence. Escalate only when the change or diagnostics
+  cross package boundaries. Repository acceptance still requires the full
+  integration gates defined above.
+- Read all diagnostics, batch fixes, and rerun only the smallest confirming command.
+  Reserve workspace-wide, all-target, release, Clippy, specialized, and feature
+  matrix commands for the applicable final boundary.
 - Only one Cargo/rustc build process may operate on the development machine at a
-  time. Check for any active local build before starting, reuse or wait for it,
-  and never dispatch competing Rust builds from agents, terminals, worktrees, or
-  other repositories.
-- Reserve full-workspace, all-target, release, Clippy, and full-integration builds
-  for the completed implementation's final local certification or for producing a
-  specifically requested artifact. Combine edits and fix failures in batches to
-  minimize relinks and lock reacquisition.
-- Keep separate default `target/` directories per Cargo workspace/worktree to
-  isolate build locks. Share compiled work across them through `sccache`; do not
-  point concurrent worktrees at one shared Cargo target directory.
-- Repository Cargo profiles must favor fast iteration and small artifacts: no dev
-  or test debug payloads, incremental compilation enabled, high parallel codegen
-  units, and automatic global-cache cleanup. Production/release optimization is
-  deferred to the final build.
+  time. Check for an active build, reuse or wait for it, and never dispatch competing
+  builds from agents, terminals, worktrees, or other repositories.
+- Keep separate default `target/` directories per workspace/worktree. Share compiled
+  work through `sccache`; do not point concurrent worktrees at one target directory,
+  create extra targets to bypass ordinary contention, or run `cargo clean` unless
+  cleanup is the task.
+- Repository Cargo profiles must favor fast iteration and small artifacts. Defer
+  production/release optimization to the final build.
 
 ## Agent Tool Freedom and Certification Integrity
 
@@ -200,6 +208,11 @@ cortex_remember(content="...", projectId="prometheus-skill-pack")
 ---
 
 ## Subagent Dispatch Rules
+
+For complex work, use the harness's installed agent team. Assign production work
+to implementation roles with disjoint ownership. Keep reviewer, auditor, verifier,
+and integration-checker roles dormant until every planned production change in the
+phase is complete; those roles run only at the single final integration boundary.
 
 When dispatching a subagent to implement a task:
 
