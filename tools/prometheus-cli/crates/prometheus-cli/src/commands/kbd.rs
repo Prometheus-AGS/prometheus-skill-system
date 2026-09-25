@@ -843,19 +843,29 @@ fn guard_context(state: &RuntimeState, boundary: BoundaryKind, subject: &str) ->
         BoundaryKind::Task => {
             let phase_id = active_phase_id.clone();
             let phase = phase_id.as_ref().and_then(|id| state.phases.get(id));
-            let mut matches = Vec::new();
-            for change in phase.into_iter().flat_map(|phase| phase.changes.values()) {
-                for task in change.tasks.values() {
-                    if task.id == subject || task.title == subject {
-                        matches.push((change.id.clone(), task.id.clone()));
-                    }
-                }
-            }
-            let (change_id, task_id) = if matches.len() == 1 {
-                let (change_id, task_id) = matches.remove(0);
+            let qualified_match = subject.split_once("::").and_then(|(change_id, task_id)| {
+                phase
+                    .and_then(|phase| phase.changes.get(change_id))
+                    .and_then(|change| change.tasks.get(task_id))
+                    .map(|task| (change_id.to_owned(), task.id.clone()))
+            });
+            let (change_id, task_id) = if let Some((change_id, task_id)) = qualified_match {
                 (Some(change_id), Some(task_id))
             } else {
-                (None, None)
+                let mut matches = Vec::new();
+                for change in phase.into_iter().flat_map(|phase| phase.changes.values()) {
+                    for task in change.tasks.values() {
+                        if task.id == subject || task.title == subject {
+                            matches.push((change.id.clone(), task.id.clone()));
+                        }
+                    }
+                }
+                if matches.len() == 1 {
+                    let (change_id, task_id) = matches.remove(0);
+                    (Some(change_id), Some(task_id))
+                } else {
+                    (None, None)
+                }
             };
             let change = change_id
                 .as_ref()
