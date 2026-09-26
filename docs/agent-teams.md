@@ -109,6 +109,25 @@ Claude and Kimi have verified agent plugin/marketplace exports. Install either t
 
 UAR defaults require explicit review of tool policy and bundles before registration; skill preference is not a deny policy. BossFang's native `skills=[]` means all unless `skills_disabled=true`; an empty portable role skill list exports the disabled form. Supply an approved service URL and credential reference for registration, retain returned IDs, and account for partial success. Hand activation can start autonomous schedules. Neither export nor discovery establishes authorization to mutate a service.
 
+## Install or adopt a project team
+
+After reviewing the export, finish normal project-team creation with `install-project`. For a new team, save `{"project":"/path/to/project","team":<manifest>}` as `install-request.json`, then run:
+
+```text
+node skills/process/agent-team-creator/scripts/cli.mjs install-project --input install-request.json --dry-run
+node skills/process/agent-team-creator/scripts/cli.mjs install-project --input install-request.json
+node skills/process/agent-team-creator/scripts/cli.mjs install-project --project "/path/to/project" --check
+```
+
+For an existing team, use `--project "/path/to/project"` without an input manifest. A recorded `.agent-team/project-routing.json` selection wins; otherwise a sole `.agent-team/<id>/team.json` is adopted. Multiple candidates require `--team <id>`; stale selections fail rather than silently switching. Intentional manifest replacement requires `updateTeam: true` in the request. Creator check exits 2 for drift and 1 for errors.
+
+Installation writes managed discovery pointers to both instruction entrypoints, the active routing record and missing native definitions. Existing native files, role IDs, ownership, model policies, permissions and concurrency remain intact; differing configuration is reported for deliberate merge. Recovery records retain prior instruction bytes. Export stages proposals; installation establishes discovery. Neither starts execution or activates UAR/BossFang registration.
+
+All code tasks use the selected team’s relevant roles. UI roles conditionally use `prometheus-ui-ux`; UI review uses `prometheus-ui-review` after the whole implementation phase, without taste or user-only skill preloads. Backend work loads no UI guidance. Use native delegation only if available, otherwise disclose sequential role execution; builder self-review is not independent review. Zed receives the pointer in its effective existing instruction file. External ACP agents keep native configuration, and Zed parallel threads are not a delegation API.
+
+See [UI/UX routing](guide/25-ui-ux-routing.md) for the selective workflow.
+
+
 ## Choose models from evidence
 
 `models-discover` accepts `kind: "openai"` with a configured `baseUrl`, or `kind: "uar"`/`"bossfang"` with an explicit `discoveryUrl`. Authentication uses `auth.env` referencing a local environment variable; do not embed tokens in JSON. The OpenAI-compatible route is `/v1/models`, UAR uses `/api/uar/providers/{id}/models`, and BossFang uses `/api/models`. Native discovery describes configured availability, not successful inference.

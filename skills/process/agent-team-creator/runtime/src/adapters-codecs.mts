@@ -1,4 +1,5 @@
 import type { Json, ObjectValue, Role, Team } from './types.mjs';
+import { uiRoleInstructions } from './ui-bindings.mjs';
 
 export const json = (value: unknown): string => `${JSON.stringify(value, null, 2)}\n`;
 export const object = (value: Json | undefined): value is ObjectValue =>
@@ -53,7 +54,7 @@ export function prompt(team: Team, role: Role): string {
     `Owns: ${JSON.stringify(role.owns)}\nInputs: ${JSON.stringify(role.inputs)}\n` +
     `Outputs: ${JSON.stringify(role.outputs)}\nDependencies: ${JSON.stringify(role.dependsOn)}\n` +
     `Requested skills: ${JSON.stringify(role.skills)}\n` +
-    'Ownership and skill names are coordination instructions; native permissions and installed skills remain authoritative.';
+    'Ownership and skill names are coordination instructions; native permissions and installed skills remain authoritative.' + uiRoleInstructions(role);
 }
 
 export interface ExportContext {

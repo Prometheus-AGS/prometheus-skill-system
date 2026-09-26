@@ -130,6 +130,7 @@ const config = {
             position: 'left',
             label: 'Core',
             items: [
+              { type: 'doc', docId: 'ui-ux-routing', docsPluginId: 'guide', label: 'UI/UX routing' },
               {
                 type: 'docSidebar',
                 sidebarId: 'agentContextSidebar',

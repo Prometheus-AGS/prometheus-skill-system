@@ -443,3 +443,6 @@ nobody re-reads it each turn to notice. Run `verify.sh` after any edit under
 - [references/rules-rust.md](references/rules-rust.md)
 - [references/rules-typescript.md](references/rules-typescript.md)
 - [references/rules-flutter.md](references/rules-flutter.md)
+
+## Shared UI contract
+Both bootstrap layouts preflight and install the canonical prometheus-ui-ux Node helper, preserving project protocol overrides. The portable UI bundle has no native engine dependency; configured full Impeccable is separate. UI agents route through this protocol. After creating a project team, finish with agent-team-creator install-project to install default team discovery in both instruction entrypoints. Existing generated projects must add the UI/team routes to rules/src/routing.md before regeneration.

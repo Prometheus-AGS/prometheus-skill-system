@@ -6,7 +6,7 @@ description: >
   Select an execution backend for the active KBD phase, write canonical phase
   execution state, dispatch the phase to the appropriate tool or OpenSpec, and
   maintain KBD as the source of truth. Supports multi-tool handoff via
-  progress.json protocol. Integrates artifact-refiner QA per completed change.
+  progress.json protocol. Runs integration and review gates once at phase completion.
 metadata:
   tags: [process, orchestration, automation]
 ---
@@ -33,14 +33,18 @@ Keep the parent Execute stage active while delegated or local work runs. Use
 progress and waypoint projections. Resume from actual canonical work state,
 not the existence of a dispatch artifact.
 
-## Per-Change QA Gate (artifact-refiner)
+## Final phase QA gate
 
-After each change reaches `implementation_status: COMPLETE` in `progress.json`,
-invoke artifact-refiner as a quality gate before archiving. The QA result is
-evidence/certification state; it must not reopen the implementation counter:
+Do not run tests, verification builds, artifact refinement, or adversarial review
+after individual tasks or changes. Complete every planned production change first.
+When the active harness provides an agent team, assign implementation to executor
+roles and keep reviewer, auditor, verifier, and integration-checker roles dormant
+until every production change is complete. Then run one production-path integration
+gate and one cumulative artifact/adversarial review. The result is evidence and
+certification state; it must not reopen the implementation counter:
 
 ```
-implementation complete via typed KBD change transition (projected in progress.json)
+all phase implementation complete via typed KBD transitions (projected in progress.json)
   │
   ├─ /refine-validate "<change-id>"
   │   ├─ reads constraints from .kbd-orchestrator/constraints.md
@@ -58,10 +62,10 @@ implementation complete via typed KBD change transition (projected in progress.j
   │   │    SUGGESTION: informational)
   │   │
   │   └─ verdict BLOCK (any CRITICAL) → record certification BLOCKED through typed KBD commands
-  │       └─ fix, then re-run refine-validate AND adversarial-review
+  │       └─ fix, then re-run only the failed final gate
   │
   └─ ANY FAIL → record certification BLOCKED through typed KBD commands
-      └─ /refine-code "<change-id>" for iterative refinement
+      └─ fix the phase-level finding, then re-run only the failed final gate
 ```
 
 See `references/integrations/artifact-refiner.md` for the QA invocation
@@ -72,7 +76,7 @@ contract (packet assembly, judge dispatch, fallback chain).
 ### Local review coverage
 
 File-count and documentation-only skips do not exist. QA and adversarial review
-cover the cumulative Git diff since the last accepted local review receipt.
+cover the cumulative phase diff after implementation is complete.
 `--skip-qa` and `--skip-adversarial-review` may let development continue, but
 record `pending_review`; final local certification still requires a completed
 receipt or an SSH-signed waiver. The two flags remain independent.
@@ -145,9 +149,9 @@ Use the canonical phase name from the argument or `current-waypoint.json`. Phase
 7. **Record the active path** with a typed KBD command; projections refresh automatically
 8. **Register planned changes and tasks** with `prometheus kbd change|task`
 9. **Dispatch** and write `execute-dispatch.json`; keep Execute active
-10. **Per completed change**: run artifact-refiner QA gate (see above)
-11. **Per completed change**: run adversarial-review diff-mode gate after QA passes (see above)
-12. **Verify and archive** changes through `kbd-apply` after both gates pass
+10. Complete every planned production change without intermediate verification
+11. Run one production-path integration gate and one cumulative final review
+12. Verify and archive changes through `kbd-apply` after the final phase gates pass
 13. **Complete Execute only at the phase boundary** — use the checklist below; dispatch is not completion
 
 ## Backend Types
@@ -207,9 +211,9 @@ actual evidence. All of the following must hold:
 1. Every change and task assigned to this phase’s execution scope is complete;
    none remains pending, in progress, or blocked. Completion of one delegated
    change does not complete the parent stage.
-2. Each change satisfies the required QA and independent review gates, with
-   real receipts or an explicitly permitted signed waiver. A skip flag or
-   `pending_review` is not a passing result.
+2. The cumulative phase satisfies the single final integration, QA and independent
+   review gates, with real receipts or an explicitly permitted signed waiver. A
+   skip flag or `pending_review` is not a passing result. Per-change QA is forbidden.
 3. Required `kbd-apply verify` and `kbd-apply archive` operations have
    succeeded for every applicable change, including any reconciliation work
    assigned to this phase. Record actual outcomes and evidence locations.
