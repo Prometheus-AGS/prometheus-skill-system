@@ -25,6 +25,19 @@
     },
     {
       "category": "frontend",
+      "name": "prometheus-ui-ux-skills",
+      "policy": {
+        "authentication": "ON_INSTALL",
+        "installation": "AVAILABLE"
+      },
+      "source": {
+        "path": "./skills/ui-ux",
+        "source": "local"
+      },
+      "version": "1.0.0"
+    },
+    {
+      "category": "frontend",
       "name": "prometheus-react-skills",
       "policy": {
         "authentication": "ON_INSTALL",

@@ -4,6 +4,8 @@ import { guide } from './guidance.mjs';
 import { validateTeam, object, text, strings, asJson, target } from './validation.mjs';
 import { exportTeam } from './adapters.mjs';
 import { writeExport } from './export-files.mjs';
+import { installProject } from './project-install.mjs';
+import { bindUiRoles } from './ui-bindings.mjs';
 import { readState, initState, mutateState, mutateStateAsync, taskAction, completeKbdTask } from './state.mjs';
 import { createHandoff, acceptHandoff } from './handoff.mjs';
 import { discoverModels, selectModel } from './models.mjs';
@@ -19,7 +21,8 @@ async function dispatch(command, input) {
     switch (command) {
         case 'guide': return guide(input);
         case 'validate': return { valid: true, team: validateTeam(input.team) };
-        case 'init': return initState(stateFile(input), validateTeam(input.team));
+        case 'init': return initState(stateFile(input), bindUiRoles(validateTeam(input.team)));
+        case 'install-project': return installProject(input);
         case 'status': return readState(stateFile(input));
         case 'team-update': return mutateState(stateFile(input), revision(input), state => {
             const team = validateTeam(input.team);
@@ -62,19 +65,44 @@ async function dispatch(command, input) {
         default: throw Error(`Unknown command: ${command}`);
     }
 }
-const commands = ['guide', 'validate', 'init', 'status', 'team-update', 'export', 'task', 'complete-kbd', 'handoff-create', 'handoff-accept', 'models-discover', 'models-select', 'memory-queue', 'memory-publish'];
+const commands = ['guide', 'validate', 'init', 'status', 'team-update', 'export', 'install-project', 'task', 'complete-kbd', 'handoff-create', 'handoff-accept', 'models-discover', 'models-select', 'memory-queue', 'memory-publish'];
 async function main() {
     if (Number(process.versions.node.split('.')[0]) < 22)
         throw Error('Node.js 22 or newer is required');
-    const [command, flag, file, ...extra] = process.argv.slice(2);
+    const [command, ...args] = process.argv.slice(2);
     if (!command || command === '--help') {
         process.stdout.write(JSON.stringify({ usage: 'node <skill>/scripts/cli.mjs <command> --input <request.json>', commands, note: 'JSON requests preserve spaces and native configuration. Export stages files; it does not install or execute agents.' }, null, 2) + '\n');
         return;
     }
-    if (flag !== '--input' || !file || extra.length)
+    let input = {};
+    if (args[0] === '--input' && args[1]) {
+        input = object(JSON.parse(fs.readFileSync(args[1], 'utf8').replace(/^\uFEFF/, '')));
+        args.splice(0, 2);
+    }
+    else if (command !== 'install-project')
         throw Error('Expected <command> --input <request.json>');
-    const input = object(JSON.parse(fs.readFileSync(file, 'utf8').replace(/^\uFEFF/, '')));
-    process.stdout.write(JSON.stringify(asJson(await dispatch(command, input)), null, 2) + '\n');
+    if (command === 'install-project')
+        while (args.length) {
+            const flag = args.shift();
+            if (flag === '--check')
+                input.check = true;
+            else if (flag === '--dry-run')
+                input.dryRun = true;
+            else if (['--project', '--team', '--target'].includes(flag ?? '')) {
+                const value = args.shift();
+                if (!value || value.startsWith('--'))
+                    throw Error(`Missing value for ${flag}`);
+                input[flag === '--team' ? 'teamId' : flag.slice(2)] = value;
+            }
+            else
+                throw Error(`Unknown install-project option: ${flag}`);
+        }
+    if (args.length)
+        throw Error('Unexpected arguments');
+    const result = asJson(await dispatch(command, input));
+    process.stdout.write(JSON.stringify(result, null, 2) + '\n');
+    if (command === 'install-project' && input.check === true && object(result).clean === false)
+        process.exitCode = 2;
 }
 main().catch(error => {
     process.stderr.write(JSON.stringify({ error: error instanceof Error ? error.message : 'Operation failed' }) + '\n');

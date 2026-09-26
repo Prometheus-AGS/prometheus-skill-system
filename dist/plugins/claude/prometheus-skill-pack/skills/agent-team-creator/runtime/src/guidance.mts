@@ -13,8 +13,8 @@ export const questions = [
   { key: 'scope', question: 'Will the definitions live in this project, UAR, or BossFang?', choices: ['project', 'uar', 'bossfang'] },
 ];
 const specialists: Record<string, { id: string; why: string; output: string; skills: string[] }> = {
-  design: { id: 'designer', why: 'Decide layout, interaction and visual acceptance before implementation.', output: 'Design specification and assets', skills: ['frontend-design', 'impeccable'] },
-  mobile: { id: 'mobile-specialist', why: 'Resolve platform navigation, accessibility and device constraints.', output: 'Mobile implementation plan', skills: ['flutter', 'dart'] },
+  design: { id: 'designer', why: 'Decide layout, interaction and visual acceptance before implementation.', output: 'Design specification and assets', skills: ['prometheus-ui-ux'] },
+  mobile: { id: 'mobile-specialist', why: 'Resolve platform navigation, accessibility and device constraints.', output: 'Mobile implementation plan', skills: ['prometheus-ui-ux'] },
   security: { id: 'security-reviewer', why: 'Review the actual trust boundaries and required controls.', output: 'Threat model and evidence-backed findings', skills: ['agent-runtime-security'] },
   docs: { id: 'documentation-specialist', why: 'Keep operator and developer instructions consistent with the delivered behavior.', output: 'Updated documentation', skills: ['documentation-and-adrs'] },
   marketing: { id: 'marketing-specialist', why: 'Develop audience, positioning and measurable campaign deliverables.', output: 'Campaign brief and copy', skills: ['brand'] },
@@ -35,6 +35,8 @@ export function guide(input: ObjectValue): { questions: typeof questions; team?:
   if (!['project','uar','bossfang'].includes(String(input.scope))) throw Error('Invalid scope');
   const tier = input.budget === 'quality' ? 'hard' : input.budget === 'economy' ? 'low' : 'medium';
   const roles: Role[] = [{ id: 'implementer', description: 'Deliver the requested outcome within assigned scope.', prompt: `Deliver: ${outcome}. Coordinate ownership before editing. Report evidence and remaining work.`, skills: [], owns: [], inputs: ['Task and acceptance criteria'], outputs: deliverables, dependsOn: [], modelPolicy: { tier } }];
+  const uiWork = areas.some(area => area === 'design' || area === 'mobile');
+  if (uiWork) roles[0]!.skills.push('prometheus-ui-ux');
   const reasons = ['An implementer owns delivery. Assign concrete output paths before creating the team; suggested roles can be reduced.'];
   if (input.complexity === 'complex') for (const area of [...new Set(areas)]) {
     const spec = specialists[area]; if (!spec) continue;
@@ -42,7 +44,7 @@ export function guide(input: ObjectValue): { questions: typeof questions; team?:
     reasons.push(`${spec.id}: ${spec.why}`);
   }
   if (input.review) {
-    roles.push({ id: 'reviewer', description: 'Independently verify acceptance criteria and code quality.', prompt: 'Inspect the delivered diff and actual verification evidence. Report concrete defects; do not rewrite implementation while reviewing.', skills: ['code-review-and-quality'], owns: [], inputs: ['Implementation diff', 'Verification evidence'], outputs: ['Review findings'], dependsOn: roles.map(r => r.id), modelPolicy: { tier: 'hard' } });
+    roles.push({ id: 'reviewer', description: 'Independently verify acceptance criteria and code quality.', prompt: 'Inspect the delivered diff and actual verification evidence at the completed phase boundary. Report concrete defects; do not rewrite implementation while reviewing.', skills: ['code-review-and-quality', ...(uiWork ? ['prometheus-ui-review'] : [])], owns: [], inputs: ['Implementation diff', 'Verification evidence'], outputs: ['Review findings'], dependsOn: roles.map(r => r.id), modelPolicy: { tier: 'hard' } });
     reasons.push('An independent reviewer adds a separate verification pass and extra model cost.');
   }
   const ownership = input.ownership === undefined ? {} : object(input.ownership, 'ownership');

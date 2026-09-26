@@ -1,0 +1,29 @@
+{
+  "mode": "skill",
+  "verdict": "PASS",
+  "judge_model": "gpt-5.5",
+  "producer_model": "gpt-6",
+  "isolation_mode": "rest-gateway:http://localhost:4000/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "WARNING",
+      "file": "SKILL.md",
+      "claim": "The documented CLI invocations are not usable as written when the skill directory path contains spaces, despite the skill claiming that helpers accept spaces in argument arrays.",
+      "evidence": "SKILL.md says, \"Resolve this skill's directory from the harness; helpers are self-contained and accept spaces in argument arrays,\" but the commands are written as `node <skill-directory>/scripts/cli.mjs route --input <request.json>`, `node <skill-directory>/scripts/cli.mjs install ...`, and `node <skill-directory>/scripts/cli.mjs phase-boundary ...`, which split an unquoted path containing spaces in normal shell execution.",
+      "suggested_fix": "Show an argv-array invocation for harness use, or quote the script path in every shell-form example, e.g. `node \"<skill-directory>/scripts/cli.mjs\" ...`."
+    },
+    {
+      "severity": "WARNING",
+      "file": "SKILL.md",
+      "claim": "The installer contract omits the Zed instruction-precedence behavior required by the original intent, so users cannot verify that packaging handles that platform boundary.",
+      "evidence": "The original intent states, \"Zed instruction precedence is accounted for without inventing delegation,\" while SKILL.md only says the installer bundles into project `.agents/skills` and `.claude/skills` and preflights \"both instruction entrypoints\"; it never mentions Zed or how its instruction precedence is handled.",
+      "suggested_fix": "Document whether Zed is intentionally unsupported in this mini distribution or add the exact Zed precedence/install behavior and verification expected from the installer."
+    }
+  ],
+  "sycophancy_screen": {
+    "reject_cap": 2,
+    "cap_overridden": false,
+    "cap_default": 2
+  }
+}

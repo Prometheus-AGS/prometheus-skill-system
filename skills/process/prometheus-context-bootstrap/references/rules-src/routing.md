@@ -73,3 +73,10 @@ Delete the rows for stacks this project does not use.
 
 Search order: skills.sh (install telemetry is a real usage signal) → agentskills.io (the standard;
 vendor-official repos link from here) → agenticskills.io (curated, audit notes) → GitHub.
+
+## UI and project teams
+| When | Invoke | Status | Install / notes |
+|---|---|---|---|
+| rendered UI or UX code, tokens, motion or copy | `prometheus-ui-ux` | present | shared protocol; project .agents/UI_UX_PROTOCOL.md overrides bundled default |
+| completed UI phase review | `prometheus-ui-review` | present | independent read-only context, no taste, respect user-only restrictions |
+| code work in a project with an existing team | `agent-team-creator` | present | select relevant roles from .agent-team/project-routing.json and real manifests; install-project adopts sole team or preserves explicit choice |

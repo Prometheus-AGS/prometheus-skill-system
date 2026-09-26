@@ -1,0 +1,26 @@
+{
+  "platform": "darwin",
+  "node": "v26.5.0",
+  "tmp": "/var/folders/ln/0wnpd96j26z2qhvx9m6hwt2r0000gn/T/full-uiux-Ω-ukCe9L",
+  "results": [
+    {
+      "name": "full-bootstrap-legacy",
+      "status": 0,
+      "uiPointer": true,
+      "preserved": true,
+      "stderr": ""
+    },
+    {
+      "name": "full-bootstrap-v4",
+      "status": 0,
+      "uiPointer": true,
+      "preserved": true,
+      "stderr": ""
+    },
+    {
+      "name": "full-injector",
+      "status": 0,
+      "stderr": ""
+    }
+  ]
+}

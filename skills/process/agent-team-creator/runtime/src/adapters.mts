@@ -2,6 +2,7 @@ import type { ExportResult, Target, Team } from './types.mjs';
 import { identifier, json } from './adapters-codecs.mjs';
 import { exportLocal } from './adapters-local.mjs';
 import { exportService } from './adapters-services.mjs';
+import { bindUiRoles } from './ui-bindings.mjs';
 
 const sources: Record<Target, { source: string; version: string }> = {
   codex: { source: 'https://learn.chatgpt.com/docs/agent-configuration/subagents', version: 'documentation inspected 2026-09-24' },
@@ -30,6 +31,7 @@ function safePath(path: string): string {
 
 /** Pure staging: no filesystem, process, HTTP, registration or execution side effects. */
 export function exportTeam(team: Team, target: Target): ExportResult {
+  team = bindUiRoles(team);
   if (!Object.hasOwn(sources, target)) throw new Error(`Unsupported export target: ${String(target)}`);
   identifier(team.id, 'Team ID');
   if (!team.roles.length) throw new Error('Export requires at least one role.');

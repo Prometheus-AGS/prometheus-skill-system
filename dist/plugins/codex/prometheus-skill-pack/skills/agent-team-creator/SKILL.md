@@ -4,7 +4,7 @@ description: "Create the smallest useful coding agent team for a task, with guid
 license: MIT
 compatibility: Requires Node.js 22 or newer. Git is optional for handoff snapshots. Model gateways, memory services and native harness CLIs are optional and separately configured.
 metadata:
-  version: "1.0.0"
+  version: "1.1.0"
   tags: "agents, teams, orchestration, coding"
 ---
 
@@ -77,12 +77,48 @@ integration. MiniMax means its own `mcode` CLI.
 Export never overwrites an existing output directory or native configuration.
 Inspect `team-export.json`, diagnostics, native files and the source/version
 receipt. Preservation of arbitrary options is not semantic validation. Validate
-with the installed harness when available, or report source-only support.
+with the installed harness when available, or report source-only support. Confirm
+what a probe enumerates: CLI availability, running sessions, custom-role discovery
+and actual invocation are different evidence. For Claude, read the
+[validation caveat](references/native-harnesses.md#claude-code-validation).
 
 ## Install and operate within the requested scope
 
+Normal project-team creation finishes with `install-project` after inspecting the
+staged export. Creation authorized for a project includes installing its discovery
+instructions; do not stop at an export and leave the team undiscoverable.
+
+```text
+node <this-skill>/scripts/cli.mjs install-project --input install-request.json --dry-run
+node <this-skill>/scripts/cli.mjs install-project --input install-request.json
+node <this-skill>/scripts/cli.mjs install-project --project <project-directory> --check
+```
+
+An installation request contains `{"project": "<directory>", "team": <manifest>}`.
+For existing teams, omit `team`: a sole `.agent-team/<id>/team.json` is selected
+automatically; an existing `.agent-team/project-routing.json` selection wins.
+Use `teamId` (or `--team`) to select explicitly when several teams exist. For an
+intentional update to an existing manifest, include `updateTeam: true`. See
+[project installation](references/project-installation.md) for the complete contract.
+
+The installer binds `prometheus-ui-ux` to design, creative direction and UI
+implementation roles, and `prometheus-ui-review` to UI review roles. It preserves
+role IDs and ownership. These are conditional routing skills: backend work must
+not activate UI guidance. UI review receives no taste skill or permission to
+bypass upstream user-only invocation restrictions. The complete protocol is loaded
+only for UI work, with `.agents/UI_UX_PROTOCOL.md` taking precedence over the
+bundled protocol. Actual platform manifests and model family determine routing.
+
+Managed pointers in both `CLAUDE.md` and `AGENTS.md` default **all code work** to
+the selected team's relevant roles. Zed's higher-priority existing instruction
+file receives the same pointer. No automatic delegation API is invented: when the
+active harness cannot delegate, use those role instructions sequentially, report
+the limitation, and never label builder-context review independent.
+
 Apply reviewed proposals only where the user authorized them. Merge existing
-native configuration deliberately; never replace it wholesale. Follow the
+native configuration deliberately; never replace it wholesale. `install-project`
+creates missing native definitions from the same adapter used by export, preserves
+all existing native files, and reports differences for a deliberate merge. Follow the
 native reference for supported project agents or plugin/marketplace installation.
 Do not invent plugin agent fields where a harness has none. A plugin installation
 does not start an agent team.

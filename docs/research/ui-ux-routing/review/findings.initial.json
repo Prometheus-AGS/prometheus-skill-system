@@ -1,0 +1,47 @@
+{
+  "mode": "skill",
+  "verdict": "BLOCK",
+  "judge_model": "gpt-5.5",
+  "producer_model": "gpt-6",
+  "isolation_mode": "rest-gateway:http://localhost:4000/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": "SKILL.md",
+      "line": 21,
+      "claim": "The phase-boundary command cannot be followed reliably because the required input and evidence contract are never defined.",
+      "evidence": "SKILL.md says: \"At phase completion call `node <skill-directory>/scripts/cli.mjs phase-boundary --input <request.json>` for the required evidence contract,\" but the only request example in the file is for `route`, and no phase-boundary request schema or required evidence fields are provided.",
+      "suggested_fix": "Document the `phase-boundary` input JSON schema, required fields, expected output, and failure behavior, or provide a concrete example request."
+    },
+    {
+      "severity": "WARNING",
+      "file": "SKILL.md",
+      "line": 14,
+      "claim": "The routing command is under-specified for real use because the accepted request schema and routing dimensions are not documented.",
+      "evidence": "SKILL.md gives only `Run ... route --input <request.json>` and one example request, while the original intent requires routing to be \"deterministic from operation, domain, model, affected paths and manifests\"; SKILL.md does not define accepted values for operation/surface/focus/model, how manifests are supplied, or how project protocol overrides affect routing.",
+      "suggested_fix": "Add a compact request schema with required/optional fields, accepted enum values, default behavior, and at least one example for implementation, refinement, and review."
+    },
+    {
+      "severity": "WARNING",
+      "file": "SKILL.md",
+      "line": 20,
+      "claim": "The team-adoption path depends on an undefined external command, making the original offline team-adoption goal non-actionable from this skill.",
+      "evidence": "SKILL.md says: \"Existing teams are adopted separately by creator's `install-project`; select relevant roles for every code task,\" but the packet contains no creator skill, no command path, and no invocation syntax for `install-project`; the original intent lists \"automatic, inspectable routing and team adoption offline\" as a goal.",
+      "suggested_fix": "Name the exact external skill/command and invocation, or include a local adoption command/reference that satisfies the team-adoption workflow."
+    },
+    {
+      "severity": "WARNING",
+      "file": "SKILL.md",
+      "line": 3,
+      "claim": "The skill is triggerable for review/refinement work but omits the required guard that refinement and review must exclude taste.",
+      "evidence": "The description says to use the skill for \"designers, creative directors, implementers and reviewers\" and the example request uses `\"operation\":\"refine\"`, while the original intent explicitly says \"Refinement/review exclude taste\"; SKILL.md provides no reviewer/refinement criteria or 'when not to use' guidance for taste-only feedback.",
+      "suggested_fix": "Add explicit review/refinement rules that exclude taste-only critique and require objective project, protocol, accessibility, interaction, or implementation evidence."
+    }
+  ],
+  "sycophancy_screen": {
+    "reject_cap": 2,
+    "cap_overridden": false,
+    "cap_default": 2
+  }
+}

@@ -1,6 +1,7 @@
 import { identifier, json } from './adapters-codecs.mjs';
 import { exportLocal } from './adapters-local.mjs';
 import { exportService } from './adapters-services.mjs';
+import { bindUiRoles } from './ui-bindings.mjs';
 const sources = {
     codex: { source: 'https://learn.chatgpt.com/docs/agent-configuration/subagents', version: 'documentation inspected 2026-09-24' },
     claude: { source: 'https://code.claude.com/docs/en/sub-agents', version: 'documentation inspected 2026-09-24' },
@@ -26,6 +27,7 @@ function safePath(path) {
 }
 /** Pure staging: no filesystem, process, HTTP, registration or execution side effects. */
 export function exportTeam(team, target) {
+    team = bindUiRoles(team);
     if (!Object.hasOwn(sources, target))
         throw new Error(`Unsupported export target: ${String(target)}`);
     identifier(team.id, 'Team ID');
