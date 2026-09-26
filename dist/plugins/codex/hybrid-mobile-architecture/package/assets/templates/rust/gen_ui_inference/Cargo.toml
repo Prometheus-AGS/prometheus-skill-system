@@ -1,0 +1,86 @@
+[package]
+name = "gen_ui_inference"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[features]
+# Every lane is OFF by default so surfaces that don't want an inference graph in
+# their dependency tree stay cheap to compile — the platform leaves opt in
+# explicitly. Engines are named `local-*` because they all sit behind the same
+# `gen_ui_types::inference::InferenceProvider` seam: callers depend on the trait,
+# never on an engine crate, so swapping a lane never ripples past this crate.
+#
+# The lane split is per-DEVICE, not per-"mobile" (see versions.toml [inference]):
+# llama.cpp on Android proved device-specific (OpenCL/Adreno), so Android runs
+# LiteRT-LM as the universal correctness baseline while Apple platforms use MLX.
+default = []
+
+# Desktop / certified-device lane: pinned, checksummed GGUF via llama.cpp.
+local-llama = ["dep:llama-cpp-2", "dep:reqwest", "dep:sha2", "dep:encoding_rs", "llama-cpp-2/llguidance"]
+local-llama-metal = ["local-llama", "llama-cpp-2/metal"]
+local-llama-opencl = ["local-llama", "llama-cpp-2/opencl"]
+local-llama-mtmd = ["local-llama", "llama-cpp-2/mtmd", "llama-cpp-2/common"]
+
+# Android lane: Google's LiteRT-LM through a Kotlin bridge (see
+# assets/templates/native/android). Rust owns catalog, download, verification,
+# and memory preflight; the bridge binds generation only.
+local-litert-lm = ["dep:reqwest", "dep:sha2", "dep:encoding_rs"]
+
+# iOS MLX-Swift lane. Rust owns catalog/download/verify/preflight; a Swift
+# bridge (registered at app launch) binds MLX generation. No Rust ML crate —
+# inference lives entirely on the Swift side — so this is host-compilable and
+# unit-tested with a mock bridge.
+local-mlx = ["dep:reqwest", "dep:sha2"]
+
+# macOS MLX lane. In-process inference via the mlex crate (Apple mlx-c C API,
+# no Python), unlike the iOS lane's Swift bridge. Shares the catalog, memory
+# preflight, and InferenceProvider seam. mlex is target-gated to macOS, so this
+# feature only does anything on a macOS build.
+local-mlxc = ["dep:reqwest", "dep:sha2", "dep:mlex", "dep:parking_lot"]
+
+# Optional desktop experiment. The feature is wired so the seam stays honest,
+# but no engine module ships with the scaffold: mistral.rs has no documented
+# mobile deployment path and does not build for wasm32. To enable it, add
+# src/mistral.rs and a target-gated `dep:mistralrs` entry.
+local-mistral = []
+
+[dependencies]
+gen_ui_types   = { path = "../gen_ui_types" }
+gen_ui_runtime = { path = "../gen_ui_runtime" }
+async-trait.workspace = true
+anyhow.workspace = true
+futures.workspace = true
+tracing.workspace = true
+serde_json.workspace = true
+serde.workspace = true
+# `sync` for the RwLock guarding the loaded model + the mpsc channel that carries
+# generated tokens out of the spawned generation task.
+tokio = { workspace = true, features = ["sync", "fs", "io-util"] }
+# UnboundedReceiverStream — adapts that channel's receiver into the futures::Stream
+# the InferenceProvider trait returns.
+tokio-stream.workspace = true
+llama-cpp-2 = { workspace = true, optional = true }
+reqwest = { workspace = true, optional = true }
+sha2 = { workspace = true, optional = true }
+encoding_rs = { workspace = true, optional = true }
+
+# The Android lane reaches the Kotlin LiteRT-LM bridge over JNI.
+[target.'cfg(target_os = "android")'.dependencies]
+jni.workspace = true
+
+# sysctl(hw.memsize) for the iOS jetsam preflight — an over-budget model load
+# kills the process outright, so the size gate has to run before the load rather
+# than catching a failure after it.
+[target.'cfg(target_os = "ios")'.dependencies]
+libc = "0.2"
+
+# mlex (Apple's official mlx-c C API, statically vendored — no Python) backs the
+# in-process macOS MLX lane. Target-gated to macOS so Windows/Linux/iOS/Android/
+# wasm builds never resolve or link the mlx-c C++/Metal graph. Optional +
+# feature-driven: only `local-mlxc` pulls it in.
+[target.'cfg(target_os = "macos")'.dependencies]
+mlex = { version = "0.1", optional = true }
+# Serializes access to the loaded mlx-c Session (which is !Sync) on macOS only.
+parking_lot = { workspace = true, optional = true }

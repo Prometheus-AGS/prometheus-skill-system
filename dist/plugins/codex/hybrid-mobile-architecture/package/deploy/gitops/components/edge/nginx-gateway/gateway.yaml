@@ -1,0 +1,13 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata: {name: knowme, namespace: knowme}
+spec:
+  gatewayClassName: nginx
+  listeners:
+    - name: https
+      protocol: HTTPS
+      port: 443
+      hostname: knowme.example.com
+      tls:
+        mode: Terminate
+        certificateRefs: [{kind: Secret, name: knowme-web-tls}]

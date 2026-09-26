@@ -1,0 +1,27 @@
+// TJ-ARCH-MOB-001 compliant
+// Flutter Feature Module Template — __FEATURE_NAME__
+// Replace __FEATURE_NAME__ with your feature name (PascalCase)
+// Replace __feature_name__ with your feature name (snake_case)
+//
+// File: lib/features/__feature_name__/domain/entities/__feature_name___entity.dart
+
+import 'package:freezed_annotation/freezed_annotation.dart';
+
+part '__feature_name___entity.freezed.dart';
+part '__feature_name___entity.g.dart';
+
+/// Core domain entity for __FEATURE_NAME__.
+/// No framework dependencies — pure Dart.
+@freezed
+class __FEATURE_NAME__Entity with _$__FEATURE_NAME__Entity {
+  const factory __FEATURE_NAME__Entity({
+    required String id,
+    required String name,
+    required DateTime createdAt,
+    DateTime? updatedAt,
+    @Default(false) bool isActive,
+  }) = ___FEATURE_NAME__Entity;
+
+  factory __FEATURE_NAME__Entity.fromJson(Map<String, dynamic> json) =>
+      _$__FEATURE_NAME__EntityFromJson(json);
+}

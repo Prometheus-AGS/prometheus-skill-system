@@ -1,0 +1,33 @@
+schema_version: 1
+verified_at: "2026-07-18"
+images:
+  postgres18:
+    reference: postgres:18@sha256:32ca0af8e77bfb8c6610c488e4691f83f972a3e9e64d3b02facf3ab111ad5500
+    license: PostgreSQL
+  rust196:
+    reference: rust:1.96-bookworm@sha256:a339861ae23e9abb272cea45dfafde21760d2ce6577a70f8a926153677902663
+    license: MIT OR Apache-2.0
+  kratos:
+    reference: oryd/kratos:v1.2@sha256:850d4fd01b8902bc9bdb5d826906876d54695b322f2fea896a4af7524815beac
+    license: Apache-2.0
+  keto:
+    reference: oryd/keto:v0.12@sha256:eecd1cba4e7442e989e4f577a24165d9f8985064bc4bd706aa34b879eba0c9d6
+    license: Apache-2.0
+  iggy:
+    reference: iggyrs/iggy@sha256:68a314c1380be5a792a134f3bd346ded42bd49d9f7114c86f70b48fc85bc5272
+    license: Apache-2.0
+  cloudnative-pg-operator:
+    reference: ghcr.io/cloudnative-pg/cloudnative-pg:1.30.0@sha256:a2701eb97cdd2a34b1fdb2cb51987f544b706e40bec72ae7146cd8580efefebb
+    license: Apache-2.0
+  cloudnative-pg-postgres18:
+    reference: ghcr.io/cloudnative-pg/postgresql:18.4-system-trixie@sha256:1e6adb18ff3d5a538ff8fcc422c47652cc3b2cc133d5c87b6fd306660f36ffe9
+    license: PostgreSQL
+artifacts:
+  wal-g-amd64:
+    url: https://github.com/wal-g/wal-g/releases/download/v3.0.8/wal-g-pg-22.04-amd64
+    sha256: f30544c5ce93cf83b87578e3c4a2e9c0e0ffc3d160ef89ecddaf75f397d98deb
+    license: Apache-2.0
+  wal-g-arm64:
+    url: https://github.com/wal-g/wal-g/releases/download/v3.0.8/wal-g-pg-22.04-aarch64
+    sha256: 794d1a81f0c27825a1603bd39c0f2cf5dd8bed7cc36b598ca05d8d963c3d5fcf
+    license: Apache-2.0

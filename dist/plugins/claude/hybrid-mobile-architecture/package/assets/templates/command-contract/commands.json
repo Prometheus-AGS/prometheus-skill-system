@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "commands": [
+    {
+      "name": "uar_run",
+      "input": "RunRequest",
+      "output": "RunAccepted",
+      "permission": "uar:run",
+      "cancellable": true
+    },
+    {
+      "name": "uar_cancel",
+      "input": "CancelRequest",
+      "output": "CancelAccepted",
+      "permission": "uar:cancel",
+      "cancellable": false
+    },
+    {
+      "name": "uar_recover",
+      "input": "RecoverRequest",
+      "output": "PersistedProjection",
+      "permission": "uar:read",
+      "cancellable": true
+    }
+  ],
+  "events": [
+    {
+      "name": "uar://run-event",
+      "payload": "UarEvent"
+    }
+  ],
+  "defaultPermissions": [
+    "core:event:allow-listen",
+    "core:event:allow-unlisten"
+  ],
+  "forbiddenDefaults": [
+    "shell:default"
+  ]
+}

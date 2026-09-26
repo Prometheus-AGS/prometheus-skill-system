@@ -1,0 +1,12 @@
+[package]
+name = "__APP_CRATE___desktop"
+version = "0.1.0"
+edition = "2024"
+[build-dependencies]
+tauri-build = "=2.6.3"
+[dependencies]
+tauri = "=2.11.3"
+gen_ui_notes = { path = "../../rust/gen_ui_notes" }
+
+[features]
+custom-protocol = ["tauri/custom-protocol"]

@@ -1,0 +1,166 @@
+// TJ-ARCH-MOB-001 compliant
+// ContentBlock variant template — __BLOCK_NAME__
+//
+// Replace __BLOCK_NAME__ with PascalCase block name (e.g. DatabaseResult)
+// Replace __block_name__ with snake_case (e.g. database_result)
+// Replace __blockName__ with camelCase (e.g. databaseResult)
+//
+// Follow the 7-step guide in references/rust/new-block-type.md
+
+// ═══════════════════════════════════════════════════════════════════════════
+// STEP 1 — rust/gen_ui_core/src/streaming.rs
+// ═══════════════════════════════════════════════════════════════════════════
+
+/*
+// Add to StreamEvent enum:
+__BLOCK_NAME__ {
+    id:      String,
+    content: String,
+    // Add fields appropriate to this block type
+},
+*/
+
+// ═══════════════════════════════════════════════════════════════════════════
+// STEP 2 — rust/gen_ui_core/src/protocol/a2ui.rs
+// ═══════════════════════════════════════════════════════════════════════════
+
+/*
+// Add to A2uiEvent enum:
+__BLOCK_NAME__ {
+    id:      String,
+    content: String,
+},
+
+// Add to A2uiAdapter::ingest() match:
+StreamEvent::__BLOCK_NAME__ { id, content } =>
+    out.push(A2uiEvent::__BLOCK_NAME__ {
+        id: id.clone(),
+        content: content.clone(),
+    }),
+*/
+
+// ═══════════════════════════════════════════════════════════════════════════
+// STEP 3 — rust/gen_ui_core/src/protocol/agui.rs
+// ═══════════════════════════════════════════════════════════════════════════
+
+/*
+// Add to AguiAdapter::translate() match:
+A2uiEvent::__BLOCK_NAME__ { id, content } =>
+    out.push(AguiEvent::Custom {
+        name: "__block_name__".into(),
+        value: serde_json::json!({ "id": id, "content": content }),
+    }),
+*/
+
+// ═══════════════════════════════════════════════════════════════════════════
+// STEP 5a — mobile/lib/bridge/a2ui/a2ui_event.dart (Flutter)
+// ═══════════════════════════════════════════════════════════════════════════
+
+/*
+// Add sealed class:
+final class A2ui__BLOCK_NAME__ extends A2uiEvent {
+  final String id;
+  final String content;
+  const A2ui__BLOCK_NAME__({ required this.id, required this.content });
+  factory A2ui__BLOCK_NAME__._f(Map<String, dynamic> j) =>
+      A2ui__BLOCK_NAME__(id: j['id'] ?? '', content: j['content'] ?? '');
+}
+
+// Add case to fromFrb() switch:
+'__block_name__' => A2ui__BLOCK_NAME__._f(p),
+*/
+
+// ═══════════════════════════════════════════════════════════════════════════
+// STEP 5b — desktop/src/bridge/a2ui/types.ts (Tauri)
+// ═══════════════════════════════════════════════════════════════════════════
+
+/*
+// Add to ContentBlock union:
+| { type: '__blockName__'; id: string; content: string }
+*/
+
+// ═══════════════════════════════════════════════════════════════════════════
+// STEP 6a — mobile/lib/bridge/a2ui/a2ui_content_driver.dart (Flutter)
+// ═══════════════════════════════════════════════════════════════════════════
+// ← COMPILER ENFORCED: exhaustive switch will fail to compile without this case
+
+/*
+case A2ui__BLOCK_NAME__(:final id, :final content):
+  onBlock(
+    messageId: messageId,
+    block: ContentBlock.__blockName__(id: id, content: content),
+  );
+*/
+
+// ═══════════════════════════════════════════════════════════════════════════
+// STEP 6b — desktop/src/bridge/a2ui/driver.ts (Tauri)
+// ═══════════════════════════════════════════════════════════════════════════
+// ← TypeScript exhaustive switch enforces this
+
+/*
+case '__block_name__':
+  onBlock({ messageId, block: event as ContentBlock });
+  break;
+*/
+
+// ═══════════════════════════════════════════════════════════════════════════
+// STEP 7a — ContentBlock factory + Dart Widget (Flutter)
+// ═══════════════════════════════════════════════════════════════════════════
+
+/*
+// In message.dart freezed ContentBlock:
+const factory ContentBlock.__blockName__({
+  required String id,
+  required String content,
+}) = __BLOCK_NAME__Block;
+
+// Widget: mobile/lib/features/chat/widgets/blocks/__block_name___block.dart
+class __BLOCK_NAME__BlockWidget extends StatelessWidget {
+  final String id;
+  final String content;
+  const __BLOCK_NAME__BlockWidget({super.key, required this.id, required this.content});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: T.s12),
+      decoration: T.blockDecoration(bg: T.bgSurface, accent: T.accentAlt),
+      child: Padding(
+        padding: const EdgeInsets.all(T.s12),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text('__BLOCK_NAME__', style: T.uiXs.copyWith(color: T.accentAlt)),
+          const SizedBox(height: T.s8),
+          Text(content, style: T.prose),
+        ]),
+      ),
+    );
+  }
+}
+
+// message_bubble.dart — add to _buildBlock() switch:
+// ← COMPILER ERROR until this case is added
+__BLOCK_NAME__Block(:final id, :final content) =>
+  __BLOCK_NAME__BlockWidget(id: id, content: content),
+*/
+
+// ═══════════════════════════════════════════════════════════════════════════
+// STEP 7b — React Component (Tauri)
+// ═══════════════════════════════════════════════════════════════════════════
+
+/*
+// desktop/src/features/chat/components/blocks/__BLOCK_NAME__Block.tsx
+interface __BLOCK_NAME__BlockProps { id: string; content: string }
+
+export function __BLOCK_NAME__Block({ id, content }: __BLOCK_NAME__BlockProps) {
+  return (
+    <div className="rounded-lg border border-violet-500/25 bg-surface p-3 my-2">
+      <div className="text-xs font-mono text-violet-400 mb-2">__BLOCK_NAME__</div>
+      <div className="text-sm">{content}</div>
+    </div>
+  )
+}
+
+// renderBlock() switch — TypeScript error until this case is added:
+case '__blockName__':
+  return <__BLOCK_NAME__Block {...block} />
+*/

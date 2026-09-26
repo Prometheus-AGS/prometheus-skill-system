@@ -1,0 +1,4 @@
+interface:
+  display_name: "Realtime Skill Refiner"
+  short_description: "Reactively detect, triage, refine, verify, and ship a fix for a bug in an installed skill packag"
+  default_prompt: "Use $realtime-skill-refiner to apply its contract to this task and verify the required evidence."

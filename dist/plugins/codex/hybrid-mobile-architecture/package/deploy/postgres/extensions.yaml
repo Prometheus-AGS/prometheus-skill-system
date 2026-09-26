@@ -1,0 +1,17 @@
+postgres_major: 18
+distribution: debian-trixie
+required:
+  - flint_llm
+  - flint_vault
+  - flint_meta
+  - flint_auth
+  - flint_hooks
+  - pg_net
+  - pg_cron
+  - vector
+  - pgcrypto
+utilities:
+  - wal-g
+deferred:
+  - name: pg_graphql
+    reason: No reproducible PostgreSQL 18 source or package has passed the catalog build gate.

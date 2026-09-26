@@ -1,0 +1,4 @@
+interface:
+  display_name: "Mini App Module"
+  short_description: "Add or review a self-contained mini-application module inside a governed web shell"
+  default_prompt: "Use $mini-app-module to apply its contract to this task and verify the required evidence."

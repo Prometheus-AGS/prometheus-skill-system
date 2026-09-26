@@ -1,0 +1,102 @@
+{
+  "schemaVersion": 1,
+  "builderVersion": "2.0.0-alpha.3",
+  "files": [
+    {
+      "path": ".gitignore",
+      "templateId": "profiles/sovereign-hybrid/runnable/.gitignore",
+      "sourceDigest": "00c3913d1acd26c200033c44920b0f41370499404f9bebc9335f449de0b084b2",
+      "lastInstalledDigest": "00c3913d1acd26c200033c44920b0f41370499404f9bebc9335f449de0b084b2",
+      "ownership": "builder",
+      "version": "2.0.0-alpha.3"
+    },
+    {
+      "path": "README.md",
+      "templateId": "profiles/sovereign-hybrid/runnable/README.md",
+      "sourceDigest": "46c93fe3477c3361607ca50453a9bf8b170c21018e3e4a6a02968ae235a0021b",
+      "lastInstalledDigest": "028546e4165904cecb84b2ec4cb80bdcd68bdcd69d6d159a8dda9fadd02f3354",
+      "ownership": "builder",
+      "version": "2.0.0-alpha.3"
+    },
+    {
+      "path": "desktop/package.json",
+      "templateId": "profiles/sovereign-hybrid/runnable/desktop/package.json",
+      "sourceDigest": "2dbf0be7c7de837c9d3901107c2a8c4f636c568ee826ec382d07dc26fa246f69",
+      "lastInstalledDigest": "3c8518136d70dc09cb5b38d9722758325497d53dafb9fc63b0e5dfc08ec4fa06",
+      "ownership": "builder",
+      "version": "2.0.0-alpha.3"
+    },
+    {
+      "path": "desktop/src/uar-facade.mjs",
+      "templateId": "profiles/sovereign-hybrid/runnable/desktop/src/uar-facade.mjs",
+      "sourceDigest": "2cf87b79644604f0620c8353573023755663a73c5e9a4a1541143908cb3d2f50",
+      "lastInstalledDigest": "2cf87b79644604f0620c8353573023755663a73c5e9a4a1541143908cb3d2f50",
+      "ownership": "builder",
+      "version": "2.0.0-alpha.3"
+    },
+    {
+      "path": "desktop/test/facade.test.mjs",
+      "templateId": "profiles/sovereign-hybrid/runnable/desktop/test/facade.test.mjs",
+      "sourceDigest": "a7e57d9cae985f6d41960e3268ed35ea8ea5241ca9beaef20a49bc1d6ce94587",
+      "lastInstalledDigest": "a7e57d9cae985f6d41960e3268ed35ea8ea5241ca9beaef20a49bc1d6ce94587",
+      "ownership": "builder",
+      "version": "2.0.0-alpha.3"
+    },
+    {
+      "path": "mobile/lib/uar_facade.dart",
+      "templateId": "profiles/sovereign-hybrid/runnable/mobile/lib/uar_facade.dart",
+      "sourceDigest": "7e2179e9b578d3e7f7a31f40a344f8e47f131e60e2df8bc0664fc9c29139991c",
+      "lastInstalledDigest": "7e2179e9b578d3e7f7a31f40a344f8e47f131e60e2df8bc0664fc9c29139991c",
+      "ownership": "builder",
+      "version": "2.0.0-alpha.3"
+    },
+    {
+      "path": "mobile/pubspec.yaml",
+      "templateId": "profiles/sovereign-hybrid/runnable/mobile/pubspec.yaml",
+      "sourceDigest": "9c2e09c011666143822a7339cfa8c2cd2d2c2049540b2e7bdd60c4e9be2453f7",
+      "lastInstalledDigest": "d995c96263a321b107e33fbc357c88737443af525239e3e9fd6e5cbc7f3600d3",
+      "ownership": "builder",
+      "version": "2.0.0-alpha.3"
+    },
+    {
+      "path": "mobile/test/uar_facade_test.dart",
+      "templateId": "profiles/sovereign-hybrid/runnable/mobile/test/uar_facade_test.dart",
+      "sourceDigest": "59cbb781d5db2f1b916f2e0882385332aa291b74a18dae20d8e6aaff937053c7",
+      "lastInstalledDigest": "c24343fe45576fbbdf57ee2c4ad4e9112f25f03f2ae051f2584b7939bb1896bf",
+      "ownership": "builder",
+      "version": "2.0.0-alpha.3"
+    },
+    {
+      "path": "rust/Cargo.toml",
+      "templateId": "profiles/sovereign-hybrid/runnable/rust/Cargo.toml",
+      "sourceDigest": "3991a535ee3a65a4212065ab69ad656fe70ad81d5e308baa834ce89ce8a0daf0",
+      "lastInstalledDigest": "006327ba305e1a17df4fc703cd3b8bf925dc084f8cc406d4fa8021f34263c46b",
+      "ownership": "builder",
+      "version": "2.0.0-alpha.3"
+    },
+    {
+      "path": "rust/src/lib.rs",
+      "templateId": "profiles/sovereign-hybrid/runnable/rust/src/lib.rs",
+      "sourceDigest": "3339a1eade35163d15d9465c299443223bce1528aed34678f847f4bf67bd04df",
+      "lastInstalledDigest": "3339a1eade35163d15d9465c299443223bce1528aed34678f847f4bf67bd04df",
+      "ownership": "builder",
+      "version": "2.0.0-alpha.3"
+    },
+    {
+      "path": "rust/tests/vertical_slice.rs",
+      "templateId": "profiles/sovereign-hybrid/runnable/rust/tests/vertical_slice.rs",
+      "sourceDigest": "f5e40be92c3c1bba7664e85ac842e39b420bde33b56c9908536e5c4cb9ccc1f8",
+      "lastInstalledDigest": "b38978ab1bb239134d299d6f6ca29d0da565a73efb05a61d06e65c4bc74397b8",
+      "ownership": "builder",
+      "version": "2.0.0-alpha.3"
+    },
+    {
+      "path": "desktop/src-tauri/command-manifest.json",
+      "templateId": "command-contract/commands.json",
+      "sourceDigest": "48cf359b10ca68fcd9a62778fd0b3682f98134b5c1cb4aea796bbeeef68d6588",
+      "lastInstalledDigest": "48cf359b10ca68fcd9a62778fd0b3682f98134b5c1cb4aea796bbeeef68d6588",
+      "ownership": "builder",
+      "version": "2.0.0-alpha.3"
+    }
+  ]
+}

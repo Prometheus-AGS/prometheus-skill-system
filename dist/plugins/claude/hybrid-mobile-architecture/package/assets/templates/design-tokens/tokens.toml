@@ -1,0 +1,126 @@
+# tokens.toml — THE design-token source. One file, two surfaces.
+#
+# `scripts/gen-design-tokens.mjs` reads this and emits BOTH:
+#   desktop/src/index.css        Tailwind 4 @theme block
+#   mobile/lib/core/theme/tokens.dart   Dart token class
+#
+# Neither generated file is hand-edited. Editing one of them is how a codebase
+# ends up with two palettes that agree on intent and disagree on values — the
+# real failure this replaces was `#0D0D18` on Flutter against `#0B0F14` on React
+# for the same "app background" role, with nothing to catch it.
+#
+# Every value here is a PLACEHOLDER. Replace them with the product palette; do
+# not replace the token NAMES. Names describe the role a colour plays, never the
+# colour itself: `accent` survives a rebrand, `ember` becomes a lie the first
+# time the brand changes and renaming it then touches every call site.
+#
+# Both themes must satisfy WCAG 2.2 AA against their own background — see the
+# a11y-gate skill. Changing a value is a contrast change; re-check it.
+
+[meta]
+# Prefix for the emitted Dart class and CSS custom properties.
+dart_class = "T"
+css_prefix = "color"
+
+# ── Surfaces: the background ladder, darkest to lightest ────────────────────
+[dark.surface]
+canvas   = "#0D0D18"  # app background
+surface  = "#121220"  # cards, panels
+elevated = "#181828"  # raised surfaces, menus
+overlay  = "#1E1E35"  # modals, sheets
+
+[light.surface]
+canvas   = "#F7F7F8"
+surface  = "#FFFFFF"
+elevated = "#FAFBFC"
+overlay  = "#F2F4F7"
+
+# ── Text: on-surface roles, most to least prominent ─────────────────────────
+[dark.text]
+primary   = "#F2F2FF"
+secondary = "#9898C0"
+tertiary  = "#5E5E88"
+disabled  = "#3A3A60"
+
+[light.text]
+primary   = "#0B0F14"
+secondary = "#4A5568"
+tertiary  = "#718096"
+disabled  = "#A0AEC0"
+
+# ── Accents: the interactive + brand roles ──────────────────────────────────
+# `accent` is the primary interactive colour. The light variant is the SAME
+# role darkened to hold contrast on a light canvas — not a different accent.
+[dark.accent]
+accent    = "#3D7DFF"
+accentAlt = "#8B78FF"
+
+[light.accent]
+accent    = "#1F5FD9"
+accentAlt = "#6C5CE0"
+
+# ── Status: semantic, not decorative ────────────────────────────────────────
+# Never use these for emphasis. A red that means "destructive" cannot also mean
+# "look here", or users cannot tell which is which.
+[dark.status]
+info    = "#22D3EE"
+warning = "#F5A623"
+success = "#34D399"
+danger  = "#F87171"
+
+[light.status]
+info    = "#0891B2"
+warning = "#B7791F"
+success = "#059669"
+danger  = "#DC2626"
+
+# ── Spacing scale ───────────────────────────────────────────────────────────
+# A scale, not arbitrary numbers. Off-scale padding is how rhythm dies.
+[space]
+x1 = 4
+x2 = 8
+x3 = 12
+x4 = 16
+x5 = 20
+x6 = 24
+
+# ── Typography ──────────────────────────────────────────────────────────────
+# Two families plus mono. More than that needs a reason.
+[font]
+display = "Space Grotesk"
+sans    = "Inter"
+prose   = "Roboto"
+mono    = "JetBrains Mono"
+
+[type.displayLg]
+family = "display"
+size = 32
+weight = 700
+letter_spacing = -0.03
+role = "primary"
+
+[type.uiMd]
+family = "sans"
+size = 13
+weight = 500
+role = "secondary"
+
+[type.uiXs]
+family = "sans"
+size = 11
+weight = 500
+role = "tertiary"
+
+[type.prose]
+family = "prose"
+size = 15
+weight = 400
+height = 1.75
+role = "primary"
+
+[type.mono]
+family = "mono"
+size = 12.5
+weight = 400
+height = 1.55
+role = "primary"

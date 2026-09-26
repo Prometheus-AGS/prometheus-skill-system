@@ -1,0 +1,199 @@
+{
+  "$schema": "./schemas/builder-manifest.schema.json",
+  "schemaVersion": 1,
+  "package": {
+    "id": "hybrid-mobile-architecture",
+    "displayName": "KnowMe Builder",
+    "version": "2.0.0-alpha.4",
+    "description": "Versioned, non-destructive application generator and instruction pack for governed agentic applications.",
+    "license": "MIT",
+    "homepage": "https://github.com/Know-Me-Tools/hybrid-mobile-architecture-skill",
+    "repository": "https://github.com/Know-Me-Tools/hybrid-mobile-architecture-skill",
+    "author": {
+      "name": "Travis James",
+      "email": "travis@prometheusags.ai",
+      "url": "https://travisjames.ai"
+    },
+    "organization": "Prometheus Agentic Growth Solutions"
+  },
+  "contracts": {
+    "prometheus": "./compatibility/prometheus-control-plane.json",
+    "uar": "./compatibility/uar-runtime.json",
+    "agentSkills": "1.0"
+  },
+  "distribution": {
+    "skillSourceRoot": "skills",
+    "packageSkill": "hybrid-mobile-architecture"
+  },
+  "profiles": {
+    "sovereign-hybrid": {
+      "description": "Flutter mobile, Tauri desktop, Rust adapters, embedded UAR on mobile, and service UAR on desktop/web.",
+      "surfaces": [
+        "flutter-mobile",
+        "tauri-desktop",
+        "rust-core"
+      ],
+      "uarMode": "hybrid",
+      "runnableVerticalSlice": true
+    },
+    "governed-web-shell": {
+      "description": "React web shell and Axum BFF with service UAR, AG-UI/A2UI, PEM/PGlite, governed identity, and optional legacy embedding.",
+      "surfaces": [
+        "react-web",
+        "axum-bff"
+      ],
+      "uarMode": "service",
+      "runnableVerticalSlice": true
+    },
+    "flutter-mobile": {
+      "description": "Flutter mobile surface with Rust/FRB bindings and embedded UAR.",
+      "surfaces": [
+        "flutter-mobile",
+        "rust-core"
+      ],
+      "uarMode": "embedded",
+      "runnableVerticalSlice": true
+    },
+    "tauri-desktop": {
+      "description": "Tauri desktop surface with React and service or in-process UAR facade.",
+      "surfaces": [
+        "tauri-desktop",
+        "rust-core"
+      ],
+      "uarMode": "service",
+      "runnableVerticalSlice": true
+    },
+    "axum-web": {
+      "description": "Axum BFF and React web surface with service UAR.",
+      "surfaces": [
+        "react-web",
+        "axum-bff"
+      ],
+      "uarMode": "service",
+      "runnableVerticalSlice": true
+    }
+  },
+  "skills": [
+    "a11y-gate",
+    "build-branded-docusaurus",
+    "client-rag",
+    "content-block-ui",
+    "dependency-pin-discipline",
+    "deploy-hybrid-agentic-stack",
+    "flutter-golden-ui",
+    "hybrid-design-tokens",
+    "hybrid-runtime-verification",
+    "karpathy-progress-memory",
+    "local-inference-lanes",
+    "mobile-navigation",
+    "orchestrate-prometheus-application",
+    "peer-profile-sync",
+    "pem-local-first",
+    "reference-ui-fidelity",
+    "sync-doctrine",
+    "tauri-custom-titlebar",
+    "tauri-ui-review",
+    "entity-graph-web-shell",
+    "mini-app-module",
+    "axum-agent-gateway",
+    "legacy-app-embed",
+    "a2ui-surface-contract",
+    "agui-event-contract",
+    "agent-runtime-security",
+    "anonymized-replica",
+    "persona-scoped-agent",
+    "domain-glossary-service",
+    "connected-skill-packages",
+    "tauri-tray-app",
+    "launchagent-supervisor",
+    "realtime-skill-refiner",
+    "claude-hooks-reliability",
+    "auto-skill-package-integration"
+  ],
+  "commands": [
+    "new",
+    "adopt",
+    "upgrade",
+    "add",
+    "skills",
+    "audit",
+    "doctor",
+    "manifest"
+  ],
+  "templates": [
+    {
+      "id": "flutter-feature",
+      "path": "assets/templates/flutter-feature",
+      "status": "maintained"
+    },
+    {
+      "id": "tauri-feature",
+      "path": "assets/templates/tauri-feature",
+      "status": "maintained"
+    },
+    {
+      "id": "rust-core",
+      "path": "assets/templates/rust-core",
+      "status": "maintained"
+    },
+    {
+      "id": "rust-adapters",
+      "path": "assets/templates/rust",
+      "status": "maintained"
+    },
+    {
+      "id": "native-bridges",
+      "path": "assets/templates/native",
+      "status": "maintained"
+    },
+    {
+      "id": "build-scripts",
+      "path": "assets/templates/scripts",
+      "status": "maintained"
+    },
+    {
+      "id": "profile-projects",
+      "path": "assets/templates/profiles",
+      "status": "maintained"
+    },
+    {
+      "id": "runnable-baselines",
+      "path": "assets/templates/baselines",
+      "status": "maintained"
+    },
+    {
+      "id": "command-contract",
+      "path": "assets/templates/command-contract",
+      "status": "maintained"
+    },
+    {
+      "id": "capability-additions",
+      "path": "assets/templates/add",
+      "status": "maintained"
+    }
+  ],
+  "generatedTargets": [
+    "plugin.json",
+    "marketplace.json",
+    ".claude-plugin/plugin.json",
+    ".claude-plugin/marketplace.json",
+    ".codex-plugin/plugin.json",
+    ".agents/plugins/marketplace.json",
+    "templates/activation-manifest.json",
+    "templates/harness-activation-capabilities.json"
+  ],
+  "generatedCommandRoots": {
+    "claude-code": ".claude/commands/knowme-builder",
+    "codex": ".codex/prompts",
+    "opencode": ".opencode/commands",
+    "kimi-code": ".kimi-code/commands"
+  },
+  "supportedHarnesses": [
+    "claude-code",
+    "codex",
+    "opencode",
+    "kimi-code",
+    "minimax-code",
+    "zed"
+  ]
+}

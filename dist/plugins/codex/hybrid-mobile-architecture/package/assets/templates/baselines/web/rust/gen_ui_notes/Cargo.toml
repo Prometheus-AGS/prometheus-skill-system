@@ -1,0 +1,11 @@
+[package]
+name = "gen_ui_notes"
+version = "0.1.0"
+edition = "2024"
+[dependencies]
+gen_ui_types = { path = "../gen_ui_types" }
+gen_ui_db = { path = "../gen_ui_db" }
+serde = { version = "=1.0.228", features = ["derive"] }
+serde_json = "=1.0.145"
+[dev-dependencies]
+tempfile = "=3.23.0"

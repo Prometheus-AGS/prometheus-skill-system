@@ -1,0 +1,4 @@
+interface:
+  display_name: "Dependency Pin Discipline"
+  short_description: "ALWAYS invoke before adding, bumping, or unpinning a dependency in ANY manifest (pubspec.yaml, p"
+  default_prompt: "Use $dependency-pin-discipline to apply its contract to this task and verify the required evidence."

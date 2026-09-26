@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import crypto from 'node:crypto';
+import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -128,7 +129,9 @@ function copySignedSkillRuntimeFiles(root) {
 function copyHookTargets(root) {
   const hooks = fs.readFileSync(path.join(sourceRoot, 'hooks/hooks.json'), 'utf8');
   const targets = new Set(
-    [...hooks.matchAll(/\$\{CLAUDE_PLUGIN_ROOT\}\/([^"]+)/g)].map(match => path.posix.normalize(match[1]))
+    [...hooks.matchAll(/\$\{CLAUDE_PLUGIN_ROOT\}\/([^"]+)/g)].map(match =>
+      path.posix.normalize(match[1])
+    )
   );
   for (const target of [...targets].sort()) {
     if (target.startsWith('../') || path.posix.isAbsolute(target))
@@ -188,6 +191,86 @@ function materializePackage(root, platform) {
   }
 }
 
+function adjacentPlugin(entry) {
+  const distribution = entry.distribution;
+  if (distribution?.mode !== 'adjacent-plugin') return null;
+
+  const manifests = {
+    claude: distribution.claudeManifest,
+    codex: distribution.codexManifest,
+  };
+  for (const [platform, relative] of Object.entries(manifests)) {
+    if (
+      !relative ||
+      path.posix.isAbsolute(relative) ||
+      path.posix.normalize(relative).startsWith('../')
+    ) {
+      throw new Error(`adjacent import ${entry.id} has an unsafe ${platform} manifest path`);
+    }
+    const manifestPath = path.join(sourceRoot, entry.path, ...relative.split('/'));
+    if (!fs.existsSync(manifestPath)) {
+      throw new Error(
+        `adjacent import ${entry.id} is missing its ${platform} manifest: ${relative}`
+      );
+    }
+    const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+    if (manifest.name !== entry.id) {
+      throw new Error(
+        `adjacent import ${entry.id} ${platform} manifest declares ${manifest.name ?? '<missing>'}`
+      );
+    }
+    if (manifest.version !== distribution.version) {
+      throw new Error(
+        `adjacent import ${entry.id} ${platform} manifest version ${manifest.version ?? '<missing>'} does not match ${distribution.version}`
+      );
+    }
+  }
+  if (!['full', 'mini'].includes(distribution.variant)) {
+    throw new Error(`adjacent import ${entry.id} has an unsupported distribution variant`);
+  }
+  if (
+    !distribution.stager ||
+    path.posix.isAbsolute(distribution.stager) ||
+    path.posix.normalize(distribution.stager).startsWith('../')
+  ) {
+    throw new Error(`adjacent import ${entry.id} has an unsafe stager path`);
+  }
+  for (const platform of Object.keys(manifests)) {
+    const output = distribution.outputs?.[platform];
+    if (
+      !output ||
+      path.posix.isAbsolute(output) ||
+      path.posix.normalize(output).startsWith('../')
+    ) {
+      throw new Error(`adjacent import ${entry.id} has an unsafe ${platform} output path`);
+    }
+  }
+  return distribution;
+}
+
+function materializeAdjacentPackages(root) {
+  for (const entry of contract.imports) {
+    const adjacent = adjacentPlugin(entry);
+    if (!adjacent) continue;
+    const stager = path.join(sourceRoot, entry.path, ...adjacent.stager.split('/'));
+    if (!fs.existsSync(stager))
+      throw new Error(`adjacent import ${entry.id} is missing its stager`);
+    for (const output of Object.values(adjacent.outputs)) {
+      const destination = path.join(root, ...output.split('/'));
+      const result = spawnSync(
+        process.execPath,
+        [stager, '--output', destination, '--variant', adjacent.variant],
+        { cwd: sourceRoot, encoding: 'utf8' }
+      );
+      if (result.status !== 0) {
+        throw new Error(
+          `failed to stage adjacent import ${entry.id}: ${result.stderr || result.stdout || `exit ${result.status}`}`
+        );
+      }
+    }
+  }
+}
+
 function marketplaceEntries(platform) {
   const localSource = entry =>
     platform === 'claude' ? `./${entry.path}` : { source: 'local', path: `./${entry.path}` };
@@ -216,6 +299,26 @@ function marketplaceEntries(platform) {
     .filter(entry => entry.marketplace)
     .map(entry => {
       const name = entry.id;
+      const adjacent = adjacentPlugin(entry);
+      if (adjacent) {
+        const packagePath = `${adjacent.outputs[platform]}/package`;
+        if (platform === 'claude') {
+          return {
+            name,
+            source: `./${packagePath}`,
+            version: adjacent.version,
+            category: adjacent.category,
+          };
+        }
+        return {
+          name,
+          source: { source: 'local', path: `./${packagePath}` },
+          version: adjacent.version,
+          category: adjacent.category,
+          policy,
+          metadata: { repository: entry.repository, sha: entry.commit },
+        };
+      }
       if (platform === 'claude')
         return {
           name,
@@ -242,6 +345,7 @@ function marketplaceEntries(platform) {
 function materialize(root) {
   materializePackage(path.join(root, contract.outputs.claudePackage), 'claude');
   materializePackage(path.join(root, contract.outputs.codexPackage), 'codex');
+  materializeAdjacentPackages(root);
   write(root, contract.outputs.claudeMarketplace, {
     name: contract.name,
     version: contract.releaseVersion,
@@ -289,6 +393,11 @@ try {
     contract.outputs.codexPackage,
     contract.outputs.claudeMarketplace,
     contract.outputs.codexMarketplace,
+    ...contract.imports.flatMap(entry =>
+      entry.distribution?.mode === 'adjacent-plugin'
+        ? Object.values(entry.distribution.outputs ?? {})
+        : []
+    ),
   ];
   if (check) {
     for (const output of outputPaths) {

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Connected Skill Packages"
+  short_description: "Install, upgrade, validate, or remove a git-based agent skill package marketplace consumed by th"
+  default_prompt: "Use $connected-skill-packages to apply its contract to this task and verify the required evidence."

@@ -1,0 +1,36 @@
+{
+  "name": "knowme-builder",
+  "version": "2.0.0-alpha.4",
+  "description": "Versioned, non-destructive application generator and instruction pack for governed agentic applications.",
+  "owner": {
+    "name": "KnowMe Tools",
+    "url": "https://github.com/Know-Me-Tools"
+  },
+  "plugins": [
+    {
+      "name": "hybrid-mobile-architecture",
+      "description": "Versioned, non-destructive application generator and instruction pack for governed agentic applications.",
+      "source": {
+        "source": "local",
+        "path": "./"
+      },
+      "version": "2.0.0-alpha.4",
+      "category": "development",
+      "tags": [
+        "flutter",
+        "tauri",
+        "react",
+        "axum",
+        "rust",
+        "agentic"
+      ],
+      "policy": {
+        "installation": "INSTALLED_BY_DEFAULT",
+        "authentication": "ON_INSTALL"
+      }
+    }
+  ],
+  "interface": {
+    "displayName": "KnowMe Builder"
+  }
+}

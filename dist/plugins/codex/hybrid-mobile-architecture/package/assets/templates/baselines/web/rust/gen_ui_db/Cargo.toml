@@ -1,0 +1,7 @@
+[package]
+name = "gen_ui_db"
+version = "0.1.0"
+edition = "2024"
+[dependencies]
+gen_ui_types = { path = "../gen_ui_types" }
+rusqlite = { version = "=0.40.2", features = ["bundled"] }

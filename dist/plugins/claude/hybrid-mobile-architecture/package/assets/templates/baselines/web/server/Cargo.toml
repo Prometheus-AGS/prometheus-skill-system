@@ -1,0 +1,10 @@
+[package]
+name = "__APP_CRATE___server"
+version = "0.1.0"
+edition = "2024"
+[dependencies]
+gen_ui_notes = { path = "../rust/gen_ui_notes" }
+axum = "=0.8.8"
+serde = { version = "=1.0.228", features = ["derive"] }
+tokio = { version = "=1.49.0", features = ["macros", "rt-multi-thread", "net", "signal"] }
+tower-http = { version = "=0.6.6", features = ["fs"] }

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Tauri Ui Review"
+  short_description: "ALWAYS invoke after building or changing any React/Tauri UI surface, before calling it done — ru"
+  default_prompt: "Use $tauri-ui-review to apply its contract to this task and verify the required evidence."

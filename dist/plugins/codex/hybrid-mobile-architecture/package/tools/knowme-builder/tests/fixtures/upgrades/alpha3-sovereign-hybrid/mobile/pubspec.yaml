@@ -1,0 +1,8 @@
+name: output_mobile
+description: Flutter projection over the embedded UAR facade.
+publish_to: none
+version: 0.1.0+1
+environment:
+  sdk: ">=3.13.0-0 <4.0.0"
+dev_dependencies:
+  test: any

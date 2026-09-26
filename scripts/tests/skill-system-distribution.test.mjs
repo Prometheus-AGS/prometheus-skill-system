@@ -20,6 +20,17 @@ assert(skills.some(skill => skill.name === 'artifact-refiner'));
 assert(skills.some(skill => skill.name === 'sycophancy-correction'));
 assert(!skills.some(skill => skill.source.includes('prometheus-entity-management')));
 assert(!skills.some(skill => skill.source.includes('artifact-refiner/shared/sycophancy-correction')));
+assert(!skills.some(skill => skill.source.includes('hybrid-mobile-architecture')));
+
+const hybrid = contract.imports.find(entry => entry.id === 'hybrid-mobile-architecture');
+assert(hybrid, 'hybrid-mobile-architecture adjacent import is missing');
+assert.equal(hybrid.distribution?.mode, 'adjacent-plugin');
+assert.equal(hybrid.distribution?.version, '2.0.0-alpha.4');
+assert.equal(hybrid.distribution?.variant, 'full');
+assert(
+  contract.inventory.excludedImports.some(entry => entry.path === hybrid.path),
+  'hybrid-mobile-architecture must be explicitly excluded from the umbrella inventory'
+);
 
 function digestTree(directory, relative = '') {
   const result = [];
@@ -77,8 +88,8 @@ assert(codexManifest.interface.defaultPrompt);
 assert(codexManifest.interface.websiteURL.startsWith('https://'));
 
 for (const entry of contract.imports) {
-  const tree = spawnSync('git', ['ls-tree', 'HEAD', '--', entry.path], { cwd: root, encoding: 'utf8' }).stdout.trim();
-  const gitlink = tree.match(/^160000 commit ([a-f0-9]{40})\t/)?.[1];
+  const tree = spawnSync('git', ['ls-files', '--stage', '--', entry.path], { cwd: root, encoding: 'utf8' }).stdout.trim();
+  const gitlink = tree.match(/^160000 ([a-f0-9]{40}) \d+\t/)?.[1];
   assert.equal(gitlink, entry.commit, entry.path);
 }
 
@@ -86,6 +97,55 @@ for (const marketplacePath of [contract.outputs.claudeMarketplace, contract.outp
   const marketplace = JSON.parse(fs.readFileSync(path.join(root, marketplacePath)));
   assert.equal(marketplace.version, contract.releaseVersion);
   assert.equal(new Set(marketplace.plugins.map(plugin => plugin.name)).size, marketplace.plugins.length);
+}
+
+const claudeMarketplace = JSON.parse(
+  fs.readFileSync(path.join(root, contract.outputs.claudeMarketplace), 'utf8')
+);
+const claudeHybrid = claudeMarketplace.plugins.find(plugin => plugin.name === hybrid.id);
+assert(claudeHybrid, 'Claude marketplace is missing hybrid-mobile-architecture');
+assert.equal(
+  claudeHybrid.source,
+  `./${hybrid.distribution.outputs.claude}/package`
+);
+assert.equal(claudeHybrid.version, hybrid.distribution.version);
+assert.equal(claudeHybrid.strict, undefined, 'a native plugin must not use bare-skill strict:false mode');
+assert.equal(claudeHybrid.skills, undefined, 'a native plugin must load its own manifest skill inventory');
+
+const codexMarketplace = JSON.parse(
+  fs.readFileSync(path.join(root, contract.outputs.codexMarketplace), 'utf8')
+);
+const codexHybrid = codexMarketplace.plugins.find(plugin => plugin.name === hybrid.id);
+assert(codexHybrid, 'Codex marketplace is missing hybrid-mobile-architecture');
+assert.deepEqual(codexHybrid.source, {
+  path: `./${hybrid.distribution.outputs.codex}/package`,
+  source: 'local',
+});
+assert.equal(codexHybrid.version, hybrid.distribution.version);
+assert.equal(codexHybrid.metadata.sha, hybrid.commit);
+assert.equal(codexHybrid.policy.installation, 'AVAILABLE');
+
+let adjacentPayloadSha;
+for (const platform of ['claude', 'codex']) {
+  const output = path.join(root, hybrid.distribution.outputs[platform]);
+  const packageRoot = path.join(output, 'package');
+  const receipt = JSON.parse(fs.readFileSync(path.join(output, 'receipt.json'), 'utf8'));
+  assert.equal(receipt.variant, 'full');
+  assert.equal(receipt.schemaVersion, 1);
+  assert(receipt.files.length > 0, `${platform} adjacent payload receipt is empty`);
+  assert.equal(adjacentPayloadSha ??= receipt.payloadSha256, receipt.payloadSha256);
+  const actual = digestTree(packageRoot)
+    .map(entry => ({ path: entry.path, sha256: entry.sha256 }))
+    .sort((left, right) => left.path.localeCompare(right.path, 'en'));
+  assert.deepEqual(actual, receipt.files, `${platform} adjacent payload differs from its receipt`);
+  const nativeManifest = JSON.parse(
+    fs.readFileSync(
+      path.join(packageRoot, platform === 'claude' ? hybrid.distribution.claudeManifest : hybrid.distribution.codexManifest),
+      'utf8'
+    )
+  );
+  assert.equal(nativeManifest.name, hybrid.id);
+  assert.equal(nativeManifest.version, hybrid.distribution.version);
 }
 
 console.log(`PASS: ${skills.length} canonical skills, payload parity, modes, pins, manifests, and marketplaces`);

@@ -1,0 +1,26 @@
+// TJ-ARCH-MOB-001 compliant
+// File: lib/features/__feature_name__/data/repositories/__feature_name___repository_impl.dart
+
+import '../../domain/entities/__feature_name___entity.dart';
+import '../../domain/repositories/__feature_name___repository.dart';
+import '../datasources/__feature_name___data_source.dart';
+
+final class __FEATURE_NAME__RepositoryImpl
+    implements __FEATURE_NAME__Repository {
+  __FEATURE_NAME__RepositoryImpl(this._dataSource);
+
+  final __FEATURE_NAME__DataSource _dataSource;
+
+  @override
+  Future<void> delete(String id) => _dataSource.remove(id);
+
+  @override
+  Future<List<__FEATURE_NAME__Entity>> getAll() => _dataSource.list();
+
+  @override
+  Future<__FEATURE_NAME__Entity?> getById(String id) => _dataSource.read(id);
+
+  @override
+  Future<__FEATURE_NAME__Entity> save(__FEATURE_NAME__Entity entity) =>
+      _dataSource.write(entity);
+}

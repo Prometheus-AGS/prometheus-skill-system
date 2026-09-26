@@ -1,0 +1,226 @@
+// TJ-ARCH-MOB-001 compliant
+//! Health aggregation for a tray-resident supervisor.
+//!
+//! One owner folds per-service probe reports into a single [`TrayState`] that
+//! the tray icon and the popover both read. Computing the icon at the call site
+//! instead lets the two drift apart the moment either changes.
+
+use std::collections::BTreeMap;
+use std::time::{Duration, Instant};
+
+use tokio::sync::watch;
+
+/// What a probe observed about one service.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Liveness {
+    Up,
+    Down,
+}
+
+/// Whether a live service is able to serve.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Readiness {
+    Ready,
+    Degraded,
+}
+
+/// A single probe result for one service.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub struct Probe {
+    pub liveness: Liveness,
+    pub readiness: Readiness,
+}
+
+impl Probe {
+    pub const READY: Self = Self { liveness: Liveness::Up, readiness: Readiness::Ready };
+    pub const DEGRADED: Self = Self { liveness: Liveness::Up, readiness: Readiness::Degraded };
+    pub const DOWN: Self = Self { liveness: Liveness::Down, readiness: Readiness::Degraded };
+}
+
+/// The aggregated state the tray renders. Ordered by severity so that folding
+/// many services is a max() over the set.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
+pub enum TrayState {
+    /// Supervision has not finished its first pass.
+    Starting,
+    /// Supervision deliberately paused by the operator.
+    Paused,
+    /// Every required service is up and ready.
+    Healthy,
+    /// At least one service is up but degraded.
+    Degraded,
+    /// At least one required service has been down past the grace window.
+    Down,
+}
+
+#[derive(Clone, Debug)]
+struct ServiceHealth {
+    required: bool,
+    probe: Probe,
+    /// When the service first went down; cleared on recovery. A restart must
+    /// not flash the tray red, so "down" only counts past the grace window.
+    down_since: Option<Instant>,
+}
+
+/// Owns health state and publishes the folded [`TrayState`].
+///
+/// The tray subscribes to [`Aggregator::subscribe`]; it never polls services
+/// directly. State lives here, not in the UI.
+pub struct Aggregator {
+    services: BTreeMap<String, ServiceHealth>,
+    grace: Duration,
+    paused: bool,
+    started: bool,
+    tx: watch::Sender<TrayState>,
+}
+
+impl Aggregator {
+    /// `grace` is how long a required service must stay down before the tray
+    /// reports it. Zero makes every restart visible as a failure.
+    pub fn new(grace: Duration) -> Self {
+        let (tx, _rx) = watch::channel(TrayState::Starting);
+        Self { services: BTreeMap::new(), grace, paused: false, started: false, tx }
+    }
+
+    /// Subscribe to state changes. The tray holds one of these.
+    pub fn subscribe(&self) -> watch::Receiver<TrayState> {
+        self.tx.subscribe()
+    }
+
+    /// Register a service before probing it, so a service that has never
+    /// reported is distinguishable from one that reported healthy.
+    pub fn register(&mut self, name: impl Into<String>, required: bool) {
+        self.services.insert(
+            name.into(),
+            ServiceHealth { required, probe: Probe::DOWN, down_since: None },
+        );
+    }
+
+    /// Record a probe result. `now` is injected so the grace window is testable
+    /// without sleeping.
+    pub fn report(&mut self, name: &str, probe: Probe, now: Instant) {
+        let Some(service) = self.services.get_mut(name) else {
+            return;
+        };
+        service.probe = probe;
+        match probe.liveness {
+            Liveness::Down => {
+                service.down_since.get_or_insert(now);
+            }
+            Liveness::Up => {
+                service.down_since = None;
+            }
+        }
+        self.started = true;
+        self.publish(now);
+    }
+
+    /// Pause or resume supervision. Paused outranks service health: the
+    /// operator asked for silence and the tray must not keep reporting alarms.
+    pub fn set_paused(&mut self, paused: bool, now: Instant) {
+        self.paused = paused;
+        self.publish(now);
+    }
+
+    /// The current folded state.
+    pub fn state(&self, now: Instant) -> TrayState {
+        if self.paused {
+            return TrayState::Paused;
+        }
+        if !self.started || self.services.is_empty() {
+            return TrayState::Starting;
+        }
+
+        let mut worst = TrayState::Healthy;
+        for service in self.services.values() {
+            let observed = match service.probe.liveness {
+                Liveness::Down if service.required => {
+                    let elapsed = service
+                        .down_since
+                        .map(|since| now.saturating_duration_since(since))
+                        .unwrap_or_default();
+                    if elapsed >= self.grace { TrayState::Down } else { TrayState::Degraded }
+                }
+                Liveness::Down => TrayState::Degraded,
+                Liveness::Up => match service.probe.readiness {
+                    Readiness::Ready => TrayState::Healthy,
+                    Readiness::Degraded => TrayState::Degraded,
+                },
+            };
+            worst = worst.max(observed);
+        }
+        worst
+    }
+
+    fn publish(&self, now: Instant) {
+        let _ = self.tx.send(self.state(now));
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn aggregator() -> (Aggregator, Instant) {
+        let mut agg = Aggregator::new(Duration::from_secs(30));
+        agg.register("api", true);
+        agg.register("indexer", false);
+        (agg, Instant::now())
+    }
+
+    #[test]
+    fn all_ready_is_healthy() {
+        let (mut agg, t0) = aggregator();
+        agg.report("api", Probe::READY, t0);
+        agg.report("indexer", Probe::READY, t0);
+        assert_eq!(agg.state(t0), TrayState::Healthy);
+    }
+
+    #[test]
+    fn required_service_down_is_degraded_until_the_grace_window_elapses() {
+        let (mut agg, t0) = aggregator();
+        agg.report("indexer", Probe::READY, t0);
+        agg.report("api", Probe::DOWN, t0);
+
+        // A restart inside the window must not flash the tray red.
+        assert_eq!(agg.state(t0 + Duration::from_secs(5)), TrayState::Degraded);
+        assert_eq!(agg.state(t0 + Duration::from_secs(30)), TrayState::Down);
+    }
+
+    #[test]
+    fn recovery_clears_the_down_window() {
+        let (mut agg, t0) = aggregator();
+        agg.report("indexer", Probe::READY, t0);
+        agg.report("api", Probe::DOWN, t0);
+        assert_eq!(agg.state(t0 + Duration::from_secs(60)), TrayState::Down);
+
+        agg.report("api", Probe::READY, t0 + Duration::from_secs(61));
+        assert_eq!(agg.state(t0 + Duration::from_secs(61)), TrayState::Healthy);
+    }
+
+    #[test]
+    fn optional_service_down_never_reaches_down() {
+        let (mut agg, t0) = aggregator();
+        agg.report("api", Probe::READY, t0);
+        agg.report("indexer", Probe::DOWN, t0);
+        assert_eq!(agg.state(t0 + Duration::from_secs(600)), TrayState::Degraded);
+    }
+
+    #[test]
+    fn paused_outranks_service_health() {
+        let (mut agg, t0) = aggregator();
+        agg.report("api", Probe::DOWN, t0);
+        agg.set_paused(true, t0 + Duration::from_secs(60));
+        assert_eq!(agg.state(t0 + Duration::from_secs(60)), TrayState::Paused);
+    }
+
+    #[test]
+    fn subscribers_observe_transitions() {
+        let (mut agg, t0) = aggregator();
+        let rx = agg.subscribe();
+        assert_eq!(*rx.borrow(), TrayState::Starting);
+        agg.report("api", Probe::READY, t0);
+        agg.report("indexer", Probe::READY, t0);
+        assert_eq!(*rx.borrow(), TrayState::Healthy);
+    }
+}

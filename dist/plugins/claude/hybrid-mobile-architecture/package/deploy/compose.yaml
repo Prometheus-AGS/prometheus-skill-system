@@ -1,0 +1,127 @@
+name: prometheus-knowme
+
+x-postgres-environment: &postgres-environment
+  POSTGRES_USER: ${POSTGRES_USER:-flint}
+  POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in a non-committed environment file}
+  POSTGRES_DB: ${POSTGRES_DB:-flint}
+
+services:
+  knowme-web:
+    profiles: [core, realtime, authenticated, full-agentic]
+    image: ${KNOWME_WEB_IMAGE:-ghcr.io/prometheus-ags/knowme-web@PLACEHOLDER_RELEASE_DIGEST}
+    environment:
+      KNOWME_BIND: 0.0.0.0:8080
+      KNOWME_DATA_DIR: /var/lib/knowme
+      DATABASE_URL: postgres://${POSTGRES_USER:-flint}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-flint}
+      RUST_LOG: ${RUST_LOG:-info}
+    ports: ["${KNOWME_PORT:-8080}:8080"]
+    volumes: ["knowme-data:/var/lib/knowme"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: [CMD, curl, --fail, --silent, http://127.0.0.1:8080/api/v1/ready]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+
+  postgres:
+    profiles: [core, realtime, authenticated, full-agentic]
+    image: ${POSTGRES_IMAGE:-ghcr.io/prometheus-ags/prometheus-postgres18@PLACEHOLDER_RELEASE_DIGEST}
+    environment: *postgres-environment
+    volumes: ["postgres-data:/var/lib/postgresql/data"]
+    healthcheck:
+      test: [CMD-SHELL, "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  forge-gateway:
+    profiles: [realtime, full-agentic]
+    image: ${FORGE_GATEWAY_IMAGE:-ghcr.io/prometheus-ags/flint-forge-gateway@PLACEHOLDER_RELEASE_DIGEST}
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER:-flint}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-flint}
+      FLINT_CHANGE_SOURCE: listen
+      FLINT_JWT_SECRET_FILE: /run/secrets/flint-jwt
+    secrets: [flint-jwt]
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  iggy:
+    profiles: [realtime, full-agentic]
+    image: iggyrs/iggy@sha256:68a314c1380be5a792a134f3bd346ded42bd49d9f7114c86f70b48fc85bc5272
+    environment:
+      IGGY_SYSTEM_PATH: /data
+    volumes: ["iggy-data:/data"]
+
+  fabric:
+    profiles: [realtime, full-agentic]
+    image: ${FABRIC_IMAGE:-ghcr.io/prometheus-ags/flint-realtime-fabric@PLACEHOLDER_RELEASE_DIGEST}
+    environment:
+      BIND_ADDR: 0.0.0.0:8080
+      GRPC_PORT: 9090
+      IGGY_CONNECTION_STRING: iggy://iggy:iggy@iggy:8090
+      KETO_BASE_URL: http://keto:4466
+      GATEWAY_JWKS_URL: http://flint-gate:4457/signing-keys
+      CDC_ENABLED: "true"
+      CDC_REPLICATION_URL: postgres://${POSTGRES_USER:-flint}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-flint}?replication=database
+    depends_on: [postgres, iggy, flint-gate]
+
+  kratos-migrate:
+    profiles: [authenticated, full-agentic]
+    image: oryd/kratos:v1.2@sha256:850d4fd01b8902bc9bdb5d826906876d54695b322f2fea896a4af7524815beac
+    command: migrate sql -e --yes
+    environment:
+      DSN: postgres://${POSTGRES_USER:-flint}:${POSTGRES_PASSWORD}@postgres:5432/kratos?sslmode=disable
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+
+  kratos:
+    profiles: [authenticated, full-agentic]
+    image: oryd/kratos:v1.2@sha256:850d4fd01b8902bc9bdb5d826906876d54695b322f2fea896a4af7524815beac
+    command: serve all --dev
+    environment:
+      DSN: postgres://${POSTGRES_USER:-flint}:${POSTGRES_PASSWORD}@postgres:5432/kratos?sslmode=disable
+    depends_on:
+      kratos-migrate:
+        condition: service_completed_successfully
+
+  flint-gate:
+    profiles: [authenticated, realtime, full-agentic]
+    image: ${FLINT_GATE_IMAGE:-ghcr.io/prometheus-ags/flint-gate@PLACEHOLDER_RELEASE_DIGEST}
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER:-flint}:${POSTGRES_PASSWORD}@postgres:5432/flintgate
+      FLINT_GATE_JWT_SECRET_FILE: /run/secrets/flint-jwt
+      RUST_LOG: ${RUST_LOG:-info}
+    secrets: [flint-jwt]
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  keto-migrate:
+    profiles: [full-agentic]
+    image: oryd/keto:v0.12@sha256:eecd1cba4e7442e989e4f577a24165d9f8985064bc4bd706aa34b879eba0c9d6
+    command: migrate up -c /etc/config/keto/keto.yml -y
+    volumes: ["./config/keto.yml:/etc/config/keto/keto.yml:ro"]
+    restart: "no"
+
+  keto:
+    profiles: [full-agentic]
+    image: oryd/keto:v0.12@sha256:eecd1cba4e7442e989e4f577a24165d9f8985064bc4bd706aa34b879eba0c9d6
+    command: serve -c /etc/config/keto/keto.yml
+    volumes: ["./config/keto.yml:/etc/config/keto/keto.yml:ro"]
+    depends_on:
+      keto-migrate:
+        condition: service_completed_successfully
+
+secrets:
+  flint-jwt:
+    file: ${FLINT_JWT_SECRET_FILE:?set FLINT_JWT_SECRET_FILE to a local secret file}
+
+volumes:
+  knowme-data:
+  postgres-data:
+  iggy-data:

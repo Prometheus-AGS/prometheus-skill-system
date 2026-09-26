@@ -1,0 +1,43 @@
+{
+  "name": "hybrid-mobile-architecture",
+  "version": "2.0.0-alpha.4",
+  "description": "Versioned, non-destructive application generator and instruction pack for governed agentic applications.",
+  "author": {
+    "name": "Travis James",
+    "email": "travis@prometheusags.ai",
+    "url": "https://travisjames.ai"
+  },
+  "homepage": "https://github.com/Know-Me-Tools/hybrid-mobile-architecture-skill",
+  "repository": "https://github.com/Know-Me-Tools/hybrid-mobile-architecture-skill",
+  "license": "MIT",
+  "keywords": [
+    "flutter",
+    "tauri",
+    "rust",
+    "react",
+    "axum",
+    "uar",
+    "a2ui",
+    "ag-ui",
+    "agentic-applications"
+  ],
+  "skills": "./skills/",
+  "mcpServers": "./.mcp.json",
+  "interface": {
+    "displayName": "KnowMe Builder",
+    "shortDescription": "Build and audit governed hybrid applications.",
+    "longDescription": "Versioned, non-destructive application generator and instruction pack for governed agentic applications.",
+    "developerName": "Prometheus Agentic Growth Solutions",
+    "category": "Productivity",
+    "capabilities": [
+      "Skills",
+      "MCP"
+    ],
+    "websiteURL": "https://github.com/Know-Me-Tools/hybrid-mobile-architecture-skill",
+    "defaultPrompt": [
+      "Adopt this application with KnowMe Builder.",
+      "Audit this hybrid architecture.",
+      "Choose a governed application profile."
+    ]
+  }
+}

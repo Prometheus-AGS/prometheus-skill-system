@@ -1,0 +1,4 @@
+interface:
+  display_name: "Client Rag"
+  short_description: "ALWAYS invoke when adding vector search, embeddings, semantic recall, or retrieval-augmented con"
+  default_prompt: "Use $client-rag to apply its contract to this task and verify the required evidence."

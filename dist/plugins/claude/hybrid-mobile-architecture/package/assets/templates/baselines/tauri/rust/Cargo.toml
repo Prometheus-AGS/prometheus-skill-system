@@ -1,0 +1,4 @@
+[workspace]
+resolver = "2"
+members = ["gen_ui_types", "gen_ui_db", "gen_ui_notes"]
+exclude = ["gen_ui_ffi"]

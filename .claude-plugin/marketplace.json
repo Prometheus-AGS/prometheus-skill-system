@@ -80,6 +80,12 @@
       "version": "1.7.0"
     },
     {
+      "category": "development",
+      "name": "hybrid-mobile-architecture",
+      "source": "./dist/plugins/claude/hybrid-mobile-architecture/package",
+      "version": "2.0.0-alpha.4"
+    },
+    {
       "category": "productivity",
       "name": "artifact-refiner",
       "skills": "./skills",

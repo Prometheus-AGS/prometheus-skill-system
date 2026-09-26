@@ -1,0 +1,22 @@
+// File: test/features/__feature_name__/__feature_name___repository_test.dart
+
+import 'package:flutter_test/flutter_test.dart';
+
+import 'package:__APP_PACKAGE__/features/__feature_name__/data/datasources/__feature_name___data_source.dart';
+import 'package:__APP_PACKAGE__/features/__feature_name__/data/repositories/__feature_name___repository_impl.dart';
+import 'package:__APP_PACKAGE__/features/__feature_name__/domain/entities/__feature_name___entity.dart';
+
+void main() {
+  test('persists and reads the feature entity', () async {
+    final repository = __FEATURE_NAME__RepositoryImpl(
+      InMemory__FEATURE_NAME__DataSource(),
+    );
+    final entity = __FEATURE_NAME__Entity(
+      id: 'one',
+      name: 'Example',
+      createdAt: DateTime.utc(2026),
+    );
+    await repository.save(entity);
+    expect(await repository.getById('one'), entity);
+  });
+}

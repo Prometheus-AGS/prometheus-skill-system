@@ -1,0 +1,239 @@
+// TJ-ARCH-MOB-001 compliant
+// Tauri/React Feature Module Template — {FeatureName}
+// Replace {FeatureName} with PascalCase feature name
+// Replace {featureName} with camelCase feature name
+// Replace {feature-name} with kebab-case feature name
+
+// ─────────────────────────────────────────────────────────────────────────────
+// FILE: src/features/{featureName}/types.ts
+// ─────────────────────────────────────────────────────────────────────────────
+
+export interface {FeatureName}Entity {
+  id:         string
+  name:       string
+  createdAt:  string
+  updatedAt?: string
+  isActive:   boolean
+}
+
+export interface Create{FeatureName}Input {
+  name:     string
+  isActive?: boolean
+}
+
+export interface Update{FeatureName}Input {
+  id:        string
+  name?:     string
+  isActive?: boolean
+}
+
+export interface {FeatureName}Filters {
+  query:    string
+  isActive: boolean | null
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// FILE: src/features/{featureName}/api/{featureName}Api.ts
+// (Only stores import this — never components or hooks)
+// ─────────────────────────────────────────────────────────────────────────────
+
+import { invoke } from '@tauri-apps/api/core'
+import type { {FeatureName}Entity, Create{FeatureName}Input, Update{FeatureName}Input } from '../types'
+
+export const {featureName}Api = {
+  getAll:   ()                               => invoke<{FeatureName}Entity[]>('{featureName}_get_all'),
+  getById:  (id: string)                     => invoke<{FeatureName}Entity>('{featureName}_get_by_id', { id }),
+  create:   (input: Create{FeatureName}Input)  => invoke<{FeatureName}Entity>('{featureName}_create',  { input }),
+  update:   (input: Update{FeatureName}Input)  => invoke<{FeatureName}Entity>('{featureName}_update',  { input }),
+  delete:   (id: string)                     => invoke<void>('{featureName}_delete', { id }),
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// FILE: src/features/{featureName}/stores/{featureName}Store.ts
+// (Client-side state: selection, filters, UI state)
+// ─────────────────────────────────────────────────────────────────────────────
+
+import { create } from 'zustand'
+import { immer } from 'zustand/middleware/immer'
+import { subscribeWithSelector } from 'zustand/middleware'
+import type { {FeatureName}Filters } from '../types'
+
+// This store owns CLIENT-SIDE state only.
+// Server/async/entity data lives in Prometheus Entity Management 3.x via entities/{featureName}Entities.ts
+
+interface {FeatureName}ClientState {
+  selectedId: string | null
+  filters:    {FeatureName}Filters
+  isCreating: boolean
+}
+
+interface {FeatureName}ClientActions {
+  selectItem:    (id: string | null) => void
+  setFilter:     (key: keyof {FeatureName}Filters, value: unknown) => void
+  resetFilters:  () => void
+  setIsCreating: (v: boolean) => void
+}
+
+const defaultFilters: {FeatureName}Filters = { query: '', isActive: null }
+
+export const use{FeatureName}Store = create<{FeatureName}ClientState & {FeatureName}ClientActions>()(
+  subscribeWithSelector(
+    immer((set) => ({
+      selectedId: null,
+      filters:    defaultFilters,
+      isCreating: false,
+
+      selectItem:    (id)     => set((s) => { s.selectedId = id }),
+      setFilter:     (key, v) => set((s) => { (s.filters as Record<string, unknown>)[key] = v }),
+      resetFilters:  ()       => set((s) => { s.filters = defaultFilters }),
+      setIsCreating: (v)      => set((s) => { s.isCreating = v }),
+    }))
+  )
+)
+
+// ─────────────────────────────────────────────────────────────────────────────
+// FILE: src/features/{featureName}/entities/{featureName}Entities.ts
+// (Normalized server/async/entity state: Prometheus Entity Management 3.x)
+// ─────────────────────────────────────────────────────────────────────────────
+
+import {
+  registerEntityTransport,
+  useEntities,
+  useEntity,
+  useEntityMutation,
+} from '@prometheus-ags/prometheus-entity-management'
+import { {featureName}Api } from '../api/{featureName}Api'
+import type { {FeatureName}Entity, Create{FeatureName}Input, Update{FeatureName}Input } from '../types'
+
+const ENTITY_TYPE = '{FeatureName}'
+
+registerEntityTransport(ENTITY_TYPE, {
+  identify: (row: {FeatureName}Entity) => row.id,
+  authoritative: false,
+  staleTime: 30_000,
+  list: async ({ signal }) => {
+    signal?.throwIfAborted()
+    const rows = await {featureName}Api.getAll()
+    signal?.throwIfAborted()
+    return { rows, total: rows.length, nextCursor: null }
+  },
+  get: (id) => {featureName}Api.getById(id),
+})
+
+export function use{FeatureName}List() {
+  return useEntities<{FeatureName}Entity>(ENTITY_TYPE)
+}
+
+export function use{FeatureName}Entity(id: string) {
+  return useEntity<{FeatureName}Entity, {FeatureName}Entity>({
+    type: ENTITY_TYPE,
+    id,
+    fetch: {featureName}Api.getById,
+    normalize: (row) => ({ id: row.id, data: row }),
+    enabled: Boolean(id),
+  })
+}
+
+export function useCreate{FeatureName}() {
+  return useEntityMutation<Create{FeatureName}Input, {FeatureName}Entity, {FeatureName}Entity>({
+    type: ENTITY_TYPE,
+    mutate: {featureName}Api.create,
+    normalize: (row) => ({ id: row.id, data: row }),
+    invalidateLists: [ENTITY_TYPE],
+  })
+}
+
+export function useUpdate{FeatureName}() {
+  return useEntityMutation<Update{FeatureName}Input, {FeatureName}Entity, {FeatureName}Entity>({
+    type: ENTITY_TYPE,
+    mutate: {featureName}Api.update,
+    normalize: (row) => ({ id: row.id, data: row }),
+    invalidateLists: [ENTITY_TYPE],
+  })
+}
+
+export function useDelete{FeatureName}() {
+  return useEntityMutation<string, void, {FeatureName}Entity>({
+    type: ENTITY_TYPE,
+    mutate: {featureName}Api.delete,
+    invalidateLists: [ENTITY_TYPE],
+  })
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// FILE: src/features/{featureName}/hooks/use{FeatureName}.ts
+// (What components ACTUALLY import — never stores or entity hooks directly)
+// ─────────────────────────────────────────────────────────────────────────────
+
+import { useMemo } from 'react'
+import { use{FeatureName}Store } from '../stores/{featureName}Store'
+import {
+  use{FeatureName}List, use{FeatureName}Entity,
+  useCreate{FeatureName}, useUpdate{FeatureName}, useDelete{FeatureName},
+} from '../entities/{featureName}Entities'
+
+export function use{FeatureName}() {
+  const { items, isLoading, isError } = use{FeatureName}List()
+  const { mutate: create, state: createState } = useCreate{FeatureName}()
+  const { mutate: update, state: updateState } = useUpdate{FeatureName}()
+  const { mutate: remove } = useDelete{FeatureName}()
+
+  // Client state from Zustand (accessed via selector for performance)
+  const selectedId   = use{FeatureName}Store((s) => s.selectedId)
+  const filters      = use{FeatureName}Store((s) => s.filters)
+  const selectItem   = use{FeatureName}Store((s) => s.selectItem)
+  const setFilter    = use{FeatureName}Store((s) => s.setFilter)
+  const resetFilters = use{FeatureName}Store((s) => s.resetFilters)
+
+  // Client-side filtering (no server round-trip for simple filters)
+  const filteredItems = useMemo(() => {
+    let result = items
+    if (filters.query) {
+      const q = filters.query.toLowerCase()
+      result = result.filter((i) => i.name.toLowerCase().includes(q))
+    }
+    if (filters.isActive !== null) {
+      result = result.filter((i) => i.isActive === filters.isActive)
+    }
+    return result
+  }, [items, filters])
+
+  const selectedItem = items.find((i) => i.id === selectedId) ?? null
+
+  return {
+    // Data
+    items: filteredItems,
+    allItems: items,
+    selectedItem,
+    selectedId,
+    isLoading,
+    isError,
+    isCreating: createState.isPending,
+    isUpdating: updateState.isPending,
+    // Filters
+    filters,
+    setFilter,
+    resetFilters,
+    // Actions
+    selectItem,
+    create,
+    update,
+    remove,
+  }
+}
+
+// Detailed view hook (separate for performance — only mounts when detail is needed)
+export function use{FeatureName}Detail(id: string) {
+  const { data: item, isLoading, isError } = use{FeatureName}Entity(id)
+  const { mutate: update, state: updateState } = useUpdate{FeatureName}()
+  const { mutate: remove, state: deleteState } = useDelete{FeatureName}()
+  return {
+    item,
+    isLoading,
+    isError,
+    update,
+    remove,
+    isUpdating: updateState.isPending,
+    isDeleting: deleteState.isPending,
+  }
+}

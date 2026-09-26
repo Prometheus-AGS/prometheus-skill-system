@@ -1,0 +1,4 @@
+interface:
+  display_name: "Orchestrate Prometheus Application"
+  short_description: "Classify and orchestrate Prometheus application work across hybrid, mobile-only, desktop, automa"
+  default_prompt: "Use $orchestrate-prometheus-application to apply its contract to this task and verify the required evidence."

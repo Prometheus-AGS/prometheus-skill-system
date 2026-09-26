@@ -1,0 +1,12 @@
+target/
+node_modules/
+build/
+.dart_tool/
+.flutter-plugins
+.env
+.env.*
+!.env.example
+.prometheus/events.jsonl
+.kbd-orchestrator/position.json
+.kbd-orchestrator/current-waypoint.json
+.kbd-orchestrator/current-waypoint.md

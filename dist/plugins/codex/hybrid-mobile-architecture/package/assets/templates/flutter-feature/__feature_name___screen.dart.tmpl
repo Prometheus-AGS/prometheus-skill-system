@@ -1,0 +1,32 @@
+// TJ-ARCH-MOB-001 compliant
+// File: lib/features/__feature_name__/presentation/screens/__feature_name___screen.dart
+
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../providers/__feature_name___provider.dart';
+
+final class __FEATURE_NAME__Screen extends ConsumerWidget {
+  const __FEATURE_NAME__Screen({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final state = ref.watch(__feature_name__NotifierProvider);
+    return Scaffold(
+      appBar: AppBar(title: const Text('__FEATURE_NAME__')),
+      body: state.when(
+        data: (items) => ListView.builder(
+          itemCount: items.length,
+          itemBuilder: (context, index) => ListTile(
+            key: ValueKey<String>(items[index].id),
+            title: Text(items[index].name),
+          ),
+        ),
+        error: (error, stackTrace) => Center(
+          child: Text('Unable to load __FEATURE_NAME__: $error'),
+        ),
+        loading: () => const Center(child: CircularProgressIndicator()),
+      ),
+    );
+  }
+}

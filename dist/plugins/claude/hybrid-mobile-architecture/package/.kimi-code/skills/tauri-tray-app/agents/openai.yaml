@@ -1,0 +1,4 @@
+interface:
+  display_name: "Tauri Tray App"
+  short_description: "Build a tray-resident Tauri 2 desktop application with a health-driven tray icon, a transient po"
+  default_prompt: "Use $tauri-tray-app to apply its contract to this task and verify the required evidence."

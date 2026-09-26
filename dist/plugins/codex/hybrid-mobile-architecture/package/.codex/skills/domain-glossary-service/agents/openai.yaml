@@ -1,0 +1,4 @@
+interface:
+  display_name: "Domain Glossary Service"
+  short_description: "Implement or audit a versioned domain glossary used by applications and agents to normalize term"
+  default_prompt: "Use $domain-glossary-service to apply its contract to this task and verify the required evidence."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Flutter Golden Ui"
+  short_description: "ALWAYS invoke after building or changing any Flutter widget/screen, before calling it done — sca"
+  default_prompt: "Use $flutter-golden-ui to apply its contract to this task and verify the required evidence."

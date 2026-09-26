@@ -1,0 +1,61 @@
+// TJ-ARCH-MOB-001 compliant
+// File: lib/features/__feature_name__/presentation/providers/__feature_name___provider.dart
+
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+import '../../data/repositories/__feature_name___repository_impl.dart';
+import '../../data/datasources/__feature_name___data_source.dart';
+import '../../domain/entities/__feature_name___entity.dart';
+import '../../domain/repositories/__feature_name___repository.dart';
+
+part '__feature_name___provider.g.dart';
+
+// ── Repository provider (inject the implementation) ────────────────────────
+
+@riverpod
+__FEATURE_NAME__Repository __feature_name__Repository(Ref ref) =>
+    __FEATURE_NAME__RepositoryImpl(InMemory__FEATURE_NAME__DataSource());
+
+// ── List provider ─────────────────────────────────────────────────────────
+
+@riverpod
+class __FEATURE_NAME__Notifier extends _$__FEATURE_NAME__Notifier {
+  @override
+  Future<List<__FEATURE_NAME__Entity>> build() async {
+    return _fetch();
+  }
+
+  Future<List<__FEATURE_NAME__Entity>> _fetch() async {
+    return ref.read(__feature_name__RepositoryProvider).getAll();
+  }
+
+  Future<void> refresh() async {
+    ref.invalidateSelf();
+    await future;
+  }
+
+  Future<void> delete(String id) async {
+    await ref.read(__feature_name__RepositoryProvider).delete(id);
+    ref.invalidateSelf();
+  }
+}
+
+// ── Detail provider (auto-disposes when no longer watched) ────────────────
+
+@riverpod
+Future<__FEATURE_NAME__Entity?> __feature_name__Detail(
+  Ref ref,
+  String id,
+) async {
+  return ref.watch(__feature_name__RepositoryProvider).getById(id);
+}
+
+// ── Mutable selected-item state ───────────────────────────────────────────
+
+@riverpod
+class Selected__FEATURE_NAME__ extends _$Selected__FEATURE_NAME__ {
+  @override
+  String? build() => null;
+
+  void select(String? id) => state = id;
+  void clear()            => state = null;
+}

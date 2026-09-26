@@ -1,0 +1,4 @@
+interface:
+  display_name: "Legacy App Embed"
+  short_description: "Embed a frozen or independently deployed legacy application inside a governed shell through a ve"
+  default_prompt: "Use $legacy-app-embed to apply its contract to this task and verify the required evidence."

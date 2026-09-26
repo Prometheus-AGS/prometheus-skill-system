@@ -1,0 +1,34 @@
+{
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node",
+            "args": [
+              ".claude/hooks/skill-activation.mjs"
+            ],
+            "description": "Advisory KnowMe Builder skill activation"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node",
+            "args": [
+              ".claude/hooks/a11y-reminder.mjs"
+            ],
+            "description": "Advisory accessibility review reminder"
+          }
+        ]
+      }
+    ]
+  }
+}

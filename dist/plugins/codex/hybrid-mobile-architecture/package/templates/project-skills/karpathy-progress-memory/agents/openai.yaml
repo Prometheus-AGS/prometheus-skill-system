@@ -1,0 +1,4 @@
+interface:
+  display_name: "Karpathy Progress Memory"
+  short_description: "Capture compact, evidence-backed Karpathy-style progress records and reusable lessons in both th"
+  default_prompt: "Use $karpathy-progress-memory to apply its contract to this task and verify the required evidence."

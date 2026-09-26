@@ -1,0 +1,7 @@
+{
+  "schemaVersion": 1,
+  "id": "__APP_SLUG__",
+  "name": "__APP_NAME__",
+  "kind": "__CAPABILITY_KIND__",
+  "builderVersion": "__BUILDER_VERSION__"
+}

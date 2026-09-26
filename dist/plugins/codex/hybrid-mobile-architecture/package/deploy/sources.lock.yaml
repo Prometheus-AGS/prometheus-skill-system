@@ -1,0 +1,59 @@
+schema_version: 1
+verified_at: "2026-07-18"
+sources:
+  knowme-docs:
+    repository: https://github.com/Know-Me-Tools/hybrid-mobile-architecture-skill.git
+    commit: 6fddffdac56075737f6f114adeddbed56208699b
+    owner: Know-Me-Tools
+    dockerfile: site/Dockerfile
+    context: site
+    platforms: [linux/amd64, linux/arm64]
+    license: MIT
+  flint-forge:
+    repository: https://github.com/Know-Me-Tools/flint-forge.git
+    commit: 4d5f97fc6695f3fa69ae43e720cea3c97ef057a4
+    owner: Know-Me-Tools
+    dockerfile: deploy/docker/flint-forge-gateway.Dockerfile
+    context: .
+    platforms: [linux/amd64, linux/arm64]
+    license: MIT
+  flint-realtime-fabric:
+    repository: https://github.com/Prometheus-AGS/flint-realtime-fabric.git
+    commit: edbb21556b0b37e2d7431e3969bcdb0c62fd6b9c
+    owner: Prometheus-AGS
+    dockerfile: deploy/docker/flint-realtime-fabric.Dockerfile
+    context: .
+    platforms: [linux/amd64, linux/arm64]
+    license: MIT
+  flint-gate:
+    repository: https://github.com/Know-Me-Tools/flint-gate.git
+    commit: 057d64d2757f2065443fc05bf6da68aa72e4d4b5
+    owner: Know-Me-Tools
+    dockerfile: deploy/docker/flint-gate.Dockerfile
+    context: .
+    platforms: [linux/amd64, linux/arm64]
+    license: MIT
+  pg-net:
+    repository: https://github.com/supabase/pg_net.git
+    commit: a8299b11182ea5c974f5e89ae83e70e9e44e9e8f
+    owner: supabase
+    dockerfile: deploy/docker/postgres-c-extension.Dockerfile
+    context: .
+    platforms: [linux/amd64, linux/arm64]
+    license: Apache-2.0
+  pg-cron:
+    repository: https://github.com/citusdata/pg_cron.git
+    commit: 89d55ced1391bcfabc3c20d5672f14bde5c71925
+    owner: citusdata
+    dockerfile: deploy/docker/postgres-c-extension.Dockerfile
+    context: .
+    platforms: [linux/amd64, linux/arm64]
+    license: PostgreSQL
+  pgvector:
+    repository: https://github.com/pgvector/pgvector.git
+    commit: 778dacf20c07caf904557a88705142631818d8cb
+    owner: pgvector
+    dockerfile: deploy/docker/postgres-pgvector-extension.Dockerfile
+    context: .
+    platforms: [linux/amd64, linux/arm64]
+    license: PostgreSQL

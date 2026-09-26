@@ -1,0 +1,4 @@
+interface:
+  display_name: "Local Inference Lanes"
+  short_description: "ALWAYS invoke before adding, selecting, or debugging a local/on-device inference engine, or befo"
+  default_prompt: "Use $local-inference-lanes to apply its contract to this task and verify the required evidence."

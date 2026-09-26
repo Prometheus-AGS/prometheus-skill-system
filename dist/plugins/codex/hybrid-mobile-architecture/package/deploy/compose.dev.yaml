@@ -1,0 +1,30 @@
+services:
+  postgres:
+    build:
+      context: ..
+      dockerfile: deploy/docker/prometheus-postgres18.Dockerfile
+      additional_contexts:
+        flint-llm: target:flint-llm
+        flint-vault: target:flint-vault
+        flint-meta: target:flint-meta
+        flint-auth: target:flint-auth
+        flint-hooks: target:flint-hooks
+        pg-net: target:pg-net
+        pg-cron: target:pg-cron
+        pgvector: target:pgvector
+    image: prometheus-postgres18:dev
+  forge-gateway:
+    build:
+      context: ${FLINT_FORGE_CONTEXT:-../../prometheus/flint-forge}
+      dockerfile: docker/fdb-gateway/Dockerfile
+    image: flint-forge-gateway:dev
+  fabric:
+    build:
+      context: ${FLINT_FABRIC_CONTEXT:-../../prometheus/flint-realtime-fabric}
+      dockerfile: Dockerfile
+    image: flint-realtime-fabric:dev
+  flint-gate:
+    build:
+      context: ${FLINT_GATE_CONTEXT:-../../prometheus/flint-gate}
+      dockerfile: Dockerfile
+    image: flint-gate:dev

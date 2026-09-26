@@ -1,0 +1,104 @@
+# versions.toml — SINGLE SOURCE OF TRUTH for tool/stack versions and engine
+# selections across this skill pack's authority documents (SKILL.md, CLAUDE.md,
+# AGENTS.md, README.md, references/*.md).
+#
+# Rules:
+#   - Versions live HERE and only here. Authority docs must state these same
+#     values; `node scripts/audit.mjs doc-consistency` fails CI on drift.
+#   - When bumping a version: update this file first, then every authority doc,
+#     then re-run the audit. (A generated-docs pipeline can replace the manual
+#     step later; the audit gate is what prevents rot either way.)
+#   - Rationale for non-obvious pins lives next to the value. Prefer EXACT pins
+#     over floors ("1.97.1", not "1.96+"): a floor silently resolves to whatever
+#     shipped this morning, which is how a generator drifts away from the
+#     projects it generated. Where a pin is forced by a dependency conflict
+#     rather than choice, say so in the comment — the reason is the real
+#     artifact, and without it the next bump repeats the same failure.
+
+[toolchain]
+# Exact pins, not floors. Legacy-toolchain compatibility is not a product
+# constraint (see [platform] below); keep these aligned with the generated
+# rust/rust-toolchain.toml.
+rust = "1.97.1"
+node = "26.5.0"         # Current release — latest phones/tools over LTS conservatism
+flutter = "3.47.5"      # current stable; ships Dart 3.13.4
+typescript = "7.0.2"    # Go-native compiler; latest stable dist-tag, never a nightly dev build
+skills_cli = "1.7.0"     # exact agentskills.io discovery/install CLI used by package CI
+bun = "1.3.14"
+pnpm = "11.15.0"
+
+[frameworks]
+tauri_cli = "2.11.4"
+tauri_driver = "2.0.5"         # exact stable WebDriver server used for packaged Windows UI certification
+msedgedriver_tool_rev = "8c4b34f51b45f5cf08013366d703de464ab871d1" # pinned Rust installer for matching EdgeDriver
+# The runtime crate, Dart package and Cargo-installed codegen CLI must use the
+# same version. The 2.13.0-beta line is not yet validated here. Do not raise
+# this without bumping rust/Cargo.toml and mobile/pubspec.yaml together and
+# re-running codegen.
+flutter_rust_bridge = "2.12.0"
+# Latest coherent set that compiles with Freezed today: flutter_riverpod 3.3.1,
+# riverpod_annotation 4.0.2, riverpod_sqflite 0.4.2, riverpod_generator 4.0.3.
+# 3.3.2 / 4.0.4 currently conflict with Freezed's analyzer line.
+riverpod = "3.3.1"
+vite = "8.1.5"
+react = "19.2.7"
+zustand = "5.0.14"
+openspec = "1.10.0"             # @fission-ai/openspec — never the squatted bare package.
+                                # Adopted 2026-08-22 (c300): the pin sat at 1.6.0 while the
+                                # installed CLI had moved to 1.10.0, so `openspec update` wrote
+                                # 1.10.0 mirrors that the stale pin never saw. The pin now
+                                # follows the tool. NOTE: 1.10.0 migrates .kimi -> .kimi-code
+                                # and strips `metadata.internal: true` on every run, because
+                                # `internal` is a repo-local invariant the CLI has no notion of.
+                                # Always run scripts/normalize-vendored-skills.mjs afterwards.
+
+[android_build]
+# Android toolchain moves faster than the Flutter pin; these are the versions
+# validated against the LiteRT-LM lane on a current physical device.
+gradle = "9.7.0-rc-1"
+android_gradle_plugin = "9.4.0-alpha05"
+kotlin_android_plugin = "2.4.20-Beta1"
+litert_lm_android = "0.14.0"    # com.google.ai.edge.litertlm:litertlm-android
+
+[platform]
+# Minimum OS/SDK baselines. Raise these whenever a modern dependency, security
+# improvement, native capability, or materially better UX requires it — legacy
+# device coverage is not a product constraint. Every increase must update the
+# generated manifests AND docs/platform-support.md, and be verified by a
+# production build on a current physical device.
+dart = "3.13.4"
+android_min_sdk = "29"          # Android 10
+android_abi = "arm64-v8a"
+ios_deployment_target = "16.4"  # MLX-Swift + Metal feature floor
+macos_deployment_target = "10.15"
+jvm_target = "17"
+
+[data]
+surrealdb = "3.2.1"             # embedded graph/vector/FTS, kv-rocksdb native / kv-indxdb wasm
+pglite_oxide = "0.5.1"          # desktop config-DB only (macOS arm64 / Win x64 / Linux x64+arm64)
+
+[sync]
+# C-125 local-first pins (references/sync/decisions.md ADR-LFS-1..5).
+pglite = "0.5.4"                # web local store (@electric-sql/pglite)
+pglite_pgvector = "0.0.5"       # pgvector for web PGlite — NOT bundled in core wasm (verified C-123)
+pglite_sync = "0.4"             # Electric read-path FALLBACK only (ADR-LFS-1: FRF/PES is the lane)
+loro_crdt = "1.13"              # the CRDT, everywhere (ADR-LFS-5; loro-crdt npm / loro crate)
+sqlite_vec = "0.1"              # mobile vector tier (SQLite + sqlite-vec; PGlite is impossible on mobile)
+flutter_webrtc = "1.4"          # Flutter WebRTC plumbing for the peer vault lane
+embedding_dim = "384"           # one dimension everywhere so vectors survive cross-device sync
+
+# Inference engines are PER-DEVICE decisions, not one global choice, and not a
+# single "mobile" lane. Every engine sits behind the same InferenceProvider
+# seam, so the surface code is identical across lanes — only the backend differs.
+#
+# Why the split: llama.cpp on Android proved device-specific (OpenCL/Adreno),
+# so it is quarantined out of Android production in favour of LiteRT-LM as the
+# universal correctness baseline. Apple platforms use MLX, which reaches Metal
+# without the llama.cpp build surface.
+[inference]
+desktop = "llama-cpp-2"         # pinned/checksummed GGUF; zero-config reference default
+android = "LiteRT-LM"           # .litertlm behind InferenceProvider; universal CPU baseline
+ios = "MLX-Swift"               # Metal via the native MLX bridge (NOT llama.cpp)
+macos = "MLX-C"                 # in-process Apple mlx-c; no Python runtime
+web = "WebLLM"                  # MLC WebGPU lane; zero-key browser default
+mistral_optional = "mistral.rs" # experimental desktop alternative behind InferenceProvider

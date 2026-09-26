@@ -1,0 +1,25 @@
+{
+  "$schema": "../schemas/external-contract.schema.json",
+  "schemaVersion": 1,
+  "contract": "universal-agent-runtime",
+  "minimumVersion": "1.0.0-rc.9",
+  "requiredFeatures": [
+    "runtime-facade",
+    "embedded-runtime",
+    "service-runtime",
+    "deterministic-test-runtime",
+    "governed-tool-execution",
+    "cancellation-propagation",
+    "durable-run-recovery",
+    "a2ui-events",
+    "agui-events",
+    "unknown-event-preservation",
+    "resource-budgets"
+  ],
+  "authority": {
+    "agentExecution": "uar",
+    "toolGovernance": "uar",
+    "runLifecycle": "uar",
+    "applicationUi": "projection"
+  }
+}

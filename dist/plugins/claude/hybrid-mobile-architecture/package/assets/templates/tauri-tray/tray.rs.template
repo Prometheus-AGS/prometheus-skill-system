@@ -1,0 +1,120 @@
+// TJ-ARCH-MOB-001 compliant
+//! Tray icon, menu, and popover wiring for a tray-resident supervisor.
+//!
+//! The tray renders state produced by the health aggregator. It does not probe
+//! services and does not compute health itself.
+
+use tauri::menu::{Menu, MenuItem, PredefinedMenuItem};
+use tauri::tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent};
+use tauri::{App, AppHandle, Manager, WebviewWindow};
+
+pub const POPOVER_LABEL: &str = "popover";
+pub const DASHBOARD_LABEL: &str = "main";
+
+pub fn build_tray(app: &App) -> tauri::Result<()> {
+    let show = MenuItem::with_id(app, "show", "Show dashboard", true, None::<&str>)?;
+    let pause = MenuItem::with_id(app, "pause", "Pause supervision", true, None::<&str>)?;
+    let quit = MenuItem::with_id(app, "quit", "Quit", true, None::<&str>)?;
+    let menu = Menu::with_items(
+        app,
+        &[&show, &pause, &PredefinedMenuItem::separator(app)?, &quit],
+    )?;
+
+    TrayIconBuilder::with_id("@@TRAY_ID@@")
+        .icon(
+            app.default_window_icon()
+                .expect("bundle a default window icon for the tray")
+                .clone(),
+        )
+        // macOS tints a template image for light and dark menu bars. A
+        // non-template icon renders as a fixed-color blob in one of the two.
+        .icon_as_template(true)
+        .menu(&menu)
+        // Required. Tauri shows the menu on BOTH buttons by default, so without
+        // this the left-click popover never appears and the handler below looks
+        // broken.
+        .show_menu_on_left_click(false)
+        .on_menu_event(|app, event| match event.id.as_ref() {
+            "show" => show_dashboard(app),
+            "pause" => toggle_pause(app),
+            "quit" => app.exit(0),
+            _ => {}
+        })
+        .on_tray_icon_event(|tray, event| {
+            if let TrayIconEvent::Click {
+                button: MouseButton::Left,
+                button_state: MouseButtonState::Up,
+                ..
+            } = event
+            {
+                toggle_popover(tray.app_handle());
+            }
+        })
+        .build(app)?;
+
+    Ok(())
+}
+
+fn window(app: &AppHandle, label: &str) -> Option<WebviewWindow> {
+    app.get_webview_window(label)
+}
+
+pub fn show_dashboard(app: &AppHandle) {
+    if let Some(dashboard) = window(app, DASHBOARD_LABEL) {
+        let _ = dashboard.unminimize();
+        let _ = dashboard.show();
+        let _ = dashboard.set_focus();
+    }
+}
+
+pub fn toggle_popover(app: &AppHandle) {
+    let Some(popover) = window(app, POPOVER_LABEL) else {
+        return;
+    };
+    if popover.is_visible().unwrap_or(false) {
+        let _ = popover.hide();
+    } else {
+        let _ = popover.show();
+        let _ = popover.set_focus();
+    }
+}
+
+/// Pause or resume supervision.
+///
+/// Intentionally empty in the scaffold. The tray owns no state, and the
+/// aggregator handle this must call lives in the consuming app — the generator
+/// cannot know its type. Wire it to your aggregator's `set_paused` and delete
+/// this comment.
+pub fn toggle_pause(_app: &AppHandle) {
+    // Route to the health aggregator's set_paused; the tray owns no state.
+}
+
+/// Hide the dashboard instead of exiting when its close button is used.
+///
+/// Without this a tray app quits when the operator closes the dashboard —
+/// supervision stops and nothing explains why.
+pub fn intercept_dashboard_close(app: &App) {
+    if let Some(dashboard) = app.get_webview_window(DASHBOARD_LABEL) {
+        let handle = dashboard.clone();
+        dashboard.on_window_event(move |event| {
+            if let tauri::WindowEvent::CloseRequested { api, .. } = event {
+                api.prevent_close();
+                let _ = handle.hide();
+            }
+        });
+    }
+}
+
+/// Remove the dock icon and the app-switcher entry on macOS.
+///
+/// Takes `&mut App`: `set_activation_policy` mutates the running app, so a
+/// shared reference does not compile (E0596). Call it from `setup`, which
+/// hands you `&mut App`.
+pub fn apply_accessory_policy(app: &mut App) {
+    // No `let _ =`: set_activation_policy returns unit in Tauri 2.x, and
+    // binding a unit value trips clippy::let_unit_value under -D warnings.
+    #[cfg(target_os = "macos")]
+    app.set_activation_policy(tauri::ActivationPolicy::Accessory);
+    #[cfg(not(target_os = "macos"))]
+    let _ = app;
+}

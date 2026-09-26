@@ -1,0 +1,61 @@
+{
+  "schema_version": "1.0",
+  "skill": {
+    "id": "hybrid-mobile-architecture",
+    "name": "KnowMe Builder",
+    "slug": "hybrid-mobile-architecture",
+    "version": "2.0.0-alpha.4",
+    "status": "prerelease",
+    "visibility": "public",
+    "tier": "professional",
+    "author": {
+      "handle": "travisjames",
+      "name": "Travis James",
+      "url": "https://travisjames.ai",
+      "verified": true,
+      "organization": "Prometheus Agentic Growth Solutions"
+    },
+    "summary": "Versioned, non-destructive application generator and instruction pack for governed agentic applications.",
+    "categories": [
+      "architecture",
+      "scaffolding",
+      "mobile",
+      "desktop",
+      "web",
+      "ai-agent"
+    ],
+    "tags": [
+      "flutter",
+      "tauri",
+      "rust",
+      "react",
+      "axum",
+      "uar",
+      "a2ui",
+      "ag-ui",
+      "agentic-applications"
+    ],
+    "documentation": {
+      "readme": "README.md",
+      "architectural_standard": "references/arch-standard.md",
+      "changelog": "CHANGELOG.md"
+    },
+    "requirements": {
+      "platform": [
+        "macos",
+        "linux"
+      ],
+      "tools": [
+        "knowme-builder",
+        "git"
+      ]
+    },
+    "profiles": [
+      "sovereign-hybrid",
+      "governed-web-shell",
+      "flutter-mobile",
+      "tauri-desktop",
+      "axum-web"
+    ]
+  }
+}

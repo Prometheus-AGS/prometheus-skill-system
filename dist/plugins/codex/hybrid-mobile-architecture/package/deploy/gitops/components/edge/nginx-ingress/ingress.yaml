@@ -1,0 +1,21 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: knowme-web
+  namespace: knowme
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-production
+    nginx.org/redirect-to-https: "true"
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts: [knowme.example.com]
+      secretName: knowme-web-tls
+  rules:
+    - host: knowme.example.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service: {name: knowme-web, port: {name: http}}

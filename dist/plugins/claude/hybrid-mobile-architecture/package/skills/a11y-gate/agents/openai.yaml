@@ -1,0 +1,4 @@
+interface:
+  display_name: "A11y Gate"
+  short_description: "ALWAYS invoke when building or changing UI on ANY surface (React/Tauri or Flutter), before calli"
+  default_prompt: "Use $a11y-gate to apply its contract to this task and verify the required evidence."

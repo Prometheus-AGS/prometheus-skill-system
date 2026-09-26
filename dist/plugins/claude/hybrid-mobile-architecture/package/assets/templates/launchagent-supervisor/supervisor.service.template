@@ -1,0 +1,27 @@
+# Rendered by scripts/render-supervisor-plist.mjs --format systemd.
+# Install to ~/.config/systemd/user/@@LABEL@@.service
+[Unit]
+Description=@@DESCRIPTION@@
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart=@@EXEC_START@@
+WorkingDirectory=@@WORKING_DIRECTORY@@
+
+# R1.2 equivalent: on-failure restarts crashes without fighting a planned stop.
+# Restart=always reintroduces the bare-KeepAlive bug.
+Restart=on-failure
+# R1.1 equivalent: mirrors ThrottleInterval.
+RestartSec=@@THROTTLE@@
+
+# R1.4: explicit, discoverable log destinations.
+StandardOutput=append:@@STDOUT_PATH@@
+StandardError=append:@@STDERR_PATH@@
+
+LimitNOFILE=65536
+@@ENVIRONMENT@@
+
+[Install]
+WantedBy=default.target

@@ -1,0 +1,50 @@
+schema_version: 1
+registry: ghcr.io/prometheus-ags
+status: unreleased
+images:
+  knowme-web:
+    reference: ghcr.io/prometheus-ags/knowme-web
+    digest: PLACEHOLDER_RELEASE_DIGEST
+  knowme-docs:
+    reference: ghcr.io/prometheus-ags/knowme-docs
+    digest: PLACEHOLDER_RELEASE_DIGEST
+  flint-forge-gateway:
+    reference: ghcr.io/prometheus-ags/flint-forge-gateway
+    digest: PLACEHOLDER_RELEASE_DIGEST
+  flint-realtime-fabric:
+    reference: ghcr.io/prometheus-ags/flint-realtime-fabric
+    digest: PLACEHOLDER_RELEASE_DIGEST
+  flint-gate:
+    reference: ghcr.io/prometheus-ags/flint-gate
+    digest: PLACEHOLDER_RELEASE_DIGEST
+  prometheus-postgres18:
+    reference: ghcr.io/prometheus-ags/prometheus-postgres18
+    digest: PLACEHOLDER_RELEASE_DIGEST
+  postgres-extension-flint-llm:
+    reference: ghcr.io/prometheus-ags/postgres-extension-flint-llm
+    digest: PLACEHOLDER_RELEASE_DIGEST
+  postgres-extension-flint-vault:
+    reference: ghcr.io/prometheus-ags/postgres-extension-flint-vault
+    digest: PLACEHOLDER_RELEASE_DIGEST
+  postgres-extension-flint-meta:
+    reference: ghcr.io/prometheus-ags/postgres-extension-flint-meta
+    digest: PLACEHOLDER_RELEASE_DIGEST
+  postgres-extension-flint-auth:
+    reference: ghcr.io/prometheus-ags/postgres-extension-flint-auth
+    digest: PLACEHOLDER_RELEASE_DIGEST
+  postgres-extension-flint-hooks:
+    reference: ghcr.io/prometheus-ags/postgres-extension-flint-hooks
+    digest: PLACEHOLDER_RELEASE_DIGEST
+  postgres-extension-pg-net:
+    reference: ghcr.io/prometheus-ags/postgres-extension-pg-net
+    digest: PLACEHOLDER_RELEASE_DIGEST
+  postgres-extension-pg-cron:
+    reference: ghcr.io/prometheus-ags/postgres-extension-pg-cron
+    digest: PLACEHOLDER_RELEASE_DIGEST
+  postgres-extension-pgvector:
+    reference: ghcr.io/prometheus-ags/postgres-extension-pgvector
+    digest: PLACEHOLDER_RELEASE_DIGEST
+mirrors:
+  acr: ${ACR_REGISTRY}
+  artifact_registry: ${GAR_REGISTRY}
+  ecr: ${ECR_REGISTRY}

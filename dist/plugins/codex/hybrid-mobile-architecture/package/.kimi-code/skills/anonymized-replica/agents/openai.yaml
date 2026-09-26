@@ -1,0 +1,4 @@
+interface:
+  display_name: "Anonymized Replica"
+  short_description: "Build or audit an anonymized, reproducible data replica for development, proof-of-concept, or ce"
+  default_prompt: "Use $anonymized-replica to apply its contract to this task and verify the required evidence."

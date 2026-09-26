@@ -167,6 +167,23 @@
       "version": "1.7.0"
     },
     {
+      "category": "development",
+      "metadata": {
+        "repository": "https://github.com/Know-Me-Tools/hybrid-mobile-architecture-skill.git",
+        "sha": "6b115ccc334f698d19f03592d2fd534fae5b89d7"
+      },
+      "name": "hybrid-mobile-architecture",
+      "policy": {
+        "authentication": "ON_INSTALL",
+        "installation": "AVAILABLE"
+      },
+      "source": {
+        "path": "./dist/plugins/codex/hybrid-mobile-architecture/package",
+        "source": "local"
+      },
+      "version": "2.0.0-alpha.4"
+    },
+    {
       "category": "productivity",
       "metadata": {
         "repository": "https://github.com/GQAdonis/artifact-refiner-skill.git",

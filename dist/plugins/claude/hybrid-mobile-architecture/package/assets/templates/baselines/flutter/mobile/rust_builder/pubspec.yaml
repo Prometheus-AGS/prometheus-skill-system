@@ -1,0 +1,22 @@
+name: gen_ui_ffi
+description: Native Rust note bridge built by vendored Cargokit.
+version: 0.1.0
+publish_to: none
+environment:
+  sdk: ">=3.13.0-0 <4.0.0"
+dependencies:
+  flutter:
+    sdk: flutter
+flutter:
+  plugin:
+    platforms:
+      android:
+        ffiPlugin: true
+      ios:
+        ffiPlugin: true
+      linux:
+        ffiPlugin: true
+      macos:
+        ffiPlugin: true
+      windows:
+        ffiPlugin: true

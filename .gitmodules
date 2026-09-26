@@ -33,3 +33,6 @@
 [submodule "tools/openai-proxy"]
 	path = tools/openai-proxy
 	url = https://github.com/GQAdonis/openai-proxy.git
+[submodule "plugins/hybrid-mobile-architecture"]
+	path = plugins/hybrid-mobile-architecture
+	url = https://github.com/Know-Me-Tools/hybrid-mobile-architecture-skill.git

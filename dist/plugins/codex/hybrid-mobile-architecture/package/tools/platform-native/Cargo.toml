@@ -1,0 +1,12 @@
+[package]
+name = "knowme-platform-native"
+version = "2.0.0-alpha.4"
+edition = "2024"
+rust-version = "1.97.1"
+description = "Portable native artifact validation for KnowMe Builder"
+license = "MIT"
+
+[dependencies]
+anyhow = "=1.0.100"
+tempfile = "=3.23.0"
+zip = { version = "=8.6.0", default-features = false, features = ["deflate-flate2-zlib-rs"] }

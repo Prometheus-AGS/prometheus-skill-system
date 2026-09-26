@@ -33,6 +33,17 @@ targets, projection modes, platform boundaries, marketplaces, and generated
 outputs. `artifact-refiner` and `sycophancy-correction` are adjacent pinned
 entries, not automatic umbrella dependencies.
 
+`hybrid-mobile-architecture` is a complete adjacent plugin pinned under
+`plugins/`. Its Claude and Codex manifests remain authoritative for its own
+skills, MCP servers, runtime, and independently versioned release. The full
+pack marketplace exposes that native package beside `prometheus-skill-pack`;
+the distribution generator verifies both manifests against the version and
+pin recorded in `skill-system.json`, then calls the package's own portable
+stager for the Claude and Codex payloads. Each staged output includes its
+content-addressed receipt. Its skills are deliberately absent from the umbrella
+payload, which prevents duplicate installation and preserves the package's
+upgrade tooling.
+
 ## Activation
 
 ```bash

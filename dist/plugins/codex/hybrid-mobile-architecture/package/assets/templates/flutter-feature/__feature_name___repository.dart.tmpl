@@ -1,0 +1,11 @@
+// TJ-ARCH-MOB-001 compliant
+// File: lib/features/__feature_name__/domain/repositories/__feature_name___repository.dart
+
+import '../entities/__feature_name___entity.dart';
+
+abstract interface class __FEATURE_NAME__Repository {
+  Future<List<__FEATURE_NAME__Entity>> getAll();
+  Future<__FEATURE_NAME__Entity?> getById(String id);
+  Future<__FEATURE_NAME__Entity> save(__FEATURE_NAME__Entity entity);
+  Future<void> delete(String id);
+}

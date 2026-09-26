@@ -37,7 +37,31 @@ tools/
 ├── prometheus-knowledge/             # Submodule: pk knowledge base
 ├── surreal-memory-server/            # Submodule: surreal-memory MCP server
 └── liter-llm/                        # Submodule: liter-llm model router
+plugins/
+└── hybrid-mobile-architecture/       # Adjacent KnowMe Builder plugin
 ```
+
+## Registered Adjacent Plugin Submodules
+
+Adjacent plugins keep their own release, native manifests, runtime, and skill
+inventory. They are listed beside the umbrella package in generated
+marketplaces and are never flattened into its `skills/` directory.
+
+### hybrid-mobile-architecture — `plugins/hybrid-mobile-architecture`
+
+| Property | Value |
+|----------|-------|
+| **Repo** | `https://github.com/Know-Me-Tools/hybrid-mobile-architecture-skill.git` |
+| **Package** | `hybrid-mobile-architecture` / KnowMe Builder |
+| **Purpose** | Governed greenfield, brownfield, and upgrade scaffolding for web, Tauri desktop, Flutter, Rust FFI, and hybrid applications |
+| **Pin authority** | Gitlink and matching `skill-system.json` import commit |
+| **Version authority** | Native Claude and Codex plugin manifests, checked against the import distribution descriptor |
+
+Advance the gitlink only to a reviewed release commit, update the exact import
+commit and independent plugin version when required, regenerate both
+marketplaces, and run `npm run check:distribution`. The distribution test
+rejects a gitlink/contract mismatch and verifies that the plugin remains
+adjacent.
 
 ## Registered Tool Submodules
 

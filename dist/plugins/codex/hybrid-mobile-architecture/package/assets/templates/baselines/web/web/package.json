@@ -1,0 +1,30 @@
+{
+  "name": "__APP_SLUG__-shell",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "typecheck": "tsc --noEmit",
+    "build": "node scripts/build.mjs",
+    "preview": "vite preview --host 127.0.0.1",
+    "test:e2e": "node tests/restart.mjs"
+  },
+  "dependencies": {
+    "react": "19.2.7",
+    "react-dom": "19.2.7",
+    "@prometheus-ags/prometheus-entity-management": "3.2.0",
+    "@prometheus-ags/entity-graph-core": "3.2.0",
+    "zustand": "5.0.14"
+  },
+  "devDependencies": {
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "vite": "8.1.5",
+    "typescript": "7.0.2",
+    "@playwright/test": "1.63.0"
+  },
+  "engines": {
+    "node": ">=22.12.0"
+  }
+}

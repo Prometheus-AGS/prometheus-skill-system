@@ -1,0 +1,4 @@
+interface:
+  display_name: "Pem Local First"
+  short_description: "ALWAYS invoke when wiring client entity/server state on any surface — adding an entity type, reg"
+  default_prompt: "Use $pem-local-first to apply its contract to this task and verify the required evidence."

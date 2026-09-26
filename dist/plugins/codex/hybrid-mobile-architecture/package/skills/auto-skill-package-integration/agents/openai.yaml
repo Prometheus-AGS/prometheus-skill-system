@@ -1,0 +1,4 @@
+interface:
+  display_name: "Auto Skill Package Integration"
+  short_description: "Auto-detect newly available skill packages from a watched git remote or a watched local director"
+  default_prompt: "Use $auto-skill-package-integration to apply its contract to this task and verify the required evidence."

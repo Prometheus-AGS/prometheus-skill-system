@@ -1,0 +1,7 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata: {name: knowme-wildcard, namespace: knowme}
+spec:
+  secretName: knowme-wildcard-tls
+  issuerRef: {name: letsencrypt-wildcard-production, kind: ClusterIssuer}
+  dnsNames: [example.com, "*.example.com"]

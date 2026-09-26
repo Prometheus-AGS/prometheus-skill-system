@@ -1,0 +1,153 @@
+{
+  "name": "hybrid-mobile-architecture",
+  "displayName": "KnowMe Builder",
+  "version": "2.0.0-alpha.4",
+  "description": "Versioned, non-destructive application generator and instruction pack for governed agentic applications.",
+  "author": {
+    "name": "Travis James",
+    "email": "travis@prometheusags.ai",
+    "url": "https://travisjames.ai"
+  },
+  "organization": "Prometheus Agentic Growth Solutions",
+  "license": "MIT",
+  "homepage": "https://github.com/Know-Me-Tools/hybrid-mobile-architecture-skill",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Know-Me-Tools/hybrid-mobile-architecture-skill"
+  },
+  "keywords": [
+    "flutter",
+    "tauri",
+    "rust",
+    "react",
+    "axum",
+    "uar",
+    "a2ui",
+    "ag-ui",
+    "agentic-applications"
+  ],
+  "categories": [
+    "architecture",
+    "scaffolding",
+    "mobile",
+    "desktop",
+    "web",
+    "ai-agent"
+  ],
+  "commands": [
+    {
+      "name": "new",
+      "description": "Create a validated project in an empty destination",
+      "executable": "knowme-builder"
+    },
+    {
+      "name": "adopt",
+      "description": "Adopt an evolved application without re-scaffolding it",
+      "executable": "knowme-builder"
+    },
+    {
+      "name": "upgrade",
+      "description": "Upgrade Builder-owned files with ownership-aware conflict handling",
+      "executable": "knowme-builder"
+    },
+    {
+      "name": "add",
+      "description": "Add a typed feature, auth surface, module, or legacy embed",
+      "executable": "knowme-builder"
+    },
+    {
+      "name": "skills",
+      "description": "Install or check pinned Builder skills",
+      "executable": "knowme-builder"
+    },
+    {
+      "name": "audit",
+      "description": "Audit a project against its selected Builder profile",
+      "executable": "knowme-builder"
+    },
+    {
+      "name": "doctor",
+      "description": "Check Builder, UAR, Prometheus, and harness compatibility",
+      "executable": "knowme-builder"
+    },
+    {
+      "name": "manifest",
+      "description": "Generate or verify canonical package manifests",
+      "executable": "knowme-builder"
+    }
+  ],
+  "resources": [
+    {
+      "name": "Architecture Reference",
+      "path": "references/arch-standard.md",
+      "type": "reference"
+    },
+    {
+      "name": "Prometheus Contract",
+      "path": "./compatibility/prometheus-control-plane.json",
+      "type": "contract"
+    },
+    {
+      "name": "UAR Contract",
+      "path": "./compatibility/uar-runtime.json",
+      "type": "contract"
+    }
+  ],
+  "templates": [
+    {
+      "name": "flutter-feature",
+      "path": "assets/templates/flutter-feature"
+    },
+    {
+      "name": "tauri-feature",
+      "path": "assets/templates/tauri-feature"
+    },
+    {
+      "name": "rust-core",
+      "path": "assets/templates/rust-core"
+    },
+    {
+      "name": "rust-adapters",
+      "path": "assets/templates/rust"
+    },
+    {
+      "name": "native-bridges",
+      "path": "assets/templates/native"
+    },
+    {
+      "name": "build-scripts",
+      "path": "assets/templates/scripts"
+    },
+    {
+      "name": "profile-projects",
+      "path": "assets/templates/profiles"
+    },
+    {
+      "name": "runnable-baselines",
+      "path": "assets/templates/baselines"
+    },
+    {
+      "name": "command-contract",
+      "path": "assets/templates/command-contract"
+    },
+    {
+      "name": "capability-additions",
+      "path": "assets/templates/add"
+    }
+  ],
+  "profiles": [
+    "sovereign-hybrid",
+    "governed-web-shell",
+    "flutter-mobile",
+    "tauri-desktop",
+    "axum-web"
+  ],
+  "harnesses": [
+    "claude-code",
+    "codex",
+    "opencode",
+    "kimi-code",
+    "minimax-code",
+    "zed"
+  ]
+}

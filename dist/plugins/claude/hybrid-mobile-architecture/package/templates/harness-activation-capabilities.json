@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "lifecycleAuthority": "prometheus",
+  "mutationAuthority": "prometheus-kbd",
+  "adapters": {
+    "claude-code": {
+      "discovery": "native-agent-skills",
+      "activationAid": "user-prompt-submit",
+      "lifecycleHooks": "prometheus-capability-manifest"
+    },
+    "codex": {
+      "discovery": "native-agent-skills",
+      "activationAid": "native-description-routing",
+      "lifecycleHooks": "prometheus-capability-manifest"
+    },
+    "opencode": {
+      "discovery": "native-agent-skills",
+      "activationAid": "plugin-prompt-event",
+      "lifecycleHooks": "prometheus-capability-manifest"
+    },
+    "kimi-code": {
+      "discovery": "native-agent-skills",
+      "activationAid": "prompt-hook",
+      "lifecycleHooks": "prometheus-capability-manifest"
+    }
+  }
+}

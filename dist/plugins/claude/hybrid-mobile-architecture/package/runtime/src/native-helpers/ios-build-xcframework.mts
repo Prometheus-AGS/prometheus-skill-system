@@ -1,0 +1,23 @@
+import { cpSync, mkdirSync, rmSync } from 'node:fs';
+import { dirname, join, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { assert, main, run } from './common.mjs';
+await main(() => {
+  assert(process.platform === 'darwin', 'iOS XCFramework builds require macOS with Xcode; Windows/Linux hosts cannot produce this artifact', 69);
+  const profile = process.argv[2] ?? 'release';
+  assert(['release', 'debug'].includes(profile), 'profile must be release or debug', 64);
+  const root = resolve(dirname(fileURLToPath(import.meta.url)), '../..'), rust = join(root, 'rust'), build = join(root, 'scripts/ios/build');
+  const target = process.env.CARGO_TARGET_DIR ? resolve(rust, process.env.CARGO_TARGET_DIR) : join(rust, 'target');
+  mkdirSync(build, { recursive: true });
+  for (const triple of ['aarch64-apple-ios', 'aarch64-apple-ios-sim', 'x86_64-apple-ios']) run('cargo', ['build', '--manifest-path', join(rust, 'Cargo.toml'), '--target', triple, ...(profile === 'release' ? ['--release'] : [])], { cwd: rust });
+  const fat = join(build, 'libgen_ui_core_sim.a');
+  run('lipo', ['-create', join(target, 'aarch64-apple-ios-sim', profile, 'libgen_ui_core.a'), join(target, 'x86_64-apple-ios', profile, 'libgen_ui_core.a'), '-output', fat]);
+  const xc = join(build, 'GenUICore.xcframework');
+  rmSync(xc, { recursive: true, force: true });
+  run('xcodebuild', ['-create-xcframework', '-library', join(target, 'aarch64-apple-ios', profile, 'libgen_ui_core.a'), '-library', fat, '-output', xc]);
+  const destination = join(root, 'mobile/ios/Frameworks/GenUICore.xcframework');
+  mkdirSync(dirname(destination), { recursive: true });
+  rmSync(destination, { recursive: true, force: true });
+  cpSync(xc, destination, { recursive: true });
+  console.log('✓ XCFramework → mobile/ios/Frameworks/');
+});

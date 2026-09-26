@@ -1,0 +1,9 @@
+# Generated from the command manifest; do not edit.
+[[permission]]
+identifier = "uar:run"
+
+[[permission]]
+identifier = "uar:cancel"
+
+[[permission]]
+identifier = "uar:read"

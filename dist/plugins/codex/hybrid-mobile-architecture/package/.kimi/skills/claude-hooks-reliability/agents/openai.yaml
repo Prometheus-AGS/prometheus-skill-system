@@ -1,0 +1,4 @@
+interface:
+  display_name: "Claude Hooks Reliability"
+  short_description: "Diagnose, fix, and prevent silent hook failures in the agent hook chain"
+  default_prompt: "Use $claude-hooks-reliability to apply its contract to this task and verify the required evidence."

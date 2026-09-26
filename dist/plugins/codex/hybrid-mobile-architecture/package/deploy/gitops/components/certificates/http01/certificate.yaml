@@ -1,0 +1,7 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata: {name: knowme-web, namespace: knowme}
+spec:
+  secretName: knowme-web-tls
+  issuerRef: {name: letsencrypt-production, kind: ClusterIssuer}
+  dnsNames: [knowme.example.com]

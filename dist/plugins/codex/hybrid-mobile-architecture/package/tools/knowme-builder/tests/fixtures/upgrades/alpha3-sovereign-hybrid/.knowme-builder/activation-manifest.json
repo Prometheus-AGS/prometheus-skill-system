@@ -1,0 +1,729 @@
+{
+  "schemaVersion": 1,
+  "packageVersion": "2.0.0-alpha.3",
+  "generatedFrom": "builder.manifest.json",
+  "harnesses": [
+    "claude-code",
+    "codex",
+    "opencode",
+    "kimi-code"
+  ],
+  "skills": [
+    {
+      "name": "a11y-gate",
+      "description": "ALWAYS invoke when building or changing UI on ANY surface (React/Tauri or Flutter), before calling it done — run the cross-surface WCAG 2.2 AA checklist. A PostToolUse hook flags UI edits that skipped this gate. Triggers on accessibility, a11y, WCAG, screen reader, keyboard navigation, focus, aria, Semantics, contrast, alt text, reduced motion, tab order, accessible name, focus trap.",
+      "terms": [
+        "a11y gate",
+        "accessibility",
+        "a11y",
+        "wcag",
+        "screen reader",
+        "keyboard navigation",
+        "focus",
+        "aria",
+        "semantics",
+        "contrast",
+        "alt text",
+        "reduced motion",
+        "tab order",
+        "accessible name",
+        "focus trap"
+      ],
+      "explicitInvocation": "/a11y-gate",
+      "canonicalPath": "skills/a11y-gate"
+    },
+    {
+      "name": "build-branded-docusaurus",
+      "description": "Scaffold, brand, sanitize, and verify a Docusaurus documentation portal for a Prometheus project. Use when creating project docs, a public documentation site, GitHub Pages, local search, Mermaid diagrams, or a docs container.",
+      "terms": [
+        "build branded docusaurus"
+      ],
+      "explicitInvocation": "/build-branded-docusaurus",
+      "canonicalPath": "skills/build-branded-docusaurus"
+    },
+    {
+      "name": "client-rag",
+      "description": "ALWAYS invoke when adding vector search, embeddings, semantic recall, or retrieval-augmented context to any surface — searching chat history, giving client-side agents memory over conversations, \"search my notes\", similarity, or wiring pgvector/sqlite-vec. Retrieval runs ENTIRELY on-device (client RAG, not cloud RAG); embeddings are 384-dim everywhere; vault-class data indexes separately and never lands in synced tables. Triggers on RAG, retrieval, vector, embedding, embed, semantic search, similarity, pgvector, sqlite-vec, HNSW, fastembed, search chat history, search conversations, agent memory, recall, context window assembly, knowledge base, BM25, hybrid search, rerank.",
+      "terms": [
+        "client rag",
+        "rag",
+        "retrieval",
+        "vector",
+        "embedding",
+        "embed",
+        "semantic search",
+        "similarity",
+        "pgvector",
+        "sqlite-vec",
+        "hnsw",
+        "fastembed",
+        "search chat history",
+        "search conversations",
+        "agent memory",
+        "recall",
+        "context window assembly",
+        "knowledge base",
+        "bm25",
+        "hybrid search",
+        "rerank"
+      ],
+      "explicitInvocation": "/client-rag",
+      "canonicalPath": "skills/client-rag"
+    },
+    {
+      "name": "content-block-ui",
+      "description": "ALWAYS invoke when rendering, adding, or editing a ContentBlock variant on ANY surface (Flutter widget, React component) — the 11-variant Rust↔UI contract, per-variant rendering conventions, and the exhaustiveness rule. Triggers on ContentBlock, content block, chat message rendering, streaming block, A2UI event, text/thinking/code/citation/memory/toolUse/toolResult/skill/artifact/image/divider block, adding a new block type.",
+      "terms": [
+        "content block ui",
+        "contentblock",
+        "content block",
+        "chat message rendering",
+        "streaming block",
+        "a2ui event",
+        "adding a new block type"
+      ],
+      "explicitInvocation": "/content-block-ui",
+      "canonicalPath": "skills/content-block-ui"
+    },
+    {
+      "name": "dependency-pin-discipline",
+      "description": "ALWAYS invoke before adding, bumping, or unpinning a dependency in ANY manifest (pubspec.yaml, package.json, Cargo.toml, build.gradle) or before writing a version literal into a script or template — pins are EXACT, the rationale comment is the real artifact, and versions.toml is the only source. Also invoke when a codegen/analyzer version conflict appears, or when a dependency resolves differently than expected. Triggers on dependency, version, pin, bump, upgrade, caret range, pubspec, package.json, Cargo.toml, versions.toml, lockfile, analyzer conflict, build_runner, freezed, riverpod_generator, json_serializable, peer dependency, resolution failure, version solving failed, transitive dependency.",
+      "terms": [
+        "dependency pin discipline",
+        "dependency",
+        "version",
+        "pin",
+        "bump",
+        "upgrade",
+        "caret range",
+        "pubspec",
+        "package.json",
+        "cargo.toml",
+        "versions.toml",
+        "lockfile",
+        "analyzer conflict",
+        "build_runner",
+        "freezed",
+        "riverpod_generator",
+        "json_serializable",
+        "peer dependency",
+        "resolution failure",
+        "version solving failed",
+        "transitive dependency"
+      ],
+      "explicitInvocation": "/dependency-pin-discipline",
+      "canonicalPath": "skills/dependency-pin-discipline"
+    },
+    {
+      "name": "deploy-hybrid-agentic-stack",
+      "description": "Plan, scaffold, configure, and verify a full hybrid agentic application spanning React web, Tauri desktop, Flutter mobile, a shared Rust host, Axum, Flint Forge/Fabric/Gate, optional Ory Kratos, and local or BYOK LLMs. Use when adding web deployment, realtime sync, cloud inference, authentication, Docker Compose, Kubernetes, or full-stack deployment options to a TJ-ARCH-MOB-001 project.",
+      "terms": [
+        "deploy hybrid agentic stack"
+      ],
+      "explicitInvocation": "/deploy-hybrid-agentic-stack",
+      "canonicalPath": "skills/deploy-hybrid-agentic-stack"
+    },
+    {
+      "name": "flutter-golden-ui",
+      "description": "ALWAYS invoke after building or changing any Flutter widget/screen, before calling it done — scaffold a golden test for it and verify with the Dart & Flutter MCP hot-reload/widget-inspector loop. Triggers on Flutter widget, Flutter screen, golden test, golden file, widget test, visual regression, shadcn_flutter, ConsumerWidget, Flutter UI, mobile UI, pump widget, matchesGoldenFile.",
+      "terms": [
+        "flutter golden ui",
+        "flutter widget",
+        "flutter screen",
+        "golden test",
+        "golden file",
+        "widget test",
+        "visual regression",
+        "shadcn_flutter",
+        "consumerwidget",
+        "flutter ui",
+        "mobile ui",
+        "pump widget",
+        "matchesgoldenfile"
+      ],
+      "explicitInvocation": "/flutter-golden-ui",
+      "canonicalPath": "skills/flutter-golden-ui"
+    },
+    {
+      "name": "hybrid-design-tokens",
+      "description": "ALWAYS invoke before writing any color, spacing, typography, radius, or theme value on ANY surface (Tailwind config, shadcn CSS vars, shadcn_flutter ThemeData, Dart theme). One token source feeds both the React/Tailwind theme AND the Flutter theme. Triggers on design token, theme, palette, color, spacing, typography, dark mode, light mode, Tailwind config, shadcn theme, CSS variable, ThemeData, brand color, theme-factory.",
+      "terms": [
+        "hybrid design tokens",
+        "design token",
+        "theme",
+        "palette",
+        "color",
+        "spacing",
+        "typography",
+        "dark mode",
+        "light mode",
+        "tailwind config",
+        "shadcn theme",
+        "css variable",
+        "themedata",
+        "brand color",
+        "theme-factory"
+      ],
+      "explicitInvocation": "/hybrid-design-tokens",
+      "canonicalPath": "skills/hybrid-design-tokens"
+    },
+    {
+      "name": "hybrid-runtime-verification",
+      "description": "ALWAYS invoke before calling any Flutter, Tauri, React, Rust, web, desktop, or mobile application or change working, complete, done, ready, shippable, or verified — \"working\" is a runtime claim, and compiling is not evidence. Local-inference lanes in particular pass every host check and then fail at model load on a real device, so a baseline or engine change needs a PHYSICAL-device run recorded in docs/platform-support.md. Triggers on working, it works, complete, done, ready, shippable, verified, ship it, tested, launch, smoke test, release build, production build, clean checkout, device verification, physical device, on-device, emulator, simulator, does it run.",
+      "terms": [
+        "hybrid runtime verification",
+        "working",
+        "it works",
+        "complete",
+        "done",
+        "ready",
+        "shippable",
+        "verified",
+        "ship it",
+        "tested",
+        "launch",
+        "smoke test",
+        "release build",
+        "production build",
+        "clean checkout",
+        "device verification",
+        "physical device",
+        "on-device",
+        "emulator",
+        "simulator",
+        "does it run"
+      ],
+      "explicitInvocation": "/hybrid-runtime-verification",
+      "canonicalPath": "skills/hybrid-runtime-verification"
+    },
+    {
+      "name": "karpathy-progress-memory",
+      "description": "Capture compact, evidence-backed Karpathy-style progress records and reusable lessons in both the committed project Prometheus wiki and a private per-project superset. Use at task and phase boundaries, after verification discoveries, when plans change, or before handoff, commit, and push.",
+      "terms": [
+        "karpathy progress memory"
+      ],
+      "explicitInvocation": "/karpathy-progress-memory",
+      "canonicalPath": "skills/karpathy-progress-memory"
+    },
+    {
+      "name": "local-inference-lanes",
+      "description": "ALWAYS invoke before adding, selecting, or debugging a local/on-device inference engine, or before writing any code that picks where a chat turn runs — the engine is a per-DEVICE choice (Android LiteRT-LM, iOS/macOS MLX, desktop llama.cpp, web WebLLM), never one \"mobile\" engine, and lanes are cloud/local/uar. Also invoke before writing model download, model verification, or RAM-budget code. Triggers on local inference, on-device model, LiteRT-LM, litertlm, MLX, mlx-swift, mlex, llama.cpp, llama-cpp-2, GGUF, WebLLM, InferenceProvider, model catalog, model download, model manifest, quantization, Q4_K_M, lane, cloud lane, local lane, uar lane, jetsam, OOM on model load, engine selection, BYOK.",
+      "terms": [
+        "local inference lanes",
+        "local inference",
+        "on-device model",
+        "litert-lm",
+        "litertlm",
+        "mlx",
+        "mlx-swift",
+        "mlex",
+        "llama.cpp",
+        "llama-cpp-2",
+        "gguf",
+        "webllm",
+        "inferenceprovider",
+        "model catalog",
+        "model download",
+        "model manifest",
+        "quantization",
+        "q4_k_m",
+        "lane",
+        "cloud lane",
+        "local lane",
+        "uar lane",
+        "jetsam",
+        "oom on model load",
+        "engine selection",
+        "byok"
+      ],
+      "explicitInvocation": "/local-inference-lanes",
+      "canonicalPath": "skills/local-inference-lanes"
+    },
+    {
+      "name": "mobile-navigation",
+      "description": "ALWAYS invoke before adding, moving, or restyling top-level navigation on ANY surface (Flutter NavigationBar/TabBar, React/PWA nav, Tauri shell) — top-level destinations belong in a BOTTOM bar on both iOS and Android, and the switch to a rail is by WIDTH, never by platform. Also invoke before writing any Platform.isIOS / navigator.userAgent check in navigation code, because that check is wrong. Triggers on navigation, nav bar, navigation bar, bottom nav, tab bar, tabs, NavigationBar, NavigationRail, BottomNavigationBar, TabBar, rail, sidebar, app shell, destinations, GoRouter ShellRoute, TanStack Router layout, PWA navigation, mobile layout, responsive nav.",
+      "terms": [
+        "mobile navigation",
+        "navigation",
+        "nav bar",
+        "navigation bar",
+        "bottom nav",
+        "tab bar",
+        "tabs",
+        "navigationbar",
+        "navigationrail",
+        "bottomnavigationbar",
+        "tabbar",
+        "rail",
+        "sidebar",
+        "app shell",
+        "destinations",
+        "gorouter shellroute",
+        "tanstack router layout",
+        "pwa navigation",
+        "mobile layout",
+        "responsive nav"
+      ],
+      "explicitInvocation": "/mobile-navigation",
+      "canonicalPath": "skills/mobile-navigation"
+    },
+    {
+      "name": "orchestrate-prometheus-application",
+      "description": "Classify and orchestrate Prometheus application work across hybrid, mobile-only, desktop, automation, SaaS, agent-client, ideation, native-agent, deployment, and documentation scenarios. Use when planning or prompting a multi-phase product build, selecting models or harnesses, running KBD/Feynman/Karpathy loops, or generating missing skills and agents.",
+      "terms": [
+        "orchestrate prometheus application"
+      ],
+      "explicitInvocation": "/orchestrate-prometheus-application",
+      "canonicalPath": "skills/orchestrate-prometheus-application"
+    },
+    {
+      "name": "peer-profile-sync",
+      "description": "ALWAYS invoke when handling user profile data, sensitive personal data, agent-learned facts about the user, device pairing, or any data marked never-leave-the-user — it belongs in the Loro profile vault, synced ONLY device-to-device (including browser instances) over WebRTC with CRDT convergence, structurally excluded from every server sync path. Also invoke before adding ANY cloud persistence of personal context. Triggers on profile, personal data, sensitive data, PII, vault, privacy, private data, device sync, device-to-device, peer sync, WebRTC, DataChannel, pairing, pair device, multi-device, CRDT, Loro, version vector, never store, local only, e2e, agent memory about user, personalization data.",
+      "terms": [
+        "peer profile sync",
+        "profile",
+        "personal data",
+        "sensitive data",
+        "pii",
+        "vault",
+        "privacy",
+        "private data",
+        "device sync",
+        "device-to-device",
+        "peer sync",
+        "webrtc",
+        "datachannel",
+        "pairing",
+        "pair device",
+        "multi-device",
+        "crdt",
+        "loro",
+        "version vector",
+        "never store",
+        "local only",
+        "e2e",
+        "agent memory about user",
+        "personalization data"
+      ],
+      "explicitInvocation": "/peer-profile-sync",
+      "canonicalPath": "skills/peer-profile-sync"
+    },
+    {
+      "name": "pem-local-first",
+      "description": "ALWAYS invoke when wiring client entity/server state on any surface — adding an entity type, registering a transport, persisting conversations, hydrating from PGlite/pglite-oxide/SQLite, showing optimistic writes, or whenever TanStack Query/SWR/Apollo-cache is about to be suggested (it is prohibited — Prometheus Entity Management 3.x owns this layer). Triggers on entity, entities, PEM, prometheus-entity-management, entity transport, registerEntityTransport, useEntities, entity graph, TanStack Query, react-query, SWR, query cache, stale-while-revalidate, optimistic update, PGlite, pglite-oxide, persistence adapter, durable conversation, conversation store, hydrate, normalized state.",
+      "terms": [
+        "pem local first",
+        "entity",
+        "entities",
+        "pem",
+        "prometheus-entity-management",
+        "entity transport",
+        "registerentitytransport",
+        "useentities",
+        "entity graph",
+        "tanstack query",
+        "react-query",
+        "swr",
+        "query cache",
+        "stale-while-revalidate",
+        "optimistic update",
+        "pglite",
+        "pglite-oxide",
+        "persistence adapter",
+        "durable conversation",
+        "conversation store",
+        "hydrate",
+        "normalized state"
+      ],
+      "explicitInvocation": "/pem-local-first",
+      "canonicalPath": "skills/pem-local-first"
+    },
+    {
+      "name": "reference-ui-fidelity",
+      "description": "ALWAYS invoke before implementing or materially changing a product UI when a specification, mood board, HTML prototype, screenshot, Figma/OpenDesign artifact, or reference application exists. Converts the reference into a complete screen/state inventory, treats it as a visual acceptance oracle, and requires screenshot evidence before completion. Triggers on reference app, reference UI, standalone HTML, prototype, mood board, screenshot, attached image, match this design, visual fidelity, pixel parity, redesign, product shell, all screens, design spec.",
+      "terms": [
+        "reference ui fidelity",
+        "reference app",
+        "reference ui",
+        "standalone html",
+        "prototype",
+        "mood board",
+        "screenshot",
+        "attached image",
+        "match this design",
+        "visual fidelity",
+        "pixel parity",
+        "redesign",
+        "product shell",
+        "all screens",
+        "design spec"
+      ],
+      "explicitInvocation": "/reference-ui-fidelity",
+      "canonicalPath": "skills/reference-ui-fidelity"
+    },
+    {
+      "name": "sync-doctrine",
+      "description": "ALWAYS invoke before ANY sync, replication, realtime, offline, or local-first work on any surface — choosing what data syncs, adding a synced table, wiring a subscription, designing onboarding data loads, or touching the write queue. The device NEVER mirrors the server database; every datum belongs to exactly one lane (server-authoritative relational, CRDT doc, or append-only log) and one privacy class, and getting the lane wrong is the root cause of most sync defects. Triggers on sync, replication, offline, local-first, realtime, subscription, write queue, offline write, conflict, LWW, CRDT, bucket, shape, scope, lookup data, reference data, metatype, seed data, onboarding load, initial load, hydration, boot order, sync status, SyncChip, ElectricSQL, PES, FRF, sync engine.",
+      "terms": [
+        "sync doctrine",
+        "sync",
+        "replication",
+        "offline",
+        "local-first",
+        "realtime",
+        "subscription",
+        "write queue",
+        "offline write",
+        "conflict",
+        "lww",
+        "crdt",
+        "bucket",
+        "shape",
+        "scope",
+        "lookup data",
+        "reference data",
+        "metatype",
+        "seed data",
+        "onboarding load",
+        "initial load",
+        "hydration",
+        "boot order",
+        "sync status",
+        "syncchip",
+        "electricsql",
+        "pes",
+        "frf",
+        "sync engine"
+      ],
+      "explicitInvocation": "/sync-doctrine",
+      "canonicalPath": "skills/sync-doctrine"
+    },
+    {
+      "name": "tauri-custom-titlebar",
+      "description": "ALWAYS invoke when building, styling, or debugging a Tauri desktop window frame — replacing the OS title bar with a branded one, adding minimize/maximize/close controls, or making a header draggable. Also invoke before putting ANY title bar in a web or mobile build, because the desktop one does not belong there. Triggers on titlebar, title bar, window chrome, window decorations, decorations false, startDragging, data-tauri-drag-region, traffic lights, window controls, minimize maximize close, frameless window, custom header, drag region.",
+      "terms": [
+        "tauri custom titlebar",
+        "titlebar",
+        "title bar",
+        "window chrome",
+        "window decorations",
+        "decorations false",
+        "startdragging",
+        "data-tauri-drag-region",
+        "traffic lights",
+        "window controls",
+        "minimize maximize close",
+        "frameless window",
+        "custom header",
+        "drag region"
+      ],
+      "explicitInvocation": "/tauri-custom-titlebar",
+      "canonicalPath": "skills/tauri-custom-titlebar"
+    },
+    {
+      "name": "tauri-ui-review",
+      "description": "ALWAYS invoke after building or changing any React/Tauri UI surface, before calling it done — run the screenshot-driven review loop at 320/768/1024/1440 in both themes and check against the design-quality bar. Triggers on Tauri UI, desktop UI, React component, screen, page, layout, responsive, breakpoint, screenshot review, visual check, does it look right, UI review, web UI.",
+      "terms": [
+        "tauri ui review",
+        "tauri ui",
+        "desktop ui",
+        "react component",
+        "screen",
+        "page",
+        "layout",
+        "responsive",
+        "breakpoint",
+        "screenshot review",
+        "visual check",
+        "does it look right",
+        "ui review",
+        "web ui"
+      ],
+      "explicitInvocation": "/tauri-ui-review",
+      "canonicalPath": "skills/tauri-ui-review"
+    },
+    {
+      "name": "entity-graph-web-shell",
+      "description": "Design or review a React web shell whose normalized application state is owned by Prometheus Entity Management, with components reading through hooks and an Axum boundary owning remote effects. Use for entity graphs, PEM transports, PGlite projections, web-shell layering, or normalized cross-view updates.",
+      "terms": [
+        "entity graph web shell",
+        "entity graphs",
+        "pem transports",
+        "pglite projections",
+        "web-shell layering",
+        "or normalized cross-view updates"
+      ],
+      "explicitInvocation": "/entity-graph-web-shell",
+      "canonicalPath": "skills/entity-graph-web-shell"
+    },
+    {
+      "name": "mini-app-module",
+      "description": "Add or review a self-contained mini-application module inside a governed web shell. Use for route modules, feature manifests, capability declarations, navigation registration, module policy, lazy loading, or independently testable applets.",
+      "terms": [
+        "mini app module",
+        "route modules",
+        "feature manifests",
+        "capability declarations",
+        "navigation registration",
+        "module policy",
+        "lazy loading",
+        "or independently testable applets"
+      ],
+      "explicitInvocation": "/mini-app-module",
+      "canonicalPath": "skills/mini-app-module"
+    },
+    {
+      "name": "axum-agent-gateway",
+      "description": "Implement or audit an Axum boundary between an application and Universal Agent Runtime. Use for agent HTTP or SSE routes, verified identity, tenant derivation, Cedar authorization, cancellation, idempotency, event streaming, or UAR service integration.",
+      "terms": [
+        "axum agent gateway",
+        "agent http",
+        "sse routes",
+        "verified identity",
+        "tenant derivation",
+        "cedar authorization",
+        "cancellation",
+        "idempotency",
+        "event streaming",
+        "or uar service integration"
+      ],
+      "explicitInvocation": "/axum-agent-gateway",
+      "canonicalPath": "skills/axum-agent-gateway"
+    },
+    {
+      "name": "legacy-app-embed",
+      "description": "Embed a frozen or independently deployed legacy application inside a governed shell through a versioned bridge. Use for iframe integration, postMessage protocols, origin validation, correlation IDs, compatibility negotiation, or frozen-substrate constraints.",
+      "terms": [
+        "legacy app embed",
+        "iframe integration",
+        "postmessage protocols",
+        "origin validation",
+        "correlation ids",
+        "compatibility negotiation",
+        "or frozen-substrate constraints"
+      ],
+      "explicitInvocation": "/legacy-app-embed",
+      "canonicalPath": "skills/legacy-app-embed"
+    },
+    {
+      "name": "a2ui-surface-contract",
+      "description": "Implement or review A2UI-driven surfaces that render governed agent output as typed projections. Use for A2UI components, action continuation, dynamic forms, generated UI state, approval surfaces, or cross-platform rendering parity.",
+      "terms": [
+        "a2ui surface contract",
+        "a2ui components",
+        "action continuation",
+        "dynamic forms",
+        "generated ui state",
+        "approval surfaces",
+        "or cross-platform rendering parity"
+      ],
+      "explicitInvocation": "/a2ui-surface-contract",
+      "canonicalPath": "skills/a2ui-surface-contract"
+    },
+    {
+      "name": "agui-event-contract",
+      "description": "Define or audit the AG-UI event stream between Universal Agent Runtime and application clients. Use for agent event envelopes, SSE resume, run correlation, tool approval state, cancellation, event persistence, or unknown-event compatibility.",
+      "terms": [
+        "agui event contract",
+        "agent event envelopes",
+        "sse resume",
+        "run correlation",
+        "tool approval state",
+        "cancellation",
+        "event persistence",
+        "or unknown-event compatibility"
+      ],
+      "explicitInvocation": "/agui-event-contract",
+      "canonicalPath": "skills/agui-event-contract"
+    },
+    {
+      "name": "agent-runtime-security",
+      "description": "Enforce the security boundary around Universal Agent Runtime and governed tool execution. Use for MCP tools, approvals, effect classification, policy checks, agent budgets, JWT/JWKS identity, tenant isolation, audit logs, or cancellation.",
+      "terms": [
+        "agent runtime security",
+        "mcp tools",
+        "approvals",
+        "effect classification",
+        "policy checks",
+        "agent budgets",
+        "jwt/jwks identity",
+        "tenant isolation",
+        "audit logs",
+        "or cancellation"
+      ],
+      "explicitInvocation": "/agent-runtime-security",
+      "canonicalPath": "skills/agent-runtime-security"
+    },
+    {
+      "name": "anonymized-replica",
+      "description": "Build or audit an anonymized, reproducible data replica for development, proof-of-concept, or certification. Use for POC datasets, production-shape fixtures, de-identification, referential integrity, synthetic data, or privacy-preserving test environments.",
+      "terms": [
+        "anonymized replica",
+        "poc datasets",
+        "production-shape fixtures",
+        "de-identification",
+        "referential integrity",
+        "synthetic data",
+        "or privacy-preserving test environments"
+      ],
+      "explicitInvocation": "/anonymized-replica",
+      "canonicalPath": "skills/anonymized-replica"
+    },
+    {
+      "name": "persona-scoped-agent",
+      "description": "Design or audit an agent whose prompts, tools, retrieval, and actions are constrained by a verified persona and project policy. Use for role-aware agents, assistant modes, capability sets, human release gates, or persona-specific context.",
+      "terms": [
+        "persona scoped agent",
+        "role-aware agents",
+        "assistant modes",
+        "capability sets",
+        "human release gates",
+        "or persona-specific context"
+      ],
+      "explicitInvocation": "/persona-scoped-agent",
+      "canonicalPath": "skills/persona-scoped-agent"
+    },
+    {
+      "name": "domain-glossary-service",
+      "description": "Implement or audit a versioned domain glossary used by applications and agents to normalize terms without leaking client-specific data into reusable packages. Use for canonical terms, synonyms, entity mappings, policy vocabulary, or terminology-driven retrieval.",
+      "terms": [
+        "domain glossary service",
+        "canonical terms",
+        "synonyms",
+        "entity mappings",
+        "policy vocabulary",
+        "or terminology-driven retrieval"
+      ],
+      "explicitInvocation": "/domain-glossary-service",
+      "canonicalPath": "skills/domain-glossary-service"
+    },
+    {
+      "name": "connected-skill-packages",
+      "description": "Install, upgrade, validate, or remove a git-based agent skill package marketplace consumed by the Prometheus Companion. Use when extending the substrate with third-party skill packages, pairing a new device, shipping a package that must be installable, or recovering from a broken marketplace. Triggers on skill package, marketplace, marketplace.json, plugin install, plugin upgrade, plugin remove, connected skill, install contract, hybrid-mobile-architecture, knowme-builder, plugin marketplace add, skill bundle, additional skills.",
+      "terms": [
+        "connected skill packages",
+        "skill package",
+        "marketplace",
+        "marketplace.json",
+        "plugin install",
+        "plugin upgrade",
+        "plugin remove",
+        "connected skill",
+        "install contract",
+        "hybrid-mobile-architecture",
+        "knowme-builder",
+        "plugin marketplace add",
+        "skill bundle",
+        "additional skills"
+      ],
+      "explicitInvocation": "/connected-skill-packages",
+      "canonicalPath": "skills/connected-skill-packages"
+    },
+    {
+      "name": "tauri-tray-app",
+      "description": "Build a tray-resident Tauri 2 desktop application with a health-driven tray icon, a transient popover for at-a-glance status, and a frameless dashboard window with a custom title bar. Use when scaffolding a fleet operator console, a substrate supervisor, or any app that lives in the menu bar and watches background services rather than owning a dock icon. Triggers on tray app, system tray, menu bar app, LSUIElement, accessory activation policy, popover, health aggregator, frameless window, Tauri 2 tray, TrayIconBuilder, tray icon state.",
+      "terms": [
+        "tauri tray app",
+        "tray app",
+        "system tray",
+        "menu bar app",
+        "lsuielement",
+        "accessory activation policy",
+        "popover",
+        "health aggregator",
+        "frameless window",
+        "tauri 2 tray",
+        "trayiconbuilder",
+        "tray icon state"
+      ],
+      "explicitInvocation": "/tauri-tray-app",
+      "canonicalPath": "skills/tauri-tray-app"
+    },
+    {
+      "name": "launchagent-supervisor",
+      "description": "Author, install, and supervise a macOS LaunchAgent, a Linux systemd --user unit, or a Windows Scheduled Task for a long-running managed daemon. Use when adding a service to the substrate, when a service is crash-looping or silently disappearing, or when asked for auto-restart, self-healing, or a watchdog. Triggers on LaunchAgent, plist, launchd, launchctl, KeepAlive, ThrottleInterval, ProcessType, RunAtLoad, daemon, supervisor, self-healing, restart loop, watchdog, systemd user unit, scheduled task.",
+      "terms": [
+        "launchagent supervisor",
+        "launchagent",
+        "plist",
+        "launchd",
+        "launchctl",
+        "keepalive",
+        "throttleinterval",
+        "processtype",
+        "runatload",
+        "daemon",
+        "supervisor",
+        "self-healing",
+        "restart loop",
+        "watchdog",
+        "systemd user unit",
+        "scheduled task"
+      ],
+      "explicitInvocation": "/launchagent-supervisor",
+      "canonicalPath": "skills/launchagent-supervisor"
+    },
+    {
+      "name": "realtime-skill-refiner",
+      "description": "Reactively detect, triage, refine, verify, and ship a fix for a bug in an installed skill package, driven by a real observed failure rather than a proactive review. Use when a skill produces wrong answers, fires on the wrong prompts, fails to fire at all, or is flagged by a log monitor or sycophancy check. Triggers on skill bug, skill failing, fix skill, patch skill, refine skill, realtime correction, skill regression, wrong skill fired, skill did not fire, sycophancy, bug ticket.",
+      "terms": [
+        "realtime skill refiner",
+        "skill bug",
+        "skill failing",
+        "fix skill",
+        "patch skill",
+        "refine skill",
+        "realtime correction",
+        "skill regression",
+        "wrong skill fired",
+        "skill did not fire",
+        "sycophancy",
+        "bug ticket"
+      ],
+      "explicitInvocation": "/realtime-skill-refiner",
+      "canonicalPath": "skills/realtime-skill-refiner"
+    },
+    {
+      "name": "claude-hooks-reliability",
+      "description": "Diagnose, fix, and prevent silent hook failures in the agent hook chain. Use when a hook is not firing, when a skill did not trigger, when a matcher is too narrow or too broad, when a hook runner leaks processes, or when hook stdout corrupts a tool decision. Triggers on hook not firing, hook unreliable, matcher issue, hook timeout, PostToolUse, SessionStart, UserPromptSubmit, SubagentStop, hook bundle, hook runtime, hook script, dispatcher hash, hooks.json, settings.json hooks.",
+      "terms": [
+        "claude hooks reliability",
+        "hook not firing",
+        "hook unreliable",
+        "matcher issue",
+        "hook timeout",
+        "posttooluse",
+        "sessionstart",
+        "userpromptsubmit",
+        "subagentstop",
+        "hook bundle",
+        "hook runtime",
+        "hook script",
+        "dispatcher hash",
+        "hooks.json",
+        "settings.json hooks"
+      ],
+      "explicitInvocation": "/claude-hooks-reliability",
+      "canonicalPath": "skills/claude-hooks-reliability"
+    },
+    {
+      "name": "auto-skill-package-integration",
+      "description": "Auto-detect newly available skill packages from a watched git remote or a watched local directory and bring them through a confirmed install, instead of installing each one by hand. Use when an organization ships skills from a shared folder or feed, when a marketplace should be polled for new releases, or when onboarding a device to a team's skill set. Triggers on auto install, watch directory, watch git, skill feed, marketplace feed, plugin marketplace add, organization skills, team skills, detected skill, new skill available.",
+      "terms": [
+        "auto skill package integration",
+        "auto install",
+        "watch directory",
+        "watch git",
+        "skill feed",
+        "marketplace feed",
+        "plugin marketplace add",
+        "organization skills",
+        "team skills",
+        "detected skill",
+        "new skill available"
+      ],
+      "explicitInvocation": "/auto-skill-package-integration",
+      "canonicalPath": "skills/auto-skill-package-integration"
+    }
+  ]
+}

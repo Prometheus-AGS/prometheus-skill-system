@@ -1,0 +1,11 @@
+node_modules/
+dist/
+build/
+target/
+.dart_tool/
+.flutter-plugins-dependencies
+local.properties
+*.sqlite3
+*.sqlite3-shm
+*.sqlite3-wal
+.DS_Store

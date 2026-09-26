@@ -1,0 +1,4 @@
+interface:
+  display_name: "Launchagent Supervisor"
+  short_description: "Author, install, and supervise a macOS LaunchAgent, a Linux systemd --user unit, or a Windows Sc"
+  default_prompt: "Use $launchagent-supervisor to apply its contract to this task and verify the required evidence."

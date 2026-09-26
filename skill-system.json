@@ -31,6 +31,10 @@
     ],
     "excludedImports": [
       {
+        "path": "plugins/hybrid-mobile-architecture",
+        "reason": "This complete plugin remains an adjacent package with its own Claude and Codex manifests; its skills must not be flattened into the Prometheus umbrella."
+      },
+      {
         "path": "skills/imported/prometheus-entity-management",
         "reason": "Its distributed skills are checked into skills/react/prometheus-entity-skills."
       },
@@ -41,6 +45,27 @@
     ]
   },
   "imports": [
+    {
+      "id": "hybrid-mobile-architecture",
+      "path": "plugins/hybrid-mobile-architecture",
+      "repository": "https://github.com/Know-Me-Tools/hybrid-mobile-architecture-skill.git",
+      "commit": "6b115ccc334f698d19f03592d2fd534fae5b89d7",
+      "requiredFor": ["skills", "full"],
+      "marketplace": true,
+      "distribution": {
+        "mode": "adjacent-plugin",
+        "version": "2.0.0-alpha.4",
+        "category": "development",
+        "variant": "full",
+        "stager": "scripts/stage-skill-package.mjs",
+        "claudeManifest": ".claude-plugin/plugin.json",
+        "codexManifest": ".codex-plugin/plugin.json",
+        "outputs": {
+          "claude": "dist/plugins/claude/hybrid-mobile-architecture",
+          "codex": "dist/plugins/codex/hybrid-mobile-architecture"
+        }
+      }
+    },
     {
       "id": "artifact-refiner",
       "path": "skills/imported/artifact-refiner",
@@ -83,7 +108,7 @@
       "id": "liter-llm",
       "path": "tools/liter-llm",
       "repository": "https://github.com/GQAdonis/liter-llm.git",
-      "commit": "3392482a2a1e14d114ee1115db3684334aaaa2cb",
+      "commit": "c5c6caac617eb931cd5009146a70831422ec236c",
       "requiredFor": ["full"]
     },
     {

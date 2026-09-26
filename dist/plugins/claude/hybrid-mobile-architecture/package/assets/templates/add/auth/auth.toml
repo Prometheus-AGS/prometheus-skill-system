@@ -1,0 +1,8 @@
+schemaVersion = 1
+id = "__APP_SLUG__"
+kind = "auth"
+profile = "__PROFILE__"
+trustedIdentity = "VerifiedSession"
+displayOnlyIdentity = "UntrustedTokenHints"
+clientVisibleServiceRoles = false
+tenantSource = "verified-session"

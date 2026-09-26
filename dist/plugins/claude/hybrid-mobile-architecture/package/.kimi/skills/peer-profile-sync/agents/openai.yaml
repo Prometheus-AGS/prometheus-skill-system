@@ -1,0 +1,4 @@
+interface:
+  display_name: "Peer Profile Sync"
+  short_description: "ALWAYS invoke when handling user profile data, sensitive personal data, agent-learned facts abou"
+  default_prompt: "Use $peer-profile-sync to apply its contract to this task and verify the required evidence."

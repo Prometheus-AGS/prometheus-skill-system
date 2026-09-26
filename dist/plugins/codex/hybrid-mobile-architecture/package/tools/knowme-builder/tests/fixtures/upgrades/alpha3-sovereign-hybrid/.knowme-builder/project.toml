@@ -1,0 +1,13 @@
+schemaVersion = 1
+profile = "sovereign-hybrid"
+builderVersion = "2.0.0-alpha.3"
+requiredPrometheusContract = "2.0.0"
+uarMode = "hybrid"
+enabledSurfaces = [
+    "flutter-mobile",
+    "tauri-desktop",
+    "rust-core",
+]
+generationMode = "runnable"
+policyOverlayPath = ".knowme-builder/policy-overlay.toml"
+unsupportedSurfaces = []

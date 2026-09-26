@@ -1,0 +1,12 @@
+{
+  "identifier": "notes-window",
+  "description": "Local note commands for the main window only",
+  "windows": [
+    "main"
+  ],
+  "permissions": [
+    "core:default",
+    "allow-list-notes",
+    "allow-create-note", "allow-list-capabilities"
+  ]
+}

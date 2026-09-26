@@ -1,0 +1,17 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Database
+metadata: {name: knowme, namespace: knowme}
+spec:
+  name: knowme
+  owner: app
+  cluster: {name: prometheus-postgres}
+  extensions:
+    - {name: flint_llm}
+    - {name: flint_vault}
+    - {name: flint_meta}
+    - {name: flint_auth}
+    - {name: flint_hooks}
+    - {name: pg_net}
+    - {name: pg_cron}
+    - {name: vector}
+    - {name: pgcrypto}

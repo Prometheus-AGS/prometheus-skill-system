@@ -1,0 +1,36 @@
+// TJ-ARCH-MOB-001 compliant
+// File: lib/features/__feature_name__/data/datasources/__feature_name___data_source.dart
+
+import '../../domain/entities/__feature_name___entity.dart';
+
+abstract interface class __FEATURE_NAME__DataSource {
+  Future<List<__FEATURE_NAME__Entity>> list();
+  Future<__FEATURE_NAME__Entity?> read(String id);
+  Future<__FEATURE_NAME__Entity> write(__FEATURE_NAME__Entity entity);
+  Future<void> remove(String id);
+}
+
+/// Runnable fixtures replace this with a typed FRB or governed HTTP adapter.
+final class InMemory__FEATURE_NAME__DataSource
+    implements __FEATURE_NAME__DataSource {
+  final Map<String, __FEATURE_NAME__Entity> _items =
+      <String, __FEATURE_NAME__Entity>{};
+
+  @override
+  Future<List<__FEATURE_NAME__Entity>> list() async =>
+      List<__FEATURE_NAME__Entity>.unmodifiable(_items.values);
+
+  @override
+  Future<__FEATURE_NAME__Entity?> read(String id) async => _items[id];
+
+  @override
+  Future<__FEATURE_NAME__Entity> write(__FEATURE_NAME__Entity entity) async {
+    _items[entity.id] = entity;
+    return entity;
+  }
+
+  @override
+  Future<void> remove(String id) async {
+    _items.remove(id);
+  }
+}

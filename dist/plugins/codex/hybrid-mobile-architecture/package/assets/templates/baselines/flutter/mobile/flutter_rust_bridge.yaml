@@ -1,0 +1,3 @@
+rust_input: crate::api
+rust_root: ../rust/gen_ui_ffi/
+dart_output: lib/bridge/generated

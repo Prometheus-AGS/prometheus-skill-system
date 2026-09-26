@@ -1,0 +1,14 @@
+schemaVersion = 1
+id = "__APP_SLUG__"
+kind = "feature"
+profile = "__PROFILE__"
+ownership = "builder"
+
+[layers]
+presentation = "hooks-and-components"
+domain = "interfaces-and-entities"
+data = "typed-adapters"
+
+[runtime]
+agentAuthority = "uar"
+controlPlane = "prometheus"

@@ -1,0 +1,8 @@
+schemaVersion = 1
+id = "__APP_SLUG__"
+kind = "mini-app-module"
+profile = "__PROFILE__"
+capabilities = []
+routes = []
+entityTypes = []
+policyActions = []

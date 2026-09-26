@@ -1,0 +1,97 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: knowme-web
+spec:
+  selector:
+    matchLabels: {app.kubernetes.io/name: knowme-web}
+  template:
+    metadata:
+      labels: {app.kubernetes.io/name: knowme-web}
+    spec:
+      serviceAccountName: knowme-runtime
+      securityContext: {runAsNonRoot: true, seccompProfile: {type: RuntimeDefault}}
+      containers:
+        - name: knowme-web
+          image: ghcr.io/prometheus-ags/knowme-web@sha256:0000000000000000000000000000000000000000000000000000000000000000
+          ports: [{name: http, containerPort: 8080}]
+          env:
+            - {name: KNOWME_BIND, value: "0.0.0.0:8080"}
+            - {name: DATABASE_URL_FILE, value: /var/run/secrets/knowme/database-url}
+          volumeMounts:
+            - {name: application-secrets, mountPath: /var/run/secrets/knowme, readOnly: true}
+          readinessProbe: {httpGet: {path: /api/v1/ready, port: http}, initialDelaySeconds: 10, periodSeconds: 5}
+          livenessProbe: {httpGet: {path: /api/v1/ready, port: http}, initialDelaySeconds: 30, periodSeconds: 10}
+          securityContext: {allowPrivilegeEscalation: false, readOnlyRootFilesystem: true, capabilities: {drop: [ALL]}}
+      volumes:
+        - name: application-secrets
+          csi: {driver: secrets-store.csi.k8s.io, readOnly: true, volumeAttributes: {secretProviderClass: knowme-runtime}}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flint-forge-gateway
+spec:
+  selector:
+    matchLabels: {app.kubernetes.io/name: flint-forge-gateway}
+  template:
+    metadata:
+      labels: {app.kubernetes.io/name: flint-forge-gateway}
+    spec:
+      serviceAccountName: knowme-runtime
+      containers:
+        - name: gateway
+          image: ghcr.io/prometheus-ags/flint-forge-gateway@sha256:0000000000000000000000000000000000000000000000000000000000000000
+          ports: [{name: http, containerPort: 8080}]
+          readinessProbe: {httpGet: {path: /health, port: http}, initialDelaySeconds: 10}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flint-gate
+spec:
+  selector:
+    matchLabels: {app.kubernetes.io/name: flint-gate}
+  template:
+    metadata:
+      labels: {app.kubernetes.io/name: flint-gate}
+    spec:
+      serviceAccountName: knowme-runtime
+      containers:
+        - name: gate
+          image: ghcr.io/prometheus-ags/flint-gate@sha256:0000000000000000000000000000000000000000000000000000000000000000
+          ports: [{name: http, containerPort: 4456}, {name: admin, containerPort: 4457}]
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flint-realtime-fabric
+spec:
+  selector:
+    matchLabels: {app.kubernetes.io/name: flint-realtime-fabric}
+  template:
+    metadata:
+      labels: {app.kubernetes.io/name: flint-realtime-fabric}
+    spec:
+      serviceAccountName: knowme-runtime
+      containers:
+        - name: fabric
+          image: ghcr.io/prometheus-ags/flint-realtime-fabric@sha256:0000000000000000000000000000000000000000000000000000000000000000
+          ports: [{name: http, containerPort: 8080}, {name: grpc, containerPort: 9090}]
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: iggy
+spec:
+  selector:
+    matchLabels: {app.kubernetes.io/name: iggy}
+  template:
+    metadata:
+      labels: {app.kubernetes.io/name: iggy}
+    spec:
+      serviceAccountName: knowme-runtime
+      containers:
+        - name: iggy
+          image: iggyrs/iggy@sha256:68a314c1380be5a792a134f3bd346ded42bd49d9f7114c86f70b48fc85bc5272
+          ports: [{name: tcp, containerPort: 8090}]

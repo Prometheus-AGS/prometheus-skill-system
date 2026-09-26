@@ -1,0 +1,3 @@
+Commands:
+  status      Show state
+  pause       Pause work

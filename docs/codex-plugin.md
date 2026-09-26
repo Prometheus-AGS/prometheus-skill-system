@@ -9,6 +9,12 @@ The Codex package is generated from `skill-system.json` and the collected skill 
 | Packaged `skills/` and `skill-index.json` | Collected skill source directories | Same generator |
 | Packaged `.mcp.json` | Root MCP template, checked for machine paths and literal credentials | Same generator |
 
+The `hybrid-mobile-architecture` entry is a separate native Codex plugin. Its
+marketplace source points at a generated payload staged from the SHA-pinned
+`plugins/hybrid-mobile-architecture` gitlink and keeps the package's own
+`.codex-plugin/plugin.json`; its skills are not copied into the Prometheus
+umbrella.
+
 The current manifest exposes `skills: "./skills"`, `mcpServers: "./.mcp.json"` and the Codex `interface` metadata. It has no `hooks` or native-team `agents` field. The compatibility wrapper `scripts/build-codex-plugin.js` delegates to the distribution generator and explicitly rejects a manifest containing `hooks`.
 
 ## Local generation and installation

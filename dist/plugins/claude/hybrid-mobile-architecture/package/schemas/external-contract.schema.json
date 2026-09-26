@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://prometheusags.ai/schemas/knowme-external-contract-v2.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "contract", "requiredFeatures", "authority"],
+  "anyOf": [
+    { "required": ["minimumVersion"] },
+    { "required": ["upstream", "minimumPackageVersion", "minimumContractVersion"] }
+  ],
+  "properties": {
+    "$schema": { "type": "string" },
+    "schemaVersion": { "enum": [1, 2] },
+    "contract": { "type": "string", "minLength": 1 },
+    "minimumVersion": { "type": "string", "minLength": 1 },
+    "minimumPackageVersion": { "type": "string", "minLength": 1 },
+    "minimumContractVersion": { "type": "string", "minLength": 1 },
+    "upstream": {
+      "type": "object",
+      "required": ["repository", "installationGuide", "updateGuide"],
+      "properties": {
+        "repository": { "type": "string", "pattern": "^https://" },
+        "installationGuide": { "type": "string", "pattern": "^https://" },
+        "updateGuide": { "type": "string", "pattern": "^https://" }
+      },
+      "additionalProperties": false
+    },
+    "requiredFeatures": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "uniqueItems": true
+    },
+    "authority": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": { "type": "string", "minLength": 1 }
+    }
+  }
+}
