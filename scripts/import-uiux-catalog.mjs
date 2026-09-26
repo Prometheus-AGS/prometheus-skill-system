@@ -142,9 +142,11 @@ for (const [repo, revision, license, licensePath, selections] of sources) {
     const preferredNotice = licensePath === 'README.md' ? 'UPSTREAM-LICENSE-EVIDENCE.md' : licensePath;
     const noticeName = assets.some(asset => asset.path === preferredNotice) ? `${preferredNotice}.repository` : preferredNotice;
     if (noticeName !== preferredNotice) adaptations.add(`Preserved the skill-specific ${preferredNotice}; repository-wide notice is separately retained as ${noticeName}.`);
-    await put(root, noticeName, notice);
-    if (miniRoot) await put(miniRoot, noticeName, notice);
-    assets.push({ path: noticeName, sha256: sha(notice) });
+    const packagedNotice = licensePath === 'README.md' ? Buffer.concat([Buffer.from("Prometheus packaging note: one referenced asset is absent — the upstream discovery-index build script mentioned in this verbatim README evidence is repository maintenance tooling, not part of this bundled skill. The following preserved text is license/provenance evidence, not local runtime instructions.\n\n"), notice]) : notice;
+    if (licensePath === 'README.md') adaptations.add('Preface upstream README license evidence to distinguish absent repository maintenance tooling from shipped runtime instructions.');
+    await put(root, noticeName, packagedNotice);
+    if (miniRoot) await put(miniRoot, noticeName, packagedNotice);
+    assets.push({ path: noticeName, sha256: sha(packagedNotice) });
     const record = { id, upstreamName, source: `https://github.com/${repo}/tree/${revision}/${selection}`, revision, license,
       full: { path: `skills/ui-ux/${id}`, status: id === 'impeccable' ? 'native-engine-optional' : 'bundled' },
       mini: { path: miniRoot ? `skills/${id}` : null, status: miniRoot ? 'portable-guidance' : 'excluded-native-engine' },
