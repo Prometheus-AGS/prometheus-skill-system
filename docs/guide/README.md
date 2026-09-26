@@ -70,6 +70,13 @@ The guide is built in layers. Read it top to bottom the first time; use it as a 
 | 22 | [Advantages & Impact](22-advantages-and-impact.md) | What changes about your development process, and why |
 | 23 | [Glossary & Sources](23-glossary.md) | Every term defined, every external claim cited |
 
+### UI and team workflows
+
+| # | Page | What it covers |
+|---|---|---|
+| 24 | [Agent teams](24-agent-teams.md) | Create, export, install and adopt teams; preserve native configuration and ownership |
+| 25 | [UI/UX routing](25-ui-ux-routing.md) | Context authority, selective skills, portable installation and completed-phase evidence |
+
 ### Operational
 
 | Document | What it covers |

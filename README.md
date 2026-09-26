@@ -33,6 +33,7 @@ flow, sequence, and C4 diagrams throughout. This README is the quick tour; the g
 | Understand the loops | [Loop Architecture](docs/guide/03-loop-architecture.md) · [Four-Layer Pipeline](docs/guide/04-four-layer-pipeline.md) |
 | Know the substrate | [MCP Servers](docs/guide/05-mcp-substrate.md) · [Memory & Learning](docs/guide/06-memory-and-learning.md) · [Sycophancy Correction](docs/guide/07-sycophancy-correction.md) |
 | Browse every skill | [Skills Overview](docs/guide/08-skills-overview.md) · [Process Skills](docs/guide/09-process-skills.md) · [Language Skills](docs/guide/10-language-skills.md) · [Artifact Refiner](docs/guide/11-artifact-refiner.md) · [Native Agent Generator](docs/guide/12-native-agent-generator.md) |
+| Route UI work | [UI/UX routing guide](docs/guide/25-ui-ux-routing.md) · [Command reference](docs/reference/ui-ux-routing.md) |
 | Coordinate agents | [Agent teams guide](docs/guide/24-agent-teams.md) · [Requests, exports and ownership](docs/agent-teams.md) |
 | Reference the engine room | [Tools](docs/guide/13-tools-reference.md) · [Rust Toolchain](docs/guide/14-rust-toolchain.md) · [Hooks & Lifecycle](docs/guide/15-hooks-and-lifecycle.md) · [CLI & Scripts](docs/guide/16-cli-and-scripts.md) |
 | Install, run, contribute | [Platform Support](docs/guide/17-platform-support.md) · [Plugins & Marketplace](docs/guide/18-plugins-and-marketplace.md) · [Installation](docs/guide/19-installation.md) · [Updating](docs/guide/20-updating.md) · [Contributing](docs/guide/21-contributing.md) |
@@ -106,6 +107,25 @@ Their compiled runtime needs no TypeScript installation or resident memory
 service. See the [guide](docs/guide/24-agent-teams.md) for the novice flow and
 [request reference](docs/agent-teams.md) for exact JSON examples, model and
 memory limits, and the distinction between skill distribution and native teams.
+
+## UI/UX routing
+
+Use `prometheus-ui-ux` for UI, interaction, tokens, motion and on-screen copy. It
+selects project context, focused Pro Max data, craft and platform guidance while
+preserving design authority. New work and authorized redesign may use taste;
+refinement and review do not. The catalog has 41 entries, including 40 portable
+entries shared with mini. Full-only Impeccable engine execution requires a
+preinstalled `IMPECCABLE_BIN`; the portable core does not claim engine parity.
+
+Adopt existing teams through creator `install-project`: it preserves an explicit
+selection, adopts a sole team and requires a choice when ambiguous. Relevant team
+roles then apply to all code work; UI guidance activates only for UI work. Existing
+native configuration stays intact, and unavailable delegation uses a disclosed
+sequential fallback. `export` remains proposal-only.
+
+The completed-phase helper returns an evidence checklist, not a review result.
+See the [guide](docs/guide/25-ui-ux-routing.md) for commands, independent review and
+the remaining Windows, live-harness, Electron and release-certification gaps.
 
 ## Native Agent Generator
 
