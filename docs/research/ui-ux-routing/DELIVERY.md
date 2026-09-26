@@ -23,3 +23,7 @@ Instruction installation validates marker pairs and project containment, preserv
 ## Local artifacts
 
 See integration-receipt.json, linux-integration-receipt.json, independent-review.md, skill-validation-confirmation.log, the canonical catalog/compatibility matrix and Pro Max reference-cases.json. The deferred native-engine port is a separate proposal in the routing skill's references/deferred-ports.md. No remote push or release was performed.
+
+## Final distribution boundary
+
+The Boss synced 97 mini skills through its normal synchronization command and passed its drift check. The project UI installation check reports zero drift; all 50 existing native definitions retained identical bytes, and the linked AGENTS.md still resolves to CLAUDE.md. Its pin/sync receipt records the catalog digest and unchanged full-pack anti-shadowing implementation hashes. The final mini gitlink includes a documentation-only completion update after the tested implementation commit `93fdc5a`; runtime and catalog bytes are unchanged by that update.
