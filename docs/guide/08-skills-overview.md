@@ -1,6 +1,6 @@
 # 08 · Skills Overview
 
-A skill is a self-contained, portable unit of capability: a `SKILL.md` manifest with YAML frontmatter, optionally accompanied by `scripts/`, `references/`, and `assets/`. The prometheus-skill-pack ships 35 top-level skills across 13 categories — 95+ skills counting sub-skills — and every one of them is documented in the three pages that follow this one. This page explains the model: how skills are structured, how they are discovered, the standard they conform to, and where to find each category.
+A skill is a self-contained, portable unit of capability: a `SKILL.md` manifest with YAML frontmatter, optionally accompanied by `scripts/`, `references/`, and `assets/`. The generated full distribution index currently lists 215 skills. The UI/UX routing catalog contributes 41 entries, with a 40-entry portable subset shared with mini; its native Impeccable integration is full-only. Use the generated catalogs for current inventories and the [UI/UX guide](25-ui-ux-routing.md) for selective loading. This page explains the model: how skills are structured, how they are discovered, the standard they conform to, and where to find each category.
 
 ## The skills model
 
@@ -80,6 +80,7 @@ Every native skill conforms strictly to the [AgentSkills.io specification](https
 | **Research** | 1 | deep-research (10 sub-skills) | [10](10-language-skills.md) |
 | **Documentation** | 1 | llm-wiki | [10](10-language-skills.md) |
 | **Flint** | 6 | flint-sdk-csharp, -dart, -go, -kotlin, -swift, -ts | [10](10-language-skills.md) |
+| **UI/UX routing catalog** | 41 | Context, Pro Max, craft, taste, platform and review guidance; 40 portable entries | [25 · UI/UX routing](25-ui-ux-routing.md) |
 | **Imported (submodules)** | 2 | artifact-refiner, sycophancy-correction | [11](11-artifact-refiner.md), [07](07-sycophancy-correction.md) |
 
 ## Native, imported, and forge-rs skills
