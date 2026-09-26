@@ -80,6 +80,9 @@ Use the operations in order:
 I1 advertises `collaboration_definition_packages_v1` and
 `collaboration_deployment_bindings_v1`. Require only the capability used by
 the requested operation. Neither capability implies durable team execution.
+The authenticated capability response also returns `bindingOwnerId`; copy that
+opaque value into `DeploymentBinding.ownerId`. Do not derive an owner ID from a
+token subject or from the runtime's private persistence-key format.
 
 | Command | UAR operation |
 |---|---|
