@@ -2,6 +2,8 @@ import type { Harness, ObjectValue, Team } from './types.mjs';
 import { json, markdown, merge, model, object, prompt, toml, yaml } from './adapters-codecs.mjs';
 import type { ExportContext } from './adapters-codecs.mjs';
 
+const deferredSkills = new Set(['prometheus-ui-ux', 'prometheus-ui-review', 'interface-review', 'break', 'variant', 'explain-interface']);
+
 export function exportLocal(team: Team, target: Exclude<Harness, 'uar'>, ctx: ExportContext): void {
   const options = team.native?.[target]?.options;
   if (target === 'opencode' && object(options?.agent)) {
@@ -18,12 +20,17 @@ export function exportLocal(team: Team, target: Exclude<Harness, 'uar'>, ctx: Ex
     const selected = model(team, role);
     const modelField: ObjectValue = selected ? { model: selected } : {};
     const body = prompt(team, role);
+    const uiReviewer = role.skills.includes('prometheus-ui-review');
     if (target === 'codex') {
-      const agent = merge({ name: role.id, description: role.description, developer_instructions: body, ...modelField }, native);
+      const agent = merge({ name: role.id, description: role.description, developer_instructions: body, ...(uiReviewer ? { sandbox_mode: 'read-only' } : {}), ...modelField }, native);
       const name = ctx.claimName(agent.name);
       ctx.add(`.codex/agents/${name}.toml`, toml(agent));
     } else if (target === 'claude' || target === 'copilot' || target === 'minimax') {
-      const agent = merge({ name: role.id, description: role.description, ...modelField, skills: role.skills }, native);
+      const preloadSkills = role.skills.filter(skill => !deferredSkills.has(skill));
+      const overrideSkills = Array.isArray(native.skills) ? native.skills.filter(skill => typeof skill === 'string' && deferredSkills.has(skill)) : [];
+      if (overrideSkills.length) ctx.diagnostics.push(`${role.id}: explicit native.${target}.skills requests conditional or user-only preloads (${overrideSkills.join(', ')}). The override is preserved, but conflicts with conditional UI loading or upstream user-only invocation restrictions; resolve it before native invocation. Direct file reads are not a workaround.`);
+      const agent = merge({ name: role.id, description: role.description, ...modelField, skills: preloadSkills,
+        ...(uiReviewer && target === 'claude' ? { tools: ['Read', 'Glob', 'Grep'] } : {}) }, native);
       const name = ctx.claimName(agent.name);
       const content = markdown(agent, body);
       const path = target === 'claude' ? `.claude/agents/${name}.md`
@@ -46,7 +53,7 @@ export function exportLocal(team: Team, target: Exclude<Harness, 'uar'>, ctx: Ex
       }
     } else if (target === 'opencode') {
       // Filename owns the identity; native prompt overrides become the Markdown body.
-      const agent = merge({ description: role.description, mode: 'subagent', ...modelField }, native);
+      const agent = merge({ description: role.description, mode: 'subagent', ...(uiReviewer ? { permission: { edit: 'deny' } } : {}), ...modelField }, native);
       const nativePrompt = agent.prompt;
       if (nativePrompt !== undefined && typeof nativePrompt !== 'string') throw new Error('OpenCode native prompt must be a string.');
       delete agent.prompt;

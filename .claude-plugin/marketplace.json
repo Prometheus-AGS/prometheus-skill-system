@@ -15,6 +15,12 @@
     },
     {
       "category": "frontend",
+      "name": "prometheus-ui-ux-skills",
+      "source": "./skills/ui-ux",
+      "version": "1.0.0"
+    },
+    {
+      "category": "frontend",
       "name": "prometheus-react-skills",
       "source": "./skills/react/prometheus-entity-skills",
       "version": "1.5.0"

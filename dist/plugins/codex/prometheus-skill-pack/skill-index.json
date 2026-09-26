@@ -27,6 +27,14 @@
       "path": "skills/agent-team-models"
     },
     {
+      "name": "android-compose-adaptive",
+      "path": "skills/android-compose-adaptive"
+    },
+    {
+      "name": "android-edge-to-edge",
+      "path": "skills/android-edge-to-edge"
+    },
+    {
       "name": "argocd-multicloud",
       "path": "skills/argocd-multicloud"
     },
@@ -61,6 +69,38 @@
     {
       "name": "bdd-video-proof",
       "path": "skills/bdd-video-proof"
+    },
+    {
+      "name": "better-accessibility",
+      "path": "skills/better-accessibility"
+    },
+    {
+      "name": "better-colors",
+      "path": "skills/better-colors"
+    },
+    {
+      "name": "better-interface",
+      "path": "skills/better-interface"
+    },
+    {
+      "name": "better-layout",
+      "path": "skills/better-layout"
+    },
+    {
+      "name": "better-typography",
+      "path": "skills/better-typography"
+    },
+    {
+      "name": "better-ui",
+      "path": "skills/better-ui"
+    },
+    {
+      "name": "better-writing",
+      "path": "skills/better-writing"
+    },
+    {
+      "name": "break",
+      "path": "skills/break"
     },
     {
       "name": "clean-architecture",
@@ -101,6 +141,14 @@
     {
       "name": "design-svg-logo",
       "path": "skills/design-svg-logo"
+    },
+    {
+      "name": "design-taste-frontend",
+      "path": "skills/design-taste-frontend"
+    },
+    {
+      "name": "design-taste-frontend-v1",
+      "path": "skills/design-taste-frontend-v1"
     },
     {
       "name": "disk-space-guardian",
@@ -247,6 +295,30 @@
       "path": "skills/evolve-status"
     },
     {
+      "name": "explain-interface",
+      "path": "skills/explain-interface"
+    },
+    {
+      "name": "expo-animation",
+      "path": "skills/expo-animation"
+    },
+    {
+      "name": "expo-design-system",
+      "path": "skills/expo-design-system"
+    },
+    {
+      "name": "expo-native-ui",
+      "path": "skills/expo-native-ui"
+    },
+    {
+      "name": "expo-router",
+      "path": "skills/expo-router"
+    },
+    {
+      "name": "expo-ui",
+      "path": "skills/expo-ui"
+    },
+    {
       "name": "extend-skill",
       "path": "skills/extend-skill"
     },
@@ -283,8 +355,28 @@
       "path": "skills/flint-sdk-ts"
     },
     {
+      "name": "flutter-build-responsive-layout",
+      "path": "skills/flutter-build-responsive-layout"
+    },
+    {
+      "name": "flutter-fix-layout-issues",
+      "path": "skills/flutter-fix-layout-issues"
+    },
+    {
       "name": "flutter-rust-ffi",
       "path": "skills/flutter-rust-ffi"
+    },
+    {
+      "name": "flutter-setup-declarative-routing",
+      "path": "skills/flutter-setup-declarative-routing"
+    },
+    {
+      "name": "flutter-setup-localization",
+      "path": "skills/flutter-setup-localization"
+    },
+    {
+      "name": "full-output-enforcement",
+      "path": "skills/full-output-enforcement"
     },
     {
       "name": "gitops-bootstrap",
@@ -299,12 +391,32 @@
       "path": "skills/go-base-patterns"
     },
     {
+      "name": "gpt-taste",
+      "path": "skills/gpt-taste"
+    },
+    {
+      "name": "high-end-visual-design",
+      "path": "skills/high-end-visual-design"
+    },
+    {
       "name": "htmx-alpine-lit",
       "path": "skills/htmx-alpine-lit"
     },
     {
       "name": "ideation-mindmap",
       "path": "skills/ideation-mindmap"
+    },
+    {
+      "name": "impeccable",
+      "path": "skills/impeccable"
+    },
+    {
+      "name": "industrial-brutalist-ui",
+      "path": "skills/industrial-brutalist-ui"
+    },
+    {
+      "name": "interface-review",
+      "path": "skills/interface-review"
     },
     {
       "name": "iterative-evolver",
@@ -487,6 +599,10 @@
       "path": "skills/mcp-server"
     },
     {
+      "name": "minimalist-ui",
+      "path": "skills/minimalist-ui"
+    },
+    {
       "name": "native-agent",
       "path": "skills/native-agent"
     },
@@ -519,12 +635,24 @@
       "path": "skills/prometheus-entity-skills"
     },
     {
+      "name": "prometheus-impeccable-core",
+      "path": "skills/prometheus-impeccable-core"
+    },
+    {
       "name": "prometheus-rust-auditor",
       "path": "skills/prometheus-rust-auditor"
     },
     {
       "name": "prometheus-rust-workspace",
       "path": "skills/prometheus-rust-workspace"
+    },
+    {
+      "name": "prometheus-ui-review",
+      "path": "skills/prometheus-ui-review"
+    },
+    {
+      "name": "prometheus-ui-ux",
+      "path": "skills/prometheus-ui-ux"
     },
     {
       "name": "pyo3-bridge",
@@ -537,6 +665,10 @@
     {
       "name": "rebrand-artifact",
       "path": "skills/rebrand-artifact"
+    },
+    {
+      "name": "redesign-existing-projects",
+      "path": "skills/redesign-existing-projects"
     },
     {
       "name": "refine-a2ui",
@@ -651,6 +783,14 @@
       "path": "skills/start-business-build"
     },
     {
+      "name": "stitch-design-taste",
+      "path": "skills/stitch-design-taste"
+    },
+    {
+      "name": "swiftui-pro",
+      "path": "skills/swiftui-pro"
+    },
+    {
       "name": "sycophancy-correction",
       "path": "skills/sycophancy-correction"
     },
@@ -667,6 +807,10 @@
       "path": "skills/ui-surface"
     },
     {
+      "name": "ui-ux-pro-max",
+      "path": "skills/ui-ux-pro-max"
+    },
+    {
       "name": "upload-to-bossfang",
       "path": "skills/upload-to-bossfang"
     },
@@ -677,6 +821,26 @@
     {
       "name": "validate-skill",
       "path": "skills/validate-skill"
+    },
+    {
+      "name": "variant",
+      "path": "skills/variant"
+    },
+    {
+      "name": "vercel-composition-patterns",
+      "path": "skills/vercel-composition-patterns"
+    },
+    {
+      "name": "vercel-react-best-practices",
+      "path": "skills/vercel-react-best-practices"
+    },
+    {
+      "name": "vercel-react-native-skills",
+      "path": "skills/vercel-react-native-skills"
+    },
+    {
+      "name": "web-design-guidelines",
+      "path": "skills/web-design-guidelines"
     },
     {
       "name": "workspace-structure",

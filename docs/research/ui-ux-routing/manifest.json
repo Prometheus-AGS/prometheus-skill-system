@@ -1,0 +1,36 @@
+{
+  "schemaVersion": "2.0.0",
+  "topic": "Automatic UI/UX routing and project-team adoption",
+  "status": "implemented-with-acceptance-gaps",
+  "researchMode": "checkpoint",
+  "claims": [
+    {
+      "id": "architecture",
+      "status": "inferred",
+      "evidence": "report.md"
+    },
+    {
+      "id": "pinned-sources",
+      "status": "verified",
+      "evidence": "../../../skills/ui-ux/catalog.lock.json"
+    },
+    {
+      "id": "runtime-parity",
+      "status": "verified-pinned-cases",
+      "evidence": "../../../skills/ui-ux/ui-ux-pro-max/reference-cases.json"
+    },
+    {
+      "id": "native-windows",
+      "status": "unverified"
+    },
+    {
+      "id": "independent-research-review",
+      "status": "unverified"
+    },
+    {
+      "id": "research-export",
+      "status": "unverified"
+    }
+  ],
+  "note": "This is an evidence index, not a successful research pipeline/export receipt."
+}

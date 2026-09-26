@@ -32,6 +32,16 @@ USAGE
   esac
 done
 
+# UI routing shares the portable canonical installer.
+if [[ "$pack" == "uiux-routing" ]]; then
+  uiux_runtime="$KBD_ORCHESTRATOR_ROOT/../prometheus-ui-ux/scripts/cli.mjs"
+  [[ -f "$uiux_runtime" ]] || uiux_runtime="$KBD_ORCHESTRATOR_ROOT/../../ui-ux/prometheus-ui-ux/scripts/cli.mjs"
+  [[ -f "$uiux_runtime" ]] || die "bundled prometheus-ui-ux runtime missing"
+  uiux_args=(install --project "$project_path" --target "$target")
+  [[ "$dry_run" == "1" ]] && uiux_args+=(--dry-run)
+  exec node "$uiux_runtime" "${uiux_args[@]}"
+fi
+
 # Resolve template + cache + marker prefix from pack.
 case "$pack" in
   agent-rules)

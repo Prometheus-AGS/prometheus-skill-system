@@ -82,6 +82,13 @@ esac
 [[ -d "$project_path" ]] || die "--path is not a directory: $project_path"
 project_path="$(cd "$project_path" && pwd)"
 
+# Shared UI contract preflight before legacy writes; the helper uses Node on every platform.
+uiux_runtime="$SKILL_ROOT/../prometheus-ui-ux/scripts/cli.mjs"
+[[ -f "$uiux_runtime" ]] || uiux_runtime="$SKILL_ROOT/../../ui-ux/prometheus-ui-ux/scripts/cli.mjs"
+[[ -f "$uiux_runtime" ]] || die "bundled prometheus-ui-ux runtime missing"
+node "$uiux_runtime" install --project "$project_path" --dry-run >/dev/null
+
+
 for f in "$REF/AGENTS.base.md" "$REF/settings.template.json"; do
   [[ -f "$f" ]] || die "skill payload missing: $f"
 done
@@ -465,3 +472,7 @@ else
   printf '\nNext: run scripts/verify.sh --path %s, then /kbd-init, then /doctor.\n' "$project_path"
 fi
 printf 'Completed prometheus-context-bootstrap — %s\n' "$project_path"
+
+if [[ "$dry_run" != "1" ]]; then
+  node "$uiux_runtime" install --project "$project_path"
+fi
