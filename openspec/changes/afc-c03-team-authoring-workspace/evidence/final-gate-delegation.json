@@ -6,7 +6,7 @@
   "schemaSource": "41375cf6cd137a8a825be102c49516211c3fa2e5",
   "firstDraft2RuntimeAncestor": "a64bafbb3d4cc54a22a5eecef2362300a959de62",
   "finalExecutableCheckpoint": "resolved-from-the-UAR-root-at-gate-execution",
-  "expectedFrozenCheckpoint": "48266f6ca704a04aa99aa4e92444a0ae0b62ad1d",
+  "expectedFrozenCheckpoint": "6f59672f31e9ad971d198a2d7fb5fe6875b8dfb6",
   "receipt": "written-byte-identically-by-the-mini-owned-gate",
   "status": "awaiting-build-distribution-and-one-final-gate"
 }
