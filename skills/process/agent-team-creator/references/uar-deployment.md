@@ -19,18 +19,24 @@ Initialize a contained project workspace from `assets/uar-intake.json`:
 node <skill>/scripts/cli.mjs uar-workspace-init --input uar-intake.json
 ```
 
-The resulting `workspace.json` identifies one `manifest.source.json` and separate
+The `workspace` request field is a portable team ID. The creator owns only
+`.agent-team/<team-id>/authoring`, and initialization requires
+`expectedRevision: 0`. The resulting `workspace.json` persists a monotonic
+revision, stable guided-question nodes and accepted answers, and identifies one
+`manifest.source.json` plus separate
 files such as `agents/coordinator.json`, `teams/root.json`,
 `teams/review-subteam.json`, and `workflows/checkout.json`. Paths are relative,
 case-insensitively unique, and confined beneath the selected project. Source
 writes use same-directory atomic replacement and the existing
 `.agent-team/recovery/` receipts.
 
-Use one document per update. The response identifies only the changed path and
-definition identity:
+Use one answer or document per update. Both require the current
+`expectedRevision`; stale revisions fail before any file is written. The response
+identifies the prior and current revision plus the changed question or document:
 
 ```text
 node <skill>/scripts/cli.mjs uar-workspace-update --input update-one-document.json
+node <skill>/scripts/cli.mjs uar-workspace-answer --input answer-one-question.json
 node <skill>/scripts/cli.mjs uar-workspace-status --input workspace-status.json
 ```
 
@@ -69,7 +75,10 @@ with `package`. Workspace callers use the same commands with `project` and
 ## Immutable maintenance
 
 Use `uar-workspace-revise` with `assets/revise-intake.json` to copy source into a
-distinct semantic-version workspace. The old workspace and compiled package do
+distinct, strictly greater semantic-version workspace. Supply explicitly edited
+definition documents in `edits`; unchanged definitions retain their exact source
+bytes and immutable tuples, while a changed dependency tuple propagates only
+through definitions that reference it. The old workspace and compiled package do
 not change. `uar-package-diff` compares two workspaces, two compiled directories,
 or two inline envelopes by definition identity and JSON Pointer. Changed content
 under the same package version is refused.

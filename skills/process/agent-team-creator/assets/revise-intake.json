@@ -1,6 +1,8 @@
 {
   "project": ".",
-  "workspace": ".agent-team/checkout-team/uar-source-1.0.0",
-  "out": ".agent-team/checkout-team/uar-source-1.1.0",
-  "nextVersion": "1.1.0"
+  "workspace": "checkout-team",
+  "expectedRevision": 1,
+  "out": "checkout-team-v2",
+  "nextVersion": "1.1.0",
+  "edits": []
 }

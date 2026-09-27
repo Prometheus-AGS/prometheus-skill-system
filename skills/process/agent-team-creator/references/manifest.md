@@ -124,11 +124,12 @@ node <skill>/scripts/cli.mjs <command> --input request.json
 | `handoff-create`, `handoff-accept` | See `task-handoff.md` |
 | `models-discover`, `models-select` | See `models-memory.md` |
 | `memory-queue`, `memory-publish` | See `models-memory.md` |
-| `uar-workspace-init` | `project`, contained `workspace`, package identity/version, and declared source paths; `source` may instead carry an inline, flat-team, AgentArtifact, or draft.1 migration input |
+| `uar-workspace-init` | `project`, portable team ID in `workspace`, `expectedRevision: 0`, package identity/version, and declared source paths; state is written under `.agent-team/<team-id>/authoring`; `source` may instead carry an inline, flat-team, AgentArtifact, or draft.1 migration input |
 | `uar-workspace-migrate` | Same request as workspace initialization, with `source` or a contained compiled `sourceDirectory`; writes a field-level migration receipt beside the source documents |
 | `uar-workspace-status` | `project`, `workspace`, optional numeric `cursor` and `pageSize` from 1 through 50 |
-| `uar-workspace-update` | `project`, `workspace`, one declared relative `path`, and one `document` object |
-| `uar-workspace-revise` | `project`, source `workspace`, new contained `out` workspace, and distinct `nextVersion` |
+| `uar-workspace-answer` | `project`, team ID in `workspace`, current `expectedRevision`, stable `questionId`, and one `answer` value |
+| `uar-workspace-update` | `project`, team ID in `workspace`, current `expectedRevision`, one declared relative `path`, and one identity-preserving `document` object |
+| `uar-workspace-revise` | `project`, source and destination team IDs in `workspace` and `out`, current `expectedRevision`, strictly greater `nextVersion`, and optional explicit definition `edits` |
 | `uar-package-schema-info` | Empty request; reports the accepted profile and provider source revision |
 | `uar-package-validate` | Existing inline `package`, or `project` plus `workspace`; draft.1 inputs migrate explicitly |
 | `uar-package-build` | Inline `package` or selected workspace, plus a new `out` directory |

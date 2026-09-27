@@ -1,6 +1,7 @@
 {
   "project": ".",
-  "workspace": ".agent-team/checkout-team/uar-source-1.0.0",
+  "workspace": "checkout-team",
+  "expectedRevision": 0,
   "packageId": "urn:example:checkout-team",
   "packageVersion": "1.0.0",
   "manifestPath": "manifest.source.json",

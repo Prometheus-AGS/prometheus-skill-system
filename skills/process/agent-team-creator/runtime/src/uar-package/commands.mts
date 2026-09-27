@@ -7,10 +7,10 @@ import { compileUarPackage } from './compiler.mjs';
 import { diffUarDirectories, diffUarPackages } from './maintenance.mjs';
 import { writeUarPackage } from './package-files.mjs';
 import { profileSchemaInfo } from './profile-validation.mjs';
-import { initializeWorkspace, loadWorkspace, reviseWorkspace, updateWorkspaceDocument, workspaceStatus } from './workspace.mjs';
+import { answerWorkspaceQuestion, initializeWorkspace, loadWorkspace, reviseWorkspace, updateWorkspaceDocument, workspaceStatus } from './workspace.mjs';
 
 export const uarAuthoringCommands = [
-  'uar-workspace-init','uar-workspace-migrate','uar-workspace-status','uar-workspace-update','uar-workspace-revise',
+  'uar-workspace-init','uar-workspace-migrate','uar-workspace-status','uar-workspace-answer','uar-workspace-update','uar-workspace-revise',
   'uar-package-schema-info','uar-package-validate','uar-package-build','uar-package-diff',
 ] as const;
 
@@ -33,6 +33,7 @@ export function dispatchUarAuthoring(command: string, input: ObjectValue): unkno
     case 'uar-workspace-init':
     case 'uar-workspace-migrate': return initializeWorkspace(input);
     case 'uar-workspace-status': return workspaceStatus(input);
+    case 'uar-workspace-answer': return answerWorkspaceQuestion(input);
     case 'uar-workspace-update': return updateWorkspaceDocument(input);
     case 'uar-workspace-revise': return reviseWorkspace(input);
     case 'uar-package-schema-info': return profileSchemaInfo();

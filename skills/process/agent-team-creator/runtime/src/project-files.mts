@@ -53,13 +53,13 @@ function atomicReplace(file: string, content: string): void {
   } finally { fs.rmSync(temporary, { force: true }); }
 }
 
-export function commitChanges(root: string, changes: Change[]): string | null {
+export function commitChanges(root: string, changes: Change[], context?: Record<string, unknown>): string | null {
   if (!changes.length) return null;
   const receiptId = hash(JSON.stringify(changes.map(c => [c.file, c.before, c.after]))).slice(0, 24);
   const recovery = `.agent-team/recovery/${receiptId}.json`;
   const recoveryFile = projectFile(root, recovery);
   // Recovery is inspectable and contains exact previous bytes before the first edit.
-  const receipt = JSON.stringify({ schemaVersion: 1, files: changes.map(c => ({ file: path.relative(root, c.absolute).split(path.sep).join('/'), before: c.before, afterSha256: hash(c.after) })) }, null, 2) + '\n';
+  const receipt = JSON.stringify({ schemaVersion: 1, ...(context ? { context } : {}), files: changes.map(c => ({ file: path.relative(root, c.absolute).split(path.sep).join('/'), before: c.before, afterSha256: hash(c.after) })) }, null, 2) + '\n';
   const existing = readFile(recoveryFile);
   if (existing !== null && existing !== receipt) throw Error('Recovery receipt collision');
   fs.mkdirSync(path.dirname(recoveryFile), { recursive: true });

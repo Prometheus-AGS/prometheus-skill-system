@@ -21,8 +21,9 @@ Read project instructions and any active KBD work first. Reuse answers already
 given. Start by distinguishing local **create**, persisted UAR **author**,
 immutable **revise**, and **deploy**. Creation
 asks only for missing outcome, scope, deliverables, budget preference and review
-needs. UAR authoring reads a selected workspace and returns one missing document
-field or graph relationship at a time. Revision asks for the current workspace, desired change, next
+needs. UAR authoring reads the selected `.agent-team/<team-id>/authoring`
+workspace and returns one persisted missing document field or graph relationship
+at a time. Revision asks for the current workspace revision, desired change, next
 semantic version and deployment intent. Deployment asks for the reviewed package,
 UAR instance, environment credential reference and whether a private binding is
 also required. The user need not know agent terminology.
@@ -135,8 +136,11 @@ DeploymentBinding fields, resolves immutable references, and installs the whole
 package atomically through the collaboration catalog API. `workspace.json` names
 one manifest source and separate agent, team, subteam, and workflow documents.
 Use `uar-workspace-status` or `guide` with `operation=author`; each response gives
-fixed counts, one next question, and a bounded diagnostic page without returning
-the graph. Update one declared file with `uar-workspace-update`. Use an operator-selected
+the monotonic revision, fixed counts, one stable next-question ID, saved-answer
+progress, and a bounded diagnostic page without returning the graph. Apply an
+answer with `uar-workspace-answer`, or update one declared file with
+`uar-workspace-update`; every mutation requires the last observed
+`expectedRevision` and refuses stale state before writing. Use an operator-selected
 instance URL and `env:VARIABLE` credential reference. Run capability discovery,
 package preflight, install and exact status before an optional binding preflight
 and install. Package installation confers no credential, representation grant,

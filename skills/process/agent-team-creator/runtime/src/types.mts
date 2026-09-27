@@ -140,13 +140,30 @@ export interface UarMigrationReceipt {
 }
 export interface UarWorkspaceIndex {
   schemaVersion: 1;
+  revision: number;
   profile: typeof UAR_PROFILE_V2;
+  teamId: string;
   packageId: string;
   packageVersion: string;
   manifest: string;
   definitions: string[];
   migrationReceipt?: string;
   bindingIntent?: 'package-only' | 'package-and-binding';
+  base?: { teamId: string; revision: number; packageVersion: string };
+  questionState: UarQuestionState;
+}
+export interface UarQuestionNode {
+  id: string;
+  document: string;
+  pointer: string;
+  prompt: string;
+  required: boolean;
+  state: 'pending' | 'answered';
+  answer?: Json;
+}
+export interface UarQuestionState {
+  currentQuestionId: string | null;
+  questions: UarQuestionNode[];
 }
 export interface UarWorkspace {
   root: string;
@@ -160,11 +177,14 @@ export interface UarDiagnosticPage {
   remaining: number;
 }
 export interface UarWorkspaceStatus {
+  teamId: string;
+  revision: number;
   packageId: string;
   packageVersion: string;
   profile: typeof UAR_PROFILE_V2;
   counts: { agents: number; teams: number; workflows: number; diagnostics: number };
   complete: boolean;
-  nextQuestion: { document: string; pointer: string; question: string } | null;
+  nextQuestion: { id: string; document: string; pointer: string; question: string } | null;
+  questions: { answered: number; pending: number; currentQuestionId: string | null };
   diagnostics: UarDiagnosticPage;
 }

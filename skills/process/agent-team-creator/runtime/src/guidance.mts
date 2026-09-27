@@ -58,7 +58,7 @@ export function guide(input: ObjectValue): GuideResult {
     const status = workspaceStatus(input);
     const question = status.nextQuestion;
     return { operation, ready: status.complete, missing: question ? [`${question.document}${question.pointer}`] : [],
-      questions: question ? [{ key: question.pointer, question: question.question, document: question.document, pointer: question.pointer }] : [], workspace: status };
+      questions: question ? [{ key: question.id, question: question.question, document: question.document, pointer: question.pointer }] : [], workspace: status };
   }
   if (operation === 'revise') {
     const required = ['state', 'changeSummary', 'nextVersion', 'deploymentIntent'];
