@@ -100,7 +100,7 @@ The nine targets are `uar`, `codex`, `claude`, `copilot`, `kimi`, `minimax`, `op
 | MiniMax | `agents/<name>/agent.md` for the active user-data directory, usually `~/.minimax`; `mcode exec` has no verified custom-agent selector. |
 | OpenCode | `.opencode/agents/*.md` and optional `opencode.json`, using the deployed singular `agent`/`permission` schema. |
 | DeepSeek Harness | Cordis persona profiles and a separate experimental team composition; the lead creates members at runtime, with no static per-member model setting. |
-| UAR | Complete per-agent `AgentArtifact` request bodies for `/api/agents`; no invented persistent team API. |
+| UAR | Legacy per-agent `AgentArtifact` staging plus draft.2 canonical package and private-binding administration; durable team activation remains unsupported. |
 | BossFang | Agent TOML, standalone registration bodies, workflow and alternative multi-agent Hand; registration, activation and workflow execution remain separate actions. |
 
 Role `native[target]` objects override native agent fields. Team `native[target]` requires `source` and `version`, and can contain `options` and `files`. Unknown fields and opaque file contents are preserved, not certified. For Codex, Claude and OpenCode, options become proposed native project configuration. UAR options supply artifact defaults; BossFang options override the Hand; DeepSeek options configure its experimental team service. Kimi, MiniMax and Copilot team options are retained in `native-options.json` for deliberate application through the installed tool's supported configuration interface. Opaque files cannot replace generated files; use a role override or a distinct alternate artifact.
@@ -108,6 +108,21 @@ Role `native[target]` objects override native agent fields. Team `native[target]
 Claude and Kimi have verified agent plugin/marketplace exports. Install either their project agent files or the plugin alternative to avoid duplicate definitions. Other targets disclose unverified agent-marketplace mappings rather than inventing them. This is separate from distributing the four **skills** through the pack's existing Claude/Codex plugins and harness surfaces. Skill installation alone does not create a team.
 
 UAR defaults require explicit review of tool policy and bundles before registration; skill preference is not a deny policy. BossFang's native `skills=[]` means all unless `skills_disabled=true`; an empty portable role skill list exports the disabled form. Supply an approved service URL and credential reference for registration, retain returned IDs, and account for partial success. Hand activation can start autonomous schedules. Neither export nor discovery establishes authorization to mutate a service.
+
+## UAR draft.2 workspace and package boundary
+
+`export --target uar` still stages legacy per-agent AgentArtifact payloads for existing consumers. It does not create a canonical team. New collaboration definitions use the provider-owned draft.2 profile and a file-backed workspace: `workspace.json`, `manifest.source.json`, separate `agents/*.json`, `teams/*.json`, and `workflows/*.json`. The bundled example names `agents/coordinator.json`, `agents/child.json`, `teams/root.json`, `teams/subteam.json`, and `workflows/review.json` explicitly.
+
+```text
+node skills/process/agent-team-creator/scripts/cli.mjs uar-workspace-init --input skills/process/agent-team-creator/assets/uar-intake.json
+node skills/process/agent-team-creator/scripts/cli.mjs uar-workspace-status --input workspace-status.json
+node skills/process/agent-team-creator/scripts/cli.mjs uar-workspace-update --input update-one-document.json
+node skills/process/agent-team-creator/scripts/cli.mjs uar-package-build --input workspace-build.json
+```
+
+Status returns counts, one next question, and a bounded diagnostic page. Build requires one top-level TeamDefinition and kind-correct, acyclic, exact-version and exact-digest references. Existing inline and draft.1 packages remain readable through explicit migration with field dispositions; required unsupported semantics refuse build or preflight.
+
+Compiled packages are portable immutable catalog data. DeploymentBinding is separate private installed state and may contain only opaque credential, storage, and RepresentationGrant references. Package installation confers no credential, consent, grant, installed authority, or activation. UAR validates current private state during binding or execution. The accepted draft.2 checkpoint publishes a document contract; it does not claim a durable team runtime, so `uar-activate` continues to refuse.
 
 ## Install or adopt a project team
 

@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "profile": "urn:prometheus:uar:collaboration:0.1.0-draft.2",
+  "packageId": "urn:prometheus:mini:example:package",
+  "packageVersion": "1.0.0",
+  "manifest": "manifest.source.json",
+  "definitions": [
+    "agents/coordinator.json",
+    "agents/specialist.json",
+    "agents/child.json",
+    "teams/root.json",
+    "teams/subteam.json",
+    "workflows/review.json"
+  ],
+  "bindingIntent": "package-only"
+}

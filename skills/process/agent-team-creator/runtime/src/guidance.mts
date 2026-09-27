@@ -1,9 +1,10 @@
-import type { Team, Role, ObjectValue } from './types.mjs';
+import type { Team, Role, ObjectValue, UarWorkspaceStatus } from './types.mjs';
 import { id, text, strings, target, object } from './validation.mjs';
+import { workspaceStatus } from './uar-package/workspace.mjs';
 
-export interface GuideQuestion { key: string; question: string; choices?: string[] }
+export interface GuideQuestion { key: string; question: string; choices?: string[]; document?: string; pointer?: string }
 export interface GuideResult {
-  operation: 'create' | 'revise' | 'deploy';
+  operation: 'create' | 'author' | 'revise' | 'deploy';
   questions: GuideQuestion[];
   team?: Team;
   proposedRoles?: Role[];
@@ -14,9 +15,10 @@ export interface GuideResult {
   skillDiscovery?: string;
   maintenance?: ObjectValue;
   deployment?: ObjectValue;
+  workspace?: UarWorkspaceStatus;
 }
 export const questions: GuideQuestion[] = [
-  { key: 'operation', question: 'Are you creating a team, revising a versioned team, or deploying an approved package?', choices: ['create', 'revise', 'deploy'] },
+  { key: 'operation', question: 'Are you creating a local team, authoring a persisted UAR workspace, revising a versioned team, or deploying an approved package?', choices: ['create', 'author', 'revise', 'deploy'] },
   { key: 'id', question: 'What short name should identify this team?' },
   { key: 'outcome', question: 'What should be different when this work is finished?' },
   { key: 'complexity', question: 'Is this one isolated change, or work spanning several components?', choices: ['simple', 'complex'] },
@@ -51,11 +53,17 @@ const specialists: Record<string, { id: string; why: string; output: string; ski
 };
 export function guide(input: ObjectValue): GuideResult {
   const operation = (input.operation === undefined ? 'create' : String(input.operation)) as GuideResult['operation'];
-  if (!['create', 'revise', 'deploy'].includes(operation)) throw Error('operation must be create, revise, or deploy');
+  if (!['create', 'author', 'revise', 'deploy'].includes(operation)) throw Error('operation must be create, author, revise, or deploy');
+  if (operation === 'author') {
+    const status = workspaceStatus(input);
+    const question = status.nextQuestion;
+    return { operation, ready: status.complete, missing: question ? [`${question.document}${question.pointer}`] : [],
+      questions: question ? [{ key: question.pointer, question: question.question, document: question.document, pointer: question.pointer }] : [], workspace: status };
+  }
   if (operation === 'revise') {
     const required = ['state', 'changeSummary', 'nextVersion', 'deploymentIntent'];
     const missing = required.filter(key => input[key] === undefined);
-    if (missing.length) return { operation, ready: false, missing, questions: revisionQuestions };
+    if (missing.length) return { operation, ready: false, missing: [missing[0]!], questions: revisionQuestions.filter(question => question.key === missing[0]) };
     const nextVersion = text(input.nextVersion, 'nextVersion');
     if (!/^[0-9]+\.[0-9]+\.[0-9]+(?:-[0-9A-Za-z.-]+)?$/.test(nextVersion)) throw Error('nextVersion must be semantic version x.y.z');
     if (!['local-only','stage','deploy'].includes(String(input.deploymentIntent))) throw Error('Invalid deploymentIntent');
@@ -69,7 +77,7 @@ export function guide(input: ObjectValue): GuideResult {
   if (operation === 'deploy') {
     const required = ['baseUrl', 'credentialRef', 'packageDirectory', 'bindingIntent'];
     const missing = required.filter(key => input[key] === undefined);
-    if (missing.length) return { operation, ready: false, missing, questions: deploymentQuestions };
+    if (missing.length) return { operation, ready: false, missing: [missing[0]!], questions: deploymentQuestions.filter(question => question.key === missing[0]) };
     if (!['package-only','package-and-binding'].includes(String(input.bindingIntent))) throw Error('Invalid bindingIntent');
     const credentialRef = text(input.credentialRef, 'credentialRef');
     if (!/^env:[A-Za-z_][A-Za-z0-9_]*$/.test(credentialRef)) throw Error('credentialRef must use env:VARIABLE');
@@ -82,6 +90,7 @@ export function guide(input: ObjectValue): GuideResult {
   }
   const required = ['id','outcome','complexity','areas','deliverables','budget','review','harness','scope'];
   const missing = required.filter(k => input[k] === undefined);
+  if (missing.length && input.scope === 'uar') return { operation, questions: questions.filter(question => question.key === missing[0]), missing: [missing[0]!] };
   if (missing.length) return { operation, questions, missing };
   const teamId = id(input.id), outcome = text(input.outcome, 'outcome');
   const areas = strings(input.areas, 'areas'), deliverables = strings(input.deliverables, 'deliverables');
@@ -115,9 +124,12 @@ export function guide(input: ObjectValue): GuideResult {
   const unresolved = roles.filter(r => r.owns.length === 0);
   const alternatives = ['Use one implementer for sequential work; invoke specialist skills as needed.', 'Add parallel roles only where work and file ownership can be separated.'];
   const skillDiscovery = 'Skill names are suggestions, not installation claims. Discover installed AgentSkills, inspect their source and requirements, and replace or remove unavailable skills before export.';
-  if (unresolved.length) return { operation, ready: false, proposedRoles: roles, reasons, alternatives, skillDiscovery,
-    missing: unresolved.map(r => 'ownership.' + r.id),
-    questions: unresolved.map(r => ({ key: 'ownership.' + r.id, question: 'Which project-relative files or output directories may ' + r.id + ' write? For read-only review, assign a separate findings path. Inspect the project and suggest paths instead of guessing.' })) };
+  if (unresolved.length) {
+    const pending = input.scope === 'uar' ? unresolved.slice(0, 1) : unresolved;
+    return { operation, ready: false, proposedRoles: roles, reasons, alternatives, skillDiscovery,
+      missing: pending.map(r => 'ownership.' + r.id),
+      questions: pending.map(r => ({ key: 'ownership.' + r.id, question: 'Which project-relative files or output directories may ' + r.id + ' write? For read-only review, assign a separate findings path. Inspect the project and suggest paths instead of guessing.' })) };
+  }
   const team: Team = { schemaVersion: 1, id: teamId, outcome, scope: input.scope as Team['scope'], harness, roles, modelPolicy: { tier } };
   if (input.scope === 'uar') {
     const required = ['packageId','packageVersion','coordinatorRole','workflowSummary','communicationPolicy','aggregateLimits','aggregateBudget','bindingIntent'];
@@ -132,7 +144,7 @@ export function guide(input: ObjectValue): GuideResult {
       { key: 'aggregateBudget', question: 'What aggregate token, cost, currency, and elapsed-time ceilings should the team request?' },
       { key: 'bindingIntent', question: 'Should creation stop after the immutable catalog package or also prepare a private deployment binding?', choices: ['package-only', 'package-and-binding'] },
     ];
-    if (missing.length) return { operation, ready: false, proposedRoles: roles, reasons, alternatives, skillDiscovery, missing, questions: uarQuestions };
+    if (missing.length) return { operation, ready: false, proposedRoles: roles, reasons, alternatives, skillDiscovery, missing: [missing[0]!], questions: uarQuestions.filter(question => question.key === missing[0]) };
     const packageVersion = text(input.packageVersion, 'packageVersion');
     if (!/^[0-9]+\.[0-9]+\.[0-9]+(?:-[0-9A-Za-z.-]+)?$/.test(packageVersion)) throw Error('packageVersion must be semantic version x.y.z');
     const coordinatorRole = id(input.coordinatorRole, 'coordinatorRole');
@@ -142,7 +154,7 @@ export function guide(input: ObjectValue): GuideResult {
       packageId: text(input.packageId, 'packageId'), packageVersion, coordinatorRole,
       workflowSummary: text(input.workflowSummary, 'workflowSummary'), communicationPolicy: text(input.communicationPolicy, 'communicationPolicy'),
       limits: object(input.aggregateLimits, 'aggregateLimits'), budget: object(input.aggregateBudget, 'aggregateBudget'), bindingIntent: input.bindingIntent as string,
-      next: 'Author complete canonical documents with exact skill locks, model aliases, input/output contracts, and required capabilities, then run uar-package-validate.',
+      next: 'Initialize a persisted workspace, update one declared source document at a time, and use operation=author for one bounded next question.',
     } };
   }
   return { operation, ready: true, questions: [], team, reasons,

@@ -48,9 +48,24 @@ The result includes an editable team, reasons and alternatives. An empty request
 
 An `export` request names the team or state file, target and a new output directory. The runtime stages native definitions and provenance receipts. It refuses existing output directories and path or filename collisions. Review selected files before installing them; export does not install plugins, register service agents or start execution. Native permissions and invocation rules remain authoritative.
 
-Targets are UAR, Codex, Claude Code, Copilot, Kimi Code, MiniMax, OpenCode, DeepSeek Harness and BossFang. The adapter uses each tool's native format. Claude and Kimi have alternative agent plugin/marketplace artifacts; Codex uses standalone native agent TOML without an invented plugin `agents` field. MiniMax agent files belong under its active user-data directory. Kimi does not apply per-role model frontmatter, and DeepSeek's experimental team composition does not create a roster or select per-member models. UAR and BossFang exports contain service registration payloads; BossFang Hand activation is a separate action that may start schedules.
+Targets are UAR, Codex, Claude Code, Copilot, Kimi Code, MiniMax, OpenCode, DeepSeek Harness and BossFang. The adapter uses each tool's native format. Claude and Kimi have alternative agent plugin/marketplace artifacts; Codex uses standalone native agent TOML without an invented plugin `agents` field. MiniMax agent files belong under its active user-data directory. Kimi does not apply per-role model frontmatter, and DeepSeek's experimental team composition does not create a roster or select per-member models. UAR export remains legacy per-agent AgentArtifact staging; draft.2 packages and private bindings use the separate file-backed flow below. BossFang Hand activation is a separate action that may start schedules.
 
 Native role overrides, team options and opaque files preserve settings beyond the common manifest, with source/version provenance. Preservation does not certify a setting against an installed tool. The [native contract reference](https://github.com/Prometheus-AGS/prometheus-skill-system/blob/main/skills/process/agent-team-creator/references/native-harnesses.md) links official sources and explains which options become proposed config files and which remain sidecar data for deliberate application.
+
+## UAR draft.2 file-backed teams
+
+Legacy `export --target uar` still creates per-agent AgentArtifact staging files. Canonical teams use the provider-owned draft.2 profile with `workspace.json`, `manifest.source.json`, and separate source documents such as `agents/coordinator.json`, `agents/child.json`, `teams/root.json`, `teams/subteam.json`, and `workflows/review.json`.
+
+```text
+node skills/process/agent-team-creator/scripts/cli.mjs uar-workspace-init --input skills/process/agent-team-creator/assets/uar-intake.json
+node skills/process/agent-team-creator/scripts/cli.mjs uar-workspace-status --input workspace-status.json
+node skills/process/agent-team-creator/scripts/cli.mjs uar-workspace-update --input update-one-document.json
+node skills/process/agent-team-creator/scripts/cli.mjs uar-package-build --input workspace-build.json
+```
+
+Workspace status stays bounded: fixed counts, one next question, and paged field diagnostics. Validation requires one root TeamDefinition, kind-correct references, valid workflow roles, acyclic dependencies, and exact versions and digests. Draft.1 and inline callers migrate explicitly and retain field-level loss reports.
+
+The compiled package is portable immutable catalog data. DeploymentBinding is private installed state and carries opaque host references; package installation does not confer credentials, RepresentationGrants, consent, authority, or activation. The draft.2 checkpoint does not claim durable team execution, and `uar-activate` refuses rather than reporting an unobserved runtime result.
 
 ## Install or adopt a project team
 

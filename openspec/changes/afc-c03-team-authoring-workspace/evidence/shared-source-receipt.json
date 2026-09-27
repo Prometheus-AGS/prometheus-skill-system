@@ -1,0 +1,272 @@
+{
+  "schema": "prometheus-full.agent-team-source-mirror-receipt/1",
+  "initiative": {
+    "change": "afc-c03-lossless-definitions-and-collaboration-document-profile",
+    "requirements": [
+      "C03.1",
+      "C03.2",
+      "C03.3"
+    ]
+  },
+  "source": {
+    "repository": "prometheus-skills-mini",
+    "commit": "1557c842bd5fdb3b018a24bac86605a4e8c04233"
+  },
+  "provider": {
+    "repository": "Prometheus-AGS/universal-agent-runtime",
+    "commit": "41375cf6cd137a8a825be102c49516211c3fa2e5",
+    "profile": "urn:prometheus:uar:collaboration:0.1.0-draft.2"
+  },
+  "consumer": {
+    "repository": "prometheus-skill-pack",
+    "pathPrefix": "skills/process"
+  },
+  "sharedFiles": [
+    {
+      "sourcePath": "skills/agent-team-creator/SKILL.md",
+      "destinationPath": "skills/process/agent-team-creator/SKILL.md",
+      "sha256": "fc7582de9005f11ab7cdd5467df95ebcdf5aaa046b454f2e042eda1cbb9948f5"
+    },
+    {
+      "sourcePath": "skills/agent-team-creator/assets/deploy-intake.json",
+      "destinationPath": "skills/process/agent-team-creator/assets/deploy-intake.json",
+      "sha256": "7846c47e64d20da15b1f58035f69bf278ba9c4bbe7ab164e0ef95372f1d20f30"
+    },
+    {
+      "sourcePath": "skills/agent-team-creator/assets/revise-intake.json",
+      "destinationPath": "skills/process/agent-team-creator/assets/revise-intake.json",
+      "sha256": "1c675e5d6499ffea2e54fcb9e33ce721f61c44297fb863fd24d01b8a138eae00"
+    },
+    {
+      "sourcePath": "skills/agent-team-creator/assets/uar-intake.json",
+      "destinationPath": "skills/process/agent-team-creator/assets/uar-intake.json",
+      "sha256": "ad542a5381828511963c38d38a1f6ad656d1e684a53fbb40f7cbc815026b8eb8"
+    },
+    {
+      "sourcePath": "skills/agent-team-creator/assets/uar-workspace/agents/child.json",
+      "destinationPath": "skills/process/agent-team-creator/assets/uar-workspace/agents/child.json",
+      "sha256": "bbe71a2309c773bcc8b60972457b23616dcad126135b25482e2e7a707579b8da"
+    },
+    {
+      "sourcePath": "skills/agent-team-creator/assets/uar-workspace/agents/coordinator.json",
+      "destinationPath": "skills/process/agent-team-creator/assets/uar-workspace/agents/coordinator.json",
+      "sha256": "091b8e1ecd4f8f0801d3bb1ce505fd6ad46684d5b2b31a5a2290ac62504dd404"
+    },
+    {
+      "sourcePath": "skills/agent-team-creator/assets/uar-workspace/agents/specialist.json",
+      "destinationPath": "skills/process/agent-team-creator/assets/uar-workspace/agents/specialist.json",
+      "sha256": "64b9d0cc68825b03febd4bb6865e1b9e8ea8032d47c812385bf720aa364dda50"
+    },
+    {
+      "sourcePath": "skills/agent-team-creator/assets/uar-workspace/manifest.source.json",
+      "destinationPath": "skills/process/agent-team-creator/assets/uar-workspace/manifest.source.json",
+      "sha256": "ae009045ddcac16d331d727a8b1b312702af44549f5d27609326c4281fd43a31"
+    },
+    {
+      "sourcePath": "skills/agent-team-creator/assets/uar-workspace/teams/root.json",
+      "destinationPath": "skills/process/agent-team-creator/assets/uar-workspace/teams/root.json",
+      "sha256": "52c8c6ecd93dba0375b19cea94844d7dc9308bf90dc2e23f44bcd0fdcbfb37f8"
+    },
+    {
+      "sourcePath": "skills/agent-team-creator/assets/uar-workspace/teams/subteam.json",
+      "destinationPath": "skills/process/agent-team-creator/assets/uar-workspace/teams/subteam.json",
+      "sha256": "264d6b233d808bd846326f522fc44f78ebb0d6adb4e7d6896caf334c9b57e43d"
+    },
+    {
+      "sourcePath": "skills/agent-team-creator/assets/uar-workspace/workflows/review.json",
+      "destinationPath": "skills/process/agent-team-creator/assets/uar-workspace/workflows/review.json",
+      "sha256": "1a5a168434ca6f0462e2c601bd39e052baa69e53514cba6c7d54a27ef66e5c2a"
+    },
+    {
+      "sourcePath": "skills/agent-team-creator/assets/uar-workspace/workspace.json",
+      "destinationPath": "skills/process/agent-team-creator/assets/uar-workspace/workspace.json",
+      "sha256": "119906a09195f33a15bd759f1b49fab077d974f8d62edc873ec0955e389aa0f3"
+    },
+    {
+      "sourcePath": "skills/agent-team-creator/references/manifest.md",
+      "destinationPath": "skills/process/agent-team-creator/references/manifest.md",
+      "sha256": "598d394f8864909dff4032bfc061e437116f19cce52af6cb0266df0235b7c0c6"
+    },
+    {
+      "sourcePath": "skills/agent-team-creator/references/uar-deployment.md",
+      "destinationPath": "skills/process/agent-team-creator/references/uar-deployment.md",
+      "sha256": "76a81a52ddd618d69323687c2dffadfc51dae8c40645384bc5954cd75615100b"
+    },
+    {
+      "sourcePath": "skills/agent-team-creator/runtime/src/cli.mts",
+      "destinationPath": "skills/process/agent-team-creator/runtime/src/cli.mts",
+      "sha256": "d7bb19d1f906c948ab9de776f27906b469273b0c8d3030cbf35238bc346b1f84"
+    },
+    {
+      "sourcePath": "skills/agent-team-creator/runtime/src/guidance.mts",
+      "destinationPath": "skills/process/agent-team-creator/runtime/src/guidance.mts",
+      "sha256": "d909a8a0883e54ecdc0b0e1a79c209c67060e071dab8f113c0880cf36d813032"
+    },
+    {
+      "sourcePath": "skills/agent-team-creator/runtime/src/project-files.mts",
+      "destinationPath": "skills/process/agent-team-creator/runtime/src/project-files.mts",
+      "sha256": "bad39952337c17ad670733f19628da2d932b2ccf5ecedc4efc88bbfc21c4658a"
+    },
+    {
+      "sourcePath": "skills/agent-team-creator/runtime/src/types.mts",
+      "destinationPath": "skills/process/agent-team-creator/runtime/src/types.mts",
+      "sha256": "f0d9cc994c86f2fa3f68d133c0203f07920c1034f8fb9f6535a7b5c5bfa80ea9"
+    },
+    {
+      "sourcePath": "skills/agent-team-creator/runtime/src/uar-client.mts",
+      "destinationPath": "skills/process/agent-team-creator/runtime/src/uar-client.mts",
+      "sha256": "eb8a9c24edb6b78dc70c7c382eee72f66ade79e709cb893c621954ecbbacffee"
+    },
+    {
+      "sourcePath": "skills/agent-team-creator/runtime/src/uar-package.mts",
+      "destinationPath": "skills/process/agent-team-creator/runtime/src/uar-package.mts",
+      "sha256": "4ec40be5e4ab5ae8a5b19e92ef4d753504cb98a70e0bb28cb3e6afd5dafc4b07"
+    },
+    {
+      "sourcePath": "skills/agent-team-creator/runtime/src/uar-package/binding.mts",
+      "destinationPath": "skills/process/agent-team-creator/runtime/src/uar-package/binding.mts",
+      "sha256": "f2fb495307f4b364eedd28763f4a3c01ccbd851eeb30b794a292f8fd9c23701b"
+    },
+    {
+      "sourcePath": "skills/agent-team-creator/runtime/src/uar-package/canonical.mts",
+      "destinationPath": "skills/process/agent-team-creator/runtime/src/uar-package/canonical.mts",
+      "sha256": "597e5ed9a95ed4e3e9070d2d02d7532bd86502653b0968f2e2c2adee0dfcfa16"
+    },
+    {
+      "sourcePath": "skills/agent-team-creator/runtime/src/uar-package/commands.mts",
+      "destinationPath": "skills/process/agent-team-creator/runtime/src/uar-package/commands.mts",
+      "sha256": "a13fd8823d9ef23a8d4caf128273ee23e99a584a8949b7e53e0a27049dcd95b5"
+    },
+    {
+      "sourcePath": "skills/agent-team-creator/runtime/src/uar-package/compiler.mts",
+      "destinationPath": "skills/process/agent-team-creator/runtime/src/uar-package/compiler.mts",
+      "sha256": "b632f92bbbc3da473c6f44c1fedca681a2adc82ba6113862e6007b8944a0d4cb"
+    },
+    {
+      "sourcePath": "skills/agent-team-creator/runtime/src/uar-package/graph-validation.mts",
+      "destinationPath": "skills/process/agent-team-creator/runtime/src/uar-package/graph-validation.mts",
+      "sha256": "ace0311f72469e2ecef1755e926e986f386d0da10cfd83313c5131b0fec1d405"
+    },
+    {
+      "sourcePath": "skills/agent-team-creator/runtime/src/uar-package/maintenance.mts",
+      "destinationPath": "skills/process/agent-team-creator/runtime/src/uar-package/maintenance.mts",
+      "sha256": "fa77b391725348fbf01da81c8b15f129c83de501998c4e866ce623538099aa0d"
+    },
+    {
+      "sourcePath": "skills/agent-team-creator/runtime/src/uar-package/migration.mts",
+      "destinationPath": "skills/process/agent-team-creator/runtime/src/uar-package/migration.mts",
+      "sha256": "0fc985dcf589ea80411546cd15b3048c615bcea29df63036687d5ecdfb250518"
+    },
+    {
+      "sourcePath": "skills/agent-team-creator/runtime/src/uar-package/package-files.mts",
+      "destinationPath": "skills/process/agent-team-creator/runtime/src/uar-package/package-files.mts",
+      "sha256": "c5af136b72c170c75ce180fed0fb20441ec97e6a6d63931206f77d287087b7a6"
+    },
+    {
+      "sourcePath": "skills/agent-team-creator/runtime/src/uar-package/private-authority.mts",
+      "destinationPath": "skills/process/agent-team-creator/runtime/src/uar-package/private-authority.mts",
+      "sha256": "6e048d4aea147a809a3b95686cbd0b60defadf4785efe38efcdd63401b4b0af6"
+    },
+    {
+      "sourcePath": "skills/agent-team-creator/runtime/src/uar-package/profile-validation.mts",
+      "destinationPath": "skills/process/agent-team-creator/runtime/src/uar-package/profile-validation.mts",
+      "sha256": "792ad87fb8e923955b561b8088e5c3f153e8d91e45e11cccd0a26d9a3b84abcf"
+    },
+    {
+      "sourcePath": "skills/agent-team-creator/runtime/src/uar-package/workspace.mts",
+      "destinationPath": "skills/process/agent-team-creator/runtime/src/uar-package/workspace.mts",
+      "sha256": "9bc722497a80c910ee57f3b2e0ee73d0a2a290a706148a31a0e40d90ad933b36"
+    },
+    {
+      "sourcePath": "skills/agent-team-creator/schemas/uar-migration-diagnostics.schema.json",
+      "destinationPath": "skills/process/agent-team-creator/schemas/uar-migration-diagnostics.schema.json",
+      "sha256": "74279916116e19ddac325ef11425249d817a5e15a75e86c2b02047111358710f"
+    },
+    {
+      "sourcePath": "skills/agent-team-creator/schemas/uar-package-authoring-v2.schema.json",
+      "destinationPath": "skills/process/agent-team-creator/schemas/uar-package-authoring-v2.schema.json",
+      "sha256": "ef8870b61c066c8f871c91570b8e7d5d340053ddc6ad54491782b2a2130683f6"
+    },
+    {
+      "sourcePath": "skills/agent-team-creator/schemas/uar-workspace.schema.json",
+      "destinationPath": "skills/process/agent-team-creator/schemas/uar-workspace.schema.json",
+      "sha256": "840ca2e89b16f04d62d5fc00ca95ac951add696abc253ee6b2b4500161653d32"
+    },
+    {
+      "sourcePath": "skills/agent-team-creator/schemas/uar/0.1.0-draft.2/agent-definition.schema.json",
+      "destinationPath": "skills/process/agent-team-creator/schemas/uar/0.1.0-draft.2/agent-definition.schema.json",
+      "sha256": "a5e0573b5323accec7e25766287af897cee34f689d77a2b6eb9d9367d41f179c"
+    },
+    {
+      "sourcePath": "skills/agent-team-creator/schemas/uar/0.1.0-draft.2/collaboration-document.schema.json",
+      "destinationPath": "skills/process/agent-team-creator/schemas/uar/0.1.0-draft.2/collaboration-document.schema.json",
+      "sha256": "e7f8215d6e177f3ab00374df0ab34d0f19e24552af34c69aaf5b049260ccc2d1"
+    },
+    {
+      "sourcePath": "skills/agent-team-creator/schemas/uar/0.1.0-draft.2/common.schema.json",
+      "destinationPath": "skills/process/agent-team-creator/schemas/uar/0.1.0-draft.2/common.schema.json",
+      "sha256": "e81396cea7ecca483a111d2123774a438c5c3bf6b232a2a55936ef7711e76576"
+    },
+    {
+      "sourcePath": "skills/agent-team-creator/schemas/uar/0.1.0-draft.2/consumer-source-receipt.json",
+      "destinationPath": "skills/process/agent-team-creator/schemas/uar/0.1.0-draft.2/consumer-source-receipt.json",
+      "sha256": "7058ee520d31b6482d37cc77edd428e070d34f391d5b8087307362ec54abc1e9"
+    },
+    {
+      "sourcePath": "skills/agent-team-creator/schemas/uar/0.1.0-draft.2/conversion-report.schema.json",
+      "destinationPath": "skills/process/agent-team-creator/schemas/uar/0.1.0-draft.2/conversion-report.schema.json",
+      "sha256": "4a013291e1768a5f0b98f6c99d3ec746f6a863cfd55d50d73863161943fb82cb"
+    },
+    {
+      "sourcePath": "skills/agent-team-creator/schemas/uar/0.1.0-draft.2/deployment-binding-template.schema.json",
+      "destinationPath": "skills/process/agent-team-creator/schemas/uar/0.1.0-draft.2/deployment-binding-template.schema.json",
+      "sha256": "73432b4f73217b166d13013cfdda63f0b139dd191196f009fc7e629886a2c22b"
+    },
+    {
+      "sourcePath": "skills/agent-team-creator/schemas/uar/0.1.0-draft.2/deployment-binding.schema.json",
+      "destinationPath": "skills/process/agent-team-creator/schemas/uar/0.1.0-draft.2/deployment-binding.schema.json",
+      "sha256": "2d7667dc556a75010e1b0f1015d0af6a1517bc84e3531cf64b0682ebecda65d7"
+    },
+    {
+      "sourcePath": "skills/agent-team-creator/schemas/uar/0.1.0-draft.2/effective-binding-receipt.schema.json",
+      "destinationPath": "skills/process/agent-team-creator/schemas/uar/0.1.0-draft.2/effective-binding-receipt.schema.json",
+      "sha256": "d1bebeec6499c0b84b5fb3b9286162db947cc96ab7ed377d6de042a2a9065d15"
+    },
+    {
+      "sourcePath": "skills/agent-team-creator/schemas/uar/0.1.0-draft.2/package-manifest.schema.json",
+      "destinationPath": "skills/process/agent-team-creator/schemas/uar/0.1.0-draft.2/package-manifest.schema.json",
+      "sha256": "bb96cd181790f391f9a543799f93369f8c53125ba9b3f70355f5f4c06fc1bd71"
+    },
+    {
+      "sourcePath": "skills/agent-team-creator/schemas/uar/0.1.0-draft.2/representation-grant.schema.json",
+      "destinationPath": "skills/process/agent-team-creator/schemas/uar/0.1.0-draft.2/representation-grant.schema.json",
+      "sha256": "b856385bb5d1ab40fdb1e7e28d62ee0c9a0843e2fe46dd9162224d70c7ed8b01"
+    },
+    {
+      "sourcePath": "skills/agent-team-creator/schemas/uar/0.1.0-draft.2/team-definition.schema.json",
+      "destinationPath": "skills/process/agent-team-creator/schemas/uar/0.1.0-draft.2/team-definition.schema.json",
+      "sha256": "70750371fe23a828f7ce8cac43732193f328cc09b4d6067b8632c87afc599e9c"
+    },
+    {
+      "sourcePath": "skills/agent-team-creator/schemas/uar/0.1.0-draft.2/workflow-definition.schema.json",
+      "destinationPath": "skills/process/agent-team-creator/schemas/uar/0.1.0-draft.2/workflow-definition.schema.json",
+      "sha256": "6129578c9c54d5fd7134ea11ef149ba1d629841b205856f6b151be6ff03a9abb"
+    },
+    {
+      "sourcePath": "skills/agent-team-creator/schemas/uar/README.md",
+      "destinationPath": "skills/process/agent-team-creator/schemas/uar/README.md",
+      "sha256": "d654fd2ee04de8582942095caca43632572cbf3e870a9521a04535f02ba8c64b"
+    },
+    {
+      "sourcePath": "skills/agent-team-handoff/SKILL.md",
+      "destinationPath": "skills/process/agent-team-handoff/SKILL.md",
+      "sha256": "877056d90d766dd03ab99a816e156efd8ac67ab1de35687649f7213b8104d251"
+    },
+    {
+      "sourcePath": "skills/agent-team-manage/SKILL.md",
+      "destinationPath": "skills/process/agent-team-manage/SKILL.md",
+      "sha256": "6e99f78af30d9ef3ce3458981b10ec37cef4cc10b127eeb8b16c93944c5b7b75"
+    }
+  ],
+  "status": "source-checkpoint-mirrored-generated-and-live-gates-deferred"
+}

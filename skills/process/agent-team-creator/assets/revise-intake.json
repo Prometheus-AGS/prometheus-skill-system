@@ -1,8 +1,6 @@
 {
-  "operation": "revise",
-  "state": ".agent-team/checkout-team/state.json",
-  "changeSummary": "Add a release coordinator and bind a new workflow revision",
-  "nextVersion": "1.1.0",
-  "deploymentIntent": "stage"
+  "project": ".",
+  "workspace": ".agent-team/checkout-team/uar-source-1.0.0",
+  "out": ".agent-team/checkout-team/uar-source-1.1.0",
+  "nextVersion": "1.1.0"
 }
-
