@@ -1,6 +1,7 @@
 import { id, text, strings, target, object } from './validation.mjs';
+import { workspaceStatus } from './uar-package/workspace.mjs';
 export const questions = [
-    { key: 'operation', question: 'Are you creating a team, revising a versioned team, or deploying an approved package?', choices: ['create', 'revise', 'deploy'] },
+    { key: 'operation', question: 'Are you creating a local team, authoring a persisted UAR workspace, revising a versioned team, or deploying an approved package?', choices: ['create', 'author', 'revise', 'deploy'] },
     { key: 'id', question: 'What short name should identify this team?' },
     { key: 'outcome', question: 'What should be different when this work is finished?' },
     { key: 'complexity', question: 'Is this one isolated change, or work spanning several components?', choices: ['simple', 'complex'] },
@@ -35,13 +36,19 @@ const specialists = {
 };
 export function guide(input) {
     const operation = (input.operation === undefined ? 'create' : String(input.operation));
-    if (!['create', 'revise', 'deploy'].includes(operation))
-        throw Error('operation must be create, revise, or deploy');
+    if (!['create', 'author', 'revise', 'deploy'].includes(operation))
+        throw Error('operation must be create, author, revise, or deploy');
+    if (operation === 'author') {
+        const status = workspaceStatus(input);
+        const question = status.nextQuestion;
+        return { operation, ready: status.complete, missing: question ? [`${question.document}${question.pointer}`] : [],
+            questions: question ? [{ key: question.id, question: question.question, document: question.document, pointer: question.pointer }] : [], workspace: status };
+    }
     if (operation === 'revise') {
         const required = ['state', 'changeSummary', 'nextVersion', 'deploymentIntent'];
         const missing = required.filter(key => input[key] === undefined);
         if (missing.length)
-            return { operation, ready: false, missing, questions: revisionQuestions };
+            return { operation, ready: false, missing: [missing[0]], questions: revisionQuestions.filter(question => question.key === missing[0]) };
         const nextVersion = text(input.nextVersion, 'nextVersion');
         if (!/^[0-9]+\.[0-9]+\.[0-9]+(?:-[0-9A-Za-z.-]+)?$/.test(nextVersion))
             throw Error('nextVersion must be semantic version x.y.z');
@@ -58,7 +65,7 @@ export function guide(input) {
         const required = ['baseUrl', 'credentialRef', 'packageDirectory', 'bindingIntent'];
         const missing = required.filter(key => input[key] === undefined);
         if (missing.length)
-            return { operation, ready: false, missing, questions: deploymentQuestions };
+            return { operation, ready: false, missing: [missing[0]], questions: deploymentQuestions.filter(question => question.key === missing[0]) };
         if (!['package-only', 'package-and-binding'].includes(String(input.bindingIntent)))
             throw Error('Invalid bindingIntent');
         const credentialRef = text(input.credentialRef, 'credentialRef');
@@ -73,6 +80,8 @@ export function guide(input) {
     }
     const required = ['id', 'outcome', 'complexity', 'areas', 'deliverables', 'budget', 'review', 'harness', 'scope'];
     const missing = required.filter(k => input[k] === undefined);
+    if (missing.length && input.scope === 'uar')
+        return { operation, questions: questions.filter(question => question.key === missing[0]), missing: [missing[0]] };
     if (missing.length)
         return { operation, questions, missing };
     const teamId = id(input.id), outcome = text(input.outcome, 'outcome');
@@ -122,10 +131,12 @@ export function guide(input) {
     const unresolved = roles.filter(r => r.owns.length === 0);
     const alternatives = ['Use one implementer for sequential work; invoke specialist skills as needed.', 'Add parallel roles only where work and file ownership can be separated.'];
     const skillDiscovery = 'Skill names are suggestions, not installation claims. Discover installed AgentSkills, inspect their source and requirements, and replace or remove unavailable skills before export.';
-    if (unresolved.length)
+    if (unresolved.length) {
+        const pending = input.scope === 'uar' ? unresolved.slice(0, 1) : unresolved;
         return { operation, ready: false, proposedRoles: roles, reasons, alternatives, skillDiscovery,
-            missing: unresolved.map(r => 'ownership.' + r.id),
-            questions: unresolved.map(r => ({ key: 'ownership.' + r.id, question: 'Which project-relative files or output directories may ' + r.id + ' write? For read-only review, assign a separate findings path. Inspect the project and suggest paths instead of guessing.' })) };
+            missing: pending.map(r => 'ownership.' + r.id),
+            questions: pending.map(r => ({ key: 'ownership.' + r.id, question: 'Which project-relative files or output directories may ' + r.id + ' write? For read-only review, assign a separate findings path. Inspect the project and suggest paths instead of guessing.' })) };
+    }
     const team = { schemaVersion: 1, id: teamId, outcome, scope: input.scope, harness, roles, modelPolicy: { tier } };
     if (input.scope === 'uar') {
         const required = ['packageId', 'packageVersion', 'coordinatorRole', 'workflowSummary', 'communicationPolicy', 'aggregateLimits', 'aggregateBudget', 'bindingIntent'];
@@ -141,7 +152,7 @@ export function guide(input) {
             { key: 'bindingIntent', question: 'Should creation stop after the immutable catalog package or also prepare a private deployment binding?', choices: ['package-only', 'package-and-binding'] },
         ];
         if (missing.length)
-            return { operation, ready: false, proposedRoles: roles, reasons, alternatives, skillDiscovery, missing, questions: uarQuestions };
+            return { operation, ready: false, proposedRoles: roles, reasons, alternatives, skillDiscovery, missing: [missing[0]], questions: uarQuestions.filter(question => question.key === missing[0]) };
         const packageVersion = text(input.packageVersion, 'packageVersion');
         if (!/^[0-9]+\.[0-9]+\.[0-9]+(?:-[0-9A-Za-z.-]+)?$/.test(packageVersion))
             throw Error('packageVersion must be semantic version x.y.z');
@@ -154,7 +165,7 @@ export function guide(input) {
                 packageId: text(input.packageId, 'packageId'), packageVersion, coordinatorRole,
                 workflowSummary: text(input.workflowSummary, 'workflowSummary'), communicationPolicy: text(input.communicationPolicy, 'communicationPolicy'),
                 limits: object(input.aggregateLimits, 'aggregateLimits'), budget: object(input.aggregateBudget, 'aggregateBudget'), bindingIntent: input.bindingIntent,
-                next: 'Author complete canonical documents with exact skill locks, model aliases, input/output contracts, and required capabilities, then run uar-package-validate.',
+                next: 'Initialize a persisted workspace, update one declared source document at a time, and use operation=author for one bounded next question.',
             } };
     }
     return { operation, ready: true, questions: [], team, reasons,

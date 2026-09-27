@@ -1,0 +1,32 @@
+{
+  "schema": "prometheus-mini.uar-schema-source-receipt/1",
+  "initiative": {
+    "change": "afc-c03-lossless-definitions-and-collaboration-document-profile",
+    "requirements": ["C03.1", "C03.2", "C03.3"]
+  },
+  "provider": {
+    "repository": "Prometheus-AGS/universal-agent-runtime",
+    "commit": "41375cf6cd137a8a825be102c49516211c3fa2e5",
+    "profile": "urn:prometheus:uar:collaboration:0.1.0-draft.2",
+    "sourceDirectory": "docs/agents/collaboration/v0.1.0-draft.2/schemas"
+  },
+  "consumer": {
+    "repository": "prometheus-skills-mini",
+    "baseline": "63dd2d59e56d3fa610862ba93248fa900f9477f2",
+    "snapshotDirectory": "skills/agent-team-creator/schemas/uar/0.1.0-draft.2"
+  },
+  "schemas": [
+    {"path":"agent-definition.schema.json","sha256":"a5e0573b5323accec7e25766287af897cee34f689d77a2b6eb9d9367d41f179c"},
+    {"path":"collaboration-document.schema.json","sha256":"e7f8215d6e177f3ab00374df0ab34d0f19e24552af34c69aaf5b049260ccc2d1"},
+    {"path":"common.schema.json","sha256":"e81396cea7ecca483a111d2123774a438c5c3bf6b232a2a55936ef7711e76576"},
+    {"path":"conversion-report.schema.json","sha256":"4a013291e1768a5f0b98f6c99d3ec746f6a863cfd55d50d73863161943fb82cb"},
+    {"path":"deployment-binding-template.schema.json","sha256":"73432b4f73217b166d13013cfdda63f0b139dd191196f009fc7e629886a2c22b"},
+    {"path":"deployment-binding.schema.json","sha256":"2d7667dc556a75010e1b0f1015d0af6a1517bc84e3531cf64b0682ebecda65d7"},
+    {"path":"effective-binding-receipt.schema.json","sha256":"d1bebeec6499c0b84b5fb3b9286162db947cc96ab7ed377d6de042a2a9065d15"},
+    {"path":"package-manifest.schema.json","sha256":"bb96cd181790f391f9a543799f93369f8c53125ba9b3f70355f5f4c06fc1bd71"},
+    {"path":"representation-grant.schema.json","sha256":"b856385bb5d1ab40fdb1e7e28d62ee0c9a0843e2fe46dd9162224d70c7ed8b01"},
+    {"path":"team-definition.schema.json","sha256":"70750371fe23a828f7ce8cac43732193f328cc09b4d6067b8632c87afc599e9c"},
+    {"path":"workflow-definition.schema.json","sha256":"6129578c9c54d5fd7134ea11ef149ba1d629841b205856f6b151be6ff03a9abb"}
+  ],
+  "status": "accepted-contract-checkpoint-not-runtime-conformance"
+}
