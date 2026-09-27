@@ -238,5 +238,5 @@ export function reviseWorkspace(input: ObjectValue): ObjectValue {
     schemaVersion: 1, sourceProfile: UAR_PROFILE_V2, targetProfile: UAR_PROFILE_V2,
     diagnostics: [], activationBlocked: false,
   };
-  return initializeWorkspace({ project: input.project as Json, workspace: input.out as Json, source: { manifest, definitions }, bindingIntent: current.index.bindingIntent ?? 'package-only', receipt } as ObjectValue);
+  return initializeWorkspace({ project: input.project as Json, workspace: input.out as Json, source: { manifest, definitions }, bindingIntent: current.index.bindingIntent ?? 'package-only', receipt } as unknown as ObjectValue);
 }

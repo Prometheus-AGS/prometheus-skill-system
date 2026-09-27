@@ -143,7 +143,7 @@ function flatTeamPackage(value: unknown): NormalizedAuthoring {
       permittedChildren: [], context: { mode: 'selected', artifacts: [], history: 'authorized-summary', memoryScopes: [] }, requestedLimits: limits(),
       sourceIdentity: { profile: 'prometheus.agent-team/1', id: `${base}:legacy:${role.id}`, version, digest: sha256(canonical(source)), revision: null },
       renameMapping: { sourceId: `${base}:legacy:${role.id}`, targetId: id, reason: 'explicit-rename' }, authoredFields: [],
-      modelRequirements: { required: false, value: role.modelPolicy ?? {} }, promptDialect: { required: false, value: {} },
+      modelRequirements: { required: false, value: (role.modelPolicy ?? {}) as unknown as Json }, promptDialect: { required: false, value: {} },
       ragConfiguration: { required: false, value: {} }, contextStrategy: { required: false, value: {} }, apiHarness: { required: false, value: { id: team.harness } },
       legacySections: {}, sourceDescriptor: structuredClone(role) as unknown as Json,
     } };
