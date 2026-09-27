@@ -1,12 +1,13 @@
 {
   "schemaVersion": 1,
   "runnerOwner": "prometheus-skills-mini",
-  "miniSourceCommit": "1557c842bd5fdb3b018a24bac86605a4e8c04233",
+  "miniSourceCommit": "ad95a27b1e30388769a60f893a717a54da65f05b",
   "runnerSource": "skills/agent-team-creator/runtime/test-src/c03-final.integration.mts",
   "schemaSource": "41375cf6cd137a8a825be102c49516211c3fa2e5",
   "firstDraft2RuntimeAncestor": "a64bafbb3d4cc54a22a5eecef2362300a959de62",
-  "finalExecutableCheckpoint": "resolved-from-the-UAR-root-at-gate-execution",
+  "finalExecutableCheckpoint": "6f59672f31e9ad971d198a2d7fb5fe6875b8dfb6",
   "expectedFrozenCheckpoint": "6f59672f31e9ad971d198a2d7fb5fe6875b8dfb6",
-  "receipt": "written-byte-identically-by-the-mini-owned-gate",
-  "status": "awaiting-build-distribution-and-one-final-gate"
+  "receipt": "final-gate-receipt.json",
+  "status": "passed",
+  "result": "passed"
 }
