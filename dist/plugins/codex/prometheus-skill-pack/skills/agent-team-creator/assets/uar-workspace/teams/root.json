@@ -1,7 +1,7 @@
 {
   "profile": "urn:prometheus:uar:collaboration:0.1.0-draft.2",
   "kind": "TeamDefinition",
-  "id": "urn:prometheus:mini:example:team:subteam",
+  "id": "urn:prometheus:mini:example:team:root",
   "version": "1.0.0",
   "provenance": {
     "source": "UAR collaboration draft.2 contract checkpoint fixtures",
@@ -11,28 +11,55 @@
   },
   "requiredCapabilities": [],
   "extensions": {},
-  "title": "Nested specialist team",
-  "purpose": "Demonstrate a kind-correct nested team.",
+  "title": "Root collaboration team",
+  "purpose": "Demonstrate multiple agents, a permitted child, a nested subteam, and a workflow.",
   "members": [
     {
-      "role": "specialist",
+      "role": "coordinator",
       "kind": "agent",
       "definition": {
-        "id": "urn:prometheus:mini:example:agent:specialist",
+        "id": "urn:prometheus:mini:example:agent:coordinator",
         "version": "1.0.0"
       },
       "min": 1,
       "max": 1,
-      "responsibility": "Produce a bounded specialist artifact."
+      "responsibility": "Coordinate the bounded workflow."
+    },
+    {
+      "role": "research",
+      "kind": "team",
+      "definition": {
+        "id": "urn:prometheus:mini:example:team:subteam",
+        "version": "1.0.0"
+      },
+      "min": 1,
+      "max": 1,
+      "responsibility": "Produce the nested specialist review."
     }
   ],
-  "coordinatorRole": "specialist",
-  "communication": [],
+  "coordinatorRole": "coordinator",
+  "communication": [
+    {
+      "fromRole": "coordinator",
+      "toRole": "research",
+      "modes": [
+        "queue-only",
+        "trigger-turn"
+      ]
+    },
+    {
+      "fromRole": "research",
+      "toRole": "coordinator",
+      "modes": [
+        "queue-only"
+      ]
+    }
+  ],
   "taskAcceptance": {
     "mode": "operator",
     "allowedWorkflows": [
       {
-        "id": "urn:prometheus:mini:example:workflow:specialist",
+        "id": "urn:prometheus:mini:example:workflow:review",
         "version": "1.0.0"
       }
     ]
@@ -43,10 +70,10 @@
     "explain": true
   },
   "limits": {
-    "concurrentTurns": 1,
-    "maxMembers": 2,
-    "maxDepth": 1,
-    "maxPendingTasks": 8
+    "concurrentTurns": 2,
+    "maxMembers": 4,
+    "maxDepth": 2,
+    "maxPendingTasks": 16
   },
   "budget": {
     "maxTokens": 10000,
