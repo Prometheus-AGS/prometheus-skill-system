@@ -280,6 +280,6 @@ export function reviseWorkspace(input: ObjectValue): ObjectValue {
     for (const definition of definitions) stage(changes, project, `${destinationPath}/${definition.path}`, changedPaths.has(definition.path) ? json(definition.document) : definition.raw);
     if (index.migrationReceipt) stage(changes, project, `${destinationPath}/${index.migrationReceipt}`, readFile(projectFile(project, `${sourcePath}/${index.migrationReceipt}`))!);
     const recovery = commitChanges(project, [...changes.values()], { operation: 'workspace-revise', teamId: destinationId, baseTeamId: current.index.teamId, beforeRevision: current.index.revision, afterRevision: nextRevision });
-    return { workspace: destinationId, path: destinationPath, base: index.base, revision: nextRevision, packageVersion: nextVersion, changedDefinitions: [...changedPaths].sort(), unchangedDefinitions: definitions.filter(item => !changedPaths.has(item.path)).map(item => item.path).sort(), recovery };
+    return { workspace: destinationId, path: destinationPath, ...(index.base ? { base: index.base } : {}), revision: nextRevision, packageVersion: nextVersion, changedDefinitions: [...changedPaths].sort(), unchangedDefinitions: definitions.filter(item => !changedPaths.has(item.path)).map(item => item.path).sort(), recovery };
   } finally { release(); }
 }
