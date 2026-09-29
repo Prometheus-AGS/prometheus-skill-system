@@ -13,7 +13,7 @@
     },
     {
       "path": "scripts/install-plugin-generation.js",
-      "sha256": "0c6de653ede8a9cd3ac55ccec04e3f512e75377c4852e75943b72aa372f274c9",
+      "sha256": "f5f1f6e37b78b03972196684ff46541207846d94424fa94dab0abba66a665738",
       "executable": true
     },
     {
@@ -75,6 +75,16 @@
       "path": "shared/scripts/bootstrap-hook-runtime.sh",
       "sha256": "d82e7a2ac99a7fbbc1d3e12a2897716a12bccdec5e1206ba675a96a89e20c82d",
       "executable": true
+    },
+    {
+      "path": "shared/scripts/cadence-karpathy-adapter.mjs",
+      "sha256": "7470cdda1cfae5a1109238a7289b4dffa6ab63b91335dbfe6ad7f2951e5f002c",
+      "executable": false
+    },
+    {
+      "path": "shared/scripts/cadence-kbd-adapter.mjs",
+      "sha256": "e4aaa71f36d17969a1e30c0f8753e925738d5da81a25a2058093f8e4f922a681",
+      "executable": false
     },
     {
       "path": "shared/scripts/cedar-skill-gate.sh",
@@ -387,5 +397,5 @@
       "executable": true
     }
   ],
-  "bundleId": "35e2ecbe4e2930effb273a69cddebf0e9faef6ce508228e652d192011e8545d6"
+  "bundleId": "0af0a9aad9889e436eca3a6bbae3e119529e04e9171145f3ca05163112c8b361"
 }
