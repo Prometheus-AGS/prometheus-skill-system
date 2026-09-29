@@ -6,7 +6,7 @@ description: >
   Select an execution backend for the active KBD phase, write canonical phase
   execution state, dispatch the phase to the appropriate tool or OpenSpec, and
   maintain KBD as the source of truth. Supports multi-tool handoff via
-  progress.json protocol. Integrates artifact-refiner QA per completed change.
+  progress.json protocol. Runs integration and review gates once at phase completion.
 metadata:
   tags: [process, orchestration, automation]
 ---
@@ -24,14 +24,18 @@ phase while keeping KBD as the source of truth.
 Also refreshes `.kbd-orchestrator/current-waypoint.json` so any AI tool can
 resume cleanly.
 
-## Per-Change QA Gate (artifact-refiner)
+## Final phase QA gate
 
-After each change reaches `implementation_status: COMPLETE` in `progress.json`,
-invoke artifact-refiner as a quality gate before archiving. The QA result is
-evidence/certification state; it must not reopen the implementation counter:
+Do not run tests, verification builds, artifact refinement, or adversarial review
+after individual tasks or changes. Complete every planned production change first.
+When the active harness provides an agent team, assign implementation to executor
+roles and keep reviewer, auditor, verifier, and integration-checker roles dormant
+until every production change is complete. Then run one production-path integration
+gate and one cumulative artifact/adversarial review. The result is evidence and
+certification state; it must not reopen the implementation counter:
 
 ```
-implementation_status → COMPLETE in progress.json
+all implementation_status values → COMPLETE in progress.json
   │
   ├─ /refine-validate "<change-id>"
   │   ├─ reads constraints from .kbd-orchestrator/constraints.md
@@ -49,10 +53,10 @@ implementation_status → COMPLETE in progress.json
   │   │    SUGGESTION: informational)
   │   │
   │   └─ verdict BLOCK (any CRITICAL) → mark certification BLOCKED in progress.json
-  │       └─ fix, then re-run refine-validate AND adversarial-review
+  │       └─ fix, then re-run only the failed final gate
   │
   └─ ANY FAIL → mark certification BLOCKED in progress.json
-      └─ /refine-code "<change-id>" for iterative refinement
+      └─ fix the phase-level finding, then re-run only the failed final gate
 ```
 
 See `references/integrations/artifact-refiner.md` for the QA invocation
@@ -63,7 +67,7 @@ contract (packet assembly, judge dispatch, fallback chain).
 ### Local review coverage
 
 File-count and documentation-only skips do not exist. QA and adversarial review
-cover the cumulative Git diff since the last accepted local review receipt.
+cover the cumulative phase diff after implementation is complete.
 `--skip-qa` and `--skip-adversarial-review` may let development continue, but
 record `pending_review`; final local certification still requires a completed
 receipt or an SSH-signed waiver. The two flags remain independent.
@@ -136,9 +140,9 @@ Use the canonical phase name from the argument or `current-waypoint.json`. Phase
 7. **Record the active path** with a typed KBD command; projections refresh automatically
 8. **Register planned changes and tasks** with `prometheus kbd change|task`
 9. **Dispatch** to selected backend or mark phase execution-ready
-10. **Per completed change**: run artifact-refiner QA gate (see above)
-11. **Per completed change**: run adversarial-review diff-mode gate after QA passes (see above)
-12. **Archive** changes that pass both gates
+10. Complete every planned production change without intermediate verification
+11. Run one production-path integration gate and one cumulative final review
+12. Archive changes after the final phase gates pass
 
 ## Backend Types
 
@@ -205,3 +209,9 @@ kbd_stage_handoff_write execute "<1–3 sentences: backend chosen, dispatch cont
 Phases without a `handoffs/` directory are legacy: the gate warns and passes.
 A deliberate stage skip is recorded with `kbd_stage_handoff_skip <stage>
 "<reason>"`. Schema: `references/schemas/handoff.schema.json`.
+
+## Delivery cadence profiles
+
+When a delivery-cadence profile is selected, include its path, state root, iteration scope, required build/run actions and publication interval in the authored execution dispatch contract. The harness remains continuation owner; kbd-apply remains canonical task owner. Do not edit generated waypoints.
+
+Finish the complete independently usable increment, then BUILD and RUN its actual function. Do not run test suites, per-task verification or reviewer loops at iteration boundaries. Fix build, launch or functional failures before beginning another increment. A timer never certifies partial work. Apply the profile's human review and publication policy; keep architecture approvals separate. See the delivery-cadence skill only for cadence-enabled work.
