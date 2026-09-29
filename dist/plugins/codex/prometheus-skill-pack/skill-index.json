@@ -139,6 +139,10 @@
       "path": "skills/deep-research"
     },
     {
+      "name": "delivery-cadence",
+      "path": "skills/delivery-cadence"
+    },
+    {
       "name": "design-svg-logo",
       "path": "skills/design-svg-logo"
     },
@@ -485,6 +489,10 @@
     {
       "name": "kbd-inject-agent-rules",
       "path": "skills/kbd-inject-agent-rules"
+    },
+    {
+      "name": "kbd-loop",
+      "path": "skills/kbd-loop"
     },
     {
       "name": "kbd-memory-recall",

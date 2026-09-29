@@ -92,7 +92,7 @@ Sets a token ceiling and turn limit across all phases.
 2. **Goal state created** — `.kbd-orchestrator/goals/<slug>/goal.json` written.
 3. **Child phases spawned** — one KBD child phase per requested phase.
 4. **Platform routing** — active tool detected; platform-specific strategy selected.
-5. **Loop starts** — first phase begins; evaluator runs after each turn.
+5. **Loop starts** — first phase begins; completed delivery boundaries govern build and functional operation.
 
 ## Platform Detection
 
@@ -109,12 +109,7 @@ The skill reads `$TOOL` env var → `.kbd-orchestrator/current-waypoint.json →
 
 ## Evaluator Pattern (Bias Resistance)
 
-KBD never uses the builder model to grade its own output. After each execution
-turn, `kbd-goal-evaluator` (a separate Haiku-class subagent, read-only) checks
-the stopping condition against STATE.md and returns `PASS` or `FAIL + reason`.
-
-This mirrors Claude Code's native `/goal` evaluator design and applies it to all
-five platforms uniformly.
+During implementation keep evaluators and reviewers dormant. Inspect progress through canonical state without running verification. At the completed boundary use actual build and functional-run evidence. A native goal tool owns its own continuation and budget; discover capabilities rather than assuming identical behavior across harnesses.
 
 ## Goal State Files
 
@@ -150,13 +145,11 @@ human approves `SPEC.md`.
 
 ## Creation Phase
 
-> Per-task verify loop; auto-promotes complex tasks to child phases.
+> Complete the approved production increment, then build and operate it at its delivery boundary.
 
 See [references/templates/creation-phase.md](references/templates/creation-phase.md)
 
-**Loop:** decompose `SPEC.md` → `TASKS.md` → per task: implement + test →
-`kbd-task-verifier` checks against SPEC acceptance criteria → PASS (commit,
-advance) or FAIL (retry up to 3) → fail≥3 promotes to child phase.
+**Loop:** decompose approved scope, implement every production task, then build the deliverable and run its actual function. Fix boundary failures before admitting another increment. Do not run per-task tests or verifier loops. Use delivery-cadence for timed, independently usable deliveries.
 
 ## Inner-Loop Auto-Promotion
 
@@ -260,3 +253,11 @@ platform routing table and async checkpoint contract.
 - [Creation Phase Template](references/templates/creation-phase.md)
 - [Goal Directory Layout](references/goal-directory-layout.md)
 - [Skill Discovery](references/skill-discovery.md)
+
+## Portable cadence mode
+
+When a cadence profile is requested, use delivery-cadence and kbd-loop directly with Node .mjs scripts. Preserve an existing goal.json.loop_controller owner and reference the selected cadence profile in its cadence configuration. This mode does not invoke the legacy shell launchers or auto-install plugins. Detect the current native goal capability; otherwise remain in the current session with resumable state. Phase architecture approvals remain mandatory unless the operator explicitly approved them.
+
+## Cadence child recovery
+
+When a cadence binding exists, use delivery-cadence `child enter` after the canonical child transition, and `child return` after canonical parent restoration with explicit return evidence. Keep the parent clock running and preserve publication debt. Nested children do not count as separate deliveries. On every resumed session, reconcile canonical position before admitting scope. Load delivery-cadence/references/child-recovery.md for commands and failure recovery. An architectural approval is never implied by autonomous iteration policy.
