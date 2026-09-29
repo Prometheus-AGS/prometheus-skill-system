@@ -139,8 +139,33 @@ function copyHookTargets(root) {
   }
 }
 
+// Cadence's portable skill calls pack-specific adapters outside its own directory.
+// Codex must receive the same runnable adapter closure as Claude, without copying
+// unrelated shared fixtures or relying on a source checkout beside the plugin.
+function copyCadenceRuntimeFiles(root) {
+  if (!skills.some(skill => skill.name === 'delivery-cadence')) return;
+  const pending = ['shared/scripts/cadence-kbd-adapter.mjs', 'shared/scripts/cadence-karpathy-adapter.mjs'];
+  const recorder = 'shared/scripts/record-progress.mjs';
+  if (fs.existsSync(path.join(sourceRoot, recorder))) pending.push(recorder);
+  const found = new Set();
+  while (pending.length) {
+    const relative = pending.pop();
+    if (found.has(relative)) continue;
+    if (relative.startsWith('../') || path.posix.isAbsolute(relative)) throw new Error(`Cadence dependency escapes package: ${relative}`);
+    const file = path.join(sourceRoot, ...relative.split('/'));
+    if (!fs.existsSync(file)) throw new Error(`Cadence runtime dependency is missing: ${relative}`);
+    found.add(relative);
+    copy(file, path.join(root, ...relative.split('/')));
+    const source = fs.readFileSync(file, 'utf8');
+    for (const match of source.matchAll(/^\s*(?:import|export)\s+(?:[^'";]*?\sfrom\s*)?['"](\.[^'"]+)['"]/gm)) {
+      pending.push(path.posix.normalize(path.posix.join(path.posix.dirname(relative), match[1])));
+    }
+  }
+}
+
 function materializePackage(root, platform) {
   for (const skill of skills) copy(skill.source, path.join(root, 'skills', skill.name));
+  copyCadenceRuntimeFiles(root);
   write(root, '.mcp.json', sanitizedMcp());
   write(root, 'skill-index.json', {
     schemaVersion: 'prometheus-distribution-skill-index-v1',

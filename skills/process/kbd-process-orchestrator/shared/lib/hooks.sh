@@ -78,7 +78,7 @@ _kbd_hooks_collect_one() {
       on_failure: ($h.action.on_failure // "warn"),
       enabled:    ($h.enabled // true),
       layer:      $layer
-    }
+    } + (if (($h.action // {}) | has("args")) then {args: $h.action.args} else {} end)
   ' "$file" 2>/dev/null
 }
 
@@ -329,7 +329,15 @@ _kbd_hooks_run() {
   # reporter writes there). Capture it to a temp file, then replay it to the
   # parent stderr after the hook returns. This avoids bash process-substitution
   # paths like /dev/fd/*, which are intermittently denied in sandboxed runs.
-  if command -v timeout >/dev/null 2>&1; then
+  if printf '%s' "$entry" | jq -e 'has("args")' >/dev/null 2>&1; then
+    KBD_HOOK_KIND="$kind" KBD_HOOK_EDGE="$edge" KBD_HOOK_NAME="$name" \
+    KBD_HOOK_INDEX="$index" KBD_HOOK_TOTAL="$total" \
+    KBD_HOOK_PHASE_PATH="$phase_path" KBD_HOOK_CHILD_PATH="$child_path" \
+    KBD_HOOK_SOURCE_TOOL="$source_tool" KBD_HOOK_STARTED_AT="$started_at" \
+    PHASE="$phase_path" STEP="$kind" EVENT="$edge" TIMESTAMP="$started_at" \
+      node "$KBD_ORCHESTRATOR_ROOT/shared/lib/hook-exec.mjs" "$entry" 2>"$stderr_file"
+    rc=$?
+  elif command -v timeout >/dev/null 2>&1; then
     KBD_HOOK_KIND="$kind" KBD_HOOK_EDGE="$edge" KBD_HOOK_NAME="$name" \
     KBD_HOOK_INDEX="$index" KBD_HOOK_TOTAL="$total" \
     KBD_HOOK_PHASE_PATH="$phase_path" KBD_HOOK_CHILD_PATH="$child_path" \
