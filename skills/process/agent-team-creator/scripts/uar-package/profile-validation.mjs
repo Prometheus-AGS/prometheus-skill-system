@@ -89,6 +89,8 @@ function validateNode(value, rule, file, pointer) {
     if (typeof value === 'string') {
         if (typeof rule.minLength === 'number' && value.length < rule.minLength)
             failure(pointer, `must contain at least ${rule.minLength} characters`);
+        if (typeof rule.maxLength === 'number' && [...value].length > rule.maxLength)
+            failure(pointer, `must contain at most ${rule.maxLength} characters`);
         if (typeof rule.pattern === 'string' && !new RegExp(rule.pattern, 'u').test(value))
             failure(pointer, `does not match ${rule.pattern}`);
         if (rule.format === 'uri') {
@@ -160,9 +162,10 @@ export function validateProfileDocument(value) {
     validateNode(value, schema(file), file, '');
 }
 export function profileSchemaInfo() {
+    const receipt = JSON.parse(readFileSync(new URL('../../schemas/uar/0.1.0-draft.2/consumer-source-receipt.json', import.meta.url), 'utf8'));
     return {
         profile: UAR_PROFILE_V2,
-        sourceRevision: '41375cf6cd137a8a825be102c49516211c3fa2e5',
+        sourceRevision: receipt.provider.commit,
         directory: schemaDirectory,
         documents: structuredClone(schemaFiles),
     };

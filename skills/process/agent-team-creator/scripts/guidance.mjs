@@ -75,7 +75,7 @@ export function guide(input) {
                 connection: { baseUrl: text(input.baseUrl, 'baseUrl'), credentialRef },
                 packageDirectory: text(input.packageDirectory, 'packageDirectory'), bindingIntent: input.bindingIntent,
                 sequence: ['uar-capabilities', 'uar-package-preflight', 'uar-package-install', ...(input.bindingIntent === 'package-and-binding' ? ['uar-binding-preflight', 'uar-binding-install'] : [])],
-                activation: 'refused-until-I2',
+                activation: 'not-owned-by-authoring-client',
             } };
     }
     const required = ['id', 'outcome', 'complexity', 'areas', 'deliverables', 'budget', 'review', 'harness', 'scope'];
@@ -139,20 +139,28 @@ export function guide(input) {
     }
     const team = { schemaVersion: 1, id: teamId, outcome, scope: input.scope, harness, roles, modelPolicy: { tier } };
     if (input.scope === 'uar') {
-        const required = ['packageId', 'packageVersion', 'coordinatorRole', 'workflowSummary', 'communicationPolicy', 'aggregateLimits', 'aggregateBudget', 'bindingIntent'];
+        const required = ['packageId', 'packageVersion', 'coordinatorRole', 'workflowSummary', 'communicationPolicy', 'aggregateLimits', 'aggregateBudget', 'bindingIntent', 'sharedInstructions', 'requiredResources', 'executionProfile'];
         const missing = required.filter(key => input[key] === undefined);
         const uarQuestions = [
             { key: 'packageId', question: 'What stable UAR package identity should own these agent, team, and workflow definitions?' },
             { key: 'packageVersion', question: 'What semantic version identifies this immutable package?' },
             { key: 'coordinatorRole', question: 'Which proposed role is the single fixed coordinator?' },
             { key: 'workflowSummary', question: 'What finite task dependencies, outputs, effects, approvals, and retry decisions should the workflow declare?' },
-            { key: 'communicationPolicy', question: 'Which explicit role-to-role paths may queue a message or trigger a turn?' },
+            { key: 'communicationPolicy', question: 'Which directed role-to-role edges permit queue-only messages, explicit delegation, and worker-to-coordinator result disclosure? Reply permission requires its own reverse edge.' },
+            { key: 'sharedInstructions', question: 'What shared behavioral instructions should every member receive? Use an empty string for none; this guidance cannot expand tools, credentials, policy, or resource grants.' },
+            { key: 'requiredResources', question: 'Which exact skills/tools and selected inputs are required by each role, and which KB, history, or memory requests may be excluded? Unsupported required resources block runtime admission.' },
+            { key: 'executionProfile', question: 'Is this package for catalog-only authoring, manual member execution, or the negotiated cooperating-pair execution profile?', choices: ['catalog-only', 'manual-member', 'cooperating-pair'] },
             { key: 'aggregateLimits', question: 'What aggregate concurrent-turn, member, nesting, and pending-task limits should the team request?' },
             { key: 'aggregateBudget', question: 'What aggregate token, cost, currency, and elapsed-time ceilings should the team request?' },
             { key: 'bindingIntent', question: 'Should creation stop after the immutable catalog package or also prepare a private deployment binding?', choices: ['package-only', 'package-and-binding'] },
         ];
         if (missing.length)
             return { operation, ready: false, proposedRoles: roles, reasons, alternatives, skillDiscovery, missing: [missing[0]], questions: uarQuestions.filter(question => question.key === missing[0]) };
+        if (typeof input.sharedInstructions !== 'string' || Buffer.byteLength(input.sharedInstructions, 'utf8') > 16_384)
+            throw Error('sharedInstructions must be a string of at most 16384 UTF-8 bytes; use an empty string for none');
+        if (!['catalog-only', 'manual-member', 'cooperating-pair'].includes(String(input.executionProfile)))
+            throw Error('Invalid executionProfile');
+        const resources = object(input.requiredResources, 'requiredResources');
         const packageVersion = text(input.packageVersion, 'packageVersion');
         if (!/^[0-9]+\.[0-9]+\.[0-9]+(?:-[0-9A-Za-z.-]+)?$/.test(packageVersion))
             throw Error('packageVersion must be semantic version x.y.z');
@@ -164,6 +172,8 @@ export function guide(input) {
         return { operation, ready: true, questions: [], team, reasons, alternatives, skillDiscovery, maintenance: {
                 packageId: text(input.packageId, 'packageId'), packageVersion, coordinatorRole,
                 workflowSummary: text(input.workflowSummary, 'workflowSummary'), communicationPolicy: text(input.communicationPolicy, 'communicationPolicy'),
+                sharedInstructions: input.sharedInstructions, requiredResources: resources, executionProfile: input.executionProfile,
+                executionAuthority: 'Catalog authoring never activates members or widens private binding authority. Negotiate runtime capabilities before offering automatic cooperation.',
                 limits: object(input.aggregateLimits, 'aggregateLimits'), budget: object(input.aggregateBudget, 'aggregateBudget'), bindingIntent: input.bindingIntent,
                 next: 'Initialize a persisted workspace, update one declared source document at a time, and use operation=author for one bounded next question.',
             } };

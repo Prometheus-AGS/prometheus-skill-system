@@ -112,6 +112,14 @@ export function compileUarPackage(value, workspaceReceipt) {
             throw new Error(`Definition contentDigest conflict for ${document.id}@${document.version}; use a new version for changed content`);
         document.contentDigest = digest;
         validateProfileDocument(document);
+        if (document.kind === 'TeamDefinition' && document.instructions !== undefined) {
+            const instructions = object(document.instructions, `${source.path}/instructions`);
+            const guidance = instructions.text; // Shape and nonempty text were checked by the provider schema.
+            if (Buffer.byteLength(guidance, 'utf8') > 16_384)
+                throw new Error(`${source.path}/instructions/text exceeds 16384 UTF-8 bytes`);
+            if (instructions.digest !== sha256(guidance))
+                throw new Error(`${source.path}/instructions/digest does not match exact UTF-8 text`);
+        }
         const result = { path: source.path, document };
         compiled.set(key, result);
         visiting.delete(key);

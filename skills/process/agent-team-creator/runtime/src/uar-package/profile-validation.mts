@@ -78,6 +78,7 @@ function validateNode(value: unknown, rule: Schema, file: string, pointer: strin
   }
   if (typeof value === 'string') {
     if (typeof rule.minLength === 'number' && value.length < rule.minLength) failure(pointer, `must contain at least ${rule.minLength} characters`);
+    if (typeof rule.maxLength === 'number' && [...value].length > rule.maxLength) failure(pointer, `must contain at most ${rule.maxLength} characters`);
     if (typeof rule.pattern === 'string' && !new RegExp(rule.pattern, 'u').test(value)) failure(pointer, `does not match ${rule.pattern}`);
     if (rule.format === 'uri') { try { new URL(value); } catch { failure(pointer, 'must be a URI'); } }
     if (rule.format === 'uri-reference') { try { new URL(value, 'https://schemas.prometheus-ags.dev/'); } catch { failure(pointer, 'must be a URI reference'); } }
@@ -121,9 +122,10 @@ export function validateProfileDocument(value: ObjectValue): void {
 }
 
 export function profileSchemaInfo(): ObjectValue {
+  const receipt = JSON.parse(readFileSync(new URL('../../schemas/uar/0.1.0-draft.2/consumer-source-receipt.json', import.meta.url), 'utf8')) as { provider: { commit: string } };
   return {
     profile: UAR_PROFILE_V2,
-    sourceRevision: '41375cf6cd137a8a825be102c49516211c3fa2e5',
+    sourceRevision: receipt.provider.commit,
     directory: schemaDirectory,
     documents: structuredClone(schemaFiles),
   };
