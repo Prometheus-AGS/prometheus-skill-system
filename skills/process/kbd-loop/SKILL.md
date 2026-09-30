@@ -4,6 +4,7 @@ description: Run an approved KBD execution phase with a delivery-cadence profile
 license: MIT
 compatibility: Requires the delivery-cadence skill and an existing approved KBD execution phase.
 metadata:
+  tags: "kbd, process, delivery-cadence, execution"
   version: "1.0.0"
 ---
 
@@ -20,3 +21,16 @@ Select a complete usable increment; delegate disjoint production ownership to th
 ## Cadence child recovery
 
 When a cadence binding exists, use delivery-cadence `child enter` after the canonical child transition, and `child return` after canonical parent restoration with explicit return evidence. Keep the parent clock running and preserve publication debt. Nested children do not count as separate deliveries. On every resumed session, reconcile canonical position before admitting scope. Load delivery-cadence/references/child-recovery.md for commands and failure recovery. An architectural approval is never implied by autonomous iteration policy.
+
+## Progress Signals
+
+Read `.kbd-orchestrator/position-reminder.txt` (or `current-waypoint.json`) first, then emit to plain response text (no tool call):
+
+```
+Starting kbd-loop — <phase> (step N of T)
+Starting change N of T: <change-id>
+Completed change N of T: <change-id>
+Completed kbd-loop — <phase> (step N of T)
+```
+
+N and T come from the phase's `progress.json` (`completion.implementation`), never estimates.

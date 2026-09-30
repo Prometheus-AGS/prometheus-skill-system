@@ -3,6 +3,7 @@ name: prometheus-rust-workspace
 description: Route Rust and Cargo work to the minimum relevant installed skills and enforce phase-gated, serialized Cargo verification. Use when working with .rs files, Cargo.toml, Cargo.lock, compiler or Clippy diagnostics, Rust architecture, async Rust, unsafe Rust, Rust MCP servers, or Rust reviews. Do NOT use for non-Rust code or tasks that do not touch a Cargo workspace.
 license: MIT
 metadata:
+  tags: "rust, cargo, routing, verification"
   version: "1.0.0"
 ---
 

@@ -1,6 +1,12 @@
 ---
 name: rust-async-patterns
 description: Master Rust async programming with Tokio, async traits, error handling, and concurrent patterns. Use when building async Rust applications, implementing concurrent systems, or debugging async code.
+license: MIT
+metadata:
+  version: "1.0.0"
+  tags: "rust, async, tokio, concurrency"
+  upstream: "https://github.com/wshobson/agents/blob/main/plugins/systems-programming/skills/rust-async-patterns/SKILL.md"
+  upstream-license: "MIT"
 ---
 
 ## Prometheus execution policy

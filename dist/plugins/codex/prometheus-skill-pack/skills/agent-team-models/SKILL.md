@@ -53,3 +53,14 @@ role frontmatter model setting; DeepSeek team members lack a verified per-member
 override. Use supported invocation/global controls or report the limitation.
 Never add an invented model flag. Report policy, selected ID, unknown metadata,
 price age, and whether native application has actually been verified.
+
+## Progress Signals
+
+Emit to plain response text (no tool call):
+
+```
+Starting agent-team-models — <team-id or role>
+Completed agent-team-models — <team-id or role> (<selected>/<requested> roles bound to model IDs)
+```
+
+Report unresolved roles explicitly; a tier label alone is not a selected model.
