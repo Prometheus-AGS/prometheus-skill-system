@@ -1,0 +1,5 @@
+# Delivery boundary evidence
+
+The completed full-pack selective installer was operated on macOS ARM64 with Node. All six isolated copies initialized Cadence and returned status; all 31 shared files matched. Repeat installation was unchanged. A user edit caused refusal and survived; mini global installation was refused. The full KBD and Karpathy adapters loaded and reported missing optional configuration truthfully. All six actual user copies were installed and their CLI entrypoints loaded. Both full packaged installers could resolve their complete dependencies, and all four full/mini Claude/Codex skill payloads matched. See full-pack local-operation.json and installed-operation.json. Native harness sessions need reload; Windows/Linux execution and native harness UI invocation were not performed. No application builds or unit suites ran.
+
+Real trust boundary: an installer can overwrite user files. This change records ownership/file digests, refuses foreign or edited occupants, and backs up managed replacements.

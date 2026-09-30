@@ -1,0 +1,69 @@
+{
+  "at": "2026-09-30T00:48:55.613Z",
+  "platform": "darwin",
+  "arch": "arm64",
+  "schemaVersion": 1,
+  "dryRun": false,
+  "source": "/Users/gqadonis/Projects/prometheus/worktrees/prometheus-cadence-recovery/skills/process/delivery-cadence",
+  "version": "1.1.1",
+  "targets": [
+    {
+      "id": "codex",
+      "destination": "/Users/gqadonis/.codex/skills/delivery-cadence",
+      "action": "install",
+      "fileCount": 31,
+      "backup": null
+    },
+    {
+      "id": "claude",
+      "destination": "/Users/gqadonis/.claude/skills/delivery-cadence",
+      "action": "install",
+      "fileCount": 31,
+      "backup": null
+    },
+    {
+      "id": "kimi-code",
+      "destination": "/Users/gqadonis/.kimi-code/skills/delivery-cadence",
+      "action": "install",
+      "fileCount": 31,
+      "backup": null
+    },
+    {
+      "id": "minimax",
+      "destination": "/Users/gqadonis/.minimax/skills/delivery-cadence",
+      "action": "install",
+      "fileCount": 32,
+      "backup": null
+    },
+    {
+      "id": "zed",
+      "destination": "/Users/gqadonis/.agents/skills/delivery-cadence",
+      "action": "install",
+      "fileCount": 31,
+      "backup": null
+    },
+    {
+      "id": "opencode",
+      "destination": "/Users/gqadonis/.config/opencode/skills/delivery-cadence",
+      "action": "install",
+      "fileCount": 31,
+      "backup": null
+    },
+    {
+      "id": "support",
+      "destination": "/Users/gqadonis/.prometheus/delivery-cadence/support",
+      "action": "install",
+      "fileCount": 5,
+      "backup": null
+    }
+  ],
+  "adapters": {
+    "cadence-kbd-adapter": "/Users/gqadonis/.prometheus/delivery-cadence/support/shared/scripts/cadence-kbd-adapter.mjs",
+    "cadence-karpathy-adapter": "/Users/gqadonis/.prometheus/delivery-cadence/support/shared/scripts/cadence-karpathy-adapter.mjs"
+  },
+  "note": "Reload native sessions to discover installed skills. File installation does not prove native harness execution; adapters require explicit configuration.",
+  "cliLoads": 6,
+  "matchingPluginCopies": 4,
+  "nativeHarnessSessions": "reload-required-not-exercised",
+  "windowsExecution": "not-performed"
+}

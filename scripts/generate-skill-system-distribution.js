@@ -144,7 +144,7 @@ function copyHookTargets(root) {
 // unrelated shared fixtures or relying on a source checkout beside the plugin.
 function copyCadenceRuntimeFiles(root) {
   if (!skills.some(skill => skill.name === 'delivery-cadence')) return;
-  const pending = ['shared/scripts/cadence-kbd-adapter.mjs', 'shared/scripts/cadence-karpathy-adapter.mjs'];
+  const pending = ['scripts/distribute-delivery-cadence.mjs', 'shared/scripts/cadence-kbd-adapter.mjs', 'shared/scripts/cadence-karpathy-adapter.mjs'];
   const recorder = 'shared/scripts/record-progress.mjs';
   if (fs.existsSync(path.join(sourceRoot, recorder))) pending.push(recorder);
   const found = new Set();
@@ -166,6 +166,7 @@ function copyCadenceRuntimeFiles(root) {
 function materializePackage(root, platform) {
   for (const skill of skills) copy(skill.source, path.join(root, 'skills', skill.name));
   copyCadenceRuntimeFiles(root);
+  write(root, 'skill-system.json', packagedContract());
   write(root, '.mcp.json', sanitizedMcp());
   write(root, 'skill-index.json', {
     schemaVersion: 'prometheus-distribution-skill-index-v1',
