@@ -446,3 +446,7 @@ nobody re-reads it each turn to notice. Run `verify.sh` after any edit under
 
 ## Shared UI contract
 Both bootstrap layouts preflight and install the canonical prometheus-ui-ux Node helper, preserving project protocol overrides. The portable UI bundle has no native engine dependency; configured full Impeccable is separate. UI agents route through this protocol. After creating a project team, finish with agent-team-creator install-project to install default team discovery in both instruction entrypoints. Existing generated projects must add the UI/team routes to rules/src/routing.md before regeneration.
+
+## Delivery cadence context
+
+When `.prometheus/cadence-binding.json` exists, read that small binding and carry its profile/root into the execution dispatch. Load delivery-cadence only for cadence-enabled work. Its configured build-and-run boundary, publication frequency and pending failure obligations survive compaction; do not substitute test suites or silently reset the run. No profile means no additional cadence context.

@@ -246,36 +246,75 @@ os_mark_done() {
   local change="$1" id="$2"
   local tasks_file="openspec/changes/$change/tasks.md"
   [ -f "$tasks_file" ] || { warn "no tasks.md at $tasks_file"; return 1; }
-  # OpenSpec (spec-driven schema) task ids are POSITIONAL and match the
-  # `openspec instructions apply --json` ordinal that os_list surfaces: "1" =
-  # the first TOP-LEVEL checkbox, "2" = the second, etc. The JSON API does not
-  # count indented sub-bullets (e.g. sub-rules nested under a parent task) as
-  # separate tasks, so this awk must only count non-indented checkbox lines
-  # too — otherwise ordinals drift the moment any task has nested children.
-  # If the id is non-numeric, fall back to a text match on the description.
-  local tmp; tmp="$(mktemp)"
-  if printf '%s' "$id" | grep -qE '^[0-9]+$'; then
-    awk -v id="$id" '
-      BEGIN { n=0 }
-      {
-        if ($0 ~ /^-[[:space:]]*\[[ xX]\]/) {
-          n++
-          if (n == id) sub(/\[[ xX]\]/, "[x]")
-        }
-        print
-      }
-    ' "$tasks_file" > "$tmp" && mv "$tmp" "$tasks_file"
-  else
-    awk -v id="$id" '
-      BEGIN { done=0 }
-      {
-        if (!done && $0 ~ /^-[[:space:]]*\[[[:space:]]\]/ && index($0, id)>0) {
-          sub(/\[[[:space:]]\]/, "[x]"); done=1
-        }
-        print
-      }
-    ' "$tasks_file" > "$tmp" && mv "$tmp" "$tasks_file"
+  # Task IDs are whatever `openspec instructions apply --json` (os_list) says
+  # they are, and OpenSpec's counting rule has changed across releases: older
+  # versions counted only column-0 checkboxes, 1.10.0 counts every checkbox
+  # line (nested sub-tasks and `*` bullets included). Re-deriving the count
+  # here drifts whenever the rule changes, and a drift checks off the wrong
+  # task. So resolve the ID through OpenSpec's own list: its description, and
+  # which occurrence of that description it is, then flip that line.
+  # Checkbox lines are matched with OpenSpec 1.10's TASK_LINE_PATTERN
+  # (^\s*[-*]\s*\[([\sxX])\]). Without JSON, fall back to that pattern's
+  # ordinal. A non-numeric id is a text match on the first open task line.
+  local js="" resolved="" tmp
+  js="$(_os_apply_json "$change")" || js=""
+  if [ -n "$js" ]; then
+    resolved="$(printf '%s' "$js" | jq -r --arg id "$id" '
+      (.tasks // []) as $t
+      | ($t | map(.id | tostring) | index($id)) as $i
+      | if $i == null then empty
+        else $t[$i].description as $d
+          | "\([$t[0:$i+1][] | select(.description == $d)] | length)\t\($d)"
+        end' 2>/dev/null)" || resolved=""
   fi
+  tmp="$(mktemp)"
+  if [ -n "$resolved" ]; then
+    KBD_OCC="${resolved%%$'\t'*}" KBD_DESC="${resolved#*$'\t'}" awk '
+      BEGIN { want = ENVIRON["KBD_DESC"]; occ = ENVIRON["KBD_OCC"] + 0; n = 0; hit = 0 }
+      {
+        line = $0; sub(/\r$/, "", line)
+        if (!hit && match(line, /^[[:space:]]*[-*][[:space:]]*\[[[:space:]xX]\]/)) {
+          desc = substr(line, RLENGTH + 1); gsub(/^[[:space:]]+|[[:space:]]+$/, "", desc)
+          if (desc == want && ++n == occ) {
+            prefix = substr($0, 1, RLENGTH); rest = substr($0, RLENGTH + 1)
+            sub(/\[[[:space:]xX]\]$/, "[x]", prefix); $0 = prefix rest; hit = 1
+          }
+        }
+        print
+      }
+      END { exit hit ? 0 : 3 }
+    ' "$tasks_file" > "$tmp"
+    if [ $? -ne 0 ]; then
+      rm -f "$tmp"
+      warn "task $id (\"${resolved#*$'\t'}\") from openspec has no matching line in $tasks_file"
+      return 1
+    fi
+  elif printf '%s' "$id" | grep -qE '^[0-9]+$'; then
+    awk -v id="$id" '
+      BEGIN { n = 0 }
+      {
+        if (match($0, /^[[:space:]]*[-*][[:space:]]*\[[[:space:]xX]\]/)) {
+          if (++n == id) {
+            prefix = substr($0, 1, RLENGTH); rest = substr($0, RLENGTH + 1)
+            sub(/\[[[:space:]xX]\]$/, "[x]", prefix); $0 = prefix rest
+          }
+        }
+        print
+      }
+    ' "$tasks_file" > "$tmp"
+  else
+    KBD_ID="$id" awk '
+      BEGIN { want = ENVIRON["KBD_ID"]; done = 0 }
+      {
+        if (!done && match($0, /^[[:space:]]*[-*][[:space:]]*\[[[:space:]]\]/) && index($0, want) > 0) {
+          prefix = substr($0, 1, RLENGTH); rest = substr($0, RLENGTH + 1)
+          sub(/\[[[:space:]]\]$/, "[x]", prefix); $0 = prefix rest; done = 1
+        }
+        print
+      }
+    ' "$tasks_file" > "$tmp"
+  fi
+  mv "$tmp" "$tasks_file"
 }
 
 os_verify()  { openspec validate "$1" >/dev/null 2>&1; }
@@ -405,6 +444,40 @@ sync_progress() {
   ' "$pj" > "$tmp" 2>/dev/null && mv "$tmp" "$pj" || rm -f "$tmp"
 }
 
+resolve_runtime_task_id() {
+  # resolve_runtime_task_id <registered-tasks-json> <backend-id> <sequence> <title>
+  # Prints the runtime task ID kbd-apply must use for this backend task.
+  # /kbd-plan may register a change's tasks before apply runs, under IDs that
+  # differ from the backend ordinal (for example "<change>-t1" vs "1").
+  # Registering the backend ID beside them creates duplicates: the planned
+  # tasks stay pending and the change can never complete. So: an exact ID
+  # wins; with no registered tasks the backend ID is new; otherwise reuse the
+  # task with the same normalized title, then the unique task with the same
+  # sequence. Anything else is refused rather than duplicated.
+  local tasks="${1:-"{}"}" id="$2" seq="$3" title="$4" resolved
+  resolved="$(printf '%s' "$tasks" | jq -r --arg id "$id" --arg seq "$seq" --arg title "$title" '
+    def norm: (. // "") | ascii_downcase
+      | sub("^\\s*[0-9]+(\\.[0-9]+)*\\s+"; "") | gsub("\\s+"; " ")
+      | sub("^ "; "") | sub(" $"; "");
+    if has($id) then $id
+    elif length == 0 then $id
+    else
+      [to_entries[] | select((.value.title | norm) == ($title | norm)) | .key] as $by_title
+      | if ($by_title | length) == 1 then $by_title[0]
+        else
+          [to_entries[] | select((.value.sequence | tostring) == $seq) | .key] as $by_seq
+          | if ($by_seq | length) == 1 then $by_seq[0] else empty end
+        end
+    end')" || return 1
+  if [ -z "$resolved" ]; then
+    printf '%s: change has registered runtime tasks but none matches backend task %s (sequence %s, "%s"); refusing to register a duplicate. Register it with this ID or reconcile the plan.\n' \
+      "$SELF" "$id" "$seq" "$title"
+    return 1
+  fi
+  [ "$resolved" != "$id" ] && warn "backend task $id maps to registered runtime task $resolved"
+  printf '%s\n' "$resolved"
+}
+
 runtime_task_transition() {
   # runtime_task_transition <change> <task-id> <title> <sequence> <status>
   local change="$1" task_id="$2" title="$3" sequence="$4" status="$5"
@@ -430,6 +503,16 @@ runtime_task_transition() {
       --phase "$phase" --id "$change" --title "$change" >/dev/null || return 1
     state="$(kbd_runtime_status_json ".")" || return 1
   fi
+
+  # Reuse a task /kbd-plan already registered for this change instead of
+  # registering a duplicate under the backend ordinal.
+  local registered
+  registered="$(printf '%s' "$state" | jq -c --arg phase "$phase" --arg change "$change" \
+    '.phases[$phase].changes[$change].tasks // {}')" || return 1
+  task_id="$(resolve_runtime_task_id "$registered" "$task_id" "$sequence" "$title")" || {
+    warn "$task_id"
+    return 1
+  }
 
   if ! printf '%s' "$state" | jq -e \
       --arg phase "$phase" --arg change "$change" --arg task "$task_id" \

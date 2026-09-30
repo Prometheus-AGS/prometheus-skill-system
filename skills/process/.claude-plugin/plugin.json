@@ -25,7 +25,9 @@
     "./pmpo-evolver",
     "./pmpo-outer-loop",
     "./pmpo-skill-creator",
-    "./zeespec-interrogator"
+    "./zeespec-interrogator",
+    "./delivery-cadence",
+    "./kbd-loop"
   ],
   "keywords": [
     "process",
