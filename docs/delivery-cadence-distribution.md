@@ -41,3 +41,9 @@ The separate managed root `~/.prometheus/delivery-cadence/support` contains:
 The JSON installation result reports absolute adapter paths. Configure those paths deliberately when selecting KBD or Karpathy integration, using the skill's adapter reference. Distribution does not register hooks or change project bindings. Existing KBD authority and optional-service behavior remain in the adapters. This support directory is independent of both project Cadence state and `~/.prometheus/plugins/prometheus-skill-pack/current`.
 
 Reload or start fresh native sessions after installation. On-disk receipt and checksum verification establishes copied payload availability; it does not establish that each native harness discovered or exercised the skill. Report those acceptance states separately.
+
+## Pipeline upgrade (1.2.0 / state v3)
+
+Complete shared source wiring before copying. The full-to-mini copier preflights all owned bytes, refuses changed/added/deleted user content, stages the full directory, and retains the previous directory plus ownership manifest in `.prometheus/delivery-cadence-backups/`. Retired unchanged owned files disappear only as part of that backed-up replacement. The payload digest identifies copied bytes even before source commits; record the eventual full and mini commits separately. Never describe the copier's source HEAD as the commit of uncommitted bytes.
+
+The global installer recursively includes the KBD dispatch adapter and its imports for every existing target listed above. No new installer or extra service is required. Perform installation only after the completed production boundary, stop old mutators, then explicitly migrate the selected run with its backup. Updating source files alone does not migrate live state. Preserve v1/v2 event history, receipts, command IDs, unresolved effects and publication obligations. Update project bindings to the accepted payload deliberately.
