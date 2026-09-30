@@ -74,7 +74,7 @@ When the phase cycle is complete:
 Completed phase <N> of <total>: <phase-name>
 ```
 
-Read `changes_total` and the phase list from `progress.json` or `current-waypoint.json` for accurate totals — never guess. Emit to plain response text — no tool call needed. Individual skills (`kbd-assess`, `kbd-plan`, etc.) emit their own skill-level signals independently.
+Read change totals from the active phase’s `completion.implementation` and phase totals from the canonical phase list — never use change totals as phase totals or guess. Emit to plain response text — no tool call needed. Individual skills (`kbd-assess`, `kbd-plan`, etc.) emit their own skill-level signals independently.
 
 ---
 
@@ -135,7 +135,7 @@ authority.
 | ------------------------------------------------ | ------------------ | ----------- | --------------------------------- |
 | `.kbd-orchestrator/runtime/events.jsonl`         | kbd-runtime        | All adapters | Canonical append-only journal |
 | `.kbd-orchestrator/current-waypoint.json`        | projection writer  | All tools   | Derived resume view |
-| `.kbd-orchestrator/current-waypoint.md`          | Any orchestrator   | All tools   | Human-readable waypoint summary   |
+| `.kbd-orchestrator/current-waypoint.md`          | projection writer   | All tools   | Human-readable waypoint summary   |
 | `.kbd-orchestrator/phases/<phase>/assessment.md` | kbd-assess         | kbd-analyze/kbd-plan | Gap analysis output      |
 | `.kbd-orchestrator/phases/<phase>/analysis.md`   | kbd-analyze        | kbd-spec/kbd-plan | Engineering-landscape research |
 | `.kbd-orchestrator/phases/<phase>/library-candidates.json` | kbd-analyze | kbd-spec/kbd-plan | Build-vs-adopt candidate set |
@@ -145,7 +145,7 @@ authority.
 | `.kbd-orchestrator/phases/<phase>/execution.md`  | kbd-execute        | All tools   | Backend dispatch contract         |
 | `.kbd-orchestrator/phases/<phase>/progress.json` | projection writer  | kbd-status  | Derived implementation/evidence/certification/publication ledger |
 | `.kbd-orchestrator/phases/<phase>/reflection.md` | kbd-reflect        | Next phase  | Phase retrospective               |
-| `.kbd-orchestrator/project.json`                 | Initial setup      | All tools   | Project identity + config         |
+| `.kbd-orchestrator/project.json`                 | kbd-init; phase helpers for activePhase/bootstrap      | All tools   | Project identity + config         |
 
 ### progress.json Protocol
 
@@ -153,6 +153,9 @@ All workflow mutations MUST use `prometheus kbd` typed commands (or equivalent
 MCP/REST commands). `progress.json` is read-only when `generatedBy` is
 `kbd-runtime`; `sourceRevision` identifies the exact canonical revision.
 Legacy shadow-mode writers are migration inputs only and must stop at cutover.
+
+The following is a compatibility ledger example, not an initialization
+template or the full canonical runtime schema:
 
 ```json
 {
@@ -191,7 +194,8 @@ Legacy shadow-mode writers are migration inputs only and must stop at cutover.
 }
 ```
 
-The ledger's canonical counter is `completion.implementation`. Legacy
+The active phase’s counter is `completion.implementation`. Run-wide totals
+are explicitly separate in `runCompletion`; they do not certify the phase. Legacy
 `changes_completed` and `changes_total` remain compatibility aliases of that
 counter only. They MUST NOT count evidence, certification, authorization,
 elapsed-time, external-adopter, or publication gates.
@@ -231,7 +235,7 @@ implementation. Never edit counters in the projection.
 3. **Plan** (`prompts/plan.md`) — produce ordered list of changes for this phase
 4. **Execute** (`prompts/execute.md`) — select backend, write `execution.md`, dispatch
 5. **Reflect** (`prompts/reflect.md`) — run evolver report, capture lessons, seed next phase
-6. **Persist** — write phase state, refresh waypoint, commit
+6. **Persist** — record typed KBD transitions, then review and commit intended artifacts and runtime projections under project policy
 
 After each phase: checkpoint + dispatch workflow triggers.
 
@@ -245,16 +249,20 @@ OpenSpec is **optional**. KBD adapts:
 
 - Use `/opsx:new` to create structured changes with proposal → design → tasks
 - Progress tracked in `openspec/changes/<id>/tasks.md`
-- Archiving via `/opsx:archive` feeds the reflection phase
+- Execute tasks through `kbd-apply begin-task` / `end-task`; driver `verify`
+  and `archive` feed the reflection phase after the required review gates
 
 ### When OpenSpec is NOT available
 
 - Use KBD's built-in change management via `.kbd-orchestrator/changes/<id>/`
-- Create `change.md` (same structure as OpenSpec proposal + tasks combined)
-- Track task status with `[ ]` / `[/]` / `[x]` in `change.md`
-- Archive by moving to `.kbd-orchestrator/changes/archive/<date>-<id>/`
+- Create `spec.md`, `tasks.json`, and `verification.md`; `tasks.md` is a
+  generated human view (legacy `change.md` is supported as migration input)
+- Drive tasks and archival through `kbd-apply`, which keeps backend task state
+  and canonical KBD transitions synchronized
 
-KBD **never** requires OpenSpec. The `execution.md` format accommodates both.
+The full pack supports optional OpenSpec and native backends (and Spec Kit
+through its adapter). A project’s explicit backend pin and policy take
+precedence: do not silently switch a pinned project when its tooling fails.
 
 ---
 
@@ -262,21 +270,20 @@ KBD **never** requires OpenSpec. The `execution.md` format accommodates both.
 
 KBD maintains a resumable return point for the current phase.
 
-- Canonical files:
+- Derived resume files:
   - `.kbd-orchestrator/current-waypoint.md`
   - `.kbd-orchestrator/current-waypoint.json`
-- Minimum fields:
-  - `activePhase` — current phase name (`active_phase` is accepted only as a
-    legacy read fallback)
-  - `backend` — selected execution backend
-  - `last_completed_change` — last archived/completed change ID
-  - `next_pending_change` — next change to start
-  - `preferred_re_entry_skill` — which skill to invoke on next session
-  - `exact_next_command` — the exact `/opsx:new`, `/kbd-execute`, etc.
-  - `fallback_command` — what to do if primary command fails
+- Current fields include `phase`, `activePhase`, `activePhaseId`, `path`,
+  `backend`, `lastCompletedChange`, `nextPendingChange`, `nextChange`, and
+  `nextTask`. Writers emit camelCase; snake_case names are migration aliases.
+- `exactNextCommand` stores operator intent, not an authoritative work selector.
+  Confirm the next action against canonical status and pending tasks.
+- Waypoint completion counters are run-wide compatibility summaries. Read the
+  active phase’s progress for phase-local implementation and scoped completion.
 
-When the waypoint exists, any AI tool should consult it before deriving
-status from broader phase discovery.
+Consult the waypoint first, then verify canonical status and revision before
+resuming. Never update it manually. The current projection shape is documented
+in `references/schemas/current-waypoint.schema.json` and its template.
 
 ### Nested phases
 
@@ -307,14 +314,14 @@ additively from the v2 fields when absent. Lifecycle: `/kbd-new-child` →
 `/kbd-next-child` (select) → `/kbd-child-exit --enter` (descend) →
 `/kbd-child-exit` (close + roll up + pop). **Full depth model, node-dir
 resolution, and the critical selected-vs-entered invariant (when
-`/kbd-new-child` nests vs. siblings — read before touching `path[]` directly):
+`/kbd-new-child` nests vs. siblings — read before invoking lifecycle helpers):
 [`references/nested-phases.md`](references/nested-phases.md).**
 
-**Template versioning.** The canonical template at
-`references/schemas/current-waypoint.template.json` carries `__schemaVersion:
-"3"` as **documentation only**. No skill reads `__schemaVersion` at runtime;
-the only contract is the per-field default declared in the template and in
-this section. Writers MAY set the field; readers MUST NOT depend on it.
+**Template versioning.** `references/schemas/current-waypoint.template.json`
+is a documented compatibility projection shape, not a manual initialization
+recipe. The runtime emits `schemaVersion` and revision metadata; use supported
+migration readers for older shapes rather than inventing fields or copying
+legacy templates over canonical projections.
 
 > **Scope-guard note.** The scope guard and child-scope hook ship in `warn`
 > mode; the flip to `ask` is held until a reload session confirms they fire
@@ -345,8 +352,10 @@ in [`references/hooks.md`](references/hooks.md).**
 ## Cross-Tool Reporting Protocol
 
 When an AI tool (Roo, Cursor, Cline, Codex, etc.) is dispatched to execute a KBD
-change, it MUST follow the start/during/completion/blocker protocol — update
-`progress.json` + the waypoint and commit `.kbd-orchestrator/` on each boundary.
+change, it MUST follow the start/during/completion/blocker protocol — use
+`kbd-apply` task boundaries and typed change/completion/blocker commands. The
+runtime generates progress and waypoint views. Review and commit only the
+intended artifacts under project policy; never mutate generated views directly.
 **Full steps in [`references/cross-tool-protocol.md`](references/cross-tool-protocol.md).**
 
 ---
@@ -399,7 +408,10 @@ integration provides, and the entity schema are in
 ```
 
 > **IMPORTANT — project.json is GENERATED, not shipped.**
-> `.kbd-orchestrator/project.json` is always created by `/kbd-init` using auto-discovery.
+> `/kbd-init` discovers full project configuration. Phase creation/advancement
+> helpers maintain `activePhase`, preserve unrelated keys, and remove the legacy
+> `active_phase` alias. They may bootstrap minimal missing identity/phase
+> metadata; that does not replace `/kbd-init` for full configuration.
 > It lives in the project repository, not in this skill directory.
 > The skill ships the generation template at
 > `references/schemas/project.template.json` and the writer contract at
@@ -412,7 +424,7 @@ integration provides, and the entity schema are in
 - `/kbd-assess [phase-name]` — Assess current codebase against active phase goals
 - `/kbd-plan [phase-name]` — Create prioritized change list for current phase
 - `/kbd-execute [phase-name]` — Select execution backend and dispatch phase
-- `/kbd-apply <change>` — Drive the spec backend (OpenSpec/Spec Kit) one task at a time, firing per-task hooks + position signals (implemented in `skills/kbd-apply/`). Replaces bare `/opsx:apply`.
+- `/kbd-apply <change>` — Drive the spec backend (OpenSpec/Spec Kit/native-kbd) one task at a time, firing per-task hooks + position signals (implemented in `skills/kbd-apply/`). Replaces bare `/opsx:apply`.
 - `/kbd-reflect [phase-name]` — Generate phase reflection report + seed next phase
 - `/kbd-status` — Show current phase, change inventory, and waypoint-guided next action
 - `/kbd-pause` — Checkpoint and suspend the active run

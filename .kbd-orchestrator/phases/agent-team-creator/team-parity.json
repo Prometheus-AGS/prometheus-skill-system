@@ -1,0 +1,322 @@
+{
+  "status": "pass",
+  "sourceAndEmittedIdentical": true,
+  "count": 63,
+  "files": [
+    {
+      "file": "agent-team-creator/SKILL.md",
+      "sha256": "f9499c34faf89af0b11c8a791998ed4b8dfc643df5e4d976e60885c49a4a4e8b",
+      "bytes": 6629
+    },
+    {
+      "file": "agent-team-creator/agents/openai.yaml",
+      "sha256": "6605ed41446890050e2b32534d10ffa2e3d99f5abc7bcb4f810991b9a42d46d1",
+      "bytes": 209
+    },
+    {
+      "file": "agent-team-creator/assets/intake.json",
+      "sha256": "3a6b9ad249b0adf16c730f99143280ace41355a9592efe3eb834b720543477f3",
+      "bytes": 375
+    },
+    {
+      "file": "agent-team-creator/references/manifest.md",
+      "sha256": "d419e580599a586d0511e245453c660e29c809698d8ad7ba9facb13f97b2f321",
+      "bytes": 6999
+    },
+    {
+      "file": "agent-team-creator/references/models-memory.md",
+      "sha256": "948d23f9c3596899f77405590b9f521fa0428cc1aebc7984604a1b37e80cabec",
+      "bytes": 9621
+    },
+    {
+      "file": "agent-team-creator/references/native-harnesses.md",
+      "sha256": "bf35120b77eb7f18f55c0fd0b86cee8e23681334adcd97639fe23e4781fd4181",
+      "bytes": 9491
+    },
+    {
+      "file": "agent-team-creator/references/task-handoff.md",
+      "sha256": "9eacc067f5684d9318e5809083bd378fda4b7447a0a7f19f203fb4951952cfee",
+      "bytes": 21479
+    },
+    {
+      "file": "agent-team-creator/runtime/.gitignore",
+      "sha256": "4d56952b0fb13bf8f9b6c13a6d4c34a075bac3af447636a1df4335d7576e2f97",
+      "bytes": 14
+    },
+    {
+      "file": "agent-team-creator/runtime/package-lock.json",
+      "sha256": "3c77361d286ccc6a2ccc70b868e9fe13071bc2baf3c08dcb655a8ac7ceb9b823",
+      "bytes": 14286
+    },
+    {
+      "file": "agent-team-creator/runtime/package.json",
+      "sha256": "0f26c4c08d6c2c24d4e68fcc481145ea51e39679ddf0443de6f96530accd2f91",
+      "bytes": 382
+    },
+    {
+      "file": "agent-team-creator/runtime/src/adapters-codecs.mts",
+      "sha256": "45bdfeae8048dcaa8149ec89df7260985c0d5066b08df1b608edf0d7c711c90d",
+      "bytes": 3075
+    },
+    {
+      "file": "agent-team-creator/runtime/src/adapters-local.mts",
+      "sha256": "0759b7138ca1421be9d79d2684662ce3c054e2a76ca566189e1468e062447670",
+      "bytes": 8328
+    },
+    {
+      "file": "agent-team-creator/runtime/src/adapters-services.mts",
+      "sha256": "c54f3db1bb899d59f7db901745696f541fc3c3c5626aafad5b571515e6c55d17",
+      "bytes": 5634
+    },
+    {
+      "file": "agent-team-creator/runtime/src/adapters.mts",
+      "sha256": "0121f618548d1bc72c2c4d233ab771609f0196f29b6afe726cd2f58c551610e1",
+      "bytes": 5672
+    },
+    {
+      "file": "agent-team-creator/runtime/src/cli.mts",
+      "sha256": "45dbaba85f05246fbffc4cbe0d196ea80cd083c34ecabddfea6c8181d414e39d",
+      "bytes": 5207
+    },
+    {
+      "file": "agent-team-creator/runtime/src/export-files.mts",
+      "sha256": "36ef91333e7d4b5216826d11ae344e7a87d1497262dfbe0973332563e4afe6f4",
+      "bytes": 1911
+    },
+    {
+      "file": "agent-team-creator/runtime/src/guidance.mts",
+      "sha256": "e1034056185364cc55b32e3acb21f215445c9bd3ab1925a22bf5b892893c0d52",
+      "bytes": 7083
+    },
+    {
+      "file": "agent-team-creator/runtime/src/handoff.mts",
+      "sha256": "621ebe0dc0ab197da7e70a121953ed6dd2bf47ca4f3cf35c367aa38dcdaa09e2",
+      "bytes": 5447
+    },
+    {
+      "file": "agent-team-creator/runtime/src/memory.mts",
+      "sha256": "183a0e80864919c4ab8e16a75aa3774ffbb2e0114780d6ae257562eeebf6fea4",
+      "bytes": 9559
+    },
+    {
+      "file": "agent-team-creator/runtime/src/models-http.mts",
+      "sha256": "1c71810b84836375f076e4d3aafd3493b1d22ea86e8675588526ca63ff012e27",
+      "bytes": 5160
+    },
+    {
+      "file": "agent-team-creator/runtime/src/models.mts",
+      "sha256": "ff8a4366a637eb2a02ddbd0b2dd9e7f40411eaba9120da1069a405450f812ec1",
+      "bytes": 12375
+    },
+    {
+      "file": "agent-team-creator/runtime/src/state-kbd.mts",
+      "sha256": "653614a24dcb49b39089a70c96278393d78a7eef692ca4dae6623dbce4f5a2ee",
+      "bytes": 5227
+    },
+    {
+      "file": "agent-team-creator/runtime/src/state-tasks.mts",
+      "sha256": "97a0b2986b597636e3a9f1855f0aec88fa9fdfa818404d690d6a40e338e449b2",
+      "bytes": 5719
+    },
+    {
+      "file": "agent-team-creator/runtime/src/state-validation.mts",
+      "sha256": "b1c89ee09c226e6c38c0f3134a5111a7d9724b75f57ae12a047bfcd8c32a72a6",
+      "bytes": 9564
+    },
+    {
+      "file": "agent-team-creator/runtime/src/state.mts",
+      "sha256": "51f9b29c50ca14c8ce6af539c203390f44d6215b7c98fb312abd4cee4dacd797",
+      "bytes": 4781
+    },
+    {
+      "file": "agent-team-creator/runtime/src/types.mts",
+      "sha256": "092b955ed86c49992f60bea8932f0332fa9fac621ec6a9e7364a6ac22f34efd5",
+      "bytes": 2719
+    },
+    {
+      "file": "agent-team-creator/runtime/src/validation.mts",
+      "sha256": "86c67c85760ef2a6b0ebda4016e22e6a8b6c0a1415c1f60dda181849185046b2",
+      "bytes": 5438
+    },
+    {
+      "file": "agent-team-creator/runtime/test-src/export.integration.mts",
+      "sha256": "67966d9ecf9e23476a092bd1ff91bf7cbefb5f79b42eb2db06da3bc74cf3e5ed",
+      "bytes": 8255
+    },
+    {
+      "file": "agent-team-creator/runtime/test-src/fixture.mts",
+      "sha256": "ee2911b7ec3bc832ee6372ff3064e96fab77e2f1836035c35453ee9558eb734a",
+      "bytes": 2465
+    },
+    {
+      "file": "agent-team-creator/runtime/test-src/kbd.integration.mts",
+      "sha256": "af46a51cb71bf8ea300e18c9a534941703934656fa3b9246dcc56a87bef796a5",
+      "bytes": 9820
+    },
+    {
+      "file": "agent-team-creator/runtime/test-src/models-memory.integration.mts",
+      "sha256": "8ab207b37cbbf32d7f25da6a52901fb761377401c82d418aafeab3988d4ef7f7",
+      "bytes": 16025
+    },
+    {
+      "file": "agent-team-creator/runtime/test-src/state.integration.mts",
+      "sha256": "929719ff2a562a6712fcabdb6dd715c64985a650ac497fee5e00406054b9e795",
+      "bytes": 14291
+    },
+    {
+      "file": "agent-team-creator/runtime/tsconfig.json",
+      "sha256": "2e1e208abd20ca4c26a103e199feb49bfd39e21eeff32a52575af9c9853bc322",
+      "bytes": 313
+    },
+    {
+      "file": "agent-team-creator/runtime/tsconfig.tests.json",
+      "sha256": "fcb187289ca8003900d8ac1acfbc947de8afbd3b424987482873dd6edaffb060",
+      "bytes": 159
+    },
+    {
+      "file": "agent-team-creator/schemas/team.schema.json",
+      "sha256": "76ccd7ef710ee72f60ae89480167fa0129da9f795a103849b2315595d2ff59e9",
+      "bytes": 2808
+    },
+    {
+      "file": "agent-team-creator/scripts/adapters-codecs.mjs",
+      "sha256": "67c59ed9c1b8cf00223ce6e6374d72451ea5d26556d814cbbefa26ac704118dd",
+      "bytes": 2672
+    },
+    {
+      "file": "agent-team-creator/scripts/adapters-local.mjs",
+      "sha256": "5fa8663c2ffe14aaa47c713679fbe73e37ce642c8de4e4caf1304380b16e6182",
+      "bytes": 8817
+    },
+    {
+      "file": "agent-team-creator/scripts/adapters-services.mjs",
+      "sha256": "1940041ed303215a1df62dffbc137eaded255f68056692618e6978fc88341d63",
+      "bytes": 5743
+    },
+    {
+      "file": "agent-team-creator/scripts/adapters.mjs",
+      "sha256": "b1e7e4a62e2bd518534aef779f04f8f1d62c5bda7f00cdc4530d08aaf9f035dd",
+      "bytes": 5714
+    },
+    {
+      "file": "agent-team-creator/scripts/cli.mjs",
+      "sha256": "a04c9d2ccfb974bff561e7f170c862caf30410a8db3026310db1b8a71728635b",
+      "bytes": 5355
+    },
+    {
+      "file": "agent-team-creator/scripts/export-files.mjs",
+      "sha256": "8f193b8cc9190c5ba4b83c4c37eb0757e34438d9920737f5f852e6ce0143a196",
+      "bytes": 1911
+    },
+    {
+      "file": "agent-team-creator/scripts/guidance.mjs",
+      "sha256": "aae5e5057f54de0e58dadcba2f8ed79cef0d66a76638d2e6b32d3113e48b8992",
+      "bytes": 7064
+    },
+    {
+      "file": "agent-team-creator/scripts/handoff.mjs",
+      "sha256": "1510e7cbcac0e685dd155fca0369fd08d20163b0d8aa104dc846da8e836c14ae",
+      "bytes": 5444
+    },
+    {
+      "file": "agent-team-creator/scripts/memory.mjs",
+      "sha256": "5d86cb097580a1d018effe7e27075574610762d6ca338c5eeec7644e7be53e78",
+      "bytes": 9507
+    },
+    {
+      "file": "agent-team-creator/scripts/models-http.mjs",
+      "sha256": "aea304aa515f8468446094ef3c5e140c78cffdbe63d4b54d414e3d1de709dc28",
+      "bytes": 5440
+    },
+    {
+      "file": "agent-team-creator/scripts/models.mjs",
+      "sha256": "8fbb72e7815e4f3e23d535679fae8a2deb73f013dfd40466952acf95d70f7b22",
+      "bytes": 12402
+    },
+    {
+      "file": "agent-team-creator/scripts/state-kbd.mjs",
+      "sha256": "d6083c558b54b994553208d4cbcfe221c71a48e7a5edbee03da730e3c6be5aad",
+      "bytes": 5215
+    },
+    {
+      "file": "agent-team-creator/scripts/state-tasks.mjs",
+      "sha256": "3ef330a0f3689da1bd74f8a1998f51877c2e4f0d79d0b1fd23ff3b593504120d",
+      "bytes": 6118
+    },
+    {
+      "file": "agent-team-creator/scripts/state-validation.mjs",
+      "sha256": "da6086611c376daf42472aa2548b5874d622917d4ecd8d16077b31c1a563cc9e",
+      "bytes": 10077
+    },
+    {
+      "file": "agent-team-creator/scripts/state.mjs",
+      "sha256": "90ef7e07aae91ef787245d384fdac1c5e99fc676fa40db7d34bc1044257c9928",
+      "bytes": 4837
+    },
+    {
+      "file": "agent-team-creator/scripts/types.mjs",
+      "sha256": "aa827d89df419fc4e721044b2170dc50e540e67ab15d568b7cd01e50b352ce2f",
+      "bytes": 107
+    },
+    {
+      "file": "agent-team-creator/scripts/validation.mjs",
+      "sha256": "cf776cd2508a6a89702b45154258f72824eabbe1eb336b1c0bbb449d5e48f6d3",
+      "bytes": 5822
+    },
+    {
+      "file": "agent-team-creator/tests/export.integration.mjs",
+      "sha256": "171f05587af3f955bc9ff7443c564abc8ff3f3abba688ffb2456b11034e34c1f",
+      "bytes": 9132
+    },
+    {
+      "file": "agent-team-creator/tests/fixture.mjs",
+      "sha256": "f5e355cba3a37c1dd4f451a3fe75306b20c7dd2dd9336b0b743f06703bc2ecc7",
+      "bytes": 2491
+    },
+    {
+      "file": "agent-team-creator/tests/kbd.integration.mjs",
+      "sha256": "a2cbb47c9ba58acbbc9f87b349261d59e39a2f56803122dfa292a41823ae63c4",
+      "bytes": 9846
+    },
+    {
+      "file": "agent-team-creator/tests/models-memory.integration.mjs",
+      "sha256": "67ad527970cd2900ff84662dce8b00bb8aafa27778247e2f07158957fdd9b15a",
+      "bytes": 16523
+    },
+    {
+      "file": "agent-team-creator/tests/state.integration.mjs",
+      "sha256": "cba40b6f55a8bfae3cc953b56bf441c120e12719d0be05ec232c7e9d93f7b629",
+      "bytes": 14462
+    },
+    {
+      "file": "agent-team-manage/SKILL.md",
+      "sha256": "851a75e5854ad0a2778d274c00585d7da796e96e11b2903d2fd35efd911bc224",
+      "bytes": 3811
+    },
+    {
+      "file": "agent-team-manage/agents/openai.yaml",
+      "sha256": "cfaf68e2410f6ebb078c8c4e8ed3b0547728f913ad94b0f112ec5c680816f87e",
+      "bytes": 215
+    },
+    {
+      "file": "agent-team-models/SKILL.md",
+      "sha256": "1d5bdc4306a02986129563954cbac2b7697b13d3a87771168b4cb6006f912a5c",
+      "bytes": 3231
+    },
+    {
+      "file": "agent-team-models/agents/openai.yaml",
+      "sha256": "1a10ef43d4e3fb9b6950c8085baed0bcb690971daf47d1942903ed3b2dbedcae",
+      "bytes": 231
+    },
+    {
+      "file": "agent-team-handoff/SKILL.md",
+      "sha256": "ce8e6c64a50e35ee5f7ce44a07fc98bafd9592cbb896c3dbc076df04d7c5db3e",
+      "bytes": 3302
+    },
+    {
+      "file": "agent-team-handoff/agents/openai.yaml",
+      "sha256": "72e890158a9d95da16c829ce97ab76036d156c572888fee688e05fcde6e270ac",
+      "bytes": 230
+    }
+  ]
+}

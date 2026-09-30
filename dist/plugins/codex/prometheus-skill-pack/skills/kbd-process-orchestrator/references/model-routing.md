@@ -24,9 +24,9 @@ Phase KeyClassRationale`kbd-assess`frontierOpen-ended gap analysis requires full
 
 ---
 
-## Task Complexity Scoring (for `/opsx:apply` routing)
+## Task Complexity Scoring (for `/kbd-apply` routing)
 
-When `/opsx:apply` is invoked without an explicit complexity override, score the change by reading `design.md` and `tasks.md` before dispatching:
+When `/kbd-apply` is invoked without an explicit complexity override, score the change by reading `design.md` and `tasks.md` before dispatching:
 
 ### Low → `opsx-apply-low` (small model)
 

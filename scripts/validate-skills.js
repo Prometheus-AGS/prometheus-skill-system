@@ -149,7 +149,7 @@ class SkillValidator {
         if (!tags || !Array.isArray(tags) || tags.length === 0) {
           this.addError(
             skillName,
-            'Strict: missing required field: metadata.tags (must be non-empty string or legacy array)'
+            'Strict: missing required field: metadata.tags (must be a non-empty string or legacy array)'
           );
         }
       } else {

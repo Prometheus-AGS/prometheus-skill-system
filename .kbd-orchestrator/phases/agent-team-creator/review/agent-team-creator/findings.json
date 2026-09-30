@@ -1,0 +1,22 @@
+{
+  "mode": "diff",
+  "verdict": "PASS",
+  "judge_model": "gpt-5.5",
+  "producer_model": "gpt-6",
+  "isolation_mode": "rest-gateway:http://localhost:4000/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [],
+  "checked_classes": [
+    "Spec violations — checked guided selection, expert manifest path, native export targets, model policy, durable task state, handoff semantics, memory/KBD boundaries, distribution/docs requirements against the acceptance criteria and found no concrete mismatch in the packet.",
+    "Correctness — checked state revision handling, lock boundaries, export collision checks, model selection constraints, KBD completion routing, and handoff acceptance paths shown in the diff and found no definite defect from the provided evidence.",
+    "Regressions — checked changed Codex documentation/manifest surface and skill validation changes against constraints and prior behavior described in the packet; no concrete dependency break was proven.",
+    "Security — checked for committed secrets, shell:true, unsafe path traversal in export/state paths, credential persistence, and native/service execution side effects; no concrete violation was identified in the diff.",
+    "Constraint breaches — checked C-01 generated-artifact requirements, C-02 secrets, C-03 Codex plugin documentation updates, C-04 idempotency evidence, and mini command/tool constraints represented in the packet; no concrete breach was found.",
+    "Silent failure — checked swallowed errors and unverified-native claims; the diff records source-only/unverified status and nonzero/error paths rather than claiming live success."
+  ],
+  "sycophancy_screen": {
+    "reject_cap": 2,
+    "cap_overridden": false,
+    "cap_default": 2
+  }
+}

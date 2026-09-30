@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "at": "2026-09-30T00:48:27.416Z",
+  "platform": "darwin",
+  "arch": "arm64",
+  "scope": "Completed installer filesystem and CLI operation boundary; no native harness UI or Windows execution claimed",
+  "operations": [
+    {
+      "target": "codex",
+      "files": 31,
+      "initAndStatus": true
+    },
+    {
+      "target": "claude",
+      "files": 31,
+      "initAndStatus": true
+    },
+    {
+      "target": "kimi-code",
+      "files": 31,
+      "initAndStatus": true
+    },
+    {
+      "target": "minimax",
+      "files": 31,
+      "initAndStatus": true
+    },
+    {
+      "target": "zed",
+      "files": 31,
+      "initAndStatus": true
+    },
+    {
+      "target": "opencode",
+      "files": 31,
+      "initAndStatus": true
+    }
+  ],
+  "repeatUnchanged": true,
+  "userEditPreserved": true,
+  "miniGlobalRefused": true,
+  "adapters": {
+    "kbd": {
+      "status": "degraded",
+      "reason": "cadence-binding-absent"
+    },
+    "karpathy": {
+      "status": "degraded",
+      "reason": "finalized-report-required"
+    }
+  },
+  "sandbox": "/var/folders/ln/0wnpd96j26z2qhvx9m6hwt2r0000gn/T/cadence-distribution-hnSk3i"
+}

@@ -73,7 +73,8 @@ for (const file of files) {
   const category = rel.split('/')[0];
   const name = (fm && fm.name) || rel.split('/').slice(-2, -1)[0];
   const description = ((fm && fm.description) || '').toString().trim().replace(/\s+/g, ' ');
-  const tags = (fm && fm.metadata && Array.isArray(fm.metadata.tags)) ? fm.metadata.tags : [];
+  const rawTags = fm?.metadata?.tags;
+  const tags = Array.isArray(rawTags) ? rawTags : typeof rawTags === 'string' ? rawTags.split(',').map(tag => tag.trim()).filter(Boolean) : [];
   const version = (fm && (fm.version || (fm.metadata && fm.metadata.version))) || '';
   const isSub = rel.split('/').length > 3; // nested under a parent skill's skills/
   if (!byCategory.has(category)) byCategory.set(category, []);

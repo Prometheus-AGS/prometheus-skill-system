@@ -1,0 +1,39 @@
+{
+  "mode": "artifact",
+  "verdict": "BLOCK",
+  "judge_model": "gpt-5.5",
+  "producer_model": "gpt-6",
+  "isolation_mode": "rest-gateway:http://localhost:4000/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": "library-candidates.json",
+      "line": 0,
+      "claim": "The native-harness contract candidate collapses seven distinct harnesses into one candidate but only records Claude evidence, leaving most required harness integrations unevaluated in the structured analysis artifact.",
+      "evidence": "Goal requires teams across \"UAR, Codex, Claude Code, Copilot CLI, Kimi Code, MiniMax CLI, OpenCode and DeepSeek Harness\". In library-candidates.json, cand-005 is named \"Official harness agent and plugin contracts\" with fit_for_gap \"native-fidelity\", but its only evidence row cites \"https://code.claude.com/docs/en/sub-agents\" and claims generally that \"Native roles and team semantics vary\". There are no structured evidence rows or per-harness verdicts for Codex, Copilot, Kimi, MiniMax, OpenCode, DeepSeek, or UAR/BossFang.",
+      "suggested_fix": "Split cand-005 into per-harness candidates or add evidence/verdict/risks for each required harness, including explicit unresolved status for UAR/BossFang if no versioned contract is available."
+    },
+    {
+      "severity": "WARNING",
+      "file": "analysis.md",
+      "line": 0,
+      "claim": "The analysis identifies UAR/BossFang as unresolved but does not carry that unresolved contract gap into the structured candidate verdicts or build-required work.",
+      "evidence": "analysis.md says: \"UAR/BossFang: existing discovery/registration is not proof of a portable team API. Resolve versioned local contracts before claiming live registration; no product kernel modifications in this phase.\" However library-candidates.json has no candidate or build_required entry for resolving UAR/BossFang contracts; build_required only lists \"Guided role discovery and a portable team/handoff contract\" and \"Native adapters and team model-policy mapping over liter-llm\".",
+      "suggested_fix": "Add a build_required item such as \"Resolve UAR/BossFang versioned local team/registration contract\" with blocking acceptance criteria, or mark UAR support explicitly out of scope until that research is complete."
+    },
+    {
+      "severity": "WARNING",
+      "file": "library-candidates.json",
+      "line": 0,
+      "claim": "The adopted Docusaurus framework candidate lacks a maintenance/license check even though it is marked adopt and is part of the requested documentation-site work.",
+      "evidence": "cand-007 has \"name\": \"Existing Docusaurus 3.10.2 sites and catalog generators\", \"kind\": \"framework\", \"registry\": \"npm\", \"verdict\": \"adopt\", but unlike cand-002 and cand-006 it records no license, package metadata, maintenance status, or source_url in its evidence row; the only evidence claim is \"Both site/package.json files pin 3.10.2\".",
+      "suggested_fix": "Record Docusaurus package/license/maintenance evidence or change the verdict wording to \"reuse existing pinned sites\" and explicitly state that no new framework adoption is being made."
+    }
+  ],
+  "sycophancy_screen": {
+    "reject_cap": 2,
+    "cap_overridden": false,
+    "cap_default": 2
+  }
+}

@@ -58,9 +58,11 @@ where relevant, the CLAUDE.md "Codex CLI Integration" section in the same change
 Any script that can be invoked by a launchd agent (macOS `/bin/bash` is 3.2) must
 avoid `mapfile` / `declare -A`. Test with `/bin/bash script.sh`, not just `bash`.
 
-## When QA is skipped
+## QA and local review coverage
 
-Per `/kbd-execute`: changes with fewer than 3 files modified, documentation-only
-changes, or `--skip-qa`. Skips are logged, not silent. When the
-`sycophancy-correction`/artifact-refiner binary is absent, the gate logs the skip
-and passes (graceful degradation) — as in prior phases.
+Every change requires deterministic artifact validation followed by independent
+cumulative diff review before archive and final certification, including small
+and documentation-only changes. Missing tools or explicit skip flags record
+`pending_review`; they do not imply a passing gate. Final certification requires
+a completed review receipt or the explicit signed waiver required by the current
+`kbd-execute` contract. Generated-output deferral is limited to C-01 above.

@@ -1,0 +1,255 @@
+[
+  {
+    "label": "01-guide",
+    "argv": [
+      "node",
+      "/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.worktrees/agent-team-creator/skills/process/agent-team-creator/scripts/cli.mjs",
+      "guide",
+      "--input",
+      "/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.worktrees/agent-team-creator/.scratch/agent-team-forward-use/01-guide.request.json"
+    ],
+    "cwd": "/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.worktrees/agent-team-creator/.scratch/agent-team-forward-use",
+    "exitCode": 0,
+    "stdout": "01-guide.stdout.json",
+    "stderr": "01-guide.stderr.json"
+  },
+  {
+    "label": "02-model-designer",
+    "argv": [
+      "node",
+      "/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.worktrees/agent-team-creator/skills/process/agent-team-creator/scripts/cli.mjs",
+      "models-select",
+      "--input",
+      "/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.worktrees/agent-team-creator/.scratch/agent-team-forward-use/02-model-designer.request.json"
+    ],
+    "cwd": "/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.worktrees/agent-team-creator/.scratch/agent-team-forward-use",
+    "exitCode": 0,
+    "stdout": "02-model-designer.stdout.json",
+    "stderr": "02-model-designer.stderr.json"
+  },
+  {
+    "label": "02-model-implementer",
+    "argv": [
+      "node",
+      "/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.worktrees/agent-team-creator/skills/process/agent-team-creator/scripts/cli.mjs",
+      "models-select",
+      "--input",
+      "/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.worktrees/agent-team-creator/.scratch/agent-team-forward-use/02-model-implementer.request.json"
+    ],
+    "cwd": "/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.worktrees/agent-team-creator/.scratch/agent-team-forward-use",
+    "exitCode": 0,
+    "stdout": "02-model-implementer.stdout.json",
+    "stderr": "02-model-implementer.stderr.json"
+  },
+  {
+    "label": "02-model-reviewer",
+    "argv": [
+      "node",
+      "/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.worktrees/agent-team-creator/skills/process/agent-team-creator/scripts/cli.mjs",
+      "models-select",
+      "--input",
+      "/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.worktrees/agent-team-creator/.scratch/agent-team-forward-use/02-model-reviewer.request.json"
+    ],
+    "cwd": "/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.worktrees/agent-team-creator/.scratch/agent-team-forward-use",
+    "exitCode": 0,
+    "stdout": "02-model-reviewer.stdout.json",
+    "stderr": "02-model-reviewer.stderr.json"
+  },
+  {
+    "label": "03-validate",
+    "argv": [
+      "node",
+      "/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.worktrees/agent-team-creator/skills/process/agent-team-creator/scripts/cli.mjs",
+      "validate",
+      "--input",
+      "/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.worktrees/agent-team-creator/.scratch/agent-team-forward-use/03-validate.request.json"
+    ],
+    "cwd": "/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.worktrees/agent-team-creator/.scratch/agent-team-forward-use",
+    "exitCode": 0,
+    "stdout": "03-validate.stdout.json",
+    "stderr": "03-validate.stderr.json"
+  },
+  {
+    "label": "04-init",
+    "argv": [
+      "node",
+      "/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.worktrees/agent-team-creator/skills/process/agent-team-creator/scripts/cli.mjs",
+      "init",
+      "--input",
+      "/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.worktrees/agent-team-creator/.scratch/agent-team-forward-use/04-init.request.json"
+    ],
+    "cwd": "/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.worktrees/agent-team-creator/.scratch/agent-team-forward-use",
+    "exitCode": 0,
+    "stdout": "04-init.stdout.json",
+    "stderr": "04-init.stderr.json"
+  },
+  {
+    "label": "05-export-codex",
+    "argv": [
+      "node",
+      "/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.worktrees/agent-team-creator/skills/process/agent-team-creator/scripts/cli.mjs",
+      "export",
+      "--input",
+      "/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.worktrees/agent-team-creator/.scratch/agent-team-forward-use/05-export-codex.request.json"
+    ],
+    "cwd": "/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.worktrees/agent-team-creator/.scratch/agent-team-forward-use",
+    "exitCode": 0,
+    "stdout": "05-export-codex.stdout.json",
+    "stderr": "05-export-codex.stderr.json"
+  },
+  {
+    "label": "05-export-claude",
+    "argv": [
+      "node",
+      "/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.worktrees/agent-team-creator/skills/process/agent-team-creator/scripts/cli.mjs",
+      "export",
+      "--input",
+      "/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.worktrees/agent-team-creator/.scratch/agent-team-forward-use/05-export-claude.request.json"
+    ],
+    "cwd": "/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.worktrees/agent-team-creator/.scratch/agent-team-forward-use",
+    "exitCode": 0,
+    "stdout": "05-export-claude.stdout.json",
+    "stderr": "05-export-claude.stderr.json"
+  },
+  {
+    "label": "06-design-status",
+    "argv": [
+      "node",
+      "/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.worktrees/agent-team-creator/skills/process/agent-team-creator/scripts/cli.mjs",
+      "status",
+      "--input",
+      "/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.worktrees/agent-team-creator/.scratch/agent-team-forward-use/06-design-status.request.json"
+    ],
+    "cwd": "/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.worktrees/agent-team-creator/.scratch/agent-team-forward-use",
+    "exitCode": 0,
+    "stdout": "06-design-status.stdout.json",
+    "stderr": "06-design-status.stderr.json"
+  },
+  {
+    "label": "06-design",
+    "argv": [
+      "node",
+      "/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.worktrees/agent-team-creator/skills/process/agent-team-creator/scripts/cli.mjs",
+      "task",
+      "--input",
+      "/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.worktrees/agent-team-creator/.scratch/agent-team-forward-use/06-design.request.json"
+    ],
+    "cwd": "/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.worktrees/agent-team-creator/.scratch/agent-team-forward-use",
+    "exitCode": 0,
+    "stdout": "06-design.stdout.json",
+    "stderr": "06-design.stderr.json"
+  },
+  {
+    "label": "07-implement-status",
+    "argv": [
+      "node",
+      "/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.worktrees/agent-team-creator/skills/process/agent-team-creator/scripts/cli.mjs",
+      "status",
+      "--input",
+      "/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.worktrees/agent-team-creator/.scratch/agent-team-forward-use/07-implement-status.request.json"
+    ],
+    "cwd": "/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.worktrees/agent-team-creator/.scratch/agent-team-forward-use",
+    "exitCode": 0,
+    "stdout": "07-implement-status.stdout.json",
+    "stderr": "07-implement-status.stderr.json"
+  },
+  {
+    "label": "07-implement",
+    "argv": [
+      "node",
+      "/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.worktrees/agent-team-creator/skills/process/agent-team-creator/scripts/cli.mjs",
+      "task",
+      "--input",
+      "/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.worktrees/agent-team-creator/.scratch/agent-team-forward-use/07-implement.request.json"
+    ],
+    "cwd": "/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.worktrees/agent-team-creator/.scratch/agent-team-forward-use",
+    "exitCode": 0,
+    "stdout": "07-implement.stdout.json",
+    "stderr": "07-implement.stderr.json"
+  },
+  {
+    "label": "08-review-status",
+    "argv": [
+      "node",
+      "/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.worktrees/agent-team-creator/skills/process/agent-team-creator/scripts/cli.mjs",
+      "status",
+      "--input",
+      "/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.worktrees/agent-team-creator/.scratch/agent-team-forward-use/08-review-status.request.json"
+    ],
+    "cwd": "/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.worktrees/agent-team-creator/.scratch/agent-team-forward-use",
+    "exitCode": 0,
+    "stdout": "08-review-status.stdout.json",
+    "stderr": "08-review-status.stderr.json"
+  },
+  {
+    "label": "08-review",
+    "argv": [
+      "node",
+      "/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.worktrees/agent-team-creator/skills/process/agent-team-creator/scripts/cli.mjs",
+      "task",
+      "--input",
+      "/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.worktrees/agent-team-creator/.scratch/agent-team-forward-use/08-review.request.json"
+    ],
+    "cwd": "/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.worktrees/agent-team-creator/.scratch/agent-team-forward-use",
+    "exitCode": 0,
+    "stdout": "08-review.stdout.json",
+    "stderr": "08-review.stderr.json"
+  },
+  {
+    "label": "09-status",
+    "argv": [
+      "node",
+      "/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.worktrees/agent-team-creator/skills/process/agent-team-creator/scripts/cli.mjs",
+      "status",
+      "--input",
+      "/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.worktrees/agent-team-creator/.scratch/agent-team-forward-use/09-status.request.json"
+    ],
+    "cwd": "/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.worktrees/agent-team-creator/.scratch/agent-team-forward-use",
+    "exitCode": 0,
+    "stdout": "09-status.stdout.json",
+    "stderr": "09-status.stderr.json"
+  },
+  {
+    "label": "10-handoff",
+    "argv": [
+      "node",
+      "/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.worktrees/agent-team-creator/skills/process/agent-team-creator/scripts/cli.mjs",
+      "handoff-create",
+      "--input",
+      "/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.worktrees/agent-team-creator/.scratch/agent-team-forward-use/10-handoff.request.json"
+    ],
+    "cwd": "/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.worktrees/agent-team-creator/.scratch/agent-team-forward-use",
+    "exitCode": 0,
+    "stdout": "10-handoff.stdout.json",
+    "stderr": "10-handoff.stderr.json"
+  },
+  {
+    "label": "11-final-status",
+    "argv": [
+      "node",
+      "/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.worktrees/agent-team-creator/skills/process/agent-team-creator/scripts/cli.mjs",
+      "status",
+      "--input",
+      "/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.worktrees/agent-team-creator/.scratch/agent-team-forward-use/11-final-status.request.json"
+    ],
+    "cwd": "/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.worktrees/agent-team-creator/.scratch/agent-team-forward-use",
+    "exitCode": 0,
+    "stdout": "11-final-status.stdout.json",
+    "stderr": "11-final-status.stderr.json"
+  },
+  {
+    "label": "12-premature-start",
+    "argv": [
+      "node",
+      "/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.worktrees/agent-team-creator/skills/process/agent-team-creator/scripts/cli.mjs",
+      "task",
+      "--input",
+      "/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.worktrees/agent-team-creator/.scratch/agent-team-forward-use/12-premature-start.request.json"
+    ],
+    "cwd": "/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.worktrees/agent-team-creator/.scratch/agent-team-forward-use",
+    "exitCode": 1,
+    "stdout": "12-premature-start.stdout.json",
+    "stderr": "12-premature-start.stderr.json",
+    "stateUnchanged": true
+  }
+]

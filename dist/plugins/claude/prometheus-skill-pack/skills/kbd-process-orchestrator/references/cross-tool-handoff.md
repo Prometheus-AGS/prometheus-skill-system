@@ -60,5 +60,5 @@ unfinished.
 - `prometheus kbd migrate --apply` creates backups before normalization.
 - A missing daemon degrades to the same local CLI contract; it never changes
   lifecycle semantics.
-- Direct edits to compatibility JSON are legacy-only and are rejected after
-  migration enforcement is enabled.
+- Compatibility JSON may be migrated through supported helpers. Agents never
+  hand-edit generated progress or waypoint files; use typed lifecycle commands.

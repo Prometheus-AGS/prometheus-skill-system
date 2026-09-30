@@ -56,6 +56,7 @@ pub async fn search(query: &str, entity_type: Option<&str>) -> Result<()> {
 }
 
 pub async fn install(dry_run: bool) -> Result<()> {
+    if crate::host::is_managed() { return crate::host::setup(true, false, dry_run, false); }
     println!("{}", "🧠 surreal-memory Server Installation".bold());
     println!("{}", "=".repeat(45));
 
@@ -133,11 +134,8 @@ pub async fn install(dry_run: bool) -> Result<()> {
         println!(
             "  {} Binary found at: {}",
             "✅".green(),
-            Command::new("which")
-                .arg("surreal-memory-server")
-                .output()
-                .map(|o| String::from_utf8_lossy(&o.stdout).trim().to_string())
-                .unwrap_or_default()
+            crate::host::find_executable("surreal-memory-server")
+                .map(|path| path.display().to_string()).unwrap_or_default()
         );
     }
 
@@ -292,11 +290,7 @@ pub async fn install(dry_run: bool) -> Result<()> {
 }
 
 fn which_binary(name: &str) -> bool {
-    Command::new("which")
-        .arg(name)
-        .output()
-        .map(|o| o.status.success())
-        .unwrap_or(false)
+    crate::host::find_executable(name).is_some()
 }
 
 fn find_submodule_path() -> Option<std::path::PathBuf> {

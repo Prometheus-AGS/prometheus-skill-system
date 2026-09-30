@@ -1,0 +1,14 @@
+{
+  "stage": "analyze",
+  "completedAt": "2026-09-24T14:31:23.824Z",
+  "outputs": [
+    "analysis.md",
+    "library-candidates.json",
+    "operator-authorization.md",
+    "review/analyze/findings.json"
+  ],
+  "nextStage": "spec",
+  "summaryForNext": "Reuse KBD producer/helpers, TypeScript7, liter-llm catalog and existing distribution/sites. Two-round review carries per-harness evidence/UAR contract findings; structured candidates were expanded and UAR native contract discovery remains a prerequisite for its adapter. First implement a separate KBD consistency correction after Spec/Plan review.",
+  "skipped": false,
+  "skipReason": null
+}

@@ -1,0 +1,72 @@
+{
+  "artifact_type": "content",
+  "generated_at": "2026-09-24T16:47:28.227Z",
+  "variants": [
+    {
+      "name": "agent-team-creator",
+      "files": [
+        "dist/source-inventory.json",
+        "dist/verification.json",
+        "../../../CLAUDE.md",
+        "../../../README.md",
+        "../../../SKILLS.md",
+        "../../../docs/codex-plugin.md",
+        "../../../docs/generated/runtime-reference.md",
+        "../../../openspec/changes/archive/2026-09-24-agent-team-creator/tasks.md",
+        "../../../scripts/validate-skills.js",
+        "../../../site/docs/operations/generated-reference.md",
+        "../../../site/scripts/generate-skills-catalog.mjs",
+        "../../../skills/process/.claude-plugin/plugin.json",
+        "../../../docs/agent-teams.md",
+        "../../../docs/guide/24-agent-teams.md",
+        "../../../skills/process/agent-team-creator/SKILL.md",
+        "../../../skills/process/agent-team-creator/agents/openai.yaml",
+        "../../../skills/process/agent-team-creator/assets/intake.json",
+        "../../../skills/process/agent-team-creator/references/manifest.md",
+        "../../../skills/process/agent-team-creator/references/models-memory.md",
+        "../../../skills/process/agent-team-creator/references/native-harnesses.md",
+        "../../../skills/process/agent-team-creator/references/task-handoff.md",
+        "../../../skills/process/agent-team-creator/runtime/.gitignore",
+        "../../../skills/process/agent-team-creator/runtime/package.json",
+        "../../../skills/process/agent-team-creator/runtime/src/adapters-codecs.mts",
+        "../../../skills/process/agent-team-creator/runtime/src/adapters-local.mts",
+        "../../../skills/process/agent-team-creator/runtime/src/adapters-services.mts",
+        "../../../skills/process/agent-team-creator/runtime/src/adapters.mts",
+        "../../../skills/process/agent-team-creator/runtime/src/cli.mts",
+        "../../../skills/process/agent-team-creator/runtime/src/export-files.mts",
+        "../../../skills/process/agent-team-creator/runtime/src/guidance.mts",
+        "../../../skills/process/agent-team-creator/runtime/src/handoff.mts",
+        "../../../skills/process/agent-team-creator/runtime/src/memory.mts",
+        "../../../skills/process/agent-team-creator/runtime/src/models-http.mts",
+        "../../../skills/process/agent-team-creator/runtime/src/models.mts",
+        "../../../skills/process/agent-team-creator/runtime/src/state-kbd.mts",
+        "../../../skills/process/agent-team-creator/runtime/src/state-tasks.mts",
+        "../../../skills/process/agent-team-creator/runtime/src/state-validation.mts",
+        "../../../skills/process/agent-team-creator/runtime/src/state.mts",
+        "../../../skills/process/agent-team-creator/runtime/src/types.mts",
+        "../../../skills/process/agent-team-creator/runtime/src/validation.mts",
+        "../../../skills/process/agent-team-creator/runtime/test-src/export.integration.mts",
+        "../../../skills/process/agent-team-creator/runtime/test-src/fixture.mts",
+        "../../../skills/process/agent-team-creator/runtime/test-src/kbd.integration.mts",
+        "../../../skills/process/agent-team-creator/runtime/test-src/models-memory.integration.mts",
+        "../../../skills/process/agent-team-creator/runtime/test-src/state.integration.mts",
+        "../../../skills/process/agent-team-creator/runtime/tsconfig.json",
+        "../../../skills/process/agent-team-creator/runtime/tsconfig.tests.json",
+        "../../../skills/process/agent-team-creator/schemas/team.schema.json",
+        "../../../skills/process/agent-team-handoff/SKILL.md",
+        "../../../skills/process/agent-team-handoff/agents/openai.yaml",
+        "../../../skills/process/agent-team-manage/SKILL.md",
+        "../../../skills/process/agent-team-manage/agents/openai.yaml",
+        "../../../skills/process/agent-team-models/SKILL.md",
+        "../../../skills/process/agent-team-models/agents/openai.yaml"
+      ],
+      "format": "source-and-evidence",
+      "description": "Authored source plus verification evidence; emitted files and distributions covered by parity/generation inventories."
+    }
+  ],
+  "validation": {
+    "notes": [
+      "Review and publication remain pending. No remote native runtime or successful remote memory service claim."
+    ]
+  }
+}

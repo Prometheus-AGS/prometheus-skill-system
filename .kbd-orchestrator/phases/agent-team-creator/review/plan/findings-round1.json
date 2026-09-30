@@ -1,0 +1,43 @@
+{
+  "mode": "artifact",
+  "verdict": "BLOCK",
+  "judge_model": "gpt-5.5",
+  "producer_model": "gpt-6",
+  "isolation_mode": "rest-gateway:http://localhost:4000/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": "plan.md",
+      "line": 0,
+      "claim": "The plan omits mandatory prometheus-skills-mini blocking gates and instead discourages the broad test command that the mini constraints require.",
+      "evidence": "Mini constraints define blocking commands `build-passes` = `npm run check` and `tests-pass` = `npm test`, but the plan's Mini verification list is `node rules/build.mjs and --check; npm run build:distribution and check:distribution; node --test scripts/tests/skill-system-distribution.test.mjs if it exercises real generation; npm run spec:validate; site catalog generator then npm --prefix site run build` and the full verification paragraph says to `avoid broad scripts that implicitly run unit tests`.",
+      "suggested_fix": "Add `npm run check` and `npm test` as non-optional mini change/phase gates, or explicitly define an authorized constraint waiver; do not rely only on narrower replacements."
+    },
+    {
+      "severity": "CRITICAL",
+      "file": "plan.md",
+      "line": 0,
+      "claim": "The plan does not include the full repository's required Codex plugin drift validation for plugin-surface changes.",
+      "evidence": "Constraint C-01 says `after touching .claude-plugin/*, .mcp.json, hooks/hooks.json, or scripts/build-codex-plugin.js, npm run validate:codex MUST pass`, while the goals require updating `plugins, marketplaces` and the plan's team change includes `native agent/plugin/marketplace support`; the verification list includes `npm run validate:plugins` but never `npm run validate:codex`.",
+      "suggested_fix": "Add `npm run validate:codex` to the relevant full-repository task acceptance criteria whenever the Codex/plugin generated surface or its generator inputs are touched, and record it in the generated-surface reconciliation evidence."
+    },
+    {
+      "severity": "WARNING",
+      "file": "plan.md",
+      "line": 0,
+      "claim": "The plan does not require the documentation files mandated for Codex plugin surface changes.",
+      "evidence": "Constraint C-03 says `A change that alters the Codex plugin surface ... must update docs/codex-plugin.md and, where relevant, the CLAUDE.md \"Codex CLI Integration\" section in the same change`; the plan says Task 2.1 updates `root READMEs and both Docusaurus guides/catalogs/navigation` but does not name `docs/codex-plugin.md` or `CLAUDE.md` despite planning `native agent/plugin/marketplace support`.",
+      "suggested_fix": "Add explicit acceptance criteria to update `docs/codex-plugin.md` and the relevant `CLAUDE.md` Codex integration section for any Codex plugin/marketplace/install-flow changes."
+    },
+    {
+      "severity": "WARNING",
+      "file": "plan.md",
+      "line": 0,
+      "claim": "The final verification ordering is ambiguous for the required protected-test check from committed state.",
+      "evidence": "The governing rules state protected BDD test integrity is evaluated `from committed Git state`; the plan says `Full protected-test check runs from committed state`, but Change 2 Task 4.1 orders `QA then independent cumulative diff review, resolve all criticals, verify/archive, commit/push both branches after local gates`, which places commit after the local gates that would include the protected-test check.",
+      "suggested_fix": "Clarify the final sequence so the protected-test check runs after the relevant local commit exists and before push, with any fixes committed and the check re-run from the new committed state."
+    }
+  ],
+  "checked_classes": []
+}

@@ -23,21 +23,24 @@ KBD solves three core problems:
 
 ## Core Principles
 
-### 1. File-Based State is Universal
+### 1. Durable State is Shared
 
-`.kbd-orchestrator/` is the single source of truth. Any tool that can read/write
-files can participate in KBD — no special runtime, message bus, or integration
-required.
+The canonical runtime journal under `.kbd-orchestrator/` is authoritative.
+Tools read generated projections and mutate state through typed commands or
+supported driver adapters. Legacy file-only state is migration input, not
+permission to hand-edit generated progress or waypoint files.
 
 ### 2. Waypoint-First Resumption
 
 On every session start, load `.kbd-orchestrator/current-waypoint.json` before
-doing anything else. This file tells you exactly where to resume.
+doing anything else, then inspect canonical status and pending tasks. A stored
+`exactNextCommand` is contextual guidance; it can be stale.
 
 ### 3. KBD is the Orchestrator, Tools are Workers
 
 KBD owns phase state. AI tools (Roo, Cursor, Codex, etc.) are execution agents.
-They report back to KBD by updating `progress.json` and committing it.
+They report through `kbd-apply` task boundaries and typed KBD commands; the
+runtime regenerates progress and waypoint views.
 
 ### 4. OpenSpec is Optional Enhancement
 
@@ -47,17 +50,25 @@ with the same structure. KBD never depends on OpenSpec to function.
 
 ### 5. Progress is Committed to Git
 
-All KBD state changes are committed to git. This provides:
+Review and commit intended KBD artifacts and projections under project policy.
+Git provides history and review; the canonical runtime coordinates live writes.
+Commits provide:
 
 - Cross-tool visibility (git pull gives any tool the latest state)
 - History and auditability
-- Conflict detection (merge conflicts surface concurrent edits)
+- Reviewable changes (merge conflicts do not replace runtime coordination)
 
 ### 6. Assess Before Plan, Plan Before Execute, Execute Before Reflect
 
 The PMPO loop is not optional. Skipping Assess means you plan without facts.
 Skipping Plan means you execute without direction. Skipping Reflect means you
 lose lessons and fail to seed the next phase.
+
+Dispatch artifacts begin Execute. The parent stage stays active while workers
+complete all assigned changes/tasks and required QA, independent review,
+verification, and archival. Only then may `execute:after` and the execute
+completion handoff occur; `execution.md` or `execute-dispatch.json` alone never
+unlocks Reflect. See `skills/kbd-execute/SKILL.md` for the boundary checklist.
 
 ---
 
@@ -73,7 +84,7 @@ lose lessons and fail to seed the next phase.
 │       ▲                             │               │
 │       │                             ▼               │
 │       │                        (tools do work)      │
-│       │                        progress.json ──git──┤
+│       │                        typed task events    │
 │       │                             │               │
 │       │                             ▼               │
 │       │                        ┌─────────┐         │
@@ -123,10 +134,10 @@ See `references/cross-tool-handoff.md` for the full protocol.
 
 Quick reference:
 
-1. Any tool starting work → update `progress.json` status = IN_PROGRESS, commit
-2. Any tool completing a task → update `tasks_done`, commit
-3. Any tool completing code → `implementation_status = COMPLETE`, derive the
-   implementation counter, then track evidence/certification/archive state
-   independently before advancing the lifecycle waypoint
-4. Any tool hitting a blocker → status = BLOCKED, update `fallback_command`, commit
-5. Next session starts → read `current-waypoint.json` first, then `progress.json`
+1. Starting a task → `kbd-apply begin-task` with canonical IDs and real totals.
+2. Completing a task → `kbd-apply end-task`; the runtime derives progress.
+3. Completing code → typed change transition; track evidence, certification,
+   and publication separately, then use driver `verify` / `archive`.
+4. Hitting a blocker → typed `prometheus kbd blocker record` with remediation.
+5. Resuming → read the waypoint, canonical status, and pending tasks; never
+   manually update generated views.

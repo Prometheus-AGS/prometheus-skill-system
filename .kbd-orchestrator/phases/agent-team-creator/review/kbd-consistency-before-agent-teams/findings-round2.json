@@ -1,0 +1,22 @@
+{
+  "mode": "diff",
+  "verdict": "BLOCK",
+  "judge_model": "gpt-5.5",
+  "producer_model": "gpt-6",
+  "isolation_mode": "rest-gateway:http://localhost:4000/v1",
+  "cross_model_check": "verified-distinct",
+  "findings": [
+    {
+      "severity": "CRITICAL",
+      "file": "scripts/kbd-apply.mjs",
+      "claim": "The verification-discovered correction is only implemented in the full Bash apply driver, leaving the required mini apply driver without the mandated backend-progress validation.",
+      "evidence": "Acceptance criteria design section says: \"Scope adds mini scripts/kbd-apply.mjs and full existing kbd-apply.sh\" and the spec requires \"The apply driver SHALL refuse task boundary mutation when backend progress cannot be read. It SHALL NOT substitute synthetic completed or remaining counts.\" The diff only changes `skills/process/kbd-process-orchestrator/skills/kbd-apply/kbd-apply.sh` to validate `os_progress`; there is no corresponding change to mini `scripts/kbd-apply.mjs` in the packet.",
+      "suggested_fix": "Apply the same progress-shape validation and no-synthetic-completion behavior to mini `scripts/kbd-apply.mjs`, and include integration coverage for that driver."
+    }
+  ],
+  "sycophancy_screen": {
+    "reject_cap": 2,
+    "cap_overridden": false,
+    "cap_default": 2
+  }
+}

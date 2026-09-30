@@ -120,6 +120,13 @@ cfg_has_model() {
     grep -qE "^[[:space:]]*name[[:space:]]*=[[:space:]]*\"$1\"[[:space:]]*\$" "$LITER_CFG" 2>/dev/null
 }
 
+kbd_role_identity_complete() {
+    [ -f "$KBD_MODELS" ] || return 1
+    for suffix in provider_connection_id provider_id model_id; do
+        grep -qE "^[[:space:]]*$1_${suffix}[[:space:]]*=" "$KBD_MODELS" 2>/dev/null || return 1
+    done
+}
+
 # Every ${VAR} the config references must actually be set, or liter-llm expands it
 # to "" and the failure appears later as an unexplained 401.
 unset_referenced_vars() {
@@ -198,10 +205,14 @@ cmd_check() {
     if [ ! -f "$KBD_MODELS" ]; then
         warn "absent — run: $0 repair"
     else
-        for r in generator critic judge; do
+        for r in generator critic judge backup; do
             _m="$(grep -E "^[[:space:]]*$r[[:space:]]*=" "$KBD_MODELS" 2>/dev/null \
                   | head -1 | sed -E 's/^[^=]*=[[:space:]]*"?([^"]*)"?.*/\1/')"
             printf '  %-10s -> %s\n' "$r" "${_m:-<unset>}"
+            if [ "$r" != "generator" ]; then
+                kbd_role_identity_complete "$r" && ok "$r canonical identity present" \
+                    || err "$r canonical identity MISSING — collision checks cannot use its alias"
+            fi
         done
     fi
 
@@ -272,6 +283,12 @@ provider_model = "openai/gpt-5.5"
 api_key = "sk-proxy-local"
 base_url = "http://localhost:8181/v1"
 fallbacks = ["kbd-judge"]
+
+[[models]]
+name = "kbd-backup"
+provider_model = "openai/gpt-5.4"
+api_key = "sk-proxy-local"
+base_url = "http://localhost:8181/v1"
 EOF
         ok "created $LITER_CFG"
     else
@@ -303,6 +320,21 @@ candidates = ["http://localhost:8181/v1", "http://localhost:4000/v1"]
 generator = "kbd-frontier"
 critic = "kbd-critic"
 judge = "kbd-judge"
+backup = "kbd-backup"
+
+[role_identities]
+critic_gateway_connection_id = "full-pack:local-gateway"
+critic_provider_connection_id = "full-pack:local-proxy"
+critic_provider_id = "openai"
+critic_model_id = "gpt-5.5"
+judge_gateway_connection_id = "full-pack:local-gateway"
+judge_provider_connection_id = "full-pack:local-proxy"
+judge_provider_id = "openai"
+judge_model_id = "gpt-5.6-sol"
+backup_gateway_connection_id = "full-pack:local-gateway"
+backup_provider_connection_id = "full-pack:local-proxy"
+backup_provider_id = "openai"
+backup_model_id = "gpt-5.4"
 EOF
         ok "created $KBD_MODELS"
     else

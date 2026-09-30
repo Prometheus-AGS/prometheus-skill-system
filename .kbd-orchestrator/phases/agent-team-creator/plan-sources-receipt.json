@@ -1,0 +1,23 @@
+{
+  "recordedAt": "2026-09-24T14:46:11.195Z",
+  "commit": "ca90bd1dbb49ba14a2f390cc9e96777ad8ba605b",
+  "sources": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "08e45166af15080358fdeee364c2c0c95b37fb0fa1d6fa2bca23539f0c703c12"
+    },
+    {
+      "path": ".kbd-orchestrator/constraints.md",
+      "sha256": "5d0aefc41690df6b367b57336c1a89c91144ab95778e8b27767c61e9222aec48"
+    },
+    {
+      "path": "openspec/changes/kbd-consistency-before-agent-teams/design.md",
+      "sha256": "2f62835c901438c5c2fd3323c2a651d3ac9884768b694d04ecf7862273e4509b"
+    },
+    {
+      "path": "openspec/changes/agent-team-creator/design.md",
+      "sha256": "1b4d7e9c187f6706e56d00a2bebd689f156fbaa3acac7f8526b17c61ed4cbd3a"
+    }
+  ],
+  "registryStatus": "No external source registry configured; baseline origin refresh preserved in sources-receipt.json"
+}

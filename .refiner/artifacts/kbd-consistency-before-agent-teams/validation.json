@@ -1,0 +1,29 @@
+{
+  "status": "pass",
+  "checks": [
+    {
+      "check": "artifact_manifest.json",
+      "ok": true,
+      "errors": null
+    },
+    {
+      "check": "constraints.json",
+      "ok": true,
+      "errors": null
+    },
+    {
+      "check": "references",
+      "ok": true,
+      "status": "valid",
+      "errors": [],
+      "warnings": []
+    },
+    {
+      "check": "constraint hooks",
+      "ok": true,
+      "status": "valid",
+      "errors": [],
+      "warnings": []
+    }
+  ]
+}

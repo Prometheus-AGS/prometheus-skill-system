@@ -1,0 +1,81 @@
+{
+  "schemaVersion": 1,
+  "change": "kbd-consistency-before-agent-teams",
+  "status": "deterministic-and-independent-review-pass",
+  "results": [
+    {
+      "command": "node <repository-local-openspec>/bin/openspec.js validate kbd-consistency-before-agent-teams --strict --type change",
+      "exitCode": 0,
+      "result": "valid after progress-failure amendment"
+    },
+    {
+      "command": "git diff --check",
+      "exitCode": 0,
+      "result": "no whitespace errors"
+    },
+    {
+      "command": "node scripts/validate-skills.js --strict --exclude-submodules skills/process/kbd-process-orchestrator",
+      "exitCode": 0,
+      "result": "Valid; existing skill descriptions have trigger/exclusion warnings"
+    },
+    {
+      "command": "CARGO_PROFILE_TEST_DEBUG=0 CARGO_PROFILE_TEST_INCREMENTAL=true CARGO_PROFILE_TEST_CODEGEN_UNITS=256 RUSTC_WRAPPER=/opt/homebrew/bin/sccache cargo test --locked --manifest-path substrate/kbd-runtime/Cargo.toml --test phase_scope --test position_continuity",
+      "repository": "full",
+      "exitCode": 0,
+      "result": "3 passed; real public Runtime, journal replay and generated projections"
+    },
+    {
+      "command": "node --test scripts/tests/kbd-phase-consistency.integration.test.mjs",
+      "exitCode": 0,
+      "result": "25 passed; no skips; real CLI/OpenSpec/helpers/hooks",
+      "environment": {
+        "PROMETHEUS_CLI_TEST_BINARY": "/Users/gqadonis/Projects/prometheus/prometheus-skill-pack/.worktrees/agent-team-creator/tools/prometheus-cli/target/debug/prometheus",
+        "OPENSPEC_TEST_BIN_DIR": "/Users/gqadonis/Projects/prometheus/prometheus-skills-mini/.worktrees/agent-team-creator/node_modules/.bin"
+      },
+      "fixtureCorrection": "First run exposed missing fixture marker before project discovery. Marker and private registry identity assertions added; real state preserved and projections restored through typed decision; rerun passed."
+    },
+    {
+      "command": "Ajv 8.18.0 draft 2020-12 validation of generated current-waypoint.json and active progress.json",
+      "repository": "full",
+      "exitCode": 0,
+      "result": "Both valid; local existing dependency, no installation change"
+    },
+    {
+      "command": "git diff --check",
+      "exitCode": 0,
+      "result": "Both worktrees clean of whitespace errors"
+    },
+    {
+      "command": "stageGate('reflect') / kbd_stage_gate reflect against actual worktrees",
+      "exitCode": 2,
+      "result": "Expected refusal in both: Execute completion handoff absent while task3.1 and team change remain pending."
+    },
+    {
+      "command": "node --test scripts/tests/kbd-phase-consistency.integration.test.mjs",
+      "exitCode": 0,
+      "result": "Latest: 26 passed, no skips. Added actual canonical duplicate-phase rejection.",
+      "boundary": "After round2 corrections"
+    },
+    {
+      "command": "node --test scripts/tests/kbd-phase-consistency.integration.test.mjs",
+      "exitCode": 0,
+      "result": "Latest: 26 passed, no skips. Added actual canonical duplicate-phase rejection.",
+      "boundary": "After round2 corrections"
+    }
+  ],
+  "pending": [
+    "Commit/archive prerequisite; final distribution reconciliation owned by team task 2.1"
+  ],
+  "generationOwner": "agent-team-creator task 2.1",
+  "limits": [
+    "No global installation",
+    "macOS evidence only"
+  ],
+  "review": {
+    "verdict": "PASS",
+    "judge": "gpt-5.5",
+    "producer": "gpt-6",
+    "round": 3,
+    "receipt": "review/kbd-consistency-before-agent-teams/findings.json"
+  }
+}

@@ -1,0 +1,3 @@
+# Round 1 dispositions
+
+Both critical findings accepted and resolved. Optional manifest object fields now validate whenever defined, rejecting null in team and role policy/native configuration. Guided creation returns proposed roles and focused ownership questions without a team until all proposed roles have nonempty project-relative output scope; no guessed ownership. Skill and both site guides explain the two-step flow. Actual packaged CLI scenarios cover missing/partial/empty/null/unsafe ownership and null manifests. Native execution and permission enforcement remain separate. Re-run affected local gates before re-review.
