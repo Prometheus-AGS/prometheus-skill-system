@@ -183,7 +183,7 @@
     },
     {
       "path": "shared/scripts/lib/kbd-model-resolve.sh",
-      "sha256": "2cd2fee573c5b13cfaa31c202e9675d97234390f4974fc288e898f59d9c94ee7",
+      "sha256": "41539d8242f7aff0820e873be10a0d4015ce651edf9b5b68990495275d2417dd",
       "executable": true
     },
     {
@@ -397,5 +397,5 @@
       "executable": true
     }
   ],
-  "bundleId": "0af0a9aad9889e436eca3a6bbae3e119529e04e9171145f3ca05163112c8b361"
+  "bundleId": "85323c9d480550d0a17b17b9a753ed0c12f2f93acfe639ffe02b10b76aa2c0fd"
 }
