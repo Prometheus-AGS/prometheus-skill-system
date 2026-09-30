@@ -92,20 +92,27 @@ fi
 # Resolve the three roles up front so the report can state, per role, both the
 # model and WHICH layer supplied it — "where did that model come from?" should
 # never require reading a script.
-ADV_ROLE_JUDGE=""; ADV_ROLE_CRITIC=""; ADV_ROLE_GENERATOR=""
-ADV_SRC_JUDGE=""; ADV_SRC_CRITIC=""; ADV_SRC_GENERATOR=""
+ADV_ROLE_JUDGE=""; ADV_ROLE_CRITIC=""; ADV_ROLE_BACKUP=""; ADV_ROLE_GENERATOR=""
+ADV_ID_JUDGE=""; ADV_ID_CRITIC=""; ADV_ID_BACKUP=""
+ADV_SRC_JUDGE=""; ADV_SRC_CRITIC=""; ADV_SRC_BACKUP=""; ADV_SRC_GENERATOR=""
 ADV_GATEWAY=""
 if command -v kbd_resolve_role >/dev/null 2>&1; then
   ADV_ROLE_JUDGE="$(kbd_resolve_role judge 2>/dev/null || true)"
   ADV_ROLE_CRITIC="$(kbd_resolve_role critic 2>/dev/null || true)"
+  ADV_ROLE_BACKUP="$(kbd_resolve_role backup 2>/dev/null || true)"
   ADV_ROLE_GENERATOR="$(kbd_resolve_role generator 2>/dev/null || true)"
+  ADV_ID_JUDGE="$(kbd_resolve_role_identity judge 2>/dev/null || true)"
+  ADV_ID_CRITIC="$(kbd_resolve_role_identity critic 2>/dev/null || true)"
+  ADV_ID_BACKUP="$(kbd_resolve_role_identity backup 2>/dev/null || true)"
   ADV_SRC_JUDGE="$(kbd_resolve_source judge 2>/dev/null || true)"
   ADV_SRC_CRITIC="$(kbd_resolve_source critic 2>/dev/null || true)"
+  ADV_SRC_BACKUP="$(kbd_resolve_source backup 2>/dev/null || true)"
   ADV_SRC_GENERATOR="$(kbd_resolve_source generator 2>/dev/null || true)"
   ADV_GATEWAY="$(kbd_resolve_gateway 2>/dev/null || true)"
 fi
-export ADV_ROLE_JUDGE ADV_ROLE_CRITIC ADV_ROLE_GENERATOR
-export ADV_SRC_JUDGE ADV_SRC_CRITIC ADV_SRC_GENERATOR ADV_GATEWAY
+export ADV_ROLE_JUDGE ADV_ROLE_CRITIC ADV_ROLE_BACKUP ADV_ROLE_GENERATOR
+export ADV_ID_JUDGE ADV_ID_CRITIC ADV_ID_BACKUP
+export ADV_SRC_JUDGE ADV_SRC_CRITIC ADV_SRC_BACKUP ADV_SRC_GENERATOR ADV_GATEWAY
 
 command -v python3 >/dev/null 2>&1 || { echo '{"status":"unavailable","reason":"python3 missing"}'; exit 0; }
 
@@ -198,12 +205,24 @@ classes_available = [c for c in ("small", "medium", "frontier") if coverage.get(
 
 # Roles come from the shared resolver (exported by the shell above), not from
 # re-parsing TOML here. Each carries the layer that supplied it.
+def role_identity(name):
+    value = os.environ.get(name)
+    if not value:
+        return None
+    connection, provider, model = json.loads(value)
+    return {"providerConnectionId": connection, "providerId": provider, "modelId": model}
+
 roles = {
-    "judge":     {"model": os.environ.get("ADV_ROLE_JUDGE") or "",
+    "judge":     {"alias": os.environ.get("ADV_ROLE_JUDGE") or "",
+                  "identity": role_identity("ADV_ID_JUDGE"),
                   "source": os.environ.get("ADV_SRC_JUDGE") or ""},
-    "critic":    {"model": os.environ.get("ADV_ROLE_CRITIC") or "",
+    "critic":    {"alias": os.environ.get("ADV_ROLE_CRITIC") or "",
+                  "identity": role_identity("ADV_ID_CRITIC"),
                   "source": os.environ.get("ADV_SRC_CRITIC") or ""},
-    "generator": {"model": os.environ.get("ADV_ROLE_GENERATOR") or "",
+    "backup":    {"alias": os.environ.get("ADV_ROLE_BACKUP") or "",
+                  "identity": role_identity("ADV_ID_BACKUP"),
+                  "source": os.environ.get("ADV_SRC_BACKUP") or ""},
+    "generator": {"alias": os.environ.get("ADV_ROLE_GENERATOR") or "",
                   "source": os.environ.get("ADV_SRC_GENERATOR") or ""},
 }
 gateway = os.environ.get("ADV_GATEWAY") or ""
@@ -211,7 +230,10 @@ gateway = os.environ.get("ADV_GATEWAY") or ""
 # What matters is not "how many models exist" but "can the judge differ from the
 # producer". Count the distinct dispatchable models (judge + critic); the generator
 # is the harness itself and is never dispatched through the gateway.
-dispatchable = {roles[r]["model"] for r in ("judge", "critic") if roles[r]["model"]}
+dispatchable = {
+    (roles[r]["identity"]["providerConnectionId"], roles[r]["identity"]["providerId"], roles[r]["identity"]["modelId"])
+    for r in ("judge", "critic", "backup") if roles[r]["identity"]
+}
 distinct = len(dispatchable)
 
 # The two omissions that made the shipped config answer 401 to everything and
@@ -235,7 +257,7 @@ if status != "unavailable":
         status = "no_gateway"
     elif config_defects:
         status = "config_broken"
-    elif not roles["judge"]["model"]:
+    elif not roles["judge"]["alias"]:
         status = "needs_configure"
     elif distinct < 2:
         status = "degraded"

@@ -6,7 +6,8 @@
 #
 # Functions exposed:
 #   kbd_resolve_gateway              -> prints base URL (e.g. http://localhost:8181/v1)
-#   kbd_resolve_role   <role>        -> prints model name for generator|critic|judge
+#   kbd_resolve_role   <role>        -> prints served alias for generator|critic|judge|backup
+#   kbd_resolve_role_identity <role> -> prints canonical [provider-connection,provider,model] JSON
 #   kbd_resolve_source <role>        -> prints which layer supplied it (for diagnostics)
 #   kbd_gateway_auth                 -> prints the Bearer token to use
 #   kbd_model_routing_log <phase> <class> <model> <producer>
@@ -180,8 +181,32 @@ kbd_resolve_role() {
         judge)     printf '%s\n' "$_KBD_DEFAULT_JUDGE" ;;
         critic)    printf '%s\n' "$_KBD_DEFAULT_CRITIC" ;;
         generator) printf '%s\n' "$_KBD_DEFAULT_GENERATOR" ;;
+        backup)    return 1 ;;
         *)         return 1 ;;
     esac
+}
+
+# ---------------------------------------------------------------------------
+# kbd_resolve_role_identity <role>
+# Prints a collision-safe JSON tuple [connectionId, providerId, modelId]. A
+# served alias is deliberately excluded: two aliases may resolve to one model.
+kbd_resolve_role_identity() {
+    _role="$1"
+    _upper="$(printf '%s' "$_role" | tr '[:lower:]' '[:upper:]')"
+    eval "_provider=\${PROMETHEUS_KBD_${_upper}_PROVIDER_ID:-}"
+    eval "_connection=\${PROMETHEUS_KBD_${_upper}_PROVIDER_CONNECTION_ID:-}"
+    eval "_model=\${PROMETHEUS_KBD_${_upper}_MODEL_ID:-}"
+
+    if [ -z "$_provider" ] || [ -z "$_connection" ] || [ -z "$_model" ]; then
+        _provider="$(kbd_toml_get "$_KBD_MODELS_TOML" role_identities "${_role}_provider_id" 2>/dev/null)"
+        _connection="$(kbd_toml_get "$_KBD_MODELS_TOML" role_identities "${_role}_provider_connection_id" 2>/dev/null)"
+        _model="$(kbd_toml_get "$_KBD_MODELS_TOML" role_identities "${_role}_model_id" 2>/dev/null)"
+    fi
+    [ -n "$_provider" ] && [ -n "$_connection" ] && [ -n "$_model" ] || return 1
+    PROVIDER_ID="$_provider" CONNECTION_ID="$_connection" MODEL_ID="$_model" python3 <<'PY'
+import json, os
+print(json.dumps([os.environ["CONNECTION_ID"], os.environ["PROVIDER_ID"], os.environ["MODEL_ID"]], separators=(",", ":")))
+PY
 }
 
 # ---------------------------------------------------------------------------
