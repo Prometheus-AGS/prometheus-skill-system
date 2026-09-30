@@ -405,6 +405,40 @@ sync_progress() {
   ' "$pj" > "$tmp" 2>/dev/null && mv "$tmp" "$pj" || rm -f "$tmp"
 }
 
+resolve_runtime_task_id() {
+  # resolve_runtime_task_id <registered-tasks-json> <backend-id> <sequence> <title>
+  # Prints the runtime task ID kbd-apply must use for this backend task.
+  # /kbd-plan may register a change's tasks before apply runs, under IDs that
+  # differ from the backend ordinal (for example "<change>-t1" vs "1").
+  # Registering the backend ID beside them creates duplicates: the planned
+  # tasks stay pending and the change can never complete. So: an exact ID
+  # wins; with no registered tasks the backend ID is new; otherwise reuse the
+  # task with the same normalized title, then the unique task with the same
+  # sequence. Anything else is refused rather than duplicated.
+  local tasks="${1:-"{}"}" id="$2" seq="$3" title="$4" resolved
+  resolved="$(printf '%s' "$tasks" | jq -r --arg id "$id" --arg seq "$seq" --arg title "$title" '
+    def norm: (. // "") | ascii_downcase
+      | sub("^\\s*[0-9]+(\\.[0-9]+)*\\s+"; "") | gsub("\\s+"; " ")
+      | sub("^ "; "") | sub(" $"; "");
+    if has($id) then $id
+    elif length == 0 then $id
+    else
+      [to_entries[] | select((.value.title | norm) == ($title | norm)) | .key] as $by_title
+      | if ($by_title | length) == 1 then $by_title[0]
+        else
+          [to_entries[] | select((.value.sequence | tostring) == $seq) | .key] as $by_seq
+          | if ($by_seq | length) == 1 then $by_seq[0] else empty end
+        end
+    end')" || return 1
+  if [ -z "$resolved" ]; then
+    printf '%s: change has registered runtime tasks but none matches backend task %s (sequence %s, "%s"); refusing to register a duplicate. Register it with this ID or reconcile the plan.\n' \
+      "$SELF" "$id" "$seq" "$title"
+    return 1
+  fi
+  [ "$resolved" != "$id" ] && warn "backend task $id maps to registered runtime task $resolved"
+  printf '%s\n' "$resolved"
+}
+
 runtime_task_transition() {
   # runtime_task_transition <change> <task-id> <title> <sequence> <status>
   local change="$1" task_id="$2" title="$3" sequence="$4" status="$5"
@@ -430,6 +464,16 @@ runtime_task_transition() {
       --phase "$phase" --id "$change" --title "$change" >/dev/null || return 1
     state="$(kbd_runtime_status_json ".")" || return 1
   fi
+
+  # Reuse a task /kbd-plan already registered for this change instead of
+  # registering a duplicate under the backend ordinal.
+  local registered
+  registered="$(printf '%s' "$state" | jq -c --arg phase "$phase" --arg change "$change" \
+    '.phases[$phase].changes[$change].tasks // {}')" || return 1
+  task_id="$(resolve_runtime_task_id "$registered" "$task_id" "$sequence" "$title")" || {
+    warn "$task_id"
+    return 1
+  }
 
   if ! printf '%s' "$state" | jq -e \
       --arg phase "$phase" --arg change "$change" --arg task "$task_id" \
